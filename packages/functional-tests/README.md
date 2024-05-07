@@ -37,7 +37,13 @@ test('mocha tests', async ({ target, page }, info) => {
 
 ## Creating new tests
 
-`yarn record` is a convenient script to start with when creating a new test. It starts playwright in debug mode and runs the `tests/stub.spec.ts` test which creates a new account and prints the credentials to the terminal. From there you can use the Playwright inspector to record your test and copy the command output to your test file.
+`codegen` is a convenient way to start with when creating a new test. Using the codegen command runs the test generator followed by the URL of the website you want to generate tests for. It opens up two windows, a browser window where you interact with the website you wish to test and the Playwright Inspector window where you can record your tests and then copy them into your editor. More info on `codegen` and other options to start with a new test can be found [here](https://playwright.dev/docs/codegen#generate-tests-with-the-playwright-inspector)
+
+Example:
+
+```ts
+npx playwright codegen localhost:3030
+```
 
 ## Fixtures
 
