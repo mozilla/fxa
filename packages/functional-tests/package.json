@@ -4,7 +4,6 @@
   "private": true,
   "scripts": {
     "clean": "rimraf dist",
-    "record": "NODE_OPTIONS='--dns-result-order=ipv4first' playwright test --project=stub --debug",
     "test": "NODE_OPTIONS='--dns-result-order=ipv4first' playwright test --project=local",
     "test-local": "NODE_OPTIONS='--dns-result-order=ipv4first' playwright test --project=local",
     "test-stage": "NODE_OPTIONS='--dns-result-order=ipv4first' playwright test --project=stage",
