@@ -36,7 +36,7 @@ export default defineConfig<PlaywrightTestConfig<TestOptions, WorkerOptions>>({
       (name) =>
         ({
           name,
-          testIgnore: 'stub.spec.ts',
+          //testIgnore: 'stub.spec.ts',
           use: {
             browserName: 'firefox',
             targetName: name,
@@ -50,19 +50,19 @@ export default defineConfig<PlaywrightTestConfig<TestOptions, WorkerOptions>>({
           },
         } as Project)
     ),
-    {
-      name: 'stub',
-      testMatch: 'stub.spec.ts',
-      use: {
-        browserName: 'firefox',
-        //targetName: 'local',
-        launchOptions: {
-          args: DEBUG ? ['-start-debugger-server'] : undefined,
-          firefoxUserPrefs: getFirefoxUserPrefs('local', DEBUG),
-          headless: !DEBUG,
-        },
-      },
-    },
+    // {
+    //   name: 'stub',
+    //   testMatch: 'stub.spec.ts',
+    //   use: {
+    //     browserName: 'firefox',
+    //     //targetName: 'local',
+    //     launchOptions: {
+    //       args: DEBUG ? ['-start-debugger-server'] : undefined,
+    //       firefoxUserPrefs: getFirefoxUserPrefs('local', DEBUG),
+    //       headless: !DEBUG,
+    //     },
+    //   },
+    // },
   ],
   reporter: CI
     ? [

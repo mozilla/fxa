@@ -1,6 +1,6 @@
-import { test } from '../lib/fixtures/standard';
+// import { test } from '../lib/fixtures/standard';
 
-test('stub', async ({ credentials, page }) => {
-  console.log(credentials);
-  await page.pause();
-});
+// test('stub', async ({ credentials, page }) => {
+//   console.log(credentials);
+//   await page.pause();
+// });
