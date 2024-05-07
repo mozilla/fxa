@@ -21409,6 +21409,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/eslint@npm:^8.56.5":
+  version: 8.56.10
+  resolution: "@types/eslint@npm:8.56.10"
+  dependencies:
+    "@types/estree": "*"
+    "@types/json-schema": "*"
+  checksum: fb7137dd263ce1130b42d14452bdd0266ef81f52cb55ba1a5e9750e65da1f0596dc598c88bffc7e415458b6cb611a876dcc132bcf40ea48701c6d05b40c57be5
+  languageName: node
+  linkType: hard
+
 "@types/estree@npm:*":
   version: 0.0.50
   resolution: "@types/estree@npm:0.0.50"
@@ -34750,6 +34760,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"eslint-webpack-plugin@npm:^4.1.0":
+  version: 4.1.0
+  resolution: "eslint-webpack-plugin@npm:4.1.0"
+  dependencies:
+    "@types/eslint": ^8.56.5
+    jest-worker: ^29.7.0
+    micromatch: ^4.0.5
+    normalize-path: ^3.0.0
+    schema-utils: ^4.2.0
+  peerDependencies:
+    eslint: ^8.0.0
+    webpack: ^5.0.0
+  checksum: 1676ff08b0424e4656aa638a0c2a7b2f3f6a504651689a2d86b237c9a52ad65e17aeb5abbe13663e25353d8a706dcf45f49dbe4795dad27b6b0650db8aa21b16
+  languageName: node
+  linkType: hard
+
 "eslint@npm:6.6.0":
   version: 6.6.0
   resolution: "eslint@npm:6.6.0"
@@ -38443,7 +38469,7 @@ fsevents@~2.1.1:
     eslint-config-react-app: ^6.0.0
     eslint-plugin-jest: ^27.6.0
     eslint-plugin-react: ^7.32.2
-    eslint-webpack-plugin: ^3.1.1
+    eslint-webpack-plugin: ^4.1.0
     file-loader: ^6.2.0
     file-saver: ^2.0.5
     fs-extra: ^11.2.0
