@@ -276,11 +276,16 @@ export const FormPasswordWithBalloons = ({
   return (
     <>
       <form {...{ onSubmit }} className="flex flex-col">
-        {/* Hidden email field is to allow Fx password manager
-           to correctly save the updated password. Without it,
-           the password manager tries to save the old password
-           as the username. */}
-        <input type="email" value={email} className="hidden" readOnly />
+        {/* Hidden email field is to help password managers
+           correctly associate the email and password. Without this,
+           password managers may try to use another field as username */}
+        <input
+          type="email"
+          value={email}
+          className="hidden"
+          autoComplete="username"
+          readOnly
+        />
 
         <div className="relative mb-4" aria-atomic="true">
           <FtlMsg id={templateValues.passwordFtlId} attrs={{ label: true }}>
