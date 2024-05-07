@@ -30,7 +30,7 @@ import {
   PaypalCustomerManager,
 } from '@fxa/payments/paypal';
 import { FirestoreService } from '@fxa/shared/db/firestore';
-import { StatsD } from 'hot-shots';
+import { StatsDService } from '@fxa/shared/metrics/statsd';
 
 @Module({
   imports: [
@@ -49,7 +49,7 @@ import { StatsD } from 'hot-shots';
       useValue: {}, //Temporary value to resolve Payments Next startup issues
     },
     {
-      provide: StatsD,
+      provide: StatsDService,
       useValue: {}, //Temporary value to resolve Payments Next startup issues
     },
     LocalizerRscFactoryProvider,

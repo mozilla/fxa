@@ -24,9 +24,6 @@ export class PaymentsNextConfig extends NestAppRootConfig {
   auth!: AuthJSConfig;
 
   @IsString()
-  nextauthUrlInternal!: string;
-
-  @IsString()
   authSecret!: string;
 }
 
