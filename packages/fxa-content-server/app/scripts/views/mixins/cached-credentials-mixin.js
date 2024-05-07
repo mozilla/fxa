@@ -136,6 +136,8 @@ export default {
     const user = this.user;
     const account = user.getChooserAccount();
     if (this.allowSuggestedAccount(account)) {
+      // allows passing the email to react signin
+      this.user.set('emailFromIndex', account.get('email'));
       return account;
     } else {
       return user.initAccount({});
