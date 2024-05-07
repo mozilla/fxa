@@ -1,9 +1,9 @@
-import { PlaywrightTestConfig, defineConfig } from '@playwright/test';
-import type { Project } from '@playwright/test';
-import * as path from 'path';
-import { TargetNames } from './lib/targets';
-import { TestOptions, WorkerOptions } from './lib/fixtures/standard';
 import { getFirefoxUserPrefs } from './lib/targets/firefoxUserPrefs';
+import type { Project } from '@playwright/test';
+import { PlaywrightTestConfig, defineConfig } from '@playwright/test';
+import * as path from 'path';
+import { TestOptions, WorkerOptions } from './lib/fixtures/standard';
+import { TargetNames } from './lib/targets';
 
 const CI = !!process.env.CI;
 
