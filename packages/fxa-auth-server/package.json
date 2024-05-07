@@ -82,7 +82,7 @@
     "buf": "0.1.1",
     "buffer-equal-constant-time": "1.0.1",
     "cldr-core": "^44.1.0",
-    "commander": "2.18.0",
+    "commander": "11.1.0",
     "convict": "^6.2.4",
     "convict-format-with-moment": "^6.2.0",
     "convict-format-with-validator": "^6.2.0",
