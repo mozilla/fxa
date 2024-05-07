@@ -25,3 +25,4 @@ See the separate [CONTRIBUTING.md](https://github.com/mozilla/fxa/blob/main/CONT
 ### Documentation
 
 The [Firefox Ecosystem Platform](https://mozilla.github.io/ecosystem-platform/) serves as a documentation hub for Mozilla Accounts and Subscription Platform.
+1
