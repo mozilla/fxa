@@ -46,6 +46,15 @@ module.exports = (config, Settings, log) => {
       this.smsRateLimitIntervalSeconds = this.smsRateLimit.limitIntervalSeconds;
       this.smsRateLimitIntervalMs = this.smsRateLimitIntervalSeconds * 1000;
       this.maxAccountAccess = settings.maxAccountAccess;
+      this.passwordResetOtpLimits = settings.passwordResetOtpLimits || {};
+      this.maxPasswordResetOtpEmails =
+        settings.passwordResetOtpLimits.maxPasswordResetOtpEmails;
+      this.passwordResetOtpEmailRequestWindowMs =
+        settings.passwordResetOtpLimits
+          .passwordResetOtpEmailRequestWindowSeconds * 1000;
+      this.passwordResetOtpEmailRateLimitIntervalMs =
+        settings.passwordResetOtpLimits
+          .passwordResetOtpRateLimitIntervalSeconds * 1000;
 
       return this;
     }
