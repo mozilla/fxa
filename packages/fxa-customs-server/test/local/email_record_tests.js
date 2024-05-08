@@ -5,8 +5,9 @@
 var test = require('tap').test;
 var emailRecord = require('../../lib/email_record');
 
+let nowTimestamp;
 function now() {
-  return 1000; // old school
+  return nowTimestamp || 1000; // old school
 }
 
 function simpleEmailRecord() {
@@ -18,6 +19,9 @@ function simpleEmailRecord() {
     maxEmails: 2,
     maxUnblockAttempts: 2,
     maxBadLoginsPerEmail: 2,
+    maxPasswordResetOtpEmails: 2,
+    passwordResetOtpEmailRequestWindowMs: 2000,
+    passwordResetOtpEmailRateLimitIntervalMs: 5000,
   };
   return new (emailRecord(limits, now))();
 }
@@ -174,6 +178,7 @@ test('retryAfter works', function (t) {
   t.equal(er.retryAfter(), 0, 'just expired blocks can be retried immediately');
   er.rl = 6000;
   t.equal(er.retryAfter(), 1, 'unexpired blocks can be retried in a bit');
+  t.equal(er.retryAfter(10000), 6, 'optional rate limit interval');
 
   delete er.rl;
   t.equal(er.retryAfter(), 0, 'unblocked records can be retried now');
@@ -264,6 +269,18 @@ test('update works', function (t) {
   t.equal(er.isRateLimited(), false, 'account is not rate limited');
   t.equal(er.update('accountCreate'), 2, 'email action is blocked');
   t.equal(er.update('accountLogin'), 2, 'non-email action is blocked');
+
+  er = simpleEmailRecord();
+  er.os = [];
+  nowTimestamp = 1001;
+  er.update('passwordForgotSendOtp');
+  nowTimestamp = 1003;
+  let res = er.update('passwordForgotSendOtp');
+  t.equal(res === 0, true, 'account is not rate limited');
+  nowTimestamp = 2001;
+  res = er.update('passwordForgotSendOtp');
+  t.equal(res > 0, true, 'account is rate limited');
+  nowTimestamp = null;
 
   t.end();
 });

@@ -41,6 +41,15 @@ var config = {
         Number(process.env.UID_RATE_LIMIT_BAN_DURATION_SECONDS) || 60 * 15,
       maxChecks: Number(process.env.UID_RATE_LIMIT) || 3,
     },
+    passwordResetOtpLimits: {
+      maxPasswordResetOtpEmails:
+        Number(process.env.PASSWORD_RESET_OTP_EMAIL_LIMIT) || 5,
+      passwordResetOtpEmailRequestWindowSeconds:
+        Number(process.env.PASSWORD_RESET_OTP_EMAIL_REQUEST_WINDOW_SECONDS) ||
+        600,
+      passwordResetOtpRateLimitIntervalSeconds:
+        Number(process.env.PASSWORD_RESET_OTP_EMAIL_RATE_LIMIT_SECONDS) || 1800,
+    },
   },
   requestChecks: {
     treatEveryoneWithSuspicion: false,
