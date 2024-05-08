@@ -43,7 +43,7 @@ import {
   ContentfulClientConfig,
   ContentfulManager,
 } from '@fxa/shared/contentful';
-import { MockStatsDFactory } from '@fxa/shared/metrics/statsd';
+import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 import { ConfigService } from '@nestjs/config';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import {
@@ -70,7 +70,7 @@ describe('CartService', () => {
         AccountCustomerManager,
         ConfigService,
         MockFirestoreProvider,
-        MockStatsDFactory,
+        MockStatsDProvider,
         ContentfulClientConfig,
         ContentfulClient,
         ContentfulManager,

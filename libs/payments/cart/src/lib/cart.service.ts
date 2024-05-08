@@ -113,7 +113,7 @@ export class CartService {
     try {
       const cart = await this.cartManager.fetchCartById(cartId);
 
-      this.checkoutService.payWithStripe(cart, paymentMethodId);
+      await this.checkoutService.payWithStripe(cart, paymentMethodId);
 
       await this.cartManager.finishCart(cartId, version, {});
     } catch (e) {

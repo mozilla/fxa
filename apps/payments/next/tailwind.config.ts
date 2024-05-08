@@ -15,4 +15,15 @@ export default <Partial<Config>>{
     ),
     ...createGlobPatternsForDependencies(__dirname),
   ],
+  theme: {
+    extend: {
+      boxShadow: {
+        inputError:
+          '0 1px 2px rgba(0, 0, 0, 0.3), 0 3px 6px rgba(0, 0, 0, 0.02), 0 0 0 1px #df1b41',
+      },
+      colors: {
+        'alert-red': '#D70022',
+      },
+    },
+  },
 };

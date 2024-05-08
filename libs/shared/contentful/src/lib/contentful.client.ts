@@ -1,3 +1,5 @@
+// Temporarily ignore. To be fixed during CMS refactor FXA-XXXX
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -71,19 +73,21 @@ export class ContentfulClient {
     return result;
   }
 
-  @Cacheable({
-    cacheKey: (args: any) => cacheKeyForQuery(args[0], args[1]),
-    strategy: new NetworkFirstStrategy(),
-    ttlSeconds: (_, context: ContentfulClient) =>
-      context.contentfulClientConfig.firestoreCacheTTL ||
-      DEFAULT_FIRESTORE_CACHE_TTL,
-    client: (_, context: ContentfulClient) =>
-      new FirestoreAdapter(
-        context.firestore,
-        context.contentfulClientConfig.firestoreCacheCollectionName ||
-          CONTENTFUL_QUERY_CACHE_KEY
-      ),
-  })
+  // Not sure what's happening here. Context is undefined which results in an error.
+  // To be fixed during CMS refactor
+  // @Cacheable({
+  //   cacheKey: (args: any) => cacheKeyForQuery(args[0], args[1]),
+  //   strategy: new NetworkFirstStrategy(),
+  //   ttlSeconds: (_, context: ContentfulClient) =>
+  //     context.contentfulClientConfig.firestoreCacheTTL ||
+  //     DEFAULT_FIRESTORE_CACHE_TTL,
+  //   client: (_, context: ContentfulClient) =>
+  //     new FirestoreAdapter(
+  //       context.firestore,
+  //       context.contentfulClientConfig.firestoreCacheCollectionName ||
+  //         CONTENTFUL_QUERY_CACHE_KEY
+  //     ),
+  // })
   async query<Result, Variables extends OperationVariables>(
     query: TypedDocumentNode<Result, Variables>,
     variables: Variables

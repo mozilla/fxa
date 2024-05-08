@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Stripe } from 'stripe';
+import { StripeError } from '@stripe/stripe-js';
 import { EligibilityStatus } from '@fxa/payments/eligibility';
 import {
   CartEligibilityStatus,
@@ -18,7 +18,7 @@ export const handleEligibilityStatusMap = {
 };
 
 export function stripeErrorToErrorReasonId(
-  stripeError: Stripe.StripeRawError
+  stripeError: StripeError
 ): CartErrorReasonId {
   switch (stripeError.type) {
     case 'card_error':

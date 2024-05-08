@@ -17,19 +17,19 @@ export default function Index() {
         <h2 className="text-xl">With auth</h2>
         <div className="flex gap-8">
           <div className="flex flex-col gap-2 p-4 items-center">
-            <h2>123Done - Monthly</h2>
+            <h2>VPN - Monthly</h2>
             <Link
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-              href="/en/123done/checkout/monthly/landing"
+              href="/en/vpn/checkout/monthly/landing"
             >
               Redirect
             </Link>
           </div>
           <div className="flex flex-col gap-2 p-4 items-center">
-            <h2>123Done - Yearly</h2>
+            <h2>VPN - Yearly</h2>
             <Link
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-              href="/en/123done/checkout/yearly/landing"
+              href="/en/vpn/checkout/yearly/landing"
             >
               Redirect
             </Link>
@@ -38,19 +38,19 @@ export default function Index() {
         <h2 className="text-xl mt-8">Without auth</h2>
         <div className="flex gap-8">
           <div className="flex flex-col gap-2 p-4 items-center">
-            <h2>123Done - Monthly</h2>
+            <h2>VPN - Monthly</h2>
             <Link
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-              href="/en/123done/checkout/monthly/new"
+              href="/en/vpn/checkout/monthly/new"
             >
               Redirect
             </Link>
           </div>
           <div className="flex flex-col gap-2 p-4 items-center">
-            <h2>123Done - Yearly</h2>
+            <h2>VPN - Yearly</h2>
             <Link
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-              href="/en/123done/checkout/yearly/new"
+              href="/en/vpn/checkout/yearly/new"
             >
               Redirect
             </Link>

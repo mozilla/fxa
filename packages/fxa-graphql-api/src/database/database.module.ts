@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { DatabaseService } from './database.service';
 import { MozLoggerService } from '@fxa/shared/mozlog';
-import { StatsDFactory } from '@fxa/shared/metrics/statsd';
+import { LegacyStatsDProvider } from '@fxa/shared/metrics/statsd';
 
 @Module({
-  providers: [DatabaseService, MozLoggerService, StatsDFactory],
+  providers: [DatabaseService, MozLoggerService, LegacyStatsDProvider],
   exports: [DatabaseService],
 })
 export class DatabaseModule {}

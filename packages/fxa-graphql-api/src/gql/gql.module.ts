@@ -24,7 +24,7 @@ import { SubscriptionResolver } from './subscription.resolver';
 import { ClientInfoResolver } from './clientInfo.resolver';
 import { SessionResolver } from './session.resolver';
 import { NotifierService, NotifierSnsFactory } from '@fxa/shared/notifier';
-import { StatsDFactory } from '@fxa/shared/metrics/statsd';
+import { LegacyStatsDProvider } from '@fxa/shared/metrics/statsd';
 import { MozLoggerService } from '@fxa/shared/mozlog';
 
 const config = Config.getProperties();
@@ -52,7 +52,7 @@ export const GraphQLConfigFactory = async (
 @Module({
   imports: [BackendModule, CustomsModule],
   providers: [
-    StatsDFactory,
+    LegacyStatsDProvider,
     NotifierSnsFactory,
     NotifierService,
     AccountResolver,

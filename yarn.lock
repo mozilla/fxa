@@ -14915,6 +14915,31 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@radix-ui/react-form@npm:^0.0.3":
+  version: 0.0.3
+  resolution: "@radix-ui/react-form@npm:0.0.3"
+  dependencies:
+    "@babel/runtime": ^7.13.10
+    "@radix-ui/primitive": 1.0.1
+    "@radix-ui/react-compose-refs": 1.0.1
+    "@radix-ui/react-context": 1.0.1
+    "@radix-ui/react-id": 1.0.1
+    "@radix-ui/react-label": 2.0.2
+    "@radix-ui/react-primitive": 1.0.3
+  peerDependencies:
+    "@types/react": "*"
+    "@types/react-dom": "*"
+    react: ^16.8 || ^17.0 || ^18.0
+    react-dom: ^16.8 || ^17.0 || ^18.0
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+    "@types/react-dom":
+      optional: true
+  checksum: a2cc8e3787643b16e8c7a77aeac3707e7d7858ca65818631d46184abd7ab7047d496f646f404cbeddc4aeaf974a4e0d778044b09236d156ca2ab6f5e21851dac
+  languageName: node
+  linkType: hard
+
 "@radix-ui/react-id@npm:1.0.1":
   version: 1.0.1
   resolution: "@radix-ui/react-id@npm:1.0.1"
@@ -14928,6 +14953,26 @@ __metadata:
     "@types/react":
       optional: true
   checksum: 446a453d799cc790dd2a1583ff8328da88271bff64530b5a17c102fa7fb35eece3cf8985359d416f65e330cd81aa7b8fe984ea125fc4f4eaf4b3801d698e49fe
+  languageName: node
+  linkType: hard
+
+"@radix-ui/react-label@npm:2.0.2":
+  version: 2.0.2
+  resolution: "@radix-ui/react-label@npm:2.0.2"
+  dependencies:
+    "@babel/runtime": ^7.13.10
+    "@radix-ui/react-primitive": 1.0.3
+  peerDependencies:
+    "@types/react": "*"
+    "@types/react-dom": "*"
+    react: ^16.8 || ^17.0 || ^18.0
+    react-dom: ^16.8 || ^17.0 || ^18.0
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+    "@types/react-dom":
+      optional: true
+  checksum: fe3bd8902bc523fb5125fa96167a13b8a60d007413787eae9573e4b00b0edff0487c4c0620ea5dc37e6da13833ebc4f8d7e00b6c846f2a5686e7f173672b8dde
   languageName: node
   linkType: hard
 
@@ -38670,6 +38715,7 @@ fsevents@~2.1.1:
     "@opentelemetry/sdk-trace-base": ^1.23.0
     "@opentelemetry/sdk-trace-node": ^1.23.0
     "@opentelemetry/sdk-trace-web": ^1.23.0
+    "@radix-ui/react-form": ^0.0.3
     "@sentry/browser": ^7.113.0
     "@sentry/integrations": ^7.113.0
     "@sentry/node": ^7.113.0
