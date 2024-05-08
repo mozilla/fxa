@@ -29,10 +29,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      {l10n ? (
+      {l10n && (
         <LocalizationProvider l10n={l10n}>{children}</LocalizationProvider>
-      ) : (
-        <>{children}</>
       )}
     </>
   );
