@@ -479,6 +479,8 @@ jobs:
           docker_layer_caching: true
       - run:
           name: Build docker images
+          environment:
+            NX_DAEMON: false
           command: ./.circleci/docker-build-fxa.sh  << pipeline.id >>
           no_output_timeout: 1h
 
