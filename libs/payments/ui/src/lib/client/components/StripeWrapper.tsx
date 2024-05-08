@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 'use client';
 
+import { Localized } from '@fluent/react';
 import { loadStripe, StripeElementsOptions } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 
@@ -25,8 +26,11 @@ export function StripeWrapper({ amount, currency }: StripeWrapperProps) {
   };
 
   return (
-    <Elements stripe={stripePromise} options={options}>
-      Hello there from Stripe
-    </Elements>
+    <>
+      <Localized id="pay-with-heading-card-only"></Localized>
+      <Elements stripe={stripePromise} options={options}>
+        Hello there from Stripe
+      </Elements>
+    </>
   );
 }
