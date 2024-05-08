@@ -68,7 +68,7 @@ executors:
         default: cimg/node:20.11.1
     resource_class: << parameters.resource_class >>
     docker:
-      - image: ubuntu-2204:2024.02.7
+      - image: << parameters.image >>
     environment:
       DOCKER_BUILDKIT: 1
       BUILDKIT_PROGRESS: plain
