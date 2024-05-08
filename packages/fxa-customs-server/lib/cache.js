@@ -25,6 +25,17 @@ class Cache {
       return {};
     }
   }
+
+  async getMultiAsync(keys) {
+    const values = await this.client.redis.mget(keys);
+    return values.map((value) => {
+      try {
+        return JSON.parse(value);
+      } catch (err) {
+        return {};
+      }
+    });
+  }
 }
 
 module.exports = Cache;

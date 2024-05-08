@@ -8,6 +8,7 @@ const { test } = require('tap');
 const sandbox = sinon.createSandbox();
 
 const mc = {
+  getMultiAsync: sandbox.spy(() => Promise.resolve({})),
   getAsync: sandbox.spy(() => Promise.resolve({})),
   setAsync: sandbox.spy(() => Promise.resolve()),
 };
@@ -39,12 +40,13 @@ test('fetchRecords', function (t) {
     phoneNumber: 'phone number',
     uid: 'uid',
   }).then((records) => {
-    assert.strictEqual(mc.getAsync.callCount, 5);
-    assert.strictEqual(mc.getAsync.args[0][0], 'ip address');
-    assert.strictEqual(mc.getAsync.args[1][0], 'email address');
-    assert.strictEqual(mc.getAsync.args[2][0], 'ip addressemail address');
-    assert.strictEqual(mc.getAsync.args[3][0], 'phone number');
-    assert.strictEqual(mc.getAsync.args[4][0], 'uid');
+    assert.strictEqual(mc.getMultiAsync.callCount, 1);
+    const keys = mc.getMultiAsync.args[0][0];
+    assert.strictEqual(keys[0], 'ip address');
+    assert.strictEqual(keys[1], 'email address');
+    assert.strictEqual(keys[2], 'ip addressemail address');
+    assert.strictEqual(keys[3], 'phone number');
+    assert.strictEqual(keys[4], 'uid');
 
     assert.lengthOf(Object.keys(records), 6);
     assert.isObject(records.ipRecord);

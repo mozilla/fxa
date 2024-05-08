@@ -47,30 +47,56 @@ module.exports = function (
 
     const { ip, email, phoneNumber, uid } = config;
 
+    const recordFetches = [];
     if (ip) {
-      records.ipRecord = await fetchRecord(ip, IpRecord.parse);
+      recordFetches.push({
+        field: 'ipRecord',
+        key: ip,
+        parser: IpRecord.parse,
+      });
       records.reputation = await reputationService.get(ip);
     }
 
     // The /checkIpOnly endpoint has no email (or phoneNumber)
     if (email) {
-      records.emailRecord = await fetchRecord(email, EmailRecord.parse);
+      recordFetches.push({
+        field: 'emailRecord',
+        key: email,
+        parser: EmailRecord.parse,
+      });
     }
 
     if (ip && email) {
-      records.ipEmailRecord = await fetchRecord(
-        ip + email,
-        IpEmailRecord.parse
-      );
+      recordFetches.push({
+        field: 'ipEmailRecord',
+        key: ip + email,
+        parser: IpEmailRecord.parse,
+      });
     }
 
     // Check against SMS records to make sure that this request can send to this phone number
     if (phoneNumber) {
-      records.smsRecord = await fetchRecord(phoneNumber, SmsRecord.parse);
+      recordFetches.push({
+        field: 'smsRecord',
+        key: phoneNumber,
+        parser: SmsRecord.parse,
+      });
     }
 
     if (uid) {
-      records.uidRecord = await fetchRecord(uid, UidRecord.parse);
+      recordFetches.push({
+        field: 'uidRecord',
+        key: uid,
+        parser: UidRecord.parse,
+      });
+    }
+
+    const redisResults = await mc.getMultiAsync(
+      recordFetches.map((r) => r.key)
+    );
+    for (const [index, { field, key, parser }] of recordFetches.entries()) {
+      records[field] = parser(redisResults[index]);
+      records[field].key = key;
     }
 
     statsd.timing('record_request', performance.now() - startTime, 1);
