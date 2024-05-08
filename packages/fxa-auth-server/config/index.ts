@@ -2046,6 +2046,44 @@ const convictConf = convict({
     },
   },
   cloudTasks: CloudTasksConvictConfigFactory(),
+  cloudScheduler: {
+    oidc: {
+      aud: {
+        default: '',
+        doc: 'The audience value of the id token payload.',
+        env: `AUTH_CLOUDSCHEDULER_OIDC_AUD`,
+        format: String,
+      },
+      serviceAccountEmail: {
+        default: '',
+        doc: 'The GCP service account email address.',
+        env: `AUTH_CLOUDSCHEDULER_OIDC_EMAIL`,
+        format: String,
+      },
+    },
+    deleteUnverifiedAccounts: {
+      sinceDays: {
+        default: 15,
+        doc: 'The time since which unverified accounts should be deleted.',
+        env: `AUTH_CLOUDSCHEDULER_DELETE_UNVERIFIED_ACCOUNTS_SINCE_DAYS`,
+        format: Number,
+      },
+      durationDays: {
+        default: 15,
+        doc:
+          'The duration to delete accounts from the since day. For example, ' +
+          'if sinceDay is 15 and duration is 15, unverified accounts created ' +
+          'between 15 and 30 days ago will be deleted.',
+        env: `AUTH_CLOUDSCHEDULER_DELETE_UNVERIFIED_ACCOUNTS_DURATION_DAYS`,
+        format: Number,
+      },
+      taskLimit: {
+        default: 200,
+        env: `AUTH_CLOUDSCHEDULER_DELETE_UNVERIFIED_ACCOUNTS_TASK_LIMIT`,
+        format: Number,
+      },
+    },
+  },
 });
 
 // handle configuration files.  you can specify a CSV list of configuration

@@ -206,6 +206,9 @@ module.exports = function (
   const { cloudTaskRoutes } = require('./cloud-tasks');
   const cloudTasks = cloudTaskRoutes(log, config);
 
+  const { cloudSchedulerRoutes } = require('./cloud-scheduler');
+  const cloudScheduler = cloudSchedulerRoutes(log, config, statsd);
+
   let basePath = url.parse(config.publicUrl).path;
   if (basePath === '/') {
     basePath = '';
@@ -229,7 +232,8 @@ module.exports = function (
     subscriptions,
     newsletters,
     linkedAccounts,
-    cloudTasks
+    cloudTasks,
+    cloudScheduler
   );
 
   function optionallyIgnoreTrace(fn) {
