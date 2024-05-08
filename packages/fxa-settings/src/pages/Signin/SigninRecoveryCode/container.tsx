@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { RouteComponentProps, useLocation } from '@reach/router';
-import { hardNavigateToContentServer } from 'fxa-react/lib/utils';
+import { hardNavigate } from 'fxa-react/lib/utils';
 import { MozServices } from '../../../lib/types';
 import SigninRecoveryCode from '.';
 import { Integration, useAuthClient } from '../../../models';
@@ -69,7 +69,7 @@ export const SigninRecoveryCodeContainer = ({
   }
 
   if (!signinState) {
-    hardNavigateToContentServer(`/${location.search}`);
+    hardNavigate('/', {}, true);
     return <LoadingSpinner fullScreen />;
   }
 

@@ -124,16 +124,16 @@ describe('Signup page', () => {
     expect(firefoxPrivacyLink).toHaveAttribute('href', '/legal/privacy');
   });
 
-  describe('hardNavigateToContentServer', () => {
-    let hardNavigateToContentServerSpy: jest.SpyInstance;
+  describe('hardNavigate', () => {
+    let hardNavigateSpy: jest.SpyInstance;
 
     beforeEach(() => {
-      hardNavigateToContentServerSpy = jest
-        .spyOn(utils, 'hardNavigateToContentServer')
+      hardNavigateSpy = jest
+        .spyOn(utils, 'hardNavigate')
         .mockImplementation(() => {});
     });
     afterEach(() => {
-      hardNavigateToContentServerSpy.mockRestore();
+      hardNavigateSpy.mockRestore();
     });
 
     it('allows users to change their email', async () => {
@@ -146,7 +146,7 @@ describe('Signup page', () => {
           })
         );
       });
-      expect(hardNavigateToContentServerSpy).toHaveBeenCalledWith(
+      expect(hardNavigateSpy).toHaveBeenCalledWith(
         `/?prefillEmail=${encodeURIComponent(MOCK_EMAIL)}`
       );
     });
@@ -329,7 +329,9 @@ describe('Signup page', () => {
         });
         expect(GleanMetrics.registration.submit).toHaveBeenCalledTimes(1);
         expect(GleanMetrics.registration.success).not.toHaveBeenCalled();
-        expect(mockNavigate).toHaveBeenCalledWith('/cannot_create_account');
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/cannot_create_account?email=johndope%40example.com'
+        );
         expect(mockBeginSignupHandler).not.toBeCalled();
       });
 

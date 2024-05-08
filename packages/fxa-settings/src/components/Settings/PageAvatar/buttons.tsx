@@ -4,7 +4,7 @@
 
 import React, { useCallback, useRef } from 'react';
 
-import { useNavigate } from '@reach/router';
+import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
 import { Localized, useLocalization } from '@fluent/react';
 import { useAccount, useAlertBar } from '../../../models';
 import { HomePath } from '../../../constants';

@@ -14,7 +14,7 @@ import { getSigninState, getHandledError } from '../utils';
 import { SigninLocationState } from '../interfaces';
 import { Integration, useAuthClient } from '../../../models';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
-import { hardNavigateToContentServer } from 'fxa-react/lib/utils';
+import { hardNavigate } from 'fxa-react/lib/utils';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import OAuthDataError from '../../../components/OAuthDataError';
 
@@ -75,7 +75,7 @@ export const SigninTotpCodeContainer = ({
     (signinState.verificationMethod &&
       signinState.verificationMethod !== VerificationMethods.TOTP_2FA)
   ) {
-    hardNavigateToContentServer(`/${location.search ? location.search : ''}`);
+    hardNavigate('/', {}, true);
     return <LoadingSpinner fullScreen />;
   }
 

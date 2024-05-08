@@ -3,12 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect } from 'react';
-import {
-  FtlMsg,
-  hardNavigate,
-  hardNavigateToContentServer,
-} from 'fxa-react/lib/utils';
-import { RouteComponentProps, useNavigate } from '@reach/router';
+import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
+import { RouteComponentProps } from '@reach/router';
+import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import AppLayout from '../../../components/AppLayout';
 import { AUTH_PROVIDER } from 'fxa-auth-client/browser';
@@ -111,7 +108,7 @@ const ThirdPartyAuthCallback = ({
           // currently, redirect to /settings fails with an "unauthenticated" error from GQL
           // and redirects to /signin (on backbone) where ThirdPArty Auth successfully
           // navigates to /settings
-          navigate(`/settings${window.location.search}`);
+          navigate('/settings');
         }
       }
     }
@@ -158,7 +155,7 @@ const ThirdPartyAuthCallback = ({
     } else {
       // TODO validate what should happen if we hit this page
       // without the required auth params to verify the account
-      hardNavigateToContentServer('/');
+      hardNavigate('/');
     }
   }
 

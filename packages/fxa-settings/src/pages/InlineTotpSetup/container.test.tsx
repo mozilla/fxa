@@ -37,7 +37,6 @@ const mockLocationHook = (
 const mockNavigateHook = jest.fn();
 jest.mock('@reach/router', () => {
   return {
-    __esModule: true,
     ...jest.requireActual('@reach/router'),
     useNavigate: () => mockNavigateHook,
     useLocation: () => mockLocationHook(),

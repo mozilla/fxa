@@ -41,7 +41,7 @@ import {
   SigninUnblockLocationState,
 } from './interfaces';
 import { getHandledError } from '../utils';
-import { hardNavigateToContentServer } from 'fxa-react/lib/utils';
+import { hardNavigate } from 'fxa-react/lib/utils';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import { MozServices } from '../../../lib/types';
 import { QueryParams } from '../../..';
@@ -159,7 +159,7 @@ const SigninUnblockContainer = ({
   }
 
   if (!email || !password) {
-    hardNavigateToContentServer('/');
+    hardNavigate('/', {}, true);
     return <LoadingSpinner fullScreen />;
   }
   return (

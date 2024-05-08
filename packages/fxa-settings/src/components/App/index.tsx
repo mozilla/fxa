@@ -35,7 +35,7 @@ import {
 } from '../../models/contexts/SettingsContext';
 import { CreateCompleteResetPasswordLink } from '../../models/reset-password/verification/factory';
 
-import { hardNavigateToContentServer } from 'fxa-react/lib/utils';
+import { hardNavigate } from 'fxa-react/lib/utils';
 
 import sentryMetrics from 'fxa-shared/sentry/browser';
 
@@ -223,7 +223,7 @@ const SettingsRoutes = ({
     const params = new URLSearchParams(location.search);
     params.set('redirect_to', location.pathname);
     const path = `/?${params.toString()}`;
-    hardNavigateToContentServer(path);
+    hardNavigate(path);
     return <LoadingSpinner fullScreen />;
   }
 

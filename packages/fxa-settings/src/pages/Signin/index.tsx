@@ -2,15 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {
-  Link,
-  RouteComponentProps,
-  useLocation,
-  useNavigate,
-} from '@reach/router';
+import { Link, RouteComponentProps, useLocation } from '@reach/router';
+import { useNavigateWithQuery as useNavigate } from '../../lib/hooks/useNavigateWithQuery';
 import classNames from 'classnames';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
-import { FtlMsg, hardNavigateToContentServer } from 'fxa-react/lib/utils';
+import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import AppLayout from '../../components/AppLayout';
@@ -409,7 +405,7 @@ const Signin = ({
               params.delete('hasLinkedAccount');
               params.delete('hasPassword');
               params.delete('showReactApp');
-              hardNavigateToContentServer(`/?${params.toString()}`);
+              hardNavigate(`/?${params.toString()}`);
             }}
           >
             Use a different account

@@ -239,7 +239,7 @@ describe('loading spinner states', () => {
 });
 
 describe('SettingsRoutes', () => {
-  let hardNavigateToContentServerSpy: jest.SpyInstance;
+  let hardNavigateSpy: jest.SpyInstance;
   const settingsPath = '/settings';
   jest.mock('@reach/router', () => ({
     ...jest.requireActual('@reach/router'),
@@ -251,8 +251,8 @@ describe('SettingsRoutes', () => {
   }));
 
   beforeEach(() => {
-    hardNavigateToContentServerSpy = jest
-      .spyOn(utils, 'hardNavigateToContentServer')
+    hardNavigateSpy = jest
+      .spyOn(utils, 'hardNavigate')
       .mockImplementation(() => {});
     (useInitialMetricsQueryState as jest.Mock).mockReturnValue({
       loading: false,
@@ -263,7 +263,7 @@ describe('SettingsRoutes', () => {
     });
   });
   afterEach(() => {
-    hardNavigateToContentServerSpy.mockRestore();
+    hardNavigateSpy.mockRestore();
   });
   it('redirects to /signin if isSignedIn is false', async () => {
     (useLocalSignedInQueryState as jest.Mock).mockReturnValueOnce({
@@ -292,7 +292,7 @@ describe('SettingsRoutes', () => {
     await act(() => navigateResult);
 
     await waitFor(() => {
-      expect(hardNavigateToContentServerSpy).toHaveBeenCalledWith(
+      expect(hardNavigateSpy).toHaveBeenCalledWith(
         `/?redirect_to=${encodeURIComponent(settingsPath)}`
       );
     });
@@ -331,7 +331,7 @@ describe('SettingsRoutes', () => {
     await act(() => navigateResult);
 
     await waitFor(() => {
-      expect(hardNavigateToContentServerSpy).not.toHaveBeenCalled();
+      expect(hardNavigateSpy).not.toHaveBeenCalled();
     });
     expect(screen.getByTestId('settings-profile')).toBeInTheDocument();
   });

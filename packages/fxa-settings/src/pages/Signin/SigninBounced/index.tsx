@@ -6,7 +6,7 @@ import React, { useEffect } from 'react';
 import { RouteComponentProps /*useNavigate*/ } from '@reach/router';
 import { usePageViewEvent, logViewEvent } from '../../../lib/metrics';
 import { ReactComponent as EmailBounced } from './graphic_email_bounced.svg';
-import { FtlMsg, hardNavigateToContentServer } from 'fxa-react/lib/utils';
+import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
 import { useFtlMsgResolver } from '../../../models/hooks';
 
 import AppLayout from '../../../components/AppLayout';
@@ -44,7 +44,7 @@ const SigninBounced = ({
 
   useEffect(() => {
     if (!email) {
-      hardNavigateToContentServer('/signin');
+      hardNavigate('/', {}, true);
     }
   }, [email]);
 
@@ -52,7 +52,7 @@ const SigninBounced = ({
     logViewEvent(viewName, 'link.create-account', REACT_ENTRYPOINT);
     localStorage.removeItem('__fxa_storage.accounts');
     sessionStorage.clear();
-    hardNavigateToContentServer('/signup');
+    hardNavigate('/signup', {}, true);
   };
 
   return (

@@ -129,9 +129,7 @@ function mockReachRouterModule() {
 }
 
 function mockReactUtilsModule() {
-  jest
-    .spyOn(ReactUtils, 'hardNavigateToContentServer')
-    .mockImplementation(() => {});
+  jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => {});
 }
 
 // TIP - Sometimes it's useful to have inner mocks. In this case, we hold a reference to
@@ -288,7 +286,7 @@ describe('sign-up-container', () => {
       await render('loading spinner mock');
 
       // TODO: Determine if email is valid: https://github.com/mozilla/fxa/pull/16131#discussion_r1418122670
-      expect(ReactUtils.hardNavigateToContentServer).toBeCalledWith('/');
+      expect(ReactUtils.hardNavigate).toBeCalledWith('/', {}, true);
     });
 
     it('handles empty email', async () => {
@@ -308,7 +306,7 @@ describe('sign-up-container', () => {
       await render('loading spinner mock');
 
       // TODO: Show that email is invalid: https://github.com/mozilla/fxa/pull/16131#discussion_r1418122670
-      expect(ReactUtils.hardNavigateToContentServer).toBeCalledWith('/');
+      expect(ReactUtils.hardNavigate).toBeCalledWith('/', {}, true);
     });
   });
 

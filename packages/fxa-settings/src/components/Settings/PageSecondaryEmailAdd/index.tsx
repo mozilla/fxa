@@ -1,6 +1,7 @@
 import React, { ChangeEvent, useCallback, useRef, useState } from 'react';
 import { Localized, useLocalization } from '@fluent/react';
-import { RouteComponentProps, useNavigate } from '@reach/router';
+import { RouteComponentProps } from '@reach/router';
+import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
 import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
 import { HomePath } from '../../../constants';
 import InputText from '../../InputText';

@@ -193,7 +193,7 @@ function mockSigninModule() {
 
 function mockReactUtilsModule() {
   jest
-    .spyOn(ReactUtils, 'hardNavigateToContentServer')
+    .spyOn(ReactUtils, 'hardNavigate')
     .mockImplementation(() => {});
 }
 
@@ -303,7 +303,7 @@ describe('signin container', () => {
       it('is handled if not provided in query params or location state', async () => {
         render([mockGqlAvatarUseQuery()]);
         expect(CacheModule.currentAccount).not.toBeCalled();
-        expect(ReactUtils.hardNavigateToContentServer).toBeCalledWith('/');
+        expect(ReactUtils.hardNavigate).toBeCalledWith('/');
         expect(SigninModule.default).not.toBeCalled();
       });
     });

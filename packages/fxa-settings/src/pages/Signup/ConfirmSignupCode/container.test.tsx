@@ -125,9 +125,7 @@ function applyMocks() {
     });
   mockLocation();
   jest.spyOn(SentryModule.default, 'captureException');
-  jest
-    .spyOn(ReactUtils, 'hardNavigateToContentServer')
-    .mockImplementation(() => {});
+  jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => {});
 
   mockEmailBounceQuery();
 }
@@ -210,7 +208,7 @@ describe('confirm-signup-container', () => {
         expect(screen.getByText('confirm signup code mock')).toBeInTheDocument()
       );
       expect(mockEmailBounceStatusQuery).toBeCalled();
-      expect(ReactUtils.hardNavigateToContentServer).toBeCalledWith(
+      expect(ReactUtils.hardNavigate).toBeCalledWith(
         `/?bouncedEmail=${encodeURIComponent(MOCK_EMAIL)}`
       );
     });
@@ -223,7 +221,7 @@ describe('confirm-signup-container', () => {
         expect(screen.getByText('confirm signup code mock')).toBeInTheDocument()
       );
       expect(mockEmailBounceStatusQuery).toBeCalled();
-      expect(ReactUtils.hardNavigateToContentServer).toBeCalledWith(
+      expect(ReactUtils.hardNavigate).toBeCalledWith(
         `/signin_bounced?bouncedEmail=${encodeURIComponent(MOCK_EMAIL)}`
       );
     });
@@ -240,7 +238,7 @@ describe('confirm-signup-container', () => {
       await waitFor(() =>
         expect(screen.getByText('loading spinner mock')).toBeInTheDocument()
       );
-      expect(ReactUtils.hardNavigateToContentServer).toBeCalledWith(
+      expect(ReactUtils.hardNavigate).toBeCalledWith(
         expect.stringMatching('/')
       );
     });

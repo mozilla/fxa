@@ -313,9 +313,7 @@ describe('AccountRecoveryResetPassword page', () => {
   it('navigates as expected without totp', async () => {
     await waitFor(() => {
       expect(mockNavigate).toHaveBeenCalledWith(
-        `/reset_password_with_recovery_key_verified?${new URLSearchParams(
-          MOCK_SEARCH_PARAMS
-        ).toString()}`
+        `/reset_password_with_recovery_key_verified`
       );
     });
   });

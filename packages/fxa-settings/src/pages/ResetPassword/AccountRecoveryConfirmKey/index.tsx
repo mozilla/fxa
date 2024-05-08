@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Link, useLocation, useNavigate } from '@reach/router';
+import { Link, useLocation } from '@reach/router';
+import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
 import React, { ReactElement, useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { logPageViewEvent, logViewEvent } from '../../../lib/metrics';
@@ -118,7 +119,7 @@ const AccountRecoveryConfirmKey = ({
         uid
       );
 
-      navigate(`/account_recovery_reset_password${window.location.search}`, {
+      navigate('/account_recovery_reset_password', {
         state: {
           accountResetToken,
           recoveryKeyId,

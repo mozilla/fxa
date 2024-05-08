@@ -10,11 +10,14 @@ import { MOCK_ACCOUNT, renderWithRouter } from '../../../models/mocks';
 import SigninBounced, { viewName } from '.';
 import { usePageViewEvent, logViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../../constants';
+import * as utils from '../../../../../fxa-react/lib/utils';
+import * as ReactUtils from '../../../../../fxa-react/lib/utils';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
   logViewEvent: jest.fn(),
 }));
+let hardNavigateSpy: jest.SpyInstance;
 
 describe('SigninBounced', () => {
   // TODO: enable l10n tests when they've been updated to handle embedded tags in ftl strings
@@ -24,21 +27,10 @@ describe('SigninBounced', () => {
   //   bundle = await getFtlBundle('settings');
   // });
 
-  // Not needed once this page doesn't use `hardNavigateToContentServer`
-  const originalWindow = window.location;
-
-  beforeAll(() => {
-    // @ts-ignore
-    delete window.location;
-    window.location = { ...originalWindow, href: '' };
-  });
-
   beforeEach(() => {
-    window.location.href = originalWindow.href;
-  });
-
-  afterAll(() => {
-    window.location = originalWindow;
+    hardNavigateSpy = jest
+      .spyOn(ReactUtils, 'hardNavigate')
+      .mockImplementationOnce(() => {});
   });
 
   it('renders default content as expected', () => {
@@ -78,8 +70,8 @@ describe('SigninBounced', () => {
     );
   });
 
-  it('pushes the user to the /signin page if there is no email address available', () => {
+  it('pushes the user to the / page if there is no email address available', () => {
     renderWithRouter(<SigninBounced />);
-    expect(window.location.href).toBe('/signin');
+    expect(hardNavigateSpy).toHaveBeenCalledWith('/', {}, true);
   });
 });

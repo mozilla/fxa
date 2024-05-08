@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
+import { RouteComponentProps, useLocation } from '@reach/router';
+import { useNavigateWithQuery as useNavigate } from '../../lib/hooks/useNavigateWithQuery';
 import {
   Integration,
   isOAuthIntegration,
@@ -13,7 +14,7 @@ import {
 import { Signup } from '.';
 import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
 import { SignupQueryParams } from '../../models/pages/signup';
-import { hardNavigateToContentServer } from 'fxa-react/lib/utils';
+import { hardNavigate } from 'fxa-react/lib/utils';
 import { useMutation } from '@apollo/client';
 import {
   BeginSignUpOptions,
@@ -127,9 +128,7 @@ const SignupContainer = ({
               },
             });
           } else {
-            hardNavigateToContentServer(
-              `/signin?email=${queryParamModel.email}`
-            );
+            hardNavigate(`/signin`, { email: queryParamModel.email }, true);
           }
         }
       }
@@ -267,7 +266,7 @@ const SignupContainer = ({
   }
 
   if (validationError) {
-    hardNavigateToContentServer('/');
+    hardNavigate('/', {}, true);
     return <LoadingSpinner fullScreen />;
   }
 

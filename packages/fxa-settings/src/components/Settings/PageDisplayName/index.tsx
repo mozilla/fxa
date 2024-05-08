@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback } from 'react';
-import { navigate, RouteComponentProps } from '@reach/router';
+import { RouteComponentProps } from '@reach/router';
+import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
 import { useForm } from 'react-hook-form';
 import FlowContainer from '../FlowContainer';
 import InputText from '../../InputText';
@@ -19,7 +20,8 @@ export const PageDisplayName = (_: RouteComponentProps) => {
   const account = useAccount();
   const alertBar = useAlertBar();
   const { l10n } = useLocalization();
-  const goHome = () => navigate(HomePath + '#display-name', { replace: true });
+  const navigate = useNavigate();
+  const goHome = () => navigate(HomePath, { replace: true });
   const alertSuccessAndGoHome = useCallback(() => {
     alertBar.success(
       l10n.getString(
@@ -28,8 +30,8 @@ export const PageDisplayName = (_: RouteComponentProps) => {
         'Display name updated'
       )
     );
-    navigate(HomePath + '#display-name', { replace: true });
-  }, [alertBar, l10n]);
+    navigate(HomePath, { replace: true });
+  }, [alertBar, l10n, navigate]);
   const initialValue = account.displayName || '';
   const { register, handleSubmit, formState, trigger } = useForm<{
     displayName: string;

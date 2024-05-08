@@ -187,9 +187,7 @@ test.describe('key-stretching-v2', () => {
 
       if (mode === 'react') {
         await settings.signOut();
-        await page.goto(
-          `${target.contentServerUrl}/reset_password?showReactApp=true&forceExperiment=generalizedReactApp&forceExperimentGroup=react&${stretch}`
-        );
+        await page.goto(`${target.contentServerUrl}/reset_password?${stretch}`);
         await page.waitForSelector('#root');
         await resetPasswordReact.fillOutEmailForm(email);
         const link =
@@ -197,7 +195,7 @@ test.describe('key-stretching-v2', () => {
             email,
             EmailType.recovery,
             EmailHeader.link
-          )) + `&showReactApp=true&${stretch}`;
+          )) + `&${stretch}`;
         await page.goto(link);
         await page.waitForSelector('#root');
 
