@@ -3,11 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Injectable } from '@nestjs/common';
-import {
-  PromotionCodeCouldNotBeAttachedError,
-  SubscriptionCustomerIdDoesNotMatchCustomerIdError,
-  SubscriptionNotActiveError,
-} from './stripe.error';
+import { PromotionCodeCouldNotBeAttachedError } from './stripe.error';
 import { StripeManager } from './stripe.manager';
 import {
   checkSubscriptionPromotionCodes,
@@ -29,9 +25,20 @@ export class StripeService {
         subscriptionId
       );
       if (subscription?.status !== 'active')
-        throw new SubscriptionNotActiveError();
+        throw new PromotionCodeCouldNotBeAttachedError(
+          'Subscription is not active',
+          undefined,
+          { subscriptionId }
+        );
       if (subscription.customer !== customerId)
-        throw new SubscriptionCustomerIdDoesNotMatchCustomerIdError();
+        throw new PromotionCodeCouldNotBeAttachedError(
+          'subscription.customerId does not match passed in customerId',
+          undefined,
+          {
+            customerId,
+            subscriptionId,
+          }
+        );
 
       const promotionCode = await this.stripeManager.retrievePromotionCode(
         promotionId
@@ -43,18 +50,33 @@ export class StripeService {
       const productId = price.product;
       const product = await this.stripeManager.retrieveProduct(productId);
 
-      checkSubscriptionPromotionCodes(promotionCode.code, price, product);
+      checkSubscriptionPromotionCodes(promotionCode, price, product);
 
       const updatedSubscription = await this.stripeManager.updateSubscription(
         subscriptionId,
         {
-          promotion_code: promotionCode.code,
+          discounts: [
+            {
+              promotion_code: promotionId,
+            },
+          ],
         }
       );
-
       return updatedSubscription;
-    } catch (error) {
-      throw new PromotionCodeCouldNotBeAttachedError(error);
+    } catch (err) {
+      if (err.type === 'StripeInvalidRequestError') {
+        throw new PromotionCodeCouldNotBeAttachedError(
+          'Promotion code could not be attached to subscription',
+          err,
+          {
+            customerId,
+            subscriptionId,
+            promotionId,
+          }
+        );
+      } else {
+        throw err;
+      }
     }
   }
 

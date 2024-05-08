@@ -182,6 +182,7 @@ const DESCRIPTIONS = {
   productName: 'The name of the product purchased.',
   promotionCode: 'A customer-redeemable code for a coupon.',
   promotionDuration: 'Indicates how long the coupon is valid for.',
+  promotionId: 'The id associated with the promotion code',
   providerUid: 'The user id associated with a particular third party provider.',
   publicKey:
     'The key to sign (run bin/generate-keypair from [**browserid-crypto**](https://github.com/mozilla/browserid-crypto)).',

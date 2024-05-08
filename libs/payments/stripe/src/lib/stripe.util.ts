@@ -9,15 +9,11 @@ import {
   StripePromotionCode,
   StripeSubscription,
 } from './stripe.client.types';
-import {
-  PromotionCodeInvalidError,
-  PromotionCodeNotForSubscriptionError,
-  SubscriptionPriceUnknownError,
-} from './stripe.error';
+import { PromotionCodeCouldNotBeAttachedError } from './stripe.error';
 import { STRIPE_PRICE_METADATA, STRIPE_PRODUCT_METADATA } from './stripe.types';
 
 export const checkSubscriptionPromotionCodes = (
-  code: string,
+  code: StripePromotionCode,
   price: StripePrice,
   product?: StripeProduct
 ) => {
@@ -39,8 +35,14 @@ export const checkSubscriptionPromotionCodes = (
         .map((c) => c.trim())
     );
   }
-  if (!validPromotionCodes.includes(code)) {
-    throw new PromotionCodeNotForSubscriptionError();
+  if (!validPromotionCodes.includes(code.code)) {
+    throw new PromotionCodeCouldNotBeAttachedError(
+      "Promotion code restricted to a product that doesn't match the product on this subscription",
+      undefined,
+      {
+        promotionId: code.id,
+      }
+    );
   }
   return true;
 };
@@ -53,14 +55,26 @@ export const checkValidPromotionCode = (code: StripePromotionCode) => {
     !code.coupon.valid ||
     (code.expires_at && code.expires_at < nowSecs)
   )
-    throw new PromotionCodeInvalidError();
+    throw new PromotionCodeCouldNotBeAttachedError(
+      'Invalid promotion code',
+      undefined,
+      {
+        promotionId: code.id,
+      }
+    );
   return true;
 };
 
 export const getSubscribedPrice = (subscription: StripeSubscription) => {
   const item = subscription.items.data.at(0);
   if (!item || subscription.items.data.length > 1)
-    throw new SubscriptionPriceUnknownError();
+    throw new PromotionCodeCouldNotBeAttachedError(
+      'Unknown subscription price',
+      undefined,
+      {
+        subscriptionId: subscription.id,
+      }
+    );
   return item.price;
 };
 

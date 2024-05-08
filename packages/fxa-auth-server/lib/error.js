@@ -1520,6 +1520,19 @@ AppError.accountCreationRejected = () => {
   });
 };
 
+AppError.subscriptionPromotionCodeNotApplied = (error, message) => {
+  const extra = error ? [{}, undefined, error] : [];
+  return new AppError(
+    {
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.SUBSCRIPTION_PROMO_CODE_NOT_APPLIED,
+      message,
+    },
+    ...extra
+  );
+};
+
 function decorateErrorWithRequest(error, request) {
   if (request) {
     error.output.payload.request = {

@@ -12,6 +12,11 @@ const { config } = require('../config');
 const { CapabilityManager } = require('@fxa/payments/capability');
 const { EligibilityManager } = require('@fxa/payments/eligibility');
 const {
+  StripeClient,
+  StripeManager,
+  StripeService,
+} = require('@fxa/payments/stripe');
+const {
   ContentfulClient,
   ContentfulManager,
 } = require('@fxa/shared/contentful');
@@ -150,6 +155,18 @@ async function run(config) {
       const eligibilityManager = new EligibilityManager(contentfulManager);
       Container.set(CapabilityManager, capabilityManager);
       Container.set(EligibilityManager, eligibilityManager);
+    }
+
+    if (config.subscriptions.stripeApiKey && config.subscriptions.taxIds) {
+      const stripeClient = new StripeClient({
+        apiKey: config.subscriptions.stripeApiKey,
+      });
+      const stripeManager = new StripeManager(stripeClient, {
+        apiKey: config.subscriptions.stripeApiKey,
+        taxIds: config.subscriptions.taxIds,
+      });
+      const stripeService = new StripeService(stripeManager);
+      Container.set(StripeService, stripeService);
     }
 
     const { createStripeHelper } = require('../lib/payments/stripe');
