@@ -32,7 +32,7 @@ done
 # `npx yarn` because `npm i -g yarn` needs sudo
 npx yarn install
 npx yarn gql:allowlist
-NODE_OPTIONS="--max-old-space-size=7168" SKIP_PREFLIGHT_CHECK=true npx nx run-many -t build --all --verbose --skip-nx-cache
+NODE_OPTIONS="--max-old-space-size=7168" SKIP_PREFLIGHT_CHECK=true npx nx run-many -t build --all --verbose --skip-nx-cache --parallel=1
 
 # This will reduce packages to only production dependencies
 npx yarn workspaces focus --production --all
