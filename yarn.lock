@@ -37824,7 +37824,6 @@ fsevents@~2.1.1:
     request: ^2.88.2
     rimraf: ^5.0.0
     safe-regex: ^2.1.1
-    safe-url-assembler: 1.3.5
     sass: ^1.76.0
     simplesmtp: 0.3.35
     sinon: ^9.0.3
@@ -55857,13 +55856,6 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"qs@npm:~6.3.0":
-  version: 6.3.3
-  resolution: "qs@npm:6.3.3"
-  checksum: e7d2f02d3d4a441b870e5da065e391c1ab9df98835e35a84a3c36206589bd8a39c041b165e3b542af68678248b2bf6f5dca283cad4312bcfa4435e1de3c55be6
-  languageName: node
-  linkType: hard
-
 "qs@npm:~6.5.1, qs@npm:~6.5.2":
   version: 6.5.2
   resolution: "qs@npm:6.5.2"
@@ -58502,16 +58494,6 @@ resolve@1.1.7:
   version: 2.4.3
   resolution: "safe-stable-stringify@npm:2.4.3"
   checksum: 3aeb64449706ee1f5ad2459fc99648b131d48e7a1fbb608d7c628020177512dc9d94108a5cb61bbc953985d313d0afea6566d243237743e02870490afef04b43
-  languageName: node
-  linkType: hard
-
-"safe-url-assembler@npm:1.3.5":
-  version: 1.3.5
-  resolution: "safe-url-assembler@npm:1.3.5"
-  dependencies:
-    extend: ~3.0.0
-    qs: ~6.3.0
-  checksum: 9ecf9c809573b7a882c2fed1a9879246f52c06c775084da78c99bc542238ba03a21c19320438d5634805b4a5b1035d68cab0deb030f4534a845acc25aa8dc805
   languageName: node
   linkType: hard
 
