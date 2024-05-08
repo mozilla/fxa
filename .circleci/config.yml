@@ -477,6 +477,7 @@ jobs:
       - provision
       - setup_remote_docker:
           docker_layer_caching: true
+          version: previous
       - run:
           name: Build docker images
           command: ./.circleci/docker-build-fxa.sh  << pipeline.id >>
