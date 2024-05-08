@@ -38520,7 +38520,7 @@ fsevents@~2.1.1:
     source-map-loader: ^5.0.0
     storybook: ^7.0.23
     storybook-addon-rtl: ^0.5.0
-    style-loader: ^3.3.3
+    style-loader: ^4.0.0
     subscriptions-transport-ws: ^0.11.0
     tailwindcss: ^3.4.1
     terser-webpack-plugin: ^5.2.5
@@ -61212,12 +61212,21 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"style-loader@npm:^3.3.1, style-loader@npm:^3.3.2, style-loader@npm:^3.3.3":
+"style-loader@npm:^3.3.1, style-loader@npm:^3.3.2":
   version: 3.3.3
   resolution: "style-loader@npm:3.3.3"
   peerDependencies:
     webpack: ^5.0.0
   checksum: f59c953f56f6a935bd6a1dfa409f1128fed2b66b48ce4a7a75b85862a7156e5e90ab163878962762f528ec4d510903d828da645e143fbffd26f055dc1c094078
+  languageName: node
+  linkType: hard
+
+"style-loader@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "style-loader@npm:4.0.0"
+  peerDependencies:
+    webpack: ^5.27.0
+  checksum: 0b751b4cc8394a2fe1df6194bb2f6dd68e859e36f22030994bb7b5220f24f9efb5705e78b2442226e6fa4c90f74b397529c7eb0a1d7326fb016e1e140e90151c
   languageName: node
   linkType: hard
 
