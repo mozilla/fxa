@@ -2,15 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict';
+import { JWTool, PrivateJWK } from '@fxa/vendored/jwtool';
 
-const { JWTool } = require('@fxa/vendored/jwtool');
-
-module.exports = function (secretKeyFile, domain) {
-  const key = JWTool.JWK.fromFile(secretKeyFile, { iss: domain });
+export default function (secretKeyFile: string, domain: string) {
+  const key = JWTool.JWK.fromFile(secretKeyFile, { iss: domain }) as PrivateJWK;
 
   return {
-    sign: async function (data) {
+    sign: async function (data: any) {
       const now = Date.now();
       const cert = await key.sign({
         'public-key': data.publicKey,
@@ -32,4 +30,4 @@ module.exports = function (secretKeyFile, domain) {
       return { cert };
     },
   };
-};
+}
