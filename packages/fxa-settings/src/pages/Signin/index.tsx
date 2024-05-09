@@ -410,6 +410,7 @@ const Signin = ({
               params.delete('hasLinkedAccount');
               params.delete('hasPassword');
               params.delete('showReactApp');
+              params.delete('login_hint');
               hardNavigate(`/?${params.toString()}`);
             }}
           >

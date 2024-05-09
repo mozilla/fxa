@@ -9,11 +9,11 @@ export class SigninTokenCodePage extends BaseTokenCodePage {
 
   get tokenCodeHeader() {
     this.checkPath();
-    return this.page.locator('#fxa-signin-code-header');
+    return this.page.getByRole('heading', { name: /^Enter confirmation code/ });
   }
 
-  get resendLink() {
+  get resendButton() {
     this.checkPath();
-    return this.page.locator('#resend');
+    return this.page.getByRole('button', { name: /Email new code/ });
   }
 }

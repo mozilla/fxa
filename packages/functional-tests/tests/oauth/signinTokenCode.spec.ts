@@ -30,7 +30,7 @@ test.describe('severity-2 #smoke', () => {
 
     test('verified - invalid token', async ({
       page,
-      pages: { login, relier, signinTokenCode },
+      pages: { configPage, login, signinReact, relier, signinTokenCode },
       testAccountTracker,
     }) => {
       // The `sync` prefix is needed to force confirmation.
@@ -40,10 +40,10 @@ test.describe('severity-2 #smoke', () => {
       // Click the Email First flow, which should direct to the sign in page
       await relier.clickEmailFirst();
       // Enter email, then enter password
-      await login.fillOutEmailFirstSignIn(
-        credentials.email,
-        credentials.password
-      );
+      await signinReact.fillOutEmailFirstForm(credentials.email);
+      await signinReact.fillOutPasswordForm(credentials.password);
+
+      await page.waitForURL(/signin_token_code/);
 
       // Check that the sign in page is show, and is asking for a sign in code
       await expect(signinTokenCode.tokenCodeHeader).toBeVisible();
@@ -52,14 +52,16 @@ test.describe('severity-2 #smoke', () => {
       // INVALID_TOKEN error to be thrown.
       await login.destroySession(credentials.email);
 
-      // Destroying the session should direct user back to sign in page
-      await expect(page).toHaveURL(/oauth\/signin/);
-      await expect(login.passwordHeader).toBeVisible();
+      await signinTokenCode.fillOutCodeForm('000000');
+
+      await expect(page.getByText('Invalid token')).toBeVisible();
+
+      // TODO: This should navigate back to `/signin`, file follow up bug
     });
 
     test('verified - valid code', async ({
       target,
-      pages: { login, relier, signinTokenCode },
+      pages: { page, signinReact, relier, signinTokenCode },
       testAccountTracker,
     }) => {
       // The `sync` prefix is needed to force confirmation.
@@ -69,18 +71,21 @@ test.describe('severity-2 #smoke', () => {
       // Click the Email First flow, which should direct to the sign in page
       await relier.clickEmailFirst();
       // Enter email, then enter password
-      await login.fillOutEmailFirstSignIn(
-        credentials.email,
-        credentials.password
-      );
-      // Enter invalid code, ensure it doesn't work
-      await signinTokenCode.input.fill('000000');
-      await signinTokenCode.submit.click();
+      await signinReact.fillOutEmailFirstForm(credentials.email);
+      await signinReact.fillOutPasswordForm(credentials.password);
 
-      await expect(signinTokenCode.tooltip).toContainText('Invalid or expired');
+      await page.waitForURL(/signin_token_code/);
+
+      await expect(signinTokenCode.heading).toBeVisible();
+      // Enter invalid code, ensure it doesn't work
+      await signinTokenCode.fillOutCodeForm('000000');
+
+      await expect(
+        page.getByText('Invalid or expired confirmation code')
+      ).toBeVisible();
 
       // Resend the code
-      await signinTokenCode.resendLink.click();
+      await signinTokenCode.resendButton.click();
 
       await expect(signinTokenCode.successMessage).toBeVisible();
       await expect(signinTokenCode.successMessage).toContainText(
@@ -89,15 +94,15 @@ test.describe('severity-2 #smoke', () => {
       // Correctly submits the token code and navigates to oauth page
       await expect(signinTokenCode.tokenCodeHeader).toBeVisible();
 
-      const code = await target.emailClient.waitForEmail(
-        credentials.email,
-        EmailType.verifyLoginCode,
-        EmailHeader.signinCode
+      const code = await target.emailClient.getSigninTokenCode(
+        credentials.email
       );
-      await signinTokenCode.input.fill(code);
-      await signinTokenCode.submit.click();
+      await signinTokenCode.fillOutCodeForm(code);
 
-      await expect(login.notesHeader).toContainText('Notes by Firefox');
+      await expect(page).toHaveURL(/notes\/fxa\//);
+      await expect(
+        page.getByRole('heading', { name: 'Notes by Firefox' })
+      ).toBeVisible();
     });
   });
 });

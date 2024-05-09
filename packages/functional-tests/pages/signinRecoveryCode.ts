@@ -4,10 +4,13 @@
 
 import { BaseTokenCodePage } from './baseTokenCode';
 
-export class ConfirmSignupCodePage extends BaseTokenCodePage {
-  readonly path = '/confirm_signup_code';
+export class SigninRecoveryCodePage extends BaseTokenCodePage {
+  readonly path = '/signin_recovery_code';
 
-  get heading() {
-    return this.page.getByRole('heading', { name: /^Enter confirmation code/ });
+  get input() {
+    this.checkPath();
+    return this.page.getByRole('textbox', {
+      name: 'Enter 10-digit backup authentication code',
+    });
   }
 }

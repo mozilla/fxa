@@ -28,6 +28,9 @@ export class SignInOptionsInput {
   @Field({ nullable: true })
   public unblockCode?: string;
 
+  @Field({ nullable: true })
+  public originalLoginEmail?: string;
+
   @Field(() => MetricsContext, { nullable: true })
   public metricsContext?: MetricsContext;
 }

@@ -80,7 +80,7 @@ test.describe('severity-1 #smoke', () => {
       await signinReact.fillOutPasswordForm(credentials.password);
       await signinReact.fillOutAuthenticationForm('111111');
 
-      await expect(signinReact.authenticationCodeTextboxTooltip).toHaveText(
+      await expect(signinReact.totpCodeTextboxTooltip).toHaveText(
         'Invalid two-step authentication code'
       );
 

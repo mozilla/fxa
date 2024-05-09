@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { EmailHeader, EmailType } from '../../lib/email';
+import { getCode } from 'fxa-settings/src/lib/totp';
 import { Page, expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
 import { TestAccountTracker } from '../../lib/testAccountTracker';
-import { LoginPage } from '../../pages/login';
 import { SettingsPage } from '../../pages/settings';
 import { TotpCredentials, TotpPage } from '../../pages/settings/totp';
+import { SigninReactPage } from '../../pages/signinReact';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('two step auth', () => {
@@ -19,13 +19,14 @@ test.describe('severity-1 #smoke', () => {
 
     test('add and remove totp', async ({
       target,
-      pages: { page, settings, totp, login },
+      pages: { page, settings, signinReact, totp },
       testAccountTracker,
     }) => {
       const credentials = await signInAccount(
-        target,
         page,
-        login,
+        settings,
+        signinReact,
+        target,
         testAccountTracker
       );
 
@@ -34,16 +35,25 @@ test.describe('severity-1 #smoke', () => {
       await settings.disconnectTotp();
       // Login to verify no prompt for code
       await settings.signOut();
-      await login.login(credentials.email, credentials.password);
-      expect(await login.isUserLoggedIn()).toBe(true);
+      await signinReact.fillOutEmailFirstForm(credentials.email);
+      await signinReact.fillOutPasswordForm(credentials.password);
+
+      //Verify logged in on Settings page
+      await expect(settings.settingsHeading).toBeVisible();
     });
 
     test('totp use QR code', async ({
       target,
-      pages: { page, login, settings, totp },
+      pages: { page, signinReact, settings, totp },
       testAccountTracker,
     }) => {
-      await signInAccount(target, page, login, testAccountTracker);
+      await signInAccount(
+        page,
+        settings,
+        signinReact,
+        target,
+        testAccountTracker
+      );
 
       await settings.goto();
 
@@ -64,23 +74,28 @@ test.describe('severity-1 #smoke', () => {
       await settings.disconnectTotp(); // Required before teardown
     });
 
-    test('add TOTP and login', async ({
+    test('add TOTP and signinReact', async ({
       target,
-      pages: { page, settings, totp, login },
+      pages: { page, settings, totp, signinReact, signinTotpCode },
       testAccountTracker,
     }) => {
       const credentials = await signInAccount(
-        target,
         page,
-        login,
+        settings,
+        signinReact,
+        target,
         testAccountTracker
       );
 
-      await settings.goto();
       const { secret } = await addTotp(settings, totp);
       await settings.signOut();
-      await login.login(credentials.email, credentials.password);
-      await login.setTotp(secret);
+      await signinReact.fillOutEmailFirstForm(credentials.email);
+      await signinReact.fillOutPasswordForm(credentials.password);
+
+      await expect(page).toHaveURL(/signin_totp_code/);
+      await expect(signinTotpCode.heading).toBeVisible();
+      const totpCode = await getCode(secret);
+      await signinTotpCode.fillOutCodeForm(totpCode);
 
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.totp.status).toHaveText('Enabled');
@@ -90,47 +105,63 @@ test.describe('severity-1 #smoke', () => {
 
     test('totp invalid recovery code', async ({
       target,
-      pages: { page, settings, totp, login },
+      pages: {
+        page,
+        settings,
+        signinReact,
+        signinRecoveryCode,
+        signinTotpCode,
+        totp,
+      },
       testAccountTracker,
     }) => {
       const credentials = await signInAccount(
-        target,
         page,
-        login,
+        settings,
+        signinReact,
+        target,
         testAccountTracker
       );
 
-      await settings.goto();
       const { recoveryCodes } = await addTotp(settings, totp);
       await settings.signOut();
-      await login.login(credentials.email, credentials.password);
-      await login.clickUseRecoveryCode();
-      await login.setCode('invalid!!!!');
-      await login.submitButton.click();
+      await signinReact.fillOutEmailFirstForm(credentials.email);
+      await signinReact.fillOutPasswordForm(credentials.password);
 
-      await expect(login.tooltip).toHaveText(
-        'Invalid backup authentication code'
-      );
+      await page.waitForURL(/signin_totp_code/);
+
+      await signinTotpCode.useRecoveryCodeLink.click();
+      await signinRecoveryCode.fillOutCodeForm('invalid!!');
+
+      await expect(
+        page.getByText('Invalid backup authentication code')
+      ).toBeVisible();
 
       // Required before teardown
-      await login.setCode(recoveryCodes[0]);
-      await login.submitButton.click();
+      await signinRecoveryCode.fillOutCodeForm(recoveryCodes[0]);
       await settings.disconnectTotp();
     });
 
     test('can change backup authentication codes', async ({
       target,
-      pages: { page, settings, totp, login },
+      pages: {
+        page,
+        settings,
+        signinReact,
+        signinRecoveryCode,
+        signinTotpCode,
+        totp,
+      },
       testAccountTracker,
     }) => {
       const credentials = await signInAccount(
-        target,
         page,
-        login,
+        settings,
+        signinReact,
+        target,
         testAccountTracker
       );
 
-      await settings.goto();
       const { recoveryCodes } = await addTotp(settings, totp);
       await settings.totp.changeButton.click();
       await settings.modalConfirmButton.click();
@@ -148,51 +179,58 @@ test.describe('severity-1 #smoke', () => {
       );
 
       await settings.signOut();
-      await login.login(credentials.email, credentials.password);
-      await login.clickUseRecoveryCode();
-      await login.setCode(newCodes[0]);
-      await login.submit();
+      await signinReact.fillOutEmailFirstForm(credentials.email);
+      await signinReact.fillOutPasswordForm(credentials.password);
 
-      expect(page.url()).toContain(settings.url);
+      await page.waitForURL(/signin_totp_code/);
+
+      await signinTotpCode.useRecoveryCodeLink.click();
+
+      await page.waitForURL(/signin_recovery_code/);
+
+      await signinRecoveryCode.fillOutCodeForm(newCodes[0]);
+
+      await expect(settings.settingsHeading).toBeVisible();
 
       await settings.disconnectTotp(); // Required before teardown
     });
 
     test('can get new backup authentication codes via email', async ({
       target,
-      pages: { page, settings, totp, login },
+      pages: {
+        page,
+        settings,
+        signinReact,
+        signinRecoveryCode,
+        signinTotpCode,
+        totp,
+      },
       testAccountTracker,
     }) => {
       const credentials = await signInAccount(
-        target,
         page,
-        login,
+        settings,
+        signinReact,
+        target,
         testAccountTracker
       );
 
       await settings.goto();
       const { recoveryCodes } = await addTotp(settings, totp);
-      await settings.signOut();
 
-      for (let i = 0; i < recoveryCodes.length - 3; i++) {
-        await login.login(
-          credentials.email,
-          credentials.password,
-          recoveryCodes[i]
-        );
-        await login.page.waitForURL(/settings/);
+      for (let i = 0; i < recoveryCodes.length - 2; i++) {
         await settings.signOut();
+        await signinReact.fillOutEmailFirstForm(credentials.email);
+        await signinReact.fillOutPasswordForm(credentials.password);
+        await page.waitForURL(/signin_totp_code/);
+        await signinTotpCode.useRecoveryCodeLink.click();
+        await page.waitForURL(/signin_recovery_code/);
+        await signinRecoveryCode.fillOutCodeForm(recoveryCodes[i]);
+        await expect(settings.settingsHeading).toBeVisible();
       }
-      await login.login(
-        credentials.email,
-        credentials.password,
-        recoveryCodes[recoveryCodes.length - 1]
-      );
-      await login.page.waitForURL(/settings/);
-      const link = await target.emailClient.waitForEmail(
-        credentials.email,
-        EmailType.lowRecoveryCodes,
-        EmailHeader.link
+
+      const link = await target.emailClient.getLowRecoveryCodesLink(
+        credentials.email
       );
       await page.goto(link);
       const newCodes = await totp.getRecoveryCodes();
@@ -205,21 +243,35 @@ test.describe('severity-1 #smoke', () => {
 
     test('delete account with totp enabled', async ({
       target,
-      pages: { page, settings, totp, login, deleteAccount },
+      pages: {
+        deleteAccount,
+        page,
+        settings,
+        totp,
+        signinReact,
+        signinTotpCode,
+      },
       testAccountTracker,
     }) => {
       const credentials = await signInAccount(
-        target,
         page,
-        login,
+        settings,
+        signinReact,
+        target,
         testAccountTracker
       );
 
       await settings.goto();
       const { secret } = await addTotp(settings, totp);
       await settings.signOut();
-      await login.login(credentials.email, credentials.password);
-      await login.setTotp(secret);
+      await signinReact.fillOutEmailFirstForm(credentials.email);
+      await signinReact.fillOutPasswordForm(credentials.password);
+      await page.waitForURL(/signin_totp_code/);
+
+      const totpCode = await getCode(secret);
+      await signinTotpCode.fillOutCodeForm(totpCode);
+
+      await expect(settings.settingsHeading).toBeVisible();
 
       await settings.deleteAccountButton.click();
       await deleteAccount.deleteAccount(credentials.password);
@@ -232,17 +284,19 @@ test.describe('severity-1 #smoke', () => {
 });
 
 async function signInAccount(
-  target: BaseTarget,
   page: Page,
-  login: LoginPage,
+  settings: SettingsPage,
+  signinReact: SigninReactPage,
+  target: BaseTarget,
   testAccountTracker: TestAccountTracker
 ): Promise<Credentials> {
   const credentials = await testAccountTracker.signUp();
   await page.goto(target.contentServerUrl);
-  await login.fillOutEmailFirstSignIn(credentials.email, credentials.password);
+  await signinReact.fillOutEmailFirstForm(credentials.email);
+  await signinReact.fillOutPasswordForm(credentials.password);
 
   //Verify logged in on Settings page
-  expect(await login.isUserLoggedIn()).toBe(true);
+  await expect(settings.settingsHeading).toBeVisible();
 
   return credentials;
 }

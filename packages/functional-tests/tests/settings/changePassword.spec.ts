@@ -5,18 +5,25 @@
 import { Page, expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
 import { TestAccountTracker } from '../../lib/testAccountTracker';
-import { LoginPage } from '../../pages/login';
+import { SettingsPage } from '../../pages/settings';
+import { SigninReactPage } from '../../pages/signinReact';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('change password tests', () => {
     test('change password with an incorrect old password', async ({
       target,
-      pages: { page, login, settings, changePassword },
+      pages: { changePassword, page, settings, signinReact },
       testAccountTracker,
     }) => {
       test.slow();
 
-      await signInAccount(target, page, login, testAccountTracker);
+      await signInAccount(
+        target,
+        page,
+        settings,
+        signinReact,
+        testAccountTracker
+      );
       const newPassword = testAccountTracker.generatePassword();
 
       await settings.goto();
@@ -33,7 +40,7 @@ test.describe('severity-1 #smoke', () => {
 
     test('change password with a correct password', async ({
       target,
-      pages: { page, settings, changePassword, login },
+      pages: { changePassword, page, settings, signinReact },
       testAccountTracker,
     }) => {
       test.slow();
@@ -41,7 +48,8 @@ test.describe('severity-1 #smoke', () => {
       const credentials = await signInAccount(
         target,
         page,
-        login,
+        settings,
+        signinReact,
         testAccountTracker
       );
       const newPassword = testAccountTracker.generatePassword();
@@ -61,10 +69,8 @@ test.describe('severity-1 #smoke', () => {
 
       // Sign out and login with new password
       await settings.signOut();
-      await login.fillOutEmailFirstSignIn(
-        credentials.email,
-        credentials.password
-      );
+      await signinReact.fillOutEmailFirstForm(credentials.email);
+      await signinReact.fillOutPasswordForm(credentials.password);
 
       await expect(settings.primaryEmail.status).toHaveText(credentials.email);
     });
@@ -92,10 +98,16 @@ test.describe('severity-1 #smoke', () => {
     for (const { name, error, password, confirmPassword } of testCases) {
       test(`new password validation - ${name}`, async ({
         target,
-        pages: { page, login, settings, changePassword },
+        pages: { changePassword, page, settings, signinReact },
         testAccountTracker,
       }) => {
-        await signInAccount(target, page, login, testAccountTracker);
+        await signInAccount(
+          target,
+          page,
+          settings,
+          signinReact,
+          testAccountTracker
+        );
 
         await settings.goto();
         await settings.password.changeButton.click();
@@ -111,13 +123,14 @@ test.describe('severity-1 #smoke', () => {
 
     test(`new password validation - email as password`, async ({
       target,
-      pages: { page, login, settings, changePassword },
+      pages: { changePassword, page, settings, signinReact },
       testAccountTracker,
     }) => {
       const { email } = await signInAccount(
         target,
         page,
-        login,
+        settings,
+        signinReact,
         testAccountTracker
       );
 
@@ -135,10 +148,16 @@ test.describe('severity-1 #smoke', () => {
 
     test('change password with short password tooltip shows, cancel and try to change password again, tooltip is not shown', async ({
       target,
-      pages: { page, login, settings, changePassword },
+      pages: { changePassword, page, settings, signinReact },
       testAccountTracker,
     }) => {
-      await signInAccount(target, page, login, testAccountTracker);
+      await signInAccount(
+        target,
+        page,
+        settings,
+        signinReact,
+        testAccountTracker
+      );
 
       await settings.goto();
       await settings.password.changeButton.click();
@@ -161,12 +180,12 @@ test.describe('severity-1 #smoke', () => {
     test('reset password via settings works', async ({
       target,
       pages: {
-        configPage,
-        page,
-        login,
-        settings,
         changePassword,
+        page,
+        settings,
+        signinReact,
         resetPasswordReact,
+        configPage,
       },
       testAccountTracker,
     }) => {
@@ -177,7 +196,13 @@ test.describe('severity-1 #smoke', () => {
       );
       test.slow();
 
-      await signInAccount(target, page, login, testAccountTracker);
+      await signInAccount(
+        target,
+        page,
+        settings,
+        signinReact,
+        testAccountTracker
+      );
 
       await settings.goto();
 
@@ -195,15 +220,17 @@ test.describe('severity-1 #smoke', () => {
 async function signInAccount(
   target: BaseTarget,
   page: Page,
-  login: LoginPage,
+  settings: SettingsPage,
+  signinReact: SigninReactPage,
   testAccountTracker: TestAccountTracker
 ): Promise<Credentials> {
   const credentials = await testAccountTracker.signUp();
   await page.goto(target.contentServerUrl);
-  await login.fillOutEmailFirstSignIn(credentials.email, credentials.password);
+  await signinReact.fillOutEmailFirstForm(credentials.email);
+  await signinReact.fillOutPasswordForm(credentials.password);
 
   //Verify logged in on Settings page
-  expect(await login.isUserLoggedIn()).toBe(true);
+  await expect(settings.settingsHeading).toBeVisible();
 
   return credentials;
 }

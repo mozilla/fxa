@@ -2,10 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { expect, test } from '../../lib/fixtures/standard';
+import { Page, expect, test } from '../../lib/fixtures/standard';
 import { oauthWebchannelV1 } from '../../lib/query-params';
+import { BaseTarget } from '../../lib/targets/base';
 import { TestAccountTracker } from '../../lib/testAccountTracker';
-import { LoginPage } from '../../pages/login';
+import { ConnectAnotherDevicePage } from '../../pages/connectAnotherDevice';
+import { SettingsPage } from '../../pages/settings';
+import { SigninReactPage } from '../../pages/signinReact';
 
 test.describe('fxa_status web channel message in Settings', () => {
   test.beforeEach(async ({ pages: { configPage } }) => {
@@ -16,11 +19,18 @@ test.describe('fxa_status web channel message in Settings', () => {
   });
 
   test('message is sent when loading with context = oauth_webchannel_v1', async ({
-    syncBrowserPages: { page, login, settings },
+    syncBrowserPages: { connectAnotherDevice, page, signinReact, settings },
+    target,
     testAccountTracker,
   }) => {
-    const credentials = await signInAccount(testAccountTracker, login);
-    await signInDifferentAccount(testAccountTracker, login);
+    const credentials = await signInAccount(
+      connectAnotherDevice,
+      page,
+      signinReact,
+      target,
+      testAccountTracker
+    );
+    await signInDifferentAccount(settings, signinReact, testAccountTracker);
 
     // We verify that even though another email is signed in, when
     // accessing the setting with a `context=oauth_webchannel_v1` the account
@@ -30,13 +40,21 @@ test.describe('fxa_status web channel message in Settings', () => {
   });
 
   test('message is not sent when loading without oauth web channel context', async ({
-    syncBrowserPages: { login, settings },
+    syncBrowserPages: { connectAnotherDevice, page, signinReact, settings },
+    target,
     testAccountTracker,
   }) => {
-    await signInAccount(testAccountTracker, login);
+    await signInAccount(
+      connectAnotherDevice,
+      page,
+      signinReact,
+      target,
+      testAccountTracker
+    );
     const otherCredentials = await signInDifferentAccount(
-      testAccountTracker,
-      login
+      settings,
+      signinReact,
+      testAccountTracker
     );
 
     // We verify that when accessing the setting without the `context=oauth_webchannel_v1`
@@ -49,25 +67,35 @@ test.describe('fxa_status web channel message in Settings', () => {
 });
 
 async function signInAccount(
-  testAccountTracker: TestAccountTracker,
-  login: LoginPage
+  connectAnotherDevice: ConnectAnotherDevicePage,
+  page: Page,
+  signinReact: SigninReactPage,
+  target: BaseTarget,
+  testAccountTracker: TestAccountTracker
 ) {
   const credentials = await testAccountTracker.signUp();
-  await login.goto('load', 'context=fx_desktop_v3&service=sync');
-  await login.fillOutEmailFirstSignIn(credentials.email, credentials.password);
+  await page.goto(
+    `${target.contentServerUrl}?context=fx_desktop_v3&service=sync`
+  );
+  await signinReact.fillOutEmailFirstForm(credentials.email);
+  await signinReact.fillOutPasswordForm(credentials.password);
+
+  await expect(connectAnotherDevice.fxaConnectedHeading).toBeVisible();
   return credentials;
 }
 
 async function signInDifferentAccount(
-  testAccountTracker: TestAccountTracker,
-  login: LoginPage
+  settings: SettingsPage,
+  signinReact: SigninReactPage,
+  testAccountTracker: TestAccountTracker
 ) {
   const otherCredentials = await testAccountTracker.signUp();
-  await login.goto();
-  await login.useDifferentAccountLink();
-  await login.fillOutEmailFirstSignIn(
-    otherCredentials.email,
-    otherCredentials.password
-  );
+  await signinReact.goto();
+  await signinReact.useDifferentAccountLink.click();
+  await signinReact.fillOutEmailFirstForm(otherCredentials.email);
+  await signinReact.fillOutPasswordForm(otherCredentials.password);
+
+  //Verify logged in on Settings page
+  await expect(settings.settingsHeading).toBeVisible();
   return otherCredentials;
 }

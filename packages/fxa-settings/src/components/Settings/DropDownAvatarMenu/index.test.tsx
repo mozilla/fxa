@@ -138,7 +138,7 @@ describe('DropDownAvatarMenu', () => {
         'signout.success'
       );
       expect(window.location.assign).toHaveBeenCalledWith(
-        `${window.location.origin}/signin`
+        window.location.origin
       );
     });
 

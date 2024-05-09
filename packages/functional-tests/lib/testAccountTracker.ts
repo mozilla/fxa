@@ -12,6 +12,7 @@ enum EmailPrefix {
   FORCED_PWD_CHANGE = 'forcepwdchange',
   SIGNIN = 'signin',
   SIGNUP_REACT = 'signup_react',
+  SUBSCRIPTION = 'subscribe',
   SYNC = 'sync',
 }
 
@@ -144,6 +145,16 @@ export class TestAccountTracker {
    */
   async signUpSync(options?: any): Promise<Credentials> {
     return await this.signUp(options, EmailPrefix.SYNC);
+  }
+
+  /**
+   * Signs up an account with the AuthClient with a new email address created
+   * with the 'subscribe' prefix and a new randomized password
+   * @param options AuthClient signup options
+   * @returns Credentials
+   */
+  async signUpSubscription(options?: any): Promise<Credentials> {
+    return await this.signUp(options, EmailPrefix.SUBSCRIPTION);
   }
 
   /**

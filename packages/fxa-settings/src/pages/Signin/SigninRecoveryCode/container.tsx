@@ -11,13 +11,14 @@ import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { useMutation } from '@apollo/client';
 import { CONSUME_RECOVERY_CODE_MUTATION } from './gql';
 import { useCallback } from 'react';
-import { getSigninState, getHandledError } from '../utils';
+import { getHandledError, getSigninState } from '../utils';
 import { SigninLocationState } from '../interfaces';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import { useValidatedQueryParams } from '../../../lib/hooks/useValidate';
 import { SigninQueryParams } from '../../../models/pages/signin';
 import { ConsumeRecoveryCodeResponse, SubmitRecoveryCode } from './interfaces';
 import OAuthDataError from '../../../components/OAuthDataError';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 
 export type SigninRecoveryCodeContainerProps = {
   integration: Integration;
@@ -49,6 +50,10 @@ export const SigninRecoveryCodeContainer = ({
   const submitRecoveryCode: SubmitRecoveryCode = useCallback(
     async (recoveryCode: string) => {
       try {
+        if (recoveryCode.length !== 10) {
+          throw AuthUiErrors.INVALID_RECOVERY_CODE;
+        }
+
         // this mutation returns the number of remaining codes,
         // but we're not currently using that value client-side
         // may want to see if we need it for /settings (display number of remaining backup codes?)

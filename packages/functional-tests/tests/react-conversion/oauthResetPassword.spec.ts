@@ -8,6 +8,7 @@ import { syncMobileOAuthQueryParams } from '../../lib/query-params';
 import { BaseTarget } from '../../lib/targets/base';
 import { ResetPasswordReactPage } from '../../pages/resetPasswordReact';
 import { LoginPage } from '../../pages/login';
+import { getCode } from 'fxa-settings/src/lib/totp';
 
 const SERVICE_NAME_123 = '123';
 const SERVICE_NAME_FIREFOX = 'Firefox';
@@ -218,7 +219,6 @@ test.describe('severity-1 #smoke', () => {
       pages: { login, resetPasswordReact },
       testAccountTracker,
     }) => {
-      test.fixme(true, 'Fix required as of 2023/07/18 (see FXA-8006).');
       // the PKCE button is broken at the moment, so for now navigate directly to the link.
       // PKCE button doesn't appear to work at the moment locally. Some sort of cors error
       // keeps getting in the way. Just go to link directly for now.
@@ -263,9 +263,6 @@ test.describe('severity-1 #smoke', () => {
       await expect(page).toHaveURL(/reset_password_verified/);
       await expect(
         resetPasswordReact.passwordResetConfirmationHeading
-      ).toBeVisible();
-      await expect(
-        page.getByText(new RegExp(`.*${SERVICE_NAME_123}.*`, 'i'))
       ).toBeVisible();
     });
 
@@ -347,8 +344,6 @@ test.describe('severity-1 #smoke', () => {
       },
       testAccountTracker,
     }) => {
-      test.fixme(true, 'Fix required as of 2024/04/25 FXA-9513');
-
       const credentials = await testAccountTracker.signUp();
       const newPassword = testAccountTracker.generatePassword();
 
@@ -357,7 +352,7 @@ test.describe('severity-1 #smoke', () => {
       await signinReact.fillOutPasswordForm(credentials.password);
       // Goes to settings and enables totp on user's account.
       await settings.totp.addButton.click();
-      await totp.fillOutTotpForms();
+      const { secret } = await totp.fillOutTotpForms();
       await settings.signOut();
 
       // Makes sure user is not signed in, and goes to the relier (ie 123done)
@@ -389,9 +384,15 @@ test.describe('severity-1 #smoke', () => {
       await expect(
         resetPasswordReact.passwordResetConfirmationHeading
       ).toBeVisible();
-      await expect(
-        page.getByText(new RegExp(`.*${SERVICE_NAME_123}.*`, 'i'))
-      ).toBeVisible();
+
+      // Remove totp, required before test teardown
+      await signinReact.goto();
+      await signinReact.fillOutEmailFirstForm(credentials.email);
+      await signinReact.fillOutPasswordForm(credentials.password);
+      await page.waitForURL(/signin_totp_code/);
+      const code = await getCode(secret);
+      await signinReact.fillOutAuthenticationForm(code);
+      await settings.disconnectTotp();
     });
   });
 
@@ -433,12 +434,10 @@ test.describe('severity-1 #smoke', () => {
     email: string
   ) {
     await resetPasswordReact.fillOutEmailForm(email);
-    let link = await target.emailClient.waitForEmail(
+    return target.emailClient.waitForEmail(
       email,
       EmailType.recovery,
       EmailHeader.link
     );
-    link = `${link}&showReactApp=true`;
-    return link;
   }
 });

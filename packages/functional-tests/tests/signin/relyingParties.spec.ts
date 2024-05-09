@@ -30,14 +30,15 @@ test.describe('severity-1 #smoke', () => {
   });
 
   test('disconnect RP', async ({
-    pages: { relier, login, settings },
+    pages: { relier, settings, signinReact },
     testAccountTracker,
   }) => {
     const credentials = await testAccountTracker.signUp();
 
     await relier.goto();
     await relier.clickEmailFirst();
-    await login.login(credentials.email, credentials.password);
+    await signinReact.fillOutEmailFirstForm(credentials.email);
+    await signinReact.fillOutPasswordForm(credentials.password);
 
     expect(await relier.isLoggedIn()).toBe(true);
 

@@ -9,6 +9,14 @@ import { LoginPage } from '../../pages/login';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('signin here', () => {
+    test.beforeEach(async ({ pages: { configPage } }) => {
+      const config = await configPage.getConfig();
+      test.skip(
+        config.showReactApp.signInRoutes === true,
+        'skip because backbone specific'
+      );
+      test.slow();
+    });
     test('signin verified with incorrect password, click `forgot password?`', async ({
       target,
       page,

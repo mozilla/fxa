@@ -29,7 +29,7 @@ export abstract class BaseLayout {
    * child classes to make locators more robust and avoid false positives. If the current path does not exist in the URL,
    * an error will be thrown.
    */
-  checkPath() {
+  async checkPath() {
     if (this.path) {
       if (this.page.url().indexOf(this.path) < 0) {
         throw new Error(

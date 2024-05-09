@@ -3,7 +3,7 @@ import { BaseLayout } from '../layout';
 
 export abstract class SettingsLayout extends BaseLayout {
   get settingsHeading() {
-    return this.page.getByRole('heading', { name: 'Settings' });
+    return this.page.getByRole('heading', { name: /^Settings/ });
   }
 
   get helpLink() {

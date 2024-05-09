@@ -16,6 +16,7 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('sync v3 with a registered email, no uid', async ({
+      pages: { configPage },
       syncBrowserPages: {
         fxDesktopV3ForceAuth,
         login,
@@ -24,6 +25,12 @@ test.describe('severity-1 #smoke', () => {
       },
       testAccountTracker,
     }) => {
+      const config = await configPage.getConfig();
+      test.skip(
+        config.showReactApp.signInRoutes === true,
+        'force_auth is no longer supported for signin with react, FXA-9410'
+      );
+
       const credentials = await testAccountTracker.signUpSync();
 
       await fxDesktopV3ForceAuth.openWithReplacementParams(credentials, {
@@ -36,11 +43,12 @@ test.describe('severity-1 #smoke', () => {
         'fxaccounts:can_link_account'
       );
       await login.fillOutSignInCode(credentials.email);
-      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
+      await expect(connectAnotherDevice.fxaConnectedHeading).toBeVisible();
       await fxDesktopV3ForceAuth.checkWebChannelMessage('fxaccounts:login');
     });
 
     test('sync v3 with a registered email, registered uid', async ({
+      pages: { configPage },
       syncBrowserPages: {
         fxDesktopV3ForceAuth,
         login,
@@ -49,6 +57,12 @@ test.describe('severity-1 #smoke', () => {
       },
       testAccountTracker,
     }) => {
+      const config = await configPage.getConfig();
+      test.skip(
+        config.showReactApp.signInRoutes === true,
+        'force_auth is no longer supported for signin with react, FXA-9410'
+      );
+
       const credentials = await testAccountTracker.signUpSync();
 
       await fxDesktopV3ForceAuth.open(credentials);
@@ -59,11 +73,12 @@ test.describe('severity-1 #smoke', () => {
         'fxaccounts:can_link_account'
       );
       await login.fillOutSignInCode(credentials.email);
-      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
+      await expect(connectAnotherDevice.fxaConnectedHeading).toBeVisible();
       await fxDesktopV3ForceAuth.checkWebChannelMessage('fxaccounts:login');
     });
 
     test('sync v3 with a registered email, unregistered uid', async ({
+      pages: { configPage },
       syncBrowserPages: {
         fxDesktopV3ForceAuth,
         login,
@@ -72,6 +87,12 @@ test.describe('severity-1 #smoke', () => {
       },
       testAccountTracker,
     }) => {
+      const config = await configPage.getConfig();
+      test.skip(
+        config.showReactApp.signInRoutes === true,
+        'force_auth is no longer supported for signin with react, FXA-9410'
+      );
+
       const credentials = await testAccountTracker.signUpSync();
       const uid = makeUid();
       await fxDesktopV3ForceAuth.openWithReplacementParams(credentials, {
@@ -85,7 +106,7 @@ test.describe('severity-1 #smoke', () => {
         'fxaccounts:can_link_account'
       );
       await login.fillOutSignInCode(credentials.email);
-      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
+      await expect(connectAnotherDevice.fxaConnectedHeading).toBeVisible();
       await fxDesktopV3ForceAuth.checkWebChannelMessage('fxaccounts:login');
     });
 
@@ -183,6 +204,7 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('blocked with an registered email, unregistered uid', async ({
+      pages: { configPage },
       syncBrowserPages: {
         page,
         fxDesktopV3ForceAuth,
@@ -193,6 +215,12 @@ test.describe('severity-1 #smoke', () => {
       },
       testAccountTracker,
     }) => {
+      const config = await configPage.getConfig();
+      test.skip(
+        config.showReactApp.signInRoutes === true,
+        'force_auth is no longer supported for signin with react, FXA-9410'
+      );
+
       const credentials = await testAccountTracker.signUpBlocked();
       const uid = makeUid();
       await fxDesktopV3ForceAuth.openWithReplacementParams(credentials, {
@@ -205,7 +233,7 @@ test.describe('severity-1 #smoke', () => {
         'fxaccounts:can_link_account'
       );
       await login.unblock(credentials.email);
-      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
+      await expect(connectAnotherDevice.fxaConnectedHeading).toBeVisible();
       await fxDesktopV3ForceAuth.checkWebChannelMessage('fxaccounts:login');
 
       // Delete account, required before teardown

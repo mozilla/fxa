@@ -18,9 +18,14 @@ test.describe('severity-1', () => {
   });
 
   test('prompt=consent', async ({
-    pages: { relier, login },
+    pages: { configPage, relier, login },
     testAccountTracker,
   }) => {
+    const config = await configPage.getConfig();
+    test.skip(
+      config.showReactApp.signUpRoutes === true,
+      'FXA-9519, this feature is not supported in React, see FXA-8827'
+    );
     const credentials = await testAccountTracker.signUp();
 
     await relier.goto('prompt=consent');

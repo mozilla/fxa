@@ -14,11 +14,12 @@ test.describe('severity-2 #smoke', () => {
     test('sign in, change the password', async ({
       target,
       syncBrowserPages: {
-        login,
         changePassword,
         connectAnotherDevice,
-        settings,
         page,
+        settings,
+        signinReact,
+        signinTokenCode,
       },
       testAccountTracker,
     }) => {
@@ -34,19 +35,19 @@ test.describe('severity-2 #smoke', () => {
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
       );
-      await login.respondToWebChannelMessage(customEventDetail);
-      await login.fillOutEmailFirstSignIn(
-        credentials.email,
-        credentials.password
+      await signinReact.respondToWebChannelMessage(customEventDetail);
+      await signinReact.fillOutEmailFirstForm(credentials.email);
+      await signinReact.fillOutPasswordForm(credentials.password);
+      await page.waitForURL(/signin_token_code/);
+
+      await signinReact.checkWebChannelMessage(FirefoxCommand.LinkAccount);
+      await expect(signinTokenCode.heading).toBeVisible();
+      const signinCode = await target.emailClient.getSigninTokenCode(
+        credentials.email
       );
-
-      await expect(login.signInCodeHeader).toBeVisible();
-
-      await login.checkWebChannelMessage(FirefoxCommand.LinkAccount);
-      await login.fillOutSignInCode(credentials.email);
-      await login.checkWebChannelMessage(FirefoxCommand.Login);
-
-      await expect(connectAnotherDevice.fxaConnected).toBeEnabled();
+      await signinTokenCode.fillOutCodeForm(signinCode);
+      await signinReact.checkWebChannelMessage(FirefoxCommand.Login);
+      await expect(connectAnotherDevice.fxaConnectedHeading).toBeVisible();
 
       //Goto settings sync url
       await page.goto(
@@ -68,10 +69,11 @@ test.describe('severity-2 #smoke', () => {
     test('sign in, change the password by browsing directly to settings', async ({
       target,
       syncBrowserPages: {
-        login,
+        signinReact,
         changePassword,
         connectAnotherDevice,
         settings,
+        signinTokenCode,
         page,
       },
       testAccountTracker,
@@ -88,26 +90,28 @@ test.describe('severity-2 #smoke', () => {
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
       );
-      await login.respondToWebChannelMessage(customEventDetail);
-      await login.fillOutEmailFirstSignIn(
-        credentials.email,
-        credentials.password
+      await signinReact.respondToWebChannelMessage(customEventDetail);
+      await signinReact.fillOutEmailFirstForm(credentials.email);
+      await signinReact.fillOutPasswordForm(credentials.password);
+      await page.waitForURL(/signin_token_code/);
+
+      await expect(signinTokenCode.heading).toBeVisible();
+
+      await signinReact.checkWebChannelMessage(FirefoxCommand.LinkAccount);
+      const signinCode = await target.emailClient.getSigninTokenCode(
+        credentials.email
       );
+      await signinTokenCode.fillOutCodeForm(signinCode);
+      await signinReact.checkWebChannelMessage(FirefoxCommand.Login);
 
-      await expect(login.signInCodeHeader).toBeVisible();
-
-      await login.checkWebChannelMessage(FirefoxCommand.LinkAccount);
-      await login.fillOutSignInCode(credentials.email);
-      await login.checkWebChannelMessage(FirefoxCommand.Login);
-
-      await expect(connectAnotherDevice.fxaConnected).toBeEnabled();
+      await expect(connectAnotherDevice.fxaConnectedHeading).toBeVisible();
 
       //Goto settings non-sync url
       await settings.goto();
 
       //Change password
       await settings.password.changeButton.click();
-      await login.noSuchWebChannelMessage(FirefoxCommand.ChangePassword);
+      await signinReact.noSuchWebChannelMessage(FirefoxCommand.ChangePassword);
       await changePassword.fillOutChangePassword(
         credentials.password,
         newPassword
@@ -122,7 +126,14 @@ test.describe('severity-2 #smoke', () => {
   test.describe('Firefox Desktop Sync v3 settings - delete account', () => {
     test('sign in, delete the account', async ({
       target,
-      syncBrowserPages: { login, settings, deleteAccount, page },
+      syncBrowserPages: {
+        signinReact,
+        settings,
+        deleteAccount,
+        page,
+        signinTokenCode,
+        connectAnotherDevice,
+      },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUpSync();
@@ -130,16 +141,20 @@ test.describe('severity-2 #smoke', () => {
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
       );
-      await login.fillOutEmailFirstSignIn(
-        credentials.email,
-        credentials.password
+      await expect(signinReact.syncSignInHeading).toBeVisible();
+      await signinReact.fillOutEmailFirstForm(credentials.email);
+      await signinReact.fillOutPasswordForm(credentials.password);
+      await page.waitForURL(/signin_token_code/);
+
+      await expect(signinTokenCode.heading).toBeVisible();
+      const signinCode = await target.emailClient.getSigninTokenCode(
+        credentials.email
       );
-      await login.fillOutSignInCode(credentials.email);
+      await signinTokenCode.fillOutCodeForm(signinCode);
+      await expect(connectAnotherDevice.fxaConnectedHeading).toBeVisible();
 
       //Go to setting page
-      await page.goto(
-        `${target.contentServerUrl}/settings?context=fx_desktop_v3&service=sync`
-      );
+      await page.goto(`${target.contentServerUrl}/settings`);
       //Click Delete account
       await settings.deleteAccountButton.click();
       await deleteAccount.deleteAccount(credentials.password);

@@ -15,6 +15,12 @@ export class PostVerifyPage extends BaseLayout {
     FORCE_PASSWORD_CHANGE_HEADER: '#fxa-force-password-change-header',
   };
 
+  get forcePasswordChangeHeading() {
+    return this.page.getByRole('heading', {
+      name: /Please change your password/,
+    });
+  }
+
   async isForcePasswordChangeHeader() {
     const header = this.page.locator(
       this.selectors.FORCE_PASSWORD_CHANGE_HEADER

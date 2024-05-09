@@ -5,6 +5,11 @@
 import { BaseLayout } from './layout';
 
 export abstract class BaseTokenCodePage extends BaseLayout {
+  get heading() {
+    this.checkPath();
+    return this.page.getByRole('heading');
+  }
+
   get tooltip() {
     this.checkPath();
     return this.page.locator('.tooltip');
@@ -12,16 +17,24 @@ export abstract class BaseTokenCodePage extends BaseLayout {
 
   get successMessage() {
     this.checkPath();
-    return this.page.locator('.success');
+    return this.page.getByRole('status');
   }
 
   get input() {
     this.checkPath();
-    return this.page.locator('input[type=text]');
+    return this.page
+      .getByRole('textbox', { name: 'code' })
+      .or(this.page.getByPlaceholder('Enter 6-digit code'));
   }
 
   get submit() {
     this.checkPath();
-    return this.page.locator('button[type=submit]');
+    return this.page.getByRole('button', { name: 'Confirm' });
+  }
+
+  async fillOutCodeForm(code: string, checkPath = true) {
+    await this.checkPath();
+    await this.input.fill(code);
+    await this.submit.click();
   }
 }

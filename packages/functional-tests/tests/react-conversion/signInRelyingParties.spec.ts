@@ -36,8 +36,11 @@ test.describe('severity-1 #smoke', () => {
     await signinReact.fillOutEmailFirstForm(credentials.email);
     await signinReact.fillOutPasswordForm(credentials.password);
 
-    await expect(connectAnotherDevice.fxaConnected).toBeEnabled();
+
+    await expect(connectAnotherDevice.fxaConnectedHeading).toBeVisible();
+
     await connectAnotherDevice.startBrowsingButton.click();
+
     await expect(page).toHaveURL(/settings/, { timeout: 1000 });
 
     await settings.disconnectSync(credentials);
@@ -51,10 +54,6 @@ test.describe('severity-1 #smoke', () => {
     testAccountTracker,
   }, { project }) => {
     const config = await configPage.getConfig();
-    test.fixme(
-      project.name !== 'local',
-      'Fix required as of 2024/04/26 (see FXA-9518).'
-    );
     test.skip(
       config.showReactApp.signInRoutes !== true,
       'Skip tests if React signInRoutes not enabled'
@@ -67,11 +66,6 @@ test.describe('severity-1 #smoke', () => {
 
     // wait for navigation
     await expect(page).toHaveURL(/oauth\//);
-
-    // reload page with React experiment params
-    await page.goto(
-      `${page.url()}&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
-    );
 
     await signinReact.fillOutEmailFirstForm(credentials.email);
     await signinReact.fillOutPasswordForm(credentials.password);

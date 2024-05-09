@@ -10,7 +10,12 @@ import { BaseTarget, Credentials } from '../../lib/targets/base';
 import { LoginPage } from '../../pages/login';
 
 test.describe('severity-2 #smoke', () => {
-  test.beforeEach(async () => {
+  test.beforeEach(async ({ pages: { configPage } }) => {
+    const config = await configPage.getConfig();
+    test.skip(
+      config.showReactApp.signUpRoutes === true,
+      'these tests are specific to backbone, skip if seeing React version'
+    );
     test.slow();
   });
 
@@ -27,7 +32,7 @@ test.describe('severity-2 #smoke', () => {
       );
       await login.login(credentials.email, credentials.password);
 
-      await expect(connectAnotherDevice.fxaConnected).toBeEnabled();
+      await expect(connectAnotherDevice.fxaConnectedHeading).toBeVisible();
     });
 
     test('verified email with signin verification, can ask to resend code', async ({
@@ -61,7 +66,7 @@ test.describe('severity-2 #smoke', () => {
       await signinTokenCode.input.fill(code);
       await signinTokenCode.submit.click();
 
-      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
+      await expect(connectAnotherDevice.fxaConnectedHeading).toBeVisible();
     });
 
     test('verified email with signin verification, accepts valid sign in code', async ({
@@ -88,7 +93,7 @@ test.describe('severity-2 #smoke', () => {
       await signinTokenCode.input.fill(code);
       await signinTokenCode.submit.click();
 
-      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
+      await expect(connectAnotherDevice.fxaConnectedHeading).toBeVisible();
     });
 
     test('verified email with signin verification, rejects invalid signin code', async ({
@@ -123,7 +128,7 @@ test.describe('severity-2 #smoke', () => {
       await signinTokenCode.input.fill(code);
       await signinTokenCode.submit.click();
 
-      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
+      await expect(connectAnotherDevice.fxaConnectedHeading).toBeVisible();
     });
 
     test('unverified email', async ({
@@ -156,7 +161,7 @@ test.describe('severity-2 #smoke', () => {
       await confirmSignupCode.input.fill(code);
       await confirmSignupCode.submit.click();
 
-      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
+      await expect(connectAnotherDevice.fxaConnectedHeading).toBeVisible();
     });
 
     test('add TOTP and confirm sync signin', async ({
@@ -194,7 +199,7 @@ test.describe('severity-2 #smoke', () => {
       await signinTotpCode.input.fill(code);
       await signinTotpCode.submit.click();
 
-      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
+      await expect(connectAnotherDevice.fxaConnectedHeading).toBeVisible();
 
       // Required before teardown
       await settings.goto();
@@ -232,7 +237,7 @@ test.describe('severity-2 #smoke', () => {
       await signinUnblock.input.fill(code);
       await signinUnblock.submit.click();
 
-      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
+      await expect(connectAnotherDevice.fxaConnectedHeading).toBeVisible();
 
       //Delete blocked account, required before teardown
       await connectAnotherDevice.startBrowsingButton.click();

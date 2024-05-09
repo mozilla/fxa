@@ -6,23 +6,24 @@ import { expect } from '@playwright/test';
 import { BaseLayout } from './layout';
 import { getReactFeatureFlagUrl } from '../lib/react-flag';
 import { EmailHeader, EmailType } from '../lib/email';
+import { selectors } from './login';
 
 export class SigninReactPage extends BaseLayout {
   readonly path = 'signin';
 
-  get authenticationFormHeading() {
+  get totpCodeFormHeading() {
     return this.page.getByRole('heading', {
       name: /^Enter (?:authentication|security) code/,
     });
   }
 
-  get authenticationCodeTextbox() {
+  get totpCodeTextbox() {
     return this.page
       .getByRole('textbox', { name: 'code' })
       .or(this.page.getByPlaceholder('Enter 6-digit code'));
   }
 
-  get authenticationCodeTextboxTooltip() {
+  get totpCodeTextboxTooltip() {
     return this.page.getByText('Invalid two-step authentication code', {
       exact: true,
     });
@@ -72,10 +73,48 @@ export class SigninReactPage extends BaseLayout {
     return this.page.getByRole('button', { name: 'Sign in' });
   }
 
+  get signinUnblockFormHeading() {
+    return this.page.getByRole('heading', {
+      name: /^Authorize this sign-in/,
+    });
+  }
+
+  get signinUnblockFormTextbox() {
+    return this.page.getByRole('textbox', { name: 'Enter authorization code' });
+  }
+
+  get signinUnblockFormSubmitButton() {
+    return this.page.getByRole('button', { name: 'Continue' });
+  }
+
+  get signinUnblockResendCodeButton() {
+    return this.page.getByRole('button', {
+      name: 'Not in inbox or spam folder? Resend',
+    });
+  }
+
+  get signinUnblockCodeResentSuccessMessage() {
+    return this.page.getByRole('status');
+  }
+
   get syncSignInHeading() {
     return this.page.getByRole('heading', {
       name: /^Continue to your Mozilla account/,
     });
+  }
+
+  get syncSignInSuccessHeading() {
+    return this.page.getByRole('heading', {
+      name: /You’re signed into Firefox/,
+    });
+  }
+
+  get sessionExpiredError() {
+    return this.page.getByText(/^Session expired/);
+  }
+
+  get useDifferentAccountLink() {
+    return this.page.getByRole('link', { name: 'Use a different account' });
   }
 
   goto(route = '/', params = new URLSearchParams()) {
@@ -87,9 +126,9 @@ export class SigninReactPage extends BaseLayout {
   }
 
   async fillOutAuthenticationForm(code: string): Promise<void> {
-    await expect(this.authenticationFormHeading).toBeVisible();
+    await expect(this.totpCodeFormHeading).toBeVisible();
 
-    await this.authenticationCodeTextbox.fill(code);
+    await this.totpCodeTextbox.fill(code);
     await this.confirmButton.click();
   }
 
@@ -116,5 +155,14 @@ export class SigninReactPage extends BaseLayout {
 
     await this.codeTextbox.fill(code);
     await this.confirmButton.click();
+  }
+
+  async fillOutSigninUnblockForm(code: string) {
+    await this.signinUnblockFormTextbox.fill(code);
+    await this.signinUnblockFormSubmitButton.click();
+  }
+
+  async getTooltipUnblockError() {
+    return this.page.getByText('Invalid authorization code');
   }
 }

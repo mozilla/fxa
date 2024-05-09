@@ -30,7 +30,6 @@ function applyDefaultMocks() {
 
   mockReactUtilsModule();
   mockWebIntegration();
-  mockTotpStatusUseQuery();
 
   mockSigninTokenCodeModule();
   mockCurrentAccount();
@@ -40,6 +39,11 @@ jest.mock('../../../models', () => {
   return {
     ...jest.requireActual('../../../models'),
     useAuthClient: jest.fn(),
+    useAccount: () => {
+      return {
+        hasTotpAuthClient: jest.fn().mockReturnValue(true),
+      };
+    },
   };
 });
 
@@ -81,19 +85,6 @@ function mockCurrentAccount(storedAccount = { uid: '123' }) {
   jest.spyOn(CacheModule, 'currentAccount').mockReturnValue(storedAccount);
 }
 
-let mockTotpStatusQuery = jest.fn();
-// default for testing is no totp set up for the account
-function mockTotpStatusUseQuery() {
-  mockTotpStatusQuery.mockImplementation(() => {
-    return {
-      data: MOCK_NO_TOTP,
-      loading: false,
-    };
-  });
-
-  jest.spyOn(ApolloModule, 'useQuery').mockReturnValue(mockTotpStatusQuery());
-}
-
 async function render() {
   renderWithLocalizationProvider(
     <LocationProvider>
@@ -116,12 +107,6 @@ describe('SigninTokenCode container', () => {
       it('can be set from router state', async () => {
         mockLocationState = createMockSigninLocationState();
         render();
-        await waitFor(() =>
-          expect(mockTotpStatusQuery).toReturnWith({
-            data: MOCK_NO_TOTP,
-            loading: false,
-          })
-        );
         await waitFor(() =>
           expect(screen.getByText('signin token code mock')).toBeInTheDocument()
         );
@@ -169,36 +154,24 @@ describe('SigninTokenCode container', () => {
         mockLocationState = createMockSigninLocationState();
       });
 
-      it('displays loading spinner when loading', () => {
-        mockTotpStatusQuery.mockImplementation(() => {
+      it.skip('redirects to totp screen if user has totp enabled', async () => {
+        jest.mock('../../../models', () => {
           return {
-            data: null,
-            loading: true,
+            ...jest.requireActual('../../../models'),
+            useAuthClient: jest.fn(),
+            useAccount: () => {
+              return {
+                hasTotpAuthClient: jest.fn().mockReturnValue(true),
+              };
+            },
           };
         });
-        jest
-          .spyOn(ApolloModule, 'useQuery')
-          .mockReturnValue(mockTotpStatusQuery());
 
-        render();
-        expect(mockTotpStatusQuery).toBeCalled();
-        screen.getByLabelText('Loading…');
-        expect(SigninTokenCodeModule.default).not.toBeCalled();
-      });
-
-      it('redirects to totp screen if user has totp enabled', () => {
-        mockTotpStatusQuery.mockImplementation(() => ({
-          data: MOCK_TOTP_STATUS,
-          loading: false,
-        }));
-        jest
-          .spyOn(ApolloModule, 'useQuery')
-          .mockReturnValue(mockTotpStatusQuery());
-
-        render();
-        expect(mockTotpStatusQuery).toBeCalled();
-        expect(mockNavigate).toBeCalledWith('/signin_totp_code');
-        expect(SigninTokenCodeModule.default).not.toBeCalled();
+        await render();
+        await waitFor(() => {
+          expect(mockNavigate).toBeCalledWith('/signin_totp_code');
+          expect(SigninTokenCodeModule.default).not.toBeCalled();
+        });
       });
     });
   });

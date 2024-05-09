@@ -9,6 +9,11 @@ export class SigninTotpCodePage extends BaseTokenCodePage {
 
   get input() {
     this.checkPath();
-    return this.page.locator('input[type=number]');
+    return this.page.getByRole('textbox', { name: 'Enter 6-digit code' });
+  }
+
+  get useRecoveryCodeLink() {
+    this.checkPath();
+    return this.page.getByRole('link', { name: 'Trouble entering code?' });
   }
 }

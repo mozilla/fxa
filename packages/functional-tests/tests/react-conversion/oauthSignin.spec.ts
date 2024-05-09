@@ -21,21 +21,11 @@ test.describe('severity-1 #smoke', () => {
       pages: { page, relier, signinReact },
       testAccountTracker,
     }, { project }) => {
-      test.fixme(
-        project.name !== 'local',
-        'Fix required as of 2024/04/26 (see FXA-9518).'
-      );
-
       const credentials = await testAccountTracker.signUp();
 
       await relier.goto();
       await relier.clickEmailFirst();
       await expect(page).toHaveURL(/oauth\//);
-
-      // reload page with React experiment params
-      await page.goto(
-        `${page.url()}&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
-      );
 
       await signinReact.fillOutEmailFirstForm(credentials.email);
       await signinReact.fillOutPasswordForm(credentials.password);
@@ -46,21 +36,11 @@ test.describe('severity-1 #smoke', () => {
       pages: { page, relier, signinReact },
       testAccountTracker,
     }, { project }) => {
-      test.fixme(
-        project.name !== 'local',
-        'Fix required as of 2024/04/26 (see FXA-9518).'
-      );
-
       const credentials = await testAccountTracker.signUp();
 
       await relier.goto();
       await relier.clickEmailFirst();
       await expect(page).toHaveURL(/oauth\//);
-
-      // reload page with React experiment params
-      await page.goto(
-        `${page.url()}&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
-      );
 
       await signinReact.fillOutEmailFirstForm(credentials.email);
       await signinReact.fillOutPasswordForm(credentials.password);
@@ -72,12 +52,7 @@ test.describe('severity-1 #smoke', () => {
       await relier.clickEmailFirst();
 
       // wait for navigation
-      await expect(page).toHaveURL(/oauth\//);
-
-      // reload page with React experiment params
-      await page.goto(
-        `${page.url()}&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
-      );
+      await expect(page).toHaveURL(/signin/);
 
       await expect(signinReact.cachedSigninHeading).toBeVisible();
       // Email is prefilled
@@ -91,20 +66,11 @@ test.describe('severity-1 #smoke', () => {
       pages: { page, relier, signinReact },
       testAccountTracker,
     }, { project }) => {
-      test.fixme(
-        project.name !== 'local',
-        'Fix required as of 2024/04/26 (see FXA-9518).'
-      );
       const credentials = await testAccountTracker.signUp();
 
       await relier.goto();
       await relier.clickEmailFirst();
       await expect(page).toHaveURL(/oauth\//);
-
-      // reload page with React experiment params
-      await page.goto(
-        `${page.url()}&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
-      );
 
       await signinReact.fillOutEmailFirstForm(credentials.email);
       await signinReact.fillOutPasswordForm(credentials.password);
@@ -127,11 +93,6 @@ test.describe('severity-1 #smoke', () => {
       await relier.goto();
       await relier.clickEmailFirst();
       await expect(page).toHaveURL(/oauth\//);
-
-      // reload page with React experiment params
-      await page.goto(
-        `${page.url()}&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
-      );
 
       // User will have to re-enter login information
       await signinReact.fillOutEmailFirstForm(credentials.email);
@@ -156,11 +117,6 @@ test.describe('severity-1 #smoke', () => {
       await relier.goto();
       await relier.clickEmailFirst();
       await expect(page).toHaveURL(/oauth\//);
-
-      // reload page with React experiment params
-      await page.goto(
-        `${page.url()}&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
-      );
 
       await signinReact.fillOutEmailFirstForm(credentials.email);
       await signinReact.fillOutPasswordForm(credentials.password);
@@ -194,12 +150,7 @@ test.describe('severity-1 #smoke', () => {
 
       await relier.goto();
       await relier.clickEmailFirst();
-      await expect(page).toHaveURL(/oauth\//);
-
-      // reload page with React experiment params
-      await page.goto(
-        `${page.url()}&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
-      );
+      await expect(page).toHaveURL(/signin/);
 
       // Cached user detected
       await expect(signinReact.cachedSigninHeading).toBeVisible();
@@ -232,27 +183,17 @@ test.describe('severity-1 #smoke', () => {
 
       await expect(page).toHaveURL(/oauth\//);
 
-      // reload page with React experiment params
-      await page.goto(
-        `${page.url()}&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
-      );
-
       await signupReact.fillOutEmailForm(email);
       await signupReact.fillOutSignupForm(password, AGE_21);
       await signupReact.fillOutCodeForm(email);
 
+      expect(await relier.isLoggedIn()).toBe(true);
+
+      await relier.signOut();
+
       // go back to the OAuth app, the /oauth flow should
       // now suggest a cached login
-      await relier.goto();
       await relier.clickChooseFlow();
-
-      await expect(page).toHaveURL(/oauth\//);
-
-      // reload page with React experiment params
-      await page.goto(
-        `${page.url()}&forceExperiment=generalizedReactApp&forceExperimentGroup=react`,
-        { waitUntil: 'load' }
-      );
 
       await expect(signinReact.cachedSigninHeading).toBeVisible();
     });

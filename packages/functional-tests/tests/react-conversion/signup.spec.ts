@@ -132,7 +132,6 @@ test.describe('severity-1 #smoke', () => {
       syncBrowserPages: { page, login, signupReact },
       testAccountTracker,
     }) => {
-      test.fixme(true, 'Fix required as of 2024/03/18 (see FXA-9306).');
       const { email, password } =
         testAccountTracker.generateSignupReactAccountDetails();
       const customEventDetail = createCustomEventDetail(
@@ -181,7 +180,6 @@ test.describe('severity-1 #smoke', () => {
     }) => {
       const { email, password } =
         testAccountTracker.generateSignupReactAccountDetails();
-      test.fixme(true, 'Fix required as of 2024/03/18 (see FXA-9306).');
       await signupReact.goto('/', syncDesktopV3QueryParams);
 
       await signupReact.fillOutEmailForm(email);

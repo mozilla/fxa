@@ -16,8 +16,9 @@ test.describe('severity-1 #smoke', () => {
       target,
       syncBrowserPages: {
         page,
-        login,
+        signinReact,
         signupReact,
+        signinTokenCode,
         connectAnotherDevice,
         relier,
       },
@@ -25,19 +26,26 @@ test.describe('severity-1 #smoke', () => {
     }) => {
       const account = testAccountTracker.generateAccountDetails();
       const syncCredentials = await testAccountTracker.signUpSync();
-
       await page.goto(
-        `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email&`
+        `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
       );
-      await login.login(syncCredentials.email, syncCredentials.password);
-      await login.fillOutSignInCode(syncCredentials.email);
+      await signinReact.fillOutEmailFirstForm(syncCredentials.email);
+      await signinReact.fillOutPasswordForm(syncCredentials.password);
 
-      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
+      await page.waitForURL(/signin_token_code/);
+
+      await expect(signinTokenCode.heading).toBeVisible();
+      const code = await target.emailClient.getSigninTokenCode(
+        syncCredentials.email
+      );
+      await signinTokenCode.fillOutCodeForm(code);
+
+      await expect(connectAnotherDevice.fxaConnectedHeading).toBeVisible();
 
       // Sign up for a new account via OAuth
       await relier.goto();
       await relier.clickEmailFirst();
-      await login.useDifferentAccountLink();
+      await signinReact.useDifferentAccountLink.click();
 
       await signupReact.fillOutFirstSignUp(
         account.email,
@@ -52,9 +60,9 @@ test.describe('severity-1 #smoke', () => {
       await relier.clickSignIn();
 
       // By default, we should see the email we signed up for Sync with
-      expect(await login.getPrefilledEmail()).toContain(syncCredentials.email);
+      await expect(page.getByText(syncCredentials.email)).toBeVisible();
 
-      await login.clickSignIn();
+      await signinReact.fillOutPasswordForm(syncCredentials.password);
 
       expect(await relier.isLoggedIn()).toBe(true);
     });
@@ -65,8 +73,9 @@ test.describe('severity-1 #smoke', () => {
       target,
       syncBrowserPages: {
         page,
-        login,
+        signinReact,
         signupReact,
+        signinTokenCode,
         connectAnotherDevice,
         relier,
       },
@@ -86,13 +95,17 @@ test.describe('severity-1 #smoke', () => {
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email&`
       );
 
-      expect(await login.getPrefilledEmail()).toContain(email);
+      await expect(signinReact.passwordFormHeading).toBeVisible();
+      await expect(page.getByText(email)).toBeVisible();
 
-      await login.setPassword(password);
-      await login.submit();
-      await login.fillOutSignInCode(email);
+      await signinReact.fillOutPasswordForm(password);
 
-      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
+      await expect(page).toHaveURL(/signin_token_code/);
+      await expect(signinTokenCode.heading).toBeVisible();
+      const code = await target.emailClient.getSigninTokenCode(email);
+      await signinTokenCode.fillOutCodeForm(code);
+
+      await expect(connectAnotherDevice.fxaConnectedHeading).toBeVisible();
     });
   });
 });

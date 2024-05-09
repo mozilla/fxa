@@ -40,7 +40,11 @@ export function hardNavigate(
   if (href.includes('?')) {
     href = href.substring(0, href.indexOf('?'));
   }
-  window.location.href = `${href}?${searchParams.toString()}`;
+  const stringifiedSearchParams = searchParams.toString();
+  window.location.href =
+    stringifiedSearchParams.length > 0
+      ? `${href}?${stringifiedSearchParams}`
+      : href;
 }
 
 export enum LocalizedDateOptions {

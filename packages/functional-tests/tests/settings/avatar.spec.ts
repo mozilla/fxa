@@ -5,20 +5,22 @@
 import { TestAccountTracker } from '../../lib/testAccountTracker';
 import { Page, expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
-import { LoginPage } from '../../pages/login';
+import { SigninReactPage } from '../../pages/signinReact';
+import { SettingsPage } from '../../pages/settings';
 
 const AVATAR_IMAGE_PATH = './pages/settings/avatar.png';
 
 test.describe('severity-1 #smoke', () => {
   test('open and close avatar drop-down menu', async ({
     target,
-    pages: { page, login, settings },
+    pages: { page, signinReact, settings },
     testAccountTracker,
   }) => {
     const { email } = await signInAccount(
       target,
       page,
-      login,
+      settings,
+      signinReact,
       testAccountTracker
     );
 
@@ -38,10 +40,16 @@ test.describe('severity-1 #smoke', () => {
 
   test('upload and remove avatar profile photo', async ({
     target,
-    pages: { page, login, settings, avatar },
+    pages: { page, signinReact, settings, avatar },
     testAccountTracker,
   }) => {
-    await signInAccount(target, page, login, testAccountTracker);
+    await signInAccount(
+      target,
+      page,
+      settings,
+      signinReact,
+      testAccountTracker
+    );
 
     await settings.goto();
 
@@ -87,15 +95,17 @@ test.describe('severity-1 #smoke', () => {
 async function signInAccount(
   target: BaseTarget,
   page: Page,
-  login: LoginPage,
+  settings: SettingsPage,
+  signinReact: SigninReactPage,
   testAccountTracker: TestAccountTracker
 ): Promise<Credentials> {
   const credentials = await testAccountTracker.signUp();
   await page.goto(target.contentServerUrl);
-  await login.fillOutEmailFirstSignIn(credentials.email, credentials.password);
+  await signinReact.fillOutEmailFirstForm(credentials.email);
+  await signinReact.fillOutPasswordForm(credentials.password);
 
   //Verify logged in on Settings page
-  expect(await login.isUserLoggedIn()).toBe(true);
+  await expect(settings.settingsHeading).toBeVisible();
 
   return credentials;
 }

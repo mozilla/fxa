@@ -6,15 +6,6 @@ import { expect, test } from '../../lib/fixtures/standard';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('redirect_to', () => {
-    test.beforeEach(async ({ pages: { configPage } }) => {
-      const config = await configPage.getConfig();
-      // NOTE: These tests pass for React when `fullProdRollout` for React Signup is set
-      // to `true`, but when we're only at 15% and the flag is "on", URLs need to have
-      // the force experiment params. Since we'll be porting these over for React, for now,
-      // skip these tests if the flag is on.
-      test.skip(config.showReactApp.signUpRoutes === true);
-    });
-
     const testCases = [
       { name: 'invalid', redirectTo: 'https://evil.com/' },
       { name: 'xss', redirectTo: 'javascript:alert(1)' },
@@ -23,41 +14,40 @@ test.describe('severity-2 #smoke', () => {
       test(`prevent ${name} redirect_to parameter`, async ({
         target,
         page,
-        pages: { login, settings },
+        pages: { confirmSignupCode, signupReact, settings },
         testAccountTracker,
       }) => {
         const { email, password } = testAccountTracker.generateAccountDetails();
 
-        await settings.goto();
-        await settings.signOut();
-        await login.login(email, password);
+        await page.goto(target.contentServerUrl);
+        await signupReact.fillOutEmailForm(email);
+        await signupReact.fillOutSignupForm(password);
+        await expect(confirmSignupCode.heading).toBeVisible();
 
-        await page.goto(
-          `${target.contentServerUrl}/confirm_signup_code?redirect_to=${redirectTo}`
-        );
-        await login.submitButton.click();
+        await page.goto(`${page.url()}&redirect_to=${redirectTo}`);
+        const code = await target.emailClient.getConfirmSignupCode(email);
+        await confirmSignupCode.fillOutCodeForm(code);
 
-        await expect(page.getByText('Invalid redirect!')).toBeVisible();
-        expect(page.url()).toContain(redirectTo);
+        await expect(page.getByText(/Invalid redirect/)).toBeVisible();
       });
     }
 
     test('allows valid redirect_to parameter', async ({
       target,
-      pages: { page, settings, login },
+      pages: { confirmSignupCode, page, signupReact },
       testAccountTracker,
     }) => {
-      const credentials = await testAccountTracker.signUp();
+      const { email, password } = testAccountTracker.generateAccountDetails();
 
-      await settings.goto();
-      await settings.signOut();
-      await login.login(credentials.email, credentials.password);
+      await page.goto(target.contentServerUrl);
+      await signupReact.fillOutEmailForm(email);
+      await signupReact.fillOutSignupForm(password);
+      await expect(confirmSignupCode.heading).toBeVisible();
 
-      const redirectTo = `${target.contentServerUrl}/settings`;
-      await page.goto(
-        `${target.contentServerUrl}/confirm_signup_code?redirect_to=${redirectTo}`
-      );
-      await login.submitButton.click();
+      const redirectTo = `${target.contentServerUrl}/settings/change_password`;
+      await page.goto(`${page.url()}&redirect_to=${redirectTo}`);
+      const code = await target.emailClient.getConfirmSignupCode(email);
+      await confirmSignupCode.fillOutCodeForm(code);
 
       await expect(page).toHaveURL(redirectTo);
     });
