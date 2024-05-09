@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 const { registerSuite } = intern.getInterface('object');
 const assert = intern.getPlugin('chai').assert;
-const _ = require('lodash');
+const assign = require('lodash/assign');
 const path = require('path');
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
@@ -291,7 +291,7 @@ function setupMetricsHandlerTests(options) {
   };
 
   if (options.data) {
-    _.assign(mocks.request.body, options.data);
+    assign(mocks.request.body, options.data);
   }
   mocks.response = { json: sandbox.spy() };
   mocks.nextTick = sandbox.spy();

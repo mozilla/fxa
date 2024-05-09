@@ -5,7 +5,7 @@
 
 'use strict';
 
-const _ = require('lodash');
+const find = require('lodash/find');
 const config = require('../configuration');
 const flowMetricsRequest = require('../flow-event').metricsRequest;
 const joi = require('joi');
@@ -233,8 +233,5 @@ module.exports = function (statsd) {
 };
 
 function findInvalidEventOffsets(events, maxOffset) {
-  return _.find(
-    events,
-    (event) => event.offset > maxOffset || event.offset < 0
-  );
+  return find(events, (event) => event.offset > maxOffset || event.offset < 0);
 }
