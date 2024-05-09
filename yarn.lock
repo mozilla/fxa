@@ -21807,12 +21807,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/http-proxy@npm:^1.17.5":
-  version: 1.17.5
-  resolution: "@types/http-proxy@npm:1.17.5"
+"@types/http-proxy@npm:^1.17.10":
+  version: 1.17.14
+  resolution: "@types/http-proxy@npm:1.17.14"
   dependencies:
     "@types/node": "*"
-  checksum: 4f783924249457202d3b21c12467c438b9fcb17e6247df7c1f7d2f9436f00a402e27643a5c68d7faf62bfafb00b449f6317255652f321623cca2183b97541d06
+  checksum: 491320bce3565bbb6c7d39d25b54bce626237cfb6b09e60ee7f77b56ae7c6cbad76f08d47fe01eaa706781124ee3dfad9bb737049254491efd98ed1f014c4e83
   languageName: node
   linkType: hard
 
@@ -37943,7 +37943,7 @@ fsevents@~2.1.1:
     helmet: ^7.1.0
     hot-shots: ^10.0.0
     htmlparser2: 9.1.0
-    http-proxy-middleware: ^2.0.0
+    http-proxy-middleware: ^3.0.0
     i18n-abide: 0.0.26
     install: 0.13.0
     intern: ^4.10.1
@@ -41508,19 +41508,6 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"http-proxy-middleware@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "http-proxy-middleware@npm:2.0.0"
-  dependencies:
-    "@types/http-proxy": ^1.17.5
-    http-proxy: ^1.18.1
-    is-glob: ^4.0.1
-    is-plain-obj: ^3.0.0
-    micromatch: ^4.0.2
-  checksum: 1cf880d06f7ba44836e890f738df3fa257a03591fea47b09be60476bf4a9fc997fd329f857c997797372904a5ad4a150bbf7d933a8b048c78dfb84231e9f0b90
-  languageName: node
-  linkType: hard
-
 "http-proxy-middleware@npm:^2.0.3":
   version: 2.0.6
   resolution: "http-proxy-middleware@npm:2.0.6"
@@ -41536,6 +41523,20 @@ fsevents@~2.1.1:
     "@types/express":
       optional: true
   checksum: 2ee85bc878afa6cbf34491e972ece0f5be0a3e5c98a60850cf40d2a9a5356e1fc57aab6cff33c1fc37691b0121c3a42602d2b1956c52577e87a5b77b62ae1c3a
+  languageName: node
+  linkType: hard
+
+"http-proxy-middleware@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "http-proxy-middleware@npm:3.0.0"
+  dependencies:
+    "@types/http-proxy": ^1.17.10
+    debug: ^4.3.4
+    http-proxy: ^1.18.1
+    is-glob: ^4.0.1
+    is-plain-obj: ^3.0.0
+    micromatch: ^4.0.5
+  checksum: 2c286f0604f7a08af707a8df8e6f043fca022e55df6f7f843ea48081c9288277fc7fd7196446a7c8e8568dd1db8bf89f1555b2bc8a11bda87123f9f28aebd3a5
   languageName: node
   linkType: hard
 
