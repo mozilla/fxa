@@ -1,12 +1,11 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
-const assert = require('assert');
-const { config } = require('../../config');
-const { jwk2pem, pem2jwk } = require('@fxa/shared/pem-jwk');
-const crypto = require('crypto');
-const Joi = require('joi');
+import assert from 'assert';
+import { config } from '../../config';
+import { jwk2pem, pem2jwk } from '@fxa/shared/pem-jwk';
+import * as crypto from 'crypto';
+import * as Joi from 'joi';
 
 const BASE64URL = /^[A-Za-z0-9-_]+$/;
 
@@ -96,7 +95,7 @@ if (oldPubJWK) {
  * @param {JWK} The private key.
  * @returns {JWK} Its corresponding public key.
  */
-exports.extractPublicKey = function extractPublicKey(key) {
+exports.extractPublicKey = function extractPublicKey(key: any) {
   // Hey, this is important. Listen up.
   //
   // This function pulls out only the **PUBLIC** pieces of this key.
@@ -124,7 +123,7 @@ exports.generatePrivateKey = function generatePrivateKey() {
     type: 'pkcs1',
     format: 'pem',
   };
-  const kp = crypto.generateKeyPairSync('rsa', {
+  const kp = crypto.generateKeyPairSync('rsa' as any, {
     modulusLength: 256 * 8,
     publicKeyEncoding: PEM_ENCODING,
     privateKeyEncoding: PEM_ENCODING,
@@ -139,10 +138,10 @@ exports.generatePrivateKey = function generatePrivateKey() {
   const now = new Date();
   const pubKeyFingerprint = crypto
     .createHash('sha256')
-    .update(kp.publicKey)
+    .update(kp.publicKey.toString())
     .digest('hex')
     .slice(0, 8);
-  const privKey = Object.assign(pem2jwk(kp.privateKey), {
+  const privKey = Object.assign(pem2jwk(kp.privateKey.toString()), {
     kid:
       now.toISOString().slice(0, 10).replace(/-/g, '') +
       '-' +
@@ -150,7 +149,7 @@ exports.generatePrivateKey = function generatePrivateKey() {
     alg: 'RS256',
     use: 'sig',
     // Timestamp to nearest hour; consumers don't need to know the precise time.
-    'fxa-createdAt': Math.floor(now / 1000 / 3600) * 3600,
+    'fxa-createdAt': Math.floor(now.getTime() / 1000 / 3600) * 3600,
   });
   return privKey;
 };
@@ -162,7 +161,7 @@ exports.generatePrivateKey = function generatePrivateKey() {
  * @throws {Error} if no PEM found for `kid`
  * @returns {JWK}
  */
-exports.publicPEM = function publicPEM(kid) {
+exports.publicPEM = function publicPEM(kid: any) {
   const pem = PUBLIC_PEM_MAP.get(kid);
   if (!pem) {
     throw new Error('PEM not found');
