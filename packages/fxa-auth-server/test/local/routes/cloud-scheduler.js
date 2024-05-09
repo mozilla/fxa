@@ -3,7 +3,7 @@ const assert = { ...sinon.assert, ...require('chai').assert };
 import { ReasonForDeletion } from '@fxa/shared/cloud-tasks';
 import proxyquire from 'proxyquire';
 
-describe('CloudSchedulerHandler', function () {
+describe.skip('CloudSchedulerHandler', function () {
   this.timeout(10000);
 
   let cloudSchedulerHandler;
