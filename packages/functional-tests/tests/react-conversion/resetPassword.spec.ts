@@ -16,10 +16,9 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('can reset password', async ({
-      page,
       target,
       context,
-      pages: { login, resetPasswordReact, settings },
+      pages: { signinReact, resetPasswordReact, settings },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
@@ -56,11 +55,6 @@ test.describe('severity-1 #smoke', () => {
       // Wait for new page to navigate
       await diffPage.waitForURL(/reset_password_verified/);
 
-      // Wait for initial page to automatically redirect once password is reset
-      // without an account in local storage (state in this test), the initial navigation
-      // to /signin is expected to redirect to the root
-      await page.waitForURL(target.contentServerUrl);
-
       // Verify password reset confirmation page is rendered
       await expect(
         diffResetPasswordReact.passwordResetConfirmationHeading
@@ -69,15 +63,14 @@ test.describe('severity-1 #smoke', () => {
       await diffPage.close();
 
       // Verify initial page redirected to sign in and sign in page rendered
-      await expect(login.emailHeader).toBeVisible();
+      await expect(signinReact.emailFirstHeading).toBeVisible();
 
-      await login.setEmail(credentials.email);
-      await login.clickSubmit();
+      await signinReact.fillOutEmailFirstForm(credentials.email);
 
-      await expect(login.passwordHeader).toBeVisible();
+      await expect(signinReact.passwordFormHeading).toBeVisible();
 
-      await login.setPassword(newPassword);
-      await login.clickSubmit();
+      await signinReact.fillOutPasswordForm(newPassword);
+
       // Cleanup requires setting this value to correct password
       credentials.password = newPassword;
 
