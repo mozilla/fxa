@@ -232,7 +232,10 @@ async function run(config) {
         })
       : null,
   };
-  const signer = require('../lib/signer')(config.secretKeyFile, config.domain);
+  const signer = require('../lib/signer').default(
+    config.secretKeyFile,
+    config.domain
+  );
   const Password = require('../lib/crypto/password')(log, config);
   const customs = new Customs(config.customsUrl, log, error, statsd);
   const zendeskClient = require('../lib/zendesk-client').createZendeskClient(
