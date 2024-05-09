@@ -4,13 +4,16 @@
 
 import { ConfigType } from '../../config';
 import { AuthLogger, AuthRequest } from '../types';
-import { processDateRange } from '../../scripts/delete-unverified-accounts';
+// commenting this out for now because the script uses p-queue, which is pure
+// ESM since 7.x.  That won't work when nodejs try to `require` it.
+// import { processDateRange } from '../../scripts/delete-unverified-accounts';
 import {
   AccountTasks,
   AccountTasksFactory,
-  ReasonForDeletion,
+  //  ReasonForDeletion,
 } from '@fxa/shared/cloud-tasks';
 import { StatsD } from 'hot-shots';
+import error from '../error';
 
 const MILLISECONDS_IN_A_DAY = 24 * 60 * 60 * 1000;
 
@@ -30,28 +33,30 @@ export class CloudSchedulerHandler {
   }
 
   async deleteUnverifiedAccounts() {
-    const { sinceDays, durationDays, taskLimit } =
-      this.config.cloudScheduler.deleteUnverifiedAccounts;
-    const endDate = this.calculateDate(sinceDays);
-    const startDate = this.calculateDate(sinceDays + durationDays);
-    const reason = ReasonForDeletion.Unverified;
+    return error.featureNotEnabled();
 
-    this.log.info('Deleting unverified accounts', {
-      initiatedAt: new Date().toISOString(),
-      endDate: endDate.toISOString(),
-      startDate: startDate.toISOString(),
-    });
-    this.statsd.increment('cloud-scheduler.deleteUnverifiedAccounts');
-    await processDateRange(
-      this.config,
-      this.accountTasks,
-      reason,
-      startDate.getTime(),
-      endDate.getTime(),
-      taskLimit
-    );
+    // const { sinceDays, durationDays, taskLimit } =
+    //   this.config.cloudScheduler.deleteUnverifiedAccounts;
+    // const endDate = this.calculateDate(sinceDays);
+    // const startDate = this.calculateDate(sinceDays + durationDays);
+    // const reason = ReasonForDeletion.Unverified;
 
-    return {};
+    // this.log.info('Deleting unverified accounts', {
+    //   initiatedAt: new Date().toISOString(),
+    //   endDate: endDate.toISOString(),
+    //   startDate: startDate.toISOString(),
+    // });
+    // this.statsd.increment('cloud-scheduler.deleteUnverifiedAccounts');
+    // await processDateRange(
+    //   this.config,
+    //   this.accountTasks,
+    //   reason,
+    //   startDate.getTime(),
+    //   endDate.getTime(),
+    //   taskLimit
+    // );
+
+    // return {};
   }
 }
 
