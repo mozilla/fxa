@@ -2,7 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { getOperationName } from '@apollo/client/utilities';
 import { Inject, Injectable } from '@nestjs/common';
+import { StatsD } from 'hot-shots';
 
 import { StatsDService } from '@fxa/shared/metrics/statsd';
 import {
@@ -11,6 +13,7 @@ import {
   ServicesWithCapabilitiesQuery,
   CapabilityServiceByPlanIdsQuery,
   EligibilityContentByOfferingQuery,
+  PageContentForOfferingQuery,
 } from '../__generated__/graphql';
 import { DEFAULT_LOCALE } from './constants';
 import { ContentfulClient } from './contentful.client';
@@ -20,9 +23,17 @@ import {
   CapabilityServiceByPlanIdsResultUtil,
 } from './queries/capability-service-by-plan-ids';
 import {
+  eligibilityContentByOfferingQuery,
+  EligibilityContentByOfferingResultUtil,
+} from './queries/eligibility-content-by-offering';
+import {
   EligibilityContentByPlanIdsResultUtil,
   eligibilityContentByPlanIdsQuery,
 } from './queries/eligibility-content-by-plan-ids';
+import {
+  PageContentForOfferingResultUtil,
+  pageContentForOfferingQuery,
+} from './queries/page-content-for-offering';
 import {
   PurchaseWithDetailsOfferingContentUtil,
   purchaseWithDetailsOfferingContentQuery,
@@ -32,12 +43,6 @@ import {
   servicesWithCapabilitiesQuery,
 } from './queries/services-with-capabilities';
 import { DeepNonNullable } from './types';
-import { StatsD } from 'hot-shots';
-import { getOperationName } from '@apollo/client/utilities';
-import {
-  eligibilityContentByOfferingQuery,
-  EligibilityContentByOfferingResultUtil,
-} from './queries/eligibility-content-by-offering';
 
 @Injectable()
 export class ContentfulManager {
@@ -76,6 +81,22 @@ export class ContentfulManager {
 
     return new EligibilityContentByOfferingResultUtil(
       queryResult as DeepNonNullable<EligibilityContentByOfferingQuery>
+    );
+  }
+
+  async getPageContentForOffering(
+    apiIdentifier: string,
+    acceptLanguage: string
+  ): Promise<PageContentForOfferingResultUtil> {
+    const locale = await this.client.getLocale(acceptLanguage);
+
+    const queryResult = await this.client.query(pageContentForOfferingQuery, {
+      locale,
+      apiIdentifier,
+    });
+
+    return new PageContentForOfferingResultUtil(
+      queryResult as DeepNonNullable<PageContentForOfferingQuery>
     );
   }
 

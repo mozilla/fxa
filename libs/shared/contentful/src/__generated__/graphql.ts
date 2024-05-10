@@ -2862,6 +2862,46 @@ export type OfferingQuery = {
   } | null;
 };
 
+export type PageContentForOfferingQueryVariables = Exact<{
+  locale: Scalars['String']['input'];
+  apiIdentifier: Scalars['String']['input'];
+}>;
+
+export type PageContentForOfferingQuery = {
+  __typename?: 'Query';
+  offeringCollection: {
+    __typename?: 'OfferingCollection';
+    items: Array<{
+      __typename?: 'Offering';
+      apiIdentifier: string | null;
+      stripeProductId: string | null;
+      defaultPurchase: {
+        __typename?: 'Purchase';
+        purchaseDetails: {
+          __typename?: 'PurchaseDetails';
+          details: string | null;
+          productName: string | null;
+          subtitle: string | null;
+          webIcon: string | null;
+        } | null;
+      } | null;
+      commonContent: {
+        __typename?: 'CommonContent';
+        privacyNoticeUrl: string | null;
+        privacyNoticeDownloadUrl: string | null;
+        termsOfServiceUrl: string | null;
+        termsOfServiceDownloadUrl: string | null;
+        cancellationUrl: string | null;
+        emailIcon: string | null;
+        successActionButtonUrl: string | null;
+        successActionButtonLabel: string | null;
+        newsletterLabelTextCode: string | null;
+        newsletterSlug: Array<string | null> | null;
+      } | null;
+    } | null>;
+  } | null;
+};
+
 export type PurchaseWithDetailsOfferingContentQueryVariables = Exact<{
   skip: Scalars['Int']['input'];
   limit: Scalars['Int']['input'];
@@ -3923,6 +3963,221 @@ export const OfferingDocument = {
     },
   ],
 } as unknown as DocumentNode<OfferingQuery, OfferingQueryVariables>;
+export const PageContentForOfferingDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'PageContentForOffering' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'locale' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'apiIdentifier' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'offeringCollection' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'skip' },
+                value: { kind: 'IntValue', value: '0' },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'limit' },
+                value: { kind: 'IntValue', value: '2' },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'locale' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'locale' },
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'where' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'apiIdentifier_contains' },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'apiIdentifier' },
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'items' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'apiIdentifier' },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'stripeProductId' },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'defaultPurchase' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'purchaseDetails' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'details' },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'productName',
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'subtitle' },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'webIcon' },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'commonContent' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'privacyNoticeUrl' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: {
+                                kind: 'Name',
+                                value: 'privacyNoticeDownloadUrl',
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: {
+                                kind: 'Name',
+                                value: 'termsOfServiceUrl',
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: {
+                                kind: 'Name',
+                                value: 'termsOfServiceDownloadUrl',
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'cancellationUrl' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'emailIcon' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: {
+                                kind: 'Name',
+                                value: 'successActionButtonUrl',
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: {
+                                kind: 'Name',
+                                value: 'successActionButtonLabel',
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: {
+                                kind: 'Name',
+                                value: 'newsletterLabelTextCode',
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'newsletterSlug' },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  PageContentForOfferingQuery,
+  PageContentForOfferingQueryVariables
+>;
 export const PurchaseWithDetailsOfferingContentDocument = {
   kind: 'Document',
   definitions: [
