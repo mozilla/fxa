@@ -48,7 +48,7 @@
     "@google-cloud/firestore": "^7.3.0",
     "@google-cloud/opentelemetry-cloud-trace-exporter": "^2.1.0",
     "@google-cloud/pubsub": "^4.3.1",
-    "@google-cloud/translate": "^8.0.3",
+    "@google-cloud/translate": "^8.2.0",
     "@nestjs/apollo": "^12.1.0",
     "@nestjs/common": "^10.3.4",
     "@nestjs/config": "^3.2.0",
