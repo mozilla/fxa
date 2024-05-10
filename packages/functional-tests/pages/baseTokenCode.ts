@@ -5,6 +5,11 @@
 import { BaseLayout } from './layout';
 
 export abstract class BaseTokenCodePage extends BaseLayout {
+  get heading() {
+    this.checkPath();
+    return this.page.getByRole('heading');
+  }
+
   get tooltip() {
     this.checkPath();
     return this.page.locator('.tooltip');

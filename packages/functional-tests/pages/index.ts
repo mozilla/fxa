@@ -30,6 +30,7 @@ import { SubscribePage } from './products';
 import { SubscriptionManagementPage } from './products/subscriptionManagement';
 import { TermsOfService } from './termsOfService';
 import { TotpPage } from './settings/totp';
+import { SigninRecoveryCodePage } from './signinRecoveryCode.ts';
 
 export function create(page: Page, target: BaseTarget) {
   return {
@@ -56,6 +57,7 @@ export function create(page: Page, target: BaseTarget) {
     secondaryEmail: new SecondaryEmailPage(page, target),
     settings: new SettingsPage(page, target),
     signinReact: new SigninReactPage(page, target),
+    signinRecoveryCode: new SigninRecoveryCodePage(page, target),
     signinTokenCode: new SigninTokenCodePage(page, target),
     signinTotpCode: new SigninTotpCodePage(page, target),
     signinUnblock: new SigninUnblockPage(page, target),

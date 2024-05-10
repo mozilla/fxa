@@ -83,7 +83,7 @@ export class SignupReactPage extends BaseLayout {
     await this.submitButton.click();
   }
 
-  async fillOutSignupForm(password: string, age: string) {
+  async fillOutSignupForm(password: string, age = '21') {
     await expect(this.signupFormHeading).toBeVisible();
 
     await this.passwordTextbox.fill(password);

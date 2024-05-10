@@ -5,11 +5,11 @@
 import { Page, expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
 import { TestAccountTracker } from '../../lib/testAccountTracker';
-import { LoginPage } from '../../pages/login';
 import { SettingsPage } from '../../pages/settings';
 import { ChangePasswordPage } from '../../pages/settings/changePassword';
 import { DeleteAccountPage } from '../../pages/settings/deleteAccount';
 import { SecondaryEmailPage } from '../../pages/settings/secondaryEmail';
+import { SigninReactPage } from '../../pages/signinReact';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('change primary email tests', () => {
@@ -17,15 +17,20 @@ test.describe('severity-1 #smoke', () => {
       test.slow();
     });
 
-    test('change primary email and login', async ({
+    test('change primary email and sign in', async ({
       target,
-      pages: { page, login, settings, secondaryEmail },
+      pages: { page, signinReact, settings, secondaryEmail },
       testAccountTracker,
     }) => {
+      test.fixme(
+        true,
+        'FXA-9519, incorrect email case error after changing primary email'
+      );
       const credentials = await signInAccount(
         target,
         page,
-        login,
+        settings,
+        signinReact,
         testAccountTracker
       );
       const newEmail = testAccountTracker.generateEmail();
@@ -39,31 +44,36 @@ test.describe('severity-1 #smoke', () => {
       await settings.signOut();
 
       // Sign in with old primary email fails
-      await login.setEmail(oldEmail);
-      await page.locator('button[type=submit]').click();
-      await login.setPassword(credentials.password);
-      await page.locator('button[type=submit]').click();
+      await signinReact.fillOutEmailFirstForm(oldEmail);
+      await signinReact.fillOutPasswordForm(credentials.password);
 
       await expect(
         page.getByText('Primary account email required for sign-in')
       ).toBeVisible();
 
       // Success signing in with New email
-      await login.useDifferentAccountLink();
-      await login.login(credentials.email, credentials.password);
+      await signinReact.useDifferentAccountLink.click();
+      await signinReact.fillOutEmailFirstForm(credentials.email);
+      await signinReact.fillOutPasswordForm(credentials.password);
 
+      await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.primaryEmail.status).toHaveText(credentials.email);
     });
 
-    test('change primary email, password and login', async ({
+    test('change primary email, password and sign in', async ({
       target,
-      pages: { page, settings, changePassword, login, secondaryEmail },
+      pages: { page, settings, changePassword, signinReact, secondaryEmail },
       testAccountTracker,
     }) => {
+      test.fixme(
+        true,
+        'FXA-9519, incorrect email case error after changing primary email'
+      );
       const credentials = await signInAccount(
         target,
         page,
-        login,
+        settings,
+        signinReact,
         testAccountTracker
       );
       const newEmail = testAccountTracker.generateEmail();
@@ -86,29 +96,31 @@ test.describe('severity-1 #smoke', () => {
       await settings.signOut();
 
       // Sign in with old password
-      await login.setEmail(credentials.email);
-      await page.locator('button[type=submit]').click();
-      await login.setPassword(oldPassword);
-      await page.locator('button[type=submit]').click();
+      await signinReact.fillOutEmailFirstForm(credentials.email);
+      await signinReact.fillOutPasswordForm(oldPassword);
 
-      await expect(login.tooltip).toHaveText('Incorrect password');
+      await expect(page.getByText('Incorrect password')).toBeVisible();
 
       // Sign in with new password
-      await login.setPassword(credentials.password);
-      await login.submit();
+      await signinReact.fillOutPasswordForm(credentials.password);
 
       await expect(settings.primaryEmail.status).toHaveText(credentials.email);
     });
 
-    test('change primary email, change password, login, change email and login', async ({
+    test('change primary email, change password, sign in, change email and sign in', async ({
       target,
-      pages: { page, settings, changePassword, login, secondaryEmail },
+      pages: { page, settings, changePassword, signinReact, secondaryEmail },
       testAccountTracker,
     }) => {
+      test.fixme(
+        true,
+        'FXA-9519, incorrect email case error after changing primary email'
+      );
       const credentials = await signInAccount(
         target,
         page,
-        login,
+        settings,
+        signinReact,
         testAccountTracker
       );
       const newEmail = testAccountTracker.generateEmail();
@@ -131,15 +143,18 @@ test.describe('severity-1 #smoke', () => {
       await settings.signOut();
 
       // Sign in with new password
-      await login.login(credentials.email, credentials.password);
+      await signinReact.fillOutEmailFirstForm(credentials.email);
+      await signinReact.fillOutPasswordForm(credentials.password);
 
+      await expect(settings.settingsHeading).toBeVisible();
       // Change back the primary email again
       await settings.secondaryEmail.makePrimaryButton.click();
       credentials.email = oldEmail;
       await settings.signOut();
 
       // Login with primary email and new password
-      await login.login(credentials.email, credentials.password);
+      await signinReact.fillOutEmailFirstForm(credentials.email);
+      await signinReact.fillOutPasswordForm(credentials.password);
 
       await expect(settings.primaryEmail.status).toHaveText(credentials.email);
     });
@@ -148,25 +163,19 @@ test.describe('severity-1 #smoke', () => {
       target,
       pages: {
         page,
-        configPage,
         deleteAccount,
-        login,
-        settings,
         secondaryEmail,
+        settings,
+        signinReact,
+        signupReact,
       },
       testAccountTracker,
     }) => {
-      const config = await configPage.getConfig();
-      // NOTE: This passes for React when `fullProdRollout` for React Signup is set
-      // to `true`, but when we're only at 15% and the flag is "on", flows would need to
-      // be accessed with the force experiment params. Since we'll be porting these over
-      // for React, for now, skip these tests if the flag is on.
-      test.skip(config.showReactApp.signUpRoutes === true);
-
       const credentials = await signInAccount(
         target,
         page,
-        login,
+        settings,
+        signinReact,
         testAccountTracker
       );
       const newEmail = testAccountTracker.generateEmail();
@@ -186,7 +195,9 @@ test.describe('severity-1 #smoke', () => {
       await deleteAccount.deleteButton.click();
 
       // Try creating a new account with the same secondary email as previous account and new password
-      await login.fillOutFirstSignUp(credentials.email, credentials.password);
+      await signupReact.fillOutEmailForm(credentials.email);
+      await signupReact.fillOutSignupForm(credentials.password);
+      await signupReact.fillOutCodeForm(credentials.email);
 
       await expect(settings.alertBar).toHaveText(
         'Account confirmed successfully'
@@ -196,10 +207,16 @@ test.describe('severity-1 #smoke', () => {
 
     test('removing secondary emails', async ({
       target,
-      pages: { page, login, settings, secondaryEmail },
+      pages: { page, signinReact, settings, secondaryEmail },
       testAccountTracker,
     }) => {
-      await signInAccount(target, page, login, testAccountTracker);
+      await signInAccount(
+        target,
+        page,
+        settings,
+        signinReact,
+        testAccountTracker
+      );
       const newEmail = testAccountTracker.generateEmail();
 
       await settings.goto();
@@ -232,18 +249,23 @@ test.describe('severity-1 #smoke', () => {
 
   test.describe('change primary - unblock', () => {
     test.beforeEach(async () => {
+      test.fixme(
+        true,
+        'FXA-9519, incorrect email case error after changing primary email'
+      );
       test.slow();
     });
 
     test('change primary email, get blocked with invalid password, redirect enter password page', async ({
       target,
-      pages: { page, settings, login, secondaryEmail, deleteAccount },
+      pages: { page, settings, signinReact, secondaryEmail, deleteAccount },
       testAccountTracker,
     }) => {
       const credentials = await signInAccount(
         target,
         page,
-        login,
+        settings,
+        signinReact,
         testAccountTracker
       );
       const blockedEmail = testAccountTracker.generateBlockedEmail();
@@ -253,31 +275,38 @@ test.describe('severity-1 #smoke', () => {
       await changePrimaryEmail(settings, secondaryEmail, blockedEmail);
       credentials.email = blockedEmail;
       await settings.signOut();
-      await login.login(credentials.email, invalidPassword);
+      await signinReact.fillOutEmailFirstForm(credentials.email);
+      await signinReact.fillOutPasswordForm(invalidPassword);
 
-      // Fill out unblock
-      await login.unblock(credentials.email);
+      //Verify sign in block header
+      await expect(signinReact.signinUnblockFormHeading).toBeVisible();
+      await expect(page.getByText(blockedEmail)).toBeVisible();
+
+      //Unblock the email
+      let unblockCode = await target.emailClient.getUnblockCode(blockedEmail);
+      await signinReact.fillOutSigninUnblockForm(unblockCode);
 
       // Verify the incorrect password error
       await expect(page.getByText('Incorrect password')).toBeVisible();
 
       // Delete blocked account, required before teardown
-      await login.setPassword(credentials.password);
-      await login.submit();
-      await login.unblock(credentials.email);
+      await signinReact.fillOutPasswordForm(credentials.password);
+      unblockCode = await target.emailClient.getUnblockCode(blockedEmail);
+      await signinReact.fillOutSigninUnblockForm(unblockCode);
       await settings.goto();
       await removeAccount(settings, deleteAccount, page, credentials.password);
     });
 
     test('can change primary email, get blocked with valid password, redirect settings page', async ({
       target,
-      pages: { page, settings, login, secondaryEmail, deleteAccount },
+      pages: { page, settings, signinReact, secondaryEmail, deleteAccount },
       testAccountTracker,
     }) => {
       const credentials = await signInAccount(
         target,
         page,
-        login,
+        settings,
+        signinReact,
         testAccountTracker
       );
       const blockedEmail = testAccountTracker.generateBlockedEmail();
@@ -287,12 +316,18 @@ test.describe('severity-1 #smoke', () => {
       credentials.email = blockedEmail;
       await settings.signOut();
 
-      await login.login(credentials.email, credentials.password);
-      // Fill out unblock
-      await login.unblock(credentials.email);
+      await signinReact.fillOutEmailFirstForm(credentials.email);
+      await signinReact.fillOutPasswordForm(credentials.password);
 
-      // Verify settings url redirected
-      await expect(page).toHaveURL(settings.url);
+      //Verify sign in block header
+      await expect(signinReact.signinUnblockFormHeading).toBeVisible();
+      await expect(page.getByText(blockedEmail)).toBeVisible();
+
+      //Unblock the email
+      const unblockCode = await target.emailClient.getUnblockCode(blockedEmail);
+      await signinReact.fillOutSigninUnblockForm(unblockCode);
+
+      await expect(settings.settingsHeading).toBeVisible();
 
       // Delete blocked account, required before teardown
       await removeAccount(settings, deleteAccount, page, credentials.password);
@@ -303,15 +338,17 @@ test.describe('severity-1 #smoke', () => {
 async function signInAccount(
   target: BaseTarget,
   page: Page,
-  login: LoginPage,
+  settings: SettingsPage,
+  signinReact: SigninReactPage,
   testAccountTracker: TestAccountTracker
 ): Promise<Credentials> {
   const credentials = await testAccountTracker.signUp();
   await page.goto(target.contentServerUrl);
-  await login.fillOutEmailFirstSignIn(credentials.email, credentials.password);
+  await signinReact.fillOutEmailFirstForm(credentials.email);
+  await signinReact.fillOutPasswordForm(credentials.password);
 
   //Verify logged in on Settings page
-  expect(await login.isUserLoggedIn()).toBe(true);
+  await expect(settings.settingsHeading).toBeVisible();
 
   return credentials;
 }

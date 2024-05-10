@@ -122,6 +122,26 @@ export class EmailClient {
     return code;
   }
 
+  async getLowRecoveryCodesLink(email: string) {
+    const link = await this.waitForEmail(
+      email,
+      EmailType.lowRecoveryCodes,
+      EmailHeader.link
+    );
+    await this.clear(email);
+    return link;
+  }
+
+  async getResetPasswordLink(email: string) {
+    const link = await this.waitForEmail(
+      email,
+      EmailType.recovery,
+      EmailHeader.link
+    );
+    await this.clear(email);
+    return link;
+  }
+
   async getSigninTokenCode(email: string) {
     const code = await this.waitForEmail(
       email,

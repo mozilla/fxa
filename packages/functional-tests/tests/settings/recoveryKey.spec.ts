@@ -5,10 +5,10 @@
 import fs from 'fs';
 import pdfParse from 'pdf-parse';
 import { TestAccountTracker } from '../../lib/testAccountTracker';
-import { EmailHeader, EmailType } from '../../lib/email';
 import { Page, expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
-import { LoginPage } from '../../pages/login';
+import { SettingsPage } from '../../pages/settings';
+import { SigninReactPage } from '../../pages/signinReact';
 
 const HINT = 'secret key location';
 
@@ -22,13 +22,14 @@ test.describe('severity-1 #smoke', () => {
 
     test('can copy recovery key', async ({
       target,
-      pages: { page, login, recoveryKey, settings },
+      pages: { page, signinReact, recoveryKey, settings },
       testAccountTracker,
     }) => {
       const { password } = await signInAccount(
-        target,
         page,
-        login,
+        settings,
+        signinReact,
+        target,
         testAccountTracker
       );
 
@@ -49,13 +50,14 @@ test.describe('severity-1 #smoke', () => {
 
     test('can download recovery key as PDF', async ({
       target,
-      pages: { page, login, recoveryKey, settings },
+      pages: { page, signinReact, recoveryKey, settings },
       testAccountTracker,
     }) => {
       const credentials = await signInAccount(
-        target,
         page,
-        login,
+        settings,
+        signinReact,
+        target,
         testAccountTracker
       );
 
@@ -105,13 +107,14 @@ test.describe('severity-1 #smoke', () => {
 
     test('revoke recovery key', async ({
       target,
-      pages: { page, login, settings, recoveryKey },
+      pages: { page, signinReact, settings, recoveryKey },
       testAccountTracker,
     }) => {
       const credentials = await signInAccount(
-        target,
         page,
-        login,
+        settings,
+        signinReact,
+        target,
         testAccountTracker
       );
 
@@ -141,20 +144,16 @@ test.describe('severity-1 #smoke', () => {
 
     test('forgot password has account recovery key but skip using it', async ({
       target,
-      pages: { page, settings, login, configPage, recoveryKey },
+      pages: { page, recoveryKey, resetPasswordReact, settings, signinReact },
       testAccountTracker,
     }, { project }) => {
-      const config = await configPage.getConfig();
-      test.skip(
-        config.showReactApp.resetPasswordRoutes === true,
-        'Scheduled for removal as part of React conversion (see FXA-8267).'
-      );
       test.slow(project.name !== 'local', 'email delivery can be slow');
 
       const credentials = await signInAccount(
-        target,
         page,
-        login,
+        settings,
+        signinReact,
+        target,
         testAccountTracker
       );
 
@@ -168,16 +167,13 @@ test.describe('severity-1 #smoke', () => {
       await expect(settings.recoveryKey.status).toHaveText('Enabled');
 
       await page.goto(target.contentServerUrl + '/reset_password');
-      await login.setEmail(credentials.email);
-      await login.clickSubmit();
-      const link = await target.emailClient.waitForEmail(
-        credentials.email,
-        EmailType.recovery,
-        EmailHeader.link
+      await resetPasswordReact.fillOutEmailForm(credentials.email);
+      const link = await target.emailClient.getResetPasswordLink(
+        credentials.email
       );
       await page.goto(link);
-      await login.clickDontHaveRecoveryKey();
-      await login.setNewPassword(credentials.password);
+      await resetPasswordReact.forgotKeyLink.click();
+      await resetPasswordReact.fillOutNewPasswordForm(credentials.password);
 
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.alertBar).toBeVisible();
@@ -187,17 +183,19 @@ test.describe('severity-1 #smoke', () => {
 });
 
 async function signInAccount(
-  target: BaseTarget,
   page: Page,
-  login: LoginPage,
+  settings: SettingsPage,
+  signinReact: SigninReactPage,
+  target: BaseTarget,
   testAccountTracker: TestAccountTracker
 ): Promise<Credentials> {
   const credentials = await testAccountTracker.signUp();
   await page.goto(target.contentServerUrl);
-  await login.fillOutEmailFirstSignIn(credentials.email, credentials.password);
+  await signinReact.fillOutEmailFirstForm(credentials.email);
+  await signinReact.fillOutPasswordForm(credentials.password);
 
   //Verify logged in on Settings page
-  expect(await login.isUserLoggedIn()).toBe(true);
+  await expect(settings.settingsHeading).toBeVisible();
 
   return credentials;
 }
