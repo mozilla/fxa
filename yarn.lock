@@ -9077,9 +9077,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@google-cloud/translate@npm:^8.0.3":
-  version: 8.0.3
-  resolution: "@google-cloud/translate@npm:8.0.3"
+"@google-cloud/translate@npm:^8.2.0":
+  version: 8.2.0
+  resolution: "@google-cloud/translate@npm:8.2.0"
   dependencies:
     "@google-cloud/common": ^5.0.0
     "@google-cloud/promisify": ^4.0.0
@@ -9087,7 +9087,7 @@ __metadata:
     extend: ^3.0.2
     google-gax: ^4.0.3
     is-html: ^2.0.0
-  checksum: 7b971474694150538943f8b1789496f4c3cf12a88a4ff99d9d7c22c40babc317621a9b9be09316e8596797a3bb2ab3d62b179dbab986e321216695242c230d13
+  checksum: a4645bde951b632e5478ac018e8af3a0e32aa51187d2369162370dc35c3faf15c2e5471bcdbc72d6317ece5cc274f7432f852180239d230495fa8e425b9e6a06
   languageName: node
   linkType: hard
 
@@ -38676,7 +38676,7 @@ fsevents@~2.1.1:
     "@google-cloud/firestore": ^7.3.0
     "@google-cloud/opentelemetry-cloud-trace-exporter": ^2.1.0
     "@google-cloud/pubsub": ^4.3.1
-    "@google-cloud/translate": ^8.0.3
+    "@google-cloud/translate": ^8.2.0
     "@graphql-codegen/cli": 5.0.0
     "@graphql-codegen/client-preset": ^4.2.4
     "@graphql-codegen/typescript": ^4.0.1
