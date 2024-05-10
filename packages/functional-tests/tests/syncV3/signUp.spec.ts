@@ -6,8 +6,6 @@ import { expect, test } from '../../lib/fixtures/standard';
 
 const AGE_21 = '21';
 
-test.describe.configure({ mode: 'parallel' });
-
 test.describe('severity-1 #smoke', () => {
   test.describe('Firefox Desktop Sync v3 sign up', () => {
     test.beforeEach(async ({ pages: { configPage } }) => {

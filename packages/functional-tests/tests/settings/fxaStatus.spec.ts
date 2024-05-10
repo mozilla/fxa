@@ -7,8 +7,6 @@ import { oauthWebchannelV1 } from '../../lib/query-params';
 import { TestAccountTracker } from '../../lib/testAccountTracker';
 import { LoginPage } from '../../pages/login';
 
-test.describe.configure({ mode: 'parallel' });
-
 test.describe('fxa_status web channel message in Settings', () => {
   test.beforeEach(async ({ pages: { configPage } }) => {
     // Ensure that the feature flag is enabled

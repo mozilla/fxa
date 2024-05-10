@@ -4,8 +4,6 @@
 
 import { expect, test } from '../../lib/fixtures/standard';
 
-test.describe.configure({ mode: 'parallel' });
-
 test.describe('Firefox Desktop Sync v3 email first', () => {
   test.beforeEach(async () => {
     test.slow();

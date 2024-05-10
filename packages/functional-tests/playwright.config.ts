@@ -28,6 +28,8 @@ export default defineConfig<PlaywrightTestConfig<TestOptions, WorkerOptions>>({
   forbidOnly: CI,
   retries,
   testDir: 'tests',
+  // Run all tests in parallel.
+  fullyParallel: true,
   use: {
     viewport: { width: 1280, height: 720 },
   },
