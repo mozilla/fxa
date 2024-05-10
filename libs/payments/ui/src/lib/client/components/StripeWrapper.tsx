@@ -3,9 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 'use client';
 
+import { Localized } from '@fluent/react';
 import { loadStripe, StripeElementsOptions } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import { CheckoutForm } from './CheckoutForm';
+import { Providers } from './Providers';
 
 interface StripeWrapperProps {
   amount: number;
@@ -57,8 +59,11 @@ export function StripeWrapper({ amount, currency, cart }: StripeWrapperProps) {
   };
 
   return (
-    <Elements stripe={stripePromise} options={options}>
-      <CheckoutForm cart={cart} />
-    </Elements>
+    <Providers>
+      <Localized id="next-pay-with-heading-card-only"></Localized>
+      <Elements stripe={stripePromise} options={options}>
+        <CheckoutForm cart={cart} />
+      </Elements>
+    </Providers>
   );
 }
