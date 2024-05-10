@@ -64,6 +64,35 @@ export class StripeManager {
   }
 
   /**
+   * Updates a customer record
+   */
+  async updateCustomer(
+    customerId: string,
+    params?: Stripe.CustomerUpdateParams
+  ) {
+    return await this.client.customersUpdate(customerId, params);
+  }
+
+  /**
+   * Create customer stub account
+   */
+  async createPlainCustomer(args: { email?: string; taxAddress?: TaxAddress }) {
+    if (args.taxAddress) {
+      return this.client.customersCreate({
+        shipping: {
+          name: args.email || '',
+          address: {
+            country: args.taxAddress.countryCode,
+            postal_code: args.taxAddress.postalCode,
+          },
+        },
+      });
+    }
+
+    return this.client.customersCreate();
+  }
+
+  /**
    * Finalizes an invoice and marks auto_advance as false.
    */
   async finalizeInvoiceWithoutAutoAdvance(invoiceId: string) {

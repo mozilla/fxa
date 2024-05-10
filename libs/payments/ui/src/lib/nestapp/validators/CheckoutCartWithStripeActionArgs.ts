@@ -12,5 +12,8 @@ export class CheckoutCartWithStripeActionArgs {
   version!: number;
 
   @IsString()
+  locale!: string;
+
+  @IsString()
   paymentMethodId!: string;
 }

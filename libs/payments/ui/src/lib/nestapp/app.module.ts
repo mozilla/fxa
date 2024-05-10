@@ -35,6 +35,7 @@ import { RootConfig } from './config';
 import { NextJSActionsService } from './nextjs-actions.service';
 import { validate } from '../config.utils';
 import { CheckoutService } from 'libs/payments/cart/src/lib/checkout.service';
+import { AccountManager } from '@fxa/shared/account/account';
 
 @Module({
   imports: [
@@ -69,6 +70,7 @@ import { CheckoutService } from 'libs/payments/cart/src/lib/checkout.service';
     PayPalClient,
     PaypalCustomerManager,
     PayPalManager,
+    AccountManager,
   ],
 })
 export class AppModule {}

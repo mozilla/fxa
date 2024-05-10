@@ -130,12 +130,13 @@ export class CartService {
   async checkoutCartWithStripe(
     cartId: string,
     version: number,
+    locale: string,
     paymentMethodId: string
   ) {
     try {
       const cart = await this.cartManager.fetchCartById(cartId);
 
-      await this.checkoutService.payWithStripe(cart, paymentMethodId);
+      await this.checkoutService.payWithStripe(cart, locale, paymentMethodId);
 
       await this.cartManager.finishCart(cartId, version, {});
     } catch (e) {
@@ -149,12 +150,13 @@ export class CartService {
   async checkoutCartWithPaypal(
     cartId: string,
     version: number,
+    locale: string,
     token?: string
   ) {
     try {
       const cart = await this.cartManager.fetchCartById(cartId);
 
-      this.checkoutService.payWithPaypal(cart, token);
+      this.checkoutService.payWithPaypal(cart, locale, token);
 
       await this.cartManager.finishCart(cartId, version, {});
     } catch (e) {

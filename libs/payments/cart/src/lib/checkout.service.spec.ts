@@ -5,8 +5,8 @@
 import { Test } from '@nestjs/testing';
 import { CheckoutService } from './checkout.service';
 import { faker } from '@faker-js/faker';
-import { ResultCartFactory } from './cart.factories';
 import {
+  MockStripeConfigProvider,
   StripeClient,
   StripeConfig,
   StripeCustomerFactory,
@@ -14,9 +14,12 @@ import {
   StripeManager,
   StripePaymentIntentFactory,
   StripePaymentMethodFactory,
+  StripePriceFactory,
   StripePromotionCodeFactory,
   StripeResponseFactory,
   StripeSubscriptionFactory,
+  TaxAddressFactory,
+  InvoicePreviewFactory,
 } from '@fxa/payments/stripe';
 import {
   PayPalClient,
@@ -24,8 +27,36 @@ import {
   PaypalCustomerManager,
   ResultPaypalCustomerFactory,
 } from '@fxa/payments/paypal';
-import { MockAccountDatabaseNestFactory } from 'libs/shared/db/mysql/account/src/lib/account.provider';
 import { PaypalClientConfig } from 'libs/payments/paypal/src/lib/paypal.client.config';
+import {
+  EligibilityManager,
+  EligibilityService,
+  EligibilityStatus,
+} from '@fxa/payments/eligibility';
+import {
+  ContentfulClient,
+  ContentfulClientConfig,
+  ContentfulManager,
+  ContentfulService,
+  ContentfulServiceConfig,
+} from '@fxa/shared/contentful';
+import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
+import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
+import {
+  CartEligibilityStatus,
+  MockAccountDatabaseNestFactory,
+} from '@fxa/shared/db/mysql/account';
+import {
+  CartManager,
+  ResultCartFactory,
+  handleEligibilityStatusMap,
+} from '@fxa/payments/cart';
+import {
+  CartEligibilityMismatchError,
+  CartTotalMismatchError,
+  CartEmailNotFoundError,
+} from './cart.error';
+import { AccountManager } from '@fxa/shared/account/account';
 
 describe('CheckoutService', () => {
   let checkoutService: CheckoutService;
@@ -33,6 +64,10 @@ describe('CheckoutService', () => {
   let stripeManager: StripeManager;
   let paypalCustomerManager: PaypalCustomerManager;
   let paypalManager: PayPalManager;
+  let cartManager: CartManager;
+  let eligibilityService: EligibilityService;
+  let contentfulService: ContentfulService;
+  let accountManager: AccountManager;
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -45,25 +80,265 @@ describe('CheckoutService', () => {
         PayPalClient,
         StripeConfig,
         PaypalClientConfig,
+        AccountManager,
         MockAccountDatabaseNestFactory,
+        CartManager,
+        ContentfulManager,
+        ContentfulClient,
+        ContentfulClientConfig,
+        ContentfulService,
+        ContentfulServiceConfig,
+        MockFirestoreProvider,
+        MockStatsDProvider,
+        EligibilityManager,
+        EligibilityService,
+        MockStripeConfigProvider,
       ],
     }).compile();
 
-    stripeClient = moduleRef.get(StripeClient);
-    stripeManager = moduleRef.get(StripeManager);
+    cartManager = moduleRef.get(CartManager);
+    eligibilityService = moduleRef.get(EligibilityService);
     paypalCustomerManager = moduleRef.get(PaypalCustomerManager);
     paypalManager = moduleRef.get(PayPalManager);
+    stripeClient = moduleRef.get(StripeClient);
+    stripeManager = moduleRef.get(StripeManager);
+    contentfulService = moduleRef.get(ContentfulService);
+    accountManager = moduleRef.get(AccountManager);
     checkoutService = moduleRef.get(CheckoutService);
   });
 
+  describe('prePaySteps', () => {
+    const acceptLanguage = 'en-US';
+
+    const uid = faker.string.uuid();
+
+    const mockCustomer = StripeResponseFactory(
+      StripeCustomerFactory({
+        shipping: {
+          name: '',
+          address: {
+            city: faker.location.city(),
+            country: TaxAddressFactory().countryCode,
+            line1: faker.location.streetAddress(),
+            line2: '',
+            postal_code: TaxAddressFactory().postalCode,
+            state: faker.location.state(),
+          },
+        },
+      })
+    );
+
+    const mockInvoicePreview = InvoicePreviewFactory();
+
+    const mockCart = StripeResponseFactory(
+      ResultCartFactory({
+        uid: uid,
+        couponCode: faker.string.uuid(),
+        stripeCustomerId: mockCustomer.id,
+        eligibilityStatus: CartEligibilityStatus.CREATE,
+        amount: mockInvoicePreview.subtotal,
+      })
+    );
+
+    const mockPrice = StripePriceFactory();
+
+    const mockPromotionCode = StripeResponseFactory(
+      StripePromotionCodeFactory()
+    );
+
+    beforeEach(async () => {
+      jest.spyOn(accountManager, 'createAccountStub').mockResolvedValue(uid);
+      jest
+        .spyOn(stripeManager, 'createPlainCustomer')
+        .mockResolvedValue(mockCustomer);
+      jest.spyOn(cartManager, 'updateFreshCart').mockResolvedValue();
+      jest
+        .spyOn(stripeManager, 'fetchActiveCustomer')
+        .mockResolvedValue(mockCustomer);
+      jest
+        .spyOn(eligibilityService, 'checkEligibility')
+        .mockResolvedValue(EligibilityStatus.CREATE);
+      jest
+        .spyOn(contentfulService, 'retrieveStripePlanId')
+        .mockResolvedValue(mockPrice.id);
+      jest
+        .spyOn(stripeManager, 'previewInvoice')
+        .mockResolvedValue(mockInvoicePreview);
+      jest
+        .spyOn(stripeManager, 'cancelIncompleteSubscriptionsToPrice')
+        .mockResolvedValue();
+      jest
+        .spyOn(stripeManager, 'getPromotionCodeByName')
+        .mockResolvedValue(mockPromotionCode);
+    });
+
+    describe('success - with stripeCustomerId attached to cart', () => {
+      beforeEach(async () => {
+        await checkoutService.prePaySteps(mockCart, acceptLanguage);
+      });
+
+      it('fetches the customer', () => {
+        expect(stripeManager.fetchActiveCustomer).toHaveBeenCalledWith(
+          mockCart.stripeCustomerId
+        );
+      });
+
+      it('checks if cart eligibility matches customer eligibility', () => {
+        expect(eligibilityService.checkEligibility).toHaveBeenCalledWith(
+          mockCart.interval,
+          mockCart.offeringConfigId,
+          mockCustomer.id
+        );
+
+        expect(handleEligibilityStatusMap[EligibilityStatus.CREATE]).toEqual(
+          mockCart.eligibilityStatus
+        );
+      });
+
+      it('checks that cart total matches upcoming invoice', () => {
+        expect(mockInvoicePreview.subtotal).toEqual(mockCart.amount);
+      });
+
+      it('checks that customer does not have existing subscription to price', () => {
+        expect(
+          stripeManager.cancelIncompleteSubscriptionsToPrice
+        ).toHaveBeenCalledWith(mockCustomer.id, mockPrice.id);
+      });
+
+      it('checks if customer is stripe tax eligible', async () => {
+        expect(stripeManager.isCustomerStripeTaxEligible).toBeTruthy();
+      });
+
+      it('fetches promotion code by name', async () => {
+        expect(stripeManager.getPromotionCodeByName).toHaveBeenCalledWith(
+          mockCart.couponCode,
+          true
+        );
+      });
+    });
+
+    describe('success - with new account customer stub account', () => {
+      const mockCart = StripeResponseFactory(
+        ResultCartFactory({
+          uid: undefined,
+          couponCode: faker.string.uuid(),
+          stripeCustomerId: mockCustomer.id,
+          eligibilityStatus: CartEligibilityStatus.CREATE,
+          amount: mockInvoicePreview.subtotal,
+        })
+      );
+
+      beforeEach(async () => {
+        await checkoutService.prePaySteps(mockCart, acceptLanguage);
+      });
+
+      it('creates a new account customer stub account', () => {
+        expect(accountManager.createAccountStub).toHaveBeenCalledWith(
+          mockCart.email,
+          1,
+          acceptLanguage
+        );
+      });
+
+      it('updates the cart', () => {
+        const { id, version } = mockCart;
+
+        expect(cartManager.updateFreshCart).toHaveBeenCalledWith(id, version, {
+          uid: uid,
+          stripeCustomerId: mockCart.stripeCustomerId,
+        });
+      });
+    });
+
+    describe('success - with new stripe customer stub account', () => {
+      const mockCart = StripeResponseFactory(
+        ResultCartFactory({
+          uid: uid,
+          couponCode: faker.string.uuid(),
+          stripeCustomerId: null,
+          eligibilityStatus: CartEligibilityStatus.CREATE,
+          amount: mockInvoicePreview.subtotal,
+        })
+      );
+
+      beforeEach(async () => {
+        await checkoutService.prePaySteps(mockCart, acceptLanguage);
+      });
+
+      it('creates a new stripe customer stub account', () => {
+        expect(stripeManager.createPlainCustomer).toHaveBeenCalledWith({
+          email: mockCart.email,
+          taxAddress: mockCart.taxAddress,
+        });
+      });
+
+      it('updates the cart', () => {
+        const { uid, id, version } = mockCart;
+
+        expect(cartManager.updateFreshCart).toHaveBeenCalledWith(id, version, {
+          uid: uid,
+          stripeCustomerId: mockCustomer.id,
+        });
+      });
+    });
+
+    describe('fail', () => {
+      it('throws cart email not found error', async () => {
+        const mockCart = StripeResponseFactory(
+          ResultCartFactory({
+            email: null,
+          })
+        );
+
+        await expect(
+          checkoutService.prePaySteps(mockCart, acceptLanguage)
+        ).rejects.toBeInstanceOf(CartEmailNotFoundError);
+      });
+
+      it('throws cart eligibility mismatch error', async () => {
+        const mockCart = StripeResponseFactory(
+          ResultCartFactory({
+            uid: uid,
+            couponCode: faker.string.uuid(),
+            stripeCustomerId: mockCustomer.id,
+            eligibilityStatus: CartEligibilityStatus.INVALID,
+            amount: mockInvoicePreview.subtotal,
+          })
+        );
+
+        await expect(
+          checkoutService.prePaySteps(mockCart, acceptLanguage)
+        ).rejects.toBeInstanceOf(CartEligibilityMismatchError);
+      });
+
+      it('throws cart total mismatch error', async () => {
+        const mockCart = StripeResponseFactory(
+          ResultCartFactory({
+            uid: uid,
+            couponCode: faker.string.uuid(),
+            stripeCustomerId: null,
+            eligibilityStatus: CartEligibilityStatus.CREATE,
+            amount: faker.number.int(),
+          })
+        );
+
+        await expect(
+          checkoutService.prePaySteps(mockCart, acceptLanguage)
+        ).rejects.toBeInstanceOf(CartTotalMismatchError);
+      });
+    });
+  });
+
   describe('payWithStripe', () => {
+    const acceptLanguage = 'en-US';
+    const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
     const mockCart = StripeResponseFactory(
       ResultCartFactory({
         uid: faker.string.uuid(),
+        stripeCustomerId: mockCustomer.id,
         couponCode: faker.string.uuid(),
       })
     );
-    const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
     const mockPromotionCode = StripeResponseFactory(
       StripePromotionCodeFactory()
     );
@@ -77,15 +352,12 @@ describe('CheckoutService', () => {
     );
 
     beforeEach(async () => {
-      jest
-        .spyOn(stripeManager, 'fetchActiveCustomer')
-        .mockResolvedValue(mockCustomer);
-      jest
-        .spyOn(stripeManager, 'isCustomerStripeTaxEligible')
-        .mockReturnValue(true);
-      jest
-        .spyOn(stripeManager, 'getPromotionCodeByName')
-        .mockResolvedValue(mockPromotionCode);
+      jest.spyOn(checkoutService, 'prePaySteps').mockResolvedValue({
+        uid: mockCart.uid as string,
+        customer: mockCustomer,
+        enableAutomaticTax: true,
+        promotionCode: mockPromotionCode,
+      });
       jest
         .spyOn(stripeClient, 'paymentMethodsAttach')
         .mockResolvedValue(mockPaymentMethod);
@@ -108,25 +380,17 @@ describe('CheckoutService', () => {
 
     describe('success', () => {
       beforeEach(async () => {
-        await checkoutService.payWithStripe(mockCart, mockPaymentMethod.id);
-      });
-
-      it('fetches the customer', async () => {
-        expect(stripeManager.fetchActiveCustomer).toHaveBeenCalledWith(
-          mockCart.stripeCustomerId
+        await checkoutService.payWithStripe(
+          mockCart,
+          acceptLanguage,
+          mockPaymentMethod.id
         );
       });
 
-      it('checks if customer is eligible for automatic tax', async () => {
-        expect(stripeManager.isCustomerStripeTaxEligible).toHaveBeenCalledWith(
-          mockCustomer
-        );
-      });
-
-      it('fetches promotion code by name', async () => {
-        expect(stripeManager.getPromotionCodeByName).toHaveBeenCalledWith(
-          mockCart.couponCode,
-          true
+      it('calls prePaySteps', async () => {
+        expect(checkoutService.prePaySteps).toHaveBeenCalledWith(
+          mockCart,
+          acceptLanguage
         );
       });
 
@@ -184,14 +448,16 @@ describe('CheckoutService', () => {
   });
 
   describe('payWithPaypal', () => {
+    const acceptLanguage = 'en-US';
     const mockToken = faker.string.uuid();
+    const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
     const mockCart = StripeResponseFactory(
       ResultCartFactory({
         uid: faker.string.uuid(),
+        stripeCustomerId: mockCustomer.id,
         couponCode: faker.string.uuid(),
       })
     );
-    const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
     const mockPromotionCode = StripeResponseFactory(
       StripePromotionCodeFactory()
     );
@@ -201,15 +467,12 @@ describe('CheckoutService', () => {
     const mockInvoice = StripeResponseFactory(StripeInvoiceFactory());
 
     beforeEach(async () => {
-      jest
-        .spyOn(stripeManager, 'fetchActiveCustomer')
-        .mockResolvedValue(mockCustomer);
-      jest
-        .spyOn(stripeManager, 'isCustomerStripeTaxEligible')
-        .mockReturnValue(true);
-      jest
-        .spyOn(stripeManager, 'getPromotionCodeByName')
-        .mockResolvedValue(mockPromotionCode);
+      jest.spyOn(checkoutService, 'prePaySteps').mockResolvedValue({
+        uid: mockCart.uid as string,
+        customer: mockCustomer,
+        enableAutomaticTax: true,
+        promotionCode: mockPromotionCode,
+      });
       jest
         .spyOn(paypalManager, 'getCustomerPayPalSubscriptions')
         .mockResolvedValue([]);
@@ -237,25 +500,10 @@ describe('CheckoutService', () => {
 
     describe('success', () => {
       beforeEach(async () => {
-        await checkoutService.payWithPaypal(mockCart, mockToken);
-      });
-
-      it('fetches the customer', async () => {
-        expect(stripeManager.fetchActiveCustomer).toHaveBeenCalledWith(
-          mockCart.stripeCustomerId
-        );
-      });
-
-      it('checks if customer is eligible for automatic tax', async () => {
-        expect(stripeManager.isCustomerStripeTaxEligible).toHaveBeenCalledWith(
-          mockCustomer
-        );
-      });
-
-      it('fetches promotion code by name', async () => {
-        expect(stripeManager.getPromotionCodeByName).toHaveBeenCalledWith(
-          mockCart.couponCode,
-          true
+        await checkoutService.payWithPaypal(
+          mockCart,
+          acceptLanguage,
+          mockToken
         );
       });
 

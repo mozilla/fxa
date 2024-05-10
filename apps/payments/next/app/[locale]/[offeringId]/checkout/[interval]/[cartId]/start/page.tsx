@@ -130,6 +130,7 @@ export default async function Checkout({ params }: { params: CheckoutParams }) {
             currency: fakeCart.nextInvoice.currency,
           }}
           cart={cart}
+          locale={locale}
         />
       </Providers>
     </section>

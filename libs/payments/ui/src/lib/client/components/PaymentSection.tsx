@@ -22,12 +22,14 @@ interface PaymentFormProps {
     version: number;
     email: string | null;
   };
+  locale: string;
 }
 
 export function PaymentSection({
   cmsCommonContent,
   paymentsInfo,
   cart,
+  locale,
 }: PaymentFormProps) {
   const [formEnabled, setFormEnabled] = useState(false);
   const [showConsentError, setShowConsentError] = useState(false);
@@ -62,6 +64,7 @@ export function PaymentSection({
           amount={paymentsInfo.amount}
           currency={paymentsInfo.currency}
           cart={cart}
+          locale={locale}
         />
       </div>
     </>

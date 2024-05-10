@@ -61,6 +61,84 @@ describe('StripeManager', () => {
     });
   });
 
+  describe('updateCustomer', () => {
+    it('should update an existing customer from Stripe', async () => {
+      const mockCustomer = StripeResponseFactory(
+        StripeCustomerFactory({
+          address: {
+            city: faker.location.city(),
+            country: faker.location.countryCode(),
+            line1: faker.location.streetAddress(),
+            line2: '',
+            postal_code: faker.location.zipCode(),
+            state: faker.location.state(),
+          },
+        })
+      );
+
+      jest
+        .spyOn(stripeClient, 'customersUpdate')
+        .mockResolvedValue(mockCustomer);
+
+      const result = await stripeManager.updateCustomer(mockCustomer.id, {
+        address: {
+          city: faker.location.city(),
+          country: faker.location.countryCode(),
+          line1: faker.location.streetAddress(),
+          line2: '',
+          postal_code: faker.location.zipCode(),
+          state: faker.location.state(),
+        },
+      });
+
+      expect(result).toEqual(mockCustomer);
+    });
+  });
+
+  describe('createPlainCustomer', () => {
+    it('create a stub customer from Stripe', async () => {
+      const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
+
+      jest
+        .spyOn(stripeClient, 'customersCreate')
+        .mockResolvedValue(mockCustomer);
+
+      const result = await stripeManager.createPlainCustomer({});
+
+      expect(result).toEqual(mockCustomer);
+    });
+
+    it('create a stub customer with args from Stripe', async () => {
+      const taxAddress = TaxAddressFactory();
+      const mockCustomer = StripeResponseFactory(
+        StripeCustomerFactory({
+          shipping: {
+            name: '',
+            address: {
+              city: faker.location.city(),
+              country: taxAddress.countryCode,
+              line1: faker.location.streetAddress(),
+              line2: '',
+              postal_code: taxAddress.postalCode,
+              state: faker.location.state(),
+            },
+          },
+        })
+      );
+
+      jest
+        .spyOn(stripeClient, 'customersCreate')
+        .mockResolvedValue(mockCustomer);
+
+      const result = await stripeManager.createPlainCustomer({
+        email: faker.internet.email(),
+        taxAddress: taxAddress,
+      });
+
+      expect(result).toEqual(mockCustomer);
+    });
+  });
+
   describe('finalizeInvoiceWithoutAutoAdvance', () => {
     it('works successfully', async () => {
       const mockInvoice = StripeResponseFactory(

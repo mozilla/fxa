@@ -18,6 +18,7 @@ interface StripeWrapperProps {
     version: number;
     email: string | null;
   };
+  locale: string;
 }
 
 export function StripeWrapper({
@@ -25,6 +26,7 @@ export function StripeWrapper({
   amount,
   currency,
   cart,
+  locale,
 }: StripeWrapperProps) {
   const config = useContext(ConfigContext);
   const [stripePromise] = useState(() => loadStripe(config.stripePublicApiKey));
@@ -65,7 +67,7 @@ export function StripeWrapper({
 
   return (
     <Elements stripe={stripePromise} options={options}>
-      <CheckoutForm readOnly={readOnly} cart={cart} />
+      <CheckoutForm readOnly={readOnly} cart={cart} locale={locale} />
     </Elements>
   );
 }

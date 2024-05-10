@@ -12,6 +12,9 @@ export class CheckoutCartWithPaypalActionArgs {
   version!: number;
 
   @IsString()
+  locale!: string;
+
+  @IsString()
   @IsOptional()
   token?: string;
 }
