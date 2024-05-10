@@ -18,10 +18,7 @@ function simpleIpRecord() {
     ipRateLimitBanDurationMs: 1000,
     maxBadLoginsPerIp: 3,
     maxAccountStatusCheck: 1,
-    badLoginErrnoWeights: { 102: 2 },
-    maxPasswordResetOtpEmails: 2,
-    passwordResetOtpEmailRequestWindowMs: 2000,
-    passwordResetOtpEmailRateLimitIntervalMs: 5000,
+    badLoginErrnoWeights: { '102': 2 },
   };
   return new (ipRecord(limits, now))();
 }
@@ -102,23 +99,6 @@ test('retryAfter block works', function (t) {
   t.end();
 });
 
-test('retryAfter rate limiting with optional interval', function (t) {
-  const ir = simpleIpRecord();
-  t.equal(ir.retryAfter(), 0, 'unblocked records can be retried now');
-  ir.rl = 240 * 1000;
-  t.equal(
-    ir.retryAfter(),
-    1,
-    'unblocked records can be retried after default interval'
-  );
-  t.equal(
-    ir.retryAfter(5000),
-    5,
-    'unblocked records can be retried after given interval'
-  );
-  t.end();
-});
-
 test('parse works', function (t) {
   var ir = simpleIpRecord();
   t.equal(ir.shouldBlock(), false, 'original object is not blocked');
@@ -156,19 +136,6 @@ test('action accountStatusCheck rate-limit works', function (t) {
   t.equal(ir.retryAfter(), 0, 'rate-limit not exceeded using same email');
   ir.update('accountStatusCheck', 'test2@example.com');
   t.equal(ir.retryAfter(), 1, 'rate-limit exceeded using different email');
-  t.end();
-});
-
-test('action passwordForgotSendOtp rate-limit works', function (t) {
-  const ir = simpleIpRecord();
-  ir.os = [];
-
-  let res = ir.update('passwordForgotSendOtp', 'test1@example.com');
-  t.equal(res, 0, 'rate-limit not exceeded');
-  res = ir.update('passwordForgotSendOtp', 'test1@example.com');
-  t.equal(res, 0, 'rate-limit not exceeded using same email');
-  res = ir.update('passwordForgotSendOtp', 'test2@example.com');
-  t.equal(res, 5, 'rate-limit exceeded using different email');
   t.end();
 });
 

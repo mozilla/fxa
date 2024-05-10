@@ -64,8 +64,6 @@ const SMS_SENDING_ACTION = {
 // are not associated with an email address or uid.
 const ACCOUNT_ACCESS_ACTION = new Set(['consumeSigninCode']);
 
-const RESET_PASSWORD_OTP_SENDING_ACTION = { passwordForgotSendOtp: true };
-
 module.exports = {
   isPasswordCheckingAction: function (action) {
     return PASSWORD_CHECKING_ACTION[action];
@@ -89,9 +87,5 @@ module.exports = {
 
   isAccountAccessAction(action) {
     return ACCOUNT_ACCESS_ACTION.has(action);
-  },
-
-  isResetPasswordOtpSendingAction(action) {
-    return RESET_PASSWORD_OTP_SENDING_ACTION[action];
   },
 };

@@ -173,26 +173,6 @@ module.exports = function (fs, path, url, convict) {
         format: 'nat',
         env: 'MAX_ACCOUNT_ACCESS',
       },
-      passwordResetOtpLimits: {
-        maxPasswordResetOtpEmails: {
-          doc: 'Number of OTP email for an account email or from an IP can request before rate limiting',
-          default: 5,
-          format: 'nat',
-          env: 'PASSWORD_RESET_OTP_EMAIL_LIMIT',
-        },
-        passwordResetOtpEmailRequestWindowSeconds: {
-          doc: 'Number of seconds when the max number of OTP email requests is allowed',
-          default: 600,
-          format: 'nat',
-          env: 'PASSWORD_RESET_OTP_EMAIL_REQUEST_WINDOW_SECONDS',
-        },
-        passwordResetOtpRateLimitIntervalSeconds: {
-          doc: 'Number of seconds to wait until password reset OTP requests are allowed again',
-          default: 1800,
-          format: 'nat',
-          env: 'PASSWORD_RESET_OTP_EMAIL_RATE_LIMIT_SECONDS',
-        },
-      },
     },
     cache: {
       recordLifetimeSeconds: {

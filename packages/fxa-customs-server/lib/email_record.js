@@ -29,7 +29,6 @@ module.exports = function (limits, now) {
     rec.lf = object.lf || rec.lf; // timestamps of when login failed
     rec.pr = object.pr; // timestamp of the last password reset
     rec.ub = object.ub || rec.ub;
-    rec.os = object.os || []; // timpstamp of password reset OTP email request
     return rec;
   };
 
@@ -190,11 +189,9 @@ module.exports = function (limits, now) {
     this.pr = now();
   };
 
-  EmailRecord.prototype.retryAfter = function (rlIntervalMs) {
-    const intervalMs = rlIntervalMs || limits.rateLimitIntervalMs;
-
+  EmailRecord.prototype.retryAfter = function () {
     var rateLimitAfter = Math.ceil(
-      ((this.rl || 0) + intervalMs - now()) / 1000
+      ((this.rl || 0) + limits.rateLimitIntervalMs - now()) / 1000
     );
     var banAfter = Math.ceil(
       ((this.bk || 0) + limits.blockIntervalMs - now()) / 1000
@@ -230,22 +227,6 @@ module.exports = function (limits, now) {
       n++;
     }
     this.lf = this.lf.slice(i + 1);
-  };
-
-  EmailRecord.prototype.addPasswordResetOtp = function () {
-    this.os.push(now());
-  };
-
-  EmailRecord.prototype.trimPasswordResetOtps = function (now) {
-    this.os = this.os.filter(
-      (otpReqTime) =>
-        otpReqTime > now - limits.passwordResetOtpEmailRequestWindowMs
-    );
-  };
-
-  EmailRecord.prototype.isOverPasswordResetOtpLimit = function () {
-    this.trimPasswordResetOtps(now());
-    return this.os.length > limits.maxPasswordResetOtpEmails;
   };
 
   EmailRecord.prototype.update = function (action, unblock) {
@@ -307,22 +288,6 @@ module.exports = function (limits, now) {
     if (this.isOverBadLogins()) {
       this.rateLimit();
       return this.retryAfter();
-    }
-
-    if (actions.isResetPasswordOtpSendingAction(action)) {
-      const otpEmailRateLimited = !!(
-        this.rl &&
-        now() - this.rl < limits.passwordResetOtpEmailRateLimitIntervalMs
-      );
-      if (otpEmailRateLimited || this.shouldBlock()) {
-        return this.retryAfter(limits.passwordResetOtpEmailRateLimitIntervalMs);
-      }
-      this.addPasswordResetOtp();
-      if (this.isOverPasswordResetOtpLimit()) {
-        this.rateLimit();
-        this.os = [];
-        return this.retryAfter(limits.passwordResetOtpEmailRateLimitIntervalMs);
-      }
     }
 
     // Everything else is allowed through.

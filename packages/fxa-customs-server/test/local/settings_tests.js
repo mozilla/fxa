@@ -14,11 +14,6 @@ const config = {
       limitIntervalSeconds: 1800,
       maxSms: 5,
     },
-    passwordResetOtpLimits: {
-      maxPasswordResetOtpEmails: 5,
-      passwordResetOtpEmailRequestWindowSeconds: 600,
-      passwordResetOtpRateLimitIntervalSeconds: 1800,
-    },
   },
   requestChecks: {
     treatEveryoneWithSuspicion: true,

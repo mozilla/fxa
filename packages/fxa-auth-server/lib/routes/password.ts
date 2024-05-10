@@ -531,7 +531,8 @@ module.exports = function (
         };
         const email = payload.email;
 
-        await customs.check(request, email, 'passwordForgotSendOtp');
+        // TODO FXA-9485
+        // await customs.check(request, email, 'passwordForgotSendOtp');
 
         request.validateMetricsContext();
 
