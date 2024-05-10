@@ -7,8 +7,6 @@ import { BaseTarget, Credentials } from '../../../lib/targets/base';
 import { TestAccountTracker } from '../../../lib/testAccountTracker';
 import { LoginPage } from '../../../pages/login';
 
-test.describe.configure({ mode: 'parallel' });
-
 test.describe('severity-2 #smoke', () => {
   test.describe('resubscription test', () => {
     test.beforeEach(() => {

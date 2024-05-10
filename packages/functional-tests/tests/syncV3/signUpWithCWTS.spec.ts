@@ -8,8 +8,6 @@ import uaStrings from '../../lib/ua-strings';
 
 const AGE_21 = '21';
 
-test.describe.configure({ mode: 'parallel' });
-
 test.describe('severity-1 #smoke', () => {
   test.describe('Sync v3 sign up and CWTS', () => {
     test.beforeEach(async ({ pages: { configPage } }) => {

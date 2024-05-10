@@ -6,8 +6,6 @@ import { FirefoxCommand, createCustomEventDetail } from '../../lib/channels';
 import { expect, test } from '../../lib/fixtures/standard';
 import uaStrings from '../../lib/ua-strings';
 
-test.describe.configure({ mode: 'parallel' });
-
 test.describe('severity-2 #smoke', () => {
   test.describe('Firefox desktop user info handshake', () => {
     test.beforeEach(async () => {

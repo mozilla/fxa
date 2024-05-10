@@ -9,8 +9,6 @@ const makeUid = () =>
     .map(() => Math.floor(Math.random() * 16).toString(16))
     .join('');
 
-test.describe.configure({ mode: 'parallel' });
-
 test.describe('severity-1 #smoke', () => {
   test.describe('Desktop Sync V3 force auth', () => {
     test.beforeEach(async () => {

@@ -9,8 +9,6 @@ import { Page, expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
 import { LoginPage } from '../../pages/login';
 
-test.describe.configure({ mode: 'parallel' });
-
 test.describe('severity-2 #smoke', () => {
   test.beforeEach(async () => {
     test.slow();

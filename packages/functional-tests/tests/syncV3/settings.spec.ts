@@ -5,8 +5,6 @@
 import { FirefoxCommand, createCustomEventDetail } from '../../lib/channels';
 import { expect, test } from '../../lib/fixtures/standard';
 
-test.describe.configure({ mode: 'parallel' });
-
 test.describe('severity-2 #smoke', () => {
   test.describe('Firefox Desktop Sync v3 settings', () => {
     test.beforeEach(async () => {
