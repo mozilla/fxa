@@ -101,4 +101,34 @@ export class EmailClient {
   async clear(emailAddress: string) {
     await got.delete(`${this.host}/mail/${toUsername(emailAddress)}`);
   }
+
+  async getUnblockCode(email: string) {
+    const code = await this.waitForEmail(
+      email,
+      EmailType.unblockCode,
+      EmailHeader.unblockCode
+    );
+    await this.clear(email);
+    return code;
+  }
+
+  async getConfirmSignupCode(email: string) {
+    const code = await this.waitForEmail(
+      email,
+      EmailType.verifyShortCode,
+      EmailHeader.shortCode
+    );
+    await this.clear(email);
+    return code;
+  }
+
+  async getSigninTokenCode(email: string) {
+    const code = await this.waitForEmail(
+      email,
+      EmailType.verifyLoginCode,
+      EmailHeader.signinCode
+    );
+    await this.clear(email);
+    return code;
+  }
 }

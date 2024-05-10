@@ -524,24 +524,4 @@ export class LoginPage extends BaseLayout {
       return await this.target.authClient.sessionDestroy(account.sessionToken);
     }
   }
-
-  async denormalizeStoredEmail(email: string) {
-    return this.page.evaluate((uid) => {
-      const accounts = JSON.parse(
-        localStorage.getItem('__fxa_storage.accounts') || '{}'
-      );
-
-      for (const accountId in accounts) {
-        if (accountId === uid) {
-          const account = accounts[accountId];
-
-          if (account.email === email) {
-            account.email = email.toUpperCase();
-          }
-        }
-      }
-
-      localStorage.setItem('__fxa_storage.accounts', JSON.stringify(accounts));
-    }, email);
-  }
 }

@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import signin from '../../../fxa-auth-server/lib/routes/utils/signin';
 import { expect, test } from '../../lib/fixtures/standard';
 
 test.describe('severity-1 #smoke', () => {
@@ -38,14 +39,15 @@ test.describe('severity-1 #smoke', () => {
   });
 
   test('disconnect RP', async ({
-    pages: { relier, login, settings },
+    pages: { relier, settings, signinReact },
     testAccountTracker,
   }) => {
     const credentials = await testAccountTracker.signUp();
 
     await relier.goto();
     await relier.clickEmailFirst();
-    await login.login(credentials.email, credentials.password);
+    await signinReact.fillOutEmailFirstForm(credentials.email);
+    await signinReact.fillOutPasswordForm(credentials.password);
 
     expect(await relier.isLoggedIn()).toBe(true);
 

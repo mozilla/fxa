@@ -5,9 +5,9 @@
 import { TestAccountTracker } from '../../lib/testAccountTracker';
 import { Page, expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
-import { LoginPage } from '../../pages/login';
 import { SettingsPage } from '../../pages/settings';
 import { DeleteAccountPage } from '../../pages/settings/deleteAccount';
+import { SigninReactPage } from '../../pages/signinReact';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('signin blocked', () => {
@@ -18,21 +18,22 @@ test.describe('severity-2 #smoke', () => {
     test('valid code entered', async ({
       target,
       page,
-      pages: { login, settings, deleteAccount },
+      pages: { signinReact, settings, deleteAccount },
       testAccountTracker,
     }) => {
       const credentials = await signInBlockedAccount(
         target,
         page,
-        login,
+        signinReact,
         testAccountTracker
       );
 
-      //Unblock the email
-      await login.unblock(credentials.email);
+      const code = await target.emailClient.getUnblockCode(credentials.email);
+
+      await signinReact.fillOutSigninUnblockForm(code);
 
       //Verify logged in on Settings page
-      expect(await login.isUserLoggedIn()).toBe(true);
+      await expect(settings.settingsHeading).toBeVisible();
 
       //Delete blocked account, the fixture teardown doesn't work in this case
       await removeAccount(settings, deleteAccount, page, credentials.password);
@@ -41,28 +42,28 @@ test.describe('severity-2 #smoke', () => {
     test('incorrect code entered', async ({
       target,
       page,
-      pages: { login, settings, deleteAccount },
+      pages: { settings, signinReact, deleteAccount },
       testAccountTracker,
     }) => {
       const credentials = await signInBlockedAccount(
         target,
         page,
-        login,
+        signinReact,
         testAccountTracker
       );
 
-      await login.enterUnblockCode('incorrect');
+      await signinReact.fillOutSigninUnblockForm('incorrect');
 
       //Verify tooltip error
-      expect(await login.getTooltipError()).toContain(
-        'Invalid authorization code'
-      );
+      await expect(page.getByText('Invalid authorization code')).toBeVisible();
+
+      const code = await target.emailClient.getUnblockCode(credentials.email);
 
       //Unblock the email
-      await login.unblock(credentials.email);
+      await signinReact.fillOutSigninUnblockForm(code);
 
       //Verify logged in on Settings page
-      expect(await login.isUserLoggedIn()).toBe(true);
+      await expect(settings.settingsHeading).toBeVisible();
 
       //Delete blocked account, the fixture teardown doesn't work in this case
       await removeAccount(settings, deleteAccount, page, credentials.password);
@@ -71,29 +72,24 @@ test.describe('severity-2 #smoke', () => {
     test('resend', async ({
       target,
       page,
-      pages: { login, resetPassword, settings, deleteAccount },
+      pages: { signinReact, settings, deleteAccount },
       testAccountTracker,
     }) => {
       const credentials = await signInBlockedAccount(
         target,
         page,
-        login,
+        signinReact,
         testAccountTracker
       );
-
-      //Click resend link
-      await resetPassword.clickResend();
-
-      //Verify success message
-      expect(await resetPassword.resendSuccessMessage()).toContain(
-        'Email resent. Add accounts@firefox.com to your contacts to ensure a smooth delivery.'
-      );
-
-      //Unblock the email
-      await login.unblock(credentials.email);
+      await signinReact.signinUnblockResendCodeButton.click();
+      await expect(
+        signinReact.signinUnblockCodeResentSuccessMessage
+      ).toHaveText(/Email re-?sent/);
+      const code = await target.emailClient.getUnblockCode(credentials.email);
+      await signinReact.fillOutSigninUnblockForm(code);
 
       //Verify logged in on Settings page
-      expect(await login.isUserLoggedIn()).toBe(true);
+      await expect(settings.settingsHeading).toBeVisible();
 
       //Delete blocked account, the fixture teardown doesn't work in this case
       await removeAccount(settings, deleteAccount, page, credentials.password);
@@ -102,36 +98,36 @@ test.describe('severity-2 #smoke', () => {
     test('unverified', async ({
       target,
       page,
-      pages: { login, settings, deleteAccount },
+      pages: { confirmSignupCode, deleteAccount, settings, signinReact },
       testAccountTracker,
     }) => {
-      test.fixme(true, 'FXA-9226');
-
-      const credentials = await testAccountTracker.signUp({
+      const credentials = await testAccountTracker.signUpBlocked({
         lang: 'en',
         preVerified: 'false',
       });
 
       await page.goto(target.contentServerUrl);
-      await login.fillOutEmailFirstSignIn(
-        credentials.email,
-        credentials.password
-      );
+      await signinReact.fillOutEmailFirstForm(credentials.email);
+      await signinReact.fillOutPasswordForm(credentials.password);
 
       //Verify sign in block header
-      await expect(login.signInUnblockHeader()).toBeVisible();
-      expect(await login.getUnblockEmail()).toContain(credentials.email);
+      await expect(signinReact.signinUnblockFormHeading).toBeVisible();
+      await expect(page.getByText(credentials.email)).toBeVisible();
 
-      //Unblock the email
-      await login.unblock(credentials.email);
+      const unblockCode = await target.emailClient.getUnblockCode(
+        credentials.email
+      );
+      await signinReact.fillOutSigninUnblockForm(unblockCode);
 
-      //Verify confirm code header
-      await expect(login.signUpCodeHeader).toBeVisible();
+      await expect(confirmSignupCode.heading).toBeVisible();
 
-      await login.fillOutSignInCode(credentials.email);
+      const signupCode = await target.emailClient.getSigninTokenCode(
+        credentials.email
+      );
+      await confirmSignupCode.fillOutCodeForm(signupCode);
 
       //Verify logged in on Settings page
-      expect(await login.isUserLoggedIn()).toBe(true);
+      await expect(settings.settingsHeading).toBeVisible();
 
       //Delete blocked account, the fixture teardown doesn't work in this case
       await removeAccount(settings, deleteAccount, page, credentials.password);
@@ -140,37 +136,42 @@ test.describe('severity-2 #smoke', () => {
     test('with primary email changed', async ({
       target,
       page,
-      pages: { login, settings, secondaryEmail, deleteAccount },
+      pages: { deleteAccount, secondaryEmail, settings, signinReact },
       testAccountTracker,
     }) => {
+      test.fixme(
+        true,
+        'FXA-9519, incorrect email case error on submitting unblock code'
+      );
       const blockedEmail = testAccountTracker.generateBlockedEmail();
       const credentials = await signInAccount(
         target,
         page,
-        login,
+        settings,
+        signinReact,
         testAccountTracker
       );
 
-      await settings.goto();
       await settings.secondaryEmail.addButton.click();
-      await secondaryEmail.addSecondaryEmail(blockedEmail);
+      await secondaryEmail.addSecondaryEmail(blockedEmail.toLowerCase());
       await settings.secondaryEmail.makePrimaryButton.click();
-      credentials.email = blockedEmail;
       await settings.signOut();
 
-      await page.goto(target.contentServerUrl);
-      await login.fillOutEmailFirstSignIn(blockedEmail, credentials.password);
+      await signinReact.fillOutEmailFirstForm(blockedEmail);
+      await signinReact.fillOutPasswordForm(credentials.password);
 
       //Verify sign in block header
-      await expect(login.signInUnblockHeader()).toBeVisible();
-      expect(await login.getUnblockEmail()).toContain(blockedEmail);
+      await expect(signinReact.signinUnblockFormHeading).toBeVisible();
+      await expect(page.getByText(blockedEmail)).toBeVisible();
 
       //Unblock the email
-      await login.unblock(blockedEmail);
+      const unblockCode = await target.emailClient.getUnblockCode(blockedEmail);
+      await signinReact.fillOutSigninUnblockForm(unblockCode);
 
       //Verify logged in on Settings page
-      expect(await login.isUserLoggedIn()).toBe(true);
+      await expect(settings.settingsHeading).toBeVisible();
 
+      credentials.email = blockedEmail;
       //Delete blocked account, the fixture teardown doesn't work in this case
       await removeAccount(settings, deleteAccount, page, credentials.password);
     });
@@ -180,15 +181,17 @@ test.describe('severity-2 #smoke', () => {
 async function signInAccount(
   target: BaseTarget,
   page: Page,
-  login: LoginPage,
+  settings: SettingsPage,
+  signinReact: SigninReactPage,
   testAccountTracker: TestAccountTracker
 ): Promise<Credentials> {
   const credentials = await testAccountTracker.signUp();
   await page.goto(target.contentServerUrl);
-  await login.fillOutEmailFirstSignIn(credentials.email, credentials.password);
+  await signinReact.fillOutEmailFirstForm(credentials.email);
+  await signinReact.fillOutPasswordForm(credentials.password);
 
   //Verify logged in on Settings page
-  expect(await login.isUserLoggedIn()).toBe(true);
+  await expect(settings.settingsHeading).toBeVisible();
 
   return credentials;
 }
@@ -196,16 +199,17 @@ async function signInAccount(
 async function signInBlockedAccount(
   target: BaseTarget,
   page: Page,
-  login: LoginPage,
+  signinReact: SigninReactPage,
   testAccountTracker: TestAccountTracker
 ): Promise<Credentials> {
   const credentials = await testAccountTracker.signUpBlocked();
   await page.goto(target.contentServerUrl);
-  await login.fillOutEmailFirstSignIn(credentials.email, credentials.password);
+  await signinReact.fillOutEmailFirstForm(credentials.email);
+  await signinReact.fillOutPasswordForm(credentials.password);
 
-  //Verify sign in block header
-  await expect(login.signInUnblockHeader()).toBeVisible();
-  expect(await login.getUnblockEmail()).toContain(credentials.email);
+  //Verify sign in unblock header
+  await expect(signinReact.signinUnblockFormHeading).toBeVisible();
+  await expect(page.getByText(credentials.email)).toBeVisible();
 
   return credentials;
 }

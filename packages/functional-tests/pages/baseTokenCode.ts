@@ -12,16 +12,22 @@ export abstract class BaseTokenCodePage extends BaseLayout {
 
   get successMessage() {
     this.checkPath();
-    return this.page.locator('.success');
+    return this.page.getByRole('status');
   }
 
   get input() {
     this.checkPath();
-    return this.page.locator('input[type=text]');
+    return this.page.getByRole('textbox');
   }
 
   get submit() {
     this.checkPath();
     return this.page.locator('button[type=submit]');
+  }
+
+  async fillOutCodeForm(code: string) {
+    this.checkPath();
+    await this.input.fill(code);
+    await this.submit.click();
   }
 }
