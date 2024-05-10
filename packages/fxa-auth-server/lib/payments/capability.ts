@@ -18,7 +18,7 @@ import {
   SubscriptionEligibilityResult,
   SubscriptionUpdateEligibility,
 } from 'fxa-shared/subscriptions/types';
-import { isEqual } from 'lodash';
+import isEqual from 'lodash/isEqual';
 import Stripe from 'stripe';
 import Container from 'typedi';
 

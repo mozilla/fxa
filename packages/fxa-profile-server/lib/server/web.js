@@ -7,7 +7,7 @@ const logger = require('../logging')('server.web');
 
 const Hapi = require('@hapi/hapi');
 const Sentry = require('@sentry/node');
-const cloneDeep = require('lodash').cloneDeep;
+const cloneDeep = require('lodash/cloneDeep');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 
 const AppError = require('../error');

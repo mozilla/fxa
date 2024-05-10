@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const _ = require('lodash');
+const get = require('lodash/get');
 
 const config = require('./configuration');
 const STACKTRACE_FRAME_LENGTH = 10;
@@ -29,19 +29,19 @@ function removeQuery(url) {
 const eventFilter = (event) => {
   event = tagCriticalEvent(event);
 
-  if (_.get(event, 'request.headers.Referer')) {
+  if (get(event, 'request.headers.Referer')) {
     event.request.headers.Referer = removeQuery(event.request.headers.Referer);
   }
 
-  if (_.get(event, 'request.url')) {
+  if (get(event, 'request.url')) {
     event.request.url = removeQuery(event.request.url);
   }
 
-  if (_.get(event, 'request.query_string')) {
+  if (get(event, 'request.query_string')) {
     event.request.query_string = null; //eslint-disable-line camelcase
   }
 
-  if (_.get(event, 'exception[0].stacktrace.frames')) {
+  if (get(event, 'exception[0].stacktrace.frames')) {
     // trim the stacktrace to avoid sending a lot of event
     // by default some traces may have 100+ frames
     event.exception[0].stacktrace.frames.length = STACKTRACE_FRAME_LENGTH;

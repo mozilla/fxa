@@ -7,7 +7,7 @@
 const sinon = require('sinon');
 const { assert } = require('chai');
 const { default: Container } = require('typedi');
-const { cloneDeep } = require('lodash');
+const cloneDeep = require('lodash/cloneDeep');
 const retry = require('async-retry');
 const { deleteCollection } = require('../util');
 const {

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import _ from 'lodash';
+import zipWith from 'lodash/zipWith';
 import Backbone from 'backbone';
 
 const t = (msg) => msg;
@@ -42,7 +42,7 @@ const CATEGORY_TAGS = {
   'Not listed': 'not_listed',
 };
 
-const topicOptions = _.zipWith(TOPICS, LOWERED_TOPICS, (topic, lowered) => ({
+const topicOptions = zipWith(TOPICS, LOWERED_TOPICS, (topic, lowered) => ({
   topic,
   lowered,
 }));

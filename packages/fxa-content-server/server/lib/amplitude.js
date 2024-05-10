@@ -14,7 +14,7 @@
 
 'use strict';
 
-const _ = require('lodash');
+const pick = require('lodash/pick');
 const {
   GROUPS,
   initialize,
@@ -878,7 +878,7 @@ function receiveEvent(event, request, data) {
         version: VERSION,
         emailTypes: EMAIL_TYPES,
         userAgent: request.headers && request.headers['user-agent'],
-        ..._.pick(data, [
+        ...pick(data, [
           'deviceId',
           'devices',
           'emailDomain',
