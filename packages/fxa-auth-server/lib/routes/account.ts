@@ -1757,11 +1757,8 @@ export class AccountHandler {
 
     const email = (request.payload as any).email;
     await this.customs.check(request, email, 'getCredentialsStatus');
-    const { accountRecord } = await this.signinUtils.checkCustomsAndLoadAccount(
-      request,
-      email,
-      true
-    );
+
+    const accountRecord = await this.db.accountRecord(email);
 
     if (accountRecord.disabledAt) {
       throw error.cannotLoginWithEmail();
