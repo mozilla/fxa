@@ -91,6 +91,7 @@ export const Account = ({
   linkedAccounts,
   accountEvents,
   verifierSetAt,
+  clientSalt,
 }: AccountProps) => {
   const createdAtDate = getFormattedDate(createdAt);
   const disabledAtDate = getFormattedDate(disabledAt);
@@ -151,6 +152,11 @@ export const Account = ({
             header="Password Set"
             children={verifierSetAt != null && verifierSetAt > 0 ? 'Yes' : 'No'}
             testId="account-password-set"
+          />
+          <TableRowYHeader
+            header="Key Stretch Version"
+            children={/quickStretchV2:/.test(clientSalt || '') ? 'v2' : 'v1'}
+            testId="key-stretch-version"
           />
           <TableRowYHeader
             header="Locale"

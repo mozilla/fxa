@@ -137,6 +137,7 @@ type Account {
   uid: ID!
   email: String!
   emailVerified: Boolean!
+  clientSalt: String
   createdAt: Float!
   disabledAt: Float
   locale: String

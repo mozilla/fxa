@@ -8,6 +8,7 @@ export const GET_ACCOUNT_BY_EMAIL = gql`
   query getAccountByEmail($email: String!, $autoCompleted: Boolean!) {
     accountByEmail(email: $email, autoCompleted: $autoCompleted) {
       uid
+      clientSalt
       createdAt
       disabledAt
       verifierSetAt
@@ -100,6 +101,7 @@ export const GET_ACCOUNT_BY_UID = gql`
     accountByUid(uid: $uid) {
       uid
       createdAt
+      clientSalt
       disabledAt
       verifierSetAt
       lockedAt
