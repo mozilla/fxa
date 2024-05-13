@@ -19,15 +19,19 @@ import { GET_TOTP_STATUS } from '../../components/App/gql';
 import { TotpStatusResponse } from '../Signin/SigninTokenCode/interfaces';
 import { SigninRecoveryLocationState } from '../InlineRecoverySetup/interfaces';
 import { hardNavigate } from 'fxa-react/lib/utils';
+import { QueryParams } from '../..';
+import { queryParamsToMetricsContext } from '../../lib/metrics';
 
 export const InlineTotpSetupContainer = ({
   isSignedIn,
   integration,
   serviceName,
+  flowQueryParams,
 }: {
   isSignedIn: boolean;
   integration: OAuthIntegration;
   serviceName: MozServices;
+  flowQueryParams: QueryParams;
 } & RouteComponentProps) => {
   const [totp, setTotp] = useState<TotpToken>();
   const location = useLocation() as ReturnType<typeof useLocation> & {
@@ -35,6 +39,9 @@ export const InlineTotpSetupContainer = ({
   };
   const navigate = useNavigate();
   const session = useSession();
+  const metricsContext = queryParamsToMetricsContext(
+    flowQueryParams as unknown as Record<string, string>
+  );
 
   const [createTotp] = useMutation<{ createTotp: TotpToken }>(
     CREATE_TOTP_MUTATION
@@ -109,9 +116,16 @@ export const InlineTotpSetupContainer = ({
           navTo('signin_totp_code', signinState ? signinState : undefined);
         }
 
-        const totpResp = await createTotp({ variables: { input: {} } });
-
-        setTotp(totpResp.data?.createTotp);
+        if (!totp) {
+          const totpResp = await createTotp({
+            variables: {
+              input: {
+                metricsContext,
+              },
+            },
+          });
+          setTotp(totpResp.data?.createTotp);
+        }
       } catch (_) {
         navTo('signup');
       }
@@ -121,8 +135,10 @@ export const InlineTotpSetupContainer = ({
     signinState,
     session,
     navTo,
+    totp,
     createTotp,
     totpStatus?.account.totp.verified,
+    metricsContext,
   ]);
 
   if (totpStatusLoading || !totp) {

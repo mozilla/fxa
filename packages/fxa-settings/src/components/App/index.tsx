@@ -386,7 +386,7 @@ const AuthAndAccountSetupRoutes = ({
       <InlineTotpSetupContainer
         path="/inline_totp_setup/*"
         integration={integration as OAuthIntegration}
-        {...{ isSignedIn, serviceName }}
+        {...{ isSignedIn, serviceName, flowQueryParams }}
       />
       <InlineRecoverySetupContainer
         path="/inline_recovery_setup/*"
