@@ -13,6 +13,7 @@ import {
   OAuthIntegrationData,
 } from '../../../models';
 import { StoredAccountData } from '../../../lib/storage-utils';
+import { QueryParams } from '../../..';
 
 export type LocationState = {
   origin: 'signup' | undefined;
@@ -40,6 +41,7 @@ export type ConfirmSignupCodeProps = {
   newsletterSlugs?: string[];
   offeredSyncEngines?: string[];
   declinedSyncEngines?: string[];
+  flowQueryParams: QueryParams;
 } & Pick<LocationState, 'keyFetchToken' | 'unwrapBKey'> &
   RouteComponentProps;
 

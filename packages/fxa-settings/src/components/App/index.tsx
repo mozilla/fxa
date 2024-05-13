@@ -363,7 +363,7 @@ const AuthAndAccountSetupRoutes = ({
       <CannotCreateAccount path="/cannot_create_account/*" />
       <ConfirmSignupCodeContainer
         path="/confirm_signup_code/*"
-        {...{ integration }}
+        {...{ integration, flowQueryParams }}
       />
       <SignupContainer
         path="/oauth/signup/*"

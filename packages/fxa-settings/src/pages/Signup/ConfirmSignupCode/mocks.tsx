@@ -8,6 +8,7 @@ import ConfirmSignupCode from '.';
 import { IntegrationType } from '../../../models';
 import {
   MOCK_EMAIL,
+  MOCK_FLOW_ID,
   MOCK_KEY_FETCH_TOKEN,
   MOCK_REDIRECT_URI,
   MOCK_SERVICE,
@@ -72,6 +73,7 @@ export const Subject = ({
           newsletterSlugs,
           finishOAuthFlowHandler,
         }}
+        flowQueryParams={{ flowId: MOCK_FLOW_ID }}
         email={MOCK_EMAIL}
         keyFetchToken={MOCK_KEY_FETCH_TOKEN}
         sessionToken={MOCK_SESSION_TOKEN}

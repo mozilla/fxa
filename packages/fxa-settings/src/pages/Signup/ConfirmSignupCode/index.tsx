@@ -11,7 +11,11 @@ import {
   getErrorFtlId,
   getLocalizedErrorMessage,
 } from '../../../lib/auth-errors/auth-errors';
-import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
+import {
+  logViewEvent,
+  queryParamsToMetricsContext,
+  usePageViewEvent,
+} from '../../../lib/metrics';
 import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
 import {
   useAlertBar,
@@ -55,6 +59,7 @@ const ConfirmSignupCode = ({
   declinedSyncEngines,
   keyFetchToken,
   unwrapBKey,
+  flowQueryParams,
 }: ConfirmSignupCodeProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
@@ -130,6 +135,9 @@ const ConfirmSignupCode = ({
           scopes: integration.getPermissions(),
         }),
         ...(service !== MozServices.Default && { service }),
+        metricsContext: queryParamsToMetricsContext(
+          flowQueryParams as unknown as Record<string, string>
+        ),
       };
 
       await session.verifySession(code, options);

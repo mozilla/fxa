@@ -32,6 +32,7 @@ import { OAUTH_ERRORS } from '../../../lib/oauth';
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
   logViewEvent: jest.fn(),
+  queryParamsToMetricsContext: jest.fn(),
   logViewEventOnce: jest.fn(),
   useMetrics: () => ({
     usePageViewEvent: jest.fn(),
