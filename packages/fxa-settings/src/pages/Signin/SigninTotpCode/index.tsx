@@ -43,6 +43,7 @@ export type SigninTotpCodeProps = {
     totpCode: string
   ) => Promise<{ error?: BeginSigninError; status: boolean }>;
   serviceName?: MozServices;
+  tryKeyStretching?: () => Promise<void>;
 };
 
 export const viewName = 'signin-totp-code';
@@ -54,6 +55,7 @@ export const SigninTotpCode = ({
   signinState,
   submitTotpCode,
   serviceName,
+  tryKeyStretching,
 }: SigninTotpCodeProps & RouteComponentProps) => {
   const location = useLocation();
 
@@ -115,6 +117,10 @@ export const SigninTotpCode = ({
         // Update verification status of stored current account
         verified: true,
       });
+
+      if (tryKeyStretching) {
+        await tryKeyStretching();
+      }
 
       const navigationOptions = {
         email,

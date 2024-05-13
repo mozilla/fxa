@@ -187,6 +187,7 @@ export interface SigninLocationState {
   verificationReason?: VerificationReasons;
   keyFetchToken?: hexstring;
   unwrapBKey?: hexstring;
+  password?: string;
 }
 
 export type TotpToken = Awaited<ReturnType<Account['createTotp']>>;

@@ -80,6 +80,7 @@ export type SignInOptions = {
   unblockCode?: string;
   metricsContext?: MetricsContext;
   postPasswordUpgrade?: boolean;
+  keyStretchVersion?: string;
 };
 
 export type SignedInAccountData = {
@@ -448,14 +449,22 @@ export default class AuthClient {
       if (this.keyStretchVersion === 2) {
         if (credentials.upgradeNeeded) {
           // This condition indicates an upgrade already was attempted but did not take hold.
-          // If this state occurs, it means something went wrong, and an error should occur.
-          // If an error is not raised, we might end up in an infinite recursive loop!
+          // If this state occurs, it means something went wrong, and we want to fallback to v1 creds
           if (options.postPasswordUpgrade === true) {
-            throw new PasswordV2UpgradeError();
+            this.keyStretchVersion = 1;
+            return await this.signIn(email, password, {
+              ...options,
+              postPasswordUpgrade: true,
+            });
           }
 
           // Try to upgrade the password, and sign in.
-          await this.passwordChange(email, password, password, options);
+          try {
+            await this.passwordChange(email, password, password, options);
+          } catch (err) {
+            // Fail silently if the password was not changed, attempt to log in with v1 creds
+          }
+
           return await this.signIn(email, password, {
             ...options,
             postPasswordUpgrade: true,

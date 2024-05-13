@@ -12,6 +12,8 @@ import { SettingsPage } from '../../pages/settings';
 import { ChangePasswordPage } from '../../pages/settings/changePassword';
 import { RecoveryKeyPage } from '../../pages/settings/recoveryKey';
 import { SignupReactPage } from '../../pages/signupReact';
+import { TotpPage } from '../../pages/settings/totp';
+import { getCode } from 'fxa-settings/src/lib/totp';
 
 // Disable this check for these tests. We are holding assertion in shared functions due
 // to how test permutations work, and these setup falsely trips this rule.
@@ -42,6 +44,7 @@ test.describe('key-stretching-v2', () => {
       resetPasswordReact: ResetPasswordReactPage;
       changePassword: ChangePasswordPage;
       recoveryKey: RecoveryKeyPage;
+      totp: TotpPage;
     };
 
     // Helpers
@@ -119,7 +122,8 @@ test.describe('key-stretching-v2', () => {
       >,
       signOut: boolean,
       email: string,
-      password: string
+      password: string,
+      totpCredentials?: { secret: string; recoveryCodes: string[] }
     ) {
       const { page, target, signupReact, login, settings } = opts;
       const stretch = version === 2 ? 'stretch=2' : '';
@@ -130,15 +134,30 @@ test.describe('key-stretching-v2', () => {
         await signupReact.fillOutEmailForm(email);
         await page.fill('[name="password"]', password);
         await page.click('[type="submit"]');
-        await page.waitForURL(/settings/);
+
+        if (totpCredentials) {
+          await page.waitForURL(/signin_totp_code/);
+          const code = await getCode(totpCredentials.secret);
+          await page.fill('[name="code"]', code);
+          await page.click('[type="submit"]');
+        }
       } else {
         await page.goto(`${target.contentServerUrl}?${stretch}`);
         await login.setEmail(email);
         await login.clickSubmit();
         await login.setPassword(password);
         await login.clickSubmit();
-        expect(await login.isUserLoggedIn()).toBe(true);
+
+        if (totpCredentials) {
+          await page.waitForURL(/signin_totp_code/);
+          const code = await getCode(totpCredentials.secret);
+          await page.fill('[type="number"]', code);
+          await page.click('[type="submit"]');
+        }
       }
+
+      await page.waitForURL(/settings/);
+      expect(await login.isUserLoggedIn()).toBe(true);
 
       if (signOut) {
         await settings.signOut();
@@ -156,6 +175,20 @@ test.describe('key-stretching-v2', () => {
       await settings.goto(version === 2 ? 'stretch=2' : '');
       await settings.recoveryKey.createButton.click();
       return await recoveryKey.createRecoveryKey(password, hint);
+    }
+
+    async function _enabledTotp(opts: Pick<Opts, 'settings' | 'totp'>) {
+      const { settings, totp } = opts;
+
+      await expect(settings.settingsHeading).toBeVisible();
+      await settings.totp.addButton.click();
+      const totpCredentials = await totp.fillOutTotpForms();
+      await expect(settings.settingsHeading).toBeVisible();
+      await expect(settings.totp.status).toHaveText('Enabled');
+
+      await settings.signOut();
+
+      return totpCredentials;
     }
 
     async function _changePassword(
@@ -327,6 +360,25 @@ test.describe('key-stretching-v2', () => {
         password
       );
     });
+
+    async function testTotpLogin(
+      p1: 1 | 2,
+      p2: 1 | 2,
+      opts: Pick<
+        Opts,
+        'page' | 'target' | 'signupReact' | 'settings' | 'login' | 'totp'
+      >,
+      email: string,
+      password: string
+    ) {
+      await _signUp(p1, opts, false, email, password);
+      const totpCredentials = await _enabledTotp(opts);
+      await _login(p2, opts, false, email, password, totpCredentials);
+
+      // Remove 2fa to allow test cleanup
+      await opts.settings.totp.disableButton.click();
+      await opts.settings.clickModalConfirm();
+    }
 
     /**
      * Checks password reset from 'forgot password' link on login
@@ -900,6 +952,52 @@ test.describe('key-stretching-v2', () => {
         email,
         password,
         newPassword
+      );
+    });
+
+    test(`signs up as v1, enable totp, login as v2 for ${mode}`, async ({
+      page,
+      target,
+      pages: { settings, signupReact, login, totp },
+      testAccountTracker,
+    }) => {
+      const { email, password } = testAccountTracker.generateAccountDetails();
+      await testTotpLogin(
+        1,
+        2,
+        {
+          page,
+          target,
+          login,
+          signupReact,
+          settings,
+          totp,
+        },
+        email,
+        password
+      );
+    });
+
+    test(`signs up as v2, enable totp, login as v1 for ${mode}`, async ({
+      page,
+      target,
+      pages: { settings, signupReact, login, totp },
+      testAccountTracker,
+    }) => {
+      const { email, password } = testAccountTracker.generateAccountDetails();
+      await testTotpLogin(
+        2,
+        1,
+        {
+          page,
+          target,
+          login,
+          signupReact,
+          settings,
+          totp,
+        },
+        email,
+        password
       );
     });
   });

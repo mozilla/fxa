@@ -228,10 +228,6 @@ const SigninContainer = ({
           passwordChangeFinish
         );
 
-      if (error) {
-        return { error };
-      }
-
       const options = {
         verificationMethod: VerificationMethods.EMAIL_OTP,
         keys: wantsKeys,
@@ -243,7 +239,9 @@ const SigninContainer = ({
       return await trySignIn(
         email,
         v1Credentials,
-        v2Credentials,
+
+        // If there was an error during key stretching upgrade, lets fallback to v1 credentials
+        error ? undefined : v2Credentials,
         unverifiedAccount,
         beginSignin,
         options

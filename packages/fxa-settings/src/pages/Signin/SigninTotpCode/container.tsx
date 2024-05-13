@@ -11,12 +11,26 @@ import { MozServices } from '../../../lib/types';
 import VerificationMethods from '../../../constants/verification-methods';
 import { VERIFY_TOTP_CODE_MUTATION } from './gql';
 import { getSigninState, getHandledError } from '../utils';
-import { SigninLocationState } from '../interfaces';
-import { Integration, useAuthClient } from '../../../models';
+import {
+  CredentialStatusResponse,
+  GetAccountKeysResponse,
+  PasswordChangeFinishResponse,
+  PasswordChangeStartResponse,
+  SigninLocationState,
+} from '../interfaces';
+import { Integration, useAuthClient, useConfig } from '../../../models';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import OAuthDataError from '../../../components/OAuthDataError';
+import {
+  CREDENTIAL_STATUS_MUTATION,
+  GET_ACCOUNT_KEYS_MUTATION,
+  PASSWORD_CHANGE_FINISH_MUTATION,
+  PASSWORD_CHANGE_START_MUTATION,
+} from '../gql';
+import { tryKeyStretchingUpgrade } from '../container';
+import { KeyStretchExperiment } from '../../../models/experiments';
 
 export type SigninTotpCodeContainerProps = {
   integration: Integration;
@@ -36,13 +50,48 @@ export const SigninTotpCodeContainer = ({
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state: SigninLocationState;
   };
+  const config = useConfig();
+
+  const { email, password } = location.state || {};
 
   const signinState = getSigninState(location.state);
 
   const { queryParamModel } = useValidatedQueryParams(SigninQueryParams);
+  const keyStretchExp = useValidatedQueryParams(KeyStretchExperiment);
   const { redirectTo, service } = queryParamModel;
 
   const [verifyTotpCode] = useMutation(VERIFY_TOTP_CODE_MUTATION);
+
+  const [credentialStatus] = useMutation<CredentialStatusResponse>(
+    CREDENTIAL_STATUS_MUTATION
+  );
+
+  const [passwordChangeStart] = useMutation<PasswordChangeStartResponse>(
+    PASSWORD_CHANGE_START_MUTATION
+  );
+
+  const [passwordChangeFinish] = useMutation<PasswordChangeFinishResponse>(
+    PASSWORD_CHANGE_FINISH_MUTATION
+  );
+
+  const [getWrappedKeys] = useMutation<GetAccountKeysResponse>(
+    GET_ACCOUNT_KEYS_MUTATION
+  );
+
+  const tryKeyStretching = async () => {
+    if (!password) {
+      return;
+    }
+    await tryKeyStretchingUpgrade(
+      email,
+      password,
+      keyStretchExp.queryParamModel.isV2(config),
+      credentialStatus,
+      passwordChangeStart,
+      getWrappedKeys,
+      passwordChangeFinish
+    );
+  };
 
   const submitTotpCode = async (code: string) => {
     try {
@@ -55,12 +104,13 @@ export const SigninTotpCodeContainer = ({
         },
       });
 
+      let status = false;
       // Check authentication code
       if (result.data?.verifyTotp.success === true) {
-        return { status: true };
+        status = true;
       }
 
-      return { status: false };
+      return { status };
     } catch (error) {
       return { error: getHandledError(error).error, status: false };
     }
@@ -88,6 +138,7 @@ export const SigninTotpCodeContainer = ({
         signinState,
         submitTotpCode,
         serviceName,
+        tryKeyStretching,
       }}
     />
   );
