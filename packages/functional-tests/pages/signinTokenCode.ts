@@ -12,8 +12,8 @@ export class SigninTokenCodePage extends BaseTokenCodePage {
     return this.page.locator('#fxa-signin-code-header');
   }
 
-  get resendLink() {
+  get resendButton() {
     this.checkPath();
-    return this.page.locator('#resend');
+    return this.page.getByRole('button', { name: /Email new code/ });
   }
 }

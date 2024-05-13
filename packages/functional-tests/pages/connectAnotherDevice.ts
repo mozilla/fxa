@@ -22,7 +22,7 @@ export class ConnectAnotherDevicePage extends BaseLayout {
 
   get fxaConnectedHeading() {
     return this.page.getByRole('heading', {
-      name: /You’re signed into Firefox/,
+      name: 'You’re signed into Firefox',
     });
   }
 

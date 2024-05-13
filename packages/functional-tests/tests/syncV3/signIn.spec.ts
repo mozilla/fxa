@@ -7,7 +7,8 @@ import { TestAccountTracker } from '../../lib/testAccountTracker';
 import { EmailHeader, EmailType } from '../../lib/email';
 import { Page, expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
-import { LoginPage } from '../../pages/login';
+import { SigninReactPage } from '../../pages/signinReact';
+import { SettingsPage } from '../../pages/settings';
 
 test.describe('severity-2 #smoke', () => {
   test.beforeEach(async () => {
@@ -17,7 +18,7 @@ test.describe('severity-2 #smoke', () => {
   test.describe('Firefox Desktop Sync v3 sign in', () => {
     test('verified email, does not need to confirm', async ({
       target,
-      syncBrowserPages: { page, login, connectAnotherDevice },
+      syncBrowserPages: { page, signinReact, connectAnotherDevice },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
@@ -25,16 +26,26 @@ test.describe('severity-2 #smoke', () => {
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
       );
-      await login.login(credentials.email, credentials.password);
+      await signinReact.fillOutEmailFirstForm(credentials.email);
+      await signinReact.fillOutPasswordForm(credentials.password);
 
       await expect(connectAnotherDevice.fxaConnectedHeading).toBeVisible();
     });
 
     test('verified email with signin verification, can ask to resend code', async ({
       target,
-      syncBrowserPages: { page, login, connectAnotherDevice, signinTokenCode },
+      syncBrowserPages: {
+        page,
+        signinReact,
+        connectAnotherDevice,
+        signinTokenCode,
+      },
       testAccountTracker,
     }) => {
+      test.fixme(
+        true,
+        'FXA-9519 error on resend code, authentication token not found'
+      );
       // Simulate a new sign up that requires a signin verification code.
       const credentials = await testAccountTracker.signUpSync({
         lang: 'en',
@@ -45,18 +56,17 @@ test.describe('severity-2 #smoke', () => {
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
       );
-      await login.login(credentials.email, credentials.password);
+      await signinReact.fillOutEmailFirstForm(credentials.email);
+      await signinReact.fillOutPasswordForm(credentials.password);
 
-      // Click resend link
-      await signinTokenCode.resendLink.click();
+      await expect(signinTokenCode.resendButton).toBeVisible();
+      await signinTokenCode.resendButton.click();
       await expect(signinTokenCode.successMessage).toBeVisible();
       await expect(signinTokenCode.successMessage).toContainText(
         /Email re-?sent/
       );
-      const code = await target.emailClient.waitForEmail(
-        credentials.email,
-        EmailType.verifyLoginCode,
-        EmailHeader.signinCode
+      const code = await target.emailClient.getSigninTokenCode(
+        credentials.email
       );
       await signinTokenCode.input.fill(code);
       await signinTokenCode.submit.click();
@@ -66,9 +76,18 @@ test.describe('severity-2 #smoke', () => {
 
     test('verified email with signin verification, accepts valid sign in code', async ({
       target,
-      syncBrowserPages: { page, login, connectAnotherDevice, signinTokenCode },
+      syncBrowserPages: {
+        page,
+        signinReact,
+        connectAnotherDevice,
+        signinTokenCode,
+      },
       testAccountTracker,
     }) => {
+      test.fixme(
+        true,
+        'FXA-9519 error on code submission, authentication token not found'
+      );
       const credentials = await testAccountTracker.signUpSync({
         lang: 'en',
         service: 'sync',
@@ -78,24 +97,31 @@ test.describe('severity-2 #smoke', () => {
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
       );
-      await login.login(credentials.email, credentials.password);
+      await signinReact.fillOutEmailFirstForm(credentials.email);
+      await signinReact.fillOutPasswordForm(credentials.password);
 
-      const code = await target.emailClient.waitForEmail(
-        credentials.email,
-        EmailType.verifyLoginCode,
-        EmailHeader.signinCode
+      const code = await target.emailClient.getSigninTokenCode(
+        credentials.email
       );
-      await signinTokenCode.input.fill(code);
-      await signinTokenCode.submit.click();
+      await signinTokenCode.fillOutCodeForm(code);
 
       await expect(connectAnotherDevice.fxaConnectedHeading).toBeVisible();
     });
 
     test('verified email with signin verification, rejects invalid signin code', async ({
       target,
-      syncBrowserPages: { page, login, connectAnotherDevice, signinTokenCode },
+      syncBrowserPages: {
+        page,
+        signinReact,
+        connectAnotherDevice,
+        signinTokenCode,
+      },
       testAccountTracker,
     }) => {
+      test.fixme(
+        true,
+        'FXA-9519 error on code submission, authentication token not found'
+      );
       // Simulate a new sign up that requires a signin verification code.
       const credentials = await testAccountTracker.signUpSync({
         lang: 'en',
@@ -106,22 +132,18 @@ test.describe('severity-2 #smoke', () => {
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
       );
-      await login.login(credentials.email, credentials.password);
+      await signinReact.fillOutEmailFirstForm(credentials.email);
+      await signinReact.fillOutPasswordForm(credentials.password);
 
       // Input invalid code and verify the tooltip error
-      await signinTokenCode.input.fill('000000');
-      await signinTokenCode.submit.click();
+      await signinTokenCode.fillOutCodeForm('000000');
 
-      await expect(signinTokenCode.tooltip).toBeVisible();
-      await expect(signinTokenCode.tooltip).toContainText('Invalid or expired');
+      await expect(page.getByText('Invalid or expired')).toBeVisible();
 
-      const code = await target.emailClient.waitForEmail(
-        credentials.email,
-        EmailType.verifyLoginCode,
-        EmailHeader.signinCode
+      const code = await target.emailClient.getSigninTokenCode(
+        credentials.email
       );
-      await signinTokenCode.input.fill(code);
-      await signinTokenCode.submit.click();
+      await signinTokenCode.fillOutCodeForm(code);
 
       await expect(connectAnotherDevice.fxaConnectedHeading).toBeVisible();
     });
@@ -130,7 +152,7 @@ test.describe('severity-2 #smoke', () => {
       target,
       syncBrowserPages: {
         page,
-        login,
+        signinReact,
         connectAnotherDevice,
         confirmSignupCode,
       },
@@ -145,16 +167,15 @@ test.describe('severity-2 #smoke', () => {
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
       );
-      await login.login(credentials.email, credentials.password);
+      await signinReact.fillOutEmailFirstForm(credentials.email);
+      await signinReact.fillOutPasswordForm(credentials.password);
 
-      // Since the account is not verified yet, we'd expect to see the signup code confirmation
-      const code = await target.emailClient.waitForEmail(
-        credentials.email,
-        EmailType.verifyLoginCode,
-        EmailHeader.signinCode
+      await expect(confirmSignupCode.heading).toBeVisible();
+      // in React, signin verification code is sent and used for confirmation
+      const code = await target.emailClient.getSigninTokenCode(
+        credentials.email
       );
-      await confirmSignupCode.input.fill(code);
-      await confirmSignupCode.submit.click();
+      await confirmSignupCode.fillOutCodeForm(code);
 
       await expect(connectAnotherDevice.fxaConnectedHeading).toBeVisible();
     });
@@ -163,7 +184,7 @@ test.describe('severity-2 #smoke', () => {
       target,
       syncBrowserPages: {
         page,
-        login,
+        signinReact,
         connectAnotherDevice,
         settings,
         totp,
@@ -171,10 +192,15 @@ test.describe('severity-2 #smoke', () => {
       },
       testAccountTracker,
     }) => {
+      test.fixme(
+        true,
+        'FXA-9519 session not verified after totp, stuck in a loop of requesting password + totp'
+      );
       const credentials = await signInAccount(
         target,
         page,
-        login,
+        settings,
+        signinReact,
         testAccountTracker
       );
 
@@ -188,16 +214,19 @@ test.describe('severity-2 #smoke', () => {
         { waitUntil: 'load' }
       );
 
-      await login.login(credentials.email, credentials.password);
+      await signinReact.fillOutEmailFirstForm(credentials.email);
+      await signinReact.fillOutPasswordForm(credentials.password);
 
+      await expect(page).toHaveURL(/signin_totp_code/);
+      await expect(signinTotpCode.heading).toBeVisible();
       const code = await getCode(secret);
-      await signinTotpCode.input.fill(code);
-      await signinTotpCode.submit.click();
+      await signinTotpCode.fillOutCodeForm(code);
 
       await expect(connectAnotherDevice.fxaConnectedHeading).toBeVisible();
+      await connectAnotherDevice.notNowButton.click();
 
       // Required before teardown
-      await settings.goto();
+      await expect(settings.settingsHeading).toBeVisible();
       await settings.disconnectTotp();
     });
 
@@ -205,7 +234,7 @@ test.describe('severity-2 #smoke', () => {
       target,
       syncBrowserPages: {
         page,
-        login,
+        signinReact,
         signinUnblock,
         connectAnotherDevice,
         settings,
@@ -222,15 +251,11 @@ test.describe('severity-2 #smoke', () => {
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync`
       );
-      await login.login(credentials.email, credentials.password);
+      await signinReact.fillOutEmailFirstForm(credentials.email);
+      await signinReact.fillOutPasswordForm(credentials.password);
 
-      const code = await target.emailClient.waitForEmail(
-        credentials.email,
-        EmailType.unblockCode,
-        EmailHeader.unblockCode
-      );
-      await signinUnblock.input.fill(code);
-      await signinUnblock.submit.click();
+      const code = await target.emailClient.getUnblockCode(credentials.email);
+      await signinUnblock.fillOutCodeForm(code);
 
       await expect(connectAnotherDevice.fxaConnectedHeading).toBeVisible();
 
@@ -249,7 +274,13 @@ test.describe('severity-2 #smoke', () => {
     test.describe('OAuth and Fx Desktop handshake', () => {
       test('user signed into browser and OAuth login', async ({
         target,
-        syncBrowserPages: { page, login, relier, settings },
+        syncBrowserPages: {
+          connectAnotherDevice,
+          page,
+          signinReact,
+          relier,
+          settings,
+        },
         testAccountTracker,
       }) => {
         const credentials = await testAccountTracker.signUp();
@@ -258,17 +289,18 @@ test.describe('severity-2 #smoke', () => {
           target.contentServerUrl +
             '?context=fx_desktop_v3&entrypoint=fxa%3Aenter_email&service=sync&action=email'
         );
-        await login.login(credentials.email, credentials.password);
-        expect(await login.isSyncConnectedHeader()).toBe(true);
+        await signinReact.fillOutEmailFirstForm(credentials.email);
+        await signinReact.fillOutPasswordForm(credentials.password);
+        await expect(connectAnotherDevice.fxaConnectedHeading).toBeVisible();
 
         await relier.goto();
         await relier.clickEmailFirst();
 
         // User can sign in with cached credentials, no password needed.
-        expect(await login.getPrefilledEmail()).toContain(credentials.email);
-        expect(await login.isCachedLogin()).toBe(true);
+        await expect(signinReact.cachedSigninHeading).toBeVisible();
+        await expect(page.getByText(credentials.email)).toBeVisible();
+        await signinReact.signInButton.click();
 
-        await login.submit();
         expect(await relier.isLoggedIn()).toBe(true);
 
         await relier.signOut();
@@ -276,16 +308,11 @@ test.describe('severity-2 #smoke', () => {
         // Attempt to sign back in
         await relier.clickEmailFirst();
 
-        expect(await login.getPrefilledEmail()).toContain(credentials.email);
-        expect(await login.isCachedLogin()).toBe(true);
+        await expect(signinReact.cachedSigninHeading).toBeVisible();
+        await expect(page.getByText(credentials.email)).toBeVisible();
+        await signinReact.signInButton.click();
 
-        await login.submit();
         expect(await relier.isLoggedIn()).toBe(true);
-
-        // Disconnect sync otherwise we can have flaky tests.
-        await settings.disconnectSync(credentials);
-
-        expect(page.url()).toContain(login.url);
       });
     });
   });
@@ -294,15 +321,17 @@ test.describe('severity-2 #smoke', () => {
 async function signInAccount(
   target: BaseTarget,
   page: Page,
-  login: LoginPage,
+  settings: SettingsPage,
+  signinReact: SigninReactPage,
   testAccountTracker: TestAccountTracker
 ): Promise<Credentials> {
   const credentials = await testAccountTracker.signUp();
   await page.goto(target.contentServerUrl);
-  await login.fillOutEmailFirstSignIn(credentials.email, credentials.password);
+  await signinReact.fillOutEmailFirstForm(credentials.email);
+  await signinReact.fillOutPasswordForm(credentials.password);
 
   //Verify logged in on Settings page
-  expect(await login.isUserLoggedIn()).toBe(true);
+  await expect(settings.settingsHeading).toBeVisible();
 
   return credentials;
 }

@@ -54,7 +54,7 @@ test.describe('severity-1 #smoke', () => {
     await page.waitForTimeout(1000);
 
     // confirm left settings and back at sign in
-    expect(page.url()).toBe(`${target.contentServerUrl}/`);
+    await expect(page).toHaveURL(target.contentServerUrl);
   });
 
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293475

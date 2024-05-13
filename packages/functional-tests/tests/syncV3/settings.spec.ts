@@ -23,7 +23,7 @@ test.describe('severity-2 #smoke', () => {
       },
       testAccountTracker,
     }) => {
-      test.skip(true, 'FXA-9519');
+      test.fixme(true, 'FXA-9519 issue with firefox commands');
       const credentials = await testAccountTracker.signUpSync();
       const newPassword = testAccountTracker.generatePassword();
       const customEventDetail = createCustomEventDetail(
@@ -78,7 +78,7 @@ test.describe('severity-2 #smoke', () => {
       },
       testAccountTracker,
     }) => {
-      test.skip(true, 'FXA-9519');
+      test.fixme(true, 'FXA-9519 issue with firefox commands');
 
       const credentials = await testAccountTracker.signUpSync();
       const newPassword = testAccountTracker.generatePassword();
@@ -137,7 +137,7 @@ test.describe('severity-2 #smoke', () => {
       },
       testAccountTracker,
     }) => {
-      test.skip(true, 'FXA-9519');
+      test.fixme(true, 'FXA-9519 issue with firefox commands');
       const credentials = await testAccountTracker.signUpSync();
 
       await page.goto(
