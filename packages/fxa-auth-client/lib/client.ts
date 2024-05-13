@@ -4,9 +4,9 @@
 
 import * as crypto from './crypto';
 import { Credentials } from './crypto';
-import { PasswordV2UpgradeError } from './error';
 import * as hawk from './hawk';
 import { SaltVersion, createSaltV2 } from './salt';
+import * as Sentry from '@sentry/browser';
 
 enum ERRORS {
   INVALID_TIMESTAMP = 111,
@@ -448,14 +448,24 @@ export default class AuthClient {
       if (this.keyStretchVersion === 2) {
         if (credentials.upgradeNeeded) {
           // This condition indicates an upgrade already was attempted but did not take hold.
-          // If this state occurs, it means something went wrong, and an error should occur.
-          // If an error is not raised, we might end up in an infinite recursive loop!
+          // If this state occurs, it means something went wrong, and we want to fallback to
+          // v1 credentials and set the client's target key stretch version back to 1.
           if (options.postPasswordUpgrade === true) {
-            throw new PasswordV2UpgradeError();
+            this.keyStretchVersion = 1;
+            return await this.signIn(email, password, {
+              ...options,
+              postPasswordUpgrade: true,
+            });
           }
 
           // Try to upgrade the password, and sign in.
-          await this.passwordChange(email, password, password, options);
+          try {
+            await this.passwordChange(email, password, password, options);
+          } catch (err) {
+            Sentry.captureMessage(
+              'Failure to complete v2 key stretch upgrade.'
+            );
+          }
           return await this.signIn(email, password, {
             ...options,
             postPasswordUpgrade: true,
