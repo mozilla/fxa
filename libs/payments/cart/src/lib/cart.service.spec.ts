@@ -28,6 +28,7 @@ import {
   ResultAccountCustomerFactory,
   StripeClient,
   StripeManager,
+  SubplatInterval,
 } from '@fxa/payments/stripe';
 import { CheckoutService } from './checkout.service';
 
@@ -103,7 +104,7 @@ describe('CartService', () => {
       const mockAccountCustomer = ResultAccountCustomerFactory();
       const mockResultCart = ResultCartFactory();
       const args = {
-        interval: faker.string.uuid(),
+        interval: SubplatInterval.Monthly,
         offeringConfigId: faker.string.uuid(),
         experiment: faker.string.uuid(),
         promoCode: faker.word.noun(),

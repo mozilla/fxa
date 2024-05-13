@@ -6,7 +6,11 @@ import { Injectable } from '@nestjs/common';
 import { Stripe } from 'stripe';
 
 import { StripeClient } from './stripe.client';
-import { StripeCustomer, StripeSubscription } from './stripe.client.types';
+import {
+  StripeCustomer,
+  StripePlan,
+  StripeSubscription,
+} from './stripe.client.types';
 import { StripeConfig } from './stripe.config';
 import {
   MOZILLA_TAX_ID,
@@ -20,6 +24,8 @@ import {
   ProductNotFoundError,
   StripeNoMinimumChargeAmountAvailableError,
 } from './stripe.error';
+import { doesPlanMatchSubplatInterval } from './util/doesPlanMatchSubplatInterval';
+import { SubplatInterval } from './stripe.types';
 
 @Injectable()
 export class StripeManager {
@@ -183,11 +189,11 @@ export class StripeManager {
     return plan;
   }
 
-  async getPlanByInterval(planIds: string[], interval: string) {
-    const plans = [];
+  async getPlanByInterval(planIds: string[], interval: SubplatInterval) {
+    const plans: StripePlan[] = [];
     for (const planId of planIds) {
       const plan = await this.getPlan(planId);
-      if (plan.interval === interval) {
+      if (doesPlanMatchSubplatInterval(plan, interval)) {
         plans.push(plan);
       }
     }

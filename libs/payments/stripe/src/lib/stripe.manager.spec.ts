@@ -20,6 +20,7 @@ import { StripeClient } from './stripe.client';
 import { MockStripeConfigProvider } from './stripe.config';
 import { PlanIntervalMultiplePlansError } from './stripe.error';
 import { StripeManager } from './stripe.manager';
+import { SubplatInterval } from './stripe.types';
 
 describe('StripeManager', () => {
   let stripeManager: StripeManager;
@@ -379,14 +380,19 @@ describe('StripeManager', () => {
 
   describe('getPlanByInterval', () => {
     it('returns plan that matches interval', async () => {
-      const mockPlan = StripeResponseFactory(StripePlanFactory());
-      const mockInterval = mockPlan.interval;
+      const mockPlan = StripeResponseFactory(
+        StripePlanFactory({
+          interval: 'month',
+          interval_count: 1,
+        })
+      );
+      const subplatInterval = SubplatInterval.Monthly;
 
       jest.spyOn(stripeManager, 'getPlan').mockResolvedValue(mockPlan);
 
       const result = await stripeManager.getPlanByInterval(
         [mockPlan.id],
-        mockInterval
+        subplatInterval
       );
       expect(result).toEqual(mockPlan);
     });
@@ -398,6 +404,7 @@ describe('StripeManager', () => {
       const mockPlan2 = StripePlanFactory({
         interval: 'month',
       });
+      const subplatInterval = SubplatInterval.Monthly;
 
       jest
         .spyOn(stripeManager, 'getPlan')
@@ -407,7 +414,10 @@ describe('StripeManager', () => {
         .mockResolvedValue(StripeResponseFactory(mockPlan2));
 
       await expect(
-        stripeManager.getPlanByInterval([mockPlan1.id, mockPlan2.id], 'month')
+        stripeManager.getPlanByInterval(
+          [mockPlan1.id, mockPlan2.id],
+          subplatInterval
+        )
       ).rejects.toBeInstanceOf(PlanIntervalMultiplePlansError);
     });
   });

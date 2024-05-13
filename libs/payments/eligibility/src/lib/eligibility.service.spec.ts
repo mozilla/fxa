@@ -17,6 +17,7 @@ import {
   StripeCustomerFactory,
   StripeManager,
   StripeSubscriptionFactory,
+  SubplatInterval,
 } from '@fxa/payments/stripe';
 import {
   ContentfulClient,
@@ -70,11 +71,11 @@ describe('EligibilityService', () => {
 
   describe('checkEligibility', () => {
     it('returns create eligibility status for a new customer', async () => {
-      const mockInterval = 'month';
+      const interval = SubplatInterval.Monthly;
       const mockOffering = EligibilityContentOfferingResultFactory();
 
       const result = await eligibilityService.checkEligibility(
-        mockInterval,
+        interval,
         mockOffering.apiIdentifier,
         undefined
       );
@@ -84,11 +85,11 @@ describe('EligibilityService', () => {
     it('throws an error for no offering for offeringConfigId', async () => {
       const expectedError = new Error('No offering available');
       const mockCustomer = StripeCustomerFactory();
-      const mockInterval = 'month';
+      const interval = SubplatInterval.Monthly;
 
       jest
         .spyOn(contentfulManager, 'getEligibilityContentByOffering')
-        .mockResolvedValueOnce({
+        .mockResolvedValue({
           getOffering: jest.fn().mockImplementation(() => {
             throw expectedError;
           }),
@@ -96,7 +97,7 @@ describe('EligibilityService', () => {
 
       await expect(
         eligibilityService.checkEligibility(
-          mockInterval,
+          interval,
           'prod_test1',
           mockCustomer.id
         )
@@ -105,7 +106,7 @@ describe('EligibilityService', () => {
 
     it('returns eligibility status successfully', async () => {
       const mockCustomer = StripeCustomerFactory();
-      const mockInterval = 'month';
+      const interval = SubplatInterval.Monthly;
       const mockOffering = EligibilityContentOfferingResultFactory();
       const mockOverlapResult = [
         {
@@ -138,7 +139,7 @@ describe('EligibilityService', () => {
         .mockResolvedValue(EligibilityStatus.UPGRADE);
 
       await eligibilityService.checkEligibility(
-        mockInterval,
+        interval,
         mockOffering.apiIdentifier,
         mockCustomer.id
       );
@@ -156,7 +157,7 @@ describe('EligibilityService', () => {
       expect(eligibilityManager.compareOverlap).toHaveBeenCalledWith(
         mockOverlapResult,
         mockOffering,
-        mockInterval,
+        interval,
         []
       );
     });

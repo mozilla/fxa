@@ -11,3 +11,11 @@ export enum STRIPE_PRICE_METADATA {
 export enum STRIPE_PRODUCT_METADATA {
   PROMOTION_CODES = 'promotionCodes',
 }
+
+export enum SubplatInterval {
+  Daily = 'daily',
+  Weekly = 'weekly',
+  Monthly = 'monthly',
+  HalfYearly = 'halfyearly',
+  Yearly = 'yearly',
+}
