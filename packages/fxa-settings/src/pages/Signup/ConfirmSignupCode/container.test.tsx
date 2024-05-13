@@ -20,6 +20,7 @@ import SignupConfirmCodeContainer from './container';
 import { Integration } from '../../../models';
 import {
   MOCK_EMAIL,
+  MOCK_FLOW_ID,
   MOCK_KEY_FETCH_TOKEN,
   MOCK_SESSION_TOKEN,
   MOCK_UID,
@@ -136,6 +137,7 @@ async function render() {
       {...{
         integration,
       }}
+      flowQueryParams={{ flowId: MOCK_FLOW_ID }}
     />
   );
 }
