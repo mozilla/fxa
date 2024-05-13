@@ -24,6 +24,9 @@ export class Account {
   @Field()
   public emailVerified!: boolean;
 
+  @Field({ nullable: true })
+  public clientSalt?: string;
+
   @Field()
   public createdAt!: number;
 
