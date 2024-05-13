@@ -66,23 +66,22 @@ export async function handleNavigation(
     return { error };
   }
 
-  if (shouldHardNavigate) {
-    if (tempHandleSyncLogin && navigationOptions.integration.isSync()) {
-      firefox.fxaLogin({
-        email: navigationOptions.email,
-        // keyFetchToken and unwrapBKey should always exist if Sync integration
-        keyFetchToken: navigationOptions.signinData.keyFetchToken!,
-        unwrapBKey: navigationOptions.unwrapBKey!,
-        sessionToken: navigationOptions.signinData.sessionToken,
-        uid: navigationOptions.signinData.uid,
-        verified: navigationOptions.signinData.verified,
-      });
-    }
+  if (tempHandleSyncLogin && navigationOptions.integration.isSync()) {
+    firefox.fxaLogin({
+      email: navigationOptions.email,
+      // keyFetchToken and unwrapBKey should always exist if Sync integration
+      keyFetchToken: navigationOptions.signinData.keyFetchToken!,
+      unwrapBKey: navigationOptions.unwrapBKey!,
+      sessionToken: navigationOptions.signinData.sessionToken,
+      uid: navigationOptions.signinData.uid,
+      verified: navigationOptions.signinData.verified,
+    });
+  }
 
+  if (shouldHardNavigate) {
     // Hard navigate to RP, or (temp until CAD is Reactified) CAD
     hardNavigate(to);
-  }
-  if (state) {
+  } else if (state) {
     navigate(to, { state });
   } else {
     navigate(to);

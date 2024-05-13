@@ -25,7 +25,7 @@ test.describe('severity-2 #smoke', () => {
       await expect(signinReact.syncSignInHeading).toBeVisible();
       await signinReact.fillOutEmailFirstForm(credentials.email);
       await signinReact.fillOutPasswordForm(credentials.password);
-      await expect(connectAnotherDevice.fxaConnected).toBeEnabled();
+      await expect(connectAnotherDevice.fxaConnectedHeading).toBeVisible();
     });
   });
 });

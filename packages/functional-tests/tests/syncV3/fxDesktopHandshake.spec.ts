@@ -240,7 +240,7 @@ test.describe('severity-2 #smoke', () => {
       await expect(signinReact.passwordFormHeading).toBeVisible();
       await expect(page.getByText(credentials.email)).toBeVisible();
       await signinReact.fillOutPasswordForm(credentials.password);
-      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
+      await expect(connectAnotherDevice.fxaConnectedHeading).toBeVisible();
     });
 
     test('Non-Sync settings page - no user signed into browser, user signed in locally', async ({

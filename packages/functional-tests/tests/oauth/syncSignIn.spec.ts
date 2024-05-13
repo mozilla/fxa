@@ -32,7 +32,7 @@ test.describe('severity-1 #smoke', () => {
       await login.login(syncCredentials.email, syncCredentials.password);
       await login.fillOutSignInCode(syncCredentials.email);
 
-      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
+      await expect(connectAnotherDevice.fxaConnectedHeading).toBeVisible();
 
       // Sign up for a new account via OAuth
       await relier.goto();
@@ -92,7 +92,7 @@ test.describe('severity-1 #smoke', () => {
       await login.submit();
       await login.fillOutSignInCode(email);
 
-      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
+      await expect(connectAnotherDevice.fxaConnectedHeading).toBeVisible();
     });
   });
 });

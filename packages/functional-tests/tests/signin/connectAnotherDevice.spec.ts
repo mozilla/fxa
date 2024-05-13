@@ -22,7 +22,7 @@ test.describe('severity-2 #smoke', () => {
       );
 
       await expect(page).toHaveURL(/connect_another_device/);
-      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
+      await expect(connectAnotherDevice.fxaConnectedHeading).toBeVisible();
       await expect(
         connectAnotherDevice.connectAnotherDeviceButton
       ).toBeVisible();

@@ -38,7 +38,7 @@ test.describe('severity-1 #smoke', () => {
     await signinReact.fillOutEmailFirstForm(credentials.email);
     await signinReact.fillOutPasswordForm(credentials.password);
 
-    await expect(connectAnotherDevice.fxaConnected).toBeEnabled();
+    await expect(connectAnotherDevice.fxaConnectedHeading).toBeVisible();
     await connectAnotherDevice.notNowButton.click();
 
     await expect(page).toHaveURL(/settings/);

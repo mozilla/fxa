@@ -80,7 +80,7 @@ async function signInAccount(
   await signinReact.fillOutEmailFirstForm(credentials.email);
   await signinReact.fillOutPasswordForm(credentials.password);
 
-  await expect(connectAnotherDevice.fxaConnected).toBeVisible();
+  await expect(connectAnotherDevice.fxaConnectedHeading).toBeVisible();
   return credentials;
 }
 

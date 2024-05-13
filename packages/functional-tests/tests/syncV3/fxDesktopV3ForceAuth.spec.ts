@@ -43,7 +43,7 @@ test.describe('severity-1 #smoke', () => {
         'fxaccounts:can_link_account'
       );
       await login.fillOutSignInCode(credentials.email);
-      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
+      await expect(connectAnotherDevice.fxaConnectedHeading).toBeVisible();
       await fxDesktopV3ForceAuth.checkWebChannelMessage('fxaccounts:login');
     });
 
@@ -73,7 +73,7 @@ test.describe('severity-1 #smoke', () => {
         'fxaccounts:can_link_account'
       );
       await login.fillOutSignInCode(credentials.email);
-      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
+      await expect(connectAnotherDevice.fxaConnectedHeading).toBeVisible();
       await fxDesktopV3ForceAuth.checkWebChannelMessage('fxaccounts:login');
     });
 
@@ -106,7 +106,7 @@ test.describe('severity-1 #smoke', () => {
         'fxaccounts:can_link_account'
       );
       await login.fillOutSignInCode(credentials.email);
-      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
+      await expect(connectAnotherDevice.fxaConnectedHeading).toBeVisible();
       await fxDesktopV3ForceAuth.checkWebChannelMessage('fxaccounts:login');
     });
 
@@ -233,7 +233,7 @@ test.describe('severity-1 #smoke', () => {
         'fxaccounts:can_link_account'
       );
       await login.unblock(credentials.email);
-      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
+      await expect(connectAnotherDevice.fxaConnectedHeading).toBeVisible();
       await fxDesktopV3ForceAuth.checkWebChannelMessage('fxaccounts:login');
 
       // Delete account, required before teardown

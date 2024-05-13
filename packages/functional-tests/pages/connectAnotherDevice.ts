@@ -20,8 +20,10 @@ export class ConnectAnotherDevicePage extends BaseLayout {
     return this.page.locator(this.selectors.CONNECT_ANOTHER_DEVICE_HEADER);
   }
 
-  get fxaConnected() {
-    return this.page.locator(this.selectors.FXA_CONNECTED_HEADER);
+  get fxaConnectedHeading() {
+    return this.page.getByRole('heading', {
+      name: /You’re signed into Firefox/,
+    });
   }
 
   get connectAnotherDeviceButton() {
