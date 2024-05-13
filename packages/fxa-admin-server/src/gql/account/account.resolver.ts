@@ -62,6 +62,7 @@ const ACCOUNT_COLUMNS = [
   'lockedAt',
   'verifierSetAt',
   'locale',
+  'clientSalt',
 ];
 const EMAIL_COLUMNS = [
   'createdAt',

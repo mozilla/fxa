@@ -143,6 +143,7 @@ export interface Account {
     uid: string;
     email: string;
     emailVerified: boolean;
+    clientSalt?: Nullable<string>;
     createdAt: number;
     disabledAt?: Nullable<number>;
     locale?: Nullable<string>;

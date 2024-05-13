@@ -255,3 +255,17 @@ it('displays send password reset', async () => {
   );
   expect(getByTestId('password-reset-button')).toBeInTheDocument();
 });
+
+it('displays key-stretch-version', async () => {
+  const lockedAccount = {
+    ...accountResponse,
+    verifierSetAt: 0,
+  };
+  const { getByTestId } = render(
+    <MockedProvider>
+      <Account {...lockedAccount} />
+    </MockedProvider>
+  );
+
+  expect(getByTestId('key-stretch-version')).toBeInTheDocument();
+});
