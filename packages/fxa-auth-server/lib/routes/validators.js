@@ -848,6 +848,7 @@ module.exports.newsletters = isA
       .valid(
         'firefox-accounts-journey',
         'knowledge-is-power',
+        'mozilla-foundation',
         'take-action-for-the-internet',
         'test-pilot',
         'mozilla-and-you',
