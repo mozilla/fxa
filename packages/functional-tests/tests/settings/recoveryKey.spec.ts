@@ -149,13 +149,12 @@ test.describe('severity-1 #smoke', () => {
     }, { project }) => {
       test.slow(project.name !== 'local', 'email delivery can be slow');
 
-      const credentials = await signInAccount(
-        page,
-        settings,
-        signinReact,
-        target,
-        testAccountTracker
-      );
+      const credentials = await testAccountTracker.signUp();
+      const newPassword = testAccountTracker.generatePassword();
+
+      await page.goto(target.contentServerUrl);
+      await signinReact.fillOutEmailFirstForm(credentials.email);
+      await signinReact.fillOutPasswordForm(credentials.password);
 
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.recoveryKey.status).toHaveText('Not Set');
@@ -173,10 +172,21 @@ test.describe('severity-1 #smoke', () => {
       );
       await page.goto(link);
       await resetPasswordReact.forgotKeyLink.click();
-      await resetPasswordReact.fillOutNewPasswordForm(credentials.password);
+      await resetPasswordReact.fillOutNewPasswordForm(newPassword);
+
+      await expect(
+        resetPasswordReact.passwordResetConfirmationHeading
+      ).toBeVisible();
+
+      // change credentials password for account cleanup function
+      credentials.password = newPassword;
+
+      await page.goto(target.contentServerUrl);
+
+      await signinReact.fillOutEmailFirstForm(credentials.email);
+      await signinReact.fillOutPasswordForm(newPassword);
 
       await expect(settings.settingsHeading).toBeVisible();
-      await expect(settings.alertBar).toBeVisible();
       await expect(settings.recoveryKey.status).toHaveText('Not Set');
     });
   });
