@@ -28,7 +28,7 @@ const uid = 'uid';
 const newsletters = [
   'firefox-accounts-journey',
   'knowledge-is-power',
-  'take-action-for-the-internet',
+  'mozilla-foundation',
   'test-pilot',
 ];
 
