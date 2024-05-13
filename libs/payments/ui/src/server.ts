@@ -10,6 +10,7 @@ export * from './lib/server/purchase-details';
 export * from './lib/server/subscription-title';
 export * from './lib/server/terms-and-privacy';
 export * from './lib/utils/types';
+export { fetchContentfulData } from './lib/actions/fetchContentfulData';
 export { handleStripeErrorAction } from './lib/actions/handleStripeError';
 export { getCartAction } from './lib/actions/getCart';
 export { getCartOrRedirectAction } from './lib/actions/getCartOrRedirect';

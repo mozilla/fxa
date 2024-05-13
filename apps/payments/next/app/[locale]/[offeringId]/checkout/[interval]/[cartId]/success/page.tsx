@@ -6,18 +6,16 @@ import { headers } from 'next/headers';
 import Image from 'next/image';
 
 import { formatPlanPricing } from '@fxa/payments/ui';
-import { DEFAULT_LOCALE } from '@fxa/shared/l10n';
-
-import {
-  getFakeCartData,
-  getContentfulContent,
-} from '../../../../../../_lib/apiClient';
-import circledConfirm from '../../../../../../../images/circled-confirm.svg';
 import {
   SupportedPages,
   app,
+  fetchContentfulData,
   getCartOrRedirectAction,
 } from '@fxa/payments/ui/server';
+import { DEFAULT_LOCALE } from '@fxa/shared/l10n';
+
+import { getFakeCartData } from '../../../../../../_lib/apiClient';
+import circledConfirm from '../../../../../../../images/circled-confirm.svg';
 
 export const dynamic = 'force-dynamic';
 
@@ -63,7 +61,7 @@ export default async function CheckoutSuccess({
   //);
   const locale = headers().get('accept-language') || DEFAULT_LOCALE;
 
-  const contentfulDataPromise = getContentfulContent(params.offeringId, locale);
+  const contentfulDataPromise = fetchContentfulData(params.offeringId, locale);
   const cartDataPromise = getCartOrRedirectAction(
     params.cartId,
     SupportedPages.SUCCESS
@@ -95,9 +93,10 @@ export default async function CheckoutSuccess({
               'next-payment-confirmation-thanks-subheading',
               {
                 email: cart.email || '',
-                product_name: contentful.purchaseDetails.productName,
+                product_name:
+                  contentful.defaultPurchase.purchaseDetails.productName,
               },
-              `A confirmation email has been sent to ${cart.email} with details on how to get started with ${contentful.purchaseDetails.productName}.`
+              `A confirmation email has been sent to ${cart.email} with details on how to get started with ${contentful.defaultPurchase.purchaseDetails.productName}.`
             )}
           </p>
         </div>
