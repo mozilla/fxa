@@ -102,6 +102,12 @@ export class SigninReactPage extends BaseLayout {
     });
   }
 
+  get syncSignInSuccessHeading() {
+    return this.page.getByRole('heading', {
+      name: /You’re signed into Firefox/,
+    });
+  }
+
   get sessionExpiredError() {
     return this.page.getByRole('status').getByText(/^Session expired/);
   }
