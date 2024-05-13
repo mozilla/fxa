@@ -274,13 +274,7 @@ test.describe('severity-2 #smoke', () => {
     test.describe('OAuth and Fx Desktop handshake', () => {
       test('user signed into browser and OAuth login', async ({
         target,
-        syncBrowserPages: {
-          connectAnotherDevice,
-          page,
-          signinReact,
-          relier,
-          settings,
-        },
+        syncBrowserPages: { connectAnotherDevice, page, signinReact, relier },
         testAccountTracker,
       }) => {
         const credentials = await testAccountTracker.signUp();

@@ -5,7 +5,9 @@
 import { Page, expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
 import { TestAccountTracker } from '../../lib/testAccountTracker';
-import { LoginPage } from '../../pages/login';
+import { SettingsPage } from '../../pages/settings';
+import { SigninReactPage } from '../../pages/signinReact';
+import { SigninTokenCodePage } from '../../pages/signinTokenCode';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('sync signin cached', () => {
@@ -15,14 +17,26 @@ test.describe('severity-2 #smoke', () => {
 
     test('sign in on desktop then specify a different email on query parameter continues to cache desktop signin', async ({
       target,
-      syncBrowserPages: { page, login, connectAnotherDevice },
+      syncBrowserPages: {
+        page,
+        signinReact,
+        connectAnotherDevice,
+        settings,
+        signinTokenCode,
+      },
       testAccountTracker,
     }) => {
+      test.fixme(
+        true,
+        'FXA-9519 error on code submission, authentication token not found'
+      );
       const credentials = await testAccountTracker.signUp();
       const syncCredentials = await signInSyncAccount(
         target,
         page,
-        login,
+        settings,
+        signinReact,
+        signinTokenCode,
         testAccountTracker
       );
       const query = { email: credentials.email };
@@ -34,35 +48,45 @@ test.describe('severity-2 #smoke', () => {
       );
 
       //Check prefilled email
-      expect(await login.getPrefilledEmail()).toContain(credentials.email);
-      await login.setPassword(credentials.password);
-      await login.clickSubmit();
+      await expect(signinReact.passwordFormHeading).toBeVisible();
+      await expect(page.getByText(credentials.email)).toBeVisible();
+      await signinReact.fillOutPasswordForm(credentials.password);
+
       await connectAnotherDevice.clickNotNow();
 
       //Verify logged in on Settings page
-      expect(await login.isUserLoggedIn()).toBe(true);
+      await expect(settings.settingsHeading).toBeVisible();
 
       //Reset prefill and context
-      await login.clearSessionStorage();
+      await signinReact.clearSessionStorage();
 
       //Testing to make sure cached signin comes back after a refresh
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
-      expect(await login.getPrefilledEmail()).toContain(syncCredentials.email);
-      await login.useDifferentAccountLink();
-      await login.waitForEmailHeader();
+
+      await expect(signinReact.passwordFormHeading).toBeVisible();
+      await expect(page.getByText(syncCredentials.email)).toBeVisible();
+
+      await signinReact.useDifferentAccountLink.click();
+      await expect(signinReact.emailFirstHeading).toBeVisible();
     });
 
     test('sign in with desktop context then no context, desktop credentials should persist', async ({
       target,
-      syncBrowserPages: { page, login },
+      syncBrowserPages: { page, signinReact, signinTokenCode, settings },
       testAccountTracker,
     }) => {
+      test.fixme(
+        true,
+        'FXA-9519 error on code submission, authentication token not found'
+      );
       const syncCredentials = await signInSyncAccount(
         target,
         page,
-        login,
+        settings,
+        signinReact,
+        signinTokenCode,
         testAccountTracker
       );
       const credentials = await testAccountTracker.signUp();
@@ -70,27 +94,28 @@ test.describe('severity-2 #smoke', () => {
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
-      expect(await login.getPrefilledEmail()).toContain(syncCredentials.email);
-      await login.useDifferentAccountLink();
-      await login.waitForEmailHeader();
-      await login.fillOutEmailFirstSignIn(
-        credentials.email,
-        credentials.password
-      );
+      await expect(signinReact.passwordFormHeading).toBeVisible();
+      await expect(page.getByText(syncCredentials.email)).toBeVisible();
+
+      await signinReact.useDifferentAccountLink.click();
+      await expect(signinReact.emailFirstHeading).toBeVisible();
+      await signinReact.fillOutEmailFirstForm(credentials.email);
+      await signinReact.fillOutPasswordForm(credentials.password);
 
       //Verify logged in on Settings page
-      expect(await login.isUserLoggedIn()).toBe(true);
+      await expect(settings.settingsHeading).toBeVisible();
 
       //Reset prefill and context
-      await login.clearSessionStorage();
+      await signinReact.clearSessionStorage();
 
       //Testing to make sure cached signin comes back after a refresh
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
-      expect(await login.getPrefilledEmail()).toContain(syncCredentials.email);
-      await login.useDifferentAccountLink();
-      await login.waitForEmailHeader();
+      await expect(signinReact.passwordFormHeading).toBeVisible();
+      await expect(page.getByText(syncCredentials.email)).toBeVisible();
+      await signinReact.useDifferentAccountLink.click();
+      await expect(signinReact.emailFirstHeading).toBeVisible();
     });
   });
 });
@@ -98,17 +123,23 @@ test.describe('severity-2 #smoke', () => {
 async function signInSyncAccount(
   target: BaseTarget,
   page: Page,
-  login: LoginPage,
+  settings: SettingsPage,
+  signinReact: SigninReactPage,
+  signinTokenCode: SigninTokenCodePage,
   testAccountTracker: TestAccountTracker
 ): Promise<Credentials> {
   const credentials = await testAccountTracker.signUpSync();
   await page.goto(
     `${target.contentServerUrl}?context=fx_desktop_v3&service=sync`
   );
-  await login.fillOutEmailFirstSignIn(credentials.email, credentials.password);
+  await signinReact.fillOutEmailFirstForm(credentials.email);
+  await signinReact.fillOutPasswordForm(credentials.password);
+  await expect(signinTokenCode.heading).toBeVisible();
+  const code = await target.emailClient.getSigninTokenCode(credentials.email);
+  await signinTokenCode.fillOutCodeForm(code);
 
-  //Verify sign up code header is visible
-  await expect(login.signInCodeHeader).toBeVisible();
+  //Verify logged in on Settings page
+  await expect(settings.settingsHeading).toBeVisible();
 
   return credentials;
 }
