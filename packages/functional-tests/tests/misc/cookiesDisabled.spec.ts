@@ -69,9 +69,8 @@ test.describe('cookies disabled', () => {
   test('visit verify page with localStorage disabled', async ({
     target,
     page,
-    pages: { cookiesDisabled, login },
+    pages: { cookiesDisabled },
   }) => {
-    test.fixme(true, 'Fix required as of 2024/03/22 (see FXA-9323).');
     //Goto cookies enabled url
     await page.goto(
       `${target.contentServerUrl}/verify_email?disable_local_storage=1&uid=240103bbecd645848103021e7d245bcb&code=fc46f44802b2a2ce979f39b2187aa1c0`,
@@ -81,10 +80,11 @@ test.describe('cookies disabled', () => {
     );
     await page.waitForURL(/\/cookies_disabled/);
 
-    //Adding the timeout as the page closes before loading
-    await page.waitForTimeout(500);
-
-    //Verify the Cookies disabled header
-    await expect(await cookiesDisabled.cookiesDisabledHeader()).toBeVisible();
+    // Verify the Cookies disabled header
+    // Updated in FXA-9323 as waitForTimeOut tests can be flaky in production:
+    // https://playwright.dev/docs/api/class-page#page-wait-for-timeout
+    await expect(cookiesDisabled.cookiesDisabledHeader()).resolves.toBeVisible({
+      timeout: 500,
+    });
   });
 });
