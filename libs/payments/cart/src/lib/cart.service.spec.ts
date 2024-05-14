@@ -116,7 +116,10 @@ describe('CartService', () => {
 
   describe('setupCart', () => {
     it('calls createCart with expected parameters', async () => {
-      const mockAccountCustomer = ResultAccountCustomerFactory();
+      const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        stripeCustomerId: mockCustomer.id,
+      });
       const mockResultCart = ResultCartFactory();
       const args = {
         interval: SubplatInterval.Monthly,
@@ -127,6 +130,47 @@ describe('CartService', () => {
         ip: faker.internet.ipv4(),
       };
       const taxAddress = TaxAddressFactory();
+      const mockPrice = StripePriceFactory();
+      const mockUpcomingInvoice = StripeResponseFactory(
+        StripeUpcomingInvoiceFactory({
+          discount: StripeDiscountFactory(),
+          total_discount_amounts: [
+            {
+              amount: 500,
+              discount: StripeDiscountFactory(),
+            },
+          ],
+          total_tax_amounts: [
+            {
+              amount: faker.number.int(1000),
+              inclusive: false,
+              tax_rate: StripeTaxRateFactory(),
+              taxability_reason: null,
+              taxable_amount: null,
+            },
+          ],
+        })
+      );
+
+      const mockInvoicePreview = {
+        currency: mockUpcomingInvoice.currency,
+        listAmount: mockUpcomingInvoice.amount_due,
+        totalAmount: mockUpcomingInvoice.total,
+        taxAmounts: [
+          {
+            title:
+              mockUpcomingInvoice.total_tax_amounts[0].tax_rate.display_name,
+            inclusive: mockUpcomingInvoice.total_tax_amounts[0].inclusive,
+            amount: mockUpcomingInvoice.total_tax_amounts[0].amount,
+          },
+        ],
+        discountAmount:
+          mockUpcomingInvoice.discount &&
+          mockUpcomingInvoice.total_discount_amounts &&
+          mockUpcomingInvoice.total_discount_amounts[0].amount,
+        subTotal: mockUpcomingInvoice.subtotal,
+      };
+
       jest
         .spyOn(eligibilityService, 'checkEligibility')
         .mockResolvedValue(EligibilityStatus.CREATE);
@@ -134,6 +178,15 @@ describe('CartService', () => {
       jest
         .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
         .mockResolvedValue(mockAccountCustomer);
+      jest
+        .spyOn(contentfulService, 'retrieveStripePlanId')
+        .mockResolvedValue(mockPrice.id);
+      jest
+        .spyOn(stripeManager, 'fetchActiveCustomer')
+        .mockResolvedValue(mockCustomer);
+      jest
+        .spyOn(stripeManager, 'previewInvoice')
+        .mockResolvedValue(mockInvoicePreview);
       jest.spyOn(cartManager, 'createCart').mockResolvedValue(mockResultCart);
 
       const result = await cartService.setupCart(args);
@@ -141,7 +194,7 @@ describe('CartService', () => {
       expect(cartManager.createCart).toHaveBeenCalledWith({
         interval: args.interval,
         offeringConfigId: args.offeringConfigId,
-        amount: 0,
+        amount: mockUpcomingInvoice.subtotal,
         uid: args.uid,
         stripeCustomerId: mockAccountCustomer.stripeCustomerId,
         experiment: args.experiment,
@@ -419,6 +472,7 @@ describe('CartService', () => {
         mockUpcomingInvoice.discount &&
         mockUpcomingInvoice.total_discount_amounts &&
         mockUpcomingInvoice.total_discount_amounts[0].amount,
+      subTotal: mockUpcomingInvoice.subtotal,
     };
 
     it('returns cart and invoicePreview', async () => {

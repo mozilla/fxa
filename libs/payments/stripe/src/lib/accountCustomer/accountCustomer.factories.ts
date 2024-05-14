@@ -17,9 +17,7 @@ export const ResultAccountCustomerFactory = (
     prefix: '',
     casing: 'lower',
   }),
-  stripeCustomerId: faker.string.alphanumeric({
-    length: 14,
-  }),
+  stripeCustomerId: `cus_${faker.string.alphanumeric({ length: 14 })}`,
   createdAt: faker.date.recent().getTime(),
   updatedAt: faker.date.recent().getTime(),
   ...override,

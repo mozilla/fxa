@@ -30,5 +30,6 @@ export function stripeInvoiceToFirstInvoicePreviewDTO(
     totalAmount: invoice.total,
     taxAmounts,
     discountAmount,
+    subTotal: invoice.subtotal,
   };
 }
