@@ -6,11 +6,11 @@ import { expect, test } from '../../lib/fixtures/standard';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('oauth permissions for trusted reliers - sign up', () => {
-    test.beforeEach(async ({ pages: { configPage, login } }) => {
+    test.beforeEach(async ({ pages: { configPage } }) => {
       const config = await configPage.getConfig();
       test.skip(
         config.showReactApp.signUpRoutes === true,
-        'these tests are specific to backbone, skip if seeing React version'
+        'permissions with prompt=consent are not supported in React'
       );
       test.slow();
     });
@@ -55,7 +55,12 @@ test.describe('severity-1 #smoke', () => {
   });
 
   test.describe('oauth permissions for trusted reliers - sign in', () => {
-    test.beforeEach(async ({ pages: { login } }) => {
+    test.beforeEach(async ({ pages: { configPage, login } }) => {
+      const config = await configPage.getConfig();
+      test.skip(
+        config.showReactApp.signInRoutes === true,
+        'permissions with prompt=consent are not supported in React'
+      );
       test.slow();
       await login.clearCache();
     });
