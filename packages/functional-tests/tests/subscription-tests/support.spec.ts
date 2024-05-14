@@ -63,6 +63,10 @@ test.describe('severity-2 #smoke', () => {
       },
       testAccountTracker,
     }, { project }) => {
+      test.fixme(
+        true,
+        'FXA-9519, test hangs on the app/service choice section of the support form, option 1 in the list is undefined'
+      );
       test.skip(
         project.name === 'production',
         'no real payment method available in prod'
