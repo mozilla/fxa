@@ -39,38 +39,67 @@ test.describe('severity-2 #smoke', () => {
       expect(await login.getEmailInput()).toEqual(email);
     });
 
-    ['email', 'login_hint'].forEach((query_parameter) => {
-      test(`${query_parameter} specified by relier, registered`, async ({
-        pages: { login, relier },
-        testAccountTracker,
-      }) => {
-        const credentials = await testAccountTracker.signUp();
+    test('email specified by relier, registered', async ({
+      pages: { page, signinReact, relier },
+      testAccountTracker,
+    }) => {
+      const credentials = await testAccountTracker.signUp();
 
-        await relier.goto(`${query_parameter}=${credentials.email}`);
-        await relier.clickEmailFirst();
+      await relier.goto(`email=${credentials.email}`);
+      await relier.clickEmailFirst();
 
-        // Email is prefilled
-        expect(await login.getPrefilledEmail()).toEqual(credentials.email);
-        expect(await login.enterPasswordHeader()).toEqual(true);
+      // Email is prefilled
+      await expect(page.getByText(credentials.email)).toBeVisible();
+      await expect(signinReact.passwordFormHeading).toBeVisible();
 
-        await login.useDifferentAccountLink();
+      await signinReact.useDifferentAccountLink.click();
 
-        // Email first page has email input prefilled
-        expect(await login.getEmailInput()).toEqual(credentials.email);
-      });
+      // Email first page has email input prefilled
+      await expect(signinReact.emailTextbox).toHaveValue(credentials.email);
+    });
+
+    test('login_hint specified by relier, registered', async ({
+      pages: { configPage, page, signinReact, relier },
+      testAccountTracker,
+    }) => {
+      const config = await configPage.getConfig();
+      test.fixme(
+        config.showReactApp.signInRoutes === true,
+        'FXA-9159, login_hint might not be supported in React'
+      );
+
+      const credentials = await testAccountTracker.signUp();
+
+      await relier.goto(`login_hint=${credentials.email}`);
+      await relier.clickEmailFirst();
+
+      // Email is prefilled
+      await expect(page.getByText(credentials.email)).toBeVisible();
+      await expect(signinReact.passwordFormHeading).toBeVisible();
+
+      await signinReact.useDifferentAccountLink.click();
+
+      // Email first page has email input prefilled
+      await expect(signinReact.emailTextbox).toHaveValue(credentials.email);
     });
 
     test('cached credentials, login_hint specified by relier', async ({
-      pages: { login, relier },
+      pages: { configPage, page, signinReact, relier },
       testAccountTracker,
     }) => {
+      const config = await configPage.getConfig();
+      test.fixme(
+        config.showReactApp.signInRoutes === true,
+        'FXA-9159, login_hint might not be supported in React'
+      );
       const credentials = await testAccountTracker.signUp();
       const loginHintCredentials = await testAccountTracker.signUp();
 
       // Create a cached login
       await relier.goto();
       await relier.clickEmailFirst();
-      await login.login(credentials.email, credentials.password);
+      await signinReact.fillOutEmailFirstForm(credentials.email);
+      await signinReact.fillOutPasswordForm(credentials.password);
 
       expect(await relier.isLoggedIn()).toBe(true);
 
@@ -81,15 +110,15 @@ test.describe('severity-2 #smoke', () => {
       await relier.clickEmailFirst();
 
       // Email is prefilled
-      expect(await login.getPrefilledEmail()).toEqual(
-        loginHintCredentials.email
-      );
-      expect(await login.enterPasswordHeader()).toEqual(true);
+      await expect(page.getByText(loginHintCredentials.email)).toBeVisible();
+      await expect(signinReact.passwordFormHeading).toBeVisible();
 
-      await login.useDifferentAccountLink();
+      await signinReact.useDifferentAccountLink.click();
 
       // Email first page has email input prefilled
-      expect(await login.getEmailInput()).toEqual(loginHintCredentials.email);
+      await expect(signinReact.emailTextbox).toHaveValue(
+        loginHintCredentials.email
+      );
     });
   });
 });
