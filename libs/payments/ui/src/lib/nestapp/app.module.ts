@@ -2,35 +2,39 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { Module } from '@nestjs/common';
 import { TypedConfigModule } from 'nest-typed-config';
 
 import { CartManager, CartService } from '@fxa/payments/cart';
-import { AccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
-import { Module } from '@nestjs/common';
-
-import { RootConfig } from './config';
-import { LocalizerRscFactoryProvider } from '@fxa/shared/l10n/server';
-import {
-  AccountCustomerManager,
-  StripeClient,
-  StripeManager,
-} from '@fxa/payments/stripe';
-import { NextJSActionsService } from './nextjs-actions.service';
-import { GeoDBManager, GeoDBNestFactory } from '@fxa/shared/geodb';
-import { validate } from '../config.utils';
 import {
   EligibilityManager,
   EligibilityService,
 } from '@fxa/payments/eligibility';
-import { CheckoutService } from 'libs/payments/cart/src/lib/checkout.service';
-import { ContentfulClient, ContentfulManager } from '@fxa/shared/contentful';
 import {
   PayPalClient,
   PayPalManager,
   PaypalCustomerManager,
 } from '@fxa/payments/paypal';
+import {
+  AccountCustomerManager,
+  StripeClient,
+  StripeManager,
+} from '@fxa/payments/stripe';
+import {
+  ContentfulClient,
+  ContentfulManager,
+  ContentfulService,
+} from '@fxa/shared/contentful';
 import { FirestoreProvider } from '@fxa/shared/db/firestore';
+import { AccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
+import { GeoDBManager, GeoDBNestFactory } from '@fxa/shared/geodb';
+import { LocalizerRscFactoryProvider } from '@fxa/shared/l10n/server';
 import { StatsDProvider } from '@fxa/shared/metrics/statsd';
+
+import { RootConfig } from './config';
+import { NextJSActionsService } from './nextjs-actions.service';
+import { validate } from '../config.utils';
+import { CheckoutService } from 'libs/payments/cart/src/lib/checkout.service';
 
 @Module({
   imports: [
@@ -59,6 +63,7 @@ import { StatsDProvider } from '@fxa/shared/metrics/statsd';
     CheckoutService,
     ContentfulClient,
     ContentfulManager,
+    ContentfulService,
     StripeManager,
     StripeClient,
     PayPalClient,

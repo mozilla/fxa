@@ -54,7 +54,7 @@ type PurchaseDetailsProps = {
   invoice: Invoice;
   purchaseDetails: {
     details: string[];
-    subtitle?: string;
+    subtitle: string | null;
     productName: string;
     webIcon: string;
   };

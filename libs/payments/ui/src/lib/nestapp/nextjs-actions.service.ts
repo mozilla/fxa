@@ -2,18 +2,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { Injectable } from '@nestjs/common';
+import { Validator } from 'class-validator';
+
 import { CartService } from '@fxa/payments/cart';
 import { PayPalManager } from '@fxa/payments/paypal';
-import { Injectable } from '@nestjs/common';
+import { ContentfulService } from '@fxa/shared/contentful';
+
+import { CheckoutCartWithPaypalActionArgs } from './validators/CheckoutCartWithPaypalActionArgs';
+import { CheckoutCartWithStripeActionArgs } from './validators/CheckoutCartWithStripeActionArgs';
+import { FetchContentfulDataArgs } from './validators/FetchContentfulDataArgs';
+import { FinalizeCartWithErrorArgs } from './validators/FinalizeCartWithErrorArgs';
 import { GetCartActionArgs } from './validators/GetCartActionArgs';
 import { GetPayPalCheckoutTokenArgs } from './validators/GetPayPalCheckoutTokenArgs';
 import { RestartCartActionArgs } from './validators/RestartCartActionArgs';
-import { UpdateCartActionArgs } from './validators/UpdateCartActionArgs';
-import { Validator } from 'class-validator';
 import { SetupCartActionArgs } from './validators/SetupCartActionArgs';
-import { FinalizeCartWithErrorArgs } from './validators/FinalizeCartWithErrorArgs';
-import { CheckoutCartWithPaypalActionArgs } from './validators/CheckoutCartWithPaypalActionArgs';
-import { CheckoutCartWithStripeActionArgs } from './validators/CheckoutCartWithStripeActionArgs';
+import { UpdateCartActionArgs } from './validators/UpdateCartActionArgs';
 
 /**
  * ANY AND ALL methods exposed via this service should be considered publicly accessible and callable with any arguments.
@@ -24,6 +28,7 @@ import { CheckoutCartWithStripeActionArgs } from './validators/CheckoutCartWithS
 export class NextJSActionsService {
   constructor(
     private cartService: CartService,
+    private contentfulService: ContentfulService,
     private paypalManager: PayPalManager
   ) {}
 
@@ -99,5 +104,16 @@ export class NextJSActionsService {
       args.version,
       args.paymentMethodId
     );
+  }
+
+  async fetchContentfulData(args: FetchContentfulDataArgs) {
+    new Validator().validateOrReject(args);
+
+    const offering = await this.contentfulService.fetchContentfulData(
+      args.offeringId,
+      args.acceptLanguage
+    );
+
+    return offering;
   }
 }

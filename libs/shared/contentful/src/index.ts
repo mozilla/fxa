@@ -6,6 +6,7 @@ export * from './lib/contentful.client';
 export * from './lib/contentful.client.config';
 export * from './lib/contentful.error';
 export * from './lib/contentful.manager';
+export * from './lib/contentful.service';
 export * from './lib/factories';
 export * from './lib/queries/capability-service-by-plan-ids';
 export * from './lib/queries/eligibility-content-by-offering';
