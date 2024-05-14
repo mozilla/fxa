@@ -144,7 +144,7 @@ export class StripeClient {
   ) {
     const result = await this.stripe.invoices.retrieveUpcoming({
       ...params,
-      expand: undefined,
+      expand: ['total_tax_amounts.tax_rate'],
     });
     return result as StripeResponse<StripeUpcomingInvoice>;
   }

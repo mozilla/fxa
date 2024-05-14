@@ -4,6 +4,7 @@
   "compilerOptions": {
     "paths": {
       "@fxa/payments/legacy": ["libs/payments/legacy/src/index"],
+      "@fxa/payments/stripe": ["libs/payments/stripe/src/index"],
       "@fxa/shared/contentful": ["libs/shared/contentful/src/index"],
       "@fxa/shared/cloud-tasks": ["libs/shared/cloud-tasks/src/index"],
       "@fxa/shared/db/firestore": ["libs/shared/db/firestore/src/index"],

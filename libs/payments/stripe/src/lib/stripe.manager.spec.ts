@@ -2,6 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const mockStripeUtil = {
+  stripeInvoiceToFirstInvoicePreviewDTO: jest.fn(),
+};
+
+jest.mock(
+  '../../../stripe/src/lib/util/stripeInvoiceToFirstInvoicePreviewDTO',
+  () => mockStripeUtil
+);
+
 import { faker } from '@faker-js/faker';
 import { Test } from '@nestjs/testing';
 
@@ -10,12 +19,17 @@ import {
   StripeResponseFactory,
 } from './factories/api-list.factory';
 import { StripeCustomerFactory } from './factories/customer.factory';
+import { StripeDiscountFactory } from './factories/discount.factory';
 import { StripeInvoiceFactory } from './factories/invoice.factory';
 import { StripePaymentIntentFactory } from './factories/payment-intent.factory';
 import { StripePlanFactory } from './factories/plan.factory';
+import { StripePriceFactory } from './factories/price.factory';
 import { StripeProductFactory } from './factories/product.factory';
 import { StripePromotionCodeFactory } from './factories/promotion-code.factory';
 import { StripeSubscriptionFactory } from './factories/subscription.factory';
+import { StripeTaxRateFactory } from './factories/tax-rate.factory';
+import { StripeUpcomingInvoiceFactory } from './factories/upcoming-invoice.factory';
+import { TaxAddressFactory } from './factories/tax-address.factory';
 import { StripeClient } from './stripe.client';
 import { MockStripeConfigProvider } from './stripe.config';
 import { PlanIntervalMultiplePlansError } from './stripe.error';
@@ -64,6 +78,65 @@ describe('StripeManager', () => {
         mockInvoice.id
       );
       expect(result).toEqual(mockInvoice);
+    });
+  });
+
+  describe('previewInvoice', () => {
+    it('returns upcoming invoice', async () => {
+      const mockCustomer = StripeCustomerFactory();
+      const mockPrice = StripePriceFactory();
+      const mockUpcomingInvoice = StripeResponseFactory(
+        StripeUpcomingInvoiceFactory({
+          total_discount_amounts: [
+            {
+              amount: 500,
+              discount: StripeDiscountFactory(),
+            },
+          ],
+          total_tax_amounts: [
+            {
+              amount: faker.number.int(1000),
+              inclusive: false,
+              tax_rate: StripeTaxRateFactory(),
+              taxability_reason: null,
+              taxable_amount: null,
+            },
+          ],
+        })
+      );
+
+      const mockTaxAddress = TaxAddressFactory();
+      const mockInvoicePreview = {
+        currency: mockUpcomingInvoice.currency,
+        listAmount: mockUpcomingInvoice.amount_due,
+        totalAmount: mockUpcomingInvoice.total,
+        taxAmounts: [
+          {
+            title:
+              mockUpcomingInvoice.total_tax_amounts[0].tax_rate.display_name,
+            inclusive: mockUpcomingInvoice.total_tax_amounts[0].inclusive,
+            amount: mockUpcomingInvoice.total_tax_amounts[0].amount,
+          },
+        ],
+        discountAmount:
+          mockUpcomingInvoice.total_discount_amounts &&
+          mockUpcomingInvoice.total_discount_amounts[0].amount,
+      };
+
+      jest
+        .spyOn(stripeClient, 'invoicesRetrieveUpcoming')
+        .mockResolvedValue(mockUpcomingInvoice);
+
+      mockStripeUtil.stripeInvoiceToFirstInvoicePreviewDTO.mockReturnValue(
+        mockInvoicePreview
+      );
+
+      const result = await stripeManager.previewInvoice({
+        priceId: mockPrice.id,
+        customer: mockCustomer,
+        taxAddress: mockTaxAddress,
+      });
+      expect(result).toEqual(mockInvoicePreview);
     });
   });
 

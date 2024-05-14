@@ -39,3 +39,9 @@ export class ContentfulQueryError extends BaseError {
     super(...args);
   }
 }
+
+export class ContentfulServiceError extends BaseError {
+  constructor(...args: ConstructorParameters<typeof BaseError>) {
+    super(...args);
+  }
+}

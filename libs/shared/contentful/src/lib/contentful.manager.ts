@@ -70,12 +70,12 @@ export class ContentfulManager {
   }
 
   async getEligibilityContentByOffering(
-    offering: string
+    apiIdentifier: string
   ): Promise<EligibilityContentByOfferingResultUtil> {
     const queryResult = await this.client.query(
       eligibilityContentByOfferingQuery,
       {
-        offering,
+        apiIdentifier,
       }
     );
 
@@ -196,5 +196,14 @@ export class ContentfulManager {
     }
 
     return new PurchaseWithDetailsOfferingContentUtil(queryResults);
+  }
+
+  async getOfferingPlanIds(apiIdentifier: string) {
+    const offeringResult = await this.getEligibilityContentByOffering(
+      apiIdentifier
+    );
+    const offering = offeringResult.getOffering();
+    const planIds = offering.defaultPurchase.stripePlanChoices;
+    return planIds;
   }
 }

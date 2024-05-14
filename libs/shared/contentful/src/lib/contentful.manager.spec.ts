@@ -4,6 +4,7 @@
 import { Test } from '@nestjs/testing';
 import { StatsD } from 'hot-shots';
 
+import { StripePlanFactory } from '@fxa/payments/stripe';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import { StatsDService } from '@fxa/shared/metrics/statsd';
 
@@ -359,6 +360,28 @@ describe('ContentfulManager', () => {
         result.transformedPurchaseWithCommonContentForPlanId(planId ?? '')
           ?.purchaseDetails
       ).toEqual(result.purchaseDetailsTransform(queryDataItem.purchaseDetails));
+    });
+  });
+
+  describe('getOfferingPlanIds', () => {
+    it('returns planIds from offering', async () => {
+      const apiIdentifier = 'test';
+      const mockPlan = StripePlanFactory();
+      const mockOffering = EligibilityContentOfferingResultFactory({
+        defaultPurchase: {
+          stripePlanChoices: [mockPlan.id],
+        },
+      });
+      const mockOfferingResult = {} as EligibilityContentByOfferingResultUtil;
+
+      jest
+        .spyOn(contentfulManager, 'getEligibilityContentByOffering')
+        .mockResolvedValue(mockOfferingResult);
+
+      mockOfferingResult.getOffering = jest.fn().mockReturnValue(mockOffering);
+
+      const result = await contentfulManager.getOfferingPlanIds(apiIdentifier);
+      expect(result).toEqual([mockPlan.id]);
     });
   });
 });

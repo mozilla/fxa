@@ -2751,7 +2751,7 @@ export type CapabilityServiceByPlanIdsQuery = {
 };
 
 export type EligibilityContentByOfferingQueryVariables = Exact<{
-  offering: Scalars['String']['input'];
+  apiIdentifier: Scalars['String']['input'];
 }>;
 
 export type EligibilityContentByOfferingQuery = {
@@ -3293,7 +3293,7 @@ export const EligibilityContentByOfferingDocument = {
           kind: 'VariableDefinition',
           variable: {
             kind: 'Variable',
-            name: { kind: 'Name', value: 'offering' },
+            name: { kind: 'Name', value: 'apiIdentifier' },
           },
           type: {
             kind: 'NonNullType',
@@ -3332,7 +3332,7 @@ export const EligibilityContentByOfferingDocument = {
                       name: { kind: 'Name', value: 'apiIdentifier' },
                       value: {
                         kind: 'Variable',
-                        name: { kind: 'Name', value: 'offering' },
+                        name: { kind: 'Name', value: 'apiIdentifier' },
                       },
                     },
                   ],

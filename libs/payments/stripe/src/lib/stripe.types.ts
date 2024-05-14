@@ -19,3 +19,8 @@ export enum SubplatInterval {
   HalfYearly = 'halfyearly',
   Yearly = 'yearly',
 }
+
+export interface TaxAddress {
+  countryCode: string;
+  postalCode: string;
+}

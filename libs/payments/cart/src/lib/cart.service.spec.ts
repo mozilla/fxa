@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { faker } from '@faker-js/faker';
+import { ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
 
 import {
@@ -10,6 +11,35 @@ import {
   EligibilityService,
   EligibilityStatus,
 } from '@fxa/payments/eligibility';
+import {
+  MockPaypalClientConfigProvider,
+  PayPalClient,
+  PayPalManager,
+  PaypalCustomerManager,
+} from '@fxa/payments/paypal';
+import {
+  AccountCustomerManager,
+  MockStripeConfigProvider,
+  ResultAccountCustomerFactory,
+  StripeClient,
+  StripeCustomerFactory,
+  StripeDiscountFactory,
+  StripeManager,
+  StripePriceFactory,
+  StripeResponseFactory,
+  StripeTaxRateFactory,
+  StripeUpcomingInvoiceFactory,
+  SubplatInterval,
+  TaxAddressFactory,
+} from '@fxa/payments/stripe';
+import {
+  ContentfulClient,
+  ContentfulClientConfig,
+  ContentfulManager,
+  ContentfulService,
+  ContentfulServiceConfig,
+} from '@fxa/shared/contentful';
+import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import {
   CartEligibilityStatus,
   CartErrorReasonId,
@@ -20,17 +50,8 @@ import {
   GeoDBManager,
   GeoDBManagerConfig,
   MockGeoDBNestFactory,
-  TaxAddressFactory,
 } from '@fxa/shared/geodb';
-import {
-  AccountCustomerManager,
-  MockStripeConfigProvider,
-  ResultAccountCustomerFactory,
-  StripeClient,
-  StripeManager,
-  SubplatInterval,
-} from '@fxa/payments/stripe';
-import { CheckoutService } from './checkout.service';
+import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 
 import {
   FinishErrorCartFactory,
@@ -39,28 +60,17 @@ import {
 } from './cart.factories';
 import { CartManager } from './cart.manager';
 import { CartService } from './cart.service';
-import {
-  ContentfulClient,
-  ContentfulClientConfig,
-  ContentfulManager,
-} from '@fxa/shared/contentful';
-import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
-import { ConfigService } from '@nestjs/config';
-import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
-import {
-  PayPalClient,
-  PayPalManager,
-  PaypalCustomerManager,
-} from '@fxa/payments/paypal';
-import { MockPaypalClientConfigProvider } from 'libs/payments/paypal/src/lib/paypal.client.config';
+import { CheckoutService } from './checkout.service';
 
 describe('CartService', () => {
   let cartService: CartService;
   let cartManager: CartManager;
   let checkoutService: CheckoutService;
+  let contentfulService: ContentfulService;
   let accountCustomerManager: AccountCustomerManager;
   let eligibilityService: EligibilityService;
   let geodbManager: GeoDBManager;
+  let stripeManager: StripeManager;
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -75,6 +85,8 @@ describe('CartService', () => {
         ContentfulClientConfig,
         ContentfulClient,
         ContentfulManager,
+        ContentfulService,
+        ContentfulServiceConfig,
         EligibilityManager,
         EligibilityService,
         MockStripeConfigProvider,
@@ -88,6 +100,7 @@ describe('CartService', () => {
         GeoDBManager,
         GeoDBManagerConfig,
         MockGeoDBNestFactory,
+        StripeManager,
       ],
     }).compile();
 
@@ -97,6 +110,8 @@ describe('CartService', () => {
     accountCustomerManager = moduleRef.get(AccountCustomerManager);
     eligibilityService = moduleRef.get(EligibilityService);
     geodbManager = moduleRef.get(GeoDBManager);
+    contentfulService = moduleRef.get(ContentfulService);
+    stripeManager = moduleRef.get(StripeManager);
   });
 
   describe('setupCart', () => {
@@ -367,15 +382,109 @@ describe('CartService', () => {
   });
 
   describe('getCart', () => {
-    it('calls cartManager.fetchCartById', async () => {
+    const mockPrice = StripePriceFactory();
+    const mockUpcomingInvoice = StripeResponseFactory(
+      StripeUpcomingInvoiceFactory({
+        total_discount_amounts: [
+          {
+            amount: 500,
+            discount: StripeDiscountFactory(),
+          },
+        ],
+        total_tax_amounts: [
+          {
+            amount: faker.number.int(1000),
+            inclusive: false,
+            tax_rate: StripeTaxRateFactory(),
+            taxability_reason: null,
+            taxable_amount: null,
+          },
+        ],
+      })
+    );
+
+    const mockInvoicePreview = {
+      currency: mockUpcomingInvoice.currency,
+      listAmount: mockUpcomingInvoice.amount_due,
+      totalAmount: mockUpcomingInvoice.total,
+      taxAmounts: [
+        {
+          title: mockUpcomingInvoice.total_tax_amounts[0].tax_rate.display_name,
+          inclusive: mockUpcomingInvoice.total_tax_amounts[0].inclusive,
+          amount: mockUpcomingInvoice.total_tax_amounts[0].amount,
+        },
+      ],
+      discountAmount:
+        mockUpcomingInvoice.total_discount_amounts?.[0].amount ?? null,
+    };
+
+    it('returns cart and invoicePreview', async () => {
       const mockCart = ResultCartFactory();
+      const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
 
       jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+      jest
+        .spyOn(contentfulService, 'retrieveStripePlanId')
+        .mockResolvedValue(mockPrice.id);
+      jest
+        .spyOn(stripeManager, 'fetchActiveCustomer')
+        .mockResolvedValue(mockCustomer);
+      jest
+        .spyOn(stripeManager, 'previewInvoice')
+        .mockResolvedValue(mockInvoicePreview);
 
       const result = await cartService.getCart(mockCart.id);
+      expect(result).toEqual({
+        ...mockCart,
+        invoicePreview: mockInvoicePreview,
+      });
 
       expect(cartManager.fetchCartById).toHaveBeenCalledWith(mockCart.id);
-      expect(result).toEqual(mockCart);
+      expect(contentfulService.retrieveStripePlanId).toHaveBeenCalledWith(
+        mockCart.offeringConfigId,
+        mockCart.interval
+      );
+      expect(stripeManager.fetchActiveCustomer).toHaveBeenCalledWith(
+        mockCart.stripeCustomerId
+      );
+      expect(stripeManager.previewInvoice).toHaveBeenCalledWith({
+        priceId: mockPrice.id,
+        customer: mockCustomer,
+        taxAddress: mockCart.taxAddress,
+      });
+    });
+
+    it('returns cart and invoicePreview if customer is undefined', async () => {
+      const mockCart = ResultCartFactory({
+        stripeCustomerId: null,
+      });
+
+      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+      jest
+        .spyOn(contentfulService, 'retrieveStripePlanId')
+        .mockResolvedValue(mockPrice.id);
+      jest.spyOn(stripeManager, 'fetchActiveCustomer');
+      jest
+        .spyOn(stripeManager, 'previewInvoice')
+        .mockResolvedValue(mockInvoicePreview);
+
+      const result = await cartService.getCart(mockCart.id);
+      expect(result).toEqual({
+        ...mockCart,
+        invoicePreview: mockInvoicePreview,
+      });
+
+      expect(cartManager.fetchCartById).toHaveBeenCalledWith(mockCart.id);
+      expect(contentfulService.retrieveStripePlanId).toHaveBeenCalledWith(
+        mockCart.offeringConfigId,
+        mockCart.interval
+      );
+      expect(stripeManager.fetchActiveCustomer).not.toHaveBeenCalled();
+      expect(stripeManager.previewInvoice).toHaveBeenCalledWith({
+        priceId: mockPrice.id,
+        customer: undefined,
+        taxAddress: mockCart.taxAddress,
+      });
     });
   });
 });

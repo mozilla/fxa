@@ -5,17 +5,21 @@
 import { Injectable } from '@nestjs/common';
 
 import { EligibilityService } from '@fxa/payments/eligibility';
-
-import { CartManager } from './cart.manager';
-import { ResultCart, TaxAddress, UpdateCart } from './cart.types';
-import { handleEligibilityStatusMap } from './cart.utils';
-import { CartErrorReasonId, CartState } from '@fxa/shared/db/mysql/account';
 import {
   AccountCustomerManager,
   AccountCustomerNotFoundError,
+  StripeCustomer,
+  StripeManager,
   SubplatInterval,
+  TaxAddress,
 } from '@fxa/payments/stripe';
+import { ContentfulService } from '@fxa/shared/contentful';
+import { CartErrorReasonId, CartState } from '@fxa/shared/db/mysql/account';
 import { GeoDBManager } from '@fxa/shared/geodb';
+
+import { CartManager } from './cart.manager';
+import { ResultCart, UpdateCart, WithUpcomingInvoiceCart } from './cart.types';
+import { handleEligibilityStatusMap } from './cart.utils';
 import { CheckoutService } from './checkout.service';
 
 @Injectable()
@@ -25,7 +29,9 @@ export class CartService {
     private accountCustomerManager: AccountCustomerManager,
     private eligibilityService: EligibilityService,
     private geodbManager: GeoDBManager,
-    private checkoutService: CheckoutService
+    private checkoutService: CheckoutService,
+    private contentfulService: ContentfulService,
+    private stripeManager: StripeManager
   ) {}
 
   /**
@@ -182,7 +188,30 @@ export class CartService {
   /**
    * Fetch a cart from the database by ID
    */
-  getCart(cartId: string): Promise<ResultCart> {
-    return this.cartManager.fetchCartById(cartId);
+  async getCart(cartId: string): Promise<WithUpcomingInvoiceCart> {
+    const cart = await this.cartManager.fetchCartById(cartId);
+
+    const priceId = await this.contentfulService.retrieveStripePlanId(
+      cart.offeringConfigId,
+      cart.interval as SubplatInterval
+    );
+
+    let customer: StripeCustomer | undefined;
+    if (cart.stripeCustomerId) {
+      customer = await this.stripeManager.fetchActiveCustomer(
+        cart.stripeCustomerId
+      );
+    }
+
+    const upcomingInvoice = await this.stripeManager.previewInvoice({
+      priceId,
+      customer,
+      taxAddress: cart.taxAddress as unknown as TaxAddress, // TODO: Fix the typings for taxAddress
+    });
+
+    return {
+      ...cart,
+      invoicePreview: upcomingInvoice,
+    };
   }
 }
