@@ -16,9 +16,9 @@ test.describe('Firefox Desktop Sync v3 email first', () => {
     testAccountTracker,
   }) => {
     const config = await configPage.getConfig();
-    test.fixme(
+    test.skip(
       config.showReactApp.signUpRoutes === true,
-      'Not currently supported in React Signup FXA-8973'
+      'Refreshing the page does not redirect to email-first with signup react'
     );
 
     const { email } = testAccountTracker.generateSyncAccountDetails();
@@ -41,43 +41,50 @@ test.describe('Firefox Desktop Sync v3 email first', () => {
   });
 
   test('open directly to /signin page, refresh on the /signin page', async ({
+    pages: { configPage },
     target,
-    syncBrowserPages: { page, login },
+    syncBrowserPages: { page, signinReact },
     testAccountTracker,
   }) => {
+    const config = await configPage.getConfig();
+    test.skip(
+      config.showReactApp.signUpRoutes === true,
+      'Refreshing the page does not redirect to email-first with signin react'
+    );
+
     const credentials = await testAccountTracker.signUpSync();
 
     await page.goto(
       `${target.contentServerUrl}/signin?context=fx_desktop_v3&service=sync&action=email`,
       { waitUntil: 'load' }
     );
-    await login.setEmail(credentials.email);
-    await login.submit();
+    await signinReact.fillOutEmailFirstForm(credentials.email);
 
     // Verify user is redirected to the password page
-    await expect(await login.waitForPasswordHeader()).toBeVisible();
+    await expect(await signinReact.passwordFormHeading).toBeVisible();
 
     //Refresh the page
     await page.reload({ waitUntil: 'load' });
 
     // refresh sends the user back to the first step
-    await login.waitForEmailHeader();
+    await expect(signinReact.emailFirstHeading).toBeVisible();
   });
 
   test('enter a firefox.com address', async ({
     target,
-    syncBrowserPages: { login, page },
+    syncBrowserPages: { signinReact, page },
   }) => {
     await page.goto(
       `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`,
       { waitUntil: 'load' }
     );
-    await login.setEmail('testuser@firefox.com');
-    await login.clickSubmit();
+    await signinReact.fillOutEmailFirstForm('testuser@firefox.com');
 
     // Verify the error
-    expect(await login.getTooltipError()).toContain(
-      'Enter a valid email address. firefox.com does not offer email.'
-    );
+    await expect(
+      page.getByText(
+        'Enter a valid email address. firefox.com does not offer email.'
+      )
+    ).toBeVisible();
   });
 });
