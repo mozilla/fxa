@@ -91,7 +91,7 @@ test('too many failed logins using different capitalizations', function (t) {
 
 test('failed logins are cleared', function (t) {
   return client
-    .postAsync('/passwordReset', { email: 'tEst@example.com' })
+    .postAsync('/passwordReset', { ip: TEST_IP, email: 'tEst@example.com' })
     .spread(function (req, res, obj) {
       t.equal(res.statusCode, 200, 'request returns a 200');
       t.ok(obj, 'got an obj, make jshint happy');

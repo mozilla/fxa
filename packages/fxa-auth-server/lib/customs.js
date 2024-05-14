@@ -142,9 +142,12 @@ class CustomsClient {
     });
   }
 
-  async reset(email) {
+  async reset(request, email) {
     await this.makeRequest('/passwordReset', {
-      ...this.sanitizePayload({ email }),
+      ...this.sanitizePayload({
+        ip: request.app.clientAddress,
+        email,
+      }),
     });
   }
 

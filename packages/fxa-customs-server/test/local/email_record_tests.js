@@ -22,6 +22,10 @@ function simpleEmailRecord() {
     maxPasswordResetOtpEmails: 2,
     passwordResetOtpEmailRequestWindowMs: 2000,
     passwordResetOtpEmailRateLimitIntervalMs: 5000,
+    maxPasswordResetOtpVerificationRateLimit: 2,
+    passwordResetOtpVerificationRateLimitWindowMs: 5000,
+    maxPasswordResetOtpVerificationBlockLimit: 3,
+    passwordResetOtpVerificationBlockWindowMs: 10000,
   };
   return new (emailRecord(limits, now))();
 }
@@ -179,8 +183,11 @@ test('retryAfter works', function (t) {
   er.rl = 6000;
   t.equal(er.retryAfter(), 1, 'unexpired blocks can be retried in a bit');
   t.equal(er.retryAfter(10000), 6, 'optional rate limit interval');
+  er.bk = 6000;
+  t.equal(er.retryAfter(10000, 20000), 16, 'optional block interval');
 
   delete er.rl;
+  delete er.bk;
   t.equal(er.retryAfter(), 0, 'unblocked records can be retried now');
   er.bk = 1000;
   t.equal(er.retryAfter(), 0, 'long expired blocks can be retried immediately');
@@ -193,10 +200,13 @@ test('retryAfter works', function (t) {
 
 test('passwordReset works', function (t) {
   var er = simpleEmailRecord();
-
+  er.os = [990];
+  er.ov = [999];
   t.equal(er.pr, undefined, 'password is not marked as reset yet');
   er.passwordReset();
   t.equal(er.pr, 1000, 'password is marked as reset now');
+  t.equal(er.os.length, 0);
+  t.equal(er.ov.length, 0);
   t.end();
 });
 
@@ -280,6 +290,26 @@ test('update works', function (t) {
   nowTimestamp = 2001;
   res = er.update('passwordForgotSendOtp');
   t.equal(res > 0, true, 'account is rate limited');
+  nowTimestamp = null;
+
+  er = simpleEmailRecord();
+  er.ov = [];
+  nowTimestamp = 1001;
+  er.update('passwordForgotVerifyOtp');
+  nowTimestamp = 1003;
+  res = er.update('passwordForgotVerifyOtp');
+  t.equal(res === 0, true, 'account is not rate limited or blocked');
+  nowTimestamp = 2001;
+  const verifyOtpRateLimitRes = er.update('passwordForgotVerifyOtp');
+  t.equal(verifyOtpRateLimitRes > 0, true, 'account is rate limited');
+  nowTimestamp = 8001;
+  const verifyOtpBlockLimitRes = er.update('passwordForgotVerifyOtp');
+  t.equal(
+    verifyOtpBlockLimitRes - verifyOtpRateLimitRes > 0,
+    true,
+    'account is blocked'
+  );
+
   nowTimestamp = null;
 
   t.end();
