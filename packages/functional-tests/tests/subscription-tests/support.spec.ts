@@ -5,7 +5,8 @@
 import { Page, expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
 import { TestAccountTracker } from '../../lib/testAccountTracker';
-import { LoginPage } from '../../pages/login';
+import { SettingsPage } from '../../pages/settings';
+import { SigninReactPage } from '../../pages/signinReact';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('support form without valid session', () => {
@@ -26,16 +27,21 @@ test.describe('severity-1 #smoke', () => {
     test('go to support form, redirects to subscription management, then back to settings', async ({
       page,
       target,
-      pages: { login },
+      pages: { settings, signinReact },
       testAccountTracker,
     }) => {
       test.slow();
-      await signInAccount(target, page, login, testAccountTracker);
+      await signInAccount(
+        target,
+        page,
+        settings,
+        signinReact,
+        testAccountTracker
+      );
       await page.goto(`${target.contentServerUrl}/support`, {
         waitUntil: 'load',
       });
-      await page.waitForURL(/settings/);
-      expect(await login.isUserLoggedIn()).toBe(true);
+      await expect(settings.settingsHeading).toBeVisible();
     });
   });
 });
@@ -48,7 +54,13 @@ test.describe('severity-2 #smoke', () => {
     test('go to support form, cancel, redirects to subscription management', async ({
       target,
       page,
-      pages: { login, relier, subscribe, settings, subscriptionManagement },
+      pages: {
+        relier,
+        subscribe,
+        settings,
+        signinReact,
+        subscriptionManagement,
+      },
       testAccountTracker,
     }, { project }) => {
       test.skip(
@@ -57,7 +69,13 @@ test.describe('severity-2 #smoke', () => {
       );
       test.slow();
 
-      await signInAccount(target, page, login, testAccountTracker);
+      await signInAccount(
+        target,
+        page,
+        settings,
+        signinReact,
+        testAccountTracker
+      );
 
       await relier.goto();
       await relier.clickSubscribe();
@@ -67,9 +85,10 @@ test.describe('severity-2 #smoke', () => {
       await subscribe.clickPayNow();
       await subscribe.submit();
 
-      //Login to FxA account
-      await login.goto();
-      await login.clickSignIn();
+      //Sign in to cached FxA account
+      await page.goto(target.contentServerUrl);
+      await signinReact.signInButton.click();
+      await expect(settings.settingsHeading).toBeVisible();
       const subscriptionPage = await settings.clickPaidSubscriptions();
       subscriptionManagement.page = subscriptionPage;
       await subscriptionManagement.fillSupportForm();
@@ -84,15 +103,17 @@ test.describe('severity-2 #smoke', () => {
 async function signInAccount(
   target: BaseTarget,
   page: Page,
-  login: LoginPage,
+  settings: SettingsPage,
+  signinReact: SigninReactPage,
   testAccountTracker: TestAccountTracker
 ): Promise<Credentials> {
   const credentials = await testAccountTracker.signUp();
   await page.goto(target.contentServerUrl);
-  await login.fillOutEmailFirstSignIn(credentials.email, credentials.password);
+  await signinReact.fillOutEmailFirstForm(credentials.email);
+  await signinReact.fillOutPasswordForm(credentials.password);
 
   //Verify logged in on Settings page
-  expect(await login.isUserLoggedIn()).toBe(true);
+  await expect(settings.settingsHeading).toBeVisible();
 
   return credentials;
 }

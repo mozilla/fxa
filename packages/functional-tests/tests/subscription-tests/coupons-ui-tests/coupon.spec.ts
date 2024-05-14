@@ -5,7 +5,8 @@
 import { Page, expect, test } from '../../../lib/fixtures/standard';
 import { BaseTarget, Credentials } from '../../../lib/targets/base';
 import { TestAccountTracker } from '../../../lib/testAccountTracker';
-import { LoginPage } from '../../../pages/login';
+import { SettingsPage } from '../../../pages/settings';
+import { SigninReactPage } from '../../../pages/signinReact';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('coupon test', () => {
@@ -66,14 +67,20 @@ test.describe('severity-2 #smoke', () => {
     test('subscribe successfully with an invalid coupon', async ({
       target,
       page,
-      pages: { relier, subscribe, login },
+      pages: { relier, settings, subscribe, signinReact },
       testAccountTracker,
     }, { project }) => {
       test.skip(
         project.name === 'production',
         'no real payment method available in prod'
       );
-      await signInAccount(target, page, login, testAccountTracker);
+      await signInAccount(
+        target,
+        page,
+        settings,
+        signinReact,
+        testAccountTracker
+      );
 
       await relier.goto();
       await relier.clickSubscribe6Month();
@@ -94,21 +101,27 @@ test.describe('severity-2 #smoke', () => {
       await subscribe.submit();
       await relier.goto();
       await relier.clickEmailFirst();
-      await login.submit();
+      await signinReact.signInButton.click();
       expect(await relier.isPro()).toBe(true);
     });
 
     test('subscribe successfully with a forever discount coupon', async ({
       target,
       page,
-      pages: { relier, subscribe, login },
+      pages: { relier, settings, subscribe, signinReact },
       testAccountTracker,
     }, { project }) => {
       test.skip(
         project.name === 'production',
         'no real payment method available in prod'
       );
-      await signInAccount(target, page, login, testAccountTracker);
+      await signInAccount(
+        target,
+        page,
+        settings,
+        signinReact,
+        testAccountTracker
+      );
 
       await relier.goto();
       await relier.clickSubscribe6Month();
@@ -131,21 +144,27 @@ test.describe('severity-2 #smoke', () => {
       await subscribe.submit();
       await relier.goto();
       await relier.clickEmailFirst();
-      await login.submit();
+      await signinReact.signInButton.click();
       expect(await relier.isPro()).toBe(true);
     });
 
     test('subscribe with a one time discount coupon', async ({
       target,
       page,
-      pages: { relier, subscribe, login },
+      pages: { relier, settings, subscribe, signinReact },
       testAccountTracker,
     }, { project }) => {
       test.skip(
         project.name === 'production',
         'no real payment method available in prod'
       );
-      await signInAccount(target, page, login, testAccountTracker);
+      await signInAccount(
+        target,
+        page,
+        settings,
+        signinReact,
+        testAccountTracker
+      );
 
       await relier.goto();
       await relier.clickSubscribe12Month();
@@ -169,21 +188,27 @@ test.describe('severity-2 #smoke', () => {
       await subscribe.submit();
       await relier.goto();
       await relier.clickEmailFirst();
-      await login.submit();
+      await signinReact.signInButton.click();
       expect(await relier.isPro()).toBe(true);
     });
 
     test('subscribe with credit card and use coupon', async ({
       target,
       page,
-      pages: { relier, login, subscribe },
+      pages: { relier, settings, signinReact, subscribe },
       testAccountTracker,
     }, { project }) => {
       test.skip(
         project.name === 'production',
         'no real payment method available in prod'
       );
-      await signInAccount(target, page, login, testAccountTracker);
+      await signInAccount(
+        target,
+        page,
+        settings,
+        signinReact,
+        testAccountTracker
+      );
 
       await relier.goto();
       await relier.clickSubscribe6Month();
@@ -197,12 +222,12 @@ test.describe('severity-2 #smoke', () => {
       await subscribe.submit();
       await relier.goto();
       await relier.clickEmailFirst();
-      await login.submit();
+      await signinReact.signInButton.click();
       expect(await relier.isPro()).toBe(true);
     });
 
     test('remove a coupon and verify', async ({
-      pages: { relier, subscribe, login },
+      pages: { relier, subscribe, signinReact },
     }, { project }) => {
       test.skip(
         project.name === 'production',
@@ -235,15 +260,17 @@ test.describe('severity-2 #smoke', () => {
 async function signInAccount(
   target: BaseTarget,
   page: Page,
-  login: LoginPage,
+  settings: SettingsPage,
+  signinReact: SigninReactPage,
   testAccountTracker: TestAccountTracker
 ): Promise<Credentials> {
-  const credentials = await testAccountTracker.signUp();
+  const credentials = await testAccountTracker.signUpSubscription();
   await page.goto(target.contentServerUrl);
-  await login.fillOutEmailFirstSignIn(credentials.email, credentials.password);
+  await signinReact.fillOutEmailFirstForm(credentials.email);
+  await signinReact.fillOutPasswordForm(credentials.password);
 
   //Verify logged in on Settings page
-  expect(await login.isUserLoggedIn()).toBe(true);
+  await expect(settings.settingsHeading).toBeVisible();
 
   return credentials;
 }
