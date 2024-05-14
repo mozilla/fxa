@@ -62,7 +62,7 @@ executors:
     parameters:
       resource_class:
         type: string
-        default: medium
+        default: medium+
       image:
         type: string
         default: cimg/node:20.11.1
