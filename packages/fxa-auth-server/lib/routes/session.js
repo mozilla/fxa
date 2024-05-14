@@ -351,6 +351,7 @@ module.exports = function (
             // The `marketingOptIn` is safe to remove after train-167+
             marketingOptIn: isA.boolean().optional(),
             newsletters: validators.newsletters,
+            metricsContext: METRICS_CONTEXT_SCHEMA,
           }),
         },
       },

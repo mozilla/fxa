@@ -15,6 +15,7 @@ import { GetEmailBounceStatusResponse, LocationState } from './interfaces';
 import { useQuery } from '@apollo/client';
 import { EMAIL_BOUNCE_STATUS_QUERY } from './gql';
 import OAuthDataError from '../../../components/OAuthDataError';
+import { QueryParams } from '../../..';
 
 export const POLL_INTERVAL = 5000;
 
@@ -38,8 +39,10 @@ function getAccountInfo(
 
 const SignupConfirmCodeContainer = ({
   integration,
+  flowQueryParams,
 }: {
   integration: Integration;
+  flowQueryParams: QueryParams;
 } & RouteComponentProps) => {
   const authClient = useAuthClient();
   const location = useLocation() as ReturnType<typeof useLocation> & {
@@ -148,6 +151,7 @@ const SignupConfirmCodeContainer = ({
         declinedSyncEngines,
         keyFetchToken,
         unwrapBKey,
+        flowQueryParams,
       }}
     />
   );
