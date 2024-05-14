@@ -24,7 +24,7 @@ test.describe('severity-1 #smoke', () => {
     }) => {
       test.fixme(
         true,
-        'FXA-9519, incorrect email case error after changing primary email'
+        'FXA-9519, incorrect email case error after changing primary email (see FXA-9663)'
       );
       const credentials = await signInAccount(
         target,
@@ -67,7 +67,7 @@ test.describe('severity-1 #smoke', () => {
     }) => {
       test.fixme(
         true,
-        'FXA-9519, incorrect email case error after changing primary email'
+        'FXA-9519, incorrect email case error after changing primary email (see FXA-9663)'
       );
       const credentials = await signInAccount(
         target,
@@ -114,7 +114,7 @@ test.describe('severity-1 #smoke', () => {
     }) => {
       test.fixme(
         true,
-        'FXA-9519, incorrect email case error after changing primary email'
+        'FXA-9519, incorrect email case error after changing primary email (see FXA-9663)'
       );
       const credentials = await signInAccount(
         target,
@@ -251,7 +251,7 @@ test.describe('severity-1 #smoke', () => {
     test.beforeEach(async () => {
       test.fixme(
         true,
-        'FXA-9519, incorrect email case error after changing primary email'
+        'FXA-9519, incorrect email case error after changing primary email (see FXA-9663)'
       );
       test.slow();
     });
