@@ -3329,7 +3329,7 @@ export const EligibilityContentByOfferingDocument = {
                   fields: [
                     {
                       kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'apiIdentifier_contains' },
+                      name: { kind: 'Name', value: 'apiIdentifier' },
                       value: {
                         kind: 'Variable',
                         name: { kind: 'Name', value: 'offering' },
@@ -4033,7 +4033,7 @@ export const PageContentForOfferingDocument = {
                   fields: [
                     {
                       kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'apiIdentifier_contains' },
+                      name: { kind: 'Name', value: 'apiIdentifier' },
                       value: {
                         kind: 'Variable',
                         name: { kind: 'Name', value: 'apiIdentifier' },

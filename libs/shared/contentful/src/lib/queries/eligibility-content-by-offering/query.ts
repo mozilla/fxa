@@ -6,11 +6,7 @@ import { graphql } from '../../../__generated__/gql';
 
 export const eligibilityContentByOfferingQuery = graphql(`
   query EligibilityContentByOffering($offering: String!) {
-    offeringCollection(
-      skip: 0
-      limit: 2
-      where: { apiIdentifier_contains: $offering }
-    ) {
+    offeringCollection(skip: 0, limit: 2, where: { apiIdentifier: $offering }) {
       items {
         apiIdentifier
         stripeProductId

@@ -10,7 +10,7 @@ export const pageContentForOfferingQuery = graphql(`
       skip: 0
       limit: 2
       locale: $locale
-      where: { apiIdentifier_contains: $apiIdentifier }
+      where: { apiIdentifier: $apiIdentifier }
     ) {
       items {
         apiIdentifier
