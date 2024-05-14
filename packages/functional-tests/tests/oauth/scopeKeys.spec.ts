@@ -11,7 +11,7 @@ test.describe('OAuth scopeKeys', () => {
   test('signin in Chrome for Android, verify same browser', async ({
     target,
     page,
-    pages: { login },
+    pages: { signinReact, signinTokenCode },
     testAccountTracker,
   }) => {
     const query = new URLSearchParams({
@@ -32,9 +32,15 @@ test.describe('OAuth scopeKeys', () => {
     const credentials = await testAccountTracker.signUpSync();
 
     await page.goto(target.contentServerUrl + `/?${query.toString()}`);
-    await login.login(credentials.email, credentials.password);
-    await login.fillOutSignInCode(credentials.email);
+    await signinReact.fillOutEmailFirstForm(credentials.email);
+    await signinReact.fillOutPasswordForm(credentials.password);
 
-    await expect(login.notesHeader).toBeVisible();
+    const code = await target.emailClient.getSigninTokenCode(credentials.email);
+    await signinTokenCode.fillOutCodeForm(code);
+
+    await expect(page).toHaveURL(/notes\/fxa\//);
+    await expect(
+      page.getByRole('heading', { name: 'Notes by Firefox' })
+    ).toBeVisible();
   });
 });
