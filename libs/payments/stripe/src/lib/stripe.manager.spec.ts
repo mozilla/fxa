@@ -13,9 +13,12 @@ import { StripeCustomerFactory } from './factories/customer.factory';
 import { StripeInvoiceFactory } from './factories/invoice.factory';
 import { StripePaymentIntentFactory } from './factories/payment-intent.factory';
 import { StripePlanFactory } from './factories/plan.factory';
+import { StripePriceFactory } from './factories/price.factory';
 import { StripeProductFactory } from './factories/product.factory';
 import { StripePromotionCodeFactory } from './factories/promotion-code.factory';
 import { StripeSubscriptionFactory } from './factories/subscription.factory';
+import { StripeUpcomingInvoiceFactory } from './factories/upcoming-invoice.factory';
+import { TaxAddressFactory } from './factories/tax-address.factory';
 import { StripeClient } from './stripe.client';
 import { MockStripeConfigProvider } from './stripe.config';
 import { PlanIntervalMultiplePlansError } from './stripe.error';
@@ -64,6 +67,28 @@ describe('StripeManager', () => {
         mockInvoice.id
       );
       expect(result).toEqual(mockInvoice);
+    });
+  });
+
+  describe('previewInvoice', () => {
+    it('returns upcoming invoice', async () => {
+      const mockCustomer = StripeCustomerFactory();
+      const mockPrice = StripePriceFactory();
+      const mockUpcomingInvoice = StripeResponseFactory(
+        StripeUpcomingInvoiceFactory()
+      );
+      const mockTaxAddress = TaxAddressFactory();
+
+      jest
+        .spyOn(stripeClient, 'invoicesRetrieveUpcoming')
+        .mockResolvedValue(mockUpcomingInvoice);
+
+      const result = await stripeManager.previewInvoice({
+        priceId: mockPrice.id,
+        customer: mockCustomer,
+        taxAddress: mockTaxAddress,
+      });
+      expect(result).toEqual(mockUpcomingInvoice);
     });
   });
 

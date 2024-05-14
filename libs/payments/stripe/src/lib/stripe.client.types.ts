@@ -117,8 +117,13 @@ export type StripeTaxRate = Stripe.TaxRate;
  */
 export type StripeInvoiceLineItemTaxAmount = NegotiateExpanded<
   never,
-  Stripe.InvoiceLineItem.TaxAmount,
-  'tax_rate'
+  DeepOverride<
+    Stripe.InvoiceLineItem.TaxAmount,
+    {
+      tax_rate: StripeTaxRate;
+    }
+  >,
+  never
 >;
 
 /**
@@ -186,6 +191,7 @@ export type StripeUpcomingInvoice = NegotiateExpanded<
     {
       lines: Stripe.ApiList<StripeInvoiceLineItem>;
       discount: StripeDiscount | null;
+      total_tax_amounts: StripeInvoiceLineItemTaxAmount[];
     }
   >,
   | 'charge'

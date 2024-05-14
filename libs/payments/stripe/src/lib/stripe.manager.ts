@@ -25,7 +25,7 @@ import {
   StripeNoMinimumChargeAmountAvailableError,
 } from './stripe.error';
 import { doesPlanMatchSubplatInterval } from './util/doesPlanMatchSubplatInterval';
-import { SubplatInterval } from './stripe.types';
+import { SubplatInterval, TaxAddress } from './stripe.types';
 
 @Injectable()
 export class StripeManager {
@@ -69,6 +69,49 @@ export class StripeManager {
     return this.client.invoicesFinalizeInvoice(invoiceId, {
       auto_advance: false,
     });
+  }
+
+  /**
+   * Returns upcoming invoice
+   */
+  async previewInvoice({
+    priceId,
+    customer,
+    taxAddress,
+  }: {
+    priceId: string;
+    customer?: StripeCustomer;
+    taxAddress?: TaxAddress;
+  }) {
+    const automaticTax = !!(
+      (customer && this.isCustomerStripeTaxEligible(customer)) ||
+      (!customer && taxAddress)
+    );
+
+    const shipping =
+      !customer && taxAddress
+        ? {
+            name: '',
+            address: {
+              country: taxAddress.countryCode,
+              postal_code: taxAddress.postalCode,
+            },
+          }
+        : undefined;
+
+    const requestObject: Stripe.InvoiceRetrieveUpcomingParams = {
+      customer: customer?.id,
+      automatic_tax: {
+        enabled: automaticTax,
+      },
+      customer_details: {
+        tax_exempt: 'none', // Param required when shipping address not present
+        shipping,
+      },
+      subscription_items: [{ price: priceId }],
+    };
+
+    return this.client.invoicesRetrieveUpcoming(requestObject);
   }
 
   /**

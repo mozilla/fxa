@@ -5,6 +5,7 @@
 export * from './lib/paypalCustomer/paypalCustomer.manager';
 export * from './lib/paypalCustomer/paypalCustomer.factories';
 export * from './lib/paypal.client';
+export * from './lib/paypal.client.config';
 export * from './lib/paypal.client.types';
 export * from './lib/paypal.error';
 export * from './lib/paypal.manager';

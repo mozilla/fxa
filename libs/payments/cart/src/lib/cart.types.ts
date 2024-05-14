@@ -1,16 +1,13 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+import { TaxAddress } from '@fxa/payments/stripe';
 import {
   Cart,
   CartEligibilityStatus,
   CartErrorReasonId,
 } from '@fxa/shared/db/mysql/account';
-
-export interface TaxAddress {
-  countryCode: string;
-  postalCode: string;
-}
 
 export type FinishCart = {
   uid?: string;
@@ -30,12 +27,16 @@ export interface Invoice {
   listAmount: number;
   totalAmount: number;
   taxAmounts: TaxAmount[];
-  discountAmount: number;
+  discountAmount: number | null;
 }
 
 export type ResultCart = Readonly<Omit<Cart, 'id' | 'uid'>> & {
   readonly id: string;
   readonly uid?: string;
+};
+
+export type WithUpcomingInvoiceCart = ResultCart & {
+  invoicePreview: Invoice;
 };
 
 export type SetupCart = {
