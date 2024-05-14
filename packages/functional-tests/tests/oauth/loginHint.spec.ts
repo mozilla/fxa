@@ -14,7 +14,9 @@ test.describe('severity-2 #smoke', () => {
       await relier.goto(`email=${invalidEmail}`);
       await relier.clickEmailFirst();
 
-      expect(await login.getTooltipError()).toContain('Valid email required');
+      await expect(login.getTooltipError()).toContainText(
+        'Valid email required'
+      );
     });
 
     test('login_hint specified by relier, not registered', async ({

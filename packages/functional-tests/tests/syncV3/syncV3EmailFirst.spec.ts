@@ -76,7 +76,7 @@ test.describe('Firefox Desktop Sync v3 email first', () => {
     await login.clickSubmit();
 
     // Verify the error
-    expect(await login.getTooltipError()).toContain(
+    await expect(login.getTooltipError()).toContainText(
       'Enter a valid email address. firefox.com does not offer email.'
     );
   });

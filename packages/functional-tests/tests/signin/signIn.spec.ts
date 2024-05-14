@@ -24,7 +24,7 @@ test.describe('severity-2 #smoke', () => {
       await login.clickSubmit();
 
       // Verify the error
-      expect(await login.getTooltipError()).toContain('Incorrect password');
+      await expect(login.getTooltipError()).toContainText('Incorrect password');
 
       //Click forgot password link
       await login.clickForgotPassword();
@@ -80,7 +80,7 @@ test.describe('severity-2 #smoke', () => {
       await login.clickSubmit();
 
       // Verify the error
-      expect(await login.getTooltipError()).toContain('Incorrect password');
+      await expect(login.getTooltipError()).toContainText('Incorrect password');
     });
 
     test('login as an existing user', async ({

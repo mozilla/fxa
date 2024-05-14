@@ -9,7 +9,6 @@ test.describe('severity-1 #smoke', () => {
   test.slow();
 
   test('react signin to sync and disconnect', async ({
-    target,
     syncBrowserPages: {
       configPage,
       connectAnotherDevice,
@@ -20,7 +19,6 @@ test.describe('severity-1 #smoke', () => {
     testAccountTracker,
   }) => {
     const config = await configPage.getConfig();
-    test.fixme(true, 'Fix required as of 2024/04/19 (see FXA-9490)');
     test.skip(
       config.showReactApp.signInRoutes !== true,
       'Skip tests if React signInRoutes not enabled'
@@ -40,24 +38,14 @@ test.describe('severity-1 #smoke', () => {
 
     await expect(connectAnotherDevice.fxaConnected).toBeEnabled();
     await connectAnotherDevice.notNowButton.click();
-
-    await expect(page).toHaveURL(/settings/);
-
-    // Normally we wouldn't need this delay, but because we will be
-    // disconnecting the sync service, we need to ensure that the device
-    // record and web channels have been sent and created.
-    await page.waitForTimeout(1000);
+    await expect(page).toHaveURL(/settings/, { timeout: 1000 });
 
     await settings.disconnectSync(credentials);
 
-    // See above, we need to wait for disconnect to complete
-    await page.waitForTimeout(1000);
-
     // confirm left settings and back at sign in
-    expect(page.url()).toBe(`${target.contentServerUrl}/`);
+    await page.waitForURL('**/signin', { timeout: 1000 });
   });
 
-  // https://testrail.stage.mozaws.net/index.php?/cases/view/1293475
   test('react disconnect RP #1293475', async ({
     pages: { configPage, page, relier, signinReact, settings },
     testAccountTracker,

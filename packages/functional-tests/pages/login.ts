@@ -232,14 +232,12 @@ export class LoginPage extends BaseLayout {
     return emailHeader.isVisible();
   }
 
-  async cannotCreateAccountHeader() {
-    const header = this.page.locator(selectors.COPPA_HEADER);
-    await header.waitFor({ state: 'visible' });
-    return header.isVisible();
+  cannotCreateAccountHeader() {
+    return this.page.locator(selectors.COPPA_HEADER);
   }
 
-  async confirmEmail() {
-    return this.page.innerText(selectors.CONFIRM_EMAIL);
+  getConfirmEmail() {
+    return this.page.locator(selectors.CONFIRM_EMAIL);
   }
 
   setEmail(email: string) {
@@ -333,8 +331,8 @@ export class LoginPage extends BaseLayout {
     return this.page.click(selectors.LINK_CHANGE_EMAIL);
   }
 
-  async getTooltipError() {
-    return this.page.locator(selectors.TOOLTIP).innerText();
+  getTooltipError() {
+    return this.page.locator(selectors.TOOLTIP);
   }
 
   async unblock(email: string) {
@@ -401,10 +399,8 @@ export class LoginPage extends BaseLayout {
     return this.page.locator(selectors.SUBMIT).click();
   }
 
-  async isSyncConnectedHeader() {
-    return this.page.isVisible(selectors.SYNC_CONNECTED_HEADER, {
-      timeout: 100,
-    });
+  isSyncConnectedHeader() {
+    return this.page.locator(selectors.SYNC_CONNECTED_HEADER);
   }
 
   async enterPasswordHeader() {
@@ -457,8 +453,8 @@ export class LoginPage extends BaseLayout {
     return this.page.locator(selectors.EMAIL).inputValue();
   }
 
-  async getPasswordInput() {
-    return this.page.locator(selectors.PASSWORD).inputValue();
+  getPasswordInput() {
+    return this.page.locator(selectors.PASSWORD);
   }
 
   async isCachedLogin() {
@@ -477,8 +473,8 @@ export class LoginPage extends BaseLayout {
     await this.page.waitForURL(/appleid\.apple\.com/);
   }
 
-  async getErrorMessage() {
-    return this.page.locator(selectors.ERROR).innerText();
+  getErrorMessage() {
+    return this.page.locator(selectors.ERROR);
   }
 
   async getStorage() {

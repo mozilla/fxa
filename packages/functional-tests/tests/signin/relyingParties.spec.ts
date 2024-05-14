@@ -13,8 +13,6 @@ test.describe('severity-1 #smoke', () => {
     syncBrowserPages: { page, login, settings },
     testAccountTracker,
   }) => {
-    test.fixme(true, 'Fix required as of 2024/04/19 (see FXA-9490)');
-
     const credentials = await testAccountTracker.signUp();
 
     await page.goto(
@@ -23,18 +21,12 @@ test.describe('severity-1 #smoke', () => {
     );
     await login.login(credentials.email, credentials.password);
 
-    expect(await login.isSyncConnectedHeader()).toBe(true);
+    await expect(login.isSyncConnectedHeader()).toBeVisible({ timeout: 1000 });
 
-    // Normally we wouldn't need this delay, but because we will be
-    // disconnecting the sync service, we need to ensure that the device
-    // record and web channels have been sent and created (FXA-9490).
-    await page.waitForTimeout(1000);
     await settings.disconnectSync(credentials);
-    // See above, we need to wait for disconnect to complete (FXA-9490).
-    await page.waitForTimeout(1000);
 
     // confirm left settings and back at sign in
-    expect(page.url()).toBe(login.url);
+    await page.waitForURL('**/signin', { timeout: 1000 });
   });
 
   test('disconnect RP', async ({

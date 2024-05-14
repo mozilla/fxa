@@ -259,7 +259,9 @@ test.describe('severity-2 #smoke', () => {
             '?context=fx_desktop_v3&entrypoint=fxa%3Aenter_email&service=sync&action=email'
         );
         await login.login(credentials.email, credentials.password);
-        expect(await login.isSyncConnectedHeader()).toBe(true);
+        await expect(login.isSyncConnectedHeader()).toBeVisible({
+          timeout: 1000,
+        });
 
         await relier.goto();
         await relier.clickEmailFirst();
