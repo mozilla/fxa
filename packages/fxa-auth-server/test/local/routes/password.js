@@ -189,6 +189,11 @@ describe('/password', () => {
           'password.forgot.send_otp.completed',
           'password.forgot.send_otp.completed event was logged'
         );
+
+        sinon.assert.calledOnceWithExactly(
+          glean.resetPassword.otpEmailSent,
+          mockRequest
+        );
       });
     });
 
@@ -370,6 +375,11 @@ describe('/password', () => {
 
         assert.match(response.token, /^(?:[a-fA-F0-9]{2}){32}$/);
         assert.equal(response.code, '486008');
+
+        sinon.assert.calledOnceWithExactly(
+          glean.resetPassword.otpVerified,
+          mockRequest
+        );
       });
     });
 

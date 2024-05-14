@@ -209,6 +209,16 @@ const createEventFn =
             commonMetrics
           );
           break;
+        case 'password_reset_email_confirmation_sent':
+          gleanServerEventLogger.recordPasswordResetEmailConfirmationSent(
+            commonMetrics
+          );
+          break;
+        case 'password_reset_email_confirmation_success':
+          gleanServerEventLogger.recordPasswordResetEmailConfirmationSuccess(
+            commonMetrics
+          );
+          break;
         case 'access_token_created':
           gleanServerEventLogger.recordAccessTokenCreated({
             ...commonMetrics,
@@ -267,6 +277,9 @@ export function gleanMetrics(config: ConfigType) {
       createNewSuccess: createEventFn('password_reset_create_new_success'),
       accountReset: createEventFn('account_password_reset'),
       recoveryKeySuccess: createEventFn('password_reset_recovery_key_success'),
+
+      otpEmailSent: createEventFn('password_reset_email_confirmation_sent'),
+      otpVerified: createEventFn('password_reset_email_confirmation_success'),
 
       recoveryKeyCreatePasswordSuccess: createEventFn(
         'password_reset_recovery_key_create_success'
