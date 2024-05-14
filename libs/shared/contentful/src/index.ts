@@ -12,6 +12,7 @@ export * from './lib/queries/capability-service-by-plan-ids';
 export * from './lib/queries/eligibility-content-by-offering';
 export * from './lib/queries/eligibility-content-by-plan-ids';
 export * from './lib/queries/offering';
+export * from './lib/queries/page-content-for-offering';
 export * from './lib/queries/purchase-with-details';
 export * from './lib/queries/purchase-with-details-offering-content';
 export * from './lib/queries/services-with-capabilities';
