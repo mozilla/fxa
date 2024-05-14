@@ -16,8 +16,10 @@ import LockImage from '@fxa/shared/assets/images/lock.svg';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import * as Form from '@radix-ui/react-form';
+import { Localized } from '@fluent/react';
 
 interface CheckoutFormProps {
+  readOnly: boolean;
   cart: {
     id: string;
     version: number;
@@ -25,7 +27,7 @@ interface CheckoutFormProps {
   };
 }
 
-export function CheckoutForm({ cart }: CheckoutFormProps) {
+export function CheckoutForm({ readOnly, cart }: CheckoutFormProps) {
   const router = useRouter();
   const stripe = useStripe();
   const elements = useElements();
@@ -63,7 +65,7 @@ export function CheckoutForm({ cart }: CheckoutFormProps) {
   ) => {
     event.preventDefault();
 
-    if (!stripe || !elements) {
+    if (!stripe || !elements || readOnly) {
       // Stripe.js hasn't yet loaded.
       // Make sure to disable form submission until Stripe.js has loaded.
       return;
@@ -131,20 +133,25 @@ export function CheckoutForm({ cart }: CheckoutFormProps) {
       {!isPaymentElementLoading && (
         <Form.Field name="name" serverInvalid={hasFullNameError}>
           <Form.Label className="font-medium text-sm text-grey-400 block mb-1 text-start">
-            Name as it appears on your card
+            <Localized id="payment-name-label">
+              Name as it appears on your card
+            </Localized>
           </Form.Label>
           <Form.Control asChild>
-            <input
-              className="w-full border rounded-md border-black/30 p-3 placeholder:text-grey-500 placeholder:font-normal focus:border focus:!border-black/30 focus:!shadow-[0_0_0_3px_rgba(10,132,255,0.3)] focus-visible:outline-none data-[invalid=true]:border-alert-red data-[invalid=true]:text-alert-red data-[invalid=true]:shadow-inputError"
-              type="text"
-              data-testid="name"
-              placeholder="Full Name"
-              value={fullName}
-              onChange={(e) => {
-                setFullName(e.target.value);
-                setHasFullNameError(!e.target.value);
-              }}
-            />
+            <Localized id="next-payment-name" attrs={{ placeholder: true }}>
+              <input
+                className="w-full border rounded-md border-black/30 p-3 placeholder:text-grey-500 placeholder:font-normal focus:border focus:!border-black/30 focus:!shadow-[0_0_0_3px_rgba(10,132,255,0.3)] focus-visible:outline-none data-[invalid=true]:border-alert-red data-[invalid=true]:text-alert-red data-[invalid=true]:shadow-inputError"
+                type="text"
+                data-testid="name"
+                placeholder="Full Name"
+                readOnly={readOnly}
+                value={fullName}
+                onChange={(e) => {
+                  setFullName(e.target.value);
+                  setHasFullNameError(!e.target.value);
+                }}
+              />
+            </Localized>
           </Form.Control>
           {hasFullNameError && (
             <Form.Message asChild>
@@ -155,23 +162,25 @@ export function CheckoutForm({ cart }: CheckoutFormProps) {
           )}
         </Form.Field>
       )}
-      <PaymentElement />
+      <PaymentElement options={{ readOnly }} />
       {!isPaymentElementLoading && (
         <Form.Submit asChild>
-          <button
-            className="flex items-center justify-center bg-blue-500 font-semibold h-12 rounded-md text-white w-full p-4 mt-6 hover:bg-blue-700 aria-disabled:relative aria-disabled:after:absolute aria-disabled:after:content-[''] aria-disabled:after:top-0 aria-disabled:after:left-0 aria-disabled:after:w-full aria-disabled:after:h-full aria-disabled:after:bg-white aria-disabled:after:opacity-50 aria-disabled:after:z-30 aria-disabled:border-none"
-            type="submit"
-            aria-disabled={
-              !stripeFieldsComplete || !nonStripeFieldsComplete || loading
-            }
-          >
-            <Image
-              src={LockImage}
-              className="h-4 w-4 my-0 mx-3 relative top-0.5"
-              alt=""
-            />
-            Subscribe Now
-          </button>
+          <Localized id="next-new-user-submit">
+            <button
+              className="flex items-center justify-center bg-blue-500 font-semibold h-12 rounded-md text-white w-full p-4 mt-6 hover:bg-blue-700 aria-disabled:relative aria-disabled:after:absolute aria-disabled:after:content-[''] aria-disabled:after:top-0 aria-disabled:after:left-0 aria-disabled:after:w-full aria-disabled:after:h-full aria-disabled:after:bg-white aria-disabled:after:opacity-50 aria-disabled:after:z-30 aria-disabled:border-none"
+              type="submit"
+              aria-disabled={
+                !stripeFieldsComplete || !nonStripeFieldsComplete || loading
+              }
+            >
+              <Image
+                src={LockImage}
+                className="h-4 w-4 my-0 mx-3 relative top-0.5"
+                alt=""
+              />
+              Subscribe Now
+            </button>
+          </Localized>
         </Form.Submit>
       )}
     </Form.Root>

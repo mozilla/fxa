@@ -3,13 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 'use client';
 
-import { Localized } from '@fluent/react';
 import { loadStripe, StripeElementsOptions } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import { CheckoutForm } from './CheckoutForm';
-import { Providers } from './Providers';
 
 interface StripeWrapperProps {
+  readOnly: boolean;
   amount: number;
   currency: string;
   cart: {
@@ -19,7 +18,12 @@ interface StripeWrapperProps {
   };
 }
 
-export function StripeWrapper({ amount, currency, cart }: StripeWrapperProps) {
+export function StripeWrapper({
+  readOnly,
+  amount,
+  currency,
+  cart,
+}: StripeWrapperProps) {
   // TODO - Load from config
   const stripePromise = loadStripe(
     'pk_test_VNpCidC0a2TJJB3wqXq7drhN00sF8r9mhs'
@@ -59,11 +63,8 @@ export function StripeWrapper({ amount, currency, cart }: StripeWrapperProps) {
   };
 
   return (
-    <Providers>
-      <Localized id="next-pay-with-heading-card-only"></Localized>
-      <Elements stripe={stripePromise} options={options}>
-        <CheckoutForm cart={cart} />
-      </Elements>
-    </Providers>
+    <Elements stripe={stripePromise} options={options}>
+      <CheckoutForm readOnly={readOnly} cart={cart} />
+    </Elements>
   );
 }
