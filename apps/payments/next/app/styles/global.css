@@ -9,7 +9,11 @@ body {
   @apply grid min-h-[100vh] tablet:justify-center text-base font-body bg-grey-10 text-grey-900 leading-[1.15];
 }
 
-/* Purchase Details, offeringId */
+/* Purchase Details */
+.plan-details-item {
+  @apply flex items-center justify-between gap-2 leading-5 text-grey-600 text-sm;
+}
+
 .row-divider-grey-200 {
   @apply border-b border-grey-200;
 }

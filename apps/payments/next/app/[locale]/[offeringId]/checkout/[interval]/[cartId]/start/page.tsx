@@ -15,6 +15,8 @@ import {
   getContentfulContent,
 } from 'apps/payments/next/app/_lib/apiClient';
 import { PaymentSection } from '@fxa/payments/ui';
+import { config } from 'apps/payments/next/config';
+import { Providers } from 'libs/payments/ui/src/lib/client/providers/Providers';
 
 export const dynamic = 'force-dynamic';
 
@@ -47,12 +49,12 @@ export default async function Checkout({ params }: { params: CheckoutParams }) {
     <section>
       {!session && (
         <>
-          <h4 className="font-semibold text-grey-600 text-lg mt-10">
+          <h2 className="font-semibold text-grey-600 text-lg mt-10">
             {l10n.getString(
               'next-new-user-step-1-2',
               '1. Create a Mozilla account'
             )}
-          </h4>
+          </h2>
 
           <form
             action={async () => {
@@ -93,7 +95,7 @@ export default async function Checkout({ params }: { params: CheckoutParams }) {
       )}
 
       {!session ? (
-        <h4
+        <h2
           className="font-semibold text-grey-600 text-lg mt-14 mb-5"
           data-testid="header-prefix"
         >
@@ -101,9 +103,9 @@ export default async function Checkout({ params }: { params: CheckoutParams }) {
             'payment-method-header-second-step-next',
             '2. Choose your payment method2'
           )}
-        </h4>
+        </h2>
       ) : (
-        <h4
+        <h2
           className="font-semibold text-grey-600 text-lg mt-14 mb-5"
           data-testid="header"
         >
@@ -111,23 +113,25 @@ export default async function Checkout({ params }: { params: CheckoutParams }) {
             'next-payment-method-header',
             'Choose your payment method'
           )}
-        </h4>
+        </h2>
       )}
-      <p className="font-semibold my-3 text-grey-600 text-start">
+      <h3 className="font-semibold my-3 text-grey-600 text-start">
         {l10n.getString(
           'next-payment-method-first-approve',
           `First you'll need to approve your subscription`
         )}
-      </p>
+      </h3>
 
-      <PaymentSection
-        cmsCommonContent={cms.commonContent}
-        paymentsInfo={{
-          amount: fakeCart.amount,
-          currency: fakeCart.nextInvoice.currency,
-        }}
-        cart={cart}
-      />
+      <Providers config={{ stripePublicApiKey: config.stripePublicApiKey }}>
+        <PaymentSection
+          cmsCommonContent={cms.commonContent}
+          paymentsInfo={{
+            amount: fakeCart.amount,
+            currency: fakeCart.nextInvoice.currency,
+          }}
+          cart={cart}
+        />
+      </Providers>
     </section>
   );
 }

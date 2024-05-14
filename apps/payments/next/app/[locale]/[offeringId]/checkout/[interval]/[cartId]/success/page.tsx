@@ -6,16 +6,16 @@ import { headers } from 'next/headers';
 import Image from 'next/image';
 
 import { formatPlanPricing } from '@fxa/payments/ui';
+import { DEFAULT_LOCALE } from '@fxa/shared/l10n';
+
+import { getFakeCartData } from 'apps/payments/next/app/_lib/apiClient';
+import circledConfirm from '@fxa/shared/assets/images/circled-confirm.svg';
 import {
   SupportedPages,
   app,
   fetchContentfulData,
   getCartOrRedirectAction,
 } from '@fxa/payments/ui/server';
-import { DEFAULT_LOCALE } from '@fxa/shared/l10n';
-
-import { getFakeCartData } from '../../../../../../_lib/apiClient';
-import circledConfirm from '../../../../../../../images/circled-confirm.svg';
 
 export const dynamic = 'force-dynamic';
 

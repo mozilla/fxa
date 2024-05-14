@@ -8,7 +8,7 @@ import Link from 'next/link';
 
 import { DEFAULT_LOCALE } from '@fxa/shared/l10n';
 
-import errorIcon from '../../../../../../../images/error.svg';
+import errorIcon from '@fxa/shared/assets/images/error.svg';
 import {
   SupportedPages,
   app,

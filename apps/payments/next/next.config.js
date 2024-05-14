@@ -21,6 +21,7 @@ const nextConfig = {
     serverComponentsExternalPackages: [
       '@nestjs/core',
       '@nestjs/common',
+      '@nestjs/websockets',
       'class-transformer',
       'class-validator',
       'hot-shots',

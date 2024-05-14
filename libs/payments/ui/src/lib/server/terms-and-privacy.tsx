@@ -12,8 +12,6 @@ import {
 } from '../utils/terms-and-privacy';
 import { LocalizerRsc } from '@fxa/shared/l10n/server';
 
-const CONTENT_SERVER_URL = 'https://accounts.stage.mozaws.net'; // TODO - Get from config once FXA-7503 lands
-
 type GenericTermsProps = {
   title: string;
   titleId: string;
@@ -35,9 +33,9 @@ function GenericTerms({
       role="group"
       aria-labelledby={titleId}
     >
-      <h4 className="m-0 font-semibold text-grey-400" id={titleId}>
+      <h3 className="m-0 font-semibold text-grey-400" id={titleId}>
         {l10n.getString(titleLocalizationId, title)}
-      </h4>
+      </h3>
 
       <ul className="flex justify-center gap-4 m-0 text-grey-500">
         {items.map((item) => (
@@ -66,6 +64,7 @@ export interface TermsAndPrivacyProps {
   termsOfServiceUrl: string;
   termsOfServiceDownloadUrl: string;
   privacyNoticeUrl: string;
+  contentServerUrl: string;
   showFXALinks?: boolean;
 }
 
@@ -76,13 +75,12 @@ export async function TermsAndPrivacy({
   termsOfServiceUrl,
   termsOfServiceDownloadUrl,
   privacyNoticeUrl,
+  contentServerUrl,
   showFXALinks = false,
 }: TermsAndPrivacyProps) {
-  const contentServerURL = CONTENT_SERVER_URL;
-
   const terms: GenericTermItem[] = [
     ...buildPaymentTerms(paymentProvider),
-    ...buildFirefoxAccountsTerms(showFXALinks, contentServerURL),
+    ...buildFirefoxAccountsTerms(showFXALinks, contentServerUrl),
     ...buildProductTerms(
       productName,
       termsOfServiceUrl,

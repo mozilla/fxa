@@ -4,6 +4,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export function middleware(request: NextRequest) {
+  // Read env vars directly from process.env
+  // As of 05-15-2024 its not possible to use app/config in middleware
+  const accountsStaticCdn = process.env.CSP__ACCOUNTS_STATIC_CDN;
+
+  /*
+   * CSP Notes
+   *  - Next.js next/image currently causes an inline style CSP error.
+   *    There is a work around available, however at this time, we've opted
+   *    to use 'unsafe-inline' to match what's in fxa-payments-server
+   *    https://github.com/vercel/next.js/issues/45184
+   */
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
   const cspHeader = `
     default-src 'self';
@@ -12,8 +23,11 @@ export function middleware(request: NextRequest) {
     script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https: http: 'unsafe-inline' ${
     process.env.NODE_ENV === 'production' ? '' : `'unsafe-eval'`
   } https://js.stripe.com;
-    style-src 'self' 'nonce-${nonce}';
-    img-src 'self' blob: data:;
+    script-src-elem 'self' 'nonce-${nonce}' 'strict-dynamic' https: http: 'unsafe-inline' ${
+    process.env.NODE_ENV === 'production' ? '' : `'unsafe-eval'`
+  } https://js.stripe.com;
+    style-src 'self' 'unsafe-inline';
+    img-src 'self' blob: data: ${accountsStaticCdn};
     font-src 'self';
     object-src 'none';
     base-uri 'self';
