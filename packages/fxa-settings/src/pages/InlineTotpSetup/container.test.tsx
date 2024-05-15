@@ -21,7 +21,11 @@ import {
 } from './mocks';
 import { screen, waitFor } from '@testing-library/react';
 import { AuthUiError, AuthUiErrors } from '../../lib/auth-errors/auth-errors';
-import { MOCK_NO_TOTP, MOCK_TOTP_STATUS_VERIFIED } from '../Signin/mocks';
+import {
+  MOCK_FLOW_ID,
+  MOCK_NO_TOTP,
+  MOCK_TOTP_STATUS_VERIFIED,
+} from '../Signin/mocks';
 import { SigninLocationState } from '../Signin/interfaces';
 
 const mockLocationHook = (
@@ -102,7 +106,13 @@ const defaultProps = {
 function render(props = {}) {
   renderWithLocalizationProvider(
     <LocationProvider>
-      <InlineTotpSetupContainer {...{ ...defaultProps, ...props }} />
+      <InlineTotpSetupContainer
+        {...{
+          ...defaultProps,
+          ...props,
+          flowQueryParams: { flowId: MOCK_FLOW_ID },
+        }}
+      />
     </LocationProvider>
   );
 }
