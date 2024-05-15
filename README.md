@@ -1,6 +1,6 @@
 ## Mozilla Accounts
 
-The Mozilla Accounts (formerly Firefox Accounts, still abbreviated as fxa) monorepo.
+The Mozilla Accounts (formerly Firefox Accounts, still abbreviated as fxa) monorepo
 
 ### Table of Contents
 
