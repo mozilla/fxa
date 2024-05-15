@@ -7,16 +7,22 @@
 import { ConfigContextValues, ConfigProvider } from './ConfigProvider';
 import { FluentLocalizationProvider } from './FluentLocalizationProvider';
 
+interface ProvidersProps {
+  config: ConfigContextValues;
+  fetchedMessages: Record<string, string>;
+  children: React.ReactNode;
+}
+
 export function Providers({
   config,
+  fetchedMessages,
   children,
-}: {
-  config: ConfigContextValues;
-  children: React.ReactNode;
-}) {
+}: ProvidersProps) {
   return (
     <ConfigProvider config={config}>
-      <FluentLocalizationProvider>{children}</FluentLocalizationProvider>
+      <FluentLocalizationProvider fetchedMessages={fetchedMessages}>
+        {children}
+      </FluentLocalizationProvider>
     </ConfigProvider>
   );
 }

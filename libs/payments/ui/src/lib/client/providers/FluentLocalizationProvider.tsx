@@ -4,36 +4,47 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { ReactLocalization, LocalizationProvider } from '@fluent/react';
+import { FluentBundle, FluentResource } from '@fluent/bundle';
 import {
-  LocalizerClient,
-  LocalizerBindingsClient,
-} from '@fxa/shared/l10n/client';
+  LocalizationProvider,
+  MarkupParser,
+  ReactLocalization,
+} from '@fluent/react';
 
 export function FluentLocalizationProvider({
+  fetchedMessages,
   children,
 }: {
+  fetchedMessages: Record<string, string>;
   children: React.ReactNode;
 }) {
-  const [l10n, setL10n] = useState<ReactLocalization>();
+  const bundles: FluentBundle[] = [];
 
-  useEffect(() => {
-    const setLocalization = async () => {
-      const locale = navigator.language;
-      const bindings = new LocalizerBindingsClient();
-      const localizerClient = new LocalizerClient(bindings);
-      const { l10n } = await localizerClient.setupReactLocalization(locale);
+  Object.keys(fetchedMessages).forEach((locale) => {
+    const source = fetchedMessages[locale];
+    if (source) {
+      const bundle = new FluentBundle(locale, {
+        useIsolating: false,
+      });
+      const resource = new FluentResource(source);
+      bundle.addResource(resource);
+      bundles.push(bundle);
+    }
+  });
 
-      setL10n(l10n);
-    };
+  // To enable server-side rendering, all tags are converted to plain text nodes.
+  // They will be upgraded to regular HTML elements in the browser:
+  const parseMarkup: MarkupParser | undefined =
+    typeof document === 'undefined'
+      ? (str: string) => [
+          {
+            nodeName: '#text',
+            textContent: str.replace(/<(.*?)>/g, ''),
+          } as Node,
+        ]
+      : undefined;
 
-    setLocalization();
-  }, []);
-
-  if (!l10n) {
-    return;
-  }
+  const l10n = new ReactLocalization(bundles, parseMarkup);
 
   return <LocalizationProvider l10n={l10n}>{children}</LocalizationProvider>;
 }

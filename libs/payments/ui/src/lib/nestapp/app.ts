@@ -27,6 +27,11 @@ class AppSingleton {
     return localizerRscFactory.createLocalizerRsc(acceptLanguage);
   }
 
+  getFetchedMessages(acceptLanguage: string) {
+    const localizerRscFactory = this.app.get(LocalizerRscFactory);
+    return localizerRscFactory.getFetchedMessages(acceptLanguage);
+  }
+
   /**
    * This method should be used in any server action wishing to call a server-side module.
    * Do not add individual services/managers/clients to this singleton, rather to NextJSActionsService.

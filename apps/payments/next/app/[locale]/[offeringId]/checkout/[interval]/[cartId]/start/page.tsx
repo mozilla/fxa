@@ -15,8 +15,6 @@ import {
   getContentfulContent,
 } from 'apps/payments/next/app/_lib/apiClient';
 import { PaymentSection } from '@fxa/payments/ui';
-import { config } from 'apps/payments/next/config';
-import { Providers } from 'libs/payments/ui/src/lib/client/providers/Providers';
 
 export const dynamic = 'force-dynamic';
 
@@ -122,17 +120,15 @@ export default async function Checkout({ params }: { params: CheckoutParams }) {
         )}
       </h3>
 
-      <Providers config={{ stripePublicApiKey: config.stripePublicApiKey }}>
-        <PaymentSection
-          cmsCommonContent={cms.commonContent}
-          paymentsInfo={{
-            amount: fakeCart.amount,
-            currency: fakeCart.nextInvoice.currency,
-          }}
-          cart={cart}
-          locale={locale}
-        />
-      </Providers>
+      <PaymentSection
+        cmsCommonContent={cms.commonContent}
+        paymentsInfo={{
+          amount: fakeCart.amount,
+          currency: fakeCart.nextInvoice.currency,
+        }}
+        cart={cart}
+        locale={locale}
+      />
     </section>
   );
 }
