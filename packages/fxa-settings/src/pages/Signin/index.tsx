@@ -32,6 +32,7 @@ import {
 import { SigninFormData, SigninProps } from './interfaces';
 import { handleNavigation } from './utils';
 import { useWebRedirect } from '../../lib/hooks/useWebRedirect';
+import { getCredentials } from 'fxa-auth-client/lib/crypto';
 
 export const viewName = 'signin';
 
@@ -230,11 +231,15 @@ const Signin = ({
                 setSigninLoading(false);
                 break;
               }
+
+              // Fallback to using v1 creds for signin unblock and don't
+              // upgrade user to v2 keys
+              const v1Credentials = await getCredentials(email, password);
               // navigate only if sending the unblock code email is successful
               navigate('/signin_unblock', {
                 state: {
                   email,
-                  password,
+                  authPW: v1Credentials.authPW,
                   // TODO: in FXA-9177, remove hasLinkedAccount and hasPassword from state
                   // will be stored in Apollo cache at the container level
                   hasPassword,

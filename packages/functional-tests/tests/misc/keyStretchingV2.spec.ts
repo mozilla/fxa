@@ -14,6 +14,7 @@ import { RecoveryKeyPage } from '../../pages/settings/recoveryKey';
 import { SignupReactPage } from '../../pages/signupReact';
 import { TotpPage } from '../../pages/settings/totp';
 import { getCode } from 'fxa-settings/src/lib/totp';
+import { DeleteAccountPage } from '../../pages/settings/deleteAccount';
 
 // Disable this check for these tests. We are holding assertion in shared functions due
 // to how test permutations work, and these setup falsely trips this rule.
@@ -45,6 +46,7 @@ test.describe('key-stretching-v2', () => {
       changePassword: ChangePasswordPage;
       recoveryKey: RecoveryKeyPage;
       totp: TotpPage;
+      deleteAccount: DeleteAccountPage;
     };
 
     // Helpers
@@ -123,7 +125,8 @@ test.describe('key-stretching-v2', () => {
       signOut: boolean,
       email: string,
       password: string,
-      totpCredentials?: { secret: string; recoveryCodes: string[] }
+      totpCredentials?: { secret: string; recoveryCodes: string[] },
+      unblock = false
     ) {
       const { page, target, signupReact, login, settings } = opts;
       const stretch = version === 2 ? 'stretch=2' : '';
@@ -134,6 +137,18 @@ test.describe('key-stretching-v2', () => {
         await signupReact.fillOutEmailForm(email);
         await page.fill('[name="password"]', password);
         await page.click('[type="submit"]');
+
+        if (unblock) {
+          await page.waitForURL(/signin_unblock/);
+          const unblockCode = await target.emailClient.waitForEmail(
+            email,
+            EmailType.unblockCode,
+            EmailHeader.unblockCode
+          );
+          await page.fill('[name="code"]', unblockCode);
+          await page.click('[type="submit"]');
+        }
+
         if (totpCredentials) {
           await page.waitForURL(/signin_totp_code/);
           const code = await getCode(totpCredentials.secret);
@@ -146,6 +161,18 @@ test.describe('key-stretching-v2', () => {
         await login.clickSubmit();
         await login.setPassword(password);
         await login.clickSubmit();
+
+        if (unblock) {
+          await page.waitForURL(/signin_unblock/);
+          const unblockCode = await target.emailClient.waitForEmail(
+            email,
+            EmailType.unblockCode,
+            EmailHeader.unblockCode
+          );
+          await page.fill('[id="unblock_code"]', unblockCode);
+          await page.click('[type="submit"]');
+        }
+
         if (totpCredentials) {
           await page.waitForURL(/signin_totp_code/);
           const code = await getCode(totpCredentials.secret);
@@ -376,6 +403,33 @@ test.describe('key-stretching-v2', () => {
       // Remove 2fa to allow test cleanup
       await opts.settings.totp.disableButton.click();
       await opts.settings.clickModalConfirm();
+    }
+
+    async function testUnblockLogin(
+      p1: 1 | 2,
+      p2: 1 | 2,
+      opts: Pick<
+        Opts,
+        | 'page'
+        | 'target'
+        | 'signupReact'
+        | 'settings'
+        | 'login'
+        | 'deleteAccount'
+      >,
+      email: string,
+      password: string
+    ) {
+      await _signUp(p1, opts, true, email, password);
+      await _login(p2, opts, false, email, password, undefined, true);
+
+      // Delete account, required before teardown
+      await opts.settings.goto();
+      await opts.settings.deleteAccountButton.click();
+      await opts.deleteAccount.deleteAccount(password);
+      await expect(opts.page).toHaveURL(
+        `${opts.target.baseUrl}?delete_account_success=true`
+      );
     }
 
     /**
@@ -994,6 +1048,102 @@ test.describe('key-stretching-v2', () => {
           signupReact,
           settings,
           totp,
+        },
+        email,
+        password
+      );
+    });
+
+    test(`signs up as v1, rate limited, unblocked, login as v1 for ${mode}`, async ({
+      page,
+      target,
+      pages: { settings, signupReact, login, deleteAccount },
+      testAccountTracker,
+    }) => {
+      const { email, password } =
+        testAccountTracker.generateBlockedAccountDetails();
+      await testUnblockLogin(
+        1,
+        1,
+        {
+          page,
+          target,
+          login,
+          signupReact,
+          settings,
+          deleteAccount,
+        },
+        email,
+        password
+      );
+    });
+
+    test(`signs up as v1, rate limited, unblocked, login as v2 for ${mode}`, async ({
+      page,
+      target,
+      pages: { settings, signupReact, login, deleteAccount },
+      testAccountTracker,
+    }) => {
+      const { email, password } =
+        testAccountTracker.generateBlockedAccountDetails();
+      await testUnblockLogin(
+        1,
+        2,
+        {
+          page,
+          target,
+          login,
+          signupReact,
+          settings,
+          deleteAccount,
+        },
+        email,
+        password
+      );
+    });
+
+    test(`signs up as v2, rate limited, unblocked, login as v1 for ${mode}`, async ({
+      page,
+      target,
+      pages: { settings, signupReact, login, deleteAccount },
+      testAccountTracker,
+    }) => {
+      const { email, password } =
+        testAccountTracker.generateBlockedAccountDetails();
+      await testUnblockLogin(
+        2,
+        1,
+        {
+          page,
+          target,
+          login,
+          signupReact,
+          settings,
+          deleteAccount,
+        },
+        email,
+        password
+      );
+    });
+
+    test(`signs up as v2, rate limited, unblocked, login as v2 for ${mode}`, async ({
+      page,
+      target,
+      pages: { settings, signupReact, login, deleteAccount },
+      testAccountTracker,
+    }) => {
+      const { email, password } =
+        testAccountTracker.generateBlockedAccountDetails();
+      await testUnblockLogin(
+        2,
+        2,
+        {
+          page,
+          target,
+          login,
+          signupReact,
+          settings,
+          deleteAccount,
         },
         email,
         password

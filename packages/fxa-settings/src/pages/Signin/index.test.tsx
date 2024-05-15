@@ -23,6 +23,7 @@ import {
   MOCK_SESSION_TOKEN,
   MOCK_UID,
   MOCK_UNWRAP_BKEY,
+  MOCK_AUTHPW,
 } from '../mocks';
 import { MozServices } from '../../lib/types';
 import * as utils from 'fxa-react/lib/utils';
@@ -507,9 +508,9 @@ describe('Signin', () => {
           expect(mockNavigate).toHaveBeenCalledWith('/signin_unblock', {
             state: {
               email: MOCK_EMAIL,
+              authPW: MOCK_AUTHPW,
               hasLinkedAccount: false,
               hasPassword: true,
-              password: MOCK_PASSWORD,
             },
           });
         });
