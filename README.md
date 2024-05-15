@@ -4,8 +4,8 @@ The Mozilla Accounts (formerly Firefox Accounts, still abbreviated as fxa) monor
 
 ### Table of Contents
 
-[Getting Started](#getting-started)\
-[Contributing](#contributing)\
+[Getting Started](#getting-started)
+[Contributing](#contributing)
 [Documentation](#documentation)
 
 ---
