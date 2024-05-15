@@ -160,6 +160,12 @@ describe('/password', () => {
           1,
           'validateMetricsContext was called'
         );
+        sinon.assert.calledOnceWithExactly(
+          mockCustoms.check,
+          mockRequest,
+          TEST_EMAIL,
+          'passwordForgotSendOtp'
+        );
 
         sinon.assert.calledOnce(mockMailer.sendPasswordForgotOtpEmail);
 
@@ -310,6 +316,13 @@ describe('/password', () => {
           mockRequest.validateMetricsContext.callCount,
           1,
           'validateMetricsContext was called'
+        );
+
+        sinon.assert.calledOnceWithExactly(
+          mockCustoms.check,
+          mockRequest,
+          TEST_EMAIL,
+          'passwordForgotVerifyOtp'
         );
 
         sinon.assert.callCount(mockStatsd.increment, 2);

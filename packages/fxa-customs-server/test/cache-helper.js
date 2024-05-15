@@ -49,6 +49,17 @@ var config = {
         600,
       passwordResetOtpRateLimitIntervalSeconds:
         Number(process.env.PASSWORD_RESET_OTP_EMAIL_RATE_LIMIT_SECONDS) || 1800,
+      maxPasswordResetOtpVerificationRateLimit:
+        Number(process.env.PASSWORD_RESET_OTP_VERIFICATION_RATE_LIMIT) || 5,
+      passwordResetOtpVerificationLimitIntervalSeconds:
+        Number(
+          process.env.PASSWORD_RESET_OTP_VERIFICATION_RATE_LIMIT_SECONDS
+        ) || 600,
+      maxPasswordResetOtpVerificationBlockLimit:
+        Number(process.env.PASSWORD_RESET_OTP_VERIFICATION_BLOCK_LIMIT) || 10,
+      passwordResetOtpVerificationBlockWindowSeconds:
+        Number(process.env.PASSWORD_RESET_OTP_VERIFICATION_WINDOW_SECONDS) ||
+        86400,
     },
   },
   requestChecks: {

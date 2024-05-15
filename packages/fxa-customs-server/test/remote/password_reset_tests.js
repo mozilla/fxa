@@ -8,6 +8,7 @@ var mcHelper = require('../cache-helper');
 const { randomEmail } = require('../utils');
 
 var TEST_EMAIL = randomEmail();
+const TEST_IP = '192.0.2.1';
 
 const config = require('../../lib/config').getProperties();
 var testServer = new TestServer(config);
@@ -32,7 +33,7 @@ var client = restifyClients.createJsonClient({
 test('well-formed request', function (t) {
   client.post(
     '/passwordReset',
-    { email: TEST_EMAIL },
+    { ip: TEST_IP, email: TEST_EMAIL },
     function (err, req, res, obj) {
       t.notOk(err, 'good request is successful');
       t.equal(res.statusCode, 200, 'good request returns a 200');
@@ -43,7 +44,7 @@ test('well-formed request', function (t) {
 });
 
 test('missing email', function (t) {
-  client.post('/passwordReset', {}, function (err, req, res, obj) {
+  client.post('/passwordReset', { ip: TEST_IP }, function (err, req, res, obj) {
     t.equal(res.statusCode, 400, 'bad request returns a 400');
     t.type(obj.code, 'string', 'bad request returns an error code');
     t.type(obj.message, 'string', 'bad request returns an error message');

@@ -192,6 +192,30 @@ module.exports = function (fs, path, url, convict) {
           format: 'nat',
           env: 'PASSWORD_RESET_OTP_EMAIL_RATE_LIMIT_SECONDS',
         },
+        maxPasswordResetOtpVerificationRateLimit: {
+          doc: 'Number of OTP verification for an account email or from an IP can request before rate limiting for passwordResetOtpVerificationLimitIntervalSeconds',
+          default: 5,
+          format: 'nat',
+          env: 'PASSWORD_RESET_OTP_VERIFICATION_RATE_LIMIT',
+        },
+        passwordResetOtpVerificationLimitIntervalSeconds: {
+          doc: 'Number of seconds to wait until password reset OTP verification is allowed again',
+          default: 600,
+          format: 'nat',
+          env: 'PASSWORD_RESET_OTP_VERIFICATION_RATE_LIMIT_SECONDS',
+        },
+        maxPasswordResetOtpVerificationBlockLimit: {
+          doc: 'Number of OTP verification for an account email or from an IP can request before blocking for passwordResetOtpVerificationBlockWindowSeconds',
+          default: 10,
+          format: 'nat',
+          env: 'PASSWORD_RESET_OTP_VERIFICATION_BLOCK_LIMIT',
+        },
+        passwordResetOtpVerificationBlockWindowSeconds: {
+          doc: 'Number of seconds when the max number of OTP verification is allowed',
+          default: 86400,
+          format: 'nat',
+          env: 'PASSWORD_RESET_OTP_VERIFICATION_WINDOW_SECONDS',
+        },
       },
     },
     cache: {

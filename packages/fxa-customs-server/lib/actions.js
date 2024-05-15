@@ -65,6 +65,9 @@ const SMS_SENDING_ACTION = {
 const ACCOUNT_ACCESS_ACTION = new Set(['consumeSigninCode']);
 
 const RESET_PASSWORD_OTP_SENDING_ACTION = { passwordForgotSendOtp: true };
+const RESET_PASSWORD_OTP_VERIFICATION_ACTION = {
+  passwordForgotVerifyOtp: true,
+};
 
 module.exports = {
   isPasswordCheckingAction: function (action) {
@@ -93,5 +96,9 @@ module.exports = {
 
   isResetPasswordOtpSendingAction(action) {
     return RESET_PASSWORD_OTP_SENDING_ACTION[action];
+  },
+
+  isResetPasswordOtpVerificationAction(action) {
+    return RESET_PASSWORD_OTP_VERIFICATION_ACTION[action];
   },
 };

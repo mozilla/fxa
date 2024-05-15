@@ -663,6 +663,7 @@ module.exports = async function createServer(config, log) {
     method: 'POST',
     path: '/passwordReset',
     handler: async (req, h) => {
+      const ip = req.payload.ip;
       var email = req.payload.email;
       if (!email) {
         const err = {
@@ -674,7 +675,8 @@ module.exports = async function createServer(config, log) {
       }
       email = normalizedEmail(email);
 
-      const { emailRecord } = await fetchRecords({ email });
+      const { ipRecord, emailRecord } = await fetchRecords({ ip, email });
+      ipRecord.passwordReset();
       emailRecord.passwordReset();
 
       try {

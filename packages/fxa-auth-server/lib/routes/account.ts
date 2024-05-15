@@ -1593,7 +1593,7 @@ export class AccountHandler {
           generation: account.verifierSetAt,
         }),
         this.oauth.removeTokensAndCodes(account.uid),
-        this.customs.reset(account.email),
+        this.customs.reset(request, account.email),
       ]);
     };
 

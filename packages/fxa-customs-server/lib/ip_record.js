@@ -29,6 +29,7 @@ module.exports = function (limits, now) {
     rec.aa = object.aa || []; // timestamp when account access was attempted
     rec.rl = object.rl; // timestamp when the IP address was rate-limited
     rec.os = object.os || []; // timpstamp of password reset OTP email request
+    rec.ov = object.ov || []; // timpstamp of password reset OTP verification request
     return rec;
   };
 
@@ -90,6 +91,35 @@ module.exports = function (limits, now) {
     this.trimPasswordResetOtps(now());
     return this.os.length > limits.maxPasswordResetOtpEmails;
   };
+
+  IpRecord.prototype.addPasswordResetOtpVerification = function () {
+    this.ov.push(now());
+  };
+
+  IpRecord.prototype.trimPasswordResetOtpVerifications = function (now) {
+    this.ov = this.ov.filter(
+      (otpVerificationTime) =>
+        otpVerificationTime >
+        now - limits.passwordResetOtpVerificationBlockWindowMs
+    );
+  };
+
+  IpRecord.prototype.isOverPasswordResetOtpVerificationRateLimit = function () {
+    const thisIsNow = now();
+    return (
+      this.ov.filter(
+        (otpVerificationTime) =>
+          otpVerificationTime >
+          thisIsNow - limits.passwordResetOtpVerificationRateLimitWindowMs
+      ).length > limits.maxPasswordResetOtpVerificationRateLimit
+    );
+  };
+
+  IpRecord.prototype.isOverPasswordResetOtpVerificationBlockLimit =
+    function () {
+      this.trimPasswordResetOtpVerifications(now());
+      return this.ov.length > limits.maxPasswordResetOtpVerificationBlockLimit;
+    };
 
   IpRecord.prototype.isOverVerifyCodes = function () {
     this.trimVerifyCodes(now());
@@ -241,15 +271,21 @@ module.exports = function (limits, now) {
     this.aa = [];
   };
 
-  IpRecord.prototype.retryAfter = function (rlIntervalMs) {
-    const intervalMs = rlIntervalMs || limits.ipRateLimitBanDurationMs;
+  IpRecord.prototype.passwordReset = function () {
+    // reset the OTP timestamps so the user can start another password reset
+    // flow if they wish
+    this.os = [];
+    this.ov = [];
+  };
+
+  IpRecord.prototype.retryAfter = function (rlIntervalMs, bkIntervalMs) {
+    const rateLimitIntervalMs = rlIntervalMs || limits.ipRateLimitBanDurationMs;
+    const blockIntervalMs = bkIntervalMs || limits.blockIntervalMs;
 
     var rateLimitAfter = Math.ceil(
-      ((this.rl || 0) + intervalMs - now()) / 1000
+      ((this.rl || 0) + rateLimitIntervalMs - now()) / 1000
     );
-    var banAfter = Math.ceil(
-      ((this.bk || 0) + limits.blockIntervalMs - now()) / 1000
-    );
+    var banAfter = Math.ceil(((this.bk || 0) + blockIntervalMs - now()) / 1000);
     return Math.max(0, rateLimitAfter, banAfter);
   };
 
@@ -323,6 +359,47 @@ module.exports = function (limits, now) {
         this.rateLimit();
         this.os = [];
         return this.retryAfter(limits.passwordResetOtpEmailRateLimitIntervalMs);
+      }
+    }
+
+    if (actions.isResetPasswordOtpVerificationAction(action)) {
+      const otpVerificationRateLimited = () =>
+        !!(
+          this.rl &&
+          now() - this.rl < limits.passwordResetOtpVerificationRateLimitWindowMs
+        );
+      const otpVerificationBlocked = () =>
+        !!(
+          this.bk &&
+          now() - this.bk < limits.passwordResetOtpVerificationBlockWindowMs
+        );
+      if (otpVerificationRateLimited() || otpVerificationBlocked()) {
+        return this.retryAfter(
+          limits.passwordResetOtpVerificationRateLimitWindowMs,
+          limits.passwordResetOtpVerificationBlockWindowMs
+        );
+      }
+
+      this.addPasswordResetOtpVerification();
+
+      const shouldBlock = this.isOverPasswordResetOtpVerificationBlockLimit();
+      const shouldRateLimit =
+        this.isOverPasswordResetOtpVerificationRateLimit();
+
+      if (shouldBlock || shouldRateLimit) {
+        if (shouldBlock) {
+          this.block();
+          this.ov = [];
+          this.rl = 0;
+        }
+        if (shouldRateLimit) {
+          this.rateLimit();
+          this.bk = 0;
+        }
+        return this.retryAfter(
+          limits.passwordResetOtpVerificationRateLimitWindowMs,
+          limits.passwordResetOtpVerificationBlockWindowMs
+        );
       }
     }
 

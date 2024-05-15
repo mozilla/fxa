@@ -55,6 +55,16 @@ module.exports = (config, Settings, log) => {
       this.passwordResetOtpEmailRateLimitIntervalMs =
         settings.passwordResetOtpLimits
           .passwordResetOtpRateLimitIntervalSeconds * 1000;
+      this.maxPasswordResetOtpVerificationRateLimit =
+        settings.passwordResetOtpLimits.maxPasswordResetOtpVerificationRateLimit;
+      this.passwordResetOtpVerificationRateLimitWindowMs =
+        settings.passwordResetOtpLimits
+          .passwordResetOtpVerificationLimitIntervalSeconds * 1000;
+      this.maxPasswordResetOtpVerificationBlockLimit =
+        settings.passwordResetOtpLimits.maxPasswordResetOtpVerificationBlockLimit;
+      this.passwordResetOtpVerificationBlockWindowMs =
+        settings.passwordResetOtpLimits
+          .passwordResetOtpVerificationBlockWindowSeconds * 1000;
 
       return this;
     }

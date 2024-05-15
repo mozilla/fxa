@@ -22,6 +22,10 @@ function simpleIpRecord() {
     maxPasswordResetOtpEmails: 2,
     passwordResetOtpEmailRequestWindowMs: 2000,
     passwordResetOtpEmailRateLimitIntervalMs: 5000,
+    maxPasswordResetOtpVerificationRateLimit: 2,
+    passwordResetOtpVerificationRateLimitWindowMs: 5000,
+    maxPasswordResetOtpVerificationBlockLimit: 3,
+    passwordResetOtpVerificationBlockWindowMs: 10000,
   };
   return new (ipRecord(limits, now))();
 }
@@ -102,7 +106,7 @@ test('retryAfter block works', function (t) {
   t.end();
 });
 
-test('retryAfter rate limiting with optional interval', function (t) {
+test('retryAfter rate limiting and blocking with optional intervals', function (t) {
   const ir = simpleIpRecord();
   t.equal(ir.retryAfter(), 0, 'unblocked records can be retried now');
   ir.rl = 240 * 1000;
@@ -114,7 +118,13 @@ test('retryAfter rate limiting with optional interval', function (t) {
   t.equal(
     ir.retryAfter(5000),
     5,
-    'unblocked records can be retried after given interval'
+    'unblocked records can be retried after given rate limited interval'
+  );
+  ir.bk = ir.rl;
+  t.equal(
+    ir.retryAfter(5000, 8000),
+    8,
+    'unblocked records can be retried after given blocked interval'
   );
   t.end();
 });
@@ -169,6 +179,21 @@ test('action passwordForgotSendOtp rate-limit works', function (t) {
   t.equal(res, 0, 'rate-limit not exceeded using same email');
   res = ir.update('passwordForgotSendOtp', 'test2@example.com');
   t.equal(res, 5, 'rate-limit exceeded using different email');
+  t.end();
+});
+
+test('action passwordForgotVerifyOtp rate-limit and blocking works', function (t) {
+  const ir = simpleIpRecord();
+  ir.ov = [];
+
+  let res = ir.update('passwordForgotVerifyOtp', 'test1@example.com');
+  t.equal(res, 0, 'rate-limit not exceeded');
+  res = ir.update('passwordForgotVerifyOtp', 'test1@example.com');
+  t.equal(res, 0, 'rate-limit not exceeded using same email');
+  res = ir.update('passwordForgotVerifyOtp', 'test2@example.com');
+  t.equal(res, 5, 'rate-limit exceeded using different email');
+  res = ir.update('passwordForgotVerifyOtp', 'test3@example.com');
+  t.equal(res, 5, 'blocking limit exceeded using different email');
   t.end();
 });
 

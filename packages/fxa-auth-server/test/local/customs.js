@@ -81,7 +81,7 @@ describe('Customs', () => {
         );
       })
       .then(() => {
-        return customsNoUrl.reset(email);
+        return customsNoUrl.reset(request, email);
       })
       .then((result) => {
         assert.equal(
@@ -170,6 +170,7 @@ describe('Customs', () => {
             assert.deepEqual(
               body,
               {
+                ip: request.app.clientAddress,
                 email: email,
               },
               'first call to /passwordReset had expected request params'
@@ -177,7 +178,7 @@ describe('Customs', () => {
             return true;
           })
           .reply(200, {});
-        return customsWithUrl.reset(email);
+        return customsWithUrl.reset(request, email);
       })
       .then((result) => {
         assert.equal(
@@ -384,7 +385,7 @@ describe('Customs', () => {
           );
         }),
 
-      customsInvalidUrl.reset(email).then(assert.fail, (err) => {
+      customsInvalidUrl.reset(request, email).then(assert.fail, (err) => {
         assert.equal(
           err.errno,
           error.ERRNO.BACKEND_SERVICE_FAILURE,

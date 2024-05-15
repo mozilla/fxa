@@ -584,11 +584,14 @@ module.exports = function (
         // glean.resetPassword.otpEmailSent(request);
 
         await request.emitMetricsEvent('password.forgot.send_otp.completed');
-        recordSecurityEvent('account.password_reset_otp_sent', {
-          db,
-          request,
-          account: { uid: account.uid },
-        });
+
+        // This was commented out because the call fails when there is no token id in the call.
+        // recordSecurityEvent('account.password_reset_otp_sent', {
+        //   db,
+        //   request,
+        //   account: { uid: account.uid },
+        // });
+
         statsd.increment('otp.passwordForgot.sent');
 
         return {};
@@ -622,33 +625,29 @@ module.exports = function (
         await request.emitMetricsEvent('password.forgot.verify_otp.start');
         statsd.increment('otp.passwordForgot.attempt');
 
-        // TODO FXA-9487
-        // await customs.check(request, email, 'passwordForgotVerifyOtp');
+        const { email, code } = request.payload;
+        await customs.check(request, email, 'passwordForgotVerifyOtp');
 
         request.validateMetricsContext();
 
-        const { email, code } = request.payload;
         const account = await db.accountRecord(email);
         const isValidCode = await otpManager.isValid(account.uid, code);
 
         if (!isValidCode) {
-          // TODO FXA-9487
-          // increment failed attempt
-
           throw error.invalidVerificationCode();
         }
-
-        // TODO FXA-9486
-        // glean.resetPassword.otpVerified(request);
 
         const passwordForgotToken = await db.createPasswordForgotToken(account);
 
         await request.emitMetricsEvent('password.forgot.verify_otp.completed');
-        recordSecurityEvent('account.password_reset_otp_verified', {
-          db,
-          request,
-          account: { uid: account.uid },
-        });
+
+        // This was commented out because the call fails when there is no token id in the call.
+        // recordSecurityEvent('account.password_reset_otp_verified', {
+        //   db,
+        //   request,
+        //   account: { uid: account.uid },
+        // });
+
         statsd.increment('otp.passwordForgot.verified');
 
         return {
