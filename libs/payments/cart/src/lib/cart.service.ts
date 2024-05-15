@@ -13,6 +13,7 @@ import { CartErrorReasonId, CartState } from '@fxa/shared/db/mysql/account';
 import {
   AccountCustomerManager,
   AccountCustomerNotFoundError,
+  SubplatInterval,
 } from '@fxa/payments/stripe';
 import { GeoDBManager } from '@fxa/shared/geodb';
 import { CheckoutService } from './checkout.service';
@@ -32,7 +33,7 @@ export class CartService {
    * **Note**: This method is currently a placeholder. The arguments will likely change, and the internal implementation is far from complete.
    */
   async setupCart(args: {
-    interval: string;
+    interval: SubplatInterval;
     offeringConfigId: string;
     experiment?: string;
     promoCode?: string;

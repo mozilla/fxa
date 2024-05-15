@@ -4,7 +4,11 @@
 
 import { Injectable } from '@nestjs/common';
 
-import { StripeManager, StripePlan } from '@fxa/payments/stripe';
+import {
+  StripeManager,
+  StripePlan,
+  SubplatInterval,
+} from '@fxa/payments/stripe';
 import {
   ContentfulManager,
   EligibilityContentOfferingResult,
@@ -95,7 +99,7 @@ export class EligibilityManager {
   async compareOverlap(
     overlaps: OfferingOverlapProductResult[],
     targetOffering: EligibilityContentOfferingResult,
-    interval: string,
+    interval: SubplatInterval,
     subscribedPlans: StripePlan[]
   ) {
     if (!overlaps.length) {

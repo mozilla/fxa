@@ -32,3 +32,4 @@ export * from './lib/stripe.error';
 export * from './lib/stripe.manager';
 export * from './lib/stripe.service';
 export * from './lib/stripe.util';
+export { SubplatInterval } from './lib/stripe.types';
