@@ -152,6 +152,7 @@ export class AccountResolver {
   })
   @UseGuards(GqlAuthGuard, GqlCustomsGuard)
   public async createTotp(
+    @GqlXHeaders() headers: Headers,
     @GqlSessionToken() token: string,
     @Args('input', { type: () => CreateTotpInput })
     input: CreateTotpInput
@@ -172,6 +173,7 @@ export class AccountResolver {
   @UseGuards(UnverifiedSessionGuard, GqlCustomsGuard)
   @CatchGatewayError
   public async verifyTotp(
+    @GqlXHeaders() headers: Headers,
     @GqlSessionToken() token: string,
     @Args('input', { type: () => VerifyTotpInput })
     input: VerifyTotpInput
@@ -193,6 +195,7 @@ export class AccountResolver {
   @UseGuards(GqlAuthGuard, GqlCustomsGuard)
   @CatchGatewayError
   public async deleteTotp(
+    @GqlXHeaders() headers: Headers,
     @GqlSessionToken() token: string,
     @Args('input', { type: () => DeleteTotpInput })
     input: DeleteTotpInput
@@ -209,6 +212,7 @@ export class AccountResolver {
   @UseGuards(GqlAuthGuard, GqlCustomsGuard)
   @CatchGatewayError
   public async deleteRecoveryKey(
+    @GqlXHeaders() headers: Headers,
     @GqlSessionToken() token: string,
     @Args('input', { type: () => DeleteRecoveryKeyInput })
     input: DeleteRecoveryKeyInput
@@ -226,6 +230,7 @@ export class AccountResolver {
   @UseGuards(GqlAuthGuard, GqlCustomsGuard)
   @CatchGatewayError
   public async changeRecoveryCodes(
+    @GqlXHeaders() headers: Headers,
     @GqlSessionToken() token: string,
     @Args('input', { type: () => ChangeRecoveryCodesInput })
     input: ChangeRecoveryCodesInput
@@ -299,6 +304,7 @@ export class AccountResolver {
   @UseGuards(GqlAuthGuard, GqlCustomsGuard)
   @CatchGatewayError
   public async createSecondaryEmail(
+    @GqlXHeaders() headers: Headers,
     @GqlSessionToken() token: string,
     @Args('input', { type: () => EmailInput }) input: EmailInput
   ): Promise<BasicPayload> {
@@ -314,6 +320,7 @@ export class AccountResolver {
   @UseGuards(GqlAuthGuard, GqlCustomsGuard)
   @CatchGatewayError
   public async resendSecondaryEmailCode(
+    @GqlXHeaders() headers: Headers,
     @GqlSessionToken() token: string,
     @Args('input', { type: () => EmailInput }) input: EmailInput
   ): Promise<BasicPayload> {
@@ -327,6 +334,7 @@ export class AccountResolver {
   @UseGuards(GqlAuthGuard, GqlCustomsGuard)
   @CatchGatewayError
   public async verifySecondaryEmail(
+    @GqlXHeaders() headers: Headers,
     @GqlSessionToken() token: string,
     @Args('input', { type: () => VerifyEmailInput }) input: VerifyEmailInput
   ) {
@@ -344,6 +352,7 @@ export class AccountResolver {
   @UseGuards(GqlAuthGuard, GqlCustomsGuard)
   @CatchGatewayError
   public async deleteSecondaryEmail(
+    @GqlXHeaders() headers: Headers,
     @GqlSessionToken() token: string,
     @Args('input', { type: () => EmailInput }) input: EmailInput
   ): Promise<BasicPayload> {
@@ -358,6 +367,7 @@ export class AccountResolver {
   @UseGuards(GqlAuthGuard, GqlCustomsGuard)
   @CatchGatewayError
   public async updatePrimaryEmail(
+    @GqlXHeaders() headers: Headers,
     @GqlSessionToken() token: string,
     @Args('input', { type: () => EmailInput }) input: EmailInput
   ): Promise<BasicPayload> {
@@ -372,6 +382,7 @@ export class AccountResolver {
   @UseGuards(GqlAuthGuard, GqlCustomsGuard)
   @CatchGatewayError
   public async attachedClientDisconnect(
+    @GqlXHeaders() headers: Headers,
     @GqlSessionToken() token: string,
     @Args('input', { type: () => AttachedClientDisconnectInput })
     input: AttachedClientDisconnectInput
@@ -506,6 +517,7 @@ export class AccountResolver {
   })
   @CatchGatewayError
   public async passwordForgotCodeStatus(
+    @GqlXHeaders() headers: Headers,
     @Args('input', { type: () => PasswordForgotCodeStatusInput })
     input: PasswordForgotCodeStatusInput
   ) {
@@ -676,6 +688,7 @@ export class AccountResolver {
   })
   @CatchGatewayError
   public async getRecoveryKeyBundle(
+    @GqlXHeaders() headers: Headers,
     @Args('input', { type: () => RecoveryKeyBundleInput })
     input: RecoveryKeyBundleInput
   ): Promise<RecoveryKeyBundlePayload> {

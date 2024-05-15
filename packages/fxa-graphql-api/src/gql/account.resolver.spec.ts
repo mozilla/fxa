@@ -222,7 +222,10 @@ describe('#integration - AccountResolver', () => {
           recoveryCodes: ['test1', 'test2'],
           secret: 'secretData',
         });
-        const result = await resolver.createTotp('token', {
+        const headers = new Headers({
+          'x-forwarded-for': '123.123.123.123',
+        });
+        const result = await resolver.createTotp(headers, 'token', {
           metricsContext: { deviceId: 'device1', flowBeginTime: 4238248 },
           clientMutationId: 'testid',
         });
@@ -240,7 +243,10 @@ describe('#integration - AccountResolver', () => {
         authClient.verifyTotpCode = jest
           .fn()
           .mockResolvedValue({ success: true });
-        const result = await resolver.verifyTotp('token', {
+        const headers = new Headers({
+          'x-forwarded-for': '123.123.123.123',
+        });
+        const result = await resolver.verifyTotp(headers, 'token', {
           code: 'code1234',
           clientMutationId: 'testid',
         });
@@ -256,7 +262,11 @@ describe('#integration - AccountResolver', () => {
         authClient.deleteTotpToken = jest
           .fn()
           .mockResolvedValue({ success: true });
-        const result = await resolver.deleteTotp('token', {
+
+        const headers = new Headers({
+          'x-forwarded-for': '123.123.123.123',
+        });
+        const result = await resolver.deleteTotp(headers, 'token', {
           clientMutationId: 'testid',
         });
         expect(authClient.deleteTotpToken).toBeCalledTimes(1);
@@ -269,7 +279,10 @@ describe('#integration - AccountResolver', () => {
     describe('deleteRecoveryKey', () => {
       it('succeeds', async () => {
         authClient.deleteRecoveryKey = jest.fn().mockResolvedValue(true);
-        const result = await resolver.deleteRecoveryKey('token', {
+        const headers = new Headers({
+          'x-forwarded-for': '123.123.123.123',
+        });
+        const result = await resolver.deleteRecoveryKey(headers, 'token', {
           clientMutationId: 'testid',
         });
         expect(authClient.deleteRecoveryKey).toBeCalledTimes(1);
@@ -284,7 +297,10 @@ describe('#integration - AccountResolver', () => {
         authClient.replaceRecoveryCodes = jest
           .fn()
           .mockResolvedValue({ recoveryCodes: ['test1', 'test2'] });
-        const result = await resolver.changeRecoveryCodes('token', {
+        const headers = new Headers({
+          'x-forwarded-for': '123.123.123.123',
+        });
+        const result = await resolver.changeRecoveryCodes(headers, 'token', {
           clientMutationId: 'testid',
         });
         expect(authClient.replaceRecoveryCodes).toBeCalledTimes(1);
@@ -330,7 +346,10 @@ describe('#integration - AccountResolver', () => {
     describe('createSecondaryEmail', () => {
       it('succeeds', async () => {
         authClient.recoveryEmailCreate = jest.fn().mockResolvedValue(true);
-        const result = await resolver.createSecondaryEmail('token', {
+        const headers = new Headers({
+          'x-forwarded-for': '123.123.123.123',
+        });
+        const result = await resolver.createSecondaryEmail(headers, 'token', {
           clientMutationId: 'testid',
           email: 'test@example.com',
         });
@@ -346,10 +365,17 @@ describe('#integration - AccountResolver', () => {
         authClient.recoveryEmailSecondaryResendCode = jest
           .fn()
           .mockResolvedValue(true);
-        const result = await resolver.resendSecondaryEmailCode('token', {
-          clientMutationId: 'testid',
-          email: 'test@example.com',
+        const headers = new Headers({
+          'x-forwarded-for': '123.123.123.123',
         });
+        const result = await resolver.resendSecondaryEmailCode(
+          headers,
+          'token',
+          {
+            clientMutationId: 'testid',
+            email: 'test@example.com',
+          }
+        );
         expect(authClient.recoveryEmailSecondaryResendCode).toBeCalledTimes(1);
         expect(result).toStrictEqual({
           clientMutationId: 'testid',
@@ -362,7 +388,10 @@ describe('#integration - AccountResolver', () => {
         authClient.recoveryEmailSecondaryVerifyCode = jest
           .fn()
           .mockResolvedValue(true);
-        const result = await resolver.verifySecondaryEmail('token', {
+        const headers = new Headers({
+          'x-forwarded-for': '123.123.123.123',
+        });
+        const result = await resolver.verifySecondaryEmail(headers, 'token', {
           clientMutationId: 'testid',
           email: 'test@example.com',
           code: 'ABCD1234',
@@ -377,7 +406,10 @@ describe('#integration - AccountResolver', () => {
     describe('deleteSecondaryEmail', () => {
       it('succeeds', async () => {
         authClient.recoveryEmailDestroy = jest.fn().mockResolvedValue(true);
-        const result = await resolver.deleteSecondaryEmail('token', {
+        const headers = new Headers({
+          'x-forwarded-for': '123.123.123.123',
+        });
+        const result = await resolver.deleteSecondaryEmail(headers, 'token', {
           clientMutationId: 'testid',
           email: 'test@example.com',
         });
@@ -393,7 +425,10 @@ describe('#integration - AccountResolver', () => {
         authClient.recoveryEmailSetPrimaryEmail = jest
           .fn()
           .mockResolvedValue(true);
-        const result = await resolver.updatePrimaryEmail('token', {
+        const headers = new Headers({
+          'x-forwarded-for': '123.123.123.123',
+        });
+        const result = await resolver.updatePrimaryEmail(headers, 'token', {
           clientMutationId: 'testid',
           email: 'test@example.com',
         });
@@ -407,13 +442,20 @@ describe('#integration - AccountResolver', () => {
     describe('attachedClientDisconnect', () => {
       it('succeeds', async () => {
         authClient.attachedClientDestroy = jest.fn().mockResolvedValue(true);
-        const result = await resolver.attachedClientDisconnect('token', {
-          clientMutationId: 'testid',
-          clientId: 'client1234',
-          sessionTokenId: 'sesssion1234',
-          refreshTokenId: 'refresh1234',
-          deviceId: 'device1234',
+        const headers = new Headers({
+          'x-forwarded-for': '123.123.123.123',
         });
+        const result = await resolver.attachedClientDisconnect(
+          headers,
+          'token',
+          {
+            clientMutationId: 'testid',
+            clientId: 'client1234',
+            sessionTokenId: 'sesssion1234',
+            refreshTokenId: 'refresh1234',
+            deviceId: 'device1234',
+          }
+        );
         expect(authClient.attachedClientDestroy).toBeCalledTimes(1);
         expect(result).toStrictEqual({
           clientMutationId: 'testid',
@@ -571,7 +613,10 @@ describe('#integration - AccountResolver', () => {
           tries: 1,
           ttl: 2,
         });
-        const result = await resolver.passwordForgotCodeStatus({
+        const headers = new Headers({
+          'x-forwarded-for': '123.123.123.123',
+        });
+        const result = await resolver.passwordForgotCodeStatus(headers, {
           token: 'passwordforgottoken',
         });
         expect(authClient.passwordForgotStatus).toBeCalledTimes(1);
@@ -1015,7 +1060,10 @@ describe('#integration - AccountResolver', () => {
         authClient.getRecoveryKey = jest.fn().mockResolvedValue({
           recoveryData: 'recoveryData',
         });
-        const result = await resolver.getRecoveryKeyBundle({
+        const headers = new Headers({
+          'x-forwarded-for': '123.123.123.123',
+        });
+        const result = await resolver.getRecoveryKeyBundle(headers, {
           accountResetToken: 'cooltokenyo',
           recoveryKeyId: 'recoveryKeyId',
         });
