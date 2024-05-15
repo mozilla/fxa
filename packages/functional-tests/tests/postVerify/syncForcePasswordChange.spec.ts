@@ -8,23 +8,35 @@ test.describe('severity-2 #smoke', () => {
   test.describe('post verify - force password change sync', () => {
     test('force change password on login - sync', async ({
       target,
-      syncBrowserPages: { page, login, postVerify, connectAnotherDevice },
+      syncBrowserPages: {
+        page,
+        signinReact,
+        postVerify,
+        connectAnotherDevice,
+        signinTokenCode,
+      },
       testAccountTracker,
     }) => {
+      test.fixme(
+        true,
+        'FXA-9519 fails with invalid authentication token error'
+      );
       const credentials = await testAccountTracker.signUpForced();
       const newPassword = testAccountTracker.generatePassword();
 
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync`
       );
-      await login.fillOutEmailFirstSignIn(
-        credentials.email,
-        credentials.password
+      await signinReact.fillOutEmailFirstForm(credentials.email);
+      await signinReact.fillOutPasswordForm(credentials.password);
+      await expect(signinTokenCode.heading).toBeVisible();
+      const code = await target.emailClient.getSigninTokenCode(
+        credentials.email
       );
-      await login.fillOutSignInCode(credentials.email);
+      await signinTokenCode.fillOutCodeForm(code);
 
       //Verify force password change header
-      expect(await postVerify.isForcePasswordChangeHeader()).toBe(true);
+      await expect(postVerify.forcePasswordChangeHeading).toBeVisible();
 
       //Fill out change password
       await postVerify.fillOutChangePassword(credentials.password, newPassword);

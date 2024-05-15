@@ -27,7 +27,7 @@ export abstract class BaseTokenCodePage extends BaseLayout {
 
   get submit() {
     this.checkPath();
-    return this.page.locator('button[type=submit]');
+    return this.page.getByRole('button', { name: 'Confirm' });
   }
 
   async fillOutCodeForm(code: string) {
