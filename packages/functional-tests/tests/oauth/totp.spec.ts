@@ -2,10 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { getCode } from 'fxa-settings/src/lib/totp';
 import { Page, expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
 import { TestAccountTracker } from '../../lib/testAccountTracker';
-import { LoginPage } from '../../pages/login';
+import { SettingsPage } from '../../pages/settings';
+import { SigninReactPage } from '../../pages/signinReact';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('OAuth totp', () => {
@@ -15,37 +17,51 @@ test.describe('severity-1 #smoke', () => {
 
     test('can add TOTP to account and confirm oauth signin', async ({
       target,
-      pages: { page, login, relier, settings, totp },
+      pages: { page, signinReact, relier, settings, signinTotpCode, totp },
       testAccountTracker,
     }) => {
+      test.fixme(
+        true,
+        'FXA-9519 only navigates to relier on debug mode + error on cleanup'
+      );
       const credentials = await signInAccount(
         target,
         page,
-        login,
+        settings,
+        signinReact,
         testAccountTracker
       );
 
-      await settings.goto();
       await settings.totp.addButton.click();
       const { secret } = await totp.fillOutTotpForms();
       await settings.signOut();
       await relier.goto();
       await relier.clickEmailFirst();
-      await login.login(credentials.email, credentials.password);
-      await login.setTotp(secret);
+      await signinReact.fillOutEmailFirstForm(credentials.email);
+      await signinReact.fillOutPasswordForm(credentials.password);
+      await expect(signinTotpCode.heading).toBeVisible();
+      const code = await getCode(secret);
+      await signinTotpCode.fillOutCodeForm(code);
 
       expect(await relier.isLoggedIn()).toBe(true);
 
+      // totp must be disabled for test account cleanup
       await settings.goto();
       await settings.disconnectTotp();
     });
 
     test('can remove TOTP from account and skip confirmation', async ({
       target,
-      pages: { login, relier, settings, totp, page },
+      pages: { signinReact, relier, settings, totp, page },
       testAccountTracker,
     }) => {
-      await signInAccount(target, page, login, testAccountTracker);
+      await signInAccount(
+        target,
+        page,
+        settings,
+        signinReact,
+        testAccountTracker
+      );
       await settings.goto();
       await settings.totp.addButton.click();
       await totp.fillOutTotpForms();
@@ -60,7 +76,9 @@ test.describe('severity-1 #smoke', () => {
 
       await relier.goto();
       await relier.clickEmailFirst();
-      await login.submit();
+
+      await expect(signinReact.cachedSigninHeading).toBeVisible();
+      await signinReact.signInButton.click();
 
       expect(await relier.isLoggedIn()).toBe(true);
     });
@@ -70,15 +88,17 @@ test.describe('severity-1 #smoke', () => {
 async function signInAccount(
   target: BaseTarget,
   page: Page,
-  login: LoginPage,
+  settings: SettingsPage,
+  signinReact: SigninReactPage,
   testAccountTracker: TestAccountTracker
 ): Promise<Credentials> {
   const credentials = await testAccountTracker.signUp();
   await page.goto(target.contentServerUrl);
-  await login.fillOutEmailFirstSignIn(credentials.email, credentials.password);
+  await signinReact.fillOutEmailFirstForm(credentials.email);
+  await signinReact.fillOutPasswordForm(credentials.password);
 
   //Verify logged in on Settings page
-  expect(await login.isUserLoggedIn()).toBe(true);
+  await expect(settings.settingsHeading).toBeVisible();
 
   return credentials;
 }

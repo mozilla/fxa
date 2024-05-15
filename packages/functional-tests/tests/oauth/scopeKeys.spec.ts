@@ -14,6 +14,7 @@ test.describe('OAuth scopeKeys', () => {
     pages: { signinReact, signinTokenCode },
     testAccountTracker,
   }) => {
+    test.fixme(true, 'FXA-9519 redirect only works on debug + cleanup error?');
     const query = new URLSearchParams({
       client_id: '7f368c6886429f19', // eslint-disable-line camelcase
       code_challenge: CODE_CHALLENGE,

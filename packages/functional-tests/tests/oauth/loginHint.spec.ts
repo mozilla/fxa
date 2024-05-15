@@ -65,7 +65,7 @@ test.describe('severity-2 #smoke', () => {
       const config = await configPage.getConfig();
       test.fixme(
         config.showReactApp.signInRoutes === true,
-        'FXA-9159, login_hint might not be supported in React'
+        'FXA-9519, login_hint might not be supported in React'
       );
 
       const credentials = await testAccountTracker.signUp();
@@ -90,7 +90,7 @@ test.describe('severity-2 #smoke', () => {
       const config = await configPage.getConfig();
       test.fixme(
         config.showReactApp.signInRoutes === true,
-        'FXA-9159, login_hint might not be supported in React'
+        'FXA-9519, login_hint might not be supported in React'
       );
       const credentials = await testAccountTracker.signUp();
       const loginHintCredentials = await testAccountTracker.signUp();

@@ -24,7 +24,7 @@ test.describe('severity-1', () => {
     const config = await configPage.getConfig();
     test.skip(
       config.showReactApp.signUpRoutes === true,
-      'FXA-9159, this feature is not supported in React, see FXA-8827'
+      'FXA-9519, this feature is not supported in React, see FXA-8827'
     );
     const credentials = await testAccountTracker.signUp();
 
