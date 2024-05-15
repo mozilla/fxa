@@ -562,6 +562,42 @@ password_reset:
     expires: never
     data_sensitivity:
       - interaction
+  email_confirmation_sent:
+    type: event
+    description: |
+      One-Time-Password to initiate the password reset process sent to the FxA
+      email address
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-9486
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1896950
+    expires: never
+    data_sensitivity:
+      - interaction
+  email_confirmation_success:
+    type: event
+    description: |
+      One-Time-Password to initiate the password reset process was successfully
+      verified
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-9486
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1896950
+    expires: never
+    data_sensitivity:
+      - interaction
 reg:
   acc_created:
     type: event

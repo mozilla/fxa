@@ -580,8 +580,7 @@ module.exports = function (
           uid: account.uid,
         });
 
-        // TODO FXA-9486
-        // glean.resetPassword.otpEmailSent(request);
+        glean.resetPassword.otpEmailSent(request);
 
         await request.emitMetricsEvent('password.forgot.send_otp.completed');
 
@@ -639,6 +638,7 @@ module.exports = function (
 
         const passwordForgotToken = await db.createPasswordForgotToken(account);
 
+        glean.resetPassword.otpVerified(request);
         await request.emitMetricsEvent('password.forgot.verify_otp.completed');
 
         // This was commented out because the call fails when there is no token id in the call.
