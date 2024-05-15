@@ -21,7 +21,7 @@ export class SignupReactPage extends BaseLayout {
   }
 
   get signupFormHeading() {
-    return this.page.getByRole('heading', { name: 'Set your password' });
+    return this.page.getByRole('heading', { name: /Set your password/ });
   }
 
   get passwordTextbox() {

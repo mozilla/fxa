@@ -15,6 +15,8 @@ import { SignupReactPage } from '../../pages/signupReact';
 import { TotpPage } from '../../pages/settings/totp';
 import { getCode } from 'fxa-settings/src/lib/totp';
 
+// TODO in FXA-9519 update these tests for full prod rollout of react signin
+
 // Disable this check for these tests. We are holding assertion in shared functions due
 // to how test permutations work, and these setup falsely trips this rule.
 /* eslint-disable playwright/expect-expect */

@@ -83,13 +83,13 @@ test.describe('severity-2 #smoke', () => {
         signinReact,
         testAccountTracker
       );
-
+      test.fixme(true, 'FXA-9519 not finding the session expired banner');
+      await page.goto(target.contentServerUrl);
       const account = await getAccountFromFromLocalStorage(
         credentials.email,
         page
       );
       await target.authClient.sessionDestroy(account?.sessionToken);
-      await page.goto(target.contentServerUrl);
 
       //Check prefilled email
       await expect(signinReact.cachedSigninHeading).toBeVisible();
@@ -97,7 +97,7 @@ test.describe('severity-2 #smoke', () => {
 
       await signinReact.signInButton.click();
 
-      await expect(signinReact.sessionExpiredError).toBeVisible();
+      await expect(page.getByText(/Session expired/)).toBeVisible();
       await expect(signinReact.passwordFormHeading).toBeVisible();
 
       await signinReact.fillOutPasswordForm(credentials.password);

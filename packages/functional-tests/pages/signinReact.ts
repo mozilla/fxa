@@ -109,7 +109,7 @@ export class SigninReactPage extends BaseLayout {
   }
 
   get sessionExpiredError() {
-    return this.page.getByRole('status').getByText(/^Session expired/);
+    return this.page.getByText(/^Session expired/);
   }
 
   get useDifferentAccountLink() {
