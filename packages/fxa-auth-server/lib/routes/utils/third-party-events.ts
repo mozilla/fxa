@@ -51,9 +51,8 @@ export type AppleJWTSETPayload = {
   events: string;
 };
 
-async function getUidFromSub(sub: string, db: any, provider: Provider) {
-  const { uid } = await db.getLinkedAccount(sub, provider);
-  return uid;
+async function getAccountFromSub(sub: string, db: any, provider: Provider) {
+  return db.getLinkedAccount(sub, provider);
 }
 async function revokeThirdPartySessions(
   uid: string,
@@ -127,9 +126,14 @@ async function handleAppleConsentRevokedEvent(
   db: any
 ) {
   const sub = eventDetails.sub;
-  const uid = await getUidFromSub(sub, db, 'apple');
-  await revokeThirdPartySessions(uid, 'apple', log, db);
-  await db.deleteLinkedAccount(uid, 'apple');
+  const account = await getAccountFromSub(sub, db, 'apple');
+
+  // We have a guard that account exists because it is possible that it was
+  // removed in another security event
+  if (account) {
+    await revokeThirdPartySessions(account.uid, 'apple', log, db);
+    await db.deleteLinkedAccount(account.uid, 'apple');
+  }
 }
 
 /**
@@ -146,9 +150,12 @@ async function handleAppleAccountDeleteEvent(
   db: any
 ) {
   const sub = eventDetails.sub;
-  const uid = await getUidFromSub(sub, db, 'apple');
-  await revokeThirdPartySessions(uid, 'apple', log, db);
-  await db.deleteLinkedAccount(uid, 'apple');
+  const account = await getAccountFromSub(sub, db, 'apple');
+
+  if (account) {
+    await revokeThirdPartySessions(account.uid, 'apple', log, db);
+    await db.deleteLinkedAccount(account.uid, 'apple');
+  }
 }
 
 function handleNoopEvent() {}
@@ -170,9 +177,15 @@ async function handleGoogleSessionsRevokedEvent(
   log: any,
   db: any
 ) {
+  if (!eventDetails.subject) {
+    return;
+  }
   const { sub } = eventDetails.subject;
-  const uid = await getUidFromSub(sub, db, 'google');
-  await revokeThirdPartySessions(uid, 'google', log, db);
+  const account = await getAccountFromSub(sub, db, 'google');
+
+  if (account) {
+    await revokeThirdPartySessions(account.uid, 'google', log, db);
+  }
 }
 
 /**
@@ -189,9 +202,13 @@ async function handleGoogleAccountDisabledEvent(
   db: any
 ) {
   const { sub } = eventDetails.subject;
-  const uid = await getUidFromSub(sub, db, 'google');
-  await revokeThirdPartySessions(uid, 'google', log, db);
-  await db.deleteLinkedAccount(uid, 'google');
+
+  const account = await getAccountFromSub(sub, db, 'google');
+
+  if (account) {
+    await revokeThirdPartySessions(account.uid, 'google', log, db);
+    await db.deleteLinkedAccount(account.uid, 'google');
+  }
 }
 
 /**

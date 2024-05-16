@@ -623,7 +623,11 @@ describe('/linked_account', function () {
           },
         ],
       });
-      mockDB.getLinkedAccount = sinon.spy(() => Promise.resolve({ uid: UID }));
+
+      const linkedAccount = { uid: UID };
+      mockDB.getLinkedAccount = sinon.spy(() =>
+        Promise.resolve(options.unknownAccount ? undefined : linkedAccount)
+      );
       const mockConfig = {
         googleAuthConfig: { clientId: 'OooOoo' },
       };
@@ -816,6 +820,14 @@ describe('/linked_account', function () {
         'handleGoogleSET.unknownEventType.https://schemas.openid.net/secevent/risc/event-type/unknown'
       );
     });
+
+    it('ignores unknown sub', async () => {
+      const jwt = makeJWT('accountDisabled');
+      setupTest({ validateSecurityToken: jwt, unknownAccount: true });
+      await runTest(route, mockRequest);
+      assert.notCalled(mockDB.deleteLinkedAccount);
+      assert.notCalled(mockDB.deleteSessionToken);
+    });
   });
 
   describe('/linked_account/webhook/apple_event_receiver', () => {
@@ -960,6 +972,14 @@ describe('/linked_account', function () {
         statsd.increment,
         'handleAppleSET.processed.account-delete'
       );
+    });
+
+    it('ignores unknown sub', async () => {
+      const jwt = makeJWT();
+      setupTest({ validateSecurityToken: jwt, unknownAccount: true });
+      await runTest(route, mockRequest);
+      assert.notCalled(mockDB.deleteLinkedAccount);
+      assert.notCalled(mockDB.deleteSessionToken);
     });
   });
 });
