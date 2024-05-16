@@ -9,12 +9,14 @@ import {
   SubplatInterval,
 } from '@fxa/payments/stripe';
 import { ContentfulManager } from './contentful.manager';
+import { ContentfulServiceConfig } from './contentful.service.config';
 
 @Injectable()
 export class ContentfulService {
   constructor(
     private contentfulManager: ContentfulManager,
-    private stripeManager: StripeManager
+    private stripeManager: StripeManager,
+    private contentfulServiceConfig: ContentfulServiceConfig
   ) {}
 
   async fetchContentfulData(offeringId: string, acceptLanguage: string) {
@@ -31,11 +33,28 @@ export class ContentfulService {
     offeringConfigId: string,
     interval: SubplatInterval
   ) {
-    const planIds = await this.contentfulManager.getOfferingPlanIds(
-      offeringConfigId
-    );
-    const plan = await this.stripeManager.getPlanByInterval(planIds, interval);
-    if (!plan) throw new PlanNotFoundError();
-    return plan.id;
+    try {
+      const planIds = await this.contentfulManager.getOfferingPlanIds(
+        offeringConfigId
+      );
+      // Temporary supported list of plans
+      // CMS purchase.stripePlanChoices is currently not configured correctly
+      // Unfortunately, currently the CMS is read-only and can't be updated
+      // As a temporary work around provide a list of supported plans
+      const supportedListOfPriceIds =
+        this.contentfulServiceConfig.supportedPlanIds.split(',');
+      const filteredPlanIds = planIds.filter((priceId) =>
+        supportedListOfPriceIds.includes(priceId)
+      );
+      const plan = await this.stripeManager.getPlanByInterval(
+        filteredPlanIds,
+        interval
+      );
+      if (!plan) throw new PlanNotFoundError();
+
+      return plan.id;
+    } catch (error) {
+      throw error;
+    }
   }
 }
