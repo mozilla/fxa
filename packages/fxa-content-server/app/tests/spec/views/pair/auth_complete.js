@@ -90,7 +90,7 @@ describe('views/pair/auth_complete', () => {
           'Firefox on Windows'
         );
 
-        assert.ok(view.$el.find('.bg-image-cad-hearts').length);
+        assert.ok(view.$el.find('.bg-image-triple-device-hearts').length);
       });
     });
   });

@@ -5,8 +5,14 @@
 /* Remove this component class in favor of components with TW classes directly
  * applied after content-server no longer needs it */
 /* Transparent border around card is for Windows HCM mode */
+
+/* Does not specify text-align */
+.card-base {
+  @apply relative w-full border border-transparent mobileLandscape:w-120 mobileLandscape:bg-white rounded-xl px-8 pb-12 pt-9 mobileLandscape:shadow-card-grey-drop mb-6;
+}
+
 .card {
-  @apply relative text-center w-full border border-transparent mobileLandscape:w-120 mobileLandscape:bg-white rounded-xl px-8 pb-12 pt-9 mobileLandscape:shadow-card-grey-drop mb-6;
+  @apply card-base text-center;
 
   /* HACK until content-server no longer needs .card, otherwise component classes take precedence */
   &.card-xl {

@@ -1,8 +1,12 @@
-<div class="card">
-  <header class="hidden" id="fxa-connect-another-device-header"><h1 class="card-header mb-8">{{#t}}Connect another device{{/t}}</h1></header>
+<div class="card-base">
+  {{#isFirefoxDesktop}}
+    <h1 class="text-base text-grey-400" id="fxa-connect-another-device-header">{{#t}}Connect another device{{/t}}</h1>
+  {{/isFirefoxDesktop}}
   {{#showSuccessMessage}}
     {{#isSignedIn}}
-      <h2 id="fxa-connected-heading" class="card-header mb-8 before:content-circle-check"><span class="align-top ltr:pl-3 rtl:pr-3">{{#t}}You’re signed into Firefox{{/t}}</span></h2>
+      {{^isFirefoxDesktop}}
+        <h2 id="fxa-connected-heading" class="card-header mb-8 before:content-circle-check"><span class="align-top ps-3">{{#t}}You’re signed into Firefox{{/t}}</span></h2>
+      {{/isFirefoxDesktop}}
     {{/isSignedIn}}
     {{^isSignedIn}}
       {{#isSignUp}}
@@ -15,6 +19,13 @@
   {{/showSuccessMessage}}
   <section>
     <div class="{{graphicId}}" role="img" aria-label="{{#t}}Complete your set-up{{/t}}"></div>
+    {{#showSuccessMessage}}
+      {{#isSignedIn}}
+        {{#isFirefoxDesktop}}
+          <h2 id="fxa-connected-heading" class="card-header before:content-circle-check"><span class="align-top ps-3">{{#t}}You’re signed in to Firefox{{/t}}</span></h2>
+        {{/isFirefoxDesktop}}
+      {{/isSignedIn}}
+    {{/showSuccessMessage}}
 
     {{#canSignIn}}
       <p class="mb-5">
@@ -42,14 +53,14 @@
       {{#isFirefoxDesktop}}
         <p id="install-mobile-firefox-desktop">
           {{#isSignedIn}}
-            <div id="pair-value-prop" class="flex items-center justify-center mt-4 mb-5">
-              <p class="font-normal text-sm px-16">{{#t}}Want to get your tabs, bookmarks, and passwords on another device?{{/t}}</p>
+            <div id="pair-value-prop" class="mb-5">
+              <p class="text-base">{{#t}}Want to get your tabs, bookmarks, and passwords on another device?{{/t}}</p>
             </div>
             <div class="flex">
               <a id="sync-firefox-devices" href="{{{pairingUrl}}}" class="cta-primary cta-xl" data-flow-event="link.pair">{{#t}}Connect another device{{/t}}</a>
             </div>
-            <div class="mt-5">
-              <a id="cad-not-now" class="link-blue" href="/settings">{{#t}}Not now{{/t}}</a>
+            <div class="mt-5 text-center">
+              <a id="cad-not-now" class="link-blue" href="/settings">{{#t}}Start browsing{{/t}}</a>
             </div>
           {{/isSignedIn}}
         </p>

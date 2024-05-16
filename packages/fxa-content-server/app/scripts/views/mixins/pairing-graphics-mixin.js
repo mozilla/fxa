@@ -27,7 +27,7 @@ export default {
   getGraphicsId() {
     const uap = this.getUserAgent();
     if (uap.supportsSvgTransformOrigin()) {
-      return 'bg-image-cad-hearts';
+      return 'bg-image-triple-device-hearts';
     }
     return 'bg-image-cad';
   },
