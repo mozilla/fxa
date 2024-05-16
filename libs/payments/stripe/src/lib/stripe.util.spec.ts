@@ -15,6 +15,7 @@ import {
   StripeSubscriptionFactory,
   StripeSubscriptionItemFactory,
 } from './factories/subscription.factory';
+import { PromotionCodeCouldNotBeAttachedError } from './stripe.error';
 import { STRIPE_PRICE_METADATA, STRIPE_PRODUCT_METADATA } from './stripe.types';
 import {
   checkSubscriptionPromotionCodes,
@@ -23,7 +24,6 @@ import {
   getSubscribedPrice,
   getSubscribedProductIds,
 } from './stripe.util';
-import { PromotionCodeCouldNotBeAttachedError } from './stripe.error';
 
 describe('util', () => {
   describe('checkSubscriptionPromotionCodes', () => {

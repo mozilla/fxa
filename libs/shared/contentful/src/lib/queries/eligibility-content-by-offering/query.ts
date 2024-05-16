@@ -5,8 +5,12 @@
 import { graphql } from '../../../__generated__/gql';
 
 export const eligibilityContentByOfferingQuery = graphql(`
-  query EligibilityContentByOffering($offering: String!) {
-    offeringCollection(skip: 0, limit: 2, where: { apiIdentifier: $offering }) {
+  query EligibilityContentByOffering($apiIdentifier: String!) {
+    offeringCollection(
+      skip: 0
+      limit: 2
+      where: { apiIdentifier: $apiIdentifier }
+    ) {
       items {
         apiIdentifier
         stripeProductId

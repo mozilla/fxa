@@ -1,8 +1,10 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import { faker } from '@faker-js/faker';
 
+import { TaxAddressFactory } from '@fxa/payments/stripe';
 import {
   CartEligibilityStatus,
   CartErrorReasonId,
@@ -13,7 +15,6 @@ import {
   FinishErrorCart,
   ResultCart,
   SetupCart,
-  TaxAddress,
   TaxAmount,
   UpdateCart,
 } from './cart.types';
@@ -61,14 +62,6 @@ export const FinishErrorCartFactory = (
   override?: Partial<FinishErrorCart>
 ): FinishErrorCart => ({
   errorReasonId: CartErrorReasonId.Unknown,
-  ...override,
-});
-
-export const TaxAddressFactory = (
-  override?: Partial<TaxAddress>
-): TaxAddress => ({
-  countryCode: faker.location.countryCode(),
-  postalCode: faker.location.zipCode(),
   ...override,
 });
 

@@ -11,7 +11,6 @@ import {
   SubscriptionTitle,
   TermsAndPrivacy,
 } from '@fxa/payments/ui/server';
-import { getFakeCartData } from '../../../../../_lib/apiClient';
 import { DEFAULT_LOCALE } from '@fxa/shared/l10n';
 
 // TODO - Replace these placeholders as part of FXA-8227
@@ -49,12 +48,10 @@ export default async function RootLayout({
   const contentfulDataPromise = fetchContentfulData(params.offeringId, locale);
   const cartDataPromise = getCartAction(params.cartId);
   const l10nPromise = app.getL10n(locale);
-  const fakeCartDataPromise = getFakeCartData(params.cartId);
-  const [contentful, cart, l10n, fakeCart] = await Promise.all([
+  const [contentful, cart, l10n] = await Promise.all([
     contentfulDataPromise,
     cartDataPromise,
     l10nPromise,
-    fakeCartDataPromise,
   ]);
 
   return (
@@ -65,7 +62,7 @@ export default async function RootLayout({
         <PurchaseDetails
           l10n={l10n}
           interval={cart.interval}
-          invoice={fakeCart.nextInvoice}
+          invoice={cart.invoicePreview}
           purchaseDetails={contentful.defaultPurchase.purchaseDetails}
         />
       </section>

@@ -12,6 +12,7 @@ export {
 export { StripeCardFactory } from './lib/factories/card.factory';
 export { StripeCouponFactory } from './lib/factories/coupon.factory';
 export { StripeCustomerFactory } from './lib/factories/customer.factory';
+export { StripeDiscountFactory } from './lib/factories/discount.factory';
 export { StripeInvoiceLineItemFactory } from './lib/factories/invoice-line-item.factory';
 export { StripeInvoiceFactory } from './lib/factories/invoice.factory';
 export { StripePlanFactory } from './lib/factories/plan.factory';
@@ -24,6 +25,9 @@ export {
 export { StripePromotionCodeFactory } from './lib/factories/promotion-code.factory';
 export { StripePaymentMethodFactory } from './lib/factories/payment-method.factory';
 export { StripePaymentIntentFactory } from './lib/factories/payment-intent.factory';
+export { TaxAddressFactory } from './lib/factories/tax-address.factory';
+export { StripeTaxRateFactory } from './lib/factories/tax-rate.factory';
+export { StripeUpcomingInvoiceFactory } from './lib/factories/upcoming-invoice.factory';
 export * from './lib/stripe.client';
 export * from './lib/stripe.client.types';
 export * from './lib/stripe.config';
@@ -31,5 +35,5 @@ export * from './lib/stripe.constants';
 export * from './lib/stripe.error';
 export * from './lib/stripe.manager';
 export * from './lib/stripe.service';
+export * from './lib/stripe.types';
 export * from './lib/stripe.util';
-export { SubplatInterval } from './lib/stripe.types';

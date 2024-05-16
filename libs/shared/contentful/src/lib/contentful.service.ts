@@ -3,11 +3,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Injectable } from '@nestjs/common';
+import { StripeManager, SubplatInterval } from '@fxa/payments/stripe';
+import { ContentfulServiceError } from './contentful.error';
 import { ContentfulManager } from './contentful.manager';
+import { ContentfulServiceConfig } from './contentful.service.config';
 
 @Injectable()
 export class ContentfulService {
-  constructor(private contentfulManager: ContentfulManager) {}
+  constructor(
+    private contentfulManager: ContentfulManager,
+    private stripeManager: StripeManager,
+    private contentfulServiceConfig: ContentfulServiceConfig
+  ) {}
 
   async fetchContentfulData(offeringId: string, acceptLanguage: string) {
     const offeringResult =
@@ -17,5 +24,29 @@ export class ContentfulService {
       );
 
     return offeringResult.getOffering();
+  }
+
+  async retrieveStripePlanId(
+    offeringConfigId: string,
+    interval: SubplatInterval
+  ) {
+    const planIds = await this.contentfulManager.getOfferingPlanIds(
+      offeringConfigId
+    );
+    // Temporary supported list of plans
+    // CMS purchase.stripePlanChoices is currently not configured correctly
+    // Unfortunately, currently the CMS is read-only and can't be updated
+    // As a temporary work around provide a list of supported plans
+    const supportedListOfPriceIds =
+      this.contentfulServiceConfig.supportedPlanIds.split(',');
+    const filteredPlanIds = planIds.filter((priceId) =>
+      supportedListOfPriceIds.includes(priceId)
+    );
+    const plan = await this.stripeManager.getPlanByInterval(
+      filteredPlanIds,
+      interval
+    );
+    if (!plan) throw new ContentfulServiceError('Plan not found');
+    return plan.id;
   }
 }

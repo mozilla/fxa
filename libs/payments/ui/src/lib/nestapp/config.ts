@@ -12,6 +12,7 @@ import { StripeConfig } from '@fxa/payments/stripe';
 import { ContentfulClientConfig } from '@fxa/shared/contentful';
 import { FirestoreConfig } from 'libs/shared/db/firestore/src/lib/firestore.config';
 import { StatsDConfig } from 'libs/shared/metrics/statsd/src/lib/statsd.config';
+import { ContentfulServiceConfig } from 'libs/shared/contentful/src/lib/contentful.service.config';
 
 export class RootConfig {
   @Type(() => MySQLConfig)
@@ -42,6 +43,11 @@ export class RootConfig {
   @ValidateNested()
   @IsDefined()
   public readonly contentfulClientConfig!: Partial<ContentfulClientConfig>;
+
+  @Type(() => ContentfulServiceConfig)
+  @ValidateNested()
+  @IsDefined()
+  public readonly contentfulServiceConfig!: Partial<ContentfulServiceConfig>;
 
   @Type(() => FirestoreConfig)
   @ValidateNested()
