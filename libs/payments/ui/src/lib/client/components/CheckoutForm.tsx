@@ -16,7 +16,8 @@ import LockImage from '@fxa/shared/assets/images/lock.svg';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import * as Form from '@radix-ui/react-form';
-import { Localized } from '@fluent/react';
+import { Localized, useLocalization } from '@fluent/react';
+import { PrimaryButton } from './PrimaryButton';
 
 interface CheckoutFormProps {
   readOnly: boolean;
@@ -30,6 +31,7 @@ interface CheckoutFormProps {
 export function CheckoutForm({ readOnly, cart }: CheckoutFormProps) {
   const router = useRouter();
   const stripe = useStripe();
+  const { l10n } = useLocalization();
   const elements = useElements();
   const [isPaymentElementLoading, setIsPaymentElementLoading] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -138,20 +140,22 @@ export function CheckoutForm({ readOnly, cart }: CheckoutFormProps) {
             </Localized>
           </Form.Label>
           <Form.Control asChild>
-            <Localized id="next-payment-name" attrs={{ placeholder: true }}>
-              <input
-                className="w-full border rounded-md border-black/30 p-3 placeholder:text-grey-500 placeholder:font-normal focus:border focus:!border-black/30 focus:!shadow-[0_0_0_3px_rgba(10,132,255,0.3)] focus-visible:outline-none data-[invalid=true]:border-alert-red data-[invalid=true]:text-alert-red data-[invalid=true]:shadow-inputError"
-                type="text"
-                data-testid="name"
-                placeholder="Full Name"
-                readOnly={readOnly}
-                value={fullName}
-                onChange={(e) => {
-                  setFullName(e.target.value);
-                  setHasFullNameError(!e.target.value);
-                }}
-              />
-            </Localized>
+            <input
+              className="w-full border rounded-md border-black/30 p-3 placeholder:text-grey-500 placeholder:font-normal focus:border focus:!border-black/30 focus:!shadow-[0_0_0_3px_rgba(10,132,255,0.3)] focus-visible:outline-none data-[invalid=true]:border-alert-red data-[invalid=true]:text-alert-red data-[invalid=true]:shadow-inputError"
+              type="text"
+              data-testid="name"
+              placeholder={l10n.getString(
+                'payment-name-placeholder',
+                {},
+                'Full Name'
+              )}
+              readOnly={readOnly}
+              value={fullName}
+              onChange={(e) => {
+                setFullName(e.target.value);
+                setHasFullNameError(!e.target.value);
+              }}
+            />
           </Form.Control>
           {hasFullNameError && (
             <Form.Message asChild>
@@ -162,12 +166,20 @@ export function CheckoutForm({ readOnly, cart }: CheckoutFormProps) {
           )}
         </Form.Field>
       )}
-      <PaymentElement options={{ readOnly }} />
+      <PaymentElement
+        options={{
+          layout: {
+            type: 'accordion',
+            defaultCollapsed: false,
+            radios: false,
+            spacedAccordionItems: true,
+          },
+        }}
+      />
       {!isPaymentElementLoading && (
         <Form.Submit asChild>
           <Localized id="next-new-user-submit">
-            <button
-              className="flex items-center justify-center bg-blue-500 font-semibold h-12 rounded-md text-white w-full p-4 mt-6 hover:bg-blue-700 aria-disabled:relative aria-disabled:after:absolute aria-disabled:after:content-[''] aria-disabled:after:top-0 aria-disabled:after:left-0 aria-disabled:after:w-full aria-disabled:after:h-full aria-disabled:after:bg-white aria-disabled:after:opacity-50 aria-disabled:after:z-30 aria-disabled:border-none"
+            <PrimaryButton
               type="submit"
               aria-disabled={
                 !stripeFieldsComplete || !nonStripeFieldsComplete || loading
@@ -179,7 +191,7 @@ export function CheckoutForm({ readOnly, cart }: CheckoutFormProps) {
                 alt=""
               />
               Subscribe Now
-            </button>
+            </PrimaryButton>
           </Localized>
         </Form.Submit>
       )}

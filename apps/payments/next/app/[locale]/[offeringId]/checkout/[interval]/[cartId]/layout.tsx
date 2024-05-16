@@ -12,6 +12,7 @@ import {
   TermsAndPrivacy,
 } from '@fxa/payments/ui/server';
 import { DEFAULT_LOCALE } from '@fxa/shared/l10n';
+import { config } from 'apps/payments/next/config';
 
 // TODO - Replace these placeholders as part of FXA-8227
 export const metadata = {
@@ -74,6 +75,7 @@ export default async function RootLayout({
           {...cart}
           {...contentful.commonContent}
           {...contentful.defaultPurchase.purchaseDetails}
+          contentServerUrl={config.contentServerUrl}
           showFXALinks={true}
         />
       </div>

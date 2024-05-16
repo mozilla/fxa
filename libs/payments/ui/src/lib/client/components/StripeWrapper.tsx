@@ -6,6 +6,8 @@
 import { loadStripe, StripeElementsOptions } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import { CheckoutForm } from './CheckoutForm';
+import { useContext, useState } from 'react';
+import { ConfigContext } from '../providers/ConfigProvider';
 
 interface StripeWrapperProps {
   readOnly: boolean;
@@ -24,16 +26,15 @@ export function StripeWrapper({
   currency,
   cart,
 }: StripeWrapperProps) {
-  // TODO - Load from config
-  const stripePromise = loadStripe(
-    'pk_test_VNpCidC0a2TJJB3wqXq7drhN00sF8r9mhs'
-  );
+  const config = useContext(ConfigContext);
+  const [stripePromise] = useState(() => loadStripe(config.stripePublicApiKey));
 
   const options: StripeElementsOptions = {
     mode: 'subscription',
     amount,
     currency,
     paymentMethodCreation: 'manual',
+    externalPaymentMethodTypes: ['external_paypal'],
     appearance: {
       variables: {
         fontFamily:

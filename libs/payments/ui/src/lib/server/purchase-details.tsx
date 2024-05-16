@@ -6,7 +6,6 @@ import { Invoice } from '@fxa/payments/cart';
 import Image from 'next/image';
 import { formatPlanPricing } from '../utils/helpers';
 import { LocalizerRsc } from '@fxa/shared/l10n/server';
-import '../../styles/index.css';
 
 type ListLabelItemProps = {
   labelLocalizationId: string;
@@ -169,9 +168,9 @@ export async function PurchaseDetails(props: PurchaseDetailsProps) {
       </ul>
 
       <div className="plan-details-item pt-4 pb-6 font-semibold">
-        <span className="text-base">
+        <h3 className="text-base">
           {l10n.getString('next-plan-details-total-label', 'Total')}
-        </span>
+        </h3>
         <span
           className="overflow-hidden text-ellipsis text-lg whitespace-nowrap"
           data-testid="total-price"

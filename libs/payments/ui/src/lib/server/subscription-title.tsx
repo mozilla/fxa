@@ -5,7 +5,7 @@
 import Image from 'next/image';
 import { CartState } from '@fxa/shared/db/mysql/account';
 import { LocalizerRsc } from '@fxa/shared/l10n/server';
-import checkLogo from '../../images/check.svg';
+import checkLogo from '@fxa/shared/assets/images/check.svg';
 
 const getComponentTitle = (cartState: CartState) => {
   switch (cartState) {

@@ -85,8 +85,8 @@ export function buildFirefoxAccountsTerms(
   return [
     {
       key: 'fxa-terms',
-      title: 'Firefox Accounts',
-      titleLocalizationId: 'title-1',
+      title: 'Mozilla Accounts',
+      titleLocalizationId: 'next-subplat-mozilla-accounts-legal-heading',
       items: [
         {
           key: 'fxa-terms-1',

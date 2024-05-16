@@ -5,7 +5,6 @@
 
 import { useState } from 'react';
 import { CheckoutCheckbox } from './CheckoutCheckbox';
-import { Providers } from './Providers';
 import { StripeWrapper } from './StripeWrapper';
 import { Localized } from '@fluent/react';
 
@@ -34,7 +33,7 @@ export function PaymentSection({
   const [showConsentError, setShowConsentError] = useState(false);
 
   return (
-    <Providers>
+    <>
       <CheckoutCheckbox
         isRequired={showConsentError}
         termsOfService={cmsCommonContent.termsOfServiceUrl}
@@ -54,9 +53,9 @@ export function PaymentSection({
         onClick={() => setShowConsentError(true)}
       >
         <Localized id="next-new-user-card-title">
-          <p className="font-semibold text-grey-600 text-start mt-3 mb-6">
+          <h3 className="font-semibold text-grey-600 text-start mt-3 mb-6">
             Enter your card information
-          </p>
+          </h3>
         </Localized>
         <StripeWrapper
           readOnly={!formEnabled}
@@ -65,6 +64,6 @@ export function PaymentSection({
           cart={cart}
         />
       </div>
-    </Providers>
+    </>
   );
 }
