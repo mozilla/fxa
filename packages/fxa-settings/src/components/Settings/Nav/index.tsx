@@ -135,7 +135,7 @@ export const Nav = ({
   return (
     <nav
       // top-[7.69rem] allows the sticky nav header to align exactly with first section heading
-      className="font-header fixed bg-white w-full inset-0 mt-19 desktop:mt-24 me-24 desktop:mt-0 desktop:sticky desktop:top-[7.69rem] desktop:bg-transparent text-xl desktop:text-base"
+      className="font-header fixed bg-white w-full inset-0 mt-19 desktop:mt-0 desktop:sticky desktop:top-[7.69rem] desktop:bg-transparent text-xl desktop:text-base"
       data-testid="nav"
     >
       <ul className="px-6 py-8 tablet:px-8 desktop:p-0 text-start">
