@@ -7,6 +7,7 @@ import {
   Cart,
   CartEligibilityStatus,
   CartErrorReasonId,
+  CartState,
 } from '@fxa/shared/db/mysql/account';
 
 export type FinishCart = {
@@ -63,4 +64,10 @@ export type UpdateCart = {
   taxAddress?: TaxAddress;
   couponCode?: string;
   email?: string;
+};
+
+export type CartEligibilityDetails = {
+  eligibilityStatus: CartEligibilityStatus;
+  state: CartState;
+  errorReasonId?: CartErrorReasonId;
 };
