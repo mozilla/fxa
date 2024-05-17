@@ -4,12 +4,10 @@
 
 import { Command } from 'commander';
 import { StatsD } from 'hot-shots';
-import PQueue from 'p-queue';
 import { Container } from 'typedi';
+import { processAccountDeletionInRange } from '../lib/routes/cloud-scheduler';
 
-import { setupAccountDatabase } from '@fxa/shared/db/mysql/account';
-
-import appConfig, { ConfigType } from '../config';
+import appConfig from '../config';
 import * as random from '../lib/crypto/random';
 import DB from '../lib/db';
 import { setupFirestore } from '../lib/firestore-db';
@@ -21,7 +19,6 @@ import Token from '../lib/tokens';
 import { AppConfig, AuthFirestore, AuthLogger } from '../lib/types';
 import { parseDryRun } from './lib/args';
 import {
-  AccountTasks,
   AccountTasksFactory,
   ReasonForDeletion,
 } from '@fxa/shared/cloud-tasks';
@@ -225,7 +222,7 @@ const init = async () => {
       return 0;
     }
 
-    await processDateRange(
+    await processAccountDeletionInRange(
       config,
       accountTasks,
       reason,
@@ -237,84 +234,6 @@ const init = async () => {
 
   return 0;
 };
-
-/**
- * Process a date range of accounts to delete.
- *
- * @param config
- * @param accountTasks
- * @param reason
- * @param startDate
- * @param endDate
- * @param taskLimit
- */
-export async function processDateRange(
-  config: ConfigType,
-  accountTasks: AccountTasks,
-  reason: ReasonForDeletion,
-  startDate: any,
-  endDate: any,
-  taskLimit: number
-) {
-  const kyselyDb = await setupAccountDatabase(config.database.mysql.auth);
-  const accounts = await kyselyDb
-    .selectFrom('accounts')
-    .where('accounts.emailVerified', '=', 0)
-    .where('accounts.createdAt', '>=', startDate)
-    .where('accounts.createdAt', '<=', endDate)
-    .leftJoin('accountCustomers', 'accounts.uid', 'accountCustomers.uid')
-    .select(['accounts.uid', 'accountCustomers.stripeCustomerId'])
-    .execute();
-
-  // Scaling suggestion is 500/5/50 rule, may start at 500/sec, and increase every 5 minutes by 50%.
-  // They also note increased latency may occur past 1000/sec, so we stop increasing as we approach that.
-  const scaleUpIntervalMins = 5;
-  let lastScaleUp = Date.now();
-  let rateLimit = taskLimit;
-  const queue = new PQueue({
-    interval: 1000,
-    intervalCap: rateLimit,
-    concurrency: rateLimit * 2,
-  });
-
-  if (accounts.length === 0) {
-    return 0;
-  }
-
-  for (const row of accounts) {
-    if (
-      rateLimit < 950 &&
-      Date.now() - lastScaleUp > scaleUpIntervalMins * 60 * 1000
-    ) {
-      rateLimit = Math.floor(rateLimit * 1.5);
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      queue['#intervalCap'] = rateLimit; // This is private, but we need to update it
-      queue.concurrency = rateLimit * 2;
-      lastScaleUp = Date.now();
-    }
-
-    await queue.onSizeLessThan(rateLimit * 4); // Back-pressure
-
-    queue.add(async () => {
-      try {
-        const result = await accountTasks.deleteAccount({
-          uid: row.uid.toString('hex'),
-          customerId: row.stripeCustomerId || undefined,
-          reason,
-        });
-        console.log(
-          `Created cloud task ${result} for uid ${row.uid.toString('hex')}`
-        );
-      } catch (err) {
-        console.error('Errored creating task', err);
-      }
-    });
-  }
-  await queue.onIdle(); // Wait for the queue to empty and promises to complete
-
-  return 0;
-}
 
 if (require.main === module) {
   init()

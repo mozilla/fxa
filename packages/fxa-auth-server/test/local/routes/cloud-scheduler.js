@@ -1,9 +1,13 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 const sinon = require('sinon');
 const assert = { ...sinon.assert, ...require('chai').assert };
 import { ReasonForDeletion } from '@fxa/shared/cloud-tasks';
 import proxyquire from 'proxyquire';
 
-describe.skip('CloudSchedulerHandler', function () {
+describe('CloudSchedulerHandler', function () {
   this.timeout(10000);
 
   let cloudSchedulerHandler;
@@ -11,7 +15,7 @@ describe.skip('CloudSchedulerHandler', function () {
   let log;
   let statsd;
   let AccountTasksFactory;
-  let processDateRange;
+  let mockProcessAccountDeletionInRange;
 
   beforeEach(() => {
     config = {
@@ -30,14 +34,10 @@ describe.skip('CloudSchedulerHandler', function () {
       increment: sinon.stub(),
     };
     AccountTasksFactory = sinon.stub();
-    processDateRange = sinon.stub();
 
     const { CloudSchedulerHandler } = proxyquire(
       '../../../lib/routes/cloud-scheduler',
       {
-        '../../scripts/delete-unverified-accounts': {
-          processDateRange,
-        },
         '@fxa/shared/cloud-tasks': {
           AccountTasksFactory,
         },
@@ -45,10 +45,15 @@ describe.skip('CloudSchedulerHandler', function () {
     );
 
     cloudSchedulerHandler = new CloudSchedulerHandler(log, config, statsd);
+
+    mockProcessAccountDeletionInRange = sinon.stub(
+      cloudSchedulerHandler,
+      'processAccountDeletionInRange'
+    );
   });
 
   describe('deleteUnverifiedAccounts', () => {
-    it('should call processDateRange with correct parameters', async () => {
+    it('should call processAccountDeletionInRange with correct parameters', async () => {
       const accountTasks = AccountTasksFactory(config, statsd);
       const { sinceDays, durationDays, taskLimit } =
         config.cloudScheduler.deleteUnverifiedAccounts;
@@ -61,13 +66,14 @@ describe.skip('CloudSchedulerHandler', function () {
       await cloudSchedulerHandler.deleteUnverifiedAccounts();
 
       assert.calledOnceWithExactly(
-        processDateRange,
+        mockProcessAccountDeletionInRange,
         config,
         accountTasks,
         reason,
         startDate.getTime(),
         endDate.getTime(),
-        taskLimit
+        taskLimit,
+        log
       );
     });
   });
