@@ -180,9 +180,17 @@ const DESCRIPTIONS = {
   productMetadata:
     'Set of key-value pairs used to store additional information about the product. For more information, see [Ecosystem Platform](https://mozilla.github.io/ecosystem-platform/tutorials/subscription-platform#stripe-product-metadata)',
   productName: 'The name of the product purchased.',
+  promotionAmountOff:
+    'Amount (in the currency specified) that will be taken off the subtotal of any invoices for this customer.',
   promotionCode: 'A customer-redeemable code for a coupon.',
   promotionDuration: 'Indicates how long the coupon is valid for.',
+  promotionEnd:
+    'If the coupon has a duration of repeating, the date that this discount will end. If the coupon has a duration of once or forever, this attribute will be null.',
   promotionId: 'The id associated with the promotion code',
+  promotionName:
+    'Name of the coupon displayed to customers on for instance invoices or receipts.',
+  promotionPercentOff:
+    'Percent that will be taken off the subtotal of any invoices for this customer for the duration of the coupon. For example, a coupon with percent_off of 50 will make a $100 invoice $50 instead.',
   providerUid: 'The user id associated with a particular third party provider.',
   publicKey:
     'The key to sign (run bin/generate-keypair from [**browserid-crypto**](https://github.com/mozilla/browserid-crypto)).',

@@ -440,6 +440,13 @@ module.exports.subscriptionsSubscriptionValidator = isA.object({
   subscription_id: module.exports.subscriptionsSubscriptionId
     .required()
     .description(DESCRIPTIONS.subscriptionId),
+  promotion_amount_off: isA
+    .number()
+    .integer()
+    .min(0)
+    .optional()
+    .allow(null)
+    .description(DESCRIPTIONS.promotionAmountOff),
   promotion_code: isA
     .string()
     .optional()
@@ -450,7 +457,23 @@ module.exports.subscriptionsSubscriptionValidator = isA.object({
     .optional()
     .allow(null)
     .description(DESCRIPTIONS.promotionDuration),
-  promotion_end: isA.number().optional().allow(null),
+  promotion_end: isA
+    .number()
+    .optional()
+    .allow(null)
+    .description(DESCRIPTIONS.promotionEnd),
+  promotion_name: isA
+    .string()
+    .optional()
+    .allow(null)
+    .description(DESCRIPTIONS.promotionName),
+  promotion_percent_off: isA
+    .number()
+    .min(0)
+    .max(100)
+    .optional()
+    .allow(null)
+    .description(DESCRIPTIONS.promotionPercentOff),
 });
 
 // This is support-panel's perspective on a subscription
