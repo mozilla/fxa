@@ -14,6 +14,7 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
   it('formats invoice', () => {
     const mockUpcomingInvoice = StripeResponseFactory(
       StripeUpcomingInvoiceFactory({
+        discount: StripeDiscountFactory(),
         total_discount_amounts: [
           {
             amount: 500,
@@ -45,7 +46,8 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
         },
       ],
       discountAmount:
-        mockUpcomingInvoice.total_discount_amounts?.[0].amount ?? null,
+        mockUpcomingInvoice.discount &&
+        mockUpcomingInvoice.total_discount_amounts?.[0].amount,
     });
   });
 });

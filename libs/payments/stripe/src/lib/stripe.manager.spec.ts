@@ -87,6 +87,7 @@ describe('StripeManager', () => {
       const mockPrice = StripePriceFactory();
       const mockUpcomingInvoice = StripeResponseFactory(
         StripeUpcomingInvoiceFactory({
+          discount: StripeDiscountFactory(),
           total_discount_amounts: [
             {
               amount: 500,
@@ -119,8 +120,8 @@ describe('StripeManager', () => {
           },
         ],
         discountAmount:
-          mockUpcomingInvoice.total_discount_amounts &&
-          mockUpcomingInvoice.total_discount_amounts[0].amount,
+          mockUpcomingInvoice.discount &&
+          mockUpcomingInvoice.total_discount_amounts?.[0].amount,
       };
 
       jest

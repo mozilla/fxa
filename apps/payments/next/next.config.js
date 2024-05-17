@@ -40,6 +40,12 @@ const nextConfig = {
         port: '',
         pathname: '/product-icons/**',
       },
+      {
+        protocol: 'https',
+        hostname: '123done-stage.dev.lcip.org',
+        port: '',
+        pathname: '/img/**',
+      },
     ],
   },
 };

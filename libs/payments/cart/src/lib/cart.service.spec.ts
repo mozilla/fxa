@@ -385,6 +385,7 @@ describe('CartService', () => {
     const mockPrice = StripePriceFactory();
     const mockUpcomingInvoice = StripeResponseFactory(
       StripeUpcomingInvoiceFactory({
+        discount: StripeDiscountFactory(),
         total_discount_amounts: [
           {
             amount: 500,
@@ -415,7 +416,9 @@ describe('CartService', () => {
         },
       ],
       discountAmount:
-        mockUpcomingInvoice.total_discount_amounts?.[0].amount ?? null,
+        mockUpcomingInvoice.discount &&
+        mockUpcomingInvoice.total_discount_amounts &&
+        mockUpcomingInvoice.total_discount_amounts[0].amount,
     };
 
     it('returns cart and invoicePreview', async () => {
