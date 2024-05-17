@@ -18,7 +18,11 @@ export function stripeInvoiceToFirstInvoicePreviewDTO(
     },
   ];
 
-  const discountAmount = invoice.total_discount_amounts?.[0].amount ?? null;
+  const discountAmount =
+    (invoice.discount &&
+      invoice.total_discount_amounts &&
+      invoice.total_discount_amounts[0].amount) ??
+    null;
 
   return {
     currency: invoice.currency,

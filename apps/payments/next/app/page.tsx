@@ -29,7 +29,7 @@ export default function Index() {
             <h2>VPN - Yearly</h2>
             <Link
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-              href="/en/vpn/checkout/yearly/landing"
+              href="/en/123donepro/checkout/yearly/landing"
             >
               Redirect
             </Link>
@@ -50,7 +50,7 @@ export default function Index() {
             <h2>VPN - Yearly</h2>
             <Link
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-              href="/en/vpn/checkout/yearly/new"
+              href="/en/123donepro/checkout/yearly/new"
             >
               Redirect
             </Link>
