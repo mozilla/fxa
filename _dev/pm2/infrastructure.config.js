@@ -60,5 +60,11 @@ module.exports = {
       autorestart: false,
       kill_timeout: 20000,
     },
+    {
+      name: 'cirrus',
+      script: '_scripts/cirrus.sh',
+      autorestart: false,
+      kill_timeout: 20000,
+    },
   ],
 };
