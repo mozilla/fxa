@@ -8,6 +8,8 @@ PORTS=(
   9090 # google-firestore-emulator
   5000 # sync server
   8001 # cirrus (experimenter)
+  8888 # kinto for cirrus
+  8003 # autograph for kinto
   8000 # auth-server db mysql
   9000 # auth-server key server
   3030 # content-server

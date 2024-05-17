@@ -61,6 +61,18 @@ module.exports = {
       kill_timeout: 20000,
     },
     {
+      name: 'autograph',
+      script: '_scripts/autograph.sh',
+      autorestart: false,
+      kill_timeout: 20000,
+    },
+    {
+      name: 'kinto',
+      script: '_scripts/kinto.sh',
+      autorestart: false,
+      kill_timeout: 20000,
+    },
+    {
       name: 'cirrus',
       script: '_scripts/cirrus.sh',
       autorestart: false,
