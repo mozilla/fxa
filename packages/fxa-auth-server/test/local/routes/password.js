@@ -194,6 +194,17 @@ describe('/password', () => {
           glean.resetPassword.otpEmailSent,
           mockRequest
         );
+
+        sinon.assert.calledWith(
+          mockAccountEventsManager.recordSecurityEvent,
+          sinon.match.defined,
+          sinon.match({
+            name: 'account.password_reset_otp_sent',
+            ipAddr: '63.245.221.32',
+            uid,
+            tokenId: undefined,
+          })
+        );
       });
     });
 
@@ -379,6 +390,17 @@ describe('/password', () => {
         sinon.assert.calledOnceWithExactly(
           glean.resetPassword.otpVerified,
           mockRequest
+        );
+
+        sinon.assert.calledWith(
+          mockAccountEventsManager.recordSecurityEvent,
+          sinon.match.defined,
+          sinon.match({
+            name: 'account.password_reset_otp_verified',
+            ipAddr: '63.245.221.32',
+            uid,
+            tokenId: undefined,
+          })
         );
       });
     });

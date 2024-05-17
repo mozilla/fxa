@@ -8,6 +8,9 @@ import { BaseAuthModel, Proc } from './base-auth';
 import { uuidTransformer } from '../../transformers';
 import { convertError } from '../../mysql';
 
+// These are the values of the `securityEventNames` table in the fxa DB.  The
+// numeric id is a MySQL auto_increment'd value.  It's best to run the
+// migrations and then add the id values here when adding more event types.
 const EVENT_NAMES = {
   'account.create': 1,
   'account.login': 2,
@@ -32,6 +35,8 @@ const EVENT_NAMES = {
   'account.secondary_email_added': 21,
   'account.secondary_email_removed': 22,
   'account.primary_secondary_swapped': 23,
+  'account.password_reset_otp_sent': 24,
+  'account.password_reset_otp_verified': 25,
 } as const;
 
 export type SecurityEventNames = keyof typeof EVENT_NAMES;
