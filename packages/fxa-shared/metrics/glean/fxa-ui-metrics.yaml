@@ -956,3 +956,97 @@ reg:
     expires: never
     data_sensitivity:
       - interaction
+
+cad_firefox:
+  view:
+    type: event
+    description: |
+      User viewed the "Download Firefox for mobile" screen after choosing and submitting the "I don't have Firefox for mobile" option
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-9607
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+  choice_view:
+    type: event
+    description: |
+      User viewed the "Connect another device" screen with choice options to download FF for mobile or not
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-9607
+    data_reviews:
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+  choice_engage:
+    type: event
+    description: |
+      User engaged on the "Connect another device" screen with choice options, selecting either of "I already have FF for mobile" or "I don't have FF for mobile", which is provided in the 'reason' for this event
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-9607
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: User chose either "has mobile" or "does not have mobile"
+  choice_submit:
+    type: event
+    description: |
+      User submitted on the "Connect another device" screen with choice options, submitting either of "I already have FF for mobile" or "I don't have FF for mobile", which is provided in the 'reason' for this event
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-9607
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: User submitted either "has mobile" or "does not have mobile"
+  sync_device_submit:
+    type: event
+    description: |
+      User clicked the "Continue to sync" button on the "Download Firefox for mobile" screen
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-9607
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction

@@ -91,7 +91,7 @@ button.link:hover {
   text-decoration: underline;
 }
 
-input[type='radio'] {
+input[type='radio']:not(.input-radio) {
   @include font();
   // autoprefixer does not handle appearance, see https://github.com/ai/autoprefixer/issues/205
   -moz-appearance: none;

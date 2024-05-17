@@ -1,0 +1,25 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* When we use this in React and no longer need it in content-server, we should use
+ * a component instead of this class abstraction if possible. */
+.input-radio {
+  @apply absolute appearance-none w-full h-full top-0 drop-shadow-sm bg-grey-10 rounded-lg border-grey-100 border-2 hover:border-blue-100 hover:bg-white focus-visible:outline-none;
+
+  &:checked {
+    @apply bg-gradient-to-tr from-blue-600/10 to-purple-500/10 border-blue-500;
+  }
+
+  &:not(:checked) {
+    @apply focus:shadow-input-blue-focus focus-visible:shadow-input-blue-focus;
+  }
+
+  &-wrapper {
+    @apply relative flex mb-4;
+  }
+
+  &-label {
+    @apply flex p-4 ps-6 z-10 hover:cursor-pointer;
+  }
+}

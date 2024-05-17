@@ -12,6 +12,11 @@ import PairingTotpMixin from './pairing-totp-mixin';
 import { MARKETING_ID_AUTUMN_2016, SYNC_SERVICE } from '../../lib/constants';
 import SyncAuthMixin from '../mixins/sync-auth-mixin';
 import MarketingMixin from '../mixins/marketing-mixin';
+import FormNeedsMobile from '../../models/pairing/form-needs-mobile';
+import GleanMetrics from '../../lib/glean';
+
+const GLEAN_EVENT_REASON_HAS_MOBILE = 'has mobile';
+const GLEAN_EVENT_REASON_NO_MOBILE = 'does not have mobile';
 
 class PairIndexView extends FormView {
   template = Template;
@@ -20,7 +25,11 @@ class PairIndexView extends FormView {
     ...FormView.prototype.events,
     'click #get-fx-mobile': 'downloadLinkEngagement',
     'click #pair-not-now': 'pairNotNowHandler',
+    'click #set-needs-mobile': 'setNeedsMobile',
+    'click #back-btn': 'handleBackButton',
+    'click .input-radio': 'handleRadioEngage',
   };
+  model = new FormNeedsMobile();
 
   submit() {
     this.metrics.flush();
@@ -52,14 +61,58 @@ class PairIndexView extends FormView {
   }
 
   setInitialContext(context) {
-    // Check the entrypoint. If we aren't in a entrypoint=fxa_app_menu context, then don't show QR code.
+    // Check the entrypoint. If we aren't in a entrypoint=fxa_app_menu context,
+    // then don't ask if the user needs to download Fx mobile then show QR code.
     const graphicId = this.getGraphicsId();
-    const showQrCode = this.showDownloadFirefoxQrCode();
+    const askMobileStatus = this.showDownloadFirefoxQrCode();
+    const needsMobileConfirmed = this.model.get('needsMobileConfirmed');
+
+    if (askMobileStatus) {
+      GleanMetrics.cadFirefox.choiceView();
+    }
+    if (needsMobileConfirmed) {
+      GleanMetrics.cadFirefox.view();
+    }
 
     context.set({
       graphicId,
-      showQrCode,
+      askMobileStatus,
+      needsMobileConfirmed,
     });
+  }
+
+  setNeedsMobile() {
+    const needsMobileConfirmed =
+      this.getElementValue('input[id="needs-mobile"]:checked') === 'on';
+    this.model.set('needsMobileConfirmed', needsMobileConfirmed);
+
+    GleanMetrics.cadFirefox.choiceSubmit({
+      reason: needsMobileConfirmed
+        ? GLEAN_EVENT_REASON_HAS_MOBILE
+        : GLEAN_EVENT_REASON_NO_MOBILE,
+    });
+
+    if (needsMobileConfirmed) {
+      this.render();
+    } else {
+      GleanMetrics.cadFirefox.syncDeviceSubmit();
+      this.submit();
+    }
+  }
+
+  handleBackButton() {
+    this.model.set('needsMobileConfirmed', false);
+    this.render();
+  }
+
+  handleRadioEngage(e) {
+    this.$('#set-needs-mobile').removeAttr('disabled');
+    const reason =
+      this.getElementValue('input[id="needs-mobile"]:checked') === 'on'
+        ? GLEAN_EVENT_REASON_NO_MOBILE
+        : GLEAN_EVENT_REASON_HAS_MOBILE;
+
+    GleanMetrics.cadFirefox.choiceEngage({ reason });
   }
 
   downloadLinkEngagement() {
