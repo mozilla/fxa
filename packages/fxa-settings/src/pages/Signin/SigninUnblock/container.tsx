@@ -49,6 +49,7 @@ import { queryParamsToMetricsContext } from '../../../lib/metrics';
 import OAuthDataError from '../../../components/OAuthDataError';
 import { useValidatedQueryParams } from '../../../lib/hooks/useValidate';
 import { trySignIn, tryKeyStretchingUpgrade } from '../container';
+import { getCredentials } from 'fxa-auth-client/browser';
 
 const SigninUnblockContainer = ({
   integration,
@@ -120,17 +121,19 @@ const SigninUnblockContainer = ({
           passwordChangeFinish
         );
 
-      if (error) {
-        return { error };
-      }
-
       return await trySignIn(
         email,
         v1Credentials,
-        v2Credentials,
+        error ? undefined : v2Credentials,
         unverifiedAccount,
         beginSignin,
-        options
+        options,
+        async (correctedEmail: string) => {
+          return {
+            v1Credentials: await getCredentials(correctedEmail, password),
+            v2Credentials,
+          };
+        }
       );
     } catch (error) {
       return getHandledError(error);

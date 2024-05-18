@@ -19,7 +19,7 @@ export class ConfigPage extends BaseLayout {
       const metaConfig = page.locator('meta[name="fxa-content-server/config"]');
       const config = await metaConfig.getAttribute('content');
 
-      this.config = JSON.parse(decodeURIComponent(config));
+      this.config = JSON.parse(decodeURIComponent(config || '{}'));
 
       await page.close();
     }

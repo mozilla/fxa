@@ -149,7 +149,10 @@ export function mockGqlAvatarUseQuery() {
   };
 }
 
-export function mockGqlBeginSigninMutation(opts: { keys: boolean }) {
+export function mockGqlBeginSigninMutation(
+  opts: { keys: boolean },
+  inputOverrides: any = {}
+) {
   const result = opts.keys
     ? createBeginSigninResponse({
         keyFetchToken: MOCK_KEY_FETCH_TOKEN,
@@ -164,6 +167,7 @@ export function mockGqlBeginSigninMutation(opts: { keys: boolean }) {
         input: {
           email: MOCK_EMAIL,
           authPW: MOCK_AUTH_PW,
+          ...inputOverrides,
           options: {
             ...opts,
             verificationMethod: VerificationMethods.EMAIL_OTP,
@@ -288,13 +292,15 @@ export function mockBeginSigninMutationWithV2Password() {
 }
 
 export function mockGqlError(
-  error: AuthUiError = AuthUiErrors.UNEXPECTED_ERROR
+  error: AuthUiError = AuthUiErrors.UNEXPECTED_ERROR,
+  extensionOverrides: any = {}
 ) {
   return new ApolloError({
     graphQLErrors: [
       new GraphQLError(error.message, {
         extensions: {
           errno: error.errno,
+          ...extensionOverrides,
         },
       }),
     ],
@@ -340,6 +346,7 @@ export function createBeginSigninResponseError({
   errno = AuthUiErrors.INCORRECT_PASSWORD.errno!,
   verificationMethod,
   verificationReason,
+  email,
 }: Partial<BeginSigninError> = {}): {
   error: BeginSigninError;
 } {
@@ -350,6 +357,7 @@ export function createBeginSigninResponseError({
       verificationMethod,
       verificationReason,
       message,
+      email,
     },
   };
 }

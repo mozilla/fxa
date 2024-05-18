@@ -85,6 +85,7 @@ export interface BeginSigninError {
   verificationMethod?: VerificationMethods;
   retryAfter?: number;
   retryAfterLocalized?: string;
+  email?: string;
 }
 
 export type CachedSigninHandler = (

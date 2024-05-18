@@ -192,9 +192,7 @@ function mockSigninModule() {
 }
 
 function mockReactUtilsModule() {
-  jest
-    .spyOn(ReactUtils, 'hardNavigate')
-    .mockImplementation(() => {});
+  jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => {});
 }
 
 let mockGetCredentials: jest.SpyInstance;
@@ -454,6 +452,35 @@ describe('signin container', () => {
         expect(handlerResult?.error?.message).toEqual(
           AuthUiErrors.INCORRECT_PASSWORD.message
         );
+      });
+    });
+
+    it('handles incorrect email case error', async () => {
+      await render([
+        mockGqlAvatarUseQuery(),
+        // The first call should fail, and the incorrect email case error
+        // with the corrected email in the error response should be returned.
+        {
+          ...mockGqlBeginSigninMutation(
+            { keys: false },
+            { email: MOCK_EMAIL.toUpperCase() }
+          ),
+          error: mockGqlError(AuthUiErrors.INCORRECT_EMAIL_CASE, {
+            email: MOCK_EMAIL,
+          }),
+        },
+        // The corrected email should then be used, for the second attempt, and
+        // the login should succeed.
+        mockGqlBeginSigninMutation({ keys: false }),
+      ]);
+
+      await waitFor(async () => {
+        const handlerResult = await currentSigninProps?.beginSigninHandler(
+          MOCK_EMAIL.toUpperCase(),
+          MOCK_PASSWORD
+        );
+        expect(handlerResult?.data).toBeDefined();
+        expect(handlerResult?.error).toBeUndefined();
       });
     });
 

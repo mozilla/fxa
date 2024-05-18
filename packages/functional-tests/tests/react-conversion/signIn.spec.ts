@@ -31,5 +31,32 @@ test.describe('severity-2 #smoke', () => {
 
       await expect(signinReact.emailFirstHeading).toBeVisible();
     });
+
+    test('sign in as an existing user with incorrect email case', async ({
+      page,
+      pages: { configPage, settings, signinReact },
+      testAccountTracker,
+    }) => {
+      // Ensure that the feature flag is enabled
+      const config = await configPage.getConfig();
+      test.skip(
+        config.showReactApp.signInRoutes !== true,
+        'React signInRoutes not enabled'
+      );
+      const credentials = await testAccountTracker.signUp();
+
+      await signinReact.goto();
+      // Note, we should automatically handle emails that are incorrectly cased
+      await signinReact.fillOutEmailFirstForm(credentials.email.toUpperCase());
+      await signinReact.fillOutPasswordForm(credentials.password);
+
+      // Verify successfully navigated to settings
+      await expect(page).toHaveURL(/settings/);
+
+      // Sign out
+      await settings.signOut();
+
+      await expect(signinReact.emailFirstHeading).toBeVisible();
+    });
   });
 });
