@@ -1545,10 +1545,7 @@ const Account = Backbone.Model.extend(
     async consumeRecoveryCode(code) {
       const response = await this._fxaClient.consumeRecoveryCode(
         this.get('sessionToken'),
-        code,
-        {
-          metricsContext: this._metrics.getFlowEventMetadata(),
-        }
+        code
       );
       this.set('verified', true);
       return response;

@@ -10,6 +10,9 @@ import { AuthClientService } from '../backend/auth-client.service';
 import { SessionResolver } from './session.resolver';
 
 describe('SessionResolver', () => {
+  const headers = new Headers({
+    'x-forwarded-for': '123.123.123.123',
+  });
   let resolver: SessionResolver;
   let logger: any;
   let authClient: any;
@@ -49,7 +52,7 @@ describe('SessionResolver', () => {
 
   it('destroys the session', async () => {
     authClient.sessionDestroy = jest.fn().mockResolvedValue(true);
-    const result = await resolver.destroySession('token', {
+    const result = await resolver.destroySession('token', new Headers(), {
       clientMutationId: 'testid',
     });
     expect(authClient.sessionDestroy).toBeCalledTimes(1);
@@ -67,7 +70,6 @@ describe('SessionResolver', () => {
   });
 
   it('reauthenticates a given session with auth-client', async () => {
-    const headers = new Headers();
     const now = Date.now();
     const mockRespPayload = {
       clientMutationId: 'testid',
@@ -98,7 +100,6 @@ describe('SessionResolver', () => {
 
   it('resends a verify code through the auth-client', async () => {
     const sessionToken = 'goodtoken';
-    const headers = new Headers();
     authClient.sessionResendVerifyCode = jest.fn().mockResolvedValue({});
     const result = await resolver.resendVerifyCode(sessionToken, headers, {
       clientMutationId: 'testid',
@@ -115,7 +116,6 @@ describe('SessionResolver', () => {
 
   it('verifies a OTP code', async () => {
     const token = 'totallylegit';
-    const headers = new Headers();
     const mockRespPayload = {};
     authClient.sessionVerifyCode = jest.fn().mockResolvedValue(mockRespPayload);
     const result = await resolver.verifyCode(token, headers, {
@@ -141,12 +141,16 @@ describe('SessionResolver', () => {
     authClient.consumeRecoveryCode = jest
       .fn()
       .mockResolvedValue(mockRespPayload);
-    const result = await resolver.consumeRecoveryCode(token, {
+    const result = await resolver.consumeRecoveryCode(token, headers, {
       clientMutationId: 'testid',
       code: '00000000',
     });
     expect(authClient.consumeRecoveryCode).toBeCalledTimes(1);
-    expect(authClient.consumeRecoveryCode).toBeCalledWith(token, '00000000');
+    expect(authClient.consumeRecoveryCode).toBeCalledWith(
+      token,
+      '00000000',
+      headers
+    );
     expect(result).toStrictEqual({
       clientMutationId: 'testid',
       ...mockRespPayload,
