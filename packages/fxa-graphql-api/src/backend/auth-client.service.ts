@@ -15,7 +15,16 @@ export const AuthClientFactory: Provider = {
       'authServer'
     ) as AppConfig['authServer'];
 
-    return new AuthClient(authServerConfig.url, { keyStretchVersion: 2 });
+    return new AuthClient(authServerConfig.url, {
+      keyStretchVersion: 2,
+      // Important! This flag will result in auth client failing
+      // hard if headers are not provided! We've trouble in the
+      // with headers not being relayed for cross services calls.
+      // When this happens, debugging the source can be a bit
+      // nebulous, so we'd rather fail upfront and catch the problems
+      // in test.
+      requireHeaders: true,
+    });
   },
   inject: [ConfigService],
 };
