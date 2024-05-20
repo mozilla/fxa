@@ -9,7 +9,7 @@ export interface SigninUnblockLocationState {
   email: string;
   hasLinkedAccount: boolean;
   hasPassword: boolean;
-  password: string;
+  authPW: string;
 }
 
 export interface SigninUnblockProps {

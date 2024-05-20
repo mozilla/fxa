@@ -6,7 +6,6 @@ import { useMutation } from '@apollo/client';
 import { RouteComponentProps, useLocation } from '@reach/router';
 
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
-import { KeyStretchExperiment } from '../../../models/experiments/key-stretch-experiment';
 
 import VerificationMethods from '../../../constants/verification-methods';
 import { getLocalizedErrorMessage } from '../../../lib/auth-errors/auth-errors';
@@ -15,24 +14,11 @@ import {
   isOAuthIntegration,
   useAuthClient,
   useFtlMsgResolver,
-  useConfig,
 } from '../../../models';
 
 // using default signin handlers
-import {
-  BEGIN_SIGNIN_MUTATION,
-  CREDENTIAL_STATUS_MUTATION,
-  GET_ACCOUNT_KEYS_MUTATION,
-  PASSWORD_CHANGE_FINISH_MUTATION,
-  PASSWORD_CHANGE_START_MUTATION,
-} from '../gql';
-import {
-  BeginSigninResponse,
-  CredentialStatusResponse,
-  GetAccountKeysResponse,
-  PasswordChangeFinishResponse,
-  PasswordChangeStartResponse,
-} from '../interfaces';
+import { BEGIN_SIGNIN_MUTATION } from '../gql';
+import { BeginSigninResponse } from '../interfaces';
 
 import SigninUnblock from '.';
 import {
@@ -47,9 +33,6 @@ import { MozServices } from '../../../lib/types';
 import { QueryParams } from '../../..';
 import { queryParamsToMetricsContext } from '../../../lib/metrics';
 import OAuthDataError from '../../../components/OAuthDataError';
-import { useValidatedQueryParams } from '../../../lib/hooks/useValidate';
-import { trySignIn, tryKeyStretchingUpgrade } from '../container';
-import { getCredentials } from 'fxa-auth-client/browser';
 
 const SigninUnblockContainer = ({
   integration,
@@ -60,14 +43,11 @@ const SigninUnblockContainer = ({
 } & RouteComponentProps) => {
   const authClient = useAuthClient();
   const ftlMsgResolver = useFtlMsgResolver();
-  const config = useConfig();
-  const keyStretchExp = useValidatedQueryParams(KeyStretchExperiment);
 
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state: SigninUnblockLocationState;
   };
-  const { email, hasLinkedAccount, hasPassword, password } =
-    location.state || {};
+  const { email, authPW, hasLinkedAccount, hasPassword } = location.state || {};
 
   const wantsTwoStepAuthentication =
     isOAuthIntegration(integration) && integration.wantsTwoStepAuthentication();
@@ -75,22 +55,6 @@ const SigninUnblockContainer = ({
   const { finishOAuthFlowHandler, oAuthDataError } = useFinishOAuthFlowHandler(
     authClient,
     integration
-  );
-
-  const [credentialStatus] = useMutation<CredentialStatusResponse>(
-    CREDENTIAL_STATUS_MUTATION
-  );
-
-  const [passwordChangeStart] = useMutation<PasswordChangeStartResponse>(
-    PASSWORD_CHANGE_START_MUTATION
-  );
-
-  const [passwordChangeFinish] = useMutation<PasswordChangeFinishResponse>(
-    PASSWORD_CHANGE_FINISH_MUTATION
-  );
-
-  const [getWrappedKeys] = useMutation<GetAccountKeysResponse>(
-    GET_ACCOUNT_KEYS_MUTATION
   );
 
   const [beginSignin] = useMutation<BeginSigninResponse>(BEGIN_SIGNIN_MUTATION);
@@ -110,31 +74,15 @@ const SigninUnblockContainer = ({
     };
 
     try {
-      const { error, unverifiedAccount, v1Credentials, v2Credentials } =
-        await tryKeyStretchingUpgrade(
-          email,
-          password,
-          keyStretchExp.queryParamModel.isV2(config),
-          credentialStatus,
-          passwordChangeStart,
-          getWrappedKeys,
-          passwordChangeFinish
-        );
-
-      return await trySignIn(
-        email,
-        v1Credentials,
-        error ? undefined : v2Credentials,
-        unverifiedAccount,
-        beginSignin,
-        options,
-        async (correctedEmail: string) => {
-          return {
-            v1Credentials: await getCredentials(correctedEmail, password),
-            v2Credentials,
-          };
-        }
-      );
+      return beginSignin({
+        variables: {
+          input: {
+            email,
+            authPW,
+            options,
+          },
+        },
+      });
     } catch (error) {
       return getHandledError(error);
     }
@@ -161,7 +109,7 @@ const SigninUnblockContainer = ({
     return <OAuthDataError error={oAuthDataError} />;
   }
 
-  if (!email || !password) {
+  if (!email || !authPW) {
     hardNavigate('/', {}, true);
     return <LoadingSpinner fullScreen />;
   }

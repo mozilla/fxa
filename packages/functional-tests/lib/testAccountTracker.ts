@@ -91,6 +91,15 @@ export class TestAccountTracker {
   }
 
   /**
+   * Creates a new email address with the 'blocked' prefix and a new randomized
+   * password
+   * @returns AccountDetails
+   */
+  generateBlockedAccountDetails(): AccountDetails {
+    return this.generateAccountDetails(EmailPrefix.BLOCKED);
+  }
+
+  /**
    * Creates a new email address with a given prefix and a new randomized
    * password
    * @param prefix email prefix to use when generating email
