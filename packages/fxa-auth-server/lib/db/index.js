@@ -725,11 +725,15 @@ module.exports = (config, log, Token, UnblockCode = null) => {
 
   // BATCH
 
-  DB.prototype.resetAccount = async function (accountResetToken, data) {
+  DB.prototype.resetAccount = async function (
+    accountResetToken,
+    data,
+    keepSessions
+  ) {
     const { uid } = accountResetToken;
 
     log.trace('DB.resetAccount', { uid });
-    if (this.redis) {
+    if (this.redis && keepSessions !== true) {
       await this.redis.del(uid);
     }
     data.verifierSetAt = Date.now();

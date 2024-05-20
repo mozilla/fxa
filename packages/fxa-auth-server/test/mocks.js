@@ -671,6 +671,19 @@ function mockDB(data, errors) {
     createPassword: sinon.spy(() => {
       return Promise.resolve(1584397692000);
     }),
+    checkPassword: sinon.spy(() => {
+      return Promise.resolve({
+        v1: data.isPasswordMatchV1 === true,
+        v2: data.isPasswordMatchV2 === true,
+      });
+    }),
+    resetAccount: sinon.spy(() => {
+      return Promise.resolve({
+        uid: data.uid,
+        verifierSetAt: Date.now(),
+        email: data.email,
+      });
+    }),
   });
 }
 
