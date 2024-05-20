@@ -142,21 +142,14 @@ export type VerificationMethod =
   | 'email-captcha'
   | 'totp-2fa';
 
-function langHeader(lang?: string) {
-  return new Headers(
-    lang
-      ? {
-          'Accept-Language': lang,
-        }
-      : {}
-  );
-}
-
 function createHeaders(
-  headers: Headers = new Headers(),
-  options: Record<string, any> & { lang?: string }
+  headers?: Headers | undefined,
+  options?: Record<string, any> & { lang?: string }
 ) {
-  if (options.lang) {
+  if (headers === undefined) {
+    headers = new Headers();
+  }
+  if (options?.lang) {
     headers.set('Accept-Language', options.lang);
   }
   return headers;
@@ -216,10 +209,15 @@ export default class AuthClient {
   private localtimeOffsetMsec: number;
   private timeout: number;
   private keyStretchVersion: SaltVersion;
+  private requireHeaders: boolean;
 
   constructor(
     authServerUri: string,
-    options: { timeout?: number; keyStretchVersion?: SaltVersion } = {}
+    options: {
+      timeout?: number;
+      keyStretchVersion?: SaltVersion;
+      requireHeaders?: boolean;
+    } = {}
   ) {
     if (new RegExp(`/${AuthClient.VERSION}$`).test(authServerUri)) {
       this.uri = authServerUri;
@@ -229,6 +227,7 @@ export default class AuthClient {
     this.keyStretchVersion = options.keyStretchVersion || 1;
     this.localtimeOffsetMsec = 0;
     this.timeout = options.timeout || 30000;
+    this.requireHeaders = options.requireHeaders === true;
   }
 
   static async create(authServerUri: string, options?: AuthClientOptions) {
@@ -249,15 +248,23 @@ export default class AuthClient {
   private async request(
     method: string,
     path: string,
-    payload?: object | null,
-    headers: Headers = new Headers()
+    payload: object | null,
+    extraHeaders: Headers | undefined
   ) {
-    headers.set('Content-Type', 'application/json');
+    if (extraHeaders === undefined) {
+      if (this.requireHeaders) {
+        throw new Error('extraHeaders missing!');
+      } else {
+        extraHeaders = new Headers();
+      }
+    }
+
+    extraHeaders.set('Content-Type', 'application/json');
     const response = await fetchOrTimeout(
       this.url(path),
       {
         method,
-        headers,
+        headers: extraHeaders,
         body: cleanStringify(payload),
       },
       this.timeout
@@ -281,9 +288,17 @@ export default class AuthClient {
     path: string,
     token: hexstring,
     kind: tokenType,
-    payload?: object,
-    extraHeaders: Headers = new Headers()
+    payload: object | null,
+    extraHeaders: Headers | undefined
   ) {
+    if (extraHeaders === undefined) {
+      if (this.requireHeaders) {
+        throw new Error('extraHeaders missing!');
+      } else {
+        extraHeaders = new Headers();
+      }
+    }
+
     const makeHeaders = async () => {
       const headers = await hawk.header(method, this.url(path), token, kind, {
         payload: cleanStringify(payload),
@@ -307,8 +322,19 @@ export default class AuthClient {
     }
   }
 
-  private async sessionGet(path: string, sessionToken: hexstring) {
-    return this.hawkRequest('GET', path, sessionToken, tokenType.sessionToken);
+  private async sessionGet(
+    path: string,
+    sessionToken: hexstring,
+    headers?: Headers
+  ) {
+    return this.hawkRequest(
+      'GET',
+      path,
+      sessionToken,
+      tokenType.sessionToken,
+      null,
+      headers
+    );
   }
 
   private async sessionPost(
@@ -357,7 +383,8 @@ export default class AuthClient {
   async signUp(
     email: string,
     password: string,
-    options: SignUpOptions = {}
+    options: SignUpOptions = {},
+    headers?: Headers
   ): Promise<SignedUpAccountData> {
     const credentialsV1 = await crypto.getCredentials(email, password);
 
@@ -377,9 +404,9 @@ export default class AuthClient {
       credentialsV1.authPW,
       v2Payload,
       options,
-      langHeader(options.lang)
+      createHeaders(headers, options)
     )) as SignedUpAccountData;
-    if (options.keys) {
+    if (options?.keys) {
       if (credentialsV2) {
         accountData.unwrapBKey = credentialsV2.unwrapBKey;
       } else {
@@ -406,7 +433,7 @@ export default class AuthClient {
         }
       | {},
     options: SignUpOptions,
-    headers: Headers = new Headers()
+    headers?: Headers
   ): Promise<Omit<SignedUpAccountData, 'unwrapBKey'>> {
     const payloadOptions = ({ keys, lang, ...rest }: SignUpOptions) => rest;
     const payload = {
@@ -419,7 +446,7 @@ export default class AuthClient {
       'POST',
       pathWithKeys('/account/create', options.keys),
       payload,
-      headers
+      createHeaders(headers, options)
     );
 
     if (v2) {
@@ -439,9 +466,10 @@ export default class AuthClient {
   async signIn(
     email: string,
     password: string,
-    options: SignInOptions = {}
+    options: SignInOptions = {},
+    headers?: Headers
   ): Promise<SignedInAccountData> {
-    let credentials = await this.getCredentialSet({ email, password });
+    let credentials = await this.getCredentialSet({ email, password }, headers);
 
     try {
       let accountData: SignedInAccountData;
@@ -452,30 +480,47 @@ export default class AuthClient {
           // v1 credentials and set the client's target key stretch version back to 1.
           if (options.postPasswordUpgrade === true) {
             this.keyStretchVersion = 1;
-            return await this.signIn(email, password, {
-              ...options,
-              postPasswordUpgrade: true,
-            });
+            return await this.signIn(
+              email,
+              password,
+              {
+                ...options,
+                postPasswordUpgrade: true,
+              },
+              createHeaders(headers, options)
+            );
           }
 
           // Try to upgrade the password, and sign in.
           try {
-            await this.passwordChange(email, password, password, options);
+            await this.passwordChange(
+              email,
+              password,
+              password,
+              options,
+              headers
+            );
           } catch (err) {
             Sentry.captureMessage(
               'Failure to complete v2 key stretch upgrade.'
             );
           }
-          return await this.signIn(email, password, {
-            ...options,
-            postPasswordUpgrade: true,
-          });
+          return await this.signIn(
+            email,
+            password,
+            {
+              ...options,
+              postPasswordUpgrade: true,
+            },
+            createHeaders(headers, options)
+          );
         } else if (credentials.v2) {
           // Already using V2! Just sign in.
           accountData = await this.signInWithAuthPW(
             email,
             credentials.v2.authPW,
-            options
+            options,
+            createHeaders(headers, options)
           );
         } else {
           throw new Error(
@@ -486,7 +531,8 @@ export default class AuthClient {
         accountData = await this.signInWithAuthPW(
           email,
           credentials.v1.authPW,
-          options
+          options,
+          createHeaders(headers, options)
         );
       }
 
@@ -509,7 +555,12 @@ export default class AuthClient {
       ) {
         options.skipCaseError = true;
         options.originalLoginEmail = email;
-        return this.signIn(error.email, password, options);
+        return this.signIn(
+          error.email,
+          password,
+          options,
+          createHeaders(headers, options)
+        );
       } else {
         throw error;
       }
@@ -525,7 +576,7 @@ export default class AuthClient {
     email: string,
     authPW: string,
     options: Omit<SignInOptions, 'skipCaseError' | 'originalLoginEmail'> = {},
-    headers: Headers = new Headers()
+    headers?: Headers
   ): Promise<Omit<SignedInAccountData, 'unwrapBKey'>> {
     const payloadOptions = ({ keys, ...rest }: any) => rest;
     const payload = {
@@ -537,7 +588,7 @@ export default class AuthClient {
       'POST',
       pathWithKeys('/account/login', options.keys),
       payload,
-      headers
+      createHeaders(headers, options)
     );
 
     if (accountData.keyFetchTokenVersion2) {
@@ -559,7 +610,7 @@ export default class AuthClient {
       newsletters?: string[];
       style?: string;
     } = {},
-    headers: Headers = new Headers()
+    headers?: Headers
   ) {
     return this.request(
       'POST',
@@ -569,12 +620,12 @@ export default class AuthClient {
         code,
         ...options,
       },
-      headers
+      createHeaders(headers, options)
     );
   }
 
-  async recoveryEmailStatus(sessionToken: hexstring) {
-    return this.sessionGet('/recovery_email/status', sessionToken);
+  async recoveryEmailStatus(sessionToken: hexstring, headers?: Headers) {
+    return this.sessionGet('/recovery_email/status', sessionToken, headers);
   }
 
   async recoveryEmailResendCode(
@@ -586,14 +637,15 @@ export default class AuthClient {
       resume?: string;
       type?: string;
       lang?: string;
-    } = {}
+    } = {},
+    headers?: Headers
   ) {
     const payloadOptions = ({ lang, ...rest }: any) => rest;
     return this.sessionPost(
       '/recovery_email/resend_code',
       sessionToken,
       payloadOptions(options),
-      langHeader(options.lang)
+      createHeaders(headers, options)
     );
   }
 
@@ -603,7 +655,7 @@ export default class AuthClient {
       service?: string;
       metricsContext?: MetricsContext;
     } = {},
-    headers: Headers = new Headers()
+    headers?: Headers
   ) {
     const payload = {
       email,
@@ -623,7 +675,7 @@ export default class AuthClient {
     options: {
       metricsContext?: MetricsContext;
     } = {},
-    headers: Headers = new Headers()
+    headers?: Headers
   ) {
     const payload = {
       email,
@@ -647,7 +699,7 @@ export default class AuthClient {
       lang?: string;
       metricsContext?: MetricsContext;
     } = {},
-    headers: Headers = new Headers()
+    headers?: Headers
   ) {
     const payloadOptions = ({ lang, ...rest }: any) => rest;
     const payload = {
@@ -671,7 +723,7 @@ export default class AuthClient {
       resume?: string;
       lang?: string;
     } = {},
-    headers: Headers = new Headers()
+    headers?: Headers
   ) {
     const payloadOptions = ({ lang, ...rest }: any) => rest;
     const payload = {
@@ -694,7 +746,7 @@ export default class AuthClient {
     options: {
       accountResetWithRecoveryKey?: boolean;
     } = {},
-    headers: Headers = new Headers()
+    headers?: Headers
   ) {
     const payload = {
       code,
@@ -710,12 +762,14 @@ export default class AuthClient {
     );
   }
 
-  async passwordForgotStatus(passwordForgotToken: string) {
+  async passwordForgotStatus(passwordForgotToken: string, headers?: Headers) {
     return this.hawkRequest(
       'GET',
       '/password/forgot/status',
       passwordForgotToken,
-      tokenType.passwordForgotToken
+      tokenType.passwordForgotToken,
+      null,
+      headers
     );
   }
 
@@ -729,12 +783,15 @@ export default class AuthClient {
       keys?: boolean;
       sessionToken?: boolean;
     } = {},
-    headers: Headers = new Headers()
+    headers?: Headers
   ) {
-    const credentials = await this.getCredentialSet({
-      email,
-      password: newPassword,
-    });
+    const credentials = await this.getCredentialSet(
+      {
+        email,
+        password: newPassword,
+      },
+      headers
+    );
 
     // Important! This does not take kB, so the encrypted data will become
     // inaccessible after this operation. A new kB will be created!
@@ -777,7 +834,7 @@ export default class AuthClient {
       keys?: boolean;
       sessionToken?: boolean;
     } = {},
-    headers: Headers = new Headers()
+    headers?: Headers
   ) {
     const payloadOptions = ({ keys, ...rest }: any) => rest;
     const payload = {
@@ -798,18 +855,27 @@ export default class AuthClient {
   async finishSetup(
     token: string,
     email: string,
-    newPassword: string
+    newPassword: string,
+    headers?: Headers
   ): Promise<{
     uid: hexstring;
     sessionToken: hexstring;
     verified: boolean;
   }> {
-    const credentials = await this.getCredentialSet({
-      email,
-      password: newPassword,
-    });
+    const credentials = await this.getCredentialSet(
+      {
+        email,
+        password: newPassword,
+      },
+      headers
+    );
     const v2Payload = await this.getPayloadV2(credentials);
-    return this.finishSetupWithAuthPW(token, credentials.v1.authPW, v2Payload);
+    return this.finishSetupWithAuthPW(
+      token,
+      credentials.v1.authPW,
+      v2Payload,
+      headers
+    );
   }
 
   /**
@@ -829,7 +895,7 @@ export default class AuthClient {
           clientSalt: string;
         }
       | {},
-    headers: Headers = new Headers()
+    headers?: Headers
   ) {
     const payload = {
       token,
@@ -847,8 +913,9 @@ export default class AuthClient {
   async verifyAccountThirdParty(
     code: string,
     provider: AUTH_PROVIDER = AUTH_PROVIDER.GOOGLE,
-    service?: string,
-    metricsContext: MetricsContext = {}
+    service: string | undefined,
+    metricsContext: MetricsContext | undefined,
+    headers?: Headers
   ): Promise<{
     uid: hexstring;
     sessionToken: hexstring;
@@ -856,18 +923,25 @@ export default class AuthClient {
     email: string;
     verificationMethod?: string;
   }> {
+    metricsContext = metricsContext || {};
     const payload = {
       code,
       provider,
       service,
       metricsContext,
     };
-    return await this.request('POST', '/linked_account/login', payload);
+    return await this.request(
+      'POST',
+      '/linked_account/login',
+      payload,
+      headers
+    );
   }
 
   async unlinkThirdParty(
     sessionToken: hexstring,
-    providerId: number
+    providerId: number,
+    headers?: Headers
   ): Promise<{ success: boolean }> {
     let provider: AUTH_PROVIDER;
 
@@ -880,14 +954,20 @@ export default class AuthClient {
         provider = AUTH_PROVIDER.GOOGLE;
       }
     }
-    return await this.sessionPost('/linked_account/unlink', sessionToken, {
-      provider,
-    });
+    return await this.sessionPost(
+      '/linked_account/unlink',
+      sessionToken,
+      {
+        provider,
+      },
+      headers
+    );
   }
 
   async accountKeys(
     keyFetchToken: hexstring,
-    unwrapBKey: hexstring
+    unwrapBKey: hexstring,
+    headers?: Headers
   ): Promise<{
     kA: hexstring;
     kB: hexstring;
@@ -900,7 +980,9 @@ export default class AuthClient {
       'GET',
       '/account/keys',
       keyFetchToken,
-      tokenType.keyFetchToken
+      tokenType.keyFetchToken,
+      null,
+      headers
     );
     const keys = await crypto.unbundleKeyFetchResponse(
       credentials.bundleKey,
@@ -912,10 +994,7 @@ export default class AuthClient {
     };
   }
 
-  async wrappedAccountKeys(
-    keyFetchToken: hexstring,
-    headers: Headers = new Headers()
-  ) {
+  async wrappedAccountKeys(keyFetchToken: hexstring, headers?: Headers) {
     const credentials = await hawk.deriveHawkCredentials(
       keyFetchToken,
       'keyFetchToken'
@@ -925,7 +1004,7 @@ export default class AuthClient {
       '/account/keys',
       keyFetchToken,
       tokenType.keyFetchToken,
-      undefined,
+      null,
       headers
     );
 
@@ -945,7 +1024,8 @@ export default class AuthClient {
     options: {
       skipCaseError?: boolean;
     } = {},
-    sessionToken: hexstring
+    sessionToken: hexstring,
+    headers?: Headers
   ): Promise<any> {
     const credentials = await crypto.getCredentials(email, password);
     const payload = {
@@ -953,7 +1033,12 @@ export default class AuthClient {
       authPW: credentials.authPW,
     };
     try {
-      return await this.sessionPost('/account/destroy', sessionToken, payload);
+      return await this.sessionPost(
+        '/account/destroy',
+        sessionToken,
+        payload,
+        headers
+      );
     } catch (error: any) {
       if (
         error &&
@@ -967,7 +1052,8 @@ export default class AuthClient {
           error.email,
           password,
           options,
-          sessionToken
+          sessionToken,
+          headers
         );
       } else {
         throw error;
@@ -975,38 +1061,46 @@ export default class AuthClient {
     }
   }
 
-  async accountStatus(uid: hexstring) {
-    return this.request('GET', `/account/status?uid=${uid}`);
+  async accountStatus(uid: hexstring, headers?: Headers) {
+    return this.request('GET', `/account/status?uid=${uid}`, null, headers);
   }
 
   async accountStatusByEmail(
     email: string,
-    options: { thirdPartyAuthStatus?: boolean } = {}
+    options: { thirdPartyAuthStatus?: boolean } = {},
+    headers?: Headers
   ) {
-    return this.request('POST', '/account/status', { email, ...options });
+    return this.request(
+      'POST',
+      '/account/status',
+      { email, ...options },
+      headers
+    );
   }
 
-  async accountProfile(sessionToken: hexstring) {
-    return this.sessionGet('/account/profile', sessionToken);
+  async accountProfile(sessionToken: hexstring, headers?: Headers) {
+    return this.sessionGet('/account/profile', sessionToken, headers);
   }
 
-  async account(sessionToken: hexstring) {
-    return this.sessionGet('/account', sessionToken);
+  async account(sessionToken: hexstring, headers?: Headers) {
+    return this.sessionGet('/account', sessionToken, headers);
   }
 
   async sessionDestroy(
     sessionToken: hexstring,
     options: {
       customSessionToken?: string;
-    } = {}
+    } = {},
+    headers?: Headers
   ) {
-    return this.sessionPost('/session/destroy', sessionToken, options);
+    return this.sessionPost('/session/destroy', sessionToken, options, headers);
   }
 
   async sessionStatus(
-    sessionToken: hexstring
+    sessionToken: hexstring,
+    headers?: Headers
   ): Promise<{ state: 'verified' | 'unverified'; uid: string }> {
-    return this.sessionGet('/session/status', sessionToken);
+    return this.sessionGet('/session/status', sessionToken, headers);
   }
 
   async sessionVerifyCode(
@@ -1018,17 +1112,22 @@ export default class AuthClient {
       marketingOptIn?: boolean;
       newsletters?: string[];
     } = {},
-    headers: Headers = new Headers()
+    headers?: Headers
   ): Promise<{}> {
-    return this.sessionPost('/session/verify_code', sessionToken, {
-      code,
-      ...options,
-    });
+    return this.sessionPost(
+      '/session/verify_code',
+      sessionToken,
+      {
+        code,
+        ...options,
+      },
+      headers
+    );
   }
 
   async sessionResendVerifyCode(
     sessionToken: hexstring,
-    headers: Headers = new Headers()
+    headers?: Headers
   ): Promise<{}> {
     return this.sessionPost('/session/resend_code', sessionToken, {}, headers);
   }
@@ -1037,7 +1136,8 @@ export default class AuthClient {
     sessionToken: hexstring,
     email: string,
     password: string,
-    options: SessionReauthOptions = {}
+    options: SessionReauthOptions = {},
+    headers?: Headers
   ): Promise<SessionReauthedAccountData> {
     const credentials = await crypto.getCredentials(email, password);
     try {
@@ -1045,7 +1145,8 @@ export default class AuthClient {
         sessionToken,
         email,
         credentials.authPW,
-        options
+        options,
+        headers
       );
       if (options.keys) {
         accountData.unwrapBKey = credentials.unwrapBKey;
@@ -1061,7 +1162,13 @@ export default class AuthClient {
         options.skipCaseError = true;
         options.originalLoginEmail = email;
 
-        return this.sessionReauth(sessionToken, error.email, password, options);
+        return this.sessionReauth(
+          sessionToken,
+          error.email,
+          password,
+          options,
+          headers
+        );
       } else {
         throw error;
       }
@@ -1073,7 +1180,7 @@ export default class AuthClient {
     email: string,
     authPW: string,
     options: Omit<SessionReauthOptions, 'skipCaseError'> = {},
-    headers: Headers = new Headers()
+    headers?: Headers
   ): Promise<SessionReauthedAccountData> {
     const payloadOptions = ({ keys, ...rest }: any) => rest;
     const payload = {
@@ -1096,7 +1203,8 @@ export default class AuthClient {
     duration: number,
     options: {
       service?: string;
-    } = {}
+    } = {},
+    headers?: Headers
   ) {
     const payload = {
       publicKey,
@@ -1109,7 +1217,8 @@ export default class AuthClient {
           : ''
       }`,
       sessionToken,
-      payload
+      payload,
+      headers
     );
   }
 
@@ -1119,17 +1228,19 @@ export default class AuthClient {
     newPasswordAuthPW: string,
     oldUnwrapBKey: string,
     newUnwrapBKey: string,
-    v2?: {
-      oldPasswordAuthPW: string;
-      newPasswordAuthPW: string;
-      oldUnwrapBKey: string;
-      newUnwrapBKey: string;
-    },
+    v2:
+      | {
+          oldPasswordAuthPW: string;
+          newPasswordAuthPW: string;
+          oldUnwrapBKey: string;
+          newUnwrapBKey: string;
+        }
+      | undefined,
     options: {
       keys?: boolean;
       sessionToken?: hexstring;
     } = {},
-    headers: Headers = new Headers()
+    headers?: Headers
   ): Promise<{
     uid: hexstring;
     sessionToken: hexstring;
@@ -1138,14 +1249,20 @@ export default class AuthClient {
     unwrapBKey?: hexstring;
     keyFetchToken?: hexstring;
   }> {
-    const passwordData = await this.request('POST', '/password/change/start', {
-      email,
-      oldAuthPW: oldPasswordAuthPW,
-    });
+    const passwordData = await this.request(
+      'POST',
+      '/password/change/start',
+      {
+        email,
+        oldAuthPW: oldPasswordAuthPW,
+      },
+      headers
+    );
 
     const keys = await this.accountKeys(
       passwordData.keyFetchToken,
-      oldUnwrapBKey
+      oldUnwrapBKey,
+      headers
     );
 
     const wrapKb = crypto.unwrapKB(keys.kB, newUnwrapBKey);
@@ -1161,7 +1278,7 @@ export default class AuthClient {
     };
 
     if (this.keyStretchVersion === 2 && v2) {
-      const status = await this.getCredentialStatusV2(email);
+      const status = await this.getCredentialStatusV2(email, headers);
       const clientSalt = status.clientSalt || createSaltV2();
       // Important! Passing kB, ensures kB remains constant even after password upgrade.
       const newKeys = await crypto.getKeysV2({
@@ -1210,12 +1327,18 @@ export default class AuthClient {
       keys?: boolean;
       sessionToken?: hexstring;
     } = {},
-    headers: Headers = new Headers()
+    headers?: Headers
   ): Promise<SignedInAccountData> {
-    const oldCredentials = await this.passwordChangeStart(email, oldPassword);
+    const oldCredentials = await this.passwordChangeStart(
+      email,
+      oldPassword,
+      undefined,
+      headers
+    );
     const keys = await this.accountKeys(
       oldCredentials.keyFetchToken,
-      oldCredentials.unwrapBKey
+      oldCredentials.unwrapBKey,
+      headers
     );
     const newCredentials = await crypto.getCredentials(
       oldCredentials.email,
@@ -1235,7 +1358,7 @@ export default class AuthClient {
 
     let unwrapBKeyVersion2: string | undefined;
     if (this.keyStretchVersion === 2) {
-      const status = await this.getCredentialStatusV2(email);
+      const status = await this.getCredentialStatusV2(email, headers);
       const clientSalt = status.clientSalt || createSaltV2();
       const newCredentialsV2 = await crypto.getCredentialsV2({
         password: newPassword,
@@ -1281,7 +1404,7 @@ export default class AuthClient {
     options: {
       skipCaseError?: boolean;
     } = {},
-    headers: Headers = new Headers()
+    headers?: Headers
   ): Promise<{
     email: string;
     keyFetchToken: hexstring;
@@ -1314,7 +1437,8 @@ export default class AuthClient {
         return await this.passwordChangeStartWithAuthPW(
           error.email,
           oldAuthPW,
-          options
+          options,
+          headers
         );
       } else {
         throw error;
@@ -1327,7 +1451,8 @@ export default class AuthClient {
     oldPassword: string,
     options: {
       skipCaseError?: boolean;
-    } = {}
+    } = {},
+    headers?: Headers
   ): Promise<{
     authPW: hexstring;
     unwrapBKey: hexstring;
@@ -1343,7 +1468,8 @@ export default class AuthClient {
         {
           email,
           oldAuthPW: oldCredentials.authPW,
-        }
+        },
+        headers
       );
       return {
         authPW: oldCredentials.authPW,
@@ -1364,7 +1490,8 @@ export default class AuthClient {
         return await this.passwordChangeStart(
           error.email,
           oldPassword,
-          options
+          options,
+          headers
         );
       } else {
         throw error;
@@ -1376,7 +1503,7 @@ export default class AuthClient {
     passwordChangeToken: string,
     payload: PasswordChangePayload,
     options: { keys?: boolean },
-    headers: Headers = new Headers()
+    headers?: Headers
   ) {
     const response = await this.hawkRequest(
       'POST',
@@ -1392,7 +1519,8 @@ export default class AuthClient {
   async createPassword(
     sessionToken: string,
     email: string,
-    newPassword: string
+    newPassword: string,
+    headers?: Headers
   ): Promise<number> {
     const newCredentials = await crypto.getCredentials(email, newPassword);
 
@@ -1400,11 +1528,11 @@ export default class AuthClient {
       authPW: newCredentials.authPW,
     };
 
-    return this.sessionPost('/password/create', sessionToken, payload);
+    return this.sessionPost('/password/create', sessionToken, payload, headers);
   }
 
-  async getRandomBytes() {
-    return this.request('POST', '/get_random_bytes');
+  async getRandomBytes(headers?: Headers) {
+    return this.request('POST', '/get_random_bytes', null, headers);
   }
 
   async deviceRegister(
@@ -1415,14 +1543,15 @@ export default class AuthClient {
       deviceCallback?: string;
       devicePublicKey?: string;
       deviceAuthKey?: string;
-    } = {}
+    } = {},
+    headers?: Headers
   ) {
     const payload = {
       name,
       type,
       ...options,
     };
-    return this.sessionPost('/account/device', sessionToken, payload);
+    return this.sessionPost('/account/device', sessionToken, payload, headers);
   }
 
   async deviceUpdate(
@@ -1433,100 +1562,137 @@ export default class AuthClient {
       deviceCallback?: string;
       devicePublicKey?: string;
       deviceAuthKey?: string;
-    } = {}
+    } = {},
+    headers?: Headers
   ) {
     const payload = {
       id,
       name,
       ...options,
     };
-    return this.sessionPost('/account/device', sessionToken, payload);
+    return this.sessionPost('/account/device', sessionToken, payload, headers);
   }
 
-  async deviceDestroy(sessionToken: hexstring, id: string) {
-    return this.sessionPost('/account/device/destroy', sessionToken, { id });
+  async deviceDestroy(sessionToken: hexstring, id: string, headers?: Headers) {
+    return this.sessionPost(
+      '/account/device/destroy',
+      sessionToken,
+      { id },
+      headers
+    );
   }
 
-  async deviceList(sessionToken: hexstring) {
-    return this.sessionGet('/account/devices', sessionToken);
+  async deviceList(sessionToken: hexstring, headers?: Headers) {
+    return this.sessionGet('/account/devices', sessionToken, headers);
   }
 
-  async sessions(sessionToken: hexstring) {
-    return this.sessionGet('/account/sessions', sessionToken);
+  async sessions(sessionToken: hexstring, headers?: Headers) {
+    return this.sessionGet('/account/sessions', sessionToken, headers);
   }
 
-  async securityEvents(sessionToken: hexstring) {
-    return this.sessionGet('/securityEvents', sessionToken);
+  async securityEvents(sessionToken: hexstring, headers?: Headers) {
+    return this.sessionGet('/securityEvents', sessionToken, headers);
   }
 
-  async deleteSecurityEvents(sessionToken: hexstring) {
+  async deleteSecurityEvents(sessionToken: hexstring, headers?: Headers) {
     return this.hawkRequest(
       'DELETE',
       '/securityEvents',
       sessionToken,
       tokenType.sessionToken,
-      {}
+      {},
+      headers
     );
   }
 
-  async attachedClients(sessionToken: hexstring) {
-    return this.sessionGet('/account/attached_clients', sessionToken);
+  async attachedClients(sessionToken: hexstring, headers?: Headers) {
+    return this.sessionGet('/account/attached_clients', sessionToken, headers);
   }
 
-  async attachedClientDestroy(sessionToken: hexstring, clientInfo: any) {
-    return this.sessionPost('/account/attached_client/destroy', sessionToken, {
-      clientId: clientInfo.clientId,
-      deviceId: clientInfo.deviceId,
-      refreshTokenId: clientInfo.refreshTokenId,
-      sessionTokenId: clientInfo.sessionTokenId,
-    });
+  async attachedClientDestroy(
+    sessionToken: hexstring,
+    clientInfo: any,
+    headers?: Headers
+  ) {
+    return this.sessionPost(
+      '/account/attached_client/destroy',
+      sessionToken,
+      {
+        clientId: clientInfo.clientId,
+        deviceId: clientInfo.deviceId,
+        refreshTokenId: clientInfo.refreshTokenId,
+        sessionTokenId: clientInfo.sessionTokenId,
+      },
+      headers
+    );
   }
 
   async sendUnblockCode(
     email: string,
     options: {
       metricsContext?: MetricsContext;
-    } = {}
+    } = {},
+    headers?: Headers
   ) {
-    return this.request('POST', '/account/login/send_unblock_code', {
-      email,
-      ...options,
-    });
+    return this.request(
+      'POST',
+      '/account/login/send_unblock_code',
+      {
+        email,
+        ...options,
+      },
+      headers
+    );
   }
 
-  async rejectUnblockCode(uid: hexstring, unblockCode: string) {
-    return this.request('POST', '/account/login/reject_unblock_code', {
-      uid,
-      unblockCode,
-    });
+  async rejectUnblockCode(
+    uid: hexstring,
+    unblockCode: string,
+    headers?: Headers
+  ) {
+    return this.request(
+      'POST',
+      '/account/login/reject_unblock_code',
+      {
+        uid,
+        unblockCode,
+      },
+      headers
+    );
   }
 
   async consumeSigninCode(
     code: string,
     flowId: string,
     flowBeginTime: number,
-    deviceId?: string
+    deviceId: string | undefined,
+    headers?: Headers
   ) {
-    return this.request('POST', '/signinCodes/consume', {
-      code,
-      metricsContext: {
-        deviceId,
-        flowId,
-        flowBeginTime,
+    return this.request(
+      'POST',
+      '/signinCodes/consume',
+      {
+        code,
+        metricsContext: {
+          deviceId,
+          flowId,
+          flowBeginTime,
+        },
       },
-    });
+      headers
+    );
   }
 
-  async createSigninCode(sessionToken: hexstring) {
-    return this.sessionPost('/signinCodes', sessionToken, {});
+  async createSigninCode(sessionToken: hexstring, headers?: Headers) {
+    return this.sessionPost('/signinCodes', sessionToken, {}, headers);
   }
 
-  async createCadReminder(sessionToken: hexstring) {
-    return this.sessionPost('/emails/reminders/cad', sessionToken, {});
+  async createCadReminder(sessionToken: hexstring, headers?: Headers) {
+    return this.sessionPost('/emails/reminders/cad', sessionToken, {}, headers);
   }
 
-  async recoveryEmails(sessionToken: hexstring) {
-    return this.sessionGet('/recovery_emails', sessionToken);
+  async recoveryEmails(sessionToken: hexstring, headers?: Headers) {
+    return this.sessionGet('/recovery_emails', sessionToken, headers);
   }
 
   async recoveryEmailCreate(
@@ -1534,44 +1700,72 @@ export default class AuthClient {
     email: string,
     options: {
       verificationMethod?: string;
-    } = {}
+    } = {},
+    headers?: Headers
   ) {
-    return this.sessionPost('/recovery_email', sessionToken, {
-      email,
-      ...options,
-    });
+    return this.sessionPost(
+      '/recovery_email',
+      sessionToken,
+      {
+        email,
+        ...options,
+      },
+      headers
+    );
   }
 
-  async recoveryEmailDestroy(sessionToken: hexstring, email: string) {
-    return this.sessionPost('/recovery_email/destroy', sessionToken, { email });
+  async recoveryEmailDestroy(
+    sessionToken: hexstring,
+    email: string,
+    headers?: Headers
+  ) {
+    return this.sessionPost(
+      '/recovery_email/destroy',
+      sessionToken,
+      { email },
+      headers
+    );
   }
 
-  async recoveryEmailSetPrimaryEmail(sessionToken: hexstring, email: string) {
-    return this.sessionPost('/recovery_email/set_primary', sessionToken, {
-      email,
-    });
+  async recoveryEmailSetPrimaryEmail(
+    sessionToken: hexstring,
+    email: string,
+    headers?: Headers
+  ) {
+    return this.sessionPost(
+      '/recovery_email/set_primary',
+      sessionToken,
+      {
+        email,
+      },
+      headers
+    );
   }
 
   async recoveryEmailSecondaryVerifyCode(
     sessionToken: hexstring,
     email: string,
-    code: string
+    code: string,
+    headers?: Headers
   ): Promise<{}> {
     return this.sessionPost(
       '/recovery_email/secondary/verify_code',
       sessionToken,
-      { email, code }
+      { email, code },
+      headers
     );
   }
 
   async recoveryEmailSecondaryResendCode(
     sessionToken: hexstring,
-    email: string
+    email: string,
+    headers?: Headers
   ) {
     return this.sessionPost(
       '/recovery_email/secondary/resend_code',
       sessionToken,
-      { email }
+      { email },
+      headers
     );
   }
 
@@ -1579,23 +1773,25 @@ export default class AuthClient {
     sessionToken: hexstring,
     options: {
       metricsContext?: MetricsContext;
-    } = {}
+    } = {},
+    headers?: Headers
   ): Promise<{
     qrCodeUrl: string;
     secret: string;
     recoveryCodes: string[];
   }> {
-    return this.sessionPost('/totp/create', sessionToken, options);
+    return this.sessionPost('/totp/create', sessionToken, options, headers);
   }
 
-  async deleteTotpToken(sessionToken: hexstring) {
-    return this.sessionPost('/totp/destroy', sessionToken, {});
+  async deleteTotpToken(sessionToken: hexstring, headers?: Headers) {
+    return this.sessionPost('/totp/destroy', sessionToken, {}, headers);
   }
 
   async checkTotpTokenExists(
-    sessionToken: hexstring
+    sessionToken: hexstring,
+    headers?: Headers
   ): Promise<{ exists: boolean; verified: boolean }> {
-    return this.sessionGet('/totp/exists', sessionToken);
+    return this.sessionGet('/totp/exists', sessionToken, headers);
   }
 
   async verifyTotpCode(
@@ -1603,31 +1799,53 @@ export default class AuthClient {
     code: string,
     options: {
       service?: string;
-    } = {}
+    } = {},
+    headers?: Headers
   ) {
-    return this.sessionPost('/session/verify/totp', sessionToken, {
-      code,
-      ...options,
-    });
+    return this.sessionPost(
+      '/session/verify/totp',
+      sessionToken,
+      {
+        code,
+        ...options,
+      },
+      headers
+    );
   }
 
   async replaceRecoveryCodes(
-    sessionToken: hexstring
+    sessionToken: hexstring,
+    headers?: Headers
   ): Promise<{ recoveryCodes: string[] }> {
-    return this.sessionGet('/recoveryCodes', sessionToken);
+    return this.sessionGet('/recoveryCodes', sessionToken, headers);
   }
 
   async updateRecoveryCodes(
     sessionToken: hexstring,
-    recoveryCodes: string[]
+    recoveryCodes: string[],
+    headers?: Headers
   ): Promise<{ success: boolean }> {
-    return this.sessionPut('/recoveryCodes', sessionToken, { recoveryCodes });
+    return this.sessionPut(
+      '/recoveryCodes',
+      sessionToken,
+      { recoveryCodes },
+      headers
+    );
   }
 
-  async consumeRecoveryCode(sessionToken: hexstring, code: string) {
-    return this.sessionPost('/session/verify/recoveryCode', sessionToken, {
-      code,
-    });
+  async consumeRecoveryCode(
+    sessionToken: hexstring,
+    code: string,
+    headers?: Headers
+  ) {
+    return this.sessionPost(
+      '/session/verify/recoveryCode',
+      sessionToken,
+      {
+        code,
+      },
+      headers
+    );
   }
 
   async createRecoveryKey(
@@ -1635,22 +1853,34 @@ export default class AuthClient {
     recoveryKeyId: string,
     recoveryData: any,
     enabled: boolean = true,
-    replaceKey: boolean = false
+    replaceKey: boolean = false,
+    headers?: Headers
   ): Promise<{}> {
-    return this.sessionPost('/recoveryKey', sessionToken, {
-      recoveryKeyId,
-      recoveryData,
-      enabled,
-      replaceKey,
-    });
+    return this.sessionPost(
+      '/recoveryKey',
+      sessionToken,
+      {
+        recoveryKeyId,
+        recoveryData,
+        enabled,
+        replaceKey,
+      },
+      headers
+    );
   }
 
-  async getRecoveryKey(accountResetToken: hexstring, recoveryKeyId: string) {
+  async getRecoveryKey(
+    accountResetToken: hexstring,
+    recoveryKeyId: string,
+    headers?: Headers
+  ) {
     return this.hawkRequest(
       'GET',
       `/recoveryKey/${recoveryKeyId}`,
       accountResetToken,
-      tokenType.accountResetToken
+      tokenType.accountResetToken,
+      null,
+      headers
     );
   }
 
@@ -1667,11 +1897,17 @@ export default class AuthClient {
 
   async updateRecoveryKeyHint(
     sessionToken: hexstring,
-    hint: string
+    hint: string,
+    headers?: Headers
   ): Promise<{}> {
-    return this.sessionPost('/recoveryKey/hint', sessionToken, {
-      hint,
-    });
+    return this.sessionPost(
+      '/recoveryKey/hint',
+      sessionToken,
+      {
+        hint,
+      },
+      headers
+    );
   }
 
   async resetPasswordWithRecoveryKey(
@@ -1685,12 +1921,16 @@ export default class AuthClient {
     options: {
       keys?: boolean;
       sessionToken?: boolean;
-    } = {}
+    } = {},
+    headers?: Headers
   ) {
-    const credentials = await this.getCredentialSet({
-      email,
-      password: newPassword,
-    });
+    const credentials = await this.getCredentialSet(
+      {
+        email,
+        password: newPassword,
+      },
+      headers
+    );
     const newWrapKb = crypto.unwrapKB(keys.kB, credentials.v1.unwrapBKey);
 
     // We have scenario where a user with v1 credentials is trying to do a reset. Go ahead
@@ -1719,7 +1959,8 @@ export default class AuthClient {
       pathWithKeys('/account/reset', options.keys),
       accountResetToken,
       tokenType.accountResetToken,
-      payload
+      payload,
+      headers
     );
     if (options.keys && accountData.keyFetchToken) {
       accountData.unwrapBKey = credentials.v1.unwrapBKey;
@@ -1728,27 +1969,46 @@ export default class AuthClient {
     return accountData;
   }
 
-  async deleteRecoveryKey(sessionToken: hexstring) {
+  async deleteRecoveryKey(sessionToken: hexstring, headers?: Headers) {
     return this.hawkRequest(
       'DELETE',
       '/recoveryKey',
       sessionToken,
       tokenType.sessionToken,
-      {}
+      {},
+      headers
     );
   }
 
-  async recoveryKeyExists(sessionToken: hexstring | undefined, email?: string) {
+  async recoveryKeyExists(
+    sessionToken: hexstring | undefined,
+    email: string | undefined,
+    headers?: Headers
+  ) {
     if (sessionToken) {
-      return this.sessionPost('/recoveryKey/exists', sessionToken, { email });
+      return this.sessionPost(
+        '/recoveryKey/exists',
+        sessionToken,
+        { email },
+        headers
+      );
     }
-    return this.request('POST', '/recoveryKey/exists', { email });
+    return this.request('POST', '/recoveryKey/exists', { email }, headers);
   }
 
-  async verifyRecoveryKey(sessionToken: hexstring, recoveryKeyId: string) {
-    return this.sessionPost('/recoveryKey/verify', sessionToken, {
-      recoveryKeyId,
-    });
+  async verifyRecoveryKey(
+    sessionToken: hexstring,
+    recoveryKeyId: string,
+    headers?: Headers
+  ) {
+    return this.sessionPost(
+      '/recoveryKey/verify',
+      sessionToken,
+      {
+        recoveryKeyId,
+      },
+      headers
+    );
   }
 
   async createOAuthCode(
@@ -1764,20 +2024,26 @@ export default class AuthClient {
       scope?: string;
       code_challenge_method?: string;
       code_challenge?: string;
-    } = {}
+    } = {},
+    headers?: Headers
   ) {
-    return this.sessionPost('/oauth/authorization', sessionToken, {
-      access_type: options.access_type,
-      acr_values: options.acr_values,
-      client_id: clientId,
-      code_challenge: options.code_challenge,
-      code_challenge_method: options.code_challenge_method,
-      keys_jwe: options.keys_jwe,
-      redirect_uri: options.redirect_uri,
-      response_type: options.response_type,
-      scope: options.scope,
-      state,
-    });
+    return this.sessionPost(
+      '/oauth/authorization',
+      sessionToken,
+      {
+        access_type: options.access_type,
+        acr_values: options.acr_values,
+        client_id: clientId,
+        code_challenge: options.code_challenge,
+        code_challenge_method: options.code_challenge_method,
+        keys_jwe: options.keys_jwe,
+        redirect_uri: options.redirect_uri,
+        response_type: options.response_type,
+        scope: options.scope,
+        state,
+      },
+      headers
+    );
   }
 
   async createOAuthToken(
@@ -1787,30 +2053,42 @@ export default class AuthClient {
       access_type?: string;
       scope?: string;
       ttl?: number;
-    } = {}
+    } = {},
+    headers?: Headers
   ) {
-    return this.sessionPost('/oauth/token', sessionToken, {
-      grant_type: 'fxa-credentials',
-      access_type: options.access_type,
-      client_id: clientId,
-      scope: options.scope,
-      ttl: options.ttl,
-    });
+    return this.sessionPost(
+      '/oauth/token',
+      sessionToken,
+      {
+        grant_type: 'fxa-credentials',
+        access_type: options.access_type,
+        client_id: clientId,
+        scope: options.scope,
+        ttl: options.ttl,
+      },
+      headers
+    );
   }
 
   async getOAuthScopedKeyData(
     sessionToken: hexstring,
     clientId: string,
-    scope: string
+    scope: string,
+    headers?: Headers
   ) {
-    return this.sessionPost('/account/scoped-key-data', sessionToken, {
-      client_id: clientId,
-      scope,
-    });
+    return this.sessionPost(
+      '/account/scoped-key-data',
+      sessionToken,
+      {
+        client_id: clientId,
+        scope,
+      },
+      headers
+    );
   }
 
-  async getSubscriptionPlans() {
-    return this.request('GET', '/oauth/subscriptions/plans');
+  async getSubscriptionPlans(headers?: Headers) {
+    return this.request('GET', '/oauth/subscriptions/plans', null, headers);
   }
 
   async getActiveSubscriptions(accessToken: string) {
@@ -1842,16 +2120,26 @@ export default class AuthClient {
     );
   }
 
-  async updateNewsletters(sessionToken: hexstring, newsletters: string[]) {
-    return this.sessionPost('/newsletters', sessionToken, {
-      newsletters,
-    });
+  async updateNewsletters(
+    sessionToken: hexstring,
+    newsletters: string[],
+    headers?: Headers
+  ) {
+    return this.sessionPost(
+      '/newsletters',
+      sessionToken,
+      {
+        newsletters,
+      },
+      headers
+    );
   }
 
   async verifyIdToken(
     idToken: string,
     clientId: string,
-    expiryGracePeriod?: number
+    expiryGracePeriod: number | undefined,
+    headers?: Headers
   ) {
     const payload: any = {
       id_token: idToken,
@@ -1860,18 +2148,25 @@ export default class AuthClient {
     if (expiryGracePeriod) {
       payload.expiry_grace_period = expiryGracePeriod;
     }
-    return this.request('POST', '/oauth/id-token-verify', payload);
+    return this.request('POST', '/oauth/id-token-verify', payload, headers);
   }
 
-  async getProductInfo(productId: string) {
+  async getProductInfo(productId: string, headers?: Headers) {
     return this.request(
       'GET',
-      `/oauth/subscriptions/productname?productId=${productId}`
+      `/oauth/subscriptions/productname?productId=${productId}`,
+      null,
+      headers
     );
   }
 
-  async sendPushLoginRequest(sessionToken: string) {
-    return this.sessionPost('/session/verify/send_push', sessionToken, {});
+  async sendPushLoginRequest(sessionToken: string, headers?: Headers) {
+    return this.sessionPost(
+      '/session/verify/send_push',
+      sessionToken,
+      {},
+      headers
+    );
   }
 
   protected async getPayloadV2({
@@ -1909,18 +2204,21 @@ export default class AuthClient {
     return {};
   }
 
-  protected async getCredentialSet({
-    email,
-    password,
-  }: {
-    email: string;
-    password: string;
-  }): Promise<CredentialSet> {
+  protected async getCredentialSet(
+    {
+      email,
+      password,
+    }: {
+      email: string;
+      password: string;
+    },
+    headers?: Headers
+  ): Promise<CredentialSet> {
     const credentialsV1 = await crypto.getCredentials(email, password);
 
     if (this.keyStretchVersion === 2) {
       // Try to determine V2 credentials
-      const status = await this.getCredentialStatusV2(email);
+      const status = await this.getCredentialStatusV2(email, headers);
 
       // Signal an upgrade is required. Status doesn't exist, or an internal state
       // indicates an upgrade is needed.
@@ -1959,7 +2257,7 @@ export default class AuthClient {
 
   public async getCredentialStatusV2(
     email: string,
-    headers: Headers = new Headers()
+    headers?: Headers
   ): Promise<CredentialStatus> {
     try {
       const result = await this.request(

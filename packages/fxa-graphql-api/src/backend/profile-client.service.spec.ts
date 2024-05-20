@@ -10,6 +10,9 @@ import { ProfileClientService } from './profile-client.service';
 import { ConfigService } from '@nestjs/config';
 
 describe('ProfileClientService', () => {
+  const headers = new Headers({
+    'x-forwarded-for': '123.123.123.123',
+  });
   let service: ProfileClientService;
   let authClient: any;
   const profileUrl = 'https://test.com';
@@ -58,7 +61,7 @@ describe('ProfileClientService', () => {
         set: jest.fn().mockResolvedValue({ text: '{}' }),
       }),
     });
-    const result = await service.updateDisplayName('token', 'name');
+    const result = await service.updateDisplayName('token', 'name', headers);
     expect(result).toBe(true);
   });
 
@@ -73,7 +76,12 @@ describe('ProfileClientService', () => {
         }),
       }),
     });
-    const result = await service.avatarUpload('token', 'app/json', 'somefile');
+    const result = await service.avatarUpload(
+      'token',
+      'app/json',
+      'somefile',
+      headers
+    );
     expect(result.url).toBe('testurl');
   });
 
@@ -84,7 +92,7 @@ describe('ProfileClientService', () => {
     (jest.spyOn(superagent, 'get') as jest.Mock).mockReturnValueOnce({
       set: jest.fn().mockResolvedValue({ text: '{"avatar":"x"}' }),
     });
-    const result = await service.getProfile('token');
+    const result = await service.getProfile('token', headers);
     expect(result).toStrictEqual({ avatar: 'x' });
   });
 });

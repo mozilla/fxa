@@ -41,10 +41,11 @@ export class SessionResolver {
   @UseGuards(GqlAuthGuard, GqlCustomsGuard)
   public async destroySession(
     @GqlSessionToken() token: string,
+    @GqlXHeaders() headers: Headers,
     @Args('input', { type: () => DestroySessionInput })
     input: DestroySessionInput
   ): Promise<BasicPayload> {
-    await this.authAPI.sessionDestroy(token);
+    await this.authAPI.sessionDestroy(token, undefined, headers);
     return {
       clientMutationId: input.clientMutationId,
     };
@@ -135,10 +136,15 @@ export class SessionResolver {
   @CatchGatewayError
   public async consumeRecoveryCode(
     @GqlSessionToken() token: string,
+    @GqlXHeaders() headers: Headers,
     @Args('input', { type: () => ConsumeRecoveryCodeInput })
     input: ConsumeRecoveryCodeInput
   ): Promise<ConsumeRecoveryCodePayload> {
-    const result = await this.authAPI.consumeRecoveryCode(token, input.code);
+    const result = await this.authAPI.consumeRecoveryCode(
+      token,
+      input.code,
+      headers
+    );
     return {
       clientMutationId: input.clientMutationId,
       ...result,
