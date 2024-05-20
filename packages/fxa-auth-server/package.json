@@ -211,7 +211,6 @@
     "through": "2.3.8",
     "tsc-alias": "^1.8.8",
     "type-fest": "^4.18.1",
-    "typesafe-node-firestore": "^1.4.1",
     "typescript": "^5.4.2",
     "webpack": "^5.84.1",
     "webpack-watch-files-plugin": "^1.2.1",

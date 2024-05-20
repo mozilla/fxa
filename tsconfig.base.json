@@ -65,7 +65,10 @@
       "@fxa/vendored/incremental-encoder": [
         "libs/vendored/incremental-encoder/src/index.ts"
       ],
-      "@fxa/vendored/jwtool": ["libs/vendored/jwtool/src/index.ts"]
+      "@fxa/vendored/jwtool": ["libs/vendored/jwtool/src/index.ts"],
+      "@fxa/vendored/typesafe-node-firestore": [
+        "libs/vendored/typesafe-node-firestore/src/index.ts"
+      ]
     },
     "typeRoots": [
       "./types",

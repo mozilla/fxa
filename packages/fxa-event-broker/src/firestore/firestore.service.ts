@@ -20,7 +20,7 @@ import { ConfigService } from '@nestjs/config';
 import {
   TypedCollectionReference,
   TypedDocumentReference,
-} from 'typesafe-node-firestore';
+} from '@fxa/vendored/typesafe-node-firestore';
 
 import { AppConfig } from '../config';
 import {

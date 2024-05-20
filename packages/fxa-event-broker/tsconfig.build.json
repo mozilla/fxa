@@ -3,7 +3,8 @@
   "compilerOptions": {
     "paths": {
       "@fxa/shared/pem-jwk": ["libs/shared/pem-jwk/src/index"],
-      "@fxa/vendored/jwtool": ["libs/vendored/jwtool/src/index"]
+      "@fxa/vendored/jwtool": ["libs/vendored/jwtool/src/index"],
+      "@fxa/vendored/typesafe-node-firestore": ["libs/vendored/typesafe-node-firestore/src/index"]
     }
   },
   "exclude": ["node_modules", "test", "dist", "**/*spec.ts"]

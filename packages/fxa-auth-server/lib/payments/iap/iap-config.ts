@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Firestore } from '@google-cloud/firestore';
 import { Container } from 'typedi';
-import { TypedCollectionReference } from 'typesafe-node-firestore';
+import { TypedCollectionReference } from '@fxa/vendored/typesafe-node-firestore';
 
 import error from '../../error';
 import { AppConfig, AuthFirestore, AuthLogger } from '../../types';
