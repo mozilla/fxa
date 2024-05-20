@@ -226,9 +226,9 @@ module.exports = function (
 
         const devicesToNotify = await fetchDevicesToNotify();
 
-        await changePassword();
+        const { account, isPasswordUpgrade } = await changePassword();
 
-        const account = await notifyAccount();
+        await notifyAccount();
         const sessionToken = await createSessionToken();
 
         await verifySessionToken();
@@ -292,6 +292,18 @@ module.exports = function (
           const authSalt = await random.hex(32);
           const password = new Password(authPW, authSalt, verifierVersion);
           const verifyHash = await password.verifyHash();
+          const account = await db.account(passwordChangeToken.uid);
+          const match = await db.checkPassword(
+            passwordChangeToken.uid,
+            verifyHash
+          );
+
+          // When the clientSalt doesn't have the latest quickStretchVersion
+          // and the v1 stretched password has not changed, we know we are in
+          // a password upgrade scenario.
+          const isPasswordUpgrade =
+            !/quickStretchV2/.test(account.clientSalt || '') && match.v1;
+
           const wrapWrapKb = await password.wrap(wrapKb);
 
           // For the time being we store both passwords in the DB. authPW is created
@@ -311,6 +323,41 @@ module.exports = function (
           }
 
           await db.deletePasswordChangeToken(passwordChangeToken);
+
+          if (isPasswordUpgrade) {
+            const result = await db.resetAccount(
+              passwordChangeToken,
+              {
+                authSalt: authSalt,
+                clientSalt: clientSalt,
+                verifierVersion: password.version,
+                verifyHash: verifyHash,
+                verifyHashVersion2: verifyHashVersion2,
+                wrapWrapKb: wrapWrapKb,
+                wrapWrapKbVersion2: wrapWrapKbVersion2,
+                keysHaveChanged: false,
+              },
+              true
+            );
+
+            await request.emitMetricsEvent('account.upgradedPassword', {
+              uid: passwordChangeToken.uid,
+            });
+
+            await recordSecurityEvent('account.password_upgrade_success', {
+              db,
+              request,
+              account: passwordChangeToken,
+            });
+
+            await recordSecurityEvent('account.password_upgraded', {
+              db,
+              request,
+              account: passwordChangeToken,
+            });
+
+            return { result, account, isPasswordUpgrade };
+          }
 
           const result = await db.resetAccount(passwordChangeToken, {
             authSalt: authSalt,
@@ -339,10 +386,17 @@ module.exports = function (
             account: passwordChangeToken,
           });
 
-          return result;
+          return { result, account, isPasswordUpgrade };
         }
 
         async function notifyAccount() {
+          // When upgrading passwords, the previous password is still
+          // valid, and therefore we can short circuit the notification
+          // processes.
+          if (isPasswordUpgrade) {
+            return;
+          }
+
           if (devicesToNotify) {
             // Notify the devices that the account has changed.
             push.notifyPasswordChanged(
@@ -350,8 +404,6 @@ module.exports = function (
               devicesToNotify
             );
           }
-
-          const account = await db.account(passwordChangeToken.uid);
 
           log.notifyAttachedServices('passwordChange', request, {
             uid: passwordChangeToken.uid,
@@ -391,7 +443,6 @@ module.exports = function (
               }
             );
           }
-          return account;
         }
 
         async function createSessionToken() {

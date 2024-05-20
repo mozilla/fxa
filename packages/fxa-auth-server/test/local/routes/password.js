@@ -816,6 +816,7 @@ describe('/password', () => {
       ).then((response) => {
         assert.equal(mockDB.deletePasswordChangeToken.callCount, 1);
         assert.equal(mockDB.resetAccount.callCount, 1);
+        assert.equal(mockDB.resetAccount.firstCall.args[2], undefined);
 
         assert.equal(
           mockPush.notifyPasswordChanged.callCount,
@@ -979,6 +980,7 @@ describe('/password', () => {
       ).then((response) => {
         assert.equal(mockDB.deletePasswordChangeToken.callCount, 1);
         assert.equal(mockDB.resetAccount.callCount, 1);
+        assert.equal(mockDB.resetAccount.firstCall.args[2], undefined);
 
         assert.equal(mockPush.notifyPasswordChanged.callCount, 1);
         assert.deepEqual(mockPush.notifyPasswordChanged.firstCall.args[0], uid);
@@ -1031,6 +1033,71 @@ describe('/password', () => {
           },
           'argument was event data'
         );
+      });
+    });
+
+    it('upgrades to v2', async () => {
+      const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+      const mockDB = mocks.mockDB({
+        email: TEST_EMAIL,
+        uid,
+        // Signals that v1 password has not changed, and we have
+        // a password upgrade scenario
+        isPasswordMatchV1: true,
+      });
+      const mockPush = mocks.mockPush();
+      const mockMailer = {
+        sendPasswordChangedEmail: sinon.spy(() => {
+          return Promise.resolve();
+        }),
+      };
+      const mockLog = mocks.mockLog();
+      const mockRequest = mocks.mockRequest({
+        credentials: {
+          uid: uid,
+        },
+        payload: {
+          authPW: crypto.randomBytes(32).toString('hex'),
+          wrapKb: crypto.randomBytes(32).toString('hex'),
+          authPWVersion2: crypto.randomBytes(32).toString('hex'),
+          wrapKbVersion2: crypto.randomBytes(32).toString('hex'),
+          clientSalt:
+            'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef',
+          sessionToken: crypto.randomBytes(32).toString('hex'),
+        },
+        query: {
+          keys: 'true',
+        },
+        log: mockLog,
+      });
+
+      const passwordRoutes = makeRoutes({
+        config: {
+          domain: 'wibble',
+          smtp: {},
+          passwordForgotOtp: { enabled: false, digits: 8 },
+        },
+        db: mockDB,
+        push: mockPush,
+        mailer: mockMailer,
+        log: mockLog,
+      });
+
+      return runRoute(
+        passwordRoutes,
+        '/password/change/finish',
+        mockRequest
+      ).then((response) => {
+        assert.equal(mockDB.deletePasswordChangeToken.callCount, 1);
+        assert.equal(mockDB.resetAccount.callCount, 1);
+        assert.equal(mockDB.resetAccount.firstCall.args[2], true);
+
+        // Notifications should not go out since we are just upgrading the account.
+        // In this case, the raw password value would still be the same.
+        assert.equal(mockPush.notifyPasswordChanged.callCount, 0);
+        assert.equal(mockLog.notifyAttachedServices.callCount, 0);
+        assert.equal(mockMailer.sendPasswordChangedEmail.callCount, 0);
+        assert.equal(mockLog.activityEvent.callCount, 0);
       });
     });
   });
