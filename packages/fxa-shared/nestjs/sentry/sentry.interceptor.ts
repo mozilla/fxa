@@ -15,7 +15,11 @@ import {
 import * as Sentry from '@sentry/node';
 import { Transaction } from '@sentry/types';
 
-import { isApolloError, processException } from './reporting';
+import {
+  isApolloError,
+  processException,
+  isAuthServerError,
+} from './reporting';
 
 @Injectable()
 export class SentryInterceptor implements NestInterceptor {
@@ -45,6 +49,10 @@ export class SentryInterceptor implements NestInterceptor {
               return;
             }
           }
+
+          // Skip known auth-server errors
+          if (isAuthServerError(exception)) return;
+
           // Skip ApolloErrors
           if (isApolloError(exception)) return;
 
