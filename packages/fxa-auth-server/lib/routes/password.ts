@@ -635,12 +635,11 @@ module.exports = function (
 
         await request.emitMetricsEvent('password.forgot.send_otp.completed');
 
-        // This was commented out because the call fails when there is no token id in the call.
-        // recordSecurityEvent('account.password_reset_otp_sent', {
-        //   db,
-        //   request,
-        //   account: { uid: account.uid },
-        // });
+        recordSecurityEvent('account.password_reset_otp_sent', {
+          db,
+          request,
+          account: { uid: account.uid },
+        });
 
         statsd.increment('otp.passwordForgot.sent');
 
@@ -692,12 +691,11 @@ module.exports = function (
         glean.resetPassword.otpVerified(request);
         await request.emitMetricsEvent('password.forgot.verify_otp.completed');
 
-        // This was commented out because the call fails when there is no token id in the call.
-        // recordSecurityEvent('account.password_reset_otp_verified', {
-        //   db,
-        //   request,
-        //   account: { uid: account.uid },
-        // });
+        recordSecurityEvent('account.password_reset_otp_verified', {
+          db,
+          request,
+          account: { uid: account.uid },
+        });
 
         statsd.increment('otp.passwordForgot.verified');
 
