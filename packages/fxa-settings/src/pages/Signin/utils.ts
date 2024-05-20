@@ -229,6 +229,10 @@ const handleGQLError = (graphQLError: GraphQLError) => {
     const uiError = {
       message: AuthUiErrorNos[errno].message,
       errno,
+      email:
+        errno === AuthUiErrors.INCORRECT_EMAIL_CASE.errno
+          ? graphQLError.extensions.email
+          : undefined,
       verificationMethod:
         (graphQLError.extensions.verificationMethod as VerificationMethods) ||
         undefined,

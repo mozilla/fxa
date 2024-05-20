@@ -43,6 +43,8 @@ export function CatchGatewayError(
             code: err.code,
             errno: err.errno,
             info: err.info,
+            // Important, used for 'Incorrect email case' error
+            email: err.email,
           },
         });
       } else if (err.status && err.stack && err.response) {

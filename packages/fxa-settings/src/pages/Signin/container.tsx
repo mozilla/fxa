@@ -236,14 +236,22 @@ const SigninContainer = ({
           flowQueryParams as ReturnType<typeof searchParams>
         ),
       };
-      return await trySignIn(
+      let result = await trySignIn(
         email,
         v1Credentials,
         error ? undefined : v2Credentials,
         unverifiedAccount,
         beginSignin,
-        options
+        options,
+        async (correctedEmail: string) => {
+          return {
+            v1Credentials: await getCredentials(correctedEmail, password),
+            v2Credentials: error ? undefined : v2Credentials,
+          };
+        }
       );
+
+      return result;
     },
     [
       beginSignin,
@@ -567,7 +575,11 @@ export async function trySignIn(
     metricsContext: MetricsContext;
     service?: any;
     unblockCode?: string;
-  }
+  },
+  onRetryCorrectedEmail?: (correctedEmail: string) => Promise<{
+    v1Credentials: { authPW: string; unwrapBKey: string };
+    v2Credentials: { authPW: string; unwrapBKey: string } | undefined;
+  }>
 ) {
   try {
     const authPW =
@@ -601,7 +613,31 @@ export async function trySignIn(
     }
     return { data: undefined };
   } catch (error) {
-    return getHandledError(error);
+    const result = getHandledError(error);
+
+    // Special case for incorrect email error.
+    if (
+      onRetryCorrectedEmail &&
+      'error' in result &&
+      result.error.errno === AuthUiErrors.INCORRECT_EMAIL_CASE.errno &&
+      result.error.email != null &&
+      result.error.email !== email
+    ) {
+      const { v1Credentials, v2Credentials } = await onRetryCorrectedEmail(
+        result.error.email
+      );
+      // Try one more time with the corrected email
+      return trySignIn(
+        result.error.email,
+        v1Credentials,
+        v2Credentials,
+        unverifiedAccount,
+        beginSignin,
+        options
+      );
+    }
+
+    return result;
   }
 }
 
