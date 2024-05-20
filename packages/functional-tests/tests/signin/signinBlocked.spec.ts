@@ -54,7 +54,7 @@ test.describe('severity-2 #smoke', () => {
       await login.enterUnblockCode('incorrect');
 
       //Verify tooltip error
-      expect(await login.getTooltipError()).toContain(
+      await expect(login.getTooltipError()).toContainText(
         'Invalid authorization code'
       );
 

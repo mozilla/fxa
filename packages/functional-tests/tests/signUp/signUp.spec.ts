@@ -21,12 +21,12 @@ test.describe('severity-2 #smoke', () => {
       pages: { login },
     }) => {
       await page.goto(`${target.contentServerUrl}?email=invalid`);
-      expect(await login.getErrorMessage()).toContain(
+      await expect(login.getErrorMessage()).toContainText(
         'Invalid parameter: email'
       );
 
       await page.goto(`${target.contentServerUrl}?email=`);
-      expect(await login.getErrorMessage()).toContain(
+      await expect(login.getErrorMessage()).toContainText(
         'Invalid parameter: email'
       );
     });
@@ -46,7 +46,7 @@ test.describe('severity-2 #smoke', () => {
 
       // Verify the confirm code header and the email
       await expect(login.signUpCodeHeader).toBeVisible();
-      expect(await login.confirmEmail()).toContain(email);
+      await expect(login.getConfirmEmail()).toHaveValue(email);
     });
 
     test('signup with email with trailing whitespace on the email', async ({
@@ -63,7 +63,7 @@ test.describe('severity-2 #smoke', () => {
         verify: false,
       });
       await expect(login.signUpCodeHeader).toBeVisible();
-      expect(await login.confirmEmail()).toContain(email);
+      await expect(login.getConfirmEmail()).toHaveValue(email);
     });
 
     test('signup with invalid email address', async ({
@@ -76,7 +76,9 @@ test.describe('severity-2 #smoke', () => {
       await login.clickSubmit();
 
       // Verify the error
-      expect(await login.getTooltipError()).toContain('Valid email required');
+      await expect(login.getTooltipError()).toContainText(
+        'Valid email required'
+      );
     });
 
     test('coppa is empty and too young', async ({
@@ -96,7 +98,7 @@ test.describe('severity-2 #smoke', () => {
       await login.clickSubmit();
 
       // Verify the error
-      expect(await login.getTooltipError()).toContain(
+      await expect(login.getTooltipError()).toContainText(
         'You must enter your age to sign up'
       );
 
@@ -105,7 +107,7 @@ test.describe('severity-2 #smoke', () => {
 
       // Verify navigated to the cannot create account page
       await page.waitForURL(/cannot_create_account/);
-      expect(await login.cannotCreateAccountHeader()).toBe(true);
+      await expect(login.cannotCreateAccountHeader()).toBeVisible();
     });
 
     test('sign up with non matching passwords', async ({
@@ -125,7 +127,9 @@ test.describe('severity-2 #smoke', () => {
       await login.clickSubmit();
 
       // Verify the error
-      expect(await login.getTooltipError()).toContain('Passwords do not match');
+      await expect(login.getTooltipError()).toContainText(
+        'Passwords do not match'
+      );
     });
 
     test('signup via relier page and redirect after confirm', async ({
@@ -165,7 +169,7 @@ test.describe('severity-2 #smoke', () => {
       await login.clickSubmit();
 
       // check the password was cleared
-      expect(await login.getPasswordInput()).toContain('');
+      await expect(login.getPasswordInput()).toHaveValue('');
     });
 
     test('signup, verify and sign out of two accounts, all in the same tab, then sign in to the first account', async ({
