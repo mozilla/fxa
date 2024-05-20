@@ -44,6 +44,7 @@ module.exports = (printLogs) => {
           const vc = mail.headers['x-verify-code'];
           const vsc = mail.headers['x-verify-short-code'];
           const sc = mail.headers['x-signin-verify-code'];
+          const otp = mail.headers['x-password-forgot-otp'];
           const template = mail.headers['x-template-name'];
 
           // Workaround because the email service wraps this header in `< >`.
@@ -57,6 +58,8 @@ module.exports = (printLogs) => {
             console.log('\x1B[32m', link || vc, '\x1B[39m');
           } else if (sc) {
             console.log('\x1B[32mToken code: ', sc, '\x1B[39m');
+          } else if (otp) {
+            console.log('\x1B[32mReset OTP: ', otp, '\x1B[39m');
           } else if (rc) {
             console.log('\x1B[34m', link, '\x1B[39m');
           } else if (uc) {
