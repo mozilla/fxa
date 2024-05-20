@@ -19,7 +19,6 @@ import {
   StripeResponseFactory,
 } from './factories/api-list.factory';
 import { StripeCustomerFactory } from './factories/customer.factory';
-import { StripeDiscountFactory } from './factories/discount.factory';
 import { StripeInvoiceFactory } from './factories/invoice.factory';
 import { StripePaymentIntentFactory } from './factories/payment-intent.factory';
 import { StripePlanFactory } from './factories/plan.factory';
@@ -27,12 +26,12 @@ import { StripePriceFactory } from './factories/price.factory';
 import { StripeProductFactory } from './factories/product.factory';
 import { StripePromotionCodeFactory } from './factories/promotion-code.factory';
 import { StripeSubscriptionFactory } from './factories/subscription.factory';
-import { StripeTaxRateFactory } from './factories/tax-rate.factory';
 import { StripeUpcomingInvoiceFactory } from './factories/upcoming-invoice.factory';
 import { TaxAddressFactory } from './factories/tax-address.factory';
 import { StripeClient } from './stripe.client';
 import { MockStripeConfigProvider } from './stripe.config';
 import { PlanIntervalMultiplePlansError } from './stripe.error';
+import { InvoicePreviewFactory } from './stripe.factories';
 import { StripeManager } from './stripe.manager';
 import { SubplatInterval } from './stripe.types';
 
@@ -86,43 +85,11 @@ describe('StripeManager', () => {
       const mockCustomer = StripeCustomerFactory();
       const mockPrice = StripePriceFactory();
       const mockUpcomingInvoice = StripeResponseFactory(
-        StripeUpcomingInvoiceFactory({
-          discount: StripeDiscountFactory(),
-          total_discount_amounts: [
-            {
-              amount: 500,
-              discount: StripeDiscountFactory(),
-            },
-          ],
-          total_tax_amounts: [
-            {
-              amount: faker.number.int(1000),
-              inclusive: false,
-              tax_rate: StripeTaxRateFactory(),
-              taxability_reason: null,
-              taxable_amount: null,
-            },
-          ],
-        })
+        StripeUpcomingInvoiceFactory()
       );
 
       const mockTaxAddress = TaxAddressFactory();
-      const mockInvoicePreview = {
-        currency: mockUpcomingInvoice.currency,
-        listAmount: mockUpcomingInvoice.amount_due,
-        totalAmount: mockUpcomingInvoice.total,
-        taxAmounts: [
-          {
-            title:
-              mockUpcomingInvoice.total_tax_amounts[0].tax_rate.display_name,
-            inclusive: mockUpcomingInvoice.total_tax_amounts[0].inclusive,
-            amount: mockUpcomingInvoice.total_tax_amounts[0].amount,
-          },
-        ],
-        discountAmount:
-          mockUpcomingInvoice.discount &&
-          mockUpcomingInvoice.total_discount_amounts?.[0].amount,
-      };
+      const mockInvoicePreview = InvoicePreviewFactory();
 
       jest
         .spyOn(stripeClient, 'invoicesRetrieveUpcoming')

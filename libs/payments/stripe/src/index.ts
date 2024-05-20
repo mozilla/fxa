@@ -27,12 +27,15 @@ export { StripePaymentMethodFactory } from './lib/factories/payment-method.facto
 export { StripePaymentIntentFactory } from './lib/factories/payment-intent.factory';
 export { TaxAddressFactory } from './lib/factories/tax-address.factory';
 export { StripeTaxRateFactory } from './lib/factories/tax-rate.factory';
+export { StripeTotalDiscountAmountsFactory } from './lib/factories/total-discount-amounts.factory';
+export { StripeTotalTaxAmountsFactory } from './lib/factories/total-tax-amounts.factory';
 export { StripeUpcomingInvoiceFactory } from './lib/factories/upcoming-invoice.factory';
 export * from './lib/stripe.client';
 export * from './lib/stripe.client.types';
 export * from './lib/stripe.config';
 export * from './lib/stripe.constants';
 export * from './lib/stripe.error';
+export * from './lib/stripe.factories';
 export * from './lib/stripe.manager';
 export * from './lib/stripe.service';
 export * from './lib/stripe.types';
