@@ -324,8 +324,7 @@
     "mysql": "^2.18.1",
     "node-uap": "https://github.com/mozilla-fxa/node-uap.git#494714db3e65a4dbfae772f536c8697269174574",
     "objection": "^3.1.3",
-    "superagent": "^9.0.2",
-    "typesafe-node-firestore": "^1.4.1"
+    "superagent": "^9.0.2"
   },
   "jest": {
     "moduleFileExtensions": [

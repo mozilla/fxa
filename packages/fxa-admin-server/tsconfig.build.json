@@ -17,7 +17,8 @@
       "@fxa/shared/l10n": ["libs/shared/l10n/src/index"],
       "@fxa/shared/log": ["libs/shared/log/src/index"],
       "@fxa/shared/metrics/statsd": ["libs/shared/metrics/statsd/src/index"],
-      "@fxa/shared/pem-jwk": ["libs/shared/pem-jwk/src/index.ts"]
+      "@fxa/shared/pem-jwk": ["libs/shared/pem-jwk/src/index.ts"],
+      "@fxa/vendored/typesafe-node-firestore": ["libs/vendored/typesafe-node-firestore/src/index"]
     }
   }
 }

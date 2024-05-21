@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Firestore } from '@google-cloud/firestore';
-import { TypedCollectionReference } from 'typesafe-node-firestore';
+import { TypedCollectionReference } from '@fxa/vendored/typesafe-node-firestore';
 import { PlanConfig } from '../../subscriptions/configuration/plan';
 import { ProductConfig } from '../../subscriptions/configuration/product';
 import { mergeConfigs } from '../../subscriptions/configuration/utils';
