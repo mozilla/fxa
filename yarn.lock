@@ -33616,7 +33616,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"enhanced-resolve@npm:^4.0.0, enhanced-resolve@npm:^4.5.0":
+"enhanced-resolve@npm:^4.5.0":
   version: 4.5.0
   resolution: "enhanced-resolve@npm:4.5.0"
   dependencies:
@@ -38090,7 +38090,7 @@ fsevents@~2.1.1:
     tailwindcss: ^3.4.1
     thread-loader: ^4.0.2
     time-grunt: 2.0.0
-    ts-loader: ^8.4.0
+    ts-loader: ^9.5.1
     typescript: ^5.4.2
     ua-parser-js: 1.0.35
     underscore: ^1.13.1
@@ -38223,7 +38223,7 @@ fsevents@~2.1.1:
     sqs-consumer: ^9.1.0
     supertest: ^7.0.0
     ts-jest: ^29.1.2
-    ts-loader: ^8.4.0
+    ts-loader: ^9.5.1
     tsconfig-paths: ^4.2.0
     typescript: ^5.4.2
     uuid: ^9.0.0
@@ -38750,7 +38750,7 @@ fsevents@~2.1.1:
     sinon: ^9.0.3
     superagent: ^9.0.2
     ts-jest: ^29.1.2
-    ts-loader: ^8.4.0
+    ts-loader: ^9.5.1
     tsc-alias: ^1.8.8
     tsconfig-paths: ^4.2.0
     typescript: ^5.4.2
@@ -63248,23 +63248,7 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"ts-loader@npm:^8.4.0":
-  version: 8.4.0
-  resolution: "ts-loader@npm:8.4.0"
-  dependencies:
-    chalk: ^4.1.0
-    enhanced-resolve: ^4.0.0
-    loader-utils: ^2.0.0
-    micromatch: ^4.0.0
-    semver: ^7.3.4
-  peerDependencies:
-    typescript: "*"
-    webpack: "*"
-  checksum: 79da0f364c013231bff28baede3f4f4081b1cca30b24df2d9f31a0517e0524eca2c8e4d438b853b1566a3a8eb9ff51ab0b36743346f0b3d5daa7001c98e5c738
-  languageName: node
-  linkType: hard
-
-"ts-loader@npm:^9.3.1":
+"ts-loader@npm:^9.3.1, ts-loader@npm:^9.5.1":
   version: 9.5.1
   resolution: "ts-loader@npm:9.5.1"
   dependencies:
