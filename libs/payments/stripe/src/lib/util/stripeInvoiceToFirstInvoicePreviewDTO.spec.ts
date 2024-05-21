@@ -48,6 +48,7 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
       discountAmount:
         mockUpcomingInvoice.discount &&
         mockUpcomingInvoice.total_discount_amounts?.[0].amount,
+      subTotal: mockUpcomingInvoice.subtotal,
     });
   });
 });

@@ -50,7 +50,6 @@ export class CartService {
     // - Fetch information about interval, offering, experiments from Contentful
     // - Guess TaxAddress via maxmind client
     // - Check if user is eligible to subscribe to plan, else throw error
-    // - Fetch invoice preview total from Stripe for `amount`
     // - Fetch stripeCustomerId if uid is passed and has a customer id
     let accountCustomer;
     if (args.uid) {
@@ -64,9 +63,25 @@ export class CartService {
       }
     }
 
+    const stripeCustomerId = accountCustomer?.stripeCustomerId;
+    const stripeCustomer = stripeCustomerId
+      ? await this.stripeManager.fetchActiveCustomer(stripeCustomerId)
+      : undefined;
+
     const taxAddress = args.ip
       ? this.geodbManager.getTaxAddress(args.ip)
       : undefined;
+
+    const priceId = await this.contentfulService.retrieveStripePlanId(
+      args.offeringConfigId,
+      args.interval
+    );
+
+    const upcomingInvoice = await this.stripeManager.previewInvoice({
+      priceId: priceId,
+      customer: stripeCustomer,
+      taxAddress: taxAddress,
+    });
 
     const eligibility = await this.eligibilityService.checkEligibility(
       args.interval,
@@ -79,7 +94,7 @@ export class CartService {
     const cart = await this.cartManager.createCart({
       interval: args.interval,
       offeringConfigId: args.offeringConfigId,
-      amount: 0,
+      amount: upcomingInvoice.subTotal,
       uid: args.uid,
       stripeCustomerId: accountCustomer?.stripeCustomerId || undefined,
       experiment: args.experiment,
