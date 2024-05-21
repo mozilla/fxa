@@ -173,9 +173,10 @@ sync:
       - prefs
       - addresses
       - creditcards
-    lifetime: ping
+    lifetime: application
     send_in_pings:
       - accounts-events
+      - events
     notification_emails:
       - vzare@mozilla.com
       - fxa-staff@mozilla.com
@@ -366,6 +367,23 @@ cached_login:
     expires: never
     data_sensitivity:
       - interaction
+  forgot_pwd_submit:
+    type: event
+    description: |
+      User clicked on the "Forgot Password" Link.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-8254
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1890377
+    expires: never
+    data_sensitivity:
+      - interaction
+
 email:
   first_view:
     type: event
@@ -387,6 +405,7 @@ email:
     expires: never
     data_sensitivity:
       - interaction
+
 login:
   email_confirmation_submit:
     type: event
@@ -414,6 +433,25 @@ login:
       Login Confirm Email Page View (FE)
       Event that indicates a successful view/load of the email confirmation page
       following the login page view.'
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-7265
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+  email_confirmation_success_view:
+    type: event
+    description: |
+      Login Email Confirmed.
+      Indicates that user successfully confirmed their email for the login flow
+      by entering the code sent in the confirmation email.
     send_in_pings:
       - events
     notification_emails:
@@ -484,6 +522,10 @@ login:
     expires: never
     data_sensitivity:
       - interaction
+    extra_keys:
+      reason:
+        description: additional context-dependent info, e.g. the cause of an error
+        type: string
   submit_success:
     type: event
     description: |
@@ -761,6 +803,7 @@ password_reset:
     expires: never
     data_sensitivity:
       - interaction
+
 reg:
   engage:
     type: event
@@ -779,6 +822,10 @@ reg:
     expires: never
     data_sensitivity:
       - interaction
+    extra_keys:
+      reason:
+        description: additional context-dependent info, e.g. the cause of an error
+        type: string
   signup_code_submit:
     type: event
     description: |
@@ -872,6 +919,40 @@ reg:
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+  success_view:
+    type: event
+    description: |
+      Confirmation of Registration Successful.
+      Indicates an account was successfully registered and created.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-7265
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+  cwts_engage:
+    type: event
+    description: |
+      User interacted with the Sync "Choose What to Sync" options during account registration.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-8254
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1890377
     expires: never
     data_sensitivity:
       - interaction

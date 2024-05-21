@@ -20,6 +20,7 @@ import * as email from 'fxa-shared/metrics/glean/web/email';
 import * as reg from 'fxa-shared/metrics/glean/web/reg';
 import * as login from 'fxa-shared/metrics/glean/web/login';
 import * as cachedLogin from 'fxa-shared/metrics/glean/web/cachedLogin';
+import * as passwordReset from 'fxa-shared/metrics/glean/web/passwordReset';
 import { userIdSha256 } from 'fxa-shared/metrics/glean/web/account';
 import {
   oauthClientId,
@@ -152,16 +153,24 @@ const populateMetrics = async (gleanPingMetrics: GleanPingMetrics) => {
   utm.term.set(metricsContext.integration.data.utmTerm || '');
 };
 
-const recordEventMetric = (eventName: string) => {
+const recordEventMetric = (
+  eventName: string,
+  gleanPingMetrics: GleanPingMetrics
+) => {
   switch (eventName) {
     case 'email_first_view':
       email.firstView.record();
+      break;
+    case 'reg_cwts_engage':
+      reg.cwtsEngage.record();
       break;
     case 'reg_view':
       reg.view.record();
       break;
     case 'reg_engage':
-      reg.engage.record();
+      reg.engage.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
       break;
     case 'reg_submit':
       reg.submit.record();
@@ -175,8 +184,14 @@ const recordEventMetric = (eventName: string) => {
     case 'reg_signup_code_submit':
       reg.signupCodeSubmit.record();
       break;
+    case 'reg_success_view':
+      reg.successView.record();
+      break;
     case 'login_view':
       login.view.record();
+      break;
+    case 'login_forgot_pwd_submit':
+      login.forgotPwdSubmit.record();
       break;
     case 'login_submit':
       login.submit.record();
@@ -185,7 +200,12 @@ const recordEventMetric = (eventName: string) => {
       login.submitSuccess.record();
       break;
     case 'login_submit_frontend_error':
-      login.submitFrontendError.record();
+      login.submitFrontendError.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'cached_login_forgot_pwd_submit':
+      cachedLogin.forgotPwdSubmit.record();
       break;
     case 'cached_login_view':
       cachedLogin.view.record();
@@ -202,6 +222,9 @@ const recordEventMetric = (eventName: string) => {
     case 'login_email_confirmation_submit':
       login.emailConfirmationSubmit.record();
       break;
+    case 'login_email_confirmation_success_view':
+      login.emailConfirmationSuccessView.record();
+      break;
     case 'login_totp_form_view':
       login.totpFormView.record();
       break;
@@ -210,6 +233,36 @@ const recordEventMetric = (eventName: string) => {
       break;
     case 'login_totp_code_success_view':
       login.totpCodeSuccessView.record();
+      break;
+    case 'password_reset_create_new_submit':
+      passwordReset.createNewSubmit.record();
+      break;
+    case 'password_reset_create_new_success_view':
+      passwordReset.createNewSuccessView.record();
+      break;
+    case 'password_reset_create_new_view':
+      passwordReset.createNewView.record();
+      break;
+    case 'password_reset_recovery_key_create_new_submit':
+      passwordReset.recoveryKeyCreateNewSubmit.record();
+      break;
+    case 'password_reset_recovery_key_create_new_view':
+      passwordReset.recoveryKeyCreateNewView.record();
+      break;
+    case 'password_reset_recovery_key_create_success_view':
+      passwordReset.recoveryKeyCreateSuccessView.record();
+      break;
+    case 'password_reset_recovery_key_submit':
+      passwordReset.recoveryKeySubmit.record();
+      break;
+    case 'password_reset_recovery_key_view':
+      passwordReset.recoveryKeyView.record();
+      break;
+    case 'password_reset_submit':
+      passwordReset.submit.record();
+      break;
+    case 'password_reset_view':
+      passwordReset.view.record();
       break;
   }
 };
@@ -226,7 +279,7 @@ const createEventFn =
       await populateMetrics(gleanPingMetrics);
 
       // recording the event metric triggers the event ping because Glean is initialized with `maxEvents: 1`
-      recordEventMetric(eventName);
+      recordEventMetric(eventName, gleanPingMetrics);
 
       accountsEvents.submit();
     };
