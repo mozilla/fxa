@@ -2460,10 +2460,13 @@ export class StripeHelper extends StripeHelperBase {
         subscription_id: sub.id,
         failure_code,
         failure_message,
+        promotion_amount_off: discount?.coupon?.amount_off ?? null,
         promotion_code:
           sub.metadata[SUBSCRIPTION_PROMOTION_CODE_METADATA_KEY] ?? null,
         promotion_duration: (discount?.coupon?.duration as string) ?? null,
         promotion_end: discount?.end ?? null,
+        promotion_name: discount?.coupon?.name ?? null,
+        promotion_percent_off: discount?.coupon?.percent_off ?? null,
       });
     }
     return subs;

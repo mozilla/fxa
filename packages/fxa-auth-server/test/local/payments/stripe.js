@@ -4587,9 +4587,12 @@ describe('#integration - StripeHelper', () => {
             failure_message: failedChargeCopy.failure_message,
             latest_invoice: invoice.number,
             latest_invoice_items: latestInvoiceItems,
+            promotion_amount_off: null,
             promotion_code: null,
             promotion_duration: null,
             promotion_end: null,
+            promotion_name: null,
+            promotion_percent_off: null,
           },
         ];
 
@@ -4669,9 +4672,12 @@ describe('#integration - StripeHelper', () => {
                 failure_message: undefined,
                 latest_invoice: paidInvoice.number,
                 latest_invoice_items: latestInvoiceItems,
+                promotion_amount_off: null,
                 promotion_code: null,
                 promotion_duration: null,
                 promotion_end: null,
+                promotion_name: null,
+                promotion_percent_off: null,
               },
             ];
 
@@ -4710,9 +4716,12 @@ describe('#integration - StripeHelper', () => {
                 failure_message: undefined,
                 latest_invoice: paidInvoice.number,
                 latest_invoice_items: latestInvoiceItems,
+                promotion_amount_off: null,
                 promotion_code: null,
                 promotion_duration: null,
                 promotion_end: null,
+                promotion_name: null,
+                promotion_percent_off: null,
               },
             ];
 
@@ -4746,9 +4755,12 @@ describe('#integration - StripeHelper', () => {
                 failure_message: undefined,
                 latest_invoice: paidInvoice.number,
                 latest_invoice_items: latestInvoiceItems,
+                promotion_amount_off: null,
                 promotion_code: null,
                 promotion_duration: null,
                 promotion_end: null,
+                promotion_name: null,
+                promotion_percent_off: null,
               },
             ];
 
@@ -4786,9 +4798,12 @@ describe('#integration - StripeHelper', () => {
                 failure_message: undefined,
                 latest_invoice: paidInvoice.number,
                 latest_invoice_items: latestInvoiceItems,
+                promotion_amount_off: null,
                 promotion_code: null,
                 promotion_duration: null,
                 promotion_end: null,
+                promotion_name: null,
+                promotion_percent_off: null,
               },
             ];
             const actual = await stripeHelper.subscriptionsToResponse(input);
@@ -4910,9 +4925,12 @@ describe('#integration - StripeHelper', () => {
             failure_message: undefined,
             latest_invoice: paidInvoice.number,
             latest_invoice_items: latestInvoiceItems,
+            promotion_amount_off: null,
             promotion_code: null,
             promotion_duration: null,
             promotion_end: null,
+            promotion_name: null,
+            promotion_percent_off: null,
           },
         ];
 
@@ -4947,10 +4965,15 @@ describe('#integration - StripeHelper', () => {
             failure_message: undefined,
             latest_invoice: paidInvoice.number,
             latest_invoice_items: latestInvoiceItems,
+            promotion_amount_off:
+              subscriptionCouponForever.discount.coupon.amount_off,
             promotion_code:
               subscriptionCouponForever.metadata.appliedPromotionCode,
             promotion_duration: 'forever',
             promotion_end: null,
+            promotion_name: subscriptionCouponForever.discount.coupon.name,
+            promotion_percent_off:
+              subscriptionCouponForever.discount.coupon.percent_off,
           },
         ];
 
@@ -4985,10 +5008,15 @@ describe('#integration - StripeHelper', () => {
             failure_message: undefined,
             latest_invoice: paidInvoice.number,
             latest_invoice_items: latestInvoiceItems,
+            promotion_amount_off:
+              subscriptionCouponRepeating.discount.coupon.amount_off,
             promotion_code:
               subscriptionCouponRepeating.metadata.appliedPromotionCode,
             promotion_duration: 'repeating',
             promotion_end: subscriptionCouponRepeating.discount.end,
+            promotion_name: subscriptionCouponRepeating.discount.coupon.name,
+            promotion_percent_off:
+              subscriptionCouponRepeating.discount.coupon.percent_off,
           },
         ];
 

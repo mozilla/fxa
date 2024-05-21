@@ -165,9 +165,12 @@ export type WebSubscription = Pick<
       'incomplete' | 'incomplete_expired'
     >;
     subscription_id: Stripe.Subscription['id'];
+    promotion_amount_off?: number | null;
     promotion_code?: string;
     promotion_duration: string | null;
     promotion_end: number | null;
+    promotion_name?: string | null;
+    promotion_percent_off?: number | null;
   };
 
 export type IapSubscription = PlayStoreSubscription | AppStoreSubscription;
