@@ -19,16 +19,14 @@ import {
 } from '@fxa/payments/paypal';
 import {
   AccountCustomerManager,
+  InvoicePreviewFactory,
   MockStripeConfigProvider,
   ResultAccountCustomerFactory,
   StripeClient,
   StripeCustomerFactory,
-  StripeDiscountFactory,
   StripeManager,
   StripePriceFactory,
   StripeResponseFactory,
-  StripeTaxRateFactory,
-  StripeUpcomingInvoiceFactory,
   SubplatInterval,
   TaxAddressFactory,
 } from '@fxa/payments/stripe';
@@ -131,45 +129,7 @@ describe('CartService', () => {
       };
       const taxAddress = TaxAddressFactory();
       const mockPrice = StripePriceFactory();
-      const mockUpcomingInvoice = StripeResponseFactory(
-        StripeUpcomingInvoiceFactory({
-          discount: StripeDiscountFactory(),
-          total_discount_amounts: [
-            {
-              amount: 500,
-              discount: StripeDiscountFactory(),
-            },
-          ],
-          total_tax_amounts: [
-            {
-              amount: faker.number.int(1000),
-              inclusive: false,
-              tax_rate: StripeTaxRateFactory(),
-              taxability_reason: null,
-              taxable_amount: null,
-            },
-          ],
-        })
-      );
-
-      const mockInvoicePreview = {
-        currency: mockUpcomingInvoice.currency,
-        listAmount: mockUpcomingInvoice.amount_due,
-        totalAmount: mockUpcomingInvoice.total,
-        taxAmounts: [
-          {
-            title:
-              mockUpcomingInvoice.total_tax_amounts[0].tax_rate.display_name,
-            inclusive: mockUpcomingInvoice.total_tax_amounts[0].inclusive,
-            amount: mockUpcomingInvoice.total_tax_amounts[0].amount,
-          },
-        ],
-        discountAmount:
-          mockUpcomingInvoice.discount &&
-          mockUpcomingInvoice.total_discount_amounts &&
-          mockUpcomingInvoice.total_discount_amounts[0].amount,
-        subTotal: mockUpcomingInvoice.subtotal,
-      };
+      const mockInvoicePreview = InvoicePreviewFactory();
 
       jest
         .spyOn(eligibilityService, 'checkEligibility')
@@ -194,7 +154,7 @@ describe('CartService', () => {
       expect(cartManager.createCart).toHaveBeenCalledWith({
         interval: args.interval,
         offeringConfigId: args.offeringConfigId,
-        amount: mockUpcomingInvoice.subtotal,
+        amount: mockInvoicePreview.subtotal,
         uid: args.uid,
         stripeCustomerId: mockAccountCustomer.stripeCustomerId,
         experiment: args.experiment,
@@ -435,49 +395,11 @@ describe('CartService', () => {
   });
 
   describe('getCart', () => {
-    const mockPrice = StripePriceFactory();
-    const mockUpcomingInvoice = StripeResponseFactory(
-      StripeUpcomingInvoiceFactory({
-        discount: StripeDiscountFactory(),
-        total_discount_amounts: [
-          {
-            amount: 500,
-            discount: StripeDiscountFactory(),
-          },
-        ],
-        total_tax_amounts: [
-          {
-            amount: faker.number.int(1000),
-            inclusive: false,
-            tax_rate: StripeTaxRateFactory(),
-            taxability_reason: null,
-            taxable_amount: null,
-          },
-        ],
-      })
-    );
-
-    const mockInvoicePreview = {
-      currency: mockUpcomingInvoice.currency,
-      listAmount: mockUpcomingInvoice.amount_due,
-      totalAmount: mockUpcomingInvoice.total,
-      taxAmounts: [
-        {
-          title: mockUpcomingInvoice.total_tax_amounts[0].tax_rate.display_name,
-          inclusive: mockUpcomingInvoice.total_tax_amounts[0].inclusive,
-          amount: mockUpcomingInvoice.total_tax_amounts[0].amount,
-        },
-      ],
-      discountAmount:
-        mockUpcomingInvoice.discount &&
-        mockUpcomingInvoice.total_discount_amounts &&
-        mockUpcomingInvoice.total_discount_amounts[0].amount,
-      subTotal: mockUpcomingInvoice.subtotal,
-    };
-
     it('returns cart and invoicePreview', async () => {
       const mockCart = ResultCartFactory();
       const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
+      const mockPrice = StripePriceFactory();
+      const mockInvoicePreview = InvoicePreviewFactory();
 
       jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
       jest
@@ -515,6 +437,8 @@ describe('CartService', () => {
       const mockCart = ResultCartFactory({
         stripeCustomerId: null,
       });
+      const mockPrice = StripePriceFactory();
+      const mockInvoicePreview = InvoicePreviewFactory();
 
       jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
       jest

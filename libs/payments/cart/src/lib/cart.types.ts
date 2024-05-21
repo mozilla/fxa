@@ -29,6 +29,7 @@ export interface Invoice {
   totalAmount: number;
   taxAmounts: TaxAmount[];
   discountAmount: number | null;
+  subtotal: number;
 }
 
 export type ResultCart = Readonly<Omit<Cart, 'id' | 'uid'>> & {

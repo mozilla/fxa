@@ -94,7 +94,7 @@ export class CartService {
     const cart = await this.cartManager.createCart({
       interval: args.interval,
       offeringConfigId: args.offeringConfigId,
-      amount: upcomingInvoice.subTotal,
+      amount: upcomingInvoice.subtotal,
       uid: args.uid,
       stripeCustomerId: accountCustomer?.stripeCustomerId || undefined,
       experiment: args.experiment,
@@ -218,7 +218,7 @@ export class CartService {
       );
     }
 
-    const upcomingInvoice = await this.stripeManager.previewInvoice({
+    const invoicePreview = await this.stripeManager.previewInvoice({
       priceId,
       customer,
       taxAddress: cart.taxAddress as unknown as TaxAddress, // TODO: Fix the typings for taxAddress
@@ -226,7 +226,7 @@ export class CartService {
 
     return {
       ...cart,
-      invoicePreview: upcomingInvoice,
+      invoicePreview,
     };
   }
 }
