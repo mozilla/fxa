@@ -233,7 +233,7 @@ const createEventFn =
       await populateMetrics(properties);
 
       // recording the event metric triggers the event ping because Glean is initialized with `maxEvents: 1`
-      recordEventMetric(eventName);
+      recordEventMetric(eventName, properties);
 
       accountsEvents.submit();
     };
