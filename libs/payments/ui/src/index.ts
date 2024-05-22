@@ -8,3 +8,4 @@ export * from './lib/utils/helpers';
 export * from './lib/client/components/StripeWrapper';
 export * from './lib/client/components/CheckoutCheckbox';
 export * from './lib/client/components/PaymentSection';
+export * from './lib/client/providers/Providers';

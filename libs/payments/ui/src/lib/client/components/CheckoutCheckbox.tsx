@@ -4,7 +4,7 @@
 'use client';
 
 import * as HoverCard from '@radix-ui/react-hover-card';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Localized } from '@fluent/react';
 
 interface CheckoutCheckboxProps {
@@ -20,7 +20,16 @@ export function CheckoutCheckbox({
   privacyNotice,
   notifyCheckboxChange,
 }: CheckoutCheckboxProps) {
+  // Fluent React Overlays cause hydration issues due to SSR.
+  // Using isClient along with the useEffect ensures its only run Client Side
+  // Note this currently only affects strings that make use of React Overlays.
+  // Other strings are localized in SSR as expected.
+  // - https://github.com/projectfluent/fluent.js/wiki/React-Overlays
+  // - https://nextjs.org/docs/messages/react-hydration-error
+  const [isClient, setIsClient] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
+
+  useEffect(() => setIsClient(true), []);
 
   const changeHandler = () => {
     const newValue = !isChecked;
@@ -40,10 +49,35 @@ export function CheckoutCheckbox({
             onChange={changeHandler}
           />
         </HoverCard.Trigger>
-        <Localized
-          id="next-payment-confirm-with-legal-links-static-3"
-          elems={{
-            termsOfServiceLink: (
+        {isClient && (
+          <Localized
+            id="next-payment-confirm-with-legal-links-static-3"
+            elems={{
+              termsOfServiceLink: (
+                <a
+                  href={termsOfService}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-blue-500 underline"
+                >
+                  Terms of Service
+                </a>
+              ),
+              privacyNoticeLink: (
+                <a
+                  href={privacyNotice}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-blue-500 underline"
+                >
+                  Privacy Notice
+                </a>
+              ),
+            }}
+          >
+            <span className="font-normal text-sm block">
+              I authorize Mozilla to charge my payment method for the amount
+              shown, according to{' '}
               <a
                 href={termsOfService}
                 target="_blank"
@@ -51,9 +85,8 @@ export function CheckoutCheckbox({
                 className="text-blue-500 underline"
               >
                 Terms of Service
-              </a>
-            ),
-            privacyNoticeLink: (
+              </a>{' '}
+              and{' '}
               <a
                 href={privacyNotice}
                 target="_blank"
@@ -62,32 +95,10 @@ export function CheckoutCheckbox({
               >
                 Privacy Notice
               </a>
-            ),
-          }}
-        >
-          <span className="font-normal text-sm block">
-            I authorize Mozilla to charge my payment method for the amount
-            shown, according to{' '}
-            <a
-              href={termsOfService}
-              target="_blank"
-              rel="noreferrer"
-              className="text-blue-500 underline"
-            >
-              Terms of Service
-            </a>{' '}
-            and{' '}
-            <a
-              href={privacyNotice}
-              target="_blank"
-              rel="noreferrer"
-              className="text-blue-500 underline"
-            >
-              Privacy Notice
-            </a>
-            , until I cancel my subscription.
-          </span>
-        </Localized>
+              , until I cancel my subscription.
+            </span>
+          </Localized>
+        )}
       </label>
       <HoverCard.Portal>
         <HoverCard.Content

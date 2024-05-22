@@ -14,6 +14,7 @@ import { parseAcceptLanguage } from '../l10n.utils';
 @Injectable()
 export class LocalizerRscFactory extends LocalizerBase {
   private readonly bundles: Map<string, FluentBundle> = new Map();
+  private fetchedMessages: Record<string, string> = {};
   private document: any = null;
   constructor(bindings: ILocalizerBindings) {
     super(bindings);
@@ -25,9 +26,9 @@ export class LocalizerRscFactory extends LocalizerBase {
   }
 
   private async fetchFluentBundles() {
-    const fetchedMessages = await this.fetchMessages(supportedLanguages);
-    const bundleGenerator = this.createBundleGenerator(fetchedMessages);
-    for await (const bundle of bundleGenerator(supportedLanguages)) {
+    this.fetchedMessages = await this.fetchMessages(supportedLanguages);
+    const bundleGenerator = this.createBundleGenerator(this.fetchedMessages);
+    for (const bundle of bundleGenerator(supportedLanguages)) {
       this.bundles.set(bundle.locales[0], bundle);
     }
   }
@@ -59,5 +60,17 @@ export class LocalizerRscFactory extends LocalizerBase {
     });
 
     return new LocalizerRsc(supportedBundles, this.parseMarkup());
+  }
+
+  getFetchedMessages(acceptLanguages: string) {
+    const filteredFetchedMessages: Record<string, string> = {};
+    const currentLocales = parseAcceptLanguage(acceptLanguages);
+    currentLocales.forEach((locale) => {
+      const msgs = this.fetchedMessages[locale];
+      if (msgs) {
+        filteredFetchedMessages[locale] = msgs;
+      }
+    });
+    return filteredFetchedMessages;
   }
 }
