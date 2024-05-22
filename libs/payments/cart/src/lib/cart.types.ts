@@ -65,6 +65,7 @@ export type UpdateCart = {
   taxAddress?: TaxAddress;
   couponCode?: string;
   email?: string;
+  stripeCustomerId?: string;
 };
 
 export type CartEligibilityDetails = {

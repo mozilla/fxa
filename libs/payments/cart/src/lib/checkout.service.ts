@@ -2,15 +2,27 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { Injectable } from '@nestjs/common';
+import { EligibilityService } from '@fxa/payments/eligibility';
+import { PayPalManager, PaypalCustomerManager } from '@fxa/payments/paypal';
 import {
   StripeClient,
   StripeManager,
   StripeSubscription,
+  SubplatInterval,
+  TaxAddress,
 } from '@fxa/payments/stripe';
-import { PayPalManager, PaypalCustomerManager } from '@fxa/payments/paypal';
-import { Injectable } from '@nestjs/common';
-import { ResultCart } from './cart.types';
 import { CheckoutError, CheckoutPaymentError } from './checkout.error';
+import {
+  CartTotalMismatchError,
+  CartEligibilityMismatchError,
+  CartEmailNotFoundError,
+} from './cart.error';
+import { CartManager } from './cart.manager';
+import { ResultCart } from './cart.types';
+import { handleEligibilityStatusMap } from './cart.utils';
+import { ContentfulService } from '@fxa/shared/contentful';
+import { AccountManager } from '@fxa/shared/account/account';
 
 @Injectable()
 export class CheckoutService {
@@ -18,25 +30,101 @@ export class CheckoutService {
     private stripeClient: StripeClient,
     private stripeManager: StripeManager,
     private paypalCustomerManager: PaypalCustomerManager,
-    private paypalManager: PayPalManager
+    private paypalManager: PayPalManager,
+    private cartManager: CartManager,
+    private eligibilityService: EligibilityService,
+    private contentfulService: ContentfulService,
+    private accountManager: AccountManager
   ) {}
 
-  async prePaySteps(cart: ResultCart) {
-    // TODO:
-    // - If uid not present, create user stub account and update cart
-    // - Check if customer exists, create via stripe manager and update cart
-    // - Make sure shipping address of customer is updated with cart taxAddress
-    // - Check if customer is eligible for product in cart
-    // - Check if amount to be charged matches amount in cart
-    // - Cancel incomplete subscriptions to price user is subscribing to
+  async prePaySteps(cart: ResultCart, locale: string) {
+    let customer, stripeCustomerId, uid;
+    const taxAddress = cart.taxAddress as any as TaxAddress;
 
-    const { stripeCustomerId } = cart;
-    if (!stripeCustomerId) {
-      // TODO: this is a placeholder and won't be necessary once the above todo items are done
-      throw new Error("Stripe customer doesn't exist");
+    if (!cart.email) {
+      throw new CartEmailNotFoundError(cart.id);
     }
-    const customer = await this.stripeManager.fetchActiveCustomer(
+
+    // if stripeCustomerId not found, create stub stripe account
+    if (!cart.stripeCustomerId) {
+      customer = await this.stripeManager.createPlainCustomer({
+        email: cart.email,
+        taxAddress: taxAddress,
+      });
+
+      stripeCustomerId = customer.id;
+    } else {
+      stripeCustomerId = cart.stripeCustomerId;
+
+      customer = await this.stripeManager.fetchActiveCustomer(stripeCustomerId);
+    }
+
+    // if uid not found, create stub account customer
+    // TODO: update hardcoded verifierVersion
+    // https://mozilla-hub.atlassian.net/browse/FXA-9693
+    if (!cart.uid) {
+      uid = await this.accountManager.createAccountStub(
+        cart.email,
+        1, // verifierVersion
+        locale
+      );
+    } else {
+      uid = cart.uid;
+    }
+
+    // update cart
+    // TODO: update code so it's conditional only when cart data needs to be updated
+    // NOTE: originally done as two separate calls dependent on if
+    // uid, stripeCustomerId, or both were not found, it was then merged into one
+    // https://github.com/mozilla/fxa/pull/16924#discussion_r1608740674
+    await this.cartManager.updateFreshCart(cart.id, cart.version, {
+      uid: uid,
+      stripeCustomerId: stripeCustomerId,
+    });
+
+    // validate customer is eligible for product via eligibility service
+    // throws cart eligibility mismatch error if no match found
+    const eligibility = await this.eligibilityService.checkEligibility(
+      cart.interval as SubplatInterval,
+      cart.offeringConfigId,
       stripeCustomerId
+    );
+
+    const cartEligibilityStatus = handleEligibilityStatusMap[eligibility];
+
+    if (cartEligibilityStatus !== cart.eligibilityStatus) {
+      throw new CartEligibilityMismatchError(
+        cart.id,
+        cart.eligibilityStatus,
+        cartEligibilityStatus
+      );
+    }
+
+    // re-validate total amount against upcoming invoice
+    // throws cart total mismatch error if no match found
+    const priceId = await this.contentfulService.retrieveStripePlanId(
+      cart.offeringConfigId,
+      cart.interval as SubplatInterval
+    );
+
+    const upcomingInvoice = await this.stripeManager.previewInvoice({
+      priceId: priceId,
+      customer: customer,
+      taxAddress: taxAddress,
+    });
+
+    if (upcomingInvoice.subtotal !== cart.amount) {
+      throw new CartTotalMismatchError(
+        cart.id,
+        cart.amount,
+        upcomingInvoice.subtotal
+      );
+    }
+
+    // check if customer already has subscription to price and cancel if they do
+    await this.stripeManager.cancelIncompleteSubscriptionsToPrice(
+      stripeCustomerId,
+      priceId
     );
 
     const enableAutomaticTax =
@@ -47,7 +135,7 @@ export class CheckoutService {
       : undefined;
 
     return {
-      uid: cart.uid || 'SEE TODO',
+      uid: uid,
       customer,
       enableAutomaticTax,
       promotionCode,
@@ -62,9 +150,13 @@ export class CheckoutService {
     console.log(cart.id, subscription.id);
   }
 
-  async payWithStripe(cart: ResultCart, paymentMethodId: string) {
+  async payWithStripe(
+    cart: ResultCart,
+    locale: string,
+    paymentMethodId: string
+  ) {
     const { customer, enableAutomaticTax, promotionCode } =
-      await this.prePaySteps(cart);
+      await this.prePaySteps(cart, locale);
 
     await this.stripeClient.paymentMethodsAttach(paymentMethodId, {
       customer: customer.id,
@@ -122,9 +214,9 @@ export class CheckoutService {
     await this.postPaySteps(cart, subscription);
   }
 
-  async payWithPaypal(cart: ResultCart, token?: string) {
+  async payWithPaypal(cart: ResultCart, locale: string, token?: string) {
     const { uid, customer, enableAutomaticTax, promotionCode } =
-      await this.prePaySteps(cart);
+      await this.prePaySteps(cart, locale);
 
     const paypalSubscriptions =
       await this.paypalManager.getCustomerPayPalSubscriptions(customer.id);

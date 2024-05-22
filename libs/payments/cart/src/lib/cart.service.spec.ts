@@ -50,7 +50,7 @@ import {
   MockGeoDBNestFactory,
 } from '@fxa/shared/geodb';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
-
+import { AccountManager } from '@fxa/shared/account/account';
 import {
   FinishErrorCartFactory,
   ResultCartFactory,
@@ -99,6 +99,7 @@ describe('CartService', () => {
         GeoDBManagerConfig,
         MockGeoDBNestFactory,
         StripeManager,
+        AccountManager,
       ],
     }).compile();
 
@@ -192,6 +193,7 @@ describe('CartService', () => {
 
   describe('checkoutCartWithStripe', () => {
     it('accepts payment with stripe', async () => {
+      const locale = 'en-US';
       const mockCart = ResultCartFactory();
       const mockPaymentMethodId = faker.string.uuid();
 
@@ -203,11 +205,13 @@ describe('CartService', () => {
       await cartService.checkoutCartWithStripe(
         mockCart.id,
         mockCart.version,
+        locale,
         mockPaymentMethodId
       );
 
       expect(checkoutService.payWithStripe).toHaveBeenCalledWith(
         mockCart,
+        locale,
         mockPaymentMethodId
       );
       expect(cartManager.finishCart).toHaveBeenCalledWith(
@@ -219,6 +223,7 @@ describe('CartService', () => {
     });
 
     it('calls cartManager.finishErrorCart when error occurs during checkout', async () => {
+      const locale = 'en-US';
       const mockCart = ResultCartFactory();
       const mockPaymentMethodId = faker.string.uuid();
 
@@ -230,6 +235,7 @@ describe('CartService', () => {
       await cartService.checkoutCartWithStripe(
         mockCart.id,
         mockCart.version,
+        locale,
         mockPaymentMethodId
       );
 
@@ -245,6 +251,7 @@ describe('CartService', () => {
 
   describe('checkoutCartWithPaypal', () => {
     it('accepts payment with Paypal', async () => {
+      const locale = 'en-US';
       const mockCart = ResultCartFactory();
       const mockToken = faker.string.uuid();
 
@@ -256,11 +263,13 @@ describe('CartService', () => {
       await cartService.checkoutCartWithPaypal(
         mockCart.id,
         mockCart.version,
+        locale,
         mockToken
       );
 
       expect(checkoutService.payWithPaypal).toHaveBeenCalledWith(
         mockCart,
+        locale,
         mockToken
       );
       expect(cartManager.finishCart).toHaveBeenCalledWith(

@@ -11,12 +11,14 @@ import { CheckoutCartWithPaypalActionArgs } from '../nestapp/validators/Checkout
 export const checkoutCartWithPaypal = async (
   cartId: string,
   version: number,
+  locale: string,
   token?: string
 ) => {
   await app.getActionsService().checkoutCartWithPaypal(
     plainToClass(CheckoutCartWithPaypalActionArgs, {
       cartId,
       version,
+      locale,
       token,
     })
   );

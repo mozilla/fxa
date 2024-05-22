@@ -26,9 +26,10 @@ interface CheckoutFormProps {
     version: number;
     email: string | null;
   };
+  locale: string;
 }
 
-export function CheckoutForm({ readOnly, cart }: CheckoutFormProps) {
+export function CheckoutForm({ readOnly, cart, locale }: CheckoutFormProps) {
   const router = useRouter();
   const stripe = useStripe();
   const { l10n } = useLocalization();
@@ -104,7 +105,12 @@ export function CheckoutForm({ readOnly, cart }: CheckoutFormProps) {
       }
     }
 
-    await checkoutCartWithStripe(cart.id, cart.version, paymentMethod.id);
+    await checkoutCartWithStripe(
+      cart.id,
+      cart.version,
+      locale,
+      paymentMethod.id
+    );
 
     // TODO - To be added in M3B - Redirect customer to '/processing' page
     router.push('./start');

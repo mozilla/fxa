@@ -8,7 +8,7 @@ import {
   SetupCart,
   UpdateCart,
 } from './cart.types';
-import { CartState } from '@fxa/shared/db/mysql/account';
+import { CartEligibilityStatus, CartState } from '@fxa/shared/db/mysql/account';
 
 export class CartError extends BaseError {
   constructor(message: string, info: Record<string, any>, cause?: Error) {
@@ -79,6 +79,34 @@ export class CartInvalidStateForActionError extends CartError {
       cartId,
       state,
       action,
+    });
+  }
+}
+
+export class CartTotalMismatchError extends CartError {
+  constructor(cartId: string, cartAmount: number, invoiceAmount: number) {
+    super('Cart total mismatch', { cartId, cartAmount, invoiceAmount });
+  }
+}
+
+export class CartEligibilityMismatchError extends CartError {
+  constructor(
+    cartId: string,
+    cartEligibility: CartEligibilityStatus,
+    incomingEligibility: CartEligibilityStatus
+  ) {
+    super('Cart eligibility mismatch', {
+      cartId,
+      cartEligibility,
+      incomingEligibility,
+    });
+  }
+}
+
+export class CartEmailNotFoundError extends CartError {
+  constructor(cartId: string) {
+    super('Cart email not found', {
+      cartId,
     });
   }
 }
