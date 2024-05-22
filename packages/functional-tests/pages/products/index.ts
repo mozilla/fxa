@@ -11,8 +11,12 @@ export class SubscribePage extends BaseLayout {
     return this.page.getByRole('heading', { name: 'Promo Code Applied' });
   }
 
-  async getCouponStatusByDataTestId(dataTestId: string) {
-    return this.page.locator(`[data-testid="${dataTestId}"]`);
+  get couponError() {
+    return this.page.getByTestId('coupon-error');
+  }
+
+  get removeCouponButton() {
+    return this.page.getByTestId('coupon-remove-button');
   }
 
   async visitSignIn() {

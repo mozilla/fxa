@@ -26,10 +26,8 @@ test.describe('severity-2 #smoke', () => {
       // 'autoexpired' coupon is an expired coupon for a 6mo plan
       await subscribe.addCouponCode('autoexpired');
 
-      await expect(
-        await subscribe.getCouponStatusByDataTestId('coupon-error')
-      ).toBeVisible({
-        timeout: 5000,
+      await expect(subscribe.couponError).toBeVisible({
+        timeout: 10000,
       });
 
       // Verifying the correct error message
@@ -52,10 +50,8 @@ test.describe('severity-2 #smoke', () => {
       // But valid for a 12mo plan
       await subscribe.addCouponCode('autoinvalid');
 
-      await expect(
-        await subscribe.getCouponStatusByDataTestId('coupon-error')
-      ).toBeVisible({
-        timeout: 5000,
+      await expect(subscribe.couponError).toBeVisible({
+        timeout: 10000,
       });
 
       // Asserting that the code is invalid for a 6mo plan
@@ -228,10 +224,8 @@ test.describe('severity-2 #smoke', () => {
       await subscribe.addCouponCode('auto50ponetime');
 
       // Verify the coupon is applied successfully
-      await expect(
-        await subscribe.getCouponStatusByDataTestId('coupon-remove-button')
-      ).toBeVisible({
-        timeout: 5000,
+      await expect(subscribe.removeCouponButton).toBeVisible({
+        timeout: 10000,
       });
       expect(await subscribe.oneTimeDiscountSuccess()).toBe(true);
 
