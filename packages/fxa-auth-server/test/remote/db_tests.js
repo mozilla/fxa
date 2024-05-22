@@ -1514,7 +1514,7 @@ describe(`#integration - remote db`, function () {
     assert.equal(record.uid, account.uid);
     assert.equal(record.providerId, 1);
     assert.equal(record.enabled, true);
-    assert.equal(record.id, 'googleid');
+    assert.equal(record.id, googleId);
 
     await db.deleteAccount({ ...account });
 
