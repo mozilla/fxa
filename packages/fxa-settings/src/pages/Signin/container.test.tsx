@@ -471,7 +471,10 @@ describe('signin container', () => {
         },
         // The corrected email should then be used, for the second attempt, and
         // the login should succeed.
-        mockGqlBeginSigninMutation({ keys: false }),
+        mockGqlBeginSigninMutation({
+          keys: false,
+          originalLoginEmail: MOCK_EMAIL.toUpperCase(),
+        }),
       ]);
 
       await waitFor(async () => {

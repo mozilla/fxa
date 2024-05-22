@@ -150,7 +150,7 @@ export function mockGqlAvatarUseQuery() {
 }
 
 export function mockGqlBeginSigninMutation(
-  opts: { keys: boolean },
+  opts: { keys: boolean; originalLoginEmail?: string },
   inputOverrides: any = {}
 ) {
   const result = opts.keys

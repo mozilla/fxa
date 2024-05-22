@@ -33,7 +33,7 @@ export const DropDownAvatarMenu = () => {
       try {
         await session.destroy();
         logViewEvent(settingsViewName, 'signout.success');
-        window.location.assign(`${window.location.origin}/signin`);
+        window.location.assign(window.location.origin);
       } catch (e) {
         alertBar.error(
           l10n.getString(
