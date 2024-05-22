@@ -69,6 +69,7 @@ async function init() {
     'cancel-subscriptions-to-plan'
   );
 
+  console.log('CREDENTIALS', config.subscriptions.paypalNvpSigCredentials);
   const paypalClient = new PayPalClient(
     config.subscriptions.paypalNvpSigCredentials
   );
