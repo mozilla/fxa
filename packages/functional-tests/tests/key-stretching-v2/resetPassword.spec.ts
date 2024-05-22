@@ -50,9 +50,20 @@ test.describe('severity-2 #smoke', () => {
     test(`signs up as v${signup.version} resets password as v${reset.version} and signs in as v${signin.version}`, async ({
       page,
       target,
-      pages: { signinReact, signupReact, settings, resetPasswordReact },
+      pages: {
+        configPage,
+        signinReact,
+        signupReact,
+        settings,
+        resetPasswordReact,
+      },
       testAccountTracker,
     }) => {
+      const config = await configPage.getConfig();
+      test.fixme(
+        config.featureFlags.resetPasswordWithCode === true,
+        'see FXA-9612'
+      );
       const { email, password } = testAccountTracker.generateAccountDetails();
       await page.goto(
         `${target.contentServerUrl}/?showReactApp=true&forceExperiment=generalizedReactApp&forceExperimentGroup=react&${signup.query}`
