@@ -11,6 +11,7 @@ import * as reg from './reg';
 import * as login from './login';
 import * as cachedLogin from './cachedLogin';
 import * as passwordReset from './passwordReset';
+import * as cadFirefox from './cadFirefox';
 import { userIdSha256 } from './account';
 import { oauthClientId, service } from './relyingParty';
 import { deviceType, entrypoint, flowId } from './session';
@@ -218,6 +219,25 @@ const recordEventMetric = (eventName: string, properties: EventProperties) => {
     case 'password_reset_view':
       passwordReset.view.record();
       break;
+    case 'cad_firefox_view':
+      cadFirefox.view.record();
+      break;
+    case 'cad_firefox_choice_view':
+      cadFirefox.view.record();
+      break;
+    case 'cad_firefox_choice_engage':
+      cadFirefox.choiceEngage.record({
+        reason: properties['reason'] || '',
+      });
+      break;
+    case 'cad_firefox_choice_submit':
+      cadFirefox.choiceSubmit.record({
+        reason: properties['reason'] || '',
+      });
+      break;
+    case 'cad_firefox_sync_device_submit':
+      cadFirefox.syncDeviceSubmit.record();
+      break;
   }
 };
 
@@ -313,6 +333,14 @@ export const GleanMetrics = {
     view: createEventFn('login_totp_form_view'),
     submit: createEventFn('login_totp_code_submit'),
     success: createEventFn('login_totp_code_success_view'),
+  },
+
+  cadFirefox: {
+    view: createEventFn('cad_firefox_view'),
+    choiceView: createEventFn('cad_firefox_choice_view'),
+    choiceEngage: createEventFn('cad_firefox_choice_engage'),
+    choiceSubmit: createEventFn('cad_firefox_choice_submit'),
+    syncDeviceSubmit: createEventFn('cad_firefox_sync_device_submit'),
   },
 };
 

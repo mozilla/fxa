@@ -27,6 +27,9 @@ config.theme.extend = {
     // TODO: Use 'close' SVGs from 'fxa-react' once using React
     'close-black': 'inline("../images/close.svg")',
     'close-white': 'inline("../images/close-white.svg")',
+    'mobile-ff': 'inline("../images/mobile-ff.svg")',
+    'mobile-download': 'inline("../images/mobile-download.svg")',
+    'back-arrow': 'inline("../images/back-arrow.svg")',
   },
   content: {
     ...config.theme.extend.content,

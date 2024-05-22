@@ -10,6 +10,8 @@ import Notifier from 'lib/channels/notifier';
 import Relier from 'models/reliers/relier';
 import User from 'models/user';
 import WindowMock from '../../../mocks/window';
+import GleanMetrics from '../../../../scripts/lib/glean';
+import P from 'lib/promise';
 
 const UA_CHROME =
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.109 Safari/537.36';
@@ -166,24 +168,199 @@ describe('views/pair/index', () => {
       });
     });
 
-    it('shows qr code', () => {
-      sinon.stub(view, 'showDownloadFirefoxQrCode').callsFake(() => true);
-      return view.render().then(() => {
-        const heading = view.$('#pair-header');
-        assert.strictEqual(heading.text(), 'Connect Firefox on another device');
+    describe('askMobileStatus is true', () => {
+      let viewChoiceEventStub;
+      beforeEach(() => {
+        viewChoiceEventStub = sinon.stub(GleanMetrics.cadFirefox, 'choiceView');
+        sinon.stub(view, 'showDownloadFirefoxQrCode').callsFake(() => true);
+        return view.render();
+      });
 
-        const pairButton = view.$('#start-pairing');
-        assert.equal(pairButton.length, 1);
+      afterEach(() => {
+        viewChoiceEventStub.restore();
+      });
 
-        const downloadLink = view.$('#get-fx-mobile');
-        assert.equal(downloadLink.length, 1);
+      it('renders elements as expected', () => {
+        const heading = view.$('#cad-header');
+        assert.strictEqual(heading.text(), 'Connect another device');
 
-        const qrCode = view.$el.find('.bg-image-cad-qr-code');
-        assert.equal(qrCode.length, 1);
+        const backBtn = view.$('#back-btn');
+        assert.strictEqual(backBtn.length, 0);
+
+        const subheading = view.$('#pair-header');
+        assert.strictEqual(subheading.text(), 'Sync your Firefox experience');
+        assert.equal(view.$('#pair-header-mobile').length, 0);
+
+        assert.strictEqual(view.$('#form-ask-mobile-status').length, 1);
+
+        const radioButtons = view.$('input[type=radio]');
+        assert.strictEqual(radioButtons.length, 2);
+        assert.strictEqual(view.$(radioButtons[0]).attr('id'), 'has-mobile');
+        assert.strictEqual(
+          view.$(radioButtons[0]).attr('name'),
+          'mobile-download'
+        );
+        assert.strictEqual(view.$(radioButtons[1]).attr('id'), 'needs-mobile');
+        assert.strictEqual(
+          view.$(radioButtons[1]).attr('name'),
+          'mobile-download'
+        );
+
+        const radioButtonLabels = view.$('.input-radio-label');
+        assert.strictEqual(radioButtonLabels.length, 2);
+
+        assert.include(
+          view.$(radioButtonLabels[0]).text(),
+          'I already have Firefox for mobile'
+        );
+        assert.strictEqual(
+          view.$(radioButtonLabels[0]).attr('for'),
+          'has-mobile'
+        );
+        assert.include(
+          view.$(radioButtonLabels[1]).text(),
+          'I don’t have Firefox for mobile'
+        );
+        assert.strictEqual(
+          view.$(radioButtonLabels[1]).attr('for'),
+          'needs-mobile'
+        );
+
+        const choiceSubmitBtn = view.$('#set-needs-mobile');
+        assert.equal(choiceSubmitBtn.length, 1);
+        assert.ok(view.$(choiceSubmitBtn).attr('disabled'));
+
+        const notNowBtn = view.$('#pair-not-now');
+        assert.equal(notNowBtn.length, 1);
+      });
+
+      it('logs Glean view event', () => {
+        sinon.assert.calledOnce(viewChoiceEventStub);
+      });
+
+      describe('handleRadioEngage', () => {
+        let engageChoiceEventStub;
+        beforeEach(() => {
+          engageChoiceEventStub = sinon.stub(
+            GleanMetrics.cadFirefox,
+            'choiceEngage'
+          );
+        });
+
+        afterEach(() => {
+          engageChoiceEventStub.restore();
+        });
+
+        it('on selection has-mobile radio, sends Glean ping and enables submit', () => {
+          const choiceSubmitBtn = view.$('#set-needs-mobile');
+          const hasMobile = view.$('#has-mobile');
+          view.$(hasMobile).click();
+          sinon.assert.calledOnce(engageChoiceEventStub);
+          sinon.assert.calledWith(engageChoiceEventStub, {
+            reason: 'has mobile',
+          });
+          assert.equal(view.$(choiceSubmitBtn).attr('disabled'), undefined);
+        });
+
+        it('on selection of needs-mobile radio, sends Glean ping and enables submit', () => {
+          const choiceSubmitBtn = view.$('#set-needs-mobile');
+          const hasMobile = view.$('#needs-mobile');
+          view.$(hasMobile).click();
+          sinon.assert.calledOnce(engageChoiceEventStub);
+          sinon.assert.calledWith(engageChoiceEventStub, {
+            reason: 'does not have mobile',
+          });
+          assert.equal(view.$(choiceSubmitBtn).attr('disabled'), undefined);
+        });
+      });
+
+      describe('setNeedsMobile submission', () => {
+        let submitChoiceEventStub;
+        let submitSyncDeviceEventStub;
+        let viewMobileDownloadEventStub;
+        let submitSpy;
+        beforeEach(() => {
+          submitChoiceEventStub = sinon.stub(
+            GleanMetrics.cadFirefox,
+            'choiceSubmit'
+          );
+          submitSyncDeviceEventStub = sinon.stub(
+            GleanMetrics.cadFirefox,
+            'syncDeviceSubmit'
+          );
+          viewMobileDownloadEventStub = sinon.stub(
+            GleanMetrics.cadFirefox,
+            'view'
+          );
+          submitSpy = sinon.spy(view, 'submit');
+        });
+
+        afterEach(() => {
+          submitChoiceEventStub.restore();
+          submitSyncDeviceEventStub.restore();
+          viewMobileDownloadEventStub.restore();
+          submitSpy.restore();
+        });
+
+        it('on submission of has-mobile radio, sends Glean pings and calls submit', () => {
+          view.$('#has-mobile').click();
+          view.$('#set-needs-mobile').click();
+
+          sinon.assert.calledWith(submitChoiceEventStub, {
+            reason: 'does not have mobile',
+          });
+          sinon.assert.called(submitSyncDeviceEventStub);
+          sinon.assert.called(submitSpy);
+          sinon.assert.notCalled(viewMobileDownloadEventStub);
+        });
+
+        it('on submission of needs-mobile radio, sends Glean ping and renders mobile download state', async () => {
+          view.$('#needs-mobile').click();
+          view.$('#set-needs-mobile').click();
+
+          sinon.assert.calledWith(submitChoiceEventStub, {
+            reason: 'has mobile',
+          });
+          sinon.assert.notCalled(submitSyncDeviceEventStub);
+          sinon.assert.notCalled(submitSpy);
+
+          await P.delay(100);
+          sinon.assert.called(viewMobileDownloadEventStub);
+          const heading = view.$('#pair-header-mobile');
+          assert.strictEqual(heading.text(), 'Download Firefox for mobile');
+
+          assert.strictEqual(view.$('#back-btn').length, 1);
+
+          const stepsList = view.$('ol');
+          assert.equal(stepsList.length, 1);
+          view.$(stepsList).text().includes('Step 1');
+          view.$(stepsList).text().includes('Step 2');
+
+          const qrCode = view.$('.bg-image-cad-qr-code');
+          assert.equal(qrCode.length, 1);
+
+          const pairButton = view.$('#start-pairing');
+          assert.equal(pairButton.length, 1);
+        });
+
+        it('after mobile download state is rendered, on back button click, renders choice screen', async () => {
+          view.$('#needs-mobile').click();
+          view.$('#set-needs-mobile').click();
+
+          await P.delay(100);
+          assert.equal(view.$('#pair-header-mobile').length, 1);
+          view.$('#back-btn').click();
+
+          await P.delay(100);
+          assert.strictEqual(
+            view.$('#pair-header').text(),
+            'Sync your Firefox experience'
+          );
+        });
       });
     });
 
-    it('does not show qr code', () => {
+    it('does not ask for mobile status', () => {
       sinon.stub(view, 'showDownloadFirefoxQrCode').callsFake(() => false);
       return view.render().then(() => {
         const heading = view.$('#pair-header');
