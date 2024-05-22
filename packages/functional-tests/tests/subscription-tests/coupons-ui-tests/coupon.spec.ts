@@ -16,10 +16,6 @@ test.describe('severity-2 #smoke', () => {
     test('apply an expired coupon', async ({ pages: { relier, subscribe } }, {
       project,
     }) => {
-      test.fixme(
-        project.name !== 'local',
-        'Fix required as of 2024/05/13 (see FXA-9665).'
-      );
       test.skip(
         project.name === 'production',
         'test plan not available in prod'
@@ -30,6 +26,12 @@ test.describe('severity-2 #smoke', () => {
       // 'autoexpired' coupon is an expired coupon for a 6mo plan
       await subscribe.addCouponCode('autoexpired');
 
+      await expect(
+        await subscribe.getCouponStatusByDataTestId('coupon-error')
+      ).toBeVisible({
+        timeout: 5000,
+      });
+
       // Verifying the correct error message
       expect(await subscribe.couponErrorMessageText()).toContain(
         'The code you entered has expired'
@@ -39,10 +41,6 @@ test.describe('severity-2 #smoke', () => {
     test('apply an invalid coupon', async ({ pages: { relier, subscribe } }, {
       project,
     }) => {
-      test.fixme(
-        project.name !== 'local',
-        'Fix required as of 2024/05/13 (see FXA-9665).'
-      );
       test.skip(
         project.name === 'production',
         'test plan not available in prod'
@@ -53,6 +51,12 @@ test.describe('severity-2 #smoke', () => {
       // 'autoinvalid' coupon is an invalid coupon for a 6mo plan
       // But valid for a 12mo plan
       await subscribe.addCouponCode('autoinvalid');
+
+      await expect(
+        await subscribe.getCouponStatusByDataTestId('coupon-error')
+      ).toBeVisible({
+        timeout: 5000,
+      });
 
       // Asserting that the code is invalid for a 6mo plan
       expect(await subscribe.couponErrorMessageText()).toContain(
@@ -212,10 +216,6 @@ test.describe('severity-2 #smoke', () => {
     test('remove a coupon and verify', async ({
       pages: { relier, subscribe, login },
     }, { project }) => {
-      test.fixme(
-        project.name !== 'local',
-        'Fix required as of 2024/05/13 (see FXA-9689).'
-      );
       test.skip(
         project.name === 'production',
         'test plan not available in prod'
@@ -228,7 +228,11 @@ test.describe('severity-2 #smoke', () => {
       await subscribe.addCouponCode('auto50ponetime');
 
       // Verify the coupon is applied successfully
-      await expect(subscribe.promoCodeAppliedHeading).toBeVisible();
+      await expect(
+        await subscribe.getCouponStatusByDataTestId('coupon-remove-button')
+      ).toBeVisible({
+        timeout: 5000,
+      });
       expect(await subscribe.oneTimeDiscountSuccess()).toBe(true);
 
       // Verify the line items is visible after applying discount

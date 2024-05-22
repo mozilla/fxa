@@ -11,6 +11,10 @@ export class SubscribePage extends BaseLayout {
     return this.page.getByRole('heading', { name: 'Promo Code Applied' });
   }
 
+  async getCouponStatusByDataTestId(dataTestId: string) {
+    return this.page.locator(`[data-testid="${dataTestId}"]`);
+  }
+
   async visitSignIn() {
     const link = this.page.getByText('Sign In');
     await link.click();
