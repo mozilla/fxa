@@ -34,8 +34,8 @@ export class ConnectAnotherDevicePage extends BaseLayout {
     );
   }
 
-  get notNowButton() {
-    return this.page.getByRole('link', { name: 'Not now' });
+  get startBrowsingButton() {
+    return this.page.getByRole('link', { name: 'Start browsing' });
   }
 
   get installFxDesktop() {

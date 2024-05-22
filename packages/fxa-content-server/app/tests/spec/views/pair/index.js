@@ -131,7 +131,7 @@ describe('views/pair/index', () => {
           'Download Firefox on your phone or tablet'
         );
         assert.ok(view.$el.find('#start-pairing').length);
-        assert.ok(view.$el.find('.bg-image-cad-hearts').length);
+        assert.ok(view.$el.find('.bg-image-triple-device-hearts').length);
       });
     });
 

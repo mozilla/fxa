@@ -29,13 +29,13 @@ describe('views/mixins/pairing-graphics-mixin', function () {
       assert.equal(view.getGraphicsId(), 'bg-image-cad');
     });
 
-    it('returns `bg-image-cad-hearts` if SvgTransformOrigin supported', () => {
+    it('returns `bg-image-triple-device-hearts` if SvgTransformOrigin supported', () => {
       sinon.stub(view, 'getUserAgent').callsFake(() => {
         return {
           supportsSvgTransformOrigin: () => true,
         };
       });
-      assert.equal(view.getGraphicsId(), 'bg-image-cad-hearts');
+      assert.equal(view.getGraphicsId(), 'bg-image-triple-device-hearts');
     });
   });
 

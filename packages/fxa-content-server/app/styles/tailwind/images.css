@@ -22,6 +22,11 @@
   background-image: inline('../images/account-verified-hearts.svg');
 }
 
+.bg-image-triple-device-hearts {
+  @apply mb-5 bg-center bg-no-repeat bg-contain h-48;
+  background-image: inline('../images/graphic-triple-device-hearts.svg');
+}
+
 .bg-image-cad {
   @apply mb-3 bg-center bg-no-repeat bg-contain h-36;
   background-image: inline('../images/account-verified.svg');

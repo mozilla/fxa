@@ -25,6 +25,7 @@ describe('views/connect_another_device', () => {
   let windowMock;
 
   const FXA_CONNECTED_SELECTOR = '#fxa-connected-heading';
+  const FXA_CAD_HEADER = '#fxa-connect-another-device-header';
 
   beforeEach(() => {
     account = new Account();
@@ -94,6 +95,10 @@ describe('views/connect_another_device', () => {
 
       it('shows the success message', () => {
         assert.lengthOf(view.$(FXA_CONNECTED_SELECTOR), 1);
+      });
+
+      it('shows the connect another device header', () => {
+        assert.lengthOf(view.$(FXA_CAD_HEADER), 1);
       });
     });
 
@@ -323,7 +328,7 @@ describe('views/connect_another_device', () => {
         sinon.stub(view, '_canSignIn').callsFake(() => false);
       });
 
-      it('shows FxiOS help text, and marketing area to users on FxiOS', () => {
+      it('shows FxiOS help text and marketing area, hides CAD header, to users on FxiOS', () => {
         sinon.stub(view, 'getUserAgent').callsFake(() => {
           return {
             isAndroid: () => false,
@@ -340,6 +345,7 @@ describe('views/connect_another_device', () => {
           view.afterVisible();
           assert.isTrue(view._isSignedIn.called);
 
+          assert.lengthOf(view.$(FXA_CAD_HEADER), 0);
           assert.lengthOf(view.$('#signin-fxios'), 1);
           assert.lengthOf(view.$('.marketing-area'), 1);
           testIsFlowEventLogged('signin_from.fx_ios');
@@ -624,7 +630,7 @@ describe('views/connect_another_device', () => {
 
     it('shows animated hearts where supportsSvgTransformOrigin is supported', () => {
       sinon.stub(view, 'getUserAgent').callsFake(() => userAgentObj);
-      assert.equal(view.$el.find('.bg-image-cad-hearts').length, 1);
+      assert.equal(view.$el.find('.bg-image-triple-device-hearts').length, 1);
       assert.equal(view.$el.find('.bg-image-cad').length, 0);
     });
 
@@ -632,7 +638,7 @@ describe('views/connect_another_device', () => {
       userAgentObj.supportsSvgTransformOrigin = () => false;
       sinon.stub(view, 'getUserAgent').callsFake(() => userAgentObj);
       return view.render().then(() => {
-        assert.equal(view.$el.find('.bg-image-cad-hearts').length, 0);
+        assert.equal(view.$el.find('.bg-image-triple-device-hearts').length, 0);
         assert.equal(view.$el.find('.bg-image-cad').length, 1);
       });
     });
