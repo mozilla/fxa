@@ -176,6 +176,14 @@ module.exports = (log, signer, db, domain, devices, config) => {
               locale: request.app.acceptLanguage,
             });
             db.updateLocale(sessionToken.uid, request.app.acceptLanguage);
+            log.notifyAttachedServices(
+              'profileDataChange',
+              {},
+              {
+                uid: sessionToken.uid,
+                locale: request.app.acceptLanguage,
+              }
+            );
             // meh on the result
           } else {
             // We're seeing a surprising number of accounts that don't get

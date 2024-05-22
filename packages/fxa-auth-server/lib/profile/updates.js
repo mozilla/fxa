@@ -9,6 +9,10 @@ module.exports = function (log) {
     async function handleProfileUpdated(message) {
       const uid = message && message.uid;
 
+      if (!uid) {
+        throw new Error('uid missing from profile update message.');
+      }
+
       log.info('handleProfileUpdated', { uid, action: 'notify' });
 
       try {
@@ -24,6 +28,12 @@ module.exports = function (log) {
           {},
           {
             uid,
+            email: message.email,
+            locale: message.locale,
+            metricsEnabled: message.metricsEnabled,
+            totpEnabled: message.totpEnabled,
+            accountDisabled: message.accountDisabled,
+            accountLocked: message.accountLocked,
           }
         );
       } catch (err) {

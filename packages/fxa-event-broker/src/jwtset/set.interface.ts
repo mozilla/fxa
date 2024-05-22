@@ -13,8 +13,6 @@ export const SUBSCRIPTION_STATE_EVENT_ID =
   'https://schemas.accounts.firefox.com/event/subscription-state-change';
 export const APPLE_USER_MIGRATION_ID =
   'https://schemas.accounts.firefox.com/event/apple-user-migration';
-export const METRICS_CHANGE_EVENT_ID =
-  'https://schemas.accounts.firefox.com/event/metrics-change';
 
 export type deleteEvent = {
   clientId: string;
@@ -30,7 +28,12 @@ export type passwordEvent = {
 export type profileEvent = {
   clientId: string;
   uid: string;
-  email: string;
+  email?: string;
+  locale?: string;
+  totpEnabled?: boolean;
+  accountDisabled?: boolean;
+  accountLocked?: boolean;
+  metricsEnabled?: boolean;
 };
 
 export type securityEvent = {
@@ -59,10 +62,4 @@ export type appleMigrationEvent = {
   transferSub: string;
   success: boolean;
   err: string;
-};
-
-export type metricsChangeEvent = {
-  uid: string;
-  clientId: string;
-  enabled: boolean;
 };

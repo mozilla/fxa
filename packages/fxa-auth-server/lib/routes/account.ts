@@ -242,6 +242,16 @@ export class AccountHandler {
       uid: account.uid,
       userAgent: userAgentString,
     });
+    await this.log.notifyAttachedServices('profileDataChange', request, {
+      uid: account.uid,
+      email: email,
+      locale: locale,
+      totpEnabled: false,
+      metricsEnabled: true,
+      accountDisabled: false,
+      accountLocked: false,
+    });
+
     return { password, password2, account };
   }
 
@@ -1591,6 +1601,10 @@ export class AccountHandler {
         this.log.notifyAttachedServices('reset', request, {
           uid: account.uid,
           generation: account.verifierSetAt,
+        }),
+        this.log.notifyAttachedServices('profileDataChange', request, {
+          uid: account.uid,
+          accountLocked: false,
         }),
         this.oauth.removeTokensAndCodes(account.uid),
         this.customs.reset(request, account.email),

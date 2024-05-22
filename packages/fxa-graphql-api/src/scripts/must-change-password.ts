@@ -31,6 +31,9 @@ import { StatsD } from 'hot-shots';
 import { setupAuthDatabase, setupDatabase } from 'fxa-shared/db';
 import { batchAccountUpdate } from 'fxa-shared/db/models/auth';
 import { uuidTransformer } from 'fxa-shared/db/transformers';
+import { NotifierService, setupSns } from '@fxa/shared/notifier';
+import { MozLoggerService } from '@fxa/shared/mozlog';
+import { ConfigService } from '@nestjs/config';
 
 const config = Config.getProperties();
 const logger = mozlog(config.log)('must-change-password');
@@ -110,6 +113,18 @@ async function main() {
     metrics
   );
   const oauthKnex = setupDatabase(config.database.mysql.oauth, logger, metrics);
+
+  const sns = setupSns({
+    snsTopicArn: config.notifier.sns.snsTopicArn || '',
+    snsTopicEndpoint: config.notifier.sns.snsTopicEndpoint || '',
+  });
+  const notifier = new NotifierService(
+    Config as unknown as ConfigService,
+    logger as MozLoggerService,
+    sns,
+    metrics
+  );
+
   const json = JSON.parse(
     fs.readFileSync(path.resolve(program.input), { encoding: 'utf8' })
   );
@@ -125,6 +140,17 @@ async function main() {
     const uidBuffers = uidBatch.map((uid: string) => uuidTransformer.to(uid));
     const now = Date.now();
     await batchAccountUpdate(uidBuffers, { lockedAt: now });
+
+    for (const uid in uids) {
+      await notifier.send({
+        event: 'profileDataChange',
+        data: {
+          uid,
+          accountLocked: true,
+        },
+      });
+    }
+
     await Promise.all([
       oauthKnex('refreshTokens').whereIn('userId', uidBuffers).del(),
       authKnex('sessionTokens').whereIn('uid', uidBuffers).del(),

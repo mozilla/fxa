@@ -197,6 +197,11 @@ export class PubsubProxyController {
           clientId,
           uid: message.uid,
           email: message.email,
+          locale: message.locale,
+          metricsEnabled: message.metricsEnabled,
+          totpEnabled: message.totpEnabled,
+          accountDisabled: message.accountDisabled,
+          accountLocked: message.accountLocked,
         });
       }
       case dto.APPLE_USER_MIGRATION_EVENT: {
@@ -208,13 +213,6 @@ export class PubsubProxyController {
           transferSub: message.transferSub,
           success: message.success,
           err: message.error,
-        });
-      }
-      case dto.METRICS_CHANGE_EVENT: {
-        return await this.jwtset.generateMetricsChangeSET({
-          clientId,
-          uid: message.uid,
-          enabled: message.enabled,
         });
       }
       default:

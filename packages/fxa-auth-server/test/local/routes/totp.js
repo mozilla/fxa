@@ -137,12 +137,8 @@ describe('totp', () => {
           'profileDataChange',
           'first argument was event name'
         );
-        assert.equal(args[1], request, 'second argument was request object');
-        assert.equal(
-          args[2].uid,
-          'uid',
-          'third argument was event data with a uid'
-        );
+        assert.equal(args[2].uid, 'uid');
+        assert.equal(args[2].totpEnabled, false);
 
         assert.equal(
           db.verifyTokensWithMethod.callCount,

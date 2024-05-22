@@ -8,8 +8,8 @@ import { SNS, AWSError } from 'aws-sdk';
 import { NotifierSnsService } from './notifier.sns.provider';
 import { ConfigService } from '@nestjs/config';
 import { NotifierSnsConfig } from './notifier.sns.config';
-import { MozLoggerService } from '@fxa/shared/mozlog';
 import { StatsDService } from '@fxa/shared/metrics/statsd';
+import { MozLoggerService } from '@fxa/shared/mozlog';
 
 @Injectable()
 export class NotifierService {
@@ -19,22 +19,18 @@ export class NotifierService {
     configService: ConfigService,
     private readonly log: MozLoggerService,
     @Inject(NotifierSnsService) private readonly sns: SNS,
-    @Inject(StatsDService) private readonly statsd: StatsD
+    @Inject(StatsDService) private readonly statsd: StatsD | undefined
   ) {
     const config = configService.get<NotifierSnsConfig>('notifier.sns');
     if (config == null) {
       throw new Error('Could not locate sns.notifier config');
     }
 
-    this.log.error('Creating notifier service', {
-      config: JSON.stringify(config),
-    });
-
     if (!config.snsTopicArn) {
-      throw new Error('Config error snsTopicArnMissing');
+      this.log.warn('', { message: 'snsTopicArn missing!' });
     }
     if (!config.snsTopicEndpoint) {
-      throw new Error('Config error notifierSnsTopicEndpoint missing');
+      this.log.warn('', { message: 'snsTopicEndpoint missing!' });
     }
 
     this.config = config;
