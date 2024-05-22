@@ -6,6 +6,7 @@ import { Injectable } from '@nestjs/common';
 import { EligibilityService } from '@fxa/payments/eligibility';
 import { PayPalManager, PaypalCustomerManager } from '@fxa/payments/paypal';
 import {
+  AccountCustomerManager,
   StripeClient,
   StripeManager,
   StripeSubscription,
@@ -34,7 +35,8 @@ export class CheckoutService {
     private cartManager: CartManager,
     private eligibilityService: EligibilityService,
     private contentfulService: ContentfulService,
-    private accountManager: AccountManager
+    private accountManager: AccountManager,
+    private accountCustomerManager: AccountCustomerManager
   ) {}
 
   async prePaySteps(cart: ResultCart, locale: string) {
@@ -43,20 +45,6 @@ export class CheckoutService {
 
     if (!cart.email) {
       throw new CartEmailNotFoundError(cart.id);
-    }
-
-    // if stripeCustomerId not found, create stub stripe account
-    if (!cart.stripeCustomerId) {
-      customer = await this.stripeManager.createPlainCustomer({
-        email: cart.email,
-        taxAddress: taxAddress,
-      });
-
-      stripeCustomerId = customer.id;
-    } else {
-      stripeCustomerId = cart.stripeCustomerId;
-
-      customer = await this.stripeManager.fetchActiveCustomer(stripeCustomerId);
     }
 
     // if uid not found, create stub account customer
@@ -70,6 +58,29 @@ export class CheckoutService {
       );
     } else {
       uid = cart.uid;
+    }
+
+    // if stripeCustomerId not found, create plain stripe account
+    if (!cart.stripeCustomerId) {
+      customer = await this.stripeManager.createPlainCustomer({
+        uid: uid,
+        email: cart.email,
+        taxAddress: taxAddress,
+      });
+
+      stripeCustomerId = customer.id;
+    } else {
+      stripeCustomerId = cart.stripeCustomerId;
+      customer = await this.stripeManager.fetchActiveCustomer(stripeCustomerId);
+    }
+
+    // create accountCustomer if it does not exist
+    if (!cart.uid) {
+      await this.accountCustomerManager.createAccountCustomer({
+        uid: uid,
+        stripeCustomerId: stripeCustomerId,
+        updatedAt: Date.now(),
+      });
     }
 
     // update cart

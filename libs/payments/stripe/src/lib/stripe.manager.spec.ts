@@ -96,22 +96,11 @@ describe('StripeManager', () => {
   });
 
   describe('createPlainCustomer', () => {
-    it('create a stub customer from Stripe', async () => {
-      const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
-
-      jest
-        .spyOn(stripeClient, 'customersCreate')
-        .mockResolvedValue(mockCustomer);
-
-      const result = await stripeManager.createPlainCustomer({});
-
-      expect(result).toEqual(mockCustomer);
-    });
-
-    it('create a stub customer with args from Stripe', async () => {
+    it('creates a plain customer from Stripe', async () => {
       const taxAddress = TaxAddressFactory();
       const mockCustomer = StripeResponseFactory(
         StripeCustomerFactory({
+          name: faker.person.fullName(),
           shipping: {
             name: '',
             address: {
@@ -131,7 +120,9 @@ describe('StripeManager', () => {
         .mockResolvedValue(mockCustomer);
 
       const result = await stripeManager.createPlainCustomer({
+        uid: faker.string.uuid(),
         email: faker.internet.email(),
+        displayName: faker.person.fullName(),
         taxAddress: taxAddress,
       });
 
