@@ -3,13 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { fireEvent, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import LinkRememberPassword from '.';
 import { MOCK_ACCOUNT } from '../../models/mocks';
 import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 import { FluentBundle } from '@fluent/bundle';
-import { MOCK_CLIENT_ID } from '../../pages/mocks';
+import { MOCK_CLIENT_ID, MOCK_EMAIL } from '../../pages/mocks';
 import { LocationProvider } from '@reach/router';
 
 const mockLocation = () => {
@@ -23,12 +23,9 @@ jest.mock('@reach/router', () => ({
   useLocation: () => mockLocation(),
 }));
 
-const Subject = ({
-  email = MOCK_ACCOUNT.primaryEmail.email,
-  forceAuth = false,
-}) => (
+const Subject = ({ email = MOCK_ACCOUNT.primaryEmail.email }) => (
   <LocationProvider>
-    <LinkRememberPassword {...{ email, forceAuth }} />
+    <LinkRememberPassword {...{ email }} />
   </LocationProvider>
 );
 
@@ -38,38 +35,24 @@ describe('LinkRememberPassword', () => {
     bundle = await getFtlBundle('settings');
   });
 
-  it('renders', () => {
+  it('renders as expected', () => {
     renderWithLocalizationProvider(<Subject />);
     testAllL10n(screen, bundle);
 
-    expect(
-      screen.getByRole('link', { name: 'Remember your password? Sign in' })
-    ).toBeInTheDocument();
+    expect(screen.getByText('Remember your password?')).toBeVisible();
+    expect(screen.getByRole('link', { name: 'Sign in' })).toBeVisible();
   });
 
-  it('links to signin if not forceAuth, appends parameters', () => {
+  it('links to signin and appends parameters', async () => {
     renderWithLocalizationProvider(<Subject />);
 
     const rememberPasswordLink = screen.getByRole('link', {
-      name: 'Remember your password? Sign in',
+      name: 'Sign in',
     });
-    fireEvent.click(rememberPasswordLink);
 
     expect(rememberPasswordLink).toHaveAttribute(
       'href',
-      '/signin?client_id=123&email=johndope%40example.com'
-    );
-  });
-
-  it('links to force_auth if forceAuth is true, appends parameters', () => {
-    renderWithLocalizationProvider(<Subject forceAuth={true} />);
-
-    const rememberPasswordLink = screen.getByRole('link', {
-      name: 'Remember your password? Sign in',
-    });
-    expect(rememberPasswordLink).toHaveAttribute(
-      'href',
-      '/force_auth?client_id=123&email=johndope%40example.com'
+      `/signin?client_id=123&email=${encodeURIComponent(MOCK_EMAIL)}`
     );
   });
 });

@@ -105,9 +105,8 @@ describe('PageResetPassword', () => {
     // when forceEmail is NOT provided as a prop, the optional read-only email should not be rendered
     const forcedEmailEl = screen.queryByTestId('reset-password-force-email');
     expect(forcedEmailEl).not.toBeInTheDocument();
-    expect(
-      screen.getByRole('link', { name: 'Remember your password? Sign in' })
-    ).toBeInTheDocument();
+    expect(screen.getByText('Remember your password?')).toBeVisible();
+    expect(screen.getByRole('link', { name: 'Sign in' })).toBeVisible();
   });
 
   it('renders a custom service name in the header', async () => {

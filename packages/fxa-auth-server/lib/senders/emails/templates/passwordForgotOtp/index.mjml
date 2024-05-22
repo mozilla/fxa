@@ -38,7 +38,7 @@ can obtain one at http://mozilla.org/MPL/2.0/. %>
 <mj-section>
   <mj-column>
     <mj-text css-class="text-body-subtext">
-      <%- include('/partials/automatedEmailChangePassword/index.mjml') %>
+      <%- include('/partials/automatedEmailNoAction/index.mjml') %>
     </mj-text>
   </mj-column>
 </mj-section>

@@ -48,3 +48,5 @@ export const Lock = () => <LockImage />;
 export const Key = () => <RecoveryKeyImage />;
 
 export const Lightbulb = () => <LightbulbImage />;
+
+export const EmailCode = () => <EmailCode />;

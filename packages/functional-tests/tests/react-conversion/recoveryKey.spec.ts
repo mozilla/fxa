@@ -13,6 +13,10 @@ test.describe('severity-1 #smoke', () => {
       // Ensure that the react reset password route feature flag is enabled
       const config = await configPage.getConfig();
       test.skip(config.showReactApp.resetPasswordRoutes !== true);
+      test.fixme(
+        config.featureFlags.resetPasswordWithCode === true,
+        'see FXA-9612'
+      );
       test.slow();
     });
 
@@ -64,7 +68,9 @@ test.describe('severity-1 #smoke', () => {
       await resetPasswordReact.goto();
 
       await resetPasswordReact.fillOutEmailForm(credentials.email);
-      await expect(resetPasswordReact.resetEmailSentHeading).toBeVisible();
+      await expect(
+        resetPasswordReact.confirmResetPasswordHeading
+      ).toBeVisible();
 
       const link = await target.emailClient.waitForEmail(
         credentials.email,

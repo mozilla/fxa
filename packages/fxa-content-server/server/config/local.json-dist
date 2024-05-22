@@ -64,6 +64,6 @@
   },
   "featureFlags": {
     "sendFxAStatusOnSettings": true,
-    "resetPasswordWithCode": false
+    "resetPasswordWithCode": true
   }
 }

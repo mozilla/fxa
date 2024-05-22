@@ -1,5 +1,6 @@
 ## LinkRememberPassword component
 
-# Link that users can follow to sign in to their account
-# This link exits the Reset Password flow
-remember-pw-link = Remember your password? Sign in
+# immediately before remember-password-signin-link
+remember-password-text = Remember your password?
+# link navigates to the sign in page
+remember-password-signin-link = Sign in

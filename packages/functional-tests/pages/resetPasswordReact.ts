@@ -6,7 +6,12 @@ export class ResetPasswordReactPage extends BaseLayout {
   readonly path = '';
 
   get resetPasswordHeading() {
-    return this.page.getByRole('heading', { name: /^Reset password/ });
+    return (
+      this.page
+        .getByRole('heading', { name: /^Reset password/ })
+        // for password reset redesign, with resetPasswordWithCode flag
+        .or(this.page.getByRole('heading', { name: /^Password reset/ }))
+    );
   }
 
   get emailTextbox() {
@@ -14,17 +19,31 @@ export class ResetPasswordReactPage extends BaseLayout {
   }
 
   get beginResetButton() {
-    return this.page.getByRole('button', { name: 'Begin reset' });
+    return (
+      this.page
+        .getByRole('button', { name: 'Begin reset' })
+        // for password reset redesign, with resetPasswordWithCode flag
+        .or(
+          this.page.getByRole('button', { name: 'Send me reset instructions' })
+        )
+    );
   }
 
-  get resetEmailSentHeading() {
-    return this.page.getByRole('heading', { name: 'Reset email sent' });
+  get confirmResetPasswordHeading() {
+    return (
+      this.page
+        .getByRole('heading', { name: 'Reset email sent' })
+        // for password reset redesign, with resetPasswordWithCode flag
+        .or(this.page.getByRole('heading', { name: 'Enter confirmation code' }))
+    );
   }
 
   get resendButton() {
-    return this.page.getByRole('button', {
-      name: 'Not in inbox or spam folder? Resend',
-    });
+    return this.page
+      .getByRole('button', {
+        name: 'Not in inbox or spam folder? Resend',
+      }) // for password reset redesign, with resetPasswordWithCode flag
+      .or(this.page.getByRole('button', { name: 'Resend code' }));
   }
 
   get statusBar() {

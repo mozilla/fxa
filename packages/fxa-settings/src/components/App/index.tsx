@@ -76,6 +76,10 @@ import PrimaryEmailVerified from '../../pages/Signup/PrimaryEmailVerified';
 import SignupConfirmed from '../../pages/Signup/SignupConfirmed';
 import WebChannelExample from '../../pages/WebChannelExample';
 import LinkValidator from '../LinkValidator';
+import ResetPasswordContainer from '../../pages/ResetPasswordRedesign/ResetPassword/container';
+import ConfirmResetPasswordContainer from '../../pages/ResetPasswordRedesign/ConfirmResetPassword/container';
+import CompleteResetPasswordWithCodeContainer from '../../pages/ResetPasswordRedesign/CompleteResetPassword/container';
+import AccountRecoveryConfirmKeyContainer from '../../pages/ResetPasswordRedesign/AccountRecoveryConfirmKey/container';
 
 const Settings = lazy(() => import('../Settings'));
 
@@ -248,6 +252,7 @@ const AuthAndAccountSetupRoutes = ({
   integration: Integration;
   flowQueryParams: QueryParams;
 } & RouteComponentProps) => {
+  const config = useConfig();
   const localAccount = currentAccount();
   // TODO: MozServices / string discrepancy, FXA-6802
   const serviceName = integration.getServiceName() as MozServices;
@@ -273,41 +278,68 @@ const AuthAndAccountSetupRoutes = ({
       />
 
       {/* Reset password */}
-      <LinkValidator
-        path="/account_recovery_confirm_key/*"
-        linkType={LinkType['reset-password']}
-        viewName="account-recovery-confirm-key"
-        createLinkModel={() => {
-          return CreateCompleteResetPasswordLink();
-        }}
-        {...{ integration }}
-      >
-        {({ setLinkStatus, linkModel }) => (
-          <AccountRecoveryConfirmKey
+      {config.featureFlags?.resetPasswordWithCode === true ? (
+        <>
+          <ResetPasswordContainer
+            path="/reset_password/*"
+            {...{ flowQueryParams, serviceName }}
+          />
+          <ConfirmResetPasswordContainer path="/confirm_reset_password/*" />
+          <CompleteResetPasswordWithCodeContainer
+            path="/complete_reset_password/*"
+            {...{ integration }}
+          />
+          <CompleteResetPasswordWithCodeContainer
+            path="/account_recovery_reset_password/*"
+            {...{ integration }}
+          />
+          <AccountRecoveryConfirmKeyContainer
+            path="/account_recovery_confirm_key/*"
             {...{
-              setLinkStatus,
-              linkModel,
-              integration,
+              serviceName,
             }}
           />
-        )}
-      </LinkValidator>
-      <AccountRecoveryResetPasswordContainer
-        path="/account_recovery_reset_password/*"
-        {...{ integration }}
-      />
-      <CompleteResetPasswordContainer
-        path="/complete_reset_password/*"
-        {...{ integration }}
-      />
-      <ConfirmResetPassword
-        path="/confirm_reset_password/*"
-        {...{ integration }}
-      />
-      <ResetPassword
-        path="/reset_password/*"
-        {...{ integration, flowQueryParams }}
-      />
+        </>
+      ) : (
+        <>
+          <ResetPassword
+            path="/reset_password/*"
+            {...{ integration, flowQueryParams }}
+          />
+          <ConfirmResetPassword
+            path="/confirm_reset_password/*"
+            {...{ integration }}
+          />
+          <CompleteResetPasswordContainer
+            path="/complete_reset_password/*"
+            {...{ integration }}
+          />
+          <LinkValidator
+            path="/account_recovery_confirm_key/*"
+            linkType={LinkType['reset-password']}
+            viewName="account-recovery-confirm-key"
+            createLinkModel={() => {
+              return CreateCompleteResetPasswordLink();
+            }}
+            {...{ integration }}
+          >
+            {({ setLinkStatus, linkModel }) => (
+              <AccountRecoveryConfirmKey
+                {...{
+                  setLinkStatus,
+                  linkModel,
+                  integration,
+                }}
+              />
+            )}
+          </LinkValidator>
+          <AccountRecoveryResetPasswordContainer
+            path="/account_recovery_reset_password/*"
+            {...{ integration }}
+          />
+        </>
+      )}
+
       <ResetPasswordWithRecoveryKeyVerified
         path="/reset_password_with_recovery_key_verified/*"
         {...{ integration, isSignedIn }}

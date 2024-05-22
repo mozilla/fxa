@@ -140,6 +140,7 @@ export const TotpInputGroup = ({
     e: React.ClipboardEvent<HTMLInputElement>,
     index: number
   ) => {
+    setErrorMessage('');
     let currentIndex = index;
     const currentCodeArray = [...codeArray];
     const clipboardText = e.clipboardData.getData('text');
@@ -237,7 +238,6 @@ export const TotpInputGroup = ({
       <div
         className={classNames(
           // OTP code input must be displayed LTR for both LTR and RTL languages
-          // TODO in FXA-7890 verify that code is also displayed LTR in RTL emails
           'flex my-2 rtl:flex-row-reverse',
           codeLength === 6 && 'gap-2 mobileLandscape:gap-4',
           codeLength === 8 && 'gap-1 mobileLandscape:gap-2'

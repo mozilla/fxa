@@ -27,7 +27,7 @@ import {
   mockSession,
   renderWithRouter,
 } from '../../../models/mocks';
-import { MOCK_RESET_TOKEN } from '../../mocks';
+import { MOCK_EMAIL, MOCK_RESET_TOKEN } from '../../mocks';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 
@@ -139,9 +139,8 @@ describe('CompleteResetPassword page', () => {
     screen.getByLabelText('New password');
     screen.getByLabelText('Re-enter password');
     screen.getByRole('button', { name: 'Reset password' });
-    screen.getByRole('link', {
-      name: 'Remember your password? Sign in',
-    });
+    expect(screen.getByText('Remember your password?')).toBeVisible();
+    expect(screen.getByRole('link', { name: 'Sign in' })).toBeVisible();
   });
 
   it('displays password requirements when the new password field is in focus', async () => {
@@ -426,7 +425,11 @@ describe('CompleteResetPassword page', () => {
         render(<Subject />, account, session);
         await enterPasswordAndSubmit();
         expect(mockUseNavigateWithoutRerender).toHaveBeenCalledWith(
-          '/reset_password_verified?email=johndope%40example.com&emailToHashWith=johndope%40example.com&token=1111111111111111111111111111111111111111111111111111111111111111&code=11111111111111111111111111111111&uid=abc123',
+          `/reset_password_verified?email=${encodeURIComponent(
+            MOCK_EMAIL
+          )}&emailToHashWith=${encodeURIComponent(
+            MOCK_EMAIL
+          )}&token=1111111111111111111111111111111111111111111111111111111111111111&code=11111111111111111111111111111111&uid=abc123`,
           {
             replace: true,
           }

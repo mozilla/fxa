@@ -16,7 +16,6 @@ const createStory = storyWithProps(
   {
     ...MOCK_USER_INFO,
     code: '96318398',
-    passwordChangeLink: 'http://localhost:3030/settings/change_password',
   }
 );
 

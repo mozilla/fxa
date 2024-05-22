@@ -10,4 +10,4 @@ password-forgot-otp-code = "If yes, here is your confirmation code to proceed:"
 
 password-forgot-otp-expiry-notice = "This code expires in 10 minutes."
 
-<%- include('/partials/automatedEmailChangePassword/index.txt') %>
+<%- include('/partials/automatedEmailNoAction/index.txt') %>

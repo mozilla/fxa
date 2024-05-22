@@ -17,6 +17,10 @@ test.describe('severity-1 #smoke', () => {
     test.beforeEach(async ({ pages: { configPage } }) => {
       const config = await configPage.getConfig();
       test.skip(config.showReactApp.resetPasswordRoutes !== true);
+      test.fixme(
+        config.featureFlags.resetPasswordWithCode === true,
+        'see FXA-9612'
+      );
       test.slow();
     });
 

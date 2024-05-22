@@ -15,18 +15,8 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-const storyWithProps = ({ ...props }) => {
-  const story = () => (
-    <LocationProvider>
-      <LinkRememberPassword
-        email={MOCK_ACCOUNT.primaryEmail.email}
-        {...props}
-      />
-    </LocationProvider>
-  );
-  return story;
-};
-
-export const Default = storyWithProps({});
-
-export const WithForceAuth = storyWithProps({ forceAuth: true });
+export const Default = () => (
+  <LocationProvider>
+    <LinkRememberPassword email={MOCK_ACCOUNT.primaryEmail.email} />
+  </LocationProvider>
+);
