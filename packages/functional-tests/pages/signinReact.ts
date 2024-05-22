@@ -93,7 +93,7 @@ export class SigninReactPage extends BaseLayout {
     await this.confirmButton.click();
   }
 
-  async fillOutEmailFirstForm(email) {
+  async fillOutEmailFirstForm(email: string) {
     await this.emailTextbox.fill(email);
     await this.emailFirstSubmitButton.click();
   }
