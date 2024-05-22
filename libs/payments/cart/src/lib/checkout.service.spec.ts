@@ -20,6 +20,8 @@ import {
   StripeSubscriptionFactory,
   TaxAddressFactory,
   InvoicePreviewFactory,
+  AccountCustomerManager,
+  ResultAccountCustomerFactory,
 } from '@fxa/payments/stripe';
 import {
   PayPalClient,
@@ -68,6 +70,7 @@ describe('CheckoutService', () => {
   let eligibilityService: EligibilityService;
   let contentfulService: ContentfulService;
   let accountManager: AccountManager;
+  let accountCustomerManager: AccountCustomerManager;
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -81,6 +84,7 @@ describe('CheckoutService', () => {
         StripeConfig,
         PaypalClientConfig,
         AccountManager,
+        AccountCustomerManager,
         MockAccountDatabaseNestFactory,
         CartManager,
         ContentfulManager,
@@ -104,6 +108,7 @@ describe('CheckoutService', () => {
     stripeManager = moduleRef.get(StripeManager);
     contentfulService = moduleRef.get(ContentfulService);
     accountManager = moduleRef.get(AccountManager);
+    accountCustomerManager = moduleRef.get(AccountCustomerManager);
     checkoutService = moduleRef.get(CheckoutService);
   });
 
@@ -140,6 +145,13 @@ describe('CheckoutService', () => {
       })
     );
 
+    const mockAccountCustomer = StripeResponseFactory(
+      ResultAccountCustomerFactory({
+        uid: uid,
+        stripeCustomerId: mockCart.stripeCustomerId,
+      })
+    );
+
     const mockPrice = StripePriceFactory();
 
     const mockPromotionCode = StripeResponseFactory(
@@ -151,10 +163,13 @@ describe('CheckoutService', () => {
       jest
         .spyOn(stripeManager, 'createPlainCustomer')
         .mockResolvedValue(mockCustomer);
-      jest.spyOn(cartManager, 'updateFreshCart').mockResolvedValue();
       jest
         .spyOn(stripeManager, 'fetchActiveCustomer')
         .mockResolvedValue(mockCustomer);
+      jest
+        .spyOn(accountCustomerManager, 'createAccountCustomer')
+        .mockResolvedValue(mockAccountCustomer);
+      jest.spyOn(cartManager, 'updateFreshCart').mockResolvedValue();
       jest
         .spyOn(eligibilityService, 'checkEligibility')
         .mockResolvedValue(EligibilityStatus.CREATE);
@@ -248,6 +263,16 @@ describe('CheckoutService', () => {
           stripeCustomerId: mockCart.stripeCustomerId,
         });
       });
+
+      it('creates an account customer', () => {
+        expect(
+          accountCustomerManager.createAccountCustomer
+        ).toHaveBeenCalledWith({
+          uid: uid,
+          stripeCustomerId: mockCart.stripeCustomerId,
+          updatedAt: Date.now(),
+        });
+      });
     });
 
     describe('success - with new stripe customer stub account', () => {
@@ -267,6 +292,7 @@ describe('CheckoutService', () => {
 
       it('creates a new stripe customer stub account', () => {
         expect(stripeManager.createPlainCustomer).toHaveBeenCalledWith({
+          uid: uid,
           email: mockCart.email,
           taxAddress: mockCart.taxAddress,
         });

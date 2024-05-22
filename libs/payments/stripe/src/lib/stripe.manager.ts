@@ -76,20 +76,36 @@ export class StripeManager {
   /**
    * Create customer stub account
    */
-  async createPlainCustomer(args: { email?: string; taxAddress?: TaxAddress }) {
-    if (args.taxAddress) {
-      return this.client.customersCreate({
-        shipping: {
-          name: args.email || '',
-          address: {
-            country: args.taxAddress.countryCode,
-            postal_code: args.taxAddress.postalCode,
-          },
-        },
-      });
-    }
+  async createPlainCustomer(args: {
+    uid: string;
+    email: string;
+    displayName?: string;
+    taxAddress?: TaxAddress;
+  }) {
+    const { uid, email, displayName, taxAddress } = args;
 
-    return this.client.customersCreate();
+    const shipping = taxAddress
+      ? {
+          name: email,
+          address: {
+            country: taxAddress.countryCode,
+            postal_code: taxAddress.postalCode,
+          },
+        }
+      : undefined;
+
+    const stripeCustomer = await this.client.customersCreate({
+      email,
+      name: displayName || '',
+      description: uid,
+      metadata: {
+        userid: uid,
+        geoip_date: new Date().toString(),
+      },
+      shipping,
+    });
+
+    return stripeCustomer;
   }
 
   /**
