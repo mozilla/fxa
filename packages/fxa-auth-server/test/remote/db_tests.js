@@ -1504,7 +1504,8 @@ describe(`#integration - remote db`, function () {
   });
 
   it('should create and delete linked account', async () => {
-    await db.createLinkedAccount(account.uid, 'googleid', 'google');
+    const googleId = `goog_${Math.random().toString().substr(2)}`;
+    await db.createLinkedAccount(account.uid, googleId, 'google');
 
     let records = await db.getLinkedAccounts(account.uid);
 
@@ -1572,9 +1573,10 @@ describe(`#integration - remote db`, function () {
     });
 
     it('can retrieve linked account', async () => {
+      const googleId = `goog_${Math.random().toString().substr(2)}`;
       const linkedAccount = await db.createLinkedAccount(
         account.uid,
-        'googleid',
+        googleId,
         'google'
       );
       // linkedAccount UID comes back as a buffer but we want a hex string
@@ -1595,7 +1597,8 @@ describe(`#integration - remote db`, function () {
     });
 
     it('does not retrieve linked account without option specified', async () => {
-      await db.createLinkedAccount(account.uid, 'googleid', 'google');
+      const googleId = `goog_${Math.random().toString().substr(2)}`;
+      await db.createLinkedAccount(account.uid, googleId, 'google');
       const accountRecord = await db.accountRecord(account.email);
       assert.strictEqual(
         accountRecord.linkedAccounts,
