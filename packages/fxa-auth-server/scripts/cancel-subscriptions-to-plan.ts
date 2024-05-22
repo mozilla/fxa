@@ -6,8 +6,11 @@ import program from 'commander';
 import { setupProcessingTaskObjects } from '../lib/payments/processing-tasks-setup';
 import { PlanCanceller } from './cancel-subscriptions-to-plan/cancel-subscriptions-to-plan';
 import { PayPalHelper } from '../lib/payments/paypal';
+import { PayPalClient } from '@fxa/payments/paypal';
+import { Container } from 'typedi';
 
 const pckg = require('../package.json');
+const config = require('../config').default.getProperties();
 
 const parseBatchSize = (batchSize: string | number) => {
   return parseInt(batchSize.toString(), 10);
@@ -65,6 +68,11 @@ async function init() {
   const { stripeHelper, database, log } = await setupProcessingTaskObjects(
     'cancel-subscriptions-to-plan'
   );
+
+  const paypalClient = new PayPalClient(
+    config.subscriptions.paypalNvpSigCredentials
+  );
+  Container.set(PayPalClient, paypalClient);
 
   const paypalHelper = new PayPalHelper({
     log,
