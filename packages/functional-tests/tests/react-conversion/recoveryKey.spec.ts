@@ -13,7 +13,7 @@ test.describe('severity-1 #smoke', () => {
       // Ensure that the react reset password route feature flag is enabled
       const config = await configPage.getConfig();
       test.skip(config.showReactApp.resetPasswordRoutes !== true);
-      test.fixme(
+      test.skip(
         config.featureFlags.resetPasswordWithCode === true,
         'see FXA-9612'
       );
