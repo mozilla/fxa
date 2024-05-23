@@ -36,6 +36,8 @@ export async function processAccountDeletionInRange(
 ) {
   const PQueue = (await import('p-queue')) as any;
   const kyselyDb = await setupAccountDatabase(config.database.mysql.auth);
+
+  // To keep this query performant, we have an index on emailVerified and createdAt column
   const accounts = await kyselyDb
     .selectFrom('accounts')
     .where('accounts.emailVerified', '=', 0)
