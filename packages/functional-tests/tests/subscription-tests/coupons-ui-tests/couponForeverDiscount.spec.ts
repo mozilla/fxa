@@ -8,15 +8,15 @@ import { TestAccountTracker } from '../../../lib/testAccountTracker';
 import { LoginPage } from '../../../pages/login';
 
 test.describe('severity-2 #smoke', () => {
-  test.describe('resubscription test', () => {
+  test.describe('coupon test forever discount', () => {
     test.beforeEach(() => {
       test.slow();
     });
 
-    test('resubscribe successfully with the same coupon after canceling for stripe', async ({
+    test('subscribe successfully with a forever discount coupon', async ({
       target,
       page,
-      pages: { relier, subscribe, login, settings, subscriptionManagement },
+      pages: { relier, subscribe, login },
       testAccountTracker,
     }, { project }) => {
       test.skip(
@@ -34,39 +34,48 @@ test.describe('severity-2 #smoke', () => {
       // Verify the coupon is applied successfully
       await expect(subscribe.promoCodeAppliedHeading).toBeVisible();
 
-      const total = await subscribe.getTotalPrice();
+      // Verify the line items after applying discount
+      expect(await subscribe.discountListPrice()).toBe(true);
+      expect(await subscribe.discountLineItem()).toBe(true);
 
-      //Subscribe successfully with Stripe
+      // Successfully subscribe
       await subscribe.setConfirmPaymentCheckbox();
       await subscribe.setFullName();
       await subscribe.setCreditCardInfo();
       await subscribe.clickPayNow();
       await subscribe.submit();
+      await relier.goto();
+      await relier.clickEmailFirst();
+      await login.submit();
+      expect(await relier.isPro()).toBe(true);
+    });
 
-      //Login to FxA account
-      await login.goto();
-      await login.clickSignIn();
-      const subscriptionPage = await settings.clickPaidSubscriptions();
-      subscriptionManagement.page = subscriptionPage;
-
-      //Verify no coupon details are visible
-      expect(await subscriptionManagement.subscriptionDetails()).not.toContain(
-        'Promo'
+    test('subscribe with credit card and use coupon', async ({
+      target,
+      page,
+      pages: { relier, login, subscribe },
+      testAccountTracker,
+    }, { project }) => {
+      test.skip(
+        project.name === 'production',
+        'no real payment method available in prod'
       );
+      await signInAccount(target, page, login, testAccountTracker);
 
-      //Cancel subscription and then resubscribe
-      await subscriptionManagement.cancelSubscription();
-      await subscriptionManagement.resubscribe();
+      await relier.goto();
+      await relier.clickSubscribe6Month();
 
-      //Verify that the resubscription has the same coupon applied
-      expect(await subscriptionManagement.getResubscriptionPrice()).toEqual(
-        total
-      );
-
-      //Verify no coupon details are visible
-      expect(await subscriptionManagement.subscriptionDetails()).not.toContain(
-        'Promo'
-      );
+      // 'auto10pforever' is a 10% forever discount coupon for a 6mo plan
+      await subscribe.addCouponCode('auto10pforever');
+      await subscribe.setConfirmPaymentCheckbox();
+      await subscribe.setFullName();
+      await subscribe.setCreditCardInfo();
+      await subscribe.clickPayNow();
+      await subscribe.submit();
+      await relier.goto();
+      await relier.clickEmailFirst();
+      await login.submit();
+      expect(await relier.isPro()).toBe(true);
     });
   });
 });

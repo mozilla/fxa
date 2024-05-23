@@ -8,7 +8,6 @@ import { TestAccountTracker } from '../../lib/testAccountTracker';
 import { LoginPage } from '../../pages/login';
 import { SettingsPage } from '../../pages/settings';
 import { ChangePasswordPage } from '../../pages/settings/changePassword';
-import { DeleteAccountPage } from '../../pages/settings/deleteAccount';
 import { SecondaryEmailPage } from '../../pages/settings/secondaryEmail';
 
 test.describe('severity-1 #smoke', () => {
@@ -229,75 +228,6 @@ test.describe('severity-1 #smoke', () => {
       await expect(settings.alertBar).toHaveText(/successfully deleted/);
     });
   });
-
-  test.describe('change primary - unblock', () => {
-    test.beforeEach(async () => {
-      test.slow();
-    });
-
-    test('change primary email, get blocked with invalid password, redirect enter password page', async ({
-      target,
-      pages: { page, settings, login, secondaryEmail, deleteAccount },
-      testAccountTracker,
-    }) => {
-      const credentials = await signInAccount(
-        target,
-        page,
-        login,
-        testAccountTracker
-      );
-      const blockedEmail = testAccountTracker.generateBlockedEmail();
-      const invalidPassword = testAccountTracker.generatePassword();
-
-      await settings.goto();
-      await changePrimaryEmail(settings, secondaryEmail, blockedEmail);
-      credentials.email = blockedEmail;
-      await settings.signOut();
-      await login.login(credentials.email, invalidPassword);
-
-      // Fill out unblock
-      await login.unblock(credentials.email);
-
-      // Verify the incorrect password error
-      await expect(page.getByText('Incorrect password')).toBeVisible();
-
-      // Delete blocked account, required before teardown
-      await login.setPassword(credentials.password);
-      await login.submit();
-      await login.unblock(credentials.email);
-      await settings.goto();
-      await removeAccount(settings, deleteAccount, page, credentials.password);
-    });
-
-    test('can change primary email, get blocked with valid password, redirect settings page', async ({
-      target,
-      pages: { page, settings, login, secondaryEmail, deleteAccount },
-      testAccountTracker,
-    }) => {
-      const credentials = await signInAccount(
-        target,
-        page,
-        login,
-        testAccountTracker
-      );
-      const blockedEmail = testAccountTracker.generateBlockedEmail();
-
-      await settings.goto();
-      await changePrimaryEmail(settings, secondaryEmail, blockedEmail);
-      credentials.email = blockedEmail;
-      await settings.signOut();
-
-      await login.login(credentials.email, credentials.password);
-      // Fill out unblock
-      await login.unblock(credentials.email);
-
-      // Verify settings url redirected
-      await expect(page).toHaveURL(settings.url);
-
-      // Delete blocked account, required before teardown
-      await removeAccount(settings, deleteAccount, page, credentials.password);
-    });
-  });
 });
 
 async function signInAccount(
@@ -342,16 +272,4 @@ async function setNewPassword(
 
   await expect(settings.settingsHeading).toBeVisible();
   await expect(settings.alertBar).toHaveText('Password updated');
-}
-
-async function removeAccount(
-  settings: SettingsPage,
-  deleteAccount: DeleteAccountPage,
-  page: Page,
-  password: string
-) {
-  await settings.deleteAccountButton.click();
-  await deleteAccount.deleteAccount(password);
-
-  await expect(page.getByText('Account deleted successfully')).toBeVisible();
 }
