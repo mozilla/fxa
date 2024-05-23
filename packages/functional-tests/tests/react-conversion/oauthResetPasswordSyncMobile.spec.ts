@@ -63,8 +63,11 @@ test.describe('severity-1 #smoke', () => {
       await expect(
         resetPasswordReact.passwordResetConfirmationHeading
       ).toBeVisible();
-      // TODO FXA-9015 we must 'refresh' the page so that the 'showReactApp' param takes effect
-      page.reload();
+
+      // TODO in FXA-9612 page reload should not be required to see the service name
+      // verify when updating tests for reset with code if this is still an issue
+      // we should be able to remove the reload
+      await page.reload();
       await expect(
         page.getByText(new RegExp(`.*${SERVICE_NAME_FIREFOX}.*`, 'i'))
       ).toBeVisible();
@@ -83,10 +86,6 @@ test.describe('severity-1 #smoke', () => {
     await login.setEmail(email);
     await login.submit();
     await login.clickForgotPassword();
-
-    // TODO: FXA-9015 Once the full flow is implemented in react, we can remove this. For now, we must 'refresh'
-    // the page so that the 'showReactApp' param takes effect. Once conversion is complete this can be removed
-    await page.reload();
 
     // Verify reset password header
     // The service name can change based on environments and all of our test RPs from 123done have
@@ -109,12 +108,11 @@ test.describe('severity-1 #smoke', () => {
     email: string
   ) {
     await resetPasswordReact.fillOutEmailForm(email);
-    let link = await target.emailClient.waitForEmail(
+    const link = await target.emailClient.waitForEmail(
       email,
       EmailType.recovery,
       EmailHeader.link
     );
-    link = `${link}&showReactApp=true`;
     return link;
   }
 });

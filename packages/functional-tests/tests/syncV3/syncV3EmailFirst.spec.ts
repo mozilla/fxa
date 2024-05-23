@@ -34,7 +34,7 @@ test.describe('Firefox Desktop Sync v3 email first', () => {
     await expect(login.signUpPasswordHeader).toBeVisible();
 
     //Refresh the page
-    await page.reload({ waitUntil: 'load' });
+    await page.reload();
 
     // refresh sends the user back to the first step
     await login.waitForEmailHeader();
@@ -58,7 +58,7 @@ test.describe('Firefox Desktop Sync v3 email first', () => {
     await expect(await login.waitForPasswordHeader()).toBeVisible();
 
     //Refresh the page
-    await page.reload({ waitUntil: 'load' });
+    await page.reload();
 
     // refresh sends the user back to the first step
     await login.waitForEmailHeader();

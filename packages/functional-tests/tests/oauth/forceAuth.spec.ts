@@ -6,19 +6,16 @@ import { expect, test } from '../../lib/fixtures/standard';
 const AGE_21 = '21';
 
 test.describe('severity-1 #smoke', () => {
-  test.beforeEach(async ({ pages: { configPage } }) => {
-    const config = await configPage.getConfig();
-    test.skip(
-      config.showReactApp.resetPasswordRoutes === true,
-      'Scheduled for removal as part of React conversion (see FXA-8267).'
-    );
-  });
-
   test.describe('OAuth force auth', () => {
     test('with a registered email', async ({
-      pages: { login, relier },
+      pages: { configPage, login, relier },
       testAccountTracker,
     }) => {
+      const config = await configPage.getConfig();
+      test.skip(
+        config.showReactApp.signInRoutes === true,
+        'Scheduled for removal as part of React conversion (see FXA-9410).'
+      );
       const credentials = await testAccountTracker.signUp();
       await relier.goto(`email=${credentials.email}`);
       await relier.clickForceAuth();
@@ -33,9 +30,14 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('with a unregistered email', async ({
-      pages: { login, relier },
+      pages: { configPage, login, relier },
       testAccountTracker,
     }, { project }) => {
+      const config = await configPage.getConfig();
+      test.skip(
+        config.showReactApp.signUpRoutes === true,
+        'Scheduled for removal as part of React conversion (see FXA-9410).'
+      );
       test.slow(project.name !== 'local', 'email delivery can be slow');
       const credentials = await testAccountTracker.signUp();
       const newEmail = testAccountTracker.generateEmail();
@@ -58,9 +60,14 @@ test.describe('severity-1 #smoke', () => {
   test.describe('OAuth force auth', () => {
     test('with blocked email', async ({
       page,
-      pages: { login, relier, settings, deleteAccount },
+      pages: { configPage, login, relier, settings, deleteAccount },
       testAccountTracker,
     }, { project }) => {
+      const config = await configPage.getConfig();
+      test.skip(
+        config.showReactApp.signUpRoutes === true,
+        'Scheduled for removal as part of React conversion (see FXA-9410).'
+      );
       test.slow(project.name !== 'local', 'email delivery can be slow');
 
       const credentials = await testAccountTracker.signUp();

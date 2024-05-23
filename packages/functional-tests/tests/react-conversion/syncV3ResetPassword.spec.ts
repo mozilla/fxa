@@ -4,13 +4,11 @@
 
 import { EmailHeader, EmailType } from '../../lib/email';
 import { expect, test } from '../../lib/fixtures/standard';
-import { getReactFeatureFlagUrl } from '../../lib/react-flag';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('Firefox Desktop Sync v3 reset password react', () => {
     test.beforeEach(async ({ pages: { configPage } }) => {
       const config = await configPage.getConfig();
-      test.skip(config.showReactApp.resetPasswordRoutes !== true);
       test.skip(
         config.featureFlags.resetPasswordWithCode === true,
         'see FXA-9612'
@@ -26,12 +24,9 @@ test.describe('severity-1 #smoke', () => {
       const credentials = await testAccountTracker.signUp();
       const newPassword = testAccountTracker.generatePassword();
 
-      await page.goto(
-        getReactFeatureFlagUrl(
-          target,
-          '/reset_password',
-          'context=fx_desktop_v3&service=sync'
-        )
+      await resetPasswordReact.goto(
+        undefined,
+        'context=fx_desktop_v3&service=sync'
       );
 
       // Check that the sync relier is in the heading

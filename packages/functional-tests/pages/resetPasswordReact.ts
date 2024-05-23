@@ -1,5 +1,4 @@
 import { expect } from '@playwright/test';
-import { getReactFeatureFlagUrl } from '../lib/react-flag';
 import { BaseLayout } from './layout';
 
 export class ResetPasswordReactPage extends BaseLayout {
@@ -107,7 +106,10 @@ export class ResetPasswordReactPage extends BaseLayout {
   }
 
   goto(route = '/reset_password', query?: string) {
-    return this.page.goto(getReactFeatureFlagUrl(this.target, route, query));
+    const url = query
+      ? `${this.target.contentServerUrl}${route}?${query}`
+      : `${this.target.contentServerUrl}${route}`;
+    return this.page.goto(url);
   }
 
   async fillOutNewPasswordForm(password: string) {

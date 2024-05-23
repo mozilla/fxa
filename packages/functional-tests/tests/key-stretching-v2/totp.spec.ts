@@ -31,7 +31,7 @@ test.describe('severity-2 #smoke', () => {
       const { email, password } = testAccountTracker.generateAccountDetails();
 
       await page.goto(
-        `${target.contentServerUrl}/?showReactApp=true&forceExperiment=generalizedReactApp&forceExperimentGroup=react&${signup.query}`
+        `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react&${signup.query}`
       );
       await signupReact.fillOutFirstSignUp(email, password, AGE_21);
 
@@ -47,7 +47,7 @@ test.describe('severity-2 #smoke', () => {
 
       await settings.signOut();
       await page.goto(
-        `${target.contentServerUrl}/?showReactApp=true&forceExperiment=generalizedReactApp&forceExperimentGroup=react&${signin.query}`
+        `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react&${signin.query}`
       );
       await signinReact.fillOutEmailFirstForm(email);
       await signinReact.fillOutPasswordForm(password);
