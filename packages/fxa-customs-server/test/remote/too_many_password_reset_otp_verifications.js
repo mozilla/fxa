@@ -65,7 +65,15 @@ test('/check passwordForgotVerifyOtp by email', async (t) => {
   t.equal(obj.retryAfter, 1, 'rate limit retry amount');
 
   // the min configurable value is a second
-  await new Promise((resolve) => setTimeout(resolve, 1000));
+  await new Promise((resolve) => setTimeout(resolve, 1200));
+
+  // this is the third recorded attempt; the third request was rate limited
+  // thus not recorded
+  ip = testUtils.randomIp();
+  response = await client.postAsync('/check', { ip, email, action });
+  [_, res, obj] = response;
+  t.equal(res.statusCode, 200, 'returns a 200');
+  t.equal(obj.block, false, 'not rate limited');
 
   ip = testUtils.randomIp();
   response = await client.postAsync('/check', { ip, email, action });
@@ -108,7 +116,15 @@ test('/check passwordForgotVerifyOtp by ip address', async (t) => {
   t.equal(obj.retryAfter, 1, 'rate limit retry amount');
 
   // the min configurable value is a second
-  await new Promise((resolve) => setTimeout(resolve, 1000));
+  await new Promise((resolve) => setTimeout(resolve, 1200));
+
+  // this is the third attempt; the third request was rate limited thus not
+  // recorded
+  email = testUtils.randomEmail();
+  response = await client.postAsync('/check', { ip, email, action });
+  [_, res, obj] = response;
+  t.equal(res.statusCode, 200, 'returns a 200');
+  t.equal(obj.block, false, 'not rate limited');
 
   email = testUtils.randomEmail();
   response = await client.postAsync('/check', { ip, email, action });
