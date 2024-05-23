@@ -273,14 +273,14 @@ module.exports = function (limits, now) {
           (otpVerificationTime) =>
             otpVerificationTime >
             thisIsNow - limits.passwordResetOtpVerificationRateLimitWindowMs
-        ).length > limits.maxPasswordResetOtpVerificationRateLimit
+        ).length >= limits.maxPasswordResetOtpVerificationRateLimit
       );
     };
 
   EmailRecord.prototype.isOverPasswordResetOtpVerificationBlockLimit =
     function () {
       this.trimPasswordResetOtpVerifications(now());
-      return this.ov.length > limits.maxPasswordResetOtpVerificationBlockLimit;
+      return this.ov.length >= limits.maxPasswordResetOtpVerificationBlockLimit;
     };
 
   EmailRecord.prototype.update = function (action, unblock) {
@@ -361,44 +361,33 @@ module.exports = function (limits, now) {
     }
 
     if (actions.isResetPasswordOtpVerificationAction(action)) {
-      const otpVerificationRateLimited = () =>
-        !!(
-          this.rl &&
-          now() - this.rl < limits.passwordResetOtpVerificationRateLimitWindowMs
-        );
-      const otpVerificationBlocked = () =>
-        !!(
-          this.bk &&
-          now() - this.bk < limits.passwordResetOtpVerificationBlockWindowMs
-        );
-      if (otpVerificationRateLimited() || otpVerificationBlocked()) {
-        return this.retryAfter(
-          limits.passwordResetOtpVerificationRateLimitWindowMs,
-          limits.passwordResetOtpVerificationBlockWindowMs
-        );
-      }
-
-      this.addPasswordResetOtpVerification();
-
       const shouldBlock = this.isOverPasswordResetOtpVerificationBlockLimit();
       const shouldRateLimit =
         this.isOverPasswordResetOtpVerificationRateLimit();
 
       if (shouldBlock || shouldRateLimit) {
+        const latest = this.ov[this.ov.length - 1];
+
         if (shouldBlock) {
-          this.block();
-          this.ov = [];
-          this.rl = 0;
+          return Math.ceil(
+            (latest +
+              limits.passwordResetOtpVerificationBlockWindowMs -
+              now()) /
+              1000
+          );
         }
         if (shouldRateLimit) {
-          this.rateLimit();
-          this.bk = 0;
+          return Math.ceil(
+            (latest +
+              limits.passwordResetOtpVerificationRateLimitWindowMs -
+              now()) /
+              1000
+          );
         }
-        return this.retryAfter(
-          limits.passwordResetOtpVerificationRateLimitWindowMs,
-          limits.passwordResetOtpVerificationBlockWindowMs
-        );
       }
+
+      this.addPasswordResetOtpVerification();
+      return 0;
     }
 
     // Everything else is allowed through.
