@@ -60,7 +60,7 @@ test.describe('severity-2 #smoke', () => {
       testAccountTracker,
     }) => {
       const config = await configPage.getConfig();
-      test.fixme(
+      test.skip(
         config.featureFlags.resetPasswordWithCode === true,
         'see FXA-9612'
       );
