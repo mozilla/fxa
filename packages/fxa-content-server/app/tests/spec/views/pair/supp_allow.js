@@ -10,6 +10,7 @@ import Relier from 'models/reliers/relier';
 import sinon from 'sinon';
 import { mockPairingChannel } from 'tests/mocks/pair';
 import View from 'views/pair/supp_allow';
+import GleanMetrics from '../../../../scripts/lib/glean';
 
 const REMOTE_METADATA = {
   city: 'Toronto',
@@ -89,6 +90,23 @@ describe('views/pair/supp_allow', () => {
         );
         $('#container').find('#cancel').click();
         assert.isTrue(view.replaceCurrentPage.calledOnceWith('pair/failure'));
+      });
+    });
+
+    describe('logView', () => {
+      let viewEventStub;
+
+      beforeEach(() => {
+        viewEventStub = sinon.stub(GleanMetrics.cadMobilePair, 'view');
+      });
+
+      afterEach(() => {
+        viewEventStub.restore();
+      });
+
+      it('logs a view Glean metrics event', () => {
+        view.logView();
+        sinon.assert.calledOnce(viewEventStub);
       });
     });
   });

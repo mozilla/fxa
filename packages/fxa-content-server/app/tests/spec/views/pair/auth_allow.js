@@ -12,6 +12,7 @@ import Relier from 'models/reliers/relier';
 import User from 'models/user';
 import sinon from 'sinon';
 import View from 'views/pair/auth_allow';
+import GleanMetrics from '../../../../scripts/lib/glean';
 
 const REMOTE_METADATA = {
   city: 'Toronto',
@@ -196,6 +197,23 @@ describe('views/pair/auth_allow', () => {
           view.$el.find('#ip-address').text(),
           'IP address: 1.1.1.1'
         );
+      });
+    });
+
+    describe('logView', () => {
+      let viewEventStub;
+
+      beforeEach(() => {
+        viewEventStub = sinon.stub(GleanMetrics.cadApproveDevice, 'view');
+      });
+
+      afterEach(() => {
+        viewEventStub.restore();
+      });
+
+      it('logs a view Glean metrics event', () => {
+        view.logView();
+        sinon.assert.calledOnce(viewEventStub);
       });
     });
   });
