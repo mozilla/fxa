@@ -105,9 +105,7 @@ test.describe('severity-2 #smoke', () => {
       pages: { login, settings, deleteAccount },
       testAccountTracker,
     }) => {
-      test.fixme(true, 'FXA-9226');
-
-      const credentials = await testAccountTracker.signUp({
+      const credentials = await testAccountTracker.signUpBlocked({
         lang: 'en',
         preVerified: 'false',
       });
@@ -117,7 +115,6 @@ test.describe('severity-2 #smoke', () => {
         credentials.email,
         credentials.password
       );
-
       //Verify sign in block header
       await expect(login.signInUnblockHeader()).toBeVisible();
       expect(await login.getUnblockEmail()).toContain(credentials.email);
