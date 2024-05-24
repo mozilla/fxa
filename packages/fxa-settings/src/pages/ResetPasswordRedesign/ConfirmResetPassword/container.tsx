@@ -2,11 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
 import { useAuthClient, useFtlMsgResolver } from '../../../models';
 import { getLocalizedErrorMessage } from '../../../lib/auth-errors/auth-errors';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import ConfirmResetPassword from '.';
 import {
   ConfirmResetPasswordLocationState,
@@ -27,6 +26,12 @@ const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
 
   const { email, metricsContext } =
     (location.state as ConfirmResetPasswordLocationState) || {};
+
+  useEffect(() => {
+    if (!email || !metricsContext) {
+      navigate(`/reset_password${location.search}`);
+    }
+  });
 
   const handleNavigation = (
     code: string,
@@ -119,11 +124,6 @@ const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
       return false;
     }
   };
-
-  if (!email) {
-    navigate(`/reset_password${location.search}`);
-    return <LoadingSpinner fullScreen />;
-  }
 
   return (
     <ConfirmResetPassword

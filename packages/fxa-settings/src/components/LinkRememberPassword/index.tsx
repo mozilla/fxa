@@ -17,8 +17,10 @@ const LinkRememberPassword = ({ email }: LinkRememberPasswordProps) => {
   const params = new URLSearchParams(location.search);
   let linkHref: string;
   if (email && isEmailValid(email)) {
-    params.set('email', email);
-    linkHref = `/signin?${params}`;
+    params.set('prefillEmail', email);
+    // react and backbone signin handle email/prefill params differently so
+    // go back to index - any errors (like throttling) will be shown there on submit
+    linkHref = `/?${params}`;
   } else {
     linkHref = params.size > 0 ? `/?${params}` : '/';
   }

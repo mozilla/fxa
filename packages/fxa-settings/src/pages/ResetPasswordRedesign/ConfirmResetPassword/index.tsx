@@ -38,6 +38,7 @@ const ConfirmResetPassword = ({
   const spanElement = <span className="font-bold">{email}</span>;
 
   const handleResend = async () => {
+    setResendStatus(ResendStatus['not sent']);
     const result = await resendCode();
     if (result === true) {
       setResendStatus(ResendStatus.sent);

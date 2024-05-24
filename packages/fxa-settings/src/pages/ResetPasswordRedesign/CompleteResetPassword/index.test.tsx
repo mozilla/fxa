@@ -66,7 +66,7 @@ describe('CompleteResetPassword page', () => {
       expect(link).toBeVisible();
       expect(link).toHaveAttribute(
         'href',
-        `/signin?email=${encodeURIComponent(MOCK_EMAIL)}`
+        `/?prefillEmail=${encodeURIComponent(MOCK_EMAIL)}`
       );
     });
 
@@ -111,7 +111,7 @@ describe('CompleteResetPassword page', () => {
       expect(link).toBeVisible();
       expect(link).toHaveAttribute(
         'href',
-        `/signin?email=${encodeURIComponent(MOCK_EMAIL)}`
+        `/?prefillEmail=${encodeURIComponent(MOCK_EMAIL)}`
       );
     });
 

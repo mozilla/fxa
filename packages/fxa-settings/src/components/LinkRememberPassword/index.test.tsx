@@ -43,7 +43,7 @@ describe('LinkRememberPassword', () => {
     expect(screen.getByRole('link', { name: 'Sign in' })).toBeVisible();
   });
 
-  it('links to signin and appends parameters', async () => {
+  it('links to index and appends parameters', async () => {
     renderWithLocalizationProvider(<Subject />);
 
     const rememberPasswordLink = screen.getByRole('link', {
@@ -52,7 +52,7 @@ describe('LinkRememberPassword', () => {
 
     expect(rememberPasswordLink).toHaveAttribute(
       'href',
-      `/signin?client_id=123&email=${encodeURIComponent(MOCK_EMAIL)}`
+      `/?client_id=123&prefillEmail=${encodeURIComponent(MOCK_EMAIL)}`
     );
   });
 });

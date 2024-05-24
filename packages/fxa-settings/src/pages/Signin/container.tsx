@@ -67,6 +67,7 @@ import { QueryParams } from '../..';
 import { queryParamsToMetricsContext } from '../../lib/metrics';
 import OAuthDataError from '../../components/OAuthDataError';
 import { MetricsContext } from 'fxa-auth-client/browser';
+import { isEmailValid } from 'fxa-shared/email/helpers';
 
 /*
  * In content-server, the `email` param is optional. If it's provided, we
@@ -179,11 +180,22 @@ const SigninContainer = ({
               });
             }
           } catch (error) {
-            queryParams.set('prefillEmail', email);
+            // Passing back the 'email' param causes various behaviors in
+            // content-server since it marks the email as "coming from a RP".
+            queryParams.delete('email');
+            if (isEmailValid(email)) {
+              queryParams.set('prefillEmail', email);
+            }
             hardNavigate(`/?${queryParams}`);
           }
         }
       } else {
+        // Passing back the 'email' param causes various behaviors in
+        // content-server since it marks the email as "coming from a RP".
+        queryParams.delete('email');
+        if (email && isEmailValid(email)) {
+          queryParams.set('prefillEmail', email);
+        }
         const optionalParams = queryParams.size > 0 ? `?${queryParams}` : '';
         hardNavigate(`/${optionalParams}`);
       }
