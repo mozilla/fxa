@@ -680,7 +680,7 @@ module.exports = async function createServer(config, log) {
       emailRecord.passwordReset();
 
       try {
-        await setRecords(emailRecord);
+        await setRecords(ipRecord, emailRecord);
         return {};
       } catch (err) {
         logError(err);
