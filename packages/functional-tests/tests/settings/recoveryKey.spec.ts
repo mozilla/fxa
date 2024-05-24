@@ -138,51 +138,6 @@ test.describe('severity-1 #smoke', () => {
       );
       await expect(settings.recoveryKey.status).toHaveText('Not Set');
     });
-
-    test('forgot password has account recovery key but skip using it', async ({
-      target,
-      pages: { page, settings, login, configPage, recoveryKey },
-      testAccountTracker,
-    }, { project }) => {
-      const config = await configPage.getConfig();
-      test.skip(
-        config.showReactApp.resetPasswordRoutes === true,
-        'Scheduled for removal as part of React conversion (see FXA-8267).'
-      );
-      test.slow(project.name !== 'local', 'email delivery can be slow');
-
-      const credentials = await signInAccount(
-        target,
-        page,
-        login,
-        testAccountTracker
-      );
-
-      await expect(settings.settingsHeading).toBeVisible();
-      await expect(settings.recoveryKey.status).toHaveText('Not Set');
-
-      await settings.recoveryKey.createButton.click();
-      await recoveryKey.createRecoveryKey(credentials.password, 'hint');
-
-      await expect(settings.settingsHeading).toBeVisible();
-      await expect(settings.recoveryKey.status).toHaveText('Enabled');
-
-      await page.goto(target.contentServerUrl + '/reset_password');
-      await login.setEmail(credentials.email);
-      await login.clickSubmit();
-      const link = await target.emailClient.waitForEmail(
-        credentials.email,
-        EmailType.recovery,
-        EmailHeader.link
-      );
-      await page.goto(link);
-      await login.clickDontHaveRecoveryKey();
-      await login.setNewPassword(credentials.password);
-
-      await expect(settings.settingsHeading).toBeVisible();
-      await expect(settings.alertBar).toBeVisible();
-      await expect(settings.recoveryKey.status).toHaveText('Not Set');
-    });
   });
 });
 

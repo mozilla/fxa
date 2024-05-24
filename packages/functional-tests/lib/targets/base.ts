@@ -6,6 +6,7 @@ export type Credentials = Awaited<ReturnType<AuthClient['signUp']>> & {
   email: string;
   password: string;
   secret?: string;
+  sessionToken?: string;
 };
 
 interface SubConfig {

@@ -14,7 +14,6 @@ test.describe('severity-1 #smoke', () => {
   test.describe('oauth reset password with recovery key react', () => {
     test.beforeEach(async ({ pages: { configPage } }) => {
       const config = await configPage.getConfig();
-      test.skip(config.showReactApp.resetPasswordRoutes !== true);
       test.fixme(
         config.featureFlags.resetPasswordWithCode === true,
         'see FXA-9612'
@@ -51,7 +50,7 @@ test.describe('severity-1 #smoke', () => {
       await settings.signOut();
 
       // Make sure user is not signed in, and goes to the relier (ie 123done)
-      await relier.goto('showReactApp=true');
+      await relier.goto();
 
       await relier.clickEmailFirst();
 
@@ -101,10 +100,6 @@ test.describe('severity-1 #smoke', () => {
     await login.submit();
     await login.clickForgotPassword();
 
-    // TODO: FXA-9015 Once the full flow is implemented in react, we can remove this. For now, we must 'refresh'
-    // the page so that the 'showReactApp' param takes effect. Once conversion is complete this can be removed
-    await page.reload();
-
     // Verify reset password header
     // The service name can change based on environments and all of our test RPs from 123done have
     // service names that begin with '123'. This test just ensures that the OAuth service name is rendered,
@@ -126,12 +121,11 @@ test.describe('severity-1 #smoke', () => {
     email: string
   ) {
     await resetPasswordReact.fillOutEmailForm(email);
-    let link = await target.emailClient.waitForEmail(
+    const link = await target.emailClient.waitForEmail(
       email,
       EmailType.recovery,
       EmailHeader.link
     );
-    link = `${link}&showReactApp=true`;
     return link;
   }
 });

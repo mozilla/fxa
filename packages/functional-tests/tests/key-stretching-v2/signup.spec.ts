@@ -37,7 +37,7 @@ test.describe('severity-2 #smoke', () => {
   }) => {
     const { email, password } = testAccountTracker.generateAccountDetails();
     await page.goto(
-      `${target.contentServerUrl}/?showReactApp=true&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
+      `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react`
     );
     await signupReact.fillOutFirstSignUp(email, password, AGE_21);
 
@@ -66,7 +66,7 @@ test.describe('severity-2 #smoke', () => {
   }) => {
     const { email, password } = testAccountTracker.generateAccountDetails();
     await page.goto(
-      `${target.contentServerUrl}/?showReactApp=true&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
+      `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react`
     );
     await signupReact.fillOutFirstSignUp(email, password, AGE_21);
 
@@ -77,7 +77,7 @@ test.describe('severity-2 #smoke', () => {
     await _checkCredentialsVersion1(target, email);
 
     await page.goto(
-      `${target.contentServerUrl}/?showReactApp=true&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
+      `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react`
     );
     await signinReact.fillOutEmailFirstForm(email);
     await signinReact.fillOutPasswordForm(password);
@@ -95,7 +95,7 @@ test.describe('severity-2 #smoke', () => {
   }) => {
     const { email, password } = testAccountTracker.generateAccountDetails();
     await page.goto(
-      `${target.contentServerUrl}/?showReactApp=true&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
+      `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react`
     );
     await signupReact.fillOutFirstSignUp(email, password, AGE_21);
 
@@ -124,7 +124,7 @@ test.describe('severity-2 #smoke', () => {
   }) => {
     const { email, password } = testAccountTracker.generateAccountDetails();
     await page.goto(
-      `${target.contentServerUrl}/?showReactApp=true&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
+      `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react`
     );
     await signupReact.fillOutFirstSignUp(email, password, AGE_21);
 
@@ -135,7 +135,7 @@ test.describe('severity-2 #smoke', () => {
     await _checkCredentialsVersion1(target, email);
 
     await page.goto(
-      `${target.contentServerUrl}/?showReactApp=true&forceExperiment=generalizedReactApp&forceExperimentGroup=react&stretch=2`
+      `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react&stretch=2`
     );
     await signinReact.fillOutEmailFirstForm(email);
     await signinReact.fillOutPasswordForm(password);

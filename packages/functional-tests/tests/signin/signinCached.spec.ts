@@ -51,7 +51,6 @@ test.describe('severity-2 #smoke', () => {
       await login.clearSessionStorage();
       await page.goto(target.contentServerUrl);
       await login.denormalizeStoredEmail(email);
-      await page.reload();
 
       expect(await login.getPrefilledEmail()).toContain(email);
 
