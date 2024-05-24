@@ -457,15 +457,15 @@ export class AccountResolver {
 
     if (!['in', 'out'].includes(input.state)) {
       throw new Error(
-        `Invalid state. Expected 'in' or 'out'. But recieved: ${input.state}`
+        `Invalid metrics opt state! State must be in or out, but recieved ${input.state}.`
       );
     }
 
     await this.notifier.send({
-      event: 'metricsChange',
+      event: 'profileDataChange',
       data: {
         uid,
-        enabled: input.state === 'in',
+        metricsEnabled: input.state === 'in',
       },
     });
 

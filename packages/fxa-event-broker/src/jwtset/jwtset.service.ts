@@ -77,6 +77,11 @@ export class JwtsetService {
       events: {
         [set.PROFILE_EVENT_ID]: {
           email: proEvent.email,
+          locale: proEvent.locale,
+          metricsEnabled: proEvent.metricsEnabled,
+          totpEnabled: proEvent.totpEnabled,
+          accountDisabled: proEvent.accountDisabled,
+          accountLocked: proEvent.accountLocked,
         },
       },
       uid: proEvent.uid,
@@ -133,18 +138,6 @@ export class JwtsetService {
           success: appleMigrationEvent.success,
           err: appleMigrationEvent.err,
           uid: appleMigrationEvent.uid,
-        },
-      },
-    });
-  }
-
-  public generateMetricsChangeSET(event: set.metricsChangeEvent) {
-    return this.generateSET({
-      uid: event.uid,
-      clientId: event.clientId,
-      events: {
-        [set.METRICS_CHANGE_EVENT_ID]: {
-          enabled: event.enabled,
         },
       },
     });

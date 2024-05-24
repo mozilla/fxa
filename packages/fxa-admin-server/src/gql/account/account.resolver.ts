@@ -52,6 +52,7 @@ import {
   AccountDeleteStatus,
   AccountDeleteTaskStatus,
 } from '../model/account-delete-task.model';
+import { NotifierService } from '@fxa/shared/notifier';
 
 const ACCOUNT_COLUMNS = [
   'uid',
@@ -112,6 +113,7 @@ export class AccountResolver {
     private configService: ConfigService<AppConfig>,
     private eventLogging: EventLoggingService,
     private basketService: BasketService,
+    private notifier: NotifierService,
     @Inject(AuthClientService) private authAPI: AuthClient,
     @Inject(FirestoreService) private firestore: Firestore,
     @Inject(CloudTasksService) private cloudTask: CloudTasks
@@ -196,6 +198,13 @@ export class AccountResolver {
   @Mutation((returns) => Boolean)
   public async disableAccount(@Args('uid') uid: string) {
     this.eventLogging.onEvent(EventNames.DisableLogin);
+    await this.notifier.send({
+      event: 'profileDataChange',
+      data: {
+        uid,
+        accountDisabled: true,
+      },
+    });
     const uidBuffer = uuidTransformer.to(uid);
     const result = await this.db.account
       .query()
@@ -217,6 +226,14 @@ export class AccountResolver {
       .update({ locale: locale })
       .where('uid', uidBuffer);
 
+    await this.notifier.send({
+      event: 'profileDataChange',
+      data: {
+        uid,
+        locale,
+      },
+    });
+
     return !!result;
   }
 
@@ -228,6 +245,15 @@ export class AccountResolver {
       .query()
       .update({ disabledAt: null } as any)
       .where('uid', uidBuffer);
+
+    await this.notifier.send({
+      event: 'profileDataChange',
+      data: {
+        uid,
+        accountDisabled: false,
+      },
+    });
+
     return !!result;
   }
 

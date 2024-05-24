@@ -54,11 +54,23 @@ describe('profile updates', () => {
   it('should send notifications', () => {
     const log = mockLog();
     const uid = '1e2122ba';
+    const email = 'foo@mozilla.com';
+    const locale = 'en-US';
+    const metricsEnabled = true;
+    const totpEnabled = false;
+    const accountDisabled = false;
+    const accountLocked = false;
 
     return mockProfileUpdates(log)
       .handleProfileUpdated(
         mockMessage({
           uid: uid,
+          email,
+          locale,
+          metricsEnabled,
+          totpEnabled,
+          accountDisabled,
+          accountLocked,
         })
       )
       .then(() => {
@@ -71,7 +83,15 @@ describe('profile updates', () => {
           log.notifyAttachedServices.calledWithExactly(
             'profileDataChange',
             {},
-            { uid }
+            {
+              uid,
+              email,
+              locale,
+              metricsEnabled,
+              totpEnabled,
+              accountDisabled,
+              accountLocked,
+            }
           )
         );
       });

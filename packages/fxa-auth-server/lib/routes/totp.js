@@ -155,9 +155,14 @@ module.exports = (log, db, mailer, customs, config, glean) => {
         // See #5154.
         await db.verifyTokensWithMethod(sessionToken.id, 'email-2fa');
 
-        await log.notifyAttachedServices('profileDataChange', request, {
-          uid,
-        });
+        await log.notifyAttachedServices(
+          'profileDataChange',
+          {},
+          {
+            uid,
+            totpEnabled: false,
+          }
+        );
 
         if (hasEnabledToken) {
           const account = await db.account(uid);
@@ -304,6 +309,7 @@ module.exports = (log, db, mailer, customs, config, glean) => {
 
           await log.notifyAttachedServices('profileDataChange', request, {
             uid: sessionToken.uid,
+            totpEnabled: true,
           });
         }
 

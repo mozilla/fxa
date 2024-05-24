@@ -8,6 +8,7 @@ import { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Account } from 'fxa-shared/db/models/auth';
 import { MozLoggerService } from '@fxa/shared/mozlog';
+import { StatsDService } from '@fxa/shared/metrics/statsd';
 
 describe('#integration - DatabaseService', () => {
   let service: DatabaseService;
@@ -44,12 +45,17 @@ describe('#integration - DatabaseService', () => {
       provide: 'METRICS',
       useFactory: () => undefined,
     };
+    const MockStatsd: Provider = {
+      provide: StatsDService,
+      useValue: undefined,
+    };
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         DatabaseService,
         MockConfig,
         MockMozLogger,
         MockMetricsFactory,
+        MockStatsd,
       ],
     }).compile();
 

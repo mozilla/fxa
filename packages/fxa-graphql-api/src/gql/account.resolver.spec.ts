@@ -485,9 +485,10 @@ describe('#integration - AccountResolver', () => {
           clientMutationId: 'testid',
         });
         expect(notifierService.send).toBeCalledWith({
-          event: 'metricsOptOut',
+          event: 'profileDataChange',
           data: {
             uid: USER_1.uid,
+            metricsEnabled: false,
           },
         });
       });
@@ -503,9 +504,10 @@ describe('#integration - AccountResolver', () => {
           clientMutationId: 'testid',
         });
         expect(notifierService.send).toBeCalledWith({
-          event: 'metricsOptIn',
+          event: 'profileDataChange',
           data: {
             uid: USER_1.uid,
+            metricsEnabled: true,
           },
         });
       });
@@ -1002,7 +1004,8 @@ describe('#integration - AccountResolver', () => {
         });
         expect(authClient.getRecoveryKey).toBeCalledWith(
           'cooltokenyo',
-          'recoveryKeyId'
+          'recoveryKeyId',
+          expect.any(Object)
         );
         expect(result).toStrictEqual({
           recoveryData: 'recoveryData',

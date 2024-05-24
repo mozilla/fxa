@@ -893,10 +893,10 @@ describe('/account/create', () => {
 
       assert.equal(
         mockLog.notifier.send.callCount,
-        1,
+        2,
         'an sqs event was logged'
       );
-      const eventData = mockLog.notifier.send.getCall(0).args[0];
+      let eventData = mockLog.notifier.send.getCall(0).args[0];
       assert.equal(eventData.event, 'login', 'it was a login event');
       assert.equal(eventData.data.service, 'sync', 'it was for sync');
       assert.equal(
@@ -934,6 +934,16 @@ describe('/account/create', () => {
         },
         'it contained the correct metrics context metadata'
       );
+
+      eventData = mockLog.notifier.send.getCall(1).args[0];
+      assert.equal(eventData.event, 'profileDataChange');
+      assert.equal(eventData.data.uid, uid);
+      assert.equal(eventData.data.email, 'foo@gmail.com');
+      assert.equal(eventData.data.locale, 'en-US');
+      assert.equal(eventData.data.totpEnabled, false);
+      assert.equal(eventData.data.metricsEnabled, true);
+      assert.equal(eventData.data.accountDisabled, false);
+      assert.equal(eventData.data.accountLocked, false);
 
       assert.equal(
         mockLog.activityEvent.callCount,
@@ -1136,16 +1146,25 @@ describe('/account/create', () => {
     return runTest(route, mockRequest, () => {
       assert.equal(
         mockLog.notifier.send.callCount,
-        1,
+        2,
         'an sqs event was logged'
       );
-      const eventData = mockLog.notifier.send.getCall(0).args[0];
+      let eventData = mockLog.notifier.send.getCall(0).args[0];
       assert.equal(eventData.event, 'login', 'it was a login event');
       assert.equal(
         eventData.data.service,
         'foo',
         'it was for the expected service'
       );
+      eventData = mockLog.notifier.send.getCall(1).args[0];
+      assert.equal(eventData.event, 'profileDataChange');
+      assert.equal(eventData.data.uid, uid);
+      assert.equal(eventData.data.email, 'foo@gmail.com');
+      assert.equal(eventData.data.locale, 'en-US');
+      assert.equal(eventData.data.totpEnabled, false);
+      assert.equal(eventData.data.metricsEnabled, true);
+      assert.equal(eventData.data.accountDisabled, false);
+      assert.equal(eventData.data.accountLocked, false);
 
       assert.equal(
         mockLog.activityEvent.callCount,

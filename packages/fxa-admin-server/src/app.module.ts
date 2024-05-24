@@ -30,6 +30,8 @@ import { GqlModule } from './gql/gql.module';
 import { NewslettersModule } from './newsletters/newsletters.module';
 import { SubscriptionModule } from './subscriptions/subscriptions.module';
 
+import { NotifierSnsFactory, NotifierService } from '@fxa/shared/notifier';
+
 const version = getVersionInfo(__dirname);
 
 @Module({
@@ -90,6 +92,8 @@ const version = getVersionInfo(__dirname);
       useClass: UserGroupGuard,
     },
     SentryPlugin,
+    NotifierSnsFactory,
+    NotifierService,
   ],
 })
 export class AppModule {}

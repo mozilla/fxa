@@ -45,6 +45,7 @@ import { AuthClientService } from '../../backend/auth-client.service';
 import { FirestoreService } from '../../backend/firestore.service';
 import { BasketService } from '../../newsletters/basket.service';
 import { CloudTasksService } from '../../backend/cloud-tasks.service';
+import { NotifierService } from '@fxa/shared/notifier';
 
 export const chance = new Chance();
 
@@ -68,6 +69,7 @@ const EMAIL_2 = randomEmail({
 describe('#integration - AccountResolver', () => {
   let resolver: AccountResolver;
   let logger: any;
+  let notifier: any;
   let knex: Knex;
   let db = {
     account: Account,
@@ -122,6 +124,12 @@ describe('#integration - AccountResolver', () => {
   });
 
   beforeEach(async () => {
+    notifier = { send: jest.fn() };
+    const MockNotifier: Provider = {
+      provide: NotifierService,
+      useValue: notifier,
+    };
+
     logger = { debug: jest.fn(), error: jest.fn(), info: jest.fn() };
     const MockMozLogger: Provider = {
       provide: MozLoggerService,
@@ -240,6 +248,7 @@ describe('#integration - AccountResolver', () => {
         MockFirestoreService,
         MockAuthClient,
         MockCloudTasks,
+        MockNotifier,
       ],
     }).compile();
 
@@ -272,6 +281,13 @@ describe('#integration - AccountResolver', () => {
     expect(updatedResult).toBeDefined();
     expect(updatedResult.disabledAt).not.toBeNull();
     expect(logger.info).toBeCalledTimes(3);
+    expect(notifier.send).toBeCalledWith({
+      event: 'profileDataChange',
+      data: {
+        uid: USER_1.uid,
+        accountDisabled: true,
+      },
+    });
   });
 
   it('enables an account by uid', async () => {
@@ -284,6 +300,13 @@ describe('#integration - AccountResolver', () => {
     expect(updatedResult).toBeDefined();
     expect(updatedResult.disabledAt).toBeNull();
     expect(logger.info).toBeCalledTimes(2);
+    expect(notifier.send).toBeCalledWith({
+      event: 'profileDataChange',
+      data: {
+        uid: USER_1.uid,
+        accountDisabled: false,
+      },
+    });
   });
 
   it('does not locate non-existent users by uid', async () => {
@@ -421,6 +444,13 @@ describe('#integration - AccountResolver', () => {
       (await resolver.accountByEmail(USER_1.email, true, 'joe')) || ({} as any);
     expect(result1).toBe(true);
     expect(result2.locale).toBe('en-CA');
+    expect(notifier.send).toBeCalledWith({
+      event: 'profileDataChange',
+      data: {
+        uid: USER_1.uid,
+        locale: 'en-CA',
+      },
+    });
   });
 
   it('sends password reset email', async () => {
