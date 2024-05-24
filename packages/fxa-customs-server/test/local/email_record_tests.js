@@ -299,10 +299,17 @@ test('update works', function (t) {
   nowTimestamp = 1003;
   res = er.update('passwordForgotVerifyOtp');
   t.equal(res === 0, true, 'account is not rate limited or blocked');
+
+  // rate limited ; attempt timestamp not saved
   nowTimestamp = 2001;
   const verifyOtpRateLimitRes = er.update('passwordForgotVerifyOtp');
   t.equal(verifyOtpRateLimitRes > 0, true, 'account is rate limited');
+
+  // third attempt
   nowTimestamp = 8001;
+  er.update('passwordForgotVerifyOtp');
+
+  // blocked
   const verifyOtpBlockLimitRes = er.update('passwordForgotVerifyOtp');
   t.equal(
     verifyOtpBlockLimitRes - verifyOtpRateLimitRes > 0,
