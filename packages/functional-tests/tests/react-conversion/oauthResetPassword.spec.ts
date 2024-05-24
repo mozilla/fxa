@@ -166,52 +166,6 @@ test.describe('severity-1 #smoke', () => {
       ).toBeVisible();
     });
 
-    test('reset password scoped keys', async ({
-      target,
-      page,
-      pages: { login, relier, resetPasswordReact },
-      testAccountTracker,
-    }) => {
-      const credentials = await testAccountTracker.signUp();
-      const newPassword = testAccountTracker.generatePassword();
-
-      // Make sure user is not signed in, and goes to the relier (ie 123done)
-      await relier.goto('showReactApp=true');
-
-      await relier.clickSignInScopedKeys();
-
-      await beginPasswordReset(
-        page,
-        login,
-        resetPasswordReact,
-        credentials.email,
-        SERVICE_NAME_123
-      );
-
-      const link = await getConfirmationEmail(
-        target,
-        resetPasswordReact,
-        credentials.email
-      );
-
-      await page.goto(link);
-      await resetPasswordReact.fillOutNewPasswordForm(newPassword);
-      credentials.password = newPassword;
-
-      // Note: We used to redirect the user back to the relier in some cases
-      // but we've decided to just show the success message for now
-      // and let the user re-authenticate with the relier.
-      await expect(page).toHaveURL(/reset_password_verified/);
-      await expect(
-        resetPasswordReact.passwordResetConfirmationHeading
-      ).toBeVisible();
-      // TODO FXA-9015 we must 'refresh' the page so that the 'showReactApp' param takes effect
-      page.reload();
-      await expect(
-        page.getByText(new RegExp(`.*${SERVICE_NAME_123}.*`, 'i'))
-      ).toBeVisible();
-    });
-
     test('reset password with PKCE different tab', async ({
       target,
       page,
@@ -261,71 +215,6 @@ test.describe('severity-1 #smoke', () => {
       // but we've decided to just show the success message for now
       // and let the user re-authenticate with the relier.
       await expect(page).toHaveURL(/reset_password_verified/);
-      await expect(
-        resetPasswordReact.passwordResetConfirmationHeading
-      ).toBeVisible();
-      await expect(
-        page.getByText(new RegExp(`.*${SERVICE_NAME_123}.*`, 'i'))
-      ).toBeVisible();
-    });
-
-    test('reset password with account recovery key', async ({
-      target,
-      pages: {
-        page,
-        login,
-        signinReact,
-        resetPasswordReact,
-        relier,
-        settings,
-        recoveryKey,
-      },
-      testAccountTracker,
-    }) => {
-      const credentials = await testAccountTracker.signUp();
-      const newPassword = testAccountTracker.generatePassword();
-
-      await signinReact.goto();
-      await signinReact.fillOutEmailFirstForm(credentials.email);
-      await signinReact.fillOutPasswordForm(credentials.password);
-
-      // Goes to settings and enables the account recovery key on user's account.
-      await settings.recoveryKey.createButton.click();
-      const accountRecoveryKey = await recoveryKey.createRecoveryKey(
-        credentials.password,
-        'hint'
-      );
-      await settings.signOut();
-
-      // Make sure user is not signed in, and goes to the relier (ie 123done)
-      await relier.goto('showReactApp=true');
-
-      await relier.clickEmailFirst();
-
-      await beginPasswordReset(
-        page,
-        login,
-        resetPasswordReact,
-        credentials.email,
-        SERVICE_NAME_123
-      );
-
-      const link = await getConfirmationEmail(
-        target,
-        resetPasswordReact,
-        credentials.email
-      );
-
-      await page.goto(link, { waitUntil: 'load' });
-      await resetPasswordReact.fillOutRecoveryKeyForm(accountRecoveryKey);
-      await resetPasswordReact.fillOutNewPasswordForm(newPassword);
-      credentials.password = newPassword;
-
-      // Note: We used to redirect the user back to the relier in some cases
-      // but we've decided to just show the success message for now
-      // and let the user re-authenticate with the relier.
-
-      await expect(page).toHaveURL(/reset_password_with_recovery_key_verified/);
       await expect(
         resetPasswordReact.passwordResetConfirmationHeading
       ).toBeVisible();

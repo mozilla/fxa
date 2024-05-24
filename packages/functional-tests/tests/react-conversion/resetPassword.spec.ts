@@ -33,7 +33,9 @@ test.describe('severity-1 #smoke', () => {
       await resetPasswordReact.fillOutEmailForm(credentials.email);
 
       // Verify confirm password reset page rendered
-      await expect(resetPasswordReact.resetEmailSentHeading).toBeVisible();
+      await expect(
+        resetPasswordReact.confirmResetPasswordHeading
+      ).toBeVisible();
 
       const link = await target.emailClient.waitForEmail(
         credentials.email,
@@ -141,7 +143,9 @@ test.describe('severity-1 #smoke', () => {
         await resetPasswordReact.fillOutEmailForm(credentials.email);
 
         // Verify confirm password reset page rendered
-        await expect(resetPasswordReact.resetEmailSentHeading).toBeVisible();
+        await expect(
+          resetPasswordReact.confirmResetPasswordHeading
+        ).toBeVisible();
 
         const link = await target.emailClient.waitForEmail(
           credentials.email,
@@ -205,7 +209,9 @@ test.describe('severity-1 #smoke', () => {
 
       await resetPasswordReact.fillOutEmailForm(credentials.email);
 
-      await expect(resetPasswordReact.resetEmailSentHeading).toBeVisible();
+      await expect(
+        resetPasswordReact.confirmResetPasswordHeading
+      ).toBeVisible();
 
       resetPasswordReact.resendButton.click();
 
@@ -235,7 +241,9 @@ test.describe('severity-1 #smoke', () => {
 
       await resetPasswordReact.fillOutEmailForm(credentials.email);
 
-      await expect(resetPasswordReact.resetEmailSentHeading).toBeVisible();
+      await expect(
+        resetPasswordReact.confirmResetPasswordHeading
+      ).toBeVisible();
     });
   });
 });

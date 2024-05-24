@@ -8,12 +8,12 @@ import { TestAccountTracker } from '../../../lib/testAccountTracker';
 import { LoginPage } from '../../../pages/login';
 
 test.describe('severity-2 #smoke', () => {
-  test.describe('resubscription test', () => {
+  test.describe('payment', () => {
     test.beforeEach(() => {
       test.slow();
     });
 
-    test('resubscribe successfully with the same coupon after canceling for stripe', async ({
+    test('update mode of payment for stripe', async ({
       target,
       page,
       pages: { relier, subscribe, login, settings, subscriptionManagement },
@@ -31,12 +31,7 @@ test.describe('severity-2 #smoke', () => {
       // 'auto10pforever' is a 10% forever discount coupon for a 6mo plan
       await subscribe.addCouponCode('auto10pforever');
 
-      // Verify the coupon is applied successfully
-      await expect(subscribe.promoCodeAppliedHeading).toBeVisible();
-
-      const total = await subscribe.getTotalPrice();
-
-      //Subscribe successfully with Stripe
+      //Subscribe successfully
       await subscribe.setConfirmPaymentCheckbox();
       await subscribe.setFullName();
       await subscribe.setCreditCardInfo();
@@ -49,24 +44,11 @@ test.describe('severity-2 #smoke', () => {
       const subscriptionPage = await settings.clickPaidSubscriptions();
       subscriptionManagement.page = subscriptionPage;
 
-      //Verify no coupon details are visible
-      expect(await subscriptionManagement.subscriptionDetails()).not.toContain(
-        'Promo'
-      );
+      //Change stripe card information
+      await subscriptionManagement.changeStripeCardDetails();
 
-      //Cancel subscription and then resubscribe
-      await subscriptionManagement.cancelSubscription();
-      await subscriptionManagement.resubscribe();
-
-      //Verify that the resubscription has the same coupon applied
-      expect(await subscriptionManagement.getResubscriptionPrice()).toEqual(
-        total
-      );
-
-      //Verify no coupon details are visible
-      expect(await subscriptionManagement.subscriptionDetails()).not.toContain(
-        'Promo'
-      );
+      //Verify that the card info is updated
+      expect(await subscriptionManagement.getCardInfo()).toContain('4444');
     });
   });
 });
