@@ -16,14 +16,6 @@ import UrlMixin from '../../lib/url-mixin';
 export default {
   dependsOn: [UserAgentMixin, UrlMixin],
 
-  /**
-   * Returns graphicId 'bg-image-cad-hearts' if the
-   * browser supports SVG Transform Origin, and 'bg-image-cad'
-   * if it does not.
-   *
-   * @returns {String}
-   */
-
   getGraphicsId() {
     const uap = this.getUserAgent();
     if (uap.supportsSvgTransformOrigin()) {

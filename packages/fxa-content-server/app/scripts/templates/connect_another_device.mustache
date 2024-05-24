@@ -18,7 +18,7 @@
     {{/isSignedIn}}
   {{/showSuccessMessage}}
   <section>
-    <div class="{{graphicId}}" role="img" aria-label="{{#t}}Complete your set-up{{/t}}"></div>
+    <div class="{{graphicId}}" role="img" aria-label="{{#t}}Devices with hearts on their screens{{/t}}"></div>
     {{#showSuccessMessage}}
       {{#isSignedIn}}
         {{#isFirefoxDesktop}}
@@ -57,7 +57,7 @@
               <p class="text-base">{{#t}}Want to get your tabs, bookmarks, and passwords on another device?{{/t}}</p>
             </div>
             <div class="flex">
-              <a id="sync-firefox-devices" href="{{{pairingUrl}}}" class="cta-primary cta-xl" data-flow-event="link.pair">{{#t}}Connect another device{{/t}}</a>
+              <a id="sync-firefox-devices" href="{{{pairingUrl}}}" class="cta-primary cta-xl" data-flow-event="link.pair" role="button">{{#t}}Connect another device{{/t}}</a>
             </div>
             <div class="mt-5 text-center">
               <a id="cad-not-now" class="link-blue" href="/settings">{{#t}}Start browsing{{/t}}</a>
