@@ -398,10 +398,12 @@ describe('Glean server side events', () => {
     describe('accountVerified', () => {
       it('logs a "reg_acc_verified" event', async () => {
         const glean = gleanMetrics(config);
-        await glean.registration.accountVerified(request);
+        await glean.registration.accountVerified(request, { service: 'sync' });
         sinon.assert.calledOnce(recordStub);
         const metrics = recordStub.args[0][0];
         assert.equal(metrics['event_name'], 'reg_acc_verified');
+        assert.equal(metrics['relying_party_oauth_client_id'], '');
+        assert.equal(metrics['relying_party_service'], 'sync');
         sinon.assert.calledOnce(recordRegAccVerifiedStub);
       });
     });
@@ -409,10 +411,17 @@ describe('Glean server side events', () => {
     describe('reg_complete', () => {
       it('logs a "reg_complete" event', async () => {
         const glean = gleanMetrics(config);
-        await glean.registration.complete(request);
+        await glean.registration.complete(request, {
+          service: 'dcdb5ae7add825d2',
+        });
         sinon.assert.calledOnce(recordStub);
         const metrics = recordStub.args[0][0];
         assert.equal(metrics['event_name'], 'reg_complete');
+        assert.equal(
+          metrics['relying_party_oauth_client_id'],
+          'dcdb5ae7add825d2'
+        );
+        assert.equal(metrics['relying_party_service'], 'dcdb5ae7add825d2');
         sinon.assert.calledOnce(recordRegCompleteStub);
       });
     });

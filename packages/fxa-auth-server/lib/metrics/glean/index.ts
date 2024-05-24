@@ -26,6 +26,7 @@ type MetricsData = {
   uid?: string;
   reason?: string;
   oauthClientId?: string;
+  service?: string;
 };
 
 type GleanEventFnOptions = {
@@ -56,9 +57,12 @@ const findUid = (request: MetricsRequest, metricsData?: MetricsData): string =>
 const sha256HashUid = (uid: string) =>
   createHash('sha256').update(uid).digest('hex');
 
-const findServiceName = async (request: MetricsRequest) => {
+const findServiceName = async (
+  request: MetricsRequest,
+  metricsData?: MetricsData
+) => {
   const metricsContext = await request.app.metricsContext;
-  return metricsContext.service || '';
+  return metricsData?.service || metricsContext.service || '';
 };
 
 const findOauthClientId = async (
@@ -74,7 +78,7 @@ const findOauthClientId = async (
   // property for metrics, so we'll check that value for something shaped like
   // an oauth id
   const clientIdInService = async () => {
-    const service = await findServiceName(request);
+    const service = await findServiceName(request, metricsData);
     const { error } = clientIdValidator.validate(service);
 
     if (!error) {
@@ -117,7 +121,7 @@ const createEventFn =
           request,
           metricsData
         ),
-        relying_party_service: await findServiceName(request),
+        relying_party_service: await findServiceName(request, metricsData),
         session_device_type: request.app.ua.deviceType || '',
         session_entrypoint: metricsContext.entrypoint || '',
         session_flow_id: metricsContext.flowId || '',

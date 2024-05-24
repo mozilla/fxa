@@ -216,6 +216,7 @@ export class AccountHandler {
 
     this.glean.registration.accountCreated(request, {
       uid: account.uid,
+      service,
     });
 
     const geoData = request.app.geo;
@@ -379,6 +380,7 @@ export class AccountHandler {
         });
         this.glean.registration.confirmationEmailSent(request, {
           uid: account.uid,
+          service: form.service || query.service,
         });
       }
 
