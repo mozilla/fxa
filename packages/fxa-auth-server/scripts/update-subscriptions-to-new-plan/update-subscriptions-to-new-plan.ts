@@ -6,7 +6,7 @@ import Stripe from 'stripe';
 import { Firestore } from '@google-cloud/firestore';
 import Container from 'typedi';
 import fs from 'fs';
-import PQueue from 'p-queue';
+import PQueue from 'p-queue-compat';
 
 import { AppConfig, AuthFirestore } from '../../lib/types';
 import { ConfigType } from '../../config';

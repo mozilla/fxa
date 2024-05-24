@@ -7,7 +7,7 @@ import { Firestore } from '@google-cloud/firestore';
 import Container from 'typedi';
 import fs from 'fs';
 import GeoDB from 'fxa-geodb';
-import PQueue from 'p-queue';
+import PQueue from 'p-queue-compat';
 
 import { AppConfig, AuthFirestore } from '../../lib/types';
 import { ConfigType } from '../../config';
