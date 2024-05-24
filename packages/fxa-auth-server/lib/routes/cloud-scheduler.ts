@@ -11,6 +11,7 @@ import {
 } from '@fxa/shared/cloud-tasks';
 import { StatsD } from 'hot-shots';
 import { setupAccountDatabase } from '@fxa/shared/db/mysql/account';
+import PQueue from 'p-queue-compat';
 
 const MILLISECONDS_IN_A_DAY = 24 * 60 * 60 * 1000;
 
@@ -34,7 +35,6 @@ export async function processAccountDeletionInRange(
   taskLimit: number,
   log?: AuthLogger
 ) {
-  const PQueue = (await import('p-queue')) as any;
   const kyselyDb = await setupAccountDatabase(config.database.mysql.auth);
 
   // To keep this query performant, we have an index on emailVerified and createdAt column
@@ -87,7 +87,7 @@ export async function processAccountDeletionInRange(
         });
 
         if (log) {
-          log.info('Created cloud task', {
+          log.info('createdCloudTask', {
             cloudTaskId: result,
             reason,
             uid: row.uid.toString('hex'),
@@ -99,7 +99,7 @@ export async function processAccountDeletionInRange(
         }
       } catch (err) {
         if (log) {
-          log.error('Errored creating task', {
+          log.error('erroredCreatingTask', {
             err,
           });
         } else {
@@ -114,7 +114,7 @@ export async function processAccountDeletionInRange(
 }
 
 export class CloudSchedulerHandler {
-  private accountTasks: AccountTasks;
+  private readonly accountTasks: AccountTasks;
 
   constructor(
     private log: AuthLogger,
@@ -155,7 +155,7 @@ export class CloudSchedulerHandler {
     const startDate = this.calculateDate(sinceDays + durationDays);
     const reason = ReasonForDeletion.Unverified;
 
-    this.log.info('Deleting unverified accounts', {
+    this.log.info('deletingUnverifiedAccounts', {
       initiatedAt: new Date().toISOString(),
       endDate: endDate.toISOString(),
       startDate: startDate.toISOString(),
