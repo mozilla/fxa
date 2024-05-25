@@ -3,9 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Page, expect, test } from '../../../lib/fixtures/standard';
+import { CAVE_JOHNSON_CREDIT_CARD } from '../../../lib/paymentArtifacts';
 import { BaseTarget, Credentials } from '../../../lib/targets/base';
 import { TestAccountTracker } from '../../../lib/testAccountTracker';
-import { LoginPage } from '../../../pages/login';
+import { Coupon } from '../../../pages/products';
+import { SettingsPage } from '../../../pages/settings';
+import { SigninReactPage } from '../../../pages/signinReact';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('coupon test one time discount', () => {
@@ -16,43 +19,59 @@ test.describe('severity-2 #smoke', () => {
     test('subscribe with a one time discount coupon', async ({
       target,
       page,
-      pages: { relier, subscribe, login },
+      pages: { relier, settings, signinReact, subscribe },
       testAccountTracker,
     }, { project }) => {
       test.skip(
         project.name === 'production',
         'no real payment method available in prod'
       );
-      await signInAccount(target, page, login, testAccountTracker);
+      const credentials = await signInAccount(
+        target,
+        page,
+        settings,
+        signinReact,
+        testAccountTracker
+      );
 
       await relier.goto();
       await relier.clickSubscribe12Month();
 
       // 'auto50ponetime' is a one time 50% discount coupon for a 12mo plan
-      await subscribe.addCouponCode('auto50ponetime');
+      await subscribe.addCouponCode(Coupon.AUTO_50_PERCENT_ONE_TIME);
 
       // Verify the coupon is applied successfully
       await expect(subscribe.promoCodeAppliedHeading).toBeVisible();
-      expect(await subscribe.oneTimeDiscountSuccess()).toBe(true);
+      await expect(subscribe.couponSuccessMessage).toHaveText(
+        'Your plan will automatically renew at the list price.'
+      );
 
       // Verify the line items is visible after applying discount
-      expect(await subscribe.discountListPrice()).toBe(true);
-      expect(await subscribe.discountLineItem()).toBe(true);
+      await expect(subscribe.listPrice).toBeVisible();
+      await expect(subscribe.promoCode).toBeVisible();
 
       // Successfully subscribe
-      await subscribe.setConfirmPaymentCheckbox();
-      await subscribe.setFullName();
-      await subscribe.setCreditCardInfo();
-      await subscribe.clickPayNow();
-      await subscribe.submit();
+      await subscribe.confirmPaymentCheckbox.check();
+      await subscribe.paymentInformation.fillOutCreditCardInfo(
+        CAVE_JOHNSON_CREDIT_CARD
+      );
+      await subscribe.paymentInformation.clickPayNow();
+
+      await expect(subscribe.subscriptionConfirmationHeading).toBeVisible();
+
       await relier.goto();
       await relier.clickEmailFirst();
-      await login.submit();
+
+      await expect(signinReact.cachedSigninHeading).toBeVisible();
+      await expect(page.getByText(credentials.email)).toBeVisible();
+
+      await signinReact.signInButton.click();
+
       expect(await relier.isPro()).toBe(true);
     });
 
     test('remove a coupon and verify', async ({
-      pages: { relier, subscribe, login },
+      pages: { relier, subscribe },
     }, { project }) => {
       test.fixme(
         project.name !== 'local',
@@ -67,25 +86,23 @@ test.describe('severity-2 #smoke', () => {
       await relier.clickSubscribe12Month();
 
       // 'auto50ponetime' is a one time 50% discount coupon for a 12mo plan
-      await subscribe.addCouponCode('auto50ponetime');
+      await subscribe.addCouponCode(Coupon.AUTO_50_PERCENT_ONE_TIME);
 
       // Verify the coupon is applied successfully
-      await expect(
-        await subscribe.getCouponStatusByDataTestId('coupon-remove-button')
-      ).toBeVisible({
-        timeout: 5000,
-      });
-      expect(await subscribe.oneTimeDiscountSuccess()).toBe(true);
+      await expect(subscribe.promoCodeAppliedHeading).toBeVisible();
+      await expect(subscribe.couponSuccessMessage).toHaveText(
+        'Your plan will automatically renew at the list price.'
+      );
 
       // Verify the line items is visible after applying discount
-      expect(await subscribe.discountListPrice()).toBe(true);
-      expect(await subscribe.discountLineItem()).toBe(true);
+      await expect(subscribe.listPrice).toBeVisible();
+      await expect(subscribe.promoCode).toBeVisible();
 
       // Remove the coupon
-      await subscribe.removeCouponCode();
+      await subscribe.removeCouponButton.click();
 
       // Verify the discount is removed
-      expect(await subscribe.discountLineItem()).toBe(false);
+      await expect(subscribe.promoCode).toBeHidden();
     });
   });
 });
@@ -93,15 +110,17 @@ test.describe('severity-2 #smoke', () => {
 async function signInAccount(
   target: BaseTarget,
   page: Page,
-  login: LoginPage,
+  settings: SettingsPage,
+  signinReact: SigninReactPage,
   testAccountTracker: TestAccountTracker
 ): Promise<Credentials> {
   const credentials = await testAccountTracker.signUp();
   await page.goto(target.contentServerUrl);
-  await login.fillOutEmailFirstSignIn(credentials.email, credentials.password);
+  await signinReact.fillOutEmailFirstForm(credentials.email);
+  await signinReact.fillOutPasswordForm(credentials.password);
 
-  //Verify logged in on Settings page
-  expect(await login.isUserLoggedIn()).toBe(true);
+  await expect(page).toHaveURL(/settings/);
+  await expect(settings.settingsHeading).toBeVisible();
 
   return credentials;
 }

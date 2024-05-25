@@ -2,11 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { MetricsObserver } from '../../lib/metrics';
-import { TestAccountTracker } from '../../lib/testAccountTracker';
 import { Page, expect, test } from '../../lib/fixtures/standard';
+import { MetricsObserver } from '../../lib/metrics';
+import {
+  BAD_CAVE_JOHNSON_CREDIT_CARD,
+  CAVE_JOHNSON_CREDIT_CARD,
+} from '../../lib/paymentArtifacts';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
-import { LoginPage } from '../../pages/login';
+import { TestAccountTracker } from '../../lib/testAccountTracker';
+import { SettingsPage } from '../../pages/settings';
+import { SigninReactPage } from '../../pages/signinReact';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('subscription', () => {
@@ -17,56 +22,94 @@ test.describe('severity-2 #smoke', () => {
     test('subscribe with credit card and login to product', async ({
       target,
       page,
-      pages: { relier, login, subscribe },
+      pages: { relier, settings, signinReact, subscribe },
       testAccountTracker,
     }, { project }) => {
       test.skip(
         project.name === 'production',
         'no real payment method available in prod'
       );
-      await signInAccount(target, page, login, testAccountTracker);
+      const credentials = await signInAccount(
+        target,
+        page,
+        settings,
+        signinReact,
+        testAccountTracker
+      );
 
       await relier.goto();
       await relier.clickSubscribe();
-      await subscribe.setConfirmPaymentCheckbox();
-      await subscribe.setFullName();
-      await subscribe.setCreditCardInfo();
-      await subscribe.clickPayNow();
-      await subscribe.submit();
+
+      await expect(subscribe.setupSubscriptionFormHeading).toBeVisible();
+
+      await subscribe.confirmPaymentCheckbox.check();
+      await subscribe.paymentInformation.fillOutCreditCardInfo(
+        CAVE_JOHNSON_CREDIT_CARD
+      );
+      await subscribe.paymentInformation.clickPayNow();
+
+      await expect(subscribe.subscriptionConfirmationHeading).toBeVisible();
+
       await relier.goto();
       await relier.clickEmailFirst();
-      await login.submit();
+
+      await expect(signinReact.cachedSigninHeading).toBeVisible();
+      await expect(page.getByText(credentials.email)).toBeVisible();
+
+      await signinReact.signInButton.click();
+
       expect(await relier.isPro()).toBe(true);
     });
 
     test('subscribe with credit card after initial failed subscription & verify existing user checkout funnel metrics', async ({
       target,
       page,
-      pages: { relier, login, subscribe },
+      pages: { relier, settings, signinReact, subscribe },
       testAccountTracker,
     }, { project }) => {
       test.skip(
         project.name === 'production',
         'no real payment method available in prod'
       );
-      await signInAccount(target, page, login, testAccountTracker);
-
+      const credentials = await signInAccount(
+        target,
+        page,
+        settings,
+        signinReact,
+        testAccountTracker
+      );
       const metricsObserver = new MetricsObserver(subscribe);
       metricsObserver.startTracking();
 
       await relier.goto();
       await relier.clickSubscribe();
-      await subscribe.setConfirmPaymentCheckbox();
-      await subscribe.setFullName();
-      await subscribe.setFailedCreditCardInfo();
-      await subscribe.clickPayNow();
-      await subscribe.clickTryAgain();
-      await subscribe.setCreditCardInfo();
-      await subscribe.clickPayNow();
-      await subscribe.submit();
+
+      await expect(subscribe.setupSubscriptionFormHeading).toBeVisible();
+
+      await subscribe.confirmPaymentCheckbox.check();
+      await subscribe.paymentInformation.fillOutCreditCardInfo(
+        BAD_CAVE_JOHNSON_CREDIT_CARD
+      );
+      await subscribe.paymentInformation.clickPayNow();
+
+      await expect(subscribe.subscriptionErrorHeading).toBeVisible();
+
+      await subscribe.tryAgainButton.click();
+      await subscribe.paymentInformation.fillOutCreditCardInfo(
+        CAVE_JOHNSON_CREDIT_CARD
+      );
+      await subscribe.paymentInformation.clickPayNow();
+
+      await expect(subscribe.subscriptionConfirmationHeading).toBeVisible();
+
       await relier.goto();
       await relier.clickEmailFirst();
-      await login.submit();
+
+      await expect(signinReact.cachedSigninHeading).toBeVisible();
+      await expect(page.getByText(credentials.email)).toBeVisible();
+
+      await signinReact.signInButton.click();
+
       expect(await relier.isPro()).toBe(true);
 
       // check conversion funnel metrics
@@ -105,18 +148,27 @@ test.describe('severity-2 #smoke', () => {
     test('subscribe with paypal opens popup', async ({
       target,
       page,
-      pages: { relier, subscribe, login },
+      pages: { relier, settings, signinReact, subscribe },
       testAccountTracker,
     }, { project }) => {
       test.skip(
         project.name === 'production',
         'no real payment method available in prod'
       );
-      await signInAccount(target, page, login, testAccountTracker);
+      await signInAccount(
+        target,
+        page,
+        settings,
+        signinReact,
+        testAccountTracker
+      );
 
       await relier.goto();
       await relier.clickSubscribe();
-      await subscribe.setConfirmPaymentCheckbox();
+
+      await expect(subscribe.setupSubscriptionFormHeading).toBeVisible();
+
+      await subscribe.confirmPaymentCheckbox.check();
       const paypalPopup = await subscribe.clickPayPal();
       expect(
         await paypalPopup.title(),
@@ -132,14 +184,21 @@ test.describe('severity-2 #smoke', () => {
 
     test('Metrics disabled: existing user checkout URL to not have flow params', async ({
       target,
-      pages: { settings, relier, page, login },
+      page,
+      pages: { relier, settings, signinReact },
       testAccountTracker,
     }, { project }) => {
       test.skip(
         project.name === 'production',
         'test plan not available in prod'
       );
-      await signInAccount(target, page, login, testAccountTracker);
+      await signInAccount(
+        target,
+        page,
+        settings,
+        signinReact,
+        testAccountTracker
+      );
 
       // Go to settings page and verify the Data Collection toggle switch is visible
       await settings.goto();
@@ -158,14 +217,21 @@ test.describe('severity-2 #smoke', () => {
 
     test('Existing user checkout URL to have flow params', async ({
       target,
-      pages: { settings, relier, page, login },
+      page,
+      pages: { relier, settings, signinReact },
       testAccountTracker,
     }, { project }) => {
       test.skip(
         project.name === 'production',
         'test plan not available in prod'
       );
-      await signInAccount(target, page, login, testAccountTracker);
+      await signInAccount(
+        target,
+        page,
+        settings,
+        signinReact,
+        testAccountTracker
+      );
 
       // Go to settings page and verify the Data Collection toggle switch is visible
       await settings.goto();
@@ -183,14 +249,21 @@ test.describe('severity-2 #smoke', () => {
 
     test('New user checkout URL to have flow params', async ({
       target,
-      pages: { settings, relier, page, login },
+      page,
+      pages: { relier, settings, signinReact },
       testAccountTracker,
     }, { project }) => {
       test.skip(
         project.name === 'production',
         'test plan not available in prod'
       );
-      await signInAccount(target, page, login, testAccountTracker);
+      await signInAccount(
+        target,
+        page,
+        settings,
+        signinReact,
+        testAccountTracker
+      );
 
       await settings.goto();
       await settings.signOut();
@@ -201,14 +274,21 @@ test.describe('severity-2 #smoke', () => {
 
     test('New user checkout URL to have flow params with cache cleared', async ({
       target,
-      pages: { settings, login, relier, page },
+      page,
+      pages: { relier, settings, signinReact, login },
       testAccountTracker,
     }, { project }) => {
       test.skip(
         project.name === 'production',
         'test plan not available in prod'
       );
-      await signInAccount(target, page, login, testAccountTracker);
+      await signInAccount(
+        target,
+        page,
+        settings,
+        signinReact,
+        testAccountTracker
+      );
 
       await settings.goto();
       await settings.signOut();
@@ -220,15 +300,22 @@ test.describe('severity-2 #smoke', () => {
 
     test('New user checkout URL to have RP-provided flow params, acquisition params & verify funnel metrics', async ({
       target,
-      pages: { settings, relier, page, login, subscribe },
+      page,
+      pages: { relier, settings, signinReact, subscribe },
       testAccountTracker,
     }, { project }) => {
       test.skip(
         project.name === 'production',
         'test plan not available in prod'
       );
-
-      await signInAccount(target, page, login, testAccountTracker);
+      await signInAccount(
+        target,
+        page,
+        settings,
+        signinReact,
+        testAccountTracker
+      );
+      const email = testAccountTracker.generateEmail();
 
       await settings.goto();
       await settings.signOut();
@@ -252,15 +339,26 @@ test.describe('severity-2 #smoke', () => {
       expect(rpFlowParamsAfter).toStrictEqual(rpFlowParamsBefore);
 
       // subscribe, failing first then succeeding
-      await subscribe.setEmailAndConfirmNewUser();
-      await subscribe.setConfirmPaymentCheckbox();
-      await subscribe.setFullName();
-      await subscribe.setFailedCreditCardInfo();
-      await subscribe.clickPayNow();
-      await subscribe.clickTryAgain();
-      await subscribe.setCreditCardInfo();
-      await subscribe.clickPayNow();
-      await subscribe.submit();
+      await subscribe.emailTextbox.fill(email);
+      await subscribe.confirmEmailTextbox.fill(email);
+
+      await expect(subscribe.setupSubscriptionFormHeading).toBeVisible();
+
+      await subscribe.confirmPaymentCheckbox.check();
+      await subscribe.paymentInformation.fillOutCreditCardInfo(
+        BAD_CAVE_JOHNSON_CREDIT_CARD
+      );
+      await subscribe.paymentInformation.clickPayNow();
+
+      await expect(subscribe.subscriptionErrorHeading).toBeVisible();
+
+      await subscribe.tryAgainButton.click();
+      await subscribe.paymentInformation.fillOutCreditCardInfo(
+        CAVE_JOHNSON_CREDIT_CARD
+      );
+      await subscribe.paymentInformation.clickPayNow();
+
+      await expect(subscribe.subscriptionConfirmationHeading).toBeVisible();
 
       // check acquisition metrics
       const acquisitionParamsAfter =
@@ -304,15 +402,17 @@ test.describe('severity-2 #smoke', () => {
 async function signInAccount(
   target: BaseTarget,
   page: Page,
-  login: LoginPage,
+  settings: SettingsPage,
+  signinReact: SigninReactPage,
   testAccountTracker: TestAccountTracker
 ): Promise<Credentials> {
   const credentials = await testAccountTracker.signUp();
   await page.goto(target.contentServerUrl);
-  await login.fillOutEmailFirstSignIn(credentials.email, credentials.password);
+  await signinReact.fillOutEmailFirstForm(credentials.email);
+  await signinReact.fillOutPasswordForm(credentials.password);
 
-  //Verify logged in on Settings page
-  expect(await login.isUserLoggedIn()).toBe(true);
+  await expect(page).toHaveURL(/settings/);
+  await expect(settings.settingsHeading).toBeVisible();
 
   return credentials;
 }

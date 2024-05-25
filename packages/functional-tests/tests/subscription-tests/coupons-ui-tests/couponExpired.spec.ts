@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { expect, test } from '../../../lib/fixtures/standard';
+import { Coupon } from '../../../pages/products';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('coupon test expired', () => {
@@ -23,19 +24,10 @@ test.describe('severity-2 #smoke', () => {
       );
       await relier.goto();
       await relier.clickSubscribe6Month();
+      await subscribe.addCouponCode(Coupon.AUTO_EXPIRED);
 
-      // 'autoexpired' coupon is an expired coupon for a 6mo plan
-      await subscribe.addCouponCode('autoexpired');
-
-      await expect(
-        await subscribe.getCouponStatusByDataTestId('coupon-error')
-      ).toBeVisible({
-        timeout: 5000,
-      });
-
-      // Verifying the correct error message
-      expect(await subscribe.couponErrorMessageText()).toContain(
-        'The code you entered has expired'
+      await expect(subscribe.couponErrorMessage).toHaveText(
+        'The code you entered has expired.'
       );
     });
   });

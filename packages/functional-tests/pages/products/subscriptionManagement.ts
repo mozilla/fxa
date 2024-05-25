@@ -1,103 +1,104 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+import { expect } from '@playwright/test';
 import { BaseLayout } from '../layout';
+import { PaymentInformationPage } from './components/paymentInformation';
 
 export class SubscriptionManagementPage extends BaseLayout {
   readonly path = '/subscription';
 
-  async subscriptiontHeader() {
-    const header = this.page.locator('#subscriptions-support');
-    await header.waitFor({ state: 'visible' });
-    return header.isVisible();
+  get subscriptiontHeading() {
+    return this.page.getByRole('heading', { name: 'Subscriptions' });
+  }
+
+  get contactsupportButton() {
+    return this.page.getByTestId('contact-support-button');
+  }
+
+  get ChangePaymentInformationButton() {
+    return this.page.getByTestId('reveal-payment-update-button');
+  }
+
+  get paymentInformation() {
+    return new PaymentInformationPage(this.page);
+  }
+
+  get revealCancelSubscriptionButton() {
+    return this.page.getByTestId('reveal-cancel-subscription-button');
+  }
+
+  get cancelSubscriptionHeading() {
+    return this.page.getByRole('heading', { name: 'Cancel Subscription' });
+  }
+
+  get cancelSubscriptionCheckbox() {
+    return this.page.getByTestId('confirm-cancel-subscription-checkbox');
+  }
+
+  get cancelSubscriptionButton() {
+    return this.page.getByTestId('cancel-subscription-button');
+  }
+
+  get dialogDismissHeading() {
+    return this.page.getByTestId('cancellation-message-title');
+  }
+
+  get dialogDismissButton() {
+    return this.page.getByTestId('dialog-dismiss');
+  }
+
+  get reactivateSubscriptionButton() {
+    return this.page.getByTestId('reactivate-subscription-button');
+  }
+
+  get reactivateSubscriptionDialogHeading() {
+    return this.page.getByRole('heading', { name: /^Want to keep using/ });
+  }
+
+  get reactivateSubscriptionConfirmButton() {
+    return this.page.getByTestId('reactivate-subscription-confirm-button');
+  }
+
+  get reactivateSubscriptionSuccessHeading() {
+    return this.page.getByTestId('reactivate-subscription-success');
+  }
+
+  get reactivateSubscriptionSuccessButton() {
+    return this.page.getByTestId('reactivate-subscription-success-button');
+  }
+
+  get subscriptionDetails() {
+    return this.page.getByTestId('subscription-item');
+  }
+
+  get resubscriptionPrice() {
+    return this.page.getByTestId('price-details-standalone');
   }
 
   async cancelSubscription() {
-    return Promise.all([
-      await this.page
-        .locator('[data-testid="reveal-cancel-subscription-button"]')
-        .click(),
-      await this.page
-        .locator('[data-testid="confirm-cancel-subscription-checkbox"]')
-        .click(),
-      await this.page
-        .locator('[data-testid="cancel-subscription-button"]')
-        .click(),
-      await this.page.locator('[data-testid="dialog-dismiss"]').click(),
-    ]);
-  }
+    await this.revealCancelSubscriptionButton.click();
 
-  async changeStripeCardDetails() {
-    await this.page
-      .locator('[data-testid="reveal-payment-update-button"]')
-      .click();
-    await this.page.locator('[data-testid="name"]').fill('Test User');
-    const frame = this.page.frame({ url: /elements-inner-card/ });
-    await frame.fill('.InputElement[name=cardnumber]', '');
-    await frame.fill('.InputElement[name=cardnumber]', '5555555555554444');
-    await frame.fill('.InputElement[name=exp-date]', '444');
-    await frame.fill('.InputElement[name=cvc]', '777');
-    await frame.fill('.InputElement[name=postal]', '88888');
-    await this.page.locator('[data-testid="submit"]').click();
-  }
+    await expect(this.cancelSubscriptionHeading).toBeVisible();
 
-  async fillSupportForm() {
-    await this.page.locator('[data-testid="contact-support-button"]').click();
-    await this.page.locator('#product_chosen a.chosen-single').click();
-    await this.page
-      .locator(
-        '#product_chosen ul.chosen-results li[data-option-array-index="1"]'
-      )
-      .click();
-    await this.page.locator('#topic_chosen a.chosen-single').click();
-    await this.page
-      .locator(
-        '#topic_chosen ul.chosen-results li[data-option-array-index="1"]'
-      )
-      .click();
-    await this.page.locator('#app_chosen a.chosen-single').click();
-    await this.page
-      .locator('#app_chosen ul.chosen-results li[data-option-array-index="1"]')
-      .click();
-    await this.page.locator('input[name="subject"]').fill('Test Support');
-    await this.page
-      .locator('textarea[name=message]')
-      .fill('Testing Support Form');
-  }
+    await this.cancelSubscriptionCheckbox.check();
+    await this.cancelSubscriptionButton.click();
 
-  async submitSupportForm() {
-    return await this.page.locator('button[type=submit]').click();
-  }
+    await expect(this.dialogDismissHeading).toBeVisible();
 
-  async cancelSupportForm() {
-    await this.page.locator('button.cancel').click();
-    await this.page.waitForLoadState();
+    await this.dialogDismissButton.click();
   }
 
   async resubscribe() {
-    return Promise.all([
-      await this.page
-        .locator('[data-testid="reactivate-subscription-button"]')
-        .click(),
-      await this.page
-        .locator('[data-testid="reactivate-subscription-confirm-button"]')
-        .click(),
-      await this.page
-        .locator('[data-testid="reactivate-subscription-success-button"]')
-        .click(),
-    ]);
-  }
+    await this.reactivateSubscriptionButton.click();
 
-  getCardInfo() {
-    return this.page
-      .locator('[data-testid="card-logo-and-last-four"]')
-      .textContent();
-  }
+    await expect(this.reactivateSubscriptionDialogHeading).toBeVisible();
 
-  async subscriptionDetails() {
-    return this.page.locator('[data-testid="subscription-item"]').textContent();
-  }
+    await this.reactivateSubscriptionConfirmButton.click();
 
-  getResubscriptionPrice() {
-    return this.page
-      .locator('[data-testid="price-details-standalone"]')
-      .textContent();
+    await expect(this.reactivateSubscriptionSuccessHeading).toBeVisible();
+
+    await this.reactivateSubscriptionSuccessButton.click();
   }
 }
