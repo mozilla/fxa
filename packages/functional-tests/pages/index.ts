@@ -17,7 +17,6 @@ import { PostVerifyPage } from './postVerify';
 import { PrivacyPage } from './privacy';
 import { RecoveryKeyPage } from './settings/recoveryKey';
 import { RelierPage } from './relier';
-import { ResetPasswordPage } from './resetPassword';
 import { ResetPasswordReactPage } from './resetPasswordReact';
 import { SecondaryEmailPage } from './settings/secondaryEmail';
 import { SettingsPage } from './settings';
@@ -50,7 +49,6 @@ export function create(page: Page, target: BaseTarget) {
     privacy: new PrivacyPage(page, target),
     recoveryKey: new RecoveryKeyPage(page, target),
     relier: new RelierPage(page, target),
-    resetPassword: new ResetPasswordPage(page, target),
     resetPasswordReact: new ResetPasswordReactPage(page, target),
     secondaryEmail: new SecondaryEmailPage(page, target),
     settings: new SettingsPage(page, target),

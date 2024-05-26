@@ -149,8 +149,10 @@ export const FormPasswordWithBalloons = ({
     setSROnlyPwdFeedbackMessage('');
     setSROnlyConfirmPwdFeedbackMessage('');
     setPasswordMatchErrorText('');
-    if (!hasNewPwdFocused && onFocusMetricsEvent) {
-      onFocusMetricsEvent();
+    if (!hasNewPwdFocused) {
+      if (onFocusMetricsEvent) {
+        onFocusMetricsEvent();
+      }
       setHasNewPwdFocused(true);
     }
   };
@@ -292,7 +294,7 @@ export const FormPasswordWithBalloons = ({
             <InputPassword
               name="newPassword"
               label={templateValues.passwordLabel}
-              onFocusCb={onFocusMetricsEvent ? onNewPwdFocus : undefined}
+              onFocusCb={onNewPwdFocus}
               onBlurCb={onNewPwdBlur}
               onChange={() => onChangePassword('newPassword')}
               hasErrors={

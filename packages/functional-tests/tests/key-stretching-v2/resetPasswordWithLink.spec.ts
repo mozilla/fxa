@@ -2,13 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { EmailHeader, EmailType } from '../../lib/email';
 import { expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget } from '../../lib/targets/base';
 
 const AGE_21 = '21';
 
-// This test file includes the new version of the reset password flow (reset with code)
-// TODO in FXA-9728: remove this comment when code flow is fully rolled out in production
+// This test file is copied from resetPassword.spec.ts
+// this copy includes the previous version of the reset password flow (reset with link)
+// Git history is preserved in the original that we will keep moving forward
+// TODO in FXA-9728: remove this file when the reset password with code flow is fully rolled out in production
 
 /**
  * These tests represent various permutations between interacting with V1 and V2
@@ -68,8 +71,8 @@ test.describe('severity-2 #smoke', () => {
         'FXA-9765'
       );
       test.skip(
-        config.featureFlags.resetPasswordWithCode !== true,
-        'TODO in FXA-9728, remove this config check'
+        config.featureFlags.resetPasswordWithCode === true,
+        'TODO in FXA-9728 - remove this file'
       );
       const { email, password } = testAccountTracker.generateAccountDetails();
       await page.goto(
@@ -94,14 +97,20 @@ test.describe('severity-2 #smoke', () => {
         `${target.contentServerUrl}/reset_password?${reset.query}`
       );
       await resetPasswordReact.fillOutEmailForm(email);
-
-      const code = await target.emailClient.getResetPasswordCode(email);
-      await resetPasswordReact.fillOutResetPasswordCodeForm(code);
-
+      const link =
+        (await target.emailClient.waitForEmail(
+          email,
+          EmailType.recovery,
+          EmailHeader.link
+        )) + `&${reset.version}`;
+      target.emailClient.clear(email);
+      await page.goto(link);
       await resetPasswordReact.fillOutNewPasswordForm(password);
 
       await expect(page).toHaveURL(/reset_password_verified/);
 
+      await settings.goto();
+      await settings.signOut();
       await page.goto(
         `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react&${signin.query}`
       );

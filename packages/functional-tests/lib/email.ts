@@ -103,4 +103,14 @@ export class EmailClient {
   async clear(emailAddress: string) {
     await got.delete(`${this.host}/mail/${toUsername(emailAddress)}`);
   }
+
+  async getResetPasswordCode(email: string) {
+    const code = this.waitForEmail(
+      email,
+      EmailType.passwordForgotOtp,
+      EmailHeader.resetPasswordCode
+    );
+    await this.clear(email);
+    return code;
+  }
 }

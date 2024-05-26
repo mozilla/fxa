@@ -2,12 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { EmailHeader, EmailType } from '../../lib/email';
 import { expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget } from '../../lib/targets/base';
 
 const AGE_21 = '21';
 const HINT = 'secret key location';
+
+// This test file includes the new version of the reset password flow (reset with code)
+// TODO in FXA-9728: remove this comment when code flow is fully rolled out in production
 
 /**
  * These tests represent various permutations between interacting with V1 and V2
@@ -68,8 +70,8 @@ test.describe('severity-2 #smoke', () => {
         'FXA-9742'
       );
       test.skip(
-        config.featureFlags.resetPasswordWithCode === true,
-        'see FXA-9612'
+        config.featureFlags.resetPasswordWithCode !== true,
+        'TODO in FXA-9728, remove this config check'
       );
       const { email, password } = testAccountTracker.generateAccountDetails();
       await page.goto(
@@ -97,13 +99,10 @@ test.describe('severity-2 #smoke', () => {
         `${target.contentServerUrl}/reset_password?${reset.query}`
       );
       await resetPasswordReact.fillOutEmailForm(email);
-      const link =
-        (await target.emailClient.waitForEmail(
-          email,
-          EmailType.recovery,
-          EmailHeader.link
-        )) + `&${reset.query}`;
-      await page.goto(link);
+      const code = await target.emailClient.getResetPasswordCode(email);
+
+      await resetPasswordReact.fillOutResetPasswordCodeForm(code);
+
       await resetPasswordReact.fillOutRecoveryKeyForm(key);
 
       await expect(page).toHaveURL(
@@ -114,8 +113,6 @@ test.describe('severity-2 #smoke', () => {
 
       await expect(page).toHaveURL(/reset_password_with_recovery_key_verified/);
 
-      await settings.goto();
-      await settings.signOut();
       await page.goto(
         `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react&${signin.query}`
       );

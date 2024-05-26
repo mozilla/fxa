@@ -12,31 +12,23 @@ test.describe('severity-2 #smoke', () => {
     test('signin verified with incorrect password, click `forgot password?`', async ({
       target,
       page,
-      pages: { configPage, login, resetPassword },
+      pages: { resetPasswordReact, signinReact },
       testAccountTracker,
     }) => {
-      const config = await configPage.getConfig();
-      test.skip(
-        config.featureFlags.resetPasswordWithCode === true,
-        'see FXA-9612'
-      );
-
       const credentials = await testAccountTracker.signUp();
 
       await page.goto(target.contentServerUrl);
-      await login.setEmail(credentials.email);
-      await login.clickSubmit();
-      await login.setPassword('incorrect password');
-      await login.clickSubmit();
+      await signinReact.fillOutEmailFirstForm(credentials.email);
+      await signinReact.fillOutPasswordForm('incorrect password');
 
       // Verify the error
-      await expect(login.getTooltipError()).toContainText('Incorrect password');
+      await expect(page.getByText('Incorrect password')).toBeVisible();
 
       //Click forgot password link
-      await login.clickForgotPassword();
+      await signinReact.forgotPasswordLink.click();
 
       //Verify reset password header
-      expect(await resetPassword.resetPasswordHeader()).toBe(true);
+      await expect(resetPasswordReact.resetPasswordHeading).toBeVisible();
     });
 
     test('signin with email with leading/trailing whitespace on the email', async ({

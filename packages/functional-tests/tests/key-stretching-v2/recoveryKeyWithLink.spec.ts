@@ -2,13 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { EmailHeader, EmailType } from '../../lib/email';
 import { expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget } from '../../lib/targets/base';
 
 const AGE_21 = '21';
+const HINT = 'secret key location';
 
-// This test file includes the new version of the reset password flow (reset with code)
-// TODO in FXA-9728: remove this comment when code flow is fully rolled out in production
+// This test file is copied from recoveryKey.spec.ts
+// this copy includes the previous version of the reset password flow (reset with link)
+// Git history is preserved in the original that we will keep moving forward
+// TODO in FXA-9728: remove this file when the reset password with code flow is fully rolled out in production
 
 /**
  * These tests represent various permutations between interacting with V1 and V2
@@ -47,7 +51,7 @@ test.describe('severity-2 #smoke', () => {
   ];
 
   for (const { signup, reset, signin } of TestCases) {
-    test(`signs up as v${signup.version} resets password as v${reset.version} and signs in as v${signin.version}`, async ({
+    test(`signs up as v${signup.version} resets password with recovery key as v${reset.version} and signs in as v${signin.version}`, async ({
       page,
       target,
       pages: {
@@ -55,6 +59,7 @@ test.describe('severity-2 #smoke', () => {
         signinReact,
         signupReact,
         settings,
+        recoveryKey,
         resetPasswordReact,
       },
       testAccountTracker,
@@ -64,12 +69,12 @@ test.describe('severity-2 #smoke', () => {
         project.name !== 'local' &&
           signup.version === 1 &&
           reset.version === 2 &&
-          signin.version === 2,
-        'FXA-9765'
+          signin.version === 1,
+        'FXA-9742'
       );
       test.skip(
-        config.featureFlags.resetPasswordWithCode !== true,
-        'TODO in FXA-9728, remove this config check'
+        config.featureFlags.resetPasswordWithCode === true,
+        'TODO in FXA-9728, remove this file'
       );
       const { email, password } = testAccountTracker.generateAccountDetails();
       await page.goto(
@@ -89,19 +94,33 @@ test.describe('severity-2 #smoke', () => {
 
       await expect(page).toHaveURL(/settings/);
 
+      await settings.goto(`${reset.version}`);
+      await settings.recoveryKey.createButton.click();
+      const key = await recoveryKey.createRecoveryKey(password, HINT);
       await settings.signOut();
       await page.goto(
         `${target.contentServerUrl}/reset_password?${reset.query}`
       );
       await resetPasswordReact.fillOutEmailForm(email);
+      const link =
+        (await target.emailClient.waitForEmail(
+          email,
+          EmailType.recovery,
+          EmailHeader.link
+        )) + `&${reset.query}`;
+      await page.goto(link);
+      await resetPasswordReact.fillOutRecoveryKeyForm(key);
 
-      const code = await target.emailClient.getResetPasswordCode(email);
-      await resetPasswordReact.fillOutResetPasswordCodeForm(code);
+      await expect(page).toHaveURL(
+        new RegExp(`account_recovery_reset_password.*${reset.query}`)
+      );
 
       await resetPasswordReact.fillOutNewPasswordForm(password);
 
-      await expect(page).toHaveURL(/reset_password_verified/);
+      await expect(page).toHaveURL(/reset_password_with_recovery_key_verified/);
 
+      await settings.goto();
+      await settings.signOut();
       await page.goto(
         `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react&${signin.query}`
       );
@@ -110,7 +129,7 @@ test.describe('severity-2 #smoke', () => {
 
       await expect(page).toHaveURL(/settings/);
       const keys2 = await _getKeys(signin.version, target, email, password);
-      expect(keys2.kB).not.toEqual(keys.kB);
+      expect(keys2.kB).toEqual(keys.kB);
     });
   }
 });
