@@ -4,7 +4,7 @@
 
 import { CreditCard } from '../pages/products/components/paymentInformation';
 
-export const BAD_CAVE_JOHNSON_CREDIT_CARD: CreditCard = {
+export const INVALID_VISA: CreditCard = {
   name: 'Cave Johnson',
   number: '4000000000000341',
   expirationDate: '666',
@@ -12,7 +12,7 @@ export const BAD_CAVE_JOHNSON_CREDIT_CARD: CreditCard = {
   zip: '77777',
 };
 
-export const CAVE_JOHNSON_CREDIT_CARD: CreditCard = {
+export const VALID_VISA: CreditCard = {
   name: 'Cave Johnson',
   number: '4242424242424242',
   expirationDate: '555',
@@ -20,7 +20,7 @@ export const CAVE_JOHNSON_CREDIT_CARD: CreditCard = {
   zip: '66666',
 };
 
-export const TEST_USER_CREDIT_CARD: CreditCard = {
+export const VALID_MASTERCARD: CreditCard = {
   name: 'Test User',
   number: '5555555555554444',
   expirationDate: '444',

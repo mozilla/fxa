@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Page, expect, test } from '../../../lib/fixtures/standard';
-import { CAVE_JOHNSON_CREDIT_CARD } from '../../../lib/paymentArtifacts';
+import { VALID_VISA } from '../../../lib/paymentArtifacts';
 import { BaseTarget, Credentials } from '../../../lib/targets/base';
 import { TestAccountTracker } from '../../../lib/testAccountTracker';
 import { Coupon } from '../../../pages/products';
@@ -49,9 +49,7 @@ test.describe('severity-2 #smoke', () => {
 
       // Successfully subscribe
       await subscribe.confirmPaymentCheckbox.check();
-      await subscribe.paymentInformation.fillOutCreditCardInfo(
-        CAVE_JOHNSON_CREDIT_CARD
-      );
+      await subscribe.paymentInformation.fillOutCreditCardInfo(VALID_VISA);
       await subscribe.paymentInformation.clickPayNow();
 
       await expect(subscribe.subscriptionConfirmationHeading).toBeVisible();
@@ -93,9 +91,7 @@ test.describe('severity-2 #smoke', () => {
       // 'auto10pforever' is a 10% forever discount coupon for a 6mo plan
       await subscribe.addCouponCode(Coupon.AUTO_10_PERCENT_FOREVER);
       await subscribe.confirmPaymentCheckbox.check();
-      await subscribe.paymentInformation.fillOutCreditCardInfo(
-        CAVE_JOHNSON_CREDIT_CARD
-      );
+      await subscribe.paymentInformation.fillOutCreditCardInfo(VALID_VISA);
       await subscribe.paymentInformation.clickPayNow();
 
       await expect(subscribe.subscriptionConfirmationHeading).toBeVisible();

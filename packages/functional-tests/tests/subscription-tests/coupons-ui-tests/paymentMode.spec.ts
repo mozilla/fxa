@@ -3,10 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Page, expect, test } from '../../../lib/fixtures/standard';
-import {
-  CAVE_JOHNSON_CREDIT_CARD,
-  TEST_USER_CREDIT_CARD,
-} from '../../../lib/paymentArtifacts';
+import { VALID_VISA, VALID_MASTERCARD } from '../../../lib/paymentArtifacts';
 import { BaseTarget, Credentials } from '../../../lib/targets/base';
 import { TestAccountTracker } from '../../../lib/testAccountTracker';
 import { Coupon } from '../../../pages/products';
@@ -46,9 +43,7 @@ test.describe('severity-2 #smoke', () => {
 
       //Subscribe successfully
       await subscribe.confirmPaymentCheckbox.check();
-      await subscribe.paymentInformation.fillOutCreditCardInfo(
-        CAVE_JOHNSON_CREDIT_CARD
-      );
+      await subscribe.paymentInformation.fillOutCreditCardInfo(VALID_VISA);
       await subscribe.paymentInformation.clickPayNow();
 
       await expect(subscribe.subscriptionConfirmationHeading).toBeVisible();
@@ -68,12 +63,12 @@ test.describe('severity-2 #smoke', () => {
       await subscriptionManagement.ChangePaymentInformationButton.click();
       //Change stripe card information
       await subscriptionManagement.paymentInformation.fillOutCreditCardInfo(
-        TEST_USER_CREDIT_CARD
+        VALID_MASTERCARD
       );
       await subscriptionManagement.paymentInformation.updateButton.click();
 
       //Verify that the card info is updated
-      const lastFour = TEST_USER_CREDIT_CARD.number.slice(-4);
+      const lastFour = VALID_MASTERCARD.number.slice(-4);
       await expect(
         subscriptionManagement.paymentInformation.cardInfoAndLastFour
       ).toContainText(lastFour);

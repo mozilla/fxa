@@ -4,10 +4,7 @@
 
 import { Page, expect, test } from '../../lib/fixtures/standard';
 import { MetricsObserver } from '../../lib/metrics';
-import {
-  BAD_CAVE_JOHNSON_CREDIT_CARD,
-  CAVE_JOHNSON_CREDIT_CARD,
-} from '../../lib/paymentArtifacts';
+import { INVALID_VISA, VALID_VISA } from '../../lib/paymentArtifacts';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
 import { TestAccountTracker } from '../../lib/testAccountTracker';
 import { SettingsPage } from '../../pages/settings';
@@ -43,9 +40,7 @@ test.describe('severity-2 #smoke', () => {
       await expect(subscribe.setupSubscriptionFormHeading).toBeVisible();
 
       await subscribe.confirmPaymentCheckbox.check();
-      await subscribe.paymentInformation.fillOutCreditCardInfo(
-        CAVE_JOHNSON_CREDIT_CARD
-      );
+      await subscribe.paymentInformation.fillOutCreditCardInfo(VALID_VISA);
       await subscribe.paymentInformation.clickPayNow();
 
       await expect(subscribe.subscriptionConfirmationHeading).toBeVisible();
@@ -87,17 +82,13 @@ test.describe('severity-2 #smoke', () => {
       await expect(subscribe.setupSubscriptionFormHeading).toBeVisible();
 
       await subscribe.confirmPaymentCheckbox.check();
-      await subscribe.paymentInformation.fillOutCreditCardInfo(
-        BAD_CAVE_JOHNSON_CREDIT_CARD
-      );
+      await subscribe.paymentInformation.fillOutCreditCardInfo(INVALID_VISA);
       await subscribe.paymentInformation.clickPayNow();
 
       await expect(subscribe.subscriptionErrorHeading).toBeVisible();
 
       await subscribe.tryAgainButton.click();
-      await subscribe.paymentInformation.fillOutCreditCardInfo(
-        CAVE_JOHNSON_CREDIT_CARD
-      );
+      await subscribe.paymentInformation.fillOutCreditCardInfo(VALID_VISA);
       await subscribe.paymentInformation.clickPayNow();
 
       await expect(subscribe.subscriptionConfirmationHeading).toBeVisible();
@@ -345,17 +336,13 @@ test.describe('severity-2 #smoke', () => {
       await expect(subscribe.setupSubscriptionFormHeading).toBeVisible();
 
       await subscribe.confirmPaymentCheckbox.check();
-      await subscribe.paymentInformation.fillOutCreditCardInfo(
-        BAD_CAVE_JOHNSON_CREDIT_CARD
-      );
+      await subscribe.paymentInformation.fillOutCreditCardInfo(INVALID_VISA);
       await subscribe.paymentInformation.clickPayNow();
 
       await expect(subscribe.subscriptionErrorHeading).toBeVisible();
 
       await subscribe.tryAgainButton.click();
-      await subscribe.paymentInformation.fillOutCreditCardInfo(
-        CAVE_JOHNSON_CREDIT_CARD
-      );
+      await subscribe.paymentInformation.fillOutCreditCardInfo(VALID_VISA);
       await subscribe.paymentInformation.clickPayNow();
 
       await expect(subscribe.subscriptionConfirmationHeading).toBeVisible();

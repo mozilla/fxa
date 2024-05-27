@@ -6,8 +6,8 @@ import { expect } from '@playwright/test';
 import { BaseLayout } from '../layout';
 
 export enum App {
-  Desktop = 'Desktop',
-  Mobile = 'Mobile',
+  DESKTOP = 'Desktop',
+  MOBILE = 'Mobile',
 }
 
 export enum Topic {

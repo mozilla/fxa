@@ -3,6 +3,7 @@ import { BaseTarget, Credentials } from './base';
 
 const RELIER_CLIENT_ID = 'dcdb5ae7add825d2';
 const SUB_PRODUCT = 'prod_GqM9ToKK62qjkK';
+const SUB_PRODUCT_NAME = '123Done Pro';
 const SUB_PLAN = 'plan_GqM9N6qyhvxaVk';
 
 export class LocalTarget extends BaseTarget {
@@ -14,6 +15,7 @@ export class LocalTarget extends BaseTarget {
   readonly relierClientID = RELIER_CLIENT_ID;
   readonly subscriptionConfig = {
     product: SUB_PRODUCT,
+    name: SUB_PRODUCT_NAME,
     plan: SUB_PLAN,
   };
 

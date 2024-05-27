@@ -18,28 +18,24 @@ export class PaymentInformationPage {
     return this.page.getByTestId('name');
   }
 
+  get _innerCardFrame() {
+    return this.page.frame({ url: /elements-inner-card/ });
+  }
+
   get creditCardNumber() {
-    return this.page
-      .frame({ url: /elements-inner-card/ })
-      ?.getByPlaceholder('Card number');
+    return this._innerCardFrame?.getByPlaceholder('Card number');
   }
 
   get creditCardExpirationDate() {
-    return this.page
-      .frame({ url: /elements-inner-card/ })
-      ?.getByPlaceholder('MM / YY');
+    return this._innerCardFrame?.getByPlaceholder('MM / YY');
   }
 
   get creditCardCVC() {
-    return this.page
-      .frame({ url: /elements-inner-card/ })
-      ?.getByPlaceholder('CVC');
+    return this._innerCardFrame?.getByPlaceholder('CVC');
   }
 
   get creditCardZIP() {
-    return this.page
-      .frame({ url: /elements-inner-card/ })
-      ?.getByPlaceholder('ZIP');
+    return this._innerCardFrame?.getByPlaceholder('ZIP');
   }
 
   get updateButton() {
@@ -61,6 +57,8 @@ export class PaymentInformationPage {
   async clickPayNow() {
     // Start waiting for response before clicking
     const responsePromise = this.page.waitForResponse(
+      // After clicking 'Pay Now' we should either see an API call to
+      // billing-and-subscriptions or an error message
       (response) =>
         response.request().method() === 'GET' &&
         /\/mozilla-subscriptions\/customer\/billing-and-subscriptions$|static\/media\/error/.test(

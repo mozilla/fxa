@@ -20,6 +20,7 @@ export class ProductionTarget extends RemoteTarget {
   readonly relierClientID = RELIER_CLIENT_ID;
   readonly subscriptionConfig = {
     product: '',
+    name: '',
     plan: '',
   };
 

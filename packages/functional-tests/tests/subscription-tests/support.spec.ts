@@ -4,7 +4,7 @@
 
 import { SettingsPage } from '../..//pages/settings';
 import { Page, expect, test } from '../../lib/fixtures/standard';
-import { CAVE_JOHNSON_CREDIT_CARD } from '../../lib/paymentArtifacts';
+import { VALID_VISA } from '../../lib/paymentArtifacts';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
 import { TestAccountTracker } from '../../lib/testAccountTracker';
 import { SubscriptionManagementPage } from '../../pages/products/subscriptionManagement';
@@ -83,9 +83,7 @@ test.describe('severity-2 #smoke', () => {
       await expect(subscribe.setupSubscriptionFormHeading).toBeVisible();
 
       await subscribe.confirmPaymentCheckbox.check();
-      await subscribe.paymentInformation.fillOutCreditCardInfo(
-        CAVE_JOHNSON_CREDIT_CARD
-      );
+      await subscribe.paymentInformation.fillOutCreditCardInfo(VALID_VISA);
       await subscribe.paymentInformation.clickPayNow();
 
       await expect(subscribe.subscriptionConfirmationHeading).toBeVisible();
@@ -109,9 +107,9 @@ test.describe('severity-2 #smoke', () => {
       await subscriptionManagement.contactsupportButton.click();
 
       await subscriptionSupport.fillOutSupportForm(
-        'One, Two, Three Done...PRO',
+        target.subscriptionConfig.name,
         Topic.PAYMENT_AND_BILLING,
-        App.Desktop,
+        App.DESKTOP,
         'Test Support',
         'Testing Support Form'
       );
