@@ -20,7 +20,6 @@ export type ConfirmResetPasswordProps = {
   errorMessage: string;
   resendCode: () => Promise<boolean>;
   resendStatus: ResendStatus;
-  searchParams: string;
   setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
   setResendStatus: React.Dispatch<React.SetStateAction<ResendStatus>>;
   verifyCode: (code: string) => Promise<void>;
