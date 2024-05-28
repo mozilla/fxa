@@ -64,7 +64,7 @@ const Banner = ({
     >
       {dismissible ? (
         <>
-          <div className="grow ltr:pl-5 rtl:pr-5">{children}</div>
+          <div className="grow ps-5">{children}</div>
           <FtlMsg id="banner-dismiss-button" attrs={{ ariaLabel: true }}>
             <button
               type="button"

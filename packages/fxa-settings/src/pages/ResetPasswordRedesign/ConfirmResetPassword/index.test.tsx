@@ -36,7 +36,7 @@ describe('ConfirmResetPassword', () => {
     const buttons = await screen.findAllByRole('button');
     expect(buttons).toHaveLength(2);
     expect(buttons[0]).toHaveTextContent('Continue');
-    expect(buttons[0]).toBeDisabled();
+    expect(buttons[0]).toHaveAttribute('aria-disabled', 'true');
     expect(buttons[1]).toHaveTextContent('Resend code');
 
     const links = await screen.findAllByRole('link');
@@ -58,9 +58,9 @@ describe('ConfirmResetPassword', () => {
 
     // name here is the accessible name from aria-label
     const submitButton = screen.getByRole('button', {
-      name: 'Submit 12345678',
+      name: 'Continue',
     });
-    expect(submitButton).toBeEnabled();
+    expect(submitButton).toHaveAttribute('aria-disabled', 'false');
 
     await waitFor(() => user.click(submitButton));
     expect(mockVerifyCode).toHaveBeenCalledTimes(1);
@@ -83,5 +83,32 @@ describe('ConfirmResetPassword', () => {
         'Email re-sent. Add accounts@firefox.com to your contacts to ensure a smooth delivery.'
       )
     ).toBeVisible();
+  });
+
+  describe('errors', () => {
+    it('can display error passed in by the container', () => {
+      renderWithLocalizationProvider(
+        <Subject initialErrorMessage="Something went wrong" />
+      );
+
+      expect(screen.getByText('Something went wrong')).toBeVisible();
+    });
+
+    it('clears the error when input is modified', async () => {
+      const user = userEvent.setup();
+      renderWithLocalizationProvider(
+        <Subject initialErrorMessage="Something went wrong" />
+      );
+
+      expect(screen.getByText('Something went wrong')).toBeVisible();
+
+      await waitFor(() =>
+        user.type(screen.getByRole('textbox', { name: 'Digit 1 of 8' }), '1')
+      );
+
+      expect(
+        screen.queryByText('Something went wrong')
+      ).not.toBeInTheDocument();
+    });
   });
 });

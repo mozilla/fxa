@@ -5,7 +5,7 @@
 import React, { useRef, useState } from 'react';
 import TotpInputGroup from '../TotpInputGroup';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import Banner, { BannerType } from '../Banner';
+import classNames from 'classnames';
 
 export type CodeArray = Array<string | undefined>;
 
@@ -32,53 +32,61 @@ const FormVerifyTotp = ({
     )
   );
 
-  const [codeArray, setCodeArray] = useState<CodeArray>(new Array(codeLength));
+  const [codeArray, setCodeArray] = useState<CodeArray>(
+    new Array(codeLength).fill(undefined)
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const stringifiedCode = codeArray.join('');
+  const isFormValid = stringifiedCode.length === codeLength && !errorMessage;
+  const isSubmitDisabled = isSubmitting || !isFormValid;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    setIsSubmitting(true);
-    await verifyCode(stringifiedCode);
-    setIsSubmitting(false);
+    if (!isSubmitDisabled) {
+      setIsSubmitting(true);
+      await verifyCode(stringifiedCode);
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <>
-      {errorMessage && <Banner type={BannerType.error}>{errorMessage}</Banner>}
-      <form
-        noValidate
-        className="flex flex-col gap-4 my-6"
-        onSubmit={handleSubmit}
+    <form
+      noValidate
+      className="flex flex-col gap-4 my-6"
+      onSubmit={handleSubmit}
+    >
+      <TotpInputGroup
+        {...{
+          codeArray,
+          codeLength,
+          inputRefs,
+          localizedInputGroupLabel,
+          setCodeArray,
+          setErrorMessage,
+          errorMessage,
+        }}
+      />
+      <FtlMsg
+        id="form-verify-code-submit-button"
+        attrs={{ ariaLabel: true }}
+        vars={{ codeValue: stringifiedCode }}
       >
-        <TotpInputGroup
-          {...{
-            codeArray,
-            codeLength,
-            inputRefs,
-            localizedInputGroupLabel,
-            setCodeArray,
-            setErrorMessage,
-            errorMessage,
-          }}
-        />
-        <FtlMsg
-          id="form-verify-code-submit-button"
-          attrs={{ ariaLabel: true }}
-          vars={{ codeValue: stringifiedCode }}
+        <button
+          type="submit"
+          className={classNames(
+            'cta-primary cta-xl',
+            isSubmitDisabled &&
+              'bg-blue-500/40 border-transparent text-white/50 cursor-not-allowed'
+          )}
+          // aria-disabled attribute is used instead of disabled
+          // to ensure the button can be focused and announced to screen-readers
+          aria-disabled={isSubmitDisabled}
         >
-          <button
-            type="submit"
-            className="cta-primary cta-xl"
-            disabled={isSubmitting || stringifiedCode.length < codeLength}
-            aria-label={`Submit ${stringifiedCode}`}
-          >
-            {localizedSubmitButtonText}
-          </button>
-        </FtlMsg>
-      </form>
-    </>
+          {localizedSubmitButtonText}
+        </button>
+      </FtlMsg>
+    </form>
   );
 };
 

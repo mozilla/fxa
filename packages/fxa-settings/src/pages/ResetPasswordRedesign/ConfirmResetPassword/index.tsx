@@ -10,7 +10,10 @@ import { RouteComponentProps } from '@reach/router';
 import { useFtlMsgResolver } from '../../../models';
 import LinkRememberPassword from '../../../components/LinkRememberPassword';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { ResendEmailSuccessBanner } from '../../../components/Banner';
+import Banner, {
+  BannerType,
+  ResendEmailSuccessBanner,
+} from '../../../components/Banner';
 import { ResendStatus } from '../../../lib/types';
 import { EmailCodeImage } from '../../../components/images';
 
@@ -64,6 +67,7 @@ const ConfirmResetPassword = ({
         </p>
       </FtlMsg>
       {resendStatus === ResendStatus['sent'] && <ResendEmailSuccessBanner />}
+      {errorMessage && <Banner type={BannerType.error}>{errorMessage}</Banner>}
       <FormVerifyTotp
         codeLength={8}
         {...{

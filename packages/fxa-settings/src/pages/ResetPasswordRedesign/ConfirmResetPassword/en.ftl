@@ -22,5 +22,5 @@ confirm-reset-password-otp-submit-button = Continue
 # Button to request a new reset password confirmation code
 confirm-reset-password-otp-resend-code-button = Resend code
 
-# LInk to cancel the password reset and sign in with a different account
+# Link to cancel the password reset and sign in with a different account
 confirm-reset-password-otp-different-account-link = Use a different account

@@ -22,7 +22,7 @@ describe('FormVerifyTotp component', () => {
       renderWithLocalizationProvider(<Subject />);
       const button = screen.getByRole('button');
       expect(button).toHaveTextContent('Submit');
-      expect(button).toBeDisabled();
+      expect(button).toHaveAttribute('aria-disabled', 'true');
     });
 
     it('is enabled when numbers are typed into all inputs', async () => {
@@ -30,7 +30,7 @@ describe('FormVerifyTotp component', () => {
       renderWithLocalizationProvider(<Subject />);
       const button = screen.getByRole('button');
       expect(button).toHaveTextContent('Submit');
-      expect(button).toBeDisabled();
+      expect(button).toHaveAttribute('aria-disabled', 'true');
 
       expect(
         screen.getByRole('textbox', { name: 'Digit 1 of 6' })
@@ -45,7 +45,7 @@ describe('FormVerifyTotp component', () => {
           )
         );
       }
-      expect(button).toBeEnabled();
+      expect(button).toHaveAttribute('aria-disabled', 'false');
     });
 
     it('is enabled when numbers are pasted into all inputs', async () => {
@@ -53,33 +53,14 @@ describe('FormVerifyTotp component', () => {
       renderWithLocalizationProvider(<Subject />);
       const button = screen.getByRole('button');
       expect(button).toHaveTextContent('Submit');
-      expect(button).toBeDisabled();
+      expect(button).toHaveAttribute('aria-disabled', 'true');
 
       await waitFor(() => {
         user.click(screen.getByRole('textbox', { name: 'Digit 1 of 6' }));
         user.paste('123456');
       });
 
-      expect(button).toBeEnabled();
-    });
-  });
-
-  describe('errors', () => {
-    it('are cleared when typing in input', async () => {
-      const user = userEvent.setup();
-      renderWithLocalizationProvider(
-        <Subject initialErrorMessage="Something went wrong" />
-      );
-
-      expect(screen.getByText('Something went wrong')).toBeVisible();
-
-      await waitFor(() =>
-        user.type(screen.getByRole('textbox', { name: 'Digit 1 of 6' }), '1')
-      );
-
-      expect(
-        screen.queryByText('Something went wrong')
-      ).not.toBeInTheDocument();
+      expect(button).toHaveAttribute('aria-disabled', 'false');
     });
   });
 });

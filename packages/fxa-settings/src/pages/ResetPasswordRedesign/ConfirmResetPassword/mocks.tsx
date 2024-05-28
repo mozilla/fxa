@@ -15,9 +15,10 @@ const mockResendCode = () => Promise.resolve(true);
 export const Subject = ({
   resendCode = mockResendCode,
   verifyCode = mockVerifyCode,
-}: Partial<ConfirmResetPasswordProps>) => {
+  initialErrorMessage = '',
+}: Partial<ConfirmResetPasswordProps> & { initialErrorMessage?: string }) => {
   const email = MOCK_EMAIL;
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState(initialErrorMessage);
   const [resendStatus, setResendStatus] = useState(ResendStatus['not sent']);
   const searchParams = '';
 

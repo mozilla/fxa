@@ -98,11 +98,11 @@ const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
         recoveryKeyExists
       );
     } catch (error) {
-      const localizerErrorMessage = getLocalizedErrorMessage(
+      const localizedErrorMessage = getLocalizedErrorMessage(
         ftlMsgResolver,
         error
       );
-      setErrorMessage(localizerErrorMessage);
+      setErrorMessage(localizedErrorMessage);
     }
   };
 
