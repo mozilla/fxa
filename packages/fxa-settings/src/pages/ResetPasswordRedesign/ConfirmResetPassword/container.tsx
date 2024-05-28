@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect, useState } from 'react';
-import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
+import { RouteComponentProps, useLocation } from '@reach/router';
 import { useAuthClient, useFtlMsgResolver } from '../../../models';
 import { getLocalizedErrorMessage } from '../../../lib/auth-errors/auth-errors';
 import ConfirmResetPassword from '.';
@@ -12,6 +12,7 @@ import {
   RecoveryKeyCheckResult,
 } from './interfaces';
 import { ResendStatus } from '../../../lib/types';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 
 const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
   const [resendStatus, setResendStatus] = useState<ResendStatus>(
@@ -21,7 +22,7 @@ const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
   const authClient = useAuthClient();
   const ftlMsgResolver = useFtlMsgResolver();
 
-  const navigate = useNavigate();
+  const navigate = useNavigateWithQuery();
   let location = useLocation();
 
   const { email, metricsContext } =
@@ -42,7 +43,7 @@ const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
     recoveryKeyExists?: boolean
   ) => {
     if (recoveryKeyExists === true) {
-      navigate(`/account_recovery_confirm_key${location.search}`, {
+      navigate('/account_recovery_confirm_key', {
         state: {
           code,
           email,
@@ -52,9 +53,10 @@ const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
           token,
           uid,
         },
+        replace: true,
       });
     } else {
-      navigate(`/complete_reset_password${location.search}`, {
+      navigate('/complete_reset_password', {
         state: {
           code,
           email,
@@ -64,6 +66,7 @@ const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
           token,
           uid,
         },
+        replace: true,
       });
     }
   };

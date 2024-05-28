@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
+import { RouteComponentProps, useLocation } from '@reach/router';
 
 import { useValidatedQueryParams } from '../../../lib/hooks/useValidate';
 import {
@@ -22,6 +22,7 @@ import GleanMetrics from '../../../lib/glean';
 import firefox from '../../../lib/channels/firefox';
 import { getLocalizedErrorMessage } from '../../../lib/auth-errors/auth-errors';
 import { useState } from 'react';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 
 // This component is used for both /complete_reset_password and /account_recovery_reset_password routes
 // for easier maintenance
@@ -36,15 +37,13 @@ const CompleteResetPasswordContainer = ({
   const account = useAccount();
   const config = useConfig();
   const ftlMsgResolver = useFtlMsgResolver();
-  const navigate = useNavigate();
+  const navigate = useNavigateWithQuery();
   const location = useLocation();
 
   const [errorMessage, setErrorMessage] = useState('');
 
-  const searchParams = location.search;
-
   if (!location.state) {
-    navigate(`/reset_password${searchParams}`);
+    navigate('/reset_password', { replace: true });
   }
 
   const {
@@ -67,11 +66,11 @@ const CompleteResetPasswordContainer = ({
   const isResetWithoutRecoveryKey = !!(code && token);
 
   const handleNavigationWithRecoveryKey = () => {
-    navigate(`/reset_password_with_recovery_key_verified${searchParams}`);
+    navigate('/reset_password_with_recovery_key_verified');
   };
 
   const handleNavigationWithoutRecoveryKey = () => {
-    navigate(`/reset_password_verified${searchParams}`, {
+    navigate('/reset_password_verified', {
       replace: true,
     });
   };
@@ -176,14 +175,13 @@ const CompleteResetPasswordContainer = ({
 
   // handle the case where we don't have all data required
   if (!(hasConfirmedRecoveryKey || isResetWithoutRecoveryKey)) {
-    navigate(`/reset_password${searchParams}`);
+    navigate('/reset_password', { replace: true });
   }
   return (
     <CompleteResetPassword
       {...{
         email,
         errorMessage,
-        searchParams,
         submitNewPassword,
         hasConfirmedRecoveryKey,
       }}

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState } from 'react';
-import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
+import { RouteComponentProps, useLocation } from '@reach/router';
 import base32Decode from 'base32-decode';
 
 import { decryptRecoveryKeyData } from 'fxa-auth-client/lib/recoveryKey';
@@ -17,6 +17,7 @@ import {
 } from './interfaces';
 
 import AccountRecoveryConfirmKey from '.';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 
 const AccountRecoveryConfirmKeyContainer = ({
   serviceName,
@@ -26,7 +27,7 @@ const AccountRecoveryConfirmKeyContainer = ({
   const account = useAccount();
   const ftlMsgResolver = useFtlMsgResolver();
   const location = useLocation();
-  const navigate = useNavigate();
+  const navigate = useNavigateWithQuery();
 
   const {
     accountResetToken: previousAccountResetToken,
@@ -65,7 +66,7 @@ const AccountRecoveryConfirmKeyContainer = ({
       uid
     );
 
-    navigate(`/account_recovery_reset_password${window.location.search}`, {
+    navigate('/account_recovery_reset_password', {
       state: {
         accountResetToken: fetchedAccountResetToken,
         email,
@@ -74,6 +75,7 @@ const AccountRecoveryConfirmKeyContainer = ({
         kB,
         recoveryKeyId,
       },
+      replace: true,
     });
   };
 
