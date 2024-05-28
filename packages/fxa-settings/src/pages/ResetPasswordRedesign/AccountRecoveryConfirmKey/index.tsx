@@ -52,7 +52,7 @@ const AccountRecoveryConfirmKey = ({
     });
 
   useEffect(() => {
-    GleanMetrics.resetPassword.recoveryKeyView();
+    GleanMetrics.passwordReset.recoveryKeyView();
   }, []);
 
   const onSubmit = () => {
@@ -64,7 +64,7 @@ const AccountRecoveryConfirmKey = ({
 
     if (recoveryKey.length === 32 && isBase32Crockford(recoveryKey)) {
       setIsSubmitting(true);
-      GleanMetrics.resetPassword.recoveryKeySubmit();
+      GleanMetrics.passwordReset.recoveryKeySubmit();
       verifyRecoveryKey(recoveryKey);
     } else {
       // if the submitted key does not match the expected format,
@@ -157,6 +157,7 @@ const AccountRecoveryConfirmKey = ({
             token,
             uid,
           }}
+          onClick={() => GleanMetrics.passwordReset.recoveryKeyCannotFind()}
         >
           Don’t have an account recovery key?
         </Link>

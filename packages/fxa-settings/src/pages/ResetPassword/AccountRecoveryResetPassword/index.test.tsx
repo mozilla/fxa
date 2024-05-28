@@ -34,7 +34,7 @@ import GleanMetrics from '../../../lib/glean';
 jest.mock('../../../lib/glean', () => ({
   __esModule: true,
   default: {
-    resetPassword: {
+    passwordReset: {
       recoveryKeyCreatePasswordView: jest.fn(),
       recoveryKeyCreatePasswordSubmit: jest.fn(),
     },
@@ -219,7 +219,7 @@ describe('AccountRecoveryResetPassword page', () => {
         REACT_ENTRYPOINT
       );
       expect(
-        GleanMetrics.resetPassword.recoveryKeyCreatePasswordView
+        GleanMetrics.passwordReset.recoveryKeyCreatePasswordView
       ).toHaveBeenCalled();
     });
 
@@ -256,7 +256,7 @@ describe('AccountRecoveryResetPassword page', () => {
         'verification.success'
       );
       expect(
-        GleanMetrics.resetPassword.recoveryKeyCreatePasswordSubmit
+        GleanMetrics.passwordReset.recoveryKeyCreatePasswordSubmit
       ).toHaveBeenCalled();
     });
 

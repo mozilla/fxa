@@ -21,7 +21,7 @@ jest.mock('../../lib/metrics', () => ({
 jest.mock('../../lib/glean', () => ({
   __esModule: true,
   default: {
-    resetPassword: { createNewSuccess: jest.fn() },
+    passwordReset: { createNewSuccess: jest.fn() },
   },
 }));
 
@@ -36,7 +36,7 @@ describe('Ready', () => {
   // });
 
   beforeEach(() => {
-    (GleanMetrics.resetPassword.createNewSuccess as jest.Mock).mockClear();
+    (GleanMetrics.passwordReset.createNewSuccess as jest.Mock).mockClear();
   });
 
   it('renders as expected with default values', () => {
@@ -139,7 +139,7 @@ describe('Ready', () => {
   it('emits a metrics event on render', () => {
     renderWithLocalizationProvider(<Ready {...{ viewName, isSignedIn }} />);
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
-    expect(GleanMetrics.resetPassword.createNewSuccess).toHaveBeenCalledTimes(
+    expect(GleanMetrics.passwordReset.createNewSuccess).toHaveBeenCalledTimes(
       1
     );
   });

@@ -7,19 +7,52 @@
 import React from 'react';
 import { Subject } from './mocks';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+import * as utils from 'fxa-react/lib/utils';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MOCK_EMAIL } from '../../mocks';
+import GleanMetrics from '../../../lib/glean';
 
-// add Glean mocks
+jest.mock('../../../lib/glean', () => ({
+  __esModule: true,
+  default: {
+    passwordReset: {
+      emailConfirmationView: jest.fn(),
+      emailConfirmationResendCode: jest.fn(),
+      emailConfirmationDifferentAccount: jest.fn(),
+      emailConfirmationSignin: jest.fn(),
+    },
+  },
+}));
+
+jest.mock('fxa-react/lib/utils', () => ({
+  ...jest.requireActual('fxa-react/lib/utils'),
+  hardNavigate: jest.fn(),
+}));
 
 const mockResendCode = jest.fn(() => Promise.resolve(true));
 const mockVerifyCode = jest.fn((code: string) => Promise.resolve());
 
 describe('ConfirmResetPassword', () => {
+  let locationAssignSpy: jest.Mock;
+
   beforeEach(() => {
-    mockResendCode.mockClear();
-    mockVerifyCode.mockClear();
+    jest.clearAllMocks();
+
+    locationAssignSpy = jest.fn();
+
+    Object.defineProperty(window, 'location', {
+      value: {
+        // mock content server url for URL constructor
+        origin: 'http://localhost:3030',
+        assign: locationAssignSpy,
+      },
+      writable: true,
+    });
+  });
+
+  afterEach(() => {
+    locationAssignSpy.mockRestore();
   });
 
   it('renders as expected', async () => {
@@ -45,6 +78,18 @@ describe('ConfirmResetPassword', () => {
     expect(links[2]).toHaveTextContent('Use a different account');
   });
 
+  it('emits the expected metrics event on render', async () => {
+    renderWithLocalizationProvider(<Subject />);
+
+    await expect(
+      screen.getByRole('heading', { name: 'Check your email' })
+    ).toBeVisible();
+
+    expect(
+      GleanMetrics.passwordReset.emailConfirmationView
+    ).toHaveBeenCalledTimes(1);
+  });
+
   it('submits with valid code', async () => {
     const user = userEvent.setup();
     renderWithLocalizationProvider(<Subject verifyCode={mockVerifyCode} />);
@@ -66,6 +111,20 @@ describe('ConfirmResetPassword', () => {
     expect(mockVerifyCode).toHaveBeenCalledWith('12345678');
   });
 
+  it('handles click on signin', async () => {
+    const user = userEvent.setup();
+    renderWithLocalizationProvider(<Subject />);
+
+    const signinLink = screen.getByRole('link', {
+      name: 'Sign in',
+    });
+
+    await waitFor(() => user.click(signinLink));
+    expect(
+      GleanMetrics.passwordReset.emailConfirmationSignin
+    ).toHaveBeenCalledTimes(1);
+  });
+
   it('handles resend code', async () => {
     const user = userEvent.setup();
     renderWithLocalizationProvider(<Subject resendCode={mockResendCode} />);
@@ -76,11 +135,32 @@ describe('ConfirmResetPassword', () => {
 
     await waitFor(() => user.click(resendButton));
     expect(mockResendCode).toHaveBeenCalledTimes(1);
+    expect(
+      GleanMetrics.passwordReset.emailConfirmationResendCode
+    ).toHaveBeenCalledTimes(1);
 
     expect(
       screen.getByText(
         'Email re-sent. Add accounts@firefox.com to your contacts to ensure a smooth delivery.'
       )
     ).toBeVisible();
+  });
+
+  it('handles Use different account link', async () => {
+    let hardNavigateSpy: jest.SpyInstance;
+    hardNavigateSpy = jest
+      .spyOn(utils, 'hardNavigate')
+      .mockImplementation(() => {});
+
+    const user = userEvent.setup();
+    renderWithLocalizationProvider(<Subject />);
+
+    await waitFor(() =>
+      user.click(screen.getByRole('link', { name: /^Use a different account/ }))
+    );
+    expect(hardNavigateSpy).toHaveBeenCalledTimes(1);
+    expect(
+      GleanMetrics.passwordReset.emailConfirmationDifferentAccount
+    ).toHaveBeenCalledTimes(1);
   });
 });

@@ -26,7 +26,7 @@ const ResetPasswordWithRecoveryKeyVerified = ({
   integration,
 }: ResetPasswordWithRecoveryKeyVerifiedProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
-  GleanMetrics.resetPassword.recoveryKeyResetSuccessView();
+  GleanMetrics.passwordReset.recoveryKeyResetSuccessView();
 
   const navigate = useNavigate();
 

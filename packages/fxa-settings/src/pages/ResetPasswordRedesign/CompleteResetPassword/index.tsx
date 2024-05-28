@@ -31,8 +31,8 @@ const CompleteResetPassword = ({
 
   useEffect(() => {
     hasConfirmedRecoveryKey
-      ? GleanMetrics.resetPassword.recoveryKeyCreatePasswordView()
-      : GleanMetrics.resetPassword.createNewView();
+      ? GleanMetrics.passwordReset.recoveryKeyCreatePasswordView()
+      : GleanMetrics.passwordReset.createNewView();
   }, [hasConfirmedRecoveryKey]);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -76,6 +76,9 @@ const CompleteResetPassword = ({
                   to={`/account_recovery_confirm_key${location.search}`}
                   state={locationState}
                   className="link-white underline-offset-4"
+                  onClick={() =>
+                    GleanMetrics.passwordReset.createNewClickRecoveryKeyMessage()
+                  }
                 >
                   Reset your password with your account recovery key.
                 </Link>

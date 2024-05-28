@@ -154,7 +154,7 @@ const CompleteResetPassword = ({
   const renderCompleteResetPassword = () => {
     setShowLoadingSpinner(false);
     logPageViewEvent(viewName, REACT_ENTRYPOINT);
-    GleanMetrics.resetPassword.createNewView();
+    GleanMetrics.passwordReset.createNewView();
   };
 
   /* When the user clicks the confirm password reset link from their email, we check
@@ -214,7 +214,7 @@ const CompleteResetPassword = ({
         // how account password hashing works previously.
         const emailToUse = emailToHashWith || email;
 
-        GleanMetrics.resetPassword.createNewSubmit();
+        GleanMetrics.passwordReset.createNewSubmit();
 
         const accountResetData = await account.completeResetPassword(
           keyStretchExperiment.queryParamModel.isV2(config),

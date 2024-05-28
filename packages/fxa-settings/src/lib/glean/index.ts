@@ -234,6 +234,9 @@ const recordEventMetric = (
     case 'login_totp_code_success_view':
       login.totpCodeSuccessView.record();
       break;
+    case 'password_reset_create_new_recovery_key_message_click':
+      passwordReset.createNewRecoveryKeyMessageClick.record();
+      break;
     case 'password_reset_create_new_submit':
       passwordReset.createNewSubmit.record();
       break;
@@ -242,6 +245,24 @@ const recordEventMetric = (
       break;
     case 'password_reset_create_new_view':
       passwordReset.createNewView.record();
+      break;
+    case 'password_reset_email_confirmation_different_account':
+      passwordReset.emailConfirmationDifferentAccount.record();
+      break;
+    case 'password_reset_email_confirmation_signin':
+      passwordReset.emailConfirmationSignin.record();
+      break;
+    case 'password_reset_email_confirmation_submit':
+      passwordReset.emailConfirmationSubmit.record();
+      break;
+    case 'password_reset_email_confirmation_view':
+      passwordReset.emailConfirmationView.record();
+      break;
+    case 'password_reset_email_confirmation_resend_code':
+      passwordReset.emailConfirmationResendCode.record();
+      break;
+    case 'password_reset_recovery_key_cannot_find':
+      passwordReset.recoveryKeyCannotFind.record();
       break;
     case 'password_reset_recovery_key_create_new_submit':
       passwordReset.recoveryKeyCreateNewSubmit.record();
