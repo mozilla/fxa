@@ -326,6 +326,7 @@ describe('/password', () => {
         );
 
         sinon.assert.calledOnce(mockRedis.get);
+        sinon.assert.calledOnce(mockRedis.del);
         assert.match(mockRedis.get.args[0][0], new RegExp(uid));
 
         assert.equal(
