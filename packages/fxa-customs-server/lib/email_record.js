@@ -196,14 +196,13 @@ module.exports = function (limits, now) {
     this.ov = [];
   };
 
-  EmailRecord.prototype.retryAfter = function (rlIntervalMs, bkIntervalMs) {
-    const rateLimitIntervalMs = rlIntervalMs || limits.rateLimitIntervalMs;
-    const blockIntervalMs = bkIntervalMs || limits.blockIntervalMs;
-
+  EmailRecord.prototype.retryAfter = function () {
     var rateLimitAfter = Math.ceil(
-      ((this.rl || 0) + rateLimitIntervalMs - now()) / 1000
+      ((this.rl || 0) + limits.rateLimitIntervalMs - now()) / 1000
     );
-    var banAfter = Math.ceil(((this.bk || 0) + blockIntervalMs - now()) / 1000);
+    var banAfter = Math.ceil(
+      ((this.bk || 0) + limits.blockIntervalMs - now()) / 1000
+    );
     return Math.max(0, rateLimitAfter, banAfter);
   };
 
@@ -250,7 +249,7 @@ module.exports = function (limits, now) {
 
   EmailRecord.prototype.isOverPasswordResetOtpLimit = function () {
     this.trimPasswordResetOtps(now());
-    return this.os.length > limits.maxPasswordResetOtpEmails;
+    return this.os.length >= limits.maxPasswordResetOtpEmails;
   };
 
   EmailRecord.prototype.addPasswordResetOtpVerification = function () {
@@ -345,19 +344,18 @@ module.exports = function (limits, now) {
     }
 
     if (actions.isResetPasswordOtpSendingAction(action)) {
-      const otpEmailRateLimited = !!(
-        this.rl &&
-        now() - this.rl < limits.passwordResetOtpEmailRateLimitIntervalMs
-      );
-      if (otpEmailRateLimited || this.shouldBlock()) {
-        return this.retryAfter(limits.passwordResetOtpEmailRateLimitIntervalMs);
+      const shouldRateLimit = this.isOverPasswordResetOtpLimit();
+
+      if (shouldRateLimit) {
+        const latest = this.os[this.os.length - 1];
+        return Math.ceil(
+          (latest + limits.passwordResetOtpEmailRateLimitIntervalMs - now()) /
+            1000
+        );
       }
+
       this.addPasswordResetOtp();
-      if (this.isOverPasswordResetOtpLimit()) {
-        this.rateLimit();
-        this.os = [];
-        return this.retryAfter(limits.passwordResetOtpEmailRateLimitIntervalMs);
-      }
+      return 0;
     }
 
     if (actions.isResetPasswordOtpVerificationAction(action)) {

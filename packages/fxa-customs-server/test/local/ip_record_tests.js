@@ -106,29 +106,6 @@ test('retryAfter block works', function (t) {
   t.end();
 });
 
-test('retryAfter rate limiting and blocking with optional intervals', function (t) {
-  const ir = simpleIpRecord();
-  t.equal(ir.retryAfter(), 0, 'unblocked records can be retried now');
-  ir.rl = 240 * 1000;
-  t.equal(
-    ir.retryAfter(),
-    1,
-    'unblocked records can be retried after default interval'
-  );
-  t.equal(
-    ir.retryAfter(5000),
-    5,
-    'unblocked records can be retried after given rate limited interval'
-  );
-  ir.bk = ir.rl;
-  t.equal(
-    ir.retryAfter(5000, 8000),
-    8,
-    'unblocked records can be retried after given blocked interval'
-  );
-  t.end();
-});
-
 test('parse works', function (t) {
   var ir = simpleIpRecord();
   t.equal(ir.shouldBlock(), false, 'original object is not blocked');

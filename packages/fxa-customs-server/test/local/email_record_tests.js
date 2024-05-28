@@ -182,9 +182,6 @@ test('retryAfter works', function (t) {
   t.equal(er.retryAfter(), 0, 'just expired blocks can be retried immediately');
   er.rl = 6000;
   t.equal(er.retryAfter(), 1, 'unexpired blocks can be retried in a bit');
-  t.equal(er.retryAfter(10000), 6, 'optional rate limit interval');
-  er.bk = 6000;
-  t.equal(er.retryAfter(10000, 20000), 16, 'optional block interval');
 
   delete er.rl;
   delete er.bk;
