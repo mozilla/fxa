@@ -688,6 +688,7 @@ module.exports = function (
 
         const passwordForgotToken = await db.createPasswordForgotToken(account);
 
+        await otpManager.delete(account.uid);
         glean.resetPassword.otpVerified(request);
         await request.emitMetricsEvent('password.forgot.verify_otp.completed');
 
