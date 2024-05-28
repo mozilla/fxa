@@ -11,6 +11,7 @@ import {
   CartState,
 } from '@fxa/shared/db/mysql/account';
 import {
+  CheckoutCustomerData,
   FinishCart,
   FinishErrorCart,
   ResultCart,
@@ -28,6 +29,14 @@ const OFFERING_CONFIG_IDS = [
 ];
 
 const INTERVALS = ['daily', 'weekly', 'monthly', '6monthly', 'yearly'];
+
+export const CheckoutCustomerDataFactory = (
+  override?: Partial<CheckoutCustomerData>
+): CheckoutCustomerData => ({
+  locale: faker.helpers.arrayElement(['en-US', 'de', 'es', 'fr-FR']),
+  displayName: faker.person.fullName(),
+  ...override,
+});
 
 export const SetupCartFactory = (override?: Partial<SetupCart>): SetupCart => ({
   email: 'test@example.com',

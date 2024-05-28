@@ -52,6 +52,7 @@ import {
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 import { AccountManager } from '@fxa/shared/account/account';
 import {
+  CheckoutCustomerDataFactory,
   FinishErrorCartFactory,
   ResultCartFactory,
   UpdateCartFactory,
@@ -192,8 +193,9 @@ describe('CartService', () => {
   });
 
   describe('checkoutCartWithStripe', () => {
+    const mockCustomerData = CheckoutCustomerDataFactory();
+
     it('accepts payment with stripe', async () => {
-      const locale = 'en-US';
       const mockCart = ResultCartFactory();
       const mockPaymentMethodId = faker.string.uuid();
 
@@ -205,14 +207,14 @@ describe('CartService', () => {
       await cartService.checkoutCartWithStripe(
         mockCart.id,
         mockCart.version,
-        locale,
-        mockPaymentMethodId
+        mockPaymentMethodId,
+        mockCustomerData
       );
 
       expect(checkoutService.payWithStripe).toHaveBeenCalledWith(
         mockCart,
-        locale,
-        mockPaymentMethodId
+        mockPaymentMethodId,
+        mockCustomerData
       );
       expect(cartManager.finishCart).toHaveBeenCalledWith(
         mockCart.id,
@@ -223,7 +225,6 @@ describe('CartService', () => {
     });
 
     it('calls cartManager.finishErrorCart when error occurs during checkout', async () => {
-      const locale = 'en-US';
       const mockCart = ResultCartFactory();
       const mockPaymentMethodId = faker.string.uuid();
 
@@ -235,23 +236,20 @@ describe('CartService', () => {
       await cartService.checkoutCartWithStripe(
         mockCart.id,
         mockCart.version,
-        locale,
-        mockPaymentMethodId
+        mockPaymentMethodId,
+        mockCustomerData
       );
 
-      expect(cartManager.finishErrorCart).toHaveBeenCalledWith(
-        mockCart.id,
-        mockCart.version,
-        {
-          errorReasonId: CartErrorReasonId.Unknown,
-        }
-      );
+      expect(cartManager.finishErrorCart).toHaveBeenCalledWith(mockCart.id, {
+        errorReasonId: CartErrorReasonId.Unknown,
+      });
     });
   });
 
   describe('checkoutCartWithPaypal', () => {
+    const mockCustomerData = CheckoutCustomerDataFactory();
+
     it('accepts payment with Paypal', async () => {
-      const locale = 'en-US';
       const mockCart = ResultCartFactory();
       const mockToken = faker.string.uuid();
 
@@ -263,13 +261,13 @@ describe('CartService', () => {
       await cartService.checkoutCartWithPaypal(
         mockCart.id,
         mockCart.version,
-        locale,
+        mockCustomerData,
         mockToken
       );
 
       expect(checkoutService.payWithPaypal).toHaveBeenCalledWith(
         mockCart,
-        locale,
+        mockCustomerData,
         mockToken
       );
       expect(cartManager.finishCart).toHaveBeenCalledWith(
@@ -292,16 +290,13 @@ describe('CartService', () => {
       await cartService.checkoutCartWithPaypal(
         mockCart.id,
         mockCart.version,
+        mockCustomerData,
         mockToken
       );
 
-      expect(cartManager.finishErrorCart).toHaveBeenCalledWith(
-        mockCart.id,
-        mockCart.version,
-        {
-          errorReasonId: CartErrorReasonId.Unknown,
-        }
-      );
+      expect(cartManager.finishErrorCart).toHaveBeenCalledWith(mockCart.id, {
+        errorReasonId: CartErrorReasonId.Unknown,
+      });
     });
   });
 
@@ -314,15 +309,12 @@ describe('CartService', () => {
 
       await cartService.finalizeCartWithError(
         mockCart.id,
-        mockCart.version,
         mockErrorCart.errorReasonId
       );
 
-      expect(cartManager.finishErrorCart).toHaveBeenCalledWith(
-        mockCart.id,
-        mockCart.version,
-        { errorReasonId: mockErrorCart.errorReasonId }
-      );
+      expect(cartManager.finishErrorCart).toHaveBeenCalledWith(mockCart.id, {
+        errorReasonId: mockErrorCart.errorReasonId,
+      });
     });
 
     it('should swallow error if cart already in fail state', async () => {
@@ -336,7 +328,6 @@ describe('CartService', () => {
 
       await cartService.finalizeCartWithError(
         mockCart.id,
-        mockCart.version,
         mockErrorCart.errorReasonId
       );
 
@@ -355,7 +346,6 @@ describe('CartService', () => {
       await expect(
         cartService.finalizeCartWithError(
           mockCart.id,
-          mockCart.version,
           mockErrorCart.errorReasonId
         )
       ).rejects.toThrow(Error);
@@ -373,7 +363,6 @@ describe('CartService', () => {
       await expect(
         cartService.finalizeCartWithError(
           mockCart.id,
-          mockCart.version,
           mockErrorCart.errorReasonId
         )
       ).rejects.toThrow(Error);

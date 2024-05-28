@@ -20,7 +20,7 @@ import {
   CartEmailNotFoundError,
 } from './cart.error';
 import { CartManager } from './cart.manager';
-import { ResultCart } from './cart.types';
+import { CheckoutCustomerData, ResultCart } from './cart.types';
 import { handleEligibilityStatusMap } from './cart.utils';
 import { ContentfulService } from '@fxa/shared/contentful';
 import { AccountManager } from '@fxa/shared/account/account';
@@ -39,7 +39,7 @@ export class CheckoutService {
     private accountCustomerManager: AccountCustomerManager
   ) {}
 
-  async prePaySteps(cart: ResultCart, locale: string) {
+  async prePaySteps(cart: ResultCart, customerData: CheckoutCustomerData) {
     let customer, stripeCustomerId, uid;
     const taxAddress = cart.taxAddress as any as TaxAddress;
 
@@ -54,7 +54,7 @@ export class CheckoutService {
       uid = await this.accountManager.createAccountStub(
         cart.email,
         1, // verifierVersion
-        locale
+        customerData.locale
       );
     } else {
       uid = cart.uid;
@@ -63,9 +63,10 @@ export class CheckoutService {
     // if stripeCustomerId not found, create plain stripe account
     if (!cart.stripeCustomerId) {
       customer = await this.stripeManager.createPlainCustomer({
-        uid: uid,
+        uid,
         email: cart.email,
-        taxAddress: taxAddress,
+        displayName: customerData.displayName,
+        taxAddress,
       });
 
       stripeCustomerId = customer.id;
@@ -150,6 +151,7 @@ export class CheckoutService {
       customer,
       enableAutomaticTax,
       promotionCode,
+      priceId,
     };
   }
 
@@ -163,11 +165,11 @@ export class CheckoutService {
 
   async payWithStripe(
     cart: ResultCart,
-    locale: string,
-    paymentMethodId: string
+    paymentMethodId: string,
+    customerData: CheckoutCustomerData
   ) {
-    const { customer, enableAutomaticTax, promotionCode } =
-      await this.prePaySteps(cart, locale);
+    const { customer, enableAutomaticTax, promotionCode, priceId } =
+      await this.prePaySteps(cart, customerData);
 
     await this.stripeClient.paymentMethodsAttach(paymentMethodId, {
       customer: customer.id,
@@ -189,7 +191,7 @@ export class CheckoutService {
       promotion_code: promotionCode?.id,
       items: [
         {
-          price: undefined, // TODO: fetch price from cart after FXA-8893
+          price: priceId,
         },
       ],
       // TODO: Generate and use idempotency key using util
@@ -225,9 +227,13 @@ export class CheckoutService {
     await this.postPaySteps(cart, subscription);
   }
 
-  async payWithPaypal(cart: ResultCart, locale: string, token?: string) {
-    const { uid, customer, enableAutomaticTax, promotionCode } =
-      await this.prePaySteps(cart, locale);
+  async payWithPaypal(
+    cart: ResultCart,
+    customerData: CheckoutCustomerData,
+    token?: string
+  ) {
+    const { uid, customer, enableAutomaticTax, promotionCode, priceId } =
+      await this.prePaySteps(cart, customerData);
 
     const paypalSubscriptions =
       await this.paypalManager.getCustomerPayPalSubscriptions(customer.id);
@@ -251,7 +257,7 @@ export class CheckoutService {
       promotion_code: promotionCode?.id,
       items: [
         {
-          price: undefined, // TODO: fetch price from cart after FXA-8893
+          price: priceId,
         },
       ],
       // TODO: Generate and use idempotency key

@@ -11,14 +11,12 @@ import { stripeErrorToErrorReasonId } from '@fxa/payments/cart';
 
 export const handleStripeErrorAction = async (
   cartId: string,
-  version: number,
   stripeError: StripeError
 ) => {
   const errorReasonId = stripeErrorToErrorReasonId(stripeError);
 
   await app.getActionsService().finalizeCartWithError({
     cartId,
-    version,
     errorReasonId,
   });
 

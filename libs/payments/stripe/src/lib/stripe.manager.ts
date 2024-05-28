@@ -79,7 +79,7 @@ export class StripeManager {
   async createPlainCustomer(args: {
     uid: string;
     email: string;
-    displayName?: string;
+    displayName: string;
     taxAddress?: TaxAddress;
   }) {
     const { uid, email, displayName, taxAddress } = args;

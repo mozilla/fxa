@@ -6,19 +6,22 @@
 
 import { plainToClass } from 'class-transformer';
 import { app } from '../nestapp/app';
-import { CheckoutCartWithStripeActionArgs } from '../nestapp/validators/CheckoutCartWithStripeActionArgs';
+import {
+  CheckoutCartWithStripeActionArgs,
+  CheckoutCartWithStripeActionCustomerData,
+} from '../nestapp/validators/CheckoutCartWithStripeActionArgs';
 
 export const checkoutCartWithStripe = async (
   cartId: string,
   version: number,
-  locale: string,
-  paymentMethodId: string
+  paymentMethodId: string,
+  customerData: CheckoutCartWithStripeActionCustomerData
 ) => {
   await app.getActionsService().checkoutCartWithStripe(
     plainToClass(CheckoutCartWithStripeActionArgs, {
       cartId,
       version,
-      locale,
+      customerData,
       paymentMethodId,
     })
   );

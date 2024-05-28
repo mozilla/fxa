@@ -18,7 +18,12 @@ import { CartErrorReasonId, CartState } from '@fxa/shared/db/mysql/account';
 import { GeoDBManager } from '@fxa/shared/geodb';
 
 import { CartManager } from './cart.manager';
-import { ResultCart, UpdateCart, WithUpcomingInvoiceCart } from './cart.types';
+import {
+  CheckoutCustomerData,
+  ResultCart,
+  UpdateCart,
+  WithUpcomingInvoiceCart,
+} from './cart.types';
 import { handleEligibilityStatusMap } from './cart.utils';
 import { CheckoutService } from './checkout.service';
 
@@ -130,18 +135,22 @@ export class CartService {
   async checkoutCartWithStripe(
     cartId: string,
     version: number,
-    locale: string,
-    paymentMethodId: string
+    paymentMethodId: string,
+    customerData: CheckoutCustomerData
   ) {
     try {
       const cart = await this.cartManager.fetchCartById(cartId);
 
-      await this.checkoutService.payWithStripe(cart, locale, paymentMethodId);
+      await this.checkoutService.payWithStripe(
+        cart,
+        paymentMethodId,
+        customerData
+      );
 
       await this.cartManager.finishCart(cartId, version, {});
     } catch (e) {
       // TODO: Handle errors and provide an associated reason for failure
-      await this.cartManager.finishErrorCart(cartId, version, {
+      await this.cartManager.finishErrorCart(cartId, {
         errorReasonId: CartErrorReasonId.Unknown,
       });
     }
@@ -150,18 +159,18 @@ export class CartService {
   async checkoutCartWithPaypal(
     cartId: string,
     version: number,
-    locale: string,
+    customerData: CheckoutCustomerData,
     token?: string
   ) {
     try {
       const cart = await this.cartManager.fetchCartById(cartId);
 
-      this.checkoutService.payWithPaypal(cart, locale, token);
+      this.checkoutService.payWithPaypal(cart, customerData, token);
 
       await this.cartManager.finishCart(cartId, version, {});
     } catch (e) {
       // TODO: Handle errors and provide an associated reason for failure
-      await this.cartManager.finishErrorCart(cartId, version, {
+      await this.cartManager.finishErrorCart(cartId, {
         errorReasonId: CartErrorReasonId.Unknown,
       });
     }
@@ -173,11 +182,10 @@ export class CartService {
    */
   async finalizeCartWithError(
     cartId: string,
-    version: number,
     errorReasonId: CartErrorReasonId
   ): Promise<void> {
     try {
-      await this.cartManager.finishErrorCart(cartId, version, {
+      await this.cartManager.finishErrorCart(cartId, {
         errorReasonId,
       });
     } catch (e) {

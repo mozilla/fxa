@@ -15,6 +15,8 @@ import {
   getContentfulContent,
 } from 'apps/payments/next/app/_lib/apiClient';
 import { PaymentSection } from '@fxa/payments/ui';
+import { PrimaryButton } from 'libs/payments/ui/src/lib/client/components/PrimaryButton';
+import { revalidatePath } from 'next/cache';
 
 export const dynamic = 'force-dynamic';
 
@@ -84,8 +86,34 @@ export default async function Checkout({ params }: { params: CheckoutParams }) {
 
           <hr className="mx-auto w-full border-grey-200" />
 
-          <div className="h-64 text-center flex items-center justify-center">
-            {'<placeholder>Passwordless signup</placeholder>'}
+          <div className="p-6 text-center">
+            {/**
+              Temporary Content. This will be replaced in M3b by the Passwordless
+              email signup form.
+            */}
+            <p className="mb-6">{`Current cart email: ${cart.email}`}</p>
+            <form
+              action={async (formData: FormData) => {
+                'use server';
+                const email =
+                  formData.get('email')?.toString() || 'test@example.com';
+                await app.getActionsService().updateCart({
+                  cartId: cart.id,
+                  version: cart.version,
+                  cartDetails: {
+                    email,
+                  },
+                });
+                revalidatePath('/');
+              }}
+            >
+              <input
+                type="email"
+                name="email"
+                className="w-full border rounded-md border-black/30 p-3 placeholder:text-grey-500 placeholder:font-normal focus:border focus:!border-black/30 focus:!shadow-[0_0_0_3px_rgba(10,132,255,0.3)] focus-visible:outline-none data-[invalid=true]:border-alert-red data-[invalid=true]:text-alert-red data-[invalid=true]:shadow-inputError"
+              />
+              <PrimaryButton type="submit"> Set email</PrimaryButton>
+            </form>
           </div>
 
           <hr className="mx-auto w-full border-grey-200" />
