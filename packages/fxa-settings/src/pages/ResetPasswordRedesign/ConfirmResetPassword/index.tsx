@@ -6,10 +6,10 @@ import React from 'react';
 import AppLayout from '../../../components/AppLayout';
 import FormVerifyTotp from '../../../components/FormVerifyTotp';
 import { ConfirmResetPasswordProps } from './interfaces';
-import { RouteComponentProps } from '@reach/router';
+import { RouteComponentProps, useLocation } from '@reach/router';
 import { useFtlMsgResolver } from '../../../models';
 import LinkRememberPassword from '../../../components/LinkRememberPassword';
-import { FtlMsg } from 'fxa-react/lib/utils';
+import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
 import { ResendEmailSuccessBanner } from '../../../components/Banner';
 import { ResendStatus } from '../../../lib/types';
 import { EmailCodeImage } from '../../../components/images';
@@ -19,12 +19,12 @@ const ConfirmResetPassword = ({
   errorMessage,
   resendCode,
   resendStatus,
-  searchParams,
   setErrorMessage,
   setResendStatus,
   verifyCode,
 }: ConfirmResetPasswordProps & RouteComponentProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
+  const location = useLocation();
 
   const localizedInputGroupLabel = ftlMsgResolver.getMsg(
     'confirm-reset-password-otp-input-group-label',
@@ -82,7 +82,26 @@ const ConfirmResetPassword = ({
           </button>
         </FtlMsg>
         <FtlMsg id="confirm-reset-password-otp-different-account-link">
-          <a href={`/${searchParams}`} className="link-blue">
+          <a
+            href="/"
+            className="text-sm link-blue"
+            onClick={(e) => {
+              e.preventDefault();
+              const params = new URLSearchParams(location.search);
+              // Tell content-server to stay on index and prefill the email
+              params.set('prefillEmail', email);
+              // Passing back the 'email' param causes various behaviors in
+              // content-server since it marks the email as "coming from a RP".
+              // Also remove other params that are passed when coming
+              // from content-server to Backbone, see Signup container component
+              // for more info.
+              params.delete('email');
+              params.delete('hasLinkedAccount');
+              params.delete('hasPassword');
+              params.delete('showReactApp');
+              hardNavigate(`/?${params.toString()}`);
+            }}
+          >
             Use a different account
           </a>
         </FtlMsg>

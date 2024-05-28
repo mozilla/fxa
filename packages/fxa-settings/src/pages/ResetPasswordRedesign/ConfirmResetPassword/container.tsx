@@ -28,8 +28,6 @@ const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
   const { email, metricsContext } =
     (location.state as ConfirmResetPasswordLocationState) || {};
 
-  const searchParams = location.search;
-
   const handleNavigation = (
     code: string,
     emailToHashWith: string,
@@ -39,7 +37,7 @@ const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
     recoveryKeyExists?: boolean
   ) => {
     if (recoveryKeyExists === true) {
-      navigate(`/account_recovery_confirm_key${searchParams}`, {
+      navigate(`/account_recovery_confirm_key${location.search}`, {
         state: {
           code,
           email,
@@ -51,7 +49,7 @@ const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
         },
       });
     } else {
-      navigate(`/complete_reset_password${searchParams}`, {
+      navigate(`/complete_reset_password${location.search}`, {
         state: {
           code,
           email,
@@ -123,7 +121,7 @@ const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
   };
 
   if (!email) {
-    navigate(`/reset_password${searchParams}`);
+    navigate(`/reset_password${location.search}`);
     return <LoadingSpinner fullScreen />;
   }
 
@@ -134,7 +132,6 @@ const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
         errorMessage,
         resendCode,
         resendStatus,
-        searchParams,
         setErrorMessage,
         setResendStatus,
         verifyCode,

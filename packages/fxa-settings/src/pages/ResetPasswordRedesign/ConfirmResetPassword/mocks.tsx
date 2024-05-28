@@ -19,7 +19,6 @@ export const Subject = ({
   const email = MOCK_EMAIL;
   const [errorMessage, setErrorMessage] = useState('');
   const [resendStatus, setResendStatus] = useState(ResendStatus['not sent']);
-  const searchParams = '';
 
   return (
     <LocationProvider>
@@ -29,7 +28,6 @@ export const Subject = ({
           errorMessage,
           resendCode,
           resendStatus,
-          searchParams,
           setErrorMessage,
           setResendStatus,
           verifyCode,

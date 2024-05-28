@@ -4,7 +4,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Link, RouteComponentProps, useLocation } from '@reach/router';
-import { FtlMsg } from 'fxa-react/lib/utils';
+import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
 import { useFtlMsgResolver } from '../../../models';
 import { logViewEvent } from '../../../lib/metrics';
 import { TwoFactorAuthImage } from '../../../components/images';
@@ -175,7 +175,26 @@ export const SigninTotpCode = ({
       <div className="mt-5 link-blue text-sm flex justify-between">
         <FtlMsg id="signin-totp-code-other-account-link">
           {/* TODO in FXA-8636 replace with Link component once index reactified */}
-          <a href={`/${location.search}`} className="text-start">
+          <a
+            href="/"
+            className="text-sm link-blue"
+            onClick={(e) => {
+              e.preventDefault();
+              const params = new URLSearchParams(location.search);
+              // Tell content-server to stay on index and prefill the email
+              params.set('prefillEmail', email);
+              // Passing back the 'email' param causes various behaviors in
+              // content-server since it marks the email as "coming from a RP".
+              // Also remove other params that are passed when coming
+              // from content-server to Backbone, see Signup container component
+              // for more info.
+              params.delete('email');
+              params.delete('hasLinkedAccount');
+              params.delete('hasPassword');
+              params.delete('showReactApp');
+              hardNavigate(`/?${params.toString()}`);
+            }}
+          >
             Use a different account
           </a>
         </FtlMsg>
