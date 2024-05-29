@@ -3,20 +3,28 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { resolve } = require('path');
+const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 
 const allFxa = resolve(__dirname, '../../');
-const importPaths = [allFxa, resolve(__dirname, '../../../node_modules')];
+const allLibs = resolve(__dirname, '../../libs/');
+const importPaths = [
+  allFxa,
+  allLibs,
+  resolve(__dirname, '../../../node_modules'),
+];
 const additionalJSImports = {
   'fxa-react': resolve(__dirname, '../'),
   'fxa-shared': resolve(__dirname, '../../fxa-shared'),
-  '@fxa/shared/l10n': resolve(__dirname, '../../../libs/shared/l10n/src'),
 };
 
 const customizeWebpackConfig = ({ config }) => ({
   ...config,
   resolve: {
     ...config.resolve,
-    plugins: (config.resolve.plugins || []).map((plugin) => {
+    plugins: [
+      ...(config.resolve.plugins || []),
+      new TsconfigPathsPlugin({ configFile: './tsconfig.json' }),
+    ].map((plugin) => {
       // Rebuild ModuleScopePlugin with some additional allowed paths
       if (
         plugin.constructor &&

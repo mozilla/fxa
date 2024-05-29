@@ -3,14 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { resolve } = require('path');
+const { pathsToModuleNameMapper } = require('ts-jest');
+const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 
 const permitAdditionalJSImports = (config) => {
   // We're just gonna call all of fxa fair game ;)
   const allFxa = resolve(__dirname, '../../');
-  const sharedAssets = resolve(__dirname, '../../../libs/shared/assets/');
+  const allLibs = resolve(__dirname, '../../../libs/');
   const importPaths = [
     allFxa,
-    sharedAssets,
+    allLibs,
     resolve(__dirname, '../../../node_modules'),
   ];
   // Update ModuleScopePlugin's appSrcs to allow our new directory
@@ -19,6 +21,10 @@ const permitAdditionalJSImports = (config) => {
       plugin.appSrcs.push(...importPaths);
     }
   });
+
+  config.resolve.plugins.push(
+    new TsconfigPathsPlugin({ configFile: './tsconfig.json' })
+  );
 
   // We need to target a loader that handles compiling the JS/TS/JSX/TSX files, which exists
   // as a nameless object at a very arbitrary location. Without this we would still be able
@@ -55,6 +61,7 @@ const permitAdditionalJSImports = (config) => {
     config.module.rules[1].oneOf[3].include = [
       config.module.rules[1].oneOf[3].include,
       allFxa,
+      allLibs,
     ];
   } else {
     throw new Error(
@@ -81,14 +88,21 @@ const suppressRuntimeErrorOverlay = (devServerConfig) => {
   };
 };
 
-const setModuleNameMapper = (config) => {
+const setModuleNameMapper = (tsconfigBase) => (config) => {
   config.transform = {
     ...config.transform,
     '^.+\\.tsx?$': ['ts-jest', { isolatedModules: true }],
   };
+
+  // ts-jest - Paths mapping - With helper
+  // https://kulshekhar.github.io/ts-jest/docs/getting-started/paths-mapping#jest-config-with-helper
+  config.roots = ['<rootDir>'];
+  config.modulePaths = [tsconfigBase.compilerOptions.baseUrl];
   config.moduleNameMapper = {
     ...config.moduleNameMapper,
-    '@fxa/shared/l10n': '../../../libs/shared/l10n/src',
+    ...pathsToModuleNameMapper(tsconfigBase.compilerOptions.paths, {
+      prefix: '<rootDir>/../../',
+    }),
   };
   return config;
 };

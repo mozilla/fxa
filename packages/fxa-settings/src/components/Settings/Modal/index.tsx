@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { ReactNode } from 'react';
+import { ReactNode } from 'react';
 import { useClickOutsideEffect } from 'fxa-react/lib/hooks';
 import { useEscKeydownEffect, useChangeFocusEffect } from '../../../lib/hooks';
 import classNames from 'classnames';
 import Portal from 'fxa-react/components/Portal';
-import { ReactComponent as CloseIcon } from '../../../../../../libs/shared/assets/src/images/close.svg';
+import { ReactComponent as CloseIcon } from '@fxa/shared/assets/images/close.svg';
 import { Link, useLocation } from '@reach/router';
 import { useFtlMsgResolver } from '../../../models';
 import { FtlMsg } from 'fxa-react/lib/utils';

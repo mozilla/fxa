@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-
 import { LinkExternal } from 'fxa-react/components/LinkExternal';
 import { DeviceLocation } from '../../../models/Account';
 import { ReactComponent as WebIcon } from './web.svg';
@@ -13,7 +11,7 @@ import { ReactComponent as MobileIcon } from './mobile.svg';
 import { ReactComponent as SyncIcon } from './sync.svg';
 import { ReactComponent as TabletIcon } from './tablet.svg';
 import { ReactComponent as MonitorIcon } from './monitor.svg';
-import { ReactComponent as PocketIcon } from '../../../../../../libs/shared/assets/src/images/pocket.svg';
+import { ReactComponent as PocketIcon } from '@fxa/shared/assets/images/pocket.svg';
 import { ReactComponent as LockwiseIcon } from './lockwise.svg';
 import { ReactComponent as RelayIcon } from './relay.svg';
 import { ReactComponent as AddonIcon } from './addon.svg';

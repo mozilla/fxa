@@ -3,10 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useLocalization } from '@fluent/react';
-import React from 'react';
 import { Helmet } from 'react-helmet';
-import { determineLocale } from 'fxa-shared/l10n/determineLocale';
-import { determineDirection } from 'fxa-shared/l10n/determineDirection';
+import { determineLocale, determineDirection } from '@fxa/shared/l10n';
 
 const supportedUserLocale = determineLocale(
   window.navigator.languages.join(', ')

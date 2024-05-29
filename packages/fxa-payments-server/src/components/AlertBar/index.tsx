@@ -2,8 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import { ReactComponent as CloseIcon } from '../../../../../libs/shared/assets/src/images/close.svg';
+import { ReactComponent as CloseIcon } from '@fxa/shared/assets/images/close.svg';
 import { Localized } from '@fluent/react';
 import classNames from 'classnames';
 import Portal from 'fxa-react/components/Portal';

@@ -31,9 +31,7 @@ const remoteAddress =
 const geolocate = require('fxa-shared/express/geo-locate').geolocate(geodb)(
   remoteAddress
 )(log);
-// TODO - FXA-8413 - Delete file. Replaced by @fxa/shared/l10n
-// const { determineLocale } = require('@fxa/shared/l10n');
-const {determineLocale} = require('fxa-shared/l10n/determineLocale')
+const { determineLocale } = require('@fxa/shared/l10n');
 
 const FUZZY_EVENTS = new Map([
   [
