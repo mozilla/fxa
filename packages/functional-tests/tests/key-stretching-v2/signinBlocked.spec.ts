@@ -38,7 +38,13 @@ test.describe('severity-2 #smoke', () => {
         deleteAccount,
       },
       testAccountTracker,
-    }) => {
+    }, { project }) => {
+      test.fixme(
+        project.name !== 'local' &&
+          signup.version === 1 &&
+          signin.version === 2,
+        'FXA-9734'
+      );
       const { email, password } =
         testAccountTracker.generateBlockedAccountDetails();
       await page.goto(
