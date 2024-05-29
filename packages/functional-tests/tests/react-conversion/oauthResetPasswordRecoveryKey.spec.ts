@@ -14,7 +14,7 @@ test.describe('severity-1 #smoke', () => {
   test.describe('oauth reset password with recovery key react', () => {
     test.beforeEach(async ({ pages: { configPage } }) => {
       const config = await configPage.getConfig();
-      test.fixme(
+      test.skip(
         config.featureFlags.resetPasswordWithCode === true,
         'see FXA-9612'
       );
