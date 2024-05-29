@@ -10,13 +10,14 @@ import { useMutation } from '@apollo/client';
 import { MozServices } from '../../../lib/types';
 import VerificationMethods from '../../../constants/verification-methods';
 import { VERIFY_TOTP_CODE_MUTATION } from './gql';
-import { getSigninState, getHandledError } from '../utils';
+import { getSigninState } from '../utils';
 import { SigninLocationState } from '../interfaces';
 import { Integration, useAuthClient } from '../../../models';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import OAuthDataError from '../../../components/OAuthDataError';
+import { getHandledError } from '../../../lib/error-utils';
 
 export type SigninTotpCodeContainerProps = {
   integration: Integration;

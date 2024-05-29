@@ -9,10 +9,8 @@ import InputText from '../../InputText';
 import FlowContainer from '../FlowContainer';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import { useForm } from 'react-hook-form';
-import {
-  AuthUiErrors,
-  getErrorFtlId,
-} from 'fxa-settings/src/lib/auth-errors/auth-errors';
+import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
+import { getErrorFtlId } from '../../../lib/error-utils';
 
 type FormData = {
   verificationCode: string;

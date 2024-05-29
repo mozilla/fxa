@@ -5,6 +5,7 @@
 import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
 import { AuthUiError } from '../../lib/auth-errors/auth-errors';
+import { BeginSigninError } from '../../lib/error-utils';
 import { AccountAvatar } from '../../lib/interfaces';
 import { FinishOAuthFlowHandler } from '../../lib/oauth/hooks';
 import { MozServices } from '../../lib/types';
@@ -76,16 +77,6 @@ export interface BeginSigninResponse {
     keyFetchToken?: hexstring;
   };
   unwrapBKey?: hexstring;
-}
-
-export interface BeginSigninError {
-  errno: number;
-  message: string;
-  verificationReason?: VerificationReasons;
-  verificationMethod?: VerificationMethods;
-  retryAfter?: number;
-  retryAfterLocalized?: string;
-  email?: string;
 }
 
 export type CachedSigninHandler = (

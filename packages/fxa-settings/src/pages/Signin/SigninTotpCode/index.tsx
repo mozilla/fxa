@@ -13,21 +13,18 @@ import FormVerifyCode, {
   FormAttributes,
 } from '../../../components/FormVerifyCode';
 import { MozServices } from '../../../lib/types';
-import {
-  AuthUiErrors,
-  getLocalizedErrorMessage,
-} from '../../../lib/auth-errors/auth-errors';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import Banner, { BannerType } from '../../../components/Banner';
 import AppLayout from '../../../components/AppLayout';
 import GleanMetrics from '../../../lib/glean';
-import {
-  BeginSigninError,
-  SigninIntegration,
-  SigninLocationState,
-} from '../interfaces';
+import { SigninIntegration, SigninLocationState } from '../interfaces';
 import { handleNavigation } from '../utils';
 import { FinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import { storeAccountData } from '../../../lib/storage-utils';
+import {
+  BeginSigninError,
+  getLocalizedErrorMessage,
+} from '../../../lib/error-utils';
 
 // TODO: show a banner success message if a user is coming from reset password
 // in FXA-6491. This differs from content-server where currently, users only

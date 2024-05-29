@@ -10,16 +10,14 @@ import { useAccount, useFtlMsgResolver } from '../../../models';
 import { useForm } from 'react-hook-form';
 import base32Encode from 'base32-encode';
 import { logViewEvent } from '../../../lib/metrics';
-import {
-  AuthUiErrors,
-  getLocalizedErrorMessage,
-} from '../../../lib/auth-errors/auth-errors';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import InputPassword from '../../InputPassword';
 import { LockImage } from '../../images';
 import Banner, { BannerType } from '../../Banner';
 import { RecoveryKeyAction } from '../PageRecoveryKeyCreate';
 import { Link } from '@reach/router';
 import { HomePath } from '../../../constants';
+import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 
 type FormData = {
   password: string;

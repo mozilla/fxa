@@ -8,11 +8,11 @@ import { Meta } from '@storybook/react';
 import { MozServices } from '../../../lib/types';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import { BeginSigninError } from '../interfaces';
 import { LocationProvider } from '@reach/router';
 import { mockSigninLocationState } from '../mocks';
 import { mockFinishOAuthFlowHandler } from '../../mocks';
 import { mockWebIntegration } from './mocks';
+import { BeginSigninError } from '../../../lib/error-utils';
 
 export default {
   title: 'Pages/Signin/SigninRecoveryCode',

@@ -17,10 +17,7 @@ import CardHeader from '../../../components/CardHeader';
 import WarningMessage from '../../../components/WarningMessage';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import AppLayout from '../../../components/AppLayout';
-import {
-  AuthUiErrors,
-  getLocalizedErrorMessage,
-} from '../../../lib/auth-errors/auth-errors';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import base32Decode from 'base32-decode';
 import { decryptRecoveryKeyData } from 'fxa-auth-client/lib/recoveryKey';
 import { isBase32Crockford } from '../../../lib/utilities';
@@ -32,6 +29,7 @@ import {
   AccountRecoveryConfirmKeySubmitData,
 } from './interfaces';
 import { LinkStatus } from '../../../lib/types';
+import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 
 export const viewName = 'account-recovery-confirm-key';
 

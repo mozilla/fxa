@@ -30,7 +30,6 @@ import {
   MOCK_FLOW_ID,
 } from '../mocks';
 import {
-  BeginSigninError,
   BeginSigninHandler,
   BeginSigninResponse,
   CachedSigninHandler,
@@ -56,6 +55,7 @@ import {
 } from './gql';
 import { ApolloError } from '@apollo/client';
 import { GraphQLError } from 'graphql';
+import { BeginSigninError } from '../../lib/error-utils';
 
 // Extend base mocks
 export * from '../mocks';

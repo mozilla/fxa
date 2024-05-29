@@ -16,10 +16,7 @@ import CardHeader from '../../../components/CardHeader';
 import GleanMetrics from '../../../lib/glean';
 import AppLayout from '../../../components/AppLayout';
 import { SigninTokenCodeProps } from './interfaces';
-import {
-  AuthUiErrors,
-  getLocalizedErrorMessage,
-} from '../../../lib/auth-errors/auth-errors';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import Banner, {
   BannerProps,
   BannerType,
@@ -27,6 +24,7 @@ import Banner, {
 } from '../../../components/Banner';
 import { handleNavigation } from '../utils';
 import firefox from '../../../lib/channels/firefox';
+import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 
 export const viewName = 'signin-token-code';
 

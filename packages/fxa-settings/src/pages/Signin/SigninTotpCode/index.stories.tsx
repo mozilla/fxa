@@ -9,8 +9,8 @@ import { LocationProvider } from '@reach/router';
 import { MozServices } from '../../../lib/types';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import { BeginSigninError } from '../interfaces';
 import { Subject } from './mocks';
+import { BeginSigninError } from '../../../lib/error-utils';
 
 export default {
   title: 'Pages/Signin/SigninTotpCode',

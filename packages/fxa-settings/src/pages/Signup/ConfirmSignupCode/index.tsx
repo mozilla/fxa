@@ -6,11 +6,7 @@ import React, { useEffect, useState } from 'react';
 import { RouteComponentProps, useLocation } from '@reach/router';
 import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
 import { REACT_ENTRYPOINT } from '../../../constants';
-import {
-  AuthUiErrors,
-  getErrorFtlId,
-  getLocalizedErrorMessage,
-} from '../../../lib/auth-errors/auth-errors';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import {
   logViewEvent,
   queryParamsToMetricsContext,
@@ -45,6 +41,10 @@ import GleanMetrics from '../../../lib/glean';
 import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
 import { storeAccountData } from '../../../lib/storage-utils';
 import { getSyncNavigate } from '../../Signin/utils';
+import {
+  getErrorFtlId,
+  getLocalizedErrorMessage,
+} from '../../../lib/error-utils';
 
 export const viewName = 'confirm-signup-code';
 

@@ -25,7 +25,7 @@ import {
   ConfirmResetPasswordIntegration,
   ConfirmResetPasswordLocationState,
 } from './interfaces';
-import { getLocalizedErrorMessage } from '../../../lib/auth-errors/auth-errors';
+import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 
 export const viewName = 'confirm-reset-password';
 

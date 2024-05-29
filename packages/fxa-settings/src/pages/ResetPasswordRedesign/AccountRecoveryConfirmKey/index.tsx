@@ -6,10 +6,7 @@ import { Link, useLocation } from '@reach/router';
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import {
-  AuthUiErrors,
-  getLocalizedErrorMessage,
-} from '../../../lib/auth-errors/auth-errors';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import GleanMetrics from '../../../lib/glean';
 import { isBase32Crockford } from '../../../lib/utilities';
 import { useFtlMsgResolver } from '../../../models/hooks';
@@ -24,6 +21,7 @@ import {
   AccountRecoveryConfirmKeyFormData,
   AccountRecoveryConfirmKeyProps,
 } from './interfaces';
+import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 
 const AccountRecoveryConfirmKey = ({
   accountResetToken,

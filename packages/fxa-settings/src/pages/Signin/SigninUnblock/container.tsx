@@ -8,7 +8,6 @@ import { RouteComponentProps, useLocation } from '@reach/router';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 
 import VerificationMethods from '../../../constants/verification-methods';
-import { getLocalizedErrorMessage } from '../../../lib/auth-errors/auth-errors';
 import {
   Integration,
   isOAuthIntegration,
@@ -26,13 +25,16 @@ import {
   ResendUnblockCodeHandler,
   SigninUnblockLocationState,
 } from './interfaces';
-import { getHandledError } from '../utils';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import { MozServices } from '../../../lib/types';
 import { QueryParams } from '../../..';
 import { queryParamsToMetricsContext } from '../../../lib/metrics';
 import OAuthDataError from '../../../components/OAuthDataError';
+import {
+  getHandledError,
+  getLocalizedErrorMessage,
+} from '../../../lib/error-utils';
 
 const SigninUnblockContainer = ({
   integration,

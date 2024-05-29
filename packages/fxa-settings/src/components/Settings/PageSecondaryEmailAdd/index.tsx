@@ -9,10 +9,8 @@ import FlowContainer from '../FlowContainer';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import { isEmailMask, isEmailValid } from 'fxa-shared/email/helpers';
 import { useAccount, useAlertBar } from 'fxa-settings/src/models';
-import {
-  AuthUiErrorNos,
-  getErrorFtlId,
-} from 'fxa-settings/src/lib/auth-errors/auth-errors';
+import { AuthUiErrorNos } from 'fxa-settings/src/lib/auth-errors/auth-errors';
+import { getErrorFtlId } from '../../../lib/error-utils';
 
 export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
   usePageViewEvent('settings.emails');

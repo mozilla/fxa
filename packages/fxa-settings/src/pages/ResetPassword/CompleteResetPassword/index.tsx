@@ -35,13 +35,11 @@ import {
   CompleteResetPasswordProps,
   CompleteResetPasswordSubmitData,
 } from './interfaces';
-import {
-  AuthUiErrors,
-  getLocalizedErrorMessage,
-} from '../../../lib/auth-errors/auth-errors';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import GleanMetrics from '../../../lib/glean';
 import { useValidatedQueryParams } from '../../../lib/hooks/useValidate';
 import { KeyStretchExperiment } from '../../../models/experiments/key-stretch-experiment';
+import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 
 // The equivalent complete_reset_password mustache file included account_recovery_reset_password
 // For React, we have opted to separate these into two pages to align with the routes.

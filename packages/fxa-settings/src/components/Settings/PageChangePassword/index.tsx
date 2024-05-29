@@ -14,12 +14,10 @@ import {
 } from '../../../lib/metrics';
 import { useAccount, useAlertBar } from '../../../models';
 import FlowContainer from '../FlowContainer';
-import {
-  AuthUiErrors,
-  getErrorFtlId,
-} from '../../../lib/auth-errors/auth-errors';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { useLocalization, Localized } from '@fluent/react';
 import FormPassword from '../../FormPassword';
+import { getErrorFtlId } from '../../../lib/error-utils';
 
 type FormData = {
   oldPassword: string;

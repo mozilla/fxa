@@ -9,10 +9,8 @@ import InputText from '../../InputText';
 import { ApolloError } from '@apollo/client';
 import { useAccount, useSession } from '../../../models';
 import { Localized, useLocalization } from '@fluent/react';
-import {
-  AuthUiErrors,
-  getErrorFtlId,
-} from 'fxa-settings/src/lib/auth-errors/auth-errors';
+import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
+import { getErrorFtlId } from '../../../lib/error-utils';
 
 type ModalProps = {
   onDismiss: () => void;

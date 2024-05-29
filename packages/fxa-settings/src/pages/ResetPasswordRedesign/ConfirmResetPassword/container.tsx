@@ -5,7 +5,6 @@
 import React, { useEffect, useState } from 'react';
 import { RouteComponentProps, useLocation } from '@reach/router';
 import { useAuthClient, useFtlMsgResolver } from '../../../models';
-import { getLocalizedErrorMessage } from '../../../lib/auth-errors/auth-errors';
 import ConfirmResetPassword from '.';
 import {
   ConfirmResetPasswordLocationState,
@@ -13,6 +12,7 @@ import {
 } from './interfaces';
 import { ResendStatus } from '../../../lib/types';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 
 const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
   const [resendStatus, setResendStatus] = useState<ResendStatus>(

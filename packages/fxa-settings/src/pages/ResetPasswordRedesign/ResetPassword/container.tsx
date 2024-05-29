@@ -4,13 +4,13 @@
 
 import { RouteComponentProps } from '@reach/router';
 import React, { useState } from 'react';
-import { getLocalizedErrorMessage } from '../../../lib/auth-errors/auth-errors';
 import { useAuthClient, useFtlMsgResolver } from '../../../models';
 
 import { ResetPasswordContainerProps } from './interfaces';
 import { queryParamsToMetricsContext } from '../../../lib/metrics';
 import ResetPassword from '.';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 
 const ResetPasswordContainer = ({
   flowQueryParams = {},

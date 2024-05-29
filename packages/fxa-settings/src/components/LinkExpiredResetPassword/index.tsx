@@ -3,14 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState } from 'react';
-import {
-  useAccount, useFtlMsgResolver,
-} from '../../models';
+import { useAccount, useFtlMsgResolver } from '../../models';
 import { ResendStatus } from '../../lib/types';
 import { logViewEvent } from 'fxa-settings/src/lib/metrics';
 import { REACT_ENTRYPOINT } from 'fxa-settings/src/constants';
 import { LinkExpired } from '../LinkExpired';
-import { getLocalizedErrorMessage } from '../../lib/auth-errors/auth-errors';
+import { getLocalizedErrorMessage } from '../../lib/error-utils';
 
 type LinkExpiredResetPasswordProps = {
   viewName: string;

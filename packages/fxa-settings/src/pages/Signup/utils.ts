@@ -7,7 +7,7 @@ import {
   AuthUiErrorNos,
   AuthUiErrors,
 } from '../../lib/auth-errors/auth-errors';
-import { HandledError } from '../../lib/interfaces';
+import { HandledError } from '../../lib/error-utils';
 
 export const handleGQLError = (error: any) => {
   const graphQLError: GraphQLError = error.graphQLErrors?.[0];

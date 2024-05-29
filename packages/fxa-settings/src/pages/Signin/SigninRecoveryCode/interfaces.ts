@@ -2,13 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { BeginSigninError } from '../../../lib/error-utils';
 import { FinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import { MozServices } from '../../../lib/types';
-import {
-  BeginSigninError,
-  SigninIntegration,
-  SigninLocationState,
-} from '../interfaces';
+import { SigninIntegration, SigninLocationState } from '../interfaces';
 
 export type SigninRecoveryCodeProps = {
   finishOAuthFlowHandler: FinishOAuthFlowHandler;
