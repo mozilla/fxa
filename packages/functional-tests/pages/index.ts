@@ -27,7 +27,6 @@ import { SigninTotpCodePage } from './signinTotpCode.ts';
 import { SigninUnblockPage } from './signinUnblock.ts';
 import { SignupReactPage } from './signupReact';
 import { SubscribePage } from './products';
-import { SubscriptionManagementPage } from './products/subscriptionManagement';
 import { TermsOfService } from './termsOfService';
 import { TotpPage } from './settings/totp';
 
@@ -61,7 +60,6 @@ export function create(page: Page, target: BaseTarget) {
     signinUnblock: new SigninUnblockPage(page, target),
     signupReact: new SignupReactPage(page, target),
     subscribe: new SubscribePage(page, target),
-    subscriptionManagement: new SubscriptionManagementPage(page, target),
     termsOfService: new TermsOfService(page, target),
     totp: new TotpPage(page, target),
   };

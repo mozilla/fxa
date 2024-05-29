@@ -1,87 +1,116 @@
-import { randomUUID } from 'crypto';
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { BaseLayout } from '../layout';
+import { PaymentInformationPage } from './components/paymentInformation';
+
+export enum Coupon {
+  // 'autoexpired' coupon is an expired coupon for a 6mo plan
+  AUTO_EXPIRED = 'autoexpired',
+  // 'autoinvalid' coupon is an invalid coupon for a 6mo plan, but valid for a 12mo plan
+  AUTO_INVALID = 'autoinvalid',
+  // 'auto10pforever' is a 10% forever discount coupon for a 6mo plan
+  AUTO_10_PERCENT_FOREVER = 'auto10pforever',
+  // 'auto50ponetime' is a one time 50% discount coupon for a 12mo plan
+  AUTO_50_PERCENT_ONE_TIME = 'auto50ponetime',
+}
 
 export class SubscribePage extends BaseLayout {
+  readonly path = '';
+
   get setupSubscriptionFormHeading() {
     return this.page.getByRole('heading', { name: 'Set up your subscription' });
+  }
+
+  get signinLink() {
+    return this.page.getByRole('link', { name: 'Sign in' });
+  }
+
+  get emailTextbox() {
+    return this.page.getByTestId('new-user-enter-email');
+  }
+
+  get confirmEmailTextbox() {
+    return this.page.getByTestId('new-user-confirm-email');
+  }
+
+  get paymentInformation() {
+    return new PaymentInformationPage(this.page);
   }
 
   get promoCodeAppliedHeading() {
     return this.page.getByRole('heading', { name: 'Promo Code Applied' });
   }
 
-  async getCouponStatusByDataTestId(dataTestId: string) {
-    return this.page.locator(`[data-testid="${dataTestId}"]`);
+  get confirmPaymentCheckbox() {
+    return this.page.getByTestId('confirm');
   }
 
-  async visitSignIn() {
-    const link = this.page.getByText('Sign In');
-    await link.click();
+  get promoCodeHeading() {
+    return this.page
+      .getByTestId('coupon-component')
+      .getByRole('heading', { name: 'Promo Code' });
   }
 
-  async setEmailAndConfirmNewUser() {
-    // We can't reuse the same email address each time, as the form
-    // can't be submitted if the account already exists.
-    const email = `testo+${randomUUID()}@example.com`;
-    const inputFirst = this.page.locator(
-      '[data-testid="new-user-enter-email"]'
-    );
-    inputFirst.waitFor({ state: 'attached' });
-    await inputFirst.fill(email);
-
-    const inputSecond = this.page.locator(
-      '[data-testid="new-user-confirm-email"]'
-    );
-    inputSecond.waitFor({ state: 'attached' });
-    return inputSecond.fill(email);
+  get couponTextbox() {
+    return this.page.getByTestId('coupon-input');
   }
 
-  setFullName(name = 'Cave Johnson') {
-    const input = this.page.locator('[data-testid="name"]');
-    input.waitFor({ state: 'attached' });
-    return input.fill(name);
+  get addCouponButton() {
+    return this.page.getByTestId('coupon-button');
   }
 
-  async setConfirmPaymentCheckbox() {
-    await this.page.check('[data-testid="confirm"]');
+  get couponErrorMessage() {
+    return this.page.getByTestId('coupon-error');
   }
 
-  async setCreditCardInfo() {
-    const frame = this.page.frame({ url: /elements-inner-card/ });
-    if (!frame) {
-      throw new Error('No frame found');
-    }
-    await frame.fill('.InputElement[name=cardnumber]', '');
-    await frame.fill('.InputElement[name=cardnumber]', '4242424242424242');
-    await frame.fill('.InputElement[name=exp-date]', '555');
-    await frame.fill('.InputElement[name=cvc]', '333');
-    await frame.fill('.InputElement[name=postal]', '66666');
+  get couponSuccessMessage() {
+    return this.page.getByTestId('coupon-success');
   }
 
-  async setFailedCreditCardInfo() {
-    const frame = this.page.frame({ url: /elements-inner-card/ });
-    if (!frame) {
-      throw new Error('No frame found');
-    }
-    await frame.fill('.InputElement[name=cardnumber]', '4000000000000341');
-    await frame.fill('.InputElement[name=exp-date]', '666');
-    await frame.fill('.InputElement[name=cvc]', '444');
-    await frame.fill('.InputElement[name=postal]', '77777');
+  get removeCouponButton() {
+    return this.page.getByTestId('coupon-remove-button');
   }
 
-  async clickPayNow() {
-    const pay = this.page.locator('[data-testid="submit"]');
-    await pay.waitFor();
-    await pay.click();
+  get listPrice() {
+    return this.page.getByText('List Price', { exact: true });
+  }
+
+  get promoCode() {
+    return this.page
+      .getByTestId('plan-details-component')
+      .getByText('Promo Code');
+  }
+
+  get totalPrice() {
+    return this.page.getByTestId('total-price');
+  }
+
+  get subscriptionErrorHeading() {
+    return this.page.getByRole('heading', {
+      name: /Error confirming subscription/,
+    });
+  }
+
+  get tryAgainButton() {
+    return this.page.getByTestId('retry-link');
+  }
+
+  get subscriptionConfirmationHeading() {
+    return this.page.getByRole('heading', {
+      name: 'Subscription confirmation',
+    });
+  }
+
+  get planUpgradeDetails() {
+    return this.page.getByTestId('plan-upgrade-details-component');
   }
 
   async clickPayPal() {
-    const paypalButtonSelector = '[data-testid="paypal-button-container"]';
-
     // Start waiting for popup before clicking
     const paypalPopupPromise = this.page.waitForEvent('popup');
-    await this.page.locator(paypalButtonSelector).click();
+    await this.page.getByTestId('paypal-button-container').click();
     const paypalPopup = await paypalPopupPromise;
 
     // Wait for the popup to load
@@ -90,89 +119,8 @@ export class SubscribePage extends BaseLayout {
     return paypalPopup;
   }
 
-  async addCouponCode(code) {
-    const input = this.page.locator('[data-testid="coupon-input"]');
-    await input.waitFor({ state: 'visible' });
-    await input.fill(code);
-    await this.page.locator('[data-testid="coupon-button"]').click();
-  }
-
-  async clickTryAgain() {
-    await this.page.locator('[data-testid="retry-link"]').click();
-  }
-
-  async couponErrorMessageText() {
-    const msg = await this.page.innerText('[data-testid="coupon-error"]');
-    if (msg === 'An error occurred processing the code. Please try again.') {
-      throw new Error('Generic error, most likely rate limited');
-    }
-    return msg;
-  }
-
-  async oneTimeDiscountSuccess() {
-    const discount = this.page.locator(
-      '[data-testid="coupon-success"]:has-text("Your plan will automatically renew at the list price.")'
-    );
-    await discount.waitFor();
-    return discount.isVisible();
-  }
-
-  async discountListPrice() {
-    const listPrice = this.page.locator(
-      '.plan-details-item:has-text("List Price")'
-    );
-    await listPrice.waitFor();
-    return listPrice.isVisible();
-  }
-
-  async discountLineItem() {
-    const disc = this.page.locator('.plan-details-item:has-text("Promo Code")');
-    return disc.isVisible();
-  }
-
-  getTotalPrice() {
-    return this.page.locator('[data-testid="total-price"]').textContent();
-  }
-
-  async discountTextbox() {
-    const discount = this.page.locator(
-      '.coupon-component:has-text("Promo Code")'
-    );
-    await discount.waitFor();
-    return discount.isVisible();
-  }
-
-  async removeCouponCode() {
-    await this.page.locator('[data-testid="coupon-remove-button"]').click();
-  }
-
-  planUpgradeDetails() {
-    return this.page
-      .locator('[data-testid="plan-upgrade-details-component"]')
-      .textContent();
-  }
-  async clickConfirmPlanChange() {
-    await this.page.locator('[data-testid="confirm"]').click();
-  }
-
-  async isSubscriptionSuccess() {
-    const success = this.page.locator(
-      '[data-testid="subscription-success-title"]'
-    );
-    await success.waitFor();
-    return success.isVisible();
-  }
-
-  submit() {
-    return Promise.all([
-      this.page.waitForLoadState(),
-      this.page.waitForResponse(
-        (r) =>
-          r.request().method() === 'GET' &&
-          /\/mozilla-subscriptions\/customer\/billing-and-subscriptions$/.test(
-            r.request().url()
-          )
-      ),
-    ]);
+  async addCouponCode(coupon: Coupon) {
+    await this.couponTextbox.fill(coupon);
+    await this.addCouponButton.click();
   }
 }

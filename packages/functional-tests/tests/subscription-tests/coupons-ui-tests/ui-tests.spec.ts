@@ -4,16 +4,19 @@
 
 import { Page, expect, test } from '../../../lib/fixtures/standard';
 import { MetricsObserver } from '../../../lib/metrics';
+import { VALID_VISA } from '../../../lib/paymentArtifacts';
 import { BaseTarget, Credentials } from '../../../lib/targets/base';
 import { TestAccountTracker } from '../../../lib/testAccountTracker';
-import { LoginPage } from '../../../pages/login';
+import { Coupon } from '../../../pages/products';
+import { SettingsPage } from '../../../pages/settings';
+import { SigninReactPage } from '../../../pages/signinReact';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('ui functionality', () => {
     test('verify plan change funnel metrics & coupon feature not available when changing plans', async ({
       target,
       page,
-      pages: { relier, subscribe, login },
+      pages: { relier, settings, signinReact, subscribe },
       testAccountTracker,
     }, { project }) => {
       test.skip(
@@ -22,7 +25,13 @@ test.describe('severity-2 #smoke', () => {
       );
       test.slow();
 
-      await signInAccount(target, page, login, testAccountTracker);
+      await signInAccount(
+        target,
+        page,
+        settings,
+        signinReact,
+        testAccountTracker
+      );
 
       const metricsObserver = new MetricsObserver(subscribe);
       metricsObserver.startTracking();
@@ -31,35 +40,34 @@ test.describe('severity-2 #smoke', () => {
       await relier.clickSubscribe6Month();
 
       // Verify discount section is displayed
-      expect(await subscribe.discountTextbox()).toBe(true);
+      await expect(subscribe.promoCodeHeading).toBeVisible();
 
       // 'auto10pforever' is a 10% forever discount coupon for a 6mo plan
-      await subscribe.addCouponCode('auto10pforever');
+      await subscribe.addCouponCode(Coupon.AUTO_10_PERCENT_FOREVER);
 
       // Verify the coupon is applied successfully
       await expect(subscribe.promoCodeAppliedHeading).toBeVisible();
 
       //Subscribe successfully with Stripe
-      await subscribe.setConfirmPaymentCheckbox();
-      await subscribe.setFullName();
-      await subscribe.setCreditCardInfo();
-      await subscribe.clickPayNow();
-      await subscribe.submit();
-      await relier.goto();
+      await subscribe.confirmPaymentCheckbox.check();
+      await subscribe.paymentInformation.fillOutCreditCardInfo(VALID_VISA);
+      await subscribe.paymentInformation.clickPayNow();
 
+      await expect(subscribe.subscriptionConfirmationHeading).toBeVisible();
+
+      await relier.goto();
       //Change the plan
       await relier.clickSubscribe12Month();
 
       //Verify Discount section is not displayed
-      expect(await subscribe.planUpgradeDetails()).not.toContain('Promo');
+      await expect(subscribe.planUpgradeDetails).not.toContainText('Promo');
 
       //Submit the changes
-      await subscribe.clickConfirmPlanChange();
-      await subscribe.clickPayNow();
-      await subscribe.submit();
+      await subscribe.confirmPaymentCheckbox.check();
+      await subscribe.paymentInformation.clickPayNow();
 
       //Verify the subscription is successful
-      expect(await subscribe.isSubscriptionSuccess()).toBe(true);
+      await expect(subscribe.subscriptionConfirmationHeading).toBeVisible();
 
       // check conversion funnel metrics
       const expectedEventTypes = [
@@ -92,15 +100,17 @@ test.describe('severity-2 #smoke', () => {
 async function signInAccount(
   target: BaseTarget,
   page: Page,
-  login: LoginPage,
+  settings: SettingsPage,
+  signinReact: SigninReactPage,
   testAccountTracker: TestAccountTracker
 ): Promise<Credentials> {
   const credentials = await testAccountTracker.signUp();
   await page.goto(target.contentServerUrl);
-  await login.fillOutEmailFirstSignIn(credentials.email, credentials.password);
+  await signinReact.fillOutEmailFirstForm(credentials.email);
+  await signinReact.fillOutPasswordForm(credentials.password);
 
-  //Verify logged in on Settings page
-  expect(await login.isUserLoggedIn()).toBe(true);
+  await expect(page).toHaveURL(/settings/);
+  await expect(settings.settingsHeading).toBeVisible();
 
   return credentials;
 }

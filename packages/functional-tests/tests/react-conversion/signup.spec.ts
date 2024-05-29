@@ -163,13 +163,8 @@ test.describe('severity-2 #smoke', () => {
       );
 
       // Click the sign in link
-      await subscribe.visitSignIn();
-
-      await signupReact.fillOutEmailForm(email);
-
-      await signupReact.fillOutSignupForm(password, AGE_21);
-
-      await signupReact.fillOutCodeForm(email);
+      await subscribe.signinLink.click();
+      await signupReact.fillOutFirstSignUp(email, password, AGE_21);
       /*
        * We must `waitUntil: 'load'` due to redirects that occur here. Note,
        * React signup for SubPlat has one additional redirect compared to Backbone.
@@ -182,9 +177,7 @@ test.describe('severity-2 #smoke', () => {
        * Backbone signup staging goes from: 1) [stage]/confirm_signup_code ->
        * 2) [stage]/subscriptions/products -> 3) [payments-stage]/products
        * */
-      await page.waitForURL(`${target.paymentsServerUrl}/**`, {
-        waitUntil: 'load',
-      });
+      await page.waitForURL(`${target.paymentsServerUrl}/**`);
 
       await expect(subscribe.setupSubscriptionFormHeading).toBeVisible();
       await expect(settings.avatarIcon).toBeVisible();

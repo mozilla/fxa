@@ -12,6 +12,7 @@ const RELIER_DOMAIN =
   process.env.RELIER_DOMAIN || 'stage-123done.herokuapp.com';
 const RELIER_CLIENT_ID = 'dcdb5ae7add825d2';
 const SUB_PRODUCT = 'prod_FfiuDs9u11ESbD';
+const SUB_PRODUCT_NAME = 'One, Two, Three Done...PRO';
 const SUB_PLAN = 'plan_FfiupsKXZ3mMZ6';
 
 export class StageTarget extends RemoteTarget {
@@ -23,6 +24,7 @@ export class StageTarget extends RemoteTarget {
   readonly relierClientID = RELIER_CLIENT_ID;
   readonly subscriptionConfig = {
     product: SUB_PRODUCT,
+    name: SUB_PRODUCT_NAME,
     plan: SUB_PLAN,
   };
 
