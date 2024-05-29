@@ -81,7 +81,7 @@ class PairIndexView extends FormView {
     });
   }
 
-  setNeedsMobile() {
+  async setNeedsMobile() {
     const needsMobileConfirmed =
       this.getElementValue('input[id="needs-mobile"]:checked') === 'on';
     this.model.set('needsMobileConfirmed', needsMobileConfirmed);
@@ -93,19 +93,24 @@ class PairIndexView extends FormView {
     });
 
     if (needsMobileConfirmed) {
-      this.render();
+      await this.render();
+      // For screen readers/keyboard users, to avoid rereading the Moz logo and CAD header
+      this.$('#pair-header-mobile').focus();
     } else {
       GleanMetrics.cadFirefox.syncDeviceSubmit();
       this.submit();
     }
   }
 
-  handleBackButton() {
+  async handleBackButton() {
     this.model.set('needsMobileConfirmed', false);
-    this.render();
+    await this.render();
+    // For screen readers/keyboard users, to avoid needing to re-enter web content and
+    // avoid rereading the Moz logo and CAD header
+    this.$('#pair-header').focus();
   }
 
-  handleRadioEngage(e) {
+  handleRadioEngage() {
     this.$('#set-needs-mobile').removeAttr('disabled');
     const reason =
       this.getElementValue('input[id="needs-mobile"]:checked') === 'on'

@@ -25,7 +25,7 @@ export class ConnectAnotherDevicePage extends BaseLayout {
   }
 
   get connectAnotherDeviceButton() {
-    return this.page.getByRole('link', { name: 'Connect another device' });
+    return this.page.getByRole('button', { name: 'Connect another device' });
   }
 
   get signInButton() {

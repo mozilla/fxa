@@ -17,11 +17,6 @@
   background-image: inline('../images/graphic_mail.svg');
 }
 
-.bg-image-cad-hearts {
-  @apply mb-8 bg-center bg-no-repeat bg-contain h-40;
-  background-image: inline('../images/account-verified-hearts.svg');
-}
-
 .bg-image-triple-device-hearts {
   @apply mb-5 bg-center bg-no-repeat bg-contain h-48;
   background-image: inline('../images/graphic-triple-device-hearts.svg');
