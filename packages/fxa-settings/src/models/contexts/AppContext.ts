@@ -13,12 +13,14 @@ import { AlertBarInfo } from '../AlertBarInfo';
 import { KeyStretchExperiment } from '../experiments/key-stretch-experiment';
 import { UrlQueryData } from '../../lib/model-data';
 import { ReachRouterWindow } from '../../lib/window';
+import { SensitiveDataClient } from '../../lib/sensitive-data-client';
 
 // TODO, move some values from AppContext to SettingsContext after
 // using container components, FXA-8107
 export interface AppContextValue {
   authClient?: AuthClient;
   apolloClient?: ApolloClient<object>;
+  sensitiveDataClient?: SensitiveDataClient; // used for sensitive data that needs to be encrypted between components
   config?: Config;
   account?: Account;
   session?: Session; // used exclusively for test mocking
@@ -43,6 +45,7 @@ export function initializeAppContext() {
   const apolloClient = createApolloClient(config.servers.gql.url);
   const account = new Account(authClient, apolloClient);
   const session = new Session(authClient, apolloClient);
+  const sensitiveDataClient = new SensitiveDataClient();
 
   const context: AppContextValue = {
     authClient,
@@ -50,6 +53,7 @@ export function initializeAppContext() {
     config,
     account,
     session,
+    sensitiveDataClient,
   };
 
   return context;

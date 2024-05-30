@@ -62,6 +62,18 @@ export function useAuthClient() {
   return authClient;
 }
 
+export function useSensitiveDataClient() {
+  const { sensitiveDataClient } = useContext(AppContext);
+  if (!sensitiveDataClient) {
+    throw new Error(
+      `Are you forgetting an AppContext.Provider? State:${getMissing({
+        sensitiveDataClient,
+      })}`
+    );
+  }
+  return sensitiveDataClient;
+}
+
 export function useIntegration() {
   const clientInfoState = useClientInfoState();
   const productInfoState = useProductInfoState();

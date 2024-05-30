@@ -71,6 +71,19 @@ jest.mock('fxa-auth-client/lib/recoveryKey', () => ({
   })),
 }));
 
+const mockSetData = jest.fn();
+jest.mock('../../../models', () => {
+  return {
+    ...jest.requireActual('../../../models'),
+    useSensitiveDataClient: () => {
+      return {
+        getData: jest.fn(),
+        setData: mockSetData,
+      };
+    },
+  };
+});
+
 const accountWithValidResetToken = {
   resetPasswordStatus: jest.fn().mockResolvedValue(true),
   getRecoveryKeyBundle: jest.fn().mockResolvedValue({
@@ -281,13 +294,13 @@ describe('PageAccountRecoveryConfirmKey', () => {
         MOCK_RECOVERY_KEY,
         MOCK_ACCOUNT.uid
       );
+      expect(mockSetData).toHaveBeenCalledWith('reset', { kB: MOCK_KB });
       expect(mockNavigate).toHaveBeenCalledWith(
         `/account_recovery_reset_password?${search}`,
         {
           state: {
             accountResetToken: MOCK_RESET_TOKEN,
             recoveryKeyId: MOCK_RECOVERY_KEY_ID,
-            kB: MOCK_KB,
           },
         }
       );

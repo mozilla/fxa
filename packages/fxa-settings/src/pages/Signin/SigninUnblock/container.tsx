@@ -13,6 +13,7 @@ import {
   isOAuthIntegration,
   useAuthClient,
   useFtlMsgResolver,
+  useSensitiveDataClient,
 } from '../../../models';
 
 // using default signin handlers
@@ -35,6 +36,7 @@ import {
   getHandledError,
   getLocalizedErrorMessage,
 } from '../../../lib/error-utils';
+import { getCredentials } from 'fxa-auth-client/lib/crypto';
 
 const SigninUnblockContainer = ({
   integration,
@@ -49,7 +51,14 @@ const SigninUnblockContainer = ({
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state: SigninUnblockLocationState;
   };
-  const { email, authPW, hasLinkedAccount, hasPassword } = location.state || {};
+
+  const sensitiveDataClient = useSensitiveDataClient();
+
+  const sensitiveData = sensitiveDataClient.getData('auth');
+
+  const { password } = (sensitiveData as unknown as { password: string }) || {};
+
+  const { email, hasLinkedAccount, hasPassword } = location.state || {};
 
   const wantsTwoStepAuthentication =
     isOAuthIntegration(integration) && integration.wantsTwoStepAuthentication();
@@ -75,12 +84,13 @@ const SigninUnblockContainer = ({
       ),
     };
 
+    const credentials = await getCredentials(email, password!);
     try {
       return await beginSignin({
         variables: {
           input: {
             email,
-            authPW,
+            authPW: credentials.authPW,
             options,
           },
         },
@@ -111,7 +121,7 @@ const SigninUnblockContainer = ({
     return <OAuthDataError error={oAuthDataError} />;
   }
 
-  if (!email || !authPW) {
+  if (!email || !password) {
     hardNavigate('/', {}, true);
     return <LoadingSpinner fullScreen />;
   }
