@@ -14,7 +14,6 @@ test.describe('severity-1 #smoke', () => {
         config.showReactApp.signInRoutes !== true,
         'React signInRoutes not enabled'
       );
-      test.slow();
     });
 
     test('verified account, no email confirmation required', async ({
@@ -25,6 +24,7 @@ test.describe('severity-1 #smoke', () => {
         project.name !== 'local',
         'Fix required as of 2024/04/26 (see FXA-9518).'
       );
+      test.setTimeout(120000); // 2 minutes
 
       const credentials = await testAccountTracker.signUp();
 
@@ -218,8 +218,7 @@ test.describe('severity-1 #smoke', () => {
       page,
       pages: { configPage, relier, signinReact, signupReact },
       testAccountTracker,
-    }, { project }) => {
-      test.slow(project.name !== 'local', 'email delivery can be slow');
+    }) => {
       const config = await configPage.getConfig();
       test.skip(
         config.showReactApp.signUpRoutes !== true,

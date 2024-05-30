@@ -13,10 +13,6 @@ import { SigninReactPage } from '../../../pages/signinReact';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('payment', () => {
-    test.beforeEach(() => {
-      test.slow();
-    });
-
     test('update mode of payment for stripe', async ({
       target,
       page,

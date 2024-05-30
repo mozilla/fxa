@@ -17,7 +17,6 @@ test.describe('severity-1 #smoke', () => {
         config.showReactApp.signUpRoutes !== true,
         'Skip tests if not on React signUpRoutes'
       );
-      test.slow();
     });
 
     test('signup oauth', async ({

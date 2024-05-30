@@ -12,7 +12,6 @@ test.describe('fxa_status web channel message in Settings', () => {
     // Ensure that the feature flag is enabled
     const config = await configPage.getConfig();
     test.skip(config.featureFlags.sendFxAStatusOnSettings !== true);
-    test.slow();
   });
 
   test('message is sent when loading with context = oauth_webchannel_v1', async ({

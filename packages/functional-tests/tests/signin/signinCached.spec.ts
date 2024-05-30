@@ -8,10 +8,6 @@ import { BaseTarget, Credentials } from '../../lib/targets/base';
 import { LoginPage } from '../../pages/login';
 
 test.describe('severity-2 #smoke', () => {
-  test.beforeEach(async () => {
-    test.slow(); //This test has steps for email rendering that runs slow on stage
-  });
-
   test.describe('signin cached', () => {
     test('sign in twice, on second attempt email will be cached', async ({
       target,

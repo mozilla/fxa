@@ -13,8 +13,6 @@ const AGE_21 = '21';
  * key stretched passwords. We need to ensure that operations are interchangeable!
  */
 test.describe('severity-2 #smoke', () => {
-  test.slow();
-
   // Helpers
   async function _getKeys(
     version: 1 | 2,

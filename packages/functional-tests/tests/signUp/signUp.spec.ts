@@ -12,7 +12,6 @@ test.describe('severity-2 #smoke', () => {
         config.showReactApp.signUpRoutes === true,
         'these tests are specific to backbone, skip if serving React version'
       );
-      test.slow();
     });
 
     test('with an invalid email, empty email query query param', async ({

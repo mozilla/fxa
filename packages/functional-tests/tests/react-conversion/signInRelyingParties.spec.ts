@@ -5,9 +5,6 @@
 import { test, expect } from '../../lib/fixtures/standard';
 
 test.describe('severity-1 #smoke', () => {
-  // Slowing down test, was timing out on credentials teardown
-  test.slow();
-
   test('react signin to sync and disconnect', async ({
     syncBrowserPages: {
       configPage,

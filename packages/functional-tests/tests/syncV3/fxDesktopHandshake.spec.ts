@@ -8,10 +8,6 @@ import uaStrings from '../../lib/ua-strings';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('Firefox desktop user info handshake', () => {
-    test.beforeEach(async () => {
-      test.slow();
-    });
-
     test('Sync - no user signed into browser, no user signed in locally', async ({
       target,
       syncBrowserPages: { login, page },

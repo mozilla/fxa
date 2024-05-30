@@ -13,7 +13,6 @@ test.describe('severity-1 #smoke', () => {
       project.name === 'production',
       'test plan not yet available in prod'
     );
-    test.slow();
   });
 
   test.describe('oauth prompt none', () => {

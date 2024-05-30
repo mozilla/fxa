@@ -11,7 +11,6 @@ test.describe('severity-1 #smoke', () => {
       config.showReactApp.signUpRoutes === true,
       'this test is specific to backbone, skip if serving react'
     );
-    test.slow();
   });
 
   test.describe('Oauth sign up', () => {

@@ -8,10 +8,6 @@ import { TestAccountTracker } from '../../lib/testAccountTracker';
 import { LoginPage } from '../../pages/login';
 
 test.describe('severity-1 #smoke', () => {
-  test.beforeEach(async () => {
-    test.slow();
-  });
-
   test('cancel delete account step 1', async ({
     target,
     pages: { page, login, settings, deleteAccount },

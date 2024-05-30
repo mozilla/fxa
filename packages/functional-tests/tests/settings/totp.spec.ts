@@ -12,11 +12,6 @@ import { TotpCredentials, TotpPage } from '../../pages/settings/totp';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('two step auth', () => {
-    test.beforeEach(async () => {
-      // 2FA test can be slow because of time to generate recovery keys
-      test.slow();
-    });
-
     test('add and remove totp', async ({
       target,
       pages: { page, settings, totp, login },

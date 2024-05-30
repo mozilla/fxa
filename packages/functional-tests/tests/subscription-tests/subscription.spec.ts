@@ -12,10 +12,6 @@ import { SigninReactPage } from '../../pages/signinReact';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('subscription', () => {
-    test.beforeEach(() => {
-      test.slow();
-    });
-
     test('subscribe with credit card and login to product', async ({
       target,
       page,
@@ -169,10 +165,6 @@ test.describe('severity-2 #smoke', () => {
   });
 
   test.describe('Flow, acquisition and new user checkout funnel metrics', () => {
-    test.beforeEach(() => {
-      test.slow();
-    });
-
     test('Metrics disabled: existing user checkout URL to not have flow params', async ({
       target,
       page,

@@ -12,10 +12,6 @@ import { SigninReactPage } from '../../../pages/signinReact';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('coupon test one time discount', () => {
-    test.beforeEach(() => {
-      test.slow();
-    });
-
     test('subscribe with a one time discount coupon', async ({
       target,
       page,

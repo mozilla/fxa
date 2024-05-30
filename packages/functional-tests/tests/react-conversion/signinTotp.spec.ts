@@ -13,7 +13,6 @@ test.describe('severity-1 #smoke', () => {
         config.showReactApp.signInRoutes !== true,
         'React signInRoutes not enabled'
       );
-      test.slow();
     });
 
     test('add totp', async ({

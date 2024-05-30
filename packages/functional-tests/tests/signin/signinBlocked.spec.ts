@@ -11,10 +11,6 @@ import { DeleteAccountPage } from '../../pages/settings/deleteAccount';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('signin blocked', () => {
-    test.beforeEach(() => {
-      test.slow(); //This test has steps for email rendering that runs slow on stage
-    });
-
     test('valid code entered', async ({
       target,
       page,

@@ -9,10 +9,6 @@ import { LoginPage } from '../../pages/login';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('OAuth totp', () => {
-    test.beforeEach(async () => {
-      test.slow();
-    });
-
     test('can add TOTP to account and confirm oauth signin', async ({
       target,
       pages: { page, login, relier, settings, totp },
