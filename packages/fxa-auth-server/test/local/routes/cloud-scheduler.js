@@ -54,7 +54,6 @@ describe('CloudSchedulerHandler', function () {
 
   describe('deleteUnverifiedAccounts', () => {
     it('should call processAccountDeletionInRange with correct parameters', async () => {
-      const accountTasks = AccountTasksFactory(config, statsd);
       const { sinceDays, durationDays, taskLimit } =
         config.cloudScheduler.deleteUnverifiedAccounts;
       const endDate = new Date(Date.now() - sinceDays * 24 * 60 * 60 * 1000);
@@ -68,7 +67,7 @@ describe('CloudSchedulerHandler', function () {
       assert.calledOnceWithExactly(
         mockProcessAccountDeletionInRange,
         config,
-        accountTasks,
+        undefined,
         reason,
         startDate.getTime(),
         endDate.getTime(),

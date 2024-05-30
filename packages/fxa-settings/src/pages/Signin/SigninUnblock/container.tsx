@@ -74,7 +74,7 @@ const SigninUnblockContainer = ({
     };
 
     try {
-      return beginSignin({
+      return await beginSignin({
         variables: {
           input: {
             email,

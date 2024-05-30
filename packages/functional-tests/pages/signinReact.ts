@@ -60,6 +60,9 @@ export class SigninReactPage extends BaseLayout {
     return this.page.getByRole('link', { name: /^Forgot password/ });
   }
 
+  get useDifferentAccountLink() {
+    return this.page.getByRole('link', { name: /^Use a different account/ });
+  }
   get passwordFormHeading() {
     return this.page.getByRole('heading', { name: /^Enter your password/ });
   }
