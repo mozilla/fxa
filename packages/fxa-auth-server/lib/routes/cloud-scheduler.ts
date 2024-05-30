@@ -161,7 +161,10 @@ export class CloudSchedulerHandler {
       startDate: startDate.toISOString(),
     });
     this.statsd.increment('cloud-scheduler.deleteUnverifiedAccounts');
-    await this.processAccountDeletionInRange(
+
+    // We don't await because it could take 30+ seconds to create the cloud tasks
+    // to delete all the accounts.
+    this.processAccountDeletionInRange(
       this.config,
       this.accountTasks,
       reason,
