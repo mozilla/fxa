@@ -180,6 +180,7 @@ export function CheckoutForm({ readOnly, cart, locale }: CheckoutFormProps) {
             radios: false,
             spacedAccordionItems: true,
           },
+          readOnly,
         }}
       />
       {!isPaymentElementLoading && (
