@@ -75,7 +75,7 @@ test.describe('severity-1 #smoke', () => {
       }
 
       //Verify error message
-      expect(await login.getTooltipError()).toContain(
+      await expect(login.getTooltipError()).toContainText(
         'Your confirmation email was just returned. Mistyped email?'
       );
 
