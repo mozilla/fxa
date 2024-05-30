@@ -15,13 +15,11 @@ import FormVerifyCode, {
 import GleanMetrics from '../../../lib/glean';
 import AppLayout from '../../../components/AppLayout';
 import { SigninRecoveryCodeProps } from './interfaces';
-import {
-  AuthUiErrors,
-  getLocalizedErrorMessage,
-} from '../../../lib/auth-errors/auth-errors';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import Banner, { BannerType } from '../../../components/Banner';
 import { storeAccountData } from '../../../lib/storage-utils';
 import { handleNavigation } from '../utils';
+import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 
 export const viewName = 'signin-recovery-code';
 

@@ -12,10 +12,10 @@ import { useAuthClient, useFtlMsgResolver } from '../../../models';
 import {
   AuthUiErrorNos,
   AuthUiErrors,
-  getLocalizedErrorMessage,
 } from '../../../lib/auth-errors/auth-errors';
 import { LinkExpired } from '../../../components/LinkExpired';
 import CompleteSignin from '.';
+import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 
 export const viewName = 'complete-signin';
 

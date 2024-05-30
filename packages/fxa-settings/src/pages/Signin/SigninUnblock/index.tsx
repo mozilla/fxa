@@ -22,10 +22,7 @@ import Banner, {
   ResendEmailSuccessBanner,
 } from '../../../components/Banner';
 import { MailImage } from '../../../components/images';
-import {
-  AuthUiErrors,
-  getLocalizedErrorMessage,
-} from '../../../lib/auth-errors/auth-errors';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import GleanMetrics from '../../../lib/glean';
 import {
   StoredAccountData,
@@ -33,6 +30,7 @@ import {
 } from '../../../lib/storage-utils';
 import { handleNavigation } from '../utils';
 import { ResendStatus } from '../../../lib/types';
+import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 
 export const viewName = 'signin-unblock';
 

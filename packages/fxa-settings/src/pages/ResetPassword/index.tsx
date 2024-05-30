@@ -8,7 +8,6 @@ import { useNavigateWithQuery as useNavigate } from '../../lib/hooks/useNavigate
 import React, { useCallback, useEffect, useState } from 'react';
 import { Control, useForm, useWatch } from 'react-hook-form';
 import { REACT_ENTRYPOINT } from '../../constants';
-import { getLocalizedErrorMessage } from '../../lib/auth-errors/auth-errors';
 import {
   usePageViewEvent,
   useMetrics,
@@ -34,6 +33,7 @@ import { ResetPasswordFormData, ResetPasswordProps } from './interfaces';
 import { ConfirmResetPasswordLocationState } from './ConfirmResetPassword/interfaces';
 import GleanMetrics from '../../lib/glean';
 import { MetricsContext } from 'fxa-auth-client/browser';
+import { getLocalizedErrorMessage } from '../../lib/error-utils';
 
 export const viewName = 'reset-password';
 

@@ -13,12 +13,9 @@ import AppLayout from '../../components/AppLayout';
 import Banner, { BannerType } from '../../components/Banner';
 import { copyRecoveryCodes } from '../../lib/totp';
 import FormVerifyCode from '../../components/FormVerifyCode';
-import {
-  AuthUiErrors,
-  getErrorFtlId,
-  getLocalizedErrorMessage,
-} from '../../lib/auth-errors/auth-errors';
+import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { InlineRecoverySetupProps } from './interfaces';
+import { getErrorFtlId, getLocalizedErrorMessage } from '../../lib/error-utils';
 
 const InlineRecoverySetup = ({
   oAuthError,

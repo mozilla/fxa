@@ -26,12 +26,10 @@ import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
 import { Checkbox } from '../Checkbox';
 import { useLocalization } from '@fluent/react';
 import { Localized } from '@fluent/react';
-import {
-  AuthUiErrors,
-  getErrorFtlId,
-} from '../../../lib/auth-errors/auth-errors';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import LinkExternal from 'fxa-react/components/LinkExternal';
+import { getErrorFtlId } from '../../../lib/error-utils';
 
 type FormData = {
   password: string;

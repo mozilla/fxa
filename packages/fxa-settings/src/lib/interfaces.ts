@@ -13,10 +13,3 @@ export interface AccountTotp {
   exists: boolean;
   verified: boolean;
 }
-
-export interface HandledError {
-  errno: number;
-  message: string;
-  retryAfter?: number;
-  retryAfterLocalized?: string;
-}

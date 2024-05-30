@@ -49,18 +49,13 @@ import {
   getKeysV2,
   unwrapKB,
 } from 'fxa-auth-client/lib/crypto';
-import {
-  AuthUiError,
-  AuthUiErrors,
-  getLocalizedErrorMessage,
-} from '../../lib/auth-errors/auth-errors';
+import { AuthUiError, AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
 import AuthenticationMethods from '../../constants/authentication-methods';
 import { KeyStretchExperiment } from '../../models/experiments';
 import { createSaltV2 } from 'fxa-auth-client/lib/salt';
 import * as Sentry from '@sentry/browser';
-import { getHandledError } from './utils';
 import { useFinishOAuthFlowHandler } from '../../lib/oauth/hooks';
 import { searchParams } from '../../lib/utilities';
 import { QueryParams } from '../..';
@@ -68,6 +63,10 @@ import { queryParamsToMetricsContext } from '../../lib/metrics';
 import OAuthDataError from '../../components/OAuthDataError';
 import { MetricsContext } from 'fxa-auth-client/browser';
 import { isEmailValid } from 'fxa-shared/email/helpers';
+import {
+  getHandledError,
+  getLocalizedErrorMessage,
+} from '../../lib/error-utils';
 
 /*
  * In content-server, the `email` param is optional. If it's provided, we
@@ -633,6 +632,7 @@ export async function trySignIn(
       onRetryCorrectedEmail &&
       'error' in result &&
       result.error.errno === AuthUiErrors.INCORRECT_EMAIL_CASE.errno &&
+      'email' in result.error &&
       result.error.email != null &&
       result.error.email !== email
     ) {

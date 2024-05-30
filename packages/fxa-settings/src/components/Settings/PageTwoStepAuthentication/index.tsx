@@ -16,11 +16,9 @@ import { checkCode, copyRecoveryCodes, getCode } from '../../../lib/totp';
 import { HomePath } from '../../../constants';
 import { logViewEvent, useMetrics } from '../../../lib/metrics';
 import { Localized, useLocalization } from '@fluent/react';
-import {
-  AuthUiErrors,
-  getErrorFtlId,
-} from '../../../lib/auth-errors/auth-errors';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { useAsync } from 'react-async-hook';
+import { getErrorFtlId } from '../../../lib/error-utils';
 
 export const metricsPreInPostFix = 'settings.two-step-authentication';
 

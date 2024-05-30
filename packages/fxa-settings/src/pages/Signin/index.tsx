@@ -17,10 +17,7 @@ import Avatar from '../../components/Settings/Avatar';
 import TermsPrivacyAgreement from '../../components/TermsPrivacyAgreement';
 import ThirdPartyAuth from '../../components/ThirdPartyAuth';
 import { REACT_ENTRYPOINT } from '../../constants';
-import {
-  AuthUiErrors,
-  getLocalizedErrorMessage,
-} from '../../lib/auth-errors/auth-errors';
+import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import GleanMetrics from '../../lib/glean';
 import { usePageViewEvent } from '../../lib/metrics';
 import { StoredAccountData, storeAccountData } from '../../lib/storage-utils';
@@ -33,6 +30,7 @@ import { SigninFormData, SigninProps } from './interfaces';
 import { handleNavigation } from './utils';
 import { useWebRedirect } from '../../lib/hooks/useWebRedirect';
 import { getCredentials } from 'fxa-auth-client/lib/crypto';
+import { getLocalizedErrorMessage } from '../../lib/error-utils';
 
 export const viewName = 'signin';
 

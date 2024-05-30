@@ -20,9 +20,9 @@ import {
 } from './interfaces';
 import GleanMetrics from '../../../lib/glean';
 import firefox from '../../../lib/channels/firefox';
-import { getLocalizedErrorMessage } from '../../../lib/auth-errors/auth-errors';
 import { useState } from 'react';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 
 // This component is used for both /complete_reset_password and /account_recovery_reset_password routes
 // for easier maintenance
@@ -167,7 +167,7 @@ const CompleteResetPasswordContainer = ({
     } catch (err) {
       const localizedBannerMessage = getLocalizedErrorMessage(
         ftlMsgResolver,
-        err
+        err.error
       );
       setErrorMessage(localizedBannerMessage);
     }

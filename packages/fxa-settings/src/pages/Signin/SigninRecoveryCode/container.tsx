@@ -11,7 +11,7 @@ import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { useMutation } from '@apollo/client';
 import { CONSUME_RECOVERY_CODE_MUTATION } from './gql';
 import { useCallback } from 'react';
-import { getHandledError, getSigninState } from '../utils';
+import { getSigninState } from '../utils';
 import { SigninLocationState } from '../interfaces';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import { useValidatedQueryParams } from '../../../lib/hooks/useValidate';
@@ -19,6 +19,7 @@ import { SigninQueryParams } from '../../../models/pages/signin';
 import { ConsumeRecoveryCodeResponse, SubmitRecoveryCode } from './interfaces';
 import OAuthDataError from '../../../components/OAuthDataError';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import { getHandledError } from '../../../lib/error-utils';
 
 export type SigninRecoveryCodeContainerProps = {
   integration: Integration;

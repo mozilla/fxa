@@ -9,7 +9,8 @@ import {
   useFtlMsgResolver,
 } from '../../../models';
 import { useLocation } from '@reach/router';
-import { AuthUiErrors, getErrorFtlId } from '../../auth-errors/auth-errors';
+import { AuthUiErrors } from '../../auth-errors/auth-errors';
+import { getErrorFtlId } from '../../error-utils';
 
 /*
  * Check if the integration contains a valid `redirectTo` based on

@@ -7,7 +7,6 @@ import { RouteComponentProps, useLocation } from '@reach/router';
 import base32Decode from 'base32-decode';
 
 import { decryptRecoveryKeyData } from 'fxa-auth-client/lib/recoveryKey';
-import { getLocalizedErrorMessage } from '../../../lib/auth-errors/auth-errors';
 import { useAccount } from '../../../models';
 import { useFtlMsgResolver } from '../../../models/hooks';
 
@@ -18,6 +17,7 @@ import {
 
 import AccountRecoveryConfirmKey from '.';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 
 const AccountRecoveryConfirmKeyContainer = ({
   serviceName,

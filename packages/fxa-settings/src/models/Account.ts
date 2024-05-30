@@ -30,6 +30,7 @@ import {
 } from '../components/App/gql';
 import { AccountAvatar, AccountTotp } from '../lib/interfaces';
 import { createSaltV2 } from 'fxa-auth-client/lib/salt';
+import { getHandledError } from '../lib/error-utils';
 
 export interface DeviceLocation {
   city: string | null;
@@ -771,13 +772,7 @@ export class Account implements AccountData {
       sessionToken(accountReset.sessionToken);
       return accountReset;
     } catch (err) {
-      const errno = (err as ApolloError).graphQLErrors[0].extensions?.errno as
-        | number
-        | undefined;
-      if (errno && AuthUiErrorNos[errno]) {
-        throw AuthUiErrorNos[errno];
-      }
-      throw AuthUiErrors.UNEXPECTED_ERROR;
+      throw getHandledError(err);
     }
   }
 

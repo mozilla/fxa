@@ -16,9 +16,9 @@ import Banner, { BannerType } from '../../Banner';
 import {
   AuthUiErrorNos,
   AuthUiErrors,
-  getErrorFtlId,
 } from '../../../lib/auth-errors/auth-errors';
 import classNames from 'classnames';
+import { getErrorFtlId } from '../../../lib/error-utils';
 
 export type FlowRecoveryKeyHintProps = {
   navigateForward: () => void;

@@ -2,18 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { GraphQLError } from 'graphql';
 import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
-import {
-  BeginSigninError,
-  NavigationOptions,
-  SigninLocationState,
-} from './interfaces';
-import {
-  AuthUiErrorNos,
-  AuthUiErrors,
-} from '../../lib/auth-errors/auth-errors';
+import { NavigationOptions, SigninLocationState } from './interfaces';
+import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { isOAuthIntegration } from '../../models';
 import { navigate } from '@reach/router';
 import { hardNavigate } from 'fxa-react/lib/utils';
@@ -196,57 +188,6 @@ const getNavigationTarget = async ({
   }
 
   return { to: '/settings' };
-};
-
-const handleAuthUiError = (error: {
-  errno: number;
-  message: string;
-}): { error: BeginSigninError } => {
-  const { errno } = error as BeginSigninError;
-  if (errno && AuthUiErrorNos[errno]) {
-    return { error };
-  }
-  return { error: AuthUiErrors.UNEXPECTED_ERROR as BeginSigninError };
-};
-
-export const getHandledError = (error: {
-  errno: number;
-  message: string;
-  graphQLErrors?: GraphQLError[];
-}) => {
-  const graphQLError: GraphQLError | undefined = error.graphQLErrors?.[0];
-  if (graphQLError) {
-    return handleGQLError(graphQLError);
-  }
-  return handleAuthUiError(error);
-};
-
-const handleGQLError = (graphQLError: GraphQLError) => {
-  const errno = graphQLError.extensions.errno as number;
-
-  if (errno && AuthUiErrorNos[errno]) {
-    const uiError = {
-      message: AuthUiErrorNos[errno].message,
-      errno,
-      email:
-        errno === AuthUiErrors.INCORRECT_EMAIL_CASE.errno
-          ? graphQLError.extensions.email
-          : undefined,
-      verificationMethod:
-        (graphQLError.extensions.verificationMethod as VerificationMethods) ||
-        undefined,
-      verificationReason:
-        (graphQLError.extensions.verificationReason as VerificationReasons) ||
-        undefined,
-      retryAfter: (graphQLError.extensions.retryAfter as number) || undefined,
-      retryAfterLocalized:
-        (graphQLError?.extensions.retryAfterLocalized as string) || undefined,
-    };
-    return { error: uiError as BeginSigninError };
-  }
-
-  // if not a graphQLError or if no localizable message available for error
-  return { error: AuthUiErrors.UNEXPECTED_ERROR as BeginSigninError };
 };
 
 export function getSigninState(

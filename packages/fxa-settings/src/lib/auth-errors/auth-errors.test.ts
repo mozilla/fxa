@@ -2,8 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { getErrorFtlId } from '../error-utils';
 import { OAUTH_ERRORS } from '../oauth';
-import { getErrorFtlId, AuthUiErrorNos, AuthUiError } from './auth-errors';
+import { AuthUiErrorNos, AuthUiError } from './auth-errors';
 import * as Sentry from '@sentry/browser';
 
 const notAnExistingErrorNumber = 100000;

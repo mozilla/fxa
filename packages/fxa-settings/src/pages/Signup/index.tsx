@@ -45,11 +45,9 @@ import { MozServices } from '../../lib/types';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import firefox from '../../lib/channels/firefox';
 import ThirdPartyAuth from '../../components/ThirdPartyAuth';
-import {
-  AuthUiErrors,
-  getLocalizedErrorMessage,
-} from '../../lib/auth-errors/auth-errors';
+import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { isEmailMask } from 'fxa-shared/email/helpers';
+import { getLocalizedErrorMessage } from '../../lib/error-utils';
 
 export const viewName = 'signup';
 
