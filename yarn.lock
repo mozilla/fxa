@@ -8983,33 +8983,33 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@google-cloud/opentelemetry-cloud-trace-exporter@npm:^2.1.0":
-  version: 2.1.0
-  resolution: "@google-cloud/opentelemetry-cloud-trace-exporter@npm:2.1.0"
+"@google-cloud/opentelemetry-cloud-trace-exporter@npm:^2.2.0":
+  version: 2.2.0
+  resolution: "@google-cloud/opentelemetry-cloud-trace-exporter@npm:2.2.0"
   dependencies:
-    "@google-cloud/opentelemetry-resource-util": ^2.1.0
+    "@google-cloud/opentelemetry-resource-util": ^2.2.0
     "@grpc/grpc-js": ^1.1.8
     "@grpc/proto-loader": ^0.7.0
-    google-auth-library: ^7.0.0
-    google-proto-files: ^3.0.0
+    google-auth-library: ^9.0.0
+    google-proto-files: ^4.0.0
   peerDependencies:
     "@opentelemetry/api": ^1.0.0
     "@opentelemetry/core": ^1.0.0
     "@opentelemetry/resources": ^1.0.0
     "@opentelemetry/sdk-trace-base": ^1.0.0
-  checksum: 17ba2dbf66cd47a776a0b1546ca68eadd22c5a0f58477b69be1927bc31f9b3596982715e4714f46d4f955d2fce91367f207d2026546485e254a20b2fe0fb8531
+  checksum: f6bc65e986f8829b5f59768377d421714a8aab0cfad8dbc73845aef8b37ac9ef0c86ca19cd5ed404638cd412825fd144fe2661ddb5cf2505ba4c7a449a23271e
   languageName: node
   linkType: hard
 
-"@google-cloud/opentelemetry-resource-util@npm:^2.1.0":
-  version: 2.1.0
-  resolution: "@google-cloud/opentelemetry-resource-util@npm:2.1.0"
+"@google-cloud/opentelemetry-resource-util@npm:^2.2.0":
+  version: 2.2.0
+  resolution: "@google-cloud/opentelemetry-resource-util@npm:2.2.0"
   dependencies:
-    gcp-metadata: ^5.0.1
+    "@opentelemetry/semantic-conventions": ^1.22.0
+    gcp-metadata: ^6.0.0
   peerDependencies:
     "@opentelemetry/resources": ^1.0.0
-    "@opentelemetry/semantic-conventions": ^1.0.0
-  checksum: 3b70d42f39e808919e85be7b37cc716816c2a4dae0f2d903d1da40a4804199bbc5368f8f78b026292fddc38e9cecd515caf673925d57c630ed16c1fbe7e96862
+  checksum: 40dff007e5fddeacfc9ea3a3aa68726a299a4e27d05a528cfae20dde2d2590db81a50c83be08520f1c46ab5138a826905bfb37a5ccce9745a876ac0961e611e9
   languageName: node
   linkType: hard
 
@@ -36244,13 +36244,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-text-encoding@npm:^1.0.0":
-  version: 1.0.3
-  resolution: "fast-text-encoding@npm:1.0.3"
-  checksum: 3e51365896f06d0dcab128092d095a0037d274deec419fecbd2388bc236d7b387610e0c72f920c6126e00c885ab096fbfaa3645712f5b98f721bef6b064916a8
-  languageName: node
-  linkType: hard
-
 "fast-text-encoding@npm:^1.0.4":
   version: 1.0.4
   resolution: "fast-text-encoding@npm:1.0.4"
@@ -38772,7 +38765,7 @@ fsevents@~2.1.1:
     "@fluent/react": ^0.15.2
     "@google-cloud/bigquery": ^7.7.0
     "@google-cloud/firestore": ^7.3.0
-    "@google-cloud/opentelemetry-cloud-trace-exporter": ^2.1.0
+    "@google-cloud/opentelemetry-cloud-trace-exporter": ^2.2.0
     "@google-cloud/pubsub": ^4.3.1
     "@google-cloud/translate": ^8.2.0
     "@graphql-codegen/cli": 5.0.0
@@ -38976,45 +38969,6 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"gaxios@npm:^3.0.0":
-  version: 3.1.0
-  resolution: "gaxios@npm:3.1.0"
-  dependencies:
-    abort-controller: ^3.0.0
-    extend: ^3.0.2
-    https-proxy-agent: ^5.0.0
-    is-stream: ^2.0.0
-    node-fetch: ^2.3.0
-  checksum: 443fa02a269f06622dc554acca0f47acbd24947c41bca3b52bc3e7b0c2f04620e472ba312f012ff890cbecfa37991a78b79663cefcaba8b2789ec50ed6fc2d62
-  languageName: node
-  linkType: hard
-
-"gaxios@npm:^4.0.0":
-  version: 4.0.1
-  resolution: "gaxios@npm:4.0.1"
-  dependencies:
-    abort-controller: ^3.0.0
-    extend: ^3.0.2
-    https-proxy-agent: ^5.0.0
-    is-stream: ^2.0.0
-    node-fetch: ^2.3.0
-  checksum: ae8429658fdf015a77a2e723c2f5f9d7ded54df2aa089bbeaecfbccee1f7a5fd3bef87eec5a1359bd75879e47f1d471e8699684ab5b37d654de4ab3113fa97ce
-  languageName: node
-  linkType: hard
-
-"gaxios@npm:^5.0.0":
-  version: 5.0.0
-  resolution: "gaxios@npm:5.0.0"
-  dependencies:
-    abort-controller: ^3.0.0
-    extend: ^3.0.2
-    https-proxy-agent: ^5.0.0
-    is-stream: ^2.0.0
-    node-fetch: ^2.6.7
-  checksum: d5f81e49db881a6d4fe78ba080a74b27c1be9128e806ff84c26dd6e44539a954551128d7c193d29a3a030510e504448810fa3c3c69af7f21d46572476f1fdef2
-  languageName: node
-  linkType: hard
-
 "gaxios@npm:^6.0.0, gaxios@npm:^6.1.1":
   version: 6.1.1
   resolution: "gaxios@npm:6.1.1"
@@ -39045,26 +38999,6 @@ fsevents@~2.1.1:
   dependencies:
     globule: ^1.0.0
   checksum: d5fd375a029c07346154806a076bde21290598179d01ffbe7bc3e54092fa65814180bd27fc2b577582737733eec77cdbb7a572a4e73dff934dde60317223cde6
-  languageName: node
-  linkType: hard
-
-"gcp-metadata@npm:^4.2.0":
-  version: 4.2.0
-  resolution: "gcp-metadata@npm:4.2.0"
-  dependencies:
-    gaxios: ^3.0.0
-    json-bigint: ^1.0.0
-  checksum: 2bba9774c83d0fa9fea7a5c949fa4ec737073a28ded870d5bb19216d620b0a5aa4709d1e743688c9bb64f6dbae56f5109d1fe2dd5dad048af5d68472277d4d67
-  languageName: node
-  linkType: hard
-
-"gcp-metadata@npm:^5.0.1":
-  version: 5.2.0
-  resolution: "gcp-metadata@npm:5.2.0"
-  dependencies:
-    gaxios: ^5.0.0
-    json-bigint: ^1.0.0
-  checksum: 4e7ed589c814bb79cbf052b0eda1d5e219fbee030f4772eca27ec1e6e1faa85ba0ef3b17ea5c3fd51a54fc5429c924b4edbb260ac147701f211fb9807b893544
   languageName: node
   linkType: hard
 
@@ -39881,23 +39815,6 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"google-auth-library@npm:^7.0.0":
-  version: 7.10.2
-  resolution: "google-auth-library@npm:7.10.2"
-  dependencies:
-    arrify: ^2.0.0
-    base64-js: ^1.3.0
-    ecdsa-sig-formatter: ^1.0.11
-    fast-text-encoding: ^1.0.0
-    gaxios: ^4.0.0
-    gcp-metadata: ^4.2.0
-    gtoken: ^5.0.4
-    jws: ^4.0.0
-    lru-cache: ^6.0.0
-  checksum: d1ecb7e21b518c99f08f8ff65951a1b34589b749bb8b7896e7dcb5c28bf511c40ee96515dd9eef0494102ba3abd979076019c674f1c3b458c91db263d40d317d
-  languageName: node
-  linkType: hard
-
 "google-auth-library@npm:^9.0.0":
   version: 9.4.1
   resolution: "google-auth-library@npm:9.4.1"
@@ -39965,24 +39882,13 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"google-p12-pem@npm:^3.0.3":
-  version: 3.0.3
-  resolution: "google-p12-pem@npm:3.0.3"
-  dependencies:
-    node-forge: ^0.10.0
-  bin:
-    gp12-pem: build/src/bin/gp12-pem.js
-  checksum: b4698748bb14356ce19fdcfe5d58922704a1719f34063e0a2c2533624cd47a0d329bab17464b8f7f21ac1b221e1c5e24aaaa5fe53f5433d6ffa2bcb2d0baf1a2
-  languageName: node
-  linkType: hard
-
-"google-proto-files@npm:^3.0.0":
-  version: 3.0.3
-  resolution: "google-proto-files@npm:3.0.3"
+"google-proto-files@npm:^4.0.0":
+  version: 4.2.0
+  resolution: "google-proto-files@npm:4.2.0"
   dependencies:
     protobufjs: ^7.0.0
     walkdir: ^0.4.0
-  checksum: 6650768c72c76295c5a9357933f91d3fccafea2511c5e378dd9f43429b896f060a8f019dec2779d60bf11bdccd6f59c40d2195c3315681e4c41416ed02234ead
+  checksum: c1789d7b1da5254105c5341853f1ffbfb8d4084d40ddeb3b74bfe25c2f2c03a6eceb03db076818e79585320fe5e5bdb73c1cc2770da87c1c689da83e793ee705
   languageName: node
   linkType: hard
 
@@ -40540,18 +40446,6 @@ fsevents@~2.1.1:
   bin:
     grunt: bin/grunt
   checksum: bc03f5bba1edee2f3ac01cf8c5d4a2fe787d2244b7aa7bf73278b1295489dcf10639e531fe0a0af5d2e83e4df2a15cd9bde495f510ffb0b5c3126b16bf37993d
-  languageName: node
-  linkType: hard
-
-"gtoken@npm:^5.0.4":
-  version: 5.0.4
-  resolution: "gtoken@npm:5.0.4"
-  dependencies:
-    gaxios: ^3.0.0
-    google-p12-pem: ^3.0.3
-    jws: ^4.0.0
-    mime: ^2.2.0
-  checksum: 725c98805b189f91f245d331c1d0b3c2deb88e96942e334a62ca70ef0120af5138663da2671b8b2e7543b9a2aa311522c5c3c7d6b0dad68761e04540c2c61363
   languageName: node
   linkType: hard
 
@@ -49034,7 +48928,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"mime@npm:^2.2.0, mime@npm:^2.4.0, mime@npm:^2.4.6":
+"mime@npm:^2.4.0, mime@npm:^2.4.6":
   version: 2.4.6
   resolution: "mime@npm:2.4.6"
   bin:
@@ -50806,7 +50700,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"node-fetch@npm:^2.3.0, node-fetch@npm:^2.6.0, node-fetch@npm:^2.6.1":
+"node-fetch@npm:^2.6.0, node-fetch@npm:^2.6.1":
   version: 2.6.1
   resolution: "node-fetch@npm:2.6.1"
   checksum: 91075bedd57879117e310fbcc36983ad5d699e522edb1ebcdc4ee5294c982843982652925c3532729fdc86b2d64a8a827797a745f332040d91823c8752ee4d7c
