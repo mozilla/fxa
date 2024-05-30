@@ -7,7 +7,7 @@ import { RouteComponentProps, useLocation } from '@reach/router';
 import base32Decode from 'base32-decode';
 
 import { decryptRecoveryKeyData } from 'fxa-auth-client/lib/recoveryKey';
-import { useAccount } from '../../../models';
+import { useAccount, useSensitiveDataClient } from '../../../models';
 import { useFtlMsgResolver } from '../../../models/hooks';
 
 import {
@@ -28,6 +28,7 @@ const AccountRecoveryConfirmKeyContainer = ({
   const ftlMsgResolver = useFtlMsgResolver();
   const location = useLocation();
   const navigate = useNavigateWithQuery();
+  const sensitiveDataClient = useSensitiveDataClient();
 
   const {
     accountResetToken: previousAccountResetToken,
@@ -66,6 +67,7 @@ const AccountRecoveryConfirmKeyContainer = ({
       uid
     );
 
+    sensitiveDataClient.setData('reset', { kB });
     navigate('/account_recovery_reset_password', {
       state: {
         accountResetToken: fetchedAccountResetToken,

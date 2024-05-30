@@ -24,7 +24,7 @@ import {
   settingsViewName,
   usePageViewEvent,
 } from '../../../lib/metrics';
-import { useAccount } from '../../../models/hooks';
+import { useAccount, useSensitiveDataClient } from '../../../models';
 import { LinkStatus } from '../../../lib/types';
 import {
   isOAuthIntegration,
@@ -57,6 +57,7 @@ const AccountRecoveryResetPassword = ({
 
   const account = useAccount();
   const navigate = useNavigate();
+  const sensitiveDataClient = useSensitiveDataClient();
 
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state: AccountRecoveryResetPasswordLocationState;
@@ -69,10 +70,13 @@ const AccountRecoveryResetPassword = ({
       AccountRecoveryResetPasswordBannerState.None
     );
 
+  const sensitiveData = sensitiveDataClient.getData('reset');
+  const { kB } = (sensitiveData as unknown as { kB: string }) || {};
+
   // TODO: This should be done in a container component
   const linkIsValid = !!(
     location.state.accountResetToken &&
-    location.state.kB &&
+    kB &&
     location.state.recoveryKeyId &&
     verificationInfo.email
   );
@@ -205,7 +209,7 @@ const AccountRecoveryResetPassword = ({
       const options = {
         password,
         accountResetToken: location.state.accountResetToken,
-        kB: location.state.kB,
+        kB,
         recoveryKeyId: location.state.recoveryKeyId,
         emailToHashWith: verificationInfo.emailToHashWith || email,
       };
