@@ -16,31 +16,23 @@ export function hardNavigate(
   includeCurrentQueryParams = false
 ) {
   // If there are any query params in the href, we automatically include them in the new url.
-  let searchParams = new URLSearchParams();
-  if (href.includes('?')) {
-    searchParams = new URLSearchParams(href.substring(href.indexOf('?')));
-  }
+  const url = new URL(href, window.location.origin);
 
   if (includeCurrentQueryParams) {
     const currentSearchParams = new URLSearchParams(window.location.search);
     currentSearchParams.forEach((value, key) => {
-      if (!searchParams.has(key)) {
-        searchParams.append(key, value);
+      if (!url.searchParams.has(key)) {
+        url.searchParams.append(key, value);
       }
     });
   }
 
-  if (additionalQueryParams) {
-    const additionalSearchParams = new URLSearchParams(additionalQueryParams);
-    additionalSearchParams.forEach((value, key) => {
-      searchParams.append(key, value);
-    });
-  }
+  const additionalSearchParams = new URLSearchParams(additionalQueryParams);
+  additionalSearchParams.forEach((value, key) => {
+    url.searchParams.append(key, value);
+  });
 
-  if (href.includes('?')) {
-    href = href.substring(0, href.indexOf('?'));
-  }
-  window.location.href = `${href}?${searchParams.toString()}`;
+  window.location.href = url.href;
 }
 
 export enum LocalizedDateOptions {
