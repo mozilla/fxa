@@ -28,11 +28,11 @@ describe('ResetPassword', () => {
   });
 
   describe('renders', () => {
-    it('as expected with default service', async () => {
+    it('as expected', async () => {
       renderWithLocalizationProvider(<Subject />);
 
       await expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
-        'Password reset to continue to account settings'
+        'Reset your password'
       );
       expect(
         screen.getByRole('textbox', { name: 'Enter your email' })
@@ -42,16 +42,6 @@ describe('ResetPassword', () => {
       ).toBeVisible();
       expect(screen.getByText('Remember your password?')).toBeVisible();
       expect(screen.getByRole('link', { name: 'Sign in' })).toBeVisible();
-    });
-
-    it('as expected with custom service', async () => {
-      renderWithLocalizationProvider(
-        <Subject serviceName={MozServices.FirefoxSync} />
-      );
-      const headingEl = await screen.findByRole('heading', { level: 1 });
-      expect(headingEl).toHaveTextContent(
-        `Password reset to continue to Firefox Sync`
-      );
     });
 
     it('emits a Glean event on render', async () => {

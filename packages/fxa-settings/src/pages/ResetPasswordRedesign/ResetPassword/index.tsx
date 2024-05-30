@@ -84,10 +84,8 @@ const ResetPassword = ({
   return (
     <AppLayout>
       <CardHeader
-        headingWithDefaultServiceFtlId="password-reset-heading-w-default-service"
-        headingWithCustomServiceFtlId="password-reset-heading-w-custom-service"
-        headingText="Password reset"
-        {...{ serviceName }}
+        headingText="Reset your password"
+        headingTextFtlId="password-reset-start-heading"
       />
 
       {errorMessage && (

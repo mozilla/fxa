@@ -9,6 +9,7 @@ import { Subject } from './mocks';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MOCK_EMAIL } from '../../mocks';
 
 // add Glean mocks
 
@@ -25,12 +26,10 @@ describe('ConfirmResetPassword', () => {
     renderWithLocalizationProvider(<Subject />);
 
     await expect(
-      screen.getByRole('heading', { name: 'Enter confirmation code' })
+      screen.getByRole('heading', { name: 'Check your email' })
     ).toBeVisible();
 
-    expect(
-      screen.getByText(/Enter the 8-digit confirmation code we sent to/)
-    ).toBeVisible();
+    expect(screen.getByText(MOCK_EMAIL)).toBeVisible();
 
     expect(screen.getAllByRole('textbox')).toHaveLength(8);
     const buttons = await screen.findAllByRole('button');
