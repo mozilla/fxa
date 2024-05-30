@@ -47,19 +47,17 @@ npx playwright codegen localhost:3030
 
 ## Fixtures
 
-We have a standard [fixture](https://playwright.dev/docs/test-fixtures) for the most common kind of tests.
+We have a standard [fixture](https://playwright.dev/docs/test-fixtures) module for the most common functions needed in tests.
 
-Its job is to:
+Its job is to make the following functionalities available:
 
-- Connect to the target environment
-- Create and verify an account for each test
-- Create the POMs
-- Destroy the account after each test
+- target: connect to the target environment
+- pages & syncBrowserPages: create the POMs
+- testAccountTracker: create and destroy accounts
 
-Use this fixture in test files like so:
+Make these fixtures available in test files by declaring the following:
 
 ```ts
-// tests/example.spec.ts
 import { test } from '../lib/fixtures/standard';
 ```
 
@@ -130,84 +128,4 @@ We record traces for failed tests locally and in CI. On CircleCI they are in the
 
 ## Avoiding Race condition while writing tests
 
-1. Use `waitFor` functions: Playwright provides `waitFor` functions to wait for specific conditions to be met, such as an element to appear or be visible, or an attribute to change. Use these functions instead of hard-coding time delays in your tests.
-
-Example:
-
-```ts
-async showError() {
-  const error = this.page.locator('#error');
-  await error.waitFor({ state: 'visible' });
-  return error.isVisible();
-}
-```
-
-2. Use `waitForUrl` and/or `waitForNavigation`: Use the `waitForUrl` or `waitForNavigation` function to wait for page navigation to complete before continuing with the test.
-
-Example:
-
-```ts
-async clickForgotPassword() {
-  await this.page.locator(selectors.LINK_RESET_PASSWORD).click();
-  await this.page.waitForURL(/reset_password/);
-}
-```
-
-```ts
-async performNavigation() {
-  const waitForNavigation = this.page.waitForNavigation();
-  await this.page.locator('button[id=navigate]').click();
-  return waitForNavigation;
-}
-```
-
-3. Use unique selectors: Use unique selectors to identify elements on the page to avoid confusion or ambiguity in selecting the correct element.
-
-Example:
-
-```ts
-this.page.getByRole('link', { name: 'name1' });
-```
-
-```ts
-this.page.locator('[data-testid="change"]');
-```
-
-```ts
-this.page.locator('#id');
-```
-
-```ts
-this.page.locator('.class');
-```
-
-4. Use `locator().action()` : Use `page.locator().click()` to wait for an element to appear before interacting with it.
-
-Example:
-
-```ts
-performClick() {
-  return this.page.locator('button[id=Save]').click();
-}
-```
-
-5. Use `Promise.all`: Use `Promise.all` to execute multiple asynchronous tasks simultaneously and wait for them to complete before continuing with the test.
-
-Example:
-
-```ts
-async signOut() {
-  await Promise.all([
-    this.page.locator('#logout').click(),
-    this.page.waitForResponse(/\/api\/logout/),
-  ]);
-}
-```
-
-6. Use `fixtures` to set up and tear down the test environment or run a test in a particular environment etc.
-
-7. Use `test.slow()` to mark the test as slow and triple the test timeout.
-
-8. When writing tests that use Firefox Sync, use the `syncBrowserPages` fixture. This fixture creates a new browser and a new browser context to avoid any Sync data being shared between tests. After your test is complete, the fixture will ensure that the browser is closed to free up memory.
-
-By following these best practices, you can minimize the likelihood of race conditions in your Playwright tests and ensure more reliable and consistent test results.
+See related [Ecosystem Docs](https://mozilla.github.io/ecosystem-platform/reference/functional-testing#avoiding-race-condition-while-writing-tests)
