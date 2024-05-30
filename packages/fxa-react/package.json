@@ -112,7 +112,8 @@
   },
   "nx": {
     "tags": [
-      "scope:shared:lib"
+      "scope:shared:lib",
+      "type:core"
     ]
   }
 }

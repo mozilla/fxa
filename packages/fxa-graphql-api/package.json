@@ -89,5 +89,11 @@
     "prettier": "^2.3.1",
     "supertest": "^7.0.0",
     "typescript": "^5.4.2"
+  },
+  "nx": {
+    "tags": [
+      "scope:gql",
+      "type:core"
+    ]
   }
 }

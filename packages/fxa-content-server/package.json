@@ -75,7 +75,6 @@
     "fxa-geodb": "workspace:*",
     "fxa-mustache-loader": "0.0.2",
     "fxa-pairing-channel": "1.0.2",
-    "fxa-payments-server": "workspace:*",
     "fxa-profile-server": "workspace:*",
     "fxa-react": "workspace:*",
     "fxa-settings": "workspace:*",
@@ -187,7 +186,8 @@
   "readmeFilename": "README.md",
   "nx": {
     "tags": [
-      "scope:frontend"
+      "scope:frontend",
+      "type:core"
     ]
   }
 }

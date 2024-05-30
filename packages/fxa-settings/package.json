@@ -256,7 +256,8 @@
   },
   "nx": {
     "tags": [
-      "scope:frontend"
+      "scope:frontend",
+      "type:core"
     ]
   },
   "babel": {

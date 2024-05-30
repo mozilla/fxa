@@ -107,7 +107,8 @@
   },
   "nx": {
     "tags": [
-      "scope:broker"
+      "scope:broker",
+      "type:broker"
     ]
   }
 }
