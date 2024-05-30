@@ -41,7 +41,6 @@ export interface CompleteResetPasswordProps {
   locationState: CompleteResetPasswordLocationState;
   submitNewPassword: (newPassword: string) => Promise<void>;
   hasConfirmedRecoveryKey?: boolean;
-  searchParams?: string;
 }
 
 export type AccountResetData = {

@@ -18,7 +18,7 @@ import {
   CompleteResetPasswordProps,
 } from './interfaces';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { Link } from '@reach/router';
+import { Link, useLocation } from '@reach/router';
 
 const CompleteResetPassword = ({
   email,
@@ -26,8 +26,9 @@ const CompleteResetPassword = ({
   hasConfirmedRecoveryKey,
   locationState,
   submitNewPassword,
-  searchParams,
 }: CompleteResetPasswordProps) => {
+  const location = useLocation();
+
   useEffect(() => {
     hasConfirmedRecoveryKey
       ? GleanMetrics.resetPassword.recoveryKeyCreatePasswordView()
@@ -72,7 +73,7 @@ const CompleteResetPassword = ({
               {/* TODO add metrics to measure if users see and click on this link */}
               <FtlMsg id="complete-reset-password-recovery-key-link">
                 <Link
-                  to={`/account_recovery_confirm_key${searchParams}`}
+                  to={`/account_recovery_confirm_key${location.search}`}
                   state={locationState}
                   className="link-white underline-offset-4"
                 >
