@@ -27,8 +27,8 @@ const ConfirmResetPassword = ({
   const location = useLocation();
 
   const localizedInputGroupLabel = ftlMsgResolver.getMsg(
-    'confirm-reset-password-otp-input-group-label',
-    'Enter 8-digit code'
+    'confirm-reset-password-code-input-group-label',
+    'Enter 8-digit code within 10 minutes'
   );
   const localizedSubmitButtonText = ftlMsgResolver.getMsg(
     'confirm-reset-password-otp-submit-button',
@@ -47,21 +47,20 @@ const ConfirmResetPassword = ({
 
   return (
     <AppLayout>
-      <FtlMsg id="confirm-reset-password-otp-flow-name">
-        <p className="text-start text-grey-400 text-sm">Reset password</p>
+      <FtlMsg id="password-reset-flow-heading">
+        <p className="text-start text-grey-400 text-sm">Reset your password</p>
       </FtlMsg>
       <EmailCodeImage />
-      <FtlMsg id="confirm-reset-password-otp-heading">
-        <h2 className="card-header text-start my-4">Enter confirmation code</h2>
+      <FtlMsg id="confirm-reset-password-with-code-heading">
+        <h2 className="card-header text-start my-4">Check your email</h2>
       </FtlMsg>
       <FtlMsg
-        id="confirm-reset-password-otp-instruction"
+        id="confirm-reset-password-with-code-instruction"
         vars={{ email }}
         elems={{ span: spanElement }}
       >
         <p className="text-start">
-          Enter the 8-digit confirmation code we sent to {spanElement} within 10
-          minutes.
+          We sent a confirmation code to {spanElement}.
         </p>
       </FtlMsg>
       {resendStatus === ResendStatus['sent'] && <ResendEmailSuccessBanner />}
