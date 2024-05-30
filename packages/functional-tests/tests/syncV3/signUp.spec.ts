@@ -41,7 +41,9 @@ test.describe('severity-1 #smoke', () => {
       await login.clickSubmit();
 
       // Verify the error message
-      expect(await login.getTooltipError()).toContain('Passwords do not match');
+      await expect(login.getTooltipError()).toContainText(
+        'Passwords do not match'
+      );
 
       // Fix the error
       await login.confirmPassword(credentials.password);
@@ -88,7 +90,9 @@ test.describe('severity-1 #smoke', () => {
           target.contentServerUrl
         }?context=fx_desktop_v3&service=sync&action=email&${queryParam.toString()}`
       );
-      expect(await login.getTooltipError()).toContain('Valid email required');
+      await expect(login.getTooltipError()).toContainText(
+        'Valid email required'
+      );
     });
 
     test('email specified by relier, empty string', async ({
@@ -103,7 +107,9 @@ test.describe('severity-1 #smoke', () => {
           target.contentServerUrl
         }?context=fx_desktop_v3&service=sync&action=email&${queryParam.toString()}`
       );
-      expect(await login.getTooltipError()).toContain('Valid email required');
+      await expect(login.getTooltipError()).toContainText(
+        'Valid email required'
+      );
     });
 
     test('email specified by relier, not registered', async ({
