@@ -10,10 +10,6 @@ import { BaseTarget, Credentials } from '../../lib/targets/base';
 import { LoginPage } from '../../pages/login';
 
 test.describe('severity-2 #smoke', () => {
-  test.beforeEach(async () => {
-    test.slow();
-  });
-
   test.describe('Firefox Desktop Sync v3 sign in', () => {
     test('verified email, does not need to confirm', async ({
       target,

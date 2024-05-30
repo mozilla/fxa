@@ -13,10 +13,6 @@ import { SigninReactPage } from '../../../pages/signinReact';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('resubscription test', () => {
-    test.beforeEach(() => {
-      test.slow();
-    });
-
     test('resubscribe successfully with the same coupon after canceling for stripe', async ({
       target,
       page,

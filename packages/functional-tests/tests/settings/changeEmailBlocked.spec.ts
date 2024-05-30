@@ -12,10 +12,6 @@ import { SecondaryEmailPage } from '../../pages/settings/secondaryEmail';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('change primary - unblock', () => {
-    test.beforeEach(async () => {
-      test.slow();
-    });
-
     test('change primary email, get blocked with invalid password, redirect enter password page', async ({
       target,
       pages: { page, settings, login, secondaryEmail, deleteAccount },

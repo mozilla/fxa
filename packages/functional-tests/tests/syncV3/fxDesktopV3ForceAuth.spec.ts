@@ -11,10 +11,6 @@ const makeUid = () =>
 
 test.describe('severity-1 #smoke', () => {
   test.describe('Desktop Sync V3 force auth', () => {
-    test.beforeEach(async () => {
-      test.slow();
-    });
-
     test('sync v3 with a registered email, no uid', async ({
       syncBrowserPages: {
         fxDesktopV3ForceAuth,

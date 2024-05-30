@@ -12,10 +12,6 @@ import { SecondaryEmailPage } from '../../pages/settings/secondaryEmail';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('change primary email tests', () => {
-    test.beforeEach(async () => {
-      test.slow();
-    });
-
     test('change primary email and login', async ({
       target,
       pages: { page, login, settings, secondaryEmail },

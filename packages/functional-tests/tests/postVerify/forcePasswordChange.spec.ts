@@ -6,10 +6,6 @@ import { expect, test } from '../../lib/fixtures/standard';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('post verify - force password change', () => {
-    test.beforeEach(async () => {
-      test.slow();
-    });
-
     test('navigate to page directly and can change password', async ({
       target,
       pages: { page, login, postVerify },

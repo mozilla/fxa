@@ -5,9 +5,6 @@
 import { expect, test } from '../../lib/fixtures/standard';
 
 test.describe('Firefox Desktop Sync v3 email first', () => {
-  test.beforeEach(async () => {
-    test.slow();
-  });
 
   test('open directly to /signin page, refresh on the /signin page', async ({
     target,

@@ -14,8 +14,6 @@ const HINT = 'secret key location';
  * key stretched passwords. We need to ensure that operations are interchangeable!
  */
 test.describe('severity-2 #smoke', () => {
-  test.slow();
-
   // Helpers
   async function _getKeys(
     version: 1 | 2,

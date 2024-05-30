@@ -12,10 +12,6 @@ import { SigninReactPage } from '../../../pages/signinReact';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('coupon test forever discount', () => {
-    test.beforeEach(() => {
-      test.slow();
-    });
-
     test('subscribe successfully with a forever discount coupon', async ({
       target,
       page,

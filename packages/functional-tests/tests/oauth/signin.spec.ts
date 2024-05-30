@@ -5,10 +5,6 @@
 import { expect, test } from '../../lib/fixtures/standard';
 
 test.describe('severity-1 #smoke', () => {
-  test.beforeEach(({}, { project }) => {
-    test.slow(project.name !== 'local', 'email delivery can be slow');
-  });
-
   test.describe('OAuth signin', () => {
     test('verified', async ({
       pages: { login, relier },

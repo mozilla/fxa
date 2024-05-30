@@ -14,8 +14,6 @@ test.describe('severity-1 #smoke', () => {
       pages: { page, login, settings, changePassword },
       testAccountTracker,
     }) => {
-      test.slow();
-
       await signInAccount(target, page, login, testAccountTracker);
       const newPassword = testAccountTracker.generatePassword();
 
@@ -36,8 +34,6 @@ test.describe('severity-1 #smoke', () => {
       pages: { page, settings, changePassword, login },
       testAccountTracker,
     }) => {
-      test.slow();
-
       const credentials = await signInAccount(
         target,
         page,
@@ -111,8 +107,6 @@ test.describe('severity-1 #smoke', () => {
         config.featureFlags.resetPasswordWithCode === true,
         'see FXA-9612'
       );
-      test.slow();
-
       await signInAccount(target, page, login, testAccountTracker);
 
       await settings.goto();

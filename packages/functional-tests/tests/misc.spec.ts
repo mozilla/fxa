@@ -4,7 +4,6 @@ test.describe('severity-1', () => {
   // runs all mocha tests - see output here: http://127.0.0.1:3030/tests/index.html
   test('content-server mocha tests', async ({ target, page }, { project }) => {
     test.skip(project.name !== 'local', 'mocha tests are local only');
-    test.slow();
     await page.goto(`${target.contentServerUrl}/tests/index.html`, {
       waitUntil: 'load',
     });

@@ -7,10 +7,6 @@ import { SettingsPage } from '../../pages/settings';
 import { DeleteAccountPage } from '../../pages/settings/deleteAccount';
 
 test.describe('severity-1 #smoke', () => {
-  test.beforeEach(({}, { project }) => {
-    test.slow(project.name !== 'local', 'email delivery can be slow');
-  });
-
   test.describe('OAuth signin blocked', () => {
     test('verified, blocked', async ({
       page,

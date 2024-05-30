@@ -9,10 +9,6 @@ import { LoginPage } from '../../pages/login';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('sync signin cached', () => {
-    test.beforeEach(async () => {
-      test.slow(); //This test has steps for email rendering that runs slow on stage
-    });
-
     test('sign in on desktop then specify a different email on query parameter continues to cache desktop signin', async ({
       target,
       syncBrowserPages: { page, login, connectAnotherDevice },

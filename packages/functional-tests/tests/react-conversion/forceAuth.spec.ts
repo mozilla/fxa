@@ -7,7 +7,6 @@ import { getReactFeatureFlagUrl } from '../../lib/react-flag';
 
 test.describe('force auth react', () => {
   test.beforeEach(async ({ pages: { configPage } }) => {
-    test.slow();
     // Ensure that the feature flag is enabled
     const config = await configPage.getConfig();
     test.skip(config.showReactApp.signInRoutes !== true);

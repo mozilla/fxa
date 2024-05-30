@@ -7,10 +7,6 @@ import { expect, test } from '../../lib/fixtures/standard';
 const AGE_21 = '21';
 
 test.describe('severity-1 #smoke', () => {
-  test.beforeEach(() => {
-    test.slow();
-  });
-
   test.describe('signin with OAuth after Sync', () => {
     test('signin to OAuth with Sync creds', async ({
       target,

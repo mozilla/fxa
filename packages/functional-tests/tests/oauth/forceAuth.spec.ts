@@ -32,13 +32,12 @@ test.describe('severity-1 #smoke', () => {
     test('with a unregistered email', async ({
       pages: { configPage, login, relier },
       testAccountTracker,
-    }, { project }) => {
+    }) => {
       const config = await configPage.getConfig();
       test.skip(
         config.showReactApp.signUpRoutes === true,
         'Scheduled for removal as part of React conversion (see FXA-9410).'
       );
-      test.slow(project.name !== 'local', 'email delivery can be slow');
       const credentials = await testAccountTracker.signUp();
       const newEmail = testAccountTracker.generateEmail();
 
@@ -62,13 +61,12 @@ test.describe('severity-1 #smoke', () => {
       page,
       pages: { configPage, login, relier, settings, deleteAccount },
       testAccountTracker,
-    }, { project }) => {
+    }) => {
       const config = await configPage.getConfig();
       test.skip(
         config.showReactApp.signUpRoutes === true,
         'Scheduled for removal as part of React conversion (see FXA-9410).'
       );
-      test.slow(project.name !== 'local', 'email delivery can be slow');
 
       const credentials = await testAccountTracker.signUp();
       const blockedEmail = testAccountTracker.generateBlockedEmail();

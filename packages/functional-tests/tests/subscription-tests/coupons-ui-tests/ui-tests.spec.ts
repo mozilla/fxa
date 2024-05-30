@@ -23,7 +23,6 @@ test.describe('severity-2 #smoke', () => {
         project.name === 'production',
         'no real payment method available in prod'
       );
-      test.slow();
 
       await signInAccount(
         target,

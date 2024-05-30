@@ -7,7 +7,6 @@ import { expect, test } from '../../lib/fixtures/standard';
 test.describe('severity-1 #smoke', () => {
   test.describe('oauth permissions for trusted reliers - sign in', () => {
     test.beforeEach(async ({ pages: { login } }) => {
-      test.slow();
       await login.clearCache();
     });
 

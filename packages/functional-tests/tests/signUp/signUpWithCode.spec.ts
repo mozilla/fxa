@@ -12,7 +12,6 @@ test.describe('severity-1 #smoke', () => {
         config.showReactApp.signUpRoutes === true,
         'these tests are specific to backbone, skip if serving React version'
       );
-      test.slow();
     });
 
     test('bounced email', async ({

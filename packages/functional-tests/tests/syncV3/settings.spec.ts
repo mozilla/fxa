@@ -7,10 +7,6 @@ import { expect, test } from '../../lib/fixtures/standard';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('Firefox Desktop Sync v3 settings', () => {
-    test.beforeEach(async () => {
-      test.slow();
-    });
-
     test('sign in, change the password', async ({
       target,
       syncBrowserPages: {

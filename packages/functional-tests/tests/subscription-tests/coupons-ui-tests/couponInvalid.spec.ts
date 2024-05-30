@@ -12,10 +12,6 @@ import { SigninReactPage } from '../../../pages/signinReact';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('coupon test invalid', () => {
-    test.beforeEach(() => {
-      test.slow();
-    });
-
     test('apply an invalid coupon', async ({ pages: { relier, subscribe } }, {
       project,
     }) => {

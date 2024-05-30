@@ -14,7 +14,6 @@ test.describe('severity-1 #smoke', () => {
         config.showReactApp.signUpRoutes === true,
         'these tests are specific to backbone, skip if seeing React version'
       );
-      test.slow();
     });
 
     test('sync sign up', async ({

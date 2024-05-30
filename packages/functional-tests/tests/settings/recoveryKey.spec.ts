@@ -5,7 +5,6 @@
 import fs from 'fs';
 import pdfParse from 'pdf-parse';
 import { TestAccountTracker } from '../../lib/testAccountTracker';
-import { EmailHeader, EmailType } from '../../lib/email';
 import { Page, expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
 import { LoginPage } from '../../pages/login';
@@ -14,12 +13,6 @@ const HINT = 'secret key location';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('recovery key test', () => {
-    test.beforeEach(async () => {
-      // Generating and consuming recovery keys is a slow process
-      // Mail delivery can also be slow
-      test.slow();
-    });
-
     test('can copy recovery key', async ({
       target,
       pages: { page, login, recoveryKey, settings },

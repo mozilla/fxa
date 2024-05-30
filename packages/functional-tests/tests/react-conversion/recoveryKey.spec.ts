@@ -16,7 +16,6 @@ test.describe('severity-1 #smoke', () => {
         config.featureFlags.resetPasswordWithCode === true,
         'see FXA-9612'
       );
-      test.slow();
     });
 
     test('can reset password with recovery key', async ({

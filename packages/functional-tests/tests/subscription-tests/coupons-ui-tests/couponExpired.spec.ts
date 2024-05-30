@@ -7,10 +7,6 @@ import { Coupon } from '../../../pages/products';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('coupon test expired', () => {
-    test.beforeEach(() => {
-      test.slow();
-    });
-
     test('apply an expired coupon', async ({ pages: { relier, subscribe } }, {
       project,
     }) => {
