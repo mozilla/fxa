@@ -38911,7 +38911,7 @@ fsevents@~2.1.1:
     semver: ^7.6.2
     server-only: ^0.0.1
     set-value: ^4.1.0
-    stripe: ^15.4.0
+    stripe: ^15.8.0
     stylelint: ^16.5.0
     stylelint-config-prettier: ^9.0.3
     stylelint-config-recommended-scss: ^14.0.0
@@ -61278,13 +61278,13 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"stripe@npm:^15.4.0":
-  version: 15.4.0
-  resolution: "stripe@npm:15.4.0"
+"stripe@npm:^15.8.0":
+  version: 15.8.0
+  resolution: "stripe@npm:15.8.0"
   dependencies:
     "@types/node": ">=8.1.0"
     qs: ^6.11.0
-  checksum: 0302b740ef76084b8cc0fbec14f80c864101a0b04b1d85ecd120d921f3d665a512230a905be1388f777d9677850ffcf066c8cce37935e2f8f3d0d3d5d29d7a4b
+  checksum: c4778860f451008681742b691e5b619c06860344b5ad30a168746da6c12ad21d1b49d3862945ae7e14b83442102417fcd85c4e60deb522a388e62a83f4aa6d6a
   languageName: node
   linkType: hard
 
