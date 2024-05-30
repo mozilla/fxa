@@ -2,7 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  IsNumber,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
+
+export class CheckoutCartWithPaypalActionCustomerData {
+  @IsString()
+  locale!: string;
+
+  @IsString()
+  displayName!: string;
+}
 
 export class CheckoutCartWithPaypalActionArgs {
   @IsString()
@@ -12,9 +26,10 @@ export class CheckoutCartWithPaypalActionArgs {
   version!: number;
 
   @IsString()
-  locale!: string;
-
-  @IsString()
   @IsOptional()
   token?: string;
+
+  @Type(() => CheckoutCartWithPaypalActionCustomerData)
+  @ValidateNested()
+  customerData!: CheckoutCartWithPaypalActionCustomerData;
 }

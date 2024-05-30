@@ -205,7 +205,7 @@ describe('CartManager', () => {
     it('succeeds', async () => {
       const items = FinishErrorCartFactory();
 
-      await cartManager.finishErrorCart(testCart.id, testCart.version, items);
+      await cartManager.finishErrorCart(testCart.id, items);
       const cart = await cartManager.fetchCartById(testCart.id);
 
       expect(cart).toEqual(expect.objectContaining(items));
@@ -218,7 +218,6 @@ describe('CartManager', () => {
       try {
         await cartManager.finishErrorCart(
           testCart.id,
-          testCart.version,
           FinishErrorCartFactory()
         );
         fail('Error in finishErrorCart');

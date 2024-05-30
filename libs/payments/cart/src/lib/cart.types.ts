@@ -10,6 +10,11 @@ import {
   CartState,
 } from '@fxa/shared/db/mysql/account';
 
+export type CheckoutCustomerData = {
+  locale: string;
+  displayName: string;
+};
+
 export type FinishCart = {
   uid?: string;
   amount?: number;

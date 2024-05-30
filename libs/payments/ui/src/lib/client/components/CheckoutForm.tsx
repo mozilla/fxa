@@ -100,17 +100,15 @@ export function CheckoutForm({ readOnly, cart, locale }: CheckoutFormProps) {
       if (methodError.type === 'validation_error') {
         return;
       } else {
-        await handleStripeErrorAction(cart.id, cart.version, methodError);
+        await handleStripeErrorAction(cart.id, methodError);
         return;
       }
     }
 
-    await checkoutCartWithStripe(
-      cart.id,
-      cart.version,
+    await checkoutCartWithStripe(cart.id, cart.version, paymentMethod.id, {
       locale,
-      paymentMethod.id
-    );
+      displayName: fullName,
+    });
 
     // TODO - To be added in M3B - Redirect customer to '/processing' page
     router.push('./start');

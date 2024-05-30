@@ -2,7 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { IsNumber, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsNumber, IsString, ValidateNested } from 'class-validator';
+
+export class CheckoutCartWithStripeActionCustomerData {
+  @IsString()
+  locale!: string;
+
+  @IsString()
+  displayName!: string;
+}
 
 export class CheckoutCartWithStripeActionArgs {
   @IsString()
@@ -12,8 +21,9 @@ export class CheckoutCartWithStripeActionArgs {
   version!: number;
 
   @IsString()
-  locale!: string;
-
-  @IsString()
   paymentMethodId!: string;
+
+  @Type(() => CheckoutCartWithStripeActionCustomerData)
+  @ValidateNested()
+  customerData!: CheckoutCartWithStripeActionCustomerData;
 }

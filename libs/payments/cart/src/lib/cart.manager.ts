@@ -161,17 +161,13 @@ export class CartManager {
     }
   }
 
-  public async finishErrorCart(
-    cartId: string,
-    version: number,
-    items: FinishErrorCart
-  ) {
-    const cart = await this.fetchAndValidateCartVersion(cartId, version);
+  public async finishErrorCart(cartId: string, items: FinishErrorCart) {
+    const cart = await this.fetchCartById(cartId);
 
     this.checkActionForValidCartState(cart, 'finishErrorCart');
 
     try {
-      await updateCart(this.db, Buffer.from(cartId, 'hex'), version, {
+      await updateCart(this.db, Buffer.from(cartId, 'hex'), cart.version, {
         ...items,
         uid: items.uid ? Buffer.from(items.uid, 'hex') : undefined,
         state: CartState.FAIL,

@@ -73,7 +73,6 @@ export class NextJSActionsService {
 
     await this.cartService.finalizeCartWithError(
       args.cartId,
-      args.version,
       args.errorReasonId
     );
   }
@@ -92,7 +91,7 @@ export class NextJSActionsService {
     await this.cartService.checkoutCartWithPaypal(
       args.cartId,
       args.version,
-      args.locale,
+      args.customerData,
       args.token
     );
   }
@@ -103,8 +102,8 @@ export class NextJSActionsService {
     await this.cartService.checkoutCartWithStripe(
       args.cartId,
       args.version,
-      args.locale,
-      args.paymentMethodId
+      args.paymentMethodId,
+      args.customerData
     );
   }
 

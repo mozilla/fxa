@@ -50,6 +50,7 @@ import {
 } from '@fxa/shared/db/mysql/account';
 import {
   CartManager,
+  CheckoutCustomerDataFactory,
   ResultCartFactory,
   handleEligibilityStatusMap,
 } from '@fxa/payments/cart';
@@ -113,8 +114,7 @@ describe('CheckoutService', () => {
   });
 
   describe('prePaySteps', () => {
-    const acceptLanguage = 'en-US';
-
+    const mockCustomerData = CheckoutCustomerDataFactory();
     const uid = faker.string.uuid();
 
     const mockCustomer = StripeResponseFactory(
@@ -189,7 +189,7 @@ describe('CheckoutService', () => {
 
     describe('success - with stripeCustomerId attached to cart', () => {
       beforeEach(async () => {
-        await checkoutService.prePaySteps(mockCart, acceptLanguage);
+        await checkoutService.prePaySteps(mockCart, mockCustomerData);
       });
 
       it('fetches the customer', () => {
@@ -244,14 +244,14 @@ describe('CheckoutService', () => {
       );
 
       beforeEach(async () => {
-        await checkoutService.prePaySteps(mockCart, acceptLanguage);
+        await checkoutService.prePaySteps(mockCart, mockCustomerData);
       });
 
       it('creates a new account customer stub account', () => {
         expect(accountManager.createAccountStub).toHaveBeenCalledWith(
           mockCart.email,
           1,
-          acceptLanguage
+          mockCustomerData.locale
         );
       });
 
@@ -287,13 +287,14 @@ describe('CheckoutService', () => {
       );
 
       beforeEach(async () => {
-        await checkoutService.prePaySteps(mockCart, acceptLanguage);
+        await checkoutService.prePaySteps(mockCart, mockCustomerData);
       });
 
       it('creates a new stripe customer stub account', () => {
         expect(stripeManager.createPlainCustomer).toHaveBeenCalledWith({
           uid: uid,
           email: mockCart.email,
+          displayName: mockCustomerData.displayName,
           taxAddress: mockCart.taxAddress,
         });
       });
@@ -317,7 +318,7 @@ describe('CheckoutService', () => {
         );
 
         await expect(
-          checkoutService.prePaySteps(mockCart, acceptLanguage)
+          checkoutService.prePaySteps(mockCart, mockCustomerData)
         ).rejects.toBeInstanceOf(CartEmailNotFoundError);
       });
 
@@ -333,7 +334,7 @@ describe('CheckoutService', () => {
         );
 
         await expect(
-          checkoutService.prePaySteps(mockCart, acceptLanguage)
+          checkoutService.prePaySteps(mockCart, mockCustomerData)
         ).rejects.toBeInstanceOf(CartEligibilityMismatchError);
       });
 
@@ -349,14 +350,14 @@ describe('CheckoutService', () => {
         );
 
         await expect(
-          checkoutService.prePaySteps(mockCart, acceptLanguage)
+          checkoutService.prePaySteps(mockCart, mockCustomerData)
         ).rejects.toBeInstanceOf(CartTotalMismatchError);
       });
     });
   });
 
   describe('payWithStripe', () => {
-    const acceptLanguage = 'en-US';
+    const mockCustomerData = CheckoutCustomerDataFactory();
     const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
     const mockCart = StripeResponseFactory(
       ResultCartFactory({
@@ -376,6 +377,7 @@ describe('CheckoutService', () => {
     const mockPaymentIntent = StripeResponseFactory(
       StripePaymentIntentFactory()
     );
+    const mockPriceId = StripePriceFactory().id;
 
     beforeEach(async () => {
       jest.spyOn(checkoutService, 'prePaySteps').mockResolvedValue({
@@ -383,6 +385,7 @@ describe('CheckoutService', () => {
         customer: mockCustomer,
         enableAutomaticTax: true,
         promotionCode: mockPromotionCode,
+        priceId: mockPriceId,
       });
       jest
         .spyOn(stripeClient, 'paymentMethodsAttach')
@@ -408,15 +411,15 @@ describe('CheckoutService', () => {
       beforeEach(async () => {
         await checkoutService.payWithStripe(
           mockCart,
-          acceptLanguage,
-          mockPaymentMethod.id
+          mockPaymentMethod.id,
+          mockCustomerData
         );
       });
 
       it('calls prePaySteps', async () => {
         expect(checkoutService.prePaySteps).toHaveBeenCalledWith(
           mockCart,
-          acceptLanguage
+          mockCustomerData
         );
       });
 
@@ -449,7 +452,7 @@ describe('CheckoutService', () => {
           promotion_code: mockPromotionCode.id,
           items: [
             {
-              price: undefined, // TODO: fetch price from cart after FXA-8893
+              price: mockPriceId, // TODO: fetch price from cart after FXA-8893
             },
           ],
         });
@@ -474,7 +477,7 @@ describe('CheckoutService', () => {
   });
 
   describe('payWithPaypal', () => {
-    const acceptLanguage = 'en-US';
+    const mockCustomerData = CheckoutCustomerDataFactory();
     const mockToken = faker.string.uuid();
     const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
     const mockCart = StripeResponseFactory(
@@ -491,6 +494,7 @@ describe('CheckoutService', () => {
     const mockSubscription = StripeResponseFactory(StripeSubscriptionFactory());
     const mockPaypalCustomer = ResultPaypalCustomerFactory();
     const mockInvoice = StripeResponseFactory(StripeInvoiceFactory());
+    const mockPriceId = StripePriceFactory().id;
 
     beforeEach(async () => {
       jest.spyOn(checkoutService, 'prePaySteps').mockResolvedValue({
@@ -498,6 +502,7 @@ describe('CheckoutService', () => {
         customer: mockCustomer,
         enableAutomaticTax: true,
         promotionCode: mockPromotionCode,
+        priceId: mockPriceId,
       });
       jest
         .spyOn(paypalManager, 'getCustomerPayPalSubscriptions')
@@ -528,7 +533,7 @@ describe('CheckoutService', () => {
       beforeEach(async () => {
         await checkoutService.payWithPaypal(
           mockCart,
-          acceptLanguage,
+          mockCustomerData,
           mockToken
         );
       });
@@ -556,7 +561,7 @@ describe('CheckoutService', () => {
           promotion_code: mockPromotionCode.id,
           items: [
             {
-              price: undefined, // TODO: fetch price from cart after FXA-8893
+              price: mockPriceId,
             },
           ],
         });
