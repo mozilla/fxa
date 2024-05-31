@@ -18,7 +18,6 @@ test.describe('severity-1 #smoke', () => {
         config.showReactApp.signInRoutes !== true,
         'React signInRoutes not enabled'
       );
-      test.slow();
     });
 
     test('change primary email and login', async ({
@@ -128,7 +127,6 @@ test.describe('severity-1 #smoke', () => {
     }) => {
       const credentials = await testAccountTracker.signUp();
       const newEmail = testAccountTracker.generateEmail();
-      const newPassword = testAccountTracker.generatePassword();
 
       await signinReact.goto();
       await signinReact.fillOutEmailFirstForm(credentials.email);
