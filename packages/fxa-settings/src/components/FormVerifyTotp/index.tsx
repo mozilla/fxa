@@ -36,12 +36,18 @@ const FormVerifyTotp = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const stringifiedCode = codeArray.join('');
+
+  const isFormValid = stringifiedCode.length === codeLength && !errorMessage;
+  const isSubmitDisabled = isSubmitting || !isFormValid;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    setIsSubmitting(true);
-    await verifyCode(stringifiedCode);
-    setIsSubmitting(false);
+    if (!isSubmitDisabled) {
+      setIsSubmitting(true);
+      await verifyCode(stringifiedCode);
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -64,15 +70,13 @@ const FormVerifyTotp = ({
           }}
         />
         <FtlMsg
-          id="form-verify-code-submit-button"
-          attrs={{ ariaLabel: true }}
+          id="form-verify-code-submit-button-2"
           vars={{ codeValue: stringifiedCode }}
         >
           <button
             type="submit"
             className="cta-primary cta-xl"
-            disabled={isSubmitting || stringifiedCode.length < codeLength}
-            aria-label={`Submit ${stringifiedCode}`}
+            disabled={isSubmitDisabled}
           >
             {localizedSubmitButtonText}
           </button>

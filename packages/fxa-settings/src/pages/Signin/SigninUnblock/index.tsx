@@ -49,7 +49,7 @@ const SigninUnblock = ({
   const [codeErrorMessage, setCodeErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [resendStatus, setResendStatus] = useState<ResendStatus>(
-    ResendStatus['not sent']
+    ResendStatus.none
   );
 
   const ftlMsgResolver = useFtlMsgResolver();
@@ -97,7 +97,7 @@ const SigninUnblock = ({
 
   const onSubmit = async (unblockCode: string) => {
     setBannerErrorMessage('');
-    setResendStatus(ResendStatus['not sent']);
+    setResendStatus(ResendStatus.none);
 
     // Check if code format is valid and abort submission if not
     const localizedCodeInputError = getCodeFormatErrorMessage(unblockCode);

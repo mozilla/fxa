@@ -70,7 +70,6 @@ const CompleteResetPassword = ({
                   recovery key.
                 </p>
               </FtlMsg>
-              {/* TODO add metrics to measure if users see and click on this link */}
               <FtlMsg id="complete-reset-password-recovery-key-link">
                 <Link
                   to={`/account_recovery_confirm_key${location.search}`}

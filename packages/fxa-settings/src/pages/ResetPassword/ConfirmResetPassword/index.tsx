@@ -49,7 +49,7 @@ const ConfirmResetPassword = ({
 
   const account = useAccount();
   const [resendStatus, setResendStatus] = useState<ResendStatus>(
-    ResendStatus['not sent']
+    ResendStatus.none
   );
   const [errorMessage, setErrorMessage] = useState<string>();
   const [isPolling, setIsPolling] = useState<number | null>(
@@ -98,7 +98,7 @@ const ConfirmResetPassword = ({
         setCurrentPasswordForgotToken(result.passwordForgotToken);
       }
 
-      setResendStatus(ResendStatus['sent']);
+      setResendStatus(ResendStatus.sent);
       logViewEvent(viewName, 'resend', REACT_ENTRYPOINT);
     } catch (err) {
       const localizedErrorMessage = getLocalizedErrorMessage(

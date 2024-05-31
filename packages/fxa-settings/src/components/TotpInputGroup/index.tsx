@@ -194,7 +194,6 @@ export const TotpInputGroup = ({
           ref={inputRefs.current[index]}
           type="text"
           autoComplete="one-time-code"
-          autoFocus={index === 0 ? true : false}
           inputMode="numeric"
           size={1}
           pattern="[0-9]{1}"

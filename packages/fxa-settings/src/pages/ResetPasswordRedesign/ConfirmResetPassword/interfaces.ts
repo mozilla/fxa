@@ -18,9 +18,9 @@ export type RecoveryKeyCheckResult = {
 export type ConfirmResetPasswordProps = {
   email: string;
   errorMessage: string;
-  resendCode: () => Promise<boolean>;
-  resendStatus: ResendStatus;
   setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
-  setResendStatus: React.Dispatch<React.SetStateAction<ResendStatus>>;
+  resendCode: () => Promise<void>;
+  resendStatus: ResendStatus;
+  resendErrorMessage: string;
   verifyCode: (code: string) => Promise<void>;
 };
