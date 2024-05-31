@@ -314,10 +314,8 @@ commands:
             fi
             echo "targeting project << parameters.project >> $GREP"
             npx nx build fxa-auth-client
-            cd packages/functional-tests/tests
-            TEST_FILES=$(circleci tests glob "./**/*.spec.ts")
-            cd ..
-            echo $TEST_FILES | circleci tests run --command="xargs yarn playwright test --project=<< parameters.project >> $GREP" --verbose --split-by=timings
+            cd packages/functional-tests
+            SHARD="$((${CIRCLE_NODE_INDEX}+1))"; yarn playwright test --shard=${SHARD}/${CIRCLE_NODE_TOTAL} --project=<< parameters.project >>
           environment:
             NODE_OPTIONS: --dns-result-order=ipv4first
             JEST_JUNIT_OUTPUT_DIR: ./artifacts/tests
