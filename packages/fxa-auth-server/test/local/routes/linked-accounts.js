@@ -10,6 +10,7 @@ const getRoute = require('../../routes_helpers').getRoute;
 const mocks = require('../../mocks');
 const error = require('../../../lib/error');
 const proxyquire = require('proxyquire');
+const glean = mocks.mockGlean();
 
 const GOOGLE_PROVIDER = 'google';
 const APPLE_PROVIDER = 'apple';
@@ -29,7 +30,7 @@ const makeRoutes = function (options = {}, requireMocks) {
     requireMocks || {}
   );
 
-  return linkedAccountRoutes(log, db, config, mailer, profile, statsd);
+  return linkedAccountRoutes(log, db, config, mailer, profile, statsd, glean);
 };
 
 function runTest(route, request, assertions) {
@@ -110,6 +111,7 @@ describe('/linked_account', function () {
           ),
           '/linked_account/login'
         );
+        glean.registration.complete.reset();
       });
 
       it('fails if no google config', async () => {
@@ -161,7 +163,7 @@ describe('/linked_account', function () {
         assert.ok(result.sessionToken);
       });
 
-      it('should create new fxa account from new google account and return session', async () => {
+      it('should create new fxa account from new google account, return session, emit Glean events', async () => {
         mockDB.accountRecord = sinon.spy(() =>
           Promise.reject(new error.unknownAccount(mockGoogleUser.email))
         );
@@ -201,6 +203,7 @@ describe('/linked_account', function () {
 
         assert.equal(result.uid, UID);
         assert.ok(result.sessionToken);
+        assert.calledOnce(glean.registration.complete);
       });
 
       it('should linking existing fxa account and new google account and return session', async () => {
@@ -224,6 +227,8 @@ describe('/linked_account', function () {
         assert.isTrue(mockDB.createSessionToken.calledOnce);
         assert.equal(result.uid, UID);
         assert.ok(result.sessionToken);
+        // should not be called for existing account
+        assert.notCalled(glean.registration.complete);
       });
 
       it('should return session with valid google id token', async () => {
@@ -336,6 +341,7 @@ describe('/linked_account', function () {
           ),
           '/linked_account/login'
         );
+        glean.registration.complete.reset();
       });
 
       it('fails if no apple config', async () => {
@@ -390,7 +396,7 @@ describe('/linked_account', function () {
         assert.ok(result.sessionToken);
       });
 
-      it('should create new fxa account from new apple account and return session', async () => {
+      it('should create new fxa account from new apple account, return session, emit Glean events', async () => {
         mockDB.accountRecord = sinon.spy(() =>
           Promise.reject(new error.unknownAccount(mockAppleUser.email))
         );
@@ -414,6 +420,7 @@ describe('/linked_account', function () {
         assert.isTrue(mockDB.createSessionToken.calledOnce);
         assert.equal(result.uid, UID);
         assert.ok(result.sessionToken);
+        assert.calledOnce(glean.registration.complete);
       });
 
       it('should link existing fxa account and new apple account and return session', async () => {

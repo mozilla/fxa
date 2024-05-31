@@ -31,6 +31,7 @@ import {
   appleEventHandlers,
   AppleSETEvent,
 } from './utils/third-party-events';
+import { gleanMetrics } from '../metrics/glean';
 
 const HEX_STRING = validators.HEX_STRING;
 
@@ -48,7 +49,8 @@ export class LinkedAccountHandler {
     private config: ConfigType,
     private mailer: any,
     private profile: ProfileClient,
-    private statsd: { increment: (value: string) => void }
+    private statsd: { increment: (value: string) => void },
+    private glean: ReturnType<typeof gleanMetrics>
   ) {
     if (config.googleAuthConfig && config.googleAuthConfig.clientId) {
       this.googleAuthClient = new OAuth2Client(
@@ -416,6 +418,7 @@ export class LinkedAccountHandler {
           flowBeginTime,
           service,
         });
+        this.glean.registration.complete(request, { uid: accountRecord.uid });
       }
     } else {
       // This is an existing user and existing FxA user
@@ -492,7 +495,8 @@ export const linkedAccountRoutes = (
   config: ConfigType,
   mailer: any,
   profile: ProfileClient,
-  statsd: any
+  statsd: any,
+  glean: ReturnType<typeof gleanMetrics>
 ) => {
   const handler = new LinkedAccountHandler(
     log,
@@ -500,7 +504,8 @@ export const linkedAccountRoutes = (
     config,
     mailer,
     profile,
-    statsd
+    statsd,
+    glean
   );
 
   return [

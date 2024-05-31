@@ -200,7 +200,8 @@ module.exports = function (
     config,
     mailer,
     profile,
-    statsd
+    statsd,
+    glean
   );
 
   const { cloudTaskRoutes } = require('./cloud-tasks');
