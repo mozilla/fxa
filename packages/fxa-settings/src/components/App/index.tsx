@@ -399,13 +399,16 @@ const AuthAndAccountSetupRoutes = ({
       />
       <SignupContainer
         path="/oauth/signup/*"
-        {...{ integration, serviceName }}
+        {...{ integration, serviceName, flowQueryParams }}
       />
       <PrimaryEmailVerified
         path="/primary_email_verified/*"
         {...{ isSignedIn, serviceName }}
       />
-      <SignupContainer path="/signup/*" {...{ integration, serviceName }} />
+      <SignupContainer
+        path="/signup/*"
+        {...{ integration, serviceName, flowQueryParams }}
+      />
       <SignupConfirmed
         path="/signup_confirmed/*"
         {...{ isSignedIn, serviceName }}

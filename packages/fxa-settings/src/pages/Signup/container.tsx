@@ -40,6 +40,8 @@ import { createSaltV2 } from 'fxa-auth-client/lib/salt';
 import { KeyStretchExperiment } from '../../models/experiments/key-stretch-experiment';
 import { handleGQLError } from './utils';
 import VerificationMethods from '../../constants/verification-methods';
+import { queryParamsToMetricsContext } from '../../lib/metrics';
+import { QueryParams } from '../..';
 
 /*
  * In content-server, the `email` param is optional. If it's provided, we
@@ -74,8 +76,10 @@ type LocationState = {
 
 const SignupContainer = ({
   integration,
+  flowQueryParams,
 }: {
   integration: SignupContainerIntegration;
+  flowQueryParams: QueryParams;
 } & RouteComponentProps) => {
   const authClient = useAuthClient();
   const keyStretchExp = useValidatedQueryParams(KeyStretchExperiment);
@@ -190,6 +194,9 @@ const SignupContainer = ({
         keys: wantsKeys,
         ...(service !== MozServices.Default && { service }),
         atLeast18AtReg,
+        metricsContext: queryParamsToMetricsContext(
+          flowQueryParams as unknown as Record<string, string>
+        ),
       };
       try {
         const credentialsV1 = await getCredentials(email, password);
@@ -253,7 +260,14 @@ const SignupContainer = ({
         return handleGQLError(error);
       }
     },
-    [beginSignup, integration, keyStretchExp, config, wantsKeys]
+    [
+      integration,
+      wantsKeys,
+      flowQueryParams,
+      keyStretchExp.queryParamModel,
+      config,
+      beginSignup,
+    ]
   );
 
   // TODO: probably a better way to read this?

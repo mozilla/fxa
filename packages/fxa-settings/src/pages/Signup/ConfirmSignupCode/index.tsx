@@ -7,11 +7,7 @@ import { RouteComponentProps, useLocation } from '@reach/router';
 import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import {
-  logViewEvent,
-  queryParamsToMetricsContext,
-  usePageViewEvent,
-} from '../../../lib/metrics';
+import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
 import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
 import {
   useAlertBar,
@@ -135,9 +131,6 @@ const ConfirmSignupCode = ({
           scopes: integration.getPermissions(),
         }),
         ...(service !== MozServices.Default && { service }),
-        metricsContext: queryParamsToMetricsContext(
-          flowQueryParams as unknown as Record<string, string>
-        ),
       };
 
       await session.verifySession(code, options);
