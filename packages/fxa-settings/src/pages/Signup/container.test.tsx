@@ -50,7 +50,7 @@ import { ApolloClient } from '@apollo/client';
 import { ModelDataProvider } from '../../lib/model-data';
 import AuthClient from 'fxa-auth-client/browser';
 import { LocationProvider } from '@reach/router';
-import { mockLoadingSpinnerModule } from '../mocks';
+import { mockLoadingSpinnerModule, MOCK_FLOW_ID } from '../mocks';
 
 // TIP - Sometimes, we want to mock inputs. In this case they can be mocked directly and
 // often times a mocking util isn't even necessary. Note that using the Dependency Inversion
@@ -218,6 +218,7 @@ async function render(text?: string) {
           integration,
           serviceName,
         }}
+        flowQueryParams={{ flowId: MOCK_FLOW_ID }}
       />
     </LocationProvider>
   );
@@ -402,6 +403,9 @@ describe('sign-up-container', () => {
               keys: true,
               service: MozServices.FirefoxSync,
               atLeast18AtReg: true,
+              metricsContext: {
+                flowId: MOCK_FLOW_ID,
+              },
             },
           },
         },

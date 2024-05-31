@@ -9,6 +9,7 @@ import {
   OAuthIntegration,
 } from '../../models';
 import { SignupQueryParams } from '../../models/pages/signup';
+import { MetricsContext } from 'fxa-auth-client/browser';
 
 export interface BeginSignupResponse {
   signUp: {
@@ -27,6 +28,7 @@ export interface BeginSignUpOptions {
   verificationMethod?: string;
   keys?: boolean;
   atLeast18AtReg: true | null;
+  metricsContext: MetricsContext;
 }
 
 export type BeginSignupHandler = (
