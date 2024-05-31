@@ -13,6 +13,7 @@ import {
 import { ResendStatus } from '../../../lib/types';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
+import GleanMetrics from '../../../lib/glean';
 
 const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
   const [resendStatus, setResendStatus] = useState<ResendStatus>(
@@ -91,6 +92,7 @@ const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
     setResendStatus(ResendStatus['not sent']);
     const options = { metricsContext };
     try {
+      GleanMetrics.passwordReset.emailConfirmationSubmit();
       const { code, emailToHashWith, token, uid } =
         await authClient.passwordForgotVerifyOtp(email, otpCode, options);
       const { exists: recoveryKeyExists, estimatedSyncDeviceCount } =

@@ -16,7 +16,7 @@ const mockVerifyRecoveryKey = jest.fn((_recoveryKey: string) =>
 );
 
 jest.mock('../../../lib/glean', () => ({
-  resetPassword: {
+  passwordReset: {
     recoveryKeyView: jest.fn(),
     recoveryKeySubmit: jest.fn(),
   },
@@ -24,8 +24,8 @@ jest.mock('../../../lib/glean', () => ({
 
 describe('AccountRecoveryConfirmKey', () => {
   beforeEach(() => {
-    (GleanMetrics.resetPassword.recoveryKeyView as jest.Mock).mockReset();
-    (GleanMetrics.resetPassword.recoveryKeySubmit as jest.Mock).mockReset();
+    (GleanMetrics.passwordReset.recoveryKeyView as jest.Mock).mockReset();
+    (GleanMetrics.passwordReset.recoveryKeySubmit as jest.Mock).mockReset();
     mockVerifyRecoveryKey.mockClear();
   });
 
@@ -85,7 +85,7 @@ describe('AccountRecoveryConfirmKey', () => {
 
         expect(mockVerifyRecoveryKey).toHaveBeenCalled();
         expect(
-          GleanMetrics.resetPassword.recoveryKeySubmit
+          GleanMetrics.passwordReset.recoveryKeySubmit
         ).toHaveBeenCalledTimes(1);
       });
 

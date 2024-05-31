@@ -16,7 +16,7 @@ const mockSubmitNewPassword = jest.fn((newPassword: string) =>
 jest.mock('../../../lib/glean', () => ({
   __esModule: true,
   default: {
-    resetPassword: {
+    passwordReset: {
       createNewView: jest.fn(),
       recoveryKeyCreatePasswordView: jest.fn(),
     },
@@ -25,9 +25,9 @@ jest.mock('../../../lib/glean', () => ({
 
 describe('CompleteResetPassword page', () => {
   beforeEach(() => {
-    (GleanMetrics.resetPassword.createNewView as jest.Mock).mockClear();
+    (GleanMetrics.passwordReset.createNewView as jest.Mock).mockClear();
     (
-      GleanMetrics.resetPassword.recoveryKeyCreatePasswordView as jest.Mock
+      GleanMetrics.passwordReset.recoveryKeyCreatePasswordView as jest.Mock
     ).mockClear();
     mockSubmitNewPassword.mockClear();
   });
@@ -72,7 +72,7 @@ describe('CompleteResetPassword page', () => {
 
     it('sends the expected metrics on render', () => {
       renderWithLocalizationProvider(<Subject />);
-      expect(GleanMetrics.resetPassword.createNewView).toHaveBeenCalledTimes(1);
+      expect(GleanMetrics.passwordReset.createNewView).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -118,7 +118,7 @@ describe('CompleteResetPassword page', () => {
     it('sends the expected metrics on render', () => {
       renderWithLocalizationProvider(<Subject hasConfirmedRecoveryKey />);
       expect(
-        GleanMetrics.resetPassword.recoveryKeyCreatePasswordView
+        GleanMetrics.passwordReset.recoveryKeyCreatePasswordView
       ).toHaveBeenCalledTimes(1);
     });
   });

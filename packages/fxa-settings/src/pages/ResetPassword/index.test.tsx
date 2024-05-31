@@ -50,7 +50,7 @@ jest.mock('@reach/router', () => ({
 
 jest.mock('../../lib/glean', () => ({
   __esModule: true,
-  default: { resetPassword: { view: jest.fn(), submit: jest.fn() } },
+  default: { passwordReset: { view: jest.fn(), submit: jest.fn() } },
 }));
 
 const route = '/reset_password';
@@ -85,8 +85,8 @@ describe('PageResetPassword', () => {
   // });
 
   beforeEach(() => {
-    (GleanMetrics.resetPassword.view as jest.Mock).mockClear();
-    (GleanMetrics.resetPassword.submit as jest.Mock).mockClear();
+    (GleanMetrics.passwordReset.view as jest.Mock).mockClear();
+    (GleanMetrics.passwordReset.submit as jest.Mock).mockClear();
   });
 
   it('renders as expected', async () => {
@@ -127,7 +127,7 @@ describe('PageResetPassword', () => {
     render(<ResetPasswordWithWebIntegration />);
     await screen.findByText('Reset password');
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
-    expect(GleanMetrics.resetPassword.view).toHaveBeenCalledTimes(1);
+    expect(GleanMetrics.passwordReset.view).toHaveBeenCalledTimes(1);
   });
 
   it('submit success with OAuth integration', async () => {
@@ -155,7 +155,7 @@ describe('PageResetPassword', () => {
       fireEvent.click(await screen.findByText('Begin reset'));
     });
 
-    expect(GleanMetrics.resetPassword.submit).toHaveBeenCalledTimes(1);
+    expect(GleanMetrics.passwordReset.submit).toHaveBeenCalledTimes(1);
 
     expect(account.resetPassword).toHaveBeenCalled();
 
@@ -295,7 +295,7 @@ describe('PageResetPassword', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Begin reset' }));
     await screen.findByText('Unknown account');
 
-    expect(GleanMetrics.resetPassword.view).toHaveBeenCalledTimes(1);
+    expect(GleanMetrics.passwordReset.view).toHaveBeenCalledTimes(1);
   });
 
   it('displays an error when rate limiting kicks in', async () => {
@@ -333,7 +333,7 @@ describe('PageResetPassword', () => {
       'You’ve tried too many times. Please try again in 15 minutes.'
     );
 
-    expect(GleanMetrics.resetPassword.view).toHaveBeenCalledTimes(1);
+    expect(GleanMetrics.passwordReset.view).toHaveBeenCalledTimes(1);
   });
 
   it('handles unexpected errors on submit', async () => {

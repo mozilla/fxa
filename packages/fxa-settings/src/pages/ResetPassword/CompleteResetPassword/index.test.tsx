@@ -48,7 +48,7 @@ jest.mock('../../../lib/metrics', () => ({
 jest.mock('../../../lib/glean', () => ({
   __esModule: true,
   default: {
-    resetPassword: { createNewView: jest.fn(), createNewSubmit: jest.fn() },
+    passwordReset: { createNewView: jest.fn(), createNewSubmit: jest.fn() },
   },
 }));
 
@@ -122,7 +122,7 @@ describe('CompleteResetPassword page', () => {
 
     session = mockSession(true, false);
 
-    (GleanMetrics.resetPassword.createNewView as jest.Mock).mockReset();
+    (GleanMetrics.passwordReset.createNewView as jest.Mock).mockReset();
   });
 
   afterEach(() => {
@@ -202,7 +202,7 @@ describe('CompleteResetPassword page', () => {
         'The link you clicked was missing characters, and may have been broken by your email client. Copy the address carefully, and try again.'
       );
       expect(mockConsoleWarn).toBeCalled();
-      expect(GleanMetrics.resetPassword.createNewView).not.toBeCalled();
+      expect(GleanMetrics.passwordReset.createNewView).not.toBeCalled();
     });
     it('with missing code', async () => {
       render(<Subject params={paramsWithMissingCode} />, account);
@@ -211,7 +211,7 @@ describe('CompleteResetPassword page', () => {
         name: 'Reset password link damaged',
       });
       expect(mockConsoleWarn).toBeCalled();
-      expect(GleanMetrics.resetPassword.createNewView).not.toBeCalled();
+      expect(GleanMetrics.passwordReset.createNewView).not.toBeCalled();
     });
     it('with missing email', async () => {
       render(<Subject params={paramsWithMissingEmail} />, account);
@@ -220,7 +220,7 @@ describe('CompleteResetPassword page', () => {
         name: 'Reset password link damaged',
       });
       expect(mockConsoleWarn).toBeCalled();
-      expect(GleanMetrics.resetPassword.createNewView).not.toBeCalled();
+      expect(GleanMetrics.passwordReset.createNewView).not.toBeCalled();
     });
   });
 
@@ -236,7 +236,7 @@ describe('CompleteResetPassword page', () => {
       'complete-reset-password',
       REACT_ENTRYPOINT
     );
-    expect(GleanMetrics.resetPassword.createNewView).toBeCalledTimes(1);
+    expect(GleanMetrics.passwordReset.createNewView).toBeCalledTimes(1);
   });
 
   describe('errors', () => {
@@ -357,7 +357,7 @@ describe('CompleteResetPassword page', () => {
       expect(
         (account.completeResetPassword as jest.Mock).mock.calls[0]
       ).toBeTruthy();
-      expect(GleanMetrics.resetPassword.createNewSubmit).toBeCalledTimes(1);
+      expect(GleanMetrics.passwordReset.createNewSubmit).toBeCalledTimes(1);
     });
 
     it('submits with emailToHashWith if present', async () => {

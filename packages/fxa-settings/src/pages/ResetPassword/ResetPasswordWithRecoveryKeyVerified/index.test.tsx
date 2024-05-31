@@ -27,7 +27,7 @@ jest.mock('../../../lib/metrics', () => ({
 jest.mock('../../../lib/glean', () => ({
   __esModule: true,
   default: {
-    resetPassword: {
+    passwordReset: {
       recoveryKeyResetSuccessView: jest.fn(),
     },
   },
@@ -135,7 +135,7 @@ describe('ResetPasswordWithRecoveryKeyVerified', () => {
       REACT_ENTRYPOINT
     );
     expect(
-      GleanMetrics.resetPassword.recoveryKeyResetSuccessView
+      GleanMetrics.passwordReset.recoveryKeyResetSuccessView
     ).toHaveBeenCalled();
   });
 });

@@ -96,7 +96,7 @@ const Ready = ({
 
   useEffect(() => {
     if (viewName === 'reset-password-confirmed') {
-      GleanMetrics.resetPassword.createNewSuccess();
+      GleanMetrics.passwordReset.createNewSuccess();
     }
   }, [viewName]);
 

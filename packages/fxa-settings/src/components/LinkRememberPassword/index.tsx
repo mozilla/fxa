@@ -3,27 +3,45 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { FtlMsg } from 'fxa-react/lib/utils';
+import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
 import { useLocation } from '@reach/router';
 import { isEmailValid } from 'fxa-shared/email/helpers';
 
 export type LinkRememberPasswordProps = {
   email?: string;
-  forceAuth?: boolean;
+  clickHandler?: () => void;
 };
 
-const LinkRememberPassword = ({ email }: LinkRememberPasswordProps) => {
+const LinkRememberPassword = ({
+  email,
+  clickHandler,
+}: LinkRememberPasswordProps) => {
+  let linkHref: string;
   const location = useLocation();
   const params = new URLSearchParams(location.search);
-  let linkHref: string;
+  params.delete('email');
+  params.delete('hasLinkedAccount');
+  params.delete('hasPassword');
+  params.delete('showReactApp');
+
   if (email && isEmailValid(email)) {
     params.set('prefillEmail', email);
-    // react and backbone signin handle email/prefill params differently so
-    // go back to index - any errors (like throttling) will be shown there on submit
-    linkHref = `/?${params}`;
+    linkHref = `/?${params.toString()}`;
   } else {
-    linkHref = params.size > 0 ? `/?${params}` : '/';
+    linkHref = params.size > 0 ? `/?${params.toString()}` : '/';
   }
+
+  const handleClick = (
+    event: React.MouseEvent<HTMLAnchorElement, MouseEvent>
+  ) => {
+    event.preventDefault();
+
+    if (clickHandler) {
+      // additional optional click handlong behavior
+      clickHandler();
+    }
+    hardNavigate(linkHref);
+  };
 
   return (
     <div className="flex flex-wrap gap-2 justify-center text-sm mt-6">
@@ -32,7 +50,12 @@ const LinkRememberPassword = ({ email }: LinkRememberPasswordProps) => {
       </FtlMsg>
       <FtlMsg id="remember-password-signin-link">
         {/* TODO in FXA-8636 replace with Link component */}
-        <a href={linkHref} className="link-blue" id="remember-password">
+        <a
+          href={linkHref}
+          className="link-blue"
+          id="remember-password"
+          onClick={handleClick}
+        >
           Sign in
         </a>
       </FtlMsg>

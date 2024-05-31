@@ -80,14 +80,27 @@ export const eventsMap = {
     success: 'login_totp_code_success_view',
   },
 
-  resetPassword: {
+  passwordReset: {
     view: 'password_reset_view',
     submit: 'password_reset_submit',
+
     createNewView: 'password_reset_create_new_view',
     createNewSubmit: 'password_reset_create_new_submit',
     createNewSuccess: 'password_reset_create_new_success_view',
+    createNewClickRecoveryKeyMessage:
+      'password_reset_create_new_recovery_key_message_click',
+
+    emailConfirmationView: 'password_reset_email_confirmation_view',
+    emailConfirmationSubmit: 'password_reset_email_confirmation_submit',
+    emailConfirmationDifferentAccount:
+      'password_reset_email_confirmation_different_account',
+    emailConfirmationSignin: 'password_reset_email_confirmation_signin',
+    emailConfirmationResendCode:
+      'password_reset_email_confirmation_resend_code',
+
     recoveryKeyView: 'password_reset_recovery_key_view',
     recoveryKeySubmit: 'password_reset_recovery_key_submit',
+    recoveryKeyCannotFind: 'password_reset_recovery_key_cannot_find',
 
     recoveryKeyCreatePasswordView:
       'password_reset_recovery_key_create_new_view',

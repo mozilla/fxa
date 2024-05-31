@@ -13,7 +13,7 @@ import { MOCK_EMAIL } from '../../mocks';
 
 jest.mock('../../../lib/glean', () => ({
   __esModule: true,
-  default: { resetPassword: { view: jest.fn(), submit: jest.fn() } },
+  default: { passwordReset: { view: jest.fn(), submit: jest.fn() } },
 }));
 
 const mockRequestResetPasswordCode = jest.fn((email: string) =>
@@ -22,9 +22,7 @@ const mockRequestResetPasswordCode = jest.fn((email: string) =>
 
 describe('ResetPassword', () => {
   beforeEach(() => {
-    (GleanMetrics.resetPassword.view as jest.Mock).mockClear();
-    (GleanMetrics.resetPassword.submit as jest.Mock).mockClear();
-    mockRequestResetPasswordCode.mockClear();
+    jest.clearAllMocks();
   });
 
   describe('renders', () => {
@@ -47,7 +45,7 @@ describe('ResetPassword', () => {
     it('emits a Glean event on render', async () => {
       renderWithLocalizationProvider(<Subject />);
       await expect(screen.getByRole('heading', { level: 1 })).toBeVisible();
-      expect(GleanMetrics.resetPassword.view).toHaveBeenCalledTimes(1);
+      expect(GleanMetrics.passwordReset.view).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -68,8 +66,8 @@ describe('ResetPassword', () => {
 
       expect(mockRequestResetPasswordCode).toBeCalledWith(MOCK_EMAIL);
 
-      expect(GleanMetrics.resetPassword.view).toHaveBeenCalledTimes(1);
-      expect(GleanMetrics.resetPassword.submit).toHaveBeenCalledTimes(1);
+      expect(GleanMetrics.passwordReset.view).toHaveBeenCalledTimes(1);
+      expect(GleanMetrics.passwordReset.submit).toHaveBeenCalledTimes(1);
     });
 
     it('trims leading space in email', async () => {
@@ -87,8 +85,8 @@ describe('ResetPassword', () => {
       await waitFor(() => user.click(screen.getByRole('button')));
 
       expect(mockRequestResetPasswordCode).toBeCalledWith(MOCK_EMAIL);
-      expect(GleanMetrics.resetPassword.view).toHaveBeenCalledTimes(1);
-      expect(GleanMetrics.resetPassword.submit).toHaveBeenCalledTimes(1);
+      expect(GleanMetrics.passwordReset.view).toHaveBeenCalledTimes(1);
+      expect(GleanMetrics.passwordReset.submit).toHaveBeenCalledTimes(1);
     });
 
     describe('handles errors', () => {
@@ -103,8 +101,8 @@ describe('ResetPassword', () => {
 
         expect(screen.getByText('Valid email required')).toBeVisible();
         expect(mockRequestResetPasswordCode).not.toBeCalled();
-        expect(GleanMetrics.resetPassword.view).toHaveBeenCalledTimes(1);
-        expect(GleanMetrics.resetPassword.submit).not.toHaveBeenCalled();
+        expect(GleanMetrics.passwordReset.view).toHaveBeenCalledTimes(1);
+        expect(GleanMetrics.passwordReset.submit).not.toHaveBeenCalled();
       });
 
       it('with an invalid email', async () => {
@@ -120,8 +118,8 @@ describe('ResetPassword', () => {
 
         expect(screen.getByText('Valid email required')).toBeVisible();
         expect(mockRequestResetPasswordCode).not.toBeCalled();
-        expect(GleanMetrics.resetPassword.view).toHaveBeenCalledTimes(1);
-        expect(GleanMetrics.resetPassword.submit).not.toHaveBeenCalled();
+        expect(GleanMetrics.passwordReset.view).toHaveBeenCalledTimes(1);
+        expect(GleanMetrics.passwordReset.submit).not.toHaveBeenCalled();
       });
     });
   });

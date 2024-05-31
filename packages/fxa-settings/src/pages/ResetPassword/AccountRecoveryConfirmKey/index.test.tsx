@@ -35,7 +35,7 @@ jest.mock('../../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
 }));
 jest.mock('../../../lib/glean', () => ({
-  resetPassword: {
+  passwordReset: {
     recoveryKeyView: jest.fn(),
     recoveryKeySubmit: jest.fn(),
   },
@@ -154,7 +154,7 @@ describe('PageAccountRecoveryConfirmKey', () => {
         .spyOn(console, 'warn')
         .mockImplementation(() => {});
 
-      (GleanMetrics.resetPassword.recoveryKeyView as jest.Mock).mockReset();
+      (GleanMetrics.passwordReset.recoveryKeyView as jest.Mock).mockReset();
     });
 
     afterEach(() => {
@@ -171,7 +171,7 @@ describe('PageAccountRecoveryConfirmKey', () => {
         'The link you clicked was missing characters, and may have been broken by your email client. Copy the address carefully, and try again.'
       );
       expect(mockConsoleWarn).toBeCalled();
-      expect(GleanMetrics.resetPassword.recoveryKeyView).not.toHaveBeenCalled();
+      expect(GleanMetrics.passwordReset.recoveryKeyView).not.toHaveBeenCalled();
     });
     it('with missing code', async () => {
       renderSubject({ params: paramsWithMissingCode });
@@ -180,7 +180,7 @@ describe('PageAccountRecoveryConfirmKey', () => {
         name: 'Reset password link damaged',
       });
       expect(mockConsoleWarn).toBeCalled();
-      expect(GleanMetrics.resetPassword.recoveryKeyView).not.toHaveBeenCalled();
+      expect(GleanMetrics.passwordReset.recoveryKeyView).not.toHaveBeenCalled();
     });
     it('with missing email', async () => {
       renderSubject({ params: paramsWithMissingEmail });
@@ -189,7 +189,7 @@ describe('PageAccountRecoveryConfirmKey', () => {
         name: 'Reset password link damaged',
       });
       expect(mockConsoleWarn).toBeCalled();
-      expect(GleanMetrics.resetPassword.recoveryKeyView).not.toHaveBeenCalled();
+      expect(GleanMetrics.passwordReset.recoveryKeyView).not.toHaveBeenCalled();
     });
   });
 
@@ -349,8 +349,8 @@ describe('PageAccountRecoveryConfirmKey', () => {
 
   describe('emits metrics events', () => {
     beforeEach(() => {
-      (GleanMetrics.resetPassword.recoveryKeyView as jest.Mock).mockReset();
-      (GleanMetrics.resetPassword.recoveryKeySubmit as jest.Mock).mockReset();
+      (GleanMetrics.passwordReset.recoveryKeyView as jest.Mock).mockReset();
+      (GleanMetrics.passwordReset.recoveryKeySubmit as jest.Mock).mockReset();
     });
     afterEach(() => jest.clearAllMocks());
     it('on engage, submit, success', async () => {
@@ -361,7 +361,7 @@ describe('PageAccountRecoveryConfirmKey', () => {
 
       expect(logPageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
       expect(
-        GleanMetrics.resetPassword.recoveryKeyView as jest.Mock
+        GleanMetrics.passwordReset.recoveryKeyView as jest.Mock
       ).toHaveBeenCalledTimes(1);
 
       await typeByLabelText('Enter account recovery key')(MOCK_RECOVERY_KEY);
@@ -388,7 +388,7 @@ describe('PageAccountRecoveryConfirmKey', () => {
         );
 
         expect(
-          GleanMetrics.resetPassword.recoveryKeySubmit as jest.Mock
+          GleanMetrics.passwordReset.recoveryKeySubmit as jest.Mock
         ).toHaveBeenCalledTimes(1);
       });
     });

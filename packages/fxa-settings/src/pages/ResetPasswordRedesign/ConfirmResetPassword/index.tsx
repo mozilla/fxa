@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import AppLayout from '../../../components/AppLayout';
 import FormVerifyTotp from '../../../components/FormVerifyTotp';
 import { ConfirmResetPasswordProps } from './interfaces';
@@ -13,6 +13,7 @@ import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
 import { ResendEmailSuccessBanner } from '../../../components/Banner';
 import { ResendStatus } from '../../../lib/types';
 import { EmailCodeImage } from '../../../components/images';
+import GleanMetrics from '../../../lib/glean';
 
 const ConfirmResetPassword = ({
   email,
@@ -23,6 +24,10 @@ const ConfirmResetPassword = ({
   setResendStatus,
   verifyCode,
 }: ConfirmResetPasswordProps & RouteComponentProps) => {
+  useEffect(() => {
+    GleanMetrics.passwordReset.emailConfirmationView();
+  }, []);
+
   const ftlMsgResolver = useFtlMsgResolver();
   const location = useLocation();
 
@@ -39,10 +44,15 @@ const ConfirmResetPassword = ({
 
   const handleResend = async () => {
     setResendStatus(ResendStatus['not sent']);
+    GleanMetrics.passwordReset.emailConfirmationResendCode();
     const result = await resendCode();
     if (result === true) {
       setResendStatus(ResendStatus.sent);
     }
+  };
+
+  const signinClickHandler = () => {
+    GleanMetrics.passwordReset.emailConfirmationSignin();
   };
 
   return (
@@ -74,7 +84,7 @@ const ConfirmResetPassword = ({
           verifyCode,
         }}
       />
-      <LinkRememberPassword {...{ email }} />
+      <LinkRememberPassword {...{ email }} clickHandler={signinClickHandler} />
       <div className="flex justify-between mt-8 text-sm">
         <FtlMsg id="confirm-reset-password-otp-resend-code-button">
           <button type="button" className="link-blue" onClick={handleResend}>
@@ -87,6 +97,7 @@ const ConfirmResetPassword = ({
             className="text-sm link-blue"
             onClick={(e) => {
               e.preventDefault();
+              GleanMetrics.passwordReset.emailConfirmationDifferentAccount();
               const params = new URLSearchParams(location.search);
               // Tell content-server to stay on index and prefill the email
               params.set('prefillEmail', email);

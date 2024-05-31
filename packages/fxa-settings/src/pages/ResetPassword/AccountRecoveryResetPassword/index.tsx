@@ -53,7 +53,7 @@ const AccountRecoveryResetPassword = ({
   integration,
 }: AccountRecoveryResetPasswordProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
-  GleanMetrics.resetPassword.recoveryKeyCreatePasswordView();
+  GleanMetrics.passwordReset.recoveryKeyCreatePasswordView();
 
   const account = useAccount();
   const navigate = useNavigate();
@@ -199,7 +199,7 @@ const AccountRecoveryResetPassword = ({
   async function onSubmit(data: AccountRecoveryResetPasswordFormData) {
     const password = data.newPassword;
     const email = verificationInfo.email;
-    GleanMetrics.resetPassword.recoveryKeyCreatePasswordSubmit();
+    GleanMetrics.passwordReset.recoveryKeyCreatePasswordSubmit();
 
     try {
       const options = {

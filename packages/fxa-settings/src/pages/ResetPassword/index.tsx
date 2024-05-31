@@ -58,7 +58,7 @@ const ResetPassword = ({
   const serviceName = integration.getServiceName();
 
   useEffect(() => {
-    GleanMetrics.resetPassword.view();
+    GleanMetrics.passwordReset.view();
   }, []);
 
   const { control, getValues, handleSubmit, register } =
@@ -154,7 +154,7 @@ const ResetPassword = ({
         ftlMsgResolver.getMsg('auth-error-1011', 'Valid email required')
       );
     } else {
-      GleanMetrics.resetPassword.submit();
+      GleanMetrics.passwordReset.submit();
       submitEmail(sanitizedEmail, {
         metricsContext: queryParamsToMetricsContext(
           flowQueryParams as unknown as Record<string, string>

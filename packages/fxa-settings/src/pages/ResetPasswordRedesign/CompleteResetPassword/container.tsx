@@ -141,7 +141,7 @@ const CompleteResetPasswordContainer = ({
       const emailToUse = emailToHashWith || email;
 
       if (hasConfirmedRecoveryKey) {
-        GleanMetrics.resetPassword.recoveryKeyCreatePasswordSubmit();
+        GleanMetrics.passwordReset.recoveryKeyCreatePasswordSubmit();
         const accountResetData = await resetPasswordWithRecoveryKey(
           accountResetToken,
           emailToUse,
@@ -153,7 +153,7 @@ const CompleteResetPasswordContainer = ({
         notifyBrowserOfSignin(accountResetData);
         handleNavigationWithRecoveryKey();
       } else if (isResetWithoutRecoveryKey) {
-        GleanMetrics.resetPassword.createNewSubmit();
+        GleanMetrics.passwordReset.createNewSubmit();
         const accountResetData = await resetPasswordWithoutRecoveryKey(
           code,
           emailToUse,

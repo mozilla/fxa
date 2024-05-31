@@ -63,7 +63,7 @@ const AccountRecoveryConfirmKey = ({
 
           setShowLoadingSpinner(false);
           logPageViewEvent(viewName, REACT_ENTRYPOINT);
-          GleanMetrics.resetPassword.recoveryKeyView();
+          GleanMetrics.passwordReset.recoveryKeyView();
         } else {
           setLinkStatus(LinkStatus.expired);
         }
@@ -193,7 +193,7 @@ const AccountRecoveryConfirmKey = ({
     setIsLoading(true);
     setBannerMessage(undefined);
     logViewEvent('flow', `${viewName}.submit`, REACT_ENTRYPOINT);
-    GleanMetrics.resetPassword.recoveryKeySubmit();
+    GleanMetrics.passwordReset.recoveryKeySubmit();
 
     // if the submitted key does not match the expected format,
     // abort before submitting to the auth server
