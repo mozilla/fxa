@@ -29,6 +29,7 @@ function WindowMock() {
     origin: window.location.origin,
     pathname: '/',
     search: window.location.search,
+    replace() {},
   };
 
   this.document = {
