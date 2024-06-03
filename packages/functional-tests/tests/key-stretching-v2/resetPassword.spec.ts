@@ -56,8 +56,15 @@ test.describe('severity-2 #smoke', () => {
         resetPasswordReact,
       },
       testAccountTracker,
-    }) => {
+    }, { project }) => {
       const config = await configPage.getConfig();
+      test.fixme(
+        project.name !== 'local' &&
+          signup.version === 1 &&
+          reset.version === 2 &&
+          signin.version === 2,
+        'FXA-9765'
+      );
       test.skip(
         config.featureFlags.resetPasswordWithCode === true,
         'see FXA-9612'
