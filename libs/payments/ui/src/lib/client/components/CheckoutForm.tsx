@@ -3,24 +3,28 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 'use client';
 
+import { Localized, useLocalization } from '@fluent/react';
+import * as Form from '@radix-ui/react-form';
 import {
   PaymentElement,
   useStripe,
   useElements,
 } from '@stripe/react-stripe-js';
 import { StripePaymentElementChangeEvent } from '@stripe/stripe-js';
-import { checkoutCartWithStripe } from '../../actions/checkoutCartWithStripe';
-import { useEffect, useState } from 'react';
-import { handleStripeErrorAction } from '../../actions/handleStripeError';
-import LockImage from '@fxa/shared/assets/images/lock.svg';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import * as Form from '@radix-ui/react-form';
-import { Localized, useLocalization } from '@fluent/react';
+import { useEffect, useState } from 'react';
+import LockImage from '@fxa/shared/assets/images/lock.svg';
+import { CheckoutCheckbox } from './CheckoutCheckbox';
 import { PrimaryButton } from './PrimaryButton';
+import { checkoutCartWithStripe } from '../../actions/checkoutCartWithStripe';
+import { handleStripeErrorAction } from '../../actions/handleStripeError';
 
 interface CheckoutFormProps {
-  readOnly: boolean;
+  cmsCommonContent: {
+    termsOfServiceUrl: string;
+    privacyNoticeUrl: string;
+  };
   cart: {
     id: string;
     version: number;
@@ -29,11 +33,18 @@ interface CheckoutFormProps {
   locale: string;
 }
 
-export function CheckoutForm({ readOnly, cart, locale }: CheckoutFormProps) {
-  const router = useRouter();
-  const stripe = useStripe();
+export function CheckoutForm({
+  cmsCommonContent,
+  cart,
+  locale,
+}: CheckoutFormProps) {
   const { l10n } = useLocalization();
   const elements = useElements();
+  const router = useRouter();
+  const stripe = useStripe();
+
+  const [formEnabled, setFormEnabled] = useState(false);
+  const [showConsentError, setShowConsentError] = useState(false);
   const [isPaymentElementLoading, setIsPaymentElementLoading] = useState(true);
   const [loading, setLoading] = useState(false);
   const [stripeFieldsComplete, setStripeFieldsComplete] = useState(false);
@@ -68,7 +79,7 @@ export function CheckoutForm({ readOnly, cart, locale }: CheckoutFormProps) {
   ) => {
     event.preventDefault();
 
-    if (!stripe || !elements || readOnly) {
+    if (!stripe || !elements) {
       // Stripe.js hasn't yet loaded.
       // Make sure to disable form submission until Stripe.js has loaded.
       return;
@@ -135,71 +146,96 @@ export function CheckoutForm({ readOnly, cart, locale }: CheckoutFormProps) {
   const nonStripeFieldsComplete = !!fullName;
 
   return (
-    <Form.Root className="flex flex-col gap-4" onSubmit={submitHandler}>
-      {!isPaymentElementLoading && (
-        <Form.Field name="name" serverInvalid={hasFullNameError}>
-          <Form.Label className="font-medium text-sm text-grey-400 block mb-1 text-start">
-            <Localized id="payment-name-label">
-              Name as it appears on your card
-            </Localized>
-          </Form.Label>
-          <Form.Control asChild>
-            <input
-              className="w-full border rounded-md border-black/30 p-3 placeholder:text-grey-500 placeholder:font-normal focus:border focus:!border-black/30 focus:!shadow-[0_0_0_3px_rgba(10,132,255,0.3)] focus-visible:outline-none data-[invalid=true]:border-alert-red data-[invalid=true]:text-alert-red data-[invalid=true]:shadow-inputError"
-              type="text"
-              data-testid="name"
-              placeholder={l10n.getString(
-                'payment-name-placeholder',
-                {},
-                'Full Name'
-              )}
-              readOnly={readOnly}
-              value={fullName}
-              onChange={(e) => {
-                setFullName(e.target.value);
-                setHasFullNameError(!e.target.value);
-              }}
-            />
-          </Form.Control>
-          {hasFullNameError && (
-            <Form.Message asChild>
-              <p className="text-sm mt-1 text-alert-red">
-                Please enter your name
-              </p>
-            </Form.Message>
-          )}
-        </Form.Field>
-      )}
-      <PaymentElement
-        options={{
-          layout: {
-            type: 'accordion',
-            defaultCollapsed: false,
-            radios: false,
-            spacedAccordionItems: true,
-          },
-          readOnly,
+    <Form.Root onSubmit={submitHandler}>
+      <CheckoutCheckbox
+        isRequired={showConsentError}
+        termsOfService={cmsCommonContent.termsOfServiceUrl}
+        privacyNotice={cmsCommonContent.privacyNoticeUrl}
+        notifyCheckboxChange={(consentCheckbox) => {
+          setFormEnabled(consentCheckbox);
+          setShowConsentError(true);
         }}
       />
-      {!isPaymentElementLoading && (
-        <Form.Submit asChild>
-          <Localized id="next-new-user-submit">
+      <div
+        className={
+          formEnabled
+            ? 'mt-10'
+            : 'mt-10 cursor-not-allowed relative focus:border-blue-400 focus:outline-none focus:shadow-input-blue-focus after:absolute after:content-[""] after:top-0 after:left-0 after:w-full after:h-full after:bg-white after:opacity-50 after:z-10'
+        }
+        onClick={() => setShowConsentError(true)}
+      >
+        <Localized id="next-new-user-card-title">
+          <h3 className="font-semibold text-grey-600 text-start">
+            Enter your card information
+          </h3>
+        </Localized>
+        {!isPaymentElementLoading && (
+          <Form.Field
+            name="name"
+            serverInvalid={hasFullNameError}
+            className="my-6"
+          >
+            <Form.Label className="text-grey-400 block mb-1 text-start">
+              <Localized id="payment-name-label">
+                Name as it appears on your card
+              </Localized>
+            </Form.Label>
+            <Form.Control asChild>
+              <input
+                className="w-full border rounded-md border-black/30 p-3 placeholder:text-grey-500 placeholder:font-normal focus:border focus:!border-black/30 focus:!shadow-[0_0_0_3px_rgba(10,132,255,0.3)] focus-visible:outline-none data-[invalid=true]:border-alert-red data-[invalid=true]:text-alert-red data-[invalid=true]:shadow-inputError"
+                type="text"
+                data-testid="name"
+                placeholder={l10n.getString(
+                  'payment-name-placeholder',
+                  {},
+                  'Full Name'
+                )}
+                readOnly={!formEnabled}
+                tabIndex={formEnabled ? 0 : -1}
+                value={fullName}
+                onChange={(e) => {
+                  setFullName(e.target.value);
+                  setHasFullNameError(!e.target.value);
+                }}
+                aria-required
+              />
+            </Form.Control>
+            {hasFullNameError && (
+              <Form.Message asChild>
+                <Localized id="next-payment-validate-name-error">
+                  <p className="mt-1 text-alert-red" role="alert">
+                    Please enter your name
+                  </p>
+                </Localized>
+              </Form.Message>
+            )}
+          </Form.Field>
+        )}
+        <PaymentElement
+          options={{
+            layout: {
+              type: 'accordion',
+              defaultCollapsed: false,
+              radios: false,
+              spacedAccordionItems: true,
+            },
+            readOnly: !formEnabled,
+          }}
+        />
+        {!isPaymentElementLoading && (
+          <Form.Submit asChild>
             <PrimaryButton
               type="submit"
               aria-disabled={
                 !stripeFieldsComplete || !nonStripeFieldsComplete || loading
               }
             >
-              <Image
-                src={LockImage}
-                className="h-4 w-4 my-0 mx-3 relative top-0.5"
-                alt=""
-              />
-              Subscribe Now
+              <Image src={LockImage} className="h-4 w-4 mx-3" alt="" />
+              <Localized id="next-new-user-submit">Subscribe Now</Localized>
             </PrimaryButton>
-          </Localized>
-        </Form.Submit>
-      )}
+          </Form.Submit>
+        )}
+      </div>
     </Form.Root>
   );
 }

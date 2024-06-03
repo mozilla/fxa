@@ -21,7 +21,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <header
-          className="bg-white fixed flex justify-between items-center shadow h-16 left-0 top-0 mx-auto my-0 px-4 py-0 w-full z-10 tablet:h-20"
+          className="bg-white fixed flex justify-between items-center shadow h-16 left-0 top-0 mx-auto my-0 px-4 py-0 w-full z-40 tablet:h-20"
           role="banner"
           data-testid="header"
         >

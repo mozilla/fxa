@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import Image from 'next/image';
+import checkLogo from '@fxa/shared/assets/images/check.svg';
 import { CartState } from '@fxa/shared/db/mysql/account';
 import { LocalizerRsc } from '@fxa/shared/l10n/server';
-import checkLogo from '@fxa/shared/assets/images/check.svg';
 
 const getComponentTitle = (cartState: CartState) => {
   switch (cartState) {
@@ -53,7 +53,10 @@ export async function SubscriptionTitle({
   const displaySubtitle = subheaders.includes(cartState);
 
   return (
-    <header className="page-title-container">
+    <header
+      className="page-title-container"
+      aria-label={l10n.getString(componentTitle.titleFtl, componentTitle.title)}
+    >
       <h1 className="page-header">
         {l10n.getString(componentTitle.titleFtl, componentTitle.title)}
       </h1>
