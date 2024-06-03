@@ -658,21 +658,6 @@ jobs:
           project: local
       - store-artifacts
 
-  build-and-deploy-storybooks:
-    executor: default-executor
-    resource_class: large
-    steps:
-      - git-checkout
-      - restore-workspace
-      - run:
-          name: Build Storybooks
-          command: |
-            npx nx run-many -t build-storybook
-      - run:
-          name: Publish Storybooks
-          command: |
-            STORYBOOKS_USE_YARN_WORKSPACES=false STORYBOOKS_SKIP_BUILD=true LOG_LEVEL=TRACE npx github:mozilla-fxa/storybook-gcp-publisher
-
   update-yarn-cache:
     executor: default-executor
     resource_class: medium+
@@ -771,10 +756,6 @@ workflows:
           parallelism: 8
           requires:
             - Build (PR)
-      - build-and-deploy-storybooks:
-          name: Deploy Storybooks (PR)
-          requires:
-            - Build (PR)
       - on-complete:
           name: Tests Complete (PR)
           stage: Tests
@@ -789,7 +770,6 @@ workflows:
             - Integration Test - Servers - Auth V2 (PR)
             - Integration Test - Libraries (PR)
             - Functional Tests - Playwright (PR)
-            - Deploy Storybooks (PR)
 
   # Triggered remotely. See .circleci/README.md
   production_smoke_tests:
@@ -864,24 +844,6 @@ workflows:
             tags:
               ignore: /.*/
           force-deploy: << pipeline.parameters.force-deploy-fxa-ci-images >>
-
-  deploy_story_book:
-    # This workflow is triggered after a PR lands on main. It requires approval.
-    # The same operation will eventually run nightly.
-    when: << pipeline.parameters.enable_deploy_story_book >>
-    jobs:
-      - request-build-and-deploy-storybooks:
-          name: Request Deploy Storybooks
-          type: approval
-          filters:
-            branches:
-              only: main
-            tags:
-              ignore: /.*/
-      - build-and-deploy-storybooks:
-          name: Deploy Storybooks
-          requires:
-            - Request Deploy Storybooks
 
   test_and_deploy_tag:
     # This workflow is used for building docker containers that are then deployed to
@@ -1107,10 +1069,6 @@ workflows:
             - Integration Test - Servers - Auth V2 (nightly)
             - Integration Test - Libraries (nightly)
             - Functional Tests - Playwright (nightly)
-      - build-and-deploy-storybooks:
-          name: Deploy Storybooks (nightly)
-          requires:
-            - Tests Complete (nightly)
       - create-fxa-image:
           name: Create FxA Image (nightly)
           requires:
