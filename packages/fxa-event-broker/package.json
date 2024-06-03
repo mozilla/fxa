@@ -37,7 +37,7 @@
     "@aws-sdk/client-sqs": "^3.556.0",
     "@hapi/hoek": "^11.0.2",
     "@types/sinon": "10.0.1",
-    "axios": "^0.28.1",
+    "axios": "^1.7.0",
     "convict": "^6.2.4",
     "convict-format-with-moment": "^6.2.0",
     "convict-format-with-validator": "^6.2.0",

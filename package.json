@@ -94,7 +94,7 @@
     "lint-staged": "^15.2.0",
     "module-alias": "^2.2.3",
     "mysql": "^2.18.1",
-    "mysql2": "^3.9.7",
+    "mysql2": "^3.9.8",
     "nest-typed-config": "^2.9.2",
     "nest-winston": "^1.9.4",
     "next": "^14.2.3",
