@@ -20,17 +20,17 @@ jobs:
       id-token: write
       contents: read
     steps:
-      - name: "Checkout repository"
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: "Configure Stage AWS credentials"
+      - name: Configure Stage AWS credentials
         uses: aws-actions/configure-aws-credentials@master
         with:
           aws-region: us-east-1
           role-to-assume: arn:aws:iam::142069644989:role/fxa-content-cdn-stage-asset-upload
           role-session-name: CDNAssetUpload
 
-      - name: "Asset upload to stage CDN S3 bucket"
+      - name: Asset upload to stage CDN S3 bucket
         run: |
           aws s3 sync --cache-control 'public,max-age=86400' --exclude "*" --include "*.svg" --include "*.png" assets/product-icons  s3://fxa-content-cdn-stage-distbucket-bpquvfnty86g/product-icons
           aws s3 sync --cache-control 'public,max-age=86400' --exclude "*" --include "*.svg" --include "*.png" assets/other  s3://fxa-content-cdn-stage-distbucket-bpquvfnty86g/other
@@ -43,11 +43,35 @@ jobs:
           role-to-assume: arn:aws:iam::361527076523:role/fxa-content-cdn-prod-asset-upload
           role-session-name: CDNAssetUpload
 
-      - name: "Asset upload to production CDN S3 bucket"
+      - name: Asset upload to production CDN S3 bucket
         run: |
           aws s3 sync --cache-control 'public,max-age=86400' --exclude "*" --include "*.svg" --include "*.png" assets/product-icons  s3://fxa-content-cdn-prod-distbucket-gqg70i8xqycy/product-icons
           aws s3 sync --cache-control 'public,max-age=86400' --exclude "*" --include "*.svg" --include "*.png" assets/other  s3://fxa-content-cdn-prod-distbucket-gqg70i8xqycy/other
           aws s3 sync --cache-control 'public,max-age=86400' --exclude "*" --include "*.pdf" --content-disposition attachment   assets/legal s3://fxa-content-cdn-prod-distbucket-gqg70i8xqycy/legal
+
+      - name: Configure Stage GCP credentials
+        uses: google-github-actions/auth@v2
+        with:
+          service_account: gke-cdn-upload-stage@${{ secrets.GCP_NONPROD_PROJECT_ID }}.iam.gserviceaccount.com
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_POOL_PROJECT_NUMBER }}
+
+      - name: Asset upload to stage CDN GCS bucket
+        run: |
+          gcloud storage cp --cache-control='public,max-age=86400' -r assets/product-icons/* gs://fxa-content-cdn-stage-distbucket/product-icons/
+          gcloud storage cp --cache-control='public,max-age=86400' -r assets/other/* gs://fxa-content-cdn-stage-distbucket/other/
+          gcloud storage cp --cache-control='public,max-age=86400' --content-disposition=attachment -r assets/legal/* gs://fxa-content-cdn-stage-distbucket/legal/
+
+      - name: Configure Prod GCP credentials
+        uses: google-github-actions/auth@v2
+        with:
+          service_account: gke-cdn-upload-prod@${{ secrets.GCP_PROD_PROJECT_ID }}.iam.gserviceaccount.com
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_POOL_PROJECT_NUMBER }}
+
+      - name: Asset upload to prod CDN GCS bucket
+        run: |
+          gcloud storage cp --cache-control='public,max-age=86400' -r assets/product-icons/* gs://fxa-content-cdn-prod-distbucket/product-icons/
+          gcloud storage cp --cache-control='public,max-age=86400' -r assets/other/* gs://fxa-content-cdn-prod-distbucket/other/
+          gcloud storage cp --cache-control='public,max-age=86400' --content-disposition=attachment -r assets/legal/* gs://fxa-content-cdn-prod-distbucket/legal/
 
       - name: "Post to fxa-team Slack channel"
         uses: slackapi/slack-github-action@v1.26.0
