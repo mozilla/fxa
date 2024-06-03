@@ -72,7 +72,9 @@
     "modulePaths": [],
     "moduleNameMapper": {
       "^react-native$": "react-native-web",
-      "^.+\\.module\\.(css|sass|scss)$": "identity-obj-proxy"
+      "^.+\\.module\\.(css|sass|scss)$": "identity-obj-proxy",
+      "@fxa/shared/l10n": "<rootDir>/../../libs/shared/l10n/src/index.ts",
+      "^@fxa/shared/assets(.*)$": "<rootDir>/../../libs/shared/assets/src$1"
     },
     "moduleFileExtensions": [
       "web.js",

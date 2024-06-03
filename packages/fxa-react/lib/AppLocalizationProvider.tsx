@@ -5,10 +5,7 @@
 import { FluentBundle, FluentResource } from '@fluent/bundle';
 import { LocalizationProvider, ReactLocalization } from '@fluent/react';
 import React, { Component } from 'react';
-// TODO - FXA-8413 - Replace with @fxa/shared/l10n
-// import { EN_GB_LOCALES, parseAcceptLanguage } from '@fxa/shared/l10n';
-import { EN_GB_LOCALES } from 'fxa-shared/l10n/otherLanguages';
-import { parseAcceptLanguage } from 'fxa-shared/l10n/parseAcceptLanguage';
+import { EN_GB_LOCALES, parseAcceptLanguage } from '@fxa/shared/l10n';
 
 async function fetchMessages(baseDir: string, locale: string, bundle: string) {
   try {

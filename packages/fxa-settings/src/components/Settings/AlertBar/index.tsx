@@ -2,9 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { useEscKeydownEffect, useChangeFocusEffect } from '../../../lib/hooks';
-import { ReactComponent as CloseIcon } from '../../../../../../libs/shared/assets/src/images/close.svg';
+import { ReactComponent as CloseIcon } from '@fxa/shared/assets/images/close.svg';
 import { alertContent, alertType, alertVisible } from '../../../models';
 import { useReactiveVar } from '@apollo/client';
 import { useClickOutsideEffect } from 'fxa-react/lib/hooks';

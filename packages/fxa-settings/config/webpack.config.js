@@ -25,6 +25,7 @@ const ForkTsCheckerWebpackPlugin =
     ? require('react-dev-utils/ForkTsCheckerWarningWebpackPlugin')
     : require('react-dev-utils/ForkTsCheckerWebpackPlugin');
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
+const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 
 const createEnvironmentHash = require('./webpack/persistentCache/createEnvironmentHash');
 
@@ -86,10 +87,10 @@ const hasJsxRuntime = (() => {
 })();
 
 const allFxa = path.resolve(__dirname, '../../');
-const sharedAssets = path.resolve(__dirname, '../../../libs/shared/assets/');
+const allLibs = path.resolve(__dirname, '../../../libs/');
 const importPaths = [
   allFxa,
-  sharedAssets,
+  allLibs,
   path.resolve(__dirname, '../../../node_modules'),
 ];
 
@@ -349,6 +350,7 @@ module.exports = function (webpackEnv) {
             babelRuntimeRegenerator,
           ]
         ),
+        new TsconfigPathsPlugin({ configFile: './tsconfig.json' }),
       ],
       fallback: {
         fs: false,
@@ -424,7 +426,7 @@ module.exports = function (webpackEnv) {
             // The preset includes JSX, Flow, TypeScript, and some ESnext features.
             {
               test: /\.(js|mjs|jsx|ts|tsx)$/,
-              include: [paths.appSrc, allFxa],
+              include: [paths.appSrc, allFxa, allLibs],
               loader: require.resolve('babel-loader'),
               options: {
                 customize: require.resolve(

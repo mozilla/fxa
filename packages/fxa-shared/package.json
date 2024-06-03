@@ -117,14 +117,6 @@
       "import": "./dist/esm/packages/fxa-shared/guards/*.js",
       "require": "./dist/cjs/packages/fxa-shared/guards/*.js"
     },
-    "./l10n/otherLanguages": {
-      "import": "./dist/esm/packages/fxa-shared/l10n/otherLanguages.js",
-      "require": "./dist/cjs/packages/fxa-shared/l10n/otherLanguages.js"
-    },
-    "./l10n/*": {
-      "import": "./dist/esm/packages/fxa-shared/l10n/*.js",
-      "require": "./dist/cjs/packages/fxa-shared/l10n/*.js"
-    },
     "./lib/*": {
       "import": "./dist/esm/packages/fxa-shared/lib/*.js",
       "require": "./dist/cjs/packages/fxa-shared/lib/*.js"

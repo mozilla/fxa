@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { ReactElement } from 'react';
+import { ReactElement } from 'react';
 import { Localized } from '@fluent/react';
-import logo from '../../../../libs/shared/assets/src/images/moz-m-logo.svg';
+import logo from '@fxa/shared/assets/images/moz-m-logo.svg';
 
 type LogoLockupProps = {
   children: string | ReactElement;

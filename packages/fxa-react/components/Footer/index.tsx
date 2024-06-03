@@ -3,9 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Localized, useLocalization } from '@fluent/react';
-import React from 'react';
 import LinkExternal from '../LinkExternal';
-import mozLogo from '../../../../libs/shared/assets/src/images/moz-logo-bw-rgb.svg';
+import mozLogo from '@fxa/shared/assets/images/moz-logo-bw-rgb.svg';
 
 export const Footer = () => {
   const { l10n } = useLocalization();

@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { ReactElement } from 'react';
+import { ReactElement } from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { MozServices } from '../../lib/types';
-import { ReactComponent as PocketLogo } from '../../../../../libs/shared/assets/src/images/pocket.svg';
+import { ReactComponent as PocketLogo } from '@fxa/shared/assets/images/pocket.svg';
 
 // NOTE: this component is heavily tested in components that use it and has complete line
 // coverage. However, we may file an issue out of FXA-6589 to add more explicit coverage.

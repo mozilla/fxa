@@ -231,6 +231,7 @@
     "ts-jest": "^29.1.2",
     "ts-node": "^10.9.2",
     "tsc-alias": "^1.8.8",
+    "tsconfig-paths-webpack-plugin": "^4.1.0",
     "typescript": "^5.4.2"
   },
   "workspaces": [
@@ -269,6 +270,7 @@
   "packageManager": "yarn@3.3.0",
   "_moduleAliases": {
     "@fxa/vendored/jwtool": "./dist/libs/vendored/jwtool/src/index.js",
-    "@fxa/shared/pem-jwk": "./dist/libs/shared/pem-jwk/src/index.js"
+    "@fxa/shared/pem-jwk": "./dist/libs/shared/pem-jwk/src/index.js",
+    "@fxa/shared/l10n": "./dist/libs/shared/l10n/src/index.js"
   }
 }
