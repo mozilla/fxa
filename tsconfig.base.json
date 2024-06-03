@@ -62,6 +62,9 @@
       "@fxa/vendored/common-password-list": [
         "libs/vendored/common-password-list/src/index.ts"
       ],
+      "@fxa/vendored/crypto-relier": [
+        "libs/vendored/crypto-relier/src/index.ts"
+      ],
       "@fxa/vendored/incremental-encoder": [
         "libs/vendored/incremental-encoder/src/index.ts"
       ],
