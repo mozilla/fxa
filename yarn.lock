@@ -27621,7 +27621,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"base64url@npm:3.0.1, base64url@npm:^3.0.0":
+"base64url@npm:^3.0.0, base64url@npm:^3.0.1":
   version: 3.0.1
   resolution: "base64url@npm:3.0.1"
   checksum: a77b2a3a526b3343e25be424de3ae0aa937d78f6af7c813ef9020ef98001c0f4e2323afcd7d8b2d2978996bf8c42445c3e9f60c218c622593e5fdfd54a3d6e18
@@ -34009,6 +34009,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"es6-promise@npm:^4.2.8":
+  version: 4.2.8
+  resolution: "es6-promise@npm:4.2.8"
+  checksum: 95614a88873611cb9165a85d36afa7268af5c03a378b35ca7bda9508e1d4f1f6f19a788d4bc755b3fd37c8ebba40782018e02034564ff24c9d6fa37e959ad57d
+  languageName: node
+  linkType: hard
+
 "esbuild-plugin-alias@npm:^0.2.1":
   version: 0.2.1
   resolution: "esbuild-plugin-alias@npm:0.2.1"
@@ -37843,7 +37850,6 @@ fsevents@~2.1.1:
     audit-filter: ^0.5.0
     aws-sdk: ^2.1616.0
     babel-loader: ^9.1.3
-    base64url: 3.0.1
     binary-split: 1.0.5
     buf: 0.1.1
     buffer-equal-constant-time: 1.0.1
@@ -37979,7 +37985,6 @@ fsevents@~2.1.1:
     backbone: ^1.6.0
     backbone.cocktail: 0.5.15
     base32-decode: 1.0.0
-    base64url: 3.0.1
     body-parser: ^1.20.1
     buffer: ^6.0.3
     cache-loader: ^4.1.0
@@ -38850,6 +38855,7 @@ fsevents@~2.1.1:
     "@typescript-eslint/parser": ^7.1.1
     autoprefixer: ^10.4.14
     babel-jest: ^29.7.0
+    base64url: ^3.0.1
     bn.js: ^5.2.1
     class-transformer: ^0.5.1
     class-validator: ^0.14.1
@@ -38877,6 +38883,7 @@ fsevents@~2.1.1:
     jest: ^29.5.0
     jest-environment-jsdom: ^29.5.0
     jest-environment-node: ^29.7.0
+    jose: ^5.3.0
     json: ^11.0.0
     knex: ^3.1.0
     kysely: ^0.27.2
@@ -38891,6 +38898,8 @@ fsevents@~2.1.1:
     next: ^14.2.3
     next-auth: beta
     node-fetch: ^2.6.7
+    node-hkdf: ^0.0.2
+    node-jose: ^2.2.0
     nps: ^5.10.0
     nx: 18.3.1
     nx-cloud: 18.0.0
@@ -47949,7 +47958,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"long@npm:^5.2.1":
+"long@npm:^5.2.0, long@npm:^5.2.1":
   version: 5.2.3
   resolution: "long@npm:5.2.3"
   checksum: 885ede7c3de4facccbd2cacc6168bae3a02c3e836159ea4252c87b6e34d40af819824b2d4edce330bfb5c4d6e8ce3ec5864bdcf9473fa1f53a4f8225860e5897
@@ -50890,7 +50899,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"node-hkdf@npm:0.0.2":
+"node-hkdf@npm:0.0.2, node-hkdf@npm:^0.0.2":
   version: 0.0.2
   resolution: "node-hkdf@npm:0.0.2"
   checksum: 20ce3a8877f96e8cd058cd8049caa24a559d69fb0c95d68449e25b36c954ee3018522e74ead9a22728061b0d3273dcd2b3b45bc7a8303943a64dc09a1b9ae807
@@ -50924,6 +50933,23 @@ fsevents@~2.1.1:
     node-forge: ^0.7.1
     uuid: ^3.0.1
   checksum: 21cc8f1b72a872189632ea33e6e750bd5c196875fe1d8cd73bd15450194d5a3dbe00402450fa871fce75cec058eb7096d412b33cc1569cb083bece7bfd84bdff
+  languageName: node
+  linkType: hard
+
+"node-jose@npm:^2.2.0":
+  version: 2.2.0
+  resolution: "node-jose@npm:2.2.0"
+  dependencies:
+    base64url: ^3.0.1
+    buffer: ^6.0.3
+    es6-promise: ^4.2.8
+    lodash: ^4.17.21
+    long: ^5.2.0
+    node-forge: ^1.2.1
+    pako: ^2.0.4
+    process: ^0.11.10
+    uuid: ^9.0.0
+  checksum: ec021aaf12e256a88e0f8504b529d94685b9af774d3009048d4b005294add7735a99ef771f135a0cf6648c2c2c9c82ea4883f1c79b99fe6003b700e67819e24f
   languageName: node
   linkType: hard
 
@@ -52485,6 +52511,13 @@ fsevents@~2.1.1:
   version: 1.0.11
   resolution: "pako@npm:1.0.11"
   checksum: 1be2bfa1f807608c7538afa15d6f25baa523c30ec870a3228a89579e474a4d992f4293859524e46d5d87fd30fa17c5edf34dbef0671251d9749820b488660b16
+  languageName: node
+  linkType: hard
+
+"pako@npm:^2.0.4":
+  version: 2.1.0
+  resolution: "pako@npm:2.1.0"
+  checksum: 71666548644c9a4d056bcaba849ca6fd7242c6cf1af0646d3346f3079a1c7f4a66ffec6f7369ee0dc88f61926c10d6ab05da3e1fca44b83551839e89edd75a3e
   languageName: node
   linkType: hard
 

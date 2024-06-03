@@ -1,0 +1,28 @@
+{
+  "name": "crypto-relier",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/vendored/crypto-relier/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/vendored/crypto-relier",
+        "tsConfig": "libs/vendored/crypto-relier/tsconfig.lib.json",
+        "packageJson": "libs/vendored/crypto-relier/package.json",
+        "main": "libs/vendored/crypto-relier/src/index.ts",
+        "assets": ["libs/vendored/crypto-relier/*.md"]
+      }
+    },
+    "test-unit": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/vendored/crypto-relier/jest.config.ts",
+        "testPathPattern": ["^(?!.*\\.in\\.spec\\.ts$).*$"]
+      }
+    }
+  }
+}
