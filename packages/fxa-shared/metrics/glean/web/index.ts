@@ -87,7 +87,7 @@ export const eventsMap = {
     createNewView: 'password_reset_create_new_view',
     createNewSubmit: 'password_reset_create_new_submit',
     createNewSuccess: 'password_reset_create_new_success_view',
-    createNewClickRecoveryKeyMessage:
+    createNewRecoveryKeyMessageClick:
       'password_reset_create_new_recovery_key_message_click',
 
     emailConfirmationView: 'password_reset_email_confirmation_view',

@@ -77,7 +77,7 @@ const CompleteResetPassword = ({
                   state={locationState}
                   className="link-white underline-offset-4"
                   onClick={() =>
-                    GleanMetrics.passwordReset.createNewClickRecoveryKeyMessage()
+                    GleanMetrics.passwordReset.createNewRecoveryKeyMessageClick()
                   }
                 >
                   Reset your password with your account recovery key.
