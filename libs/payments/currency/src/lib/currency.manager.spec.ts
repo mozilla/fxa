@@ -11,16 +11,19 @@ import {
   CurrencyCountryMismatchError,
 } from './currency.error';
 import { CURRENCIES_TO_COUNTRIES } from './currency.constants';
+import { CurrencyConfig, MockCurrencyConfigProvider } from './currency.config';
 
 describe('CurrencyManager', () => {
   let currencyManager: CurrencyManager;
+  let mockCurrencyConfig: CurrencyConfig;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      providers: [CurrencyManager],
+      providers: [MockCurrencyConfigProvider, CurrencyManager],
     }).compile();
 
     currencyManager = module.get(CurrencyManager);
+    mockCurrencyConfig = module.get(CurrencyConfig);
   });
 
   describe('assertCurrencyCompatibleWithCountry', () => {
@@ -62,6 +65,20 @@ describe('CurrencyManager', () => {
           validCountry
         )
       ).toThrow(CurrencyCountryMismatchError);
+    });
+  });
+
+  describe('getTaxId', () => {
+    it('returns the correct tax id for currency', async () => {
+      const mockCurrency = Object.entries(mockCurrencyConfig.taxIds)[0];
+
+      const result = currencyManager.getTaxId(mockCurrency[0]);
+      expect(result).toEqual(mockCurrency[1]);
+    });
+
+    it('returns empty string when no  tax id found', async () => {
+      const result = currencyManager.getTaxId('DOES NOT EXIST');
+      expect(result).toEqual(undefined);
     });
   });
 });

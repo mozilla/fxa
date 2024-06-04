@@ -4,24 +4,31 @@
 
 import { Injectable } from '@nestjs/common';
 import { PromotionCodeCouldNotBeAttachedError } from './stripe.error';
-import { StripeManager } from './stripe.manager';
 import {
   checkSubscriptionPromotionCodes,
   checkValidPromotionCode,
   getSubscribedPrice,
 } from './stripe.util';
+import { SubscriptionManager } from './subscription.manager';
+import { PromotionCodeManager } from './promotionCode.manager';
+import { ProductManager } from './product.manager';
 
 @Injectable()
 export class StripeService {
-  constructor(private stripeManager: StripeManager) {}
+  constructor(
+    private productManager: ProductManager,
+    private subscriptionManager: SubscriptionManager,
+    private promotionCodeManager: PromotionCodeManager
+  ) {}
 
+  // TODO: Remove this method & this service
   async applyPromoCodeToSubscription(
     customerId: string,
     subscriptionId: string,
     promotionId: string
   ) {
     try {
-      const subscription = await this.stripeManager.retrieveSubscription(
+      const subscription = await this.subscriptionManager.retrieve(
         subscriptionId
       );
       if (subscription?.status !== 'active')
@@ -40,7 +47,7 @@ export class StripeService {
           }
         );
 
-      const promotionCode = await this.stripeManager.retrievePromotionCode(
+      const promotionCode = await this.promotionCodeManager.retrieve(
         promotionId
       );
 
@@ -48,11 +55,11 @@ export class StripeService {
 
       const price = getSubscribedPrice(subscription);
       const productId = price.product;
-      const product = await this.stripeManager.retrieveProduct(productId);
+      const product = await this.productManager.retrieve(productId);
 
       checkSubscriptionPromotionCodes(promotionCode, price, product);
 
-      const updatedSubscription = await this.stripeManager.updateSubscription(
+      const updatedSubscription = await this.subscriptionManager.update(
         subscriptionId,
         {
           discounts: [

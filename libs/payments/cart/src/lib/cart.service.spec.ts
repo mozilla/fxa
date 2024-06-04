@@ -24,11 +24,15 @@ import {
   ResultAccountCustomerFactory,
   StripeClient,
   StripeCustomerFactory,
-  StripeManager,
+  CustomerManager,
   StripePriceFactory,
   StripeResponseFactory,
   SubplatInterval,
   TaxAddressFactory,
+  InvoiceManager,
+  PriceManager,
+  SubscriptionManager,
+  PromotionCodeManager,
 } from '@fxa/payments/stripe';
 import {
   ContentfulClient,
@@ -69,7 +73,8 @@ describe('CartService', () => {
   let accountCustomerManager: AccountCustomerManager;
   let eligibilityService: EligibilityService;
   let geodbManager: GeoDBManager;
-  let stripeManager: StripeManager;
+  let customerManager: CustomerManager;
+  let invoiceManager: InvoiceManager;
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -90,7 +95,7 @@ describe('CartService', () => {
         EligibilityService,
         MockStripeConfigProvider,
         StripeClient,
-        StripeManager,
+        CustomerManager,
         MockPaypalClientConfigProvider,
         PayPalClient,
         PayPalManager,
@@ -99,8 +104,12 @@ describe('CartService', () => {
         GeoDBManager,
         GeoDBManagerConfig,
         MockGeoDBNestFactory,
-        StripeManager,
+        CustomerManager,
+        InvoiceManager,
         AccountManager,
+        PriceManager,
+        SubscriptionManager,
+        PromotionCodeManager,
       ],
     }).compile();
 
@@ -111,7 +120,8 @@ describe('CartService', () => {
     eligibilityService = moduleRef.get(EligibilityService);
     geodbManager = moduleRef.get(GeoDBManager);
     contentfulService = moduleRef.get(ContentfulService);
-    stripeManager = moduleRef.get(StripeManager);
+    customerManager = moduleRef.get(CustomerManager);
+    invoiceManager = moduleRef.get(InvoiceManager);
   });
 
   describe('setupCart', () => {
@@ -143,11 +153,9 @@ describe('CartService', () => {
       jest
         .spyOn(contentfulService, 'retrieveStripePlanId')
         .mockResolvedValue(mockPrice.id);
+      jest.spyOn(customerManager, 'retrieve').mockResolvedValue(mockCustomer);
       jest
-        .spyOn(stripeManager, 'fetchActiveCustomer')
-        .mockResolvedValue(mockCustomer);
-      jest
-        .spyOn(stripeManager, 'previewInvoice')
+        .spyOn(invoiceManager, 'preview')
         .mockResolvedValue(mockInvoicePreview);
       jest.spyOn(cartManager, 'createCart').mockResolvedValue(mockResultCart);
 
@@ -403,11 +411,9 @@ describe('CartService', () => {
       jest
         .spyOn(contentfulService, 'retrieveStripePlanId')
         .mockResolvedValue(mockPrice.id);
+      jest.spyOn(customerManager, 'retrieve').mockResolvedValue(mockCustomer);
       jest
-        .spyOn(stripeManager, 'fetchActiveCustomer')
-        .mockResolvedValue(mockCustomer);
-      jest
-        .spyOn(stripeManager, 'previewInvoice')
+        .spyOn(invoiceManager, 'preview')
         .mockResolvedValue(mockInvoicePreview);
 
       const result = await cartService.getCart(mockCart.id);
@@ -421,10 +427,10 @@ describe('CartService', () => {
         mockCart.offeringConfigId,
         mockCart.interval
       );
-      expect(stripeManager.fetchActiveCustomer).toHaveBeenCalledWith(
+      expect(customerManager.retrieve).toHaveBeenCalledWith(
         mockCart.stripeCustomerId
       );
-      expect(stripeManager.previewInvoice).toHaveBeenCalledWith({
+      expect(invoiceManager.preview).toHaveBeenCalledWith({
         priceId: mockPrice.id,
         customer: mockCustomer,
         taxAddress: mockCart.taxAddress,
@@ -442,9 +448,9 @@ describe('CartService', () => {
       jest
         .spyOn(contentfulService, 'retrieveStripePlanId')
         .mockResolvedValue(mockPrice.id);
-      jest.spyOn(stripeManager, 'fetchActiveCustomer');
+      jest.spyOn(customerManager, 'retrieve');
       jest
-        .spyOn(stripeManager, 'previewInvoice')
+        .spyOn(invoiceManager, 'preview')
         .mockResolvedValue(mockInvoicePreview);
 
       const result = await cartService.getCart(mockCart.id);
@@ -458,8 +464,8 @@ describe('CartService', () => {
         mockCart.offeringConfigId,
         mockCart.interval
       );
-      expect(stripeManager.fetchActiveCustomer).not.toHaveBeenCalled();
-      expect(stripeManager.previewInvoice).toHaveBeenCalledWith({
+      expect(customerManager.retrieve).not.toHaveBeenCalled();
+      expect(invoiceManager.preview).toHaveBeenCalledWith({
         priceId: mockPrice.id,
         customer: undefined,
         taxAddress: mockCart.taxAddress,

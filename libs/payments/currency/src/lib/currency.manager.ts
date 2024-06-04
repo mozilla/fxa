@@ -14,10 +14,14 @@ import {
   CountryCodeInvalidError,
   CurrencyCountryMismatchError,
 } from './currency.error';
+import { CurrencyConfig } from './currency.config';
 
 @Injectable()
 export class CurrencyManager {
-  constructor() {}
+  private taxIds: { [key: string]: string };
+  constructor(private config: CurrencyConfig) {
+    this.taxIds = this.config.taxIds;
+  }
 
   /**
    * Verify that provided source country and plan currency are compatible with
@@ -51,5 +55,9 @@ export class CurrencyManager {
     ) {
       throw new CurrencyCountryMismatchError(currency, country);
     }
+  }
+
+  getTaxId(currency: string) {
+    return this.taxIds[currency.toUpperCase()];
   }
 }

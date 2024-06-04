@@ -7,10 +7,13 @@ import { EligibilityService } from '@fxa/payments/eligibility';
 import { PayPalManager, PaypalCustomerManager } from '@fxa/payments/paypal';
 import {
   AccountCustomerManager,
+  CustomerManager,
+  InvoiceManager,
+  PromotionCodeManager,
   StripeClient,
-  StripeManager,
   StripeSubscription,
   SubplatInterval,
+  SubscriptionManager,
   TaxAddress,
 } from '@fxa/payments/stripe';
 import { CheckoutError, CheckoutPaymentError } from './checkout.error';
@@ -29,7 +32,10 @@ import { AccountManager } from '@fxa/shared/account/account';
 export class CheckoutService {
   constructor(
     private stripeClient: StripeClient,
-    private stripeManager: StripeManager,
+    private customerManager: CustomerManager,
+    private subscriptionManager: SubscriptionManager,
+    private invoiceManager: InvoiceManager,
+    private promotionCodeManager: PromotionCodeManager,
     private paypalCustomerManager: PaypalCustomerManager,
     private paypalManager: PayPalManager,
     private cartManager: CartManager,
@@ -62,7 +68,7 @@ export class CheckoutService {
 
     // if stripeCustomerId not found, create plain stripe account
     if (!cart.stripeCustomerId) {
-      customer = await this.stripeManager.createPlainCustomer({
+      customer = await this.customerManager.create({
         uid,
         email: cart.email,
         displayName: customerData.displayName,
@@ -72,7 +78,7 @@ export class CheckoutService {
       stripeCustomerId = customer.id;
     } else {
       stripeCustomerId = cart.stripeCustomerId;
-      customer = await this.stripeManager.fetchActiveCustomer(stripeCustomerId);
+      customer = await this.customerManager.retrieve(stripeCustomerId);
     }
 
     // create accountCustomer if it does not exist
@@ -118,7 +124,7 @@ export class CheckoutService {
       cart.interval as SubplatInterval
     );
 
-    const upcomingInvoice = await this.stripeManager.previewInvoice({
+    const upcomingInvoice = await this.invoiceManager.preview({
       priceId: priceId,
       customer: customer,
       taxAddress: taxAddress,
@@ -133,16 +139,15 @@ export class CheckoutService {
     }
 
     // check if customer already has subscription to price and cancel if they do
-    await this.stripeManager.cancelIncompleteSubscriptionsToPrice(
+    await this.subscriptionManager.cancelIncompleteSubscriptionsToPrice(
       stripeCustomerId,
       priceId
     );
 
-    const enableAutomaticTax =
-      this.stripeManager.isCustomerStripeTaxEligible(customer);
+    const enableAutomaticTax = this.customerManager.isTaxEligible(customer);
 
     const promotionCode = cart.couponCode
-      ? await this.stripeManager.getPromotionCodeByName(cart.couponCode, true)
+      ? await this.promotionCodeManager.retrieveByName(cart.couponCode, true)
       : undefined;
 
     return {
@@ -196,7 +201,7 @@ export class CheckoutService {
       // TODO: Generate and use idempotency key using util
     });
 
-    const paymentIntent = await this.stripeManager.getLatestPaymentIntent(
+    const paymentIntent = await this.subscriptionManager.getLatestPaymentIntent(
       subscription
     );
     if (!paymentIntent) {
@@ -211,7 +216,7 @@ export class CheckoutService {
     }
 
     if (paymentIntent.last_payment_error) {
-      await this.stripeManager.cancelSubscription(subscription.id);
+      await this.subscriptionManager.cancel(subscription.id);
 
       throw new CheckoutPaymentError(
         'Checkout payment intent has error on payment attempt',
@@ -280,7 +285,7 @@ export class CheckoutService {
     try {
       this.paypalManager.processInvoice(latestInvoice);
     } catch (e) {
-      await this.stripeManager.cancelSubscription(subscription.id);
+      await this.subscriptionManager.cancel(subscription.id);
       await this.paypalManager.cancelBillingAgreement(billingAgreementId);
     }
 

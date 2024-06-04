@@ -13,7 +13,10 @@ const { CapabilityManager } = require('@fxa/payments/capability');
 const { EligibilityManager } = require('@fxa/payments/eligibility');
 const {
   StripeClient,
-  StripeManager,
+  ProductManager,
+  PriceManager,
+  SubscriptionManager,
+  PromotionCodeManager,
   StripeService,
 } = require('@fxa/payments/stripe');
 const {
@@ -127,6 +130,20 @@ async function run(config) {
   /** @type {undefined | import('../lib/payments/stripe').StripeHelper} */
   let stripeHelper = undefined;
   if (config.subscriptions && config.subscriptions.stripeApiKey) {
+    const stripeClient = new StripeClient({
+      apiKey: config.subscriptions.stripeApiKey,
+    });
+    const productManager = new ProductManager(stripeClient);
+    const priceManager = new PriceManager(stripeClient);
+    const subscriptionManager = new SubscriptionManager(stripeClient);
+    const promotionCodeManager = new PromotionCodeManager(stripeClient);
+    const stripeService = new StripeService(
+      productManager,
+      subscriptionManager,
+      promotionCodeManager
+    );
+    Container.set(StripeService, stripeService);
+
     if (
       config.contentful &&
       config.contentful.cdnUrl &&
@@ -152,21 +169,12 @@ async function run(config) {
       const contentfulManager = new ContentfulManager(contentfulClient, statsd);
       Container.set(ContentfulManager, contentfulManager);
       const capabilityManager = new CapabilityManager(contentfulManager);
-      const eligibilityManager = new EligibilityManager(contentfulManager);
+      const eligibilityManager = new EligibilityManager(
+        contentfulManager,
+        priceManager
+      );
       Container.set(CapabilityManager, capabilityManager);
       Container.set(EligibilityManager, eligibilityManager);
-    }
-
-    if (config.subscriptions.stripeApiKey && config.subscriptions.taxIds) {
-      const stripeClient = new StripeClient({
-        apiKey: config.subscriptions.stripeApiKey,
-      });
-      const stripeManager = new StripeManager(stripeClient, {
-        apiKey: config.subscriptions.stripeApiKey,
-        taxIds: config.subscriptions.taxIds,
-      });
-      const stripeService = new StripeService(stripeManager);
-      Container.set(StripeService, stripeService);
     }
 
     const { createStripeHelper } = require('../lib/payments/stripe');
