@@ -1,3 +1,4 @@
+import React from 'react';
 import { Profile } from '../../store/types';
 import mozillaLogo from '@fxa/shared/assets/images/moz-logo-bw-rgb.svg';
 import { useLocalization } from '@fluent/react';
