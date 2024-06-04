@@ -10,15 +10,16 @@ import { ResendStatus } from '../../../lib/types';
 import { ConfirmResetPasswordProps } from './interfaces';
 
 const mockVerifyCode = (code: string) => Promise.resolve();
-const mockResendCode = () => Promise.resolve(true);
+const mockResendCode = () => Promise.resolve();
 
 export const Subject = ({
+  resendStatus = ResendStatus.none,
+  resendErrorMessage = '',
   resendCode = mockResendCode,
   verifyCode = mockVerifyCode,
 }: Partial<ConfirmResetPasswordProps>) => {
   const email = MOCK_EMAIL;
   const [errorMessage, setErrorMessage] = useState('');
-  const [resendStatus, setResendStatus] = useState(ResendStatus['not sent']);
 
   return (
     <LocationProvider>
@@ -26,10 +27,10 @@ export const Subject = ({
         {...{
           email,
           errorMessage,
+          setErrorMessage,
           resendCode,
           resendStatus,
-          setErrorMessage,
-          setResendStatus,
+          resendErrorMessage,
           verifyCode,
         }}
       />

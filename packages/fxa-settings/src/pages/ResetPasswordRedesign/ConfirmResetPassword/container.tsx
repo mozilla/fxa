@@ -17,9 +17,10 @@ import GleanMetrics from '../../../lib/glean';
 
 const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
   const [resendStatus, setResendStatus] = useState<ResendStatus>(
-    ResendStatus['not sent']
+    ResendStatus.none
   );
   const [errorMessage, setErrorMessage] = useState('');
+  const [resendErrorMessage, setResendErrorMessage] = useState('');
   const authClient = useAuthClient();
   const ftlMsgResolver = useFtlMsgResolver();
 
@@ -87,9 +88,14 @@ const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
     }
   };
 
-  const verifyCode = async (otpCode: string) => {
+  const clearBanners = () => {
     setErrorMessage('');
-    setResendStatus(ResendStatus['not sent']);
+    setResendErrorMessage('');
+    setResendStatus(ResendStatus.none);
+  };
+
+  const verifyCode = async (otpCode: string) => {
+    clearBanners();
     const options = { metricsContext };
     try {
       GleanMetrics.passwordReset.emailConfirmationSubmit();
@@ -115,18 +121,19 @@ const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
   };
 
   const resendCode = async () => {
-    setErrorMessage('');
+    clearBanners();
     const options = { metricsContext };
+    GleanMetrics.passwordReset.emailConfirmationResendCode();
     try {
       await authClient.passwordForgotSendOtp(email, options);
-      return true;
-    } catch (err) {
+      setResendStatus(ResendStatus.sent);
+    } catch (error) {
+      setResendStatus(ResendStatus.error);
       const localizedErrorMessage = getLocalizedErrorMessage(
         ftlMsgResolver,
-        err
+        error
       );
-      setErrorMessage(localizedErrorMessage);
-      return false;
+      setResendErrorMessage(localizedErrorMessage);
     }
   };
 
@@ -137,6 +144,7 @@ const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
         errorMessage,
         resendCode,
         resendStatus,
+        resendErrorMessage,
         setErrorMessage,
         setResendStatus,
         verifyCode,

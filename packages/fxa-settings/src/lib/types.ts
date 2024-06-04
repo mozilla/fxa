@@ -35,7 +35,7 @@ export type RemoteMetadata = {
 };
 
 export enum ResendStatus {
-  'not sent',
+  'none',
   'sent',
   'error',
 }

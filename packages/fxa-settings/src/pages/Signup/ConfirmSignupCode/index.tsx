@@ -65,7 +65,7 @@ const ConfirmSignupCode = ({
   const session = useSession();
   const [codeErrorMessage, setCodeErrorMessage] = useState<string>('');
   const [resendStatus, setResendStatus] = useState<ResendStatus>(
-    ResendStatus['not sent']
+    ResendStatus.none
   );
 
   const navigate = useNavigate();
@@ -98,15 +98,15 @@ const ConfirmSignupCode = ({
     try {
       await session.sendVerificationCode();
       // if resending a code is successful, clear any banner already present on screen
-      if (resendStatus !== ResendStatus['sent']) {
+      if (resendStatus !== ResendStatus.sent) {
         setBanner({
           type: undefined,
           children: undefined,
         });
-        setResendStatus(ResendStatus['sent']);
+        setResendStatus(ResendStatus.sent);
       }
     } catch (error) {
-      setResendStatus(ResendStatus['not sent']);
+      setResendStatus(ResendStatus.none);
       const localizedErrorMessage = getLocalizedErrorMessage(
         ftlMsgResolver,
         error
@@ -261,7 +261,7 @@ const ConfirmSignupCode = ({
         setCodeErrorMessage(localizedErrorMessage);
       } else {
         // Clear resend link success banner (if displayed) before rendering an error banner
-        setResendStatus(ResendStatus['not sent']);
+        setResendStatus(ResendStatus.none);
         // Any other error messages should be displayed in an error banner
         setBanner({
           type: BannerType.error,
@@ -287,7 +287,7 @@ const ConfirmSignupCode = ({
         <Banner type={banner.type}>{banner.children}</Banner>
       )}
 
-      {resendStatus === ResendStatus['sent'] && <ResendEmailSuccessBanner />}
+      {resendStatus === ResendStatus.sent && <ResendEmailSuccessBanner />}
 
       <div className="flex justify-center mx-auto">
         <MailImage className="w-3/5" />

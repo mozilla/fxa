@@ -40,8 +40,8 @@ const ConfirmWithLink = ({
         headingTextFtlId={confirmWithLinkPageStrings.headingFtlId}
       />
 
-      {resendStatus === ResendStatus['sent'] && <ResendEmailSuccessBanner />}
-      {resendStatus === ResendStatus['error'] && errorMessage && (
+      {resendStatus === ResendStatus.sent && <ResendEmailSuccessBanner />}
+      {resendStatus === ResendStatus.error && errorMessage && (
         <Banner type={BannerType.error}>{errorMessage}</Banner>
       )}
 

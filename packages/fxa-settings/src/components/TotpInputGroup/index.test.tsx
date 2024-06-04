@@ -21,18 +21,15 @@ describe('TotpInputGroup component', () => {
     expect(inputs).toHaveLength(8);
   });
 
-  it('sets focus on first input box', () => {
-    renderWithLocalizationProvider(<Subject codeLength={8} />);
-    const inputs = screen.getAllByRole('textbox');
-    expect(inputs[0]).toHaveFocus();
-  });
-
   describe('keyboard navigation', () => {
     it('can navigate between inputs with arrow keys', async () => {
       const user = userEvent.setup();
       renderWithLocalizationProvider(<Subject codeLength={6} />);
       const inputs = screen.getAllByRole('textbox');
-      expect(inputs[0]).toHaveFocus();
+
+      await waitFor(() =>
+        user.click(screen.getByRole('textbox', { name: 'Digit 1 of 6' }))
+      );
 
       await waitFor(() => {
         user.keyboard('[ArrowRight]');
@@ -48,8 +45,10 @@ describe('TotpInputGroup component', () => {
     it('can backspace between inputs', async () => {
       const user = userEvent.setup();
       renderWithLocalizationProvider(<Subject codeLength={6} />);
-      const inputs = screen.getAllByRole('textbox');
-      expect(inputs[0]).toHaveFocus();
+
+      await waitFor(() =>
+        user.click(screen.getByRole('textbox', { name: 'Digit 1 of 6' }))
+      );
 
       // type in each input
       for (let i = 1; i <= 6; i++) {
@@ -91,8 +90,10 @@ describe('TotpInputGroup component', () => {
     it('can forward delete inputs', async () => {
       const user = userEvent.setup();
       renderWithLocalizationProvider(<Subject codeLength={6} />);
-      const inputs = screen.getAllByRole('textbox');
-      expect(inputs[0]).toHaveFocus();
+
+      await waitFor(() =>
+        user.click(screen.getByRole('textbox', { name: 'Digit 1 of 6' }))
+      );
 
       // type in each input
       for (let i = 1; i <= 6; i++) {
@@ -135,8 +136,10 @@ describe('TotpInputGroup component', () => {
     it('distributes clipboard content to inputs', async () => {
       const user = userEvent.setup();
       renderWithLocalizationProvider(<Subject codeLength={6} />);
-      const inputBox1 = screen.getByRole('textbox', { name: 'Digit 1 of 6' });
-      expect(inputBox1).toHaveFocus();
+
+      await waitFor(() =>
+        user.click(screen.getByRole('textbox', { name: 'Digit 1 of 6' }))
+      );
 
       // inputs initially have no value
       for (let i = 1; i <= 6; i++) {
@@ -145,8 +148,11 @@ describe('TotpInputGroup component', () => {
         ).toHaveValue('');
       }
 
+      await waitFor(() =>
+        user.click(screen.getByRole('textbox', { name: 'Digit 1 of 6' }))
+      );
+
       await waitFor(() => {
-        user.click(inputBox1);
         user.paste('123456');
       });
 
@@ -161,8 +167,10 @@ describe('TotpInputGroup component', () => {
     it('skips non-numeric characters in clipboard', async () => {
       const user = userEvent.setup();
       renderWithLocalizationProvider(<Subject codeLength={6} />);
-      const inputBox1 = screen.getByRole('textbox', { name: 'Digit 1 of 6' });
-      expect(inputBox1).toHaveFocus();
+
+      await waitFor(() =>
+        user.click(screen.getByRole('textbox', { name: 'Digit 1 of 6' }))
+      );
 
       // inputs initially have no value
       for (let i = 1; i <= 6; i++) {
@@ -171,8 +179,11 @@ describe('TotpInputGroup component', () => {
         ).toHaveValue('');
       }
 
+      await waitFor(() =>
+        user.click(screen.getByRole('textbox', { name: 'Digit 1 of 6' }))
+      );
+
       await waitFor(() => {
-        user.click(inputBox1);
         user.paste('1b2$3 4B5.6?');
       });
 

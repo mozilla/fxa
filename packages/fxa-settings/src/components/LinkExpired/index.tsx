@@ -27,15 +27,15 @@ export const LinkExpired = ({
   messageFtlId,
   showResendLink = true,
   resendLinkHandler,
-  resendStatus = ResendStatus['not sent'],
+  resendStatus = ResendStatus.none,
   errorMessage,
 }: LinkExpiredProps) => {
   return (
     <AppLayout>
       <CardHeader {...{ headingText, headingTextFtlId }} />
 
-      {resendStatus === ResendStatus['sent'] && <ResendEmailSuccessBanner />}
-      {resendStatus === ResendStatus['error'] && errorMessage && (
+      {resendStatus === ResendStatus.sent && <ResendEmailSuccessBanner />}
+      {resendStatus === ResendStatus.error && errorMessage && (
         <Banner type={BannerType.error}>{errorMessage}</Banner>
       )}
 

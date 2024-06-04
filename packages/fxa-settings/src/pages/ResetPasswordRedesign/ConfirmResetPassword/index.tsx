@@ -10,7 +10,10 @@ import { RouteComponentProps, useLocation } from '@reach/router';
 import { useFtlMsgResolver } from '../../../models';
 import LinkRememberPassword from '../../../components/LinkRememberPassword';
 import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
-import { ResendEmailSuccessBanner } from '../../../components/Banner';
+import Banner, {
+  BannerType,
+  ResendEmailSuccessBanner,
+} from '../../../components/Banner';
 import { ResendStatus } from '../../../lib/types';
 import { EmailCodeImage } from '../../../components/images';
 import GleanMetrics from '../../../lib/glean';
@@ -18,10 +21,10 @@ import GleanMetrics from '../../../lib/glean';
 const ConfirmResetPassword = ({
   email,
   errorMessage,
+  setErrorMessage,
   resendCode,
   resendStatus,
-  setErrorMessage,
-  setResendStatus,
+  resendErrorMessage,
   verifyCode,
 }: ConfirmResetPasswordProps & RouteComponentProps) => {
   useEffect(() => {
@@ -42,14 +45,9 @@ const ConfirmResetPassword = ({
 
   const spanElement = <span className="font-bold">{email}</span>;
 
-  const handleResend = async () => {
-    setResendStatus(ResendStatus['not sent']);
-    GleanMetrics.passwordReset.emailConfirmationResendCode();
-    const result = await resendCode();
-    if (result === true) {
-      setResendStatus(ResendStatus.sent);
-    }
-  };
+  const hasResendError = !!(
+    resendStatus === ResendStatus.error && resendErrorMessage
+  );
 
   const signinClickHandler = () => {
     GleanMetrics.passwordReset.emailConfirmationSignin();
@@ -73,7 +71,10 @@ const ConfirmResetPassword = ({
           We sent a confirmation code to {spanElement}.
         </p>
       </FtlMsg>
-      {resendStatus === ResendStatus['sent'] && <ResendEmailSuccessBanner />}
+      {resendStatus === ResendStatus.sent && <ResendEmailSuccessBanner />}
+      {hasResendError && (
+        <Banner type={BannerType.error}>{resendErrorMessage}</Banner>
+      )}
       <FormVerifyTotp
         codeLength={8}
         {...{
@@ -87,7 +88,7 @@ const ConfirmResetPassword = ({
       <LinkRememberPassword {...{ email }} clickHandler={signinClickHandler} />
       <div className="flex justify-between mt-8 text-sm">
         <FtlMsg id="confirm-reset-password-otp-resend-code-button">
-          <button type="button" className="link-blue" onClick={handleResend}>
+          <button type="button" className="link-blue" onClick={resendCode}>
             Resend code
           </button>
         </FtlMsg>

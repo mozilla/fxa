@@ -11,6 +11,7 @@ import * as utils from 'fxa-react/lib/utils';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MOCK_EMAIL } from '../../mocks';
+import { ResendStatus } from '../../../lib/types';
 import GleanMetrics from '../../../lib/glean';
 
 jest.mock('../../../lib/glean', () => ({
@@ -18,7 +19,6 @@ jest.mock('../../../lib/glean', () => ({
   default: {
     passwordReset: {
       emailConfirmationView: jest.fn(),
-      emailConfirmationResendCode: jest.fn(),
       emailConfirmationDifferentAccount: jest.fn(),
       emailConfirmationSignin: jest.fn(),
     },
@@ -30,7 +30,7 @@ jest.mock('fxa-react/lib/utils', () => ({
   hardNavigate: jest.fn(),
 }));
 
-const mockResendCode = jest.fn(() => Promise.resolve(true));
+const mockResendCode = jest.fn(() => Promise.resolve());
 const mockVerifyCode = jest.fn((code: string) => Promise.resolve());
 
 describe('ConfirmResetPassword', () => {
@@ -95,14 +95,13 @@ describe('ConfirmResetPassword', () => {
     renderWithLocalizationProvider(<Subject verifyCode={mockVerifyCode} />);
 
     const textboxes = screen.getAllByRole('textbox');
-    await user.click(textboxes[0]);
+    await waitFor(() => user.click(textboxes[0]));
     await waitFor(() => {
       user.paste('12345678');
     });
 
-    // name here is the accessible name from aria-label
     const submitButton = screen.getByRole('button', {
-      name: 'Submit 12345678',
+      name: 'Continue',
     });
     expect(submitButton).toBeEnabled();
 
@@ -135,16 +134,8 @@ describe('ConfirmResetPassword', () => {
 
     await waitFor(() => user.click(resendButton));
     expect(mockResendCode).toHaveBeenCalledTimes(1);
-    expect(
-      GleanMetrics.passwordReset.emailConfirmationResendCode
-    ).toHaveBeenCalledTimes(1);
-
-    expect(
-      screen.getByText(
-        'Email re-sent. Add accounts@firefox.com to your contacts to ensure a smooth delivery.'
-      )
-    ).toBeVisible();
   });
+
 
   it('handles Use different account link', async () => {
     let hardNavigateSpy: jest.SpyInstance;
@@ -162,5 +153,28 @@ describe('ConfirmResetPassword', () => {
     expect(
       GleanMetrics.passwordReset.emailConfirmationDifferentAccount
     ).toHaveBeenCalledTimes(1);
+  });
+
+  describe('banners', () => {
+    it('shows resend success banner', async () => {
+      renderWithLocalizationProvider(
+        <Subject resendStatus={ResendStatus.sent} />
+      );
+
+      await expect(screen.getByText(/Email re?-sent/)).toBeVisible();
+    });
+
+    it('shows resend error banner', async () => {
+      renderWithLocalizationProvider(
+        <Subject
+          resendStatus={ResendStatus.error}
+          resendErrorMessage="Something went wrong. Please try again."
+        />
+      );
+
+      await expect(
+        screen.getByText('Something went wrong. Please try again.')
+      ).toBeVisible();
+    });
   });
 });

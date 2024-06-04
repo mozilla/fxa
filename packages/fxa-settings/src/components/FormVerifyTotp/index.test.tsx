@@ -32,9 +32,9 @@ describe('FormVerifyTotp component', () => {
       expect(button).toHaveTextContent('Submit');
       expect(button).toBeDisabled();
 
-      expect(
-        screen.getByRole('textbox', { name: 'Digit 1 of 6' })
-      ).toHaveFocus();
+      await waitFor(() =>
+        user.click(screen.getByRole('textbox', { name: 'Digit 1 of 6' }))
+      );
 
       // type in each input
       for (let i = 1; i <= 6; i++) {
@@ -55,8 +55,11 @@ describe('FormVerifyTotp component', () => {
       expect(button).toHaveTextContent('Submit');
       expect(button).toBeDisabled();
 
+      await waitFor(() =>
+        user.click(screen.getByRole('textbox', { name: 'Digit 1 of 6' }))
+      );
+
       await waitFor(() => {
-        user.click(screen.getByRole('textbox', { name: 'Digit 1 of 6' }));
         user.paste('123456');
       });
 

@@ -28,7 +28,7 @@ export const LinkExpiredResetPassword = ({
   const ftlMsgResolver = useFtlMsgResolver();
 
   const [resendStatus, setResendStatus] = useState<ResendStatus>(
-    ResendStatus['not sent']
+    ResendStatus.none
   );
   const [errorMessage, setErrorMessage] = useState<string>();
 

@@ -21,7 +21,7 @@ export const MOCK_GOBACK_CB = () => {
 
 export const SubjectWithEmailResendSuccess = () => {
   const [mockResendStatus, setMockResendStatus] = useState<ResendStatus>(
-    ResendStatus['not sent']
+    ResendStatus.none
   );
 
   const MOCK_EMAIL_RESEND_SUCCESS = () => {
@@ -43,7 +43,7 @@ export const SubjectWithEmailResendSuccess = () => {
 
 export const SubjectWithEmailResendError = () => {
   const [mockResendStatus, setMockResendStatus] = useState<ResendStatus>(
-    ResendStatus['not sent']
+    ResendStatus.none
   );
   const [mockErrorMessage, setMockErrorMessage] = useState('');
 
@@ -70,7 +70,7 @@ export const SubjectCanGoBack = ({
   navigateBackHandler,
 }: Partial<ConfirmWithLinkProps>) => {
   const [mockResendStatus, setMockResendStatus] = useState<ResendStatus>(
-    ResendStatus['not sent']
+    ResendStatus.none
   );
 
   const MOCK_RESEND_HANDLER_SUCCESS = () => {

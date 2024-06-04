@@ -42,7 +42,7 @@ const mockedProps: LinkExpiredProps = {
   messageText: 'Some text',
   messageFtlId: 'mock-message-id',
   resendLinkHandler: mockResendHandler,
-  resendStatus: ResendStatus['not sent'],
+  resendStatus: ResendStatus.none,
 };
 
 export const Default = () => <LinkExpired {...mockedProps} />;
