@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { expect, test } from '../../lib/fixtures/standard';
-import { EmailHeader, EmailType } from '../../lib/email';
+import { expect, test } from '../../../lib/fixtures/standard';
+import { EmailHeader, EmailType } from '../../../lib/email';
 
 const HINT = 'secret key location';
 
@@ -14,7 +14,7 @@ test.describe('severity-1 #smoke', () => {
       const config = await configPage.getConfig();
       test.skip(
         config.featureFlags.resetPasswordWithCode === true,
-        'see FXA-9612'
+        'see FXA-9728, remove these tests'
       );
     });
 

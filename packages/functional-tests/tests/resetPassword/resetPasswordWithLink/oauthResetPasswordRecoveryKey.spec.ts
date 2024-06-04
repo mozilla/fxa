@@ -2,38 +2,56 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { EmailHeader, EmailType } from '../../lib/email';
-import { Page, expect, test } from '../../lib/fixtures/standard';
-import { BaseTarget } from '../../lib/targets/base';
-import { ResetPasswordReactPage } from '../../pages/resetPasswordReact';
-import { LoginPage } from '../../pages/login';
+import { EmailHeader, EmailType } from '../../../lib/email';
+import { Page, expect, test } from '../../../lib/fixtures/standard';
+import { BaseTarget } from '../../../lib/targets/base';
+import { ResetPasswordReactPage } from '../../../pages/resetPasswordReact';
+import { LoginPage } from '../../../pages/login';
 
 const SERVICE_NAME_123 = '123';
 
 test.describe('severity-1 #smoke', () => {
-  test.describe('oauth reset password scoped keys react', () => {
+  test.describe('oauth reset password with recovery key react', () => {
     test.beforeEach(async ({ pages: { configPage } }) => {
       const config = await configPage.getConfig();
-      test.skip(config.showReactApp.resetPasswordRoutes !== true);
       test.skip(
         config.featureFlags.resetPasswordWithCode === true,
-        'see FXA-9612'
+        'see FXA-9728, remove these tests'
       );
     });
 
-    test('reset password scoped keys', async ({
+    test('reset password with account recovery key', async ({
       target,
-      page,
-      pages: { login, relier, resetPasswordReact },
+      pages: {
+        page,
+        login,
+        signinReact,
+        resetPasswordReact,
+        relier,
+        settings,
+        recoveryKey,
+      },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
       const newPassword = testAccountTracker.generatePassword();
 
+      await signinReact.goto();
+      await signinReact.fillOutEmailFirstForm(credentials.email);
+      await signinReact.fillOutPasswordForm(credentials.password);
+
+      // Goes to settings and enables the account recovery key on user's account.
+      await settings.recoveryKey.createButton.click();
+      const accountRecoveryKey = await recoveryKey.createRecoveryKey(
+        credentials.password,
+        'hint'
+      );
+      await settings.signOut();
+
       // Make sure user is not signed in, and goes to the relier (ie 123done)
       await relier.goto();
 
-      await relier.clickSignInScopedKeys();
+      await relier.clickEmailFirst();
 
       await beginPasswordReset(
         page,
@@ -49,22 +67,19 @@ test.describe('severity-1 #smoke', () => {
         credentials.email
       );
 
-      await page.goto(link);
+      await page.goto(link, { waitUntil: 'load' });
+      await resetPasswordReact.fillOutRecoveryKeyForm(accountRecoveryKey);
       await resetPasswordReact.fillOutNewPasswordForm(newPassword);
       credentials.password = newPassword;
 
       // Note: We used to redirect the user back to the relier in some cases
       // but we've decided to just show the success message for now
       // and let the user re-authenticate with the relier.
-      await expect(page).toHaveURL(/reset_password_verified/);
+
+      await expect(page).toHaveURL(/reset_password_with_recovery_key_verified/);
       await expect(
         resetPasswordReact.passwordResetConfirmationHeading
       ).toBeVisible();
-
-      // TODO in FXA-9612 page reload should not be required to see the service name
-      // verify when updating tests for reset with code if this is still an issue
-      // we should be able to remove the reload
-      await page.reload();
       await expect(
         page.getByText(new RegExp(`.*${SERVICE_NAME_123}.*`, 'i'))
       ).toBeVisible();

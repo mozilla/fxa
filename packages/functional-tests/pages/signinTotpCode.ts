@@ -10,7 +10,7 @@ export class SigninTotpCodePage extends BaseTokenCodePage {
   get input() {
     this.checkPath();
     return this.page
-      .getByTestId('signin-totp-code-input-label') // React
+      .getByLabel('Enter 6-digit code') // React
       .or(this.page.getByPlaceholder('Enter 6-digit code')); //Backbone
   }
 }

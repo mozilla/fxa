@@ -6,4 +6,11 @@ import { BaseTokenCodePage } from './baseTokenCode';
 
 export class SigninUnblockPage extends BaseTokenCodePage {
   readonly path = '/signin_unblock';
+
+  get resendCodeButton() {
+    this.checkPath();
+    return this.page.getByRole('link', {
+      name: 'Not in inbox or spam folder? Resend',
+    });
+  }
 }

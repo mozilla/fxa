@@ -7,9 +7,11 @@ export class ResetPasswordReactPage extends BaseLayout {
   get resetPasswordHeading() {
     return (
       this.page
-        .getByRole('heading', { name: /^Reset password/ })
-        // for password reset redesign, with resetPasswordWithCode flag
-        .or(this.page.getByRole('heading', { name: /^Password reset/ }))
+        // TODO in FXA-9728, remove the second option in regex
+        // (support for reset password with link)
+        .getByRole('heading', {
+          name: /^(?:Reset your password|Reset password)/,
+        })
     );
   }
 
@@ -20,29 +22,34 @@ export class ResetPasswordReactPage extends BaseLayout {
   get beginResetButton() {
     return (
       this.page
-        .getByRole('button', { name: 'Begin reset' })
-        // for password reset redesign, with resetPasswordWithCode flag
-        .or(
-          this.page.getByRole('button', { name: 'Send me reset instructions' })
-        )
+        // TODO in FXA-9728, remove the second option in regex
+        // (support for reset password with link)
+        .getByRole('button', {
+          name: /^(?:Send me reset instructions|Begin reset)/,
+        })
     );
   }
 
   get confirmResetPasswordHeading() {
     return (
       this.page
-        .getByRole('heading', { name: 'Reset email sent' })
-        // for password reset redesign, with resetPasswordWithCode flag
-        .or(this.page.getByRole('heading', { name: 'Enter confirmation code' }))
+        // TODO in FXA-9728, remove the second option in regex
+        // (support for reset password with link)
+        .getByRole('heading', {
+          name: /^(?:Check your email|Reset email sent)/,
+        })
     );
   }
 
   get resendButton() {
-    return this.page
-      .getByRole('button', {
-        name: 'Not in inbox or spam folder? Resend',
-      }) // for password reset redesign, with resetPasswordWithCode flag
-      .or(this.page.getByRole('button', { name: 'Resend code' }));
+    return (
+      this.page
+        // TODO in FXA-9728, remove the second option in regex
+        // (support for reset password with link)
+        .getByRole('button', {
+          name: /^(?:Resend code|Not in inbox or spam folder)/,
+        })
+    );
   }
 
   get statusBar() {
@@ -105,11 +112,26 @@ export class ResetPasswordReactPage extends BaseLayout {
     });
   }
 
+  get confirmationCodeFirstInput() {
+    return this.page.getByRole('textbox').first();
+  }
+
+  get confirmationCodeSubmitButton() {
+    return this.page.getByRole('button', { name: 'Continue' });
+  }
+
   goto(route = '/reset_password', query?: string) {
     const url = query
       ? `${this.target.contentServerUrl}${route}?${query}`
       : `${this.target.contentServerUrl}${route}`;
     return this.page.goto(url);
+  }
+
+  async fillOutEmailForm(email: string): Promise<void> {
+    await expect(this.resetPasswordHeading).toBeVisible();
+
+    await this.emailTextbox.fill(email);
+    await this.beginResetButton.click();
   }
 
   async fillOutNewPasswordForm(password: string) {
@@ -127,10 +149,12 @@ export class ResetPasswordReactPage extends BaseLayout {
     await this.confirmRecoveryKeyButton.click();
   }
 
-  async fillOutEmailForm(email: string): Promise<void> {
-    await expect(this.resetPasswordHeading).toBeVisible();
-
-    await this.emailTextbox.fill(email);
-    await this.beginResetButton.click();
+  async fillOutResetPasswordCodeForm(code: string) {
+    await expect(this.confirmResetPasswordHeading).toBeVisible();
+    // using .pressSequentially() instead of .fill()
+    // because of onChange handling on the code input component
+    // that distributes typed text or pasted text between single digit inputs
+    await this.confirmationCodeFirstInput.pressSequentially(code);
+    await this.confirmationCodeSubmitButton.click();
   }
 }

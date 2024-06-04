@@ -67,7 +67,7 @@ test.describe('severity-2 #smoke', () => {
     test('resend', async ({
       target,
       page,
-      pages: { login, resetPassword, settings, deleteAccount },
+      pages: { login, settings, signinUnblock, deleteAccount },
       testAccountTracker,
     }) => {
       const credentials = await signInBlockedAccount(
@@ -77,13 +77,11 @@ test.describe('severity-2 #smoke', () => {
         testAccountTracker
       );
 
-      //Click resend link
-      await resetPassword.clickResend();
+      //Click resend code button
+      await signinUnblock.resendCodeButton.click();
 
       //Verify success message
-      expect(await resetPassword.resendSuccessMessage()).toContain(
-        'Email resent. Add accounts@firefox.com to your contacts to ensure a smooth delivery.'
-      );
+      await expect(signinUnblock.successMessage).toBeVisible();
 
       //Unblock the email
       await login.unblock(credentials.email);
