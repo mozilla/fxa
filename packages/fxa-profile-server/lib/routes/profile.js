@@ -72,6 +72,7 @@ module.exports = {
       subscriptions: Joi.array().items(Joi.string().required()).optional(),
       metricsEnabled: Joi.boolean().optional(),
       atLeast18AtReg: Joi.boolean().allow(null),
+      groups: Joi.string().optional(),
 
       //openid-connect
       sub: Joi.string().allow(null),

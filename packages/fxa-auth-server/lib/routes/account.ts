@@ -1446,6 +1446,11 @@ export class AccountHandler {
       }
     }
 
+    if (scope.contains('profile:groups')) {
+      // TODO
+      const groups = await this.db.getAccountGroups(uid);
+    }
+
     // If no keys set on the response, there was no valid profile scope found. We only
     // want to return `profileChangedAt` if a valid scope was found and set.
     if (Object.keys(res).length !== 0) {
@@ -2257,6 +2262,7 @@ export const accountRoutes = (
             profileChangedAt: isA.number().min(0),
             metricsEnabled: isA.boolean().optional(),
             atLeast18AtReg: isA.boolean().allow(null),
+            groups: isA.string().optional(),
           }),
         },
       },

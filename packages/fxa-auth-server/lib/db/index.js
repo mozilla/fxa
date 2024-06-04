@@ -1118,6 +1118,11 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     return this.redis.pruneSessionTokens(uid, [id]);
   };
 
+  DB.prototype.getAccountGroups = async function (uid) {
+    log.trace('DB.getAccountGroups', { uid });
+    return Account.getAccountGroups(uid);
+  };
+
   return DB;
 };
 

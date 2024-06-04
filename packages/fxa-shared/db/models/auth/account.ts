@@ -11,6 +11,7 @@ import { LinkedAccount } from './linked-account';
 import { SecurityEvent } from './security-event';
 import { intBoolTransformer, uuidTransformer } from '../../transformers';
 import { convertError, notFound } from '../../mysql';
+import { Group } from './group';
 
 export type AccountOptions = {
   include?: Array<'emails' | 'linkedAccounts' | 'securityEvents'>;
@@ -114,6 +115,18 @@ export class Account extends BaseAuthModel {
       },
       modelClass: SecurityEvent,
       relation: BaseAuthModel.HasManyRelation,
+    },
+    groups: {
+      relation: BaseAuthModel.ManyToManyRelation,
+      modelClass: Group,
+      join: {
+        from: 'accounts.uid',
+        through: {
+          from: 'accountGroups.uid',
+          to: 'accountGroups.group_id',
+        },
+        to: 'groups.id',
+      },
     },
   };
 

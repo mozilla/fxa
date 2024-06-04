@@ -113,6 +113,7 @@ const ACCOUNT_PROFILE_GET = {
         - \`email\` requires \`profile:email\` scope.
         - \`locale\` requires \`profile:locale\` scope.
         - \`atLeast18AtReg\` requires \`profile:age_check\` scope.
+        - \`groups\` requires \`profile:groups\` scope.
         - \`authenticationMethods\` and \`authenticatorAssuranceLevel\` require \`profile:amr\` scope.
 
       The \`profile\` scope includes all the above sub-scopes.

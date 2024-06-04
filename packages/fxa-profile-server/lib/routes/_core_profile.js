@@ -40,6 +40,7 @@ module.exports = {
       profileChangedAt: Joi.number().optional(),
       metricsEnabled: Joi.boolean().optional(),
       atLeast18AtReg: Joi.boolean().allow(null),
+      groups: Joi.string().optional(),
     }),
   },
   handler: async function _core_profile(req) {
@@ -120,6 +121,9 @@ module.exports = {
               result.atLeast18AtReg = body.atLeast18AtReg
                 ? body.atLeast18AtReg
                 : null;
+            }
+            if (typeof body.groups !== 'undefined') {
+              result.groups = body.groups;
             }
             return resolve(result);
           }

@@ -122,6 +122,7 @@ const DESCRIPTIONS = {
       - \`scope\`: (optional) A string-separated list of scopes to be authorized.
       - \`access_type\`: (optional) Determines whether to generate a \`refresh_token\` (if \`offline\`) or not (if \`online\`).
   `,
+  groups: 'TODO',
   iat: 'Integer time of token creation.',
   idempotencyKey:
     'The idempotency key transmitted during the request, if any. For more information, see [Stripe docs](https://stripe.com/docs/error-low-level#idempotency)',
