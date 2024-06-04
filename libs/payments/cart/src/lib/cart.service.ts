@@ -8,8 +8,9 @@ import { EligibilityService } from '@fxa/payments/eligibility';
 import {
   AccountCustomerManager,
   AccountCustomerNotFoundError,
+  CustomerManager,
+  InvoiceManager,
   StripeCustomer,
-  StripeManager,
   SubplatInterval,
   TaxAddress,
 } from '@fxa/payments/stripe';
@@ -36,7 +37,8 @@ export class CartService {
     private geodbManager: GeoDBManager,
     private checkoutService: CheckoutService,
     private contentfulService: ContentfulService,
-    private stripeManager: StripeManager
+    private customerManager: CustomerManager,
+    private invoiceManager: InvoiceManager
   ) {}
 
   /**
@@ -70,7 +72,7 @@ export class CartService {
 
     const stripeCustomerId = accountCustomer?.stripeCustomerId;
     const stripeCustomer = stripeCustomerId
-      ? await this.stripeManager.fetchActiveCustomer(stripeCustomerId)
+      ? await this.customerManager.retrieve(stripeCustomerId)
       : undefined;
 
     const taxAddress = args.ip
@@ -82,7 +84,7 @@ export class CartService {
       args.interval
     );
 
-    const upcomingInvoice = await this.stripeManager.previewInvoice({
+    const upcomingInvoice = await this.invoiceManager.preview({
       priceId: priceId,
       customer: stripeCustomer,
       taxAddress: taxAddress,
@@ -223,12 +225,10 @@ export class CartService {
 
     let customer: StripeCustomer | undefined;
     if (cart.stripeCustomerId) {
-      customer = await this.stripeManager.fetchActiveCustomer(
-        cart.stripeCustomerId
-      );
+      customer = await this.customerManager.retrieve(cart.stripeCustomerId);
     }
 
-    const invoicePreview = await this.stripeManager.previewInvoice({
+    const invoicePreview = await this.invoiceManager.preview({
       priceId,
       customer,
       taxAddress: cart.taxAddress as unknown as TaxAddress, // TODO: Fix the typings for taxAddress

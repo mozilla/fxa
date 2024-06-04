@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Injectable } from '@nestjs/common';
-import { StripeManager, SubplatInterval } from '@fxa/payments/stripe';
+import { PriceManager, SubplatInterval } from '@fxa/payments/stripe';
 import { ContentfulServiceError } from './contentful.error';
 import { ContentfulManager } from './contentful.manager';
 import { ContentfulServiceConfig } from './contentful.service.config';
@@ -12,7 +12,7 @@ import { ContentfulServiceConfig } from './contentful.service.config';
 export class ContentfulService {
   constructor(
     private contentfulManager: ContentfulManager,
-    private stripeManager: StripeManager,
+    private priceManager: PriceManager,
     private contentfulServiceConfig: ContentfulServiceConfig
   ) {}
 
@@ -42,7 +42,7 @@ export class ContentfulService {
     const filteredPlanIds = planIds.filter((priceId) =>
       supportedListOfPriceIds.includes(priceId)
     );
-    const plan = await this.stripeManager.getPlanByInterval(
+    const plan = await this.priceManager.retrieveByInterval(
       filteredPlanIds,
       interval
     );

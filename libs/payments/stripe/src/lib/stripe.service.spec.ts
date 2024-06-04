@@ -30,25 +30,33 @@ import {
 import { StripeClient } from './stripe.client';
 import { MockStripeConfigProvider } from './stripe.config';
 import { PromotionCodeCouldNotBeAttachedError } from './stripe.error';
-import { StripeManager } from './stripe.manager';
+import { ProductManager } from './product.manager';
 import { StripeService } from './stripe.service';
 import { STRIPE_PRICE_METADATA } from './stripe.types';
+import { SubscriptionManager } from './subscription.manager';
+import { PromotionCodeManager } from './promotionCode.manager';
 
 describe('StripeService', () => {
   let stripeService: StripeService;
-  let stripeManager: StripeManager;
+  let productManager: ProductManager;
+  let subscriptionManager: SubscriptionManager;
+  let promotionCodeManager: PromotionCodeManager;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
       providers: [
         MockStripeConfigProvider,
         StripeClient,
-        StripeManager,
+        ProductManager,
+        SubscriptionManager,
+        PromotionCodeManager,
         StripeService,
       ],
     }).compile();
 
-    stripeManager = module.get(StripeManager);
+    productManager = module.get(ProductManager);
+    subscriptionManager = module.get(SubscriptionManager);
+    promotionCodeManager = module.get(PromotionCodeManager);
     stripeService = module.get(StripeService);
   });
 
@@ -62,7 +70,7 @@ describe('StripeService', () => {
       const mockResponse = StripeResponseFactory(mockSubscription);
 
       jest
-        .spyOn(stripeManager, 'retrieveSubscription')
+        .spyOn(subscriptionManager, 'retrieve')
         .mockResolvedValue(mockResponse);
 
       await expect(
@@ -83,7 +91,7 @@ describe('StripeService', () => {
       const mockResponse = StripeResponseFactory(mockSubscription);
 
       jest
-        .spyOn(stripeManager, 'retrieveSubscription')
+        .spyOn(subscriptionManager, 'retrieve')
         .mockResolvedValue(mockResponse);
 
       await expect(
@@ -106,11 +114,11 @@ describe('StripeService', () => {
       const mockSubResponse = StripeResponseFactory(mockSubscription);
 
       jest
-        .spyOn(stripeManager, 'retrieveSubscription')
+        .spyOn(subscriptionManager, 'retrieve')
         .mockResolvedValue(mockSubResponse);
 
       jest
-        .spyOn(stripeManager, 'retrievePromotionCode')
+        .spyOn(promotionCodeManager, 'retrieve')
         .mockResolvedValue(mockPromoResponse);
 
       mockStripeUtil.checkValidPromotionCode.mockImplementation(() => {
@@ -139,11 +147,11 @@ describe('StripeService', () => {
       const mockSubResponse = StripeResponseFactory(mockSubscription);
 
       jest
-        .spyOn(stripeManager, 'retrieveSubscription')
+        .spyOn(subscriptionManager, 'retrieve')
         .mockResolvedValue(mockSubResponse);
 
       jest
-        .spyOn(stripeManager, 'retrievePromotionCode')
+        .spyOn(promotionCodeManager, 'retrieve')
         .mockResolvedValue(mockPromoResponse);
 
       mockStripeUtil.checkValidPromotionCode.mockReturnValue(true);
@@ -177,18 +185,18 @@ describe('StripeService', () => {
       const mockPromoResponse = StripeResponseFactory(mockPromotionCode);
 
       jest
-        .spyOn(stripeManager, 'retrieveSubscription')
+        .spyOn(subscriptionManager, 'retrieve')
         .mockResolvedValue(mockSubResponse);
 
       jest
-        .spyOn(stripeManager, 'retrievePromotionCode')
+        .spyOn(promotionCodeManager, 'retrieve')
         .mockResolvedValue(mockPromoResponse);
 
       mockStripeUtil.checkValidPromotionCode.mockReturnValue(true);
       mockStripeUtil.getSubscribedPrice.mockReturnValue(mockPrice);
 
       jest
-        .spyOn(stripeManager, 'retrieveProduct')
+        .spyOn(productManager, 'retrieve')
         .mockResolvedValue(StripeResponseFactory(mockProduct));
 
       mockStripeUtil.checkSubscriptionPromotionCodes.mockImplementation(() => {
@@ -215,11 +223,9 @@ describe('StripeService', () => {
         type: 'invalid_request_error',
       });
 
-      jest
-        .spyOn(stripeManager, 'retrieveSubscription')
-        .mockImplementation(() => {
-          throw stripeError;
-        });
+      jest.spyOn(subscriptionManager, 'retrieve').mockImplementation(() => {
+        throw stripeError;
+      });
 
       await expect(
         stripeService.applyPromoCodeToSubscription(
@@ -270,11 +276,11 @@ describe('StripeService', () => {
       const mockProduct = StripeProductFactory();
 
       jest
-        .spyOn(stripeManager, 'retrieveSubscription')
+        .spyOn(subscriptionManager, 'retrieve')
         .mockResolvedValue(mockSubResponse1);
 
       jest
-        .spyOn(stripeManager, 'retrievePromotionCode')
+        .spyOn(promotionCodeManager, 'retrieve')
         .mockResolvedValue(mockPromoCodeResponse);
 
       mockStripeUtil.checkValidPromotionCode.mockReturnValue(true);
@@ -282,11 +288,11 @@ describe('StripeService', () => {
       mockStripeUtil.checkSubscriptionPromotionCodes.mockReturnValue(true);
 
       jest
-        .spyOn(stripeManager, 'retrieveProduct')
+        .spyOn(productManager, 'retrieve')
         .mockResolvedValue(StripeResponseFactory(mockProduct));
 
       jest
-        .spyOn(stripeManager, 'updateSubscription')
+        .spyOn(subscriptionManager, 'update')
         .mockResolvedValue(mockSubResponse2);
 
       const result = await stripeService.applyPromoCodeToSubscription(

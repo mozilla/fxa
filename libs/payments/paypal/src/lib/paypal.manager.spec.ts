@@ -5,13 +5,15 @@ import { faker } from '@faker-js/faker';
 import { Test } from '@nestjs/testing';
 
 import {
+  CustomerManager,
+  InvoiceManager,
   MockStripeConfigProvider,
   StripeClient,
   StripeCustomerFactory,
   StripeInvoiceFactory,
-  StripeManager,
   StripeResponseFactory,
   StripeSubscriptionFactory,
+  SubscriptionManager,
 } from '@fxa/payments/stripe';
 import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
 
@@ -35,8 +37,10 @@ import { MockPaypalClientConfigProvider } from './paypal.client.config';
 describe('PayPalManager', () => {
   let paypalManager: PayPalManager;
   let paypalClient: PayPalClient;
-  let stripeManager: StripeManager;
   let paypalCustomerManager: PaypalCustomerManager;
+  let customerManager: CustomerManager;
+  let subscriptionManager: SubscriptionManager;
+  let invoiceManager: InvoiceManager;
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -47,14 +51,18 @@ describe('PayPalManager', () => {
         PayPalManager,
         PayPalClient,
         StripeClient,
-        StripeManager,
+        CustomerManager,
+        SubscriptionManager,
+        InvoiceManager,
         PaypalCustomerManager,
       ],
     }).compile();
 
     paypalManager = moduleRef.get(PayPalManager);
     paypalClient = moduleRef.get(PayPalClient);
-    stripeManager = moduleRef.get(StripeManager);
+    customerManager = moduleRef.get(CustomerManager);
+    subscriptionManager = moduleRef.get(SubscriptionManager);
+    invoiceManager = moduleRef.get(InvoiceManager);
     paypalCustomerManager = moduleRef.get(PaypalCustomerManager);
   });
 
@@ -320,7 +328,7 @@ describe('PayPalManager', () => {
       const expected = [mockPayPalSubscription];
 
       jest
-        .spyOn(stripeManager, 'getSubscriptions')
+        .spyOn(subscriptionManager, 'listForCustomer')
         .mockResolvedValue([mockPayPalSubscription]);
 
       const result = await paypalManager.getCustomerPayPalSubscriptions(
@@ -333,7 +341,9 @@ describe('PayPalManager', () => {
   it('returns empty array when no subscriptions', async () => {
     const mockCustomer = StripeCustomerFactory();
 
-    jest.spyOn(stripeManager, 'getSubscriptions').mockResolvedValueOnce([]);
+    jest
+      .spyOn(subscriptionManager, 'listForCustomer')
+      .mockResolvedValueOnce([]);
 
     const result = await paypalManager.getCustomerPayPalSubscriptions(
       mockCustomer.id
@@ -367,13 +377,13 @@ describe('PayPalManager', () => {
       const mockInvoice = StripeResponseFactory(StripeInvoiceFactory());
 
       jest
-        .spyOn(stripeManager, 'finalizeInvoiceWithoutAutoAdvance')
+        .spyOn(invoiceManager, 'finalizeWithoutAutoAdvance')
         .mockResolvedValue(mockInvoice);
 
       const result = await paypalManager.processZeroInvoice(mockInvoice.id);
 
       expect(result).toEqual(mockInvoice);
-      expect(stripeManager.finalizeInvoiceWithoutAutoAdvance).toBeCalledWith(
+      expect(invoiceManager.finalizeWithoutAutoAdvance).toBeCalledWith(
         mockInvoice.id
       );
     });
@@ -388,7 +398,7 @@ describe('PayPalManager', () => {
         })
       );
 
-      jest.spyOn(stripeManager, 'getMinimumAmount').mockReturnValue(10);
+      jest.spyOn(subscriptionManager, 'getMinimumAmount').mockReturnValue(10);
       jest
         .spyOn(paypalManager, 'processZeroInvoice')
         .mockResolvedValue(mockInvoice);
@@ -406,10 +416,8 @@ describe('PayPalManager', () => {
         currency: 'usd',
       });
 
-      jest.spyOn(stripeManager, 'getMinimumAmount').mockReturnValue(10);
-      jest
-        .spyOn(stripeManager, 'fetchActiveCustomer')
-        .mockResolvedValue(mockCustomer);
+      jest.spyOn(subscriptionManager, 'getMinimumAmount').mockReturnValue(10);
+      jest.spyOn(customerManager, 'retrieve').mockResolvedValue(mockCustomer);
       jest
         .spyOn(paypalManager, 'processZeroInvoice')
         .mockResolvedValue(StripeResponseFactory(mockInvoice));

@@ -15,9 +15,10 @@ import {
   StripeClient,
   StripeConfig,
   StripeCustomerFactory,
-  StripeManager,
+  SubscriptionManager,
   StripeSubscriptionFactory,
   SubplatInterval,
+  PriceManager,
 } from '@fxa/payments/stripe';
 import {
   ContentfulClient,
@@ -41,7 +42,7 @@ describe('EligibilityService', () => {
   let contentfulManager: ContentfulManager;
   let eligibilityManager: EligibilityManager;
   let eligibilityService: EligibilityService;
-  let stripeManager: StripeManager;
+  let subscriptionManager: SubscriptionManager;
 
   let mockOfferingResult: EligibilityContentByOfferingResultUtil;
 
@@ -55,10 +56,11 @@ describe('EligibilityService', () => {
         ContentfulClient,
         MockStatsDProvider,
         ContentfulManager,
-        EligibilityManager,
         StripeConfig,
         StripeClient,
-        StripeManager,
+        SubscriptionManager,
+        PriceManager,
+        EligibilityManager,
         EligibilityService,
       ],
     }).compile();
@@ -66,7 +68,7 @@ describe('EligibilityService', () => {
     contentfulManager = module.get<ContentfulManager>(ContentfulManager);
     eligibilityManager = module.get<EligibilityManager>(EligibilityManager);
     eligibilityService = module.get<EligibilityService>(EligibilityService);
-    stripeManager = module.get<StripeManager>(StripeManager);
+    subscriptionManager = module.get<SubscriptionManager>(SubscriptionManager);
   });
 
   describe('checkEligibility', () => {
@@ -124,7 +126,7 @@ describe('EligibilityService', () => {
       mockOfferingResult.getOffering = jest.fn().mockReturnValue(mockOffering);
 
       jest
-        .spyOn(stripeManager, 'getSubscriptions')
+        .spyOn(subscriptionManager, 'listForCustomer')
         .mockResolvedValue([mockSubscription]);
 
       mockStripeUtil.getSubscribedPlans.mockReturnValue([]);
@@ -147,7 +149,7 @@ describe('EligibilityService', () => {
       expect(
         contentfulManager.getEligibilityContentByOffering
       ).toHaveBeenCalledWith(mockOffering.apiIdentifier);
-      expect(stripeManager.getSubscriptions).toHaveBeenCalledWith(
+      expect(subscriptionManager.listForCustomer).toHaveBeenCalledWith(
         mockCustomer.id
       );
       expect(eligibilityManager.getProductIdOverlap).toHaveBeenCalledWith(

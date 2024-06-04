@@ -7,7 +7,7 @@ import { Test } from '@nestjs/testing';
 import {
   StripeClient,
   StripeConfig,
-  StripeManager,
+  PriceManager,
   StripePlanFactory,
   StripeResponseFactory,
   SubplatInterval,
@@ -32,7 +32,7 @@ import {
 describe('ContentfulService', () => {
   let contentfulManager: ContentfulManager;
   let contentfulService: ContentfulService;
-  let stripeManager: StripeManager;
+  let priceManager: PriceManager;
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -47,13 +47,13 @@ describe('ContentfulService', () => {
         MockStatsDProvider,
         StripeClient,
         StripeConfig,
-        StripeManager,
+        PriceManager,
       ],
     }).compile();
 
     contentfulService = moduleRef.get(ContentfulService);
     contentfulManager = moduleRef.get(ContentfulManager);
-    stripeManager = moduleRef.get(StripeManager);
+    priceManager = moduleRef.get(PriceManager);
   });
 
   describe('fetchContentfulData', () => {
@@ -88,7 +88,7 @@ describe('ContentfulService', () => {
         .mockResolvedValue([mockPlan.id]);
 
       jest
-        .spyOn(stripeManager, 'getPlanByInterval')
+        .spyOn(priceManager, 'retrieveByInterval')
         .mockResolvedValue(mockPlan);
 
       const result = await contentfulService.retrieveStripePlanId(
@@ -108,7 +108,7 @@ describe('ContentfulService', () => {
         .mockResolvedValue([mockPlan.id]);
 
       jest
-        .spyOn(stripeManager, 'getPlanByInterval')
+        .spyOn(priceManager, 'retrieveByInterval')
         .mockResolvedValue(undefined);
 
       await expect(
