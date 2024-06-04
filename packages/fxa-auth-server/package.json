@@ -221,7 +221,8 @@
   },
   "nx": {
     "tags": [
-      "scope:server:auth"
+      "scope:server:auth",
+      "type:core"
     ]
   }
 }

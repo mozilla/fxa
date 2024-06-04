@@ -197,7 +197,8 @@
   },
   "nx": {
     "tags": [
-      "scope:frontend"
+      "scope:frontend",
+      "type:sp2"
     ]
   }
 }

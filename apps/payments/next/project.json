@@ -118,5 +118,5 @@
       }
     }
   },
-  "tags": ["app", "payments"]
+  "tags": ["app", "payments", "type:sp3"]
 }

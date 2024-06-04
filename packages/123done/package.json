@@ -46,7 +46,8 @@
   },
   "nx": {
     "tags": [
-      "scope:demo"
+      "scope:demo",
+      "type:demo"
     ]
   }
 }

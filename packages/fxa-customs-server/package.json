@@ -68,7 +68,8 @@
   },
   "nx": {
     "tags": [
-      "scope:server"
+      "scope:server",
+      "type:core"
     ]
   }
 }
