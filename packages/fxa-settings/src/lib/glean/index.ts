@@ -321,6 +321,7 @@ export const GleanMetrics: Pick<
         Glean.initialize(config.applicationId, config.uploadEnabled, {
           appDisplayVersion: config.appDisplayVersion,
           channel: config.channel,
+          enableAutoPageLoadEvents: true,
           serverEndpoint: config.serverEndpoint,
         });
         Glean.setLogPings(config.logPings);
