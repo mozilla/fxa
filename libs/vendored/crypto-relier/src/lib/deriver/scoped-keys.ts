@@ -2,8 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { subtle } from 'crypto';
-import * as jose from 'jose';
+import base64url from 'base64url';
 import HKDF from 'node-hkdf';
 
 const KEY_LENGTH = 48;
@@ -108,8 +107,8 @@ export class ScopedKeys {
     const k = key.slice(16, 48);
     const keyTimestamp = Math.round(options.keyRotationTimestamp / 1000);
 
-    scopedKey.k = jose.base64url.encode(k);
-    scopedKey.kid = keyTimestamp + '-' + jose.base64url.encode(kid);
+    scopedKey.k = base64url.encode(k);
+    scopedKey.kid = keyTimestamp + '-' + base64url.encode(kid);
 
     return scopedKey;
   }
@@ -149,13 +148,16 @@ export class ScopedKeys {
       contextBuf,
       64
     );
-    scopedKey.k = jose.base64url.encode(Buffer.from(key));
+    scopedKey.k = base64url.encode(Buffer.from(key));
 
-    const kHash = await subtle.digest('SHA-256', Buffer.from(inputKeyBuf));
+    const kHash = await crypto.subtle.digest(
+      'SHA-256',
+      Buffer.from(inputKeyBuf)
+    );
     scopedKey.kid =
       options.keyRotationTimestamp +
       '-' +
-      jose.base64url.encode(Buffer.from(kHash.slice(0, 16)));
+      base64url.encode(Buffer.from(kHash.slice(0, 16)));
     return scopedKey;
   }
 

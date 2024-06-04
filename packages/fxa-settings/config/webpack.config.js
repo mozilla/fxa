@@ -73,6 +73,8 @@ const cssModuleRegex = /\.module\.css$/;
 const sassRegex = /\.(scss|sass)$/;
 const sassModuleRegex = /\.module\.(scss|sass)$/;
 
+require('module-alias/register');
+
 const hasJsxRuntime = (() => {
   if (process.env.DISABLE_NEW_JSX_TRANSFORM === 'true') {
     return false;
@@ -328,9 +330,7 @@ module.exports = function (webpackEnv) {
           'react-dom$': 'react-dom/profiling',
           'scheduler/tracing': 'scheduler/tracing-profiling',
         }),
-        fxaCryptoDeriver: require.resolve(
-          'fxa-crypto-relier/dist/fxa-crypto-relier/fxa-crypto-deriver'
-        ),
+        fxaCryptoDeriver: require.resolve('@fxa/vendored/crypto-relier'),
         ...(modules.webpackAliases || {}),
       },
       plugins: [
@@ -355,6 +355,11 @@ module.exports = function (webpackEnv) {
       fallback: {
         fs: false,
         path: false,
+        buffer: require.resolve('buffer/'),
+        crypto: require.resolve('crypto-browserify'),
+        stream: require.resolve('stream-browserify'),
+        'process/browser': require.resolve('process/browser'),
+        zlib: require.resolve('browserify-zlib'),
       },
     },
     module: {
@@ -588,6 +593,9 @@ module.exports = function (webpackEnv) {
       ].filter(Boolean),
     },
     plugins: [
+      new webpack.ProvidePlugin({
+        process: 'process/browser',
+      }),
       // Generates an `index.html` file with the <script> injected.
       new HtmlWebpackPlugin(
         Object.assign(

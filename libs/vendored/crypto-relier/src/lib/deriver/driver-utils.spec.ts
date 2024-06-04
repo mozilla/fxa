@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import * as jose from 'jose';
+import base64url from 'base64url';
 
 import { DeriverUtils } from './deriver-utils';
 
 describe('DeriverUtils', () => {
   const deriverUtils = new DeriverUtils();
-  const b64urlencode = jose.base64url.encode;
+  const b64urlencode = base64url.encode;
 
   const exampleScope = 'https://identity.mozilla.com/apps/notes';
   const keySample = {
@@ -97,7 +97,7 @@ describe('DeriverUtils', () => {
       );
       await expect(
         deriverUtils.encryptBundle(appPublicKeyJwk, JSON.stringify(keySample))
-      ).rejects.toThrow('Invalid JWK EC key');
+      ).rejects.toThrow('invalid EC public key');
     });
   });
 });

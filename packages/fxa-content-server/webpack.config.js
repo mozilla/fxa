@@ -45,6 +45,8 @@ const webpackConfig = {
       buffer: require.resolve('buffer/'),
       crypto: require.resolve('crypto-browserify'),
       stream: require.resolve('stream-browserify'),
+      'process/browser': require.resolve('process/browser'),
+      zlib: require.resolve('browserify-zlib'),
     },
     modules: [
       path.resolve(__dirname, 'app/scripts'),
@@ -62,8 +64,9 @@ const webpackConfig = {
       draggable: require.resolve('jquery-ui/ui/widgets/draggable'),
       duration: require.resolve('duration-js/duration'),
       'fast-text-encoding': require.resolve('fast-text-encoding'),
-      fxaCryptoDeriver: require.resolve(
-        'fxa-crypto-relier/dist/fxa-crypto-relier/fxa-crypto-deriver'
+      fxaCryptoDeriver: path.resolve(
+        __dirname,
+        '../../dist/libs/vendored/crypto-relier/src/lib/deriver/index.js'
       ),
       fxaPairingChannel: require.resolve(
         'fxa-pairing-channel/dist/FxAccountsPairingChannel.babel.umd.js'
@@ -234,6 +237,9 @@ const webpackConfig = {
       ],
     }),
     new webpack.ProvidePlugin({ Buffer: ['buffer', 'Buffer'] }),
+    new webpack.ProvidePlugin({
+      process: 'process/browser',
+    }),
   ],
 
   stats: { colors: true },
