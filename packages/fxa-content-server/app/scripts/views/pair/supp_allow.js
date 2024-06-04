@@ -9,6 +9,7 @@ import FormView from '../form';
 import DeviceBeingPairedMixin from './device-being-paired-mixin';
 import preventDefaultThen from '../decorators/prevent_default_then';
 import Template from '../../templates/pair/supp_allow.mustache';
+import GleanMetrics from '../../lib/glean';
 
 class PairSuppAllowView extends FormView {
   template = Template;
@@ -19,6 +20,11 @@ class PairSuppAllowView extends FormView {
 
   setInitialContext(context) {
     context.set(this.model.pick('deviceName', 'email'));
+  }
+
+  logView() {
+    GleanMetrics.cadMobilePair.view();
+    return FormView.prototype.logView.call(this);
   }
 
   submit() {

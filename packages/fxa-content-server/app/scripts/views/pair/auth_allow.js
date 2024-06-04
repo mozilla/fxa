@@ -10,6 +10,7 @@ import FormView from '../form';
 import Template from '../../templates/pair/auth_allow.mustache';
 import { assign } from 'underscore';
 import preventDefaultThen from '../decorators/prevent_default_then';
+import GleanMetrics from '../../lib/glean';
 
 class PairAuthAllowView extends FormView {
   template = Template;
@@ -22,6 +23,11 @@ class PairAuthAllowView extends FormView {
     context.set({
       email: this.broker.get('browserSignedInAccount').email,
     });
+  }
+
+  logView() {
+    GleanMetrics.cadApproveDevice.view();
+    return FormView.prototype.logView.call(this);
   }
 
   beforeRender() {

@@ -12,6 +12,8 @@ import * as login from './login';
 import * as cachedLogin from './cachedLogin';
 import * as passwordReset from './passwordReset';
 import * as cadFirefox from './cadFirefox';
+import * as cadApproveDevice from './cadApproveDevice';
+import * as cadMobilePair from './cadMobilePair';
 import { userIdSha256 } from './account';
 import { oauthClientId, service } from './relyingParty';
 import { deviceType, entrypoint, flowId } from './session';
@@ -238,6 +240,12 @@ const recordEventMetric = (eventName: string, properties: EventProperties) => {
     case 'cad_firefox_sync_device_submit':
       cadFirefox.syncDeviceSubmit.record();
       break;
+    case 'cad_approve_device_view':
+      cadApproveDevice.view.record();
+      break;
+    case 'cad_mobile_pair_view':
+      cadMobilePair.view.record();
+      break;
   }
 };
 
@@ -341,6 +349,12 @@ export const GleanMetrics = {
     choiceEngage: createEventFn('cad_firefox_choice_engage'),
     choiceSubmit: createEventFn('cad_firefox_choice_submit'),
     syncDeviceSubmit: createEventFn('cad_firefox_sync_device_submit'),
+  },
+  cadMobilePair: {
+    view: createEventFn('cad_mobile_pair_view'),
+  },
+  cadApproveDevice: {
+    view: createEventFn('cad_approve_device_view'),
   },
 };
 
