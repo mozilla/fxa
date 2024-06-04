@@ -274,6 +274,7 @@
   "packageManager": "yarn@3.3.0",
   "_moduleAliases": {
     "@fxa/vendored/jwtool": "./dist/libs/vendored/jwtool/src/index.js",
+    "@fxa/vendored/crypto-relier": "./dist/libs/vendored/crypto-relier/src/index.js",
     "@fxa/shared/pem-jwk": "./dist/libs/shared/pem-jwk/src/index.js",
     "@fxa/shared/l10n": "./dist/libs/shared/l10n/src/index.js"
   }

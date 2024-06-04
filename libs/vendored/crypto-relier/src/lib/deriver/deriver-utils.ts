@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import * as jose from 'jose';
+import * as jose from 'node-jose';
 
 /**
  * Scoped key deriver utilities
@@ -17,28 +17,38 @@ export class DeriverUtils {
    * @returns {Promise}
    */
   async encryptBundle(appPublicKeyJwk: string, bundle: string) {
-    const rawKey = jose.decodeJwt('.' + appPublicKeyJwk + '.');
-    const key = await jose.importJWK(rawKey);
+    bundle = jose.util.asBuffer(bundle);
+    const appJwk = jose.util.base64url.decode(appPublicKeyJwk);
+
+    const key = await jose.JWK.asKey(appJwk);
 
     // To help reliers do the right thing, we reject keys that aren't exactly as we expect.
     // In the future we might open up to additional key types, but for now it's better to
     // be strict in what we accept.
-    if (rawKey.kty !== 'EC') {
+    if (key.kty !== 'EC') {
       throw new Error('appJwk is not an EC key');
     }
-    if (rawKey.crv !== 'P-256') {
+    if (key.get('crv') !== 'P-256') {
       throw new Error('appJwk is not on curve P-256');
     }
-    if ('d' in rawKey) {
+    if (key.has('d', true)) {
       throw new Error('appJwk includes the private key');
     }
-
-    return new jose.CompactEncrypt(new TextEncoder().encode(bundle))
-      .setProtectedHeader({
+    const recipient = {
+      key: key,
+      header: {
         alg: 'ECDH-ES',
-        enc: 'A256GCM',
-        kid: rawKey.kid as any,
-      })
-      .encrypt(key);
+      },
+    };
+
+    const jwe = jose.JWE.createEncrypt(
+      {
+        format: 'compact',
+        contentAlg: 'A256GCM',
+      },
+      recipient
+    );
+
+    return jwe.update(bundle).final();
   }
 }

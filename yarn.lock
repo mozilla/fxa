@@ -27621,7 +27621,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"base64url@npm:^3.0.0, base64url@npm:^3.0.1":
+"base64url@npm:^3.0.1":
   version: 3.0.1
   resolution: "base64url@npm:3.0.1"
   checksum: a77b2a3a526b3343e25be424de3ae0aa937d78f6af7c813ef9020ef98001c0f4e2323afcd7d8b2d2978996bf8c42445c3e9f60c218c622593e5fdfd54a3d6e18
@@ -34002,7 +34002,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"es6-promise@npm:^4.0.5, es6-promise@npm:^4.1.1":
+"es6-promise@npm:^4.1.1":
   version: 4.2.4
   resolution: "es6-promise@npm:4.2.4"
   checksum: 69106a5855839e3f923a4fe0ea6b9ff7d6f0171e958d16054655f43b53a349408477211392887ccb04827a010806389bb87da3aa26b48972bc818bfd2cee5ce9
@@ -37979,6 +37979,7 @@ fsevents@~2.1.1:
     backbone.cocktail: 0.5.15
     base32-decode: 1.0.0
     body-parser: ^1.20.1
+    browserify-zlib: ^0.2.0
     buffer: ^6.0.3
     cache-loader: ^4.1.0
     chai: ^4.3.6
@@ -38007,7 +38008,6 @@ fsevents@~2.1.1:
     fxa-auth-client: "workspace:*"
     fxa-auth-server: "workspace:*"
     fxa-common-password-list: 0.0.4
-    fxa-crypto-relier: 2.7.0
     fxa-geodb: "workspace:*"
     fxa-mustache-loader: 0.0.2
     fxa-pairing-channel: 1.0.2
@@ -38103,17 +38103,6 @@ fsevents@~2.1.1:
     yargs: ^17.0.1
   languageName: unknown
   linkType: soft
-
-"fxa-crypto-relier@npm:2.7.0, fxa-crypto-relier@npm:^2.7.0":
-  version: 2.7.0
-  resolution: "fxa-crypto-relier@npm:2.7.0"
-  dependencies:
-    base64url: ^3.0.0
-    node-hkdf: 0.0.2
-    node-jose: 1.0.0
-  checksum: 42cdc3f7e9323ed71ee67f1ac88cc1345cba4808fdc58319dc5a72566b16972feb32d8680bf6c0dd44ca212024cf36d9ab2fc2a3bd175dd003fdd1af012b4f9e
-  languageName: node
-  linkType: hard
 
 "fxa-customs-server@workspace:*, fxa-customs-server@workspace:packages/fxa-customs-server":
   version: 0.0.0-use.local
@@ -38598,10 +38587,12 @@ fsevents@~2.1.1:
     base32-decode: ^1.0.0
     base32-encode: ^1.2.0
     bfj: ^8.0.0
+    browserify-zlib: ^0.2.0
     browserslist: ^4.23.0
     camelcase: ^6.2.1
     case-sensitive-paths-webpack-plugin: ^2.4.0
     classnames: ^2.5.1
+    crypto-browserify: ^3.12.0
     css-loader: ^6.8.1
     css-minimizer-webpack-plugin: ^6.0.0
     dotenv: ^16.4.5
@@ -38616,7 +38607,6 @@ fsevents@~2.1.1:
     fs-extra: ^11.2.0
     fxa-auth-client: "workspace:*"
     fxa-common-password-list: ^0.0.4
-    fxa-crypto-relier: ^2.7.0
     fxa-react: "workspace:*"
     fxa-shared: "workspace:*"
     get-orientation: ^1.1.2
@@ -38661,6 +38651,7 @@ fsevents@~2.1.1:
     source-map-loader: ^5.0.0
     storybook: ^7.0.23
     storybook-addon-rtl: ^0.5.0
+    stream-browserify: ^3.0.0
     style-loader: ^4.0.0
     subscriptions-transport-ws: ^0.11.0
     tailwindcss: ^3.4.1
@@ -47519,13 +47510,6 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"lodash.assign@npm:^4.0.8":
-  version: 4.2.0
-  resolution: "lodash.assign@npm:4.2.0"
-  checksum: 75bbc6733c9f577c448031b4051f990f068802708891f94be9d4c2faffd6a9ec67a2c49671dafc908a068d35687765464853282842b4560b662e6c903d11cc90
-  languageName: node
-  linkType: hard
-
 "lodash.camelcase@npm:^4.3.0":
   version: 4.3.0
   resolution: "lodash.camelcase@npm:4.3.0"
@@ -47537,13 +47521,6 @@ fsevents@~2.1.1:
   version: 4.2.0
   resolution: "lodash.chunk@npm:4.2.0"
   checksum: 6286c6d06814fbeda502164015c42ef53a9194e6ebaac52ec2b41e83344aefe7bc3d94fdfec525adcd2c66cefdf05dc333b6a1128e4de739797342315c17cbc7
-  languageName: node
-  linkType: hard
-
-"lodash.clone@npm:^4.3.2":
-  version: 4.5.0
-  resolution: "lodash.clone@npm:4.5.0"
-  checksum: 5839f22acf3a43c026ac4325f7bcd378f34967415cd0b9fd7efa9bbbf38dc665900d36e040944c5afab94a51ff8a24f6cfc3781fe439705cbad5c722e9506b16
   languageName: node
   linkType: hard
 
@@ -47568,14 +47545,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"lodash.fill@npm:^3.2.2":
-  version: 3.4.0
-  resolution: "lodash.fill@npm:3.4.0"
-  checksum: 1d13791f09f47d04b2fc8375fda9d414d103705f243f3f4e4e81ba1fb4abb91eac1da34ac5a6632c6f2aced8b647dfba9fcbe7b1ca3ad0243c572938511332fc
-  languageName: node
-  linkType: hard
-
-"lodash.flatten@npm:^4.2.0, lodash.flatten@npm:^4.4.0":
+"lodash.flatten@npm:^4.4.0":
   version: 4.4.0
   resolution: "lodash.flatten@npm:4.4.0"
   checksum: 0ac34a393d4b795d4b7421153d27c13ae67e08786c9cbb60ff5b732210d46f833598eee3fb3844bb10070e8488efe390ea53bb567377e0cb47e9e630bf0811cb
@@ -47610,13 +47580,6 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"lodash.intersection@npm:^4.1.2":
-  version: 4.4.0
-  resolution: "lodash.intersection@npm:4.4.0"
-  checksum: 98935dcba1bbb981c3927e3822f6f6f344736c881df4b622e4e40ca4a125490425449e23179f46294a1b4c351de4e9a7bb60207cc6ddd65ecfd45ef727d35123
-  languageName: node
-  linkType: hard
-
 "lodash.isarguments@npm:^3.1.0":
   version: 3.1.0
   resolution: "lodash.isarguments@npm:3.1.0"
@@ -47645,14 +47608,14 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"lodash.merge@npm:4.6.2, lodash.merge@npm:^4.3.5, lodash.merge@npm:^4.6.2":
+"lodash.merge@npm:4.6.2, lodash.merge@npm:^4.6.2":
   version: 4.6.2
   resolution: "lodash.merge@npm:4.6.2"
   checksum: ad580b4bdbb7ca1f7abf7e1bce63a9a0b98e370cf40194b03380a46b4ed799c9573029599caebc1b14e3f24b111aef72b96674a56cfa105e0f5ac70546cdc005
   languageName: node
   linkType: hard
 
-"lodash.omit@npm:4.5.0, lodash.omit@npm:^4.2.1":
+"lodash.omit@npm:4.5.0":
   version: 4.5.0
   resolution: "lodash.omit@npm:4.5.0"
   checksum: 434645e49fe84ab315719bd5a9a3a585a0f624aa4160bc09157dd041a414bcc287c15840365c1379476a3f3eda41fbe838976c3f7bdecbbf4c5478e86c471a30
@@ -47673,14 +47636,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"lodash.partialright@npm:^4.1.3":
-  version: 4.2.1
-  resolution: "lodash.partialright@npm:4.2.1"
-  checksum: cfae6034743d50280483eb62a76d263ec70ed5d9da3e4a8236ddb2c964280119cf54768bd6550e50e68169340c0aa7ce2e60bd9a0c9d065f8602e92c4b85ae74
-  languageName: node
-  linkType: hard
-
-"lodash.pick@npm:4.4.0, lodash.pick@npm:^4.2.0, lodash.pick@npm:^4.4.0":
+"lodash.pick@npm:4.4.0, lodash.pick@npm:^4.4.0":
   version: 4.4.0
   resolution: "lodash.pick@npm:4.4.0"
   checksum: 2c36cab7da6b999a20bd3373b40e31a3ef81fa264f34a6979c852c5bc8ac039379686b27380f0cb8e3781610844fafec6949c6fbbebc059c98f8fa8570e3675f
@@ -47715,7 +47671,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"lodash.uniq@npm:^4.2.1, lodash.uniq@npm:^4.5.0":
+"lodash.uniq@npm:^4.5.0":
   version: 4.5.0
   resolution: "lodash.uniq@npm:4.5.0"
   checksum: a4779b57a8d0f3c441af13d9afe7ecff22dd1b8ce1129849f71d9bbc8e8ee4e46dfb4b7c28f7ad3d67481edd6e51126e4e2a6ee276e25906d10f7140187c392d
@@ -50793,7 +50749,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"node-hkdf@npm:0.0.2, node-hkdf@npm:^0.0.2":
+"node-hkdf@npm:^0.0.2":
   version: 0.0.2
   resolution: "node-hkdf@npm:0.0.2"
   checksum: 20ce3a8877f96e8cd058cd8049caa24a559d69fb0c95d68449e25b36c954ee3018522e74ead9a22728061b0d3273dcd2b3b45bc7a8303943a64dc09a1b9ae807
@@ -50804,29 +50760,6 @@ fsevents@~2.1.1:
   version: 0.4.0
   resolution: "node-int64@npm:0.4.0"
   checksum: d0b30b1ee6d961851c60d5eaa745d30b5c95d94bc0e74b81e5292f7c42a49e3af87f1eb9e89f59456f80645d679202537de751b7d72e9e40ceea40c5e449057e
-  languageName: node
-  linkType: hard
-
-"node-jose@npm:1.0.0":
-  version: 1.0.0
-  resolution: "node-jose@npm:1.0.0"
-  dependencies:
-    base64url: ^3.0.0
-    es6-promise: ^4.0.5
-    lodash.assign: ^4.0.8
-    lodash.clone: ^4.3.2
-    lodash.fill: ^3.2.2
-    lodash.flatten: ^4.2.0
-    lodash.intersection: ^4.1.2
-    lodash.merge: ^4.3.5
-    lodash.omit: ^4.2.1
-    lodash.partialright: ^4.1.3
-    lodash.pick: ^4.2.0
-    lodash.uniq: ^4.2.1
-    long: ^4.0.0
-    node-forge: ^0.7.1
-    uuid: ^3.0.1
-  checksum: 21cc8f1b72a872189632ea33e6e750bd5c196875fe1d8cd73bd15450194d5a3dbe00402450fa871fce75cec058eb7096d412b33cc1569cb083bece7bfd84bdff
   languageName: node
   linkType: hard
 
@@ -64628,7 +64561,7 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"uuid@npm:^3.0.1, uuid@npm:^3.1.0, uuid@npm:^3.2.1, uuid@npm:^3.3.2, uuid@npm:^3.3.3":
+"uuid@npm:^3.1.0, uuid@npm:^3.2.1, uuid@npm:^3.3.2, uuid@npm:^3.3.3":
   version: 3.4.0
   resolution: "uuid@npm:3.4.0"
   bin:
