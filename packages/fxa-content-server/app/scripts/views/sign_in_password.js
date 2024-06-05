@@ -11,6 +11,7 @@ import FlowEventsMixin from './mixins/flow-events-mixin';
 import FormPrefillMixin from './mixins/form-prefill-mixin';
 import FormView from './form';
 import GleanMetrics from '../lib/glean';
+import Nimbus from '../lib/nimbus';
 import PasswordMixin from './mixins/password-mixin';
 import preventDefaultThen from './decorators/prevent_default_then';
 import ServiceMixin from './mixins/service-mixin';
@@ -96,6 +97,7 @@ const SignInPasswordView = FormView.extend({
     const hasLinkedAccountAndNoPassword = hasLinkedAccount && !hasPassword;
     context.set({
       email: account.get('email'),
+      nimbusExperiments: Nimbus.experiments,
       isPasswordNeeded: this.isPasswordNeededForAccount(account) && hasPassword,
       hasLinkedAccountAndNoPassword: hasLinkedAccount && !hasPassword,
       hasLinkedAccount: hasLinkedAccount,
