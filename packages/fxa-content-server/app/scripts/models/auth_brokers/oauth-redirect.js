@@ -12,6 +12,7 @@ import HaltBehavior from '../../views/behaviors/halt';
 import NullBehavior from '../../views/behaviors/null';
 import NavigateBehavior from '../../views/behaviors/navigate';
 import OAuthErrors from '../../lib/oauth-errors';
+import OAuthPrompt from '../../lib/oauth-prompt';
 import p from '../../lib/promise';
 import ScopedKeys from 'lib/crypto/scoped-keys';
 import Transform from '../../lib/transform';
@@ -159,10 +160,16 @@ export default BaseAuthenticationBroker.extend({
         }
       }
 
-      this.window.location.href = Url.updateSearchString(
-        result.redirect,
-        extraParams
-      );
+      if (this.relier.get('prompt') === OAuthPrompt.NONE) {
+        this.window.location.replace(
+          Url.updateSearchString(result.redirect, extraParams)
+        );
+      } else {
+        this.window.location.href = Url.updateSearchString(
+          result.redirect,
+          extraParams
+        );
+      }
     });
   },
 

@@ -7,6 +7,7 @@ import { assert } from 'chai';
 import AuthErrors from 'lib/auth-errors';
 import Constants from 'lib/constants';
 import OAuthErrors from 'lib/oauth-errors';
+import OAuthPrompt from 'lib/oauth-prompt';
 import RedirectAuthenticationBroker from 'models/auth_brokers/oauth-redirect';
 import Relier from 'models/reliers/base';
 import Session from 'lib/session';
@@ -58,6 +59,7 @@ describe('models/auth_brokers/oauth-redirect', () => {
     user = new User();
 
     windowMock = new WindowMock();
+    sinon.spy(windowMock.location, 'replace');
 
     account = user.initAccount({
       sessionToken: 'abc123',
@@ -266,6 +268,19 @@ describe('models/auth_brokers/oauth-redirect', () => {
         });
         assert.isTrue(metrics.flush.calledOnce);
         assert.equal(windowMock.location.href, `${REDIRECT_TO}?state=state`);
+        sinon.assert.notCalled(windowMock.location.replace);
+      });
+
+      it('for prompt none, flushes metrics, prepares window to be closed, and replaces', async () => {
+        relier.set({ prompt: OAuthPrompt.NONE });
+        await broker.sendOAuthResultToRelier({
+          redirect: REDIRECT_TO,
+        });
+        assert.isTrue(metrics.flush.calledOnce);
+        sinon.assert.calledWith(
+          windowMock.location.replace,
+          `${REDIRECT_TO}?state=state`
+        );
       });
     });
 
