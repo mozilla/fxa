@@ -80,7 +80,6 @@ export class CheckoutService {
       await this.accountCustomerManager.createAccountCustomer({
         uid: uid,
         stripeCustomerId: stripeCustomerId,
-        updatedAt: Date.now(),
       });
     }
 

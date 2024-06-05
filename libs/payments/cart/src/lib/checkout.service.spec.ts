@@ -270,7 +270,6 @@ describe('CheckoutService', () => {
         ).toHaveBeenCalledWith({
           uid: uid,
           stripeCustomerId: mockCart.stripeCustomerId,
-          updatedAt: Date.now(),
         });
       });
     });
