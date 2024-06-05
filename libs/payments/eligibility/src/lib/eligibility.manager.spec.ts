@@ -5,7 +5,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
 import {
-  StripeManager,
+  PriceManager,
   StripePlan,
   StripePlanFactory,
   SubplatInterval,
@@ -34,7 +34,7 @@ describe('EligibilityManager', () => {
   let mockContentfulManager: ContentfulManager;
   let mockOfferingResult: EligibilityContentByOfferingResultUtil;
   let mockResult: EligibilityContentByPlanIdsResultUtil;
-  let mockStripeManager: StripeManager;
+  let mockPriceManager: PriceManager;
 
   beforeEach(async () => {
     mockOfferingResult = {} as EligibilityContentByOfferingResultUtil;
@@ -47,14 +47,14 @@ describe('EligibilityManager', () => {
         .fn()
         .mockResolvedValueOnce(mockResult),
     } as any;
-    mockStripeManager = {
-      getPlanByInterval: jest.fn(),
+    mockPriceManager = {
+      retrieveByInterval: jest.fn(),
     } as any;
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         { provide: ContentfulManager, useValue: mockContentfulManager },
-        { provide: StripeManager, useValue: mockStripeManager },
+        { provide: PriceManager, useValue: mockPriceManager },
         EligibilityManager,
       ],
     }).compile();
@@ -624,7 +624,7 @@ describe('EligibilityManager', () => {
       });
       const interval = SubplatInterval.Monthly;
 
-      mockStripeManager.getPlanByInterval = jest
+      mockPriceManager.retrieveByInterval = jest
         .fn()
         .mockResolvedValueOnce(mockPlan2);
 
@@ -658,7 +658,7 @@ describe('EligibilityManager', () => {
         },
       ] as OfferingOverlapProductResult[];
 
-      mockStripeManager.getPlanByInterval = jest
+      mockPriceManager.retrieveByInterval = jest
         .fn()
         .mockResolvedValueOnce(mockPlan2);
 
@@ -692,7 +692,7 @@ describe('EligibilityManager', () => {
         },
       ] as OfferingOverlapProductResult[];
 
-      mockStripeManager.getPlanByInterval = jest
+      mockPriceManager.retrieveByInterval = jest
         .fn()
         .mockResolvedValueOnce(mockPlan2);
 

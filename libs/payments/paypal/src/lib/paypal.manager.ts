@@ -6,9 +6,11 @@ import { Injectable } from '@nestjs/common';
 
 import {
   ACTIVE_SUBSCRIPTION_STATUSES,
+  CustomerManager,
+  InvoiceManager,
   StripeCustomer,
   StripeInvoice,
-  StripeManager,
+  SubscriptionManager,
 } from '@fxa/payments/stripe';
 import { PayPalClient } from './paypal.client';
 import { BillingAgreement, BillingAgreementStatus } from './paypal.types';
@@ -21,7 +23,9 @@ import { PaypalManagerError } from './paypal.error';
 export class PayPalManager {
   constructor(
     private client: PayPalClient,
-    private stripeManager: StripeManager,
+    private customerManager: CustomerManager,
+    private subscriptionManager: SubscriptionManager,
+    private invoiceManager: InvoiceManager,
     private paypalCustomerManager: PaypalCustomerManager
   ) {}
 
@@ -122,11 +126,11 @@ export class PayPalManager {
     return firstRecord.billingAgreementId;
   }
 
-  /**
-   * Retrieves PayPal subscriptions
-   */
+  // TODO: This should be moved to the subscription manager
   async getCustomerPayPalSubscriptions(customerId: string) {
-    const subscriptions = await this.stripeManager.getSubscriptions(customerId);
+    const subscriptions = await this.subscriptionManager.listForCustomer(
+      customerId
+    );
     if (!subscriptions) return [];
     return subscriptions.filter(
       (sub) =>
@@ -164,7 +168,7 @@ export class PayPalManager {
     // It appears for subscriptions that do not require payment, the invoice
     // transitions to paid automatially.
     // https://stripe.com/docs/billing/invoices/subscription#sub-invoice-lifecycle
-    return this.stripeManager.finalizeInvoiceWithoutAutoAdvance(invoiceId);
+    return this.invoiceManager.finalizeWithoutAutoAdvance(invoiceId);
   }
 
   /**
@@ -176,14 +180,15 @@ export class PayPalManager {
     if (!invoice.customer) throw new Error('Customer not present on invoice');
     const amountInCents = invoice.amount_due;
 
-    if (amountInCents < this.stripeManager.getMinimumAmount(invoice.currency)) {
+    if (
+      amountInCents <
+      this.subscriptionManager.getMinimumAmount(invoice.currency)
+    ) {
       await this.processZeroInvoice(invoice.id);
       return;
     }
 
-    const customer = await this.stripeManager.fetchActiveCustomer(
-      invoice.customer
-    );
+    const customer = await this.customerManager.retrieve(invoice.customer);
     await this.processNonZeroInvoice(customer, invoice);
   }
 

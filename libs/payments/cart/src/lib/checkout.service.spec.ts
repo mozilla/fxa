@@ -11,7 +11,6 @@ import {
   StripeConfig,
   StripeCustomerFactory,
   StripeInvoiceFactory,
-  StripeManager,
   StripePaymentIntentFactory,
   StripePaymentMethodFactory,
   StripePriceFactory,
@@ -22,6 +21,11 @@ import {
   InvoicePreviewFactory,
   AccountCustomerManager,
   ResultAccountCustomerFactory,
+  CustomerManager,
+  SubscriptionManager,
+  InvoiceManager,
+  PromotionCodeManager,
+  PriceManager,
 } from '@fxa/payments/stripe';
 import {
   PayPalClient,
@@ -64,7 +68,10 @@ import { AccountManager } from '@fxa/shared/account/account';
 describe('CheckoutService', () => {
   let checkoutService: CheckoutService;
   let stripeClient: StripeClient;
-  let stripeManager: StripeManager;
+  let customerManager: CustomerManager;
+  let subscriptionManager: SubscriptionManager;
+  let invoiceManager: InvoiceManager;
+  let promotionCodeManager: PromotionCodeManager;
   let paypalCustomerManager: PaypalCustomerManager;
   let paypalManager: PayPalManager;
   let cartManager: CartManager;
@@ -77,7 +84,11 @@ describe('CheckoutService', () => {
     const moduleRef = await Test.createTestingModule({
       providers: [
         StripeClient,
-        StripeManager,
+        CustomerManager,
+        SubscriptionManager,
+        InvoiceManager,
+        PromotionCodeManager,
+        PriceManager,
         PaypalCustomerManager,
         PayPalManager,
         CheckoutService,
@@ -106,7 +117,10 @@ describe('CheckoutService', () => {
     paypalCustomerManager = moduleRef.get(PaypalCustomerManager);
     paypalManager = moduleRef.get(PayPalManager);
     stripeClient = moduleRef.get(StripeClient);
-    stripeManager = moduleRef.get(StripeManager);
+    customerManager = moduleRef.get(CustomerManager);
+    subscriptionManager = moduleRef.get(SubscriptionManager);
+    invoiceManager = moduleRef.get(InvoiceManager);
+    promotionCodeManager = moduleRef.get(PromotionCodeManager);
     contentfulService = moduleRef.get(ContentfulService);
     accountManager = moduleRef.get(AccountManager);
     accountCustomerManager = moduleRef.get(AccountCustomerManager);
@@ -160,12 +174,8 @@ describe('CheckoutService', () => {
 
     beforeEach(async () => {
       jest.spyOn(accountManager, 'createAccountStub').mockResolvedValue(uid);
-      jest
-        .spyOn(stripeManager, 'createPlainCustomer')
-        .mockResolvedValue(mockCustomer);
-      jest
-        .spyOn(stripeManager, 'fetchActiveCustomer')
-        .mockResolvedValue(mockCustomer);
+      jest.spyOn(customerManager, 'create').mockResolvedValue(mockCustomer);
+      jest.spyOn(customerManager, 'retrieve').mockResolvedValue(mockCustomer);
       jest
         .spyOn(accountCustomerManager, 'createAccountCustomer')
         .mockResolvedValue(mockAccountCustomer);
@@ -177,13 +187,13 @@ describe('CheckoutService', () => {
         .spyOn(contentfulService, 'retrieveStripePlanId')
         .mockResolvedValue(mockPrice.id);
       jest
-        .spyOn(stripeManager, 'previewInvoice')
+        .spyOn(invoiceManager, 'preview')
         .mockResolvedValue(mockInvoicePreview);
       jest
-        .spyOn(stripeManager, 'cancelIncompleteSubscriptionsToPrice')
+        .spyOn(subscriptionManager, 'cancelIncompleteSubscriptionsToPrice')
         .mockResolvedValue();
       jest
-        .spyOn(stripeManager, 'getPromotionCodeByName')
+        .spyOn(promotionCodeManager, 'retrieveByName')
         .mockResolvedValue(mockPromotionCode);
     });
 
@@ -193,7 +203,7 @@ describe('CheckoutService', () => {
       });
 
       it('fetches the customer', () => {
-        expect(stripeManager.fetchActiveCustomer).toHaveBeenCalledWith(
+        expect(customerManager.retrieve).toHaveBeenCalledWith(
           mockCart.stripeCustomerId
         );
       });
@@ -216,16 +226,16 @@ describe('CheckoutService', () => {
 
       it('checks that customer does not have existing subscription to price', () => {
         expect(
-          stripeManager.cancelIncompleteSubscriptionsToPrice
+          subscriptionManager.cancelIncompleteSubscriptionsToPrice
         ).toHaveBeenCalledWith(mockCustomer.id, mockPrice.id);
       });
 
       it('checks if customer is stripe tax eligible', async () => {
-        expect(stripeManager.isCustomerStripeTaxEligible).toBeTruthy();
+        expect(customerManager.isTaxEligible).toBeTruthy();
       });
 
       it('fetches promotion code by name', async () => {
-        expect(stripeManager.getPromotionCodeByName).toHaveBeenCalledWith(
+        expect(promotionCodeManager.retrieveByName).toHaveBeenCalledWith(
           mockCart.couponCode,
           true
         );
@@ -290,7 +300,7 @@ describe('CheckoutService', () => {
       });
 
       it('creates a new stripe customer stub account', () => {
-        expect(stripeManager.createPlainCustomer).toHaveBeenCalledWith({
+        expect(customerManager.create).toHaveBeenCalledWith({
           uid: uid,
           email: mockCart.email,
           displayName: mockCustomerData.displayName,
@@ -402,7 +412,7 @@ describe('CheckoutService', () => {
         .spyOn(stripeClient, 'paymentIntentRetrieve')
         .mockResolvedValue(mockPaymentIntent);
       jest
-        .spyOn(stripeManager, 'cancelSubscription')
+        .spyOn(subscriptionManager, 'cancel')
         .mockResolvedValue(mockSubscription);
     });
 
@@ -470,7 +480,7 @@ describe('CheckoutService', () => {
       });
 
       it('does not cancel the subscription', () => {
-        expect(stripeManager.cancelSubscription).not.toHaveBeenCalled();
+        expect(subscriptionManager.cancel).not.toHaveBeenCalled();
       });
     });
   });
@@ -523,7 +533,7 @@ describe('CheckoutService', () => {
         .mockResolvedValue(mockInvoice);
       jest.spyOn(paypalManager, 'processInvoice').mockResolvedValue();
       jest
-        .spyOn(stripeManager, 'cancelSubscription')
+        .spyOn(subscriptionManager, 'cancel')
         .mockResolvedValue(mockSubscription);
       jest.spyOn(paypalManager, 'cancelBillingAgreement').mockResolvedValue();
     });
@@ -594,7 +604,7 @@ describe('CheckoutService', () => {
       });
 
       it('does not cancel the subscription', () => {
-        expect(stripeManager.cancelSubscription).not.toHaveBeenCalled();
+        expect(subscriptionManager.cancel).not.toHaveBeenCalled();
       });
 
       it('does not cancel the billing agreement', () => {

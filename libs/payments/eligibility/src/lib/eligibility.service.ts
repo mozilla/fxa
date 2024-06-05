@@ -6,7 +6,7 @@ import { Injectable } from '@nestjs/common';
 import {
   getSubscribedPlans,
   getSubscribedProductIds,
-  StripeManager,
+  SubscriptionManager,
   SubplatInterval,
 } from '@fxa/payments/stripe';
 import { ContentfulManager } from '@fxa/shared/contentful';
@@ -18,7 +18,7 @@ export class EligibilityService {
   constructor(
     private contentfulManager: ContentfulManager,
     private eligibilityManager: EligibilityManager,
-    private stripeManager: StripeManager
+    private subscriptionManager: SubscriptionManager
   ) {}
 
   /**
@@ -40,7 +40,7 @@ export class EligibilityService {
 
     const targetOffering = targetOfferingResult.getOffering();
 
-    const subscriptions = await this.stripeManager.getSubscriptions(
+    const subscriptions = await this.subscriptionManager.listForCustomer(
       stripeCustomerId
     );
 

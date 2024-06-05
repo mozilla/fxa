@@ -18,7 +18,12 @@ import {
 import {
   AccountCustomerManager,
   StripeClient,
-  StripeManager,
+  CustomerManager,
+  InvoiceManager,
+  ProductManager,
+  PriceManager,
+  SubscriptionManager,
+  PromotionCodeManager,
 } from '@fxa/payments/stripe';
 import {
   ContentfulClient,
@@ -65,7 +70,12 @@ import { AccountManager } from '@fxa/shared/account/account';
     ContentfulClient,
     ContentfulManager,
     ContentfulService,
-    StripeManager,
+    CustomerManager,
+    InvoiceManager,
+    ProductManager,
+    PriceManager,
+    SubscriptionManager,
+    PromotionCodeManager,
     StripeClient,
     PayPalClient,
     PaypalCustomerManager,

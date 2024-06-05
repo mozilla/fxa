@@ -5,7 +5,7 @@
 import { Injectable } from '@nestjs/common';
 
 import {
-  StripeManager,
+  PriceManager,
   StripePlan,
   SubplatInterval,
 } from '@fxa/payments/stripe';
@@ -27,7 +27,7 @@ import { intervalComparison, offeringComparison } from './utils';
 export class EligibilityManager {
   constructor(
     private contentfulManager: ContentfulManager,
-    private stripeManager: StripeManager
+    private priceManager: PriceManager
   ) {}
 
   /**
@@ -116,7 +116,7 @@ export class EligibilityManager {
       return EligibilityStatus.DOWNGRADE;
 
     const targetPlanIds = targetOffering.defaultPurchase.stripePlanChoices;
-    const targetPlan = await this.stripeManager.getPlanByInterval(
+    const targetPlan = await this.priceManager.retrieveByInterval(
       targetPlanIds,
       interval
     );
