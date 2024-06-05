@@ -621,6 +621,14 @@ const conf = (module.exports = convict({
     env: 'PAGE_TEMPLATE_SUBDIRECTORY',
     format: ['src', 'dist'],
   },
+  nimbus: {
+    host: {
+      default: 'http://localhost:8001',
+      doc: 'Base URI for cirrus (Nimbus experimentation endpoint).',
+      env: 'NIMBUS_CIRRUS_HOST',
+      format: String,
+    },
+  },
   pairing: {
     clients: {
       default: [
