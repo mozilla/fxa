@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { useContext, useRef, useEffect, useMemo } from 'react';
+import { useContext, useRef, useEffect, useMemo, useState } from 'react';
 import { isHexadecimal, length } from 'class-validator';
 import { AppContext } from './contexts/AppContext';
 import {
@@ -30,6 +30,7 @@ import {
   SignedInAccountStatus,
 } from '../components/App/interfaces';
 import { RelierClientInfo, RelierSubscriptionInfo } from './integrations';
+import { initialzeNimbus } from '../lib/nimbus';
 
 export function useAccount() {
   const { account } = useContext(AppContext);
@@ -220,4 +221,32 @@ export function useInterval(callback: () => void, delay: number | null) {
 
     return () => window.clearInterval(id);
   }, [delay]);
+}
+
+export function useNimbusExperiments() {
+  // TODO: This pattern doesn't work very well, becauase the null state will be returned first. Then when the experiment
+  //       state is resovled, it'll be updated and result in a rerender of the react page.
+  //
+  //       Perhaps we need a loader now? Or some way to to make this syncrhonous, or some way to do this with out an async
+  //       http call...
+  //
+  const { uniqueUserId } = useContext(AppContext);
+  const [experiments, setExperiments] = useState<any | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      // TODO: Ensure this is always set
+      if (!uniqueUserId) {
+        setExperiments({});
+        return;
+      }
+
+      const nimbusExperiments = await initialzeNimbus(uniqueUserId, {
+        language: 'en',
+      });
+      setExperiments(nimbusExperiments);
+    })();
+  }, [uniqueUserId]);
+
+  return experiments;
 }

@@ -22,7 +22,11 @@ import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import GleanMetrics from '../../lib/glean';
 import { usePageViewEvent } from '../../lib/metrics';
 import { StoredAccountData, storeAccountData } from '../../lib/storage-utils';
-import { isOAuthIntegration, useFtlMsgResolver } from '../../models';
+import {
+  isOAuthIntegration,
+  useFtlMsgResolver,
+  useNimbusExperiments,
+} from '../../models';
 import {
   isClientMonitor,
   isClientPocket,
@@ -58,6 +62,11 @@ const Signin = ({
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const location = useLocation();
   const navigate = useNavigate();
+
+  // This pattern doesn't work well. We need to find something better.
+  const experiments = useNimbusExperiments();
+  const something = experiments?.['example-feature']?.something || 'nothing';
+
   const ftlMsgResolver = useFtlMsgResolver();
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
 
@@ -387,6 +396,8 @@ const Signin = ({
       {!hideThirdPartyAuth && (
         <ThirdPartyAuth showSeparator={!hasLinkedAccountAndNoPassword} />
       )}
+
+      <div id="test-test">!!! {something}</div>
 
       <TermsPrivacyAgreement {...{ isPocketClient, isMonitorClient }} />
 
