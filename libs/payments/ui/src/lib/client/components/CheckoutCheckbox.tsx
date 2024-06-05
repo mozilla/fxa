@@ -3,9 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 'use client';
 
-import * as HoverCard from '@radix-ui/react-hover-card';
-import { useEffect, useState } from 'react';
 import { Localized } from '@fluent/react';
+import * as Tooltip from '@radix-ui/react-tooltip';
+import { useEffect, useState } from 'react';
+import { LinkExternal } from '@fxa/shared/react';
 
 interface CheckoutCheckboxProps {
   isRequired: boolean;
@@ -38,84 +39,92 @@ export function CheckoutCheckbox({
   };
 
   return (
-    <HoverCard.Root open={isRequired && !isChecked}>
-      <label className="flex gap-5 items-center mt-6">
-        <HoverCard.Trigger>
-          <input
-            type="checkbox"
-            name="confirm"
-            className="grow-0 shrink-0 basis-4 scale-150 cursor-pointer"
-            checked={isChecked}
-            onChange={changeHandler}
-          />
-        </HoverCard.Trigger>
-        {isClient && (
-          <Localized
-            id="next-payment-confirm-with-legal-links-static-3"
-            elems={{
-              termsOfServiceLink: (
-                <a
+    <Tooltip.Provider>
+      <Tooltip.Root open={isRequired && !isChecked}>
+        <label className="flex gap-5 items-center my-6">
+          <Tooltip.Trigger asChild>
+            <input
+              type="checkbox"
+              name="confirm"
+              className="grow-0 shrink-0 basis-4 scale-150 cursor-pointer"
+              checked={isChecked}
+              onChange={changeHandler}
+              required
+              aria-describedby="checkboxError"
+              aria-required
+            />
+          </Tooltip.Trigger>
+          {isClient && (
+            <Localized
+              id="next-payment-confirm-with-legal-links-static-3"
+              elems={{
+                termsOfServiceLink: (
+                  <LinkExternal
+                    href={termsOfService}
+                    className="text-blue-500 underline"
+                    data-testid="link-external-terms-of-service"
+                  >
+                    Terms of Service
+                  </LinkExternal>
+                ),
+                privacyNoticeLink: (
+                  <LinkExternal
+                    href={privacyNotice}
+                    className="text-blue-500 underline"
+                    data-testid="link-external-privacy-notice"
+                  >
+                    Privacy Notice
+                  </LinkExternal>
+                ),
+              }}
+            >
+              <span className="font-normal text-sm leading-5 block">
+                I authorize Mozilla to charge my payment method for the amount
+                shown, according to{' '}
+                <LinkExternal
                   href={termsOfService}
-                  target="_blank"
-                  rel="noreferrer"
                   className="text-blue-500 underline"
+                  data-testid="link-external-terms-of-service"
                 >
                   Terms of Service
-                </a>
-              ),
-              privacyNoticeLink: (
-                <a
+                </LinkExternal>{' '}
+                and{' '}
+                <LinkExternal
                   href={privacyNotice}
-                  target="_blank"
-                  rel="noreferrer"
                   className="text-blue-500 underline"
+                  data-testid="link-external-privacy-notice"
                 >
                   Privacy Notice
-                </a>
-              ),
-            }}
-          >
-            <span className="font-normal text-sm block">
-              I authorize Mozilla to charge my payment method for the amount
-              shown, according to{' '}
-              <a
-                href={termsOfService}
-                target="_blank"
-                rel="noreferrer"
-                className="text-blue-500 underline"
-              >
-                Terms of Service
-              </a>{' '}
-              and{' '}
-              <a
-                href={privacyNotice}
-                target="_blank"
-                rel="noreferrer"
-                className="text-blue-500 underline"
-              >
-                Privacy Notice
-              </a>
-              , until I cancel my subscription.
-            </span>
-          </Localized>
-        )}
-      </label>
-      <HoverCard.Portal>
-        <HoverCard.Content
-          className="animate-slide-up z-20"
-          sideOffset={20}
-          align="start"
-          alignOffset={50}
-          arrowPadding={20}
-        >
-          <Localized id="next-payment-confirm-checkbox-error">
-            <div className="text-white text-sm bg-alert-red py-1.5 px-4">
-              You need to complete this before moving forward
-            </div>
-          </Localized>
-          <HoverCard.Arrow className="fill-alert-red" height={11} width={22} />
-        </HoverCard.Content>
-      </HoverCard.Portal>
-    </HoverCard.Root>
+                </LinkExternal>
+                , until I cancel my subscription.
+              </span>
+            </Localized>
+          )}
+          <Tooltip.Portal>
+            <Tooltip.Content
+              id="checkboxError"
+              className="animate-slide-down z-20"
+              side="bottom"
+              sideOffset={20}
+              align="start"
+              alignOffset={50}
+              arrowPadding={20}
+              role="alert"
+            >
+              <Localized id="next-payment-confirm-checkbox-error">
+                <div className="text-white text-sm bg-alert-red py-1.5 px-4">
+                  You need to complete this before moving forward
+                </div>
+              </Localized>
+              <Tooltip.Arrow
+                className="fill-alert-red"
+                height={11}
+                width={22}
+              />
+            </Tooltip.Content>
+          </Tooltip.Portal>
+        </label>
+      </Tooltip.Root>
+    </Tooltip.Provider>
   );
 }

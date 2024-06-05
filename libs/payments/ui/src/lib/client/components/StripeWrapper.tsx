@@ -3,30 +3,21 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 'use client';
 
-import { loadStripe, StripeElementsOptions } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
-import { CheckoutForm } from './CheckoutForm';
+import { loadStripe, StripeElementsOptions } from '@stripe/stripe-js';
 import { useContext, useState } from 'react';
 import { ConfigContext } from '../providers/ConfigProvider';
 
 interface StripeWrapperProps {
-  readOnly: boolean;
   amount: number;
   currency: string;
-  cart: {
-    id: string;
-    version: number;
-    email: string | null;
-  };
-  locale: string;
+  children: React.ReactNode;
 }
 
 export function StripeWrapper({
-  readOnly,
   amount,
   currency,
-  cart,
-  locale,
+  children,
 }: StripeWrapperProps) {
   const config = useContext(ConfigContext);
   const [stripePromise] = useState(() => loadStripe(config.stripePublicApiKey));
@@ -42,6 +33,7 @@ export function StripeWrapper({
         fontFamily:
           'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
         fontSizeBase: '16px',
+        fontSizeSm: '16px',
         fontWeightNormal: '500',
         colorDanger: '#D70022',
       },
@@ -67,7 +59,7 @@ export function StripeWrapper({
 
   return (
     <Elements stripe={stripePromise} options={options}>
-      <CheckoutForm readOnly={readOnly} cart={cart} locale={locale} />
+      {children}
     </Elements>
   );
 }

@@ -58,6 +58,7 @@
       "@fxa/shared/notifier": ["libs/shared/notifier/src/index.ts"],
       "@fxa/shared/otp": ["libs/shared/otp/src/index.ts"],
       "@fxa/shared/pem-jwk": ["libs/shared/pem-jwk/src/index.ts"],
+      "@fxa/shared/react": ["libs/shared/react/src/index.ts"],
       "@fxa/shared/sentry": ["libs/shared/sentry/src/index.ts"],
       "@fxa/vendored/common-password-list": [
         "libs/vendored/common-password-list/src/index.ts"

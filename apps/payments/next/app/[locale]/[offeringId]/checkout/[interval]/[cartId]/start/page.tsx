@@ -1,22 +1,23 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+import { revalidatePath } from 'next/cache';
+import { headers } from 'next/headers';
+import { PaymentSection } from '@fxa/payments/ui';
 import {
   app,
   getCartOrRedirectAction,
   SupportedPages,
 } from '@fxa/payments/ui/server';
 import { DEFAULT_LOCALE } from '@fxa/shared/l10n';
-import { auth, signIn } from 'apps/payments/next/auth';
-import { headers } from 'next/headers';
-import { CheckoutParams } from '../layout';
 import {
   getFakeCartData,
   getContentfulContent,
 } from 'apps/payments/next/app/_lib/apiClient';
-import { PaymentSection } from '@fxa/payments/ui';
+import { auth, signIn } from 'apps/payments/next/auth';
 import { PrimaryButton } from 'libs/payments/ui/src/lib/client/components/PrimaryButton';
-import { revalidatePath } from 'next/cache';
+import { CheckoutParams } from '../layout';
 
 export const dynamic = 'force-dynamic';
 
@@ -62,13 +63,13 @@ export default async function Checkout({ params }: { params: CheckoutParams }) {
               await signIn('fxa');
             }}
           >
-            <p className="text-grey-400 text-sm mt-2 mb-4">
+            <p className="text-grey-400 text-sm mt-2 pb-4 row-divider-grey-200">
               {l10n.getFragmentWithSource(
                 'next-new-user-sign-in-link-2',
                 {
                   elems: {
                     a: (
-                      <button className="underline text-grey-400 hover:text-grey-400">
+                      <button className="underline hover:text-grey-400">
                         Sign in
                       </button>
                     ),
@@ -76,15 +77,13 @@ export default async function Checkout({ params }: { params: CheckoutParams }) {
                 },
                 <>
                   Already have a Mozilla account?&nbsp;
-                  <button className="underline text-grey-400 hover:text-grey-400">
+                  <button className="underline hover:text-grey-400">
                     Sign in
                   </button>
                 </>
               )}
             </p>
           </form>
-
-          <hr className="mx-auto w-full border-grey-200" />
 
           <div className="p-6 text-center">
             {/**
@@ -122,7 +121,7 @@ export default async function Checkout({ params }: { params: CheckoutParams }) {
 
       {!session ? (
         <h2
-          className="font-semibold text-grey-600 text-lg mt-14 mb-5"
+          className="font-semibold text-grey-600 text-lg mt-10 mb-5"
           data-testid="header-prefix"
         >
           {l10n.getString(
@@ -132,7 +131,7 @@ export default async function Checkout({ params }: { params: CheckoutParams }) {
         </h2>
       ) : (
         <h2
-          className="font-semibold text-grey-600 text-lg mt-14 mb-5"
+          className="font-semibold text-grey-600 text-lg mt-10 mb-5"
           data-testid="header"
         >
           {l10n.getString(
@@ -141,7 +140,7 @@ export default async function Checkout({ params }: { params: CheckoutParams }) {
           )}
         </h2>
       )}
-      <h3 className="font-semibold my-3 text-grey-600 text-start">
+      <h3 className="font-semibold text-grey-600 text-start">
         {l10n.getString(
           'next-payment-method-first-approve',
           `First you'll need to approve your subscription`

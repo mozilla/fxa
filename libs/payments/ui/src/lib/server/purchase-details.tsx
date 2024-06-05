@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Invoice } from '@fxa/payments/cart';
 import Image from 'next/image';
-import { formatPlanPricing } from '../utils/helpers';
+import { Invoice } from '@fxa/payments/cart';
 import { LocalizerRsc } from '@fxa/shared/l10n/server';
+import { formatPlanPricing } from '../utils/helpers';
 
 type ListLabelItemProps = {
   labelLocalizationId: string;
@@ -114,7 +114,7 @@ export async function PurchaseDetails(props: PurchaseDetailsProps) {
         ))}
       </ul>
 
-      <ul className="row-divider-grey-200 py-6">
+      <ul className="pt-6">
         {!!listAmount && (
           <ListLabelItem
             {...{
@@ -165,26 +165,26 @@ export async function PurchaseDetails(props: PurchaseDetailsProps) {
               key={taxRate.title}
             />
           ))}
-      </ul>
 
-      <div className="plan-details-item pt-4 pb-6 font-semibold">
-        <h3 className="text-base">
-          {l10n.getString('next-plan-details-total-label', 'Total')}
-        </h3>
-        <span
-          className="overflow-hidden text-ellipsis text-lg whitespace-nowrap"
-          data-testid="total-price"
-          id="total-price"
-        >
-          {l10n.getString(
-            `plan-price-interval-${interval}`,
-            {
-              amount: l10n.getLocalizedCurrency(totalAmount, currency),
-            },
-            formatPlanPricing(totalAmount, currency, interval)
-          )}
-        </span>
-      </div>
+        <li className="plan-details-item mt-6 pt-4 pb-6 font-semibold border-t border-grey-200">
+          <h3 className="text-base">
+            {l10n.getString('next-plan-details-total-label', 'Total')}
+          </h3>
+          <span
+            className="overflow-hidden text-ellipsis text-lg whitespace-nowrap"
+            data-testid="total-price"
+            id="total-price"
+          >
+            {l10n.getString(
+              `plan-price-interval-${interval}`,
+              {
+                amount: l10n.getLocalizedCurrency(totalAmount, currency),
+              },
+              formatPlanPricing(totalAmount, currency, interval)
+            )}
+          </span>
+        </li>
+      </ul>
       {/* TODO - Add InfoBox as part of Coupon Form - Consider adding as child component */}
     </div>
   );
