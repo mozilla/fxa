@@ -575,7 +575,7 @@ export default class AuthClient {
   async signInWithAuthPW(
     email: string,
     authPW: string,
-    options: Omit<SignInOptions, 'skipCaseError' | 'originalLoginEmail'> = {},
+    options: SignInOptions = {},
     headers?: Headers
   ): Promise<Omit<SignedInAccountData, 'unwrapBKey'>> {
     const payloadOptions = ({ keys, ...rest }: any) => rest;

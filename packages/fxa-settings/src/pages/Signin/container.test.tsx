@@ -456,30 +456,29 @@ describe('signin container', () => {
     });
 
     it('handles incorrect email case error', async () => {
+      const email = `orginal-${MOCK_EMAIL}`;
+      const correctedEmail = `new-${MOCK_EMAIL}`;
       await render([
         mockGqlAvatarUseQuery(),
         // The first call should fail, and the incorrect email case error
         // with the corrected email in the error response should be returned.
         {
-          ...mockGqlBeginSigninMutation(
-            { keys: false },
-            { email: MOCK_EMAIL.toUpperCase() }
-          ),
+          ...mockGqlBeginSigninMutation({ keys: false }, { email: email }),
           error: mockGqlError(AuthUiErrors.INCORRECT_EMAIL_CASE, {
-            email: MOCK_EMAIL,
+            email: correctedEmail,
           }),
         },
-        // The corrected email should then be used, for the second attempt, and
-        // the login should succeed.
-        mockGqlBeginSigninMutation({
-          keys: false,
-          originalLoginEmail: MOCK_EMAIL.toUpperCase(),
-        }),
+        // Note, that originalEmail should also be sent up. This is a requirement for v1 passwords!
+        mockGqlBeginSigninMutation(
+          { keys: false, originalLoginEmail: email },
+          { email: correctedEmail }
+        ),
       ]);
 
       await waitFor(async () => {
+        // Emulates providing the original email even after they swapped in a primary email.
         const handlerResult = await currentSigninProps?.beginSigninHandler(
-          MOCK_EMAIL.toUpperCase(),
+          email,
           MOCK_PASSWORD
         );
         expect(handlerResult?.data).toBeDefined();
