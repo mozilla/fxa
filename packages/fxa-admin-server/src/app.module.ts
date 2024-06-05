@@ -4,15 +4,17 @@
 
 import { HealthModule } from 'fxa-shared/nestjs/health/health.module';
 import { LoggerModule } from 'fxa-shared/nestjs/logger/logger.module';
-import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import { MetricsFactory } from 'fxa-shared/nestjs/metrics.service';
-import { SentryModule } from 'fxa-shared/nestjs/sentry/sentry.module';
 import {
   createContext,
   SentryPlugin,
 } from 'fxa-shared/nestjs/sentry/sentry.plugin';
 import { getVersionInfo } from 'fxa-shared/nestjs/version';
 import { join } from 'path';
+
+import { MozLoggerService } from '@fxa/shared/mozlog';
+import { NotifierSnsFactory, NotifierService } from '@fxa/shared/notifier';
+import { LegacyStatsDProvider } from '@fxa/shared/metrics/statsd';
 
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
@@ -30,8 +32,6 @@ import { GqlModule } from './gql/gql.module';
 import { NewslettersModule } from './newsletters/newsletters.module';
 import { SubscriptionModule } from './subscriptions/subscriptions.module';
 
-import { NotifierSnsFactory, NotifierService } from '@fxa/shared/notifier';
-
 const version = getVersionInfo(__dirname);
 
 @Module({
@@ -48,7 +48,7 @@ const version = getVersionInfo(__dirname);
     GqlModule,
     GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
-      imports: [ConfigModule, SentryModule],
+      imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         path: '/graphql',
@@ -73,16 +73,6 @@ const version = getVersionInfo(__dirname);
       }),
     }),
     LoggerModule,
-    SentryModule.forRootAsync({
-      imports: [ConfigModule, LoggerModule],
-      inject: [ConfigService, MozLoggerService],
-      useFactory: (configService: ConfigService<AppConfig>) => ({
-        sentryConfig: {
-          sentry: configService.get('sentry'),
-          version: version.version,
-        },
-      }),
-    }),
   ],
   controllers: [],
   providers: [
@@ -92,8 +82,10 @@ const version = getVersionInfo(__dirname);
       useClass: UserGroupGuard,
     },
     SentryPlugin,
+    MozLoggerService,
     NotifierSnsFactory,
     NotifierService,
+    LegacyStatsDProvider,
   ],
 })
 export class AppModule {}
