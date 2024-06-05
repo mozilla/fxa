@@ -34,7 +34,6 @@ export const CreateAccountCustomerFactory = (
   stripeCustomerId: faker.string.alphanumeric({
     length: 14,
   }),
-  updatedAt: faker.date.recent().getTime(),
   ...override,
 });
 

@@ -11,7 +11,6 @@ export type ResultAccountCustomer = Readonly<Omit<AccountCustomer, 'uid'>> & {
 export interface CreateAccountCustomer {
   uid: string;
   stripeCustomerId: string | null;
-  updatedAt: number;
 }
 
 export interface UpdateAccountCustomer {
