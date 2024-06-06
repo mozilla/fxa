@@ -476,7 +476,10 @@ module.exports = (log, config, customs, db, mailer, cadReminders, glean) => {
     },
 
     async createKeyFetchToken(request, accountRecord, password, sessionToken) {
-      const wrapWrapKb = password.clientVersion === 2 ? accountRecord.wrapWrapKbVersion2 : accountRecord.wrapWrapKb;
+      const wrapWrapKb =
+        password.clientVersion === 2
+          ? accountRecord.wrapWrapKbVersion2
+          : accountRecord.wrapWrapKb;
       const wrapKb = await password.unwrap(wrapWrapKb);
       const keyFetchToken = await db.createKeyFetchToken({
         uid: accountRecord.uid,
@@ -507,7 +510,6 @@ module.exports = (log, config, customs, db, mailer, cadReminders, glean) => {
           verificationReason: 'signup',
         };
       }
-
 
       if (sessionToken.mustVerify && !sessionToken.tokenVerified) {
         return {
