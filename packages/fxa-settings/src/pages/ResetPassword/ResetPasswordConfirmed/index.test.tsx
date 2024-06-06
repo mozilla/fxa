@@ -14,6 +14,11 @@ jest.mock('../../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
   usePageViewEvent: jest.fn(),
 }));
+jest.mock('../../../lib/glean', () => ({
+  passwordReset: {
+    createNewSuccess: jest.fn(),
+  },
+}));
 
 describe('ResetPasswordConfirmed', () => {
   async function renderResetPasswordConfirmed(

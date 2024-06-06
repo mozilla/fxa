@@ -8,7 +8,7 @@ import React, { ReactElement, useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { logPageViewEvent, logViewEvent } from '../../../lib/metrics';
 import GleanMetrics from '../../../lib/glean';
-import { useAccount } from '../../../models';
+import { useAccount, useSensitiveDataClient } from '../../../models';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { useFtlMsgResolver } from '../../../models/hooks';
 
@@ -53,6 +53,7 @@ const AccountRecoveryConfirmKey = ({
   const ftlMsgResolver = useFtlMsgResolver();
   const location = useLocation();
   const navigate = useNavigate();
+  const sensitiveDataClient = useSensitiveDataClient();
 
   useEffect(() => {
     const checkPasswordForgotToken = async (token: string) => {
@@ -117,15 +118,15 @@ const AccountRecoveryConfirmKey = ({
         uid
       );
 
+      sensitiveDataClient.setData('reset', { kB });
       navigate('/account_recovery_reset_password', {
         state: {
           accountResetToken,
           recoveryKeyId,
-          kB,
         },
       });
     },
-    [account, navigate]
+    [account, navigate, sensitiveDataClient]
   );
 
   const checkRecoveryKey = useCallback(

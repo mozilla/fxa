@@ -87,6 +87,21 @@ jest.mock('../../../lib/metrics', () => {
   };
 });
 
+const mockGetData = jest.fn().mockReturnValue({
+  kB: 'someKb',
+});
+jest.mock('../../../models', () => {
+  return {
+    ...jest.requireActual('../../../models'),
+    useSensitiveDataClient: () => {
+      return {
+        getData: mockGetData,
+        setData: jest.fn(),
+      };
+    },
+  };
+});
+
 const route = '/reset_password';
 const render = (ui = <Subject />, account = mockAccount()) => {
   const history = createHistoryWithQuery(route);
@@ -147,11 +162,12 @@ describe('AccountRecoveryResetPassword page', () => {
   describe('damaged link', () => {
     describe('required location state recovery key info', () => {
       it('requires kB', async () => {
-        mockLocationState.kB = '';
+        mockGetData.mockReturnValue(undefined);
         render();
         await screen.findByRole('heading', {
           name: 'Reset password link damaged',
         });
+        mockGetData.mockReturnValue({ kB: 'someKb' });
       });
 
       it('requires recoveryKeyId', async () => {
