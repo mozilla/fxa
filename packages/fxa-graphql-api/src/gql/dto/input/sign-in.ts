@@ -31,6 +31,9 @@ export class SignInOptionsInput {
   @Field({ nullable: true })
   public originalLoginEmail?: string;
 
+  @Field({ nullable: true })
+  public skipCaseError?: boolean;
+
   @Field(() => MetricsContext, { nullable: true })
   public metricsContext?: MetricsContext;
 }
