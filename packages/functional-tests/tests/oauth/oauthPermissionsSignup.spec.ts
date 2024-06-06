@@ -6,34 +6,32 @@ import { expect, test } from '../../lib/fixtures/standard';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('oauth permissions for trusted reliers - sign up', () => {
-    test.beforeEach(async ({ pages: { configPage, login } }) => {
-      const config = await configPage.getConfig();
-      test.skip(
-        config.showReactApp.signUpRoutes === true,
-        'these tests are specific to backbone, skip if seeing React version'
-      );
-    });
-
     test('signup without `prompt=consent`', async ({
-      pages: { login, relier },
+      pages: { page, signup, relier },
       testAccountTracker,
     }) => {
       const { email, password } = testAccountTracker.generateAccountDetails();
 
       await relier.goto();
       await relier.clickEmailFirst();
-      await login.fillOutFirstSignUp(email, password, { verify: false });
+      await signup.fillOutEmailForm(email);
+      await signup.fillOutSignupForm(password, '21');
 
       //no permissions asked for, straight to confirm
-      await expect(login.signUpCodeHeader).toBeVisible();
+      await expect(page).toHaveURL(/confirm_signup_code/);
     });
 
     test('signup with `prompt=consent`', async ({
       target,
       page,
-      pages: { login, relier },
+      pages: { configPage, signup, relier },
       testAccountTracker,
     }) => {
+      const config = await configPage.getConfig();
+      test.skip(
+        config.showReactApp.signUpRoutes === true,
+        'permissions page is not supported in React, see FXA-8827'
+      );
       const { email, password } = testAccountTracker.generateAccountDetails();
 
       const query = { prompt: 'consent' };
@@ -41,15 +39,15 @@ test.describe('severity-1 #smoke', () => {
 
       await page.goto(`${target.relierUrl}/?${queryParam.toString()}`);
       await relier.clickEmailFirst();
-      await login.fillOutFirstSignUp(email, password, { verify: false });
+      await signup.fillOutEmailForm(email);
+      await signup.fillOutSignupForm(password, '21');
 
       //Verify permissions header
-      expect(await login.permissionsHeader()).toBe(true);
-
-      await login.acceptOauthPermissions();
+      await expect(signup.permissionsHeading).toBeVisible();
+      await signup.permissionsAcceptButton.click();
 
       //Verify sign up code header
-      await expect(login.signUpCodeHeader).toBeVisible();
+      await expect(page).toHaveURL(/confirm_signup_code/);
     });
   });
 });

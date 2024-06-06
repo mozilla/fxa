@@ -29,46 +29,51 @@ test.describe('severity-2 #smoke', () => {
   }
 
   type Version = { version: 1 | 2; query: string };
-  type TestCase = { signup: Version; change: Version };
+  type TestCase = { signupVersion: Version; changeVersion: Version };
   const v1: Version = { version: 1, query: '' };
   const v2: Version = { version: 2, query: 'stretch=2' };
   const TestCases: TestCase[] = [
-    { signup: v1, change: v1 },
-    { signup: v1, change: v2 },
-    { signup: v2, change: v1 },
-    { signup: v2, change: v2 },
+    { signupVersion: v1, changeVersion: v1 },
+    { signupVersion: v1, changeVersion: v2 },
+    { signupVersion: v2, changeVersion: v1 },
+    { signupVersion: v2, changeVersion: v2 },
   ];
 
-  for (const { signup, change } of TestCases) {
-    test(`signs up as v${signup.version} changes password from settings as v${change.version} for backbone`, async ({
+  for (const { signupVersion, changeVersion } of TestCases) {
+    test(`signs up as v${signupVersion.version} changes password from settings as v${changeVersion.version} for backbone`, async ({
       page,
       target,
-      pages: { settings, changePassword, signupReact, login },
+      pages: { settings, changePassword, signup, signin, confirmSignupCode },
       testAccountTracker,
     }) => {
       const { email, password } = testAccountTracker.generateAccountDetails();
       const newPassword = testAccountTracker.generatePassword();
       await page.goto(
-        `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react&${signup.query}`
+        `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react&${signupVersion.query}`
       );
-      await signupReact.fillOutEmailForm(email);
-      await signupReact.fillOutSignupForm(password, AGE_21);
+      await signup.fillOutEmailForm(email);
+      await signup.fillOutSignupForm(password, AGE_21);
+
+      await expect(page).toHaveURL(/confirm_signup_code/);
       const code = await target.emailClient.getVerifyShortCode(email);
-      await signupReact.fillOutCodeForm(code);
+      await confirmSignupCode.fillOutCodeForm(code);
 
       await expect(page).toHaveURL(/settings/);
 
       await settings.signOut();
-      await page.goto(`${target.contentServerUrl}?${signup.query}`);
-      await login.setEmail(email);
-      await login.clickSubmit();
-      await login.setPassword(password);
-      await login.clickSubmit();
+      await page.goto(`${target.contentServerUrl}?${signupVersion.query}`);
+      await signin.fillOutEmailFirstForm(email);
+      await signin.fillOutPasswordForm(password);
 
-      expect(await login.isUserLoggedIn()).toBe(true);
+      await expect(settings.settingsHeading).toBeVisible();
 
-      const keys = await _getKeys(signup.version, target, email, password);
-      await settings.goto(change.query);
+      const keys = await _getKeys(
+        signupVersion.version,
+        target,
+        email,
+        password
+      );
+      await settings.goto(changeVersion.query);
       await settings.clickChangePassword();
 
       await expect(changePassword.changePasswordHeading).toBeVisible();
@@ -76,42 +81,53 @@ test.describe('severity-2 #smoke', () => {
       await changePassword.currentPasswordTextbox.fill(password);
       await changePassword.newPasswordTextbox.fill(newPassword);
       await changePassword.confirmPasswordTextbox.fill(newPassword);
-      const keys2 = await _getKeys(signup.version, target, email, password);
+      const keys2 = await _getKeys(
+        signupVersion.version,
+        target,
+        email,
+        password
+      );
 
       expect(keys2.kB).toEqual(keys.kB);
     });
   }
 
-  for (const { signup, change } of TestCases) {
-    test(`signs up as v${signup.version} changes password from settings as v${change.version} for react`, async ({
+  for (const { signupVersion, changeVersion } of TestCases) {
+    test(`signs up as v${signupVersion.version} changes password from settings as v${changeVersion.version} for react`, async ({
       page,
       target,
-      pages: { settings, changePassword, signinReact, signupReact },
+      pages: { settings, changePassword, signin, signup, confirmSignupCode },
       testAccountTracker,
     }) => {
       const { email, password } = testAccountTracker.generateAccountDetails();
       const newPassword = testAccountTracker.generatePassword();
       await page.goto(
-        `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react&${signup.query}`
+        `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react&${signupVersion.query}`
       );
-      await signupReact.fillOutEmailForm(email);
-      await signupReact.fillOutSignupForm(password, AGE_21);
+      await signup.fillOutEmailForm(email);
+      await signup.fillOutSignupForm(password, AGE_21);
+      await expect(page).toHaveURL(/confirm_signup_code/);
       const code = await target.emailClient.getVerifyShortCode(email);
-      await signupReact.fillOutCodeForm(code);
+      await confirmSignupCode.fillOutCodeForm(code);
 
       await expect(page).toHaveURL(/settings/);
 
       await settings.signOut();
       await page.goto(
-        `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react&${signup.query}`
+        `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react&${signupVersion.query}`
       );
-      await signinReact.fillOutEmailFirstForm(email);
-      await signinReact.fillOutPasswordForm(password);
+      await signin.fillOutEmailFirstForm(email);
+      await signin.fillOutPasswordForm(password);
 
       await expect(page).toHaveURL(/settings/);
 
-      const keys = await _getKeys(signup.version, target, email, password);
-      await settings.goto(change.query);
+      const keys = await _getKeys(
+        signupVersion.version,
+        target,
+        email,
+        password
+      );
+      await settings.goto(changeVersion.query);
       await settings.clickChangePassword();
 
       await expect(changePassword.changePasswordHeading).toBeVisible();
@@ -120,7 +136,12 @@ test.describe('severity-2 #smoke', () => {
       await changePassword.newPasswordTextbox.fill(newPassword);
       await changePassword.confirmPasswordTextbox.fill(newPassword);
 
-      const keys2 = await _getKeys(signup.version, target, email, password);
+      const keys2 = await _getKeys(
+        signupVersion.version,
+        target,
+        email,
+        password
+      );
       expect(keys2.kB).toEqual(keys.kB);
     });
   }

@@ -16,29 +16,26 @@ test.describe('severity-1 #smoke', () => {
 
     test('reset pw for sync user', async ({
       target,
-      syncBrowserPages: { page, resetPasswordReact },
+      syncBrowserPages: { page, resetPassword },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
       const newPassword = testAccountTracker.generatePassword();
 
-      await resetPasswordReact.goto(
-        undefined,
-        'context=fx_desktop_v3&service=sync'
-      );
+      await resetPassword.goto(undefined, 'context=fx_desktop_v3&service=sync');
 
-      await resetPasswordReact.fillOutEmailForm(credentials.email);
+      await resetPassword.fillOutEmailForm(credentials.email);
 
       const code = await target.emailClient.getResetPasswordCode(
         credentials.email
       );
 
-      await resetPasswordReact.fillOutResetPasswordCodeForm(code);
-      await resetPasswordReact.fillOutNewPasswordForm(newPassword);
+      await resetPassword.fillOutResetPasswordCodeForm(code);
+      await resetPassword.fillOutNewPasswordForm(newPassword);
 
       await expect(page).toHaveURL(/reset_password_verified/);
       await expect(
-        resetPasswordReact.passwordResetConfirmationHeading
+        resetPassword.passwordResetConfirmationHeading
       ).toBeVisible();
 
       // TODO in FXA-9561 - Verify that the service name is displayed in the "Continue to ${serviceName}" button

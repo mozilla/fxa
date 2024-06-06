@@ -4,10 +4,11 @@
 
 import fs from 'fs';
 import pdfParse from 'pdf-parse';
-import { TestAccountTracker } from '../../lib/testAccountTracker';
 import { Page, expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
-import { LoginPage } from '../../pages/login';
+import { TestAccountTracker } from '../../lib/testAccountTracker';
+import { SettingsPage } from '../../pages/settings';
+import { SigninPage } from '../../pages/signin';
 
 const HINT = 'secret key location';
 
@@ -15,13 +16,14 @@ test.describe('severity-1 #smoke', () => {
   test.describe('recovery key test', () => {
     test('can copy recovery key', async ({
       target,
-      pages: { page, login, recoveryKey, settings },
+      pages: { page, recoveryKey, settings, signin },
       testAccountTracker,
     }) => {
       const { password } = await signInAccount(
         target,
         page,
-        login,
+        settings,
+        signin,
         testAccountTracker
       );
 
@@ -42,13 +44,14 @@ test.describe('severity-1 #smoke', () => {
 
     test('can download recovery key as PDF', async ({
       target,
-      pages: { page, login, recoveryKey, settings },
+      pages: { page, recoveryKey, settings, signin },
       testAccountTracker,
     }) => {
       const credentials = await signInAccount(
         target,
         page,
-        login,
+        settings,
+        signin,
         testAccountTracker
       );
 
@@ -98,13 +101,14 @@ test.describe('severity-1 #smoke', () => {
 
     test('revoke recovery key', async ({
       target,
-      pages: { page, login, settings, recoveryKey },
+      pages: { page, recoveryKey, settings, signin },
       testAccountTracker,
     }) => {
       const credentials = await signInAccount(
         target,
         page,
-        login,
+        settings,
+        signin,
         testAccountTracker
       );
 
@@ -137,15 +141,17 @@ test.describe('severity-1 #smoke', () => {
 async function signInAccount(
   target: BaseTarget,
   page: Page,
-  login: LoginPage,
+  settings: SettingsPage,
+  signin: SigninPage,
   testAccountTracker: TestAccountTracker
 ): Promise<Credentials> {
   const credentials = await testAccountTracker.signUp();
   await page.goto(target.contentServerUrl);
-  await login.fillOutEmailFirstSignIn(credentials.email, credentials.password);
+  await signin.fillOutEmailFirstForm(credentials.email);
+  await signin.fillOutPasswordForm(credentials.password);
 
   //Verify logged in on Settings page
-  expect(await login.isUserLoggedIn()).toBe(true);
+  await expect(settings.settingsHeading).toBeVisible();
 
   return credentials;
 }

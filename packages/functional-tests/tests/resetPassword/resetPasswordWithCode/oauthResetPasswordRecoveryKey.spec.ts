@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { expect, test } from '../../../lib/fixtures/standard';
-import { ResetPasswordReactPage } from '../../../pages/resetPasswordReact';
-import { SigninReactPage } from '../../../pages/signinReact';
+import { ResetPasswordPage } from '../../../pages/resetPassword';
+import { SigninPage } from '../../../pages/signin';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('oauth reset password with recovery key', () => {
@@ -18,22 +18,15 @@ test.describe('severity-1 #smoke', () => {
 
     test('reset password with account recovery key', async ({
       target,
-      pages: {
-        page,
-        recoveryKey,
-        relier,
-        resetPasswordReact,
-        settings,
-        signinReact,
-      },
+      pages: { page, recoveryKey, relier, resetPassword, settings, signin },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
       const newPassword = testAccountTracker.generatePassword();
 
-      await signinReact.goto();
-      await signinReact.fillOutEmailFirstForm(credentials.email);
-      await signinReact.fillOutPasswordForm(credentials.password);
+      await signin.goto();
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
 
       // Goes to settings and enables the account recovery key on user's account.
       await settings.recoveryKey.createButton.click();
@@ -48,23 +41,19 @@ test.describe('severity-1 #smoke', () => {
 
       await relier.clickEmailFirst();
 
-      await beginPasswordReset(
-        credentials.email,
-        resetPasswordReact,
-        signinReact
-      );
+      await beginPasswordReset(credentials.email, resetPassword, signin);
 
       const code = await target.emailClient.getResetPasswordCode(
         credentials.email
       );
 
-      await resetPasswordReact.fillOutResetPasswordCodeForm(code);
-      await resetPasswordReact.fillOutRecoveryKeyForm(accountRecoveryKey);
-      await resetPasswordReact.fillOutNewPasswordForm(newPassword);
+      await resetPassword.fillOutResetPasswordCodeForm(code);
+      await resetPassword.fillOutRecoveryKeyForm(accountRecoveryKey);
+      await resetPassword.fillOutNewPasswordForm(newPassword);
 
       await expect(page).toHaveURL(/reset_password_with_recovery_key_verified/);
       await expect(
-        resetPasswordReact.passwordResetConfirmationHeading
+        resetPassword.passwordResetConfirmationHeading
       ).toBeVisible();
 
       // TODO in FXA-9561 - Verify that the service name is displayed in the "Continue to ${serviceName}" button
@@ -77,11 +66,11 @@ test.describe('severity-1 #smoke', () => {
 
   async function beginPasswordReset(
     email: string,
-    resetPasswordReact: ResetPasswordReactPage,
-    signinReact: SigninReactPage
+    resetPassword: ResetPasswordPage,
+    signin: SigninPage
   ): Promise<void> {
-    await signinReact.fillOutEmailFirstForm(email);
-    await signinReact.forgotPasswordLink.click();
-    await resetPasswordReact.fillOutEmailForm(email);
+    await signin.fillOutEmailFirstForm(email);
+    await signin.forgotPasswordLink.click();
+    await resetPassword.fillOutEmailForm(email);
   }
 });

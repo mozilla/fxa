@@ -8,14 +8,14 @@ import { INVALID_VISA, VALID_VISA } from '../../lib/paymentArtifacts';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
 import { TestAccountTracker } from '../../lib/testAccountTracker';
 import { SettingsPage } from '../../pages/settings';
-import { SigninReactPage } from '../../pages/signinReact';
+import { SigninPage } from '../../pages/signin';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('subscription', () => {
-    test('subscribe with credit card and login to product', async ({
+    test('subscribe with credit card and sign in to product', async ({
       target,
       page,
-      pages: { relier, settings, signinReact, subscribe },
+      pages: { relier, settings, signin, subscribe },
       testAccountTracker,
     }, { project }) => {
       test.skip(
@@ -26,7 +26,7 @@ test.describe('severity-2 #smoke', () => {
         target,
         page,
         settings,
-        signinReact,
+        signin,
         testAccountTracker
       );
 
@@ -44,10 +44,10 @@ test.describe('severity-2 #smoke', () => {
       await relier.goto();
       await relier.clickEmailFirst();
 
-      await expect(signinReact.cachedSigninHeading).toBeVisible();
+      await expect(signin.cachedSigninHeading).toBeVisible();
       await expect(page.getByText(credentials.email)).toBeVisible();
 
-      await signinReact.signInButton.click();
+      await signin.signInButton.click();
 
       expect(await relier.isPro()).toBe(true);
     });
@@ -55,7 +55,7 @@ test.describe('severity-2 #smoke', () => {
     test('subscribe with credit card after initial failed subscription & verify existing user checkout funnel metrics', async ({
       target,
       page,
-      pages: { relier, settings, signinReact, subscribe },
+      pages: { relier, settings, signin, subscribe },
       testAccountTracker,
     }, { project }) => {
       test.skip(
@@ -66,7 +66,7 @@ test.describe('severity-2 #smoke', () => {
         target,
         page,
         settings,
-        signinReact,
+        signin,
         testAccountTracker
       );
       const metricsObserver = new MetricsObserver(subscribe);
@@ -92,10 +92,10 @@ test.describe('severity-2 #smoke', () => {
       await relier.goto();
       await relier.clickEmailFirst();
 
-      await expect(signinReact.cachedSigninHeading).toBeVisible();
+      await expect(signin.cachedSigninHeading).toBeVisible();
       await expect(page.getByText(credentials.email)).toBeVisible();
 
-      await signinReact.signInButton.click();
+      await signin.signInButton.click();
 
       expect(await relier.isPro()).toBe(true);
 
@@ -135,20 +135,14 @@ test.describe('severity-2 #smoke', () => {
     test('subscribe with paypal opens popup', async ({
       target,
       page,
-      pages: { relier, settings, signinReact, subscribe },
+      pages: { relier, settings, signin, subscribe },
       testAccountTracker,
     }, { project }) => {
       test.skip(
         project.name === 'production',
         'no real payment method available in prod'
       );
-      await signInAccount(
-        target,
-        page,
-        settings,
-        signinReact,
-        testAccountTracker
-      );
+      await signInAccount(target, page, settings, signin, testAccountTracker);
 
       await relier.goto();
       await relier.clickSubscribe();
@@ -168,20 +162,14 @@ test.describe('severity-2 #smoke', () => {
     test('Metrics disabled: existing user checkout URL to not have flow params', async ({
       target,
       page,
-      pages: { relier, settings, signinReact },
+      pages: { relier, settings, signin },
       testAccountTracker,
     }, { project }) => {
       test.skip(
         project.name === 'production',
         'test plan not available in prod'
       );
-      await signInAccount(
-        target,
-        page,
-        settings,
-        signinReact,
-        testAccountTracker
-      );
+      await signInAccount(target, page, settings, signin, testAccountTracker);
 
       // Go to settings page and verify the Data Collection toggle switch is visible
       await settings.goto();
@@ -201,20 +189,14 @@ test.describe('severity-2 #smoke', () => {
     test('Existing user checkout URL to have flow params', async ({
       target,
       page,
-      pages: { relier, settings, signinReact },
+      pages: { relier, settings, signin },
       testAccountTracker,
     }, { project }) => {
       test.skip(
         project.name === 'production',
         'test plan not available in prod'
       );
-      await signInAccount(
-        target,
-        page,
-        settings,
-        signinReact,
-        testAccountTracker
-      );
+      await signInAccount(target, page, settings, signin, testAccountTracker);
 
       // Go to settings page and verify the Data Collection toggle switch is visible
       await settings.goto();
@@ -233,20 +215,14 @@ test.describe('severity-2 #smoke', () => {
     test('New user checkout URL to have flow params', async ({
       target,
       page,
-      pages: { relier, settings, signinReact },
+      pages: { relier, settings, signin },
       testAccountTracker,
     }, { project }) => {
       test.skip(
         project.name === 'production',
         'test plan not available in prod'
       );
-      await signInAccount(
-        target,
-        page,
-        settings,
-        signinReact,
-        testAccountTracker
-      );
+      await signInAccount(target, page, settings, signin, testAccountTracker);
 
       await settings.goto();
       await settings.signOut();
@@ -258,24 +234,18 @@ test.describe('severity-2 #smoke', () => {
     test('New user checkout URL to have flow params with cache cleared', async ({
       target,
       page,
-      pages: { relier, settings, signinReact, login },
+      pages: { relier, settings, signin },
       testAccountTracker,
     }, { project }) => {
       test.skip(
         project.name === 'production',
         'test plan not available in prod'
       );
-      await signInAccount(
-        target,
-        page,
-        settings,
-        signinReact,
-        testAccountTracker
-      );
+      await signInAccount(target, page, settings, signin, testAccountTracker);
 
       await settings.goto();
       await settings.signOut();
-      await login.clearCache();
+      await signin.clearCache();
       await relier.goto();
       await relier.clickSubscribe6Month();
       expect(page.url()).toContain('&flow_begin_time=');
@@ -284,20 +254,14 @@ test.describe('severity-2 #smoke', () => {
     test('New user checkout URL to have RP-provided flow params, acquisition params & verify funnel metrics', async ({
       target,
       page,
-      pages: { relier, settings, signinReact, subscribe },
+      pages: { relier, settings, signin, subscribe },
       testAccountTracker,
     }, { project }) => {
       test.skip(
         project.name === 'production',
         'test plan not available in prod'
       );
-      await signInAccount(
-        target,
-        page,
-        settings,
-        signinReact,
-        testAccountTracker
-      );
+      await signInAccount(target, page, settings, signin, testAccountTracker);
       const email = testAccountTracker.generateEmail();
 
       await settings.goto();
@@ -382,13 +346,13 @@ async function signInAccount(
   target: BaseTarget,
   page: Page,
   settings: SettingsPage,
-  signinReact: SigninReactPage,
+  signin: SigninPage,
   testAccountTracker: TestAccountTracker
 ): Promise<Credentials> {
   const credentials = await testAccountTracker.signUp();
   await page.goto(target.contentServerUrl);
-  await signinReact.fillOutEmailFirstForm(credentials.email);
-  await signinReact.fillOutPasswordForm(credentials.password);
+  await signin.fillOutEmailFirstForm(credentials.email);
+  await signin.fillOutPasswordForm(credentials.password);
 
   await expect(page).toHaveURL(/settings/);
   await expect(settings.settingsHeading).toBeVisible();

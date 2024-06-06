@@ -6,9 +6,15 @@ import { expect, test } from '../../lib/fixtures/standard';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('post verify - force password change sync', () => {
-    test('force change password on login - sync', async ({
+    test('force change password on signin - sync', async ({
       target,
-      syncBrowserPages: { page, login, postVerify, connectAnotherDevice },
+      syncBrowserPages: {
+        page,
+        signin,
+        postVerify,
+        connectAnotherDevice,
+        signinTokenCode,
+      },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUpForced();
@@ -17,14 +23,13 @@ test.describe('severity-2 #smoke', () => {
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync`
       );
-      await login.fillOutEmailFirstSignIn(
-        credentials.email,
-        credentials.password
-      );
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
+      await expect(page).toHaveURL(/signin_token_code/);
       const code = await target.emailClient.getVerifyLoginCode(
         credentials.email
       );
-      await login.fillOutSignInCode(code);
+      await signinTokenCode.fillOutCodeForm(code);
 
       //Verify force password change header
       expect(await postVerify.isForcePasswordChangeHeader()).toBe(true);

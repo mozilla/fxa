@@ -30,20 +30,21 @@ test.describe('severity-1 #smoke', () => {
     test('signup web', async ({
       target,
       page,
-      pages: { settings, signupReact },
+      pages: { confirmSignupCode, settings, signup },
       testAccountTracker,
     }) => {
       const { email, password } =
-        testAccountTracker.generateSignupReactAccountDetails();
+        testAccountTracker.generateSignupAccountDetails();
 
-      await signupReact.goto();
+      await signup.goto();
 
-      await signupReact.fillOutEmailForm(email);
-      await signupReact.waitForRoot();
+      await signup.fillOutEmailForm(email);
+      await signup.waitForRoot();
 
-      await signupReact.fillOutSignupForm(password, AGE_21);
+      await signup.fillOutSignupForm(password, AGE_21);
+      await expect(page).toHaveURL(/confirm_signup_code/);
       const code = await target.emailClient.getVerifyShortCode(email);
-      await signupReact.fillOutCodeForm(code);
+      await confirmSignupCode.fillOutCodeForm(code);
 
       await expect(page).toHaveURL(/settings/);
 
@@ -52,23 +53,23 @@ test.describe('severity-1 #smoke', () => {
 
     test('signup sync desktop v3, verify account', async ({
       target,
-      syncBrowserPages: { page, signupReact, login },
+      syncBrowserPages: { confirmSignupCode, page, signup, login },
       testAccountTracker,
     }) => {
       const { email, password } =
-        testAccountTracker.generateSignupReactAccountDetails();
+        testAccountTracker.generateSignupAccountDetails();
       test.fixme(true, 'Fix required as of 2024/03/18 (see FXA-9306).');
-      await signupReact.goto('/', syncDesktopV3QueryParams);
+      await signup.goto('/', syncDesktopV3QueryParams);
 
-      await signupReact.fillOutEmailForm(email);
+      await signup.fillOutEmailForm(email);
       await page.waitForURL(/signup/, { waitUntil: 'load' });
-      await signupReact.waitForRoot();
+      await signup.waitForRoot();
 
       // Wait for page to render
       await expect(page.getByText('Set your password')).toBeVisible();
 
-      await signupReact.respondToWebChannelMessage(eventDetailLinkAccount);
-      await signupReact.checkWebChannelMessage(FirefoxCommand.FxAStatus);
+      await signup.respondToWebChannelMessage(eventDetailLinkAccount);
+      await signup.checkWebChannelMessage(FirefoxCommand.FxAStatus);
       await login.checkWebChannelMessage(FirefoxCommand.LinkAccount);
 
       // Sync desktop v3 includes "default" engines plus the ones provided via web channel
@@ -83,11 +84,12 @@ test.describe('severity-1 #smoke', () => {
       await expect(login.CWTSEngineCreditCards).toBeVisible();
       await expect(login.CWTSEngineAddresses).toBeHidden();
 
-      await signupReact.fillOutSignupForm(password, AGE_21);
+      await signup.fillOutSignupForm(password, AGE_21);
 
       await login.checkWebChannelMessage(FirefoxCommand.Login);
+      await expect(page).toHaveURL(/confirm_signup_code/);
       const code = await target.emailClient.getVerifyShortCode(email);
-      await signupReact.fillOutCodeForm(code);
+      await confirmSignupCode.fillOutCodeForm(code);
       await page.waitForURL(/connect_another_device/);
 
       await expect(page.getByText('You’re signed into Firefox')).toBeVisible();
@@ -97,24 +99,24 @@ test.describe('severity-1 #smoke', () => {
 
 test.describe('severity-2 #smoke', () => {
   test.describe('signup react', () => {
-    test('signup invalid email', async ({ page, pages: { signupReact } }) => {
+    test('signup invalid email', async ({ page, pages: { signup } }) => {
       const invalidEmail = 'invalid';
 
-      await signupReact.goto();
+      await signup.goto();
 
-      await signupReact.fillOutEmailForm(invalidEmail);
+      await signup.fillOutEmailForm(invalidEmail);
 
       await expect(
         page.getByText('Valid email required', { exact: true })
       ).toBeVisible();
     });
 
-    test('empty email', async ({ page, pages: { signupReact } }) => {
+    test('empty email', async ({ page, pages: { signup } }) => {
       const emptyEmail = '';
 
-      await signupReact.goto();
+      await signup.goto();
 
-      await signupReact.fillOutEmailForm(emptyEmail);
+      await signup.fillOutEmailForm(emptyEmail);
 
       await expect(
         page.getByText('Valid email required', { exact: true })
@@ -123,25 +125,25 @@ test.describe('severity-2 #smoke', () => {
 
     test('coppa is too young', async ({
       page,
-      pages: { signupReact },
+      pages: { signup },
       testAccountTracker,
     }) => {
       const { email, password } =
-        testAccountTracker.generateSignupReactAccountDetails();
-      await signupReact.goto();
+        testAccountTracker.generateSignupAccountDetails();
+      await signup.goto();
 
-      await signupReact.fillOutEmailForm(email);
+      await signup.fillOutEmailForm(email);
 
-      await signupReact.fillOutSignupForm(password, AGE_12);
+      await signup.fillOutSignupForm(password, AGE_12);
 
       await expect(page).toHaveURL(/cannot_create_account/);
-      await expect(signupReact.cannotCreateAccountHeading).toBeVisible();
+      await expect(signup.cannotCreateAccountHeading).toBeVisible();
     });
 
     test('signup via product page and redirect after confirm', async ({
       page,
       target,
-      pages: { signupReact, relier, subscribe, settings },
+      pages: { confirmSignupCode, relier, settings, signup, subscribe },
       testAccountTracker,
     }, { project }) => {
       test.skip(
@@ -149,7 +151,7 @@ test.describe('severity-2 #smoke', () => {
         'no test products available in prod'
       );
       const { email, password } =
-        testAccountTracker.generateSignupReactAccountDetails();
+        testAccountTracker.generateSignupAccountDetails();
 
       // Go an RP's subscription page
       await relier.goto();
@@ -165,10 +167,11 @@ test.describe('severity-2 #smoke', () => {
 
       // Click the sign in link
       await subscribe.signinLink.click();
-      await signupReact.fillOutEmailForm(email);
-      await signupReact.fillOutSignupForm(password, AGE_21);
+      await signup.fillOutEmailForm(email);
+      await signup.fillOutSignupForm(password, AGE_21);
+      await expect(page).toHaveURL(/confirm_signup_code/);
       const code = await target.emailClient.getVerifyShortCode(email);
-      await signupReact.fillOutCodeForm(code);
+      await confirmSignupCode.fillOutCodeForm(code);
       /*
        * We must `waitUntil: 'load'` due to redirects that occur here. Note,
        * React signup for SubPlat has one additional redirect compared to Backbone.

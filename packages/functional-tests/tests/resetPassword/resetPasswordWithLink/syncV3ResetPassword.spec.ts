@@ -16,34 +16,31 @@ test.describe('severity-1 #smoke', () => {
 
     test('reset pw for sync user', async ({
       target,
-      syncBrowserPages: { page, resetPasswordReact },
+      syncBrowserPages: { page, resetPassword },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
       const newPassword = testAccountTracker.generatePassword();
 
-      await resetPasswordReact.goto(
-        undefined,
-        'context=fx_desktop_v3&service=sync'
-      );
+      await resetPassword.goto(undefined, 'context=fx_desktop_v3&service=sync');
 
       // Check that the sync relier is in the heading
-      await expect(resetPasswordReact.resetPasswordHeading).toHaveText(
+      await expect(resetPassword.resetPasswordHeading).toHaveText(
         /Firefox Sync/
       );
 
-      await resetPasswordReact.fillOutEmailForm(credentials.email);
+      await resetPassword.fillOutEmailForm(credentials.email);
 
       const link = await target.emailClient.getRecoveryLink(credentials.email);
       await page.goto(link);
 
-      await resetPasswordReact.fillOutNewPasswordForm(newPassword);
+      await resetPassword.fillOutNewPasswordForm(newPassword);
       // Update credentials file so that account can be deleted as part of test cleanup
       credentials.password = newPassword;
 
       await expect(page).toHaveURL(/reset_password_verified/);
       await expect(
-        resetPasswordReact.passwordResetConfirmationHeading
+        resetPassword.passwordResetConfirmationHeading
       ).toBeVisible();
     });
   });

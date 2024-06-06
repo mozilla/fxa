@@ -8,7 +8,13 @@ test.describe('severity-1 #smoke', () => {
   test.describe('OAuth and Fx Desktop handshake', () => {
     test('user signed into browser and OAuth login', async ({
       target,
-      syncBrowserPages: { page, login, relier, settings },
+      syncBrowserPages: {
+        page,
+        connectAnotherDevice,
+        relier,
+        settings,
+        signin,
+      },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
@@ -17,36 +23,34 @@ test.describe('severity-1 #smoke', () => {
         target.contentServerUrl +
           '?context=fx_desktop_v3&entrypoint=fxa%3Aenter_email&service=sync&action=email'
       );
-      await login.login(credentials.email, credentials.password);
-      await expect(login.isSyncConnectedHeader()).toBeVisible({
-        timeout: 1000,
-      });
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
+      await expect(page).toHaveURL(/connect_another_device/);
+      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
 
       await relier.goto();
       await relier.clickEmailFirst();
 
-      // User can sign in with cached credentials, no password needed.
-      expect(await login.getPrefilledEmail()).toContain(credentials.email);
-      expect(await login.isCachedLogin()).toBe(true);
+      await expect(signin.cachedSigninHeading).toBeVisible();
+      await expect(page.getByText(credentials.email)).toBeVisible();
+      await signin.signInButton.click();
 
-      await login.submit();
       expect(await relier.isLoggedIn()).toBe(true);
-
       await relier.signOut();
 
       // Attempt to sign back in
       await relier.clickEmailFirst();
 
-      expect(await login.getPrefilledEmail()).toContain(credentials.email);
-      expect(await login.isCachedLogin()).toBe(true);
+      await expect(signin.cachedSigninHeading).toBeVisible();
+      await expect(page.getByText(credentials.email)).toBeVisible();
+      await signin.signInButton.click();
 
-      await login.submit();
       expect(await relier.isLoggedIn()).toBe(true);
 
       // Disconnect sync otherwise we can have flaky tests.
       await settings.disconnectSync(credentials);
 
-      expect(page.url()).toContain(login.url);
+      await expect(signin.emailFirstHeading).toBeVisible();
     });
   });
 });

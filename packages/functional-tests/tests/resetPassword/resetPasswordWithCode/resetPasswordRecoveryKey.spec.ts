@@ -4,8 +4,8 @@
 
 import { expect, test } from '../../../lib/fixtures/standard';
 import { SettingsPage } from '../../../pages/settings';
-import { SigninReactPage } from '../../../pages/signinReact';
 import { RecoveryKeyPage } from '../../../pages/settings/recoveryKey';
+import { SigninPage } from '../../../pages/signin';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('recovery key react', () => {
@@ -21,17 +21,17 @@ test.describe('severity-1 #smoke', () => {
     test('can reset password with recovery key', async ({
       target,
       page,
-      pages: { recoveryKey, resetPasswordReact, settings, signinReact },
+      pages: { recoveryKey, resetPassword, settings, signin },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
       const newPassword = testAccountTracker.generatePassword();
 
-      await signin(
+      await signinAccount(
         credentials.email,
         credentials.password,
         settings,
-        signinReact
+        signin
       );
 
       const key = await enableRecoveryKey(
@@ -55,22 +55,22 @@ test.describe('severity-1 #smoke', () => {
         accountData.unwrapBKey
       );
 
-      await resetPasswordReact.goto();
+      await resetPassword.goto();
 
-      await resetPasswordReact.fillOutEmailForm(credentials.email);
+      await resetPassword.fillOutEmailForm(credentials.email);
 
       const code = await target.emailClient.getResetPasswordCode(
         credentials.email
       );
 
-      await resetPasswordReact.fillOutResetPasswordCodeForm(code);
+      await resetPassword.fillOutResetPasswordCodeForm(code);
 
-      await resetPasswordReact.fillOutRecoveryKeyForm(key);
-      await resetPasswordReact.fillOutNewPasswordForm(newPassword);
+      await resetPassword.fillOutRecoveryKeyForm(key);
+      await resetPassword.fillOutNewPasswordForm(newPassword);
 
       // After using a recovery key to reset password, expect to be prompted to create a new one
-      await expect(resetPasswordReact.generateRecoveryKeyButton).toBeVisible();
-      await resetPasswordReact.generateRecoveryKeyButton.click();
+      await expect(resetPassword.generateRecoveryKeyButton).toBeVisible();
+      await resetPassword.generateRecoveryKeyButton.click();
 
       // TODO in FXA-7904 - Verify that a new recovery key is generated without needing to sign in again
       // not currently implemented
@@ -103,37 +103,37 @@ test.describe('severity-1 #smoke', () => {
 
     test('forgot password has account recovery key but skip using it', async ({
       target,
-      pages: { settings, recoveryKey, resetPasswordReact, signinReact },
+      pages: { settings, recoveryKey, resetPassword, signin },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
       const newPassword = testAccountTracker.generatePassword();
 
-      await signin(
+      await signinAccount(
         credentials.email,
         credentials.password,
         settings,
-        signinReact
+        signin
       );
 
       await enableRecoveryKey(credentials.password, recoveryKey, settings);
 
-      await resetPasswordReact.goto();
+      await resetPassword.goto();
 
-      await resetPasswordReact.fillOutEmailForm(credentials.email);
+      await resetPassword.fillOutEmailForm(credentials.email);
       const code = await target.emailClient.getResetPasswordCode(
         credentials.email
       );
 
-      await resetPasswordReact.fillOutResetPasswordCodeForm(code);
-      await resetPasswordReact.forgotKeyLink.click();
-      await resetPasswordReact.fillOutNewPasswordForm(newPassword);
+      await resetPassword.fillOutResetPasswordCodeForm(code);
+      await resetPassword.forgotKeyLink.click();
+      await resetPassword.fillOutNewPasswordForm(newPassword);
 
       await expect(
-        resetPasswordReact.passwordResetConfirmationHeading
+        resetPassword.passwordResetConfirmationHeading
       ).toBeVisible();
 
-      await signin(credentials.email, newPassword, settings, signinReact);
+      await signinAccount(credentials.email, newPassword, settings, signin);
 
       await expect(settings.recoveryKey.status).toHaveText('Not Set');
 
@@ -142,15 +142,15 @@ test.describe('severity-1 #smoke', () => {
     });
   });
 
-  async function signin(
+  async function signinAccount(
     email: string,
     password: string,
     settings: SettingsPage,
-    signinReact: SigninReactPage
+    signin: SigninPage
   ): Promise<void> {
-    await signinReact.goto();
-    await signinReact.fillOutEmailFirstForm(email);
-    await signinReact.fillOutPasswordForm(password);
+    await signin.goto();
+    await signin.fillOutEmailFirstForm(email);
+    await signin.fillOutPasswordForm(password);
 
     await expect(settings.settingsHeading).toBeVisible();
   }

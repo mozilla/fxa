@@ -5,45 +5,49 @@
 import { expect, test } from '../../lib/fixtures/standard';
 
 test.describe('Firefox Desktop Sync v3 email first', () => {
-
   test('open directly to /signin page, refresh on the /signin page', async ({
     target,
-    syncBrowserPages: { page, login },
+    syncBrowserPages: { configPage, page, signin },
     testAccountTracker,
   }) => {
+    const config = await configPage.getConfig();
+    test.skip(
+      config.showReactApp.signInRoutes === true,
+      'With react, reloading the page does not redirect away from signin'
+    );
     const credentials = await testAccountTracker.signUpSync();
 
     await page.goto(
       `${target.contentServerUrl}/signin?context=fx_desktop_v3&service=sync&action=email`,
       { waitUntil: 'load' }
     );
-    await login.setEmail(credentials.email);
-    await login.submit();
+    await signin.fillOutEmailFirstForm(credentials.email);
 
     // Verify user is redirected to the password page
-    await expect(await login.waitForPasswordHeader()).toBeVisible();
+    await expect(signin.passwordFormHeading).toBeVisible();
 
     //Refresh the page
     await page.reload();
 
-    // refresh sends the user back to the first step
-    await login.waitForEmailHeader();
+    // reloading should keep the user on the password page
+    await expect(signin.syncSignInHeading).toBeVisible();
   });
 
   test('enter a firefox.com address', async ({
     target,
-    syncBrowserPages: { login, page },
+    syncBrowserPages: { signin, page },
   }) => {
     await page.goto(
       `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`,
       { waitUntil: 'load' }
     );
-    await login.setEmail('testuser@firefox.com');
-    await login.clickSubmit();
+    await signin.fillOutEmailFirstForm('testuser@firefox.com');
 
     // Verify the error
-    await expect(login.getTooltipError()).toContainText(
-      'Enter a valid email address. firefox.com does not offer email.'
-    );
+    await expect(
+      page.getByText(
+        'Enter a valid email address. firefox.com does not offer email.'
+      )
+    ).toBeVisible();
   });
 });

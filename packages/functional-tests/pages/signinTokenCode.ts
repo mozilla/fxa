@@ -7,13 +7,18 @@ import { BaseTokenCodePage } from './baseTokenCode';
 export class SigninTokenCodePage extends BaseTokenCodePage {
   readonly path = '/signin_token_code';
 
-  get tokenCodeHeader() {
+  get heading() {
     this.checkPath();
-    return this.page.locator('#fxa-signin-code-header');
+    return this.page.getByRole('heading', { name: /^Enter confirmation code/ });
   }
 
-  get resendLink() {
+  get resendCodeButton() {
     this.checkPath();
-    return this.page.locator('#resend');
+    return (
+      this.page
+        .getByRole('button', { name: /^Email new code/ })
+        // compatibility with backbone
+        .or(this.page.getByRole('link', { name: /^Email new code/ }))
+    );
   }
 }

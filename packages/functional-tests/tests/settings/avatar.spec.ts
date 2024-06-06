@@ -2,27 +2,27 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { TestAccountTracker } from '../../lib/testAccountTracker';
 import { Page, expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
-import { LoginPage } from '../../pages/login';
+import { TestAccountTracker } from '../../lib/testAccountTracker';
+import { SettingsPage } from '../../pages/settings';
+import { SigninPage } from '../../pages/signin';
 
 const AVATAR_IMAGE_PATH = './pages/settings/avatar.png';
 
 test.describe('severity-1 #smoke', () => {
   test('open and close avatar drop-down menu', async ({
     target,
-    pages: { page, login, settings },
+    pages: { page, settings, signin },
     testAccountTracker,
   }) => {
     const { email } = await signInAccount(
       target,
       page,
-      login,
+      settings,
+      signin,
       testAccountTracker
     );
-
-    await settings.goto();
 
     await expect(settings.avatarDropDownMenu).toBeHidden();
 
@@ -38,10 +38,10 @@ test.describe('severity-1 #smoke', () => {
 
   test('upload and remove avatar profile photo', async ({
     target,
-    pages: { page, login, settings, avatar },
+    pages: { avatar, page, settings, signin },
     testAccountTracker,
   }) => {
-    await signInAccount(target, page, login, testAccountTracker);
+    await signInAccount(target, page, settings, signin, testAccountTracker);
 
     await settings.goto();
 
@@ -87,15 +87,17 @@ test.describe('severity-1 #smoke', () => {
 async function signInAccount(
   target: BaseTarget,
   page: Page,
-  login: LoginPage,
+  settings: SettingsPage,
+  signin: SigninPage,
   testAccountTracker: TestAccountTracker
 ): Promise<Credentials> {
   const credentials = await testAccountTracker.signUp();
   await page.goto(target.contentServerUrl);
-  await login.fillOutEmailFirstSignIn(credentials.email, credentials.password);
+  await signin.fillOutEmailFirstForm(credentials.email);
+  await signin.fillOutPasswordForm(credentials.password);
 
   //Verify logged in on Settings page
-  expect(await login.isUserLoggedIn()).toBe(true);
+  await expect(settings.settingsHeading).toBeVisible();
 
   return credentials;
 }

@@ -7,7 +7,7 @@ import { expect, test } from '../../lib/fixtures/standard';
 test.describe('severity-2 #smoke', () => {
   test.describe('connect_another_device', () => {
     test('signin Fx Desktop, verify /connect_another_device page', async ({
-      syncBrowserPages: { connectAnotherDevice, page, login },
+      syncBrowserPages: { connectAnotherDevice, page, signin },
       target,
       testAccountTracker,
     }) => {
@@ -16,10 +16,8 @@ test.describe('severity-2 #smoke', () => {
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
       );
-      await login.fillOutEmailFirstSignIn(
-        credentials.email,
-        credentials.password
-      );
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
 
       await expect(page).toHaveURL(/connect_another_device/);
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();

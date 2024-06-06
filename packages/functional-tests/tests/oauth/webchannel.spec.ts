@@ -7,18 +7,19 @@ import { expect, test } from '../../lib/fixtures/standard';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('oauth webchannel', () => {
-    test.beforeEach(async ({ pages: { login } }) => {
-      await login.clearCache();
+    test.beforeEach(async ({ pages: { signin } }) => {
+      await signin.clearCache();
     });
 
     test('signup', async ({
-      pages: { configPage, login, relier },
+      pages: { page, configPage, confirmSignupCode, signup, relier },
+      target,
       testAccountTracker,
     }) => {
       const config = await configPage.getConfig();
-      test.skip(
+      test.fixme(
         config.showReactApp.signUpRoutes === true,
-        'this test is specific to backbone, skip if seeing React version'
+        'FXA-9519, loading spinner for CWTS'
       );
       const { email, password } = testAccountTracker.generateAccountDetails();
       const customEventDetail = createCustomEventDetail(
@@ -34,25 +35,25 @@ test.describe('severity-1 #smoke', () => {
 
       await relier.goto('context=oauth_webchannel_v1&automatedBrowser=true');
       await relier.clickEmailFirst();
-      await login.respondToWebChannelMessage(customEventDetail);
-      await login.setEmail(email);
-      await login.submit();
+      await signup.respondToWebChannelMessage(customEventDetail);
+      await signup.fillOutEmailForm(email);
 
-      // the CWTS form is on the same signup page
-      await expect(login.CWTSEngineHeader).toBeVisible();
-      await expect(login.CWTSEngineBookmarks).toBeVisible();
-      await expect(login.CWTSEngineHistory).toBeVisible();
+      // Signup form includes Choose what to sync options
+      await expect(signup.signupFormHeading).toBeVisible();
+      await expect(signup.CWTSEngineHeader).toBeVisible();
+      await expect(signup.CWTSEngineBookmarks).toBeVisible();
+      await expect(signup.CWTSEngineHistory).toBeVisible();
 
-      await login.fillOutFirstSignUp(email, password, {
-        enterEmail: false,
-        waitForNavOnSubmit: false,
-      });
+      await signup.fillOutSignupForm(password, '21');
+      await expect(page).toHaveURL(/confirm_signup_code/);
+      const code = await target.emailClient.getVerifyShortCode(email);
+      await confirmSignupCode.fillOutCodeForm(code);
 
-      await login.checkWebChannelMessage(FirefoxCommand.OAuthLogin);
+      await signup.checkWebChannelMessage(FirefoxCommand.OAuthLogin);
     });
 
     test('signin', async ({
-      pages: { login, relier, page },
+      pages: { signin, relier, page },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
@@ -68,7 +69,7 @@ test.describe('severity-1 #smoke', () => {
 
       await relier.goto('context=oauth_webchannel_v1&automatedBrowser=true');
       await relier.clickEmailFirst();
-      await login.respondToWebChannelMessage(customEventDetail);
+      await signin.respondToWebChannelMessage(customEventDetail);
 
       const { searchParams } = new URL(page.url());
       expect(searchParams.has('client_id')).toBe(true);
@@ -76,7 +77,8 @@ test.describe('severity-1 #smoke', () => {
       expect(searchParams.has('state')).toBe(true);
       expect(searchParams.has('context')).toBe(true);
 
-      await login.login(credentials.email, credentials.password, '', false);
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
     });
   });
 });

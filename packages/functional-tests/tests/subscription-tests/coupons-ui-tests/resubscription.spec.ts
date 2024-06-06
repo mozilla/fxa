@@ -9,14 +9,14 @@ import { TestAccountTracker } from '../../../lib/testAccountTracker';
 import { Coupon } from '../../../pages/products';
 import { SubscriptionManagementPage } from '../../../pages/products/subscriptionManagement';
 import { SettingsPage } from '../../../pages/settings';
-import { SigninReactPage } from '../../../pages/signinReact';
+import { SigninPage } from '../../../pages/signin';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('resubscription test', () => {
     test('resubscribe successfully with the same coupon after canceling for stripe', async ({
       target,
       page,
-      pages: { relier, subscribe, settings, signinReact },
+      pages: { relier, subscribe, settings, signin },
       testAccountTracker,
     }, { project }) => {
       test.skip(
@@ -27,7 +27,7 @@ test.describe('severity-2 #smoke', () => {
         target,
         page,
         settings,
-        signinReact,
+        signin,
         testAccountTracker
       );
 
@@ -50,12 +50,12 @@ test.describe('severity-2 #smoke', () => {
       await expect(subscribe.subscriptionConfirmationHeading).toBeVisible();
 
       //Signin to FxA account
-      await signinReact.goto();
+      await signin.goto();
 
-      await expect(signinReact.cachedSigninHeading).toBeVisible();
+      await expect(signin.cachedSigninHeading).toBeVisible();
       await expect(page.getByText(credentials.email)).toBeVisible();
 
-      await signinReact.signInButton.click();
+      await signin.signInButton.click();
       const newPage = await settings.clickPaidSubscriptions();
       const subscriptionManagement = new SubscriptionManagementPage(
         newPage,
@@ -87,13 +87,13 @@ async function signInAccount(
   target: BaseTarget,
   page: Page,
   settings: SettingsPage,
-  signinReact: SigninReactPage,
+  signin: SigninPage,
   testAccountTracker: TestAccountTracker
 ): Promise<Credentials> {
   const credentials = await testAccountTracker.signUp();
   await page.goto(target.contentServerUrl);
-  await signinReact.fillOutEmailFirstForm(credentials.email);
-  await signinReact.fillOutPasswordForm(credentials.password);
+  await signin.fillOutEmailFirstForm(credentials.email);
+  await signin.fillOutPasswordForm(credentials.password);
 
   await expect(page).toHaveURL(/settings/);
   await expect(settings.settingsHeading).toBeVisible();

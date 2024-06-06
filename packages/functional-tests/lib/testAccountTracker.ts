@@ -11,7 +11,7 @@ enum EmailPrefix {
   BOUNCED = 'bounced',
   FORCED_PWD_CHANGE = 'forcepwdchange',
   SIGNIN = 'signin',
-  SIGNUP_REACT = 'signup_react',
+  SIGNUP = 'signup',
   SYNC = 'sync',
 }
 
@@ -73,12 +73,12 @@ export class TestAccountTracker {
   }
 
   /**
-   * Creates a new email address with the 'signup_react' prefix and a new
+   * Creates a new email address with the 'signup' prefix and a new
    * randomized password
    * @returns AccountDetails
    */
-  generateSignupReactAccountDetails(): AccountDetails {
-    return this.generateAccountDetails(EmailPrefix.SIGNUP_REACT);
+  generateSignupAccountDetails(): AccountDetails {
+    return this.generateAccountDetails(EmailPrefix.SIGNUP);
   }
 
   /**

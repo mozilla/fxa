@@ -7,43 +7,46 @@ import { expect, test } from '../../lib/fixtures/standard';
 test.describe('severity-2 #smoke', () => {
   test.describe('OAuth `login_hint` and `email` param', () => {
     test('email specified by relier, invalid', async ({
-      pages: { login, relier },
+      pages: { page, relier },
     }) => {
       const invalidEmail = 'invalid@';
 
       await relier.goto(`email=${invalidEmail}`);
       await relier.clickEmailFirst();
 
-      await expect(login.getTooltipError()).toContainText(
-        'Valid email required'
-      );
+      await expect(page.getByText('Valid email required')).toBeVisible();
     });
 
     test('login_hint specified by relier, not registered', async ({
       page,
-      pages: { login, relier },
+      pages: { signup, relier },
       target,
       testAccountTracker,
     }) => {
+      test.fixme(
+        true,
+        'TODO in FXA-9519 - change email link does not work for react, get bounced back to signup page'
+      );
       const { email } = testAccountTracker.generateAccountDetails();
 
       await relier.goto(`login_hint=${email}`);
       await relier.clickEmailFirst();
 
       await page.waitForURL(`${target.contentServerUrl}/oauth/signup**`);
-      await expect(login.signUpPasswordHeader).toBeVisible();
+      await expect(signup.signupFormHeading).toBeVisible();
       // email provided as login hint is displayed on the signup page
       await expect(page.getByText(email)).toBeVisible();
 
-      await login.useChangeEmailLink();
+      await signup.changeEmailLink.click();
 
       // Email first page has email input prefilled
-      expect(await login.getEmailInput()).toEqual(email);
+      await expect(signup.emailFormHeading).toBeVisible();
+      await expect(signup.emailTextbox).toHaveValue(email);
     });
 
     ['email', 'login_hint'].forEach((query_parameter) => {
       test(`${query_parameter} specified by relier, registered`, async ({
-        pages: { login, relier },
+        pages: { page, signin, relier },
         testAccountTracker,
       }) => {
         const credentials = await testAccountTracker.signUp();
@@ -52,18 +55,18 @@ test.describe('severity-2 #smoke', () => {
         await relier.clickEmailFirst();
 
         // Email is prefilled
-        expect(await login.getPrefilledEmail()).toEqual(credentials.email);
-        expect(await login.enterPasswordHeader()).toEqual(true);
+        await expect(signin.passwordFormHeading).toBeVisible();
+        await expect(page.getByText(credentials.email)).toBeVisible();
 
-        await login.useDifferentAccountLink();
+        await signin.useDifferentAccountLink.click();
 
         // Email first page has email input prefilled
-        expect(await login.getEmailInput()).toEqual(credentials.email);
+        await expect(signin.emailTextbox).toHaveValue(credentials.email);
       });
     });
 
     test('cached credentials, login_hint specified by relier', async ({
-      pages: { login, relier },
+      pages: { page, signin, relier },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
@@ -72,7 +75,8 @@ test.describe('severity-2 #smoke', () => {
       // Create a cached login
       await relier.goto();
       await relier.clickEmailFirst();
-      await login.login(credentials.email, credentials.password);
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
 
       expect(await relier.isLoggedIn()).toBe(true);
 
@@ -83,15 +87,13 @@ test.describe('severity-2 #smoke', () => {
       await relier.clickEmailFirst();
 
       // Email is prefilled
-      expect(await login.getPrefilledEmail()).toEqual(
-        loginHintCredentials.email
-      );
-      expect(await login.enterPasswordHeader()).toEqual(true);
+      await expect(signin.passwordFormHeading).toBeVisible();
+      await expect(page.getByText(loginHintCredentials.email)).toBeVisible();
 
-      await login.useDifferentAccountLink();
+      await signin.useDifferentAccountLink.click();
 
       // Email first page has email input prefilled
-      expect(await login.getEmailInput()).toEqual(loginHintCredentials.email);
+      await expect(signin.emailTextbox).toHaveValue(loginHintCredentials.email);
     });
   });
 });

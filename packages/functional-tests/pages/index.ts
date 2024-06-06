@@ -2,7 +2,7 @@ import { Page } from '@playwright/test';
 import { AvatarPage } from './settings/avatar';
 import { BaseTarget } from '../lib/targets/base';
 import { ConfigPage } from './config';
-import { ConfirmSignupCodePage } from './confirmSignupCodePage.ts';
+import { ConfirmSignupCodePage } from './confirmSignupCode';
 import { ConnectAnotherDevicePage } from './connectAnotherDevice';
 import { CookiesDisabledPage } from './cookiesDisabled';
 import { ChangePasswordPage } from './settings/changePassword';
@@ -17,14 +17,15 @@ import { PostVerifyPage } from './postVerify';
 import { PrivacyPage } from './privacy';
 import { RecoveryKeyPage } from './settings/recoveryKey';
 import { RelierPage } from './relier';
-import { ResetPasswordReactPage } from './resetPasswordReact';
+import { ResetPasswordPage } from './resetPassword';
 import { SecondaryEmailPage } from './settings/secondaryEmail';
 import { SettingsPage } from './settings';
-import { SigninReactPage } from './signinReact';
-import { SigninTokenCodePage } from './signinTokenCode.ts';
-import { SigninTotpCodePage } from './signinTotpCode.ts';
-import { SigninUnblockPage } from './signinUnblock.ts';
-import { SignupReactPage } from './signupReact';
+import { SigninPage } from './signin';
+import { SigninRecoveryCodePage } from './signinRecoveryCode';
+import { SigninTokenCodePage } from './signinTokenCode';
+import { SigninTotpCodePage } from './signinTotpCode';
+import { SigninUnblockPage } from './signinUnblock';
+import { SignupPage } from './signup';
 import { SubscribePage } from './products';
 import { TermsOfService } from './termsOfService';
 import { TotpPage } from './settings/totp';
@@ -49,14 +50,15 @@ export function create(page: Page, target: BaseTarget) {
     privacy: new PrivacyPage(page, target),
     recoveryKey: new RecoveryKeyPage(page, target),
     relier: new RelierPage(page, target),
-    resetPasswordReact: new ResetPasswordReactPage(page, target),
+    resetPassword: new ResetPasswordPage(page, target),
     secondaryEmail: new SecondaryEmailPage(page, target),
     settings: new SettingsPage(page, target),
-    signinReact: new SigninReactPage(page, target),
+    signin: new SigninPage(page, target),
+    signinRecoveryCode: new SigninRecoveryCodePage(page, target),
     signinTokenCode: new SigninTokenCodePage(page, target),
     signinTotpCode: new SigninTotpCodePage(page, target),
     signinUnblock: new SigninUnblockPage(page, target),
-    signupReact: new SignupReactPage(page, target),
+    signup: new SignupPage(page, target),
     subscribe: new SubscribePage(page, target),
     termsOfService: new TermsOfService(page, target),
     totp: new TotpPage(page, target),

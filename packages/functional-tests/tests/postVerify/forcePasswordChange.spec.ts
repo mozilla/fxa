@@ -8,21 +8,27 @@ test.describe('severity-2 #smoke', () => {
   test.describe('post verify - force password change', () => {
     test('navigate to page directly and can change password', async ({
       target,
-      pages: { page, login, postVerify },
+      pages: {
+        deleteAccount,
+        page,
+        settings,
+        signin,
+        signinTokenCode,
+        postVerify,
+      },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUpForced();
       const newPassword = testAccountTracker.generatePassword();
 
       await page.goto(target.contentServerUrl);
-      await login.fillOutEmailFirstSignIn(
-        credentials.email,
-        credentials.password
-      );
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
+      await expect(page).toHaveURL(/signin_token_code/);
       const code = await target.emailClient.getVerifyLoginCode(
         credentials.email
       );
-      await login.fillOutSignInCode(code);
+      await signinTokenCode.fillOutCodeForm(code);
 
       //Verify force password change header
       expect(await postVerify.isForcePasswordChangeHeader()).toBe(true);
@@ -30,15 +36,27 @@ test.describe('severity-2 #smoke', () => {
       //Fill out change password
       await postVerify.fillOutChangePassword(credentials.password, newPassword);
       await postVerify.submit();
-      credentials.password = newPassword;
 
       //Verify logged in on Settings page
-      expect(await login.isUserLoggedIn()).toBe(true);
+      await expect(settings.settingsHeading).toBeVisible();
+      await settings.deleteAccountButton.click();
+      await deleteAccount.deleteAccount(newPassword);
+      await expect(
+        page.getByText('Account deleted successfully')
+      ).toBeVisible();
     });
 
-    test('force change password on login - oauth', async ({
+    test('force change password on signin - oauth', async ({
       target,
-      pages: { login, postVerify, relier },
+      pages: {
+        page,
+        deleteAccount,
+        settings,
+        signin,
+        signinTokenCode,
+        postVerify,
+        relier,
+      },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUpForced();
@@ -46,14 +64,13 @@ test.describe('severity-2 #smoke', () => {
 
       await relier.goto();
       await relier.clickEmailFirst();
-      await login.fillOutEmailFirstSignIn(
-        credentials.email,
-        credentials.password
-      );
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
+      await expect(page).toHaveURL(/signin_token_code/);
       const code = await target.emailClient.getVerifyLoginCode(
         credentials.email
       );
-      await login.fillOutSignInCode(code);
+      await signinTokenCode.fillOutCodeForm(code);
 
       //Verify force password change header
       expect(await postVerify.isForcePasswordChangeHeader()).toBe(true);
@@ -61,10 +78,17 @@ test.describe('severity-2 #smoke', () => {
       //Fill out change password
       await postVerify.fillOutChangePassword(credentials.password, newPassword);
       await postVerify.submit();
-      credentials.password = newPassword;
 
       //Verify logged in on relier page
       expect(await relier.isLoggedIn()).toBe(true);
+
+      await settings.goto();
+      await expect(settings.settingsHeading).toBeVisible();
+      await settings.deleteAccountButton.click();
+      await deleteAccount.deleteAccount(newPassword);
+      await expect(
+        page.getByText('Account deleted successfully')
+      ).toBeVisible();
     });
   });
 });

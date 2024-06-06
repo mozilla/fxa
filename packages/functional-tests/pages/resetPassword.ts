@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test';
 import { BaseLayout } from './layout';
 
-export class ResetPasswordReactPage extends BaseLayout {
+export class ResetPasswordPage extends BaseLayout {
   readonly path = '';
 
   get resetPasswordHeading() {

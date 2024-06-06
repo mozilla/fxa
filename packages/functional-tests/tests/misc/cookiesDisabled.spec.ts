@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { test, expect } from '../../lib/fixtures/standard';
+import { expect, test } from '../../lib/fixtures/standard';
 
 //Add `disable_local_storage` to the URL to synthesize cookies being disabled.
 test.describe('cookies disabled', () => {
-  test.beforeEach(async ({ pages: { login } }) => {
-    await login.clearCache();
+  test.beforeEach(async ({ pages: { signin } }) => {
+    await signin.clearCache();
   });
 
   test('visit signup page with localStorage disabled', async ({
@@ -35,7 +35,7 @@ test.describe('cookies disabled', () => {
   test('synthesize enabling cookies by visiting the enter email page, then cookies_disabled, then clicking "try again', async ({
     target,
     page,
-    pages: { cookiesDisabled, login },
+    pages: { cookiesDisabled, signin },
   }) => {
     //Goto cookies enabled url
     await page.goto(target.contentServerUrl, {
@@ -43,7 +43,7 @@ test.describe('cookies disabled', () => {
     });
 
     //Verify Email header
-    await login.waitForEmailHeader();
+    await expect(signin.emailFirstHeading).toBeVisible();
 
     //Goto cookies disabled url
     await page.goto(`${target.contentServerUrl}/cookies_disabled`, {
@@ -62,7 +62,7 @@ test.describe('cookies disabled', () => {
     await page.waitForLoadState();
 
     //Verify Email header
-    await login.waitForEmailHeader();
+    await expect(signin.emailFirstHeading).toBeVisible();
   });
 
   test('visit verify page with localStorage disabled', async ({

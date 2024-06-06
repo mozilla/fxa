@@ -2,9 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { test, expect } from '../../lib/fixtures/standard';
 import { getCode } from 'fxa-settings/src/lib/totp';
-import { createCustomEventDetail, FirefoxCommand } from '../../lib/channels';
+import { expect, test } from '../../lib/fixtures/standard';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('two step auth', () => {
@@ -17,14 +16,14 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('add totp', async ({
-      pages: { settings, totp, page, signinReact, signupReact },
+      pages: { settings, totp, page, signin, signup },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
 
-      await signinReact.goto();
-      await signinReact.fillOutEmailFirstForm(credentials.email);
-      await signinReact.fillOutPasswordForm(credentials.password);
+      await signin.goto();
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
 
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.totp.status).toHaveText('Not Set');
@@ -39,11 +38,11 @@ test.describe('severity-1 #smoke', () => {
       await expect(settings.totp.status).toHaveText('Enabled');
 
       await settings.signOut();
-      await signinReact.goto();
-      await signupReact.fillOutEmailForm(credentials.email);
-      await signinReact.fillOutPasswordForm(credentials.password);
+      await signin.goto();
+      await signup.fillOutEmailForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
       const code = await getCode(secret);
-      await signinReact.fillOutAuthenticationForm(code);
+      await signin.fillOutAuthenticationForm(code);
 
       await expect(page).toHaveURL(/settings/);
       await expect(settings.settingsHeading).toBeVisible();
@@ -53,21 +52,14 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('add totp, login with sync', async ({
-      pages: {
-        connectAnotherDevice,
-        settings,
-        totp,
-        page,
-        signinReact,
-        signupReact,
-      },
+      pages: { connectAnotherDevice, settings, totp, page, signin, signup },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
 
-      await signinReact.goto();
-      await signinReact.fillOutEmailFirstForm(credentials.email);
-      await signinReact.fillOutPasswordForm(credentials.password);
+      await signin.goto();
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
 
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.totp.status).toHaveText('Not Set');
@@ -87,12 +79,12 @@ test.describe('severity-1 #smoke', () => {
       syncParams.append('context', 'fx_desktop_v3');
       syncParams.append('service', 'sync');
       syncParams.append('action', 'email');
-      await signinReact.goto('/', syncParams);
+      await signin.goto('/', syncParams);
 
-      await signupReact.fillOutEmailForm(credentials.email);
-      await signinReact.fillOutPasswordForm(credentials.password);
+      await signup.fillOutEmailForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
       const code = await getCode(secret);
-      await signinReact.fillOutAuthenticationForm(code);
+      await signin.fillOutAuthenticationForm(code);
 
       await expect(page).toHaveURL(/connect_another_device/);
 
@@ -103,14 +95,14 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('error message when totp code is invalid', async ({
-      pages: { settings, totp, signinReact, signupReact },
+      pages: { settings, totp, signin, signup },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
 
-      await signinReact.goto();
-      await signinReact.fillOutEmailFirstForm(credentials.email);
-      await signinReact.fillOutPasswordForm(credentials.password);
+      await signin.goto();
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
 
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.totp.status).toHaveText('Not Set');
@@ -125,18 +117,18 @@ test.describe('severity-1 #smoke', () => {
       await expect(settings.totp.status).toHaveText('Enabled');
 
       await settings.signOut();
-      await signinReact.goto();
-      await signupReact.fillOutEmailForm(credentials.email);
-      await signinReact.fillOutPasswordForm(credentials.password);
-      await signinReact.fillOutAuthenticationForm('111111');
+      await signin.goto();
+      await signup.fillOutEmailForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
+      await signin.fillOutAuthenticationForm('111111');
 
-      await expect(signinReact.authenticationCodeTextboxTooltip).toHaveText(
+      await expect(signin.authenticationCodeTextboxTooltip).toHaveText(
         'Invalid two-step authentication code'
       );
 
       // Required before teardown
       const code = await getCode(secret);
-      await signinReact.fillOutAuthenticationForm(code);
+      await signin.fillOutAuthenticationForm(code);
       await settings.disconnectTotp();
     });
   });

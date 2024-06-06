@@ -7,10 +7,15 @@ import { BaseTokenCodePage } from './baseTokenCode';
 export class SigninTotpCodePage extends BaseTokenCodePage {
   readonly path = '/signin_totp_code';
 
-  get input() {
+  get codeInput() {
     this.checkPath();
     return this.page
       .getByLabel('Enter 6-digit code') // React
       .or(this.page.getByPlaceholder('Enter 6-digit code')); //Backbone
+  }
+
+  get useRecoveryCodeLink() {
+    this.checkPath();
+    return this.page.getByRole('link', { name: 'Trouble entering code?' });
   }
 }

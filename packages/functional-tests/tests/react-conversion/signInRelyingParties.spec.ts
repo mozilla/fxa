@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { test, expect } from '../../lib/fixtures/standard';
-import { createCustomEventDetail, FirefoxCommand } from '../../lib/channels';
 
 test.describe('severity-1 #smoke', () => {
   test('react signin to sync and disconnect', async ({
@@ -11,7 +10,7 @@ test.describe('severity-1 #smoke', () => {
       configPage,
       connectAnotherDevice,
       page,
-      signinReact,
+      signin,
       settings,
     },
     testAccountTracker,
@@ -24,15 +23,15 @@ test.describe('severity-1 #smoke', () => {
 
     const credentials = await testAccountTracker.signUp();
 
-    await signinReact.goto(
+    await signin.goto(
       undefined,
       new URLSearchParams(
         'context=fx_desktop_v3&entrypoint=fxa%3Aenter_email&service=sync&action=email'
       )
     );
 
-    await signinReact.fillOutEmailFirstForm(credentials.email);
-    await signinReact.fillOutPasswordForm(credentials.password);
+    await signin.fillOutEmailFirstForm(credentials.email);
+    await signin.fillOutPasswordForm(credentials.password);
 
     await expect(connectAnotherDevice.fxaConnected).toBeEnabled();
     await connectAnotherDevice.startBrowsingButton.click();
@@ -45,7 +44,7 @@ test.describe('severity-1 #smoke', () => {
   });
 
   test('react disconnect RP #1293475', async ({
-    pages: { configPage, page, relier, signinReact, settings },
+    pages: { configPage, page, relier, signin, settings },
     testAccountTracker,
   }, { project }) => {
     const config = await configPage.getConfig();
@@ -71,8 +70,8 @@ test.describe('severity-1 #smoke', () => {
       `${page.url()}&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
     );
 
-    await signinReact.fillOutEmailFirstForm(credentials.email);
-    await signinReact.fillOutPasswordForm(credentials.password);
+    await signin.fillOutEmailFirstForm(credentials.email);
+    await signin.fillOutPasswordForm(credentials.password);
     expect(await relier.isLoggedIn()).toBe(true);
 
     // Login to settings with cached creds

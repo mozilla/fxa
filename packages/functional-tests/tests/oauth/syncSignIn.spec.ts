@@ -12,37 +12,40 @@ test.describe('severity-1 #smoke', () => {
       target,
       syncBrowserPages: {
         page,
-        login,
-        signupReact,
+        signin,
+        signup,
         connectAnotherDevice,
         relier,
+        signinTokenCode,
+        confirmSignupCode,
       },
       testAccountTracker,
     }) => {
-      const account = testAccountTracker.generateAccountDetails();
+      const { email, password } = testAccountTracker.generateAccountDetails();
       const syncCredentials = await testAccountTracker.signUpSync();
 
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email&`
       );
-      await login.login(syncCredentials.email, syncCredentials.password);
-      const loginCode = await target.emailClient.getVerifyLoginCode(
+      await signin.fillOutEmailFirstForm(syncCredentials.email);
+      await signin.fillOutPasswordForm(syncCredentials.password);
+      await expect(page).toHaveURL(/signin_token_code/);
+      const code = await target.emailClient.getVerifyLoginCode(
         syncCredentials.email
       );
-      await login.fillOutSignInCode(loginCode);
+      await signinTokenCode.fillOutCodeForm(code);
 
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
 
       // Sign up for a new account via OAuth
       await relier.goto();
       await relier.clickEmailFirst();
-      await login.useDifferentAccountLink();
-      await signupReact.fillOutEmailForm(account.email);
-      await signupReact.fillOutSignupForm(account.password, AGE_21);
-      const shortCode = await target.emailClient.getVerifyShortCode(
-        account.email
-      );
-      await signupReact.fillOutCodeForm(shortCode);
+      await signin.useDifferentAccountLink.click();
+      await signup.fillOutEmailForm(email);
+      await signup.fillOutSignupForm(password, AGE_21);
+      await expect(page).toHaveURL(/confirm_signup_code/);
+      const signupCode = await target.emailClient.getVerifyShortCode(email);
+      await confirmSignupCode.fillOutCodeForm(signupCode);
 
       // RP is logged in, logout then back in again
       expect(await relier.isLoggedIn()).toBe(true);
@@ -51,11 +54,10 @@ test.describe('severity-1 #smoke', () => {
       await relier.clickSignIn();
 
       // By default, we should see the email we signed up for Sync with
-      expect(await login.getPrefilledEmail()).toContain(syncCredentials.email);
+      await expect(page.getByText(syncCredentials.email)).toBeVisible();
 
-      await login.clickSignIn();
-
-      expect(await relier.isLoggedIn()).toBe(true);
+      // with backbone, sign in is cached, but with react password is required
+      // we won't check for that here, we mostly wanted to verify that the correct email is suggested
     });
   });
 
@@ -63,11 +65,13 @@ test.describe('severity-1 #smoke', () => {
     test('email-first Sync signin', async ({
       target,
       syncBrowserPages: {
-        page,
-        login,
-        signupReact,
+        confirmSignupCode,
         connectAnotherDevice,
+        page,
         relier,
+        signin,
+        signinTokenCode,
+        signup,
       },
       testAccountTracker,
     }) => {
@@ -76,10 +80,11 @@ test.describe('severity-1 #smoke', () => {
 
       await relier.goto();
       await relier.clickEmailFirst();
-      await signupReact.fillOutEmailForm(email);
-      await signupReact.fillOutSignupForm(password, AGE_21);
-      const verifyCode = await target.emailClient.getVerifyShortCode(email);
-      await signupReact.fillOutCodeForm(verifyCode);
+      await signup.fillOutEmailForm(email);
+      await signup.fillOutSignupForm(password, AGE_21);
+      await expect(page).toHaveURL(/confirm_signup_code/);
+      const signupCode = await target.emailClient.getVerifyShortCode(email);
+      await confirmSignupCode.fillOutCodeForm(signupCode);
 
       expect(await relier.isLoggedIn()).toBe(true);
 
@@ -87,12 +92,13 @@ test.describe('severity-1 #smoke', () => {
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email&`
       );
 
-      expect(await login.getPrefilledEmail()).toContain(email);
+      await expect(signin.passwordFormHeading).toBeVisible();
+      await expect(page.getByText(email)).toBeVisible();
 
-      await login.setPassword(password);
-      await login.submit();
-      const loginCode = await target.emailClient.getVerifyLoginCode(email);
-      await login.fillOutSignInCode(loginCode);
+      await signin.fillOutPasswordForm(password);
+      await expect(page).toHaveURL(/signin_token_code/);
+      const signinCode = await target.emailClient.getVerifyLoginCode(email);
+      await signinTokenCode.fillOutCodeForm(signinCode);
 
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
     });

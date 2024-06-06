@@ -4,8 +4,8 @@
 
 import { expect, test } from '../../../lib/fixtures/standard';
 import { syncMobileOAuthQueryParams } from '../../../lib/query-params';
-import { ResetPasswordReactPage } from '../../../pages/resetPasswordReact';
-import { SigninReactPage } from '../../../pages/signinReact';
+import { ResetPasswordPage } from '../../../pages/resetPassword';
+import { SigninPage } from '../../../pages/signin';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('oauth reset password Sync mobile react', () => {
@@ -20,7 +20,7 @@ test.describe('severity-1 #smoke', () => {
     test('reset password through Sync mobile', async ({
       target,
       page,
-      pages: { connectAnotherDevice, resetPasswordReact, signinReact },
+      pages: { connectAnotherDevice, resetPassword, signin },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
@@ -32,22 +32,18 @@ test.describe('severity-1 #smoke', () => {
         }/authorization/?${syncMobileOAuthQueryParams.toString()}`
       );
 
-      await beginPasswordReset(
-        resetPasswordReact,
-        signinReact,
-        credentials.email
-      );
+      await beginPasswordReset(resetPassword, signin, credentials.email);
 
       const code = await target.emailClient.getResetPasswordCode(
         credentials.email
       );
 
-      await resetPasswordReact.fillOutResetPasswordCodeForm(code);
-      await resetPasswordReact.fillOutNewPasswordForm(newPassword);
+      await resetPassword.fillOutResetPasswordCodeForm(code);
+      await resetPassword.fillOutNewPasswordForm(newPassword);
 
       await expect(page).toHaveURL(/reset_password_verified/);
       await expect(
-        resetPasswordReact.passwordResetConfirmationHeading
+        resetPassword.passwordResetConfirmationHeading
       ).toBeVisible();
 
       // TODO in FXA-9561 - Remove this temporary test of sign in with new password
@@ -58,10 +54,10 @@ test.describe('severity-1 #smoke', () => {
       );
       // expect user to be signed in to sync and prompted for cached signin
       // old password fails
-      await signinReact.fillOutPasswordForm(credentials.password);
+      await signin.fillOutPasswordForm(credentials.password);
       await expect(page.getByText('Incorrect password')).toBeVisible();
       // new passwowrd works
-      await signinReact.fillOutPasswordForm(newPassword);
+      await signin.fillOutPasswordForm(newPassword);
 
       await expect(connectAnotherDevice.header).toBeVisible();
 
@@ -71,12 +67,12 @@ test.describe('severity-1 #smoke', () => {
   });
 
   async function beginPasswordReset(
-    resetPasswordReact: ResetPasswordReactPage,
-    signinReact: SigninReactPage,
+    resetPassword: ResetPasswordPage,
+    signin: SigninPage,
     email: string
   ): Promise<void> {
-    await signinReact.fillOutEmailFirstForm(email);
-    await signinReact.forgotPasswordLink.click();
-    await resetPasswordReact.fillOutEmailForm(email);
+    await signin.fillOutEmailFirstForm(email);
+    await signin.forgotPasswordLink.click();
+    await resetPassword.fillOutEmailForm(email);
   }
 });

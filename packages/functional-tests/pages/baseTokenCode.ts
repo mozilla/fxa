@@ -5,9 +5,24 @@
 import { BaseLayout } from './layout';
 
 export abstract class BaseTokenCodePage extends BaseLayout {
-  get tooltip() {
+  get codeInput() {
     this.checkPath();
-    return this.page.locator('.tooltip');
+    return this.page.getByRole('textbox');
+  }
+
+  get resendCodeButton() {
+    this.checkPath();
+    return (
+      this.page
+        .getByRole('button', { name: /^Email new code/ })
+        // compatibility with backbone
+        .or(this.page.getByRole('link', { name: /^Email new code/ }))
+    );
+  }
+
+  get submitButton() {
+    this.checkPath();
+    return this.page.getByRole('button', { name: 'Confirm' });
   }
 
   get successMessage() {
@@ -15,13 +30,14 @@ export abstract class BaseTokenCodePage extends BaseLayout {
     return this.page.locator('.success');
   }
 
-  get input() {
+  get tooltip() {
     this.checkPath();
-    return this.page.locator('input[type=text]');
+    return this.page.locator('.tooltip');
   }
 
-  get submit() {
+  async fillOutCodeForm(code: string) {
     this.checkPath();
-    return this.page.locator('button[type=submit]');
+    await this.codeInput.fill(code);
+    await this.submitButton.click();
   }
 }

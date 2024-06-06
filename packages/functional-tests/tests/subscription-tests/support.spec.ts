@@ -13,16 +13,16 @@ import {
   SubscriptionSupportPage,
   Topic,
 } from '../../pages/products/support';
-import { SigninReactPage } from '../../pages/signinReact';
+import { SigninPage } from '../../pages/signin';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('support form without valid session', () => {
     test('go to support form, redirects to index', async ({
       page,
       target,
-      pages: { login, settings },
+      pages: { signin, settings },
     }) => {
-      await login.clearCache();
+      await signin.clearCache();
       await page.goto(`${target.contentServerUrl}/support`);
 
       await expect(settings.settingsHeading).toBeVisible();
@@ -33,16 +33,10 @@ test.describe('severity-1 #smoke', () => {
     test('go to support form, redirects to subscription management, then back to settings', async ({
       page,
       target,
-      pages: { settings, signinReact },
+      pages: { settings, signin },
       testAccountTracker,
     }) => {
-      await signInAccount(
-        target,
-        page,
-        settings,
-        signinReact,
-        testAccountTracker
-      );
+      await signInAccount(target, page, settings, signin, testAccountTracker);
       await page.goto(`${target.contentServerUrl}/support`);
 
       await expect(page).toHaveURL(/settings/);
@@ -59,7 +53,7 @@ test.describe('severity-2 #smoke', () => {
     test('go to support form, cancel, redirects to subscription management', async ({
       target,
       page,
-      pages: { relier, subscribe, settings, signinReact },
+      pages: { relier, subscribe, settings, signin },
       testAccountTracker,
     }, { project }) => {
       test.skip(
@@ -71,7 +65,7 @@ test.describe('severity-2 #smoke', () => {
         target,
         page,
         settings,
-        signinReact,
+        signin,
         testAccountTracker
       );
 
@@ -87,12 +81,12 @@ test.describe('severity-2 #smoke', () => {
       await expect(subscribe.subscriptionConfirmationHeading).toBeVisible();
 
       //Signin to FxA account
-      await signinReact.goto();
+      await signin.goto();
 
-      await expect(signinReact.cachedSigninHeading).toBeVisible();
+      await expect(signin.cachedSigninHeading).toBeVisible();
       await expect(page.getByText(credentials.email)).toBeVisible();
 
-      await signinReact.signInButton.click();
+      await signin.signInButton.click();
       const newPage = await settings.clickPaidSubscriptions();
       const subscriptionManagement = new SubscriptionManagementPage(
         newPage,
@@ -123,13 +117,13 @@ async function signInAccount(
   target: BaseTarget,
   page: Page,
   settings: SettingsPage,
-  signinReact: SigninReactPage,
+  signin: SigninPage,
   testAccountTracker: TestAccountTracker
 ): Promise<Credentials> {
   const credentials = await testAccountTracker.signUp();
   await page.goto(target.contentServerUrl);
-  await signinReact.fillOutEmailFirstForm(credentials.email);
-  await signinReact.fillOutPasswordForm(credentials.password);
+  await signin.fillOutEmailFirstForm(credentials.email);
+  await signin.fillOutPasswordForm(credentials.password);
 
   await expect(page).toHaveURL(/settings/);
   await expect(settings.settingsHeading).toBeVisible();

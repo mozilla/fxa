@@ -37,7 +37,7 @@ test.describe('severity-1 #smoke', () => {
     test('valid code then click back', async ({
       target,
       page,
-      pages: { login },
+      pages: { login, settings },
       testAccountTracker,
     }) => {
       const { email, password } = testAccountTracker.generateAccountDetails();
@@ -49,13 +49,13 @@ test.describe('severity-1 #smoke', () => {
         waitForNavOnSubmit: false,
       });
       await page.goBack({ waitUntil: 'load' });
-      expect(await login.isUserLoggedIn()).toBe(true);
+      await expect(settings.settingsHeading).toBeVisible();
     });
 
     test('invalid code', async ({
       target,
       page,
-      pages: { login, signinTokenCode },
+      pages: { confirmSignupCode, login },
       testAccountTracker,
     }) => {
       const { email, password } = testAccountTracker.generateAccountDetails();
@@ -63,8 +63,8 @@ test.describe('severity-1 #smoke', () => {
         waitUntil: 'load',
       });
       await login.fillOutFirstSignUp(email, password, { verify: false });
-      await login.setCode('1234');
-      await signinTokenCode.submit.click();
+      await expect(page).toHaveURL(/confirm_signup_code/);
+      await confirmSignupCode.fillOutCodeForm('1234');
       await expect(login.getTooltipError()).toContainText(
         'Invalid or expired confirmation code'
       );

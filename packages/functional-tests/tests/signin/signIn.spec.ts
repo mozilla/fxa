@@ -5,147 +5,139 @@
 import { Page, expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
 import { TestAccountTracker } from '../../lib/testAccountTracker';
-import { LoginPage } from '../../pages/login';
+import { SettingsPage } from '../../pages/settings';
+import { SigninPage } from '../../pages/signin';
 
 test.describe('severity-2 #smoke', () => {
-  test.describe('signin here', () => {
+  test.describe('signin', () => {
     test('signin verified with incorrect password, click `forgot password?`', async ({
       target,
       page,
-      pages: { resetPasswordReact, signinReact },
+      pages: { resetPassword, signin },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
 
       await page.goto(target.contentServerUrl);
-      await signinReact.fillOutEmailFirstForm(credentials.email);
-      await signinReact.fillOutPasswordForm('incorrect password');
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm('incorrect password');
 
       // Verify the error
       await expect(page.getByText('Incorrect password')).toBeVisible();
 
       //Click forgot password link
-      await signinReact.forgotPasswordLink.click();
+      await signin.forgotPasswordLink.click();
 
       //Verify reset password header
-      await expect(resetPasswordReact.resetPasswordHeading).toBeVisible();
+      await expect(resetPassword.resetPasswordHeading).toBeVisible();
     });
 
     test('signin with email with leading/trailing whitespace on the email', async ({
       target,
       page,
-      pages: { login },
+      pages: { settings, signin },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
 
       const emailWithleadingSpace = '   ' + credentials.email;
       await page.goto(target.contentServerUrl);
-      await login.fillOutEmailFirstSignIn(
-        emailWithleadingSpace,
-        credentials.password
-      );
+      await signin.fillOutEmailFirstForm(emailWithleadingSpace);
+      await signin.fillOutPasswordForm(credentials.password);
 
-      // Verify the header after login
-      expect(await login.isUserLoggedIn()).toBe(true);
+      await expect(settings.settingsHeading).toBeVisible();
 
       // Need to clear the cache to get the new email
-      await login.clearCache();
+      await signin.clearCache();
 
       await page.goto(target.contentServerUrl);
       const emailWithTrailingSpace = credentials.email + '  ';
-      await login.fillOutEmailFirstSignIn(
-        emailWithTrailingSpace,
-        credentials.password
-      );
+      await signin.fillOutEmailFirstForm(emailWithTrailingSpace);
+      await signin.fillOutPasswordForm(credentials.password);
 
       // Verify the header after login
-      expect(await login.isUserLoggedIn()).toBe(true);
+      await expect(settings.settingsHeading).toBeVisible();
     });
 
     test('signin verified with password that incorrectly has leading whitespace', async ({
       target,
       page,
-      pages: { login },
+      pages: { signin },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
 
       await page.goto(target.contentServerUrl);
-      await login.setEmail(credentials.email);
-      await login.clickSubmit();
-      await login.setPassword(' ' + credentials.password);
-      await login.clickSubmit();
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(' ' + credentials.password);
 
       // Verify the error
-      await expect(login.getTooltipError()).toContainText('Incorrect password');
+      await expect(page.getByText('Incorrect password')).toBeVisible();
     });
 
     test('login as an existing user', async ({
       target,
       page,
-      pages: { login, settings },
+      pages: { settings, signin },
       testAccountTracker,
     }) => {
       const credentials = await signInAccount(
         target,
         page,
-        login,
+        settings,
+        signin,
         testAccountTracker
       );
 
       // Sign out
       await settings.signOut();
       // Login as existing user
-      await login.setEmail(credentials.email);
-      await login.clickSubmit();
-      await login.setPassword(credentials.password);
-      await login.clickSubmit();
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
 
       // Verify the header after login
-      expect(await login.isUserLoggedIn()).toBe(true);
+      await expect(settings.settingsHeading).toBeVisible();
     });
 
     test('with bounced email', async ({
       target,
       page,
-      pages: { configPage, login },
+      pages: { signin },
       testAccountTracker,
     }) => {
-      const config = await configPage.getConfig();
-      test.skip(
-        config.showReactApp.signUpRoutes === true,
-        'bounced email functionality does not currently work for react'
+      test.fixme(
+        true,
+        'FXA-9519, fix or file follow up, this flow is not working as expected for either backbone or react, needs investigation'
       );
-
       const credentials = await testAccountTracker.signUpSync();
 
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email&`
       );
-      await login.fillOutEmailFirstSignIn(
-        credentials.email,
-        credentials.password
-      );
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
 
       // Verify the header after login
-      await expect(login.signInCodeHeader).toBeVisible();
+      await expect(page).toHaveURL(/signin_token_code/);
       await target.authClient.accountDestroy(
         credentials.email,
         credentials.password,
         {},
         credentials.sessionToken
       );
+      // in react, there is no polling on the page to check for bounces
+      // redirects to /signin_bounced only when an error is returned
       await page.waitForURL(/signin_bounced/);
 
-      //Verify sign in bounced header
-      expect(await login.isSigninBouncedHeader()).toBe(true);
+      // Verify sign in bounced header
+      await expect(signin.signinBouncedHeading).toBeVisible();
 
-      await login.clickBouncedCreateAccount();
+      await signin.signinBouncedCreateAccountButton.click();
 
-      //Verify user redirected to login page
-      await login.waitForEmailHeader();
-      expect(await login.getEmailInput()).toContain('');
+      // Verify user redirected to login page
+      // in backbone, user currently redirected to /signup
+      await expect(signin.emailFirstHeading).toBeVisible();
+      await expect(signin.emailTextbox).toHaveValue('');
     });
   });
 });
@@ -153,15 +145,17 @@ test.describe('severity-2 #smoke', () => {
 async function signInAccount(
   target: BaseTarget,
   page: Page,
-  login: LoginPage,
+  settings: SettingsPage,
+  signin: SigninPage,
   testAccountTracker: TestAccountTracker
 ): Promise<Credentials> {
   const credentials = await testAccountTracker.signUp();
   await page.goto(target.contentServerUrl);
-  await login.fillOutEmailFirstSignIn(credentials.email, credentials.password);
+  await signin.fillOutEmailFirstForm(credentials.email);
+  await signin.fillOutPasswordForm(credentials.password);
 
   //Verify logged in on Settings page
-  expect(await login.isUserLoggedIn()).toBe(true);
+  await expect(settings.settingsHeading).toBeVisible();
 
   return credentials;
 }

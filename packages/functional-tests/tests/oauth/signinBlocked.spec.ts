@@ -10,17 +10,18 @@ test.describe('severity-1 #smoke', () => {
   test.describe('OAuth signin blocked', () => {
     test('verified, blocked', async ({
       target,
-      page,
-      pages: { login, relier, settings, deleteAccount },
+      pages: { page, signin, relier, settings, deleteAccount, signinUnblock },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUpBlocked();
 
       await relier.goto();
       await relier.clickEmailFirst();
-      await login.login(credentials.email, credentials.password);
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
+      await expect(page).toHaveURL(/signin_unblock/);
       const code = await target.emailClient.getUnblockCode(credentials.email);
-      await login.unblock(code);
+      await signinUnblock.fillOutCodeForm(code);
 
       expect(await relier.isLoggedIn()).toBe(true);
 
@@ -31,25 +32,29 @@ test.describe('severity-1 #smoke', () => {
 
     test('verified, blocked, incorrect password', async ({
       target,
-      page,
-      pages: { login, relier, settings, deleteAccount },
+      pages: { page, signin, relier, settings, deleteAccount, signinUnblock },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUpBlocked();
 
       await relier.goto();
       await relier.clickEmailFirst();
-      await login.login(credentials.email, 'wrong password');
-      const code1 = await target.emailClient.getUnblockCode(credentials.email);
-      await login.unblock(code1);
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm('wrong password');
+      await expect(page).toHaveURL(/signin_unblock/);
+      const code = await target.emailClient.getUnblockCode(credentials.email);
+      await signinUnblock.fillOutCodeForm(code);
       // After filling in the unblock code, the user is prompted again to enter password
       await expect(page.getByText('Incorrect password')).toBeVisible();
 
       // Delete blocked account, required before teardown
-      await login.setPassword(credentials.password);
-      await login.submit();
-      const code2 = await target.emailClient.getUnblockCode(credentials.email);
-      await login.unblock(code2);
+      await signin.fillOutPasswordForm(credentials.password);
+
+      await expect(page).toHaveURL(/signin_unblock/);
+      const secondCode = await target.emailClient.getUnblockCode(
+        credentials.email
+      );
+      await signinUnblock.fillOutCodeForm(secondCode);
       await relier.isLoggedIn();
       await settings.goto();
       await removeAccount(settings, deleteAccount, page, credentials.password);

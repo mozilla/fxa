@@ -78,6 +78,15 @@ export enum EmailHeader {
 export class EmailClient {
   constructor(private readonly host: string = 'http://restmail.net') {}
 
+  /**
+   * Waits for an email to arrive in the specified email address and returns the email message or header.
+   * @param emailAddress - The email address to wait for the email.
+   * @param type - The type of email to wait for.
+   * @param header - The optional email header to retrieve.
+   * @param timeout - The timeout in milliseconds. Default is 45000 (45 seconds).
+   * @returns The email message or header.
+   * @throws Error if the email does not arrive within the specified timeout.
+   */
   async waitForEmail(
     emailAddress: string,
     type: EmailType,
@@ -100,10 +109,19 @@ export class EmailClient {
     throw new Error('EmailTimeout');
   }
 
+  /**
+   * Clears all emails in the specified email address.
+   * @param emailAddress - The email address to clear.
+   */
   async clear(emailAddress: string) {
     await got.delete(`${this.host}/mail/${toUsername(emailAddress)}`);
   }
 
+  /**
+   * Gets the link to create new backup authentication codes from the lowRecoveryCodes email.
+   * @param email - The email that is expected to receive the link.
+   * @returns the backup authentication codes link
+   */
   async getLowRecoveryLink(email: string): Promise<string> {
     const link = await this.waitForEmail(
       email,
@@ -114,6 +132,11 @@ export class EmailClient {
     return link;
   }
 
+  /**
+   * Gets the password reset link from the recovery email.
+   * @param email - The email address that is expected to receive the link.
+   * @returns the password reset link
+   */
   async getRecoveryLink(email: string): Promise<string> {
     const link = await this.waitForEmail(
       email,
@@ -124,6 +147,11 @@ export class EmailClient {
     return link;
   }
 
+  /**
+   * Gets the reset password code from the email.
+   * @param email - The email address that is expected to receive the code.
+   * @returns the password reset code.
+   */
   async getResetPasswordCode(email: string): Promise<string> {
     const code = await this.waitForEmail(
       email,
@@ -134,6 +162,11 @@ export class EmailClient {
     return code;
   }
 
+  /**
+   * Gets the verification code from the email (used to confirm an unregistered email on sign in).
+   * @param email - The email address that is expected to receive the verification code.
+   * @returns The email verification code.
+   */
   async getVerifyCode(email: string): Promise<string> {
     const code = await this.waitForEmail(
       email,
@@ -144,6 +177,11 @@ export class EmailClient {
     return code;
   }
 
+  /**
+   * Gets the verification code from the email (mainly used for signin_token_code).
+   * @param email - The email address that is expected to receive the verification code.
+   * @returns The verification login code.
+   */
   async getVerifyLoginCode(email: string): Promise<string> {
     const code = await this.waitForEmail(
       email,
@@ -154,7 +192,12 @@ export class EmailClient {
     return code;
   }
 
-  async getVerifySecondCode(email: string): Promise<string> {
+  /**
+   * Gets the code to verify a secondary email address from the email.
+   * @param email - The email address that is expected to receive the verification code.
+   * @returns The secondary email verification code.
+   */
+  async getVerifySecondaryCode(email: string): Promise<string> {
     const code = await this.waitForEmail(
       email,
       EmailType.verifySecondaryCode,
@@ -164,6 +207,11 @@ export class EmailClient {
     return code;
   }
 
+  /**
+   * Gets the verification short code from the email (mainly used for confirm_signup_code on first signup).
+   * @param email - The email address that is expected to receive the verification code.
+   * @returns The verification short code.
+   */
   async getVerifyShortCode(email: string): Promise<string> {
     const code = await this.waitForEmail(
       email,
@@ -174,6 +222,11 @@ export class EmailClient {
     return code;
   }
 
+  /**
+   * Gets the unblock code from the email.
+   * @param email - The email address that is expected to receive the unblock code.
+   * @returns The unblock code.
+   */
   async getUnblockCode(email: string): Promise<string> {
     const code = await this.waitForEmail(
       email,

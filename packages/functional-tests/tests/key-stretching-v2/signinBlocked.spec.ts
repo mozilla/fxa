@@ -15,59 +15,60 @@ const AGE_21 = '21';
  */
 test.describe('severity-2 #smoke', () => {
   type Version = { version: 1 | 2; query: string };
-  type TestCase = { signup: Version; signin: Version };
+  type TestCase = { signupVersion: Version; signinVersion: Version };
   const v1: Version = { version: 1, query: '' };
   const v2: Version = { version: 2, query: 'stretch=2' };
   const TestCases: TestCase[] = [
-    { signup: v1, signin: v1 },
-    { signup: v1, signin: v2 },
-    { signup: v2, signin: v1 },
-    { signup: v2, signin: v2 },
+    { signupVersion: v1, signinVersion: v1 },
+    { signupVersion: v1, signinVersion: v2 },
+    { signupVersion: v2, signinVersion: v1 },
+    { signupVersion: v2, signinVersion: v2 },
   ];
 
-  for (const { signup, signin } of TestCases) {
-    test(`signs up as v${signup.version}, rate limited, unblocked, signs in as v${signin.version}`, async ({
+  for (const { signupVersion, signinVersion } of TestCases) {
+    test(`signs up as v${signupVersion.version}, rate limited, unblocked, signs in as v${signinVersion.version}`, async ({
       page,
       target,
       pages: {
         settings,
-        signupReact,
-        signinReact,
+        signup,
+        signin,
         signinUnblock,
         deleteAccount,
+        confirmSignupCode,
       },
       testAccountTracker,
     }, { project }) => {
       test.fixme(
         project.name !== 'local' &&
-          signup.version === 1 &&
-          signin.version === 2,
+          signupVersion.version === 1 &&
+          signinVersion.version === 2,
         'FXA-9734'
       );
       const { email, password } =
         testAccountTracker.generateBlockedAccountDetails();
       await page.goto(
-        `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react&${signup.query}`
+        `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react&${signupVersion.query}`
       );
-      await signupReact.fillOutEmailForm(email);
-      await signupReact.fillOutSignupForm(password, AGE_21);
-      const verifyCode = await target.emailClient.getVerifyShortCode(email);
-      await signupReact.fillOutCodeForm(verifyCode);
+      await signup.fillOutEmailForm(email);
+      await signup.fillOutSignupForm(password, AGE_21);
+      await expect(page).toHaveURL(/confirm_signup_code/);
+      const code = await target.emailClient.getVerifyShortCode(email);
+      await confirmSignupCode.fillOutCodeForm(code);
 
       await expect(page).toHaveURL(/settings/);
 
       await settings.signOut();
       await page.goto(
-        `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react&${signin.query}`
+        `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react&${signinVersion.query}`
       );
-      await signinReact.fillOutEmailFirstForm(email);
-      await signinReact.fillOutPasswordForm(password);
+      await signin.fillOutEmailFirstForm(email);
+      await signin.fillOutPasswordForm(password);
 
       await expect(page).toHaveURL(/signin_unblock/);
 
       const unblockCode = await target.emailClient.getUnblockCode(email);
-      await signinUnblock.input.fill(unblockCode);
-      await signinUnblock.submit.click();
+      await signinUnblock.fillOutCodeForm(unblockCode);
 
       await expect(page).toHaveURL(/settings/);
       await expect(settings.settingsHeading).toBeVisible();

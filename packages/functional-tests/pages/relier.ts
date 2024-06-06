@@ -18,9 +18,9 @@ export class RelierPage extends BaseLayout {
   }
 
   async isLoggedIn() {
-    const login = this.page.locator('#loggedin');
-    await login.waitFor();
-    return login.isVisible();
+    const loggedInStatus = this.page.locator('#loggedin');
+    await loggedInStatus.waitFor();
+    return loggedInStatus.isVisible();
   }
 
   async isOauthSuccessHeader() {

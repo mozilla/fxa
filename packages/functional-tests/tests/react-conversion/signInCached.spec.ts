@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { test, expect } from '../../lib/fixtures/standard';
+import { expect, test } from '../../lib/fixtures/standard';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('react signin cached', () => {
     test('sign in twice, on second attempt email will be cached', async ({
       page,
-      pages: { configPage, settings, signinReact },
+      pages: { configPage, settings, signin },
       testAccountTracker,
     }) => {
       // Ensure that the feature flag is enabled
@@ -20,22 +20,22 @@ test.describe('severity-2 #smoke', () => {
 
       const credentials = await testAccountTracker.signUp();
 
-      await signinReact.goto();
-      await signinReact.fillOutEmailFirstForm(credentials.email);
-      await signinReact.fillOutPasswordForm(credentials.password);
+      await signin.goto();
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
 
       // Verify successfully navigated to settings
       await expect(page).toHaveURL(/settings/);
 
-      await signinReact.clearSessionStorage();
+      await signin.clearSessionStorage();
 
       // Return to sign in without signing out
-      await signinReact.goto();
+      await signin.goto();
 
-      await expect(signinReact.cachedSigninHeading).toBeVisible();
+      await expect(signin.cachedSigninHeading).toBeVisible();
       // email is prefilled and password is not required to sign in
       await expect(page.getByText(credentials.email)).toBeVisible();
-      await signinReact.signInButton.click();
+      await signin.signInButton.click();
 
       // Verify successfully navigated to settings
       await expect(page).toHaveURL(/settings/);

@@ -2,22 +2,25 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { getCode } from 'fxa-settings/src/lib/totp';
 import { Page, expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
 import { TestAccountTracker } from '../../lib/testAccountTracker';
-import { LoginPage } from '../../pages/login';
+import { SettingsPage } from '../../pages/settings';
+import { SigninPage } from '../../pages/signin';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('OAuth totp', () => {
     test('can add TOTP to account and confirm oauth signin', async ({
       target,
-      pages: { page, login, relier, settings, totp },
+      pages: { page, signin, relier, settings, totp, signinTotpCode },
       testAccountTracker,
     }) => {
       const credentials = await signInAccount(
         target,
         page,
-        login,
+        settings,
+        signin,
         testAccountTracker
       );
 
@@ -27,8 +30,11 @@ test.describe('severity-1 #smoke', () => {
       await settings.signOut();
       await relier.goto();
       await relier.clickEmailFirst();
-      await login.login(credentials.email, credentials.password);
-      await login.setTotp(secret);
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
+      await expect(page).toHaveURL(/signin_totp_code/);
+      const code = await getCode(secret);
+      await signinTotpCode.fillOutCodeForm(code);
 
       expect(await relier.isLoggedIn()).toBe(true);
 
@@ -38,10 +44,10 @@ test.describe('severity-1 #smoke', () => {
 
     test('can remove TOTP from account and skip confirmation', async ({
       target,
-      pages: { login, relier, settings, totp, page },
+      pages: { page, relier, settings, signin, totp },
       testAccountTracker,
     }) => {
-      await signInAccount(target, page, login, testAccountTracker);
+      await signInAccount(target, page, settings, signin, testAccountTracker);
       await settings.goto();
       await settings.totp.addButton.click();
       await totp.fillOutTotpForms();
@@ -56,7 +62,7 @@ test.describe('severity-1 #smoke', () => {
 
       await relier.goto();
       await relier.clickEmailFirst();
-      await login.submit();
+      await signin.signInButton.click();
 
       expect(await relier.isLoggedIn()).toBe(true);
     });
@@ -66,15 +72,17 @@ test.describe('severity-1 #smoke', () => {
 async function signInAccount(
   target: BaseTarget,
   page: Page,
-  login: LoginPage,
+  settings: SettingsPage,
+  signin: SigninPage,
   testAccountTracker: TestAccountTracker
 ): Promise<Credentials> {
   const credentials = await testAccountTracker.signUp();
   await page.goto(target.contentServerUrl);
-  await login.fillOutEmailFirstSignIn(credentials.email, credentials.password);
+  await signin.fillOutEmailFirstForm(credentials.email);
+  await signin.fillOutPasswordForm(credentials.password);
 
   //Verify logged in on Settings page
-  expect(await login.isUserLoggedIn()).toBe(true);
+  await expect(settings.settingsHeading).toBeVisible();
 
   return credentials;
 }
