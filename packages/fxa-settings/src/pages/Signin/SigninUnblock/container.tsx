@@ -37,6 +37,8 @@ import {
   getLocalizedErrorMessage,
 } from '../../../lib/error-utils';
 import { getCredentials } from 'fxa-auth-client/lib/crypto';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import { SignInOptions } from 'fxa-auth-client/browser';
 
 const SigninUnblockContainer = ({
   integration,
@@ -52,10 +54,9 @@ const SigninUnblockContainer = ({
     state: SigninUnblockLocationState;
   };
 
+  const AUTH_DATA_KEY = 'auth';
   const sensitiveDataClient = useSensitiveDataClient();
-
-  const sensitiveData = sensitiveDataClient.getData('auth');
-
+  const sensitiveData = sensitiveDataClient.getData(AUTH_DATA_KEY);
   const { password } = (sensitiveData as unknown as { password: string }) || {};
 
   const { email, hasLinkedAccount, hasPassword } = location.state || {};
@@ -71,10 +72,12 @@ const SigninUnblockContainer = ({
   const [beginSignin] = useMutation<BeginSigninResponse>(BEGIN_SIGNIN_MUTATION);
 
   const signinWithUnblockCode: BeginSigninWithUnblockCodeHandler = async (
-    unblockCode: string
+    unblockCode: string,
+    authEmail: string = email,
+    signInOptions?: SignInOptions
   ) => {
     const service = integration.getService();
-    const options = {
+    const options: SignInOptions = signInOptions ?? {
       verificationMethod: VerificationMethods.EMAIL_OTP,
       keys: integration.wantsKeys(),
       ...(service !== MozServices.Default && { service }),
@@ -84,19 +87,39 @@ const SigninUnblockContainer = ({
       ),
     };
 
-    const credentials = await getCredentials(email, password!);
+    const credentials = await getCredentials(authEmail, password!);
     try {
       return await beginSignin({
         variables: {
           input: {
-            email,
+            email: authEmail,
             authPW: credentials.authPW,
             options,
           },
         },
       });
     } catch (error) {
-      return getHandledError(error);
+      const result = getHandledError(error);
+      if (
+        'error' in result &&
+        result.error.errno === AuthUiErrors.INCORRECT_EMAIL_CASE.errno &&
+        'email' in result.error &&
+        result.error.email != null &&
+        result.error.email !== email
+      ) {
+        options.skipCaseError = true;
+        options.originalLoginEmail = email;
+        // Try one more time with the corrected email
+        return await signinWithUnblockCode(
+          unblockCode,
+          result.error.email,
+          options
+        );
+      }
+
+      return result;
+    } finally {
+      sensitiveDataClient.setData(AUTH_DATA_KEY, null);
     }
   };
 
