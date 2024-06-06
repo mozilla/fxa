@@ -359,6 +359,8 @@ function mockDB(data, errors) {
       return Promise.resolve({
         createdAt: data.createdAt,
         email: data.email,
+        authSalt:
+          '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF',
         emailCode: data.emailCode,
         emailVerified: data.emailVerified || false,
         locale: data.locale,
