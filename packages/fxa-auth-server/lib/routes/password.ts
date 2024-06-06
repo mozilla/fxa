@@ -293,18 +293,24 @@ module.exports = function (
           const password = new Password(authPW, authSalt, verifierVersion);
           const verifyHash = await password.verifyHash();
           const account = await db.account(passwordChangeToken.uid);
-          const match = await db.checkPassword(
-            passwordChangeToken.uid,
-            verifyHash
-          );
-
-          // When the clientSalt doesn't have the latest quickStretchVersion
-          // and the v1 stretched password has not changed, we know we are in
-          // a password upgrade scenario.
-          const isPasswordUpgrade =
-            !/quickStretchV2/.test(account.clientSalt || '') && match.v1;
-
           const wrapWrapKb = await password.wrap(wrapKb);
+
+          let isPasswordUpgrade = false;
+          if (
+            authPWVersion2 &&
+            !/quickStretchV2/.test(account.clientSalt || '')
+          ) {
+            const v1Password = new Password(
+              authPW,
+              account.authSalt,
+              account.verifierVersion
+            );
+            isPasswordUpgrade = await signinUtils.checkPassword(
+              account,
+              v1Password,
+              request.app.clientAddress
+            );
+          }
 
           // For the time being we store both passwords in the DB. authPW is created
           // with the old quickStretch and authPWVersion2 is created with improved 'quick' stretch.
