@@ -106,7 +106,7 @@ export interface SigninFormData {
 export interface CredentialStatusResponse {
   credentialStatus: {
     upgradeNeeded: boolean;
-    version?: string;
+    currentVersion?: string;
     clientSalt?: string;
   };
 }
