@@ -65,7 +65,7 @@ export const CREDENTIAL_STATUS_MUTATION = gql`
   mutation CredentialStatus($input: String!) {
     credentialStatus(input: $input) {
       upgradeNeeded
-      version
+      currentVersion
       clientSalt
     }
   }

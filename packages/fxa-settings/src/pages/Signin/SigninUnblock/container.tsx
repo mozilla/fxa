@@ -17,8 +17,8 @@ import {
 } from '../../../models';
 
 // using default signin handlers
-import { BEGIN_SIGNIN_MUTATION } from '../gql';
-import { BeginSigninResponse } from '../interfaces';
+import { BEGIN_SIGNIN_MUTATION, CREDENTIAL_STATUS_MUTATION } from '../gql';
+import { BeginSigninResponse, CredentialStatusResponse } from '../interfaces';
 
 import SigninUnblock from '.';
 import {
@@ -36,7 +36,7 @@ import {
   getHandledError,
   getLocalizedErrorMessage,
 } from '../../../lib/error-utils';
-import { getCredentials } from 'fxa-auth-client/lib/crypto';
+import { getCredentials, getCredentialsV2 } from 'fxa-auth-client/lib/crypto';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { SignInOptions } from 'fxa-auth-client/browser';
 
@@ -70,6 +70,9 @@ const SigninUnblockContainer = ({
   );
 
   const [beginSignin] = useMutation<BeginSigninResponse>(BEGIN_SIGNIN_MUTATION);
+  const [credentialStatus] = useMutation<CredentialStatusResponse>(
+    CREDENTIAL_STATUS_MUTATION
+  );
 
   const signinWithUnblockCode: BeginSigninWithUnblockCodeHandler = async (
     unblockCode: string,
@@ -87,7 +90,21 @@ const SigninUnblockContainer = ({
       ),
     };
 
-    const credentials = await getCredentials(authEmail, password!);
+    // Get credentials with the correct key version
+    const credentials = await (async () => {
+      const { data } = await credentialStatus({
+        variables: {
+          input: email,
+        },
+      });
+      const currentVersion = data?.credentialStatus.currentVersion;
+      if (currentVersion === 'v2') {
+        const clientSalt = data?.credentialStatus.clientSalt || '';
+        return await getCredentialsV2({ password, clientSalt });
+      }
+      return await getCredentials(authEmail, password);
+    })();
+
     try {
       return await beginSignin({
         variables: {

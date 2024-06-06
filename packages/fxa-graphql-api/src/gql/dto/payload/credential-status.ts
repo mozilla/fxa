@@ -16,7 +16,7 @@ export class CredentialStatusPayload {
     description: 'The current version of the credentials.',
     nullable: true,
   })
-  public version?: string;
+  public currentVersion?: string;
 
   @Field({
     description:
