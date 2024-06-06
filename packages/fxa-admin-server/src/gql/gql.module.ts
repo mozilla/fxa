@@ -11,6 +11,9 @@ import { EmailBounceResolver } from './email-bounce/email-bounce.resolver';
 import { RelyingPartyResolver } from './relying-party/relying-party.resolver';
 import { BackendModule } from '../backend/backend.module';
 import { NewslettersModule } from '../newsletters/newsletters.module';
+import { NotifierService, NotifierSnsFactory } from '@fxa/shared/notifier';
+import { MozLoggerService } from '@fxa/shared/mozlog';
+import { LegacyStatsDProvider } from '@fxa/shared/metrics/statsd';
 
 @Module({
   imports: [
@@ -20,6 +23,14 @@ import { NewslettersModule } from '../newsletters/newsletters.module';
     BackendModule,
     NewslettersModule,
   ],
-  providers: [AccountResolver, EmailBounceResolver, RelyingPartyResolver],
+  providers: [
+    AccountResolver,
+    EmailBounceResolver,
+    LegacyStatsDProvider,
+    NotifierSnsFactory,
+    NotifierService,
+    MozLoggerService,
+    RelyingPartyResolver,
+  ],
 })
 export class GqlModule {}
