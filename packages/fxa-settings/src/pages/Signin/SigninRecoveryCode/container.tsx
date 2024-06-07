@@ -14,8 +14,6 @@ import { useCallback } from 'react';
 import { getSigninState } from '../utils';
 import { SigninLocationState } from '../interfaces';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
-import { useValidatedQueryParams } from '../../../lib/hooks/useValidate';
-import { SigninQueryParams } from '../../../models/pages/signin';
 import { ConsumeRecoveryCodeResponse, SubmitRecoveryCode } from './interfaces';
 import OAuthDataError from '../../../components/OAuthDataError';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
@@ -39,8 +37,6 @@ export const SigninRecoveryCodeContainer = ({
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state: SigninLocationState;
   };
-  const { queryParamModel } = useValidatedQueryParams(SigninQueryParams);
-  const { redirectTo } = queryParamModel;
 
   const signinState = getSigninState(location.state);
 
@@ -83,7 +79,6 @@ export const SigninRecoveryCodeContainer = ({
       {...{
         finishOAuthFlowHandler,
         integration,
-        redirectTo,
         serviceName,
         signinState,
         submitRecoveryCode,

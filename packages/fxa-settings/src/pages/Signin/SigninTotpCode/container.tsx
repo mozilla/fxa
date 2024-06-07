@@ -18,6 +18,7 @@ import { hardNavigate } from 'fxa-react/lib/utils';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import OAuthDataError from '../../../components/OAuthDataError';
 import { getHandledError } from '../../../lib/error-utils';
+import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
 
 export type SigninTotpCodeContainerProps = {
   integration: Integration;
@@ -41,7 +42,13 @@ export const SigninTotpCodeContainer = ({
   const signinState = getSigninState(location.state);
 
   const { queryParamModel } = useValidatedQueryParams(SigninQueryParams);
-  const { redirectTo, service } = queryParamModel;
+  const { service } = queryParamModel;
+
+  const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
+
+  const redirectTo = webRedirectCheck.isValid()
+    ? integration.data.redirectTo
+    : '';
 
   const [verifyTotpCode] = useMutation(VERIFY_TOTP_CODE_MUTATION);
 

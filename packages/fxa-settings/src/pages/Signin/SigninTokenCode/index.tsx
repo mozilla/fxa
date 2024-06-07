@@ -25,6 +25,7 @@ import Banner, {
 import { handleNavigation } from '../utils';
 import firefox from '../../../lib/channels/firefox';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
+import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
 
 export const viewName = 'signin-token-code';
 
@@ -55,6 +56,11 @@ const SigninTokenCode = ({
   const [animateBanner, setAnimateBanner] = useState(false);
   const [codeErrorMessage, setCodeErrorMessage] = useState<string>('');
   const [resendCodeLoading, setResendCodeLoading] = useState<boolean>(false);
+
+  const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
+  const redirectTo = webRedirectCheck.isValid()
+    ? integration.data.redirectTo
+    : '';
 
   const ftlMsgResolver = useFtlMsgResolver();
   const localizedCustomCodeRequiredMessage = ftlMsgResolver.getMsg(
@@ -161,6 +167,7 @@ const SigninTokenCode = ({
           integration,
           finishOAuthFlowHandler,
           queryParams: location.search,
+          redirectTo,
         };
 
         await GleanMetrics.isDone();
@@ -199,6 +206,7 @@ const SigninTokenCode = ({
       keyFetchToken,
       localizedInvalidCode,
       location.search,
+      redirectTo,
       session,
       sessionToken,
       uid,

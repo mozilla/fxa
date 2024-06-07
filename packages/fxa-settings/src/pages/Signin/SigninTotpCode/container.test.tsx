@@ -48,7 +48,6 @@ function mockSigninTotpModule() {
 function mockUseValidateModule(opts: any = {}) {
   jest.spyOn(UseValidateModule, 'useValidatedQueryParams').mockReturnValue({
     queryParamModel: {
-      redirectTo: '',
       verificationReason: 'login',
       service: 'sync',
       ...opts,
