@@ -42,7 +42,7 @@ jest.mock('../../../models', () => {
       return {
         checkTotpTokenExists: jest
           .fn()
-          .mockResolvedValue({ exists: mockHasTotpAuthClient }),
+          .mockResolvedValue({ verified: mockHasTotpAuthClient }),
       };
     },
   };

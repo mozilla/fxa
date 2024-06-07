@@ -7,7 +7,7 @@ import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavig
 import SigninTokenCode from '.';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { hardNavigate } from 'fxa-react/lib/utils';
-import { Integration, useSession, useAuthClient } from '../../../models';
+import { Integration, useAuthClient } from '../../../models';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import { SigninLocationState } from '../interfaces';
 import { getSigninState } from '../utils';
@@ -35,27 +35,29 @@ const SigninTokenCodeContainer = ({
     integration
   );
 
-  // Note the exception to using `useAccount` hook. We needed to do this because
-  // using the gql api was failing to retrieve the totp status with `Must verify`
-  // error.
-  const [totpEnabled, setTotpEnabled] = useState<boolean>(false);
-  const session = useSession();
+  const [totpVerified, setTotpVerified] = useState<boolean>(false);
   useEffect(() => {
+    if (!signinState || !signinState.sessionToken) {
+      // case handled after the useEffect
+      return;
+    }
     const getTotpStatus = async () => {
-      const { exists } = await authClient.checkTotpTokenExists(session.token);
-      setTotpEnabled(exists);
+      const { verified } = await authClient.checkTotpTokenExists(
+        signinState.sessionToken
+      );
+      setTotpVerified(verified);
     };
     getTotpStatus();
-  }, [authClient, session]);
+  }, [authClient, signinState]);
 
-  if (!signinState) {
+  if (!signinState || !signinState.sessionToken) {
     hardNavigate('/', {}, true);
     return <LoadingSpinner fullScreen />;
   }
 
   // redirect if there is 2FA is set up for the account,
   // but the session is not TOTP verified
-  if (totpEnabled) {
+  if (totpVerified) {
     navigate('/signin_totp_code');
     return <LoadingSpinner fullScreen />;
   }
