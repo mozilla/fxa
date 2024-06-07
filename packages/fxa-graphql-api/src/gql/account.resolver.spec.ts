@@ -487,6 +487,7 @@ describe('#integration - AccountResolver', () => {
         expect(notifierService.send).toBeCalledWith({
           event: 'profileDataChange',
           data: {
+            ts: expect.any(Number),
             uid: USER_1.uid,
             metricsEnabled: false,
           },
@@ -506,6 +507,7 @@ describe('#integration - AccountResolver', () => {
         expect(notifierService.send).toBeCalledWith({
           event: 'profileDataChange',
           data: {
+            ts: expect.any(Number),
             uid: USER_1.uid,
             metricsEnabled: true,
           },

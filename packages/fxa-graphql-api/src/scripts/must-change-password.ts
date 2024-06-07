@@ -145,6 +145,7 @@ async function main() {
       await notifier.send({
         event: 'profileDataChange',
         data: {
+          ts: Date.now() / 1000,
           uid,
           accountLocked: true,
         },
