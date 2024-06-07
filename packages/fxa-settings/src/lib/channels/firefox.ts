@@ -86,8 +86,8 @@ export type FxALoginRequest = {
   verified: boolean;
   services?: {
     sync: {
-      offeredEngines: string[];
-      declinedEngines: string[];
+      offeredEngines?: string[];
+      declinedEngines?: string[];
     };
   };
 };
