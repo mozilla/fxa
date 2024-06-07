@@ -23,7 +23,6 @@ import {
   MOCK_SESSION_TOKEN,
   MOCK_UID,
   MOCK_UNWRAP_BKEY,
-  MOCK_AUTHPW,
 } from '../mocks';
 import { MozServices } from '../../lib/types';
 import * as utils from 'fxa-react/lib/utils';

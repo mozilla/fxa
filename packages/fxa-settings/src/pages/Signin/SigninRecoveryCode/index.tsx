@@ -21,13 +21,13 @@ import Banner, { BannerType } from '../../../components/Banner';
 import { storeAccountData } from '../../../lib/storage-utils';
 import { handleNavigation } from '../utils';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
+import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
 
 export const viewName = 'signin-recovery-code';
 
 const SigninRecoveryCode = ({
   finishOAuthFlowHandler,
   integration,
-  redirectTo,
   serviceName,
   signinState,
   submitRecoveryCode,
@@ -44,6 +44,12 @@ const SigninRecoveryCode = ({
     'Backup authentication code required'
   );
   const location = useLocation();
+
+  const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
+
+  const redirectTo = webRedirectCheck.isValid()
+    ? integration.data.redirectTo
+    : '';
 
   const formAttributes: FormAttributes = {
     inputFtlId: 'signin-recovery-code-input-label',
