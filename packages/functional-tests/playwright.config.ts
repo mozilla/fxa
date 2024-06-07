@@ -63,16 +63,7 @@ export default defineConfig<PlaywrightTestConfig<TestOptions, WorkerOptions>>({
   ],
   reporter: CI
     ? [
-        ['./lib/ci-reporter.ts'],
-        [
-          'junit',
-          {
-            outputFile: path.resolve(
-              __dirname,
-              '../../artifacts/tests/test-results.xml'
-            ),
-          },
-        ],
+        ['blob', { outputFile: `./blob-report/Test-report.zip` }],
         [
           'playwright-html',
           {
