@@ -66,7 +66,7 @@ test.describe('auth-client-tests', () => {
     expect(status2.clientSalt).toBeUndefined();
   });
 
-  test('it creates with v2 and signs in', async ({
+  test('it creates with v2 and signs in with v2 or v1', async ({
     target,
     testAccountTracker,
   }) => {
@@ -97,6 +97,16 @@ test.describe('auth-client-tests', () => {
     expect(credentialsV2.unwrapBKey).toEqual(signInResult.unwrapBKey);
     const credentialsV1 = await getCredentials(email, password);
     expect(credentialsV1.unwrapBKey).not.toEqual(signInResult.unwrapBKey);
+
+    // Check that we can still sign in with a v1 password. This is needed for legacy clients that don't have key stretching changes.
+    const v1Credentials = await getCredentials(email, password);
+    const v1SignInResult = (await client.signInWithAuthPW(
+      email,
+      v1Credentials.authPW,
+      { keys: true }
+    )) as any;
+    expect(v1SignInResult).toBeDefined();
+    expect(v1SignInResult.keyFetchToken).toBeDefined();
   });
 
   test('it creates with v1 and upgrades to v2 on signin', async ({
