@@ -151,7 +151,7 @@
     "esbuild-register": "^3.5.0",
     "eslint": "^7.32.0",
     "firefox-profile": "4.3.2",
-    "got": "11.8.5",
+    "got": "14.4.1",
     "grunt-ban-word": "0.1.1",
     "grunt-copyright": "0.3.0",
     "grunt-htmllint": "0.3.0",
