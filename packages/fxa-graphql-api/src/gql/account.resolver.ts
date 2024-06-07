@@ -464,6 +464,7 @@ export class AccountResolver {
     await this.notifier.send({
       event: 'profileDataChange',
       data: {
+        ts: Date.now() / 1000,
         uid,
         metricsEnabled: input.state === 'in',
       },

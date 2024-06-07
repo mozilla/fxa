@@ -76,6 +76,28 @@ const baseProfileMessage = {
   event: 'profileDataChange',
 };
 
+const profileMessageForEmailChange = {
+  ...baseProfileMessage,
+  email: 'foo@mozilla.com',
+};
+
+const profileMessageForAccountDisabledChange = {
+  ...baseProfileMessage,
+  accountDisabled: true,
+};
+const profileMessageForAccountLockedChange = {
+  ...baseProfileMessage,
+  accountLocked: true,
+};
+const profileMessageForMetricsEnabledChange = {
+  ...baseProfileMessage,
+  metricsEnabled: true,
+};
+const profileMessageForTotpEnabledChange = {
+  ...baseProfileMessage,
+  totpEnabled: true,
+};
+
 const appleMigrationMessage = {
   event: 'appleUserMigration',
   timestamp: now,
@@ -299,6 +321,14 @@ describe('QueueworkerService', () => {
       'password reset message': basePasswordResetMessage,
       'primary email message': basePrimaryEmailMessage,
       'profile change message': baseProfileMessage,
+      'profile change for email message': profileMessageForEmailChange,
+      'profile change for metrics message':
+        profileMessageForMetricsEnabledChange,
+      'profile change for totp message': profileMessageForTotpEnabledChange,
+      'profile change for account locked message':
+        profileMessageForAccountLockedChange,
+      'profile change for account disabled message':
+        profileMessageForAccountDisabledChange,
       'subscription message': baseSubscriptionUpdateMessage,
     };
 
