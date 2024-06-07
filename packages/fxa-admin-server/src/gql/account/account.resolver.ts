@@ -201,6 +201,7 @@ export class AccountResolver {
     await this.notifier.send({
       event: 'profileDataChange',
       data: {
+        ts: Date.now() / 1000,
         uid,
         accountDisabled: true,
       },
@@ -229,6 +230,7 @@ export class AccountResolver {
     await this.notifier.send({
       event: 'profileDataChange',
       data: {
+        ts: Date.now() / 1000,
         uid,
         locale,
       },
@@ -249,6 +251,7 @@ export class AccountResolver {
     await this.notifier.send({
       event: 'profileDataChange',
       data: {
+        ts: Date.now() / 1000,
         uid,
         accountDisabled: false,
       },
