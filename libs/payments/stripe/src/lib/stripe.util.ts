@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import {
-  StripePlan,
   StripePrice,
   StripeProduct,
   StripePromotionCode,
@@ -79,19 +78,19 @@ export const getSubscribedPrice = (subscription: StripeSubscription) => {
 };
 
 /**
- * Returns array of customer subscription plans
+ * Returns array of customer subscription prices
  */
-export const getSubscribedPlans = (subscriptions: StripeSubscription[]) => {
+export const getSubscribedPrices = (subscriptions: StripeSubscription[]) => {
   return subscriptions
     .flatMap((sub) => sub.items.data)
-    .map((item) => item.plan);
+    .map((item) => item.price);
 };
 
 /**
  * Returns array of subscribed product IDs
  */
-export const getSubscribedProductIds = (subscribedPlans: StripePlan[]) => {
-  return subscribedPlans.length > 0
-    ? subscribedPlans.map(({ product: productId }) => productId as string)
+export const getSubscribedProductIds = (subscribedPrices: StripePrice[]) => {
+  return subscribedPrices.length > 0
+    ? subscribedPrices.map(({ product: productId }) => productId as string)
     : [];
 };

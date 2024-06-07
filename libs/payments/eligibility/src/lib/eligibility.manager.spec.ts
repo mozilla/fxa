@@ -6,8 +6,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 
 import {
   PriceManager,
-  StripePlan,
-  StripePlanFactory,
+  StripePrice,
+  StripePriceFactory,
+  StripePriceRecurringFactory,
   SubplatInterval,
 } from '@fxa/payments/stripe';
 import {
@@ -161,7 +162,7 @@ describe('EligibilityManager', () => {
       expect(result[0].comparison).toBe(OfferingComparison.DOWNGRADE);
     });
 
-    it('should return same comparison for same planId', async () => {
+    it('should return same comparison for same priceId', async () => {
       const mockOfferingResult = EligibilityOfferingResultFactory({
         stripeProductId: 'prod_test',
       });
@@ -181,7 +182,7 @@ describe('EligibilityManager', () => {
       expect(result[0].comparison).toBe(OfferingComparison.SAME);
     });
 
-    it('should return upgrade comparison for upgrade planId', async () => {
+    it('should return upgrade comparison for upgrade priceId', async () => {
       const mockOfferingResult = EligibilityOfferingResultFactory({
         stripeProductId: 'prod_test2',
         linkedFrom: {
@@ -283,8 +284,8 @@ describe('EligibilityManager', () => {
       });
       expect(result[1]).toEqual({
         comparison: OfferingComparison.UPGRADE,
-        planId: 'plan_test',
-        type: 'plan',
+        priceId: 'plan_test',
+        type: 'price',
       });
     });
   });
@@ -398,7 +399,7 @@ describe('EligibilityManager', () => {
       expect(result[0].comparison).toBe(OfferingComparison.SAME);
     });
 
-    it('should return upgrade comparison for upgrade planId', async () => {
+    it('should return upgrade comparison for upgrade priceId', async () => {
       const mockTargetOfferingResult = EligibilityContentOfferingResultFactory({
         stripeProductId: 'prod_test2',
         linkedFrom: {
@@ -502,18 +503,18 @@ describe('EligibilityManager', () => {
       const mockOverlapResult = [] as OfferingOverlapProductResult[];
       const mockTargetOffering = EligibilityContentOfferingResultFactory();
       const interval = SubplatInterval.Monthly;
-      const mockSubscribedPlans = [] as StripePlan[];
+      const mockSubscribedPrices = [] as StripePrice[];
 
       const result = await manager.compareOverlap(
         mockOverlapResult,
         mockTargetOffering,
         interval,
-        mockSubscribedPlans
+        mockSubscribedPrices
       );
       expect(result).toEqual(CartEligibilityStatus.CREATE);
     });
 
-    it('returns invalid when there are multiple existing overlap plans', async () => {
+    it('returns invalid when there are multiple existing overlap prices', async () => {
       const mockOverlapResult = [
         {
           comparison: OfferingComparison.SAME,
@@ -528,14 +529,14 @@ describe('EligibilityManager', () => {
       ] as OfferingOverlapProductResult[];
       const mockTargetOffering = EligibilityContentOfferingResultFactory();
       const interval = SubplatInterval.Monthly;
-      const mockPlan = StripePlanFactory();
-      const mockSubscribedPlans = [mockPlan, mockPlan];
+      const mockPrice = StripePriceFactory();
+      const mockSubscribedPrices = [mockPrice, mockPrice];
 
       const result = await manager.compareOverlap(
         mockOverlapResult,
         mockTargetOffering,
         interval,
-        mockSubscribedPlans
+        mockSubscribedPrices
       );
       expect(result).toEqual(CartEligibilityStatus.INVALID);
     });
@@ -550,19 +551,19 @@ describe('EligibilityManager', () => {
       ] as OfferingOverlapProductResult[];
       const mockTargetOffering = EligibilityContentOfferingResultFactory();
       const interval = SubplatInterval.Monthly;
-      const mockPlan = StripePlanFactory();
-      const mockSubscribedPlans = [mockPlan];
+      const mockPrice = StripePriceFactory();
+      const mockSubscribedPrices = [mockPrice];
 
       const result = await manager.compareOverlap(
         mockOverlapResult,
         mockTargetOffering,
         interval,
-        mockSubscribedPlans
+        mockSubscribedPrices
       );
       expect(result).toEqual(CartEligibilityStatus.DOWNGRADE);
     });
 
-    it('returns invalid if there is no subscribed plan with same productId as target plan', async () => {
+    it('returns invalid if there is no subscribed price with same productId as target price', async () => {
       const mockOverlapResult = [
         {
           comparison: OfferingComparison.SAME,
@@ -582,7 +583,7 @@ describe('EligibilityManager', () => {
       expect(result).toEqual(CartEligibilityStatus.INVALID);
     });
 
-    it('returns invalid if subscribed plan with same product id as target plan', async () => {
+    it('returns invalid if subscribed price with same product id as target price', async () => {
       const mockOverlapResult = [
         {
           comparison: OfferingComparison.SAME,
@@ -592,18 +593,18 @@ describe('EligibilityManager', () => {
       ] as OfferingOverlapProductResult[];
       const mockTargetOffering = EligibilityContentOfferingResultFactory();
       const interval = SubplatInterval.Monthly;
-      const mockPlan = StripePlanFactory();
+      const mockPrice = StripePriceFactory();
 
       const result = await manager.compareOverlap(
         mockOverlapResult,
         mockTargetOffering,
         interval,
-        [mockPlan]
+        [mockPrice]
       );
       expect(result).toEqual(CartEligibilityStatus.INVALID);
     });
 
-    it('returns downgrade when target plan interval is shorter than the subscribed plan', async () => {
+    it('returns downgrade when target price interval is shorter than the subscribed price', async () => {
       const mockTargetOffering = EligibilityContentOfferingResultFactory({
         stripeProductId: 'prod_test1',
       });
@@ -614,25 +615,29 @@ describe('EligibilityManager', () => {
           type: 'offering',
         },
       ] as OfferingOverlapProductResult[];
-      const mockPlan1 = StripePlanFactory({
-        interval: 'year',
+      const mockPrice1 = StripePriceFactory({
+        recurring: StripePriceRecurringFactory({
+          interval: 'year',
+        }),
         product: mockTargetOffering.stripeProductId,
       });
-      const mockPlan2 = StripePlanFactory({
-        interval: 'month',
+      const mockPrice2 = StripePriceFactory({
+        recurring: StripePriceRecurringFactory({
+          interval: 'month',
+        }),
         product: mockTargetOffering.stripeProductId,
       });
       const interval = SubplatInterval.Monthly;
 
       mockPriceManager.retrieveByInterval = jest
         .fn()
-        .mockResolvedValueOnce(mockPlan2);
+        .mockResolvedValueOnce(mockPrice2);
 
       const result = await manager.compareOverlap(
         mockOverlapResult,
         mockTargetOffering,
         interval,
-        [mockPlan1]
+        [mockPrice1]
       );
       expect(result).toEqual(CartEligibilityStatus.DOWNGRADE);
     });
@@ -641,12 +646,16 @@ describe('EligibilityManager', () => {
       const mockTargetOffering = EligibilityContentOfferingResultFactory({
         stripeProductId: 'prod_test1',
       });
-      const mockPlan1 = StripePlanFactory({
-        interval: 'month',
+      const mockPrice1 = StripePriceFactory({
+        recurring: StripePriceRecurringFactory({
+          interval: 'month',
+        }),
         product: mockTargetOffering.stripeProductId,
       });
-      const mockPlan2 = StripePlanFactory({
-        interval: 'year',
+      const mockPrice2 = StripePriceFactory({
+        recurring: StripePriceRecurringFactory({
+          interval: 'year',
+        }),
         product: mockTargetOffering.stripeProductId,
       });
       const interval = SubplatInterval.Yearly;
@@ -660,28 +669,32 @@ describe('EligibilityManager', () => {
 
       mockPriceManager.retrieveByInterval = jest
         .fn()
-        .mockResolvedValueOnce(mockPlan2);
+        .mockResolvedValueOnce(mockPrice2);
 
       const result = await manager.compareOverlap(
         mockOverlapResult,
         mockTargetOffering,
         interval,
-        [mockPlan1]
+        [mockPrice1]
       );
       expect(result).toEqual(CartEligibilityStatus.UPGRADE);
     });
 
-    it('returns upgrade when target plan interval is longer than the subscribed plan', async () => {
+    it('returns upgrade when target price interval is longer than the subscribed price', async () => {
       const mockTargetOffering = EligibilityContentOfferingResultFactory({
         stripeProductId: 'prod_test1',
       });
       const interval = SubplatInterval.Monthly;
-      const mockPlan1 = StripePlanFactory({
-        interval: 'month',
+      const mockPrice1 = StripePriceFactory({
+        recurring: StripePriceRecurringFactory({
+          interval: 'month',
+        }),
         product: mockTargetOffering.stripeProductId,
       });
-      const mockPlan2 = StripePlanFactory({
-        interval: 'year',
+      const mockPrice2 = StripePriceFactory({
+        recurring: StripePriceRecurringFactory({
+          interval: 'year',
+        }),
         product: mockTargetOffering.stripeProductId,
       });
       const mockOverlapResult = [
@@ -694,13 +707,13 @@ describe('EligibilityManager', () => {
 
       mockPriceManager.retrieveByInterval = jest
         .fn()
-        .mockResolvedValueOnce(mockPlan2);
+        .mockResolvedValueOnce(mockPrice2);
 
       const result = await manager.compareOverlap(
         mockOverlapResult,
         mockTargetOffering,
         interval,
-        [mockPlan1]
+        [mockPrice1]
       );
       expect(result).toEqual(CartEligibilityStatus.UPGRADE);
     });

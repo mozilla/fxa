@@ -7,7 +7,6 @@ import {
   StripeResponseFactory,
 } from './factories/api-list.factory';
 import { StripeCouponFactory } from './factories/coupon.factory';
-import { StripePlanFactory } from './factories/plan.factory';
 import { StripePriceFactory } from './factories/price.factory';
 import { StripeProductFactory } from './factories/product.factory';
 import { StripePromotionCodeFactory } from './factories/promotion-code.factory';
@@ -20,8 +19,8 @@ import { STRIPE_PRICE_METADATA, STRIPE_PRODUCT_METADATA } from './stripe.types';
 import {
   checkSubscriptionPromotionCodes,
   checkValidPromotionCode,
-  getSubscribedPlans,
   getSubscribedPrice,
+  getSubscribedPrices,
   getSubscribedProductIds,
 } from './stripe.util';
 
@@ -170,22 +169,22 @@ describe('util', () => {
     });
   });
 
-  describe('getSubscribedPlans', () => {
-    it('returns plans successfully', async () => {
-      const mockPlan = StripePlanFactory();
+  describe('getSubscribedPrices', () => {
+    it('returns prices successfully', async () => {
+      const mockPrice = StripePriceFactory();
       const mockSubItem = StripeSubscriptionItemFactory({
-        plan: mockPlan,
+        price: mockPrice,
       });
       const mockSubscription = StripeSubscriptionFactory({
         items: StripeApiListFactory([mockSubItem]),
       });
 
-      const result = getSubscribedPlans([mockSubscription]);
-      expect(result).toEqual([mockPlan]);
+      const result = getSubscribedPrices([mockSubscription]);
+      expect(result).toEqual([mockPrice]);
     });
 
     it('returns empty array if no subscriptions exist', async () => {
-      const result = getSubscribedPlans([]);
+      const result = getSubscribedPrices([]);
       expect(result).toEqual([]);
     });
   });
@@ -193,11 +192,11 @@ describe('util', () => {
   describe('getSubscribedProductIds', () => {
     it('returns product IDs successfully', async () => {
       const mockProductId = 'prod_test1';
-      const mockPlan = StripePlanFactory({
+      const mockPrice = StripePriceFactory({
         product: mockProductId,
       });
 
-      const result = getSubscribedProductIds([mockPlan]);
+      const result = getSubscribedProductIds([mockPrice]);
       expect(result).toEqual([mockProductId]);
     });
 

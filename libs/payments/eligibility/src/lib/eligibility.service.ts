@@ -4,7 +4,7 @@
 
 import { Injectable } from '@nestjs/common';
 import {
-  getSubscribedPlans,
+  getSubscribedPrices,
   getSubscribedProductIds,
   SubscriptionManager,
   SubplatInterval,
@@ -22,7 +22,7 @@ export class EligibilityService {
   ) {}
 
   /**
-   * Checks if user is eligible to subscribe to plan
+   * Checks if user is eligible to subscribe to price
    */
   async checkEligibility(
     interval: SubplatInterval,
@@ -44,9 +44,9 @@ export class EligibilityService {
       stripeCustomerId
     );
 
-    const subscribedPlans = getSubscribedPlans(subscriptions);
+    const subscribedPrices = getSubscribedPrices(subscriptions);
 
-    const productIds = getSubscribedProductIds(subscribedPlans);
+    const productIds = getSubscribedProductIds(subscribedPrices);
 
     const overlaps = this.eligibilityManager.getProductIdOverlap(
       productIds,
@@ -57,7 +57,7 @@ export class EligibilityService {
       overlaps,
       targetOffering,
       interval,
-      subscribedPlans
+      subscribedPrices
     );
 
     return eligibility;

@@ -20,12 +20,23 @@ export const StripePriceFactory = (
   metadata: {},
   nickname: null,
   product: `prod_${faker.string.alphanumeric({ length: 14 })}`,
-  recurring: null,
+  recurring: StripePriceRecurringFactory(),
   tax_behavior: 'exclusive',
   tiers_mode: null,
   transform_quantity: null,
   type: 'recurring',
   unit_amount: faker.number.int({ max: 1000 }),
   unit_amount_decimal: faker.commerce.price({ min: 1000 }),
+  ...override,
+});
+
+export const StripePriceRecurringFactory = (
+  override?: Partial<StripePrice['recurring']>
+): StripePrice['recurring'] => ({
+  aggregate_usage: null,
+  interval: faker.helpers.arrayElement(['day', 'week', 'month', 'year']),
+  interval_count: 1,
+  trial_period_days: null,
+  usage_type: 'licensed',
   ...override,
 });

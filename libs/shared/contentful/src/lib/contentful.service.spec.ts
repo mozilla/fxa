@@ -8,7 +8,7 @@ import {
   StripeClient,
   StripeConfig,
   PriceManager,
-  StripePlanFactory,
+  StripePriceFactory,
   StripeResponseFactory,
   SubplatInterval,
 } from '@fxa/payments/stripe';
@@ -77,35 +77,35 @@ describe('ContentfulService', () => {
 
   describe('retrieveStripePlanId', () => {
     it('returns plan based on offeringId and interval', async () => {
-      const mockPlan = StripeResponseFactory(StripePlanFactory());
+      const mockPrice = StripeResponseFactory(StripePriceFactory());
       const mockInterval = SubplatInterval.Monthly;
       const mockOffering = EligibilityContentOfferingResultFactory({
-        defaultPurchase: { stripePlanChoices: [mockPlan.id] },
+        defaultPurchase: { stripePlanChoices: [mockPrice.id] },
       });
 
       jest
         .spyOn(contentfulManager, 'getOfferingPlanIds')
-        .mockResolvedValue([mockPlan.id]);
+        .mockResolvedValue([mockPrice.id]);
 
       jest
         .spyOn(priceManager, 'retrieveByInterval')
-        .mockResolvedValue(mockPlan);
+        .mockResolvedValue(mockPrice);
 
       const result = await contentfulService.retrieveStripePlanId(
         mockOffering.apiIdentifier,
         mockInterval
       );
-      expect(result).toEqual(mockPlan.id);
+      expect(result).toEqual(mockPrice.id);
     });
 
     it('throws error if no plans are found', async () => {
       const mockInterval = SubplatInterval.Yearly;
       const mockOffering = EligibilityContentOfferingResultFactory();
-      const mockPlan = StripeResponseFactory(StripePlanFactory());
+      const mockPrice = StripeResponseFactory(StripePriceFactory());
 
       jest
         .spyOn(contentfulManager, 'getOfferingPlanIds')
-        .mockResolvedValue([mockPlan.id]);
+        .mockResolvedValue([mockPrice.id]);
 
       jest
         .spyOn(priceManager, 'retrieveByInterval')

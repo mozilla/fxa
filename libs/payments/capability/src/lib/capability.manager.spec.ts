@@ -88,7 +88,7 @@ describe('CapabilityManager', () => {
     });
   });
 
-  describe('planIdsToClientCapabilities', () => {
+  describe('priceIdsToClientCapabilities', () => {
     it('should return empty results', async () => {
       const mockCapabilityServiceByPlanIdsQuery =
         CapabilityServiceByPlanIdsQueryFactory();
@@ -102,7 +102,7 @@ describe('CapabilityManager', () => {
             mockCapabilityServiceByPlanIdsQuery,
           ] as CapabilityServiceByPlanIdsResult[])
         );
-      const result = await capabilityManager.planIdsToClientCapabilities([
+      const result = await capabilityManager.priceIdsToClientCapabilities([
         'planId1',
       ]);
       expect(Object.keys(result)).toHaveLength(0);
@@ -135,7 +135,7 @@ describe('CapabilityManager', () => {
           ] as CapabilityServiceByPlanIdsResult[])
         );
 
-      const result = await capabilityManager.planIdsToClientCapabilities([
+      const result = await capabilityManager.priceIdsToClientCapabilities([
         'planId1',
       ]);
       expect(Object.keys(result)).toHaveLength(0);
@@ -175,7 +175,7 @@ describe('CapabilityManager', () => {
           ] as CapabilityServiceByPlanIdsResult[])
         );
 
-      const result = await capabilityManager.planIdsToClientCapabilities([
+      const result = await capabilityManager.priceIdsToClientCapabilities([
         'planId1',
       ]);
       expect(Object.keys(result)).toHaveLength(0);
@@ -240,7 +240,7 @@ describe('CapabilityManager', () => {
           ] as CapabilityServiceByPlanIdsResult[])
         );
 
-      const result = await capabilityManager.planIdsToClientCapabilities([
+      const result = await capabilityManager.priceIdsToClientCapabilities([
         'planId1',
       ]);
       expect(Object.keys(result).length).toBe(2);

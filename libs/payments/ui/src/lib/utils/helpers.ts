@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { getLocalizedCurrencyString } from '@fxa/shared/l10n';
-import { Stripe } from 'stripe';
+import { StripePrice } from '@fxa/payments/stripe';
 
-export type PlanInterval = Stripe.Plan['interval']; // TODO - Replace once FXA-7507 lands
+export type PriceInterval = NonNullable<StripePrice['recurring']>['interval']; // TODO - Replace once FXA-7507 lands
 
 /**
  * The following functions are for creating fallback text for Subscription Intervals
@@ -77,7 +77,7 @@ export function formatPlanInterval({
   interval,
   intervalCount,
 }: {
-  interval: PlanInterval; // TODO - Replace once FXA-7507 lands
+  interval: PriceInterval; // TODO - Replace once FXA-7507 lands
   intervalCount?: number;
 }): string {
   switch (interval) {

@@ -168,7 +168,7 @@ describe('CapabilityService', () => {
     mockStripeHelper.allMergedPlanConfigs = sinon.spy(async () => {});
     mockCapabilityManager = {
       getClients: sinon.fake.resolves(mockContentfulClients),
-      planIdsToClientCapabilities: sinon.fake.resolves(
+      priceIdsToClientCapabilities: sinon.fake.resolves(
         mockContentfulPlanIdsToClientCapabilities
       ),
     };
@@ -658,8 +658,8 @@ describe('CapabilityService', () => {
         mockEligibilityManager.getOfferingOverlap = sinon.fake.resolves([
           {
             comparison: 'upgrade',
-            planId: mockPlanTier1ShortInterval.plan_id,
-            type: 'plan',
+            priceId: mockPlanTier1ShortInterval.plan_id,
+            type: 'price',
           },
         ]);
         const actual =
@@ -678,8 +678,8 @@ describe('CapabilityService', () => {
         mockEligibilityManager.getOfferingOverlap = sinon.fake.resolves([
           {
             comparison: 'downgrade',
-            planId: mockPlanTier1ShortInterval.plan_id,
-            type: 'plan',
+            priceId: mockPlanTier1ShortInterval.plan_id,
+            type: 'price',
           },
         ]);
         const actual =
@@ -699,8 +699,8 @@ describe('CapabilityService', () => {
         mockEligibilityManager.getOfferingOverlap = sinon.fake.resolves([
           {
             comparison: 'upgrade',
-            planId: mockPlanTier1ShortInterval.plan_id,
-            type: 'plan',
+            priceId: mockPlanTier1ShortInterval.plan_id,
+            type: 'price',
           },
         ]);
         const actual =
@@ -719,8 +719,8 @@ describe('CapabilityService', () => {
         mockEligibilityManager.getOfferingOverlap = sinon.fake.resolves([
           {
             comparison: 'upgrade',
-            planId: mockPlanTier1ShortInterval.plan_id,
-            type: 'plan',
+            priceId: mockPlanTier1ShortInterval.plan_id,
+            type: 'price',
           },
         ]);
         const actual =
@@ -739,8 +739,8 @@ describe('CapabilityService', () => {
         mockEligibilityManager.getOfferingOverlap = sinon.fake.resolves([
           {
             comparison: 'same',
-            planId: mockPlanTier1ShortInterval.plan_id,
-            type: 'plan',
+            priceId: mockPlanTier1ShortInterval.plan_id,
+            type: 'price',
           },
         ]);
         const actual =
@@ -759,8 +759,8 @@ describe('CapabilityService', () => {
         mockEligibilityManager.getOfferingOverlap = sinon.fake.resolves([
           {
             comparison: 'upgrade',
-            planId: mockPlanTier1LongInterval.plan_id,
-            type: 'plan',
+            priceId: mockPlanTier1LongInterval.plan_id,
+            type: 'price',
           },
         ]);
         Container.set(EligibilityManager, mockEligibilityManager);
@@ -782,8 +782,8 @@ describe('CapabilityService', () => {
         mockEligibilityManager.getOfferingOverlap = sinon.fake.resolves([
           {
             comparison: 'upgrade',
-            planId: mockPlanTier1ShortInterval.plan_id,
-            type: 'plan',
+            priceId: mockPlanTier1ShortInterval.plan_id,
+            type: 'price',
           },
         ]);
         const actual =
@@ -801,8 +801,8 @@ describe('CapabilityService', () => {
         mockEligibilityManager.getOfferingOverlap = sinon.fake.resolves([
           {
             comparison: 'same',
-            planId: mockPlanTier2LongInterval.plan_id,
-            type: 'plan',
+            priceId: mockPlanTier2LongInterval.plan_id,
+            type: 'price',
           },
         ]);
         const actual =
@@ -1112,7 +1112,7 @@ describe('CapabilityService', () => {
       sinon.stub(Sentry, 'withScope').callsFake((cb) => cb(sentryScope));
       sinon.stub(Sentry, 'captureMessage');
 
-      mockCapabilityManager.planIdsToClientCapabilities = sinon.fake.resolves({
+      mockCapabilityManager.priceIdsToClientCapabilities = sinon.fake.resolves({
         c1: ['capAlpha'],
         c4: ['capBeta', 'capDelta', 'capEpsilon'],
         c6: ['capGamma', 'capZeta'],
@@ -1331,7 +1331,7 @@ describe('CapabilityService', () => {
       capabilityService.subscribedPriceIds = sinon.fake.resolves([UID]);
 
       const mockContentfulCapabilities =
-        await mockCapabilityManager.planIdsToClientCapabilities(
+        await mockCapabilityManager.priceIdsToClientCapabilities(
           capabilityService.subscribedPrices
         );
 
