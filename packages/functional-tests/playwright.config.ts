@@ -62,24 +62,7 @@ export default defineConfig<PlaywrightTestConfig<TestOptions, WorkerOptions>>({
     ),
   ],
   reporter: CI
-    ? [
-        ['blob', { outputFile: `./blob-report/Test-report.zip` }],
-        [
-          'playwright-html',
-          {
-            testFolder: 'tests',
-            title: 'Playwright HTML Report',
-            project: 'Functional Tests',
-            embedAssets: true,
-            embedAttachments: true,
-            outputFolder: 'playwright-html-report',
-            minifyAssets: true,
-            startServer: true,
-            consoleLog: true,
-            consoleError: true,
-          },
-        ],
-      ]
+    ? [['blob', { outputFile: `./blob-report/Test-report.zip` }]]
     : 'list',
   workers,
   maxFailures,
