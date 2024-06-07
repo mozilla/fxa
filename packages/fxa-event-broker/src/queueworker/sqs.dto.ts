@@ -88,6 +88,11 @@ export const PROFILE_CHANGE_SCHEMA = joi
     ts: joi.number().required(),
     uid: joi.string().required(),
     email: joi.string().optional(),
+    accountDisabled: joi.bool().optional(),
+    accountLocked: joi.bool().optional(),
+    locale: joi.string().optional(),
+    metricsEnabled: joi.bool().optional(),
+    totpEnabled: joi.bool().optional(),
   })
   .unknown(true)
   .required();
