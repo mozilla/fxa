@@ -304,6 +304,7 @@ commands:
       - run:
           name: Running Playwright tests
           # Supports 'Re-run failed tests only'. See this for more info: https://circleci.com/docs/rerun-failed-tests-only/
+          no_output_timeout: 30m
           command: |
             if [[ "<< parameters.project >>" == "production" ]]; then
               GREP="--grep=\"severity-1\""

@@ -37,7 +37,7 @@ export default defineConfig<PlaywrightTestConfig<TestOptions, WorkerOptions>>({
   retries: CI ? 1 : 0,
 
   // Total allowable time spent for the test function, fixtures, beforeEach and afterEach hooks. Defaults to 30 seconds.
-  timeout: 120000, // 1 minute
+  timeout: 60000, // 1 minute
 
   use: {
     viewport: { width: 1280, height: 720 },
