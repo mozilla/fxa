@@ -66,6 +66,7 @@ export class AccountCustomerManager {
   }
 
   public async updateAccountCustomer(uid: string, data: UpdateAccountCustomer) {
+    console.log('testing');
     const accountCustomer = await this.getAccountCustomerByUid(uid);
 
     try {
