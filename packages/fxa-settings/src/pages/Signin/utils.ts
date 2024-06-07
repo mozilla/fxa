@@ -74,6 +74,10 @@ export async function handleNavigation(
       sessionToken: navigationOptions.signinData.sessionToken,
       uid: navigationOptions.signinData.uid,
       verified: navigationOptions.signinData.verified,
+      // This is necessary or the user will be signed in but Sync will be 'off'
+      services: {
+        sync: {},
+      },
     });
   }
 
