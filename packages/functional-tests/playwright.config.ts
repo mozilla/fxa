@@ -62,7 +62,17 @@ export default defineConfig<PlaywrightTestConfig<TestOptions, WorkerOptions>>({
     ),
   ],
   reporter: CI
-    ? [['blob', { outputFile: `./blob-report/Test-report.zip` }]]
+    ? [
+        [
+          'blob',
+          {
+            outputFile: path.resolve(
+              __dirname,
+              '../../artifacts/tests/test-report.zip'
+            ),
+          },
+        ],
+      ]
     : 'list',
   workers,
   maxFailures,
