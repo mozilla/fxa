@@ -34,6 +34,8 @@ RUN yarn install --immutable;
 # is necessary.
 FROM builder as playwright-install
 RUN npx playwright install firefox;
+RUN npm i -D playwright-html@1.1.5 --save --save-exact
+
 
 
 # Runs functional tests in our CI. Needs minimal install. Assumes
