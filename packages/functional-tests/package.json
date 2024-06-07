@@ -23,6 +23,7 @@
     "fxa-settings": "workspace:*",
     "jsqr": "^1.4.0",
     "pdf-parse": "^1.1.1",
+    "playwright-html": "^1.2.5",
     "upng-js": "^2.1.0"
   },
   "nx": {

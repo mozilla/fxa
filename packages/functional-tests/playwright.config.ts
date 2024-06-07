@@ -73,6 +73,21 @@ export default defineConfig<PlaywrightTestConfig<TestOptions, WorkerOptions>>({
             ),
           },
         ],
+        [
+          'playwright-html',
+          {
+            testFolder: 'tests',
+            title: 'Playwright HTML Report',
+            project: 'Functional Tests',
+            embedAssets: true,
+            embedAttachments: true,
+            outputFolder: 'playwright-html-report',
+            minifyAssets: true,
+            startServer: true,
+            consoleLog: true,
+            consoleError: true,
+          },
+        ],
       ]
     : 'list',
   workers,
