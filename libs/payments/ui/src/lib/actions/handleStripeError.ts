@@ -5,7 +5,7 @@
 'use server';
 
 import { StripeError } from '@stripe/stripe-js';
-import { app } from '../nestapp/app';
+import { getApp } from '../nestapp/app';
 import { redirect } from 'next/navigation';
 import { stripeErrorToErrorReasonId } from '@fxa/payments/cart';
 
@@ -15,7 +15,7 @@ export const handleStripeErrorAction = async (
 ) => {
   const errorReasonId = stripeErrorToErrorReasonId(stripeError);
 
-  await app.getActionsService().finalizeCartWithError({
+  await getApp().getActionsService().finalizeCartWithError({
     cartId,
     errorReasonId,
   });

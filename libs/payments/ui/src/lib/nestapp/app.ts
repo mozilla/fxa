@@ -41,4 +41,17 @@ class AppSingleton {
   }
 }
 
-export const app = singleton('nestApp', new AppSingleton()) as AppSingleton;
+export async function reinitializeNestApp() {
+  return (
+    singleton('nestApp', new AppSingleton(), true) as AppSingleton
+  ).initialize();
+}
+
+/**
+ * Returns an instance of AppSingleton.
+ *
+ * Note, exporting a function instead of a constant value, ensures that
+ * Next.js pages always fetch the latest AppSingleton
+ */
+export const getApp = () =>
+  singleton('nestApp', new AppSingleton()) as AppSingleton;

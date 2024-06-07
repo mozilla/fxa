@@ -5,7 +5,7 @@
 import { Module } from '@nestjs/common';
 import { TypedConfigModule } from 'nest-typed-config';
 
-import { CartManager, CartService } from '@fxa/payments/cart';
+import { CartManager, CartService, CheckoutService } from '@fxa/payments/cart';
 import {
   EligibilityManager,
   EligibilityService,
@@ -39,7 +39,6 @@ import { StatsDProvider } from '@fxa/shared/metrics/statsd';
 import { RootConfig } from './config';
 import { NextJSActionsService } from './nextjs-actions.service';
 import { validate } from '../config.utils';
-import { CheckoutService } from 'libs/payments/cart/src/lib/checkout.service';
 import { AccountManager } from '@fxa/shared/account/account';
 
 @Module({

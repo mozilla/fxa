@@ -5,14 +5,14 @@
 'use server';
 
 import { plainToClass } from 'class-transformer';
-import { app } from '../nestapp/app';
+import { getApp } from '../nestapp/app';
 import { FetchContentfulDataArgs } from '../nestapp/validators/FetchContentfulDataArgs';
 
 export const fetchContentfulData = (
   offeringId: string,
   acceptLanguage: string
 ) => {
-  return app.getActionsService().fetchContentfulData(
+  return getApp().getActionsService().fetchContentfulData(
     plainToClass(FetchContentfulDataArgs, {
       offeringId,
       acceptLanguage,

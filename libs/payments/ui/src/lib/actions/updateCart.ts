@@ -5,7 +5,7 @@
 'use server';
 
 import { UpdateCart } from '@fxa/payments/cart';
-import { app } from '../nestapp/app';
+import { getApp } from '../nestapp/app';
 import { UpdateCartActionArgs } from '../nestapp/validators/UpdateCartActionArgs';
 import { plainToClass } from 'class-transformer';
 
@@ -14,7 +14,7 @@ export const updateCartAction = async (
   version: number,
   cartDetails: UpdateCart
 ) => {
-  const actionsService = await app.getActionsService();
+  const actionsService = getApp().getActionsService();
 
   await actionsService.updateCart(
     plainToClass(UpdateCartActionArgs, {

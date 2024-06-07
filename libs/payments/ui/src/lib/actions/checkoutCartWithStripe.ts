@@ -5,7 +5,7 @@
 'use server';
 
 import { plainToClass } from 'class-transformer';
-import { app } from '../nestapp/app';
+import { getApp } from '../nestapp/app';
 import {
   CheckoutCartWithStripeActionArgs,
   CheckoutCartWithStripeActionCustomerData,
@@ -17,7 +17,7 @@ export const checkoutCartWithStripe = async (
   paymentMethodId: string,
   customerData: CheckoutCartWithStripeActionCustomerData
 ) => {
-  await app.getActionsService().checkoutCartWithStripe(
+  await getApp().getActionsService().checkoutCartWithStripe(
     plainToClass(CheckoutCartWithStripeActionArgs, {
       cartId,
       version,

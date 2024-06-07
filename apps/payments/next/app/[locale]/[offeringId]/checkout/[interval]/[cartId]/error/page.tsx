@@ -11,7 +11,7 @@ import { DEFAULT_LOCALE } from '@fxa/shared/l10n';
 import errorIcon from '@fxa/shared/assets/images/error.svg';
 import {
   SupportedPages,
-  app,
+  getApp,
   getCartOrRedirectAction,
 } from '@fxa/payments/ui/server';
 import { CartErrorReasonId } from '@fxa/shared/db/mysql/account';
@@ -64,8 +64,8 @@ export default async function CheckoutError({
     params.cartId,
     SupportedPages.ERROR
   );
-  const l10nPromise = app.getL10n(locale);
-  const [cart, l10n] = await Promise.all([cartPromise, l10nPromise]);
+  const l10n = getApp().getL10n(locale);
+  const [cart] = await Promise.all([cartPromise]);
 
   const errorReason = getErrorReason(cart.errorReasonId);
 

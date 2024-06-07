@@ -12,7 +12,7 @@ import { getFakeCartData } from 'apps/payments/next/app/_lib/apiClient';
 import circledConfirm from '@fxa/shared/assets/images/circled-confirm.svg';
 import {
   SupportedPages,
-  app,
+  getApp,
   fetchContentfulData,
   getCartOrRedirectAction,
 } from '@fxa/payments/ui/server';
@@ -66,12 +66,11 @@ export default async function CheckoutSuccess({
     params.cartId,
     SupportedPages.SUCCESS
   );
-  const l10nPromise = app.getL10n(locale);
+  const l10n = getApp().getL10n(locale);
   const fakeCartDataPromise = getFakeCartData(params.cartId);
-  const [contentful, cart, l10n, fakeCart] = await Promise.all([
+  const [contentful, cart, fakeCart] = await Promise.all([
     contentfulDataPromise,
     cartDataPromise,
-    l10nPromise,
     fakeCartDataPromise,
   ]);
 
