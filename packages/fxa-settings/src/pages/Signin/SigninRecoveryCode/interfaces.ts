@@ -10,7 +10,6 @@ import { SigninIntegration, SigninLocationState } from '../interfaces';
 export type SigninRecoveryCodeProps = {
   finishOAuthFlowHandler: FinishOAuthFlowHandler;
   integration: SigninIntegration;
-  redirectTo?: string;
   serviceName?: MozServices;
   signinState: SigninLocationState;
   submitRecoveryCode: SubmitRecoveryCode;

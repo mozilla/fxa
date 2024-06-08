@@ -455,6 +455,10 @@ Router = Router.extend({
         email: this.user.get('emailFromIndex'),
         hasLinkedAccount: this.user.get('hasLinkedAccount'),
         hasPassword: this.user.get('hasPassword'),
+        // for subplat redirect only
+        ...(this.relier.get('redirectTo') && {
+          redirect_to: this.relier.get('redirectTo'),
+        }),
       });
     },
     'signin_bounced(/)': function () {
@@ -528,6 +532,7 @@ Router = Router.extend({
         ...(this.user.get('emailFromIndex') && {
           emailStatusChecked: 'true',
         }),
+        redirect_to: this.relier.get('redirectTo'),
       });
     },
     'signup_confirmed(/)': function () {
