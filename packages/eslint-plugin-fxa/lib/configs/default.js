@@ -33,6 +33,7 @@ module.exports = {
     'no-empty': 0,
     'no-eval': 2,
     'fxa/no-exclusive-tests': 2,
+    'fxa/no-test-slow': 0,
     'no-irregular-whitespace': 2,
     'no-loop-func': 0,
     'no-multi-spaces': 0,
