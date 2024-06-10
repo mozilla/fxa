@@ -25009,6 +25009,34 @@ __metadata:
   languageName: node
   linkType: hard
 
+"allure-commandline@npm:2.29.0":
+  version: 2.29.0
+  resolution: "allure-commandline@npm:2.29.0"
+  bin:
+    allure: bin/allure
+  checksum: 29f3f7334744f0f75894bd230ad6a6cacb325f20a0d3a9e82034e2f78521313fc50c94461aedfd619bedb84207ac773325f3c426cef1257ae1b9f687a581412e
+  languageName: node
+  linkType: hard
+
+"allure-js-commons@npm:3.0.0-beta.3":
+  version: 3.0.0-beta.3
+  resolution: "allure-js-commons@npm:3.0.0-beta.3"
+  dependencies:
+    md5: ^2.3.0
+    properties: ^1.2.1
+  checksum: 9ecd6a91a4fe584dc0e502e4f2c3d3c83e2ff0450426b931465166d088952ba4a12115b671b7f5664f41d27f478ac1ebcbf7bb6e626b193a5b300d9ee35f37a8
+  languageName: node
+  linkType: hard
+
+"allure-playwright@npm:3.0.0-beta.3":
+  version: 3.0.0-beta.3
+  resolution: "allure-playwright@npm:3.0.0-beta.3"
+  dependencies:
+    allure-js-commons: 3.0.0-beta.3
+  checksum: 30f8d8c712bfa11ccde22c847f370da4d9e360791abe0600ca63655e938767e5399e5374e4c35b7f9f885e538f2bcbde5a3013f4ec9003ca63d15d0142e64704
+  languageName: node
+  linkType: hard
+
 "amp-message@npm:~0.1.1":
   version: 0.1.2
   resolution: "amp-message@npm:0.1.2"
@@ -37809,6 +37837,8 @@ fsevents@~2.1.1:
     "@playwright/test": ^1.43.1
     "@types/eslint": ^8
     "@types/upng-js": ^2
+    allure-commandline: 2.29.0
+    allure-playwright: 3.0.0-beta.3
     eslint: ^8.56.0
     eslint-plugin-playwright: ^0.22.2
     fxa-auth-client: "workspace:*"
@@ -55661,6 +55691,13 @@ fsevents@~2.1.1:
   version: 2.0.1
   resolution: "propagate@npm:2.0.1"
   checksum: c4febaee2be0979e82fb6b3727878fd122a98d64a7fa3c9d09b0576751b88514a9e9275b1b92e76b364d488f508e223bd7e1dcdc616be4cdda876072fbc2a96c
+  languageName: node
+  linkType: hard
+
+"properties@npm:^1.2.1":
+  version: 1.2.1
+  resolution: "properties@npm:1.2.1"
+  checksum: f385f8b96910c10d761bb6358b6c4b33aff09427a0504f01463ac6c8410dc3f2a7a9d85e96dd1c1a3e88b228b0ad9d0c23a397d55c52b087b3da7bed691799a6
   languageName: node
   linkType: hard
 

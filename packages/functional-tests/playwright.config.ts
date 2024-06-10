@@ -63,15 +63,18 @@ export default defineConfig<PlaywrightTestConfig<TestOptions, WorkerOptions>>({
   ],
   reporter: CI
     ? [
+        ['./lib/ci-reporter.ts'],
         [
-          'blob',
+          'junit',
           {
             outputFile: path.resolve(
               __dirname,
-              '../../artifacts/tests/test-report.zip'
+              '../../artifacts/tests/test-results.xml'
             ),
           },
         ],
+        ['blob'],
+        ['allure-playwright'],
       ]
     : 'list',
   workers,

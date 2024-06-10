@@ -15,6 +15,8 @@
     "@playwright/test": "^1.43.1",
     "@types/eslint": "^8",
     "@types/upng-js": "^2",
+    "allure-commandline": "2.29.0",
+    "allure-playwright": "3.0.0-beta.3",
     "eslint": "^8.56.0",
     "eslint-plugin-playwright": "^0.22.2",
     "fxa-auth-client": "workspace:*",
