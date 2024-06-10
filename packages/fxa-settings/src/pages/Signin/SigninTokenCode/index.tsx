@@ -5,7 +5,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { RouteComponentProps, useLocation } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { useFtlMsgResolver, useSession } from '../../../models';
+import {
+  isWebIntegration,
+  useFtlMsgResolver,
+  useSession,
+} from '../../../models';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { MailImage } from '../../../components/images';
 import FormVerifyCode, {
@@ -58,9 +62,10 @@ const SigninTokenCode = ({
   const [resendCodeLoading, setResendCodeLoading] = useState<boolean>(false);
 
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
-  const redirectTo = webRedirectCheck.isValid()
-    ? integration.data.redirectTo
-    : '';
+  const redirectTo =
+    isWebIntegration(integration) && webRedirectCheck.isValid()
+      ? integration.data.redirectTo
+      : '';
 
   const ftlMsgResolver = useFtlMsgResolver();
   const localizedCustomCodeRequiredMessage = ftlMsgResolver.getMsg(
