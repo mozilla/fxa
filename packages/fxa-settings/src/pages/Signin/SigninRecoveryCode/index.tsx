@@ -5,7 +5,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Link, RouteComponentProps, useLocation } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { useFtlMsgResolver } from '../../../models';
+import { isWebIntegration, useFtlMsgResolver } from '../../../models';
 import { RecoveryCodesImage } from '../../../components/images';
 import CardHeader from '../../../components/CardHeader';
 import LinkExternal from 'fxa-react/components/LinkExternal';
@@ -47,9 +47,10 @@ const SigninRecoveryCode = ({
 
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
 
-  const redirectTo = webRedirectCheck.isValid()
-    ? integration.data.redirectTo
-    : '';
+  const redirectTo =
+    isWebIntegration(integration) && webRedirectCheck.isValid()
+      ? integration.data.redirectTo
+      : '';
 
   const formAttributes: FormAttributes = {
     inputFtlId: 'signin-recovery-code-input-label',

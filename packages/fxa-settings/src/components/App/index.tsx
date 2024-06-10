@@ -352,6 +352,10 @@ const AuthAndAccountSetupRoutes = ({
       {/* Signin */}
       <ReportSigninContainer path="/report_signin/*" />
       <SigninContainer
+        path="/oauth/force_auth/*"
+        {...{ integration, serviceName, flowQueryParams }}
+      />
+      <SigninContainer
         path="/force_auth/*"
         {...{ integration, serviceName, flowQueryParams }}
       />

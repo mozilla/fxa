@@ -206,7 +206,17 @@ Router = Router.extend({
           return this.showView(View);
         });
       } else {
-        this.createReactOrBackboneViewHandler(routeName, ConfirmSignupCodeView);
+        this.createReactOrBackboneViewHandler(
+          routeName,
+          ConfirmSignupCodeView,
+          {
+            ...Url.searchParams(this.window.location.search),
+            // for subplat redirect only
+            ...(this.relier.get('redirectTo') && {
+              redirect_to: this.relier.get('redirectTo'),
+            }),
+          }
+        );
       }
     },
     'connect_another_device(/)': createViewHandler(ConnectAnotherDeviceView),
@@ -231,6 +241,13 @@ Router = Router.extend({
     'force_auth(/)': function () {
       this.createReactOrBackboneViewHandler('force_auth', ForceAuthView, {
         ...Url.searchParams(this.window.location.search),
+        email: this.user.get('emailFromIndex'),
+        hasLinkedAccount: this.user.get('hasLinkedAccount'),
+        hasPassword: this.user.get('hasPassword'),
+        // for subplat redirect only
+        ...(this.relier.get('redirectTo') && {
+          redirect_to: this.relier.get('redirectTo'),
+        }),
       });
     },
     'inline_totp_setup(/)': function () {
@@ -269,15 +286,34 @@ Router = Router.extend({
       });
     },
     'oauth(/)': createViewHandler(IndexView),
-    'oauth/force_auth(/)': createViewHandler(ForceAuthView),
-    'oauth/signin(/)': function () {
-      this.createReactOrBackboneViewHandler('signin', SignInPasswordView, {
-        // see comment in fxa-settings/src/pages/Signin/container.tsx for param explanation
+    'oauth/force_auth(/)': function () {
+      this.createReactOrBackboneViewHandler('oauth/force_auth', ForceAuthView, {
         ...Url.searchParams(this.window.location.search),
         email: this.user.get('emailFromIndex'),
         hasLinkedAccount: this.user.get('hasLinkedAccount'),
         hasPassword: this.user.get('hasPassword'),
+        // for subplat redirect only
+        ...(this.relier.get('redirectTo') && {
+          redirect_to: this.relier.get('redirectTo'),
+        }),
       });
+    },
+    'oauth/signin(/)': function () {
+      this.createReactOrBackboneViewHandler(
+        'oauth/signin',
+        SignInPasswordView,
+        {
+          // see comment in fxa-settings/src/pages/Signin/container.tsx for param explanation
+          ...Url.searchParams(this.window.location.search),
+          email: this.user.get('emailFromIndex'),
+          hasLinkedAccount: this.user.get('hasLinkedAccount'),
+          hasPassword: this.user.get('hasPassword'),
+          // for subplat redirect only
+          ...(this.relier.get('redirectTo') && {
+            redirect_to: this.relier.get('redirectTo'),
+          }),
+        }
+      );
     },
     'oauth/signup(/)': function () {
       this.createReactOrBackboneViewHandler(
@@ -496,7 +532,13 @@ Router = Router.extend({
       this.createReactOrBackboneViewHandler(
         'signin_token_code',
         SignInTokenCodeView,
-        null,
+        {
+          ...Url.searchParams(this.window.location.search),
+          // for subplat redirect only
+          ...(this.relier.get('redirectTo') && {
+            redirect_to: this.relier.get('redirectTo'),
+          }),
+        },
         {
           type: VerificationReasons.SIGN_IN,
         }
@@ -505,13 +547,27 @@ Router = Router.extend({
     'signin_totp_code(/)': function () {
       this.createReactOrBackboneViewHandler(
         'signin_totp_code',
-        SignInTotpCodeView
+        SignInTotpCodeView,
+        {
+          ...Url.searchParams(this.window.location.search),
+          // for subplat redirect only
+          ...(this.relier.get('redirectTo') && {
+            redirect_to: this.relier.get('redirectTo'),
+          }),
+        }
       );
     },
     'signin_unblock(/)': function () {
       this.createReactOrBackboneViewHandler(
         'signin_unblock',
-        SignInUnblockView
+        SignInUnblockView,
+        {
+          ...Url.searchParams(this.window.location.search),
+          // for subplat redirect only
+          ...(this.relier.get('redirectTo') && {
+            redirect_to: this.relier.get('redirectTo'),
+          }),
+        }
       );
     },
     'signin_verified(/)': function () {
@@ -532,7 +588,10 @@ Router = Router.extend({
         ...(this.user.get('emailFromIndex') && {
           emailStatusChecked: 'true',
         }),
-        redirect_to: this.relier.get('redirectTo'),
+        // for subplat redirect only
+        ...(this.relier.get('redirectTo') && {
+          redirect_to: this.relier.get('redirectTo'),
+        }),
       });
     },
     'signup_confirmed(/)': function () {
