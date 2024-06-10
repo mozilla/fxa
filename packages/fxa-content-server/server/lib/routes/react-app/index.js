@@ -65,6 +65,7 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
       routes: reactRoute.getRoutes([
         'signin',
         'oauth/signin',
+        'oauth/force_auth',
         'signin_token_code',
         'signin_totp_code',
         'signin_reported',
