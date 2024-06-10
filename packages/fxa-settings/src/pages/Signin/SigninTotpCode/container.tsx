@@ -12,7 +12,7 @@ import VerificationMethods from '../../../constants/verification-methods';
 import { VERIFY_TOTP_CODE_MUTATION } from './gql';
 import { getSigninState } from '../utils';
 import { SigninLocationState } from '../interfaces';
-import { Integration, useAuthClient } from '../../../models';
+import { Integration, isWebIntegration, useAuthClient } from '../../../models';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
@@ -46,9 +46,10 @@ export const SigninTotpCodeContainer = ({
 
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
 
-  const redirectTo = webRedirectCheck.isValid()
-    ? integration.data.redirectTo
-    : '';
+  const redirectTo =
+    isWebIntegration(integration) && webRedirectCheck.isValid()
+      ? integration.data.redirectTo
+      : '';
 
   const [verifyTotpCode] = useMutation(VERIFY_TOTP_CODE_MUTATION);
 

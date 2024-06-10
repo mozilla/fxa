@@ -26,6 +26,7 @@ import {
   isOAuthIntegration,
   useSensitiveDataClient,
   useFtlMsgResolver,
+  isWebIntegration,
 } from '../../models';
 import {
   isClientMonitor,
@@ -131,9 +132,10 @@ const Signin = ({
             sessionToken,
           },
           integration,
-          redirectTo: webRedirectCheck.isValid()
-            ? integration.data.redirectTo
-            : '',
+          redirectTo:
+            isWebIntegration(integration) && webRedirectCheck.isValid()
+              ? integration.data.redirectTo
+              : '',
           finishOAuthFlowHandler,
           queryParams: location.search,
         };
@@ -191,9 +193,10 @@ const Signin = ({
           verified: data.signIn.verified,
           integration,
           finishOAuthFlowHandler,
-          redirectTo: webRedirectCheck.isValid()
-            ? integration.data.redirectTo
-            : '',
+          redirectTo:
+            isWebIntegration(integration) && webRedirectCheck.isValid()
+              ? integration.data.redirectTo
+              : '',
           queryParams: location.search,
         };
 
