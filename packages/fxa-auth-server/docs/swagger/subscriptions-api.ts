@@ -222,7 +222,15 @@ const OAUTH_SUBSCRIPTIONS_COUPON_POST = {
 const OAUTH_SUBSCRIPTIONS_COUPON_APPLY_PUT = {
   ...TAGS_SUBSCRIPTIONS,
   description: '/oauth/subscriptions/coupon/apply',
-  notes: ['Updates customer subscription with promotion code.'],
+  notes: [
+    dedent`
+      Applies an existing, valid promotion code to an active customer subscription.
+
+      Note:
+      - This endpoint checks that the customer ID associated with the subscription ID matches the Stripe customer ID of the FxA user
+      - The promotion code should be included within the metadata of either the product or specific plan
+    `,
+  ],
 };
 
 const OAUTH_SUBSCRIPTIONS_PAYMENTMETHOD_FAILED_DETACH_POST = {
