@@ -66,7 +66,7 @@ jest.mock('../../models', () => {
   };
 });
 
-let mockGetCode = jest.fn();
+let mockGetCode = jest.fn().mockReturnValue('123456');
 jest.mock('../../lib/totp', () => {
   return {
     ...jest.requireActual('../../lib/totp'),
@@ -124,6 +124,7 @@ const defaultProps = {
   isSignedIn: true,
   integration: {
     returnOnError: () => true,
+    getService: () => '0123456789abcdef',
     getRedirectWithErrorUrl: (error: AuthUiError) =>
       `https://localhost:8080/?error=${error.errno}`,
   } as unknown as OAuthIntegration,
@@ -255,6 +256,14 @@ describe('InlineRecoverySetupContainer', () => {
           const result = await verifyTotpHandler();
           expect(mockGetCode).toHaveBeenCalledWith(MOCK_TOTP_TOKEN.secret);
           expect(mockVerifyTotpMutation).toHaveBeenCalledTimes(1);
+          expect(mockVerifyTotpMutation).toHaveBeenCalledWith({
+            variables: {
+              input: {
+                code: '123456',
+                service: '0123456789abcdef',
+              },
+            },
+          });
           expect(result).toBe(true);
         });
       });

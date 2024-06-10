@@ -58,11 +58,12 @@ export const InlineRecoverySetupContainer = ({
 
   const verifyTotpHandler = useCallback(async () => {
     const code = await getCode(totp!.secret);
+    const service = integration.getService();
     const result = await verifyTotp({
-      variables: { input: { code, service: serviceName } },
+      variables: { input: { code, service } },
     });
     return result.data!.verifyTotp.success;
-  }, [serviceName, totp, verifyTotp]);
+  }, [integration, totp, verifyTotp]);
 
   const successfulSetupHandler = useCallback(async () => {
     // When this is called, we know signinRecoveryLocationState exists.
