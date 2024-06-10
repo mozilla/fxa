@@ -11,6 +11,7 @@ import CardHeader from '../../../components/CardHeader';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import FormVerifyCode, {
   FormAttributes,
+  InputModeEnum,
 } from '../../../components/FormVerifyCode';
 import GleanMetrics from '../../../lib/glean';
 import AppLayout from '../../../components/AppLayout';
@@ -47,7 +48,8 @@ const SigninRecoveryCode = ({
   const formAttributes: FormAttributes = {
     inputFtlId: 'signin-recovery-code-input-label',
     inputLabelText: 'Enter 10-digit backup authentication code',
-    pattern: '[0-9]{10}',
+    inputMode: InputModeEnum.text,
+    pattern: '[a-zA-Z0-9]',
     maxLength: 10,
     submitButtonFtlId: 'signin-recovery-code-confirm-button',
     submitButtonText: 'Confirm',
