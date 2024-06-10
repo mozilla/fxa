@@ -358,6 +358,18 @@ describe('Signin', () => {
                 '/connect_another_device?showSuccessMessage=true'
               );
             });
+            it('is not sent if user has 2FA enabled', async () => {
+              const beginSigninHandler = jest.fn().mockReturnValueOnce(
+                createBeginSigninResponse({
+                  verified: false,
+                  verificationMethod: VerificationMethods.TOTP_2FA,
+                })
+              );
+              const integration = createMockSigninSyncIntegration();
+              render({ beginSigninHandler, integration });
+              enterPasswordAndSubmit();
+              expect(fxaLoginSpy).not.toHaveBeenCalled();
+            });
             it('is not sent otherwise', async () => {
               render();
               enterPasswordAndSubmit();

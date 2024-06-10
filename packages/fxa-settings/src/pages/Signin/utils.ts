@@ -58,7 +58,14 @@ export async function handleNavigation(
     return { error };
   }
 
-  if (tempHandleSyncLogin && navigationOptions.integration.isSync()) {
+  if (
+    tempHandleSyncLogin &&
+    navigationOptions.integration.isSync() &&
+    // If the _next page_ is `signin_totp_code`, we also don't want to send this
+    // because we end up sending it twice with the first message containing
+    // `verified: false`, causing a Sync sign-in issue (see FXA-9837).
+    !to?.includes('signin_totp_code')
+  ) {
     firefox.fxaLogin({
       email: navigationOptions.email,
       // keyFetchToken and unwrapBKey should always exist if Sync integration
