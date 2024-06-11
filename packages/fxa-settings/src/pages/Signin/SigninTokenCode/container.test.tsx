@@ -162,7 +162,9 @@ describe('SigninTokenCode container', () => {
         });
 
         await waitFor(() => {
-          expect(mockNavigate).toBeCalledWith('/signin_totp_code');
+          expect(mockNavigate).toBeCalledWith('/signin_totp_code', {
+            state: mockLocationState,
+          });
         });
       });
 
