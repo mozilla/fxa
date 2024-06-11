@@ -66,7 +66,7 @@ export async function handleNavigation(
     // `verified: false`, causing a Sync sign-in issue (see FXA-9837).
     !to?.includes('signin_totp_code')
   ) {
-    await firefox.fxaLogin({
+    firefox.fxaLogin({
       email: navigationOptions.email,
       // keyFetchToken and unwrapBKey should always exist if Sync integration
       keyFetchToken: navigationOptions.signinData.keyFetchToken!,
