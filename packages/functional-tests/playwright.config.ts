@@ -78,7 +78,7 @@ export default defineConfig<PlaywrightTestConfig<TestOptions, WorkerOptions>>({
           {
             outputDir: path.resolve(
               __dirname,
-              '../../artifacts/tests/blob-report'
+              '../../artifacts/tests/blob-reports'
             ),
           },
         ],
