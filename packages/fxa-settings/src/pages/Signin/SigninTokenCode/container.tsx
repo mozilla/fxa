@@ -58,7 +58,9 @@ const SigninTokenCodeContainer = ({
   // redirect if there is 2FA is set up for the account,
   // but the session is not TOTP verified
   if (totpVerified) {
-    navigate('/signin_totp_code');
+    navigate('/signin_totp_code', {
+      state: signinState,
+    });
     return <LoadingSpinner fullScreen />;
   }
 
