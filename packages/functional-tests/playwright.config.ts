@@ -76,9 +76,9 @@ export default defineConfig<PlaywrightTestConfig<TestOptions, WorkerOptions>>({
         [
           'blob',
           {
-            outputFile: path.resolve(
+            outputDir: path.resolve(
               __dirname,
-              '../../artifacts/functional/blob-report/report.zip'
+              '../../artifacts/tests/blob-report'
             ),
           },
         ],
