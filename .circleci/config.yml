@@ -302,9 +302,6 @@ commands:
         type: string
     steps:
       - run:
-          name: Make Directory
-          command: mkdir -p all-blob-reports
-      - run:
           name: Running Playwright tests
           # Supports 'Re-run failed tests only'. See this for more info: https://circleci.com/docs/rerun-failed-tests-only/
           command: |
@@ -324,6 +321,7 @@ commands:
           environment:
             NODE_OPTIONS: --dns-result-order=ipv4first
             JEST_JUNIT_OUTPUT_DIR: ./artifacts/tests
+            PLAYWRIGHT_BLOB_OUTPUT_DIR: ./artifacts/blob-reports
             JEST_JUNIT_ADD_FILE_ATTRIBUTE: true
             ACCOUNTS_DOMAIN: << pipeline.parameters.accounts-domain >>
             PAYMENTS_DOMAIN: << pipeline.parameters.payments-domain >>
@@ -335,7 +333,7 @@ commands:
     steps:
       - run:
           name: Ensure directories
-          command: mkdir -p artifacts/tests && mkdir -p ~/.pm2/logs && mkdir -p ~/screenshots
+          command: mkdir -p artifacts/tests && mkdir -p ~/.pm2/logs && mkdir -p ~/screenshots && mkdir -p artifacts/blob-reports
       - store_artifacts:
           path: artifacts
       - store_artifacts:
@@ -344,6 +342,8 @@ commands:
           path: ~/.pm2/logs
       - store_test_results:
           path: artifacts/tests
+      - store_reports:
+          path: artifacts/blob-reports
 
   build:
     steps:
