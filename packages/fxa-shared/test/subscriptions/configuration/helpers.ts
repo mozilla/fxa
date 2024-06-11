@@ -11,7 +11,7 @@ import {
 } from '../../../subscriptions/configuration/helpers';
 import { PlanConfigurationDtoT } from '../../../dto/auth/payments/plan-configuration';
 
-const PLAN: Plan = {
+export const PLAN: Plan = {
   plan_id: 'plan_8675309',
   plan_name: '',
   product_id: 'prod_8675309',
@@ -25,10 +25,10 @@ const PLAN: Plan = {
   product_metadata: null,
 };
 
-const PLAN_WITH_METADATA: Plan = {
+export const PLAN_WITH_METADATA: Plan = {
   ...PLAN,
   plan_name: 'The Plan',
-  product_metadata: {
+  plan_metadata: {
     productSet: 'foo',
     productOrder: '2',
     webIconURL: 'https://example.org/webicon.png',
@@ -41,6 +41,7 @@ const PLAN_WITH_METADATA: Plan = {
     'product:privacyNoticeDownloadURL':
       'https://example.org/en-US/privacy/download',
     'product:ignoreme': 'Unknown name here',
+    'product:name': 'Name override!!',
     'product:subtitle': 'Great Full-device VPN',
     'product:details:3': 'Baz Connects 5 devices with one subscription',
     'product:details:1': 'Foo Device-level encryption',
@@ -66,9 +67,49 @@ const PLAN_WITH_METADATA: Plan = {
     'product:termsOfServiceURL:xx-partial':
       'https://example.org/xx-partial/terms',
   },
+  product_metadata: {
+    productSet: 'bar',
+    productOrder: '20',
+    webIconURL: 'https://example.org/webicon2.png',
+    webIconBackground: '#ffff00',
+    upgradeCTA: 'upgradeCTA2',
+    'product:termsOfServiceURL': 'https://example.org/en-US/terms2',
+    'product:privacyNoticeURL': 'https://example.org/en-US/privacy2',
+    'product:termsOfServiceDownloadURL':
+      'https://example.org/en-US/terms/download2',
+    'product:privacyNoticeDownloadURL':
+      'https://example.org/en-US/privacy/download2',
+    'product:ignoreme': 'Unknown name here 2',
+    'product:name': 'Name override!!',
+    'product:subtitle': 'Best Full-device VPN',
+    'product:details:3': 'Bar Connects 5 devices with one subscription',
+    'product:details:1': 'Bar Device-level encryption',
+    'product:details:2': 'Baz Servers in 30+ countries',
+    'product:details:4': 'Foo Available for Windows, iOS and Android',
+    'product:successActionButtonLabel': 'Do something else maybe',
+    'product:subtitle:xx-pirate': 'VPN fer yer full-device arr',
+    'product:foobar:9:xx-pirate': 'what even arrs this',
+    'product:details:4:xx-pirate': "Available fer Windows, iOS an' Android arr",
+    'product:details:1:xx-pirate': 'Device-level encryption arr matey',
+    'product:details:3:xx-pirate':
+      "Connects 5 devices wit' one subscription arr",
+    'product:details:2:xx-pirate': 'Servers is 30+ countries arr',
+    'product:termsOfServiceURL:xx-pirate':
+      'https://example.org/xx-pirate/terms2',
+    'product:privacyNoticeURL:xx-pirate':
+      'https://example.org/xx-pirate/privacy2',
+    'product:termsOfServiceDownloadURL:xx-pirate':
+      'https://example.org/xx-pirate/terms/download2',
+    'product:privacyNoticeDownloadURL:xx-pirate':
+      'https://example.org/xx-pirate/privacy/download2',
+    'product:successActionButtonLabel:xx-pirate': 'Yarr matey...',
+    'product:subtitle:xx-partial': 'Partial localization2',
+    'product:termsOfServiceURL:xx-partial':
+      'https://example.org/xx-partial/terms2',
+  },
 };
 
-const CONFIGURATION_URLS = {
+export const CONFIGURATION_URLS = {
   successActionButton: 'https://download',
   privacyNotice: 'https://privacynotice',
   termsOfService: 'httsp://termsofservice',
@@ -76,20 +117,20 @@ const CONFIGURATION_URLS = {
   webIcon: 'https://webicon',
 };
 
-const CONFIGURATION_UI_CONTENT = {
+export const CONFIGURATION_UI_CONTENT = {
   successActionButtonLabel: 'Success Label',
   subtitle: 'VPN Subtitle',
   details: ['Detail line 1', 'Detail line 2', 'Detail line 3'],
   upgradeCTA: 'Upgrade',
 };
 
-const LOCALE_CONFIGURATION_NONE = {
+export const LOCALE_CONFIGURATION_NONE = {
   urls: CONFIGURATION_URLS,
   uiContent: CONFIGURATION_UI_CONTENT,
   support: {},
 };
 
-const LOCALE_CONFIGURATION_FR = {
+export const LOCALE_CONFIGURATION_FR = {
   urls: {
     successActionButton: 'https://download/fr',
     privacyNotice: 'https://privacynotice/fr',
@@ -127,7 +168,7 @@ const LOCALE_CONFIGURATION_ENUS = {
   support: {},
 };
 
-const CONFIGURATION: PlanConfigurationDtoT = {
+export const CONFIGURATION: PlanConfigurationDtoT = {
   ...LOCALE_CONFIGURATION_NONE,
   locales: {
     fr: LOCALE_CONFIGURATION_FR,
@@ -140,7 +181,7 @@ const CONFIGURATION: PlanConfigurationDtoT = {
   productOrder: 1,
 };
 
-const PLAN_WITH_CONFIGURATION: Plan = {
+export const PLAN_WITH_CONFIGURATION: Plan = {
   ...PLAN,
   plan_name: 'Plan Name',
   plan_metadata: {},
@@ -248,6 +289,22 @@ describe('subscriptions/configuration/helpers', () => {
         false
       );
       expect(actual).to.deep.equal({
+        webIcon: PLAN_WITH_METADATA.plan_metadata!.webIconURL,
+        webIconBackground: PLAN_WITH_METADATA.plan_metadata!.webIconBackground,
+      });
+    });
+
+    it('prioritizes plan metadata over product metadata', () => {
+      const actual = webIconConfigFromProductConfig(
+        PLAN_WITH_METADATA,
+        ['de'],
+        false
+      );
+      expect(actual).to.deep.equal({
+        webIcon: PLAN_WITH_METADATA.plan_metadata!.webIconURL,
+        webIconBackground: PLAN_WITH_METADATA.plan_metadata!.webIconBackground,
+      });
+      expect(actual).to.not.deep.equal({
         webIcon: PLAN_WITH_METADATA.product_metadata!.webIconURL,
         webIconBackground:
           PLAN_WITH_METADATA.product_metadata!.webIconBackground,
@@ -283,18 +340,16 @@ describe('subscriptions/configuration/helpers', () => {
         false
       );
       expect(actual).to.deep.equal({
-        subtitle: PLAN_WITH_METADATA.product_metadata!['product:subtitle'],
+        subtitle: PLAN_WITH_METADATA.plan_metadata!['product:subtitle'],
         details: [
-          PLAN_WITH_METADATA.product_metadata!['product:details:1'],
-          PLAN_WITH_METADATA.product_metadata!['product:details:2'],
-          PLAN_WITH_METADATA.product_metadata!['product:details:3'],
-          PLAN_WITH_METADATA.product_metadata!['product:details:4'],
+          PLAN_WITH_METADATA.plan_metadata!['product:details:1'],
+          PLAN_WITH_METADATA.plan_metadata!['product:details:2'],
+          PLAN_WITH_METADATA.plan_metadata!['product:details:3'],
+          PLAN_WITH_METADATA.plan_metadata!['product:details:4'],
         ],
         successActionButtonLabel:
-          PLAN_WITH_METADATA.product_metadata![
-            'product:successActionButtonLabel'
-          ],
-        upgradeCTA: PLAN_WITH_METADATA.product_metadata!.upgradeCTA,
+          PLAN_WITH_METADATA.plan_metadata!['product:successActionButtonLabel'],
+        upgradeCTA: PLAN_WITH_METADATA.plan_metadata!.upgradeCTA,
       });
     });
 
@@ -359,8 +414,8 @@ describe('subscriptions/configuration/helpers', () => {
     it('returns product update config from plan metadata if featureFlag is false', () => {
       const actual = productUpgradeFromProductConfig(PLAN_WITH_METADATA, false);
       expect(actual).to.deep.equal({
-        productOrder: PLAN_WITH_METADATA.product_metadata!.productOrder,
-        productSet: PLAN_WITH_METADATA.product_metadata!.productSet.split(','),
+        productOrder: PLAN_WITH_METADATA.plan_metadata!.productOrder,
+        productSet: PLAN_WITH_METADATA.plan_metadata!.productSet.split(','),
       });
     });
 
