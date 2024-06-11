@@ -27,7 +27,6 @@ import Banner, {
   ResendEmailSuccessBanner,
 } from '../../../components/Banner';
 import { handleNavigation } from '../utils';
-import firefox from '../../../lib/channels/firefox';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
 
@@ -88,24 +87,6 @@ const SigninTokenCode = ({
 
   useEffect(() => {
     GleanMetrics.loginConfirmation.view();
-  }, []);
-
-  useEffect(() => {
-    (async () => {
-      if (integration.isSync()) {
-        await firefox.fxaLogin({
-          email,
-          // keyFetchToken and unwrapBKey should always exist if Sync integration
-          keyFetchToken: keyFetchToken!,
-          unwrapBKey: unwrapBKey!,
-          sessionToken,
-          uid,
-          verified: false,
-        });
-      }
-    })();
-    // Only send webchannel message if sync on initial render
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleAnimationEnd = () => {

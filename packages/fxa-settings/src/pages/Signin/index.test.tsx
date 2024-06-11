@@ -338,7 +338,7 @@ describe('Signin', () => {
             let fxaLoginSpy: jest.SpyInstance;
             let hardNavigateSpy: jest.SpyInstance;
             beforeEach(() => {
-              fxaLoginSpy = jest.spyOn(firefox, 'fxaLogin');
+              fxaLoginSpy = jest.spyOn(firefox, 'fxaLogin').mockResolvedValue();
               hardNavigateSpy = jest
                 .spyOn(utils, 'hardNavigate')
                 .mockImplementation(() => {});
@@ -379,10 +379,12 @@ describe('Signin', () => {
 
           describe('OAuth integration', () => {
             let fxaOAuthLoginSpy: jest.SpyInstance;
+            let fxaLoginSpy: jest.SpyInstance;
             let hardNavigateSpy: jest.SpyInstance;
             let finishOAuthFlowHandler: jest.Mock;
             beforeEach(() => {
               fxaOAuthLoginSpy = jest.spyOn(firefox, 'fxaOAuthLogin');
+              fxaLoginSpy = jest.spyOn(firefox, 'fxaLogin').mockResolvedValue();
               hardNavigateSpy = jest
                 .spyOn(utils, 'hardNavigate')
                 .mockImplementation(() => {});
@@ -488,6 +490,7 @@ describe('Signin', () => {
               });
               enterPasswordAndSubmit();
               await waitFor(() => {
+                expect(fxaLoginSpy).toHaveBeenCalled();
                 expect(fxaOAuthLoginSpy).toHaveBeenCalled();
                 expect(hardNavigateSpy).toHaveBeenCalledWith(
                   '/connect_another_device?showSuccessMessage=true'
