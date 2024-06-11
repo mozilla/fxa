@@ -4,6 +4,7 @@
 
 import { test, expect } from '../../lib/fixtures/standard';
 import { getCode } from 'fxa-settings/src/lib/totp';
+import { createCustomEventDetail, FirefoxCommand } from '../../lib/channels';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('two step auth', () => {
@@ -48,6 +49,62 @@ test.describe('severity-1 #smoke', () => {
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.totp.status).toHaveText('Enabled');
 
+      await settings.disconnectTotp(); // Required before teardown
+    });
+
+    test('add totp, login with sync', async ({
+      pages: {
+        connectAnotherDevice,
+        settings,
+        totp,
+        page,
+        signinReact,
+        signupReact,
+      },
+      testAccountTracker,
+    }) => {
+      const credentials = await testAccountTracker.signUp();
+
+      await signinReact.goto();
+      await signinReact.fillOutEmailFirstForm(credentials.email);
+      await signinReact.fillOutPasswordForm(credentials.password);
+
+      await expect(settings.settingsHeading).toBeVisible();
+      await expect(settings.totp.status).toHaveText('Not Set');
+
+      await settings.totp.addButton.click();
+      const { secret } = await totp.fillOutTotpForms();
+
+      await expect(settings.settingsHeading).toBeVisible();
+      await expect(settings.alertBar).toHaveText(
+        'Two-step authentication enabled'
+      );
+      await expect(settings.totp.status).toHaveText('Enabled');
+
+      await settings.signOut();
+
+      const syncParams = new URLSearchParams();
+      syncParams.append('context', 'fx_desktop_v3');
+      syncParams.append('service', 'sync');
+      syncParams.append('action', 'email');
+      await signinReact.goto('/', syncParams);
+
+      await signupReact.fillOutEmailForm(credentials.email);
+      await signinReact.fillOutPasswordForm(credentials.password);
+      const code = await getCode(secret);
+      await signinReact.fillOutAuthenticationForm(code);
+
+      await signinReact.sendWebChannelMessage(
+        createCustomEventDetail(FirefoxCommand.LinkAccount, {
+          ok: true,
+        })
+      );
+
+      await expect(page).toHaveURL(/connect_another_device/);
+
+      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
+
+      await settings.goto();
       await settings.disconnectTotp(); // Required before teardown
     });
 

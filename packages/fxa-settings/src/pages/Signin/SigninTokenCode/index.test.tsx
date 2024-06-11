@@ -18,13 +18,8 @@ import { Subject } from './mocks';
 import { MOCK_SIGNUP_CODE } from '../../Signup/ConfirmSignupCode/mocks';
 import { MOCK_EMAIL, MOCK_OAUTH_FLOW_HANDLER_RESPONSE } from '../../mocks';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import {
-  createMockSigninOAuthIntegration,
-  createMockSigninSyncIntegration,
-} from '../mocks';
-import { createMockSigninLocationState } from './mocks';
+import { createMockSigninOAuthIntegration } from '../mocks';
 import VerificationReasons from '../../../constants/verification-reasons';
-import firefox from '../../../lib/channels/firefox';
 import { navigate } from '@reach/router';
 
 jest.mock('../../../lib/metrics', () => ({
@@ -120,24 +115,6 @@ describe('SigninTokenCode page', () => {
     render();
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
     expect(GleanMetrics.loginConfirmation.view).toBeCalledTimes(1);
-  });
-
-  describe('fxaLogin webchannel message', () => {
-    let fxaLoginSpy: jest.SpyInstance;
-    beforeEach(() => {
-      fxaLoginSpy = jest.spyOn(firefox, 'fxaLogin');
-    });
-    it('is sent if Sync integration', () => {
-      const integration = createMockSigninSyncIntegration();
-      render({ integration });
-      expect(fxaLoginSpy).toHaveBeenCalledWith({
-        ...createMockSigninLocationState(integration.wantsKeys()),
-      });
-    });
-    it('is not sent otherwise', () => {
-      render();
-      expect(fxaLoginSpy).not.toBeCalled();
-    });
   });
 
   describe('handleResendCode submission', () => {

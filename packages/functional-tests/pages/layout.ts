@@ -146,7 +146,7 @@ export abstract class BaseLayout {
    * NOTE: Prefer `respondToWebChannelMessage` where possible! This should only be
    * used when we can't attach a listener in time (which respondToWebChannelMessage
    * does) because the event is fired on page load before the listener can attach.
-   * This currently happens on React SignUp which we should revisit when the index
+   * This currently happens on React SignUp and SignIn which we should revisit when the index
    * index page has been converted to React and our event handling moved.
    */
   async sendWebChannelMessage(customEventDetail: CustomEventDetail) {

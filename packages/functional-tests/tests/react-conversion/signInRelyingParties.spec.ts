@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { test, expect } from '../../lib/fixtures/standard';
+import { createCustomEventDetail, FirefoxCommand } from '../../lib/channels';
 
 test.describe('severity-1 #smoke', () => {
   test('react signin to sync and disconnect', async ({
@@ -32,6 +33,12 @@ test.describe('severity-1 #smoke', () => {
 
     await signinReact.fillOutEmailFirstForm(credentials.email);
     await signinReact.fillOutPasswordForm(credentials.password);
+
+    await signinReact.sendWebChannelMessage(
+      createCustomEventDetail(FirefoxCommand.LinkAccount, {
+        ok: true,
+      })
+    );
 
     await expect(connectAnotherDevice.fxaConnected).toBeEnabled();
     await connectAnotherDevice.startBrowsingButton.click();
