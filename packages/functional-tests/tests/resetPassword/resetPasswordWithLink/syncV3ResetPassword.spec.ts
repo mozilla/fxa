@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { EmailHeader, EmailType } from '../../../lib/email';
 import { expect, test } from '../../../lib/fixtures/standard';
 
 test.describe('severity-1 #smoke', () => {
@@ -35,11 +34,7 @@ test.describe('severity-1 #smoke', () => {
 
       await resetPasswordReact.fillOutEmailForm(credentials.email);
 
-      const link = await target.emailClient.waitForEmail(
-        credentials.email,
-        EmailType.recovery,
-        EmailHeader.link
-      );
+      const link = await target.emailClient.getRecoveryLink(credentials.email);
       await page.goto(link);
 
       await resetPasswordReact.fillOutNewPasswordForm(newPassword);

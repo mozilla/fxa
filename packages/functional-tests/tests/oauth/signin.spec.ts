@@ -77,6 +77,7 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('unverified, acts like signup', async ({
+      target,
       pages: { login, relier },
       testAccountTracker,
     }) => {
@@ -90,7 +91,10 @@ test.describe('severity-1 #smoke', () => {
       await relier.clickEmailFirst();
       await login.login(credentials.email, credentials.password);
       // User is shown confirm email page
-      await login.fillOutSignInCode(credentials.email);
+      const code = await target.emailClient.getVerifyLoginCode(
+        credentials.email
+      );
+      await login.fillOutSignInCode(code);
 
       expect(await relier.isLoggedIn()).toBe(true);
     });
@@ -120,7 +124,8 @@ test.describe('severity-1 #smoke', () => {
 
       await login.submit();
       // Verify email and ensure user is redirected to relier
-      await login.fillOutSignUpCode(email);
+      const code = await target.emailClient.getVerifyShortCode(email);
+      await login.fillOutSignUpCode(code);
 
       expect(await relier.isLoggedIn()).toBe(true);
     });

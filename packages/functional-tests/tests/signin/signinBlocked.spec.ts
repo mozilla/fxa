@@ -25,7 +25,8 @@ test.describe('severity-2 #smoke', () => {
       );
 
       //Unblock the email
-      await login.unblock(credentials.email);
+      const code = await target.emailClient.getUnblockCode(credentials.email);
+      await login.unblock(code);
 
       //Verify logged in on Settings page
       expect(await login.isUserLoggedIn()).toBe(true);
@@ -55,7 +56,8 @@ test.describe('severity-2 #smoke', () => {
       );
 
       //Unblock the email
-      await login.unblock(credentials.email);
+      const code = await target.emailClient.getUnblockCode(credentials.email);
+      await login.unblock(code);
 
       //Verify logged in on Settings page
       expect(await login.isUserLoggedIn()).toBe(true);
@@ -84,7 +86,8 @@ test.describe('severity-2 #smoke', () => {
       await expect(signinUnblock.successMessage).toBeVisible();
 
       //Unblock the email
-      await login.unblock(credentials.email);
+      const code = await target.emailClient.getUnblockCode(credentials.email);
+      await login.unblock(code);
 
       //Verify logged in on Settings page
       expect(await login.isUserLoggedIn()).toBe(true);
@@ -114,12 +117,18 @@ test.describe('severity-2 #smoke', () => {
       expect(await login.getUnblockEmail()).toContain(credentials.email);
 
       //Unblock the email
-      await login.unblock(credentials.email);
+      const unblockCode = await target.emailClient.getUnblockCode(
+        credentials.email
+      );
+      await login.unblock(unblockCode);
 
       //Verify confirm code header
       await expect(login.signUpCodeHeader).toBeVisible();
 
-      await login.fillOutSignInCode(credentials.email);
+      const verifyCode = await target.emailClient.getVerifyLoginCode(
+        credentials.email
+      );
+      await login.fillOutSignInCode(verifyCode);
 
       //Verify logged in on Settings page
       expect(await login.isUserLoggedIn()).toBe(true);
@@ -144,7 +153,11 @@ test.describe('severity-2 #smoke', () => {
 
       await settings.goto();
       await settings.secondaryEmail.addButton.click();
-      await secondaryEmail.addSecondaryEmail(blockedEmail);
+      await secondaryEmail.fillOutEmail(blockedEmail);
+      const verifyCode: string = await target.emailClient.getVerifySecondCode(
+        blockedEmail
+      );
+      await secondaryEmail.fillOutVerificationCode(verifyCode);
       await settings.secondaryEmail.makePrimaryButton.click();
       credentials.email = blockedEmail;
       await settings.signOut();
@@ -157,7 +170,8 @@ test.describe('severity-2 #smoke', () => {
       expect(await login.getUnblockEmail()).toContain(blockedEmail);
 
       //Unblock the email
-      await login.unblock(blockedEmail);
+      const unblockCode = await target.emailClient.getUnblockCode(blockedEmail);
+      await login.unblock(unblockCode);
 
       //Verify logged in on Settings page
       expect(await login.isUserLoggedIn()).toBe(true);

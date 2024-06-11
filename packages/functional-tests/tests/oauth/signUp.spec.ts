@@ -15,6 +15,7 @@ test.describe('severity-1 #smoke', () => {
 
   test.describe('Oauth sign up', () => {
     test('sign up', async ({
+      target,
       pages: { login, relier },
       testAccountTracker,
     }) => {
@@ -26,7 +27,8 @@ test.describe('severity-1 #smoke', () => {
       //Verify sign up code header
       await expect(login.signUpCodeHeader).toBeVisible();
 
-      await login.fillOutSignUpCode(email);
+      const code = await target.emailClient.getVerifyShortCode(email);
+      await login.fillOutSignUpCode(code);
 
       //Verify logged in on relier page
       expect(await relier.isLoggedIn()).toBe(true);
@@ -86,7 +88,8 @@ test.describe('severity-1 #smoke', () => {
 
       //Verify sign up code header
       await expect(login.signUpCodeHeader).toBeVisible();
-      await login.fillOutSignUpCode(account.email);
+      const code = await target.emailClient.getVerifyShortCode(account.email);
+      await login.fillOutSignUpCode(code);
 
       //Verify logged in on relier page
       expect(await relier.isLoggedIn()).toBe(true);

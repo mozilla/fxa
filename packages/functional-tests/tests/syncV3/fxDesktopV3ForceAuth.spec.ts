@@ -12,6 +12,7 @@ const makeUid = () =>
 test.describe('severity-1 #smoke', () => {
   test.describe('Desktop Sync V3 force auth', () => {
     test('sync v3 with a registered email, no uid', async ({
+      target,
       syncBrowserPages: {
         fxDesktopV3ForceAuth,
         login,
@@ -31,12 +32,16 @@ test.describe('severity-1 #smoke', () => {
       await fxDesktopV3ForceAuth.checkWebChannelMessage(
         'fxaccounts:can_link_account'
       );
-      await login.fillOutSignInCode(credentials.email);
+      const code = await target.emailClient.getVerifyLoginCode(
+        credentials.email
+      );
+      await login.fillOutSignInCode(code);
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
       await fxDesktopV3ForceAuth.checkWebChannelMessage('fxaccounts:login');
     });
 
     test('sync v3 with a registered email, registered uid', async ({
+      target,
       syncBrowserPages: {
         fxDesktopV3ForceAuth,
         login,
@@ -54,12 +59,16 @@ test.describe('severity-1 #smoke', () => {
       await fxDesktopV3ForceAuth.checkWebChannelMessage(
         'fxaccounts:can_link_account'
       );
-      await login.fillOutSignInCode(credentials.email);
+      const code = await target.emailClient.getVerifyLoginCode(
+        credentials.email
+      );
+      await login.fillOutSignInCode(code);
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
       await fxDesktopV3ForceAuth.checkWebChannelMessage('fxaccounts:login');
     });
 
     test('sync v3 with a registered email, unregistered uid', async ({
+      target,
       syncBrowserPages: {
         fxDesktopV3ForceAuth,
         login,
@@ -80,12 +89,16 @@ test.describe('severity-1 #smoke', () => {
       await fxDesktopV3ForceAuth.checkWebChannelMessage(
         'fxaccounts:can_link_account'
       );
-      await login.fillOutSignInCode(credentials.email);
+      const code = await target.emailClient.getVerifyLoginCode(
+        credentials.email
+      );
+      await login.fillOutSignInCode(code);
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
       await fxDesktopV3ForceAuth.checkWebChannelMessage('fxaccounts:login');
     });
 
     test('blocked with an registered email, unregistered uid', async ({
+      target,
       syncBrowserPages: {
         page,
         fxDesktopV3ForceAuth,
@@ -107,7 +120,8 @@ test.describe('severity-1 #smoke', () => {
       await fxDesktopV3ForceAuth.checkWebChannelMessage(
         'fxaccounts:can_link_account'
       );
-      await login.unblock(credentials.email);
+      const code = await target.emailClient.getUnblockCode(credentials.email);
+      await login.unblock(code);
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
       await fxDesktopV3ForceAuth.checkWebChannelMessage('fxaccounts:login');
 

@@ -41,10 +41,9 @@ test.describe('severity-1 #smoke', () => {
       );
 
       await signupReact.fillOutEmailForm(email);
-
       await signupReact.fillOutSignupForm(password, AGE_21);
-
-      await signupReact.fillOutCodeForm(email);
+      const code = await target.emailClient.getVerifyShortCode(email);
+      await signupReact.fillOutCodeForm(code);
 
       // expect to be redirected to relier after confirming signup code
       await expect(page).toHaveURL(target.relierUrl);
@@ -80,10 +79,9 @@ test.describe('severity-1 #smoke', () => {
       await expect(page).toHaveURL(/^((?!redirect_uri).)*$/);
 
       await signupReact.fillOutEmailForm(email);
-
       await signupReact.fillOutSignupForm(password, AGE_21);
-
-      await signupReact.fillOutCodeForm(email);
+      const code = await target.emailClient.getVerifyShortCode(email);
+      await signupReact.fillOutCodeForm(code);
       // redirectUri should have fallen back to the clientInfo config redirect URI
       // Expect to be redirected to relier
       await page.waitForURL(target.relierUrl);
@@ -94,6 +92,7 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('signup oauth webchannel - sync mobile or FF desktop 123+', async ({
+      target,
       syncBrowserPages: { page, login, signupReact },
       testAccountTracker,
     }) => {
@@ -133,8 +132,8 @@ test.describe('severity-1 #smoke', () => {
       await expect(login.CWTSEngineAddresses).toBeHidden();
 
       await signupReact.fillOutSignupForm(password, AGE_21);
-
-      await signupReact.fillOutCodeForm(email);
+      const code = await target.emailClient.getVerifyShortCode(email);
+      await signupReact.fillOutCodeForm(code);
       await page.waitForURL(/connect_another_device/);
 
       await signupReact.checkWebChannelMessage(FirefoxCommand.OAuthLogin);

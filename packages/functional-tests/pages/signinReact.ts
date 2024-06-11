@@ -5,7 +5,6 @@
 import { expect } from '@playwright/test';
 import { BaseLayout } from './layout';
 import { getReactFeatureFlagUrl } from '../lib/react-flag';
-import { EmailHeader, EmailType } from '../lib/email';
 
 export class SigninReactPage extends BaseLayout {
   readonly path = 'signin';
@@ -106,18 +105,5 @@ export class SigninReactPage extends BaseLayout {
 
     await this.passwordTextbox.fill(password);
     await this.signInButton.click();
-  }
-
-  async fillOutCodeForm(email: string) {
-    const code = await this.target.emailClient.waitForEmail(
-      email,
-      EmailType.verifyShortCode || EmailType.verifyLoginCode,
-      EmailHeader.shortCode || EmailHeader.signinCode
-    );
-
-    await expect(this.codeFormHeading).toBeVisible();
-
-    await this.codeTextbox.fill(code);
-    await this.confirmButton.click();
   }
 }

@@ -30,6 +30,7 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('with a unregistered email', async ({
+      target,
       pages: { configPage, login, relier },
       testAccountTracker,
     }) => {
@@ -50,7 +51,8 @@ test.describe('severity-1 #smoke', () => {
 
       await login.setAge(AGE_21);
       await login.setNewPassword(credentials.password);
-      await login.fillOutSignUpCode(newEmail);
+      const code = await target.emailClient.getVerifyShortCode(newEmail);
+      await login.fillOutSignUpCode(code);
 
       expect(await relier.isLoggedIn()).toBe(true);
     });
@@ -58,6 +60,7 @@ test.describe('severity-1 #smoke', () => {
 
   test.describe('OAuth force auth', () => {
     test('with blocked email', async ({
+      target,
       page,
       pages: { configPage, login, relier, settings, deleteAccount },
       testAccountTracker,
@@ -78,7 +81,10 @@ test.describe('severity-1 #smoke', () => {
 
       await login.setAge(AGE_21);
       await login.setNewPassword(credentials.password);
-      await login.fillOutSignUpCode(blockedEmail);
+      const shortCode = await target.emailClient.getVerifyShortCode(
+        blockedEmail
+      );
+      await login.fillOutSignUpCode(shortCode);
 
       expect(await relier.isLoggedIn()).toBe(true);
 
@@ -88,7 +94,8 @@ test.describe('severity-1 #smoke', () => {
       await relier.clickForceAuth();
       await login.setPassword(credentials.password);
       await login.submit();
-      await login.unblock(blockedEmail);
+      const unblockCode = await target.emailClient.getUnblockCode(blockedEmail);
+      await login.unblock(unblockCode);
 
       expect(await relier.isLoggedIn()).toBe(true);
 

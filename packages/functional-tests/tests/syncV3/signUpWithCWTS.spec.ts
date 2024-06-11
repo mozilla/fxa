@@ -73,7 +73,8 @@ test.describe('severity-1 #smoke', () => {
       await login.CWTSEnginePasswords.click();
       await login.clickSubmit();
       await login.checkWebChannelMessage(FirefoxCommand.LinkAccount);
-      await login.fillOutSignUpCode(email);
+      const code = await target.emailClient.getVerifyShortCode(email);
+      await login.fillOutSignUpCode(code);
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
     });
 
@@ -121,7 +122,8 @@ test.describe('severity-1 #smoke', () => {
       await login.checkWebChannelMessage(FirefoxCommand.LinkAccount);
       await login.noSuchWebChannelMessage(FirefoxCommand.Login);
       await login.clickSubmit();
-      await login.fillOutSignUpCode(email);
+      const code = await target.emailClient.getVerifyShortCode(email);
+      await login.fillOutSignUpCode(code);
       await login.checkWebChannelMessage(FirefoxCommand.Login);
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
     });

@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { EmailHeader, EmailType } from '../../lib/email';
 import { Page, expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
 import { TestAccountTracker } from '../../lib/testAccountTracker';
@@ -184,10 +183,8 @@ test.describe('severity-1 #smoke', () => {
         recoveryCodes[recoveryCodes.length - 1]
       );
       await login.page.waitForURL(/settings/);
-      const link = await target.emailClient.waitForEmail(
-        credentials.email,
-        EmailType.lowRecoveryCodes,
-        EmailHeader.link
+      const link = await target.emailClient.getLowRecoveryLink(
+        credentials.email
       );
       await page.goto(link);
       const newCodes = await totp.getRecoveryCodes();

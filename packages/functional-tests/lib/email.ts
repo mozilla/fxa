@@ -82,7 +82,7 @@ export class EmailClient {
     emailAddress: string,
     type: EmailType,
     header?: EmailHeader,
-    timeout = 15000
+    timeout = 45000
   ) {
     const expires = Date.now() + timeout;
     while (Date.now() < expires) {
@@ -104,11 +104,81 @@ export class EmailClient {
     await got.delete(`${this.host}/mail/${toUsername(emailAddress)}`);
   }
 
-  async getResetPasswordCode(email: string) {
-    const code = this.waitForEmail(
+  async getLowRecoveryLink(email: string): Promise<string> {
+    const link = await this.waitForEmail(
+      email,
+      EmailType.lowRecoveryCodes,
+      EmailHeader.link
+    );
+    await this.clear(email);
+    return link;
+  }
+
+  async getRecoveryLink(email: string): Promise<string> {
+    const link = await this.waitForEmail(
+      email,
+      EmailType.recovery,
+      EmailHeader.link
+    );
+    await this.clear(email);
+    return link;
+  }
+
+  async getResetPasswordCode(email: string): Promise<string> {
+    const code = await this.waitForEmail(
       email,
       EmailType.passwordForgotOtp,
       EmailHeader.resetPasswordCode
+    );
+    await this.clear(email);
+    return code;
+  }
+
+  async getVerifyCode(email: string): Promise<string> {
+    const code = await this.waitForEmail(
+      email,
+      EmailType.verify,
+      EmailHeader.verifyCode
+    );
+    await this.clear(email);
+    return code;
+  }
+
+  async getVerifyLoginCode(email: string): Promise<string> {
+    const code = await this.waitForEmail(
+      email,
+      EmailType.verifyLoginCode,
+      EmailHeader.signinCode
+    );
+    await this.clear(email);
+    return code;
+  }
+
+  async getVerifySecondCode(email: string): Promise<string> {
+    const code = await this.waitForEmail(
+      email,
+      EmailType.verifySecondaryCode,
+      EmailHeader.verifyCode
+    );
+    await this.clear(email);
+    return code;
+  }
+
+  async getVerifyShortCode(email: string): Promise<string> {
+    const code = await this.waitForEmail(
+      email,
+      EmailType.verifyShortCode,
+      EmailHeader.shortCode
+    );
+    await this.clear(email);
+    return code;
+  }
+
+  async getUnblockCode(email: string): Promise<string> {
+    const code = await this.waitForEmail(
+      email,
+      EmailType.unblockCode,
+      EmailHeader.unblockCode
     );
     await this.clear(email);
     return code;

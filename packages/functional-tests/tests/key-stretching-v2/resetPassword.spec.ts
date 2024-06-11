@@ -75,7 +75,10 @@ test.describe('severity-2 #smoke', () => {
       await page.goto(
         `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react&${signup.query}`
       );
-      await signupReact.fillOutFirstSignUp(email, password, AGE_21);
+      await signupReact.fillOutEmailForm(email);
+      await signupReact.fillOutSignupForm(password, AGE_21);
+      const verifyCode = await target.emailClient.getVerifyShortCode(email);
+      await signupReact.fillOutCodeForm(verifyCode);
 
       await expect(page).toHaveURL(/settings/);
 
@@ -95,8 +98,8 @@ test.describe('severity-2 #smoke', () => {
       );
       await resetPasswordReact.fillOutEmailForm(email);
 
-      const code = await target.emailClient.getResetPasswordCode(email);
-      await resetPasswordReact.fillOutResetPasswordCodeForm(code);
+      const resetCode = await target.emailClient.getResetPasswordCode(email);
+      await resetPasswordReact.fillOutResetPasswordCodeForm(resetCode);
 
       await resetPasswordReact.fillOutNewPasswordForm(password);
 

@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { EmailHeader, EmailType } from '../lib/email';
 import { BaseLayout } from './layout';
 import { getCode } from 'fxa-settings/src/lib/totp';
 
@@ -204,24 +203,12 @@ export class LoginPage extends BaseLayout {
     }
   }
 
-  async fillOutSignUpCode(email: string, waitForNavOnSubmit = true) {
-    const code = await this.target.emailClient.waitForEmail(
-      email,
-      EmailType.verifyShortCode,
-      EmailHeader.shortCode
-    );
-    await this.target.emailClient.clear(email);
+  async fillOutSignUpCode(code: string, waitForNavOnSubmit = true) {
     await this.setCode(code);
     await this.submit(waitForNavOnSubmit);
   }
 
-  async fillOutSignInCode(email: string) {
-    const code = await this.target.emailClient.waitForEmail(
-      email,
-      EmailType.verifyLoginCode,
-      EmailHeader.signinCode
-    );
-    await this.target.emailClient.clear(email);
+  async fillOutSignInCode(code: string) {
     await this.setCode(code);
     await this.submit();
   }
@@ -335,13 +322,7 @@ export class LoginPage extends BaseLayout {
     return this.page.locator(selectors.TOOLTIP);
   }
 
-  async unblock(email: string) {
-    const code = await this.target.emailClient.waitForEmail(
-      email,
-      EmailType.unblockCode,
-      EmailHeader.unblockCode
-    );
-    await this.target.emailClient.clear(email);
+  async unblock(code: string) {
     await this.setCode(code);
     await this.submit();
   }

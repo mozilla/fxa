@@ -19,7 +19,10 @@ test.describe('severity-2 #smoke', () => {
         credentials.email,
         credentials.password
       );
-      await login.fillOutSignInCode(credentials.email);
+      const code = await target.emailClient.getVerifyLoginCode(
+        credentials.email
+      );
+      await login.fillOutSignInCode(code);
 
       //Verify force password change header
       expect(await postVerify.isForcePasswordChangeHeader()).toBe(true);
@@ -34,6 +37,7 @@ test.describe('severity-2 #smoke', () => {
     });
 
     test('force change password on login - oauth', async ({
+      target,
       pages: { login, postVerify, relier },
       testAccountTracker,
     }) => {
@@ -46,7 +50,10 @@ test.describe('severity-2 #smoke', () => {
         credentials.email,
         credentials.password
       );
-      await login.fillOutSignInCode(credentials.email);
+      const code = await target.emailClient.getVerifyLoginCode(
+        credentials.email
+      );
+      await login.fillOutSignInCode(code);
 
       //Verify force password change header
       expect(await postVerify.isForcePasswordChangeHeader()).toBe(true);

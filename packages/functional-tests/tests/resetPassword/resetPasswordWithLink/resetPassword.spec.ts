@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { expect, test } from '../../../lib/fixtures/standard';
-import { EmailHeader, EmailType } from '../../../lib/email';
 import { ResetPasswordReactPage } from '../../../pages/resetPasswordReact';
 
 test.describe('severity-1 #smoke', () => {
@@ -35,12 +34,7 @@ test.describe('severity-1 #smoke', () => {
         resetPasswordReact.confirmResetPasswordHeading
       ).toBeVisible();
 
-      const link = await target.emailClient.waitForEmail(
-        credentials.email,
-        EmailType.recovery,
-        EmailHeader.link
-      );
-
+      const link = await target.emailClient.getRecoveryLink(credentials.email);
       // Open link in a new window
       const diffPage = await context.newPage();
       const diffResetPasswordReact = new ResetPasswordReactPage(
@@ -99,11 +93,7 @@ test.describe('severity-1 #smoke', () => {
       await resetPasswordReact.goto();
 
       await resetPasswordReact.fillOutEmailForm(credentials.email);
-      const link = await target.emailClient.waitForEmail(
-        credentials.email,
-        EmailType.recovery,
-        EmailHeader.link
-      );
+      const link = await target.emailClient.getRecoveryLink(credentials.email);
       await page.goto(link);
       await resetPasswordReact.fillOutNewPasswordForm(credentials.password);
 
@@ -145,12 +135,9 @@ test.describe('severity-1 #smoke', () => {
           resetPasswordReact.confirmResetPasswordHeading
         ).toBeVisible();
 
-        const link = await target.emailClient.waitForEmail(
-          credentials.email,
-          EmailType.recovery,
-          EmailHeader.link
+        const link = await target.emailClient.getRecoveryLink(
+          credentials.email
         );
-
         // Open link in a new window
         const diffPage = await context.newPage();
         const diffResetPasswordReact = new ResetPasswordReactPage(
