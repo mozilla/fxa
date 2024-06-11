@@ -320,8 +320,7 @@ commands:
             cd packages/functional-tests/tests
             TEST_FILES=$(circleci tests glob "./**/*.spec.ts")
             cd ..
-            echo $TEST_FILES | circleci tests run --command="xargs yarn playwright test --shard=$(($CIRCLE_NODE_INDEX+1))/3 || true
-            cp blob-report/* all-blob-reports || true --project=<< parameters.project >> $GREP" --verbose --split-by=timings --timings-type=classname
+            echo $TEST_FILES | circleci tests run --command="xargs npx playwright test --shard=$(($CIRCLE_NODE_INDEX+1))/3 --project=<< parameters.project >> $GREP" --verbose --split-by=timings --timings-type=classname
           environment:
             NODE_OPTIONS: --dns-result-order=ipv4first
             JEST_JUNIT_OUTPUT_DIR: ./artifacts/tests
@@ -331,10 +330,6 @@ commands:
             ACCOUNTS_API_DOMAIN: << pipeline.parameters.accounts-api-domain >>
             RELIER_DOMAIN: << pipeline.parameters.relier-domain >>
             UNTRUSTED_RELIER_DOMAIN: << pipeline.parameters.untrusted-relier-domain >>
-      - persist_to_workspace:
-          root: .
-          paths:
-            - all-blob-reports
 
   store-artifacts:
     steps:
