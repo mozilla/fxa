@@ -88,11 +88,6 @@ export const errorHandler: ErrorHandler = ({ graphQLErrors, networkError }) => {
           // Redirect to /signin since that page will send the user
           // to correct location
           return window.location.replace(`/signin?action=email&service=sync`);
-        } else if (
-          window.location &&
-          window.location.pathname.includes('signin_token_code')
-        ) {
-          // If the user is already on the signin_token_code page, we don't need to redirect
         } else {
           // If the user isn't in Settings and they see this message they may hit it due to
           // the initial metrics query - e.g. if they attempt to sign in and see the TOTP page,
