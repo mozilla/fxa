@@ -90,7 +90,7 @@ const SigninRecoveryCode = ({
       queryParams: location.search,
     };
 
-    const { error } = await handleNavigation(navigationOptions);
+    const { error } = await handleNavigation(navigationOptions, true);
     if (error) {
       setBannerErrorMessage(getLocalizedErrorMessage(ftlMsgResolver, error));
     }
