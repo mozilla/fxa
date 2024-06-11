@@ -300,6 +300,11 @@ commands:
     parameters:
       project:
         type: string
+    strategy:
+      fail-fast: false
+      matrix:
+        shardIndex: [1, 2, 3, 4]
+        shardTotal: [4]
     steps:
       - run:
           name: Running Playwright tests
@@ -310,7 +315,7 @@ commands:
             elif [[ "<< parameters.project >>" == "stage" ]]; then
               GREP="--grep=\"severity-(1|2)\""
             else
-              GREP=""
+              GREP="--shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}"
             fi
             echo "targeting project << parameters.project >> $GREP"
             npx nx build fxa-auth-client
