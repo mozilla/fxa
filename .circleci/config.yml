@@ -342,7 +342,7 @@ commands:
           path: ~/.pm2/logs
       - store_test_results:
           path: artifacts/tests
-      - store_reports:
+      - store_artifacts:
           path: artifacts/blob-reports
 
   build:
