@@ -16,7 +16,7 @@ const {
   STRIPE_PRICE_METADATA,
 } = require('../../../../lib/payments/stripe');
 const { CurrencyHelper } = require('../../../../lib/payments/currencies');
-const { StripeError, StripeService } = require('@fxa/payments/stripe');
+const { PromotionCodeManager, StripeError } = require('@fxa/payments/stripe');
 const WError = require('verror').WError;
 const uuidv4 = require('uuid').v4;
 const proxyquire = require('proxyquire').noPreserveCache();
@@ -67,7 +67,7 @@ const currencyHelper = new CurrencyHelper({
   currenciesToCountries: { USD: ['US', 'GB', 'CA'] },
 });
 const mockCapabilityService = {};
-const mockStripeService = {};
+const mockPromotionCodeManager = {};
 
 let config, log, db, customs, push, mailer, profile;
 
@@ -429,9 +429,11 @@ describe('DirectStripeRoutes', () => {
     Container.set(CapabilityService, mockCapabilityService);
 
     const mockSubscription = deepCopy(subscription2);
-    mockStripeService.applyPromoCodeToSubscription = sinon.stub();
-    mockStripeService.applyPromoCodeToSubscription.resolves(mockSubscription);
-    Container.set(StripeService, mockStripeService);
+    mockPromotionCodeManager.applyPromoCodeToSubscription = sinon.stub();
+    mockPromotionCodeManager.applyPromoCodeToSubscription.resolves(
+      mockSubscription
+    );
+    Container.set(PromotionCodeManager, mockPromotionCodeManager);
 
     directStripeRoutesInstance = new DirectStripeRoutes(
       log,
@@ -1036,8 +1038,10 @@ describe('DirectStripeRoutes', () => {
       };
 
       const stripeError = new StripeError('Oh no.');
-      mockStripeService.applyPromoCodeToSubscription = sinon.stub();
-      mockStripeService.applyPromoCodeToSubscription.rejects(stripeError);
+      mockPromotionCodeManager.applyPromoCodeToSubscription = sinon.stub();
+      mockPromotionCodeManager.applyPromoCodeToSubscription.rejects(
+        stripeError
+      );
 
       try {
         await directStripeRoutesInstance.applyPromotionCodeToSubscription(
@@ -1068,8 +1072,8 @@ describe('DirectStripeRoutes', () => {
       };
 
       const testError = new Error('Something went wrong');
-      mockStripeService.applyPromoCodeToSubscription = sinon.stub();
-      mockStripeService.applyPromoCodeToSubscription.rejects(testError);
+      mockPromotionCodeManager.applyPromoCodeToSubscription = sinon.stub();
+      mockPromotionCodeManager.applyPromoCodeToSubscription.rejects(testError);
 
       try {
         await directStripeRoutesInstance.applyPromotionCodeToSubscription(
@@ -1098,8 +1102,10 @@ describe('DirectStripeRoutes', () => {
         subscriptionId: mockSubscription.id,
       };
 
-      mockStripeService.applyPromoCodeToSubscription = sinon.stub();
-      mockStripeService.applyPromoCodeToSubscription.resolves(mockSubscription);
+      mockPromotionCodeManager.applyPromoCodeToSubscription = sinon.stub();
+      mockPromotionCodeManager.applyPromoCodeToSubscription.resolves(
+        mockSubscription
+      );
 
       const actual =
         await directStripeRoutesInstance.applyPromotionCodeToSubscription(
@@ -1114,7 +1120,7 @@ describe('DirectStripeRoutes', () => {
       );
 
       assert.isTrue(
-        mockStripeService.applyPromoCodeToSubscription.calledOnceWithExactly(
+        mockPromotionCodeManager.applyPromoCodeToSubscription.calledOnceWithExactly(
           mockCustomer.id,
           mockSubscription.id,
           'promo_code1'

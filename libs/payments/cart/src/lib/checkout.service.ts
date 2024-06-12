@@ -16,7 +16,8 @@ import {
   SubscriptionManager,
   TaxAddress,
 } from '@fxa/payments/stripe';
-import { CheckoutError, CheckoutPaymentError } from './checkout.error';
+import { AccountManager } from '@fxa/shared/account/account';
+import { ContentfulService } from '@fxa/shared/contentful';
 import {
   CartTotalMismatchError,
   CartEligibilityMismatchError,
@@ -25,24 +26,23 @@ import {
 import { CartManager } from './cart.manager';
 import { CheckoutCustomerData, ResultCart } from './cart.types';
 import { handleEligibilityStatusMap } from './cart.utils';
-import { ContentfulService } from '@fxa/shared/contentful';
-import { AccountManager } from '@fxa/shared/account/account';
+import { CheckoutError, CheckoutPaymentError } from './checkout.error';
 
 @Injectable()
 export class CheckoutService {
   constructor(
-    private stripeClient: StripeClient,
+    private accountCustomerManager: AccountCustomerManager,
+    private accountManager: AccountManager,
+    private cartManager: CartManager,
+    private contentfulService: ContentfulService,
     private customerManager: CustomerManager,
-    private subscriptionManager: SubscriptionManager,
+    private eligibilityService: EligibilityService,
     private invoiceManager: InvoiceManager,
-    private promotionCodeManager: PromotionCodeManager,
     private paypalCustomerManager: PaypalCustomerManager,
     private paypalManager: PayPalManager,
-    private cartManager: CartManager,
-    private eligibilityService: EligibilityService,
-    private contentfulService: ContentfulService,
-    private accountManager: AccountManager,
-    private accountCustomerManager: AccountCustomerManager
+    private promotionCodeManager: PromotionCodeManager,
+    private stripeClient: StripeClient,
+    private subscriptionManager: SubscriptionManager
   ) {}
 
   async prePaySteps(cart: ResultCart, customerData: CheckoutCustomerData) {

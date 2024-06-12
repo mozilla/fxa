@@ -6,7 +6,7 @@ import { ServerRoute } from '@hapi/hapi';
 import isA from 'joi';
 import * as Sentry from '@sentry/node';
 import { SeverityLevel } from '@sentry/types';
-import { StripeError, StripeService } from '@fxa/payments/stripe';
+import { PromotionCodeManager, StripeError } from '@fxa/payments/stripe';
 import { getAccountCustomerByUid } from 'fxa-shared/db/models/auth';
 import {
   AbbrevPlan,
@@ -83,7 +83,7 @@ export function sanitizePlans(plans: AbbrevPlan[]) {
 export class StripeHandler {
   subscriptionAccountReminders: any;
   capabilityService: CapabilityService;
-  stripeService: StripeService;
+  promotionCodeManager: PromotionCodeManager;
 
   constructor(
     // FIXME: For some reason Logger methods were not being detected in
@@ -100,7 +100,7 @@ export class StripeHandler {
     this.subscriptionAccountReminders =
       require('../../subscription-account-reminders')(log, config);
     this.capabilityService = Container.get(CapabilityService);
-    this.stripeService = Container.get(StripeService);
+    this.promotionCodeManager = Container.get(PromotionCodeManager);
   }
 
   /**
@@ -547,7 +547,7 @@ export class StripeHandler {
 
     try {
       const updatedSubscription =
-        await this.stripeService.applyPromoCodeToSubscription(
+        await this.promotionCodeManager.applyPromoCodeToSubscription(
           customer.id,
           subscriptionId,
           promotionId

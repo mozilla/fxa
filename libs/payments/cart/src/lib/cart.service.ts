@@ -31,13 +31,13 @@ import { CheckoutService } from './checkout.service';
 @Injectable()
 export class CartService {
   constructor(
-    private cartManager: CartManager,
     private accountCustomerManager: AccountCustomerManager,
-    private eligibilityService: EligibilityService,
-    private geodbManager: GeoDBManager,
+    private cartManager: CartManager,
     private checkoutService: CheckoutService,
     private contentfulService: ContentfulService,
     private customerManager: CustomerManager,
+    private eligibilityService: EligibilityService,
+    private geodbManager: GeoDBManager,
     private invoiceManager: InvoiceManager
   ) {}
 

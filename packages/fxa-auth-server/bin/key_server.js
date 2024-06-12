@@ -17,7 +17,6 @@ const {
   PriceManager,
   SubscriptionManager,
   PromotionCodeManager,
-  StripeService,
 } = require('@fxa/payments/stripe');
 const {
   ContentfulClient,
@@ -136,13 +135,12 @@ async function run(config) {
     const productManager = new ProductManager(stripeClient);
     const priceManager = new PriceManager(stripeClient);
     const subscriptionManager = new SubscriptionManager(stripeClient);
-    const promotionCodeManager = new PromotionCodeManager(stripeClient);
-    const stripeService = new StripeService(
+    const promotionCodeManager = new PromotionCodeManager(
+      stripeClient,
       productManager,
-      subscriptionManager,
-      promotionCodeManager
+      subscriptionManager
     );
-    Container.set(StripeService, stripeService);
+    Container.set(PromotionCodeManager, promotionCodeManager);
 
     if (
       config.contentful &&

@@ -14,25 +14,26 @@ import {
 import {
   MockPaypalClientConfigProvider,
   PayPalClient,
-  PayPalManager,
   PaypalCustomerManager,
+  PayPalManager,
 } from '@fxa/payments/paypal';
 import {
   AccountCustomerManager,
+  CustomerManager,
+  InvoiceManager,
   InvoicePreviewFactory,
   MockStripeConfigProvider,
   ResultAccountCustomerFactory,
+  PriceManager,
+  ProductManager,
+  PromotionCodeManager,
   StripeClient,
   StripeCustomerFactory,
-  CustomerManager,
   StripePriceFactory,
   StripeResponseFactory,
   SubplatInterval,
-  TaxAddressFactory,
-  InvoiceManager,
-  PriceManager,
   SubscriptionManager,
-  PromotionCodeManager,
+  TaxAddressFactory,
 } from '@fxa/payments/stripe';
 import {
   ContentfulClient,
@@ -66,61 +67,61 @@ import { CartService } from './cart.service';
 import { CheckoutService } from './checkout.service';
 
 describe('CartService', () => {
+  let accountCustomerManager: AccountCustomerManager;
   let cartService: CartService;
   let cartManager: CartManager;
   let checkoutService: CheckoutService;
   let contentfulService: ContentfulService;
-  let accountCustomerManager: AccountCustomerManager;
+  let customerManager: CustomerManager;
   let eligibilityService: EligibilityService;
   let geodbManager: GeoDBManager;
-  let customerManager: CustomerManager;
   let invoiceManager: InvoiceManager;
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
       providers: [
-        MockAccountDatabaseNestFactory,
-        CartService,
-        CartManager,
         AccountCustomerManager,
+        AccountManager,
+        CartManager,
+        CartService,
+        CheckoutService,
         ConfigService,
-        MockFirestoreProvider,
-        MockStatsDProvider,
-        ContentfulClientConfig,
         ContentfulClient,
+        ContentfulClientConfig,
         ContentfulManager,
         ContentfulService,
         ContentfulServiceConfig,
+        CustomerManager,
         EligibilityManager,
         EligibilityService,
-        MockStripeConfigProvider,
-        StripeClient,
-        CustomerManager,
-        MockPaypalClientConfigProvider,
-        PayPalClient,
-        PayPalManager,
-        PaypalCustomerManager,
-        CheckoutService,
         GeoDBManager,
         GeoDBManagerConfig,
-        MockGeoDBNestFactory,
-        CustomerManager,
         InvoiceManager,
-        AccountManager,
+        MockAccountDatabaseNestFactory,
+        MockFirestoreProvider,
+        MockGeoDBNestFactory,
+        MockPaypalClientConfigProvider,
+        MockStatsDProvider,
+        MockStripeConfigProvider,
+        PayPalClient,
+        PaypalCustomerManager,
+        PayPalManager,
         PriceManager,
-        SubscriptionManager,
+        ProductManager,
         PromotionCodeManager,
+        StripeClient,
+        SubscriptionManager,
       ],
     }).compile();
 
+    accountCustomerManager = moduleRef.get(AccountCustomerManager);
+    cartManager = moduleRef.get(CartManager);
     cartService = moduleRef.get(CartService);
     checkoutService = moduleRef.get(CheckoutService);
-    cartManager = moduleRef.get(CartManager);
-    accountCustomerManager = moduleRef.get(AccountCustomerManager);
-    eligibilityService = moduleRef.get(EligibilityService);
-    geodbManager = moduleRef.get(GeoDBManager);
     contentfulService = moduleRef.get(ContentfulService);
     customerManager = moduleRef.get(CustomerManager);
+    eligibilityService = moduleRef.get(EligibilityService);
+    geodbManager = moduleRef.get(GeoDBManager);
     invoiceManager = moduleRef.get(InvoiceManager);
   });
 
