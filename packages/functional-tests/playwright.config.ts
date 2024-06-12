@@ -76,10 +76,7 @@ export default defineConfig<PlaywrightTestConfig<TestOptions, WorkerOptions>>({
         [
           'blob',
           {
-            outputDir: path.resolve(
-              __dirname,
-              '../../artifacts/tests/blob-reports'
-            ),
+            outputDir: path.resolve(__dirname, '../../artifacts/blob-reports'),
           },
         ],
         ['allure-playwright'],
