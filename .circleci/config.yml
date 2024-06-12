@@ -344,12 +344,9 @@ commands:
           path: artifacts/tests
       - store_artifacts:
           path: artifacts/blob-reports
-
-  merge-reports:
-    steps:
       - run:
           name: Merge Reports
-          command: npx playwright merge-reports artifacts/blob-reports/*.zip --reporter=blob
+          command: npx playwright merge-reports --reporter=blob artifacts/blob-reports
       - store_artifacts:
           path: artifacts/playwright-report
 
@@ -668,7 +665,6 @@ jobs:
       - run-playwright-tests:
           project: local
       - store-artifacts
-      - merge-reports
 
   build-and-deploy-storybooks:
     executor: default-executor
