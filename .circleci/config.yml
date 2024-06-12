@@ -671,6 +671,7 @@ jobs:
       - run-playwright-tests:
           project: local
       - store-artifacts
+      - merge-reports
 
   build-and-deploy-storybooks:
     executor: default-executor
