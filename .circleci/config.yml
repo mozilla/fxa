@@ -333,7 +333,7 @@ commands:
     steps:
       - run:
           name: Ensure directories
-          command: mkdir -p artifacts/tests && mkdir -p ~/.pm2/logs && mkdir -p ~/screenshots && mkdir -p artifacts/blob-reports
+          command: mkdir -p artifacts/tests && mkdir -p ~/.pm2/logs && mkdir -p ~/screenshots && mkdir -p artifacts/blob-reports mkdir -p artifacts/playwright-report
       - store_artifacts:
           path: artifacts
       - store_artifacts:
@@ -344,6 +344,17 @@ commands:
           path: artifacts/tests
       - store_artifacts:
           path: artifacts/blob-reports
+
+  merge-reports:
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Merge Reports
+          command: npx playwright merge-reports artifacts/blob-reports --reporter=blob
+      - store_artifacts:
+          path: artifacts/playwright-report
 
   build:
     steps:
