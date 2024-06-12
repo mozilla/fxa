@@ -94,12 +94,6 @@ test.describe('severity-1 #smoke', () => {
       const code = await getCode(secret);
       await signinReact.fillOutAuthenticationForm(code);
 
-      await signinReact.sendWebChannelMessage(
-        createCustomEventDetail(FirefoxCommand.LinkAccount, {
-          ok: true,
-        })
-      );
-
       await expect(page).toHaveURL(/connect_another_device/);
 
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();

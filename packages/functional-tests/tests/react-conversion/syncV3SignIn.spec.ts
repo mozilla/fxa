@@ -28,12 +28,6 @@ test.describe('severity-2 #smoke', () => {
       await signinReact.fillOutEmailFirstForm(credentials.email);
       await signinReact.fillOutPasswordForm(credentials.password);
 
-      await signinReact.sendWebChannelMessage(
-        createCustomEventDetail(FirefoxCommand.LinkAccount, {
-          ok: true,
-        })
-      );
-
       await expect(connectAnotherDevice.fxaConnected).toBeEnabled();
     });
   });
@@ -54,12 +48,6 @@ test.describe('severity-2 #smoke', () => {
 
     await signinReact.fillOutEmailFirstForm(credentials.email);
     await signinReact.fillOutPasswordForm(credentials.password);
-
-    await signinReact.sendWebChannelMessage(
-      createCustomEventDetail(FirefoxCommand.LinkAccount, {
-        ok: true,
-      })
-    );
 
     await page.waitForURL(/signin_token_code/);
 
