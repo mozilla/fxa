@@ -84,7 +84,9 @@ test.describe('severity-1 #smoke', () => {
           `access_type=offline` +
           `&client_id=${target.relierClientID}` +
           `&pkce_client_id=38a6b9b3a65a1871` +
-          `&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Foauth` +
+          `&redirect_uri=${encodeURIComponent(
+            target.relierUrl + '/api/oauth'
+          )}` +
           `&scope=profile%20openid` +
           `&action=signin` +
           `&state=12eeaba43cc7548bf1f6b478b9de95328855b46df1e754fe94b21036c41c9cba`
