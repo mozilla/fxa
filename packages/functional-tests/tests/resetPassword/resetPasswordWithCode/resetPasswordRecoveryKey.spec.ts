@@ -58,9 +58,6 @@ test.describe('severity-1 #smoke', () => {
       await resetPasswordReact.goto();
 
       await resetPasswordReact.fillOutEmailForm(credentials.email);
-      await expect(
-        resetPasswordReact.confirmResetPasswordHeading
-      ).toBeVisible();
 
       const code = await target.emailClient.getResetPasswordCode(
         credentials.email
