@@ -48,7 +48,10 @@ test.describe('severity-1 #smoke', () => {
       // Fix the error
       await login.confirmPassword(credentials.password);
       await login.submit();
-      await login.fillOutSignUpCode(credentials.email);
+      const code = await target.emailClient.getVerifyShortCode(
+        credentials.email
+      );
+      await login.fillOutSignUpCode(code);
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
     });
 
@@ -74,7 +77,8 @@ test.describe('severity-1 #smoke', () => {
 
       // Age textbox is not on the page and click submit
       await login.submit();
-      await login.fillOutSignUpCode(email);
+      const code = await target.emailClient.getVerifyShortCode(email);
+      await login.fillOutSignUpCode(code);
       await expect(connectAnotherDevice.fxaConnected).toBeEnabled();
     });
 

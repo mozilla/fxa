@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { EmailHeader, EmailType } from '../../lib/email';
 import { Page, expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget } from '../../lib/targets/base';
 import { SettingsPage } from '../../pages/settings';
@@ -50,7 +49,10 @@ test.describe('severity-2 #smoke', () => {
       await page.goto(
         `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react&${signup.query}`
       );
-      await signupReact.fillOutFirstSignUp(email, password, AGE_21);
+      await signupReact.fillOutEmailForm(email);
+      await signupReact.fillOutSignupForm(password, AGE_21);
+      const verifyCode = await target.emailClient.getVerifyShortCode(email);
+      await signupReact.fillOutCodeForm(verifyCode);
 
       await expect(page).toHaveURL(/settings/);
 
@@ -63,12 +65,8 @@ test.describe('severity-2 #smoke', () => {
 
       await expect(page).toHaveURL(/signin_unblock/);
 
-      const code = await target.emailClient.waitForEmail(
-        email,
-        EmailType.unblockCode,
-        EmailHeader.unblockCode
-      );
-      await signinUnblock.input.fill(code);
+      const unblockCode = await target.emailClient.getUnblockCode(email);
+      await signinUnblock.input.fill(unblockCode);
       await signinUnblock.submit.click();
 
       await expect(page).toHaveURL(/settings/);

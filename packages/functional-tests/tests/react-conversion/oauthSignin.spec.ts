@@ -140,6 +140,7 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('unverified account, requires signup confirmation code', async ({
+      target,
       pages: { configPage, page, relier, signinReact, signupReact },
       testAccountTracker,
     }) => {
@@ -168,12 +169,16 @@ test.describe('severity-1 #smoke', () => {
       // User is shown confirm code page
       await expect(page).toHaveURL(/confirm_signup_code/);
       await signupReact.resendCodeButton.click();
-      await signupReact.fillOutCodeForm(credentials.email);
+      const code = await target.emailClient.getVerifyShortCode(
+        credentials.email
+      );
+      await signupReact.fillOutCodeForm(code);
 
       expect(await relier.isLoggedIn()).toBe(true);
     });
 
     test('unverified account with a cached login, requires signup confirmation', async ({
+      target,
       pages: { configPage, page, relier, signinReact, signupReact },
       testAccountTracker,
     }) => {
@@ -209,12 +214,14 @@ test.describe('severity-1 #smoke', () => {
 
       // Verify email and ensure user is redirected to relier
       await expect(page).toHaveURL(/confirm_signup_code/);
-      await signupReact.fillOutCodeForm(email);
+      const code = await target.emailClient.getVerifyShortCode(email);
+      await signupReact.fillOutCodeForm(code);
 
       expect(await relier.isLoggedIn()).toBe(true);
     });
 
     test('oauth endpoint chooses the right auth flows', async ({
+      target,
       page,
       pages: { configPage, relier, signinReact, signupReact },
       testAccountTracker,
@@ -238,7 +245,8 @@ test.describe('severity-1 #smoke', () => {
 
       await signupReact.fillOutEmailForm(email);
       await signupReact.fillOutSignupForm(password, AGE_21);
-      await signupReact.fillOutCodeForm(email);
+      const code = await target.emailClient.getVerifyShortCode(email);
+      await signupReact.fillOutCodeForm(code);
 
       // go back to the OAuth app, the /oauth flow should
       // now suggest a cached login

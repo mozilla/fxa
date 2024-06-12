@@ -9,6 +9,7 @@ import { DeleteAccountPage } from '../../pages/settings/deleteAccount';
 test.describe('severity-1 #smoke', () => {
   test.describe('OAuth signin blocked', () => {
     test('verified, blocked', async ({
+      target,
       page,
       pages: { login, relier, settings, deleteAccount },
       testAccountTracker,
@@ -18,7 +19,8 @@ test.describe('severity-1 #smoke', () => {
       await relier.goto();
       await relier.clickEmailFirst();
       await login.login(credentials.email, credentials.password);
-      await login.unblock(credentials.email);
+      const code = await target.emailClient.getUnblockCode(credentials.email);
+      await login.unblock(code);
 
       expect(await relier.isLoggedIn()).toBe(true);
 
@@ -28,6 +30,7 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('verified, blocked, incorrect password', async ({
+      target,
       page,
       pages: { login, relier, settings, deleteAccount },
       testAccountTracker,
@@ -37,14 +40,16 @@ test.describe('severity-1 #smoke', () => {
       await relier.goto();
       await relier.clickEmailFirst();
       await login.login(credentials.email, 'wrong password');
-      await login.unblock(credentials.email);
+      const code1 = await target.emailClient.getUnblockCode(credentials.email);
+      await login.unblock(code1);
       // After filling in the unblock code, the user is prompted again to enter password
       await expect(page.getByText('Incorrect password')).toBeVisible();
 
       // Delete blocked account, required before teardown
       await login.setPassword(credentials.password);
       await login.submit();
-      await login.unblock(credentials.email);
+      const code2 = await target.emailClient.getUnblockCode(credentials.email);
+      await login.unblock(code2);
       await relier.isLoggedIn();
       await settings.goto();
       await removeAccount(settings, deleteAccount, page, credentials.password);

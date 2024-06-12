@@ -28,6 +28,7 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('signup web', async ({
+      target,
       page,
       pages: { settings, signupReact },
       testAccountTracker,
@@ -41,8 +42,8 @@ test.describe('severity-1 #smoke', () => {
       await signupReact.waitForRoot();
 
       await signupReact.fillOutSignupForm(password, AGE_21);
-
-      await signupReact.fillOutCodeForm(email);
+      const code = await target.emailClient.getVerifyShortCode(email);
+      await signupReact.fillOutCodeForm(code);
 
       await expect(page).toHaveURL(/settings/);
 
@@ -50,6 +51,7 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('signup sync desktop v3, verify account', async ({
+      target,
       syncBrowserPages: { page, signupReact, login },
       testAccountTracker,
     }) => {
@@ -84,8 +86,8 @@ test.describe('severity-1 #smoke', () => {
       await signupReact.fillOutSignupForm(password, AGE_21);
 
       await login.checkWebChannelMessage(FirefoxCommand.Login);
-
-      await signupReact.fillOutCodeForm(email);
+      const code = await target.emailClient.getVerifyShortCode(email);
+      await signupReact.fillOutCodeForm(code);
       await page.waitForURL(/connect_another_device/);
 
       await expect(page.getByText('You’re signed into Firefox')).toBeVisible();
@@ -163,7 +165,10 @@ test.describe('severity-2 #smoke', () => {
 
       // Click the sign in link
       await subscribe.signinLink.click();
-      await signupReact.fillOutFirstSignUp(email, password, AGE_21);
+      await signupReact.fillOutEmailForm(email);
+      await signupReact.fillOutSignupForm(password, AGE_21);
+      const code = await target.emailClient.getVerifyShortCode(email);
+      await signupReact.fillOutCodeForm(code);
       /*
        * We must `waitUntil: 'load'` due to redirects that occur here. Note,
        * React signup for SubPlat has one additional redirect compared to Backbone.

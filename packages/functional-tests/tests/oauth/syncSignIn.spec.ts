@@ -26,7 +26,10 @@ test.describe('severity-1 #smoke', () => {
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email&`
       );
       await login.login(syncCredentials.email, syncCredentials.password);
-      await login.fillOutSignInCode(syncCredentials.email);
+      const loginCode = await target.emailClient.getVerifyLoginCode(
+        syncCredentials.email
+      );
+      await login.fillOutSignInCode(loginCode);
 
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
 
@@ -34,12 +37,12 @@ test.describe('severity-1 #smoke', () => {
       await relier.goto();
       await relier.clickEmailFirst();
       await login.useDifferentAccountLink();
-
-      await signupReact.fillOutFirstSignUp(
-        account.email,
-        account.password,
-        AGE_21
+      await signupReact.fillOutEmailForm(account.email);
+      await signupReact.fillOutSignupForm(account.password, AGE_21);
+      const shortCode = await target.emailClient.getVerifyShortCode(
+        account.email
       );
+      await signupReact.fillOutCodeForm(shortCode);
 
       // RP is logged in, logout then back in again
       expect(await relier.isLoggedIn()).toBe(true);
@@ -73,8 +76,10 @@ test.describe('severity-1 #smoke', () => {
 
       await relier.goto();
       await relier.clickEmailFirst();
-
-      await signupReact.fillOutFirstSignUp(email, password, AGE_21);
+      await signupReact.fillOutEmailForm(email);
+      await signupReact.fillOutSignupForm(password, AGE_21);
+      const verifyCode = await target.emailClient.getVerifyShortCode(email);
+      await signupReact.fillOutCodeForm(verifyCode);
 
       expect(await relier.isLoggedIn()).toBe(true);
 
@@ -86,7 +91,8 @@ test.describe('severity-1 #smoke', () => {
 
       await login.setPassword(password);
       await login.submit();
-      await login.fillOutSignInCode(email);
+      const loginCode = await target.emailClient.getVerifyLoginCode(email);
+      await login.fillOutSignInCode(loginCode);
 
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
     });

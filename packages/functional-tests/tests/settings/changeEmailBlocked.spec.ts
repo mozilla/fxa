@@ -27,13 +27,14 @@ test.describe('severity-1 #smoke', () => {
       const invalidPassword = testAccountTracker.generatePassword();
 
       await settings.goto();
-      await changePrimaryEmail(settings, secondaryEmail, blockedEmail);
+      await changePrimaryEmail(target, settings, secondaryEmail, blockedEmail);
       credentials.email = blockedEmail;
       await settings.signOut();
       await login.login(credentials.email, invalidPassword);
 
       // Fill out unblock
-      await login.unblock(credentials.email);
+      const code1 = await target.emailClient.getUnblockCode(credentials.email);
+      await login.unblock(code1);
 
       // Verify the incorrect password error
       await expect(page.getByText('Incorrect password')).toBeVisible();
@@ -41,7 +42,8 @@ test.describe('severity-1 #smoke', () => {
       // Delete blocked account, required before teardown
       await login.setPassword(credentials.password);
       await login.submit();
-      await login.unblock(credentials.email);
+      const code2 = await target.emailClient.getUnblockCode(credentials.email);
+      await login.unblock(code2);
       await settings.goto();
       await removeAccount(settings, deleteAccount, page, credentials.password);
     });
@@ -60,13 +62,14 @@ test.describe('severity-1 #smoke', () => {
       const blockedEmail = testAccountTracker.generateBlockedEmail();
 
       await settings.goto();
-      await changePrimaryEmail(settings, secondaryEmail, blockedEmail);
+      await changePrimaryEmail(target, settings, secondaryEmail, blockedEmail);
       credentials.email = blockedEmail;
       await settings.signOut();
 
       await login.login(credentials.email, credentials.password);
       // Fill out unblock
-      await login.unblock(credentials.email);
+      const code = await target.emailClient.getUnblockCode(credentials.email);
+      await login.unblock(code);
 
       // Verify settings url redirected
       await expect(page).toHaveURL(settings.url);
@@ -94,12 +97,15 @@ async function signInAccount(
 }
 
 async function changePrimaryEmail(
+  target: BaseTarget,
   settings: SettingsPage,
   secondaryEmail: SecondaryEmailPage,
   email: string
 ): Promise<void> {
   await settings.secondaryEmail.addButton.click();
-  await secondaryEmail.addSecondaryEmail(email);
+  await secondaryEmail.fillOutEmail(email);
+  const code: string = await target.emailClient.getVerifySecondCode(email);
+  await secondaryEmail.fillOutVerificationCode(code);
   await settings.secondaryEmail.makePrimaryButton.click();
 
   await expect(settings.settingsHeading).toBeVisible();

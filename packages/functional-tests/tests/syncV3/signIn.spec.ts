@@ -4,7 +4,6 @@
 
 import { getCode } from 'fxa-settings/src/lib/totp';
 import { TestAccountTracker } from '../../lib/testAccountTracker';
-import { EmailHeader, EmailType } from '../../lib/email';
 import { Page, expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
 import { LoginPage } from '../../pages/login';
@@ -49,10 +48,8 @@ test.describe('severity-2 #smoke', () => {
       await expect(signinTokenCode.successMessage).toContainText(
         /Email re-?sent/
       );
-      const code = await target.emailClient.waitForEmail(
-        credentials.email,
-        EmailType.verifyLoginCode,
-        EmailHeader.signinCode
+      const code = await target.emailClient.getVerifyLoginCode(
+        credentials.email
       );
       await signinTokenCode.input.fill(code);
       await signinTokenCode.submit.click();
@@ -76,10 +73,8 @@ test.describe('severity-2 #smoke', () => {
       );
       await login.login(credentials.email, credentials.password);
 
-      const code = await target.emailClient.waitForEmail(
-        credentials.email,
-        EmailType.verifyLoginCode,
-        EmailHeader.signinCode
+      const code = await target.emailClient.getVerifyLoginCode(
+        credentials.email
       );
       await signinTokenCode.input.fill(code);
       await signinTokenCode.submit.click();
@@ -111,10 +106,8 @@ test.describe('severity-2 #smoke', () => {
       await expect(signinTokenCode.tooltip).toBeVisible();
       await expect(signinTokenCode.tooltip).toContainText('Invalid or expired');
 
-      const code = await target.emailClient.waitForEmail(
-        credentials.email,
-        EmailType.verifyLoginCode,
-        EmailHeader.signinCode
+      const code = await target.emailClient.getVerifyLoginCode(
+        credentials.email
       );
       await signinTokenCode.input.fill(code);
       await signinTokenCode.submit.click();
@@ -144,10 +137,8 @@ test.describe('severity-2 #smoke', () => {
       await login.login(credentials.email, credentials.password);
 
       // Since the account is not verified yet, we'd expect to see the signup code confirmation
-      const code = await target.emailClient.waitForEmail(
-        credentials.email,
-        EmailType.verifyLoginCode,
-        EmailHeader.signinCode
+      const code = await target.emailClient.getVerifyLoginCode(
+        credentials.email
       );
       await confirmSignupCode.input.fill(code);
       await confirmSignupCode.submit.click();
@@ -220,11 +211,7 @@ test.describe('severity-2 #smoke', () => {
       );
       await login.login(credentials.email, credentials.password);
 
-      const code = await target.emailClient.waitForEmail(
-        credentials.email,
-        EmailType.unblockCode,
-        EmailHeader.unblockCode
-      );
+      const code = await target.emailClient.getUnblockCode(credentials.email);
       await signinUnblock.input.fill(code);
       await signinUnblock.submit.click();
 

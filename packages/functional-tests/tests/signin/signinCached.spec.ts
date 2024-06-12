@@ -145,7 +145,10 @@ test.describe('severity-2 #smoke', () => {
       await expect(login.signUpCodeHeader).toBeVisible();
 
       //Fill the code and submit
-      await login.fillOutSignUpCode(credentials.email);
+      const code = await target.emailClient.getVerifyShortCode(
+        credentials.email
+      );
+      await login.fillOutSignUpCode(code);
 
       //Verify logged in on Settings page
       expect(await login.isUserLoggedIn()).toBe(true);

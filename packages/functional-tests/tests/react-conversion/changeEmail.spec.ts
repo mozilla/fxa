@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { expect, test } from '../../lib/fixtures/standard';
+import { BaseTarget } from '../../lib/targets/base';
 import { SettingsPage } from '../../pages/settings';
 import { ChangePasswordPage } from '../../pages/settings/changePassword';
 import { SecondaryEmailPage } from '../../pages/settings/secondaryEmail';
@@ -35,7 +36,7 @@ test.describe('severity-1 #smoke', () => {
       // Verify successfully navigated to settings
       await expect(page).toHaveURL(/settings/);
 
-      await changePrimaryEmail(settings, secondaryEmail, newEmail);
+      await changePrimaryEmail(target, settings, secondaryEmail, newEmail);
       const previousEmail = credentials.email;
       credentials.email = newEmail;
 
@@ -80,7 +81,7 @@ test.describe('severity-1 #smoke', () => {
       // Verify successfully navigated to settings
       await expect(page).toHaveURL(/settings/);
 
-      await changePrimaryEmail(settings, secondaryEmail, newEmail);
+      await changePrimaryEmail(target, settings, secondaryEmail, newEmail);
       credentials.email = newEmail;
 
       await setNewPassword(
@@ -135,7 +136,7 @@ test.describe('severity-1 #smoke', () => {
       // Verify successfully navigated to settings
       await expect(page).toHaveURL(/settings/);
 
-      await changePrimaryEmail(settings, secondaryEmail, newEmail);
+      await changePrimaryEmail(target, settings, secondaryEmail, newEmail);
       credentials.email = newEmail;
 
       // Click delete account
@@ -157,12 +158,15 @@ test.describe('severity-1 #smoke', () => {
 });
 
 async function changePrimaryEmail(
+  target: BaseTarget,
   settings: SettingsPage,
   secondaryEmail: SecondaryEmailPage,
   email: string
 ): Promise<void> {
   await settings.secondaryEmail.addButton.click();
-  await secondaryEmail.addSecondaryEmail(email);
+  await secondaryEmail.fillOutEmail(email);
+  const code: string = await target.emailClient.getVerifySecondCode(email);
+  await secondaryEmail.fillOutVerificationCode(code);
   await settings.secondaryEmail.makePrimaryButton.click();
 
   await expect(settings.settingsHeading).toBeVisible();

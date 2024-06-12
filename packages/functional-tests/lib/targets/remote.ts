@@ -1,5 +1,4 @@
 import { BaseTarget, Credentials } from './base';
-import { EmailHeader, EmailType } from '../email';
 
 export abstract class RemoteTarget extends BaseTarget {
   async createAccount(
@@ -15,13 +14,8 @@ export abstract class RemoteTarget extends BaseTarget {
       filteredOptions
     );
     if (preVerified === 'true') {
-      const code = await this.emailClient.waitForEmail(
-        email,
-        EmailType.verify,
-        EmailHeader.verifyCode
-      );
+      const code = await this.emailClient.getVerifyCode(email);
       await this.authClient.verifyCode(creds.uid, code);
-      await this.emailClient.clear(email);
     }
     await this.authClient.deviceRegister(
       creds.sessionToken,

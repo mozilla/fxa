@@ -1,5 +1,4 @@
 import { expect } from '@playwright/test';
-import { EmailHeader, EmailType } from '../../lib/email';
 import { SettingsLayout } from './layout';
 
 export class SecondaryEmailPage extends SettingsLayout {
@@ -39,19 +38,15 @@ export class SecondaryEmailPage extends SettingsLayout {
     return waitForNavigation;
   }
 
-  async addSecondaryEmail(email: string): Promise<void> {
+  async fillOutEmail(email: string): Promise<void> {
     await expect(this.secondaryEmailHeading).toBeVisible();
     await expect(this.step1Heading).toBeVisible();
 
     await this.emailTextbox.fill(email);
     await this.saveButton.click();
-    const code: string = await this.target.emailClient.waitForEmail(
-      email,
-      EmailType.verifySecondaryCode,
-      EmailHeader.verifyCode
-    );
-    await this.target.emailClient.clear(email);
+  }
 
+  async fillOutVerificationCode(code: string): Promise<void> {
     await expect(this.step2Heading).toBeVisible();
 
     await this.verificationCodeTextbox.fill(code);

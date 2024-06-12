@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { EmailHeader, EmailType } from '../../lib/email';
 import { expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget } from '../../lib/targets/base';
 
@@ -80,7 +79,10 @@ test.describe('severity-2 #smoke', () => {
       await page.goto(
         `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react&${signup.query}`
       );
-      await signupReact.fillOutFirstSignUp(email, password, AGE_21);
+      await signupReact.fillOutEmailForm(email);
+      await signupReact.fillOutSignupForm(password, AGE_21);
+      const code = await target.emailClient.getVerifyShortCode(email);
+      await signupReact.fillOutCodeForm(code);
 
       await expect(page).toHaveURL(/settings/);
 
@@ -103,11 +105,7 @@ test.describe('severity-2 #smoke', () => {
       );
       await resetPasswordReact.fillOutEmailForm(email);
       const link =
-        (await target.emailClient.waitForEmail(
-          email,
-          EmailType.recovery,
-          EmailHeader.link
-        )) + `&${reset.query}`;
+        (await target.emailClient.getRecoveryLink(email)) + `&${reset.query}`;
       await page.goto(link);
       await resetPasswordReact.fillOutRecoveryKeyForm(key);
 

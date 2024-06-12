@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { expect, test } from '../../../lib/fixtures/standard';
-import { EmailHeader, EmailType } from '../../../lib/email';
 
 const HINT = 'secret key location';
 
@@ -70,11 +69,7 @@ test.describe('severity-1 #smoke', () => {
         resetPasswordReact.confirmResetPasswordHeading
       ).toBeVisible();
 
-      const link = await target.emailClient.waitForEmail(
-        credentials.email,
-        EmailType.recovery,
-        EmailHeader.link
-      );
+      const link = await target.emailClient.getRecoveryLink(credentials.email);
       await page.goto(link);
       await resetPasswordReact.fillOutRecoveryKeyForm(key);
       await resetPasswordReact.fillOutNewPasswordForm(newPassword);
@@ -129,11 +124,7 @@ test.describe('severity-1 #smoke', () => {
       await resetPasswordReact.goto();
 
       await resetPasswordReact.fillOutEmailForm(credentials.email);
-      const link = await target.emailClient.waitForEmail(
-        credentials.email,
-        EmailType.recovery,
-        EmailHeader.link
-      );
+      const link = await target.emailClient.getRecoveryLink(credentials.email);
       await page.goto(link);
       await resetPasswordReact.forgotKeyLink.click();
       await resetPasswordReact.fillOutNewPasswordForm(credentials.password);

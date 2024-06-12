@@ -33,7 +33,8 @@ test.describe('OAuth scopeKeys', () => {
 
     await page.goto(target.contentServerUrl + `/?${query.toString()}`);
     await login.login(credentials.email, credentials.password);
-    await login.fillOutSignInCode(credentials.email);
+    const code = await target.emailClient.getVerifyLoginCode(credentials.email);
+    await login.fillOutSignInCode(code);
 
     await expect(login.notesHeader).toBeVisible();
   });

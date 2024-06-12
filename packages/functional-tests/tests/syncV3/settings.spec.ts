@@ -39,7 +39,10 @@ test.describe('severity-2 #smoke', () => {
       await expect(login.signInCodeHeader).toBeVisible();
 
       await login.checkWebChannelMessage(FirefoxCommand.LinkAccount);
-      await login.fillOutSignInCode(credentials.email);
+      const code = await target.emailClient.getVerifyLoginCode(
+        credentials.email
+      );
+      await login.fillOutSignInCode(code);
       await login.checkWebChannelMessage(FirefoxCommand.Login);
 
       await expect(connectAnotherDevice.fxaConnected).toBeEnabled();
@@ -93,7 +96,10 @@ test.describe('severity-2 #smoke', () => {
       await expect(login.signInCodeHeader).toBeVisible();
 
       await login.checkWebChannelMessage(FirefoxCommand.LinkAccount);
-      await login.fillOutSignInCode(credentials.email);
+      const code = await target.emailClient.getVerifyLoginCode(
+        credentials.email
+      );
+      await login.fillOutSignInCode(code);
       await login.checkWebChannelMessage(FirefoxCommand.Login);
 
       await expect(connectAnotherDevice.fxaConnected).toBeEnabled();
@@ -130,7 +136,10 @@ test.describe('severity-2 #smoke', () => {
         credentials.email,
         credentials.password
       );
-      await login.fillOutSignInCode(credentials.email);
+      const code = await target.emailClient.getVerifyLoginCode(
+        credentials.email
+      );
+      await login.fillOutSignInCode(code);
 
       //Go to setting page
       await page.goto(

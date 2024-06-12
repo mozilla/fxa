@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { EmailHeader, EmailType } from '../../lib/email';
 import { expect, test } from '../../lib/fixtures/standard';
 
 test.describe('severity-2 #smoke', () => {
@@ -89,10 +88,8 @@ test.describe('severity-2 #smoke', () => {
       // Correctly submits the token code and navigates to oauth page
       await expect(signinTokenCode.tokenCodeHeader).toBeVisible();
 
-      const code = await target.emailClient.waitForEmail(
-        credentials.email,
-        EmailType.verifyLoginCode,
-        EmailHeader.signinCode
+      const code = await target.emailClient.getVerifyLoginCode(
+        credentials.email
       );
       await signinTokenCode.input.fill(code);
       await signinTokenCode.submit.click();

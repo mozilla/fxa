@@ -2,9 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { EmailHeader, EmailType } from '../../../lib/email';
 import { Page, expect, test } from '../../../lib/fixtures/standard';
-import { BaseTarget } from '../../../lib/targets/base';
 import { ResetPasswordReactPage } from '../../../pages/resetPasswordReact';
 import { LoginPage } from '../../../pages/login';
 
@@ -61,12 +59,8 @@ test.describe('severity-1 #smoke', () => {
         SERVICE_NAME_123
       );
 
-      const link = await getConfirmationEmail(
-        target,
-        resetPasswordReact,
-        credentials.email
-      );
-
+      await resetPasswordReact.fillOutEmailForm(credentials.email);
+      const link = await target.emailClient.getRecoveryLink(credentials.email);
       await page.goto(link, { waitUntil: 'load' });
       await resetPasswordReact.fillOutRecoveryKeyForm(accountRecoveryKey);
       await resetPasswordReact.fillOutNewPasswordForm(newPassword);
@@ -112,19 +106,5 @@ test.describe('severity-1 #smoke', () => {
     await expect(resetPasswordReact.resetPasswordHeading).toContainText(
       serviceName
     );
-  }
-
-  async function getConfirmationEmail(
-    target: BaseTarget,
-    resetPasswordReact: ResetPasswordReactPage,
-    email: string
-  ) {
-    await resetPasswordReact.fillOutEmailForm(email);
-    const link = await target.emailClient.waitForEmail(
-      email,
-      EmailType.recovery,
-      EmailHeader.link
-    );
-    return link;
   }
 });
