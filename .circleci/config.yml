@@ -350,16 +350,6 @@ commands:
           paths:
             - artifacts/blob-reports
 
-  playwright-functional-test-report:
-    steps:
-      - attach_workspace:
-          at: .
-      - run:
-          name: Merge Reports
-          command: ls -l artifacts/blob-reports && npx playwright merge-reports --reporter=blob artifacts/blob-reports
-      - store_artifacts:
-          path: artifacts/playwright-report
-
   build:
     steps:
       - run:
@@ -675,7 +665,16 @@ jobs:
       - run-playwright-tests:
           project: local
       - store-artifacts
-      - playwright-functional-test-report
+
+  playwright-functional-test-report:
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Merge Reports
+          command: ls -l artifacts/blob-reports && npx playwright merge-reports --reporter=blob artifacts/blob-reports
+      - store_artifacts:
+          path: artifacts/blob-reports
 
   build-and-deploy-storybooks:
     executor: default-executor
@@ -792,7 +791,7 @@ workflows:
             - Build (PR)
       - playwright-functional-test-report:
           name: Merge Playwright Reports (PR)
-          resource_class: xlarge
+          resource_class: large
           requires:
             - Functional Tests - Playwright (PR)
       - build-and-deploy-storybooks:
