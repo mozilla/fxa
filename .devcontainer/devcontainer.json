@@ -15,7 +15,7 @@
 			"packages": "netcat,git,curl,jq,build-essential,pkg-config,libssl-dev,libgmp3-dev,mycli,redis-tools"
 		},
 		"ghcr.io/devcontainers/features/node:1": {},
-		"ghcr.io/bartventer/arch-devcontainer-features/gcloud-cli:1": {}
+		"ghcr.io/dhoeric/features/google-cloud-cli:1": {}
 	},
 
 	"containerEnv": {
