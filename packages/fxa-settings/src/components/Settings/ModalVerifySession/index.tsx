@@ -67,13 +67,7 @@ export const ModalVerifySession = ({
       if (session.verified) {
         onCompleted && onCompleted();
       } else {
-        let sessionVerified = false;
-        sessionVerified = await session.isSessionVerified();
-        if (sessionVerified) {
-          onCompleted && onCompleted();
-        } else {
-          session.sendVerificationCode();
-        }
+        await session.sendVerificationCode();
       }
     };
 
