@@ -927,7 +927,7 @@ describe('log', () => {
       log,
       metricsContext,
       payload: {
-        service: 'clientid',
+        service: '0123456789abcdef',
         metricsContext: {
           entrypoint: 'wibble',
           entrypointExperiment: 'blee-experiment',
@@ -946,7 +946,7 @@ describe('log', () => {
     sinon.stub(Date, 'now').callsFake(() => now);
     return log
       .notifyAttachedServices('login', request, {
-        service: 'clientid',
+        service: '0123456789abcdef',
         ts: now,
       })
       .then(() => {
@@ -956,8 +956,8 @@ describe('log', () => {
         assert.deepEqual(log.notifier.send.args[0][0], {
           event: 'login',
           data: {
-            clientId: 'clientid',
-            service: 'human readable name',
+            clientId: '0123456789abcdef',
+            service: '0123456789abcdef',
             timestamp: now,
             ts: now,
             iss: 'example.com',
@@ -1021,7 +1021,6 @@ describe('log', () => {
         assert.deepEqual(log.notifier.send.args[0][0], {
           event: 'login',
           data: {
-            clientId: 'unknown-clientid',
             service: 'unknown-clientid',
             timestamp: now,
             ts: now,
