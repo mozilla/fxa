@@ -344,6 +344,9 @@ commands:
           path: artifacts/tests
       - store_artifacts:
           path: artifacts/blob-reports
+      - checkout
+      - attach_workspace:
+          at: .
       - run:
           name: Merge Reports
           command: npx playwright merge-reports --reporter=blob artifacts/blob-reports
