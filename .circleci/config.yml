@@ -345,7 +345,13 @@ commands:
           path: artifacts/tests
       - store_artifacts:
           path: artifacts/blob-reports
-      - checkout
+      - persist_to_workspace:
+          root: .
+          paths:
+            - artifacts/blob-reports
+
+  playwright-functional-test-report:
+    steps:
       - attach_workspace:
           at: .
       - run:
@@ -669,6 +675,7 @@ jobs:
       - run-playwright-tests:
           project: local
       - store-artifacts
+      - merge-report
 
   build-and-deploy-storybooks:
     executor: default-executor
@@ -783,6 +790,11 @@ workflows:
           parallelism: 8
           requires:
             - Build (PR)
+      - playwright-functional-test-report:
+          name: Merge Playwright Reports (PR)
+          resource_class: xlarge
+          requires:
+            - Functional Tests - Playwright (PR)
       - build-and-deploy-storybooks:
           name: Deploy Storybooks (PR)
           requires:
