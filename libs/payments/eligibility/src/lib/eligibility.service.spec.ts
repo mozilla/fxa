@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const mockStripeUtil = {
-  getSubscribedPlans: jest.fn(),
+  getSubscribedPrices: jest.fn(),
   getSubscribedProductIds: jest.fn(),
 };
 
@@ -12,13 +12,13 @@ jest.mock('../../../stripe/src/lib/stripe.util.ts', () => mockStripeUtil);
 import { Test, TestingModule } from '@nestjs/testing';
 
 import {
+  PriceManager,
   StripeClient,
   StripeConfig,
   StripeCustomerFactory,
-  SubscriptionManager,
   StripeSubscriptionFactory,
   SubplatInterval,
-  PriceManager,
+  SubscriptionManager,
 } from '@fxa/payments/stripe';
 import {
   ContentfulClient,
@@ -35,8 +35,8 @@ import {
   OfferingComparison,
   OfferingOverlapProductResult,
 } from './eligibility.types';
-import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
+import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 
 describe('EligibilityService', () => {
   let contentfulManager: ContentfulManager;
@@ -129,7 +129,7 @@ describe('EligibilityService', () => {
         .spyOn(subscriptionManager, 'listForCustomer')
         .mockResolvedValue([mockSubscription]);
 
-      mockStripeUtil.getSubscribedPlans.mockReturnValue([]);
+      mockStripeUtil.getSubscribedPrices.mockReturnValue([]);
       mockStripeUtil.getSubscribedProductIds.mockReturnValue([]);
 
       jest

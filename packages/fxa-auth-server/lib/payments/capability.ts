@@ -454,11 +454,11 @@ export class CapabilityService {
 
     const overlap = overlaps[0];
     assert(
-      overlap.type === 'plan',
+      overlap.type === 'price',
       'Unexpected overlap type, only plans are compared.'
     );
     const overlapAbbrev = stripeSubscribedPlans.find(
-      (p) => p.plan_id === overlap.planId
+      (p) => p.plan_id === overlap.priceId
     );
 
     if (overlap.comparison === OfferingComparison.DOWNGRADE)
@@ -971,7 +971,7 @@ export class CapabilityService {
       } else {
         try {
           const contentfulCapabilities =
-            await this.capabilityManager.planIdsToClientCapabilities(
+            await this.capabilityManager.priceIdsToClientCapabilities(
               subscribedPrices
             );
 
@@ -995,7 +995,7 @@ export class CapabilityService {
 
     try {
       const contentfulCapabilities =
-        await this.capabilityManager.planIdsToClientCapabilities(
+        await this.capabilityManager.priceIdsToClientCapabilities(
           subscribedPrices
         );
 

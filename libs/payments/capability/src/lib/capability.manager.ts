@@ -37,7 +37,7 @@ export class CapabilityManager {
    * Keys are clientIds
    * Values are capabilitySlugs[]
    */
-  async planIdsToClientCapabilities(
+  async priceIdsToClientCapabilities(
     subscribedPrices: string[]
   ): Promise<Record<string, string[]>> {
     const result: Record<string, string[]> = {};

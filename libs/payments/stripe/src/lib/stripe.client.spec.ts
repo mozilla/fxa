@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { Test } from '@nestjs/testing';
 import { Stripe } from 'stripe';
 
 import {
@@ -10,13 +11,12 @@ import {
 } from './factories/api-list.factory';
 import { StripeCustomerFactory } from './factories/customer.factory';
 import { StripeInvoiceFactory } from './factories/invoice.factory';
-import { StripePlanFactory } from './factories/plan.factory';
+import { StripePriceFactory } from './factories/price.factory';
 import { StripeProductFactory } from './factories/product.factory';
 import { StripePromotionCodeFactory } from './factories/promotion-code.factory';
 import { StripeSubscriptionFactory } from './factories/subscription.factory';
 import { StripeUpcomingInvoiceFactory } from './factories/upcoming-invoice.factory';
 import { StripeClient } from './stripe.client';
-import { Test } from '@nestjs/testing';
 import { MockStripeConfigProvider } from './stripe.config';
 
 const mockJestFnGenerator = <T extends (...args: any[]) => any>() => {
@@ -34,8 +34,8 @@ const mockStripeInvoicesFinalizeInvoice =
   mockJestFnGenerator<typeof Stripe.prototype.invoices.finalizeInvoice>();
 const mockStripeInvoicesRetrieve =
   mockJestFnGenerator<typeof Stripe.prototype.invoices.retrieve>();
-const mockStripePlansRetrieve =
-  mockJestFnGenerator<typeof Stripe.prototype.plans.retrieve>();
+const mockStripePricesRetrieve =
+  mockJestFnGenerator<typeof Stripe.prototype.prices.retrieve>();
 const mockStripeProductsRetrieve =
   mockJestFnGenerator<typeof Stripe.prototype.products.retrieve>();
 const mockStripePromotionCodesList =
@@ -66,8 +66,8 @@ jest.mock('stripe', () => ({
         retrieve: mockStripeInvoicesRetrieve,
         retrieveUpcoming: mockStripeRetrieveUpcomingInvoice,
       },
-      plans: {
-        retrieve: mockStripePlansRetrieve,
+      prices: {
+        retrieve: mockStripePricesRetrieve,
       },
       products: {
         retrieve: mockStripeProductsRetrieve,
@@ -268,14 +268,14 @@ describe('StripeClient', () => {
     });
   });
 
-  describe('plansRetrieve', () => {
-    it('retrieves plan successfully', async () => {
-      const mockPlan = StripePlanFactory();
-      const mockResponse = StripeResponseFactory(mockPlan);
+  describe('pricesRetrieve', () => {
+    it('retrieves price successfully', async () => {
+      const mockPrice = StripePriceFactory();
+      const mockResponse = StripeResponseFactory(mockPrice);
 
-      mockStripePlansRetrieve.mockResolvedValue(mockResponse);
+      mockStripePricesRetrieve.mockResolvedValue(mockResponse);
 
-      const result = await stripeClient.plansRetrieve(mockPlan.id);
+      const result = await stripeClient.pricesRetrieve(mockPrice.id);
       expect(result).toEqual(mockResponse);
     });
   });

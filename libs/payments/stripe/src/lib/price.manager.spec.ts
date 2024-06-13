@@ -5,7 +5,10 @@
 import { Test } from '@nestjs/testing';
 
 import { StripeResponseFactory } from './factories/api-list.factory';
-import { StripePlanFactory } from './factories/plan.factory';
+import {
+  StripePriceFactory,
+  StripePriceRecurringFactory,
+} from './factories/price.factory';
 import { StripeClient } from './stripe.client';
 import { MockStripeConfigProvider } from './stripe.config';
 import { PlanIntervalMultiplePlansError } from './stripe.error';
@@ -26,54 +29,59 @@ describe('PriceManager', () => {
   });
 
   describe('retrieve', () => {
-    it('returns plan', async () => {
-      const mockPlan = StripeResponseFactory(StripePlanFactory());
+    it('returns price', async () => {
+      const mockPrice = StripeResponseFactory(StripePriceFactory());
 
-      jest.spyOn(stripeClient, 'plansRetrieve').mockResolvedValue(mockPlan);
+      jest.spyOn(stripeClient, 'pricesRetrieve').mockResolvedValue(mockPrice);
 
-      const result = await priceManager.retrieve(mockPlan.id);
-      expect(result).toEqual(mockPlan);
+      const result = await priceManager.retrieve(mockPrice.id);
+      expect(result).toEqual(mockPrice);
     });
   });
 
-  describe('getPlanByInterval', () => {
-    it('returns plan that matches interval', async () => {
-      const mockPlan = StripeResponseFactory(
-        StripePlanFactory({
-          interval: 'month',
-          interval_count: 1,
+  describe('retrieveByInterval', () => {
+    it('returns price that matches interval', async () => {
+      const mockPrice = StripeResponseFactory(
+        StripePriceFactory({
+          recurring: StripePriceRecurringFactory({
+            interval: 'month',
+          }),
         })
       );
       const subplatInterval = SubplatInterval.Monthly;
 
-      jest.spyOn(priceManager, 'retrieve').mockResolvedValue(mockPlan);
+      jest.spyOn(priceManager, 'retrieve').mockResolvedValue(mockPrice);
 
       const result = await priceManager.retrieveByInterval(
-        [mockPlan.id],
+        [mockPrice.id],
         subplatInterval
       );
-      expect(result).toEqual(mockPlan);
+      expect(result).toEqual(mockPrice);
     });
 
     it('throw error if interval returns multiple plans', async () => {
-      const mockPlan1 = StripePlanFactory({
-        interval: 'month',
+      const mockPrice1 = StripePriceFactory({
+        recurring: StripePriceRecurringFactory({
+          interval: 'month',
+        }),
       });
-      const mockPlan2 = StripePlanFactory({
-        interval: 'month',
+      const mockPrice2 = StripePriceFactory({
+        recurring: StripePriceRecurringFactory({
+          interval: 'month',
+        }),
       });
       const subplatInterval = SubplatInterval.Monthly;
 
       jest
         .spyOn(priceManager, 'retrieve')
-        .mockResolvedValue(StripeResponseFactory(mockPlan1));
+        .mockResolvedValue(StripeResponseFactory(mockPrice1));
       jest
         .spyOn(priceManager, 'retrieve')
-        .mockResolvedValue(StripeResponseFactory(mockPlan2));
+        .mockResolvedValue(StripeResponseFactory(mockPrice2));
 
       await expect(
         priceManager.retrieveByInterval(
-          [mockPlan1.id, mockPlan2.id],
+          [mockPrice1.id, mockPrice2.id],
           subplatInterval
         )
       ).rejects.toBeInstanceOf(PlanIntervalMultiplePlansError);

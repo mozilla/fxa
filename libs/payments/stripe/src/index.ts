@@ -16,7 +16,10 @@ export { StripeDiscountFactory } from './lib/factories/discount.factory';
 export { StripeInvoiceLineItemFactory } from './lib/factories/invoice-line-item.factory';
 export { StripeInvoiceFactory } from './lib/factories/invoice.factory';
 export { StripePlanFactory } from './lib/factories/plan.factory';
-export { StripePriceFactory } from './lib/factories/price.factory';
+export {
+  StripePriceFactory,
+  StripePriceRecurringFactory,
+} from './lib/factories/price.factory';
 export { StripeProductFactory } from './lib/factories/product.factory';
 export {
   StripeSubscriptionFactory,
@@ -36,12 +39,12 @@ export * from './lib/stripe.config';
 export * from './lib/stripe.constants';
 export * from './lib/stripe.error';
 export * from './lib/stripe.factories';
+export * from './lib/stripe.service';
+export * from './lib/stripe.types';
+export * from './lib/stripe.util';
 export * from './lib/customer.manager';
 export * from './lib/invoice.manager';
 export * from './lib/price.manager';
 export * from './lib/product.manager';
 export * from './lib/promotionCode.manager';
 export * from './lib/subscription.manager';
-export * from './lib/stripe.service';
-export * from './lib/stripe.types';
-export * from './lib/stripe.util';

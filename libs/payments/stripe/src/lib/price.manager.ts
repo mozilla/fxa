@@ -5,33 +5,33 @@
 import { Injectable } from '@nestjs/common';
 
 import { StripeClient } from './stripe.client';
-import { StripePlan } from './stripe.client.types';
+import { StripePrice } from './stripe.client.types';
 import {
   PlanIntervalMultiplePlansError,
   PlanNotFoundError,
 } from './stripe.error';
 import { SubplatInterval } from './stripe.types';
-import { doesPlanMatchSubplatInterval } from './util/doesPlanMatchSubplatInterval';
+import { doesPriceMatchSubplatInterval } from './util/doesPriceMatchSubplatInterval';
 
 @Injectable()
 export class PriceManager {
   constructor(private client: StripeClient) {}
 
-  async retrieve(planId: string) {
-    const plan = await this.client.plansRetrieve(planId);
-    if (!plan) throw new PlanNotFoundError();
-    return plan;
+  async retrieve(priceId: string) {
+    const price = await this.client.pricesRetrieve(priceId);
+    if (!price) throw new PlanNotFoundError();
+    return price;
   }
 
-  async retrieveByInterval(planIds: string[], interval: SubplatInterval) {
-    const plans: StripePlan[] = [];
-    for (const planId of planIds) {
-      const plan = await this.retrieve(planId);
-      if (doesPlanMatchSubplatInterval(plan, interval)) {
-        plans.push(plan);
+  async retrieveByInterval(priceIds: string[], interval: SubplatInterval) {
+    const prices: StripePrice[] = [];
+    for (const priceId of priceIds) {
+      const price = await this.retrieve(priceId);
+      if (doesPriceMatchSubplatInterval(price, interval)) {
+        prices.push(price);
       }
     }
-    if (plans.length > 1) throw new PlanIntervalMultiplePlansError();
-    return plans.at(0);
+    if (prices.length > 1) throw new PlanIntervalMultiplePlansError();
+    return prices.at(0);
   }
 }

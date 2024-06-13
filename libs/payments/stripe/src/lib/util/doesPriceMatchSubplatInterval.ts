@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { StripePlan } from '../stripe.client.types';
+import { StripePrice } from '../stripe.client.types';
 import { SubplatInterval } from '../stripe.types';
 
 interface Interval {
-  interval: StripePlan['interval'];
+  interval: NonNullable<StripePrice['recurring']>['interval'];
   intervalCount: number;
 }
 
@@ -33,14 +33,14 @@ const subplatIntervalToInterval = {
   },
 } satisfies Record<SubplatInterval, Interval>;
 
-export const doesPlanMatchSubplatInterval = (
-  plan: StripePlan,
+export const doesPriceMatchSubplatInterval = (
+  price: StripePrice,
   subplatInterval: SubplatInterval
 ) => {
   const stripeInterval = subplatIntervalToInterval[subplatInterval];
 
   return (
-    plan.interval === stripeInterval.interval &&
-    plan.interval_count === stripeInterval.intervalCount
+    price.recurring?.interval === stripeInterval.interval &&
+    price.recurring?.interval_count === stripeInterval.intervalCount
   );
 };

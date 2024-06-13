@@ -35,6 +35,8 @@ jest.mock('@fxa/shared/db/type-cacheable', () => ({
   NetworkFirstStrategy: function () {},
 }));
 
+jest.useFakeTimers();
+
 describe('ContentfulClient', () => {
   let contentfulClient: ContentfulClient;
   const onCallback = jest.fn();

@@ -10,7 +10,7 @@ export enum EligibilityStatus {
   INVALID = 'invalid',
 }
 
-// Used to represent offering comparison to target plan
+// Used to represent offering comparison to target price
 export enum OfferingComparison {
   SAME = 'same',
   UPGRADE = 'upgrade',
@@ -30,8 +30,8 @@ export type OfferingOverlapBaseResult = {
 };
 
 export type OfferingOverlapPlanResult = OfferingOverlapBaseResult & {
-  planId: string;
-  type: 'plan';
+  priceId: string;
+  type: 'price';
 };
 
 export type OfferingOverlapProductResult = OfferingOverlapBaseResult & {

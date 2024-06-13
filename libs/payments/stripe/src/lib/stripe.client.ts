@@ -12,7 +12,7 @@ import {
   StripeInvoice,
   StripePaymentIntent,
   StripePaymentMethod,
-  StripePlan,
+  StripePrice,
   StripeProduct,
   StripePromotionCode,
   StripeResponse,
@@ -182,12 +182,12 @@ export class StripeClient {
     return result as StripeResponse<StripePaymentMethod>;
   }
 
-  async plansRetrieve(id: string, params?: Stripe.PlanRetrieveParams) {
-    const result = await this.stripe.plans.retrieve(id, {
+  async pricesRetrieve(id: string, params?: Stripe.PriceRetrieveParams) {
+    const result = await this.stripe.prices.retrieve(id, {
       ...params,
       expand: undefined,
     });
-    return result as StripeResponse<StripePlan>;
+    return result as StripeResponse<StripePrice>;
   }
 
   async productsRetrieve(id: string, params?: Stripe.ProductRetrieveParams) {

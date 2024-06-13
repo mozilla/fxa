@@ -555,7 +555,7 @@ jobs:
   # Runs unit tests in parallel across packages with changes.
   unit-test:
     executor: default-executor
-    resource_class: medium+
+    resource_class: large
     steps:
       - git-checkout
       - restore-workspace

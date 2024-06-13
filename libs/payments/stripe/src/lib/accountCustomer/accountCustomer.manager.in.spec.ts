@@ -91,6 +91,7 @@ describe('AccountCustomer Manager', () => {
       const mockUpdatedAccountCustomer = {
         ...mockAccountCustomer,
         stripeCustomerId: newStripeCustomerId,
+        updatedAt: faker.date.past().getTime(),
       };
 
       const result = await accountCustomerManager.updateAccountCustomer(
@@ -109,6 +110,7 @@ describe('AccountCustomer Manager', () => {
       const mockUpdatedAccountCustomer = {
         ...mockAccountCustomer,
         stripeCustomerId: faker.string.alphanumeric({ length: 50 }),
+        updatedAt: faker.date.past().getTime(),
       };
 
       await expect(

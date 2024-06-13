@@ -41,5 +41,5 @@
       }
     }
   },
-  "tags": []
+  "tags": ["scope:shared:lib:payments"]
 }
