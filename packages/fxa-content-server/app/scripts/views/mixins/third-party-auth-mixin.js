@@ -73,6 +73,14 @@ export default {
     // We stash originating location in the Google state oauth param
     // because we will need it to use it to log the user into FxA
     const currentParams = new URLSearchParams(this.window.location.search);
+
+    if (this.metrics) {
+      const metrics = this.metrics.getFlowEventMetadata();
+      currentParams.append('flowId', metrics.flowId);
+      currentParams.append('flowBeginTime', metrics.flowBeginTime);
+      currentParams.append('deviceId', metrics.deviceId);
+    }
+
     currentParams.delete('deeplink');
 
     const state = encodeURIComponent(
@@ -121,6 +129,14 @@ export default {
     this.logFlowEvent('apple.oauth-start');
 
     const currentParams = new URLSearchParams(this.window.location.search);
+
+    if (this.metrics) {
+      const metrics = this.metrics.getFlowEventMetadata();
+      currentParams.append('flowId', metrics.flowId);
+      currentParams.append('flowBeginTime', metrics.flowBeginTime);
+      currentParams.append('deviceId', metrics.deviceId);
+    }
+
     currentParams.delete('deeplink');
 
     const state = encodeURIComponent(

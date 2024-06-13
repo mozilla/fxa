@@ -10,6 +10,7 @@ import { ReactComponent as AppleLogo } from './apple-logo.svg';
 
 import { useConfig } from '../../models';
 import { ReactElement } from 'react-markdown/lib/react-markdown';
+import { useMetrics } from '../../lib/metrics';
 
 export type ThirdPartyAuthProps = {
   onContinueWithGoogle?: FormEventHandler<HTMLFormElement>;
@@ -125,9 +126,11 @@ const ThirdPartySignInForm = ({
   buttonText: ReactElement;
   onSubmit?: FormEventHandler<HTMLFormElement>;
 }) => {
+  const { logViewEventOnce } = useMetrics();
   const stateRef = useRef<HTMLInputElement>(null);
 
   function onClick() {
+    logViewEventOnce(`flow.${party}`, 'oauth-start');
     stateRef.current!.value = getState();
   }
 
