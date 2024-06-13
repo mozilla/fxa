@@ -46,6 +46,7 @@ export const TotpInputGroup = ({
   };
 
   const handleBackspace = async (index: number) => {
+    errorMessage && setErrorMessage('');
     const currentCodeArray = [...codeArray];
     currentCodeArray[index] = undefined;
     await setCodeArray(currentCodeArray);
@@ -57,6 +58,7 @@ export const TotpInputGroup = ({
   };
 
   const handleDelete = async (index: number) => {
+    errorMessage && setErrorMessage('');
     const currentCodeArray = [...codeArray];
     if (currentCodeArray[index] !== undefined) {
       currentCodeArray[index] = undefined;
@@ -70,6 +72,7 @@ export const TotpInputGroup = ({
       focusOnSpecifiedInput(index);
     }
   };
+
   const handleKeyDown = (
     e: React.KeyboardEvent<HTMLInputElement>,
     index: number
@@ -140,7 +143,7 @@ export const TotpInputGroup = ({
     e: React.ClipboardEvent<HTMLInputElement>,
     index: number
   ) => {
-    setErrorMessage('');
+    errorMessage && setErrorMessage('');
     let currentIndex = index;
     const currentCodeArray = [...codeArray];
     const clipboardText = e.clipboardData.getData('text');
@@ -157,6 +160,7 @@ export const TotpInputGroup = ({
         currentIndex++;
       }
     });
+
     await setCodeArray(currentCodeArray);
     // if last pasted character is on last input, focus on that input
     // otherwise focus on next input after last pasted character
