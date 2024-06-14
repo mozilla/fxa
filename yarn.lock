@@ -12093,16 +12093,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mozilla/glean@npm:^5.0.1":
-  version: 5.0.1
-  resolution: "@mozilla/glean@npm:5.0.1"
+"@mozilla/glean@npm:^5.0.2":
+  version: 5.0.2
+  resolution: "@mozilla/glean@npm:5.0.2"
   dependencies:
     fflate: ^0.8.0
     tslib: ^2.3.1
     uuid: ^9.0.0
   bin:
     glean: dist/cli/cli.js
-  checksum: 29edea37c4672a790a9f1c0f69ff6020167b5fd7e372985b858ea2c084d7eae0ef7dac5655fe4e4615255b7212c9ef5eeba8c8ce9cacbb87ce0974ffd104a3bf
+  checksum: 36eb6e3fb92740d2a03c562063858e9d699406bb2853b5b4375dcc60d4b892fa1569f7bc97c36ed77b9c7ef94eb58e52138a035a7237c8e0ac13a4c8d0e9af05
   languageName: node
   linkType: hard
 
@@ -37806,7 +37806,7 @@ fsevents@~2.1.1:
     "@googlemaps/google-maps-services-js": ^3.3.16
     "@hapi/hapi": ^20.2.1
     "@hapi/hoek": ^11.0.2
-    "@mozilla/glean": ^5.0.1
+    "@mozilla/glean": ^5.0.2
     "@storybook/addon-controls": ^7.4.6
     "@storybook/addon-docs": ^7.6.12
     "@storybook/addon-toolbars": ^7.0.23
@@ -37968,7 +37968,7 @@ fsevents@~2.1.1:
     "@babel/preset-env": ^7.22.9
     "@babel/preset-react": ^7.24.1
     "@babel/preset-typescript": ^7.24.1
-    "@mozilla/glean": ^5.0.1
+    "@mozilla/glean": ^5.0.2
     "@types/backbone": ^1.4.19
     "@types/postcss-import": ^14
     "@types/sinon-chai": 3.2.5
@@ -38545,7 +38545,7 @@ fsevents@~2.1.1:
     "@emotion/react": ^11.11.1
     "@emotion/styled": ^11.11.0
     "@material-ui/core": v5.0.0-alpha.24
-    "@mozilla/glean": ^5.0.1
+    "@mozilla/glean": ^5.0.2
     "@pmmmwh/react-refresh-webpack-plugin": ^0.5.3
     "@reach/router": ^1.3.4
     "@react-pdf/renderer": ^3.1.12
@@ -38675,7 +38675,7 @@ fsevents@~2.1.1:
   resolution: "fxa-shared@workspace:packages/fxa-shared"
   dependencies:
     "@fluent/langneg": ^0.7.0
-    "@mozilla/glean": ^5.0.1
+    "@mozilla/glean": ^5.0.2
     "@types/accept-language-parser": ^1.5.3
     "@types/chai": ^4.2.18
     "@types/chance": ^1.1.2
