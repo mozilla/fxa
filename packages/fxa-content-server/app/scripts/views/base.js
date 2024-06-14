@@ -421,6 +421,8 @@ var BaseView = Backbone.View.extend({
   // specifies an email address, we force the user to use that account.
   _reAuthPage() {
     if (this.relier && this.relier.get('email')) {
+      // setting the email here ensures that React signin can pick up on this email
+      this.user.set('email', this.relier.get('email'));
       return 'force_auth';
     }
     // Until email-first is fully the default, this is
