@@ -189,7 +189,7 @@
       "98e6508e88680e1a": "fxa-settings",
       "7377719276ad44ee": "pocket-mobile",
       "749818d3f2e7857f": "pocket-web",
-      "a958794159236f76": "thunderbird"
+      "8269bacd7bbc7f80": "thunderbird"
     },
     "clients": [
       {
@@ -295,7 +295,7 @@
         "id": "5882386c6d801776",
         "hashedSecret": "71b5283536f1f1c331eca2f75c58a5947d7a7ac54164eadb4b33a889afe89fbf",
         "imageUri": "",
-        "redirectUri": "urn:ietf:wg:oauth:2.0:oob",
+        "redirectUri": "urn:ietf:wg:oauth:2.0:oob:oauth-redirect-webchannel",
         "allowedScopes": "https://identity.mozilla.com/apps/oldsync https://identity.mozilla.com/tokens/session https://identity.mozilla.com/ids/ecosystem_telemetry",
         "trusted": true,
         "canGrant": true,
@@ -381,10 +381,10 @@
       },
       {
         "name": "Thunderbird",
-        "id": "a958794159236f76",
+        "id": "8269bacd7bbc7f80",
         "hashedSecret": "4cc7c40ddc178fd4337a804ded2abfa9a9db89fc257a71afeabb1561e2b14bbc",
         "imageUri": "",
-        "redirectUri": "urn:ietf:wg:oauth:2.0:oob",
+        "redirectUri": "urn:ietf:wg:oauth:2.0:oob:oauth-redirect-webchannel",
         "allowedScopes": "https://identity.thunderbird.net/apps/sync",
         "trusted": true,
         "canGrant": true,
@@ -410,7 +410,7 @@
         "dcdb5ae7add825d2",
         "325b4083e32fe8e7",
         "5882386c6d801776",
-        "a958794159236f76"
+        "8269bacd7bbc7f80"
       ]
     },
     "openid": {
