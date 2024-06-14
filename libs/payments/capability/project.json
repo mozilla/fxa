@@ -3,16 +3,34 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/payments/capability/src",
   "projectType": "library",
+  "tags": ["scope:shared:lib:payments"],
   "targets": {
     "build": {
-      "executor": "@nx/js:tsc",
+      "executor": "@nx/esbuild:esbuild",
       "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
       "options": {
-        "outputPath": "dist/libs/payments/capability",
-        "tsConfig": "libs/payments/capability/tsconfig.lib.json",
-        "packageJson": "libs/payments/capability/package.json",
         "main": "libs/payments/capability/src/index.ts",
-        "assets": ["libs/payments/capability/*.md"]
+        "outputPath": "dist/libs/payments/capability",
+        "outputFileName": "main.js",
+        "tsConfig": "libs/payments/capability/tsconfig.lib.json",
+        "declaration": true,
+        "assets": [
+          {
+            "glob": "libs/payments/capability/README.md",
+            "input": ".",
+            "output": "."
+          }
+        ],
+        "platform": "node"
+      },
+      "configurations": {
+        "development": {
+          "minify": false
+        },
+        "production": {
+          "minify": true
+        }
       }
     },
     "lint": {
@@ -29,6 +47,5 @@
         "jestConfig": "libs/payments/capability/jest.config.ts"
       }
     }
-  },
-  "tags": ["scope:shared:lib:payments"]
+  }
 }

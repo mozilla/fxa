@@ -6,13 +6,31 @@
   "tags": [],
   "targets": {
     "build": {
-      "executor": "@nx/js:tsc",
+      "executor": "@nx/esbuild:esbuild",
       "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
       "options": {
-        "outputPath": "dist/libs/shared/sentry",
         "main": "libs/shared/sentry/src/index.ts",
+        "outputPath": "dist/libs/shared/sentry",
+        "outputFileName": "main.js",
         "tsConfig": "libs/shared/sentry/tsconfig.lib.json",
-        "assets": ["libs/shared/sentry/*.md"]
+        "declaration": true,
+        "assets": [
+          {
+            "glob": "libs/shared/sentry/README.md",
+            "input": ".",
+            "output": "."
+          }
+        ],
+        "platform": "node"
+      },
+      "configurations": {
+        "development": {
+          "minify": false
+        },
+        "production": {
+          "minify": true
+        }
       }
     },
     "lint": {

@@ -1,14 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
-const mockStripeUtil = {
-  getSubscribedPrices: jest.fn(),
-  getSubscribedProductIds: jest.fn(),
-};
-
-jest.mock('../../../stripe/src/lib/stripe.util.ts', () => mockStripeUtil);
-
 import { Test, TestingModule } from '@nestjs/testing';
 
 import {
@@ -37,6 +29,11 @@ import {
 } from './eligibility.types';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
+import * as StripeUtil from '../../../stripe/src/lib/stripe.util';
+
+jest.mock('../../../stripe/src/lib/stripe.util');
+
+const mockStripeUtil = jest.mocked(StripeUtil);
 
 describe('EligibilityService', () => {
   let contentfulManager: ContentfulManager;

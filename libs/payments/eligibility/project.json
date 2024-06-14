@@ -3,16 +3,34 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/payments/eligibility/src",
   "projectType": "library",
+  "tags": ["scope:shared:lib:payments"],
   "targets": {
     "build": {
-      "executor": "@nx/js:tsc",
+      "executor": "@nx/esbuild:esbuild",
       "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
       "options": {
-        "outputPath": "dist/libs/payments/eligibility",
-        "tsConfig": "libs/payments/eligibility/tsconfig.lib.json",
-        "packageJson": "libs/payments/eligibility/package.json",
         "main": "libs/payments/eligibility/src/index.ts",
-        "assets": ["libs/payments/eligibility/*.md"]
+        "outputPath": "dist/libs/payments/eligibility",
+        "outputFileName": "main.js",
+        "tsConfig": "libs/payments/eligibility/tsconfig.lib.json",
+        "declaration": true,
+        "assets": [
+          {
+            "glob": "libs/payments/eligibility/README.md",
+            "input": ".",
+            "output": "."
+          }
+        ],
+        "platform": "node"
+      },
+      "configurations": {
+        "development": {
+          "minify": false
+        },
+        "production": {
+          "minify": true
+        }
       }
     },
     "lint": {
@@ -32,6 +50,5 @@
         "jestConfig": "libs/payments/eligibility/jest.config.ts"
       }
     }
-  },
-  "tags": ["scope:shared:lib:payments"]
+  }
 }

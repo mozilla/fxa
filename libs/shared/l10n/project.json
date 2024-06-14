@@ -3,15 +3,35 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/shared/l10n/src",
   "projectType": "library",
+  "tags": [],
   "targets": {
     "build": {
-      "executor": "@nx/js:tsc",
+      "executor": "@nx/esbuild:esbuild",
       "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
       "options": {
-        "outputPath": "dist/libs/shared/l10n",
         "main": "libs/shared/l10n/src/index.ts",
+        "outputPath": "dist/libs/shared/l10n",
+        "outputFileName": "main.js",
         "tsConfig": "libs/shared/l10n/tsconfig.lib.json",
-        "assets": ["libs/shared/l10n/*.md"]
+        "declaration": true,
+        "assets": [
+          {
+            "glob": "libs/shared/l10n/README.md",
+            "input": ".",
+            "output": "."
+          }
+        ],
+        "platform": "node",
+        "format": ["cjs", "esm"]
+      },
+      "configurations": {
+        "development": {
+          "minify": false
+        },
+        "production": {
+          "minify": true
+        }
       }
     },
     "lint": {
@@ -31,6 +51,5 @@
         "jestConfig": "libs/shared/l10n/jest.config.ts"
       }
     }
-  },
-  "tags": []
+  }
 }

@@ -3,16 +3,34 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/payments/legacy/src",
   "projectType": "library",
+  "tags": [],
   "targets": {
     "build": {
-      "executor": "@nx/js:tsc",
+      "executor": "@nx/esbuild:esbuild",
       "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
       "options": {
-        "outputPath": "dist/libs/payments/legacy",
-        "tsConfig": "libs/payments/legacy/tsconfig.lib.json",
-        "packageJson": "libs/payments/legacy/package.json",
         "main": "libs/payments/legacy/src/index.ts",
-        "assets": ["libs/payments/legacy/*.md"]
+        "outputPath": "dist/libs/payments/legacy",
+        "outputFileName": "main.js",
+        "tsConfig": "libs/payments/legacy/tsconfig.lib.json",
+        "declaration": true,
+        "assets": [
+          {
+            "glob": "libs/payments/legacy/README.md",
+            "input": ".",
+            "output": "."
+          }
+        ],
+        "platform": "node"
+      },
+      "configurations": {
+        "development": {
+          "minify": false
+        },
+        "production": {
+          "minify": true
+        }
       }
     },
     "lint": {
@@ -32,6 +50,5 @@
         "jestConfig": "libs/payments/legacy/jest.config.ts"
       }
     }
-  },
-  "tags": []
+  }
 }

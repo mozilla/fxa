@@ -6,14 +6,31 @@
   "tags": [],
   "targets": {
     "build": {
-      "executor": "@nx/js:tsc",
+      "executor": "@nx/esbuild:esbuild",
       "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
       "options": {
-        "outputPath": "dist/libs/vendored/common-password-list",
-        "tsConfig": "libs/vendored/common-password-list/tsconfig.lib.json",
-        "packageJson": "libs/vendored/common-password-list/package.json",
         "main": "libs/vendored/common-password-list/src/index.ts",
-        "assets": ["libs/vendored/common-password-list/*.md"]
+        "outputPath": "dist/libs/vendored/common-password-list",
+        "outputFileName": "main.js",
+        "tsConfig": "libs/vendored/common-password-list/tsconfig.lib.json",
+        "declaration": true,
+        "assets": [
+          {
+            "glob": "libs/vendored/common-password-list/README.md",
+            "input": ".",
+            "output": "."
+          }
+        ],
+        "platform": "node"
+      },
+      "configurations": {
+        "development": {
+          "minify": false
+        },
+        "production": {
+          "minify": true
+        }
       }
     },
     "test-unit": {

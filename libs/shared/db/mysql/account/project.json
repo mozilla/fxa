@@ -3,16 +3,34 @@
   "$schema": "../../../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/shared/db/mysql/account/src",
   "projectType": "library",
+  "tags": ["scope:shared:lib"],
   "targets": {
     "build": {
-      "executor": "@nx/js:tsc",
+      "executor": "@nx/esbuild:esbuild",
       "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
       "options": {
-        "outputPath": "dist/libs/shared/db/mysql/account",
-        "tsConfig": "libs/shared/db/mysql/account/tsconfig.lib.json",
-        "packageJson": "libs/shared/db/mysql/account/package.json",
         "main": "libs/shared/db/mysql/account/src/index.ts",
-        "assets": ["libs/shared/db/mysql/account/*.md"]
+        "outputPath": "dist/libs/shared/db/mysql/account",
+        "outputFileName": "main.js",
+        "tsConfig": "libs/shared/db/mysql/account/tsconfig.lib.json",
+        "declaration": true,
+        "assets": [
+          {
+            "glob": "libs/shared/db/mysql/account/README.md",
+            "input": ".",
+            "output": "."
+          }
+        ],
+        "platform": "node"
+      },
+      "configurations": {
+        "development": {
+          "minify": false
+        },
+        "production": {
+          "minify": true
+        }
       }
     },
     "lint": {
@@ -29,6 +47,5 @@
         "jestConfig": "libs/shared/db/mysql/account/jest.config.ts"
       }
     }
-  },
-  "tags": ["scope:shared:lib"]
+  }
 }

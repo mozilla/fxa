@@ -6,14 +6,31 @@
   "tags": [],
   "targets": {
     "build": {
-      "executor": "@nx/js:tsc",
+      "executor": "@nx/esbuild:esbuild",
       "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
       "options": {
-        "outputPath": "dist/libs/vendored/incremental-encoder",
-        "tsConfig": "libs/vendored/incremental-encoder/tsconfig.lib.json",
-        "packageJson": "libs/vendored/incremental-encoder/package.json",
         "main": "libs/vendored/incremental-encoder/src/index.ts",
-        "assets": ["libs/vendored/incremental-encoder/*.md"]
+        "outputPath": "dist/libs/vendored/incremental-encoder",
+        "outputFileName": "main.js",
+        "tsConfig": "libs/vendored/incremental-encoder/tsconfig.lib.json",
+        "declaration": true,
+        "assets": [
+          {
+            "glob": "libs/vendored/incremental-encoder/README.md",
+            "input": ".",
+            "output": "."
+          }
+        ],
+        "platform": "node"
+      },
+      "configurations": {
+        "development": {
+          "minify": false
+        },
+        "production": {
+          "minify": true
+        }
       }
     },
     "test-unit": {

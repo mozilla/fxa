@@ -2,14 +2,8 @@
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "targetDefaults": {
     "build": {
-      "dependsOn": [
-        "prebuild",
-        "^build"
-      ],
-      "inputs": [
-        "production",
-        "^production"
-      ],
+      "dependsOn": ["prebuild", "^build"],
+      "inputs": ["production", "^production"],
       "outputs": [
         "{projectRoot}/*.tsbuildinfo",
         "{projectRoot}/*/.tmp",
@@ -27,75 +21,41 @@
       "cache": true
     },
     "build-storybook": {
-      "dependsOn": [
-        "build"
-      ],
-      "inputs": [
-        "production",
-        "^production"
-      ],
-      "outputs": [
-        "{projectRoot}/storybook-static"
-      ],
+      "dependsOn": ["build"],
+      "inputs": ["production", "^production"],
+      "outputs": ["{projectRoot}/storybook-static"],
       "cache": true
     },
     "compile": {
-      "dependsOn": [
-        "^compile"
-      ],
-      "inputs": [
-        "typescript",
-        "^typescript"
-      ],
-      "outputs": [
-        "{projectRoot}/build",
-        "{projectRoot}/dist"
-      ],
+      "dependsOn": ["^compile"],
+      "inputs": ["typescript", "^typescript"],
+      "outputs": ["{projectRoot}/build", "{projectRoot}/dist"],
       "cache": true
     },
     "gql-copy": {
       "dependsOn": [
         {
-          "projects": [
-            "fxa-settings",
-            "fxa-admin-panel"
-          ],
+          "projects": ["fxa-settings", "fxa-admin-panel"],
           "target": "gql-extract"
         }
       ],
-      "inputs": [
-        "typescript",
-        "^typescript"
-      ],
-      "outputs": [
-        "{projectRoot}/src/config/gql/allowlist"
-      ],
+      "inputs": ["typescript", "^typescript"],
+      "outputs": ["{projectRoot}/src/config/gql/allowlist"],
       "cache": true
     },
     "gql-extract": {
       "dependsOn": [],
-      "inputs": [
-        "typescript"
-      ],
-      "outputs": [
-        "{workspaceRoot}/configs/gql/allowlist"
-      ],
+      "inputs": ["typescript"],
+      "outputs": ["{workspaceRoot}/configs/gql/allowlist"],
       "cache": true
     },
     "lint": {
-      "inputs": [
-        "lint",
-        "{workspaceRoot}/.eslintrc.json"
-      ],
-      "outputs": [
-        "{projectRoot}/.eslintcache"
-      ],
+      "inputs": ["lint", "{workspaceRoot}/.eslintrc.json"],
+      "outputs": ["{projectRoot}/.eslintcache"],
       "cache": true
     },
     "prebuild": {
-      "dependsOn": [
-        "gql-copy"
-      ],
+      "dependsOn": ["gql-copy"],
       "inputs": [],
       "outputs": [
         "{projectRoot}/public/locales",
@@ -109,50 +69,23 @@
       "cache": true
     },
     "restart": {
-      "dependsOn": [
-        "build",
-        "^restart"
-      ],
-      "inputs": [
-        "production",
-        "^production"
-      ],
+      "dependsOn": ["build", "^restart"],
+      "inputs": ["production", "^production"],
       "outputs": []
     },
     "start": {
-      "dependsOn": [
-        "build",
-        "gen-keys",
-        "^start"
-      ],
-      "inputs": [
-        "production",
-        "^production"
-      ],
+      "dependsOn": ["build", "gen-keys", "^start"],
+      "inputs": ["production", "^production"],
       "outputs": []
     },
     "storybook": {
-      "dependsOn": [
-        "build"
-      ],
-      "inputs": [
-        "production",
-        "^production"
-      ],
-      "outputs": [
-        "{projectRoot}/storybook-static"
-      ]
+      "dependsOn": ["build"],
+      "inputs": ["production", "^production"],
+      "outputs": ["{projectRoot}/storybook-static"]
     },
     "test": {
-      "inputs": [
-        "production",
-        "^production"
-      ],
-      "dependsOn": [
-        "test-unit",
-        "test-integration",
-        "test-e2e"
-      ],
+      "inputs": ["production", "^production"],
+      "dependsOn": ["test-unit", "test-integration", "test-e2e"],
       "outputs": [
         "{projectRoot}/coverage",
         "{projectRoot}/.nyc_output",
@@ -161,13 +94,8 @@
       "cache": true
     },
     "test-e2e": {
-      "dependsOn": [
-        "build"
-      ],
-      "inputs": [
-        "production",
-        "^production"
-      ],
+      "dependsOn": ["build"],
+      "inputs": ["production", "^production"],
       "outputs": [
         "{projectRoot}/coverage",
         "{projectRoot}/.nyc_output",
@@ -175,14 +103,8 @@
       ]
     },
     "test-integration": {
-      "dependsOn": [
-        "build",
-        "gen-keys"
-      ],
-      "inputs": [
-        "test",
-        "^test"
-      ],
+      "dependsOn": ["build", "gen-keys"],
+      "inputs": ["test", "^test"],
       "outputs": [
         "{projectRoot}/coverage",
         "{projectRoot}/.nyc_output",
@@ -192,14 +114,8 @@
       "cache": true
     },
     "test-unit": {
-      "dependsOn": [
-        "build",
-        "gen-keys"
-      ],
-      "inputs": [
-        "test",
-        "^test"
-      ],
+      "dependsOn": ["build", "gen-keys"],
+      "inputs": ["test", "^test"],
       "outputs": [
         "{projectRoot}/coverage",
         "{projectRoot}/.nyc_output",
@@ -209,11 +125,7 @@
     },
     "@nx/jest:jest": {
       "cache": true,
-      "inputs": [
-        "default",
-        "^production",
-        "{workspaceRoot}/jest.preset.js"
-      ],
+      "inputs": ["default", "^production", "{workspaceRoot}/jest.preset.js"],
       "options": {
         "passWithNoTests": true
       },
@@ -226,23 +138,23 @@
     },
     "@nx/js:tsc": {
       "cache": true,
-      "dependsOn": [
-        "^build"
-      ],
-      "inputs": [
-        "production",
-        "^production"
-      ]
+      "dependsOn": ["^build"],
+      "inputs": ["production", "^production"]
+    },
+    "@nx/js:swc": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "inputs": ["production", "^production"]
+    },
+    "@nx/esbuild:esbuild": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "inputs": ["production", "^production"]
     }
   },
   "namedInputs": {
-    "default": [
-      "{projectRoot}/**/*.*",
-      "sharedGlobals"
-    ],
-    "lint": [
-      "{projectRoot}/**/*.@(js|jsx|ts|tsx)"
-    ],
+    "default": ["{projectRoot}/**/*.*", "sharedGlobals"],
+    "lint": ["{projectRoot}/**/*.@(js|jsx|ts|tsx)"],
     "production": [
       "default",
       "{workspaceRoot}/external/l10n/**/*.@(ftl|po)",
@@ -264,10 +176,7 @@
         "runtime": "tsc -v"
       }
     ],
-    "test": [
-      "default",
-      "{workspaceRoot}/jest.preset.js"
-    ],
+    "test": ["default", "{workspaceRoot}/jest.preset.js"],
     "typescript": [
       "{projectRoot}/**/*.@(ts|tsx)",
       "{projectRoot}/package.json",

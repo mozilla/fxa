@@ -3,15 +3,34 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/shared/notifier/src",
   "projectType": "library",
+  "tags": [],
   "targets": {
     "build": {
-      "executor": "@nx/js:tsc",
+      "executor": "@nx/esbuild:esbuild",
       "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
       "options": {
-        "outputPath": "dist/libs/shared/notifier",
         "main": "libs/shared/notifier/src/index.ts",
+        "outputPath": "dist/libs/shared/notifier",
+        "outputFileName": "main.js",
         "tsConfig": "libs/shared/notifier/tsconfig.lib.json",
-        "assets": ["libs/shared/notifier/*.md"]
+        "declaration": true,
+        "assets": [
+          {
+            "glob": "libs/shared/notifier/README.md",
+            "input": ".",
+            "output": "."
+          }
+        ],
+        "platform": "node"
+      },
+      "configurations": {
+        "development": {
+          "minify": false
+        },
+        "production": {
+          "minify": true
+        }
       }
     },
     "lint": {
@@ -31,6 +50,5 @@
         "jestConfig": "libs/shared/notifier/jest.config.ts"
       }
     }
-  },
-  "tags": []
+  }
 }

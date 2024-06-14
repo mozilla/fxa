@@ -6,14 +6,32 @@
   "tags": [],
   "targets": {
     "build": {
-      "executor": "@nx/js:tsc",
+      "executor": "@nx/esbuild:esbuild",
       "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
       "options": {
-        "outputPath": "dist/libs/vendored/crypto-relier",
-        "tsConfig": "libs/vendored/crypto-relier/tsconfig.lib.json",
-        "packageJson": "libs/vendored/crypto-relier/package.json",
         "main": "libs/vendored/crypto-relier/src/index.ts",
-        "assets": ["libs/vendored/crypto-relier/*.md"]
+        "outputPath": "dist/libs/vendored/crypto-relier",
+        "outputFileName": "main.js",
+        "tsConfig": "libs/vendored/crypto-relier/tsconfig.lib.json",
+        "declaration": true,
+        "assets": [
+          {
+            "glob": "libs/vendored/crypto-relier/README.md",
+            "input": ".",
+            "output": "."
+          }
+        ],
+        "platform": "node",
+        "format": ["cjs", "esm"]
+      },
+      "configurations": {
+        "development": {
+          "minify": false
+        },
+        "production": {
+          "minify": true
+        }
       }
     },
     "test": {

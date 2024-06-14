@@ -3,6 +3,7 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/shared/contentful/src",
   "projectType": "library",
+  "tags": [],
   "targets": {
     "codegen": {
       "executor": "nx:run-commands",
@@ -11,13 +12,31 @@
       }
     },
     "build": {
-      "executor": "@nx/js:tsc",
+      "executor": "@nx/esbuild:esbuild",
       "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
       "options": {
-        "outputPath": "dist/libs/shared/contentful",
         "main": "libs/shared/contentful/src/index.ts",
+        "outputPath": "dist/libs/shared/contentful",
+        "outputFileName": "main.js",
         "tsConfig": "libs/shared/contentful/tsconfig.lib.json",
-        "assets": ["libs/shared/contentful/*.md"]
+        "declaration": true,
+        "assets": [
+          {
+            "glob": "libs/shared/contentful/README.md",
+            "input": ".",
+            "output": "."
+          }
+        ],
+        "platform": "node"
+      },
+      "configurations": {
+        "development": {
+          "minify": false
+        },
+        "production": {
+          "minify": true
+        }
       }
     },
     "lint": {
@@ -37,6 +56,5 @@
         "jestConfig": "libs/shared/contentful/jest.config.ts"
       }
     }
-  },
-  "tags": []
+  }
 }

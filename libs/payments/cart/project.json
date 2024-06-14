@@ -3,16 +3,33 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/payments/cart/src",
   "projectType": "library",
+  "tags": ["scope:shared:lib:payments"],
   "targets": {
     "build": {
-      "executor": "@nx/js:tsc",
+      "executor": "@nx/esbuild:esbuild",
       "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
       "options": {
-        "outputPath": "dist/libs/payments/cart",
         "main": "libs/payments/cart/src/index.ts",
+        "outputPath": "dist/libs/payments/cart",
+        "outputFileName": "main.js",
         "tsConfig": "libs/payments/cart/tsconfig.lib.json",
-        "packageJson": "libs/payments/cart/package.json",
-        "assets": ["libs/payments/cart/*.md"]
+        "assets": [
+          {
+            "glob": "libs/payments/cart/README.md",
+            "input": ".",
+            "output": "."
+          }
+        ],
+        "platform": "node"
+      },
+      "configurations": {
+        "development": {
+          "minify": false
+        },
+        "production": {
+          "minify": true
+        }
       }
     },
     "lint": {
@@ -38,6 +55,5 @@
         "testPathPattern": ["\\.in\\.spec\\.ts$"]
       }
     }
-  },
-  "tags": ["scope:shared:lib:payments"]
+  }
 }

@@ -163,6 +163,7 @@
     "@nestjs/cli": "^10.3.2",
     "@nestjs/schematics": "^10.1.1",
     "@nestjs/testing": "^10.3.4",
+    "@nx/esbuild": "19.3.0",
     "@nx/eslint-plugin": "19.3.0",
     "@nx/jest": "19.3.0",
     "@nx/js": "19.3.0",
@@ -181,6 +182,7 @@
     "@swc-node/register": "1.9.2",
     "@swc/cli": "0.3.12",
     "@swc/core": "1.5.29",
+    "@swc/jest": "^0.2.36",
     "@testing-library/react": "15.0.6",
     "@types/babel__core": "^7",
     "@types/bn.js": "^5",
@@ -275,9 +277,9 @@
   },
   "packageManager": "yarn@3.3.0",
   "_moduleAliases": {
-    "@fxa/vendored/jwtool": "./dist/libs/vendored/jwtool/src/index.js",
-    "@fxa/vendored/crypto-relier": "./dist/libs/vendored/crypto-relier/src/index.js",
-    "@fxa/shared/pem-jwk": "./dist/libs/shared/pem-jwk/src/index.js",
-    "@fxa/shared/l10n": "./dist/libs/shared/l10n/src/index.js"
+    "@fxa/vendored/jwtool": "./dist/libs/vendored/jwtool/main.cjs",
+    "@fxa/vendored/crypto-relier": "./dist/libs/vendored/crypto-relier/main.cjs",
+    "@fxa/shared/pem-jwk": "./dist/libs/shared/pem-jwk/main.cjs",
+    "@fxa/shared/l10n": "./dist/libs/shared/l10n/main.cjs"
   }
 }
