@@ -62,17 +62,12 @@ export class QueueworkerService
       this.configService.get<boolean>('disableQueueWorker') ?? false;
     this.topicPrefix = configService.get('topicPrefix') as string;
 
-    const region = extractRegionFromUrl(this.queueName);
-    this.region = region || 'us-east-1';
-    this.sqs = new SQSClient({
-      ...(this.queueName.includes('localhost:4100') && {
-        accessKeyId: 'fake',
-        ['endpoint' as any]: 'localhost:4100',
-        secretAccessKey: 'fake',
-        sslEnabled: false,
-      }),
-      region: this.region,
-    });
+    this.region = extractRegionFromUrl(this.queueName) || 'us-east-1';
+    const sqsClientConfig = this.queueName.includes('localhost:4100')
+      ? { endpoint: 'http://localhost:4100' }
+      : { region: this.region };
+    this.sqs = new SQSClient(sqsClientConfig);
+
     this.app = Consumer.create({
       batchSize: 10,
       handleMessage: (message: Message) => {
@@ -100,12 +95,22 @@ export class QueueworkerService
       const queueName = queueParts[queueParts.length - 1];
       // This returns paginated results, defaulting to the first 1000.
       // We don't expect to have this many initially that we can read.
-      const command = new ListQueuesCommand({});
-      const queues = await this.sqs.send(command);
+      const command = new ListQueuesCommand({
+        QueueNamePrefix: 'service',
+      });
 
-      if (!queues.QueueUrls || !queues.QueueUrls.includes(queueName)) {
-        const command = new CreateQueueCommand({ QueueName: queueName });
-        await this.sqs.send(command);
+      try {
+        const queues = await this.sqs.send(command);
+        if (!queues.QueueUrls || !queues.QueueUrls.includes(queueName)) {
+          const command = new CreateQueueCommand({ QueueName: queueName });
+          await this.sqs.send(command);
+        }
+      } catch (error) {
+        this.log.error('sqs', {
+          msg: 'Error communicating with SQS queue! Check config',
+          error,
+        });
+        throw error;
       }
     } else {
       // Production queue names must have the region in them.
