@@ -668,7 +668,6 @@ jobs:
 
   playwright-functional-test-report:
     executor: default-executor
-    resource_class: large
     steps:
       - attach_workspace:
           at: /home/circleci/project/artifacts
