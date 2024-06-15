@@ -792,7 +792,6 @@ workflows:
             - Build (PR)
       - playwright-functional-test-report:
           name: Merge Playwright Reports (PR)
-          resource_class: large
           requires:
             - Functional Tests - Playwright (PR)
       - build-and-deploy-storybooks:
