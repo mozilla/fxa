@@ -348,7 +348,7 @@ commands:
       - persist_to_workspace:
           root: /home/circleci/project/artifacts
           paths:
-            - artifacts/blob-reports
+            - blob-reports/report.zip
 
   build:
     steps:
