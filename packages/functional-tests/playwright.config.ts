@@ -12,6 +12,7 @@ const CI = !!process.env.CI;
 const DEBUG = !!process.env.DEBUG;
 const SLOWMO = parseInt(process.env.PLAYWRIGHT_SLOWMO || '0');
 const NUM_WORKERS = parseInt(process.env.PLAYWRIGHT_WORKERS || '16');
+const CIRCLE_NODE_INDEX = process.env.CIRCLE_NODE_INDEX || '0'; // Default to 0 if not running in CI
 
 let workers = NUM_WORKERS || 2,
   maxFailures = 0;
@@ -76,7 +77,10 @@ export default defineConfig<PlaywrightTestConfig<TestOptions, WorkerOptions>>({
         [
           'blob',
           {
-            outputDir: path.resolve(__dirname, '../../artifacts/blob-reports'),
+            outputFile: path.resolve(
+              __dirname,
+              '../../artifacts/blob-reports/reports-${CIRCLE_NODE_INDEX}`'
+            ),
           },
         ],
         ['allure-playwright'],

@@ -322,7 +322,7 @@ commands:
             NODE_OPTIONS: --dns-result-order=ipv4first
             JEST_JUNIT_OUTPUT_DIR: ./artifacts/tests
             PLAYWRIGHT_BLOB_OUTPUT_DIR: ./artifacts/blob-reports
-            PLAYWRIGHT_BLOB_OUTPUT_NAME: reports-$CIRCLE_NODE_INDEX.zip
+            PLAYWRIGHT_BLOB_OUTPUT_FILE: reports-${CIRCLE_NODE_INDEX}.zip
             JEST_JUNIT_ADD_FILE_ATTRIBUTE: true
             ACCOUNTS_DOMAIN: << pipeline.parameters.accounts-domain >>
             PAYMENTS_DOMAIN: << pipeline.parameters.payments-domain >>
