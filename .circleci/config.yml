@@ -670,7 +670,7 @@ jobs:
     executor: default-executor
     steps:
       - attach_workspace:
-          at: /home/circleci/project/artifacts
+          at: /home/circleci/project/artifacts/blob-reports
       - run:
           name: Merge Reports
           command: ls -l artifacts/blob-reports && npx playwright merge-reports --reporter=blob artifacts/blob-reports
