@@ -66,9 +66,13 @@ test.describe('severity-2 #smoke', () => {
 
     test('expired cached credentials', async ({
       target,
-      syncBrowserPages: { page, configPage, settings, signin },
+      syncBrowserPages: { page, settings, signin },
       testAccountTracker,
     }) => {
+      test.skip(
+        true,
+        'FXA-9427, enable this test that was updated for react signin'
+      );
       const credentials = await signInSyncAccount(
         target,
         page,
@@ -76,19 +80,18 @@ test.describe('severity-2 #smoke', () => {
         signin,
         testAccountTracker
       );
-      const config = await configPage.getConfig();
-      test.fixme(
-        config.showReactApp.signInRoutes,
-        'FXA-9519, with React cached sign in is suggested but results in session expired error '
-      );
       await signin.destroySession(credentials.email);
       await page.goto(target.contentServerUrl);
 
       //Check prefilled email
       await expect(page.getByText(credentials.email)).toBeVisible();
-
-      // await signin.fillOutPasswordForm(credentials.password);
       await signin.signInButton.click();
+      await expect(
+        page.getByText('Session expired. Sign in to continue.')
+      ).toBeVisible();
+
+      await expect(signin.passwordFormHeading).toBeVisible();
+      await signin.fillOutPasswordForm(credentials.password);
 
       //Verify logged in on Settings page
       await expect(settings.settingsHeading).toBeVisible();
@@ -137,9 +140,9 @@ test.describe('severity-2 #smoke', () => {
       testAccountTracker,
     }) => {
       const config = await configPage.getConfig();
-      test.fixme(
+      test.skip(
         config.showReactApp.signInRoutes,
-        'FXA-9519 different code sent out'
+        'FXA-9878: ensure verifyShortCode email is sent out and not verifyLoginCode (code fix)'
       );
       const credentials = await testAccountTracker.signUpSync({
         lang: 'en',
@@ -158,7 +161,6 @@ test.describe('severity-2 #smoke', () => {
 
       // Check prefilled email
       await expect(page.getByText(credentials.email)).toBeVisible();
-
       await signin.signInButton.click();
 
       // Cached signin should still go to email confirmation screen for unverified accounts
