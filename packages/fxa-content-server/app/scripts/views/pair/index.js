@@ -32,6 +32,9 @@ class PairIndexView extends FormView {
   model = new FormNeedsMobile();
 
   submit() {
+    if (this.model.get('needsMobileConfirmed')) {
+      GleanMetrics.cadFirefox.syncDeviceSubmit();
+    }
     this.metrics.flush();
     return this.broker.openPairPreferences();
   }
@@ -88,8 +91,8 @@ class PairIndexView extends FormView {
 
     GleanMetrics.cadFirefox.choiceSubmit({
       reason: needsMobileConfirmed
-        ? GLEAN_EVENT_REASON_HAS_MOBILE
-        : GLEAN_EVENT_REASON_NO_MOBILE,
+        ? GLEAN_EVENT_REASON_NO_MOBILE
+        : GLEAN_EVENT_REASON_HAS_MOBILE,
     });
 
     if (needsMobileConfirmed) {
@@ -97,7 +100,6 @@ class PairIndexView extends FormView {
       // For screen readers/keyboard users, to avoid rereading the Moz logo and CAD header
       this.$('#pair-header-mobile').focus();
     } else {
-      GleanMetrics.cadFirefox.syncDeviceSubmit();
       this.submit();
     }
   }
