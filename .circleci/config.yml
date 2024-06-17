@@ -678,7 +678,7 @@ jobs:
           at: /home/circleci/project
       - run:
           name: Merge Reports
-          command: ls -l artifacts/blob-reports && npx playwright merge-reports --reporter blob artifacts/blob-reports
+          command: ls -l artifacts/blob-reports && npx playwright merge-reports --reporter=blob artifacts/blob-reports
       - store_artifacts:
           path: artifacts/blob-reports
       - store_artifacts:
