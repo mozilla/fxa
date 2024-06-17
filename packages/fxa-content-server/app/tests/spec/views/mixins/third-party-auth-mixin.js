@@ -78,6 +78,11 @@ describe('views/mixins/third-party-auth-mixin', function () {
       user,
     });
     sinon.spy(notifier, 'trigger');
+    sinon.stub(metrics, 'getFlowEventMetadata').callsFake(() => ({
+      flowId: '123',
+      flowBeginTime: '456',
+      deviceId: '789',
+    }));
     await view.render();
   });
 
@@ -146,6 +151,8 @@ describe('views/mixins/third-party-auth-mixin', function () {
 
     assert.isTrue(view.logFlowEvent.calledWith('google.oauth-start'));
 
+    assert.isTrue(metrics.getFlowEventMetadata.calledOnce);
+
     assert.isTrue(mockForm.setAttribute.calledWith('method', 'GET'));
     assert.isTrue(
       mockForm.setAttribute.calledWith(
@@ -167,7 +174,7 @@ describe('views/mixins/third-party-auth-mixin', function () {
       mockInput,
       'state',
       encodeURIComponent(
-        `${windowMock.location.origin}${windowMock.location.pathname}?`
+        `${windowMock.location.origin}${windowMock.location.pathname}?flowId=123&flowBeginTime=456&deviceId=789`
       )
     );
     assertInputEl(mockInput, 'access_type', 'offline');
@@ -188,6 +195,8 @@ describe('views/mixins/third-party-auth-mixin', function () {
     view.appleSignIn();
 
     assert.isTrue(view.logFlowEvent.calledWith('apple.oauth-start'));
+
+    assert.isTrue(metrics.getFlowEventMetadata.calledOnce);
 
     assert.isTrue(mockForm.setAttribute.calledWith('method', 'GET'));
     assert.isTrue(
@@ -210,7 +219,7 @@ describe('views/mixins/third-party-auth-mixin', function () {
       mockInput,
       'state',
       encodeURIComponent(
-        `${windowMock.location.origin}${windowMock.location.pathname}?`
+        `${windowMock.location.origin}${windowMock.location.pathname}?flowId=123&flowBeginTime=456&deviceId=789`
       )
     );
     assertInputEl(mockInput, 'access_type', 'offline');
