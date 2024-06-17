@@ -79,11 +79,12 @@ export type SignedInUser = {
 
 export type FxALoginRequest = {
   email: string;
-  keyFetchToken: hexstring;
   sessionToken: hexstring;
   uid: hexstring;
-  unwrapBKey: string;
   verified: boolean;
+  keyFetchToken?: hexstring;
+  unwrapBKey?: string;
+  verifiedCanLinkAccount?: boolean;
   services?: {
     sync: {
       offeredEngines?: string[];

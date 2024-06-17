@@ -34,12 +34,6 @@ test.describe('severity-1 #smoke', () => {
     await signinReact.fillOutEmailFirstForm(credentials.email);
     await signinReact.fillOutPasswordForm(credentials.password);
 
-    await signinReact.sendWebChannelMessage(
-      createCustomEventDetail(FirefoxCommand.LinkAccount, {
-        ok: true,
-      })
-    );
-
     await expect(connectAnotherDevice.fxaConnected).toBeEnabled();
     await connectAnotherDevice.startBrowsingButton.click();
     await expect(page).toHaveURL(/settings/, { timeout: 1000 });
