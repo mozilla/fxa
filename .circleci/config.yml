@@ -357,7 +357,10 @@ commands:
           name: Rename Reports
           command: |
             cd artifacts/blob-reports
+            ls -r
             mv report.zip reports-${CIRCLE_NODE_INDEX}.zip
+      - store_artifacts:
+          path: artifacts/blob-reports
       - persist_to_workspace:
           root: .
           paths:
