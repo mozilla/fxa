@@ -351,9 +351,9 @@ commands:
       - store_artifacts:
           path: artifacts/blob-reports
       - persist_to_workspace:
-          root: /home/circleci/project
+          root: .
           paths:
-            - artifacts/blob-reports
+            - packages/functional-tests/artifacts/blob-reports
 
   build:
     steps:
@@ -680,9 +680,9 @@ jobs:
           name: Merge Reports
           command: ls -l artifacts/blob-reports && npx playwright merge-reports --reporter=blob artifacts/blob-reports
       - store_artifacts:
-          path: artifacts/blob-reports
+          path: packages/functional-tests/artifacts/blob-reports
       - store_artifacts:
-          path: artifacts/playwright-report
+          path: packages/functional-tests/artifacts/playwright-report
 
   build-and-deploy-storybooks:
     executor: default-executor
