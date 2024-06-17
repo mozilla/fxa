@@ -2,24 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useEffect, useState } from 'react';
 import { useLocation } from '@reach/router';
-import { useNavigateWithQuery as useNavigate } from '../../lib/hooks/useNavigateWithQuery';
-import { useForm } from 'react-hook-form';
-import {
-  isOAuthIntegration,
-  isSyncDesktopV3Integration,
-  useFtlMsgResolver,
-} from '../../models';
-import {
-  logViewEvent,
-  settingsViewName,
-  usePageViewEvent,
-} from '../../lib/metrics';
-import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
 import LinkExternal from 'fxa-react/components/LinkExternal';
-import FormPasswordWithBalloons from '../../components/FormPasswordWithBalloons';
-import InputText from '../../components/InputText';
+import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
+import { isEmailMask } from 'fxa-shared/email/helpers';
+import { useCallback, useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import AppLayout from '../../components/AppLayout';
+import Banner, { BannerType } from '../../components/Banner';
+import CardHeader from '../../components/CardHeader';
+import ChooseNewsletters from '../../components/ChooseNewsletters';
+import { newsletters } from '../../components/ChooseNewsletters/newsletters';
 import ChooseWhatToSync from '../../components/ChooseWhatToSync';
 import {
   defaultDesktopV3SyncEngineConfigs,
@@ -27,27 +21,33 @@ import {
   syncEngineConfigs,
   webChannelDesktopV3EngineConfigs,
 } from '../../components/ChooseWhatToSync/sync-engines';
-import ChooseNewsletters from '../../components/ChooseNewsletters';
-import { newsletters } from '../../components/ChooseNewsletters/newsletters';
+import FormPasswordWithBalloons from '../../components/FormPasswordWithBalloons';
+import InputText from '../../components/InputText';
 import TermsPrivacyAgreement from '../../components/TermsPrivacyAgreement';
-import Banner, { BannerType } from '../../components/Banner';
-import CardHeader from '../../components/CardHeader';
+import ThirdPartyAuth from '../../components/ThirdPartyAuth';
 import { REACT_ENTRYPOINT } from '../../constants';
-import AppLayout from '../../components/AppLayout';
-import { SignupFormData, SignupProps } from './interfaces';
-import { StoredAccountData, storeAccountData } from '../../lib/storage-utils';
+import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
+import firefox from '../../lib/channels/firefox';
+import { getLocalizedErrorMessage } from '../../lib/error-utils';
 import GleanMetrics from '../../lib/glean';
+import { useNavigateWithQuery as useNavigate } from '../../lib/hooks/useNavigateWithQuery';
+import {
+  logViewEvent,
+  settingsViewName,
+  usePageViewEvent,
+} from '../../lib/metrics';
+import { StoredAccountData, storeAccountData } from '../../lib/storage-utils';
+import { MozServices } from '../../lib/types';
+import {
+  isOAuthIntegration,
+  isSyncDesktopV3Integration,
+  useFtlMsgResolver,
+} from '../../models';
 import {
   isClientMonitor,
   isClientPocket,
 } from '../../models/integrations/client-matching';
-import { MozServices } from '../../lib/types';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
-import firefox from '../../lib/channels/firefox';
-import ThirdPartyAuth from '../../components/ThirdPartyAuth';
-import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
-import { isEmailMask } from 'fxa-shared/email/helpers';
-import { getLocalizedErrorMessage } from '../../lib/error-utils';
+import { SignupFormData, SignupProps } from './interfaces';
 
 export const viewName = 'signup';
 
@@ -400,6 +400,7 @@ export const Signup = ({
               // for more info.
               params.delete('emailStatusChecked');
               params.delete('email');
+              params.delete('login_hint');
               hardNavigate(`/?${params.toString()}`);
             }}
           >

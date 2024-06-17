@@ -23,10 +23,6 @@ test.describe('severity-2 #smoke', () => {
       target,
       testAccountTracker,
     }) => {
-      test.fixme(
-        true,
-        'TODO in FXA-9519 - change email link does not work for react, get bounced back to signup page'
-      );
       const { email } = testAccountTracker.generateAccountDetails();
 
       await relier.goto(`login_hint=${email}`);
