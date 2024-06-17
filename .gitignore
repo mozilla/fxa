@@ -30,6 +30,7 @@ secrets.json
 **/storybook-static
 *.sass-cache
 .nx/cache
+.nx/workspace-data
 **/schema.gql
 *.map
 *.swp
