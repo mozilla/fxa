@@ -350,10 +350,13 @@ commands:
           path: artifacts/tests
       - store_artifacts:
           path: artifacts/blob-reports
+
+  rename-reports:
+    steps:
       - run:
           name: Rename Reports
           command: |
-            cd packages/functional-tests/artifacts/blob-reports
+            cd artifacts/blob-reports
             mv report.zip reports-${CIRCLE_NODE_INDEX}.zip
       - persist_to_workspace:
           root: .
@@ -675,6 +678,7 @@ jobs:
       - run-playwright-tests:
           project: local
       - store-artifacts
+      - rename-reports
 
   playwright-functional-test-report:
     executor: default-executor
