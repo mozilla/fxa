@@ -161,7 +161,7 @@ module.exports = ({ log, oauthDB, statsd }) => {
           return await keyDataHandler(req);
         } catch (err) {
           if (err.errno === 101) {
-            throw new AuthError.unknownClientId(req.payload.client_id);
+            throw AuthError.unknownClientId(req.payload.client_id);
           }
           throw err;
         }
