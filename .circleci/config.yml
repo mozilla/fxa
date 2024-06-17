@@ -302,11 +302,6 @@ commands:
         type: string
     steps:
       - run:
-          name: Setting Playwright Blob Output File
-          command: |
-            echo 'export PLAYWRIGHT_BLOB_OUTPUT_FILE="reports-${CIRCLE_NODE_INDEX}.zip"' >> $BASH_ENV
-            source $BASH_ENV
-      - run:
           name: Running Playwright tests
           # Supports 'Re-run failed tests only'. See this for more info: https://circleci.com/docs/rerun-failed-tests-only/
           command: |
@@ -326,8 +321,8 @@ commands:
           environment:
             NODE_OPTIONS: --dns-result-order=ipv4first
             JEST_JUNIT_OUTPUT_DIR: ./artifacts/tests
-            PLAYWRIGHT_BLOB_OUTPUT_DIR: ./artifacts/blob-reports
-            #PLAYWRIGHT_BLOB_OUTPUT_FILE: reports-${CIRCLE_NODE_INDEX}.zip
+            PLAYWRIGHT_BLOB_OUTPUT_DIR: ./artifacts/blob-report
+            PW_TEST_HTML_REPORT_OPEN: never
             JEST_JUNIT_ADD_FILE_ATTRIBUTE: true
             ACCOUNTS_DOMAIN: << pipeline.parameters.accounts-domain >>
             PAYMENTS_DOMAIN: << pipeline.parameters.payments-domain >>
@@ -339,7 +334,7 @@ commands:
     steps:
       - run:
           name: Ensure directories
-          command: mkdir -p artifacts/tests && mkdir -p ~/.pm2/logs && mkdir -p ~/screenshots && mkdir -p artifacts/blob-reports && mkdir -p artifacts/playwright-report
+          command: mkdir -p artifacts/tests && mkdir -p ~/.pm2/logs && mkdir -p ~/screenshots && mkdir -p artifacts/blob-report && mkdir -p artifacts/playwright-report
       - store_artifacts:
           path: artifacts
       - store_artifacts:
@@ -348,24 +343,20 @@ commands:
           path: ~/.pm2/logs
       - store_test_results:
           path: artifacts/tests
-      - run:
-          name: check blob report contents
-          command: ls artifacts/blob-reports
 
   rename-reports:
     steps:
       - run:
           name: Rename Reports
           command: |
-            cd artifacts/blob-reports
-            ls -r
+            cd artifacts/blob-report
             mv report.zip reports-${CIRCLE_NODE_INDEX}.zip
       - store_artifacts:
-          path: artifacts/blob-reports
+          path: artifacts/blob-report
       - persist_to_workspace:
           root: /home/circleci/project
           paths:
-            - artifacts/blob-reports
+            - artifacts/blob-report
 
   build:
     steps:
@@ -690,12 +681,15 @@ jobs:
       - attach_workspace:
           at: /home/circleci/project
       - run:
-          name: Merge Reports
-          command: ls -l artifacts/blob-reports && npx playwright merge-reports --reporter=blob artifacts/blob-reports
+          name: Merge blob Reports
+          command: ls -l artifacts/blob-report && npx playwright merge-reports --reporter=blob artifacts/blob-report
       - store_artifacts:
-          path: /home/circleci/project/artifacts/blob-reports
-      #- store_artifacts:
-         # path: artifacts/playwright-report
+          path: /home/circleci/project/artifacts/blob-report
+      - run:
+          name: Merge html Reports
+          command: npx playwright merge-reports --reporter=html artifacts/blob-report
+      - store_artifacts:
+          path: artifacts/playwright-report
 
   build-and-deploy-storybooks:
     executor: default-executor
