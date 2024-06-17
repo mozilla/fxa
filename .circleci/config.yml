@@ -350,6 +350,11 @@ commands:
           path: artifacts/tests
       - store_artifacts:
           path: artifacts/blob-reports
+      - run:
+          name: Rename Reports
+          command: |
+            cd packages/functional-tests/artifacts/blob-reports
+            mv reports.zip reports-${CIRCLE_NODE_INDEX}.zip
       - persist_to_workspace:
           root: .
           paths:
