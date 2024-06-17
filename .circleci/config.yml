@@ -693,9 +693,9 @@ jobs:
           name: Merge Reports
           command: ls -l artifacts/blob-reports && npx playwright merge-reports --reporter=blob artifacts/blob-reports
       - store_artifacts:
-          path: packages/functional-tests/artifacts/blob-reports
-      - store_artifacts:
-          path: packages/functional-tests/artifacts/playwright-report
+          path: /home/circleci/project/artifacts/blob-reports
+      #- store_artifacts:
+         # path: artifacts/playwright-report
 
   build-and-deploy-storybooks:
     executor: default-executor
