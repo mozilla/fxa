@@ -354,7 +354,7 @@ commands:
           name: Rename Reports
           command: |
             cd packages/functional-tests/artifacts/blob-reports
-            mv reports.zip reports-${CIRCLE_NODE_INDEX}.zip
+            mv report.zip reports-${CIRCLE_NODE_INDEX}.zip
       - persist_to_workspace:
           root: .
           paths:
