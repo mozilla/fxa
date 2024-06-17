@@ -77,10 +77,7 @@ export default defineConfig<PlaywrightTestConfig<TestOptions, WorkerOptions>>({
         [
           'blob',
           {
-            outputFile: path.resolve(
-              __dirname,
-              `../../artifacts/blob-reports/reports-${CIRCLE_NODE_INDEX}.zip`
-            ),
+            outputDir: path.resolve(__dirname, '../../artifacts/blob-reports'),
           },
         ],
         ['html'],
