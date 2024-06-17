@@ -859,6 +859,20 @@ const FUZZY_EVENTS = new Map([
       },
     },
   ],
+  [
+    /^screen\.post-verify\.third-party-auth\.set-password$/,
+    {
+      group: GROUPS.thirdPartyAuth,
+      event: 'set_password_view',
+    },
+  ],
+  [
+    /^flow\.post-verify\.third-party-auth\.set-password\.(engage|submit|success)$/,
+    {
+      group: GROUPS.thirdPartyAuth,
+      event: (eventCategory, eventTarget) => `set_password_${eventCategory}`,
+    },
+  ],
 ]);
 
 const transform = initialize(SERVICES, EVENTS, FUZZY_EVENTS, logger, statsd);
