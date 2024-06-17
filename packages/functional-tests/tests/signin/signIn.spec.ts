@@ -107,7 +107,7 @@ test.describe('severity-2 #smoke', () => {
     }) => {
       test.fixme(
         true,
-        'FXA-9519, fix or file follow up, this flow is not working as expected for either backbone or react, needs investigation'
+        'TODO in FXA-9880, will need email bounce mocking for React signin testing'
       );
       const credentials = await testAccountTracker.signUpSync();
 
@@ -127,6 +127,7 @@ test.describe('severity-2 #smoke', () => {
       );
       // in react, there is no polling on the page to check for bounces
       // redirects to /signin_bounced only when an error is returned
+      // bounce error requires a bounce response from the server
       await page.waitForURL(/signin_bounced/);
 
       // Verify sign in bounced header

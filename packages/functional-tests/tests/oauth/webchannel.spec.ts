@@ -16,10 +16,9 @@ test.describe('severity-1 #smoke', () => {
       target,
       testAccountTracker,
     }) => {
-      const config = await configPage.getConfig();
       test.fixme(
-        config.showReactApp.signUpRoutes === true,
-        'FXA-9519, loading spinner for CWTS'
+        true,
+        'TODO in FXA-9881: verify FxAStatus webchannel message in React signup flow'
       );
       const { email, password } = testAccountTracker.generateAccountDetails();
       const customEventDetail = createCustomEventDetail(

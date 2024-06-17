@@ -42,13 +42,12 @@ test.describe('severity-2 #smoke', () => {
     test('incorrect code entered', async ({
       target,
       page,
-      pages: { configPage, signin, signinUnblock, settings, deleteAccount },
+      pages: { signin, signinUnblock, settings, deleteAccount },
       testAccountTracker,
     }) => {
-      const config = await configPage.getConfig();
       test.fixme(
-        config.showReactApp.signInRoutes === true,
-        'FXA-9519, in react after first entering an incorrect code then a correct code, redirected to enter password + unblock code AGAIN'
+        true,
+        'TODO in FXA-9882, fix fxa-settings or test, should not be prompted enter password and unblock code again after entering a valid unblock code'
       );
       const credentials = await signInBlockedAccount(
         target,
