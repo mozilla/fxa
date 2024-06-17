@@ -348,8 +348,9 @@ commands:
           path: ~/.pm2/logs
       - store_test_results:
           path: artifacts/tests
-      - store_artifacts:
-          path: artifacts/blob-reports
+      - run:
+          name: check blob report contents
+          command: ls artifacts/blob-reports
 
   rename-reports:
     steps:
@@ -357,11 +358,14 @@ commands:
           name: Rename Reports
           command: |
             cd artifacts/blob-reports
+            ls -r
             mv report.zip reports-${CIRCLE_NODE_INDEX}.zip
+      - store_artifacts:
+          path: artifacts/blob-reports
       - persist_to_workspace:
-          root: .
+          root: /home/circleci/project
           paths:
-            - packages/functional-tests/artifacts/blob-reports
+            - artifacts/blob-reports
 
   build:
     steps:
