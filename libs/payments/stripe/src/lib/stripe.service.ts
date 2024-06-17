@@ -3,89 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Injectable } from '@nestjs/common';
-import { PromotionCodeCouldNotBeAttachedError } from './stripe.error';
-import {
-  checkSubscriptionPromotionCodes,
-  checkValidPromotionCode,
-  getSubscribedPrice,
-} from './stripe.util';
-import { SubscriptionManager } from './subscription.manager';
-import { PromotionCodeManager } from './promotionCode.manager';
-import { ProductManager } from './product.manager';
 
 @Injectable()
 export class StripeService {
-  constructor(
-    private productManager: ProductManager,
-    private subscriptionManager: SubscriptionManager,
-    private promotionCodeManager: PromotionCodeManager
-  ) {}
-
-  // TODO: Remove this method & this service
-  async applyPromoCodeToSubscription(
-    customerId: string,
-    subscriptionId: string,
-    promotionId: string
-  ) {
-    try {
-      const subscription = await this.subscriptionManager.retrieve(
-        subscriptionId
-      );
-      if (subscription?.status !== 'active')
-        throw new PromotionCodeCouldNotBeAttachedError(
-          'Subscription is not active',
-          undefined,
-          { subscriptionId }
-        );
-      if (subscription.customer !== customerId)
-        throw new PromotionCodeCouldNotBeAttachedError(
-          'subscription.customerId does not match passed in customerId',
-          undefined,
-          {
-            customerId,
-            subscriptionId,
-          }
-        );
-
-      const promotionCode = await this.promotionCodeManager.retrieve(
-        promotionId
-      );
-
-      checkValidPromotionCode(promotionCode);
-
-      const price = getSubscribedPrice(subscription);
-      const productId = price.product;
-      const product = await this.productManager.retrieve(productId);
-
-      checkSubscriptionPromotionCodes(promotionCode, price, product);
-
-      const updatedSubscription = await this.subscriptionManager.update(
-        subscriptionId,
-        {
-          discounts: [
-            {
-              promotion_code: promotionId,
-            },
-          ],
-        }
-      );
-      return updatedSubscription;
-    } catch (err) {
-      if (err.type === 'StripeInvalidRequestError') {
-        throw new PromotionCodeCouldNotBeAttachedError(
-          'Promotion code could not be attached to subscription',
-          err,
-          {
-            customerId,
-            subscriptionId,
-            promotionId,
-          }
-        );
-      } else {
-        throw err;
-      }
-    }
-  }
+  constructor() {}
 
   // TODO: this method should be moved down to the manager layer
   async customerChanged(uid: string, email: string) {

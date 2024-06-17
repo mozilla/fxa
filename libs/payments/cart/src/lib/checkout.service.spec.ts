@@ -2,11 +2,37 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Test } from '@nestjs/testing';
-import { CheckoutService } from './checkout.service';
 import { faker } from '@faker-js/faker';
+import { Test } from '@nestjs/testing';
+
 import {
+  CartManager,
+  CheckoutCustomerDataFactory,
+  ResultCartFactory,
+  handleEligibilityStatusMap,
+} from '@fxa/payments/cart';
+import {
+  EligibilityManager,
+  EligibilityService,
+  EligibilityStatus,
+} from '@fxa/payments/eligibility';
+import {
+  PayPalClient,
+  PaypalClientConfig,
+  PayPalManager,
+  PaypalCustomerManager,
+  ResultPaypalCustomerFactory,
+} from '@fxa/payments/paypal';
+import {
+  AccountCustomerManager,
+  CustomerManager,
+  InvoiceManager,
+  InvoicePreviewFactory,
   MockStripeConfigProvider,
+  PriceManager,
+  ProductManager,
+  PromotionCodeManager,
+  ResultAccountCustomerFactory,
   StripeClient,
   StripeConfig,
   StripeCustomerFactory,
@@ -17,28 +43,10 @@ import {
   StripePromotionCodeFactory,
   StripeResponseFactory,
   StripeSubscriptionFactory,
-  TaxAddressFactory,
-  InvoicePreviewFactory,
-  AccountCustomerManager,
-  ResultAccountCustomerFactory,
-  CustomerManager,
   SubscriptionManager,
-  InvoiceManager,
-  PromotionCodeManager,
-  PriceManager,
+  TaxAddressFactory,
 } from '@fxa/payments/stripe';
-import {
-  PayPalClient,
-  PayPalManager,
-  PaypalCustomerManager,
-  ResultPaypalCustomerFactory,
-} from '@fxa/payments/paypal';
-import { PaypalClientConfig } from 'libs/payments/paypal/src/lib/paypal.client.config';
-import {
-  EligibilityManager,
-  EligibilityService,
-  EligibilityStatus,
-} from '@fxa/payments/eligibility';
+import { AccountManager } from '@fxa/shared/account/account';
 import {
   ContentfulClient,
   ContentfulClientConfig,
@@ -47,23 +55,17 @@ import {
   ContentfulServiceConfig,
 } from '@fxa/shared/contentful';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
-import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 import {
   CartEligibilityStatus,
   MockAccountDatabaseNestFactory,
 } from '@fxa/shared/db/mysql/account';
-import {
-  CartManager,
-  CheckoutCustomerDataFactory,
-  ResultCartFactory,
-  handleEligibilityStatusMap,
-} from '@fxa/payments/cart';
+import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 import {
   CartEligibilityMismatchError,
   CartTotalMismatchError,
   CartEmailNotFoundError,
 } from './cart.error';
-import { AccountManager } from '@fxa/shared/account/account';
+import { CheckoutService } from './checkout.service';
 
 describe('CheckoutService', () => {
   let checkoutService: CheckoutService;
@@ -83,48 +85,49 @@ describe('CheckoutService', () => {
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
       providers: [
-        StripeClient,
-        CustomerManager,
-        SubscriptionManager,
-        InvoiceManager,
-        PromotionCodeManager,
-        PriceManager,
-        PaypalCustomerManager,
-        PayPalManager,
-        CheckoutService,
-        PayPalClient,
-        StripeConfig,
-        PaypalClientConfig,
-        AccountManager,
         AccountCustomerManager,
-        MockAccountDatabaseNestFactory,
+        AccountManager,
         CartManager,
-        ContentfulManager,
+        CheckoutService,
         ContentfulClient,
         ContentfulClientConfig,
+        ContentfulManager,
         ContentfulService,
         ContentfulServiceConfig,
-        MockFirestoreProvider,
-        MockStatsDProvider,
+        CustomerManager,
         EligibilityManager,
         EligibilityService,
+        InvoiceManager,
+        MockAccountDatabaseNestFactory,
+        MockFirestoreProvider,
+        MockStatsDProvider,
         MockStripeConfigProvider,
+        PayPalClient,
+        PaypalClientConfig,
+        PaypalCustomerManager,
+        PayPalManager,
+        PriceManager,
+        ProductManager,
+        PromotionCodeManager,
+        StripeClient,
+        StripeConfig,
+        SubscriptionManager,
       ],
     }).compile();
 
+    accountCustomerManager = moduleRef.get(AccountCustomerManager);
+    accountManager = moduleRef.get(AccountManager);
     cartManager = moduleRef.get(CartManager);
+    checkoutService = moduleRef.get(CheckoutService);
+    contentfulService = moduleRef.get(ContentfulService);
+    customerManager = moduleRef.get(CustomerManager);
     eligibilityService = moduleRef.get(EligibilityService);
+    invoiceManager = moduleRef.get(InvoiceManager);
     paypalCustomerManager = moduleRef.get(PaypalCustomerManager);
     paypalManager = moduleRef.get(PayPalManager);
-    stripeClient = moduleRef.get(StripeClient);
-    customerManager = moduleRef.get(CustomerManager);
-    subscriptionManager = moduleRef.get(SubscriptionManager);
-    invoiceManager = moduleRef.get(InvoiceManager);
     promotionCodeManager = moduleRef.get(PromotionCodeManager);
-    contentfulService = moduleRef.get(ContentfulService);
-    accountManager = moduleRef.get(AccountManager);
-    accountCustomerManager = moduleRef.get(AccountCustomerManager);
-    checkoutService = moduleRef.get(CheckoutService);
+    stripeClient = moduleRef.get(StripeClient);
+    subscriptionManager = moduleRef.get(SubscriptionManager);
   });
 
   describe('prePaySteps', () => {
