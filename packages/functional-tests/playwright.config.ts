@@ -79,7 +79,7 @@ export default defineConfig<PlaywrightTestConfig<TestOptions, WorkerOptions>>({
           {
             outputFile: path.resolve(
               __dirname,
-              '../../artifacts/blob-reports/reports-${CIRCLE_NODE_INDEX}.zip'
+              `../../artifacts/blob-reports/reports-${CIRCLE_NODE_INDEX}.zip`
             ),
           },
         ],
