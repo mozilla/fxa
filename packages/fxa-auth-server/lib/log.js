@@ -14,6 +14,7 @@ const validateAmplitudeEvent = require('fxa-shared').metrics.amplitude.validate;
 let statsd;
 const Sentry = require('@sentry/node');
 const notifier = require('./notifier');
+const validators = require('./oauth/validators');
 
 const ISSUER = config.get('domain') || '';
 const CLIENT_ID_TO_SERVICE_NAMES = config.get('oauth.clientIds') || {};
@@ -214,8 +215,9 @@ Lug.prototype.notifyAttachedServices = async function (name, request, data) {
   data.iss = ISSUER;
 
   // convert an oauth client-id to a human readable format, if a name is available.
-  // If no name is available, continue to use the client_id.
-  if (data.service && data.service !== 'sync') {
+  // If no name is available, continue to use the client_id. Note that oauth client
+  // IDs are always hex strings. So values like sync or none aren't valid...
+  if (data.service && validators.HEX_STRING.test(data.service)) {
     data.clientId = data.service;
     data.service = CLIENT_ID_TO_SERVICE_NAMES[data.service] || data.service;
   }
