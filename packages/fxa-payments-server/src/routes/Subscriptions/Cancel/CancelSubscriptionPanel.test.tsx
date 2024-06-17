@@ -106,7 +106,7 @@ describe('CancelSubscriptionPanel', () => {
             false,
             0
           );
-          const nextBill = `Your next bill of ${nextBillAmount} is due ${nextBillDate}`;
+          const nextBill = `Next bill of ${nextBillAmount} is due ${nextBillDate}`;
 
           expect(queryByTestId('price-details')).toBeInTheDocument();
           expect(queryByText(planPrice)).toBeInTheDocument();
@@ -135,6 +135,34 @@ describe('CancelSubscriptionPanel', () => {
         });
       });
     }
+
+    describe('renders coupon information when applicable', () => {
+      it('does not display coupon information when subscription does not have an applied coupon', () => {
+        const plan = findMockPlan('plan_daily');
+        renderWithLocalizationProvider(
+          <CancelSubscriptionPanel {...baseProps} plan={plan} />
+        );
+
+        expect(queryByTestId('sub-coupon-applied')).not.toBeInTheDocument();
+      });
+
+      it('displays the coupon information when subscription has an applied coupon', () => {
+        const plan = findMockPlan('plan_daily');
+        const updatedProps = {
+          ...baseProps,
+          customerSubscription: {
+            ...subscription,
+            promotion_name: 'testPromo',
+          },
+        };
+
+        renderWithLocalizationProvider(
+          <CancelSubscriptionPanel {...updatedProps} plan={plan} />
+        );
+
+        expect(queryByTestId('sub-coupon-applied')).toBeInTheDocument();
+      });
+    });
 
     describe('upgrade CTA', () => {
       afterEach(() => {
@@ -261,7 +289,7 @@ describe('CancelSubscriptionPanel', () => {
             [one] { $priceAmount } fooly
             *[other] { $priceAmount } barly { $intervalCount } 24hrs
           }`,
-          'sub-next-bill-no-tax = quuz { $date }',
+          'sub-next-bill-no-tax-1 = quuz { $date }',
           'payment-cancel-btn = blee',
         ].forEach((x) => bundle.addResource(new FluentResource(x)));
         const plan = findMockPlan('plan_daily');
@@ -309,7 +337,7 @@ describe('CancelSubscriptionPanel', () => {
           }`,
           'payment-cancel-btn = blee',
           `price-details-tax = { $priceAmount } + { $taxAmount } taxes`,
-          `sub-next-bill-tax = Your next bill of { $priceAmount } + { $taxAmount } taxes is due due <strong>{ $date }</strong>`,
+          `sub-next-bill-tax-1 = Next bill of { $priceAmount } + { $taxAmount } taxes is due { $date }`,
         ].forEach((x) => bundle.addResource(new FluentResource(x)));
         const plan = findMockPlan('plan_daily');
         renderWithLocalizationProvider(
@@ -329,7 +357,7 @@ describe('CancelSubscriptionPanel', () => {
           '$20.00 + $3.00 tax fooly'
         );
         expect(queryByTestId('sub-next-bill')).toHaveTextContent(
-          'Your next bill of $5.00 + $1.23 taxes is due due 13/09/2019'
+          'Next bill of $5.00 + $1.23 taxes is due 13/09/2019'
         );
         expect(queryByText('blee')).toBeInTheDocument();
       });
@@ -342,7 +370,7 @@ describe('CancelSubscriptionPanel', () => {
             *[other] { $priceAmount } + { $taxAmount } tax barly { $intervalCount } 24hrs
           }`,
           `price-details-tax = { $priceAmount } + { $taxAmount } taxes`,
-          `sub-next-bill-tax = Your next bill of { $priceAmount } + { $taxAmount } taxes is due due <strong>{ $date }</strong>`,
+          `sub-next-bill-tax-1 = Next bill of { $priceAmount } + { $taxAmount } taxes is due { $date }`,
         ].forEach((x) => bundle.addResource(new FluentResource(x)));
         const plan = { ...findMockPlan('plan_daily'), interval_count: 8 };
 
@@ -360,7 +388,7 @@ describe('CancelSubscriptionPanel', () => {
           '$20.00 + $3.00 tax barly 8 24hrs'
         );
         expect(queryByTestId('sub-next-bill')).toHaveTextContent(
-          'Your next bill of $5.00 + $1.23 taxes is due due 14/08/2019'
+          'Next bill of $5.00 + $1.23 taxes is due 14/08/2019'
         );
       });
 
@@ -371,7 +399,7 @@ describe('CancelSubscriptionPanel', () => {
             [one] { $priceAmount } + { $taxAmount } tax fooly
             *[other] { $priceAmount } + { $taxAmount } tax barly { $intervalCount } 24hrs
           }`,
-          `sub-next-bill-tax = Your next bill of { $priceAmount } + { $taxAmount } taxes is due due <strong>{ $date }</strong>`,
+          `sub-next-bill-tax-1 = Next bill of { $priceAmount } + { $taxAmount } taxes is due { $date }`,
         ].forEach((x) => bundle.addResource(new FluentResource(x)));
         const plan = { ...findMockPlan('plan_daily'), interval_count: 8 };
 
@@ -389,7 +417,7 @@ describe('CancelSubscriptionPanel', () => {
           '$19.50 + $3.00 tax barly 8 24hrs'
         );
         expect(queryByTestId('sub-next-bill')).toHaveTextContent(
-          'Your next bill of $4.50 + $1.23 taxes is due due 14/08/2019'
+          'Next bill of $4.50 + $1.23 taxes is due 14/08/2019'
         );
       });
 
@@ -402,8 +430,8 @@ describe('CancelSubscriptionPanel', () => {
           }`,
           'payment-cancel-btn = blee',
           `price-details-tax = { $priceAmount } + { $taxAmount } taxes`,
-          `sub-next-bill-tax = Your next bill of { $priceAmount } + { $taxAmount } taxes is due due <strong>{ $date }</strong>`,
-          `sub-next-bill-no-tax = Your next bill of { $priceAmount } prices is due due <strong>{ $date }</strong>`,
+          `sub-next-bill-tax-1 = Next bill of { $priceAmount } + { $taxAmount } taxes is due { $date }`,
+          `sub-next-bill-no-tax-1 = Next bill of { $priceAmount } prices is due { $date }`,
         ].forEach((x) => bundle.addResource(new FluentResource(x)));
         const plan = findMockPlan('plan_daily');
         renderWithLocalizationProvider(
@@ -423,7 +451,7 @@ describe('CancelSubscriptionPanel', () => {
           '$20.00 daily'
         );
         expect(queryByTestId('sub-next-bill')).toHaveTextContent(
-          'Your next bill of $5.00 prices is due due 13/09/2019'
+          'Next bill of $5.00 prices is due 13/09/2019'
         );
         expect(queryByText('blee')).toBeInTheDocument();
       });
@@ -436,7 +464,7 @@ describe('CancelSubscriptionPanel', () => {
             *[other] { $priceAmount } barly { $intervalCount } 24hrs
           }`,
           'payment-cancel-btn = blee',
-          `sub-next-bill-no-tax = Your next bill of { $priceAmount } prices is due due <strong>{ $date }</strong>`,
+          `sub-next-bill-no-tax-1 = Next bill of { $priceAmount } prices is due { $date }`,
         ].forEach((x) => bundle.addResource(new FluentResource(x)));
         const plan = findMockPlan('plan_daily');
         renderWithLocalizationProvider(
@@ -456,7 +484,7 @@ describe('CancelSubscriptionPanel', () => {
           '$20.00 fooly'
         );
         expect(queryByTestId('sub-next-bill')).toHaveTextContent(
-          'Your next bill of $5.00 prices is due due 13/09/2019'
+          'Next bill of $5.00 prices is due 13/09/2019'
         );
         expect(queryByText('blee')).toBeInTheDocument();
       });
@@ -468,7 +496,7 @@ describe('CancelSubscriptionPanel', () => {
             [one] { $priceAmount } fooly
             *[other] { $priceAmount } barly { $intervalCount } 24hrs
           }`,
-          `sub-next-bill-no-tax = Your next bill of { $priceAmount } prices is due due <strong>{ $date }</strong>`,
+          `sub-next-bill-no-tax-1 = Next bill of { $priceAmount } prices is due { $date }`,
         ].forEach((x) => bundle.addResource(new FluentResource(x)));
         const plan = { ...findMockPlan('plan_daily'), interval_count: 8 };
 
@@ -486,7 +514,7 @@ describe('CancelSubscriptionPanel', () => {
           '$20.00 barly 8 24hrs'
         );
         expect(queryByTestId('sub-next-bill')).toHaveTextContent(
-          'Your next bill of $5.00 prices is due due 14/08/2019'
+          'Next bill of $5.00 prices is due 14/08/2019'
         );
       });
 
@@ -497,7 +525,7 @@ describe('CancelSubscriptionPanel', () => {
             [one] { $priceAmount } fooly
             *[other] { $priceAmount } barly { $intervalCount } 24hrs
           }`,
-          `sub-next-bill-no-tax = Your next bill of { $priceAmount } prices is due due <strong>{ $date }</strong>`,
+          `sub-next-bill-no-tax-1 = Next bill of { $priceAmount } prices is due { $date }`,
         ].forEach((x) => bundle.addResource(new FluentResource(x)));
         const plan = { ...findMockPlan('plan_daily'), interval_count: 8 };
 
@@ -515,7 +543,7 @@ describe('CancelSubscriptionPanel', () => {
           '$19.50 barly 8 24hrs'
         );
         expect(queryByTestId('sub-next-bill')).toHaveTextContent(
-          'Your next bill of $4.50 prices is due due 14/08/2019'
+          'Next bill of $4.50 prices is due 14/08/2019'
         );
       });
 
