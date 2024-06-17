@@ -119,6 +119,12 @@ const recordEventMetric = (eventName: string, properties: EventProperties) => {
     case 'email_first_view':
       email.firstView.record();
       break;
+    case 'apple_oauth_email_first_start':
+      email.appleOauthEmailFirstStart.record();
+      break;
+    case 'google_oauth_email_first_start':
+      email.googleOauthEmailFirstStart.record();
+      break;
     case 'reg_cwts_engage':
       reg.cwtsEngage.record();
       break;
@@ -319,6 +325,8 @@ export const GleanMetrics = {
 
   emailFirst: {
     view: createEventFn('email_first_view'),
+    appleOauthStart: createEventFn('apple_oauth_email_first_start'),
+    googleOauthStart: createEventFn('google_oauth_email_first_start'),
   },
 
   registration: {
