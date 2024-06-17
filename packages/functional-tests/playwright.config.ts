@@ -83,7 +83,7 @@ export default defineConfig<PlaywrightTestConfig<TestOptions, WorkerOptions>>({
             ),
           },
         ],
-        ['allure-playwright'],
+        ['html'],
       ]
     : 'list',
   workers,
