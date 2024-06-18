@@ -225,7 +225,7 @@ const recordEventMetric = (eventName: string, properties: EventProperties) => {
       cadFirefox.view.record();
       break;
     case 'cad_firefox_choice_view':
-      cadFirefox.view.record();
+      cadFirefox.choiceView.record();
       break;
     case 'cad_firefox_choice_engage':
       cadFirefox.choiceEngage.record({

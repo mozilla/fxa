@@ -307,9 +307,9 @@ describe('views/pair/index', () => {
           view.$('#set-needs-mobile').click();
 
           sinon.assert.calledWith(submitChoiceEventStub, {
-            reason: 'does not have mobile',
+            reason: 'has mobile',
           });
-          sinon.assert.called(submitSyncDeviceEventStub);
+          sinon.assert.notCalled(submitSyncDeviceEventStub);
           sinon.assert.called(submitSpy);
           sinon.assert.notCalled(viewMobileDownloadEventStub);
         });
@@ -319,8 +319,9 @@ describe('views/pair/index', () => {
           view.$('#set-needs-mobile').click();
 
           sinon.assert.calledWith(submitChoiceEventStub, {
-            reason: 'has mobile',
+            reason: 'does not have mobile',
           });
+          // called on submit
           sinon.assert.notCalled(submitSyncDeviceEventStub);
           sinon.assert.notCalled(submitSpy);
 
@@ -379,11 +380,31 @@ describe('views/pair/index', () => {
   });
 
   describe('submit', () => {
+    let submitSyncDeviceEventStub;
+    beforeEach(() => {
+      submitSyncDeviceEventStub = sinon.stub(
+        GleanMetrics.cadFirefox,
+        'syncDeviceSubmit'
+      );
+    });
+    afterEach(() => {
+      submitSyncDeviceEventStub.restore();
+    });
     it('submits', () => {
       sinon.spy(view.broker, 'openPairPreferences');
       return view.render().then(() => {
         view.submit();
         assert.isTrue(view.broker.openPairPreferences.calledOnce);
+        sinon.assert.notCalled(submitSyncDeviceEventStub);
+      });
+    });
+    it('submits and sends expected Glean event when needsMobileConfirmed is true', () => {
+      sinon.spy(view.broker, 'openPairPreferences');
+      view.model.set('needsMobileConfirmed', true);
+      return view.render().then(() => {
+        view.submit();
+        assert.isTrue(view.broker.openPairPreferences.calledOnce);
+        sinon.assert.calledOnce(submitSyncDeviceEventStub);
       });
     });
   });
