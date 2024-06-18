@@ -6,7 +6,12 @@ import React, { useEffect } from 'react';
 import AppLayout from './AppLayout';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import AppErrorDialog from 'fxa-react/components/AppErrorDialog';
-import { useAccount, useConfig, useInitialSettingsState } from '../../models';
+import {
+  useAccount,
+  useConfig,
+  useInitialSettingsState,
+  useSession,
+} from '../../models';
 import { Redirect, Router, RouteComponentProps } from '@reach/router';
 import Head from 'fxa-react/components/Head';
 import PageSettings from './PageSettings';
@@ -24,10 +29,12 @@ import { observeNavigationTiming } from 'fxa-shared/metrics/navigation-timing';
 import PageAvatar from './PageAvatar';
 import PageRecentActivity from './PageRecentActivity';
 import PageRecoveryKeyCreate from './PageRecoveryKeyCreate';
+import { hardNavigate } from 'fxa-react/lib/utils';
 
 export const Settings = (_: RouteComponentProps) => {
   const config = useConfig();
   const { metricsEnabled, hasPassword } = useAccount();
+  const session = useSession();
 
   useEffect(() => {
     if (config.metrics.navTiming.enabled && metricsEnabled) {
@@ -38,6 +45,16 @@ export const Settings = (_: RouteComponentProps) => {
     config.metrics.navTiming.enabled,
     config.metrics.navTiming.endpoint,
   ]);
+
+  useEffect(() => {
+    function handleWindowFocus() {
+      if (session.isDestroyed) {
+        hardNavigate('/');
+      }
+    }
+    window.addEventListener('focus', handleWindowFocus);
+    return () => window.removeEventListener('focus', handleWindowFocus);
+  }, [session]);
 
   const { loading, error } = useInitialSettingsState();
 
