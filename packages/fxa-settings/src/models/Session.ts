@@ -1,6 +1,10 @@
 import { ApolloClient, gql, NormalizedCacheObject } from '@apollo/client';
 import AuthClient from 'fxa-auth-client/browser';
-import { sessionToken, clearSignedInAccountUid } from '../lib/cache';
+import {
+  sessionToken,
+  clearSignedInAccountUid,
+  currentAccount,
+} from '../lib/cache';
 import { GET_LOCAL_SIGNED_IN_STATUS } from '../components/App/gql';
 
 export interface SessionData {
@@ -115,6 +119,10 @@ export class Session implements SessionData {
     });
 
     clearSignedInAccountUid();
+  }
+
+  get isDestroyed() {
+    return currentAccount() == null;
   }
 
   async isSessionVerified() {
