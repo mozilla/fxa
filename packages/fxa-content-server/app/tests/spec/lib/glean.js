@@ -327,6 +327,28 @@ describe('lib/glean', () => {
       });
     });
 
+    describe('apple oauth email first', () => {
+      it('submits a ping with the apple_oauth_email_first_start event name', async () => {
+        await GleanMetrics.emailFirst.appleOauthStart();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'apple_oauth_email_first_start'
+        );
+      });
+    });
+
+    describe('google oauth email first', () => {
+      it('submits a ping with the google_oauth_email_first_start event name', async () => {
+        await GleanMetrics.emailFirst.googleOauthStart();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'google_oauth_email_first_start'
+        );
+      });
+    });
+
     describe('registration', () => {
       it('submits a ping with the reg_view event name', async () => {
         await GleanMetrics.registration.view();

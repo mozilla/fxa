@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import GleanMetrics from '../../lib/glean';
 import SigninMixin from './signin-mixin';
 import Storage from '../../lib/storage';
 import Url from '../../lib/url';
@@ -70,6 +71,10 @@ export default {
 
     this.logFlowEvent('google.oauth-start');
 
+    if (this.viewName === 'email-first') {
+      GleanMetrics.emailFirst.googleOauthStart();
+    }
+
     // We stash originating location in the Google state oauth param
     // because we will need it to use it to log the user into FxA
     const currentParams = new URLSearchParams(this.window.location.search);
@@ -127,6 +132,10 @@ export default {
     this.clearStoredParams();
 
     this.logFlowEvent('apple.oauth-start');
+
+    if (this.viewName === 'email-first') {
+      GleanMetrics.emailFirst.appleOauthStart();
+    }
 
     const currentParams = new URLSearchParams(this.window.location.search);
 

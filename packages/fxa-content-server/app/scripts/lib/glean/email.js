@@ -7,6 +7,22 @@
 import EventMetricType from '@mozilla/glean/private/metrics/event';
 
 /**
+ * User clicks on the Apple third party link from email first page.
+ *
+ * Generated from `email.apple_oauth_email_first_start`.
+ */
+export const appleOauthEmailFirstStart = new EventMetricType(
+  {
+    category: 'email',
+    name: 'apple_oauth_email_first_start',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
  * Email First Page View
  * A view of the page that prompts the user to enter their email address. From
  * there the user either gets directed to the registration or login flow depending
@@ -18,6 +34,22 @@ export const firstView = new EventMetricType(
   {
     category: 'email',
     name: 'first_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * User clicks on the Google third party link from email first page.
+ *
+ * Generated from `email.google_oauth_email_first_start`.
+ */
+export const googleOauthEmailFirstStart = new EventMetricType(
+  {
+    category: 'email',
+    name: 'google_oauth_email_first_start',
     sendInPings: ['events'],
     lifetime: 'ping',
     disabled: false,
