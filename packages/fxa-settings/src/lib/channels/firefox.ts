@@ -102,6 +102,12 @@ export type FxALoginSignedInUserRequest = {
   uid: hexstring;
   unwrapBKey: string;
   verified: boolean;
+  services?: {
+    sync: {
+      offeredEngines?: string[];
+      declinedEngines?: string[];
+    };
+  };
 };
 
 export type FxAOAuthLogin = {
