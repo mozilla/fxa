@@ -434,6 +434,44 @@ describe('lib/glean', () => {
         sinon.assert.calledWith(setEventReasonStub, 'quux');
       });
     });
+
+    describe('set_password_third_party_auth', () => {
+      it('submits a ping with the set_password_third_party_auth_view event name', async () => {
+        await GleanMetrics.setPasswordThirdPartyAuth.view();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'set_password_third_party_auth_view'
+        );
+      });
+
+      it('submits a ping with the set_password_third_party_auth_engage event name', async () => {
+        await GleanMetrics.setPasswordThirdPartyAuth.engage();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'set_password_third_party_auth_engage'
+        );
+      });
+
+      it('submits a ping with the set_password_third_party_auth_submit event name', async () => {
+        await GleanMetrics.setPasswordThirdPartyAuth.submit();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'set_password_third_party_auth_submit'
+        );
+      });
+
+      it('submits a ping with the set_password_third_party_auth_success event name', async () => {
+        await GleanMetrics.setPasswordThirdPartyAuth.success();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'set_password_third_party_auth_success'
+        );
+      });
+    });
   });
 
   describe('toggle enabled state', () => {

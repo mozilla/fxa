@@ -14,6 +14,7 @@ import * as passwordReset from './passwordReset';
 import * as cadFirefox from './cadFirefox';
 import * as cadApproveDevice from './cadApproveDevice';
 import * as cadMobilePair from './cadMobilePair';
+import * as setPasswordThirdPartyAuth from './setPasswordThirdPartyAuth';
 import { userIdSha256 } from './account';
 import { oauthClientId, service } from './relyingParty';
 import { deviceType, entrypoint, flowId } from './session';
@@ -246,6 +247,18 @@ const recordEventMetric = (eventName: string, properties: EventProperties) => {
     case 'cad_mobile_pair_view':
       cadMobilePair.view.record();
       break;
+    case 'set_password_third_party_auth_view':
+      setPasswordThirdPartyAuth.view.record();
+      break;
+    case 'set_password_third_party_auth_engage':
+      setPasswordThirdPartyAuth.engage.record();
+      break;
+    case 'set_password_third_party_auth_submit':
+      setPasswordThirdPartyAuth.submit.record();
+      break;
+    case 'set_password_third_party_auth_success':
+      setPasswordThirdPartyAuth.sucess.record();
+      break;
   }
 };
 
@@ -355,6 +368,12 @@ export const GleanMetrics = {
   },
   cadApproveDevice: {
     view: createEventFn('cad_approve_device_view'),
+  },
+  setPasswordThirdPartyAuth: {
+    view: createEventFn('set_password_third_party_auth_view'),
+    engage: createEventFn('set_password_third_party_auth_engage'),
+    submit: createEventFn('set_password_third_party_auth_submit'),
+    success: createEventFn('set_password_third_party_auth_success'),
   },
 };
 

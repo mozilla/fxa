@@ -14,6 +14,7 @@ import ServiceMixin from '../../mixins/service-mixin';
 import AccountSuggestionMixin from '../../mixins/account-suggestion-mixin';
 import SigninMixin from '../../mixins/signin-mixin';
 import BrandMessagingMixin from '../../mixins/brand-messaging-mixin';
+import GleanMetrics from '../../../lib/glean';
 
 const PASSWORD_INPUT_SELECTOR = '#password';
 const VPASSWORD_INPUT_SELECTOR = '#vpassword';
@@ -30,6 +31,7 @@ class SetPassword extends FormView {
   }
 
   isValidEnd() {
+    GleanMetrics.setPasswordThirdPartyAuth.engage();
     return this._getPassword() === this._getVPassword();
   }
 
@@ -51,6 +53,10 @@ class SetPassword extends FormView {
     }
   }
 
+  afterRender() {
+    GleanMetrics.setPasswordThirdPartyAuth.view();
+  }
+
   setInitialContext(context) {
     const email = this.getAccount().get('email');
     context.set({
@@ -62,9 +68,14 @@ class SetPassword extends FormView {
     const account = this.getAccount();
     const password = this._getPassword();
 
+    GleanMetrics.setPasswordThirdPartyAuth.submit();
+
     return account.createPassword(account.get('email'), password).then(() => {
       // After the user has set a password, initiated the standard Sync
       // login flow with the password they set.
+      GleanMetrics.setPasswordThirdPartyAuth.success();
+      this.logFlowEventOnce('success', this.viewName);
+
       return this.signIn(account, password);
     });
   }
