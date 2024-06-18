@@ -5,7 +5,7 @@
 import { expect, test } from '../../lib/fixtures/standard';
 import { oauthWebchannelV1 } from '../../lib/query-params';
 import { TestAccountTracker } from '../../lib/testAccountTracker';
-import { LoginPage } from '../../pages/login';
+import { SigninPage } from '../../pages/signin';
 
 test.describe('fxa_status web channel message in Settings', () => {
   test.beforeEach(async ({ pages: { configPage } }) => {
@@ -15,11 +15,19 @@ test.describe('fxa_status web channel message in Settings', () => {
   });
 
   test('message is sent when loading with context = oauth_webchannel_v1', async ({
-    syncBrowserPages: { page, login, settings },
+    target,
+    syncBrowserPages: { connectAnotherDevice, page, settings, signin },
     testAccountTracker,
   }) => {
-    const credentials = await signInAccount(testAccountTracker, login);
-    await signInDifferentAccount(testAccountTracker, login);
+    await page.goto(
+      `${target.contentServerUrl}/?context=fx_desktop_v3&service=sync`
+    );
+    const credentials = await signInAccount(signin, testAccountTracker);
+    await expect(connectAnotherDevice.header).toBeVisible();
+
+    await page.goto(target.contentServerUrl);
+    await signin.useDifferentAccountLink.click();
+    await signInAccount(signin, testAccountTracker);
 
     // We verify that even though another email is signed in, when
     // accessing the setting with a `context=oauth_webchannel_v1` the account
@@ -29,44 +37,34 @@ test.describe('fxa_status web channel message in Settings', () => {
   });
 
   test('message is not sent when loading without oauth web channel context', async ({
-    syncBrowserPages: { login, settings },
+    target,
+    syncBrowserPages: { connectAnotherDevice, page, settings, signin },
     testAccountTracker,
   }) => {
-    await signInAccount(testAccountTracker, login);
-    const otherCredentials = await signInDifferentAccount(
-      testAccountTracker,
-      login
+    await page.goto(
+      `${target.contentServerUrl}/?context=fx_desktop_v3&service=sync`
     );
+    await signInAccount(signin, testAccountTracker);
+    await expect(connectAnotherDevice.header).toBeVisible();
 
-    // We verify that when accessing the setting without the `context=oauth_webchannel_v1`
+    await page.goto(target.contentServerUrl);
+    await signin.useDifferentAccountLink.click();
+    const credentials = await signInAccount(signin, testAccountTracker);
+
+    // We verify that when accessing settings without the `context=oauth_webchannel_v1`
     // the newer account takes precedence
-    await settings.goto();
-    await expect(settings.primaryEmail.status).toHaveText(
-      otherCredentials.email
-    );
+    await expect(settings.settingsHeading).toBeVisible();
+    await expect(settings.primaryEmail.status).toHaveText(credentials.email);
   });
 });
 
 async function signInAccount(
-  testAccountTracker: TestAccountTracker,
-  login: LoginPage
+  signin: SigninPage,
+  testAccountTracker: TestAccountTracker
 ) {
   const credentials = await testAccountTracker.signUp();
-  await login.goto('load', 'context=fx_desktop_v3&service=sync');
-  await login.fillOutEmailFirstSignIn(credentials.email, credentials.password);
-  return credentials;
-}
+  await signin.fillOutEmailFirstForm(credentials.email);
+  await signin.fillOutPasswordForm(credentials.password);
 
-async function signInDifferentAccount(
-  testAccountTracker: TestAccountTracker,
-  login: LoginPage
-) {
-  const otherCredentials = await testAccountTracker.signUp();
-  await login.goto();
-  await login.useDifferentAccountLink();
-  await login.fillOutEmailFirstSignIn(
-    otherCredentials.email,
-    otherCredentials.password
-  );
-  return otherCredentials;
+  return credentials;
 }

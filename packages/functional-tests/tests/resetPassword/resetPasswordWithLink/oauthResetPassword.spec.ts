@@ -4,8 +4,8 @@
 
 import { Page, expect, test } from '../../../lib/fixtures/standard';
 import { syncMobileOAuthQueryParams } from '../../../lib/query-params';
-import { ResetPasswordReactPage } from '../../../pages/resetPasswordReact';
-import { LoginPage } from '../../../pages/login';
+import { ResetPasswordPage } from '../../../pages/resetPassword';
+import { SigninPage } from '../../../pages/signin';
 
 const SERVICE_NAME_123 = '123';
 const SERVICE_NAME_FIREFOX = 'Firefox';
@@ -23,7 +23,7 @@ test.describe('severity-1 #smoke', () => {
     test('reset password', async ({
       target,
       page,
-      pages: { login, relier, resetPasswordReact },
+      pages: { signin, relier, resetPassword },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
@@ -36,16 +36,16 @@ test.describe('severity-1 #smoke', () => {
 
       await beginPasswordReset(
         page,
-        login,
-        resetPasswordReact,
+        signin,
+        resetPassword,
         credentials.email,
         SERVICE_NAME_123
       );
 
-      await resetPasswordReact.fillOutEmailForm(credentials.email);
+      await resetPassword.fillOutEmailForm(credentials.email);
       const link = await target.emailClient.getRecoveryLink(credentials.email);
       await page.goto(link);
-      await resetPasswordReact.fillOutNewPasswordForm(newPassword);
+      await resetPassword.fillOutNewPasswordForm(newPassword);
       credentials.password = newPassword;
 
       // Note: We used to redirect the user back to the relier in some cases
@@ -53,7 +53,7 @@ test.describe('severity-1 #smoke', () => {
       // and let the user re-authenticate with the relier.
       await expect(page).toHaveURL(/reset_password_verified/);
       await expect(
-        resetPasswordReact.passwordResetConfirmationHeading
+        resetPassword.passwordResetConfirmationHeading
       ).toBeVisible();
 
       await page.reload();
@@ -65,7 +65,7 @@ test.describe('severity-1 #smoke', () => {
     test('reset password through Sync mobile', async ({
       target,
       page,
-      pages: { login, resetPasswordReact },
+      pages: { signin, resetPassword },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
@@ -79,16 +79,16 @@ test.describe('severity-1 #smoke', () => {
 
       await beginPasswordReset(
         page,
-        login,
-        resetPasswordReact,
+        signin,
+        resetPassword,
         credentials.email,
         SERVICE_NAME_FIREFOX
       );
 
-      await resetPasswordReact.fillOutEmailForm(credentials.email);
+      await resetPassword.fillOutEmailForm(credentials.email);
       const link = await target.emailClient.getRecoveryLink(credentials.email);
       await page.goto(link);
-      await resetPasswordReact.fillOutNewPasswordForm(newPassword);
+      await resetPassword.fillOutNewPasswordForm(newPassword);
       credentials.password = newPassword;
 
       // Note: We used to redirect the user back to the relier in some cases
@@ -96,7 +96,7 @@ test.describe('severity-1 #smoke', () => {
       // and let the user re-authenticate with the relier.
       await expect(page).toHaveURL(/reset_password_verified/);
       await expect(
-        resetPasswordReact.passwordResetConfirmationHeading
+        resetPassword.passwordResetConfirmationHeading
       ).toBeVisible();
 
       await expect(
@@ -107,7 +107,7 @@ test.describe('severity-1 #smoke', () => {
     test('reset password different tab', async ({
       target,
       page,
-      pages: { login, relier, resetPasswordReact },
+      pages: { signin, relier, resetPassword },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
@@ -120,19 +120,19 @@ test.describe('severity-1 #smoke', () => {
 
       await beginPasswordReset(
         page,
-        login,
-        resetPasswordReact,
+        signin,
+        resetPassword,
         credentials.email,
         SERVICE_NAME_123
       );
 
-      await resetPasswordReact.fillOutEmailForm(credentials.email);
+      await resetPassword.fillOutEmailForm(credentials.email);
       const link = await target.emailClient.getRecoveryLink(credentials.email);
       // Clearing session state simulates a 'new' tab, and changes the navigation at the end of the flow.
       await page.evaluate(() => window.sessionStorage.clear());
 
       await page.goto(link);
-      await resetPasswordReact.fillOutNewPasswordForm(newPassword);
+      await resetPassword.fillOutNewPasswordForm(newPassword);
       credentials.password = newPassword;
 
       // Note: We used to redirect the user back to the relier in some cases
@@ -140,7 +140,7 @@ test.describe('severity-1 #smoke', () => {
       // and let the user re-authenticate with the relier.
       await expect(page).toHaveURL(/reset_password_verified/);
       await expect(
-        resetPasswordReact.passwordResetConfirmationHeading
+        resetPassword.passwordResetConfirmationHeading
       ).toBeVisible();
 
       await page.reload();
@@ -152,7 +152,7 @@ test.describe('severity-1 #smoke', () => {
     test('reset password with PKCE different tab', async ({
       target,
       page,
-      pages: { login, resetPasswordReact },
+      pages: { signin, resetPassword },
       testAccountTracker,
     }) => {
       test.fixme(true, 'Fix required as of 2023/07/18 (see FXA-8006).');
@@ -175,19 +175,19 @@ test.describe('severity-1 #smoke', () => {
 
       await beginPasswordReset(
         page,
-        login,
-        resetPasswordReact,
+        signin,
+        resetPassword,
         credentials.email,
         SERVICE_NAME_123
       );
 
-      await resetPasswordReact.fillOutEmailForm(credentials.email);
+      await resetPassword.fillOutEmailForm(credentials.email);
       const link = await target.emailClient.getRecoveryLink(credentials.email);
       // Clearing session state simulates a 'new' tab, and changes the navigation at the end of the flow.
       await page.evaluate(() => window.sessionStorage.clear());
 
       await page.goto(link, { waitUntil: 'load' });
-      await resetPasswordReact.fillOutNewPasswordForm(newPassword);
+      await resetPassword.fillOutNewPasswordForm(newPassword);
       credentials.password = newPassword;
 
       // Note: We used to redirect the user back to the relier in some cases
@@ -195,7 +195,7 @@ test.describe('severity-1 #smoke', () => {
       // and let the user re-authenticate with the relier.
       await expect(page).toHaveURL(/reset_password_verified/);
       await expect(
-        resetPasswordReact.passwordResetConfirmationHeading
+        resetPassword.passwordResetConfirmationHeading
       ).toBeVisible();
       await expect(
         page.getByText(new RegExp(`.*${SERVICE_NAME_123}.*`, 'i'))
@@ -204,15 +204,7 @@ test.describe('severity-1 #smoke', () => {
 
     test('reset password with valid totp', async ({
       target,
-      pages: {
-        page,
-        login,
-        signinReact,
-        resetPasswordReact,
-        relier,
-        totp,
-        settings,
-      },
+      pages: { page, signin, resetPassword, relier, totp, settings },
       testAccountTracker,
     }) => {
       test.fixme(true, 'Fix required as of 2024/04/25 FXA-9513');
@@ -220,9 +212,9 @@ test.describe('severity-1 #smoke', () => {
       const credentials = await testAccountTracker.signUp();
       const newPassword = testAccountTracker.generatePassword();
 
-      await signinReact.goto();
-      await signinReact.fillOutEmailFirstForm(credentials.email);
-      await signinReact.fillOutPasswordForm(credentials.password);
+      await signin.goto();
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
       // Goes to settings and enables totp on user's account.
       await settings.totp.addButton.click();
       await totp.fillOutTotpForms();
@@ -234,16 +226,16 @@ test.describe('severity-1 #smoke', () => {
 
       await beginPasswordReset(
         page,
-        login,
-        resetPasswordReact,
+        signin,
+        resetPassword,
         credentials.email,
         SERVICE_NAME_123
       );
 
-      await resetPasswordReact.fillOutEmailForm(credentials.email);
+      await resetPassword.fillOutEmailForm(credentials.email);
       const link = await target.emailClient.getRecoveryLink(credentials.email);
       await page.goto(link, { waitUntil: 'load' });
-      await resetPasswordReact.fillOutNewPasswordForm(newPassword);
+      await resetPassword.fillOutNewPasswordForm(newPassword);
       credentials.password = newPassword;
 
       // Note: We used to redirect the user back to the relier in some cases
@@ -251,7 +243,7 @@ test.describe('severity-1 #smoke', () => {
       // and let the user re-authenticate with the relier.
       await expect(page).toHaveURL(/reset_password_verified/);
       await expect(
-        resetPasswordReact.passwordResetConfirmationHeading
+        resetPassword.passwordResetConfirmationHeading
       ).toBeVisible();
       await expect(
         page.getByText(new RegExp(`.*${SERVICE_NAME_123}.*`, 'i'))
@@ -261,16 +253,13 @@ test.describe('severity-1 #smoke', () => {
 
   async function beginPasswordReset(
     page: Page,
-    login: LoginPage,
-    resetPasswordReact: ResetPasswordReactPage,
+    signin: SigninPage,
+    resetPassword: ResetPasswordPage,
     email: string,
     serviceName: string
   ): Promise<void> {
-    // TODO: FXA-9015 Update once we port signin / signup.
-    // param is set, this view is still using backbone.
-    await login.setEmail(email);
-    await login.submit();
-    await login.clickForgotPassword();
+    await signin.fillOutEmailFirstForm(email);
+    await signin.forgotPasswordLink.click();
 
     // Verify reset password header
     // The service name can change based on environments and all of our test RPs from 123done have
@@ -282,8 +271,6 @@ test.describe('severity-1 #smoke', () => {
     // the iOS client_id, the name displays as "Firefox for iOS" on the "verified" page and also means
     // for now we can check for if the string contains "Firefox", but when we switch to codes, we can determine
     // if we want to and always display "Firefox Sync" on both pages.
-    await expect(resetPasswordReact.resetPasswordHeading).toContainText(
-      serviceName
-    );
+    await expect(resetPassword.resetPasswordHeading).toContainText(serviceName);
   }
 });

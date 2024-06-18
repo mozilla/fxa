@@ -2,10 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { TestAccountTracker } from '../../lib/testAccountTracker';
 import { Page, expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
-import { LoginPage } from '../../pages/login';
+import { TestAccountTracker } from '../../lib/testAccountTracker';
+import { SettingsPage } from '../../pages/settings';
+import { SigninPage } from '../../pages/signin';
 
 test.describe('severity-1 #smoke', () => {
   test.beforeEach(async ({}, { project }) => {
@@ -93,19 +94,17 @@ test.describe('severity-1 #smoke', () => {
     test('fails if session is no longer valid', async ({
       page,
       target,
-      pages: { relier, login },
+      pages: { relier, settings, signin },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
 
       await page.goto(target.contentServerUrl);
-      await login.fillOutEmailFirstSignIn(
-        credentials.email,
-        credentials.password
-      );
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
 
       //Verify logged in on Settings page
-      expect(await login.isUserLoggedIn()).toBe(true);
+      await expect(settings.settingsHeading).toBeVisible();
       await target.authClient.accountDestroy(
         credentials.email,
         credentials.password,
@@ -124,9 +123,8 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('fails if account is not verified', async ({
-      page,
       target,
-      pages: { relier, login },
+      pages: { page, confirmSignupCode, relier, signin },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp({
@@ -135,13 +133,11 @@ test.describe('severity-1 #smoke', () => {
       });
 
       await page.goto(target.contentServerUrl);
-      await login.fillOutEmailFirstSignIn(
-        credentials.email,
-        credentials.password
-      );
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
 
       //Verify sign up code header
-      await expect(login.signUpCodeHeader).toBeVisible();
+      await expect(page).toHaveURL(/confirm_signup_code/);
 
       const query = new URLSearchParams({
         login_hint: credentials.email,
@@ -161,13 +157,14 @@ test.describe('severity-1 #smoke', () => {
     test('succeeds if login_hint same as logged in user', async ({
       page,
       target,
-      pages: { relier, login },
+      pages: { relier, settings, signin },
       testAccountTracker,
     }) => {
       const { email } = await signInAccount(
         target,
         page,
-        login,
+        settings,
+        signin,
         testAccountTracker
       );
 
@@ -185,10 +182,10 @@ test.describe('severity-1 #smoke', () => {
     test('succeeds if no login_hint is provided', async ({
       page,
       target,
-      pages: { relier, login },
+      pages: { relier, settings, signin },
       testAccountTracker,
     }) => {
-      await signInAccount(target, page, login, testAccountTracker);
+      await signInAccount(target, page, settings, signin, testAccountTracker);
 
       const query = new URLSearchParams({
         return_on_error: 'false',
@@ -203,11 +200,11 @@ test.describe('severity-1 #smoke', () => {
     test('fails if login_hint is different to logged in user', async ({
       page,
       target,
-      pages: { relier, login },
+      pages: { relier, settings, signin },
       testAccountTracker,
     }) => {
       const loginHintAccount = testAccountTracker.generateAccountDetails();
-      await signInAccount(target, page, login, testAccountTracker);
+      await signInAccount(target, page, settings, signin, testAccountTracker);
 
       const query = new URLSearchParams({
         login_hint: loginHintAccount.email,
@@ -227,15 +224,17 @@ test.describe('severity-1 #smoke', () => {
 async function signInAccount(
   target: BaseTarget,
   page: Page,
-  login: LoginPage,
+  settings: SettingsPage,
+  signin: SigninPage,
   testAccountTracker: TestAccountTracker
 ): Promise<Credentials> {
   const credentials = await testAccountTracker.signUp();
   await page.goto(target.contentServerUrl);
-  await login.fillOutEmailFirstSignIn(credentials.email, credentials.password);
+  await signin.fillOutEmailFirstForm(credentials.email);
+  await signin.fillOutPasswordForm(credentials.password);
 
   //Verify logged in on Settings page
-  expect(await login.isUserLoggedIn()).toBe(true);
+  await expect(settings.settingsHeading).toBeVisible();
 
   return credentials;
 }

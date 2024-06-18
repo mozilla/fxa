@@ -22,6 +22,7 @@ import { storeAccountData } from '../../../lib/storage-utils';
 import { handleNavigation } from '../utils';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
+import { isBase32Crockford } from '../../../lib/utilities';
 
 export const viewName = 'signin-recovery-code';
 
@@ -109,9 +110,21 @@ const SigninRecoveryCode = ({
     ftlMsgResolver,
   ]);
 
+  const localizedInvalidCodeError = getLocalizedErrorMessage(
+    ftlMsgResolver,
+    AuthUiErrors.INVALID_RECOVERY_CODE
+  );
+
   const onSubmit = async (code: string) => {
+    setCodeErrorMessage('');
     setBannerErrorMessage('');
     GleanMetrics.loginBackupCode.submit();
+
+    if (code.length !== 10 || !isBase32Crockford(code)) {
+      setCodeErrorMessage(localizedInvalidCodeError);
+      return;
+    }
+
     const response = await submitRecoveryCode(code.toLowerCase());
 
     if (response.data?.consumeRecoveryCode.remaining !== undefined) {
@@ -129,24 +142,12 @@ const SigninRecoveryCode = ({
     if (response.error) {
       let localizedError: string;
 
-      switch (response.error.errno) {
-        // 107 is an "invalid parameter" error, not localizable or user facing
-        case AuthUiErrors.RECOVERY_CODE_NOT_FOUND.errno:
-        case AuthUiErrors.INVALID_RECOVERY_CODE.errno:
-        case 107:
-          const localizedInvalidCodeError = getLocalizedErrorMessage(
-            ftlMsgResolver,
-            AuthUiErrors.INVALID_RECOVERY_CODE
-          );
-          setCodeErrorMessage(localizedInvalidCodeError);
-          break;
-        default:
-          localizedError = getLocalizedErrorMessage(
-            ftlMsgResolver,
-            response.error
-          );
-          setBannerErrorMessage(localizedError);
+      localizedError = getLocalizedErrorMessage(ftlMsgResolver, response.error);
+      if (localizedError === localizedInvalidCodeError) {
+        setCodeErrorMessage(localizedError);
+        return;
       }
+      setBannerErrorMessage(localizedError);
     }
   };
 

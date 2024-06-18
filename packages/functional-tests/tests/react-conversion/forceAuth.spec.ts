@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { test, expect } from '../../lib/fixtures/standard';
+import { expect, test } from '../../lib/fixtures/standard';
 import { getReactFeatureFlagUrl } from '../../lib/react-flag';
 
 test.describe('force auth react', () => {
@@ -15,7 +15,7 @@ test.describe('force auth react', () => {
   test('displays signin with registered email', async ({
     page,
     target,
-    pages: { signinReact },
+    pages: { signin },
     testAccountTracker,
   }) => {
     const credentials = await testAccountTracker.signUp();
@@ -29,15 +29,15 @@ test.describe('force auth react', () => {
     );
     await page.goto(url);
 
-    await expect(signinReact.passwordFormHeading).toBeVisible();
+    await expect(signin.passwordFormHeading).toBeVisible();
     await expect(page.getByText(credentials.email)).toBeVisible();
-    await expect(signinReact.signInButton).toBeVisible();
+    await expect(signin.signInButton).toBeVisible();
   });
 
   test('redirects to signup with unregistered email', async ({
     page,
     target,
-    pages: { configPage, signupReact },
+    pages: { configPage, signup },
   }) => {
     const config = await configPage.getConfig();
     test.skip(config.showReactApp.signUpRoutes !== true);
@@ -52,8 +52,8 @@ test.describe('force auth react', () => {
     );
     await page.goto(url);
 
-    await expect(signupReact.signupFormHeading).toBeVisible();
+    await expect(signup.signupFormHeading).toBeVisible();
     await expect(page.getByText(unregisteredEmail)).toBeVisible();
-    await expect(signupReact.createAccountButton).toBeVisible();
+    await expect(signup.createAccountButton).toBeVisible();
   });
 });

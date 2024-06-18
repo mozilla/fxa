@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Page, expect, test } from '../../../lib/fixtures/standard';
-import { ResetPasswordReactPage } from '../../../pages/resetPasswordReact';
-import { LoginPage } from '../../../pages/login';
+import { ResetPasswordPage } from '../../../pages/resetPassword';
+import { SigninPage } from '../../../pages/signin';
 
 const SERVICE_NAME_123 = '123';
 
@@ -20,23 +20,15 @@ test.describe('severity-1 #smoke', () => {
 
     test('reset password with account recovery key', async ({
       target,
-      pages: {
-        page,
-        login,
-        signinReact,
-        resetPasswordReact,
-        relier,
-        settings,
-        recoveryKey,
-      },
+      pages: { page, signin, resetPassword, relier, settings, recoveryKey },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
       const newPassword = testAccountTracker.generatePassword();
 
-      await signinReact.goto();
-      await signinReact.fillOutEmailFirstForm(credentials.email);
-      await signinReact.fillOutPasswordForm(credentials.password);
+      await signin.goto();
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
 
       // Goes to settings and enables the account recovery key on user's account.
       await settings.recoveryKey.createButton.click();
@@ -53,17 +45,17 @@ test.describe('severity-1 #smoke', () => {
 
       await beginPasswordReset(
         page,
-        login,
-        resetPasswordReact,
+        signin,
+        resetPassword,
         credentials.email,
         SERVICE_NAME_123
       );
 
-      await resetPasswordReact.fillOutEmailForm(credentials.email);
+      await resetPassword.fillOutEmailForm(credentials.email);
       const link = await target.emailClient.getRecoveryLink(credentials.email);
       await page.goto(link, { waitUntil: 'load' });
-      await resetPasswordReact.fillOutRecoveryKeyForm(accountRecoveryKey);
-      await resetPasswordReact.fillOutNewPasswordForm(newPassword);
+      await resetPassword.fillOutRecoveryKeyForm(accountRecoveryKey);
+      await resetPassword.fillOutNewPasswordForm(newPassword);
       credentials.password = newPassword;
 
       // Note: We used to redirect the user back to the relier in some cases
@@ -72,7 +64,7 @@ test.describe('severity-1 #smoke', () => {
 
       await expect(page).toHaveURL(/reset_password_with_recovery_key_verified/);
       await expect(
-        resetPasswordReact.passwordResetConfirmationHeading
+        resetPassword.passwordResetConfirmationHeading
       ).toBeVisible();
       await expect(
         page.getByText(new RegExp(`.*${SERVICE_NAME_123}.*`, 'i'))
@@ -82,16 +74,15 @@ test.describe('severity-1 #smoke', () => {
 
   async function beginPasswordReset(
     page: Page,
-    login: LoginPage,
-    resetPasswordReact: ResetPasswordReactPage,
+    signin: SigninPage,
+    resetPassword: ResetPasswordPage,
     email: string,
     serviceName: string
   ): Promise<void> {
     // TODO: FXA-9015 Update once we port signin / signup.
     // param is set, this view is still using backbone.
-    await login.setEmail(email);
-    await login.submit();
-    await login.clickForgotPassword();
+    await signin.fillOutEmailFirstForm(email);
+    await signin.forgotPasswordLink.click();
 
     // Verify reset password header
     // The service name can change based on environments and all of our test RPs from 123done have
@@ -103,8 +94,6 @@ test.describe('severity-1 #smoke', () => {
     // the iOS client_id, the name displays as "Firefox for iOS" on the "verified" page and also means
     // for now we can check for if the string contains "Firefox", but when we switch to codes, we can determine
     // if we want to and always display "Firefox Sync" on both pages.
-    await expect(resetPasswordReact.resetPasswordHeading).toContainText(
-      serviceName
-    );
+    await expect(resetPassword.resetPasswordHeading).toContainText(serviceName);
   }
 });

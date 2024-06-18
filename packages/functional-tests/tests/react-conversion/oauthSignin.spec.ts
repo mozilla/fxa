@@ -17,7 +17,7 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('verified account, no email confirmation required', async ({
-      pages: { page, relier, signinReact },
+      pages: { page, relier, signin },
       testAccountTracker,
     }, { project }) => {
       test.fixme(
@@ -37,13 +37,13 @@ test.describe('severity-1 #smoke', () => {
         `${page.url()}&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
       );
 
-      await signinReact.fillOutEmailFirstForm(credentials.email);
-      await signinReact.fillOutPasswordForm(credentials.password);
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
       expect(await relier.isLoggedIn()).toBe(true);
     });
 
     test('verified account with cached login, no email confirmation required', async ({
-      pages: { page, relier, signinReact },
+      pages: { page, relier, signin },
       testAccountTracker,
     }, { project }) => {
       test.fixme(
@@ -62,8 +62,8 @@ test.describe('severity-1 #smoke', () => {
         `${page.url()}&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
       );
 
-      await signinReact.fillOutEmailFirstForm(credentials.email);
-      await signinReact.fillOutPasswordForm(credentials.password);
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
       expect(await relier.isLoggedIn()).toBe(true);
 
       await relier.signOut();
@@ -79,16 +79,16 @@ test.describe('severity-1 #smoke', () => {
         `${page.url()}&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
       );
 
-      await expect(signinReact.cachedSigninHeading).toBeVisible();
+      await expect(signin.cachedSigninHeading).toBeVisible();
       // Email is prefilled
       await expect(page.getByText(credentials.email)).toBeVisible();
-      await signinReact.signInButton.click();
+      await signin.signInButton.click();
 
       await relier.isLoggedIn();
     });
 
     test('verified using a cached expired login', async ({
-      pages: { page, relier, signinReact },
+      pages: { page, relier, signin },
       testAccountTracker,
     }, { project }) => {
       test.fixme(
@@ -106,8 +106,8 @@ test.describe('severity-1 #smoke', () => {
         `${page.url()}&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
       );
 
-      await signinReact.fillOutEmailFirstForm(credentials.email);
-      await signinReact.fillOutPasswordForm(credentials.password);
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
 
       expect(await relier.isLoggedIn()).toBe(true);
 
@@ -116,14 +116,14 @@ test.describe('severity-1 #smoke', () => {
       // Attempt to sign back in with cached user
       await relier.clickEmailFirst();
 
-      await expect(signinReact.cachedSigninHeading).toBeVisible();
+      await expect(signin.cachedSigninHeading).toBeVisible();
       // Email is prefilled
       await expect(page.getByText(credentials.email)).toBeVisible();
-      await signinReact.signInButton.click();
+      await signin.signInButton.click();
       await relier.signOut();
 
       // Clear cache and try to login
-      await signinReact.clearCache();
+      await signin.clearCache();
       await relier.goto();
       await relier.clickEmailFirst();
       await expect(page).toHaveURL(/oauth\//);
@@ -134,14 +134,14 @@ test.describe('severity-1 #smoke', () => {
       );
 
       // User will have to re-enter login information
-      await signinReact.fillOutEmailFirstForm(credentials.email);
-      await signinReact.fillOutPasswordForm(credentials.password);
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
       expect(await relier.isLoggedIn()).toBe(true);
     });
 
     test('unverified account, requires signup confirmation code', async ({
       target,
-      pages: { configPage, page, relier, signinReact, signupReact },
+      pages: { configPage, confirmSignupCode, page, relier, signin, signup },
       testAccountTracker,
     }) => {
       const config = await configPage.getConfig();
@@ -163,23 +163,24 @@ test.describe('severity-1 #smoke', () => {
         `${page.url()}&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
       );
 
-      await signinReact.fillOutEmailFirstForm(credentials.email);
-      await signinReact.fillOutPasswordForm(credentials.password);
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
 
       // User is shown confirm code page
       await expect(page).toHaveURL(/confirm_signup_code/);
-      await signupReact.resendCodeButton.click();
+      await confirmSignupCode.resendCodeButton.click();
+      await expect(page).toHaveURL(/confirm_signup_code/);
       const code = await target.emailClient.getVerifyShortCode(
         credentials.email
       );
-      await signupReact.fillOutCodeForm(code);
+      await confirmSignupCode.fillOutCodeForm(code);
 
       expect(await relier.isLoggedIn()).toBe(true);
     });
 
     test('unverified account with a cached login, requires signup confirmation', async ({
       target,
-      pages: { configPage, page, relier, signinReact, signupReact },
+      pages: { configPage, confirmSignupCode, page, relier, signin, signup },
       testAccountTracker,
     }) => {
       const config = await configPage.getConfig();
@@ -191,9 +192,9 @@ test.describe('severity-1 #smoke', () => {
       // Create unverified account
       const { email, password } = testAccountTracker.generateAccountDetails();
 
-      await signupReact.goto();
-      await signupReact.fillOutEmailForm(email);
-      await signupReact.fillOutSignupForm(password, AGE_21);
+      await signup.goto();
+      await signup.fillOutEmailForm(email);
+      await signup.fillOutSignupForm(password, AGE_21);
       // confirm reached confirm_signup_code page but do not confirm
       await expect(page).toHaveURL(/confirm_signup_code/);
 
@@ -207,15 +208,16 @@ test.describe('severity-1 #smoke', () => {
       );
 
       // Cached user detected
-      await expect(signinReact.cachedSigninHeading).toBeVisible();
+      await expect(signin.cachedSigninHeading).toBeVisible();
       // Email is prefilled
       await expect(page.getByText(email)).toBeVisible();
-      await signinReact.signInButton.click();
+      await signin.signInButton.click();
 
       // Verify email and ensure user is redirected to relier
       await expect(page).toHaveURL(/confirm_signup_code/);
+      await expect(page).toHaveURL(/confirm_signup_code/);
       const code = await target.emailClient.getVerifyShortCode(email);
-      await signupReact.fillOutCodeForm(code);
+      await confirmSignupCode.fillOutCodeForm(code);
 
       expect(await relier.isLoggedIn()).toBe(true);
     });
@@ -223,7 +225,7 @@ test.describe('severity-1 #smoke', () => {
     test('oauth endpoint chooses the right auth flows', async ({
       target,
       page,
-      pages: { configPage, relier, signinReact, signupReact },
+      pages: { configPage, confirmSignupCode, relier, signin, signup },
       testAccountTracker,
     }) => {
       const config = await configPage.getConfig();
@@ -243,10 +245,11 @@ test.describe('severity-1 #smoke', () => {
         `${page.url()}&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
       );
 
-      await signupReact.fillOutEmailForm(email);
-      await signupReact.fillOutSignupForm(password, AGE_21);
+      await signup.fillOutEmailForm(email);
+      await signup.fillOutSignupForm(password, AGE_21);
+      await expect(page).toHaveURL(/confirm_signup_code/);
       const code = await target.emailClient.getVerifyShortCode(email);
-      await signupReact.fillOutCodeForm(code);
+      await confirmSignupCode.fillOutCodeForm(code);
 
       // go back to the OAuth app, the /oauth flow should
       // now suggest a cached login
@@ -261,7 +264,7 @@ test.describe('severity-1 #smoke', () => {
         { waitUntil: 'load' }
       );
 
-      await expect(signinReact.cachedSigninHeading).toBeVisible();
+      await expect(signin.cachedSigninHeading).toBeVisible();
     });
   });
 });

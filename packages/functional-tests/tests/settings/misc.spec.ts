@@ -5,16 +5,17 @@
 import { Page, expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
 import { TestAccountTracker } from '../../lib/testAccountTracker';
-import { LoginPage } from '../../pages/login';
+import { SettingsPage } from '../../pages/settings';
+import { SigninPage } from '../../pages/signin';
 
 test.describe('severity-1 #smoke', () => {
   test('settings help link', async ({
     target,
     page,
-    pages: { login, settings },
+    pages: { signin, settings },
     testAccountTracker,
   }) => {
-    await signInAccount(target, page, login, testAccountTracker);
+    await signInAccount(target, page, settings, signin, testAccountTracker);
 
     await settings.goto();
     const helpPage = await settings.clickHelp();
@@ -27,10 +28,10 @@ test.describe('severity-2 #smoke', () => {
   test('open and close bento drop-down menu', async ({
     target,
     page,
-    pages: { login, settings },
+    pages: { signin, settings },
     testAccountTracker,
   }) => {
-    await signInAccount(target, page, login, testAccountTracker);
+    await signInAccount(target, page, settings, signin, testAccountTracker);
 
     await settings.goto();
 
@@ -49,15 +50,17 @@ test.describe('severity-2 #smoke', () => {
 async function signInAccount(
   target: BaseTarget,
   page: Page,
-  login: LoginPage,
+  settings: SettingsPage,
+  signin: SigninPage,
   testAccountTracker: TestAccountTracker
 ): Promise<Credentials> {
   const credentials = await testAccountTracker.signUp();
   await page.goto(target.contentServerUrl);
-  await login.fillOutEmailFirstSignIn(credentials.email, credentials.password);
+  await signin.fillOutEmailFirstForm(credentials.email);
+  await signin.fillOutPasswordForm(credentials.password);
 
   //Verify logged in on Settings page
-  expect(await login.isUserLoggedIn()).toBe(true);
+  await expect(settings.settingsHeading).toBeVisible();
 
   return credentials;
 }

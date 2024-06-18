@@ -16,33 +16,33 @@ test.describe('severity-1 #smoke', () => {
   test('can reset password', async ({
     page,
     target,
-    pages: { signinReact, resetPasswordReact, settings },
+    pages: { signin, resetPassword, settings },
     testAccountTracker,
   }) => {
     const credentials = await testAccountTracker.signUp();
     const newPassword = testAccountTracker.generatePassword();
 
-    await resetPasswordReact.goto();
+    await resetPassword.goto();
 
-    await resetPasswordReact.fillOutEmailForm(credentials.email);
+    await resetPassword.fillOutEmailForm(credentials.email);
 
     const code = await target.emailClient.getResetPasswordCode(
       credentials.email
     );
 
-    await resetPasswordReact.fillOutResetPasswordCodeForm(code);
+    await resetPassword.fillOutResetPasswordCodeForm(code);
 
     // Create and submit new password
-    await resetPasswordReact.fillOutNewPasswordForm(newPassword);
+    await resetPassword.fillOutNewPasswordForm(newPassword);
 
     // Wait for new page to navigate
     await expect(page).toHaveURL(/reset_password_verified/);
 
     await page.goto(target.contentServerUrl);
 
-    await signinReact.fillOutEmailFirstForm(credentials.email);
+    await signin.fillOutEmailFirstForm(credentials.email);
 
-    await signinReact.fillOutPasswordForm(newPassword);
+    await signin.fillOutPasswordForm(newPassword);
 
     await expect(settings.settingsHeading).toBeVisible();
 
@@ -66,88 +66,88 @@ test.describe('severity-1 #smoke', () => {
   for (const { name, error, password } of testCases) {
     test(`cannot set an invalid password - ${name}`, async ({
       target,
-      pages: { page, resetPasswordReact },
+      pages: { page, resetPassword },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
       // eslint-disable-next-line playwright/no-conditional-in-test
       const passwordValue = password ?? credentials.email;
 
-      await resetPasswordReact.goto();
+      await resetPassword.goto();
 
-      await resetPasswordReact.fillOutEmailForm(credentials.email);
+      await resetPassword.fillOutEmailForm(credentials.email);
 
       const code = await target.emailClient.getResetPasswordCode(
         credentials.email
       );
 
-      await resetPasswordReact.fillOutResetPasswordCodeForm(code);
+      await resetPassword.fillOutResetPasswordCodeForm(code);
 
-      await resetPasswordReact.fillOutNewPasswordForm(passwordValue);
+      await resetPassword.fillOutNewPasswordForm(passwordValue);
 
       await expect(page.getByText(error)).toBeVisible();
-      await expect(resetPasswordReact.newPasswordTextbox).toBeFocused();
+      await expect(resetPassword.newPasswordTextbox).toBeFocused();
     });
   }
 
   test('visit confirmation screen without initiating reset_password, user is redirected to /reset_password', async ({
-    pages: { resetPasswordReact },
+    pages: { resetPassword },
   }) => {
-    await resetPasswordReact.goto('/confirm_reset_password');
+    await resetPassword.goto('/confirm_reset_password');
 
     // Verify its redirected to reset password page
-    await expect(resetPasswordReact.resetPasswordHeading).toBeVisible();
+    await expect(resetPassword.resetPasswordHeading).toBeVisible();
   });
 
   test('open /reset_password page from /signin', async ({
-    pages: { signinReact, resetPasswordReact },
+    pages: { signin, resetPassword },
     testAccountTracker,
   }) => {
     const credentials = await testAccountTracker.signUp();
-    await signinReact.goto();
-    await signinReact.fillOutEmailFirstForm(credentials.email);
-    await signinReact.forgotPasswordLink.click();
+    await signin.goto();
+    await signin.fillOutEmailFirstForm(credentials.email);
+    await signin.forgotPasswordLink.click();
 
-    await expect(resetPasswordReact.resetPasswordHeading).toBeVisible();
+    await expect(resetPassword.resetPasswordHeading).toBeVisible();
   });
 
   test('open confirm_reset_password page, click resend', async ({
-    pages: { resetPasswordReact },
+    pages: { resetPassword },
     testAccountTracker,
   }) => {
     const credentials = await testAccountTracker.signUp();
-    await resetPasswordReact.goto();
+    await resetPassword.goto();
 
-    await resetPasswordReact.fillOutEmailForm(credentials.email);
+    await resetPassword.fillOutEmailForm(credentials.email);
 
-    resetPasswordReact.resendButton.click();
+    resetPassword.resendButton.click();
 
-    await expect(resetPasswordReact.statusBar).toHaveText(/Email re-?sent/);
+    await expect(resetPassword.statusBar).toHaveText(/Email re-?sent/);
   });
 
   test('open /reset_password page, enter unknown email, wait for error', async ({
-    pages: { resetPasswordReact },
+    pages: { resetPassword },
   }) => {
-    await resetPasswordReact.goto();
+    await resetPassword.goto();
 
-    await resetPasswordReact.fillOutEmailForm('email@restmail.net');
+    await resetPassword.fillOutEmailForm('email@restmail.net');
 
-    await expect(resetPasswordReact.statusBar).toHaveText('Unknown account');
+    await expect(resetPassword.statusBar).toHaveText('Unknown account');
   });
 
   test('browse directly to page with email on query params', async ({
-    pages: { resetPasswordReact },
+    pages: { resetPassword },
     testAccountTracker,
   }) => {
     const credentials = await testAccountTracker.signUp();
-    await resetPasswordReact.goto(undefined, `email=${credentials.email}`);
+    await resetPassword.goto(undefined, `email=${credentials.email}`);
 
     //The email shouldn't be pre-filled
-    const emailInput = await resetPasswordReact.emailTextbox.inputValue();
+    const emailInput = await resetPassword.emailTextbox.inputValue();
     expect(emailInput).toEqual('');
 
-    await resetPasswordReact.fillOutEmailForm(credentials.email);
+    await resetPassword.fillOutEmailForm(credentials.email);
 
-    await expect(resetPasswordReact.confirmResetPasswordHeading).toBeVisible();
+    await expect(resetPassword.confirmResetPasswordHeading).toBeVisible();
   });
 });

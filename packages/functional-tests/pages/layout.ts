@@ -218,4 +218,42 @@ export abstract class BaseLayout {
       { expectedCommand, response }
     );
   }
+
+  async getAccountFromLocalStorage(email: string) {
+    return await this.page.evaluate((email) => {
+      const accounts: Array<{
+        email: string;
+        sessionToken: string;
+        uid: string;
+      }> = JSON.parse(localStorage.getItem('__fxa_storage.accounts') || '{}');
+      return Object.values(accounts).find((x) => x.email === email);
+    }, email);
+  }
+
+  async destroySession(email: string) {
+    const account = await this.getAccountFromLocalStorage(email);
+    if (account?.sessionToken) {
+      return await this.target.authClient.sessionDestroy(account.sessionToken);
+    }
+  }
+
+  async denormalizeStoredEmail(email: string) {
+    return this.page.evaluate((uid) => {
+      const accounts = JSON.parse(
+        localStorage.getItem('__fxa_storage.accounts') || '{}'
+      );
+
+      for (const accountId in accounts) {
+        if (accountId === uid) {
+          const account = accounts[accountId];
+
+          if (account.email === email) {
+            account.email = email.toUpperCase();
+          }
+        }
+      }
+
+      localStorage.setItem('__fxa_storage.accounts', JSON.stringify(accounts));
+    }, email);
+  }
 }

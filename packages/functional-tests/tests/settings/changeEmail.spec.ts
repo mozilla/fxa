@@ -5,202 +5,207 @@
 import { Page, expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
 import { TestAccountTracker } from '../../lib/testAccountTracker';
-import { LoginPage } from '../../pages/login';
 import { SettingsPage } from '../../pages/settings';
 import { ChangePasswordPage } from '../../pages/settings/changePassword';
 import { SecondaryEmailPage } from '../../pages/settings/secondaryEmail';
+import { SigninPage } from '../../pages/signin';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('change primary email tests', () => {
     test('change primary email and login', async ({
       target,
-      pages: { page, login, settings, secondaryEmail },
+      pages: { page, secondaryEmail, settings, signin },
       testAccountTracker,
     }) => {
       const credentials = await signInAccount(
         target,
         page,
-        login,
+        settings,
+        signin,
         testAccountTracker
       );
+      const initialEmail = credentials.email;
       const newEmail = testAccountTracker.generateEmail();
 
       await settings.goto();
 
       await changePrimaryEmail(target, settings, secondaryEmail, newEmail);
-      const oldEmail = credentials.email;
-      credentials.email = newEmail;
 
       await settings.signOut();
 
       // Sign in with old primary email fails
-      await login.setEmail(oldEmail);
-      await page.locator('button[type=submit]').click();
-      await login.setPassword(credentials.password);
-      await page.locator('button[type=submit]').click();
+      await signin.fillOutEmailFirstForm(initialEmail);
+      await signin.fillOutPasswordForm(credentials.password);
 
       await expect(
         page.getByText('Primary account email required for sign-in')
       ).toBeVisible();
 
       // Success signing in with New email
-      await login.useDifferentAccountLink();
-      await login.login(credentials.email, credentials.password);
+      await signin.useDifferentAccountLink.click();
+      await signin.fillOutEmailFirstForm(newEmail);
+      await signin.fillOutPasswordForm(credentials.password);
 
-      await expect(settings.primaryEmail.status).toHaveText(credentials.email);
+      await expect(settings.primaryEmail.status).toHaveText(newEmail);
+
+      // Update which email to use for account cleanup
+      credentials.email = newEmail;
     });
 
     test('change primary email, password and login', async ({
       target,
-      pages: { page, settings, changePassword, login, secondaryEmail },
+      pages: { page, changePassword, secondaryEmail, settings, signin },
       testAccountTracker,
     }) => {
       const credentials = await signInAccount(
         target,
         page,
-        login,
+        settings,
+        signin,
         testAccountTracker
       );
+      const initialPassword = credentials.password;
       const newEmail = testAccountTracker.generateEmail();
       const newPassword = testAccountTracker.generatePassword();
 
       await settings.goto();
 
       await changePrimaryEmail(target, settings, secondaryEmail, newEmail);
-      credentials.email = newEmail;
 
       await setNewPassword(
         settings,
         changePassword,
-        credentials.password,
+        initialPassword,
         newPassword
       );
-      const oldPassword = credentials.password;
-      credentials.password = newPassword;
 
       await settings.signOut();
 
       // Sign in with old password
-      await login.setEmail(credentials.email);
-      await page.locator('button[type=submit]').click();
-      await login.setPassword(oldPassword);
-      await page.locator('button[type=submit]').click();
+      await signin.fillOutEmailFirstForm(newEmail);
+      await signin.fillOutPasswordForm(initialPassword);
 
-      await expect(login.tooltip).toHaveText('Incorrect password');
+      await expect(page.getByText('Incorrect password')).toBeVisible();
 
       // Sign in with new password
-      await login.setPassword(credentials.password);
-      await login.submit();
+      await signin.fillOutPasswordForm(newPassword);
 
-      await expect(settings.primaryEmail.status).toHaveText(credentials.email);
+      await expect(settings.primaryEmail.status).toHaveText(newEmail);
+
+      // Update credentials to use for account cleanup
+      credentials.email = newEmail;
+      credentials.password = newPassword;
     });
 
     test('change primary email, change password, login, change email and login', async ({
       target,
-      pages: { page, settings, changePassword, login, secondaryEmail },
+      pages: { page, changePassword, secondaryEmail, settings, signin },
       testAccountTracker,
     }) => {
       const credentials = await signInAccount(
         target,
         page,
-        login,
+        settings,
+        signin,
         testAccountTracker
       );
-      const newEmail = testAccountTracker.generateEmail();
+      const initialEmail = credentials.email;
+      const initialPassword = credentials.password;
+      const secondEmail = testAccountTracker.generateEmail();
       const newPassword = testAccountTracker.generatePassword();
 
       await settings.goto();
 
-      await changePrimaryEmail(target, settings, secondaryEmail, newEmail);
-      const oldEmail = credentials.email;
-      credentials.email = newEmail;
+      await changePrimaryEmail(target, settings, secondaryEmail, secondEmail);
 
       await setNewPassword(
         settings,
         changePassword,
-        credentials.password,
+        initialPassword,
         newPassword
       );
-      credentials.password = newPassword;
 
       await settings.signOut();
 
       // Sign in with new password
-      await login.login(credentials.email, credentials.password);
+      await signin.fillOutEmailFirstForm(secondEmail);
+      await signin.fillOutPasswordForm(newPassword);
 
       // Change back the primary email again
       await settings.secondaryEmail.makePrimaryButton.click();
-      credentials.email = oldEmail;
       await settings.signOut();
 
       // Login with primary email and new password
-      await login.login(credentials.email, credentials.password);
+      await signin.fillOutEmailFirstForm(initialEmail);
+      await signin.fillOutPasswordForm(newPassword);
 
       await expect(settings.primaryEmail.status).toHaveText(credentials.email);
+
+      // Update which password to use the account cleanup
+      credentials.password = newPassword;
     });
 
     test('can change primary email, delete account', async ({
       target,
       pages: {
         page,
-        configPage,
+        confirmSignupCode,
         deleteAccount,
-        login,
-        settings,
         secondaryEmail,
+        settings,
+        signin,
+        signup,
       },
       testAccountTracker,
     }) => {
-      const config = await configPage.getConfig();
-      // NOTE: This passes for React when `fullProdRollout` for React Signup is set
-      // to `true`, but when we're only at 15% and the flag is "on", flows would need to
-      // be accessed with the force experiment params. Since we'll be porting these over
-      // for React, for now, skip these tests if the flag is on.
-      test.skip(config.showReactApp.signUpRoutes === true);
-
       const credentials = await signInAccount(
         target,
         page,
-        login,
+        settings,
+        signin,
         testAccountTracker
       );
       const newEmail = testAccountTracker.generateEmail();
+      const newPassword = testAccountTracker.generatePassword();
 
       await settings.goto();
 
       await changePrimaryEmail(target, settings, secondaryEmail, newEmail);
-      credentials.email = newEmail;
+      await expect(settings.primaryEmail.status).toHaveText(newEmail);
 
       // Click delete account
       await settings.deleteAccountButton.click();
-      await deleteAccount.checkAllBoxes();
-      await deleteAccount.continueButton.click();
-
-      // Enter the correct password
-      await deleteAccount.passwordTextbox.fill(credentials.password);
-      await deleteAccount.deleteButton.click();
+      await deleteAccount.deleteAccount(credentials.password);
 
       // Try creating a new account with the same secondary email as previous account and new password
-      await login.fillOutFirstSignUp(credentials.email, credentials.password);
+      await signup.fillOutEmailForm(newEmail);
+      await signup.fillOutSignupForm(newPassword, '21');
+      await expect(page).toHaveURL(/confirm_signup_code/);
+      const code = await target.emailClient.getVerifyShortCode(newEmail);
+      await confirmSignupCode.fillOutCodeForm(code);
 
       await expect(settings.alertBar).toHaveText(
         'Account confirmed successfully'
       );
-      await expect(settings.primaryEmail.status).toHaveText(credentials.email);
+      await expect(settings.primaryEmail.status).toHaveText(newEmail);
+
+      // Update credentials to use for account cleanup
+      credentials.email = newEmail;
+      credentials.password = newPassword;
     });
 
     test('removing secondary emails', async ({
       target,
-      pages: { page, login, settings, secondaryEmail },
+      pages: { page, secondaryEmail, settings, signin },
       testAccountTracker,
     }) => {
-      await signInAccount(target, page, login, testAccountTracker);
+      await signInAccount(target, page, settings, signin, testAccountTracker);
       const newEmail = testAccountTracker.generateEmail();
 
       await settings.goto();
       await settings.secondaryEmail.addButton.click();
       await secondaryEmail.fillOutEmail(newEmail);
-      const code: string = await target.emailClient.getVerifySecondCode(
+      const code: string = await target.emailClient.getVerifySecondaryCode(
         newEmail
       );
       await secondaryEmail.fillOutVerificationCode(code);
@@ -233,15 +238,17 @@ test.describe('severity-1 #smoke', () => {
 async function signInAccount(
   target: BaseTarget,
   page: Page,
-  login: LoginPage,
+  settings: SettingsPage,
+  signin: SigninPage,
   testAccountTracker: TestAccountTracker
 ): Promise<Credentials> {
   const credentials = await testAccountTracker.signUp();
   await page.goto(target.contentServerUrl);
-  await login.fillOutEmailFirstSignIn(credentials.email, credentials.password);
+  await signin.fillOutEmailFirstForm(credentials.email);
+  await signin.fillOutPasswordForm(credentials.password);
 
   //Verify logged in on Settings page
-  expect(await login.isUserLoggedIn()).toBe(true);
+  await expect(settings.settingsHeading).toBeVisible();
 
   return credentials;
 }
@@ -254,7 +261,7 @@ async function changePrimaryEmail(
 ): Promise<void> {
   await settings.secondaryEmail.addButton.click();
   await secondaryEmail.fillOutEmail(email);
-  const code: string = await target.emailClient.getVerifySecondCode(email);
+  const code: string = await target.emailClient.getVerifySecondaryCode(email);
   await secondaryEmail.fillOutVerificationCode(code);
   await settings.secondaryEmail.makePrimaryButton.click();
 

@@ -6,9 +6,8 @@ import { expect } from '@playwright/test';
 import { BaseLayout } from './layout';
 import { getReactFeatureFlagUrl } from '../lib/react-flag';
 
-export class SigninReactPage extends BaseLayout {
+export class SigninPage extends BaseLayout {
   readonly path = 'signin';
-
   get authenticationFormHeading() {
     return this.page.getByRole('heading', {
       name: /^Enter (?:authentication|security) code/,
@@ -31,16 +30,20 @@ export class SigninReactPage extends BaseLayout {
     return this.page.getByRole('heading', { name: /^Sign in/ });
   }
 
-  get codeFormHeading() {
-    return this.page.getByRole('heading', { name: 'Boop' });
-  }
-
   get codeTextbox() {
     return this.page.getByRole('textbox', { name: 'Enter 6-digit code' });
   }
 
   get confirmButton() {
     return this.page.getByRole('button', { name: 'Confirm' });
+  }
+
+  get continueWithAppleButton() {
+    return this.page.getByRole('button', { name: 'Continue with Apple' });
+  }
+
+  get continueWithGoogleButton() {
+    return this.page.getByRole('button', { name: 'Continue with Google' });
   }
 
   get emailFirstHeading() {
@@ -72,6 +75,31 @@ export class SigninReactPage extends BaseLayout {
 
   get signInButton() {
     return this.page.getByRole('button', { name: 'Sign in' });
+  }
+
+  get signinBouncedHeading() {
+    return this.page.getByRole('heading', {
+      name: 'Sorry. We’ve locked your account.',
+    });
+  }
+
+  // for backwards compatibility with Backbone
+  // not currently implemented in React, see FXA-8827
+  get permissionsHeading() {
+    return this.page.getByRole('heading', { name: /^Request for permission/ });
+  }
+
+  // for backwards compatibility with Backbone
+  // not currently implemented in React, see FXA-8827
+  get permissionsAcceptButton() {
+    return this.page.getByRole('button', { name: 'Accept' });
+  }
+
+  get signinBouncedCreateAccountButton() {
+    const name = 'No longer own that email? Create a new account';
+    return this.page
+      .getByRole('button', { name }) // React
+      .or(this.page.getByRole('link', { name })); // Backbone
   }
 
   get syncSignInHeading() {

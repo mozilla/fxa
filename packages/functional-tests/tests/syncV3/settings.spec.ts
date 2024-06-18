@@ -10,10 +10,11 @@ test.describe('severity-2 #smoke', () => {
     test('sign in, change the password', async ({
       target,
       syncBrowserPages: {
-        login,
         changePassword,
         connectAnotherDevice,
         settings,
+        signin,
+        signinTokenCode,
         page,
       },
       testAccountTracker,
@@ -30,20 +31,20 @@ test.describe('severity-2 #smoke', () => {
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
       );
-      await login.respondToWebChannelMessage(customEventDetail);
-      await login.fillOutEmailFirstSignIn(
-        credentials.email,
-        credentials.password
-      );
+      await signin.respondToWebChannelMessage(customEventDetail);
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
 
-      await expect(login.signInCodeHeader).toBeVisible();
+      await expect(page).toHaveURL(/signin_token_code/);
 
-      await login.checkWebChannelMessage(FirefoxCommand.LinkAccount);
+      await signin.checkWebChannelMessage(FirefoxCommand.LinkAccount);
+
       const code = await target.emailClient.getVerifyLoginCode(
         credentials.email
       );
-      await login.fillOutSignInCode(code);
-      await login.checkWebChannelMessage(FirefoxCommand.Login);
+      await signinTokenCode.fillOutCodeForm(code);
+
+      await signin.checkWebChannelMessage(FirefoxCommand.Login);
 
       await expect(connectAnotherDevice.fxaConnected).toBeEnabled();
 
@@ -67,10 +68,11 @@ test.describe('severity-2 #smoke', () => {
     test('sign in, change the password by browsing directly to settings', async ({
       target,
       syncBrowserPages: {
-        login,
         changePassword,
         connectAnotherDevice,
         settings,
+        signin,
+        signinTokenCode,
         page,
       },
       testAccountTracker,
@@ -87,20 +89,19 @@ test.describe('severity-2 #smoke', () => {
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
       );
-      await login.respondToWebChannelMessage(customEventDetail);
-      await login.fillOutEmailFirstSignIn(
-        credentials.email,
-        credentials.password
-      );
+      await signin.respondToWebChannelMessage(customEventDetail);
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
 
-      await expect(login.signInCodeHeader).toBeVisible();
+      await expect(page).toHaveURL(/signin_token_code/);
 
-      await login.checkWebChannelMessage(FirefoxCommand.LinkAccount);
+      await signin.checkWebChannelMessage(FirefoxCommand.LinkAccount);
+
       const code = await target.emailClient.getVerifyLoginCode(
         credentials.email
       );
-      await login.fillOutSignInCode(code);
-      await login.checkWebChannelMessage(FirefoxCommand.Login);
+      await signinTokenCode.fillOutCodeForm(code);
+      await signin.checkWebChannelMessage(FirefoxCommand.Login);
 
       await expect(connectAnotherDevice.fxaConnected).toBeEnabled();
 
@@ -109,7 +110,7 @@ test.describe('severity-2 #smoke', () => {
 
       //Change password
       await settings.password.changeButton.click();
-      await login.noSuchWebChannelMessage(FirefoxCommand.ChangePassword);
+      await signin.noSuchWebChannelMessage(FirefoxCommand.ChangePassword);
       await changePassword.fillOutChangePassword(
         credentials.password,
         newPassword
@@ -124,7 +125,13 @@ test.describe('severity-2 #smoke', () => {
   test.describe('Firefox Desktop Sync v3 settings - delete account', () => {
     test('sign in, delete the account', async ({
       target,
-      syncBrowserPages: { login, settings, deleteAccount, page },
+      syncBrowserPages: {
+        settings,
+        deleteAccount,
+        page,
+        signin,
+        signinTokenCode,
+      },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUpSync();
@@ -132,19 +139,18 @@ test.describe('severity-2 #smoke', () => {
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
       );
-      await login.fillOutEmailFirstSignIn(
-        credentials.email,
-        credentials.password
-      );
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
+
+      await expect(page).toHaveURL(/signin_token_code/);
+
       const code = await target.emailClient.getVerifyLoginCode(
         credentials.email
       );
-      await login.fillOutSignInCode(code);
+      await signinTokenCode.fillOutCodeForm(code);
+      await expect(page).toHaveURL(/connect_another_device/);
 
-      //Go to setting page
-      await page.goto(
-        `${target.contentServerUrl}/settings?context=fx_desktop_v3&service=sync`
-      );
+      await settings.goto();
       //Click Delete account
       await settings.deleteAccountButton.click();
       await deleteAccount.deleteAccount(credentials.password);

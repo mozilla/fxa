@@ -5,19 +5,18 @@
 import { Page, expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
 import { TestAccountTracker } from '../../lib/testAccountTracker';
-import { LoginPage } from '../../pages/login';
+import { SettingsPage } from '../../pages/settings';
+import { SigninPage } from '../../pages/signin';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('change password tests', () => {
     test('change password with an incorrect old password', async ({
       target,
-      pages: { page, login, settings, changePassword },
+      pages: { page, changePassword, settings, signin },
       testAccountTracker,
     }) => {
-      await signInAccount(target, page, login, testAccountTracker);
+      await signInAccount(target, page, settings, signin, testAccountTracker);
       const newPassword = testAccountTracker.generatePassword();
-
-      await settings.goto();
 
       // Enter incorrect old password and verify the tooltip error
       await settings.password.changeButton.click();
@@ -31,46 +30,43 @@ test.describe('severity-1 #smoke', () => {
 
     test('change password with a correct password', async ({
       target,
-      pages: { page, settings, changePassword, login },
+      pages: { page, changePassword, settings, signin },
       testAccountTracker,
     }) => {
       const credentials = await signInAccount(
         target,
         page,
-        login,
+        settings,
+        signin,
         testAccountTracker
       );
+      const initialPassword = credentials.password;
       const newPassword = testAccountTracker.generatePassword();
-
-      await settings.goto();
 
       // Enter the correct old password and verify that change password is successful
       await settings.password.changeButton.click();
-      await changePassword.fillOutChangePassword(
-        credentials.password,
-        newPassword
-      );
-      credentials.password = newPassword;
+      await changePassword.fillOutChangePassword(initialPassword, newPassword);
 
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.alertBar).toHaveText('Password updated');
 
       // Sign out and login with new password
       await settings.signOut();
-      await login.fillOutEmailFirstSignIn(
-        credentials.email,
-        credentials.password
-      );
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(newPassword);
 
       await expect(settings.primaryEmail.status).toHaveText(credentials.email);
+
+      // Update credentials for account cleanup
+      credentials.password = newPassword;
     });
 
     test('change password with short password tooltip shows, cancel and try to change password again, tooltip is not shown', async ({
       target,
-      pages: { page, login, settings, changePassword },
+      pages: { page, changePassword, settings, signin },
       testAccountTracker,
     }) => {
-      await signInAccount(target, page, login, testAccountTracker);
+      await signInAccount(target, page, settings, signin, testAccountTracker);
 
       await settings.goto();
       await settings.password.changeButton.click();
@@ -92,10 +88,10 @@ test.describe('severity-1 #smoke', () => {
 
     test('reset password via settings works', async ({
       target,
-      pages: { page, login, settings, changePassword, resetPasswordReact },
+      pages: { page, changePassword, resetPassword, settings, signin },
       testAccountTracker,
     }) => {
-      await signInAccount(target, page, login, testAccountTracker);
+      await signInAccount(target, page, settings, signin, testAccountTracker);
 
       await settings.goto();
 
@@ -105,7 +101,7 @@ test.describe('severity-1 #smoke', () => {
 
       await changePassword.forgotPasswordLink.click();
 
-      await expect(resetPasswordReact.resetPasswordHeading).toBeVisible();
+      await expect(resetPassword.resetPasswordHeading).toBeVisible();
     });
   });
 });
@@ -113,15 +109,17 @@ test.describe('severity-1 #smoke', () => {
 async function signInAccount(
   target: BaseTarget,
   page: Page,
-  login: LoginPage,
+  settings: SettingsPage,
+  signin: SigninPage,
   testAccountTracker: TestAccountTracker
 ): Promise<Credentials> {
   const credentials = await testAccountTracker.signUp();
   await page.goto(target.contentServerUrl);
-  await login.fillOutEmailFirstSignIn(credentials.email, credentials.password);
+  await signin.fillOutEmailFirstForm(credentials.email);
+  await signin.fillOutPasswordForm(credentials.password);
 
   //Verify logged in on Settings page
-  expect(await login.isUserLoggedIn()).toBe(true);
+  await expect(settings.settingsHeading).toBeVisible();
 
   return credentials;
 }

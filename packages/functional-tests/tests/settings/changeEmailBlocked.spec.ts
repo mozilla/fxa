@@ -5,22 +5,23 @@
 import { Page, expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
 import { TestAccountTracker } from '../../lib/testAccountTracker';
-import { LoginPage } from '../../pages/login';
 import { SettingsPage } from '../../pages/settings';
-import { DeleteAccountPage } from '../../pages/settings/deleteAccount';
 import { SecondaryEmailPage } from '../../pages/settings/secondaryEmail';
+import { SigninPage } from '../../pages/signin';
+import { SigninUnblockPage } from '../../pages/signinUnblock';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('change primary - unblock', () => {
     test('change primary email, get blocked with invalid password, redirect enter password page', async ({
       target,
-      pages: { page, settings, login, secondaryEmail, deleteAccount },
+      pages: { page, secondaryEmail, settings, signin, signinUnblock },
       testAccountTracker,
     }) => {
       const credentials = await signInAccount(
         target,
         page,
-        login,
+        settings,
+        signin,
         testAccountTracker
       );
       const blockedEmail = testAccountTracker.generateBlockedEmail();
@@ -28,54 +29,52 @@ test.describe('severity-1 #smoke', () => {
 
       await settings.goto();
       await changePrimaryEmail(target, settings, secondaryEmail, blockedEmail);
-      credentials.email = blockedEmail;
       await settings.signOut();
-      await login.login(credentials.email, invalidPassword);
+      await signin.fillOutEmailFirstForm(blockedEmail);
+      await signin.fillOutPasswordForm(invalidPassword);
 
       // Fill out unblock
-      const code1 = await target.emailClient.getUnblockCode(credentials.email);
-      await login.unblock(code1);
+      await unblockAccount(blockedEmail, target, signinUnblock);
 
       // Verify the incorrect password error
       await expect(page.getByText('Incorrect password')).toBeVisible();
 
       // Delete blocked account, required before teardown
-      await login.setPassword(credentials.password);
-      await login.submit();
-      const code2 = await target.emailClient.getUnblockCode(credentials.email);
-      await login.unblock(code2);
-      await settings.goto();
-      await removeAccount(settings, deleteAccount, page, credentials.password);
+      await signin.fillOutPasswordForm(credentials.password);
+      await unblockAccount(blockedEmail, target, signinUnblock);
+      await expect(settings.settingsHeading).toBeVisible();
+      // reset primary email to non-blocked email for account cleanup
+      await settings.secondaryEmail.makePrimaryButton.click();
     });
 
     test('can change primary email, get blocked with valid password, redirect settings page', async ({
       target,
-      pages: { page, settings, login, secondaryEmail, deleteAccount },
+      pages: { page, secondaryEmail, settings, signin, signinUnblock },
       testAccountTracker,
     }) => {
       const credentials = await signInAccount(
         target,
         page,
-        login,
+        settings,
+        signin,
         testAccountTracker
       );
       const blockedEmail = testAccountTracker.generateBlockedEmail();
 
       await settings.goto();
       await changePrimaryEmail(target, settings, secondaryEmail, blockedEmail);
-      credentials.email = blockedEmail;
       await settings.signOut();
 
-      await login.login(credentials.email, credentials.password);
+      await signin.fillOutEmailFirstForm(blockedEmail);
+      await signin.fillOutPasswordForm(credentials.password);
       // Fill out unblock
-      const code = await target.emailClient.getUnblockCode(credentials.email);
-      await login.unblock(code);
+      await unblockAccount(blockedEmail, target, signinUnblock);
 
       // Verify settings url redirected
-      await expect(page).toHaveURL(settings.url);
+      await expect(settings.settingsHeading).toBeVisible();
 
-      // Delete blocked account, required before teardown
-      await removeAccount(settings, deleteAccount, page, credentials.password);
+      // reset primary email to non-blocked email for account cleanup
+      await settings.secondaryEmail.makePrimaryButton.click();
     });
   });
 });
@@ -83,15 +82,17 @@ test.describe('severity-1 #smoke', () => {
 async function signInAccount(
   target: BaseTarget,
   page: Page,
-  login: LoginPage,
+  settings: SettingsPage,
+  signin: SigninPage,
   testAccountTracker: TestAccountTracker
 ): Promise<Credentials> {
   const credentials = await testAccountTracker.signUp();
   await page.goto(target.contentServerUrl);
-  await login.fillOutEmailFirstSignIn(credentials.email, credentials.password);
+  await signin.fillOutEmailFirstForm(credentials.email);
+  await signin.fillOutPasswordForm(credentials.password);
 
   //Verify logged in on Settings page
-  expect(await login.isUserLoggedIn()).toBe(true);
+  await expect(settings.settingsHeading).toBeVisible();
 
   return credentials;
 }
@@ -104,7 +105,7 @@ async function changePrimaryEmail(
 ): Promise<void> {
   await settings.secondaryEmail.addButton.click();
   await secondaryEmail.fillOutEmail(email);
-  const code: string = await target.emailClient.getVerifySecondCode(email);
+  const code: string = await target.emailClient.getVerifySecondaryCode(email);
   await secondaryEmail.fillOutVerificationCode(code);
   await settings.secondaryEmail.makePrimaryButton.click();
 
@@ -114,14 +115,11 @@ async function changePrimaryEmail(
   );
 }
 
-async function removeAccount(
-  settings: SettingsPage,
-  deleteAccount: DeleteAccountPage,
-  page: Page,
-  password: string
+async function unblockAccount(
+  blockedEmail: string,
+  target: BaseTarget,
+  signinUnblock: SigninUnblockPage
 ) {
-  await settings.deleteAccountButton.click();
-  await deleteAccount.deleteAccount(password);
-
-  await expect(page.getByText('Account deleted successfully')).toBeVisible();
+  const code = await target.emailClient.getUnblockCode(blockedEmail);
+  await signinUnblock.fillOutCodeForm(code);
 }

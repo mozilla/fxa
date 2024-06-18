@@ -10,7 +10,7 @@ test.describe('severity-2 #smoke', () => {
   test.describe('Firefox desktop user info handshake', () => {
     test('Sync - no user signed into browser, no user signed in locally', async ({
       target,
-      syncBrowserPages: { login, page },
+      syncBrowserPages: { page, signin },
     }) => {
       const query = new URLSearchParams({
         forceUA: uaStrings['desktop_firefox_71'],
@@ -20,13 +20,13 @@ test.describe('severity-2 #smoke', () => {
           target.contentServerUrl
         }?context=fx_desktop_v3&service=sync&${query.toString()}`
       );
-      await login.waitForEmailHeader();
-      expect(await login.getEmailInput()).toContain('');
+      await expect(signin.syncSignInHeading).toBeVisible();
+      await expect(signin.emailTextbox).toHaveValue('');
     });
 
     test('Sync - user signed into browser, no user signed in locally', async ({
       target,
-      syncBrowserPages: { login, page },
+      syncBrowserPages: { page, signin },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
@@ -45,14 +45,15 @@ test.describe('severity-2 #smoke', () => {
           target.contentServerUrl
         }?context=fx_desktop_v3&service=sync&automatedBrowser=true&${query.toString()}`
       );
-      await login.respondToWebChannelMessage(eventDetailStatus);
-      await login.checkWebChannelMessage('fxaccounts:fxa_status');
-      expect(await login.getPrefilledEmail()).toContain(credentials.email);
+      await signin.respondToWebChannelMessage(eventDetailStatus);
+      await signin.checkWebChannelMessage('fxaccounts:fxa_status');
+      await expect(signin.passwordFormHeading).toBeVisible();
+      await expect(page.getByText(credentials.email)).toBeVisible();
     });
 
     test('Sync force_auth page - user signed into browser is different to requested user', async ({
       target,
-      syncBrowserPages: { login, page },
+      syncBrowserPages: { page, signin },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
@@ -72,14 +73,15 @@ test.describe('severity-2 #smoke', () => {
           target.contentServerUrl
         }?force_auth&automatedBrowser=true&context=fx_desktop_v3&service=sync&${query.toString()}`
       );
-      await login.respondToWebChannelMessage(eventDetailStatus);
-      await login.checkWebChannelMessage('fxaccounts:fxa_status');
-      expect(await login.getPrefilledEmail()).toContain(syncCredentials.email);
+      await signin.respondToWebChannelMessage(eventDetailStatus);
+      await signin.checkWebChannelMessage('fxaccounts:fxa_status');
+      await expect(signin.passwordFormHeading).toBeVisible();
+      await expect(page.getByText(syncCredentials.email)).toBeVisible();
     });
 
     test('Sync - no user signed into browser, user signed in locally', async ({
       target,
-      syncBrowserPages: { login, page },
+      syncBrowserPages: { page, settings, signin },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUpSync();
@@ -89,17 +91,16 @@ test.describe('severity-2 #smoke', () => {
       await page.goto(
         `${target.contentServerUrl}?automatedBrowser=true&${query.toString()}`
       );
-      await login.fillOutEmailFirstSignIn(
-        credentials.email,
-        credentials.password
-      );
-      expect(await login.isUserLoggedIn()).toBe(true);
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
+      await expect(settings.settingsHeading).toBeVisible();
       await page.goto(
         `${
           target.contentServerUrl
         }?context=fx_desktop_v3&service=sync&automatedBrowser=true&${query.toString()}`
       );
-      expect(await login.getPrefilledEmail()).toContain(credentials.email);
+      await expect(signin.passwordFormHeading).toBeVisible();
+      await expect(page.getByText(credentials.email)).toBeVisible();
     });
   });
 });

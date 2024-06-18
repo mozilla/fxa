@@ -1,4 +1,4 @@
-import { test, expect } from '../lib/fixtures/standard';
+import { expect, test } from '../lib/fixtures/standard';
 
 test.describe('severity-1', () => {
   // runs all mocha tests - see output here: http://127.0.0.1:3030/tests/index.html
@@ -17,16 +17,22 @@ test.describe('severity-1', () => {
   });
 
   test('prompt=consent', async ({
-    pages: { relier, login },
+    pages: { configPage, relier, signin },
     testAccountTracker,
   }) => {
+    const config = await configPage.getConfig();
+    test.skip(
+      config.showReactApp.signInRoutes === true,
+      'permissions page is not supported in React, see FXA-8827'
+    );
     const credentials = await testAccountTracker.signUp();
 
     await relier.goto('prompt=consent');
     await relier.clickEmailFirst();
-    await login.login(credentials.email, credentials.password);
-    expect(await login.permissionsHeader()).toBe(true);
-    await login.submit();
+    await signin.fillOutEmailFirstForm(credentials.email);
+    await signin.fillOutPasswordForm(credentials.password);
+    await expect(signin.permissionsHeading).toBeVisible();
+    await signin.permissionsAcceptButton.click();
     expect(await relier.isLoggedIn()).toBe(true);
   });
 });

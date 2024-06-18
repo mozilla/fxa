@@ -32,17 +32,16 @@ test.describe('severity-2 #smoke', () => {
   test(`signs up as v1 and signs in as v1 for backbone`, async ({
     page,
     target,
-    pages: { signupReact, settings, login },
+    pages: { signup, settings, signin, confirmSignupCode },
     testAccountTracker,
   }) => {
     const { email, password } = testAccountTracker.generateAccountDetails();
-    await page.goto(
-      `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react`
-    );
-    await signupReact.fillOutEmailForm(email);
-    await signupReact.fillOutSignupForm(password, AGE_21);
+    await page.goto(target.contentServerUrl);
+    await signup.fillOutEmailForm(email);
+    await signup.fillOutSignupForm(password, AGE_21);
+    await expect(page).toHaveURL(/confirm_signup_code/);
     const code = await target.emailClient.getVerifyShortCode(email);
-    await signupReact.fillOutCodeForm(code);
+    await confirmSignupCode.fillOutCodeForm(code);
 
     await expect(page).toHaveURL(/settings/);
 
@@ -51,12 +50,10 @@ test.describe('severity-2 #smoke', () => {
     await _checkCredentialsVersion1(target, email);
 
     await page.goto(`${target.contentServerUrl}`);
-    await login.setEmail(email);
-    await login.clickSubmit();
-    await login.setPassword(password);
-    await login.clickSubmit();
+    await signin.fillOutEmailFirstForm(email);
+    await signin.fillOutPasswordForm(password);
 
-    expect(await login.isUserLoggedIn()).toBe(true);
+    await expect(settings.settingsHeading).toBeVisible();
 
     await _checkCredentialsVersion1(target, email);
   });
@@ -64,17 +61,18 @@ test.describe('severity-2 #smoke', () => {
   test(`signs up as v1 and signs in as v1 for react`, async ({
     page,
     target,
-    pages: { signinReact, signupReact, settings },
+    pages: { signin, signup, settings, confirmSignupCode },
     testAccountTracker,
   }) => {
     const { email, password } = testAccountTracker.generateAccountDetails();
     await page.goto(
       `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react`
     );
-    await signupReact.fillOutEmailForm(email);
-    await signupReact.fillOutSignupForm(password, AGE_21);
+    await signup.fillOutEmailForm(email);
+    await signup.fillOutSignupForm(password, AGE_21);
+    await expect(page).toHaveURL(/confirm_signup_code/);
     const code = await target.emailClient.getVerifyShortCode(email);
-    await signupReact.fillOutCodeForm(code);
+    await confirmSignupCode.fillOutCodeForm(code);
 
     await expect(page).toHaveURL(/settings/);
 
@@ -85,8 +83,8 @@ test.describe('severity-2 #smoke', () => {
     await page.goto(
       `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react`
     );
-    await signinReact.fillOutEmailFirstForm(email);
-    await signinReact.fillOutPasswordForm(password);
+    await signin.fillOutEmailFirstForm(email);
+    await signin.fillOutPasswordForm(password);
 
     await expect(page).toHaveURL(/settings/);
 
@@ -96,17 +94,16 @@ test.describe('severity-2 #smoke', () => {
   test(`signs up as v1 and signs in as v2 for backbone`, async ({
     page,
     target,
-    pages: { signupReact, settings, login },
+    pages: { signup, settings, signin, confirmSignupCode },
     testAccountTracker,
   }) => {
     const { email, password } = testAccountTracker.generateAccountDetails();
-    await page.goto(
-      `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react`
-    );
-    await signupReact.fillOutEmailForm(email);
-    await signupReact.fillOutSignupForm(password, AGE_21);
+    await page.goto(target.contentServerUrl);
+    await signup.fillOutEmailForm(email);
+    await signup.fillOutSignupForm(password, AGE_21);
+    await expect(page).toHaveURL(/confirm_signup_code/);
     const code = await target.emailClient.getVerifyShortCode(email);
-    await signupReact.fillOutCodeForm(code);
+    await confirmSignupCode.fillOutCodeForm(code);
 
     await expect(page).toHaveURL(/settings/);
 
@@ -115,12 +112,10 @@ test.describe('severity-2 #smoke', () => {
     await _checkCredentialsVersion1(target, email);
 
     await page.goto(`${target.contentServerUrl}?stretch=2`);
-    await login.setEmail(email);
-    await login.clickSubmit();
-    await login.setPassword(password);
-    await login.clickSubmit();
+    await signin.fillOutEmailFirstForm(email);
+    await signin.fillOutPasswordForm(password);
 
-    expect(await login.isUserLoggedIn()).toBe(true);
+    await expect(settings.settingsHeading).toBeVisible();
 
     await _checkCredentialsVersion2(target, email);
   });
@@ -128,17 +123,18 @@ test.describe('severity-2 #smoke', () => {
   test(`signs up as v1 and signs in as v2 for react`, async ({
     page,
     target,
-    pages: { signinReact, signupReact, settings },
+    pages: { signin, signup, settings, confirmSignupCode },
     testAccountTracker,
   }) => {
     const { email, password } = testAccountTracker.generateAccountDetails();
     await page.goto(
       `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react`
     );
-    await signupReact.fillOutEmailForm(email);
-    await signupReact.fillOutSignupForm(password, AGE_21);
+    await signup.fillOutEmailForm(email);
+    await signup.fillOutSignupForm(password, AGE_21);
+    await expect(page).toHaveURL(/confirm_signup_code/);
     const code = await target.emailClient.getVerifyShortCode(email);
-    await signupReact.fillOutCodeForm(code);
+    await confirmSignupCode.fillOutCodeForm(code);
 
     await expect(page).toHaveURL(/settings/);
 
@@ -149,8 +145,8 @@ test.describe('severity-2 #smoke', () => {
     await page.goto(
       `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react&stretch=2`
     );
-    await signinReact.fillOutEmailFirstForm(email);
-    await signinReact.fillOutPasswordForm(password);
+    await signin.fillOutEmailFirstForm(email);
+    await signin.fillOutPasswordForm(password);
 
     await expect(page).toHaveURL(/settings/);
 

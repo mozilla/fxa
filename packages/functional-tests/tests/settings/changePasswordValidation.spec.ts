@@ -5,7 +5,8 @@
 import { Page, expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
 import { TestAccountTracker } from '../../lib/testAccountTracker';
-import { LoginPage } from '../../pages/login';
+import { SettingsPage } from '../../pages/settings';
+import { SigninPage } from '../../pages/signin';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('change password validation tests', () => {
@@ -32,10 +33,10 @@ test.describe('severity-1 #smoke', () => {
     for (const { name, error, password, confirmPassword } of testCases) {
       test(`new password validation - ${name}`, async ({
         target,
-        pages: { page, login, settings, changePassword },
+        pages: { page, changePassword, settings, signin },
         testAccountTracker,
       }) => {
-        await signInAccount(target, page, login, testAccountTracker);
+        await signInAccount(target, page, settings, signin, testAccountTracker);
 
         await settings.goto();
         await settings.password.changeButton.click();
@@ -51,13 +52,14 @@ test.describe('severity-1 #smoke', () => {
 
     test(`new password validation - email as password`, async ({
       target,
-      pages: { page, login, settings, changePassword },
+      pages: { page, changePassword, settings, signin },
       testAccountTracker,
     }) => {
       const { email } = await signInAccount(
         target,
         page,
-        login,
+        settings,
+        signin,
         testAccountTracker
       );
 
@@ -78,15 +80,17 @@ test.describe('severity-1 #smoke', () => {
 async function signInAccount(
   target: BaseTarget,
   page: Page,
-  login: LoginPage,
+  settings: SettingsPage,
+  signin: SigninPage,
   testAccountTracker: TestAccountTracker
 ): Promise<Credentials> {
   const credentials = await testAccountTracker.signUp();
   await page.goto(target.contentServerUrl);
-  await login.fillOutEmailFirstSignIn(credentials.email, credentials.password);
+  await signin.fillOutEmailFirstForm(credentials.email);
+  await signin.fillOutPasswordForm(credentials.password);
 
   //Verify logged in on Settings page
-  expect(await login.isUserLoggedIn()).toBe(true);
+  await expect(settings.settingsHeading).toBeVisible();
 
   return credentials;
 }

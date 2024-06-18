@@ -2,7 +2,7 @@ import { expect } from '@playwright/test';
 import { BaseLayout } from './layout';
 import { getReactFeatureFlagUrl } from '../lib/react-flag';
 
-export class SignupReactPage extends BaseLayout {
+export class SignupPage extends BaseLayout {
   readonly path = 'signup';
 
   get emailFormHeading() {
@@ -45,26 +45,36 @@ export class SignupReactPage extends BaseLayout {
     return this.page.getByRole('button', { name: 'Create account' });
   }
 
-  get codeFormHeading() {
-    return this.page.getByRole('heading', { name: /^Enter confirmation code/ });
-  }
-
-  get codeTextbox() {
-    return this.page
-      .getByLabel('Enter 6-digit code') // React
-      .or(this.page.getByPlaceholder('Enter 6-digit code')); // Backbone
-  }
-
-  get confirmButton() {
-    return this.page.getByRole('button', { name: 'Confirm' });
-  }
-
   get cannotCreateAccountHeading() {
     return this.page.getByRole('heading', { name: 'Cannot create account' });
   }
 
-  get resendCodeButton() {
-    return this.page.getByRole('button', { name: /Email new code./ });
+  get changeEmailLink() {
+    return this.page.getByRole('link', { name: 'Change email' });
+  }
+
+  get CWTSEngineHeader() {
+    return this.page.getByRole('heading', { name: 'Choose what to sync' });
+  }
+
+  get CWTSEngineBookmarks() {
+    return this.page.getByLabel('Bookmarks', { exact: true });
+  }
+
+  get CWTSEngineHistory() {
+    return this.page.getByLabel('History', { exact: true });
+  }
+
+  // for backwards compatibility with Backbone
+  // not currently implemented in React, see FXA-8827
+  get permissionsHeading() {
+    return this.page.getByRole('heading', { name: /^Request for permission/ });
+  }
+
+  // for backwards compatibility with Backbone
+  // not currently implemented in React, see FXA-8827
+  get permissionsAcceptButton() {
+    return this.page.getByRole('button', { name: 'Accept' });
   }
 
   goto(route = '/', params = new URLSearchParams()) {
@@ -89,13 +99,6 @@ export class SignupReactPage extends BaseLayout {
     await this.verifyPasswordTextbox.fill(password);
     await this.ageTextbox.fill(age);
     await this.createAccountButton.click();
-  }
-
-  async fillOutCodeForm(code: string) {
-    await expect(this.codeFormHeading).toBeVisible();
-
-    await this.codeTextbox.fill(code);
-    await this.confirmButton.click();
   }
 
   async waitForRoot() {

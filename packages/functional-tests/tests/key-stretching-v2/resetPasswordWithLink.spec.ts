@@ -34,39 +34,44 @@ test.describe('severity-2 #smoke', () => {
   }
 
   type Version = { version: 1 | 2; query: string };
-  type TestCase = { signup: Version; reset: Version; signin: Version };
+  type TestCase = {
+    signupVersion: Version;
+    resetVersion: Version;
+    signinVersion: Version;
+  };
   const v1: Version = { version: 1, query: '' };
   const v2: Version = { version: 2, query: 'stretch=2' };
   const TestCases: TestCase[] = [
-    { signup: v1, reset: v1, signin: v1 },
-    { signup: v1, reset: v1, signin: v2 },
-    { signup: v1, reset: v2, signin: v1 },
-    { signup: v1, reset: v2, signin: v2 },
-    { signup: v2, reset: v1, signin: v1 },
-    { signup: v2, reset: v1, signin: v2 },
-    { signup: v2, reset: v2, signin: v1 },
-    { signup: v2, reset: v2, signin: v2 },
+    { signupVersion: v1, resetVersion: v1, signinVersion: v1 },
+    { signupVersion: v1, resetVersion: v1, signinVersion: v2 },
+    { signupVersion: v1, resetVersion: v2, signinVersion: v1 },
+    { signupVersion: v1, resetVersion: v2, signinVersion: v2 },
+    { signupVersion: v2, resetVersion: v1, signinVersion: v1 },
+    { signupVersion: v2, resetVersion: v1, signinVersion: v2 },
+    { signupVersion: v2, resetVersion: v2, signinVersion: v1 },
+    { signupVersion: v2, resetVersion: v2, signinVersion: v2 },
   ];
 
-  for (const { signup, reset, signin } of TestCases) {
-    test(`signs up as v${signup.version} resets password as v${reset.version} and signs in as v${signin.version}`, async ({
+  for (const { signupVersion, resetVersion, signinVersion } of TestCases) {
+    test(`signs up as v${signupVersion.version} resets password as v${resetVersion.version} and signs in as v${signinVersion.version}`, async ({
       page,
       target,
       pages: {
         configPage,
-        signinReact,
-        signupReact,
+        signin,
+        signup,
         settings,
-        resetPasswordReact,
+        resetPassword,
+        confirmSignupCode,
       },
       testAccountTracker,
     }, { project }) => {
       const config = await configPage.getConfig();
       test.fixme(
         project.name !== 'local' &&
-          signup.version === 1 &&
-          reset.version === 2 &&
-          signin.version === 2,
+          signupVersion.version === 1 &&
+          resetVersion.version === 2 &&
+          signinVersion.version === 2,
         'FXA-9765'
       );
       test.skip(
@@ -75,47 +80,59 @@ test.describe('severity-2 #smoke', () => {
       );
       const { email, password } = testAccountTracker.generateAccountDetails();
       await page.goto(
-        `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react&${signup.query}`
+        `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react&${signupVersion.query}`
       );
-      await signupReact.fillOutEmailForm(email);
-      await signupReact.fillOutSignupForm(password, AGE_21);
+      await signup.fillOutEmailForm(email);
+      await signup.fillOutSignupForm(password, AGE_21);
+      await expect(page).toHaveURL(/confirm_signup_code/);
       const code = await target.emailClient.getVerifyShortCode(email);
-      await signupReact.fillOutCodeForm(code);
+      await confirmSignupCode.fillOutCodeForm(code);
 
       await expect(page).toHaveURL(/settings/);
 
       await settings.signOut();
-      const keys = await _getKeys(signup.version, target, email, password);
-      await page.goto(
-        `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react&${reset.query}`
+      const keys = await _getKeys(
+        signupVersion.version,
+        target,
+        email,
+        password
       );
-      await signinReact.fillOutEmailFirstForm(email);
-      await signinReact.fillOutPasswordForm(password);
+      await page.goto(
+        `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react&${resetVersion.query}`
+      );
+      await signin.fillOutEmailFirstForm(email);
+      await signin.fillOutPasswordForm(password);
 
       await expect(page).toHaveURL(/settings/);
 
       await settings.signOut();
       await page.goto(
-        `${target.contentServerUrl}/reset_password?${reset.query}`
+        `${target.contentServerUrl}/reset_password?${resetVersion.query}`
       );
-      await resetPasswordReact.fillOutEmailForm(email);
+      await resetPassword.fillOutEmailForm(email);
       const link =
-        (await target.emailClient.getRecoveryLink(email)) + `&${reset.version}`;
+        (await target.emailClient.getRecoveryLink(email)) +
+        `&${resetVersion.version}`;
       await page.goto(link);
-      await resetPasswordReact.fillOutNewPasswordForm(password);
+      await resetPassword.fillOutNewPasswordForm(password);
 
       await expect(page).toHaveURL(/reset_password_verified/);
 
       await settings.goto();
       await settings.signOut();
       await page.goto(
-        `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react&${signin.query}`
+        `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react&${signinVersion.query}`
       );
-      await signinReact.fillOutEmailFirstForm(email);
-      await signinReact.fillOutPasswordForm(password);
+      await signin.fillOutEmailFirstForm(email);
+      await signin.fillOutPasswordForm(password);
 
       await expect(page).toHaveURL(/settings/);
-      const keys2 = await _getKeys(signin.version, target, email, password);
+      const keys2 = await _getKeys(
+        signinVersion.version,
+        target,
+        email,
+        password
+      );
       expect(keys2.kB).not.toEqual(keys.kB);
     });
   }

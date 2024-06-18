@@ -10,7 +10,7 @@ test.describe('severity-2 #smoke', () => {
   test.describe('Firefox desktop user info handshake', () => {
     test('Non-Sync - no user signed into browser, no user signed in locally', async ({
       target,
-      syncBrowserPages: { login, page },
+      syncBrowserPages: { page, signin },
     }) => {
       const query = new URLSearchParams({
         forceUA: uaStrings['desktop_firefox_71'],
@@ -24,14 +24,14 @@ test.describe('severity-2 #smoke', () => {
       await page.goto(
         `${target.contentServerUrl}?automatedBrowser=true&${query.toString()}`
       );
-      await login.respondToWebChannelMessage(eventDetailStatus);
-      await login.checkWebChannelMessage('fxaccounts:fxa_status');
-      expect(await login.getEmailInput()).toContain('');
+      await signin.respondToWebChannelMessage(eventDetailStatus);
+      await signin.checkWebChannelMessage('fxaccounts:fxa_status');
+      await expect(signin.emailTextbox).toHaveValue('');
     });
 
     test('Non-Sync - user signed into browser, no user signed in locally', async ({
       target,
-      syncBrowserPages: { login, page },
+      syncBrowserPages: { page, settings, signin },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
@@ -48,17 +48,17 @@ test.describe('severity-2 #smoke', () => {
       await page.goto(
         `${target.contentServerUrl}?automatedBrowser=true&${query.toString()}`
       );
-      await login.respondToWebChannelMessage(eventDetailStatus);
-      await login.checkWebChannelMessage('fxaccounts:fxa_status');
-      expect(await login.getPrefilledEmail()).toContain(credentials.email);
-      await login.setPassword(credentials.password);
-      await login.clickSubmit();
-      expect(await login.isUserLoggedIn()).toBe(true);
+      await signin.respondToWebChannelMessage(eventDetailStatus);
+      await signin.checkWebChannelMessage('fxaccounts:fxa_status');
+      await expect(signin.passwordFormHeading).toBeVisible();
+      await expect(page.getByText(credentials.email)).toBeVisible();
+      await signin.fillOutPasswordForm(credentials.password);
+      await expect(settings.settingsHeading).toBeVisible();
     });
 
     test('Non-Sync - user signed into browser, user signed in locally', async ({
       target,
-      syncBrowserPages: { login, page },
+      syncBrowserPages: { page, settings, signin },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
@@ -75,13 +75,11 @@ test.describe('severity-2 #smoke', () => {
       await page.goto(
         `${target.contentServerUrl}?automatedBrowser=true&${query.toString()}`
       );
-      await login.respondToWebChannelMessage(eventDetailStatus);
-      await login.checkWebChannelMessage('fxaccounts:fxa_status');
-      await login.fillOutEmailFirstSignIn(
-        syncCredentials.email,
-        syncCredentials.password
-      );
-      expect(await login.isUserLoggedIn()).toBe(true);
+      await signin.respondToWebChannelMessage(eventDetailStatus);
+      await signin.checkWebChannelMessage('fxaccounts:fxa_status');
+      await signin.fillOutEmailFirstForm(syncCredentials.email);
+      await signin.fillOutPasswordForm(syncCredentials.password);
+      await expect(settings.settingsHeading).toBeVisible();
 
       // Then, sign in the user again, synthesizing the user having signed
       // into Sync after the initial sign in.
@@ -94,17 +92,18 @@ test.describe('severity-2 #smoke', () => {
       await page.goto(
         `${target.contentServerUrl}?automatedBrowser=true&${query.toString()}`
       );
-      await login.respondToWebChannelMessage(eventDetailStatusSignIn);
-      await login.checkWebChannelMessage('fxaccounts:fxa_status');
+      await signin.respondToWebChannelMessage(eventDetailStatusSignIn);
+      await signin.checkWebChannelMessage('fxaccounts:fxa_status');
 
-      expect(await login.getPrefilledEmail()).toContain(syncCredentials.email);
-      await login.clickSignIn();
-      expect(await login.isUserLoggedIn()).toBe(true);
+      await expect(signin.cachedSigninHeading).toBeVisible();
+      await expect(page.getByText(syncCredentials.email)).toBeVisible();
+      await signin.signInButton.click();
+      await expect(settings.settingsHeading).toBeVisible();
     });
 
     test('Non-Sync force_auth page - user signed into browser is different to requested user', async ({
       target,
-      syncBrowserPages: { login, page },
+      syncBrowserPages: { page, signin },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
@@ -124,14 +123,15 @@ test.describe('severity-2 #smoke', () => {
           target.contentServerUrl
         }?force_auth&automatedBrowser=true&${query.toString()}`
       );
-      await login.respondToWebChannelMessage(eventDetailStatus);
-      await login.checkWebChannelMessage('fxaccounts:fxa_status');
-      expect(await login.getPrefilledEmail()).toContain(syncCredentials.email);
+      await signin.respondToWebChannelMessage(eventDetailStatus);
+      await signin.checkWebChannelMessage('fxaccounts:fxa_status');
+      await expect(signin.passwordFormHeading).toBeVisible();
+      await expect(page.getByText(syncCredentials.email)).toBeVisible();
     });
 
     test('Non-Sync settings page - no user signed into browser, user signed in locally', async ({
       target,
-      syncBrowserPages: { login, page, settings },
+      syncBrowserPages: { page, settings, signin },
       testAccountTracker,
     }) => {
       const syncCredentials = await testAccountTracker.signUpSync();
@@ -141,11 +141,9 @@ test.describe('severity-2 #smoke', () => {
       await page.goto(
         `${target.contentServerUrl}?automatedBrowser=true&${query.toString()}`
       );
-      await login.fillOutEmailFirstSignIn(
-        syncCredentials.email,
-        syncCredentials.password
-      );
-      expect(await login.isUserLoggedIn()).toBe(true);
+      await signin.fillOutEmailFirstForm(syncCredentials.email);
+      await signin.fillOutPasswordForm(syncCredentials.password);
+      await expect(settings.settingsHeading).toBeVisible();
 
       await settings.goto();
       await expect(settings.primaryEmail.status).toHaveText(

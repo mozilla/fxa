@@ -16,7 +16,6 @@ import { SigninLocationState } from '../interfaces';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import { ConsumeRecoveryCodeResponse, SubmitRecoveryCode } from './interfaces';
 import OAuthDataError from '../../../components/OAuthDataError';
-import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { getHandledError } from '../../../lib/error-utils';
 
 export type SigninRecoveryCodeContainerProps = {
@@ -47,9 +46,6 @@ export const SigninRecoveryCodeContainer = ({
   const submitRecoveryCode: SubmitRecoveryCode = useCallback(
     async (recoveryCode: string) => {
       try {
-        if (recoveryCode.length !== 10) {
-          throw AuthUiErrors.INVALID_RECOVERY_CODE;
-        }
         // this mutation returns the number of remaining codes,
         // but we're not currently using that value client-side
         // may want to see if we need it for /settings (display number of remaining backup codes?)

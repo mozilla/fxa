@@ -20,15 +20,15 @@ test.describe('severity-1 #smoke', () => {
     test('can reset password with recovery key', async ({
       target,
       page,
-      pages: { settings, recoveryKey, signinReact, login, resetPasswordReact },
+      pages: { settings, recoveryKey, signin, resetPassword },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
       const newPassword = testAccountTracker.generatePassword();
 
-      await signinReact.goto();
-      await signinReact.fillOutEmailFirstForm(credentials.email);
-      await signinReact.fillOutPasswordForm(credentials.password);
+      await signin.goto();
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
 
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.recoveryKey.status).toHaveText('Not Set');
@@ -45,7 +45,7 @@ test.describe('severity-1 #smoke', () => {
       await expect(settings.recoveryKey.status).toHaveText('Enabled');
 
       // Ensure password reset occurs with no session token available
-      await login.clearCache();
+      await signin.clearCache();
 
       // Stash original encryption keys to be verified later
       const accountData = await target.authClient.sessionReauth(
@@ -62,20 +62,18 @@ test.describe('severity-1 #smoke', () => {
         accountData.unwrapBKey
       );
 
-      await resetPasswordReact.goto();
+      await resetPassword.goto();
 
-      await resetPasswordReact.fillOutEmailForm(credentials.email);
-      await expect(
-        resetPasswordReact.confirmResetPasswordHeading
-      ).toBeVisible();
+      await resetPassword.fillOutEmailForm(credentials.email);
+      await expect(resetPassword.confirmResetPasswordHeading).toBeVisible();
 
       const link = await target.emailClient.getRecoveryLink(credentials.email);
       await page.goto(link);
-      await resetPasswordReact.fillOutRecoveryKeyForm(key);
-      await resetPasswordReact.fillOutNewPasswordForm(newPassword);
+      await resetPassword.fillOutRecoveryKeyForm(key);
+      await resetPassword.fillOutNewPasswordForm(newPassword);
       credentials.password = newPassword;
       // After using a recovery key to reset password, expect to be prompted to create a new one
-      await resetPasswordReact.generateRecoveryKeyButton.click();
+      await resetPassword.generateRecoveryKeyButton.click();
       await page.waitForURL(/settings\/account_recovery/);
 
       // Attempt to login with new password
@@ -103,14 +101,14 @@ test.describe('severity-1 #smoke', () => {
     test('forgot password has account recovery key but skip using it', async ({
       target,
       page,
-      pages: { settings, recoveryKey, resetPasswordReact, signinReact },
+      pages: { settings, recoveryKey, resetPassword, signin },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
 
-      await signinReact.goto();
-      await signinReact.fillOutEmailFirstForm(credentials.email);
-      await signinReact.fillOutPasswordForm(credentials.password);
+      await signin.goto();
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
 
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.recoveryKey.status).toHaveText('Not Set');
@@ -121,16 +119,16 @@ test.describe('severity-1 #smoke', () => {
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.recoveryKey.status).toHaveText('Enabled');
 
-      await resetPasswordReact.goto();
+      await resetPassword.goto();
 
-      await resetPasswordReact.fillOutEmailForm(credentials.email);
+      await resetPassword.fillOutEmailForm(credentials.email);
       const link = await target.emailClient.getRecoveryLink(credentials.email);
       await page.goto(link);
-      await resetPasswordReact.forgotKeyLink.click();
-      await resetPasswordReact.fillOutNewPasswordForm(credentials.password);
+      await resetPassword.forgotKeyLink.click();
+      await resetPassword.fillOutNewPasswordForm(credentials.password);
 
       await expect(
-        resetPasswordReact.passwordResetConfirmationHeading
+        resetPassword.passwordResetConfirmationHeading
       ).toBeVisible();
 
       await settings.goto();

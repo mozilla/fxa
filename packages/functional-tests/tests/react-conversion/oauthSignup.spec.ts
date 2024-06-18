@@ -22,11 +22,11 @@ test.describe('severity-1 #smoke', () => {
     test('signup oauth', async ({
       page,
       target,
-      pages: { relier, signupReact },
+      pages: { confirmSignupCode, relier, signup },
       testAccountTracker,
     }) => {
       const { email, password } =
-        testAccountTracker.generateSignupReactAccountDetails();
+        testAccountTracker.generateSignupAccountDetails();
 
       relier.goto();
 
@@ -40,10 +40,11 @@ test.describe('severity-1 #smoke', () => {
         `${page.url()}&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
       );
 
-      await signupReact.fillOutEmailForm(email);
-      await signupReact.fillOutSignupForm(password, AGE_21);
+      await signup.fillOutEmailForm(email);
+      await signup.fillOutSignupForm(password, AGE_21);
+      await expect(page).toHaveURL(/confirm_signup_code/);
       const code = await target.emailClient.getVerifyShortCode(email);
-      await signupReact.fillOutCodeForm(code);
+      await confirmSignupCode.fillOutCodeForm(code);
 
       // expect to be redirected to relier after confirming signup code
       await expect(page).toHaveURL(target.relierUrl);
@@ -55,11 +56,11 @@ test.describe('severity-1 #smoke', () => {
     test('signup oauth with missing redirect_uri', async ({
       page,
       target,
-      pages: { relier, signupReact },
+      pages: { confirmSignupCode, relier, signup },
       testAccountTracker,
     }) => {
       const { email, password } =
-        testAccountTracker.generateSignupReactAccountDetails();
+        testAccountTracker.generateSignupAccountDetails();
 
       relier.goto();
 
@@ -78,10 +79,11 @@ test.describe('severity-1 #smoke', () => {
       // expect the url to no longer contain a redirect uri
       await expect(page).toHaveURL(/^((?!redirect_uri).)*$/);
 
-      await signupReact.fillOutEmailForm(email);
-      await signupReact.fillOutSignupForm(password, AGE_21);
+      await signup.fillOutEmailForm(email);
+      await signup.fillOutSignupForm(password, AGE_21);
+      await expect(page).toHaveURL(/confirm_signup_code/);
       const code = await target.emailClient.getVerifyShortCode(email);
-      await signupReact.fillOutCodeForm(code);
+      await confirmSignupCode.fillOutCodeForm(code);
       // redirectUri should have fallen back to the clientInfo config redirect URI
       // Expect to be redirected to relier
       await page.waitForURL(target.relierUrl);
@@ -93,12 +95,12 @@ test.describe('severity-1 #smoke', () => {
 
     test('signup oauth webchannel - sync mobile or FF desktop 123+', async ({
       target,
-      syncBrowserPages: { page, login, signupReact },
+      syncBrowserPages: { confirmSignupCode, page, login, signup },
       testAccountTracker,
     }) => {
       test.fixme(true, 'Fix required as of 2024/03/18 (see FXA-9306).');
       const { email, password } =
-        testAccountTracker.generateSignupReactAccountDetails();
+        testAccountTracker.generateSignupAccountDetails();
       const customEventDetail = createCustomEventDetail(
         FirefoxCommand.FxAStatus,
         {
@@ -110,15 +112,15 @@ test.describe('severity-1 #smoke', () => {
         }
       );
 
-      await signupReact.goto('/authorization', syncMobileOAuthQueryParams);
+      await signup.goto('/authorization', syncMobileOAuthQueryParams);
 
-      await signupReact.fillOutEmailForm(email);
+      await signup.fillOutEmailForm(email);
       await page.waitForURL(/signup/, { waitUntil: 'load' });
-      await signupReact.waitForRoot();
+      await signup.waitForRoot();
 
-      await expect(signupReact.signupFormHeading).toBeVisible();
+      await expect(signup.signupFormHeading).toBeVisible();
 
-      await signupReact.sendWebChannelMessage(customEventDetail);
+      await signup.sendWebChannelMessage(customEventDetail);
 
       // Only engines provided via web channel for Sync mobile are displayed
       await expect(login.CWTSEngineHeader).toBeVisible();
@@ -131,12 +133,13 @@ test.describe('severity-1 #smoke', () => {
       await expect(login.CWTSEngineCreditCards).toBeHidden();
       await expect(login.CWTSEngineAddresses).toBeHidden();
 
-      await signupReact.fillOutSignupForm(password, AGE_21);
+      await signup.fillOutSignupForm(password, AGE_21);
+      await expect(page).toHaveURL(/confirm_signup_code/);
       const code = await target.emailClient.getVerifyShortCode(email);
-      await signupReact.fillOutCodeForm(code);
+      await confirmSignupCode.fillOutCodeForm(code);
       await page.waitForURL(/connect_another_device/);
 
-      await signupReact.checkWebChannelMessage(FirefoxCommand.OAuthLogin);
+      await signup.checkWebChannelMessage(FirefoxCommand.OAuthLogin);
     });
   });
 });

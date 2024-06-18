@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { expect, test } from '../../../lib/fixtures/standard';
-import { ResetPasswordReactPage } from '../../../pages/resetPasswordReact';
-import { SigninReactPage } from '../../../pages/signinReact';
+import { ResetPasswordPage } from '../../../pages/resetPassword';
+import { SigninPage } from '../../../pages/signin';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('oauth reset password scoped keys react', () => {
@@ -19,7 +19,7 @@ test.describe('severity-1 #smoke', () => {
     test('reset password scoped keys', async ({
       target,
       page,
-      pages: { relier, resetPasswordReact, signinReact },
+      pages: { relier, resetPassword, signin },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
@@ -30,22 +30,18 @@ test.describe('severity-1 #smoke', () => {
 
       await relier.clickSignInScopedKeys();
 
-      await beginPasswordReset(
-        credentials.email,
-        resetPasswordReact,
-        signinReact
-      );
+      await beginPasswordReset(credentials.email, resetPassword, signin);
 
       const code = await target.emailClient.getResetPasswordCode(
         credentials.email
       );
 
-      await resetPasswordReact.fillOutResetPasswordCodeForm(code);
-      await resetPasswordReact.fillOutNewPasswordForm(newPassword);
+      await resetPassword.fillOutResetPasswordCodeForm(code);
+      await resetPassword.fillOutNewPasswordForm(newPassword);
 
       await expect(page).toHaveURL(/reset_password_verified/);
       await expect(
-        resetPasswordReact.passwordResetConfirmationHeading
+        resetPassword.passwordResetConfirmationHeading
       ).toBeVisible();
 
       // TODO in FXA-9561 - Verify that the service name is displayed in the "Continue to ${serviceName}" button
@@ -58,11 +54,11 @@ test.describe('severity-1 #smoke', () => {
 
   async function beginPasswordReset(
     email: string,
-    resetPasswordReact: ResetPasswordReactPage,
-    signinReact: SigninReactPage
+    resetPassword: ResetPasswordPage,
+    signin: SigninPage
   ): Promise<void> {
-    await signinReact.fillOutEmailFirstForm(email);
-    await signinReact.forgotPasswordLink.click();
-    await resetPasswordReact.fillOutEmailForm(email);
+    await signin.fillOutEmailFirstForm(email);
+    await signin.forgotPasswordLink.click();
+    await resetPassword.fillOutEmailForm(email);
   }
 });

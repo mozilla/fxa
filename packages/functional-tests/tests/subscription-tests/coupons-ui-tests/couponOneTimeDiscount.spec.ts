@@ -8,14 +8,14 @@ import { BaseTarget, Credentials } from '../../../lib/targets/base';
 import { TestAccountTracker } from '../../../lib/testAccountTracker';
 import { Coupon } from '../../../pages/products';
 import { SettingsPage } from '../../../pages/settings';
-import { SigninReactPage } from '../../../pages/signinReact';
+import { SigninPage } from '../../../pages/signin';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('coupon test one time discount', () => {
     test('subscribe with a one time discount coupon', async ({
       target,
       page,
-      pages: { relier, settings, signinReact, subscribe },
+      pages: { relier, settings, signin, subscribe },
       testAccountTracker,
     }, { project }) => {
       test.skip(
@@ -26,7 +26,7 @@ test.describe('severity-2 #smoke', () => {
         target,
         page,
         settings,
-        signinReact,
+        signin,
         testAccountTracker
       );
 
@@ -56,10 +56,10 @@ test.describe('severity-2 #smoke', () => {
       await relier.goto();
       await relier.clickEmailFirst();
 
-      await expect(signinReact.cachedSigninHeading).toBeVisible();
+      await expect(signin.cachedSigninHeading).toBeVisible();
       await expect(page.getByText(credentials.email)).toBeVisible();
 
-      await signinReact.signInButton.click();
+      await signin.signInButton.click();
 
       expect(await relier.isPro()).toBe(true);
     });
@@ -105,13 +105,13 @@ async function signInAccount(
   target: BaseTarget,
   page: Page,
   settings: SettingsPage,
-  signinReact: SigninReactPage,
+  signin: SigninPage,
   testAccountTracker: TestAccountTracker
 ): Promise<Credentials> {
   const credentials = await testAccountTracker.signUp();
   await page.goto(target.contentServerUrl);
-  await signinReact.fillOutEmailFirstForm(credentials.email);
-  await signinReact.fillOutPasswordForm(credentials.password);
+  await signin.fillOutEmailFirstForm(credentials.email);
+  await signin.fillOutPasswordForm(credentials.password);
 
   await expect(page).toHaveURL(/settings/);
   await expect(settings.settingsHeading).toBeVisible();

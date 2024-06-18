@@ -7,34 +7,38 @@ import { expect, test } from '../../lib/fixtures/standard';
 test.describe('severity-1 #smoke', () => {
   test('signin to sync and disconnect', async ({
     target,
-    syncBrowserPages: { page, login, settings },
+    syncBrowserPages: { connectAnotherDevice, page, settings, signin },
     testAccountTracker,
   }) => {
     const credentials = await testAccountTracker.signUp();
 
-    await page.goto(
-      target.contentServerUrl +
-        '?context=fx_desktop_v3&entrypoint=fxa%3Aenter_email&service=sync&action=email'
-    );
-    await login.login(credentials.email, credentials.password);
+    const url = new URL(target.contentServerUrl);
+    url.searchParams.set('context', 'fx_desktop_v3');
+    url.searchParams.set('entrypoint', 'fxa:enter_email');
+    url.searchParams.set('service', 'sync');
+    url.searchParams.set('action', 'email');
+    await page.goto(url.toString());
+    await signin.fillOutEmailFirstForm(credentials.email);
+    await signin.fillOutPasswordForm(credentials.password);
 
-    await expect(login.isSyncConnectedHeader()).toBeVisible({ timeout: 1000 });
+    await expect(connectAnotherDevice.fxaConnected).toBeVisible();
 
     await settings.disconnectSync(credentials);
 
     // confirm left settings and back at sign in
-    await page.waitForURL('**/signin', { timeout: 1000 });
+    await page.waitForURL(`${target.contentServerUrl}/signin`);
   });
 
   test('disconnect RP', async ({
-    pages: { relier, login, settings },
+    pages: { relier, settings, signin },
     testAccountTracker,
   }) => {
     const credentials = await testAccountTracker.signUp();
 
     await relier.goto();
     await relier.clickEmailFirst();
-    await login.login(credentials.email, credentials.password);
+    await signin.fillOutEmailFirstForm(credentials.email);
+    await signin.fillOutPasswordForm(credentials.password);
 
     expect(await relier.isLoggedIn()).toBe(true);
 

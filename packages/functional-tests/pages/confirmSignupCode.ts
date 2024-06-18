@@ -6,4 +6,9 @@ import { BaseTokenCodePage } from './baseTokenCode';
 
 export class ConfirmSignupCodePage extends BaseTokenCodePage {
   readonly path = '/confirm_signup_code';
+
+  get heading() {
+    this.checkPath();
+    return this.page.getByRole('heading', { name: /^Enter confirmation code/ });
+  }
 }

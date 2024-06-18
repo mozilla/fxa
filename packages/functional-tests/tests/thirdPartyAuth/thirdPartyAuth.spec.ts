@@ -8,22 +8,20 @@ test.describe('severity-1 #smoke', () => {
   test.describe('third party auth', () => {
     test('Continue with `Google` opens Google login', async ({
       target,
-      pages: { login, page },
+      pages: { page, signin },
     }) => {
-      await page.goto(target.contentServerUrl, { waitUntil: 'load' });
-      await login.clickContinueWithGoogle();
-      const title = await page.title();
-      expect(title).toContain('Google');
+      await page.goto(target.contentServerUrl);
+      await signin.continueWithGoogleButton.click();
+      await expect(page).toHaveURL(/accounts\.google\.com/);
     });
 
     test('Continue with `Apple` opens Apple login', async ({
       target,
-      pages: { login, page },
+      pages: { page, signin },
     }) => {
       await page.goto(target.contentServerUrl, { waitUntil: 'load' });
-      await login.clickContinueWithApple();
-      const title = await page.title();
-      expect(title).toContain('Apple');
+      await signin.continueWithAppleButton.click();
+      await expect(page).toHaveURL(/appleid\.apple\.com/);
     });
   });
 });
