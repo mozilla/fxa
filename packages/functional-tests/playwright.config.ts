@@ -73,6 +73,13 @@ export default defineConfig<PlaywrightTestConfig<TestOptions, WorkerOptions>>({
             ),
           },
         ],
+        [
+          'blob',
+          {
+            outputDir: path.resolve(__dirname, '../../artifacts/blob-report'),
+          },
+        ],
+        ['html', { open: 'never' }],
       ]
     : 'list',
   workers,
