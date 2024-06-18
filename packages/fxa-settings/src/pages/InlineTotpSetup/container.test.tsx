@@ -26,18 +26,8 @@ import {
   MOCK_NO_TOTP,
   MOCK_TOTP_STATUS_VERIFIED,
 } from '../Signin/mocks';
-import { SigninLocationState } from '../Signin/interfaces';
 
-const mockLocationHook = (
-  queryParams: Record<string, string> = MOCK_QUERY_PARAMS,
-  state: SigninLocationState | null = MOCK_SIGNIN_LOCATION_STATE
-) => {
-  return {
-    pathname: '/inline_totp_setup',
-    search: '?' + new URLSearchParams(queryParams),
-    state,
-  };
-};
+const mockLocationHook = jest.fn();
 const mockNavigateHook = jest.fn();
 jest.mock('@reach/router', () => {
   return {
@@ -47,28 +37,38 @@ jest.mock('@reach/router', () => {
   };
 });
 
-let mockSessionHook: () => any = () => null;
+const mockSessionHook = jest.fn();
 jest.mock('../../models', () => {
   return {
     ...jest.requireActual('../../models'),
-    useSession: jest.fn(() => mockSessionHook()),
+    useSession: () => mockSessionHook(),
   };
 });
 
-let mockCheckCode: () => boolean = () => true;
+const mockCheckCode = jest.fn();
 jest.mock('../../lib/totp', () => {
   return {
     ...jest.requireActual('../../lib/totp'),
-    checkCode: jest.fn(() => mockCheckCode()),
+    checkCode: () => mockCheckCode(),
   };
 });
 
-let mockTotpStatusQuery = jest.fn();
+const mockTotpStatusQuery = jest.fn();
+const mockCreateTotpMutation = jest.fn();
+
 function setMocks() {
-  mockCheckCode = () => true;
-  let mockCreateTotpMutation = jest
-    .fn()
-    .mockResolvedValue({ data: { createTotp: MOCK_TOTP_TOKEN } });
+  mockLocationHook.mockReturnValue({
+    pathname: '/inline_totp_setup',
+    search: '?' + new URLSearchParams(MOCK_QUERY_PARAMS),
+    state: MOCK_SIGNIN_LOCATION_STATE,
+  });
+  mockCheckCode.mockReturnValue(true);
+  mockSessionHook.mockReturnValue({
+    isSessionVerified: async () => true,
+  });
+  mockCreateTotpMutation.mockResolvedValue({
+    data: { createTotp: MOCK_TOTP_TOKEN },
+  });
   jest.spyOn(ApolloClientModule, 'useMutation').mockReturnValue([
     async (...args: any[]) => {
       return mockCreateTotpMutation(...args);
@@ -132,17 +132,27 @@ describe('InlineTotpSetupContainer', () => {
       );
     });
 
-    it('redirects when there is no signin state', () => {
+    it('redirects when there is no signin state', async () => {
+      mockLocationHook.mockImplementation(() => {
+        return {
+          pathname: '/inline_totp_setup',
+          search: '?' + new URLSearchParams(MOCK_QUERY_PARAMS),
+        };
+      });
+      const location = mockLocationHook();
       render();
-      const location = mockLocationHook(MOCK_QUERY_PARAMS, null);
-      expect(mockNavigateHook).toHaveBeenCalledWith(
-        `/signup${location.search}`,
-        { state: undefined }
-      );
+      await waitFor(() => {
+        expect(mockNavigateHook).toHaveBeenCalledWith(
+          `/signup${location.search}`,
+          { state: undefined }
+        );
+      });
     });
 
     it('redirects when the session is not verified', async () => {
-      mockSessionHook = () => ({ isSessionVerified: async () => false });
+      mockSessionHook.mockImplementationOnce(() => ({
+        isSessionVerified: async () => false,
+      }));
       render();
       const location = mockLocationHook();
       await waitFor(() => {
@@ -154,7 +164,9 @@ describe('InlineTotpSetupContainer', () => {
     });
 
     it('redirects when totp is active on the account', async () => {
-      mockSessionHook = () => ({ isSessionVerified: async () => true });
+      mockSessionHook.mockImplementationOnce(() => ({
+        isSessionVerified: async () => true,
+      }));
       mockTotpStatusQuery.mockImplementation(() => {
         return {
           data: MOCK_TOTP_STATUS_VERIFIED,
@@ -176,10 +188,6 @@ describe('InlineTotpSetupContainer', () => {
   });
 
   describe('renders', () => {
-    beforeEach(() => {
-      mockSessionHook = () => ({ isSessionVerified: async () => true });
-    });
-
     it('displays loading spinner when loading', async () => {
       mockTotpStatusQuery.mockImplementation(() => {
         return {
@@ -258,7 +266,7 @@ describe('InlineTotpSetupContainer', () => {
 
       describe('verifyCodeHandler', () => {
         it('throws an error when the code is invalid', async () => {
-          mockCheckCode = () => false;
+          mockCheckCode.mockReturnValue(false);
           render();
           await waitFor(() => {
             expect(InlineTotpSetupModule.default).toHaveBeenCalled();
@@ -279,9 +287,9 @@ describe('InlineTotpSetupContainer', () => {
         });
 
         it('throws an error when checking the code errors', async () => {
-          mockCheckCode = () => {
+          mockCheckCode.mockImplementation(() => {
             throw new Error();
-          };
+          });
           render();
           await waitFor(() => {
             expect(InlineTotpSetupModule.default).toHaveBeenCalled();
