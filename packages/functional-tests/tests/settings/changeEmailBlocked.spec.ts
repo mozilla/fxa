@@ -34,17 +34,20 @@ test.describe('severity-1 #smoke', () => {
       await signin.fillOutPasswordForm(invalidPassword);
 
       // Fill out unblock
+      await expect(page).toHaveURL(/signin_unblock/);
       await unblockAccount(blockedEmail, target, signinUnblock);
 
       // Verify the incorrect password error
       await expect(page.getByText('Incorrect password')).toBeVisible();
 
-      // Delete blocked account, required before teardown
       await signin.fillOutPasswordForm(credentials.password);
       await unblockAccount(blockedEmail, target, signinUnblock);
       await expect(settings.settingsHeading).toBeVisible();
       // reset primary email to non-blocked email for account cleanup
       await settings.secondaryEmail.makePrimaryButton.click();
+      await expect(settings.alertBar).toHaveText(
+        new RegExp(`${credentials.email}.*is now your primary email`)
+      );
     });
 
     test('can change primary email, get blocked with valid password, redirect settings page', async ({
@@ -68,6 +71,7 @@ test.describe('severity-1 #smoke', () => {
       await signin.fillOutEmailFirstForm(blockedEmail);
       await signin.fillOutPasswordForm(credentials.password);
       // Fill out unblock
+      await expect(page).toHaveURL(/signin_unblock/);
       await unblockAccount(blockedEmail, target, signinUnblock);
 
       // Verify settings url redirected
@@ -75,6 +79,9 @@ test.describe('severity-1 #smoke', () => {
 
       // reset primary email to non-blocked email for account cleanup
       await settings.secondaryEmail.makePrimaryButton.click();
+      await expect(settings.alertBar).toHaveText(
+        new RegExp(`${credentials.email}.*is now your primary email`)
+      );
     });
   });
 });
