@@ -6,7 +6,7 @@ import { revalidatePath } from 'next/cache';
 import { headers } from 'next/headers';
 import { PaymentSection } from '@fxa/payments/ui';
 import {
-  app,
+  getApp,
   getCartOrRedirectAction,
   SupportedPages,
 } from '@fxa/payments/ui/server';
@@ -30,7 +30,7 @@ export default async function Checkout({ params }: { params: CheckoutParams }) {
   //);
   const locale = headers().get('accept-language') || DEFAULT_LOCALE;
   const sessionPromise = auth();
-  const l10nPromise = app.getL10n(locale);
+  const l10n = getApp().getL10n(locale);
   const cartPromise = getCartOrRedirectAction(
     params.cartId,
     SupportedPages.START
@@ -38,9 +38,8 @@ export default async function Checkout({ params }: { params: CheckoutParams }) {
   //TODO - Replace with cartPromise as part of FXA-8903
   const fakeCartDataPromise = getFakeCartData(params.cartId);
   const cmsPromise = getContentfulContent(params.offeringId, locale);
-  const [session, l10n, cart, fakeCart, cms] = await Promise.all([
+  const [session, cart, fakeCart, cms] = await Promise.all([
     sessionPromise,
-    l10nPromise,
     cartPromise,
     fakeCartDataPromise,
     cmsPromise,
@@ -96,7 +95,7 @@ export default async function Checkout({ params }: { params: CheckoutParams }) {
                 'use server';
                 const email =
                   formData.get('email')?.toString() || 'test@example.com';
-                await app.getActionsService().updateCart({
+                await getApp().getActionsService().updateCart({
                   cartId: cart.id,
                   version: cart.version,
                   cartDetails: {

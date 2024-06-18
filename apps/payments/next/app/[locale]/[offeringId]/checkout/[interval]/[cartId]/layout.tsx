@@ -4,7 +4,7 @@
 import { headers } from 'next/headers';
 
 import {
-  app,
+  getApp,
   fetchContentfulData,
   getCartAction,
   PurchaseDetails,
@@ -48,11 +48,10 @@ export default async function RootLayout({
   const locale = headers().get('accept-language') || DEFAULT_LOCALE;
   const contentfulDataPromise = fetchContentfulData(params.offeringId, locale);
   const cartDataPromise = getCartAction(params.cartId);
-  const l10nPromise = app.getL10n(locale);
-  const [contentful, cart, l10n] = await Promise.all([
+  const l10n = getApp().getL10n(locale);
+  const [contentful, cart] = await Promise.all([
     contentfulDataPromise,
     cartDataPromise,
-    l10nPromise,
   ]);
 
   return (

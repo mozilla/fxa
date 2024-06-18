@@ -5,11 +5,11 @@
 'use server';
 
 import { plainToClass } from 'class-transformer';
-import { app } from '../nestapp/app';
+import { getApp } from '../nestapp/app';
 import { RestartCartActionArgs } from '../nestapp/validators/RestartCartActionArgs';
 
 export const restartCartAction = async (cartId: string) => {
-  const actionsService = app.getActionsService();
+  const actionsService = getApp().getActionsService();
 
   const cart = await actionsService.restartCart(
     plainToClass(RestartCartActionArgs, {

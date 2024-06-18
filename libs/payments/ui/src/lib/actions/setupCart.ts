@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 'use server';
 
-import { app } from '../nestapp/app';
+import { getApp } from '../nestapp/app';
 import { plainToClass } from 'class-transformer';
 import { SetupCartActionArgs } from '../nestapp/validators/SetupCartActionArgs';
 
@@ -15,7 +15,7 @@ export const setupCartAction = async (
   uid?: string,
   ip?: string
 ) => {
-  return app.getActionsService().setupCart(
+  return getApp().getActionsService().setupCart(
     plainToClass(SetupCartActionArgs, {
       interval,
       offeringConfigId,

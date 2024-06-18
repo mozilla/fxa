@@ -12,31 +12,11 @@
         "outputPath": "dist/apps/payments/next",
         "postcssConfig": "apps/payments/next/postcss.config.js"
       },
-      "configurations": {
-        "development": {
-          "outputPath": "apps/payments/next"
-        }
-      },
       "dependsOn": ["l10n-bundle"]
     },
-    "serve": {
-      "executor": "@nx/next:server",
-      "defaultConfiguration": "development",
+    "dev": {
       "options": {
-        "buildTarget": "payments-next:build",
-        "dev": true,
-        "port": 3035,
-        "postcssConfig": "apps/payments/next/postcss.config.js"
-      },
-      "configurations": {
-        "development": {
-          "buildTarget": "payments-next:build:development",
-          "dev": true
-        },
-        "production": {
-          "buildTarget": "payments-next:build:production",
-          "dev": false
-        }
+        "port": 3035
       }
     },
     "export": {
@@ -66,7 +46,8 @@
       "command": "pm2 stop apps/payments/next/pm2.config.js"
     },
     "restart": {
-      "command": "pm2 restart apps/payments/next/pm2.config.js"
+      "command": "pm2 restart apps/payments/next/pm2.config.js",
+      "dependsOn": [""]
     },
     "delete": {
       "command": "pm2 delete apps/payments/next/pm2.config.js"
@@ -82,15 +63,12 @@
       "dependsOn": ["l10n-merge"],
       "command": "./_scripts/l10n/bundle.sh apps/payments/next branding,react,payments"
     },
-    "watch-ftl": {
-      "command": "yarn grunt --gruntfile='apps/payments/next/Gruntfile.js' watch-ftl"
+    "watchers": {
+      "command": "yarn grunt --gruntfile='apps/payments/next/Gruntfile.js' watchers"
     },
     "l10n-convert": {
       "dependsOn": ["l10n-prime"],
       "command": "node -r esbuild-register apps/payments/next/app/_lib/scripts/convert.ts"
-    },
-    "ztest": {
-      "command": "node -r esbuild-register apps/payments/next/config/index.ts"
     },
     "storybook": {
       "executor": "@nx/storybook:storybook",

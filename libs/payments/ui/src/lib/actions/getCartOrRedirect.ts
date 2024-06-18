@@ -6,7 +6,7 @@
 
 import { plainToClass } from 'class-transformer';
 import { redirect } from 'next/navigation';
-import { app } from '../nestapp/app';
+import { getApp } from '../nestapp/app';
 import { GetCartActionArgs } from '../nestapp/validators/GetCartActionArgs';
 import { getRedirect, validateCartState } from '../utils/get-cart';
 import { SupportedPages } from '../utils/types';
@@ -20,7 +20,7 @@ export const getCartOrRedirectAction = async (
   cartId: string,
   page: SupportedPages
 ) => {
-  const cart = await app.getActionsService().getCart(
+  const cart = await getApp().getActionsService().getCart(
     plainToClass(GetCartActionArgs, {
       cartId,
     })

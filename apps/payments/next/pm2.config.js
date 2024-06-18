@@ -10,7 +10,7 @@ const apps = [];
 
 apps.push({
   name: 'payments-next',
-  script: 'nx serve payments-next',
+  script: 'nx dev payments-next',
   max_restarts: '1',
   min_uptime: '2m',
   env: {
@@ -21,8 +21,8 @@ apps.push({
 
 if (process.env.CI !== 'true') {
   apps.push({
-    name: 'payments-next-ftl',
-    script: 'nx watch-ftl payments-next',
+    name: 'payments-next-watchers',
+    script: 'nx watchers payments-next',
     cwd: __dirname,
     filter_env: ['npm_'],
     max_restarts: '1',
