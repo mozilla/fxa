@@ -34,6 +34,9 @@ export const InlineTotpSetupContainer = ({
   flowQueryParams: QueryParams;
 } & RouteComponentProps) => {
   const [totp, setTotp] = useState<TotpToken>();
+  const [sessionVerified, setSessionVerified] = useState<boolean | undefined>(
+    undefined
+  );
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state: SigninLocationState;
   };
@@ -65,6 +68,58 @@ export const InlineTotpSetupContainer = ({
     },
     [location, navigate]
   );
+
+  // Determine if the session is verified
+  useEffect(() => {
+    if (sessionVerified !== undefined) {
+      return;
+    }
+    (async () => {
+      // The user is navigated to this page by the web application in response to
+      // a sign-in attempt.  But let's do some sanity checks.
+      const verified = await session.isSessionVerified();
+      setSessionVerified(verified);
+    })();
+  }, [session, sessionVerified]);
+
+  // Determine if a totp needs to be setup, and if so trigger setup.
+  useEffect(() => {
+    if (totp !== undefined || totpStatus?.account.totp.verified === true) {
+      return;
+    }
+    (async () => {
+      const totpResp = await createTotp({
+        variables: {
+          input: {
+            metricsContext,
+          },
+        },
+      });
+      setTotp(totpResp.data?.createTotp);
+    })();
+  }, [createTotp, metricsContext, totpStatus, totpStatusLoading, totp]);
+
+  // Once state has settled, determine if user should be directed to another page
+  useEffect(() => {
+    if (!isSignedIn || !signinState) {
+      navTo('signup');
+    } else if (sessionVerified === false) {
+      navTo('signin_token_code', signinState ? signinState : undefined);
+    } else if (
+      totpStatusLoading === false &&
+      totpStatus !== undefined &&
+      totpStatus.account.totp.verified
+    ) {
+      navTo('signin_totp_code', signinState ? signinState : undefined);
+    }
+  }, [
+    sessionVerified,
+    totpStatus,
+    totpStatusLoading,
+    isSignedIn,
+    signinState,
+    navTo,
+  ]);
 
   const cancelSetupHandler = useCallback(() => {
     const error = AuthUiErrors.TOTP_REQUIRED;
@@ -102,51 +157,17 @@ export const InlineTotpSetupContainer = ({
     [navTo, totp, signinState]
   );
 
-  useEffect(() => {
-    (async () => {
-      try {
-        // The user is navigated to this page by the web application in response to
-        // a sign-in attempt.  But let's do some sanity checks.
-        const sessionVerified = await session.isSessionVerified();
-        if (!sessionVerified) {
-          navTo('signin_token_code', signinState ? signinState : undefined);
-        }
-
-        if (totpStatus?.account.totp.verified) {
-          navTo('signin_totp_code', signinState ? signinState : undefined);
-        }
-
-        if (!totp) {
-          const totpResp = await createTotp({
-            variables: {
-              input: {
-                metricsContext,
-              },
-            },
-          });
-          setTotp(totpResp.data?.createTotp);
-        }
-      } catch (_) {
-        navTo('signup');
-      }
-    })();
-  }, [
-    isSignedIn,
-    signinState,
-    session,
-    navTo,
-    totp,
-    createTotp,
-    totpStatus?.account.totp.verified,
-    metricsContext,
-  ]);
-
-  if (totpStatusLoading || !totp) {
+  if (!isSignedIn || !signinState) {
     return <LoadingSpinner fullScreen />;
   }
 
-  if (!isSignedIn || !signinState) {
-    navTo('signup');
+  if (
+    !isSignedIn ||
+    !signinState ||
+    totpStatusLoading === true ||
+    totp === undefined ||
+    sessionVerified === undefined
+  ) {
     return <LoadingSpinner fullScreen />;
   }
 
