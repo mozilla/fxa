@@ -200,7 +200,7 @@ test.describe('severity-1 #smoke', () => {
 
       await relier.goto();
       await relier.clickEmailFirst();
-      await expect(page).toHaveURL(/oauth\//);
+      await expect(page).toHaveURL(/oauth\/signin/);
 
       // reload page with React experiment params
       await page.goto(
@@ -208,6 +208,8 @@ test.describe('severity-1 #smoke', () => {
       );
 
       // Cached user detected
+      await expect(page).toHaveURL(/oauth\/signin/);
+      await expect(page.locator('#root')).toBeEnabled();
       await expect(signin.cachedSigninHeading).toBeVisible();
       // Email is prefilled
       await expect(page.getByText(email)).toBeVisible();
@@ -246,6 +248,7 @@ test.describe('severity-1 #smoke', () => {
       );
 
       await signup.fillOutEmailForm(email);
+      await expect(signup.signupFormHeading).toBeVisible();
       await signup.fillOutSignupForm(password, AGE_21);
       await expect(page).toHaveURL(/confirm_signup_code/);
       const code = await target.emailClient.getVerifyShortCode(email);
