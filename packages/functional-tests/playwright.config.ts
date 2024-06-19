@@ -56,7 +56,7 @@ export default defineConfig<PlaywrightTestConfig<TestOptions, WorkerOptions>>({
               headless: !DEBUG,
               slowMo: SLOWMO,
             },
-            trace: CI ? 'on-first-retry' : 'retain-on-failure',
+            trace: 'retain-on-failure',
           },
         } as Project)
     ),

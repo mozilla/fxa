@@ -42,6 +42,51 @@ test.describe('severity-1 #smoke', () => {
       expect(await relier.isLoggedIn()).toBe(true);
     });
 
+    test('verified account with cached login, no email confirmation required', async ({
+      pages: { page, relier, signin },
+      testAccountTracker,
+    }, { project }) => {
+      test.fixme(
+        project.name !== 'local',
+        'Fix required as of 2024/04/26 (see FXA-9518).'
+      );
+
+      const credentials = await testAccountTracker.signUp();
+
+      await relier.goto();
+      await relier.clickEmailFirst();
+      await expect(page).toHaveURL(/oauth\//);
+
+      // reload page with React experiment params
+      await page.goto(
+        `${page.url()}&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
+      );
+
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
+      expect(await relier.isLoggedIn()).toBe(true);
+
+      await relier.signOut();
+
+      // Attempt to sign back in
+      await relier.clickEmailFirst();
+
+      // wait for navigation
+      await expect(page).toHaveURL(/oauth\//);
+
+      // reload page with React experiment params
+      await page.goto(
+        `${page.url()}&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
+      );
+
+      await expect(signin.cachedSigninHeading).toBeVisible({ timeout: 15000 });
+      // Email is prefilled
+      await expect(page.getByText(credentials.email)).toBeVisible();
+      await signin.signInButton.click();
+
+      await relier.isLoggedIn();
+    });
+
     test('verified using a cached expired login', async ({
       pages: { page, relier, signin },
       testAccountTracker,
@@ -171,7 +216,6 @@ test.describe('severity-1 #smoke', () => {
       await signin.signInButton.click();
 
       // Verify email and ensure user is redirected to relier
-      await expect(page).toHaveURL(/confirm_signup_code/);
       await expect(page).toHaveURL(/confirm_signup_code/);
       const code = await target.emailClient.getVerifyShortCode(email);
       await confirmSignupCode.fillOutCodeForm(code);
