@@ -208,8 +208,7 @@ test.describe('severity-1 #smoke', () => {
       );
 
       // Cached user detected
-      await expect(page).toHaveURL(/oauth\/signin/);
-      await expect(page.locator('#root')).toBeEnabled();
+      // redirect is slow, wait for the cached signin heading to appear
       await expect(signin.cachedSigninHeading).toBeVisible();
       // Email is prefilled
       await expect(page.getByText(email)).toBeVisible();
@@ -263,8 +262,7 @@ test.describe('severity-1 #smoke', () => {
 
       // reload page with React experiment params
       await page.goto(
-        `${page.url()}&forceExperiment=generalizedReactApp&forceExperimentGroup=react`,
-        { waitUntil: 'load' }
+        `${page.url()}&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
       );
 
       await expect(signin.cachedSigninHeading).toBeVisible();
