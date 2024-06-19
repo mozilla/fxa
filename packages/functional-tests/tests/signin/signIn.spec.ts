@@ -101,8 +101,7 @@ test.describe('severity-2 #smoke', () => {
 
     test('with bounced email', async ({
       target,
-      page,
-      pages: { signin },
+      syncBrowserPages: { page, signin },
       testAccountTracker,
     }) => {
       test.fixme(

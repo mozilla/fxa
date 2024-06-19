@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { expect } from '@playwright/test';
 import { BaseLayout } from './layout';
 
 export abstract class BaseTokenCodePage extends BaseLayout {
@@ -38,6 +39,7 @@ export abstract class BaseTokenCodePage extends BaseLayout {
   async fillOutCodeForm(code: string) {
     this.checkPath();
     await this.codeInput.fill(code);
+    await expect(this.codeInput).toHaveValue(code);
     await this.submitButton.click();
   }
 }

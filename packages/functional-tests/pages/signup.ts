@@ -65,6 +65,34 @@ export class SignupPage extends BaseLayout {
     return this.page.getByLabel('History', { exact: true });
   }
 
+  get CWTSEnginePasswords() {
+    return this.page.getByLabel('Passwords', { exact: true });
+  }
+
+  get CWTSEngineAddons() {
+    return this.page.getByLabel('Add-ons', { exact: true });
+  }
+
+  get CWTSEngineOpenTabs() {
+    return this.page.getByLabel('Open Tabs', { exact: true });
+  }
+
+  get CWTSEnginePreferences() {
+    return this.page.getByLabel('Preferences', { exact: true });
+  }
+
+  get CWTSEngineCreditCards() {
+    return this.page.getByLabel('Payment Methods', { exact: true });
+  }
+
+  get CWTSEngineAddresses() {
+    return this.page.getByLabel('Addresses', { exact: true });
+  }
+
+  get CWTSDoNotSync() {
+    return this.page.getByLabel('Do not sync', { exact: true });
+  }
+
   // for backwards compatibility with Backbone
   // not currently implemented in React, see FXA-8827
   get permissionsHeading() {

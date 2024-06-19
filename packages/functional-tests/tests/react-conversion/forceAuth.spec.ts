@@ -13,9 +13,8 @@ test.describe('force auth react', () => {
   });
 
   test('displays signin with registered email', async ({
-    page,
     target,
-    pages: { signin },
+    syncBrowserPages: { page, signin },
     testAccountTracker,
   }) => {
     const credentials = await testAccountTracker.signUp();
@@ -35,9 +34,8 @@ test.describe('force auth react', () => {
   });
 
   test('redirects to signup with unregistered email', async ({
-    page,
     target,
-    pages: { configPage, signup },
+    syncBrowserPages: { configPage, page, signup },
   }) => {
     const config = await configPage.getConfig();
     test.skip(config.showReactApp.signUpRoutes !== true);

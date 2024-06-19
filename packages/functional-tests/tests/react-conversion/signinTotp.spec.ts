@@ -52,13 +52,16 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('add totp, login with sync', async ({
-      pages: { connectAnotherDevice, settings, totp, page, signin, signup },
+      syncBrowserPages: {
+        connectAnotherDevice,
+        settings,
+        totp,
+        page,
+        signin,
+        signup,
+      },
       testAccountTracker,
     }) => {
-      test.fixme(
-        true,
-        'TODO in FXA-9914, look into isolation issue, this test might be causing following tests to fail. Possibly needs syncBrowserPage fixture.'
-      );
       const credentials = await testAccountTracker.signUp();
 
       await signin.goto();

@@ -53,13 +53,9 @@ test.describe('severity-1 #smoke', () => {
 
     test('signup sync desktop v3, verify account', async ({
       target,
-      syncBrowserPages: { confirmSignupCode, page, signup, login },
+      syncBrowserPages: { confirmSignupCode, page, signup },
       testAccountTracker,
     }) => {
-      test.fixme(
-        true,
-        'TODO in FXA-9914, look into isolation issue, this test might be causing following tests to fail'
-      );
       const { email, password } =
         testAccountTracker.generateSignupAccountDetails();
       test.fixme(true, 'Fix required as of 2024/03/18 (see FXA-9306).');
@@ -74,23 +70,23 @@ test.describe('severity-1 #smoke', () => {
 
       await signup.respondToWebChannelMessage(eventDetailLinkAccount);
       await signup.checkWebChannelMessage(FirefoxCommand.FxAStatus);
-      await login.checkWebChannelMessage(FirefoxCommand.LinkAccount);
+      await signup.checkWebChannelMessage(FirefoxCommand.LinkAccount);
 
       // Sync desktop v3 includes "default" engines plus the ones provided via web channel
       // See sync-engines.ts comments
-      await expect(login.CWTSEngineHeader).toBeVisible();
-      await expect(login.CWTSEngineBookmarks).toBeVisible();
-      await expect(login.CWTSEngineHistory).toBeVisible();
-      await expect(login.CWTSEnginePasswords).toBeVisible();
-      await expect(login.CWTSEngineAddons).toBeVisible();
-      await expect(login.CWTSEngineOpenTabs).toBeVisible();
-      await expect(login.CWTSEnginePreferences).toBeVisible();
-      await expect(login.CWTSEngineCreditCards).toBeVisible();
-      await expect(login.CWTSEngineAddresses).toBeHidden();
+      await expect(signup.CWTSEngineHeader).toBeVisible();
+      await expect(signup.CWTSEngineBookmarks).toBeVisible();
+      await expect(signup.CWTSEngineHistory).toBeVisible();
+      await expect(signup.CWTSEnginePasswords).toBeVisible();
+      await expect(signup.CWTSEngineAddons).toBeVisible();
+      await expect(signup.CWTSEngineOpenTabs).toBeVisible();
+      await expect(signup.CWTSEnginePreferences).toBeVisible();
+      await expect(signup.CWTSEngineCreditCards).toBeVisible();
+      await expect(signup.CWTSEngineAddresses).toBeHidden();
 
       await signup.fillOutSignupForm(password, AGE_21);
 
-      await login.checkWebChannelMessage(FirefoxCommand.Login);
+      await signup.checkWebChannelMessage(FirefoxCommand.Login);
       await expect(page).toHaveURL(/confirm_signup_code/);
       const code = await target.emailClient.getVerifyShortCode(email);
       await confirmSignupCode.fillOutCodeForm(code);
