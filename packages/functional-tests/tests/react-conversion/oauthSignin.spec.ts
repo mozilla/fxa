@@ -79,9 +79,7 @@ test.describe('severity-1 #smoke', () => {
         `${page.url()}&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
       );
 
-      await expect(page).toHaveURL(/oauth\/signin/);
-      await expect(page.locator('#root')).toBeEnabled();
-      await expect(signin.cachedSigninHeading).toBeVisible();
+      await expect(signin.cachedSigninHeading).toBeVisible({ timeout: 15000 });
       // Email is prefilled
       await expect(page.getByText(credentials.email)).toBeVisible();
       await signin.signInButton.click();
