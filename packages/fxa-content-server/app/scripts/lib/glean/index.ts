@@ -4,20 +4,21 @@
 
 import Glean from '@mozilla/glean/web';
 
-import { accountsEvents } from './pings';
-import * as event from './event';
-import * as email from './email';
-import * as reg from './reg';
-import * as login from './login';
-import * as cachedLogin from './cachedLogin';
-import * as passwordReset from './passwordReset';
-import * as cadFirefox from './cadFirefox';
-import * as cadApproveDevice from './cadApproveDevice';
-import * as cadMobilePair from './cadMobilePair';
-import * as setPasswordThirdPartyAuth from './setPasswordThirdPartyAuth';
 import { userIdSha256 } from './account';
+import * as cachedLogin from './cachedLogin';
+import * as cadApproveDevice from './cadApproveDevice';
+import * as cadFirefox from './cadFirefox';
+import * as cadMobilePair from './cadMobilePair';
+import * as cad from './cad';
+import * as email from './email';
+import * as event from './event';
+import * as login from './login';
+import * as passwordReset from './passwordReset';
+import { accountsEvents } from './pings';
+import * as reg from './reg';
 import { oauthClientId, service } from './relyingParty';
 import { deviceType, entrypoint, flowId } from './session';
+import * as setPasswordThirdPartyAuth from './setPasswordThirdPartyAuth';
 import * as utm from './utm';
 
 export type GleanMetricsConfig = {
@@ -244,6 +245,9 @@ const recordEventMetric = (eventName: string, properties: EventProperties) => {
         reason: properties['reason'] || '',
       });
       break;
+    case 'cad_firefox_choice_notnow_submit':
+      cadFirefox.choiceNotnowSubmit.record();
+      break;
     case 'cad_firefox_sync_device_submit':
       cadFirefox.syncDeviceSubmit.record();
       break;
@@ -252,6 +256,15 @@ const recordEventMetric = (eventName: string, properties: EventProperties) => {
       break;
     case 'cad_mobile_pair_view':
       cadMobilePair.view.record();
+      break;
+    case 'cad_view':
+      cad.view.record();
+      break;
+    case 'cad_submit':
+      cad.submit.record();
+      break;
+    case 'cad_startbrowsing_submit':
+      cad.startbrowsingSubmit.record();
       break;
     case 'third_party_auth_set_password_view':
       setPasswordThirdPartyAuth.view.record();
@@ -364,11 +377,18 @@ export const GleanMetrics = {
     success: createEventFn('login_totp_code_success_view'),
   },
 
+  cad: {
+    view: createEventFn('cad_view'),
+    submit: createEventFn('cad_submit'),
+    startbrowsingSubmit: createEventFn('cad_startbrowsing_submit'),
+  },
+
   cadFirefox: {
     view: createEventFn('cad_firefox_view'),
     choiceView: createEventFn('cad_firefox_choice_view'),
     choiceEngage: createEventFn('cad_firefox_choice_engage'),
     choiceSubmit: createEventFn('cad_firefox_choice_submit'),
+    choiceNotnowSubmit: createEventFn('cad_firefox_choice_notnow_submit'),
     syncDeviceSubmit: createEventFn('cad_firefox_sync_device_submit'),
   },
   cadMobilePair: {

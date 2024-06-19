@@ -3,15 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { assert } from 'chai';
-import sinon from 'sinon';
-import View from 'views/pair/index';
-import BaseBroker from 'models/auth_brokers/base';
 import Notifier from 'lib/channels/notifier';
+import P from 'lib/promise';
+import BaseBroker from 'models/auth_brokers/base';
 import Relier from 'models/reliers/relier';
 import User from 'models/user';
-import WindowMock from '../../../mocks/window';
+import sinon from 'sinon';
+import View from 'views/pair/index';
 import GleanMetrics from '../../../../scripts/lib/glean';
-import P from 'lib/promise';
+import WindowMock from '../../../mocks/window';
 
 const UA_CHROME =
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.109 Safari/537.36';
@@ -230,11 +230,11 @@ describe('views/pair/index', () => {
         assert.equal(choiceSubmitBtn.length, 1);
         assert.ok(view.$(choiceSubmitBtn).attr('disabled'));
 
-        const notNowBtn = view.$('#pair-not-now');
+        const notNowBtn = view.$('#choice-pair-not-now');
         assert.equal(notNowBtn.length, 1);
       });
 
-      it('logs Glean view event', () => {
+      it('logs Glean view event on render', () => {
         sinon.assert.calledOnce(viewChoiceEventStub);
       });
 
@@ -357,6 +357,25 @@ describe('views/pair/index', () => {
             view.$('#pair-header').text(),
             'Sync your Firefox experience'
           );
+        });
+      });
+
+      describe('choicePairNotNowHandler', () => {
+        let notNowChoiceEventStub;
+        beforeEach(() => {
+          notNowChoiceEventStub = sinon.stub(
+            GleanMetrics.cadFirefox,
+            'choiceNotnowSubmit'
+          );
+        });
+
+        afterEach(() => {
+          notNowChoiceEventStub.restore();
+        });
+
+        it('on not now button click, sends Glean ping', () => {
+          view.$('#choice-pair-not-now').click();
+          sinon.assert.calledOnce(notNowChoiceEventStub);
         });
       });
     });
