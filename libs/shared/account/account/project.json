@@ -8,11 +8,10 @@
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "rootDir": ".",
         "outputPath": "dist/libs/shared/account/account",
         "tsConfig": "libs/shared/account/account/tsconfig.lib.json",
         "packageJson": "libs/shared/account/account/package.json",
-        "main": "libs/shared/account/account/libs/shared/account/account/src/index.ts",
+        "main": "libs/shared/account/account/src/index.ts",
         "assets": ["libs/shared/account/account/*.md"]
       }
     },
