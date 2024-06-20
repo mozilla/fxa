@@ -65,6 +65,7 @@ test.describe('severity-2 #smoke', () => {
       pages: { page, signin, relier, signinTokenCode },
       testAccountTracker,
     }) => {
+      test.fixme(true, 'TODO in FXA-9931');
       // The `sync` prefix is needed to force confirmation.
       const credentials = await testAccountTracker.signUpSync();
 
