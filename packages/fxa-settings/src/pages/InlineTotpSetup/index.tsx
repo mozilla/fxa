@@ -13,10 +13,10 @@ import FormVerifyCode from '../../components/FormVerifyCode';
 import AppLayout from '../../components/AppLayout';
 import Banner, { BannerType } from '../../components/Banner';
 import { InlineTotpSetupProps } from './interfaces';
+import DataBlockManual from '../../components/DataBlockManual';
 
 export const InlineTotpSetup = ({
   totp,
-  email,
   serviceName,
   cancelSetupHandler,
   verifyCodeHandler,
@@ -31,7 +31,6 @@ export const InlineTotpSetup = ({
     'inline-totp-setup-code-required-error',
     'Authentication code required'
   );
-  const [secret] = useState<string>();
   const [showIntro, setShowIntro] = useState(true);
   const [showQR, setShowQR] = useState(true);
   const [totpErrorMessage, setTotpErrorMessage] = useState('');
@@ -212,7 +211,7 @@ export const InlineTotpSetup = ({
                       ),
                     }}
                   >
-                    <p className="text-sm m-2">
+                    <p className="text-sm mt-4">
                       Type this secret key into your authentication app.{' '}
                       <button
                         onClick={() => {
@@ -224,9 +223,7 @@ export const InlineTotpSetup = ({
                       </button>
                     </p>
                   </FtlMsg>
-                  <div className="qr-code-container">
-                    <div className="qr-code-text">{secret}</div>
-                  </div>
+                  <DataBlockManual secret={totp.secret} />
                   <FtlMsg id="inline-totp-setup-on-completion-description">
                     <p className="text-sm mb-4">
                       Once complete, it will begin generating authentication
