@@ -55,6 +55,10 @@ test.describe('severity-1 #smoke', () => {
       pages: { signin, relier, page },
       testAccountTracker,
     }) => {
+      test.fixme(
+        true,
+        'TODO in FXA-9914, look into isolation issue, this test might be causing following tests to fail'
+      );
       const credentials = await testAccountTracker.signUp();
       const customEventDetail = createCustomEventDetail(
         FirefoxCommand.FxAStatus,

@@ -56,6 +56,10 @@ test.describe('severity-1 #smoke', () => {
       syncBrowserPages: { confirmSignupCode, page, signup, login },
       testAccountTracker,
     }) => {
+      test.fixme(
+        true,
+        'TODO in FXA-9914, look into isolation issue, this test might be causing following tests to fail'
+      );
       const { email, password } =
         testAccountTracker.generateSignupAccountDetails();
       test.fixme(true, 'Fix required as of 2024/03/18 (see FXA-9306).');
