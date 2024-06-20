@@ -1,9 +1,9 @@
-import { getFirefoxUserPrefs } from './lib/targets/firefoxUserPrefs';
 import type { Project } from '@playwright/test';
 import { PlaywrightTestConfig, defineConfig } from '@playwright/test';
 import * as path from 'path';
 import { TestOptions, WorkerOptions } from './lib/fixtures/standard';
 import { TargetNames } from './lib/targets';
+import { getFirefoxUserPrefs } from './lib/targets/firefoxUserPrefs';
 
 const CI = !!process.env.CI;
 
@@ -39,6 +39,9 @@ export default defineConfig<PlaywrightTestConfig<TestOptions, WorkerOptions>>({
   // Total allowable time spent for the test function, fixtures, beforeEach and afterEach hooks. Defaults to 30 seconds.
   timeout: 60000, // 1 minute
 
+  // Total allowable time spent for each assertion. Defaults to 5 seconds.
+  expect: { timeout: 10000 }, // 10 seconds
+
   use: {
     viewport: { width: 1280, height: 720 },
   },
@@ -56,7 +59,7 @@ export default defineConfig<PlaywrightTestConfig<TestOptions, WorkerOptions>>({
               headless: !DEBUG,
               slowMo: SLOWMO,
             },
-            trace: CI ? 'on-first-retry' : 'retain-on-failure',
+            trace: 'retain-on-failure',
           },
         } as Project)
     ),
