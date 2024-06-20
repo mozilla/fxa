@@ -110,4 +110,11 @@ export const eventsMap = {
     recoveryKeyResetSuccessView:
       'password_reset_recovery_key_create_success_view',
   },
+
+  thirdPartyAuth: {
+    viewWithNoPasswordSet: 'third_party_auth_login_no_pw_view',
+
+    startGoogleAuthFromLogin: 'google_oauth_login_start',
+    startAppleAuthFromLogin: 'apple_oauth_login_start',
+  },
 } as const;

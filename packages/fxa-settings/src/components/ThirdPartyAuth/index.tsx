@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useRef, FormEventHandler } from 'react';
+import React, { useRef, FormEventHandler, useEffect } from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
 
 import { ReactComponent as GoogleLogo } from './google-logo.svg';
@@ -11,11 +11,13 @@ import { ReactComponent as AppleLogo } from './apple-logo.svg';
 import { useConfig } from '../../models';
 import { ReactElement } from 'react-markdown/lib/react-markdown';
 import { useMetrics } from '../../lib/metrics';
+import GleanMetrics from '../../lib/glean';
 
 export type ThirdPartyAuthProps = {
   onContinueWithGoogle?: FormEventHandler<HTMLFormElement>;
   onContinueWithApple?: FormEventHandler<HTMLFormElement>;
   showSeparator?: boolean;
+  viewName?: string;
 };
 
 /**
@@ -27,8 +29,16 @@ const ThirdPartyAuth = ({
   onContinueWithGoogle,
   onContinueWithApple,
   showSeparator = true,
+  viewName = 'unknown',
 }: ThirdPartyAuthProps) => {
   const config = useConfig();
+
+  useEffect(() => {
+    // If the separator is shown, the user has set a password
+    if (!showSeparator) {
+      GleanMetrics.thirdPartyAuth.viewWithNoPasswordSet();
+    }
+  }, [showSeparator]);
 
   return (
     <>
@@ -56,6 +66,7 @@ const ThirdPartyAuth = ({
               responseType: 'code',
               accessType: 'offline',
               prompt: 'consent',
+              viewName,
               onSubmit: onContinueWithGoogle,
               buttonText: (
                 <>
@@ -76,6 +87,7 @@ const ThirdPartyAuth = ({
               responseType: 'code id_token',
               accessType: 'offline',
               prompt: 'consent',
+              viewName,
               responseMode: 'form_post',
               onSubmit: onContinueWithApple,
               buttonText: (
@@ -112,6 +124,7 @@ const ThirdPartySignInForm = ({
   responseMode,
   buttonText,
   onSubmit,
+  viewName,
 }: {
   party: 'google' | 'apple';
   authorizationEndpoint: string;
@@ -125,12 +138,20 @@ const ThirdPartySignInForm = ({
   responseMode?: string;
   buttonText: ReactElement;
   onSubmit?: FormEventHandler<HTMLFormElement>;
+  viewName?: string;
 }) => {
   const { logViewEventOnce } = useMetrics();
   const stateRef = useRef<HTMLInputElement>(null);
 
   function onClick() {
     logViewEventOnce(`flow.${party}`, 'oauth-start');
+
+    if (viewName === 'signin' && party === 'google') {
+      GleanMetrics.thirdPartyAuth.startGoogleAuthFromLogin();
+    } else if (viewName === 'signin' && party === 'apple') {
+      GleanMetrics.thirdPartyAuth.startAppleAuthFromLogin();
+    }
+
     stateRef.current!.value = getState();
   }
 

@@ -393,7 +393,10 @@ const Signin = ({
       )}
 
       {!hideThirdPartyAuth && (
-        <ThirdPartyAuth showSeparator={!hasLinkedAccountAndNoPassword} />
+        <ThirdPartyAuth
+          showSeparator={!hasLinkedAccountAndNoPassword}
+          {...{ viewName }}
+        />
       )}
 
       <TermsPrivacyAgreement {...{ isPocketClient, isMonitorClient }} />
