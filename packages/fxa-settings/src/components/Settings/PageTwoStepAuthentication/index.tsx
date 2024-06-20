@@ -19,6 +19,7 @@ import { Localized, useLocalization } from '@fluent/react';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { useAsync } from 'react-async-hook';
 import { getErrorFtlId } from '../../../lib/error-utils';
+import DataBlockManual from '../../DataBlockManual';
 
 export const metricsPreInPostFix = 'settings.two-step-authentication';
 
@@ -251,9 +252,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
               <Localized id="tfa-enter-secret-key">
                 <p>Enter this secret key into your authenticator app:</p>
               </Localized>
-              <p className="my-8 mx-auto font-bold" data-testid="manual-code">
-                {totpInfo.result.secret.toUpperCase().match(/.{4}/g)!.join(' ')}
-              </p>
+              <DataBlockManual secret={totpInfo.result.secret} />
             </div>
           )}
           <Localized id="tfa-enter-totp-v2">

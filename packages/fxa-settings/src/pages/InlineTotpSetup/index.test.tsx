@@ -9,6 +9,7 @@ import InlineTotpSetup from '.';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { MozServices } from '../../lib/types';
 import { MOCK_EMAIL, MOCK_TOTP_TOKEN } from './mocks';
+import { formatSecret } from '../../components/DataBlockManual';
 
 const cancelSetupHandler = jest.fn();
 const verifyCodeHandler = jest.fn();
@@ -93,6 +94,7 @@ describe('InlineTotpSetup', () => {
       name: 'Can’t scan code?',
     });
     await act(async () => await user.click(changeToManualModeButton));
+    screen.getByText(formatSecret(MOCK_TOTP_TOKEN.secret));
     await screen.findByRole('button', { name: 'Scan QR code instead?' });
   });
 
