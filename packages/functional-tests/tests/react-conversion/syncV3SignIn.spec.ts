@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { FirefoxCommand, createCustomEventDetail } from '../../lib/channels';
 import { expect, test } from '../../lib/fixtures/standard';
 
 test.describe('severity-2 #smoke', () => {
@@ -33,8 +32,7 @@ test.describe('severity-2 #smoke', () => {
 
   test('verified, does need to confirm', async ({
     target,
-    page,
-    pages: { signin, signinTokenCode },
+    syncBrowserPages: { page, signin, signinTokenCode },
     testAccountTracker,
   }) => {
     const credentials = await testAccountTracker.signUpSync();
