@@ -9,17 +9,18 @@
  * browser, they are nudged to install Firefox for Android or iOS.
  */
 import Cocktail from 'cocktail';
+import Template from 'templates/connect_another_device.mustache';
+import Constants from '../lib/constants';
+import GleanMetrics from '../lib/glean';
+import UserAgentMixin from '../lib/user-agent-mixin';
+import FormView from './form';
+import MarketingSnippet from './marketing_snippet';
 import ConnectAnotherDeviceMixin from './mixins/connect-another-device-mixin';
 import FlowEventsMixin from './mixins/flow-events-mixin';
-import FormView from './form';
 import HasModalChildViewMixin from './mixins/has-modal-child-view-mixin';
-import PairingGraphicsMixin from './mixins/pairing-graphics-mixin';
-import Constants from '../lib/constants';
 import MarketingMixin from './mixins/marketing-mixin';
-import MarketingSnippet from './marketing_snippet';
+import PairingGraphicsMixin from './mixins/pairing-graphics-mixin';
 import SyncAuthMixin from './mixins/sync-auth-mixin';
-import Template from 'templates/connect_another_device.mustache';
-import UserAgentMixin from '../lib/user-agent-mixin';
 import VerificationReasonMixin from './mixins/verification-reason-mixin';
 
 const entrypoints = Object.keys(Constants)
@@ -36,6 +37,7 @@ const ConnectAnotherDeviceView = FormView.extend({
 
   events: {
     'click #cad-not-now': 'notNowLinkHandler',
+    'click #sync-firefox-devices': 'connectAnotherDeviceLinkHandler',
   },
 
   beforeRender() {
@@ -49,8 +51,8 @@ const ConnectAnotherDeviceView = FormView.extend({
     }
 
     // Some RPs specify a `redirect_to` query param, check to see if this should
-    // be automatically navigated via the `redirect_immediately` param. Note that 
-    // the user is redirected to `settings` page because it performs extra validation 
+    // be automatically navigated via the `redirect_immediately` param. Note that
+    // the user is redirected to `settings` page because it performs extra validation
     // on whether the url is allowed to be redirected to.
     if (this.getSearchParam('redirect_immediately') === 'true') {
       this.navigate('/settings');
@@ -94,6 +96,7 @@ const ConnectAnotherDeviceView = FormView.extend({
    * @private
    */
   _logViewMetrics() {
+    GleanMetrics.cad.view();
     const isSignedIn = this._isSignedIn();
     this.logFlowEvent(`signedin.${isSignedIn}`);
 
@@ -262,6 +265,12 @@ const ConnectAnotherDeviceView = FormView.extend({
 
   notNowLinkHandler() {
     this.logEvent('cad.notnow.engage');
+    GleanMetrics.cad.startbrowsingSubmit();
+    return true;
+  },
+
+  connectAnotherDeviceLinkHandler() {
+    GleanMetrics.cad.submit();
     return true;
   },
 });

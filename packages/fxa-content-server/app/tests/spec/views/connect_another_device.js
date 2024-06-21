@@ -2,16 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import $ from 'jquery';
-import Account from 'models/account';
-import { assert } from 'chai';
-import AuthBroker from 'models/auth_brokers/base';
 import Backbone from 'backbone';
+import { assert } from 'chai';
+import $ from 'jquery';
 import Notifier from 'lib/channels/notifier';
+import Account from 'models/account';
+import AuthBroker from 'models/auth_brokers/base';
 import Relier from 'models/reliers/relier';
-import sinon from 'sinon';
 import User from 'models/user';
+import sinon from 'sinon';
 import View from 'views/connect_another_device';
+import GleanMetrics from '../../../scripts/lib/glean';
 import WindowMock from '../../mocks/window';
 
 describe('views/connect_another_device', () => {
@@ -63,8 +64,10 @@ describe('views/connect_another_device', () => {
   }
 
   describe('render/afterVisible', () => {
+    let viewEventStub;
     describe('with a Fx desktop user that is signed in', () => {
       beforeEach(() => {
+        viewEventStub = sinon.stub(GleanMetrics.cad, 'view');
         sinon.stub(view, '_isSignedIn').callsFake(() => true);
 
         windowMock.navigator.userAgent =
@@ -73,6 +76,14 @@ describe('views/connect_another_device', () => {
         return view.render().then(() => {
           view.afterVisible();
         });
+      });
+
+      afterEach(() => {
+        viewEventStub.restore();
+      });
+
+      it('logs the view event', () => {
+        sinon.assert.calledOnce(viewEventStub);
       });
 
       it('shows the pairing link, logs appropriately', () => {
@@ -111,11 +122,20 @@ describe('views/connect_another_device', () => {
     ].forEach((entrypoint) => {
       describe(`with a Fx desktop user that can pair from ${entrypoint}`, () => {
         beforeEach(() => {
+          viewEventStub = sinon.stub(GleanMetrics.cad, 'view');
           sinon.stub(view, '_isSignedIn').callsFake(() => true);
           relier.set('entrypoint', entrypoint);
           sinon.spy(view, 'navigate');
           windowMock.navigator.userAgent =
             'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:55.0) Gecko/20100101 Firefox/55.0';
+        });
+
+        afterEach(() => {
+          viewEventStub.restore();
+        });
+
+        it('does not log a view event', () => {
+          sinon.assert.notCalled(viewEventStub);
         });
 
         describe('with fx_desktop_v3 context', () => {
@@ -156,6 +176,7 @@ describe('views/connect_another_device', () => {
       describe(`with known entrypoint ${entrypoint} and action=email'
       }`, () => {
         beforeEach(() => {
+          viewEventStub = sinon.stub(GleanMetrics.cad, 'view');
           sinon.stub(view, '_isSignedIn').callsFake(() => true);
           relier.set('entrypoint', entrypoint);
           relier.set('context', 'fx_desktop_v3');
@@ -170,6 +191,14 @@ describe('views/connect_another_device', () => {
           return view.render().then(() => {
             view.afterVisible();
           });
+        });
+
+        afterEach(() => {
+          viewEventStub.restore();
+        });
+
+        it('logs the view event', () => {
+          sinon.assert.calledOnce(viewEventStub);
         });
 
         it('shows the success message and does not redirect', () => {
@@ -190,6 +219,7 @@ describe('views/connect_another_device', () => {
 
     describe('with an invalid entrypoint', () => {
       beforeEach(() => {
+        viewEventStub = sinon.stub(GleanMetrics.cad, 'view');
         sinon.stub(view, '_isSignedIn').callsFake(() => true);
         sinon.spy(view, 'navigate');
         windowMock.location.search = '?entrypoint=t3st0';
@@ -199,6 +229,14 @@ describe('views/connect_another_device', () => {
         return view.render().then(() => {
           view.afterVisible();
         });
+      });
+
+      afterEach(() => {
+        viewEventStub.restore();
+      });
+
+      it('logs the view event', () => {
+        sinon.assert.calledOnce(viewEventStub);
       });
 
       it('shows the success message and does not redirect', () => {

@@ -2,21 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { forwardRef, useCallback, useState } from 'react';
 import { ApolloError } from '@apollo/client';
-import groupBy from 'lodash.groupby';
+import { Localized, useLocalization } from '@fluent/react';
 import { LinkExternal } from 'fxa-react/components/LinkExternal';
-import { logViewEvent } from '../../../lib/metrics';
 import { useBooleanState } from 'fxa-react/lib/hooks';
-import { Modal } from '../Modal';
+import groupBy from 'lodash.groupby';
+import { forwardRef, useCallback, useState } from 'react';
+import { clearSignedInAccountUid } from '../../../lib/cache';
+import { logViewEvent } from '../../../lib/metrics';
 import { isMobileDevice } from '../../../lib/utilities';
 import { AttachedClient, useAccount, useAlertBar } from '../../../models';
 import { ButtonIconReload } from '../ButtonIcon';
 import { ConnectAnotherDevicePromo } from '../ConnectAnotherDevicePromo';
-import { Service } from './Service';
+import { Modal } from '../Modal';
 import { VerifiedSessionGuard } from '../VerifiedSessionGuard';
-import { clearSignedInAccountUid } from '../../../lib/cache';
-import { Localized, useLocalization } from '@fluent/react';
+import { Service } from './Service';
 
 const UTM_PARAMS =
   '?utm_source=accounts.firefox.com&utm_medium=referral&utm_campaign=fxa-devices';
@@ -217,8 +217,8 @@ export const ConnectedServices = forwardRef<HTMLDivElement>((_, ref) => {
         {!!sortedAndUniqueClients.length &&
           sortedAndUniqueClients.map((client, i) => (
             <Service
+              key={`${client.lastAccessTime}:${client.name}`}
               {...{
-                key: `${client.lastAccessTime}:${client.name}`,
                 name: client.name,
                 deviceType: client.deviceType,
                 location: client.location,

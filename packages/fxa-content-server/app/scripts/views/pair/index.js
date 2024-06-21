@@ -2,18 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import FormView from '../form';
 import Cocktail from 'cocktail';
-import FlowEventsMixin from '../mixins/flow-events-mixin';
-import Template from '../../templates/pair/index.mustache';
-import UserAgentMixin from '../../lib/user-agent-mixin';
-import PairingGraphicsMixin from '../mixins/pairing-graphics-mixin';
-import PairingTotpMixin from './pairing-totp-mixin';
 import { MARKETING_ID_AUTUMN_2016, SYNC_SERVICE } from '../../lib/constants';
-import SyncAuthMixin from '../mixins/sync-auth-mixin';
-import MarketingMixin from '../mixins/marketing-mixin';
-import FormNeedsMobile from '../../models/pairing/form-needs-mobile';
 import GleanMetrics from '../../lib/glean';
+import UserAgentMixin from '../../lib/user-agent-mixin';
+import FormNeedsMobile from '../../models/pairing/form-needs-mobile';
+import Template from '../../templates/pair/index.mustache';
+import FormView from '../form';
+import FlowEventsMixin from '../mixins/flow-events-mixin';
+import MarketingMixin from '../mixins/marketing-mixin';
+import PairingGraphicsMixin from '../mixins/pairing-graphics-mixin';
+import SyncAuthMixin from '../mixins/sync-auth-mixin';
+import PairingTotpMixin from './pairing-totp-mixin';
 
 const GLEAN_EVENT_REASON_HAS_MOBILE = 'has mobile';
 const GLEAN_EVENT_REASON_NO_MOBILE = 'does not have mobile';
@@ -25,6 +25,7 @@ class PairIndexView extends FormView {
     ...FormView.prototype.events,
     'click #get-fx-mobile': 'downloadLinkEngagement',
     'click #pair-not-now': 'pairNotNowHandler',
+    'click #choice-pair-not-now': 'choicePairNotNowHandler',
     'click #set-needs-mobile': 'setNeedsMobile',
     'click #back-btn': 'handleBackButton',
     'click .input-radio': 'handleRadioEngage',
@@ -128,6 +129,13 @@ class PairIndexView extends FormView {
 
   pairNotNowHandler() {
     this.metrics.logEvent('screen.pair.notnow.engage');
+    return true;
+  }
+
+  // When user is offered a choice to select if they do or do not have Firefox for mobile
+  // to start connecting another device but click the "Not Now" button and cancel out of the flow
+  choicePairNotNowHandler() {
+    GleanMetrics.cadFirefox.choiceNotnowSubmit();
     return true;
   }
 }
