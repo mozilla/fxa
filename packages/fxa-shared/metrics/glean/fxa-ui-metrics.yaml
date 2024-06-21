@@ -1300,7 +1300,7 @@ cad_mobile_pair:
     data_sensitivity:
       - interaction
 
-set_password_third_party_auth:
+third_party_auth_set_password:
   view:
     type: event
     description: |
