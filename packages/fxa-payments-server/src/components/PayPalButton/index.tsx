@@ -45,6 +45,13 @@ export type PaypalButtonProps = {
 };
 
 export type ButtonBaseProps = {
+  onInit?: (
+    data: any,
+    actions: {
+      enable: () => void;
+      disable: () => void;
+    }
+  ) => void;
   createOrder?: () => void;
   onApprove?: (data: { orderID: string }) => void;
   onError?: () => void;
@@ -84,6 +91,11 @@ export const PaypalButton = ({
     plan_id: priceId,
     product_id: productId,
   } = selectedPlan;
+
+  const [initSuccess, setInitSuccess] = useState(false);
+  const [hideButton, setHideButton] = useState(false);
+  const [paypalButtonActions, setPaypalButtonActions] =
+    useState<PaypalButtonActionsType>();
 
   const createOrder = useCallback(async () => {
     try {
@@ -201,19 +213,22 @@ export const PaypalButton = ({
 
   const onError = useCallback(
     (error) => {
-      error.code = GENERAL_PAYPAL_ERROR_ID;
-      setSubscriptionError(error);
+      if (initSuccess) {
+        error.code = GENERAL_PAYPAL_ERROR_ID;
+        setSubscriptionError(error);
+      } else {
+        // If PayPal button was not initialized successfully then set
+        // the loading error and do not display PayPal as a purchase option
+        setHideButton(true);
+      }
     },
-    [setSubscriptionError]
+    [setSubscriptionError, initSuccess]
   );
 
   type PaypalButtonActionsType = {
     disable: () => void;
     enable: () => void;
   };
-
-  const [paypalButtonActions, setPaypalButtonActions] =
-    useState<PaypalButtonActionsType>();
 
   useEffect(() => {
     if (paypalButtonActions) {
@@ -232,6 +247,8 @@ export const PaypalButton = ({
       if (disabled) {
         actions.disable();
       }
+
+      setInitSuccess(true);
     },
     [disabled]
   );
@@ -248,6 +265,10 @@ export const PaypalButton = ({
 
   const disabledStyles =
     ' payment-button-disabled after:bg-white after:opacity-40 after:z-[100]';
+
+  if (hideButton || !ButtonBase) {
+    return null;
+  }
 
   return (
     <div data-testid="pay-with-other">

@@ -4,7 +4,14 @@
 import '@testing-library/jest-dom/extend-expect';
 
 import { PaymentMethod } from '@stripe/stripe-js';
-import { act, cleanup, fireEvent, screen } from '@testing-library/react';
+import {
+  act,
+  cleanup,
+  fireEvent,
+  getByTestId,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import waitForExpect from 'wait-for-expect';
 
 import SubscriptionCreate, { SubscriptionCreateProps } from '.';
@@ -39,6 +46,7 @@ import {
 import { PickPartial } from '../../../lib/types';
 import { ReactGALog } from '../../../lib/reactga-event';
 import { createSubscriptionEngaged } from '../../../lib/amplitude';
+import { useState } from 'react';
 
 jest.mock('../../../lib/hooks', () => {
   const refreshNonceMock = jest.fn().mockImplementation(Math.random);
@@ -940,8 +948,54 @@ describe('routes/Product/SubscriptionCreate', () => {
   });
 
   it('displays PaypalButton onError failure', async () => {
+    const MockedButtonBase = ({ onInit, onError }: ButtonBaseProps) => {
+      return (
+        <>
+          <button
+            data-testid="paypal-init-button"
+            onClick={() => {
+              onInit!(
+                {},
+                {
+                  enable: () => {},
+                  disable: () => {},
+                }
+              );
+            }}
+          />
+          ;
+          <button data-testid="paypal-button" onClick={onError} />;
+        </>
+      );
+    };
+    await act(async () => {
+      renderWithLocalizationProvider(
+        <Subject
+          {...{
+            paypalButtonBase: MockedButtonBase,
+          }}
+        />
+      );
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('paypal-init-button'));
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('paypal-button'));
+    });
+    expect(
+      screen.queryByTestId('error-payment-submission')
+    ).toBeInTheDocument();
+    expect(ReactGALog.logEvent).not.toBeCalled();
+  });
+
+  it('hides PayPal button if error before onInit completes', async () => {
     const MockedButtonBase = ({ onError }: ButtonBaseProps) => {
-      return <button data-testid="paypal-button" onClick={onError} />;
+      return (
+        <>
+          <button data-testid="paypal-button" onClick={onError} />;
+        </>
+      );
     };
     await act(async () => {
       renderWithLocalizationProvider(
@@ -957,7 +1011,8 @@ describe('routes/Product/SubscriptionCreate', () => {
     });
     expect(
       screen.queryByTestId('error-payment-submission')
-    ).toBeInTheDocument();
+    ).not.toBeInTheDocument();
+    expect(screen.queryByTestId('pay-with-other')).not.toBeInTheDocument();
     expect(ReactGALog.logEvent).not.toBeCalled();
   });
 
