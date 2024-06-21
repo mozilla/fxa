@@ -25,6 +25,7 @@ import {
   LatestInvoiceItems,
   SubsequentInvoicePreview,
 } from 'fxa-shared/dto/auth/payments/invoice';
+import couponIcon from '@fxa/shared/assets/images/ico-coupon.svg';
 
 const getIntervalPriceDetailsData = (
   invoice: LatestInvoiceItems | SubsequentInvoicePreview
@@ -62,8 +63,8 @@ const getNextBillData = (
     getIntervalPriceDetailsData(subsequentInvoice);
 
   const nextBillL10nId = showInvoiceTax
-    ? 'sub-next-bill-tax'
-    : 'sub-next-bill-no-tax';
+    ? 'sub-next-bill-tax-1'
+    : 'sub-next-bill-no-tax-1';
   const nextBillAmount = formatPriceAmount(
     invoiceDisplayTotal,
     plan.currency,
@@ -104,7 +105,7 @@ export type CancelSubscriptionPanelProps = {
 const CancelSubscriptionPanel = ({
   plan,
   cancelSubscription,
-  customerSubscription: { subscription_id, current_period_end },
+  customerSubscription: { subscription_id, current_period_end, promotion_name },
   cancelSubscriptionStatus,
   paymentProvider,
   promotionCode,
@@ -202,30 +203,69 @@ const CancelSubscriptionPanel = ({
         {!cancelRevealed ? (
           <>
             <div className="with-settings-button">
-              <div className="price-details" data-testid="price-details">
-                <PriceDetails
-                  total={intervalPriceDetailsData.invoiceDisplayTotal}
-                  tax={intervalPriceDetailsData.taxAmount}
-                  showTax={intervalPriceDetailsData.showInvoiceTax}
-                  currency={plan.currency}
-                  interval={plan.interval}
-                  intervalCount={plan.interval_count}
-                  className="price-details plan-pricing"
-                  dataTestId="price-details-standalone"
-                />
-                <Localized
-                  id={nextBillL10nId}
-                  vars={nextBillL10nVars}
-                  elems={{
-                    strong: <span className="font-semibold"></span>,
-                  }}
+              <div className="flex items-start">
+                {promotion_name && (
+                  <img src={couponIcon} alt="" className="ltr:pr-2 rtl:pl-2" />
+                )}
+                <span
+                  className="flex flex-col flex-4 text-grey-900 ltr:pr-8 rtl:pl-8"
+                  data-testid="price-details"
                 >
-                  <div data-testid="sub-next-bill">
-                    Your next bill of{' '}
-                    <span className="font-semibold">{nextBillAmount}</span> is
-                    due <span className="font-semibold">{nextBillDate}</span>
+                  <div className="font-semibold mb-2">
+                    {promotion_name ? (
+                      <Localized
+                        id="sub-promo-coupon-applied"
+                        vars={{ promotion_name }}
+                        elems={{
+                          priceDetails: (
+                            <PriceDetails
+                              total={
+                                intervalPriceDetailsData.invoiceDisplayTotal
+                              }
+                              tax={intervalPriceDetailsData.taxAmount}
+                              showTax={intervalPriceDetailsData.showInvoiceTax}
+                              currency={plan.currency}
+                              interval={plan.interval}
+                              intervalCount={plan.interval_count}
+                              className="font-semibold mb-2"
+                              dataTestId="price-details-standalone"
+                            />
+                          ),
+                        }}
+                      >
+                        <span data-testid="sub-coupon-applied">
+                          {promotion_name} coupon applied:{' '}
+                          <PriceDetails
+                            total={intervalPriceDetailsData.invoiceDisplayTotal}
+                            tax={intervalPriceDetailsData.taxAmount}
+                            showTax={intervalPriceDetailsData.showInvoiceTax}
+                            currency={plan.currency}
+                            interval={plan.interval}
+                            intervalCount={plan.interval_count}
+                            className="font-semibold mb-2"
+                            dataTestId="price-details-standalone"
+                          />
+                        </span>
+                      </Localized>
+                    ) : (
+                      <PriceDetails
+                        total={intervalPriceDetailsData.invoiceDisplayTotal}
+                        tax={intervalPriceDetailsData.taxAmount}
+                        showTax={intervalPriceDetailsData.showInvoiceTax}
+                        currency={plan.currency}
+                        interval={plan.interval}
+                        intervalCount={plan.interval_count}
+                        className="font-semibold mb-2"
+                        dataTestId="price-details-standalone"
+                      />
+                    )}
                   </div>
-                </Localized>
+                  <Localized id={nextBillL10nId} vars={nextBillL10nVars}>
+                    <div data-testid="sub-next-bill">
+                      Next bill of {nextBillAmount} is due {nextBillDate}
+                    </div>
+                  </Localized>
+                </span>
               </div>
               <div className="action">
                 <button

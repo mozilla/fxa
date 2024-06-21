@@ -34,8 +34,8 @@ pay-update-manage-btn = Manage
 ## $date (Date) - The date for the next time a charge will occur.
 
 sub-next-bill = Next billed on { $date }
-sub-next-bill-no-tax = Your next bill of <strong>{ $priceAmount }</strong> is due <strong>{ $date }</strong>
-sub-next-bill-tax = Your next bill of <strong>{ $priceAmount } + { $taxAmount }</strong> tax is due <strong>{ $date }</strong>
+sub-next-bill-no-tax-1 = Next bill of { $priceAmount } is due { $date }
+sub-next-bill-tax-1 = Next bill of { $priceAmount } + { $taxAmount } tax is due { $date }
 sub-expires-on = Expires on { $date }
 
 ## Routes - Subscription - PaymentUpdate

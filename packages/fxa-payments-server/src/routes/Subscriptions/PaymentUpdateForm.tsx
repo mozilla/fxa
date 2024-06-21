@@ -287,16 +287,16 @@ export const PaymentUpdateForm = ({
 
         <header id="payment-information">
           <Localized id="sub-update-payment-title">
-            <span className="label-title">Payment information</span>
+            <h2>Payment information</h2>
           </Localized>
         </header>
         {!updateRevealed ? (
           <div className="with-settings-button">
-            <div className="card-details stack-card-details">
+            <div className="flex flex-col flex-4 text-grey-900 ltr:pr-8 rtl:pl-8 stack-card-details">
               <PaymentProviderDetails customer={customer} />
               {expirationDate && Provider.isStripe(payment_provider) && (
                 <Localized id="pay-update-card-exp" vars={{ expirationDate }}>
-                  <div data-testid="card-expiration-date" className="expiry">
+                  <div data-testid="card-expiration-date">
                     Expires {expirationDate}
                   </div>
                 </Localized>

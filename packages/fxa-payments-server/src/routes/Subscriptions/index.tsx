@@ -332,7 +332,7 @@ export const Subscriptions = ({
                 className="settings-unit-summary"
               >
                 <Localized id="settings-subscriptions-title">
-                  <h2>Subscriptions</h2>
+                  <h2 className="font-semibold text-base">Subscriptions</h2>
                 </Localized>
               </header>
               <button
@@ -547,10 +547,14 @@ const ProfileBanner = ({
     <div className="avatar-wrapper avatar-settings-view nohover">
       <img src={avatar} alt={displayName || email} className="avatar-image" />
     </div>
-    <div id="fxa-settings-profile-header">
-      <h1 className="card-header">{displayName ? displayName : email}</h1>
-      {displayName && <h2 className="card-subheader">{email}</h2>}
-    </div>
+    <h2 id="fxa-settings-profile-header">
+      <div className="card-header">{displayName ? displayName : email}</div>
+      {displayName && (
+        <div className="font-normal leading-6 text-base text-grey-400 mb-0">
+          {email}
+        </div>
+      )}
+    </h2>
   </header>
 );
 
