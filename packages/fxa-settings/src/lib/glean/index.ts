@@ -221,6 +221,9 @@ const recordEventMetric = (
         reason: gleanPingMetrics?.event?.['reason'] || '',
       });
       break;
+    case 'login_diff_account_link_click':
+      login.diffAccountLinkClick.record();
+      break;
     case 'cached_login_forgot_pwd_submit':
       cachedLogin.forgotPwdSubmit.record();
       break;

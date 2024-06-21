@@ -59,6 +59,7 @@ jest.mock('../../lib/glean', () => ({
       submit: jest.fn(),
       success: jest.fn(),
       error: jest.fn(),
+      diffAccountLinkClick: jest.fn(),
     },
     cachedLogin: {
       forgotPassword: jest.fn(),
@@ -809,6 +810,11 @@ describe('with sessionToken', () => {
           screen.getByRole('link', {
             name: 'Use a different account',
           })
+        );
+      });
+      await waitFor(() => {
+        expect(GleanMetrics.login.diffAccountLinkClick).toHaveBeenCalledTimes(
+          1
         );
       });
       expect(hardNavigateSpy).toHaveBeenCalledWith(

@@ -408,6 +408,7 @@ const Signin = ({
             className="text-sm link-blue"
             onClick={(e) => {
               e.preventDefault();
+              GleanMetrics.login.diffAccountLinkClick();
               const params = new URLSearchParams(location.search);
               // Tell content-server to stay on index and prefill the email
               params.set('prefillEmail', email);

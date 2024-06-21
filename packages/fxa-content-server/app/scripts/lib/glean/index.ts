@@ -173,6 +173,9 @@ const recordEventMetric = (eventName: string, properties: EventProperties) => {
         reason: properties['reason'] || '',
       });
       break;
+    case 'login_diff_account_link_click':
+      login.diffAccountLinkClick.record();
+      break;
     case 'cached_login_forgot_pwd_submit':
       cachedLogin.forgotPwdSubmit.record();
       break;
@@ -387,6 +390,7 @@ export const GleanMetrics = {
     submit: createEventFn('login_submit'),
     success: createEventFn('login_submit_success'),
     error: createEventFn('login_submit_frontend_error'),
+    diffAccountLinkClick: createEventFn('login_diff_account_link_click'),
   },
 
   cachedLogin: {
