@@ -457,40 +457,40 @@ describe('lib/glean', () => {
       });
     });
 
-    describe('set_password_third_party_auth', () => {
-      it('submits a ping with the set_password_third_party_auth_view event name', async () => {
+    describe('third_party_auth_set_password', () => {
+      it('submits a ping with the third_party_auth_set_password_view event name', async () => {
         await GleanMetrics.setPasswordThirdPartyAuth.view();
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(
           setEventNameStub,
-          'set_password_third_party_auth_view'
+          'third_party_auth_set_password_view'
         );
       });
 
-      it('submits a ping with the set_password_third_party_auth_engage event name', async () => {
+      it('submits a ping with the third_party_auth_set_password_engage event name', async () => {
         await GleanMetrics.setPasswordThirdPartyAuth.engage();
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(
           setEventNameStub,
-          'set_password_third_party_auth_engage'
+          'third_party_auth_set_password_engage'
         );
       });
 
-      it('submits a ping with the set_password_third_party_auth_submit event name', async () => {
+      it('submits a ping with the third_party_auth_set_password_submit event name', async () => {
         await GleanMetrics.setPasswordThirdPartyAuth.submit();
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(
           setEventNameStub,
-          'set_password_third_party_auth_submit'
+          'third_party_auth_set_password_submit'
         );
       });
 
-      it('submits a ping with the set_password_third_party_auth_success event name', async () => {
+      it('submits a ping with the third_party_auth_set_password_success event name', async () => {
         await GleanMetrics.setPasswordThirdPartyAuth.success();
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(
           setEventNameStub,
-          'set_password_third_party_auth_success'
+          'third_party_auth_set_password_success'
         );
       });
     });
