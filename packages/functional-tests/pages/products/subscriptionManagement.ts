@@ -73,7 +73,7 @@ export class SubscriptionManagementPage extends BaseLayout {
     return this.page.getByTestId('subscription-item');
   }
 
-  get resubscriptionPrice() {
+  get priceDetailsStandalone() {
     return this.page.getByTestId('price-details-standalone');
   }
 
