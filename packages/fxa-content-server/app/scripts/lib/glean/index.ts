@@ -263,7 +263,7 @@ const recordEventMetric = (eventName: string, properties: EventProperties) => {
       setPasswordThirdPartyAuth.submit.record();
       break;
     case 'set_password_third_party_auth_success':
-      setPasswordThirdPartyAuth.sucess.record();
+      setPasswordThirdPartyAuth.success.record();
       break;
   }
 };

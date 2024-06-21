@@ -7,6 +7,29 @@ import { screen } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { Subject } from './mocks';
 
+const mockViewWithNoPasswordSet = jest.fn();
+const mockStartGoogleAuthFromLogin = jest.fn();
+const mockStartAppleAuthFromLogin = jest.fn();
+
+jest.mock('../../lib/glean', () => {
+  return {
+    __esModule: true,
+    default: {
+      thirdPartyAuth: {
+        viewWithNoPasswordSet: () => {
+          mockViewWithNoPasswordSet();
+        },
+        startGoogleAuthFromLogin: () => {
+          mockStartGoogleAuthFromLogin();
+        },
+        startAppleAuthFromLogin: () => {
+          mockStartAppleAuthFromLogin();
+        },
+      },
+    },
+  };
+});
+
 function renderWith(props?: any) {
   return renderWithLocalizationProvider(<Subject {...props} />);
 }
@@ -100,6 +123,7 @@ describe('ThirdPartyAuthComponent', () => {
     });
 
     expect(screen.queryByText('Or')).toBeNull();
+    expect(mockViewWithNoPasswordSet).toBeCalled();
   });
 
   it('shows separator', async () => {
@@ -111,5 +135,44 @@ describe('ThirdPartyAuthComponent', () => {
     });
 
     expect(screen.queryByText('Or')).toBeDefined();
+    expect(mockViewWithNoPasswordSet).not.toBeCalled();
+  });
+
+  describe('emits metrics', () => {
+    it('emits glean metrics viewWithNoPasswordSet', () => {
+      renderWith({
+        enabled: true,
+        showSeparator: false,
+        onContinueWithApple,
+        onContinueWithGoogle,
+      });
+      expect(mockViewWithNoPasswordSet).toBeCalled();
+    });
+
+    it('emits glean metrics startGoogleAuthFromLogin', async () => {
+      renderWith({
+        enabled: true,
+        showSeparator: false,
+        onContinueWithApple,
+        onContinueWithGoogle,
+        viewName: 'signin',
+      });
+      const button = await screen.findByText('Continue with Google');
+      button.click();
+      expect(mockStartGoogleAuthFromLogin).toBeCalled();
+    });
+
+    it('emits glean metrics startAppleAuthFromLogin', async () => {
+      renderWith({
+        enabled: true,
+        showSeparator: false,
+        onContinueWithApple,
+        onContinueWithGoogle,
+        viewName: 'signin',
+      });
+      const button = await screen.findByText('Continue with Apple');
+      button.click();
+      expect(mockStartAppleAuthFromLogin).toBeCalled();
+    });
   });
 });

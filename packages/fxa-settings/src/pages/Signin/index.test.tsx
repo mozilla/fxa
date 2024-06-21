@@ -66,6 +66,9 @@ jest.mock('../../lib/glean', () => ({
       submit: jest.fn(),
       success: jest.fn(),
     },
+    thirdPartyAuth: {
+      viewWithNoPasswordSet: jest.fn(),
+    },
   },
 }));
 jest.mock('../../lib/storage-utils', () => ({

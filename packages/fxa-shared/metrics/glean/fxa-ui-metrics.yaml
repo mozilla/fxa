@@ -654,6 +654,58 @@ login:
     expires: never
     data_sensitivity:
       - interaction
+  third_party_auth_login_no_pw_view:
+    type: event
+    description: |
+      User viewed the third party login page without password set.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-7265
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+  google_oauth_login_start:
+    type: event
+    description: |
+      User click "Continue with Google" from the login page
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-7265
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+  apple_oauth_login_start:
+    type: event
+    description: |
+      User click "Continue with Apple" from the login page
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-7265
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+
 password_reset:
   create_new_recovery_key_message_click:
     type: event
@@ -1146,7 +1198,6 @@ cad_firefox:
       - fxa-staff@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-9607
-    data_reviews:
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
