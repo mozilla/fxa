@@ -84,11 +84,6 @@ export class RelierPage extends BaseLayout {
     return this.page.locator('.ready .prompt-none').click();
   }
 
-  async promptNoneError() {
-    this.page.locator('.error');
-    return this.page.innerText('.error');
-  }
-
   async clickSubscribe() {
     await this.page
       .getByRole('link', { name: 'Subscribe to Pro (USD)' })
