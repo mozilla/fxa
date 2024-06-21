@@ -114,6 +114,8 @@ export const eventsMap = {
   thirdPartyAuth: {
     viewWithNoPasswordSet: 'third_party_auth_login_no_pw_view',
 
+    startGoogleAuthFromReg: 'google_oauth_reg_start',
+
     startGoogleAuthFromLogin: 'google_oauth_login_start',
     startAppleAuthFromLogin: 'apple_oauth_login_start',
   },

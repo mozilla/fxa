@@ -476,7 +476,7 @@ export const Signup = ({
       </FormPasswordWithBalloons>
 
       {/* Third party auth is not currently supported for sync */}
-      {!isSync && <ThirdPartyAuth />}
+      {!isSync && <ThirdPartyAuth viewName="signup" />}
 
       <TermsPrivacyAgreement
         isPocketClient={client === MozServices.Pocket}

@@ -10,11 +10,16 @@ import { Subject } from './mocks';
 const mockViewWithNoPasswordSet = jest.fn();
 const mockStartGoogleAuthFromLogin = jest.fn();
 const mockStartAppleAuthFromLogin = jest.fn();
+const mockStartGoogleAuthFromReg = jest.fn();
+const mockGleanIsDone = jest.fn();
 
 jest.mock('../../lib/glean', () => {
   return {
     __esModule: true,
     default: {
+      isDone: () => {
+        mockGleanIsDone();
+      },
       thirdPartyAuth: {
         viewWithNoPasswordSet: () => {
           mockViewWithNoPasswordSet();
@@ -24,6 +29,9 @@ jest.mock('../../lib/glean', () => {
         },
         startAppleAuthFromLogin: () => {
           mockStartAppleAuthFromLogin();
+        },
+        startGoogleAuthFromReg: () => {
+          mockStartGoogleAuthFromReg();
         },
       },
     },
@@ -160,6 +168,7 @@ describe('ThirdPartyAuthComponent', () => {
       const button = await screen.findByText('Continue with Google');
       button.click();
       expect(mockStartGoogleAuthFromLogin).toBeCalled();
+      expect(mockGleanIsDone).toBeCalled();
     });
 
     it('emits glean metrics startAppleAuthFromLogin', async () => {
@@ -173,6 +182,20 @@ describe('ThirdPartyAuthComponent', () => {
       const button = await screen.findByText('Continue with Apple');
       button.click();
       expect(mockStartAppleAuthFromLogin).toBeCalled();
+    });
+
+    it('emits glean metrics startGoogleAuthFromReg', async () => {
+      renderWith({
+        enabled: true,
+        showSeparator: false,
+        onContinueWithApple,
+        onContinueWithGoogle,
+        viewName: 'signup',
+      });
+      const button = await screen.findByText('Continue with Google');
+      button.click();
+      expect(mockStartGoogleAuthFromReg).toBeCalled();
+      expect(mockGleanIsDone).toBeCalled();
     });
   });
 });

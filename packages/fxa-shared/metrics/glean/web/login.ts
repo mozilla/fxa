@@ -7,7 +7,7 @@
 import EventMetricType from '@mozilla/glean/private/metrics/event';
 
 /**
- * User click `Continue with Apple` from the login page
+ * User click "Continue with Apple" from the login page
  *
  * Generated from `login.apple_oauth_login_start`.
  */
@@ -95,7 +95,7 @@ export const forgotPwdSubmit = new EventMetricType(
 );
 
 /**
- * User click `Continue with Google` from the login page
+ * User click "Continue with Google" from the login page
  *
  * Generated from `login.google_oauth_login_start`.
  */

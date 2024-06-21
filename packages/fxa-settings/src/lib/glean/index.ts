@@ -285,6 +285,10 @@ const recordEventMetric = (
     case 'password_reset_view':
       passwordReset.view.record();
       break;
+
+    case 'google_oauth_reg_start':
+      reg.googleOauthRegStart.record();
+      break;
   }
 };
 
