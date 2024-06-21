@@ -271,7 +271,7 @@ export const PaypalButton = ({
   }
 
   return (
-    <div data-testid="pay-with-other">
+    <div data-testid="pay-with-other" className={`${!initSuccess && 'hidden'}`}>
       <Localized id="pay-with-heading-paypal-2">
         <p className="pay-with-heading mt-14">Pay with PayPal</p>
       </Localized>
