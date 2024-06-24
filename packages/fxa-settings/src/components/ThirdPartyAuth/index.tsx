@@ -143,14 +143,23 @@ const ThirdPartySignInForm = ({
   const { logViewEventOnce } = useMetrics();
   const stateRef = useRef<HTMLInputElement>(null);
 
-  function onClick() {
+  async function onClick() {
     logViewEventOnce(`flow.${party}`, 'oauth-start');
 
-    if (viewName === 'signin' && party === 'google') {
-      GleanMetrics.thirdPartyAuth.startGoogleAuthFromLogin();
-    } else if (viewName === 'signin' && party === 'apple') {
-      GleanMetrics.thirdPartyAuth.startAppleAuthFromLogin();
+    switch (`${party}-${viewName}`) {
+      case 'google-signin':
+        GleanMetrics.thirdPartyAuth.startGoogleAuthFromLogin();
+        break;
+      case 'apple-signin':
+        GleanMetrics.thirdPartyAuth.startAppleAuthFromLogin();
+        break;
+      case 'google-signup':
+        GleanMetrics.thirdPartyAuth.startGoogleAuthFromReg();
+        break;
     }
+
+    // wait for all the Glean events to be sent before the page unloads
+    await GleanMetrics.isDone();
 
     stateRef.current!.value = getState();
   }

@@ -42,6 +42,22 @@ export const engage = new EventMetricType<{
 );
 
 /**
+ * User clicks on the Google third party link on the registration page.
+ *
+ * Generated from `reg.google_oauth_reg_start`.
+ */
+export const googleOauthRegStart = new EventMetricType(
+  {
+    category: 'reg',
+    name: 'google_oauth_reg_start',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
  * Registration Email Confirm Attempt
  * Event that indicates a user attempted to confirm their email through clicking
  * "Confirm". See Registration Visuals/Steps in this document for more visual

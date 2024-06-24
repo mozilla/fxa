@@ -1168,6 +1168,23 @@ reg:
     expires: never
     data_sensitivity:
       - interaction
+  google_oauth_reg_start:
+    type: event
+    description: |
+      User clicks on the Google third party link on the registration page.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-9813
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
 
 cad_firefox:
   view:
