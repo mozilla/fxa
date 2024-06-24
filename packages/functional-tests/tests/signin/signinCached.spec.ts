@@ -130,32 +130,23 @@ test.describe('severity-2 #smoke', () => {
 
     test('unverified cached signin redirects to confirm email', async ({
       target,
-      syncBrowserPages: {
-        configPage,
-        confirmSignupCode,
-        page,
-        settings,
-        signin,
-      },
+      syncBrowserPages: { confirmSignupCode, page, settings, signin },
       testAccountTracker,
     }) => {
-      const config = await configPage.getConfig();
-      test.skip(
-        config.showReactApp.signInRoutes,
-        'FXA-9878: ensure verifyShortCode email is sent out and not verifyLoginCode (code fix)'
-      );
       const credentials = await testAccountTracker.signUpSync({
         lang: 'en',
         preVerified: 'false',
       });
 
+      // Sign in to enter cached state
       await page.goto(target.contentServerUrl);
       await signin.fillOutEmailFirstForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
-
-      // Verify sign up code header is visible
       await expect(page).toHaveURL(/confirm_signup_code/);
       await expect(confirmSignupCode.heading).toBeVisible();
+      // but don't confirm the email and clear all received emails
+      // this ensures that on the later cached signin we use the code from a new email
+      await target.emailClient.clear(credentials.email);
 
       await page.goto(target.contentServerUrl);
 

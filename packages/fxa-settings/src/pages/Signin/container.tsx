@@ -9,6 +9,7 @@ import {
   useAuthClient,
   useFtlMsgResolver,
   useConfig,
+  useSession,
 } from '../../models';
 import { MozServices } from '../../lib/types';
 import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
@@ -115,6 +116,7 @@ const SigninContainer = ({
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state?: LocationState;
   };
+  const session = useSession();
 
   const { queryParamModel, validationError } =
     useValidatedQueryParams(SigninQueryParams);
@@ -320,6 +322,10 @@ const SigninContainer = ({
           ? VerificationReasons.SIGN_IN
           : VerificationReasons.SIGN_UP;
 
+        if (!verified) {
+          await session.sendVerificationCode();
+        }
+
         return {
           data: {
             verificationMethod,
@@ -342,7 +348,7 @@ const SigninContainer = ({
         return { error };
       }
     },
-    [authClient, uid]
+    [authClient, session, uid]
   );
 
   const sendUnblockEmailHandler = useCallback(

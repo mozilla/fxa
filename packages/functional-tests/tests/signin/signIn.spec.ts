@@ -99,6 +99,33 @@ test.describe('severity-2 #smoke', () => {
       await expect(settings.settingsHeading).toBeVisible();
     });
 
+    test('unverified signin redirects to confirm email', async ({
+      target,
+      syncBrowserPages: { confirmSignupCode, page, settings, signin },
+      testAccountTracker,
+    }) => {
+      const credentials = await testAccountTracker.signUpSync({
+        lang: 'en',
+        preVerified: 'false',
+      });
+
+      await page.goto(target.contentServerUrl);
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
+      await expect(page).toHaveURL(/confirm_signup_code/);
+      await expect(confirmSignupCode.heading).toBeVisible();
+
+      // Both backbone and react send out a login verification email
+      // on signin with password for an unverified account
+      const code = await target.emailClient.getVerifyLoginCode(
+        credentials.email
+      );
+      await confirmSignupCode.fillOutCodeForm(code);
+
+      // Verify logged in on Settings page
+      await expect(settings.settingsHeading).toBeVisible();
+    });
+
     test('with bounced email', async ({
       target,
       syncBrowserPages: { page, signin },
