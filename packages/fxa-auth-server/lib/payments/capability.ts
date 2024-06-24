@@ -324,7 +324,7 @@ export class CapabilityService {
     targetPlanId: string,
     useFirestoreProductConfigs = false
   ): Promise<SubscriptionChangeEligibility> {
-    const contentfulEnabled = this.config.contentful.enabled;
+    const cmsEnabled = this.config.contentful.enabled;
 
     const allPlansByPlanId = await this.allAbbrevPlansByPlanId();
 
@@ -334,7 +334,7 @@ export class CapabilityService {
     const [stripeSubscribedPlans, iapSubscribedPlans] =
       await this.getAllSubscribedAbbrevPlans(uid, allPlansByPlanId);
 
-    if (contentfulEnabled) {
+    if (cmsEnabled) {
       if (!this.eligibilityManager) {
         throw error.internalValidationError(
           'eligibilityResult',
@@ -892,9 +892,9 @@ export class CapabilityService {
    * Retrieve the client capabilities
    */
   async getClients() {
-    const contentfulEnabled = this.config.contentful.enabled;
+    const cmsEnabled = this.config.contentful.enabled;
 
-    if (contentfulEnabled) {
+    if (cmsEnabled) {
       if (!this.capabilityManager) {
         throw error.internalValidationError(
           'getClients',
@@ -903,10 +903,9 @@ export class CapabilityService {
         );
       } else {
         try {
-          const clientsFromContentful =
-            await this.capabilityManager.getClients();
+          const clientsFromCMS = await this.capabilityManager.getClients();
 
-          return clientsFromContentful;
+          return clientsFromCMS;
         } catch (err) {
           throw error.internalValidationError(
             'subscriptions.getClients',
@@ -923,20 +922,17 @@ export class CapabilityService {
     if (!this.capabilityManager) return clientsFromStripe;
 
     try {
-      const clientsFromContentful = await this.capabilityManager.getClients();
+      const clientsFromCMS = await this.capabilityManager.getClients();
 
-      clientsFromContentful.sort((a, b) =>
-        a.clientId.localeCompare(b.clientId)
-      );
+      clientsFromCMS.sort((a, b) => a.clientId.localeCompare(b.clientId));
       clientsFromStripe.sort((a, b) => a.clientId.localeCompare(b.clientId));
 
-      if (isEqual(clientsFromContentful, clientsFromStripe))
-        return clientsFromContentful;
+      if (isEqual(clientsFromCMS, clientsFromStripe)) return clientsFromCMS;
 
       if (this.logToSentry('getClients.NoMatch')) {
         Sentry.withScope((scope) => {
           scope.setContext('getClients', {
-            contentful: clientsFromContentful,
+            cms: clientsFromCMS,
             stripe: clientsFromStripe,
           });
           Sentry.captureMessage(
@@ -959,9 +955,9 @@ export class CapabilityService {
   async planIdsToClientCapabilities(
     subscribedPrices: string[]
   ): Promise<ClientIdCapabilityMap> {
-    const contentfulEnabled = this.config.contentful.enabled;
+    const cmsEnabled = this.config.contentful.enabled;
 
-    if (contentfulEnabled) {
+    if (cmsEnabled) {
       if (!this.capabilityManager) {
         throw error.internalValidationError(
           'planIdsToClientCapabilities',
@@ -970,12 +966,12 @@ export class CapabilityService {
         );
       } else {
         try {
-          const contentfulCapabilities =
+          const cmsCapabilities =
             await this.capabilityManager.priceIdsToClientCapabilities(
               subscribedPrices
             );
 
-          return contentfulCapabilities;
+          return cmsCapabilities;
         } catch (err) {
           throw error.internalValidationError(
             'subscriptions.planIdsToClientCapabilities',
@@ -994,24 +990,24 @@ export class CapabilityService {
     if (!this.capabilityManager) return stripeCapabilities;
 
     try {
-      const contentfulCapabilities =
+      const cmsCapabilities =
         await this.capabilityManager.priceIdsToClientCapabilities(
           subscribedPrices
         );
 
       if (
         isEqual(
-          sortClientCapabilities(contentfulCapabilities),
+          sortClientCapabilities(cmsCapabilities),
           sortClientCapabilities(stripeCapabilities)
         )
       ) {
-        return contentfulCapabilities;
+        return cmsCapabilities;
       }
 
       Sentry.withScope((scope) => {
         scope.setContext('planIdsToClientCapabilities', {
           subscribedPrices,
-          contentful: contentfulCapabilities,
+          cms: cmsCapabilities,
           stripe: stripeCapabilities,
         });
         Sentry.captureMessage(

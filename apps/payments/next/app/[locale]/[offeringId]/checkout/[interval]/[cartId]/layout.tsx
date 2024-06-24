@@ -5,7 +5,7 @@ import { headers } from 'next/headers';
 
 import {
   getApp,
-  fetchContentfulData,
+  fetchCMSData,
   getCartAction,
   PurchaseDetails,
   SubscriptionTitle,
@@ -46,13 +46,10 @@ export default async function RootLayout({
   //  headers().get('accept-language')
   //);
   const locale = headers().get('accept-language') || DEFAULT_LOCALE;
-  const contentfulDataPromise = fetchContentfulData(params.offeringId, locale);
+  const cmsDataPromise = fetchCMSData(params.offeringId, locale);
   const cartDataPromise = getCartAction(params.cartId);
   const l10n = getApp().getL10n(locale);
-  const [contentful, cart] = await Promise.all([
-    contentfulDataPromise,
-    cartDataPromise,
-  ]);
+  const [cms, cart] = await Promise.all([cmsDataPromise, cartDataPromise]);
 
   return (
     <>
@@ -63,7 +60,7 @@ export default async function RootLayout({
           l10n={l10n}
           interval={cart.interval}
           invoice={cart.invoicePreview}
-          purchaseDetails={contentful.defaultPurchase.purchaseDetails}
+          purchaseDetails={cms.defaultPurchase.purchaseDetails}
         />
       </section>
 
@@ -72,8 +69,8 @@ export default async function RootLayout({
         <TermsAndPrivacy
           l10n={l10n}
           {...cart}
-          {...contentful.commonContent}
-          {...contentful.defaultPurchase.purchaseDetails}
+          {...cms.commonContent}
+          {...cms.defaultPurchase.purchaseDetails}
           contentServerUrl={config.contentServerUrl}
           showFXALinks={true}
         />

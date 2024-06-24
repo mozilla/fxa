@@ -48,12 +48,12 @@ import {
 } from '@fxa/payments/stripe';
 import { AccountManager } from '@fxa/shared/account/account';
 import {
-  ContentfulClient,
+  CMSConfig,
   ContentfulClientConfig,
-  ContentfulManager,
   ContentfulService,
-  ContentfulServiceConfig,
-} from '@fxa/shared/contentful';
+  ProductConfigurationManager,
+  StrapiClient,
+} from '@fxa/shared/cms';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import {
   CartEligibilityStatus,
@@ -68,19 +68,19 @@ import {
 import { CheckoutService } from './checkout.service';
 
 describe('CheckoutService', () => {
+  let accountCustomerManager: AccountCustomerManager;
+  let accountManager: AccountManager;
+  let cartManager: CartManager;
   let checkoutService: CheckoutService;
-  let stripeClient: StripeClient;
+  let contentfulService: ContentfulService;
   let customerManager: CustomerManager;
-  let subscriptionManager: SubscriptionManager;
+  let eligibilityService: EligibilityService;
   let invoiceManager: InvoiceManager;
-  let promotionCodeManager: PromotionCodeManager;
   let paypalCustomerManager: PaypalCustomerManager;
   let paypalManager: PayPalManager;
-  let cartManager: CartManager;
-  let eligibilityService: EligibilityService;
-  let contentfulService: ContentfulService;
-  let accountManager: AccountManager;
-  let accountCustomerManager: AccountCustomerManager;
+  let promotionCodeManager: PromotionCodeManager;
+  let stripeClient: StripeClient;
+  let subscriptionManager: SubscriptionManager;
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -89,11 +89,9 @@ describe('CheckoutService', () => {
         AccountManager,
         CartManager,
         CheckoutService,
-        ContentfulClient,
+        CMSConfig,
         ContentfulClientConfig,
-        ContentfulManager,
         ContentfulService,
-        ContentfulServiceConfig,
         CustomerManager,
         EligibilityManager,
         EligibilityService,
@@ -107,8 +105,10 @@ describe('CheckoutService', () => {
         PaypalCustomerManager,
         PayPalManager,
         PriceManager,
+        ProductConfigurationManager,
         ProductManager,
         PromotionCodeManager,
+        StrapiClient,
         StripeClient,
         StripeConfig,
         SubscriptionManager,

@@ -4,7 +4,7 @@
 
 import { IsString } from 'class-validator';
 
-export class FetchContentfulDataArgs {
+export class FetchCMSDataArgs {
   @IsString()
   offeringId!: string;
 

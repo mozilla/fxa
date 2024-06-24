@@ -1,19 +1,23 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import {
   OfferingCommonContentResult,
   PurchaseDetailsTransformed,
   OfferingCommonContentResultFactory,
   PurchaseDetailsTransformedFactory,
-} from '@fxa/shared/contentful';
+} from '@fxa/shared/cms';
 import { PlanMapperUtil } from './plan-mapper.util';
-import { StripeMetadataWithContentfulFactory } from './factories';
-import { StripeMetadataKeysForContentful } from './types';
+import { StripeMetadataWithCMSFactory } from './factories';
+import { StripeMetadataKeysForCMS } from './types';
 
 describe('PlanMapperUtil', () => {
   const defaultCommonContent: OfferingCommonContentResult =
     OfferingCommonContentResultFactory();
   const defaultPurchaseDetails: PurchaseDetailsTransformed =
     PurchaseDetailsTransformedFactory();
-  const stripeMetadata = StripeMetadataWithContentfulFactory({
+  const stripeMetadata = StripeMetadataWithCMSFactory({
     emailIconURL: `${defaultCommonContent.emailIcon}/random/addition`,
     webIconURL: defaultPurchaseDetails.webIcon,
   });
@@ -32,7 +36,7 @@ describe('PlanMapperUtil', () => {
     it('should return stripeValue if neither is set', () => {
       const expected = undefined;
       const actual = defaultMapper.mapField(
-        StripeMetadataKeysForContentful.DetailsLine1,
+        StripeMetadataKeysForCMS.DetailsLine1,
         undefined,
         null
       );
@@ -41,7 +45,7 @@ describe('PlanMapperUtil', () => {
     });
 
     it('should return stripeValue and log error fieldname', () => {
-      const testFieldName = StripeMetadataKeysForContentful.EmailIcon;
+      const testFieldName = StripeMetadataKeysForCMS.EmailIcon;
       const expected = stripeMetadata[testFieldName];
       const actual = defaultMapper.mapField(
         testFieldName,
@@ -53,8 +57,8 @@ describe('PlanMapperUtil', () => {
       expect(defaultMapper.errorFields[0]).toBe(testFieldName);
     });
 
-    it('should return contentfulValue if no stripeValue and contentful is available', () => {
-      const testFieldName = StripeMetadataKeysForContentful.ToS;
+    it('should return cmsValue if no stripeValue and cms is available', () => {
+      const testFieldName = StripeMetadataKeysForCMS.ToS;
       const expected = defaultCommonContent.termsOfServiceUrl;
       const actual = defaultMapper.mapField(
         testFieldName,
@@ -66,7 +70,7 @@ describe('PlanMapperUtil', () => {
     });
 
     it('should return stripeValue as default', () => {
-      const testFieldName = StripeMetadataKeysForContentful.WebIcon;
+      const testFieldName = StripeMetadataKeysForCMS.WebIcon;
       const expected = stripeMetadata[testFieldName];
       const actual = defaultMapper.mapField(
         testFieldName,
@@ -93,8 +97,8 @@ describe('PlanMapperUtil', () => {
     // for keys with mapping logic, e.g. newsletterSlug
     it('should return newsletterSlug in expected format', () => {
       const expected = 'hubs,mdnplus,snp';
-      const actual = defaultMapper.getContentfulForMetadataKey(
-        StripeMetadataKeysForContentful.NewsletterSlug
+      const actual = defaultMapper.getCMSForMetadataKey(
+        StripeMetadataKeysForCMS.NewsletterSlug
       );
       expect(actual).toBe(expected);
     });
@@ -111,22 +115,22 @@ describe('PlanMapperUtil', () => {
         false
       );
       const expected = null;
-      const actual = mapper.getContentfulForMetadataKey(
-        StripeMetadataKeysForContentful.NewsletterSlug
+      const actual = mapper.getCMSForMetadataKey(
+        StripeMetadataKeysForCMS.NewsletterSlug
       );
       expect(actual).toBe(expected);
     });
 
     it('should return undefined as default', () => {
       const expected = undefined;
-      const actual = defaultMapper.getContentfulForMetadataKey(
-        'doesnotexist' as StripeMetadataKeysForContentful
+      const actual = defaultMapper.getCMSForMetadataKey(
+        'doesnotexist' as StripeMetadataKeysForCMS
       );
       expect(actual).toBe(expected);
     });
   });
 
-  describe('getContentfulForMetadataKey', () => {
+  describe('getCMSForMetadataKey', () => {
     it('should return newsletterSlug in expected format', () => {
       const metadata = {
         newsletterSlug: 'snp,mdnplus,hubs',
@@ -139,7 +143,7 @@ describe('PlanMapperUtil', () => {
       );
       const expected = 'hubs,mdnplus,snp';
       const actual = mapper.getStripeForMetadataKey(
-        StripeMetadataKeysForContentful.NewsletterSlug
+        StripeMetadataKeysForCMS.NewsletterSlug
       );
       expect(actual).toBe(expected);
     });
@@ -154,21 +158,21 @@ describe('PlanMapperUtil', () => {
       );
       const expected = undefined;
       const actual = mapper.getStripeForMetadataKey(
-        StripeMetadataKeysForContentful.NewsletterSlug
+        StripeMetadataKeysForCMS.NewsletterSlug
       );
       expect(actual).toBe(expected);
     });
   });
 
-  describe('mergeStripeAndContentful', () => {
-    it('successfully maps contentful and stripe data', () => {
+  describe('mergeStripeAndCMS', () => {
+    it('successfully maps cms and stripe data', () => {
       const defaultMapper = new PlanMapperUtil(
         defaultCommonContent,
         defaultPurchaseDetails,
         stripeMetadata,
         false
       );
-      const result = defaultMapper.mergeStripeAndContentful();
+      const result = defaultMapper.mergeStripeAndCMS();
       expect(result.errorFields.length).toBe(1);
       expect(result.errorFields[0]).toBe('emailIconURL');
       expect(result.metadata.webIconURL).toBe(defaultPurchaseDetails.webIcon);

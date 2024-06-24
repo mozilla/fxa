@@ -212,7 +212,7 @@ const SUBHUB_METHOD_NAMES = [
 
 const PROFILE_METHOD_NAMES = ['deleteCache', 'updateDisplayName'];
 
-const MOCK_CONTENTFUL_CLIENTS = [
+const MOCK_CMS_CLIENTS = [
   {
     capabilities: ['exampleCap0', 'exampleCap1', 'exampleCap3'],
     clientId: 'client1',
@@ -230,7 +230,7 @@ const MOCK_CONTENTFUL_CLIENTS = [
   },
 ];
 
-const MOCK_CONTENTFUL_CLIENT_CAPABILITIES = {
+const MOCK_CMS_CLIENT_CAPABILITIES = {
   c1: ['capZZ', 'cap4', 'cap5', 'capAlpha'],
   '*': ['capAll'],
   c2: ['cap5', 'cap6', 'capC', 'capD'],
@@ -304,9 +304,8 @@ module.exports = {
   asyncIterable: asyncIterable,
   generateMetricsContext: generateMetricsContext,
   mockBounces: mockObject(['check']),
-  mockContentfulClients: MOCK_CONTENTFUL_CLIENTS,
-  mockContentfulPlanIdsToClientCapabilities:
-    MOCK_CONTENTFUL_CLIENT_CAPABILITIES,
+  mockCMSClients: MOCK_CMS_CLIENTS,
+  mockCMSPlanIdsToClientCapabilities: MOCK_CMS_CLIENT_CAPABILITIES,
   mockCloudTasksConfig,
   mockCustoms,
   mockDB,

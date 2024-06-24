@@ -13,12 +13,12 @@ import {
   SubscriptionManager,
 } from '@fxa/payments/stripe';
 import {
-  ContentfulClient,
   ContentfulClientConfig,
-  ContentfulManager,
   EligibilityContentByOfferingResultUtil,
   EligibilityContentOfferingResultFactory,
-} from '@fxa/shared/contentful';
+  ProductConfigurationManager,
+  StrapiClient,
+} from '@fxa/shared/cms';
 
 import { EligibilityManager } from './eligibility.manager';
 import { EligibilityService } from './eligibility.service';
@@ -36,7 +36,7 @@ jest.mock('../../../stripe/src/lib/stripe.util');
 const mockStripeUtil = jest.mocked(StripeUtil);
 
 describe('EligibilityService', () => {
-  let contentfulManager: ContentfulManager;
+  let productConfigurationManager: ProductConfigurationManager;
   let eligibilityManager: EligibilityManager;
   let eligibilityService: EligibilityService;
   let subscriptionManager: SubscriptionManager;
@@ -50,19 +50,21 @@ describe('EligibilityService', () => {
       providers: [
         MockFirestoreProvider,
         ContentfulClientConfig,
-        ContentfulClient,
         MockStatsDProvider,
-        ContentfulManager,
         StripeConfig,
         StripeClient,
         SubscriptionManager,
         PriceManager,
         EligibilityManager,
         EligibilityService,
+        ProductConfigurationManager,
+        StrapiClient,
       ],
     }).compile();
 
-    contentfulManager = module.get<ContentfulManager>(ContentfulManager);
+    productConfigurationManager = module.get<ProductConfigurationManager>(
+      ProductConfigurationManager
+    );
     eligibilityManager = module.get<EligibilityManager>(EligibilityManager);
     eligibilityService = module.get<EligibilityService>(EligibilityService);
     subscriptionManager = module.get<SubscriptionManager>(SubscriptionManager);
@@ -87,7 +89,7 @@ describe('EligibilityService', () => {
       const interval = SubplatInterval.Monthly;
 
       jest
-        .spyOn(contentfulManager, 'getEligibilityContentByOffering')
+        .spyOn(productConfigurationManager, 'getEligibilityContentByOffering')
         .mockResolvedValue({
           getOffering: jest.fn().mockImplementation(() => {
             throw expectedError;
@@ -117,7 +119,7 @@ describe('EligibilityService', () => {
       const mockSubscription = StripeSubscriptionFactory();
 
       jest
-        .spyOn(contentfulManager, 'getEligibilityContentByOffering')
+        .spyOn(productConfigurationManager, 'getEligibilityContentByOffering')
         .mockResolvedValue(mockOfferingResult);
 
       mockOfferingResult.getOffering = jest.fn().mockReturnValue(mockOffering);
@@ -144,7 +146,7 @@ describe('EligibilityService', () => {
       );
 
       expect(
-        contentfulManager.getEligibilityContentByOffering
+        productConfigurationManager.getEligibilityContentByOffering
       ).toHaveBeenCalledWith(mockOffering.apiIdentifier);
       expect(subscriptionManager.listForCustomer).toHaveBeenCalledWith(
         mockCustomer.id

@@ -28,7 +28,7 @@ import { PaymentConfigManager } from './configuration/manager';
 import { AppStoreSubscriptionPurchase } from './iap/apple-app-store/subscription-purchase';
 import { PlayStoreSubscriptionPurchase } from './iap/google-play/subscription-purchase';
 import { FirestoreStripeError, StripeFirestore } from './stripe-firestore';
-import { ContentfulManager } from '@fxa/shared/contentful';
+import { ProductConfigurationManager } from '@fxa/shared/cms';
 import { StripeMapperService } from '@fxa/payments/legacy';
 import * as Sentry from '@sentry/node';
 
@@ -116,7 +116,7 @@ export abstract class StripeHelper {
   protected readonly redis?: ioredis.Redis;
 
   /** */
-  protected abstract readonly contentfulManager?: ContentfulManager;
+  protected abstract readonly productConfigurationManager?: ProductConfigurationManager;
 
   private sentryLogCounter = new Map<string, number>();
 
@@ -469,18 +469,17 @@ export abstract class StripeHelper {
       }
     }
 
-    if (this.contentfulManager) {
+    if (this.productConfigurationManager) {
       try {
-        const contentfulToStripeMapper = new StripeMapperService(
-          this.contentfulManager
+        const cmsToStripeMapper = new StripeMapperService(
+          this.productConfigurationManager
         );
 
-        const validPlansMapped =
-          await contentfulToStripeMapper.mapContentfulToStripePlans(
-            validPlans,
-            acceptLanguage,
-            this.config.contentful.enabled
-          );
+        const validPlansMapped = await cmsToStripeMapper.mapCMSToStripePlans(
+          validPlans,
+          acceptLanguage,
+          this.config.contentful.enabled
+        );
 
         validPlansFinal.push(...validPlansMapped.mappedPlans);
         if (validPlansMapped.nonMatchingPlans.length) {
@@ -496,7 +495,7 @@ export abstract class StripeHelper {
                 nonMatchingPlans,
               });
               Sentry.captureMessage(
-                `StripeHelper.allAbbrevPlans - Contentful config does not match Stripe metadata`,
+                `StripeHelper.allAbbrevPlans - CMS config does not match Stripe metadata`,
                 'warning' as Sentry.SeverityLevel
               );
             });
@@ -540,7 +539,7 @@ export abstract class StripeHelper {
    */
   async expandResource<T>(
     resource: string | T,
-    resourceType: typeof VALID_RESOURCE_TYPES[number],
+    resourceType: (typeof VALID_RESOURCE_TYPES)[number],
     statusFilter?: Stripe.Subscription.Status[]
   ): Promise<T> {
     if (typeof resource !== 'string') {

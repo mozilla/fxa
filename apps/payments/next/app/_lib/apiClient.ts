@@ -2,17 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { fetchCartData, fetchFromContentful } from './stubs';
+import { fetchCartData, fetchFromCMS } from './stubs';
 
 export async function getFakeCartData(cartId: string) {
   return fetchCartData(cartId);
 }
 
-export async function getContentfulContent(offering: string, locale: string) {
-  // Fetch hardcoded data. Data is from Contentful Dev though
+export async function getCMSContent(offering: string, locale: string) {
+  // Fetch hardcoded data. Data is from CMS Dev though
   const {
-    offering: { defaultPurchase, commonContent: contentfulCommonContent },
-  } = await fetchFromContentful();
+    offering: { defaultPurchase, commonContent: cmsCommonContent },
+  } = await fetchFromCMS();
 
   const purchaseDetails = {
     details: defaultPurchase.details,
@@ -22,17 +22,16 @@ export async function getContentfulContent(offering: string, locale: string) {
   };
 
   const commonContent = {
-    cancellationUrl: contentfulCommonContent.cancellationUrl,
-    emailIcon: contentfulCommonContent.emailIcon,
-    newsletterLabelTextCode: contentfulCommonContent.newsletterLabelTextCode,
-    newsletterSlug: contentfulCommonContent.newsletterSlug,
-    privacyNoticeDownloadUrl: contentfulCommonContent.privacyNoticeDownloadUrl,
-    privacyNoticeUrl: contentfulCommonContent.privacyNoticeUrl,
-    successActionButtonLabel: contentfulCommonContent.successActionButtonLabel,
-    successActionButtonUrl: contentfulCommonContent.successActionButtonUrl,
-    termsOfServiceDownloadUrl:
-      contentfulCommonContent.termsOfServiceDownloadUrl,
-    termsOfServiceUrl: contentfulCommonContent.termsOfServiceUrl,
+    cancellationUrl: cmsCommonContent.cancellationUrl,
+    emailIcon: cmsCommonContent.emailIcon,
+    newsletterLabelTextCode: cmsCommonContent.newsletterLabelTextCode,
+    newsletterSlug: cmsCommonContent.newsletterSlug,
+    privacyNoticeDownloadUrl: cmsCommonContent.privacyNoticeDownloadUrl,
+    privacyNoticeUrl: cmsCommonContent.privacyNoticeUrl,
+    successActionButtonLabel: cmsCommonContent.successActionButtonLabel,
+    successActionButtonUrl: cmsCommonContent.successActionButtonUrl,
+    termsOfServiceDownloadUrl: cmsCommonContent.termsOfServiceDownloadUrl,
+    termsOfServiceUrl: cmsCommonContent.termsOfServiceUrl,
   };
   return {
     purchaseDetails,

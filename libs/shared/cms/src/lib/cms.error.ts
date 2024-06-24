@@ -7,7 +7,7 @@ import { BaseError, BaseMultiError } from '@fxa/shared/error';
 /**
  * Thrown as a wrapper for multiple query errors
  */
-export class ContentfulError extends BaseMultiError {
+export class CMSError extends BaseMultiError {
   constructor(...args: ConstructorParameters<typeof BaseMultiError>) {
     super(...args);
   }
@@ -40,6 +40,7 @@ export class ContentfulQueryError extends BaseError {
   }
 }
 
+// TODO: FXA-9981 - Relocate this error
 export class ContentfulServiceError extends BaseError {
   constructor(...args: ConstructorParameters<typeof BaseError>) {
     super(...args);

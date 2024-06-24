@@ -1,15 +1,17 @@
 import { Stripe } from 'stripe';
-import { ContentfulManager } from '@fxa/shared/contentful';
+import { ProductConfigurationManager } from '@fxa/shared/cms';
 import { PlanMapperUtil } from './plan-mapper.util';
 
 /**
- * Class to fetch Contentful config and map Contentful config to
+ * Class to fetch CMS config and map CMS config to
  * Stripe metadata for an array of Stripe Plans.
  */
 export class StripeMapperService {
   private errorIds = new Map<string, Set<string>>();
   private successfulIds = new Set();
-  constructor(private contentfulManager: ContentfulManager) {}
+  constructor(
+    private productConfigurationManager: ProductConfigurationManager
+  ) {}
 
   /**
    *  TypeGuard to ensure product on plan is a Product Object
@@ -53,19 +55,19 @@ export class StripeMapperService {
   }
 
   /**
-   * Merge Contentful config and Stripe metadata and assign to
+   * Merge CMS config and Stripe metadata and assign to
    * plan and product metadata fields
    */
-  async mapContentfulToStripePlans(
+  async mapCMSToStripePlans(
     plans: Stripe.Plan[],
     acceptLanguage: string,
-    contentfulEnabled: boolean
+    cmsEnabled: boolean
   ) {
     const mappedPlans: Stripe.Plan[] = [];
     const validPlanIds = plans.map((plan) => plan.id);
 
-    const contentfulConfigUtil =
-      await this.contentfulManager.getPurchaseWithDetailsOfferingContentByPlanIds(
+    const cmsConfigUtil =
+      await this.productConfigurationManager.getPurchaseWithDetailsOfferingContentByPlanIds(
         validPlanIds,
         acceptLanguage
       );
@@ -82,30 +84,28 @@ export class StripeMapperService {
         ...plan.metadata,
       };
 
-      const contentfulConfigData =
-        contentfulConfigUtil.transformedPurchaseWithCommonContentForPlanId(
-          plan.id
-        );
+      const cmsConfigData =
+        cmsConfigUtil.transformedPurchaseWithCommonContentForPlanId(plan.id);
 
-      if (!contentfulConfigData) {
+      if (!cmsConfigData) {
         mappedPlans.push(plan);
-        this.addErrorFields(plan.id, ['No Contentful config']);
+        this.addErrorFields(plan.id, ['No CMS config']);
         continue;
       }
 
       const {
         offering: { commonContent },
         purchaseDetails,
-      } = contentfulConfigData;
+      } = cmsConfigData;
 
       const planMapper = new PlanMapperUtil(
         commonContent,
         purchaseDetails,
         mergedStripeMetadata,
-        contentfulEnabled
+        cmsEnabled
       );
 
-      const { metadata, errorFields } = planMapper.mergeStripeAndContentful();
+      const { metadata, errorFields } = planMapper.mergeStripeAndCMS();
 
       mappedPlans.push({
         ...plan,

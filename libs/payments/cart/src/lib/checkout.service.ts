@@ -17,7 +17,7 @@ import {
   TaxAddress,
 } from '@fxa/payments/stripe';
 import { AccountManager } from '@fxa/shared/account/account';
-import { ContentfulService } from '@fxa/shared/contentful';
+import { ContentfulService } from '@fxa/shared/cms';
 import {
   CartTotalMismatchError,
   CartEligibilityMismatchError,

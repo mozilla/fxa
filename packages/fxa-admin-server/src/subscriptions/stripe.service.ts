@@ -26,7 +26,7 @@ import { StatsD } from 'hot-shots';
 import Stripe from 'stripe';
 import { AppConfig } from '../config';
 import { FirestoreService } from '../backend/firestore.service';
-import { ContentfulManager } from '@fxa/shared/contentful';
+import { ProductConfigurationManager } from '@fxa/shared/cms';
 
 export const StripeFactory: Provider<Stripe> = {
   provide: 'STRIPE',
@@ -114,7 +114,9 @@ export class StripeService extends StripeHelper {
   protected override readonly paymentConfigManager?:
     | PaymentConfigManager
     | undefined;
-  protected contentfulManager?: ContentfulManager | undefined;
+  protected productConfigurationManager?:
+    | ProductConfigurationManager
+    | undefined;
 
   constructor(
     configService: ConfigService<AppConfig>,

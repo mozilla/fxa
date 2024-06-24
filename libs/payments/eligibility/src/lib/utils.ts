@@ -5,7 +5,7 @@
 import {
   EligibilityContentOfferingResult,
   EligibilityOfferingResult,
-} from '@fxa/shared/contentful';
+} from '@fxa/shared/cms';
 
 import {
   Interval,

@@ -95,7 +95,7 @@ const ACTIVE_SUBSCRIPTIONS = [
 const MOCK_CLIENT_ID = '3c49430b43dfba77';
 const MOCK_TTL = 3600;
 const MOCK_SCOPES = ['profile:email', OAUTH_SCOPE_SUBSCRIPTIONS];
-const mockContentfulClients = mocks.mockContentfulClients;
+const mockCMSClients = mocks.mockCMSClients;
 
 /**
  * To prevent the modification of the test objects loaded, which can impact other tests referencing the object,
@@ -176,7 +176,7 @@ describe('subscriptions stripeRoutes', () => {
     Container.set(CurrencyHelper, currencyHelper);
 
     mockCapabilityService.getClients = sinon.stub();
-    mockCapabilityService.getClients.resolves(mockContentfulClients);
+    mockCapabilityService.getClients.resolves(mockCMSClients);
     Container.set(CapabilityService, mockCapabilityService);
 
     log = mocks.mockLog();
@@ -425,7 +425,7 @@ describe('DirectStripeRoutes', () => {
       subscriptionEligibilityResult: SubscriptionEligibilityResult.CREATE,
     });
     mockCapabilityService.getClients = sinon.stub();
-    mockCapabilityService.getClients.resolves(mockContentfulClients);
+    mockCapabilityService.getClients.resolves(mockCMSClients);
     Container.set(CapabilityService, mockCapabilityService);
 
     const mockSubscription = deepCopy(subscription2);

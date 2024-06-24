@@ -5,17 +5,17 @@
 import { Provider } from '@nestjs/common';
 import { IsString } from 'class-validator';
 
-export class ContentfulServiceConfig {
+export class CMSConfig {
   @IsString()
-  public readonly supportedPlanIds!: string;
+  public readonly supportedPriceIds!: string;
 }
 
-export const MockContentfulServiceConfig = {
-  supportedPlanIds:
+export const MockCMSConfig = {
+  supportedPriceIds:
     'plan_GqM9N6qyhvxaVk,price_1KbomlBVqmGyQTMaa0Tq7UaW,price_1Ivq4gBVqmGyQTMaplHcFEGO',
-} satisfies ContentfulServiceConfig;
+} satisfies CMSConfig;
 
-export const MockContentfulServiceConfigProvider = {
-  provide: ContentfulServiceConfig,
-  useValue: MockContentfulServiceConfig,
-} satisfies Provider<ContentfulServiceConfig>;
+export const MockCMSConfigProvider = {
+  provide: CMSConfig,
+  useValue: MockCMSConfig,
+} satisfies Provider<CMSConfig>;

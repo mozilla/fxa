@@ -36,12 +36,12 @@ import {
   TaxAddressFactory,
 } from '@fxa/payments/stripe';
 import {
-  ContentfulClient,
+  CMSConfig,
   ContentfulClientConfig,
-  ContentfulManager,
   ContentfulService,
-  ContentfulServiceConfig,
-} from '@fxa/shared/contentful';
+  ProductConfigurationManager,
+  StrapiClient,
+} from '@fxa/shared/cms';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import {
   CartEligibilityStatus,
@@ -85,12 +85,10 @@ describe('CartService', () => {
         CartManager,
         CartService,
         CheckoutService,
+        CMSConfig,
         ConfigService,
-        ContentfulClient,
         ContentfulClientConfig,
-        ContentfulManager,
         ContentfulService,
-        ContentfulServiceConfig,
         CustomerManager,
         EligibilityManager,
         EligibilityService,
@@ -107,8 +105,10 @@ describe('CartService', () => {
         PaypalCustomerManager,
         PayPalManager,
         PriceManager,
+        ProductConfigurationManager,
         ProductManager,
         PromotionCodeManager,
+        StrapiClient,
         StripeClient,
         SubscriptionManager,
       ],

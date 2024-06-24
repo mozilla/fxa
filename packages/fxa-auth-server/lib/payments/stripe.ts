@@ -81,7 +81,7 @@ import {
 } from './stripe-firestore';
 import { stripeInvoiceToLatestInvoiceItemsDTO } from './stripe-formatter';
 import { generateIdempotencyKey, roundTime } from './utils';
-import { ContentfulManager } from '@fxa/shared/contentful';
+import { ProductConfigurationManager } from '@fxa/shared/cms';
 
 // Maintains backwards compatibility. Some type defs hoisted to fxa-shared/payments/stripe
 export * from 'fxa-shared/payments/stripe';
@@ -169,7 +169,9 @@ export class StripeHelper extends StripeHelperBase {
   protected override readonly stripeFirestore: StripeFirestore;
   protected override readonly paymentConfigManager?: PaymentConfigManager;
   protected override readonly redis?: ioredis.Redis;
-  protected override readonly contentfulManager?: ContentfulManager | undefined;
+  protected override readonly productConfigurationManager?:
+    | ProductConfigurationManager
+    | undefined;
 
   // Note that this isn't quite accurate, as the auth-server logger has some extras
   // attached to it in Hapi.
@@ -236,8 +238,10 @@ export class StripeHelper extends StripeHelperBase {
     this.webhookSecret = config.subscriptions.stripeWebhookSecret;
     this.taxIds = config.subscriptions.taxIds;
     this.currencyHelper = Container.get(CurrencyHelper);
-    if (Container.has(ContentfulManager)) {
-      this.contentfulManager = Container.get(ContentfulManager);
+    if (Container.has(ProductConfigurationManager)) {
+      this.productConfigurationManager = Container.get(
+        ProductConfigurationManager
+      );
     }
 
     // Initializes caching

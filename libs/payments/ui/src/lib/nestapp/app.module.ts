@@ -26,10 +26,10 @@ import {
   PromotionCodeManager,
 } from '@fxa/payments/stripe';
 import {
-  ContentfulClient,
-  ContentfulManager,
   ContentfulService,
-} from '@fxa/shared/contentful';
+  ProductConfigurationManager,
+  StrapiClient,
+} from '@fxa/shared/cms';
 import { FirestoreProvider } from '@fxa/shared/db/firestore';
 import { AccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
 import { GeoDBManager, GeoDBNestFactory } from '@fxa/shared/geodb';
@@ -66,8 +66,6 @@ import { AccountManager } from '@fxa/shared/account/account';
     EligibilityService,
     EligibilityManager,
     CheckoutService,
-    ContentfulClient,
-    ContentfulManager,
     ContentfulService,
     CustomerManager,
     InvoiceManager,
@@ -80,6 +78,8 @@ import { AccountManager } from '@fxa/shared/account/account';
     PaypalCustomerManager,
     PayPalManager,
     AccountManager,
+    ProductConfigurationManager,
+    StrapiClient,
   ],
 })
 export class AppModule {}

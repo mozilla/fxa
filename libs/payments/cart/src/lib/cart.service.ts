@@ -14,7 +14,7 @@ import {
   SubplatInterval,
   TaxAddress,
 } from '@fxa/payments/stripe';
-import { ContentfulService } from '@fxa/shared/contentful';
+import { ContentfulService } from '@fxa/shared/cms';
 import { CartErrorReasonId, CartState } from '@fxa/shared/db/mysql/account';
 import { GeoDBManager } from '@fxa/shared/geodb';
 

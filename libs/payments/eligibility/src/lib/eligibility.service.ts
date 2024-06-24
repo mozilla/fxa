@@ -9,14 +9,14 @@ import {
   SubscriptionManager,
   SubplatInterval,
 } from '@fxa/payments/stripe';
-import { ContentfulManager } from '@fxa/shared/contentful';
+import { ProductConfigurationManager } from '@fxa/shared/cms';
 import { EligibilityManager } from './eligibility.manager';
 import { EligibilityStatus } from './eligibility.types';
 
 @Injectable()
 export class EligibilityService {
   constructor(
-    private contentfulManager: ContentfulManager,
+    private productConfigurationManager: ProductConfigurationManager,
     private eligibilityManager: EligibilityManager,
     private subscriptionManager: SubscriptionManager
   ) {}
@@ -34,7 +34,7 @@ export class EligibilityService {
     }
 
     const targetOfferingResult =
-      await this.contentfulManager.getEligibilityContentByOffering(
+      await this.productConfigurationManager.getEligibilityContentByOffering(
         offeringConfigId
       );
 

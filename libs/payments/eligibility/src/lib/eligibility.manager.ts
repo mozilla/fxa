@@ -10,9 +10,9 @@ import {
   SubplatInterval,
 } from '@fxa/payments/stripe';
 import {
-  ContentfulManager,
   EligibilityContentOfferingResult,
-} from '@fxa/shared/contentful';
+  ProductConfigurationManager,
+} from '@fxa/shared/cms';
 
 import {
   EligibilityStatus,
@@ -26,7 +26,7 @@ import { intervalComparison, offeringComparison } from './utils';
 @Injectable()
 export class EligibilityManager {
   constructor(
-    private contentfulManager: ContentfulManager,
+    private productConfigurationManager: ProductConfigurationManager,
     private priceManager: PriceManager
   ) {}
 
@@ -45,7 +45,7 @@ export class EligibilityManager {
     if (!priceIds.length && !offeringStripeProductIds.length) return [];
 
     const detailsResult =
-      await this.contentfulManager.getPurchaseDetailsForEligibility([
+      await this.productConfigurationManager.getPurchaseDetailsForEligibility([
         ...priceIds,
         targetPriceId,
       ]);

@@ -7,11 +7,11 @@ import { Validator } from 'class-validator';
 
 import { CartService } from '@fxa/payments/cart';
 import { PayPalManager } from '@fxa/payments/paypal';
-import { ContentfulService } from '@fxa/shared/contentful';
+import { ContentfulService } from '@fxa/shared/cms';
 
 import { CheckoutCartWithPaypalActionArgs } from './validators/CheckoutCartWithPaypalActionArgs';
 import { CheckoutCartWithStripeActionArgs } from './validators/CheckoutCartWithStripeActionArgs';
-import { FetchContentfulDataArgs } from './validators/FetchContentfulDataArgs';
+import { FetchCMSDataArgs } from './validators/FetchCMSDataArgs';
 import { FinalizeCartWithErrorArgs } from './validators/FinalizeCartWithErrorArgs';
 import { GetCartActionArgs } from './validators/GetCartActionArgs';
 import { GetPayPalCheckoutTokenArgs } from './validators/GetPayPalCheckoutTokenArgs';
@@ -107,10 +107,10 @@ export class NextJSActionsService {
     );
   }
 
-  async fetchContentfulData(args: FetchContentfulDataArgs) {
+  async fetchCMSData(args: FetchCMSDataArgs) {
     new Validator().validateOrReject(args);
 
-    const offering = await this.contentfulService.fetchContentfulData(
+    const offering = await this.contentfulService.fetchCMSData(
       args.offeringId,
       args.acceptLanguage
     );
