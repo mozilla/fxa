@@ -228,6 +228,13 @@ const createEventFn =
         case 'access_token_checked':
           gleanServerEventLogger.recordAccessTokenChecked(commonMetrics);
           break;
+
+        case 'google_login_complete':
+          gleanServerEventLogger.recordThirdPartyAuthGoogleLoginComplete({
+            ...commonMetrics,
+            linking: metricsData?.reason === 'linking',
+          });
+          break;
       }
 
       await gleanEventLogger.record({
@@ -292,6 +299,10 @@ export function gleanMetrics(config: ConfigType) {
         skipClientIp: true,
       }),
     },
+
+    thirdPartyAuth: {
+      googleLoginComplete: createEventFn('google_login_complete'),
+    },
   };
 }
 
@@ -317,7 +328,7 @@ export const logErrorWithGlean = ({
       glean[
         funnel as keyof Omit<
           ReturnType<typeof gleanMetrics>,
-          'resetPassword' | 'oauth'
+          'resetPassword' | 'oauth' | 'thirdPartyAuth'
         >
       ];
     funnelFns[event as keyof typeof funnelFns](request, {

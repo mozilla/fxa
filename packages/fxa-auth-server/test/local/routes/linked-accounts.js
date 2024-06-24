@@ -112,6 +112,7 @@ describe('/linked_account', function () {
           '/linked_account/login'
         );
         glean.registration.complete.reset();
+        glean.thirdPartyAuth.googleLoginComplete.reset();
       });
 
       it('fails if no google config', async () => {
@@ -229,6 +230,11 @@ describe('/linked_account', function () {
         assert.ok(result.sessionToken);
         // should not be called for existing account
         assert.notCalled(glean.registration.complete);
+        sinon.assert.calledOnceWithExactly(
+          glean.thirdPartyAuth.googleLoginComplete,
+          mockRequest,
+          { reason: 'linking' }
+        );
       });
 
       it('should return session with valid google id token', async () => {
@@ -252,6 +258,10 @@ describe('/linked_account', function () {
         assert.isTrue(mockDB.createSessionToken.calledOnce);
         assert.equal(result.uid, UID);
         assert.ok(result.sessionToken);
+        sinon.assert.calledOnceWithExactly(
+          glean.thirdPartyAuth.googleLoginComplete,
+          mockRequest
+        );
       });
 
       it('with 2fa enabled', async () => {

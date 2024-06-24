@@ -178,7 +178,7 @@ utm:
   campaign:
     description: |
       A marketing campaign.  For example, if a user signs into FxA from selecting a
-      Mozilla VPN plan on Mozilla VPN's product site, then value of this metric could
+      Mozilla VPN plan on Mozilla VPN's product site, then the value of this metric could
       be 'vpn-product-page'.  The value has a max length of 128 characters with the
       alphanumeric characters, _ (underscore), forward slash (/), . (period), %
       (percentage sign), and - (hyphen) in the allowed set of characters.  The
@@ -697,3 +697,26 @@ reg:
       reason:
         description: additional context-dependent info, e.g. the cause of an error
         type: string
+third_party_auth:
+  google_login_complete:
+    type: event
+    description: |
+      A user successfully logged in with Google OAuth.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-9815
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      linking:
+        description: |
+          Indicates the initial linking of the Mozilla account and the third-party account.
+        type: boolean

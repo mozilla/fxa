@@ -353,6 +353,13 @@ export class LinkedAccountHandler {
           emailOptions
         );
         request.setMetricsFlowCompleteSignal('account.login', 'login');
+        switch (provider) {
+          case 'google':
+            await this.glean.thirdPartyAuth.googleLoginComplete(request, {
+              reason: 'linking',
+            });
+            break;
+        }
         await request.emitMetricsEvent('account.login', {
           uid: accountRecord.uid,
           deviceId,
@@ -435,6 +442,11 @@ export class LinkedAccountHandler {
         flowBeginTime,
         service,
       });
+      switch (provider) {
+        case 'google':
+          await this.glean.thirdPartyAuth.googleLoginComplete(request);
+          break;
+      }
     }
 
     let verificationMethod,

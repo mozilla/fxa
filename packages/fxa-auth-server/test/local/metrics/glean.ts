@@ -30,6 +30,7 @@ const recordPasswordResetRecoveryKeySuccessStub = sinon.stub();
 const recordPasswordResetRecoveryKeyCreateSuccessStub = sinon.stub();
 const recordAccessTokenCreatedStub = sinon.stub();
 const recordAccessTokenCheckedStub = sinon.stub();
+const recordThirdPartyAuthGoogleLoginCompleteStub = sinon.stub();
 
 const { gleanMetrics, logErrorWithGlean } = proxyquire.load(
   '../../../lib/metrics/glean',
@@ -61,6 +62,8 @@ const { gleanMetrics, logErrorWithGlean } = proxyquire.load(
           recordPasswordResetRecoveryKeyCreateSuccessStub,
         recordAccessTokenCreated: recordAccessTokenCreatedStub,
         recordAccessTokenChecked: recordAccessTokenCheckedStub,
+        recordThirdPartyAuthGoogleLoginComplete:
+          recordThirdPartyAuthGoogleLoginCompleteStub,
       }),
     },
   }
@@ -495,6 +498,42 @@ describe('Glean server side events', () => {
         sinon.assert.calledOnce(recordStub);
         const metrics = recordStub.args[0][0];
         assert.equal(metrics['ip_address'], '');
+      });
+    });
+  });
+
+  describe('thirdPartyAuth', () => {
+    describe('googleLoginComplete', () => {
+      beforeEach(() => {
+        recordThirdPartyAuthGoogleLoginCompleteStub.reset();
+      });
+
+      it('log string and event metrics with account linking', async () => {
+        const glean = gleanMetrics(config);
+        await glean.thirdPartyAuth.googleLoginComplete(request, {
+          reason: 'linking',
+        });
+        sinon.assert.calledOnce(recordStub);
+        const metrics = recordStub.args[0][0];
+        assert.equal(metrics['event_name'], 'google_login_complete');
+        assert.equal(metrics['event_reason'], 'linking');
+        sinon.assert.calledOnce(recordThirdPartyAuthGoogleLoginCompleteStub);
+        assert.isTrue(
+          recordThirdPartyAuthGoogleLoginCompleteStub.args[0][0].linking
+        );
+      });
+
+      it('log string and event metrics without account linking', async () => {
+        const glean = gleanMetrics(config);
+        await glean.thirdPartyAuth.googleLoginComplete(request);
+        sinon.assert.calledOnce(recordStub);
+        const metrics = recordStub.args[0][0];
+        assert.equal(metrics['event_name'], 'google_login_complete');
+        assert.equal(metrics['event_reason'], '');
+        sinon.assert.calledOnce(recordThirdPartyAuthGoogleLoginCompleteStub);
+        assert.isFalse(
+          recordThirdPartyAuthGoogleLoginCompleteStub.args[0][0].linking
+        );
       });
     });
   });
