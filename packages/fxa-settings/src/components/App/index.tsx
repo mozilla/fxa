@@ -3,21 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { RouteComponentProps, Router, useLocation } from '@reach/router';
-import {
-  lazy,
-  Suspense,
-  useEffect,
-  useState,
-  useCallback,
-  useMemo,
-} from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 
 import { QueryParams } from '../..';
 
 import { currentAccount } from '../../lib/cache';
 import { firefox } from '../../lib/channels/firefox';
-import GleanMetrics from '../../lib/glean';
-import * as Metrics from '../../lib/metrics';
 import { LinkType, MozServices } from '../../lib/types';
 
 import {
@@ -25,7 +16,6 @@ import {
   isWebIntegration,
   OAuthIntegration,
   useConfig,
-  useInitialMetricsQueryState,
   useIntegration,
   useLocalSignedInQueryState,
 } from '../../models';
@@ -36,8 +26,6 @@ import {
 import { CreateCompleteResetPasswordLink } from '../../models/reset-password/verification/factory';
 
 import { hardNavigate } from 'fxa-react/lib/utils';
-
-import sentryMetrics from 'fxa-shared/sentry/browser';
 
 // Components
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
@@ -80,150 +68,97 @@ import ResetPasswordContainer from '../../pages/ResetPasswordRedesign/ResetPassw
 import ConfirmResetPasswordContainer from '../../pages/ResetPasswordRedesign/ConfirmResetPassword/container';
 import CompleteResetPasswordWithCodeContainer from '../../pages/ResetPasswordRedesign/CompleteResetPassword/container';
 import AccountRecoveryConfirmKeyContainer from '../../pages/ResetPasswordRedesign/AccountRecoveryConfirmKey/container';
+import { useInitialAppState } from '../../lib/hooks/useInitialAppState';
 
 const Settings = lazy(() => import('../Settings'));
 
 export const App = ({
   flowQueryParams,
 }: { flowQueryParams: QueryParams } & RouteComponentProps) => {
-  const config = useConfig();
-
-  // GQL call for minimal metrics data
-  const { loading: metricsLoading, data } = useInitialMetricsQueryState() ?? {};
-
-  // Because this query depends on the result of an initial query (in this case,
-  // metrics), we need to run it separately.
-  const { data: isSignedInData } = useLocalSignedInQueryState();
   const integration = useIntegration();
 
-  const isSignedIn = isSignedInData?.isSignedIn;
-
-  const getMetricsEnabled = useCallback(() => {
-    if (metricsLoading || !integration || isSignedIn === undefined) {
-      return;
-    }
-    return data?.account?.metricsEnabled || !isSignedIn;
-  }, [metricsLoading, integration, isSignedIn, data?.account?.metricsEnabled]);
-  const metricsEnabled = getMetricsEnabled();
-
-  useMemo(() => {
-    if (!metricsEnabled || !integration || GleanMetrics.getEnabled()) {
-      return;
-    }
-
-    GleanMetrics.initialize(
-      {
-        ...config.glean,
-        enabled: metricsEnabled,
-        appDisplayVersion: config.version,
-        channel: config.glean.channel,
-      },
-      {
-        flowQueryParams,
-        account: {
-          metricsEnabled: data?.account?.metricsEnabled,
-          uid: data?.account?.uid,
-        },
-        userAgent: navigator.userAgent,
-        integration,
-      }
-    );
-  }, [
-    config.glean,
-    config.version,
-    data?.account?.metricsEnabled,
-    data?.account?.uid,
-    flowQueryParams,
-    integration,
-    metricsEnabled,
-  ]);
-
-  useEffect(() => {
-    if (!metricsEnabled) {
-      return;
-    }
-    Metrics.init(metricsEnabled, flowQueryParams);
-    if (data?.account?.metricsEnabled) {
-      Metrics.initUserPreferences({
-        recoveryKey: data.account.recoveryKey,
-        hasSecondaryVerifiedEmail:
-          data.account.emails.length > 1 && data.account.emails[1].verified,
-        totpActive: data.account.totp.exists && data.account.totp.verified,
-      });
-    }
-  }, [
-    data,
-    data?.account?.metricsEnabled,
-    data?.account?.emails,
-    data?.account?.totp,
-    data?.account?.recoveryKey,
-    isSignedIn,
-    flowQueryParams,
-    config,
-    metricsLoading,
-    metricsEnabled,
-  ]);
-
-  useEffect(() => {
-    if (metricsEnabled) {
-      sentryMetrics.enable();
-    } else {
-      sentryMetrics.disable();
-    }
-  }, [
-    data?.account?.metricsEnabled,
-    config.sentry,
-    config.version,
-    metricsLoading,
-    isSignedIn,
-    metricsEnabled,
-  ]);
-
-  // Wait until metrics is done loading, integration has been created, and isSignedIn has been determined.
-  if (metricsLoading || !integration || isSignedIn === undefined) {
+  // Wait until integration has been created
+  if (!integration) {
     return <LoadingSpinner fullScreen />;
   }
 
   return (
     <Router basepath="/">
       <AuthAndAccountSetupRoutes
-        {...{ isSignedIn, integration, flowQueryParams }}
+        {...{ integration, flowQueryParams }}
         path="/*"
       />
-      <SettingsRoutes {...{ isSignedIn, integration }} path="/settings/*" />
+      <SettingsRoutesWrapper
+        {...{ integration, flowQueryParams }}
+        path="/settings/*"
+      />
     </Router>
   );
 };
 
-const SettingsRoutes = ({
-  isSignedIn,
+const SettingsRoutesWrapper = ({
   integration,
-}: { isSignedIn: boolean; integration: Integration } & RouteComponentProps) => {
-  const location = useLocation();
-  // TODO: Remove this + config.sendFxAStatusOnSettings check once we confirm this works
-  const config = useConfig();
-
+  flowQueryParams,
+}: {
+  integration: Integration;
+  flowQueryParams: QueryParams;
+} & RouteComponentProps) => {
   // Request and update account data/state to match the browser state because:
   // 1) If a user logs in through the browser Sync pairing flow and then accesses
   // Settings through the browser, they'd have to login again (isSignedIn === false).
   // 2) If a user disconnects their account through Sync and then logs into another account
   // using the pairing flow, we hold onto the old session token (isSignedIn === true).
-  const [shouldCheckFxaStatus, setShouldCheckFxaStatus] = useState(
+  // 3) If a user is logged in and accesses Settings on mobile through the browser, logs
+  // out via Settings, and then tries to access Settings again, they'd have to login again.
+  const [needsFxaStatus, setNeedsFxaStatus] = useState(
     // See note above WebIntegration's `isSync` check
-    isWebIntegration(integration) &&
-      integration.isSync() &&
-      config.sendFxAStatusOnSettings
+    isWebIntegration(integration) && integration.isSync()
   );
-  useEffect(() => {
-    (async () => {
-      if (shouldCheckFxaStatus) {
-        await firefox.requestSignedInUser(integration.data.context);
-        setShouldCheckFxaStatus(false);
-      }
-    })();
-  });
+  const [checkedFxaStatus, setCheckedFxaStatus] = useState(false);
 
-  if (!isSignedIn && !shouldCheckFxaStatus) {
+  /* NOTE: This doesn't work. The session token is destroyed in case 3 described above.*/
+  useEffect(() => {
+    const checkFxaStatus = async () => {
+      if (needsFxaStatus) {
+        await firefox.requestSignedInUser(integration.data.context);
+        setNeedsFxaStatus(false);
+      }
+      setCheckedFxaStatus(true);
+    };
+    checkFxaStatus();
+  }, [checkedFxaStatus, needsFxaStatus, integration.data.context]);
+
+  // Wait until fxaStatus is checked if needed. We don't want to get the initial app state
+  // (done in SettingsRoutes) until this has been checked.
+  if (checkedFxaStatus === false) {
+    return <LoadingSpinner fullScreen />;
+  }
+
+  return (
+    <SettingsRoutes {...{ integration, flowQueryParams }} path="/settings/*" />
+  );
+};
+
+const SettingsRoutes = ({
+  integration,
+  flowQueryParams,
+}: {
+  integration: Integration;
+  flowQueryParams: QueryParams;
+} & RouteComponentProps) => {
+  const location = useLocation();
+
+  const { metricsLoading, isSignedIn } = useInitialAppState(
+    flowQueryParams,
+    integration
+  );
+
+  // Wait until metrics is done loading, and isSignedIn has been determined.
+  if (metricsLoading || isSignedIn === undefined) {
+    return <LoadingSpinner fullScreen />;
+  }
+
+  if (isSignedIn === false) {
     const params = new URLSearchParams(location.search);
     params.set('redirect_to', location.pathname);
     const path = `/?${params.toString()}`;
@@ -244,15 +179,23 @@ const SettingsRoutes = ({
 };
 
 const AuthAndAccountSetupRoutes = ({
-  isSignedIn,
   integration,
   flowQueryParams,
 }: {
-  isSignedIn: boolean;
   integration: Integration;
   flowQueryParams: QueryParams;
 } & RouteComponentProps) => {
+  const { metricsLoading, isSignedIn } = useInitialAppState(
+    flowQueryParams,
+    integration
+  );
   const config = useConfig();
+
+  // Wait until metrics is done loading and isSignedIn has been determined.
+  if (metricsLoading || isSignedIn === undefined) {
+    return <LoadingSpinner fullScreen />;
+  }
+
   const localAccount = currentAccount();
   // TODO: MozServices / string discrepancy, FXA-6802
   const serviceName = integration.getServiceName() as MozServices;
