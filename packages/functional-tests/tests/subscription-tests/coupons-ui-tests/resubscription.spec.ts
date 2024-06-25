@@ -40,16 +40,14 @@ test.describe('severity-2 #smoke', () => {
       // Verify the coupon is applied successfully
       await expect(subscribe.promoCodeAppliedHeading).toBeVisible();
 
-      const total = await subscribe.totalPrice.textContent();
-
-      //Subscribe successfully with Stripe
+      // Subscribe successfully with Stripe
       await subscribe.confirmPaymentCheckbox.check();
       await subscribe.paymentInformation.fillOutCreditCardInfo(VALID_VISA);
       await subscribe.paymentInformation.clickPayNow();
 
       await expect(subscribe.subscriptionConfirmationHeading).toBeVisible();
 
-      //Signin to FxA account
+      // Signin to FxA account
       await signin.goto();
 
       await expect(signin.cachedSigninHeading).toBeVisible();
@@ -62,20 +60,24 @@ test.describe('severity-2 #smoke', () => {
         target
       );
 
-      //Verify no coupon details are visible
+      // Verify no coupon details are visible
       await expect(subscriptionManagement.subscriptionDetails).not.toHaveText(
         'Promo'
       );
 
-      //Cancel subscription and then resubscribe
+      const total =
+        await subscriptionManagement.priceDetailsStandalone.textContent();
+      expect(total).not.toBeNull();
+
+      // Cancel subscription and then resubscribe
       await subscriptionManagement.cancelSubscription();
       await subscriptionManagement.resubscribe();
 
-      //Verify that the resubscription has the same coupon applied
-      const resubscriptionPrice =
-        await subscriptionManagement.resubscriptionPrice.textContent();
-      expect(resubscriptionPrice).toEqual(total);
-      //Verify no coupon details are visible
+      // Verify that the resubscription has the same coupon applied
+      await expect(subscriptionManagement.priceDetailsStandalone).toHaveText(
+        <string>total
+      );
+      // Verify no coupon details are visible
       await expect(subscriptionManagement.subscriptionDetails).not.toHaveText(
         'Promo'
       );

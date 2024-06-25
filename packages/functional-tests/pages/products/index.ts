@@ -83,10 +83,6 @@ export class SubscribePage extends BaseLayout {
       .getByText('Promo Code');
   }
 
-  get totalPrice() {
-    return this.page.getByTestId('total-price');
-  }
-
   get subscriptionErrorHeading() {
     return this.page.getByRole('heading', {
       name: /Error confirming subscription/,
