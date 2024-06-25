@@ -12,6 +12,13 @@ export class SigninTokenCodePage extends BaseTokenCodePage {
     return this.page.getByRole('heading', { name: /^Enter confirmation code/ });
   }
 
+  get codeInput() {
+    this.checkPath();
+    return this.page
+      .getByLabel('Enter 6-digit code') // React
+      .or(this.page.getByPlaceholder('Enter 6-digit code')); //Backbone
+  }
+
   get resendCodeButton() {
     this.checkPath();
     return (
