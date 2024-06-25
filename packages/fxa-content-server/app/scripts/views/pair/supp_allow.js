@@ -28,6 +28,7 @@ class PairSuppAllowView extends FormView {
   }
 
   submit() {
+    GleanMetrics.cadMobilePair.submit();
     return this.invokeBrokerMethod('afterSupplicantApprove');
   }
 

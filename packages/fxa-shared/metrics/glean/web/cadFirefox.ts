@@ -27,6 +27,22 @@ export const choiceEngage = new EventMetricType<{
 );
 
 /**
+ * User clicked "Not now"
+ *
+ * Generated from `cad_firefox.choice_notnow_submit`.
+ */
+export const choiceNotnowSubmit = new EventMetricType(
+  {
+    category: 'cad_firefox',
+    name: 'choice_notnow_submit',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
  * User submitted on the "Connect another device" screen with choice options,
  * submitting either of "I already have FF for mobile" or "I don't have FF for
  * mobile", which is provided in the 'reason' for this event
@@ -56,6 +72,22 @@ export const choiceView = new EventMetricType(
   {
     category: 'cad_firefox',
     name: 'choice_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * User clicks "Not now" on the "Connect another device page"
+ *
+ * Generated from `cad_firefox.notnow_submit`.
+ */
+export const notnowSubmit = new EventMetricType(
+  {
+    category: 'cad_firefox',
+    name: 'notnow_submit',
     sendInPings: ['events'],
     lifetime: 'ping',
     disabled: false,

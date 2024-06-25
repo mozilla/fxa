@@ -11,6 +11,7 @@ import AppLayout from '../../../components/AppLayout';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import DeviceInfoBlock from '../../../components/DeviceInfoBlock';
 import { FtlMsg } from 'fxa-react/lib/utils';
+import GleanMetrics from '../../../lib/glean';
 
 export type BannerMessage = {
   messageType: BannerType;
@@ -30,6 +31,7 @@ export type SuppAllowProps = {
 export const viewName = 'pair.supp.allow';
 
 const handleSubmit = () => {
+  GleanMetrics.cadMobilePair.submit();
   // TODO: handle pairing authorization and catch errors in FXA-6638
 };
 

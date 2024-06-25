@@ -7,6 +7,22 @@
 import EventMetricType from '@mozilla/glean/private/metrics/event';
 
 /**
+ * User clicks "Yes, approve device" on "Connect another device page"
+ *
+ * Generated from `cad_approve_device.submit`.
+ */
+export const submit = new EventMetricType(
+  {
+    category: 'cad_approve_device',
+    name: 'submit',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
  * User viewed the "Approve Device" page after scanning QR code
  *
  * Generated from `cad_approve_device.view`.

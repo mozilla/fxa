@@ -36,6 +36,7 @@ class PairAuthAllowView extends FormView {
   }
 
   submit() {
+    GleanMetrics.cadApproveDevice.submit();
     return this.invokeBrokerMethod('afterPairAuthAllow');
   }
 

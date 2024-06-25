@@ -14,6 +14,7 @@ import CardHeader from '../../../components/CardHeader';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { ENTRYPOINTS, REACT_ENTRYPOINT } from '../../../../src/constants';
 import { HeartsVerifiedImage } from '../../../components/images';
+import GleanMetrics from '../../../lib/glean';
 
 type PairProps = {
   error?: string;
@@ -143,7 +144,13 @@ const Pair = ({
             ></div>
             <p className="mt-5 text-sm">
               <FtlMsg id="pair-not-now-button">
-                <Link className="link-blue" to="/settings">
+                <Link
+                  className="link-blue"
+                  to="/settings"
+                  onClick={() => {
+                    GleanMetrics.cadFireFox.notnowSubmit();
+                  }}
+                >
                   Not now
                 </Link>
               </FtlMsg>

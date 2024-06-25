@@ -76,6 +76,22 @@ export const choiceView = new EventMetricType(
 );
 
 /**
+ * User clicks "Not now" on the "Connect another device page"
+ *
+ * Generated from `cad_firefox.notnow_submit`.
+ */
+export const notnowSubmit = new EventMetricType(
+  {
+    category: 'cad_firefox',
+    name: 'notnow_submit',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
  * User clicked the "Continue to sync" button on the "Download Firefox for mobile"
  * screen
  *
