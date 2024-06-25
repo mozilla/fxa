@@ -41,13 +41,12 @@ test.describe('severity-2 #smoke', () => {
       const credentials = await testAccountTracker.signUpSync();
 
       await relier.goto(toQueryString(queryParameters));
-      // Click the Email First flow, which should direct to the sign in page
+
       await relier.clickEmailFirst();
-      // Enter email, then enter password
+
       await signin.fillOutEmailFirstForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
 
-      // Check that the sign in page is show, and is asking for a sign in code
       await expect(page).toHaveURL(/signin_token_code/);
       await expect(signinTokenCode.heading).toBeVisible();
 
@@ -65,14 +64,32 @@ test.describe('severity-2 #smoke', () => {
       pages: { page, signin, relier, signinTokenCode },
       testAccountTracker,
     }) => {
-      test.fixme(true, 'TODO in FXA-9931');
       // The `sync` prefix is needed to force confirmation.
       const credentials = await testAccountTracker.signUpSync();
 
       await relier.goto(toQueryString(queryParameters));
-      // Click the Email First flow, which should direct to the sign in page
       await relier.clickEmailFirst();
-      // Enter email, then enter password
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
+      await expect(page).toHaveURL(/signin_token_code/);
+
+      const code = await target.emailClient.getVerifyLoginCode(
+        credentials.email
+      );
+      await signinTokenCode.fillOutCodeForm(code);
+
+      await expect(page).toHaveURL(/notes\/fxa/);
+    });
+
+    test('verified - invalid code', async ({
+      pages: { page, signin, relier, signinTokenCode },
+      testAccountTracker,
+    }) => {
+      // The `sync` prefix is needed to force confirmation.
+      const credentials = await testAccountTracker.signUpSync();
+
+      await relier.goto(toQueryString(queryParameters));
+      await relier.clickEmailFirst();
       await signin.fillOutEmailFirstForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
       // Enter invalid code, ensure it doesn't work
@@ -80,17 +97,33 @@ test.describe('severity-2 #smoke', () => {
       await signinTokenCode.fillOutCodeForm('123456');
 
       await expect(page.getByText(/Invalid or expired/)).toBeVisible();
+    });
 
-      // Resend the code
+    test('verified - resend code', async ({
+      target,
+      pages: { page, signin, relier, signinTokenCode },
+      testAccountTracker,
+    }) => {
+      // The `sync` prefix is needed to force confirmation.
+      const credentials = await testAccountTracker.signUpSync();
+
+      await relier.goto(toQueryString(queryParameters));
+
+      await relier.clickEmailFirst();
+
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
+      await expect(page).toHaveURL(/signin_token_code/);
+      // retrieve the first code and delete the email
+      let code = await target.emailClient.getVerifyLoginCode(credentials.email);
+
       await expect(signinTokenCode.resendCodeButton).toBeVisible();
       await signinTokenCode.resendCodeButton.click();
 
       await expect(page.getByText(/Email re-?sent/)).toBeVisible();
 
-      // Correctly submits the token code and navigates to oauth page
-      const code = await target.emailClient.getVerifyLoginCode(
-        credentials.email
-      );
+      // Retrieves the code from the new email
+      code = await target.emailClient.getVerifyLoginCode(credentials.email);
       await signinTokenCode.fillOutCodeForm(code);
 
       await expect(page).toHaveURL(/notes\/fxa/);
