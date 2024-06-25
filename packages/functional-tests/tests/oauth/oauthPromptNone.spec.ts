@@ -33,7 +33,7 @@ test.describe('severity-1 #smoke', () => {
       await relier.signInPromptNone();
 
       //Verify error message
-      expect(await relier.promptNoneError()).toContain('User is not signed in');
+      await expect(page.getByText('User is not signed in')).toBeVisible();
     });
 
     test('fails RP that is not allowed', async ({
@@ -55,9 +55,9 @@ test.describe('severity-1 #smoke', () => {
       await relier.signInPromptNone();
 
       //Verify error message
-      expect(await relier.promptNoneError()).toContain(
-        'prompt=none is not enabled for this client'
-      );
+      await expect(
+        page.getByText('prompt=none is not enabled for this client')
+      ).toBeVisible();
     });
 
     test('fails if requesting keys', async ({
@@ -86,9 +86,9 @@ test.describe('severity-1 #smoke', () => {
       await relier.signInPromptNone();
 
       //Verify error message
-      expect(await relier.promptNoneError()).toContain(
-        'prompt=none cannot be used when requesting keys'
-      );
+      await expect(
+        page.getByText('prompt=none cannot be used when requesting keys')
+      ).toBeVisible();
     });
 
     test('fails if session is no longer valid', async ({
@@ -119,7 +119,7 @@ test.describe('severity-1 #smoke', () => {
       await relier.signInPromptNone();
 
       //Verify error message
-      expect(await relier.promptNoneError()).toContain('User is not signed in');
+      await expect(page.getByText('User is not signed in')).toBeVisible();
     });
 
     test('fails if account is not verified', async ({
@@ -147,9 +147,7 @@ test.describe('severity-1 #smoke', () => {
       await relier.signInPromptNone();
 
       //Verify error message
-      expect(await relier.promptNoneError()).toContain(
-        'Unverified user or session'
-      );
+      await expect(page.getByText('Unverified user or session')).toBeVisible();
     });
   });
 
@@ -214,9 +212,9 @@ test.describe('severity-1 #smoke', () => {
       await relier.signInPromptNone();
 
       //Verify error message
-      expect(await relier.promptNoneError()).toContain(
-        'A different user is signed in'
-      );
+      await expect(
+        page.getByText('A different user is signed in')
+      ).toBeVisible();
     });
   });
 });
