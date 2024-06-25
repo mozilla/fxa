@@ -439,6 +439,69 @@ describe('lib/glean', () => {
       });
     });
 
+    describe('loginBackupCode', () => {
+      it('submits a ping with the login_backup_code_view name', async () => {
+        GleanMetrics.loginBackupCode.view();
+        const spy = sandbox.spy(login.backupCodeView, 'record');
+        await new Promise((resolve) =>
+          setTimeout(() => {
+            sinon.assert.calledOnce(setEventNameStub);
+            sinon.assert.calledWith(setEventNameStub, 'login_backup_code_view');
+            sinon.assert.calledOnce(spy);
+            resolve(undefined);
+          }, 20)
+        );
+      });
+
+      it('submits a ping with the login_backup_code_submit event name', async () => {
+        GleanMetrics.loginBackupCode.submit();
+        const spy = sandbox.spy(login.backupCodeSubmit, 'record');
+        await new Promise((resolve) =>
+          setTimeout(() => {
+            sinon.assert.calledOnce(setEventNameStub);
+            sinon.assert.calledWith(
+              setEventNameStub,
+              'login_backup_code_submit'
+            );
+            sinon.assert.calledOnce(spy);
+            resolve(undefined);
+          }, 20)
+        );
+      });
+
+      it('submits a ping with the login_backup_code_success_view event name', async () => {
+        GleanMetrics.loginBackupCode.success();
+        const spy = sandbox.spy(login.backupCodeSuccessView, 'record');
+        await new Promise((resolve) =>
+          setTimeout(() => {
+            sinon.assert.calledOnce(setEventNameStub);
+            sinon.assert.calledWith(
+              setEventNameStub,
+              'login_backup_code_success_view'
+            );
+            sinon.assert.calledOnce(spy);
+            resolve(undefined);
+          }, 20)
+        );
+      });
+
+      it('submits a ping with the login_submit_frontend_error event name and a reason', async () => {
+        GleanMetrics.login.error({ event: { reason: 'quux' } });
+        await new Promise((resolve) =>
+          setTimeout(() => {
+            sinon.assert.calledOnce(setEventNameStub);
+            sinon.assert.calledWith(
+              setEventNameStub,
+              'login_submit_frontend_error'
+            );
+            sinon.assert.calledOnce(setEventReasonStub);
+            sinon.assert.calledWith(setEventReasonStub, 'quux');
+            resolve(undefined);
+          }, 20)
+        );
+      });
+    });
+
     describe('thirdPartyAuth', () => {
       it('submits a ping with the google_oauth_reg_start event name', async () => {
         GleanMetrics.thirdPartyAuth.startGoogleAuthFromReg();

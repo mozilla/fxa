@@ -748,6 +748,61 @@ login:
     expires: never
     data_sensitivity:
       - interaction
+  backup_code_view:
+    type: event
+    description: |
+      Event that indicates a successful view/load of the 2FA backup codes
+      authentication page on the login funnel. The page prompts the user to
+      enter a backup code.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-7265
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+  backup_code_submit:
+    type: event
+    description: |
+      Event that indicates a user attempted to authenticate by clicking
+      "Confirm" on the 2FA backup codes page.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-7265
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+  backup_code_success_view:
+    type: event
+    description: |
+      Event that indicates the user successfully authenticated via 2FA backup
+      codes.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-7265
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
 
 password_reset:
   create_new_recovery_key_message_click:

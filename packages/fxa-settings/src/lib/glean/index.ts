@@ -227,6 +227,15 @@ const recordEventMetric = (
     case 'login_diff_account_link_click':
       login.diffAccountLinkClick.record();
       break;
+    case 'login_backup_code_view':
+      login.backupCodeView.record();
+      break;
+    case 'login_backup_code_submit':
+      login.backupCodeSubmit.record();
+      break;
+    case 'login_backup_code_success_view':
+      login.backupCodeSuccessView.record();
+      break;
     case 'cached_login_forgot_pwd_submit':
       cachedLogin.forgotPwdSubmit.record();
       break;
