@@ -54,10 +54,6 @@ export class LoginPage extends BaseLayout {
     return this.page.getByLabel('Add-ons', { exact: true });
   }
 
-  get CWTSEngineOpenTabs() {
-    return this.page.getByLabel('Open Tabs', { exact: true });
-  }
-
   get CWTSEnginePreferences() {
     return this.page.getByLabel('Preferences', { exact: true });
   }

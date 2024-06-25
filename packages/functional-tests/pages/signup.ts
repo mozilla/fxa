@@ -128,9 +128,4 @@ export class SignupPage extends BaseLayout {
     await this.ageTextbox.fill(age);
     await this.createAccountButton.click();
   }
-
-  async waitForRoot() {
-    const root = this.page.locator('#root');
-    await root.waitFor();
-  }
 }
