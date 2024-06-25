@@ -43,15 +43,11 @@ test.describe('severity-1 #smoke', () => {
     await page.waitForURL('**/signin', { timeout: 1000 });
   });
 
-  test('react disconnect RP #1293475', async ({
+  test('react disconnect RP', async ({
     pages: { configPage, page, relier, signin, settings },
     testAccountTracker,
-  }, { project }) => {
+  }) => {
     const config = await configPage.getConfig();
-    test.fixme(
-      project.name !== 'local',
-      'Fix required as of 2024/04/26 (see FXA-9518).'
-    );
     test.skip(
       config.showReactApp.signInRoutes !== true,
       'Skip tests if React signInRoutes not enabled'
@@ -72,6 +68,7 @@ test.describe('severity-1 #smoke', () => {
 
     await signin.fillOutEmailFirstForm(credentials.email);
     await signin.fillOutPasswordForm(credentials.password);
+
     expect(await relier.isLoggedIn()).toBe(true);
 
     // Login to settings with cached creds
@@ -82,7 +79,8 @@ test.describe('severity-1 #smoke', () => {
 
     // Sign out of 123Done
     const rp = services.find((service) => service.name.includes('123'));
-    await expect(rp).toBeDefined();
+    expect(rp).toBeDefined();
+
     await rp?.signout();
 
     await expect(settings.alertBar).toHaveText(/Logged out/);

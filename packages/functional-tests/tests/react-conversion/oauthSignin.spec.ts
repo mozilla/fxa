@@ -19,17 +19,12 @@ test.describe('severity-1 #smoke', () => {
     test('verified account, no email confirmation required', async ({
       pages: { page, relier, signin },
       testAccountTracker,
-    }, { project }) => {
-      test.fixme(
-        project.name !== 'local',
-        'Fix required as of 2024/04/26 (see FXA-9518).'
-      );
-      test.setTimeout(120000); // 2 minutes
-
+    }) => {
       const credentials = await testAccountTracker.signUp();
 
       await relier.goto();
       await relier.clickEmailFirst();
+
       await expect(page).toHaveURL(/oauth\//);
 
       // reload page with React experiment params
@@ -39,31 +34,28 @@ test.describe('severity-1 #smoke', () => {
 
       await signin.fillOutEmailFirstForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
+
       expect(await relier.isLoggedIn()).toBe(true);
     });
 
     test('verified account with cached login, no email confirmation required', async ({
       pages: { page, relier, signin },
       testAccountTracker,
-    }, { project }) => {
-      test.fixme(
-        project.name !== 'local',
-        'Fix required as of 2024/04/26 (see FXA-9518).'
-      );
-
+    }) => {
       const credentials = await testAccountTracker.signUp();
 
       await relier.goto();
       await relier.clickEmailFirst();
+
       await expect(page).toHaveURL(/oauth\//);
 
       // reload page with React experiment params
       await page.goto(
         `${page.url()}&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
       );
-
       await signin.fillOutEmailFirstForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
+
       expect(await relier.isLoggedIn()).toBe(true);
 
       await relier.signOut();
@@ -82,30 +74,27 @@ test.describe('severity-1 #smoke', () => {
       await expect(signin.cachedSigninHeading).toBeVisible();
       // Email is prefilled
       await expect(page.getByText(credentials.email)).toBeVisible();
+
       await signin.signInButton.click();
 
-      await relier.isLoggedIn();
+      expect(await relier.isLoggedIn()).toBe(true);
     });
 
     test('verified using a cached expired login', async ({
       pages: { page, relier, signin },
       testAccountTracker,
-    }, { project }) => {
-      test.fixme(
-        project.name !== 'local',
-        'Fix required as of 2024/04/26 (see FXA-9518).'
-      );
+    }) => {
       const credentials = await testAccountTracker.signUp();
 
       await relier.goto();
       await relier.clickEmailFirst();
+
       await expect(page).toHaveURL(/oauth\//);
 
       // reload page with React experiment params
       await page.goto(
         `${page.url()}&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
       );
-
       await signin.fillOutEmailFirstForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
 
@@ -119,13 +108,14 @@ test.describe('severity-1 #smoke', () => {
       await expect(signin.cachedSigninHeading).toBeVisible();
       // Email is prefilled
       await expect(page.getByText(credentials.email)).toBeVisible();
+
       await signin.signInButton.click();
       await relier.signOut();
-
       // Clear cache and try to login
       await signin.clearCache();
       await relier.goto();
       await relier.clickEmailFirst();
+
       await expect(page).toHaveURL(/oauth\//);
 
       // reload page with React experiment params
@@ -136,12 +126,13 @@ test.describe('severity-1 #smoke', () => {
       // User will have to re-enter login information
       await signin.fillOutEmailFirstForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
+
       expect(await relier.isLoggedIn()).toBe(true);
     });
 
     test('unverified account, requires signup confirmation code', async ({
       target,
-      pages: { configPage, confirmSignupCode, page, relier, signin, signup },
+      pages: { configPage, confirmSignupCode, page, relier, signin },
       testAccountTracker,
     }) => {
       const config = await configPage.getConfig();
