@@ -98,7 +98,6 @@ test.describe('severity-1 #smoke', () => {
       syncBrowserPages: { confirmSignupCode, page, login, signup },
       testAccountTracker,
     }) => {
-      test.fixme(true, 'Fix required as of 2024/03/18 (see FXA-9306).');
       const { email, password } =
         testAccountTracker.generateSignupAccountDetails();
       const customEventDetail = createCustomEventDetail(
@@ -115,30 +114,30 @@ test.describe('severity-1 #smoke', () => {
       await signup.goto('/authorization', syncMobileOAuthQueryParams);
 
       await signup.fillOutEmailForm(email);
-      await page.waitForURL(/signup/, { waitUntil: 'load' });
-      await signup.waitForRoot();
 
       await expect(signup.signupFormHeading).toBeVisible();
 
       await signup.sendWebChannelMessage(customEventDetail);
 
       // Only engines provided via web channel for Sync mobile are displayed
-      await expect(login.CWTSEngineHeader).toBeVisible();
-      await expect(login.CWTSEngineBookmarks).toBeVisible();
-      await expect(login.CWTSEngineHistory).toBeVisible();
-      await expect(login.CWTSEnginePasswords).toBeHidden();
-      await expect(login.CWTSEngineAddons).toBeHidden();
-      await expect(login.CWTSEngineOpenTabs).toBeHidden();
-      await expect(login.CWTSEnginePreferences).toBeHidden();
-      await expect(login.CWTSEngineCreditCards).toBeHidden();
-      await expect(login.CWTSEngineAddresses).toBeHidden();
+      await expect(signup.CWTSEngineHeader).toBeVisible();
+      await expect(signup.CWTSEngineBookmarks).toBeVisible();
+      await expect(signup.CWTSEngineHistory).toBeVisible();
+      await expect(signup.CWTSEnginePasswords).toBeHidden();
+      await expect(signup.CWTSEngineAddons).toBeHidden();
+      await expect(signup.CWTSEngineOpenTabs).toBeHidden();
+      await expect(signup.CWTSEnginePreferences).toBeHidden();
+      await expect(signup.CWTSEngineCreditCards).toBeHidden();
+      await expect(signup.CWTSEngineAddresses).toBeHidden();
 
       await signup.fillOutSignupForm(password, AGE_21);
+
       await expect(page).toHaveURL(/confirm_signup_code/);
+
       const code = await target.emailClient.getVerifyShortCode(email);
       await confirmSignupCode.fillOutCodeForm(code);
-      await page.waitForURL(/connect_another_device/);
 
+      await expect(page).toHaveURL(/connect_another_device/);
       await signup.checkWebChannelMessage(FirefoxCommand.OAuthLogin);
     });
   });

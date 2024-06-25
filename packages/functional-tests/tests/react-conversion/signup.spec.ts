@@ -37,12 +37,11 @@ test.describe('severity-1 #smoke', () => {
         testAccountTracker.generateSignupAccountDetails();
 
       await signup.goto();
-
       await signup.fillOutEmailForm(email);
-      await signup.waitForRoot();
-
       await signup.fillOutSignupForm(password, AGE_21);
+
       await expect(page).toHaveURL(/confirm_signup_code/);
+
       const code = await target.emailClient.getVerifyShortCode(email);
       await confirmSignupCode.fillOutCodeForm(code);
 
@@ -58,17 +57,14 @@ test.describe('severity-1 #smoke', () => {
     }) => {
       const { email, password } =
         testAccountTracker.generateSignupAccountDetails();
-      test.fixme(true, 'Fix required as of 2024/03/18 (see FXA-9306).');
       await signup.goto('/', syncDesktopV3QueryParams);
 
       await signup.fillOutEmailForm(email);
-      await page.waitForURL(/signup/, { waitUntil: 'load' });
-      await signup.waitForRoot();
 
-      // Wait for page to render
-      await expect(page.getByText('Set your password')).toBeVisible();
+      await expect(signup.signupFormHeading).toBeVisible();
 
       await signup.respondToWebChannelMessage(eventDetailLinkAccount);
+
       await signup.checkWebChannelMessage(FirefoxCommand.FxAStatus);
       await signup.checkWebChannelMessage(FirefoxCommand.LinkAccount);
 
@@ -88,10 +84,11 @@ test.describe('severity-1 #smoke', () => {
 
       await signup.checkWebChannelMessage(FirefoxCommand.Login);
       await expect(page).toHaveURL(/confirm_signup_code/);
+
       const code = await target.emailClient.getVerifyShortCode(email);
       await confirmSignupCode.fillOutCodeForm(code);
-      await page.waitForURL(/connect_another_device/);
 
+      await expect(page).toHaveURL(/connect_another_device/);
       await expect(page.getByText('You’re signed into Firefox')).toBeVisible();
     });
   });
