@@ -349,8 +349,19 @@ commands:
       - run:
           name: Rename Reports
           command: |
-            cd artifacts/blob-report
-            mv report.zip reports-${CIRCLE_NODE_INDEX}.zip
+            echo "Starting rename reports step"
+            cd artifacts/blob-report || { echo "Directory artifacts/blob-report not found"; exit 1; }
+            echo "Current directory: $(pwd)"
+            echo "Listing contents before renaming:"
+            ls -la
+            if [ -f report.zip ]; then
+              mv report.zip reports-${CIRCLE_NODE_INDEX}.zip
+              echo "Renamed report.zip to reports-${CIRCLE_NODE_INDEX}.zip"
+            else
+              echo "No report.zip found, skipping rename for this node."
+            fi
+            echo "Listing contents after renaming:"
+            ls -la
       - store_artifacts:
           path: artifacts/blob-report
       - persist_to_workspace:
@@ -683,12 +694,28 @@ jobs:
           at: /home/circleci/project
       - run:
           name: Merge blob Reports
-          command: ls -l artifacts/blob-report && npx playwright merge-reports --reporter=blob artifacts/blob-report
+          command: |
+            cd artifacts/blob-report
+            echo "Merging blob reports"
+            ls -l
+            if ls *.zip 1> /dev/null 2>&1; then
+              npx playwright merge-reports --reporter=blob .
+            else
+              echo "No report zip files found, skipping blob merge."
+            fi
       - store_artifacts:
           path: blob-report
       - run:
           name: Merge html Reports
-          command: npx playwright merge-reports --reporter=html artifacts/blob-report
+          command: |
+            cd artifacts/blob-report
+            echo "Merging HTML reports"
+            ls -l
+            if ls *.zip 1> /dev/null 2>&1; then
+              npx playwright merge-reports --reporter=html .
+            else
+              echo "No report zip files found, skipping HTML merge."
+            fi
       - store_artifacts:
           path: playwright-report
 
