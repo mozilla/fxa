@@ -689,9 +689,9 @@ jobs:
   playwright-functional-test-report:
     executor: default-executor
     steps:
+      - rename-reports
       - attach_workspace:
           at: /home/circleci/project
-      - rename-reports
       - run:
           name: Merge blob Reports
           command: |
