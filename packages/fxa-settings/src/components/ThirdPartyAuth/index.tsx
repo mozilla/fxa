@@ -156,6 +156,9 @@ const ThirdPartySignInForm = ({
       case 'google-signup':
         GleanMetrics.thirdPartyAuth.startGoogleAuthFromReg();
         break;
+      case 'apple-signup':
+        GleanMetrics.thirdPartyAuth.startAppleAuthFromReg();
+        break;
     }
 
     // wait for all the Glean events to be sent before the page unloads
