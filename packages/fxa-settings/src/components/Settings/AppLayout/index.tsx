@@ -7,12 +7,14 @@ import HeaderLockup from '../HeaderLockup';
 import ContentSkip from '../ContentSkip';
 import Footer from 'fxa-react/components/Footer';
 import { AlertBar } from '../AlertBar';
+import { SettingsIntegration } from '../interfaces';
 
 type AppLayoutProps = {
   children: React.ReactNode;
+  integration: SettingsIntegration;
 };
 
-export const AppLayout = ({ children }: AppLayoutProps) => {
+export const AppLayout = ({ children, integration }: AppLayoutProps) => {
   return (
     <div
       className="flex flex-col justify-between min-h-screen"
@@ -20,7 +22,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
     >
       <ContentSkip />
       <div id="body-top" className="hidden mobileLandscape:block" />
-      <HeaderLockup />
+      <HeaderLockup {...{ integration }} />
       <div className="max-w-screen-desktopXl flex-1 w-full mx-auto tablet:px-20 desktop:px-12">
         <main id="main" data-testid="main" className="w-full">
           <AlertBar />

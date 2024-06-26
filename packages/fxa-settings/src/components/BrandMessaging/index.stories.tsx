@@ -6,7 +6,7 @@ import React from 'react';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { BrandMessagingPortal } from '.';
-import AppLayout from '../Settings/AppLayout';
+import { MockSettingsAppLayout } from '../Settings/AppLayout/mocks';
 
 export default {
   title: 'Components/BrandMessaging',
@@ -15,19 +15,19 @@ export default {
 } as Meta;
 
 export const NoLaunch = () => (
-  <AppLayout>
+  <MockSettingsAppLayout>
     <BrandMessagingPortal viewName="storybook" />
-  </AppLayout>
+  </MockSettingsAppLayout>
 );
 
 export const PreLaunch = () => (
-  <AppLayout>
+  <MockSettingsAppLayout>
     <BrandMessagingPortal mode="prelaunch" viewName="storybook" />
-  </AppLayout>
+  </MockSettingsAppLayout>
 );
 
 export const PostLaunch = () => (
-  <AppLayout>
+  <MockSettingsAppLayout>
     <BrandMessagingPortal mode="postlaunch" viewName="storybook" />
-  </AppLayout>
+  </MockSettingsAppLayout>
 );

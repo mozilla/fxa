@@ -30,8 +30,11 @@ import PageAvatar from './PageAvatar';
 import PageRecentActivity from './PageRecentActivity';
 import PageRecoveryKeyCreate from './PageRecoveryKeyCreate';
 import { hardNavigate } from 'fxa-react/lib/utils';
+import { SettingsIntegration } from './interfaces';
 
-export const Settings = (_: RouteComponentProps) => {
+export const Settings = ({
+  integration,
+}: { integration: SettingsIntegration } & RouteComponentProps) => {
   const config = useConfig();
   const { metricsEnabled, hasPassword } = useAccount();
   const session = useSession();
@@ -68,7 +71,7 @@ export const Settings = (_: RouteComponentProps) => {
   }
 
   return (
-    <AppLayout>
+    <AppLayout {...{ integration }}>
       <Head />
       <Router basepath={HomePath}>
         <ScrollToTop default>

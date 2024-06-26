@@ -236,7 +236,7 @@ const SettingsRoutes = ({
     <SettingsContext.Provider value={settingsContext}>
       <ScrollToTop default>
         <Suspense fallback={<LoadingSpinner fullScreen />}>
-          <Settings path="/settings/*" />
+          <Settings path="/settings/*" {...{ integration }} />
         </Suspense>
       </ScrollToTop>
     </SettingsContext.Provider>

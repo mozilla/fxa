@@ -17,6 +17,7 @@ import { Config } from '../../lib/config';
 import * as NavTiming from 'fxa-shared/metrics/navigation-timing';
 import { HomePath } from '../../constants';
 import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
+import { Subject, createMockSettingsIntegration } from './mocks';
 
 jest.mock('../../models', () => ({
   ...jest.requireActual('../../models'),
@@ -30,11 +31,7 @@ jest.mock('./ScrollToTop', () => ({
   ),
 }));
 
-const flowQueryParams = {
-  deviceId: 'x',
-  flowBeginTime: 1,
-  flowId: 'x',
-};
+const integration = createMockSettingsIntegration();
 
 describe('performance metrics', () => {
   beforeEach(() => {
@@ -61,7 +58,7 @@ describe('performance metrics', () => {
     } as unknown as Account;
     render(
       <AppContext.Provider value={mockAppContext({ account, config })}>
-        <App {...{ flowQueryParams }} />
+        <Subject />
       </AppContext.Provider>
     );
     expect(NavTiming.observeNavigationTiming).toHaveBeenCalledWith('/foobar');
@@ -78,7 +75,7 @@ describe('performance metrics', () => {
     render(
       <AppContext.Provider value={mockAppContext({ account, config })}>
         <AppContext.Provider value={mockAppContext({ account, config })}>
-          <App {...{ flowQueryParams }} />
+          <Subject />
         </AppContext.Provider>
       </AppContext.Provider>
     );
@@ -97,9 +94,7 @@ describe('App component', () => {
     (useInitialSettingsState as jest.Mock).mockReturnValueOnce({
       loading: true,
     });
-    const { getByLabelText } = renderWithRouter(
-      <App {...{ flowQueryParams }} />
-    );
+    const { getByLabelText } = renderWithRouter(<Subject />);
 
     expect(getByLabelText('Loading…')).toBeInTheDocument();
   });
@@ -108,7 +103,7 @@ describe('App component', () => {
     (useInitialSettingsState as jest.Mock).mockReturnValueOnce({
       error: { message: 'Error' },
     });
-    const { getByRole } = renderWithRouter(<App {...{ flowQueryParams }} />);
+    const { getByRole } = renderWithRouter(<Subject />);
 
     expect(getByRole('heading', { level: 2 })).toHaveTextContent(
       'General application error'
@@ -119,7 +114,9 @@ describe('App component', () => {
     const {
       getByTestId,
       history: { navigate },
-    } = renderWithRouter(<App {...{ flowQueryParams }} />, { route: HomePath });
+    } = renderWithRouter(<Subject />, {
+      route: HomePath,
+    });
 
     await navigate(HomePath);
 
@@ -130,7 +127,7 @@ describe('App component', () => {
     const {
       getByTestId,
       history: { navigate },
-    } = renderWithRouter(<App {...{ flowQueryParams }} />, { route: HomePath });
+    } = renderWithRouter(<Subject />, { route: HomePath });
 
     await navigate(HomePath + '/display_name');
 
@@ -141,7 +138,9 @@ describe('App component', () => {
     const {
       getAllByTestId,
       history: { navigate },
-    } = renderWithRouter(<App {...{ flowQueryParams }} />, { route: HomePath });
+    } = renderWithRouter(<Subject />, {
+      route: HomePath,
+    });
 
     await navigate(HomePath + '/avatar');
 
@@ -155,7 +154,7 @@ describe('App component', () => {
       history: { navigate },
     } = renderWithRouter(
       <AppContext.Provider value={mockAppContext({ session })}>
-        <App {...{ flowQueryParams }} />
+        <Subject />
       </AppContext.Provider>,
       { route: HomePath }
     );
@@ -172,7 +171,7 @@ describe('App component', () => {
       history: { navigate },
     } = renderWithRouter(
       <AppContext.Provider value={mockAppContext({ session })}>
-        <App {...{ flowQueryParams }} />
+        <Subject />
       </AppContext.Provider>,
       { route: HomePath }
     );
@@ -189,7 +188,7 @@ describe('App component', () => {
       history: { navigate },
     } = renderWithRouter(
       <AppContext.Provider value={mockAppContext({ session })}>
-        <App {...{ flowQueryParams }} />
+        <Subject />
       </AppContext.Provider>,
       { route: HomePath }
     );
@@ -206,7 +205,7 @@ describe('App component', () => {
       history: { navigate },
     } = renderWithRouter(
       <AppContext.Provider value={mockAppContext({ session })}>
-        <App {...{ flowQueryParams }} />
+        <Subject />
       </AppContext.Provider>,
       { route: HomePath }
     );
@@ -223,7 +222,7 @@ describe('App component', () => {
       history: { navigate },
     } = renderWithRouter(
       <AppContext.Provider value={mockAppContext({ session })}>
-        <App {...{ flowQueryParams }} />
+        <Subject />
       </AppContext.Provider>,
       { route: HomePath }
     );
@@ -240,7 +239,7 @@ describe('App component', () => {
       history: { navigate },
     } = renderWithRouter(
       <AppContext.Provider value={mockAppContext({ session })}>
-        <App {...{ flowQueryParams }} />
+        <Subject />
       </AppContext.Provider>,
       { route: HomePath }
     );
@@ -254,7 +253,9 @@ describe('App component', () => {
     const {
       history,
       history: { navigate },
-    } = renderWithRouter(<App {...{ flowQueryParams }} />, { route: HomePath });
+    } = renderWithRouter(<Subject />, {
+      route: HomePath,
+    });
 
     await navigate(HomePath + '/clients');
 
@@ -265,7 +266,9 @@ describe('App component', () => {
     const {
       history,
       history: { navigate },
-    } = renderWithRouter(<App {...{ flowQueryParams }} />, { route: HomePath });
+    } = renderWithRouter(<Subject />, {
+      route: HomePath,
+    });
 
     await navigate(HomePath + '/avatar/change');
 
@@ -276,7 +279,7 @@ describe('App component', () => {
     const {
       history,
       history: { navigate },
-    } = renderWithRouter(<App {...{ flowQueryParams }} />, { route: HomePath });
+    } = renderWithRouter(<Subject />, { route: HomePath });
 
     await navigate(HomePath + '/create_password');
     expect(history.location.pathname).toBe('/settings/change_password');
@@ -302,7 +305,7 @@ describe('App component', () => {
             messages={{ en: ['testo: lol'] }}
             reportError={() => {}}
           >
-            <App {...{ flowQueryParams }} />
+            <Subject />
           </AppLocalizationProvider>
         </AppContext.Provider>,
         { route: HomePath }

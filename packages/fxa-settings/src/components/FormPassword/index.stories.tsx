@@ -5,33 +5,32 @@
 import React from 'react';
 import { Subject } from './mocks';
 import { LocationProvider } from '@reach/router';
-import AppLayout from '../Settings/AppLayout';
 import FormPassword from '.';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
+import { MockSettingsAppLayout } from '../Settings/AppLayout/mocks';
 
 export default {
   title: 'Components/FormPassword',
   component: FormPassword,
   decorators: [withLocalization],
 } as Meta;
-
 export const WithCurrentPassword = () => (
   <LocationProvider>
-    <AppLayout>
+    <MockSettingsAppLayout>
       <div className="max-w-lg mx-auto">
         <Subject />
       </div>
-    </AppLayout>
+    </MockSettingsAppLayout>
   </LocationProvider>
 );
 
 export const WithoutCurrentPassword = () => (
   <LocationProvider>
-    <AppLayout>
+    <MockSettingsAppLayout>
       <div className="max-w-lg mx-auto">
         <Subject includeCurrentPw={false} />
       </div>
-    </AppLayout>
+    </MockSettingsAppLayout>
   </LocationProvider>
 );

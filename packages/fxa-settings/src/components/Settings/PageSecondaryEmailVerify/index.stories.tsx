@@ -5,9 +5,9 @@
 import React from 'react';
 import { Meta } from '@storybook/react';
 import { PageSecondaryEmailVerify } from '.';
-import { AppLayout } from '../AppLayout';
 import { WindowLocation, LocationProvider } from '@reach/router';
 import { withLocalization } from 'fxa-react/lib/storybooks';
+import { MockSettingsAppLayout } from '../AppLayout/mocks';
 
 export default {
   title: 'Pages/Settings/SecondaryEmailVerify',
@@ -21,8 +21,8 @@ const mockLocation = {
 
 export const Default = () => (
   <LocationProvider>
-    <AppLayout>
+    <MockSettingsAppLayout>
       <PageSecondaryEmailVerify location={mockLocation} />
-    </AppLayout>
+    </MockSettingsAppLayout>
   </LocationProvider>
 );

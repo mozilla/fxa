@@ -5,9 +5,9 @@
 import React from 'react';
 import { PageChangePassword } from '.';
 import { LocationProvider } from '@reach/router';
-import AppLayout from '../AppLayout';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
+import { MockSettingsAppLayout } from '../AppLayout/mocks';
 
 export default {
   title: 'Pages/Settings/ChangePassword',
@@ -17,8 +17,8 @@ export default {
 
 export const Default = () => (
   <LocationProvider>
-    <AppLayout>
+    <MockSettingsAppLayout>
       <PageChangePassword />
-    </AppLayout>
+    </MockSettingsAppLayout>
   </LocationProvider>
 );

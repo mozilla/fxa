@@ -14,6 +14,8 @@ import DropDownAvatarMenu from '.';
 import { logViewEvent, settingsViewName } from 'fxa-settings/src/lib/metrics';
 import { Account, AppContext } from '../../../models';
 import { SettingsContext } from '../../../models/contexts/SettingsContext';
+import { createMockSettingsIntegration } from '../mocks';
+import firefox from '../../../lib/channels/firefox';
 
 jest.mock('../../../models/AlertBarInfo');
 jest.mock('fxa-settings/src/lib/metrics', () => ({
@@ -46,7 +48,7 @@ describe('DropDownAvatarMenu', () => {
     } as unknown as Account;
     renderWithLocalizationProvider(
       <AppContext.Provider value={mockAppContext({ account })}>
-        <DropDownAvatarMenu />
+        <DropDownAvatarMenu integration={createMockSettingsIntegration()} />
       </AppContext.Provider>
     );
 
@@ -73,7 +75,7 @@ describe('DropDownAvatarMenu', () => {
   it('renders as expected with avatar url and displayName set', () => {
     renderWithLocalizationProvider(
       <AppContext.Provider value={mockAppContext({ account })}>
-        <DropDownAvatarMenu />
+        <DropDownAvatarMenu integration={createMockSettingsIntegration()} />
       </AppContext.Provider>
     );
     fireEvent.click(screen.getByTestId('drop-down-avatar-menu-toggle'));
@@ -85,7 +87,7 @@ describe('DropDownAvatarMenu', () => {
   it('closes on esc keypress', () => {
     renderWithLocalizationProvider(
       <AppContext.Provider value={mockAppContext({ account })}>
-        <DropDownAvatarMenu />
+        <DropDownAvatarMenu integration={createMockSettingsIntegration()} />
       </AppContext.Provider>
     );
 
@@ -100,7 +102,7 @@ describe('DropDownAvatarMenu', () => {
       <AppContext.Provider value={mockAppContext({ account })}>
         <div className="w-full flex justify-end">
           <div className="flex pr-10 pt-4">
-            <DropDownAvatarMenu />
+            <DropDownAvatarMenu integration={createMockSettingsIntegration()} />
           </div>
         </div>
       </AppContext.Provider>
@@ -125,7 +127,7 @@ describe('DropDownAvatarMenu', () => {
         <AppContext.Provider
           value={mockAppContext({ account, session: mockSession() })}
         >
-          <DropDownAvatarMenu />
+          <DropDownAvatarMenu integration={createMockSettingsIntegration()} />
         </AppContext.Provider>
       );
 
@@ -151,7 +153,7 @@ describe('DropDownAvatarMenu', () => {
       renderWithLocalizationProvider(
         <AppContext.Provider value={context}>
           <SettingsContext.Provider value={settingsContext}>
-            <DropDownAvatarMenu />
+            <DropDownAvatarMenu integration={createMockSettingsIntegration()} />
           </SettingsContext.Provider>
         </AppContext.Provider>
       );
@@ -161,6 +163,47 @@ describe('DropDownAvatarMenu', () => {
         fireEvent.click(screen.getByTestId('avatar-menu-sign-out'));
       });
       expect(settingsContext.alertBarInfo?.error).toBeCalledTimes(1);
+    });
+  });
+
+  describe('fxaLogout web channel command', () => {
+    let fxaLogoutSpy: jest.SpyInstance;
+    beforeEach(() => {
+      fxaLogoutSpy = jest.spyOn(firefox, 'fxaLogout');
+    });
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+    it('is called integration is sync', async () => {
+      renderWithLocalizationProvider(
+        <AppContext.Provider
+          value={mockAppContext({ account, session: mockSession() })}
+        >
+          <DropDownAvatarMenu
+            integration={createMockSettingsIntegration({ isSync: true })}
+          />
+        </AppContext.Provider>
+      );
+      fireEvent.click(screen.getByTestId('drop-down-avatar-menu-toggle'));
+      await act(async () => {
+        fireEvent.click(screen.getByTestId('avatar-menu-sign-out'));
+      });
+      expect(fxaLogoutSpy).toBeCalledWith({ uid: account.uid });
+    });
+
+    it('is not called when integration is not sync', async () => {
+      renderWithLocalizationProvider(
+        <AppContext.Provider
+          value={mockAppContext({ account, session: mockSession() })}
+        >
+          <DropDownAvatarMenu integration={createMockSettingsIntegration()} />
+        </AppContext.Provider>
+      );
+      fireEvent.click(screen.getByTestId('drop-down-avatar-menu-toggle'));
+      await act(async () => {
+        fireEvent.click(screen.getByTestId('avatar-menu-sign-out'));
+      });
+      expect(fxaLogoutSpy).not.toBeCalled();
     });
   });
 });

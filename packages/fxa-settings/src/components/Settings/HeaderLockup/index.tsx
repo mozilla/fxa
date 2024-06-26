@@ -13,8 +13,13 @@ import { ReactComponent as Help } from './help.svg';
 import { ReactComponent as Menu } from './menu.svg';
 import { ReactComponent as Close } from './close.svg';
 import Nav from '../Nav';
+import { SettingsIntegration } from '../interfaces';
 
-export const HeaderLockup = () => {
+export const HeaderLockup = ({
+  integration,
+}: {
+  integration: SettingsIntegration;
+}) => {
   const [navRevealedState, setNavState] = useState(false);
   const { l10n } = useLocalization();
   const localizedHelpText = l10n.getString('header-help', null, 'Help');
@@ -78,7 +83,7 @@ export const HeaderLockup = () => {
         />
       </LinkExternal>
       <BentoMenu />
-      <DropDownAvatarMenu />
+      <DropDownAvatarMenu {...{ integration }} />
     </>
   );
 

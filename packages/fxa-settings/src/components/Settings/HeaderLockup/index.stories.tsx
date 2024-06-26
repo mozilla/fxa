@@ -8,6 +8,7 @@ import { withLocalization } from 'fxa-react/lib/storybooks';
 import { HeaderLockup } from '.';
 import { Account, AppContext } from '../../../models';
 import { mockAppContext, MOCK_ACCOUNT } from 'fxa-settings/src/models/mocks';
+import { createMockSettingsIntegration } from '../mocks';
 
 export default {
   title: 'Components/Settings/HeaderLockup',
@@ -25,12 +26,14 @@ const accountWithoutAvatar = {
   },
 } as unknown as Account;
 
+const integration = createMockSettingsIntegration();
+
 const storyWithContext = (account: Partial<Account>) => {
   const context = { account: account as Account };
 
   const story = () => (
     <AppContext.Provider value={mockAppContext(context)}>
-      <HeaderLockup />
+      <HeaderLockup {...{ integration }} />
     </AppContext.Provider>
   );
   return story;
@@ -38,4 +41,4 @@ const storyWithContext = (account: Partial<Account>) => {
 
 export const WithDefaultAvatar = storyWithContext(accountWithoutAvatar);
 
-export const WithCustomAvatar = () => <HeaderLockup />;
+export const WithCustomAvatar = () => <HeaderLockup {...{ integration }} />;
