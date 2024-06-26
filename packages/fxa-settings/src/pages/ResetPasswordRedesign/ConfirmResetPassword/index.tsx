@@ -58,7 +58,7 @@ const ConfirmResetPassword = ({
       <FtlMsg id="password-reset-flow-heading">
         <p className="text-start text-grey-400 text-sm">Reset your password</p>
       </FtlMsg>
-      <EmailCodeImage />
+      <EmailCodeImage className="mx-auto" />
       <FtlMsg id="confirm-reset-password-with-code-heading">
         <h2 className="card-header text-start my-4">Check your email</h2>
       </FtlMsg>
