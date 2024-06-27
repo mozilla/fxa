@@ -20,12 +20,12 @@ test.describe('severity-1 #smoke', () => {
     test('go to support form, redirects to index', async ({
       page,
       target,
-      pages: { signin, settings },
+      pages: { signin },
     }) => {
       await signin.clearCache();
       await page.goto(`${target.contentServerUrl}/support`);
 
-      await expect(settings.settingsHeading).toBeVisible();
+      await expect(signin.emailFirstHeading).toBeVisible();
     });
   });
 
