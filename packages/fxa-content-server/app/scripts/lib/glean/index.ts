@@ -18,6 +18,7 @@ import { accountsEvents } from './pings';
 import * as reg from './reg';
 import { oauthClientId, service } from './relyingParty';
 import { deviceType, entrypoint, flowId } from './session';
+import * as thirdPartyAuth from './thirdPartyAuth';
 import * as thirdPartyAuthSetPassword from './thirdPartyAuthSetPassword';
 import * as utm from './utm';
 
@@ -281,6 +282,12 @@ const recordEventMetric = (eventName: string, properties: EventProperties) => {
     case 'third_party_auth_set_password_success':
       thirdPartyAuthSetPassword.success.record();
       break;
+    case 'google_deeplink':
+      thirdPartyAuth.googleDeeplink.record();
+      break;
+    case 'apple_deeplink':
+      thirdPartyAuth.appleDeeplink.record();
+      break;
   }
 };
 
@@ -338,6 +345,25 @@ export const GleanMetrics = {
     gleanEnabled = enabled;
     Glean.setUploadEnabled(gleanEnabled);
   },
+
+  /**
+   * The ping calls are awaited internally for ease of use and that works in
+   * most cases.  But in the scenario where we want to wait for the pings to
+   * finish before we unload the page, we are doing so, crudely, here.  Do not
+   * emit more pings after calling this function.
+   */
+  isDone: () =>
+    new Promise((resolve) => {
+      const checkForEmptyFnList = () => {
+        if (lambdas.length === 0) {
+          resolve(undefined);
+        } else {
+          setTimeout(checkForEmptyFnList, lambdas.length * 5);
+        }
+      };
+
+      checkForEmptyFnList();
+    }),
 
   emailFirst: {
     view: createEventFn('email_first_view'),
@@ -411,6 +437,10 @@ export const GleanMetrics = {
     engage: createEventFn('third_party_auth_set_password_engage'),
     submit: createEventFn('third_party_auth_set_password_submit'),
     success: createEventFn('third_party_auth_set_password_success'),
+  },
+  thirdPartyAuth: {
+    googleDeeplink: createEventFn('google_deeplink'),
+    appleDeeplink: createEventFn('apple_deeplink'),
   },
 };
 

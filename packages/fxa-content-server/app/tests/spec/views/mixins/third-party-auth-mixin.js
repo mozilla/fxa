@@ -10,6 +10,7 @@ import sinon from 'sinon';
 import ThirdPartyAuthMixin from 'views/mixins/third-party-auth-mixin';
 import Notifier from 'lib/channels/notifier';
 import Metrics from 'lib/metrics';
+import GleanMetrics from '../../../../scripts/lib/glean';
 import SentryMetrics from 'lib/sentry';
 import WindowMock from '../../../mocks/window';
 import Storage from 'lib/storage';
@@ -83,7 +84,14 @@ describe('views/mixins/third-party-auth-mixin', function () {
       flowBeginTime: '456',
       deviceId: '789',
     }));
+    sinon.stub(GleanMetrics.thirdPartyAuth, 'appleDeeplink');
+    sinon.stub(GleanMetrics.thirdPartyAuth, 'googleDeeplink');
     await view.render();
+  });
+
+  afterEach(() => {
+    GleanMetrics.thirdPartyAuth.appleDeeplink.restore();
+    GleanMetrics.thirdPartyAuth.googleDeeplink.restore();
   });
 
   describe('beforeRender', () => {
@@ -124,16 +132,26 @@ describe('views/mixins/third-party-auth-mixin', function () {
 
     it('google login deeplink', () => {
       windowMock.location.search = '?deeplink=googleLogin';
-      view.beforeRender();
-      assert.isTrue(view.googleSignIn.calledOnce);
-      assert.isTrue(view.logFlowEvent.calledOnceWith('google.deeplink'));
+      view
+        .beforeRender()
+        .then(() => {
+          assert.isTrue(view.googleSignIn.calledOnce);
+          assert.isTrue(view.logFlowEvent.calledOnceWith('google.deeplink'));
+          assert.isTrue(GleanMetrics.thirdPartyAuth.googleDeeplink.calledOnce);
+        })
+        .catch(() => assert.fail());
     });
 
     it('apple login deeplink', () => {
       windowMock.location.search = '?deeplink=appleLogin';
-      view.beforeRender();
-      assert.isTrue(view.appleSignIn.calledOnce);
-      assert.isTrue(view.logFlowEvent.calledOnceWith('apple.deeplink'));
+      view
+        .beforeRender()
+        .then(() => {
+          assert.isTrue(view.appleSignIn.calledOnce);
+          assert.isTrue(view.logFlowEvent.calledOnceWith('apple.deeplink'));
+          assert.isTrue(GleanMetrics.thirdPartyAuth.appleDeeplink.calledOnce);
+        })
+        .catch(() => assert.fail());
     });
   });
 
