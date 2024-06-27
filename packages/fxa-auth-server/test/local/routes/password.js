@@ -1223,6 +1223,9 @@ describe('/password', () => {
           enabled: true,
         };
       });
+      mockDB.getLinkedAccounts = sinon.spy(() => {
+        return Promise.resolve([{ enabled: true }]);
+      });
       passwordRoutes = makeRoutes({
         db: mockDB,
         mailer: mockMailer,
@@ -1235,6 +1238,8 @@ describe('/password', () => {
       );
       assert.equal(mockDB.account.callCount, 1);
       assert.equal(mockDB.createPassword.callCount, 1);
+      assert.equal(mockDB.getLinkedAccounts.callCount, 1);
+      assert.equal(glean.thirdPartyAuth.setPasswordComplete.callCount, 1);
       assert.deepEqual(res, 1584397692000);
     });
   });

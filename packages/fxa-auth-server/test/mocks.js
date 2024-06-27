@@ -110,6 +110,7 @@ const DB_METHOD_NAMES = [
   'reactivateAccountSubscription',
   'fetchAccountSubscriptions',
   'getLinkedAccount',
+  'getLinkedAccounts',
   'createLinkedAccount',
   'deleteLinkedAccount',
   'accountExists',

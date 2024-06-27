@@ -720,3 +720,22 @@ third_party_auth:
         description: |
           Indicates the initial linking of the Mozilla account and the third-party account.
         type: boolean
+
+third_party_auth_set_password:
+  complete:
+    type: event
+    description: |
+      Password for third party user was successfully created
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-9988
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction

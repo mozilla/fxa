@@ -31,6 +31,7 @@ const recordPasswordResetRecoveryKeyCreateSuccessStub = sinon.stub();
 const recordAccessTokenCreatedStub = sinon.stub();
 const recordAccessTokenCheckedStub = sinon.stub();
 const recordThirdPartyAuthGoogleLoginCompleteStub = sinon.stub();
+const recordThirdPartyAuthSetPasswordCompleteStub = sinon.stub();
 
 const { gleanMetrics, logErrorWithGlean } = proxyquire.load(
   '../../../lib/metrics/glean',
@@ -64,6 +65,8 @@ const { gleanMetrics, logErrorWithGlean } = proxyquire.load(
         recordAccessTokenChecked: recordAccessTokenCheckedStub,
         recordThirdPartyAuthGoogleLoginComplete:
           recordThirdPartyAuthGoogleLoginCompleteStub,
+        recordThirdPartyAuthSetPasswordComplete:
+          recordThirdPartyAuthSetPasswordCompleteStub,
       }),
     },
   }
@@ -534,6 +537,23 @@ describe('Glean server side events', () => {
         assert.isFalse(
           recordThirdPartyAuthGoogleLoginCompleteStub.args[0][0].linking
         );
+      });
+    });
+    describe('setPassword', () => {
+      beforeEach(() => {
+        recordThirdPartyAuthSetPasswordCompleteStub.reset();
+      });
+
+      it('log string and event metrics with account linking', async () => {
+        const glean = gleanMetrics(config);
+        await glean.thirdPartyAuth.setPasswordComplete(request);
+        sinon.assert.calledOnce(recordStub);
+        const metrics = recordStub.args[0][0];
+        assert.equal(
+          metrics['event_name'],
+          'third_party_auth_set_password_complete'
+        );
+        sinon.assert.calledOnce(recordThirdPartyAuthSetPasswordCompleteStub);
       });
     });
   });

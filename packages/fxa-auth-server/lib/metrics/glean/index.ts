@@ -235,6 +235,12 @@ const createEventFn =
             linking: metricsData?.reason === 'linking',
           });
           break;
+
+        case 'third_party_auth_set_password_complete':
+          gleanServerEventLogger.recordThirdPartyAuthSetPasswordComplete(
+            commonMetrics
+          );
+          break;
       }
 
       await gleanEventLogger.record({
@@ -302,6 +308,9 @@ export function gleanMetrics(config: ConfigType) {
 
     thirdPartyAuth: {
       googleLoginComplete: createEventFn('google_login_complete'),
+      setPasswordComplete: createEventFn(
+        'third_party_auth_set_password_complete'
+      ),
     },
   };
 }
