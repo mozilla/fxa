@@ -10,10 +10,6 @@ test.describe('severity-2 #smoke', () => {
     test('apply an expired coupon', async ({ pages: { relier, subscribe } }, {
       project,
     }) => {
-      test.fixme(
-        project.name !== 'local',
-        'Fix required as of 2024/05/13 (see FXA-9689).'
-      );
       test.skip(
         project.name === 'production',
         'test plan not available in prod'
