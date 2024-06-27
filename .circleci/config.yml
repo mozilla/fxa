@@ -362,6 +362,7 @@ commands:
             fi
             echo "Listing contents after renaming:"
             ls -la
+      - when: always
       - store_artifacts:
           path: artifacts/blob-report
       - persist_to_workspace:
@@ -685,11 +686,11 @@ jobs:
       - run-playwright-tests:
           project: local
       - store-artifacts
+      - rename-reports
 
   playwright-functional-test-report:
     executor: default-executor
     steps:
-      - rename-reports
       - attach_workspace:
           at: /home/circleci/project
       - run:
