@@ -380,6 +380,24 @@ describe('views/pair/index', () => {
       });
     });
 
+    describe('pairNotNowHandler', () => {
+      let notNowEventStub;
+      beforeEach(() => {
+        sinon.stub(view, 'showDownloadFirefoxQrCode').callsFake(() => true);
+        notNowEventStub = sinon.stub(GleanMetrics.cadFirefox, 'notnowSubmit');
+      });
+      afterEach(() => {
+        notNowEventStub.restore();
+      });
+      it('on not now button click, sends Glean ping', () => {
+        view.model.set('needsMobileConfirmed', true);
+        return view.render().then(() => {
+          view.$('#pair-not-now').click();
+          sinon.assert.calledOnce(notNowEventStub);
+        });
+      });
+    });
+
     it('does not ask for mobile status', () => {
       sinon.stub(view, 'showDownloadFirefoxQrCode').callsFake(() => false);
       return view.render().then(() => {

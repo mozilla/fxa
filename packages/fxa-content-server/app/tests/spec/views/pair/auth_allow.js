@@ -200,20 +200,29 @@ describe('views/pair/auth_allow', () => {
       });
     });
 
-    describe('logView', () => {
+    describe('glean metrics', () => {
       let viewEventStub;
+      let submitEventStub;
 
       beforeEach(() => {
+        sinon.stub(view, 'invokeBrokerMethod').callsFake(() => {});
         viewEventStub = sinon.stub(GleanMetrics.cadApproveDevice, 'view');
+        submitEventStub = sinon.stub(GleanMetrics.cadApproveDevice, 'submit');
       });
 
       afterEach(() => {
         viewEventStub.restore();
+        submitEventStub.restore();
       });
 
       it('logs a view Glean metrics event', () => {
         view.logView();
         sinon.assert.calledOnce(viewEventStub);
+      });
+
+      it('logs a submit Glean metrics event', () => {
+        view.submit();
+        sinon.assert.calledOnce(submitEventStub);
       });
     });
   });

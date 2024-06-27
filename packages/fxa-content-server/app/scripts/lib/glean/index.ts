@@ -390,12 +390,18 @@ export const GleanMetrics = {
     choiceSubmit: createEventFn('cad_firefox_choice_submit'),
     choiceNotnowSubmit: createEventFn('cad_firefox_choice_notnow_submit'),
     syncDeviceSubmit: createEventFn('cad_firefox_sync_device_submit'),
+    notnowSubmit: createEventFn('cad_firefox_notnow_submit'),
   },
   cadMobilePair: {
     view: createEventFn('cad_mobile_pair_view'),
+    submit: createEventFn('cad_mobile_pair_submit'),
+  },
+  cadMobilePairUseAppView: {
+    view: createEventFn('cad_mobile_pair_use_app_view'),
   },
   cadApproveDevice: {
     view: createEventFn('cad_approve_device_view'),
+    submit: createEventFn('cad_approve_device_submit'),
   },
   setPasswordThirdPartyAuth: {
     view: createEventFn('third_party_auth_set_password_view'),

@@ -21,6 +21,10 @@ import * as reg from 'fxa-shared/metrics/glean/web/reg';
 import * as login from 'fxa-shared/metrics/glean/web/login';
 import * as cachedLogin from 'fxa-shared/metrics/glean/web/cachedLogin';
 import * as passwordReset from 'fxa-shared/metrics/glean/web/passwordReset';
+import * as cadFirefox from 'fxa-shared/metrics/glean/web/cadFirefox';
+import * as cadApproveDevice from 'fxa-shared/metrics/glean/web/cadApproveDevice';
+import * as cadMobilePair from 'fxa-shared/metrics/glean/web/cadMobilePair';
+import * as cadMobilePairUseApp from 'fxa-shared/metrics/glean/web/cadMobilePairUseApp';
 import { userIdSha256 } from 'fxa-shared/metrics/glean/web/account';
 import {
   oauthClientId,
@@ -285,7 +289,6 @@ const recordEventMetric = (
     case 'password_reset_view':
       passwordReset.view.record();
       break;
-
     case 'google_oauth_reg_start':
       reg.googleOauthRegStart.record();
       break;
@@ -297,6 +300,18 @@ const recordEventMetric = (
       break;
     case 'apple_oauth_login_start':
       login.appleOauthLoginStart.record();
+      break;
+    case 'cad_firefox_notnow_submit':
+      cadFirefox.notnowSubmit.record();
+      break;
+    case 'cad_approve_device_submit':
+      cadApproveDevice.submit.record();
+      break;
+    case 'cad_mobile_pair_submit':
+      cadMobilePair.submit.record();
+      break;
+    case 'cad_mobile_pair_use_app_view':
+      cadMobilePairUseApp.view.record();
       break;
   }
 };

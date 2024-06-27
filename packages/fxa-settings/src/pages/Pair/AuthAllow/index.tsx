@@ -12,6 +12,7 @@ import { REACT_ENTRYPOINT } from '../../../constants';
 import DeviceInfoBlock from '../../../components/DeviceInfoBlock';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { ReactComponent as LocationBalloonImage } from './confirm-pairing.svg';
+import GleanMetrics from '../../../lib/glean';
 
 export type BannerMessage = {
   messageType: BannerType;
@@ -29,6 +30,7 @@ export type AuthAllowProps = {
 export const viewName = 'pair.auth.allow';
 
 const handleSubmit = () => {
+  GleanMetrics.cadApproveDevice.submit();
   // TODO: handle pairing authorization and catch errors in FXA-6639
 };
 

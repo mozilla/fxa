@@ -129,6 +129,7 @@ class PairIndexView extends FormView {
 
   pairNotNowHandler() {
     this.metrics.logEvent('screen.pair.notnow.engage');
+    GleanMetrics.cadFirefox.notnowSubmit();
     return true;
   }
 

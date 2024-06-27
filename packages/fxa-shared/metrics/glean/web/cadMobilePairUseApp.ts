@@ -7,30 +7,14 @@
 import EventMetricType from '@mozilla/glean/private/metrics/event';
 
 /**
- * User clicks "Confirm pairing" on the mobile pair page after scanning QR code to
- * pair device
+ * User views the "Pair using an app" screen after scanning QR code outside of
+ * Firefox
  *
- * Generated from `cad_mobile_pair.submit`.
- */
-export const submit = new EventMetricType(
-  {
-    category: 'cad_mobile_pair',
-    name: 'submit',
-    sendInPings: ['events'],
-    lifetime: 'ping',
-    disabled: false,
-  },
-  []
-);
-
-/**
- * User viewed the mobile pair page after scanning QR code to pair device
- *
- * Generated from `cad_mobile_pair.view`.
+ * Generated from `cad_mobile_pair_use_app.view`.
  */
 export const view = new EventMetricType(
   {
-    category: 'cad_mobile_pair',
+    category: 'cad_mobile_pair_use_app',
     name: 'view',
     sendInPings: ['events'],
     lifetime: 'ping',

@@ -1295,6 +1295,23 @@ cad_firefox:
     expires: never
     data_sensitivity:
       - interaction
+  notnow_submit:
+    type: event
+    description: |
+      User clicks "Not now" on the "Connect another device page"
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-9593
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
 
 cad_approve_device:
   view:
@@ -1314,6 +1331,23 @@ cad_approve_device:
     expires: never
     data_sensitivity:
       - interaction
+  submit:
+    type: event
+    description: |
+      User clicks "Yes, approve device" on "Connect another device page"
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-9596
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
 
 cad_mobile_pair:
   view:
@@ -1327,6 +1361,42 @@ cad_mobile_pair:
       - fxa-staff@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-9607
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+  submit:
+    type: event
+    description: |
+      User clicks "Confirm pairing" on the mobile pair page after scanning QR code to pair device
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-9604
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+
+cad_mobile_pair_use_app:
+  view:
+    type: event
+    description: |
+      User views the "Pair using an app" screen after scanning QR code outside of Firefox
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-9786
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121

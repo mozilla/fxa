@@ -118,4 +118,21 @@ export const eventsMap = {
     startGoogleAuthFromLogin: 'google_oauth_login_start',
     startAppleAuthFromLogin: 'apple_oauth_login_start',
   },
+
+  cadMobilePair: {
+    view: 'cad_mobile_pair_view',
+    submit: 'cad_mobile_pair_submit',
+  },
+
+  cadMobilePairUseApp: {
+    view: 'cad_mobile_pair_use_app_view',
+  },
+
+  cadApproveDevice: {
+    submit: 'cad_approve_device_submit',
+  },
+
+  cadFireFox: {
+    notnowSubmit: 'cad_firefox_notnow_submit',
+  },
 } as const;

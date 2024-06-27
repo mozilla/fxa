@@ -93,20 +93,28 @@ describe('views/pair/supp_allow', () => {
       });
     });
 
-    describe('logView', () => {
+    describe('glean metrics', () => {
       let viewEventStub;
+      let submitEventStub;
 
       beforeEach(() => {
         viewEventStub = sinon.stub(GleanMetrics.cadMobilePair, 'view');
+        submitEventStub = sinon.stub(GleanMetrics.cadMobilePair, 'submit');
       });
 
       afterEach(() => {
         viewEventStub.restore();
+        submitEventStub.restore();
       });
 
       it('logs a view Glean metrics event', () => {
         view.logView();
         sinon.assert.calledOnce(viewEventStub);
+      });
+
+      it('logs a submit Glean metrics event', () => {
+        view.submit();
+        sinon.assert.calledOnce(submitEventStub);
       });
     });
   });

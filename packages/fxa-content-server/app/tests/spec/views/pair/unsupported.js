@@ -4,6 +4,8 @@
 
 import { assert } from 'chai';
 import View from 'views/pair/unsupported';
+import sinon from 'sinon';
+import GleanMetrics from '../../../../scripts/lib/glean';
 
 describe('views/pair/unsupported', () => {
   let view;
@@ -30,6 +32,24 @@ describe('views/pair/unsupported', () => {
           'Pair using an app'
         );
         assert.ok(view.$el.find('.bg-image-pair-fail').length);
+      });
+    });
+
+    describe('glean metrics', () => {
+      let viewEventStub;
+      beforeEach(() => {
+        viewEventStub = sinon.stub(
+          GleanMetrics.cadMobilePairUseAppView,
+          'view'
+        );
+      });
+      afterEach(() => {
+        viewEventStub.restore();
+      });
+
+      it('logs a view Glean metrics event', () => {
+        view.logView();
+        sinon.assert.calledOnce(viewEventStub);
       });
     });
   });
