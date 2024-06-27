@@ -362,7 +362,7 @@ commands:
             fi
             echo "Listing contents after renaming:"
             ls -la
-      - when: always
+          when: always
       - store_artifacts:
           path: artifacts/blob-report
       - persist_to_workspace:
