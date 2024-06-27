@@ -38,7 +38,6 @@ import {
 import {
   CMSConfig,
   ContentfulClientConfig,
-  ContentfulService,
   ProductConfigurationManager,
   StrapiClient,
 } from '@fxa/shared/cms';
@@ -71,11 +70,11 @@ describe('CartService', () => {
   let cartService: CartService;
   let cartManager: CartManager;
   let checkoutService: CheckoutService;
-  let contentfulService: ContentfulService;
   let customerManager: CustomerManager;
   let eligibilityService: EligibilityService;
   let geodbManager: GeoDBManager;
   let invoiceManager: InvoiceManager;
+  let productConfigurationManager: ProductConfigurationManager;
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -88,7 +87,6 @@ describe('CartService', () => {
         CMSConfig,
         ConfigService,
         ContentfulClientConfig,
-        ContentfulService,
         CustomerManager,
         EligibilityManager,
         EligibilityService,
@@ -118,11 +116,11 @@ describe('CartService', () => {
     cartManager = moduleRef.get(CartManager);
     cartService = moduleRef.get(CartService);
     checkoutService = moduleRef.get(CheckoutService);
-    contentfulService = moduleRef.get(ContentfulService);
     customerManager = moduleRef.get(CustomerManager);
     eligibilityService = moduleRef.get(EligibilityService);
     geodbManager = moduleRef.get(GeoDBManager);
     invoiceManager = moduleRef.get(InvoiceManager);
+    productConfigurationManager = moduleRef.get(ProductConfigurationManager);
   });
 
   describe('setupCart', () => {
@@ -152,7 +150,7 @@ describe('CartService', () => {
         .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
         .mockResolvedValue(mockAccountCustomer);
       jest
-        .spyOn(contentfulService, 'retrieveStripePlanId')
+        .spyOn(productConfigurationManager, 'retrieveStripePriceId')
         .mockResolvedValue(mockPrice.id);
       jest.spyOn(customerManager, 'retrieve').mockResolvedValue(mockCustomer);
       jest
@@ -410,7 +408,7 @@ describe('CartService', () => {
 
       jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
       jest
-        .spyOn(contentfulService, 'retrieveStripePlanId')
+        .spyOn(productConfigurationManager, 'retrieveStripePriceId')
         .mockResolvedValue(mockPrice.id);
       jest.spyOn(customerManager, 'retrieve').mockResolvedValue(mockCustomer);
       jest
@@ -424,10 +422,9 @@ describe('CartService', () => {
       });
 
       expect(cartManager.fetchCartById).toHaveBeenCalledWith(mockCart.id);
-      expect(contentfulService.retrieveStripePlanId).toHaveBeenCalledWith(
-        mockCart.offeringConfigId,
-        mockCart.interval
-      );
+      expect(
+        productConfigurationManager.retrieveStripePriceId
+      ).toHaveBeenCalledWith(mockCart.offeringConfigId, mockCart.interval);
       expect(customerManager.retrieve).toHaveBeenCalledWith(
         mockCart.stripeCustomerId
       );
@@ -447,7 +444,7 @@ describe('CartService', () => {
 
       jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
       jest
-        .spyOn(contentfulService, 'retrieveStripePlanId')
+        .spyOn(productConfigurationManager, 'retrieveStripePriceId')
         .mockResolvedValue(mockPrice.id);
       jest.spyOn(customerManager, 'retrieve');
       jest
@@ -461,10 +458,9 @@ describe('CartService', () => {
       });
 
       expect(cartManager.fetchCartById).toHaveBeenCalledWith(mockCart.id);
-      expect(contentfulService.retrieveStripePlanId).toHaveBeenCalledWith(
-        mockCart.offeringConfigId,
-        mockCart.interval
-      );
+      expect(
+        productConfigurationManager.retrieveStripePriceId
+      ).toHaveBeenCalledWith(mockCart.offeringConfigId, mockCart.interval);
       expect(customerManager.retrieve).not.toHaveBeenCalled();
       expect(invoiceManager.preview).toHaveBeenCalledWith({
         priceId: mockPrice.id,

@@ -50,7 +50,6 @@ import { AccountManager } from '@fxa/shared/account/account';
 import {
   CMSConfig,
   ContentfulClientConfig,
-  ContentfulService,
   ProductConfigurationManager,
   StrapiClient,
 } from '@fxa/shared/cms';
@@ -72,12 +71,12 @@ describe('CheckoutService', () => {
   let accountManager: AccountManager;
   let cartManager: CartManager;
   let checkoutService: CheckoutService;
-  let contentfulService: ContentfulService;
   let customerManager: CustomerManager;
   let eligibilityService: EligibilityService;
   let invoiceManager: InvoiceManager;
   let paypalCustomerManager: PaypalCustomerManager;
   let paypalManager: PayPalManager;
+  let productConfigurationManager: ProductConfigurationManager;
   let promotionCodeManager: PromotionCodeManager;
   let stripeClient: StripeClient;
   let subscriptionManager: SubscriptionManager;
@@ -91,7 +90,6 @@ describe('CheckoutService', () => {
         CheckoutService,
         CMSConfig,
         ContentfulClientConfig,
-        ContentfulService,
         CustomerManager,
         EligibilityManager,
         EligibilityService,
@@ -119,12 +117,12 @@ describe('CheckoutService', () => {
     accountManager = moduleRef.get(AccountManager);
     cartManager = moduleRef.get(CartManager);
     checkoutService = moduleRef.get(CheckoutService);
-    contentfulService = moduleRef.get(ContentfulService);
     customerManager = moduleRef.get(CustomerManager);
     eligibilityService = moduleRef.get(EligibilityService);
     invoiceManager = moduleRef.get(InvoiceManager);
     paypalCustomerManager = moduleRef.get(PaypalCustomerManager);
     paypalManager = moduleRef.get(PayPalManager);
+    productConfigurationManager = moduleRef.get(ProductConfigurationManager);
     promotionCodeManager = moduleRef.get(PromotionCodeManager);
     stripeClient = moduleRef.get(StripeClient);
     subscriptionManager = moduleRef.get(SubscriptionManager);
@@ -187,7 +185,7 @@ describe('CheckoutService', () => {
         .spyOn(eligibilityService, 'checkEligibility')
         .mockResolvedValue(EligibilityStatus.CREATE);
       jest
-        .spyOn(contentfulService, 'retrieveStripePlanId')
+        .spyOn(productConfigurationManager, 'retrieveStripePriceId')
         .mockResolvedValue(mockPrice.id);
       jest
         .spyOn(invoiceManager, 'preview')

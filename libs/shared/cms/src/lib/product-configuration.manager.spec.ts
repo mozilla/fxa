@@ -4,7 +4,15 @@
 import { Test } from '@nestjs/testing';
 import { StatsD } from 'hot-shots';
 
-import { StripePlanFactory } from '@fxa/payments/stripe';
+import {
+  PriceManager,
+  StripeClient,
+  StripeConfig,
+  StripePlanFactory,
+  StripePriceFactory,
+  StripeResponseFactory,
+  SubplatInterval,
+} from '@fxa/payments/stripe';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import { StatsDService } from '@fxa/shared/metrics/statsd';
 import {
@@ -12,12 +20,15 @@ import {
   CapabilityPurchaseResultFactory,
   CapabilityServiceByPlanIdsQueryFactory,
   CapabilityServiceByPlanIdsResultUtil,
+  CMSConfig,
   ContentfulClientConfig,
   EligibilityContentByOfferingResultUtil,
   EligibilityContentByPlanIdsQueryFactory,
   EligibilityContentByPlanIdsResultUtil,
   EligibilityPurchaseResult,
   EligibilityPurchaseResultFactory,
+  MockCMSConfigProvider,
+  ProductConfigError,
   ServicesWithCapabilitiesQueryFactory,
   ServicesWithCapabilitiesResultUtil,
 } from '../../src';
@@ -30,6 +41,7 @@ import {
   PageContentForOfferingQueryFactory,
   PageContentForOfferingResultUtil,
   PageContentOfferingResultFactory,
+  PageContentOfferingTransformedFactory,
 } from './queries/page-content-for-offering';
 import { PurchaseWithDetailsOfferingContentUtil } from './queries/purchase-with-details-offering-content';
 import { PurchaseWithDetailsOfferingContentByPlanIdsResultFactory } from './queries/purchase-with-details-offering-content/factories';
@@ -48,6 +60,7 @@ jest.mock('@fxa/shared/db/type-cacheable', () => ({
 }));
 
 describe('productConfigurationManager', () => {
+  let priceManager: PriceManager;
   let productConfigurationManager: ProductConfigurationManager;
   let strapiClient: StrapiClient;
   let mockStatsd: StatsD;
@@ -60,14 +73,20 @@ describe('productConfigurationManager', () => {
     const module = await Test.createTestingModule({
       providers: [
         { provide: StatsDService, useValue: mockStatsd },
-        MockFirestoreProvider,
+        CMSConfig,
         ContentfulClientConfig,
+        MockCMSConfigProvider,
+        MockFirestoreProvider,
+        PriceManager,
         ProductConfigurationManager,
         StrapiClient,
+        StripeClient,
+        StripeConfig,
       ],
     }).compile();
 
     strapiClient = module.get(StrapiClient);
+    priceManager = module.get(PriceManager);
     productConfigurationManager = module.get(ProductConfigurationManager);
   });
 
@@ -92,6 +111,25 @@ describe('productConfigurationManager', () => {
         operationName: 'EligibilityContentByPlanIds',
       }
     );
+  });
+
+  describe('fetchCMSData', () => {
+    it('fetches CMS data successfully', async () => {
+      const mockOffering = PageContentOfferingTransformedFactory();
+
+      jest
+        .spyOn(productConfigurationManager, 'getPageContentForOffering')
+        .mockResolvedValue({
+          getOffering: jest.fn().mockResolvedValue(mockOffering),
+        } as unknown as PageContentForOfferingResultUtil);
+
+      const result = await productConfigurationManager.fetchCMSData(
+        mockOffering.apiIdentifier,
+        'en'
+      );
+
+      expect(result).toEqual(mockOffering);
+    });
   });
 
   describe('getEligibilityContentByOffering', () => {
@@ -394,6 +432,51 @@ describe('productConfigurationManager', () => {
         apiIdentifier
       );
       expect(result).toEqual([mockPlan.id]);
+    });
+  });
+
+  describe('retrieveStripePriceId', () => {
+    it('returns plan based on offeringId and interval', async () => {
+      const mockPrice = StripeResponseFactory(StripePriceFactory());
+      const mockInterval = SubplatInterval.Monthly;
+      const mockOffering = EligibilityContentOfferingResultFactory({
+        defaultPurchase: { stripePlanChoices: [mockPrice.id] },
+      });
+
+      jest
+        .spyOn(productConfigurationManager, 'getOfferingPlanIds')
+        .mockResolvedValue([mockPrice.id]);
+
+      jest
+        .spyOn(priceManager, 'retrieveByInterval')
+        .mockResolvedValue(mockPrice);
+
+      const result = await productConfigurationManager.retrieveStripePriceId(
+        mockOffering.apiIdentifier,
+        mockInterval
+      );
+      expect(result).toEqual(mockPrice.id);
+    });
+
+    it('throws error if no plans are found', async () => {
+      const mockInterval = SubplatInterval.Yearly;
+      const mockOffering = EligibilityContentOfferingResultFactory();
+      const mockPrice = StripeResponseFactory(StripePriceFactory());
+
+      jest
+        .spyOn(productConfigurationManager, 'getOfferingPlanIds')
+        .mockResolvedValue([mockPrice.id]);
+
+      jest
+        .spyOn(priceManager, 'retrieveByInterval')
+        .mockResolvedValue(undefined);
+
+      await expect(
+        productConfigurationManager.retrieveStripePriceId(
+          mockOffering.apiIdentifier,
+          mockInterval
+        )
+      ).rejects.toThrow(ProductConfigError);
     });
   });
 });

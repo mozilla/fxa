@@ -40,8 +40,7 @@ export class ContentfulQueryError extends BaseError {
   }
 }
 
-// TODO: FXA-9981 - Relocate this error
-export class ContentfulServiceError extends BaseError {
+export class ProductConfigError extends BaseError {
   constructor(...args: ConstructorParameters<typeof BaseError>) {
     super(...args);
   }

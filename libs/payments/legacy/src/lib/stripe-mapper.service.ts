@@ -1,3 +1,4 @@
+import { Injectable } from '@nestjs/common';
 import { Stripe } from 'stripe';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
 import { PlanMapperUtil } from './plan-mapper.util';
@@ -6,6 +7,7 @@ import { PlanMapperUtil } from './plan-mapper.util';
  * Class to fetch CMS config and map CMS config to
  * Stripe metadata for an array of Stripe Plans.
  */
+@Injectable()
 export class StripeMapperService {
   private errorIds = new Map<string, Set<string>>();
   private successfulIds = new Set();

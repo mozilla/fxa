@@ -17,7 +17,7 @@ import {
   TaxAddress,
 } from '@fxa/payments/stripe';
 import { AccountManager } from '@fxa/shared/account/account';
-import { ContentfulService } from '@fxa/shared/cms';
+import { ProductConfigurationManager } from '@fxa/shared/cms';
 import {
   CartTotalMismatchError,
   CartEligibilityMismatchError,
@@ -34,12 +34,12 @@ export class CheckoutService {
     private accountCustomerManager: AccountCustomerManager,
     private accountManager: AccountManager,
     private cartManager: CartManager,
-    private contentfulService: ContentfulService,
     private customerManager: CustomerManager,
     private eligibilityService: EligibilityService,
     private invoiceManager: InvoiceManager,
     private paypalCustomerManager: PaypalCustomerManager,
     private paypalManager: PayPalManager,
+    private productConfigurationManager: ProductConfigurationManager,
     private promotionCodeManager: PromotionCodeManager,
     private stripeClient: StripeClient,
     private subscriptionManager: SubscriptionManager
@@ -119,10 +119,11 @@ export class CheckoutService {
 
     // re-validate total amount against upcoming invoice
     // throws cart total mismatch error if no match found
-    const priceId = await this.contentfulService.retrieveStripePlanId(
-      cart.offeringConfigId,
-      cart.interval as SubplatInterval
-    );
+    const priceId =
+      await this.productConfigurationManager.retrieveStripePriceId(
+        cart.offeringConfigId,
+        cart.interval as SubplatInterval
+      );
 
     const upcomingInvoice = await this.invoiceManager.preview({
       priceId: priceId,
