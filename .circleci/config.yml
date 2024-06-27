@@ -364,8 +364,8 @@ commands:
             echo "Listing contents after renaming:"
             ls -la
           when: always
-      #- store_artifacts:
-         # path: artifacts/blob-report
+      - store_artifacts:
+          path: artifacts/blob-report
       - persist_to_workspace:
           root: /home/circleci/project
           paths:
