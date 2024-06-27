@@ -334,7 +334,7 @@ commands:
     steps:
       - run:
           name: Ensure directories
-          command: mkdir -p artifacts/tests && mkdir -p ~/.pm2/logs && mkdir -p ~/screenshots && mkdir -p artifacts/blob-report && mkdir -p artifacts/playwright-report
+          command: mkdir -p artifacts/tests && mkdir -p ~/.pm2/logs && mkdir -p ~/screenshots
       - store_artifacts:
           path: artifacts
       - store_artifacts:
@@ -349,6 +349,7 @@ commands:
       - run:
           name: Rename Reports
           command: |
+            mkdir -p artifacts/blob-report && mkdir -p artifacts/playwright-report
             echo "Starting rename reports step"
             cd artifacts/blob-report || { echo "Directory artifacts/blob-report not found"; exit 1; }
             echo "Current directory: $(pwd)"
@@ -363,8 +364,8 @@ commands:
             echo "Listing contents after renaming:"
             ls -la
           when: always
-      - store_artifacts:
-          path: artifacts/blob-report
+      #- store_artifacts:
+         # path: artifacts/blob-report
       - persist_to_workspace:
           root: /home/circleci/project
           paths:
