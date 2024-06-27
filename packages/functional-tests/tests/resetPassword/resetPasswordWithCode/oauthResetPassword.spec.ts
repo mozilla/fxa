@@ -131,7 +131,8 @@ test.describe('severity-1 #smoke', () => {
       // Goes to settings and enables totp on user's account.
       await expect(settings.settingsHeading).toBeVisible();
       await settings.totp.addButton.click();
-      const totpCredentials = await totp.fillOutTotpForms();
+      const { secret } = await totp.fillOutTotpForms();
+      await expect(settings.totp.status).toHaveText('Enabled');
       await settings.signOut();
 
       // Makes sure user is not signed in, and goes to the relier (ie 123done)
@@ -162,7 +163,7 @@ test.describe('severity-1 #smoke', () => {
 
       await expect(page).toHaveURL(/signin_totp_code/);
 
-      const totpCode = await getCode(totpCredentials.secret);
+      const totpCode = await getCode(secret);
       await expect(page).toHaveURL(/signin_totp_code/);
       await signinTotpCode.fillOutCodeForm(totpCode);
 
