@@ -71,7 +71,7 @@ export default {
 
     this.logFlowEvent('google.oauth-start');
 
-    if (this.viewName === 'email-first') {
+    if (this.viewName === 'enter-email') {
       GleanMetrics.emailFirst.googleOauthStart();
     }
 
@@ -133,7 +133,7 @@ export default {
 
     this.logFlowEvent('apple.oauth-start');
 
-    if (this.viewName === 'email-first') {
+    if (this.viewName === 'enter-email') {
       GleanMetrics.emailFirst.appleOauthStart();
     }
 
