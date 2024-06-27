@@ -6,14 +6,32 @@
   "tags": [],
   "targets": {
     "build": {
-      "executor": "@nx/js:tsc",
+      "executor": "@nx/esbuild:esbuild",
       "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
       "options": {
-        "outputPath": "dist/libs/vendored/jwtool",
-        "tsConfig": "libs/vendored/jwtool/tsconfig.lib.json",
-        "packageJson": "libs/vendored/jwtool/package.json",
         "main": "libs/vendored/jwtool/src/index.ts",
-        "assets": ["libs/vendored/jwtool/*.md"]
+        "outputPath": "dist/libs/vendored/jwtool",
+        "outputFileName": "main.js",
+        "tsConfig": "libs/vendored/jwtool/tsconfig.lib.json",
+        "declaration": true,
+        "assets": [
+          {
+            "glob": "libs/vendored/jwtool/README.md",
+            "input": ".",
+            "output": "."
+          }
+        ],
+        "platform": "node",
+        "format": ["cjs", "esm"]
+      },
+      "configurations": {
+        "development": {
+          "minify": false
+        },
+        "production": {
+          "minify": true
+        }
       }
     },
     "test-unit": {

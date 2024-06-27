@@ -3,15 +3,34 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/shared/error/src",
   "projectType": "library",
+  "tags": ["scope:shared:lib"],
   "targets": {
     "build": {
-      "executor": "@nx/js:tsc",
+      "executor": "@nx/esbuild:esbuild",
       "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
       "options": {
-        "outputPath": "dist/libs/shared/error",
         "main": "libs/shared/error/src/index.ts",
+        "outputPath": "dist/libs/shared/error",
+        "outputFileName": "main.js",
         "tsConfig": "libs/shared/error/tsconfig.lib.json",
-        "assets": ["libs/shared/error/*.md"]
+        "declaration": true,
+        "assets": [
+          {
+            "glob": "libs/shared/error/README.md",
+            "input": ".",
+            "output": "."
+          }
+        ],
+        "platform": "node"
+      },
+      "configurations": {
+        "development": {
+          "minify": false
+        },
+        "production": {
+          "minify": true
+        }
       }
     },
     "lint": {
@@ -28,6 +47,5 @@
         "jestConfig": "libs/shared/error/jest.config.ts"
       }
     }
-  },
-  "tags": ["scope:shared:lib"]
+  }
 }

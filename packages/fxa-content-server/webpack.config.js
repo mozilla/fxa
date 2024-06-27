@@ -66,7 +66,7 @@ const webpackConfig = {
       'fast-text-encoding': require.resolve('fast-text-encoding'),
       fxaCryptoDeriver: path.resolve(
         __dirname,
-        '../../dist/libs/vendored/crypto-relier/src/lib/deriver/index.js'
+        '../../dist/libs/vendored/crypto-relier/main.js'
       ),
       fxaPairingChannel: require.resolve(
         'fxa-pairing-channel/dist/FxAccountsPairingChannel.babel.umd.js'

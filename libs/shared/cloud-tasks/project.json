@@ -3,15 +3,34 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/shared/cloud-tasks/src",
   "projectType": "library",
+  "tags": [],
   "targets": {
     "build": {
-      "executor": "@nx/js:tsc",
+      "executor": "@nx/esbuild:esbuild",
       "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
       "options": {
-        "outputPath": "dist/libs/shared/cloud-tasks",
         "main": "libs/shared/cloud-tasks/src/index.ts",
+        "outputPath": "dist/libs/shared/cloud-tasks",
+        "outputFileName": "main.js",
         "tsConfig": "libs/shared/cloud-tasks/tsconfig.lib.json",
-        "assets": ["libs/shared/cloud-tasks/*.md"]
+        "declaration": true,
+        "assets": [
+          {
+            "glob": "libs/shared/cloud-tasks/README.md",
+            "input": ".",
+            "output": "."
+          }
+        ],
+        "platform": "node"
+      },
+      "configurations": {
+        "development": {
+          "minify": false
+        },
+        "production": {
+          "minify": true
+        }
       }
     },
     "lint": {
@@ -31,6 +50,5 @@
         "jestConfig": "libs/shared/cloud-tasks/jest.config.ts"
       }
     }
-  },
-  "tags": []
+  }
 }

@@ -1,7 +1,4 @@
 {
   "name": "@fxa/shared/geodb",
-  "version": "0.0.1",
-  "type": "commonjs",
-  "main": "./src/index.js",
-  "typings": "./src/index.d.ts"
+  "version": "0.0.1"
 }

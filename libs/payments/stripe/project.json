@@ -3,15 +3,34 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/payments/stripe/src",
   "projectType": "library",
+  "tags": ["scope:shared:lib:payments"],
   "targets": {
     "build": {
-      "executor": "@nx/js:tsc",
+      "executor": "@nx/esbuild:esbuild",
       "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
       "options": {
-        "outputPath": "dist/libs/payments/stripe",
         "main": "libs/payments/stripe/src/index.ts",
+        "outputPath": "dist/libs/payments/stripe",
+        "outputFileName": "main.js",
         "tsConfig": "libs/payments/stripe/tsconfig.lib.json",
-        "assets": ["libs/payments/stripe/*.md"]
+        "declaration": true,
+        "assets": [
+          {
+            "glob": "libs/payments/stripe/README.md",
+            "input": ".",
+            "output": "."
+          }
+        ],
+        "platform": "node"
+      },
+      "configurations": {
+        "development": {
+          "minify": false
+        },
+        "production": {
+          "minify": true
+        }
       }
     },
     "lint": {
@@ -40,6 +59,5 @@
         "testPathPattern": ["\\.in\\.spec\\.ts$"]
       }
     }
-  },
-  "tags": ["scope:shared:lib:payments"]
+  }
 }

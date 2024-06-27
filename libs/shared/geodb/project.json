@@ -3,16 +3,34 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/shared/geodb/src",
   "projectType": "library",
+  "tags": [],
   "targets": {
     "build": {
-      "executor": "@nx/js:tsc",
+      "executor": "@nx/esbuild:esbuild",
       "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
       "options": {
-        "outputPath": "dist/libs/shared/geodb",
-        "tsConfig": "libs/shared/geodb/tsconfig.lib.json",
-        "packageJson": "libs/shared/geodb/package.json",
         "main": "libs/shared/geodb/src/index.ts",
-        "assets": ["libs/shared/geodb/*.md"]
+        "outputPath": "dist/libs/shared/geodb",
+        "outputFileName": "main.js",
+        "tsConfig": "libs/shared/geodb/tsconfig.lib.json",
+        "declaration": true,
+        "assets": [
+          {
+            "glob": "libs/shared/geodb/README.md",
+            "input": ".",
+            "output": "."
+          }
+        ],
+        "platform": "node"
+      },
+      "configurations": {
+        "development": {
+          "minify": false
+        },
+        "production": {
+          "minify": true
+        }
       }
     },
     "test-unit": {
@@ -22,6 +40,5 @@
         "jestConfig": "libs/shared/geodb/jest.config.ts"
       }
     }
-  },
-  "tags": []
+  }
 }

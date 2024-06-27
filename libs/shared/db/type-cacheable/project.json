@@ -3,16 +3,34 @@
   "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/shared/db/type-cacheable/src",
   "projectType": "library",
+  "tags": ["scope:shared:lib"],
   "targets": {
     "build": {
-      "executor": "@nx/js:tsc",
+      "executor": "@nx/esbuild:esbuild",
       "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
       "options": {
-        "outputPath": "dist/libs/shared/db/type-cacheable",
-        "tsConfig": "libs/shared/db/type-cacheable/tsconfig.lib.json",
-        "packageJson": "libs/shared/db/type-cacheable/package.json",
         "main": "libs/shared/db/type-cacheable/src/index.ts",
-        "assets": ["libs/shared/db/type-cacheable/*.md"]
+        "outputPath": "dist/libs/shared/db/type-cacheable",
+        "outputFileName": "main.js",
+        "tsConfig": "libs/shared/db/type-cacheable/tsconfig.lib.json",
+        "declaration": true,
+        "assets": [
+          {
+            "glob": "libs/shared/db/type-cacheable/README.md",
+            "input": ".",
+            "output": "."
+          }
+        ],
+        "platform": "node"
+      },
+      "configurations": {
+        "development": {
+          "minify": false
+        },
+        "production": {
+          "minify": true
+        }
       }
     },
     "lint": {
@@ -36,6 +54,5 @@
         }
       }
     }
-  },
-  "tags": ["scope:shared:lib"]
+  }
 }

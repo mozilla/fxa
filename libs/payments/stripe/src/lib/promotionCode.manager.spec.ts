@@ -2,14 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const mockStripeUtil = {
-  checkValidPromotionCode: jest.fn(),
-  checkSubscriptionPromotionCodes: jest.fn(),
-  getSubscribedPrice: jest.fn(),
-};
-
-jest.mock('../lib/stripe.util.ts', () => mockStripeUtil);
-
 import { faker } from '@faker-js/faker';
 import { Test } from '@nestjs/testing';
 import { Stripe } from 'stripe';
@@ -33,6 +25,11 @@ import { MockStripeConfigProvider } from './stripe.config';
 import { PromotionCodeCouldNotBeAttachedError } from './stripe.error';
 import { STRIPE_PRICE_METADATA } from './stripe.types';
 import { SubscriptionManager } from './subscription.manager';
+import * as StripeUtil from '../lib/stripe.util';
+
+jest.mock('../lib/stripe.util.ts');
+
+const mockStripeUtil = jest.mocked(StripeUtil);
 
 describe('PromotionCodeManager', () => {
   let productManager: ProductManager;

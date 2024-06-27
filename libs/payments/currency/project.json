@@ -3,16 +3,34 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/payments/currency/src",
   "projectType": "library",
+  "tags": ["scope:shared:lib:payments"],
   "targets": {
     "build": {
-      "executor": "@nx/js:tsc",
+      "executor": "@nx/esbuild:esbuild",
       "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
       "options": {
-        "outputPath": "dist/libs/payments/currency",
-        "tsConfig": "libs/payments/currency/tsconfig.lib.json",
-        "packageJson": "libs/payments/currency/package.json",
         "main": "libs/payments/currency/src/index.ts",
-        "assets": ["libs/payments/currency/*.md"]
+        "outputPath": "dist/libs/payments/currency",
+        "outputFileName": "main.js",
+        "tsConfig": "libs/payments/currency/tsconfig.lib.json",
+        "declaration": true,
+        "assets": [
+          {
+            "glob": "libs/payments/currency/README.md",
+            "input": ".",
+            "output": "."
+          }
+        ],
+        "platform": "node"
+      },
+      "configurations": {
+        "development": {
+          "minify": false
+        },
+        "production": {
+          "minify": true
+        }
       }
     },
     "lint": {
@@ -29,6 +47,5 @@
         "jestConfig": "libs/payments/currency/jest.config.ts"
       }
     }
-  },
-  "tags": ["scope:shared:lib:payments"]
+  }
 }

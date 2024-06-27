@@ -10969,6 +10969,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@jest/create-cache-key-function@npm:^29.7.0":
+  version: 29.7.0
+  resolution: "@jest/create-cache-key-function@npm:29.7.0"
+  dependencies:
+    "@jest/types": ^29.6.3
+  checksum: 681bc761fa1d6fa3dd77578d444f97f28296ea80755e90e46d1c8fa68661b9e67f54dd38b988742db636d26cf160450dc6011892cec98b3a7ceb58cad8ff3aae
+  languageName: node
+  linkType: hard
+
 "@jest/environment@npm:^27.5.1":
   version: 27.5.1
   resolution: "@jest/environment@npm:27.5.1"
@@ -12697,6 +12706,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@nrwl/esbuild@npm:19.3.0":
+  version: 19.3.0
+  resolution: "@nrwl/esbuild@npm:19.3.0"
+  dependencies:
+    "@nx/esbuild": 19.3.0
+  checksum: a9d15f1dfd15dacfe52183018ba42d85072ebb748c398a13c574c77245cd9680f9ecffea45bd921bf2d08bbc808651c4fbedd07e73c0d87e21b1888348443b0c
+  languageName: node
+  linkType: hard
+
 "@nrwl/eslint-plugin-nx@npm:19.3.0":
   version: 19.3.0
   resolution: "@nrwl/eslint-plugin-nx@npm:19.3.0"
@@ -12869,6 +12887,27 @@ __metadata:
   peerDependencies:
     nx: ">= 17 <= 20"
   checksum: 32538ea477361f195aa5af2160371a89169c4a557ea0baccf6b74753817fd983ca976f82b46815c14040301f8ea5d2bae3d979fb1a669bc96966ad5cfa5d77a9
+  languageName: node
+  linkType: hard
+
+"@nx/esbuild@npm:19.3.0":
+  version: 19.3.0
+  resolution: "@nx/esbuild@npm:19.3.0"
+  dependencies:
+    "@nrwl/esbuild": 19.3.0
+    "@nx/devkit": 19.3.0
+    "@nx/js": 19.3.0
+    chalk: ^4.1.0
+    fast-glob: 3.2.7
+    fs-extra: ^11.1.0
+    tsconfig-paths: ^4.1.2
+    tslib: ^2.3.0
+  peerDependencies:
+    esbuild: ~0.19.2
+  peerDependenciesMeta:
+    esbuild:
+      optional: true
+  checksum: de61f4d84ed587fec7e46d8b2731e35d67fecf25bc80d632d1d4093aaefb0709e4b6e012da1d27146e70fee43405d6edf55bbf3fc91595f61ad88155f62e468e
   languageName: node
   linkType: hard
 
@@ -20900,6 +20939,19 @@ __metadata:
   dependencies:
     tslib: ^2.4.0
   checksum: 273fd3f3fc461a92f3790cc551ea054745c6d6959afbe1232e6d7aa1c722bbc114d308aab96bef5c78fc0303c85c7b472ef00e2253251cc89737f3b1af56e5a5
+  languageName: node
+  linkType: hard
+
+"@swc/jest@npm:^0.2.36":
+  version: 0.2.36
+  resolution: "@swc/jest@npm:0.2.36"
+  dependencies:
+    "@jest/create-cache-key-function": ^29.7.0
+    "@swc/counter": ^0.1.3
+    jsonc-parser: ^3.2.0
+  peerDependencies:
+    "@swc/core": "*"
+  checksum: 14f2e696ac093e23dae1e2e57d894bbcde4de6fe80341a26c8d0d8cbae5aae31832f8fa32dc698529f128d19a76aeedf2227f59480de6dab5eb3f30bfdf9b71a
   languageName: node
   linkType: hard
 
@@ -38973,6 +39025,7 @@ fsevents@~2.1.1:
     "@nestjs/schedule": ^4.0.1
     "@nestjs/schematics": ^10.1.1
     "@nestjs/testing": ^10.3.4
+    "@nx/esbuild": 19.3.0
     "@nx/eslint-plugin": 19.3.0
     "@nx/jest": 19.3.0
     "@nx/js": 19.3.0
@@ -39011,6 +39064,7 @@ fsevents@~2.1.1:
     "@swc/cli": 0.3.12
     "@swc/core": 1.5.29
     "@swc/helpers": 0.5.11
+    "@swc/jest": ^0.2.36
     "@testing-library/react": 15.0.6
     "@type-cacheable/core": ^14.0.1
     "@type-cacheable/ioredis-adapter": ^10.0.4
@@ -46754,7 +46808,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"jsonc-parser@npm:3.2.1":
+"jsonc-parser@npm:3.2.1, jsonc-parser@npm:^3.2.0":
   version: 3.2.1
   resolution: "jsonc-parser@npm:3.2.1"
   checksum: 656d9027b91de98d8ab91b3aa0d0a4cab7dc798a6830845ca664f3e76c82d46b973675bbe9b500fae1de37fd3e81aceacbaa2a57884bf2f8f29192150d2d1ef7

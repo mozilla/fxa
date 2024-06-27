@@ -2,15 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const mockStripeUtil = {
-  stripeInvoiceToFirstInvoicePreviewDTO: jest.fn(),
-};
-
-jest.mock(
-  '../../../stripe/src/lib/util/stripeInvoiceToFirstInvoicePreviewDTO',
-  () => mockStripeUtil
-);
-
 import { Test } from '@nestjs/testing';
 
 import { StripeResponseFactory } from './factories/api-list.factory';
@@ -23,6 +14,11 @@ import { StripeClient } from './stripe.client';
 import { MockStripeConfigProvider } from './stripe.config';
 import { InvoicePreviewFactory } from './stripe.factories';
 import { InvoiceManager } from './invoice.manager';
+import * as StripeUtil from '../lib/util/stripeInvoiceToFirstInvoicePreviewDTO';
+
+jest.mock('../lib/util/stripeInvoiceToFirstInvoicePreviewDTO');
+
+const mockStripeUtil = jest.mocked(StripeUtil);
 
 describe('InvoiceManager', () => {
   let invoiceManager: InvoiceManager;

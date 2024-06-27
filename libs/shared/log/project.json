@@ -3,16 +3,34 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/shared/log/src",
   "projectType": "library",
+  "tags": ["scope:shared:lib"],
   "targets": {
     "build": {
-      "executor": "@nx/js:tsc",
+      "executor": "@nx/esbuild:esbuild",
       "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
       "options": {
-        "outputPath": "dist/libs/shared/log",
-        "tsConfig": "libs/shared/log/tsconfig.lib.json",
-        "packageJson": "libs/shared/log/package.json",
         "main": "libs/shared/log/src/index.ts",
-        "assets": ["libs/shared/log/*.md"]
+        "outputPath": "dist/libs/shared/log",
+        "outputFileName": "main.js",
+        "tsConfig": "libs/shared/log/tsconfig.lib.json",
+        "declaration": true,
+        "assets": [
+          {
+            "glob": "libs/shared/log/README.md",
+            "input": ".",
+            "output": "."
+          }
+        ],
+        "platform": "node"
+      },
+      "configurations": {
+        "development": {
+          "minify": false
+        },
+        "production": {
+          "minify": true
+        }
       }
     },
     "lint": {
@@ -29,6 +47,5 @@
         "jestConfig": "libs/shared/log/jest.config.ts"
       }
     }
-  },
-  "tags": ["scope:shared:lib"]
+  }
 }

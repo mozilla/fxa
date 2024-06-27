@@ -6,13 +6,31 @@
   "tags": [],
   "targets": {
     "build": {
-      "executor": "@nx/js:tsc",
+      "executor": "@nx/esbuild:esbuild",
       "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
       "options": {
-        "outputPath": "dist/libs/shared/mozlog",
         "main": "libs/shared/mozlog/src/index.ts",
+        "outputPath": "dist/libs/shared/mozlog",
+        "outputFileName": "main.js",
         "tsConfig": "libs/shared/mozlog/tsconfig.lib.json",
-        "assets": ["libs/shared/mozlog/*.md"]
+        "declaration": true,
+        "assets": [
+          {
+            "glob": "libs/shared/mozlog/README.md",
+            "input": ".",
+            "output": "."
+          }
+        ],
+        "platform": "node"
+      },
+      "configurations": {
+        "development": {
+          "minify": false
+        },
+        "production": {
+          "minify": true
+        }
       }
     },
     "lint": {

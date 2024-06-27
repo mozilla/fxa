@@ -3,16 +3,34 @@
   "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/shared/metrics/statsd/src",
   "projectType": "library",
+  "tags": ["scope:shared:lib"],
   "targets": {
     "build": {
-      "executor": "@nx/js:tsc",
+      "executor": "@nx/esbuild:esbuild",
       "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
       "options": {
-        "outputPath": "dist/libs/shared/metrics/statsd",
-        "tsConfig": "libs/shared/metrics/statsd/tsconfig.lib.json",
-        "packageJson": "libs/shared/metrics/statsd/package.json",
         "main": "libs/shared/metrics/statsd/src/index.ts",
-        "assets": ["libs/shared/metrics/statsd/*.md"]
+        "outputPath": "dist/libs/shared/metrics/statsd",
+        "outputFileName": "main.js",
+        "tsConfig": "libs/shared/metrics/statsd/tsconfig.lib.json",
+        "declaration": true,
+        "assets": [
+          {
+            "glob": "libs/shared/metrics/statsd/README.md",
+            "input": ".",
+            "output": "."
+          }
+        ],
+        "platform": "node"
+      },
+      "configurations": {
+        "development": {
+          "minify": false
+        },
+        "production": {
+          "minify": true
+        }
       }
     },
     "lint": {
@@ -29,6 +47,5 @@
         "jestConfig": "libs/shared/metrics/statsd/jest.config.ts"
       }
     }
-  },
-  "tags": ["scope:shared:lib"]
+  }
 }
