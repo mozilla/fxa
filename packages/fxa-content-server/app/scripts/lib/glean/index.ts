@@ -18,7 +18,7 @@ import { accountsEvents } from './pings';
 import * as reg from './reg';
 import { oauthClientId, service } from './relyingParty';
 import { deviceType, entrypoint, flowId } from './session';
-import * as setPasswordThirdPartyAuth from './setPasswordThirdPartyAuth';
+import * as thirdPartyAuthSetPassword from './thirdPartyAuthSetPassword';
 import * as utm from './utm';
 
 export type GleanMetricsConfig = {
@@ -267,16 +267,16 @@ const recordEventMetric = (eventName: string, properties: EventProperties) => {
       cad.startbrowsingSubmit.record();
       break;
     case 'third_party_auth_set_password_view':
-      setPasswordThirdPartyAuth.view.record();
+      thirdPartyAuthSetPassword.view.record();
       break;
     case 'third_party_auth_set_password_engage':
-      setPasswordThirdPartyAuth.engage.record();
+      thirdPartyAuthSetPassword.engage.record();
       break;
     case 'third_party_auth_set_password_submit':
-      setPasswordThirdPartyAuth.submit.record();
+      thirdPartyAuthSetPassword.submit.record();
       break;
     case 'third_party_auth_set_password_success':
-      setPasswordThirdPartyAuth.success.record();
+      thirdPartyAuthSetPassword.success.record();
       break;
   }
 };

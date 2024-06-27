@@ -7,6 +7,22 @@
 import EventMetricType from '@mozilla/glean/private/metrics/event';
 
 /**
+ * User click "Continue with Apple" from the login page
+ *
+ * Generated from `login.apple_oauth_login_start`.
+ */
+export const appleOauthLoginStart = new EventMetricType(
+  {
+    category: 'login',
+    name: 'apple_oauth_login_start',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
  * Login Email Confirm Attempted
  * Event that indicates a user attempted to confirm email in the login by entering
  * in Code to "confirm" & click button to submit. See the Login + 2FA section
@@ -79,6 +95,22 @@ export const forgotPwdSubmit = new EventMetricType(
 );
 
 /**
+ * User click "Continue with Google" from the login page
+ *
+ * Generated from `login.google_oauth_login_start`.
+ */
+export const googleOauthLoginStart = new EventMetricType(
+  {
+    category: 'login',
+    name: 'google_oauth_login_start',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
  * Login Submission Attempt
  * An event that indicates a user attempted to login by clicking "Sign in" on
  * the login page'
@@ -126,6 +158,22 @@ export const submitSuccess = new EventMetricType(
   {
     category: 'login',
     name: 'submit_success',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * User viewed the third party login page without password set.
+ *
+ * Generated from `login.third_party_auth_login_no_pw_view`.
+ */
+export const thirdPartyAuthLoginNoPwView = new EventMetricType(
+  {
+    category: 'login',
+    name: 'third_party_auth_login_no_pw_view',
     sendInPings: ['events'],
     lifetime: 'ping',
     disabled: false,

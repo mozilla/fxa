@@ -9,11 +9,11 @@ import EventMetricType from '@mozilla/glean/private/metrics/event';
 /**
  * User engaged the set password form after authenticating with third party auth
  *
- * Generated from `set_password_third_party_auth.engage`.
+ * Generated from `third_party_auth_set_password.engage`.
  */
 export const engage = new EventMetricType(
   {
-    category: 'set_password_third_party_auth',
+    category: 'third_party_auth_set_password',
     name: 'engage',
     sendInPings: ['events'],
     lifetime: 'ping',
@@ -25,11 +25,11 @@ export const engage = new EventMetricType(
 /**
  * User submitted the set password form after authenticating with third party auth
  *
- * Generated from `set_password_third_party_auth.submit`.
+ * Generated from `third_party_auth_set_password.submit`.
  */
 export const submit = new EventMetricType(
   {
-    category: 'set_password_third_party_auth',
+    category: 'third_party_auth_set_password',
     name: 'submit',
     sendInPings: ['events'],
     lifetime: 'ping',
@@ -42,11 +42,11 @@ export const submit = new EventMetricType(
  * User was able to successfully the set password form after authenticating with
  * third party auth
  *
- * Generated from `set_password_third_party_auth.success`.
+ * Generated from `third_party_auth_set_password.success`.
  */
 export const success = new EventMetricType(
   {
-    category: 'set_password_third_party_auth',
+    category: 'third_party_auth_set_password',
     name: 'success',
     sendInPings: ['events'],
     lifetime: 'ping',
@@ -58,11 +58,11 @@ export const success = new EventMetricType(
 /**
  * User viewed the set password screen after authenticating with third party auth
  *
- * Generated from `set_password_third_party_auth.view`.
+ * Generated from `third_party_auth_set_password.view`.
  */
 export const view = new EventMetricType(
   {
-    category: 'set_password_third_party_auth',
+    category: 'third_party_auth_set_password',
     name: 'view',
     sendInPings: ['events'],
     lifetime: 'ping',
