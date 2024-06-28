@@ -317,12 +317,12 @@ commands:
             cd packages/functional-tests/tests
             TEST_FILES=$(circleci tests glob "./**/*.spec.ts")
             cd ..
-            echo $TEST_FILES | circleci tests run --command="xargs PLAYWRIGHT_BLOB_OUTPUT_FILE=\"./artifacts/blob-report/report-$CIRCLE_NODE_INDEX.zip\"  yarn playwright test --project=<< parameters.project >> $GREP" --verbose --split-by=timings --timings-type=classname
+            echo $TEST_FILES | circleci tests run --command="xargs -I {} sh -c 'PLAYWRIGHT_BLOB_OUTPUT_FILE=\"./artifacts/blob-report/report-${CIRCLE_NODE_INDEX}.zip\"  yarn playwright test --project=<< parameters.project >> $GREP" --verbose --split-by=timings --timings-type=classname
           environment:
             NODE_OPTIONS: --dns-result-order=ipv4first
             JEST_JUNIT_OUTPUT_DIR: ./artifacts/tests
             JEST_JUNIT_ADD_FILE_ATTRIBUTE: true
-            #PLAYWRIGHT_BLOB_OUTPUT_DIR: ./artifacts/blob-report
+            PLAYWRIGHT_BLOB_OUTPUT_DIR: ./artifacts/blob-report
             PW_TEST_HTML_REPORT_OPEN: never
             ACCOUNTS_DOMAIN: << pipeline.parameters.accounts-domain >>
             PAYMENTS_DOMAIN: << pipeline.parameters.payments-domain >>
