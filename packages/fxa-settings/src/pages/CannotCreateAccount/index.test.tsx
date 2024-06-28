@@ -10,9 +10,17 @@ import CannotCreateAccount, { viewName } from '.';
 import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 import { FluentBundle } from '@fluent/bundle';
 import { REACT_ENTRYPOINT } from '../../constants';
+import GleanMetrics from '../../lib/glean';
 
 jest.mock('../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
+}));
+
+jest.mock('../../lib/glean', () => ({
+  __esModule: true,
+  default: {
+    registration: { ageInvalid: jest.fn() },
+  },
 }));
 
 describe('CannotCreateAccount', () => {
@@ -37,5 +45,6 @@ describe('CannotCreateAccount', () => {
       'href',
       'https://www.ftc.gov/business-guidance/privacy-security/childrens-privacy'
     );
+    expect(GleanMetrics.registration.ageInvalid).toBeCalledTimes(1);
   });
 });

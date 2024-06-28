@@ -7,6 +7,24 @@
 import EventMetricType from '@mozilla/glean/private/metrics/event';
 
 /**
+ * Indicates the user entered an age in the "Age" section that is 13 or below. If
+ * they do this, they encounter a page that does not let them continue to register
+ * their account.
+ *
+ * Generated from `reg.age_invalid`.
+ */
+export const ageInvalid = new EventMetricType(
+  {
+    category: 'reg',
+    name: 'age_invalid',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
  * User interacted with the Sync "Choose What to Sync" options during account
  * registration.
  *

@@ -1185,6 +1185,25 @@ reg:
     expires: never
     data_sensitivity:
       - interaction
+  age_invalid:
+    type: event
+    description: |
+      Indicates the user entered an age in the "Age" section that is 13 or below. If
+      they do this, they encounter a page that does not let them continue to register
+      their account.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-9421
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
 
 cad_firefox:
   view:

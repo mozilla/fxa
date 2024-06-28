@@ -10,6 +10,7 @@ import CardHeader from '../../components/CardHeader';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { usePageViewEvent } from '../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../constants';
+import GleanMetrics from '../../lib/glean';
 
 export const viewName = 'cannot-create-account';
 
@@ -21,6 +22,7 @@ const CannotCreateAccount = (_: RouteComponentProps) => {
    * Alternatively, do we want to always open this in the same tab since users are locked out?
    */
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
+  GleanMetrics.registration.ageInvalid();
   return (
     <AppLayout>
       {/* Span is temporary until sign up tests are converted to playwright */}

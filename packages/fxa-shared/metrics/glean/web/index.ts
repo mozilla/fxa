@@ -40,6 +40,7 @@ export const eventsMap = {
     success: 'reg_submit_success',
     complete: 'reg_success_view',
     cwts: 'reg_cwts_engage',
+    ageInvalid: 'reg_age_invalid',
   },
 
   signupConfirmation: {
