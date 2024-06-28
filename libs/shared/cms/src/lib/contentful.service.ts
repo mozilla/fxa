@@ -4,21 +4,22 @@
 
 import { Injectable } from '@nestjs/common';
 import { PriceManager, SubplatInterval } from '@fxa/payments/stripe';
-import { ContentfulServiceError } from './contentful.error';
-import { ContentfulManager } from './contentful.manager';
-import { ContentfulServiceConfig } from './contentful.service.config';
+import { CMSConfig } from './cms.config';
+import { ContentfulServiceError } from './cms.error';
+import { ProductConfigurationManager } from './product-configuration.manager';
 
 @Injectable()
 export class ContentfulService {
   constructor(
-    private contentfulManager: ContentfulManager,
+    private productConfigurationManager: ProductConfigurationManager,
     private priceManager: PriceManager,
-    private contentfulServiceConfig: ContentfulServiceConfig
+    private cmsConfig: CMSConfig
   ) {}
 
-  async fetchContentfulData(offeringId: string, acceptLanguage: string) {
+  // TODO: Move this out of ContentfulService
+  async fetchCMSData(offeringId: string, acceptLanguage: string) {
     const offeringResult =
-      await this.contentfulManager.getPageContentForOffering(
+      await this.productConfigurationManager.getPageContentForOffering(
         offeringId,
         acceptLanguage
       );
@@ -26,19 +27,19 @@ export class ContentfulService {
     return offeringResult.getOffering();
   }
 
+  // TODO: Move this out of ContentfulService
   async retrieveStripePlanId(
     offeringConfigId: string,
     interval: SubplatInterval
   ) {
-    const planIds = await this.contentfulManager.getOfferingPlanIds(
+    const planIds = await this.productConfigurationManager.getOfferingPlanIds(
       offeringConfigId
     );
     // Temporary supported list of plans
     // CMS purchase.stripePlanChoices is currently not configured correctly
     // Unfortunately, currently the CMS is read-only and can't be updated
     // As a temporary work around provide a list of supported plans
-    const supportedListOfPriceIds =
-      this.contentfulServiceConfig.supportedPlanIds.split(',');
+    const supportedListOfPriceIds = this.cmsConfig.supportedPriceIds.split(',');
     const filteredPlanIds = planIds.filter((priceId) =>
       supportedListOfPriceIds.includes(priceId)
     );

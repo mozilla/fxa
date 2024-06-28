@@ -48,10 +48,10 @@ const {
   stripeInvoiceToLatestInvoiceItemsDTO,
 } = require('../../../lib/payments/stripe-formatter');
 const {
-  ContentfulManager,
+  ProductConfigurationManager,
   PurchaseWithDetailsOfferingContentTransformedFactory,
   PurchaseDetailsTransformedFactory,
-} = require('@fxa/shared/contentful');
+} = require('@fxa/shared/cms');
 
 const customer1 = require('./fixtures/stripe/customer1.json');
 const newCustomer = require('./fixtures/stripe/customer_new.json');
@@ -3356,12 +3356,15 @@ describe('#integration - StripeHelper', () => {
 
     it('rejects and returns stripe values', async () => {
       const err = new Error('It is bad');
-      const mockContentfulManager = {
+      const mockProductConfigurationManager = {
         getPurchaseWithDetailsOfferingContentByPlanIds: sinon
           .stub()
           .rejects(err),
       };
-      Container.set(ContentfulManager, mockContentfulManager);
+      Container.set(
+        ProductConfigurationManager,
+        mockProductConfigurationManager
+      );
       const stripeHelper = new StripeHelper(log, mockConfig, mockStatsd);
       listStripePlans = sandbox
         .stub(stripeHelper.stripe.plans, 'list')
@@ -3419,9 +3422,9 @@ describe('#integration - StripeHelper', () => {
       );
     });
 
-    it('returns Contentful values', async () => {
+    it('returns CMS values', async () => {
       const newWebIconURL = 'http://contentful.example/webicon';
-      const mockContentfulConfigUtil = {
+      const mockCMSConfigUtil = {
         transformedPurchaseWithCommonContentForPlanId: (planId) => {
           return PurchaseWithDetailsOfferingContentTransformedFactory({
             purchaseDetails: PurchaseDetailsTransformedFactory({
@@ -3430,12 +3433,14 @@ describe('#integration - StripeHelper', () => {
           });
         },
       };
-      const mockContentfulManager = {
-        getPurchaseWithDetailsOfferingContentByPlanIds: sinon.fake.resolves(
-          mockContentfulConfigUtil
-        ),
+      const mockProductConfigurationManager = {
+        getPurchaseWithDetailsOfferingContentByPlanIds:
+          sinon.fake.resolves(mockCMSConfigUtil),
       };
-      Container.set(ContentfulManager, mockContentfulManager);
+      Container.set(
+        ProductConfigurationManager,
+        mockProductConfigurationManager
+      );
       const stripeHelper = new StripeHelper(log, mockConfig, mockStatsd);
       const newPlan1 = deepCopy(plan1);
       delete newPlan1.product.metadata['webIconURL'];
@@ -3457,15 +3462,18 @@ describe('#integration - StripeHelper', () => {
       sinon.assert.calledOnce(sentryScope.setContext);
     });
 
-    it('returns Contentful values when flag is enabled', async () => {
+    it('returns CMS values when flag is enabled', async () => {
       // enable flag
       mockConfig.contentful.enabled = true;
 
       // set container
-      const mockContentfulManager = {
+      const mockProductConfigurationManager = {
         getPurchaseWithDetailsOfferingContentByPlanIds: sinon.fake.resolves(),
       };
-      Container.set(ContentfulManager, mockContentfulManager);
+      Container.set(
+        ProductConfigurationManager,
+        mockProductConfigurationManager
+      );
 
       // set stripeHelper
       const stripeHelper = new StripeHelper(log, mockConfig, mockStatsd);

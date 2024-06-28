@@ -12,7 +12,6 @@ import {
   SubplatInterval,
 } from '@fxa/payments/stripe';
 import {
-  ContentfulManager,
   EligibilityContentByOfferingResultUtil,
   EligibilityContentByPlanIdsResultUtil,
   EligibilityContentOfferingResultFactory,
@@ -21,7 +20,8 @@ import {
   EligibilityOfferingResultFactory,
   EligibilitySubgroupOfferingResultFactory,
   EligibilitySubgroupResultFactory,
-} from '@fxa/shared/contentful';
+  ProductConfigurationManager,
+} from '@fxa/shared/cms';
 import { CartEligibilityStatus } from '@fxa/shared/db/mysql/account';
 
 import { EligibilityManager } from './eligibility.manager';
@@ -32,15 +32,15 @@ import {
 
 describe('EligibilityManager', () => {
   let manager: EligibilityManager;
-  let mockContentfulManager: ContentfulManager;
   let mockOfferingResult: EligibilityContentByOfferingResultUtil;
   let mockResult: EligibilityContentByPlanIdsResultUtil;
   let mockPriceManager: PriceManager;
+  let mockProductConfigurationManager: ProductConfigurationManager;
 
   beforeEach(async () => {
     mockOfferingResult = {} as EligibilityContentByOfferingResultUtil;
     mockResult = {} as EligibilityContentByPlanIdsResultUtil;
-    mockContentfulManager = {
+    mockProductConfigurationManager = {
       getEligibilityContentByOffering: jest
         .fn()
         .mockResolvedValueOnce(mockOfferingResult),
@@ -54,7 +54,10 @@ describe('EligibilityManager', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        { provide: ContentfulManager, useValue: mockContentfulManager },
+        {
+          provide: ProductConfigurationManager,
+          useValue: mockProductConfigurationManager,
+        },
         { provide: PriceManager, useValue: mockPriceManager },
         EligibilityManager,
       ],

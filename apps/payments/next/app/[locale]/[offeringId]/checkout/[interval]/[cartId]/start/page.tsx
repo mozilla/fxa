@@ -13,7 +13,7 @@ import {
 import { DEFAULT_LOCALE } from '@fxa/shared/l10n';
 import {
   getFakeCartData,
-  getContentfulContent,
+  getCMSContent,
 } from 'apps/payments/next/app/_lib/apiClient';
 import { auth, signIn } from 'apps/payments/next/auth';
 import { PrimaryButton } from 'libs/payments/ui/src/lib/client/components/PrimaryButton';
@@ -37,7 +37,7 @@ export default async function Checkout({ params }: { params: CheckoutParams }) {
   );
   //TODO - Replace with cartPromise as part of FXA-8903
   const fakeCartDataPromise = getFakeCartData(params.cartId);
-  const cmsPromise = getContentfulContent(params.offeringId, locale);
+  const cmsPromise = getCMSContent(params.offeringId, locale);
   const [session, cart, fakeCart, cms] = await Promise.all([
     sessionPromise,
     cartPromise,

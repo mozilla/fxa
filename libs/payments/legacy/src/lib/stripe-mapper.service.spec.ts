@@ -1,42 +1,44 @@
 import { Stripe } from 'stripe';
 
 import {
-  ContentfulClient,
+  ProductConfigurationManager,
   PurchaseWithDetailsOfferingContentUtil,
-  ContentfulManager,
   PurchaseWithDetailsOfferingContentTransformedFactory,
   PurchaseDetailsTransformedFactory,
-} from '@fxa/shared/contentful';
+  StrapiClient,
+} from '@fxa/shared/cms';
 import { StripePlanFactory, StripeProductFactory } from '@fxa/payments/stripe';
 
 import { StripeMapperService } from './stripe-mapper.service';
-import { StripeMetadataWithContentfulFactory } from './factories';
+import { StripeMetadataWithCMSFactory } from './factories';
+
+jest.useFakeTimers();
 
 describe('StripeMapperService', () => {
-  describe('mapContentfulToStripePlans', () => {
+  describe('mapCMSToStripePlans', () => {
     let stripeMapper: StripeMapperService;
-    const mockContentfulConfigUtil = {
+    const mockCMSConfigUtil = {
       transformedPurchaseWithCommonContentForPlanId: jest.fn(),
     };
 
     beforeEach(() => {
       jest
         .spyOn(
-          ContentfulManager.prototype,
+          ProductConfigurationManager.prototype,
           'getPurchaseWithDetailsOfferingContentByPlanIds'
         )
         .mockResolvedValue(
-          mockContentfulConfigUtil as unknown as PurchaseWithDetailsOfferingContentUtil
+          mockCMSConfigUtil as unknown as PurchaseWithDetailsOfferingContentUtil
         );
-      const contentfulClient = new ContentfulClient({} as any, {} as any);
+      const strapiClient = new StrapiClient({} as any, {} as any);
       const mockStatsd = {} as any;
       stripeMapper = new StripeMapperService(
-        new ContentfulManager(contentfulClient, mockStatsd)
+        new ProductConfigurationManager(strapiClient, mockStatsd)
       );
     });
 
     it('should return stripe metadata with error due to plan.product not being an object', async () => {
-      const validMetadata = StripeMetadataWithContentfulFactory({
+      const validMetadata = StripeMetadataWithCMSFactory({
         webIconURL: 'https://example.com/webIconURL',
       });
       const stripePlan = StripePlanFactory({
@@ -44,11 +46,7 @@ describe('StripeMapperService', () => {
         metadata: validMetadata,
       });
       const { mappedPlans, nonMatchingPlans } =
-        await stripeMapper.mapContentfulToStripePlans(
-          [stripePlan],
-          'en',
-          false
-        );
+        await stripeMapper.mapCMSToStripePlans([stripePlan], 'en', false);
       expect(mappedPlans[0].metadata?.['webIconURL']).toBe(
         validMetadata.webIconURL
       );
@@ -57,10 +55,11 @@ describe('StripeMapperService', () => {
       );
     });
 
-    it('should return stripe metadata with error due to missing contentful data', async () => {
-      mockContentfulConfigUtil.transformedPurchaseWithCommonContentForPlanId =
-        jest.fn().mockReturnValueOnce(undefined);
-      const validMetadata = StripeMetadataWithContentfulFactory({
+    it('should return stripe metadata with error due to missing cms data', async () => {
+      mockCMSConfigUtil.transformedPurchaseWithCommonContentForPlanId = jest
+        .fn()
+        .mockReturnValueOnce(undefined);
+      const validMetadata = StripeMetadataWithCMSFactory({
         webIconURL: 'https://example.com/webIconURL',
       });
       const stripePlan = StripePlanFactory() as Stripe.Plan;
@@ -68,26 +67,21 @@ describe('StripeMapperService', () => {
         metadata: validMetadata,
       });
       const { mappedPlans, nonMatchingPlans } =
-        await stripeMapper.mapContentfulToStripePlans(
-          [stripePlan],
-          'en',
-          false
-        );
+        await stripeMapper.mapCMSToStripePlans([stripePlan], 'en', false);
       const actualProduct = mappedPlans[0].product as Stripe.Product;
       expect(actualProduct.metadata?.['webIconURL']).toBe(
         validMetadata.webIconURL
       );
-      expect(nonMatchingPlans[0].split(' - ')[1]).toBe('No Contentful config');
+      expect(nonMatchingPlans[0].split(' - ')[1]).toBe('No CMS config');
     });
 
     it('should return stripe metadata with error due to invalid fields in product.metadata', async () => {
-      mockContentfulConfigUtil.transformedPurchaseWithCommonContentForPlanId =
-        jest
-          .fn()
-          .mockReturnValueOnce(
-            PurchaseWithDetailsOfferingContentTransformedFactory()
-          );
-      const validMetadata = StripeMetadataWithContentfulFactory({
+      mockCMSConfigUtil.transformedPurchaseWithCommonContentForPlanId = jest
+        .fn()
+        .mockReturnValueOnce(
+          PurchaseWithDetailsOfferingContentTransformedFactory()
+        );
+      const validMetadata = StripeMetadataWithCMSFactory({
         webIconURL: 'https://example.com/webIconURL',
       });
       const stripePlan = StripePlanFactory() as Stripe.Plan;
@@ -95,11 +89,7 @@ describe('StripeMapperService', () => {
         metadata: validMetadata,
       });
       const { mappedPlans, nonMatchingPlans } =
-        await stripeMapper.mapContentfulToStripePlans(
-          [stripePlan],
-          'en',
-          false
-        );
+        await stripeMapper.mapCMSToStripePlans([stripePlan], 'en', false);
       const actualProduct = mappedPlans[0].product as Stripe.Product;
       expect(actualProduct.metadata?.['webIconURL']).toBe(
         validMetadata.webIconURL
@@ -108,16 +98,15 @@ describe('StripeMapperService', () => {
     });
 
     it('should return stripe metadata with error due to invalid fields in plan.metadata', async () => {
-      mockContentfulConfigUtil.transformedPurchaseWithCommonContentForPlanId =
-        jest
-          .fn()
-          .mockReturnValueOnce(
-            PurchaseWithDetailsOfferingContentTransformedFactory()
-          );
-      const validMetadata = StripeMetadataWithContentfulFactory({
+      mockCMSConfigUtil.transformedPurchaseWithCommonContentForPlanId = jest
+        .fn()
+        .mockReturnValueOnce(
+          PurchaseWithDetailsOfferingContentTransformedFactory()
+        );
+      const validMetadata = StripeMetadataWithCMSFactory({
         webIconURL: 'https://example.com/webIconURL',
       });
-      const planOverrideMetadata = StripeMetadataWithContentfulFactory({
+      const planOverrideMetadata = StripeMetadataWithCMSFactory({
         webIconURL: 'https://plan.override/emailIcon',
       });
       const stripePlan = StripePlanFactory({
@@ -127,11 +116,7 @@ describe('StripeMapperService', () => {
         metadata: validMetadata,
       });
       const { mappedPlans, nonMatchingPlans } =
-        await stripeMapper.mapContentfulToStripePlans(
-          [stripePlan],
-          'en',
-          false
-        );
+        await stripeMapper.mapCMSToStripePlans([stripePlan], 'en', false);
       const actualProduct = mappedPlans[0].product as Stripe.Product;
       expect(actualProduct.metadata?.['webIconURL']).toBe(
         planOverrideMetadata.webIconURL
@@ -139,10 +124,11 @@ describe('StripeMapperService', () => {
       expect(nonMatchingPlans[0].split(' - ')[1]).toBe('webIconURL');
     });
 
-    it('should return data from contentful', async () => {
+    it('should return data from cms', async () => {
       const expected = PurchaseWithDetailsOfferingContentTransformedFactory();
-      mockContentfulConfigUtil.transformedPurchaseWithCommonContentForPlanId =
-        jest.fn().mockReturnValueOnce(expected);
+      mockCMSConfigUtil.transformedPurchaseWithCommonContentForPlanId = jest
+        .fn()
+        .mockReturnValueOnce(expected);
       const productMetadata = {
         productSet: 'set',
         productOrder: 'order',
@@ -152,11 +138,7 @@ describe('StripeMapperService', () => {
         metadata: productMetadata,
       });
       const { mappedPlans, nonMatchingPlans } =
-        await stripeMapper.mapContentfulToStripePlans(
-          [stripePlan],
-          'en',
-          false
-        );
+        await stripeMapper.mapCMSToStripePlans([stripePlan], 'en', false);
       const actualProduct = mappedPlans[0].product as Stripe.Product;
       expect(mappedPlans[0].metadata?.['webIconURL']).toBe(
         expected.purchaseDetails.webIcon
@@ -173,14 +155,15 @@ describe('StripeMapperService', () => {
       expect(nonMatchingPlans).toHaveLength(0);
     });
 
-    it('should return data from Contentful and not error on locale plan', async () => {
+    it('should return data from CMS and not error on locale plan', async () => {
       const expected = PurchaseWithDetailsOfferingContentTransformedFactory({
         purchaseDetails: PurchaseDetailsTransformedFactory({
           details: ['Detail 1 in English'],
         }),
       });
-      mockContentfulConfigUtil.transformedPurchaseWithCommonContentForPlanId =
-        jest.fn().mockReturnValue(expected);
+      mockCMSConfigUtil.transformedPurchaseWithCommonContentForPlanId = jest
+        .fn()
+        .mockReturnValue(expected);
       const productMetadata = {
         productSet: 'set',
         productOrder: 'order',
@@ -189,13 +172,13 @@ describe('StripeMapperService', () => {
         metadata: productMetadata,
       });
       const stripePlan1 = StripePlanFactory({
-        metadata: StripeMetadataWithContentfulFactory({
+        metadata: StripeMetadataWithCMSFactory({
           'product:details:1': 'Detail 1 in English',
         }),
       }) as Stripe.Plan;
       stripePlan1.product = product;
       const stripePlan2 = StripePlanFactory({
-        metadata: StripeMetadataWithContentfulFactory({
+        metadata: StripeMetadataWithCMSFactory({
           'product:details:1': 'Detail 1 in French',
           'product:details:2': 'Detail 2 in French',
         }),
@@ -203,7 +186,7 @@ describe('StripeMapperService', () => {
       stripePlan2.product = product;
 
       const { mappedPlans, nonMatchingPlans } =
-        await stripeMapper.mapContentfulToStripePlans(
+        await stripeMapper.mapCMSToStripePlans(
           [stripePlan1, stripePlan2],
           'en',
           false
@@ -232,8 +215,9 @@ describe('StripeMapperService', () => {
           details: ['Detail 1 in English'],
         }),
       });
-      mockContentfulConfigUtil.transformedPurchaseWithCommonContentForPlanId =
-        jest.fn().mockReturnValue(expected);
+      mockCMSConfigUtil.transformedPurchaseWithCommonContentForPlanId = jest
+        .fn()
+        .mockReturnValue(expected);
       const productMetadata = {
         productSet: 'set',
         productOrder: 'order',
@@ -242,13 +226,13 @@ describe('StripeMapperService', () => {
         metadata: productMetadata,
       });
       const stripePlan1 = StripePlanFactory({
-        metadata: StripeMetadataWithContentfulFactory({
+        metadata: StripeMetadataWithCMSFactory({
           'product:details:1': 'Detail 1 in German',
         }),
       }) as Stripe.Plan;
       stripePlan1.product = product;
       const stripePlan2 = StripePlanFactory({
-        metadata: StripeMetadataWithContentfulFactory({
+        metadata: StripeMetadataWithCMSFactory({
           'product:details:1': 'Detail 1 in French',
           'product:details:2': 'Detail 2 in French',
         }),
@@ -256,7 +240,7 @@ describe('StripeMapperService', () => {
       stripePlan2.product = product;
 
       const { mappedPlans, nonMatchingPlans } =
-        await stripeMapper.mapContentfulToStripePlans(
+        await stripeMapper.mapCMSToStripePlans(
           [stripePlan1, stripePlan2],
           'en',
           false

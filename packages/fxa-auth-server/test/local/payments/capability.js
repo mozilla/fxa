@@ -10,10 +10,10 @@ const assert = { ...sinon.assert, ...require('chai').assert };
 const { Container } = require('typedi');
 
 const {
-  mockContentfulClients,
+  mockCMSClients,
   mockLog,
   mockPlans,
-  mockContentfulPlanIdsToClientCapabilities,
+  mockCMSPlanIdsToClientCapabilities,
 } = require('../../mocks');
 const { AppConfig, AuthLogger } = require('../../../lib/types');
 const { StripeHelper } = require('../../../lib/payments/stripe');
@@ -167,9 +167,9 @@ describe('CapabilityService', () => {
     ]);
     mockStripeHelper.allMergedPlanConfigs = sinon.spy(async () => {});
     mockCapabilityManager = {
-      getClients: sinon.fake.resolves(mockContentfulClients),
+      getClients: sinon.fake.resolves(mockCMSClients),
       priceIdsToClientCapabilities: sinon.fake.resolves(
-        mockContentfulPlanIdsToClientCapabilities
+        mockCMSPlanIdsToClientCapabilities
       ),
     };
     mockConfig = { ...config, contentful: { enabled: false } };
@@ -1099,12 +1099,12 @@ describe('CapabilityService', () => {
           subscribedPrices
         );
 
-      const mockContentfulCapabilities =
+      const mockCMSCapabilities =
         await mockCapabilityService.planIdsToClientCapabilities(
           subscribedPrices
         );
 
-      assert.deepEqual(mockContentfulCapabilities, mockStripeCapabilities);
+      assert.deepEqual(mockCMSCapabilities, mockStripeCapabilities);
     });
 
     it('returns results from Stripe and logs to Sentry when results do not match', async () => {
@@ -1148,7 +1148,7 @@ describe('CapabilityService', () => {
         'planIdsToClientCapabilities',
         {
           subscribedPrices: ['plan_123456', 'plan_876543', 'plan_PLAY'],
-          contentful: {
+          cms: {
             c1: ['capAlpha'],
             c4: ['capBeta', 'capDelta', 'capEpsilon'],
             c6: ['capGamma', 'capZeta'],
@@ -1260,21 +1260,20 @@ describe('CapabilityService', () => {
       assert.deepEqual(clients, mockClientsFromStripe);
     });
 
-    it('returns results from Contentful when it matches Stripe', async () => {
+    it('returns results from CMS when it matches Stripe', async () => {
       const sentryScope = { setContext: sinon.stub() };
       sinon.stub(Sentry, 'withScope').callsFake((cb) => cb(sentryScope));
       sinon.stub(Sentry, 'captureMessage');
 
-      const mockClientsFromContentful =
-        await mockCapabilityManager.getClients();
+      const mockClientsFromCMS = await mockCapabilityManager.getClients();
 
       const mockClientsFromStripe =
         await capabilityService.getClientsFromStripe();
 
-      assert.deepEqual(mockClientsFromContentful, mockClientsFromStripe);
+      assert.deepEqual(mockClientsFromCMS, mockClientsFromStripe);
 
       const clients = await capabilityService.getClients();
-      assert.deepEqual(clients, mockClientsFromContentful);
+      assert.deepEqual(clients, mockClientsFromCMS);
 
       sinon.assert.notCalled(Sentry.withScope);
       sinon.assert.notCalled(sentryScope.setContext);
@@ -1293,19 +1292,18 @@ describe('CapabilityService', () => {
         },
       ]);
 
-      const mockClientsFromContentful =
-        await mockCapabilityManager.getClients();
+      const mockClientsFromCMS = await mockCapabilityManager.getClients();
 
       const mockClientsFromStripe =
         await capabilityService.getClientsFromStripe();
 
-      assert.notDeepEqual(mockClientsFromContentful, mockClientsFromStripe);
+      assert.notDeepEqual(mockClientsFromCMS, mockClientsFromStripe);
 
       const clients = await capabilityService.getClients();
       assert.deepEqual(clients, mockClientsFromStripe);
 
       sinon.assert.calledOnceWithExactly(sentryScope.setContext, 'getClients', {
-        contentful: mockClientsFromContentful,
+        cms: mockClientsFromCMS,
         stripe: mockClientsFromStripe,
       });
       sinon.assert.calledOnceWithExactly(
@@ -1318,19 +1316,19 @@ describe('CapabilityService', () => {
       await capabilityService.getClients();
 
       sinon.assert.calledOnceWithExactly(sentryScope.setContext, 'getClients', {
-        contentful: mockClientsFromContentful,
+        cms: mockClientsFromCMS,
         stripe: mockClientsFromStripe,
       });
     });
   });
 
-  describe('Contentful flag is enabled', () => {
-    it('returns planIdsToClientCapabilities from Contentful', async () => {
+  describe('CMS flag is enabled', () => {
+    it('returns planIdsToClientCapabilities from CMS', async () => {
       mockConfig.contentful.enabled = true;
 
       capabilityService.subscribedPriceIds = sinon.fake.resolves([UID]);
 
-      const mockContentfulCapabilities =
+      const mockCMSCapabilities =
         await mockCapabilityManager.priceIdsToClientCapabilities(
           capabilityService.subscribedPrices
         );
@@ -1342,14 +1340,13 @@ describe('CapabilityService', () => {
         c3: ['capD', 'capE'],
       };
 
-      assert.deepEqual(mockContentfulCapabilities, expected);
+      assert.deepEqual(mockCMSCapabilities, expected);
     });
 
-    it('returns getClients from Contentful', async () => {
+    it('returns getClients from CMS', async () => {
       mockConfig.contentful.enabled = true;
 
-      const mockClientsFromContentful =
-        await mockCapabilityManager.getClients();
+      const mockClientsFromCMS = await mockCapabilityManager.getClients();
 
       const expected = [
         {
@@ -1368,7 +1365,7 @@ describe('CapabilityService', () => {
           clientId: 'client2',
         },
       ];
-      assert.deepEqual(mockClientsFromContentful, expected);
+      assert.deepEqual(mockClientsFromCMS, expected);
     });
   });
 });

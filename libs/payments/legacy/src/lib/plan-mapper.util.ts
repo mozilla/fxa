@@ -2,11 +2,11 @@ import { Stripe } from 'stripe';
 import {
   OfferingCommonContentResult,
   PurchaseDetailsTransformed,
-} from '@fxa/shared/contentful';
-import { StripeMetadataKeysForContentful } from './types';
+} from '@fxa/shared/cms';
+import { StripeMetadataKeysForCMS } from './types';
 
 /**
- *  Class that maps Contentful Config onto a single Stripe Plan's metadata
+ *  Class that maps CMS Config onto a single Stripe Plan's metadata
  */
 export class PlanMapperUtil {
   errorFields: string[] = [];
@@ -14,36 +14,36 @@ export class PlanMapperUtil {
     private commonContent: OfferingCommonContentResult,
     private purchaseDetails: PurchaseDetailsTransformed,
     private stripeMetadata: Stripe.Metadata | null,
-    private contentfulEnabled: boolean
+    private cmsEnabled: boolean
   ) {}
 
   /**
    * For a specific Metadata key, determine whether to use the Stripe metadata value
-   * or Contentful value
+   * or CMS value
    */
   mapField(
-    stripeFieldName: StripeMetadataKeysForContentful,
+    stripeFieldName: StripeMetadataKeysForCMS,
     stripeValue?: string,
-    contentfulValue?: string | null
+    cmsValue?: string | null
   ) {
-    // If contentful config enabled, skip comparison and
-    // return undefined if null, otherwise contentfulValue
-    if (this.contentfulEnabled) {
-      return contentfulValue === null ? undefined : contentfulValue;
+    // If cms config enabled, skip comparison and
+    // return undefined if null, otherwise cmsValue
+    if (this.cmsEnabled) {
+      return cmsValue === null ? undefined : cmsValue;
     }
 
-    // Return undefined if stripe and contentful aren't provided
-    if (stripeValue === undefined && contentfulValue === null) {
+    // Return undefined if stripe and cms aren't provided
+    if (stripeValue === undefined && cmsValue === null) {
       return undefined;
     }
 
-    // Return contentful if no stripe value is available
-    if (!stripeValue && !!contentfulValue) {
-      return contentfulValue;
+    // Return cms if no stripe value is available
+    if (!stripeValue && !!cmsValue) {
+      return cmsValue;
     }
 
-    // If stripe does not match contentful, return stripe and log error
-    if (stripeValue !== contentfulValue) {
+    // If stripe does not match cms, return stripe and log error
+    if (stripeValue !== cmsValue) {
       this.errorFields.push(stripeFieldName);
       return stripeValue;
     }
@@ -54,16 +54,16 @@ export class PlanMapperUtil {
   /**
    * Return the Stripe metadata value for the provided key
    */
-  getStripeForMetadataKey(stripeMetadataKey: StripeMetadataKeysForContentful) {
+  getStripeForMetadataKey(stripeMetadataKey: StripeMetadataKeysForCMS) {
     if (!this.stripeMetadata) {
       return undefined;
     }
 
     switch (stripeMetadataKey) {
-      case StripeMetadataKeysForContentful.NewsletterSlug:
+      case StripeMetadataKeysForCMS.NewsletterSlug:
         return (
-          this.stripeMetadata[StripeMetadataKeysForContentful.NewsletterSlug] &&
-          this.stripeMetadata[StripeMetadataKeysForContentful.NewsletterSlug]
+          this.stripeMetadata[StripeMetadataKeysForCMS.NewsletterSlug] &&
+          this.stripeMetadata[StripeMetadataKeysForCMS.NewsletterSlug]
             .split(',')
             .sort()
             .join(',')
@@ -74,44 +74,42 @@ export class PlanMapperUtil {
   }
 
   /**
-   * Return the Contentful config value for the provided Stripe metadata key,
+   * Return the CMS config value for the provided Stripe metadata key,
    * in the format expected by Stripe metadata
    */
-  getContentfulForMetadataKey(
-    stripeMetadataKey: StripeMetadataKeysForContentful
-  ) {
+  getCMSForMetadataKey(stripeMetadataKey: StripeMetadataKeysForCMS) {
     switch (stripeMetadataKey) {
-      case StripeMetadataKeysForContentful.DetailsLine1:
+      case StripeMetadataKeysForCMS.DetailsLine1:
         return this.purchaseDetails.details[0];
-      case StripeMetadataKeysForContentful.DetailsLine2:
+      case StripeMetadataKeysForCMS.DetailsLine2:
         return this.purchaseDetails.details[1];
-      case StripeMetadataKeysForContentful.DetailsLine3:
+      case StripeMetadataKeysForCMS.DetailsLine3:
         return this.purchaseDetails.details[2];
-      case StripeMetadataKeysForContentful.DetailsLine4:
+      case StripeMetadataKeysForCMS.DetailsLine4:
         return this.purchaseDetails.details[3];
-      case StripeMetadataKeysForContentful.Subtitle:
+      case StripeMetadataKeysForCMS.Subtitle:
         return this.purchaseDetails.subtitle;
-      case StripeMetadataKeysForContentful.WebIcon:
+      case StripeMetadataKeysForCMS.WebIcon:
         return this.purchaseDetails.webIcon;
-      case StripeMetadataKeysForContentful.PrivacyNotice:
+      case StripeMetadataKeysForCMS.PrivacyNotice:
         return this.commonContent.privacyNoticeUrl;
-      case StripeMetadataKeysForContentful.PrivacyNoticeDownload:
+      case StripeMetadataKeysForCMS.PrivacyNoticeDownload:
         return this.commonContent.privacyNoticeDownloadUrl;
-      case StripeMetadataKeysForContentful.ToS:
+      case StripeMetadataKeysForCMS.ToS:
         return this.commonContent.termsOfServiceUrl;
-      case StripeMetadataKeysForContentful.ToSDownload:
+      case StripeMetadataKeysForCMS.ToSDownload:
         return this.commonContent.termsOfServiceDownloadUrl;
-      case StripeMetadataKeysForContentful.CancellationURL:
+      case StripeMetadataKeysForCMS.CancellationURL:
         return this.commonContent.cancellationUrl;
-      case StripeMetadataKeysForContentful.EmailIcon:
+      case StripeMetadataKeysForCMS.EmailIcon:
         return this.commonContent.emailIcon;
-      case StripeMetadataKeysForContentful.SuccessAction:
+      case StripeMetadataKeysForCMS.SuccessAction:
         return this.commonContent.successActionButtonUrl;
-      case StripeMetadataKeysForContentful.SuccessActionLabel:
+      case StripeMetadataKeysForCMS.SuccessActionLabel:
         return this.commonContent.successActionButtonLabel;
-      case StripeMetadataKeysForContentful.NewsletterLabel:
+      case StripeMetadataKeysForCMS.NewsletterLabel:
         return this.commonContent.newsletterLabelTextCode;
-      case StripeMetadataKeysForContentful.NewsletterSlug: {
+      case StripeMetadataKeysForCMS.NewsletterSlug: {
         return (
           this.commonContent.newsletterSlug &&
           [...this.commonContent.newsletterSlug].sort().join(',')
@@ -123,18 +121,18 @@ export class PlanMapperUtil {
   }
 
   /**
-   * Merges Stripe and Contentful values where appropriate, and logs fields where
-   * Contentful does not match Stripe metadata values
+   * Merges Stripe and CMS values where appropriate, and logs fields where
+   * CMS does not match Stripe metadata values
    */
-  mergeStripeAndContentful() {
+  mergeStripeAndCMS() {
     const mappedMetadata: {
-      [key in StripeMetadataKeysForContentful]?: string;
+      [key in StripeMetadataKeysForCMS]?: string;
     } = {};
-    Object.values(StripeMetadataKeysForContentful).forEach((key) => {
+    Object.values(StripeMetadataKeysForCMS).forEach((key) => {
       mappedMetadata[key] = this.mapField(
         key,
         this.getStripeForMetadataKey(key),
-        this.getContentfulForMetadataKey(key)
+        this.getCMSForMetadataKey(key)
       );
     });
 

@@ -5,68 +5,65 @@
 import { Test } from '@nestjs/testing';
 
 import {
+  PriceManager,
   StripeClient,
   StripeConfig,
-  PriceManager,
   StripePriceFactory,
   StripeResponseFactory,
   SubplatInterval,
 } from '@fxa/payments/stripe';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
-import { ContentfulClient } from './contentful.client';
+import { CMSConfig, MockCMSConfigProvider } from './cms.config';
+import { ContentfulServiceError } from './cms.error';
 import { ContentfulClientConfig } from './contentful.client.config';
-import { ContentfulServiceError } from './contentful.error';
-import { ContentfulManager } from './contentful.manager';
+import { ProductConfigurationManager } from './product-configuration.manager';
 import { ContentfulService } from './contentful.service';
-import {
-  ContentfulServiceConfig,
-  MockContentfulServiceConfigProvider,
-} from './contentful.service.config';
 import { EligibilityContentOfferingResultFactory } from './queries/eligibility-content-by-offering';
 import {
   PageContentForOfferingResultUtil,
   PageContentOfferingTransformedFactory,
 } from './queries/page-content-for-offering';
+import { StrapiClient } from './strapi.client';
 
 describe('ContentfulService', () => {
-  let contentfulManager: ContentfulManager;
+  let productConfigurationManager: ProductConfigurationManager;
   let contentfulService: ContentfulService;
   let priceManager: PriceManager;
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
       providers: [
+        CMSConfig,
         ContentfulClientConfig,
-        ContentfulClient,
-        ContentfulManager,
         ContentfulService,
-        ContentfulServiceConfig,
-        MockContentfulServiceConfigProvider,
+        MockCMSConfigProvider,
         MockFirestoreProvider,
         MockStatsDProvider,
+        PriceManager,
+        ProductConfigurationManager,
+        StrapiClient,
         StripeClient,
         StripeConfig,
-        PriceManager,
       ],
     }).compile();
 
     contentfulService = moduleRef.get(ContentfulService);
-    contentfulManager = moduleRef.get(ContentfulManager);
+    productConfigurationManager = moduleRef.get(ProductConfigurationManager);
     priceManager = moduleRef.get(PriceManager);
   });
 
-  describe('fetchContentfulData', () => {
-    it('fetches Contentful data successfully', async () => {
+  describe('fetchCMSData', () => {
+    it('fetches CMS data successfully', async () => {
       const mockOffering = PageContentOfferingTransformedFactory();
 
       jest
-        .spyOn(contentfulManager, 'getPageContentForOffering')
+        .spyOn(productConfigurationManager, 'getPageContentForOffering')
         .mockResolvedValue({
           getOffering: jest.fn().mockResolvedValue(mockOffering),
         } as unknown as PageContentForOfferingResultUtil);
 
-      const result = await contentfulService.fetchContentfulData(
+      const result = await contentfulService.fetchCMSData(
         mockOffering.apiIdentifier,
         'en'
       );
@@ -84,7 +81,7 @@ describe('ContentfulService', () => {
       });
 
       jest
-        .spyOn(contentfulManager, 'getOfferingPlanIds')
+        .spyOn(productConfigurationManager, 'getOfferingPlanIds')
         .mockResolvedValue([mockPrice.id]);
 
       jest
@@ -104,7 +101,7 @@ describe('ContentfulService', () => {
       const mockPrice = StripeResponseFactory(StripePriceFactory());
 
       jest
-        .spyOn(contentfulManager, 'getOfferingPlanIds')
+        .spyOn(productConfigurationManager, 'getOfferingPlanIds')
         .mockResolvedValue([mockPrice.id]);
 
       jest

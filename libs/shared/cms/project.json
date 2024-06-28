@@ -1,14 +1,14 @@
 {
-  "name": "shared-contentful",
+  "name": "shared-cms",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/shared/contentful/src",
+  "sourceRoot": "libs/shared/cms/src",
   "projectType": "library",
   "tags": [],
   "targets": {
     "codegen": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "graphql-codegen --config libs/shared/contentful/codegen.config.ts"
+        "command": "graphql-codegen --config libs/shared/cms/codegen.config.ts"
       }
     },
     "build": {
@@ -16,14 +16,14 @@
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
-        "main": "libs/shared/contentful/src/index.ts",
-        "outputPath": "dist/libs/shared/contentful",
+        "main": "libs/shared/cms/src/index.ts",
+        "outputPath": "dist/libs/shared/cms",
         "outputFileName": "main.js",
-        "tsConfig": "libs/shared/contentful/tsconfig.lib.json",
+        "tsConfig": "libs/shared/cms/tsconfig.lib.json",
         "declaration": true,
         "assets": [
           {
-            "glob": "libs/shared/contentful/README.md",
+            "glob": "libs/shared/cms/README.md",
             "input": ".",
             "output": "."
           }
@@ -44,8 +44,8 @@
       "outputs": ["{options.outputFile}"],
       "options": {
         "lintFilePatterns": [
-          "libs/shared/contentful/**/*.ts",
-          "libs/shared/contentful/package.json"
+          "libs/shared/cms/**/*.ts",
+          "libs/shared/cms/package.json"
         ]
       }
     },
@@ -53,7 +53,7 @@
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "libs/shared/contentful/jest.config.ts"
+        "jestConfig": "libs/shared/cms/jest.config.ts"
       }
     }
   }

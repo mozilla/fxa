@@ -2,20 +2,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { Injectable } from '@nestjs/common';
 import {
   CapabilitiesResult,
-  ContentfulManager,
+  ProductConfigurationManager,
   ServiceResult,
-} from '@fxa/shared/contentful';
-import { Injectable } from '@nestjs/common';
+} from '@fxa/shared/cms';
 
 @Injectable()
 export class CapabilityManager {
-  constructor(private contentfulManager: ContentfulManager) {}
+  constructor(
+    private productConfigurationManager: ProductConfigurationManager
+  ) {}
 
   async getClients() {
     const clients = (
-      await this.contentfulManager.getServicesWithCapabilities()
+      await this.productConfigurationManager.getServicesWithCapabilities()
     ).getServices();
 
     return clients.map((client: ServiceResult) => {
@@ -44,7 +46,7 @@ export class CapabilityManager {
 
     for (const subscribedPrice of subscribedPrices) {
       const purchaseDetails =
-        await this.contentfulManager.getPurchaseDetailsForCapabilityServiceByPlanIds(
+        await this.productConfigurationManager.getPurchaseDetailsForCapabilityServiceByPlanIds(
           [subscribedPrice]
         );
 

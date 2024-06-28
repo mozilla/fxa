@@ -19,9 +19,9 @@ const {
   PromotionCodeManager,
 } = require('@fxa/payments/stripe');
 const {
-  ContentfulClient,
-  ContentfulManager,
-} = require('@fxa/shared/contentful');
+  ProductConfigurationManager,
+  StrapiClient,
+} = require('@fxa/shared/cms');
 const TracingProvider = require('fxa-shared/tracing/node-tracing');
 
 const error = require('../lib/error');
@@ -152,7 +152,7 @@ async function run(config) {
       config.contentful.firestoreCacheCollectionName
     ) {
       const firestore = Container.get(AuthFirestore);
-      const contentfulClient = new ContentfulClient(
+      const strapiClient = new StrapiClient(
         {
           cdnApiUri: config.contentful.cdnUrl,
           graphqlApiUri: config.contentful.graphqlUrl,
@@ -164,11 +164,16 @@ async function run(config) {
         },
         firestore
       );
-      const contentfulManager = new ContentfulManager(contentfulClient, statsd);
-      Container.set(ContentfulManager, contentfulManager);
-      const capabilityManager = new CapabilityManager(contentfulManager);
+      const productConfigurationManager = new ProductConfigurationManager(
+        strapiClient,
+        statsd
+      );
+      Container.set(ProductConfigurationManager, productConfigurationManager);
+      const capabilityManager = new CapabilityManager(
+        productConfigurationManager
+      );
       const eligibilityManager = new EligibilityManager(
-        contentfulManager,
+        productConfigurationManager,
         priceManager
       );
       Container.set(CapabilityManager, capabilityManager);

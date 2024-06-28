@@ -2254,6 +2254,8 @@ export type Sys = {
   environmentId: Scalars['String']['output'];
   firstPublishedAt: Maybe<Scalars['DateTime']['output']>;
   id: Scalars['String']['output'];
+  /** The locale that was requested. */
+  locale: Maybe<Scalars['String']['output']>;
   publishedAt: Maybe<Scalars['DateTime']['output']>;
   publishedVersion: Maybe<Scalars['Int']['output']>;
   spaceId: Scalars['String']['output'];

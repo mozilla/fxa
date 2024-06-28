@@ -1,7 +1,7 @@
 /**
- * Stripe metadata keys with Contentful config
+ * Stripe metadata keys with CMS config
  */
-export enum StripeMetadataKeysForContentful {
+export enum StripeMetadataKeysForCMS {
   DetailsLine1 = 'product:details:1',
   DetailsLine2 = 'product:details:2',
   DetailsLine3 = 'product:details:3',
@@ -20,6 +20,6 @@ export enum StripeMetadataKeysForContentful {
   NewsletterSlug = 'newsletterSlug',
 }
 
-export type StripeMetadataWithContentful = Partial<
-  Record<StripeMetadataKeysForContentful, string>
+export type StripeMetadataWithCMS = Partial<
+  Record<StripeMetadataKeysForCMS, string>
 >;

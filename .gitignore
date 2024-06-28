@@ -173,6 +173,6 @@ configs/gql/allowlist
 
 tmp
 
-# shared-contentful
-libs/shared/contentful/src/__generated__/graphql.d.ts
-libs/shared/contentful/src/__generated__/graphql.js
+# shared-cms
+libs/shared/cms/src/__generated__/graphql.d.ts
+libs/shared/cms/src/__generated__/graphql.js

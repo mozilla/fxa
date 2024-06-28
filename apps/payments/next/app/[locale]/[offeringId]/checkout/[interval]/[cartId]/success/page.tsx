@@ -13,7 +13,7 @@ import circledConfirm from '@fxa/shared/assets/images/circled-confirm.svg';
 import {
   SupportedPages,
   getApp,
-  fetchContentfulData,
+  fetchCMSData,
   getCartOrRedirectAction,
 } from '@fxa/payments/ui/server';
 
@@ -61,15 +61,15 @@ export default async function CheckoutSuccess({
   //);
   const locale = headers().get('accept-language') || DEFAULT_LOCALE;
 
-  const contentfulDataPromise = fetchContentfulData(params.offeringId, locale);
+  const cmsDataPromise = fetchCMSData(params.offeringId, locale);
   const cartDataPromise = getCartOrRedirectAction(
     params.cartId,
     SupportedPages.SUCCESS
   );
   const l10n = getApp().getL10n(locale);
   const fakeCartDataPromise = getFakeCartData(params.cartId);
-  const [contentful, cart, fakeCart] = await Promise.all([
-    contentfulDataPromise,
+  const [cms, cart, fakeCart] = await Promise.all([
+    cmsDataPromise,
     cartDataPromise,
     fakeCartDataPromise,
   ]);
@@ -92,10 +92,9 @@ export default async function CheckoutSuccess({
               'next-payment-confirmation-thanks-subheading',
               {
                 email: cart.email || '',
-                product_name:
-                  contentful.defaultPurchase.purchaseDetails.productName,
+                product_name: cms.defaultPurchase.purchaseDetails.productName,
               },
-              `A confirmation email has been sent to ${cart.email} with details on how to get started with ${contentful.defaultPurchase.purchaseDetails.productName}.`
+              `A confirmation email has been sent to ${cart.email} with details on how to get started with ${cms.defaultPurchase.purchaseDetails.productName}.`
             )}
           </p>
         </div>
@@ -152,9 +151,9 @@ export default async function CheckoutSuccess({
 
         <a
           className="page-button"
-          href={contentful.commonContent.successActionButtonUrl}
+          href={cms.commonContent.successActionButtonUrl}
         >
-          {contentful.commonContent.successActionButtonLabel ||
+          {cms.commonContent.successActionButtonLabel ||
             l10n.getString(
               'next-payment-confirmation-download-button',
               'Continue to download'

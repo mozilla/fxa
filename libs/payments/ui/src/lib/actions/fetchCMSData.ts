@@ -6,14 +6,11 @@
 
 import { plainToClass } from 'class-transformer';
 import { getApp } from '../nestapp/app';
-import { FetchContentfulDataArgs } from '../nestapp/validators/FetchContentfulDataArgs';
+import { FetchCMSDataArgs } from '../nestapp/validators/FetchCMSDataArgs';
 
-export const fetchContentfulData = (
-  offeringId: string,
-  acceptLanguage: string
-) => {
-  return getApp().getActionsService().fetchContentfulData(
-    plainToClass(FetchContentfulDataArgs, {
+export const fetchCMSData = (offeringId: string, acceptLanguage: string) => {
+  return getApp().getActionsService().fetchCMSData(
+    plainToClass(FetchCMSDataArgs, {
       offeringId,
       acceptLanguage,
     })

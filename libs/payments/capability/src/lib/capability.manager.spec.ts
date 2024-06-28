@@ -4,43 +4,43 @@
 import { Test } from '@nestjs/testing';
 
 import {
-  ContentfulManager,
   CapabilityCapabilitiesResultFactory,
   CapabilityOfferingResultFactory,
   CapabilitiesResultFactory,
   CapabilityServiceByPlanIdsResultUtil,
   CapabilityServicesResultFactory,
-  ServiceResultFactory,
-  ServicesWithCapabilitiesResultUtil,
-  ServicesWithCapabilitiesQueryFactory,
-  ServicesWithCapabilitiesResult,
-  ContentfulClient,
   ContentfulClientConfig,
   CapabilityServiceByPlanIdsQueryFactory,
   CapabilityServiceByPlanIdsResult,
   CapabilityPurchaseResultFactory,
-} from '@fxa/shared/contentful';
-import { CapabilityManager } from './capability.manager';
+  ProductConfigurationManager,
+  ServiceResultFactory,
+  ServicesWithCapabilitiesResultUtil,
+  ServicesWithCapabilitiesQueryFactory,
+  ServicesWithCapabilitiesResult,
+  StrapiClient,
+} from '@fxa/shared/cms';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
+import { CapabilityManager } from './capability.manager';
 
 describe('CapabilityManager', () => {
   let capabilityManager: CapabilityManager;
-  let contentfulManager: ContentfulManager;
+  let productConfigurationManager: ProductConfigurationManager;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
       providers: [
+        CapabilityManager,
+        ContentfulClientConfig,
         MockFirestoreProvider,
         MockStatsDProvider,
-        ContentfulClientConfig,
-        ContentfulClient,
-        ContentfulManager,
-        CapabilityManager,
+        ProductConfigurationManager,
+        StrapiClient,
       ],
     }).compile();
 
-    contentfulManager = module.get(ContentfulManager);
+    productConfigurationManager = module.get(ProductConfigurationManager);
     capabilityManager = module.get(CapabilityManager);
   });
 
@@ -68,7 +68,7 @@ describe('CapabilityManager', () => {
           },
         });
       jest
-        .spyOn(contentfulManager, 'getServicesWithCapabilities')
+        .spyOn(productConfigurationManager, 'getServicesWithCapabilities')
         .mockResolvedValue(
           new ServicesWithCapabilitiesResultUtil(
             mockServicesWithCapabilitiesQuery as ServicesWithCapabilitiesResult
@@ -94,7 +94,7 @@ describe('CapabilityManager', () => {
         CapabilityServiceByPlanIdsQueryFactory();
       jest
         .spyOn(
-          contentfulManager,
+          productConfigurationManager,
           'getPurchaseDetailsForCapabilityServiceByPlanIds'
         )
         .mockResolvedValue(
@@ -126,7 +126,7 @@ describe('CapabilityManager', () => {
         });
       jest
         .spyOn(
-          contentfulManager,
+          productConfigurationManager,
           'getPurchaseDetailsForCapabilityServiceByPlanIds'
         )
         .mockResolvedValue(
@@ -166,7 +166,7 @@ describe('CapabilityManager', () => {
         });
       jest
         .spyOn(
-          contentfulManager,
+          productConfigurationManager,
           'getPurchaseDetailsForCapabilityServiceByPlanIds'
         )
         .mockResolvedValue(
@@ -231,7 +231,7 @@ describe('CapabilityManager', () => {
         });
       jest
         .spyOn(
-          contentfulManager,
+          productConfigurationManager,
           'getPurchaseDetailsForCapabilityServiceByPlanIds'
         )
         .mockResolvedValue(

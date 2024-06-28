@@ -4,14 +4,14 @@
 
 import { faker } from '@faker-js/faker';
 import { DEFAULT_LOCALE } from './constants';
-import { ContentfulClient } from './contentful.client';
 import { offeringQuery } from './queries/offering/query';
+import { StrapiClient } from './strapi.client';
 import { OfferingQuery } from '../__generated__/graphql';
 import {
+  CMSError,
   ContentfulCDNError,
   ContentfulCDNExecutionError,
-  ContentfulError,
-} from './contentful.error';
+} from './cms.error';
 import { ContentfulCDNErrorFactory } from './factories';
 import { Firestore } from '@google-cloud/firestore';
 
@@ -37,12 +37,12 @@ jest.mock('@fxa/shared/db/type-cacheable', () => ({
 
 jest.useFakeTimers();
 
-describe('ContentfulClient', () => {
-  let contentfulClient: ContentfulClient;
+describe('StrapiClient', () => {
+  let strapiClient: StrapiClient;
   const onCallback = jest.fn();
 
   beforeEach(() => {
-    contentfulClient = new ContentfulClient(
+    strapiClient = new StrapiClient(
       {
         cdnApiUri: faker.string.uuid(),
         graphqlApiKey: faker.string.uuid(),
@@ -53,7 +53,7 @@ describe('ContentfulClient', () => {
       },
       {} as unknown as Firestore
     );
-    contentfulClient.on('response', onCallback);
+    strapiClient.on('response', onCallback);
   });
 
   afterEach(() => {
@@ -69,11 +69,11 @@ describe('ContentfulClient', () => {
       let result: OfferingQuery | null;
 
       beforeEach(async () => {
-        (contentfulClient.client.request as jest.Mock).mockResolvedValueOnce(
+        (strapiClient.client.request as jest.Mock).mockResolvedValueOnce(
           mockResponse
         );
 
-        result = await contentfulClient.query(offeringQuery, {
+        result = await strapiClient.query(offeringQuery, {
           id,
           locale,
         });
@@ -83,8 +83,8 @@ describe('ContentfulClient', () => {
         expect(result).toEqual(mockResponse);
       });
 
-      it('calls contentful with expected params', () => {
-        expect(contentfulClient.client.request).toHaveBeenCalledWith({
+      it('calls cms with expected params', () => {
+        expect(strapiClient.client.request).toHaveBeenCalledWith({
           document: offeringQuery,
           variables: {
             id,
@@ -98,10 +98,10 @@ describe('ContentfulClient', () => {
           expect.objectContaining({ method: 'query', cache: false })
         );
 
-        (contentfulClient.client.request as jest.Mock).mockResolvedValueOnce(
+        (strapiClient.client.request as jest.Mock).mockResolvedValueOnce(
           mockResponse
         );
-        result = await contentfulClient.query(offeringQuery, {
+        result = await strapiClient.query(offeringQuery, {
           id,
           locale,
         });
@@ -113,16 +113,14 @@ describe('ContentfulClient', () => {
 
     it('throws an error when the graphql request fails', async () => {
       const error = new Error(faker.word.sample());
-      (contentfulClient.client.request as jest.Mock).mockRejectedValueOnce(
-        error
-      );
+      (strapiClient.client.request as jest.Mock).mockRejectedValueOnce(error);
 
       await expect(() =>
-        contentfulClient.query(offeringQuery, {
+        strapiClient.query(offeringQuery, {
           id,
           locale,
         })
-      ).rejects.toThrow(new ContentfulError([error]));
+      ).rejects.toThrow(new CMSError([error]));
 
       expect(onCallback).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -154,35 +152,35 @@ describe('ContentfulClient', () => {
     });
     describe('success', () => {
       it('Returns prefered locale', async () => {
-        const result = await contentfulClient.getLocale(ACCEPT_LANGUAGE);
+        const result = await strapiClient.getLocale(ACCEPT_LANGUAGE);
         expect(result).toBe(DEFAULT_LOCALE);
       });
 
       it('Returns 2nd prefered locale, if prefered locale is not in configured', async () => {
         const acceptLanguage = 'de-DE,fr-FR;q=0.7,en-US;q=0.3';
-        const result = await contentfulClient.getLocale(acceptLanguage);
+        const result = await strapiClient.getLocale(acceptLanguage);
         expect(result).toBe('fr-FR');
       });
 
-      it('Returns the default locale, if no matching locale in Contentful', async () => {
+      it('Returns the default locale, if no matching locale in CMS', async () => {
         const acceptLanguage = 'de-DE';
-        const result = await contentfulClient.getLocale(acceptLanguage);
+        const result = await strapiClient.getLocale(acceptLanguage);
         expect(result).toBe(DEFAULT_LOCALE);
       });
 
-      it('Returns prefered locale from cache instead of fetching from Contentful', async () => {
-        await contentfulClient.getLocale(ACCEPT_LANGUAGE);
-        await contentfulClient.getLocale(ACCEPT_LANGUAGE);
+      it('Returns prefered locale from cache instead of fetching from CMS', async () => {
+        await strapiClient.getLocale(ACCEPT_LANGUAGE);
+        await strapiClient.getLocale(ACCEPT_LANGUAGE);
         expect(global.fetch).toBeCalledTimes(1);
       });
 
       it('emits event and on second request emits event with cache true', async () => {
-        await contentfulClient.getLocale(ACCEPT_LANGUAGE);
+        await strapiClient.getLocale(ACCEPT_LANGUAGE);
         expect(onCallback).toHaveBeenCalledWith(
           expect.objectContaining({ method: 'getLocales', cache: false })
         );
 
-        await contentfulClient.getLocale(ACCEPT_LANGUAGE);
+        await strapiClient.getLocale(ACCEPT_LANGUAGE);
         expect(onCallback).toHaveBeenCalledWith(
           expect.objectContaining({ method: 'getLocales', cache: true })
         );
@@ -191,7 +189,7 @@ describe('ContentfulClient', () => {
 
     describe('errors', () => {
       const cdnErrorResult = ContentfulCDNErrorFactory();
-      it('throws a cdn error when contentful returns an error', async () => {
+      it('throws a cdn error when cms returns an error', async () => {
         (global.fetch as jest.Mock) = jest.fn(() =>
           Promise.resolve({
             ok: false,
@@ -200,7 +198,7 @@ describe('ContentfulClient', () => {
         );
 
         await expect(() =>
-          contentfulClient.getLocale(ACCEPT_LANGUAGE)
+          strapiClient.getLocale(ACCEPT_LANGUAGE)
         ).rejects.toThrow(
           new ContentfulCDNError(cdnErrorResult.message, {
             info: cdnErrorResult,
@@ -215,12 +213,12 @@ describe('ContentfulClient', () => {
         );
       });
 
-      it('throws a cdn execution error when contentful cant be reached', async () => {
+      it('throws a cdn execution error when cms cant be reached', async () => {
         const error = new Error('failure');
         (global.fetch as jest.Mock) = jest.fn(() => Promise.reject(error));
 
         await expect(() =>
-          contentfulClient.getLocale(ACCEPT_LANGUAGE)
+          strapiClient.getLocale(ACCEPT_LANGUAGE)
         ).rejects.toThrow(
           new ContentfulCDNExecutionError('Contentful: Execution Error', {
             cause: error,

@@ -10,12 +10,12 @@
  *
  * Currently this file stubs the following queries
  * - Cart Data fetch
- * - Contentful data fetch by offering
+ * - CMS data fetch by offering
  *
  */
 import { CartErrorReasonId, CartState } from '@fxa/shared/db/mysql/account';
 
-export async function fetchFromContentful() {
+export async function fetchFromCMS() {
   return {
     offering: {
       stripeProductId: '',

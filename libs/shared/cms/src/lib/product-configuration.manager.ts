@@ -16,8 +16,6 @@ import {
   PageContentForOfferingQuery,
 } from '../__generated__/graphql';
 import { DEFAULT_LOCALE } from './constants';
-import { ContentfulClient } from './contentful.client';
-
 import {
   capabilityServiceByPlanIdsQuery,
   CapabilityServiceByPlanIdsResultUtil,
@@ -42,12 +40,13 @@ import {
   ServicesWithCapabilitiesResultUtil,
   servicesWithCapabilitiesQuery,
 } from './queries/services-with-capabilities';
+import { StrapiClient } from './strapi.client';
 import { DeepNonNullable } from './types';
 
 @Injectable()
-export class ContentfulManager {
+export class ProductConfigurationManager {
   constructor(
-    private client: ContentfulClient,
+    private client: StrapiClient,
     @Inject(StatsDService) private statsd: StatsD
   ) {
     this.client.on('response', (response) => {
@@ -60,12 +59,7 @@ export class ContentfulManager {
       const tags = operationName
         ? { ...defaultTags, operationName }
         : defaultTags;
-      this.statsd.timing(
-        'contentful_request',
-        response.elapsed,
-        undefined,
-        tags
-      );
+      this.statsd.timing('cms_request', response.elapsed, undefined, tags);
     });
   }
 
@@ -176,7 +170,7 @@ export class ContentfulManager {
       [];
     const stripePlans: string[][] = [];
 
-    // reduce query size by making multiple calls to Contentful
+    // reduce query size by making multiple calls to CMS
     for (let i = 0; i < stripePlanIds.length; i += 150) {
       stripePlans.push(stripePlanIds.slice(i, i + 150));
     }

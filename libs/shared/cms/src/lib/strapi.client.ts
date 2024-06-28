@@ -5,27 +5,28 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import type { OperationVariables } from '@apollo/client';
-import { GraphQLClient } from 'graphql-request';
+import { Firestore } from '@google-cloud/firestore';
 import type { TypedDocumentNode } from '@graphql-typed-document-node/core';
 import { Inject, Injectable } from '@nestjs/common';
-import { determineLocale } from '@fxa/shared/l10n';
-import { DEFAULT_LOCALE } from './constants';
-import { ContentfulClientConfig } from './contentful.client.config';
-import {
-  ContentfulCDNError,
-  ContentfulCDNExecutionError,
-  ContentfulError,
-} from './contentful.error';
-import { ContentfulErrorResponse } from './types';
+import { Cacheable } from '@type-cacheable/core';
 import EventEmitter from 'events';
+import { GraphQLClient } from 'graphql-request';
+
+import { FirestoreService } from '@fxa/shared/db/firestore';
 import {
   FirestoreAdapter,
   NetworkFirstStrategy,
 } from '@fxa/shared/db/type-cacheable';
+import { determineLocale } from '@fxa/shared/l10n';
+import { DEFAULT_LOCALE } from './constants';
+import { ContentfulClientConfig } from './contentful.client.config';
+import {
+  CMSError,
+  ContentfulCDNError,
+  ContentfulCDNExecutionError,
+} from './cms.error';
+import { ContentfulErrorResponse } from './types';
 import { CONTENTFUL_QUERY_CACHE_KEY, cacheKeyForQuery } from './util';
-import { Cacheable } from '@type-cacheable/core';
-import { FirestoreService } from '@fxa/shared/db/firestore';
-import { Firestore } from '@google-cloud/firestore';
 
 const DEFAULT_FIRESTORE_CACHE_TTL = 604800; // Seconds. 604800 is 7 days.
 const DEFAULT_MEM_CACHE_TTL = 300; // Seconds
@@ -42,7 +43,7 @@ interface EventResponse {
 }
 
 @Injectable()
-export class ContentfulClient {
+export class StrapiClient {
   client: GraphQLClient;
   private locales: string[] = [];
   private emitter: EventEmitter;
@@ -137,7 +138,7 @@ export class ContentfulClient {
         error: e,
       });
 
-      throw new ContentfulError([e]);
+      throw new CMSError([e]);
     }
   }
 

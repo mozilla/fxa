@@ -38,7 +38,7 @@
       ],
       "@fxa/shared/assets/*": ["libs/shared/assets/src/*"],
       "@fxa/shared/cloud-tasks": ["libs/shared/cloud-tasks/src/index.ts"],
-      "@fxa/shared/contentful": ["libs/shared/contentful/src/index.ts"],
+      "@fxa/shared/cms": ["libs/shared/cms/src/index.ts"],
       "@fxa/shared/db/firestore": ["libs/shared/db/firestore/src/index.ts"],
       "@fxa/shared/db/mysql/account": [
         "libs/shared/db/mysql/account/src/index.ts"

@@ -7,9 +7,6 @@ import { StatsD } from 'hot-shots';
 import { StripePlanFactory } from '@fxa/payments/stripe';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import { StatsDService } from '@fxa/shared/metrics/statsd';
-
-import { ContentfulClient } from './contentful.client';
-import { ContentfulManager } from './contentful.manager';
 import {
   CapabilityPurchaseResult,
   CapabilityPurchaseResultFactory,
@@ -24,6 +21,7 @@ import {
   ServicesWithCapabilitiesQueryFactory,
   ServicesWithCapabilitiesResultUtil,
 } from '../../src';
+import { ProductConfigurationManager } from './product-configuration.manager';
 import {
   EligibilityContentByOfferingQueryFactory,
   EligibilityContentOfferingResultFactory,
@@ -35,6 +33,7 @@ import {
 } from './queries/page-content-for-offering';
 import { PurchaseWithDetailsOfferingContentUtil } from './queries/purchase-with-details-offering-content';
 import { PurchaseWithDetailsOfferingContentByPlanIdsResultFactory } from './queries/purchase-with-details-offering-content/factories';
+import { StrapiClient } from './strapi.client';
 
 jest.mock('@type-cacheable/core', () => ({
   Cacheable: () => {
@@ -48,9 +47,9 @@ jest.mock('@fxa/shared/db/type-cacheable', () => ({
   NetworkFirstStrategy: function () {},
 }));
 
-describe('ContentfulManager', () => {
-  let contentfulManager: ContentfulManager;
-  let contentfulClient: ContentfulClient;
+describe('productConfigurationManager', () => {
+  let productConfigurationManager: ProductConfigurationManager;
+  let strapiClient: StrapiClient;
   let mockStatsd: StatsD;
 
   beforeEach(async () => {
@@ -63,25 +62,27 @@ describe('ContentfulManager', () => {
         { provide: StatsDService, useValue: mockStatsd },
         MockFirestoreProvider,
         ContentfulClientConfig,
-        ContentfulClient,
-        ContentfulManager,
+        ProductConfigurationManager,
+        StrapiClient,
       ],
     }).compile();
 
-    contentfulClient = module.get(ContentfulClient);
-    contentfulManager = module.get(ContentfulManager);
+    strapiClient = module.get(StrapiClient);
+    productConfigurationManager = module.get(ProductConfigurationManager);
   });
 
   it('should call statsd for incoming events', async () => {
     const queryData = EligibilityContentByPlanIdsQueryFactory({
       purchaseCollection: { items: [], total: 0 },
     });
-    jest.spyOn(contentfulClient.client, 'request').mockResolvedValue(queryData);
+    jest.spyOn(strapiClient.client, 'request').mockResolvedValue(queryData);
 
-    await contentfulManager.getPurchaseDetailsForEligibility(['test']);
+    await productConfigurationManager.getPurchaseDetailsForEligibility([
+      'test',
+    ]);
 
     expect(mockStatsd.timing).toHaveBeenCalledWith(
-      'contentful_request',
+      'cms_request',
       expect.any(Number),
       undefined,
       {
@@ -99,11 +100,12 @@ describe('ContentfulManager', () => {
         offeringCollection: { items: [] },
       });
 
-      jest.spyOn(contentfulClient, 'query').mockResolvedValue(queryData);
+      jest.spyOn(strapiClient, 'query').mockResolvedValue(queryData);
 
-      const result = await contentfulManager.getEligibilityContentByOffering(
-        'test'
-      );
+      const result =
+        await productConfigurationManager.getEligibilityContentByOffering(
+          'test'
+        );
       expect(result).toBeInstanceOf(EligibilityContentByOfferingResultUtil);
     });
 
@@ -118,11 +120,12 @@ describe('ContentfulManager', () => {
         },
       });
 
-      jest.spyOn(contentfulClient, 'query').mockResolvedValue(queryData);
+      jest.spyOn(strapiClient, 'query').mockResolvedValue(queryData);
 
-      const result = await contentfulManager.getEligibilityContentByOffering(
-        apiIdentifier
-      );
+      const result =
+        await productConfigurationManager.getEligibilityContentByOffering(
+          apiIdentifier
+        );
       expect(result).toBeInstanceOf(EligibilityContentByOfferingResultUtil);
       expect(result.getOffering()).toBeDefined();
     });
@@ -134,13 +137,14 @@ describe('ContentfulManager', () => {
         offeringCollection: { items: [] },
       });
 
-      jest.spyOn(contentfulClient, 'query').mockResolvedValue(queryData);
-      jest.spyOn(contentfulClient, 'getLocale').mockResolvedValue('en');
+      jest.spyOn(strapiClient, 'query').mockResolvedValue(queryData);
+      jest.spyOn(strapiClient, 'getLocale').mockResolvedValue('en');
 
-      const result = await contentfulManager.getPageContentForOffering(
-        'test',
-        'en'
-      );
+      const result =
+        await productConfigurationManager.getPageContentForOffering(
+          'test',
+          'en'
+        );
       expect(result).toBeInstanceOf(PageContentForOfferingResultUtil);
       expect(result.offeringCollection.items).toHaveLength(0);
     });
@@ -158,13 +162,14 @@ describe('ContentfulManager', () => {
         },
       });
 
-      jest.spyOn(contentfulClient, 'query').mockResolvedValue(queryData);
-      jest.spyOn(contentfulClient, 'getLocale').mockResolvedValue('en');
+      jest.spyOn(strapiClient, 'query').mockResolvedValue(queryData);
+      jest.spyOn(strapiClient, 'getLocale').mockResolvedValue('en');
 
-      const result = await contentfulManager.getPageContentForOffering(
-        apiIdentifier,
-        'en'
-      );
+      const result =
+        await productConfigurationManager.getPageContentForOffering(
+          apiIdentifier,
+          'en'
+        );
       expect(result).toBeInstanceOf(PageContentForOfferingResultUtil);
       expect(result.getOffering().defaultPurchase.purchaseDetails).toEqual(
         result.purchaseDetailsTransform(
@@ -180,11 +185,12 @@ describe('ContentfulManager', () => {
         purchaseCollection: { items: [], total: 0 },
       });
 
-      jest.spyOn(contentfulClient, 'query').mockResolvedValue(queryData);
+      jest.spyOn(strapiClient, 'query').mockResolvedValue(queryData);
 
-      const result = await contentfulManager.getPurchaseDetailsForEligibility([
-        'test',
-      ]);
+      const result =
+        await productConfigurationManager.getPurchaseDetailsForEligibility([
+          'test',
+        ]);
       expect(result).toBeInstanceOf(EligibilityContentByPlanIdsResultUtil);
       expect(result.offeringForPlanId('test')).toBeUndefined;
       expect(result.purchaseCollection.items).toHaveLength(0);
@@ -202,11 +208,12 @@ describe('ContentfulManager', () => {
         },
       });
 
-      jest.spyOn(contentfulClient, 'query').mockResolvedValue(queryData);
+      jest.spyOn(strapiClient, 'query').mockResolvedValue(queryData);
 
-      const result = await contentfulManager.getPurchaseDetailsForEligibility([
-        'test',
-      ]);
+      const result =
+        await productConfigurationManager.getPurchaseDetailsForEligibility([
+          'test',
+        ]);
       expect(result).toBeInstanceOf(EligibilityContentByPlanIdsResultUtil);
       expect(
         result.offeringForPlanId(planId)?.linkedFrom.subGroupCollection.items
@@ -227,13 +234,14 @@ describe('ContentfulManager', () => {
         },
       });
 
-      jest.spyOn(contentfulClient, 'query').mockResolvedValue(queryData);
+      jest.spyOn(strapiClient, 'query').mockResolvedValue(queryData);
 
-      const result = await contentfulManager.getPurchaseDetailsForEligibility([
-        'test',
-      ]);
+      const result =
+        await productConfigurationManager.getPurchaseDetailsForEligibility([
+          'test',
+        ]);
       expect(result).toBeInstanceOf(EligibilityContentByPlanIdsResultUtil);
-      expect(contentfulClient.query).toBeCalledTimes(2);
+      expect(strapiClient.query).toBeCalledTimes(2);
     });
   });
 
@@ -243,10 +251,10 @@ describe('ContentfulManager', () => {
         purchaseCollection: { items: [], total: 0 },
       });
 
-      jest.spyOn(contentfulClient, 'query').mockResolvedValue(queryData);
+      jest.spyOn(strapiClient, 'query').mockResolvedValue(queryData);
 
       const result =
-        await contentfulManager.getPurchaseDetailsForCapabilityServiceByPlanIds(
+        await productConfigurationManager.getPurchaseDetailsForCapabilityServiceByPlanIds(
           ['test']
         );
       expect(result).toBeInstanceOf(CapabilityServiceByPlanIdsResultUtil);
@@ -265,10 +273,10 @@ describe('ContentfulManager', () => {
         },
       });
 
-      jest.spyOn(contentfulClient, 'query').mockResolvedValue(queryData);
+      jest.spyOn(strapiClient, 'query').mockResolvedValue(queryData);
 
       const result =
-        await contentfulManager.getPurchaseDetailsForCapabilityServiceByPlanIds(
+        await productConfigurationManager.getPurchaseDetailsForCapabilityServiceByPlanIds(
           ['test']
         );
       expect(result).toBeInstanceOf(CapabilityServiceByPlanIdsResultUtil);
@@ -288,24 +296,25 @@ describe('ContentfulManager', () => {
         },
       });
 
-      jest.spyOn(contentfulClient, 'query').mockResolvedValue(queryData);
+      jest.spyOn(strapiClient, 'query').mockResolvedValue(queryData);
 
       const result =
-        await contentfulManager.getPurchaseDetailsForCapabilityServiceByPlanIds(
+        await productConfigurationManager.getPurchaseDetailsForCapabilityServiceByPlanIds(
           ['test']
         );
       expect(result).toBeInstanceOf(CapabilityServiceByPlanIdsResultUtil);
-      expect(contentfulClient.query).toBeCalledTimes(2);
+      expect(strapiClient.query).toBeCalledTimes(2);
     });
   });
 
   describe('getServicesWithCapabilities', () => {
     it('should return results', async () => {
-      jest.spyOn(contentfulClient, 'query').mockResolvedValue({
+      jest.spyOn(strapiClient, 'query').mockResolvedValue({
         serviceCollection: { items: [] },
       });
 
-      const result = await contentfulManager.getServicesWithCapabilities();
+      const result =
+        await productConfigurationManager.getServicesWithCapabilities();
       expect(result).toBeInstanceOf(ServicesWithCapabilitiesResultUtil);
       expect(result.serviceCollection.items).toHaveLength(0);
     });
@@ -313,9 +322,10 @@ describe('ContentfulManager', () => {
     it('should return successfully with services and capabilities', async () => {
       const queryData = ServicesWithCapabilitiesQueryFactory();
 
-      jest.spyOn(contentfulClient, 'query').mockResolvedValue(queryData);
+      jest.spyOn(strapiClient, 'query').mockResolvedValue(queryData);
 
-      const result = await contentfulManager.getServicesWithCapabilities();
+      const result =
+        await productConfigurationManager.getServicesWithCapabilities();
       expect(result).toBeInstanceOf(ServicesWithCapabilitiesResultUtil);
       expect(result.serviceCollection.items).toHaveLength(1);
     });
@@ -323,13 +333,13 @@ describe('ContentfulManager', () => {
 
   describe('getPurchaseWithDetailsOfferingContentByPlanIds', () => {
     it('should return empty result', async () => {
-      jest.spyOn(contentfulClient, 'query').mockResolvedValue({
+      jest.spyOn(strapiClient, 'query').mockResolvedValue({
         purchaseCollection: { items: [] },
       });
-      jest.spyOn(contentfulClient, 'getLocale').mockResolvedValue('en');
+      jest.spyOn(strapiClient, 'getLocale').mockResolvedValue('en');
 
       const result =
-        await contentfulManager.getPurchaseWithDetailsOfferingContentByPlanIds(
+        await productConfigurationManager.getPurchaseWithDetailsOfferingContentByPlanIds(
           ['test'],
           'en'
         );
@@ -342,11 +352,11 @@ describe('ContentfulManager', () => {
         PurchaseWithDetailsOfferingContentByPlanIdsResultFactory();
       const queryDataItem = queryData.purchaseCollection.items[0];
 
-      jest.spyOn(contentfulClient, 'query').mockResolvedValue(queryData);
-      jest.spyOn(contentfulClient, 'getLocale').mockResolvedValue('en');
+      jest.spyOn(strapiClient, 'query').mockResolvedValue(queryData);
+      jest.spyOn(strapiClient, 'getLocale').mockResolvedValue('en');
 
       const result =
-        await contentfulManager.getPurchaseWithDetailsOfferingContentByPlanIds(
+        await productConfigurationManager.getPurchaseWithDetailsOfferingContentByPlanIds(
           ['test'],
           'en'
         );
@@ -375,12 +385,14 @@ describe('ContentfulManager', () => {
       const mockOfferingResult = {} as EligibilityContentByOfferingResultUtil;
 
       jest
-        .spyOn(contentfulManager, 'getEligibilityContentByOffering')
+        .spyOn(productConfigurationManager, 'getEligibilityContentByOffering')
         .mockResolvedValue(mockOfferingResult);
 
       mockOfferingResult.getOffering = jest.fn().mockReturnValue(mockOffering);
 
-      const result = await contentfulManager.getOfferingPlanIds(apiIdentifier);
+      const result = await productConfigurationManager.getOfferingPlanIds(
+        apiIdentifier
+      );
       expect(result).toEqual([mockPlan.id]);
     });
   });
