@@ -7,6 +7,22 @@
 import EventMetricType from '@mozilla/glean/private/metrics/event';
 
 /**
+ * User clicks on the Apple third party link on the registration page.
+ *
+ * Generated from `reg.apple_oauth_reg_start`.
+ */
+export const appleOauthRegStart = new EventMetricType(
+  {
+    category: 'reg',
+    name: 'apple_oauth_reg_start',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
  * User interacted with the Sync "Choose What to Sync" options during account
  * registration.
  *
