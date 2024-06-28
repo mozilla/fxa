@@ -170,6 +170,7 @@ test.describe('severity-2 #smoke', () => {
       await settings.goto();
       await settings.totp.addButton.click();
       const { secret } = await totp.fillOutTotpForms();
+      await expect(settings.totp.status).toHaveText('Enabled');
       await settings.signOut();
 
       await page.goto(

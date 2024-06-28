@@ -217,6 +217,7 @@ test.describe('severity-1 #smoke', () => {
       // Goes to settings and enables totp on user's account.
       await settings.totp.addButton.click();
       await totp.fillOutTotpForms();
+      await expect(settings.totp.status).toHaveText('Enabled');
       await settings.signOut();
 
       // Makes sure user is not signed in, and goes to the relier (ie 123done)
