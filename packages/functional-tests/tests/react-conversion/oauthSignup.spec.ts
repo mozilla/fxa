@@ -98,6 +98,7 @@ test.describe('severity-1 #smoke', () => {
       syncBrowserPages: { confirmSignupCode, page, login, signup },
       testAccountTracker,
     }) => {
+      test.fixme(true, 'Fix required as of 2024/06/28 (see FXA-10003).');
       const { email, password } =
         testAccountTracker.generateSignupAccountDetails();
       const customEventDetail = createCustomEventDetail(
