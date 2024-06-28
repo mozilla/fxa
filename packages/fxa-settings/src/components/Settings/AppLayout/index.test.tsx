@@ -4,17 +4,17 @@
 
 import React from 'react';
 import { screen } from '@testing-library/react';
-import AppLayout from '.';
 import { renderWithRouter } from '../../../models/mocks';
 import { HomePath } from '../../../constants';
+import { MockSettingsAppLayout } from './mocks';
 
 it('renders the app with children', async () => {
   const {
     history: { navigate },
   } = renderWithRouter(
-    <AppLayout>
+    <MockSettingsAppLayout>
       <p data-testid="test-child">Hello, world!</p>
-    </AppLayout>
+    </MockSettingsAppLayout>
   );
   await navigate(HomePath);
   expect(screen.getByTestId('app')).toBeInTheDocument();

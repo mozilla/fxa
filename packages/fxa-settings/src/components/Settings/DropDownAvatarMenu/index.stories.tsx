@@ -8,6 +8,7 @@ import { withLocalization } from 'fxa-react/lib/storybooks';
 import DropDownAvatarMenu from '.';
 import { Account, AppContext } from 'fxa-settings/src/models';
 import { mockAppContext, MOCK_ACCOUNT } from 'fxa-settings/src/models/mocks';
+import { createMockSettingsIntegration } from '../mocks';
 
 export default {
   title: 'Components/Settings/DropDownAvatarMenu',
@@ -34,12 +35,14 @@ const accountWithoutAvatar = {
   },
 } as unknown as Account;
 
+const integration = createMockSettingsIntegration();
+
 const storyWithContext = (account: Partial<Account>) => {
   const context = { account: account as Account };
 
   const story = () => (
     <AppContext.Provider value={mockAppContext(context)}>
-      <DropDownAvatarMenu />
+      <DropDownAvatarMenu {...{ integration }} />
     </AppContext.Provider>
   );
   return story;
@@ -48,4 +51,6 @@ const storyWithContext = (account: Partial<Account>) => {
 export const DefaultNoAvatarOrDisplayName =
   storyWithContext(accountWithoutAvatar);
 
-export const WithAvatarAndDisplayName = () => <DropDownAvatarMenu />;
+export const WithAvatarAndDisplayName = () => (
+  <DropDownAvatarMenu {...{ integration }} />
+);

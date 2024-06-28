@@ -10,10 +10,10 @@ import {
 } from 'fxa-settings/src/models/mocks';
 import React from 'react';
 import { Page2faReplaceRecoveryCodes } from '.';
-import AppLayout from '../AppLayout';
 import { Meta } from '@storybook/react';
 import { LocationProvider } from '@reach/router';
 import { withLocalization } from 'fxa-react/lib/storybooks';
+import { MockSettingsAppLayout } from '../AppLayout/mocks';
 
 const session = mockSession(true);
 const account = {
@@ -41,9 +41,9 @@ export default {
 export const Default = () => (
   <LocationProvider>
     <AppContext.Provider value={mockAppContext({ account, session })}>
-      <AppLayout>
+      <MockSettingsAppLayout>
         <Page2faReplaceRecoveryCodes />
-      </AppLayout>
+      </MockSettingsAppLayout>
     </AppContext.Provider>
   </LocationProvider>
 );

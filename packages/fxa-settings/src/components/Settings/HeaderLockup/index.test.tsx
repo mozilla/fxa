@@ -6,13 +6,16 @@ import React from 'react';
 import { screen } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import HeaderLockup from '.';
+import { createMockSettingsIntegration } from '../mocks';
 
 // TODO: functional test for `data-testid="header-menu"` to be visible in
 // mobile & tablet but hidden at desktop
 
 describe('HeaderLockup', () => {
   it('renders as expected', () => {
-    renderWithLocalizationProvider(<HeaderLockup />);
+    renderWithLocalizationProvider(
+      <HeaderLockup integration={createMockSettingsIntegration()} />
+    );
     const headerHelp = screen.getByTestId('header-help');
     const headerMenu = screen.getByTestId('header-menu');
 

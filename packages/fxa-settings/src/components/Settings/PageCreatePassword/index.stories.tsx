@@ -4,10 +4,10 @@
 
 import PageCreatePassword from '.';
 import React from 'react';
-import AppLayout from '../AppLayout';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
+import { MockSettingsAppLayout } from '../AppLayout/mocks';
 
 export default {
   title: 'Pages/Settings/CreatePassword',
@@ -17,8 +17,8 @@ export default {
 
 export const Default = () => (
   <LocationProvider>
-    <AppLayout>
+    <MockSettingsAppLayout>
       <PageCreatePassword />
-    </AppLayout>
+    </MockSettingsAppLayout>
   </LocationProvider>
 );

@@ -4,10 +4,10 @@
 
 import React from 'react';
 import { LocationProvider } from '@reach/router';
-import { AppLayout } from '../AppLayout';
 import { PageSecondaryEmailAdd } from '.';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
+import { MockSettingsAppLayout } from '../AppLayout/mocks';
 
 export default {
   title: 'Pages/Settings/SecondaryEmailAdd',
@@ -17,8 +17,8 @@ export default {
 
 export const Default = () => (
   <LocationProvider>
-    <AppLayout>
+    <MockSettingsAppLayout>
       <PageSecondaryEmailAdd />
-    </AppLayout>
+    </MockSettingsAppLayout>
   </LocationProvider>
 );

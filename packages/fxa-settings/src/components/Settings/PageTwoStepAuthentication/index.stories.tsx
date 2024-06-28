@@ -5,9 +5,9 @@
 import { LocationProvider } from '@reach/router';
 import React from 'react';
 import { PageTwoStepAuthentication } from '.';
-import AppLayout from '../AppLayout';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
+import { MockSettingsAppLayout } from '../AppLayout/mocks';
 
 export default {
   title: 'Pages/Settings/TwoStepAuthentication',
@@ -17,8 +17,8 @@ export default {
 
 export const Default = () => (
   <LocationProvider>
-    <AppLayout>
+    <MockSettingsAppLayout>
       <PageTwoStepAuthentication />
-    </AppLayout>
+    </MockSettingsAppLayout>
   </LocationProvider>
 );

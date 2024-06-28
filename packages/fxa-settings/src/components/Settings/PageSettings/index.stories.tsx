@@ -9,7 +9,6 @@ import { PageSettings } from '.';
 import { Config } from '../../../lib/config';
 
 import { LocationProvider } from '@reach/router';
-import AppLayout from '../AppLayout';
 import { isMobileDevice } from '../../../lib/utilities';
 import { mockAppContext, mockEmail, MOCK_ACCOUNT } from '../../../models/mocks';
 import { MOCK_SERVICES } from '../ConnectedServices/mocks';
@@ -17,6 +16,7 @@ import { AppContext } from 'fxa-settings/src/models';
 import { MOCK_LINKED_ACCOUNTS } from '../LinkedAccounts/mocks';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
+import { MockSettingsAppLayout } from '../AppLayout/mocks';
 
 const SERVICES_NON_MOBILE = MOCK_SERVICES.filter((d) => !isMobileDevice(d));
 
@@ -63,9 +63,9 @@ const storyWithContext = (
   const story = () => (
     <LocationProvider>
       <AppContext.Provider value={mockAppContext(context)}>
-        <AppLayout>
+        <MockSettingsAppLayout>
           <PageSettings />
-        </AppLayout>
+        </MockSettingsAppLayout>
       </AppContext.Provider>
     </LocationProvider>
   );
