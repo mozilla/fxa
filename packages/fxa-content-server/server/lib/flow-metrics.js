@@ -12,10 +12,9 @@ module.exports = {
    * Create flow data.
    *
    * @param key String
-   * @param userAgent String
    * @returns {{flowBeginTime: number, flowId: string}}
    */
-  create(key, userAgent) {
+  create(key) {
     const salt = crypto.randomBytes(SALT_SIZE).toString('hex');
     return createFlowEventData(key, salt, Date.now());
   },

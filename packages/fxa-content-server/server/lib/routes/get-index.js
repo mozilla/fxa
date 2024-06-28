@@ -140,10 +140,7 @@ module.exports = function (config) {
     method: 'get',
     path: '/',
     process: async function (req, res) {
-      const flowEventData = flowMetrics.create(
-        FLOW_ID_KEY,
-        req.headers['user-agent']
-      );
+      const flowEventData = flowMetrics.create(FLOW_ID_KEY);
 
       if (NO_LONGER_SUPPORTED_CONTEXTS.has(req.query.context)) {
         return res.redirect(`/update_firefox?${req.originalUrl.split('?')[1]}`);

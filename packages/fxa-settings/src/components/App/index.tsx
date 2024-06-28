@@ -16,6 +16,7 @@ import { QueryParams } from '../..';
 
 import { currentAccount } from '../../lib/cache';
 import { firefox } from '../../lib/channels/firefox';
+import * as MetricsFlow from '../../lib/metrics-flow';
 import GleanMetrics from '../../lib/glean';
 import * as Metrics from '../../lib/metrics';
 import { LinkType, MozServices } from '../../lib/types';
@@ -105,6 +106,8 @@ export const App = ({
     return data?.account?.metricsEnabled || !isSignedIn;
   }, [metricsLoading, integration, isSignedIn, data?.account?.metricsEnabled]);
   const metricsEnabled = getMetricsEnabled();
+  const metricsFlow = MetricsFlow.init(flowQueryParams);
+  flowQueryParams = { ...flowQueryParams, ...metricsFlow } as QueryParams;
 
   useMemo(() => {
     if (!metricsEnabled || !integration || GleanMetrics.getEnabled()) {
@@ -119,7 +122,7 @@ export const App = ({
         channel: config.glean.channel,
       },
       {
-        flowQueryParams,
+        metricsFlow,
         account: {
           metricsEnabled: data?.account?.metricsEnabled,
           uid: data?.account?.uid,
@@ -133,7 +136,7 @@ export const App = ({
     config.version,
     data?.account?.metricsEnabled,
     data?.account?.uid,
-    flowQueryParams,
+    metricsFlow,
     integration,
     metricsEnabled,
   ]);
@@ -159,6 +162,7 @@ export const App = ({
     data?.account?.recoveryKey,
     isSignedIn,
     flowQueryParams,
+    metricsFlow,
     config,
     metricsLoading,
     metricsEnabled,

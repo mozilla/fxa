@@ -187,7 +187,7 @@ describe('glean', () => {
         channel: config.glean.channel,
       },
       {
-        flowQueryParams: updatedFlowQueryParams,
+        metricsFlow: updatedFlowQueryParams,
         account: mockMetricsQueryAccountGlean,
         userAgent: navigator.userAgent,
         integration: mockIntegration,
