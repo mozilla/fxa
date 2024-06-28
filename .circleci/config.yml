@@ -312,13 +312,12 @@ commands:
             else
               GREP=""
             fi
-            PLAYWRIGHT_BLOB_OUTPUT_FILE="./artifacts/blob-report/report-$(CIRCLE_NODE_INDEX).zip"
             echo "targeting project << parameters.project >> $GREP"
             npx nx build fxa-auth-client
             cd packages/functional-tests/tests
             TEST_FILES=$(circleci tests glob "./**/*.spec.ts")
             cd ..
-            echo $TEST_FILES | circleci tests run --command="xargs yarn playwright test --project=<< parameters.project >> $GREP" --verbose --split-by=timings --timings-type=classname
+            echo $TEST_FILES | circleci tests run --command="xargs PLAYWRIGHT_BLOB_OUTPUT_FILE=\"./artifacts/blob-report/report-$CIRCLE_NODE_INDEX.zip\"  yarn playwright test --project=<< parameters.project >> $GREP" --verbose --split-by=timings --timings-type=classname
           environment:
             NODE_OPTIONS: --dns-result-order=ipv4first
             JEST_JUNIT_OUTPUT_DIR: ./artifacts/tests
