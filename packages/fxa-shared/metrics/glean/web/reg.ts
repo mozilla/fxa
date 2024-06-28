@@ -76,6 +76,23 @@ export const googleOauthRegStart = new EventMetricType(
 );
 
 /**
+ * Event that indicates engagement with the Marketing section of the registration
+ * funnel (Standard funnel only)
+ *
+ * Generated from `reg.marketing_engage`.
+ */
+export const marketingEngage = new EventMetricType(
+  {
+    category: 'reg',
+    name: 'marketing_engage',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
  * Registration Email Confirm Attempt
  * Event that indicates a user attempted to confirm their email through clicking
  * "Confirm". See Registration Visuals/Steps in this document for more visual

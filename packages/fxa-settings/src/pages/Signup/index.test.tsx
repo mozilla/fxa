@@ -75,6 +75,7 @@ jest.mock('../../lib/glean', () => ({
       submit: jest.fn(),
       success: jest.fn(),
       cwts: jest.fn(),
+      marketing: jest.fn(),
     },
   },
 }));
@@ -428,6 +429,17 @@ describe('Signup page', () => {
       submit();
 
       await waitFor(() => {
+        // expect glean metrics to fire
+        expect(GleanMetrics.registration.marketing).toBeCalledWith({
+          standard: {
+            marketing: {
+              news: true,
+              take_action: true,
+              testing: true,
+            },
+          },
+        });
+
         // expect navigation to have been called with newsletter slugs
         expect(mockNavigate).toHaveBeenCalledWith(
           `/confirm_signup_code${mockLocation().search}`,
@@ -554,6 +566,9 @@ describe('Signup page', () => {
             });
             expect(GleanMetrics.registration.success).toHaveBeenCalledTimes(1);
             await waitFor(() => {
+              expect(GleanMetrics.registration.marketing).toHaveBeenCalledTimes(
+                0
+              );
               expect(GleanMetrics.registration.cwts).toHaveBeenCalledWith({
                 sync: {
                   cwts: offeredEngines.reduce((acc, engine) => {
@@ -629,6 +644,7 @@ describe('Signup page', () => {
             });
 
             await waitFor(() => {
+              expect(GleanMetrics.registration.marketing).toBeCalledTimes(0);
               expect(GleanMetrics.registration.cwts).toHaveBeenCalledWith({
                 sync: {
                   cwts: {
@@ -672,6 +688,7 @@ describe('Signup page', () => {
             });
 
             await waitFor(() => {
+              expect(GleanMetrics.registration.marketing).toBeCalledTimes(0);
               expect(GleanMetrics.registration.cwts).toHaveBeenCalledWith({
                 sync: {
                   cwts: offeredEngines.reduce((acc, engine) => {
@@ -708,7 +725,17 @@ describe('Signup page', () => {
             true
           );
         });
+        expect(GleanMetrics.registration.cwts).toHaveBeenCalledTimes(0);
         expect(GleanMetrics.registration.success).toHaveBeenCalledTimes(1);
+        expect(GleanMetrics.registration.marketing).toBeCalledWith({
+          standard: {
+            marketing: {
+              news: false,
+              take_action: false,
+              testing: false,
+            },
+          },
+        });
       });
     });
 
