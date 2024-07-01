@@ -107,12 +107,14 @@ describe('lib/glean', () => {
     });
 
     it('does not submit a ping on an event', async () => {
-      await GleanMetrics.registration.view();
+      GleanMetrics.registration.view();
+      await GleanMetrics.isDone();
       sinon.assert.notCalled(submitPingStub);
     });
 
     it('does not set the metrics values', async () => {
-      await GleanMetrics.registration.view();
+      GleanMetrics.registration.view();
+      await GleanMetrics.isDone();
 
       sinon.assert.notCalled(setOauthClientIdStub);
       sinon.assert.notCalled(setServiceStub);
@@ -134,7 +136,8 @@ describe('lib/glean', () => {
       const config = { ...mockConfig, enabled: true };
       const initStub = sandbox.stub(Glean, 'initialize').throws();
       GleanMetrics.initialize(config, { metrics, relier, user, userAgent });
-      await GleanMetrics.registration.view();
+      GleanMetrics.registration.view();
+      await GleanMetrics.isDone();
       sinon.assert.calledOnce(initStub);
       assert.isFalse(config.enabled);
       // does not try to set a value since internal enabled state is false
@@ -321,7 +324,8 @@ describe('lib/glean', () => {
 
     describe('email first', () => {
       it('submits a ping with the email_first_view event name', async () => {
-        await GleanMetrics.emailFirst.view();
+        GleanMetrics.emailFirst.view();
+        await GleanMetrics.isDone();
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(setEventNameStub, 'email_first_view');
       });
@@ -329,7 +333,8 @@ describe('lib/glean', () => {
 
     describe('apple oauth email first', () => {
       it('submits a ping with the apple_oauth_email_first_start event name', async () => {
-        await GleanMetrics.emailFirst.appleOauthStart();
+        GleanMetrics.emailFirst.appleOauthStart();
+        await GleanMetrics.isDone();
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(
           setEventNameStub,
@@ -340,7 +345,8 @@ describe('lib/glean', () => {
 
     describe('google oauth email first', () => {
       it('submits a ping with the google_oauth_email_first_start event name', async () => {
-        await GleanMetrics.emailFirst.googleOauthStart();
+        GleanMetrics.emailFirst.googleOauthStart();
+        await GleanMetrics.isDone();
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(
           setEventNameStub,
@@ -351,19 +357,22 @@ describe('lib/glean', () => {
 
     describe('registration', () => {
       it('submits a ping with the reg_view event name', async () => {
-        await GleanMetrics.registration.view();
+        GleanMetrics.registration.view();
+        await GleanMetrics.isDone();
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(setEventNameStub, 'reg_view');
       });
 
       it('submits a ping with the reg_submit event name', async () => {
-        await GleanMetrics.registration.submit();
+        GleanMetrics.registration.submit();
+        await GleanMetrics.isDone();
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(setEventNameStub, 'reg_submit');
       });
 
       it('submits a ping with the reg_submit_success event name', async () => {
-        await GleanMetrics.registration.success();
+        GleanMetrics.registration.success();
+        await GleanMetrics.isDone();
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(setEventNameStub, 'reg_submit_success');
       });
@@ -371,13 +380,15 @@ describe('lib/glean', () => {
 
     describe('signup confirmation code', () => {
       it('submits a ping with the reg_signup_code_view event name', async () => {
-        await GleanMetrics.signupConfirmation.view();
+        GleanMetrics.signupConfirmation.view();
+        await GleanMetrics.isDone();
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(setEventNameStub, 'reg_signup_code_view');
       });
 
       it('submits a ping with the reg_signup_code_submit event name', async () => {
-        await GleanMetrics.signupConfirmation.submit();
+        GleanMetrics.signupConfirmation.submit();
+        await GleanMetrics.isDone();
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(setEventNameStub, 'reg_signup_code_submit');
       });
@@ -385,7 +396,8 @@ describe('lib/glean', () => {
 
     describe('loginConfirmation', () => {
       it('submits a ping with the login_email_confirmation_view event name', async () => {
-        await GleanMetrics.loginConfirmation.view();
+        GleanMetrics.loginConfirmation.view();
+        await GleanMetrics.isDone();
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(
           setEventNameStub,
@@ -394,7 +406,8 @@ describe('lib/glean', () => {
       });
 
       it('submits a ping with the reg_submit event name', async () => {
-        await GleanMetrics.loginConfirmation.submit();
+        GleanMetrics.loginConfirmation.submit();
+        await GleanMetrics.isDone();
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(
           setEventNameStub,
@@ -405,19 +418,22 @@ describe('lib/glean', () => {
 
     describe('totpForm', () => {
       it('submits a ping with the login_totp_form_view event name', async () => {
-        await GleanMetrics.totpForm.view();
+        GleanMetrics.totpForm.view();
+        await GleanMetrics.isDone();
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(setEventNameStub, 'login_totp_form_view');
       });
 
       it('submits a ping with the login_totp_code_submit event name', async () => {
-        await GleanMetrics.totpForm.submit();
+        GleanMetrics.totpForm.submit();
+        await GleanMetrics.isDone();
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(setEventNameStub, 'login_totp_code_submit');
       });
 
       it('submits a ping with the login_totp_code_success_view event name', async () => {
-        await GleanMetrics.totpForm.success();
+        GleanMetrics.totpForm.success();
+        await GleanMetrics.isDone();
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(
           setEventNameStub,
@@ -426,27 +442,47 @@ describe('lib/glean', () => {
       });
     });
 
+    describe('thirdPartyAuth', () => {
+      it('submits a ping with the google_deeplink event name', async () => {
+        GleanMetrics.thirdPartyAuth.googleDeeplink();
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'google_deeplink');
+      });
+
+      it('submits a ping with the apple_deeplink event name', async () => {
+        GleanMetrics.thirdPartyAuth.appleDeeplink();
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'apple_deeplink');
+      });
+    });
+
     describe('login', () => {
-      it('submits a ping with the login_view event name', () => {
+      it('submits a ping with the login_view event name', async () => {
         GleanMetrics.login.view();
+        await GleanMetrics.isDone();
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(setEventNameStub, 'login_view');
       });
 
-      it('submits a ping with the login_submit event name', () => {
+      it('submits a ping with the login_submit event name', async () => {
         GleanMetrics.login.submit();
+        await GleanMetrics.isDone();
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(setEventNameStub, 'login_submit');
       });
 
-      it('submits a ping with the login_submit_success event name', () => {
+      it('submits a ping with the login_submit_success event name', async () => {
         GleanMetrics.login.success();
+        await GleanMetrics.isDone();
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(setEventNameStub, 'login_submit_success');
       });
 
-      it('submits a ping with the login_submit_frontend_error event name and a reason', () => {
+      it('submits a ping with the login_submit_frontend_error event name and a reason', async () => {
         GleanMetrics.login.error({ reason: 'quux' });
+        await GleanMetrics.isDone();
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(
           setEventNameStub,
@@ -459,7 +495,8 @@ describe('lib/glean', () => {
 
     describe('third_party_auth_set_password', () => {
       it('submits a ping with the third_party_auth_set_password_view event name', async () => {
-        await GleanMetrics.setPasswordThirdPartyAuth.view();
+        GleanMetrics.setPasswordThirdPartyAuth.view();
+        await GleanMetrics.isDone();
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(
           setEventNameStub,
@@ -468,7 +505,8 @@ describe('lib/glean', () => {
       });
 
       it('submits a ping with the third_party_auth_set_password_engage event name', async () => {
-        await GleanMetrics.setPasswordThirdPartyAuth.engage();
+        GleanMetrics.setPasswordThirdPartyAuth.engage();
+        await GleanMetrics.isDone();
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(
           setEventNameStub,
@@ -477,7 +515,8 @@ describe('lib/glean', () => {
       });
 
       it('submits a ping with the third_party_auth_set_password_submit event name', async () => {
-        await GleanMetrics.setPasswordThirdPartyAuth.submit();
+        GleanMetrics.setPasswordThirdPartyAuth.submit();
+        await GleanMetrics.isDone();
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(
           setEventNameStub,
@@ -486,7 +525,8 @@ describe('lib/glean', () => {
       });
 
       it('submits a ping with the third_party_auth_set_password_success event name', async () => {
-        await GleanMetrics.setPasswordThirdPartyAuth.success();
+        GleanMetrics.setPasswordThirdPartyAuth.success();
+        await GleanMetrics.isDone();
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(
           setEventNameStub,

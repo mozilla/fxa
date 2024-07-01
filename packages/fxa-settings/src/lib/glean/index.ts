@@ -400,7 +400,7 @@ export const GleanMetrics: Pick<
         if (lambdas.length === 0) {
           resolve();
         } else {
-          setTimeout(checkForEmptyFnList, 100);
+          setTimeout(checkForEmptyFnList, lambdas.length * 5);
         }
       };
 

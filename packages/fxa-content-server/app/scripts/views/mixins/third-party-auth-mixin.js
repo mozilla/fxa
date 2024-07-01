@@ -31,14 +31,22 @@ export default {
     const params = new URLSearchParams(this.window.location.search);
     if (params.get('deeplink') === 'googleLogin') {
       this.logFlowEvent('google.deeplink');
-      return new Promise(() => {
-        this.googleSignIn();
-      });
+      GleanMetrics.thirdPartyAuth.googleDeeplink();
+      return GleanMetrics.isDone().then(
+        () =>
+          new Promise(() => {
+            this.googleSignIn();
+          })
+      );
     } else if (params.get('deeplink') === 'appleLogin') {
       this.logFlowEvent('apple.deeplink');
-      return new Promise(() => {
-        this.appleSignIn();
-      });
+      GleanMetrics.thirdPartyAuth.appleDeeplink();
+      return GleanMetrics.isDone().then(
+        () =>
+          new Promise(() => {
+            this.appleSignIn();
+          })
+      );
     }
 
     // Check to see if this page is being redirected to at the end of a
