@@ -4,7 +4,6 @@
 
 import * as Sentry from '@sentry/node';
 import { ErrorEvent } from '@sentry/types';
-import { ExtraErrorData } from '@sentry/integrations';
 import { SentryConfigOpts } from './models/SentryConfigOpts';
 import { ILogger } from '../log';
 import { tagCriticalEvent, tagFxaName } from './tag';
@@ -38,7 +37,7 @@ export function initSentry(config: InitSentryOpts, log: ILogger) {
 
   const integrations = [
     // Default
-    new ExtraErrorData({ depth: 5 }),
+    Sentry.extraErrorDataIntegration({ depth: 5 }),
 
     // Custom Integrations
     ...(config.integrations || []),
