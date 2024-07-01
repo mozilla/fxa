@@ -6,6 +6,7 @@ import { getOperationName } from '@apollo/client/utilities';
 import { Inject, Injectable } from '@nestjs/common';
 import { StatsD } from 'hot-shots';
 
+import { PriceManager, SubplatInterval } from '@fxa/payments/stripe';
 import { StatsDService } from '@fxa/shared/metrics/statsd';
 import {
   EligibilityContentByPlanIdsQuery,
@@ -15,6 +16,8 @@ import {
   EligibilityContentByOfferingQuery,
   PageContentForOfferingQuery,
 } from '../__generated__/graphql';
+import { CMSConfig } from './cms.config';
+import { ProductConfigError } from './cms.error';
 import { DEFAULT_LOCALE } from './constants';
 import {
   capabilityServiceByPlanIdsQuery,
@@ -47,6 +50,8 @@ import { DeepNonNullable } from './types';
 export class ProductConfigurationManager {
   constructor(
     private client: StrapiClient,
+    private cmsConfig: CMSConfig,
+    private priceManager: PriceManager,
     @Inject(StatsDService) private statsd: StatsD
   ) {
     this.client.on('response', (response) => {
@@ -61,6 +66,15 @@ export class ProductConfigurationManager {
         : defaultTags;
       this.statsd.timing('cms_request', response.elapsed, undefined, tags);
     });
+  }
+
+  async fetchCMSData(offeringId: string, acceptLanguage: string) {
+    const offeringResult = await this.getPageContentForOffering(
+      offeringId,
+      acceptLanguage
+    );
+
+    return offeringResult.getOffering();
   }
 
   async getEligibilityContentByOffering(
@@ -199,5 +213,26 @@ export class ProductConfigurationManager {
     const offering = offeringResult.getOffering();
     const planIds = offering.defaultPurchase.stripePlanChoices;
     return planIds;
+  }
+
+  async retrieveStripePriceId(
+    offeringConfigId: string,
+    interval: SubplatInterval
+  ) {
+    const priceIds = await this.getOfferingPlanIds(offeringConfigId);
+    // Temporary supported list of plans
+    // CMS purchase.stripePlanChoices is currently not configured correctly
+    // Unfortunately, currently the CMS is read-only and can't be updated
+    // As a temporary work around provide a list of supported plans
+    const supportedListOfPriceIds = this.cmsConfig.supportedPriceIds.split(',');
+    const filteredPriceIds = priceIds.filter((priceId) =>
+      supportedListOfPriceIds.includes(priceId)
+    );
+    const price = await this.priceManager.retrieveByInterval(
+      filteredPriceIds,
+      interval
+    );
+    if (!price) throw new ProductConfigError('Plan not found');
+    return price.id;
   }
 }

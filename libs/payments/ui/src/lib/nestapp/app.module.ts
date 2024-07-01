@@ -12,24 +12,21 @@ import {
 } from '@fxa/payments/eligibility';
 import {
   PayPalClient,
-  PayPalManager,
   PaypalCustomerManager,
+  PayPalManager,
 } from '@fxa/payments/paypal';
 import {
   AccountCustomerManager,
-  StripeClient,
   CustomerManager,
   InvoiceManager,
-  ProductManager,
   PriceManager,
-  SubscriptionManager,
+  ProductManager,
   PromotionCodeManager,
+  StripeClient,
+  SubscriptionManager,
 } from '@fxa/payments/stripe';
-import {
-  ContentfulService,
-  ProductConfigurationManager,
-  StrapiClient,
-} from '@fxa/shared/cms';
+import { AccountManager } from '@fxa/shared/account/account';
+import { ProductConfigurationManager, StrapiClient } from '@fxa/shared/cms';
 import { FirestoreProvider } from '@fxa/shared/db/firestore';
 import { AccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
 import { GeoDBManager, GeoDBNestFactory } from '@fxa/shared/geodb';
@@ -39,7 +36,6 @@ import { StatsDProvider } from '@fxa/shared/metrics/statsd';
 import { RootConfig } from './config';
 import { NextJSActionsService } from './nextjs-actions.service';
 import { validate } from '../config.utils';
-import { AccountManager } from '@fxa/shared/account/account';
 
 @Module({
   imports: [
@@ -53,33 +49,32 @@ import { AccountManager } from '@fxa/shared/account/account';
   ],
   controllers: [],
   providers: [
+    AccountCustomerManager,
+    AccountDatabaseNestFactory,
+    AccountManager,
+    CartManager,
+    CartService,
+    CustomerManager,
+    CheckoutService,
+    EligibilityManager,
+    EligibilityService,
     FirestoreProvider,
-    StatsDProvider,
+    GeoDBManager,
+    GeoDBNestFactory,
+    InvoiceManager,
     LocalizerRscFactoryProvider,
     NextJSActionsService,
-    AccountDatabaseNestFactory,
-    AccountCustomerManager,
-    CartService,
-    CartManager,
-    GeoDBNestFactory,
-    GeoDBManager,
-    EligibilityService,
-    EligibilityManager,
-    CheckoutService,
-    ContentfulService,
-    CustomerManager,
-    InvoiceManager,
-    ProductManager,
-    PriceManager,
-    SubscriptionManager,
-    PromotionCodeManager,
-    StripeClient,
     PayPalClient,
     PaypalCustomerManager,
     PayPalManager,
-    AccountManager,
+    PriceManager,
     ProductConfigurationManager,
+    ProductManager,
+    PromotionCodeManager,
+    StatsDProvider,
     StrapiClient,
+    StripeClient,
+    SubscriptionManager,
   ],
 })
 export class AppModule {}

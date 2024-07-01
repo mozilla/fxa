@@ -1,42 +1,74 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+import { Test } from '@nestjs/testing';
 import { Stripe } from 'stripe';
 
 import {
+  PriceManager,
+  StripeClient,
+  StripeConfig,
+  StripePlanFactory,
+  StripeProductFactory,
+} from '@fxa/payments/stripe';
+import {
+  CMSConfig,
+  ContentfulClientConfig,
+  MockCMSConfigProvider,
   ProductConfigurationManager,
-  PurchaseWithDetailsOfferingContentUtil,
   PurchaseWithDetailsOfferingContentTransformedFactory,
+  PurchaseWithDetailsOfferingContentUtil,
   PurchaseDetailsTransformedFactory,
   StrapiClient,
 } from '@fxa/shared/cms';
-import { StripePlanFactory, StripeProductFactory } from '@fxa/payments/stripe';
-
-import { StripeMapperService } from './stripe-mapper.service';
+import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
+import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 import { StripeMetadataWithCMSFactory } from './factories';
+import { StripeMapperService } from './stripe-mapper.service';
 
 jest.useFakeTimers();
 
 describe('StripeMapperService', () => {
-  describe('mapCMSToStripePlans', () => {
-    let stripeMapper: StripeMapperService;
-    const mockCMSConfigUtil = {
-      transformedPurchaseWithCommonContentForPlanId: jest.fn(),
-    };
+  let productConfigurationManager: ProductConfigurationManager;
+  let stripeMapper: StripeMapperService;
+  const mockCMSConfigUtil = {
+    transformedPurchaseWithCommonContentForPlanId: jest.fn(),
+  };
 
-    beforeEach(() => {
-      jest
-        .spyOn(
-          ProductConfigurationManager.prototype,
-          'getPurchaseWithDetailsOfferingContentByPlanIds'
-        )
-        .mockResolvedValue(
-          mockCMSConfigUtil as unknown as PurchaseWithDetailsOfferingContentUtil
-        );
-      const strapiClient = new StrapiClient({} as any, {} as any);
-      const mockStatsd = {} as any;
-      stripeMapper = new StripeMapperService(
-        new ProductConfigurationManager(strapiClient, mockStatsd)
+  beforeEach(async () => {
+    const module = await Test.createTestingModule({
+      providers: [
+        CMSConfig,
+        ContentfulClientConfig,
+        MockCMSConfigProvider,
+        MockFirestoreProvider,
+        MockStatsDProvider,
+        PriceManager,
+        ProductConfigurationManager,
+        StrapiClient,
+        StripeClient,
+        StripeConfig,
+        StripeMapperService,
+      ],
+    }).compile();
+
+    productConfigurationManager = module.get<ProductConfigurationManager>(
+      ProductConfigurationManager
+    );
+    stripeMapper = module.get<StripeMapperService>(StripeMapperService);
+
+    jest
+      .spyOn(
+        productConfigurationManager,
+        'getPurchaseWithDetailsOfferingContentByPlanIds'
+      )
+      .mockResolvedValue(
+        mockCMSConfigUtil as unknown as PurchaseWithDetailsOfferingContentUtil
       );
-    });
+  });
 
+  describe('mapCMSToStripePlans', () => {
     it('should return stripe metadata with error due to plan.product not being an object', async () => {
       const validMetadata = StripeMetadataWithCMSFactory({
         webIconURL: 'https://example.com/webIconURL',
@@ -56,9 +88,9 @@ describe('StripeMapperService', () => {
     });
 
     it('should return stripe metadata with error due to missing cms data', async () => {
-      mockCMSConfigUtil.transformedPurchaseWithCommonContentForPlanId = jest
-        .fn()
-        .mockReturnValueOnce(undefined);
+      mockCMSConfigUtil.transformedPurchaseWithCommonContentForPlanId.mockReturnValueOnce(
+        undefined
+      );
       const validMetadata = StripeMetadataWithCMSFactory({
         webIconURL: 'https://example.com/webIconURL',
       });
@@ -76,11 +108,9 @@ describe('StripeMapperService', () => {
     });
 
     it('should return stripe metadata with error due to invalid fields in product.metadata', async () => {
-      mockCMSConfigUtil.transformedPurchaseWithCommonContentForPlanId = jest
-        .fn()
-        .mockReturnValueOnce(
-          PurchaseWithDetailsOfferingContentTransformedFactory()
-        );
+      mockCMSConfigUtil.transformedPurchaseWithCommonContentForPlanId.mockReturnValueOnce(
+        PurchaseWithDetailsOfferingContentTransformedFactory()
+      );
       const validMetadata = StripeMetadataWithCMSFactory({
         webIconURL: 'https://example.com/webIconURL',
       });
@@ -98,11 +128,9 @@ describe('StripeMapperService', () => {
     });
 
     it('should return stripe metadata with error due to invalid fields in plan.metadata', async () => {
-      mockCMSConfigUtil.transformedPurchaseWithCommonContentForPlanId = jest
-        .fn()
-        .mockReturnValueOnce(
-          PurchaseWithDetailsOfferingContentTransformedFactory()
-        );
+      mockCMSConfigUtil.transformedPurchaseWithCommonContentForPlanId.mockReturnValueOnce(
+        PurchaseWithDetailsOfferingContentTransformedFactory()
+      );
       const validMetadata = StripeMetadataWithCMSFactory({
         webIconURL: 'https://example.com/webIconURL',
       });
@@ -126,9 +154,9 @@ describe('StripeMapperService', () => {
 
     it('should return data from cms', async () => {
       const expected = PurchaseWithDetailsOfferingContentTransformedFactory();
-      mockCMSConfigUtil.transformedPurchaseWithCommonContentForPlanId = jest
-        .fn()
-        .mockReturnValueOnce(expected);
+      mockCMSConfigUtil.transformedPurchaseWithCommonContentForPlanId.mockReturnValueOnce(
+        expected
+      );
       const productMetadata = {
         productSet: 'set',
         productOrder: 'order',
@@ -161,9 +189,9 @@ describe('StripeMapperService', () => {
           details: ['Detail 1 in English'],
         }),
       });
-      mockCMSConfigUtil.transformedPurchaseWithCommonContentForPlanId = jest
-        .fn()
-        .mockReturnValue(expected);
+      mockCMSConfigUtil.transformedPurchaseWithCommonContentForPlanId.mockReturnValue(
+        expected
+      );
       const productMetadata = {
         productSet: 'set',
         productOrder: 'order',
@@ -215,9 +243,9 @@ describe('StripeMapperService', () => {
           details: ['Detail 1 in English'],
         }),
       });
-      mockCMSConfigUtil.transformedPurchaseWithCommonContentForPlanId = jest
-        .fn()
-        .mockReturnValue(expected);
+      mockCMSConfigUtil.transformedPurchaseWithCommonContentForPlanId.mockReturnValue(
+        expected
+      );
       const productMetadata = {
         productSet: 'set',
         productOrder: 'order',

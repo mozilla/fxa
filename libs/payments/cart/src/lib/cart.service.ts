@@ -5,16 +5,17 @@
 import { Injectable } from '@nestjs/common';
 
 import { EligibilityService } from '@fxa/payments/eligibility';
+import { ProductConfigurationManager } from '@fxa/shared/cms';
 import {
   AccountCustomerManager,
   AccountCustomerNotFoundError,
   CustomerManager,
   InvoiceManager,
+  PriceManager,
   StripeCustomer,
   SubplatInterval,
   TaxAddress,
 } from '@fxa/payments/stripe';
-import { ContentfulService } from '@fxa/shared/cms';
 import { CartErrorReasonId, CartState } from '@fxa/shared/db/mysql/account';
 import { GeoDBManager } from '@fxa/shared/geodb';
 
@@ -34,11 +35,12 @@ export class CartService {
     private accountCustomerManager: AccountCustomerManager,
     private cartManager: CartManager,
     private checkoutService: CheckoutService,
-    private contentfulService: ContentfulService,
     private customerManager: CustomerManager,
     private eligibilityService: EligibilityService,
     private geodbManager: GeoDBManager,
-    private invoiceManager: InvoiceManager
+    private invoiceManager: InvoiceManager,
+    private priceManager: PriceManager,
+    private productConfigurationManager: ProductConfigurationManager
   ) {}
 
   /**
@@ -79,10 +81,11 @@ export class CartService {
       ? this.geodbManager.getTaxAddress(args.ip)
       : undefined;
 
-    const priceId = await this.contentfulService.retrieveStripePlanId(
-      args.offeringConfigId,
-      args.interval
-    );
+    const priceId =
+      await this.productConfigurationManager.retrieveStripePriceId(
+        args.offeringConfigId,
+        args.interval
+      );
 
     const upcomingInvoice = await this.invoiceManager.preview({
       priceId: priceId,
@@ -218,10 +221,11 @@ export class CartService {
   async getCart(cartId: string): Promise<WithUpcomingInvoiceCart> {
     const cart = await this.cartManager.fetchCartById(cartId);
 
-    const priceId = await this.contentfulService.retrieveStripePlanId(
-      cart.offeringConfigId,
-      cart.interval as SubplatInterval
-    );
+    const priceId =
+      await this.productConfigurationManager.retrieveStripePriceId(
+        cart.offeringConfigId,
+        cart.interval as SubplatInterval
+      );
 
     let customer: StripeCustomer | undefined;
     if (cart.stripeCustomerId) {

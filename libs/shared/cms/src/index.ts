@@ -6,7 +6,6 @@ export * from './lib/cms.config';
 export * from './lib/cms.error';
 export * from './lib/constants';
 export * from './lib/contentful.client.config';
-export * from './lib/contentful.service';
 export * from './lib/factories';
 export * from './lib/product-configuration.manager';
 export * from './lib/queries/capability-service-by-plan-ids';

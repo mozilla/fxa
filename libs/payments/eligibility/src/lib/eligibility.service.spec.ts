@@ -13,12 +13,15 @@ import {
   SubscriptionManager,
 } from '@fxa/payments/stripe';
 import {
+  CMSConfig,
   ContentfulClientConfig,
   EligibilityContentByOfferingResultUtil,
   EligibilityContentOfferingResultFactory,
   ProductConfigurationManager,
   StrapiClient,
 } from '@fxa/shared/cms';
+import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
+import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 
 import { EligibilityManager } from './eligibility.manager';
 import { EligibilityService } from './eligibility.service';
@@ -27,8 +30,6 @@ import {
   OfferingComparison,
   OfferingOverlapProductResult,
 } from './eligibility.types';
-import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
-import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 import * as StripeUtil from '../../../stripe/src/lib/stripe.util';
 
 jest.mock('../../../stripe/src/lib/stripe.util');
@@ -48,25 +49,26 @@ describe('EligibilityService', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        MockFirestoreProvider,
+        CMSConfig,
         ContentfulClientConfig,
-        MockStatsDProvider,
-        StripeConfig,
-        StripeClient,
-        SubscriptionManager,
-        PriceManager,
         EligibilityManager,
         EligibilityService,
+        MockFirestoreProvider,
+        MockStatsDProvider,
+        PriceManager,
         ProductConfigurationManager,
         StrapiClient,
+        StripeClient,
+        StripeConfig,
+        SubscriptionManager,
       ],
     }).compile();
 
+    eligibilityManager = module.get<EligibilityManager>(EligibilityManager);
+    eligibilityService = module.get<EligibilityService>(EligibilityService);
     productConfigurationManager = module.get<ProductConfigurationManager>(
       ProductConfigurationManager
     );
-    eligibilityManager = module.get<EligibilityManager>(EligibilityManager);
-    eligibilityService = module.get<EligibilityService>(EligibilityService);
     subscriptionManager = module.get<SubscriptionManager>(SubscriptionManager);
   });
 

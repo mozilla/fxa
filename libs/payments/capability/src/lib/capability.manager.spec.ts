@@ -3,12 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Test } from '@nestjs/testing';
 
+import { PriceManager, StripeClient, StripeConfig } from '@fxa/payments/stripe';
 import {
   CapabilityCapabilitiesResultFactory,
   CapabilityOfferingResultFactory,
   CapabilitiesResultFactory,
   CapabilityServiceByPlanIdsResultUtil,
   CapabilityServicesResultFactory,
+  CMSConfig,
   ContentfulClientConfig,
   CapabilityServiceByPlanIdsQueryFactory,
   CapabilityServiceByPlanIdsResult,
@@ -32,11 +34,15 @@ describe('CapabilityManager', () => {
     const module = await Test.createTestingModule({
       providers: [
         CapabilityManager,
+        CMSConfig,
         ContentfulClientConfig,
         MockFirestoreProvider,
         MockStatsDProvider,
+        PriceManager,
         ProductConfigurationManager,
         StrapiClient,
+        StripeClient,
+        StripeConfig,
       ],
     }).compile();
 
