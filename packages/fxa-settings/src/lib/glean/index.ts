@@ -191,6 +191,9 @@ const recordEventMetric = (
     case 'reg_success_view':
       reg.successView.record();
       break;
+    case 'reg_age_invalid':
+      reg.ageInvalid.record();
+      break;
     case 'login_view':
       login.view.record();
       break;
