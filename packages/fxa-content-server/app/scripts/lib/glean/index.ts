@@ -129,6 +129,9 @@ const recordEventMetric = (eventName: string, properties: EventProperties) => {
     case 'reg_cwts_engage':
       reg.cwtsEngage.record();
       break;
+    case 'reg_marketing_engage':
+      reg.marketingEngage.record();
+      break;
     case 'reg_view':
       reg.view.record();
       break;

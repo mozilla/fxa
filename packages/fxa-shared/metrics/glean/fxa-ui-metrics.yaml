@@ -188,6 +188,32 @@ sync:
     data_sensitivity:
       - interaction
 
+standard:
+  marketing:
+    type: labeled_boolean
+    description: |
+      The set of marketing options at the time of an account sign up (standard flow).
+      For example, if the user only opted into getting 'news' then only news would be
+      marked as true
+    labels:
+      - take_action
+      - testing
+      - news
+    lifetime: application
+    send_in_pings:
+      - accounts-events
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-8249
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1890377
+    expires: never
+    data_sensitivity:
+      - interaction
+
 utm:
   campaign:
     description: |
@@ -1168,6 +1194,24 @@ reg:
     expires: never
     data_sensitivity:
       - interaction
+
+  marketing_engage:
+    type: event
+    description: |
+      Event that indicates engagement with the Marketing section of the registration funnel (Standard funnel only)
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-8249
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1890377
+    expires: never
+    data_sensitivity:
+      - interaction
+
   google_oauth_reg_start:
     type: event
     description: |

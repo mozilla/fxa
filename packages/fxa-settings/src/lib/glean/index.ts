@@ -36,6 +36,7 @@ import {
   flowId,
 } from 'fxa-shared/metrics/glean/web/session';
 import * as sync from 'fxa-shared/metrics/glean/web/sync';
+import * as standard from 'fxa-shared/metrics/glean/web/standard';
 import * as utm from 'fxa-shared/metrics/glean/web/utm';
 import { FlowQueryParams } from '../..';
 import { Integration } from '../../models';
@@ -133,6 +134,12 @@ const populateMetrics = async (gleanPingMetrics: GleanPingMetrics) => {
     });
   }
 
+  if (gleanPingMetrics?.standard?.marketing) {
+    Object.entries(gleanPingMetrics.standard.marketing).forEach(([k, v]) => {
+      standard.marketing[k].set(v);
+    });
+  }
+
   userIdSha256.set('');
   try {
     if (metricsContext.account?.uid) {
@@ -167,6 +174,9 @@ const recordEventMetric = (
       break;
     case 'reg_cwts_engage':
       reg.cwtsEngage.record();
+      break;
+    case 'reg_marketing_engage':
+      reg.marketingEngage.record();
       break;
     case 'reg_view':
       reg.view.record();

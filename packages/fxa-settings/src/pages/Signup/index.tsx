@@ -268,6 +268,18 @@ export const Signup = ({
               sync: syncEngines,
             },
           });
+        } else {
+          GleanMetrics.registration.marketing({
+            standard: {
+              marketing: {
+                take_action:
+                  selectedNewsletterSlugs.indexOf('security-privacy-news') >= 0,
+                testing: selectedNewsletterSlugs.indexOf('test-pilot') >= 0,
+                news:
+                  selectedNewsletterSlugs.indexOf('mozilla-foundation') >= 0,
+              },
+            },
+          });
         }
 
         navigate('/confirm_signup_code', {
