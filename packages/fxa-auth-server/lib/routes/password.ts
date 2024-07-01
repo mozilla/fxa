@@ -1144,6 +1144,20 @@ module.exports = function (
           account: { uid },
         });
 
+        // We need to track when users with third party accounts actually set a passwords. Note that
+        // this handler will exit early if the user already has a password, and this code would not
+        // be reached, which ensures this event will only fire when a user is setting their linked
+        // account password for the first time.
+        const linkedAccounts = await db.getLinkedAccounts(uid);
+        if (
+          linkedAccounts?.length > 0 &&
+          linkedAccounts.some((x: { enabled: boolean }) => x.enabled)
+        ) {
+          glean.thirdPartyAuth.setPasswordComplete(request, {
+            uid,
+          });
+        }
+
         return passwordCreated;
       },
     },
