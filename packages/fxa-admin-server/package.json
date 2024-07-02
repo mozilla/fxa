@@ -19,7 +19,7 @@
     "test": "yarn gen-keys && yarn test-default && yarn test-e2e ",
     "gen-keys": "node -r esbuild-register ./src/scripts/gen_keys.ts;",
     "test-unit": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-unit.xml jest --runInBand --coverage --forceExit --logHeapUsage -t '^(?!.*?#integration).*' --ci --reporters=default --reporters=jest-junit",
-    "test-integration": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-integration.xml jest --runInBand --coverage --forceExit --logHeapUsage -t '#integration' --ci --reporters=default --reporters=jest-junit",
+    "test-integration": "jest --config ./jest-integration.config.js --runInBand --coverage --forceExit -t '#integration' --ci",
     "test-default": "jest --runInBand --forceExit -t=\"scripts/audit-tokens\"",
     "test-watch": "jest --watch",
     "test-cov": "jest --coverage",
