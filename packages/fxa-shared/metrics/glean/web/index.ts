@@ -56,6 +56,7 @@ export const eventsMap = {
     success: 'login_submit_success',
     error: 'login_submit_frontend_error',
     forgotPassword: 'login_forgot_pwd_submit',
+    diffAccountLinkClick: 'login_diff_account_link_click',
   },
 
   cachedLogin: {

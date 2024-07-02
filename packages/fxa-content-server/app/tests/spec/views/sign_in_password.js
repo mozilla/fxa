@@ -336,11 +336,25 @@ describe('views/sign_in_password', () => {
     });
 
     describe('useDifferentAccount', () => {
+      let loginDiffAccountClickEventStub;
+
+      beforeEach(() => {
+        loginDiffAccountClickEventStub = sinon.stub(
+          GleanMetrics.login,
+          'diffAccountLinkClick'
+        );
+      });
+
+      afterEach(() => {
+        loginDiffAccountClickEventStub.restore();
+      });
+
       it('navigates to `/` with the account', () => {
         sinon.spy(view, 'navigate');
 
         view.useDifferentAccount();
 
+        sinon.assert.calledOnce(loginDiffAccountClickEventStub);
         assert.isTrue(view.navigate.calledOnceWith('/', { account }));
       });
     });

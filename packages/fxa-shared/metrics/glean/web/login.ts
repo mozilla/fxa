@@ -23,6 +23,23 @@ export const appleOauthLoginStart = new EventMetricType(
 );
 
 /**
+ * Event that indicates user clicked on "Use a different account" link on login
+ * page.
+ *
+ * Generated from `login.diff_account_link_click`.
+ */
+export const diffAccountLinkClick = new EventMetricType(
+  {
+    category: 'login',
+    name: 'diff_account_link_click',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
  * Login Email Confirm Attempted
  * Event that indicates a user attempted to confirm email in the login by entering
  * in Code to "confirm" & click button to submit. See the Login + 2FA section

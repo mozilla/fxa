@@ -33,6 +33,7 @@ const SignInPasswordView = FormView.extend({
   }),
 
   useDifferentAccount() {
+    GleanMetrics.login.diffAccountLinkClick();
     // a user who came from an OAuth relier and was
     // directed directly to /signin will not be able
     // to go back. Send them directly to `/` with the
