@@ -146,7 +146,7 @@
     "morgan": "^1.10.0",
     "mozlog": "^3.0.2",
     "nocache": "^4.0.0",
-    "node-fetch": "^2.6.7",
+    "node-fetch": "^3.3.2",
     "normalize.css": "8.0.1",
     "on-headers": "^1.0.2",
     "react-redux": "^9.1.0",

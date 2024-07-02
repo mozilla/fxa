@@ -46,7 +46,7 @@
   "author": "",
   "license": "MPL-2.0",
   "dependencies": {
-    "node-fetch": "^2.6.7"
+    "node-fetch": "^3.3.2"
   },
   "devDependencies": {
     "@types/assert": "^1.5.4",
