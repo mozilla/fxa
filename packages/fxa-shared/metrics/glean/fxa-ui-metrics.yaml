@@ -731,6 +731,23 @@ login:
     expires: never
     data_sensitivity:
       - interaction
+  diff_account_link_click:
+    type: event
+    description: |
+      Event that indicates user clicked on "Use a different account" link on login page.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-9570
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
 
 password_reset:
   create_new_recovery_key_message_click:
