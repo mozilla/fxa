@@ -1338,6 +1338,7 @@ cad_firefox:
     extra_keys:
       reason:
         description: User chose either "has mobile" or "does not have mobile"
+        type: string
   choice_submit:
     type: event
     description: |
@@ -1358,6 +1359,7 @@ cad_firefox:
     extra_keys:
       reason:
         description: User submitted either "has mobile" or "does not have mobile"
+        type: string
   choice_notnow_submit:
     type: event
     description: |
@@ -1494,6 +1496,42 @@ cad_mobile_pair_use_app:
       - fxa-staff@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-9786
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+
+cad_redirect_desktop:
+  view:
+    type: event
+    description: |
+      User viewed the "Switch to Firefox" page after trying to access the pair flow
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-10008
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+  download:
+    type: event
+    description: |
+      User clicked "Download Firefox" on the "Switch to Firefox" page after trying to access the pair flow
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-10008
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121

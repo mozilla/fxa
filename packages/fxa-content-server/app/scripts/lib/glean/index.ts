@@ -10,6 +10,7 @@ import * as cadApproveDevice from './cadApproveDevice';
 import * as cadFirefox from './cadFirefox';
 import * as cadMobilePair from './cadMobilePair';
 import * as cad from './cad';
+import * as cadRedirectDesktop from './cadRedirectDesktop';
 import * as email from './email';
 import * as event from './event';
 import * as login from './login';
@@ -270,6 +271,12 @@ const recordEventMetric = (eventName: string, properties: EventProperties) => {
     case 'cad_submit':
       cad.submit.record();
       break;
+    case 'cad_redirect_desktop_view':
+      cadRedirectDesktop.view.record();
+      break;
+    case 'cad_redirect_desktop_download':
+      cadRedirectDesktop.download.record();
+      break;
     case 'cad_startbrowsing_submit':
       cad.startbrowsingSubmit.record();
       break;
@@ -435,6 +442,10 @@ export const GleanMetrics = {
   cadApproveDevice: {
     view: createEventFn('cad_approve_device_view'),
     submit: createEventFn('cad_approve_device_submit'),
+  },
+  cadRedirectDesktop: {
+    view: createEventFn('cad_redirect_desktop_view'),
+    download: createEventFn('cad_redirect_desktop_download'),
   },
   setPasswordThirdPartyAuth: {
     view: createEventFn('third_party_auth_set_password_view'),

@@ -8,14 +8,21 @@ import sinon from 'sinon';
 import GleanMetrics from '../../../../scripts/lib/glean';
 
 describe('views/pair/unsupported', () => {
-  let view;
+  let view, desktopNonFirefoxViewEventStub, viewEventStub;
 
   beforeEach(() => {
     initView();
+    viewEventStub = sinon.stub(GleanMetrics.cadMobilePairUseAppView, 'view');
+    desktopNonFirefoxViewEventStub = sinon.stub(
+      GleanMetrics.cadRedirectDesktop,
+      'view'
+    );
   });
 
   afterEach(function () {
     view.destroy();
+    viewEventStub.restore();
+    desktopNonFirefoxViewEventStub.restore();
   });
 
   function initView() {
@@ -24,7 +31,19 @@ describe('views/pair/unsupported', () => {
     });
   }
 
-  describe('render', () => {
+  describe('isDesktopNonFirefox is false', () => {
+    beforeEach(() => {
+      sinon.stub(view, 'getUserAgent').callsFake(() => {
+        return {
+          isAndroid: () => false,
+          isFirefox: () => true,
+          isIos: () => false,
+        };
+      });
+    });
+    afterEach(function () {
+      view.getUserAgent.restore();
+    });
     it('renders', () => {
       return view.render().then(() => {
         assert.ok(
@@ -36,20 +55,68 @@ describe('views/pair/unsupported', () => {
     });
 
     describe('glean metrics', () => {
-      let viewEventStub;
+      it('logs a view Glean metrics event', () => {
+        view.logView();
+        return view.render().then(() => {
+          sinon.assert.calledOnce(viewEventStub);
+          sinon.assert.notCalled(desktopNonFirefoxViewEventStub);
+        });
+      });
+    });
+  });
+
+  describe('isDesktopNonFirefox is true', () => {
+    beforeEach(() => {
+      sinon.stub(view, 'getUserAgent').callsFake(() => {
+        return {
+          isAndroid: () => false,
+          isFirefox: () => false,
+          isIos: () => false,
+        };
+      });
+    });
+    afterEach(function () {
+      view.getUserAgent.restore();
+    });
+    it('renders', () => {
+      return view.render().then(() => {
+        assert.ok(
+          view.$el.find('#pair-unsupported-header').text(),
+          'Oops! It looks like you’re not using Firefox.'
+        );
+        assert.ok(view.$el.find('.bg-no-ff-desktop').length);
+      });
+    });
+
+    describe('glean metrics', () => {
+      let downloadEventStub;
       beforeEach(() => {
-        viewEventStub = sinon.stub(
-          GleanMetrics.cadMobilePairUseAppView,
-          'view'
+        downloadEventStub = sinon.stub(
+          GleanMetrics.cadRedirectDesktop,
+          'download'
         );
       });
       afterEach(() => {
-        viewEventStub.restore();
+        downloadEventStub.restore();
       });
 
       it('logs a view Glean metrics event', () => {
         view.logView();
-        sinon.assert.calledOnce(viewEventStub);
+        return view.render().then(() => {
+          sinon.assert.calledOnce(desktopNonFirefoxViewEventStub);
+          sinon.assert.notCalled(viewEventStub);
+        });
+      });
+
+      it('logs a download engage Glean metrics event', () => {
+        return view.render().then(() => {
+          assert.equal(
+            view.$('#download-firefox').attr('href'),
+            'https://www.mozilla.org/firefox/new/'
+          );
+          view.$('#download-firefox').click();
+          sinon.assert.calledOnce(downloadEventStub);
+        });
       });
     });
   });
