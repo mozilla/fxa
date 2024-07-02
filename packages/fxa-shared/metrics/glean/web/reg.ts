@@ -25,6 +25,22 @@ export const ageInvalid = new EventMetricType(
 );
 
 /**
+ * User clicked on "Change email" link at the top of the registration form.
+ *
+ * Generated from `reg.change_email_link_click`.
+ */
+export const changeEmailLinkClick = new EventMetricType(
+  {
+    category: 'reg',
+    name: 'change_email_link_click',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
  * User interacted with the Sync "Choose What to Sync" options during account
  * registration.
  *

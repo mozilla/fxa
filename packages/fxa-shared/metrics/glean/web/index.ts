@@ -43,6 +43,7 @@ export const eventsMap = {
     cwts: 'reg_cwts_engage',
     ageInvalid: 'reg_age_invalid',
     marketing: 'reg_marketing_engage',
+    changeEmail: 'reg_change_email_link_click',
   },
 
   signupConfirmation: {

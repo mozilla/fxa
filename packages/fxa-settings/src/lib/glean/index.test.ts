@@ -377,6 +377,22 @@ describe('lib/glean', () => {
           }, 20)
         );
       });
+
+      it('submits a ping with the reg_change_email_link_click event name', async () => {
+        GleanMetrics.registration.changeEmail();
+        const spy = sandbox.spy(reg.changeEmailLinkClick, 'record');
+        await new Promise((resolve) =>
+          setTimeout(() => {
+            sinon.assert.calledOnce(setEventNameStub);
+            sinon.assert.calledWith(
+              setEventNameStub,
+              'reg_change_email_link_click'
+            );
+            sinon.assert.calledOnce(spy);
+            resolve(undefined);
+          }, 20)
+        );
+      });
     });
 
     describe('signup confirmation code', () => {
