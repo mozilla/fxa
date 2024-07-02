@@ -31,6 +31,7 @@ const recordPasswordResetRecoveryKeyCreateSuccessStub = sinon.stub();
 const recordAccessTokenCreatedStub = sinon.stub();
 const recordAccessTokenCheckedStub = sinon.stub();
 const recordThirdPartyAuthGoogleLoginCompleteStub = sinon.stub();
+const recordThirdPartyAuthAppleLoginCompleteStub = sinon.stub();
 const recordThirdPartyAuthSetPasswordCompleteStub = sinon.stub();
 
 const { gleanMetrics, logErrorWithGlean } = proxyquire.load(
@@ -65,6 +66,8 @@ const { gleanMetrics, logErrorWithGlean } = proxyquire.load(
         recordAccessTokenChecked: recordAccessTokenCheckedStub,
         recordThirdPartyAuthGoogleLoginComplete:
           recordThirdPartyAuthGoogleLoginCompleteStub,
+        recordThirdPartyAuthAppleLoginComplete:
+          recordThirdPartyAuthAppleLoginCompleteStub,
         recordThirdPartyAuthSetPasswordComplete:
           recordThirdPartyAuthSetPasswordCompleteStub,
       }),
@@ -511,7 +514,7 @@ describe('Glean server side events', () => {
         recordThirdPartyAuthGoogleLoginCompleteStub.reset();
       });
 
-      it('log string and event metrics with account linking', async () => {
+      it('log string and event metrics with account linking for Google', async () => {
         const glean = gleanMetrics(config);
         await glean.thirdPartyAuth.googleLoginComplete(request, {
           reason: 'linking',
@@ -526,7 +529,7 @@ describe('Glean server side events', () => {
         );
       });
 
-      it('log string and event metrics without account linking', async () => {
+      it('log string and event metrics without account linking for Google', async () => {
         const glean = gleanMetrics(config);
         await glean.thirdPartyAuth.googleLoginComplete(request);
         sinon.assert.calledOnce(recordStub);
@@ -536,6 +539,39 @@ describe('Glean server side events', () => {
         sinon.assert.calledOnce(recordThirdPartyAuthGoogleLoginCompleteStub);
         assert.isFalse(
           recordThirdPartyAuthGoogleLoginCompleteStub.args[0][0].linking
+        );
+      });
+    });
+    describe('appleLoginComplete', () => {
+      beforeEach(() => {
+        recordThirdPartyAuthAppleLoginCompleteStub.reset();
+      });
+
+      it('log string and event metrics with account linking for Apple', async () => {
+        const glean = gleanMetrics(config);
+        await glean.thirdPartyAuth.appleLoginComplete(request, {
+          reason: 'linking',
+        });
+        sinon.assert.calledOnce(recordStub);
+        const metrics = recordStub.args[0][0];
+        assert.equal(metrics['event_name'], 'apple_login_complete');
+        assert.equal(metrics['event_reason'], 'linking');
+        sinon.assert.calledOnce(recordThirdPartyAuthAppleLoginCompleteStub);
+        assert.isTrue(
+          recordThirdPartyAuthAppleLoginCompleteStub.args[0][0].linking
+        );
+      });
+
+      it('log string and event metrics without account linking for Apple', async () => {
+        const glean = gleanMetrics(config);
+        await glean.thirdPartyAuth.appleLoginComplete(request);
+        sinon.assert.calledOnce(recordStub);
+        const metrics = recordStub.args[0][0];
+        assert.equal(metrics['event_name'], 'apple_login_complete');
+        assert.equal(metrics['event_reason'], '');
+        sinon.assert.calledOnce(recordThirdPartyAuthAppleLoginCompleteStub);
+        assert.isFalse(
+          recordThirdPartyAuthAppleLoginCompleteStub.args[0][0].linking
         );
       });
     });
