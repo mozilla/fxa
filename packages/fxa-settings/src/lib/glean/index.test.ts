@@ -26,6 +26,7 @@ import * as utm from 'fxa-shared/metrics/glean/web/utm';
 import { Config } from '../config';
 import { FlowQueryParams } from '../..';
 import { WebIntegration, useAccount } from '../../models';
+import { MetricsFlow } from '../metrics-flow';
 
 const sandbox = sinon.createSandbox();
 const mockConfig: Config['glean'] = {
@@ -38,7 +39,7 @@ const mockConfig: Config['glean'] = {
   logPings: false,
   debugViewTag: '',
 };
-let mockFlowQueryParams: FlowQueryParams = {};
+let mockMetricsFlow: MetricsFlow | null = null;
 const mockAccount = {
   metricsEnabled: true,
   recoveryKey: true,
@@ -48,7 +49,7 @@ const mockAccount = {
 let mockUserAgent = '';
 const mockIntegration = { data: {} } as unknown as WebIntegration;
 const mockMetricsContext: GleanMetricsContext = {
-  flowQueryParams: mockFlowQueryParams,
+  metricsFlow: mockMetricsFlow,
   account: mockAccount,
   userAgent: mockUserAgent,
   integration: mockIntegration,
@@ -71,7 +72,10 @@ describe('lib/glean', () => {
     setUtmTermStub: SinonStub;
 
   beforeEach(async () => {
-    mockMetricsContext.flowQueryParams = { flowId: '00ff' };
+    mockMetricsContext.metricsFlow = {
+      flowId: '00ff',
+      flowBeginTime: Date.now(),
+    };
     mockMetricsContext.userAgent = 'ELinks/0.9.3 (textmode; SunOS)';
     mockIntegration.data = {
       clientId: 'abc',
@@ -207,7 +211,7 @@ describe('lib/glean', () => {
     it('sets empty strings as defaults', async () => {
       mockIntegration.data = {};
       mockMetricsContext.userAgent = '';
-      mockMetricsContext.flowQueryParams = {};
+      mockMetricsContext.metricsFlow = null;
       mockMetricsContext.account = undefined;
       GleanMetrics.initialize(
         { ...mockConfig, enabled: true },

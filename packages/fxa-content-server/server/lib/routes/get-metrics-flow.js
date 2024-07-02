@@ -106,10 +106,7 @@ module.exports = function (config) {
   };
 
   route.process = function (req, res) {
-    const flowEventData = flowMetrics.create(
-      FLOW_ID_KEY,
-      req.headers['user-agent']
-    );
+    const flowEventData = flowMetrics.create(FLOW_ID_KEY);
     const { flowBeginTime, flowId } = flowEventData;
     const metricsData = req.query || {};
     const beginEvent = {

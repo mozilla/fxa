@@ -38,12 +38,12 @@ import {
 import * as sync from 'fxa-shared/metrics/glean/web/sync';
 import * as standard from 'fxa-shared/metrics/glean/web/standard';
 import * as utm from 'fxa-shared/metrics/glean/web/utm';
-import { FlowQueryParams } from '../..';
 import { Integration } from '../../models';
+import { MetricsFlow } from '../metrics-flow';
 
 type DeviceTypes = 'mobile' | 'tablet' | 'desktop';
 export type GleanMetricsContext = {
-  flowQueryParams: FlowQueryParams;
+  metricsFlow: MetricsFlow | null;
   account?: { uid?: hexstring; metricsEnabled?: boolean };
   userAgent: string;
   integration: Integration;
@@ -155,7 +155,7 @@ const populateMetrics = async (gleanPingMetrics: GleanPingMetrics) => {
 
   deviceType.set(getDeviceType() || '');
   entrypoint.set(metricsContext.integration.data.entrypoint || '');
-  flowId.set(metricsContext.flowQueryParams.flowId || '');
+  flowId.set(metricsContext.metricsFlow?.flowId || '');
 
   utm.campaign.set(metricsContext.integration.data.utmCampaign || '');
   utm.content.set(metricsContext.integration.data.utmContent || '');
