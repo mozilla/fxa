@@ -64,7 +64,7 @@ describe('lib/glean', () => {
     setFlowIdStub: SinonStub,
     setOauthClientIdStub: SinonStub,
     setServiceStub: SinonStub,
-    setuserIdSha256Stub: SinonStub,
+    setUserIdSha256Stub: SinonStub,
     setUtmCampaignStub: SinonStub,
     setUtmContentStub: SinonStub,
     setUtmMediumStub: SinonStub,
@@ -95,7 +95,7 @@ describe('lib/glean', () => {
     setFlowIdStub = sandbox.stub(flowId, 'set');
     setOauthClientIdStub = sandbox.stub(oauthClientId, 'set');
     setServiceStub = sandbox.stub(service, 'set');
-    setuserIdSha256Stub = sandbox.stub(userIdSha256, 'set');
+    setUserIdSha256Stub = sandbox.stub(userIdSha256, 'set');
     setUtmCampaignStub = sandbox.stub(utm.campaign, 'set');
     setUtmContentStub = sandbox.stub(utm.content, 'set');
     setUtmMediumStub = sandbox.stub(utm.medium, 'set');
@@ -122,34 +122,23 @@ describe('lib/glean', () => {
 
     it('does not submit a ping on an event', async () => {
       GleanMetrics.registration.view();
-      await new Promise((resolve) =>
-        setTimeout(() => {
-          sinon.assert.notCalled(submitPingStub);
-          resolve(undefined);
-        }, 80)
-      );
+      await GleanMetrics.isDone();
+      sinon.assert.notCalled(submitPingStub);
     });
 
     it('does not set the metrics values', async () => {
       GleanMetrics.registration.view();
-
-      await new Promise((resolve) =>
-        setTimeout(() => {
-          sinon.assert.notCalled(setOauthClientIdStub);
-          sinon.assert.notCalled(setServiceStub);
-
-          sinon.assert.notCalled(setDeviceTypeStub);
-          sinon.assert.notCalled(setEntrypointStub);
-          sinon.assert.notCalled(setFlowIdStub);
-
-          sinon.assert.notCalled(setUtmCampaignStub);
-          sinon.assert.notCalled(setUtmContentStub);
-          sinon.assert.notCalled(setUtmMediumStub);
-          sinon.assert.notCalled(setUtmSourceStub);
-          sinon.assert.notCalled(setUtmTermStub);
-          resolve(undefined);
-        }, 80)
-      );
+      await GleanMetrics.isDone();
+      sinon.assert.notCalled(setOauthClientIdStub);
+      sinon.assert.notCalled(setServiceStub);
+      sinon.assert.notCalled(setDeviceTypeStub);
+      sinon.assert.notCalled(setEntrypointStub);
+      sinon.assert.notCalled(setFlowIdStub);
+      sinon.assert.notCalled(setUtmCampaignStub);
+      sinon.assert.notCalled(setUtmContentStub);
+      sinon.assert.notCalled(setUtmMediumStub);
+      sinon.assert.notCalled(setUtmSourceStub);
+      sinon.assert.notCalled(setUtmTermStub);
     });
   });
 
@@ -161,13 +150,8 @@ describe('lib/glean', () => {
       sinon.assert.calledOnce(initStub);
       expect(config.enabled).toBe(false);
       GleanMetrics.registration.view();
-
-      await new Promise((resolve) =>
-        setTimeout(() => {
-          sinon.assert.notCalled(setuserIdSha256Stub);
-          resolve(undefined);
-        }, 20)
-      );
+      await GleanMetrics.isDone();
+      sinon.assert.notCalled(setUserIdSha256Stub);
     });
   });
 
@@ -200,12 +184,8 @@ describe('lib/glean', () => {
 
     it('submits a ping on an event', async () => {
       GleanMetrics.registration.view();
-      await new Promise((resolve) =>
-        setTimeout(() => {
-          sinon.assert.calledOnce(submitPingStub);
-          resolve(undefined);
-        }, 20)
-      );
+      await GleanMetrics.isDone();
+      sinon.assert.calledOnce(submitPingStub);
     });
 
     it('sets empty strings as defaults', async () => {
@@ -218,26 +198,19 @@ describe('lib/glean', () => {
         mockMetricsContext
       );
       GleanMetrics.registration.view();
+      await GleanMetrics.isDone();
 
-      await new Promise((resolve) =>
-        setTimeout(() => {
-          sinon.assert.calledWith(setuserIdSha256Stub, '');
-
-          sinon.assert.calledWith(setOauthClientIdStub, '');
-          sinon.assert.calledWith(setServiceStub, '');
-
-          sinon.assert.calledWith(setDeviceTypeStub, '');
-          sinon.assert.calledWith(setEntrypointStub, '');
-          sinon.assert.calledWith(setFlowIdStub, '');
-
-          sinon.assert.calledWith(setUtmCampaignStub, '');
-          sinon.assert.calledWith(setUtmContentStub, '');
-          sinon.assert.calledWith(setUtmMediumStub, '');
-          sinon.assert.calledWith(setUtmSourceStub, '');
-          sinon.assert.calledWith(setUtmTermStub, '');
-          resolve(undefined);
-        }, 20)
-      );
+      sinon.assert.calledWith(setUserIdSha256Stub, '');
+      sinon.assert.calledWith(setOauthClientIdStub, '');
+      sinon.assert.calledWith(setServiceStub, '');
+      sinon.assert.calledWith(setDeviceTypeStub, '');
+      sinon.assert.calledWith(setEntrypointStub, '');
+      sinon.assert.calledWith(setFlowIdStub, '');
+      sinon.assert.calledWith(setUtmCampaignStub, '');
+      sinon.assert.calledWith(setUtmContentStub, '');
+      sinon.assert.calledWith(setUtmMediumStub, '');
+      sinon.assert.calledWith(setUtmSourceStub, '');
+      sinon.assert.calledWith(setUtmTermStub, '');
     });
 
     it('sets the metrics values', async () => {
@@ -247,42 +220,30 @@ describe('lib/glean', () => {
       );
 
       GleanMetrics.registration.view();
+      await GleanMetrics.isDone();
 
-      await new Promise((resolve) =>
-        setTimeout(() => {
-          sinon.assert.calledWith(
-            setOauthClientIdStub,
-            mockIntegration.data.clientId
-          );
-          sinon.assert.calledWith(setServiceStub, mockIntegration.data.service);
-
-          sinon.assert.calledWith(setDeviceTypeStub, 'desktop');
-          sinon.assert.calledWith(
-            setEntrypointStub,
-            mockIntegration.data.entrypoint
-          );
-          sinon.assert.calledWith(setFlowIdStub, '00ff');
-
-          sinon.assert.calledWith(
-            setUtmCampaignStub,
-            mockIntegration.data.utmCampaign
-          );
-          sinon.assert.calledWith(
-            setUtmContentStub,
-            mockIntegration.data.utmContent
-          );
-          sinon.assert.calledWith(
-            setUtmMediumStub,
-            mockIntegration.data.utmMedium
-          );
-          sinon.assert.calledWith(
-            setUtmSourceStub,
-            mockIntegration.data.utmSource
-          );
-          sinon.assert.calledWith(setUtmTermStub, mockIntegration.data.utmTerm);
-          resolve(undefined);
-        }, 20)
+      sinon.assert.calledWith(
+        setOauthClientIdStub,
+        mockIntegration.data.clientId
       );
+      sinon.assert.calledWith(setServiceStub, mockIntegration.data.service);
+      sinon.assert.calledWith(setDeviceTypeStub, 'desktop');
+      sinon.assert.calledWith(
+        setEntrypointStub,
+        mockIntegration.data.entrypoint
+      );
+      sinon.assert.calledWith(setFlowIdStub, '00ff');
+      sinon.assert.calledWith(
+        setUtmCampaignStub,
+        mockIntegration.data.utmCampaign
+      );
+      sinon.assert.calledWith(
+        setUtmContentStub,
+        mockIntegration.data.utmContent
+      );
+      sinon.assert.calledWith(setUtmMediumStub, mockIntegration.data.utmMedium);
+      sinon.assert.calledWith(setUtmSourceStub, mockIntegration.data.utmSource);
+      sinon.assert.calledWith(setUtmTermStub, mockIntegration.data.utmTerm);
     });
 
     it('submits the pings in order', async () => {
@@ -292,24 +253,16 @@ describe('lib/glean', () => {
       GleanMetrics.registration.success();
 
       // the ping submissions are await'd internally in GleanMetrics...
-      await new Promise((resolve) =>
-        setTimeout(() => {
-          // the set name call is after the await of the ping ahead of it...
-          expect(
-            setDeviceTypeStub
-              .getCall(0)
-              .calledBefore(setEventNameStub.getCall(1))
-          ).toBeTruthy();
+      await GleanMetrics.isDone();
 
-          expect(
-            setDeviceTypeStub
-              .getCall(1)
-              .calledBefore(setEventNameStub.getCall(2))
-          ).toBeTruthy();
+      // the set name call is after the await of the ping ahead of it...
+      expect(
+        setDeviceTypeStub.getCall(0).calledBefore(setEventNameStub.getCall(1))
+      ).toBeTruthy();
 
-          resolve(true);
-        }, 80)
-      );
+      expect(
+        setDeviceTypeStub.getCall(1).calledBefore(setEventNameStub.getCall(2))
+      ).toBeTruthy();
     });
 
     describe('hashed uid', () => {
@@ -319,17 +272,14 @@ describe('lib/glean', () => {
         >;
         GleanMetrics.login.success();
         // the ping submissions are await'd internally in GleanMetrics...
-        await new Promise((resolve) =>
-          setTimeout(() => {
-            sinon.assert.calledTwice(setuserIdSha256Stub);
-            // it sets a default of '' first
-            sinon.assert.calledWith(setuserIdSha256Stub, '');
-            sinon.assert.calledWith(
-              setuserIdSha256Stub,
-              '7ca0172850c53065046beeac3cdec3fe921532dbfebdf7efeb5c33d019cd7798'
-            );
-            resolve(undefined);
-          }, 20)
+        await GleanMetrics.isDone();
+
+        sinon.assert.calledTwice(setUserIdSha256Stub);
+        // it sets a default of '' first
+        sinon.assert.calledWith(setUserIdSha256Stub, '');
+        sinon.assert.calledWith(
+          setUserIdSha256Stub,
+          '7ca0172850c53065046beeac3cdec3fe921532dbfebdf7efeb5c33d019cd7798'
         );
       });
     });
@@ -337,38 +287,25 @@ describe('lib/glean', () => {
     describe('email first', () => {
       it('submits a ping with the email_first_view event name', async () => {
         GleanMetrics.emailFirst.view();
-        await new Promise((resolve) =>
-          setTimeout(() => {
-            sinon.assert.calledOnce(setEventNameStub);
-            sinon.assert.calledWith(setEventNameStub, 'email_first_view');
-            resolve(undefined);
-          }, 20)
-        );
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'email_first_view');
       });
     });
 
     describe('registration', () => {
       it('submits a ping with the reg_view event name', async () => {
         GleanMetrics.registration.view();
-
-        await new Promise((resolve) =>
-          setTimeout(() => {
-            sinon.assert.calledOnce(setEventNameStub);
-            sinon.assert.calledWith(setEventNameStub, 'reg_view');
-            resolve(undefined);
-          }, 20)
-        );
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'reg_view');
       });
 
       it('submits a ping with the reg_submit event name', async () => {
         GleanMetrics.registration.submit();
-        await new Promise((resolve) =>
-          setTimeout(() => {
-            sinon.assert.calledOnce(setEventNameStub);
-            sinon.assert.calledWith(setEventNameStub, 'reg_submit');
-            resolve(undefined);
-          }, 20)
-        );
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'reg_submit');
       });
 
       it('submits a ping with the reg_submit_success event name', async () => {
@@ -381,58 +318,54 @@ describe('lib/glean', () => {
           }, 20)
         );
       });
+
+      it('submits a ping with the reg_change_email_link_click event name', async () => {
+        GleanMetrics.registration.changeEmail();
+        const spy = sandbox.spy(reg.changeEmailLinkClick, 'record');
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'reg_change_email_link_click'
+        );
+        sinon.assert.calledOnce(spy);
+      });
     });
 
     describe('signup confirmation code', () => {
       it('submits a ping with the reg_signup_code_view event name', async () => {
         GleanMetrics.signupConfirmation.view();
-        await new Promise((resolve) =>
-          setTimeout(() => {
-            sinon.assert.calledOnce(setEventNameStub);
-            sinon.assert.calledWith(setEventNameStub, 'reg_signup_code_view');
-            resolve(undefined);
-          }, 20)
-        );
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'reg_signup_code_view');
       });
 
       it('submits a ping with the reg_signup_code_submit event name', async () => {
         GleanMetrics.signupConfirmation.submit();
-        await new Promise((resolve) =>
-          setTimeout(() => {
-            sinon.assert.calledOnce(setEventNameStub);
-            sinon.assert.calledWith(setEventNameStub, 'reg_signup_code_submit');
-            resolve(undefined);
-          }, 20)
-        );
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'reg_signup_code_submit');
       });
     });
 
     describe('loginConfirmation', () => {
       it('submits a ping with the login_email_confirmation_view event name', async () => {
         GleanMetrics.loginConfirmation.view();
-        await new Promise((resolve) =>
-          setTimeout(() => {
-            sinon.assert.calledOnce(setEventNameStub);
-            sinon.assert.calledWith(
-              setEventNameStub,
-              'login_email_confirmation_view'
-            );
-            resolve(undefined);
-          }, 20)
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'login_email_confirmation_view'
         );
       });
 
       it('submits a ping with the reg_submit event name', async () => {
         GleanMetrics.loginConfirmation.submit();
-        await new Promise((resolve) =>
-          setTimeout(() => {
-            sinon.assert.calledOnce(setEventNameStub);
-            sinon.assert.calledWith(
-              setEventNameStub,
-              'login_email_confirmation_submit'
-            );
-            resolve(undefined);
-          }, 20)
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'login_email_confirmation_submit'
         );
       });
     });
@@ -440,13 +373,9 @@ describe('lib/glean', () => {
     describe('totpForm', () => {
       it('submits a ping with the login_totp_form_view event name', async () => {
         GleanMetrics.totpForm.view();
-        await new Promise((resolve) =>
-          setTimeout(() => {
-            sinon.assert.calledOnce(setEventNameStub);
-            sinon.assert.calledWith(setEventNameStub, 'login_totp_form_view');
-            resolve(undefined);
-          }, 20)
-        );
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'login_totp_form_view');
       });
 
       it('submits a ping with the login_totp_code_submit event name', async () => {
@@ -462,15 +391,11 @@ describe('lib/glean', () => {
 
       it('submits a ping with the login_totp_code_success_view event name', async () => {
         GleanMetrics.totpForm.success();
-        await new Promise((resolve) =>
-          setTimeout(() => {
-            sinon.assert.calledOnce(setEventNameStub);
-            sinon.assert.calledWith(
-              setEventNameStub,
-              'login_totp_code_success_view'
-            );
-            resolve(undefined);
-          }, 20)
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'login_totp_code_success_view'
         );
       });
     });
@@ -478,24 +403,16 @@ describe('lib/glean', () => {
     describe('login', () => {
       it('submits a ping with the login_view event name', async () => {
         GleanMetrics.login.view();
-        await new Promise((resolve) =>
-          setTimeout(() => {
-            sinon.assert.calledOnce(setEventNameStub);
-            sinon.assert.calledWith(setEventNameStub, 'login_view');
-            resolve(undefined);
-          }, 20)
-        );
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'login_view');
       });
 
       it('submits a ping with the login_submit event name', async () => {
         GleanMetrics.login.submit();
-        await new Promise((resolve) =>
-          setTimeout(() => {
-            sinon.assert.calledOnce(setEventNameStub);
-            sinon.assert.calledWith(setEventNameStub, 'login_submit');
-            resolve(undefined);
-          }, 20)
-        );
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'login_submit');
       });
 
       it('submits a ping with the login_submit_success event name', async () => {
@@ -511,18 +428,14 @@ describe('lib/glean', () => {
 
       it('submits a ping with the login_submit_frontend_error event name and a reason', async () => {
         GleanMetrics.login.error({ event: { reason: 'quux' } });
-        await new Promise((resolve) =>
-          setTimeout(() => {
-            sinon.assert.calledOnce(setEventNameStub);
-            sinon.assert.calledWith(
-              setEventNameStub,
-              'login_submit_frontend_error'
-            );
-            sinon.assert.calledOnce(setEventReasonStub);
-            sinon.assert.calledWith(setEventReasonStub, 'quux');
-            resolve(undefined);
-          }, 20)
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'login_submit_frontend_error'
         );
+        sinon.assert.calledOnce(setEventReasonStub);
+        sinon.assert.calledWith(setEventReasonStub, 'quux');
       });
     });
 
@@ -530,62 +443,40 @@ describe('lib/glean', () => {
       it('submits a ping with the google_oauth_reg_start event name', async () => {
         GleanMetrics.thirdPartyAuth.startGoogleAuthFromReg();
         const spy = sandbox.spy(reg.googleOauthRegStart, 'record');
-        await new Promise((resolve) =>
-          setTimeout(() => {
-            sinon.assert.calledOnce(setEventNameStub);
-            sinon.assert.calledWith(setEventNameStub, 'google_oauth_reg_start');
-            sinon.assert.calledOnce(spy);
-            resolve(undefined);
-          }, 20)
-        );
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'google_oauth_reg_start');
+        sinon.assert.calledOnce(spy);
       });
 
       it('submits a ping with the third_party_auth_login_no_pw_view event name', async () => {
         GleanMetrics.thirdPartyAuth.viewWithNoPasswordSet();
         const spy = sandbox.spy(login.thirdPartyAuthLoginNoPwView, 'record');
-        await new Promise((resolve) =>
-          setTimeout(() => {
-            sinon.assert.calledOnce(setEventNameStub);
-            sinon.assert.calledWith(
-              setEventNameStub,
-              'third_party_auth_login_no_pw_view'
-            );
-            sinon.assert.calledOnce(spy);
-            resolve(undefined);
-          }, 20)
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'third_party_auth_login_no_pw_view'
         );
+        sinon.assert.calledOnce(spy);
       });
 
       it('submits a ping with the google_oauth_login_start event name', async () => {
         GleanMetrics.thirdPartyAuth.startGoogleAuthFromLogin();
         const spy = sandbox.spy(login.googleOauthLoginStart, 'record');
-        await new Promise((resolve) =>
-          setTimeout(() => {
-            sinon.assert.calledOnce(setEventNameStub);
-            sinon.assert.calledWith(
-              setEventNameStub,
-              'google_oauth_login_start'
-            );
-            sinon.assert.calledOnce(spy);
-            resolve(undefined);
-          }, 20)
-        );
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'google_oauth_login_start');
+        sinon.assert.calledOnce(spy);
       });
 
       it('submits a ping with the apple_oauth_login_start event name', async () => {
         GleanMetrics.thirdPartyAuth.startAppleAuthFromLogin();
         const spy = sandbox.spy(login.appleOauthLoginStart, 'record');
-        await new Promise((resolve) =>
-          setTimeout(() => {
-            sinon.assert.calledOnce(setEventNameStub);
-            sinon.assert.calledWith(
-              setEventNameStub,
-              'apple_oauth_login_start'
-            );
-            sinon.assert.calledOnce(spy);
-            resolve(undefined);
-          }, 20)
-        );
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'apple_oauth_login_start');
+        sinon.assert.calledOnce(spy);
       });
     });
   });

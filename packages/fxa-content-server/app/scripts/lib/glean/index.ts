@@ -359,7 +359,7 @@ export const GleanMetrics = {
     new Promise((resolve) => {
       const checkForEmptyFnList = () => {
         if (lambdas.length === 0) {
-          resolve(undefined);
+          setTimeout(resolve, 5);
         } else {
           setTimeout(checkForEmptyFnList, lambdas.length * 5);
         }
