@@ -22,7 +22,7 @@ test.describe('severity-2 #smoke', () => {
       await signin.fillOutEmailFirstForm(credentials.email);
       await signin.fillOutPasswordForm('incorrect password');
 
-      // Verify the error
+      //Verify the error
       await expect(page.getByText('Incorrect password')).toBeVisible();
 
       //Click forgot password link
