@@ -124,6 +124,9 @@ export type FxAOAuthLogin = {
 export type FxACanLinkAccount = {
   email: string;
 };
+type FxACanLinkAccountResponse = {
+  ok: boolean;
+};
 
 const DEFAULT_SEND_TIMEOUT_LENGTH_MS = 5 * 1000; // 5 seconds in milliseconds
 
@@ -343,8 +346,24 @@ export class Firefox extends EventTarget {
     this.send(FirefoxCommand.OAuthLogin, options);
   }
 
-  fxaCanLinkAccount(options: FxACanLinkAccount) {
+  async fxaCanLinkAccount(
+    options: FxACanLinkAccount
+  ): Promise<FxACanLinkAccountResponse> {
     this.send(FirefoxCommand.CanLinkAccount, options);
+
+    return new Promise((resolve) => {
+      const eventHandler = (event: Event) => {
+        const firefoxEvent = event as FirefoxEvent;
+        console.log('firefoxEvent', firefoxEvent);
+        const detail =
+          typeof firefoxEvent.detail === 'string'
+            ? (JSON.parse(firefoxEvent.detail) as FirefoxMessageDetail)
+            : firefoxEvent.detail;
+
+        resolve(detail.message?.data as FxACanLinkAccountResponse);
+      };
+      window.addEventListener('WebChannelMessageToContent', eventHandler);
+    });
   }
 
   async requestSignedInUser(context: string) {
