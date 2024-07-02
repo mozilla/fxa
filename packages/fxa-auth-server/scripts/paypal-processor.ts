@@ -13,6 +13,7 @@ import { PayPalHelper } from '../lib/payments/paypal/helper';
 import { PayPalClient } from '@fxa/payments/paypal';
 import { PaypalProcessor } from '../lib/payments/paypal/processor';
 import { setupProcessingTaskObjects } from '../lib/payments/processing-tasks-setup';
+import { initSentry } from 'packages/fxa-shared/sentry/node';
 
 const pckg = require('../package.json');
 const config = require('../config').default.getProperties();
@@ -23,8 +24,6 @@ const DEFAULT_LOCK_DURATION_MS = 300000;
  * Used to track whether the script has been requested to exit cleanly and stop processing
  */
 let shutdown = false;
-
-Sentry.init({});
 
 export async function init() {
   // Load program options
@@ -65,6 +64,14 @@ export async function init() {
 
   const { log, database, senders } = await setupProcessingTaskObjects(
     'paypal-processor'
+  );
+
+  initSentry(
+    {
+      ...config,
+      release: pckg.version,
+    },
+    log
   );
 
   const paypalClient = new PayPalClient(
