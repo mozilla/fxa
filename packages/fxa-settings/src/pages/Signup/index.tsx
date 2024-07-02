@@ -400,8 +400,10 @@ export const Signup = ({
           <a
             href="/"
             className="link-blue text-sm"
-            onClick={(e) => {
+            onClick={async (e) => {
               e.preventDefault();
+              GleanMetrics.registration.changeEmail();
+              await GleanMetrics.isDone(); // since we navigate away to Backbone
               const params = new URLSearchParams(location.search);
               // Tell content-server to stay on index and prefill the email
               params.set('prefillEmail', email);

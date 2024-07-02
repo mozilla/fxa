@@ -204,6 +204,9 @@ const recordEventMetric = (
     case 'reg_age_invalid':
       reg.ageInvalid.record();
       break;
+    case 'reg_change_email_link_click':
+      reg.changeEmailLinkClick.record();
+      break;
     case 'login_view':
       login.view.record();
       break;
