@@ -76,7 +76,9 @@ jest.mock('../../lib/glean', () => ({
       success: jest.fn(),
       cwts: jest.fn(),
       marketing: jest.fn(),
+      changeEmail: jest.fn(),
     },
+    isDone: jest.fn(),
   },
 }));
 
@@ -147,9 +149,13 @@ describe('Signup page', () => {
           })
         );
       });
-      expect(hardNavigateSpy).toHaveBeenCalledWith(
-        `/?prefillEmail=${encodeURIComponent(MOCK_EMAIL)}`
-      );
+      await waitFor(() => {
+        expect(GleanMetrics.registration.changeEmail).toBeCalledTimes(1);
+        expect(GleanMetrics.isDone).toBeCalledTimes(1);
+        expect(hardNavigateSpy).toHaveBeenCalledWith(
+          `/?prefillEmail=${encodeURIComponent(MOCK_EMAIL)}`
+        );
+      });
     });
   });
 
