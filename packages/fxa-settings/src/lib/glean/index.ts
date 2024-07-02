@@ -207,6 +207,9 @@ const recordEventMetric = (
     case 'reg_change_email_link_click':
       reg.changeEmailLinkClick.record();
       break;
+    case 'reg_why_do_we_ask_link_click':
+      reg.whyDoWeAskLinkClick.record();
+      break;
     case 'login_view':
       login.view.record();
       break;

@@ -217,3 +217,19 @@ export const view = new EventMetricType(
   },
   []
 );
+
+/**
+ * User clicked on "Why do we ask" link on registration form.
+ *
+ * Generated from `reg.why_do_we_ask_link_click`.
+ */
+export const whyDoWeAskLinkClick = new EventMetricType(
+  {
+    category: 'reg',
+    name: 'why_do_we_ask_link_click',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
