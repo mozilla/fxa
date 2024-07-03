@@ -6,10 +6,10 @@ parameters:
     default: true
   enable_production_smoke_tests:
     type: boolean
-    default: false
+    default: true
   enable_stage_smoke_tests:
     type: boolean
-    default: false
+    default: true
   enable_deploy_packages:
     type: boolean
     default: true
