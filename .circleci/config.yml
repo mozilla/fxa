@@ -656,6 +656,19 @@ jobs:
       - run-playwright-tests:
           project: << parameters.project >>
       - store-artifacts
+      - run:
+          name: create HTML Reports
+          command: |
+            cd artifacts/blob-report
+            echo "Creating HTML reports"
+            ls -l
+            if ls *.zip 1> /dev/null 2>&1; then
+              npx playwright test --reporter=html
+            else
+              echo "No report zip files found, skipping HTML merge."
+            fi
+      - store_artifacts:
+          path: playwright-report
 
   # Runs functional tests using playwright. These tests support splitting
   # and parallel execution.
