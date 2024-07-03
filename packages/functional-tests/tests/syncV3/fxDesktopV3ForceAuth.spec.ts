@@ -26,18 +26,6 @@ test.describe('severity-1 #smoke', () => {
       target,
       testAccountTracker,
     }) => {
-      const config = await configPage.getConfig();
-      // backbone signin sends a fxaccounts:can_link_account event on signin
-      // but this has been removed for react because we already send up this message on the index page
-      // See discussion here: https://github.com/mozilla/fxa/pull/16622/files#r1538329391
-
-      // TODO in FXA-9868 - determine if wfxaccounts:can_link_account needs to be added in react signin,
-      // if index is bypassed the message might not be sent at all.
-      // it is unclear if this scenario can occur or if the account for force auth with sync will always be
-      // the signed in account (no need to merge sync data)
-
-      test.skip(config.showReactApp.signInRoutes === true, 'FXA-9868');
-
       const credentials = await testAccountTracker.signUpSync();
 
       await fxDesktopV3ForceAuth.openWithReplacementParams(credentials, {
@@ -70,9 +58,6 @@ test.describe('severity-1 #smoke', () => {
       target,
       testAccountTracker,
     }) => {
-      const config = await configPage.getConfig();
-      // see comment in first test
-      test.skip(config.showReactApp.signInRoutes === true, 'FXA-9868');
       const credentials = await testAccountTracker.signUpSync();
 
       await fxDesktopV3ForceAuth.open(credentials);
@@ -104,9 +89,6 @@ test.describe('severity-1 #smoke', () => {
       target,
       testAccountTracker,
     }) => {
-      const config = await configPage.getConfig();
-      // see comment in first test
-      test.skip(config.showReactApp.signInRoutes === true, 'FXA-9868');
       const credentials = await testAccountTracker.signUpSync();
       const uid = makeUid();
       await fxDesktopV3ForceAuth.openWithReplacementParams(credentials, {
