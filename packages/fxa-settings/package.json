@@ -257,6 +257,7 @@
     "webpack": "^5.84.1"
   },
   "nx": {
+    "implicitDependencies": ["crypto-relier"],
     "tags": [
       "scope:frontend",
       "type:core"
