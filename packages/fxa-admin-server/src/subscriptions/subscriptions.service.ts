@@ -119,7 +119,26 @@ export class SubscriptionsService {
 
       let invoice = subscription.latest_invoice;
       if (typeof invoice === 'string') {
-        invoice = await this.stripeService.lookupLatestInvoice(invoice);
+        try {
+          invoice = await this.stripeService.lookupLatestInvoice(invoice);
+        } catch (err) {
+          if (
+            err instanceof Stripe.errors.StripeInvalidRequestError &&
+            err.code === 'resource_missing'
+          ) {
+            // This should only happen if the firestore record is out of sync with stripe
+            // and the invoice has been deleted from stripe
+            this.logger.error('getStripeSubscriptions.lookupLatestInvoice', {
+              msg: 'Failed to fetch invoice for subscription',
+              subscriptionId: subscription.id,
+              invoiceId: invoice,
+              err,
+            });
+            return;
+          } else {
+            throw err;
+          }
+        }
       }
 
       const manageSubscriptionLink =
