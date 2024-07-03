@@ -12,7 +12,7 @@
 			"moby": "true"
 		},
 		"ghcr.io/rocker-org/devcontainer-features/apt-packages:1": {
-			"packages": "netcat,git,curl,jq,build-essential,pkg-config,libssl-dev,libgmp3-dev,mycli,redis-tools"
+			"packages": "netcat,git,curl,jq,build-essential,pkg-config,libssl-dev,libgmp3-dev,mycli,redis-tools,python3-venv,python3-pip"
 		},
 		"ghcr.io/devcontainers/features/node:1": {},
 		"ghcr.io/dhoeric/features/google-cloud-cli:1": {}
