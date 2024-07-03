@@ -354,7 +354,6 @@ export class Firefox extends EventTarget {
     return new Promise((resolve) => {
       const eventHandler = (event: Event) => {
         const firefoxEvent = event as FirefoxEvent;
-        console.log('firefoxEvent', firefoxEvent);
         const detail =
           typeof firefoxEvent.detail === 'string'
             ? (JSON.parse(firefoxEvent.detail) as FirefoxMessageDetail)
