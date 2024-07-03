@@ -77,6 +77,7 @@ jest.mock('../../lib/glean', () => ({
       cwts: jest.fn(),
       marketing: jest.fn(),
       changeEmail: jest.fn(),
+      whyWeAsk: jest.fn(),
     },
     isDone: jest.fn(),
   },
@@ -253,6 +254,7 @@ describe('Signup page', () => {
 
     fireEvent.focus(screen.getByLabelText('Password'));
     fireEvent.focus(screen.getByLabelText('How old are you?'));
+    fireEvent.click(screen.getByRole('link', { name: /Why do we ask/ }));
 
     await waitFor(() => {
       expect(GleanMetrics.registration.engage).toBeCalledTimes(2);
@@ -262,6 +264,7 @@ describe('Signup page', () => {
       expect(GleanMetrics.registration.engage).toBeCalledWith({
         event: { reason: 'age' },
       });
+      expect(GleanMetrics.registration.whyWeAsk).toBeCalledTimes(1);
     });
   });
 

@@ -330,6 +330,18 @@ describe('lib/glean', () => {
         );
         sinon.assert.calledOnce(spy);
       });
+
+      it('submits a ping with the reg_why_do_we_ask_link_click event name', async () => {
+        GleanMetrics.registration.whyWeAsk();
+        const spy = sandbox.spy(reg.whyDoWeAskLinkClick, 'record');
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'reg_why_do_we_ask_link_click'
+        );
+        sinon.assert.calledOnce(spy);
+      });
     });
 
     describe('signup confirmation code', () => {

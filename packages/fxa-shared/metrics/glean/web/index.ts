@@ -44,6 +44,7 @@ export const eventsMap = {
     ageInvalid: 'reg_age_invalid',
     marketing: 'reg_marketing_engage',
     changeEmail: 'reg_change_email_link_click',
+    whyWeAsk: 'reg_why_do_we_ask_link_click',
   },
 
   signupConfirmation: {

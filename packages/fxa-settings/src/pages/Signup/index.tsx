@@ -472,6 +472,7 @@ export const Signup = ({
           <LinkExternal
             href="https://www.ftc.gov/business-guidance/resources/childrens-online-privacy-protection-rule-not-just-kids-sites"
             className="link-blue text-start text-sm py-1 -mt-2 mb-4 self-start"
+            onClick={() => GleanMetrics.registration.whyWeAsk()}
           >
             Why do we ask?
           </LinkExternal>
