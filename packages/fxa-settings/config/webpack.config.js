@@ -330,7 +330,7 @@ module.exports = function (webpackEnv) {
           'react-dom$': 'react-dom/profiling',
           'scheduler/tracing': 'scheduler/tracing-profiling',
         }),
-        fxaCryptoDeriver: require.resolve('@fxa/vendored/crypto-relier'),
+        fxaCryptoDeriver: require.resolve('@fxa/vendored/crypto-relier/esm'),
         ...(modules.webpackAliases || {}),
       },
       plugins: [
