@@ -7,8 +7,9 @@
 import EventMetricType from '@mozilla/glean/private/metrics/event';
 
 /**
- * User sees Apple link and bypasses Mozilla Accounts email first/login
- * screens (relevant for Pocket)
+ * User clicked Apple Signin link from an RP hosted site and is taken
+ * directly to Apple authentication flow, bypassing Mozilla Accounts email
+ * first page.
  *
  * Generated from `third_party_auth.apple_deeplink`.
  */
@@ -24,8 +25,9 @@ export const appleDeeplink = new EventMetricType(
 );
 
 /**
- * User sees Google link and bypasses Mozilla Accounts email first/login
- * screens (relevant for Pocket)
+ * User clicked Google Signin link from an RP hosted site and is taken
+ * directly to Google authentication flow, bypassing Mozilla Accounts email
+ * first page.
  *
  * Generated from `third_party_auth.google_deeplink`.
  */

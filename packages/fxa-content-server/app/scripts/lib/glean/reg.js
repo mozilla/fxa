@@ -7,6 +7,40 @@
 import EventMetricType from '@mozilla/glean/private/metrics/event';
 
 /**
+ * Indicates the user entered an age in the "Age" section that is 13 or below. If
+ * they do this, they encounter a page that does not let them continue to register
+ * their account.
+ *
+ * Generated from `reg.age_invalid`.
+ */
+export const ageInvalid = new EventMetricType(
+  {
+    category: 'reg',
+    name: 'age_invalid',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * User clicked on "Change email" link at the top of the registration form.
+ *
+ * Generated from `reg.change_email_link_click`.
+ */
+export const changeEmailLinkClick = new EventMetricType(
+  {
+    category: 'reg',
+    name: 'change_email_link_click',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
  * User interacted with the Sync "Choose What to Sync" options during account
  * registration.
  *
@@ -48,6 +82,23 @@ export const googleOauthRegStart = new EventMetricType(
   {
     category: 'reg',
     name: 'google_oauth_reg_start',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * Event that indicates engagement with the Marketing section of the registration
+ * funnel (Standard funnel only)
+ *
+ * Generated from `reg.marketing_engage`.
+ */
+export const marketingEngage = new EventMetricType(
+  {
+    category: 'reg',
+    name: 'marketing_engage',
     sendInPings: ['events'],
     lifetime: 'ping',
     disabled: false,
