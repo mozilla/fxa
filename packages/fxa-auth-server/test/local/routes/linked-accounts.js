@@ -352,6 +352,7 @@ describe('/linked_account', function () {
           '/linked_account/login'
         );
         glean.registration.complete.reset();
+        glean.thirdPartyAuth.appleLoginComplete.reset();
       });
 
       it('fails if no apple config', async () => {
@@ -454,6 +455,11 @@ describe('/linked_account', function () {
         assert.isTrue(mockDB.createSessionToken.calledOnce);
         assert.equal(result.uid, UID);
         assert.ok(result.sessionToken);
+        sinon.assert.calledOnceWithExactly(
+          glean.thirdPartyAuth.appleLoginComplete,
+          mockRequest,
+          { reason: 'linking' }
+        );
       });
 
       it('should return session with valid apple id token', async () => {
@@ -477,6 +483,10 @@ describe('/linked_account', function () {
         assert.isTrue(mockDB.createSessionToken.calledOnce);
         assert.equal(result.uid, UID);
         assert.ok(result.sessionToken);
+        sinon.assert.calledWithExactly(
+          glean.thirdPartyAuth.appleLoginComplete,
+          mockRequest
+        );
       });
     });
   });

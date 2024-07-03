@@ -359,6 +359,11 @@ export class LinkedAccountHandler {
               reason: 'linking',
             });
             break;
+          case 'apple':
+            await this.glean.thirdPartyAuth.appleLoginComplete(request, {
+              reason: 'linking',
+            });
+            break;
         }
         await request.emitMetricsEvent('account.login', {
           uid: accountRecord.uid,
@@ -445,6 +450,9 @@ export class LinkedAccountHandler {
       switch (provider) {
         case 'google':
           await this.glean.thirdPartyAuth.googleLoginComplete(request);
+          break;
+        case 'apple':
+          await this.glean.thirdPartyAuth.appleLoginComplete(request);
           break;
       }
     }

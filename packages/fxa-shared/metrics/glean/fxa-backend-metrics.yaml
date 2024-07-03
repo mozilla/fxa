@@ -701,7 +701,8 @@ third_party_auth:
   google_login_complete:
     type: event
     description: |
-      A user successfully logged in with Google OAuth.
+      A user successfully logged in with Google OAuth and a Mozilla is also created if one
+      was not already.
     send_in_pings:
       - events
     notification_emails:
@@ -709,6 +710,30 @@ third_party_auth:
       - fxa-staff@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-9815
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      linking:
+        description: |
+          Indicates the initial linking of the Mozilla account and the third-party account.
+        type: boolean
+  apple_login_complete:
+    type: event
+    description: |
+      A user successfully logged in with Apple OAuth and a Mozilla is also created if one
+      was not already.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-9817
+
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
