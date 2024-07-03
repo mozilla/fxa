@@ -209,7 +209,7 @@
     "compile": "yarn build-ts",
     "copy-assets": "cp -r ./db/luaScripts ./dist/esm/packages/fxa-shared/db/luaScripts; cp -r ./db/luaScripts ./dist/cjs/packages/fxa-shared/db/luaScripts",
     "copy-sql": "echo '{ \"type\": \"module\" }' > ./dist/esm/packages/fxa-shared/db/package.json && find test -name \\*.sql -exec cp \\{\\} dist/esm/packages/fxa-shared/\\{\\} \\; ; find test -name \\*.sql -exec cp \\{\\} dist/cjs/packages/fxa-shared/\\{\\} \\;",
-    "glean-generate": "yarn glean translate ./metrics/glean/fxa-ui-pings.yaml ./metrics/glean/fxa-ui-metrics.yaml -f typescript -o ./metrics/glean/web",
+    "glean-generate": "yarn glean translate ./metrics/glean/fxa-ui-pings.yaml ./metrics/glean/fxa-ui-metrics.yaml -f typescript -o ./metrics/glean/web && prettier --config ../../_dev/.prettierrc --write ./metrics/glean/web/*.ts",
     "glean-lint": "yarn glean glinter ./metrics/glean/fxa-ui-pings.yaml ./metrics/glean/fxa-ui-metrics.yaml",
     "start": "pm2 start pm2.config.js",
     "stop": "pm2 stop pm2.config.js",

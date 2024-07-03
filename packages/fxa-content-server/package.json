@@ -12,7 +12,7 @@
     "clean": "rimraf dist",
     "compile": "tsc --noEmit",
     "copy-local-config": "cp server/config/local.json-dist server/config/local.json",
-    "glean-generate": "yarn glean translate ../fxa-shared/metrics/glean/fxa-ui-pings.yaml ../fxa-shared/metrics/glean/fxa-ui-metrics.yaml -f javascript -o app/scripts/lib/glean",
+    "glean-generate": "yarn glean translate ../fxa-shared/metrics/glean/fxa-ui-pings.yaml ../fxa-shared/metrics/glean/fxa-ui-metrics.yaml -f javascript -o app/scripts/lib/glean && prettier --config ../../_dev/.prettierrc --write app/scripts/lib/glean/*.js",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "l10n-create-json": "NODE_OPTIONS=--openssl-legacy-provider grunt l10n-create-json",
     "l10n-prime": "yarn l10n:prime packages/fxa-content-server",
