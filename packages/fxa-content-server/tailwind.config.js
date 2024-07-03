@@ -30,6 +30,8 @@ config.theme.extend = {
     'mobile-ff': 'inline("../images/mobile-ff.svg")',
     'mobile-download': 'inline("../images/mobile-download.svg")',
     'back-arrow': 'inline("../images/back-arrow.svg")',
+    'no-ff-desktop': 'inline("../images/no-ff-desktop.svg")',
+    'icon-warning': 'inline("../images/icon-warning.svg")',
   },
   content: {
     ...config.theme.extend.content,

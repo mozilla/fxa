@@ -1,14 +1,35 @@
-<div class="card">
+<div class="card-base">
   <header>
-    <h1 id="pair-unsupported-header" class="card-header">{{#t}}Pair using an app{{/t}}</h1>
+    {{#isDesktopNonFirefox}}
+      <h1 class="mb-5 text-grey-400 text-base">{{#t}}Connect another device{{/t}}</h1>
+    {{/isDesktopNonFirefox}}
+    {{^isDesktopNonFirefox}}
+      <h1 id="pair-unsupported-header" class="card-header">{{#t}}Pair using an app{{/t}}</h1>
+    {{/isDesktopNonFirefox}}
   </header>
 
   <section>
     <div class="error"></div>
 
-    <div class="bg-image-pair-fail"></div>
+    {{#isDesktopNonFirefox}}
+    <!-- This image does not have aria-label/role=img because the header text conveys exactly
+      the same meaning. If the header text changes later, consider adding an aria-label/role=img. -->
+      <div class="bg-no-ff-desktop bg-contain bg-center bg-no-repeat h-44"></div>
+      <h2 id="pair-unsupported-header" class="card-header focus:outline-none mt-5" tabindex="-1">{{#t}}Oops! It looks like you’re not using Firefox.{{/t}}</h2>
+      <div class="flex bg-orange-50 px-4 py-3 mt-6 rounded-lg mb-4">
+        <div class="bg-icon-warning bg-contain bg-center bg-no-repeat w-6" aria-label="{{#t}}Attention:{{/t}}" role="img"></div>
+        <p class="ps-3">{{#t}}Switch to Firefox and open this page to connect another device.{{/t}}</p>
+      </div>
+      <div class="flex">
+        <a id="download-firefox" href="https://www.mozilla.org/firefox/new/" target="_blank" class="cta-primary cta-xl">{{#t}}Download Firefox{{/t}}<span class="sr-only">{{#t}}Opens in new window{{/t}}</span></a>
+      </div>
+    {{/isDesktopNonFirefox}}
 
-    <p>{{#t}}Did you use the system camera? You must pair from within a Firefox app.{{/t}}</p>
+    {{^isDesktopNonFirefox}}
+      <div class="bg-image-pair-fail"></div>
+
+      <p>{{#t}}Did you use the system camera? You must pair from within a Firefox app.{{/t}}</p>
+    {{/isDesktopNonFirefox}}
 
   </section>
 </div>

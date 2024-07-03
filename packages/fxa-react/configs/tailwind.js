@@ -77,8 +77,6 @@ module.exports = {
          * always be overridden but other packages without this set that use fxa-react shared
          * styles can't build without this */
         'ff-logo': 'none',
-        'mobile-ff': 'none',
-        'mobile-download': 'none',
       },
       keyframes: {
         'fade-in': {
