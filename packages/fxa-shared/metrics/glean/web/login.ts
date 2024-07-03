@@ -23,6 +23,58 @@ export const appleOauthLoginStart = new EventMetricType(
 );
 
 /**
+ * Event that indicates a user attempted to authenticate by clicking
+ * "Confirm" on the 2FA backup codes page.
+ *
+ * Generated from `login.backup_code_submit`.
+ */
+export const backupCodeSubmit = new EventMetricType(
+  {
+    category: 'login',
+    name: 'backup_code_submit',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * Event that indicates the user successfully authenticated via 2FA backup
+ * codes.
+ *
+ * Generated from `login.backup_code_success_view`.
+ */
+export const backupCodeSuccessView = new EventMetricType(
+  {
+    category: 'login',
+    name: 'backup_code_success_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * Event that indicates a successful view/load of the 2FA backup codes
+ * authentication page on the login funnel. The page prompts the user to
+ * enter a backup code.
+ *
+ * Generated from `login.backup_code_view`.
+ */
+export const backupCodeView = new EventMetricType(
+  {
+    category: 'login',
+    name: 'backup_code_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
  * Event that indicates user clicked on "Use a different account" link on login
  * page.
  *
