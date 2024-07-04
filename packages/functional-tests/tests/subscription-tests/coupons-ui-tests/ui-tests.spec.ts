@@ -2,30 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Page, expect, test } from '../../../lib/fixtures/standard';
 import { MetricsObserver } from '../../../lib/metrics';
 import { VALID_VISA } from '../../../lib/paymentArtifacts';
-import { BaseTarget, Credentials } from '../../../lib/targets/base';
-import { TestAccountTracker } from '../../../lib/testAccountTracker';
 import { Coupon } from '../../../pages/products';
-import { SettingsPage } from '../../../pages/settings';
-import { SigninPage } from '../../../pages/signin';
+import { expect, test } from '../subscriptionFixtures';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('ui functionality', () => {
     test('verify plan change funnel metrics & coupon feature not available when changing plans', async ({
-      target,
-      page,
-      pages: { relier, settings, signin, subscribe },
-      testAccountTracker,
+      pages: { relier, subscribe },
     }, { project }) => {
       test.skip(
         project.name === 'production',
         'no real payment method available in prod'
       );
-
-      await signInAccount(target, page, settings, signin, testAccountTracker);
-
       const metricsObserver = new MetricsObserver(subscribe);
       metricsObserver.startTracking();
 
@@ -89,21 +79,3 @@ test.describe('severity-2 #smoke', () => {
     });
   });
 });
-
-async function signInAccount(
-  target: BaseTarget,
-  page: Page,
-  settings: SettingsPage,
-  signin: SigninPage,
-  testAccountTracker: TestAccountTracker
-): Promise<Credentials> {
-  const credentials = await testAccountTracker.signUp();
-  await page.goto(target.contentServerUrl);
-  await signin.fillOutEmailFirstForm(credentials.email);
-  await signin.fillOutPasswordForm(credentials.password);
-
-  await expect(page).toHaveURL(/settings/);
-  await expect(settings.settingsHeading).toBeVisible();
-
-  return credentials;
-}
