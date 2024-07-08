@@ -2,34 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Page, expect, test } from '../../lib/fixtures/standard';
 import { MetricsObserver } from '../../lib/metrics';
 import { INVALID_VISA, VALID_VISA } from '../../lib/paymentArtifacts';
-import { BaseTarget, Credentials } from '../../lib/targets/base';
-import { TestAccountTracker } from '../../lib/testAccountTracker';
-import { SettingsPage } from '../../pages/settings';
-import { SigninPage } from '../../pages/signin';
+import { expect, test } from './subscriptionFixtures';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('subscription', () => {
     test('subscribe with credit card and sign in to product', async ({
-      target,
       page,
-      pages: { relier, settings, signin, subscribe },
-      testAccountTracker,
+      pages: { relier, signin, subscribe },
+      credentials,
     }, { project }) => {
       test.skip(
         project.name === 'production',
         'no real payment method available in prod'
       );
-      const credentials = await signInAccount(
-        target,
-        page,
-        settings,
-        signin,
-        testAccountTracker
-      );
-
       await relier.goto();
       await relier.clickSubscribe();
 
@@ -53,21 +40,13 @@ test.describe('severity-2 #smoke', () => {
     });
 
     test('subscribe with credit card after initial failed subscription & verify existing user checkout funnel metrics', async ({
-      target,
       page,
-      pages: { relier, settings, signin, subscribe },
-      testAccountTracker,
+      pages: { relier, signin, subscribe },
+      credentials,
     }, { project }) => {
       test.skip(
         project.name === 'production',
         'no real payment method available in prod'
-      );
-      const credentials = await signInAccount(
-        target,
-        page,
-        settings,
-        signin,
-        testAccountTracker
       );
       const metricsObserver = new MetricsObserver(subscribe);
       metricsObserver.startTracking();
@@ -133,17 +112,12 @@ test.describe('severity-2 #smoke', () => {
     });
 
     test('subscribe with paypal opens popup', async ({
-      target,
-      page,
-      pages: { relier, settings, signin, subscribe },
-      testAccountTracker,
+      pages: { relier, subscribe },
     }, { project }) => {
       test.skip(
         project.name === 'production',
         'no real payment method available in prod'
       );
-      await signInAccount(target, page, settings, signin, testAccountTracker);
-
       await relier.goto();
       await relier.clickSubscribe();
 
@@ -160,17 +134,13 @@ test.describe('severity-2 #smoke', () => {
 
   test.describe('Flow, acquisition and new user checkout funnel metrics', () => {
     test('Metrics disabled: existing user checkout URL to not have flow params', async ({
-      target,
       page,
-      pages: { relier, settings, signin },
-      testAccountTracker,
+      pages: { relier, settings },
     }, { project }) => {
       test.skip(
         project.name === 'production',
         'test plan not available in prod'
       );
-      await signInAccount(target, page, settings, signin, testAccountTracker);
-
       // Go to settings page and verify the Data Collection toggle switch is visible
       await settings.goto();
       expect(await settings.dataCollection.isToggleSwitch()).toBe(true);
@@ -187,17 +157,13 @@ test.describe('severity-2 #smoke', () => {
     });
 
     test('Existing user checkout URL to have flow params', async ({
-      target,
       page,
-      pages: { relier, settings, signin },
-      testAccountTracker,
+      pages: { relier, settings },
     }, { project }) => {
       test.skip(
         project.name === 'production',
         'test plan not available in prod'
       );
-      await signInAccount(target, page, settings, signin, testAccountTracker);
-
       // Go to settings page and verify the Data Collection toggle switch is visible
       await settings.goto();
       expect(await settings.dataCollection.isToggleSwitch()).toBe(true);
@@ -213,17 +179,13 @@ test.describe('severity-2 #smoke', () => {
     });
 
     test('New user checkout URL to have flow params', async ({
-      target,
       page,
-      pages: { relier, settings, signin },
-      testAccountTracker,
+      pages: { relier, settings },
     }, { project }) => {
       test.skip(
         project.name === 'production',
         'test plan not available in prod'
       );
-      await signInAccount(target, page, settings, signin, testAccountTracker);
-
       await settings.goto();
       await settings.signOut();
       await relier.goto();
@@ -232,17 +194,13 @@ test.describe('severity-2 #smoke', () => {
     });
 
     test('New user checkout URL to have flow params with cache cleared', async ({
-      target,
       page,
       pages: { relier, settings, signin },
-      testAccountTracker,
     }, { project }) => {
       test.skip(
         project.name === 'production',
         'test plan not available in prod'
       );
-      await signInAccount(target, page, settings, signin, testAccountTracker);
-
       await settings.goto();
       await settings.signOut();
       await signin.clearCache();
@@ -252,16 +210,14 @@ test.describe('severity-2 #smoke', () => {
     });
 
     test('New user checkout URL to have RP-provided flow params, acquisition params & verify funnel metrics', async ({
-      target,
       page,
-      pages: { relier, settings, signin, subscribe },
+      pages: { relier, settings, subscribe },
       testAccountTracker,
     }, { project }) => {
       test.skip(
         project.name === 'production',
         'test plan not available in prod'
       );
-      await signInAccount(target, page, settings, signin, testAccountTracker);
       const email = testAccountTracker.generateEmail();
 
       await settings.goto();
@@ -341,21 +297,3 @@ test.describe('severity-2 #smoke', () => {
     });
   });
 });
-
-async function signInAccount(
-  target: BaseTarget,
-  page: Page,
-  settings: SettingsPage,
-  signin: SigninPage,
-  testAccountTracker: TestAccountTracker
-): Promise<Credentials> {
-  const credentials = await testAccountTracker.signUp();
-  await page.goto(target.contentServerUrl);
-  await signin.fillOutEmailFirstForm(credentials.email);
-  await signin.fillOutPasswordForm(credentials.password);
-
-  await expect(page).toHaveURL(/settings/);
-  await expect(settings.settingsHeading).toBeVisible();
-
-  return credentials;
-}
