@@ -157,6 +157,10 @@ function avatarAndEmailRendered() {
   screen.getByAltText('Your avatar');
   screen.getByText(MOCK_EMAIL);
 }
+function defaultAvatarAndEmailRendered() {
+  screen.getByAltText('Default avatar');
+  screen.getByText(MOCK_EMAIL);
+}
 function resetPasswordLinkRendered() {
   expect(
     screen.getByRole('link', { name: 'Forgot password?' })
@@ -185,7 +189,7 @@ describe('Signin', () => {
         screen.getByRole('heading', {
           name: 'Enter your password for your Mozilla account',
         });
-        avatarAndEmailRendered();
+        defaultAvatarAndEmailRendered();
         passwordInputRendered();
         thirdPartyAuthRendered();
         signInButtonAndSeparatorRendered();
@@ -587,205 +591,248 @@ describe('Signin', () => {
         expect(GleanMetrics.login.error).toHaveBeenCalledTimes(1);
       });
     });
-  });
 
-  describe('user does not have a password', () => {
-    it('renders as expected without linked account', () => {
-      render({ hasPassword: false });
+    describe('user does not have a password', () => {
+      it('renders as expected without linked account', () => {
+        render({ hasPassword: false });
 
-      signInHeaderRendered();
-      avatarAndEmailRendered();
-      signInButtonAndSeparatorRendered();
-      thirdPartyAuthRendered();
-      privacyAndTermsRendered();
-      differentAccountLinkRendered();
-      resetPasswordLinkRendered();
+        signInHeaderRendered();
+        defaultAvatarAndEmailRendered();
+        signInButtonAndSeparatorRendered();
+        thirdPartyAuthRendered();
+        privacyAndTermsRendered();
+        differentAccountLinkRendered();
+        resetPasswordLinkRendered();
 
-      passwordInputNotRendered();
-    });
+        passwordInputNotRendered();
+      });
 
-    it('renders as expected with linked account', () => {
-      render({ hasPassword: false, hasLinkedAccount: true });
-      signInHeaderRendered();
-      avatarAndEmailRendered();
-      thirdPartyAuthRendered();
-      privacyAndTermsRendered();
+      it('renders as expected with linked account', () => {
+        render({ hasPassword: false, hasLinkedAccount: true });
+        signInHeaderRendered();
+        defaultAvatarAndEmailRendered();
+        thirdPartyAuthRendered();
+        privacyAndTermsRendered();
 
-      passwordInputNotRendered();
-      expect(
-        screen.queryByRole('link', { name: 'Forgot password?' })
-      ).not.toBeInTheDocument();
-      expect(screen.queryByText('Or')).not.toBeInTheDocument();
-      expect(
-        screen.queryByRole('button', { name: 'Sign in' })
-      ).not.toBeInTheDocument();
-    });
-  });
-});
-
-describe('with sessionToken', () => {
-  it('renders as expected', () => {
-    renderWithLocalizationProvider(
-      <Subject sessionToken={MOCK_SESSION_TOKEN} />
-    );
-
-    expect(GleanMetrics.cachedLogin.view).toHaveBeenCalledTimes(1);
-    signInHeaderRendered();
-    avatarAndEmailRendered();
-    thirdPartyAuthRendered();
-    signInButtonAndSeparatorRendered();
-    privacyAndTermsRendered();
-    resetPasswordLinkRendered();
-    differentAccountLinkRendered();
-
-    passwordInputNotRendered();
-  });
-
-  it('emits an event on forgot password link click', async () => {
-    renderWithLocalizationProvider(
-      <Subject sessionToken={MOCK_SESSION_TOKEN} />
-    );
-
-    fireEvent.click(screen.getByText('Forgot password?'));
-    await waitFor(() => {
-      expect(GleanMetrics.cachedLogin.forgotPassword).toBeCalledTimes(1);
+        passwordInputNotRendered();
+        expect(
+          screen.queryByRole('link', { name: 'Forgot password?' })
+        ).not.toBeInTheDocument();
+        expect(screen.queryByText('Or')).not.toBeInTheDocument();
+        expect(
+          screen.queryByRole('button', { name: 'Sign in' })
+        ).not.toBeInTheDocument();
+      });
     });
   });
 
-  describe('successful submission', () => {
-    it('submits and emits metrics', async () => {
-      const cachedSigninHandler = jest
-        .fn()
-        .mockReturnValueOnce(CACHED_SIGNIN_HANDLER_RESPONSE);
+  describe('with sessionToken', () => {
+    it('renders as expected', () => {
       renderWithLocalizationProvider(
-        <Subject
-          sessionToken={MOCK_SESSION_TOKEN}
-          {...{ cachedSigninHandler }}
-        />
+        <Subject sessionToken={MOCK_SESSION_TOKEN} />
       );
 
-      submit();
-      await waitFor(() => {
-        expect(cachedSigninHandler).toHaveBeenCalledWith(MOCK_SESSION_TOKEN);
-      });
-      expect(GleanMetrics.cachedLogin.submit).toHaveBeenCalledTimes(1);
-      expect(GleanMetrics.cachedLogin.success).toHaveBeenCalledTimes(1);
+      expect(GleanMetrics.cachedLogin.view).toHaveBeenCalledTimes(1);
+      signInHeaderRendered();
+      avatarAndEmailRendered();
+      thirdPartyAuthRendered();
+      signInButtonAndSeparatorRendered();
+      privacyAndTermsRendered();
+      resetPasswordLinkRendered();
+      differentAccountLinkRendered();
+
+      passwordInputNotRendered();
     });
 
-    describe('OAuth integration', () => {
-      let hardNavigateSpy: jest.SpyInstance;
-      beforeEach(() => {
-        hardNavigateSpy = jest
-          .spyOn(utils, 'hardNavigate')
-          .mockImplementation(() => {});
-      });
+    it('emits an event on forgot password link click', async () => {
+      renderWithLocalizationProvider(
+        <Subject sessionToken={MOCK_SESSION_TOKEN} />
+      );
 
-      afterEach(() => {
-        hardNavigateSpy.mockRestore();
+      fireEvent.click(screen.getByText('Forgot password?'));
+      await waitFor(() => {
+        expect(GleanMetrics.cachedLogin.forgotPassword).toBeCalledTimes(1);
       });
+    });
 
-      it('always renders password input when integration wants keys', () => {
-        const integration = createMockSigninOAuthIntegration({
-          wantsKeys: true,
-        });
-        render({ integration });
-        passwordInputRendered();
-      });
-
-      it('navigates to OAuth redirect', async () => {
+    describe('successful submission', () => {
+      it('submits and emits metrics', async () => {
         const cachedSigninHandler = jest
           .fn()
           .mockReturnValueOnce(CACHED_SIGNIN_HANDLER_RESPONSE);
-        const finishOAuthFlowHandler = jest
-          .fn()
-          .mockReturnValueOnce(MOCK_OAUTH_FLOW_HANDLER_RESPONSE);
-        const integration = createMockSigninOAuthIntegration();
-        render({
-          cachedSigninHandler,
-          integration,
-          finishOAuthFlowHandler,
-          sessionToken: MOCK_SESSION_TOKEN,
-        });
+        renderWithLocalizationProvider(
+          <Subject
+            sessionToken={MOCK_SESSION_TOKEN}
+            {...{ cachedSigninHandler }}
+          />
+        );
 
-        enterPasswordAndSubmit();
+        submit();
         await waitFor(() => {
-          expect(hardNavigateSpy).toHaveBeenCalledWith('someUri');
+          expect(cachedSigninHandler).toHaveBeenCalledWith(MOCK_SESSION_TOKEN);
         });
+        expect(GleanMetrics.cachedLogin.submit).toHaveBeenCalledTimes(1);
+        expect(GleanMetrics.cachedLogin.success).toHaveBeenCalledTimes(1);
       });
-      it('handles error due to TOTP required or insufficent ARC value', async () => {
-        const signinResponse = createBeginSigninResponse();
-        const beginSigninHandler = jest
-          .fn()
-          .mockReturnValueOnce(signinResponse);
-        const finishOAuthFlowHandler = jest.fn().mockImplementationOnce(() => ({
-          error: AuthUiErrors.TOTP_REQUIRED,
-        }));
-        const integration = createMockSigninOAuthIntegration();
-        render({ finishOAuthFlowHandler, integration, beginSigninHandler });
 
-        enterPasswordAndSubmit();
-        await waitFor(() => {
-          expect(GleanMetrics.login.submit).toHaveBeenCalledTimes(1);
+      describe('OAuth integration', () => {
+        let hardNavigateSpy: jest.SpyInstance;
+        beforeEach(() => {
+          hardNavigateSpy = jest
+            .spyOn(utils, 'hardNavigate')
+            .mockImplementation(() => {});
         });
-        expect(GleanMetrics.login.error).toHaveBeenCalledWith({
-          event: { reason: AuthUiErrors.TOTP_REQUIRED.message },
-        });
-        expect(GleanMetrics.login.error).toHaveBeenCalledTimes(1);
 
-        expect(navigate).toHaveBeenCalledWith('/inline_totp_setup', {
-          state: {
-            email: MOCK_EMAIL,
-            keyFetchToken: signinResponse.data.signIn.keyFetchToken,
-            sessionToken: signinResponse.data.signIn.sessionToken,
-            uid: signinResponse.data.signIn.uid,
-            unwrapBKey: signinResponse.data.unwrapBKey,
-            verificationMethod: signinResponse.data.signIn.verificationMethod,
-            verificationReason: signinResponse.data.signIn.verificationReason,
-            verified: signinResponse.data.signIn.verified,
-          },
+        afterEach(() => {
+          hardNavigateSpy.mockRestore();
+        });
+
+        it('always renders password input when integration wants keys', () => {
+          const integration = createMockSigninOAuthIntegration({
+            wantsKeys: true,
+          });
+          render({ integration });
+          passwordInputRendered();
+        });
+
+        it('navigates to OAuth redirect', async () => {
+          const cachedSigninHandler = jest
+            .fn()
+            .mockReturnValueOnce(CACHED_SIGNIN_HANDLER_RESPONSE);
+          const finishOAuthFlowHandler = jest
+            .fn()
+            .mockReturnValueOnce(MOCK_OAUTH_FLOW_HANDLER_RESPONSE);
+          const integration = createMockSigninOAuthIntegration();
+          render({
+            cachedSigninHandler,
+            integration,
+            finishOAuthFlowHandler,
+            sessionToken: MOCK_SESSION_TOKEN,
+          });
+
+          enterPasswordAndSubmit();
+          await waitFor(() => {
+            expect(hardNavigateSpy).toHaveBeenCalledWith('someUri');
+          });
+        });
+        it('handles error due to TOTP required or insufficent ARC value', async () => {
+          const signinResponse = createBeginSigninResponse();
+          const beginSigninHandler = jest
+            .fn()
+            .mockReturnValueOnce(signinResponse);
+          const finishOAuthFlowHandler = jest
+            .fn()
+            .mockImplementationOnce(() => ({
+              error: AuthUiErrors.TOTP_REQUIRED,
+            }));
+          const integration = createMockSigninOAuthIntegration();
+          render({ finishOAuthFlowHandler, integration, beginSigninHandler });
+
+          enterPasswordAndSubmit();
+          await waitFor(() => {
+            expect(GleanMetrics.login.submit).toHaveBeenCalledTimes(1);
+          });
+          expect(GleanMetrics.login.error).toHaveBeenCalledWith({
+            event: { reason: AuthUiErrors.TOTP_REQUIRED.message },
+          });
+          expect(GleanMetrics.login.error).toHaveBeenCalledTimes(1);
+
+          expect(navigate).toHaveBeenCalledWith('/inline_totp_setup', {
+            state: {
+              email: MOCK_EMAIL,
+              keyFetchToken: signinResponse.data.signIn.keyFetchToken,
+              sessionToken: signinResponse.data.signIn.sessionToken,
+              uid: signinResponse.data.signIn.uid,
+              unwrapBKey: signinResponse.data.unwrapBKey,
+              verificationMethod: signinResponse.data.signIn.verificationMethod,
+              verificationReason: signinResponse.data.signIn.verificationReason,
+              verified: signinResponse.data.signIn.verified,
+            },
+          });
         });
       });
     });
-  });
 
-  describe('errored submission', () => {
-    it('requires password if cached credentials have expired', async () => {
-      const cachedSigninHandler = jest
-        .fn()
-        .mockReturnValueOnce(createCachedSigninResponseError());
-      renderWithLocalizationProvider(
-        <Subject
-          sessionToken={MOCK_SESSION_TOKEN}
-          {...{ cachedSigninHandler }}
-        />
-      );
+    describe('errored submission', () => {
+      it('requires password if cached credentials have expired', async () => {
+        const cachedSigninHandler = jest
+          .fn()
+          .mockReturnValueOnce(createCachedSigninResponseError());
+        renderWithLocalizationProvider(
+          <Subject
+            sessionToken={MOCK_SESSION_TOKEN}
+            {...{ cachedSigninHandler }}
+          />
+        );
 
-      submit();
-      await waitFor(() => {
-        expect(cachedSigninHandler).toHaveBeenCalledWith(MOCK_SESSION_TOKEN);
-        screen.getByText('Session expired. Sign in to continue.');
-        passwordInputRendered();
+        submit();
+        await waitFor(() => {
+          expect(cachedSigninHandler).toHaveBeenCalledWith(MOCK_SESSION_TOKEN);
+          screen.getByText('Session expired. Sign in to continue.');
+          passwordInputRendered();
+        });
+      });
+
+      it('displays other errors', async () => {
+        const unexpectedError = AuthUiErrors.UNEXPECTED_ERROR;
+        const cachedSigninHandler = jest.fn().mockReturnValueOnce(
+          createCachedSigninResponseError({
+            errno: unexpectedError.errno,
+          })
+        );
+        renderWithLocalizationProvider(
+          <Subject
+            sessionToken={MOCK_SESSION_TOKEN}
+            {...{ cachedSigninHandler }}
+          />
+        );
+
+        submit();
+        await waitFor(() => {
+          screen.getByText(unexpectedError.message);
+          passwordInputNotRendered();
+        });
       });
     });
 
-    it('displays other errors', async () => {
-      const unexpectedError = AuthUiErrors.UNEXPECTED_ERROR;
-      const cachedSigninHandler = jest.fn().mockReturnValueOnce(
-        createCachedSigninResponseError({
-          errno: unexpectedError.errno,
-        })
-      );
-      renderWithLocalizationProvider(
-        <Subject
-          sessionToken={MOCK_SESSION_TOKEN}
-          {...{ cachedSigninHandler }}
-        />
-      );
+    describe('user does not have a password', () => {
+      it('renders as expected without linked account', () => {
+        renderWithLocalizationProvider(
+          <Subject sessionToken={MOCK_SESSION_TOKEN} hasPassword={false} />
+        );
 
-      submit();
-      await waitFor(() => {
-        screen.getByText(unexpectedError.message);
+        signInHeaderRendered();
+        avatarAndEmailRendered();
+        signInButtonAndSeparatorRendered();
+        thirdPartyAuthRendered();
+        privacyAndTermsRendered();
+        differentAccountLinkRendered();
+        resetPasswordLinkRendered();
+
         passwordInputNotRendered();
+      });
+
+      it('renders as expected with linked account', () => {
+        renderWithLocalizationProvider(
+          <Subject
+            sessionToken={MOCK_SESSION_TOKEN}
+            hasPassword={false}
+            hasLinkedAccount={true}
+          />
+        );
+        signInHeaderRendered();
+        avatarAndEmailRendered();
+        thirdPartyAuthRendered();
+        privacyAndTermsRendered();
+
+        passwordInputNotRendered();
+        expect(
+          screen.queryByRole('link', { name: 'Forgot password?' })
+        ).not.toBeInTheDocument();
+        expect(screen.queryByText('Or')).not.toBeInTheDocument();
+        expect(
+          screen.queryByRole('button', { name: 'Sign in' })
+        ).not.toBeInTheDocument();
       });
     });
   });

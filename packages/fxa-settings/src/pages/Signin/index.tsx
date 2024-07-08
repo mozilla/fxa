@@ -327,7 +327,7 @@ const Signin = ({
         </Banner>
       )}
       <div className="mt-9">
-        {avatarData?.account.avatar ? (
+        {sessionToken && avatarData?.account.avatar ? (
           <Avatar
             className={avatarClassNames}
             avatar={avatarData.account.avatar}
