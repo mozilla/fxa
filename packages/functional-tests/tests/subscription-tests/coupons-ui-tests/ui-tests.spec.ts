@@ -19,6 +19,7 @@ test.describe('severity-2 #smoke', () => {
       pages: { relier, settings, signin, subscribe },
       testAccountTracker,
     }, { project }) => {
+      test.fixme(true, 'Fix required as of 2024/07/08 (see FXA-10014).');
       test.skip(
         project.name === 'production',
         'no real payment method available in prod'
