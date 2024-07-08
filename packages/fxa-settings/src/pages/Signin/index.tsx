@@ -362,6 +362,7 @@ const Signin = ({
               required
               autoFocus
               onChange={() => {
+                GleanMetrics.login.engage();
                 // clear error tooltip if user types in the field
                 if (passwordTooltipErrorText) {
                   setPasswordTooltipErrorText('');
