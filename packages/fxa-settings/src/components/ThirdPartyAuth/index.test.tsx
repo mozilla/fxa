@@ -75,13 +75,13 @@ describe('ThirdPartyAuthComponent', () => {
       (await screen.findByTestId('google-signin-form-state')).getAttribute(
         'value'
       )
-    ).toEqual('');
+    ).toEqual('http%3A%2F%2Flocalhost%2F%3F');
 
     expect(
       (await screen.findByTestId('apple-signin-form-state')).getAttribute(
         'value'
       )
-    ).toEqual('');
+    ).toEqual('http%3A%2F%2Flocalhost%2F%3F');
   });
 
   it('submits apple form', async () => {
