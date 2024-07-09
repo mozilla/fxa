@@ -12,6 +12,7 @@ import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import { ButtonIconTrash } from '../ButtonIcon';
 import { HomePath } from '../../../constants';
 import { FtlMsg } from 'fxa-react/lib/utils';
+import GleanMetrics from '../../../lib/glean';
 
 export const UnitRowRecoveryKey = () => {
   const account = useAccount();
@@ -96,6 +97,9 @@ export const UnitRowRecoveryKey = () => {
           />
         )
       }
+      ctaOnClickAction={() => {
+        GleanMetrics.accountPref.recoveryKeySubmit();
+      }}
     >
       <FtlMsg id="rk-content-explain">
         <p className="text-sm mt-3">
