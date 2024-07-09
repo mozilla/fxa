@@ -61,7 +61,7 @@ const ThirdPartyAuth = ({
             {...{
               party: 'google',
               ...config.googleAuthConfig,
-              state: '',
+              state: getState(),
               scope: 'openid email profile',
               responseType: 'code',
               accessType: 'offline',
@@ -82,7 +82,7 @@ const ThirdPartyAuth = ({
             {...{
               party: 'apple',
               ...config.appleAuthConfig,
-              state: '',
+              state: getState(),
               scope: 'email',
               responseType: 'code id_token',
               accessType: 'offline',
