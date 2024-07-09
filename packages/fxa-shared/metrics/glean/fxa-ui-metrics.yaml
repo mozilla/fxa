@@ -748,6 +748,23 @@ login:
     expires: never
     data_sensitivity:
       - interaction
+  engage:
+    type: event
+    description: |
+      Indicates a user engaged with the password field on login by focusing/clicking/type.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+       - https://mozilla-hub.atlassian.net/browse/FXA-9569
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
   backup_code_view:
     type: event
     description: |

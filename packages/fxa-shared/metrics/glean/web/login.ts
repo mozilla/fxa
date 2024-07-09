@@ -147,6 +147,23 @@ export const emailConfirmationView = new EventMetricType(
 );
 
 /**
+ * Indicates a user engaged with the password field on login by
+ * focusing/clicking/type.
+ *
+ * Generated from `login.engage`.
+ */
+export const engage = new EventMetricType(
+  {
+    category: 'login',
+    name: 'engage',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
  * Login Password Reset Click
  * User clicks on the "Forgot Password" Link.'
  *

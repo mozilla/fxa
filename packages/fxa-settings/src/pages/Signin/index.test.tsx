@@ -37,6 +37,7 @@ import {
 } from '../../models/integrations/client-matching';
 import firefox from '../../lib/channels/firefox';
 import { navigate } from '@reach/router';
+import { text } from 'stream/consumers';
 
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
@@ -60,6 +61,7 @@ jest.mock('../../lib/glean', () => ({
       success: jest.fn(),
       error: jest.fn(),
       diffAccountLinkClick: jest.fn(),
+      engage: jest.fn(),
     },
     cachedLogin: {
       forgotPassword: jest.fn(),
@@ -212,6 +214,18 @@ describe('Signin', () => {
         fireEvent.click(screen.getByText('Forgot password?'));
         await waitFor(() => {
           expect(GleanMetrics.login.forgotPassword).toBeCalledTimes(1);
+        });
+      });
+
+      it('emits an event when password field is focused', async () => {
+        render();
+        expect(
+          fireEvent.input(screen.getByLabelText(/Password/), {
+            target: { value: MOCK_PASSWORD },
+          })
+        ).toBeTruthy();
+        await waitFor(() => {
+          expect(GleanMetrics.login.engage).toBeCalledTimes(1);
         });
       });
 

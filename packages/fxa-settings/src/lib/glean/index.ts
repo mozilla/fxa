@@ -239,6 +239,9 @@ const recordEventMetric = (
     case 'login_backup_code_success_view':
       login.backupCodeSuccessView.record();
       break;
+    case 'login_engage':
+      login.engage.record();
+      break;
     case 'cached_login_forgot_pwd_submit':
       cachedLogin.forgotPwdSubmit.record();
       break;
