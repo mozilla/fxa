@@ -147,6 +147,16 @@ export const eventsMap = {
   },
 
   accountPref: {
+    view: 'account_pref_view',
     recoveryKeySubmit: 'account_pref_recovery_key_submit',
+  },
+
+  deleteAccount: {
+    settingsSubmit: 'delete_account_settings_submit',
+    view: 'delete_account_view',
+    engage: 'delete_account_engage',
+    submit: 'delete_account_submit',
+    passwordView: 'delete_account_password_view',
+    passwordSubmit: 'delete_account_password_submit',
   },
 } as const;

@@ -5,6 +5,7 @@
 import React from 'react';
 import 'mutationobserver-shim';
 import { screen, fireEvent, act, within } from '@testing-library/react';
+import { userEvent } from '@testing-library/user-event';
 import {
   mockAppContext,
   mockSession,
@@ -13,20 +14,45 @@ import {
 import { PageDeleteAccount } from '.';
 import { typeByTestIdFn } from '../../../lib/test-utils';
 import { Account, AppContext } from '../../../models';
-import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
+import { logViewEvent } from '../../../lib/metrics';
+import { MOCK_EMAIL } from '../../../pages/mocks';
+import GleanMetrics from '../../../lib/glean';
 
 jest.mock('../../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
   usePageViewEvent: jest.fn(),
 }));
 
+jest.mock('../../../lib/glean', () => ({
+  __esModule: true,
+  default: {
+    deleteAccount: {
+      view: jest.fn(),
+      engage: jest.fn(),
+      submit: jest.fn(),
+      passwordView: jest.fn(),
+      passwordSubmit: jest.fn(),
+    },
+  },
+}));
+
 const account = {
   primaryEmail: {
-    email: 'rfeeley@mozilla.com',
+    email: MOCK_EMAIL,
   },
   uid: '0123456789abcdef',
   metricsEnabled: true,
   hasPassword: true,
+} as unknown as Account;
+
+const pwdlessAccount = {
+  primaryEmail: {
+    email: MOCK_EMAIL,
+  },
+  uid: '0123456789abcdef',
+  metricsEnabled: true,
+  hasPassword: false,
+  destroy: jest.fn().mockResolvedValue({}),
 } as unknown as Account;
 
 const session = mockSession(true, false);
@@ -34,13 +60,11 @@ const session = mockSession(true, false);
 window.URL.createObjectURL = jest.fn();
 console.error = jest.fn();
 
-const advanceStep = async () => {
-  await act(async () => {
-    const inputs = screen.getAllByTestId('checkbox-input');
-    inputs.forEach((el) => fireEvent.click(el));
-    const continueBtn = await screen.findByTestId('continue-button');
-    fireEvent.click(continueBtn);
-  });
+const advanceStep = () => {
+  const inputs = screen.getAllByTestId('checkbox-input');
+  inputs.forEach((el) => fireEvent.click(el));
+  const continueBtn = screen.getByTestId('continue-button');
+  fireEvent.click(continueBtn);
 };
 
 describe('PageDeleteAccount', () => {
@@ -129,7 +153,7 @@ describe('PageDeleteAccount', () => {
     expect(screen.getByTestId('delete-account-button')).toBeEnabled();
   });
 
-  it('Gets valid response on submit and emits metrics events', async () => {
+  it('gets valid response on submit', async () => {
     renderWithRouter(
       <AppContext.Provider value={mockAppContext({ account, session })}>
         <PageDeleteAccount />
@@ -139,13 +163,6 @@ describe('PageDeleteAccount', () => {
     await advanceStep();
     await typeByTestIdFn('delete-account-confirm-input-field')('hunter67');
 
-    // TODO: more extensive metrics tests
-    expect(usePageViewEvent).toHaveBeenCalledWith('settings.delete-account');
-    expect(logViewEvent).toHaveBeenCalledWith(
-      'flow.settings.account-delete',
-      'terms-checked.success'
-    );
-
     const deleteAccountButton = screen.getByTestId('delete-account-button');
     expect(deleteAccountButton).toBeEnabled();
 
@@ -153,16 +170,6 @@ describe('PageDeleteAccount', () => {
   });
 
   it('deletes account if no password set', async () => {
-    const pwdlessAccount = {
-      primaryEmail: {
-        email: 'rfeeley@mozilla.com',
-      },
-      uid: '0123456789abcdef',
-      metricsEnabled: true,
-      hasPassword: false,
-      destroy: jest.fn().mockResolvedValue({}),
-    } as unknown as Account;
-
     renderWithRouter(
       <AppContext.Provider
         value={mockAppContext({ account: pwdlessAccount, session })}
@@ -179,5 +186,69 @@ describe('PageDeleteAccount', () => {
       'flow.settings.account-delete',
       'confirm-password.success'
     );
+  });
+
+  describe('glean metrics', () => {
+    it('emits expect event on first step view', () => {
+      renderWithRouter(
+        <AppContext.Provider value={mockAppContext({ account, session })}>
+          <PageDeleteAccount />
+        </AppContext.Provider>
+      );
+
+      expect(GleanMetrics.deleteAccount.view).toHaveBeenCalled();
+    });
+
+    describe('account with password set', () => {
+      it('emits expected metrics during account deletion flow', async () => {
+        renderWithRouter(
+          <AppContext.Provider value={mockAppContext({ account, session })}>
+            <PageDeleteAccount />
+          </AppContext.Provider>
+        );
+
+        const inputs = screen.getAllByTestId('checkbox-input');
+        await Promise.all(
+          inputs.map(async (el) => {
+            await userEvent.click(el);
+          })
+        );
+        expect(GleanMetrics.deleteAccount.engage).toHaveBeenCalled();
+        await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+        expect(GleanMetrics.deleteAccount.submit).toHaveBeenCalled();
+
+        // password confirmation step
+        expect(GleanMetrics.deleteAccount.passwordView).toHaveBeenCalled();
+        await userEvent.type(
+          screen.getByLabelText('Enter password'),
+          'hunter67'
+        );
+        await userEvent.click(screen.getByRole('button', { name: 'Delete' }));
+        expect(GleanMetrics.deleteAccount.passwordSubmit).toHaveBeenCalled();
+      });
+    });
+
+    describe('account without password set', () => {
+      it('emits expected metrics during account deletion flow', async () => {
+        renderWithRouter(
+          <AppContext.Provider
+            value={mockAppContext({ account: pwdlessAccount, session })}
+          >
+            <PageDeleteAccount />
+          </AppContext.Provider>
+        );
+
+        const inputs = screen.getAllByTestId('checkbox-input');
+        await Promise.all(
+          inputs.map(async (el) => {
+            await userEvent.click(el);
+          })
+        );
+        expect(GleanMetrics.deleteAccount.engage).toHaveBeenCalled();
+        await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+        expect(GleanMetrics.deleteAccount.submit).toHaveBeenCalled();
+        expect(GleanMetrics.deleteAccount.passwordView).not.toHaveBeenCalled();
+      });
+    });
   });
 });

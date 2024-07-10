@@ -49,7 +49,11 @@ jest.mock('../Settings/ScrollToTop', () => ({
 
 jest.mock('../../lib/glean', () => ({
   __esModule: true,
-  default: { initialize: jest.fn(), getEnabled: jest.fn() },
+  default: {
+    initialize: jest.fn(),
+    getEnabled: jest.fn(),
+    accountPref: { view: jest.fn() },
+  },
 }));
 
 const mockMetricsQueryAccountAmplitude = {

@@ -4,12 +4,28 @@
 
 import React from 'react';
 import { screen } from '@testing-library/react';
+import { userEvent } from '@testing-library/user-event';
 import PageSettings from '.';
 import { renderWithRouter } from '../../../models/mocks';
 import * as Metrics from '../../../lib/metrics';
+import GleanMetrics from '../../../lib/glean';
 
-jest.spyOn(Metrics, 'setProperties');
-jest.spyOn(Metrics, 'usePageViewEvent');
+jest.mock('../../../lib/metrics', () => ({
+  setProperties: jest.fn(),
+  usePageViewEvent: jest.fn(),
+}));
+
+jest.mock('../../../lib/glean', () => ({
+  __esModule: true,
+  default: {
+    accountPref: {
+      view: jest.fn(),
+    },
+    deleteAccount: {
+      settingsSubmit: jest.fn(),
+    },
+  },
+}));
 
 beforeEach(() => {
   const mockIntersectionObserver = jest.fn();
@@ -20,15 +36,36 @@ beforeEach(() => {
   window.IntersectionObserver = mockIntersectionObserver;
 });
 
-it('renders without imploding', async () => {
-  renderWithRouter(<PageSettings />);
-  expect(screen.getByTestId('settings-profile')).toBeInTheDocument();
-  expect(screen.getByTestId('settings-security')).toBeInTheDocument();
-  expect(screen.getByTestId('settings-connected-services')).toBeInTheDocument();
-  expect(screen.getByTestId('settings-delete-account')).toBeInTheDocument();
-  expect(screen.queryByTestId('settings-data-collection')).toBeInTheDocument();
-  expect(Metrics.setProperties).toHaveBeenCalledWith({
-    uid: 'abc123',
+describe('PageSettings', () => {
+  it('renders without imploding', async () => {
+    renderWithRouter(<PageSettings />);
+    expect(screen.getByTestId('settings-profile')).toBeInTheDocument();
+    expect(screen.getByTestId('settings-security')).toBeInTheDocument();
+    expect(
+      screen.getByTestId('settings-connected-services')
+    ).toBeInTheDocument();
+    expect(screen.getByTestId('settings-delete-account')).toBeInTheDocument();
+    expect(
+      screen.queryByTestId('settings-data-collection')
+    ).toBeInTheDocument();
+    expect(Metrics.setProperties).toHaveBeenCalledWith({
+      lang: null,
+      uid: 'abc123',
+    });
   });
-  expect(Metrics.usePageViewEvent).toHaveBeenCalledWith('settings');
+
+  describe('glean metrics', () => {
+    it('emits the expected event on render', async () => {
+      renderWithRouter(<PageSettings />);
+      expect(GleanMetrics.accountPref.view).toHaveBeenCalled();
+    });
+
+    it('emits the expected event on click of Delete account button', async () => {
+      renderWithRouter(<PageSettings />);
+      await userEvent.click(
+        screen.getByRole('link', { name: 'Delete account' })
+      );
+      expect(GleanMetrics.deleteAccount.settingsSubmit).toHaveBeenCalled();
+    });
+  });
 });

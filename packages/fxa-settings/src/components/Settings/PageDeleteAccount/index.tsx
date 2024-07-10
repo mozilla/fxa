@@ -30,6 +30,7 @@ import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { getErrorFtlId } from '../../../lib/error-utils';
+import GleanMetrics from '../../../lib/glean';
 
 type FormData = {
   password: string;
@@ -107,6 +108,7 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
   const [subtitleText, setSubtitleText] = useState<string>(
     l10n.getString('delete-account-step-1-2', null, 'Step 1 of 2')
   );
+  const [hasEngagedWithForm, setHasEngagedWithForm] = useState(false);
   const [checkedBoxes, setCheckedBoxes] = useState<string[]>([]);
   const allBoxesChecked = Object.keys(checkboxLabels).every((element) =>
     checkedBoxes.includes(element)
@@ -118,12 +120,17 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
   const account = useAccount();
 
   useEffect(() => {
+    GleanMetrics.deleteAccount.view();
+  }, []);
+
+  useEffect(() => {
     if (!account.hasPassword) {
       setSubtitleText('');
     }
   }, [account.hasPassword]);
 
   const advanceStep = () => {
+    GleanMetrics.deleteAccount.submit();
     // Accounts that do not have a password set, will delete immediately
     if (!account.hasPassword) {
       deleteAccount('');
@@ -132,7 +139,7 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
         l10n.getString('delete-account-step-2-2', null, 'Step 2 of 2')
       );
       setConfirmed(true);
-
+      GleanMetrics.deleteAccount.passwordView();
       logViewEvent('flow.settings.account-delete', 'terms-checked.success');
     }
   };
@@ -169,6 +176,10 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
       event.persist();
       setCheckedBoxes((existing) => {
         if (event.target.checked) {
+          if (!hasEngagedWithForm) {
+            GleanMetrics.deleteAccount.engage();
+            setHasEngagedWithForm(true);
+          }
           return [...existing, labelText];
         } else {
           return [...existing.filter((text) => text !== labelText)];
@@ -319,6 +330,9 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
                   className="cta-caution py-2 mx-2 px-4 tablet:px-10"
                   data-testid="delete-account-button"
                   disabled={disabled}
+                  onClick={() => {
+                    GleanMetrics.deleteAccount.passwordSubmit();
+                  }}
                 >
                   Delete
                 </button>
