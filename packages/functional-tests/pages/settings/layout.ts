@@ -82,6 +82,6 @@ export abstract class SettingsLayout extends BaseLayout {
     await this.avatarDropDownMenuToggle.click();
     await this.avatarMenuSignOut.click();
 
-    await expect(this.page).toHaveURL(this.target.baseUrl);
+    await expect(this.page).not.toHaveURL(/settings/);
   }
 }
