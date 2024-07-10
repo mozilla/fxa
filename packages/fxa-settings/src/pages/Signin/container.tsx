@@ -68,7 +68,7 @@ import {
   getHandledError,
   getLocalizedErrorMessage,
 } from '../../lib/error-utils';
-import firefox from '../../lib/channels/firefox';
+import { firefox } from '../../lib/channels/firefox';
 
 /*
  * In content-server, the `email` param is optional. If it's provided, we
@@ -138,8 +138,6 @@ const SigninContainer = ({
     localizedErrorMessage: localizedErrorFromLocationState,
   } = location.state || {};
 
-  const [needsCanLinkAccountWebChannel, setNeedsCanLinkAccountWebChannel] =
-    useState(integration.isSync() && location.pathname.includes('force_auth'));
   const [accountStatus, setAccountStatus] = useState({
     hasLinkedAccount:
       // TODO: in FXA-9177, retrieve hasLinkedAccount and hasPassword from Apollo cache (not state)
@@ -231,17 +229,25 @@ const SigninContainer = ({
 
   const beginSigninHandler: BeginSigninHandler = useCallback(
     async (email: string, password: string) => {
-      if (needsCanLinkAccountWebChannel) {
-        // If we're in the `force_auth` flow, users will not have answered
-        // "Confirm" to the Sync merge warning prompt yet, which is usually
-        // confirmed on email-first submission.
+      // If queryParamModel.hasLinkedAccount is defined, then we know the user
+      // came from email-first and was already prompted with the sync merge
+      // warning. The browser will automatically respond with { ok: true } without
+      // prompting the user if it matches the email the browser has data for.
+      if (
+        integration.isSync() &&
+        queryParamModel.hasLinkedAccount === undefined
+      ) {
         const { ok } = await firefox.fxaCanLinkAccount({ email });
         if (!ok) {
-          return { data: undefined, error: undefined };
-        } else {
-          setNeedsCanLinkAccountWebChannel(false);
+          const error = {
+            // TODO FXA-9757, these should never be undefined
+            errno: AuthUiErrors.USER_CANCELED_LOGIN.errno!,
+            message: AuthUiErrors.USER_CANCELED_LOGIN.message!,
+          };
+          return { data: undefined, error };
         }
       }
+
       const service = integration.getService();
 
       const { error, unverifiedAccount, v1Credentials, v2Credentials } =
@@ -291,7 +297,7 @@ const SigninContainer = ({
       passwordChangeStart,
       wantsKeys,
       flowQueryParams,
-      needsCanLinkAccountWebChannel,
+      queryParamModel.hasLinkedAccount,
     ]
   );
 
