@@ -349,8 +349,6 @@ export class Firefox extends EventTarget {
   async fxaCanLinkAccount(
     options: FxACanLinkAccount
   ): Promise<FxACanLinkAccountResponse> {
-    this.send(FirefoxCommand.CanLinkAccount, options);
-
     return new Promise((resolve) => {
       const eventHandler = (event: Event) => {
         const firefoxEvent = event as FirefoxEvent;
@@ -362,6 +360,7 @@ export class Firefox extends EventTarget {
         resolve(detail.message?.data as FxACanLinkAccountResponse);
       };
       window.addEventListener('WebChannelMessageToContent', eventHandler);
+      this.send(FirefoxCommand.CanLinkAccount, options);
     });
   }
 
