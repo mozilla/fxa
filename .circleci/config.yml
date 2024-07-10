@@ -371,7 +371,6 @@ commands:
           paths:
             - artifacts/blob-report
 
-
   build:
     steps:
       - run:
@@ -656,6 +655,19 @@ jobs:
       - run-playwright-tests:
           project: << parameters.project >>
       - store-artifacts
+      - persist_to_workspace:
+          root: /home/circleci/project
+          paths:
+            - packages/functional-tests/playwright-report
+
+  #create separate job for html reporting for Stage and Prod
+  create-html-report:
+    executor: default-executor
+    steps:
+      - attach_workspace:
+          at: /home/circleci/project
+      - store_artifacts:
+          path: packages/functional-tests/playwright-report
 
   # Runs functional tests using playwright. These tests support splitting
   # and parallel execution.
@@ -871,6 +883,9 @@ workflows:
               only: /.*/
             tags:
               only: /.*/
+      - create-html-report:
+          requires:
+            - Smoke Test Production - Playwright
 
   # Triggered remotely. See .circleci/README.md
   stage_smoke_tests:
@@ -884,6 +899,9 @@ workflows:
               only: /.*/
             tags:
               only: /.*/
+      - create-html-report:
+          requires:
+            - Smoke Test Stage - Playwright
 
   deploy_fxa_image:
     # This workflow can be triggered after a PR lands on main. It requires approval.
