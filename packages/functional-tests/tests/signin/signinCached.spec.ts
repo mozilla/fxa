@@ -195,10 +195,9 @@ test.describe('severity-2 #smoke', () => {
       await expect(settings.primaryEmail.status).toHaveText(credentials.email);
       await settings.signOut();
 
-      // testing to make sure cached signin comes back after a refresh
-      await page.goto(target.contentServerUrl);
+      await expect(page).toHaveURL(/signin/);
 
-      //Check prefilled email
+      // Check that suggested cached account is the sync account
       await expect(page.getByText(syncCredentials.email)).toBeVisible();
     });
   });
