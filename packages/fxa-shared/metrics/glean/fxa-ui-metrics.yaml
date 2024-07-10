@@ -1806,3 +1806,22 @@ third_party_auth_set_password:
     expires: never
     data_sensitivity:
       - interaction
+
+account_pref:
+  recovery_key_submit:
+    type: event
+    description: |
+      Click on "Create" or "Change" button on account settings page to add a recovery key to the account
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-10039
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction

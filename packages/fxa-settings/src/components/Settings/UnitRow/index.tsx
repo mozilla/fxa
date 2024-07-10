@@ -79,6 +79,7 @@ type UnitRowProps = {
   prefixDataTestId?: string;
   disabled?: boolean;
   disabledReason?: string;
+  ctaOnClickAction?: () => void;
 };
 
 export const UnitRow = ({
@@ -104,6 +105,7 @@ export const UnitRow = ({
   prefixDataTestId = '',
   disabled = false,
   disabledReason = '',
+  ctaOnClickAction,
 }: UnitRowProps & RouteComponentProps) => {
   const { l10n } = useLocalization();
   const localizedCtaAdd = l10n.getString(
@@ -179,6 +181,7 @@ export const UnitRow = ({
                   className="cta-neutral cta-base cta-base-p transition-standard me-1"
                   data-testid={formatDataTestId('unit-row-route')}
                   to={`${route}${location.search}`}
+                  onClick={ctaOnClickAction}
                 >
                   {ctaText}
                 </Link>

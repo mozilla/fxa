@@ -25,6 +25,7 @@ import * as cadFirefox from 'fxa-shared/metrics/glean/web/cadFirefox';
 import * as cadApproveDevice from 'fxa-shared/metrics/glean/web/cadApproveDevice';
 import * as cadMobilePair from 'fxa-shared/metrics/glean/web/cadMobilePair';
 import * as cadMobilePairUseApp from 'fxa-shared/metrics/glean/web/cadMobilePairUseApp';
+import * as accountPref from 'fxa-shared/metrics/glean/web/accountPref';
 import { userIdSha256 } from 'fxa-shared/metrics/glean/web/account';
 import {
   oauthClientId,
@@ -350,6 +351,8 @@ const recordEventMetric = (
     case 'cad_mobile_pair_use_app_view':
       cadMobilePairUseApp.view.record();
       break;
+    case 'account_pref_recovery_key_submit':
+      accountPref.recoveryKeySubmit.record();
   }
 };
 

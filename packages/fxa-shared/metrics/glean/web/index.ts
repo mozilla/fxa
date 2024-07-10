@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { recoveryKeySubmit } from './accountPref';
+
 export type GleanMetricsConfig = {
   enabled: boolean;
   applicationId: string;
@@ -142,5 +144,9 @@ export const eventsMap = {
 
   cadFireFox: {
     notnowSubmit: 'cad_firefox_notnow_submit',
+  },
+
+  accountPref: {
+    recoveryKeySubmit: 'account_pref_recovery_key_submit',
   },
 } as const;

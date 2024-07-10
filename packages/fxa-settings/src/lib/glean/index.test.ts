@@ -11,6 +11,7 @@ import * as pings from 'fxa-shared/metrics/glean/web/pings';
 import * as event from 'fxa-shared/metrics/glean/web/event';
 import * as reg from 'fxa-shared/metrics/glean/web/reg';
 import * as login from 'fxa-shared/metrics/glean/web/login';
+import * as accountPref from 'fxa-shared/metrics/glean/web/accountPref';
 import { userIdSha256 } from 'fxa-shared/metrics/glean/web/account';
 import {
   oauthClientId,
@@ -24,7 +25,6 @@ import {
 import * as utm from 'fxa-shared/metrics/glean/web/utm';
 
 import { Config } from '../config';
-import { FlowQueryParams } from '../..';
 import { WebIntegration, useAccount } from '../../models';
 import { MetricsFlow } from '../metrics-flow';
 
@@ -551,6 +551,20 @@ describe('lib/glean', () => {
         await GleanMetrics.isDone();
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(setEventNameStub, 'apple_oauth_login_start');
+        sinon.assert.calledOnce(spy);
+      });
+    });
+
+    describe('accountPref', () => {
+      it('submits a ping with the account_pref_recovery_key_submit event name', async () => {
+        GleanMetrics.accountPref.recoveryKeySubmit();
+        const spy = sandbox.spy(accountPref.recoveryKeySubmit, 'record');
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'account_pref_recovery_key_submit'
+        );
         sinon.assert.calledOnce(spy);
       });
     });
