@@ -125,7 +125,7 @@ const recordEventMetric = (eventName: string, properties: EventProperties) => {
     case 'apple_oauth_email_first_start':
       email.appleOauthEmailFirstStart.record();
       break;
-    case 'google_oauth_email_first_start':
+    case 'email_google_oauth_email_first_start':
       email.googleOauthEmailFirstStart.record();
       break;
     case 'reg_cwts_engage':
@@ -292,10 +292,10 @@ const recordEventMetric = (eventName: string, properties: EventProperties) => {
     case 'third_party_auth_set_password_success':
       thirdPartyAuthSetPassword.success.record();
       break;
-    case 'google_deeplink':
+    case 'third_party_auth_google_deeplink':
       thirdPartyAuth.googleDeeplink.record();
       break;
-    case 'apple_deeplink':
+    case 'third_party_auth_apple_deeplink':
       thirdPartyAuth.appleDeeplink.record();
       break;
   }
@@ -378,7 +378,7 @@ export const GleanMetrics = {
   emailFirst: {
     view: createEventFn('email_first_view'),
     appleOauthStart: createEventFn('apple_oauth_email_first_start'),
-    googleOauthStart: createEventFn('google_oauth_email_first_start'),
+    googleOauthStart: createEventFn('email_google_oauth_email_first_start'),
   },
 
   registration: {
@@ -454,8 +454,8 @@ export const GleanMetrics = {
     success: createEventFn('third_party_auth_set_password_success'),
   },
   thirdPartyAuth: {
-    googleDeeplink: createEventFn('google_deeplink'),
-    appleDeeplink: createEventFn('apple_deeplink'),
+    googleDeeplink: createEventFn('third_party_auth_google_deeplink'),
+    appleDeeplink: createEventFn('third_party_auth_apple_deeplink'),
   },
 };
 

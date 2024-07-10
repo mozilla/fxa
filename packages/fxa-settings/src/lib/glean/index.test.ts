@@ -515,42 +515,48 @@ describe('lib/glean', () => {
     });
 
     describe('thirdPartyAuth', () => {
-      it('submits a ping with the google_oauth_reg_start event name', async () => {
+      it('submits a ping with the reg_google_oauth_reg_start event name', async () => {
         GleanMetrics.thirdPartyAuth.startGoogleAuthFromReg();
         const spy = sandbox.spy(reg.googleOauthRegStart, 'record');
         await GleanMetrics.isDone();
         sinon.assert.calledOnce(setEventNameStub);
-        sinon.assert.calledWith(setEventNameStub, 'google_oauth_reg_start');
+        sinon.assert.calledWith(setEventNameStub, 'reg_google_oauth_reg_start');
         sinon.assert.calledOnce(spy);
       });
 
-      it('submits a ping with the third_party_auth_login_no_pw_view event name', async () => {
+      it('submits a ping with the login_third_party_auth_login_no_pw_view event name', async () => {
         GleanMetrics.thirdPartyAuth.viewWithNoPasswordSet();
         const spy = sandbox.spy(login.thirdPartyAuthLoginNoPwView, 'record');
         await GleanMetrics.isDone();
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(
           setEventNameStub,
-          'third_party_auth_login_no_pw_view'
+          'login_third_party_auth_login_no_pw_view'
         );
         sinon.assert.calledOnce(spy);
       });
 
-      it('submits a ping with the google_oauth_login_start event name', async () => {
+      it('submits a ping with the login_google_oauth_login_start event name', async () => {
         GleanMetrics.thirdPartyAuth.startGoogleAuthFromLogin();
         const spy = sandbox.spy(login.googleOauthLoginStart, 'record');
         await GleanMetrics.isDone();
         sinon.assert.calledOnce(setEventNameStub);
-        sinon.assert.calledWith(setEventNameStub, 'google_oauth_login_start');
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'login_google_oauth_login_start'
+        );
         sinon.assert.calledOnce(spy);
       });
 
-      it('submits a ping with the apple_oauth_login_start event name', async () => {
+      it('submits a ping with the login_apple_oauth_login_start event name', async () => {
         GleanMetrics.thirdPartyAuth.startAppleAuthFromLogin();
         const spy = sandbox.spy(login.appleOauthLoginStart, 'record');
         await GleanMetrics.isDone();
         sinon.assert.calledOnce(setEventNameStub);
-        sinon.assert.calledWith(setEventNameStub, 'apple_oauth_login_start');
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'login_apple_oauth_login_start'
+        );
         sinon.assert.calledOnce(spy);
       });
     });

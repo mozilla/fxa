@@ -119,12 +119,12 @@ export const eventsMap = {
   },
 
   thirdPartyAuth: {
-    startGoogleAuthFromReg: 'google_oauth_reg_start',
-    startAppleAuthFromReg: 'apple_oauth_reg_start',
+    startGoogleAuthFromReg: 'reg_google_oauth_reg_start',
+    startAppleAuthFromReg: 'reg_apple_oauth_reg_start',
 
-    viewWithNoPasswordSet: 'third_party_auth_login_no_pw_view',
-    startGoogleAuthFromLogin: 'google_oauth_login_start',
-    startAppleAuthFromLogin: 'apple_oauth_login_start',
+    viewWithNoPasswordSet: 'login_third_party_auth_login_no_pw_view',
+    startGoogleAuthFromLogin: 'login_google_oauth_login_start',
+    startAppleAuthFromLogin: 'login_apple_oauth_login_start',
   },
 
   cadMobilePair: {

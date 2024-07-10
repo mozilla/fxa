@@ -323,19 +323,19 @@ const recordEventMetric = (
     case 'password_reset_view':
       passwordReset.view.record();
       break;
-    case 'google_oauth_reg_start':
+    case 'reg_google_oauth_reg_start':
       reg.googleOauthRegStart.record();
       break;
-    case 'apple_oauth_reg_start':
+    case 'reg_apple_oauth_reg_start':
       reg.appleOauthRegStart.record();
       break;
-    case 'third_party_auth_login_no_pw_view':
+    case 'login_third_party_auth_login_no_pw_view':
       login.thirdPartyAuthLoginNoPwView.record();
       break;
-    case 'google_oauth_login_start':
+    case 'login_google_oauth_login_start':
       login.googleOauthLoginStart.record();
       break;
-    case 'apple_oauth_login_start':
+    case 'login_apple_oauth_login_start':
       login.appleOauthLoginStart.record();
       break;
     case 'cad_firefox_notnow_submit':
