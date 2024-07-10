@@ -9,12 +9,28 @@ import EventMetricType from '@mozilla/glean/private/metrics/event';
 /**
  * User clicks on the Apple third party link from email first page.
  *
- * Generated from `email.apple_oauth_email_first_start`.
+ * Generated from `email.first_apple_oauth_start`.
  */
-export const appleOauthEmailFirstStart = new EventMetricType(
+export const firstAppleOauthStart = new EventMetricType(
   {
     category: 'email',
-    name: 'apple_oauth_email_first_start',
+    name: 'first_apple_oauth_start',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * User clicks on the Google third party link from email first page.
+ *
+ * Generated from `email.first_google_oauth_start`.
+ */
+export const firstGoogleOauthStart = new EventMetricType(
+  {
+    category: 'email',
+    name: 'first_google_oauth_start',
     sendInPings: ['events'],
     lifetime: 'ping',
     disabled: false,
@@ -34,22 +50,6 @@ export const firstView = new EventMetricType(
   {
     category: 'email',
     name: 'first_view',
-    sendInPings: ['events'],
-    lifetime: 'ping',
-    disabled: false,
-  },
-  []
-);
-
-/**
- * User clicks on the Google third party link from email first page.
- *
- * Generated from `email.google_oauth_email_first_start`.
- */
-export const googleOauthEmailFirstStart = new EventMetricType(
-  {
-    category: 'email',
-    name: 'google_oauth_email_first_start',
     sendInPings: ['events'],
     lifetime: 'ping',
     disabled: false,

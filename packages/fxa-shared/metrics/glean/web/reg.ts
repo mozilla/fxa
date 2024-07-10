@@ -25,22 +25,6 @@ export const ageInvalid = new EventMetricType(
 );
 
 /**
- * User clicks on the Apple third party link on the registration page.
- *
- * Generated from `reg.apple_oauth_reg_start`.
- */
-export const appleOauthRegStart = new EventMetricType(
-  {
-    category: 'reg',
-    name: 'apple_oauth_reg_start',
-    sendInPings: ['events'],
-    lifetime: 'ping',
-    disabled: false,
-  },
-  []
-);
-
-/**
  * User clicked on "Change email" link at the top of the registration form.
  *
  * Generated from `reg.change_email_link_click`.
@@ -89,22 +73,6 @@ export const engage = new EventMetricType<{
     disabled: false,
   },
   ['reason']
-);
-
-/**
- * User clicks on the Google third party link on the registration page.
- *
- * Generated from `reg.google_oauth_reg_start`.
- */
-export const googleOauthRegStart = new EventMetricType(
-  {
-    category: 'reg',
-    name: 'google_oauth_reg_start',
-    sendInPings: ['events'],
-    lifetime: 'ping',
-    disabled: false,
-  },
-  []
 );
 
 /**

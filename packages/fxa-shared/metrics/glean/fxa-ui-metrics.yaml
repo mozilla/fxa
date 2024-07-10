@@ -431,7 +431,7 @@ email:
     expires: never
     data_sensitivity:
       - interaction
-  apple_oauth_email_first_start:
+  first_apple_oauth_start:
     type: event
     description: |
       User clicks on the Apple third party link from email first page.
@@ -448,7 +448,9 @@ email:
     expires: never
     data_sensitivity:
       - interaction
-  google_oauth_email_first_start:
+    no_lint:
+      - COMMON_PREFIX
+  first_google_oauth_start:
     type: event
     description: |
       User clicks on the Google third party link from email first page.
@@ -465,6 +467,8 @@ email:
     expires: never
     data_sensitivity:
       - interaction
+    no_lint:
+      - COMMON_PREFIX
 
 login:
   email_confirmation_submit:
@@ -667,57 +671,6 @@ login:
     description: |
       Login Page View (FE)
       A successful view/load of the login page.'
-    send_in_pings:
-      - events
-    notification_emails:
-      - vzare@mozilla.com
-      - fxa-staff@mozilla.com
-    bugs:
-      - https://mozilla-hub.atlassian.net/browse/FXA-7265
-    data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
-    expires: never
-    data_sensitivity:
-      - interaction
-  third_party_auth_login_no_pw_view:
-    type: event
-    description: |
-      User viewed the third party login page without password set.
-    send_in_pings:
-      - events
-    notification_emails:
-      - vzare@mozilla.com
-      - fxa-staff@mozilla.com
-    bugs:
-      - https://mozilla-hub.atlassian.net/browse/FXA-7265
-    data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
-    expires: never
-    data_sensitivity:
-      - interaction
-  google_oauth_login_start:
-    type: event
-    description: |
-      User click "Continue with Google" from the login page
-    send_in_pings:
-      - events
-    notification_emails:
-      - vzare@mozilla.com
-      - fxa-staff@mozilla.com
-    bugs:
-      - https://mozilla-hub.atlassian.net/browse/FXA-7265
-    data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
-    expires: never
-    data_sensitivity:
-      - interaction
-  apple_oauth_login_start:
-    type: event
-    description: |
-      User click "Continue with Apple" from the login page
     send_in_pings:
       - events
     notification_emails:
@@ -1301,41 +1254,6 @@ reg:
     data_sensitivity:
       - interaction
 
-  google_oauth_reg_start:
-    type: event
-    description: |
-      User clicks on the Google third party link on the registration page.
-    send_in_pings:
-      - events
-    notification_emails:
-      - vzare@mozilla.com
-      - fxa-staff@mozilla.com
-    bugs:
-      - https://mozilla-hub.atlassian.net/browse/FXA-9813
-    data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
-    expires: never
-    data_sensitivity:
-      - interaction
-  apple_oauth_reg_start:
-    type: event
-    description: |
-      User clicks on the Apple third party link on the registration page.
-    send_in_pings:
-      - events
-    notification_emails:
-      - vzare@mozilla.com
-      - fxa-staff@mozilla.com
-    bugs:
-      - https://mozilla-hub.atlassian.net/browse/FXA-9813
-    data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
-    expires: never
-    data_sensitivity:
-      - interaction
-
   age_invalid:
     type: event
     description: |
@@ -1737,6 +1655,92 @@ third_party_auth:
     expires: never
     data_sensitivity:
       - interaction
+  login_no_pw_view:
+    type: event
+    description: |
+      User viewed the third party login page without password set.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-7265
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+  apple_reg_start:
+    type: event
+    description: |
+      User clicks on the Apple third party link on the registration page.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-9813
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+  google_reg_start:
+    type: event
+    description: |
+      User clicks on the Google third party link on the registration page.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-9813
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+  google_login_start:
+    type: event
+    description: |
+      User click "Continue with Google" from the login page
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-7265
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+  apple_login_start:
+    type: event
+    description: |
+      User click "Continue with Apple" from the login page
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-7265
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+
 third_party_auth_set_password:
   view:
     type: event
