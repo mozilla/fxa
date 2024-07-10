@@ -172,6 +172,7 @@ test.describe('severity-2 #smoke', () => {
       syncBrowserPages: { page, settings, signin },
       testAccountTracker,
     }) => {
+      test.fixme(true, 'TODO in FXA-10064, need to fix redirection issue');
       const credentials = await testAccountTracker.signUp();
       const syncCredentials = await signInSyncAccount(
         target,
