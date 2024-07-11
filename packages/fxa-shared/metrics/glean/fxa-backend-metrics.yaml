@@ -77,6 +77,23 @@ account:
     expires: never
     data_sensitivity:
       - interaction
+  delete_complete:
+    type: event
+    description: |
+      Account successfully deleted
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-10037
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
 
 relying_party:
   service:

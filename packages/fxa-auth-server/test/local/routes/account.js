@@ -3815,6 +3815,10 @@ describe('/account/destroy', () => {
     });
   });
 
+  afterEach(() => {
+    glean.account.deleteComplete.reset();
+  });
+
   function buildRoute(subscriptionsEnabled = true) {
     const accountRoutes = makeRoutes({
       checkPassword: function () {
@@ -3855,6 +3859,9 @@ describe('/account/destroy', () => {
         customerId: 'customer123',
         reason: ReasonForDeletion.UserRequested,
       });
+      assert.calledOnceWithExactly(glean.account.deleteComplete, mockRequest, {
+        uid,
+      });
     });
   });
 
@@ -3870,6 +3877,9 @@ describe('/account/destroy', () => {
         uid,
         customerId: 'customer123',
         reason: ReasonForDeletion.UserRequested,
+      });
+      assert.calledOnceWithExactly(glean.account.deleteComplete, mockRequest, {
+        uid,
       });
     });
   });
@@ -3891,6 +3901,14 @@ describe('/account/destroy', () => {
         uid,
         ReasonForDeletion.UserRequested
       );
+      sinon.assert.calledOnceWithExactly(mockAccountTasksDeleteAccount, {
+        uid,
+        customerId: 'customer123',
+        reason: ReasonForDeletion.UserRequested,
+      });
+      assert.calledOnceWithExactly(glean.account.deleteComplete, mockRequest, {
+        uid,
+      });
     });
   });
 });

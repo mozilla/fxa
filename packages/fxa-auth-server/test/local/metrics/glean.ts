@@ -33,6 +33,7 @@ const recordAccessTokenCheckedStub = sinon.stub();
 const recordThirdPartyAuthGoogleLoginCompleteStub = sinon.stub();
 const recordThirdPartyAuthAppleLoginCompleteStub = sinon.stub();
 const recordThirdPartyAuthSetPasswordCompleteStub = sinon.stub();
+const recordAccountDeleteCompleteStub = sinon.stub();
 
 const { gleanMetrics, logErrorWithGlean } = proxyquire.load(
   '../../../lib/metrics/glean',
@@ -70,6 +71,7 @@ const { gleanMetrics, logErrorWithGlean } = proxyquire.load(
           recordThirdPartyAuthAppleLoginCompleteStub,
         recordThirdPartyAuthSetPasswordComplete:
           recordThirdPartyAuthSetPasswordCompleteStub,
+        recordAccountDeleteComplete: recordAccountDeleteCompleteStub,
       }),
     },
   }
@@ -374,6 +376,30 @@ describe('Glean server side events', () => {
       it('sets the term', async () => {
         assert.equal(metrics['utm_term'], 'erm');
       });
+    });
+  });
+
+  describe('account events', () => {
+    let glean;
+
+    beforeEach(() => {
+      glean = gleanMetrics(config);
+    });
+
+    it('logs a "account_password_reset" event', async () => {
+      await glean.resetPassword.accountReset(request);
+      sinon.assert.calledOnce(recordStub);
+      const metrics = recordStub.args[0][0];
+      assert.equal(metrics['event_name'], 'account_password_reset');
+      sinon.assert.calledOnce(recordAccountPasswordResetStub);
+    });
+
+    it('logs a "account_delete_complete" event', async () => {
+      await glean.account.deleteComplete(request);
+      sinon.assert.calledOnce(recordStub);
+      const metrics = recordStub.args[0][0];
+      assert.equal(metrics['event_name'], 'account_delete_complete');
+      sinon.assert.calledOnce(recordAccountDeleteCompleteStub);
     });
   });
 

@@ -245,6 +245,9 @@ const createEventFn =
             commonMetrics
           );
           break;
+        case 'account_delete_complete':
+          gleanServerEventLogger.recordAccountDeleteComplete(commonMetrics);
+          break;
       }
 
       await gleanEventLogger.record({
@@ -317,6 +320,10 @@ export function gleanMetrics(config: ConfigType) {
         'third_party_auth_set_password_complete'
       ),
     },
+
+    account: {
+      deleteComplete: createEventFn('account_delete_complete'),
+    },
   };
 }
 
@@ -342,7 +349,7 @@ export const logErrorWithGlean = ({
       glean[
         funnel as keyof Omit<
           ReturnType<typeof gleanMetrics>,
-          'resetPassword' | 'oauth' | 'thirdPartyAuth'
+          'resetPassword' | 'oauth' | 'thirdPartyAuth' | 'account'
         >
       ];
     funnelFns[event as keyof typeof funnelFns](request, {
