@@ -360,7 +360,11 @@ export class Firefox extends EventTarget {
         resolve(detail.message?.data as FxACanLinkAccountResponse);
       };
       window.addEventListener('WebChannelMessageToContent', eventHandler);
-      this.send(FirefoxCommand.CanLinkAccount, options);
+      // requestAnimationFrame ensures the event listener is added first
+      // otherwise, there is a race condition
+      requestAnimationFrame(() => {
+        this.send(FirefoxCommand.CanLinkAccount, options);
+      });
     });
   }
 
