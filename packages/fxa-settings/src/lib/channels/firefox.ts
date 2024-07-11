@@ -350,18 +350,12 @@ export class Firefox extends EventTarget {
     options: FxACanLinkAccount
   ): Promise<FxACanLinkAccountResponse> {
     return new Promise((resolve) => {
-      const eventHandler = (event: Event) => {
-        const firefoxEvent = event as FirefoxEvent;
-        const detail =
-          typeof firefoxEvent.detail === 'string'
-            ? (JSON.parse(firefoxEvent.detail) as FirefoxMessageDetail)
-            : firefoxEvent.detail;
-
-        resolve(detail.message?.data as FxACanLinkAccountResponse);
+      const eventHandler = (firefoxEvent: any) => {
+        this.removeEventListener(FirefoxCommand.CanLinkAccount, eventHandler);
+        resolve(firefoxEvent.detail || { ok: false });
       };
-      window.addEventListener('WebChannelMessageToContent', eventHandler);
-      // requestAnimationFrame ensures the event listener is added first
-      // otherwise, there is a race condition
+
+      this.addEventListener(FirefoxCommand.CanLinkAccount, eventHandler);
       requestAnimationFrame(() => {
         this.send(FirefoxCommand.CanLinkAccount, options);
       });
