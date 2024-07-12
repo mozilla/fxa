@@ -9,6 +9,7 @@ import * as cachedLogin from './cachedLogin';
 import * as cadApproveDevice from './cadApproveDevice';
 import * as cadFirefox from './cadFirefox';
 import * as cadMobilePair from './cadMobilePair';
+import * as cadMobilePairUseApp from './cadMobilePairUseApp';
 import * as cad from './cad';
 import * as cadRedirectDesktop from './cadRedirectDesktop';
 import * as email from './email';
@@ -256,14 +257,26 @@ const recordEventMetric = (eventName: string, properties: EventProperties) => {
     case 'cad_firefox_choice_notnow_submit':
       cadFirefox.choiceNotnowSubmit.record();
       break;
+    case 'cad_firefox_notnow_submit':
+      cadFirefox.notnowSubmit.record();
+      break;
     case 'cad_firefox_sync_device_submit':
       cadFirefox.syncDeviceSubmit.record();
       break;
     case 'cad_approve_device_view':
       cadApproveDevice.view.record();
       break;
+    case 'cad_approve_device_submit':
+      cadApproveDevice.submit.record();
+      break;
     case 'cad_mobile_pair_view':
       cadMobilePair.view.record();
+      break;
+    case 'cad_mobile_pair_submit':
+      cadMobilePair.submit.record();
+      break;
+    case 'cad_mobile_pair_use_app_view':
+      cadMobilePairUseApp.view.record();
       break;
     case 'cad_view':
       cad.view.record();
