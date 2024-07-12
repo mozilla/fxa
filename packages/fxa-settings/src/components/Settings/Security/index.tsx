@@ -14,6 +14,7 @@ import {
   LocalizedDateOptions,
 } from 'fxa-react/lib/utils';
 import { Link } from '@reach/router';
+import GleanMetrics from '../../../lib/glean';
 
 const PwdDate = ({ passwordCreated }: { passwordCreated: number }) => {
   const pwdDateText = Intl.DateTimeFormat('default', {
@@ -71,6 +72,9 @@ export const Security = forwardRef<HTMLDivElement>((_, ref) => {
                 : '/settings/create_password'
             }
             prefixDataTestId="password"
+            ctaOnClickAction={() => {
+              GleanMetrics.accountPref.changePasswordSubmit();
+            }}
           >
             {hasPassword ? (
               <PwdDate {...{ passwordCreated }} />

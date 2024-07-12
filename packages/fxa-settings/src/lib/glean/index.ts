@@ -376,6 +376,12 @@ const recordEventMetric = (
     case 'delete_account_password_submit':
       deleteAccount.passwordSubmit.record();
       break;
+    case 'account_pref_two_step_auth_submit':
+      accountPref.twoStepAuthSubmit.record();
+      break;
+    case 'account_pref_change_password_submit':
+      accountPref.changePasswordSubmit.record();
+      break;
   }
 };
 
