@@ -8,6 +8,7 @@ import { UnitRow } from '../UnitRow';
 import { UnitRowSecondaryEmail } from '../UnitRowSecondaryEmail';
 import { HomePath } from '../../../constants';
 import { FtlMsg } from 'fxa-react/lib/utils';
+import GleanMetrics from '../../../lib/glean';
 
 export const Profile = forwardRef<HTMLDivElement>((_, ref) => {
   const { avatar, primaryEmail, displayName } = useAccount();
@@ -45,6 +46,9 @@ export const Profile = forwardRef<HTMLDivElement>((_, ref) => {
             headerValue={displayName}
             headerValueClassName="break-all"
             route="/settings/display_name"
+            ctaOnClickAction={() =>
+              GleanMetrics.accountPref.displayNameSubmit()
+            }
             prefixDataTestId="display-name"
           />
         </FtlMsg>

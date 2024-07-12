@@ -10,6 +10,7 @@ import ModalVerifySession from '../ModalVerifySession';
 import { ButtonIconTrash, ButtonIconReload } from '../ButtonIcon';
 import { Localized, useLocalization } from '@fluent/react';
 import { HomePath } from '../../../constants';
+import GleanMetrics from '../../../lib/glean';
 
 type UnitRowSecondaryEmailContentAndActionsProps = {
   secondary: Email;
@@ -136,6 +137,7 @@ export const UnitRowSecondaryEmail = () => {
         prefixDataTestId="secondary-email"
         headerValue={null}
         route={`${HomePath}/emails`}
+        ctaOnClickAction={() => GleanMetrics.accountPref.secondaryEmailSubmit()}
         {...{
           alertBarRevealed: alertBar.visible,
         }}

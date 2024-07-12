@@ -1852,7 +1852,7 @@ account_pref:
       - vzare@mozilla.com
       - fxa-staff@mozilla.com
     bugs:
-      - https://mozilla-hub.atlassian.net/browse/FXA-10039
+      - https://mozilla-hub.atlassian.net/browse/FXA-10038
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
@@ -1869,7 +1869,41 @@ account_pref:
       - vzare@mozilla.com
       - fxa-staff@mozilla.com
     bugs:
-      - https://mozilla-hub.atlassian.net/browse/FXA-10039
+      - https://mozilla-hub.atlassian.net/browse/FXA-10040
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+  display_name_submit:
+    type: event
+    description: |
+      Click on "Add" or "Change" on account settings page to add or change display name
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-10041
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+  secondary_email_submit:
+    type: event
+    description: |
+      Click on "Add" button on account settings page to add secondary email
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-10042
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
