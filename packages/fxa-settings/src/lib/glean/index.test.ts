@@ -601,6 +601,43 @@ describe('lib/glean', () => {
         );
         sinon.assert.called(spy);
       });
+
+      it('submits a ping with the account_pref_device_signout event name', async () => {
+        GleanMetrics.accountPref.deviceSignout({
+          event: { reason: 'something' },
+        });
+        const spy = sandbox.spy(accountPref.deviceSignout, 'record');
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'account_pref_device_signout'
+        );
+        sinon.assert.called(spy);
+        sinon.assert.calledOnce(setEventReasonStub);
+        sinon.assert.calledWith(setEventReasonStub, 'something');
+      });
+
+      it('submits a ping with the account_pref_google_play_submit event name', async () => {
+        GleanMetrics.accountPref.googlePlaySubmit();
+        const spy = sandbox.spy(accountPref.googlePlaySubmit, 'record');
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'account_pref_google_play_submit'
+        );
+        sinon.assert.called(spy);
+      });
+
+      it('submits a ping with the account_pref_apple_submit event name', async () => {
+        GleanMetrics.accountPref.appleSubmit();
+        const spy = sandbox.spy(accountPref.appleSubmit, 'record');
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'account_pref_apple_submit');
+        sinon.assert.called(spy);
+      });
     });
 
     describe('deleteAccount', () => {

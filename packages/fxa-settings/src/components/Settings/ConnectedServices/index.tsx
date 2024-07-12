@@ -17,6 +17,7 @@ import { ConnectAnotherDevicePromo } from '../ConnectAnotherDevicePromo';
 import { Modal } from '../Modal';
 import { VerifiedSessionGuard } from '../VerifiedSessionGuard';
 import { Service } from './Service';
+import GleanMetrics from '../../../lib/glean';
 
 const UTM_PARAMS =
   '?utm_source=accounts.firefox.com&utm_medium=referral&utm_campaign=fxa-devices';
@@ -95,13 +96,14 @@ export const ConnectedServices = forwardRef<HTMLDivElement>((_, ref) => {
   const disconnectClient = useCallback(
     async (client: AttachedClient) => {
       try {
-        logViewEvent(
-          'settings.clients.disconnect',
-          `submit.${reason ? reason : 'no-reason'}`
-        );
+        const reasonValue = reason ? reason : 'no-reason';
+        logViewEvent('settings.clients.disconnect', `submit.${reasonValue}`);
+        GleanMetrics.accountPref.deviceSignout({
+          event: { reason: reasonValue },
+        });
 
         // disconnect all clients/sessions with this name since only unique names
-        // are displayed to the user. This is batched into one network request request
+        // are displayed to the user. This is batched into one network request
         // via BatchHttpLink
         const clientsWithMatchingName = groupedByName[client.name];
         const hasMultipleSessions = clientsWithMatchingName.length > 1;
@@ -171,6 +173,7 @@ export const ConnectedServices = forwardRef<HTMLDivElement>((_, ref) => {
   const onSignOutClick = useCallback(
     (c: AttachedClient) => {
       setSelectedClient(c);
+
       // If it's a sync client, we show the disconnect survey modal.
       // Only sync clients have a deviceId.
       if (c.deviceId) {

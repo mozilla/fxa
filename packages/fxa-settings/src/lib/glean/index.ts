@@ -382,6 +382,17 @@ const recordEventMetric = (
     case 'account_pref_change_password_submit':
       accountPref.changePasswordSubmit.record();
       break;
+    case 'account_pref_device_signout':
+      accountPref.deviceSignout.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'account_pref_google_play_submit':
+      accountPref.googlePlaySubmit.record();
+      break;
+    case 'account_pref_apple_submit':
+      accountPref.appleSubmit.record();
+      break;
   }
 };
 

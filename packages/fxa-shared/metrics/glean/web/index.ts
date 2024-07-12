@@ -149,6 +149,9 @@ export const eventsMap = {
     recoveryKeySubmit: 'account_pref_recovery_key_submit',
     twoStepAuthSubmit: 'account_pref_two_step_auth_submit',
     changePasswordSubmit: 'account_pref_change_password_submit',
+    deviceSignout: 'account_pref_device_signout',
+    appleSubmit: 'account_pref_apple_submit',
+    googlePlaySubmit: 'account_pref_google_play_submit',
   },
 
   deleteAccount: {
