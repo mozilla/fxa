@@ -22,3 +22,19 @@ export const recoveryKeySubmit = new EventMetricType(
   },
   []
 );
+
+/**
+ * View of the account settings page
+ *
+ * Generated from `account_pref.view`.
+ */
+export const view = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);

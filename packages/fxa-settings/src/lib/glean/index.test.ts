@@ -12,6 +12,7 @@ import * as event from 'fxa-shared/metrics/glean/web/event';
 import * as reg from 'fxa-shared/metrics/glean/web/reg';
 import * as login from 'fxa-shared/metrics/glean/web/login';
 import * as accountPref from 'fxa-shared/metrics/glean/web/accountPref';
+import * as deleteAccount from 'fxa-shared/metrics/glean/web/deleteAccount';
 import { userIdSha256 } from 'fxa-shared/metrics/glean/web/account';
 import {
   oauthClientId,
@@ -556,6 +557,15 @@ describe('lib/glean', () => {
     });
 
     describe('accountPref', () => {
+      it('submits a ping with the account_pref_view event name', async () => {
+        GleanMetrics.accountPref.view();
+        const spy = sandbox.spy(accountPref.view, 'record');
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'account_pref_view');
+        sinon.assert.calledOnce(spy);
+      });
+
       it('submits a ping with the account_pref_recovery_key_submit event name', async () => {
         GleanMetrics.accountPref.recoveryKeySubmit();
         const spy = sandbox.spy(accountPref.recoveryKeySubmit, 'record');
@@ -564,6 +574,71 @@ describe('lib/glean', () => {
         sinon.assert.calledWith(
           setEventNameStub,
           'account_pref_recovery_key_submit'
+        );
+        sinon.assert.calledOnce(spy);
+      });
+    });
+
+    describe('deleteAccount', () => {
+      it('submits a ping with the delete_account_settings_submit event name', async () => {
+        GleanMetrics.deleteAccount.settingsSubmit();
+        const spy = sandbox.spy(deleteAccount.settingsSubmit, 'record');
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'delete_account_settings_submit'
+        );
+        sinon.assert.calledOnce(spy);
+      });
+
+      it('submits a ping with the delete_account_view event name', async () => {
+        GleanMetrics.deleteAccount.view();
+        const spy = sandbox.spy(deleteAccount.view, 'record');
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'delete_account_view');
+        sinon.assert.calledOnce(spy);
+      });
+
+      it('submits a ping with the delete_account_engage event name', async () => {
+        GleanMetrics.deleteAccount.engage();
+        const spy = sandbox.spy(deleteAccount.engage, 'record');
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'delete_account_engage');
+        sinon.assert.calledOnce(spy);
+      });
+
+      it('submits a ping with the delete_account_submit event name', async () => {
+        GleanMetrics.deleteAccount.submit();
+        const spy = sandbox.spy(deleteAccount.submit, 'record');
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'delete_account_submit');
+        sinon.assert.calledOnce(spy);
+      });
+
+      it('submits a ping with the delete_account_password_view event name', async () => {
+        GleanMetrics.deleteAccount.passwordView();
+        const spy = sandbox.spy(deleteAccount.passwordView, 'record');
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'delete_account_password_view'
+        );
+        sinon.assert.calledOnce(spy);
+      });
+
+      it('submits a ping with the delete_account_password_password_submit event name', async () => {
+        GleanMetrics.deleteAccount.passwordSubmit();
+        const spy = sandbox.spy(deleteAccount.passwordSubmit, 'record');
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'delete_account_password_submit'
         );
         sinon.assert.calledOnce(spy);
       });

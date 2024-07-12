@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Link, RouteComponentProps } from '@reach/router';
 import Nav from '../Nav';
 import Security from '../Security';
@@ -15,6 +15,7 @@ import { useAccount } from '../../../models';
 import { DeleteAccountPath } from 'fxa-settings/src/constants';
 import { Localized } from '@fluent/react';
 import DataCollection from '../DataCollection';
+import GleanMetrics from '../../../lib/glean';
 
 export const PageSettings = (_: RouteComponentProps) => {
   const { uid } = useAccount();
@@ -24,6 +25,10 @@ export const PageSettings = (_: RouteComponentProps) => {
     uid,
   });
   Metrics.usePageViewEvent(Metrics.settingsViewName);
+
+  useEffect(() => {
+    GleanMetrics.accountPref.view();
+  }, []);
 
   // Scroll to effect
   const profileRef = useRef<HTMLDivElement>(null);
@@ -57,6 +62,7 @@ export const PageSettings = (_: RouteComponentProps) => {
               data-testid="settings-delete-account"
               className="cta-caution text-sm transition-standard mt-12 py-2 px-5 mobileLandscape:py-1"
               to={DeleteAccountPath}
+              onClick={() => GleanMetrics.deleteAccount.settingsSubmit()}
             >
               Delete account
             </Link>

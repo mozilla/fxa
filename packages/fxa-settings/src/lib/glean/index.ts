@@ -26,6 +26,7 @@ import * as cadApproveDevice from 'fxa-shared/metrics/glean/web/cadApproveDevice
 import * as cadMobilePair from 'fxa-shared/metrics/glean/web/cadMobilePair';
 import * as cadMobilePairUseApp from 'fxa-shared/metrics/glean/web/cadMobilePairUseApp';
 import * as accountPref from 'fxa-shared/metrics/glean/web/accountPref';
+import * as deleteAccount from 'fxa-shared/metrics/glean/web/deleteAccount';
 import { userIdSha256 } from 'fxa-shared/metrics/glean/web/account';
 import {
   oauthClientId,
@@ -351,8 +352,30 @@ const recordEventMetric = (
     case 'cad_mobile_pair_use_app_view':
       cadMobilePairUseApp.view.record();
       break;
+    case 'account_pref_view':
+      accountPref.view.record();
+      break;
     case 'account_pref_recovery_key_submit':
       accountPref.recoveryKeySubmit.record();
+      break;
+    case 'delete_account_settings_submit':
+      deleteAccount.settingsSubmit.record();
+      break;
+    case 'delete_account_view':
+      deleteAccount.view.record();
+      break;
+    case 'delete_account_engage':
+      deleteAccount.engage.record();
+      break;
+    case 'delete_account_submit':
+      deleteAccount.submit.record();
+      break;
+    case 'delete_account_password_view':
+      deleteAccount.passwordView.record();
+      break;
+    case 'delete_account_password_submit':
+      deleteAccount.passwordSubmit.record();
+      break;
   }
 };
 
