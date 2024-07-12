@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { StrapiEntity } from '../../types';
+
 export interface OfferingPurchaseResult {
   productName: string;
   details: string;
@@ -10,11 +12,21 @@ export interface OfferingPurchaseResult {
 }
 
 export interface OfferingDefaultPurchaseResult {
-  purchaseDetails: OfferingPurchaseResult;
+  purchaseDetails: {
+    data: StrapiEntity<
+      OfferingPurchaseResult & {
+        localizations: {
+          data: StrapiEntity<OfferingPurchaseResult>[];
+        };
+      }
+    >;
+  };
 }
 
 export interface OfferingResult {
   stripeProductId: string;
   countries: string[];
-  defaultPurchase: OfferingDefaultPurchaseResult;
+  defaultPurchase: {
+    data: StrapiEntity<OfferingDefaultPurchaseResult>;
+  };
 }

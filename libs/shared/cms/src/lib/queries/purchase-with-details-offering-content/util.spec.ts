@@ -12,23 +12,26 @@ describe('PurchaseWithDetailsOfferingContentUtil', () => {
   it('should create a util from response', () => {
     const result = PurchaseWithDetailsOfferingContentByPlanIdsResultFactory();
     const result2 = PurchaseWithDetailsOfferingContentByPlanIdsResultFactory();
-    const purchase = result.purchaseCollection?.items[0];
-    const planId = purchase.stripePlanChoices?.[0];
-    const legacyPlanId = purchase.offering.stripeLegacyPlans?.[0];
+    const purchase = result.purchases?.data[0];
+    const planId = purchase.attributes.stripePlanChoices?.[0];
+    const legacyPlanId =
+      purchase.attributes.offering.data.attributes.stripeLegacyPlans?.[0];
     const util = new PurchaseWithDetailsOfferingContentUtil([
       result as PurchaseWithDetailsOfferingContentByPlanIdsResult,
       result2 as PurchaseWithDetailsOfferingContentByPlanIdsResult,
     ]);
     expect(util).toBeDefined();
     expect(
-      util.transformedPurchaseWithCommonContentForPlanId(planId ?? '')?.offering
-        .stripeProductId
+      util.transformedPurchaseWithCommonContentForPlanId(
+        planId.stripePlanChoice ?? ''
+      )?.offering.data.attributes.stripeProductId
     ).toBeDefined();
     expect(
-      util.transformedPurchaseWithCommonContentForPlanId(legacyPlanId ?? '')
-        ?.offering.stripeProductId
+      util.transformedPurchaseWithCommonContentForPlanId(
+        legacyPlanId.stripeLegacyPlan ?? ''
+      )?.offering.data.attributes.stripeProductId
     ).toBeDefined();
-    expect(util.purchaseCollection.items.length).toBe(2);
+    expect(util.purchases.data.length).toBe(2);
   });
 
   describe('transformPurchaseDetails', () => {

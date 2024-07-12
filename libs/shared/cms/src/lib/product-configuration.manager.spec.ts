@@ -21,7 +21,6 @@ import {
   CapabilityServiceByPlanIdsQueryFactory,
   CapabilityServiceByPlanIdsResultUtil,
   CMSConfig,
-  ContentfulClientConfig,
   EligibilityContentByOfferingResultUtil,
   EligibilityContentByPlanIdsQueryFactory,
   EligibilityContentByPlanIdsResultUtil,
@@ -31,6 +30,8 @@ import {
   ProductConfigError,
   ServicesWithCapabilitiesQueryFactory,
   ServicesWithCapabilitiesResultUtil,
+  StrapiEntity,
+  StrapiEntityFactory,
 } from '../../src';
 import { ProductConfigurationManager } from './product-configuration.manager';
 import {
@@ -46,6 +47,7 @@ import {
 import { PurchaseWithDetailsOfferingContentUtil } from './queries/purchase-with-details-offering-content';
 import { PurchaseWithDetailsOfferingContentByPlanIdsResultFactory } from './queries/purchase-with-details-offering-content/factories';
 import { StrapiClient } from './strapi.client';
+import { MockStrapiClientConfigProvider } from './strapi.client.config';
 
 jest.mock('@type-cacheable/core', () => ({
   Cacheable: () => {
@@ -74,7 +76,7 @@ describe('productConfigurationManager', () => {
       providers: [
         { provide: StatsDService, useValue: mockStatsd },
         CMSConfig,
-        ContentfulClientConfig,
+        MockStrapiClientConfigProvider,
         MockCMSConfigProvider,
         MockFirestoreProvider,
         PriceManager,
@@ -92,7 +94,14 @@ describe('productConfigurationManager', () => {
 
   it('should call statsd for incoming events', async () => {
     const queryData = EligibilityContentByPlanIdsQueryFactory({
-      purchaseCollection: { items: [], total: 0 },
+      purchases: {
+        data: [],
+        meta: {
+          pagination: {
+            total: 0,
+          },
+        },
+      },
     });
     jest.spyOn(strapiClient.client, 'request').mockResolvedValue(queryData);
 
@@ -135,7 +144,7 @@ describe('productConfigurationManager', () => {
   describe('getEligibilityContentByOffering', () => {
     it('should return empty result', async () => {
       const queryData = EligibilityContentByOfferingQueryFactory({
-        offeringCollection: { items: [] },
+        offerings: { data: [] },
       });
 
       jest.spyOn(strapiClient, 'query').mockResolvedValue(queryData);
@@ -150,11 +159,13 @@ describe('productConfigurationManager', () => {
     it('should return successfully with results', async () => {
       const apiIdentifier = 'test';
       const offeringResult = [
-        EligibilityContentOfferingResultFactory({ apiIdentifier }),
+        StrapiEntityFactory(
+          EligibilityContentOfferingResultFactory({ apiIdentifier })
+        ),
       ];
       const queryData = EligibilityContentByOfferingQueryFactory({
-        offeringCollection: {
-          items: offeringResult,
+        offerings: {
+          data: offeringResult,
         },
       });
 
@@ -172,7 +183,7 @@ describe('productConfigurationManager', () => {
   describe('getPageContentForOffering', () => {
     it('should return empty result', async () => {
       const queryData = PageContentForOfferingQueryFactory({
-        offeringCollection: { items: [] },
+        offerings: { data: [], meta: { pagination: { total: 0 } } },
       });
 
       jest.spyOn(strapiClient, 'query').mockResolvedValue(queryData);
@@ -184,19 +195,22 @@ describe('productConfigurationManager', () => {
           'en'
         );
       expect(result).toBeInstanceOf(PageContentForOfferingResultUtil);
-      expect(result.offeringCollection.items).toHaveLength(0);
+      expect(result.offerings.data).toHaveLength(0);
     });
 
     it('should return successfully with page content for offering', async () => {
       const apiIdentifier = 'test';
       const offeringResult = [
-        PageContentOfferingResultFactory({
-          apiIdentifier,
-        }),
+        StrapiEntityFactory(
+          PageContentOfferingResultFactory({
+            apiIdentifier,
+          })
+        ),
       ];
       const queryData = PageContentForOfferingQueryFactory({
-        offeringCollection: {
-          items: offeringResult,
+        offerings: {
+          data: offeringResult,
+          meta: { pagination: { total: offeringResult.length } },
         },
       });
 
@@ -209,18 +223,38 @@ describe('productConfigurationManager', () => {
           'en'
         );
       expect(result).toBeInstanceOf(PageContentForOfferingResultUtil);
-      expect(result.getOffering().defaultPurchase.purchaseDetails).toEqual(
-        result.purchaseDetailsTransform(
-          offeringResult[0].defaultPurchase?.purchaseDetails
-        )
-      );
+      expect(
+        result.getOffering().defaultPurchase.data.attributes.purchaseDetails
+          .data.attributes
+      ).toEqual({
+        ...result.purchaseDetailsTransform(
+          offeringResult[0].attributes.defaultPurchase?.data.attributes
+            .purchaseDetails.data.attributes
+        ),
+        localizations: {
+          data: offeringResult[0].attributes.defaultPurchase?.data.attributes.purchaseDetails.data.attributes.localizations.data.map(
+            (localization) => ({
+              attributes: result.purchaseDetailsTransform(
+                localization.attributes
+              ),
+            })
+          ),
+        },
+      });
     });
   });
 
   describe('getPurchaseDetailsForEligibility', () => {
     it('should return empty result', async () => {
       const queryData = EligibilityContentByPlanIdsQueryFactory({
-        purchaseCollection: { items: [], total: 0 },
+        purchases: {
+          data: [],
+          meta: {
+            pagination: {
+              total: 0,
+            },
+          },
+        },
       });
 
       jest.spyOn(strapiClient, 'query').mockResolvedValue(queryData);
@@ -231,18 +265,26 @@ describe('productConfigurationManager', () => {
         ]);
       expect(result).toBeInstanceOf(EligibilityContentByPlanIdsResultUtil);
       expect(result.offeringForPlanId('test')).toBeUndefined;
-      expect(result.purchaseCollection.items).toHaveLength(0);
+      expect(result.purchases.data).toHaveLength(0);
     });
 
     it('should return successfully with subgroups and offering', async () => {
       const planId = 'test';
       const purchaseResult = [
-        EligibilityPurchaseResultFactory({ stripePlanChoices: [planId] }),
+        StrapiEntityFactory(
+          EligibilityPurchaseResultFactory({
+            stripePlanChoices: [{ stripePlanChoice: planId }],
+          })
+        ),
       ];
       const queryData = EligibilityContentByPlanIdsQueryFactory({
-        purchaseCollection: {
-          items: purchaseResult,
-          total: purchaseResult.length,
+        purchases: {
+          data: purchaseResult,
+          meta: {
+            pagination: {
+              total: purchaseResult.length,
+            },
+          },
         },
       });
 
@@ -253,22 +295,26 @@ describe('productConfigurationManager', () => {
           'test',
         ]);
       expect(result).toBeInstanceOf(EligibilityContentByPlanIdsResultUtil);
-      expect(
-        result.offeringForPlanId(planId)?.linkedFrom.subGroupCollection.items
-      ).toHaveLength(1);
+      expect(result.offeringForPlanId(planId)?.subGroups.data).toHaveLength(1);
       expect(result.offeringForPlanId(planId)).toBeDefined();
     });
 
     it('should return successfully with paging', async () => {
       const pageSize = 20;
-      const purchaseResult: EligibilityPurchaseResult[] = [];
+      const purchaseResult: StrapiEntity<EligibilityPurchaseResult>[] = [];
       for (let i = 0; i < pageSize + 1; i += 1) {
-        purchaseResult.push(EligibilityPurchaseResultFactory());
+        purchaseResult.push(
+          StrapiEntityFactory(EligibilityPurchaseResultFactory())
+        );
       }
       const queryData = EligibilityContentByPlanIdsQueryFactory({
-        purchaseCollection: {
-          items: purchaseResult,
-          total: purchaseResult.length,
+        purchases: {
+          data: purchaseResult,
+          meta: {
+            pagination: {
+              total: purchaseResult.length,
+            },
+          },
         },
       });
 
@@ -286,7 +332,14 @@ describe('productConfigurationManager', () => {
   describe('getPurchaseDetailsForCapabilityServiceByPlanId', () => {
     it('should return empty result', async () => {
       const queryData = CapabilityServiceByPlanIdsQueryFactory({
-        purchaseCollection: { items: [], total: 0 },
+        purchases: {
+          data: [],
+          meta: {
+            pagination: {
+              total: 0,
+            },
+          },
+        },
       });
 
       jest.spyOn(strapiClient, 'query').mockResolvedValue(queryData);
@@ -302,12 +355,20 @@ describe('productConfigurationManager', () => {
     it('should return successfully with results', async () => {
       const planId = 'test';
       const purchaseResult = [
-        CapabilityPurchaseResultFactory({ stripePlanChoices: [planId] }),
+        StrapiEntityFactory(
+          CapabilityPurchaseResultFactory({
+            stripePlanChoices: [{ stripePlanChoice: planId }],
+          })
+        ),
       ];
       const queryData = CapabilityServiceByPlanIdsQueryFactory({
-        purchaseCollection: {
-          items: purchaseResult,
-          total: purchaseResult.length,
+        purchases: {
+          data: purchaseResult,
+          meta: {
+            pagination: {
+              total: purchaseResult.length,
+            },
+          },
         },
       });
 
@@ -323,14 +384,20 @@ describe('productConfigurationManager', () => {
 
     it('should return successfully with paging', async () => {
       const pageSize = 20;
-      const purchaseResult: CapabilityPurchaseResult[] = [];
+      const purchaseResult: StrapiEntity<CapabilityPurchaseResult>[] = [];
       for (let i = 0; i < pageSize + 1; i += 1) {
-        purchaseResult.push(CapabilityPurchaseResultFactory());
+        purchaseResult.push(
+          StrapiEntityFactory(CapabilityPurchaseResultFactory())
+        );
       }
       const queryData = CapabilityServiceByPlanIdsQueryFactory({
-        purchaseCollection: {
-          items: purchaseResult,
-          total: purchaseResult.length,
+        purchases: {
+          data: purchaseResult,
+          meta: {
+            pagination: {
+              total: purchaseResult.length,
+            },
+          },
         },
       });
 
@@ -347,14 +414,17 @@ describe('productConfigurationManager', () => {
 
   describe('getServicesWithCapabilities', () => {
     it('should return results', async () => {
-      jest.spyOn(strapiClient, 'query').mockResolvedValue({
-        serviceCollection: { items: [] },
+      const queryData = ServicesWithCapabilitiesQueryFactory({
+        services: {
+          data: [],
+        },
       });
+      jest.spyOn(strapiClient, 'query').mockResolvedValue(queryData);
 
       const result =
         await productConfigurationManager.getServicesWithCapabilities();
       expect(result).toBeInstanceOf(ServicesWithCapabilitiesResultUtil);
-      expect(result.serviceCollection.items).toHaveLength(0);
+      expect(result.services.data).toHaveLength(0);
     });
 
     it('should return successfully with services and capabilities', async () => {
@@ -365,15 +435,17 @@ describe('productConfigurationManager', () => {
       const result =
         await productConfigurationManager.getServicesWithCapabilities();
       expect(result).toBeInstanceOf(ServicesWithCapabilitiesResultUtil);
-      expect(result.serviceCollection.items).toHaveLength(1);
+      expect(result.services.data).toHaveLength(1);
     });
   });
 
   describe('getPurchaseWithDetailsOfferingContentByPlanIds', () => {
     it('should return empty result', async () => {
-      jest.spyOn(strapiClient, 'query').mockResolvedValue({
-        purchaseCollection: { items: [] },
-      });
+      const queryData =
+        PurchaseWithDetailsOfferingContentByPlanIdsResultFactory({
+          purchases: { data: [] },
+        });
+      jest.spyOn(strapiClient, 'query').mockResolvedValue(queryData);
       jest.spyOn(strapiClient, 'getLocale').mockResolvedValue('en');
 
       const result =
@@ -382,13 +454,13 @@ describe('productConfigurationManager', () => {
           'en'
         );
       expect(result).toBeInstanceOf(PurchaseWithDetailsOfferingContentUtil);
-      expect(result.purchaseCollection.items).toHaveLength(0);
+      expect(result.purchases.data).toHaveLength(0);
     });
 
     it('should return successfully with purchase details and offering', async () => {
       const queryData =
         PurchaseWithDetailsOfferingContentByPlanIdsResultFactory();
-      const queryDataItem = queryData.purchaseCollection.items[0];
+      const queryDataItem = queryData.purchases.data[0];
 
       jest.spyOn(strapiClient, 'query').mockResolvedValue(queryData);
       jest.spyOn(strapiClient, 'getLocale').mockResolvedValue('en');
@@ -398,16 +470,32 @@ describe('productConfigurationManager', () => {
           ['test'],
           'en'
         );
-      const planId = result.purchaseCollection.items[0].stripePlanChoices?.[0];
+      const { stripePlanChoice } =
+        result.purchases.data[0].attributes.stripePlanChoices?.[0];
       expect(result).toBeInstanceOf(PurchaseWithDetailsOfferingContentUtil);
       expect(
-        result.transformedPurchaseWithCommonContentForPlanId(planId ?? '')
-          ?.offering
-      ).toEqual(queryDataItem.offering);
+        result.transformedPurchaseWithCommonContentForPlanId(
+          stripePlanChoice ?? ''
+        )?.offering
+      ).toEqual(queryDataItem.attributes.offering);
       expect(
-        result.transformedPurchaseWithCommonContentForPlanId(planId ?? '')
-          ?.purchaseDetails
-      ).toEqual(result.purchaseDetailsTransform(queryDataItem.purchaseDetails));
+        result.transformedPurchaseWithCommonContentForPlanId(
+          stripePlanChoice ?? ''
+        )?.purchaseDetails.data.attributes
+      ).toEqual({
+        ...result.purchaseDetailsTransform(
+          queryDataItem.attributes.purchaseDetails.data.attributes
+        ),
+        localizations: {
+          data: queryDataItem.attributes.purchaseDetails.data.attributes.localizations.data.map(
+            (localization) => ({
+              attributes: result.purchaseDetailsTransform(
+                localization.attributes
+              ),
+            })
+          ),
+        },
+      });
     });
   });
 
@@ -417,7 +505,11 @@ describe('productConfigurationManager', () => {
       const mockPlan = StripePlanFactory();
       const mockOffering = EligibilityContentOfferingResultFactory({
         defaultPurchase: {
-          stripePlanChoices: [mockPlan.id],
+          data: {
+            attributes: {
+              stripePlanChoices: [{ stripePlanChoice: mockPlan.id }],
+            },
+          },
         },
       });
       const mockOfferingResult = {} as EligibilityContentByOfferingResultUtil;
@@ -440,7 +532,13 @@ describe('productConfigurationManager', () => {
       const mockPrice = StripeResponseFactory(StripePriceFactory());
       const mockInterval = SubplatInterval.Monthly;
       const mockOffering = EligibilityContentOfferingResultFactory({
-        defaultPurchase: { stripePlanChoices: [mockPrice.id] },
+        defaultPurchase: {
+          data: {
+            attributes: {
+              stripePlanChoices: [{ stripePlanChoice: mockPrice.id }],
+            },
+          },
+        },
       });
 
       jest

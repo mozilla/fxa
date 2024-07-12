@@ -11,14 +11,14 @@ export class EligibilityContentByOfferingResultUtil {
   constructor(private rawResult: EligibilityContentByOfferingResult) {}
 
   getOffering(): EligibilityContentOfferingResult {
-    const offering = this.offeringCollection.items.at(0);
+    const offering = this.offerings.data.at(0);
     if (!offering) throw Error('getOffering - No offering exists');
-    if (this.offeringCollection.items.length > 1)
+    if (this.offerings.data.length > 1)
       throw Error('getOffering - More than one offering');
-    return offering;
+    return offering.attributes;
   }
 
-  get offeringCollection(): EligibilityContentByOfferingResult['offeringCollection'] {
-    return this.rawResult.offeringCollection;
+  get offerings(): EligibilityContentByOfferingResult['offerings'] {
+    return this.rawResult.offerings;
   }
 }

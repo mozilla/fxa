@@ -8,36 +8,55 @@ export const eligibilityContentByPlanIdsQuery = graphql(`
   query EligibilityContentByPlanIds(
     $skip: Int!
     $limit: Int!
-    $locale: String!
     $stripePlanIds: [String]!
   ) {
-    purchaseCollection(
-      skip: $skip
-      limit: $limit
-      locale: $locale
-      where: {
-        OR: [
-          { stripePlanChoices_contains_some: $stripePlanIds }
-          { offering: { stripeLegacyPlans_contains_some: $stripePlanIds } }
+    purchases(
+      pagination: { start: $skip, limit: $limit }
+      filters: {
+        or: [
+          { stripePlanChoices: { stripePlanChoice: { in: $stripePlanIds } } }
+          {
+            offering: {
+              stripeLegacyPlans: { stripeLegacyPlan: { in: $stripePlanIds } }
+            }
+          }
         ]
       }
     ) {
-      total
-      items {
-        stripePlanChoices
-        offering {
-          stripeProductId
-          stripeLegacyPlans
-          countries
-          linkedFrom {
-            subGroupCollection(skip: 0, limit: 25) {
-              items {
-                groupName
-                offeringCollection(skip: 0, limit: 20) {
-                  items {
-                    stripeProductId
-                    stripeLegacyPlans
-                    countries
+      meta {
+        pagination {
+          total
+        }
+      }
+      data {
+        attributes {
+          stripePlanChoices {
+            stripePlanChoice
+          }
+          offering {
+            data {
+              attributes {
+                stripeProductId
+                stripeLegacyPlans {
+                  stripeLegacyPlan
+                }
+                countries
+                subGroups {
+                  data {
+                    attributes {
+                      groupName
+                      offerings {
+                        data {
+                          attributes {
+                            stripeProductId
+                            stripeLegacyPlans {
+                              stripeLegacyPlan
+                            }
+                            countries
+                          }
+                        }
+                      }
+                    }
                   }
                 }
               }

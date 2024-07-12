@@ -15,12 +15,18 @@ import {
   PageContentPurchaseDetailsResult,
   PageContentPurchaseDetailsTransformed,
 } from '.';
+import { StrapiEntityFactory } from '../../factories';
 
 export const PageContentForOfferingQueryFactory = (
   override?: Partial<PageContentForOfferingQuery>
 ): PageContentForOfferingQuery => ({
-  offeringCollection: {
-    items: [PageContentOfferingResultFactory()],
+  offerings: {
+    meta: {
+      pagination: {
+        total: 1,
+      },
+    },
+    data: [StrapiEntityFactory(PageContentOfferingResultFactory())],
   },
   ...override,
 });
@@ -28,14 +34,30 @@ export const PageContentForOfferingQueryFactory = (
 export const PageContentOfferingDefaultPurchaseResultFactory = (
   override?: Partial<PageContentOfferingDefaultPurchaseResult>
 ): PageContentOfferingDefaultPurchaseResult => ({
-  purchaseDetails: PageContentPurchaseDetailsResultFactory(),
+  purchaseDetails: {
+    data: StrapiEntityFactory({
+      ...PageContentPurchaseDetailsResultFactory(),
+      localizations: {
+        data: [StrapiEntityFactory(PageContentPurchaseDetailsResultFactory())],
+      },
+    }),
+  },
   ...override,
 });
 
 export const PageContentOfferingDefaultPurchaseTransformedFactory = (
   override?: Partial<PageContentOfferingDefaultPurchaseTransformed>
 ): PageContentOfferingDefaultPurchaseTransformed => ({
-  purchaseDetails: PageContentPurchaseDetailsTransformedFactory(),
+  purchaseDetails: {
+    data: StrapiEntityFactory({
+      ...PageContentPurchaseDetailsTransformedFactory(),
+      localizations: {
+        data: [
+          StrapiEntityFactory(PageContentPurchaseDetailsTransformedFactory()),
+        ],
+      },
+    }),
+  },
   ...override,
 });
 
@@ -44,8 +66,26 @@ export const PageContentOfferingResultFactory = (
 ): PageContentOfferingResult => ({
   apiIdentifier: faker.string.sample(),
   stripeProductId: faker.string.sample(),
-  defaultPurchase: PageContentOfferingDefaultPurchaseResultFactory(),
-  commonContent: PageContentCommonContentResultFactory(),
+  defaultPurchase: {
+    data: StrapiEntityFactory({
+      ...PageContentOfferingDefaultPurchaseResultFactory(),
+      localizations: {
+        data: [
+          StrapiEntityFactory(
+            PageContentOfferingDefaultPurchaseResultFactory()
+          ),
+        ],
+      },
+    }),
+  },
+  commonContent: {
+    data: StrapiEntityFactory({
+      ...PageContentCommonContentResultFactory(),
+      localizations: {
+        data: [StrapiEntityFactory(PageContentCommonContentResultFactory())],
+      },
+    }),
+  },
   ...override,
 });
 
@@ -53,7 +93,18 @@ export const PageContentOfferingTransformedFactory = (
   override?: Partial<PageContentOfferingTransformed>
 ): PageContentOfferingTransformed => ({
   ...PageContentOfferingResultFactory(),
-  defaultPurchase: PageContentOfferingDefaultPurchaseTransformedFactory(),
+  defaultPurchase: {
+    data: StrapiEntityFactory({
+      ...PageContentOfferingDefaultPurchaseTransformedFactory(),
+      localizations: {
+        data: [
+          StrapiEntityFactory(
+            PageContentOfferingDefaultPurchaseTransformedFactory()
+          ),
+        ],
+      },
+    }),
+  },
   ...override,
 });
 
@@ -88,7 +139,7 @@ export const PageContentCommonContentResultFactory = (
   emailIcon: faker.internet.url(),
   successActionButtonUrl: faker.internet.url(),
   successActionButtonLabel: faker.string.alpha(10),
-  newsletterLabelTextCode: faker.helpers.arrayElement([
+  newsletterLabelTextCode: faker.helpers.arrayElements([
     'snp',
     'hubs',
     'mdnplus',

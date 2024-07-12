@@ -3,11 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Injectable } from '@nestjs/common';
-import {
-  CapabilitiesResult,
-  ProductConfigurationManager,
-  ServiceResult,
-} from '@fxa/shared/cms';
+import { ProductConfigurationManager, ServiceResult } from '@fxa/shared/cms';
 
 @Injectable()
 export class CapabilityManager {
@@ -21,8 +17,8 @@ export class CapabilityManager {
     ).getServices();
 
     return clients.map((client: ServiceResult) => {
-      const capabilities = client.capabilitiesCollection.items.map(
-        (capability: CapabilitiesResult) => capability.slug
+      const capabilities = client.capabilities.data.map(
+        (capability) => capability.attributes.slug
       );
       const sortedCapabilities = capabilities.sort();
       return {
@@ -54,22 +50,20 @@ export class CapabilityManager {
         purchaseDetails.capabilityOfferingForPlanId(subscribedPrice);
 
       // continue if neither offering nor capabilities exist
-      if (
-        !capabilityOffering ||
-        !capabilityOffering?.capabilitiesCollection?.items
-      )
+      if (!capabilityOffering || !capabilityOffering?.capabilities?.data)
         continue;
 
-      for (const capabilityCollection of capabilityOffering
-        .capabilitiesCollection.items) {
+      for (const capabilityCollection of capabilityOffering.capabilities.data) {
         // continue if individual capability does not contain any services
-        if (!capabilityCollection.servicesCollection?.items) continue;
+        if (!capabilityCollection.attributes.services.data) continue;
 
-        for (const capability of capabilityCollection.servicesCollection
-          .items) {
-          result[capability.oauthClientId] ||= [];
+        for (const capability of capabilityCollection.attributes.services
+          .data) {
+          result[capability.attributes.oauthClientId] ||= [];
 
-          result[capability.oauthClientId].push(capabilityCollection.slug);
+          result[capability.attributes.oauthClientId].push(
+            capabilityCollection.attributes.slug
+          );
         }
       }
     }

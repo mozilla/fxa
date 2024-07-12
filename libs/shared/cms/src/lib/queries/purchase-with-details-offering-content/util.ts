@@ -18,22 +18,57 @@ export class PurchaseWithDetailsOfferingContentUtil {
     private rawResults: PurchaseWithDetailsOfferingContentByPlanIdsResult[]
   ) {
     for (const rawResult of rawResults) {
-      for (const purchase of rawResult.purchaseCollection.items) {
-        const transformedPurchaseDetails = this.purchaseDetailsTransform(
-          purchase.purchaseDetails
+      for (const purchase of rawResult.purchases.data) {
+        purchase.attributes.stripePlanChoices?.forEach(
+          ({ stripePlanChoice }) => {
+            this.transformedPurchaseByPlanId[stripePlanChoice] = {
+              ...purchase.attributes,
+              purchaseDetails: {
+                data: {
+                  attributes: {
+                    ...this.purchaseDetailsTransform(
+                      purchase.attributes.purchaseDetails.data.attributes
+                    ),
+                    localizations: {
+                      data: purchase.attributes.purchaseDetails.data.attributes.localizations.data.map(
+                        (localization) => ({
+                          attributes: this.purchaseDetailsTransform(
+                            localization.attributes
+                          ),
+                        })
+                      ),
+                    },
+                  },
+                },
+              },
+            };
+          }
         );
-        purchase.stripePlanChoices?.forEach((planId) => {
-          this.transformedPurchaseByPlanId[planId] = {
-            ...purchase,
-            purchaseDetails: transformedPurchaseDetails,
-          };
-        });
-        purchase.offering.stripeLegacyPlans?.forEach((planId) => {
-          this.transformedPurchaseByPlanId[planId] = {
-            ...purchase,
-            purchaseDetails: transformedPurchaseDetails,
-          };
-        });
+        purchase.attributes.offering.data.attributes.stripeLegacyPlans?.forEach(
+          ({ stripeLegacyPlan }) => {
+            this.transformedPurchaseByPlanId[stripeLegacyPlan] = {
+              ...purchase.attributes,
+              purchaseDetails: {
+                data: {
+                  attributes: {
+                    ...this.purchaseDetailsTransform(
+                      purchase.attributes.purchaseDetails.data.attributes
+                    ),
+                    localizations: {
+                      data: purchase.attributes.purchaseDetails.data.attributes.localizations.data.map(
+                        (localization) => ({
+                          attributes: this.purchaseDetailsTransform(
+                            localization.attributes
+                          ),
+                        })
+                      ),
+                    },
+                  },
+                },
+              },
+            };
+          }
+        );
       }
     }
   }
@@ -57,14 +92,14 @@ export class PurchaseWithDetailsOfferingContentUtil {
     return this.transformedPurchaseByPlanId[planId];
   }
 
-  get purchaseCollection(): PurchaseWithDetailsOfferingContentByPlanIdsResult['purchaseCollection'] {
+  get purchases(): PurchaseWithDetailsOfferingContentByPlanIdsResult['purchases'] {
     // Deduplicating items as there could be duplicates from splitting up the
     // stripePlanIds and making multiple Contentful calls
     return {
-      items: [
+      data: [
         ...new Map(
           this.rawResults
-            .map((rawResult) => rawResult.purchaseCollection.items)
+            .map((rawResult) => rawResult.purchases.data)
             .flat()
             .map((res) => [JSON.stringify(res), res])
         ).values(),

@@ -60,7 +60,12 @@ export default async function RootLayout({
           l10n={l10n}
           interval={cart.interval}
           invoice={cart.invoicePreview}
-          purchaseDetails={cms.defaultPurchase.purchaseDetails}
+          purchaseDetails={
+            cms.defaultPurchase.data.attributes.purchaseDetails.data.attributes.localizations.data.at(
+              0
+            )?.attributes ||
+            cms.defaultPurchase.data.attributes.purchaseDetails.data.attributes
+          }
         />
       </section>
 
@@ -69,8 +74,13 @@ export default async function RootLayout({
         <TermsAndPrivacy
           l10n={l10n}
           {...cart}
-          {...cms.commonContent}
-          {...cms.defaultPurchase.purchaseDetails}
+          {...(cms.commonContent.data.attributes.localizations.data.at(0)
+            ?.attributes || cms.commonContent.data.attributes)}
+          {...(cms.defaultPurchase.data.attributes.purchaseDetails.data.attributes.localizations.data.at(
+            0
+          )?.attributes ||
+            cms.defaultPurchase.data.attributes.purchaseDetails.data
+              .attributes)}
           contentServerUrl={config.contentServerUrl}
           showFXALinks={true}
         />

@@ -17,19 +17,37 @@ export class PageContentForOfferingResultUtil {
   }
 
   getOffering(): PageContentOfferingTransformed {
-    const offering = this.offeringCollection.items.at(0);
+    const offering = this.offerings.data.at(0);
     if (!offering) throw Error('getOffering - No offering exists');
-    if (this.offeringCollection.items.length > 1)
+    if (this.offerings.data.length > 1)
       throw Error('getOffering - More than one offering');
 
-    const transformedPurchaseDetails = this.purchaseDetailsTransform(
-      offering.defaultPurchase.purchaseDetails
-    );
-
     return {
-      ...offering,
+      ...offering.attributes,
       defaultPurchase: {
-        purchaseDetails: transformedPurchaseDetails,
+        data: {
+          attributes: {
+            purchaseDetails: {
+              data: {
+                attributes: {
+                  ...this.purchaseDetailsTransform(
+                    offering.attributes.defaultPurchase.data.attributes
+                      .purchaseDetails.data.attributes
+                  ),
+                  localizations: {
+                    data: offering.attributes.defaultPurchase.data.attributes.purchaseDetails.data.attributes.localizations.data.map(
+                      (localization) => ({
+                        attributes: this.purchaseDetailsTransform(
+                          localization.attributes
+                        ),
+                      })
+                    ),
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     };
   }
@@ -45,7 +63,7 @@ export class PageContentForOfferingResultUtil {
     };
   }
 
-  get offeringCollection(): PageContentForOfferingResult['offeringCollection'] {
-    return this.rawResult.offeringCollection;
+  get offerings(): PageContentForOfferingResult['offerings'] {
+    return this.rawResult.offerings;
   }
 }

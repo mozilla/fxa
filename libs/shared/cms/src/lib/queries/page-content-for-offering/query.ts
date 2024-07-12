@@ -6,34 +6,77 @@ import { graphql } from '../../../__generated__/gql';
 
 export const pageContentForOfferingQuery = graphql(`
   query PageContentForOffering($locale: String!, $apiIdentifier: String!) {
-    offeringCollection(
-      skip: 0
-      limit: 2
-      locale: $locale
-      where: { apiIdentifier: $apiIdentifier }
+    offerings(
+      pagination: { start: 0, limit: 2 }
+      filters: { apiIdentifier: { eq: $apiIdentifier } }
     ) {
-      items {
-        apiIdentifier
-        stripeProductId
-        defaultPurchase {
-          purchaseDetails {
-            details
-            productName
-            subtitle
-            webIcon
-          }
+      meta {
+        pagination {
+          total
         }
-        commonContent {
-          privacyNoticeUrl
-          privacyNoticeDownloadUrl
-          termsOfServiceUrl
-          termsOfServiceDownloadUrl
-          cancellationUrl
-          emailIcon
-          successActionButtonUrl
-          successActionButtonLabel
-          newsletterLabelTextCode
-          newsletterSlug
+      }
+      data {
+        attributes {
+          apiIdentifier
+          stripeProductId
+          defaultPurchase {
+            data {
+              attributes {
+                purchaseDetails {
+                  data {
+                    attributes {
+                      details
+                      productName
+                      subtitle
+                      webIcon
+                      localizations(filters: { locale: { eq: $locale } }) {
+                        data {
+                          attributes {
+                            details
+                            productName
+                            subtitle
+                            webIcon
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+          commonContent {
+            data {
+              attributes {
+                privacyNoticeUrl
+                privacyNoticeDownloadUrl
+                termsOfServiceUrl
+                termsOfServiceDownloadUrl
+                cancellationUrl
+                emailIcon
+                successActionButtonUrl
+                successActionButtonLabel
+                newsletterLabelTextCode
+                newsletterSlug
+                localizations(filters: { locale: { eq: $locale } }) {
+                  data {
+                    attributes {
+                      privacyNoticeUrl
+                      privacyNoticeDownloadUrl
+                      termsOfServiceUrl
+                      termsOfServiceDownloadUrl
+                      cancellationUrl
+                      emailIcon
+                      successActionButtonUrl
+                      successActionButtonLabel
+                      newsletterLabelTextCode
+                      newsletterSlug
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
       }
     }

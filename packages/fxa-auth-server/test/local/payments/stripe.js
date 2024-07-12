@@ -3427,9 +3427,13 @@ describe('#integration - StripeHelper', () => {
       const mockCMSConfigUtil = {
         transformedPurchaseWithCommonContentForPlanId: (planId) => {
           return PurchaseWithDetailsOfferingContentTransformedFactory({
-            purchaseDetails: PurchaseDetailsTransformedFactory({
-              webIcon: newWebIconURL,
-            }),
+            purchaseDetails: {
+              data: {
+                attributes: PurchaseDetailsTransformedFactory({
+                  webIcon: newWebIconURL,
+                }),
+              },
+            },
           });
         },
       };

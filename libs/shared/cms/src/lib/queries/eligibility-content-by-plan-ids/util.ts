@@ -13,29 +13,39 @@ export class EligibilityContentByPlanIdsResultUtil {
 
   constructor(private rawResults: EligibilityContentByPlanIdsResult[]) {
     for (const rawResult of rawResults) {
-      for (const purchase of rawResult.purchaseCollection.items) {
-        purchase.stripePlanChoices?.forEach((planId) => {
-          this.purchaseByPlanId[planId] = purchase;
-        });
+      for (const purchase of rawResult.purchases.data) {
+        purchase.attributes.stripePlanChoices?.forEach(
+          ({ stripePlanChoice }) => {
+            this.purchaseByPlanId[stripePlanChoice] = purchase.attributes;
+          }
+        );
 
-        purchase.offering.stripeLegacyPlans?.forEach((planId) => {
-          this.purchaseByPlanId[planId] = purchase;
-        });
+        purchase.attributes.offering.data.attributes.stripeLegacyPlans?.forEach(
+          ({ stripeLegacyPlan }) => {
+            this.purchaseByPlanId[stripeLegacyPlan] = purchase.attributes;
+          }
+        );
       }
     }
   }
 
   offeringForPlanId(planId: string): EligibilityOfferingResult | undefined {
-    return this.purchaseByPlanId[planId]?.offering;
+    return this.purchaseByPlanId[planId]?.offering.data.attributes;
   }
 
-  get purchaseCollection(): EligibilityContentByPlanIdsResult['purchaseCollection'] {
+  get purchases(): EligibilityContentByPlanIdsResult['purchases'] {
     return {
-      total: this.rawResults.length,
-      items: [
+      meta: {
+        pagination: {
+          total: this.rawResults
+            .map((rawResult) => rawResult.purchases.meta.pagination.total)
+            .reduce((acc, curr) => acc + curr, 0),
+        },
+      },
+      data: [
         ...new Map(
           this.rawResults
-            .map((rawResult) => rawResult.purchaseCollection.items)
+            .map((rawResult) => rawResult.purchases.data)
             .flat()
             .map((res) => [JSON.stringify(res), res])
         ).values(),

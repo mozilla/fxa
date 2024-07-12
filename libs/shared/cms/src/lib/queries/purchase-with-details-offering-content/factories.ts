@@ -11,6 +11,7 @@ import {
   PurchaseWithDetailsOfferingContentResult,
   PurchaseWithDetailsOfferingContentTransformed,
 } from './types';
+import { StrapiEntityFactory } from '../../factories';
 
 export const PurchaseDetailsResultFactory = (
   override?: Partial<PurchaseDetailsResult>
@@ -63,9 +64,18 @@ export const PurchaseOfferingResultFactory = (
   stripeProductId: faker.string.alpha(10),
   stripeLegacyPlans: Array.from(
     { length: faker.number.int({ min: 1, max: 5 }) },
-    () => faker.string.alpha(10)
+    () => ({
+      stripeLegacyPlan: faker.string.alpha(10),
+    })
   ),
-  commonContent: OfferingCommonContentResultFactory(),
+  commonContent: {
+    data: StrapiEntityFactory({
+      ...OfferingCommonContentResultFactory(),
+      localizations: {
+        data: [StrapiEntityFactory(OfferingCommonContentResultFactory())],
+      },
+    }),
+  },
   ...override,
 });
 
@@ -74,10 +84,21 @@ export const PurchaseWithDetailsOfferingContentResultFactory = (
 ): PurchaseWithDetailsOfferingContentResult => ({
   stripePlanChoices: Array.from(
     { length: faker.number.int({ min: 1, max: 5 }) },
-    () => faker.string.alpha(10)
+    () => ({
+      stripePlanChoice: faker.string.alpha(10),
+    })
   ),
-  purchaseDetails: PurchaseDetailsResultFactory(),
-  offering: PurchaseOfferingResultFactory(),
+  purchaseDetails: {
+    data: StrapiEntityFactory({
+      ...PurchaseDetailsResultFactory(),
+      localizations: {
+        data: [StrapiEntityFactory(PurchaseDetailsResultFactory())],
+      },
+    }),
+  },
+  offering: {
+    data: StrapiEntityFactory(PurchaseOfferingResultFactory()),
+  },
   ...override,
 });
 
@@ -85,15 +106,24 @@ export const PurchaseWithDetailsOfferingContentTransformedFactory = (
   override?: Partial<PurchaseWithDetailsOfferingContentTransformed>
 ): PurchaseWithDetailsOfferingContentTransformed => ({
   ...PurchaseWithDetailsOfferingContentResultFactory(),
-  purchaseDetails: PurchaseDetailsTransformedFactory(),
+  purchaseDetails: {
+    data: StrapiEntityFactory({
+      ...PurchaseDetailsTransformedFactory(),
+      localizations: {
+        data: [StrapiEntityFactory(PurchaseDetailsTransformedFactory())],
+      },
+    }),
+  },
   ...override,
 });
 
 export const PurchaseWithDetailsOfferingContentByPlanIdsResultFactory = (
   override?: Partial<PurchaseWithDetailsOfferingContentByPlanIdsResult>
 ): PurchaseWithDetailsOfferingContentByPlanIdsResult => ({
-  purchaseCollection: {
-    items: [PurchaseWithDetailsOfferingContentResultFactory()],
+  purchases: {
+    data: [
+      StrapiEntityFactory(PurchaseWithDetailsOfferingContentResultFactory()),
+    ],
   },
   ...override,
 });

@@ -9,9 +9,10 @@ import { CapabilityServiceByPlanIdsResultUtil } from './util';
 describe('CapabilityServiceByPlanIdsResultUtil', () => {
   it('should create a util from response', () => {
     const result = CapabilityServiceByPlanIdsQueryFactory();
-    const purchase = result.purchaseCollection?.items[0];
-    const planId = purchase?.stripePlanChoices?.[0];
-    const legacyPlanId = purchase?.offering?.stripeLegacyPlans?.[0];
+    const purchase = result.purchases?.data[0];
+    const planId = purchase?.attributes?.stripePlanChoices?.[0];
+    const legacyPlanId =
+      purchase?.attributes?.offering?.data?.attributes?.stripeLegacyPlans?.[0];
     const result2 = CapabilityServiceByPlanIdsQueryFactory();
     const util = new CapabilityServiceByPlanIdsResultUtil([
       result as CapabilityServiceByPlanIdsResult,
@@ -20,10 +21,12 @@ describe('CapabilityServiceByPlanIdsResultUtil', () => {
 
     expect(util).toBeDefined();
     expect(
-      util.capabilityOfferingForPlanId(planId ?? '')?.capabilitiesCollection
+      util.capabilityOfferingForPlanId(planId?.stripePlanChoice ?? '')
+        ?.capabilities
     ).toBeDefined();
     expect(
-      util.capabilityOfferingForPlanId(legacyPlanId ?? '')?.stripeLegacyPlans
+      util.capabilityOfferingForPlanId(legacyPlanId?.stripeLegacyPlan ?? '')
+        ?.stripeLegacyPlans
     ).toBeDefined();
   });
 });

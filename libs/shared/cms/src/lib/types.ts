@@ -1,5 +1,8 @@
 export type DeepNonNullable<T> = {
-  [K in keyof T]: Exclude<DeepNonNullable<T[K]>, null | undefined>;
+  // T extends never is a check for 'any' which is the type returned for Strapi multi-select plugin arrays
+  [K in keyof T]: T[K] extends never
+    ? any
+    : Exclude<DeepNonNullable<T[K]>, null | undefined>;
 };
 
 /*
@@ -14,3 +17,7 @@ export type ContentfulErrorResponse = {
   requestId: string;
   details?: NonNullable<unknown>;
 };
+
+export interface StrapiEntity<T> {
+  attributes: T;
+}

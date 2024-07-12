@@ -10,14 +10,14 @@ import {
   EligibilityContentSubgroupOfferingResult,
   EligibilityContentSubgroupResult,
 } from '.';
+import { StrapiEntityFactory } from '../../factories';
 
 export const EligibilityContentByOfferingQueryFactory = (
   override?: Partial<EligibilityContentByOfferingQuery>
 ): EligibilityContentByOfferingQuery => {
-  const items = [EligibilityContentOfferingResultFactory()];
   return {
-    offeringCollection: {
-      items,
+    offerings: {
+      data: [StrapiEntityFactory(EligibilityContentOfferingResultFactory())],
     },
     ...override,
   };
@@ -29,12 +29,16 @@ export const EligibilityContentOfferingResultFactory = (
   apiIdentifier: faker.string.sample(),
   stripeProductId: faker.string.sample(),
   defaultPurchase: {
-    stripePlanChoices: [faker.string.sample()],
+    data: StrapiEntityFactory({
+      stripePlanChoices: [
+        {
+          stripePlanChoice: faker.string.sample(),
+        },
+      ],
+    }),
   },
-  linkedFrom: {
-    subGroupCollection: {
-      items: [EligibilityContentSubgroupResultFactory()],
-    },
+  subGroups: {
+    data: [StrapiEntityFactory(EligibilityContentSubgroupResultFactory())],
   },
   ...override,
 });
@@ -43,8 +47,22 @@ export const EligibilityContentSubgroupResultFactory = (
   override?: Partial<EligibilityContentSubgroupResult>
 ): EligibilityContentSubgroupResult => ({
   groupName: faker.string.sample(),
-  offeringCollection: {
-    items: [EligibilityContentSubgroupOfferingResultFactory()],
+  offerings: {
+    data: [
+      StrapiEntityFactory({
+        apiIdentifier: faker.string.sample(),
+        stripeProductId: faker.string.sample(),
+        defaultPurchase: {
+          data: StrapiEntityFactory({
+            stripePlanChoices: [
+              {
+                stripePlanChoice: faker.string.sample(),
+              },
+            ],
+          }),
+        },
+      }),
+    ],
   },
   ...override,
 });
@@ -55,7 +73,13 @@ export const EligibilityContentSubgroupOfferingResultFactory = (
   apiIdentifier: faker.string.sample(),
   stripeProductId: faker.string.sample(),
   defaultPurchase: {
-    stripePlanChoices: [faker.string.sample()],
+    data: StrapiEntityFactory({
+      stripePlanChoices: [
+        {
+          stripePlanChoice: faker.string.sample(),
+        },
+      ],
+    }),
   },
   ...override,
 });

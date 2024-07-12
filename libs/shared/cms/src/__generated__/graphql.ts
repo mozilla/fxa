@@ -27,2696 +27,2040 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean };
   Int: { input: number; output: number };
   Float: { input: number; output: number };
-  /**
-   * A date-time string at UTC, such as 2007-12-03T10:15:30Z,
-   *     compliant with the 'date-time' format outlined in section 5.6 of
-   *     the RFC 3339 profile of the ISO 8601 standard for representation
-   *     of dates and times using the Gregorian calendar.
-   */
+  /** A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar. */
   DateTime: { input: any; output: any };
-  /** The 'Dimension' type represents dimensions as whole numeric values between `1` and `4000`. */
-  Dimension: { input: any; output: any };
-  /** The 'HexColor' type represents color in `rgb:ffffff` string format. */
-  HexColor: { input: any; output: any };
-  /** The 'Quality' type represents quality as whole numeric values between `1` and `100`. */
-  Quality: { input: any; output: any };
+  /** A string used to identify an i18n locale */
+  I18NLocaleCode: { input: any; output: any };
+  /** The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf). */
+  JSON: { input: any; output: any };
+  /** The `Upload` scalar type represents a file upload. */
+  Upload: { input: any; output: any };
 };
 
-/** Represents a binary file in a space. An asset can be any file type. */
-export type Asset = {
-  __typename?: 'Asset';
-  contentType: Maybe<Scalars['String']['output']>;
-  contentfulMetadata: ContentfulMetadata;
-  description: Maybe<Scalars['String']['output']>;
-  fileName: Maybe<Scalars['String']['output']>;
-  height: Maybe<Scalars['Int']['output']>;
-  linkedFrom: Maybe<AssetLinkingCollections>;
-  size: Maybe<Scalars['Int']['output']>;
-  sys: Sys;
-  title: Maybe<Scalars['String']['output']>;
-  url: Maybe<Scalars['String']['output']>;
-  width: Maybe<Scalars['Int']['output']>;
+export type BooleanFilterInput = {
+  and: InputMaybe<Array<InputMaybe<Scalars['Boolean']['input']>>>;
+  between: InputMaybe<Array<InputMaybe<Scalars['Boolean']['input']>>>;
+  contains: InputMaybe<Scalars['Boolean']['input']>;
+  containsi: InputMaybe<Scalars['Boolean']['input']>;
+  endsWith: InputMaybe<Scalars['Boolean']['input']>;
+  eq: InputMaybe<Scalars['Boolean']['input']>;
+  eqi: InputMaybe<Scalars['Boolean']['input']>;
+  gt: InputMaybe<Scalars['Boolean']['input']>;
+  gte: InputMaybe<Scalars['Boolean']['input']>;
+  in: InputMaybe<Array<InputMaybe<Scalars['Boolean']['input']>>>;
+  lt: InputMaybe<Scalars['Boolean']['input']>;
+  lte: InputMaybe<Scalars['Boolean']['input']>;
+  ne: InputMaybe<Scalars['Boolean']['input']>;
+  nei: InputMaybe<Scalars['Boolean']['input']>;
+  not: InputMaybe<BooleanFilterInput>;
+  notContains: InputMaybe<Scalars['Boolean']['input']>;
+  notContainsi: InputMaybe<Scalars['Boolean']['input']>;
+  notIn: InputMaybe<Array<InputMaybe<Scalars['Boolean']['input']>>>;
+  notNull: InputMaybe<Scalars['Boolean']['input']>;
+  null: InputMaybe<Scalars['Boolean']['input']>;
+  or: InputMaybe<Array<InputMaybe<Scalars['Boolean']['input']>>>;
+  startsWith: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-/** Represents a binary file in a space. An asset can be any file type. */
-export type AssetContentTypeArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
-};
-
-/** Represents a binary file in a space. An asset can be any file type. */
-export type AssetDescriptionArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
-};
-
-/** Represents a binary file in a space. An asset can be any file type. */
-export type AssetFileNameArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
-};
-
-/** Represents a binary file in a space. An asset can be any file type. */
-export type AssetHeightArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
-};
-
-/** Represents a binary file in a space. An asset can be any file type. */
-export type AssetLinkedFromArgs = {
-  allowedLocales: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-};
-
-/** Represents a binary file in a space. An asset can be any file type. */
-export type AssetSizeArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
-};
-
-/** Represents a binary file in a space. An asset can be any file type. */
-export type AssetTitleArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
-};
-
-/** Represents a binary file in a space. An asset can be any file type. */
-export type AssetUrlArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
-  transform: InputMaybe<ImageTransformOptions>;
-};
-
-/** Represents a binary file in a space. An asset can be any file type. */
-export type AssetWidthArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
-};
-
-export type AssetCollection = {
-  __typename?: 'AssetCollection';
-  items: Array<Maybe<Asset>>;
-  limit: Scalars['Int']['output'];
-  skip: Scalars['Int']['output'];
-  total: Scalars['Int']['output'];
-};
-
-export type AssetFilter = {
-  AND: InputMaybe<Array<InputMaybe<AssetFilter>>>;
-  OR: InputMaybe<Array<InputMaybe<AssetFilter>>>;
-  contentType: InputMaybe<Scalars['String']['input']>;
-  contentType_contains: InputMaybe<Scalars['String']['input']>;
-  contentType_exists: InputMaybe<Scalars['Boolean']['input']>;
-  contentType_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  contentType_not: InputMaybe<Scalars['String']['input']>;
-  contentType_not_contains: InputMaybe<Scalars['String']['input']>;
-  contentType_not_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  contentfulMetadata: InputMaybe<ContentfulMetadataFilter>;
-  description: InputMaybe<Scalars['String']['input']>;
-  description_contains: InputMaybe<Scalars['String']['input']>;
-  description_exists: InputMaybe<Scalars['Boolean']['input']>;
-  description_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  description_not: InputMaybe<Scalars['String']['input']>;
-  description_not_contains: InputMaybe<Scalars['String']['input']>;
-  description_not_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  fileName: InputMaybe<Scalars['String']['input']>;
-  fileName_contains: InputMaybe<Scalars['String']['input']>;
-  fileName_exists: InputMaybe<Scalars['Boolean']['input']>;
-  fileName_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  fileName_not: InputMaybe<Scalars['String']['input']>;
-  fileName_not_contains: InputMaybe<Scalars['String']['input']>;
-  fileName_not_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  height: InputMaybe<Scalars['Int']['input']>;
-  height_exists: InputMaybe<Scalars['Boolean']['input']>;
-  height_gt: InputMaybe<Scalars['Int']['input']>;
-  height_gte: InputMaybe<Scalars['Int']['input']>;
-  height_in: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
-  height_lt: InputMaybe<Scalars['Int']['input']>;
-  height_lte: InputMaybe<Scalars['Int']['input']>;
-  height_not: InputMaybe<Scalars['Int']['input']>;
-  height_not_in: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
-  size: InputMaybe<Scalars['Int']['input']>;
-  size_exists: InputMaybe<Scalars['Boolean']['input']>;
-  size_gt: InputMaybe<Scalars['Int']['input']>;
-  size_gte: InputMaybe<Scalars['Int']['input']>;
-  size_in: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
-  size_lt: InputMaybe<Scalars['Int']['input']>;
-  size_lte: InputMaybe<Scalars['Int']['input']>;
-  size_not: InputMaybe<Scalars['Int']['input']>;
-  size_not_in: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
-  sys: InputMaybe<SysFilter>;
-  title: InputMaybe<Scalars['String']['input']>;
-  title_contains: InputMaybe<Scalars['String']['input']>;
-  title_exists: InputMaybe<Scalars['Boolean']['input']>;
-  title_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  title_not: InputMaybe<Scalars['String']['input']>;
-  title_not_contains: InputMaybe<Scalars['String']['input']>;
-  title_not_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  url: InputMaybe<Scalars['String']['input']>;
-  url_contains: InputMaybe<Scalars['String']['input']>;
-  url_exists: InputMaybe<Scalars['Boolean']['input']>;
-  url_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  url_not: InputMaybe<Scalars['String']['input']>;
-  url_not_contains: InputMaybe<Scalars['String']['input']>;
-  url_not_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  width: InputMaybe<Scalars['Int']['input']>;
-  width_exists: InputMaybe<Scalars['Boolean']['input']>;
-  width_gt: InputMaybe<Scalars['Int']['input']>;
-  width_gte: InputMaybe<Scalars['Int']['input']>;
-  width_in: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
-  width_lt: InputMaybe<Scalars['Int']['input']>;
-  width_lte: InputMaybe<Scalars['Int']['input']>;
-  width_not: InputMaybe<Scalars['Int']['input']>;
-  width_not_in: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
-};
-
-export type AssetLinkingCollections = {
-  __typename?: 'AssetLinkingCollections';
-  entryCollection: Maybe<EntryCollection>;
-};
-
-export type AssetLinkingCollectionsEntryCollectionArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  locale: InputMaybe<Scalars['String']['input']>;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
-  skip?: InputMaybe<Scalars['Int']['input']>;
-};
-
-export enum AssetOrder {
-  ContentTypeAsc = 'contentType_ASC',
-  ContentTypeDesc = 'contentType_DESC',
-  FileNameAsc = 'fileName_ASC',
-  FileNameDesc = 'fileName_DESC',
-  HeightAsc = 'height_ASC',
-  HeightDesc = 'height_DESC',
-  SizeAsc = 'size_ASC',
-  SizeDesc = 'size_DESC',
-  SysFirstPublishedAtAsc = 'sys_firstPublishedAt_ASC',
-  SysFirstPublishedAtDesc = 'sys_firstPublishedAt_DESC',
-  SysIdAsc = 'sys_id_ASC',
-  SysIdDesc = 'sys_id_DESC',
-  SysPublishedAtAsc = 'sys_publishedAt_ASC',
-  SysPublishedAtDesc = 'sys_publishedAt_DESC',
-  SysPublishedVersionAsc = 'sys_publishedVersion_ASC',
-  SysPublishedVersionDesc = 'sys_publishedVersion_DESC',
-  UrlAsc = 'url_ASC',
-  UrlDesc = 'url_DESC',
-  WidthAsc = 'width_ASC',
-  WidthDesc = 'width_DESC',
-}
-
-/** Capabilities that services honor, and that customers are entitled to depending on the offering they've purchased. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/capability) */
-export type Capability = Entry & {
+export type Capability = {
   __typename?: 'Capability';
-  contentfulMetadata: ContentfulMetadata;
+  createdAt: Maybe<Scalars['DateTime']['output']>;
   description: Maybe<Scalars['String']['output']>;
-  internalName: Maybe<Scalars['String']['output']>;
-  linkedFrom: Maybe<CapabilityLinkingCollections>;
-  servicesCollection: Maybe<CapabilityServicesCollection>;
-  slug: Maybe<Scalars['String']['output']>;
-  sys: Sys;
+  internalName: Scalars['String']['output'];
+  offering: Maybe<OfferingEntityResponse>;
+  publishedAt: Maybe<Scalars['DateTime']['output']>;
+  services: Maybe<ServiceRelationResponseCollection>;
+  slug: Scalars['String']['output'];
+  updatedAt: Maybe<Scalars['DateTime']['output']>;
 };
 
-/** Capabilities that services honor, and that customers are entitled to depending on the offering they've purchased. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/capability) */
-export type CapabilityDescriptionArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
+export type CapabilityServicesArgs = {
+  filters: InputMaybe<ServiceFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  publicationState?: InputMaybe<PublicationState>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
 };
 
-/** Capabilities that services honor, and that customers are entitled to depending on the offering they've purchased. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/capability) */
-export type CapabilityInternalNameArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
+export type CapabilityEntity = {
+  __typename?: 'CapabilityEntity';
+  attributes: Maybe<Capability>;
+  id: Maybe<Scalars['ID']['output']>;
 };
 
-/** Capabilities that services honor, and that customers are entitled to depending on the offering they've purchased. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/capability) */
-export type CapabilityLinkedFromArgs = {
-  allowedLocales: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+export type CapabilityEntityResponse = {
+  __typename?: 'CapabilityEntityResponse';
+  data: Maybe<CapabilityEntity>;
 };
 
-/** Capabilities that services honor, and that customers are entitled to depending on the offering they've purchased. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/capability) */
-export type CapabilityServicesCollectionArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  locale: InputMaybe<Scalars['String']['input']>;
-  order: InputMaybe<Array<InputMaybe<CapabilityServicesCollectionOrder>>>;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
-  skip?: InputMaybe<Scalars['Int']['input']>;
-  where: InputMaybe<ServiceFilter>;
+export type CapabilityEntityResponseCollection = {
+  __typename?: 'CapabilityEntityResponseCollection';
+  data: Array<CapabilityEntity>;
+  meta: ResponseCollectionMeta;
 };
 
-/** Capabilities that services honor, and that customers are entitled to depending on the offering they've purchased. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/capability) */
-export type CapabilitySlugArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
+export type CapabilityFiltersInput = {
+  and: InputMaybe<Array<InputMaybe<CapabilityFiltersInput>>>;
+  createdAt: InputMaybe<DateTimeFilterInput>;
+  description: InputMaybe<StringFilterInput>;
+  id: InputMaybe<IdFilterInput>;
+  internalName: InputMaybe<StringFilterInput>;
+  not: InputMaybe<CapabilityFiltersInput>;
+  offering: InputMaybe<OfferingFiltersInput>;
+  or: InputMaybe<Array<InputMaybe<CapabilityFiltersInput>>>;
+  publishedAt: InputMaybe<DateTimeFilterInput>;
+  services: InputMaybe<ServiceFiltersInput>;
+  slug: InputMaybe<StringFilterInput>;
+  updatedAt: InputMaybe<DateTimeFilterInput>;
 };
 
-export type CapabilityCollection = {
-  __typename?: 'CapabilityCollection';
-  items: Array<Maybe<Capability>>;
-  limit: Scalars['Int']['output'];
-  skip: Scalars['Int']['output'];
-  total: Scalars['Int']['output'];
-};
-
-export type CapabilityFilter = {
-  AND: InputMaybe<Array<InputMaybe<CapabilityFilter>>>;
-  OR: InputMaybe<Array<InputMaybe<CapabilityFilter>>>;
-  contentfulMetadata: InputMaybe<ContentfulMetadataFilter>;
+export type CapabilityInput = {
   description: InputMaybe<Scalars['String']['input']>;
-  description_contains: InputMaybe<Scalars['String']['input']>;
-  description_exists: InputMaybe<Scalars['Boolean']['input']>;
-  description_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  description_not: InputMaybe<Scalars['String']['input']>;
-  description_not_contains: InputMaybe<Scalars['String']['input']>;
-  description_not_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   internalName: InputMaybe<Scalars['String']['input']>;
-  internalName_contains: InputMaybe<Scalars['String']['input']>;
-  internalName_exists: InputMaybe<Scalars['Boolean']['input']>;
-  internalName_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  internalName_not: InputMaybe<Scalars['String']['input']>;
-  internalName_not_contains: InputMaybe<Scalars['String']['input']>;
-  internalName_not_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  services: InputMaybe<CfServiceNestedFilter>;
-  servicesCollection_exists: InputMaybe<Scalars['Boolean']['input']>;
+  offering: InputMaybe<Scalars['ID']['input']>;
+  publishedAt: InputMaybe<Scalars['DateTime']['input']>;
+  services: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   slug: InputMaybe<Scalars['String']['input']>;
-  slug_contains: InputMaybe<Scalars['String']['input']>;
-  slug_exists: InputMaybe<Scalars['Boolean']['input']>;
-  slug_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  slug_not: InputMaybe<Scalars['String']['input']>;
-  slug_not_contains: InputMaybe<Scalars['String']['input']>;
-  slug_not_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  sys: InputMaybe<SysFilter>;
 };
 
-export type CapabilityLinkingCollections = {
-  __typename?: 'CapabilityLinkingCollections';
-  entryCollection: Maybe<EntryCollection>;
-  offeringCollection: Maybe<OfferingCollection>;
-  serviceCollection: Maybe<ServiceCollection>;
+export type CapabilityRelationResponseCollection = {
+  __typename?: 'CapabilityRelationResponseCollection';
+  data: Array<CapabilityEntity>;
 };
 
-export type CapabilityLinkingCollectionsEntryCollectionArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  locale: InputMaybe<Scalars['String']['input']>;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
-  skip?: InputMaybe<Scalars['Int']['input']>;
-};
-
-export type CapabilityLinkingCollectionsOfferingCollectionArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  locale: InputMaybe<Scalars['String']['input']>;
-  order: InputMaybe<
-    Array<InputMaybe<CapabilityLinkingCollectionsOfferingCollectionOrder>>
-  >;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
-  skip?: InputMaybe<Scalars['Int']['input']>;
-};
-
-export type CapabilityLinkingCollectionsServiceCollectionArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  locale: InputMaybe<Scalars['String']['input']>;
-  order: InputMaybe<
-    Array<InputMaybe<CapabilityLinkingCollectionsServiceCollectionOrder>>
-  >;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
-  skip?: InputMaybe<Scalars['Int']['input']>;
-};
-
-export enum CapabilityLinkingCollectionsOfferingCollectionOrder {
-  ApiIdentifierAsc = 'apiIdentifier_ASC',
-  ApiIdentifierDesc = 'apiIdentifier_DESC',
-  DescriptionAsc = 'description_ASC',
-  DescriptionDesc = 'description_DESC',
-  InternalNameAsc = 'internalName_ASC',
-  InternalNameDesc = 'internalName_DESC',
-  StripeProductIdAsc = 'stripeProductId_ASC',
-  StripeProductIdDesc = 'stripeProductId_DESC',
-  SysFirstPublishedAtAsc = 'sys_firstPublishedAt_ASC',
-  SysFirstPublishedAtDesc = 'sys_firstPublishedAt_DESC',
-  SysIdAsc = 'sys_id_ASC',
-  SysIdDesc = 'sys_id_DESC',
-  SysPublishedAtAsc = 'sys_publishedAt_ASC',
-  SysPublishedAtDesc = 'sys_publishedAt_DESC',
-  SysPublishedVersionAsc = 'sys_publishedVersion_ASC',
-  SysPublishedVersionDesc = 'sys_publishedVersion_DESC',
-}
-
-export enum CapabilityLinkingCollectionsServiceCollectionOrder {
-  DescriptionAsc = 'description_ASC',
-  DescriptionDesc = 'description_DESC',
-  InternalNameAsc = 'internalName_ASC',
-  InternalNameDesc = 'internalName_DESC',
-  OauthClientIdAsc = 'oauthClientId_ASC',
-  OauthClientIdDesc = 'oauthClientId_DESC',
-  SysFirstPublishedAtAsc = 'sys_firstPublishedAt_ASC',
-  SysFirstPublishedAtDesc = 'sys_firstPublishedAt_DESC',
-  SysIdAsc = 'sys_id_ASC',
-  SysIdDesc = 'sys_id_DESC',
-  SysPublishedAtAsc = 'sys_publishedAt_ASC',
-  SysPublishedAtDesc = 'sys_publishedAt_DESC',
-  SysPublishedVersionAsc = 'sys_publishedVersion_ASC',
-  SysPublishedVersionDesc = 'sys_publishedVersion_DESC',
-}
-
-export enum CapabilityOrder {
-  DescriptionAsc = 'description_ASC',
-  DescriptionDesc = 'description_DESC',
-  InternalNameAsc = 'internalName_ASC',
-  InternalNameDesc = 'internalName_DESC',
-  SlugAsc = 'slug_ASC',
-  SlugDesc = 'slug_DESC',
-  SysFirstPublishedAtAsc = 'sys_firstPublishedAt_ASC',
-  SysFirstPublishedAtDesc = 'sys_firstPublishedAt_DESC',
-  SysIdAsc = 'sys_id_ASC',
-  SysIdDesc = 'sys_id_DESC',
-  SysPublishedAtAsc = 'sys_publishedAt_ASC',
-  SysPublishedAtDesc = 'sys_publishedAt_DESC',
-  SysPublishedVersionAsc = 'sys_publishedVersion_ASC',
-  SysPublishedVersionDesc = 'sys_publishedVersion_DESC',
-}
-
-export type CapabilityServicesCollection = {
-  __typename?: 'CapabilityServicesCollection';
-  items: Array<Maybe<Service>>;
-  limit: Scalars['Int']['output'];
-  skip: Scalars['Int']['output'];
-  total: Scalars['Int']['output'];
-};
-
-export enum CapabilityServicesCollectionOrder {
-  DescriptionAsc = 'description_ASC',
-  DescriptionDesc = 'description_DESC',
-  InternalNameAsc = 'internalName_ASC',
-  InternalNameDesc = 'internalName_DESC',
-  OauthClientIdAsc = 'oauthClientId_ASC',
-  OauthClientIdDesc = 'oauthClientId_DESC',
-  SysFirstPublishedAtAsc = 'sys_firstPublishedAt_ASC',
-  SysFirstPublishedAtDesc = 'sys_firstPublishedAt_DESC',
-  SysIdAsc = 'sys_id_ASC',
-  SysIdDesc = 'sys_id_DESC',
-  SysPublishedAtAsc = 'sys_publishedAt_ASC',
-  SysPublishedAtDesc = 'sys_publishedAt_DESC',
-  SysPublishedVersionAsc = 'sys_publishedVersion_ASC',
-  SysPublishedVersionDesc = 'sys_publishedVersion_DESC',
-}
-
-/** Content used on multiple pages, not specific to a certain component. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/commonContent) */
-export type CommonContent = Entry & {
+export type CommonContent = {
   __typename?: 'CommonContent';
   cancellationUrl: Maybe<Scalars['String']['output']>;
-  contentfulMetadata: ContentfulMetadata;
+  createdAt: Maybe<Scalars['DateTime']['output']>;
   emailIcon: Maybe<Scalars['String']['output']>;
-  internalName: Maybe<Scalars['String']['output']>;
-  linkedFrom: Maybe<CommonContentLinkingCollections>;
-  newsletterLabelTextCode: Maybe<Scalars['String']['output']>;
-  newsletterSlug: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-  privacyNoticeDownloadUrl: Maybe<Scalars['String']['output']>;
-  privacyNoticeUrl: Maybe<Scalars['String']['output']>;
+  internalName: Scalars['String']['output'];
+  locale: Maybe<Scalars['String']['output']>;
+  localizations: Maybe<CommonContentRelationResponseCollection>;
+  newsletterLabelTextCode: Maybe<Scalars['JSON']['output']>;
+  newsletterSlug: Maybe<Scalars['JSON']['output']>;
+  privacyNoticeDownloadUrl: Scalars['String']['output'];
+  privacyNoticeUrl: Scalars['String']['output'];
+  publishedAt: Maybe<Scalars['DateTime']['output']>;
   successActionButtonLabel: Maybe<Scalars['String']['output']>;
-  successActionButtonUrl: Maybe<Scalars['String']['output']>;
-  sys: Sys;
-  termsOfServiceDownloadUrl: Maybe<Scalars['String']['output']>;
-  termsOfServiceUrl: Maybe<Scalars['String']['output']>;
+  successActionButtonUrl: Scalars['String']['output'];
+  termsOfServiceDownloadUrl: Scalars['String']['output'];
+  termsOfServiceUrl: Scalars['String']['output'];
+  updatedAt: Maybe<Scalars['DateTime']['output']>;
 };
 
-/** Content used on multiple pages, not specific to a certain component. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/commonContent) */
-export type CommonContentCancellationUrlArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
+export type CommonContentLocalizationsArgs = {
+  filters: InputMaybe<CommonContentFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  publicationState?: InputMaybe<PublicationState>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
 };
 
-/** Content used on multiple pages, not specific to a certain component. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/commonContent) */
-export type CommonContentEmailIconArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
+export type CommonContentEntity = {
+  __typename?: 'CommonContentEntity';
+  attributes: Maybe<CommonContent>;
+  id: Maybe<Scalars['ID']['output']>;
 };
 
-/** Content used on multiple pages, not specific to a certain component. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/commonContent) */
-export type CommonContentInternalNameArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
+export type CommonContentEntityResponse = {
+  __typename?: 'CommonContentEntityResponse';
+  data: Maybe<CommonContentEntity>;
 };
 
-/** Content used on multiple pages, not specific to a certain component. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/commonContent) */
-export type CommonContentLinkedFromArgs = {
-  allowedLocales: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+export type CommonContentEntityResponseCollection = {
+  __typename?: 'CommonContentEntityResponseCollection';
+  data: Array<CommonContentEntity>;
+  meta: ResponseCollectionMeta;
 };
 
-/** Content used on multiple pages, not specific to a certain component. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/commonContent) */
-export type CommonContentNewsletterLabelTextCodeArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
+export type CommonContentFiltersInput = {
+  and: InputMaybe<Array<InputMaybe<CommonContentFiltersInput>>>;
+  cancellationUrl: InputMaybe<StringFilterInput>;
+  createdAt: InputMaybe<DateTimeFilterInput>;
+  emailIcon: InputMaybe<StringFilterInput>;
+  id: InputMaybe<IdFilterInput>;
+  internalName: InputMaybe<StringFilterInput>;
+  locale: InputMaybe<StringFilterInput>;
+  localizations: InputMaybe<CommonContentFiltersInput>;
+  newsletterLabelTextCode: InputMaybe<JsonFilterInput>;
+  newsletterSlug: InputMaybe<JsonFilterInput>;
+  not: InputMaybe<CommonContentFiltersInput>;
+  or: InputMaybe<Array<InputMaybe<CommonContentFiltersInput>>>;
+  privacyNoticeDownloadUrl: InputMaybe<StringFilterInput>;
+  privacyNoticeUrl: InputMaybe<StringFilterInput>;
+  publishedAt: InputMaybe<DateTimeFilterInput>;
+  successActionButtonLabel: InputMaybe<StringFilterInput>;
+  successActionButtonUrl: InputMaybe<StringFilterInput>;
+  termsOfServiceDownloadUrl: InputMaybe<StringFilterInput>;
+  termsOfServiceUrl: InputMaybe<StringFilterInput>;
+  updatedAt: InputMaybe<DateTimeFilterInput>;
 };
 
-/** Content used on multiple pages, not specific to a certain component. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/commonContent) */
-export type CommonContentNewsletterSlugArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
-};
-
-/** Content used on multiple pages, not specific to a certain component. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/commonContent) */
-export type CommonContentPrivacyNoticeDownloadUrlArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
-};
-
-/** Content used on multiple pages, not specific to a certain component. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/commonContent) */
-export type CommonContentPrivacyNoticeUrlArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
-};
-
-/** Content used on multiple pages, not specific to a certain component. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/commonContent) */
-export type CommonContentSuccessActionButtonLabelArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
-};
-
-/** Content used on multiple pages, not specific to a certain component. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/commonContent) */
-export type CommonContentSuccessActionButtonUrlArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
-};
-
-/** Content used on multiple pages, not specific to a certain component. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/commonContent) */
-export type CommonContentTermsOfServiceDownloadUrlArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
-};
-
-/** Content used on multiple pages, not specific to a certain component. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/commonContent) */
-export type CommonContentTermsOfServiceUrlArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
-};
-
-export type CommonContentCollection = {
-  __typename?: 'CommonContentCollection';
-  items: Array<Maybe<CommonContent>>;
-  limit: Scalars['Int']['output'];
-  skip: Scalars['Int']['output'];
-  total: Scalars['Int']['output'];
-};
-
-export type CommonContentFilter = {
-  AND: InputMaybe<Array<InputMaybe<CommonContentFilter>>>;
-  OR: InputMaybe<Array<InputMaybe<CommonContentFilter>>>;
+export type CommonContentInput = {
   cancellationUrl: InputMaybe<Scalars['String']['input']>;
-  cancellationUrl_contains: InputMaybe<Scalars['String']['input']>;
-  cancellationUrl_exists: InputMaybe<Scalars['Boolean']['input']>;
-  cancellationUrl_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  cancellationUrl_not: InputMaybe<Scalars['String']['input']>;
-  cancellationUrl_not_contains: InputMaybe<Scalars['String']['input']>;
-  cancellationUrl_not_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  contentfulMetadata: InputMaybe<ContentfulMetadataFilter>;
   emailIcon: InputMaybe<Scalars['String']['input']>;
-  emailIcon_contains: InputMaybe<Scalars['String']['input']>;
-  emailIcon_exists: InputMaybe<Scalars['Boolean']['input']>;
-  emailIcon_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  emailIcon_not: InputMaybe<Scalars['String']['input']>;
-  emailIcon_not_contains: InputMaybe<Scalars['String']['input']>;
-  emailIcon_not_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   internalName: InputMaybe<Scalars['String']['input']>;
-  internalName_contains: InputMaybe<Scalars['String']['input']>;
-  internalName_exists: InputMaybe<Scalars['Boolean']['input']>;
-  internalName_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  internalName_not: InputMaybe<Scalars['String']['input']>;
-  internalName_not_contains: InputMaybe<Scalars['String']['input']>;
-  internalName_not_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  newsletterLabelTextCode: InputMaybe<Scalars['String']['input']>;
-  newsletterLabelTextCode_contains: InputMaybe<Scalars['String']['input']>;
-  newsletterLabelTextCode_exists: InputMaybe<Scalars['Boolean']['input']>;
-  newsletterLabelTextCode_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  newsletterLabelTextCode_not: InputMaybe<Scalars['String']['input']>;
-  newsletterLabelTextCode_not_contains: InputMaybe<Scalars['String']['input']>;
-  newsletterLabelTextCode_not_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  newsletterSlug_contains_all: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  newsletterSlug_contains_none: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  newsletterSlug_contains_some: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  newsletterSlug_exists: InputMaybe<Scalars['Boolean']['input']>;
+  newsletterLabelTextCode: InputMaybe<Scalars['JSON']['input']>;
+  newsletterSlug: InputMaybe<Scalars['JSON']['input']>;
   privacyNoticeDownloadUrl: InputMaybe<Scalars['String']['input']>;
-  privacyNoticeDownloadUrl_contains: InputMaybe<Scalars['String']['input']>;
-  privacyNoticeDownloadUrl_exists: InputMaybe<Scalars['Boolean']['input']>;
-  privacyNoticeDownloadUrl_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  privacyNoticeDownloadUrl_not: InputMaybe<Scalars['String']['input']>;
-  privacyNoticeDownloadUrl_not_contains: InputMaybe<Scalars['String']['input']>;
-  privacyNoticeDownloadUrl_not_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
   privacyNoticeUrl: InputMaybe<Scalars['String']['input']>;
-  privacyNoticeUrl_contains: InputMaybe<Scalars['String']['input']>;
-  privacyNoticeUrl_exists: InputMaybe<Scalars['Boolean']['input']>;
-  privacyNoticeUrl_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  privacyNoticeUrl_not: InputMaybe<Scalars['String']['input']>;
-  privacyNoticeUrl_not_contains: InputMaybe<Scalars['String']['input']>;
-  privacyNoticeUrl_not_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
+  publishedAt: InputMaybe<Scalars['DateTime']['input']>;
   successActionButtonLabel: InputMaybe<Scalars['String']['input']>;
-  successActionButtonLabel_contains: InputMaybe<Scalars['String']['input']>;
-  successActionButtonLabel_exists: InputMaybe<Scalars['Boolean']['input']>;
-  successActionButtonLabel_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  successActionButtonLabel_not: InputMaybe<Scalars['String']['input']>;
-  successActionButtonLabel_not_contains: InputMaybe<Scalars['String']['input']>;
-  successActionButtonLabel_not_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
   successActionButtonUrl: InputMaybe<Scalars['String']['input']>;
-  successActionButtonUrl_contains: InputMaybe<Scalars['String']['input']>;
-  successActionButtonUrl_exists: InputMaybe<Scalars['Boolean']['input']>;
-  successActionButtonUrl_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  successActionButtonUrl_not: InputMaybe<Scalars['String']['input']>;
-  successActionButtonUrl_not_contains: InputMaybe<Scalars['String']['input']>;
-  successActionButtonUrl_not_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  sys: InputMaybe<SysFilter>;
   termsOfServiceDownloadUrl: InputMaybe<Scalars['String']['input']>;
-  termsOfServiceDownloadUrl_contains: InputMaybe<Scalars['String']['input']>;
-  termsOfServiceDownloadUrl_exists: InputMaybe<Scalars['Boolean']['input']>;
-  termsOfServiceDownloadUrl_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  termsOfServiceDownloadUrl_not: InputMaybe<Scalars['String']['input']>;
-  termsOfServiceDownloadUrl_not_contains: InputMaybe<
-    Scalars['String']['input']
-  >;
-  termsOfServiceDownloadUrl_not_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
   termsOfServiceUrl: InputMaybe<Scalars['String']['input']>;
-  termsOfServiceUrl_contains: InputMaybe<Scalars['String']['input']>;
-  termsOfServiceUrl_exists: InputMaybe<Scalars['Boolean']['input']>;
-  termsOfServiceUrl_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
+};
+
+export type CommonContentRelationResponseCollection = {
+  __typename?: 'CommonContentRelationResponseCollection';
+  data: Array<CommonContentEntity>;
+};
+
+export type ComponentIapAppleProductIDs = {
+  __typename?: 'ComponentIapAppleProductIDs';
+  appleProductID: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+};
+
+export type ComponentIapAppleProductIDsFiltersInput = {
+  and: InputMaybe<Array<InputMaybe<ComponentIapAppleProductIDsFiltersInput>>>;
+  appleProductID: InputMaybe<StringFilterInput>;
+  not: InputMaybe<ComponentIapAppleProductIDsFiltersInput>;
+  or: InputMaybe<Array<InputMaybe<ComponentIapAppleProductIDsFiltersInput>>>;
+};
+
+export type ComponentIapAppleProductIDsInput = {
+  appleProductID: InputMaybe<Scalars['String']['input']>;
+  id: InputMaybe<Scalars['ID']['input']>;
+};
+
+export type ComponentIapGoogleSkUs = {
+  __typename?: 'ComponentIapGoogleSkUs';
+  googleSKU: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+};
+
+export type ComponentIapGoogleSkUsFiltersInput = {
+  and: InputMaybe<Array<InputMaybe<ComponentIapGoogleSkUsFiltersInput>>>;
+  googleSKU: InputMaybe<StringFilterInput>;
+  not: InputMaybe<ComponentIapGoogleSkUsFiltersInput>;
+  or: InputMaybe<Array<InputMaybe<ComponentIapGoogleSkUsFiltersInput>>>;
+};
+
+export type ComponentIapGoogleSkUsInput = {
+  googleSKU: InputMaybe<Scalars['String']['input']>;
+  id: InputMaybe<Scalars['ID']['input']>;
+};
+
+export type ComponentStripeStripeLegacyPlans = {
+  __typename?: 'ComponentStripeStripeLegacyPlans';
+  id: Scalars['ID']['output'];
+  stripeLegacyPlan: Maybe<Scalars['String']['output']>;
+};
+
+export type ComponentStripeStripeLegacyPlansFiltersInput = {
+  and: InputMaybe<
+    Array<InputMaybe<ComponentStripeStripeLegacyPlansFiltersInput>>
   >;
-  termsOfServiceUrl_not: InputMaybe<Scalars['String']['input']>;
-  termsOfServiceUrl_not_contains: InputMaybe<Scalars['String']['input']>;
-  termsOfServiceUrl_not_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
+  not: InputMaybe<ComponentStripeStripeLegacyPlansFiltersInput>;
+  or: InputMaybe<
+    Array<InputMaybe<ComponentStripeStripeLegacyPlansFiltersInput>>
+  >;
+  stripeLegacyPlan: InputMaybe<StringFilterInput>;
+};
+
+export type ComponentStripeStripeLegacyPlansInput = {
+  id: InputMaybe<Scalars['ID']['input']>;
+  stripeLegacyPlan: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ComponentStripeStripePlanChoices = {
+  __typename?: 'ComponentStripeStripePlanChoices';
+  id: Scalars['ID']['output'];
+  stripePlanChoice: Maybe<Scalars['String']['output']>;
+};
+
+export type ComponentStripeStripePlanChoicesFiltersInput = {
+  and: InputMaybe<
+    Array<InputMaybe<ComponentStripeStripePlanChoicesFiltersInput>>
+  >;
+  not: InputMaybe<ComponentStripeStripePlanChoicesFiltersInput>;
+  or: InputMaybe<
+    Array<InputMaybe<ComponentStripeStripePlanChoicesFiltersInput>>
+  >;
+  stripePlanChoice: InputMaybe<StringFilterInput>;
+};
+
+export type ComponentStripeStripePlanChoicesInput = {
+  id: InputMaybe<Scalars['ID']['input']>;
+  stripePlanChoice: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ComponentStripeStripePromoCodes = {
+  __typename?: 'ComponentStripeStripePromoCodes';
+  PromoCode: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+};
+
+export type ComponentStripeStripePromoCodesFiltersInput = {
+  PromoCode: InputMaybe<StringFilterInput>;
+  and: InputMaybe<
+    Array<InputMaybe<ComponentStripeStripePromoCodesFiltersInput>>
+  >;
+  not: InputMaybe<ComponentStripeStripePromoCodesFiltersInput>;
+  or: InputMaybe<
+    Array<InputMaybe<ComponentStripeStripePromoCodesFiltersInput>>
   >;
 };
 
-export type CommonContentLinkingCollections = {
-  __typename?: 'CommonContentLinkingCollections';
-  entryCollection: Maybe<EntryCollection>;
-  offeringCollection: Maybe<OfferingCollection>;
+export type ComponentStripeStripePromoCodesInput = {
+  PromoCode: InputMaybe<Scalars['String']['input']>;
+  id: InputMaybe<Scalars['ID']['input']>;
 };
 
-export type CommonContentLinkingCollectionsEntryCollectionArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
+export type ContentReleasesRelease = {
+  __typename?: 'ContentReleasesRelease';
+  actions: Maybe<ContentReleasesReleaseActionRelationResponseCollection>;
+  createdAt: Maybe<Scalars['DateTime']['output']>;
+  name: Scalars['String']['output'];
+  releasedAt: Maybe<Scalars['DateTime']['output']>;
+  scheduledAt: Maybe<Scalars['DateTime']['output']>;
+  timezone: Maybe<Scalars['String']['output']>;
+  updatedAt: Maybe<Scalars['DateTime']['output']>;
+};
+
+export type ContentReleasesReleaseActionsArgs = {
+  filters: InputMaybe<ContentReleasesReleaseActionFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+export type ContentReleasesReleaseAction = {
+  __typename?: 'ContentReleasesReleaseAction';
+  contentType: Scalars['String']['output'];
+  createdAt: Maybe<Scalars['DateTime']['output']>;
+  entry: Maybe<GenericMorph>;
+  locale: Maybe<Scalars['String']['output']>;
+  release: Maybe<ContentReleasesReleaseEntityResponse>;
+  type: Enum_Contentreleasesreleaseaction_Type;
+  updatedAt: Maybe<Scalars['DateTime']['output']>;
+};
+
+export type ContentReleasesReleaseActionEntity = {
+  __typename?: 'ContentReleasesReleaseActionEntity';
+  attributes: Maybe<ContentReleasesReleaseAction>;
+  id: Maybe<Scalars['ID']['output']>;
+};
+
+export type ContentReleasesReleaseActionEntityResponse = {
+  __typename?: 'ContentReleasesReleaseActionEntityResponse';
+  data: Maybe<ContentReleasesReleaseActionEntity>;
+};
+
+export type ContentReleasesReleaseActionEntityResponseCollection = {
+  __typename?: 'ContentReleasesReleaseActionEntityResponseCollection';
+  data: Array<ContentReleasesReleaseActionEntity>;
+  meta: ResponseCollectionMeta;
+};
+
+export type ContentReleasesReleaseActionFiltersInput = {
+  and: InputMaybe<Array<InputMaybe<ContentReleasesReleaseActionFiltersInput>>>;
+  contentType: InputMaybe<StringFilterInput>;
+  createdAt: InputMaybe<DateTimeFilterInput>;
+  id: InputMaybe<IdFilterInput>;
+  locale: InputMaybe<StringFilterInput>;
+  not: InputMaybe<ContentReleasesReleaseActionFiltersInput>;
+  or: InputMaybe<Array<InputMaybe<ContentReleasesReleaseActionFiltersInput>>>;
+  release: InputMaybe<ContentReleasesReleaseFiltersInput>;
+  type: InputMaybe<StringFilterInput>;
+  updatedAt: InputMaybe<DateTimeFilterInput>;
+};
+
+export type ContentReleasesReleaseActionInput = {
+  contentType: InputMaybe<Scalars['String']['input']>;
   locale: InputMaybe<Scalars['String']['input']>;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
-  skip?: InputMaybe<Scalars['Int']['input']>;
+  release: InputMaybe<Scalars['ID']['input']>;
+  type: InputMaybe<Enum_Contentreleasesreleaseaction_Type>;
 };
 
-export type CommonContentLinkingCollectionsOfferingCollectionArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  locale: InputMaybe<Scalars['String']['input']>;
-  order: InputMaybe<
-    Array<InputMaybe<CommonContentLinkingCollectionsOfferingCollectionOrder>>
-  >;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
-  skip?: InputMaybe<Scalars['Int']['input']>;
+export type ContentReleasesReleaseActionRelationResponseCollection = {
+  __typename?: 'ContentReleasesReleaseActionRelationResponseCollection';
+  data: Array<ContentReleasesReleaseActionEntity>;
 };
 
-export enum CommonContentLinkingCollectionsOfferingCollectionOrder {
-  ApiIdentifierAsc = 'apiIdentifier_ASC',
-  ApiIdentifierDesc = 'apiIdentifier_DESC',
-  DescriptionAsc = 'description_ASC',
-  DescriptionDesc = 'description_DESC',
-  InternalNameAsc = 'internalName_ASC',
-  InternalNameDesc = 'internalName_DESC',
-  StripeProductIdAsc = 'stripeProductId_ASC',
-  StripeProductIdDesc = 'stripeProductId_DESC',
-  SysFirstPublishedAtAsc = 'sys_firstPublishedAt_ASC',
-  SysFirstPublishedAtDesc = 'sys_firstPublishedAt_DESC',
-  SysIdAsc = 'sys_id_ASC',
-  SysIdDesc = 'sys_id_DESC',
-  SysPublishedAtAsc = 'sys_publishedAt_ASC',
-  SysPublishedAtDesc = 'sys_publishedAt_DESC',
-  SysPublishedVersionAsc = 'sys_publishedVersion_ASC',
-  SysPublishedVersionDesc = 'sys_publishedVersion_DESC',
-}
-
-export enum CommonContentOrder {
-  CancellationUrlAsc = 'cancellationUrl_ASC',
-  CancellationUrlDesc = 'cancellationUrl_DESC',
-  EmailIconAsc = 'emailIcon_ASC',
-  EmailIconDesc = 'emailIcon_DESC',
-  InternalNameAsc = 'internalName_ASC',
-  InternalNameDesc = 'internalName_DESC',
-  NewsletterLabelTextCodeAsc = 'newsletterLabelTextCode_ASC',
-  NewsletterLabelTextCodeDesc = 'newsletterLabelTextCode_DESC',
-  PrivacyNoticeDownloadUrlAsc = 'privacyNoticeDownloadUrl_ASC',
-  PrivacyNoticeDownloadUrlDesc = 'privacyNoticeDownloadUrl_DESC',
-  PrivacyNoticeUrlAsc = 'privacyNoticeUrl_ASC',
-  PrivacyNoticeUrlDesc = 'privacyNoticeUrl_DESC',
-  SuccessActionButtonLabelAsc = 'successActionButtonLabel_ASC',
-  SuccessActionButtonLabelDesc = 'successActionButtonLabel_DESC',
-  SuccessActionButtonUrlAsc = 'successActionButtonUrl_ASC',
-  SuccessActionButtonUrlDesc = 'successActionButtonUrl_DESC',
-  SysFirstPublishedAtAsc = 'sys_firstPublishedAt_ASC',
-  SysFirstPublishedAtDesc = 'sys_firstPublishedAt_DESC',
-  SysIdAsc = 'sys_id_ASC',
-  SysIdDesc = 'sys_id_DESC',
-  SysPublishedAtAsc = 'sys_publishedAt_ASC',
-  SysPublishedAtDesc = 'sys_publishedAt_DESC',
-  SysPublishedVersionAsc = 'sys_publishedVersion_ASC',
-  SysPublishedVersionDesc = 'sys_publishedVersion_DESC',
-  TermsOfServiceDownloadUrlAsc = 'termsOfServiceDownloadUrl_ASC',
-  TermsOfServiceDownloadUrlDesc = 'termsOfServiceDownloadUrl_DESC',
-  TermsOfServiceUrlAsc = 'termsOfServiceUrl_ASC',
-  TermsOfServiceUrlDesc = 'termsOfServiceUrl_DESC',
-}
-
-export type ContentfulMetadata = {
-  __typename?: 'ContentfulMetadata';
-  tags: Array<Maybe<ContentfulTag>>;
+export type ContentReleasesReleaseEntity = {
+  __typename?: 'ContentReleasesReleaseEntity';
+  attributes: Maybe<ContentReleasesRelease>;
+  id: Maybe<Scalars['ID']['output']>;
 };
 
-export type ContentfulMetadataFilter = {
-  tags: InputMaybe<ContentfulMetadataTagsFilter>;
-  tags_exists: InputMaybe<Scalars['Boolean']['input']>;
+export type ContentReleasesReleaseEntityResponse = {
+  __typename?: 'ContentReleasesReleaseEntityResponse';
+  data: Maybe<ContentReleasesReleaseEntity>;
 };
 
-export type ContentfulMetadataTagsFilter = {
-  id_contains_all: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  id_contains_none: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  id_contains_some: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+export type ContentReleasesReleaseEntityResponseCollection = {
+  __typename?: 'ContentReleasesReleaseEntityResponseCollection';
+  data: Array<ContentReleasesReleaseEntity>;
+  meta: ResponseCollectionMeta;
 };
 
-/**
- * Represents a tag entity for finding and organizing content easily.
- *     Find out more here: https://www.contentful.com/developers/docs/references/content-delivery-api/#/reference/content-tags
- */
-export type ContentfulTag = {
-  __typename?: 'ContentfulTag';
-  id: Maybe<Scalars['String']['output']>;
-  name: Maybe<Scalars['String']['output']>;
+export type ContentReleasesReleaseFiltersInput = {
+  actions: InputMaybe<ContentReleasesReleaseActionFiltersInput>;
+  and: InputMaybe<Array<InputMaybe<ContentReleasesReleaseFiltersInput>>>;
+  createdAt: InputMaybe<DateTimeFilterInput>;
+  id: InputMaybe<IdFilterInput>;
+  name: InputMaybe<StringFilterInput>;
+  not: InputMaybe<ContentReleasesReleaseFiltersInput>;
+  or: InputMaybe<Array<InputMaybe<ContentReleasesReleaseFiltersInput>>>;
+  releasedAt: InputMaybe<DateTimeFilterInput>;
+  scheduledAt: InputMaybe<DateTimeFilterInput>;
+  timezone: InputMaybe<StringFilterInput>;
+  updatedAt: InputMaybe<DateTimeFilterInput>;
 };
 
-/** Additional Coupon configuration options that are not currently supported by Stripe. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/couponConfig) */
-export type CouponConfig = Entry & {
+export type ContentReleasesReleaseInput = {
+  actions: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  name: InputMaybe<Scalars['String']['input']>;
+  releasedAt: InputMaybe<Scalars['DateTime']['input']>;
+  scheduledAt: InputMaybe<Scalars['DateTime']['input']>;
+  timezone: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CouponConfig = {
   __typename?: 'CouponConfig';
-  contentfulMetadata: ContentfulMetadata;
-  countries: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-  internalName: Maybe<Scalars['String']['output']>;
-  linkedFrom: Maybe<CouponConfigLinkingCollections>;
-  stripePromotionCodes: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-  sys: Sys;
+  countries: Maybe<Scalars['JSON']['output']>;
+  createdAt: Maybe<Scalars['DateTime']['output']>;
+  internalName: Scalars['String']['output'];
+  publishedAt: Maybe<Scalars['DateTime']['output']>;
+  stripePromotionCodes: Maybe<Array<Maybe<ComponentStripeStripePromoCodes>>>;
+  updatedAt: Maybe<Scalars['DateTime']['output']>;
 };
 
-/** Additional Coupon configuration options that are not currently supported by Stripe. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/couponConfig) */
-export type CouponConfigCountriesArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
-};
-
-/** Additional Coupon configuration options that are not currently supported by Stripe. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/couponConfig) */
-export type CouponConfigInternalNameArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
-};
-
-/** Additional Coupon configuration options that are not currently supported by Stripe. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/couponConfig) */
-export type CouponConfigLinkedFromArgs = {
-  allowedLocales: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-};
-
-/** Additional Coupon configuration options that are not currently supported by Stripe. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/couponConfig) */
 export type CouponConfigStripePromotionCodesArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
+  filters: InputMaybe<ComponentStripeStripePromoCodesFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
 };
 
-export type CouponConfigCollection = {
-  __typename?: 'CouponConfigCollection';
-  items: Array<Maybe<CouponConfig>>;
-  limit: Scalars['Int']['output'];
-  skip: Scalars['Int']['output'];
-  total: Scalars['Int']['output'];
+export type CouponConfigEntity = {
+  __typename?: 'CouponConfigEntity';
+  attributes: Maybe<CouponConfig>;
+  id: Maybe<Scalars['ID']['output']>;
 };
 
-export type CouponConfigFilter = {
-  AND: InputMaybe<Array<InputMaybe<CouponConfigFilter>>>;
-  OR: InputMaybe<Array<InputMaybe<CouponConfigFilter>>>;
-  contentfulMetadata: InputMaybe<ContentfulMetadataFilter>;
-  countries_contains_all: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  countries_contains_none: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  countries_contains_some: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  countries_exists: InputMaybe<Scalars['Boolean']['input']>;
+export type CouponConfigEntityResponse = {
+  __typename?: 'CouponConfigEntityResponse';
+  data: Maybe<CouponConfigEntity>;
+};
+
+export type CouponConfigEntityResponseCollection = {
+  __typename?: 'CouponConfigEntityResponseCollection';
+  data: Array<CouponConfigEntity>;
+  meta: ResponseCollectionMeta;
+};
+
+export type CouponConfigFiltersInput = {
+  and: InputMaybe<Array<InputMaybe<CouponConfigFiltersInput>>>;
+  countries: InputMaybe<JsonFilterInput>;
+  createdAt: InputMaybe<DateTimeFilterInput>;
+  id: InputMaybe<IdFilterInput>;
+  internalName: InputMaybe<StringFilterInput>;
+  not: InputMaybe<CouponConfigFiltersInput>;
+  or: InputMaybe<Array<InputMaybe<CouponConfigFiltersInput>>>;
+  publishedAt: InputMaybe<DateTimeFilterInput>;
+  stripePromotionCodes: InputMaybe<ComponentStripeStripePromoCodesFiltersInput>;
+  updatedAt: InputMaybe<DateTimeFilterInput>;
+};
+
+export type CouponConfigInput = {
+  countries: InputMaybe<Scalars['JSON']['input']>;
   internalName: InputMaybe<Scalars['String']['input']>;
-  internalName_contains: InputMaybe<Scalars['String']['input']>;
-  internalName_exists: InputMaybe<Scalars['Boolean']['input']>;
-  internalName_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  internalName_not: InputMaybe<Scalars['String']['input']>;
-  internalName_not_contains: InputMaybe<Scalars['String']['input']>;
-  internalName_not_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
+  publishedAt: InputMaybe<Scalars['DateTime']['input']>;
+  stripePromotionCodes: InputMaybe<
+    Array<InputMaybe<ComponentStripeStripePromoCodesInput>>
   >;
-  stripePromotionCodes_contains_all: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  stripePromotionCodes_contains_none: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  stripePromotionCodes_contains_some: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  stripePromotionCodes_exists: InputMaybe<Scalars['Boolean']['input']>;
-  sys: InputMaybe<SysFilter>;
 };
 
-export type CouponConfigLinkingCollections = {
-  __typename?: 'CouponConfigLinkingCollections';
-  entryCollection: Maybe<EntryCollection>;
-  offeringCollection: Maybe<OfferingCollection>;
+export type DateTimeFilterInput = {
+  and: InputMaybe<Array<InputMaybe<Scalars['DateTime']['input']>>>;
+  between: InputMaybe<Array<InputMaybe<Scalars['DateTime']['input']>>>;
+  contains: InputMaybe<Scalars['DateTime']['input']>;
+  containsi: InputMaybe<Scalars['DateTime']['input']>;
+  endsWith: InputMaybe<Scalars['DateTime']['input']>;
+  eq: InputMaybe<Scalars['DateTime']['input']>;
+  eqi: InputMaybe<Scalars['DateTime']['input']>;
+  gt: InputMaybe<Scalars['DateTime']['input']>;
+  gte: InputMaybe<Scalars['DateTime']['input']>;
+  in: InputMaybe<Array<InputMaybe<Scalars['DateTime']['input']>>>;
+  lt: InputMaybe<Scalars['DateTime']['input']>;
+  lte: InputMaybe<Scalars['DateTime']['input']>;
+  ne: InputMaybe<Scalars['DateTime']['input']>;
+  nei: InputMaybe<Scalars['DateTime']['input']>;
+  not: InputMaybe<DateTimeFilterInput>;
+  notContains: InputMaybe<Scalars['DateTime']['input']>;
+  notContainsi: InputMaybe<Scalars['DateTime']['input']>;
+  notIn: InputMaybe<Array<InputMaybe<Scalars['DateTime']['input']>>>;
+  notNull: InputMaybe<Scalars['Boolean']['input']>;
+  null: InputMaybe<Scalars['Boolean']['input']>;
+  or: InputMaybe<Array<InputMaybe<Scalars['DateTime']['input']>>>;
+  startsWith: InputMaybe<Scalars['DateTime']['input']>;
 };
 
-export type CouponConfigLinkingCollectionsEntryCollectionArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  locale: InputMaybe<Scalars['String']['input']>;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
-  skip?: InputMaybe<Scalars['Int']['input']>;
-};
-
-export type CouponConfigLinkingCollectionsOfferingCollectionArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  locale: InputMaybe<Scalars['String']['input']>;
-  order: InputMaybe<
-    Array<InputMaybe<CouponConfigLinkingCollectionsOfferingCollectionOrder>>
-  >;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
-  skip?: InputMaybe<Scalars['Int']['input']>;
-};
-
-export enum CouponConfigLinkingCollectionsOfferingCollectionOrder {
-  ApiIdentifierAsc = 'apiIdentifier_ASC',
-  ApiIdentifierDesc = 'apiIdentifier_DESC',
-  DescriptionAsc = 'description_ASC',
-  DescriptionDesc = 'description_DESC',
-  InternalNameAsc = 'internalName_ASC',
-  InternalNameDesc = 'internalName_DESC',
-  StripeProductIdAsc = 'stripeProductId_ASC',
-  StripeProductIdDesc = 'stripeProductId_DESC',
-  SysFirstPublishedAtAsc = 'sys_firstPublishedAt_ASC',
-  SysFirstPublishedAtDesc = 'sys_firstPublishedAt_DESC',
-  SysIdAsc = 'sys_id_ASC',
-  SysIdDesc = 'sys_id_DESC',
-  SysPublishedAtAsc = 'sys_publishedAt_ASC',
-  SysPublishedAtDesc = 'sys_publishedAt_DESC',
-  SysPublishedVersionAsc = 'sys_publishedVersion_ASC',
-  SysPublishedVersionDesc = 'sys_publishedVersion_DESC',
+export enum Enum_Contentreleasesreleaseaction_Type {
+  Publish = 'publish',
+  Unpublish = 'unpublish',
 }
 
-export enum CouponConfigOrder {
-  InternalNameAsc = 'internalName_ASC',
-  InternalNameDesc = 'internalName_DESC',
-  SysFirstPublishedAtAsc = 'sys_firstPublishedAt_ASC',
-  SysFirstPublishedAtDesc = 'sys_firstPublishedAt_DESC',
-  SysIdAsc = 'sys_id_ASC',
-  SysIdDesc = 'sys_id_DESC',
-  SysPublishedAtAsc = 'sys_publishedAt_ASC',
-  SysPublishedAtDesc = 'sys_publishedAt_DESC',
-  SysPublishedVersionAsc = 'sys_publishedVersion_ASC',
-  SysPublishedVersionDesc = 'sys_publishedVersion_DESC',
-}
-
-export type Entry = {
-  contentfulMetadata: ContentfulMetadata;
-  sys: Sys;
+export type FileInfoInput = {
+  alternativeText: InputMaybe<Scalars['String']['input']>;
+  caption: InputMaybe<Scalars['String']['input']>;
+  name: InputMaybe<Scalars['String']['input']>;
 };
 
-export type EntryCollection = {
-  __typename?: 'EntryCollection';
-  items: Array<Maybe<Entry>>;
-  limit: Scalars['Int']['output'];
-  skip: Scalars['Int']['output'];
-  total: Scalars['Int']['output'];
+export type FloatFilterInput = {
+  and: InputMaybe<Array<InputMaybe<Scalars['Float']['input']>>>;
+  between: InputMaybe<Array<InputMaybe<Scalars['Float']['input']>>>;
+  contains: InputMaybe<Scalars['Float']['input']>;
+  containsi: InputMaybe<Scalars['Float']['input']>;
+  endsWith: InputMaybe<Scalars['Float']['input']>;
+  eq: InputMaybe<Scalars['Float']['input']>;
+  eqi: InputMaybe<Scalars['Float']['input']>;
+  gt: InputMaybe<Scalars['Float']['input']>;
+  gte: InputMaybe<Scalars['Float']['input']>;
+  in: InputMaybe<Array<InputMaybe<Scalars['Float']['input']>>>;
+  lt: InputMaybe<Scalars['Float']['input']>;
+  lte: InputMaybe<Scalars['Float']['input']>;
+  ne: InputMaybe<Scalars['Float']['input']>;
+  nei: InputMaybe<Scalars['Float']['input']>;
+  not: InputMaybe<FloatFilterInput>;
+  notContains: InputMaybe<Scalars['Float']['input']>;
+  notContainsi: InputMaybe<Scalars['Float']['input']>;
+  notIn: InputMaybe<Array<InputMaybe<Scalars['Float']['input']>>>;
+  notNull: InputMaybe<Scalars['Boolean']['input']>;
+  null: InputMaybe<Scalars['Boolean']['input']>;
+  or: InputMaybe<Array<InputMaybe<Scalars['Float']['input']>>>;
+  startsWith: InputMaybe<Scalars['Float']['input']>;
 };
 
-export type EntryFilter = {
-  AND: InputMaybe<Array<InputMaybe<EntryFilter>>>;
-  OR: InputMaybe<Array<InputMaybe<EntryFilter>>>;
-  contentfulMetadata: InputMaybe<ContentfulMetadataFilter>;
-  sys: InputMaybe<SysFilter>;
+export type GenericMorph =
+  | Capability
+  | CommonContent
+  | ComponentIapAppleProductIDs
+  | ComponentIapGoogleSkUs
+  | ComponentStripeStripeLegacyPlans
+  | ComponentStripeStripePlanChoices
+  | ComponentStripeStripePromoCodes
+  | ContentReleasesRelease
+  | ContentReleasesReleaseAction
+  | CouponConfig
+  | I18NLocale
+  | Iap
+  | Offering
+  | Purchase
+  | PurchaseDetail
+  | Service
+  | Subgroup
+  | UploadFile
+  | UploadFolder
+  | UsersPermissionsPermission
+  | UsersPermissionsRole
+  | UsersPermissionsUser;
+
+export type I18NLocale = {
+  __typename?: 'I18NLocale';
+  code: Maybe<Scalars['String']['output']>;
+  createdAt: Maybe<Scalars['DateTime']['output']>;
+  name: Maybe<Scalars['String']['output']>;
+  updatedAt: Maybe<Scalars['DateTime']['output']>;
 };
 
-export enum EntryOrder {
-  SysFirstPublishedAtAsc = 'sys_firstPublishedAt_ASC',
-  SysFirstPublishedAtDesc = 'sys_firstPublishedAt_DESC',
-  SysIdAsc = 'sys_id_ASC',
-  SysIdDesc = 'sys_id_DESC',
-  SysPublishedAtAsc = 'sys_publishedAt_ASC',
-  SysPublishedAtDesc = 'sys_publishedAt_DESC',
-  SysPublishedVersionAsc = 'sys_publishedVersion_ASC',
-  SysPublishedVersionDesc = 'sys_publishedVersion_DESC',
-}
+export type I18NLocaleEntity = {
+  __typename?: 'I18NLocaleEntity';
+  attributes: Maybe<I18NLocale>;
+  id: Maybe<Scalars['ID']['output']>;
+};
 
-/** IAP configuration options required for IAP integrations. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/iap) */
-export type Iap = Entry & {
+export type I18NLocaleEntityResponse = {
+  __typename?: 'I18NLocaleEntityResponse';
+  data: Maybe<I18NLocaleEntity>;
+};
+
+export type I18NLocaleEntityResponseCollection = {
+  __typename?: 'I18NLocaleEntityResponseCollection';
+  data: Array<I18NLocaleEntity>;
+  meta: ResponseCollectionMeta;
+};
+
+export type I18NLocaleFiltersInput = {
+  and: InputMaybe<Array<InputMaybe<I18NLocaleFiltersInput>>>;
+  code: InputMaybe<StringFilterInput>;
+  createdAt: InputMaybe<DateTimeFilterInput>;
+  id: InputMaybe<IdFilterInput>;
+  name: InputMaybe<StringFilterInput>;
+  not: InputMaybe<I18NLocaleFiltersInput>;
+  or: InputMaybe<Array<InputMaybe<I18NLocaleFiltersInput>>>;
+  updatedAt: InputMaybe<DateTimeFilterInput>;
+};
+
+export type IdFilterInput = {
+  and: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  between: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  contains: InputMaybe<Scalars['ID']['input']>;
+  containsi: InputMaybe<Scalars['ID']['input']>;
+  endsWith: InputMaybe<Scalars['ID']['input']>;
+  eq: InputMaybe<Scalars['ID']['input']>;
+  eqi: InputMaybe<Scalars['ID']['input']>;
+  gt: InputMaybe<Scalars['ID']['input']>;
+  gte: InputMaybe<Scalars['ID']['input']>;
+  in: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  lt: InputMaybe<Scalars['ID']['input']>;
+  lte: InputMaybe<Scalars['ID']['input']>;
+  ne: InputMaybe<Scalars['ID']['input']>;
+  nei: InputMaybe<Scalars['ID']['input']>;
+  not: InputMaybe<IdFilterInput>;
+  notContains: InputMaybe<Scalars['ID']['input']>;
+  notContainsi: InputMaybe<Scalars['ID']['input']>;
+  notIn: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  notNull: InputMaybe<Scalars['Boolean']['input']>;
+  null: InputMaybe<Scalars['Boolean']['input']>;
+  or: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  startsWith: InputMaybe<Scalars['ID']['input']>;
+};
+
+export type Iap = {
   __typename?: 'Iap';
-  appleProductIDs: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-  contentfulMetadata: ContentfulMetadata;
-  googleSkUs: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  appleProductIDs: Maybe<Array<Maybe<ComponentIapAppleProductIDs>>>;
+  createdAt: Maybe<Scalars['DateTime']['output']>;
+  googleSKUs: Maybe<Array<Maybe<ComponentIapGoogleSkUs>>>;
   internalName: Maybe<Scalars['String']['output']>;
-  linkedFrom: Maybe<IapLinkingCollections>;
-  sys: Sys;
+  publishedAt: Maybe<Scalars['DateTime']['output']>;
+  updatedAt: Maybe<Scalars['DateTime']['output']>;
 };
 
-/** IAP configuration options required for IAP integrations. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/iap) */
 export type IapAppleProductIDsArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
+  filters: InputMaybe<ComponentIapAppleProductIDsFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
 };
 
-/** IAP configuration options required for IAP integrations. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/iap) */
 export type IapGoogleSkUsArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
+  filters: InputMaybe<ComponentIapGoogleSkUsFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
 };
 
-/** IAP configuration options required for IAP integrations. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/iap) */
-export type IapInternalNameArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
+export type IapEntity = {
+  __typename?: 'IapEntity';
+  attributes: Maybe<Iap>;
+  id: Maybe<Scalars['ID']['output']>;
 };
 
-/** IAP configuration options required for IAP integrations. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/iap) */
-export type IapLinkedFromArgs = {
-  allowedLocales: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+export type IapEntityResponse = {
+  __typename?: 'IapEntityResponse';
+  data: Maybe<IapEntity>;
 };
 
-export type IapCollection = {
-  __typename?: 'IapCollection';
-  items: Array<Maybe<Iap>>;
-  limit: Scalars['Int']['output'];
-  skip: Scalars['Int']['output'];
-  total: Scalars['Int']['output'];
+export type IapEntityResponseCollection = {
+  __typename?: 'IapEntityResponseCollection';
+  data: Array<IapEntity>;
+  meta: ResponseCollectionMeta;
 };
 
-export type IapFilter = {
-  AND: InputMaybe<Array<InputMaybe<IapFilter>>>;
-  OR: InputMaybe<Array<InputMaybe<IapFilter>>>;
-  appleProductIDs_contains_all: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
+export type IapFiltersInput = {
+  and: InputMaybe<Array<InputMaybe<IapFiltersInput>>>;
+  appleProductIDs: InputMaybe<ComponentIapAppleProductIDsFiltersInput>;
+  createdAt: InputMaybe<DateTimeFilterInput>;
+  googleSKUs: InputMaybe<ComponentIapGoogleSkUsFiltersInput>;
+  id: InputMaybe<IdFilterInput>;
+  internalName: InputMaybe<StringFilterInput>;
+  not: InputMaybe<IapFiltersInput>;
+  or: InputMaybe<Array<InputMaybe<IapFiltersInput>>>;
+  publishedAt: InputMaybe<DateTimeFilterInput>;
+  updatedAt: InputMaybe<DateTimeFilterInput>;
+};
+
+export type IapInput = {
+  appleProductIDs: InputMaybe<
+    Array<InputMaybe<ComponentIapAppleProductIDsInput>>
   >;
-  appleProductIDs_contains_none: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  appleProductIDs_contains_some: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  appleProductIDs_exists: InputMaybe<Scalars['Boolean']['input']>;
-  contentfulMetadata: InputMaybe<ContentfulMetadataFilter>;
-  googleSKUs_contains_all: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  googleSKUs_contains_none: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  googleSKUs_contains_some: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  googleSKUs_exists: InputMaybe<Scalars['Boolean']['input']>;
+  googleSKUs: InputMaybe<Array<InputMaybe<ComponentIapGoogleSkUsInput>>>;
   internalName: InputMaybe<Scalars['String']['input']>;
-  internalName_contains: InputMaybe<Scalars['String']['input']>;
-  internalName_exists: InputMaybe<Scalars['Boolean']['input']>;
-  internalName_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  internalName_not: InputMaybe<Scalars['String']['input']>;
-  internalName_not_contains: InputMaybe<Scalars['String']['input']>;
-  internalName_not_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  sys: InputMaybe<SysFilter>;
+  publishedAt: InputMaybe<Scalars['DateTime']['input']>;
 };
 
-export type IapLinkingCollections = {
-  __typename?: 'IapLinkingCollections';
-  entryCollection: Maybe<EntryCollection>;
-  offeringCollection: Maybe<OfferingCollection>;
+export type IntFilterInput = {
+  and: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  between: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  contains: InputMaybe<Scalars['Int']['input']>;
+  containsi: InputMaybe<Scalars['Int']['input']>;
+  endsWith: InputMaybe<Scalars['Int']['input']>;
+  eq: InputMaybe<Scalars['Int']['input']>;
+  eqi: InputMaybe<Scalars['Int']['input']>;
+  gt: InputMaybe<Scalars['Int']['input']>;
+  gte: InputMaybe<Scalars['Int']['input']>;
+  in: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  lt: InputMaybe<Scalars['Int']['input']>;
+  lte: InputMaybe<Scalars['Int']['input']>;
+  ne: InputMaybe<Scalars['Int']['input']>;
+  nei: InputMaybe<Scalars['Int']['input']>;
+  not: InputMaybe<IntFilterInput>;
+  notContains: InputMaybe<Scalars['Int']['input']>;
+  notContainsi: InputMaybe<Scalars['Int']['input']>;
+  notIn: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  notNull: InputMaybe<Scalars['Boolean']['input']>;
+  null: InputMaybe<Scalars['Boolean']['input']>;
+  or: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  startsWith: InputMaybe<Scalars['Int']['input']>;
 };
 
-export type IapLinkingCollectionsEntryCollectionArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  locale: InputMaybe<Scalars['String']['input']>;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
-  skip?: InputMaybe<Scalars['Int']['input']>;
+export type JsonFilterInput = {
+  and: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+  between: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+  contains: InputMaybe<Scalars['JSON']['input']>;
+  containsi: InputMaybe<Scalars['JSON']['input']>;
+  endsWith: InputMaybe<Scalars['JSON']['input']>;
+  eq: InputMaybe<Scalars['JSON']['input']>;
+  eqi: InputMaybe<Scalars['JSON']['input']>;
+  gt: InputMaybe<Scalars['JSON']['input']>;
+  gte: InputMaybe<Scalars['JSON']['input']>;
+  in: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+  lt: InputMaybe<Scalars['JSON']['input']>;
+  lte: InputMaybe<Scalars['JSON']['input']>;
+  ne: InputMaybe<Scalars['JSON']['input']>;
+  nei: InputMaybe<Scalars['JSON']['input']>;
+  not: InputMaybe<JsonFilterInput>;
+  notContains: InputMaybe<Scalars['JSON']['input']>;
+  notContainsi: InputMaybe<Scalars['JSON']['input']>;
+  notIn: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+  notNull: InputMaybe<Scalars['Boolean']['input']>;
+  null: InputMaybe<Scalars['Boolean']['input']>;
+  or: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+  startsWith: InputMaybe<Scalars['JSON']['input']>;
 };
 
-export type IapLinkingCollectionsOfferingCollectionArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  locale: InputMaybe<Scalars['String']['input']>;
-  order: InputMaybe<
-    Array<InputMaybe<IapLinkingCollectionsOfferingCollectionOrder>>
-  >;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
-  skip?: InputMaybe<Scalars['Int']['input']>;
+export type Mutation = {
+  __typename?: 'Mutation';
+  /** Change user password. Confirm with the current password. */
+  changePassword: Maybe<UsersPermissionsLoginPayload>;
+  createCapability: Maybe<CapabilityEntityResponse>;
+  createCommonContent: Maybe<CommonContentEntityResponse>;
+  createCommonContentLocalization: Maybe<CommonContentEntityResponse>;
+  createContentReleasesRelease: Maybe<ContentReleasesReleaseEntityResponse>;
+  createContentReleasesReleaseAction: Maybe<ContentReleasesReleaseActionEntityResponse>;
+  createCouponConfig: Maybe<CouponConfigEntityResponse>;
+  createIap: Maybe<IapEntityResponse>;
+  createOffering: Maybe<OfferingEntityResponse>;
+  createPurchase: Maybe<PurchaseEntityResponse>;
+  createPurchaseDetail: Maybe<PurchaseDetailEntityResponse>;
+  createPurchaseDetailLocalization: Maybe<PurchaseDetailEntityResponse>;
+  createService: Maybe<ServiceEntityResponse>;
+  createSubgroup: Maybe<SubgroupEntityResponse>;
+  createUploadFile: Maybe<UploadFileEntityResponse>;
+  createUploadFolder: Maybe<UploadFolderEntityResponse>;
+  /** Create a new role */
+  createUsersPermissionsRole: Maybe<UsersPermissionsCreateRolePayload>;
+  /** Create a new user */
+  createUsersPermissionsUser: UsersPermissionsUserEntityResponse;
+  deleteCapability: Maybe<CapabilityEntityResponse>;
+  deleteCommonContent: Maybe<CommonContentEntityResponse>;
+  deleteContentReleasesRelease: Maybe<ContentReleasesReleaseEntityResponse>;
+  deleteContentReleasesReleaseAction: Maybe<ContentReleasesReleaseActionEntityResponse>;
+  deleteCouponConfig: Maybe<CouponConfigEntityResponse>;
+  deleteIap: Maybe<IapEntityResponse>;
+  deleteOffering: Maybe<OfferingEntityResponse>;
+  deletePurchase: Maybe<PurchaseEntityResponse>;
+  deletePurchaseDetail: Maybe<PurchaseDetailEntityResponse>;
+  deleteService: Maybe<ServiceEntityResponse>;
+  deleteSubgroup: Maybe<SubgroupEntityResponse>;
+  deleteUploadFile: Maybe<UploadFileEntityResponse>;
+  deleteUploadFolder: Maybe<UploadFolderEntityResponse>;
+  /** Delete an existing role */
+  deleteUsersPermissionsRole: Maybe<UsersPermissionsDeleteRolePayload>;
+  /** Delete an existing user */
+  deleteUsersPermissionsUser: UsersPermissionsUserEntityResponse;
+  /** Confirm an email users email address */
+  emailConfirmation: Maybe<UsersPermissionsLoginPayload>;
+  /** Request a reset password token */
+  forgotPassword: Maybe<UsersPermissionsPasswordPayload>;
+  login: UsersPermissionsLoginPayload;
+  multipleUpload: Array<Maybe<UploadFileEntityResponse>>;
+  /** Register a user */
+  register: UsersPermissionsLoginPayload;
+  removeFile: Maybe<UploadFileEntityResponse>;
+  /** Reset user password. Confirm with a code (resetToken from forgotPassword) */
+  resetPassword: Maybe<UsersPermissionsLoginPayload>;
+  updateCapability: Maybe<CapabilityEntityResponse>;
+  updateCommonContent: Maybe<CommonContentEntityResponse>;
+  updateContentReleasesRelease: Maybe<ContentReleasesReleaseEntityResponse>;
+  updateContentReleasesReleaseAction: Maybe<ContentReleasesReleaseActionEntityResponse>;
+  updateCouponConfig: Maybe<CouponConfigEntityResponse>;
+  updateFileInfo: UploadFileEntityResponse;
+  updateIap: Maybe<IapEntityResponse>;
+  updateOffering: Maybe<OfferingEntityResponse>;
+  updatePurchase: Maybe<PurchaseEntityResponse>;
+  updatePurchaseDetail: Maybe<PurchaseDetailEntityResponse>;
+  updateService: Maybe<ServiceEntityResponse>;
+  updateSubgroup: Maybe<SubgroupEntityResponse>;
+  updateUploadFile: Maybe<UploadFileEntityResponse>;
+  updateUploadFolder: Maybe<UploadFolderEntityResponse>;
+  /** Update an existing role */
+  updateUsersPermissionsRole: Maybe<UsersPermissionsUpdateRolePayload>;
+  /** Update an existing user */
+  updateUsersPermissionsUser: UsersPermissionsUserEntityResponse;
+  upload: UploadFileEntityResponse;
 };
 
-export enum IapLinkingCollectionsOfferingCollectionOrder {
-  ApiIdentifierAsc = 'apiIdentifier_ASC',
-  ApiIdentifierDesc = 'apiIdentifier_DESC',
-  DescriptionAsc = 'description_ASC',
-  DescriptionDesc = 'description_DESC',
-  InternalNameAsc = 'internalName_ASC',
-  InternalNameDesc = 'internalName_DESC',
-  StripeProductIdAsc = 'stripeProductId_ASC',
-  StripeProductIdDesc = 'stripeProductId_DESC',
-  SysFirstPublishedAtAsc = 'sys_firstPublishedAt_ASC',
-  SysFirstPublishedAtDesc = 'sys_firstPublishedAt_DESC',
-  SysIdAsc = 'sys_id_ASC',
-  SysIdDesc = 'sys_id_DESC',
-  SysPublishedAtAsc = 'sys_publishedAt_ASC',
-  SysPublishedAtDesc = 'sys_publishedAt_DESC',
-  SysPublishedVersionAsc = 'sys_publishedVersion_ASC',
-  SysPublishedVersionDesc = 'sys_publishedVersion_DESC',
-}
-
-export enum IapOrder {
-  InternalNameAsc = 'internalName_ASC',
-  InternalNameDesc = 'internalName_DESC',
-  SysFirstPublishedAtAsc = 'sys_firstPublishedAt_ASC',
-  SysFirstPublishedAtDesc = 'sys_firstPublishedAt_DESC',
-  SysIdAsc = 'sys_id_ASC',
-  SysIdDesc = 'sys_id_DESC',
-  SysPublishedAtAsc = 'sys_publishedAt_ASC',
-  SysPublishedAtDesc = 'sys_publishedAt_DESC',
-  SysPublishedVersionAsc = 'sys_publishedVersion_ASC',
-  SysPublishedVersionDesc = 'sys_publishedVersion_DESC',
-}
-
-export enum ImageFormat {
-  Avif = 'AVIF',
-  /** JPG image format. */
-  Jpg = 'JPG',
-  /**
-   * Progressive JPG format stores multiple passes of an image in progressively higher detail.
-   *         When a progressive image is loading, the viewer will first see a lower quality pixelated version which
-   *         will gradually improve in detail, until the image is fully downloaded. This is to display an image as
-   *         early as possible to make the layout look as designed.
-   */
-  JpgProgressive = 'JPG_PROGRESSIVE',
-  /** PNG image format */
-  Png = 'PNG',
-  /**
-   * 8-bit PNG images support up to 256 colors and weigh less than the standard 24-bit PNG equivalent.
-   *         The 8-bit PNG format is mostly used for simple images, such as icons or logos.
-   */
-  Png8 = 'PNG8',
-  /** WebP image format. */
-  Webp = 'WEBP',
-}
-
-export enum ImageResizeFocus {
-  /** Focus the resizing on the bottom. */
-  Bottom = 'BOTTOM',
-  /** Focus the resizing on the bottom left. */
-  BottomLeft = 'BOTTOM_LEFT',
-  /** Focus the resizing on the bottom right. */
-  BottomRight = 'BOTTOM_RIGHT',
-  /** Focus the resizing on the center. */
-  Center = 'CENTER',
-  /** Focus the resizing on the largest face. */
-  Face = 'FACE',
-  /** Focus the resizing on the area containing all the faces. */
-  Faces = 'FACES',
-  /** Focus the resizing on the left. */
-  Left = 'LEFT',
-  /** Focus the resizing on the right. */
-  Right = 'RIGHT',
-  /** Focus the resizing on the top. */
-  Top = 'TOP',
-  /** Focus the resizing on the top left. */
-  TopLeft = 'TOP_LEFT',
-  /** Focus the resizing on the top right. */
-  TopRight = 'TOP_RIGHT',
-}
-
-export enum ImageResizeStrategy {
-  /** Crops a part of the original image to fit into the specified dimensions. */
-  Crop = 'CROP',
-  /** Resizes the image to the specified dimensions, cropping the image if needed. */
-  Fill = 'FILL',
-  /** Resizes the image to fit into the specified dimensions. */
-  Fit = 'FIT',
-  /**
-   * Resizes the image to the specified dimensions, padding the image if needed.
-   *         Uses desired background color as padding color.
-   */
-  Pad = 'PAD',
-  /** Resizes the image to the specified dimensions, changing the original aspect ratio if needed. */
-  Scale = 'SCALE',
-  /** Creates a thumbnail from the image. */
-  Thumb = 'THUMB',
-}
-
-export type ImageTransformOptions = {
-  /**
-   * Desired background color, used with corner radius or `PAD` resize strategy.
-   *         Defaults to transparent (for `PNG`, `PNG8` and `WEBP`) or white (for `JPG` and `JPG_PROGRESSIVE`).
-   */
-  backgroundColor: InputMaybe<Scalars['HexColor']['input']>;
-  /**
-   * Desired corner radius in pixels.
-   *         Results in an image with rounded corners (pass `-1` for a full circle/ellipse).
-   *         Defaults to `0`. Uses desired background color as padding color,
-   *         unless the format is `JPG` or `JPG_PROGRESSIVE` and resize strategy is `PAD`, then defaults to white.
-   */
-  cornerRadius: InputMaybe<Scalars['Int']['input']>;
-  /** Desired image format. Defaults to the original image format. */
-  format: InputMaybe<ImageFormat>;
-  /** Desired height in pixels. Defaults to the original image height. */
-  height: InputMaybe<Scalars['Dimension']['input']>;
-  /**
-   * Desired quality of the image in percents.
-   *         Used for `PNG8`, `JPG`, `JPG_PROGRESSIVE` and `WEBP` formats.
-   */
-  quality: InputMaybe<Scalars['Quality']['input']>;
-  /** Desired resize focus area. Defaults to `CENTER`. */
-  resizeFocus: InputMaybe<ImageResizeFocus>;
-  /** Desired resize strategy. Defaults to `FIT`. */
-  resizeStrategy: InputMaybe<ImageResizeStrategy>;
-  /** Desired width in pixels. Defaults to the original image width. */
-  width: InputMaybe<Scalars['Dimension']['input']>;
+export type MutationChangePasswordArgs = {
+  currentPassword: Scalars['String']['input'];
+  password: Scalars['String']['input'];
+  passwordConfirmation: Scalars['String']['input'];
 };
 
-/** Offering configuration. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/offering) */
-export type Offering = Entry & {
+export type MutationCreateCapabilityArgs = {
+  data: CapabilityInput;
+};
+
+export type MutationCreateCommonContentArgs = {
+  data: CommonContentInput;
+  locale: InputMaybe<Scalars['I18NLocaleCode']['input']>;
+};
+
+export type MutationCreateCommonContentLocalizationArgs = {
+  data: InputMaybe<CommonContentInput>;
+  id: InputMaybe<Scalars['ID']['input']>;
+  locale: InputMaybe<Scalars['I18NLocaleCode']['input']>;
+};
+
+export type MutationCreateContentReleasesReleaseArgs = {
+  data: ContentReleasesReleaseInput;
+};
+
+export type MutationCreateContentReleasesReleaseActionArgs = {
+  data: ContentReleasesReleaseActionInput;
+};
+
+export type MutationCreateCouponConfigArgs = {
+  data: CouponConfigInput;
+};
+
+export type MutationCreateIapArgs = {
+  data: IapInput;
+};
+
+export type MutationCreateOfferingArgs = {
+  data: OfferingInput;
+};
+
+export type MutationCreatePurchaseArgs = {
+  data: PurchaseInput;
+};
+
+export type MutationCreatePurchaseDetailArgs = {
+  data: PurchaseDetailInput;
+  locale: InputMaybe<Scalars['I18NLocaleCode']['input']>;
+};
+
+export type MutationCreatePurchaseDetailLocalizationArgs = {
+  data: InputMaybe<PurchaseDetailInput>;
+  id: InputMaybe<Scalars['ID']['input']>;
+  locale: InputMaybe<Scalars['I18NLocaleCode']['input']>;
+};
+
+export type MutationCreateServiceArgs = {
+  data: ServiceInput;
+};
+
+export type MutationCreateSubgroupArgs = {
+  data: SubgroupInput;
+};
+
+export type MutationCreateUploadFileArgs = {
+  data: UploadFileInput;
+};
+
+export type MutationCreateUploadFolderArgs = {
+  data: UploadFolderInput;
+};
+
+export type MutationCreateUsersPermissionsRoleArgs = {
+  data: UsersPermissionsRoleInput;
+};
+
+export type MutationCreateUsersPermissionsUserArgs = {
+  data: UsersPermissionsUserInput;
+};
+
+export type MutationDeleteCapabilityArgs = {
+  id: Scalars['ID']['input'];
+};
+
+export type MutationDeleteCommonContentArgs = {
+  id: Scalars['ID']['input'];
+  locale: InputMaybe<Scalars['I18NLocaleCode']['input']>;
+};
+
+export type MutationDeleteContentReleasesReleaseArgs = {
+  id: Scalars['ID']['input'];
+};
+
+export type MutationDeleteContentReleasesReleaseActionArgs = {
+  id: Scalars['ID']['input'];
+};
+
+export type MutationDeleteCouponConfigArgs = {
+  id: Scalars['ID']['input'];
+};
+
+export type MutationDeleteIapArgs = {
+  id: Scalars['ID']['input'];
+};
+
+export type MutationDeleteOfferingArgs = {
+  id: Scalars['ID']['input'];
+};
+
+export type MutationDeletePurchaseArgs = {
+  id: Scalars['ID']['input'];
+};
+
+export type MutationDeletePurchaseDetailArgs = {
+  id: Scalars['ID']['input'];
+  locale: InputMaybe<Scalars['I18NLocaleCode']['input']>;
+};
+
+export type MutationDeleteServiceArgs = {
+  id: Scalars['ID']['input'];
+};
+
+export type MutationDeleteSubgroupArgs = {
+  id: Scalars['ID']['input'];
+};
+
+export type MutationDeleteUploadFileArgs = {
+  id: Scalars['ID']['input'];
+};
+
+export type MutationDeleteUploadFolderArgs = {
+  id: Scalars['ID']['input'];
+};
+
+export type MutationDeleteUsersPermissionsRoleArgs = {
+  id: Scalars['ID']['input'];
+};
+
+export type MutationDeleteUsersPermissionsUserArgs = {
+  id: Scalars['ID']['input'];
+};
+
+export type MutationEmailConfirmationArgs = {
+  confirmation: Scalars['String']['input'];
+};
+
+export type MutationForgotPasswordArgs = {
+  email: Scalars['String']['input'];
+};
+
+export type MutationLoginArgs = {
+  input: UsersPermissionsLoginInput;
+};
+
+export type MutationMultipleUploadArgs = {
+  field: InputMaybe<Scalars['String']['input']>;
+  files: Array<InputMaybe<Scalars['Upload']['input']>>;
+  ref: InputMaybe<Scalars['String']['input']>;
+  refId: InputMaybe<Scalars['ID']['input']>;
+};
+
+export type MutationRegisterArgs = {
+  input: UsersPermissionsRegisterInput;
+};
+
+export type MutationRemoveFileArgs = {
+  id: Scalars['ID']['input'];
+};
+
+export type MutationResetPasswordArgs = {
+  code: Scalars['String']['input'];
+  password: Scalars['String']['input'];
+  passwordConfirmation: Scalars['String']['input'];
+};
+
+export type MutationUpdateCapabilityArgs = {
+  data: CapabilityInput;
+  id: Scalars['ID']['input'];
+};
+
+export type MutationUpdateCommonContentArgs = {
+  data: CommonContentInput;
+  id: Scalars['ID']['input'];
+  locale: InputMaybe<Scalars['I18NLocaleCode']['input']>;
+};
+
+export type MutationUpdateContentReleasesReleaseArgs = {
+  data: ContentReleasesReleaseInput;
+  id: Scalars['ID']['input'];
+};
+
+export type MutationUpdateContentReleasesReleaseActionArgs = {
+  data: ContentReleasesReleaseActionInput;
+  id: Scalars['ID']['input'];
+};
+
+export type MutationUpdateCouponConfigArgs = {
+  data: CouponConfigInput;
+  id: Scalars['ID']['input'];
+};
+
+export type MutationUpdateFileInfoArgs = {
+  id: Scalars['ID']['input'];
+  info: InputMaybe<FileInfoInput>;
+};
+
+export type MutationUpdateIapArgs = {
+  data: IapInput;
+  id: Scalars['ID']['input'];
+};
+
+export type MutationUpdateOfferingArgs = {
+  data: OfferingInput;
+  id: Scalars['ID']['input'];
+};
+
+export type MutationUpdatePurchaseArgs = {
+  data: PurchaseInput;
+  id: Scalars['ID']['input'];
+};
+
+export type MutationUpdatePurchaseDetailArgs = {
+  data: PurchaseDetailInput;
+  id: Scalars['ID']['input'];
+  locale: InputMaybe<Scalars['I18NLocaleCode']['input']>;
+};
+
+export type MutationUpdateServiceArgs = {
+  data: ServiceInput;
+  id: Scalars['ID']['input'];
+};
+
+export type MutationUpdateSubgroupArgs = {
+  data: SubgroupInput;
+  id: Scalars['ID']['input'];
+};
+
+export type MutationUpdateUploadFileArgs = {
+  data: UploadFileInput;
+  id: Scalars['ID']['input'];
+};
+
+export type MutationUpdateUploadFolderArgs = {
+  data: UploadFolderInput;
+  id: Scalars['ID']['input'];
+};
+
+export type MutationUpdateUsersPermissionsRoleArgs = {
+  data: UsersPermissionsRoleInput;
+  id: Scalars['ID']['input'];
+};
+
+export type MutationUpdateUsersPermissionsUserArgs = {
+  data: UsersPermissionsUserInput;
+  id: Scalars['ID']['input'];
+};
+
+export type MutationUploadArgs = {
+  field: InputMaybe<Scalars['String']['input']>;
+  file: Scalars['Upload']['input'];
+  info: InputMaybe<FileInfoInput>;
+  ref: InputMaybe<Scalars['String']['input']>;
+  refId: InputMaybe<Scalars['ID']['input']>;
+};
+
+export type Offering = {
   __typename?: 'Offering';
-  apiIdentifier: Maybe<Scalars['String']['output']>;
-  capabilitiesCollection: Maybe<OfferingCapabilitiesCollection>;
-  commonContent: Maybe<CommonContent>;
-  contentfulMetadata: ContentfulMetadata;
-  countries: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-  couponConfigCollection: Maybe<OfferingCouponConfigCollection>;
-  defaultPurchase: Maybe<Purchase>;
+  apiIdentifier: Scalars['String']['output'];
+  capabilities: Maybe<CapabilityRelationResponseCollection>;
+  commonContent: Maybe<CommonContentEntityResponse>;
+  countries: Maybe<Scalars['JSON']['output']>;
+  couponConfig: Maybe<CouponConfigEntityResponse>;
+  createdAt: Maybe<Scalars['DateTime']['output']>;
+  defaultPurchase: Maybe<PurchaseEntityResponse>;
   description: Maybe<Scalars['String']['output']>;
-  experimentPurchaseCollection: Maybe<OfferingExperimentPurchaseCollection>;
-  iapCollection: Maybe<OfferingIapCollection>;
-  internalName: Maybe<Scalars['String']['output']>;
-  linkedFrom: Maybe<OfferingLinkingCollections>;
-  stripeLegacyPlans: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-  stripeProductId: Maybe<Scalars['String']['output']>;
-  sys: Sys;
+  experimentPurchase: Maybe<PurchaseEntityResponse>;
+  iap: Maybe<IapEntityResponse>;
+  internalName: Scalars['String']['output'];
+  publishedAt: Maybe<Scalars['DateTime']['output']>;
+  stripeLegacyPlans: Maybe<Array<Maybe<ComponentStripeStripeLegacyPlans>>>;
+  stripeProductId: Scalars['String']['output'];
+  subGroups: Maybe<SubgroupRelationResponseCollection>;
+  updatedAt: Maybe<Scalars['DateTime']['output']>;
 };
 
-/** Offering configuration. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/offering) */
-export type OfferingApiIdentifierArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
+export type OfferingCapabilitiesArgs = {
+  filters: InputMaybe<CapabilityFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  publicationState?: InputMaybe<PublicationState>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
 };
 
-/** Offering configuration. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/offering) */
-export type OfferingCapabilitiesCollectionArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  locale: InputMaybe<Scalars['String']['input']>;
-  order: InputMaybe<Array<InputMaybe<OfferingCapabilitiesCollectionOrder>>>;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
-  skip?: InputMaybe<Scalars['Int']['input']>;
-  where: InputMaybe<CapabilityFilter>;
-};
-
-/** Offering configuration. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/offering) */
-export type OfferingCommonContentArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
-  where: InputMaybe<CommonContentFilter>;
-};
-
-/** Offering configuration. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/offering) */
-export type OfferingCountriesArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
-};
-
-/** Offering configuration. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/offering) */
-export type OfferingCouponConfigCollectionArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  locale: InputMaybe<Scalars['String']['input']>;
-  order: InputMaybe<Array<InputMaybe<OfferingCouponConfigCollectionOrder>>>;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
-  skip?: InputMaybe<Scalars['Int']['input']>;
-  where: InputMaybe<CouponConfigFilter>;
-};
-
-/** Offering configuration. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/offering) */
-export type OfferingDefaultPurchaseArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
-  where: InputMaybe<PurchaseFilter>;
-};
-
-/** Offering configuration. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/offering) */
-export type OfferingDescriptionArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
-};
-
-/** Offering configuration. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/offering) */
-export type OfferingExperimentPurchaseCollectionArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  locale: InputMaybe<Scalars['String']['input']>;
-  order: InputMaybe<
-    Array<InputMaybe<OfferingExperimentPurchaseCollectionOrder>>
-  >;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
-  skip?: InputMaybe<Scalars['Int']['input']>;
-  where: InputMaybe<PurchaseFilter>;
-};
-
-/** Offering configuration. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/offering) */
-export type OfferingIapCollectionArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  locale: InputMaybe<Scalars['String']['input']>;
-  order: InputMaybe<Array<InputMaybe<OfferingIapCollectionOrder>>>;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
-  skip?: InputMaybe<Scalars['Int']['input']>;
-  where: InputMaybe<IapFilter>;
-};
-
-/** Offering configuration. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/offering) */
-export type OfferingInternalNameArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
-};
-
-/** Offering configuration. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/offering) */
-export type OfferingLinkedFromArgs = {
-  allowedLocales: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-};
-
-/** Offering configuration. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/offering) */
 export type OfferingStripeLegacyPlansArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
+  filters: InputMaybe<ComponentStripeStripeLegacyPlansFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
 };
 
-/** Offering configuration. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/offering) */
-export type OfferingStripeProductIdArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
+export type OfferingSubGroupsArgs = {
+  filters: InputMaybe<SubgroupFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  publicationState?: InputMaybe<PublicationState>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
 };
 
-export type OfferingCapabilitiesCollection = {
-  __typename?: 'OfferingCapabilitiesCollection';
-  items: Array<Maybe<Capability>>;
-  limit: Scalars['Int']['output'];
-  skip: Scalars['Int']['output'];
-  total: Scalars['Int']['output'];
+export type OfferingEntity = {
+  __typename?: 'OfferingEntity';
+  attributes: Maybe<Offering>;
+  id: Maybe<Scalars['ID']['output']>;
 };
 
-export enum OfferingCapabilitiesCollectionOrder {
-  DescriptionAsc = 'description_ASC',
-  DescriptionDesc = 'description_DESC',
-  InternalNameAsc = 'internalName_ASC',
-  InternalNameDesc = 'internalName_DESC',
-  SlugAsc = 'slug_ASC',
-  SlugDesc = 'slug_DESC',
-  SysFirstPublishedAtAsc = 'sys_firstPublishedAt_ASC',
-  SysFirstPublishedAtDesc = 'sys_firstPublishedAt_DESC',
-  SysIdAsc = 'sys_id_ASC',
-  SysIdDesc = 'sys_id_DESC',
-  SysPublishedAtAsc = 'sys_publishedAt_ASC',
-  SysPublishedAtDesc = 'sys_publishedAt_DESC',
-  SysPublishedVersionAsc = 'sys_publishedVersion_ASC',
-  SysPublishedVersionDesc = 'sys_publishedVersion_DESC',
-}
-
-export type OfferingCollection = {
-  __typename?: 'OfferingCollection';
-  items: Array<Maybe<Offering>>;
-  limit: Scalars['Int']['output'];
-  skip: Scalars['Int']['output'];
-  total: Scalars['Int']['output'];
+export type OfferingEntityResponse = {
+  __typename?: 'OfferingEntityResponse';
+  data: Maybe<OfferingEntity>;
 };
 
-export type OfferingCouponConfigCollection = {
-  __typename?: 'OfferingCouponConfigCollection';
-  items: Array<Maybe<CouponConfig>>;
-  limit: Scalars['Int']['output'];
-  skip: Scalars['Int']['output'];
-  total: Scalars['Int']['output'];
+export type OfferingEntityResponseCollection = {
+  __typename?: 'OfferingEntityResponseCollection';
+  data: Array<OfferingEntity>;
+  meta: ResponseCollectionMeta;
 };
 
-export enum OfferingCouponConfigCollectionOrder {
-  InternalNameAsc = 'internalName_ASC',
-  InternalNameDesc = 'internalName_DESC',
-  SysFirstPublishedAtAsc = 'sys_firstPublishedAt_ASC',
-  SysFirstPublishedAtDesc = 'sys_firstPublishedAt_DESC',
-  SysIdAsc = 'sys_id_ASC',
-  SysIdDesc = 'sys_id_DESC',
-  SysPublishedAtAsc = 'sys_publishedAt_ASC',
-  SysPublishedAtDesc = 'sys_publishedAt_DESC',
-  SysPublishedVersionAsc = 'sys_publishedVersion_ASC',
-  SysPublishedVersionDesc = 'sys_publishedVersion_DESC',
-}
-
-export type OfferingExperimentPurchaseCollection = {
-  __typename?: 'OfferingExperimentPurchaseCollection';
-  items: Array<Maybe<Purchase>>;
-  limit: Scalars['Int']['output'];
-  skip: Scalars['Int']['output'];
-  total: Scalars['Int']['output'];
+export type OfferingFiltersInput = {
+  and: InputMaybe<Array<InputMaybe<OfferingFiltersInput>>>;
+  apiIdentifier: InputMaybe<StringFilterInput>;
+  capabilities: InputMaybe<CapabilityFiltersInput>;
+  commonContent: InputMaybe<CommonContentFiltersInput>;
+  countries: InputMaybe<JsonFilterInput>;
+  couponConfig: InputMaybe<CouponConfigFiltersInput>;
+  createdAt: InputMaybe<DateTimeFilterInput>;
+  defaultPurchase: InputMaybe<PurchaseFiltersInput>;
+  description: InputMaybe<StringFilterInput>;
+  experimentPurchase: InputMaybe<PurchaseFiltersInput>;
+  iap: InputMaybe<IapFiltersInput>;
+  id: InputMaybe<IdFilterInput>;
+  internalName: InputMaybe<StringFilterInput>;
+  not: InputMaybe<OfferingFiltersInput>;
+  or: InputMaybe<Array<InputMaybe<OfferingFiltersInput>>>;
+  publishedAt: InputMaybe<DateTimeFilterInput>;
+  stripeLegacyPlans: InputMaybe<ComponentStripeStripeLegacyPlansFiltersInput>;
+  stripeProductId: InputMaybe<StringFilterInput>;
+  subGroups: InputMaybe<SubgroupFiltersInput>;
+  updatedAt: InputMaybe<DateTimeFilterInput>;
 };
 
-export enum OfferingExperimentPurchaseCollectionOrder {
-  DescriptionAsc = 'description_ASC',
-  DescriptionDesc = 'description_DESC',
-  InternalNameAsc = 'internalName_ASC',
-  InternalNameDesc = 'internalName_DESC',
-  SysFirstPublishedAtAsc = 'sys_firstPublishedAt_ASC',
-  SysFirstPublishedAtDesc = 'sys_firstPublishedAt_DESC',
-  SysIdAsc = 'sys_id_ASC',
-  SysIdDesc = 'sys_id_DESC',
-  SysPublishedAtAsc = 'sys_publishedAt_ASC',
-  SysPublishedAtDesc = 'sys_publishedAt_DESC',
-  SysPublishedVersionAsc = 'sys_publishedVersion_ASC',
-  SysPublishedVersionDesc = 'sys_publishedVersion_DESC',
-}
-
-export type OfferingFilter = {
-  AND: InputMaybe<Array<InputMaybe<OfferingFilter>>>;
-  OR: InputMaybe<Array<InputMaybe<OfferingFilter>>>;
+export type OfferingInput = {
   apiIdentifier: InputMaybe<Scalars['String']['input']>;
-  apiIdentifier_contains: InputMaybe<Scalars['String']['input']>;
-  apiIdentifier_exists: InputMaybe<Scalars['Boolean']['input']>;
-  apiIdentifier_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  apiIdentifier_not: InputMaybe<Scalars['String']['input']>;
-  apiIdentifier_not_contains: InputMaybe<Scalars['String']['input']>;
-  apiIdentifier_not_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  capabilities: InputMaybe<CfCapabilityNestedFilter>;
-  capabilitiesCollection_exists: InputMaybe<Scalars['Boolean']['input']>;
-  commonContent: InputMaybe<CfCommonContentNestedFilter>;
-  commonContent_exists: InputMaybe<Scalars['Boolean']['input']>;
-  contentfulMetadata: InputMaybe<ContentfulMetadataFilter>;
-  countries_contains_all: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  countries_contains_none: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  countries_contains_some: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  countries_exists: InputMaybe<Scalars['Boolean']['input']>;
-  couponConfig: InputMaybe<CfCouponConfigNestedFilter>;
-  couponConfigCollection_exists: InputMaybe<Scalars['Boolean']['input']>;
-  defaultPurchase: InputMaybe<CfPurchaseNestedFilter>;
-  defaultPurchase_exists: InputMaybe<Scalars['Boolean']['input']>;
+  capabilities: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  commonContent: InputMaybe<Scalars['ID']['input']>;
+  countries: InputMaybe<Scalars['JSON']['input']>;
+  couponConfig: InputMaybe<Scalars['ID']['input']>;
+  defaultPurchase: InputMaybe<Scalars['ID']['input']>;
   description: InputMaybe<Scalars['String']['input']>;
-  description_contains: InputMaybe<Scalars['String']['input']>;
-  description_exists: InputMaybe<Scalars['Boolean']['input']>;
-  description_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  description_not: InputMaybe<Scalars['String']['input']>;
-  description_not_contains: InputMaybe<Scalars['String']['input']>;
-  description_not_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  experimentPurchase: InputMaybe<CfPurchaseNestedFilter>;
-  experimentPurchaseCollection_exists: InputMaybe<Scalars['Boolean']['input']>;
-  iap: InputMaybe<CfIapNestedFilter>;
-  iapCollection_exists: InputMaybe<Scalars['Boolean']['input']>;
+  experimentPurchase: InputMaybe<Scalars['ID']['input']>;
+  iap: InputMaybe<Scalars['ID']['input']>;
   internalName: InputMaybe<Scalars['String']['input']>;
-  internalName_contains: InputMaybe<Scalars['String']['input']>;
-  internalName_exists: InputMaybe<Scalars['Boolean']['input']>;
-  internalName_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  internalName_not: InputMaybe<Scalars['String']['input']>;
-  internalName_not_contains: InputMaybe<Scalars['String']['input']>;
-  internalName_not_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
+  publishedAt: InputMaybe<Scalars['DateTime']['input']>;
+  stripeLegacyPlans: InputMaybe<
+    Array<InputMaybe<ComponentStripeStripeLegacyPlansInput>>
   >;
-  stripeLegacyPlans_contains_all: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  stripeLegacyPlans_contains_none: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  stripeLegacyPlans_contains_some: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  stripeLegacyPlans_exists: InputMaybe<Scalars['Boolean']['input']>;
   stripeProductId: InputMaybe<Scalars['String']['input']>;
-  stripeProductId_contains: InputMaybe<Scalars['String']['input']>;
-  stripeProductId_exists: InputMaybe<Scalars['Boolean']['input']>;
-  stripeProductId_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  stripeProductId_not: InputMaybe<Scalars['String']['input']>;
-  stripeProductId_not_contains: InputMaybe<Scalars['String']['input']>;
-  stripeProductId_not_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  sys: InputMaybe<SysFilter>;
+  subGroups: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
 };
 
-export type OfferingIapCollection = {
-  __typename?: 'OfferingIapCollection';
-  items: Array<Maybe<Iap>>;
-  limit: Scalars['Int']['output'];
-  skip: Scalars['Int']['output'];
+export type OfferingRelationResponseCollection = {
+  __typename?: 'OfferingRelationResponseCollection';
+  data: Array<OfferingEntity>;
+};
+
+export type Pagination = {
+  __typename?: 'Pagination';
+  page: Scalars['Int']['output'];
+  pageCount: Scalars['Int']['output'];
+  pageSize: Scalars['Int']['output'];
   total: Scalars['Int']['output'];
 };
 
-export enum OfferingIapCollectionOrder {
-  InternalNameAsc = 'internalName_ASC',
-  InternalNameDesc = 'internalName_DESC',
-  SysFirstPublishedAtAsc = 'sys_firstPublishedAt_ASC',
-  SysFirstPublishedAtDesc = 'sys_firstPublishedAt_DESC',
-  SysIdAsc = 'sys_id_ASC',
-  SysIdDesc = 'sys_id_DESC',
-  SysPublishedAtAsc = 'sys_publishedAt_ASC',
-  SysPublishedAtDesc = 'sys_publishedAt_DESC',
-  SysPublishedVersionAsc = 'sys_publishedVersion_ASC',
-  SysPublishedVersionDesc = 'sys_publishedVersion_DESC',
-}
-
-export type OfferingLinkingCollections = {
-  __typename?: 'OfferingLinkingCollections';
-  entryCollection: Maybe<EntryCollection>;
-  purchaseCollection: Maybe<PurchaseCollection>;
-  subGroupCollection: Maybe<SubGroupCollection>;
+export type PaginationArg = {
+  limit: InputMaybe<Scalars['Int']['input']>;
+  page: InputMaybe<Scalars['Int']['input']>;
+  pageSize: InputMaybe<Scalars['Int']['input']>;
+  start: InputMaybe<Scalars['Int']['input']>;
 };
 
-export type OfferingLinkingCollectionsEntryCollectionArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  locale: InputMaybe<Scalars['String']['input']>;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
-  skip?: InputMaybe<Scalars['Int']['input']>;
-};
-
-export type OfferingLinkingCollectionsPurchaseCollectionArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  locale: InputMaybe<Scalars['String']['input']>;
-  order: InputMaybe<
-    Array<InputMaybe<OfferingLinkingCollectionsPurchaseCollectionOrder>>
-  >;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
-  skip?: InputMaybe<Scalars['Int']['input']>;
-};
-
-export type OfferingLinkingCollectionsSubGroupCollectionArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  locale: InputMaybe<Scalars['String']['input']>;
-  order: InputMaybe<
-    Array<InputMaybe<OfferingLinkingCollectionsSubGroupCollectionOrder>>
-  >;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
-  skip?: InputMaybe<Scalars['Int']['input']>;
-};
-
-export enum OfferingLinkingCollectionsPurchaseCollectionOrder {
-  DescriptionAsc = 'description_ASC',
-  DescriptionDesc = 'description_DESC',
-  InternalNameAsc = 'internalName_ASC',
-  InternalNameDesc = 'internalName_DESC',
-  SysFirstPublishedAtAsc = 'sys_firstPublishedAt_ASC',
-  SysFirstPublishedAtDesc = 'sys_firstPublishedAt_DESC',
-  SysIdAsc = 'sys_id_ASC',
-  SysIdDesc = 'sys_id_DESC',
-  SysPublishedAtAsc = 'sys_publishedAt_ASC',
-  SysPublishedAtDesc = 'sys_publishedAt_DESC',
-  SysPublishedVersionAsc = 'sys_publishedVersion_ASC',
-  SysPublishedVersionDesc = 'sys_publishedVersion_DESC',
+export enum PublicationState {
+  Live = 'LIVE',
+  Preview = 'PREVIEW',
 }
 
-export enum OfferingLinkingCollectionsSubGroupCollectionOrder {
-  GroupNameAsc = 'groupName_ASC',
-  GroupNameDesc = 'groupName_DESC',
-  InternalNameAsc = 'internalName_ASC',
-  InternalNameDesc = 'internalName_DESC',
-  SysFirstPublishedAtAsc = 'sys_firstPublishedAt_ASC',
-  SysFirstPublishedAtDesc = 'sys_firstPublishedAt_DESC',
-  SysIdAsc = 'sys_id_ASC',
-  SysIdDesc = 'sys_id_DESC',
-  SysPublishedAtAsc = 'sys_publishedAt_ASC',
-  SysPublishedAtDesc = 'sys_publishedAt_DESC',
-  SysPublishedVersionAsc = 'sys_publishedVersion_ASC',
-  SysPublishedVersionDesc = 'sys_publishedVersion_DESC',
-}
-
-export enum OfferingOrder {
-  ApiIdentifierAsc = 'apiIdentifier_ASC',
-  ApiIdentifierDesc = 'apiIdentifier_DESC',
-  DescriptionAsc = 'description_ASC',
-  DescriptionDesc = 'description_DESC',
-  InternalNameAsc = 'internalName_ASC',
-  InternalNameDesc = 'internalName_DESC',
-  StripeProductIdAsc = 'stripeProductId_ASC',
-  StripeProductIdDesc = 'stripeProductId_DESC',
-  SysFirstPublishedAtAsc = 'sys_firstPublishedAt_ASC',
-  SysFirstPublishedAtDesc = 'sys_firstPublishedAt_DESC',
-  SysIdAsc = 'sys_id_ASC',
-  SysIdDesc = 'sys_id_DESC',
-  SysPublishedAtAsc = 'sys_publishedAt_ASC',
-  SysPublishedAtDesc = 'sys_publishedAt_DESC',
-  SysPublishedVersionAsc = 'sys_publishedVersion_ASC',
-  SysPublishedVersionDesc = 'sys_publishedVersion_DESC',
-}
-
-/** Purchase flow related configuration options. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/purchase) */
-export type Purchase = Entry & {
+export type Purchase = {
   __typename?: 'Purchase';
-  contentfulMetadata: ContentfulMetadata;
+  createdAt: Maybe<Scalars['DateTime']['output']>;
   description: Maybe<Scalars['String']['output']>;
-  internalName: Maybe<Scalars['String']['output']>;
-  linkedFrom: Maybe<PurchaseLinkingCollections>;
-  offering: Maybe<Offering>;
-  purchaseDetails: Maybe<PurchaseDetails>;
-  stripePlanChoices: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-  sys: Sys;
+  internalName: Scalars['String']['output'];
+  offering: Maybe<OfferingEntityResponse>;
+  publishedAt: Maybe<Scalars['DateTime']['output']>;
+  purchaseDetails: Maybe<PurchaseDetailEntityResponse>;
+  stripePlanChoices: Maybe<Array<Maybe<ComponentStripeStripePlanChoices>>>;
+  updatedAt: Maybe<Scalars['DateTime']['output']>;
 };
 
-/** Purchase flow related configuration options. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/purchase) */
-export type PurchaseDescriptionArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
-};
-
-/** Purchase flow related configuration options. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/purchase) */
-export type PurchaseInternalNameArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
-};
-
-/** Purchase flow related configuration options. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/purchase) */
-export type PurchaseLinkedFromArgs = {
-  allowedLocales: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-};
-
-/** Purchase flow related configuration options. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/purchase) */
-export type PurchaseOfferingArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
-  where: InputMaybe<OfferingFilter>;
-};
-
-/** Purchase flow related configuration options. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/purchase) */
-export type PurchasePurchaseDetailsArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
-  where: InputMaybe<PurchaseDetailsFilter>;
-};
-
-/** Purchase flow related configuration options. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/purchase) */
 export type PurchaseStripePlanChoicesArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
+  filters: InputMaybe<ComponentStripeStripePlanChoicesFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
 };
 
-export type PurchaseCollection = {
-  __typename?: 'PurchaseCollection';
-  items: Array<Maybe<Purchase>>;
-  limit: Scalars['Int']['output'];
-  skip: Scalars['Int']['output'];
-  total: Scalars['Int']['output'];
-};
-
-/** Available Purchase details component configuration options. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/purchaseDetails) */
-export type PurchaseDetails = Entry & {
-  __typename?: 'PurchaseDetails';
-  contentfulMetadata: ContentfulMetadata;
-  details: Maybe<Scalars['String']['output']>;
-  internalName: Maybe<Scalars['String']['output']>;
-  linkedFrom: Maybe<PurchaseDetailsLinkingCollections>;
-  productName: Maybe<Scalars['String']['output']>;
+export type PurchaseDetail = {
+  __typename?: 'PurchaseDetail';
+  createdAt: Maybe<Scalars['DateTime']['output']>;
+  details: Scalars['String']['output'];
+  internalName: Scalars['String']['output'];
+  locale: Maybe<Scalars['String']['output']>;
+  localizations: Maybe<PurchaseDetailRelationResponseCollection>;
+  productName: Scalars['String']['output'];
+  publishedAt: Maybe<Scalars['DateTime']['output']>;
   subtitle: Maybe<Scalars['String']['output']>;
-  sys: Sys;
-  webIcon: Maybe<Scalars['String']['output']>;
+  updatedAt: Maybe<Scalars['DateTime']['output']>;
+  webIcon: Scalars['String']['output'];
 };
 
-/** Available Purchase details component configuration options. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/purchaseDetails) */
-export type PurchaseDetailsDetailsArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
+export type PurchaseDetailLocalizationsArgs = {
+  filters: InputMaybe<PurchaseDetailFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  publicationState?: InputMaybe<PublicationState>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
 };
 
-/** Available Purchase details component configuration options. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/purchaseDetails) */
-export type PurchaseDetailsInternalNameArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
+export type PurchaseDetailEntity = {
+  __typename?: 'PurchaseDetailEntity';
+  attributes: Maybe<PurchaseDetail>;
+  id: Maybe<Scalars['ID']['output']>;
 };
 
-/** Available Purchase details component configuration options. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/purchaseDetails) */
-export type PurchaseDetailsLinkedFromArgs = {
-  allowedLocales: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+export type PurchaseDetailEntityResponse = {
+  __typename?: 'PurchaseDetailEntityResponse';
+  data: Maybe<PurchaseDetailEntity>;
 };
 
-/** Available Purchase details component configuration options. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/purchaseDetails) */
-export type PurchaseDetailsProductNameArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
+export type PurchaseDetailEntityResponseCollection = {
+  __typename?: 'PurchaseDetailEntityResponseCollection';
+  data: Array<PurchaseDetailEntity>;
+  meta: ResponseCollectionMeta;
 };
 
-/** Available Purchase details component configuration options. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/purchaseDetails) */
-export type PurchaseDetailsSubtitleArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
+export type PurchaseDetailFiltersInput = {
+  and: InputMaybe<Array<InputMaybe<PurchaseDetailFiltersInput>>>;
+  createdAt: InputMaybe<DateTimeFilterInput>;
+  details: InputMaybe<StringFilterInput>;
+  id: InputMaybe<IdFilterInput>;
+  internalName: InputMaybe<StringFilterInput>;
+  locale: InputMaybe<StringFilterInput>;
+  localizations: InputMaybe<PurchaseDetailFiltersInput>;
+  not: InputMaybe<PurchaseDetailFiltersInput>;
+  or: InputMaybe<Array<InputMaybe<PurchaseDetailFiltersInput>>>;
+  productName: InputMaybe<StringFilterInput>;
+  publishedAt: InputMaybe<DateTimeFilterInput>;
+  subtitle: InputMaybe<StringFilterInput>;
+  updatedAt: InputMaybe<DateTimeFilterInput>;
+  webIcon: InputMaybe<StringFilterInput>;
 };
 
-/** Available Purchase details component configuration options. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/purchaseDetails) */
-export type PurchaseDetailsWebIconArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
-};
-
-export type PurchaseDetailsCollection = {
-  __typename?: 'PurchaseDetailsCollection';
-  items: Array<Maybe<PurchaseDetails>>;
-  limit: Scalars['Int']['output'];
-  skip: Scalars['Int']['output'];
-  total: Scalars['Int']['output'];
-};
-
-export type PurchaseDetailsFilter = {
-  AND: InputMaybe<Array<InputMaybe<PurchaseDetailsFilter>>>;
-  OR: InputMaybe<Array<InputMaybe<PurchaseDetailsFilter>>>;
-  contentfulMetadata: InputMaybe<ContentfulMetadataFilter>;
+export type PurchaseDetailInput = {
   details: InputMaybe<Scalars['String']['input']>;
-  details_contains: InputMaybe<Scalars['String']['input']>;
-  details_exists: InputMaybe<Scalars['Boolean']['input']>;
-  details_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  details_not: InputMaybe<Scalars['String']['input']>;
-  details_not_contains: InputMaybe<Scalars['String']['input']>;
-  details_not_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   internalName: InputMaybe<Scalars['String']['input']>;
-  internalName_contains: InputMaybe<Scalars['String']['input']>;
-  internalName_exists: InputMaybe<Scalars['Boolean']['input']>;
-  internalName_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  internalName_not: InputMaybe<Scalars['String']['input']>;
-  internalName_not_contains: InputMaybe<Scalars['String']['input']>;
-  internalName_not_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
   productName: InputMaybe<Scalars['String']['input']>;
-  productName_contains: InputMaybe<Scalars['String']['input']>;
-  productName_exists: InputMaybe<Scalars['Boolean']['input']>;
-  productName_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  productName_not: InputMaybe<Scalars['String']['input']>;
-  productName_not_contains: InputMaybe<Scalars['String']['input']>;
-  productName_not_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  publishedAt: InputMaybe<Scalars['DateTime']['input']>;
   subtitle: InputMaybe<Scalars['String']['input']>;
-  subtitle_contains: InputMaybe<Scalars['String']['input']>;
-  subtitle_exists: InputMaybe<Scalars['Boolean']['input']>;
-  subtitle_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  subtitle_not: InputMaybe<Scalars['String']['input']>;
-  subtitle_not_contains: InputMaybe<Scalars['String']['input']>;
-  subtitle_not_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  sys: InputMaybe<SysFilter>;
   webIcon: InputMaybe<Scalars['String']['input']>;
-  webIcon_contains: InputMaybe<Scalars['String']['input']>;
-  webIcon_exists: InputMaybe<Scalars['Boolean']['input']>;
-  webIcon_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  webIcon_not: InputMaybe<Scalars['String']['input']>;
-  webIcon_not_contains: InputMaybe<Scalars['String']['input']>;
-  webIcon_not_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
 };
 
-export type PurchaseDetailsLinkingCollections = {
-  __typename?: 'PurchaseDetailsLinkingCollections';
-  entryCollection: Maybe<EntryCollection>;
-  purchaseCollection: Maybe<PurchaseCollection>;
+export type PurchaseDetailRelationResponseCollection = {
+  __typename?: 'PurchaseDetailRelationResponseCollection';
+  data: Array<PurchaseDetailEntity>;
 };
 
-export type PurchaseDetailsLinkingCollectionsEntryCollectionArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  locale: InputMaybe<Scalars['String']['input']>;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
-  skip?: InputMaybe<Scalars['Int']['input']>;
+export type PurchaseEntity = {
+  __typename?: 'PurchaseEntity';
+  attributes: Maybe<Purchase>;
+  id: Maybe<Scalars['ID']['output']>;
 };
 
-export type PurchaseDetailsLinkingCollectionsPurchaseCollectionArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  locale: InputMaybe<Scalars['String']['input']>;
-  order: InputMaybe<
-    Array<InputMaybe<PurchaseDetailsLinkingCollectionsPurchaseCollectionOrder>>
-  >;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
-  skip?: InputMaybe<Scalars['Int']['input']>;
+export type PurchaseEntityResponse = {
+  __typename?: 'PurchaseEntityResponse';
+  data: Maybe<PurchaseEntity>;
 };
 
-export enum PurchaseDetailsLinkingCollectionsPurchaseCollectionOrder {
-  DescriptionAsc = 'description_ASC',
-  DescriptionDesc = 'description_DESC',
-  InternalNameAsc = 'internalName_ASC',
-  InternalNameDesc = 'internalName_DESC',
-  SysFirstPublishedAtAsc = 'sys_firstPublishedAt_ASC',
-  SysFirstPublishedAtDesc = 'sys_firstPublishedAt_DESC',
-  SysIdAsc = 'sys_id_ASC',
-  SysIdDesc = 'sys_id_DESC',
-  SysPublishedAtAsc = 'sys_publishedAt_ASC',
-  SysPublishedAtDesc = 'sys_publishedAt_DESC',
-  SysPublishedVersionAsc = 'sys_publishedVersion_ASC',
-  SysPublishedVersionDesc = 'sys_publishedVersion_DESC',
-}
+export type PurchaseEntityResponseCollection = {
+  __typename?: 'PurchaseEntityResponseCollection';
+  data: Array<PurchaseEntity>;
+  meta: ResponseCollectionMeta;
+};
 
-export enum PurchaseDetailsOrder {
-  InternalNameAsc = 'internalName_ASC',
-  InternalNameDesc = 'internalName_DESC',
-  ProductNameAsc = 'productName_ASC',
-  ProductNameDesc = 'productName_DESC',
-  SubtitleAsc = 'subtitle_ASC',
-  SubtitleDesc = 'subtitle_DESC',
-  SysFirstPublishedAtAsc = 'sys_firstPublishedAt_ASC',
-  SysFirstPublishedAtDesc = 'sys_firstPublishedAt_DESC',
-  SysIdAsc = 'sys_id_ASC',
-  SysIdDesc = 'sys_id_DESC',
-  SysPublishedAtAsc = 'sys_publishedAt_ASC',
-  SysPublishedAtDesc = 'sys_publishedAt_DESC',
-  SysPublishedVersionAsc = 'sys_publishedVersion_ASC',
-  SysPublishedVersionDesc = 'sys_publishedVersion_DESC',
-  WebIconAsc = 'webIcon_ASC',
-  WebIconDesc = 'webIcon_DESC',
-}
+export type PurchaseFiltersInput = {
+  and: InputMaybe<Array<InputMaybe<PurchaseFiltersInput>>>;
+  createdAt: InputMaybe<DateTimeFilterInput>;
+  description: InputMaybe<StringFilterInput>;
+  id: InputMaybe<IdFilterInput>;
+  internalName: InputMaybe<StringFilterInput>;
+  not: InputMaybe<PurchaseFiltersInput>;
+  offering: InputMaybe<OfferingFiltersInput>;
+  or: InputMaybe<Array<InputMaybe<PurchaseFiltersInput>>>;
+  publishedAt: InputMaybe<DateTimeFilterInput>;
+  purchaseDetails: InputMaybe<PurchaseDetailFiltersInput>;
+  stripePlanChoices: InputMaybe<ComponentStripeStripePlanChoicesFiltersInput>;
+  updatedAt: InputMaybe<DateTimeFilterInput>;
+};
 
-export type PurchaseFilter = {
-  AND: InputMaybe<Array<InputMaybe<PurchaseFilter>>>;
-  OR: InputMaybe<Array<InputMaybe<PurchaseFilter>>>;
-  contentfulMetadata: InputMaybe<ContentfulMetadataFilter>;
+export type PurchaseInput = {
   description: InputMaybe<Scalars['String']['input']>;
-  description_contains: InputMaybe<Scalars['String']['input']>;
-  description_exists: InputMaybe<Scalars['Boolean']['input']>;
-  description_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  description_not: InputMaybe<Scalars['String']['input']>;
-  description_not_contains: InputMaybe<Scalars['String']['input']>;
-  description_not_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   internalName: InputMaybe<Scalars['String']['input']>;
-  internalName_contains: InputMaybe<Scalars['String']['input']>;
-  internalName_exists: InputMaybe<Scalars['Boolean']['input']>;
-  internalName_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  internalName_not: InputMaybe<Scalars['String']['input']>;
-  internalName_not_contains: InputMaybe<Scalars['String']['input']>;
-  internalName_not_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
+  offering: InputMaybe<Scalars['ID']['input']>;
+  publishedAt: InputMaybe<Scalars['DateTime']['input']>;
+  purchaseDetails: InputMaybe<Scalars['ID']['input']>;
+  stripePlanChoices: InputMaybe<
+    Array<InputMaybe<ComponentStripeStripePlanChoicesInput>>
   >;
-  offering: InputMaybe<CfOfferingNestedFilter>;
-  offering_exists: InputMaybe<Scalars['Boolean']['input']>;
-  purchaseDetails: InputMaybe<CfPurchaseDetailsNestedFilter>;
-  purchaseDetails_exists: InputMaybe<Scalars['Boolean']['input']>;
-  stripePlanChoices_contains_all: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  stripePlanChoices_contains_none: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  stripePlanChoices_contains_some: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  stripePlanChoices_exists: InputMaybe<Scalars['Boolean']['input']>;
-  sys: InputMaybe<SysFilter>;
 };
-
-export type PurchaseLinkingCollections = {
-  __typename?: 'PurchaseLinkingCollections';
-  entryCollection: Maybe<EntryCollection>;
-  offeringCollection: Maybe<OfferingCollection>;
-};
-
-export type PurchaseLinkingCollectionsEntryCollectionArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  locale: InputMaybe<Scalars['String']['input']>;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
-  skip?: InputMaybe<Scalars['Int']['input']>;
-};
-
-export type PurchaseLinkingCollectionsOfferingCollectionArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  locale: InputMaybe<Scalars['String']['input']>;
-  order: InputMaybe<
-    Array<InputMaybe<PurchaseLinkingCollectionsOfferingCollectionOrder>>
-  >;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
-  skip?: InputMaybe<Scalars['Int']['input']>;
-};
-
-export enum PurchaseLinkingCollectionsOfferingCollectionOrder {
-  ApiIdentifierAsc = 'apiIdentifier_ASC',
-  ApiIdentifierDesc = 'apiIdentifier_DESC',
-  DescriptionAsc = 'description_ASC',
-  DescriptionDesc = 'description_DESC',
-  InternalNameAsc = 'internalName_ASC',
-  InternalNameDesc = 'internalName_DESC',
-  StripeProductIdAsc = 'stripeProductId_ASC',
-  StripeProductIdDesc = 'stripeProductId_DESC',
-  SysFirstPublishedAtAsc = 'sys_firstPublishedAt_ASC',
-  SysFirstPublishedAtDesc = 'sys_firstPublishedAt_DESC',
-  SysIdAsc = 'sys_id_ASC',
-  SysIdDesc = 'sys_id_DESC',
-  SysPublishedAtAsc = 'sys_publishedAt_ASC',
-  SysPublishedAtDesc = 'sys_publishedAt_DESC',
-  SysPublishedVersionAsc = 'sys_publishedVersion_ASC',
-  SysPublishedVersionDesc = 'sys_publishedVersion_DESC',
-}
-
-export enum PurchaseOrder {
-  DescriptionAsc = 'description_ASC',
-  DescriptionDesc = 'description_DESC',
-  InternalNameAsc = 'internalName_ASC',
-  InternalNameDesc = 'internalName_DESC',
-  SysFirstPublishedAtAsc = 'sys_firstPublishedAt_ASC',
-  SysFirstPublishedAtDesc = 'sys_firstPublishedAt_DESC',
-  SysIdAsc = 'sys_id_ASC',
-  SysIdDesc = 'sys_id_DESC',
-  SysPublishedAtAsc = 'sys_publishedAt_ASC',
-  SysPublishedAtDesc = 'sys_publishedAt_DESC',
-  SysPublishedVersionAsc = 'sys_publishedVersion_ASC',
-  SysPublishedVersionDesc = 'sys_publishedVersion_DESC',
-}
 
 export type Query = {
   __typename?: 'Query';
-  _node: Maybe<_Node>;
-  asset: Maybe<Asset>;
-  assetCollection: Maybe<AssetCollection>;
-  capability: Maybe<Capability>;
-  capabilityCollection: Maybe<CapabilityCollection>;
-  commonContent: Maybe<CommonContent>;
-  commonContentCollection: Maybe<CommonContentCollection>;
-  couponConfig: Maybe<CouponConfig>;
-  couponConfigCollection: Maybe<CouponConfigCollection>;
-  entryCollection: Maybe<EntryCollection>;
-  iap: Maybe<Iap>;
-  iapCollection: Maybe<IapCollection>;
-  offering: Maybe<Offering>;
-  offeringCollection: Maybe<OfferingCollection>;
-  purchase: Maybe<Purchase>;
-  purchaseCollection: Maybe<PurchaseCollection>;
-  purchaseDetails: Maybe<PurchaseDetails>;
-  purchaseDetailsCollection: Maybe<PurchaseDetailsCollection>;
-  service: Maybe<Service>;
-  serviceCollection: Maybe<ServiceCollection>;
-  subGroup: Maybe<SubGroup>;
-  subGroupCollection: Maybe<SubGroupCollection>;
+  capabilities: Maybe<CapabilityEntityResponseCollection>;
+  capability: Maybe<CapabilityEntityResponse>;
+  commonContent: Maybe<CommonContentEntityResponse>;
+  commonContents: Maybe<CommonContentEntityResponseCollection>;
+  contentReleasesRelease: Maybe<ContentReleasesReleaseEntityResponse>;
+  contentReleasesReleaseAction: Maybe<ContentReleasesReleaseActionEntityResponse>;
+  contentReleasesReleaseActions: Maybe<ContentReleasesReleaseActionEntityResponseCollection>;
+  contentReleasesReleases: Maybe<ContentReleasesReleaseEntityResponseCollection>;
+  couponConfig: Maybe<CouponConfigEntityResponse>;
+  couponConfigs: Maybe<CouponConfigEntityResponseCollection>;
+  i18NLocale: Maybe<I18NLocaleEntityResponse>;
+  i18NLocales: Maybe<I18NLocaleEntityResponseCollection>;
+  iap: Maybe<IapEntityResponse>;
+  iaps: Maybe<IapEntityResponseCollection>;
+  me: Maybe<UsersPermissionsMe>;
+  offering: Maybe<OfferingEntityResponse>;
+  offerings: Maybe<OfferingEntityResponseCollection>;
+  purchase: Maybe<PurchaseEntityResponse>;
+  purchaseDetail: Maybe<PurchaseDetailEntityResponse>;
+  purchaseDetails: Maybe<PurchaseDetailEntityResponseCollection>;
+  purchases: Maybe<PurchaseEntityResponseCollection>;
+  service: Maybe<ServiceEntityResponse>;
+  services: Maybe<ServiceEntityResponseCollection>;
+  subgroup: Maybe<SubgroupEntityResponse>;
+  subgroups: Maybe<SubgroupEntityResponseCollection>;
+  uploadFile: Maybe<UploadFileEntityResponse>;
+  uploadFiles: Maybe<UploadFileEntityResponseCollection>;
+  uploadFolder: Maybe<UploadFolderEntityResponse>;
+  uploadFolders: Maybe<UploadFolderEntityResponseCollection>;
+  usersPermissionsRole: Maybe<UsersPermissionsRoleEntityResponse>;
+  usersPermissionsRoles: Maybe<UsersPermissionsRoleEntityResponseCollection>;
+  usersPermissionsUser: Maybe<UsersPermissionsUserEntityResponse>;
+  usersPermissionsUsers: Maybe<UsersPermissionsUserEntityResponseCollection>;
 };
 
-export type Query_NodeArgs = {
-  id: Scalars['ID']['input'];
-  locale: InputMaybe<Scalars['String']['input']>;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-export type QueryAssetArgs = {
-  id: Scalars['String']['input'];
-  locale: InputMaybe<Scalars['String']['input']>;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-export type QueryAssetCollectionArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  locale: InputMaybe<Scalars['String']['input']>;
-  order: InputMaybe<Array<InputMaybe<AssetOrder>>>;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
-  skip?: InputMaybe<Scalars['Int']['input']>;
-  where: InputMaybe<AssetFilter>;
+export type QueryCapabilitiesArgs = {
+  filters: InputMaybe<CapabilityFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  publicationState?: InputMaybe<PublicationState>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
 };
 
 export type QueryCapabilityArgs = {
-  id: Scalars['String']['input'];
-  locale: InputMaybe<Scalars['String']['input']>;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-export type QueryCapabilityCollectionArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  locale: InputMaybe<Scalars['String']['input']>;
-  order: InputMaybe<Array<InputMaybe<CapabilityOrder>>>;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
-  skip?: InputMaybe<Scalars['Int']['input']>;
-  where: InputMaybe<CapabilityFilter>;
+  id: InputMaybe<Scalars['ID']['input']>;
 };
 
 export type QueryCommonContentArgs = {
-  id: Scalars['String']['input'];
-  locale: InputMaybe<Scalars['String']['input']>;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
+  id: InputMaybe<Scalars['ID']['input']>;
+  locale: InputMaybe<Scalars['I18NLocaleCode']['input']>;
 };
 
-export type QueryCommonContentCollectionArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  locale: InputMaybe<Scalars['String']['input']>;
-  order: InputMaybe<Array<InputMaybe<CommonContentOrder>>>;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
-  skip?: InputMaybe<Scalars['Int']['input']>;
-  where: InputMaybe<CommonContentFilter>;
+export type QueryCommonContentsArgs = {
+  filters: InputMaybe<CommonContentFiltersInput>;
+  locale: InputMaybe<Scalars['I18NLocaleCode']['input']>;
+  pagination?: InputMaybe<PaginationArg>;
+  publicationState?: InputMaybe<PublicationState>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+export type QueryContentReleasesReleaseArgs = {
+  id: InputMaybe<Scalars['ID']['input']>;
+};
+
+export type QueryContentReleasesReleaseActionArgs = {
+  id: InputMaybe<Scalars['ID']['input']>;
+};
+
+export type QueryContentReleasesReleaseActionsArgs = {
+  filters: InputMaybe<ContentReleasesReleaseActionFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+export type QueryContentReleasesReleasesArgs = {
+  filters: InputMaybe<ContentReleasesReleaseFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
 };
 
 export type QueryCouponConfigArgs = {
-  id: Scalars['String']['input'];
-  locale: InputMaybe<Scalars['String']['input']>;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
+  id: InputMaybe<Scalars['ID']['input']>;
 };
 
-export type QueryCouponConfigCollectionArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  locale: InputMaybe<Scalars['String']['input']>;
-  order: InputMaybe<Array<InputMaybe<CouponConfigOrder>>>;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
-  skip?: InputMaybe<Scalars['Int']['input']>;
-  where: InputMaybe<CouponConfigFilter>;
+export type QueryCouponConfigsArgs = {
+  filters: InputMaybe<CouponConfigFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  publicationState?: InputMaybe<PublicationState>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
 };
 
-export type QueryEntryCollectionArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  locale: InputMaybe<Scalars['String']['input']>;
-  order: InputMaybe<Array<InputMaybe<EntryOrder>>>;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
-  skip?: InputMaybe<Scalars['Int']['input']>;
-  where: InputMaybe<EntryFilter>;
+export type QueryI18NLocaleArgs = {
+  id: InputMaybe<Scalars['ID']['input']>;
+};
+
+export type QueryI18NLocalesArgs = {
+  filters: InputMaybe<I18NLocaleFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
 };
 
 export type QueryIapArgs = {
-  id: Scalars['String']['input'];
-  locale: InputMaybe<Scalars['String']['input']>;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
+  id: InputMaybe<Scalars['ID']['input']>;
 };
 
-export type QueryIapCollectionArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  locale: InputMaybe<Scalars['String']['input']>;
-  order: InputMaybe<Array<InputMaybe<IapOrder>>>;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
-  skip?: InputMaybe<Scalars['Int']['input']>;
-  where: InputMaybe<IapFilter>;
+export type QueryIapsArgs = {
+  filters: InputMaybe<IapFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  publicationState?: InputMaybe<PublicationState>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
 };
 
 export type QueryOfferingArgs = {
-  id: Scalars['String']['input'];
-  locale: InputMaybe<Scalars['String']['input']>;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
+  id: InputMaybe<Scalars['ID']['input']>;
 };
 
-export type QueryOfferingCollectionArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  locale: InputMaybe<Scalars['String']['input']>;
-  order: InputMaybe<Array<InputMaybe<OfferingOrder>>>;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
-  skip?: InputMaybe<Scalars['Int']['input']>;
-  where: InputMaybe<OfferingFilter>;
+export type QueryOfferingsArgs = {
+  filters: InputMaybe<OfferingFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  publicationState?: InputMaybe<PublicationState>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
 };
 
 export type QueryPurchaseArgs = {
-  id: Scalars['String']['input'];
-  locale: InputMaybe<Scalars['String']['input']>;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
+  id: InputMaybe<Scalars['ID']['input']>;
 };
 
-export type QueryPurchaseCollectionArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  locale: InputMaybe<Scalars['String']['input']>;
-  order: InputMaybe<Array<InputMaybe<PurchaseOrder>>>;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
-  skip?: InputMaybe<Scalars['Int']['input']>;
-  where: InputMaybe<PurchaseFilter>;
+export type QueryPurchaseDetailArgs = {
+  id: InputMaybe<Scalars['ID']['input']>;
+  locale: InputMaybe<Scalars['I18NLocaleCode']['input']>;
 };
 
 export type QueryPurchaseDetailsArgs = {
-  id: Scalars['String']['input'];
-  locale: InputMaybe<Scalars['String']['input']>;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
+  filters: InputMaybe<PurchaseDetailFiltersInput>;
+  locale: InputMaybe<Scalars['I18NLocaleCode']['input']>;
+  pagination?: InputMaybe<PaginationArg>;
+  publicationState?: InputMaybe<PublicationState>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
 };
 
-export type QueryPurchaseDetailsCollectionArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  locale: InputMaybe<Scalars['String']['input']>;
-  order: InputMaybe<Array<InputMaybe<PurchaseDetailsOrder>>>;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
-  skip?: InputMaybe<Scalars['Int']['input']>;
-  where: InputMaybe<PurchaseDetailsFilter>;
+export type QueryPurchasesArgs = {
+  filters: InputMaybe<PurchaseFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  publicationState?: InputMaybe<PublicationState>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
 };
 
 export type QueryServiceArgs = {
-  id: Scalars['String']['input'];
-  locale: InputMaybe<Scalars['String']['input']>;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
+  id: InputMaybe<Scalars['ID']['input']>;
 };
 
-export type QueryServiceCollectionArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  locale: InputMaybe<Scalars['String']['input']>;
-  order: InputMaybe<Array<InputMaybe<ServiceOrder>>>;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
-  skip?: InputMaybe<Scalars['Int']['input']>;
-  where: InputMaybe<ServiceFilter>;
+export type QueryServicesArgs = {
+  filters: InputMaybe<ServiceFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  publicationState?: InputMaybe<PublicationState>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
 };
 
-export type QuerySubGroupArgs = {
-  id: Scalars['String']['input'];
-  locale: InputMaybe<Scalars['String']['input']>;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
+export type QuerySubgroupArgs = {
+  id: InputMaybe<Scalars['ID']['input']>;
 };
 
-export type QuerySubGroupCollectionArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  locale: InputMaybe<Scalars['String']['input']>;
-  order: InputMaybe<Array<InputMaybe<SubGroupOrder>>>;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
-  skip?: InputMaybe<Scalars['Int']['input']>;
-  where: InputMaybe<SubGroupFilter>;
+export type QuerySubgroupsArgs = {
+  filters: InputMaybe<SubgroupFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  publicationState?: InputMaybe<PublicationState>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
 };
 
-/** Mapping of services to relevant OAuth configuration and capabilities. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/service) */
-export type Service = Entry & {
+export type QueryUploadFileArgs = {
+  id: InputMaybe<Scalars['ID']['input']>;
+};
+
+export type QueryUploadFilesArgs = {
+  filters: InputMaybe<UploadFileFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+export type QueryUploadFolderArgs = {
+  id: InputMaybe<Scalars['ID']['input']>;
+};
+
+export type QueryUploadFoldersArgs = {
+  filters: InputMaybe<UploadFolderFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+export type QueryUsersPermissionsRoleArgs = {
+  id: InputMaybe<Scalars['ID']['input']>;
+};
+
+export type QueryUsersPermissionsRolesArgs = {
+  filters: InputMaybe<UsersPermissionsRoleFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+export type QueryUsersPermissionsUserArgs = {
+  id: InputMaybe<Scalars['ID']['input']>;
+};
+
+export type QueryUsersPermissionsUsersArgs = {
+  filters: InputMaybe<UsersPermissionsUserFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+export type ResponseCollectionMeta = {
+  __typename?: 'ResponseCollectionMeta';
+  pagination: Pagination;
+};
+
+export type Service = {
   __typename?: 'Service';
-  capabilitiesCollection: Maybe<ServiceCapabilitiesCollection>;
-  contentfulMetadata: ContentfulMetadata;
+  capabilities: Maybe<CapabilityRelationResponseCollection>;
+  createdAt: Maybe<Scalars['DateTime']['output']>;
   description: Maybe<Scalars['String']['output']>;
-  internalName: Maybe<Scalars['String']['output']>;
-  linkedFrom: Maybe<ServiceLinkingCollections>;
-  oauthClientId: Maybe<Scalars['String']['output']>;
-  sys: Sys;
-};
-
-/** Mapping of services to relevant OAuth configuration and capabilities. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/service) */
-export type ServiceCapabilitiesCollectionArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  locale: InputMaybe<Scalars['String']['input']>;
-  order: InputMaybe<Array<InputMaybe<ServiceCapabilitiesCollectionOrder>>>;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
-  skip?: InputMaybe<Scalars['Int']['input']>;
-  where: InputMaybe<CapabilityFilter>;
-};
-
-/** Mapping of services to relevant OAuth configuration and capabilities. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/service) */
-export type ServiceDescriptionArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
-};
-
-/** Mapping of services to relevant OAuth configuration and capabilities. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/service) */
-export type ServiceInternalNameArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
-};
-
-/** Mapping of services to relevant OAuth configuration and capabilities. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/service) */
-export type ServiceLinkedFromArgs = {
-  allowedLocales: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-};
-
-/** Mapping of services to relevant OAuth configuration and capabilities. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/service) */
-export type ServiceOauthClientIdArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
-};
-
-export type ServiceCapabilitiesCollection = {
-  __typename?: 'ServiceCapabilitiesCollection';
-  items: Array<Maybe<Capability>>;
-  limit: Scalars['Int']['output'];
-  skip: Scalars['Int']['output'];
-  total: Scalars['Int']['output'];
-};
-
-export enum ServiceCapabilitiesCollectionOrder {
-  DescriptionAsc = 'description_ASC',
-  DescriptionDesc = 'description_DESC',
-  InternalNameAsc = 'internalName_ASC',
-  InternalNameDesc = 'internalName_DESC',
-  SlugAsc = 'slug_ASC',
-  SlugDesc = 'slug_DESC',
-  SysFirstPublishedAtAsc = 'sys_firstPublishedAt_ASC',
-  SysFirstPublishedAtDesc = 'sys_firstPublishedAt_DESC',
-  SysIdAsc = 'sys_id_ASC',
-  SysIdDesc = 'sys_id_DESC',
-  SysPublishedAtAsc = 'sys_publishedAt_ASC',
-  SysPublishedAtDesc = 'sys_publishedAt_DESC',
-  SysPublishedVersionAsc = 'sys_publishedVersion_ASC',
-  SysPublishedVersionDesc = 'sys_publishedVersion_DESC',
-}
-
-export type ServiceCollection = {
-  __typename?: 'ServiceCollection';
-  items: Array<Maybe<Service>>;
-  limit: Scalars['Int']['output'];
-  skip: Scalars['Int']['output'];
-  total: Scalars['Int']['output'];
-};
-
-export type ServiceFilter = {
-  AND: InputMaybe<Array<InputMaybe<ServiceFilter>>>;
-  OR: InputMaybe<Array<InputMaybe<ServiceFilter>>>;
-  capabilities: InputMaybe<CfCapabilityNestedFilter>;
-  capabilitiesCollection_exists: InputMaybe<Scalars['Boolean']['input']>;
-  contentfulMetadata: InputMaybe<ContentfulMetadataFilter>;
-  description: InputMaybe<Scalars['String']['input']>;
-  description_contains: InputMaybe<Scalars['String']['input']>;
-  description_exists: InputMaybe<Scalars['Boolean']['input']>;
-  description_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  description_not: InputMaybe<Scalars['String']['input']>;
-  description_not_contains: InputMaybe<Scalars['String']['input']>;
-  description_not_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  internalName: InputMaybe<Scalars['String']['input']>;
-  internalName_contains: InputMaybe<Scalars['String']['input']>;
-  internalName_exists: InputMaybe<Scalars['Boolean']['input']>;
-  internalName_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  internalName_not: InputMaybe<Scalars['String']['input']>;
-  internalName_not_contains: InputMaybe<Scalars['String']['input']>;
-  internalName_not_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  oauthClientId: InputMaybe<Scalars['String']['input']>;
-  oauthClientId_contains: InputMaybe<Scalars['String']['input']>;
-  oauthClientId_exists: InputMaybe<Scalars['Boolean']['input']>;
-  oauthClientId_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  oauthClientId_not: InputMaybe<Scalars['String']['input']>;
-  oauthClientId_not_contains: InputMaybe<Scalars['String']['input']>;
-  oauthClientId_not_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  sys: InputMaybe<SysFilter>;
-};
-
-export type ServiceLinkingCollections = {
-  __typename?: 'ServiceLinkingCollections';
-  capabilityCollection: Maybe<CapabilityCollection>;
-  entryCollection: Maybe<EntryCollection>;
-};
-
-export type ServiceLinkingCollectionsCapabilityCollectionArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  locale: InputMaybe<Scalars['String']['input']>;
-  order: InputMaybe<
-    Array<InputMaybe<ServiceLinkingCollectionsCapabilityCollectionOrder>>
-  >;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
-  skip?: InputMaybe<Scalars['Int']['input']>;
-};
-
-export type ServiceLinkingCollectionsEntryCollectionArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  locale: InputMaybe<Scalars['String']['input']>;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
-  skip?: InputMaybe<Scalars['Int']['input']>;
-};
-
-export enum ServiceLinkingCollectionsCapabilityCollectionOrder {
-  DescriptionAsc = 'description_ASC',
-  DescriptionDesc = 'description_DESC',
-  InternalNameAsc = 'internalName_ASC',
-  InternalNameDesc = 'internalName_DESC',
-  SlugAsc = 'slug_ASC',
-  SlugDesc = 'slug_DESC',
-  SysFirstPublishedAtAsc = 'sys_firstPublishedAt_ASC',
-  SysFirstPublishedAtDesc = 'sys_firstPublishedAt_DESC',
-  SysIdAsc = 'sys_id_ASC',
-  SysIdDesc = 'sys_id_DESC',
-  SysPublishedAtAsc = 'sys_publishedAt_ASC',
-  SysPublishedAtDesc = 'sys_publishedAt_DESC',
-  SysPublishedVersionAsc = 'sys_publishedVersion_ASC',
-  SysPublishedVersionDesc = 'sys_publishedVersion_DESC',
-}
-
-export enum ServiceOrder {
-  DescriptionAsc = 'description_ASC',
-  DescriptionDesc = 'description_DESC',
-  InternalNameAsc = 'internalName_ASC',
-  InternalNameDesc = 'internalName_DESC',
-  OauthClientIdAsc = 'oauthClientId_ASC',
-  OauthClientIdDesc = 'oauthClientId_DESC',
-  SysFirstPublishedAtAsc = 'sys_firstPublishedAt_ASC',
-  SysFirstPublishedAtDesc = 'sys_firstPublishedAt_DESC',
-  SysIdAsc = 'sys_id_ASC',
-  SysIdDesc = 'sys_id_DESC',
-  SysPublishedAtAsc = 'sys_publishedAt_ASC',
-  SysPublishedAtDesc = 'sys_publishedAt_DESC',
-  SysPublishedVersionAsc = 'sys_publishedVersion_ASC',
-  SysPublishedVersionDesc = 'sys_publishedVersion_DESC',
-}
-
-/** Subscription Group configuration. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/subGroup) */
-export type SubGroup = Entry & {
-  __typename?: 'SubGroup';
-  contentfulMetadata: ContentfulMetadata;
-  groupName: Maybe<Scalars['String']['output']>;
-  internalName: Maybe<Scalars['String']['output']>;
-  linkedFrom: Maybe<SubGroupLinkingCollections>;
-  offeringCollection: Maybe<SubGroupOfferingCollection>;
-  sys: Sys;
-};
-
-/** Subscription Group configuration. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/subGroup) */
-export type SubGroupGroupNameArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
-};
-
-/** Subscription Group configuration. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/subGroup) */
-export type SubGroupInternalNameArgs = {
-  locale: InputMaybe<Scalars['String']['input']>;
-};
-
-/** Subscription Group configuration. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/subGroup) */
-export type SubGroupLinkedFromArgs = {
-  allowedLocales: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-};
-
-/** Subscription Group configuration. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/subGroup) */
-export type SubGroupOfferingCollectionArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  locale: InputMaybe<Scalars['String']['input']>;
-  order: InputMaybe<Array<InputMaybe<SubGroupOfferingCollectionOrder>>>;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
-  skip?: InputMaybe<Scalars['Int']['input']>;
-  where: InputMaybe<OfferingFilter>;
-};
-
-export type SubGroupCollection = {
-  __typename?: 'SubGroupCollection';
-  items: Array<Maybe<SubGroup>>;
-  limit: Scalars['Int']['output'];
-  skip: Scalars['Int']['output'];
-  total: Scalars['Int']['output'];
-};
-
-export type SubGroupFilter = {
-  AND: InputMaybe<Array<InputMaybe<SubGroupFilter>>>;
-  OR: InputMaybe<Array<InputMaybe<SubGroupFilter>>>;
-  contentfulMetadata: InputMaybe<ContentfulMetadataFilter>;
-  groupName: InputMaybe<Scalars['String']['input']>;
-  groupName_contains: InputMaybe<Scalars['String']['input']>;
-  groupName_exists: InputMaybe<Scalars['Boolean']['input']>;
-  groupName_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  groupName_not: InputMaybe<Scalars['String']['input']>;
-  groupName_not_contains: InputMaybe<Scalars['String']['input']>;
-  groupName_not_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  internalName: InputMaybe<Scalars['String']['input']>;
-  internalName_contains: InputMaybe<Scalars['String']['input']>;
-  internalName_exists: InputMaybe<Scalars['Boolean']['input']>;
-  internalName_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  internalName_not: InputMaybe<Scalars['String']['input']>;
-  internalName_not_contains: InputMaybe<Scalars['String']['input']>;
-  internalName_not_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  offering: InputMaybe<CfOfferingNestedFilter>;
-  offeringCollection_exists: InputMaybe<Scalars['Boolean']['input']>;
-  sys: InputMaybe<SysFilter>;
-};
-
-export type SubGroupLinkingCollections = {
-  __typename?: 'SubGroupLinkingCollections';
-  entryCollection: Maybe<EntryCollection>;
-};
-
-export type SubGroupLinkingCollectionsEntryCollectionArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  locale: InputMaybe<Scalars['String']['input']>;
-  preview: InputMaybe<Scalars['Boolean']['input']>;
-  skip?: InputMaybe<Scalars['Int']['input']>;
-};
-
-export type SubGroupOfferingCollection = {
-  __typename?: 'SubGroupOfferingCollection';
-  items: Array<Maybe<Offering>>;
-  limit: Scalars['Int']['output'];
-  skip: Scalars['Int']['output'];
-  total: Scalars['Int']['output'];
-};
-
-export enum SubGroupOfferingCollectionOrder {
-  ApiIdentifierAsc = 'apiIdentifier_ASC',
-  ApiIdentifierDesc = 'apiIdentifier_DESC',
-  DescriptionAsc = 'description_ASC',
-  DescriptionDesc = 'description_DESC',
-  InternalNameAsc = 'internalName_ASC',
-  InternalNameDesc = 'internalName_DESC',
-  StripeProductIdAsc = 'stripeProductId_ASC',
-  StripeProductIdDesc = 'stripeProductId_DESC',
-  SysFirstPublishedAtAsc = 'sys_firstPublishedAt_ASC',
-  SysFirstPublishedAtDesc = 'sys_firstPublishedAt_DESC',
-  SysIdAsc = 'sys_id_ASC',
-  SysIdDesc = 'sys_id_DESC',
-  SysPublishedAtAsc = 'sys_publishedAt_ASC',
-  SysPublishedAtDesc = 'sys_publishedAt_DESC',
-  SysPublishedVersionAsc = 'sys_publishedVersion_ASC',
-  SysPublishedVersionDesc = 'sys_publishedVersion_DESC',
-}
-
-export enum SubGroupOrder {
-  GroupNameAsc = 'groupName_ASC',
-  GroupNameDesc = 'groupName_DESC',
-  InternalNameAsc = 'internalName_ASC',
-  InternalNameDesc = 'internalName_DESC',
-  SysFirstPublishedAtAsc = 'sys_firstPublishedAt_ASC',
-  SysFirstPublishedAtDesc = 'sys_firstPublishedAt_DESC',
-  SysIdAsc = 'sys_id_ASC',
-  SysIdDesc = 'sys_id_DESC',
-  SysPublishedAtAsc = 'sys_publishedAt_ASC',
-  SysPublishedAtDesc = 'sys_publishedAt_DESC',
-  SysPublishedVersionAsc = 'sys_publishedVersion_ASC',
-  SysPublishedVersionDesc = 'sys_publishedVersion_DESC',
-}
-
-export type Sys = {
-  __typename?: 'Sys';
-  environmentId: Scalars['String']['output'];
-  firstPublishedAt: Maybe<Scalars['DateTime']['output']>;
-  id: Scalars['String']['output'];
-  /** The locale that was requested. */
-  locale: Maybe<Scalars['String']['output']>;
+  internalName: Scalars['String']['output'];
+  oauthClientId: Scalars['String']['output'];
   publishedAt: Maybe<Scalars['DateTime']['output']>;
-  publishedVersion: Maybe<Scalars['Int']['output']>;
-  spaceId: Scalars['String']['output'];
+  updatedAt: Maybe<Scalars['DateTime']['output']>;
 };
 
-export type SysFilter = {
-  firstPublishedAt: InputMaybe<Scalars['DateTime']['input']>;
-  firstPublishedAt_exists: InputMaybe<Scalars['Boolean']['input']>;
-  firstPublishedAt_gt: InputMaybe<Scalars['DateTime']['input']>;
-  firstPublishedAt_gte: InputMaybe<Scalars['DateTime']['input']>;
-  firstPublishedAt_in: InputMaybe<
-    Array<InputMaybe<Scalars['DateTime']['input']>>
-  >;
-  firstPublishedAt_lt: InputMaybe<Scalars['DateTime']['input']>;
-  firstPublishedAt_lte: InputMaybe<Scalars['DateTime']['input']>;
-  firstPublishedAt_not: InputMaybe<Scalars['DateTime']['input']>;
-  firstPublishedAt_not_in: InputMaybe<
-    Array<InputMaybe<Scalars['DateTime']['input']>>
-  >;
-  id: InputMaybe<Scalars['String']['input']>;
-  id_contains: InputMaybe<Scalars['String']['input']>;
-  id_exists: InputMaybe<Scalars['Boolean']['input']>;
-  id_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  id_not: InputMaybe<Scalars['String']['input']>;
-  id_not_contains: InputMaybe<Scalars['String']['input']>;
-  id_not_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  publishedAt: InputMaybe<Scalars['DateTime']['input']>;
-  publishedAt_exists: InputMaybe<Scalars['Boolean']['input']>;
-  publishedAt_gt: InputMaybe<Scalars['DateTime']['input']>;
-  publishedAt_gte: InputMaybe<Scalars['DateTime']['input']>;
-  publishedAt_in: InputMaybe<Array<InputMaybe<Scalars['DateTime']['input']>>>;
-  publishedAt_lt: InputMaybe<Scalars['DateTime']['input']>;
-  publishedAt_lte: InputMaybe<Scalars['DateTime']['input']>;
-  publishedAt_not: InputMaybe<Scalars['DateTime']['input']>;
-  publishedAt_not_in: InputMaybe<
-    Array<InputMaybe<Scalars['DateTime']['input']>>
-  >;
-  publishedVersion: InputMaybe<Scalars['Float']['input']>;
-  publishedVersion_exists: InputMaybe<Scalars['Boolean']['input']>;
-  publishedVersion_gt: InputMaybe<Scalars['Float']['input']>;
-  publishedVersion_gte: InputMaybe<Scalars['Float']['input']>;
-  publishedVersion_in: InputMaybe<Array<InputMaybe<Scalars['Float']['input']>>>;
-  publishedVersion_lt: InputMaybe<Scalars['Float']['input']>;
-  publishedVersion_lte: InputMaybe<Scalars['Float']['input']>;
-  publishedVersion_not: InputMaybe<Scalars['Float']['input']>;
-  publishedVersion_not_in: InputMaybe<
-    Array<InputMaybe<Scalars['Float']['input']>>
-  >;
+export type ServiceCapabilitiesArgs = {
+  filters: InputMaybe<CapabilityFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  publicationState?: InputMaybe<PublicationState>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
 };
 
-export type _Node = {
-  _id: Scalars['ID']['output'];
+export type ServiceEntity = {
+  __typename?: 'ServiceEntity';
+  attributes: Maybe<Service>;
+  id: Maybe<Scalars['ID']['output']>;
 };
 
-export type CfCapabilityNestedFilter = {
-  AND: InputMaybe<Array<InputMaybe<CfCapabilityNestedFilter>>>;
-  OR: InputMaybe<Array<InputMaybe<CfCapabilityNestedFilter>>>;
-  contentfulMetadata: InputMaybe<ContentfulMetadataFilter>;
+export type ServiceEntityResponse = {
+  __typename?: 'ServiceEntityResponse';
+  data: Maybe<ServiceEntity>;
+};
+
+export type ServiceEntityResponseCollection = {
+  __typename?: 'ServiceEntityResponseCollection';
+  data: Array<ServiceEntity>;
+  meta: ResponseCollectionMeta;
+};
+
+export type ServiceFiltersInput = {
+  and: InputMaybe<Array<InputMaybe<ServiceFiltersInput>>>;
+  capabilities: InputMaybe<CapabilityFiltersInput>;
+  createdAt: InputMaybe<DateTimeFilterInput>;
+  description: InputMaybe<StringFilterInput>;
+  id: InputMaybe<IdFilterInput>;
+  internalName: InputMaybe<StringFilterInput>;
+  not: InputMaybe<ServiceFiltersInput>;
+  oauthClientId: InputMaybe<StringFilterInput>;
+  or: InputMaybe<Array<InputMaybe<ServiceFiltersInput>>>;
+  publishedAt: InputMaybe<DateTimeFilterInput>;
+  updatedAt: InputMaybe<DateTimeFilterInput>;
+};
+
+export type ServiceInput = {
+  capabilities: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   description: InputMaybe<Scalars['String']['input']>;
-  description_contains: InputMaybe<Scalars['String']['input']>;
-  description_exists: InputMaybe<Scalars['Boolean']['input']>;
-  description_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  description_not: InputMaybe<Scalars['String']['input']>;
-  description_not_contains: InputMaybe<Scalars['String']['input']>;
-  description_not_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   internalName: InputMaybe<Scalars['String']['input']>;
-  internalName_contains: InputMaybe<Scalars['String']['input']>;
-  internalName_exists: InputMaybe<Scalars['Boolean']['input']>;
-  internalName_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  internalName_not: InputMaybe<Scalars['String']['input']>;
-  internalName_not_contains: InputMaybe<Scalars['String']['input']>;
-  internalName_not_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  servicesCollection_exists: InputMaybe<Scalars['Boolean']['input']>;
-  slug: InputMaybe<Scalars['String']['input']>;
-  slug_contains: InputMaybe<Scalars['String']['input']>;
-  slug_exists: InputMaybe<Scalars['Boolean']['input']>;
-  slug_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  slug_not: InputMaybe<Scalars['String']['input']>;
-  slug_not_contains: InputMaybe<Scalars['String']['input']>;
-  slug_not_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  sys: InputMaybe<SysFilter>;
-};
-
-export type CfCommonContentNestedFilter = {
-  AND: InputMaybe<Array<InputMaybe<CfCommonContentNestedFilter>>>;
-  OR: InputMaybe<Array<InputMaybe<CfCommonContentNestedFilter>>>;
-  cancellationUrl: InputMaybe<Scalars['String']['input']>;
-  cancellationUrl_contains: InputMaybe<Scalars['String']['input']>;
-  cancellationUrl_exists: InputMaybe<Scalars['Boolean']['input']>;
-  cancellationUrl_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  cancellationUrl_not: InputMaybe<Scalars['String']['input']>;
-  cancellationUrl_not_contains: InputMaybe<Scalars['String']['input']>;
-  cancellationUrl_not_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  contentfulMetadata: InputMaybe<ContentfulMetadataFilter>;
-  emailIcon: InputMaybe<Scalars['String']['input']>;
-  emailIcon_contains: InputMaybe<Scalars['String']['input']>;
-  emailIcon_exists: InputMaybe<Scalars['Boolean']['input']>;
-  emailIcon_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  emailIcon_not: InputMaybe<Scalars['String']['input']>;
-  emailIcon_not_contains: InputMaybe<Scalars['String']['input']>;
-  emailIcon_not_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  internalName: InputMaybe<Scalars['String']['input']>;
-  internalName_contains: InputMaybe<Scalars['String']['input']>;
-  internalName_exists: InputMaybe<Scalars['Boolean']['input']>;
-  internalName_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  internalName_not: InputMaybe<Scalars['String']['input']>;
-  internalName_not_contains: InputMaybe<Scalars['String']['input']>;
-  internalName_not_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  newsletterLabelTextCode: InputMaybe<Scalars['String']['input']>;
-  newsletterLabelTextCode_contains: InputMaybe<Scalars['String']['input']>;
-  newsletterLabelTextCode_exists: InputMaybe<Scalars['Boolean']['input']>;
-  newsletterLabelTextCode_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  newsletterLabelTextCode_not: InputMaybe<Scalars['String']['input']>;
-  newsletterLabelTextCode_not_contains: InputMaybe<Scalars['String']['input']>;
-  newsletterLabelTextCode_not_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  newsletterSlug_contains_all: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  newsletterSlug_contains_none: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  newsletterSlug_contains_some: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  newsletterSlug_exists: InputMaybe<Scalars['Boolean']['input']>;
-  privacyNoticeDownloadUrl: InputMaybe<Scalars['String']['input']>;
-  privacyNoticeDownloadUrl_contains: InputMaybe<Scalars['String']['input']>;
-  privacyNoticeDownloadUrl_exists: InputMaybe<Scalars['Boolean']['input']>;
-  privacyNoticeDownloadUrl_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  privacyNoticeDownloadUrl_not: InputMaybe<Scalars['String']['input']>;
-  privacyNoticeDownloadUrl_not_contains: InputMaybe<Scalars['String']['input']>;
-  privacyNoticeDownloadUrl_not_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  privacyNoticeUrl: InputMaybe<Scalars['String']['input']>;
-  privacyNoticeUrl_contains: InputMaybe<Scalars['String']['input']>;
-  privacyNoticeUrl_exists: InputMaybe<Scalars['Boolean']['input']>;
-  privacyNoticeUrl_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  privacyNoticeUrl_not: InputMaybe<Scalars['String']['input']>;
-  privacyNoticeUrl_not_contains: InputMaybe<Scalars['String']['input']>;
-  privacyNoticeUrl_not_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  successActionButtonLabel: InputMaybe<Scalars['String']['input']>;
-  successActionButtonLabel_contains: InputMaybe<Scalars['String']['input']>;
-  successActionButtonLabel_exists: InputMaybe<Scalars['Boolean']['input']>;
-  successActionButtonLabel_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  successActionButtonLabel_not: InputMaybe<Scalars['String']['input']>;
-  successActionButtonLabel_not_contains: InputMaybe<Scalars['String']['input']>;
-  successActionButtonLabel_not_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  successActionButtonUrl: InputMaybe<Scalars['String']['input']>;
-  successActionButtonUrl_contains: InputMaybe<Scalars['String']['input']>;
-  successActionButtonUrl_exists: InputMaybe<Scalars['Boolean']['input']>;
-  successActionButtonUrl_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  successActionButtonUrl_not: InputMaybe<Scalars['String']['input']>;
-  successActionButtonUrl_not_contains: InputMaybe<Scalars['String']['input']>;
-  successActionButtonUrl_not_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  sys: InputMaybe<SysFilter>;
-  termsOfServiceDownloadUrl: InputMaybe<Scalars['String']['input']>;
-  termsOfServiceDownloadUrl_contains: InputMaybe<Scalars['String']['input']>;
-  termsOfServiceDownloadUrl_exists: InputMaybe<Scalars['Boolean']['input']>;
-  termsOfServiceDownloadUrl_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  termsOfServiceDownloadUrl_not: InputMaybe<Scalars['String']['input']>;
-  termsOfServiceDownloadUrl_not_contains: InputMaybe<
-    Scalars['String']['input']
-  >;
-  termsOfServiceDownloadUrl_not_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  termsOfServiceUrl: InputMaybe<Scalars['String']['input']>;
-  termsOfServiceUrl_contains: InputMaybe<Scalars['String']['input']>;
-  termsOfServiceUrl_exists: InputMaybe<Scalars['Boolean']['input']>;
-  termsOfServiceUrl_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  termsOfServiceUrl_not: InputMaybe<Scalars['String']['input']>;
-  termsOfServiceUrl_not_contains: InputMaybe<Scalars['String']['input']>;
-  termsOfServiceUrl_not_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-};
-
-export type CfCouponConfigNestedFilter = {
-  AND: InputMaybe<Array<InputMaybe<CfCouponConfigNestedFilter>>>;
-  OR: InputMaybe<Array<InputMaybe<CfCouponConfigNestedFilter>>>;
-  contentfulMetadata: InputMaybe<ContentfulMetadataFilter>;
-  countries_contains_all: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  countries_contains_none: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  countries_contains_some: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  countries_exists: InputMaybe<Scalars['Boolean']['input']>;
-  internalName: InputMaybe<Scalars['String']['input']>;
-  internalName_contains: InputMaybe<Scalars['String']['input']>;
-  internalName_exists: InputMaybe<Scalars['Boolean']['input']>;
-  internalName_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  internalName_not: InputMaybe<Scalars['String']['input']>;
-  internalName_not_contains: InputMaybe<Scalars['String']['input']>;
-  internalName_not_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  stripePromotionCodes_contains_all: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  stripePromotionCodes_contains_none: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  stripePromotionCodes_contains_some: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  stripePromotionCodes_exists: InputMaybe<Scalars['Boolean']['input']>;
-  sys: InputMaybe<SysFilter>;
-};
-
-export type CfIapNestedFilter = {
-  AND: InputMaybe<Array<InputMaybe<CfIapNestedFilter>>>;
-  OR: InputMaybe<Array<InputMaybe<CfIapNestedFilter>>>;
-  appleProductIDs_contains_all: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  appleProductIDs_contains_none: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  appleProductIDs_contains_some: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  appleProductIDs_exists: InputMaybe<Scalars['Boolean']['input']>;
-  contentfulMetadata: InputMaybe<ContentfulMetadataFilter>;
-  googleSKUs_contains_all: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  googleSKUs_contains_none: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  googleSKUs_contains_some: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  googleSKUs_exists: InputMaybe<Scalars['Boolean']['input']>;
-  internalName: InputMaybe<Scalars['String']['input']>;
-  internalName_contains: InputMaybe<Scalars['String']['input']>;
-  internalName_exists: InputMaybe<Scalars['Boolean']['input']>;
-  internalName_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  internalName_not: InputMaybe<Scalars['String']['input']>;
-  internalName_not_contains: InputMaybe<Scalars['String']['input']>;
-  internalName_not_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  sys: InputMaybe<SysFilter>;
-};
-
-export type CfOfferingNestedFilter = {
-  AND: InputMaybe<Array<InputMaybe<CfOfferingNestedFilter>>>;
-  OR: InputMaybe<Array<InputMaybe<CfOfferingNestedFilter>>>;
-  apiIdentifier: InputMaybe<Scalars['String']['input']>;
-  apiIdentifier_contains: InputMaybe<Scalars['String']['input']>;
-  apiIdentifier_exists: InputMaybe<Scalars['Boolean']['input']>;
-  apiIdentifier_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  apiIdentifier_not: InputMaybe<Scalars['String']['input']>;
-  apiIdentifier_not_contains: InputMaybe<Scalars['String']['input']>;
-  apiIdentifier_not_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  capabilitiesCollection_exists: InputMaybe<Scalars['Boolean']['input']>;
-  commonContent_exists: InputMaybe<Scalars['Boolean']['input']>;
-  contentfulMetadata: InputMaybe<ContentfulMetadataFilter>;
-  countries_contains_all: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  countries_contains_none: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  countries_contains_some: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  countries_exists: InputMaybe<Scalars['Boolean']['input']>;
-  couponConfigCollection_exists: InputMaybe<Scalars['Boolean']['input']>;
-  defaultPurchase_exists: InputMaybe<Scalars['Boolean']['input']>;
-  description: InputMaybe<Scalars['String']['input']>;
-  description_contains: InputMaybe<Scalars['String']['input']>;
-  description_exists: InputMaybe<Scalars['Boolean']['input']>;
-  description_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  description_not: InputMaybe<Scalars['String']['input']>;
-  description_not_contains: InputMaybe<Scalars['String']['input']>;
-  description_not_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  experimentPurchaseCollection_exists: InputMaybe<Scalars['Boolean']['input']>;
-  iapCollection_exists: InputMaybe<Scalars['Boolean']['input']>;
-  internalName: InputMaybe<Scalars['String']['input']>;
-  internalName_contains: InputMaybe<Scalars['String']['input']>;
-  internalName_exists: InputMaybe<Scalars['Boolean']['input']>;
-  internalName_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  internalName_not: InputMaybe<Scalars['String']['input']>;
-  internalName_not_contains: InputMaybe<Scalars['String']['input']>;
-  internalName_not_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  stripeLegacyPlans_contains_all: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  stripeLegacyPlans_contains_none: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  stripeLegacyPlans_contains_some: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  stripeLegacyPlans_exists: InputMaybe<Scalars['Boolean']['input']>;
-  stripeProductId: InputMaybe<Scalars['String']['input']>;
-  stripeProductId_contains: InputMaybe<Scalars['String']['input']>;
-  stripeProductId_exists: InputMaybe<Scalars['Boolean']['input']>;
-  stripeProductId_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  stripeProductId_not: InputMaybe<Scalars['String']['input']>;
-  stripeProductId_not_contains: InputMaybe<Scalars['String']['input']>;
-  stripeProductId_not_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  sys: InputMaybe<SysFilter>;
-};
-
-export type CfPurchaseDetailsNestedFilter = {
-  AND: InputMaybe<Array<InputMaybe<CfPurchaseDetailsNestedFilter>>>;
-  OR: InputMaybe<Array<InputMaybe<CfPurchaseDetailsNestedFilter>>>;
-  contentfulMetadata: InputMaybe<ContentfulMetadataFilter>;
-  details: InputMaybe<Scalars['String']['input']>;
-  details_contains: InputMaybe<Scalars['String']['input']>;
-  details_exists: InputMaybe<Scalars['Boolean']['input']>;
-  details_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  details_not: InputMaybe<Scalars['String']['input']>;
-  details_not_contains: InputMaybe<Scalars['String']['input']>;
-  details_not_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  internalName: InputMaybe<Scalars['String']['input']>;
-  internalName_contains: InputMaybe<Scalars['String']['input']>;
-  internalName_exists: InputMaybe<Scalars['Boolean']['input']>;
-  internalName_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  internalName_not: InputMaybe<Scalars['String']['input']>;
-  internalName_not_contains: InputMaybe<Scalars['String']['input']>;
-  internalName_not_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  productName: InputMaybe<Scalars['String']['input']>;
-  productName_contains: InputMaybe<Scalars['String']['input']>;
-  productName_exists: InputMaybe<Scalars['Boolean']['input']>;
-  productName_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  productName_not: InputMaybe<Scalars['String']['input']>;
-  productName_not_contains: InputMaybe<Scalars['String']['input']>;
-  productName_not_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  subtitle: InputMaybe<Scalars['String']['input']>;
-  subtitle_contains: InputMaybe<Scalars['String']['input']>;
-  subtitle_exists: InputMaybe<Scalars['Boolean']['input']>;
-  subtitle_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  subtitle_not: InputMaybe<Scalars['String']['input']>;
-  subtitle_not_contains: InputMaybe<Scalars['String']['input']>;
-  subtitle_not_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  sys: InputMaybe<SysFilter>;
-  webIcon: InputMaybe<Scalars['String']['input']>;
-  webIcon_contains: InputMaybe<Scalars['String']['input']>;
-  webIcon_exists: InputMaybe<Scalars['Boolean']['input']>;
-  webIcon_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  webIcon_not: InputMaybe<Scalars['String']['input']>;
-  webIcon_not_contains: InputMaybe<Scalars['String']['input']>;
-  webIcon_not_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-};
-
-export type CfPurchaseNestedFilter = {
-  AND: InputMaybe<Array<InputMaybe<CfPurchaseNestedFilter>>>;
-  OR: InputMaybe<Array<InputMaybe<CfPurchaseNestedFilter>>>;
-  contentfulMetadata: InputMaybe<ContentfulMetadataFilter>;
-  description: InputMaybe<Scalars['String']['input']>;
-  description_contains: InputMaybe<Scalars['String']['input']>;
-  description_exists: InputMaybe<Scalars['Boolean']['input']>;
-  description_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  description_not: InputMaybe<Scalars['String']['input']>;
-  description_not_contains: InputMaybe<Scalars['String']['input']>;
-  description_not_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  internalName: InputMaybe<Scalars['String']['input']>;
-  internalName_contains: InputMaybe<Scalars['String']['input']>;
-  internalName_exists: InputMaybe<Scalars['Boolean']['input']>;
-  internalName_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  internalName_not: InputMaybe<Scalars['String']['input']>;
-  internalName_not_contains: InputMaybe<Scalars['String']['input']>;
-  internalName_not_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  offering_exists: InputMaybe<Scalars['Boolean']['input']>;
-  purchaseDetails_exists: InputMaybe<Scalars['Boolean']['input']>;
-  stripePlanChoices_contains_all: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  stripePlanChoices_contains_none: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  stripePlanChoices_contains_some: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  stripePlanChoices_exists: InputMaybe<Scalars['Boolean']['input']>;
-  sys: InputMaybe<SysFilter>;
-};
-
-export type CfServiceNestedFilter = {
-  AND: InputMaybe<Array<InputMaybe<CfServiceNestedFilter>>>;
-  OR: InputMaybe<Array<InputMaybe<CfServiceNestedFilter>>>;
-  capabilitiesCollection_exists: InputMaybe<Scalars['Boolean']['input']>;
-  contentfulMetadata: InputMaybe<ContentfulMetadataFilter>;
-  description: InputMaybe<Scalars['String']['input']>;
-  description_contains: InputMaybe<Scalars['String']['input']>;
-  description_exists: InputMaybe<Scalars['Boolean']['input']>;
-  description_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  description_not: InputMaybe<Scalars['String']['input']>;
-  description_not_contains: InputMaybe<Scalars['String']['input']>;
-  description_not_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  internalName: InputMaybe<Scalars['String']['input']>;
-  internalName_contains: InputMaybe<Scalars['String']['input']>;
-  internalName_exists: InputMaybe<Scalars['Boolean']['input']>;
-  internalName_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  internalName_not: InputMaybe<Scalars['String']['input']>;
-  internalName_not_contains: InputMaybe<Scalars['String']['input']>;
-  internalName_not_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
   oauthClientId: InputMaybe<Scalars['String']['input']>;
-  oauthClientId_contains: InputMaybe<Scalars['String']['input']>;
-  oauthClientId_exists: InputMaybe<Scalars['Boolean']['input']>;
-  oauthClientId_in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  oauthClientId_not: InputMaybe<Scalars['String']['input']>;
-  oauthClientId_not_contains: InputMaybe<Scalars['String']['input']>;
-  oauthClientId_not_in: InputMaybe<
-    Array<InputMaybe<Scalars['String']['input']>>
-  >;
-  sys: InputMaybe<SysFilter>;
+  publishedAt: InputMaybe<Scalars['DateTime']['input']>;
+};
+
+export type ServiceRelationResponseCollection = {
+  __typename?: 'ServiceRelationResponseCollection';
+  data: Array<ServiceEntity>;
+};
+
+export type StringFilterInput = {
+  and: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  between: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  contains: InputMaybe<Scalars['String']['input']>;
+  containsi: InputMaybe<Scalars['String']['input']>;
+  endsWith: InputMaybe<Scalars['String']['input']>;
+  eq: InputMaybe<Scalars['String']['input']>;
+  eqi: InputMaybe<Scalars['String']['input']>;
+  gt: InputMaybe<Scalars['String']['input']>;
+  gte: InputMaybe<Scalars['String']['input']>;
+  in: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  lt: InputMaybe<Scalars['String']['input']>;
+  lte: InputMaybe<Scalars['String']['input']>;
+  ne: InputMaybe<Scalars['String']['input']>;
+  nei: InputMaybe<Scalars['String']['input']>;
+  not: InputMaybe<StringFilterInput>;
+  notContains: InputMaybe<Scalars['String']['input']>;
+  notContainsi: InputMaybe<Scalars['String']['input']>;
+  notIn: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  notNull: InputMaybe<Scalars['Boolean']['input']>;
+  null: InputMaybe<Scalars['Boolean']['input']>;
+  or: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  startsWith: InputMaybe<Scalars['String']['input']>;
+};
+
+export type Subgroup = {
+  __typename?: 'Subgroup';
+  createdAt: Maybe<Scalars['DateTime']['output']>;
+  groupName: Maybe<Scalars['String']['output']>;
+  internalName: Scalars['String']['output'];
+  offerings: Maybe<OfferingRelationResponseCollection>;
+  publishedAt: Maybe<Scalars['DateTime']['output']>;
+  updatedAt: Maybe<Scalars['DateTime']['output']>;
+};
+
+export type SubgroupOfferingsArgs = {
+  filters: InputMaybe<OfferingFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  publicationState?: InputMaybe<PublicationState>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+export type SubgroupEntity = {
+  __typename?: 'SubgroupEntity';
+  attributes: Maybe<Subgroup>;
+  id: Maybe<Scalars['ID']['output']>;
+};
+
+export type SubgroupEntityResponse = {
+  __typename?: 'SubgroupEntityResponse';
+  data: Maybe<SubgroupEntity>;
+};
+
+export type SubgroupEntityResponseCollection = {
+  __typename?: 'SubgroupEntityResponseCollection';
+  data: Array<SubgroupEntity>;
+  meta: ResponseCollectionMeta;
+};
+
+export type SubgroupFiltersInput = {
+  and: InputMaybe<Array<InputMaybe<SubgroupFiltersInput>>>;
+  createdAt: InputMaybe<DateTimeFilterInput>;
+  groupName: InputMaybe<StringFilterInput>;
+  id: InputMaybe<IdFilterInput>;
+  internalName: InputMaybe<StringFilterInput>;
+  not: InputMaybe<SubgroupFiltersInput>;
+  offerings: InputMaybe<OfferingFiltersInput>;
+  or: InputMaybe<Array<InputMaybe<SubgroupFiltersInput>>>;
+  publishedAt: InputMaybe<DateTimeFilterInput>;
+  updatedAt: InputMaybe<DateTimeFilterInput>;
+};
+
+export type SubgroupInput = {
+  groupName: InputMaybe<Scalars['String']['input']>;
+  internalName: InputMaybe<Scalars['String']['input']>;
+  offerings: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  publishedAt: InputMaybe<Scalars['DateTime']['input']>;
+};
+
+export type SubgroupRelationResponseCollection = {
+  __typename?: 'SubgroupRelationResponseCollection';
+  data: Array<SubgroupEntity>;
+};
+
+export type UploadFile = {
+  __typename?: 'UploadFile';
+  alternativeText: Maybe<Scalars['String']['output']>;
+  caption: Maybe<Scalars['String']['output']>;
+  createdAt: Maybe<Scalars['DateTime']['output']>;
+  ext: Maybe<Scalars['String']['output']>;
+  formats: Maybe<Scalars['JSON']['output']>;
+  hash: Scalars['String']['output'];
+  height: Maybe<Scalars['Int']['output']>;
+  mime: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  previewUrl: Maybe<Scalars['String']['output']>;
+  provider: Scalars['String']['output'];
+  provider_metadata: Maybe<Scalars['JSON']['output']>;
+  related: Maybe<Array<Maybe<GenericMorph>>>;
+  size: Scalars['Float']['output'];
+  updatedAt: Maybe<Scalars['DateTime']['output']>;
+  url: Scalars['String']['output'];
+  width: Maybe<Scalars['Int']['output']>;
+};
+
+export type UploadFileEntity = {
+  __typename?: 'UploadFileEntity';
+  attributes: Maybe<UploadFile>;
+  id: Maybe<Scalars['ID']['output']>;
+};
+
+export type UploadFileEntityResponse = {
+  __typename?: 'UploadFileEntityResponse';
+  data: Maybe<UploadFileEntity>;
+};
+
+export type UploadFileEntityResponseCollection = {
+  __typename?: 'UploadFileEntityResponseCollection';
+  data: Array<UploadFileEntity>;
+  meta: ResponseCollectionMeta;
+};
+
+export type UploadFileFiltersInput = {
+  alternativeText: InputMaybe<StringFilterInput>;
+  and: InputMaybe<Array<InputMaybe<UploadFileFiltersInput>>>;
+  caption: InputMaybe<StringFilterInput>;
+  createdAt: InputMaybe<DateTimeFilterInput>;
+  ext: InputMaybe<StringFilterInput>;
+  folder: InputMaybe<UploadFolderFiltersInput>;
+  folderPath: InputMaybe<StringFilterInput>;
+  formats: InputMaybe<JsonFilterInput>;
+  hash: InputMaybe<StringFilterInput>;
+  height: InputMaybe<IntFilterInput>;
+  id: InputMaybe<IdFilterInput>;
+  mime: InputMaybe<StringFilterInput>;
+  name: InputMaybe<StringFilterInput>;
+  not: InputMaybe<UploadFileFiltersInput>;
+  or: InputMaybe<Array<InputMaybe<UploadFileFiltersInput>>>;
+  previewUrl: InputMaybe<StringFilterInput>;
+  provider: InputMaybe<StringFilterInput>;
+  provider_metadata: InputMaybe<JsonFilterInput>;
+  size: InputMaybe<FloatFilterInput>;
+  updatedAt: InputMaybe<DateTimeFilterInput>;
+  url: InputMaybe<StringFilterInput>;
+  width: InputMaybe<IntFilterInput>;
+};
+
+export type UploadFileInput = {
+  alternativeText: InputMaybe<Scalars['String']['input']>;
+  caption: InputMaybe<Scalars['String']['input']>;
+  ext: InputMaybe<Scalars['String']['input']>;
+  folder: InputMaybe<Scalars['ID']['input']>;
+  folderPath: InputMaybe<Scalars['String']['input']>;
+  formats: InputMaybe<Scalars['JSON']['input']>;
+  hash: InputMaybe<Scalars['String']['input']>;
+  height: InputMaybe<Scalars['Int']['input']>;
+  mime: InputMaybe<Scalars['String']['input']>;
+  name: InputMaybe<Scalars['String']['input']>;
+  previewUrl: InputMaybe<Scalars['String']['input']>;
+  provider: InputMaybe<Scalars['String']['input']>;
+  provider_metadata: InputMaybe<Scalars['JSON']['input']>;
+  size: InputMaybe<Scalars['Float']['input']>;
+  url: InputMaybe<Scalars['String']['input']>;
+  width: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type UploadFileRelationResponseCollection = {
+  __typename?: 'UploadFileRelationResponseCollection';
+  data: Array<UploadFileEntity>;
+};
+
+export type UploadFolder = {
+  __typename?: 'UploadFolder';
+  children: Maybe<UploadFolderRelationResponseCollection>;
+  createdAt: Maybe<Scalars['DateTime']['output']>;
+  files: Maybe<UploadFileRelationResponseCollection>;
+  name: Scalars['String']['output'];
+  parent: Maybe<UploadFolderEntityResponse>;
+  path: Scalars['String']['output'];
+  pathId: Scalars['Int']['output'];
+  updatedAt: Maybe<Scalars['DateTime']['output']>;
+};
+
+export type UploadFolderChildrenArgs = {
+  filters: InputMaybe<UploadFolderFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+export type UploadFolderFilesArgs = {
+  filters: InputMaybe<UploadFileFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+export type UploadFolderEntity = {
+  __typename?: 'UploadFolderEntity';
+  attributes: Maybe<UploadFolder>;
+  id: Maybe<Scalars['ID']['output']>;
+};
+
+export type UploadFolderEntityResponse = {
+  __typename?: 'UploadFolderEntityResponse';
+  data: Maybe<UploadFolderEntity>;
+};
+
+export type UploadFolderEntityResponseCollection = {
+  __typename?: 'UploadFolderEntityResponseCollection';
+  data: Array<UploadFolderEntity>;
+  meta: ResponseCollectionMeta;
+};
+
+export type UploadFolderFiltersInput = {
+  and: InputMaybe<Array<InputMaybe<UploadFolderFiltersInput>>>;
+  children: InputMaybe<UploadFolderFiltersInput>;
+  createdAt: InputMaybe<DateTimeFilterInput>;
+  files: InputMaybe<UploadFileFiltersInput>;
+  id: InputMaybe<IdFilterInput>;
+  name: InputMaybe<StringFilterInput>;
+  not: InputMaybe<UploadFolderFiltersInput>;
+  or: InputMaybe<Array<InputMaybe<UploadFolderFiltersInput>>>;
+  parent: InputMaybe<UploadFolderFiltersInput>;
+  path: InputMaybe<StringFilterInput>;
+  pathId: InputMaybe<IntFilterInput>;
+  updatedAt: InputMaybe<DateTimeFilterInput>;
+};
+
+export type UploadFolderInput = {
+  children: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  files: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  name: InputMaybe<Scalars['String']['input']>;
+  parent: InputMaybe<Scalars['ID']['input']>;
+  path: InputMaybe<Scalars['String']['input']>;
+  pathId: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type UploadFolderRelationResponseCollection = {
+  __typename?: 'UploadFolderRelationResponseCollection';
+  data: Array<UploadFolderEntity>;
+};
+
+export type UsersPermissionsCreateRolePayload = {
+  __typename?: 'UsersPermissionsCreateRolePayload';
+  ok: Scalars['Boolean']['output'];
+};
+
+export type UsersPermissionsDeleteRolePayload = {
+  __typename?: 'UsersPermissionsDeleteRolePayload';
+  ok: Scalars['Boolean']['output'];
+};
+
+export type UsersPermissionsLoginInput = {
+  identifier: Scalars['String']['input'];
+  password: Scalars['String']['input'];
+  provider: Scalars['String']['input'];
+};
+
+export type UsersPermissionsLoginPayload = {
+  __typename?: 'UsersPermissionsLoginPayload';
+  jwt: Maybe<Scalars['String']['output']>;
+  user: UsersPermissionsMe;
+};
+
+export type UsersPermissionsMe = {
+  __typename?: 'UsersPermissionsMe';
+  blocked: Maybe<Scalars['Boolean']['output']>;
+  confirmed: Maybe<Scalars['Boolean']['output']>;
+  email: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  role: Maybe<UsersPermissionsMeRole>;
+  username: Scalars['String']['output'];
+};
+
+export type UsersPermissionsMeRole = {
+  __typename?: 'UsersPermissionsMeRole';
+  description: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  type: Maybe<Scalars['String']['output']>;
+};
+
+export type UsersPermissionsPasswordPayload = {
+  __typename?: 'UsersPermissionsPasswordPayload';
+  ok: Scalars['Boolean']['output'];
+};
+
+export type UsersPermissionsPermission = {
+  __typename?: 'UsersPermissionsPermission';
+  action: Scalars['String']['output'];
+  createdAt: Maybe<Scalars['DateTime']['output']>;
+  role: Maybe<UsersPermissionsRoleEntityResponse>;
+  updatedAt: Maybe<Scalars['DateTime']['output']>;
+};
+
+export type UsersPermissionsPermissionEntity = {
+  __typename?: 'UsersPermissionsPermissionEntity';
+  attributes: Maybe<UsersPermissionsPermission>;
+  id: Maybe<Scalars['ID']['output']>;
+};
+
+export type UsersPermissionsPermissionFiltersInput = {
+  action: InputMaybe<StringFilterInput>;
+  and: InputMaybe<Array<InputMaybe<UsersPermissionsPermissionFiltersInput>>>;
+  createdAt: InputMaybe<DateTimeFilterInput>;
+  id: InputMaybe<IdFilterInput>;
+  not: InputMaybe<UsersPermissionsPermissionFiltersInput>;
+  or: InputMaybe<Array<InputMaybe<UsersPermissionsPermissionFiltersInput>>>;
+  role: InputMaybe<UsersPermissionsRoleFiltersInput>;
+  updatedAt: InputMaybe<DateTimeFilterInput>;
+};
+
+export type UsersPermissionsPermissionRelationResponseCollection = {
+  __typename?: 'UsersPermissionsPermissionRelationResponseCollection';
+  data: Array<UsersPermissionsPermissionEntity>;
+};
+
+export type UsersPermissionsRegisterInput = {
+  email: Scalars['String']['input'];
+  password: Scalars['String']['input'];
+  username: Scalars['String']['input'];
+};
+
+export type UsersPermissionsRole = {
+  __typename?: 'UsersPermissionsRole';
+  createdAt: Maybe<Scalars['DateTime']['output']>;
+  description: Maybe<Scalars['String']['output']>;
+  name: Scalars['String']['output'];
+  permissions: Maybe<UsersPermissionsPermissionRelationResponseCollection>;
+  type: Maybe<Scalars['String']['output']>;
+  updatedAt: Maybe<Scalars['DateTime']['output']>;
+  users: Maybe<UsersPermissionsUserRelationResponseCollection>;
+};
+
+export type UsersPermissionsRolePermissionsArgs = {
+  filters: InputMaybe<UsersPermissionsPermissionFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+export type UsersPermissionsRoleUsersArgs = {
+  filters: InputMaybe<UsersPermissionsUserFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+export type UsersPermissionsRoleEntity = {
+  __typename?: 'UsersPermissionsRoleEntity';
+  attributes: Maybe<UsersPermissionsRole>;
+  id: Maybe<Scalars['ID']['output']>;
+};
+
+export type UsersPermissionsRoleEntityResponse = {
+  __typename?: 'UsersPermissionsRoleEntityResponse';
+  data: Maybe<UsersPermissionsRoleEntity>;
+};
+
+export type UsersPermissionsRoleEntityResponseCollection = {
+  __typename?: 'UsersPermissionsRoleEntityResponseCollection';
+  data: Array<UsersPermissionsRoleEntity>;
+  meta: ResponseCollectionMeta;
+};
+
+export type UsersPermissionsRoleFiltersInput = {
+  and: InputMaybe<Array<InputMaybe<UsersPermissionsRoleFiltersInput>>>;
+  createdAt: InputMaybe<DateTimeFilterInput>;
+  description: InputMaybe<StringFilterInput>;
+  id: InputMaybe<IdFilterInput>;
+  name: InputMaybe<StringFilterInput>;
+  not: InputMaybe<UsersPermissionsRoleFiltersInput>;
+  or: InputMaybe<Array<InputMaybe<UsersPermissionsRoleFiltersInput>>>;
+  permissions: InputMaybe<UsersPermissionsPermissionFiltersInput>;
+  type: InputMaybe<StringFilterInput>;
+  updatedAt: InputMaybe<DateTimeFilterInput>;
+  users: InputMaybe<UsersPermissionsUserFiltersInput>;
+};
+
+export type UsersPermissionsRoleInput = {
+  description: InputMaybe<Scalars['String']['input']>;
+  name: InputMaybe<Scalars['String']['input']>;
+  permissions: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  type: InputMaybe<Scalars['String']['input']>;
+  users: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+};
+
+export type UsersPermissionsUpdateRolePayload = {
+  __typename?: 'UsersPermissionsUpdateRolePayload';
+  ok: Scalars['Boolean']['output'];
+};
+
+export type UsersPermissionsUser = {
+  __typename?: 'UsersPermissionsUser';
+  blocked: Maybe<Scalars['Boolean']['output']>;
+  confirmed: Maybe<Scalars['Boolean']['output']>;
+  createdAt: Maybe<Scalars['DateTime']['output']>;
+  email: Scalars['String']['output'];
+  provider: Maybe<Scalars['String']['output']>;
+  role: Maybe<UsersPermissionsRoleEntityResponse>;
+  updatedAt: Maybe<Scalars['DateTime']['output']>;
+  username: Scalars['String']['output'];
+};
+
+export type UsersPermissionsUserEntity = {
+  __typename?: 'UsersPermissionsUserEntity';
+  attributes: Maybe<UsersPermissionsUser>;
+  id: Maybe<Scalars['ID']['output']>;
+};
+
+export type UsersPermissionsUserEntityResponse = {
+  __typename?: 'UsersPermissionsUserEntityResponse';
+  data: Maybe<UsersPermissionsUserEntity>;
+};
+
+export type UsersPermissionsUserEntityResponseCollection = {
+  __typename?: 'UsersPermissionsUserEntityResponseCollection';
+  data: Array<UsersPermissionsUserEntity>;
+  meta: ResponseCollectionMeta;
+};
+
+export type UsersPermissionsUserFiltersInput = {
+  and: InputMaybe<Array<InputMaybe<UsersPermissionsUserFiltersInput>>>;
+  blocked: InputMaybe<BooleanFilterInput>;
+  confirmationToken: InputMaybe<StringFilterInput>;
+  confirmed: InputMaybe<BooleanFilterInput>;
+  createdAt: InputMaybe<DateTimeFilterInput>;
+  email: InputMaybe<StringFilterInput>;
+  id: InputMaybe<IdFilterInput>;
+  not: InputMaybe<UsersPermissionsUserFiltersInput>;
+  or: InputMaybe<Array<InputMaybe<UsersPermissionsUserFiltersInput>>>;
+  password: InputMaybe<StringFilterInput>;
+  provider: InputMaybe<StringFilterInput>;
+  resetPasswordToken: InputMaybe<StringFilterInput>;
+  role: InputMaybe<UsersPermissionsRoleFiltersInput>;
+  updatedAt: InputMaybe<DateTimeFilterInput>;
+  username: InputMaybe<StringFilterInput>;
+};
+
+export type UsersPermissionsUserInput = {
+  blocked: InputMaybe<Scalars['Boolean']['input']>;
+  confirmationToken: InputMaybe<Scalars['String']['input']>;
+  confirmed: InputMaybe<Scalars['Boolean']['input']>;
+  email: InputMaybe<Scalars['String']['input']>;
+  password: InputMaybe<Scalars['String']['input']>;
+  provider: InputMaybe<Scalars['String']['input']>;
+  resetPasswordToken: InputMaybe<Scalars['String']['input']>;
+  role: InputMaybe<Scalars['ID']['input']>;
+  username: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UsersPermissionsUserRelationResponseCollection = {
+  __typename?: 'UsersPermissionsUserRelationResponseCollection';
+  data: Array<UsersPermissionsUserEntity>;
 };
 
 export type CapabilityServiceByPlanIdsQueryVariables = Exact<{
   skip: Scalars['Int']['input'];
   limit: Scalars['Int']['input'];
-  locale: Scalars['String']['input'];
   stripePlanIds:
     | Array<InputMaybe<Scalars['String']['input']>>
     | InputMaybe<Scalars['String']['input']>;
@@ -2724,31 +2068,55 @@ export type CapabilityServiceByPlanIdsQueryVariables = Exact<{
 
 export type CapabilityServiceByPlanIdsQuery = {
   __typename?: 'Query';
-  purchaseCollection: {
-    __typename?: 'PurchaseCollection';
-    total: number;
-    items: Array<{
-      __typename?: 'Purchase';
-      stripePlanChoices: Array<string | null> | null;
-      offering: {
-        __typename?: 'Offering';
-        stripeLegacyPlans: Array<string | null> | null;
-        capabilitiesCollection: {
-          __typename?: 'OfferingCapabilitiesCollection';
-          items: Array<{
-            __typename?: 'Capability';
-            slug: string | null;
-            servicesCollection: {
-              __typename?: 'CapabilityServicesCollection';
-              items: Array<{
-                __typename?: 'Service';
-                oauthClientId: string | null;
-              } | null>;
+  purchases: {
+    __typename?: 'PurchaseEntityResponseCollection';
+    meta: {
+      __typename?: 'ResponseCollectionMeta';
+      pagination: { __typename?: 'Pagination'; total: number };
+    };
+    data: Array<{
+      __typename?: 'PurchaseEntity';
+      attributes: {
+        __typename?: 'Purchase';
+        stripePlanChoices: Array<{
+          __typename?: 'ComponentStripeStripePlanChoices';
+          stripePlanChoice: string | null;
+        } | null> | null;
+        offering: {
+          __typename?: 'OfferingEntityResponse';
+          data: {
+            __typename?: 'OfferingEntity';
+            attributes: {
+              __typename?: 'Offering';
+              stripeLegacyPlans: Array<{
+                __typename?: 'ComponentStripeStripeLegacyPlans';
+                stripeLegacyPlan: string | null;
+              } | null> | null;
+              capabilities: {
+                __typename?: 'CapabilityRelationResponseCollection';
+                data: Array<{
+                  __typename?: 'CapabilityEntity';
+                  attributes: {
+                    __typename?: 'Capability';
+                    slug: string;
+                    services: {
+                      __typename?: 'ServiceRelationResponseCollection';
+                      data: Array<{
+                        __typename?: 'ServiceEntity';
+                        attributes: {
+                          __typename?: 'Service';
+                          oauthClientId: string;
+                        } | null;
+                      }>;
+                    } | null;
+                  } | null;
+                }>;
+              } | null;
             } | null;
-          } | null>;
+          } | null;
         } | null;
       } | null;
-    } | null>;
+    }>;
   } | null;
 };
 
@@ -2758,46 +2126,69 @@ export type EligibilityContentByOfferingQueryVariables = Exact<{
 
 export type EligibilityContentByOfferingQuery = {
   __typename?: 'Query';
-  offeringCollection: {
-    __typename?: 'OfferingCollection';
-    items: Array<{
-      __typename?: 'Offering';
-      apiIdentifier: string | null;
-      stripeProductId: string | null;
-      defaultPurchase: {
-        __typename?: 'Purchase';
-        stripePlanChoices: Array<string | null> | null;
-      } | null;
-      linkedFrom: {
-        __typename?: 'OfferingLinkingCollections';
-        subGroupCollection: {
-          __typename?: 'SubGroupCollection';
-          items: Array<{
-            __typename?: 'SubGroup';
-            groupName: string | null;
-            offeringCollection: {
-              __typename?: 'SubGroupOfferingCollection';
-              items: Array<{
-                __typename?: 'Offering';
-                apiIdentifier: string | null;
-                stripeProductId: string | null;
-                defaultPurchase: {
-                  __typename?: 'Purchase';
-                  stripePlanChoices: Array<string | null> | null;
-                } | null;
-              } | null>;
+  offerings: {
+    __typename?: 'OfferingEntityResponseCollection';
+    data: Array<{
+      __typename?: 'OfferingEntity';
+      attributes: {
+        __typename?: 'Offering';
+        apiIdentifier: string;
+        stripeProductId: string;
+        defaultPurchase: {
+          __typename?: 'PurchaseEntityResponse';
+          data: {
+            __typename?: 'PurchaseEntity';
+            attributes: {
+              __typename?: 'Purchase';
+              stripePlanChoices: Array<{
+                __typename?: 'ComponentStripeStripePlanChoices';
+                stripePlanChoice: string | null;
+              } | null> | null;
             } | null;
-          } | null>;
+          } | null;
+        } | null;
+        subGroups: {
+          __typename?: 'SubgroupRelationResponseCollection';
+          data: Array<{
+            __typename?: 'SubgroupEntity';
+            attributes: {
+              __typename?: 'Subgroup';
+              groupName: string | null;
+              offerings: {
+                __typename?: 'OfferingRelationResponseCollection';
+                data: Array<{
+                  __typename?: 'OfferingEntity';
+                  attributes: {
+                    __typename?: 'Offering';
+                    apiIdentifier: string;
+                    stripeProductId: string;
+                    defaultPurchase: {
+                      __typename?: 'PurchaseEntityResponse';
+                      data: {
+                        __typename?: 'PurchaseEntity';
+                        attributes: {
+                          __typename?: 'Purchase';
+                          stripePlanChoices: Array<{
+                            __typename?: 'ComponentStripeStripePlanChoices';
+                            stripePlanChoice: string | null;
+                          } | null> | null;
+                        } | null;
+                      } | null;
+                    } | null;
+                  } | null;
+                }>;
+              } | null;
+            } | null;
+          }>;
         } | null;
       } | null;
-    } | null>;
+    }>;
   } | null;
 };
 
 export type EligibilityContentByPlanIdsQueryVariables = Exact<{
   skip: Scalars['Int']['input'];
   limit: Scalars['Int']['input'];
-  locale: Scalars['String']['input'];
   stripePlanIds:
     | Array<InputMaybe<Scalars['String']['input']>>
     | InputMaybe<Scalars['String']['input']>;
@@ -2805,60 +2196,128 @@ export type EligibilityContentByPlanIdsQueryVariables = Exact<{
 
 export type EligibilityContentByPlanIdsQuery = {
   __typename?: 'Query';
-  purchaseCollection: {
-    __typename?: 'PurchaseCollection';
-    total: number;
-    items: Array<{
-      __typename?: 'Purchase';
-      stripePlanChoices: Array<string | null> | null;
-      offering: {
-        __typename?: 'Offering';
-        stripeProductId: string | null;
-        stripeLegacyPlans: Array<string | null> | null;
-        countries: Array<string | null> | null;
-        linkedFrom: {
-          __typename?: 'OfferingLinkingCollections';
-          subGroupCollection: {
-            __typename?: 'SubGroupCollection';
-            items: Array<{
-              __typename?: 'SubGroup';
-              groupName: string | null;
-              offeringCollection: {
-                __typename?: 'SubGroupOfferingCollection';
-                items: Array<{
-                  __typename?: 'Offering';
-                  stripeProductId: string | null;
-                  stripeLegacyPlans: Array<string | null> | null;
-                  countries: Array<string | null> | null;
-                } | null>;
+  purchases: {
+    __typename?: 'PurchaseEntityResponseCollection';
+    meta: {
+      __typename?: 'ResponseCollectionMeta';
+      pagination: { __typename?: 'Pagination'; total: number };
+    };
+    data: Array<{
+      __typename?: 'PurchaseEntity';
+      attributes: {
+        __typename?: 'Purchase';
+        stripePlanChoices: Array<{
+          __typename?: 'ComponentStripeStripePlanChoices';
+          stripePlanChoice: string | null;
+        } | null> | null;
+        offering: {
+          __typename?: 'OfferingEntityResponse';
+          data: {
+            __typename?: 'OfferingEntity';
+            attributes: {
+              __typename?: 'Offering';
+              stripeProductId: string;
+              countries: any | null;
+              stripeLegacyPlans: Array<{
+                __typename?: 'ComponentStripeStripeLegacyPlans';
+                stripeLegacyPlan: string | null;
+              } | null> | null;
+              subGroups: {
+                __typename?: 'SubgroupRelationResponseCollection';
+                data: Array<{
+                  __typename?: 'SubgroupEntity';
+                  attributes: {
+                    __typename?: 'Subgroup';
+                    groupName: string | null;
+                    offerings: {
+                      __typename?: 'OfferingRelationResponseCollection';
+                      data: Array<{
+                        __typename?: 'OfferingEntity';
+                        attributes: {
+                          __typename?: 'Offering';
+                          stripeProductId: string;
+                          countries: any | null;
+                          stripeLegacyPlans: Array<{
+                            __typename?: 'ComponentStripeStripeLegacyPlans';
+                            stripeLegacyPlan: string | null;
+                          } | null> | null;
+                        } | null;
+                      }>;
+                    } | null;
+                  } | null;
+                }>;
               } | null;
-            } | null>;
+            } | null;
           } | null;
         } | null;
       } | null;
-    } | null>;
+    }>;
+  } | null;
+};
+
+export type LocalesQueryVariables = Exact<{ [key: string]: never }>;
+
+export type LocalesQuery = {
+  __typename?: 'Query';
+  i18NLocales: {
+    __typename?: 'I18NLocaleEntityResponseCollection';
+    data: Array<{
+      __typename?: 'I18NLocaleEntity';
+      attributes: { __typename?: 'I18NLocale'; code: string | null } | null;
+    }>;
   } | null;
 };
 
 export type OfferingQueryVariables = Exact<{
-  id: Scalars['String']['input'];
+  id: Scalars['ID']['input'];
   locale: Scalars['String']['input'];
 }>;
 
 export type OfferingQuery = {
   __typename?: 'Query';
   offering: {
-    __typename?: 'Offering';
-    stripeProductId: string | null;
-    countries: Array<string | null> | null;
-    defaultPurchase: {
-      __typename?: 'Purchase';
-      purchaseDetails: {
-        __typename?: 'PurchaseDetails';
-        productName: string | null;
-        details: string | null;
-        subtitle: string | null;
-        webIcon: string | null;
+    __typename?: 'OfferingEntityResponse';
+    data: {
+      __typename?: 'OfferingEntity';
+      attributes: {
+        __typename?: 'Offering';
+        stripeProductId: string;
+        countries: any | null;
+        defaultPurchase: {
+          __typename?: 'PurchaseEntityResponse';
+          data: {
+            __typename?: 'PurchaseEntity';
+            attributes: {
+              __typename?: 'Purchase';
+              purchaseDetails: {
+                __typename?: 'PurchaseDetailEntityResponse';
+                data: {
+                  __typename?: 'PurchaseDetailEntity';
+                  attributes: {
+                    __typename?: 'PurchaseDetail';
+                    productName: string;
+                    details: string;
+                    subtitle: string | null;
+                    webIcon: string;
+                    localizations: {
+                      __typename?: 'PurchaseDetailRelationResponseCollection';
+                      data: Array<{
+                        __typename?: 'PurchaseDetailEntity';
+                        attributes: {
+                          __typename?: 'PurchaseDetail';
+                          productName: string;
+                          details: string;
+                          subtitle: string | null;
+                          webIcon: string;
+                        } | null;
+                      }>;
+                    } | null;
+                  } | null;
+                } | null;
+              } | null;
+            } | null;
+          } | null;
+        } | null;
       } | null;
     } | null;
   } | null;
@@ -2871,36 +2330,93 @@ export type PageContentForOfferingQueryVariables = Exact<{
 
 export type PageContentForOfferingQuery = {
   __typename?: 'Query';
-  offeringCollection: {
-    __typename?: 'OfferingCollection';
-    items: Array<{
-      __typename?: 'Offering';
-      apiIdentifier: string | null;
-      stripeProductId: string | null;
-      defaultPurchase: {
-        __typename?: 'Purchase';
-        purchaseDetails: {
-          __typename?: 'PurchaseDetails';
-          details: string | null;
-          productName: string | null;
-          subtitle: string | null;
-          webIcon: string | null;
+  offerings: {
+    __typename?: 'OfferingEntityResponseCollection';
+    meta: {
+      __typename?: 'ResponseCollectionMeta';
+      pagination: { __typename?: 'Pagination'; total: number };
+    };
+    data: Array<{
+      __typename?: 'OfferingEntity';
+      attributes: {
+        __typename?: 'Offering';
+        apiIdentifier: string;
+        stripeProductId: string;
+        defaultPurchase: {
+          __typename?: 'PurchaseEntityResponse';
+          data: {
+            __typename?: 'PurchaseEntity';
+            attributes: {
+              __typename?: 'Purchase';
+              purchaseDetails: {
+                __typename?: 'PurchaseDetailEntityResponse';
+                data: {
+                  __typename?: 'PurchaseDetailEntity';
+                  attributes: {
+                    __typename?: 'PurchaseDetail';
+                    details: string;
+                    productName: string;
+                    subtitle: string | null;
+                    webIcon: string;
+                    localizations: {
+                      __typename?: 'PurchaseDetailRelationResponseCollection';
+                      data: Array<{
+                        __typename?: 'PurchaseDetailEntity';
+                        attributes: {
+                          __typename?: 'PurchaseDetail';
+                          details: string;
+                          productName: string;
+                          subtitle: string | null;
+                          webIcon: string;
+                        } | null;
+                      }>;
+                    } | null;
+                  } | null;
+                } | null;
+              } | null;
+            } | null;
+          } | null;
+        } | null;
+        commonContent: {
+          __typename?: 'CommonContentEntityResponse';
+          data: {
+            __typename?: 'CommonContentEntity';
+            attributes: {
+              __typename?: 'CommonContent';
+              privacyNoticeUrl: string;
+              privacyNoticeDownloadUrl: string;
+              termsOfServiceUrl: string;
+              termsOfServiceDownloadUrl: string;
+              cancellationUrl: string | null;
+              emailIcon: string | null;
+              successActionButtonUrl: string;
+              successActionButtonLabel: string | null;
+              newsletterLabelTextCode: any | null;
+              newsletterSlug: any | null;
+              localizations: {
+                __typename?: 'CommonContentRelationResponseCollection';
+                data: Array<{
+                  __typename?: 'CommonContentEntity';
+                  attributes: {
+                    __typename?: 'CommonContent';
+                    privacyNoticeUrl: string;
+                    privacyNoticeDownloadUrl: string;
+                    termsOfServiceUrl: string;
+                    termsOfServiceDownloadUrl: string;
+                    cancellationUrl: string | null;
+                    emailIcon: string | null;
+                    successActionButtonUrl: string;
+                    successActionButtonLabel: string | null;
+                    newsletterLabelTextCode: any | null;
+                    newsletterSlug: any | null;
+                  } | null;
+                }>;
+              } | null;
+            } | null;
+          } | null;
         } | null;
       } | null;
-      commonContent: {
-        __typename?: 'CommonContent';
-        privacyNoticeUrl: string | null;
-        privacyNoticeDownloadUrl: string | null;
-        termsOfServiceUrl: string | null;
-        termsOfServiceDownloadUrl: string | null;
-        cancellationUrl: string | null;
-        emailIcon: string | null;
-        successActionButtonUrl: string | null;
-        successActionButtonLabel: string | null;
-        newsletterLabelTextCode: string | null;
-        newsletterSlug: Array<string | null> | null;
-      } | null;
-    } | null>;
+    }>;
   } | null;
 };
 
@@ -2915,78 +2431,122 @@ export type PurchaseWithDetailsOfferingContentQueryVariables = Exact<{
 
 export type PurchaseWithDetailsOfferingContentQuery = {
   __typename?: 'Query';
-  purchaseCollection: {
-    __typename?: 'PurchaseCollection';
-    items: Array<{
-      __typename?: 'Purchase';
-      stripePlanChoices: Array<string | null> | null;
-      purchaseDetails: {
-        __typename?: 'PurchaseDetails';
-        details: string | null;
-        productName: string | null;
-        subtitle: string | null;
-        webIcon: string | null;
-      } | null;
-      offering: {
-        __typename?: 'Offering';
-        stripeProductId: string | null;
-        stripeLegacyPlans: Array<string | null> | null;
-        commonContent: {
-          __typename?: 'CommonContent';
-          privacyNoticeUrl: string | null;
-          privacyNoticeDownloadUrl: string | null;
-          termsOfServiceUrl: string | null;
-          termsOfServiceDownloadUrl: string | null;
-          cancellationUrl: string | null;
-          emailIcon: string | null;
-          successActionButtonUrl: string | null;
-          successActionButtonLabel: string | null;
-          newsletterLabelTextCode: string | null;
-          newsletterSlug: Array<string | null> | null;
+  purchases: {
+    __typename?: 'PurchaseEntityResponseCollection';
+    data: Array<{
+      __typename?: 'PurchaseEntity';
+      attributes: {
+        __typename?: 'Purchase';
+        stripePlanChoices: Array<{
+          __typename?: 'ComponentStripeStripePlanChoices';
+          stripePlanChoice: string | null;
+        } | null> | null;
+        purchaseDetails: {
+          __typename?: 'PurchaseDetailEntityResponse';
+          data: {
+            __typename?: 'PurchaseDetailEntity';
+            attributes: {
+              __typename?: 'PurchaseDetail';
+              details: string;
+              productName: string;
+              subtitle: string | null;
+              webIcon: string;
+              localizations: {
+                __typename?: 'PurchaseDetailRelationResponseCollection';
+                data: Array<{
+                  __typename?: 'PurchaseDetailEntity';
+                  attributes: {
+                    __typename?: 'PurchaseDetail';
+                    details: string;
+                    productName: string;
+                    subtitle: string | null;
+                    webIcon: string;
+                  } | null;
+                }>;
+              } | null;
+            } | null;
+          } | null;
+        } | null;
+        offering: {
+          __typename?: 'OfferingEntityResponse';
+          data: {
+            __typename?: 'OfferingEntity';
+            attributes: {
+              __typename?: 'Offering';
+              stripeProductId: string;
+              stripeLegacyPlans: Array<{
+                __typename?: 'ComponentStripeStripeLegacyPlans';
+                stripeLegacyPlan: string | null;
+              } | null> | null;
+              commonContent: {
+                __typename?: 'CommonContentEntityResponse';
+                data: {
+                  __typename?: 'CommonContentEntity';
+                  attributes: {
+                    __typename?: 'CommonContent';
+                    privacyNoticeUrl: string;
+                    privacyNoticeDownloadUrl: string;
+                    termsOfServiceUrl: string;
+                    termsOfServiceDownloadUrl: string;
+                    cancellationUrl: string | null;
+                    emailIcon: string | null;
+                    successActionButtonUrl: string;
+                    successActionButtonLabel: string | null;
+                    newsletterLabelTextCode: any | null;
+                    newsletterSlug: any | null;
+                    localizations: {
+                      __typename?: 'CommonContentRelationResponseCollection';
+                      data: Array<{
+                        __typename?: 'CommonContentEntity';
+                        attributes: {
+                          __typename?: 'CommonContent';
+                          privacyNoticeUrl: string;
+                          privacyNoticeDownloadUrl: string;
+                          termsOfServiceUrl: string;
+                          termsOfServiceDownloadUrl: string;
+                          cancellationUrl: string | null;
+                          emailIcon: string | null;
+                          successActionButtonUrl: string;
+                          successActionButtonLabel: string | null;
+                          newsletterLabelTextCode: any | null;
+                          newsletterSlug: any | null;
+                        } | null;
+                      }>;
+                    } | null;
+                  } | null;
+                } | null;
+              } | null;
+            } | null;
+          } | null;
         } | null;
       } | null;
-    } | null>;
-  } | null;
-};
-
-export type PurchaseWithDetailsQueryVariables = Exact<{
-  id: Scalars['String']['input'];
-  locale: Scalars['String']['input'];
-}>;
-
-export type PurchaseWithDetailsQuery = {
-  __typename?: 'Query';
-  purchase: {
-    __typename?: 'Purchase';
-    internalName: string | null;
-    description: string | null;
-    purchaseDetails: {
-      __typename?: 'PurchaseDetails';
-      productName: string | null;
-      details: string | null;
-      webIcon: string | null;
-    } | null;
+    }>;
   } | null;
 };
 
 export type ServicesWithCapabilitiesQueryVariables = Exact<{
   skip: Scalars['Int']['input'];
   limit: Scalars['Int']['input'];
-  locale: Scalars['String']['input'];
 }>;
 
 export type ServicesWithCapabilitiesQuery = {
   __typename?: 'Query';
-  serviceCollection: {
-    __typename?: 'ServiceCollection';
-    items: Array<{
-      __typename?: 'Service';
-      oauthClientId: string | null;
-      capabilitiesCollection: {
-        __typename?: 'ServiceCapabilitiesCollection';
-        items: Array<{ __typename?: 'Capability'; slug: string | null } | null>;
+  services: {
+    __typename?: 'ServiceEntityResponseCollection';
+    data: Array<{
+      __typename?: 'ServiceEntity';
+      attributes: {
+        __typename?: 'Service';
+        oauthClientId: string;
+        capabilities: {
+          __typename?: 'CapabilityRelationResponseCollection';
+          data: Array<{
+            __typename?: 'CapabilityEntity';
+            attributes: { __typename?: 'Capability'; slug: string } | null;
+          }>;
+        } | null;
       } | null;
-    } | null>;
+    }>;
   } | null;
 };
 
@@ -3021,20 +2581,6 @@ export const CapabilityServiceByPlanIdsDocument = {
           kind: 'VariableDefinition',
           variable: {
             kind: 'Variable',
-            name: { kind: 'Name', value: 'locale' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
             name: { kind: 'Name', value: 'stripePlanIds' },
           },
           type: {
@@ -3054,41 +2600,17 @@ export const CapabilityServiceByPlanIdsDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'purchaseCollection' },
+            name: { kind: 'Name', value: 'purchases' },
             arguments: [
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'skip' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'skip' },
-                },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'limit' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'limit' },
-                },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'locale' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'locale' },
-                },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'where' },
+                name: { kind: 'Name', value: 'filters' },
                 value: {
                   kind: 'ObjectValue',
                   fields: [
                     {
                       kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'OR' },
+                      name: { kind: 'Name', value: 'or' },
                       value: {
                         kind: 'ListValue',
                         values: [
@@ -3099,14 +2621,35 @@ export const CapabilityServiceByPlanIdsDocument = {
                                 kind: 'ObjectField',
                                 name: {
                                   kind: 'Name',
-                                  value: 'stripePlanChoices_contains_some',
+                                  value: 'stripePlanChoices',
                                 },
                                 value: {
-                                  kind: 'Variable',
-                                  name: {
-                                    kind: 'Name',
-                                    value: 'stripePlanIds',
-                                  },
+                                  kind: 'ObjectValue',
+                                  fields: [
+                                    {
+                                      kind: 'ObjectField',
+                                      name: {
+                                        kind: 'Name',
+                                        value: 'stripePlanChoice',
+                                      },
+                                      value: {
+                                        kind: 'ObjectValue',
+                                        fields: [
+                                          {
+                                            kind: 'ObjectField',
+                                            name: { kind: 'Name', value: 'in' },
+                                            value: {
+                                              kind: 'Variable',
+                                              name: {
+                                                kind: 'Name',
+                                                value: 'stripePlanIds',
+                                              },
+                                            },
+                                          },
+                                        ],
+                                      },
+                                    },
+                                  ],
                                 },
                               },
                             ],
@@ -3124,15 +2667,38 @@ export const CapabilityServiceByPlanIdsDocument = {
                                       kind: 'ObjectField',
                                       name: {
                                         kind: 'Name',
-                                        value:
-                                          'stripeLegacyPlans_contains_some',
+                                        value: 'stripeLegacyPlans',
                                       },
                                       value: {
-                                        kind: 'Variable',
-                                        name: {
-                                          kind: 'Name',
-                                          value: 'stripePlanIds',
-                                        },
+                                        kind: 'ObjectValue',
+                                        fields: [
+                                          {
+                                            kind: 'ObjectField',
+                                            name: {
+                                              kind: 'Name',
+                                              value: 'stripeLegacyPlan',
+                                            },
+                                            value: {
+                                              kind: 'ObjectValue',
+                                              fields: [
+                                                {
+                                                  kind: 'ObjectField',
+                                                  name: {
+                                                    kind: 'Name',
+                                                    value: 'in',
+                                                  },
+                                                  value: {
+                                                    kind: 'Variable',
+                                                    name: {
+                                                      kind: 'Name',
+                                                      value: 'stripePlanIds',
+                                                    },
+                                                  },
+                                                },
+                                              ],
+                                            },
+                                          },
+                                        ],
                                       },
                                     },
                                   ],
@@ -3146,24 +2712,66 @@ export const CapabilityServiceByPlanIdsDocument = {
                   ],
                 },
               },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'pagination' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'start' },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'skip' },
+                      },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'limit' },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'limit' },
+                      },
+                    },
+                  ],
+                },
+              },
             ],
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'total' } },
                 {
                   kind: 'Field',
-                  name: { kind: 'Name', value: 'items' },
+                  name: { kind: 'Name', value: 'meta' },
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
                       {
                         kind: 'Field',
-                        name: { kind: 'Name', value: 'stripePlanChoices' },
+                        name: { kind: 'Name', value: 'pagination' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'total' },
+                            },
+                          ],
+                        },
                       },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'data' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
                       {
                         kind: 'Field',
-                        name: { kind: 'Name', value: 'offering' },
+                        name: { kind: 'Name', value: 'attributes' },
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [
@@ -3171,70 +2779,39 @@ export const CapabilityServiceByPlanIdsDocument = {
                               kind: 'Field',
                               name: {
                                 kind: 'Name',
-                                value: 'stripeLegacyPlans',
+                                value: 'stripePlanChoices',
                               },
-                            },
-                            {
-                              kind: 'Field',
-                              name: {
-                                kind: 'Name',
-                                value: 'capabilitiesCollection',
-                              },
-                              arguments: [
-                                {
-                                  kind: 'Argument',
-                                  name: { kind: 'Name', value: 'skip' },
-                                  value: { kind: 'IntValue', value: '0' },
-                                },
-                                {
-                                  kind: 'Argument',
-                                  name: { kind: 'Name', value: 'limit' },
-                                  value: { kind: 'IntValue', value: '25' },
-                                },
-                              ],
                               selectionSet: {
                                 kind: 'SelectionSet',
                                 selections: [
                                   {
                                     kind: 'Field',
-                                    name: { kind: 'Name', value: 'items' },
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'stripePlanChoice',
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'offering' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'data' },
                                     selectionSet: {
                                       kind: 'SelectionSet',
                                       selections: [
                                         {
                                           kind: 'Field',
-                                          name: { kind: 'Name', value: 'slug' },
-                                        },
-                                        {
-                                          kind: 'Field',
                                           name: {
                                             kind: 'Name',
-                                            value: 'servicesCollection',
+                                            value: 'attributes',
                                           },
-                                          arguments: [
-                                            {
-                                              kind: 'Argument',
-                                              name: {
-                                                kind: 'Name',
-                                                value: 'skip',
-                                              },
-                                              value: {
-                                                kind: 'IntValue',
-                                                value: '0',
-                                              },
-                                            },
-                                            {
-                                              kind: 'Argument',
-                                              name: {
-                                                kind: 'Name',
-                                                value: 'limit',
-                                              },
-                                              value: {
-                                                kind: 'IntValue',
-                                                value: '15',
-                                              },
-                                            },
-                                          ],
                                           selectionSet: {
                                             kind: 'SelectionSet',
                                             selections: [
@@ -3242,7 +2819,7 @@ export const CapabilityServiceByPlanIdsDocument = {
                                                 kind: 'Field',
                                                 name: {
                                                   kind: 'Name',
-                                                  value: 'items',
+                                                  value: 'stripeLegacyPlans',
                                                 },
                                                 selectionSet: {
                                                   kind: 'SelectionSet',
@@ -3251,7 +2828,106 @@ export const CapabilityServiceByPlanIdsDocument = {
                                                       kind: 'Field',
                                                       name: {
                                                         kind: 'Name',
-                                                        value: 'oauthClientId',
+                                                        value:
+                                                          'stripeLegacyPlan',
+                                                      },
+                                                    },
+                                                  ],
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'capabilities',
+                                                },
+                                                selectionSet: {
+                                                  kind: 'SelectionSet',
+                                                  selections: [
+                                                    {
+                                                      kind: 'Field',
+                                                      name: {
+                                                        kind: 'Name',
+                                                        value: 'data',
+                                                      },
+                                                      selectionSet: {
+                                                        kind: 'SelectionSet',
+                                                        selections: [
+                                                          {
+                                                            kind: 'Field',
+                                                            name: {
+                                                              kind: 'Name',
+                                                              value:
+                                                                'attributes',
+                                                            },
+                                                            selectionSet: {
+                                                              kind: 'SelectionSet',
+                                                              selections: [
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: {
+                                                                    kind: 'Name',
+                                                                    value:
+                                                                      'slug',
+                                                                  },
+                                                                },
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: {
+                                                                    kind: 'Name',
+                                                                    value:
+                                                                      'services',
+                                                                  },
+                                                                  selectionSet:
+                                                                    {
+                                                                      kind: 'SelectionSet',
+                                                                      selections:
+                                                                        [
+                                                                          {
+                                                                            kind: 'Field',
+                                                                            name: {
+                                                                              kind: 'Name',
+                                                                              value:
+                                                                                'data',
+                                                                            },
+                                                                            selectionSet:
+                                                                              {
+                                                                                kind: 'SelectionSet',
+                                                                                selections:
+                                                                                  [
+                                                                                    {
+                                                                                      kind: 'Field',
+                                                                                      name: {
+                                                                                        kind: 'Name',
+                                                                                        value:
+                                                                                          'attributes',
+                                                                                      },
+                                                                                      selectionSet:
+                                                                                        {
+                                                                                          kind: 'SelectionSet',
+                                                                                          selections:
+                                                                                            [
+                                                                                              {
+                                                                                                kind: 'Field',
+                                                                                                name: {
+                                                                                                  kind: 'Name',
+                                                                                                  value:
+                                                                                                    'oauthClientId',
+                                                                                                },
+                                                                                              },
+                                                                                            ],
+                                                                                        },
+                                                                                    },
+                                                                                  ],
+                                                                              },
+                                                                          },
+                                                                        ],
+                                                                    },
+                                                                },
+                                                              ],
+                                                            },
+                                                          },
+                                                        ],
                                                       },
                                                     },
                                                   ],
@@ -3311,21 +2987,30 @@ export const EligibilityContentByOfferingDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'offeringCollection' },
+            name: { kind: 'Name', value: 'offerings' },
             arguments: [
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'skip' },
-                value: { kind: 'IntValue', value: '0' },
+                name: { kind: 'Name', value: 'pagination' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'start' },
+                      value: { kind: 'IntValue', value: '0' },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'limit' },
+                      value: { kind: 'IntValue', value: '2' },
+                    },
+                  ],
+                },
               },
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'limit' },
-                value: { kind: 'IntValue', value: '2' },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'where' },
+                name: { kind: 'Name', value: 'filters' },
                 value: {
                   kind: 'ObjectValue',
                   fields: [
@@ -3333,8 +3018,17 @@ export const EligibilityContentByOfferingDocument = {
                       kind: 'ObjectField',
                       name: { kind: 'Name', value: 'apiIdentifier' },
                       value: {
-                        kind: 'Variable',
-                        name: { kind: 'Name', value: 'apiIdentifier' },
+                        kind: 'ObjectValue',
+                        fields: [
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: 'eq' },
+                            value: {
+                              kind: 'Variable',
+                              name: { kind: 'Name', value: 'apiIdentifier' },
+                            },
+                          },
+                        ],
                       },
                     },
                   ],
@@ -3346,64 +3040,33 @@ export const EligibilityContentByOfferingDocument = {
               selections: [
                 {
                   kind: 'Field',
-                  name: { kind: 'Name', value: 'items' },
+                  name: { kind: 'Name', value: 'data' },
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
                       {
                         kind: 'Field',
-                        name: { kind: 'Name', value: 'apiIdentifier' },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'stripeProductId' },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'defaultPurchase' },
+                        name: { kind: 'Name', value: 'attributes' },
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [
                             {
                               kind: 'Field',
-                              name: {
-                                kind: 'Name',
-                                value: 'stripePlanChoices',
-                              },
+                              name: { kind: 'Name', value: 'apiIdentifier' },
                             },
-                          ],
-                        },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'linkedFrom' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
                             {
                               kind: 'Field',
-                              name: {
-                                kind: 'Name',
-                                value: 'subGroupCollection',
-                              },
-                              arguments: [
-                                {
-                                  kind: 'Argument',
-                                  name: { kind: 'Name', value: 'skip' },
-                                  value: { kind: 'IntValue', value: '0' },
-                                },
-                                {
-                                  kind: 'Argument',
-                                  name: { kind: 'Name', value: 'limit' },
-                                  value: { kind: 'IntValue', value: '25' },
-                                },
-                              ],
+                              name: { kind: 'Name', value: 'stripeProductId' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'defaultPurchase' },
                               selectionSet: {
                                 kind: 'SelectionSet',
                                 selections: [
                                   {
                                     kind: 'Field',
-                                    name: { kind: 'Name', value: 'items' },
+                                    name: { kind: 'Name', value: 'data' },
                                     selectionSet: {
                                       kind: 'SelectionSet',
                                       selections: [
@@ -3411,39 +3074,8 @@ export const EligibilityContentByOfferingDocument = {
                                           kind: 'Field',
                                           name: {
                                             kind: 'Name',
-                                            value: 'groupName',
+                                            value: 'attributes',
                                           },
-                                        },
-                                        {
-                                          kind: 'Field',
-                                          name: {
-                                            kind: 'Name',
-                                            value: 'offeringCollection',
-                                          },
-                                          arguments: [
-                                            {
-                                              kind: 'Argument',
-                                              name: {
-                                                kind: 'Name',
-                                                value: 'skip',
-                                              },
-                                              value: {
-                                                kind: 'IntValue',
-                                                value: '0',
-                                              },
-                                            },
-                                            {
-                                              kind: 'Argument',
-                                              name: {
-                                                kind: 'Name',
-                                                value: 'limit',
-                                              },
-                                              value: {
-                                                kind: 'IntValue',
-                                                value: '20',
-                                              },
-                                            },
-                                          ],
                                           selectionSet: {
                                             kind: 'SelectionSet',
                                             selections: [
@@ -3451,7 +3083,7 @@ export const EligibilityContentByOfferingDocument = {
                                                 kind: 'Field',
                                                 name: {
                                                   kind: 'Name',
-                                                  value: 'items',
+                                                  value: 'stripePlanChoices',
                                                 },
                                                 selectionSet: {
                                                   kind: 'SelectionSet',
@@ -3460,23 +3092,64 @@ export const EligibilityContentByOfferingDocument = {
                                                       kind: 'Field',
                                                       name: {
                                                         kind: 'Name',
-                                                        value: 'apiIdentifier',
+                                                        value:
+                                                          'stripePlanChoice',
                                                       },
                                                     },
+                                                  ],
+                                                },
+                                              },
+                                            ],
+                                          },
+                                        },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'subGroups' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'data' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        {
+                                          kind: 'Field',
+                                          name: {
+                                            kind: 'Name',
+                                            value: 'attributes',
+                                          },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'groupName',
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'offerings',
+                                                },
+                                                selectionSet: {
+                                                  kind: 'SelectionSet',
+                                                  selections: [
                                                     {
                                                       kind: 'Field',
                                                       name: {
                                                         kind: 'Name',
-                                                        value:
-                                                          'stripeProductId',
-                                                      },
-                                                    },
-                                                    {
-                                                      kind: 'Field',
-                                                      name: {
-                                                        kind: 'Name',
-                                                        value:
-                                                          'defaultPurchase',
+                                                        value: 'data',
                                                       },
                                                       selectionSet: {
                                                         kind: 'SelectionSet',
@@ -3486,7 +3159,96 @@ export const EligibilityContentByOfferingDocument = {
                                                             name: {
                                                               kind: 'Name',
                                                               value:
-                                                                'stripePlanChoices',
+                                                                'attributes',
+                                                            },
+                                                            selectionSet: {
+                                                              kind: 'SelectionSet',
+                                                              selections: [
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: {
+                                                                    kind: 'Name',
+                                                                    value:
+                                                                      'apiIdentifier',
+                                                                  },
+                                                                },
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: {
+                                                                    kind: 'Name',
+                                                                    value:
+                                                                      'stripeProductId',
+                                                                  },
+                                                                },
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: {
+                                                                    kind: 'Name',
+                                                                    value:
+                                                                      'defaultPurchase',
+                                                                  },
+                                                                  selectionSet:
+                                                                    {
+                                                                      kind: 'SelectionSet',
+                                                                      selections:
+                                                                        [
+                                                                          {
+                                                                            kind: 'Field',
+                                                                            name: {
+                                                                              kind: 'Name',
+                                                                              value:
+                                                                                'data',
+                                                                            },
+                                                                            selectionSet:
+                                                                              {
+                                                                                kind: 'SelectionSet',
+                                                                                selections:
+                                                                                  [
+                                                                                    {
+                                                                                      kind: 'Field',
+                                                                                      name: {
+                                                                                        kind: 'Name',
+                                                                                        value:
+                                                                                          'attributes',
+                                                                                      },
+                                                                                      selectionSet:
+                                                                                        {
+                                                                                          kind: 'SelectionSet',
+                                                                                          selections:
+                                                                                            [
+                                                                                              {
+                                                                                                kind: 'Field',
+                                                                                                name: {
+                                                                                                  kind: 'Name',
+                                                                                                  value:
+                                                                                                    'stripePlanChoices',
+                                                                                                },
+                                                                                                selectionSet:
+                                                                                                  {
+                                                                                                    kind: 'SelectionSet',
+                                                                                                    selections:
+                                                                                                      [
+                                                                                                        {
+                                                                                                          kind: 'Field',
+                                                                                                          name: {
+                                                                                                            kind: 'Name',
+                                                                                                            value:
+                                                                                                              'stripePlanChoice',
+                                                                                                          },
+                                                                                                        },
+                                                                                                      ],
+                                                                                                  },
+                                                                                              },
+                                                                                            ],
+                                                                                        },
+                                                                                    },
+                                                                                  ],
+                                                                              },
+                                                                          },
+                                                                        ],
+                                                                    },
+                                                                },
+                                                              ],
                                                             },
                                                           },
                                                         ],
@@ -3552,20 +3314,6 @@ export const EligibilityContentByPlanIdsDocument = {
           kind: 'VariableDefinition',
           variable: {
             kind: 'Variable',
-            name: { kind: 'Name', value: 'locale' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
             name: { kind: 'Name', value: 'stripePlanIds' },
           },
           type: {
@@ -3585,41 +3333,42 @@ export const EligibilityContentByPlanIdsDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'purchaseCollection' },
+            name: { kind: 'Name', value: 'purchases' },
             arguments: [
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'skip' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'skip' },
-                },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'limit' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'limit' },
-                },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'locale' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'locale' },
-                },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'where' },
+                name: { kind: 'Name', value: 'pagination' },
                 value: {
                   kind: 'ObjectValue',
                   fields: [
                     {
                       kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'OR' },
+                      name: { kind: 'Name', value: 'start' },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'skip' },
+                      },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'limit' },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'limit' },
+                      },
+                    },
+                  ],
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filters' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'or' },
                       value: {
                         kind: 'ListValue',
                         values: [
@@ -3630,14 +3379,35 @@ export const EligibilityContentByPlanIdsDocument = {
                                 kind: 'ObjectField',
                                 name: {
                                   kind: 'Name',
-                                  value: 'stripePlanChoices_contains_some',
+                                  value: 'stripePlanChoices',
                                 },
                                 value: {
-                                  kind: 'Variable',
-                                  name: {
-                                    kind: 'Name',
-                                    value: 'stripePlanIds',
-                                  },
+                                  kind: 'ObjectValue',
+                                  fields: [
+                                    {
+                                      kind: 'ObjectField',
+                                      name: {
+                                        kind: 'Name',
+                                        value: 'stripePlanChoice',
+                                      },
+                                      value: {
+                                        kind: 'ObjectValue',
+                                        fields: [
+                                          {
+                                            kind: 'ObjectField',
+                                            name: { kind: 'Name', value: 'in' },
+                                            value: {
+                                              kind: 'Variable',
+                                              name: {
+                                                kind: 'Name',
+                                                value: 'stripePlanIds',
+                                              },
+                                            },
+                                          },
+                                        ],
+                                      },
+                                    },
+                                  ],
                                 },
                               },
                             ],
@@ -3655,15 +3425,38 @@ export const EligibilityContentByPlanIdsDocument = {
                                       kind: 'ObjectField',
                                       name: {
                                         kind: 'Name',
-                                        value:
-                                          'stripeLegacyPlans_contains_some',
+                                        value: 'stripeLegacyPlans',
                                       },
                                       value: {
-                                        kind: 'Variable',
-                                        name: {
-                                          kind: 'Name',
-                                          value: 'stripePlanIds',
-                                        },
+                                        kind: 'ObjectValue',
+                                        fields: [
+                                          {
+                                            kind: 'ObjectField',
+                                            name: {
+                                              kind: 'Name',
+                                              value: 'stripeLegacyPlan',
+                                            },
+                                            value: {
+                                              kind: 'ObjectValue',
+                                              fields: [
+                                                {
+                                                  kind: 'ObjectField',
+                                                  name: {
+                                                    kind: 'Name',
+                                                    value: 'in',
+                                                  },
+                                                  value: {
+                                                    kind: 'Variable',
+                                                    name: {
+                                                      kind: 'Name',
+                                                      value: 'stripePlanIds',
+                                                    },
+                                                  },
+                                                },
+                                              ],
+                                            },
+                                          },
+                                        ],
                                       },
                                     },
                                   ],
@@ -3681,41 +3474,46 @@ export const EligibilityContentByPlanIdsDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'total' } },
                 {
                   kind: 'Field',
-                  name: { kind: 'Name', value: 'items' },
+                  name: { kind: 'Name', value: 'meta' },
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
                       {
                         kind: 'Field',
-                        name: { kind: 'Name', value: 'stripePlanChoices' },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'offering' },
+                        name: { kind: 'Name', value: 'pagination' },
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [
                             {
                               kind: 'Field',
-                              name: { kind: 'Name', value: 'stripeProductId' },
+                              name: { kind: 'Name', value: 'total' },
                             },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'data' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'attributes' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
                             {
                               kind: 'Field',
                               name: {
                                 kind: 'Name',
-                                value: 'stripeLegacyPlans',
+                                value: 'stripePlanChoices',
                               },
-                            },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'countries' },
-                            },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'linkedFrom' },
                               selectionSet: {
                                 kind: 'SelectionSet',
                                 selections: [
@@ -3723,23 +3521,21 @@ export const EligibilityContentByPlanIdsDocument = {
                                     kind: 'Field',
                                     name: {
                                       kind: 'Name',
-                                      value: 'subGroupCollection',
+                                      value: 'stripePlanChoice',
                                     },
-                                    arguments: [
-                                      {
-                                        kind: 'Argument',
-                                        name: { kind: 'Name', value: 'skip' },
-                                        value: { kind: 'IntValue', value: '0' },
-                                      },
-                                      {
-                                        kind: 'Argument',
-                                        name: { kind: 'Name', value: 'limit' },
-                                        value: {
-                                          kind: 'IntValue',
-                                          value: '25',
-                                        },
-                                      },
-                                    ],
+                                  },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'offering' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'data' },
                                     selectionSet: {
                                       kind: 'SelectionSet',
                                       selections: [
@@ -3747,7 +3543,7 @@ export const EligibilityContentByPlanIdsDocument = {
                                           kind: 'Field',
                                           name: {
                                             kind: 'Name',
-                                            value: 'items',
+                                            value: 'attributes',
                                           },
                                           selectionSet: {
                                             kind: 'SelectionSet',
@@ -3756,39 +3552,15 @@ export const EligibilityContentByPlanIdsDocument = {
                                                 kind: 'Field',
                                                 name: {
                                                   kind: 'Name',
-                                                  value: 'groupName',
+                                                  value: 'stripeProductId',
                                                 },
                                               },
                                               {
                                                 kind: 'Field',
                                                 name: {
                                                   kind: 'Name',
-                                                  value: 'offeringCollection',
+                                                  value: 'stripeLegacyPlans',
                                                 },
-                                                arguments: [
-                                                  {
-                                                    kind: 'Argument',
-                                                    name: {
-                                                      kind: 'Name',
-                                                      value: 'skip',
-                                                    },
-                                                    value: {
-                                                      kind: 'IntValue',
-                                                      value: '0',
-                                                    },
-                                                  },
-                                                  {
-                                                    kind: 'Argument',
-                                                    name: {
-                                                      kind: 'Name',
-                                                      value: 'limit',
-                                                    },
-                                                    value: {
-                                                      kind: 'IntValue',
-                                                      value: '20',
-                                                    },
-                                                  },
-                                                ],
                                                 selectionSet: {
                                                   kind: 'SelectionSet',
                                                   selections: [
@@ -3796,7 +3568,34 @@ export const EligibilityContentByPlanIdsDocument = {
                                                       kind: 'Field',
                                                       name: {
                                                         kind: 'Name',
-                                                        value: 'items',
+                                                        value:
+                                                          'stripeLegacyPlan',
+                                                      },
+                                                    },
+                                                  ],
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'countries',
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'subGroups',
+                                                },
+                                                selectionSet: {
+                                                  kind: 'SelectionSet',
+                                                  selections: [
+                                                    {
+                                                      kind: 'Field',
+                                                      name: {
+                                                        kind: 'Name',
+                                                        value: 'data',
                                                       },
                                                       selectionSet: {
                                                         kind: 'SelectionSet',
@@ -3806,23 +3605,104 @@ export const EligibilityContentByPlanIdsDocument = {
                                                             name: {
                                                               kind: 'Name',
                                                               value:
-                                                                'stripeProductId',
+                                                                'attributes',
                                                             },
-                                                          },
-                                                          {
-                                                            kind: 'Field',
-                                                            name: {
-                                                              kind: 'Name',
-                                                              value:
-                                                                'stripeLegacyPlans',
-                                                            },
-                                                          },
-                                                          {
-                                                            kind: 'Field',
-                                                            name: {
-                                                              kind: 'Name',
-                                                              value:
-                                                                'countries',
+                                                            selectionSet: {
+                                                              kind: 'SelectionSet',
+                                                              selections: [
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: {
+                                                                    kind: 'Name',
+                                                                    value:
+                                                                      'groupName',
+                                                                  },
+                                                                },
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: {
+                                                                    kind: 'Name',
+                                                                    value:
+                                                                      'offerings',
+                                                                  },
+                                                                  selectionSet:
+                                                                    {
+                                                                      kind: 'SelectionSet',
+                                                                      selections:
+                                                                        [
+                                                                          {
+                                                                            kind: 'Field',
+                                                                            name: {
+                                                                              kind: 'Name',
+                                                                              value:
+                                                                                'data',
+                                                                            },
+                                                                            selectionSet:
+                                                                              {
+                                                                                kind: 'SelectionSet',
+                                                                                selections:
+                                                                                  [
+                                                                                    {
+                                                                                      kind: 'Field',
+                                                                                      name: {
+                                                                                        kind: 'Name',
+                                                                                        value:
+                                                                                          'attributes',
+                                                                                      },
+                                                                                      selectionSet:
+                                                                                        {
+                                                                                          kind: 'SelectionSet',
+                                                                                          selections:
+                                                                                            [
+                                                                                              {
+                                                                                                kind: 'Field',
+                                                                                                name: {
+                                                                                                  kind: 'Name',
+                                                                                                  value:
+                                                                                                    'stripeProductId',
+                                                                                                },
+                                                                                              },
+                                                                                              {
+                                                                                                kind: 'Field',
+                                                                                                name: {
+                                                                                                  kind: 'Name',
+                                                                                                  value:
+                                                                                                    'stripeLegacyPlans',
+                                                                                                },
+                                                                                                selectionSet:
+                                                                                                  {
+                                                                                                    kind: 'SelectionSet',
+                                                                                                    selections:
+                                                                                                      [
+                                                                                                        {
+                                                                                                          kind: 'Field',
+                                                                                                          name: {
+                                                                                                            kind: 'Name',
+                                                                                                            value:
+                                                                                                              'stripeLegacyPlan',
+                                                                                                          },
+                                                                                                        },
+                                                                                                      ],
+                                                                                                  },
+                                                                                              },
+                                                                                              {
+                                                                                                kind: 'Field',
+                                                                                                name: {
+                                                                                                  kind: 'Name',
+                                                                                                  value:
+                                                                                                    'countries',
+                                                                                                },
+                                                                                              },
+                                                                                            ],
+                                                                                        },
+                                                                                    },
+                                                                                  ],
+                                                                              },
+                                                                          },
+                                                                        ],
+                                                                    },
+                                                                },
+                                                              ],
                                                             },
                                                           },
                                                         ],
@@ -3857,6 +3737,52 @@ export const EligibilityContentByPlanIdsDocument = {
   EligibilityContentByPlanIdsQuery,
   EligibilityContentByPlanIdsQueryVariables
 >;
+export const LocalesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'Locales' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'i18NLocales' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'data' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'attributes' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'code' },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<LocalesQuery, LocalesQueryVariables>;
 export const OfferingDocument = {
   kind: 'Document',
   definitions: [
@@ -3870,10 +3796,7 @@ export const OfferingDocument = {
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
           type: {
             kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } },
           },
         },
         {
@@ -3906,50 +3829,253 @@ export const OfferingDocument = {
                   name: { kind: 'Name', value: 'id' },
                 },
               },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'locale' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'locale' },
-                },
-              },
             ],
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
                 {
                   kind: 'Field',
-                  name: { kind: 'Name', value: 'stripeProductId' },
-                },
-                { kind: 'Field', name: { kind: 'Name', value: 'countries' } },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'defaultPurchase' },
+                  name: { kind: 'Name', value: 'data' },
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
                       {
                         kind: 'Field',
-                        name: { kind: 'Name', value: 'purchaseDetails' },
+                        name: { kind: 'Name', value: 'attributes' },
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [
                             {
                               kind: 'Field',
-                              name: { kind: 'Name', value: 'productName' },
+                              name: { kind: 'Name', value: 'stripeProductId' },
                             },
                             {
                               kind: 'Field',
-                              name: { kind: 'Name', value: 'details' },
+                              name: { kind: 'Name', value: 'countries' },
                             },
                             {
                               kind: 'Field',
-                              name: { kind: 'Name', value: 'subtitle' },
-                            },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'webIcon' },
+                              name: { kind: 'Name', value: 'defaultPurchase' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'data' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        {
+                                          kind: 'Field',
+                                          name: {
+                                            kind: 'Name',
+                                            value: 'attributes',
+                                          },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'purchaseDetails',
+                                                },
+                                                selectionSet: {
+                                                  kind: 'SelectionSet',
+                                                  selections: [
+                                                    {
+                                                      kind: 'Field',
+                                                      name: {
+                                                        kind: 'Name',
+                                                        value: 'data',
+                                                      },
+                                                      selectionSet: {
+                                                        kind: 'SelectionSet',
+                                                        selections: [
+                                                          {
+                                                            kind: 'Field',
+                                                            name: {
+                                                              kind: 'Name',
+                                                              value:
+                                                                'attributes',
+                                                            },
+                                                            selectionSet: {
+                                                              kind: 'SelectionSet',
+                                                              selections: [
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: {
+                                                                    kind: 'Name',
+                                                                    value:
+                                                                      'productName',
+                                                                  },
+                                                                },
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: {
+                                                                    kind: 'Name',
+                                                                    value:
+                                                                      'details',
+                                                                  },
+                                                                },
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: {
+                                                                    kind: 'Name',
+                                                                    value:
+                                                                      'subtitle',
+                                                                  },
+                                                                },
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: {
+                                                                    kind: 'Name',
+                                                                    value:
+                                                                      'webIcon',
+                                                                  },
+                                                                },
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: {
+                                                                    kind: 'Name',
+                                                                    value:
+                                                                      'localizations',
+                                                                  },
+                                                                  arguments: [
+                                                                    {
+                                                                      kind: 'Argument',
+                                                                      name: {
+                                                                        kind: 'Name',
+                                                                        value:
+                                                                          'filters',
+                                                                      },
+                                                                      value: {
+                                                                        kind: 'ObjectValue',
+                                                                        fields:
+                                                                          [
+                                                                            {
+                                                                              kind: 'ObjectField',
+                                                                              name: {
+                                                                                kind: 'Name',
+                                                                                value:
+                                                                                  'locale',
+                                                                              },
+                                                                              value:
+                                                                                {
+                                                                                  kind: 'ObjectValue',
+                                                                                  fields:
+                                                                                    [
+                                                                                      {
+                                                                                        kind: 'ObjectField',
+                                                                                        name: {
+                                                                                          kind: 'Name',
+                                                                                          value:
+                                                                                            'eq',
+                                                                                        },
+                                                                                        value:
+                                                                                          {
+                                                                                            kind: 'Variable',
+                                                                                            name: {
+                                                                                              kind: 'Name',
+                                                                                              value:
+                                                                                                'locale',
+                                                                                            },
+                                                                                          },
+                                                                                      },
+                                                                                    ],
+                                                                                },
+                                                                            },
+                                                                          ],
+                                                                      },
+                                                                    },
+                                                                  ],
+                                                                  selectionSet:
+                                                                    {
+                                                                      kind: 'SelectionSet',
+                                                                      selections:
+                                                                        [
+                                                                          {
+                                                                            kind: 'Field',
+                                                                            name: {
+                                                                              kind: 'Name',
+                                                                              value:
+                                                                                'data',
+                                                                            },
+                                                                            selectionSet:
+                                                                              {
+                                                                                kind: 'SelectionSet',
+                                                                                selections:
+                                                                                  [
+                                                                                    {
+                                                                                      kind: 'Field',
+                                                                                      name: {
+                                                                                        kind: 'Name',
+                                                                                        value:
+                                                                                          'attributes',
+                                                                                      },
+                                                                                      selectionSet:
+                                                                                        {
+                                                                                          kind: 'SelectionSet',
+                                                                                          selections:
+                                                                                            [
+                                                                                              {
+                                                                                                kind: 'Field',
+                                                                                                name: {
+                                                                                                  kind: 'Name',
+                                                                                                  value:
+                                                                                                    'productName',
+                                                                                                },
+                                                                                              },
+                                                                                              {
+                                                                                                kind: 'Field',
+                                                                                                name: {
+                                                                                                  kind: 'Name',
+                                                                                                  value:
+                                                                                                    'details',
+                                                                                                },
+                                                                                              },
+                                                                                              {
+                                                                                                kind: 'Field',
+                                                                                                name: {
+                                                                                                  kind: 'Name',
+                                                                                                  value:
+                                                                                                    'subtitle',
+                                                                                                },
+                                                                                              },
+                                                                                              {
+                                                                                                kind: 'Field',
+                                                                                                name: {
+                                                                                                  kind: 'Name',
+                                                                                                  value:
+                                                                                                    'webIcon',
+                                                                                                },
+                                                                                              },
+                                                                                            ],
+                                                                                        },
+                                                                                    },
+                                                                                  ],
+                                                                              },
+                                                                          },
+                                                                        ],
+                                                                    },
+                                                                },
+                                                              ],
+                                                            },
+                                                          },
+                                                        ],
+                                                      },
+                                                    },
+                                                  ],
+                                                },
+                                              },
+                                            ],
+                                          },
+                                        },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
                             },
                           ],
                         },
@@ -4007,29 +4133,30 @@ export const PageContentForOfferingDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'offeringCollection' },
+            name: { kind: 'Name', value: 'offerings' },
             arguments: [
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'skip' },
-                value: { kind: 'IntValue', value: '0' },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'limit' },
-                value: { kind: 'IntValue', value: '2' },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'locale' },
+                name: { kind: 'Name', value: 'pagination' },
                 value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'locale' },
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'start' },
+                      value: { kind: 'IntValue', value: '0' },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'limit' },
+                      value: { kind: 'IntValue', value: '2' },
+                    },
+                  ],
                 },
               },
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'where' },
+                name: { kind: 'Name', value: 'filters' },
                 value: {
                   kind: 'ObjectValue',
                   fields: [
@@ -4037,8 +4164,17 @@ export const PageContentForOfferingDocument = {
                       kind: 'ObjectField',
                       name: { kind: 'Name', value: 'apiIdentifier' },
                       value: {
-                        kind: 'Variable',
-                        name: { kind: 'Name', value: 'apiIdentifier' },
+                        kind: 'ObjectValue',
+                        fields: [
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: 'eq' },
+                            value: {
+                              kind: 'Variable',
+                              name: { kind: 'Name', value: 'apiIdentifier' },
+                            },
+                          },
+                        ],
                       },
                     },
                   ],
@@ -4050,118 +4186,532 @@ export const PageContentForOfferingDocument = {
               selections: [
                 {
                   kind: 'Field',
-                  name: { kind: 'Name', value: 'items' },
+                  name: { kind: 'Name', value: 'meta' },
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
                       {
                         kind: 'Field',
-                        name: { kind: 'Name', value: 'apiIdentifier' },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'stripeProductId' },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'defaultPurchase' },
+                        name: { kind: 'Name', value: 'pagination' },
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [
                             {
                               kind: 'Field',
-                              name: { kind: 'Name', value: 'purchaseDetails' },
+                              name: { kind: 'Name', value: 'total' },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'data' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'attributes' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'apiIdentifier' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'stripeProductId' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'defaultPurchase' },
                               selectionSet: {
                                 kind: 'SelectionSet',
                                 selections: [
                                   {
                                     kind: 'Field',
-                                    name: { kind: 'Name', value: 'details' },
-                                  },
-                                  {
-                                    kind: 'Field',
-                                    name: {
-                                      kind: 'Name',
-                                      value: 'productName',
+                                    name: { kind: 'Name', value: 'data' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        {
+                                          kind: 'Field',
+                                          name: {
+                                            kind: 'Name',
+                                            value: 'attributes',
+                                          },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'purchaseDetails',
+                                                },
+                                                selectionSet: {
+                                                  kind: 'SelectionSet',
+                                                  selections: [
+                                                    {
+                                                      kind: 'Field',
+                                                      name: {
+                                                        kind: 'Name',
+                                                        value: 'data',
+                                                      },
+                                                      selectionSet: {
+                                                        kind: 'SelectionSet',
+                                                        selections: [
+                                                          {
+                                                            kind: 'Field',
+                                                            name: {
+                                                              kind: 'Name',
+                                                              value:
+                                                                'attributes',
+                                                            },
+                                                            selectionSet: {
+                                                              kind: 'SelectionSet',
+                                                              selections: [
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: {
+                                                                    kind: 'Name',
+                                                                    value:
+                                                                      'details',
+                                                                  },
+                                                                },
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: {
+                                                                    kind: 'Name',
+                                                                    value:
+                                                                      'productName',
+                                                                  },
+                                                                },
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: {
+                                                                    kind: 'Name',
+                                                                    value:
+                                                                      'subtitle',
+                                                                  },
+                                                                },
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: {
+                                                                    kind: 'Name',
+                                                                    value:
+                                                                      'webIcon',
+                                                                  },
+                                                                },
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: {
+                                                                    kind: 'Name',
+                                                                    value:
+                                                                      'localizations',
+                                                                  },
+                                                                  arguments: [
+                                                                    {
+                                                                      kind: 'Argument',
+                                                                      name: {
+                                                                        kind: 'Name',
+                                                                        value:
+                                                                          'filters',
+                                                                      },
+                                                                      value: {
+                                                                        kind: 'ObjectValue',
+                                                                        fields:
+                                                                          [
+                                                                            {
+                                                                              kind: 'ObjectField',
+                                                                              name: {
+                                                                                kind: 'Name',
+                                                                                value:
+                                                                                  'locale',
+                                                                              },
+                                                                              value:
+                                                                                {
+                                                                                  kind: 'ObjectValue',
+                                                                                  fields:
+                                                                                    [
+                                                                                      {
+                                                                                        kind: 'ObjectField',
+                                                                                        name: {
+                                                                                          kind: 'Name',
+                                                                                          value:
+                                                                                            'eq',
+                                                                                        },
+                                                                                        value:
+                                                                                          {
+                                                                                            kind: 'Variable',
+                                                                                            name: {
+                                                                                              kind: 'Name',
+                                                                                              value:
+                                                                                                'locale',
+                                                                                            },
+                                                                                          },
+                                                                                      },
+                                                                                    ],
+                                                                                },
+                                                                            },
+                                                                          ],
+                                                                      },
+                                                                    },
+                                                                  ],
+                                                                  selectionSet:
+                                                                    {
+                                                                      kind: 'SelectionSet',
+                                                                      selections:
+                                                                        [
+                                                                          {
+                                                                            kind: 'Field',
+                                                                            name: {
+                                                                              kind: 'Name',
+                                                                              value:
+                                                                                'data',
+                                                                            },
+                                                                            selectionSet:
+                                                                              {
+                                                                                kind: 'SelectionSet',
+                                                                                selections:
+                                                                                  [
+                                                                                    {
+                                                                                      kind: 'Field',
+                                                                                      name: {
+                                                                                        kind: 'Name',
+                                                                                        value:
+                                                                                          'attributes',
+                                                                                      },
+                                                                                      selectionSet:
+                                                                                        {
+                                                                                          kind: 'SelectionSet',
+                                                                                          selections:
+                                                                                            [
+                                                                                              {
+                                                                                                kind: 'Field',
+                                                                                                name: {
+                                                                                                  kind: 'Name',
+                                                                                                  value:
+                                                                                                    'details',
+                                                                                                },
+                                                                                              },
+                                                                                              {
+                                                                                                kind: 'Field',
+                                                                                                name: {
+                                                                                                  kind: 'Name',
+                                                                                                  value:
+                                                                                                    'productName',
+                                                                                                },
+                                                                                              },
+                                                                                              {
+                                                                                                kind: 'Field',
+                                                                                                name: {
+                                                                                                  kind: 'Name',
+                                                                                                  value:
+                                                                                                    'subtitle',
+                                                                                                },
+                                                                                              },
+                                                                                              {
+                                                                                                kind: 'Field',
+                                                                                                name: {
+                                                                                                  kind: 'Name',
+                                                                                                  value:
+                                                                                                    'webIcon',
+                                                                                                },
+                                                                                              },
+                                                                                            ],
+                                                                                        },
+                                                                                    },
+                                                                                  ],
+                                                                              },
+                                                                          },
+                                                                        ],
+                                                                    },
+                                                                },
+                                                              ],
+                                                            },
+                                                          },
+                                                        ],
+                                                      },
+                                                    },
+                                                  ],
+                                                },
+                                              },
+                                            ],
+                                          },
+                                        },
+                                      ],
                                     },
-                                  },
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'subtitle' },
-                                  },
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'webIcon' },
                                   },
                                 ],
                               },
                             },
-                          ],
-                        },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'commonContent' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
                             {
                               kind: 'Field',
-                              name: { kind: 'Name', value: 'privacyNoticeUrl' },
-                            },
-                            {
-                              kind: 'Field',
-                              name: {
-                                kind: 'Name',
-                                value: 'privacyNoticeDownloadUrl',
+                              name: { kind: 'Name', value: 'commonContent' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'data' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        {
+                                          kind: 'Field',
+                                          name: {
+                                            kind: 'Name',
+                                            value: 'attributes',
+                                          },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'privacyNoticeUrl',
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value:
+                                                    'privacyNoticeDownloadUrl',
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'termsOfServiceUrl',
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value:
+                                                    'termsOfServiceDownloadUrl',
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'cancellationUrl',
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'emailIcon',
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value:
+                                                    'successActionButtonUrl',
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value:
+                                                    'successActionButtonLabel',
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value:
+                                                    'newsletterLabelTextCode',
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'newsletterSlug',
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'localizations',
+                                                },
+                                                arguments: [
+                                                  {
+                                                    kind: 'Argument',
+                                                    name: {
+                                                      kind: 'Name',
+                                                      value: 'filters',
+                                                    },
+                                                    value: {
+                                                      kind: 'ObjectValue',
+                                                      fields: [
+                                                        {
+                                                          kind: 'ObjectField',
+                                                          name: {
+                                                            kind: 'Name',
+                                                            value: 'locale',
+                                                          },
+                                                          value: {
+                                                            kind: 'ObjectValue',
+                                                            fields: [
+                                                              {
+                                                                kind: 'ObjectField',
+                                                                name: {
+                                                                  kind: 'Name',
+                                                                  value: 'eq',
+                                                                },
+                                                                value: {
+                                                                  kind: 'Variable',
+                                                                  name: {
+                                                                    kind: 'Name',
+                                                                    value:
+                                                                      'locale',
+                                                                  },
+                                                                },
+                                                              },
+                                                            ],
+                                                          },
+                                                        },
+                                                      ],
+                                                    },
+                                                  },
+                                                ],
+                                                selectionSet: {
+                                                  kind: 'SelectionSet',
+                                                  selections: [
+                                                    {
+                                                      kind: 'Field',
+                                                      name: {
+                                                        kind: 'Name',
+                                                        value: 'data',
+                                                      },
+                                                      selectionSet: {
+                                                        kind: 'SelectionSet',
+                                                        selections: [
+                                                          {
+                                                            kind: 'Field',
+                                                            name: {
+                                                              kind: 'Name',
+                                                              value:
+                                                                'attributes',
+                                                            },
+                                                            selectionSet: {
+                                                              kind: 'SelectionSet',
+                                                              selections: [
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: {
+                                                                    kind: 'Name',
+                                                                    value:
+                                                                      'privacyNoticeUrl',
+                                                                  },
+                                                                },
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: {
+                                                                    kind: 'Name',
+                                                                    value:
+                                                                      'privacyNoticeDownloadUrl',
+                                                                  },
+                                                                },
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: {
+                                                                    kind: 'Name',
+                                                                    value:
+                                                                      'termsOfServiceUrl',
+                                                                  },
+                                                                },
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: {
+                                                                    kind: 'Name',
+                                                                    value:
+                                                                      'termsOfServiceDownloadUrl',
+                                                                  },
+                                                                },
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: {
+                                                                    kind: 'Name',
+                                                                    value:
+                                                                      'cancellationUrl',
+                                                                  },
+                                                                },
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: {
+                                                                    kind: 'Name',
+                                                                    value:
+                                                                      'emailIcon',
+                                                                  },
+                                                                },
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: {
+                                                                    kind: 'Name',
+                                                                    value:
+                                                                      'successActionButtonUrl',
+                                                                  },
+                                                                },
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: {
+                                                                    kind: 'Name',
+                                                                    value:
+                                                                      'successActionButtonLabel',
+                                                                  },
+                                                                },
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: {
+                                                                    kind: 'Name',
+                                                                    value:
+                                                                      'newsletterLabelTextCode',
+                                                                  },
+                                                                },
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: {
+                                                                    kind: 'Name',
+                                                                    value:
+                                                                      'newsletterSlug',
+                                                                  },
+                                                                },
+                                                              ],
+                                                            },
+                                                          },
+                                                        ],
+                                                      },
+                                                    },
+                                                  ],
+                                                },
+                                              },
+                                            ],
+                                          },
+                                        },
+                                      ],
+                                    },
+                                  },
+                                ],
                               },
-                            },
-                            {
-                              kind: 'Field',
-                              name: {
-                                kind: 'Name',
-                                value: 'termsOfServiceUrl',
-                              },
-                            },
-                            {
-                              kind: 'Field',
-                              name: {
-                                kind: 'Name',
-                                value: 'termsOfServiceDownloadUrl',
-                              },
-                            },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'cancellationUrl' },
-                            },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'emailIcon' },
-                            },
-                            {
-                              kind: 'Field',
-                              name: {
-                                kind: 'Name',
-                                value: 'successActionButtonUrl',
-                              },
-                            },
-                            {
-                              kind: 'Field',
-                              name: {
-                                kind: 'Name',
-                                value: 'successActionButtonLabel',
-                              },
-                            },
-                            {
-                              kind: 'Field',
-                              name: {
-                                kind: 'Name',
-                                value: 'newsletterLabelTextCode',
-                              },
-                            },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'newsletterSlug' },
                             },
                           ],
                         },
@@ -4244,41 +4794,42 @@ export const PurchaseWithDetailsOfferingContentDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'purchaseCollection' },
+            name: { kind: 'Name', value: 'purchases' },
             arguments: [
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'skip' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'skip' },
-                },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'limit' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'limit' },
-                },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'locale' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'locale' },
-                },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'where' },
+                name: { kind: 'Name', value: 'pagination' },
                 value: {
                   kind: 'ObjectValue',
                   fields: [
                     {
                       kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'OR' },
+                      name: { kind: 'Name', value: 'start' },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'skip' },
+                      },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'limit' },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'limit' },
+                      },
+                    },
+                  ],
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filters' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'or' },
                       value: {
                         kind: 'ListValue',
                         values: [
@@ -4289,14 +4840,35 @@ export const PurchaseWithDetailsOfferingContentDocument = {
                                 kind: 'ObjectField',
                                 name: {
                                   kind: 'Name',
-                                  value: 'stripePlanChoices_contains_some',
+                                  value: 'stripePlanChoices',
                                 },
                                 value: {
-                                  kind: 'Variable',
-                                  name: {
-                                    kind: 'Name',
-                                    value: 'stripePlanIds',
-                                  },
+                                  kind: 'ObjectValue',
+                                  fields: [
+                                    {
+                                      kind: 'ObjectField',
+                                      name: {
+                                        kind: 'Name',
+                                        value: 'stripePlanChoice',
+                                      },
+                                      value: {
+                                        kind: 'ObjectValue',
+                                        fields: [
+                                          {
+                                            kind: 'ObjectField',
+                                            name: { kind: 'Name', value: 'in' },
+                                            value: {
+                                              kind: 'Variable',
+                                              name: {
+                                                kind: 'Name',
+                                                value: 'stripePlanIds',
+                                              },
+                                            },
+                                          },
+                                        ],
+                                      },
+                                    },
+                                  ],
                                 },
                               },
                             ],
@@ -4314,15 +4886,38 @@ export const PurchaseWithDetailsOfferingContentDocument = {
                                       kind: 'ObjectField',
                                       name: {
                                         kind: 'Name',
-                                        value:
-                                          'stripeLegacyPlans_contains_some',
+                                        value: 'stripeLegacyPlans',
                                       },
                                       value: {
-                                        kind: 'Variable',
-                                        name: {
-                                          kind: 'Name',
-                                          value: 'stripePlanIds',
-                                        },
+                                        kind: 'ObjectValue',
+                                        fields: [
+                                          {
+                                            kind: 'ObjectField',
+                                            name: {
+                                              kind: 'Name',
+                                              value: 'stripeLegacyPlan',
+                                            },
+                                            value: {
+                                              kind: 'ObjectValue',
+                                              fields: [
+                                                {
+                                                  kind: 'ObjectField',
+                                                  name: {
+                                                    kind: 'Name',
+                                                    value: 'in',
+                                                  },
+                                                  value: {
+                                                    kind: 'Variable',
+                                                    name: {
+                                                      kind: 'Name',
+                                                      value: 'stripePlanIds',
+                                                    },
+                                                  },
+                                                },
+                                              ],
+                                            },
+                                          },
+                                        ],
                                       },
                                     },
                                   ],
@@ -4342,59 +4937,22 @@ export const PurchaseWithDetailsOfferingContentDocument = {
               selections: [
                 {
                   kind: 'Field',
-                  name: { kind: 'Name', value: 'items' },
+                  name: { kind: 'Name', value: 'data' },
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
                       {
                         kind: 'Field',
-                        name: { kind: 'Name', value: 'stripePlanChoices' },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'purchaseDetails' },
+                        name: { kind: 'Name', value: 'attributes' },
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'details' },
-                            },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'productName' },
-                            },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'subtitle' },
-                            },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'webIcon' },
-                            },
-                          ],
-                        },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'offering' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'stripeProductId' },
-                            },
                             {
                               kind: 'Field',
                               name: {
                                 kind: 'Name',
-                                value: 'stripeLegacyPlans',
+                                value: 'stripePlanChoices',
                               },
-                            },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'commonContent' },
                               selectionSet: {
                                 kind: 'SelectionSet',
                                 selections: [
@@ -4402,67 +4960,522 @@ export const PurchaseWithDetailsOfferingContentDocument = {
                                     kind: 'Field',
                                     name: {
                                       kind: 'Name',
-                                      value: 'privacyNoticeUrl',
+                                      value: 'stripePlanChoice',
                                     },
                                   },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'purchaseDetails' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
                                   {
                                     kind: 'Field',
-                                    name: {
-                                      kind: 'Name',
-                                      value: 'privacyNoticeDownloadUrl',
+                                    name: { kind: 'Name', value: 'data' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        {
+                                          kind: 'Field',
+                                          name: {
+                                            kind: 'Name',
+                                            value: 'attributes',
+                                          },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'details',
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'productName',
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'subtitle',
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'webIcon',
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'localizations',
+                                                },
+                                                arguments: [
+                                                  {
+                                                    kind: 'Argument',
+                                                    name: {
+                                                      kind: 'Name',
+                                                      value: 'filters',
+                                                    },
+                                                    value: {
+                                                      kind: 'ObjectValue',
+                                                      fields: [
+                                                        {
+                                                          kind: 'ObjectField',
+                                                          name: {
+                                                            kind: 'Name',
+                                                            value: 'locale',
+                                                          },
+                                                          value: {
+                                                            kind: 'ObjectValue',
+                                                            fields: [
+                                                              {
+                                                                kind: 'ObjectField',
+                                                                name: {
+                                                                  kind: 'Name',
+                                                                  value: 'eq',
+                                                                },
+                                                                value: {
+                                                                  kind: 'Variable',
+                                                                  name: {
+                                                                    kind: 'Name',
+                                                                    value:
+                                                                      'locale',
+                                                                  },
+                                                                },
+                                                              },
+                                                            ],
+                                                          },
+                                                        },
+                                                      ],
+                                                    },
+                                                  },
+                                                ],
+                                                selectionSet: {
+                                                  kind: 'SelectionSet',
+                                                  selections: [
+                                                    {
+                                                      kind: 'Field',
+                                                      name: {
+                                                        kind: 'Name',
+                                                        value: 'data',
+                                                      },
+                                                      selectionSet: {
+                                                        kind: 'SelectionSet',
+                                                        selections: [
+                                                          {
+                                                            kind: 'Field',
+                                                            name: {
+                                                              kind: 'Name',
+                                                              value:
+                                                                'attributes',
+                                                            },
+                                                            selectionSet: {
+                                                              kind: 'SelectionSet',
+                                                              selections: [
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: {
+                                                                    kind: 'Name',
+                                                                    value:
+                                                                      'details',
+                                                                  },
+                                                                },
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: {
+                                                                    kind: 'Name',
+                                                                    value:
+                                                                      'productName',
+                                                                  },
+                                                                },
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: {
+                                                                    kind: 'Name',
+                                                                    value:
+                                                                      'subtitle',
+                                                                  },
+                                                                },
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: {
+                                                                    kind: 'Name',
+                                                                    value:
+                                                                      'webIcon',
+                                                                  },
+                                                                },
+                                                              ],
+                                                            },
+                                                          },
+                                                        ],
+                                                      },
+                                                    },
+                                                  ],
+                                                },
+                                              },
+                                            ],
+                                          },
+                                        },
+                                      ],
                                     },
                                   },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'offering' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
                                   {
                                     kind: 'Field',
-                                    name: {
-                                      kind: 'Name',
-                                      value: 'termsOfServiceUrl',
-                                    },
-                                  },
-                                  {
-                                    kind: 'Field',
-                                    name: {
-                                      kind: 'Name',
-                                      value: 'termsOfServiceDownloadUrl',
-                                    },
-                                  },
-                                  {
-                                    kind: 'Field',
-                                    name: {
-                                      kind: 'Name',
-                                      value: 'cancellationUrl',
-                                    },
-                                  },
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'emailIcon' },
-                                  },
-                                  {
-                                    kind: 'Field',
-                                    name: {
-                                      kind: 'Name',
-                                      value: 'successActionButtonUrl',
-                                    },
-                                  },
-                                  {
-                                    kind: 'Field',
-                                    name: {
-                                      kind: 'Name',
-                                      value: 'successActionButtonLabel',
-                                    },
-                                  },
-                                  {
-                                    kind: 'Field',
-                                    name: {
-                                      kind: 'Name',
-                                      value: 'newsletterLabelTextCode',
-                                    },
-                                  },
-                                  {
-                                    kind: 'Field',
-                                    name: {
-                                      kind: 'Name',
-                                      value: 'newsletterSlug',
+                                    name: { kind: 'Name', value: 'data' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        {
+                                          kind: 'Field',
+                                          name: {
+                                            kind: 'Name',
+                                            value: 'attributes',
+                                          },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'stripeProductId',
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'stripeLegacyPlans',
+                                                },
+                                                selectionSet: {
+                                                  kind: 'SelectionSet',
+                                                  selections: [
+                                                    {
+                                                      kind: 'Field',
+                                                      name: {
+                                                        kind: 'Name',
+                                                        value:
+                                                          'stripeLegacyPlan',
+                                                      },
+                                                    },
+                                                  ],
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'commonContent',
+                                                },
+                                                selectionSet: {
+                                                  kind: 'SelectionSet',
+                                                  selections: [
+                                                    {
+                                                      kind: 'Field',
+                                                      name: {
+                                                        kind: 'Name',
+                                                        value: 'data',
+                                                      },
+                                                      selectionSet: {
+                                                        kind: 'SelectionSet',
+                                                        selections: [
+                                                          {
+                                                            kind: 'Field',
+                                                            name: {
+                                                              kind: 'Name',
+                                                              value:
+                                                                'attributes',
+                                                            },
+                                                            selectionSet: {
+                                                              kind: 'SelectionSet',
+                                                              selections: [
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: {
+                                                                    kind: 'Name',
+                                                                    value:
+                                                                      'privacyNoticeUrl',
+                                                                  },
+                                                                },
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: {
+                                                                    kind: 'Name',
+                                                                    value:
+                                                                      'privacyNoticeDownloadUrl',
+                                                                  },
+                                                                },
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: {
+                                                                    kind: 'Name',
+                                                                    value:
+                                                                      'termsOfServiceUrl',
+                                                                  },
+                                                                },
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: {
+                                                                    kind: 'Name',
+                                                                    value:
+                                                                      'termsOfServiceDownloadUrl',
+                                                                  },
+                                                                },
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: {
+                                                                    kind: 'Name',
+                                                                    value:
+                                                                      'cancellationUrl',
+                                                                  },
+                                                                },
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: {
+                                                                    kind: 'Name',
+                                                                    value:
+                                                                      'emailIcon',
+                                                                  },
+                                                                },
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: {
+                                                                    kind: 'Name',
+                                                                    value:
+                                                                      'successActionButtonUrl',
+                                                                  },
+                                                                },
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: {
+                                                                    kind: 'Name',
+                                                                    value:
+                                                                      'successActionButtonLabel',
+                                                                  },
+                                                                },
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: {
+                                                                    kind: 'Name',
+                                                                    value:
+                                                                      'newsletterLabelTextCode',
+                                                                  },
+                                                                },
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: {
+                                                                    kind: 'Name',
+                                                                    value:
+                                                                      'newsletterSlug',
+                                                                  },
+                                                                },
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: {
+                                                                    kind: 'Name',
+                                                                    value:
+                                                                      'localizations',
+                                                                  },
+                                                                  arguments: [
+                                                                    {
+                                                                      kind: 'Argument',
+                                                                      name: {
+                                                                        kind: 'Name',
+                                                                        value:
+                                                                          'filters',
+                                                                      },
+                                                                      value: {
+                                                                        kind: 'ObjectValue',
+                                                                        fields:
+                                                                          [
+                                                                            {
+                                                                              kind: 'ObjectField',
+                                                                              name: {
+                                                                                kind: 'Name',
+                                                                                value:
+                                                                                  'locale',
+                                                                              },
+                                                                              value:
+                                                                                {
+                                                                                  kind: 'ObjectValue',
+                                                                                  fields:
+                                                                                    [
+                                                                                      {
+                                                                                        kind: 'ObjectField',
+                                                                                        name: {
+                                                                                          kind: 'Name',
+                                                                                          value:
+                                                                                            'eq',
+                                                                                        },
+                                                                                        value:
+                                                                                          {
+                                                                                            kind: 'Variable',
+                                                                                            name: {
+                                                                                              kind: 'Name',
+                                                                                              value:
+                                                                                                'locale',
+                                                                                            },
+                                                                                          },
+                                                                                      },
+                                                                                    ],
+                                                                                },
+                                                                            },
+                                                                          ],
+                                                                      },
+                                                                    },
+                                                                  ],
+                                                                  selectionSet:
+                                                                    {
+                                                                      kind: 'SelectionSet',
+                                                                      selections:
+                                                                        [
+                                                                          {
+                                                                            kind: 'Field',
+                                                                            name: {
+                                                                              kind: 'Name',
+                                                                              value:
+                                                                                'data',
+                                                                            },
+                                                                            selectionSet:
+                                                                              {
+                                                                                kind: 'SelectionSet',
+                                                                                selections:
+                                                                                  [
+                                                                                    {
+                                                                                      kind: 'Field',
+                                                                                      name: {
+                                                                                        kind: 'Name',
+                                                                                        value:
+                                                                                          'attributes',
+                                                                                      },
+                                                                                      selectionSet:
+                                                                                        {
+                                                                                          kind: 'SelectionSet',
+                                                                                          selections:
+                                                                                            [
+                                                                                              {
+                                                                                                kind: 'Field',
+                                                                                                name: {
+                                                                                                  kind: 'Name',
+                                                                                                  value:
+                                                                                                    'privacyNoticeUrl',
+                                                                                                },
+                                                                                              },
+                                                                                              {
+                                                                                                kind: 'Field',
+                                                                                                name: {
+                                                                                                  kind: 'Name',
+                                                                                                  value:
+                                                                                                    'privacyNoticeDownloadUrl',
+                                                                                                },
+                                                                                              },
+                                                                                              {
+                                                                                                kind: 'Field',
+                                                                                                name: {
+                                                                                                  kind: 'Name',
+                                                                                                  value:
+                                                                                                    'termsOfServiceUrl',
+                                                                                                },
+                                                                                              },
+                                                                                              {
+                                                                                                kind: 'Field',
+                                                                                                name: {
+                                                                                                  kind: 'Name',
+                                                                                                  value:
+                                                                                                    'termsOfServiceDownloadUrl',
+                                                                                                },
+                                                                                              },
+                                                                                              {
+                                                                                                kind: 'Field',
+                                                                                                name: {
+                                                                                                  kind: 'Name',
+                                                                                                  value:
+                                                                                                    'cancellationUrl',
+                                                                                                },
+                                                                                              },
+                                                                                              {
+                                                                                                kind: 'Field',
+                                                                                                name: {
+                                                                                                  kind: 'Name',
+                                                                                                  value:
+                                                                                                    'emailIcon',
+                                                                                                },
+                                                                                              },
+                                                                                              {
+                                                                                                kind: 'Field',
+                                                                                                name: {
+                                                                                                  kind: 'Name',
+                                                                                                  value:
+                                                                                                    'successActionButtonUrl',
+                                                                                                },
+                                                                                              },
+                                                                                              {
+                                                                                                kind: 'Field',
+                                                                                                name: {
+                                                                                                  kind: 'Name',
+                                                                                                  value:
+                                                                                                    'successActionButtonLabel',
+                                                                                                },
+                                                                                              },
+                                                                                              {
+                                                                                                kind: 'Field',
+                                                                                                name: {
+                                                                                                  kind: 'Name',
+                                                                                                  value:
+                                                                                                    'newsletterLabelTextCode',
+                                                                                                },
+                                                                                              },
+                                                                                              {
+                                                                                                kind: 'Field',
+                                                                                                name: {
+                                                                                                  kind: 'Name',
+                                                                                                  value:
+                                                                                                    'newsletterSlug',
+                                                                                                },
+                                                                                              },
+                                                                                            ],
+                                                                                        },
+                                                                                    },
+                                                                                  ],
+                                                                              },
+                                                                          },
+                                                                        ],
+                                                                    },
+                                                                },
+                                                              ],
+                                                            },
+                                                          },
+                                                        ],
+                                                      },
+                                                    },
+                                                  ],
+                                                },
+                                              },
+                                            ],
+                                          },
+                                        },
+                                      ],
                                     },
                                   },
                                 ],
@@ -4484,104 +5497,6 @@ export const PurchaseWithDetailsOfferingContentDocument = {
 } as unknown as DocumentNode<
   PurchaseWithDetailsOfferingContentQuery,
   PurchaseWithDetailsOfferingContentQueryVariables
->;
-export const PurchaseWithDetailsDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'query',
-      name: { kind: 'Name', value: 'PurchaseWithDetails' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'locale' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'purchase' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'id' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'id' },
-                },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'locale' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'locale' },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'internalName' },
-                },
-                { kind: 'Field', name: { kind: 'Name', value: 'description' } },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'purchaseDetails' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'productName' },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'details' },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'webIcon' },
-                      },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  PurchaseWithDetailsQuery,
-  PurchaseWithDetailsQueryVariables
 >;
 export const ServicesWithCapabilitiesDocument = {
   kind: 'Document',
@@ -4610,50 +5525,37 @@ export const ServicesWithCapabilitiesDocument = {
             type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
           },
         },
-        {
-          kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'locale' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
-        },
       ],
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'serviceCollection' },
+            name: { kind: 'Name', value: 'services' },
             arguments: [
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'skip' },
+                name: { kind: 'Name', value: 'pagination' },
                 value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'skip' },
-                },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'limit' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'limit' },
-                },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'locale' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'locale' },
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'start' },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'skip' },
+                      },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'limit' },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'limit' },
+                      },
+                    },
+                  ],
                 },
               },
             ],
@@ -4662,47 +5564,53 @@ export const ServicesWithCapabilitiesDocument = {
               selections: [
                 {
                   kind: 'Field',
-                  name: { kind: 'Name', value: 'items' },
+                  name: { kind: 'Name', value: 'data' },
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
                       {
                         kind: 'Field',
-                        name: { kind: 'Name', value: 'oauthClientId' },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'capabilitiesCollection' },
-                        arguments: [
-                          {
-                            kind: 'Argument',
-                            name: { kind: 'Name', value: 'skip' },
-                            value: {
-                              kind: 'Variable',
-                              name: { kind: 'Name', value: 'skip' },
-                            },
-                          },
-                          {
-                            kind: 'Argument',
-                            name: { kind: 'Name', value: 'limit' },
-                            value: {
-                              kind: 'Variable',
-                              name: { kind: 'Name', value: 'limit' },
-                            },
-                          },
-                        ],
+                        name: { kind: 'Name', value: 'attributes' },
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [
                             {
                               kind: 'Field',
-                              name: { kind: 'Name', value: 'items' },
+                              name: { kind: 'Name', value: 'oauthClientId' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'capabilities' },
                               selectionSet: {
                                 kind: 'SelectionSet',
                                 selections: [
                                   {
                                     kind: 'Field',
-                                    name: { kind: 'Name', value: 'slug' },
+                                    name: { kind: 'Name', value: 'data' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        {
+                                          kind: 'Field',
+                                          name: {
+                                            kind: 'Name',
+                                            value: 'attributes',
+                                          },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'slug',
+                                                },
+                                              },
+                                            ],
+                                          },
+                                        },
+                                      ],
+                                    },
                                   },
                                 ],
                               },

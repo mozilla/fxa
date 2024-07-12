@@ -95,14 +95,13 @@ export class StripeMapperService {
         continue;
       }
 
-      const {
-        offering: { commonContent },
-        purchaseDetails,
-      } = cmsConfigData;
+      const commonContent =
+        cmsConfigData.offering.data.attributes.commonContent;
+      const purchaseDetails = cmsConfigData.purchaseDetails;
 
       const planMapper = new PlanMapperUtil(
-        commonContent,
-        purchaseDetails,
+        commonContent.data.attributes,
+        purchaseDetails.data.attributes,
         mergedStripeMetadata,
         cmsEnabled
       );

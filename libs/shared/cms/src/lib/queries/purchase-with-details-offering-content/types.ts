@@ -1,6 +1,9 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+import { StrapiEntity } from '../../types';
+
 export interface PurchaseDetailsResult {
   details: string;
   productName: string;
@@ -28,23 +31,53 @@ export interface OfferingCommonContentResult {
 
 export interface PurchaseOfferingResult {
   stripeProductId: string;
-  stripeLegacyPlans: string[] | null;
-  commonContent: OfferingCommonContentResult;
+  stripeLegacyPlans: {
+    stripeLegacyPlan: string;
+  }[];
+  commonContent: {
+    data: StrapiEntity<
+      OfferingCommonContentResult & {
+        localizations: {
+          data: StrapiEntity<OfferingCommonContentResult>[];
+        };
+      }
+    >;
+  };
 }
 
 export interface PurchaseWithDetailsOfferingContentResult {
-  stripePlanChoices: string[] | null;
-  purchaseDetails: PurchaseDetailsResult;
-  offering: PurchaseOfferingResult;
+  stripePlanChoices: {
+    stripePlanChoice: string;
+  }[];
+  purchaseDetails: {
+    data: StrapiEntity<
+      PurchaseDetailsResult & {
+        localizations: {
+          data: StrapiEntity<PurchaseDetailsResult>[];
+        };
+      }
+    >;
+  };
+  offering: {
+    data: StrapiEntity<PurchaseOfferingResult>;
+  };
 }
 
 export interface PurchaseWithDetailsOfferingContentTransformed
   extends Omit<PurchaseWithDetailsOfferingContentResult, 'purchaseDetails'> {
-  purchaseDetails: PurchaseDetailsTransformed;
+  purchaseDetails: {
+    data: StrapiEntity<
+      PurchaseDetailsTransformed & {
+        localizations: {
+          data: StrapiEntity<PurchaseDetailsTransformed>[];
+        };
+      }
+    >;
+  };
 }
 
 export interface PurchaseWithDetailsOfferingContentByPlanIdsResult {
-  purchaseCollection: {
-    items: PurchaseWithDetailsOfferingContentResult[];
+  purchases: {
+    data: StrapiEntity<PurchaseWithDetailsOfferingContentResult>[];
   };
 }

@@ -13,10 +13,10 @@ import {
   SubscriptionManager,
 } from '@fxa/payments/stripe';
 import {
-  CMSConfig,
-  ContentfulClientConfig,
   EligibilityContentByOfferingResultUtil,
   EligibilityContentOfferingResultFactory,
+  MockCMSConfigProvider,
+  MockStrapiClientConfigProvider,
   ProductConfigurationManager,
   StrapiClient,
 } from '@fxa/shared/cms';
@@ -49,8 +49,8 @@ describe('EligibilityService', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        CMSConfig,
-        ContentfulClientConfig,
+        MockCMSConfigProvider,
+        MockStrapiClientConfigProvider,
         EligibilityManager,
         EligibilityService,
         MockFirestoreProvider,
