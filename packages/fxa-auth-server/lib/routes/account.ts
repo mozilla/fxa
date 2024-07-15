@@ -1866,6 +1866,8 @@ export class AccountHandler {
       reason: ReasonForDeletion.UserRequested,
     });
 
+    this.glean.account.deleteComplete(request, { uid: accountRecord.uid });
+
     return {};
   }
 
