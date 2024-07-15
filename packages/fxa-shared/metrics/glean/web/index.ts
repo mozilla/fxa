@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { recoveryKeySubmit } from './accountPref';
-
 export type GleanMetricsConfig = {
   enabled: boolean;
   applicationId: string;
@@ -149,6 +147,8 @@ export const eventsMap = {
   accountPref: {
     view: 'account_pref_view',
     recoveryKeySubmit: 'account_pref_recovery_key_submit',
+    twoStepAuthSubmit: 'account_pref_two_step_auth_submit',
+    changePasswordSubmit: 'account_pref_change_password_submit',
   },
 
   deleteAccount: {

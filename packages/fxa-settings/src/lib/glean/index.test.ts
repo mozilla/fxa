@@ -577,6 +577,30 @@ describe('lib/glean', () => {
         );
         sinon.assert.calledOnce(spy);
       });
+
+      it('submits a ping with the account_pref_two_step_auth_submit event name', async () => {
+        GleanMetrics.accountPref.twoStepAuthSubmit();
+        const spy = sandbox.spy(accountPref.twoStepAuthSubmit, 'record');
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'account_pref_two_step_auth_submit'
+        );
+        sinon.assert.called(spy);
+      });
+
+      it('submits a ping with the account_pref_change_password_submit event name', async () => {
+        GleanMetrics.accountPref.changePasswordSubmit();
+        const spy = sandbox.spy(accountPref.changePasswordSubmit, 'record');
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'account_pref_change_password_submit'
+        );
+        sinon.assert.called(spy);
+      });
     });
 
     describe('deleteAccount', () => {

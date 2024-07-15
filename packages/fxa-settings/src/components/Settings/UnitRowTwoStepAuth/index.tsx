@@ -12,6 +12,7 @@ import { useAccount, useAlertBar } from '../../../models';
 import { ButtonIconReload } from '../ButtonIcon';
 import { HomePath } from '../../../constants';
 import { Localized, useLocalization } from '@fluent/react';
+import GleanMetrics from '../../../lib/glean';
 
 const route = `${HomePath}/two_step_authentication`;
 const replaceCodesRoute = `${route}/replace_codes`;
@@ -110,6 +111,9 @@ export const UnitRowTwoStepAuth = () => {
           />
         </Localized>
       }
+      ctaOnClickAction={() => {
+        GleanMetrics.accountPref.twoStepAuthSubmit();
+      }}
     >
       <Localized id="tfa-row-content-explain">
         <p className="text-sm mt-3">
