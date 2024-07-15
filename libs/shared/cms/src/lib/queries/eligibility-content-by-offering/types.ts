@@ -2,18 +2,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { StrapiEntity } from '../../types';
+
 export interface EligibilityContentSubgroupOfferingResult {
   apiIdentifier: string;
   stripeProductId: string;
   defaultPurchase: {
-    stripePlanChoices: string[];
+    data: StrapiEntity<{
+      stripePlanChoices: {
+        stripePlanChoice: string;
+      }[];
+    }>;
   };
 }
 
 export interface EligibilityContentSubgroupResult {
   groupName: string;
-  offeringCollection: {
-    items: EligibilityContentSubgroupOfferingResult[];
+  offerings: {
+    data: StrapiEntity<EligibilityContentSubgroupOfferingResult>[];
   };
 }
 
@@ -21,16 +27,18 @@ export interface EligibilityContentOfferingResult {
   apiIdentifier: string;
   stripeProductId: string;
   defaultPurchase: {
-    stripePlanChoices: string[];
+    data: StrapiEntity<{
+      stripePlanChoices: {
+        stripePlanChoice: string;
+      }[];
+    }>;
   };
-  linkedFrom: {
-    subGroupCollection: {
-      items: EligibilityContentSubgroupResult[];
-    };
+  subGroups: {
+    data: StrapiEntity<EligibilityContentSubgroupResult>[];
   };
 }
 export interface EligibilityContentByOfferingResult {
-  offeringCollection: {
-    items: EligibilityContentOfferingResult[];
+  offerings: {
+    data: StrapiEntity<EligibilityContentOfferingResult>[];
   };
 }

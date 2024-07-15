@@ -5,16 +5,38 @@
 import { graphql } from '../../../__generated__/gql';
 
 export const offeringQuery = graphql(`
-  query Offering($id: String!, $locale: String!) {
-    offering(id: $id, locale: $locale) {
-      stripeProductId
-      countries
-      defaultPurchase {
-        purchaseDetails {
-          productName
-          details
-          subtitle
-          webIcon
+  query Offering($id: ID!, $locale: String!) {
+    offering(id: $id) {
+      data {
+        attributes {
+          stripeProductId
+          countries
+          defaultPurchase {
+            data {
+              attributes {
+                purchaseDetails {
+                  data {
+                    attributes {
+                      productName
+                      details
+                      subtitle
+                      webIcon
+                      localizations(filters: { locale: { eq: $locale } }) {
+                        data {
+                          attributes {
+                            productName
+                            details
+                            subtitle
+                            webIcon
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
       }
     }

@@ -8,9 +8,9 @@ export class ServicesWithCapabilitiesResultUtil {
   constructor(private rawResult: ServicesWithCapabilitiesResult) {}
 
   getServices(): ServiceResult[] {
-    return this.serviceCollection.items;
+    return this.services.data.map((el) => el.attributes);
   }
-  get serviceCollection() {
-    return this.rawResult.serviceCollection;
+  get services() {
+    return this.rawResult.services;
   }
 }

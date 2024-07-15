@@ -21,6 +21,7 @@ import {
   EligibilitySubgroupOfferingResultFactory,
   EligibilitySubgroupResultFactory,
   ProductConfigurationManager,
+  StrapiEntityFactory,
 } from '@fxa/shared/cms';
 import { CartEligibilityStatus } from '@fxa/shared/db/mysql/account';
 
@@ -92,29 +93,35 @@ describe('EligibilityManager', () => {
     it('should return subgroup upgrade target offeringStripeProductIds as upgrade comparison', async () => {
       const mockOfferingResult = EligibilityOfferingResultFactory({
         stripeProductId: 'prod_test3',
-        linkedFrom: {
-          subGroupCollection: {
-            items: [
+        subGroups: {
+          data: [
+            StrapiEntityFactory(
               EligibilitySubgroupResultFactory({
-                offeringCollection: {
-                  items: [
-                    EligibilitySubgroupOfferingResultFactory({
-                      stripeProductId: 'prod_test',
-                      countries: ['usa'],
-                    }),
-                    EligibilitySubgroupOfferingResultFactory({
-                      stripeProductId: 'prod_test2',
-                      countries: ['usa'],
-                    }),
-                    EligibilitySubgroupOfferingResultFactory({
-                      stripeProductId: 'prod_test3',
-                      countries: ['usa'],
-                    }),
+                offerings: {
+                  data: [
+                    StrapiEntityFactory(
+                      EligibilitySubgroupOfferingResultFactory({
+                        stripeProductId: 'prod_test',
+                        countries: ['usa'],
+                      })
+                    ),
+                    StrapiEntityFactory(
+                      EligibilitySubgroupOfferingResultFactory({
+                        stripeProductId: 'prod_test2',
+                        countries: ['usa'],
+                      })
+                    ),
+                    StrapiEntityFactory(
+                      EligibilitySubgroupOfferingResultFactory({
+                        stripeProductId: 'prod_test3',
+                        countries: ['usa'],
+                      })
+                    ),
                   ],
                 },
-              }),
-            ],
-          },
+              })
+            ),
+          ],
         },
       });
       mockResult.offeringForPlanId = jest
@@ -132,25 +139,29 @@ describe('EligibilityManager', () => {
     it('should return subgroup downgrade target offeringStripeProductIds as downgrade comparison', async () => {
       const mockOfferingResult = EligibilityOfferingResultFactory({
         stripeProductId: 'prod_test',
-        linkedFrom: {
-          subGroupCollection: {
-            items: [
+        subGroups: {
+          data: [
+            StrapiEntityFactory(
               EligibilitySubgroupResultFactory({
-                offeringCollection: {
-                  items: [
-                    EligibilitySubgroupOfferingResultFactory({
-                      stripeProductId: 'prod_test',
-                      countries: ['usa'],
-                    }),
-                    EligibilitySubgroupOfferingResultFactory({
-                      stripeProductId: 'prod_test2',
-                      countries: ['usa'],
-                    }),
+                offerings: {
+                  data: [
+                    StrapiEntityFactory(
+                      EligibilitySubgroupOfferingResultFactory({
+                        stripeProductId: 'prod_test',
+                        countries: ['usa'],
+                      })
+                    ),
+                    StrapiEntityFactory(
+                      EligibilitySubgroupOfferingResultFactory({
+                        stripeProductId: 'prod_test2',
+                        countries: ['usa'],
+                      })
+                    ),
                   ],
                 },
-              }),
-            ],
-          },
+              })
+            ),
+          ],
         },
       });
       mockResult.offeringForPlanId = jest
@@ -188,25 +199,29 @@ describe('EligibilityManager', () => {
     it('should return upgrade comparison for upgrade priceId', async () => {
       const mockOfferingResult = EligibilityOfferingResultFactory({
         stripeProductId: 'prod_test2',
-        linkedFrom: {
-          subGroupCollection: {
-            items: [
+        subGroups: {
+          data: [
+            StrapiEntityFactory(
               EligibilitySubgroupResultFactory({
-                offeringCollection: {
-                  items: [
-                    EligibilitySubgroupOfferingResultFactory({
-                      stripeProductId: 'prod_test',
-                      countries: ['usa'],
-                    }),
-                    EligibilitySubgroupOfferingResultFactory({
-                      stripeProductId: 'prod_test2',
-                      countries: ['usa'],
-                    }),
+                offerings: {
+                  data: [
+                    StrapiEntityFactory(
+                      EligibilitySubgroupOfferingResultFactory({
+                        stripeProductId: 'prod_test',
+                        countries: ['usa'],
+                      })
+                    ),
+                    StrapiEntityFactory(
+                      EligibilitySubgroupOfferingResultFactory({
+                        stripeProductId: 'prod_test2',
+                        countries: ['usa'],
+                      })
+                    ),
                   ],
                 },
-              }),
-            ],
-          },
+              })
+            ),
+          ],
         },
       });
       const existingResult = EligibilityOfferingResultFactory({
@@ -228,43 +243,55 @@ describe('EligibilityManager', () => {
     it('should return multiple comparisons in multiple subgroups', async () => {
       const mockOfferingResult = EligibilityOfferingResultFactory({
         stripeProductId: 'prod_test2',
-        linkedFrom: {
-          subGroupCollection: {
-            items: [
+        subGroups: {
+          data: [
+            StrapiEntityFactory(
               EligibilitySubgroupResultFactory({
-                offeringCollection: {
-                  items: [
-                    EligibilitySubgroupOfferingResultFactory({
-                      stripeProductId: 'prod_test',
-                      countries: ['usa'],
-                    }),
-                    EligibilitySubgroupOfferingResultFactory({
-                      stripeProductId: 'prod_test2',
-                      countries: ['usa'],
-                    }),
-                    EligibilitySubgroupOfferingResultFactory({
-                      stripeProductId: 'prod_test3',
-                      countries: ['usa'],
-                    }),
+                offerings: {
+                  data: [
+                    StrapiEntityFactory(
+                      EligibilitySubgroupOfferingResultFactory({
+                        stripeProductId: 'prod_test',
+                        countries: ['usa'],
+                      })
+                    ),
+                    StrapiEntityFactory(
+                      EligibilitySubgroupOfferingResultFactory({
+                        stripeProductId: 'prod_test2',
+                        countries: ['usa'],
+                      })
+                    ),
+                    StrapiEntityFactory(
+                      EligibilitySubgroupOfferingResultFactory({
+                        stripeProductId: 'prod_test3',
+                        countries: ['usa'],
+                      })
+                    ),
                   ],
                 },
-              }),
+              })
+            ),
+            StrapiEntityFactory(
               EligibilitySubgroupResultFactory({
-                offeringCollection: {
-                  items: [
-                    EligibilitySubgroupOfferingResultFactory({
-                      stripeProductId: 'prod_test',
-                      countries: ['usa'],
-                    }),
-                    EligibilitySubgroupOfferingResultFactory({
-                      stripeProductId: 'prod_test2',
-                      countries: ['usa'],
-                    }),
+                offerings: {
+                  data: [
+                    StrapiEntityFactory(
+                      EligibilitySubgroupOfferingResultFactory({
+                        stripeProductId: 'prod_test',
+                        countries: ['usa'],
+                      })
+                    ),
+                    StrapiEntityFactory(
+                      EligibilitySubgroupOfferingResultFactory({
+                        stripeProductId: 'prod_test2',
+                        countries: ['usa'],
+                      })
+                    ),
                   ],
                 },
-              }),
-            ],
-          },
+              })
+            ),
+          ],
         },
       });
       const existingResult = EligibilityOfferingResultFactory({
@@ -321,26 +348,32 @@ describe('EligibilityManager', () => {
     it('should return subgroup upgrade target offeringStripeProductIds as upgrade comparison', async () => {
       const mockTargetOfferingResult = EligibilityContentOfferingResultFactory({
         stripeProductId: 'prod_test3',
-        linkedFrom: {
-          subGroupCollection: {
-            items: [
+        subGroups: {
+          data: [
+            StrapiEntityFactory(
               EligibilityContentSubgroupResultFactory({
-                offeringCollection: {
-                  items: [
-                    EligibilityContentSubgroupOfferingResultFactory({
-                      stripeProductId: 'prod_test',
-                    }),
-                    EligibilityContentSubgroupOfferingResultFactory({
-                      stripeProductId: 'prod_test2',
-                    }),
-                    EligibilityContentSubgroupOfferingResultFactory({
-                      stripeProductId: 'prod_test3',
-                    }),
+                offerings: {
+                  data: [
+                    StrapiEntityFactory(
+                      EligibilityContentSubgroupOfferingResultFactory({
+                        stripeProductId: 'prod_test',
+                      })
+                    ),
+                    StrapiEntityFactory(
+                      EligibilityContentSubgroupOfferingResultFactory({
+                        stripeProductId: 'prod_test2',
+                      })
+                    ),
+                    StrapiEntityFactory(
+                      EligibilityContentSubgroupOfferingResultFactory({
+                        stripeProductId: 'prod_test3',
+                      })
+                    ),
                   ],
                 },
-              }),
-            ],
-          },
+              })
+            ),
+          ],
         },
       });
 
@@ -355,23 +388,27 @@ describe('EligibilityManager', () => {
     it('should return subgroup downgrade target offeringStripeProductIds as downgrade comparison', async () => {
       const mockTargetOfferingResult = EligibilityContentOfferingResultFactory({
         stripeProductId: 'prod_test',
-        linkedFrom: {
-          subGroupCollection: {
-            items: [
+        subGroups: {
+          data: [
+            StrapiEntityFactory(
               EligibilityContentSubgroupResultFactory({
-                offeringCollection: {
-                  items: [
-                    EligibilityContentSubgroupOfferingResultFactory({
-                      stripeProductId: 'prod_test',
-                    }),
-                    EligibilityContentSubgroupOfferingResultFactory({
-                      stripeProductId: 'prod_test2',
-                    }),
+                offerings: {
+                  data: [
+                    StrapiEntityFactory(
+                      EligibilityContentSubgroupOfferingResultFactory({
+                        stripeProductId: 'prod_test',
+                      })
+                    ),
+                    StrapiEntityFactory(
+                      EligibilityContentSubgroupOfferingResultFactory({
+                        stripeProductId: 'prod_test2',
+                      })
+                    ),
                   ],
                 },
-              }),
-            ],
-          },
+              })
+            ),
+          ],
         },
       });
 
@@ -405,23 +442,27 @@ describe('EligibilityManager', () => {
     it('should return upgrade comparison for upgrade priceId', async () => {
       const mockTargetOfferingResult = EligibilityContentOfferingResultFactory({
         stripeProductId: 'prod_test2',
-        linkedFrom: {
-          subGroupCollection: {
-            items: [
+        subGroups: {
+          data: [
+            StrapiEntityFactory(
               EligibilityContentSubgroupResultFactory({
-                offeringCollection: {
-                  items: [
-                    EligibilityContentSubgroupOfferingResultFactory({
-                      stripeProductId: 'prod_test',
-                    }),
-                    EligibilityContentSubgroupOfferingResultFactory({
-                      stripeProductId: 'prod_test2',
-                    }),
+                offerings: {
+                  data: [
+                    StrapiEntityFactory(
+                      EligibilityContentSubgroupOfferingResultFactory({
+                        stripeProductId: 'prod_test',
+                      })
+                    ),
+                    StrapiEntityFactory(
+                      EligibilityContentSubgroupOfferingResultFactory({
+                        stripeProductId: 'prod_test2',
+                      })
+                    ),
                   ],
                 },
-              }),
-            ],
-          },
+              })
+            ),
+          ],
         },
       });
       const existingResult = EligibilityContentOfferingResultFactory({
@@ -442,38 +483,50 @@ describe('EligibilityManager', () => {
     it('should return multiple comparisons in multiple subgroups', async () => {
       const mockTargetOfferingResult = EligibilityContentOfferingResultFactory({
         stripeProductId: 'prod_test2',
-        linkedFrom: {
-          subGroupCollection: {
-            items: [
+        subGroups: {
+          data: [
+            StrapiEntityFactory(
               EligibilityContentSubgroupResultFactory({
-                offeringCollection: {
-                  items: [
-                    EligibilityContentSubgroupOfferingResultFactory({
-                      stripeProductId: 'prod_test',
-                    }),
-                    EligibilityContentSubgroupOfferingResultFactory({
-                      stripeProductId: 'prod_test2',
-                    }),
-                    EligibilityContentSubgroupOfferingResultFactory({
-                      stripeProductId: 'prod_test3',
-                    }),
+                offerings: {
+                  data: [
+                    StrapiEntityFactory(
+                      EligibilityContentSubgroupOfferingResultFactory({
+                        stripeProductId: 'prod_test',
+                      })
+                    ),
+                    StrapiEntityFactory(
+                      EligibilityContentSubgroupOfferingResultFactory({
+                        stripeProductId: 'prod_test2',
+                      })
+                    ),
+                    StrapiEntityFactory(
+                      EligibilityContentSubgroupOfferingResultFactory({
+                        stripeProductId: 'prod_test3',
+                      })
+                    ),
                   ],
                 },
-              }),
+              })
+            ),
+            StrapiEntityFactory(
               EligibilityContentSubgroupResultFactory({
-                offeringCollection: {
-                  items: [
-                    EligibilityContentSubgroupOfferingResultFactory({
-                      stripeProductId: 'prod_test',
-                    }),
-                    EligibilityContentSubgroupOfferingResultFactory({
-                      stripeProductId: 'prod_test2',
-                    }),
+                offerings: {
+                  data: [
+                    StrapiEntityFactory(
+                      EligibilityContentSubgroupOfferingResultFactory({
+                        stripeProductId: 'prod_test',
+                      })
+                    ),
+                    StrapiEntityFactory(
+                      EligibilityContentSubgroupOfferingResultFactory({
+                        stripeProductId: 'prod_test2',
+                      })
+                    ),
                   ],
                 },
-              }),
-            ],
-          },
+              })
+            ),
+          ],
         },
       });
       const existingResult = EligibilityContentOfferingResultFactory({

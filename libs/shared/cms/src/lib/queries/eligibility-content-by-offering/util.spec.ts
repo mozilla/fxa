@@ -8,6 +8,7 @@ import {
   EligibilityContentByOfferingResultUtil,
   EligibilityContentOfferingResultFactory,
 } from '.';
+import { StrapiEntityFactory } from '../../factories';
 
 describe('EligibilityByOfferingResultUtil', () => {
   it('should create a util from response', () => {
@@ -17,12 +18,12 @@ describe('EligibilityByOfferingResultUtil', () => {
     );
     expect(util).toBeDefined();
     expect(util.getOffering()).toBeDefined();
-    expect(util.offeringCollection.items).toHaveLength(1);
+    expect(util.offerings.data).toHaveLength(1);
   });
 
   it('returns empty if no offering is returned', () => {
     const result = EligibilityContentByOfferingQueryFactory({
-      offeringCollection: { items: [] },
+      offerings: { data: [] },
     });
     const util = new EligibilityContentByOfferingResultUtil(
       result as EligibilityContentByOfferingResult
@@ -33,12 +34,12 @@ describe('EligibilityByOfferingResultUtil', () => {
   });
 
   it('throws error if more than offering is returned', () => {
-    const items = [
-      EligibilityContentOfferingResultFactory(),
-      EligibilityContentOfferingResultFactory(),
+    const data = [
+      StrapiEntityFactory(EligibilityContentOfferingResultFactory()),
+      StrapiEntityFactory(EligibilityContentOfferingResultFactory()),
     ];
     const result = EligibilityContentByOfferingQueryFactory({
-      offeringCollection: { items },
+      offerings: { data },
     });
     const util = new EligibilityContentByOfferingResultUtil(
       result as EligibilityContentByOfferingResult

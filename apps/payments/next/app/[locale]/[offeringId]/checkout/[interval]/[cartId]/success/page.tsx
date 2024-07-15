@@ -74,6 +74,15 @@ export default async function CheckoutSuccess({
     fakeCartDataPromise,
   ]);
 
+  const { productName } =
+    cms.defaultPurchase.data.attributes.purchaseDetails.data.attributes.localizations.data.at(
+      0
+    )?.attributes ||
+    cms.defaultPurchase.data.attributes.purchaseDetails.data.attributes;
+  const { successActionButtonUrl, successActionButtonLabel } =
+    cms.commonContent.data.attributes.localizations.data.at(0)?.attributes ||
+    cms.commonContent.data.attributes;
+
   return (
     <>
       <section className="h-[640px]" aria-label="Payment confirmation">
@@ -92,9 +101,9 @@ export default async function CheckoutSuccess({
               'next-payment-confirmation-thanks-subheading',
               {
                 email: cart.email || '',
-                product_name: cms.defaultPurchase.purchaseDetails.productName,
+                product_name: productName,
               },
-              `A confirmation email has been sent to ${cart.email} with details on how to get started with ${cms.defaultPurchase.purchaseDetails.productName}.`
+              `A confirmation email has been sent to ${cart.email} with details on how to get started with ${productName}.`
             )}
           </p>
         </div>
@@ -149,11 +158,8 @@ export default async function CheckoutSuccess({
           )}
         />
 
-        <a
-          className="page-button"
-          href={cms.commonContent.successActionButtonUrl}
-        >
-          {cms.commonContent.successActionButtonLabel ||
+        <a className="page-button" href={successActionButtonUrl}>
+          {successActionButtonLabel ||
             l10n.getString(
               'next-payment-confirmation-download-button',
               'Continue to download'

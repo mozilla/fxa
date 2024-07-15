@@ -49,12 +49,12 @@ import { DeepNonNullable } from './types';
 @Injectable()
 export class ProductConfigurationManager {
   constructor(
-    private client: StrapiClient,
+    private strapiClient: StrapiClient,
     private cmsConfig: CMSConfig,
     private priceManager: PriceManager,
     @Inject(StatsDService) private statsd: StatsD
   ) {
-    this.client.on('response', (response) => {
+    this.strapiClient.on('response', (response) => {
       const defaultTags = {
         method: response.method,
         error: response.error ? 'true' : 'false',
@@ -80,7 +80,7 @@ export class ProductConfigurationManager {
   async getEligibilityContentByOffering(
     apiIdentifier: string
   ): Promise<EligibilityContentByOfferingResultUtil> {
-    const queryResult = await this.client.query(
+    const queryResult = await this.strapiClient.query(
       eligibilityContentByOfferingQuery,
       {
         apiIdentifier,
@@ -96,12 +96,15 @@ export class ProductConfigurationManager {
     apiIdentifier: string,
     acceptLanguage: string
   ): Promise<PageContentForOfferingResultUtil> {
-    const locale = await this.client.getLocale(acceptLanguage);
+    const locale = await this.strapiClient.getLocale(acceptLanguage);
 
-    const queryResult = await this.client.query(pageContentForOfferingQuery, {
-      locale,
-      apiIdentifier,
-    });
+    const queryResult = await this.strapiClient.query(
+      pageContentForOfferingQuery,
+      {
+        locale,
+        apiIdentifier,
+      }
+    );
 
     return new PageContentForOfferingResultUtil(
       queryResult as DeepNonNullable<PageContentForOfferingQuery>
@@ -117,7 +120,7 @@ export class ProductConfigurationManager {
     const pageSize = 20;
 
     while (total === undefined || count < total) {
-      const queryResult = (await this.client.query(
+      const queryResult = (await this.strapiClient.query(
         capabilityServiceByPlanIdsQuery,
         {
           skip: count,
@@ -129,7 +132,7 @@ export class ProductConfigurationManager {
 
       queryResults.push(queryResult);
       count += pageSize;
-      total = queryResult.purchaseCollection.total;
+      total = queryResult.purchases.meta.pagination.total;
     }
 
     return new CapabilityServiceByPlanIdsResultUtil(queryResults);
@@ -145,7 +148,7 @@ export class ProductConfigurationManager {
     const pageSize = 20;
 
     while (total === undefined || count < total) {
-      const queryResult = (await this.client.query(
+      const queryResult = (await this.strapiClient.query(
         eligibilityContentByPlanIdsQuery,
         {
           skip: count,
@@ -157,18 +160,21 @@ export class ProductConfigurationManager {
 
       queryResults.push(queryResult);
       count += pageSize;
-      total = queryResult.purchaseCollection.total;
+      total = queryResult.purchases.meta.pagination.total;
     }
 
     return new EligibilityContentByPlanIdsResultUtil(queryResults);
   }
 
   async getServicesWithCapabilities(): Promise<ServicesWithCapabilitiesResultUtil> {
-    const queryResult = await this.client.query(servicesWithCapabilitiesQuery, {
-      skip: 0,
-      limit: 100,
-      locale: DEFAULT_LOCALE,
-    });
+    const queryResult = await this.strapiClient.query(
+      servicesWithCapabilitiesQuery,
+      {
+        skip: 0,
+        limit: 100,
+        locale: DEFAULT_LOCALE,
+      }
+    );
 
     return new ServicesWithCapabilitiesResultUtil(
       queryResult as DeepNonNullable<ServicesWithCapabilitiesQuery>
@@ -179,7 +185,7 @@ export class ProductConfigurationManager {
     stripePlanIds: string[],
     acceptLanguage: string
   ): Promise<PurchaseWithDetailsOfferingContentUtil> {
-    const locale = await this.client.getLocale(acceptLanguage);
+    const locale = await this.strapiClient.getLocale(acceptLanguage);
     const queryResults: DeepNonNullable<PurchaseWithDetailsOfferingContentQuery>[] =
       [];
     const stripePlans: string[][] = [];
@@ -190,7 +196,7 @@ export class ProductConfigurationManager {
     }
 
     while (stripePlans.length > 0) {
-      const queryResult = (await this.client.query(
+      const queryResult = (await this.strapiClient.query(
         purchaseWithDetailsOfferingContentQuery,
         {
           skip: 0,
@@ -211,7 +217,10 @@ export class ProductConfigurationManager {
       apiIdentifier
     );
     const offering = offeringResult.getOffering();
-    const planIds = offering.defaultPurchase.stripePlanChoices;
+    const planIds =
+      offering.defaultPurchase.data.attributes.stripePlanChoices.map(
+        (el) => el.stripePlanChoice
+      );
     return planIds;
   }
 
@@ -225,8 +234,8 @@ export class ProductConfigurationManager {
     // Unfortunately, currently the CMS is read-only and can't be updated
     // As a temporary work around provide a list of supported plans
     const supportedListOfPriceIds = this.cmsConfig.supportedPriceIds.split(',');
-    const filteredPriceIds = priceIds.filter((priceId) =>
-      supportedListOfPriceIds.includes(priceId)
+    const filteredPriceIds = priceIds.filter((stripePlanChoice) =>
+      supportedListOfPriceIds.includes(stripePlanChoice)
     );
     const price = await this.priceManager.retrieveByInterval(
       filteredPriceIds,

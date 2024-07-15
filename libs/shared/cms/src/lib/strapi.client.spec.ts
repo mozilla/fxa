@@ -7,13 +7,10 @@ import { DEFAULT_LOCALE } from './constants';
 import { offeringQuery } from './queries/offering/query';
 import { StrapiClient } from './strapi.client';
 import { OfferingQuery } from '../__generated__/graphql';
-import {
-  CMSError,
-  ContentfulCDNError,
-  ContentfulCDNExecutionError,
-} from './cms.error';
-import { ContentfulCDNErrorFactory } from './factories';
+import { CMSError } from './cms.error';
 import { Firestore } from '@google-cloud/firestore';
+import { MockStrapiClientConfig } from './strapi.client.config';
+import { LocalesResultFactory } from './queries/locales';
 
 jest.mock('graphql-request', () => ({
   GraphQLClient: function () {
@@ -43,14 +40,7 @@ describe('StrapiClient', () => {
 
   beforeEach(() => {
     strapiClient = new StrapiClient(
-      {
-        cdnApiUri: faker.string.uuid(),
-        graphqlApiKey: faker.string.uuid(),
-        graphqlApiUri: faker.string.uuid(),
-        graphqlSpaceId: faker.string.uuid(),
-        graphqlEnvironment: faker.string.uuid(),
-        firestoreCacheCollectionName: faker.string.uuid(),
-      },
+      MockStrapiClientConfig,
       {} as unknown as Firestore
     );
     strapiClient.on('response', onCallback);
@@ -134,97 +124,34 @@ describe('StrapiClient', () => {
 
   describe('getLocale', () => {
     const ACCEPT_LANGUAGE = 'en-US,fr-FR;q=0.7,de-DE;q=0.3';
-    const MOCK_DATA = {
-      items: [{ code: 'en' }, { code: 'fr-FR' }],
-    };
+    const localesQueryResult = LocalesResultFactory({
+      i18NLocales: {
+        data: [
+          { attributes: { code: 'en' } },
+          { attributes: { code: 'fr-FR' } },
+        ],
+      },
+    });
 
     beforeEach(() => {
-      (global.fetch as jest.Mock) = jest.fn(() =>
-        Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve(MOCK_DATA),
-        })
-      );
+      jest.spyOn(strapiClient, 'query').mockResolvedValue(localesQueryResult);
     });
 
-    afterEach(() => {
-      (global.fetch as jest.Mock).mockClear();
-    });
-    describe('success', () => {
-      it('Returns prefered locale', async () => {
-        const result = await strapiClient.getLocale(ACCEPT_LANGUAGE);
-        expect(result).toBe(DEFAULT_LOCALE);
-      });
-
-      it('Returns 2nd prefered locale, if prefered locale is not in configured', async () => {
-        const acceptLanguage = 'de-DE,fr-FR;q=0.7,en-US;q=0.3';
-        const result = await strapiClient.getLocale(acceptLanguage);
-        expect(result).toBe('fr-FR');
-      });
-
-      it('Returns the default locale, if no matching locale in CMS', async () => {
-        const acceptLanguage = 'de-DE';
-        const result = await strapiClient.getLocale(acceptLanguage);
-        expect(result).toBe(DEFAULT_LOCALE);
-      });
-
-      it('Returns prefered locale from cache instead of fetching from CMS', async () => {
-        await strapiClient.getLocale(ACCEPT_LANGUAGE);
-        await strapiClient.getLocale(ACCEPT_LANGUAGE);
-        expect(global.fetch).toBeCalledTimes(1);
-      });
-
-      it('emits event and on second request emits event with cache true', async () => {
-        await strapiClient.getLocale(ACCEPT_LANGUAGE);
-        expect(onCallback).toHaveBeenCalledWith(
-          expect.objectContaining({ method: 'getLocales', cache: false })
-        );
-
-        await strapiClient.getLocale(ACCEPT_LANGUAGE);
-        expect(onCallback).toHaveBeenCalledWith(
-          expect.objectContaining({ method: 'getLocales', cache: true })
-        );
-      });
+    it('Returns prefered locale', async () => {
+      const result = await strapiClient.getLocale(ACCEPT_LANGUAGE);
+      expect(result).toBe(DEFAULT_LOCALE);
     });
 
-    describe('errors', () => {
-      const cdnErrorResult = ContentfulCDNErrorFactory();
-      it('throws a cdn error when cms returns an error', async () => {
-        (global.fetch as jest.Mock) = jest.fn(() =>
-          Promise.resolve({
-            ok: false,
-            json: () => Promise.resolve(cdnErrorResult),
-          })
-        );
+    it('Returns 2nd prefered locale, if prefered locale is not in configured', async () => {
+      const acceptLanguage = 'de-DE,fr-FR;q=0.7,en-US;q=0.3';
+      const result = await strapiClient.getLocale(acceptLanguage);
+      expect(result).toBe('fr-FR');
+    });
 
-        await expect(() =>
-          strapiClient.getLocale(ACCEPT_LANGUAGE)
-        ).rejects.toThrow(
-          new ContentfulCDNError(cdnErrorResult.message, {
-            info: cdnErrorResult,
-          })
-        );
-        expect(onCallback).toHaveBeenCalledWith(
-          expect.objectContaining({
-            method: 'getLocales',
-            cache: false,
-            error: expect.anything(),
-          })
-        );
-      });
-
-      it('throws a cdn execution error when cms cant be reached', async () => {
-        const error = new Error('failure');
-        (global.fetch as jest.Mock) = jest.fn(() => Promise.reject(error));
-
-        await expect(() =>
-          strapiClient.getLocale(ACCEPT_LANGUAGE)
-        ).rejects.toThrow(
-          new ContentfulCDNExecutionError('Contentful: Execution Error', {
-            cause: error,
-          })
-        );
-      });
+    it('Returns the default locale, if no matching locale in CMS', async () => {
+      const acceptLanguage = 'de-DE';
+      const result = await strapiClient.getLocale(acceptLanguage);
+      expect(result).toBe(DEFAULT_LOCALE);
     });
   });
 });

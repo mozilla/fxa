@@ -11,15 +11,20 @@ import {
   CapabilityCapabilitiesResult,
   CapabilityServicesResult,
 } from '.';
+import { StrapiEntityFactory } from '../../factories';
 
 export const CapabilityServiceByPlanIdsQueryFactory = (
   override?: Partial<CapabilityServiceByPlanIdsQuery>
 ): CapabilityServiceByPlanIdsQuery => {
-  const items = [CapabilityPurchaseResultFactory()];
+  const data = [StrapiEntityFactory(CapabilityPurchaseResultFactory())];
   return {
-    purchaseCollection: {
-      total: items.length,
-      items,
+    purchases: {
+      meta: {
+        pagination: {
+          total: data.length,
+        },
+      },
+      data,
     },
     ...override,
   };
@@ -28,8 +33,14 @@ export const CapabilityServiceByPlanIdsQueryFactory = (
 export const CapabilityPurchaseResultFactory = (
   override?: Partial<CapabilityPurchaseResult>
 ): CapabilityPurchaseResult => ({
-  stripePlanChoices: [faker.string.sample()],
-  offering: CapabilityOfferingResultFactory(),
+  stripePlanChoices: [
+    {
+      stripePlanChoice: faker.string.sample(),
+    },
+  ],
+  offering: {
+    data: StrapiEntityFactory(CapabilityOfferingResultFactory()),
+  },
   ...override,
 });
 
@@ -38,10 +49,12 @@ export const CapabilityOfferingResultFactory = (
 ): CapabilityOfferingResult => ({
   stripeLegacyPlans: Array.from(
     { length: faker.number.int({ min: 1, max: 5 }) },
-    () => faker.string.alpha(10)
+    () => ({
+      stripeLegacyPlan: faker.string.alpha(10),
+    })
   ),
-  capabilitiesCollection: {
-    items: [CapabilityCapabilitiesResultFactory()],
+  capabilities: {
+    data: [StrapiEntityFactory(CapabilityCapabilitiesResultFactory())],
   },
   ...override,
 });
@@ -50,8 +63,8 @@ export const CapabilityCapabilitiesResultFactory = (
   override?: Partial<CapabilityCapabilitiesResult>
 ): CapabilityCapabilitiesResult => ({
   slug: faker.string.sample(),
-  servicesCollection: {
-    items: [CapabilityServicesResultFactory()],
+  services: {
+    data: [StrapiEntityFactory(CapabilityServicesResultFactory())],
   },
   ...override,
 });

@@ -19,14 +19,10 @@ import {
 } from '@fxa/shared/db/type-cacheable';
 import { determineLocale } from '@fxa/shared/l10n';
 import { DEFAULT_LOCALE } from './constants';
-import { ContentfulClientConfig } from './contentful.client.config';
-import {
-  CMSError,
-  ContentfulCDNError,
-  ContentfulCDNExecutionError,
-} from './cms.error';
-import { ContentfulErrorResponse } from './types';
+import { CMSError } from './cms.error';
 import { CONTENTFUL_QUERY_CACHE_KEY, cacheKeyForQuery } from './util';
+import { StrapiClientConfig } from './strapi.client.config';
+import { LocalesResult, localesQuery } from './queries/locales';
 
 const DEFAULT_FIRESTORE_CACHE_TTL = 604800; // Seconds. 604800 is 7 days.
 const DEFAULT_MEM_CACHE_TTL = 300; // Seconds
@@ -45,7 +41,6 @@ interface EventResponse {
 @Injectable()
 export class StrapiClient {
   client: GraphQLClient;
-  private locales: string[] = [];
   private emitter: EventEmitter;
   public on: (
     event: 'response',
@@ -54,12 +49,14 @@ export class StrapiClient {
   private graphqlMemCache: Record<string, unknown> = {};
 
   constructor(
-    private contentfulClientConfig: ContentfulClientConfig,
+    private strapiClientConfig: StrapiClientConfig,
     @Inject(FirestoreService) private firestore: Firestore
   ) {
-    this.client = new GraphQLClient(
-      `${this.contentfulClientConfig.graphqlApiUri}/spaces/${this.contentfulClientConfig.graphqlSpaceId}/environments/${this.contentfulClientConfig.graphqlEnvironment}?access_token=${this.contentfulClientConfig.graphqlApiKey}`
-    );
+    this.client = new GraphQLClient(this.strapiClientConfig.graphqlApiUri, {
+      headers: {
+        Authorization: `Bearer ${this.strapiClientConfig.apiKey}`,
+      },
+    });
     this.setupCacheBust();
     this.emitter = new EventEmitter();
     this.on = this.emitter.on.bind(this.emitter);
@@ -74,18 +71,16 @@ export class StrapiClient {
     return result;
   }
 
-  // Not sure what's happening here. Context is undefined which results in an error.
-  // To be fixed during CMS refactor
   // @Cacheable({
   //   cacheKey: (args: any) => cacheKeyForQuery(args[0], args[1]),
   //   strategy: new NetworkFirstStrategy(),
-  //   ttlSeconds: (_, context: ContentfulClient) =>
-  //     context.contentfulClientConfig.firestoreCacheTTL ||
+  //   ttlSeconds: (_, context: StrapiClient) =>
+  //     context.strapiClientConfig.firestoreCacheTTL ||
   //     DEFAULT_FIRESTORE_CACHE_TTL,
-  //   client: (_, context: ContentfulClient) =>
+  //   client: (_, context: StrapiClient) =>
   //     new FirestoreAdapter(
   //       context.firestore,
-  //       context.contentfulClientConfig.firestoreCacheCollectionName ||
+  //       context.strapiClientConfig.firestoreCacheCollectionName ||
   //         CONTENTFUL_QUERY_CACHE_KEY
   //     ),
   // })
@@ -143,70 +138,19 @@ export class StrapiClient {
   }
 
   private async getLocales(): Promise<string[]> {
-    const emitterResponse = {
-      method: 'getLocales',
-      requestStartTime: Date.now(),
-      cache: false,
-    };
+    const localesResult = (await this.query(localesQuery, {})) as LocalesResult;
 
-    if (!!this.locales?.length) {
-      this.emitter.emit('response', {
-        ...emitterResponse,
-        cache: true,
-        elapsed: 0,
-        requestEndTime: emitterResponse.requestStartTime,
-      });
-      return this.locales;
-    }
-
-    try {
-      const localesUrl = `${this.contentfulClientConfig.cdnApiUri}/spaces/${this.contentfulClientConfig.graphqlSpaceId}/environments/${this.contentfulClientConfig.graphqlEnvironment}/locales?access_token=${this.contentfulClientConfig.graphqlApiKey}`;
-      const response = await fetch(localesUrl);
-
-      const requestEndTime = Date.now();
-      this.emitter.emit('response', {
-        ...emitterResponse,
-        elapsed: requestEndTime - emitterResponse.requestStartTime,
-        requestEndTime,
-      });
-
-      const results = await response.json();
-
-      if (!response.ok) {
-        const errorResult = results as ContentfulErrorResponse;
-        throw new ContentfulCDNError(errorResult.message, {
-          info: errorResult,
-        });
-      }
-
-      // Assign value to locale "cache"
-      this.locales = results.items.map((locale: any) => locale.code);
-
-      return this.locales;
-    } catch (error) {
-      const requestEndTime = Date.now();
-      this.emitter.emit('response', {
-        ...emitterResponse,
-        elapsed: requestEndTime - emitterResponse.requestStartTime,
-        requestEndTime,
-        error,
-      });
-      if (error instanceof ContentfulCDNError) {
-        throw error;
-      } else {
-        throw new ContentfulCDNExecutionError('Contentful: Execution Error', {
-          cause: error,
-        });
-      }
-    }
+    return (
+      localesResult.i18NLocales.data.map((locale) => locale.attributes.code) ||
+      []
+    );
   }
 
   private setupCacheBust() {
     const cacheTTL =
-      this.contentfulClientConfig.memCacheTTL || DEFAULT_MEM_CACHE_TTL * 1000;
+      this.strapiClientConfig.memCacheTTL || DEFAULT_MEM_CACHE_TTL * 1000;
 
     setInterval(() => {
-      this.locales = [];
       this.graphqlMemCache = {};
     }, cacheTTL);
   }

@@ -13,14 +13,18 @@ export class CapabilityServiceByPlanIdsResultUtil {
 
   constructor(rawResults: CapabilityServiceByPlanIdsResult[]) {
     for (const rawResult of rawResults) {
-      for (const purchase of rawResult.purchaseCollection.items) {
-        purchase.stripePlanChoices?.forEach((planId) => {
-          this.purchaseByPlanId[planId] = purchase;
-        });
+      for (const purchase of rawResult.purchases.data) {
+        purchase.attributes.stripePlanChoices?.forEach(
+          ({ stripePlanChoice }) => {
+            this.purchaseByPlanId[stripePlanChoice] = purchase.attributes;
+          }
+        );
 
-        purchase.offering.stripeLegacyPlans?.forEach((planId) => {
-          this.purchaseByPlanId[planId] = purchase;
-        });
+        purchase.attributes.offering.data.attributes.stripeLegacyPlans?.forEach(
+          ({ stripeLegacyPlan }) => {
+            this.purchaseByPlanId[stripeLegacyPlan] = purchase.attributes;
+          }
+        );
       }
     }
   }
@@ -28,6 +32,6 @@ export class CapabilityServiceByPlanIdsResultUtil {
   capabilityOfferingForPlanId(
     planId: string
   ): CapabilityOfferingResult | undefined {
-    return this.purchaseByPlanId[planId]?.offering;
+    return this.purchaseByPlanId[planId]?.offering.data.attributes;
   }
 }

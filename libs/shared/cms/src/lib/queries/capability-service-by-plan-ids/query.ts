@@ -8,31 +8,50 @@ export const capabilityServiceByPlanIdsQuery = graphql(`
   query CapabilityServiceByPlanIds(
     $skip: Int!
     $limit: Int!
-    $locale: String!
     $stripePlanIds: [String]!
   ) {
-    purchaseCollection(
-      skip: $skip
-      limit: $limit
-      locale: $locale
-      where: {
-        OR: [
-          { stripePlanChoices_contains_some: $stripePlanIds }
-          { offering: { stripeLegacyPlans_contains_some: $stripePlanIds } }
+    purchases(
+      filters: {
+        or: [
+          { stripePlanChoices: { stripePlanChoice: { in: $stripePlanIds } } }
+          {
+            offering: {
+              stripeLegacyPlans: { stripeLegacyPlan: { in: $stripePlanIds } }
+            }
+          }
         ]
       }
+      pagination: { start: $skip, limit: $limit }
     ) {
-      total
-      items {
-        stripePlanChoices
-        offering {
-          stripeLegacyPlans
-          capabilitiesCollection(skip: 0, limit: 25) {
-            items {
-              slug
-              servicesCollection(skip: 0, limit: 15) {
-                items {
-                  oauthClientId
+      meta {
+        pagination {
+          total
+        }
+      }
+      data {
+        attributes {
+          stripePlanChoices {
+            stripePlanChoice
+          }
+          offering {
+            data {
+              attributes {
+                stripeLegacyPlans {
+                  stripeLegacyPlan
+                }
+                capabilities {
+                  data {
+                    attributes {
+                      slug
+                      services {
+                        data {
+                          attributes {
+                            oauthClientId
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }

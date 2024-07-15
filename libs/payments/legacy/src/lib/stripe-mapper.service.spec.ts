@@ -13,14 +13,14 @@ import {
   StripeProductFactory,
 } from '@fxa/payments/stripe';
 import {
-  CMSConfig,
-  ContentfulClientConfig,
   MockCMSConfigProvider,
   ProductConfigurationManager,
   PurchaseWithDetailsOfferingContentTransformedFactory,
   PurchaseWithDetailsOfferingContentUtil,
   PurchaseDetailsTransformedFactory,
   StrapiClient,
+  MockStrapiClientConfigProvider,
+  StrapiEntityFactory,
 } from '@fxa/shared/cms';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
@@ -39,8 +39,7 @@ describe('StripeMapperService', () => {
   beforeEach(async () => {
     const module = await Test.createTestingModule({
       providers: [
-        CMSConfig,
-        ContentfulClientConfig,
+        MockStrapiClientConfigProvider,
         MockCMSConfigProvider,
         MockFirestoreProvider,
         MockStatsDProvider,
@@ -169,10 +168,10 @@ describe('StripeMapperService', () => {
         await stripeMapper.mapCMSToStripePlans([stripePlan], 'en', false);
       const actualProduct = mappedPlans[0].product as Stripe.Product;
       expect(mappedPlans[0].metadata?.['webIconURL']).toBe(
-        expected.purchaseDetails.webIcon
+        expected.purchaseDetails.data.attributes.webIcon
       );
       expect(actualProduct.metadata?.['webIconURL']).toBe(
-        expected.purchaseDetails.webIcon
+        expected.purchaseDetails.data.attributes.webIcon
       );
       expect(actualProduct.metadata?.['productSet']).toBe(
         productMetadata.productSet
@@ -185,9 +184,16 @@ describe('StripeMapperService', () => {
 
     it('should return data from CMS and not error on locale plan', async () => {
       const expected = PurchaseWithDetailsOfferingContentTransformedFactory({
-        purchaseDetails: PurchaseDetailsTransformedFactory({
-          details: ['Detail 1 in English'],
-        }),
+        purchaseDetails: {
+          data: StrapiEntityFactory({
+            localizations: {
+              data: [],
+            },
+            ...PurchaseDetailsTransformedFactory({
+              details: ['Detail 1 in English'],
+            }),
+          }),
+        },
       });
       mockCMSConfigUtil.transformedPurchaseWithCommonContentForPlanId.mockReturnValue(
         expected
@@ -224,10 +230,10 @@ describe('StripeMapperService', () => {
       const actualProduct1 = mappedPlans[0].product as Stripe.Product;
       const actualProduct2 = mappedPlans[1].product as Stripe.Product;
       expect(mappedPlans[0].metadata?.['product:details:1']).toBe(
-        expected.purchaseDetails.details[0]
+        expected.purchaseDetails.data.attributes.details[0]
       );
       expect(actualProduct1.metadata?.['product:details:1']).toBe(
-        expected.purchaseDetails.details[0]
+        expected.purchaseDetails.data.attributes.details[0]
       );
       expect(mappedPlans[1].metadata?.['product:details:1']).toBe(
         'Detail 1 in French'
@@ -239,9 +245,16 @@ describe('StripeMapperService', () => {
 
     it('should return data from Stripe and concat errors for product', async () => {
       const expected = PurchaseWithDetailsOfferingContentTransformedFactory({
-        purchaseDetails: PurchaseDetailsTransformedFactory({
-          details: ['Detail 1 in English'],
-        }),
+        purchaseDetails: {
+          data: StrapiEntityFactory({
+            localizations: {
+              data: [],
+            },
+            ...PurchaseDetailsTransformedFactory({
+              details: ['Detail 1 in English'],
+            }),
+          }),
+        },
       });
       mockCMSConfigUtil.transformedPurchaseWithCommonContentForPlanId.mockReturnValue(
         expected

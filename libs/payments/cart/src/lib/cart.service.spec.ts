@@ -36,8 +36,8 @@ import {
   TaxAddressFactory,
 } from '@fxa/payments/stripe';
 import {
-  CMSConfig,
-  ContentfulClientConfig,
+  MockCMSConfigProvider,
+  MockStrapiClientConfigProvider,
   ProductConfigurationManager,
   StrapiClient,
 } from '@fxa/shared/cms';
@@ -84,9 +84,9 @@ describe('CartService', () => {
         CartManager,
         CartService,
         CheckoutService,
-        CMSConfig,
+        MockCMSConfigProvider,
         ConfigService,
-        ContentfulClientConfig,
+        MockStrapiClientConfigProvider,
         CustomerManager,
         EligibilityManager,
         EligibilityService,

@@ -33,3 +33,9 @@ export const ContentfulCDNErrorFactory = (
   requestId: faker.string.uuid(),
   ...override,
 });
+
+export const StrapiEntityFactory = <T>(attributes: T) => {
+  return {
+    attributes,
+  };
+};

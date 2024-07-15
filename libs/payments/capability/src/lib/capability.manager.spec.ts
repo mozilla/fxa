@@ -10,8 +10,6 @@ import {
   CapabilitiesResultFactory,
   CapabilityServiceByPlanIdsResultUtil,
   CapabilityServicesResultFactory,
-  CMSConfig,
-  ContentfulClientConfig,
   CapabilityServiceByPlanIdsQueryFactory,
   CapabilityServiceByPlanIdsResult,
   CapabilityPurchaseResultFactory,
@@ -21,6 +19,9 @@ import {
   ServicesWithCapabilitiesQueryFactory,
   ServicesWithCapabilitiesResult,
   StrapiClient,
+  MockCMSConfigProvider,
+  MockStrapiClientConfigProvider,
+  StrapiEntityFactory,
 } from '@fxa/shared/cms';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
@@ -34,8 +35,8 @@ describe('CapabilityManager', () => {
     const module = await Test.createTestingModule({
       providers: [
         CapabilityManager,
-        CMSConfig,
-        ContentfulClientConfig,
+        MockCMSConfigProvider,
+        MockStrapiClientConfigProvider,
         MockFirestoreProvider,
         MockStatsDProvider,
         PriceManager,
@@ -53,24 +54,38 @@ describe('CapabilityManager', () => {
   describe('getClients', () => {
     it('should return services with capabilities', async () => {
       const clientResults = [
-        ServiceResultFactory({
-          oauthClientId: 'client1',
-          capabilitiesCollection: {
-            items: [
-              CapabilitiesResultFactory({ slug: 'exampleCap8' }),
-              CapabilitiesResultFactory({ slug: 'exampleCap0' }),
-              CapabilitiesResultFactory({ slug: 'exampleCap2' }),
-              CapabilitiesResultFactory({ slug: 'exampleCap4' }),
-              CapabilitiesResultFactory({ slug: 'exampleCap5' }),
-              CapabilitiesResultFactory({ slug: 'exampleCap6' }),
-            ],
-          },
-        }),
+        StrapiEntityFactory(
+          ServiceResultFactory({
+            oauthClientId: 'client1',
+            capabilities: {
+              data: [
+                StrapiEntityFactory(
+                  CapabilitiesResultFactory({ slug: 'exampleCap8' })
+                ),
+                StrapiEntityFactory(
+                  CapabilitiesResultFactory({ slug: 'exampleCap0' })
+                ),
+                StrapiEntityFactory(
+                  CapabilitiesResultFactory({ slug: 'exampleCap2' })
+                ),
+                StrapiEntityFactory(
+                  CapabilitiesResultFactory({ slug: 'exampleCap4' })
+                ),
+                StrapiEntityFactory(
+                  CapabilitiesResultFactory({ slug: 'exampleCap5' })
+                ),
+                StrapiEntityFactory(
+                  CapabilitiesResultFactory({ slug: 'exampleCap6' })
+                ),
+              ],
+            },
+          })
+        ),
       ];
       const mockServicesWithCapabilitiesQuery =
         ServicesWithCapabilitiesQueryFactory({
-          serviceCollection: {
-            items: clientResults,
+          services: {
+            data: clientResults,
           },
         });
       jest
@@ -85,8 +100,8 @@ describe('CapabilityManager', () => {
       expect(result.length).toBe(1);
       expect(result.at(0)?.clientId).toBe('client1');
 
-      const actualCapabilities = clientResults[0].capabilitiesCollection.items
-        .map((capability) => capability.slug)
+      const actualCapabilities = clientResults[0].attributes.capabilities.data
+        .map((capability) => capability.attributes.slug)
         .sort();
 
       expect(result.at(0)?.capabilities).toHaveLength(6);
@@ -115,19 +130,29 @@ describe('CapabilityManager', () => {
     });
 
     it('should return empty results when there are no capability collection items', async () => {
-      const mockCapabilityOfferingResult = CapabilityOfferingResultFactory({
-        capabilitiesCollection: {
-          items: [],
-        },
-      });
-      const mockCapabilityPurchaseResult = CapabilityPurchaseResultFactory({
-        offering: mockCapabilityOfferingResult,
-      });
+      const mockCapabilityOfferingResult = StrapiEntityFactory(
+        CapabilityOfferingResultFactory({
+          capabilities: {
+            data: [],
+          },
+        })
+      );
+      const mockCapabilityPurchaseResult = StrapiEntityFactory(
+        CapabilityPurchaseResultFactory({
+          offering: {
+            data: mockCapabilityOfferingResult,
+          },
+        })
+      );
       const mockCapabilityServiceByPlanIdsQuery =
         CapabilityServiceByPlanIdsQueryFactory({
-          purchaseCollection: {
-            total: 1,
-            items: [mockCapabilityPurchaseResult],
+          purchases: {
+            meta: {
+              pagination: {
+                total: 1,
+              },
+            },
+            data: [mockCapabilityPurchaseResult],
           },
         });
       jest
@@ -148,26 +173,38 @@ describe('CapabilityManager', () => {
     });
 
     it('should return empty results when there are no service collection items', async () => {
-      const mockCapabilityOfferingResult = CapabilityOfferingResultFactory({
-        capabilitiesCollection: {
-          items: [
-            CapabilityCapabilitiesResultFactory({
-              slug: 'slug1',
-              servicesCollection: {
-                items: [],
-              },
-            }),
-          ],
-        },
-      });
-      const mockCapabilityPurchaseResult = CapabilityPurchaseResultFactory({
-        offering: mockCapabilityOfferingResult,
-      });
+      const mockCapabilityOfferingResult = StrapiEntityFactory(
+        CapabilityOfferingResultFactory({
+          capabilities: {
+            data: [
+              StrapiEntityFactory(
+                CapabilityCapabilitiesResultFactory({
+                  slug: 'slug1',
+                  services: {
+                    data: [],
+                  },
+                })
+              ),
+            ],
+          },
+        })
+      );
+      const mockCapabilityPurchaseResult = StrapiEntityFactory(
+        CapabilityPurchaseResultFactory({
+          offering: {
+            data: mockCapabilityOfferingResult,
+          },
+        })
+      );
       const mockCapabilityServiceByPlanIdsQuery =
         CapabilityServiceByPlanIdsQueryFactory({
-          purchaseCollection: {
-            total: 1,
-            items: [mockCapabilityPurchaseResult],
+          purchases: {
+            meta: {
+              pagination: {
+                total: 1,
+              },
+            },
+            data: [mockCapabilityPurchaseResult],
           },
         });
       jest
@@ -188,51 +225,73 @@ describe('CapabilityManager', () => {
     });
 
     it('should return planIds to client capabilities', async () => {
-      const mockCapabilityOfferingResult = CapabilityOfferingResultFactory({
-        capabilitiesCollection: {
-          items: [
-            CapabilityCapabilitiesResultFactory({
-              slug: 'slug1',
-              servicesCollection: {
-                items: [
-                  CapabilityServicesResultFactory({
-                    oauthClientId: 'clientId1',
-                  }),
-                ],
-              },
-            }),
-            CapabilityCapabilitiesResultFactory({
-              slug: 'slug2a',
-              servicesCollection: {
-                items: [
-                  CapabilityServicesResultFactory({
-                    oauthClientId: 'clientId2',
-                  }),
-                ],
-              },
-            }),
-            CapabilityCapabilitiesResultFactory({
-              slug: 'slug2b',
-              servicesCollection: {
-                items: [
-                  CapabilityServicesResultFactory({
-                    oauthClientId: 'clientId2',
-                  }),
-                ],
-              },
-            }),
-          ],
-        },
-      });
-      const mockCapabilityPurchaseResult = CapabilityPurchaseResultFactory({
-        stripePlanChoices: ['planId1'],
-        offering: mockCapabilityOfferingResult,
-      });
+      const mockCapabilityOfferingResult = StrapiEntityFactory(
+        CapabilityOfferingResultFactory({
+          capabilities: {
+            data: [
+              StrapiEntityFactory(
+                CapabilityCapabilitiesResultFactory({
+                  slug: 'slug1',
+                  services: {
+                    data: [
+                      StrapiEntityFactory(
+                        CapabilityServicesResultFactory({
+                          oauthClientId: 'clientId1',
+                        })
+                      ),
+                    ],
+                  },
+                })
+              ),
+              StrapiEntityFactory(
+                CapabilityCapabilitiesResultFactory({
+                  slug: 'slug2a',
+                  services: {
+                    data: [
+                      StrapiEntityFactory(
+                        CapabilityServicesResultFactory({
+                          oauthClientId: 'clientId2',
+                        })
+                      ),
+                    ],
+                  },
+                })
+              ),
+              StrapiEntityFactory(
+                CapabilityCapabilitiesResultFactory({
+                  slug: 'slug2b',
+                  services: {
+                    data: [
+                      StrapiEntityFactory(
+                        CapabilityServicesResultFactory({
+                          oauthClientId: 'clientId2',
+                        })
+                      ),
+                    ],
+                  },
+                })
+              ),
+            ],
+          },
+        })
+      );
+      const mockCapabilityPurchaseResult = StrapiEntityFactory(
+        CapabilityPurchaseResultFactory({
+          stripePlanChoices: [{ stripePlanChoice: 'planId1' }],
+          offering: {
+            data: mockCapabilityOfferingResult,
+          },
+        })
+      );
       const mockCapabilityServiceByPlanIdsQuery =
         CapabilityServiceByPlanIdsQueryFactory({
-          purchaseCollection: {
-            total: 1,
-            items: [mockCapabilityPurchaseResult],
+          purchases: {
+            meta: {
+              pagination: {
+                total: 1,
+              },
+            },
+            data: [mockCapabilityPurchaseResult],
           },
         });
       jest

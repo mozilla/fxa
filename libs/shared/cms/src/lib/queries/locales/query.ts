@@ -4,15 +4,13 @@
 
 import { graphql } from '../../../__generated__/gql';
 
-export const purchaseWithDetailsQuery = graphql(`
-  query PurchaseWithDetails($id: String!, $locale: String!) {
-    purchase(id: $id, locale: $locale) {
-      internalName
-      description
-      purchaseDetails {
-        productName
-        details
-        webIcon
+export const localesQuery = graphql(`
+  query Locales {
+    i18NLocales {
+      data {
+        attributes {
+          code
+        }
       }
     }
   }
