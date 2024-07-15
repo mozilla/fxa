@@ -521,7 +521,10 @@ describe('Glean server side events', () => {
         });
         sinon.assert.calledOnce(recordStub);
         const metrics = recordStub.args[0][0];
-        assert.equal(metrics['event_name'], 'google_login_complete');
+        assert.equal(
+          metrics['event_name'],
+          'third_party_auth_google_login_complete'
+        );
         assert.equal(metrics['event_reason'], 'linking');
         sinon.assert.calledOnce(recordThirdPartyAuthGoogleLoginCompleteStub);
         assert.isTrue(
@@ -534,7 +537,10 @@ describe('Glean server side events', () => {
         await glean.thirdPartyAuth.googleLoginComplete(request);
         sinon.assert.calledOnce(recordStub);
         const metrics = recordStub.args[0][0];
-        assert.equal(metrics['event_name'], 'google_login_complete');
+        assert.equal(
+          metrics['event_name'],
+          'third_party_auth_google_login_complete'
+        );
         assert.equal(metrics['event_reason'], '');
         sinon.assert.calledOnce(recordThirdPartyAuthGoogleLoginCompleteStub);
         assert.isFalse(
@@ -554,7 +560,10 @@ describe('Glean server side events', () => {
         });
         sinon.assert.calledOnce(recordStub);
         const metrics = recordStub.args[0][0];
-        assert.equal(metrics['event_name'], 'apple_login_complete');
+        assert.equal(
+          metrics['event_name'],
+          'third_party_auth_apple_login_complete'
+        );
         assert.equal(metrics['event_reason'], 'linking');
         sinon.assert.calledOnce(recordThirdPartyAuthAppleLoginCompleteStub);
         assert.isTrue(
@@ -567,7 +576,10 @@ describe('Glean server side events', () => {
         await glean.thirdPartyAuth.appleLoginComplete(request);
         sinon.assert.calledOnce(recordStub);
         const metrics = recordStub.args[0][0];
-        assert.equal(metrics['event_name'], 'apple_login_complete');
+        assert.equal(
+          metrics['event_name'],
+          'third_party_auth_apple_login_complete'
+        );
         assert.equal(metrics['event_reason'], '');
         sinon.assert.calledOnce(recordThirdPartyAuthAppleLoginCompleteStub);
         assert.isFalse(
