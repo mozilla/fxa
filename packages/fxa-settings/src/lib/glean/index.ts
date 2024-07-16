@@ -358,6 +358,12 @@ const recordEventMetric = (
     case 'account_pref_recovery_key_submit':
       accountPref.recoveryKeySubmit.record();
       break;
+    case 'account_pref_two_step_auth_submit':
+      accountPref.twoStepAuthSubmit.record();
+      break;
+    case 'account_pref_change_password_submit':
+      accountPref.changePasswordSubmit.record();
+      break;
     case 'account_pref_google_unlink_submit':
       accountPref.googleUnlinkSubmit.record({
         reason: gleanPingMetrics?.event?.['reason'] || '',
@@ -378,6 +384,23 @@ const recordEventMetric = (
         reason: gleanPingMetrics?.event?.['reason'] || '',
       });
       break;
+    case 'account_pref_device_signout':
+      accountPref.deviceSignout.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'account_pref_google_play_submit':
+      accountPref.googlePlaySubmit.record();
+      break;
+    case 'account_pref_apple_submit':
+      accountPref.appleSubmit.record();
+      break;
+    case 'account_pref_display_name_submit':
+      accountPref.displayNameSubmit.record();
+      break;
+    case 'account_pref_secondary_email_submit':
+      accountPref.secondaryEmailSubmit.record();
+      break;
     case 'delete_account_settings_submit':
       deleteAccount.settingsSubmit.record();
       break;
@@ -395,23 +418,6 @@ const recordEventMetric = (
       break;
     case 'delete_account_password_submit':
       deleteAccount.passwordSubmit.record();
-      break;
-    case 'account_pref_two_step_auth_submit':
-      accountPref.twoStepAuthSubmit.record();
-      break;
-    case 'account_pref_change_password_submit':
-      accountPref.changePasswordSubmit.record();
-      break;
-    case 'account_pref_device_signout':
-      accountPref.deviceSignout.record({
-        reason: gleanPingMetrics?.event?.['reason'] || '',
-      });
-      break;
-    case 'account_pref_google_play_submit':
-      accountPref.googlePlaySubmit.record();
-      break;
-    case 'account_pref_apple_submit':
-      accountPref.appleSubmit.record();
       break;
   }
 };

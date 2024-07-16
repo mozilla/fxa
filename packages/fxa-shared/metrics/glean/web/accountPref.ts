@@ -95,6 +95,23 @@ export const deviceSignout = new EventMetricType<{
 );
 
 /**
+ * Click on "Add" or "Change" on account settings page to add or change display
+ * name
+ *
+ * Generated from `account_pref.display_name_submit`.
+ */
+export const displayNameSubmit = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'display_name_submit',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
  * Click on Google Play logo to download Firefox on Android
  *
  * Generated from `account_pref.google_play_submit`.
@@ -158,6 +175,22 @@ export const recoveryKeySubmit = new EventMetricType(
   {
     category: 'account_pref',
     name: 'recovery_key_submit',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * Click on "Add" button on account settings page to add secondary email
+ *
+ * Generated from `account_pref.secondary_email_submit`.
+ */
+export const secondaryEmailSubmit = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'secondary_email_submit',
     sendInPings: ['events'],
     lifetime: 'ping',
     disabled: false,
