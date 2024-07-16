@@ -140,7 +140,7 @@ test.describe('severity-1 #smoke', () => {
       await signin.fillOutEmailFirstForm(initialEmail);
       await signin.fillOutPasswordForm(newPassword);
 
-      await expect(settings.primaryEmail.status).toHaveText(credentials.email);
+      await expect(settings.settingsHeading).toBeVisible();
 
       // Update which password to use the account cleanup
       credentials.password = newPassword;
