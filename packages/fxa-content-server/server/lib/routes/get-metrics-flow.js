@@ -38,7 +38,7 @@ const {
   UTM_CAMPAIGN: UTM_CAMPAIGN_TYPE,
 } = validation.TYPES;
 
-module.exports = function (config) {
+module.exports = function (config, glean) {
   const FLOW_ID_KEY = config.get('flow_id_key');
   const FLOW_EVENT_NAME = 'flow.begin';
   const SERVICES = config.get('oauth_client_id_map');
@@ -140,6 +140,14 @@ module.exports = function (config) {
 
       const metricTypes = FORM_TYPES[metricsData.form_type];
       if (metricTypes) {
+        switch (metricTypes.amplitude) {
+          case 'screen.enter-email':
+            glean.rp.formView(metricsData, 'email');
+            break;
+          case 'screen.rp-button':
+            glean.rp.formView(metricsData, 'button');
+            break;
+        }
         amplitude(
           {
             flowTime: flowBeginTime,

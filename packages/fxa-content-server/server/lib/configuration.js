@@ -332,6 +332,32 @@ const conf = (module.exports = convict({
     env: 'FXA_URL',
     format: 'url',
   },
+  serverGleanMetrics: {
+    enabled: {
+      default: false,
+      doc: 'Enable Glean metrics logging',
+      env: 'CONTENT_SERVER_GLEAN_ENABLED',
+      format: Boolean,
+    },
+    applicationId: {
+      default: 'accounts_backend_dev',
+      doc: 'The Glean application id',
+      env: 'CONTENT_SERVER_GLEAN_APP_ID',
+      format: String,
+    },
+    channel: {
+      default: 'development',
+      doc: 'The application channel, e.g. development, stage, production, etc.',
+      env: 'CONTENT_SERVER_GLEAN_APP_CHANNEL',
+      format: String,
+    },
+    loggerAppName: {
+      default: 'fxa-content',
+      doc: 'Used to form the mozlog logger name',
+      env: 'CONTENT_SERVER_GLEAN_LOGGER_APP_NAME',
+      format: String,
+    },
+  },
   glean: {
     enabled: {
       default: false,

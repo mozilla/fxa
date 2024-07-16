@@ -8,7 +8,7 @@ const {
   getServerReactRouteGroups,
 } = require('./routes/react-app/route-groups-server');
 
-module.exports = function (config, i18n, statsd) {
+module.exports = function (config, i18n, statsd, glean) {
   const redirectVersionedToUnversioned = require('./routes/redirect-versioned-to-unversioned');
   const reactRouteGroups = getServerReactRouteGroups(
     config.get('showReactApp'),
@@ -33,7 +33,7 @@ module.exports = function (config, i18n, statsd) {
     require('./routes/get-lbheartbeat')(),
     require('./routes/get-openid-configuration')(config),
     require('./routes/get-version.json'),
-    require('./routes/get-metrics-flow')(config),
+    require('./routes/get-metrics-flow')(config, glean),
     require('./routes/get-well-known-change-password')(),
     require('./routes/post-metrics')(statsd),
     require('./routes/redirect-download-firefox')(config),

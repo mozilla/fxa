@@ -49,6 +49,7 @@ registerSuite('routes/get-metrics-flow', {
         info: sandbox.spy(),
         error: sandbox.spy(),
       },
+      glean: { rp: { formView: sandbox.stub() } },
     };
     route = proxyquire('../../../server/lib/routes/get-metrics-flow', {
       '../amplitude': mocks.amplitude,
