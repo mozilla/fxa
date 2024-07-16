@@ -358,6 +358,26 @@ const recordEventMetric = (
     case 'account_pref_recovery_key_submit':
       accountPref.recoveryKeySubmit.record();
       break;
+    case 'account_pref_google_unlink_submit':
+      accountPref.googleUnlinkSubmit.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'account_pref_google_unlink_submit_confirm':
+      accountPref.googleUnlinkSubmitConfirm.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'account_pref_apple_unlink_submit':
+      accountPref.appleUnlinkSubmit.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'account_pref_apple_unlink_submit_confirm':
+      accountPref.appleUnlinkSubmitConfirm.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
     case 'delete_account_settings_submit':
       deleteAccount.settingsSubmit.record();
       break;

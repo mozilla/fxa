@@ -152,6 +152,10 @@ export const eventsMap = {
     deviceSignout: 'account_pref_device_signout',
     appleSubmit: 'account_pref_apple_submit',
     googlePlaySubmit: 'account_pref_google_play_submit',
+    googleUnlinkSubmit: 'account_pref_google_unlink_submit',
+    googleUnlinkSubmitConfirm: 'account_pref_google_unlink_submit_confirm',
+    appleUnlinkSubmit: 'account_pref_apple_unlink_submit',
+    appleUnlinkSubmitConfirm: 'account_pref_apple_unlink_submit_confirm',
   },
 
   deleteAccount: {

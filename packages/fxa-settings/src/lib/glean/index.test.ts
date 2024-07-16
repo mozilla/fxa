@@ -590,6 +590,54 @@ describe('lib/glean', () => {
         sinon.assert.called(spy);
       });
 
+      it('submits a ping with the account_pref_google_unlink_submit event name', async () => {
+        GleanMetrics.accountPref.googleUnlinkSubmit();
+        const spy = sandbox.spy(accountPref.googleUnlinkSubmit, 'record');
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'account_pref_google_unlink_submit'
+        );
+        sinon.assert.called(spy);
+      });
+      it('submits a ping with the account_pref_apple_unlink_submit event name', async () => {
+        GleanMetrics.accountPref.appleUnlinkSubmit();
+        const spy = sandbox.spy(accountPref.appleUnlinkSubmit, 'record');
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'account_pref_apple_unlink_submit'
+        );
+        sinon.assert.called(spy);
+      });
+      it('submits a ping with the account_pref_google_unlink_submit_confirm event name', async () => {
+        GleanMetrics.accountPref.googleUnlinkSubmitConfirm();
+        const spy = sandbox.spy(
+          accountPref.googleUnlinkSubmitConfirm,
+          'record'
+        );
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'account_pref_google_unlink_submit_confirm'
+        );
+        sinon.assert.called(spy);
+      });
+      it('submits a ping with the account_pref_apple_unlink_submit_confirm event name', async () => {
+        GleanMetrics.accountPref.appleUnlinkSubmitConfirm();
+        const spy = sandbox.spy(accountPref.appleUnlinkSubmitConfirm, 'record');
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'account_pref_apple_unlink_submit_confirm'
+        );
+        sinon.assert.called(spy);
+      });
+
       it('submits a ping with the account_pref_change_password_submit event name', async () => {
         GleanMetrics.accountPref.changePasswordSubmit();
         const spy = sandbox.spy(accountPref.changePasswordSubmit, 'record');

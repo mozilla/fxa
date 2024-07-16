@@ -10,6 +10,19 @@ import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import { MOCK_LINKED_ACCOUNTS } from '../LinkedAccounts/mocks';
 import { LinkedAccountProviderIds } from '../../../lib/types';
 import { withLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+import GleanMetrics from '../../../lib/glean';
+
+jest.mock('../../../lib/glean', () => ({
+  __esModule: true,
+  default: {
+    accountPref: {
+      googleUnlinkSubmit: jest.fn(),
+      googleUnlinkSubmitConfirm: jest.fn(),
+      appleUnlinkSubmit: jest.fn(),
+      appleUnlinkSubmitConfirm: jest.fn(),
+    },
+  },
+}));
 
 const MOCK_ACCOUNT = {
   hasPassword: true,
@@ -30,10 +43,12 @@ const mockLocation = () => {
   };
 };
 
-const clickUnlinkButton = async () => {
+const clickUnlinkButton = async (providerId = 1) => {
   await act(async () => {
-    const unlinkButtons = await screen.findAllByTestId(/linked-account-unlink/);
-    fireEvent.click(unlinkButtons[0]);
+    const unlinkButton = await screen.findByTestId(
+      `linked-account-unlink-${providerId}`
+    );
+    fireEvent.click(unlinkButton);
   });
 };
 const clickConfirmUnlinkButton = async () => {
@@ -93,20 +108,35 @@ describe('#integration - Linked Accounts', () => {
     expect(screen.queryByTestId('settings-linked-account')).toBeNull();
   });
 
-  it('renders proper modal when "unlink" is clicked', async () => {
+  it('renders proper modal and sends Glean ping when Google "unlink" is clicked', async () => {
     renderWithRouter(
       <AppContext.Provider value={mockAppContext({ account: MOCK_ACCOUNT })}>
         <LinkedAccounts />
       </AppContext.Provider>
     );
     await clickUnlinkButton();
+    expect(GleanMetrics.accountPref.googleUnlinkSubmit).toHaveBeenCalledWith(
+      undefined
+    );
 
-    expect(
-      screen.queryByTestId('linked-account-unlink-header-test-id')
-    ).toBeInTheDocument();
+    screen.queryByTestId('linked-account-unlink-header-test-id');
   });
 
-  it('on unlink, removes linked account', async () => {
+  it('renders proper modal and sends Glean ping when Apple "unlink" is clicked', async () => {
+    renderWithRouter(
+      <AppContext.Provider value={mockAppContext({ account: MOCK_ACCOUNT })}>
+        <LinkedAccounts />
+      </AppContext.Provider>
+    );
+    await clickUnlinkButton(2);
+    expect(GleanMetrics.accountPref.appleUnlinkSubmit).toHaveBeenCalledWith(
+      undefined
+    );
+
+    screen.queryByTestId('linked-account-unlink-header-test-id');
+  });
+
+  it('on unlink, sends Glean ping and removes linked account', async () => {
     const account = {
       hasPassword: true,
       linkedAccounts: [...MOCK_LINKED_ACCOUNTS],
@@ -127,11 +157,12 @@ describe('#integration - Linked Accounts', () => {
 
     await clickUnlinkButton();
 
-    expect(
-      screen.queryByTestId('linked-account-unlink-header-test-id')
-    ).toBeInTheDocument();
+    screen.queryByTestId('linked-account-unlink-header-test-id');
 
     await clickConfirmUnlinkButton();
+    expect(
+      GleanMetrics.accountPref.googleUnlinkSubmitConfirm
+    ).toHaveBeenCalledWith(undefined);
     rerender(withLocalizationProvider(ui));
 
     expect(
@@ -139,7 +170,7 @@ describe('#integration - Linked Accounts', () => {
     ).toHaveLength(initialCount - 1);
   });
 
-  it('automatically opens corresponding provider ID modal if router state has wantsUnlinkProviderId', async () => {
+  it('automatically opens corresponding provider ID modal if router state has wantsUnlinkProviderId, emits expected Glean event', async () => {
     mockLocationState = {
       wantsUnlinkProviderId: LinkedAccountProviderIds.Apple,
     };
@@ -163,6 +194,11 @@ describe('#integration - Linked Accounts', () => {
       });
     });
     await clickConfirmUnlinkButton();
+    expect(
+      GleanMetrics.accountPref.appleUnlinkSubmitConfirm
+    ).toHaveBeenCalledWith({
+      event: { reason: 'create_password' },
+    });
     rerender(withLocalizationProvider(ui));
 
     expect(screen.queryByLabelText('Apple')).not.toBeInTheDocument();
@@ -176,7 +212,7 @@ describe('#integration - Linked Accounts', () => {
       linkedAccounts: [...MOCK_LINKED_ACCOUNTS],
     } as unknown as Account;
 
-    it('on unlink, directs user to create password flow', async () => {
+    it('on Google unlink, emits expected Glean ping and directs user to create password flow', async () => {
       renderWithRouter(
         <AppContext.Provider
           value={mockAppContext({
@@ -193,16 +229,45 @@ describe('#integration - Linked Accounts', () => {
         )
       );
 
-      expect(
-        screen.queryByText(
-          'Before unlinking your account, you must set a password. Without a password, there is no way for you to log in after unlinking your account.'
-        )
-      ).toBeInTheDocument();
+      expect(GleanMetrics.accountPref.googleUnlinkSubmit).toHaveBeenCalledWith({
+        event: { reason: 'create_password' },
+      });
+      await screen.findByText(
+        'Before unlinking your account, you must set a password. Without a password, there is no way for you to log in after unlinking your account.'
+      );
 
       await clickConfirmUnlinkButton();
       expect(mockNavigate).toHaveBeenCalledWith('/settings/create_password', {
-        replace: true,
         state: { wantsUnlinkProviderId: LinkedAccountProviderIds.Google },
+      });
+    });
+    it('on Apple unlink, emits expected Glean ping and directs user to create password flow', async () => {
+      renderWithRouter(
+        <AppContext.Provider
+          value={mockAppContext({
+            account: accountWithoutPassword,
+          })}
+        >
+          <LinkedAccounts />
+        </AppContext.Provider>
+      );
+
+      fireEvent.click(
+        await screen.findByTestId(
+          `linked-account-unlink-${LinkedAccountProviderIds.Apple}`
+        )
+      );
+
+      expect(GleanMetrics.accountPref.appleUnlinkSubmit).toHaveBeenCalledWith({
+        event: { reason: 'create_password' },
+      });
+      await screen.findByText('Before unlinking your account', {
+        exact: false,
+      });
+
+      await clickConfirmUnlinkButton();
+      expect(mockNavigate).toHaveBeenCalledWith('/settings/create_password', {
+        state: { wantsUnlinkProviderId: LinkedAccountProviderIds.Apple },
       });
     });
   });

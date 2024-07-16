@@ -17,6 +17,7 @@ import {
   LinkedAccountProviderIds,
   UnlinkAccountLocationState,
 } from '../../../lib/types';
+import GleanMetrics from '../../../lib/glean';
 
 export function LinkedAccount({
   providerId,
@@ -48,6 +49,24 @@ export function LinkedAccount({
 
   const onConfirmUnlinkAccountClick = async () => {
     if (account.hasPassword) {
+      // If wantsUnlinkProviderId is truthy, the user was taken to create password page,
+      // created a password, then taken back here with modal open
+      const eventReason = wantsUnlinkProviderId
+        ? {
+            event: { reason: 'create_password' },
+          }
+        : undefined;
+
+      switch (providerId) {
+        case 1:
+          GleanMetrics.accountPref.googleUnlinkSubmitConfirm(eventReason);
+          break;
+        case 2:
+          GleanMetrics.accountPref.appleUnlinkSubmitConfirm(eventReason);
+          break;
+        default:
+          break;
+      }
       await account.unlinkThirdParty(providerId);
       resetLocationState();
     } else {
@@ -55,7 +74,6 @@ export function LinkedAccount({
       // a navigation state that's passed back to Settings on password create
       // success that we account for here by automatically re-opening the modal.
       navigate(HomePath + '/create_password', {
-        replace: true,
         state: { wantsUnlinkProviderId: providerId },
       });
     }
@@ -67,6 +85,22 @@ export function LinkedAccount({
   };
 
   const onUnlinkAccountClick = () => {
+    const eventReason = !account.hasPassword
+      ? {
+          event: { reason: 'create_password' },
+        }
+      : undefined;
+
+    switch (providerId) {
+      case 1:
+        GleanMetrics.accountPref.googleUnlinkSubmit(eventReason);
+        break;
+      case 2:
+        GleanMetrics.accountPref.appleUnlinkSubmit(eventReason);
+        break;
+      default:
+        break;
+    }
     revealUnlinkModal();
   };
 
