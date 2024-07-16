@@ -28,31 +28,9 @@ export function ConnectAnotherDevicePromo() {
         <Localized id="connect-another-fx-mobile">
           <p className="text-sm">Get Firefox on mobile or tablet</p>
         </Localized>
-        <Localized
-          id="connect-another-find-fx-mobile"
-          elems={{
-            br: <br />,
-            linkExternal: (
-              <LinkExternal
-                href="https://www.mozilla.org/firefox/mobile/"
-                className="link-blue"
-                data-testid="download-link"
-              >
-                {' '}
-              </LinkExternal>
-            ),
-          }}
-        >
+        <Localized id="connect-another-find-fx-mobile-2">
           <p className="text-grey-400 text-xs">
-            Find Firefox in the Google Play and App Store or
-            <br />
-            <LinkExternal
-              href="https://www.mozilla.org/firefox/mobile/"
-              className="link-blue"
-              data-testid="download-link"
-            >
-              send a download link to your device.
-            </LinkExternal>
+            Find Firefox in the Google Play and App Store.
           </p>
         </Localized>
       </div>
