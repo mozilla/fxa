@@ -39,11 +39,6 @@ export type FinishOAuthFlowHandlerResult =
   | FinishOAuthFlowHandlerError;
 
 const checkOAuthData = (integration: OAuthIntegration): AuthError | null => {
-  // Weird edge case. See FXA-10029...
-  if (integration.isSync()) {
-    return null;
-  }
-
   // Ensure a redirect was provided or matched. Without this info, we can't relay the
   // oauth code and state on a redirect!
   // clientInfo?.redirectUri has already validated the redirect_uri query param
