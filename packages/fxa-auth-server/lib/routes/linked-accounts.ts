@@ -423,6 +423,14 @@ export class LinkedAccountHandler {
           'account.verified',
           'registration'
         );
+        switch (provider) {
+          case 'google':
+            await this.glean.thirdPartyAuth.googleRegComplete(request);
+            break;
+          case 'apple':
+            await this.glean.thirdPartyAuth.appleRegComplete(request);
+            break;
+        }
         await request.emitMetricsEvent('account.verified', {
           uid: accountRecord.uid,
           deviceId,

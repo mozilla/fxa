@@ -113,6 +113,7 @@ describe('/linked_account', function () {
         );
         glean.registration.complete.reset();
         glean.thirdPartyAuth.googleLoginComplete.reset();
+        glean.thirdPartyAuth.googleRegComplete.reset();
       });
 
       it('fails if no google config', async () => {
@@ -205,9 +206,13 @@ describe('/linked_account', function () {
         assert.equal(result.uid, UID);
         assert.ok(result.sessionToken);
         assert.calledOnce(glean.registration.complete);
+        sinon.assert.calledOnceWithExactly(
+          glean.thirdPartyAuth.googleRegComplete,
+          mockRequest
+        );
       });
 
-      it('should linking existing fxa account and new google account and return session', async () => {
+      it('should link existing fxa account and new google account and return session', async () => {
         const result = await runTest(route, mockRequest);
 
         assert.isTrue(
@@ -353,6 +358,7 @@ describe('/linked_account', function () {
         );
         glean.registration.complete.reset();
         glean.thirdPartyAuth.appleLoginComplete.reset();
+        glean.thirdPartyAuth.appleRegComplete.reset();
       });
 
       it('fails if no apple config', async () => {
@@ -432,6 +438,10 @@ describe('/linked_account', function () {
         assert.equal(result.uid, UID);
         assert.ok(result.sessionToken);
         assert.calledOnce(glean.registration.complete);
+        sinon.assert.calledOnceWithExactly(
+          glean.thirdPartyAuth.appleRegComplete,
+          mockRequest
+        );
       });
 
       it('should link existing fxa account and new apple account and return session', async () => {

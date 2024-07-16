@@ -32,6 +32,8 @@ const recordAccessTokenCreatedStub = sinon.stub();
 const recordAccessTokenCheckedStub = sinon.stub();
 const recordThirdPartyAuthGoogleLoginCompleteStub = sinon.stub();
 const recordThirdPartyAuthAppleLoginCompleteStub = sinon.stub();
+const recordThirdPartyAuthGoogleRegCompleteStub = sinon.stub();
+const recordThirdPartyAuthAppleRegCompleteStub = sinon.stub();
 const recordThirdPartyAuthSetPasswordCompleteStub = sinon.stub();
 const recordAccountDeleteCompleteStub = sinon.stub();
 
@@ -69,6 +71,10 @@ const { gleanMetrics, logErrorWithGlean } = proxyquire.load(
           recordThirdPartyAuthGoogleLoginCompleteStub,
         recordThirdPartyAuthAppleLoginComplete:
           recordThirdPartyAuthAppleLoginCompleteStub,
+        recordThirdPartyAuthGoogleRegComplete:
+          recordThirdPartyAuthGoogleRegCompleteStub,
+        recordThirdPartyAuthAppleRegComplete:
+          recordThirdPartyAuthAppleRegCompleteStub,
         recordThirdPartyAuthSetPasswordComplete:
           recordThirdPartyAuthSetPasswordCompleteStub,
         recordAccountDeleteComplete: recordAccountDeleteCompleteStub,
@@ -547,7 +553,10 @@ describe('Glean server side events', () => {
         });
         sinon.assert.calledOnce(recordStub);
         const metrics = recordStub.args[0][0];
-        assert.equal(metrics['event_name'], 'google_login_complete');
+        assert.equal(
+          metrics['event_name'],
+          'third_party_auth_google_login_complete'
+        );
         assert.equal(metrics['event_reason'], 'linking');
         sinon.assert.calledOnce(recordThirdPartyAuthGoogleLoginCompleteStub);
         assert.isTrue(
@@ -560,7 +569,10 @@ describe('Glean server side events', () => {
         await glean.thirdPartyAuth.googleLoginComplete(request);
         sinon.assert.calledOnce(recordStub);
         const metrics = recordStub.args[0][0];
-        assert.equal(metrics['event_name'], 'google_login_complete');
+        assert.equal(
+          metrics['event_name'],
+          'third_party_auth_google_login_complete'
+        );
         assert.equal(metrics['event_reason'], '');
         sinon.assert.calledOnce(recordThirdPartyAuthGoogleLoginCompleteStub);
         assert.isFalse(
@@ -580,7 +592,10 @@ describe('Glean server side events', () => {
         });
         sinon.assert.calledOnce(recordStub);
         const metrics = recordStub.args[0][0];
-        assert.equal(metrics['event_name'], 'apple_login_complete');
+        assert.equal(
+          metrics['event_name'],
+          'third_party_auth_apple_login_complete'
+        );
         assert.equal(metrics['event_reason'], 'linking');
         sinon.assert.calledOnce(recordThirdPartyAuthAppleLoginCompleteStub);
         assert.isTrue(
@@ -593,7 +608,10 @@ describe('Glean server side events', () => {
         await glean.thirdPartyAuth.appleLoginComplete(request);
         sinon.assert.calledOnce(recordStub);
         const metrics = recordStub.args[0][0];
-        assert.equal(metrics['event_name'], 'apple_login_complete');
+        assert.equal(
+          metrics['event_name'],
+          'third_party_auth_apple_login_complete'
+        );
         assert.equal(metrics['event_reason'], '');
         sinon.assert.calledOnce(recordThirdPartyAuthAppleLoginCompleteStub);
         assert.isFalse(
@@ -601,7 +619,41 @@ describe('Glean server side events', () => {
         );
       });
     });
-    describe('setPassword', () => {
+    describe('googleRegComplete', () => {
+      beforeEach(() => {
+        recordThirdPartyAuthGoogleRegCompleteStub.reset();
+      });
+
+      it('log string and event metrics for Google', async () => {
+        const glean = gleanMetrics(config);
+        await glean.thirdPartyAuth.googleRegComplete(request);
+        sinon.assert.calledOnce(recordStub);
+        const metrics = recordStub.args[0][0];
+        assert.equal(
+          metrics['event_name'],
+          'third_party_auth_google_reg_complete'
+        );
+        sinon.assert.calledOnce(recordThirdPartyAuthGoogleRegCompleteStub);
+      });
+    });
+    describe('appleRegComplete', () => {
+      beforeEach(() => {
+        recordThirdPartyAuthAppleRegCompleteStub.reset();
+      });
+
+      it('log string and event metrics for Google', async () => {
+        const glean = gleanMetrics(config);
+        await glean.thirdPartyAuth.appleRegComplete(request);
+        sinon.assert.calledOnce(recordStub);
+        const metrics = recordStub.args[0][0];
+        assert.equal(
+          metrics['event_name'],
+          'third_party_auth_apple_reg_complete'
+        );
+        sinon.assert.calledOnce(recordThirdPartyAuthAppleRegCompleteStub);
+      });
+    });
+    describe('setPasswordComplete', () => {
       beforeEach(() => {
         recordThirdPartyAuthSetPasswordCompleteStub.reset();
       });
