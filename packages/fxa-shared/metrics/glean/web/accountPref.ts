@@ -23,6 +23,44 @@ export const appleSubmit = new EventMetricType(
 );
 
 /**
+ * The user clicked "Unlink" from account preferences for their Apple linked
+ * account.
+ *
+ * Generated from `account_pref.apple_unlink_submit`.
+ */
+export const appleUnlinkSubmit = new EventMetricType<{
+  reason?: string;
+}>(
+  {
+    category: 'account_pref',
+    name: 'apple_unlink_submit',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  ['reason']
+);
+
+/**
+ * The user clicked "Unlink" from the confirmation modal for their Apple linked
+ * account.
+ *
+ * Generated from `account_pref.apple_unlink_submit_confirm`.
+ */
+export const appleUnlinkSubmitConfirm = new EventMetricType<{
+  reason?: string;
+}>(
+  {
+    category: 'account_pref',
+    name: 'apple_unlink_submit_confirm',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  ['reason']
+);
+
+/**
  * Click on "Change" on account settings page to change password for account
  *
  * Generated from `account_pref.change_password_submit`.
@@ -70,6 +108,44 @@ export const googlePlaySubmit = new EventMetricType(
     disabled: false,
   },
   []
+);
+
+/**
+ * The user clicked "Unlink" from account preferences for their Google linked
+ * account.
+ *
+ * Generated from `account_pref.google_unlink_submit`.
+ */
+export const googleUnlinkSubmit = new EventMetricType<{
+  reason?: string;
+}>(
+  {
+    category: 'account_pref',
+    name: 'google_unlink_submit',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  ['reason']
+);
+
+/**
+ * The user clicked "Unlink" from the confirmation modal for their Google linked
+ * account.
+ *
+ * Generated from `account_pref.google_unlink_submit_confirm`.
+ */
+export const googleUnlinkSubmitConfirm = new EventMetricType<{
+  reason?: string;
+}>(
+  {
+    category: 'account_pref',
+    name: 'google_unlink_submit_confirm',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  ['reason']
 );
 
 /**

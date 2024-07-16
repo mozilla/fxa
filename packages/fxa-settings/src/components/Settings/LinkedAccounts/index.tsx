@@ -27,19 +27,14 @@ export const LinkedAccounts = forwardRef<HTMLDivElement>((_, ref) => {
           <div className="bg-white tablet:rounded-xl shadow px-4 tablet:px-6 pt-7 pb-8">
             <div className="flex justify-between mb-4">
               <Localized id="la-description">
-                <p>
-                  You have linked and authorized access to the following
-                  accounts.
-                </p>
+                <p>You have authorized access to the following accounts.</p>
               </Localized>
             </div>
 
             {linkedAccounts.map((linkedAccount) => (
               <LinkedAccount
-                {...{
-                  key: linkedAccount.providerId,
-                  providerId: linkedAccount.providerId,
-                }}
+                key={linkedAccount.providerId}
+                providerId={linkedAccount.providerId}
               />
             ))}
           </div>
