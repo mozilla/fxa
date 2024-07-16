@@ -7,6 +7,22 @@
 import EventMetricType from '@mozilla/glean/private/metrics/event';
 
 /**
+ * Click on Apple logo to download Firefox on Apple
+ *
+ * Generated from `account_pref.apple_submit`.
+ */
+export const appleSubmit = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'apple_submit',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
  * Click on "Change" on account settings page to change password for account
  *
  * Generated from `account_pref.change_password_submit`.
@@ -15,6 +31,40 @@ export const changePasswordSubmit = new EventMetricType(
   {
     category: 'account_pref',
     name: 'change_password_submit',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * Click on "Signout" under Connected Services to sign out of device/service
+ *
+ * Generated from `account_pref.device_signout`.
+ */
+export const deviceSignout = new EventMetricType<{
+  reason?: string;
+}>(
+  {
+    category: 'account_pref',
+    name: 'device_signout',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  ['reason']
+);
+
+/**
+ * Click on Google Play logo to download Firefox on Android
+ *
+ * Generated from `account_pref.google_play_submit`.
+ */
+export const googlePlaySubmit = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'google_play_submit',
     sendInPings: ['events'],
     lifetime: 'ping',
     disabled: false,

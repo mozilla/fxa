@@ -7,6 +7,7 @@ import { LinkExternal } from 'fxa-react/components/LinkExternal';
 import { Localized } from '@fluent/react';
 import { getStoreImageByLanguages, StoreType } from './storeImageLoader';
 import { SettingsContext } from '../../../models/contexts/SettingsContext';
+import GleanMetrics from '../../../lib/glean';
 
 export function ConnectAnotherDevicePromo() {
   const { navigatorLanguages } = useContext(SettingsContext);
@@ -39,6 +40,7 @@ export function ConnectAnotherDevicePromo() {
           className="self-center"
           data-testid="play-store-link"
           href="https://app.adjust.com/2uo1qc?redirect=https%3A%2F%2Fplay.google.com%2Fstore%2Fapps%2Fdetails%3Fid%3Dorg.mozilla.firefox"
+          onClick={() => GleanMetrics.accountPref.googlePlaySubmit()}
         >
           <Localized
             id="connect-another-play-store-image"
@@ -54,6 +56,7 @@ export function ConnectAnotherDevicePromo() {
           className="self-center p-2"
           data-testid="app-store-link"
           href="https://app.adjust.com/2uo1qc?redirect=https%3A%2F%2Fitunes.apple.com%2Fus%2Fapp%2Ffirefox-private-safe-browser%2Fid989804926"
+          onClick={() => GleanMetrics.accountPref.appleSubmit()}
         >
           <Localized
             id="connect-another-app-store-image-2"
