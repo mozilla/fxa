@@ -1,8 +1,12 @@
-#!/bin/bash -ex
+#!/bin/bash -e
 
-adb reverse tcp:3030 tcp:3030 # Content server
-adb reverse tcp:9000 tcp:9000 # Auth server
-adb reverse tcp:9010 tcp:9010 # OAuth server
-adb reverse tcp:1111 tcp:1111 # Profile server
-adb reverse tcp:1111 tcp:1112 # Profile server "CDN"
-adb reverse tcp:5000 tcp:5000 # Sync server
+while IFS= read -r line
+do
+  echo "Running adb reverse for: $line"
+  port=`echo "$line" | cut -d'#' -f1`
+  # Edge case for profile server cdn
+  if [ "$port" == "1111" ]; then
+    adb reverse tcp:1111 tcp:1112
+  fi
+  adb reverse tcp:$port tcp:$port
+done <  "_scripts/ports.txt"
