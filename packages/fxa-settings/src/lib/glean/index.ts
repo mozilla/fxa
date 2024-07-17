@@ -27,6 +27,7 @@ import * as cadMobilePair from 'fxa-shared/metrics/glean/web/cadMobilePair';
 import * as cadMobilePairUseApp from 'fxa-shared/metrics/glean/web/cadMobilePairUseApp';
 import * as accountPref from 'fxa-shared/metrics/glean/web/accountPref';
 import * as deleteAccount from 'fxa-shared/metrics/glean/web/deleteAccount';
+import * as thirdPartyAuth from 'fxa-shared/metrics/glean/web/thirdPartyAuth';
 import { userIdSha256 } from 'fxa-shared/metrics/glean/web/account';
 import {
   oauthClientId,
@@ -325,20 +326,20 @@ const recordEventMetric = (
     case 'password_reset_view':
       passwordReset.view.record();
       break;
-    case 'google_oauth_reg_start':
-      reg.googleOauthRegStart.record();
+    case 'third_party_auth_google_reg_start':
+      thirdPartyAuth.googleRegStart.record();
       break;
-    case 'apple_oauth_reg_start':
-      reg.appleOauthRegStart.record();
+    case 'third_party_auth_apple_reg_start':
+      thirdPartyAuth.appleRegStart.record();
       break;
     case 'third_party_auth_login_no_pw_view':
-      login.thirdPartyAuthLoginNoPwView.record();
+      thirdPartyAuth.loginNoPwView.record();
       break;
-    case 'google_oauth_login_start':
-      login.googleOauthLoginStart.record();
+    case 'third_party_auth_google_login_start':
+      thirdPartyAuth.googleLoginStart.record();
       break;
-    case 'apple_oauth_login_start':
-      login.appleOauthLoginStart.record();
+    case 'third_party_auth_apple_login_start':
+      thirdPartyAuth.appleLoginStart.record();
       break;
     case 'cad_firefox_notnow_submit':
       cadFirefox.notnowSubmit.record();

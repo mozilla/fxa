@@ -13,6 +13,7 @@ import * as reg from 'fxa-shared/metrics/glean/web/reg';
 import * as login from 'fxa-shared/metrics/glean/web/login';
 import * as accountPref from 'fxa-shared/metrics/glean/web/accountPref';
 import * as deleteAccount from 'fxa-shared/metrics/glean/web/deleteAccount';
+import * as thirdPartyAuth from 'fxa-shared/metrics/glean/web/thirdPartyAuth';
 import { userIdSha256 } from 'fxa-shared/metrics/glean/web/account';
 import {
   oauthClientId,
@@ -516,18 +517,21 @@ describe('lib/glean', () => {
     });
 
     describe('thirdPartyAuth', () => {
-      it('submits a ping with the google_oauth_reg_start event name', async () => {
+      it('submits a ping with the third_party_auth_google_reg_start event name', async () => {
+        const spy = sandbox.spy(thirdPartyAuth.googleRegStart, 'record');
         GleanMetrics.thirdPartyAuth.startGoogleAuthFromReg();
-        const spy = sandbox.spy(reg.googleOauthRegStart, 'record');
         await GleanMetrics.isDone();
         sinon.assert.calledOnce(setEventNameStub);
-        sinon.assert.calledWith(setEventNameStub, 'google_oauth_reg_start');
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'third_party_auth_google_reg_start'
+        );
         sinon.assert.calledOnce(spy);
       });
 
-      it('submits a ping with the third_party_auth_login_no_pw_view event name', async () => {
+      it('submits a ping with the login_third_party_auth_no_pw_view event name', async () => {
+        const spy = sandbox.spy(thirdPartyAuth.loginNoPwView, 'record');
         GleanMetrics.thirdPartyAuth.viewWithNoPasswordSet();
-        const spy = sandbox.spy(login.thirdPartyAuthLoginNoPwView, 'record');
         await GleanMetrics.isDone();
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(
@@ -537,21 +541,27 @@ describe('lib/glean', () => {
         sinon.assert.calledOnce(spy);
       });
 
-      it('submits a ping with the google_oauth_login_start event name', async () => {
+      it('submits a ping with the third_party_auth_google_login_start event name', async () => {
+        const spy = sandbox.spy(thirdPartyAuth.googleLoginStart, 'record');
         GleanMetrics.thirdPartyAuth.startGoogleAuthFromLogin();
-        const spy = sandbox.spy(login.googleOauthLoginStart, 'record');
         await GleanMetrics.isDone();
         sinon.assert.calledOnce(setEventNameStub);
-        sinon.assert.calledWith(setEventNameStub, 'google_oauth_login_start');
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'third_party_auth_google_login_start'
+        );
         sinon.assert.calledOnce(spy);
       });
 
-      it('submits a ping with the apple_oauth_login_start event name', async () => {
+      it('submits a ping with the third_party_auth_apple_login_start event name', async () => {
+        const spy = sandbox.spy(thirdPartyAuth.appleLoginStart, 'record');
         GleanMetrics.thirdPartyAuth.startAppleAuthFromLogin();
-        const spy = sandbox.spy(login.appleOauthLoginStart, 'record');
         await GleanMetrics.isDone();
         sinon.assert.calledOnce(setEventNameStub);
-        sinon.assert.calledWith(setEventNameStub, 'apple_oauth_login_start');
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'third_party_auth_apple_login_start'
+        );
         sinon.assert.calledOnce(spy);
       });
     });

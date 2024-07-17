@@ -332,25 +332,25 @@ describe('lib/glean', () => {
     });
 
     describe('apple oauth email first', () => {
-      it('submits a ping with the apple_oauth_email_first_start event name', async () => {
+      it('submits a ping with the email_first_apple_oauth_start event name', async () => {
         GleanMetrics.emailFirst.appleOauthStart();
         await GleanMetrics.isDone();
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(
           setEventNameStub,
-          'apple_oauth_email_first_start'
+          'email_first_apple_oauth_start'
         );
       });
     });
 
     describe('google oauth email first', () => {
-      it('submits a ping with the google_oauth_email_first_start event name', async () => {
+      it('submits a ping with the email_first_google_oauth_start event name', async () => {
         GleanMetrics.emailFirst.googleOauthStart();
         await GleanMetrics.isDone();
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(
           setEventNameStub,
-          'google_oauth_email_first_start'
+          'email_first_google_oauth_start'
         );
       });
     });
@@ -443,18 +443,24 @@ describe('lib/glean', () => {
     });
 
     describe('thirdPartyAuth', () => {
-      it('submits a ping with the google_deeplink event name', async () => {
+      it('submits a ping with the third_party_auth_google_deeplink event name', async () => {
         GleanMetrics.thirdPartyAuth.googleDeeplink();
         await GleanMetrics.isDone();
         sinon.assert.calledOnce(setEventNameStub);
-        sinon.assert.calledWith(setEventNameStub, 'google_deeplink');
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'third_party_auth_google_deeplink'
+        );
       });
 
-      it('submits a ping with the apple_deeplink event name', async () => {
+      it('submits a ping with the third_party_auth_apple_deeplink event name', async () => {
         GleanMetrics.thirdPartyAuth.appleDeeplink();
         await GleanMetrics.isDone();
         sinon.assert.calledOnce(setEventNameStub);
-        sinon.assert.calledWith(setEventNameStub, 'apple_deeplink');
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'third_party_auth_apple_deeplink'
+        );
       });
     });
 
