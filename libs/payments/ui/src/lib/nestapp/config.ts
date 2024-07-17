@@ -9,7 +9,7 @@ import { MySQLConfig } from '@fxa/shared/db/mysql/core';
 import { GeoDBConfig, GeoDBManagerConfig } from '@fxa/shared/geodb';
 import { PaypalClientConfig } from 'libs/payments/paypal/src/lib/paypal.client.config';
 import { StripeConfig } from '@fxa/payments/stripe';
-import { CMSConfig, ContentfulClientConfig } from '@fxa/shared/cms';
+import { CMSConfig, StrapiClientConfig } from '@fxa/shared/cms';
 import { FirestoreConfig } from 'libs/shared/db/firestore/src/lib/firestore.config';
 import { StatsDConfig } from 'libs/shared/metrics/statsd/src/lib/statsd.config';
 
@@ -38,10 +38,10 @@ export class RootConfig {
   @IsDefined()
   public readonly paypalClientConfig!: Partial<PaypalClientConfig>;
 
-  @Type(() => ContentfulClientConfig)
+  @Type(() => StrapiClientConfig)
   @ValidateNested()
   @IsDefined()
-  public readonly contentfulClientConfig!: Partial<ContentfulClientConfig>;
+  public readonly strapiClientConfig!: Partial<StrapiClientConfig>;
 
   @Type(() => CMSConfig)
   @ValidateNested()
