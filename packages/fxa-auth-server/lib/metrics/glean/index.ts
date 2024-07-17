@@ -228,17 +228,27 @@ const createEventFn =
         case 'access_token_checked':
           gleanServerEventLogger.recordAccessTokenChecked(commonMetrics);
           break;
-        case 'google_login_complete':
+        case 'third_party_auth_google_login_complete':
           gleanServerEventLogger.recordThirdPartyAuthGoogleLoginComplete({
             ...commonMetrics,
             linking: metricsData?.reason === 'linking',
           });
           break;
-        case 'apple_login_complete':
+        case 'third_party_auth_apple_login_complete':
           gleanServerEventLogger.recordThirdPartyAuthAppleLoginComplete({
             ...commonMetrics,
             linking: metricsData?.reason === 'linking',
           });
+          break;
+        case 'third_party_auth_google_reg_complete':
+          gleanServerEventLogger.recordThirdPartyAuthGoogleRegComplete(
+            commonMetrics
+          );
+          break;
+        case 'third_party_auth_apple_reg_complete':
+          gleanServerEventLogger.recordThirdPartyAuthAppleRegComplete(
+            commonMetrics
+          );
           break;
         case 'third_party_auth_set_password_complete':
           gleanServerEventLogger.recordThirdPartyAuthSetPasswordComplete(
@@ -314,8 +324,14 @@ export function gleanMetrics(config: ConfigType) {
     },
 
     thirdPartyAuth: {
-      googleLoginComplete: createEventFn('google_login_complete'),
-      appleLoginComplete: createEventFn('apple_login_complete'),
+      googleLoginComplete: createEventFn(
+        'third_party_auth_google_login_complete'
+      ),
+      appleLoginComplete: createEventFn(
+        'third_party_auth_apple_login_complete'
+      ),
+      googleRegComplete: createEventFn('third_party_auth_google_reg_complete'),
+      appleRegComplete: createEventFn('third_party_auth_apple_reg_complete'),
       setPasswordComplete: createEventFn(
         'third_party_auth_set_password_complete'
       ),
