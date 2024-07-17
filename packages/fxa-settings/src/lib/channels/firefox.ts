@@ -303,30 +303,21 @@ export class Firefox extends EventTarget {
   }
 
   async fxaLogin(options: FxALoginRequest): Promise<void> {
-    this.send(FirefoxCommand.Login, options);
-
     // We must wait for the browser to send a web channel message
     // in response to the fxaLogin command. Without this we navigate the user before
     // the login completes, resulting in an "Invalid token" error on the next page.
     return new Promise((resolve) => {
-      const eventHandler = (event: Event) => {
-        const firefoxEvent = event as FirefoxEvent;
-        // we don't need to call this.handleFirefoxEvent here because it's
-        // handled in the constructor. We just want to resolve the promise
-        // if the event is what we expect.
-        const detail =
-          typeof firefoxEvent.detail === 'string'
-            ? (JSON.parse(firefoxEvent.detail) as FirefoxMessageDetail)
-            : firefoxEvent.detail;
-        if (detail.id !== this.id) {
-          return;
-        }
-
-        window.removeEventListener('WebChannelMessageToContent', eventHandler);
-        resolve();
+      const eventHandler = (firefoxEvent: any) => {
+        this.removeEventListener(FirefoxCommand.Login, eventHandler);
+        resolve(firefoxEvent.detail || { ok: false });
       };
+      this.addEventListener(FirefoxCommand.Login, eventHandler);
 
-      window.addEventListener('WebChannelMessageToContent', eventHandler);
+      // requestAnimationFrame ensures the event listener is added first
+      // otherwise, there is a race condition
+      requestAnimationFrame(() => {
+        this.send(FirefoxCommand.Login, options);
+      });
     });
   }
 

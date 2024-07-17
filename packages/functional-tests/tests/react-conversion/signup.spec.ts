@@ -15,6 +15,9 @@ const eventDetailLinkAccount = createCustomEventDetail(
     ok: true,
   }
 );
+const eventDetailFxaLogin = createCustomEventDetail(FirefoxCommand.Login, {
+  ok: true,
+});
 
 test.describe('severity-1 #smoke', () => {
   test.describe('signup react', () => {
@@ -82,6 +85,7 @@ test.describe('severity-1 #smoke', () => {
 
       await signup.fillOutSignupForm(password, AGE_21);
 
+      await signup.respondToWebChannelMessage(eventDetailFxaLogin);
       await signup.checkWebChannelMessage(FirefoxCommand.Login);
       await expect(page).toHaveURL(/confirm_signup_code/);
 
