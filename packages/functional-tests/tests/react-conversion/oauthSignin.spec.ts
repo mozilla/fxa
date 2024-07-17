@@ -42,6 +42,7 @@ test.describe('severity-1 #smoke', () => {
       pages: { page, relier, signin },
       testAccountTracker,
     }) => {
+      test.fixme(true, 'Fix required as of 2024/07/17 (see FXA-10102).');
       const credentials = await testAccountTracker.signUp();
 
       await relier.goto();
