@@ -256,7 +256,7 @@ export const Signup = ({
             {} as Record<string, boolean>
           );
           GleanMetrics.registration.cwts({ sync: { cwts: syncOptions } });
-          await firefox.fxaLogin({
+          firefox.fxaLogin({
             email,
             // keyFetchToken and unwrapBKey should always exist if Sync integration
             keyFetchToken: data.signUp.keyFetchToken!,
