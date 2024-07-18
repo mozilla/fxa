@@ -16,3 +16,5 @@
 3031 # payments server
 7100 # support admin panel
 8002 # pushbox
+3000 # react app
+8290 # graphql api
