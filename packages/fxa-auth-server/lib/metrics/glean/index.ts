@@ -28,10 +28,17 @@ type MetricsData = {
   oauthClientId?: string;
 };
 
+type AdditionalMetricsCallback = (
+  metrics: Record<string, any>
+) => Record<string, any>;
+
 type GleanEventFnOptions = {
   // for certain events, passing in the "client" ip address isn't helpful since
   // the client in question is a service from an RP
   skipClientIp?: boolean;
+
+  // a callback to allow the caller to pass in additional metrics
+  additionalMetrics?: AdditionalMetricsCallback;
 };
 
 type ErrorLoggerFnParams = {
@@ -87,6 +94,27 @@ const findOauthClientId = async (
   return clientId || (await clientIdInService()) || '';
 };
 
+const getMetricMethod = (eventName: string) => {
+  const uppercaseWords = eventName
+    .split('_')
+    .map((word) => `${word[0].toUpperCase()}${word.slice(1)}`)
+    .join('');
+  const methodName = `record${uppercaseWords}`;
+
+  if (
+    !gleanServerEventLogger[methodName as keyof typeof gleanServerEventLogger]
+  ) {
+    process.stderr.write(
+      `Method ${methodName} not found in gleanServerEventLogger`
+    );
+    process.exit(1);
+  }
+
+  return gleanServerEventLogger[
+    methodName as keyof typeof gleanServerEventLogger
+  ] as (args: any) => void;
+};
+
 const createEventFn =
   // On MetricsData: for an event like successful login, the uid isn't known at
   // the time of request since the request itself isn't authenticated.  We'll
@@ -138,134 +166,25 @@ const createEventFn =
       }
 
       // new style Glean events with event metric type
-      switch (eventName) {
-        case 'reg_acc_created':
-          gleanServerEventLogger.recordRegAccCreated(commonMetrics);
-          break;
-        case 'reg_acc_verified':
-          gleanServerEventLogger.recordRegAccVerified(commonMetrics);
-          break;
-        case 'reg_complete':
-          gleanServerEventLogger.recordRegComplete(commonMetrics);
-          break;
-        case 'reg_email_sent':
-          gleanServerEventLogger.recordRegEmailSent(commonMetrics);
-          break;
-        case 'reg_submit_error':
-          gleanServerEventLogger.recordRegSubmitError({
+      const method = getMetricMethod(eventName);
+      const moreMetrics = options?.additionalMetrics
+        ? options.additionalMetrics({
             ...commonMetrics,
-            reason: eventReason,
-          });
-          break;
-        case 'login_success':
-          gleanServerEventLogger.recordLoginSuccess(commonMetrics);
-          break;
-        case 'login_submit_backend_error':
-          gleanServerEventLogger.recordLoginSubmitBackendError({
-            ...commonMetrics,
-            reason: eventReason,
-          });
-          break;
-        case 'login_totp_code_success':
-          gleanServerEventLogger.recordLoginTotpCodeSuccess(commonMetrics);
-          break;
-        case 'login_totp_code_failure':
-          gleanServerEventLogger.recordLoginTotpCodeFailure(commonMetrics);
-          break;
-        case 'login_backup_code_success':
-          gleanServerEventLogger.recordLoginBackupCodeSuccess(commonMetrics);
-          break;
-        case 'login_email_confirmation_sent':
-          gleanServerEventLogger.recordLoginEmailConfirmationSent(
-            commonMetrics
-          );
-          break;
-        case 'login_email_confirmation_success':
-          gleanServerEventLogger.recordLoginEmailConfirmationSuccess(
-            commonMetrics
-          );
-          break;
-        case 'login_complete':
-          gleanServerEventLogger.recordLoginComplete(commonMetrics);
-          break;
-        case 'password_reset_email_sent':
-          gleanServerEventLogger.recordPasswordResetEmailSent(commonMetrics);
-          break;
-        case 'password_reset_create_new_success':
-          gleanServerEventLogger.recordPasswordResetCreateNewSuccess(
-            commonMetrics
-          );
-          break;
-        case 'account_password_reset':
-          gleanServerEventLogger.recordAccountPasswordReset(commonMetrics);
-          break;
-        case 'password_reset_recovery_key_success':
-          gleanServerEventLogger.recordPasswordResetRecoveryKeySuccess(
-            commonMetrics
-          );
-          break;
-        case 'password_reset_recovery_key_create_success':
-          gleanServerEventLogger.recordPasswordResetRecoveryKeyCreateSuccess(
-            commonMetrics
-          );
-          break;
-        case 'password_reset_email_confirmation_sent':
-          gleanServerEventLogger.recordPasswordResetEmailConfirmationSent(
-            commonMetrics
-          );
-          break;
-        case 'password_reset_email_confirmation_success':
-          gleanServerEventLogger.recordPasswordResetEmailConfirmationSuccess(
-            commonMetrics
-          );
-          break;
-        case 'access_token_created':
-          gleanServerEventLogger.recordAccessTokenCreated({
-            ...commonMetrics,
-            reason: eventReason,
-          });
-          break;
-        case 'access_token_checked':
-          gleanServerEventLogger.recordAccessTokenChecked(commonMetrics);
-          break;
-        case 'third_party_auth_google_login_complete':
-          gleanServerEventLogger.recordThirdPartyAuthGoogleLoginComplete({
-            ...commonMetrics,
-            linking: metricsData?.reason === 'linking',
-          });
-          break;
-        case 'third_party_auth_apple_login_complete':
-          gleanServerEventLogger.recordThirdPartyAuthAppleLoginComplete({
-            ...commonMetrics,
-            linking: metricsData?.reason === 'linking',
-          });
-          break;
-        case 'third_party_auth_google_reg_complete':
-          gleanServerEventLogger.recordThirdPartyAuthGoogleRegComplete(
-            commonMetrics
-          );
-          break;
-        case 'third_party_auth_apple_reg_complete':
-          gleanServerEventLogger.recordThirdPartyAuthAppleRegComplete(
-            commonMetrics
-          );
-          break;
-        case 'third_party_auth_set_password_complete':
-          gleanServerEventLogger.recordThirdPartyAuthSetPasswordComplete(
-            commonMetrics
-          );
-          break;
-        case 'account_delete_complete':
-          gleanServerEventLogger.recordAccountDeleteComplete(commonMetrics);
-          break;
-      }
+            ...(metricsData || {}),
+          })
+        : {};
+      method.call(gleanServerEventLogger, { ...commonMetrics, ...moreMetrics });
 
-      await gleanEventLogger.record({
+      gleanEventLogger.record({
         ...commonMetrics,
         event_name: eventName,
         event_reason: eventReason,
       });
     };
+
+const extraKeyReasonCb = (metrics: Record<string, any>) => ({
+  reason: metrics.reason,
+});
 
 export function gleanMetrics(config: ConfigType) {
   appConfig = config;
@@ -288,12 +207,16 @@ export function gleanMetrics(config: ConfigType) {
       confirmationEmailSent: createEventFn('reg_email_sent'),
       accountVerified: createEventFn('reg_acc_verified'),
       complete: createEventFn('reg_complete'),
-      error: createEventFn('reg_submit_error'),
+      error: createEventFn('reg_submit_error', {
+        additionalMetrics: extraKeyReasonCb,
+      }),
     },
 
     login: {
       success: createEventFn('login_success'),
-      error: createEventFn('login_submit_backend_error'),
+      error: createEventFn('login_submit_backend_error', {
+        additionalMetrics: extraKeyReasonCb,
+      }),
       totpSuccess: createEventFn('login_totp_code_success'),
       totpFailure: createEventFn('login_totp_code_failure'),
       recoveryCodeSuccess: createEventFn('login_backup_code_success'),
@@ -317,7 +240,9 @@ export function gleanMetrics(config: ConfigType) {
     },
 
     oauth: {
-      tokenCreated: createEventFn('access_token_created'),
+      tokenCreated: createEventFn('access_token_created', {
+        additionalMetrics: extraKeyReasonCb,
+      }),
       tokenChecked: createEventFn('access_token_checked', {
         skipClientIp: true,
       }),
@@ -325,10 +250,20 @@ export function gleanMetrics(config: ConfigType) {
 
     thirdPartyAuth: {
       googleLoginComplete: createEventFn(
-        'third_party_auth_google_login_complete'
+        'third_party_auth_google_login_complete',
+        {
+          additionalMetrics: (metrics) => ({
+            linking: metrics.reason === 'linking',
+          }),
+        }
       ),
       appleLoginComplete: createEventFn(
-        'third_party_auth_apple_login_complete'
+        'third_party_auth_apple_login_complete',
+        {
+          additionalMetrics: (metrics) => ({
+            linking: metrics.reason === 'linking',
+          }),
+        }
       ),
       googleRegComplete: createEventFn('third_party_auth_google_reg_complete'),
       appleRegComplete: createEventFn('third_party_auth_apple_reg_complete'),
