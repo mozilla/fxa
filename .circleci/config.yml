@@ -281,7 +281,7 @@ commands:
     steps:
       - run:
           name: Linting
-          command: npx nx affected --base=main --head=$CIRCLE_SHA1 --parallel=2 -t lint
+          command: npx nx affected --base=main --head=$CIRCLE_SHA1 --parallel=1 -t lint
 
   compile:
     steps:
