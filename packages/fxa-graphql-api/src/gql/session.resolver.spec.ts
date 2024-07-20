@@ -9,6 +9,13 @@ import { MozLoggerService } from '@fxa/shared/mozlog';
 import { AuthClientService } from '../backend/auth-client.service';
 import { SessionResolver } from './session.resolver';
 
+import { validateSessionToken } from '../auth/session-token.strategy';
+
+jest.mock('../auth/session-token.strategy', () => ({
+  ...jest.requireActual('../auth/session-token.strategy'),
+  validateSessionToken: jest.fn(),
+}));
+
 describe('SessionResolver', () => {
   const headers = new Headers({
     'x-forwarded-for': '123.123.123.123',
@@ -45,6 +52,9 @@ describe('SessionResolver', () => {
 
     resolver = module.get<SessionResolver>(SessionResolver);
   });
+  afterEach(() => {
+    (validateSessionToken as jest.Mock).mockRestore();
+  });
 
   it('should be defined', () => {
     expect(resolver).toBeDefined();
@@ -67,6 +77,21 @@ describe('SessionResolver', () => {
   it('returns the session status', () => {
     const result = resolver.sessionStatus('42420000', 'verified');
     expect(result).toStrictEqual({ state: 'verified', uid: '42420000' });
+  });
+
+  it('validates a session token', async () => {
+    const result = await resolver.isValidToken('aaaa');
+    expect(validateSessionToken as jest.Mock).toBeCalledWith('aaaa');
+    expect(result).toEqual(true);
+  });
+
+  it('invalidates a session token', async () => {
+    (validateSessionToken as jest.Mock).mockImplementation(() => {
+      throw new Error('Invalid token');
+    });
+    const result = await resolver.isValidToken('aaaa');
+    expect(validateSessionToken as jest.Mock).toBeCalledWith('aaaa');
+    expect(result).toEqual(false);
   });
 
   it('reauthenticates a given session with auth-client', async () => {

@@ -13,8 +13,8 @@ import {
 } from 'react';
 
 import { QueryParams } from '../..';
-
-import { currentAccount } from '../../lib/cache';
+import { storeAccountData } from '../../lib/storage-utils';
+import { currentAccount, getAccountByUid } from '../../lib/cache';
 import { firefox } from '../../lib/channels/firefox';
 import * as MetricsFlow from '../../lib/metrics-flow';
 import GleanMetrics from '../../lib/glean';
@@ -23,12 +23,12 @@ import { LinkType, MozServices } from '../../lib/types';
 
 import {
   Integration,
-  isWebIntegration,
   OAuthIntegration,
   useConfig,
   useInitialMetricsQueryState,
   useIntegration,
   useLocalSignedInQueryState,
+  useSession,
 } from '../../models';
 import {
   initializeSettingsContext,
@@ -81,6 +81,7 @@ import ResetPasswordContainer from '../../pages/ResetPasswordRedesign/ResetPassw
 import ConfirmResetPasswordContainer from '../../pages/ResetPasswordRedesign/ConfirmResetPassword/container';
 import CompleteResetPasswordWithCodeContainer from '../../pages/ResetPasswordRedesign/CompleteResetPassword/container';
 import AccountRecoveryConfirmKeyContainer from '../../pages/ResetPasswordRedesign/AccountRecoveryConfirmKey/container';
+import SignoutSync from '../Settings/SignoutSync';
 
 const Settings = lazy(() => import('../Settings'));
 
@@ -88,17 +89,68 @@ export const App = ({
   flowQueryParams,
 }: { flowQueryParams: QueryParams } & RouteComponentProps) => {
   const config = useConfig();
+  const session = useSession();
+  const integration = useIntegration();
+  const isSync = integration != null && integration.isSync();
+  const { data: isSignedInData } = useLocalSignedInQueryState();
 
   // GQL call for minimal metrics data
   const { loading: metricsLoading, data } = useInitialMetricsQueryState() ?? {};
 
+  // Determine if user is actually signed in
+  const [isSignedIn, setIsSignedIn] = useState<boolean | undefined>(undefined);
+  useEffect(() => {
+    if (!integration) {
+      return;
+    }
+
+    // If the local apollo cache says we are signed in, then we can skip the rest.
+    if (isSignedInData?.isSignedIn === true) {
+      setIsSignedIn(true);
+      return;
+    }
+
+    (async () => {
+      let isValidSession = false;
+
+      if (isSync) {
+        // Request and update account data/state to match the browser state.
+        // When we are acessing FxA from the browser menu, the isSync flag will
+        // be set to true. If there is a user actively signed into the browser,
+        // we should try to use that user's account when possible.
+        const syncUser = await firefox.requestSignedInUser(
+          integration!.data.context
+        );
+
+        if (syncUser) {
+          // If the session is valid, try to set it as the current account
+          isValidSession = await session.isValid(syncUser.sessionToken);
+          if (isValidSession) {
+            const cachedUser = getAccountByUid(syncUser.uid);
+            if (cachedUser) {
+              storeAccountData({
+                ...cachedUser,
+                // Make sure we are apply the session token we validated
+                sessionToken: syncUser.sessionToken,
+              });
+            } else {
+              storeAccountData(syncUser);
+            }
+          }
+        }
+      } else {
+        const cachedUser = currentAccount();
+        if (cachedUser?.sessionToken) {
+          isValidSession = await session.isValid(cachedUser.sessionToken);
+        }
+      }
+
+      setIsSignedIn(isValidSession);
+    })();
+  }, [integration, isSync, isSignedInData?.isSignedIn, session]);
+
   // Because this query depends on the result of an initial query (in this case,
   // metrics), we need to run it separately.
-  const { data: isSignedInData } = useLocalSignedInQueryState();
-  const integration = useIntegration();
-
-  const isSignedIn = isSignedInData?.isSignedIn;
-
   const getMetricsEnabled = useCallback(() => {
     if (metricsLoading || !integration || isSignedIn === undefined) {
       return;
@@ -204,34 +256,24 @@ const SettingsRoutes = ({
   integration,
 }: { isSignedIn: boolean; integration: Integration } & RouteComponentProps) => {
   const location = useLocation();
-  // TODO: Remove this + config.sendFxAStatusOnSettings check once we confirm this works
-  const config = useConfig();
+  const isSync = integration != null ? integration.isSync() : false;
 
-  // Request and update account data/state to match the browser state because:
-  // 1) If a user logs in through the browser Sync pairing flow and then accesses
-  // Settings through the browser, they'd have to login again (isSignedIn === false).
-  // 2) If a user disconnects their account through Sync and then logs into another account
-  // using the pairing flow, we hold onto the old session token (isSignedIn === true).
-  const [shouldCheckFxaStatus, setShouldCheckFxaStatus] = useState(
-    // See note above WebIntegration's `isSync` check
-    isWebIntegration(integration) &&
-      integration.isSync() &&
-      config.sendFxAStatusOnSettings
-  );
-  useEffect(() => {
-    (async () => {
-      if (shouldCheckFxaStatus) {
-        await firefox.requestSignedInUser(integration.data.context);
-        setShouldCheckFxaStatus(false);
-      }
-    })();
-  });
+  // If the user is not signed in, they cannot access settings! Direct them accordingly
+  if (!isSignedIn) {
+    const params = new URLSearchParams(window.location.search);
 
-  if (!isSignedIn && !shouldCheckFxaStatus) {
-    const params = new URLSearchParams(location.search);
-    params.set('redirect_to', location.pathname);
-    const path = `/?${params.toString()}`;
-    hardNavigate(path);
+    if (isSync) {
+      // For sync this means we somehow dropped the sign out message, which is
+      // a known issue in android. In this case, our best option is to ask the
+      // user to manually signout from sync.
+      return <SignoutSync />;
+    } else {
+      // For regular RP / web logins, maybe the session token expired. In this
+      // case we just send them to the root.
+      params.set('redirect_to', location.pathname);
+      hardNavigate(`/?${params.toString()}`);
+    }
+
     return <LoadingSpinner fullScreen />;
   }
 

@@ -15,6 +15,7 @@ import {
   useInitialSettingsState,
   useClientInfoState,
   useProductInfoState,
+  useSession,
   Account,
 } from '../../models';
 import {
@@ -23,9 +24,36 @@ import {
   mockAppContext,
   renderWithRouter,
 } from '../../models/mocks';
+import { firefox } from '../../lib/channels/firefox';
+
 import GleanMetrics from '../../lib/glean';
 import config from '../../lib/config';
 import * as utils from 'fxa-react/lib/utils';
+import { currentAccount } from '../../lib/cache';
+
+jest.mock('../../models/contexts/SettingsContext', () => ({
+  ...jest.requireActual('../../models/contexts/SettingsContext'),
+  initializeSettingsContext: jest.fn().mockImplementation(() => {
+    const context = {
+      alertBarInfo: jest.fn(),
+      navigatorLanguages: jest.fn(),
+    };
+
+    return context;
+  }),
+}));
+
+jest.mock('../../lib/channels/firefox', () => ({
+  ...jest.requireActual('../../lib/channels/firefox'),
+  firefox: {
+    requestSignedInUser: jest.fn(),
+  },
+}));
+
+jest.mock('../../lib/cache', () => ({
+  ...jest.requireActual('../../lib/cache'),
+  currentAccount: jest.fn(),
+}));
 
 jest.mock('../../models', () => ({
   ...jest.requireActual('../../models'),
@@ -35,6 +63,7 @@ jest.mock('../../models', () => ({
   useClientInfoState: jest.fn(),
   useProductInfoState: jest.fn(),
   useIntegration: jest.fn(),
+  useSession: jest.fn(),
 }));
 
 jest.mock('react-markdown', () => {});
@@ -202,11 +231,19 @@ describe('glean', () => {
 
 describe('loading spinner states', () => {
   it('when initial metrics query is loading', async () => {
-    (useInitialMetricsQueryState as jest.Mock).mockReturnValueOnce({
+    (useInitialMetricsQueryState as jest.Mock).mockReturnValue({
       loading: true,
     });
-    (useLocalSignedInQueryState as jest.Mock).mockReturnValueOnce({});
-
+    (useLocalSignedInQueryState as jest.Mock).mockReturnValue({
+      data: { isSignedIn: true },
+    });
+    (useSession as jest.Mock).mockReturnValue({
+      isValid: () => true,
+    });
+    (currentAccount as jest.Mock).mockReturnValueOnce({
+      uid: 123,
+      sessionToken: '123',
+    });
     await act(async () => {
       renderWithLocalizationProvider(
         <AppContext.Provider
@@ -227,6 +264,20 @@ describe('loading spinner states', () => {
     (useLocalSignedInQueryState as jest.Mock).mockReturnValueOnce({
       data: undefined,
     });
+    (useIntegration as jest.Mock).mockReturnValue({
+      isSync: jest.fn().mockReturnValueOnce(true),
+      data: {
+        context: {},
+      },
+    });
+    (firefox.requestSignedInUser as jest.Mock).mockImplementationOnce(
+      async () => {
+        return new Promise((resolve, reject) => {
+          // never resolve.
+          // a slow response here is the only way signed in status can be pending
+        });
+      }
+    );
 
     await act(async () => {
       renderWithLocalizationProvider(
@@ -262,22 +313,39 @@ describe('SettingsRoutes', () => {
       loading: false,
     });
     (useIntegration as jest.Mock).mockReturnValue({
-      isSync: jest.fn(),
+      isSync: () => false,
       getServiceName: jest.fn(),
     });
-  });
-  afterEach(() => {
-    hardNavigateSpy.mockRestore();
-  });
-  it('redirects to /signin if isSignedIn is false', async () => {
-    (useLocalSignedInQueryState as jest.Mock).mockReturnValueOnce({
+    (useLocalSignedInQueryState as jest.Mock).mockReturnValue({
       data: { isSignedIn: false },
     });
-    (useIntegration as jest.Mock).mockReturnValue({
-      isSync: jest.fn(),
-      getServiceName: jest.fn(),
+    (useSession as jest.Mock).mockReturnValue({
+      isValid: () => false,
     });
+    (useProductInfoState as jest.Mock).mockReturnValue({
+      loading: false,
+      data: {},
+    });
+    (useClientInfoState as jest.Mock).mockReturnValue({
+      loading: false,
+      data: {},
+    });
+    (useInitialSettingsState as jest.Mock).mockReturnValue({ loading: false });
+  });
 
+  afterEach(() => {
+    hardNavigateSpy.mockRestore();
+    (useIntegration as jest.Mock).mockRestore();
+    (useInitialMetricsQueryState as jest.Mock).mockRestore();
+    (useLocalSignedInQueryState as jest.Mock).mockRestore();
+    (useInitialSettingsState as jest.Mock).mockRestore();
+    (useProductInfoState as jest.Mock).mockRestore();
+    (firefox.requestSignedInUser as jest.Mock).mockRestore();
+    (useClientInfoState as jest.Mock).mockRestore();
+    (useSession as jest.Mock).mockRestore();
+  });
+
+  it('redirects to /signin if isSignedIn is false', async () => {
     let navigateResult: Promise<void>;
     await act(async () => {
       const {
@@ -301,18 +369,99 @@ describe('SettingsRoutes', () => {
       );
     });
   });
+
+  it('redirects to sign out of sync warning', async () => {
+    (useIntegration as jest.Mock).mockReturnValue({
+      isSync: () => true,
+      data: {
+        context: {},
+      },
+    });
+
+    (firefox.requestSignedInUser as jest.Mock).mockImplementationOnce(
+      async () => {
+        return {
+          email: 'test@mozilla.com',
+          uid: '123',
+          sessionToken: '123',
+          verified: true,
+        };
+      }
+    );
+
+    let navigateResult: Promise<void>;
+    await act(async () => {
+      const {
+        history: { navigate },
+      } = renderWithRouter(
+        <AppContext.Provider
+          value={{ ...mockAppContext(), ...createAppContext() }}
+        >
+          <App flowQueryParams={updatedFlowQueryParams} />
+        </AppContext.Provider>,
+        { route: '/' }
+      );
+      navigateResult = navigate(settingsPath);
+    });
+
+    await act(() => navigateResult);
+
+    await waitFor(() => {
+      expect(hardNavigateSpy).not.toHaveBeenCalled();
+    });
+
+    expect(screen.getByText('Session Expired')).toBeInTheDocument();
+  });
+
+  it('restores sync user when session is valid', async () => {
+    (useIntegration as jest.Mock).mockReturnValue({
+      isSync: () => true,
+      data: {
+        context: {},
+      },
+    });
+
+    (firefox.requestSignedInUser as jest.Mock).mockImplementationOnce(
+      async () => {
+        return {
+          email: 'test@mozilla.com',
+          uid: '123',
+          sessionToken: '123',
+          verified: true,
+        };
+      }
+    );
+
+    (useSession as jest.Mock).mockReturnValue({
+      isValid: () => true,
+    });
+
+    let navigateResult: Promise<void>;
+    await act(async () => {
+      const {
+        history: { navigate },
+      } = renderWithRouter(
+        <AppContext.Provider
+          value={{ ...mockAppContext(), ...createAppContext() }}
+        >
+          <App flowQueryParams={updatedFlowQueryParams} />
+        </AppContext.Provider>,
+        { route: '/' }
+      );
+      navigateResult = navigate(settingsPath);
+    });
+
+    await act(() => navigateResult);
+
+    await waitFor(() => {
+      expect(hardNavigateSpy).not.toHaveBeenCalled();
+    });
+    expect(screen.getByTestId('settings-profile')).toBeInTheDocument();
+  });
+
   it('does not redirect if isSignedIn is true', async () => {
-    (useLocalSignedInQueryState as jest.Mock).mockReturnValueOnce({
+    (useLocalSignedInQueryState as jest.Mock).mockReturnValue({
       data: { isSignedIn: true },
-    });
-    (useInitialSettingsState as jest.Mock).mockReturnValue({ loading: false });
-    (useClientInfoState as jest.Mock).mockReturnValue({
-      loading: false,
-      data: {},
-    });
-    (useProductInfoState as jest.Mock).mockReturnValue({
-      loading: false,
-      data: {},
     });
 
     let navigateResult: Promise<void>;
