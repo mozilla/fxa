@@ -2,10 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { GET_LOCAL_SIGNED_IN_STATUS } from '../../components/App/gql';
-import { cache } from '../cache';
-import { StoredAccountData, storeAccountData } from '../storage-utils';
-
 export enum FirefoxCommand {
   AccountDeleted = 'fxaccounts:delete',
   ProfileChanged = 'profile:change',
@@ -353,26 +349,21 @@ export class Firefox extends EventTarget {
     });
   }
 
-  async requestSignedInUser(context: string) {
-    let timeout: NodeJS.Timeout;
-    return Promise.race([
-      new Promise<void>((resolve) => {
+  async requestSignedInUser(
+    context: string
+  ): Promise<undefined | SignedInUser> {
+    let timeout: number;
+    return Promise.race<undefined | SignedInUser>([
+      new Promise<undefined | SignedInUser>((resolve) => {
         const handleFxAStatusEvent = (event: any) => {
-          const status = event.detail as FxAStatusResponse;
-          const signedInUser = status.signedInUser as StoredAccountData;
-          if (signedInUser) {
-            storeAccountData(signedInUser);
-            cache.writeQuery({
-              query: GET_LOCAL_SIGNED_IN_STATUS,
-              data: { isSignedIn: true },
-            });
-          }
+          clearTimeout(timeout);
           this.removeEventListener(
             FirefoxCommand.FxAStatus,
             handleFxAStatusEvent
           );
-          clearTimeout(timeout);
-          resolve();
+
+          const status = event.detail as FxAStatusResponse;
+          resolve(status.signedInUser);
         };
 
         this.addEventListener(FirefoxCommand.FxAStatus, handleFxAStatusEvent);

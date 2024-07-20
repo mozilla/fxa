@@ -6,6 +6,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { deriveHawkCredentials } from 'fxa-auth-client';
 import { SessionToken } from 'fxa-shared/db/models/auth/session-token';
 import { ExtendedError } from 'fxa-shared/nestjs/error';
+import { Token } from 'graphql';
 import { Strategy } from 'passport-http-bearer';
 
 export interface SessionTokenResult {
@@ -15,34 +16,38 @@ export interface SessionTokenResult {
 
 export const SESSION_TOKEN_REGEX = /^(?:[a-fA-F0-9]{2})+$/;
 
+export async function validateSessionToken(token: string) {
+  try {
+    if (!SESSION_TOKEN_REGEX.test(token)) {
+      throw new UnauthorizedException('Invalid token');
+    }
+    const { id } = await deriveHawkCredentials(token, 'sessionToken');
+    const session = await SessionToken.findByTokenId(id);
+    if (!session) {
+      throw new UnauthorizedException('Invalid token');
+    }
+    if (
+      session.mustVerify &&
+      (!session.tokenVerified || !session.emailVerified)
+    ) {
+      throw new UnauthorizedException('Must verify');
+    }
+    return { token, session };
+  } catch (err) {
+    if (err.status) {
+      // Re-throw NestJS errors that include a status.
+      throw err;
+    }
+    throw ExtendedError.withCause(
+      'Unexpected error during authentication.',
+      err
+    );
+  }
+}
+
 @Injectable()
 export class SessionTokenStrategy extends PassportStrategy(Strategy) {
   async validate(token: string): Promise<SessionTokenResult> {
-    try {
-      if (!SESSION_TOKEN_REGEX.test(token)) {
-        throw new UnauthorizedException('Invalid token');
-      }
-      const { id } = await deriveHawkCredentials(token, 'sessionToken');
-      const session = await SessionToken.findByTokenId(id);
-      if (!session) {
-        throw new UnauthorizedException('Invalid token');
-      }
-      if (
-        session.mustVerify &&
-        (!session.tokenVerified || !session.emailVerified)
-      ) {
-        throw new UnauthorizedException('Must verify');
-      }
-      return { token, session };
-    } catch (err) {
-      if (err.status) {
-        // Re-throw NestJS errors that include a status.
-        throw err;
-      }
-      throw ExtendedError.withCause(
-        'Unexpected error during authentication.',
-        err
-      );
-    }
+    return validateSessionToken(token);
   }
 }

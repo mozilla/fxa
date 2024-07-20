@@ -81,5 +81,5 @@ export function setCurrentAccount(uid: string) {
 export function storeAccountData(accountData: StoredAccountData) {
   persistAccount(accountData);
   setCurrentAccount(accountData.uid);
-  sessionToken(accountData.sessionToken);
+  sessionToken(accountData.sessionToken); // Can we remove this? It seems unnecessary...
 }

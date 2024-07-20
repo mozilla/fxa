@@ -27,6 +27,7 @@ import { SessionVerifyCodeInput } from './dto/input/session-verify-code';
 import { ConsumeRecoveryCodePayload } from './dto/payload/consume-recovery-code';
 import { ConsumeRecoveryCodeInput } from './dto/input/consume-recovery-code';
 import { UnverifiedSessionGuard } from '../auth/unverified-session-guard';
+import { validateSessionToken } from '../auth/session-token.strategy';
 
 @Resolver((of: any) => SessionType)
 export class SessionResolver {
@@ -58,6 +59,18 @@ export class SessionResolver {
     return {
       verified: state === 'verified',
     } as SessionType;
+  }
+
+  @Query((returns) => Boolean)
+  async isValidToken(
+    @Args('sessionToken', { nullable: false }) sessionToken: string
+  ) {
+    try {
+      await validateSessionToken(sessionToken);
+      return true;
+    } catch (err) {
+      return false;
+    }
   }
 
   @Query((returns) => SessionStatus)
