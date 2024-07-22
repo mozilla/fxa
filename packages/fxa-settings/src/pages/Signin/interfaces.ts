@@ -54,7 +54,7 @@ export interface SigninProps {
   avatarLoading: boolean;
   localizedErrorFromLocationState?: string;
   finishOAuthFlowHandler: FinishOAuthFlowHandler;
-  sensitiveDataClient: SensitiveDataClient;
+  setSensitiveData: (key: string, value: any) => void;
 }
 
 export type BeginSigninHandler = (

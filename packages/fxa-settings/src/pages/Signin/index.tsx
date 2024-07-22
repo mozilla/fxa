@@ -57,7 +57,7 @@ const Signin = ({
   avatarLoading,
   localizedErrorFromLocationState,
   finishOAuthFlowHandler,
-  sensitiveDataClient,
+  setSensitiveData,
 }: SigninProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const location = useLocation();
@@ -238,7 +238,7 @@ const Signin = ({
               }
 
               // Store password to be used in another component
-              sensitiveDataClient.setData('auth', {
+              setSensitiveData('auth', {
                 password,
               });
               // navigate only if sending the unblock code email is successful
@@ -277,7 +277,7 @@ const Signin = ({
       integration,
       location.search,
       webRedirectCheck,
-      sensitiveDataClient,
+      setSensitiveData,
     ]
   );
 

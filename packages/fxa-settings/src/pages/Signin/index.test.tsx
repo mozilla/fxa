@@ -77,18 +77,6 @@ jest.mock('../../lib/storage-utils', () => ({
   storeAccountData: jest.fn(),
 }));
 
-const mockSetData = jest.fn();
-jest.mock('../../models', () => {
-  return {
-    ...jest.requireActual('../../models'),
-    useSensitiveDataClient: () => {
-      return {
-        setData: mockSetData,
-      };
-    },
-  };
-});
-
 const mockLocation = () => {
   return {
     pathname: '/signin',
@@ -546,13 +534,18 @@ describe('Signin', () => {
             errno: AuthUiErrors.THROTTLED.errno,
           })
         );
+        const setSensitiveData = jest.fn();
         const sendUnblockEmailHandler = jest.fn().mockReturnValueOnce({});
-        render({ beginSigninHandler, sendUnblockEmailHandler });
+        render({
+          beginSigninHandler,
+          sendUnblockEmailHandler,
+          setSensitiveData,
+        });
 
         enterPasswordAndSubmit();
         await waitFor(() => {
           expect(sendUnblockEmailHandler).toHaveBeenCalled();
-          expect(mockSetData).toHaveBeenCalledWith('auth', {
+          expect(setSensitiveData).toHaveBeenCalledWith('auth', {
             password: MOCK_PASSWORD,
           });
           expect(mockNavigate).toHaveBeenCalledWith('/signin_unblock', {

@@ -401,6 +401,8 @@ export const mockBeginSigninHandlerWithKeys: BeginSigninHandler = () =>
 export const mockCachedSigninHandler: CachedSigninHandler = () =>
   Promise.resolve(CACHED_SIGNIN_HANDLER_RESPONSE);
 
+export const mockSetSensitiveData = (key: string, value: any) => {};
+
 export const mockSendUnblockEmailHandler: SendUnblockEmailHandler = () =>
   Promise.resolve(SEND_UNBLOCK_EMAIL_HANDLER_RESPONSE);
 
@@ -417,6 +419,7 @@ export const Subject = ({
   cachedSigninHandler = mockCachedSigninHandler,
   sendUnblockEmailHandler = mockSendUnblockEmailHandler,
   finishOAuthFlowHandler = mockFinishOAuthFlowHandler,
+  setSensitiveData = mockSetSensitiveData,
   ...props // overrides
 }: Partial<SigninProps> = {}) => {
   return (
@@ -435,6 +438,7 @@ export const Subject = ({
           hasPassword,
           avatarData,
           avatarLoading,
+          setSensitiveData,
           ...props,
         }}
       />

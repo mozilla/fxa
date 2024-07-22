@@ -88,12 +88,19 @@ function applyDefaultMocks() {
   mockSentryModule();
 }
 
+const mockSetData = jest.fn();
 jest.mock('../../models', () => {
   return {
     ...jest.requireActual('../../models'),
     useAuthClient: jest.fn(),
+    useSensitiveDataClient: () => {
+      return {
+        setData: mockSetData,
+      };
+    },
   };
 });
+
 const mockAuthClient = new AuthClient('http://localhost:9000', {
   keyStretchVersion: 1,
 });

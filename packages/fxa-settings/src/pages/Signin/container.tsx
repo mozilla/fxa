@@ -404,6 +404,8 @@ const SigninContainer = ({
     return <LoadingSpinner fullScreen />;
   }
 
+  const setSensitiveData = sensitiveDataClient.setData;
+
   return (
     <Signin
       {...{
@@ -420,7 +422,7 @@ const SigninContainer = ({
         avatarLoading,
         localizedErrorFromLocationState,
         finishOAuthFlowHandler,
-        sensitiveDataClient,
+        setSensitiveData,
       }}
     />
   );
