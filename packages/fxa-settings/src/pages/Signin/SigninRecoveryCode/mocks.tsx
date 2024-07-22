@@ -36,6 +36,7 @@ export const mockWebIntegration = {
   getService: () => MozServices.Default,
   isSync: () => false,
   wantsKeys: () => false,
+  data: {},
 } as Integration;
 
 export * from '../../mocks';
