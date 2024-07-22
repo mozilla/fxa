@@ -253,7 +253,7 @@
     "style-loader": "^4.0.0",
     "ts-jest": "^29.1.2",
     "type-fest": "^4.18.1",
-    "typescript": "^5.4.2",
+    "typescript": "^5.5.3",
     "webpack": "^5.84.1"
   },
   "nx": {
