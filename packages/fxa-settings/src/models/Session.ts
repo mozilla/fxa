@@ -30,6 +30,12 @@ export const GET_SESSION_VERIFIED = gql`
   }
 `;
 
+export const GET_SESSION_IS_VALID = gql`
+  query GetSessionIsValid($sessionToken: String!) {
+    isValidToken(sessionToken: $sessionToken)
+  }
+`;
+
 export const DESTROY_SESSION = gql`
   mutation DestroySession {
     destroySession(input: {}) {
@@ -143,5 +149,25 @@ export class Session implements SessionData {
       },
     });
     return sessionStatus;
+  }
+
+  async isValid(sessionToken: string) {
+    // If the current session token is valid, the folloiwng query will succeed.
+    // If current session is not valid an 'Invalid Token' error will be thrown.
+    const query = GET_SESSION_IS_VALID;
+    const { data } = await this.apolloClient.query({
+      fetchPolicy: 'network-only',
+      query,
+      variables: { sessionToken },
+    });
+    if (data?.isValidToken === true) {
+      this.apolloClient.cache.writeQuery({
+        query: GET_LOCAL_SIGNED_IN_STATUS,
+        data: { isSignedIn: true },
+      });
+      return true;
+    }
+
+    return false;
   }
 }

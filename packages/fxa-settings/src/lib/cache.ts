@@ -64,6 +64,11 @@ export function currentAccount(
   return all[uid];
 }
 
+export function getAccountByUid(uid: string) {
+  const all = accounts() || {};
+  return all[uid];
+}
+
 export function lastStoredAccount() {
   const all = accounts() || {};
 
