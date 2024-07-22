@@ -19,7 +19,6 @@ import {
   ServicesWithCapabilitiesQueryFactory,
   ServicesWithCapabilitiesResult,
   StrapiClient,
-  MockCMSConfigProvider,
   MockStrapiClientConfigProvider,
   StrapiEntityFactory,
 } from '@fxa/shared/cms';
@@ -35,7 +34,6 @@ describe('CapabilityManager', () => {
     const module = await Test.createTestingModule({
       providers: [
         CapabilityManager,
-        MockCMSConfigProvider,
         MockStrapiClientConfigProvider,
         MockFirestoreProvider,
         MockStatsDProvider,

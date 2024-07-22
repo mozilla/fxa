@@ -13,7 +13,6 @@ import {
   StripeProductFactory,
 } from '@fxa/payments/stripe';
 import {
-  MockCMSConfigProvider,
   ProductConfigurationManager,
   PurchaseWithDetailsOfferingContentTransformedFactory,
   PurchaseWithDetailsOfferingContentUtil,
@@ -40,7 +39,6 @@ describe('StripeMapperService', () => {
     const module = await Test.createTestingModule({
       providers: [
         MockStrapiClientConfigProvider,
-        MockCMSConfigProvider,
         MockFirestoreProvider,
         MockStatsDProvider,
         PriceManager,

@@ -48,7 +48,6 @@ import {
 } from '@fxa/payments/stripe';
 import { AccountManager } from '@fxa/shared/account/account';
 import {
-  MockCMSConfigProvider,
   MockStrapiClientConfigProvider,
   ProductConfigurationManager,
   StrapiClient,
@@ -88,7 +87,6 @@ describe('CheckoutService', () => {
         AccountManager,
         CartManager,
         CheckoutService,
-        MockCMSConfigProvider,
         MockStrapiClientConfigProvider,
         CustomerManager,
         EligibilityManager,
