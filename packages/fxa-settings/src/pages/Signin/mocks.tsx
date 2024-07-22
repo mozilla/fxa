@@ -7,7 +7,7 @@ import Signin from '.';
 import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
 import { MozServices } from '../../lib/types';
-import { IntegrationType } from '../../models';
+import { AppContext, IntegrationType } from '../../models';
 import {
   MOCK_AUTH_AT,
   MOCK_EMAIL,
@@ -56,6 +56,7 @@ import {
 import { ApolloError } from '@apollo/client';
 import { GraphQLError } from 'graphql';
 import { BeginSigninError } from '../../lib/error-utils';
+import { mockAppContext } from '../../models/mocks';
 
 // Extend base mocks
 export * from '../mocks';
@@ -421,23 +422,25 @@ export const Subject = ({
 }: Partial<SigninProps> = {}) => {
   return (
     <LocationProvider>
-      <Signin
-        {...{
-          integration,
-          email,
-          sessionToken,
-          serviceName,
-          hasLinkedAccount,
-          finishOAuthFlowHandler,
-          beginSigninHandler,
-          cachedSigninHandler,
-          sendUnblockEmailHandler,
-          hasPassword,
-          avatarData,
-          avatarLoading,
-          ...props,
-        }}
-      />
+      <AppContext.Provider value={mockAppContext()}>
+        <Signin
+          {...{
+            integration,
+            email,
+            sessionToken,
+            serviceName,
+            hasLinkedAccount,
+            finishOAuthFlowHandler,
+            beginSigninHandler,
+            cachedSigninHandler,
+            sendUnblockEmailHandler,
+            hasPassword,
+            avatarData,
+            avatarLoading,
+            ...props,
+          }}
+        />
+      </AppContext.Provider>
     </LocationProvider>
   );
 };
