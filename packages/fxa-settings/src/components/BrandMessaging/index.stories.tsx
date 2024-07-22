@@ -5,29 +5,18 @@
 import React from 'react';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import { BrandMessagingPortal } from '.';
-import { MockSettingsAppLayout } from '../Settings/AppLayout/mocks';
+import { BrandMessaging } from '.';
 
 export default {
   title: 'Components/BrandMessaging',
-  component: BrandMessagingPortal,
+  component: BrandMessaging,
   decorators: [withLocalization],
 } as Meta;
 
-export const NoLaunch = () => (
-  <MockSettingsAppLayout>
-    <BrandMessagingPortal viewName="storybook" />
-  </MockSettingsAppLayout>
-);
-
 export const PreLaunch = () => (
-  <MockSettingsAppLayout>
-    <BrandMessagingPortal mode="prelaunch" viewName="storybook" />
-  </MockSettingsAppLayout>
+  <BrandMessaging mode="prelaunch" viewName="storybook" />
 );
 
 export const PostLaunch = () => (
-  <MockSettingsAppLayout>
-    <BrandMessagingPortal mode="postlaunch" viewName="storybook" />
-  </MockSettingsAppLayout>
+  <BrandMessaging mode="postlaunch" viewName="storybook" />
 );
