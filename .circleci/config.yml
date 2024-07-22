@@ -46,6 +46,7 @@ parameters:
 
 orbs:
   browser-tools: circleci/browser-tools@1.2.3
+  gcp-cli: circleci/gcp-cli@3.2.1
   jira: circleci/jira@1.3.1
 
 executors:
@@ -522,6 +523,19 @@ jobs:
           command: ./.circleci/docker-deploy-fxa.sh << pipeline.id >>
       - store-artifacts
 
+  deploy-fxa-image-to-gar:
+    executor: docker-build-executor
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - gcp-cli/setup:
+          use_oidc: true
+      - run:
+          name: Push to GAR
+          command: ./.circleci/docker-deploy-fxa-to-gar.sh << pipeline.id >>
+      - store-artifacts
+
   # This deploys docker images that are useful for CI testing. Think of this image as
   # the last known good build state of fxa. The images are designed to come to help spin
   # up jobs as quickly as possible.
@@ -928,6 +942,11 @@ workflows:
           name: Deploy FxA Image (requested)
           requires:
             - Create FxA Image (requested)
+      - deploy-fxa-image-to-gar:
+          name: Deploy FxA Image to GAR (requested)
+          requires:
+            - Create FxA Image (requested)
+          context: mozilla-fxa-gcp-oidc
 
   deploy_ci_images:
     # This workflow is triggered after a PR lands on main. The workflow will
@@ -1106,6 +1125,25 @@ workflows:
             - Integration Test - Libraries
             - Functional Tests - Playwright
             - Create FxA Image
+      - deploy-fxa-image-to-gar:
+          name: Deploy FxA Image to GAR
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /.*/
+          requires:
+            - Lint
+            - Compile
+            - Unit Test
+            - Integration Test - Frontends
+            - Integration Test - Servers
+            - Integration Test - Servers - Auth
+            - Integration Test - Servers - Auth V2
+            - Integration Test - Libraries
+            - Functional Tests - Playwright
+            - Create FxA Image
+          context: mozilla-fxa-gcp-oidc
 
   nightly:
     # This work flow runs a full build, test suite, and deployment of docker images nightly
@@ -1208,6 +1246,11 @@ workflows:
           name: Deploy FxA Image (nightly)
           requires:
             - Create FxA Image (nightly)
+      - deploy-fxa-image-to-gar:
+          name: Deploy FxA Image to GAR (nightly)
+          requires:
+            - Create FxA Image (nightly)
+          context: mozilla-fxa-gcp-oidc
       - deploy-fxa-ci-images:
           name: Deploy CI Images (nightly)
           executor:

@@ -11,6 +11,9 @@ DOCKER_USER=DOCKER_USER_${MODULE//-/_}
 DOCKER_PASS=DOCKER_PASS_${MODULE//-/_}
 DOCKERHUB_REPO=mozilla/${MODULE}
 
+GAR_REPO=us-docker.pkg.dev/moz-fx-fxa-prod/fxa-prod/fxa-mono
+gcloud auth configure-docker us-docker.pkg.dev
+
 DIR=$(dirname "$0")
 cd "$DIR"
 
@@ -45,9 +48,9 @@ if [ -n "${DOCKER_TAG}" ] && [ -n "${!DOCKER_PASS}" ] && [ -n "${!DOCKER_USER}" 
     echo ""
 
     docker pull "${DOCKERHUB_REPO}:${TAG}"
-    docker tag "${DOCKERHUB_REPO}:${TAG}" "${DOCKERHUB_REPO}:${DOCKER_TAG}"
-    docker push "${DOCKERHUB_REPO}:${DOCKER_TAG}"
-    docker rmi "${DOCKERHUB_REPO}:${TAG}" "${DOCKERHUB_REPO}:${DOCKER_TAG}"
+    docker tag "${DOCKERHUB_REPO}:${TAG}" "${GAR_REPO}:${DOCKER_TAG}"
+    docker push "${GAR_REPO}:${DOCKER_TAG}"
+    docker rmi "${DOCKERHUB_REPO}:${TAG}" "${GAR_REPO}:${DOCKER_TAG}"
   else
     echo "--------------------------------------------------"
     echo "skipping $MODULE ($DOCKERHUB_REPO:$TAG not found)"
