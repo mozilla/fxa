@@ -24,7 +24,6 @@ import { usePageViewEvent } from '../../lib/metrics';
 import { StoredAccountData, storeAccountData } from '../../lib/storage-utils';
 import {
   isOAuthIntegration,
-  useSensitiveDataClient,
   useFtlMsgResolver,
   isWebIntegration,
 } from '../../models';
@@ -58,13 +57,13 @@ const Signin = ({
   avatarLoading,
   localizedErrorFromLocationState,
   finishOAuthFlowHandler,
+  sensitiveDataClient,
 }: SigninProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const location = useLocation();
   const navigate = useNavigate();
   const ftlMsgResolver = useFtlMsgResolver();
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
-  const sensitiveDataClient = useSensitiveDataClient();
 
   const [bannerError, setBannerError] = useState(
     localizedErrorFromLocationState || ''

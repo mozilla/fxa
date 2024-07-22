@@ -10,6 +10,7 @@ import {
   useFtlMsgResolver,
   useConfig,
   useSession,
+  useSensitiveDataClient,
 } from '../../models';
 import { MozServices } from '../../lib/types';
 import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
@@ -118,6 +119,7 @@ const SigninContainer = ({
     state?: LocationState;
   };
   const session = useSession();
+  const sensitiveDataClient = useSensitiveDataClient();
 
   const { queryParamModel, validationError } =
     useValidatedQueryParams(SigninQueryParams);
@@ -418,6 +420,7 @@ const SigninContainer = ({
         avatarLoading,
         localizedErrorFromLocationState,
         finishOAuthFlowHandler,
+        sensitiveDataClient,
       }}
     />
   );

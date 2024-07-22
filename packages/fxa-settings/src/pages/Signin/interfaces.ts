@@ -8,6 +8,7 @@ import { AuthUiError } from '../../lib/auth-errors/auth-errors';
 import { BeginSigninError } from '../../lib/error-utils';
 import { AccountAvatar } from '../../lib/interfaces';
 import { FinishOAuthFlowHandler } from '../../lib/oauth/hooks';
+import { SensitiveDataClient } from '../../lib/sensitive-data-client';
 import { MozServices } from '../../lib/types';
 import { Account, Integration } from '../../models';
 
@@ -53,6 +54,7 @@ export interface SigninProps {
   avatarLoading: boolean;
   localizedErrorFromLocationState?: string;
   finishOAuthFlowHandler: FinishOAuthFlowHandler;
+  sensitiveDataClient: SensitiveDataClient;
 }
 
 export type BeginSigninHandler = (
