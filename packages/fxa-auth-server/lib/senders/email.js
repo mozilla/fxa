@@ -8,7 +8,7 @@ const emailUtils = require('../email/utils/helpers');
 const moment = require('moment-timezone');
 const AWS = require('aws-sdk');
 const nodemailer = require('nodemailer');
-const safeUserAgent = require('../userAgent/safe');
+const safeUserAgent = require('fxa-shared/lib/user-agent').default;
 const url = require('url');
 const { URL } = url;
 const {
@@ -335,9 +335,9 @@ module.exports = function (log, config, bounces) {
   };
 
   Mailer.prototype._formatUserAgentInfo = function (message) {
-    const uaBrowser = safeUserAgent.name(message.uaBrowser);
-    const uaOS = safeUserAgent.name(message.uaOS);
-    const uaOSVersion = safeUserAgent.version(message.uaOSVersion);
+    const uaBrowser = safeUserAgent.safeName(message.uaBrowser);
+    const uaOS = safeUserAgent.safeName(message.uaOS);
+    const uaOSVersion = safeUserAgent.safeVersion(message.uaOSVersion);
 
     return !uaBrowser && !uaOS
       ? null

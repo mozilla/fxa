@@ -15,7 +15,7 @@ const {
 const config = require('../config');
 const amplitudeConfig = config.get('amplitude');
 const log = require('./logging/log')();
-const ua = require('fxa-shared/metrics/user-agent');
+const ua = require('fxa-shared/lib/user-agent');
 const { version: VERSION } = require('../../package.json');
 const Sentry = require('@sentry/node');
 const { Container } = require('typedi');

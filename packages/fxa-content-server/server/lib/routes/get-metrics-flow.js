@@ -142,10 +142,10 @@ module.exports = function (config, glean) {
       if (metricTypes) {
         switch (metricTypes.amplitude) {
           case 'screen.enter-email':
-            glean.rp.formView(metricsData, 'email');
+            glean.rp.formView(req, { flowId, reason: 'email' });
             break;
           case 'screen.rp-button':
-            glean.rp.formView(metricsData, 'button');
+            glean.rp.formView(req, { flowId, reason: 'button' });
             break;
         }
         amplitude(

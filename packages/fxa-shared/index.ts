@@ -11,7 +11,7 @@ import featureFlags from './feature-flags';
 import amplitude from './metrics/amplitude';
 import flowPerformance from './metrics/flow-performance';
 import navigationTimingSchema from './metrics/navigation-timing-validation';
-import userAgent from './metrics/user-agent';
+import userAgent from './lib/user-agent';
 import scopes from './oauth/scopes';
 import {
   metadataFromPlan,
@@ -35,13 +35,13 @@ module.exports = {
     amplitude,
     flowPerformance,
     navigationTimingSchema,
-    userAgent,
   },
   oauth: {
     scopes,
   },
   lib: {
     errors,
+    userAgent,
   },
   subscriptions: {
     metadata: {

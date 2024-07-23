@@ -25,7 +25,7 @@ const {
   validate,
 } = require('fxa-shared/metrics/amplitude').amplitude;
 const logger = require('./logging/log')();
-const ua = require('fxa-shared/metrics/user-agent').default;
+const ua = require('fxa-shared/lib/user-agent').default;
 const config = require('./configuration');
 const { version: VERSION } = require('../../package.json');
 
