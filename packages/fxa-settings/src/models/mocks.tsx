@@ -21,6 +21,7 @@ import { getDefault } from '../lib/config';
 import { AlertBarInfo } from './AlertBarInfo';
 import { ReachRouterWindow } from '../lib/window';
 import { UrlQueryData } from '../lib/model-data';
+import { SensitiveDataClient } from '../lib/sensitive-data-client';
 
 const DEFAULT_APP_CONTEXT = defaultAppContext();
 export const MOCK_ACCOUNT: AccountData =
@@ -121,6 +122,10 @@ export function mockSession(
   return session;
 }
 
+export function mockSensitiveDataClient() {
+  return new SensitiveDataClient();
+}
+
 export function mockStorage() {
   return {
     get: () => 'deadc0de',
@@ -166,6 +171,7 @@ export function mockAppContext(context?: AppContextValue) {
       account: MOCK_ACCOUNT,
       session: mockSession(),
       config: getDefault(),
+      sensitiveDataClient: mockSensitiveDataClient(),
     },
     context
   ) as AppContextValue;

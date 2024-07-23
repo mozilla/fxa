@@ -6,47 +6,52 @@ import React from 'react';
 import { Meta } from '@storybook/react';
 
 import {
-  RecoveryCodesImage,
-  MailImage,
+  EmailCodeImage,
   HeartsBrokenImage,
   HeartsVerifiedImage,
-  TwoFactorAuthImage,
-  SecurityShieldImage,
-  LockImage,
-  RecoveryKeyImage,
   LightbulbImage,
+  LockImage,
+  MailImage,
+  RecoveryCodesImage,
+  RecoveryKeyImage,
+  SecurityShieldImage,
+  TwoFactorAuthImage,
 } from '.';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 
 export default {
   title: 'Components/Images',
   subcomponents: {
-    RecoveryCodesImage,
-    MailImage,
+    EmailCodeImage,
     HeartsBrokenImage,
     HeartsVerifiedImage,
-    TwoFactorAuthImage,
+    LightbulbImage,
+    LockImage,
+    MailImage,
+    RecoveryCodesImage,
+    RecoveryKeyImage,
     SecurityShieldImage,
+    TwoFactorAuthImage,
   },
   decorators: [withLocalization],
 } as Meta;
 
-export const RecoveryCodes = () => <RecoveryCodesImage />;
-
-export const Mail = () => <MailImage />;
+export const EmailCode = () => <EmailCodeImage />;
 
 export const HeartsBroken = () => <HeartsBrokenImage />;
 
 export const HeartsVerified = () => <HeartsVerifiedImage />;
 
-export const TwoFactorAuth = () => <TwoFactorAuthImage />;
-
-export const SecurityShield = () => <SecurityShieldImage />;
-
-export const Lock = () => <LockImage />;
-
 export const Key = () => <RecoveryKeyImage />;
 
 export const Lightbulb = () => <LightbulbImage />;
 
-export const EmailCode = () => <EmailCode />;
+export const Lock = () => <LockImage />;
+
+export const Mail = () => <MailImage />;
+
+export const RecoveryCodes = () => <RecoveryCodesImage />;
+
+export const SecurityShield = () => <SecurityShieldImage />;
+
+export const TwoFactorAuth = () => <TwoFactorAuthImage />;
