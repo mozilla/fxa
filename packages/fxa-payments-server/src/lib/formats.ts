@@ -12,7 +12,7 @@ import { PlanInterval } from '../store/types';
 const baseCurrencyOptions = {
   style: 'currency',
   currencyDisplay: 'symbol',
-};
+} as any; // FIXME: satisfies should be used, but is included in builds resulting in build errors
 
 /**
  * This method is used to provide Fluent with a localizable value that can be formatted per .ftl file based on localization requirements
