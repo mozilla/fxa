@@ -63,7 +63,7 @@ module.exports = function (grunt) {
 
       clientWalker.on('end', function () {
         var authWalker = extract({
-          exclude: /pages\/dist/,
+          exclude: /(pages\/dist)|(glean\/server_events\.js)/,
           'input-dir': path.join(__dirname, '..', 'server'),
           joinExisting: true,
           keyword: ['t', 'unsafeTranslate'],

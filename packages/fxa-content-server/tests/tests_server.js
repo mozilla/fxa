@@ -12,6 +12,7 @@ module.exports = [
   'tests/server/csp.js',
   'tests/server/flow-event.js',
   'tests/server/flow-metrics.js',
+  'tests/server/glean.js',
   'tests/server/html-middleware.js',
   'tests/server/l10n.js',
   'tests/server/lang.js',

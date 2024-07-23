@@ -134,6 +134,29 @@ relying_party:
     data_sensitivity:
       - technical
 
+  form_view:
+    type: event
+    description: |
+      The Relying Party is using a button or a form with an input for an email
+      address to take the user to FxA.  The RP has displayed the form to the
+      user.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-10061
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      type:
+        description: the type of form the RP showed the user
+        type: string
+
 session:
   flow_id:
     type: string

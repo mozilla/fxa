@@ -67,6 +67,7 @@ const csp = require('../lib/csp');
 const { tryCaptureValidationError } = require('../lib/sentry');
 const cspRulesBlocking = require('../lib/csp/blocking')(config);
 const cspRulesReportOnly = require('../lib/csp/report-only')(config);
+const glean = require('../lib/glean')(config.getProperties());
 
 const STATIC_DIRECTORY = path.join(
   __dirname,
@@ -187,7 +188,7 @@ function makeApp() {
 
   app.use(noindex);
 
-  const routes = require('../lib/routes')(config, i18n, statsd);
+  const routes = require('../lib/routes')(config, i18n, statsd, glean);
   const routeLogger = loggerFactory('server.routes');
   const routeHelpers = routing(app, routeLogger);
 
