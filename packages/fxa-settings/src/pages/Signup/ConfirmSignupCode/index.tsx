@@ -194,26 +194,24 @@ const ConfirmSignupCode = ({
             return;
           }
 
-          if (integration.isSync()) {
-            // Not sure if you need this? If you do, you might
-            // just need to remove if (integration.isSync()) {.
-            firefox.fxaOAuthLogin({
-              declinedSyncEngines,
-              offeredSyncEngines,
-              action: 'signup',
-              code,
-              redirect,
-              state,
-            });
-            // Mobile sync will close the web view, OAuth Desktop mimics DesktopV3 behavior
-            const { to } = getSyncNavigate(location.search);
-            hardNavigate(to);
-            return;
-          } else {
-            // Navigate to relying party
-            hardNavigate(redirect);
-            return;
-          }
+          // if (integration.isSync()) {
+          firefox.fxaOAuthLogin({
+            declinedSyncEngines,
+            offeredSyncEngines,
+            action: 'signup',
+            code,
+            redirect,
+            state,
+          });
+          // Mobile sync will close the web view, OAuth Desktop mimics DesktopV3 behavior
+          const { to } = getSyncNavigate(location.search);
+          hardNavigate(to);
+          return;
+          // } else {
+          //   // Navigate to relying party
+          //   hardNavigate(redirect);
+          //   return;
+          // }
         }
       } else if (isWebIntegration(integration)) {
         // SubPlat redirect
