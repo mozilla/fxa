@@ -195,6 +195,8 @@ const ConfirmSignupCode = ({
           }
 
           if (integration.isSync()) {
+            // Not sure if you need this? If you do, you might
+            // just need to remove if (integration.isSync()) {.
             firefox.fxaOAuthLogin({
               declinedSyncEngines,
               offeredSyncEngines,

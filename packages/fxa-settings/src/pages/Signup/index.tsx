@@ -243,7 +243,7 @@ export const Signup = ({
         const getOfferedSyncEngines = () =>
           getSyncEngineIds(offeredSyncEngineConfigs || []);
 
-        if (integration.isSync()) {
+        if (isOAuthIntegration(integration)) {
           const syncEngines = {
             offeredEngines: getOfferedSyncEngines(),
             declinedEngines: declinedSyncEngines,
@@ -265,7 +265,7 @@ export const Signup = ({
             uid: data.signUp.uid,
             verified: false,
             services: {
-              sync: syncEngines,
+              relay: {},
             },
           });
         } else {

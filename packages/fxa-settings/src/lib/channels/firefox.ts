@@ -81,12 +81,16 @@ export type FxALoginRequest = {
   keyFetchToken?: hexstring;
   unwrapBKey?: string;
   verifiedCanLinkAccount?: boolean;
-  services?: {
-    sync: {
-      offeredEngines?: string[];
-      declinedEngines?: string[];
-    };
-  };
+  services?:
+    | {
+        sync: {
+          offeredEngines?: string[];
+          declinedEngines?: string[];
+        };
+      }
+    | {
+        relay: {};
+      };
 };
 
 // ref: [FxAccounts.sys.mjs](https://searchfox.org/mozilla-central/rev/82828dba9e290914eddd294a0871533875b3a0b5/services/fxaccounts/FxAccounts.sys.mjs#910)
