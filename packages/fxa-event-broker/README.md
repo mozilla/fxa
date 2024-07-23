@@ -44,35 +44,55 @@ should terminate user login sessions that were established prior to the event.
 
 ### Profile Change
 
-Sent when a user has changed their profile data in some manner. Updates to their
-profile may include a new primary email address, display name, or 2FA status. This
-event does not include what changed and the profile data a service has access to
-may not show any changes if the data changed was outside the OAuth scope the service
-was granted.
+This event is sent when a user's profile data has changed in some manner. Changes to any of the following user data will trigger this event.
 
-Services should update any cached profile data they hold about the user.
+- Display Name - This can be changed on the account settings page
+- Email Address - This can be changed on the settings page
+- Profile Image - This can be changed on the settings page
+- Metrics Collection Enabled - This can be changed on the account settings page through the ‘Help Improve Mozilla Accounts’ option in the `Data Collection and Use` section.
+- Locale - This can be changed through the admin panel, and represents their language preference.
+- Totp Enabled - This can be changed through the admin panel.
+- Account Disabled - This can be changed through the admin panel.
+- Account Locked - This can be changed through the admin panel. The state can be changed back to unlocked once the user uses a link sent to their email to unlock the account.
+- A change to subscription state - There's several ways this can occur but in general this happens when signing up for or canceling subscriptions.
+
+When the event fires, it has the following structure:
 
 - Event Identifier
   - `https://schemas.accounts.firefox.com/event/profile-change`
 - Event Payload
   - [Profile Event Identifier]
-    - email
-      - The new primary email address for the given user (sub)
-      - This property will be undefined if the email hasn't changed
+  - uid {string} (required)
+  - email {string} (optional)
+  - locale {string} (optional)
+  - metricsEnabled {boolean} (optional)
+  - totpEnabled {boolean} (optional)
+  - accountDisabled {boolean} (optional)
+  - accountLocked {boolean} (optional)
 
-### Example Profile Change Event
+At the time of writing, there’s a few twists to be aware of when handling this event.
 
-    {
-     "iss": "https://accounts.firefox.com/",
-     "sub": "FXA_USER_ID",
-     "aud": "REMOTE_SYSTEM",
-     "iat": 1565720808,
-     "jti": "e19ed6c5-4816-4171-aa43-56ffe80dbda1",
-     "events": {
-       "https://schemas.accounts.firefox.com/event/profile-change": {
-         "email": "example@mozilla.com"
-       }
-     }
+1. The original intent of this event was to signal to RPs that something on the account changed and that FxA’s Profile API should be queried again to retrieve the latest profile state. This is still the recommended course of action (despite the fact that more data is now sent in the event). After receiving this event, an RP should consider any cached data about that user profile invalid, and should fetch the new state from the Profile API.
+2. Even if the Profile API is queried, not all PRs have permissions to access profile data. (This is controlled by ‘scope’ permissions in the oauth configuration). If you don’t have adequate OAuth permissions, the Profile API simply won’t return profile data to you.
+3. Over time, this event was expanded to include more states that indicate what may have changed, such as email, locale, metrics enabled, TOTP enabled, account disabled and account locked. These fields should be seen as event metadata, and their intent is simply to indicate exactly what changed and why the event was fired.
+4. This event can also signal that something about a user's subscriptions have changed. If this is the case, the uid and email will be provided. And once again, to ensure the correct state the profile API should be queried. Also note that the UID and email could show up if the user changes their primary email, so one must not assume that this event state only correlates to a subscription change.
+5. The first time this event is ever emitted, which occurs when a user creates an account, all optional fields will be provided. However, some profile data like display-name or profile picture aren’t currently provided, so you’ll still need to query the profile API.
+
+To make sense of this. Here’s a matrix showing where data _can_ come from.
+
+| Data            | Type    | Present in Event                        | Present in Profile API |
+| :-------------- | :------ | :-------------------------------------- | :--------------------- |
+| UID             | string  | always                                  |                        |
+| displayName     | string  | no                                      | yes, with permissions  |
+| profileImage    | url     | no                                      | yes, with permissions  |
+| email           | string  | On state change, On subscription change | yes, with permissions  |
+| locale          | string  | On state change                         | Yes, with permissions  |
+| metricsEnabled  | boolean | On state change                         | Yes, with permissions  |
+| totpEnabled     | boolean | On state change                         | Yes, with permissions  |
+| accountDisabled | boolean | On state change                         | no                     |
+| accountLocked   | boolean | On state change                         | no                     |
+
+There's a pythonic adage that says: "If the implementation is hard to explain, it's a bad idea." It seems as though this particular event has gotten to that point. So we will be revisiting how this works. For now, it’s best to follow the initial intent, and query profile API to get the source of truth after encountering this event.
 
 ### Subscription State Change
 
@@ -135,29 +155,6 @@ records for the given user when receiving this event.
        "https://schemas.accounts.firefox.com/event/delete-user": {}
      }
 
-### Metrics Opt Out
-
-Sent when a user opts out of metrics / data collection from their Mozilla Accounts settings page.
-RPs should stop reporting metrics for this user. Note, that when a user creates an account, metrics
-collection is enabled by default.
-
-- Event Identifier
-  - `https://schemas.accounts.firefox.com/event/metrics-opt-out`
-- Event Payload
-  - [Metrics Opt Out Event Identifier]
-    - `{}`
-
-### Metrics Opt In
-
-Sent when a user opts back into metrics / data collection from Firefox Accounts their Mozilla Accounts settings page.
-RPs can start reporting metrics for this user again.
-
-- Event Identifier
-  - `https://schemas.accounts.firefox.com/event/metrics-opt-in`
-- Event Payload
-  - [Metrics Opt In Event Identifier]
-    - `{}`
-
 ## Deployment
 
 ### Metrics
@@ -175,6 +172,7 @@ defined to capture these. All timings are in milliseconds.
 | `message.type.subscription` | Counter | Subscription notification events.                               |
 | `message.type.login`        | Counter | Login notification events.                                      |
 | `message.type.delete`       | Counter | Delete notification events.                                     |
+| `message.type.profile`      | Counter | Profile change notification events.                             |
 | `proxy.success.CID.STATUS`  | Counter | Successful event delivery to a RP.                              |
 | `proxy.fail.CID.STATUS`     | Counter | Failed event delivery to a RP.                                  |
 
