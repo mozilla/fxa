@@ -105,13 +105,19 @@ const Signin = ({
     },
   });
 
+  const hideThirdPartyAuth = integration.isSync() && hasPassword;
+
   useEffect(() => {
     if (!isPasswordNeededRef.current) {
-      GleanMetrics.cachedLogin.view();
+      GleanMetrics.cachedLogin.view({
+        event: { thirdPartyLinks: !hideThirdPartyAuth },
+      });
     } else {
-      GleanMetrics.login.view();
+      GleanMetrics.login.view({
+        event: { thirdPartyLinks: !hideThirdPartyAuth },
+      });
     }
-  }, [isPasswordNeededRef]);
+  }, [isPasswordNeededRef, hideThirdPartyAuth]);
 
   const signInWithCachedAccount = useCallback(
     async (sessionToken: hexstring) => {
@@ -302,8 +308,6 @@ const Signin = ({
       sessionToken,
     ]
   );
-
-  const hideThirdPartyAuth = integration.isSync() && hasPassword;
 
   return (
     <AppLayout>

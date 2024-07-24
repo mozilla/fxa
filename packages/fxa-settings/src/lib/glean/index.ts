@@ -10,10 +10,10 @@ import {
   GleanMetricsConfig,
   eventsMap,
   EventMapKeys,
-  eventPropertyNames,
   EventsMap,
   GleanPingMetrics,
-  PropertyNameT,
+  booleanEventPropertyNames,
+  stringEventPropertyNames,
 } from 'fxa-shared/metrics/glean/web/index';
 import { accountsEvents } from 'fxa-shared/metrics/glean/web/pings';
 import * as event from 'fxa-shared/metrics/glean/web/event';
@@ -128,8 +128,15 @@ const populateMetrics = async (gleanPingMetrics: GleanPingMetrics) => {
   if (gleanPingMetrics?.event) {
     // The event here is the Glean `event` metric type, not an "metrics event" in
     // a more general sense
-    for (const n of eventPropertyNames as PropertyNameT) {
-      event[n].set(gleanPingMetrics.event[n] || '');
+
+    for (const name of booleanEventPropertyNames) {
+      const eventValue = gleanPingMetrics.event[name];
+      if (eventValue) {
+        event[name].set(eventValue);
+      }
+    }
+    for (const name of stringEventPropertyNames) {
+      event[name].set(gleanPingMetrics.event[name] || '');
     }
   }
 
@@ -216,7 +223,13 @@ const recordEventMetric = (
       reg.whyDoWeAskLinkClick.record();
       break;
     case 'login_view':
-      login.view.record();
+      const loginViewExtra =
+        typeof gleanPingMetrics.event?.thirdPartyLinks === 'boolean'
+          ? {
+              third_party_links: gleanPingMetrics.event.thirdPartyLinks,
+            }
+          : undefined;
+      login.view.record(loginViewExtra);
       break;
     case 'login_forgot_pwd_submit':
       login.forgotPwdSubmit.record();
@@ -251,7 +264,13 @@ const recordEventMetric = (
       cachedLogin.forgotPwdSubmit.record();
       break;
     case 'cached_login_view':
-      cachedLogin.view.record();
+      const cachedLoginViewExtra =
+        typeof gleanPingMetrics.event?.thirdPartyLinks === 'boolean'
+          ? {
+              third_party_links: gleanPingMetrics.event.thirdPartyLinks,
+            }
+          : undefined;
+      cachedLogin.view.record(cachedLoginViewExtra);
       break;
     case 'cached_login_submit':
       cachedLogin.submit.record();

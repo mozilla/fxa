@@ -187,6 +187,9 @@ describe('Signin', () => {
         render();
 
         expect(GleanMetrics.login.view).toHaveBeenCalledTimes(1);
+        expect(GleanMetrics.login.view).toHaveBeenCalledWith({
+          event: { thirdPartyLinks: true },
+        });
         screen.getByRole('heading', {
           name: 'Enter your password for your Mozilla account',
         });
@@ -199,7 +202,7 @@ describe('Signin', () => {
         differentAccountLinkRendered();
       });
 
-      it('does not render third party auth for sync', () => {
+      it('does not render third party auth for sync, emits expected Glean event', () => {
         const integration = createMockSigninSyncIntegration();
         render({ integration });
         enterPasswordAndSubmit();
@@ -210,6 +213,9 @@ describe('Signin', () => {
         expect(
           screen.queryByRole('button', { name: /Continue with Apple/ })
         ).not.toBeInTheDocument();
+        expect(GleanMetrics.login.view).toHaveBeenCalledWith({
+          event: { thirdPartyLinks: false },
+        });
       });
 
       it('emits an event on forgot password link click', async () => {
@@ -655,6 +661,9 @@ describe('Signin', () => {
       );
 
       expect(GleanMetrics.cachedLogin.view).toHaveBeenCalledTimes(1);
+      expect(GleanMetrics.cachedLogin.view).toHaveBeenCalledWith({
+        event: { thirdPartyLinks: true },
+      });
       signInHeaderRendered();
       avatarAndEmailRendered();
       thirdPartyAuthRendered();
