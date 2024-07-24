@@ -86,6 +86,7 @@ describe('models/auth_brokers/pairing/supplicant-state-machine', function () {
       assert.isTrue(
         state.navigate.calledOnceWith('pair/failure', {
           error: err,
+          searchParams: '',
         })
       );
     });
@@ -173,8 +174,7 @@ describe('models/auth_brokers/pairing/supplicant-state-machine', function () {
       );
       sinon.spy(state, 'gotoState');
       mockChannelClient.trigger('remote:pair:auth:authorize', {
-        code:
-          'fc46f44802b2a2ce979f39b2187aa1c0fc46f44802b2a2ce979f39b2187aa1c0',
+        code: 'fc46f44802b2a2ce979f39b2187aa1c0fc46f44802b2a2ce979f39b2187aa1c0',
         state: 'state',
       });
 
@@ -256,8 +256,7 @@ describe('models/auth_brokers/pairing/supplicant-state-machine', function () {
       );
       sinon.spy(state, 'gotoState');
       mockChannelClient.trigger('remote:pair:auth:authorize', {
-        code:
-          'fc46f44802b2a2ce979f39b2187aa1c0fc46f44802b2a2ce979f39b2187aa1c0',
+        code: 'fc46f44802b2a2ce979f39b2187aa1c0fc46f44802b2a2ce979f39b2187aa1c0',
         state: 'state',
       });
 
