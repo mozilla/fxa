@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import got from 'got';
-
 function wait() {
   return new Promise((r) => setTimeout(r, 50));
 }
@@ -93,6 +91,7 @@ export class EmailClient {
     header?: EmailHeader,
     timeout = 45000
   ) {
+    const { default: got } = await import('got');
     const expires = Date.now() + timeout;
     while (Date.now() < expires) {
       const mail = (await got(
@@ -114,6 +113,7 @@ export class EmailClient {
    * @param emailAddress - The email address to clear.
    */
   async clear(emailAddress: string) {
+    const { default: got } = await import('got');
     await got.delete(`${this.host}/mail/${toUsername(emailAddress)}`);
   }
 
