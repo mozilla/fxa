@@ -119,10 +119,10 @@ export const App = ({
         // be set to true. If there is a user actively signed into the browser,
         // we should try to use that user's account when possible.
         const syncUser = await firefox.requestSignedInUser(
-          integration!.data.context
+          integration.data.context
         );
 
-        if (syncUser) {
+        if (syncUser && syncUser.sessionToken) {
           // If the session is valid, try to set it as the current account
           isValidSession = await session.isValid(syncUser.sessionToken);
           if (isValidSession) {

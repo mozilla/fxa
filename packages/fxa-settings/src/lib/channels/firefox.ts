@@ -68,7 +68,9 @@ export type FxAStatusResponse = {
 
 export type SignedInUser = {
   email: string;
-  sessionToken: string;
+  // This can be undefined when the browser account
+  // is in an "Account disconnected" state
+  sessionToken: string | undefined;
   uid: string;
   verified: boolean;
 };
