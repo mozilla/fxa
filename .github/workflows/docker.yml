@@ -27,10 +27,14 @@ jobs:
         with:
           ref: ${{ env.TAG }}
 
+      - uses: actions/setup-node@v4
+        with:
+          cache: yarn
+
       - run: ./_scripts/l10n/clone.sh
-      
+
       - run: ./.circleci/base-install.sh
-      
+
       - run: ./_scripts/create-version-json.sh
 
       - uses: docker/setup-buildx-action@v3
