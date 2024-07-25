@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { ApolloError, ServerError, ServerParseError } from '@apollo/client';
-import { GraphQLError } from 'graphql';
+import { GraphQLError, GraphQLFormattedError } from 'graphql';
 import React from 'react';
 
 export type NetworkError = ApolloError['networkError'];
@@ -59,7 +59,7 @@ export const ErrorAlert = ({ error }: { error: any }) => {
         </p>
       )}
       {graphQLErrors.length > 0 &&
-        graphQLErrors.map((gqlError: GraphQLError) => (
+        graphQLErrors.map((gqlError: GraphQLError | GraphQLFormattedError) => (
           <p key={gqlError.message}>
             <b>graphQL error:</b> {gqlError.message}
           </p>

@@ -13,7 +13,7 @@ import { setContext } from '@apollo/client/link/context';
 import { ErrorHandler, onError } from '@apollo/client/link/error';
 import { BatchHttpLink } from '@apollo/client/link/batch-http';
 import { cache, sessionToken, typeDefs } from './cache';
-import { GraphQLError } from 'graphql';
+import { GraphQLError, GraphQLFormattedError } from 'graphql';
 import { GET_LOCAL_SIGNED_IN_STATUS } from '../components/App/gql';
 import sentryMetrics from 'fxa-shared/sentry/browser';
 
@@ -31,7 +31,7 @@ const sessionTokenOperationNames = [
   'SignIn',
 ];
 
-const isUnauthorizedError = (error: GraphQLError) => {
+const isUnauthorizedError = (error: GraphQLError | GraphQLFormattedError) => {
   const { originalError } = error.extensions as {
     originalError?: { error?: string };
   };
@@ -47,7 +47,9 @@ const isUnauthorizedError = (error: GraphQLError) => {
  *
  * @param error
  */
-const isUnverifiedSessionError = (error: GraphQLError) => {
+const isUnverifiedSessionError = (
+  error: GraphQLError | GraphQLFormattedError
+) => {
   return error.message === 'Must verify';
 };
 
