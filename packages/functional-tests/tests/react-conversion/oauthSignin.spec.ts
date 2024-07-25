@@ -42,7 +42,6 @@ test.describe('severity-1 #smoke', () => {
       pages: { page, relier, signin },
       testAccountTracker,
     }) => {
-      test.fixme(true, 'Fix required as of 2024/07/17 (see FXA-10102).');
       const credentials = await testAccountTracker.signUp();
 
       await relier.goto();
@@ -65,7 +64,7 @@ test.describe('severity-1 #smoke', () => {
       await relier.clickEmailFirst();
 
       // wait for navigation
-      await expect(page).toHaveURL(/oauth\//);
+      await expect(page).toHaveURL(/oauth\/signin/);
 
       // reload page with React experiment params
       await page.goto(
@@ -105,6 +104,14 @@ test.describe('severity-1 #smoke', () => {
 
       // Attempt to sign back in with cached user
       await relier.clickEmailFirst();
+
+      // wait for navigation
+      await expect(page).toHaveURL(/oauth\/signin/);
+
+      // reload page with React experiment params
+      await page.goto(
+        `${page.url()}&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
+      );
 
       await expect(signin.cachedSigninHeading).toBeVisible();
       // Email is prefilled
@@ -245,12 +252,15 @@ test.describe('severity-1 #smoke', () => {
       const code = await target.emailClient.getVerifyShortCode(email);
       await confirmSignupCode.fillOutCodeForm(code);
 
+      expect(await relier.isLoggedIn()).toBe(true);
+      await relier.signOut();
+
       // go back to the OAuth app, the /oauth flow should
       // now suggest a cached login
       await relier.goto();
       await relier.clickChooseFlow();
 
-      await expect(page).toHaveURL(/oauth\//);
+      await expect(page).toHaveURL(/oauth\/signin/);
 
       // reload page with React experiment params
       await page.goto(
@@ -258,6 +268,7 @@ test.describe('severity-1 #smoke', () => {
       );
 
       await expect(signin.cachedSigninHeading).toBeVisible();
+      await expect(page.getByText(email)).toBeVisible();
     });
   });
 });
