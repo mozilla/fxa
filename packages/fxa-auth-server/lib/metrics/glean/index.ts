@@ -122,9 +122,11 @@ const createEventFn =
   // accessible in the calling scope but difficult/not possible to get from any
   // context attached to the request.
 
+  (eventName: string, options?: GleanEventFnOptions) => {
+    // Resolve the Glean event metric method
+    const method = getMetricMethod(eventName);
 
-    (eventName: string, options?: GleanEventFnOptions) =>
-    async (req: AuthRequest, metricsData?: MetricsData) => {
+    return async (req: AuthRequest, metricsData?: MetricsData) => {
       // where the function is called the request object is likely to be declared
       // to be AuthRequest, so we do a cast here.
       const request = req as unknown as MetricsRequest;
@@ -166,7 +168,6 @@ const createEventFn =
       }
 
       // new style Glean events with event metric type
-      const method = getMetricMethod(eventName);
       const moreMetrics = options?.additionalMetrics
         ? options.additionalMetrics({
             ...commonMetrics,
@@ -181,6 +182,7 @@ const createEventFn =
         event_reason: eventReason,
       });
     };
+  };
 
 const extraKeyReasonCb = (metrics: Record<string, any>) => ({
   reason: metrics.reason,
