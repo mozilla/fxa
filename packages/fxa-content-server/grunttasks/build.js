@@ -84,5 +84,9 @@ module.exports = function (grunt) {
     // use error pages from en as the static error pages. Comes last
     // to ensure static resources are loaded using cache busting URLs
     'copy:error_pages',
+
+    // copy fxa-settings. note this has already been webpacked. we don't need
+    // run it through webpack again.
+    'copy:settings',
   ]);
 };
