@@ -348,6 +348,7 @@ export const GleanMetrics = {
           // Glean does not offer direct control over when metrics are uploaded;
           // this ensures that events are uploaded.
           maxEvents: 1,
+          enableAutoPageLoadEvents: true,
         });
         Glean.setLogPings(config.logPings);
         if (config.debugViewTag) {

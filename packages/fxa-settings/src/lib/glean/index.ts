@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import Glean from '@mozilla/glean/web';
+import GleanMetricsAPI from '@mozilla/glean/metrics';
 import UAParser from 'ua-parser-js';
 import { Entries } from 'type-fest';
 import {
@@ -61,6 +62,7 @@ type GleanMetricsT = {
   setEnabled: (enabled: boolean) => void;
   getEnabled: () => boolean;
   isDone: () => Promise<void>;
+  pageLoad: () => void;
 } & {
   [k in EventMapKeys]: { [eventKey in keyof EventsMap[k]]: PingFn };
 };
@@ -445,7 +447,7 @@ const createEventFn =
 
 export const GleanMetrics: Pick<
   GleanMetricsT,
-  'initialize' | 'setEnabled' | 'getEnabled' | 'isDone'
+  'initialize' | 'setEnabled' | 'getEnabled' | 'isDone' | 'pageLoad'
 > = {
   initialize: (config: GleanMetricsConfig, context: GleanMetricsContext) => {
     // https://bugzilla.mozilla.org/show_bug.cgi?id=1859629
@@ -457,6 +459,7 @@ export const GleanMetrics: Pick<
           appDisplayVersion: config.appDisplayVersion,
           channel: config.channel,
           serverEndpoint: config.serverEndpoint,
+          enableAutoPageLoadEvents: true,
         });
         Glean.setLogPings(config.logPings);
         if (config.debugViewTag) {
@@ -480,6 +483,10 @@ export const GleanMetrics: Pick<
 
   getEnabled: () => {
     return gleanEnabled;
+  },
+
+  pageLoad: () => {
+    GleanMetricsAPI.pageLoad();
   },
 
   /**
