@@ -301,7 +301,7 @@
     "express": "^4.19.2",
     "find-up": "^5.0.0",
     "generic-pool": "^3.8.2",
-    "graphql": "^16.8.0",
+    "graphql": "^16.9.0",
     "hot-shots": "^10.0.0",
     "ioredis": "^4.28.2",
     "ip": "^2.0.1",
