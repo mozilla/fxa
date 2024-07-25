@@ -16,7 +16,7 @@ features:
         default: null
     defaults:
       - channel: production
-        value: { "something": "wicked" }
+        value: { "something": "gnihtemos" }
 types:
   objects: {}
   enums: {}
