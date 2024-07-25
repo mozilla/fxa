@@ -75,6 +75,8 @@ module.exports = {
 
       //openid-connect
       sub: Joi.string().allow(null),
+      accountDisabledAt: Joi.number().optional(),
+      accountLockedAt: Joi.number().optional(),
     }),
   },
   handler: async function profile(req, h) {

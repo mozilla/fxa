@@ -203,7 +203,6 @@ export class AccountResolver {
       data: {
         ts: Date.now() / 1000,
         uid,
-        accountDisabled: true,
       },
     });
     const uidBuffer = uuidTransformer.to(uid);
@@ -232,7 +231,6 @@ export class AccountResolver {
       data: {
         ts: Date.now() / 1000,
         uid,
-        locale,
       },
     });
 
@@ -253,7 +251,6 @@ export class AccountResolver {
       data: {
         ts: Date.now() / 1000,
         uid,
-        accountDisabled: false,
       },
     });
 

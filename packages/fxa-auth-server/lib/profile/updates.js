@@ -28,12 +28,6 @@ module.exports = function (log) {
           {},
           {
             uid,
-            email: message.email,
-            locale: message.locale,
-            metricsEnabled: message.metricsEnabled,
-            totpEnabled: message.totpEnabled,
-            accountDisabled: message.accountDisabled,
-            accountLocked: message.accountLocked,
           }
         );
       } catch (err) {

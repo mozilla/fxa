@@ -27,6 +27,8 @@ module.exports = {
       'profile:subscriptions',
       'profile:age_check',
       /* openid-connect scope */ 'email',
+      'profile:account_disabled_at',
+      'profile:account_locked_at',
     ],
   },
   response: {
@@ -40,6 +42,8 @@ module.exports = {
       profileChangedAt: Joi.number().optional(),
       metricsEnabled: Joi.boolean().optional(),
       atLeast18AtReg: Joi.boolean().allow(null),
+      accountLockedAt: Joi.number().optional().allow(null),
+      accountDisabledAt: Joi.number().optional().allow(null),
     }),
   },
   handler: async function _core_profile(req) {
@@ -120,6 +124,12 @@ module.exports = {
               result.atLeast18AtReg = body.atLeast18AtReg
                 ? body.atLeast18AtReg
                 : null;
+            }
+            if (typeof body.accountLockedAt === 'number') {
+              result.accountLockedAt = body.accountLockedAt;
+            }
+            if (typeof body.accountDisabledAt === 'number') {
+              result.accountDisabledAt = body.accountDisabledAt;
             }
             return resolve(result);
           }

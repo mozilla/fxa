@@ -466,7 +466,6 @@ export class AccountResolver {
       data: {
         ts: Date.now() / 1000,
         uid,
-        metricsEnabled: input.state === 'in',
       },
     });
 

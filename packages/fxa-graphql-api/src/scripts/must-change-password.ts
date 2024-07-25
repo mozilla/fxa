@@ -147,7 +147,6 @@ async function main() {
         data: {
           ts: Date.now() / 1000,
           uid,
-          accountLocked: true,
         },
       });
     }

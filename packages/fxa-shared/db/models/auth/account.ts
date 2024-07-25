@@ -30,6 +30,7 @@ const selectFields = [
   'verifierSetAt',
   'createdAt',
   'locale',
+  'lockedAt',
   raw(
     'COALESCE(profileChangedAt, verifierSetAt, createdAt) AS profileChangedAt'
   ),

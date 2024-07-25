@@ -138,7 +138,6 @@ describe('totp', () => {
           'first argument was event name'
         );
         assert.equal(args[2].uid, 'uid');
-        assert.equal(args[2].totpEnabled, false);
 
         assert.equal(
           db.verifyTokensWithMethod.callCount,

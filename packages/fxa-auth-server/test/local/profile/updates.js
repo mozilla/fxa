@@ -85,12 +85,6 @@ describe('profile updates', () => {
             {},
             {
               uid,
-              email,
-              locale,
-              metricsEnabled,
-              totpEnabled,
-              accountDisabled,
-              accountLocked,
             }
           )
         );

@@ -489,7 +489,6 @@ describe('#integration - AccountResolver', () => {
           data: {
             ts: expect.any(Number),
             uid: USER_1.uid,
-            metricsEnabled: false,
           },
         });
       });
@@ -509,7 +508,6 @@ describe('#integration - AccountResolver', () => {
           data: {
             ts: expect.any(Number),
             uid: USER_1.uid,
-            metricsEnabled: true,
           },
         });
       });
