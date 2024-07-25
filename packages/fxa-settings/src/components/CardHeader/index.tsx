@@ -193,9 +193,9 @@ const CardHeader = (props: CardHeaderProps) => {
           : props.subheadingWithCustomServiceFtlId,
       // include `vars={{ serviceName }}` if non-default and no logo
       ...(!isDefaultService && !logo && { vars: { serviceName } }),
-      // include `elems={{ span: logoElem }}` if serviceName is given a logo in serviceLogos
+      // include `elems={{ span: logo }}` if serviceName is given a logo in serviceLogos
       ...(logo && {
-        elems: { span: logoElem },
+        elems: { span: logo },
       }),
     };
 
