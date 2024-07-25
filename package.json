@@ -39,8 +39,8 @@
   "author": "Mozilla (https://mozilla.org/)",
   "license": "MPL-2.0",
   "dependencies": {
-    "@apollo/client": "^3.10.1",
-    "@apollo/server": "^4.10.0",
+    "@apollo/client": "^3.11.1",
+    "@apollo/server": "^4.10.5",
     "@faker-js/faker": "^8.4.1",
     "@fluent/bundle": "^0.18.0",
     "@fluent/react": "^0.15.2",

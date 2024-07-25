@@ -178,9 +178,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@apollo/client@npm:^3.10.1":
-  version: 3.10.1
-  resolution: "@apollo/client@npm:3.10.1"
+"@apollo/client@npm:^3.11.1":
+  version: 3.11.1
+  resolution: "@apollo/client@npm:3.11.1"
   dependencies:
     "@graphql-typed-document-node/core": ^3.1.1
     "@wry/caches": ^1.0.0
@@ -199,8 +199,8 @@ __metadata:
   peerDependencies:
     graphql: ^15.0.0 || ^16.0.0
     graphql-ws: ^5.5.5
-    react: ^16.8.0 || ^17.0.0 || ^18.0.0
-    react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0 || >=19.0.0-rc <19.0.0
+    react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || >=19.0.0-rc <19.0.0
     subscriptions-transport-ws: ^0.9.0 || ^0.11.0
   peerDependenciesMeta:
     graphql-ws:
@@ -211,7 +211,7 @@ __metadata:
       optional: true
     subscriptions-transport-ws:
       optional: true
-  checksum: d54adac095ad182b863d3f899d68de13eb9b0da2c77cbfb3a8be8aad8aa2a1fe83ce69dfd036d015a2d68f8f8422d7dc1d90d78a4267377030207cbfe74e7781
+  checksum: 9edcd32dcd62ff08eed69807e77b3487ca7f790e818cadc2f904ffa77191a2d6c77b93738867c8a7aa9997e37a7be2fff012ec7b685342d7c4290487cd4987c3
   languageName: node
   linkType: hard
 
@@ -263,9 +263,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@apollo/server@npm:^4.10.0":
-  version: 4.10.0
-  resolution: "@apollo/server@npm:4.10.0"
+"@apollo/server@npm:^4.10.5":
+  version: 4.10.5
+  resolution: "@apollo/server@npm:4.10.5"
   dependencies:
     "@apollo/cache-control-types": ^1.0.3
     "@apollo/server-gateway-interface": ^1.1.1
@@ -278,7 +278,6 @@ __metadata:
     "@apollo/utils.usagereporting": ^2.1.0
     "@apollo/utils.withrequired": ^2.0.0
     "@graphql-tools/schema": ^9.0.0
-    "@josephg/resolvable": ^1.0.0
     "@types/express": ^4.17.13
     "@types/express-serve-static-core": ^4.17.30
     "@types/node-fetch": ^2.6.1
@@ -294,7 +293,7 @@ __metadata:
     whatwg-mimetype: ^3.0.0
   peerDependencies:
     graphql: ^16.6.0
-  checksum: 902df9ea634ef52ba96b26e923d86b5093f678bcd9e76e4c4f57c26f5450064603449e095b8c8d2a21316c8a9277444e7d9145af8811ddc481d1992bf4123c39
+  checksum: dff21fb53e08e008b2504091a78583518650cb63dcaca9abd67bfa0b6f000a9445b35e4461cbe1bf5665460cc738bbe1389a3c1e95723281a7b1747f7a14bec6
   languageName: node
   linkType: hard
 
@@ -11784,13 +11783,6 @@ __metadata:
     "@types/yargs": ^17.0.8
     chalk: ^4.0.0
   checksum: a0bcf15dbb0eca6bdd8ce61a3fb055349d40268622a7670a3b2eb3c3dbafe9eb26af59938366d520b86907b9505b0f9b29b85cec11579a9e580694b87cd90fcc
-  languageName: node
-  linkType: hard
-
-"@josephg/resolvable@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "@josephg/resolvable@npm:1.0.0"
-  checksum: 6071cd830de426bbaf1b63d83f7d8ca30ac1f931120d09491493975f14e5853de0446c107452d6f720c7fecc1f64e860c07b49eebc43da1faf934d1dad259ec6
   languageName: node
   linkType: hard
 
@@ -39294,8 +39286,8 @@ fsevents@~2.1.1:
   version: 0.0.0-use.local
   resolution: "fxa@workspace:."
   dependencies:
-    "@apollo/client": ^3.10.1
-    "@apollo/server": ^4.10.0
+    "@apollo/client": ^3.11.1
+    "@apollo/server": ^4.10.5
     "@babel/core": ^7.24.4
     "@babel/preset-react": ^7.24.1
     "@faker-js/faker": ^8.4.1
