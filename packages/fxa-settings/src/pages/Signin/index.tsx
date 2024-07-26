@@ -72,6 +72,7 @@ const Signin = ({
   const [passwordTooltipErrorText, setPasswordTooltipErrorText] =
     useState<string>('');
   const [signinLoading, setSigninLoading] = useState<boolean>(false);
+  const [hasEngaged, setHasEngaged] = useState<boolean>(false);
 
   const isOAuth = isOAuthIntegration(integration);
   const clientId = integration.getService();
@@ -362,7 +363,13 @@ const Signin = ({
               required
               autoFocus
               onChange={() => {
-                GleanMetrics.login.engage();
+                // Only log the engage event once. Note that this text box is autofocused, so
+                // using autofocus wouldn't be a good way to do this.
+                if (hasEngaged === false) {
+                  setHasEngaged(true);
+                  GleanMetrics.login.engage();
+                }
+
                 // clear error tooltip if user types in the field
                 if (passwordTooltipErrorText) {
                   setPasswordTooltipErrorText('');
