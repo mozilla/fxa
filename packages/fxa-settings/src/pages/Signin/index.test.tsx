@@ -224,10 +224,19 @@ describe('Signin', () => {
         render();
         expect(
           fireEvent.input(screen.getByLabelText(/Password/), {
+            target: {
+              value: MOCK_PASSWORD.substring(0, MOCK_PASSWORD.length - 2),
+            },
+          })
+        ).toBeTruthy();
+        expect(
+          fireEvent.input(screen.getByLabelText(/Password/), {
             target: { value: MOCK_PASSWORD },
           })
         ).toBeTruthy();
+
         await waitFor(() => {
+          // Make sure event didn't double fire.
           expect(GleanMetrics.login.engage).toBeCalledTimes(1);
         });
       });
