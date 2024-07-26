@@ -16,7 +16,6 @@ import {
   EligibilityContentByOfferingQuery,
   PageContentForOfferingQuery,
 } from '../__generated__/graphql';
-import { CMSConfig } from './cms.config';
 import { ProductConfigError } from './cms.error';
 import { DEFAULT_LOCALE } from './constants';
 import {
@@ -50,7 +49,6 @@ import { DeepNonNullable } from './types';
 export class ProductConfigurationManager {
   constructor(
     private strapiClient: StrapiClient,
-    private cmsConfig: CMSConfig,
     private priceManager: PriceManager,
     @Inject(StatsDService) private statsd: StatsD
   ) {
@@ -229,16 +227,8 @@ export class ProductConfigurationManager {
     interval: SubplatInterval
   ) {
     const priceIds = await this.getOfferingPlanIds(offeringConfigId);
-    // Temporary supported list of plans
-    // CMS purchase.stripePlanChoices is currently not configured correctly
-    // Unfortunately, currently the CMS is read-only and can't be updated
-    // As a temporary work around provide a list of supported plans
-    const supportedListOfPriceIds = this.cmsConfig.supportedPriceIds.split(',');
-    const filteredPriceIds = priceIds.filter((stripePlanChoice) =>
-      supportedListOfPriceIds.includes(stripePlanChoice)
-    );
     const price = await this.priceManager.retrieveByInterval(
-      filteredPriceIds,
+      priceIds,
       interval
     );
     if (!price) throw new ProductConfigError('Plan not found');

@@ -15,7 +15,6 @@ import {
 import {
   EligibilityContentByOfferingResultUtil,
   EligibilityContentOfferingResultFactory,
-  MockCMSConfigProvider,
   MockStrapiClientConfigProvider,
   ProductConfigurationManager,
   StrapiClient,
@@ -49,7 +48,6 @@ describe('EligibilityService', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        MockCMSConfigProvider,
         MockStrapiClientConfigProvider,
         EligibilityManager,
         EligibilityService,

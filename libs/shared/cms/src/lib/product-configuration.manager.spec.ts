@@ -20,13 +20,11 @@ import {
   CapabilityPurchaseResultFactory,
   CapabilityServiceByPlanIdsQueryFactory,
   CapabilityServiceByPlanIdsResultUtil,
-  CMSConfig,
   EligibilityContentByOfferingResultUtil,
   EligibilityContentByPlanIdsQueryFactory,
   EligibilityContentByPlanIdsResultUtil,
   EligibilityPurchaseResult,
   EligibilityPurchaseResultFactory,
-  MockCMSConfigProvider,
   ProductConfigError,
   ServicesWithCapabilitiesQueryFactory,
   ServicesWithCapabilitiesResultUtil,
@@ -75,9 +73,7 @@ describe('productConfigurationManager', () => {
     const module = await Test.createTestingModule({
       providers: [
         { provide: StatsDService, useValue: mockStatsd },
-        CMSConfig,
         MockStrapiClientConfigProvider,
-        MockCMSConfigProvider,
         MockFirestoreProvider,
         PriceManager,
         ProductConfigurationManager,

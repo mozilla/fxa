@@ -36,7 +36,6 @@ import {
   TaxAddressFactory,
 } from '@fxa/payments/stripe';
 import {
-  MockCMSConfigProvider,
   MockStrapiClientConfigProvider,
   ProductConfigurationManager,
   StrapiClient,
@@ -84,7 +83,6 @@ describe('CartService', () => {
         CartManager,
         CartService,
         CheckoutService,
-        MockCMSConfigProvider,
         ConfigService,
         MockStrapiClientConfigProvider,
         CustomerManager,
