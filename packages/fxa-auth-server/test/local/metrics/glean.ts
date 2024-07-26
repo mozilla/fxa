@@ -39,7 +39,7 @@ const recordAccountDeleteCompleteStub = sinon.stub();
 const recordPasswordResetEmailConfirmationSentStub = sinon.stub();
 const recordPasswordResetEmailConfirmationSuccessStub = sinon.stub();
 
-const { gleanMetrics, logErrorWithGlean } = proxyquire.load(
+const { gleanMetrics, logErrorWithGlean } = proxyquire(
   '../../../lib/metrics/glean',
   {
     './server_events': {
