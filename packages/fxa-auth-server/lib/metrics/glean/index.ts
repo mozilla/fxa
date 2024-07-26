@@ -125,6 +125,7 @@ const createEventFn =
   (eventName: string, options?: GleanEventFnOptions) => {
     // Resolve the Glean event metric method
     const method = getMetricMethod(eventName);
+    const eventOptions = options || {};
 
     return async (req: AuthRequest, metricsData?: MetricsData) => {
       // where the function is called the request object is likely to be declared
@@ -141,7 +142,7 @@ const createEventFn =
       const commonMetrics = {
         user_agent: request.headers['user-agent'],
         ip_address:
-          options?.skipClientIp === true ? '' : request.app.clientAddress,
+          eventOptions.skipClientIp === true ? '' : request.app.clientAddress,
         account_user_id_sha256: '',
         relying_party_oauth_client_id: await findOauthClientId(
           request,
@@ -168,8 +169,8 @@ const createEventFn =
       }
 
       // new style Glean events with event metric type
-      const moreMetrics = options?.additionalMetrics
-        ? options.additionalMetrics({
+      const moreMetrics = eventOptions.additionalMetrics
+        ? eventOptions.additionalMetrics({
             ...commonMetrics,
             ...(metricsData || {}),
           })
