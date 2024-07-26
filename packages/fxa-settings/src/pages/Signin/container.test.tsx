@@ -51,17 +51,25 @@ import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { Integration } from '../../models';
+import { firefox } from '../../lib/channels/firefox';
+
+jest.mock('../../lib/channels/firefox', () => ({
+  ...jest.requireActual('../../lib/channels/firefox'),
+  firefox: {
+    fxaCanLinkAccount: jest.fn(),
+  },
+}));
 
 let integration: Integration;
 
-// TODO: in FXA-9059 sync v3 desktop integration
-// function mockSyncDesktopV3Integration() {
-//   integration = {
-//     type: IntegrationType.SyncDesktopV3,
-//     getService: () => MozServices.FirefoxSync,
-//     isSync: () => true,
-//   };
-// }
+function mockSyncDesktopV3Integration() {
+  integration = {
+    type: IntegrationType.SyncDesktopV3,
+    getService: () => MozServices.FirefoxSync,
+    isSync: () => true,
+    wantsKeys: () => true,
+  } as Integration;
+}
 
 function mockWebIntegration() {
   integration = {
@@ -483,6 +491,70 @@ describe('signin container', () => {
         );
         expect(handlerResult?.data).toBeDefined();
         expect(handlerResult?.error).toBeUndefined();
+      });
+    });
+
+    describe('fxaCanLinkAccount', () => {
+      beforeEach(() => {
+        mockSyncDesktopV3Integration();
+      });
+      afterEach(() => {
+        (firefox.fxaCanLinkAccount as jest.Mock).mockRestore();
+      });
+      it('is not called when conditions are not met', async () => {
+        // this puts hasLinkedAccount=false in the query params
+        // We don't want this called when the user was prompted on email-first
+        mockUseValidateModule();
+        (firefox.fxaCanLinkAccount as jest.Mock).mockImplementationOnce(
+          async () => ({
+            ok: true,
+          })
+        );
+        render([mockGqlAvatarUseQuery()]);
+
+        await waitFor(async () => {
+          await currentSigninProps?.beginSigninHandler(
+            MOCK_EMAIL,
+            MOCK_PASSWORD
+          );
+          expect(firefox.fxaCanLinkAccount).not.toHaveBeenCalled();
+        });
+      });
+      it('calls fxaCanLinkAccount when conditions are met', async () => {
+        (firefox.fxaCanLinkAccount as jest.Mock).mockImplementationOnce(
+          async () => ({
+            ok: true,
+          })
+        );
+        render([mockGqlAvatarUseQuery()]);
+
+        await waitFor(async () => {
+          await currentSigninProps?.beginSigninHandler(
+            MOCK_EMAIL,
+            MOCK_PASSWORD
+          );
+          expect(firefox.fxaCanLinkAccount).toHaveBeenCalledWith({
+            email: MOCK_EMAIL,
+          });
+        });
+      });
+
+      it('returns expected error when fxaCanLinkAccount response is !ok', async () => {
+        (firefox.fxaCanLinkAccount as jest.Mock).mockImplementationOnce(
+          async () => ({
+            ok: false,
+          })
+        );
+        render([mockGqlAvatarUseQuery()]);
+
+        await waitFor(async () => {
+          const handlerResult = await currentSigninProps?.beginSigninHandler(
+            MOCK_EMAIL,
+            MOCK_PASSWORD
+          );
+          expect(handlerResult?.data).toBeUndefined();
+          expect(handlerResult?.error?.errno).toEqual(1001);
+        });
       });
     });
 
