@@ -197,7 +197,45 @@ session:
 
   entrypoint:
     type: string
-    description: entrypoint to the service
+    description: Entrypoint to the service
+    lifetime: application
+    send_in_pings:
+      - accounts-events
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-7265
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+
+  entrypoint_experiment:
+    type: string
+    description: Identifier for the experiment the user is part of at the entrypoint
+    lifetime: application
+    send_in_pings:
+      - accounts-events
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-7265
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+
+  entrypoint_variation:
+    type: string
+    description: Identifier for the experiment variation the user is part of at the entrypoint
     lifetime: application
     send_in_pings:
       - accounts-events

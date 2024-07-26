@@ -38,7 +38,7 @@ const {
   modifySettingsStatic,
 } = require('../lib/beta-settings');
 
-const userAgent = require('fxa-shared/metrics/user-agent').default;
+const userAgent = require('fxa-shared/lib/user-agent').default;
 if (!userAgent.isToVersionStringSupported()) {
   // npm@3 installs the incorrect version of node-uap, one without `toVersionString`.
   // To ensure the correct version is installed, check toVersionString is available.

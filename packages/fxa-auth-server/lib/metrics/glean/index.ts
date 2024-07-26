@@ -151,6 +151,10 @@ const createEventFn =
         relying_party_service: await findServiceName(request),
         session_device_type: request.app.ua.deviceType || '',
         session_entrypoint: metricsContext.entrypoint || '',
+        // experiment and variation were added for content server backend pings
+        // auth server TODO FXA-9847
+        session_entrypoint_experiment: '',
+        session_entrypoint_variation: '',
         session_flow_id: metricsContext.flowId || '',
         utm_campaign: metricsContext.utmCampaign || '',
         utm_content: metricsContext.utmContent || '',

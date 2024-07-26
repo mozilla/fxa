@@ -334,7 +334,7 @@ const conf = (module.exports = convict({
   },
   serverGleanMetrics: {
     enabled: {
-      default: false,
+      default: true,
       doc: 'Enable Glean metrics logging',
       env: 'CONTENT_SERVER_GLEAN_ENABLED',
       format: Boolean,

@@ -4,7 +4,11 @@
 
 import Ajv from 'ajv';
 import pick from 'lodash.pick';
-import { ParsedUserAgentProperties, ParsedUa, ParsedOs } from './user-agent';
+import {
+  ParsedUserAgentProperties,
+  ParsedUa,
+  ParsedOs,
+} from '../lib/user-agent';
 import { Location } from '../connected-services/models/Location';
 import { ILogger } from '../log';
 import { StatsD } from 'hot-shots';
@@ -670,8 +674,8 @@ function mapOs(userAgent: ParsedUserAgentProperties) {
 }
 
 function mapUserAgentProperties(
-  userAgent: ParsedUserAgentProperties,
-  key: keyof ParsedUserAgentProperties,
+  userAgent: Omit<ParsedUserAgentProperties, 'userAgent'>,
+  key: keyof Omit<ParsedUserAgentProperties, 'userAgent'>,
   familyProperty: string,
   versionProperty: string
 ) {

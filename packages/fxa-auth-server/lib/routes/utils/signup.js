@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 'use strict';
-const userAgent = require('../../userAgent');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 const { OAUTH_SCOPE_OLD_SYNC } = require('fxa-shared/oauth/constants');
 const NOTIFICATION_SCOPES = ScopeSet.fromArray([OAUTH_SCOPE_OLD_SYNC]);
@@ -68,8 +67,7 @@ module.exports = (log, db, mailer, push, verificationReminders, glean) => {
       // so only send it if we're sure this is for sync or sync scoped client.
       const scopeSet = ScopeSet.fromArray(scopes);
       if (service === 'sync' || scopeSet.intersects(NOTIFICATION_SCOPES)) {
-        const onMobileDevice =
-          userAgent(request.headers['user-agent']).deviceType === 'mobile';
+        const onMobileDevice = request.app.ua.deviceType === 'mobile';
         const mailOptions = {
           acceptLanguage: request.app.acceptLanguage,
           service: 'sync',
