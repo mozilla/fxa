@@ -162,7 +162,7 @@
     "jest-watch-typeahead": "^1.0.0",
     "lodash.groupby": "^4.6.0",
     "mini-css-extract-plugin": "^2.9.0",
-    "postcss": "^8.4.39",
+    "postcss": "^8.4.40",
     "postcss-flexbugs-fixes": "^5.0.2",
     "postcss-loader": "^8.1.1",
     "postcss-normalize": "^10.0.1",
