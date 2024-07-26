@@ -64,6 +64,7 @@ export default class AuthorityBroker extends BaseAuthenticationBroker {
       (response) => {
         if (response.err) {
           this.stateMachine.heartbeatError(response.err);
+          this.stopHeartbeat();
         } else if (response.suppAuthorized) {
           this.notifier.trigger('pair:supp:authorize');
         }

@@ -13,22 +13,26 @@ class SupplicantState extends State {
     super(attributes, options);
 
     this.pairingChannelClient = options.pairingChannelClient;
-    this.listenTo(this.pairingChannelClient, 'close', () =>
+    this.listenToOnce(this.pairingChannelClient, 'close', () =>
       this.socketClosed()
     );
-    this.listenTo(this.pairingChannelClient, 'error', (error) =>
-      this.socketError(error)
-    );
+    this.listenToOnce(this.pairingChannelClient, 'error', (error) => {
+      return this.socketError(error);
+    });
   }
 
   socketClosed() {
     this.navigate('pair/failure', {
       error: PairingChannelClientErrors.toError('CONNECTION_CLOSED'),
+      searchParams: window.location.search,
     });
   }
 
   socketError(error) {
-    this.navigate('pair/failure', { error });
+    this.navigate('pair/failure', {
+      error,
+      searchParams: window.location.search,
+    });
   }
 }
 

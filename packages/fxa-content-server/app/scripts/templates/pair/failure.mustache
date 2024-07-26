@@ -12,7 +12,14 @@
     <form novalidate>
       <div class="bg-image-pair-fail"></div>
 
-      <p>{{#t}}The setup process was terminated.{{/t}}</p>
+      <p>{{#t}}The setup process was terminated. Please sign in with your email.{{/t}}</p>
+
+      {{#showSigninLink}}
+        <div class="button-row">
+          <button class="button primary-button mt-5" id="signin-button" target="_blank" type="button">{{#t}}Sign in{{/t}}</button>
+        </div>
+      {{/showSigninLink}}
+
     </form>
   </section>
 </div>
