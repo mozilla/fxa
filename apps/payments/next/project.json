@@ -40,7 +40,7 @@
       }
     },
     "start": {
-      "command": "pm2 start apps/payments/next/pm2.config.js"
+      "command": "pm2 start apps/payments/next/pm2.config.js && yarn check:url localhost:3035/__heartbeat__"
     },
     "stop": {
       "command": "pm2 stop apps/payments/next/pm2.config.js"
