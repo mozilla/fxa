@@ -9118,16 +9118,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@googlemaps/google-maps-services-js@npm:^3.3.16":
-  version: 3.3.16
-  resolution: "@googlemaps/google-maps-services-js@npm:3.3.16"
+"@googlemaps/google-maps-services-js@npm:^3.4.0":
+  version: 3.4.0
+  resolution: "@googlemaps/google-maps-services-js@npm:3.4.0"
   dependencies:
     "@googlemaps/url-signature": ^1.0.4
     agentkeepalive: ^4.1.0
-    axios: ^0.27.0
-    query-string: ^7.0.1
-    retry-axios: ^2.2.1
-  checksum: c4d3fcd9b94ed6a7470174efdb1842985e86846196cc6bb34426aef8bd0481b39e038277187ccf8677fcb24301d43c8e2652078e9dc6ed176c0d777d3822b3e2
+    axios: ^1.5.1
+    query-string: <8.x
+    retry-axios: <3.x
+  checksum: b103dd4970d6e07d56af5ca00aec99b7880418b8b627a44a4518206deb07f77c672cd010499ed1d9ec65d68e3ad8c6f2c0cab30c3d2188612c0e177780173dd3
   languageName: node
   linkType: hard
 
@@ -26653,16 +26653,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:^0.27.0":
-  version: 0.27.2
-  resolution: "axios@npm:0.27.2"
-  dependencies:
-    follow-redirects: ^1.14.9
-    form-data: ^4.0.0
-  checksum: 38cb7540465fe8c4102850c4368053c21683af85c5fdf0ea619f9628abbcb59415d1e22ebc8a6390d2bbc9b58a9806c874f139767389c862ec9b772235f06854
-  languageName: node
-  linkType: hard
-
 "axios@npm:^0.28.1":
   version: 0.28.1
   resolution: "axios@npm:0.28.1"
@@ -26674,6 +26664,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"axios@npm:^1.5.1, axios@npm:^1.6.7":
+  version: 1.7.2
+  resolution: "axios@npm:1.7.2"
+  dependencies:
+    follow-redirects: ^1.15.6
+    form-data: ^4.0.0
+    proxy-from-env: ^1.1.0
+  checksum: e457e2b0ab748504621f6fa6609074ac08c824bf0881592209dfa15098ece7e88495300e02cd22ba50b3468fd712fe687e629dcb03d6a3f6a51989727405aedf
+  languageName: node
+  linkType: hard
+
 "axios@npm:^1.6.0":
   version: 1.6.7
   resolution: "axios@npm:1.6.7"
@@ -26682,17 +26683,6 @@ __metadata:
     form-data: ^4.0.0
     proxy-from-env: ^1.1.0
   checksum: 87d4d429927d09942771f3b3a6c13580c183e31d7be0ee12f09be6d5655304996bb033d85e54be81606f4e89684df43be7bf52d14becb73a12727bf33298a082
-  languageName: node
-  linkType: hard
-
-"axios@npm:^1.6.7":
-  version: 1.7.2
-  resolution: "axios@npm:1.7.2"
-  dependencies:
-    follow-redirects: ^1.15.6
-    form-data: ^4.0.0
-    proxy-from-env: ^1.1.0
-  checksum: e457e2b0ab748504621f6fa6609074ac08c824bf0881592209dfa15098ece7e88495300e02cd22ba50b3468fd712fe687e629dcb03d6a3f6a51989727405aedf
   languageName: node
   linkType: hard
 
@@ -32616,7 +32606,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"decode-uri-component@npm:^0.2.0":
+"decode-uri-component@npm:^0.2.0, decode-uri-component@npm:^0.2.2":
   version: 0.2.2
   resolution: "decode-uri-component@npm:0.2.2"
   checksum: 95476a7d28f267292ce745eac3524a9079058bbb35767b76e3ee87d42e34cd0275d2eb19d9d08c3e167f97556e8a2872747f5e65cbebcac8b0c98d83e285f139
@@ -37521,7 +37511,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"follow-redirects@npm:^1.0.0, follow-redirects@npm:^1.14.0, follow-redirects@npm:^1.14.9, follow-redirects@npm:^1.15.0, follow-redirects@npm:^1.15.4, follow-redirects@npm:^1.15.6":
+"follow-redirects@npm:^1.0.0, follow-redirects@npm:^1.14.0, follow-redirects@npm:^1.15.0, follow-redirects@npm:^1.15.4, follow-redirects@npm:^1.15.6":
   version: 1.15.6
   resolution: "follow-redirects@npm:1.15.6"
   peerDependenciesMeta:
@@ -38340,7 +38330,7 @@ fsevents@~2.1.1:
     "@fluent/dom": ^0.9.0
     "@fluent/langneg": ^0.7.0
     "@google-cloud/tasks": ^5.3.0
-    "@googlemaps/google-maps-services-js": ^3.3.16
+    "@googlemaps/google-maps-services-js": ^3.4.0
     "@hapi/hapi": ^20.2.1
     "@hapi/hoek": ^11.0.2
     "@mozilla/glean": ^5.0.2
@@ -56754,15 +56744,15 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"query-string@npm:^7.0.1":
-  version: 7.0.1
-  resolution: "query-string@npm:7.0.1"
+"query-string@npm:<8.x":
+  version: 7.1.3
+  resolution: "query-string@npm:7.1.3"
   dependencies:
-    decode-uri-component: ^0.2.0
+    decode-uri-component: ^0.2.2
     filter-obj: ^1.1.0
     split-on-first: ^1.0.0
     strict-uri-encode: ^2.0.0
-  checksum: 2eb990c0eaa80998d074aac2ad5bcc7f21fa2e53a7d129d19883abe724a2eedb987ca81b731755307431914b0f958767bfe7c5f7433d0974a1650b5d313e5618
+  checksum: 91af02dcd9cc9227a052841d5c2eecb80a0d6489d05625df506a097ef1c59037cfb5e907f39b84643cbfd535c955abec3e553d0130a7b510120c37d06e0f4346
   languageName: node
   linkType: hard
 
@@ -59052,7 +59042,7 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"retry-axios@npm:^2.2.1":
+"retry-axios@npm:<3.x":
   version: 2.6.0
   resolution: "retry-axios@npm:2.6.0"
   peerDependencies:
