@@ -1,6 +1,8 @@
 name: Docker
 
 on:
+  push:
+    tags: '*'
   workflow_dispatch:
     inputs:
       git_tag:
@@ -8,6 +10,26 @@ on:
         required: true
 
 jobs:
+  tag:
+    name: Determine tag to build
+    runs-on: ubuntu-latest
+    permissions: {}
+    outputs:
+      TAG: ${{ steps.determine.outputs.tag }}
+    steps:
+      - id: determine
+        run: |
+          # workflow_dispatch
+          if [[ "${{ github.event.inputs.git_tag }}" != "" ]]; then
+            echo "tag=${{ github.event.inputs.git_tag }}" >> $GITHUB_OUTPUT
+          # push
+          elif [[ "${{ github.ref }}" != "" ]]; then
+            echo "tag=$(cut -d \/ -f3 <(echo '${{ github.ref }}'))" >> $GITHUB_OUTPUT
+          else
+            echo "Cannot determine tag"
+            exit 1
+          fi
+
   docker:
     name: Docker build and push to GAR
     runs-on: ubuntu-latest
@@ -21,7 +43,9 @@ jobs:
       GCP_PROJECT_ID: moz-fx-fxa-prod
       IMAGE: fxa-mono
       RUN_ID: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-      TAG: ${{ github.event.inputs.git_tag }}
+      TAG: ${{ needs.tag.outputs.TAG }}
+    needs:
+      - tag
     steps:
       - uses: actions/checkout@v4
         with:
