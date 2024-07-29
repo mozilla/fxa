@@ -82,5 +82,11 @@ module.exports = function (grunt) {
       expand: true,
       src: ['main.css', 'tailwind.out.css'],
     },
+    settings: {
+      expand: true,
+      cwd: '<%= yeoman.app %>/../../fxa-settings/build',
+      dest: '<%= yeoman.dist %>/settings/',
+      src: '**/*',
+    },
   });
 };
