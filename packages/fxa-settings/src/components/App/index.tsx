@@ -258,6 +258,10 @@ const SettingsRoutes = ({
   const location = useLocation();
   const isSync = integration != null ? integration.isSync() : false;
 
+  useEffect(() => {
+    GleanMetrics.pageLoad();
+  }, [location.pathname]);
+
   // If the user is not signed in, they cannot access settings! Direct them accordingly
   if (!isSignedIn) {
     const params = new URLSearchParams(window.location.search);
@@ -302,6 +306,11 @@ const AuthAndAccountSetupRoutes = ({
   const localAccount = currentAccount();
   // TODO: MozServices / string discrepancy, FXA-6802
   const serviceName = integration.getServiceName() as MozServices;
+
+  const location = useLocation();
+  useEffect(() => {
+    GleanMetrics.pageLoad();
+  }, [location.pathname]);
 
   return (
     <Router>

@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import Glean from '@mozilla/glean/web';
+import * as GleanMetricsAPI from '@mozilla/glean/metrics';
 import { testResetGlean } from '@mozilla/glean/testing';
 import sinon, { SinonStub } from 'sinon';
 
@@ -71,7 +72,8 @@ describe('lib/glean', () => {
     setUtmContentStub: SinonStub,
     setUtmMediumStub: SinonStub,
     setUtmSourceStub: SinonStub,
-    setUtmTermStub: SinonStub;
+    setUtmTermStub: SinonStub,
+    pageLoadStub: SinonStub;
 
   beforeEach(async () => {
     mockMetricsContext.metricsFlow = {
@@ -104,6 +106,8 @@ describe('lib/glean', () => {
     setUtmSourceStub = sandbox.stub(utm.source, 'set');
     setUtmTermStub = sandbox.stub(utm.term, 'set');
     submitPingStub = sandbox.stub(pings.accountsEvents, 'submit');
+    pageLoadStub = sandbox.stub(GleanMetricsAPI.default, 'pageLoad');
+
     await testResetGlean('glean-test');
   });
 
@@ -176,6 +180,7 @@ describe('lib/glean', () => {
           appDisplayVersion: mockConfig.appDisplayVersion,
           channel: mockConfig.channel,
           serverEndpoint: mockConfig.serverEndpoint,
+          enableAutoPageLoadEvents: true,
         }
       );
       sinon.assert.calledWith(logPingsStub, mockConfig.logPings);
@@ -818,6 +823,13 @@ describe('lib/glean', () => {
       GleanMetrics.login.success();
       await GleanMetrics.isDone();
       expect(true).toBeTruthy();
+    });
+  });
+
+  describe('pageLoad', () => {
+    it('resolves', async () => {
+      GleanMetrics.pageLoad();
+      sinon.assert.calledOnce(pageLoadStub);
     });
   });
 });
