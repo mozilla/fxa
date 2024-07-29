@@ -239,6 +239,28 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
                 before deleting your account.
               </p>
             </Localized>
+            <Localized
+              id="pocket-delete-notice-marketing"
+              elems={{
+                a: (
+                  <LinkExternal
+                    href="https://privacyportal.onetrust.com/webform/1350748f-7139-405c-8188-22740b3b5587/4ba08202-2ede-4934-a89e-f0b0870f95f0"
+                    data-testid="link-marketing-delete-notice"
+                    className="link-blue"
+                  >
+                    request deletion of your marketing data.
+                  </LinkExternal>
+                ),
+              }}
+            >
+              <p className="mb-4">
+                To stop receiving marketing emails from Mozilla Corporation and
+                Mozilla Foundation, you must{' '}
+                <a href="#todo-change-to-button">
+                  request deletion of your marketing data.
+                </a>{' '}
+              </p>
+            </Localized>
             <Localized id="delete-account-acknowledge">
               <p className="mb-4">
                 Please acknowledge that by deleting your account:
