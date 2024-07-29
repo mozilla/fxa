@@ -82,8 +82,8 @@ if (oldPubJWK) {
     'openid.oldKey must be a valid public key'
   );
   assert.notEqual(
-    currentPrivJWK.kid,
-    oldPubJWK.kid,
+    currentPrivJWK?.kid,
+    oldPubJWK?.kid,
     'openid.key.kid must differ from openid.oldKey.id'
   );
   PRIVATE_JWKS_MAP.set(oldPubJWK.kid, oldPubJWK);
