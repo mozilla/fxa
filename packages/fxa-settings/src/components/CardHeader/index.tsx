@@ -6,7 +6,7 @@ import React from 'react';
 import { ReactElement } from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { MozServices } from '../../lib/types';
-import { ReactComponent as PocketLogo } from '@fxa/shared/assets/images/pocket.svg';
+import { ReactComponent as PocketTextLogo } from '@fxa/shared/assets/images/pocket-text-logo.svg';
 
 // NOTE: this component is heavily tested in components that use it and has complete line
 // coverage. However, we may file an issue out of FXA-6589 to add more explicit coverage.
@@ -116,7 +116,11 @@ const serviceLogos: {
   [key in MozServices]?: ReactElement;
 } = {
   [MozServices.Pocket]: (
-    <PocketLogo className="inline" aria-label={MozServices.Pocket} role="img" />
+    <PocketTextLogo
+      className="inline w-22 ps-0.5"
+      aria-label={MozServices.Pocket}
+      role="img"
+    />
   ),
 };
 
