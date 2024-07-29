@@ -145,7 +145,7 @@
     "babel-plugin-dynamic-import-webpack": "1.1.0",
     "chai": "^4.3.6",
     "copy-webpack-plugin": "12.0.2",
-    "core-js": "^3.36.0",
+    "core-js": "^3.37.1",
     "css": "3.0.0",
     "esbuild": "^0.17.15",
     "esbuild-register": "^3.5.0",
