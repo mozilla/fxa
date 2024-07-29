@@ -8998,15 +8998,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@google-cloud/firestore@npm:^7.3.0":
-  version: 7.3.0
-  resolution: "@google-cloud/firestore@npm:7.3.0"
+"@google-cloud/firestore@npm:^7.9.0":
+  version: 7.9.0
+  resolution: "@google-cloud/firestore@npm:7.9.0"
   dependencies:
     fast-deep-equal: ^3.1.1
     functional-red-black-tree: ^1.0.1
-    google-gax: ^4.0.4
-    protobufjs: ^7.2.5
-  checksum: 6e12f011250ee6e3f8a522ab02d706af7966675b6653e77734929fce1493efc9fed90de398900228da660f4f4738ccafa2bad96f4573e8097267c67f1ab87f90
+    google-gax: ^4.3.3
+    protobufjs: ^7.2.6
+  checksum: 5d0657736f1e364cd110ea6083eb8b6aeb1605ea409ea5478d5c8430bfa568c62d472b41e892d0849dfb405b06d8aba412fd57a5d1e807429ba5264c48eb2673
   languageName: node
   linkType: hard
 
@@ -9901,13 +9901,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@grpc/grpc-js@npm:^1.1.8, @grpc/grpc-js@npm:^1.7.1, @grpc/grpc-js@npm:~1.9.6":
+"@grpc/grpc-js@npm:^1.1.8, @grpc/grpc-js@npm:^1.7.1":
   version: 1.9.15
   resolution: "@grpc/grpc-js@npm:1.9.15"
   dependencies:
     "@grpc/proto-loader": ^0.7.8
     "@types/node": ">=12.12.47"
   checksum: 5b0f84052ad6610fff7919cae99c79c1182b01d2f529f6e64e1189e902a90abcb6f828a119df8e4abcdab8fa1ac5d5975fe200220293a1ced126c536f3bc1374
+  languageName: node
+  linkType: hard
+
+"@grpc/grpc-js@npm:^1.10.9, @grpc/grpc-js@npm:^1.11.1":
+  version: 1.11.1
+  resolution: "@grpc/grpc-js@npm:1.11.1"
+  dependencies:
+    "@grpc/proto-loader": ^0.7.13
+    "@js-sdsl/ordered-map": ^4.4.2
+  checksum: 906894851a13b09f5a95052e1bec572b1b5760cc53635e80b50155c7546591cc8b8768d2723e2ec2ff5d7b086f65a27809db345fd3038fd50e3fc5e827ee88c6
   languageName: node
   linkType: hard
 
@@ -9923,6 +9933,20 @@ __metadata:
   bin:
     proto-loader-gen-types: build/bin/proto-loader-gen-types.js
   checksum: ca3a16fc18526a835d006802d15dcf21cb3e2a7a803a988bf34397ebeb07ae94062b3f06db3d1a9b8ec3c40bd96354ca69d9e2ac06ef4c3a74a990d9e55ca2fd
+  languageName: node
+  linkType: hard
+
+"@grpc/proto-loader@npm:^0.7.13":
+  version: 0.7.13
+  resolution: "@grpc/proto-loader@npm:0.7.13"
+  dependencies:
+    lodash.camelcase: ^4.3.0
+    long: ^5.0.0
+    protobufjs: ^7.2.5
+    yargs: ^17.7.2
+  bin:
+    proto-loader-gen-types: build/bin/proto-loader-gen-types.js
+  checksum: 399c1b8a4627f93dc31660d9636ea6bf58be5675cc7581e3df56a249369e5be02c6cd0d642c5332b0d5673bc8621619bc06fb045aa3e8f57383737b5d35930dc
   languageName: node
   linkType: hard
 
@@ -11947,6 +11971,13 @@ __metadata:
     "@jridgewell/resolve-uri": ^3.0.3
     "@jridgewell/sourcemap-codec": ^1.4.10
   checksum: e38254e830472248ca10a6ed1ae75af5e8514f0680245a5e7b53bc3c030fd8691d4d3115d80595b45d3badead68269769ed47ecbbdd67db1343a11f05700e75a
+  languageName: node
+  linkType: hard
+
+"@js-sdsl/ordered-map@npm:^4.4.2":
+  version: 4.4.2
+  resolution: "@js-sdsl/ordered-map@npm:4.4.2"
+  checksum: a927ae4ff8565ecb75355cc6886a4f8fadbf2af1268143c96c0cce3ba01261d241c3f4ba77f21f3f017a00f91dfe9e0673e95f830255945c80a0e96c6d30508a
   languageName: node
   linkType: hard
 
@@ -39317,7 +39348,7 @@ fsevents@~2.1.1:
     "@fluent/bundle": ^0.18.0
     "@fluent/react": ^0.15.2
     "@google-cloud/bigquery": ^7.7.0
-    "@google-cloud/firestore": ^7.3.0
+    "@google-cloud/firestore": ^7.9.0
     "@google-cloud/opentelemetry-cloud-trace-exporter": ^2.2.0
     "@google-cloud/pubsub": ^4.3.1
     "@google-cloud/translate": ^8.2.0
@@ -39325,6 +39356,7 @@ fsevents@~2.1.1:
     "@graphql-codegen/client-preset": ^4.3.2
     "@graphql-codegen/typescript": ^4.0.1
     "@graphql-codegen/typescript-document-nodes": ^4.0.1
+    "@grpc/grpc-js": ^1.11.1
     "@nestjs/apollo": ^12.1.0
     "@nestjs/cli": ^10.3.2
     "@nestjs/common": ^10.3.4
@@ -40391,6 +40423,20 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"google-auth-library@npm:^9.3.0":
+  version: 9.12.0
+  resolution: "google-auth-library@npm:9.12.0"
+  dependencies:
+    base64-js: ^1.3.0
+    ecdsa-sig-formatter: ^1.0.11
+    gaxios: ^6.1.1
+    gcp-metadata: ^6.1.0
+    gtoken: ^7.0.0
+    jws: ^4.0.0
+  checksum: 7b5810eae68b27b1d9dd3afa0e408f4ec50e96363d79fab4eec996205a91e1eb776b1613811e5110a5a51f5afe5ed77fd077f2b37602b5f77310f4d1a5fd50b8
+  languageName: node
+  linkType: hard
+
 "google-auth-library@npm:^9.8.0":
   version: 9.8.0
   resolution: "google-auth-library@npm:9.8.0"
@@ -40405,42 +40451,23 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"google-gax@npm:^4.0.3, google-gax@npm:^4.0.4":
-  version: 4.0.5
-  resolution: "google-gax@npm:4.0.5"
+"google-gax@npm:^4.0.3, google-gax@npm:^4.0.4, google-gax@npm:^4.3.0, google-gax@npm:^4.3.3":
+  version: 4.3.8
+  resolution: "google-gax@npm:4.3.8"
   dependencies:
-    "@grpc/grpc-js": ~1.9.6
-    "@grpc/proto-loader": ^0.7.0
+    "@grpc/grpc-js": ^1.10.9
+    "@grpc/proto-loader": ^0.7.13
     "@types/long": ^4.0.0
     abort-controller: ^3.0.0
     duplexify: ^4.0.0
-    google-auth-library: ^9.0.0
+    google-auth-library: ^9.3.0
     node-fetch: ^2.6.1
     object-hash: ^3.0.0
-    proto3-json-serializer: ^2.0.0
-    protobufjs: 7.2.5
-    retry-request: ^7.0.0
-  checksum: d4b5f2fc4a902b29d23552ab0fa498785ce88516ff07f7e7f08cac0f6572a78113a7f468f47b17e98d235d4049eeda8d77cfcad6291f6d14bda39b9eb19f935d
-  languageName: node
-  linkType: hard
-
-"google-gax@npm:^4.3.0":
-  version: 4.3.0
-  resolution: "google-gax@npm:4.3.0"
-  dependencies:
-    "@grpc/grpc-js": ~1.9.6
-    "@grpc/proto-loader": ^0.7.0
-    "@types/long": ^4.0.0
-    abort-controller: ^3.0.0
-    duplexify: ^4.0.0
-    google-auth-library: ^9.0.0
-    node-fetch: ^2.6.1
-    object-hash: ^3.0.0
-    proto3-json-serializer: ^2.0.0
-    protobufjs: 7.2.6
+    proto3-json-serializer: ^2.0.2
+    protobufjs: ^7.3.2
     retry-request: ^7.0.0
     uuid: ^9.0.1
-  checksum: 2471ab0ce4fd74bd2510eac31e7285d20879dc93df104d2fcd4b11ef3cbba8c482d63a41d8e7c7c5804ffd0bc185f902b8190ee363dfca80f4cd45c4dfcf9a57
+  checksum: e6a6946645d3290bf04c2815d091037ff24ef41bd3f8d9eaab802c82adc86b05fe665dc36181a79972292350a01a5e203e0f42dfa3498bf084caee99a16a8207
   languageName: node
   linkType: hard
 
@@ -56410,36 +56437,16 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"proto3-json-serializer@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "proto3-json-serializer@npm:2.0.0"
+"proto3-json-serializer@npm:^2.0.2":
+  version: 2.0.2
+  resolution: "proto3-json-serializer@npm:2.0.2"
   dependencies:
-    protobufjs: ^7.0.0
-  checksum: aea3433d5e0204625b97bda53001f71fc060eb83709d58d001c5bf75728f14b5ebfca39b54d81e7c90e4de363f68aecf1d203a410f33ebda9590a812f8f30b13
+    protobufjs: ^7.2.5
+  checksum: 21b8aa65be6dac2bb24920e5bdabef48b249bdf65b1498ae7e69ac4e70722275b083cd60a21d2b4be3ead9d768de2f6f5fb6b188bd177d51c824a539b5ba55cc
   languageName: node
   linkType: hard
 
-"protobufjs@npm:7.2.5":
-  version: 7.2.5
-  resolution: "protobufjs@npm:7.2.5"
-  dependencies:
-    "@protobufjs/aspromise": ^1.1.2
-    "@protobufjs/base64": ^1.1.2
-    "@protobufjs/codegen": ^2.0.4
-    "@protobufjs/eventemitter": ^1.1.0
-    "@protobufjs/fetch": ^1.1.0
-    "@protobufjs/float": ^1.0.2
-    "@protobufjs/inquire": ^1.1.0
-    "@protobufjs/path": ^1.1.2
-    "@protobufjs/pool": ^1.1.0
-    "@protobufjs/utf8": ^1.1.0
-    "@types/node": ">=13.7.0"
-    long: ^5.0.0
-  checksum: 3770a072114061faebbb17cfd135bc4e187b66bc6f40cd8bac624368b0270871ec0cfb43a02b9fb4f029c8335808a840f1afba3c2e7ede7063b98ae6b98a703f
-  languageName: node
-  linkType: hard
-
-"protobufjs@npm:7.2.6, protobufjs@npm:^7.0.0, protobufjs@npm:^7.2.3, protobufjs@npm:^7.2.4, protobufjs@npm:^7.2.5":
+"protobufjs@npm:^7.0.0, protobufjs@npm:^7.2.3, protobufjs@npm:^7.2.4, protobufjs@npm:^7.2.5":
   version: 7.2.6
   resolution: "protobufjs@npm:7.2.6"
   dependencies:
@@ -56456,6 +56463,26 @@ fsevents@~2.1.1:
     "@types/node": ">=13.7.0"
     long: ^5.0.0
   checksum: 3c62e48f7d50017ac3b0dcd2a58e617cf858f9fba56a488bd48b9aa3482893a75540052dbcb3c12dfbaab42b1d04964611175faf06bdadcd33a4ebac982a511e
+  languageName: node
+  linkType: hard
+
+"protobufjs@npm:^7.2.6, protobufjs@npm:^7.3.2":
+  version: 7.3.2
+  resolution: "protobufjs@npm:7.3.2"
+  dependencies:
+    "@protobufjs/aspromise": ^1.1.2
+    "@protobufjs/base64": ^1.1.2
+    "@protobufjs/codegen": ^2.0.4
+    "@protobufjs/eventemitter": ^1.1.0
+    "@protobufjs/fetch": ^1.1.0
+    "@protobufjs/float": ^1.0.2
+    "@protobufjs/inquire": ^1.1.0
+    "@protobufjs/path": ^1.1.2
+    "@protobufjs/pool": ^1.1.0
+    "@protobufjs/utf8": ^1.1.0
+    "@types/node": ">=13.7.0"
+    long: ^5.0.0
+  checksum: cfb2a744787f26ee7c82f3e7c4b72cfc000e9bb4c07828ed78eb414db0ea97a340c0cc3264d0e88606592f847b12c0351411f10e9af255b7ba864eec44d7705f
   languageName: node
   linkType: hard
 
