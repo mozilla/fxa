@@ -40,6 +40,23 @@ event:
     data_sensitivity:
       - interaction
 
+  third_party_links:
+    description: boolean, additional context-dependent (on event.name) info related to third party auth links
+    type: boolean
+    lifetime: ping
+    send_in_pings:
+      - accounts-events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-10119
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+
 account:
   user_id_sha256:
     type: string
@@ -393,6 +410,11 @@ cached_login:
     expires: never
     data_sensitivity:
       - interaction
+    extra_keys:
+      third_party_links:
+        description: |
+          Indicates if the third party auth options were shown on the cached login page.
+        type: boolean
   forgot_pwd_submit:
     type: event
     description: |
@@ -671,6 +693,11 @@ login:
     description: |
       Login Page View (FE)
       A successful view/load of the login page.'
+    extra_keys:
+      third_party_links:
+        description: |
+          Indicates if the third party auth options were shown on the login page.
+        type: boolean
     send_in_pings:
       - events
     notification_emails:

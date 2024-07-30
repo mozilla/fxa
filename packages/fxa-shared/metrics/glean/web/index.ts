@@ -13,12 +13,24 @@ export type GleanMetricsConfig = {
   debugViewTag: string;
 };
 
-export const eventPropertyNames = ['reason'] as const;
-export type PropertyNameT = typeof eventPropertyNames;
-export type PropertyName = PropertyNameT[number];
-export type EventProperties = {
-  [k in PropertyName]?: string;
+export const booleanEventPropertyNames = ['thirdPartyLinks'] as const;
+export const stringEventPropertyNames = ['reason'] as const;
+
+export type PropertyNameStringT = typeof stringEventPropertyNames;
+export type PropertyNameString = PropertyNameStringT[number];
+
+export type PropertyNameBooleanT = typeof booleanEventPropertyNames;
+export type PropertyNameBoolean = PropertyNameBooleanT[number];
+
+type StringEventProperties = {
+  [K in PropertyNameString]?: string;
 };
+
+type BooleanEventProperties = {
+  [K in PropertyNameBoolean]?: boolean;
+};
+
+type EventProperties = StringEventProperties & BooleanEventProperties;
 export type EventsMap = typeof eventsMap;
 export type EventMapKeys = keyof EventsMap;
 
