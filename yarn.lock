@@ -8955,10 +8955,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@golevelup/ts-jest@npm:^0.4.0":
-  version: 0.4.0
-  resolution: "@golevelup/ts-jest@npm:0.4.0"
-  checksum: 1cb2c938771493445d478665594927304fd0890e964c8d38a11a3f8735fd83a01bed3e5d470c403d3f8f38e8b67571aab822c1bebbedc8562faf2936e74c8f66
+"@golevelup/ts-jest@npm:^0.5.0":
+  version: 0.5.0
+  resolution: "@golevelup/ts-jest@npm:0.5.0"
+  checksum: abfa5637043a78c348c6596d5b9f3cda1e519d72718adbfa1680515f96d78f0934fddf230b0229a83c237c1a4ba8fcafe2a5cf90af3c88543e6e77fbabd7c735
   languageName: node
   linkType: hard
 
@@ -38363,7 +38363,7 @@ fsevents@~2.1.1:
   version: 0.0.0-use.local
   resolution: "fxa-admin-server@workspace:packages/fxa-admin-server"
   dependencies:
-    "@golevelup/ts-jest": ^0.4.0
+    "@golevelup/ts-jest": ^0.5.0
     "@google-cloud/tasks": ^5.3.0
     "@nestjs/cli": ^10.3.2
     "@types/chance": ^1.1.2
