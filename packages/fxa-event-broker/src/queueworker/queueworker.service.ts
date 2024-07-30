@@ -134,6 +134,13 @@ export class QueueworkerService
    * Publish a message to the pubsub topic for the client.
    */
   private async publishMessage(clientId: string, json: any) {
+    // Ensure clientId is normalized
+    clientId = clientId.toLowerCase();
+    if (!this.clientWebhooks.hasWebhookRegistered(clientId)) {
+      this.log.debug('noWebhookRegistered', { clientId });
+      this.metrics.increment('message.webhookNotFound', { clientId });
+      return;
+    }
     const topicName = this.topicPrefix + clientId;
     if (this.pubsub.isEmulator) {
       const topics = await this.pubsub.getTopics();

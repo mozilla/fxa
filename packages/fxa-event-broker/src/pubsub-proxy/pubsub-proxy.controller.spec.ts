@@ -80,6 +80,8 @@ describe('PubsubProxy Controller', () => {
   let controller: PubsubProxyController;
   let jwtset: any;
   let logger: any;
+  let mockWebhookValue: any;
+  let mockMetricValue: any;
 
   const mockWebhook = () => {
     nock('http://accounts.firefox.com')
@@ -98,19 +100,24 @@ describe('PubsubProxy Controller', () => {
       generateSubscriptionSET: jest.fn().mockResolvedValue(TEST_TOKEN),
     };
     logger = { debug: jest.fn(), error: jest.fn() };
+    mockMetricValue = { timing: jest.fn(), increment: jest.fn() };
     const MockMetrics: Provider = {
       provide: 'METRICS',
-      useValue: { timing: jest.fn(), increment: jest.fn() },
+      useValue: mockMetricValue,
     };
     const MockMozLogger: Provider = {
       provide: MozLoggerService,
       useValue: logger,
     };
+    mockWebhookValue = {
+      webhooks: { [TEST_CLIENT_ID]: 'http://accounts.firefox.com/webhook' },
+      getWebhookForClientId: jest
+        .fn()
+        .mockReturnValue('http://accounts.firefox.com/webhook'),
+    };
     const MockWebhook: Provider = {
       provide: ClientWebhooksService,
-      useValue: {
-        webhooks: { [TEST_CLIENT_ID]: 'http://accounts.firefox.com/webhook' },
-      },
+      useValue: mockWebhookValue,
     };
     const MockJwtSet: Provider = {
       provide: JwtsetService,
@@ -164,18 +171,6 @@ describe('PubsubProxy Controller', () => {
 
     expect(err?.getStatus()).toBe(200);
     expect(err?.getResponse()).toStrictEqual({ token: 'Bearer ' + TEST_TOKEN });
-  });
-
-  it('throws 404 with invalid clientid', () => {
-    expect.assertions(2);
-    let err: { getStatus: () => number } | undefined = undefined;
-    try {
-      (controller as any).lookupWebhookEndpoint('test1234');
-    } catch (error) {
-      err = error;
-    }
-    expect(err?.getStatus()).toBe(404);
-    expect(logger.debug).toBeCalledTimes(1);
   });
 
   describe('handles common RP events:', () => {
@@ -249,6 +244,34 @@ describe('PubsubProxy Controller', () => {
     expect(err?.getStatus()).toBe(400);
     expect(logger.error).toBeCalledTimes(1);
     expect(Sentry.captureException).toBeCalledTimes(1);
+  });
+
+  it('records a metric on not found client ids', async () => {
+    expect.assertions(2);
+    mockWebhookValue.getWebhookForClientId = jest
+      .fn()
+      .mockReturnValue(undefined);
+    let err:
+      | { getStatus: () => number; getResponse: () => string }
+      | undefined = undefined;
+    try {
+      await controller.proxy(
+        {
+          message: {
+            data: createValidSubscriptionMessage(),
+            messageId: 'test-message',
+          },
+          subscription: 'test-sub',
+        },
+        'abc1234'
+      );
+    } catch (error) {
+      err = error;
+    }
+    expect(err?.getStatus()).toBe(200);
+    expect(mockMetricValue.increment).toBeCalledWith('proxy.webhookNotFound', {
+      clientId: 'abc1234',
+    });
   });
 
   it('proxies an error code back', async () => {

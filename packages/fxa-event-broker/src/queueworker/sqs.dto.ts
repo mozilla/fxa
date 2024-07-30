@@ -14,7 +14,7 @@ export const SUBSCRIPTION_UPDATE_EVENT = 'subscription:update';
 export const APPLE_USER_MIGRATION_EVENT = 'appleUserMigration';
 
 // Message schemas
-const HEX_STRING = /^(?:[0-9a-f]{2})+$/;
+const HEX_STRING = /^(?:[0-9a-fA-F]{2})+$/;
 export const CLIENT_ID = joi.string().regex(HEX_STRING);
 
 export const BASE_MESSAGE_SCHEMA = joi
