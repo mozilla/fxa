@@ -786,7 +786,13 @@ const conf = (module.exports = convict({
           ],
         },
         'https://identity.thunderbird.net/apps/sync': {
-          redirectUris: ['urn:ietf:wg:oauth:2.0:oob:oauth-redirect-webchannel'],
+          redirectUris: [
+            'urn:ietf:wg:oauth:2.0:oob:oauth-redirect-webchannel', // Thunderbird
+            'net.thunderbird.android://mozilla-accounts-redirect', // Thunderbird for Android (release)
+            'net.thunderbird.android.beta://mozilla-accounts-redirect', // Thunderbird for Android (beta)
+            'net.thunderbird.android.daily://mozilla-accounts-redirect', // Thunderbird for Android (daily)
+            'net.thunderbird.android.debug://mozilla-accounts-redirect', // Thunderbird for Android (development/debug build)
+          ],
         },
       },
       doc: 'Validates redirect uris for requested scopes',
