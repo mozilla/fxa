@@ -78,6 +78,17 @@ export class ClientWebhooksService
     });
   }
 
+  // Return whether the given client ID has a webhook registered.
+  hasWebhookRegistered(clientId: string): boolean {
+    return Object.keys(this.webhooks).includes(clientId);
+  }
+
+  // Get the webhook URL for a given client ID.
+  getWebhookForClientId(clientId: string): string | undefined {
+    if (!Object.keys(clientId).includes(clientId)) return undefined;
+    return this.webhooks[clientId];
+  }
+
   onApplicationShutdown(): void {
     this.cancel?.();
   }

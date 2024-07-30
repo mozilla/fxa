@@ -128,6 +128,7 @@ describe('QueueworkerService', () => {
   let webHookService = {
     webhooks: {},
     resourceServers: [] as string[],
+    hasWebhookRegistered: jest.fn().mockReturnValue(true),
   };
 
   beforeEach(async () => {
@@ -186,6 +187,7 @@ describe('QueueworkerService', () => {
     };
     webHookService.webhooks = {};
     webHookService.resourceServers = [];
+    webHookService.hasWebhookRegistered = jest.fn().mockReturnValue(true);
 
     config = {
       env: 'development',
@@ -268,7 +270,7 @@ describe('QueueworkerService', () => {
     it('normalizes the client id', async () => {
       const message = Object.assign({}, baseLoginMessage);
       message.clientId = message.clientId.toUpperCase();
-      const msg = updateStubMessage(baseLoginMessage);
+      const msg = updateStubMessage(message);
       await (service as any).handleMessage(msg);
       expect(firestore.storeLogin).toBeCalledTimes(1);
       expect(firestore.storeLogin).toBeCalledWith(
@@ -385,6 +387,17 @@ describe('QueueworkerService', () => {
       await (service as any).handleMessage(msg);
       expect(logger.debug).toBeCalledTimes(1);
       expect(logger.debug.mock.calls[0][0]).toBe('unwantedMessage');
+    });
+
+    it('logs and metrics on clientid with no webhook registered', async () => {
+      webHookService.hasWebhookRegistered = jest.fn().mockReturnValue(false);
+      const msg = updateStubMessage(baseDeleteMessage);
+      await (service as any).handleMessage(msg);
+      expect(logger.debug).toBeCalledTimes(3);
+      expect(logger.debug.mock.calls[1][0]).toBe('noWebhookRegistered');
+      expect(metrics.increment).toBeCalledWith('message.webhookNotFound', {
+        clientId: baseLoginMessage.clientId,
+      });
     });
   });
 });

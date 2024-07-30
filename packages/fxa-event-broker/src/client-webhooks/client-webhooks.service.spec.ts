@@ -115,6 +115,12 @@ describe('ClientWebhooksService', () => {
       });
     });
 
+    it('returns whether the client id has a webhook registered', async () => {
+      await service.onApplicationBootstrap();
+      expect(service.hasWebhookRegistered('testClient1')).toBe(true);
+      expect(service.hasWebhookRegistered('testClient3')).toBe(false);
+    });
+
     it('gets errors', async () => {
       await service.onApplicationBootstrap();
       const mockExit = jest.spyOn(process, 'exit').mockImplementation();

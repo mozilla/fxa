@@ -7,7 +7,6 @@ import {
   Controller,
   HttpException,
   Inject,
-  NotFoundException,
   Param,
   Post,
   UseGuards,
@@ -39,7 +38,16 @@ export class PubsubProxyController {
     @Body() body: Request['body'],
     @Param('clientId') clientId: string
   ): Promise<void> {
-    const webhookEndpoint = this.lookupWebhookEndpoint(clientId);
+    const webhookEndpoint = this.webhookService.getWebhookForClientId(clientId);
+    if (!webhookEndpoint) {
+      this.log.debug('proxyDelivery', {
+        message: 'webhook for clientId not found',
+        clientId,
+      });
+      this.metrics.increment('proxy.webhookNotFound', { clientId });
+      // Return a 200 to avoid retrying if no webhook is found.
+      throw new HttpException('Webhook not found', 200);
+    }
     const message = this.extractMessage(body.message.data);
     const queueDelay = Date.now() - message.timestamp;
     const jwtPayload = await this.generateSET(message, clientId);
@@ -60,23 +68,6 @@ export class PubsubProxyController {
     this.metrics.timing(`proxy.queueDelay`, queueDelay);
 
     throw new HttpException(data, status);
-  }
-
-  /**
-   * Lookup a given clientId for its webhook endpoint and return it.
-   *
-   * @param clientId Client ID to lookup
-   */
-  private lookupWebhookEndpoint(clientId: string): string {
-    const webhookData = this.webhookService.webhooks;
-    if (!Object.keys(webhookData).includes(clientId)) {
-      this.log.debug('proxyDelivery', {
-        message: 'webhook for clientId not found',
-        clientId,
-      });
-      throw new NotFoundException();
-    }
-    return webhookData[clientId];
   }
 
   /**
