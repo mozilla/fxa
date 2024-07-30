@@ -49,7 +49,7 @@ export const SignInToRelyingPartyWithCachedCredentials = storyWithProps({
 export const SignInToPocketWithCachedCredentials = storyWithProps({
   sessionToken: MOCK_SESSION_TOKEN,
   serviceName: MozServices.Pocket,
-  integration: createMockSigninOAuthIntegration(),
+  integration: createMockSigninOAuthIntegration({ wantsKeys: false }),
 });
 
 export const SignInToSyncWithCachedCredentials = storyWithProps({
