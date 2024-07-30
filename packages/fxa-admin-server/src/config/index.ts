@@ -577,12 +577,12 @@ const conf = convict({
       env: 'NEWSLETTER_HOST',
     },
   },
-  contentful: {
+  cms: {
     enabled: {
-      doc: 'Whether to use Contentful',
+      doc: 'Whether to use CMS',
       format: Boolean,
       default: false,
-      env: 'CONTENTFUL_ENABLED',
+      env: 'CMS_ENABLED',
     },
   },
   cloudTasks: CloudTasksConvictConfigFactory(),

@@ -5,7 +5,7 @@
 import type { OperationVariables, TypedDocumentNode } from '@apollo/client';
 import { createHash } from 'crypto';
 
-export const CONTENTFUL_QUERY_CACHE_KEY = 'contentfulQueryCache';
+export const CMS_QUERY_CACHE_KEY = 'cmsQueryCache';
 
 export const cacheKeyForQuery = function <
   Result,
@@ -22,5 +22,5 @@ export const cacheKeyForQuery = function <
   const variableHash = createHash('sha256')
     .update(variablesString)
     .digest('hex');
-  return `${CONTENTFUL_QUERY_CACHE_KEY}:${queryHash}:${variableHash}`;
+  return `${CMS_QUERY_CACHE_KEY}:${queryHash}:${variableHash}`;
 };
