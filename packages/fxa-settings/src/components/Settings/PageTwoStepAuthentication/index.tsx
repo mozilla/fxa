@@ -20,6 +20,7 @@ import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { useAsync } from 'react-async-hook';
 import { getErrorFtlId } from '../../../lib/error-utils';
 import DataBlockManual from '../../DataBlockManual';
+import GleanMetrics from '../../../lib/glean';
 
 export const metricsPreInPostFix = 'settings.two-step-authentication';
 
@@ -239,7 +240,10 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
                     type="button"
                     className="mx-auto link-blue text-sm"
                     data-testid="cant-scan-code"
-                    onClick={() => setShowQrCode(false)}
+                    onClick={() => {
+                      setShowQrCode(false);
+                      GleanMetrics.accountPref.twoStepAuthScanCodeLink();
+                    }}
                   >
                     Can't scan code?
                   </button>
