@@ -273,11 +273,10 @@ export const Signup = ({
           GleanMetrics.registration.marketing({
             standard: {
               marketing: {
+                news: selectedNewsletterSlugs.indexOf('mozilla-and-you') >= 0,
                 take_action:
-                  selectedNewsletterSlugs.indexOf('security-privacy-news') >= 0,
-                testing: selectedNewsletterSlugs.indexOf('test-pilot') >= 0,
-                news:
                   selectedNewsletterSlugs.indexOf('mozilla-foundation') >= 0,
+                testing: selectedNewsletterSlugs.indexOf('test-pilot') >= 0,
               },
             },
           });
