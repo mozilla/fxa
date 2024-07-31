@@ -27,7 +27,7 @@ describe('lib/newsletter', () => {
     it('resolves to undefined on success with default newsletter slug', async () => {
       await expect(handleNewsletterSignup()).resolves.toBe(undefined);
       expect(apiSignupForNewsletter).toHaveBeenCalledWith({
-        newsletters: ['mozilla-accounts'],
+        newsletters: ['mozilla-and-you'],
       });
     });
 
