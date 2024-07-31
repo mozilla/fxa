@@ -459,10 +459,10 @@ describe('Signup page', () => {
               // we expect three newsletter options, but 4 slugs should be passed
               // because the first newsletter checkbox subscribes the user to 2 newsletters
               selectedNewsletterSlugs: [
-                'security-privacy-news',
+                'mozilla-and-you',
                 'mozilla-accounts',
-                'test-pilot',
                 'mozilla-foundation',
+                'test-pilot',
               ],
               unwrapBKey: MOCK_UNWRAP_BKEY,
             },
