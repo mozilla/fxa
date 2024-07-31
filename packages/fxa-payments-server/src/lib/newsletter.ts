@@ -9,7 +9,7 @@ import sentry from './sentry';
 export const FXA_NEWSLETTER_SIGNUP_ERROR: GeneralError = {
   code: 'fxa_newsletter_signup_error',
 };
-const DEFAULT_NEWSLETTER_SLUG = 'mozilla-accounts';
+const DEFAULT_NEWSLETTER_SLUG = 'mozilla-and-you';
 
 export async function handleNewsletterSignup(
   productMetadata?: ProductMetadata
