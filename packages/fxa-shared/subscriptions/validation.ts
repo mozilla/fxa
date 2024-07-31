@@ -26,7 +26,13 @@ export const subscriptionProductMetadataBaseValidator = Joi.object({
   newsletterSlug: commaArray
     .optional()
     .items(
-      Joi.valid('mozilla-and-you', 'security-privacy-news', 'hubs', 'mdnplus')
+      Joi.valid(
+        'mozilla-accounts',
+        'mozilla-and-you',
+        'security-privacy-news',
+        'hubs',
+        'mdnplus'
+      )
     ),
   newsletterLabelTextCode: Joi.string()
     .optional()
