@@ -94,7 +94,7 @@ export class PurchaseWithDetailsOfferingContentUtil {
 
   get purchases(): PurchaseWithDetailsOfferingContentByPlanIdsResult['purchases'] {
     // Deduplicating items as there could be duplicates from splitting up the
-    // stripePlanIds and making multiple Contentful calls
+    // stripePlanIds and making multiple CMS calls
     return {
       data: [
         ...new Map(

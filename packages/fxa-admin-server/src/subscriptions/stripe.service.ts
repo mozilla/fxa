@@ -132,7 +132,7 @@ export class StripeService extends StripeHelper {
       authFirestore: configService.get('authFirestore'),
       subhub: configService.get('subhub'),
       redis: configService.get('redis'),
-      contentful: configService.get('contentful'),
+      cms: configService.get('cms'),
     };
     super(config, metrics, logger);
 

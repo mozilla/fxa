@@ -56,7 +56,7 @@ export class CartService {
     ip?: string;
   }): Promise<ResultCart> {
     // TODO:
-    // - Fetch information about interval, offering, experiments from Contentful
+    // - Fetch information about interval, offering, experiments from CMS
     // - Guess TaxAddress via maxmind client
     // - Check if user is eligible to subscribe to plan, else throw error
     // - Fetch stripeCustomerId if uid is passed and has a customer id
