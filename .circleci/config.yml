@@ -718,6 +718,7 @@ jobs:
             else
               echo "No report zip files found, skipping blob merge."
             fi
+          when: always
       - store_artifacts:
           path: blob-report
       - run:
@@ -731,6 +732,7 @@ jobs:
             else
               echo "No report zip files found, skipping HTML merge."
             fi
+          when: always
       - store_artifacts:
           path: playwright-report
 
