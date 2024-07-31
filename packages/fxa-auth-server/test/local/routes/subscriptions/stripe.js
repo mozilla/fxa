@@ -505,7 +505,7 @@ describe('DirectStripeRoutes', () => {
         directStripeRoutesInstance.log.notifyAttachedServices.calledOnceWith(
           'profileDataChange',
           VALID_REQUEST,
-          { uid: UID, email: TEST_EMAIL }
+          { uid: UID }
         ),
         'Expected log.notifyAttachedServices to be called'
       );

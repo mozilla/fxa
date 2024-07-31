@@ -938,12 +938,6 @@ describe('/account/create', () => {
       eventData = mockLog.notifier.send.getCall(1).args[0];
       assert.equal(eventData.event, 'profileDataChange');
       assert.equal(eventData.data.uid, uid);
-      assert.equal(eventData.data.email, 'foo@gmail.com');
-      assert.equal(eventData.data.locale, 'en-US');
-      assert.equal(eventData.data.totpEnabled, false);
-      assert.equal(eventData.data.metricsEnabled, true);
-      assert.equal(eventData.data.accountDisabled, false);
-      assert.equal(eventData.data.accountLocked, false);
 
       assert.equal(
         mockLog.activityEvent.callCount,
@@ -1159,12 +1153,6 @@ describe('/account/create', () => {
       eventData = mockLog.notifier.send.getCall(1).args[0];
       assert.equal(eventData.event, 'profileDataChange');
       assert.equal(eventData.data.uid, uid);
-      assert.equal(eventData.data.email, 'foo@gmail.com');
-      assert.equal(eventData.data.locale, 'en-US');
-      assert.equal(eventData.data.totpEnabled, false);
-      assert.equal(eventData.data.metricsEnabled, true);
-      assert.equal(eventData.data.accountDisabled, false);
-      assert.equal(eventData.data.accountLocked, false);
 
       assert.equal(
         mockLog.activityEvent.callCount,

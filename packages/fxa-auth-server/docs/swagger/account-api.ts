@@ -114,6 +114,8 @@ const ACCOUNT_PROFILE_GET = {
         - \`locale\` requires \`profile:locale\` scope.
         - \`atLeast18AtReg\` requires \`profile:age_check\` scope.
         - \`authenticationMethods\` and \`authenticatorAssuranceLevel\` require \`profile:amr\` scope.
+        - \`accountDisabledAt\` requires \`profile:account_disabled_at\` scope.
+        - \`accountLockedAt\` requires \`profile:account_locked_at\` scope.
 
       The \`profile\` scope includes all the above sub-scopes.
     `,

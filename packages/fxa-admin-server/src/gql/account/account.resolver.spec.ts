@@ -286,7 +286,6 @@ describe('#integration - AccountResolver', () => {
       data: {
         ts: expect.any(Number),
         uid: USER_1.uid,
-        accountDisabled: true,
       },
     });
   });
@@ -306,7 +305,6 @@ describe('#integration - AccountResolver', () => {
       data: {
         ts: expect.any(Number),
         uid: USER_1.uid,
-        accountDisabled: false,
       },
     });
   });
@@ -451,7 +449,6 @@ describe('#integration - AccountResolver', () => {
       data: {
         ts: expect.any(Number),
         uid: USER_1.uid,
-        locale: 'en-CA',
       },
     });
   });

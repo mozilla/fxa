@@ -181,7 +181,6 @@ module.exports = (log, signer, db, domain, devices, config) => {
               {},
               {
                 uid: sessionToken.uid,
-                locale: request.app.acceptLanguage,
               }
             );
             // meh on the result

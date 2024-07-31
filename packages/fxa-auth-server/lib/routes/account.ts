@@ -244,12 +244,6 @@ export class AccountHandler {
     });
     await this.log.notifyAttachedServices('profileDataChange', request, {
       uid: account.uid,
-      email: email,
-      locale: locale,
-      totpEnabled: false,
-      metricsEnabled: true,
-      accountDisabled: false,
-      accountLocked: false,
     });
 
     return { password, password2, account };
@@ -1435,6 +1429,13 @@ export class AccountHandler {
         : null;
     }
 
+    if (scope.contains('profile:account_disabled_at')) {
+      res.accountDisabledAt = account.disabledAt;
+    }
+    if (scope.contains('profile:account_locked_at')) {
+      res.accountLockedAt = account.lockedAt;
+    }
+
     if (
       this.config.subscriptions?.enabled &&
       scope.contains('profile:subscriptions')
@@ -1604,7 +1605,6 @@ export class AccountHandler {
         }),
         this.log.notifyAttachedServices('profileDataChange', request, {
           uid: account.uid,
-          accountLocked: false,
         }),
         this.oauth.removeTokensAndCodes(account.uid),
         this.customs.reset(request, account.email),
@@ -2259,6 +2259,8 @@ export const accountRoutes = (
             profileChangedAt: isA.number().min(0),
             metricsEnabled: isA.boolean().optional(),
             atLeast18AtReg: isA.boolean().allow(null),
+            accountLockedAt: isA.number().optional().allow(null),
+            accountDisabledAt: isA.number().optional().allow(null),
           }),
         },
       },

@@ -160,7 +160,6 @@ module.exports = (log, db, mailer, customs, config, glean) => {
           {},
           {
             uid,
-            totpEnabled: false,
           }
         );
 
@@ -309,7 +308,6 @@ module.exports = (log, db, mailer, customs, config, glean) => {
 
           await log.notifyAttachedServices('profileDataChange', request, {
             uid: sessionToken.uid,
-            totpEnabled: true,
           });
         }
 

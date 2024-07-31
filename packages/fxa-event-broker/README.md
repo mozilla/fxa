@@ -44,21 +44,29 @@ should terminate user login sessions that were established prior to the event.
 
 ### Profile Change
 
-Sent when a user has changed their profile data in some manner. Updates to their
-profile may include a new primary email address, display name, or 2FA status. This
-event does not include what changed and the profile data a service has access to
-may not show any changes if the data changed was outside the OAuth scope the service
-was granted.
+Sent when a user has changed their profile data in some manner. Changes to any of the following user data will trigger this event.
 
-Services should update any cached profile data they hold about the user.
+- Display Name - This can be changed on the account settings page
+- Email Address - This can be changed on the settings page by updating the primary email address
+- Profile Image - This can be changed on the settings page
+- Metrics Collection Enabled - This can be changed on the account settings page through the ‘Help Improve Mozilla Accounts’ option in the `Data Collection and Use` section.
+- Locale - This can be changed through the admin panel, and represents their language preference.
+- Totp Enabled - This can be changed through the admin panel.
+- Account Disabled - This can be changed through the admin panel.
+- Account Locked - This can be changed through the admin panel. The state can be changed back to unlocked once a user accepts an account reset.
+- A change to subscription state - There's several ways this can occur but in general this happens when signing up for or canceling subscriptions.
+
+When the event fires, it has the following structure:
 
 - Event Identifier
   - `https://schemas.accounts.firefox.com/event/profile-change`
 - Event Payload
   - [Profile Event Identifier]
-    - email
-      - The new primary email address for the given user (sub)
-      - This property will be undefined if the email hasn't changed
+    - uid {string} (required) - The account’s unique identifier
+
+It’s important to note that this event does not indicate what changed. Rather, it merely signals that services should update any cached profile data
+they have for this user. Furthermore, it’s possible that the data which changed was outside the OAuth scope the service was granted, in which case
+the service might not have privileges to access what was changed.
 
 ### Example Profile Change Event
 
@@ -70,7 +78,7 @@ Services should update any cached profile data they hold about the user.
      "jti": "e19ed6c5-4816-4171-aa43-56ffe80dbda1",
      "events": {
        "https://schemas.accounts.firefox.com/event/profile-change": {
-         "email": "example@mozilla.com"
+         "uid": "cd1181e0532c45cb989a7c234641468e"
        }
      }
 
