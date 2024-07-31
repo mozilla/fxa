@@ -31,6 +31,8 @@ import PageRecentActivity from './PageRecentActivity';
 import PageRecoveryKeyCreate from './PageRecoveryKeyCreate';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import { SettingsIntegration } from './interfaces';
+import { currentAccount } from '../../lib/cache';
+import { setCurrentAccount } from '../../lib/storage-utils';
 
 export const Settings = ({
   integration,
@@ -38,6 +40,7 @@ export const Settings = ({
   const config = useConfig();
   const { metricsEnabled, hasPassword } = useAccount();
   const session = useSession();
+  const account = useAccount();
 
   useEffect(() => {
     if (config.metrics.navTiming.enabled && metricsEnabled) {
@@ -51,13 +54,16 @@ export const Settings = ({
 
   useEffect(() => {
     function handleWindowFocus() {
+      if (account.uid !== currentAccount()?.uid) {
+        setCurrentAccount(account.uid);
+      }
       if (session.isDestroyed) {
         hardNavigate('/');
       }
     }
     window.addEventListener('focus', handleWindowFocus);
     return () => window.removeEventListener('focus', handleWindowFocus);
-  }, [session]);
+  }, [account, session]);
 
   const { loading, error } = useInitialSettingsState();
 
