@@ -847,7 +847,6 @@ workflows:
           parallelism: 8
           requires:
             - Build (PR)
-          continue_on_error: true  # Continue even if tests fail
       - playwright-functional-test-report:
           name: Merge Playwright Reports (PR)
           requires:
