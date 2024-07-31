@@ -32,6 +32,7 @@ jest.mock('../../../lib/glean', () => ({
   default: {
     accountPref: {
       twoStepAuthScanCodeLink: jest.fn(),
+      twoStepAuthQrView: jest.fn(),
     },
   },
 }));
@@ -148,6 +149,15 @@ describe('step 1', () => {
 
     expect(screen.getByTestId('manual-code')).toBeInTheDocument();
     expect(GleanMetrics.accountPref.twoStepAuthScanCodeLink).toHaveBeenCalled();
+  });
+
+  it('sends metrics when step 1 is submitted without viewing manual code', async () => {
+    await act(async () => {
+      render();
+    });
+    await submitTotp('867530');
+
+    expect(GleanMetrics.accountPref.twoStepAuthQrView).toHaveBeenCalled();
   });
 });
 

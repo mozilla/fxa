@@ -213,6 +213,22 @@ export const twoStepAuthScanCodeLink = new EventMetricType(
   },
   []
 );
+/**
+ * User started the 2FA setup process by viewing step 1 of the funnel, complete
+ * with QR code for scanning.
+ *
+ * Generated from `account_pref.two_step_auth_qr_view`.
+ */
+export const twoStepAuthQrView = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'two_step_auth_qr_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
 
 /**
  * Click on "Add" button on account settings page for adding 2FA to account

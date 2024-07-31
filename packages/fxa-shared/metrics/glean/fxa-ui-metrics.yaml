@@ -1907,6 +1907,23 @@ account_pref:
     expires: never
     data_sensitivity:
       - interaction
+  two_step_auth_qr_view:
+    type: event
+    description: |
+      User started the 2FA setup process by viewing step 1 of the funnel, complete with QR code for scanning.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-9573
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
   change_password_submit:
     type: event
     description: |
