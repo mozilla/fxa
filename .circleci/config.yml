@@ -850,6 +850,7 @@ workflows:
           name: Merge Playwright Reports (PR)
           requires:
             - Functional Tests - Playwright (PR)
+          when: always
       - build-and-deploy-storybooks:
           name: Deploy Storybooks (PR)
           requires:
