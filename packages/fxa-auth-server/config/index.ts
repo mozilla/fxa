@@ -2001,48 +2001,44 @@ const convictConf = convict({
     env: 'CERTIFICATE_SIGN_DISABLE_ROLLOUT_RATE',
     format: Number,
   },
-  contentful: {
-    cdnUrl: {
-      doc: 'Base URL for Content Delivery API (https://www.contentful.com/developers/docs/references/content-delivery-api/)',
-      format: String,
-      env: 'CONTENTFUL_CDN_API_URL',
-      default: '',
-    },
-    graphqlUrl: {
-      default: '',
-      doc: 'Base URL for GraphQL Content API (https://www.contentful.com/developers/docs/references/graphql/)',
-      env: 'CONTENTFUL_GRAPHQL_API_URL',
-      format: String,
-    },
-    apiKey: {
-      default: '',
-      doc: 'GraphQL Content API key for Contentful hCMS to fetch RP-provided content (https://www.contentful.com/developers/docs/references/authentication/)',
-      env: 'CONTENTFUL_GRAPHQL_API_KEY',
-      format: String,
-    },
-    spaceId: {
-      default: '',
-      doc: 'Alphanumeric id used for instantiating the ContentfulClient (https://www.contentful.com/developers/docs/references/content-management-api/#/reference/spaces)',
-      env: 'CONTENTFUL_GRAPHQL_SPACE_ID',
-      format: String,
-    },
-    environment: {
-      default: '',
-      doc: 'Environment alias used for instantiating the ContentfulClient (https://www.contentful.com/developers/docs/concepts/multiple-environments/)',
-      env: 'CONTENTFUL_GRAPHQL_ENVIRONMENT',
-      format: String,
-    },
-    firestoreCacheCollectionName: {
-      default: 'fxa-auth-server-contentful-query-cache',
-      doc: 'Firestore collection name to store Contentful query cache',
-      env: 'CONTENTFUL_FIRESTORE_CACHE_COLLECTION_NAME',
-      format: String,
-    },
+  cms: {
     enabled: {
       default: false,
-      doc: 'Whether to use Contentful',
-      env: 'CONTENTFUL_ENABLED',
+      doc: 'Whether to use CMS',
+      env: 'CMS_ENABLED',
       format: Boolean,
+    },
+    strapiClient: {
+      graphqlApiUri: {
+        default: '',
+        doc: 'Base URL for GraphQL API',
+        env: 'STRAPI_CLIENT_GRAPHQL_API_URI',
+        format: String,
+      },
+      apiKey: {
+        default: '',
+        doc: 'GraphQL Content API key for Strapi to fetch RP-provided content',
+        env: 'STRAPI_CLIENT_API_KEY',
+        format: String,
+      },
+      memCacheTTL: {
+        default: 300,
+        doc: 'Strapi client memory cache TTL in seconds',
+        env: 'STRAPI_CLIENT_MEM_CACHE_TTL',
+        format: Number,
+      },
+      firestoreCacheCollectionName: {
+        default: 'fxa-auth-server-strapi-query-cache',
+        doc: 'Firestore collection name to store CMS query cache',
+        env: 'STRAPI_CLIENT_FIRESTORE_CACHE_COLLECTION_NAME',
+        format: String,
+      },
+      firestoreCacheTTL: {
+        default: 604800,
+        doc: 'Strapi client Firestore cache TTL in seconds',
+        env: 'STRAPI_CLIENT_FIRESTORE_CACHE_TTL',
+        format: Number,
+      },
     },
   },
   cloudTasks: CloudTasksConvictConfigFactory(),

@@ -645,29 +645,25 @@ jobs:
 
   smoke-tests:
     parameters:
+      resource_class:
+        type: string
+        default: large
       project:
         type: string
         default: production
+      parallelism:
+        type: integer
+        default: 4
     executor: smoke-test-executor
+    resource_class: << parameters.resource_class >>
+    parallelism: << parameters.parallelism >>
     steps:
       - git-checkout
       - provision
       - run-playwright-tests:
           project: << parameters.project >>
       - store-artifacts
-      - persist_to_workspace:
-          root: /home/circleci/project
-          paths:
-            - packages/functional-tests/playwright-report
-
-  #create separate job for html reporting for Stage and Prod
-  create-html-report:
-    executor: default-executor
-    steps:
-      - attach_workspace:
-          at: /home/circleci/project
-      - store_artifacts:
-          path: packages/functional-tests/playwright-report
+      - rename-reports
 
   # Runs functional tests using playwright. These tests support splitting
   # and parallel execution.
@@ -878,12 +874,14 @@ workflows:
       - smoke-tests:
           name: Smoke Test Production - Playwright
           project: production
+          resource_class: large
+          parallelism: 4
           filters:
             branches:
               only: /.*/
             tags:
               only: /.*/
-      - create-html-report:
+      - playwright-functional-test-report:
           requires:
             - Smoke Test Production - Playwright
 
@@ -894,12 +892,14 @@ workflows:
       - smoke-tests:
           name: Smoke Test Stage - Playwright
           project: stage
+          resource_class: xlarge
+          parallelism: 8
           filters:
             branches:
               only: /.*/
             tags:
               only: /.*/
-      - create-html-report:
+      - playwright-functional-test-report:
           requires:
             - Smoke Test Stage - Playwright
 

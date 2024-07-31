@@ -20,7 +20,7 @@ import {
 import { determineLocale } from '@fxa/shared/l10n';
 import { DEFAULT_LOCALE } from './constants';
 import { CMSError } from './cms.error';
-import { CONTENTFUL_QUERY_CACHE_KEY, cacheKeyForQuery } from './util';
+import { CMS_QUERY_CACHE_KEY, cacheKeyForQuery } from './util';
 import { StrapiClientConfig } from './strapi.client.config';
 import { LocalesResult, localesQuery } from './queries/locales';
 
@@ -63,8 +63,8 @@ export class StrapiClient {
   }
 
   async getLocale(acceptLanguage: string): Promise<string> {
-    const contentfulLocales = await this.getLocales();
-    const result = determineLocale(acceptLanguage, contentfulLocales);
+    const strapiLocales = await this.getLocales();
+    const result = determineLocale(acceptLanguage, strapiLocales);
     if (result === 'en') {
       return DEFAULT_LOCALE;
     }
@@ -81,7 +81,7 @@ export class StrapiClient {
   //     new FirestoreAdapter(
   //       context.firestore,
   //       context.strapiClientConfig.firestoreCacheCollectionName ||
-  //         CONTENTFUL_QUERY_CACHE_KEY
+  //         CMS_QUERY_CACHE_KEY
   //     ),
   // })
   async query<Result, Variables extends OperationVariables>(

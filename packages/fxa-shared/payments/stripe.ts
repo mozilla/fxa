@@ -94,7 +94,7 @@ export type StripeHelperConfig = {
     plansCacheTtlSeconds: number;
   };
   redis: any; // TODO
-  contentful: {
+  cms: {
     enabled: boolean;
   };
 };
@@ -478,7 +478,7 @@ export abstract class StripeHelper {
         const validPlansMapped = await cmsToStripeMapper.mapCMSToStripePlans(
           validPlans,
           acceptLanguage,
-          this.config.contentful.enabled
+          this.config.cms.enabled
         );
 
         validPlansFinal.push(...validPlansMapped.mappedPlans);

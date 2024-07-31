@@ -146,7 +146,7 @@ const mockConfig = {
     stripeTaxRatesCacheTtlSeconds: 60,
   },
   currenciesToCountries: { ZAR: ['AS', 'CA'] },
-  contentful: {
+  cms: {
     enabled: false,
   },
 };
@@ -3423,7 +3423,7 @@ describe('#integration - StripeHelper', () => {
     });
 
     it('returns CMS values', async () => {
-      const newWebIconURL = 'http://contentful.example/webicon';
+      const newWebIconURL = 'http://strapi.example/webicon';
       const mockCMSConfigUtil = {
         transformedPurchaseWithCommonContentForPlanId: (planId) => {
           return PurchaseWithDetailsOfferingContentTransformedFactory({
@@ -3468,7 +3468,7 @@ describe('#integration - StripeHelper', () => {
 
     it('returns CMS values when flag is enabled', async () => {
       // enable flag
-      mockConfig.contentful.enabled = true;
+      mockConfig.cms.enabled = true;
 
       // set container
       const mockProductConfigurationManager = {
@@ -3493,7 +3493,7 @@ describe('#integration - StripeHelper', () => {
       await stripeHelper.allAbbrevPlans();
 
       // test that flag is enabled and all spies called
-      assert.isTrue(mockConfig.contentful.enabled);
+      assert.isTrue(mockConfig.cms.enabled);
       assert(stripeHelper.allConfiguredPlans.calledOnce);
       assert(stripeHelper.allPlans.calledOnce);
       assert(stripeHelper.stripe.plans.list.calledOnce);

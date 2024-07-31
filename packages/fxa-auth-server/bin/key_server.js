@@ -142,28 +142,15 @@ async function run(config) {
     );
     Container.set(PromotionCodeManager, promotionCodeManager);
 
-    if (
-      config.contentful &&
-      config.contentful.cdnUrl &&
-      config.contentful.graphqlUrl &&
-      config.contentful.apiKey &&
-      config.contentful.spaceId &&
-      config.contentful.environment &&
-      config.contentful.firestoreCacheCollectionName
-    ) {
+    if (config.cms.enabled) {
+      const strapiClientConfig = config.cms.strapiClient;
+      const { graphqlApiUri, apiKey, firestoreCacheCollectionName } =
+        strapiClientConfig;
+      if (!(graphqlApiUri && apiKey && firestoreCacheCollectionName)) {
+        throw new Error('Missing required configuration for CMS Strapi Client');
+      }
       const firestore = Container.get(AuthFirestore);
-      const strapiClient = new StrapiClient(
-        {
-          cdnApiUri: config.contentful.cdnUrl,
-          graphqlApiUri: config.contentful.graphqlUrl,
-          graphqlApiKey: config.contentful.apiKey,
-          graphqlSpaceId: config.contentful.spaceId,
-          graphqlEnvironment: config.contentful.environment,
-          firestoreCacheCollectionName:
-            config.contentful.firestoreCacheCollectionName,
-        },
-        firestore
-      );
+      const strapiClient = new StrapiClient(strapiClientConfig, firestore);
       const productConfigurationManager = new ProductConfigurationManager(
         strapiClient,
         statsd

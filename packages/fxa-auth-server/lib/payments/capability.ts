@@ -324,7 +324,7 @@ export class CapabilityService {
     targetPlanId: string,
     useFirestoreProductConfigs = false
   ): Promise<SubscriptionChangeEligibility> {
-    const cmsEnabled = this.config.contentful.enabled;
+    const cmsEnabled = this.config.cms.enabled;
 
     const allPlansByPlanId = await this.allAbbrevPlansByPlanId();
 
@@ -892,7 +892,7 @@ export class CapabilityService {
    * Retrieve the client capabilities
    */
   async getClients() {
-    const cmsEnabled = this.config.contentful.enabled;
+    const cmsEnabled = this.config.cms.enabled;
 
     if (cmsEnabled) {
       if (!this.capabilityManager) {
@@ -955,7 +955,7 @@ export class CapabilityService {
   async planIdsToClientCapabilities(
     subscribedPrices: string[]
   ): Promise<ClientIdCapabilityMap> {
-    const cmsEnabled = this.config.contentful.enabled;
+    const cmsEnabled = this.config.cms.enabled;
 
     if (cmsEnabled) {
       if (!this.capabilityManager) {

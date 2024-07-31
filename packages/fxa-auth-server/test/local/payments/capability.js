@@ -172,7 +172,7 @@ describe('CapabilityService', () => {
         mockCMSPlanIdsToClientCapabilities
       ),
     };
-    mockConfig = { ...config, contentful: { enabled: false } };
+    mockConfig = { ...config, cms: { enabled: false } };
     log = mockLog();
 
     Container.set(AppConfig, mockConfig);
@@ -1324,7 +1324,7 @@ describe('CapabilityService', () => {
 
   describe('CMS flag is enabled', () => {
     it('returns planIdsToClientCapabilities from CMS', async () => {
-      mockConfig.contentful.enabled = true;
+      mockConfig.cms.enabled = true;
 
       capabilityService.subscribedPriceIds = sinon.fake.resolves([UID]);
 
@@ -1344,7 +1344,7 @@ describe('CapabilityService', () => {
     });
 
     it('returns getClients from CMS', async () => {
-      mockConfig.contentful.enabled = true;
+      mockConfig.cms.enabled = true;
 
       const mockClientsFromCMS = await mockCapabilityManager.getClients();
 
