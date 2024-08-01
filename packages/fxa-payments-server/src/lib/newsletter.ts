@@ -9,14 +9,14 @@ import sentry from './sentry';
 export const FXA_NEWSLETTER_SIGNUP_ERROR: GeneralError = {
   code: 'fxa_newsletter_signup_error',
 };
-const DEFAULT_NEWSLETTER_SLUG = 'mozilla-and-you';
+const DEFAULT_NEWSLETTER_SLUGS = ['mozilla-and-you', 'mozilla-accounts'];
 
 export async function handleNewsletterSignup(
   productMetadata?: ProductMetadata
 ) {
   const newsletterSlugs: string[] = productMetadata?.newsletterSlug
     ? productMetadata?.newsletterSlug.split(',')
-    : [DEFAULT_NEWSLETTER_SLUG];
+    : DEFAULT_NEWSLETTER_SLUGS;
 
   try {
     await apiSignupForNewsletter({
