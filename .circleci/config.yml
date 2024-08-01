@@ -884,6 +884,11 @@ workflows:
       - playwright-functional-test-report:
           requires:
             - Smoke Test Production - Playwright
+          filters:
+            branches:
+              only: /.*/
+            tags:
+              only: /.*/
 
   # Triggered remotely. See .circleci/README.md
   stage_smoke_tests:
@@ -902,6 +907,11 @@ workflows:
       - playwright-functional-test-report:
           requires:
             - Smoke Test Stage - Playwright
+          filters:
+            branches:
+              only: /.*/
+            tags:
+              only: /.*/
 
   deploy_fxa_image:
     # This workflow can be triggered after a PR lands on main. It requires approval.
