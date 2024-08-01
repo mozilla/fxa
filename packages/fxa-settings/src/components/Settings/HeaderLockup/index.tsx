@@ -12,18 +12,18 @@ import DropDownAvatarMenu from '../DropDownAvatarMenu';
 import { ReactComponent as Help } from './help.svg';
 import { ReactComponent as Menu } from './menu.svg';
 import { ReactComponent as Close } from './close.svg';
-import Nav from '../Nav';
 import { SettingsIntegration } from '../interfaces';
+import Sidebar from '../Sidebar';
 
 export const HeaderLockup = ({
   integration,
 }: {
   integration: SettingsIntegration;
 }) => {
-  const [navRevealedState, setNavState] = useState(false);
+  const [sidebarRevealedState, setNavState] = useState(false);
   const { l10n } = useLocalization();
   const localizedHelpText = l10n.getString('header-help', null, 'Help');
-  const localizedMenuText = navRevealedState
+  const localizedMenuText = sidebarRevealedState
     ? l10n.getString('header-menu-open', null, 'Close menu')
     : l10n.getString('header-menu-closed', null, 'Site navigation menu');
 
@@ -35,15 +35,15 @@ export const HeaderLockup = ({
         aria-label={localizedMenuText}
         title={localizedMenuText}
         aria-haspopup={true}
-        aria-expanded={navRevealedState}
-        onClick={() => setNavState(!navRevealedState)}
+        aria-expanded={sidebarRevealedState}
+        onClick={() => setNavState(!sidebarRevealedState)}
       >
-        {navRevealedState ? (
+        {sidebarRevealedState ? (
           <Close className="text-violet-900 w-8" />
         ) : (
           <Menu className="text-violet-900 w-8" />
         )}
-        {navRevealedState && <Nav />}
+        {sidebarRevealedState && <Sidebar />}
       </button>
       <Localized id="header-back-to-top-link" attrs={{ title: true }}>
         {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}

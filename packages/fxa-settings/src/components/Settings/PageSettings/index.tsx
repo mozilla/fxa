@@ -4,7 +4,6 @@
 
 import React, { useEffect, useRef } from 'react';
 import { Link, RouteComponentProps } from '@reach/router';
-import Nav from '../Nav';
 import Security from '../Security';
 import { Profile } from '../Profile';
 import ConnectedServices from '../ConnectedServices';
@@ -16,6 +15,8 @@ import { DeleteAccountPath } from 'fxa-settings/src/constants';
 import { Localized } from '@fluent/react';
 import DataCollection from '../DataCollection';
 import GleanMetrics from '../../../lib/glean';
+import ProductPromo, { ProductPromoType } from '../ProductPromo';
+import SideBar from '../Sidebar';
 
 export const PageSettings = (_: RouteComponentProps) => {
   const { uid } = useAccount();
@@ -40,7 +41,7 @@ export const PageSettings = (_: RouteComponentProps) => {
   return (
     <div id="fxa-settings" className="flex">
       <div className="hidden desktop:block desktop:flex-2">
-        <Nav
+        <SideBar
           {...{
             profileRef,
             securityRef,
@@ -68,6 +69,7 @@ export const PageSettings = (_: RouteComponentProps) => {
             </Link>
           </Localized>
         </div>
+        <ProductPromo type={ProductPromoType.Settings} />
       </div>
     </div>
   );
