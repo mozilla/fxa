@@ -305,8 +305,10 @@ export default class AuthClient {
         contentType: 'application/json',
         localtimeOffsetMsec: this.localtimeOffsetMsec,
       });
-      for (const [name, value] of extraHeaders) {
-        headers.set(name, value);
+      if (extraHeaders) {
+        for (const [name, value] of extraHeaders) {
+          headers.set(name, value);
+        }
       }
       return headers;
     };

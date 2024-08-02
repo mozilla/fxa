@@ -57,9 +57,13 @@ test.describe('severity-1 #smoke', () => {
           reason: 'recovery_key',
         }
       );
+
+      expect(accountData.keyFetchToken).toBeDefined();
+      expect(accountData.unwrapBKey).toBeDefined();
+
       const originalEncryptionKeys = await target.authClient.accountKeys(
-        accountData.keyFetchToken,
-        accountData.unwrapBKey
+        accountData.keyFetchToken as string,
+        accountData.unwrapBKey as string
       );
 
       await resetPassword.goto();
@@ -91,9 +95,12 @@ test.describe('severity-1 #smoke', () => {
           reason: 'recovery_key',
         }
       );
+      expect(newAccountData.keyFetchToken).toBeDefined();
+      expect(newAccountData.unwrapBKey).toBeDefined();
+
       const newEncryptionKeys = await target.authClient.accountKeys(
-        newAccountData.keyFetchToken,
-        newAccountData.unwrapBKey
+        newAccountData.keyFetchToken as string,
+        newAccountData.unwrapBKey as string
       );
       expect(originalEncryptionKeys).toEqual(newEncryptionKeys);
     });

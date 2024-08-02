@@ -112,7 +112,7 @@ export class MetricsObserver {
           const rawEvent = { ...eventBase, ...eventProperties };
 
           if (rawEvent.type in REQUIRED_FIELDS_BY_EVENT_TYPE_MAP) {
-            for (const field of REQUIRED_FIELDS_BY_EVENT_TYPE_MAP[
+            for (const field of (REQUIRED_FIELDS_BY_EVENT_TYPE_MAP as any)[
               rawEvent.type
             ]) {
               expect(
@@ -152,12 +152,12 @@ export class MetricsObserver {
   }
 
   getAcquisitionParamsFromEvents() {
-    const params = {};
+    const params: any = {};
     // Since they're passed in by the RP, the params are identical
     // between events in the same flow.
     const firstEvent = this.rawEvents[0];
     for (const param of ACQUISITION_QUERY_PARAMS) {
-      params[param] = firstEvent[param] || null;
+      params[param] = (firstEvent as any)[param] || null;
     }
     return params;
   }

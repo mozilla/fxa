@@ -1,4 +1,9 @@
-import AuthClient from 'fxa-auth-client/lib/client';
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+import { SaltVersion } from '../../../fxa-auth-client/lib/salt';
+import AuthClient from '../../../fxa-auth-client/lib/client';
 import { EmailClient } from '../email';
 import { TargetName } from './index';
 
@@ -45,7 +50,9 @@ export abstract class BaseTarget {
           `${process.env.AUTH_CLIENT_KEY_STRETCH_VERSION}, is it set correctly?`
       );
     }
-    return new AuthClient(this.authServerUrl, { keyStretchVersion });
+    return new AuthClient(this.authServerUrl, {
+      keyStretchVersion: keyStretchVersion as SaltVersion,
+    });
   }
 
   abstract createAccount(

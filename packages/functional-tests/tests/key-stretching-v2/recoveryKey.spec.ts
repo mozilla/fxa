@@ -25,9 +25,12 @@ test.describe('severity-2 #smoke', () => {
   ) {
     const client = target.createAuthClient(version);
     const response = await client.signIn(email, password, { keys: true });
+    expect(response.keyFetchToken).toBeDefined();
+    expect(response.unwrapBKey).toBeDefined();
+
     const keys = client.accountKeys(
-      response.keyFetchToken,
-      response.unwrapBKey
+      response.keyFetchToken as string,
+      response.unwrapBKey as string
     );
     return keys;
   }

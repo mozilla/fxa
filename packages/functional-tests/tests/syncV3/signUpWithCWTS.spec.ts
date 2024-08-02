@@ -52,7 +52,7 @@ test.describe('severity-1 #smoke', () => {
       );
       await login.respondToWebChannelMessage(eventDetailStatus);
       await login.respondToWebChannelMessage(eventDetailLinkAccount);
-      await login.checkWebChannelMessage('fxaccounts:fxa_status');
+      await login.checkWebChannelMessage(FirefoxCommand.FxAStatus);
       await login.setEmail(email);
       await login.clickSubmit();
       await login.setPassword(password);
@@ -106,7 +106,7 @@ test.describe('severity-1 #smoke', () => {
         }
       );
       await login.respondToWebChannelMessage(eventDetailStatus);
-      await login.checkWebChannelMessage('fxaccounts:fxa_status');
+      await login.checkWebChannelMessage(FirefoxCommand.FxAStatus);
       await login.setEmail(email);
       await login.clickSubmit();
       await login.setPassword(password);
@@ -150,7 +150,7 @@ test.describe('severity-1 #smoke', () => {
         }?context=fx_desktop_v3&service=sync&automatedBrowser=true&${query.toString()}`
       );
       await login.respondToWebChannelMessage(eventDetailStatus);
-      await login.checkWebChannelMessage('fxaccounts:fxa_status');
+      await login.checkWebChannelMessage(FirefoxCommand.FxAStatus);
       await login.setEmail(email);
       await login.clickSubmit();
       await login.setPassword(password);
@@ -189,7 +189,7 @@ test.describe('severity-1 #smoke', () => {
         }?context=fx_desktop_v3&service=sync&automatedBrowser=true&${query.toString()}`
       );
       await login.respondToWebChannelMessage(eventDetailStatus);
-      await login.checkWebChannelMessage('fxaccounts:fxa_status');
+      await login.checkWebChannelMessage(FirefoxCommand.FxAStatus);
       await login.setEmail(email);
       await login.clickSubmit();
       await login.setPassword(password);
@@ -228,7 +228,7 @@ test.describe('severity-1 #smoke', () => {
         }?context=fx_desktop_v3&service=sync&automatedBrowser=true&${query.toString()}`
       );
       await login.respondToWebChannelMessage(eventDetailStatus);
-      await login.checkWebChannelMessage('fxaccounts:fxa_status');
+      await login.checkWebChannelMessage(FirefoxCommand.FxAStatus);
       await login.setEmail(email);
       await login.clickSubmit();
       await login.setPassword(password);

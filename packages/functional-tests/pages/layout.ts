@@ -4,7 +4,7 @@
 
 import { Page } from '@playwright/test';
 import { BaseTarget } from '../lib/targets/base';
-import { CustomEventDetail } from '../lib/channels';
+import { CustomEventDetail, FirefoxCommand } from '../lib/channels';
 
 export abstract class BaseLayout {
   /**
@@ -65,7 +65,7 @@ export abstract class BaseLayout {
     });
   }
 
-  async checkWebChannelMessage(command) {
+  async checkWebChannelMessage(command: FirefoxCommand) {
     await this.page.evaluate(async (command) => {
       const noNotificationError = new Error(
         `NoSuchBrowserNotification - ${command}`
@@ -81,7 +81,9 @@ export abstract class BaseLayout {
           const messages = JSON.parse(
             sessionStorage.getItem('webChannelEvents') || '[]'
           );
-          const m = messages.find((x) => x.command === command);
+          const m = messages.find(
+            (x: { command: string }) => x.command === command
+          );
 
           if (m) {
             clearTimeout(timeoutHandle);
@@ -96,7 +98,7 @@ export abstract class BaseLayout {
     }, command);
   }
 
-  async noSuchWebChannelMessage(command) {
+  async noSuchWebChannelMessage(command: string) {
     await this.page.evaluate(async (command) => {
       const unexpectedNotificationError = new Error(
         `UnepxectedBrowserNotification - ${command}`
@@ -109,7 +111,9 @@ export abstract class BaseLayout {
           const messages = JSON.parse(
             sessionStorage.getItem('webChannelEvents') || '[]'
           );
-          const m = messages.find((x) => x.command === command);
+          const m = messages.find(
+            (x: { command: string }) => x.command === command
+          );
 
           if (m) {
             clearTimeout(timeoutHandle);
@@ -126,7 +130,7 @@ export abstract class BaseLayout {
 
   async listenToWebChannelMessages() {
     await this.page.evaluate(() => {
-      function listener(msg) {
+      function listener(msg: { detail: string }) {
         const detail = JSON.parse(msg.detail);
         const events = JSON.parse(
           sessionStorage.getItem('webChannelEvents') || '[]'
@@ -137,6 +141,8 @@ export abstract class BaseLayout {
         });
         sessionStorage.setItem('webChannelEvents', JSON.stringify(events));
       }
+
+      // @ts-ignore
       addEventListener('WebChannelMessageToChrome', listener);
     });
   }
@@ -175,19 +181,26 @@ export abstract class BaseLayout {
    *
    * @param webChannelMessage - Custom event details to send to the web content.
    */
-  async respondToWebChannelMessage(webChannelMessage) {
+  async respondToWebChannelMessage(webChannelMessage: {
+    message: {
+      command: string;
+      data: any;
+    };
+  }) {
     const expectedCommand = webChannelMessage.message.command;
     const response = webChannelMessage.message.data;
 
     await this.page.evaluate(
       ({ expectedCommand, response }) => {
-        function listener(e) {
-          const detail = JSON.parse((e as CustomEvent).detail);
+        function listener(e: CustomEvent) {
+          const detail = JSON.parse(e.detail);
           const command = detail.message.command;
           const messageId = detail.message.messageId;
 
           if (command === expectedCommand) {
+            // @ts-ignore
             window.removeEventListener('WebChannelMessageToChrome', listener);
+
             const event = new CustomEvent('WebChannelMessageToContent', {
               detail: {
                 id: 'account_updates',
@@ -205,6 +218,7 @@ export abstract class BaseLayout {
 
         function startListening() {
           try {
+            // @ts-ignore
             window.addEventListener('WebChannelMessageToChrome', listener);
           } catch (e) {
             // problem adding the listener, window may not be

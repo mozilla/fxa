@@ -99,6 +99,7 @@ test.describe('severity-2 #smoke', () => {
           ) {
             return event.type;
           }
+          return undefined;
         })
         .filter(Boolean);
 
@@ -228,9 +229,12 @@ test.describe('severity-2 #smoke', () => {
 
       await relier.goto();
       const subscribeUrl = await relier.getUrl();
+      expect(subscribeUrl).toBeDefined();
       expect(subscribeUrl, 'Subscribe button has no href.').toBeTruthy();
 
-      const rpSearchParamsBefore = relier.getRpSearchParams(subscribeUrl);
+      const rpSearchParamsBefore = relier.getRpSearchParams(
+        subscribeUrl as string
+      );
       const rpFlowParamsBefore = relier.getRpFlowParams(rpSearchParamsBefore);
       const acquisitionParamsBefore =
         relier.getRpAcquisitionParams(rpSearchParamsBefore);
@@ -284,6 +288,7 @@ test.describe('severity-2 #smoke', () => {
           ) {
             return event.type;
           }
+          return undefined;
         })
         .filter(Boolean);
 

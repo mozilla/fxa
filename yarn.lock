@@ -23166,6 +23166,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/pdf-parse@npm:^1.1.4":
+  version: 1.1.4
+  resolution: "@types/pdf-parse@npm:1.1.4"
+  checksum: 20b2b29654cbb0ce77eafdad9b736a558e048eb87dc7782db9296113694df8300215e3370a4d88903cca60fde0906775390545a9d8f251b0b4fa94180ccff0df
+  languageName: node
+  linkType: hard
+
 "@types/pg-pool@npm:2.0.4":
   version: 2.0.4
   resolution: "@types/pg-pool@npm:2.0.4"
@@ -38352,6 +38359,7 @@ fsevents@~2.1.1:
   dependencies:
     "@playwright/test": ^1.43.1
     "@types/eslint": ^8
+    "@types/pdf-parse": ^1.1.4
     "@types/upng-js": ^2
     eslint: ^8.56.0
     eslint-plugin-playwright: ^0.22.2
@@ -38361,6 +38369,7 @@ fsevents@~2.1.1:
     fxa-settings: "workspace:*"
     jsqr: ^1.4.0
     pdf-parse: ^1.1.1
+    typescript: ^5.5.3
     upng-js: ^2.1.0
   languageName: unknown
   linkType: soft

@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { FirefoxCommand } from '../../lib/channels';
 import { expect, test } from '../../lib/fixtures/standard';
 
 const makeUid = () =>
@@ -42,9 +43,9 @@ test.describe('severity-1 #smoke', () => {
         enterEmail: false,
       });
       await fxDesktopV3ForceAuth.checkWebChannelMessage(
-        'fxaccounts:can_link_account'
+        FirefoxCommand.LinkAccount
       );
-      await fxDesktopV3ForceAuth.checkWebChannelMessage('fxaccounts:login');
+      await fxDesktopV3ForceAuth.checkWebChannelMessage(FirefoxCommand.Login);
     });
 
     test('sync v3 with an unregistered email, registered uid', async ({
