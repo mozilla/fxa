@@ -23,6 +23,7 @@ import { deviceType, entrypoint, flowId } from './session';
 import * as thirdPartyAuth from './thirdPartyAuth';
 import * as thirdPartyAuthSetPassword from './thirdPartyAuthSetPassword';
 import * as utm from './utm';
+import * as entrypointQuery from './entrypoint';
 
 export type GleanMetricsConfig = {
   enabled: boolean;
@@ -116,6 +117,9 @@ const populateMetrics = async (properties: EventProperties = {}) => {
   utm.medium.set(flowEventMetadata.utmMedium || '');
   utm.source.set(flowEventMetadata.utmSource || '');
   utm.term.set(flowEventMetadata.utmTerm || '');
+
+  entrypointQuery.experiment.set(flowEventMetadata.entrypointExperiment || '');
+  entrypointQuery.variation.set(flowEventMetadata.entrypointVariation || '');
 };
 
 const recordEventMetric = (eventName: string, properties: EventProperties) => {

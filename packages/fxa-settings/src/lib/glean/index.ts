@@ -42,6 +42,7 @@ import {
 import * as sync from 'fxa-shared/metrics/glean/web/sync';
 import * as standard from 'fxa-shared/metrics/glean/web/standard';
 import * as utm from 'fxa-shared/metrics/glean/web/utm';
+import * as entrypointQuery from 'fxa-shared/metrics/glean/web/entrypoint';
 import { Integration } from '../../models';
 import { MetricsFlow } from '../metrics-flow';
 
@@ -174,6 +175,13 @@ const populateMetrics = async (gleanPingMetrics: GleanPingMetrics) => {
   utm.medium.set(metricsContext.integration.data.utmMedium || '');
   utm.source.set(metricsContext.integration.data.utmSource || '');
   utm.term.set(metricsContext.integration.data.utmTerm || '');
+
+  entrypointQuery.variation.set(
+    metricsContext.integration.data.entrypointVariation || ''
+  );
+  entrypointQuery.experiment.set(
+    metricsContext.integration.data.entrypointExperiment || ''
+  );
 };
 
 const recordEventMetric = (

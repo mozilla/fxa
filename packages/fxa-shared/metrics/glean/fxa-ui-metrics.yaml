@@ -355,6 +355,48 @@ utm:
     data_sensitivity:
       - interaction
 
+entrypoint:
+  experiment:
+    description: |
+      The entrypoint experiment the user was assigned to. This value is specified
+      by query parameter `entrypoint_experiment` in the URL.
+    type: string
+    lifetime: application
+    send_in_pings:
+      - accounts-events
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-9847
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+  variation:
+    description: |
+      The entrypoint variation the user was assigned to. This value is specified
+      by query parameter `entrypoint_variation` in the URL.
+    type: string
+    lifetime: application
+    send_in_pings:
+      - accounts-events
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-9847
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+
 cached_login:
   submit:
     type: event

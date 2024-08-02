@@ -7,26 +7,28 @@
 import StringMetricType from '@mozilla/glean/private/metrics/string';
 
 /**
- * The client id of the relying party
+ * The entrypoint experiment the user was assigned to. This value is specified
+ * by query parameter `entrypoint_experiment` in the URL.
  *
- * Generated from `relying_party.oauth_client_id`.
+ * Generated from `entrypoint.experiment`.
  */
-export const oauthClientId = new StringMetricType({
-  category: 'relying_party',
-  name: 'oauth_client_id',
+export const experiment = new StringMetricType({
+  category: 'entrypoint',
+  name: 'experiment',
   sendInPings: ['accounts-events', 'events'],
   lifetime: 'application',
   disabled: false,
 });
 
 /**
- * The service name of the relying party
+ * The entrypoint variation the user was assigned to. This value is specified
+ * by query parameter `entrypoint_variation` in the URL.
  *
- * Generated from `relying_party.service`.
+ * Generated from `entrypoint.variation`.
  */
-export const service = new StringMetricType({
-  category: 'relying_party',
-  name: 'service',
+export const variation = new StringMetricType({
+  category: 'entrypoint',
+  name: 'variation',
   sendInPings: ['accounts-events', 'events'],
   lifetime: 'application',
   disabled: false,

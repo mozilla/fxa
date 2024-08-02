@@ -18,6 +18,7 @@ import {
   flowId,
 } from '../../../scripts/lib/glean/session';
 import * as utm from '../../../scripts/lib/glean/utm';
+import * as entrypointQuery from '../../../scripts/lib/glean/entrypoint';
 import sinon from 'sinon';
 import { assert } from 'chai';
 
@@ -71,6 +72,8 @@ describe('lib/glean', () => {
     setUtmMediumStub,
     setUtmSourceStub,
     setUtmTermStub,
+    setEntryExperimentStub,
+    setEntryVariationStub,
     submitPingStub;
 
   beforeEach(async () => {
@@ -87,6 +90,8 @@ describe('lib/glean', () => {
     setUtmMediumStub = sandbox.stub(utm.medium, 'set');
     setUtmSourceStub = sandbox.stub(utm.source, 'set');
     setUtmTermStub = sandbox.stub(utm.term, 'set');
+    setEntryExperimentStub = sandbox.stub(entrypointQuery.experiment, 'set');
+    setEntryVariationStub = sandbox.stub(entrypointQuery.variation, 'set');
     submitPingStub = sandbox.stub(pings.accountsEvents, 'submit');
     await testResetGlean('glean-test');
   });
@@ -128,6 +133,9 @@ describe('lib/glean', () => {
       sinon.assert.notCalled(setUtmMediumStub);
       sinon.assert.notCalled(setUtmSourceStub);
       sinon.assert.notCalled(setUtmTermStub);
+
+      sinon.assert.notCalled(setEntryVariationStub);
+      sinon.assert.notCalled(setEntryExperimentStub);
     });
   });
 
@@ -196,6 +204,9 @@ describe('lib/glean', () => {
       sinon.assert.calledWith(setUtmMediumStub, '');
       sinon.assert.calledWith(setUtmSourceStub, '');
       sinon.assert.calledWith(setUtmTermStub, '');
+
+      sinon.assert.calledWith(setEntryExperimentStub, '');
+      sinon.assert.calledWith(setEntryVariationStub, '');
     });
 
     it('sets the metrics values', async () => {
@@ -207,6 +218,8 @@ describe('lib/glean', () => {
         utmMedium: 'buzz',
         utmSource: 'newtab',
         utmTerm: 'wibble',
+        entrypointExperiment: 'on',
+        entrypointVariation: 'earth',
       };
       mockClientId = '133t';
       mockService = 'fortress';
@@ -241,6 +254,15 @@ describe('lib/glean', () => {
         mockFlowEventMetadata.utmSource
       );
       sinon.assert.calledWith(setUtmTermStub, mockFlowEventMetadata.utmTerm);
+
+      sinon.assert.calledWith(
+        setEntryExperimentStub,
+        mockFlowEventMetadata.entrypointExperiment
+      );
+      sinon.assert.calledWith(
+        setEntryVariationStub,
+        mockFlowEventMetadata.entrypointVariation
+      );
     });
 
     it('submits the pings in order', async () => {
