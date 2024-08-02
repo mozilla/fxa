@@ -8,18 +8,13 @@ import { finalize, tap } from 'rxjs/operators';
 import {
   CallHandler,
   ExecutionContext,
-  HttpException,
   Injectable,
   NestInterceptor,
 } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
 import { Transaction } from '@sentry/types';
 
-import {
-  isApolloError,
-  isAuthServerError,
-  processException,
-} from '../reporting';
+import { ignoreError, processException } from '../reporting';
 
 @Injectable()
 export class SentryInterceptor implements NestInterceptor {
@@ -39,20 +34,9 @@ export class SentryInterceptor implements NestInterceptor {
       tap({
         error: (exception) => {
           // Skip HttpExceptions with status code < 500.
-          if (
-            exception instanceof HttpException ||
-            exception.constructor.name === 'HttpException'
-          ) {
-            if ((exception as HttpException).getStatus() < 500) {
-              return;
-            }
+          if (ignoreError(exception)) {
+            return;
           }
-
-          // Skip known auth-server errors
-          if (isAuthServerError(exception)) return;
-
-          // Skip ApolloErrors
-          if (isApolloError(exception)) return;
 
           processException(context, exception);
         },
