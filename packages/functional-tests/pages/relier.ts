@@ -6,6 +6,11 @@ import { BaseLayout } from './layout';
 import { expect } from '../lib/fixtures/standard';
 
 export class RelierPage extends BaseLayout {
+  get path() {
+    // Sub classes should define this
+    return '';
+  }
+
   get relierHeading() {
     return this.page.getByRole('heading', { name: '123done' });
   }
@@ -124,7 +129,7 @@ export class RelierPage extends BaseLayout {
     return subscribeButton.getAttribute('href');
   }
 
-  getRpAcquisitionParams(searchParams) {
+  getRpAcquisitionParams(searchParams: URLSearchParams) {
     return {
       entrypoint: searchParams.get('entrypoint'),
       entrypoint_experiment: searchParams.get('entrypoint_experiment'),
@@ -139,7 +144,7 @@ export class RelierPage extends BaseLayout {
     };
   }
 
-  getRpFlowParams(searchParams) {
+  getRpFlowParams(searchParams: URLSearchParams) {
     return {
       flow_id: searchParams.get('flow_id'),
       device_id: searchParams.get('device_id'),
@@ -147,7 +152,7 @@ export class RelierPage extends BaseLayout {
     };
   }
 
-  getRpSearchParams(url) {
+  getRpSearchParams(url: string) {
     return new URL(url).searchParams;
   }
 }

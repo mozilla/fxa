@@ -31,7 +31,7 @@ export class PostVerifyPage extends BaseLayout {
     await this.page.locator(this.selectors.CLICK_MAYBE_LATER).click();
   }
 
-  async fillOutChangePassword(oldPassword, newPassword) {
+  async fillOutChangePassword(oldPassword: string, newPassword: string) {
     await this.page.locator(this.selectors.OLD_PASSWRD).fill(oldPassword);
     await this.page.locator(this.selectors.PASSWORD).fill(newPassword);
     await this.page.locator(this.selectors.CONFIRM_PASSWORD).fill(newPassword);

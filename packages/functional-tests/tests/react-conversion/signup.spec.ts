@@ -93,7 +93,7 @@ test.describe('severity-1 #smoke', () => {
       await confirmSignupCode.fillOutCodeForm(code);
 
       await expect(page).toHaveURL(/connect_another_device/);
-      await expect(page.getByText('You’re signed into Firefox')).toBeVisible();
+      await expect(page.getByText('You’re signed in to Firefox')).toBeVisible();
     });
   });
 });

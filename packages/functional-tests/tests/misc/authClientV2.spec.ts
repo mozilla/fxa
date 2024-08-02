@@ -5,7 +5,7 @@
 import AuthClient, {
   getCredentials,
   getCredentialsV2,
-} from 'fxa-auth-client/browser';
+} from '../../../fxa-auth-client/browser';
 import { expect, test } from '../../lib/fixtures/standard';
 
 test.describe('auth-client-tests', () => {
@@ -16,8 +16,10 @@ test.describe('auth-client-tests', () => {
       preVerified: 'true',
     });
 
+    expect(credentials.sessionToken).toBeDefined();
+
     await client.deviceRegister(
-      credentials.sessionToken,
+      credentials.sessionToken as string,
       'playwright',
       'tester'
     );
@@ -88,8 +90,8 @@ test.describe('auth-client-tests', () => {
     expect(signInResult.unwrapBKey).toBeDefined();
 
     // Check unwrapKB. It should match our V2 credential unwrapBKey.
-    const clientSalt =
-      (await client.getCredentialStatusV2(email))?.clientSalt || '';
+    const status2 = await client.getCredentialStatusV2(email);
+    const clientSalt = status2.clientSalt || '';
     const credentialsV2 = await getCredentialsV2({
       password,
       clientSalt,
@@ -117,14 +119,14 @@ test.describe('auth-client-tests', () => {
     const { email, password } = testAccountTracker.generateAccountDetails();
 
     await signUp(client, email, password);
-    const singInResult = await client.signIn(email, password, { keys: true });
-    expect(singInResult.keyFetchToken).toBeDefined();
-    expect(singInResult.unwrapBKey).toBeDefined();
+    const signInResult = await client.signIn(email, password, { keys: true });
+    expect(signInResult.keyFetchToken).toBeDefined();
+    expect(signInResult.unwrapBKey).toBeDefined();
 
     // Grab keys, so we can compare kA and kB later
     const keys1 = await client.accountKeys(
-      singInResult.keyFetchToken,
-      singInResult.unwrapBKey
+      signInResult.keyFetchToken as string,
+      signInResult.unwrapBKey as string
     );
     expect(keys1).toBeDefined();
     expect(keys1.kA).toBeDefined();
@@ -157,21 +159,25 @@ test.describe('auth-client-tests', () => {
     expect(statusAfter.currentVersion).toBe('v2');
 
     // Check unwrapKB. It should match our V2 credential unwrapBKey.
-    const clientSalt =
-      (await client.getCredentialStatusV2(email))?.clientSalt || '';
+    const status = await client.getCredentialStatusV2(email);
+    expect(status.clientSalt).toBeDefined();
+    expect(status.clientSalt).toBeDefined();
+
     const credentialsV2 = await getCredentialsV2({
       password,
-      clientSalt,
+      clientSalt: status.clientSalt as string,
     });
     expect(credentialsV2.unwrapBKey).toEqual(signInResult2.unwrapBKey);
 
     const credentialsV1 = await getCredentials(email, password);
     expect(credentialsV1.unwrapBKey).not.toEqual(signInResult2.unwrapBKey);
+    expect(signInResult2.keyFetchToken).toBeDefined();
+    expect(signInResult2.unwrapBKey).toBeDefined();
 
     // Check that keys didn't drift
     const keys2 = await client2.accountKeys(
-      signInResult2.keyFetchToken,
-      signInResult2.unwrapBKey
+      signInResult2.keyFetchToken as string,
+      signInResult2.unwrapBKey as string
     );
     expect(keys2).toBeDefined();
     expect(keys2.kA).toBeDefined();

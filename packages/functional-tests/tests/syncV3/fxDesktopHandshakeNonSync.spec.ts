@@ -25,7 +25,7 @@ test.describe('severity-2 #smoke', () => {
         `${target.contentServerUrl}?automatedBrowser=true&${query.toString()}`
       );
       await signin.respondToWebChannelMessage(eventDetailStatus);
-      await signin.checkWebChannelMessage('fxaccounts:fxa_status');
+      await signin.checkWebChannelMessage(FirefoxCommand.FxAStatus);
       await expect(signin.emailTextbox).toHaveValue('');
     });
 
@@ -49,7 +49,7 @@ test.describe('severity-2 #smoke', () => {
         `${target.contentServerUrl}?automatedBrowser=true&${query.toString()}`
       );
       await signin.respondToWebChannelMessage(eventDetailStatus);
-      await signin.checkWebChannelMessage('fxaccounts:fxa_status');
+      await signin.checkWebChannelMessage(FirefoxCommand.FxAStatus);
       await expect(signin.passwordFormHeading).toBeVisible();
       await expect(page.getByText(credentials.email)).toBeVisible();
       await signin.fillOutPasswordForm(credentials.password);
@@ -76,7 +76,7 @@ test.describe('severity-2 #smoke', () => {
         `${target.contentServerUrl}?automatedBrowser=true&${query.toString()}`
       );
       await signin.respondToWebChannelMessage(eventDetailStatus);
-      await signin.checkWebChannelMessage('fxaccounts:fxa_status');
+      await signin.checkWebChannelMessage(FirefoxCommand.FxAStatus);
       await signin.fillOutEmailFirstForm(syncCredentials.email);
       await signin.fillOutPasswordForm(syncCredentials.password);
       await expect(settings.settingsHeading).toBeVisible();
@@ -93,7 +93,7 @@ test.describe('severity-2 #smoke', () => {
         `${target.contentServerUrl}?automatedBrowser=true&${query.toString()}`
       );
       await signin.respondToWebChannelMessage(eventDetailStatusSignIn);
-      await signin.checkWebChannelMessage('fxaccounts:fxa_status');
+      await signin.checkWebChannelMessage(FirefoxCommand.FxAStatus);
 
       await expect(signin.cachedSigninHeading).toBeVisible();
       await expect(page.getByText(syncCredentials.email)).toBeVisible();
@@ -124,7 +124,7 @@ test.describe('severity-2 #smoke', () => {
         }?force_auth&automatedBrowser=true&${query.toString()}`
       );
       await signin.respondToWebChannelMessage(eventDetailStatus);
-      await signin.checkWebChannelMessage('fxaccounts:fxa_status');
+      await signin.checkWebChannelMessage(FirefoxCommand.FxAStatus);
       await expect(signin.passwordFormHeading).toBeVisible();
       await expect(page.getByText(syncCredentials.email)).toBeVisible();
     });

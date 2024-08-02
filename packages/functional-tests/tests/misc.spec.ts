@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import { expect, test } from '../lib/fixtures/standard';
 
 test.describe('severity-1', () => {
@@ -9,10 +13,19 @@ test.describe('severity-1', () => {
     });
     await page.waitForTimeout(2000); // wait for mocha to load
     await page.evaluate(() =>
-      globalThis.runner.on('end', () => (globalThis.done = true))
+      (globalThis as any).runner.on(
+        'end',
+        () => ((globalThis as any).done = true)
+      )
     );
-    await page.waitForFunction(() => globalThis.done, {}, { timeout: 0 });
-    const failures = await page.evaluate(() => globalThis.runner.failures);
+    await page.waitForFunction(
+      () => (globalThis as any).done,
+      {},
+      { timeout: 0 }
+    );
+    const failures = await page.evaluate(
+      () => (globalThis as any).runner.failures
+    );
     expect(failures).toBe(0);
   });
 

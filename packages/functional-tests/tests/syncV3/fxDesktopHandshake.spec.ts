@@ -46,7 +46,7 @@ test.describe('severity-2 #smoke', () => {
         }?context=fx_desktop_v3&service=sync&automatedBrowser=true&${query.toString()}`
       );
       await signin.respondToWebChannelMessage(eventDetailStatus);
-      await signin.checkWebChannelMessage('fxaccounts:fxa_status');
+      await signin.checkWebChannelMessage(FirefoxCommand.FxAStatus);
       await expect(signin.passwordFormHeading).toBeVisible();
       await expect(page.getByText(credentials.email)).toBeVisible();
     });
@@ -74,7 +74,7 @@ test.describe('severity-2 #smoke', () => {
         }?force_auth&automatedBrowser=true&context=fx_desktop_v3&service=sync&${query.toString()}`
       );
       await signin.respondToWebChannelMessage(eventDetailStatus);
-      await signin.checkWebChannelMessage('fxaccounts:fxa_status');
+      await signin.checkWebChannelMessage(FirefoxCommand.FxAStatus);
       await expect(signin.passwordFormHeading).toBeVisible();
       await expect(page.getByText(syncCredentials.email)).toBeVisible();
     });
