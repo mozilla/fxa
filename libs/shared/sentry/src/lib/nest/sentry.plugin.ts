@@ -26,8 +26,7 @@ import { Transaction } from '@sentry/types';
 
 import {
   ExtraContext,
-  isApolloError,
-  isOriginallyHttpError,
+  ignoreError,
   reportRequestException,
 } from '../reporting';
 import { Inject } from '@nestjs/common';
@@ -100,20 +99,9 @@ export class SentryPlugin implements ApolloServerPlugin<Context> {
           return;
         }
         for (const err of errors) {
-          // Only report internal server errors,
-          // all errors extending ApolloError should be user-facing
-          if (isApolloError(err)) {
-            continue;
-          }
-
-          // Skip errors that are originally http errors. There are two expected scenarios where this happens:
-          //  1. When we hit a case where auth server responds with an http error
-          //  2. When we hit an unauthorized state due to an invalid session token
-          //
-          // In either case, the error is considered expected, and should not be reported to sentry.
-          //
-          if (isOriginallyHttpError(err as any)) {
-            continue;
+          // Skip HttpExceptions with status code < 500.
+          if (ignoreError(err)) {
+            return;
           }
 
           const excContexts: ExtraContext[] = [];
