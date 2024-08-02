@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { ExecutionContext } from '@nestjs/common';
+import { ExecutionContext, HttpException } from '@nestjs/common';
 import { ApolloServerErrorCode } from '@apollo/server/errors';
 import { GraphQLError } from 'graphql';
 import { GqlContextType, GqlExecutionContext } from '@nestjs/graphql';
@@ -41,6 +41,16 @@ export function tagFxaName(data: any, name?: string) {
   return data;
 }
 
+/** Indicates if error should be sent to Sentry */
+export function ignoreError(err: any): boolean {
+  return (
+    isAuthServerError(err) ||
+    isApolloError(err) ||
+    isOriginallyHttpError(err) ||
+    (isHttpException(err) && !isInternalServerError(err))
+  );
+}
+
 /**
  * Determine if an error is an ApolloError.
  * Prior to GQL 16.8 and apollo-server 4.9.3, we used ApolloError from apollo-server.
@@ -77,6 +87,22 @@ export function isOriginallyHttpError(
   error: Error & { originalError?: { status: number } }
 ): boolean {
   return typeof error?.originalError?.status === 'number';
+}
+
+export function isHttpException(err: any) {
+  return (
+    err instanceof HttpException || err.constructor.name === 'HttpException'
+  );
+}
+
+export function isInternalServerError(err: Error) {
+  try {
+    if ((err as HttpException).getStatus() >= 500) {
+      return true;
+    }
+  } catch {}
+
+  return false;
 }
 
 /**
