@@ -7,9 +7,10 @@ import LinkExternal from 'fxa-react/components/LinkExternal';
 import monitorTextLogo from './monitor-text-logo.svg';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import classNames from 'classnames';
-import { MonitorLink } from '../../../constants';
 import { MozServices } from '../../../lib/types';
 import { useAccount } from '../../../models';
+import { constructHrefWithUtm } from '../../../lib/utilities';
+import { LINK } from '../../../constants';
 
 export enum ProductPromoType {
   Sidebar = 'sidebar',
@@ -21,6 +22,15 @@ export interface ProductPromoProps {
   // product?: MozServices;
 }
 
+export const monitorPromoLink = constructHrefWithUtm(
+  LINK.MONITOR,
+  'product-partnership',
+  'moz-account',
+  'sidebar',
+  'monitor-free',
+  'settings-promo'
+);
+
 export const ProductPromo = ({
   type = ProductPromoType.Sidebar,
 }: ProductPromoProps) => {
@@ -29,6 +39,7 @@ export const ProductPromo = ({
   const hasMonitor = attachedClients.some(
     ({ name }) => name === MozServices.Monitor
   );
+
   // const hasMonitorPlus = subscriptions.some(
   //   ({ productName }) => productName === MozServices.MonitorPlus
   // );
@@ -73,7 +84,7 @@ export const ProductPromo = ({
           </FtlMsg>
         </p>
         {/* possible todo, link to their stage env in stage? can do with FXA-10147 */}
-        <LinkExternal href={MonitorLink} className="link-blue">
+        <LinkExternal href={monitorPromoLink} className="link-blue">
           <FtlMsg id="product-promo-monitor-cta">Get free scan</FtlMsg>
         </LinkExternal>
       </div>

@@ -15,7 +15,7 @@ import {
 } from '../../models/mocks';
 import { Config } from '../../lib/config';
 import * as NavTiming from 'fxa-shared/metrics/navigation-timing';
-import { HomePath } from '../../constants';
+import { SETTINGS_PATH } from '../../constants';
 import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
 import { Subject, createMockSettingsIntegration } from './mocks';
 
@@ -115,10 +115,10 @@ describe('App component', () => {
       getByTestId,
       history: { navigate },
     } = renderWithRouter(<Subject />, {
-      route: HomePath,
+      route: SETTINGS_PATH,
     });
 
-    await navigate(HomePath);
+    await navigate(SETTINGS_PATH);
 
     expect(getByTestId('settings-profile')).toBeInTheDocument();
   });
@@ -127,9 +127,9 @@ describe('App component', () => {
     const {
       getByTestId,
       history: { navigate },
-    } = renderWithRouter(<Subject />, { route: HomePath });
+    } = renderWithRouter(<Subject />, { route: SETTINGS_PATH });
 
-    await navigate(HomePath + '/display_name');
+    await navigate(SETTINGS_PATH + '/display_name');
 
     expect(getByTestId('input-label')).toHaveTextContent('Enter display name');
   });
@@ -139,10 +139,10 @@ describe('App component', () => {
       getAllByTestId,
       history: { navigate },
     } = renderWithRouter(<Subject />, {
-      route: HomePath,
+      route: SETTINGS_PATH,
     });
 
-    await navigate(HomePath + '/avatar');
+    await navigate(SETTINGS_PATH + '/avatar');
 
     expect(getAllByTestId('avatar-nondefault')[0]).toBeInTheDocument();
   });
@@ -156,10 +156,10 @@ describe('App component', () => {
       <AppContext.Provider value={mockAppContext({ session })}>
         <Subject />
       </AppContext.Provider>,
-      { route: HomePath }
+      { route: SETTINGS_PATH }
     );
 
-    await navigate(HomePath + '/change_password');
+    await navigate(SETTINGS_PATH + '/change_password');
 
     expect(getByTestId('change-password-requirements')).toBeInTheDocument();
   });
@@ -173,10 +173,10 @@ describe('App component', () => {
       <AppContext.Provider value={mockAppContext({ session })}>
         <Subject />
       </AppContext.Provider>,
-      { route: HomePath }
+      { route: SETTINGS_PATH }
     );
 
-    await navigate(HomePath + '/emails');
+    await navigate(SETTINGS_PATH + '/emails');
 
     expect(getByTestId('secondary-email-input')).toBeInTheDocument();
   });
@@ -190,10 +190,10 @@ describe('App component', () => {
       <AppContext.Provider value={mockAppContext({ session })}>
         <Subject />
       </AppContext.Provider>,
-      { route: HomePath }
+      { route: SETTINGS_PATH }
     );
 
-    await navigate(HomePath + '/emails/verify');
+    await navigate(SETTINGS_PATH + '/emails/verify');
 
     expect(getByTestId('secondary-email-verify-form')).toBeInTheDocument();
   });
@@ -207,10 +207,10 @@ describe('App component', () => {
       <AppContext.Provider value={mockAppContext({ session })}>
         <Subject />
       </AppContext.Provider>,
-      { route: HomePath }
+      { route: SETTINGS_PATH }
     );
 
-    await navigate(HomePath + '/two_step_authentication');
+    await navigate(SETTINGS_PATH + '/two_step_authentication');
 
     expect(getByTestId('totp-input')).toBeInTheDocument();
   });
@@ -224,10 +224,10 @@ describe('App component', () => {
       <AppContext.Provider value={mockAppContext({ session })}>
         <Subject />
       </AppContext.Provider>,
-      { route: HomePath }
+      { route: SETTINGS_PATH }
     );
 
-    await navigate(HomePath + '/two_step_authentication/replace_codes');
+    await navigate(SETTINGS_PATH + '/two_step_authentication/replace_codes');
 
     expect(getByTestId('2fa-recovery-codes')).toBeInTheDocument();
   });
@@ -241,10 +241,10 @@ describe('App component', () => {
       <AppContext.Provider value={mockAppContext({ session })}>
         <Subject />
       </AppContext.Provider>,
-      { route: HomePath }
+      { route: SETTINGS_PATH }
     );
 
-    await navigate(HomePath + '/delete_account');
+    await navigate(SETTINGS_PATH + '/delete_account');
 
     expect(getByTestId('delete-account-confirm')).toBeInTheDocument();
   });
@@ -254,10 +254,10 @@ describe('App component', () => {
       history,
       history: { navigate },
     } = renderWithRouter(<Subject />, {
-      route: HomePath,
+      route: SETTINGS_PATH,
     });
 
-    await navigate(HomePath + '/clients');
+    await navigate(SETTINGS_PATH + '/clients');
 
     expect(history.location.pathname).toBe('/settings#connected-services');
   });
@@ -267,10 +267,10 @@ describe('App component', () => {
       history,
       history: { navigate },
     } = renderWithRouter(<Subject />, {
-      route: HomePath,
+      route: SETTINGS_PATH,
     });
 
-    await navigate(HomePath + '/avatar/change');
+    await navigate(SETTINGS_PATH + '/avatar/change');
 
     expect(history.location.pathname).toBe('/settings/avatar');
   });
@@ -279,9 +279,9 @@ describe('App component', () => {
     const {
       history,
       history: { navigate },
-    } = renderWithRouter(<Subject />, { route: HomePath });
+    } = renderWithRouter(<Subject />, { route: SETTINGS_PATH });
 
-    await navigate(HomePath + '/create_password');
+    await navigate(SETTINGS_PATH + '/create_password');
     expect(history.location.pathname).toBe('/settings/change_password');
   });
 
@@ -308,29 +308,29 @@ describe('App component', () => {
             <Subject />
           </AppLocalizationProvider>
         </AppContext.Provider>,
-        { route: HomePath }
+        { route: SETTINGS_PATH }
       ));
     });
 
     it('redirects PageRecoveryKeyCreate', async () => {
-      await history.navigate(HomePath + '/account_recovery');
+      await history.navigate(SETTINGS_PATH + '/account_recovery');
       expect(history.location.pathname).toBe('/settings');
     });
 
     it('redirects PageTwoStepAuthentication', async () => {
-      await history.navigate(HomePath + '/two_step_authentication');
+      await history.navigate(SETTINGS_PATH + '/two_step_authentication');
       expect(history.location.pathname).toBe('/settings');
     });
 
     it('redirects Page2faReplaceRecoveryCodes', async () => {
       await history.navigate(
-        HomePath + '/two_step_authentication/replace_codes'
+        SETTINGS_PATH + '/two_step_authentication/replace_codes'
       );
       expect(history.location.pathname).toBe('/settings');
     });
 
     it('redirects ChangePassword', async () => {
-      await history.navigate(HomePath + '/change_password');
+      await history.navigate(SETTINGS_PATH + '/change_password');
       expect(history.location.pathname).toBe('/settings/create_password');
     });
   });

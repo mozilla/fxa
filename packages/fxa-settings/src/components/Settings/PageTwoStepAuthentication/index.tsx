@@ -13,7 +13,7 @@ import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import DataBlock from '../../DataBlock';
 import { useAccount, useAlertBar, useSession } from '../../../models';
 import { checkCode, copyRecoveryCodes, getCode } from '../../../lib/totp';
-import { HomePath } from '../../../constants';
+import { SETTINGS_PATH } from '../../../constants';
 import { logViewEvent, useMetrics } from '../../../lib/metrics';
 import { Localized, useLocalization } from '@fluent/react';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
@@ -32,12 +32,12 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
   const { l10n } = useLocalization();
   const alertBar = useAlertBar();
   const goHome = () =>
-    navigate(HomePath + '#two-step-authentication', { replace: true });
+    navigate(SETTINGS_PATH + '#two-step-authentication', { replace: true });
   const alertSuccessAndGoHome = useCallback(() => {
     alertBar.success(
       l10n.getString('tfa-enabled', null, 'Two-step authentication enabled')
     );
-    navigate(HomePath + '#two-step-authentication', { replace: true });
+    navigate(SETTINGS_PATH + '#two-step-authentication', { replace: true });
   }, [alertBar, l10n, navigate]);
 
   const totpForm = useForm<TotpForm>({

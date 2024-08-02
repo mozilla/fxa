@@ -24,7 +24,7 @@ import PageTwoStepAuthentication from './PageTwoStepAuthentication';
 import { Page2faReplaceRecoveryCodes } from './Page2faReplaceRecoveryCodes';
 import { PageDeleteAccount } from './PageDeleteAccount';
 import { ScrollToTop } from './ScrollToTop';
-import { HomePath } from '../../constants';
+import { SETTINGS_PATH } from '../../constants';
 import { observeNavigationTiming } from 'fxa-shared/metrics/navigation-timing';
 import PageAvatar from './PageAvatar';
 import PageRecentActivity from './PageRecentActivity';
@@ -79,7 +79,7 @@ export const Settings = ({
   return (
     <AppLayout {...{ integration }}>
       <Head />
-      <Router basepath={HomePath}>
+      <Router basepath={SETTINGS_PATH}>
         <ScrollToTop default>
           <PageSettings path="/" />
           <PageDisplayName path="/display_name" />

@@ -10,7 +10,7 @@ import FlowContainer from '../FlowContainer';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import DataBlock from '../../DataBlock';
 import InputText from '../../InputText';
-import { HomePath } from '../../../constants';
+import { SETTINGS_PATH } from '../../../constants';
 import {
   useAccount,
   useAlertBar,
@@ -31,7 +31,7 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
 
   const goHome = () =>
-    navigate(HomePath + '#two-step-authentication', { replace: true });
+    navigate(SETTINGS_PATH + '#two-step-authentication', { replace: true });
 
   const [subtitle, setSubtitle] = useState<string>(
     ftlMsgResolver.getMsg('tfa-replace-code-1-2', 'Step 1 of 2')
@@ -47,7 +47,7 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
         'Account backup authentication codes updated'
       )
     );
-    navigate(HomePath + '#two-step-authentication', { replace: true });
+    navigate(SETTINGS_PATH + '#two-step-authentication', { replace: true });
   };
 
   const onRecoveryCodeSubmit = async (_: RecoveryCodeForm) => {

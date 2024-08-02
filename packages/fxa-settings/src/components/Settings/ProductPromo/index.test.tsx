@@ -4,13 +4,12 @@
 
 import React from 'react';
 import { screen } from '@testing-library/react';
-import ProductPromo from '.';
+import ProductPromo, { monitorPromoLink } from '.';
 import { Account, AppContext } from '../../../models';
 import { MOCK_SERVICES } from '../ConnectedServices/mocks';
 import { MozServices } from '../../../lib/types';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { mockAppContext } from '../../../models/mocks';
-import { MonitorLink } from '../../../constants';
 
 // List all services this component handles
 const PRODUCT_PROMO_SERVICES = [MozServices.Monitor];
@@ -49,7 +48,7 @@ describe('ProductPromo', () => {
     );
     expect(screen.getByRole('link', { name: /Get free scan/ })).toHaveAttribute(
       'href',
-      MonitorLink
+      monitorPromoLink
     );
   });
 });

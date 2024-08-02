@@ -10,18 +10,7 @@ import { useAccount, useAlertBar } from '../../../models';
 import InputPassword from '../../InputPassword';
 import FlowContainer from '../FlowContainer';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
-import {
-  AddonsLink,
-  HomePath,
-  HubsLink,
-  MDNLink,
-  MonitorLink,
-  PocketLink,
-  RelayLink,
-  ROOTPATH,
-  SyncLink,
-  VPNLink,
-} from '../../../constants';
+import { LINK, SETTINGS_PATH } from '../../../constants';
 import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
 import { Checkbox } from '../Checkbox';
 import { useLocalization } from '@fluent/react';
@@ -51,42 +40,42 @@ const deleteProducts = [
   {
     localizationId: 'delete-account-product-firefox-sync',
     productName: 'Syncing Firefox data',
-    href: SyncLink,
+    href: LINK.FX_SYNC,
   },
   {
     localizationId: 'delete-account-product-mozilla-vpn',
     productName: 'Mozilla VPN',
-    href: VPNLink,
+    href: LINK.VPN,
   },
   {
     localizationId: 'delete-account-product-firefox-relay',
     productName: 'Firefox Relay',
-    href: RelayLink,
+    href: LINK.RELAY,
   },
   {
     localizationId: 'delete-account-product-firefox-addons',
     productName: 'Firefox Add-ons',
-    href: AddonsLink,
+    href: LINK.AMO,
   },
   {
     localizationId: 'delete-account-product-mozilla-monitor',
     productName: 'Mozilla Monitor',
-    href: MonitorLink,
+    href: LINK.MONITOR,
   },
   {
     localizationId: 'delete-account-product-mdn-plus',
     productName: 'MDN Plus',
-    href: MDNLink,
+    href: LINK.MDN,
   },
   {
     localizationId: 'delete-account-product-mozilla-hubs',
     productName: 'Mozilla Hubs',
-    href: HubsLink,
+    href: LINK.HUBS,
   },
   {
     localizationId: 'delete-account-product-pocket',
     productName: 'Pocket',
-    href: PocketLink,
+    href: LINK.POCKET,
   },
 ];
 
@@ -152,7 +141,7 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
           'flow.settings.account-delete',
           'confirm-password.success'
         );
-        hardNavigate(ROOTPATH, { delete_account_success: true }, true);
+        hardNavigate('/', { delete_account_success: true }, true);
       } catch (e) {
         const localizedError = l10n.getString(
           getErrorFtlId(AuthUiErrors.INCORRECT_PASSWORD),
@@ -290,7 +279,9 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
                 <button
                   className="cta-neutral mx-2 px-10 py-2"
                   onClick={() =>
-                    navigate(HomePath + '#delete-account', { replace: true })
+                    navigate(SETTINGS_PATH + '#delete-account', {
+                      replace: true,
+                    })
                   }
                   data-testid="cancel-button"
                 >

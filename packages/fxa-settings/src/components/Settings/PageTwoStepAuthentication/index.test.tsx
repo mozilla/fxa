@@ -13,7 +13,7 @@ import {
 import React from 'react';
 import PageTwoStepAuthentication, { metricsPreInPostFix } from '.';
 import { checkCode, getCode } from '../../../lib/totp';
-import { HomePath } from '../../../constants';
+import { SETTINGS_PATH } from '../../../constants';
 import * as Metrics from '../../../lib/metrics';
 import { Account, AppContext } from '../../../models';
 import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
@@ -286,7 +286,7 @@ describe('step 3', () => {
     expect(getCode).toBeCalledTimes(1);
 
     expect(mockNavigate).toHaveBeenCalledWith(
-      HomePath + '#two-step-authentication',
+      SETTINGS_PATH + '#two-step-authentication',
       { replace: true }
     );
     expect(alertBarInfo.success).toHaveBeenCalledTimes(1);

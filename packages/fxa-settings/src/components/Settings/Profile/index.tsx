@@ -6,7 +6,7 @@ import React, { forwardRef } from 'react';
 import { useAccount } from '../../../models';
 import { UnitRow } from '../UnitRow';
 import { UnitRowSecondaryEmail } from '../UnitRowSecondaryEmail';
-import { HomePath } from '../../../constants';
+import { SETTINGS_PATH } from '../../../constants';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import GleanMetrics from '../../../lib/glean';
 
@@ -31,7 +31,7 @@ export const Profile = forwardRef<HTMLDivElement>((_, ref) => {
             header="Picture"
             headerId="profile-picture"
             headerValue={!avatar.isDefault}
-            route={`${HomePath}/avatar`}
+            route={`${SETTINGS_PATH}/avatar`}
             prefixDataTestId="avatar"
             {...{ avatar }}
           />

@@ -11,7 +11,7 @@ import { FtlMsg } from 'fxa-react/lib/utils';
 import { logViewEvent } from '../../../lib/metrics';
 import { RecoveryKeyAction } from '../PageRecoveryKeyCreate';
 import { Link } from '@reach/router';
-import { HomePath } from '../../../constants';
+import { SETTINGS_PATH } from '../../../constants';
 
 export type FlowRecoveryKeyInfoProps = {
   action?: RecoveryKeyAction;
@@ -103,7 +103,7 @@ export const FlowRecoveryKeyInfo = ({
         <FtlMsg id="flow-recovery-key-info-cancel-link">
           <Link
             className="link-blue text-sm mx-auto mt-4"
-            to={HomePath}
+            to={SETTINGS_PATH}
             onClick={() =>
               logViewEvent(`flow.${viewName}`, 'change-key.cancel')
             }

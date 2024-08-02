@@ -9,7 +9,7 @@ import UnitRow from '../UnitRow';
 import ModalVerifySession from '../ModalVerifySession';
 import { ButtonIconTrash, ButtonIconReload } from '../ButtonIcon';
 import { Localized, useLocalization } from '@fluent/react';
-import { HomePath } from '../../../constants';
+import { SETTINGS_PATH } from '../../../constants';
 import GleanMetrics from '../../../lib/glean';
 
 type UnitRowSecondaryEmailContentAndActionsProps = {
@@ -34,7 +34,7 @@ export const UnitRowSecondaryEmail = () => {
     async (email: string) => {
       try {
         await account.resendEmailCode(email);
-        navigate(`${HomePath}/emails/verify`, { state: { email } });
+        navigate(`${SETTINGS_PATH}/emails/verify`, { state: { email } });
       } catch (e) {
         alertBar.error(
           l10n.getString(
@@ -136,7 +136,7 @@ export const UnitRowSecondaryEmail = () => {
         headerId="secondary-email"
         prefixDataTestId="secondary-email"
         headerValue={null}
-        route={`${HomePath}/emails`}
+        route={`${SETTINGS_PATH}/emails`}
         ctaOnClickAction={() => GleanMetrics.accountPref.secondaryEmailSubmit()}
         {...{
           alertBarRevealed: alertBar.visible,

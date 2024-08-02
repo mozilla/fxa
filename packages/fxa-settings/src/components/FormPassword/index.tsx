@@ -12,7 +12,7 @@ import LinkExternal from 'fxa-react/components/LinkExternal';
 import InputPassword from '../InputPassword';
 import PasswordValidator from '../../lib/password-validator';
 import { useNavigateWithQuery as useNavigate } from '../../lib/hooks/useNavigateWithQuery';
-import { HomePath } from '../../constants';
+import { SETTINGS_PATH } from '../../constants';
 import { logViewEvent, settingsViewName } from '../../lib/metrics';
 
 type FormPasswordProps = {
@@ -69,7 +69,7 @@ export const FormPassword = ({
 }: FormPasswordProps) => {
   const navigate = useNavigate();
   const goHome = useCallback(
-    () => navigate(HomePath + '#password', { replace: true }),
+    () => navigate(SETTINGS_PATH + '#password', { replace: true }),
     [navigate]
   );
   const passwordValidator = new PasswordValidator(primaryEmail);
