@@ -42,6 +42,12 @@ export default defineConfig<PlaywrightTestConfig<TestOptions, WorkerOptions>>({
   // Total allowable time spent for each assertion. Defaults to 5 seconds.
   expect: { timeout: 10000 }, // 10 seconds
 
+  // Report slow tests, but only the top 10 slowest tests.
+  reportSlowTests: {
+    max: 10, // Report the top 10 slowest test files
+    threshold: 15000, // Threshold in milliseconds
+  },
+
   use: {
     viewport: { width: 1280, height: 720 },
   },
@@ -67,6 +73,7 @@ export default defineConfig<PlaywrightTestConfig<TestOptions, WorkerOptions>>({
   reporter: CI
     ? [
         ['./lib/ci-reporter.ts'],
+        ['dot'],
         [
           'junit',
           {
