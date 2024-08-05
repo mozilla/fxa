@@ -59,6 +59,7 @@ exports.create = async function createServer() {
     routes: {
       cors: {
         additionalExposedHeaders: ['Timestamp', 'Accept-Language'],
+        additionalHeaders: ['sentry-trace', 'baggage'],
         // If we're accepting CORS from any origin then use Hapi's "ignore" mode,
         // which is more forgiving of missing Origin header.
         origin: ['*'],
