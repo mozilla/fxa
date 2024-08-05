@@ -172,6 +172,8 @@ export const eventsMap = {
     displayNameSubmit: 'account_pref_display_name_submit',
     secondaryEmailSubmit: 'account_pref_secondary_email_submit',
     help: 'account_pref_help',
+    promoMonitorView: 'account_pref_promo_monitor_view',
+    promoMonitorSubmit: 'account_pref_promo_monitor_submit',
   },
 
   deleteAccount: {

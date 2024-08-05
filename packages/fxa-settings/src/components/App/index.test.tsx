@@ -81,7 +81,7 @@ jest.mock('../../lib/glean', () => ({
   default: {
     initialize: jest.fn(),
     getEnabled: jest.fn(),
-    accountPref: { view: jest.fn() },
+    accountPref: { view: jest.fn(), promoMonitorView: jest.fn() },
     pageLoad: jest.fn(),
   },
 }));
