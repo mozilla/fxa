@@ -9,6 +9,14 @@ import { ReactComponent as OpenExternal } from './open-external.svg';
 import { useAccount, useConfig } from '../../../models';
 import { Localized } from '@fluent/react';
 
+export interface NavRefProps {
+  profileRef?: React.MutableRefObject<HTMLDivElement | null>;
+  securityRef?: React.MutableRefObject<HTMLDivElement | null>;
+  connectedServicesRef?: React.MutableRefObject<HTMLDivElement | null>;
+  linkedAccountsRef?: React.MutableRefObject<HTMLDivElement | null>;
+  dataCollectionRef?: React.MutableRefObject<HTMLDivElement | null>;
+}
+
 const navActiveClass = 'nav-active';
 
 // Update the active nav class when this percentage of a section is shown on screen
@@ -21,13 +29,7 @@ export const Nav = ({
   connectedServicesRef,
   linkedAccountsRef,
   dataCollectionRef,
-}: {
-  profileRef?: React.MutableRefObject<HTMLDivElement | null>;
-  securityRef?: React.MutableRefObject<HTMLDivElement | null>;
-  connectedServicesRef?: React.MutableRefObject<HTMLDivElement | null>;
-  linkedAccountsRef?: React.MutableRefObject<HTMLDivElement | null>;
-  dataCollectionRef?: React.MutableRefObject<HTMLDivElement | null>;
-}) => {
+}: NavRefProps) => {
   const account = useAccount();
   const config = useConfig();
   const profileLinkRef = useRef<HTMLAnchorElement>(null);
@@ -134,8 +136,7 @@ export const Nav = ({
 
   return (
     <nav
-      // top-[7.69rem] allows the sticky nav header to align exactly with first section heading
-      className="font-header fixed bg-white w-full inset-0 mt-19 desktop:mt-0 desktop:sticky desktop:top-[7.69rem] desktop:bg-transparent text-xl desktop:text-base"
+      className="font-header desktop:w-11/12 text-xl desktop:text-base"
       data-testid="nav"
     >
       <ul className="px-6 py-8 tablet:px-8 desktop:p-0 text-start">
