@@ -70,7 +70,7 @@
     "@googlemaps/google-maps-services-js": "^3.4.0",
     "@hapi/hapi": "^20.2.1",
     "@hapi/hoek": "^11.0.2",
-    "@mozilla/glean": "^5.0.2",
+    "@mozilla/glean": "^5.0.3",
     "@types/convict": "5.2.2",
     "@types/ejs": "^3.0.6",
     "@types/mjml": "^4.7.4",
