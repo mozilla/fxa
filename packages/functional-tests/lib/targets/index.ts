@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import { BaseTarget } from './base';
 import { LocalTarget } from './local';
 import { StageTarget } from './stage';
@@ -8,7 +12,7 @@ export const TargetNames = [
   StageTarget.target,
   ProductionTarget.target,
 ] as const;
-export type TargetName = typeof TargetNames[number];
+export type TargetName = (typeof TargetNames)[number];
 
 const targets = {
   [LocalTarget.target]: LocalTarget,
