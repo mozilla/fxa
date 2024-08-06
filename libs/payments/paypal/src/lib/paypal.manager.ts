@@ -140,15 +140,6 @@ export class PayPalManager {
   }
 
   /**
-   * Get a token authorizing transaction to move to the next stage.
-   * If the call to PayPal fails, a PayPalClientError will be thrown.
-   */
-  async getCheckoutToken(currencyCode: string) {
-    const response = await this.client.setExpressCheckout({ currencyCode });
-    return response.TOKEN;
-  }
-
-  /**
    * Process an invoice when amount is greater than minimum amount
    */
   async processNonZeroInvoice(

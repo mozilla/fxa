@@ -6,7 +6,7 @@ import { Injectable } from '@nestjs/common';
 import { Validator } from 'class-validator';
 
 import { CartService } from '@fxa/payments/cart';
-import { PayPalManager } from '@fxa/payments/paypal';
+import { CheckoutTokenManager } from '@fxa/payments/paypal';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
 
 import { CheckoutCartWithPaypalActionArgs } from './validators/CheckoutCartWithPaypalActionArgs';
@@ -28,7 +28,7 @@ import { UpdateCartActionArgs } from './validators/UpdateCartActionArgs';
 export class NextJSActionsService {
   constructor(
     private cartService: CartService,
-    private paypalManager: PayPalManager,
+    private checkoutTokenManager: CheckoutTokenManager,
     private productConfigurationManager: ProductConfigurationManager
   ) {}
 
@@ -80,7 +80,7 @@ export class NextJSActionsService {
   async getPayPalCheckoutToken(args: GetPayPalCheckoutTokenArgs) {
     new Validator().validateOrReject(args);
 
-    const token = await this.paypalManager.getCheckoutToken(args.currencyCode);
+    const token = await this.checkoutTokenManager.get(args.currencyCode);
 
     return token;
   }

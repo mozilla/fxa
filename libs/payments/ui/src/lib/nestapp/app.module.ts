@@ -11,6 +11,7 @@ import {
   EligibilityService,
 } from '@fxa/payments/eligibility';
 import {
+  CheckoutTokenManager,
   PayPalClient,
   PaypalCustomerManager,
   PayPalManager,
@@ -67,6 +68,7 @@ import { validate } from '../config.utils';
     PayPalClient,
     PaypalCustomerManager,
     PayPalManager,
+    CheckoutTokenManager,
     PriceManager,
     ProductConfigurationManager,
     ProductManager,
