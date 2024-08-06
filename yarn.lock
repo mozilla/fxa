@@ -32101,15 +32101,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"connect-cachify@npm:0.0.17":
-  version: 0.0.17
-  resolution: "connect-cachify@npm:0.0.17"
-  dependencies:
-    underscore: ">=1.3.1"
-  checksum: 750171269447caa1304dda3014e67a203e25daba912dce24dfed2845f724d06d113f4f7b993cefd62fdb3a5f1a2f5d79b44a5bf21ca9b3afa13bdb15a5652c6d
-  languageName: node
-  linkType: hard
-
 "connect-history-api-fallback@npm:^2.0.0":
   version: 2.0.0
   resolution: "connect-history-api-fallback@npm:2.0.0"
@@ -39677,7 +39668,6 @@ fsevents@~2.1.1:
     cache-loader: ^4.1.0
     chai: ^4.3.6
     chosen-js: "https://github.com/mozilla-fxa/chosen.git#3bea55b356c249ae82980c04f67ccc98ff3b28b0"
-    connect-cachify: 0.0.17
     consolidate: 1.0.3
     convict: ^6.2.4
     convict-format-with-moment: ^6.2.0
