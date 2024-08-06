@@ -53,7 +53,7 @@
     "uuid": "^9.0.0"
   },
   "devDependencies": {
-    "@nestjs/cli": "^10.3.2",
+    "@nestjs/cli": "^10.4.2",
     "@types/chance": "^1.1.2",
     "@types/convict": "^5.2.2",
     "@types/express": "^4.17.12",
