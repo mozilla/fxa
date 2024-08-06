@@ -121,6 +121,14 @@ describe('ClientWebhooksService', () => {
       expect(service.hasWebhookRegistered('testClient3')).toBe(false);
     });
 
+    it('returns the webhook url for a client id', async () => {
+      await service.onApplicationBootstrap();
+      expect(service.getWebhookForClientId('testClient1')).toBe(
+        'http://localhost/webhook'
+      );
+      expect(service.getWebhookForClientId('testClient3')).toBe(undefined);
+    });
+
     it('gets errors', async () => {
       await service.onApplicationBootstrap();
       const mockExit = jest.spyOn(process, 'exit').mockImplementation();
