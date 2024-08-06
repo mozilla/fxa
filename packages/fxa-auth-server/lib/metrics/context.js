@@ -4,7 +4,6 @@
 
 'use strict';
 
-const bufferEqualConstantTime = require('buffer-equal-constant-time');
 const crypto = require('crypto');
 const HEX_STRING = require('../routes/validators').HEX_STRING;
 const isA = require('joi');
@@ -299,7 +298,7 @@ module.exports = function (log, config) {
     );
     const flowSignatureBytes = Buffer.from(flowSignature, 'hex');
     const expectedSignatureBytes = calculateFlowSignatureBytes(metadata);
-    if (!bufferEqualConstantTime(flowSignatureBytes, expectedSignatureBytes)) {
+    if (!crypto.timingSafeEqual(flowSignatureBytes, expectedSignatureBytes)) {
       return logInvalidContext(this, 'invalid signature');
     }
 

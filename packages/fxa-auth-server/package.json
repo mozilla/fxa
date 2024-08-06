@@ -79,7 +79,6 @@
     "app-store-server-api": "^0.7.0",
     "aws-sdk": "^2.1664.0",
     "buf": "0.1.1",
-    "buffer-equal-constant-time": "1.0.1",
     "cldr-core": "^44.1.0",
     "commander": "2.18.0",
     "convict": "^6.2.4",
