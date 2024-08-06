@@ -85,7 +85,7 @@ export class ClientWebhooksService
 
   // Get the webhook URL for a given client ID.
   getWebhookForClientId(clientId: string): string | undefined {
-    if (!Object.keys(clientId).includes(clientId)) return undefined;
+    if (!this.hasWebhookRegistered(clientId)) return undefined;
     return this.webhooks[clientId];
   }
 
