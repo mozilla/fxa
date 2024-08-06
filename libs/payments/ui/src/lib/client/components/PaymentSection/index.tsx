@@ -4,8 +4,8 @@
 
 'use client';
 
-import { CheckoutForm } from './CheckoutForm';
-import { StripeWrapper } from './StripeWrapper';
+import { CheckoutForm } from '../CheckoutForm';
+import { StripeWrapper } from '../StripeWrapper';
 
 interface PaymentFormProps {
   cmsCommonContent: {
