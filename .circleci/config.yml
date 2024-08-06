@@ -278,12 +278,18 @@ commands:
           command: ./_scripts/check-url.sh localhost:9090;
 
   lint:
+    parameters:
+      nx_run:
+        type: string
     steps:
       - run:
           name: Linting
-          command: npx nx affected --base=main --head=$CIRCLE_SHA1 --parallel=1 -t lint
+          command: npx nx << parameters.nx_run >> --parallel=1 -t lint
 
   compile:
+    parameters:
+      nx_run:
+        type: string
     steps:
       - run:
           name: Pre building shared libraries
@@ -292,7 +298,7 @@ commands:
             NODE_ENV: test
       - run:
           name: Compiling TypeScript
-          command: NODE_OPTIONS="--max-old-space-size=7168" npx nx affected --base=main --head=$CIRCLE_SHA1 --parallel=1 -t compile
+          command: NODE_OPTIONS="--max-old-space-size=7168" npx nx << parameters.nx_run >> --parallel=1 -t compile
           environment:
             NODE_ENV: test
 
@@ -566,23 +572,37 @@ jobs:
 
   # Runs linter on packages that have changes.
   lint:
+    parameters:
+      nx_run:
+        type: string
+        default: affected --base=main --head=$CIRCLE_SHA1
     executor: default-executor
     resource_class: small
     steps:
       - git-checkout
       - restore-workspace
-      - lint
+      - lint:
+          nx_run: << parameters.nx_run >>
 
   compile:
+    parameters:
+      nx_run:
+        type: string
+        default: affected --base=main --head=$CIRCLE_SHA1
     executor: default-executor
     resource_class: large
     steps:
       - git-checkout
       - restore-workspace
-      - compile
+      - compile:
+          nx_run: << parameters.nx_run >>
 
   # Runs unit tests in parallel across packages with changes.
   unit-test:
+    parameters:
+      nx_run:
+        type: string
+        default: affected --base=main --head=$CIRCLE_SHA1
     executor: default-executor
     resource_class: medium+
     steps:
@@ -593,7 +613,7 @@ jobs:
           command: NODE_OPTIONS="--max-old-space-size=7168" npx nx run-many -t build --projects=tag:scope:shared:lib --parallel=2
       - run:
           name: Run unit tests
-          command: npx nx affected --base=main --head=$CIRCLE_SHA1 --parallel=2 -t test-unit
+          command: npx nx << parameters.nx_run >> --parallel=2 -t test-unit
           environment:
             NODE_ENV: test
       - store-artifacts
@@ -1145,14 +1165,17 @@ workflows:
             - Init (nightly)
       - lint:
           name: Lint (nightly)
+          nx_run: ''
           requires:
             - Init (nightly)
       - compile:
           name: Compile (nightly)
+          nx_run: ''
           requires:
             - Init (nightly)
       - unit-test:
           name: Unit Test (nightly)
+          nx_run: ''
           requires:
             - Build (nightly)
       - integration-test:
