@@ -73,7 +73,7 @@
     "@opentelemetry/sdk-trace-node": "^1.23.0",
     "@opentelemetry/sdk-trace-web": "^1.23.0",
     "@radix-ui/react-form": "^0.0.3",
-    "@radix-ui/react-tooltip": "^1.0.7",
+    "@radix-ui/react-tooltip": "^1.1.2",
     "@sentry/browser": "^7.113.0",
     "@sentry/integrations": "^7.113.0",
     "@sentry/node": "^7.113.0",
