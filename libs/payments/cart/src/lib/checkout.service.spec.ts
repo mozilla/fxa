@@ -521,9 +521,6 @@ describe('CheckoutService', () => {
         .mockResolvedValue(mockPaypalCustomer);
       jest.spyOn(paypalManager, 'cancelBillingAgreement').mockResolvedValue();
       jest
-        .spyOn(paypalManager, 'getCustomerPayPalSubscriptions')
-        .mockResolvedValue([]);
-      jest
         .spyOn(paypalManager, 'getOrCreateBillingAgreementId')
         .mockResolvedValue(mockBillingAgreementId);
       jest
@@ -535,6 +532,9 @@ describe('CheckoutService', () => {
       jest
         .spyOn(subscriptionManager, 'cancel')
         .mockResolvedValue(mockSubscription);
+      jest
+        .spyOn(subscriptionManager, 'getCustomerPayPalSubscriptions')
+        .mockResolvedValue([]);
     });
 
     describe('success', () => {
@@ -548,7 +548,7 @@ describe('CheckoutService', () => {
 
       it('fetches the customers paypal subscriptions', async () => {
         expect(
-          paypalManager.getCustomerPayPalSubscriptions
+          subscriptionManager.getCustomerPayPalSubscriptions
         ).toHaveBeenCalledWith(mockCustomer.id);
       });
 

@@ -4,10 +4,7 @@
 
 import { Injectable } from '@nestjs/common';
 
-import {
-  ACTIVE_SUBSCRIPTION_STATUSES,
-  SubscriptionManager,
-} from '@fxa/payments/stripe';
+import { SubscriptionManager } from '@fxa/payments/stripe';
 import { PayPalClient } from './paypal.client';
 import { BillingAgreement, BillingAgreementStatus } from './paypal.types';
 import { PaypalCustomerMultipleRecordsError } from './paypalCustomer/paypalCustomer.error';
@@ -118,19 +115,6 @@ export class PayPalManager {
       throw new PaypalCustomerMultipleRecordsError(uid);
 
     return firstRecord.billingAgreementId;
-  }
-
-  // TODO: This should be moved to the subscription manager
-  async getCustomerPayPalSubscriptions(customerId: string) {
-    const subscriptions = await this.subscriptionManager.listForCustomer(
-      customerId
-    );
-    if (!subscriptions) return [];
-    return subscriptions.filter(
-      (sub) =>
-        ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status) &&
-        sub.collection_method === 'send_invoice'
-    );
   }
 
   /*

@@ -9,8 +9,6 @@ import {
   InvoiceManager,
   MockStripeConfigProvider,
   StripeClient,
-  StripeCustomerFactory,
-  StripeSubscriptionFactory,
   SubscriptionManager,
 } from '@fxa/payments/stripe';
 import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
@@ -35,7 +33,6 @@ describe('PayPalManager', () => {
   let paypalManager: PayPalManager;
   let paypalClient: PayPalClient;
   let paypalCustomerManager: PaypalCustomerManager;
-  let subscriptionManager: SubscriptionManager;
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -55,7 +52,6 @@ describe('PayPalManager', () => {
 
     paypalManager = moduleRef.get(PayPalManager);
     paypalClient = moduleRef.get(PayPalClient);
-    subscriptionManager = moduleRef.get(SubscriptionManager);
     paypalCustomerManager = moduleRef.get(PaypalCustomerManager);
   });
 
@@ -307,41 +303,6 @@ describe('PayPalManager', () => {
         paypalManager.getCustomerBillingAgreementId(uid)
       ).rejects.toBeInstanceOf(PaypalCustomerMultipleRecordsError);
     });
-  });
-
-  describe('getCustomerPayPalSubscriptions', () => {
-    it('return customer subscriptions where collection method is send_invoice', async () => {
-      const mockPayPalSubscription = StripeSubscriptionFactory({
-        collection_method: 'send_invoice',
-        status: 'active',
-      });
-
-      const mockCustomer = StripeCustomerFactory();
-
-      const expected = [mockPayPalSubscription];
-
-      jest
-        .spyOn(subscriptionManager, 'listForCustomer')
-        .mockResolvedValue([mockPayPalSubscription]);
-
-      const result = await paypalManager.getCustomerPayPalSubscriptions(
-        mockCustomer.id
-      );
-      expect(result).toEqual(expected);
-    });
-  });
-
-  it('returns empty array when no subscriptions', async () => {
-    const mockCustomer = StripeCustomerFactory();
-
-    jest
-      .spyOn(subscriptionManager, 'listForCustomer')
-      .mockResolvedValueOnce([]);
-
-    const result = await paypalManager.getCustomerPayPalSubscriptions(
-      mockCustomer.id
-    );
-    expect(result).toEqual([]);
   });
 
   describe('getPayPalAmountStringFromAmountInCents', () => {

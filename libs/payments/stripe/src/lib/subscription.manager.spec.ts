@@ -160,6 +160,41 @@ describe('SubscriptionManager', () => {
     });
   });
 
+  describe('getCustomerPayPalSubscriptions', () => {
+    it('return customer subscriptions where collection method is send_invoice', async () => {
+      const mockPayPalSubscription = StripeSubscriptionFactory({
+        collection_method: 'send_invoice',
+        status: 'active',
+      });
+
+      const mockCustomer = StripeCustomerFactory();
+
+      const expected = [mockPayPalSubscription];
+
+      jest
+        .spyOn(subscriptionManager, 'listForCustomer')
+        .mockResolvedValue([mockPayPalSubscription]);
+
+      const result = await subscriptionManager.getCustomerPayPalSubscriptions(
+        mockCustomer.id
+      );
+      expect(result).toEqual(expected);
+    });
+  });
+
+  it('returns empty array when no subscriptions', async () => {
+    const mockCustomer = StripeCustomerFactory();
+
+    jest
+      .spyOn(subscriptionManager, 'listForCustomer')
+      .mockResolvedValueOnce([]);
+
+    const result = await subscriptionManager.getCustomerPayPalSubscriptions(
+      mockCustomer.id
+    );
+    expect(result).toEqual([]);
+  });
+
   describe('getLatestPaymentIntent', () => {
     it('fetches the latest payment intent for the subscription', async () => {
       const mockSubscription = StripeResponseFactory(
