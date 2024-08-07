@@ -31,28 +31,64 @@ export const monitorPromoLink = constructHrefWithUtm(
   'settings-promo'
 );
 
+export const monitorPlusPromoLink = constructHrefWithUtm(
+  LINK.MONITOR_PLUS,
+  'product-partnership',
+  'moz-account',
+  'sidebar',
+  'monitor-free',
+  'settings-promo'
+);
+
 export const ProductPromo = ({
   type = ProductPromoType.Sidebar,
 }: ProductPromoProps) => {
-  const { attachedClients } = useAccount();
+  const { attachedClients, subscriptions } = useAccount();
 
   const hasMonitor = attachedClients.some(
     ({ name }) => name === MozServices.Monitor
   );
 
-  // const hasMonitorPlus = subscriptions.some(
-  //   ({ productName }) => productName === MozServices.MonitorPlus
-  // );
+  const hasMonitorPlus = subscriptions.some(
+    ({ productName }) => productName === MozServices.MonitorPlus
+  );
 
-  if (hasMonitor) {
+  if (hasMonitor && hasMonitorPlus) {
     return <></>;
   }
+
   // if (hasMonitor) {
   // Glean view event
   // }
   // if (hasMonitorPlus) {
   // Glean view event
   // }
+
+  const promoContent = hasMonitor ? (
+    <>
+      <p className="my-2">
+        <FtlMsg id="product-promo-monitor-plus-description">
+          Privacy Matters: Find where your private info is exposed and take it
+          back
+        </FtlMsg>
+      </p>
+      <LinkExternal href={monitorPlusPromoLink} className="link-blue">
+        <FtlMsg id="product-promo-monitor-plus-cta">Get started</FtlMsg>
+      </LinkExternal>
+    </>
+  ) : (
+    <>
+      <p className="my-2">
+        <FtlMsg id="product-promo-monitor-description">
+          Find where your private info is exposed — and take it back
+        </FtlMsg>
+      </p>
+      <LinkExternal href={monitorPromoLink} className="link-blue">
+        <FtlMsg id="product-promo-monitor-cta">Get free scan</FtlMsg>
+      </LinkExternal>
+    </>
+  );
+
   return (
     <aside
       className={classNames(
@@ -78,15 +114,7 @@ export const ProductPromo = ({
             />
           </FtlMsg>
         </h2>
-        <p className="my-2">
-          <FtlMsg id="product-promo-monitor-description">
-            Find where your private info is exposed — and take it back
-          </FtlMsg>
-        </p>
-        {/* possible todo, link to their stage env in stage? can do with FXA-10147 */}
-        <LinkExternal href={monitorPromoLink} className="link-blue">
-          <FtlMsg id="product-promo-monitor-cta">Get free scan</FtlMsg>
-        </LinkExternal>
+        {promoContent}
       </div>
     </aside>
   );

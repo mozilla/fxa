@@ -30,6 +30,7 @@ export enum LINK {
   HUBS = 'https://hubs.mozilla.com/',
   MDN = 'https://developer.mozilla.org/',
   MONITOR = 'https://monitor.mozilla.org/',
+  MONITOR_PLUS = 'https://monitor.mozilla.org/#pricing',
   POCKET = 'https://getpocket.com/',
   RELAY = 'https://relay.firefox.com/',
   VPN = 'https://vpn.mozilla.org/',

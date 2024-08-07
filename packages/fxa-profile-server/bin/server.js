@@ -5,10 +5,6 @@
 // Important! Must be required first to get proper hooks in place.
 require('../lib/monitoring');
 
-// Only `require()` the newrelic module if explicity enabled.
-// If required, modules will be instrumented.
-require('../lib/newrelic')();
-
 const configuration = require('../lib/config');
 const db = require('../lib/db');
 const logger = require('../lib/logging')('bin.server');

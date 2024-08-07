@@ -21,6 +21,7 @@ export enum MozServices {
   MozillaVPN = 'Mozilla VPN',
   Pocket = 'Pocket',
   TestService = '123Done',
+  MonitorPlus = 'Mozilla Monitor Plus',
 }
 
 // Information about a device
