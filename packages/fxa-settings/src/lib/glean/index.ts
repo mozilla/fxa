@@ -423,6 +423,9 @@ const recordEventMetric = (
     case 'account_pref_secondary_email_submit':
       accountPref.secondaryEmailSubmit.record();
       break;
+    case 'account_pref_help':
+      accountPref.help.record();
+      break;
     case 'delete_account_settings_submit':
       deleteAccount.settingsSubmit.record();
       break;

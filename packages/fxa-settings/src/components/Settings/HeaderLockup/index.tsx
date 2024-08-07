@@ -14,6 +14,7 @@ import { ReactComponent as Menu } from './menu.svg';
 import { ReactComponent as Close } from './close.svg';
 import { SettingsIntegration } from '../interfaces';
 import Sidebar from '../Sidebar';
+import GleanMetrics from '../../../lib/glean';
 
 export const HeaderLockup = ({
   integration,
@@ -26,6 +27,10 @@ export const HeaderLockup = ({
   const localizedMenuText = sidebarRevealedState
     ? l10n.getString('header-menu-open', null, 'Close menu')
     : l10n.getString('header-menu-closed', null, 'Site navigation menu');
+
+  const handleHelpLinkClick = () => {
+    GleanMetrics.accountPref.help();
+  };
 
   const left = (
     <>
@@ -69,17 +74,16 @@ export const HeaderLockup = ({
   const right = (
     <>
       <LinkExternal
-        href="https://support.mozilla.org"
+        href="https://support.mozilla.org/products/mozilla-account"
         title={localizedHelpText}
-        data-testid="header-sumo-link"
         className="inline-block relative p-2 -m-2 z-[1] rounded hover:bg-grey-100"
+        onClick={handleHelpLinkClick}
       >
         <Help
           aria-label={localizedHelpText}
           title={localizedHelpText}
           role="img"
           className="w-5 text-violet-900"
-          data-testid="header-help"
         />
       </LinkExternal>
       <BentoMenu />

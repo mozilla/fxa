@@ -2080,6 +2080,23 @@ account_pref:
       reason:
         description: If reason is "create_password", the user was taken to the create password page, set a password, and then confirmed the account unlinking.
         type: string
+  help:
+    type: event
+    description: |
+      User clicked the question mark icon "Help" link in the account settings page header
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-10220
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
 
 delete_account:
   settings_submit:

@@ -169,6 +169,7 @@ export const eventsMap = {
     appleUnlinkSubmitConfirm: 'account_pref_apple_unlink_submit_confirm',
     displayNameSubmit: 'account_pref_display_name_submit',
     secondaryEmailSubmit: 'account_pref_secondary_email_submit',
+    help: 'account_pref_help',
   },
 
   deleteAccount: {
