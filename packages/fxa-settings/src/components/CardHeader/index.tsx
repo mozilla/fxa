@@ -6,7 +6,7 @@ import React from 'react';
 import { ReactElement } from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { MozServices } from '../../lib/types';
-import { ReactComponent as PocketTextLogo } from '@fxa/shared/assets/images/pocket-text-logo.svg';
+import PocketTextLogo from '@fxa/shared/assets/images/pocket-text-logo.svg';
 
 // NOTE: this component is heavily tested in components that use it and has complete line
 // coverage. However, we may file an issue out of FXA-6589 to add more explicit coverage.
@@ -115,11 +115,12 @@ function isBasicWithCustomSubheading(
 const serviceLogos: {
   [key in MozServices]?: ReactElement;
 } = {
+  // This is not inlined because text inside of an SVG can have rendering problems
   [MozServices.Pocket]: (
-    <PocketTextLogo
+    <img
+      src={PocketTextLogo}
+      alt={MozServices.Pocket}
       className="inline w-22 ps-0.5"
-      aria-label={MozServices.Pocket}
-      role="img"
     />
   ),
 };
