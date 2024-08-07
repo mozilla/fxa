@@ -241,7 +241,9 @@ export class CheckoutService {
       await this.prePaySteps(cart, customerData);
 
     const paypalSubscriptions =
-      await this.paypalManager.getCustomerPayPalSubscriptions(customer.id);
+      await this.subscriptionManager.getCustomerPayPalSubscriptions(
+        customer.id
+      );
 
     const billingAgreementId =
       await this.paypalManager.getOrCreateBillingAgreementId(
