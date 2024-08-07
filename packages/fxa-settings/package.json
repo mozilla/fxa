@@ -174,7 +174,7 @@
     "react-easy-crop": "^5.0.0",
     "react-hook-form": "^6.15.8",
     "react-markdown": "^8.0.5",
-    "react-refresh": "^0.11.0",
+    "react-refresh": "^0.14.2",
     "react-webcam": "^7.2.0",
     "rehype-raw": "^6.1.1",
     "resolve": "^1.22.8",

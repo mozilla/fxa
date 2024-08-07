@@ -40488,7 +40488,7 @@ fsevents@~2.1.1:
     react-easy-crop: ^5.0.0
     react-hook-form: ^6.15.8
     react-markdown: ^8.0.5
-    react-refresh: ^0.11.0
+    react-refresh: ^0.14.2
     react-webcam: ^7.2.0
     rehype-raw: ^6.1.1
     resolve: ^1.22.8
@@ -58751,6 +58751,13 @@ fsevents@~2.1.1:
   version: 0.14.0
   resolution: "react-refresh@npm:0.14.0"
   checksum: dc69fa8c993df512f42dd0f1b604978ae89bd747c0ed5ec595c0cc50d535fb2696619ccd98ae28775cc01d0a7c146a532f0f7fb81dc22e1977c242a4912312f4
+  languageName: node
+  linkType: hard
+
+"react-refresh@npm:^0.14.2":
+  version: 0.14.2
+  resolution: "react-refresh@npm:0.14.2"
+  checksum: d80db4bd40a36dab79010dc8aa317a5b931f960c0d83c4f3b81f0552cbcf7f29e115b84bb7908ec6a1eb67720fff7023084eff73ece8a7ddc694882478464382
   languageName: node
   linkType: hard
 
