@@ -8,7 +8,7 @@ import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavig
 import { useForm } from 'react-hook-form';
 import FlowContainer from '../FlowContainer';
 import InputText from '../../InputText';
-import { HomePath } from '../../../constants';
+import { SETTINGS_PATH } from '../../../constants';
 import { Localized, useLocalization } from '@fluent/react';
 import { useAccount, useAlertBar } from '../../../models';
 
@@ -21,7 +21,7 @@ export const PageDisplayName = (_: RouteComponentProps) => {
   const alertBar = useAlertBar();
   const { l10n } = useLocalization();
   const navigate = useNavigate();
-  const goHome = () => navigate(HomePath, { replace: true });
+  const goHome = () => navigate(SETTINGS_PATH, { replace: true });
   const alertSuccessAndGoHome = useCallback(() => {
     alertBar.success(
       l10n.getString(
@@ -30,7 +30,7 @@ export const PageDisplayName = (_: RouteComponentProps) => {
         'Display name updated'
       )
     );
-    navigate(HomePath, { replace: true });
+    navigate(SETTINGS_PATH, { replace: true });
   }, [alertBar, l10n, navigate]);
   const initialValue = account.displayName || '';
   const { register, handleSubmit, formState, trigger } = useForm<{

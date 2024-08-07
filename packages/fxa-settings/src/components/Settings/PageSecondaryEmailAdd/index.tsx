@@ -3,7 +3,7 @@ import { Localized, useLocalization } from '@fluent/react';
 import { RouteComponentProps } from '@reach/router';
 import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
 import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
-import { HomePath } from '../../../constants';
+import { SETTINGS_PATH } from '../../../constants';
 import InputText from '../../InputText';
 import FlowContainer from '../FlowContainer';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
@@ -29,7 +29,7 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
   const alertBar = useAlertBar();
   const account = useAccount();
   const goHome = () =>
-    navigate(HomePath + '#secondary-email', { replace: true });
+    navigate(SETTINGS_PATH + '#secondary-email', { replace: true });
 
   const createSecondaryEmail = useCallback(
     async (email: string) => {

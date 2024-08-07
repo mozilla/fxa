@@ -16,7 +16,7 @@ import { LockImage } from '../../images';
 import Banner, { BannerType } from '../../Banner';
 import { RecoveryKeyAction } from '../PageRecoveryKeyCreate';
 import { Link } from '@reach/router';
-import { HomePath } from '../../../constants';
+import { SETTINGS_PATH } from '../../../constants';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 
 type FormData = {
@@ -177,7 +177,7 @@ export const FlowRecoveryKeyConfirmPwd = ({
           <FtlMsg id="flow-recovery-key-info-cancel-link">
             <Link
               className="link-blue text-sm mx-auto"
-              to={HomePath}
+              to={SETTINGS_PATH}
               onClick={() => {
                 logViewEvent(`flow.${viewName}`, 'change-key.cancel');
               }}

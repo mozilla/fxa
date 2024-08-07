@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import {
+  constructHrefWithUtm,
   deepMerge,
   isBase32Crockford,
   once,
@@ -145,5 +146,51 @@ describe('once', () => {
     once('bar', cb);
     once('bar', cb);
     expect(count).toEqual(2);
+  });
+});
+
+describe('constructHrefWithUtm', () => {
+  test('should construct URL with given UTM parameters', () => {
+    const pathname = 'https://example.com';
+    const utmMedium = 'mozilla-websites';
+    const utmSource = 'moz-account';
+    const utmTerm = 'bento';
+    const utmContent = 'fx-desktop';
+    const utmCampaign = 'permanent';
+
+    const result = constructHrefWithUtm(
+      pathname,
+      utmMedium,
+      utmSource,
+      utmTerm,
+      utmContent,
+      utmCampaign
+    );
+
+    const expected =
+      'https://example.com?utm_source=moz-account&utm_medium=mozilla-websites&utm_term=bento&utm_content=fx-desktop&utm_campaign=permanent';
+    expect(result).toBe(expected);
+  });
+
+  test('should construct URL with different UTM parameters', () => {
+    const pathname = 'https://example.com';
+    const utmMedium = 'product-partnership';
+    const utmSource = 'moz-account';
+    const utmTerm = 'sidebar';
+    const utmContent = 'vpn';
+    const utmCampaign = 'connect-device';
+
+    const result = constructHrefWithUtm(
+      pathname,
+      utmMedium,
+      utmSource,
+      utmTerm,
+      utmContent,
+      utmCampaign
+    );
+
+    const expected =
+      'https://example.com?utm_source=moz-account&utm_medium=product-partnership&utm_term=sidebar&utm_content=vpn&utm_campaign=connect-device';
+    expect(result).toBe(expected);
   });
 });

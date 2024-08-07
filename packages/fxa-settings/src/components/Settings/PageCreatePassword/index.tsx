@@ -7,7 +7,7 @@ import { RouteComponentProps, useLocation } from '@reach/router';
 import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
 import React, { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { HomePath } from '../../../constants';
+import { SETTINGS_PATH } from '../../../constants';
 import {
   logViewEvent,
   settingsViewName,
@@ -54,7 +54,7 @@ export const PageCreatePassword = ({}: RouteComponentProps) => {
     alertBar.success(
       ftlMsgResolver.getMsg('pw-create-success-alert-2', 'Password set')
     );
-    navigate(HomePath + '#password', {
+    navigate(SETTINGS_PATH + '#password', {
       replace: true,
       ...(wantsUnlinkProviderId ? { state: { wantsUnlinkProviderId } } : {}),
     });

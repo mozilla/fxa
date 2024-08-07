@@ -12,7 +12,7 @@ import { useAccount, useFtlMsgResolver } from '../../../models';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import { useLocation } from '@reach/router';
 import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
-import { HomePath } from '../../../constants';
+import { SETTINGS_PATH } from '../../../constants';
 import {
   LinkedAccountProviderIds,
   UnlinkAccountLocationState,
@@ -42,7 +42,7 @@ export function LinkedAccount({
 
   // Keep the user where they were, but update router state
   const resetLocationState = () =>
-    navigate(HomePath + '#linked-accounts', {
+    navigate(SETTINGS_PATH + '#linked-accounts', {
       replace: true,
       state: { wantsUnlinkProviderId: undefined },
     });
@@ -73,7 +73,7 @@ export function LinkedAccount({
       // If a user doesn't have a password, they must create one first. We send
       // a navigation state that's passed back to Settings on password create
       // success that we account for here by automatically re-opening the modal.
-      navigate(HomePath + '/create_password', {
+      navigate(SETTINGS_PATH + '/create_password', {
         state: { wantsUnlinkProviderId: providerId },
       });
     }

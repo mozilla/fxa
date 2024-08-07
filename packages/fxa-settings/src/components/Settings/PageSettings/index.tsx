@@ -11,7 +11,7 @@ import LinkedAccounts from '../LinkedAccounts';
 
 import * as Metrics from '../../../lib/metrics';
 import { useAccount } from '../../../models';
-import { DeleteAccountPath } from 'fxa-settings/src/constants';
+import { SETTINGS_PATH } from 'fxa-settings/src/constants';
 import { Localized } from '@fluent/react';
 import DataCollection from '../DataCollection';
 import GleanMetrics from '../../../lib/glean';
@@ -62,7 +62,7 @@ export const PageSettings = (_: RouteComponentProps) => {
             <Link
               data-testid="settings-delete-account"
               className="cta-caution text-sm transition-standard mt-12 py-2 px-5 mobileLandscape:py-1"
-              to={DeleteAccountPath}
+              to={SETTINGS_PATH + '/delete_account'}
               onClick={() => GleanMetrics.deleteAccount.settingsSubmit()}
             >
               Delete account

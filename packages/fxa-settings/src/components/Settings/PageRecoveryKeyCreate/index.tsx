@@ -5,7 +5,7 @@
 import React, { useState } from 'react';
 import { RouteComponentProps } from '@reach/router';
 import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
-import { HomePath } from '../../../constants';
+import { SETTINGS_PATH } from '../../../constants';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { useAccount, useFtlMsgResolver } from '../../../models';
 import FlowRecoveryKeyConfirmPwd from '../FlowRecoveryKeyConfirmPwd';
@@ -35,7 +35,8 @@ export const PageRecoveryKeyCreate = (props: RouteComponentProps) => {
   const action = recoveryKey
     ? RecoveryKeyAction.Change
     : RecoveryKeyAction.Create;
-  const goHome = () => navigate(HomePath + '#recovery-key', { replace: true });
+  const goHome = () =>
+    navigate(SETTINGS_PATH + '#recovery-key', { replace: true });
 
   const localizedPageTitle = ftlMsgResolver.getMsg(
     'recovery-key-create-page-title',
@@ -48,7 +49,7 @@ export const PageRecoveryKeyCreate = (props: RouteComponentProps) => {
   );
 
   const navigateBackward = () => {
-    navigate(HomePath);
+    navigate(SETTINGS_PATH);
   };
 
   const navigateForward = (e?: React.MouseEvent<HTMLElement>) => {
@@ -56,7 +57,7 @@ export const PageRecoveryKeyCreate = (props: RouteComponentProps) => {
     if (currentStep + 1 <= numberOfSteps) {
       setCurrentStep(currentStep + 1);
     } else {
-      navigate(HomePath);
+      navigate(SETTINGS_PATH);
     }
   };
 

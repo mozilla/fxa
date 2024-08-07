@@ -5,7 +5,7 @@
 import 'mutationobserver-shim';
 import React from 'react';
 import { act, fireEvent, screen } from '@testing-library/react';
-import { HomePath } from '../../../constants';
+import { SETTINGS_PATH } from '../../../constants';
 import { mockAppContext, renderWithRouter } from '../../../models/mocks';
 import PageChangePassword from '.';
 import {
@@ -93,7 +93,7 @@ it('shows an error when old and new password are the same', async () => {
 
 it('redirects on success', async () => {
   await changePassword();
-  expect(mockNavigate).toHaveBeenCalledWith(HomePath + '#password', {
+  expect(mockNavigate).toHaveBeenCalledWith(SETTINGS_PATH + '#password', {
     replace: true,
   });
 });

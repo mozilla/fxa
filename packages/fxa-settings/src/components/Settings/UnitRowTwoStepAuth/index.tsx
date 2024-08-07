@@ -10,11 +10,11 @@ import UnitRow from '../UnitRow';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import { useAccount, useAlertBar } from '../../../models';
 import { ButtonIconReload } from '../ButtonIcon';
-import { HomePath } from '../../../constants';
+import { SETTINGS_PATH } from '../../../constants';
 import { Localized, useLocalization } from '@fluent/react';
 import GleanMetrics from '../../../lib/glean';
 
-const route = `${HomePath}/two_step_authentication`;
+const route = `${SETTINGS_PATH}/two_step_authentication`;
 const replaceCodesRoute = `${route}/replace_codes`;
 
 export const UnitRowTwoStepAuth = () => {
