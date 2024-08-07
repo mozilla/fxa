@@ -131,7 +131,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.24.4",
-    "@babel/preset-env": "^7.22.9",
+    "@babel/preset-env": "^7.25.3",
     "@babel/preset-react": "^7.24.1",
     "@babel/preset-typescript": "^7.24.1",
     "@storybook/addon-controls": "^7.4.6",
