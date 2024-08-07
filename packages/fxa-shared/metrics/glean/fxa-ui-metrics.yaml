@@ -1890,6 +1890,23 @@ account_pref:
     expires: never
     data_sensitivity:
       - interaction
+  two_step_auth_scan_code_link:
+    type: event
+    description: |
+      User clicked the "Can't scan code?" link
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-10038
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
   change_password_submit:
     type: event
     description: |
@@ -1900,7 +1917,7 @@ account_pref:
       - vzare@mozilla.com
       - fxa-staff@mozilla.com
     bugs:
-      - https://mozilla-hub.atlassian.net/browse/FXA-10040
+      - https://mozilla-hub.atlassian.net/browse/FXA-9577
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121

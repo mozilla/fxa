@@ -199,6 +199,22 @@ export const secondaryEmailSubmit = new EventMetricType(
 );
 
 /**
+ * User clicked the "Can't scan code?" link
+ *
+ * Generated from `account_pref.two_step_auth_scan_code_link`.
+ */
+export const twoStepAuthScanCodeLink = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'two_step_auth_scan_code_link',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
  * Click on "Add" button on account settings page for adding 2FA to account
  *
  * Generated from `account_pref.two_step_auth_submit`.

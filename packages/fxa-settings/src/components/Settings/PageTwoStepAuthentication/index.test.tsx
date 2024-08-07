@@ -15,6 +15,7 @@ import PageTwoStepAuthentication, { metricsPreInPostFix } from '.';
 import { checkCode, getCode } from '../../../lib/totp';
 import { SETTINGS_PATH } from '../../../constants';
 import * as Metrics from '../../../lib/metrics';
+import GleanMetrics from '../../../lib/glean';
 import { Account, AppContext } from '../../../models';
 import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
 import { SettingsContext } from '../../../models/contexts/SettingsContext';
@@ -24,6 +25,15 @@ jest.mock('../../../lib/totp', () => ({
   ...jest.requireActual('../../../lib/totp'),
   getCode: jest.fn(),
   checkCode: jest.fn().mockResolvedValue(true),
+}));
+
+jest.mock('../../../lib/glean', () => ({
+  __esModule: true,
+  default: {
+    accountPref: {
+      twoStepAuthScanCodeLink: jest.fn(),
+    },
+  },
 }));
 
 const mockNavigate = jest.fn();
@@ -126,6 +136,18 @@ describe('step 1', () => {
       render(account, false);
     });
     expect(screen.queryByTestId('2fa-qr-code')).toBeNull();
+  });
+
+  it('displays the totp secret', async () => {
+    await act(async () => {
+      render();
+    });
+    await act(async () => {
+      await fireEvent.click(screen.getByTestId('cant-scan-code'));
+    });
+
+    expect(screen.getByTestId('manual-code')).toBeInTheDocument();
+    expect(GleanMetrics.accountPref.twoStepAuthScanCodeLink).toHaveBeenCalled();
   });
 });
 

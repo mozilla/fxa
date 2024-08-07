@@ -383,6 +383,9 @@ const recordEventMetric = (
     case 'account_pref_two_step_auth_submit':
       accountPref.twoStepAuthSubmit.record();
       break;
+    case 'account_pref_two_step_auth_scan_code_link':
+      accountPref.twoStepAuthScanCodeLink.record();
+      break;
     case 'account_pref_change_password_submit':
       accountPref.changePasswordSubmit.record();
       break;
