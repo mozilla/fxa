@@ -512,6 +512,14 @@ describe('CheckoutService', () => {
         promotionCode: mockPromotionCode,
         priceId: mockPriceId,
       });
+      jest.spyOn(invoiceManager, 'processPayPalInvoice').mockResolvedValue();
+      jest
+        .spyOn(paypalCustomerManager, 'deletePaypalCustomersByUid')
+        .mockResolvedValue(BigInt(1));
+      jest
+        .spyOn(paypalCustomerManager, 'createPaypalCustomer')
+        .mockResolvedValue(mockPaypalCustomer);
+      jest.spyOn(paypalManager, 'cancelBillingAgreement').mockResolvedValue();
       jest
         .spyOn(paypalManager, 'getCustomerPayPalSubscriptions')
         .mockResolvedValue([]);
@@ -519,22 +527,14 @@ describe('CheckoutService', () => {
         .spyOn(paypalManager, 'getOrCreateBillingAgreementId')
         .mockResolvedValue(mockBillingAgreementId);
       jest
+        .spyOn(stripeClient, 'invoicesRetrieve')
+        .mockResolvedValue(mockInvoice);
+      jest
         .spyOn(stripeClient, 'subscriptionsCreate')
         .mockResolvedValue(mockSubscription);
       jest
-        .spyOn(paypalCustomerManager, 'deletePaypalCustomersByUid')
-        .mockResolvedValue(BigInt(1));
-      jest
-        .spyOn(paypalCustomerManager, 'createPaypalCustomer')
-        .mockResolvedValue(mockPaypalCustomer);
-      jest
-        .spyOn(stripeClient, 'invoicesRetrieve')
-        .mockResolvedValue(mockInvoice);
-      jest.spyOn(paypalManager, 'processInvoice').mockResolvedValue();
-      jest
         .spyOn(subscriptionManager, 'cancel')
         .mockResolvedValue(mockSubscription);
-      jest.spyOn(paypalManager, 'cancelBillingAgreement').mockResolvedValue();
     });
 
     describe('success', () => {
@@ -599,7 +599,9 @@ describe('CheckoutService', () => {
       });
 
       it('calls to process the latest invoice', () => {
-        expect(paypalManager.processInvoice).toHaveBeenCalledWith(mockInvoice);
+        expect(invoiceManager.processPayPalInvoice).toHaveBeenCalledWith(
+          mockInvoice
+        );
       });
 
       it('does not cancel the subscription', () => {

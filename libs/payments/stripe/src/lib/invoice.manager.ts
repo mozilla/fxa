@@ -5,15 +5,22 @@
 import { Injectable } from '@nestjs/common';
 import { Stripe } from 'stripe';
 
+import { CustomerManager } from './customer.manager';
+import { SubscriptionManager } from './subscription.manager';
+
 import { StripeClient } from './stripe.client';
-import { StripeCustomer } from './stripe.client.types';
+import { StripeCustomer, StripeInvoice } from './stripe.client.types';
 import { TaxAddress } from './stripe.types';
-import { stripeInvoiceToFirstInvoicePreviewDTO } from './util/stripeInvoiceToFirstInvoicePreviewDTO';
 import { isCustomerTaxEligible } from './util/isCustomerTaxEligible';
+import { stripeInvoiceToFirstInvoicePreviewDTO } from './util/stripeInvoiceToFirstInvoicePreviewDTO';
 
 @Injectable()
 export class InvoiceManager {
-  constructor(private client: StripeClient) {}
+  constructor(
+    private client: StripeClient,
+    private customerManager: CustomerManager,
+    private subscriptionManager: SubscriptionManager
+  ) {}
 
   async finalizeWithoutAutoAdvance(invoiceId: string) {
     return this.client.invoicesFinalizeInvoice(invoiceId, {
@@ -63,5 +70,49 @@ export class InvoiceManager {
     );
 
     return stripeInvoiceToFirstInvoicePreviewDTO(upcomingInvoice);
+  }
+
+  /**
+   * Process an invoice when amount is greater than minimum amount
+   */
+  async processPayPalNonZeroInvoice(
+    customer: StripeCustomer,
+    invoice: StripeInvoice,
+    ipaddress?: string
+  ) {
+    // TODO in M3b: Implement legacy processInvoice as processNonZeroInvoice here
+    // TODO: Add spec
+    console.log(customer, invoice, ipaddress);
+  }
+
+  /**
+   * Finalize and process a draft invoice that has no amounted owed.
+   */
+  async processPayPalZeroInvoice(invoiceId: string) {
+    // It appears for subscriptions that do not require payment, the invoice
+    // transitions to paid automatially.
+    // https://stripe.com/docs/billing/invoices/subscription#sub-invoice-lifecycle
+    return this.finalizeWithoutAutoAdvance(invoiceId);
+  }
+
+  /**
+   * Process an invoice
+   * If amount is less than minimum amount, call processZeroInvoice
+   * If amount is greater than minimum amount, call processNonZeroInvoice (legacy PaypalHelper processInvoice)
+   */
+  async processPayPalInvoice(invoice: StripeInvoice) {
+    if (!invoice.customer) throw new Error('Customer not present on invoice');
+    const amountInCents = invoice.amount_due;
+
+    if (
+      amountInCents <
+      this.subscriptionManager.getMinimumAmount(invoice.currency)
+    ) {
+      await this.processPayPalZeroInvoice(invoice.id);
+      return;
+    }
+
+    const customer = await this.customerManager.retrieve(invoice.customer);
+    await this.processPayPalNonZeroInvoice(customer, invoice);
   }
 }
