@@ -18,6 +18,7 @@ import { GetPayPalCheckoutTokenArgs } from './validators/GetPayPalCheckoutTokenA
 import { RestartCartActionArgs } from './validators/RestartCartActionArgs';
 import { SetupCartActionArgs } from './validators/SetupCartActionArgs';
 import { UpdateCartActionArgs } from './validators/UpdateCartActionArgs';
+import { EventName, RecordGleanEvent } from './validators/RecordGleanEvent';
 
 /**
  * ANY AND ALL methods exposed via this service should be considered publicly accessible and callable with any arguments.
@@ -116,5 +117,30 @@ export class NextJSActionsService {
     );
 
     return offering;
+  }
+
+  /**
+   * @@todo: Emit event using Emittery. To be added as part of FXA-10087
+   */
+  async recordGleanEvent(args: RecordGleanEvent) {
+    new Validator().validateOrReject(args);
+
+    // Temporary ignore until Emittery logic is added
+    //eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { eventName, commonMetrics, ...restOfArgs } = args;
+
+    switch (eventName) {
+      case EventName.PAY_SETUP_ENGAGE: {
+        //Note: This is a dummy implementation and will likely be changed as part of a future ticket.
+        //emitter.emit('pay_setup:engage', {
+        //  commonMetrics,
+        //  ...restOfArgs.paySetupEngageMetrics
+        //});
+        break;
+      }
+      default: {
+        throw new Error(`Event ${args.eventName} not supported`);
+      }
+    }
   }
 }
