@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { screen } from '@testing-library/react';
-import ProductPromo, { monitorPromoLink, monitorPlusPromoLink } from '.';
+import ProductPromo from '.';
 import { Account, AppContext } from '../../../models';
 import { MOCK_SERVICES } from '../ConnectedServices/mocks';
 import { MozServices } from '../../../lib/types';
@@ -51,9 +51,10 @@ describe('ProductPromo', () => {
     );
     expect(screen.getByRole('link', { name: /Get free scan/ })).toHaveAttribute(
       'href',
-      monitorPromoLink
+      'https://monitor.mozilla.org/?utm_source=moz-account&utm_medium=product-partnership&utm_term=sidebar&utm_content=monitor-free&utm_campaign=settings-promo'
     );
   });
+
   it('renders Monitor Plus promo if user does not have Monitor Plus', async () => {
     const account = {
       attachedClients: [
@@ -75,7 +76,7 @@ describe('ProductPromo', () => {
     );
     expect(screen.getByRole('link', { name: /Get started/ })).toHaveAttribute(
       'href',
-      monitorPlusPromoLink
+      'https://monitor.mozilla.org/#pricing?utm_source=moz-account&utm_medium=product-partnership&utm_term=sidebar&utm_content=monitor-plus&utm_campaign=settings-promo'
     );
   });
 });

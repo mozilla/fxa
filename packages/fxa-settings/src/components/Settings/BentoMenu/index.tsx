@@ -17,7 +17,7 @@ import vpnIcon from './vpn-logo.svg';
 import { ReactComponent as BentoIcon } from './bento.svg';
 import { ReactComponent as CloseIcon } from '@fxa/shared/assets/images/close.svg';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { useFtlMsgResolver } from '../../../models/hooks';
+import { useConfig, useFtlMsgResolver } from '../../../models/hooks';
 import { LINK } from '../../../constants';
 import { constructHrefWithUtm } from '../../../lib/utilities';
 
@@ -29,6 +29,8 @@ export const BentoMenu = () => {
   useEscKeydownEffect(setRevealed);
   const dropDownId = 'drop-down-bento-menu';
   const iconClassNames = 'inline-block w-5 -mb-1 me-1';
+
+  const { env } = useConfig();
   const ftlMsgResolver = useFtlMsgResolver();
 
   const bentoMenuTitle = ftlMsgResolver.getMsg(
@@ -55,7 +57,7 @@ export const BentoMenu = () => {
   );
 
   const monitorLink = constructHrefWithUtm(
-    LINK.MONITOR,
+    env === 'stage' ? LINK.MONITOR_STAGE : LINK.MONITOR,
     'mozilla-websites',
     'moz-account',
     'bento',
