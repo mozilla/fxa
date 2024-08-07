@@ -10,8 +10,6 @@ import {
   MockStripeConfigProvider,
   StripeClient,
   StripeCustomerFactory,
-  StripeInvoiceFactory,
-  StripeResponseFactory,
   StripeSubscriptionFactory,
   SubscriptionManager,
 } from '@fxa/payments/stripe';
@@ -37,9 +35,7 @@ describe('PayPalManager', () => {
   let paypalManager: PayPalManager;
   let paypalClient: PayPalClient;
   let paypalCustomerManager: PaypalCustomerManager;
-  let customerManager: CustomerManager;
   let subscriptionManager: SubscriptionManager;
-  let invoiceManager: InvoiceManager;
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -59,9 +55,7 @@ describe('PayPalManager', () => {
 
     paypalManager = moduleRef.get(PayPalManager);
     paypalClient = moduleRef.get(PayPalClient);
-    customerManager = moduleRef.get(CustomerManager);
     subscriptionManager = moduleRef.get(SubscriptionManager);
-    invoiceManager = moduleRef.get(InvoiceManager);
     paypalCustomerManager = moduleRef.get(PaypalCustomerManager);
   });
 
@@ -348,67 +342,6 @@ describe('PayPalManager', () => {
       mockCustomer.id
     );
     expect(result).toEqual([]);
-  });
-
-  describe('processZeroInvoice', () => {
-    it('finalizes invoices with no amount set to zero', async () => {
-      const mockInvoice = StripeResponseFactory(StripeInvoiceFactory());
-
-      jest
-        .spyOn(invoiceManager, 'finalizeWithoutAutoAdvance')
-        .mockResolvedValue(mockInvoice);
-
-      const result = await paypalManager.processZeroInvoice(mockInvoice.id);
-
-      expect(result).toEqual(mockInvoice);
-      expect(invoiceManager.finalizeWithoutAutoAdvance).toBeCalledWith(
-        mockInvoice.id
-      );
-    });
-  });
-
-  describe('processInvoice', () => {
-    it('calls processZeroInvoice when amount is less than minimum amount', async () => {
-      const mockInvoice = StripeResponseFactory(
-        StripeInvoiceFactory({
-          amount_due: 0,
-          currency: 'usd',
-        })
-      );
-
-      jest.spyOn(subscriptionManager, 'getMinimumAmount').mockReturnValue(10);
-      jest
-        .spyOn(paypalManager, 'processZeroInvoice')
-        .mockResolvedValue(mockInvoice);
-      jest.spyOn(paypalManager, 'processNonZeroInvoice').mockResolvedValue();
-
-      await paypalManager.processInvoice(mockInvoice);
-      expect(paypalManager.processZeroInvoice).toBeCalledWith(mockInvoice.id);
-      expect(paypalManager.processNonZeroInvoice).not.toHaveBeenCalled();
-    });
-
-    it('calls PayPalManager processNonZeroInvoice when amount is greater than minimum amount', async () => {
-      const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
-      const mockInvoice = StripeInvoiceFactory({
-        amount_due: 50,
-        currency: 'usd',
-      });
-
-      jest.spyOn(subscriptionManager, 'getMinimumAmount').mockReturnValue(10);
-      jest.spyOn(customerManager, 'retrieve').mockResolvedValue(mockCustomer);
-      jest
-        .spyOn(paypalManager, 'processZeroInvoice')
-        .mockResolvedValue(StripeResponseFactory(mockInvoice));
-      jest.spyOn(paypalManager, 'processNonZeroInvoice').mockResolvedValue();
-
-      await paypalManager.processInvoice(mockInvoice);
-
-      expect(paypalManager.processNonZeroInvoice).toBeCalledWith(
-        mockCustomer,
-        mockInvoice
-      );
-      expect(paypalManager.processZeroInvoice).not.toHaveBeenCalled();
-    });
   });
 
   describe('getPayPalAmountStringFromAmountInCents', () => {

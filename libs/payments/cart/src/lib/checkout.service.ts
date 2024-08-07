@@ -284,7 +284,7 @@ export class CheckoutService {
       subscription.latest_invoice
     );
     try {
-      this.paypalManager.processInvoice(latestInvoice);
+      this.invoiceManager.processPayPalInvoice(latestInvoice);
     } catch (e) {
       await this.subscriptionManager.cancel(subscription.id);
       await this.paypalManager.cancelBillingAgreement(billingAgreementId);
