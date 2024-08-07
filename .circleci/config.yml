@@ -878,7 +878,7 @@ workflows:
       - playwright-functional-test-report:
           name: Merge Playwright Reports (PR)
           requires:
-            - check-required-jobs-complete
+            - Check all required jobs are complete
       - build-and-deploy-storybooks:
           name: Deploy Storybooks (PR)
           requires:
