@@ -303,6 +303,11 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
                 disabled={
                   !totpForm.formState.isDirty || !totpForm.formState.isValid
                 }
+                onClick={() => {
+                  if (showQrCode) {
+                    GleanMetrics.accountPref.twoStepAuthQrView();
+                  }
+                }}
               >
                 Continue
               </button>
