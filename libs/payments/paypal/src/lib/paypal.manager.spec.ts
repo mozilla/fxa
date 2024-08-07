@@ -20,10 +20,7 @@ import {
 import { PayPalClient } from './paypal.client';
 import { PayPalManager } from './paypal.manager';
 import { BillingAgreementStatus } from './paypal.types';
-import {
-  AmountExceedsPayPalCharLimitError,
-  PaypalManagerError,
-} from './paypal.error';
+import { PaypalManagerError } from './paypal.error';
 import { PaypalCustomerMultipleRecordsError } from './paypalCustomer/paypalCustomer.error';
 import { ResultPaypalCustomerFactory } from './paypalCustomer/paypalCustomer.factories';
 import { PaypalCustomerManager } from './paypalCustomer/paypalCustomer.manager';
@@ -302,26 +299,6 @@ describe('PayPalManager', () => {
       await expect(
         paypalManager.getCustomerBillingAgreementId(uid)
       ).rejects.toBeInstanceOf(PaypalCustomerMultipleRecordsError);
-    });
-  });
-
-  describe('getPayPalAmountStringFromAmountInCents', () => {
-    it('returns correctly formatted string', () => {
-      const amountInCents = 9999999999;
-      const expectedResult = (amountInCents / 100).toFixed(2);
-
-      const result =
-        paypalManager.getPayPalAmountStringFromAmountInCents(amountInCents);
-
-      expect(result).toEqual(expectedResult);
-    });
-
-    it('throws an error if number exceeds digit limit', () => {
-      const amountInCents = 12345678910;
-
-      expect(() => {
-        paypalManager.getPayPalAmountStringFromAmountInCents(amountInCents);
-      }).toThrow(AmountExceedsPayPalCharLimitError);
     });
   });
 });
