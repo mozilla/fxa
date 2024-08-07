@@ -30,11 +30,7 @@ import {
 } from 'fxa-auth-client/lib/crypto';
 import { LoadingSpinner } from 'fxa-react/components/LoadingSpinner';
 import { MozServices } from '../../lib/types';
-import {
-  firefox,
-  FirefoxCommand,
-  FxAStatusResponse,
-} from '../../lib/channels/firefox';
+import { firefox } from '../../lib/channels/firefox';
 import { Constants } from '../../lib/constants';
 import { createSaltV2 } from 'fxa-auth-client/lib/salt';
 import { KeyStretchExperiment } from '../../models/experiments/key-stretch-experiment';
@@ -146,15 +142,8 @@ const SignupContainer = ({
     // TODO: In content-server, we send this on app-start for all integration types.
     // Do we want to move this somewhere else once the index page is Reactified?
     if (isSyncWebChannel) {
-      firefox.addEventListener(
-        FirefoxCommand.FxAStatus,
-        handleFxAStatusSyncEngineEvent
-      );
-
-      // requestAnimationFrame ensures the event listener is added first
-      // otherwise, there is a race condition
-      requestAnimationFrame(() => {
-        firefox.send(FirefoxCommand.FxAStatus, {
+      (async () => {
+        const status = await firefox.fxaStatus({
           // TODO: Improve getting 'context', probably set this on the integration
           context: isSyncDesktopV3
             ? Constants.FX_DESKTOP_V3_CONTEXT
@@ -162,27 +151,19 @@ const SignupContainer = ({
           isPairing: false,
           service: Constants.SYNC_SERVICE,
         });
-      });
+        if (!webChannelEngines && status.capabilities.engines) {
+          // choose_what_to_sync may be disabled for mobile sync, see:
+          // https://github.com/mozilla/application-services/issues/1761
+          if (
+            isSyncDesktopV3 ||
+            (isSyncOAuth && status.capabilities.choose_what_to_sync)
+          ) {
+            setWebChannelEngines(status.capabilities.engines);
+          }
+        }
+      })();
     }
-  });
-
-  const handleFxAStatusSyncEngineEvent = (event: any) => {
-    const status = event.detail as FxAStatusResponse;
-    if (!webChannelEngines && status.capabilities.engines) {
-      // choose_what_to_sync may be disabled for mobile sync, see:
-      // https://github.com/mozilla/application-services/issues/1761
-      if (
-        isSyncDesktopV3 ||
-        (isSyncOAuth && status.capabilities.choose_what_to_sync)
-      ) {
-        setWebChannelEngines(status.capabilities.engines);
-        firefox.removeEventListener(
-          FirefoxCommand.FxAStatus,
-          handleFxAStatusSyncEngineEvent
-        );
-      }
-    }
-  };
+  }, [isSyncWebChannel, isSyncDesktopV3, isSyncOAuth, webChannelEngines]);
 
   const [beginSignup] = useMutation<BeginSignupResponse>(BEGIN_SIGNUP_MUTATION);
 

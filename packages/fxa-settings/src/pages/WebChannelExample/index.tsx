@@ -7,10 +7,7 @@ import AppLayout from '../../components/AppLayout';
 import { RouteComponentProps } from '@reach/router';
 import { usePageViewEvent } from '../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../constants';
-import firefox, {
-  FirefoxCommand,
-  FxAStatusResponse,
-} from '../../lib/channels/firefox';
+import firefox from '../../lib/channels/firefox';
 import CardHeader from '../../components/CardHeader';
 import { useConfig } from '../../models';
 
@@ -32,21 +29,6 @@ const WebChannelExample = (_: RouteComponentProps) => {
     unwrapBKey: '123',
   });
 
-  // Handles the relayed FxA Status event
-  firefox.addEventListener(FirefoxCommand.FxAStatus, (event) => {
-    const status = (event as any).detail as FxAStatusResponse;
-
-    signedInUser.authAt = Date.now();
-    signedInUser.email = status.signedInUser?.email || 'unknown';
-    signedInUser.sessionToken = status.signedInUser?.sessionToken || 'unknown';
-    signedInUser.uid = status.signedInUser?.uid || 'unknown';
-    signedInUser.verified = status.signedInUser?.verified || false;
-
-    setSignedInUser(signedInUser);
-
-    setFxaStatusResult(JSON.stringify(status, null, 1));
-  });
-
   if (config.env !== 'development') {
     return <></>;
   }
@@ -64,11 +46,20 @@ const WebChannelExample = (_: RouteComponentProps) => {
             <p>Request status of the currently signed in user.</p>
             <button
               className="cta-neutral cta-base"
-              onClick={() => {
-                firefox.fxaStatus({
+              onClick={async () => {
+                const status = await firefox.fxaStatus({
                   service: 'sync',
+                  isPairing: true,
                   context: 'fx_desktop_v3',
                 });
+                signedInUser.authAt = Date.now();
+                signedInUser.email = status.signedInUser?.email || 'unknown';
+                signedInUser.sessionToken =
+                  status.signedInUser?.sessionToken || 'unknown';
+                signedInUser.uid = status.signedInUser?.uid || 'unknown';
+                signedInUser.verified = status.signedInUser?.verified || false;
+                setSignedInUser(signedInUser);
+                setFxaStatusResult(JSON.stringify(status, null, 1));
               }}
             >
               Get FxA Status

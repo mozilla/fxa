@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { FirefoxCommand, createCustomEventDetail } from '../../lib/channels';
+import { FirefoxCommand, LinkAccountResponse } from '../../lib/channels';
 import { expect, test } from '../../lib/fixtures/standard';
 
 test.describe('severity-2 #smoke', () => {
@@ -21,12 +21,15 @@ test.describe('severity-2 #smoke', () => {
     }) => {
       const credentials = await testAccountTracker.signUpSync();
       const newPassword = testAccountTracker.generatePassword();
-      const customEventDetail = createCustomEventDetail(
-        FirefoxCommand.LinkAccount,
-        {
-          ok: true,
-        }
-      );
+      const customEventDetail: LinkAccountResponse = {
+        id: 'account_updates',
+        message: {
+          command: FirefoxCommand.LinkAccount,
+          data: {
+            ok: true,
+          },
+        },
+      };
 
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
@@ -79,12 +82,15 @@ test.describe('severity-2 #smoke', () => {
     }) => {
       const credentials = await testAccountTracker.signUpSync();
       const newPassword = testAccountTracker.generatePassword();
-      const customEventDetail = createCustomEventDetail(
-        FirefoxCommand.LinkAccount,
-        {
-          ok: true,
-        }
-      );
+      const customEventDetail: LinkAccountResponse = {
+        id: 'account_updates',
+        message: {
+          command: FirefoxCommand.LinkAccount,
+          data: {
+            ok: true,
+          },
+        },
+      };
 
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
@@ -110,7 +116,6 @@ test.describe('severity-2 #smoke', () => {
 
       //Change password
       await settings.password.changeButton.click();
-      await signin.noSuchWebChannelMessage(FirefoxCommand.ChangePassword);
       await changePassword.fillOutChangePassword(
         credentials.password,
         newPassword

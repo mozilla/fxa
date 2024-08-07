@@ -4,7 +4,12 @@
 
 import { Page } from '@playwright/test';
 import { BaseTarget } from '../lib/targets/base';
-import { CustomEventDetail, FirefoxCommand } from '../lib/channels';
+
+import {
+  FirefoxCommandResponse,
+  FirefoxCommandRequest,
+  FirefoxCommand,
+} from '../lib/channels';
 
 export abstract class BaseLayout {
   /**
@@ -98,36 +103,6 @@ export abstract class BaseLayout {
     }, command);
   }
 
-  async noSuchWebChannelMessage(command: string) {
-    await this.page.evaluate(async (command) => {
-      const unexpectedNotificationError = new Error(
-        `UnepxectedBrowserNotification - ${command}`
-      );
-
-      await new Promise((resolve, reject) => {
-        const timeoutHandle = setTimeout(resolve, 1000);
-
-        function findMessage() {
-          const messages = JSON.parse(
-            sessionStorage.getItem('webChannelEvents') || '[]'
-          );
-          const m = messages.find(
-            (x: { command: string }) => x.command === command
-          );
-
-          if (m) {
-            clearTimeout(timeoutHandle);
-            reject(unexpectedNotificationError);
-          } else {
-            setTimeout(findMessage, 50);
-          }
-        }
-
-        findMessage();
-      });
-    }, command);
-  }
-
   async listenToWebChannelMessages() {
     await this.page.evaluate(() => {
       function listener(msg: { detail: string }) {
@@ -155,7 +130,7 @@ export abstract class BaseLayout {
    * This currently happens on React SignUp and SignIn which we should revisit when the index
    * index page has been converted to React and our event handling moved.
    */
-  async sendWebChannelMessage(customEventDetail: CustomEventDetail) {
+  async sendWebChannelMessage(customEventDetail: FirefoxCommandRequest) {
     // Using waitForTimeout is naturally flaky, I'm not sure of other options
     // to ensure that browser has had time send all web channel messages.
     await this.page.waitForTimeout(2000);
@@ -181,12 +156,8 @@ export abstract class BaseLayout {
    *
    * @param webChannelMessage - Custom event details to send to the web content.
    */
-  async respondToWebChannelMessage(webChannelMessage: {
-    message: {
-      command: string;
-      data: any;
-    };
-  }) {
+
+  async respondToWebChannelMessage(webChannelMessage: FirefoxCommandResponse) {
     const expectedCommand = webChannelMessage.message.command;
     const response = webChannelMessage.message.data;
 

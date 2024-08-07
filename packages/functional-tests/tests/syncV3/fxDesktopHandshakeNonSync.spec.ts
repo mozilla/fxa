@@ -2,7 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { FirefoxCommand, createCustomEventDetail } from '../../lib/channels';
+import {
+  FF_OAUTH_CLIENT_ID,
+  FirefoxCommand,
+  FxAStatusResponse,
+} from '../../lib/channels';
 import { expect, test } from '../../lib/fixtures/standard';
 import uaStrings from '../../lib/ua-strings';
 
@@ -15,12 +19,22 @@ test.describe('severity-2 #smoke', () => {
       const query = new URLSearchParams({
         forceUA: uaStrings['desktop_firefox_71'],
       });
-      const eventDetailStatus = createCustomEventDetail(
-        FirefoxCommand.FxAStatus,
-        {
-          signedInUser: null,
-        }
-      );
+      const eventDetailStatus: FxAStatusResponse = {
+        id: 'account_updates',
+        message: {
+          command: FirefoxCommand.FxAStatus,
+          data: {
+            signedInUser: null,
+            clientId: FF_OAUTH_CLIENT_ID,
+            capabilities: {
+              engines: [],
+              pairing: false,
+              multiService: false,
+            },
+          },
+        },
+      };
+
       await page.goto(
         `${target.contentServerUrl}?automatedBrowser=true&${query.toString()}`
       );
@@ -39,12 +53,25 @@ test.describe('severity-2 #smoke', () => {
         forceUA: uaStrings['desktop_firefox_71'],
         email: credentials.email,
       });
-      const eventDetailStatus = createCustomEventDetail(
-        FirefoxCommand.FxAStatus,
-        {
-          signedInUser: credentials.email,
-        }
-      );
+      const eventDetailStatus: FxAStatusResponse = {
+        id: 'account_updates',
+        message: {
+          command: FirefoxCommand.FxAStatus,
+          data: {
+            signedInUser: {
+              email: credentials.email,
+              uid: credentials.uid,
+            },
+            clientId: FF_OAUTH_CLIENT_ID,
+            capabilities: {
+              engines: [],
+              pairing: false,
+              multiService: false,
+            },
+          },
+        },
+      };
+
       await page.goto(
         `${target.contentServerUrl}?automatedBrowser=true&${query.toString()}`
       );
@@ -66,12 +93,22 @@ test.describe('severity-2 #smoke', () => {
       const query = new URLSearchParams({
         forceUA: uaStrings['desktop_firefox_71'],
       });
-      const eventDetailStatus = createCustomEventDetail(
-        FirefoxCommand.FxAStatus,
-        {
-          signedInUser: null,
-        }
-      );
+      const eventDetailStatus: FxAStatusResponse = {
+        id: 'account_updates',
+        message: {
+          command: FirefoxCommand.FxAStatus,
+          data: {
+            clientId: FF_OAUTH_CLIENT_ID,
+            signedInUser: null,
+            capabilities: {
+              engines: [],
+              pairing: false,
+              multiService: false,
+            },
+          },
+        },
+      };
+
       await page.goto(
         `${target.contentServerUrl}?automatedBrowser=true&${query.toString()}`
       );
@@ -83,12 +120,24 @@ test.describe('severity-2 #smoke', () => {
 
       // Then, sign in the user again, synthesizing the user having signed
       // into Sync after the initial sign in.
-      const eventDetailStatusSignIn = createCustomEventDetail(
-        FirefoxCommand.FxAStatus,
-        {
-          signedInUser: credentials.email,
-        }
-      );
+      const eventDetailStatusSignIn: FxAStatusResponse = {
+        id: 'account_updates',
+        message: {
+          command: FirefoxCommand.FxAStatus,
+          data: {
+            clientId: FF_OAUTH_CLIENT_ID,
+            signedInUser: {
+              email: credentials.email,
+            },
+            capabilities: {
+              engines: [],
+              pairing: false,
+              multiService: false,
+            },
+          },
+        },
+      };
+
       await page.goto(
         `${target.contentServerUrl}?automatedBrowser=true&${query.toString()}`
       );
@@ -112,12 +161,23 @@ test.describe('severity-2 #smoke', () => {
         forceUA: uaStrings['desktop_firefox_71'],
         email: syncCredentials.email,
       });
-      const eventDetailStatus = createCustomEventDetail(
-        FirefoxCommand.FxAStatus,
-        {
-          signedInUser: credentials.email,
-        }
-      );
+      const eventDetailStatus: FxAStatusResponse = {
+        id: 'account_updates',
+        message: {
+          command: FirefoxCommand.FxAStatus,
+          data: {
+            clientId: FF_OAUTH_CLIENT_ID,
+            signedInUser: {
+              email: credentials.email,
+            },
+            capabilities: {
+              engines: [],
+              pairing: false,
+              multiService: false,
+            },
+          },
+        },
+      };
       await page.goto(
         `${
           target.contentServerUrl
