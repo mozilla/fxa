@@ -2,7 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { FirefoxCommand, createCustomEventDetail } from '../../lib/channels';
+import {
+  FF_OAUTH_CLIENT_ID,
+  FirefoxCommand,
+  FxAStatusResponse,
+} from '../../lib/channels';
 import { expect, test } from '../../lib/fixtures/standard';
 import uaStrings from '../../lib/ua-strings';
 
@@ -34,12 +38,23 @@ test.describe('severity-2 #smoke', () => {
         forceUA: uaStrings['desktop_firefox_71'],
         email: credentials.email,
       });
-      const eventDetailStatus = createCustomEventDetail(
-        FirefoxCommand.FxAStatus,
-        {
-          signedInUser: credentials.email,
-        }
-      );
+      const eventDetailStatus: FxAStatusResponse = {
+        id: 'account_updates',
+        message: {
+          command: FirefoxCommand.FxAStatus,
+          data: {
+            clientId: FF_OAUTH_CLIENT_ID,
+            signedInUser: {
+              email: credentials.email,
+            },
+            capabilities: {
+              engines: [],
+              pairing: false,
+              multiService: false,
+            },
+          },
+        },
+      };
       await page.goto(
         `${
           target.contentServerUrl
@@ -62,12 +77,24 @@ test.describe('severity-2 #smoke', () => {
         forceUA: uaStrings['desktop_firefox_71'],
         email: syncCredentials.email,
       });
-      const eventDetailStatus = createCustomEventDetail(
-        FirefoxCommand.FxAStatus,
-        {
-          signedInUser: credentials.email,
-        }
-      );
+      const eventDetailStatus: FxAStatusResponse = {
+        id: 'account_updates',
+        message: {
+          command: FirefoxCommand.FxAStatus,
+          data: {
+            clientId: FF_OAUTH_CLIENT_ID,
+            signedInUser: {
+              email: credentials.email,
+            },
+            capabilities: {
+              engines: [],
+              pairing: false,
+              multiService: false,
+            },
+          },
+        },
+      };
+
       await page.goto(
         `${
           target.contentServerUrl

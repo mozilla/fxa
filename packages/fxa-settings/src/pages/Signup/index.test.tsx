@@ -485,7 +485,7 @@ describe('Signup page', () => {
     describe('integrations', () => {
       let fxaLoginSpy: jest.SpyInstance;
       beforeEach(() => {
-        fxaLoginSpy = jest.spyOn(firefox, 'fxaLogin').mockResolvedValue();
+        fxaLoginSpy = jest.spyOn(firefox, 'fxaLogin');
       });
       it('on success with Web integration', async () => {
         const mockBeginSignupHandler = jest

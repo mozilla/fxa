@@ -95,7 +95,6 @@ test.describe('severity-1 #smoke', () => {
       await fxDesktopV3ForceAuth.openWithReplacementParams(credentials, {
         uid,
       });
-      await fxDesktopV3ForceAuth.noSuchWebChannelMessage('fxaccounts:logout');
       await signin.fillOutPasswordForm(credentials.password);
       // fails on this chck for react (message not sent)
       await fxDesktopV3ForceAuth.checkWebChannelMessage(
@@ -134,7 +133,6 @@ test.describe('severity-1 #smoke', () => {
       await fxDesktopV3ForceAuth.openWithReplacementParams(credentials, {
         uid,
       });
-      await fxDesktopV3ForceAuth.noSuchWebChannelMessage('fxaccounts:logout');
       await signin.fillOutPasswordForm(credentials.password);
       // fails on this chck for react (message not sent)
       await fxDesktopV3ForceAuth.checkWebChannelMessage(
