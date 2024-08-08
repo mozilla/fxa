@@ -914,7 +914,7 @@ describe('Signin', () => {
         />
       );
 
-      const pocketLogo = screen.getByLabelText('Pocket');
+      const pocketLogo = screen.getByAltText('Pocket');
       expect(pocketLogo).toBeInTheDocument();
     });
 

@@ -475,6 +475,8 @@ To do this with Tailwind, you'll need to add a class to the `backgroundImage` ob
 
 Sometimes it makes sense to let a network request fetch SVGs that are heavy/large and are used across multiple pages for faster rendering after the initial request. While our builds bust our asset caches, if an SVG persists from page to page, it can be more performant to download the image once and let the browser cache it for use across multiple pages, at least until the next release. The Mozilla and Firefox logo are good examples of this.
 
+Out of caution, we also do not inline SVGs that have text inside of them because this appears to possibly cause rendering issues with the SVG for unknown reasons.
+
 This can be done with either an image `src` or a background-image with `url`.
 
 ```javascript
