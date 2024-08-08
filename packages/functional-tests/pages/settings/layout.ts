@@ -11,7 +11,7 @@ export abstract class SettingsLayout extends BaseLayout {
   }
 
   get helpLink() {
-    return this.page.getByTestId('header-sumo-link');
+    return this.page.getByRole('link', { name: 'Help' });
   }
 
   get bentoDropDownMenu() {

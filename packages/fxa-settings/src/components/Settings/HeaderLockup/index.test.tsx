@@ -7,24 +7,24 @@ import { screen } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import HeaderLockup from '.';
 import { createMockSettingsIntegration } from '../mocks';
+import { userEvent } from '@testing-library/user-event';
+import GleanMetrics from '../../../lib/glean';
 
-// TODO: functional test for `data-testid="header-menu"` to be visible in
-// mobile & tablet but hidden at desktop
+jest.mock('../../../lib/glean', () => ({
+  __esModule: true,
+  default: {
+    accountPref: {
+      help: jest.fn(),
+    },
+  },
+}));
 
 describe('HeaderLockup', () => {
   it('renders as expected', () => {
     renderWithLocalizationProvider(
       <HeaderLockup integration={createMockSettingsIntegration()} />
     );
-    const headerHelp = screen.getByTestId('header-help');
     const headerMenu = screen.getByTestId('header-menu');
-
-    expect(screen.getByTestId('header-sumo-link')).toHaveAttribute(
-      'href',
-      'https://support.mozilla.org'
-    );
-    expect(headerHelp).toBeInTheDocument();
-    expect(headerHelp).toHaveAttribute('title', 'Help');
 
     expect(
       screen.getByTestId('drop-down-bento-menu-toggle')
@@ -34,9 +34,21 @@ describe('HeaderLockup', () => {
     expect(headerMenu).toBeInTheDocument();
     expect(headerMenu).toHaveAttribute('title', 'Site navigation menu');
 
+    expect(screen.getByRole('link', { name: 'Help' })).toHaveAttribute(
+      'href',
+      'https://support.mozilla.org/products/mozilla-account'
+    );
     expect(screen.getByTestId('back-to-top')).toHaveAttribute(
       'title',
       'Back to top'
     );
+  });
+
+  it('emits Glean event on help link click', async () => {
+    renderWithLocalizationProvider(
+      <HeaderLockup integration={createMockSettingsIntegration()} />
+    );
+    await userEvent.click(screen.getByRole('link', { name: 'Help' }));
+    expect(GleanMetrics.accountPref.help).toHaveBeenCalled();
   });
 });
