@@ -25047,17 +25047,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/uuid@npm:^7.0.2":
-  version: 7.0.3
-  resolution: "@types/uuid@npm:7.0.3"
-  checksum: 8e45bb048ee37eaa10fe03bc9c44b402d0db8b2b344c91df00891dd91e2bffeb5d7a0afcd11b632d2189c0b0c736acf0865b2ca054d51964eff6c92c37fa44c4
-  languageName: node
-  linkType: hard
-
-"@types/uuid@npm:^8, @types/uuid@npm:^8.3.0, @types/uuid@npm:^8.3.1":
-  version: 8.3.1
-  resolution: "@types/uuid@npm:8.3.1"
-  checksum: b41bdc5e86c6f0f1899306be10455636da0f2168c9489b869edd6837ddeb7c0e501b1ff7d857402462986bada2a379125743dd895fa801d03437cd632116a373
+"@types/uuid@npm:^10, @types/uuid@npm:^10.0.0":
+  version: 10.0.0
+  resolution: "@types/uuid@npm:10.0.0"
+  checksum: e3958f8b0fe551c86c14431f5940c3470127293280830684154b91dc7eb3514aeb79fe3216968833cf79d4d1c67f580f054b5be2cd562bebf4f728913e73e944
   languageName: node
   linkType: hard
 
@@ -39882,7 +39875,7 @@ fsevents@~2.1.1:
     "@types/request": 2.48.5
     "@types/safe-regex": 1.1.2
     "@types/sass": ^1
-    "@types/uuid": ^8.3.0
+    "@types/uuid": ^10.0.0
     "@types/verror": ^1.10.4
     "@types/webpack": 5.28.0
     agentkeepalive: ^4.5.0
@@ -39981,7 +39974,7 @@ fsevents@~2.1.1:
     type-fest: ^4.18.1
     typedi: ^0.8.0
     typescript: ^5.5.3
-    uuid: ^9.0.0
+    uuid: ^10.0.0
     verror: ^1.10.1
     web-push: 3.4.4
     webpack: ^5.84.1
@@ -40223,7 +40216,7 @@ fsevents@~2.1.1:
     "@types/rimraf": 3.0.0
     "@types/sinon": 10.0.1
     "@types/supertest": ^2.0.11
-    "@types/uuid": ^8.3.0
+    "@types/uuid": ^10.0.0
     "@typescript-eslint/eslint-plugin": ^5.59.0
     "@typescript-eslint/parser": ^7.1.1
     audit-filter: ^0.5.0
@@ -40258,7 +40251,7 @@ fsevents@~2.1.1:
     ts-loader: ^9.5.1
     tsconfig-paths: ^4.2.0
     typescript: ^5.5.3
-    uuid: ^9.0.0
+    uuid: ^10.0.0
   languageName: unknown
   linkType: soft
 
@@ -40396,7 +40389,7 @@ fsevents@~2.1.1:
     "@types/storybook__addon-actions": ^5.2.1
     "@types/storybook__addon-links": ^5.2.1
     "@types/superagent": ^4.1.11
-    "@types/uuid": ^7.0.2
+    "@types/uuid": ^10.0.0
     "@types/webpack": 5.28.0
     "@typescript-eslint/eslint-plugin": ^5.59.0
     "@typescript-eslint/parser": ^7.1.1
@@ -40462,7 +40455,7 @@ fsevents@~2.1.1:
     tailwindcss: 3.4.3
     typedi: ^0.8.0
     typescript: ^5.5.3
-    uuid: ^9.0.0
+    uuid: ^10.0.0
     wait-for-expect: ^3.0.2
     webpack: ^5.84.1
   languageName: unknown
@@ -40623,7 +40616,7 @@ fsevents@~2.1.1:
     "@types/react-webcam": ^3.0.0
     "@types/testing-library__react-hooks": ^4
     "@types/ua-parser-js": ^0.7.36
-    "@types/uuid": ^8
+    "@types/uuid": ^10
     "@types/webpack": 5.28.0
     babel-jest: ^29.7.0
     babel-loader: ^9.1.3
@@ -40707,7 +40700,7 @@ fsevents@~2.1.1:
     type-fest: ^4.18.1
     typescript: ^5.5.3
     ua-parser-js: 1.0.35
-    uuid: ^9.0.0
+    uuid: ^10.0.0
     webpack: ^5.84.1
     webpack-dev-server: ^4.6.0
     webpack-manifest-plugin: ^5.0.0
@@ -40741,7 +40734,7 @@ fsevents@~2.1.1:
     "@types/proxyquire": ^1.3.28
     "@types/sinon": 10.0.1
     "@types/superagent": ^4.1.11
-    "@types/uuid": ^8.3.1
+    "@types/uuid": ^10.0.0
     accept-language-parser: ^1.5.0
     ajv: ^8.13.0
     app-store-server-api: ^0.7.0
@@ -40791,7 +40784,7 @@ fsevents@~2.1.1:
     tsconfig-paths: ^4.2.0
     typescript: ^5.5.3
     underscore: ^1.13.1
-    uuid: ^9.0.0
+    uuid: ^10.0.0
   languageName: unknown
   linkType: soft
 
@@ -40884,7 +40877,7 @@ fsevents@~2.1.1:
     "@types/react-dom": 18.3.0
     "@types/react-test-renderer": ^18
     "@types/set-value": ^4
-    "@types/uuid": ^8.3.0
+    "@types/uuid": ^10.0.0
     "@typescript-eslint/eslint-plugin": ^5.59.1
     "@typescript-eslint/parser": ^7.1.1
     autoprefixer: ^10.4.14
@@ -40967,7 +40960,7 @@ fsevents@~2.1.1:
     tsconfig-paths-webpack-plugin: ^4.1.0
     tslib: ^2.6.2
     typescript: ^5.5.3
-    uuid: ^9.0.0
+    uuid: ^10.0.0
     winston: ^3.13.0
   languageName: unknown
   linkType: soft
@@ -67179,6 +67172,15 @@ resolve@1.1.7:
   bin:
     uuid: dist/bin/uuid
   checksum: 39931f6da74e307f51c0fb463dc2462807531dc80760a9bff1e35af4316131b4fc3203d16da60ae33f07fdca5b56f3f1dd662da0c99fea9aaeab2004780cc5f4
+  languageName: node
+  linkType: hard
+
+"uuid@npm:^10.0.0":
+  version: 10.0.0
+  resolution: "uuid@npm:10.0.0"
+  bin:
+    uuid: dist/bin/uuid
+  checksum: 4b81611ade2885d2313ddd8dc865d93d8dccc13ddf901745edca8f86d99bc46d7a330d678e7532e7ebf93ce616679fb19b2e3568873ac0c14c999032acb25869
   languageName: node
   linkType: hard
 
