@@ -172,6 +172,13 @@ export const eventsMap = {
     displayNameSubmit: 'account_pref_display_name_submit',
     secondaryEmailSubmit: 'account_pref_secondary_email_submit',
     help: 'account_pref_help',
+    bentoView: 'account_pref_bento_view',
+    bentoFirefoxDesktop: 'account_pref_bento_firefox_desktop',
+    bentoFirefoxMobile: 'account_pref_bento_firefox_mobile',
+    bentoMonitor: 'account_pref_bento_monitor',
+    bentoPocket: 'account_pref_bento_pocket',
+    bentoRelay: 'account_pref_bento_relay',
+    bentoVpn: 'account_pref_bento_vpn',
   },
 
   deleteAccount: {
