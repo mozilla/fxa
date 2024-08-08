@@ -13,9 +13,9 @@ import {
 } from '@fxa/payments/eligibility';
 import {
   MockPaypalClientConfigProvider,
+  PaypalBillingAgreementManager,
   PayPalClient,
   PaypalCustomerManager,
-  PayPalManager,
 } from '@fxa/payments/paypal';
 import {
   AccountCustomerManager,
@@ -84,7 +84,6 @@ describe('CartService', () => {
         CartService,
         CheckoutService,
         ConfigService,
-        MockStrapiClientConfigProvider,
         CustomerManager,
         EligibilityManager,
         EligibilityService,
@@ -96,10 +95,11 @@ describe('CartService', () => {
         MockGeoDBNestFactory,
         MockPaypalClientConfigProvider,
         MockStatsDProvider,
+        MockStrapiClientConfigProvider,
         MockStripeConfigProvider,
+        PaypalBillingAgreementManager,
         PayPalClient,
         PaypalCustomerManager,
-        PayPalManager,
         PriceManager,
         ProductConfigurationManager,
         ProductManager,

@@ -12,9 +12,9 @@ import {
 } from '@fxa/payments/eligibility';
 import {
   CheckoutTokenManager,
+  PaypalBillingAgreementManager,
   PayPalClient,
   PaypalCustomerManager,
-  PayPalManager,
 } from '@fxa/payments/paypal';
 import {
   AccountCustomerManager,
@@ -55,6 +55,7 @@ import { validate } from '../config.utils';
     AccountManager,
     CartManager,
     CartService,
+    CheckoutTokenManager,
     CustomerManager,
     CheckoutService,
     EligibilityManager,
@@ -65,10 +66,9 @@ import { validate } from '../config.utils';
     InvoiceManager,
     LocalizerRscFactoryProvider,
     NextJSActionsService,
+    PaypalBillingAgreementManager,
     PayPalClient,
     PaypalCustomerManager,
-    PayPalManager,
-    CheckoutTokenManager,
     PriceManager,
     ProductConfigurationManager,
     ProductManager,

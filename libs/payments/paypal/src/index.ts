@@ -9,6 +9,6 @@ export * from './lib/paypal.client';
 export * from './lib/paypal.client.config';
 export * from './lib/paypal.client.types';
 export * from './lib/paypal.error';
-export * from './lib/paypal.manager';
 export * from './lib/paypal.types';
+export * from './lib/paypalBillingAgreement.manager';
 export * from './lib/util';
