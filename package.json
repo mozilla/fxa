@@ -199,7 +199,7 @@
     "@types/react-test-renderer": "^18",
     "@types/set-value": "^4",
     "@types/uuid": "^8.3.0",
-    "@typescript-eslint/eslint-plugin": "^5.59.1",
+    "@typescript-eslint/eslint-plugin": "^8.0.1",
     "@typescript-eslint/parser": "^7.1.1",
     "autoprefixer": "^10.4.14",
     "babel-jest": "^29.7.0",
