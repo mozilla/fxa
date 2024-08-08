@@ -8,7 +8,7 @@ import monitorTextLogo from './monitor-text-logo.svg';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import classNames from 'classnames';
 import { MozServices } from '../../../lib/types';
-import { useAccount } from '../../../models';
+import { useAccount, useConfig } from '../../../models';
 import { constructHrefWithUtm } from '../../../lib/utilities';
 import { LINK } from '../../../constants';
 
@@ -22,28 +22,11 @@ export interface ProductPromoProps {
   // product?: MozServices;
 }
 
-export const monitorPromoLink = constructHrefWithUtm(
-  LINK.MONITOR,
-  'product-partnership',
-  'moz-account',
-  'sidebar',
-  'monitor-free',
-  'settings-promo'
-);
-
-export const monitorPlusPromoLink = constructHrefWithUtm(
-  LINK.MONITOR_PLUS,
-  'product-partnership',
-  'moz-account',
-  'sidebar',
-  'monitor-free',
-  'settings-promo'
-);
-
 export const ProductPromo = ({
   type = ProductPromoType.Sidebar,
 }: ProductPromoProps) => {
   const { attachedClients, subscriptions } = useAccount();
+  const { env } = useConfig();
 
   const hasMonitor = attachedClients.some(
     ({ name }) => name === MozServices.Monitor
@@ -56,6 +39,24 @@ export const ProductPromo = ({
   if (hasMonitor && hasMonitorPlus) {
     return <></>;
   }
+
+  const monitorPromoLink = constructHrefWithUtm(
+    env === 'stage' ? LINK.MONITOR_STAGE : LINK.MONITOR,
+    'product-partnership',
+    'moz-account',
+    'sidebar',
+    'monitor-free',
+    'settings-promo'
+  );
+
+  const monitorPlusPromoLink = constructHrefWithUtm(
+    env === 'stage' ? LINK.MONITOR_PLUS_STAGE : LINK.MONITOR_PLUS,
+    'product-partnership',
+    'moz-account',
+    'sidebar',
+    'monitor-plus',
+    'settings-promo'
+  );
 
   // if (hasMonitor) {
   // Glean view event

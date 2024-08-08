@@ -22,19 +22,22 @@ export enum ENTRYPOINTS {
   FIREFOX_FX_VIEW_ENTRYPOINT = 'fx-view',
 }
 
-export enum LINK {
-  AMO = 'https://addons.mozilla.org/',
-  FX_DESKTOP = 'https://www.mozilla.org/firefox/new/',
-  FX_MOBILE = 'https://www.mozilla.org/firefox/mobile/',
-  FX_SYNC = 'https://www.mozilla.org/firefox/sync/',
-  HUBS = 'https://hubs.mozilla.com/',
-  MDN = 'https://developer.mozilla.org/',
-  MONITOR = 'https://monitor.mozilla.org/',
-  MONITOR_PLUS = 'https://monitor.mozilla.org/#pricing',
-  POCKET = 'https://getpocket.com/',
-  RELAY = 'https://relay.firefox.com/',
-  VPN = 'https://vpn.mozilla.org/',
-}
+export const LINK = {
+  AMO: 'https://addons.mozilla.org/',
+  FX_DESKTOP: 'https://www.mozilla.org/firefox/new/',
+  FX_MOBILE: 'https://www.mozilla.org/firefox/mobile/',
+  FX_SYNC: 'https://www.mozilla.org/firefox/sync/',
+  HUBS: 'https://hubs.mozilla.com/',
+  MDN: 'https://developer.mozilla.org/',
+  MONITOR: 'https://monitor.mozilla.org/',
+  MONITOR_STAGE: 'https://stage.firefoxmonitor.nonprod.cloudops.mozgcp.net/',
+  MONITOR_PLUS: 'https://monitor.mozilla.org/#pricing',
+  MONITOR_PLUS_STAGE:
+    'https://stage.firefoxmonitor.nonprod.cloudops.mozgcp.net/#pricing',
+  POCKET: 'https://getpocket.com/',
+  RELAY: 'https://relay.firefox.com/',
+  VPN: 'https://vpn.mozilla.org/',
+};
 
 // DISPLAY_SAFE_UNICODE regex matches validation used for auth_server
 // Match display-safe unicode characters.
