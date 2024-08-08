@@ -6,7 +6,8 @@ module.exports = function (grunt) {
   const srcPaths = [
     '.license.header',
     'app/**/*.ftl',
-    '../../../libs/payments/ui/src/lib/**/*.ftl'
+    '../../../libs/payments/ui/src/lib/**/**/**/en.ftl',
+    '../../../libs/shared/react/src/**/**/en.ftl'
   ];
 
   grunt.initConfig({
@@ -74,4 +75,3 @@ module.exports = function (grunt) {
   grunt.registerTask('merge-ftl', ['copy:branding-ftl', 'concat:ftl']);
   grunt.registerTask('watchers', ['concurrent:dev']);
 };
-
