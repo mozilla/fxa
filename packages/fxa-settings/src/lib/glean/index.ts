@@ -450,6 +450,16 @@ const recordEventMetric = (
     case 'delete_account_password_submit':
       deleteAccount.passwordSubmit.record();
       break;
+    case 'account_pref_promo_monitor_view':
+      accountPref.promoMonitorView.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'account_pref_promo_monitor_submit':
+      accountPref.promoMonitorSubmit.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
   }
 };
 

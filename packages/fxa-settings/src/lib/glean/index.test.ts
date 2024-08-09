@@ -725,6 +725,30 @@ describe('lib/glean', () => {
         sinon.assert.calledWith(setEventNameStub, 'account_pref_apple_submit');
         sinon.assert.called(spy);
       });
+
+      it('submits a ping with the account_pref_promo_monitor_view event name', async () => {
+        GleanMetrics.accountPref.promoMonitorView();
+        const spy = sandbox.spy(accountPref.promoMonitorView, 'record');
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'account_pref_promo_monitor_view'
+        );
+        sinon.assert.called(spy);
+      });
+
+      it('submits a ping with the account_pref_promo_monitor_submit event name', async () => {
+        GleanMetrics.accountPref.promoMonitorSubmit();
+        const spy = sandbox.spy(accountPref.promoMonitorSubmit, 'record');
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'account_pref_promo_monitor_submit'
+        );
+        sinon.assert.called(spy);
+      });
     });
 
     describe('deleteAccount', () => {

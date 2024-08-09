@@ -2131,6 +2131,48 @@ account_pref:
     expires: never
     data_sensitivity:
       - interaction
+  promo_monitor_view:
+    type: event
+    description: |
+      User sees the Monitor promo on their settings page.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-10212
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: What plan user is using `free` or `plus`
+        type: string
+  promo_monitor_submit:
+    type: event
+    description: |
+      User clicks on the Get free scan link on the new Monitor promotion in the account settings side panel
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-10212
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: What plan user is using `free` or `plus`
+        type: string
 
 delete_account:
   settings_submit:

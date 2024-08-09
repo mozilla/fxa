@@ -11,6 +11,7 @@ import { MozServices } from '../../../lib/types';
 import { useAccount, useConfig } from '../../../models';
 import { constructHrefWithUtm } from '../../../lib/utilities';
 import { LINK } from '../../../constants';
+import GleanMetrics from '../../../lib/glean';
 
 export enum ProductPromoType {
   Sidebar = 'sidebar',
@@ -58,12 +59,12 @@ export const ProductPromo = ({
     'settings-promo'
   );
 
-  // if (hasMonitor) {
-  // Glean view event
-  // }
-  // if (hasMonitorPlus) {
-  // Glean view event
-  // }
+  let reason = { event: { reason: 'free' } };
+  if (hasMonitor) {
+    reason = { event: { reason: 'plus' } };
+  }
+
+  GleanMetrics.accountPref.promoMonitorView(reason);
 
   const promoContent = hasMonitor ? (
     <>
@@ -73,7 +74,11 @@ export const ProductPromo = ({
           back
         </FtlMsg>
       </p>
-      <LinkExternal href={monitorPlusPromoLink} className="link-blue">
+      <LinkExternal
+        href={monitorPlusPromoLink}
+        className="link-blue"
+        onClick={() => GleanMetrics.accountPref.promoMonitorSubmit(reason)}
+      >
         <FtlMsg id="product-promo-monitor-plus-cta">Get started</FtlMsg>
       </LinkExternal>
     </>
@@ -84,7 +89,11 @@ export const ProductPromo = ({
           Find where your private info is exposed — and take it back
         </FtlMsg>
       </p>
-      <LinkExternal href={monitorPromoLink} className="link-blue">
+      <LinkExternal
+        href={monitorPromoLink}
+        className="link-blue"
+        onClick={() => GleanMetrics.accountPref.promoMonitorSubmit(reason)}
+      >
         <FtlMsg id="product-promo-monitor-cta">Get free scan</FtlMsg>
       </LinkExternal>
     </>

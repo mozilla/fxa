@@ -183,6 +183,43 @@ export const help = new EventMetricType(
 );
 
 /**
+ * User clicks on the Get free scan link on the new Monitor promotion in the
+ * account settings side panel
+ *
+ * Generated from `account_pref.promo_monitor_submit`.
+ */
+export const promoMonitorSubmit = new EventMetricType<{
+  reason?: string;
+}>(
+  {
+    category: 'account_pref',
+    name: 'promo_monitor_submit',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  ['reason']
+);
+
+/**
+ * User sees the Monitor promo on their settings page.
+ *
+ * Generated from `account_pref.promo_monitor_view`.
+ */
+export const promoMonitorView = new EventMetricType<{
+  reason?: string;
+}>(
+  {
+    category: 'account_pref',
+    name: 'promo_monitor_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  ['reason']
+);
+
+/**
  * Click on "Create" or "Change" button on account settings page to add a recovery
  * key to the account
  *
@@ -216,21 +253,6 @@ export const secondaryEmailSubmit = new EventMetricType(
 );
 
 /**
- * User clicked the "Can't scan code?" link
- *
- * Generated from `account_pref.two_step_auth_scan_code_link`.
- */
-export const twoStepAuthScanCodeLink = new EventMetricType(
-  {
-    category: 'account_pref',
-    name: 'two_step_auth_scan_code_link',
-    sendInPings: ['events'],
-    lifetime: 'ping',
-    disabled: false,
-  },
-  []
-);
-/**
  * User started the 2FA setup process by viewing step 1 of the funnel, complete
  * with QR code for scanning.
  *
@@ -240,6 +262,22 @@ export const twoStepAuthQrView = new EventMetricType(
   {
     category: 'account_pref',
     name: 'two_step_auth_qr_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * User clicked the "Can't scan code?" link
+ *
+ * Generated from `account_pref.two_step_auth_scan_code_link`.
+ */
+export const twoStepAuthScanCodeLink = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'two_step_auth_scan_code_link',
     sendInPings: ['events'],
     lifetime: 'ping',
     disabled: false,
