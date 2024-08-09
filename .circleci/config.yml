@@ -644,6 +644,10 @@ jobs:
       - restore-workspace
       - wait-for-infrastructure
       - run:
+          name: Gen keys
+          command: |
+            NODE_ENV=dev npx nx gen-keys fxa-auth-server
+      - run:
           name: Run API Integration Tests
           command: |
             npx nx << parameters.nx_run >> << parameters.parallel >> << parameters.target >> << parameters.projects >>
@@ -847,7 +851,7 @@ workflows:
           name: Integration Test - Servers - Auth V2 (PR)
           nx_run: affected --base=main --head=$CIRCLE_SHA1
           projects: --exclude '*,!tag:scope:server:auth'
-          target: -t integration-test-v2
+          target: -t test-integration-v2
           requires:
             - Build (PR)
       - integration-test:
@@ -1080,7 +1084,7 @@ workflows:
       - integration-test:
           name: Integration Test - Servers - Auth V2
           projects: --exclude '*,!tag:scope:server:auth'
-          target: -t integration-test-v2
+          target: -t test-integration-v2
           filters:
             branches:
               ignore: /.*/
@@ -1197,7 +1201,7 @@ workflows:
       - integration-test:
           name: Integration Test - Servers - Auth V2 (nightly)
           projects: --exclude '*,!tag:scope:server:auth'
-          target: -t integration-test-v2
+          target: -t test-integration-v2
           requires:
             - Build (nightly)
       - integration-test:
