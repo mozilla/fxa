@@ -117,6 +117,26 @@ describe('SubscriptionManager', () => {
     });
   });
 
+  describe('create', () => {
+    it('calls stripeclient', async () => {
+      const mockCustomer = StripeCustomerFactory();
+      const mockSubscription = StripeSubscriptionFactory();
+      const mockResponse = StripeResponseFactory(mockSubscription);
+      const params = {
+        customer: mockCustomer.id,
+      };
+
+      jest
+        .spyOn(stripeClient, 'subscriptionsCreate')
+        .mockResolvedValue(mockResponse);
+
+      const result = await subscriptionManager.create(params);
+
+      expect(stripeClient.subscriptionsCreate).toBeCalledWith(params);
+      expect(result).toEqual(mockResponse);
+    });
+  });
+
   describe('retrieve', () => {
     it('calls stripeclient', async () => {
       const mockSubscription = StripeSubscriptionFactory();

@@ -73,6 +73,13 @@ export class InvoiceManager {
   }
 
   /**
+   * Retrieves an invoice
+   */
+  async retrieve(invoiceId: string) {
+    return this.client.invoicesRetrieve(invoiceId);
+  }
+
+  /**
    * Process an invoice when amount is greater than minimum amount
    */
   async processPayPalNonZeroInvoice(

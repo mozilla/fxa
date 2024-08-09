@@ -92,6 +92,22 @@ describe('InvoiceManager', () => {
     });
   });
 
+  describe('retrieve', () => {
+    it('retrieves an invoice', async () => {
+      const mockInvoice = StripeResponseFactory(StripeInvoiceFactory());
+      const mockResponse = StripeResponseFactory(mockInvoice);
+
+      jest
+        .spyOn(stripeClient, 'invoicesRetrieve')
+        .mockResolvedValue(mockResponse);
+
+      const result = await invoiceManager.retrieve(mockInvoice.id);
+
+      expect(stripeClient.invoicesRetrieve).toBeCalledWith(mockInvoice.id);
+      expect(result).toEqual(mockResponse);
+    });
+  });
+
   describe('processInvoice', () => {
     it('calls processZeroInvoice when amount is less than minimum amount', async () => {
       const mockInvoice = StripeResponseFactory(
