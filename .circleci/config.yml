@@ -1165,17 +1165,17 @@ workflows:
             - Init (nightly)
       - lint:
           name: Lint (nightly)
-          nx_run: ''
+          nx_run: 'run-many'
           requires:
             - Init (nightly)
       - compile:
           name: Compile (nightly)
-          nx_run: ''
+          nx_run: 'run-many'
           requires:
             - Init (nightly)
       - unit-test:
           name: Unit Test (nightly)
-          nx_run: ''
+          nx_run: 'run-many'
           requires:
             - Build (nightly)
       - integration-test:
