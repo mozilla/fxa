@@ -502,6 +502,10 @@ describe('DirectStripeRoutes', () => {
       );
 
       assert.isTrue(
+        directStripeRoutesInstance.profile.deleteCache.calledOnceWith(UID)
+      );
+
+      assert.isTrue(
         directStripeRoutesInstance.log.notifyAttachedServices.calledOnceWith(
           'profileDataChange',
           VALID_REQUEST,
