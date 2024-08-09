@@ -432,6 +432,27 @@ const recordEventMetric = (
     case 'account_pref_help':
       accountPref.help.record();
       break;
+    case 'account_pref_bento_view':
+      accountPref.bentoView.record();
+      break;
+    case 'account_pref_bento_firefox_desktop':
+      accountPref.bentoFirefoxDesktop.record();
+      break;
+    case 'account_pref_bento_firefox_mobile':
+      accountPref.bentoFirefoxMobile.record();
+      break;
+    case 'account_pref_bento_monitor':
+      accountPref.bentoMonitor.record();
+      break;
+    case 'account_pref_bento_pocket':
+      accountPref.bentoPocket.record();
+      break;
+    case 'account_pref_bento_relay':
+      accountPref.bentoRelay.record();
+      break;
+    case 'account_pref_bento_vpn':
+      accountPref.bentoVpn.record();
+      break;
     case 'delete_account_settings_submit':
       deleteAccount.settingsSubmit.record();
       break;

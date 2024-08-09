@@ -61,6 +61,118 @@ export const appleUnlinkSubmitConfirm = new EventMetricType<{
 );
 
 /**
+ * User clicks on Firefox Browser for Desktop in the bento menu
+ *
+ * Generated from `account_pref.bento_firefox_desktop`.
+ */
+export const bentoFirefoxDesktop = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'bento_firefox_desktop',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * User clicks on Firefox Browser for Mobile in the bento menu
+ *
+ * Generated from `account_pref.bento_firefox_mobile`.
+ */
+export const bentoFirefoxMobile = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'bento_firefox_mobile',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * User clicks on Mozilla Monitor in the bento menu
+ *
+ * Generated from `account_pref.bento_monitor`.
+ */
+export const bentoMonitor = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'bento_monitor',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * User clicks on Pocket in the bento menu
+ *
+ * Generated from `account_pref.bento_pocket`.
+ */
+export const bentoPocket = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'bento_pocket',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * User clicks on Firefox Relay in the bento menu
+ *
+ * Generated from `account_pref.bento_relay`.
+ */
+export const bentoRelay = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'bento_relay',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * User clicks on the bento menu on the top right of the account settings page
+ *
+ * Generated from `account_pref.bento_view`.
+ */
+export const bentoView = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'bento_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * User clicks on Mozilla VPN in the bento menu
+ *
+ * Generated from `account_pref.bento_vpn`.
+ */
+export const bentoVpn = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'bento_vpn',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
  * Click on "Change" on account settings page to change password for account
  *
  * Generated from `account_pref.change_password_submit`.
@@ -216,21 +328,6 @@ export const secondaryEmailSubmit = new EventMetricType(
 );
 
 /**
- * User clicked the "Can't scan code?" link
- *
- * Generated from `account_pref.two_step_auth_scan_code_link`.
- */
-export const twoStepAuthScanCodeLink = new EventMetricType(
-  {
-    category: 'account_pref',
-    name: 'two_step_auth_scan_code_link',
-    sendInPings: ['events'],
-    lifetime: 'ping',
-    disabled: false,
-  },
-  []
-);
-/**
  * User started the 2FA setup process by viewing step 1 of the funnel, complete
  * with QR code for scanning.
  *
@@ -240,6 +337,22 @@ export const twoStepAuthQrView = new EventMetricType(
   {
     category: 'account_pref',
     name: 'two_step_auth_qr_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * User clicked the "Can't scan code?" link
+ *
+ * Generated from `account_pref.two_step_auth_scan_code_link`.
+ */
+export const twoStepAuthScanCodeLink = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'two_step_auth_scan_code_link',
     sendInPings: ['events'],
     lifetime: 'ping',
     disabled: false,
