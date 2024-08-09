@@ -40,7 +40,7 @@
   "readmeFilename": "README.md",
   "dependencies": {
     "@golevelup/ts-jest": "^0.5.0",
-    "@google-cloud/tasks": "^5.3.0",
+    "@google-cloud/tasks": "^5.5.0",
     "convict": "^6.2.4",
     "convict-format-with-moment": "^6.2.0",
     "convict-format-with-validator": "^6.2.0",
