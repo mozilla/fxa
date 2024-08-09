@@ -12,7 +12,7 @@
         "outputPath": "dist/apps/payments/next",
         "postcssConfig": "apps/payments/next/postcss.config.js"
       },
-      "dependsOn": ["l10n-bundle"]
+      "dependsOn": ["l10n-bundle", "glean-generate"]
     },
     "dev": {
       "options": {
@@ -37,7 +37,8 @@
       "outputs": ["{options.outputFile}"],
       "options": {
         "lintFilePatterns": ["apps/payments/next/**/*.{ts,tsx,js,jsx}"]
-      }
+      },
+      "dependsOn": ["glean-lint"]
     },
     "start": {
       "command": "pm2 start apps/payments/next/pm2.config.js && yarn check:url localhost:3035/__heartbeat__"
@@ -69,6 +70,13 @@
     "l10n-convert": {
       "dependsOn": ["l10n-prime"],
       "command": "node -r esbuild-register apps/payments/next/app/_lib/scripts/convert.ts"
+    },
+    "glean-generate": {
+      "dependsOn": ["glean-lint"],
+      "command": "yarn glean translate libs/shared/metrics/glean/src/registry/subplat-backend-metrics.yaml -f typescript_server -o apps/payments/next/lib/metrics/glean"
+    },
+    "glean-lint": {
+      "command": "yarn glean glinter libs/shared/metrics/glean/src/registry/subplat-backend-metrics.yaml"
     },
     "storybook": {
       "executor": "@nx/storybook:storybook",
