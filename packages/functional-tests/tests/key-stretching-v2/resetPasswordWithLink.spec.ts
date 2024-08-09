@@ -69,15 +69,8 @@ test.describe('severity-2 #smoke', () => {
         confirmSignupCode,
       },
       testAccountTracker,
-    }, { project }) => {
+    }) => {
       const config = await configPage.getConfig();
-      test.fixme(
-        project.name !== 'local' &&
-          signupVersion.version === 1 &&
-          resetVersion.version === 2 &&
-          signinVersion.version === 2,
-        'FXA-9765'
-      );
       test.skip(
         config.featureFlags.resetPasswordWithCode === true,
         'TODO in FXA-9728 - remove this file'
