@@ -35,7 +35,6 @@
   "readmeFilename": "README.md",
   "dependencies": {
     "@aws-sdk/client-sqs": "^3.623.0",
-    "@hapi/hoek": "^11.0.2",
     "@types/sinon": "10.0.1",
     "axios": "^0.28.1",
     "convict": "^6.2.4",
@@ -43,7 +42,6 @@
     "convict-format-with-validator": "^6.2.0",
     "express": "^4.19.2",
     "fxa-shared": "workspace:*",
-    "google-auth-library": "^9.8.0",
     "hot-shots": "^10.0.0",
     "joi": "^17.8.3",
     "jwks-rsa": "^3.1.0",
