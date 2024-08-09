@@ -18,13 +18,18 @@ export enum ProductPromoType {
   Settings = 'settings',
 }
 
+// TODO, remove this and logic. This is temporary until we work out the UX for
+// this. This was left configurable via props for tests and storybook.
+const MONITOR_PLUS_ENABLED = false;
+
 export interface ProductPromoProps {
   type?: ProductPromoType;
-  // product?: MozServices;
+  monitorPlusEnabled?: boolean;
 }
 
 export const ProductPromo = ({
   type = ProductPromoType.Sidebar,
+  monitorPlusEnabled = MONITOR_PLUS_ENABLED,
 }: ProductPromoProps) => {
   const { attachedClients, subscriptions } = useAccount();
   const { env } = useConfig();
@@ -37,7 +42,10 @@ export const ProductPromo = ({
     ({ productName }) => productName === MozServices.MonitorPlus
   );
 
-  if (hasMonitor && hasMonitorPlus) {
+  const showMonitorPlusPromo =
+    hasMonitor && !hasMonitorPlus && monitorPlusEnabled;
+
+  if (hasMonitor && !showMonitorPlusPromo) {
     return <></>;
   }
 
@@ -59,14 +67,13 @@ export const ProductPromo = ({
     'settings-promo'
   );
 
-  let reason = { event: { reason: 'free' } };
-  if (hasMonitor) {
-    reason = { event: { reason: 'plus' } };
-  }
+  const gleanEvent = showMonitorPlusPromo
+    ? { event: { reason: 'plus' } }
+    : { event: { reason: 'free' } };
 
-  GleanMetrics.accountPref.promoMonitorView(reason);
+  GleanMetrics.accountPref.promoMonitorView(gleanEvent);
 
-  const promoContent = hasMonitor ? (
+  const promoContent = showMonitorPlusPromo ? (
     <>
       <p className="my-2">
         <FtlMsg id="product-promo-monitor-plus-description">
@@ -77,7 +84,7 @@ export const ProductPromo = ({
       <LinkExternal
         href={monitorPlusPromoLink}
         className="link-blue"
-        onClick={() => GleanMetrics.accountPref.promoMonitorSubmit(reason)}
+        onClick={() => GleanMetrics.accountPref.promoMonitorSubmit(gleanEvent)}
       >
         <FtlMsg id="product-promo-monitor-plus-cta">Get started</FtlMsg>
       </LinkExternal>
@@ -92,7 +99,7 @@ export const ProductPromo = ({
       <LinkExternal
         href={monitorPromoLink}
         className="link-blue"
-        onClick={() => GleanMetrics.accountPref.promoMonitorSubmit(reason)}
+        onClick={() => GleanMetrics.accountPref.promoMonitorSubmit(gleanEvent)}
       >
         <FtlMsg id="product-promo-monitor-cta">Get free scan</FtlMsg>
       </LinkExternal>
