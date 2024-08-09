@@ -11,20 +11,20 @@ module.exports = {
     default: 'nps help',
     start: {
       default: {
-        script: `_dev/pm2/start.sh && _scripts/pm2-all.sh start && pm2 restart sync && echo "Use 'yarn stop' to stop all the servers"`,
+        script: `_scripts/check-pre-launch.sh && _dev/pm2/start.sh && _scripts/pm2-all.sh start && pm2 restart sync && echo "Use 'yarn stop' to stop all the servers"`,
         description: 'Start the entire stack, i.e. all infrastructure and services.'
       },
       infrastructure: {
-        script: `_dev/pm2/start.sh`,
+        script: `_scripts/check-pre-launch.sh && _dev/pm2/start.sh`,
         description: 'Start all infrastructure only.',
       },
       services: {
-        script: `_scripts/pm2-all.sh start`,
+        script: `_scripts/check-pre-launch.sh && _scripts/pm2-all.sh start`,
         description: 'Start all Services only.'
       },
       firefox: './packages/fxa-dev-launcher/bin/fxa-dev-launcher.mjs &',
       mza: {
-        script: `_dev/pm2/start.sh && _scripts/pm2-all.sh start ${mzaProjects} && pm2 restart sync && echo "Use 'yarn stop' to stop all the servers"`,
+        script: `_scripts/check-pre-launch.sh && _dev/pm2/start.sh && _scripts/pm2-all.sh start ${mzaProjects} && pm2 restart sync && echo "Use 'yarn stop' to stop all the servers"`,
         description: 'Start infrastructure and only required Mozilla Accounts services',
       },
       sp2: {
