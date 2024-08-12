@@ -134,7 +134,10 @@ describe('oauth/scopes:', () => {
     ];
 
     INVALID_SCOPE_VALUES.forEach((source) => {
-      it(`scope "${source}" is invalid`, () => {
+      // Invalid characters, when used in test names, cause test result
+      // injestion errors in CI
+      const printSafeSource = source.replace(/\0/g, '\\0');
+      it(`scope "${printSafeSource}" is invalid`, () => {
         assert.throws(
           () => scopes.fromString(source),
           Error,
