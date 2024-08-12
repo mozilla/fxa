@@ -39,7 +39,7 @@
   },
   "devDependencies": {
     "audit-filter": "^0.5.0",
-    "chai": "^4.3.6",
+    "chai": "^4.5.0",
     "eslint": "^8.19.0",
     "fxa-shared": "workspace:*",
     "mocha": "^10.4.0",

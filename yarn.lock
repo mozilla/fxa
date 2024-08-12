@@ -22373,10 +22373,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/chai@npm:*, @types/chai@npm:^4.2.18, @types/chai@npm:~4.2.20":
+"@types/chai@npm:*, @types/chai@npm:~4.2.20":
   version: 4.2.21
   resolution: "@types/chai@npm:4.2.21"
   checksum: dbd852dfea5065c2e86059bdc011c42a380c43bbcf80d427da228dc2a9e1efae27e7baf16570a3158571d92c206782e07fab3b703c28452a75a74380b33d1443
+  languageName: node
+  linkType: hard
+
+"@types/chai@npm:^4.3.17":
+  version: 4.3.17
+  resolution: "@types/chai@npm:4.3.17"
+  checksum: 56661c74c76df06547e3584be4a2b85eec60e7de4c0f6e7bbf7bf492a0ce96ce5bfc30f52a8889a7b35e24161d225e4a57041d4fa80f6e5592fea78e45dfd34c
   languageName: node
   linkType: hard
 
@@ -30376,18 +30383,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chai@npm:^4.3.6":
-  version: 4.3.6
-  resolution: "chai@npm:4.3.6"
+"chai@npm:^4.5.0":
+  version: 4.5.0
+  resolution: "chai@npm:4.5.0"
   dependencies:
     assertion-error: ^1.1.0
-    check-error: ^1.0.2
-    deep-eql: ^3.0.1
-    get-func-name: ^2.0.0
-    loupe: ^2.3.1
+    check-error: ^1.0.3
+    deep-eql: ^4.1.3
+    get-func-name: ^2.0.2
+    loupe: ^2.3.6
     pathval: ^1.1.1
-    type-detect: ^4.0.5
-  checksum: acff93fd537f96d4a4d62dd83810285dffcfccb5089e1bf2a1205b28ec82d93dff551368722893cf85004282df10ee68802737c33c90c5493957ed449ed7ce71
+    type-detect: ^4.1.0
+  checksum: 70e5a8418a39e577e66a441cc0ce4f71fd551a650a71de30dd4e3e31e75ed1f5aa7119cf4baf4a2cb5e85c0c6befdb4d8a05811fad8738c1a6f3aa6a23803821
   languageName: node
   linkType: hard
 
@@ -30597,6 +30604,15 @@ __metadata:
   version: 1.0.2
   resolution: "check-error@npm:1.0.2"
   checksum: d9d106504404b8addd1ee3f63f8c0eaa7cd962a1a28eb9c519b1c4a1dc7098be38007fc0060f045ee00f075fbb7a2a4f42abcf61d68323677e11ab98dc16042e
+  languageName: node
+  linkType: hard
+
+"check-error@npm:^1.0.3":
+  version: 1.0.3
+  resolution: "check-error@npm:1.0.3"
+  dependencies:
+    get-func-name: ^2.0.2
+  checksum: e2131025cf059b21080f4813e55b3c480419256914601750b0fee3bd9b2b8315b531e551ef12560419b8b6d92a3636511322752b1ce905703239e7cc451b6399
   languageName: node
   linkType: hard
 
@@ -33418,6 +33434,15 @@ __metadata:
   dependencies:
     type-detect: ^4.0.0
   checksum: 4f4c9fb79eb994fb6e81d4aa8b063adc40c00f831588aa65e20857d5d52f15fb23034a6576ecf886f7ff6222d5ae42e71e9b7d57113e0715b1df7ea1e812b125
+  languageName: node
+  linkType: hard
+
+"deep-eql@npm:^4.1.3":
+  version: 4.1.4
+  resolution: "deep-eql@npm:4.1.4"
+  dependencies:
+    type-detect: ^4.0.0
+  checksum: 01c3ca78ff40d79003621b157054871411f94228ceb9b2cab78da913c606631c46e8aa79efc4aa0faf3ace3092acd5221255aab3ef0e8e7b438834f0ca9a16c7
   languageName: node
   linkType: hard
 
@@ -39080,7 +39105,7 @@ fsevents@~2.1.1:
     "@types/async-retry": ^1
     "@types/babel__core": 7.20.5
     "@types/babel__preset-env": ^7
-    "@types/chai": ^4.2.18
+    "@types/chai": ^4.3.17
     "@types/chai-as-promised": ^7
     "@types/convict": 5.2.2
     "@types/dedent": ^0
@@ -39112,7 +39137,7 @@ fsevents@~2.1.1:
     babel-loader: ^9.1.3
     binary-split: 1.0.5
     buf: 0.1.1
-    chai: ^4.3.6
+    chai: ^4.5.0
     chai-as-promised: ^7.1.1
     commander: 2.18.0
     convict: ^6.2.4
@@ -39244,7 +39269,7 @@ fsevents@~2.1.1:
     browserify-zlib: ^0.2.0
     buffer: ^6.0.3
     cache-loader: ^4.1.0
-    chai: ^4.3.6
+    chai: ^4.5.0
     chosen-js: "https://github.com/mozilla-fxa/chosen.git#3bea55b356c249ae82980c04f67ccc98ff3b28b0"
     consolidate: 1.0.3
     convict: ^6.2.4
@@ -39375,7 +39400,7 @@ fsevents@~2.1.1:
     audit-filter: ^0.5.0
     bluebird: ^3.7.2
     bunyan: ^1.8.15
-    chai: ^4.3.6
+    chai: ^4.5.0
     convict: ^6.2.4
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
@@ -39478,7 +39503,7 @@ fsevents@~2.1.1:
   dependencies:
     audit-filter: ^0.5.0
     bluebird: ^3.7.2
-    chai: ^4.3.6
+    chai: ^4.5.0
     cron: 3.1.7
     eslint: ^8.19.0
     fxa-shared: "workspace:*"
@@ -39920,7 +39945,7 @@ fsevents@~2.1.1:
     "@fluent/langneg": ^0.7.0
     "@mozilla/glean": ^5.0.2
     "@types/accept-language-parser": ^1.5.3
-    "@types/chai": ^4.2.18
+    "@types/chai": ^4.3.17
     "@types/chance": ^1.1.2
     "@types/cors": ^2.8.14
     "@types/express": ^4.17.12
@@ -39946,7 +39971,7 @@ fsevents@~2.1.1:
     aws-sdk: ^2.1664.0
     buf: ^0.1.1
     celebrate: ^15.0.1
-    chai: ^4.3.6
+    chai: ^4.5.0
     chance: ^1.1.8
     cldr-localenames-full: 43.1.0
     cors: ^2.8.5
@@ -40305,7 +40330,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"get-func-name@npm:^2.0.0":
+"get-func-name@npm:^2.0.0, get-func-name@npm:^2.0.1, get-func-name@npm:^2.0.2":
   version: 2.0.2
   resolution: "get-func-name@npm:2.0.2"
   checksum: 3f62f4c23647de9d46e6f76d2b3eafe58933a9b3830c60669e4180d6c601ce1b4aa310ba8366143f55e52b139f992087a9f0647274e8745621fa2af7e0acf13b
@@ -49289,12 +49314,12 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"loupe@npm:^2.3.1":
-  version: 2.3.4
-  resolution: "loupe@npm:2.3.4"
+"loupe@npm:^2.3.6":
+  version: 2.3.7
+  resolution: "loupe@npm:2.3.7"
   dependencies:
-    get-func-name: ^2.0.0
-  checksum: 5af91db61aa18530f1749a64735ee194ac263e65e9f4d1562bf3036c591f1baa948289c193e0e34c7b5e2c1b75d3c1dc4fce87f5edb3cee10b0c0df46bc9ffb3
+    get-func-name: ^2.0.1
+  checksum: 96c058ec7167598e238bb7fb9def2f9339215e97d6685d9c1e3e4bdb33d14600e11fe7a812cf0c003dfb73ca2df374f146280b2287cae9e8d989e9d7a69a203b
   languageName: node
   linkType: hard
 
@@ -65201,6 +65226,13 @@ resolve@1.1.7:
   version: 4.0.8
   resolution: "type-detect@npm:4.0.8"
   checksum: 62b5628bff67c0eb0b66afa371bd73e230399a8d2ad30d852716efcc4656a7516904570cd8631a49a3ce57c10225adf5d0cbdcb47f6b0255fe6557c453925a15
+  languageName: node
+  linkType: hard
+
+"type-detect@npm:^4.1.0":
+  version: 4.1.0
+  resolution: "type-detect@npm:4.1.0"
+  checksum: 3b32f873cd02bc7001b00a61502b7ddc4b49278aabe68d652f732e1b5d768c072de0bc734b427abf59d0520a5f19a2e07309ab921ef02018fa1cb4af155cdb37
   languageName: node
   linkType: hard
 

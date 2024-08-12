@@ -243,7 +243,7 @@
   "homepage": "https://github.com/mozilla/fxa/tree/main/packages/fxa-shared#readme",
   "devDependencies": {
     "@types/accept-language-parser": "^1.5.3",
-    "@types/chai": "^4.2.18",
+    "@types/chai": "^4.3.17",
     "@types/chance": "^1.1.2",
     "@types/cors": "^2.8.14",
     "@types/express": "^4.17.12",
@@ -263,7 +263,7 @@
     "@types/superagent": "^4.1.11",
     "@types/uuid": "^10.0.0",
     "audit-filter": "^0.5.0",
-    "chai": "^4.3.6",
+    "chai": "^4.5.0",
     "chance": "^1.1.8",
     "esbuild": "^0.17.15",
     "esbuild-register": "^3.5.0",
