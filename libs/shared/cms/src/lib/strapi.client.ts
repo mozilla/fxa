@@ -1,5 +1,3 @@
-// Temporarily ignore. To be fixed during CMS refactor FXA-XXXX
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -8,7 +6,7 @@ import type { OperationVariables } from '@apollo/client';
 import { Firestore } from '@google-cloud/firestore';
 import type { TypedDocumentNode } from '@graphql-typed-document-node/core';
 import { Inject, Injectable } from '@nestjs/common';
-import { Cacheable } from '@type-cacheable/core';
+import cacheManager, { Cacheable } from '@type-cacheable/core';
 import EventEmitter from 'events';
 import { GraphQLClient } from 'graphql-request';
 
@@ -23,6 +21,12 @@ import { CMSError } from './cms.error';
 import { CMS_QUERY_CACHE_KEY, cacheKeyForQuery } from './util';
 import { StrapiClientConfig } from './strapi.client.config';
 import { LocalesResult, localesQuery } from './queries/locales';
+
+cacheManager.setOptions({
+  // Must be disabled globally per https://github.com/joshuaslate/type-cacheable?tab=readme-ov-file#change-global-options
+  // otherwise @Cacheable context will be undefined
+  excludeContext: false,
+});
 
 const DEFAULT_FIRESTORE_CACHE_TTL = 604800; // Seconds. 604800 is 7 days.
 const DEFAULT_MEM_CACHE_TTL = 300; // Seconds
@@ -71,19 +75,19 @@ export class StrapiClient {
     return result;
   }
 
-  // @Cacheable({
-  //   cacheKey: (args: any) => cacheKeyForQuery(args[0], args[1]),
-  //   strategy: new NetworkFirstStrategy(),
-  //   ttlSeconds: (_, context: StrapiClient) =>
-  //     context.strapiClientConfig.firestoreCacheTTL ||
-  //     DEFAULT_FIRESTORE_CACHE_TTL,
-  //   client: (_, context: StrapiClient) =>
-  //     new FirestoreAdapter(
-  //       context.firestore,
-  //       context.strapiClientConfig.firestoreCacheCollectionName ||
-  //         CMS_QUERY_CACHE_KEY
-  //     ),
-  // })
+  @Cacheable({
+    cacheKey: (args: any) => cacheKeyForQuery(args[0], args[1]),
+    strategy: new NetworkFirstStrategy(),
+    ttlSeconds: (_, context: StrapiClient) =>
+      context.strapiClientConfig.firestoreCacheTTL ||
+      DEFAULT_FIRESTORE_CACHE_TTL,
+    client: (_, context: StrapiClient) =>
+      new FirestoreAdapter(
+        context.firestore,
+        context.strapiClientConfig.firestoreCacheCollectionName ||
+          CMS_QUERY_CACHE_KEY
+      ),
+  })
   async query<Result, Variables extends OperationVariables>(
     query: TypedDocumentNode<Result, Variables>,
     variables: Variables
