@@ -34,7 +34,7 @@
   "homepage": "https://github.com/mozilla/fxa#readme",
   "readmeFilename": "README.md",
   "dependencies": {
-    "@aws-sdk/client-sqs": "^3.623.0",
+    "@aws-sdk/client-sqs": "^3.624.0",
     "@types/sinon": "10.0.1",
     "axios": "^0.28.1",
     "convict": "^6.2.4",
