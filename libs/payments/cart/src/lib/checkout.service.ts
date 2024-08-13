@@ -12,8 +12,8 @@ import {
   AccountCustomerManager,
   CustomerManager,
   InvoiceManager,
+  PaymentMethodManager,
   PromotionCodeManager,
-  StripeClient,
   StripeSubscription,
   SubplatInterval,
   SubscriptionManager,
@@ -40,11 +40,11 @@ export class CheckoutService {
     private customerManager: CustomerManager,
     private eligibilityService: EligibilityService,
     private invoiceManager: InvoiceManager,
+    private paymentMethodManager: PaymentMethodManager,
     private paypalBillingAgreementManager: PaypalBillingAgreementManager,
     private paypalCustomerManager: PaypalCustomerManager,
     private productConfigurationManager: ProductConfigurationManager,
     private promotionCodeManager: PromotionCodeManager,
-    private stripeClient: StripeClient,
     private subscriptionManager: SubscriptionManager
   ) {}
 
@@ -179,11 +179,11 @@ export class CheckoutService {
     const { customer, enableAutomaticTax, promotionCode, priceId } =
       await this.prePaySteps(cart, customerData);
 
-    await this.stripeClient.paymentMethodsAttach(paymentMethodId, {
+    await this.paymentMethodManager.attach(paymentMethodId, {
       customer: customer.id,
     });
 
-    await this.stripeClient.customersUpdate(customer.id, {
+    await this.customerManager.update(customer.id, {
       invoice_settings: {
         default_payment_method: paymentMethodId,
       },
@@ -191,7 +191,7 @@ export class CheckoutService {
 
     // TODO: increment statsd for stripe_subscription with payment provider stripe
 
-    const subscription = await this.stripeClient.subscriptionsCreate({
+    const subscription = await this.subscriptionManager.create({
       customer: customer.id,
       automatic_tax: {
         enabled: enableAutomaticTax,
@@ -257,7 +257,7 @@ export class CheckoutService {
 
     // TODO: increment statsd for stripe_subscription with payment provider paypal
     //
-    const subscription = await this.stripeClient.subscriptionsCreate({
+    const subscription = await this.subscriptionManager.create({
       customer: customer.id,
       automatic_tax: {
         enabled: enableAutomaticTax,
@@ -285,7 +285,7 @@ export class CheckoutService {
     if (!subscription.latest_invoice) {
       throw new CheckoutError('latest_invoice does not exist on subscription');
     }
-    const latestInvoice = await this.stripeClient.invoicesRetrieve(
+    const latestInvoice = await this.invoiceManager.retrieve(
       subscription.latest_invoice
     );
     try {

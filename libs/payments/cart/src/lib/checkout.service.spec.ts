@@ -29,6 +29,7 @@ import {
   InvoiceManager,
   InvoicePreviewFactory,
   MockStripeConfigProvider,
+  PaymentMethodManager,
   PriceManager,
   ProductManager,
   PromotionCodeManager,
@@ -73,6 +74,7 @@ describe('CheckoutService', () => {
   let customerManager: CustomerManager;
   let eligibilityService: EligibilityService;
   let invoiceManager: InvoiceManager;
+  let paymentMethodManager: PaymentMethodManager;
   let paypalBillingAgreementManager: PaypalBillingAgreementManager;
   let paypalCustomerManager: PaypalCustomerManager;
   let productConfigurationManager: ProductConfigurationManager;
@@ -93,9 +95,11 @@ describe('CheckoutService', () => {
         InvoiceManager,
         MockAccountDatabaseNestFactory,
         MockFirestoreProvider,
+        MockStrapiClientConfigProvider,
         MockStatsDProvider,
         MockStrapiClientConfigProvider,
         MockStripeConfigProvider,
+        PaymentMethodManager,
         PaypalBillingAgreementManager,
         PayPalClient,
         PaypalClientConfig,
@@ -118,6 +122,7 @@ describe('CheckoutService', () => {
     customerManager = moduleRef.get(CustomerManager);
     eligibilityService = moduleRef.get(EligibilityService);
     invoiceManager = moduleRef.get(InvoiceManager);
+    paymentMethodManager = moduleRef.get(PaymentMethodManager);
     paypalBillingAgreementManager = moduleRef.get(
       PaypalBillingAgreementManager
     );
@@ -398,13 +403,11 @@ describe('CheckoutService', () => {
         priceId: mockPriceId,
       });
       jest
-        .spyOn(stripeClient, 'paymentMethodsAttach')
+        .spyOn(paymentMethodManager, 'attach')
         .mockResolvedValue(mockPaymentMethod);
+      jest.spyOn(customerManager, 'update').mockResolvedValue(mockCustomer);
       jest
-        .spyOn(stripeClient, 'customersUpdate')
-        .mockResolvedValue(mockCustomer);
-      jest
-        .spyOn(stripeClient, 'subscriptionsCreate')
+        .spyOn(subscriptionManager, 'create')
         .mockResolvedValue(mockSubscription);
       jest
         .spyOn(stripeClient, 'invoicesRetrieve')
@@ -434,7 +437,7 @@ describe('CheckoutService', () => {
       });
 
       it('attaches payment method to customer', async () => {
-        expect(stripeClient.paymentMethodsAttach).toHaveBeenCalledWith(
+        expect(paymentMethodManager.attach).toHaveBeenCalledWith(
           mockPaymentMethod.id,
           {
             customer: mockCustomer.id,
@@ -443,18 +446,15 @@ describe('CheckoutService', () => {
       });
 
       it('updates the customer with a default payment method', async () => {
-        expect(stripeClient.customersUpdate).toHaveBeenCalledWith(
-          mockCustomer.id,
-          {
-            invoice_settings: {
-              default_payment_method: mockPaymentMethod.id,
-            },
-          }
-        );
+        expect(customerManager.update).toHaveBeenCalledWith(mockCustomer.id, {
+          invoice_settings: {
+            default_payment_method: mockPaymentMethod.id,
+          },
+        });
       });
 
       it('creates the subscription', async () => {
-        expect(stripeClient.subscriptionsCreate).toHaveBeenCalledWith({
+        expect(subscriptionManager.create).toHaveBeenCalledWith({
           customer: mockCustomer.id,
           automatic_tax: {
             enabled: true,
@@ -468,7 +468,7 @@ describe('CheckoutService', () => {
         });
       });
 
-      it('retrieves the lastest invoice', () => {
+      it('retrieves the latest invoice', () => {
         expect(stripeClient.invoicesRetrieve).toHaveBeenCalledWith(
           mockSubscription.latest_invoice
         );
@@ -515,6 +515,7 @@ describe('CheckoutService', () => {
         priceId: mockPriceId,
       });
       jest.spyOn(invoiceManager, 'processPayPalInvoice').mockResolvedValue();
+      jest.spyOn(invoiceManager, 'retrieve').mockResolvedValue(mockInvoice);
       jest.spyOn(paypalBillingAgreementManager, 'cancel').mockResolvedValue();
       jest
         .spyOn(paypalBillingAgreementManager, 'retrieveOrCreateId')
@@ -526,10 +527,7 @@ describe('CheckoutService', () => {
         .spyOn(paypalCustomerManager, 'createPaypalCustomer')
         .mockResolvedValue(mockPaypalCustomer);
       jest
-        .spyOn(stripeClient, 'invoicesRetrieve')
-        .mockResolvedValue(mockInvoice);
-      jest
-        .spyOn(stripeClient, 'subscriptionsCreate')
+        .spyOn(subscriptionManager, 'create')
         .mockResolvedValue(mockSubscription);
       jest
         .spyOn(subscriptionManager, 'cancel')
@@ -561,7 +559,7 @@ describe('CheckoutService', () => {
       });
 
       it('creates the subscription', async () => {
-        expect(stripeClient.subscriptionsCreate).toHaveBeenCalledWith({
+        expect(subscriptionManager.create).toHaveBeenCalledWith({
           customer: mockCustomer.id,
           automatic_tax: {
             enabled: true,
@@ -594,8 +592,8 @@ describe('CheckoutService', () => {
         );
       });
 
-      it('retrieves the lastest invoice', () => {
-        expect(stripeClient.invoicesRetrieve).toHaveBeenCalledWith(
+      it('retrieves the latest invoice', () => {
+        expect(invoiceManager.retrieve).toHaveBeenCalledWith(
           mockSubscription.latest_invoice
         );
       });
