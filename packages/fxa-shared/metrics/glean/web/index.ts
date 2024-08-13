@@ -174,6 +174,13 @@ export const eventsMap = {
     help: 'account_pref_help',
     promoMonitorView: 'account_pref_promo_monitor_view',
     promoMonitorSubmit: 'account_pref_promo_monitor_submit',
+    bentoView: 'account_pref_bento_view',
+    bentoFirefoxDesktop: 'account_pref_bento_firefox_desktop',
+    bentoFirefoxMobile: 'account_pref_bento_firefox_mobile',
+    bentoMonitor: 'account_pref_bento_monitor',
+    bentoPocket: 'account_pref_bento_pocket',
+    bentoRelay: 'account_pref_bento_relay',
+    bentoVpn: 'account_pref_bento_vpn',
   },
 
   deleteAccount: {

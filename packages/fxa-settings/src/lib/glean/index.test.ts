@@ -749,6 +749,75 @@ describe('lib/glean', () => {
         );
         sinon.assert.called(spy);
       });
+
+      it('submits a ping with the account_pref_bento_view event name', async () => {
+        GleanMetrics.accountPref.bentoView();
+        const spy = sandbox.spy(accountPref.bentoView, 'record');
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'account_pref_bento_view');
+        sinon.assert.calledOnce(spy);
+      });
+
+      it('submits a ping with the account_pref_bento_firefox_desktop event name', async () => {
+        GleanMetrics.accountPref.bentoFirefoxDesktop();
+        const spy = sandbox.spy(accountPref.bentoFirefoxDesktop, 'record');
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'account_pref_bento_firefox_desktop'
+        );
+        sinon.assert.calledOnce(spy);
+      });
+
+      it('submits a ping with the account_pref_bento_firefox_mobile event name', async () => {
+        GleanMetrics.accountPref.bentoFirefoxMobile();
+        const spy = sandbox.spy(accountPref.bentoFirefoxMobile, 'record');
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'account_pref_bento_firefox_mobile'
+        );
+        sinon.assert.calledOnce(spy);
+      });
+
+      it('submits a ping with the account_pref_bento_monitor event name', async () => {
+        GleanMetrics.accountPref.bentoMonitor();
+        const spy = sandbox.spy(accountPref.bentoMonitor, 'record');
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'account_pref_bento_monitor');
+        sinon.assert.calledOnce(spy);
+      });
+
+      it('submits a ping with the account_pref_bento_pocket event name', async () => {
+        GleanMetrics.accountPref.bentoPocket();
+        const spy = sandbox.spy(accountPref.bentoPocket, 'record');
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'account_pref_bento_pocket');
+        sinon.assert.calledOnce(spy);
+      });
+
+      it('submits a ping with the account_pref_bento_relay event name', async () => {
+        GleanMetrics.accountPref.bentoRelay();
+        const spy = sandbox.spy(accountPref.bentoRelay, 'record');
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'account_pref_bento_relay');
+        sinon.assert.calledOnce(spy);
+      });
+
+      it('submits a ping with the account_pref_bento_vpn event name', async () => {
+        GleanMetrics.accountPref.bentoVpn();
+        const spy = sandbox.spy(accountPref.bentoVpn, 'record');
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'account_pref_bento_vpn');
+        sinon.assert.calledOnce(spy);
+      });
     });
 
     describe('deleteAccount', () => {

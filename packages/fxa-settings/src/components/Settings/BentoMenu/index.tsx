@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useState } from 'react';
 import { useClickOutsideEffect } from 'fxa-react/lib/hooks';
 import LinkExternal from 'fxa-react/components/LinkExternal';
@@ -20,6 +20,7 @@ import { FtlMsg } from 'fxa-react/lib/utils';
 import { useConfig, useFtlMsgResolver } from '../../../models/hooks';
 import { LINK } from '../../../constants';
 import { constructHrefWithUtm } from '../../../lib/utilities';
+import GleanMetrics from '../../../lib/glean';
 
 export const BentoMenu = () => {
   const [isRevealed, setRevealed] = useState(false);
@@ -32,6 +33,12 @@ export const BentoMenu = () => {
 
   const { env } = useConfig();
   const ftlMsgResolver = useFtlMsgResolver();
+
+  useEffect(() => {
+    if (isRevealed) {
+      GleanMetrics.accountPref.bentoView();
+    }
+  }, [isRevealed]);
 
   const bentoMenuTitle = ftlMsgResolver.getMsg(
     'bento-menu-title-3',
@@ -126,6 +133,9 @@ export const BentoMenu = () => {
                       data-testid="desktop-link"
                       href={desktopLink}
                       className="block p-2 ps-6 hover:bg-grey-100"
+                      onClick={() =>
+                        GleanMetrics.accountPref.bentoFirefoxDesktop()
+                      }
                     >
                       <div className={iconClassNames}>
                         <img src={desktopIcon} alt="" />
@@ -140,6 +150,9 @@ export const BentoMenu = () => {
                       data-testid="mobile-link"
                       href={mobileLink}
                       className="block p-2 ps-6 hover:bg-grey-100"
+                      onClick={() =>
+                        GleanMetrics.accountPref.bentoFirefoxMobile()
+                      }
                     >
                       <div className={iconClassNames}>
                         <img src={mobileIcon} alt="" />
@@ -154,6 +167,7 @@ export const BentoMenu = () => {
                       data-testid="monitor-link"
                       href={monitorLink}
                       className="block p-2 ps-6 hover:bg-grey-100"
+                      onClick={() => GleanMetrics.accountPref.bentoMonitor()}
                     >
                       <div className={iconClassNames}>
                         <img src={monitorIcon} alt="" />
@@ -166,6 +180,7 @@ export const BentoMenu = () => {
                       data-testid="relay-link"
                       href={relayLink}
                       className="block p-2 ps-6 hover:bg-grey-100"
+                      onClick={() => GleanMetrics.accountPref.bentoRelay()}
                     >
                       <div className={iconClassNames}>
                         <img src={relayIcon} alt="" />
@@ -180,6 +195,7 @@ export const BentoMenu = () => {
                       data-testid="vpn-link"
                       href={vpnLink}
                       className="block p-2 ps-6 hover:bg-grey-100"
+                      onClick={() => GleanMetrics.accountPref.bentoVpn()}
                     >
                       <div className={iconClassNames}>
                         <img src={vpnIcon} alt="" />
@@ -192,6 +208,7 @@ export const BentoMenu = () => {
                       data-testid="pocket-link"
                       href="https://app.adjust.com/hr2n0yz?redirect_macos=https%3A%2F%2Fgetpocket.com%2Fpocket-and-firefox&redirect_windows=https%3A%2F%2Fgetpocket.com%2Fpocket-and-firefox&engagement_type=fallback_click&fallback=https%3A%2F%2Fgetpocket.com%2Ffirefox_learnmore%3Fsrc%3Dff_bento&fallback_lp=https%3A%2F%2Fapps.apple.com%2Fapp%2Fpocket-save-read-grow%2Fid309601447"
                       className="block p-2 ps-6 hover:bg-grey-100"
+                      onClick={() => GleanMetrics.accountPref.bentoPocket()}
                     >
                       <div className={iconClassNames}>
                         <img src={pocketIcon} alt="" />
