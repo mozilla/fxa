@@ -4,43 +4,39 @@
 
 import { Injectable } from '@nestjs/common';
 
-import { SubscriptionManager } from '@fxa/payments/stripe';
 import { PayPalClient } from './paypal.client';
 import { BillingAgreement, BillingAgreementStatus } from './paypal.types';
 import { PaypalCustomerMultipleRecordsError } from './paypalCustomer/paypalCustomer.error';
 import { PaypalCustomerManager } from './paypalCustomer/paypalCustomer.manager';
-import { PaypalManagerError } from './paypal.error';
+import { PaypalBillingAgreementManagerError } from './paypal.error';
 
 @Injectable()
-export class PayPalManager {
+export class PaypalBillingAgreementManager {
   constructor(
     private client: PayPalClient,
-    private subscriptionManager: SubscriptionManager,
     private paypalCustomerManager: PaypalCustomerManager
   ) {}
 
-  public async getOrCreateBillingAgreementId(
+  public async retrieveOrCreateId(
     uid: string,
     hasSubscriptions: boolean,
     token?: string
   ) {
-    const existingBillingAgreementId = await this.getCustomerBillingAgreementId(
-      uid
-    );
+    const existingBillingAgreementId = await this.retrieveId(uid);
     if (existingBillingAgreementId) return existingBillingAgreementId;
 
     if (hasSubscriptions) {
-      throw new PaypalManagerError(
+      throw new PaypalBillingAgreementManagerError(
         'Customer missing billing agreement ID with active subscriptions'
       );
     }
     if (!token) {
-      throw new PaypalManagerError(
+      throw new PaypalBillingAgreementManagerError(
         'Must pay using PayPal token if customer has no existing billing agreement'
       );
     }
 
-    const newBillingAgreementId = await this.createBillingAgreement(uid, token);
+    const newBillingAgreementId = await this.create(uid, token);
 
     return newBillingAgreementId;
   }
@@ -48,7 +44,7 @@ export class PayPalManager {
   /**
    * Cancels a billing agreement.
    */
-  async cancelBillingAgreement(billingAgreementId: string): Promise<void> {
+  async cancel(billingAgreementId: string): Promise<void> {
     await this.client.baUpdate({ billingAgreementId, cancel: true });
   }
 
@@ -56,7 +52,7 @@ export class PayPalManager {
    * Create and verify a billing agreement is funded from the appropriate
    * country given the currency of the billing agreement.
    */
-  async createBillingAgreement(uid: string, token: string) {
+  async create(uid: string, token: string) {
     const billingAgreement = await this.client.createBillingAgreement({
       token,
     });
@@ -78,9 +74,7 @@ export class PayPalManager {
    * Get Billing Agreement details by calling the update Billing Agreement API.
    * Parses the API call response for country code and billing agreement status
    */
-  async getBillingAgreement(
-    billingAgreementId: string
-  ): Promise<BillingAgreement> {
+  async retrieve(billingAgreementId: string): Promise<BillingAgreement> {
     const response = await this.client.baUpdate({ billingAgreementId });
     return {
       city: response.CITY,
@@ -102,9 +96,7 @@ export class PayPalManager {
    * Retrieves the customer’s current paypal billing agreement ID from the
    * auth database via the Paypal repository
    */
-  async getCustomerBillingAgreementId(
-    uid: string
-  ): Promise<string | undefined> {
+  async retrieveId(uid: string): Promise<string | undefined> {
     const paypalCustomer =
       await this.paypalCustomerManager.fetchPaypalCustomersByUid(uid);
     const firstRecord = paypalCustomer.at(0);

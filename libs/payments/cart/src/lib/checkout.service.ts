@@ -4,7 +4,10 @@
 
 import { Injectable } from '@nestjs/common';
 import { EligibilityService } from '@fxa/payments/eligibility';
-import { PayPalManager, PaypalCustomerManager } from '@fxa/payments/paypal';
+import {
+  PaypalBillingAgreementManager,
+  PaypalCustomerManager,
+} from '@fxa/payments/paypal';
 import {
   AccountCustomerManager,
   CustomerManager,
@@ -37,8 +40,8 @@ export class CheckoutService {
     private customerManager: CustomerManager,
     private eligibilityService: EligibilityService,
     private invoiceManager: InvoiceManager,
+    private paypalBillingAgreementManager: PaypalBillingAgreementManager,
     private paypalCustomerManager: PaypalCustomerManager,
-    private paypalManager: PayPalManager,
     private productConfigurationManager: ProductConfigurationManager,
     private promotionCodeManager: PromotionCodeManager,
     private stripeClient: StripeClient,
@@ -246,7 +249,7 @@ export class CheckoutService {
       );
 
     const billingAgreementId =
-      await this.paypalManager.getOrCreateBillingAgreementId(
+      await this.paypalBillingAgreementManager.retrieveOrCreateId(
         uid,
         !!paypalSubscriptions.length,
         token
@@ -289,7 +292,7 @@ export class CheckoutService {
       this.invoiceManager.processPayPalInvoice(latestInvoice);
     } catch (e) {
       await this.subscriptionManager.cancel(subscription.id);
-      await this.paypalManager.cancelBillingAgreement(billingAgreementId);
+      await this.paypalBillingAgreementManager.cancel(billingAgreementId);
     }
 
     await this.postPaySteps(cart, subscription);

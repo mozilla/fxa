@@ -11,7 +11,6 @@ import {
   AccountCustomerNotFoundError,
   CustomerManager,
   InvoiceManager,
-  PriceManager,
   StripeCustomer,
   SubplatInterval,
   TaxAddress,
@@ -39,7 +38,6 @@ export class CartService {
     private eligibilityService: EligibilityService,
     private geodbManager: GeoDBManager,
     private invoiceManager: InvoiceManager,
-    private priceManager: PriceManager,
     private productConfigurationManager: ProductConfigurationManager
   ) {}
 
