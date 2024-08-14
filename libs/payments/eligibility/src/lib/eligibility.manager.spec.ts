@@ -2,17 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 
 import {
   PriceManager,
+  StripeClient,
+  StripeConfig,
   StripePrice,
   StripePriceFactory,
   StripePriceRecurringFactory,
   SubplatInterval,
 } from '@fxa/payments/stripe';
 import {
-  EligibilityContentByOfferingResultUtil,
+  EligibilityContentByPlanIdsResultFactory,
   EligibilityContentByPlanIdsResultUtil,
   EligibilityContentOfferingResultFactory,
   EligibilityContentSubgroupOfferingResultFactory,
@@ -20,7 +22,9 @@ import {
   EligibilityOfferingResultFactory,
   EligibilitySubgroupOfferingResultFactory,
   EligibilitySubgroupResultFactory,
+  MockStrapiClientConfigProvider,
   ProductConfigurationManager,
+  StrapiClient,
   StrapiEntityFactory,
 } from '@fxa/shared/cms';
 import { CartEligibilityStatus } from '@fxa/shared/db/mysql/account';
@@ -30,57 +34,61 @@ import {
   OfferingComparison,
   OfferingOverlapProductResult,
 } from './eligibility.types';
+import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
+import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 
 describe('EligibilityManager', () => {
   let manager: EligibilityManager;
-  let mockOfferingResult: EligibilityContentByOfferingResultUtil;
-  let mockResult: EligibilityContentByPlanIdsResultUtil;
-  let mockPriceManager: PriceManager;
-  let mockProductConfigurationManager: ProductConfigurationManager;
+  let priceManager: PriceManager;
+  let productConfigurationManager: ProductConfigurationManager;
 
   beforeEach(async () => {
-    mockOfferingResult = {} as EligibilityContentByOfferingResultUtil;
-    mockResult = {} as EligibilityContentByPlanIdsResultUtil;
-    mockProductConfigurationManager = {
-      getEligibilityContentByOffering: jest
-        .fn()
-        .mockResolvedValueOnce(mockOfferingResult),
-      getPurchaseDetailsForEligibility: jest
-        .fn()
-        .mockResolvedValueOnce(mockResult),
-    } as any;
-    mockPriceManager = {
-      retrieveByInterval: jest.fn(),
-    } as any;
-
-    const module: TestingModule = await Test.createTestingModule({
+    const module = await Test.createTestingModule({
       providers: [
-        {
-          provide: ProductConfigurationManager,
-          useValue: mockProductConfigurationManager,
-        },
-        { provide: PriceManager, useValue: mockPriceManager },
+        MockStrapiClientConfigProvider,
         EligibilityManager,
+        MockFirestoreProvider,
+        MockStatsDProvider,
+        PriceManager,
+        ProductConfigurationManager,
+        StripeClient,
+        StripeConfig,
+        StrapiClient,
       ],
     }).compile();
 
-    manager = module.get<EligibilityManager>(EligibilityManager);
+    priceManager = module.get(PriceManager);
+    productConfigurationManager = module.get(ProductConfigurationManager);
+    manager = module.get(EligibilityManager);
   });
 
   describe('getOfferingOverlap', () => {
     it('should return empty result', async () => {
-      mockResult.offeringForPlanId = jest.fn().mockReturnValueOnce(undefined);
+      jest
+        .spyOn(productConfigurationManager, 'getPurchaseDetailsForEligibility')
+        .mockResolvedValue(
+          new EligibilityContentByPlanIdsResultUtil([
+            EligibilityContentByPlanIdsResultFactory(),
+          ])
+        );
+
       const result = await manager.getOfferingOverlap(['test'], [], 'test');
       expect(result).toHaveLength(0);
     });
 
     it('should return same offeringStripeProductIds as same comparison', async () => {
+      const eligibilityContentByPlanIdsResultUtil =
+        new EligibilityContentByPlanIdsResultUtil([]);
+      jest
+        .spyOn(productConfigurationManager, 'getPurchaseDetailsForEligibility')
+        .mockResolvedValue(eligibilityContentByPlanIdsResultUtil);
       const mockOfferingResult = EligibilityOfferingResultFactory({
         stripeProductId: 'prod_test',
       });
-      mockResult.offeringForPlanId = jest
-        .fn()
-        .mockReturnValueOnce(mockOfferingResult);
+      jest
+        .spyOn(eligibilityContentByPlanIdsResultUtil, 'offeringForPlanId')
+        .mockReturnValue(mockOfferingResult);
+
       const result = await manager.getOfferingOverlap(
         [],
         ['prod_test'],
@@ -124,9 +132,15 @@ describe('EligibilityManager', () => {
           ],
         },
       });
-      mockResult.offeringForPlanId = jest
-        .fn()
-        .mockReturnValueOnce(mockOfferingResult);
+      const eligibilityContentByPlanIdsResultUtil =
+        new EligibilityContentByPlanIdsResultUtil([]);
+      jest
+        .spyOn(productConfigurationManager, 'getPurchaseDetailsForEligibility')
+        .mockResolvedValue(eligibilityContentByPlanIdsResultUtil);
+      jest
+        .spyOn(eligibilityContentByPlanIdsResultUtil, 'offeringForPlanId')
+        .mockReturnValue(mockOfferingResult);
+
       const result = await manager.getOfferingOverlap(
         [],
         ['prod_test'],
@@ -164,9 +178,15 @@ describe('EligibilityManager', () => {
           ],
         },
       });
-      mockResult.offeringForPlanId = jest
-        .fn()
-        .mockReturnValueOnce(mockOfferingResult);
+      const eligibilityContentByPlanIdsResultUtil =
+        new EligibilityContentByPlanIdsResultUtil([]);
+      jest
+        .spyOn(productConfigurationManager, 'getPurchaseDetailsForEligibility')
+        .mockResolvedValue(eligibilityContentByPlanIdsResultUtil);
+      jest
+        .spyOn(eligibilityContentByPlanIdsResultUtil, 'offeringForPlanId')
+        .mockReturnValue(mockOfferingResult);
+
       const result = await manager.getOfferingOverlap(
         [],
         ['prod_test2'],
@@ -183,10 +203,16 @@ describe('EligibilityManager', () => {
       const existingResult = EligibilityOfferingResultFactory({
         stripeProductId: 'prod_test',
       });
-      mockResult.offeringForPlanId = jest
-        .fn()
+      const eligibilityContentByPlanIdsResultUtil =
+        new EligibilityContentByPlanIdsResultUtil([]);
+      jest
+        .spyOn(productConfigurationManager, 'getPurchaseDetailsForEligibility')
+        .mockResolvedValue(eligibilityContentByPlanIdsResultUtil);
+      jest
+        .spyOn(eligibilityContentByPlanIdsResultUtil, 'offeringForPlanId')
         .mockReturnValueOnce(mockOfferingResult)
         .mockReturnValueOnce(existingResult);
+
       const result = await manager.getOfferingOverlap(
         ['plan_test'],
         [],
@@ -227,10 +253,16 @@ describe('EligibilityManager', () => {
       const existingResult = EligibilityOfferingResultFactory({
         stripeProductId: 'prod_test',
       });
-      mockResult.offeringForPlanId = jest
-        .fn()
+      const eligibilityContentByPlanIdsResultUtil =
+        new EligibilityContentByPlanIdsResultUtil([]);
+      jest
+        .spyOn(productConfigurationManager, 'getPurchaseDetailsForEligibility')
+        .mockResolvedValue(eligibilityContentByPlanIdsResultUtil);
+      jest
+        .spyOn(eligibilityContentByPlanIdsResultUtil, 'offeringForPlanId')
         .mockReturnValueOnce(mockOfferingResult)
         .mockReturnValueOnce(existingResult);
+
       const result = await manager.getOfferingOverlap(
         ['plan_test'],
         [],
@@ -297,10 +329,16 @@ describe('EligibilityManager', () => {
       const existingResult = EligibilityOfferingResultFactory({
         stripeProductId: 'prod_test',
       });
-      mockResult.offeringForPlanId = jest
-        .fn()
+      const eligibilityContentByPlanIdsResultUtil =
+        new EligibilityContentByPlanIdsResultUtil([]);
+      jest
+        .spyOn(productConfigurationManager, 'getPurchaseDetailsForEligibility')
+        .mockResolvedValue(eligibilityContentByPlanIdsResultUtil);
+      jest
+        .spyOn(eligibilityContentByPlanIdsResultUtil, 'offeringForPlanId')
         .mockReturnValueOnce(mockOfferingResult)
         .mockReturnValueOnce(existingResult);
+
       const result = await manager.getOfferingOverlap(
         ['plan_test'],
         ['prod_test3'],
@@ -424,13 +462,7 @@ describe('EligibilityManager', () => {
       const mockTargetOfferingResult = EligibilityContentOfferingResultFactory({
         stripeProductId: 'prod_test',
       });
-      const existingResult = EligibilityContentOfferingResultFactory({
-        stripeProductId: 'prod_test',
-      });
-      mockOfferingResult.getOffering = jest
-        .fn()
-        .mockReturnValueOnce(mockTargetOfferingResult)
-        .mockReturnValueOnce(existingResult);
+
       const result = manager.getProductIdOverlap(
         ['prod_test'],
         mockTargetOfferingResult
@@ -465,13 +497,6 @@ describe('EligibilityManager', () => {
           ],
         },
       });
-      const existingResult = EligibilityContentOfferingResultFactory({
-        stripeProductId: 'prod_test',
-      });
-      mockOfferingResult.getOffering = jest
-        .fn()
-        .mockReturnValueOnce(mockTargetOfferingResult)
-        .mockReturnValueOnce(existingResult);
       const result = manager.getProductIdOverlap(
         ['prod_test'],
         mockTargetOfferingResult
@@ -529,13 +554,6 @@ describe('EligibilityManager', () => {
           ],
         },
       });
-      const existingResult = EligibilityContentOfferingResultFactory({
-        stripeProductId: 'prod_test',
-      });
-      mockOfferingResult.getOffering = jest
-        .fn()
-        .mockReturnValueOnce(mockTargetOfferingResult)
-        .mockReturnValueOnce(existingResult);
       const result = manager.getProductIdOverlap(
         ['prod_test2', 'prod_test3'],
         mockTargetOfferingResult
@@ -630,6 +648,17 @@ describe('EligibilityManager', () => {
       const mockTargetOffering = EligibilityContentOfferingResultFactory();
       const interval = SubplatInterval.Monthly;
 
+      const mockPrice = StripePriceFactory({
+        recurring: StripePriceRecurringFactory({
+          interval: 'month',
+        }),
+        product: mockTargetOffering.stripeProductId,
+      });
+
+      jest
+        .spyOn(priceManager, 'retrieveByInterval')
+        .mockResolvedValue(mockPrice);
+
       const result = await manager.compareOverlap(
         mockOverlapResult,
         mockTargetOffering,
@@ -650,6 +679,10 @@ describe('EligibilityManager', () => {
       const mockTargetOffering = EligibilityContentOfferingResultFactory();
       const interval = SubplatInterval.Monthly;
       const mockPrice = StripePriceFactory();
+
+      jest
+        .spyOn(priceManager, 'retrieveByInterval')
+        .mockResolvedValue(mockPrice);
 
       const result = await manager.compareOverlap(
         mockOverlapResult,
@@ -685,9 +718,9 @@ describe('EligibilityManager', () => {
       });
       const interval = SubplatInterval.Monthly;
 
-      mockPriceManager.retrieveByInterval = jest
-        .fn()
-        .mockResolvedValueOnce(mockPrice2);
+      jest
+        .spyOn(priceManager, 'retrieveByInterval')
+        .mockResolvedValue(mockPrice2);
 
       const result = await manager.compareOverlap(
         mockOverlapResult,
@@ -723,9 +756,9 @@ describe('EligibilityManager', () => {
         },
       ] as OfferingOverlapProductResult[];
 
-      mockPriceManager.retrieveByInterval = jest
-        .fn()
-        .mockResolvedValueOnce(mockPrice2);
+      jest
+        .spyOn(priceManager, 'retrieveByInterval')
+        .mockResolvedValue(mockPrice2);
 
       const result = await manager.compareOverlap(
         mockOverlapResult,
@@ -761,9 +794,9 @@ describe('EligibilityManager', () => {
         },
       ] as OfferingOverlapProductResult[];
 
-      mockPriceManager.retrieveByInterval = jest
-        .fn()
-        .mockResolvedValueOnce(mockPrice2);
+      jest
+        .spyOn(priceManager, 'retrieveByInterval')
+        .mockResolvedValue(mockPrice2);
 
       const result = await manager.compareOverlap(
         mockOverlapResult,

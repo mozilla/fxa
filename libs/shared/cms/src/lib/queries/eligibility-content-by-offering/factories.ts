@@ -9,12 +9,24 @@ import {
   EligibilityContentOfferingResult,
   EligibilityContentSubgroupOfferingResult,
   EligibilityContentSubgroupResult,
+  EligibilityContentByOfferingResult,
 } from '.';
 import { StrapiEntityFactory } from '../../factories';
 
 export const EligibilityContentByOfferingQueryFactory = (
   override?: Partial<EligibilityContentByOfferingQuery>
 ): EligibilityContentByOfferingQuery => {
+  return {
+    offerings: {
+      data: [StrapiEntityFactory(EligibilityContentOfferingResultFactory())],
+    },
+    ...override,
+  };
+};
+
+export const EligibilityContentByOfferingResultFactory = (
+  override?: Partial<EligibilityContentByOfferingResult>
+): EligibilityContentByOfferingResult => {
   return {
     offerings: {
       data: [StrapiEntityFactory(EligibilityContentOfferingResultFactory())],

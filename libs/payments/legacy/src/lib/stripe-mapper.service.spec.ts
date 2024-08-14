@@ -50,10 +50,8 @@ describe('StripeMapperService', () => {
       ],
     }).compile();
 
-    productConfigurationManager = module.get<ProductConfigurationManager>(
-      ProductConfigurationManager
-    );
-    stripeMapper = module.get<StripeMapperService>(StripeMapperService);
+    productConfigurationManager = module.get(ProductConfigurationManager);
+    stripeMapper = module.get(StripeMapperService);
 
     jest
       .spyOn(

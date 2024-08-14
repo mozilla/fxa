@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 
 import {
   PriceManager,
@@ -13,11 +13,13 @@ import {
   SubscriptionManager,
 } from '@fxa/payments/stripe';
 import {
+  EligibilityContentByOfferingResultFactory,
   EligibilityContentByOfferingResultUtil,
   EligibilityContentOfferingResultFactory,
   MockStrapiClientConfigProvider,
   ProductConfigurationManager,
   StrapiClient,
+  StrapiEntityFactory,
 } from '@fxa/shared/cms';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
@@ -41,12 +43,8 @@ describe('EligibilityService', () => {
   let eligibilityService: EligibilityService;
   let subscriptionManager: SubscriptionManager;
 
-  let mockOfferingResult: EligibilityContentByOfferingResultUtil;
-
   beforeEach(async () => {
-    mockOfferingResult = {} as EligibilityContentByOfferingResultUtil;
-
-    const module: TestingModule = await Test.createTestingModule({
+    const module = await Test.createTestingModule({
       providers: [
         MockStrapiClientConfigProvider,
         EligibilityManager,
@@ -62,12 +60,10 @@ describe('EligibilityService', () => {
       ],
     }).compile();
 
-    eligibilityManager = module.get<EligibilityManager>(EligibilityManager);
-    eligibilityService = module.get<EligibilityService>(EligibilityService);
-    productConfigurationManager = module.get<ProductConfigurationManager>(
-      ProductConfigurationManager
-    );
-    subscriptionManager = module.get<SubscriptionManager>(SubscriptionManager);
+    eligibilityManager = module.get(EligibilityManager);
+    eligibilityService = module.get(EligibilityService);
+    productConfigurationManager = module.get(ProductConfigurationManager);
+    subscriptionManager = module.get(SubscriptionManager);
   });
 
   describe('checkEligibility', () => {
@@ -84,17 +80,18 @@ describe('EligibilityService', () => {
     });
 
     it('throws an error for no offering for offeringConfigId', async () => {
-      const expectedError = new Error('No offering available');
       const mockCustomer = StripeCustomerFactory();
       const interval = SubplatInterval.Monthly;
 
       jest
         .spyOn(productConfigurationManager, 'getEligibilityContentByOffering')
-        .mockResolvedValue({
-          getOffering: jest.fn().mockImplementation(() => {
-            throw expectedError;
-          }),
-        } as unknown as EligibilityContentByOfferingResultUtil);
+        .mockResolvedValue(
+          new EligibilityContentByOfferingResultUtil(
+            EligibilityContentByOfferingResultFactory({
+              offerings: { data: [] },
+            })
+          )
+        );
 
       await expect(
         eligibilityService.checkEligibility(
@@ -102,7 +99,7 @@ describe('EligibilityService', () => {
           'prod_test1',
           mockCustomer.id
         )
-      ).rejects.toEqual(expectedError);
+      ).rejects.toThrowError('getOffering - No offering exists');
     });
 
     it('returns eligibility status successfully', async () => {
@@ -115,14 +112,20 @@ describe('EligibilityService', () => {
           offeringProductId: 'prod_test',
           type: 'offering',
         },
-      ] as OfferingOverlapProductResult[];
+      ] satisfies OfferingOverlapProductResult[];
       const mockSubscription = StripeSubscriptionFactory();
 
       jest
         .spyOn(productConfigurationManager, 'getEligibilityContentByOffering')
-        .mockResolvedValue(mockOfferingResult);
-
-      mockOfferingResult.getOffering = jest.fn().mockReturnValue(mockOffering);
+        .mockResolvedValue(
+          new EligibilityContentByOfferingResultUtil(
+            EligibilityContentByOfferingResultFactory({
+              offerings: {
+                data: [StrapiEntityFactory(mockOffering)],
+              },
+            })
+          )
+        );
 
       jest
         .spyOn(subscriptionManager, 'listForCustomer')

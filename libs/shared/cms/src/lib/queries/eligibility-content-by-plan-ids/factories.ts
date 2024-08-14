@@ -10,12 +10,30 @@ import {
   EligibilityPurchaseResult,
   EligibilitySubgroupOfferingResult,
   EligibilitySubgroupResult,
+  type EligibilityContentByPlanIdsResult,
 } from '.';
 import { StrapiEntityFactory } from '../../factories';
 
 export const EligibilityContentByPlanIdsQueryFactory = (
   override?: Partial<EligibilityContentByPlanIdsQuery>
 ): EligibilityContentByPlanIdsQuery => {
+  const data = [StrapiEntityFactory(EligibilityPurchaseResultFactory())];
+  return {
+    purchases: {
+      meta: {
+        pagination: {
+          total: data.length,
+        },
+      },
+      data,
+    },
+    ...override,
+  };
+};
+
+export const EligibilityContentByPlanIdsResultFactory = (
+  override?: Partial<EligibilityContentByPlanIdsResult>
+): EligibilityContentByPlanIdsResult => {
   const data = [StrapiEntityFactory(EligibilityPurchaseResultFactory())];
   return {
     purchases: {
