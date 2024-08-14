@@ -722,8 +722,15 @@ jobs:
       - image: circleci/node
     steps:
       - run: |
+          if command -v jq >/dev/null 2>&1; then
+            echo "jq is installed"
+          else
+            echo "jq is not installed"
+            exit 1
+          fi
+
           echo "Workflow ID: $CIRCLE_WORKFLOW_ID"
-          while [[ $(curl --location --request GET "https://circleci.com/api/v2/workflow/$CIRCLE_WORKFLOW_ID/job" --header "Circle-Token: $CCI_Token"| jq -r '.items[]|select(.name !== "check-required-jobs-complete" and .name !== "on-complete")|.status' | grep -c "running") -gt 0 ]]
+          while [[ $(curl --location --request GET "https://circleci.com/api/v2/workflow/$CIRCLE_WORKFLOW_ID/job" --header "Circle-Token: $CCI_Token"| jq -r '.items[]|select(.name != "check-required-jobs-complete" and .name != "on-complete")|.status' | grep -c "running") -gt 0 ]]
             do
               sleep 60
             done
