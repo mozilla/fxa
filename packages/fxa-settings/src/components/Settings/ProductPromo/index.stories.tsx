@@ -35,43 +35,38 @@ const storyWithProps = (
   return story;
 };
 
-export const SettingsWithMonitor = storyWithProps(
+export const SettingsWithNoMonitor = storyWithProps(
   { type: ProductPromoType.Settings },
   {
-    attachedClients: [{ name: MozServices.Monitor }],
+    attachedClients: [],
     subscriptions: [],
   },
-  'Settings with Monitor (resize window)'
+  'Settings, user does not have Monitor (mobile only, resize window)'
 );
-export const SidebarWithMonitor = storyWithProps(
-  { type: ProductPromoType.Sidebar },
-  {
-    attachedClients: [{ name: MozServices.Monitor }],
-    subscriptions: [],
-  },
-  'Sidebar with Monitor (resize window)'
-);
+
 export const SidebarWithNoMonitor = storyWithProps(
   { type: ProductPromoType.Sidebar },
   {
     attachedClients: [],
     subscriptions: [],
   },
-  'Sidebar with no Monitor'
+  'Sidebar, user does not have Monitor (resize window)'
 );
-export const SidebarWithMonitorNoPlus = storyWithProps(
-  { type: ProductPromoType.Sidebar },
+
+export const SettingsWithMonitorNoPlus = storyWithProps(
+  { type: ProductPromoType.Settings, monitorPlusEnabled: true },
   {
     attachedClients: [{ name: MozServices.Monitor }],
     subscriptions: [],
   },
-  'Sidebar with Monitor no Plus'
+  'Settings, user has Monitor but not Plus, MonitorPlus enabled (mobile only, resize window)'
 );
-export const SidebarWithMonitorPlus = storyWithProps(
-  { type: ProductPromoType.Sidebar },
+
+export const SidebarWithMonitorNoPlus = storyWithProps(
+  { type: ProductPromoType.Sidebar, monitorPlusEnabled: true },
   {
     attachedClients: [{ name: MozServices.Monitor }],
-    subscriptions: [{ productName: MozServices.MonitorPlus }],
+    subscriptions: [],
   },
-  'Sidebar with Monitor with Plus'
+  'Sidebar, user has Monitor but not Plus, MonitorPlus enabled (resize window)'
 );

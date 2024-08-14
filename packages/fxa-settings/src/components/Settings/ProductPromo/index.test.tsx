@@ -30,6 +30,27 @@ describe('ProductPromo', () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
+
+  it('renders nothing if user has Monitor but not MonitorPlus, and MonitorPlus Promo is disabled', () => {
+    const services = MOCK_SERVICES.filter((service) =>
+      // TODO: MozServices / string discrepancy, FXA-6802
+      PRODUCT_PROMO_SERVICES.includes(service.name as MozServices)
+    );
+    const account = {
+      attachedClients: services,
+      subscriptions: [],
+    } as unknown as Account;
+
+    const { container } = renderWithLocalizationProvider(
+      <AppContext.Provider value={mockAppContext({ account })}>
+        <ProductPromo />
+      </AppContext.Provider>
+    );
+
+    expect(container.firstChild).toBeNull();
+    expect(GleanMetrics.accountPref.promoMonitorView).not.toHaveBeenCalled();
+  });
+
   it('renders nothing if user has all products and subscriptions', async () => {
     const services = MOCK_SERVICES.filter((service) =>
       // TODO: MozServices / string discrepancy, FXA-6802
@@ -84,7 +105,7 @@ describe('ProductPromo', () => {
     } as unknown as Account;
     renderWithLocalizationProvider(
       <AppContext.Provider value={mockAppContext({ account })}>
-        <ProductPromo />
+        <ProductPromo monitorPlusEnabled={true} />
       </AppContext.Provider>
     );
 
@@ -112,7 +133,7 @@ describe('ProductPromo', () => {
     } as unknown as Account;
     renderWithLocalizationProvider(
       <AppContext.Provider value={mockAppContext({ account })}>
-        <ProductPromo />
+        <ProductPromo monitorPlusEnabled={true} />
       </AppContext.Provider>
     );
 
