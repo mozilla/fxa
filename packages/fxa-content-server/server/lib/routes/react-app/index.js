@@ -23,6 +23,11 @@ const { TERMS_PRIVACY_REGEX } = require('./content-server-routes');
  */
 const getReactRouteGroups = (showReactApp, reactRoute) => {
   return {
+    emailFirstRoutes: {
+      featureFlagOn: showReactApp.emailFirstRoutes,
+      routes: reactRoute.getRoutes([]),
+      fullProdRollout: false,
+    },
     simpleRoutes: {
       featureFlagOn: showReactApp.simpleRoutes,
       routes: reactRoute.getRoutes([
