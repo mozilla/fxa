@@ -976,7 +976,7 @@ workflows:
               only:
                 - main
                 - chore/update-tsconfig-for-node-20
-                - update-functional-test-executor
+                - install-browser-for-playwright-tests
             tags:
               ignore: /.*/
           force-deploy: << pipeline.parameters.force-deploy-fxa-ci-images >>
