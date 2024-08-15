@@ -82,7 +82,7 @@ executors:
   # step, and the saving the initial a workspace state.
   build-executor:
     docker:
-      - image: mozilla/fxa-circleci:ci-builder-v3
+      - image: mozilla/fxa-circleci:ci-builder-v4
     environment:
       NODE_ENV: development
       FIRESTORE_EMULATOR_HOST: localhost:9090
@@ -98,7 +98,7 @@ executors:
         default: medium
     resource_class: << parameters.resource_class >>
     docker:
-      - image: mozilla/fxa-circleci:ci-test-runner-v3
+      - image: mozilla/fxa-circleci:ci-test-runner-v4
     environment:
       NODE_ENV: development
       FIRESTORE_EMULATOR_HOST: localhost:9090
@@ -114,7 +114,7 @@ executors:
         default: large
     resource_class: << parameters.resource_class >>
     docker:
-      - image: mozilla/fxa-circleci:ci-test-runner-v3
+      - image: mozilla/fxa-circleci:ci-test-runner-v4
       - image: cimg/mysql:8.0
         command: --default-authentication-plugin=mysql_native_password
       - image: jdlk7/firestore-emulator
@@ -137,7 +137,7 @@ executors:
         default: large
     resource_class: << parameters.resource_class >>
     docker:
-      - image: mozilla/fxa-circleci:ci-functional-test-runner-v3
+      - image: mozilla/fxa-circleci:ci-functional-test-runner-v4
       - image: redis
       - image: pafortin/goaws
       - image: cimg/mysql:8.0
@@ -177,7 +177,7 @@ executors:
         default: medium+
     resource_class: << parameters.resource_class >>
     docker:
-      - image: mozilla/fxa-circleci:ci-functional-test-runner-v3
+      - image: mozilla/fxa-circleci:ci-functional-test-runner-v4
     environment:
       NODE_ENV: development
       CUSTOMS_SERVER_URL: none
@@ -467,7 +467,7 @@ commands:
             docker build . \
                 -f ./project/_dev/docker/ci/Dockerfile \
                 --target << parameters.target >> \
-                -t mozilla/fxa-circleci:ci-<< parameters.target >>-v3
+                -t mozilla/fxa-circleci:ci-<< parameters.target >>-v4
 
   create-fxa-ci-images:
     # Build CI images. Images are built on top of each other. Each is optimized for a specific task.
@@ -496,10 +496,10 @@ commands:
           name: Push CI Images and Extract Yarn Cache
           command: |
             docker login -u $DOCKER_USER_fxa_circleci -p $DOCKER_PASS_fxa_circleci
-            .circleci/docker-copy-cache.sh mozilla/fxa-circleci:ci-builder-v3
-            docker push mozilla/fxa-circleci:ci-test-runner-v3
-            docker push mozilla/fxa-circleci:ci-functional-test-runner-v3
-            docker push mozilla/fxa-circleci:ci-builder-v3
+            .circleci/docker-copy-cache.sh mozilla/fxa-circleci:ci-builder-v4
+            docker push mozilla/fxa-circleci:ci-test-runner-v4
+            docker push mozilla/fxa-circleci:ci-functional-test-runner-v4
+            docker push mozilla/fxa-circleci:ci-builder-v4
             wait
 
 jobs:
