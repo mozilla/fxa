@@ -5,7 +5,6 @@
 import { Injectable } from '@nestjs/common';
 
 import { StripeClient } from './stripe.client';
-import { ProductNotFoundError } from './stripe.error';
 
 @Injectable()
 export class ProductManager {
@@ -13,7 +12,6 @@ export class ProductManager {
 
   async retrieve(productId: string) {
     const product = await this.client.productsRetrieve(productId);
-    if (!product) throw new ProductNotFoundError();
     return product;
   }
 }
