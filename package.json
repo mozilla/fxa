@@ -92,7 +92,7 @@
     "graphql-request": "^6.1.0",
     "hot-shots": "^10.0.0",
     "husky": "^4.2.5",
-    "jose": "^5.4.0",
+    "jose": "^5.7.0",
     "knex": "^3.1.0",
     "kysely": "^0.27.2",
     "lint-staged": "^15.2.0",
