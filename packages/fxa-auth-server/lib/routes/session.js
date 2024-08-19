@@ -479,15 +479,19 @@ module.exports = function (
         auth: {
           strategy: 'sessionToken',
         },
+        validate: {
+          payload: isA.object({
+            is: validators.HEX_STRING,
+          }),
+        },
       },
       handler: async function (request) {
         log.begin('Session.verify.send_push', request);
 
         const sessionToken = request.auth.credentials;
-        const { uid, tokenVerificationId } = sessionToken;
+        const { uid, email } = sessionToken;
 
         const allDevices = await db.devices(uid);
-        const location = request.app.geo.location || {};
 
         // Check to see if this account has a verified TOTP token. If so, then it should
         // not be allowed to bypass TOTP requirement by sending a sign-in confirmation email.
@@ -503,25 +507,17 @@ module.exports = function (
           }
         }
 
-        const { ua } = request.app;
-        const uaInfo = {
-          uaBrowser: ua.browser,
-          uaOS: ua.os,
-          uaDeviceType: ua.deviceType,
-        };
+        const account = await db.account(sessionToken.uid);
+        const secret = account.primaryEmail.emailCode;
+
+        const code = otpUtils.generateOtpCode(secret, otpOptions);
 
         // Don't send notification to current device
         const filteredDevices = allDevices.filter((d) => {
           return d.sessionTokenId !== sessionToken.id;
         });
 
-        const url = `${
-          config.smtp.pushVerificationUrl
-        }?type=push_login_verification&code=${tokenVerificationId}&ua=${encodeURIComponent(
-          JSON.stringify(uaInfo)
-        )}&location=${encodeURIComponent(
-          JSON.stringify(location)
-        )}&ip=${encodeURIComponent(request.app.clientAddress)}`;
+        const url = `http://localhost:3030/signin_push_code_confirm`;
 
         const localizer = new Localizer(new NodeRendererBindings());
 
@@ -548,11 +544,17 @@ module.exports = function (
         const options = {
           title: localizedStrings[titleFtlId],
           body: localizedStrings[bodyFtlId],
-          url,
         };
 
+        const confirmUrl = `${url}?code=${code}&uid=${uid}&email=${encodeURIComponent(
+          email
+        )}&id=${sessionToken.data}`;
+        console.log('url: ', confirmUrl);
         try {
-          await push.notifyVerifyLoginRequest(uid, filteredDevices, options);
+          await push.notifyVerifyLoginRequest(uid, filteredDevices, {
+            ...options,
+            url: confirmUrl,
+          });
         } catch (err) {
           log.error('Session.verify.send_push', {
             uid: uid,

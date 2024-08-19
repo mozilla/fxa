@@ -111,6 +111,7 @@ module.exports = function (log, db, config, statsd) {
       case 'fxaccounts:command_received':
       case 'fxaccounts:device_connected':
       case 'fxaccounts:device_disconnected':
+      case 'fxaccounts:verify_login':
         return true;
       case 'sync:collection_changed': // Used by legacy Send Tab unsupported on iOS.
       case null: // In the null case this is an account verification push message but iOS uses the OAuth flow nowadays.

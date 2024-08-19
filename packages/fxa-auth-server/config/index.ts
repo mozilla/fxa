@@ -1488,13 +1488,13 @@ const convictConf = convict({
     skipForNewAccounts: {
       enabled: {
         doc: 'Skip sign-in confirmation for newly-created accounts.',
-        default: true,
+        default: false,
         env: 'SIGNIN_CONFIRMATION_SKIP_FOR_NEW_ACCOUNTS',
       },
       maxAge: {
         doc: 'Maximum age at which an account is considered "new".',
         format: 'duration',
-        default: '4 hours',
+        default: '0',
         env: 'SIGNIN_CONFIRMATION_MAX_AGE_OF_NEW_ACCOUNTS',
       },
     },

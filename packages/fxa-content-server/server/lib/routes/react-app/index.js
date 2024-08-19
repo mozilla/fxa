@@ -50,6 +50,8 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         'reset_password_with_recovery_key_verified',
         'account_recovery_confirm_key',
         'account_recovery_reset_password',
+        'signin_push_code',
+        'signin_push_code_confirm',
       ]),
       fullProdRollout: true,
     },

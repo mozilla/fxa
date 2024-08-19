@@ -3,6 +3,7 @@ import { ReactComponent as HeartsBroken } from './graphic_hearts_broken.svg';
 import { ReactComponent as HeartsVerified } from './graphic_hearts_verified.svg';
 import { ReactComponent as RecoveryCodes } from './graphic_recovery_codes.svg';
 import { ReactComponent as TwoFactorAuth } from './graphic_two_factor_auth.svg';
+import { ReactComponent as PushFactorAuth } from './graphic_push_factor_auth.svg';
 import { ReactComponent as Mail } from './graphic_mail.svg';
 import { ReactComponent as SecurityShield } from './graphic_security_shield.svg';
 import { ReactComponent as Key } from './graphic_key.svg';
@@ -96,6 +97,15 @@ export const TwoFactorAuthImage = ({ className, ariaHidden }: ImageProps) => (
     ariaLabel="A device with a hidden 6-digit code."
     ariaLabelFtlId="signin-totp-code-image-label"
     Image={TwoFactorAuth}
+    {...{ className, ariaHidden }}
+  />
+);
+
+export const PushAuthImage = ({ className, ariaHidden }: ImageProps) => (
+  <PreparedImage
+    ariaLabel="A device with a hidden 6-digit code."
+    ariaLabelFtlId="signin-totp-code-image-label"
+    Image={PushFactorAuth}
     {...{ className, ariaHidden }}
   />
 );

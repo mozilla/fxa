@@ -3,7 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { RouteComponentProps, useLocation } from '@reach/router';
+import {
+  Link,
+  RouteComponentProps,
+  useLocation,
+  useNavigate,
+} from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import {
   isWebIntegration,
@@ -42,6 +47,7 @@ const SigninTokenCode = ({
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const session = useSession();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const {
     email,
@@ -251,9 +257,17 @@ const SigninTokenCode = ({
             onClick={handleResendCode}
             disabled={resendCodeLoading}
           >
-            Email new code.
+            Email new code
           </button>
         </FtlMsg>
+        <p> or </p>
+        <Link
+          to={`/signin_push_code${location.search}`}
+          state={signinState}
+          className="link-blue"
+        >
+          verify another way
+        </Link>
       </div>
     </AppLayout>
   );
