@@ -1216,8 +1216,6 @@ workflows:
           name: Functional Tests - Playwright (nightly)
           resource_class: xlarge
           parallelism: 8
-          environment:
-            PLAYWRIGHT_RUN_IN_ALL_BROWSERS: true
           requires:
             - Build (nightly)
       - playwright-functional-test-report:
