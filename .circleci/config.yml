@@ -318,7 +318,6 @@ commands:
               GREP=""
             fi
             echo "targeting project << parameters.project >> $GREP"
-            echo "PLAYWRIGHT_RUN_IN_ALL_BROWSERS: $PLAYWRIGHT_RUN_IN_ALL_BROWSERS"
             npx nx build fxa-auth-client
             cd packages/functional-tests/tests
             TEST_FILES=$(circleci tests glob "./**/*.spec.ts")
@@ -701,7 +700,7 @@ jobs:
         default: 4
       environment:
         type: string
-        default: "false"  # Set the default value as a string
+        default: "true"  # Set the default value as a string
     executor: functional-test-executor
     resource_class: << parameters.resource_class >>
     parallelism: << parameters.parallelism >>
@@ -719,7 +718,6 @@ jobs:
           command: ./packages/functional-tests/scripts/start-services.sh
           environment:
             NODE_ENV: test
-            PLAYWRIGHT_RUN_IN_ALL_BROWSERS: << parameters.environment >>
       - run-playwright-tests:
           project: local
       - store-artifacts
@@ -865,9 +863,9 @@ workflows:
       - playwright-functional-tests:
           name: Functional Tests - Playwright (PR)
           resource_class: xlarge
+          parallelism: 8
           environment:
             "true"
-          parallelism: 8
           requires:
             - Build (PR)
       - playwright-functional-test-report:
