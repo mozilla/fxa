@@ -21284,10 +21284,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@stripe/stripe-js@npm:^3.3.0":
-  version: 3.3.0
-  resolution: "@stripe/stripe-js@npm:3.3.0"
-  checksum: 7d3c410136fd2df83a9278b90b920f048ed309d113c7d0e26f97e756d1ef490232243e2526940e5ea11c143acc4d70ed44fae973761665fbbab85790b3cc0446
+"@stripe/stripe-js@npm:^4.3.0":
+  version: 4.3.0
+  resolution: "@stripe/stripe-js@npm:4.3.0"
+  checksum: f6ef9078a851bce233d6afc72b3977b3aab773c9f2f4e8c280e9a25cf12bfa83978f18d6c4fcaa8bf6532a47fb80cd9d3338862abc78982cfa43834376185a75
   languageName: node
   linkType: hard
 
@@ -39621,7 +39621,7 @@ fsevents@~2.1.1:
     "@storybook/react": ^7.1.1
     "@storybook/react-webpack5": ^7.0.23
     "@stripe/react-stripe-js": ^2.7.1
-    "@stripe/stripe-js": ^3.3.0
+    "@stripe/stripe-js": ^4.3.0
     "@testing-library/jest-dom": ^5.16.5
     "@types/accept-language-parser": ^1.5.1
     "@types/babel__preset-env": ^7
