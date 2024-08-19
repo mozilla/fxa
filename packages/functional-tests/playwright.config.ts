@@ -16,6 +16,8 @@ const CI = !!process.env.CI;
 const DEBUG = !!process.env.DEBUG;
 const SLOWMO = parseInt(process.env.PLAYWRIGHT_SLOWMO || '0');
 const NUM_WORKERS = parseInt(process.env.PLAYWRIGHT_WORKERS || '16');
+const RUN_IN_ALL_BROWSERS =
+  process.env.PLAYWRIGHT_RUN_IN_ALL_BROWSERS === 'true';
 
 let workers = NUM_WORKERS || 2,
   maxFailures = 0;
@@ -55,59 +57,79 @@ export default defineConfig<PlaywrightTestConfig<TestOptions, WorkerOptions>>({
   use: {
     viewport: { width: 1280, height: 720 },
   },
-  projects: [
-    ...TargetNames.map(
-      (name) =>
-        ({
-          name,
-          use: {
-            browserName: 'firefox',
-            targetName: name,
-            launchOptions: {
-              args: DEBUG ? ['-start-debugger-server'] : undefined,
-              firefoxUserPrefs: getFirefoxUserPrefs(name, DEBUG),
-              headless: !DEBUG,
-              slowMo: SLOWMO,
-            },
-            trace: 'retain-on-failure',
-          },
-        } as Project)
-    ),
+  projects: RUN_IN_ALL_BROWSERS
+    ? [
+        ...TargetNames.map(
+          (name) =>
+            ({
+              name,
+              use: {
+                browserName: 'firefox',
+                targetName: name,
+                launchOptions: {
+                  args: DEBUG ? ['-start-debugger-server'] : undefined,
+                  firefoxUserPrefs: getFirefoxUserPrefs(name, DEBUG),
+                  headless: !DEBUG,
+                  slowMo: SLOWMO,
+                },
+                trace: 'retain-on-failure',
+              },
+            } as Project)
+        ),
 
-    // Chromium Project
-    ...TargetNames.map(
-      (name) =>
-        ({
-          name: `${name} (Chromium)`,
-          use: {
-            browserName: 'chromium',
-            targetName: name,
-            launchOptions: {
-              headless: !DEBUG,
-              slowMo: SLOWMO,
-            },
-            trace: 'retain-on-failure',
-          },
-        } as Project)
-    ),
+        // Chromium Project
+        ...TargetNames.map(
+          (name) =>
+            ({
+              name,
+              use: {
+                browserName: 'chromium',
+                targetName: name,
+                launchOptions: {
+                  headless: !DEBUG,
+                  slowMo: SLOWMO,
+                },
+                trace: 'retain-on-failure',
+              },
+            } as Project)
+        ),
 
-    // WebKit (Safari) Project
-    ...TargetNames.map(
-      (name) =>
-        ({
-          name: `${name} (WebKit)`,
-          use: {
-            browserName: 'webkit',
-            targetName: name,
-            launchOptions: {
-              headless: !DEBUG,
-              slowMo: SLOWMO,
-            },
-            trace: 'retain-on-failure',
-          },
-        } as Project)
-    ),
-  ],
+        // WebKit (Safari) Project
+        ...TargetNames.map(
+          (name) =>
+            ({
+              name,
+              use: {
+                browserName: 'webkit',
+                targetName: name,
+                launchOptions: {
+                  headless: !DEBUG,
+                  slowMo: SLOWMO,
+                },
+                trace: 'retain-on-failure',
+              },
+            } as Project)
+        ),
+      ]
+    : [
+        ...TargetNames.map(
+          (name) =>
+            ({
+              name,
+              use: {
+                browserName: 'firefox',
+                targetName: name,
+                launchOptions: {
+                  args: DEBUG ? ['-start-debugger-server'] : undefined,
+                  firefoxUserPrefs: getFirefoxUserPrefs(name, DEBUG),
+                  headless: !DEBUG,
+                  slowMo: SLOWMO,
+                },
+                trace: 'retain-on-failure',
+              },
+            } as Project)
+        ),
+      ],
   reporter: CI
     ? [
         ['./lib/ci-reporter.ts'],
