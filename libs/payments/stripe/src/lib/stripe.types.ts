@@ -17,6 +17,10 @@ export interface TaxAmount {
   amount: number;
 }
 
+export enum STRIPE_CUSTOMER_METADATA {
+  PAYPAL_AGREEMENT = 'paypalAgreementId',
+}
+
 export enum STRIPE_PRICE_METADATA {
   APP_STORE_PRODUCT_IDS = 'appStoreProductIds',
   PLAY_SKU_IDS = 'playSkuIds',
