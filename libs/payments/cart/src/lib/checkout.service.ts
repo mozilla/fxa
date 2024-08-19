@@ -4,13 +4,16 @@
 
 import { Injectable } from '@nestjs/common';
 import { EligibilityService } from '@fxa/payments/eligibility';
-import { PayPalManager, PaypalCustomerManager } from '@fxa/payments/paypal';
+import {
+  PaypalBillingAgreementManager,
+  PaypalCustomerManager,
+} from '@fxa/payments/paypal';
 import {
   AccountCustomerManager,
   CustomerManager,
   InvoiceManager,
+  PaymentMethodManager,
   PromotionCodeManager,
-  StripeClient,
   StripeSubscription,
   SubplatInterval,
   SubscriptionManager,
@@ -37,11 +40,11 @@ export class CheckoutService {
     private customerManager: CustomerManager,
     private eligibilityService: EligibilityService,
     private invoiceManager: InvoiceManager,
+    private paymentMethodManager: PaymentMethodManager,
+    private paypalBillingAgreementManager: PaypalBillingAgreementManager,
     private paypalCustomerManager: PaypalCustomerManager,
-    private paypalManager: PayPalManager,
     private productConfigurationManager: ProductConfigurationManager,
     private promotionCodeManager: PromotionCodeManager,
-    private stripeClient: StripeClient,
     private subscriptionManager: SubscriptionManager
   ) {}
 
@@ -176,11 +179,11 @@ export class CheckoutService {
     const { customer, enableAutomaticTax, promotionCode, priceId } =
       await this.prePaySteps(cart, customerData);
 
-    await this.stripeClient.paymentMethodsAttach(paymentMethodId, {
+    await this.paymentMethodManager.attach(paymentMethodId, {
       customer: customer.id,
     });
 
-    await this.stripeClient.customersUpdate(customer.id, {
+    await this.customerManager.update(customer.id, {
       invoice_settings: {
         default_payment_method: paymentMethodId,
       },
@@ -188,7 +191,7 @@ export class CheckoutService {
 
     // TODO: increment statsd for stripe_subscription with payment provider stripe
 
-    const subscription = await this.stripeClient.subscriptionsCreate({
+    const subscription = await this.subscriptionManager.create({
       customer: customer.id,
       automatic_tax: {
         enabled: enableAutomaticTax,
@@ -241,10 +244,12 @@ export class CheckoutService {
       await this.prePaySteps(cart, customerData);
 
     const paypalSubscriptions =
-      await this.paypalManager.getCustomerPayPalSubscriptions(customer.id);
+      await this.subscriptionManager.getCustomerPayPalSubscriptions(
+        customer.id
+      );
 
     const billingAgreementId =
-      await this.paypalManager.getOrCreateBillingAgreementId(
+      await this.paypalBillingAgreementManager.retrieveOrCreateId(
         uid,
         !!paypalSubscriptions.length,
         token
@@ -252,7 +257,7 @@ export class CheckoutService {
 
     // TODO: increment statsd for stripe_subscription with payment provider paypal
     //
-    const subscription = await this.stripeClient.subscriptionsCreate({
+    const subscription = await this.subscriptionManager.create({
       customer: customer.id,
       automatic_tax: {
         enabled: enableAutomaticTax,
@@ -280,14 +285,14 @@ export class CheckoutService {
     if (!subscription.latest_invoice) {
       throw new CheckoutError('latest_invoice does not exist on subscription');
     }
-    const latestInvoice = await this.stripeClient.invoicesRetrieve(
+    const latestInvoice = await this.invoiceManager.retrieve(
       subscription.latest_invoice
     );
     try {
-      this.paypalManager.processInvoice(latestInvoice);
+      this.invoiceManager.processPayPalInvoice(latestInvoice);
     } catch (e) {
       await this.subscriptionManager.cancel(subscription.id);
-      await this.paypalManager.cancelBillingAgreement(billingAgreementId);
+      await this.paypalBillingAgreementManager.cancel(billingAgreementId);
     }
 
     await this.postPaySteps(cart, subscription);

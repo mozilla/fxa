@@ -51,8 +51,9 @@ type FirefoxEvent = CustomEvent<FirefoxMessageDetail | string>;
 // This is defined in the Firefox source code:
 // https://searchfox.org/mozilla-central/source/services/fxaccounts/tests/xpcshell/test_web_channel.js#348
 type FxAStatusRequest = {
-  service?: string; // ex. 'sync'
-  context?: string; // ex. 'fx_desktop_v3'
+  service: string; // ex. 'sync'
+  isPairing: boolean;
+  context: string; // ex. 'fx_desktop_v3'
 };
 
 export type FxAStatusResponse = {
@@ -296,27 +297,27 @@ export class Firefox extends EventTarget {
     this.broadcast(FirefoxCommand.ProfileChanged, profile);
   }
 
-  fxaStatus(options: FxAStatusRequest) {
-    this.send(FirefoxCommand.FxAStatus, options);
-  }
-
-  async fxaLogin(options: FxALoginRequest): Promise<void> {
+  async fxaStatus(options: FxAStatusRequest): Promise<FxAStatusResponse> {
     // We must wait for the browser to send a web channel message
     // in response to the fxaLogin command. Without this we navigate the user before
     // the login completes, resulting in an "Invalid token" error on the next page.
     return new Promise((resolve) => {
       const eventHandler = (firefoxEvent: any) => {
-        this.removeEventListener(FirefoxCommand.Login, eventHandler);
-        resolve(firefoxEvent.detail || { ok: false });
+        this.removeEventListener(FirefoxCommand.FxAStatus, eventHandler);
+        resolve(firefoxEvent.detail as FxAStatusResponse);
       };
-      this.addEventListener(FirefoxCommand.Login, eventHandler);
+      this.addEventListener(FirefoxCommand.FxAStatus, eventHandler);
 
       // requestAnimationFrame ensures the event listener is added first
       // otherwise, there is a race condition
       requestAnimationFrame(() => {
-        this.send(FirefoxCommand.Login, options);
+        this.send(FirefoxCommand.FxAStatus, options);
       });
     });
+  }
+
+  fxaLogin(options: FxALoginRequest): void {
+    this.send(FirefoxCommand.Login, options);
   }
 
   fxaLoginSignedInUser(options: FxALoginSignedInUserRequest) {

@@ -20,6 +20,7 @@ import {
   updateSubscriptionPlan_FULFILLED,
   updateSubscriptionPlan_PENDING,
   updateSubscriptionPlan_REJECTED,
+  getErrorId,
 } from './amplitude';
 import {
   apiCancelSubscription,
@@ -50,6 +51,7 @@ import {
   updateAPIClientConfig,
   updateAPIClientToken,
 } from './apiClient';
+import sentryMetrics from './sentry';
 import { Config, defaultConfig } from './config';
 import { PaymentProvider } from './PaymentProvider';
 import {
@@ -143,6 +145,54 @@ describe('Authorization header', () => {
     expect(
       (global.fetch as jest.Mock).mock.calls[0][1]['headers']['Authorization']
     ).toBe('Bearer unlimitedaccess');
+  });
+});
+
+describe('apiFetch error', () => {
+  let config: Config;
+
+  beforeEach(() => {
+    config = defaultConfig();
+    config.servers.profile.url = PROFILE_BASE_URL;
+    updateAPIClientConfig(config);
+    mockOptionsResponses(PROFILE_BASE_URL);
+  });
+
+  afterEach(() => {
+    noc.cleanAll();
+  });
+
+  it('throw APIError', async () => {
+    let error: any;
+    (getErrorId as jest.Mock).mockReturnValue('error-id-123');
+    nock(PROFILE_BASE_URL).get('/v1/profile').reply(500, {
+      code: '999',
+      statusCode: 500,
+      errno: 999,
+      error: 'boofed it',
+      message: 'alert: boofed it',
+    });
+    try {
+      await apiFetchProfile();
+    } catch (err) {
+      error = err;
+    }
+    expect(error).toBeInstanceOf(APIError);
+    expect(error.errno).toBe(999);
+    expect(sentryMetrics.captureException as jest.Mock).not.toBeCalled();
+  });
+
+  it('should throw and report to Sentry for unknown_error', async () => {
+    let error: any;
+    (getErrorId as jest.Mock).mockReturnValue('unknown_error');
+    nock(PROFILE_BASE_URL).get('/v1/profile').reply(500, {});
+    try {
+      await apiFetchProfile();
+    } catch (err) {
+      error = err;
+    }
+    expect(error).toBeInstanceOf(APIError);
+    expect(sentryMetrics.captureException as jest.Mock).toBeCalledWith(error);
   });
 });
 

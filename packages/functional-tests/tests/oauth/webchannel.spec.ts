@@ -2,7 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { FirefoxCommand, createCustomEventDetail } from '../../lib/channels';
+import {
+  FirefoxCommand,
+  FF_OAUTH_CLIENT_ID,
+  FxAStatusResponse,
+} from '../../lib/channels';
 import { expect, test } from '../../lib/fixtures/standard';
 
 test.describe('severity-1 #smoke', () => {
@@ -21,16 +25,23 @@ test.describe('severity-1 #smoke', () => {
         'TODO in FXA-9881: verify FxAStatus webchannel message in React signup flow'
       );
       const { email, password } = testAccountTracker.generateAccountDetails();
-      const customEventDetail = createCustomEventDetail(
-        FirefoxCommand.FxAStatus,
-        {
-          capabilities: {
-            choose_what_to_sync: true,
-            engines: ['bookmarks', 'history'],
+
+      const customEventDetail: FxAStatusResponse = {
+        id: 'account_updates',
+        message: {
+          command: FirefoxCommand.FxAStatus,
+          data: {
+            capabilities: {
+              multiService: false,
+              pairing: false,
+              choose_what_to_sync: true,
+              engines: ['bookmarks', 'history'],
+            },
+            clientId: FF_OAUTH_CLIENT_ID,
+            signedInUser: null,
           },
-          signedInUser: null,
-        }
-      );
+        },
+      };
 
       await relier.goto('context=oauth_webchannel_v1&automatedBrowser=true');
       await relier.clickEmailFirst();
@@ -56,15 +67,22 @@ test.describe('severity-1 #smoke', () => {
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
-      const customEventDetail = createCustomEventDetail(
-        FirefoxCommand.FxAStatus,
-        {
-          capabilities: {
-            engines: ['bookmarks', 'history'],
+      const customEventDetail: FxAStatusResponse = {
+        id: 'account_updates',
+        message: {
+          command: FirefoxCommand.FxAStatus,
+          data: {
+            clientId: FF_OAUTH_CLIENT_ID,
+            capabilities: {
+              choose_what_to_sync: true,
+              multiService: false,
+              pairing: true,
+              engines: ['bookmarks', 'history'],
+            },
+            signedInUser: null,
           },
-          signedInUser: null,
-        }
-      );
+        },
+      };
 
       await relier.goto('context=oauth_webchannel_v1&automatedBrowser=true');
       await relier.clickEmailFirst();

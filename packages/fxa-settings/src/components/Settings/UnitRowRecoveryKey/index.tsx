@@ -10,7 +10,7 @@ import Modal from '../Modal';
 import UnitRow from '../UnitRow';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import { ButtonIconTrash } from '../ButtonIcon';
-import { HomePath } from '../../../constants';
+import { SETTINGS_PATH } from '../../../constants';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import GleanMetrics from '../../../lib/glean';
 
@@ -64,7 +64,7 @@ export const UnitRowRecoveryKey = () => {
           ? ftlMsgResolver.getMsg('rk-enabled', 'Enabled')
           : ftlMsgResolver.getMsg('rk-not-set', 'Not Set')
       }
-      route={`${HomePath}/account_recovery`}
+      route={`${SETTINGS_PATH}/account_recovery`}
       ctaText={
         recoveryKey
           ? ftlMsgResolver.getMsg('rk-action-change-button', 'Change')

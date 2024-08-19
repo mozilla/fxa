@@ -50,18 +50,18 @@ export class PayPalNVPError extends BaseError {
   }
 }
 
-export class PaypalManagerError extends BaseError {
+export class PaypalBillingAgreementManagerError extends BaseError {
   constructor(...args: ConstructorParameters<typeof BaseError>) {
     super(...args);
   }
 }
 
-export class AmountExceedsPayPalCharLimitError extends PaypalManagerError {
+export class AmountExceedsPayPalCharLimitError extends PaypalBillingAgreementManagerError {
   constructor(amountInCents: number) {
     super('Amount must be less than 10 characters', {
       info: {
-        amountInCents
-      }
+        amountInCents,
+      },
     });
   }
 }

@@ -4,7 +4,6 @@
 
 import React, { useEffect, useRef } from 'react';
 import { Link, RouteComponentProps } from '@reach/router';
-import Nav from '../Nav';
 import Security from '../Security';
 import { Profile } from '../Profile';
 import ConnectedServices from '../ConnectedServices';
@@ -12,10 +11,12 @@ import LinkedAccounts from '../LinkedAccounts';
 
 import * as Metrics from '../../../lib/metrics';
 import { useAccount } from '../../../models';
-import { DeleteAccountPath } from 'fxa-settings/src/constants';
+import { SETTINGS_PATH } from 'fxa-settings/src/constants';
 import { Localized } from '@fluent/react';
 import DataCollection from '../DataCollection';
 import GleanMetrics from '../../../lib/glean';
+import ProductPromo, { ProductPromoType } from '../ProductPromo';
+import SideBar from '../Sidebar';
 
 export const PageSettings = (_: RouteComponentProps) => {
   const { uid } = useAccount();
@@ -40,7 +41,7 @@ export const PageSettings = (_: RouteComponentProps) => {
   return (
     <div id="fxa-settings" className="flex">
       <div className="hidden desktop:block desktop:flex-2">
-        <Nav
+        <SideBar
           {...{
             profileRef,
             securityRef,
@@ -61,13 +62,14 @@ export const PageSettings = (_: RouteComponentProps) => {
             <Link
               data-testid="settings-delete-account"
               className="cta-caution text-sm transition-standard mt-12 py-2 px-5 mobileLandscape:py-1"
-              to={DeleteAccountPath}
+              to={SETTINGS_PATH + '/delete_account'}
               onClick={() => GleanMetrics.deleteAccount.settingsSubmit()}
             >
               Delete account
             </Link>
           </Localized>
         </div>
+        <ProductPromo type={ProductPromoType.Settings} />
       </div>
     </div>
   );

@@ -59,18 +59,21 @@ test.describe('severity-1 #smoke', () => {
             localStorage.getItem('__fxa_storage.accounts') || '{}'
           );
         });
-        let account;
+        let account: { sessionToken: string } | undefined;
         Object.keys(accounts).forEach((uid) => {
           const foundAccount = accounts[uid];
           if (foundAccount.email === bouncedAccount.email) {
             account = foundAccount;
           }
         });
+
+        expect(account?.sessionToken).toBeDefined();
+
         await target.authClient.accountDestroy(
           bouncedAccount.email,
           bouncedAccount.password,
           {},
-          account.sessionToken
+          account?.sessionToken as string
         );
       } catch (e) {
         // ignore

@@ -20,6 +20,7 @@ jest.mock('../../../lib/glean', () => ({
   default: {
     accountPref: {
       view: jest.fn(),
+      promoMonitorView: jest.fn(),
     },
     deleteAccount: {
       settingsSubmit: jest.fn(),

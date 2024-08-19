@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import { expect, Page } from '@playwright/test';
 import { BaseLayout } from '../layout';
 
@@ -7,7 +11,7 @@ export abstract class SettingsLayout extends BaseLayout {
   }
 
   get helpLink() {
-    return this.page.getByTestId('header-sumo-link');
+    return this.page.getByRole('link', { name: 'Help' });
   }
 
   get bentoDropDownMenu() {

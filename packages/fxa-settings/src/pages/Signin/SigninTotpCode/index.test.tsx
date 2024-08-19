@@ -157,7 +157,7 @@ describe('Sign in with TOTP code page', () => {
       let fxaLoginSpy: jest.SpyInstance;
       let hardNavigateSpy: jest.SpyInstance;
       beforeEach(() => {
-        fxaLoginSpy = jest.spyOn(firefox, 'fxaLogin').mockResolvedValue();
+        fxaLoginSpy = jest.spyOn(firefox, 'fxaLogin');
         hardNavigateSpy = jest
           .spyOn(utils, 'hardNavigate')
           .mockImplementation(() => {});

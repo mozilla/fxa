@@ -8,9 +8,10 @@ import { offeringQuery } from './queries/offering/query';
 import { StrapiClient } from './strapi.client';
 import { OfferingQuery } from '../__generated__/graphql';
 import { CMSError } from './cms.error';
-import { Firestore } from '@google-cloud/firestore';
-import { MockStrapiClientConfig } from './strapi.client.config';
+import { MockStrapiClientConfigProvider } from './strapi.client.config';
 import { LocalesResultFactory } from './queries/locales';
+import { Test } from '@nestjs/testing';
+import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 
 jest.mock('graphql-request', () => ({
   GraphQLClient: function () {
@@ -38,11 +39,16 @@ describe('StrapiClient', () => {
   let strapiClient: StrapiClient;
   const onCallback = jest.fn();
 
-  beforeEach(() => {
-    strapiClient = new StrapiClient(
-      MockStrapiClientConfig,
-      {} as unknown as Firestore
-    );
+  beforeEach(async () => {
+    const module = await Test.createTestingModule({
+      providers: [
+        MockStrapiClientConfigProvider,
+        StrapiClient,
+        MockFirestoreProvider,
+      ],
+    }).compile();
+
+    strapiClient = module.get(StrapiClient);
     strapiClient.on('response', onCallback);
   });
 
@@ -59,9 +65,9 @@ describe('StrapiClient', () => {
       let result: OfferingQuery | null;
 
       beforeEach(async () => {
-        (strapiClient.client.request as jest.Mock).mockResolvedValueOnce(
-          mockResponse
-        );
+        jest
+          .spyOn(strapiClient.client, 'request')
+          .mockResolvedValueOnce(mockResponse);
 
         result = await strapiClient.query(offeringQuery, {
           id,
@@ -88,9 +94,9 @@ describe('StrapiClient', () => {
           expect.objectContaining({ method: 'query', cache: false })
         );
 
-        (strapiClient.client.request as jest.Mock).mockResolvedValueOnce(
-          mockResponse
-        );
+        jest
+          .spyOn(strapiClient.client, 'request')
+          .mockResolvedValueOnce(mockResponse);
         result = await strapiClient.query(offeringQuery, {
           id,
           locale,
@@ -103,7 +109,7 @@ describe('StrapiClient', () => {
 
     it('throws an error when the graphql request fails', async () => {
       const error = new Error(faker.word.sample());
-      (strapiClient.client.request as jest.Mock).mockRejectedValueOnce(error);
+      jest.spyOn(strapiClient.client, 'request').mockRejectedValueOnce(error);
 
       await expect(() =>
         strapiClient.query(offeringQuery, {

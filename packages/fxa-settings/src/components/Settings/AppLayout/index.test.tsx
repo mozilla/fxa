@@ -5,7 +5,7 @@
 import React from 'react';
 import { screen } from '@testing-library/react';
 import { renderWithRouter } from '../../../models/mocks';
-import { HomePath } from '../../../constants';
+import { SETTINGS_PATH } from '../../../constants';
 import { MockSettingsAppLayout } from './mocks';
 
 it('renders the app with children', async () => {
@@ -16,7 +16,7 @@ it('renders the app with children', async () => {
       <p data-testid="test-child">Hello, world!</p>
     </MockSettingsAppLayout>
   );
-  await navigate(HomePath);
+  await navigate(SETTINGS_PATH);
   expect(screen.getByTestId('app')).toBeInTheDocument();
   expect(screen.getByTestId('content-skip')).toBeInTheDocument();
   expect(screen.getByTestId('header')).toBeInTheDocument();

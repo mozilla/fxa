@@ -29,5 +29,5 @@ export const syncDesktopV3QueryParams = new URLSearchParams({
   service: 'sync',
   action: 'email',
   automatedBrowser: 'true',
-  forceUA: uaStrings['desktop_firefox_79'],
+  forceUA: uaStrings['desktop_firefox_71'],
 });

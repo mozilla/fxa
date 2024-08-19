@@ -15,7 +15,7 @@ import 'react-easy-crop/react-easy-crop.css';
 
 import { isMobileDevice } from '../../../lib/utilities';
 import { useAccount, useAlertBar } from '../../../models';
-import { HomePath } from '../../../constants';
+import { SETTINGS_PATH } from '../../../constants';
 import { onFileChange } from '../../../lib/file-utils';
 import { getCroppedImg } from '../../../lib/canvas-utils';
 import {
@@ -77,7 +77,7 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
       try {
         await account.uploadAvatar(file);
         logViewEvent(settingsViewName, 'avatar.crop.submit.change');
-        navigate(HomePath + '#profile-picture', { replace: true });
+        navigate(SETTINGS_PATH + '#profile-picture', { replace: true });
       } catch (e) {
         onFileError();
       }

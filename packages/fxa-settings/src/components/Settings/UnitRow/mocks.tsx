@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { useBooleanState } from 'fxa-react/lib/hooks';
-import { HomePath } from '../../../constants';
+import { SETTINGS_PATH } from '../../../constants';
 import { UnitRow } from '.';
 import { Modal } from '../Modal';
 import { AppContext } from 'fxa-settings/src/models';
@@ -82,7 +82,7 @@ export const SubjectWithDefaultAvatar = () => {
         header="Picture"
         headerId="profile-picture"
         headerValue={!avatar.isDefault}
-        route={`${HomePath}/avatar`}
+        route={`${SETTINGS_PATH}/avatar`}
         {...{ avatar }}
       />
     </AppContext.Provider>
@@ -101,7 +101,7 @@ export const SubjectWithCustomAvatar = () => {
         header="Picture"
         headerId="profile-picture"
         headerValue={!avatar.isDefault}
-        route={`${HomePath}/avatar`}
+        route={`${SETTINGS_PATH}/avatar`}
         {...{ avatar }}
       />
     </AppContext.Provider>

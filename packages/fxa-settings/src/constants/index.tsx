@@ -2,17 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-export const ROOTPATH = '/';
-export const HomePath = '/settings';
-export const DeleteAccountPath = '/settings/delete_account';
-export const VPNLink = 'https://vpn.mozilla.org/';
-export const MonitorLink = 'https://monitor.mozilla.org/';
-export const SyncLink = 'https://www.mozilla.org/firefox/sync/';
-export const RelayLink = 'https://relay.firefox.com/';
-export const AddonsLink = 'https://addons.mozilla.org/';
-export const MDNLink = 'https://developer.mozilla.org/';
-export const HubsLink = 'https://hubs.mozilla.com/';
-export const PocketLink = 'https://getpocket.com/';
+
+export const SETTINGS_PATH = '/settings';
+
 export const SHOW_BALLOON_TIMEOUT = 500;
 export const HIDE_BALLOON_TIMEOUT = 400;
 export const POLLING_INTERVAL_MS = 2000;
@@ -30,6 +22,23 @@ export enum ENTRYPOINTS {
   FIREFOX_TABS_SIDEBAR_ENTRYPOINT = 'tabs-sidebar',
   FIREFOX_FX_VIEW_ENTRYPOINT = 'fx-view',
 }
+
+export const LINK = {
+  AMO: 'https://addons.mozilla.org/',
+  FX_DESKTOP: 'https://www.mozilla.org/firefox/new/',
+  FX_MOBILE: 'https://www.mozilla.org/firefox/mobile/',
+  FX_SYNC: 'https://www.mozilla.org/firefox/sync/',
+  HUBS: 'https://hubs.mozilla.com/',
+  MDN: 'https://developer.mozilla.org/',
+  MONITOR: 'https://monitor.mozilla.org/',
+  MONITOR_STAGE: 'https://stage.firefoxmonitor.nonprod.cloudops.mozgcp.net/',
+  MONITOR_PLUS: 'https://monitor.mozilla.org/#pricing',
+  MONITOR_PLUS_STAGE:
+    'https://stage.firefoxmonitor.nonprod.cloudops.mozgcp.net/#pricing',
+  POCKET: 'https://getpocket.com/',
+  RELAY: 'https://relay.firefox.com/',
+  VPN: 'https://vpn.mozilla.org/',
+};
 
 // DISPLAY_SAFE_UNICODE regex matches validation used for auth_server
 // Match display-safe unicode characters.

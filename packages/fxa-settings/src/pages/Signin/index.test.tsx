@@ -374,7 +374,7 @@ describe('Signin', () => {
             let fxaLoginSpy: jest.SpyInstance;
             let hardNavigateSpy: jest.SpyInstance;
             beforeEach(() => {
-              fxaLoginSpy = jest.spyOn(firefox, 'fxaLogin').mockResolvedValue();
+              fxaLoginSpy = jest.spyOn(firefox, 'fxaLogin');
               hardNavigateSpy = jest
                 .spyOn(utils, 'hardNavigate')
                 .mockImplementation(() => {});
@@ -420,7 +420,7 @@ describe('Signin', () => {
             let finishOAuthFlowHandler: jest.Mock;
             beforeEach(() => {
               fxaOAuthLoginSpy = jest.spyOn(firefox, 'fxaOAuthLogin');
-              fxaLoginSpy = jest.spyOn(firefox, 'fxaLogin').mockResolvedValue();
+              fxaLoginSpy = jest.spyOn(firefox, 'fxaLogin');
               hardNavigateSpy = jest
                 .spyOn(utils, 'hardNavigate')
                 .mockImplementation(() => {});
@@ -914,7 +914,7 @@ describe('Signin', () => {
         />
       );
 
-      const pocketLogo = screen.getByLabelText('Pocket');
+      const pocketLogo = screen.getByAltText('Pocket');
       expect(pocketLogo).toBeInTheDocument();
     });
 

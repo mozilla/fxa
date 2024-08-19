@@ -20,7 +20,7 @@ import {
   inputVerifyPassword,
 } from '../../FormPassword/index.test';
 import { act, fireEvent, screen } from '@testing-library/react';
-import { HomePath } from '../../../constants';
+import { SETTINGS_PATH } from '../../../constants';
 import { SettingsContext } from '../../../models/contexts/SettingsContext';
 import { LinkedAccountProviderIds } from '../../../lib/types';
 
@@ -161,7 +161,7 @@ describe('PageCreatePassword', () => {
   it('redirects and displays alert bar on success', async () => {
     const alertBarInfo = await createPassword();
     expect(mockNavigate).toHaveBeenCalledTimes(1);
-    expect(mockNavigate).toHaveBeenCalledWith(HomePath + '#password', {
+    expect(mockNavigate).toHaveBeenCalledWith(SETTINGS_PATH + '#password', {
       replace: true,
     });
     expect(alertBarInfo.success).toHaveBeenCalledTimes(1);
@@ -177,7 +177,7 @@ describe('PageCreatePassword', () => {
         wantsUnlinkProviderId: LinkedAccountProviderIds.Google,
       };
       await createPassword();
-      expect(mockNavigate).toHaveBeenCalledWith(HomePath + '#password', {
+      expect(mockNavigate).toHaveBeenCalledWith(SETTINGS_PATH + '#password', {
         replace: true,
         state: {
           wantsUnlinkProviderId: LinkedAccountProviderIds.Google,

@@ -7,7 +7,7 @@ import { screen } from '@testing-library/react';
 import UnitRow from '.';
 import { renderWithRouter } from '../../../models/mocks';
 import { Account, AppContext } from '../../../models';
-import { HomePath } from '../../../constants';
+import { SETTINGS_PATH } from '../../../constants';
 
 describe('UnitRow', () => {
   it('renders as expected with minimal required attributes', () => {
@@ -133,7 +133,7 @@ describe('UnitRow', () => {
           header="Picture"
           headerId="profile-picture"
           headerValue={!account.avatar.isDefault}
-          route={`${HomePath}/avatar`}
+          route={`${SETTINGS_PATH}/avatar`}
           avatar={account.avatar}
         />
       </AppContext.Provider>
@@ -158,7 +158,7 @@ describe('UnitRow', () => {
           header="Picture"
           headerId="profile-picture"
           headerValue={!account.avatar.isDefault}
-          route={`${HomePath}/avatar`}
+          route={`${SETTINGS_PATH}/avatar`}
           avatar={account.avatar}
         />
       </AppContext.Provider>

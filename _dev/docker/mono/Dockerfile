@@ -17,6 +17,7 @@ RUN apt-get update && apt-get install -y \
     git-core \
     python3-setuptools \
     python3-dev \
+    python3-venv \
     build-essential \
     zip \
     jq \

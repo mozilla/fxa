@@ -11,6 +11,7 @@ import {
 } from './factories/api-list.factory';
 import { StripeCustomerFactory } from './factories/customer.factory';
 import { StripeInvoiceFactory } from './factories/invoice.factory';
+import { StripePaymentMethodFactory } from './factories/payment-method.factory';
 import { StripePriceFactory } from './factories/price.factory';
 import { StripeProductFactory } from './factories/product.factory';
 import { StripePromotionCodeFactory } from './factories/promotion-code.factory';
@@ -34,6 +35,8 @@ const mockStripeInvoicesFinalizeInvoice =
   mockJestFnGenerator<typeof Stripe.prototype.invoices.finalizeInvoice>();
 const mockStripeInvoicesRetrieve =
   mockJestFnGenerator<typeof Stripe.prototype.invoices.retrieve>();
+const mockStripePaymentMethodsAttach =
+  mockJestFnGenerator<typeof Stripe.prototype.paymentMethods.attach>();
 const mockStripePricesRetrieve =
   mockJestFnGenerator<typeof Stripe.prototype.prices.retrieve>();
 const mockStripeProductsRetrieve =
@@ -65,6 +68,9 @@ jest.mock('stripe', () => ({
         finalizeInvoice: mockStripeInvoicesFinalizeInvoice,
         retrieve: mockStripeInvoicesRetrieve,
         retrieveUpcoming: mockStripeRetrieveUpcomingInvoice,
+      },
+      paymentMethods: {
+        attach: mockStripePaymentMethodsAttach,
       },
       prices: {
         retrieve: mockStripePricesRetrieve,
@@ -261,6 +267,25 @@ describe('StripeClient', () => {
         mockInvoice.id,
         {
           auto_advance: false,
+        }
+      );
+
+      expect(result).toEqual(mockResponse);
+    });
+  });
+
+  describe('paymentsMethodsAttach', () => {
+    it('attaches payment method to a customer successfully', async () => {
+      const mockCustomer = StripeCustomerFactory();
+      const mockPaymentMethod = StripePaymentMethodFactory();
+      const mockResponse = StripeResponseFactory(mockPaymentMethod);
+
+      mockStripePaymentMethodsAttach.mockResolvedValue(mockResponse);
+
+      const result = await stripeClient.paymentMethodsAttach(
+        mockPaymentMethod.id,
+        {
+          customer: mockCustomer.id,
         }
       );
 

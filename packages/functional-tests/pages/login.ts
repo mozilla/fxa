@@ -164,7 +164,7 @@ export class LoginPage extends BaseLayout {
     if (waitForNav) {
       const waitForNavigation = this.page.waitForEvent('framenavigated');
       await this.page.locator(selectors.SUBMIT).click();
-      return waitForNavigation;
+      await waitForNavigation;
     }
     //using waitForNav just as parameters as
     //waitForNavigation() has been deprecated

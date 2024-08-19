@@ -383,6 +383,12 @@ const recordEventMetric = (
     case 'account_pref_two_step_auth_submit':
       accountPref.twoStepAuthSubmit.record();
       break;
+    case 'account_pref_two_step_auth_scan_code_link':
+      accountPref.twoStepAuthScanCodeLink.record();
+      break;
+    case 'account_pref_two_step_auth_qr_view':
+      accountPref.twoStepAuthQrView.record();
+      break;
     case 'account_pref_change_password_submit':
       accountPref.changePasswordSubmit.record();
       break;
@@ -423,6 +429,30 @@ const recordEventMetric = (
     case 'account_pref_secondary_email_submit':
       accountPref.secondaryEmailSubmit.record();
       break;
+    case 'account_pref_help':
+      accountPref.help.record();
+      break;
+    case 'account_pref_bento_view':
+      accountPref.bentoView.record();
+      break;
+    case 'account_pref_bento_firefox_desktop':
+      accountPref.bentoFirefoxDesktop.record();
+      break;
+    case 'account_pref_bento_firefox_mobile':
+      accountPref.bentoFirefoxMobile.record();
+      break;
+    case 'account_pref_bento_monitor':
+      accountPref.bentoMonitor.record();
+      break;
+    case 'account_pref_bento_pocket':
+      accountPref.bentoPocket.record();
+      break;
+    case 'account_pref_bento_relay':
+      accountPref.bentoRelay.record();
+      break;
+    case 'account_pref_bento_vpn':
+      accountPref.bentoVpn.record();
+      break;
     case 'delete_account_settings_submit':
       deleteAccount.settingsSubmit.record();
       break;
@@ -440,6 +470,16 @@ const recordEventMetric = (
       break;
     case 'delete_account_password_submit':
       deleteAccount.passwordSubmit.record();
+      break;
+    case 'account_pref_promo_monitor_view':
+      accountPref.promoMonitorView.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'account_pref_promo_monitor_submit':
+      accountPref.promoMonitorSubmit.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
       break;
   }
 };

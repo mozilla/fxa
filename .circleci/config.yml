@@ -46,7 +46,6 @@ parameters:
 
 orbs:
   browser-tools: circleci/browser-tools@1.2.3
-  jira: circleci/jira@1.3.1
 
 executors:
   # Default node executor with low resources. Useful for running quick / small tasks
@@ -278,12 +277,18 @@ commands:
           command: ./_scripts/check-url.sh localhost:9090;
 
   lint:
+    parameters:
+      nx_run:
+        type: string
     steps:
       - run:
           name: Linting
-          command: npx nx affected --base=main --head=$CIRCLE_SHA1 --parallel=1 -t lint
+          command: npx nx << parameters.nx_run >> --parallel=1 -t lint
 
   compile:
+    parameters:
+      nx_run:
+        type: string
     steps:
       - run:
           name: Pre building shared libraries
@@ -292,7 +297,7 @@ commands:
             NODE_ENV: test
       - run:
           name: Compiling TypeScript
-          command: NODE_OPTIONS="--max-old-space-size=7168" npx nx affected --base=main --head=$CIRCLE_SHA1 --parallel=1 -t compile
+          command: NODE_OPTIONS="--max-old-space-size=7168" npx nx << parameters.nx_run >> --parallel=1 -t compile
           environment:
             NODE_ENV: test
 
@@ -566,23 +571,37 @@ jobs:
 
   # Runs linter on packages that have changes.
   lint:
+    parameters:
+      nx_run:
+        type: string
+        default: affected --base=main --head=$CIRCLE_SHA1
     executor: default-executor
     resource_class: small
     steps:
       - git-checkout
       - restore-workspace
-      - lint
+      - lint:
+          nx_run: << parameters.nx_run >>
 
   compile:
+    parameters:
+      nx_run:
+        type: string
+        default: affected --base=main --head=$CIRCLE_SHA1
     executor: default-executor
     resource_class: large
     steps:
       - git-checkout
       - restore-workspace
-      - compile
+      - compile:
+          nx_run: << parameters.nx_run >>
 
   # Runs unit tests in parallel across packages with changes.
   unit-test:
+    parameters:
+      nx_run:
+        type: string
+        default: affected --base=main --head=$CIRCLE_SHA1
     executor: default-executor
     resource_class: medium+
     steps:
@@ -593,7 +612,7 @@ jobs:
           command: NODE_OPTIONS="--max-old-space-size=7168" npx nx run-many -t build --projects=tag:scope:shared:lib --parallel=2
       - run:
           name: Run unit tests
-          command: npx nx affected --base=main --head=$CIRCLE_SHA1 --parallel=2 -t test-unit
+          command: npx nx << parameters.nx_run >> --parallel=2 -t test-unit
           environment:
             NODE_ENV: test
       - store-artifacts
@@ -623,6 +642,10 @@ jobs:
       - git-checkout
       - restore-workspace
       - wait-for-infrastructure
+      - run:
+          name: Gen keys
+          command: |
+            NODE_ENV=dev npx nx gen-keys fxa-auth-server
       - run:
           name: Run API Integration Tests
           command: |
@@ -754,7 +777,7 @@ jobs:
           command: ./.circleci/base-install.sh
       - cache-save-yarn
 
-  # A nice way to finalize a workflow. This will also notify jira.
+  # A nice way to finalize a workflow.
   on-complete:
     parameters:
       stage:
@@ -766,8 +789,6 @@ jobs:
       - run:
           name: 'Stage completed'
           command: echo "<< parameters.stage >> completed!"
-      - jira/notify:
-          job_type: << parameters.job_type >>
 
 workflows:
   test_pull_request:
@@ -827,7 +848,7 @@ workflows:
           name: Integration Test - Servers - Auth V2 (PR)
           nx_run: affected --base=main --head=$CIRCLE_SHA1
           projects: --exclude '*,!tag:scope:server:auth'
-          target: -t integration-test-v2
+          target: -t test-integration-v2
           requires:
             - Build (PR)
       - integration-test:
@@ -884,6 +905,11 @@ workflows:
       - playwright-functional-test-report:
           requires:
             - Smoke Test Production - Playwright
+          filters:
+            branches:
+              only: /.*/
+            tags:
+              only: /.*/
 
   # Triggered remotely. See .circleci/README.md
   stage_smoke_tests:
@@ -902,6 +928,11 @@ workflows:
       - playwright-functional-test-report:
           requires:
             - Smoke Test Stage - Playwright
+          filters:
+            branches:
+              only: /.*/
+            tags:
+              only: /.*/
 
   deploy_fxa_image:
     # This workflow can be triggered after a PR lands on main. It requires approval.
@@ -1050,7 +1081,7 @@ workflows:
       - integration-test:
           name: Integration Test - Servers - Auth V2
           projects: --exclude '*,!tag:scope:server:auth'
-          target: -t integration-test-v2
+          target: -t test-integration-v2
           filters:
             branches:
               ignore: /.*/
@@ -1135,14 +1166,17 @@ workflows:
             - Init (nightly)
       - lint:
           name: Lint (nightly)
+          nx_run: 'run-many'
           requires:
             - Init (nightly)
       - compile:
           name: Compile (nightly)
+          nx_run: 'run-many'
           requires:
             - Init (nightly)
       - unit-test:
           name: Unit Test (nightly)
+          nx_run: 'run-many'
           requires:
             - Build (nightly)
       - integration-test:
@@ -1164,7 +1198,7 @@ workflows:
       - integration-test:
           name: Integration Test - Servers - Auth V2 (nightly)
           projects: --exclude '*,!tag:scope:server:auth'
-          target: -t integration-test-v2
+          target: -t test-integration-v2
           requires:
             - Build (nightly)
       - integration-test:

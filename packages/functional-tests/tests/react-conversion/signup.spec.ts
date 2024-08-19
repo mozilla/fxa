@@ -2,22 +2,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { FirefoxCommand, createCustomEventDetail } from '../../lib/channels';
+import { FirefoxCommand, LinkAccountResponse } from '../../lib/channels';
 import { expect, test } from '../../lib/fixtures/standard';
 import { syncDesktopV3QueryParams } from '../../lib/query-params';
 
 const AGE_12 = '12';
 const AGE_21 = '21';
 
-const eventDetailLinkAccount = createCustomEventDetail(
-  FirefoxCommand.LinkAccount,
-  {
-    ok: true,
-  }
-);
-const eventDetailFxaLogin = createCustomEventDetail(FirefoxCommand.Login, {
-  ok: true,
-});
+const eventDetailLinkAccount: LinkAccountResponse = {
+  id: 'account_updates',
+  message: {
+    command: FirefoxCommand.LinkAccount,
+    data: {
+      ok: true,
+    },
+  },
+};
 
 test.describe('severity-1 #smoke', () => {
   test.describe('signup react', () => {
@@ -85,7 +85,6 @@ test.describe('severity-1 #smoke', () => {
 
       await signup.fillOutSignupForm(password, AGE_21);
 
-      await signup.respondToWebChannelMessage(eventDetailFxaLogin);
       await signup.checkWebChannelMessage(FirefoxCommand.Login);
       await expect(page).toHaveURL(/confirm_signup_code/);
 
@@ -93,7 +92,7 @@ test.describe('severity-1 #smoke', () => {
       await confirmSignupCode.fillOutCodeForm(code);
 
       await expect(page).toHaveURL(/connect_another_device/);
-      await expect(page.getByText('You’re signed into Firefox')).toBeVisible();
+      await expect(page.getByText('You’re signed in to Firefox')).toBeVisible();
     });
   });
 });

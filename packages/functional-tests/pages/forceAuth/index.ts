@@ -8,21 +8,21 @@ import { Credentials } from '../../lib/targets/base';
 
 export class ForceAuthPage extends BaseLayout {
   readonly path = 'force_auth';
-  context;
-  service;
+  context = '';
+  service = '';
 
   async openWithReplacementParams(
     credentials: Credentials,
     replacementParams: { [keys: string]: string | undefined }
   ) {
-    let params = this.buildQueryParams(credentials);
-    params = { ...params, ...replacementParams };
-    Object.keys(params).forEach((k) => {
-      if (params[k] === undefined) {
-        delete params[k];
+    const params = this.buildQueryParams(credentials);
+    const params2: Record<string, any> = { ...params, ...replacementParams };
+    Object.keys(params2).forEach((k) => {
+      if (params2[k] === undefined) {
+        delete params2[k];
       }
     });
-    await this.openWithParams(params);
+    await this.openWithParams(params2);
   }
 
   async open(credentials: Credentials) {
@@ -51,7 +51,7 @@ export class ForceAuthPage extends BaseLayout {
     queryParam: Partial<ReturnType<ForceAuthPage['buildQueryParams']>>
   ) {
     const query = Object.keys(queryParam)
-      .map((k) => `${k}=${encodeURIComponent(queryParam[k])}`)
+      .map((k) => `${k}=${encodeURIComponent((queryParam as any)[k])}`)
       .join('&');
     const url = `${this.url}?${query}`;
     return this.page.goto(url, { waitUntil: 'domcontentloaded' });

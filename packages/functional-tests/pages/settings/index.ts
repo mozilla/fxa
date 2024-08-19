@@ -75,7 +75,7 @@ export class SettingsPage extends SettingsLayout {
     return this.page.getByTestId('settings-delete-account');
   }
 
-  async disconnectSync(creds) {
+  async disconnectSync(creds: { uid: string }) {
     await this.goto();
     const services = await this.connectedServices.services();
     const sync = services.find((s) => s.name.includes(' on '));

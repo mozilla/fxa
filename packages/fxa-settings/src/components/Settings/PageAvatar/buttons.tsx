@@ -7,7 +7,7 @@ import React, { useCallback, useRef } from 'react';
 import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
 import { Localized, useLocalization } from '@fluent/react';
 import { useAccount, useAlertBar } from '../../../models';
-import { HomePath } from '../../../constants';
+import { SETTINGS_PATH } from '../../../constants';
 import ButtonIcon from '../ButtonIcon';
 
 import { ReactComponent as AddIcon } from './add.svg';
@@ -35,7 +35,7 @@ export const RemovePhotoBtn = () => {
   const deleteAvatar = useCallback(async () => {
     try {
       await account.deleteAvatar();
-      navigate(HomePath, { replace: true });
+      navigate(SETTINGS_PATH, { replace: true });
     } catch (err) {
       alertBar.error(
         l10n.getString(
@@ -149,7 +149,7 @@ export const ConfirmBtns = ({
       <Localized id="avatar-page-cancel-button">
         <button
           className="cta-neutral cta-base-p mx-2 flex-1"
-          onClick={() => navigate(HomePath, { replace: true })}
+          onClick={() => navigate(SETTINGS_PATH, { replace: true })}
           data-testid="close-button"
         >
           Cancel

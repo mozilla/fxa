@@ -7,7 +7,10 @@ import { Stripe } from 'stripe';
 
 import { StripeClient } from './stripe.client';
 import { StripeSubscription } from './stripe.client.types';
-import { STRIPE_MINIMUM_CHARGE_AMOUNTS } from './stripe.constants';
+import {
+  ACTIVE_SUBSCRIPTION_STATUSES,
+  STRIPE_MINIMUM_CHARGE_AMOUNTS,
+} from './stripe.constants';
 import { StripeNoMinimumChargeAmountAvailableError } from './stripe.error';
 
 @Injectable()
@@ -16,6 +19,10 @@ export class SubscriptionManager {
 
   async cancel(subscriptionId: string) {
     return this.client.subscriptionsCancel(subscriptionId);
+  }
+
+  async create(params: Stripe.SubscriptionCreateParams) {
+    return this.client.subscriptionsCreate(params);
   }
 
   async retrieve(subscriptionId: string) {
@@ -63,6 +70,16 @@ export class SubscriptionManager {
         await this.client.subscriptionsCancel(sub.id);
       }
     }
+  }
+
+  async getCustomerPayPalSubscriptions(customerId: string) {
+    const subscriptions = await this.listForCustomer(customerId);
+    if (!subscriptions) return [];
+    return subscriptions.filter(
+      (sub) =>
+        ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status) &&
+        sub.collection_method === 'send_invoice'
+    );
   }
 
   async getLatestPaymentIntent(subscription: StripeSubscription) {

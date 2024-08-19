@@ -6,7 +6,7 @@ import { expect, test } from '../../lib/fixtures/standard';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('OAuth signin token code', () => {
-    function toQueryString(obj) {
+    function toQueryString(obj: Record<string, any>) {
       return Object.entries(obj)
         .map((x) => `${x[0]}=${x[1]}`)
         .join('&');

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Localized, useLocalization } from '@fluent/react';
 import { RouteComponentProps } from '@reach/router';
 import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
-import { HomePath } from '../../../constants';
+import { SETTINGS_PATH } from '../../../constants';
 import { logViewEvent } from '../../../lib/metrics';
 import { useAccount, useAlertBar } from '../../../models';
 import InputText from '../../InputText';
@@ -26,7 +26,7 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
   });
   const navigate = useNavigate();
   const goHome = useCallback(
-    () => navigate(HomePath + '#secondary-email', { replace: true }),
+    () => navigate(SETTINGS_PATH + '#secondary-email', { replace: true }),
     [navigate]
   );
   const { l10n } = useLocalization();
@@ -41,7 +41,7 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
           `${email} successfully added`
         )
       );
-      navigate(HomePath + '#secondary-email', { replace: true });
+      navigate(SETTINGS_PATH + '#secondary-email', { replace: true });
     },
     [alertBar, l10n, navigate]
   );
@@ -84,7 +84,7 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
 
   useEffect(() => {
     if (!email) {
-      navigate(HomePath, { replace: true });
+      navigate(SETTINGS_PATH, { replace: true });
     }
   }, [email, navigate]);
 

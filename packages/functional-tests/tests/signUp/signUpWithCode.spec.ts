@@ -31,7 +31,7 @@ test.describe('severity-1 #smoke', () => {
         {},
         credentials.sessionToken
       );
-      await login.waitForPasswordHeader();
+      await expect(await login.waitForPasswordHeader()).toBeVisible();
     });
 
     test('valid code then click back', async ({

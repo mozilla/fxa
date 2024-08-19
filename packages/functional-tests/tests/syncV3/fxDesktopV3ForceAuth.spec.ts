@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { FirefoxCommand } from '../../lib/channels';
 import { expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget } from '../../lib/targets/base';
 import { SettingsPage } from '../../pages/settings';
@@ -35,7 +36,7 @@ test.describe('severity-1 #smoke', () => {
 
       // fails on this chck for react (message not sent)
       await fxDesktopV3ForceAuth.checkWebChannelMessage(
-        'fxaccounts:can_link_account'
+        FirefoxCommand.LinkAccount
       );
       await expect(page).toHaveURL(/signin_token_code/);
       const code = await target.emailClient.getVerifyLoginCode(
@@ -43,7 +44,7 @@ test.describe('severity-1 #smoke', () => {
       );
       await signinTokenCode.fillOutCodeForm(code);
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
-      await fxDesktopV3ForceAuth.checkWebChannelMessage('fxaccounts:login');
+      await fxDesktopV3ForceAuth.checkWebChannelMessage(FirefoxCommand.Login);
     });
 
     test('sync v3 with a registered email, registered uid', async ({
@@ -65,7 +66,7 @@ test.describe('severity-1 #smoke', () => {
 
       // fails on this chck for react (message not sent)
       await fxDesktopV3ForceAuth.checkWebChannelMessage(
-        'fxaccounts:can_link_account'
+        FirefoxCommand.LinkAccount
       );
       await expect(page).toHaveURL(/signin_token_code/);
       const code = await target.emailClient.getVerifyLoginCode(
@@ -74,7 +75,7 @@ test.describe('severity-1 #smoke', () => {
       await signinTokenCode.fillOutCodeForm(code);
       await expect(page).toHaveURL(/connect_another_device/);
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
-      await fxDesktopV3ForceAuth.checkWebChannelMessage('fxaccounts:login');
+      await fxDesktopV3ForceAuth.checkWebChannelMessage(FirefoxCommand.Login);
     });
 
     test('sync v3 with a registered email, unregistered uid', async ({
@@ -94,11 +95,10 @@ test.describe('severity-1 #smoke', () => {
       await fxDesktopV3ForceAuth.openWithReplacementParams(credentials, {
         uid,
       });
-      await fxDesktopV3ForceAuth.noSuchWebChannelMessage('fxaccounts:logout');
       await signin.fillOutPasswordForm(credentials.password);
       // fails on this chck for react (message not sent)
       await fxDesktopV3ForceAuth.checkWebChannelMessage(
-        'fxaccounts:can_link_account'
+        FirefoxCommand.LinkAccount
       );
       await expect(page).toHaveURL(/signin_token_code/);
       const code = await target.emailClient.getVerifyLoginCode(
@@ -106,7 +106,7 @@ test.describe('severity-1 #smoke', () => {
       );
       await signinTokenCode.fillOutCodeForm(code);
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
-      await fxDesktopV3ForceAuth.checkWebChannelMessage('fxaccounts:login');
+      await fxDesktopV3ForceAuth.checkWebChannelMessage(FirefoxCommand.Login);
     });
 
     test('blocked with an registered email, unregistered uid', async ({
@@ -133,11 +133,10 @@ test.describe('severity-1 #smoke', () => {
       await fxDesktopV3ForceAuth.openWithReplacementParams(credentials, {
         uid,
       });
-      await fxDesktopV3ForceAuth.noSuchWebChannelMessage('fxaccounts:logout');
       await signin.fillOutPasswordForm(credentials.password);
       // fails on this chck for react (message not sent)
       await fxDesktopV3ForceAuth.checkWebChannelMessage(
-        'fxaccounts:can_link_account'
+        FirefoxCommand.LinkAccount
       );
       await expect(page).toHaveURL(/signin_unblock/);
       const code = await target.emailClient.getUnblockCode(credentials.email);
@@ -145,7 +144,7 @@ test.describe('severity-1 #smoke', () => {
 
       await expect(page).toHaveURL(/connect_another_device/);
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
-      await fxDesktopV3ForceAuth.checkWebChannelMessage('fxaccounts:login');
+      await fxDesktopV3ForceAuth.checkWebChannelMessage(FirefoxCommand.Login);
 
       // Change primary email to non-blocked email
       await settings.goto();

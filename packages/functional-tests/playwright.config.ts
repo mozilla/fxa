@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import type { Project } from '@playwright/test';
 import { PlaywrightTestConfig, defineConfig } from '@playwright/test';
 import * as path from 'path';
@@ -42,6 +46,12 @@ export default defineConfig<PlaywrightTestConfig<TestOptions, WorkerOptions>>({
   // Total allowable time spent for each assertion. Defaults to 5 seconds.
   expect: { timeout: 10000 }, // 10 seconds
 
+  // Report slow tests, but only the top 10 slowest tests.
+  reportSlowTests: {
+    max: 10, // Report the top 10 slowest test files
+    threshold: 15000, // Threshold in milliseconds
+  },
+
   use: {
     viewport: { width: 1280, height: 720 },
   },
@@ -67,6 +77,7 @@ export default defineConfig<PlaywrightTestConfig<TestOptions, WorkerOptions>>({
   reporter: CI
     ? [
         ['./lib/ci-reporter.ts'],
+        ['dot'],
         [
           'junit',
           {

@@ -117,6 +117,26 @@ describe('SubscriptionManager', () => {
     });
   });
 
+  describe('create', () => {
+    it('calls stripeclient', async () => {
+      const mockCustomer = StripeCustomerFactory();
+      const mockSubscription = StripeSubscriptionFactory();
+      const mockResponse = StripeResponseFactory(mockSubscription);
+      const params = {
+        customer: mockCustomer.id,
+      };
+
+      jest
+        .spyOn(stripeClient, 'subscriptionsCreate')
+        .mockResolvedValue(mockResponse);
+
+      const result = await subscriptionManager.create(params);
+
+      expect(stripeClient.subscriptionsCreate).toBeCalledWith(params);
+      expect(result).toEqual(mockResponse);
+    });
+  });
+
   describe('retrieve', () => {
     it('calls stripeclient', async () => {
       const mockSubscription = StripeSubscriptionFactory();
@@ -158,6 +178,41 @@ describe('SubscriptionManager', () => {
       );
       expect(result).toEqual(mockResponse);
     });
+  });
+
+  describe('getCustomerPayPalSubscriptions', () => {
+    it('return customer subscriptions where collection method is send_invoice', async () => {
+      const mockPayPalSubscription = StripeSubscriptionFactory({
+        collection_method: 'send_invoice',
+        status: 'active',
+      });
+
+      const mockCustomer = StripeCustomerFactory();
+
+      const expected = [mockPayPalSubscription];
+
+      jest
+        .spyOn(subscriptionManager, 'listForCustomer')
+        .mockResolvedValue([mockPayPalSubscription]);
+
+      const result = await subscriptionManager.getCustomerPayPalSubscriptions(
+        mockCustomer.id
+      );
+      expect(result).toEqual(expected);
+    });
+  });
+
+  it('returns empty array when no subscriptions', async () => {
+    const mockCustomer = StripeCustomerFactory();
+
+    jest
+      .spyOn(subscriptionManager, 'listForCustomer')
+      .mockResolvedValueOnce([]);
+
+    const result = await subscriptionManager.getCustomerPayPalSubscriptions(
+      mockCustomer.id
+    );
+    expect(result).toEqual([]);
   });
 
   describe('getLatestPaymentIntent', () => {

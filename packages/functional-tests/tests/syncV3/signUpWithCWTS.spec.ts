@@ -2,7 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { FirefoxCommand, createCustomEventDetail } from '../../lib/channels';
+import {
+  FF_OAUTH_CLIENT_ID,
+  FirefoxCommand,
+  FxAStatusResponse,
+  LinkAccountResponse,
+} from '../../lib/channels';
 import { expect, test } from '../../lib/fixtures/standard';
 import uaStrings from '../../lib/ua-strings';
 
@@ -28,23 +33,33 @@ test.describe('severity-1 #smoke', () => {
       const query = new URLSearchParams({
         forceUA: uaStrings['desktop_firefox_71'],
       });
-      const eventDetailStatus = createCustomEventDetail(
-        FirefoxCommand.FxAStatus,
-        {
-          signedInUser: null,
-          capabilities: {
-            choose_what_to_sync: true,
-            multiService: true,
-            engines: ['history'],
+      const eventDetailStatus: FxAStatusResponse = {
+        id: 'account_updates',
+        message: {
+          command: FirefoxCommand.FxAStatus,
+          data: {
+            clientId: FF_OAUTH_CLIENT_ID,
+            signedInUser: null,
+            capabilities: {
+              pairing: true,
+              choose_what_to_sync: true,
+              multiService: false,
+              engines: ['history'],
+            },
           },
-        }
-      );
-      const eventDetailLinkAccount = createCustomEventDetail(
-        FirefoxCommand.LinkAccount,
-        {
-          ok: true,
-        }
-      );
+        },
+      };
+
+      const eventDetailLinkAccount: LinkAccountResponse = {
+        id: 'account_updates',
+        message: {
+          command: FirefoxCommand.LinkAccount,
+          data: {
+            ok: true,
+          },
+        },
+      };
+
       await page.goto(
         `${
           target.contentServerUrl
@@ -52,7 +67,7 @@ test.describe('severity-1 #smoke', () => {
       );
       await login.respondToWebChannelMessage(eventDetailStatus);
       await login.respondToWebChannelMessage(eventDetailLinkAccount);
-      await login.checkWebChannelMessage('fxaccounts:fxa_status');
+      await login.checkWebChannelMessage(FirefoxCommand.FxAStatus);
       await login.setEmail(email);
       await login.clickSubmit();
       await login.setPassword(password);
@@ -88,15 +103,22 @@ test.describe('severity-1 #smoke', () => {
       const query = new URLSearchParams({
         forceUA: uaStrings['desktop_firefox_58'],
       });
-      const eventDetailStatus = createCustomEventDetail(
-        FirefoxCommand.FxAStatus,
-        {
-          signedInUser: null,
-          capabilities: {
-            multiService: false,
+      const eventDetailStatus: FxAStatusResponse = {
+        id: 'account_updates',
+        message: {
+          command: FirefoxCommand.FxAStatus,
+          data: {
+            clientId: FF_OAUTH_CLIENT_ID,
+            signedInUser: null,
+            capabilities: {
+              multiService: false,
+              pairing: false,
+              engines: [],
+            },
           },
-        }
-      );
+        },
+      };
+
       await page.goto(
         `${
           target.contentServerUrl
@@ -106,7 +128,7 @@ test.describe('severity-1 #smoke', () => {
         }
       );
       await login.respondToWebChannelMessage(eventDetailStatus);
-      await login.checkWebChannelMessage('fxaccounts:fxa_status');
+      await login.checkWebChannelMessage(FirefoxCommand.FxAStatus);
       await login.setEmail(email);
       await login.clickSubmit();
       await login.setPassword(password);
@@ -120,7 +142,6 @@ test.describe('severity-1 #smoke', () => {
       await expect(login.CWTSDoNotSync).toBeHidden();
       await expect(login.CWTSEngineCreditCards).toBeHidden();
       await login.checkWebChannelMessage(FirefoxCommand.LinkAccount);
-      await login.noSuchWebChannelMessage(FirefoxCommand.Login);
       await login.clickSubmit();
       const code = await target.emailClient.getVerifyShortCode(email);
       await login.fillOutSignUpCode(code);
@@ -138,19 +159,29 @@ test.describe('severity-1 #smoke', () => {
       const query = new URLSearchParams({
         forceUA: uaStrings['desktop_firefox_58'],
       });
-      const eventDetailStatus = createCustomEventDetail(
-        FirefoxCommand.FxAStatus,
-        {
-          signedInUser: null,
-        }
-      );
+      const eventDetailStatus: FxAStatusResponse = {
+        id: 'account_updates',
+        message: {
+          command: FirefoxCommand.FxAStatus,
+          data: {
+            clientId: FF_OAUTH_CLIENT_ID,
+            signedInUser: null,
+            capabilities: {
+              pairing: false,
+              multiService: false,
+              engines: [],
+            },
+          },
+        },
+      };
+
       await page.goto(
         `${
           target.contentServerUrl
         }?context=fx_desktop_v3&service=sync&automatedBrowser=true&${query.toString()}`
       );
       await login.respondToWebChannelMessage(eventDetailStatus);
-      await login.checkWebChannelMessage('fxaccounts:fxa_status');
+      await login.checkWebChannelMessage(FirefoxCommand.FxAStatus);
       await login.setEmail(email);
       await login.clickSubmit();
       await login.setPassword(password);
@@ -174,22 +205,28 @@ test.describe('severity-1 #smoke', () => {
       const query = new URLSearchParams({
         forceUA: uaStrings['desktop_firefox_58'],
       });
-      const eventDetailStatus = createCustomEventDetail(
-        FirefoxCommand.FxAStatus,
-        {
-          capabilities: {
-            engines: [],
+      const eventDetailStatus: FxAStatusResponse = {
+        id: 'account_updates',
+        message: {
+          command: FirefoxCommand.FxAStatus,
+          data: {
+            clientId: FF_OAUTH_CLIENT_ID,
+            signedInUser: null,
+            capabilities: {
+              pairing: false,
+              multiService: false,
+              engines: [],
+            },
           },
-          signedInUser: null,
-        }
-      );
+        },
+      };
       await page.goto(
         `${
           target.contentServerUrl
         }?context=fx_desktop_v3&service=sync&automatedBrowser=true&${query.toString()}`
       );
       await login.respondToWebChannelMessage(eventDetailStatus);
-      await login.checkWebChannelMessage('fxaccounts:fxa_status');
+      await login.checkWebChannelMessage(FirefoxCommand.FxAStatus);
       await login.setEmail(email);
       await login.clickSubmit();
       await login.setPassword(password);
@@ -213,22 +250,29 @@ test.describe('severity-1 #smoke', () => {
       const query = new URLSearchParams({
         forceUA: uaStrings['desktop_firefox_58'],
       });
-      const eventDetailStatus = createCustomEventDetail(
-        FirefoxCommand.FxAStatus,
-        {
-          capabilities: {
-            engines: ['creditcards', 'addresses'],
+      const eventDetailStatus: FxAStatusResponse = {
+        id: 'account_updates',
+        message: {
+          command: FirefoxCommand.FxAStatus,
+          data: {
+            signedInUser: null,
+            clientId: FF_OAUTH_CLIENT_ID,
+            capabilities: {
+              pairing: false,
+              multiService: false,
+              engines: ['creditcards', 'addresses'],
+            },
           },
-          signedInUser: null,
-        }
-      );
+        },
+      };
+
       await page.goto(
         `${
           target.contentServerUrl
         }?context=fx_desktop_v3&service=sync&automatedBrowser=true&${query.toString()}`
       );
       await login.respondToWebChannelMessage(eventDetailStatus);
-      await login.checkWebChannelMessage('fxaccounts:fxa_status');
+      await login.checkWebChannelMessage(FirefoxCommand.FxAStatus);
       await login.setEmail(email);
       await login.clickSubmit();
       await login.setPassword(password);

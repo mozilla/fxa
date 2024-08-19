@@ -25,9 +25,12 @@ test.describe('severity-2 #smoke', () => {
   ) {
     const client = target.createAuthClient(version);
     const response = await client.signIn(email, password, { keys: true });
+    expect(response.keyFetchToken).toBeDefined();
+    expect(response.unwrapBKey).toBeDefined();
+
     const keys = client.accountKeys(
-      response.keyFetchToken,
-      response.unwrapBKey
+      response.keyFetchToken as string,
+      response.unwrapBKey as string
     );
     return keys;
   }
@@ -65,15 +68,8 @@ test.describe('severity-2 #smoke', () => {
         confirmSignupCode,
       },
       testAccountTracker,
-    }, { project }) => {
+    }) => {
       const config = await configPage.getConfig();
-      test.fixme(
-        project.name !== 'local' &&
-          signupVersion.version === 1 &&
-          resetVersion.version === 2 &&
-          signinVersion.version === 1,
-        'FXA-9742'
-      );
       test.skip(
         config.featureFlags.resetPasswordWithCode !== true,
         'TODO in FXA-9728, remove this config check'

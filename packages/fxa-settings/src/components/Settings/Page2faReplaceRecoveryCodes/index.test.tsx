@@ -6,7 +6,7 @@ import 'mutationobserver-shim';
 import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import { Account, AppContext } from '../../../models';
 import { Config } from '../../../lib/config';
-import { HomePath } from '../../../constants';
+import { SETTINGS_PATH } from '../../../constants';
 import { typeByTestIdFn } from '../../../lib/test-utils';
 import {
   MOCK_ACCOUNT,
@@ -156,7 +156,7 @@ it('allows user to finish', async () => {
 
   await waitFor(() =>
     expect(mockNavigate).toHaveBeenCalledWith(
-      HomePath + '#two-step-authentication',
+      SETTINGS_PATH + '#two-step-authentication',
       { replace: true }
     )
   );

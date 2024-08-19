@@ -173,7 +173,7 @@ const { JWTool } = require('@fxa/vendored/jwtool');
       );
     });
 
-    it('should fail if recoveryKeyId is missing', () => {
+    it('should fail if recoveryKeyId is missing', function () {
       if (testOptions.version === 'V2') {
         return this.skip();
       }
@@ -197,7 +197,7 @@ const { JWTool } = require('@fxa/vendored/jwtool');
         });
     });
 
-    it('should fail if wrapKb is missing', () => {
+    it('should fail if wrapKb is missing', function () {
       if (testOptions.version === 'V2') {
         return this.skip();
       }

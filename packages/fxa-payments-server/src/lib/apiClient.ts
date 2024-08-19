@@ -17,6 +17,7 @@ import {
 } from 'fxa-shared/dto/auth/payments/invoice';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 import { CheckoutType } from 'fxa-shared/subscriptions/types';
+import sentryMetrics from './sentry';
 
 // TODO: Use a better type here
 export interface APIFetchOptions {
@@ -62,6 +63,7 @@ export class APIError extends Error {
     ...params: Array<any>
   ) {
     super(...params);
+    this.name = 'APIError';
     this.response = response;
     this.body = body || null;
     this.code = code || null;
@@ -92,28 +94,38 @@ async function apiFetch(
   path: string,
   options: APIFetchOptions = {}
 ) {
-  const response = await fetch(path, {
-    mode: 'cors',
-    credentials: 'omit',
-    method,
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: accessToken ? `Bearer ${accessToken}` : undefined,
-      ...(options.headers || {}),
-    },
-  });
-  if (response.status >= 400) {
-    let body = {};
-    try {
-      // Parse the body as JSON, but will fail if things have really gone wrong
-      body = await response.json();
-    } catch (_) {
-      // No-op
+  try {
+    const response = await fetch(path, {
+      mode: 'cors',
+      credentials: 'omit',
+      method,
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: accessToken ? `Bearer ${accessToken}` : undefined,
+        ...(options.headers || {}),
+      },
+    });
+    if (response.status >= 400) {
+      let body = {};
+      try {
+        // Parse the body as JSON, but will fail if things have really gone wrong
+        body = await response.json();
+      } catch (_) {
+        // No-op
+      }
+
+      throw new APIError(body, response);
     }
-    throw new APIError(body, response);
+    return response.json();
+  } catch (error) {
+    const errorId = Amplitude.getErrorId(error);
+    // Only capture unknown errors to Sentry regardless of if its a 4XX or 5XX
+    if (errorId === 'unknown_error') {
+      sentryMetrics.captureException(error);
+    }
+    throw error;
   }
-  return response.json();
 }
 
 export async function apiFetchAccountStatus(

@@ -44,6 +44,7 @@ export * from './lib/stripe.types';
 export * from './lib/stripe.util';
 export * from './lib/customer.manager';
 export * from './lib/invoice.manager';
+export * from './lib/paymentMethod.manager';
 export * from './lib/price.manager';
 export * from './lib/product.manager';
 export * from './lib/promotionCode.manager';

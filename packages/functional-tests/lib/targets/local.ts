@@ -1,3 +1,8 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+import { BoolString } from '../../../fxa-auth-client/lib/client';
 import { TargetName } from '.';
 import { BaseTarget, Credentials } from './base';
 
@@ -26,7 +31,7 @@ export class LocalTarget extends BaseTarget {
   async createAccount(
     email: string,
     password: string,
-    options = { lang: 'en', preVerified: 'true' }
+    options = { lang: 'en', preVerified: 'true' as BoolString }
   ) {
     const result = await this.authClient.signUp(email, password, options);
     await this.authClient.deviceRegister(

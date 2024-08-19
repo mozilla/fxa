@@ -11,7 +11,7 @@ import {
   mockSettingsContext,
   renderWithRouter,
 } from '../../../models/mocks';
-import { HomePath } from '../../../constants';
+import { SETTINGS_PATH } from '../../../constants';
 import { Account, AppContext } from '../../../models';
 import { SettingsContext } from '../../../models/contexts/SettingsContext';
 
@@ -90,7 +90,7 @@ it('navigates back to settings home and shows a success message on a successful 
     </AppContext.Provider>
   );
   await submitDisplayName('John Hope');
-  expect(history.location.pathname).toBe(HomePath);
+  expect(history.location.pathname).toBe(SETTINGS_PATH);
   expect(alertBarInfo.success).toHaveBeenCalledTimes(1);
   expect(alertBarInfo.success).toHaveBeenCalledWith('Display name updated');
 });

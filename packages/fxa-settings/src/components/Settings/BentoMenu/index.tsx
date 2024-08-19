@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useState } from 'react';
 import { useClickOutsideEffect } from 'fxa-react/lib/hooks';
 import LinkExternal from 'fxa-react/components/LinkExternal';
@@ -17,7 +17,10 @@ import vpnIcon from './vpn-logo.svg';
 import { ReactComponent as BentoIcon } from './bento.svg';
 import { ReactComponent as CloseIcon } from '@fxa/shared/assets/images/close.svg';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { useFtlMsgResolver } from '../../../models/hooks';
+import { useConfig, useFtlMsgResolver } from '../../../models/hooks';
+import { LINK } from '../../../constants';
+import { constructHrefWithUtm } from '../../../lib/utilities';
+import GleanMetrics from '../../../lib/glean';
 
 export const BentoMenu = () => {
   const [isRevealed, setRevealed] = useState(false);
@@ -27,11 +30,64 @@ export const BentoMenu = () => {
   useEscKeydownEffect(setRevealed);
   const dropDownId = 'drop-down-bento-menu';
   const iconClassNames = 'inline-block w-5 -mb-1 me-1';
+
+  const { env } = useConfig();
   const ftlMsgResolver = useFtlMsgResolver();
+
+  useEffect(() => {
+    if (isRevealed) {
+      GleanMetrics.accountPref.bentoView();
+    }
+  }, [isRevealed]);
 
   const bentoMenuTitle = ftlMsgResolver.getMsg(
     'bento-menu-title-3',
     'Mozilla products'
+  );
+
+  const desktopLink = constructHrefWithUtm(
+    LINK.FX_DESKTOP,
+    'mozilla-websites',
+    'moz-account',
+    'bento',
+    'fx-desktop',
+    'permanent'
+  );
+
+  const mobileLink = constructHrefWithUtm(
+    LINK.FX_MOBILE,
+    'mozilla-websites',
+    'moz-account',
+    'bento',
+    'fx-mobile',
+    'permanent'
+  );
+
+  const monitorLink = constructHrefWithUtm(
+    env === 'stage' ? LINK.MONITOR_STAGE : LINK.MONITOR,
+    'mozilla-websites',
+    'moz-account',
+    'bento',
+    'monitor',
+    'permanent'
+  );
+
+  const relayLink = constructHrefWithUtm(
+    LINK.RELAY,
+    'mozilla-websites',
+    'moz-account',
+    'bento',
+    'relay',
+    'permanent'
+  );
+
+  const vpnLink = constructHrefWithUtm(
+    LINK.VPN,
+    'mozilla-websites',
+    'moz-account',
+    'bento',
+    'vpn',
+    'permanent'
   );
 
   return (
@@ -75,8 +131,11 @@ export const BentoMenu = () => {
                   <li>
                     <LinkExternal
                       data-testid="desktop-link"
-                      href="https://www.mozilla.org/firefox/new/?utm_source=firefox-accounts&utm_medium=referral&utm_campaign=bento&utm_content=desktop"
+                      href={desktopLink}
                       className="block p-2 ps-6 hover:bg-grey-100"
+                      onClick={() =>
+                        GleanMetrics.accountPref.bentoFirefoxDesktop()
+                      }
                     >
                       <div className={iconClassNames}>
                         <img src={desktopIcon} alt="" />
@@ -89,8 +148,11 @@ export const BentoMenu = () => {
                   <li>
                     <LinkExternal
                       data-testid="mobile-link"
-                      href="http://mozilla.org/firefox/mobile?utm_source=firefox-accounts&utm_medium=referral&utm_campaign=bento&utm_content=desktop"
+                      href={mobileLink}
                       className="block p-2 ps-6 hover:bg-grey-100"
+                      onClick={() =>
+                        GleanMetrics.accountPref.bentoFirefoxMobile()
+                      }
                     >
                       <div className={iconClassNames}>
                         <img src={mobileIcon} alt="" />
@@ -103,8 +165,9 @@ export const BentoMenu = () => {
                   <li>
                     <LinkExternal
                       data-testid="monitor-link"
-                      href="https://monitor.mozilla.org"
+                      href={monitorLink}
                       className="block p-2 ps-6 hover:bg-grey-100"
+                      onClick={() => GleanMetrics.accountPref.bentoMonitor()}
                     >
                       <div className={iconClassNames}>
                         <img src={monitorIcon} alt="" />
@@ -115,8 +178,9 @@ export const BentoMenu = () => {
                   <li>
                     <LinkExternal
                       data-testid="relay-link"
-                      href="https://relay.firefox.com/"
+                      href={relayLink}
                       className="block p-2 ps-6 hover:bg-grey-100"
+                      onClick={() => GleanMetrics.accountPref.bentoRelay()}
                     >
                       <div className={iconClassNames}>
                         <img src={relayIcon} alt="" />
@@ -129,8 +193,9 @@ export const BentoMenu = () => {
                   <li>
                     <LinkExternal
                       data-testid="vpn-link"
-                      href="https://vpn.mozilla.org/?utm_source=accounts.firefox.com&utm_medium=referral&utm_campaign=fxa-settings&utm_content=bento-promo"
+                      href={vpnLink}
                       className="block p-2 ps-6 hover:bg-grey-100"
+                      onClick={() => GleanMetrics.accountPref.bentoVpn()}
                     >
                       <div className={iconClassNames}>
                         <img src={vpnIcon} alt="" />
@@ -143,6 +208,7 @@ export const BentoMenu = () => {
                       data-testid="pocket-link"
                       href="https://app.adjust.com/hr2n0yz?redirect_macos=https%3A%2F%2Fgetpocket.com%2Fpocket-and-firefox&redirect_windows=https%3A%2F%2Fgetpocket.com%2Fpocket-and-firefox&engagement_type=fallback_click&fallback=https%3A%2F%2Fgetpocket.com%2Ffirefox_learnmore%3Fsrc%3Dff_bento&fallback_lp=https%3A%2F%2Fapps.apple.com%2Fapp%2Fpocket-save-read-grow%2Fid309601447"
                       className="block p-2 ps-6 hover:bg-grey-100"
+                      onClick={() => GleanMetrics.accountPref.bentoPocket()}
                     >
                       <div className={iconClassNames}>
                         <img src={pocketIcon} alt="" />

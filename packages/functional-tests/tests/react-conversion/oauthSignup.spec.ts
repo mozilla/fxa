@@ -2,7 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { FirefoxCommand, createCustomEventDetail } from '../../lib/channels';
+import {
+  FF_OAUTH_CLIENT_ID,
+  FirefoxCommand,
+  FxAStatusResponse,
+} from '../../lib/channels';
 import { expect, test } from '../../lib/fixtures/standard';
 import { syncMobileOAuthQueryParams } from '../../lib/query-params';
 
@@ -101,16 +105,22 @@ test.describe('severity-1 #smoke', () => {
       test.fixme(true, 'Fix required as of 2024/06/28 (see FXA-10003).');
       const { email, password } =
         testAccountTracker.generateSignupAccountDetails();
-      const customEventDetail = createCustomEventDetail(
-        FirefoxCommand.FxAStatus,
-        {
-          capabilities: {
-            choose_what_to_sync: true,
-            engines: ['bookmarks', 'history'],
+      const customEventDetail: FxAStatusResponse = {
+        id: 'account_updates',
+        message: {
+          command: FirefoxCommand.FxAStatus,
+          data: {
+            signedInUser: null,
+            clientId: FF_OAUTH_CLIENT_ID,
+            capabilities: {
+              pairing: false,
+              multiService: false,
+              choose_what_to_sync: true,
+              engines: ['bookmarks', 'history'],
+            },
           },
-          signedInUser: null,
-        }
-      );
+        },
+      };
 
       await signup.goto('/authorization', syncMobileOAuthQueryParams);
 

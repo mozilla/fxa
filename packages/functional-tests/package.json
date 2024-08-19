@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "clean": "rimraf dist",
+    "compile": "tsc --noEmit",
     "test": "NODE_OPTIONS='--dns-result-order=ipv4first' playwright test --project=local",
     "test-local": "NODE_OPTIONS='--dns-result-order=ipv4first' playwright test --project=local",
     "test-stage": "NODE_OPTIONS='--dns-result-order=ipv4first' playwright test --project=stage",
@@ -14,6 +15,7 @@
   "devDependencies": {
     "@playwright/test": "^1.43.1",
     "@types/eslint": "^8",
+    "@types/pdf-parse": "^1.1.4",
     "@types/upng-js": "^2",
     "eslint": "^8.56.0",
     "eslint-plugin-playwright": "^0.22.2",
@@ -23,6 +25,7 @@
     "fxa-settings": "workspace:*",
     "jsqr": "^1.4.0",
     "pdf-parse": "^1.1.1",
+    "typescript": "^5.5.3",
     "upng-js": "^2.1.0"
   },
   "nx": {

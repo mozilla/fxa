@@ -17,9 +17,9 @@ import {
   EligibilityStatus,
 } from '@fxa/payments/eligibility';
 import {
+  PaypalBillingAgreementManager,
   PayPalClient,
   PaypalClientConfig,
-  PayPalManager,
   PaypalCustomerManager,
   ResultPaypalCustomerFactory,
 } from '@fxa/payments/paypal';
@@ -29,6 +29,7 @@ import {
   InvoiceManager,
   InvoicePreviewFactory,
   MockStripeConfigProvider,
+  PaymentMethodManager,
   PriceManager,
   ProductManager,
   PromotionCodeManager,
@@ -73,8 +74,9 @@ describe('CheckoutService', () => {
   let customerManager: CustomerManager;
   let eligibilityService: EligibilityService;
   let invoiceManager: InvoiceManager;
+  let paymentMethodManager: PaymentMethodManager;
+  let paypalBillingAgreementManager: PaypalBillingAgreementManager;
   let paypalCustomerManager: PaypalCustomerManager;
-  let paypalManager: PayPalManager;
   let productConfigurationManager: ProductConfigurationManager;
   let promotionCodeManager: PromotionCodeManager;
   let stripeClient: StripeClient;
@@ -87,19 +89,21 @@ describe('CheckoutService', () => {
         AccountManager,
         CartManager,
         CheckoutService,
-        MockStrapiClientConfigProvider,
         CustomerManager,
         EligibilityManager,
         EligibilityService,
         InvoiceManager,
         MockAccountDatabaseNestFactory,
         MockFirestoreProvider,
+        MockStrapiClientConfigProvider,
         MockStatsDProvider,
+        MockStrapiClientConfigProvider,
         MockStripeConfigProvider,
+        PaymentMethodManager,
+        PaypalBillingAgreementManager,
         PayPalClient,
         PaypalClientConfig,
         PaypalCustomerManager,
-        PayPalManager,
         PriceManager,
         ProductConfigurationManager,
         ProductManager,
@@ -118,8 +122,11 @@ describe('CheckoutService', () => {
     customerManager = moduleRef.get(CustomerManager);
     eligibilityService = moduleRef.get(EligibilityService);
     invoiceManager = moduleRef.get(InvoiceManager);
+    paymentMethodManager = moduleRef.get(PaymentMethodManager);
+    paypalBillingAgreementManager = moduleRef.get(
+      PaypalBillingAgreementManager
+    );
     paypalCustomerManager = moduleRef.get(PaypalCustomerManager);
-    paypalManager = moduleRef.get(PayPalManager);
     productConfigurationManager = moduleRef.get(ProductConfigurationManager);
     promotionCodeManager = moduleRef.get(PromotionCodeManager);
     stripeClient = moduleRef.get(StripeClient);
@@ -396,13 +403,11 @@ describe('CheckoutService', () => {
         priceId: mockPriceId,
       });
       jest
-        .spyOn(stripeClient, 'paymentMethodsAttach')
+        .spyOn(paymentMethodManager, 'attach')
         .mockResolvedValue(mockPaymentMethod);
+      jest.spyOn(customerManager, 'update').mockResolvedValue(mockCustomer);
       jest
-        .spyOn(stripeClient, 'customersUpdate')
-        .mockResolvedValue(mockCustomer);
-      jest
-        .spyOn(stripeClient, 'subscriptionsCreate')
+        .spyOn(subscriptionManager, 'create')
         .mockResolvedValue(mockSubscription);
       jest
         .spyOn(stripeClient, 'invoicesRetrieve')
@@ -432,7 +437,7 @@ describe('CheckoutService', () => {
       });
 
       it('attaches payment method to customer', async () => {
-        expect(stripeClient.paymentMethodsAttach).toHaveBeenCalledWith(
+        expect(paymentMethodManager.attach).toHaveBeenCalledWith(
           mockPaymentMethod.id,
           {
             customer: mockCustomer.id,
@@ -441,18 +446,15 @@ describe('CheckoutService', () => {
       });
 
       it('updates the customer with a default payment method', async () => {
-        expect(stripeClient.customersUpdate).toHaveBeenCalledWith(
-          mockCustomer.id,
-          {
-            invoice_settings: {
-              default_payment_method: mockPaymentMethod.id,
-            },
-          }
-        );
+        expect(customerManager.update).toHaveBeenCalledWith(mockCustomer.id, {
+          invoice_settings: {
+            default_payment_method: mockPaymentMethod.id,
+          },
+        });
       });
 
       it('creates the subscription', async () => {
-        expect(stripeClient.subscriptionsCreate).toHaveBeenCalledWith({
+        expect(subscriptionManager.create).toHaveBeenCalledWith({
           customer: mockCustomer.id,
           automatic_tax: {
             enabled: true,
@@ -466,7 +468,7 @@ describe('CheckoutService', () => {
         });
       });
 
-      it('retrieves the lastest invoice', () => {
+      it('retrieves the latest invoice', () => {
         expect(stripeClient.invoicesRetrieve).toHaveBeenCalledWith(
           mockSubscription.latest_invoice
         );
@@ -512,15 +514,12 @@ describe('CheckoutService', () => {
         promotionCode: mockPromotionCode,
         priceId: mockPriceId,
       });
+      jest.spyOn(invoiceManager, 'processPayPalInvoice').mockResolvedValue();
+      jest.spyOn(invoiceManager, 'retrieve').mockResolvedValue(mockInvoice);
+      jest.spyOn(paypalBillingAgreementManager, 'cancel').mockResolvedValue();
       jest
-        .spyOn(paypalManager, 'getCustomerPayPalSubscriptions')
-        .mockResolvedValue([]);
-      jest
-        .spyOn(paypalManager, 'getOrCreateBillingAgreementId')
+        .spyOn(paypalBillingAgreementManager, 'retrieveOrCreateId')
         .mockResolvedValue(mockBillingAgreementId);
-      jest
-        .spyOn(stripeClient, 'subscriptionsCreate')
-        .mockResolvedValue(mockSubscription);
       jest
         .spyOn(paypalCustomerManager, 'deletePaypalCustomersByUid')
         .mockResolvedValue(BigInt(1));
@@ -528,13 +527,14 @@ describe('CheckoutService', () => {
         .spyOn(paypalCustomerManager, 'createPaypalCustomer')
         .mockResolvedValue(mockPaypalCustomer);
       jest
-        .spyOn(stripeClient, 'invoicesRetrieve')
-        .mockResolvedValue(mockInvoice);
-      jest.spyOn(paypalManager, 'processInvoice').mockResolvedValue();
+        .spyOn(subscriptionManager, 'create')
+        .mockResolvedValue(mockSubscription);
       jest
         .spyOn(subscriptionManager, 'cancel')
         .mockResolvedValue(mockSubscription);
-      jest.spyOn(paypalManager, 'cancelBillingAgreement').mockResolvedValue();
+      jest
+        .spyOn(subscriptionManager, 'getCustomerPayPalSubscriptions')
+        .mockResolvedValue([]);
     });
 
     describe('success', () => {
@@ -548,18 +548,18 @@ describe('CheckoutService', () => {
 
       it('fetches the customers paypal subscriptions', async () => {
         expect(
-          paypalManager.getCustomerPayPalSubscriptions
+          subscriptionManager.getCustomerPayPalSubscriptions
         ).toHaveBeenCalledWith(mockCustomer.id);
       });
 
       it('fetches/creates a billing agreement for checkout', async () => {
         expect(
-          paypalManager.getOrCreateBillingAgreementId
+          paypalBillingAgreementManager.retrieveOrCreateId
         ).toHaveBeenCalledWith(mockCart.uid, false, mockToken);
       });
 
       it('creates the subscription', async () => {
-        expect(stripeClient.subscriptionsCreate).toHaveBeenCalledWith({
+        expect(subscriptionManager.create).toHaveBeenCalledWith({
           customer: mockCustomer.id,
           automatic_tax: {
             enabled: true,
@@ -592,14 +592,16 @@ describe('CheckoutService', () => {
         );
       });
 
-      it('retrieves the lastest invoice', () => {
-        expect(stripeClient.invoicesRetrieve).toHaveBeenCalledWith(
+      it('retrieves the latest invoice', () => {
+        expect(invoiceManager.retrieve).toHaveBeenCalledWith(
           mockSubscription.latest_invoice
         );
       });
 
       it('calls to process the latest invoice', () => {
-        expect(paypalManager.processInvoice).toHaveBeenCalledWith(mockInvoice);
+        expect(invoiceManager.processPayPalInvoice).toHaveBeenCalledWith(
+          mockInvoice
+        );
       });
 
       it('does not cancel the subscription', () => {
@@ -607,7 +609,7 @@ describe('CheckoutService', () => {
       });
 
       it('does not cancel the billing agreement', () => {
-        expect(paypalManager.cancelBillingAgreement).not.toHaveBeenCalled();
+        expect(paypalBillingAgreementManager.cancel).not.toHaveBeenCalled();
       });
     });
   });
