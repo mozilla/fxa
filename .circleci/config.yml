@@ -868,10 +868,10 @@ workflows:
             "true"
           requires:
             - Build (PR)
-      - playwright-functional-test-report:
-          name: Merge Playwright Reports (PR)
-          requires:
-            - Functional Tests - Playwright (PR)
+      #- playwright-functional-test-report:
+          #name: Merge Playwright Reports (PR)
+          #requires:
+            #- Functional Tests - Playwright (PR)
       - #build-and-deploy-storybooks:
           #name: Deploy Storybooks (PR)
           #requires:
