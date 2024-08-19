@@ -19,6 +19,8 @@ const NUM_WORKERS = parseInt(process.env.PLAYWRIGHT_WORKERS || '16');
 const RUN_IN_ALL_BROWSERS =
   process.env.PLAYWRIGHT_RUN_IN_ALL_BROWSERS === 'true';
 
+console.log(`RUN_IN_ALL_BROWSERS is set to: ${RUN_IN_ALL_BROWSERS}`);
+
 let workers = NUM_WORKERS || 2,
   maxFailures = 0;
 if (CI) {

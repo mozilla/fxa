@@ -21,7 +21,7 @@ FROM test-runner as builder
 WORKDIR /home/circleci
 COPY --chown=circleci:circleci .yarn .yarn
 WORKDIR /home/circleci/project
-ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+# ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 ENV YARN_CHECKSUM_BEHAVIOR=throw
 ENV FXA_AUTO_INSTALL=0
 RUN _scripts/l10n/clone.sh

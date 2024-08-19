@@ -318,6 +318,7 @@ commands:
               GREP=""
             fi
             echo "targeting project << parameters.project >> $GREP"
+            echo "PLAYWRIGHT_RUN_IN_ALL_BROWSERS: $PLAYWRIGHT_RUN_IN_ALL_BROWSERS"
             npx nx build fxa-auth-client
             cd packages/functional-tests/tests
             TEST_FILES=$(circleci tests glob "./**/*.spec.ts")
