@@ -699,7 +699,7 @@ jobs:
         type: integer
         default: 4
       environment:
-        type: boolean
+        type: string
         default: false
     executor: functional-test-executor
     resource_class: << parameters.resource_class >>
