@@ -13,7 +13,6 @@ import {
   InvoiceManager,
   StripeCustomer,
   SubplatInterval,
-  TaxAddress,
 } from '@fxa/payments/stripe';
 import { CartErrorReasonId, CartState } from '@fxa/shared/db/mysql/account';
 import { GeoDBManager } from '@fxa/shared/geodb';
@@ -124,7 +123,7 @@ export class CartService {
       interval: oldCart.interval,
       offeringConfigId: oldCart.offeringConfigId,
       experiment: oldCart.experiment || undefined,
-      taxAddress: (oldCart.taxAddress as unknown as TaxAddress) || undefined, // TODO: Fix the typings for taxAddress
+      taxAddress: oldCart.taxAddress || undefined,
       couponCode: oldCart.couponCode || undefined,
       stripeCustomerId: oldCart.stripeCustomerId || undefined,
       email: oldCart.email || undefined,
@@ -233,7 +232,7 @@ export class CartService {
     const invoicePreview = await this.invoiceManager.preview({
       priceId,
       customer,
-      taxAddress: cart.taxAddress as unknown as TaxAddress, // TODO: Fix the typings for taxAddress
+      taxAddress: cart.taxAddress || undefined,
     });
 
     return {
