@@ -26,6 +26,7 @@ import {
   flowId,
 } from 'fxa-shared/metrics/glean/web/session';
 import * as utm from 'fxa-shared/metrics/glean/web/utm';
+import * as entrypointQuery from 'fxa-shared/metrics/glean/web/entrypoint';
 
 import { Config } from '../config';
 import { WebIntegration, useAccount } from '../../models';
@@ -73,6 +74,8 @@ describe('lib/glean', () => {
     setUtmMediumStub: SinonStub,
     setUtmSourceStub: SinonStub,
     setUtmTermStub: SinonStub,
+    setEntrypointExperimentStub: SinonStub,
+    setEntrypointVariationStub: SinonStub,
     pageLoadStub: SinonStub;
 
   beforeEach(async () => {
@@ -90,6 +93,8 @@ describe('lib/glean', () => {
       utmMedium: 'TV',
       utmSource: 'mystery',
       utmTerm: 'thunk',
+      entrypointExperiment: 'on',
+      entrypointVariation: 'earth',
     };
 
     setDeviceTypeStub = sandbox.stub(deviceType, 'set');
@@ -105,6 +110,11 @@ describe('lib/glean', () => {
     setUtmMediumStub = sandbox.stub(utm.medium, 'set');
     setUtmSourceStub = sandbox.stub(utm.source, 'set');
     setUtmTermStub = sandbox.stub(utm.term, 'set');
+    setEntrypointExperimentStub = sandbox.stub(
+      entrypointQuery.experiment,
+      'set'
+    );
+    setEntrypointVariationStub = sandbox.stub(entrypointQuery.variation, 'set');
     submitPingStub = sandbox.stub(pings.accountsEvents, 'submit');
     pageLoadStub = sandbox.stub(GleanMetricsAPI.default, 'pageLoad');
 
@@ -145,6 +155,8 @@ describe('lib/glean', () => {
       sinon.assert.notCalled(setUtmMediumStub);
       sinon.assert.notCalled(setUtmSourceStub);
       sinon.assert.notCalled(setUtmTermStub);
+      sinon.assert.notCalled(setEntrypointExperimentStub);
+      sinon.assert.notCalled(setEntrypointVariationStub);
     });
   });
 
@@ -218,6 +230,8 @@ describe('lib/glean', () => {
       sinon.assert.calledWith(setUtmMediumStub, '');
       sinon.assert.calledWith(setUtmSourceStub, '');
       sinon.assert.calledWith(setUtmTermStub, '');
+      sinon.assert.calledWith(setEntrypointExperimentStub, '');
+      sinon.assert.calledWith(setEntrypointVariationStub, '');
     });
 
     it('sets the metrics values', async () => {
@@ -251,6 +265,14 @@ describe('lib/glean', () => {
       sinon.assert.calledWith(setUtmMediumStub, mockIntegration.data.utmMedium);
       sinon.assert.calledWith(setUtmSourceStub, mockIntegration.data.utmSource);
       sinon.assert.calledWith(setUtmTermStub, mockIntegration.data.utmTerm);
+      sinon.assert.calledWith(
+        setEntrypointVariationStub,
+        mockIntegration.data.entrypointVariation
+      );
+      sinon.assert.calledWith(
+        setEntrypointExperimentStub,
+        mockIntegration.data.entrypointExperiment
+      );
     });
 
     it('submits the pings in order', async () => {
