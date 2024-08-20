@@ -295,7 +295,7 @@
     "aws-sdk": "^2.1664.0",
     "buf": "^0.1.1",
     "celebrate": "^15.0.1",
-    "cldr-localenames-full": "43.1.0",
+    "cldr-localenames-full": "45.0.0",
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "find-up": "^5.0.0",
