@@ -2,7 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { StatsD } from 'hot-shots';
+
 import { EligibilityService } from '@fxa/payments/eligibility';
 import {
   PaypalBillingAgreementManager,
@@ -22,6 +24,7 @@ import {
 } from '@fxa/payments/stripe';
 import { AccountManager } from '@fxa/shared/account/account';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
+import { StatsDService } from '@fxa/shared/metrics/statsd';
 import {
   CartTotalMismatchError,
   CartEligibilityMismatchError,
@@ -46,7 +49,8 @@ export class CheckoutService {
     private paypalCustomerManager: PaypalCustomerManager,
     private productConfigurationManager: ProductConfigurationManager,
     private promotionCodeManager: PromotionCodeManager,
-    private subscriptionManager: SubscriptionManager
+    private subscriptionManager: SubscriptionManager,
+    @Inject(StatsDService) private statsd: StatsD
   ) {}
 
   async prePaySteps(cart: ResultCart, customerData: CheckoutCustomerData) {
@@ -190,7 +194,9 @@ export class CheckoutService {
       },
     });
 
-    // TODO: increment statsd for stripe_subscription with payment provider stripe
+    this.statsd.increment('stripe_subscription', {
+      payment_provider: 'stripe',
+    });
 
     const subscription = await this.subscriptionManager.create(
       {
@@ -260,8 +266,10 @@ export class CheckoutService {
         token
       );
 
-    // TODO: increment statsd for stripe_subscription with payment provider paypal
-    //
+    this.statsd.increment('stripe_subscription', {
+      payment_provider: 'paypal',
+    });
+
     const subscription = await this.subscriptionManager.create(
       {
         customer: customer.id,

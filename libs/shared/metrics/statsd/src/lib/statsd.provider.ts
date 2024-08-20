@@ -28,7 +28,10 @@ export const StatsDProvider: Provider<StatsD> = {
 export const MockStatsDProvider: Provider<StatsD> = {
   provide: StatsDService,
   useFactory: () => {
-    return {} as StatsD;
+    return {
+      increment: () => {},
+      timing: () => {},
+    } as unknown as StatsD;
   },
 };
 

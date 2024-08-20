@@ -4,6 +4,7 @@
 
 import { faker } from '@faker-js/faker';
 import { Test } from '@nestjs/testing';
+import { StatsD } from 'hot-shots';
 
 import {
   CartManager,
@@ -58,7 +59,7 @@ import {
   CartEligibilityStatus,
   MockAccountDatabaseNestFactory,
 } from '@fxa/shared/db/mysql/account';
-import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
+import { MockStatsDProvider, StatsDService } from '@fxa/shared/metrics/statsd';
 import {
   CartEligibilityMismatchError,
   CartTotalMismatchError,
@@ -74,6 +75,7 @@ describe('CheckoutService', () => {
   let customerManager: CustomerManager;
   let eligibilityService: EligibilityService;
   let invoiceManager: InvoiceManager;
+  let mockStatsd: StatsD;
   let paymentMethodManager: PaymentMethodManager;
   let paypalBillingAgreementManager: PaypalBillingAgreementManager;
   let paypalCustomerManager: PaypalCustomerManager;
@@ -95,7 +97,6 @@ describe('CheckoutService', () => {
         InvoiceManager,
         MockAccountDatabaseNestFactory,
         MockFirestoreProvider,
-        MockStrapiClientConfigProvider,
         MockStatsDProvider,
         MockStrapiClientConfigProvider,
         MockStripeConfigProvider,
@@ -122,6 +123,7 @@ describe('CheckoutService', () => {
     customerManager = moduleRef.get(CustomerManager);
     eligibilityService = moduleRef.get(EligibilityService);
     invoiceManager = moduleRef.get(InvoiceManager);
+    mockStatsd = moduleRef.get(StatsDService);
     paymentMethodManager = moduleRef.get(PaymentMethodManager);
     paypalBillingAgreementManager = moduleRef.get(
       PaypalBillingAgreementManager
@@ -406,6 +408,7 @@ describe('CheckoutService', () => {
         .spyOn(paymentMethodManager, 'attach')
         .mockResolvedValue(mockPaymentMethod);
       jest.spyOn(customerManager, 'update').mockResolvedValue(mockCustomer);
+      jest.spyOn(mockStatsd, 'increment');
       jest
         .spyOn(subscriptionManager, 'create')
         .mockResolvedValue(mockSubscription);
@@ -451,6 +454,15 @@ describe('CheckoutService', () => {
             default_payment_method: mockPaymentMethod.id,
           },
         });
+      });
+
+      it('increments the statsd counter', async () => {
+        expect(mockStatsd.increment).toHaveBeenCalledWith(
+          'stripe_subscription',
+          {
+            payment_provider: 'stripe',
+          }
+        );
       });
 
       it('creates the subscription', async () => {
@@ -524,6 +536,7 @@ describe('CheckoutService', () => {
       jest
         .spyOn(paypalBillingAgreementManager, 'retrieveOrCreateId')
         .mockResolvedValue(mockBillingAgreementId);
+      jest.spyOn(mockStatsd, 'increment');
       jest
         .spyOn(paypalCustomerManager, 'deletePaypalCustomersByUid')
         .mockResolvedValue(BigInt(1));
@@ -560,6 +573,15 @@ describe('CheckoutService', () => {
         expect(
           paypalBillingAgreementManager.retrieveOrCreateId
         ).toHaveBeenCalledWith(mockCart.uid, false, mockToken);
+      });
+
+      it('increments the statsd counter', async () => {
+        expect(mockStatsd.increment).toHaveBeenCalledWith(
+          'stripe_subscription',
+          {
+            payment_provider: 'paypal',
+          }
+        );
       });
 
       it('creates the subscription', async () => {
