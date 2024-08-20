@@ -182,9 +182,22 @@ export class CheckoutService {
   }
 
   async postPaySteps(cart: ResultCart, subscription: StripeSubscription) {
-    // TODO: Add tax ID to customer
+    const { customer: customerId, currency } = subscription;
+
+    await this.customerManager.setTaxId(customerId, currency);
+
     // TODO: call customerChanged
-    // TODO: save promo code to subscription's metadata
+
+    if (cart.couponCode) {
+      const subscriptionMetadata = {
+        ...subscription.metadata,
+        [STRIPE_CUSTOMER_METADATA.SubscriptionPromotionCode]: cart.couponCode,
+      };
+      await this.subscriptionManager.update(subscription.id, {
+        metadata: subscriptionMetadata,
+      });
+    }
+
     // TODO: call sendFinishSetupEmailForStubAccount
     console.log(cart.id, subscription.id);
   }
@@ -313,7 +326,7 @@ export class CheckoutService {
 
     await this.customerManager.update(customer.id, {
       metadata: {
-        [STRIPE_CUSTOMER_METADATA.PAYPAL_AGREEMENT]: billingAgreementId,
+        [STRIPE_CUSTOMER_METADATA.PaypalAgreement]: billingAgreementId,
       },
     });
 

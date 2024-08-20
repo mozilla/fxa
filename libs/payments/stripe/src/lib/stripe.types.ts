@@ -18,17 +18,18 @@ export interface TaxAmount {
 }
 
 export enum STRIPE_CUSTOMER_METADATA {
-  PAYPAL_AGREEMENT = 'paypalAgreementId',
+  PaypalAgreement = 'paypalAgreementId',
+  SubscriptionPromotionCode = 'appliedPromotionCode',
 }
 
 export enum STRIPE_PRICE_METADATA {
-  APP_STORE_PRODUCT_IDS = 'appStoreProductIds',
-  PLAY_SKU_IDS = 'playSkuIds',
-  PROMOTION_CODES = 'promotionCodes',
+  AppStoreProductIds = 'appStoreProductIds',
+  PlaySkuIds = 'playSkuIds',
+  PromotionCodes = 'promotionCodes',
 }
 
 export enum STRIPE_PRODUCT_METADATA {
-  PROMOTION_CODES = 'promotionCodes',
+  PromotionCodes = 'promotionCodes',
 }
 
 export enum SubplatInterval {

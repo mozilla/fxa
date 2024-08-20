@@ -35,6 +35,7 @@ import {
   ProductManager,
   PromotionCodeManager,
   ResultAccountCustomerFactory,
+  STRIPE_CUSTOMER_METADATA,
   StripeClient,
   StripeConfig,
   StripeCustomerFactory,
@@ -82,7 +83,6 @@ describe('CheckoutService', () => {
   let paypalCustomerManager: PaypalCustomerManager;
   let productConfigurationManager: ProductConfigurationManager;
   let promotionCodeManager: PromotionCodeManager;
-  let stripeClient: StripeClient;
   let subscriptionManager: SubscriptionManager;
 
   beforeEach(async () => {
@@ -132,7 +132,6 @@ describe('CheckoutService', () => {
     paypalCustomerManager = moduleRef.get(PaypalCustomerManager);
     productConfigurationManager = moduleRef.get(ProductConfigurationManager);
     promotionCodeManager = moduleRef.get(PromotionCodeManager);
-    stripeClient = moduleRef.get(StripeClient);
     subscriptionManager = moduleRef.get(SubscriptionManager);
   });
 
@@ -396,6 +395,63 @@ describe('CheckoutService', () => {
     });
   });
 
+  describe('postPaySteps', () => {
+    it('success', async () => {
+      const mockCart = ResultCartFactory();
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory()
+      );
+
+      jest.spyOn(customerManager, 'setTaxId').mockResolvedValue();
+
+      await checkoutService.postPaySteps(mockCart, mockSubscription);
+
+      expect(customerManager.setTaxId).toHaveBeenCalledWith(
+        mockSubscription.customer,
+        mockSubscription.currency
+      );
+    });
+
+    it('success - adds coupon code to subscription metadata if it exists', async () => {
+      const mockCart = ResultCartFactory({
+        couponCode: faker.string.uuid(),
+      });
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory()
+      );
+      const mockUpdatedSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory({
+          metadata: {
+            [STRIPE_CUSTOMER_METADATA.SubscriptionPromotionCode]:
+              mockCart.couponCode,
+          },
+        })
+      );
+
+      jest.spyOn(customerManager, 'setTaxId').mockResolvedValue();
+      jest
+        .spyOn(subscriptionManager, 'update')
+        .mockResolvedValue(mockUpdatedSubscription);
+
+      await checkoutService.postPaySteps(mockCart, mockSubscription);
+
+      expect(customerManager.setTaxId).toHaveBeenCalledWith(
+        mockSubscription.customer,
+        mockSubscription.currency
+      );
+      expect(subscriptionManager.update).toHaveBeenCalledWith(
+        mockSubscription.id,
+        {
+          metadata: {
+            ...mockSubscription.metadata,
+            [STRIPE_CUSTOMER_METADATA.SubscriptionPromotionCode]:
+              mockCart.couponCode,
+          },
+        }
+      );
+    });
+  });
+
   describe('payWithStripe', () => {
     const mockCustomerData = CheckoutCustomerDataFactory();
     const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
@@ -413,7 +469,6 @@ describe('CheckoutService', () => {
       StripePaymentMethodFactory()
     );
     const mockSubscription = StripeResponseFactory(StripeSubscriptionFactory());
-    const mockInvoice = StripeResponseFactory(StripeInvoiceFactory());
     const mockPaymentIntent = StripeResponseFactory(
       StripePaymentIntentFactory()
     );
@@ -436,14 +491,12 @@ describe('CheckoutService', () => {
         .spyOn(subscriptionManager, 'create')
         .mockResolvedValue(mockSubscription);
       jest
-        .spyOn(stripeClient, 'invoicesRetrieve')
-        .mockResolvedValue(mockInvoice);
-      jest
-        .spyOn(stripeClient, 'paymentIntentRetrieve')
+        .spyOn(subscriptionManager, 'getLatestPaymentIntent')
         .mockResolvedValue(mockPaymentIntent);
       jest
         .spyOn(subscriptionManager, 'cancel')
         .mockResolvedValue(mockSubscription);
+      jest.spyOn(checkoutService, 'postPaySteps').mockResolvedValue();
     });
 
     describe('success', () => {
@@ -506,15 +559,9 @@ describe('CheckoutService', () => {
         );
       });
 
-      it('retrieves the latest invoice', () => {
-        expect(stripeClient.invoicesRetrieve).toHaveBeenCalledWith(
-          mockSubscription.latest_invoice
-        );
-      });
-
-      it('retrieves the payment intent from the latest invoice', () => {
-        expect(stripeClient.paymentIntentRetrieve).toHaveBeenCalledWith(
-          mockInvoice.payment_intent
+      it('retrieves the latest payment intent', () => {
+        expect(subscriptionManager.getLatestPaymentIntent).toHaveBeenCalledWith(
+          mockSubscription
         );
       });
 
@@ -552,29 +599,28 @@ describe('CheckoutService', () => {
         promotionCode: mockPromotionCode,
         price: mockPrice,
       });
-      jest.spyOn(customerManager, 'update').mockResolvedValue(mockCustomer);
-      jest.spyOn(invoiceManager, 'processPayPalInvoice').mockResolvedValue();
-      jest.spyOn(invoiceManager, 'retrieve').mockResolvedValue(mockInvoice);
-      jest.spyOn(paypalBillingAgreementManager, 'cancel').mockResolvedValue();
+      jest
+        .spyOn(subscriptionManager, 'getCustomerPayPalSubscriptions')
+        .mockResolvedValue([]);
       jest
         .spyOn(paypalBillingAgreementManager, 'retrieveOrCreateId')
         .mockResolvedValue(mockBillingAgreementId);
       jest.spyOn(mockStatsd, 'increment');
+      jest
+        .spyOn(subscriptionManager, 'create')
+        .mockResolvedValue(mockSubscription);
       jest
         .spyOn(paypalCustomerManager, 'deletePaypalCustomersByUid')
         .mockResolvedValue(BigInt(1));
       jest
         .spyOn(paypalCustomerManager, 'createPaypalCustomer')
         .mockResolvedValue(mockPaypalCustomer);
-      jest
-        .spyOn(subscriptionManager, 'create')
-        .mockResolvedValue(mockSubscription);
-      jest
-        .spyOn(subscriptionManager, 'cancel')
-        .mockResolvedValue(mockSubscription);
-      jest
-        .spyOn(subscriptionManager, 'getCustomerPayPalSubscriptions')
-        .mockResolvedValue([]);
+      jest.spyOn(customerManager, 'update').mockResolvedValue(mockCustomer);
+      jest.spyOn(invoiceManager, 'retrieve').mockResolvedValue(mockInvoice);
+      jest.spyOn(invoiceManager, 'processPayPalInvoice').mockResolvedValue();
+      jest.spyOn(subscriptionManager, 'cancel');
+      jest.spyOn(paypalBillingAgreementManager, 'cancel').mockResolvedValue();
+      jest.spyOn(checkoutService, 'postPaySteps').mockResolvedValue();
     });
 
     describe('success', () => {
