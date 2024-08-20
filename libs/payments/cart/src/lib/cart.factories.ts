@@ -83,7 +83,7 @@ export const ResultCartFactory = (
   offeringConfigId: faker.string.uuid(),
   interval: faker.string.numeric(),
   experiment: null,
-  taxAddress: JSON.stringify(TaxAddressFactory()),
+  taxAddress: TaxAddressFactory(),
   createdAt: faker.date.past().getTime(),
   updatedAt: faker.date.past().getTime(),
   couponCode: null,
