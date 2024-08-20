@@ -454,18 +454,21 @@ describe('CheckoutService', () => {
       });
 
       it('creates the subscription', async () => {
-        expect(subscriptionManager.create).toHaveBeenCalledWith({
-          customer: mockCustomer.id,
-          automatic_tax: {
-            enabled: true,
-          },
-          promotion_code: mockPromotionCode.id,
-          items: [
-            {
-              price: mockPriceId, // TODO: fetch price from cart after FXA-8893
+        expect(subscriptionManager.create).toHaveBeenCalledWith(
+          {
+            customer: mockCustomer.id,
+            automatic_tax: {
+              enabled: true,
             },
-          ],
-        });
+            promotion_code: mockPromotionCode.id,
+            items: [
+              {
+                price: mockPriceId, // TODO: fetch price from cart after FXA-8893
+              },
+            ],
+          },
+          { idempotencyKey: mockCart.id }
+        );
       });
 
       it('retrieves the latest invoice', () => {
@@ -559,20 +562,23 @@ describe('CheckoutService', () => {
       });
 
       it('creates the subscription', async () => {
-        expect(subscriptionManager.create).toHaveBeenCalledWith({
-          customer: mockCustomer.id,
-          automatic_tax: {
-            enabled: true,
-          },
-          collection_method: 'send_invoice',
-          days_until_due: 1,
-          promotion_code: mockPromotionCode.id,
-          items: [
-            {
-              price: mockPriceId,
+        expect(subscriptionManager.create).toHaveBeenCalledWith(
+          {
+            customer: mockCustomer.id,
+            automatic_tax: {
+              enabled: true,
             },
-          ],
-        });
+            collection_method: 'send_invoice',
+            days_until_due: 1,
+            promotion_code: mockPromotionCode.id,
+            items: [
+              {
+                price: mockPriceId,
+              },
+            ],
+          },
+          { idempotencyKey: mockCart.id }
+        );
       });
 
       it('deletes all paypalCustomers for user by uid', () => {

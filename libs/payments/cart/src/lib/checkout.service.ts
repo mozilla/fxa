@@ -191,19 +191,23 @@ export class CheckoutService {
 
     // TODO: increment statsd for stripe_subscription with payment provider stripe
 
-    const subscription = await this.subscriptionManager.create({
-      customer: customer.id,
-      automatic_tax: {
-        enabled: enableAutomaticTax,
-      },
-      promotion_code: promotionCode?.id,
-      items: [
-        {
-          price: priceId,
+    const subscription = await this.subscriptionManager.create(
+      {
+        customer: customer.id,
+        automatic_tax: {
+          enabled: enableAutomaticTax,
         },
-      ],
-      // TODO: Generate and use idempotency key using util
-    });
+        promotion_code: promotionCode?.id,
+        items: [
+          {
+            price: priceId,
+          },
+        ],
+      },
+      {
+        idempotencyKey: cart.id,
+      }
+    );
 
     const paymentIntent = await this.subscriptionManager.getLatestPaymentIntent(
       subscription
@@ -257,21 +261,25 @@ export class CheckoutService {
 
     // TODO: increment statsd for stripe_subscription with payment provider paypal
     //
-    const subscription = await this.subscriptionManager.create({
-      customer: customer.id,
-      automatic_tax: {
-        enabled: enableAutomaticTax,
-      },
-      collection_method: 'send_invoice',
-      days_until_due: 1,
-      promotion_code: promotionCode?.id,
-      items: [
-        {
-          price: priceId,
+    const subscription = await this.subscriptionManager.create(
+      {
+        customer: customer.id,
+        automatic_tax: {
+          enabled: enableAutomaticTax,
         },
-      ],
-      // TODO: Generate and use idempotency key
-    });
+        collection_method: 'send_invoice',
+        days_until_due: 1,
+        promotion_code: promotionCode?.id,
+        items: [
+          {
+            price: priceId,
+          },
+        ],
+      },
+      {
+        idempotencyKey: cart.id,
+      }
+    );
 
     await this.paypalCustomerManager.deletePaypalCustomersByUid(uid);
     await this.paypalCustomerManager.createPaypalCustomer({
