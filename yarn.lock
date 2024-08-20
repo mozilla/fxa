@@ -39169,7 +39169,7 @@ fsevents@~2.1.1:
     google-auth-library: ^9.8.0
     googleapis: ^135.1.0
     grunt: ^1.6.1
-    grunt-cli: ^1.4.3
+    grunt-cli: ^1.5.0
     grunt-contrib-concat: ^2.1.0
     grunt-contrib-copy: 1.0.0
     grunt-contrib-watch: ^1.1.0
@@ -39422,7 +39422,7 @@ fsevents@~2.1.1:
     eslint: ^7.32.0
     fxa-shared: "workspace:*"
     grunt: ^1.6.1
-    grunt-cli: ^1.4.3
+    grunt-cli: ^1.5.0
     grunt-copyright: 0.3.0
     grunt-eslint: ^25.0.0
     hapi-swagger: ^17.2.1
@@ -39665,7 +39665,7 @@ fsevents@~2.1.1:
     fxa-settings: "workspace:*"
     fxa-shared: "workspace:*"
     grunt: ^1.6.1
-    grunt-cli: ^1.4.3
+    grunt-cli: ^1.5.0
     grunt-contrib-concat: ^2.1.0
     grunt-contrib-watch: ^1.1.0
     handlebars: ^4.7.7
@@ -39796,7 +39796,7 @@ fsevents@~2.1.1:
     file-loader: ^6.2.0
     fxa-shared: "workspace:*"
     grunt: ^1.6.1
-    grunt-cli: ^1.4.3
+    grunt-cli: ^1.5.0
     grunt-contrib-concat: ^2.1.0
     grunt-contrib-watch: ^1.1.0
     identity-obj-proxy: ^3.0.0
@@ -39896,7 +39896,7 @@ fsevents@~2.1.1:
     fxa-react: "workspace:*"
     fxa-shared: "workspace:*"
     grunt: ^1.6.1
-    grunt-cli: ^1.4.3
+    grunt-cli: ^1.5.0
     grunt-contrib-concat: ^2.1.0
     grunt-contrib-watch: ^1.1.0
     html-webpack-plugin: ^5.6.0
@@ -40143,7 +40143,7 @@ fsevents@~2.1.1:
     graphql: ^16.9.0
     graphql-request: ^6.1.0
     grunt: ^1.6.1
-    grunt-cli: ^1.4.3
+    grunt-cli: ^1.5.0
     grunt-concurrent: ^3.0.0
     grunt-contrib-concat: ^2.1.0
     grunt-contrib-copy: ^1.0.0
@@ -41444,7 +41444,22 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"grunt-cli@npm:^1.4.3, grunt-cli@npm:~1.4.3":
+"grunt-cli@npm:^1.5.0":
+  version: 1.5.0
+  resolution: "grunt-cli@npm:1.5.0"
+  dependencies:
+    grunt-known-options: ~2.0.0
+    interpret: ~1.1.0
+    liftup: ~3.0.1
+    nopt: ~5.0.0
+    v8flags: ^4.0.1
+  bin:
+    grunt: bin/grunt
+  checksum: 124493f25b761581dcc0863078ca2953da1c81d5f4e57c17487a05e29283131c353cc87163125e777417534c8d80e419cefcf4bd8b9220c33f0d52d7b00a60ff
+  languageName: node
+  linkType: hard
+
+"grunt-cli@npm:~1.4.3":
   version: 1.4.3
   resolution: "grunt-cli@npm:1.4.3"
   dependencies:
@@ -52567,7 +52582,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"nopt@npm:^5.0.0":
+"nopt@npm:^5.0.0, nopt@npm:~5.0.0":
   version: 5.0.0
   resolution: "nopt@npm:5.0.0"
   dependencies:
@@ -66436,6 +66451,13 @@ resolve@1.1.7:
     "@types/istanbul-lib-coverage": ^2.0.1
     convert-source-map: ^2.0.0
   checksum: 31ef98c6a31b1dab6be024cf914f235408cd4c0dc56a5c744a5eea1a9e019ba279e1b6f90d695b78c3186feed391ed492380ccf095009e2eb91f3d058f0b4491
+  languageName: node
+  linkType: hard
+
+"v8flags@npm:^4.0.1":
+  version: 4.0.1
+  resolution: "v8flags@npm:4.0.1"
+  checksum: 69863ede75ff79579654951c78724c084bc337d0ebe1d9bffc6924f3f2bd0b40a9eb4c568fc795201d5eb72311b77e5d75a7e1544faa12355412360dc37d76e2
   languageName: node
   linkType: hard
 
