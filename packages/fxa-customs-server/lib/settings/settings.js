@@ -61,7 +61,7 @@ module.exports = (config, mc, log) => {
       return result.then(
         (value) => this.setAll(value),
         (err) => {
-          log.error({ op: this[KEY] + '.refresh', err: err.message });
+          log.error({ op: this[KEY] + '.refresh', err: err });
           throw err;
         }
       );
