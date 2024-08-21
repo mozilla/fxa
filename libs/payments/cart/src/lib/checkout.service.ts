@@ -14,6 +14,7 @@ import {
   InvoiceManager,
   PaymentMethodManager,
   PromotionCodeManager,
+  STRIPE_CUSTOMER_METADATA,
   StripeSubscription,
   SubplatInterval,
   SubscriptionManager,
@@ -280,7 +281,12 @@ export class CheckoutService {
       status: 'active',
       endedAt: null,
     });
-    // TODO: set billingAgreementId on customer metadata (existing is updateCustomerPaypalAgreement)
+
+    await this.customerManager.update(customer.id, {
+      metadata: {
+        [STRIPE_CUSTOMER_METADATA.PAYPAL_AGREEMENT]: billingAgreementId,
+      },
+    });
 
     if (!subscription.latest_invoice) {
       throw new CheckoutError('latest_invoice does not exist on subscription');

@@ -514,6 +514,7 @@ describe('CheckoutService', () => {
         promotionCode: mockPromotionCode,
         priceId: mockPriceId,
       });
+      jest.spyOn(customerManager, 'update').mockResolvedValue(mockCustomer);
       jest.spyOn(invoiceManager, 'processPayPalInvoice').mockResolvedValue();
       jest.spyOn(invoiceManager, 'retrieve').mockResolvedValue(mockInvoice);
       jest.spyOn(paypalBillingAgreementManager, 'cancel').mockResolvedValue();
