@@ -21,8 +21,11 @@ export class SubscriptionManager {
     return this.client.subscriptionsCancel(subscriptionId);
   }
 
-  async create(params: Stripe.SubscriptionCreateParams) {
-    return this.client.subscriptionsCreate(params);
+  async create(
+    params: Stripe.SubscriptionCreateParams,
+    options?: Stripe.RequestOptions
+  ) {
+    return this.client.subscriptionsCreate(params, options);
   }
 
   async retrieve(subscriptionId: string) {

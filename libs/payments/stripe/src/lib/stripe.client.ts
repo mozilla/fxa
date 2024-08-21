@@ -83,11 +83,17 @@ export class StripeClient {
     return result as StripeApiList<StripeSubscription>;
   }
 
-  async subscriptionsCreate(params: Stripe.SubscriptionCreateParams) {
-    const result = await this.stripe.subscriptions.create({
-      ...params,
-      expand: undefined,
-    });
+  async subscriptionsCreate(
+    params: Stripe.SubscriptionCreateParams,
+    options?: Stripe.RequestOptions
+  ) {
+    const result = await this.stripe.subscriptions.create(
+      {
+        ...params,
+        expand: undefined,
+      },
+      options
+    );
 
     return result as StripeResponse<StripeSubscription>;
   }

@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { faker } from '@faker-js/faker';
 import { Test } from '@nestjs/testing';
 
 import {
@@ -125,14 +126,17 @@ describe('SubscriptionManager', () => {
       const params = {
         customer: mockCustomer.id,
       };
+      const options = {
+        idempotencyKey: faker.string.uuid(),
+      };
 
       jest
         .spyOn(stripeClient, 'subscriptionsCreate')
         .mockResolvedValue(mockResponse);
 
-      const result = await subscriptionManager.create(params);
+      const result = await subscriptionManager.create(params, options);
 
-      expect(stripeClient.subscriptionsCreate).toBeCalledWith(params);
+      expect(stripeClient.subscriptionsCreate).toBeCalledWith(params, options);
       expect(result).toEqual(mockResponse);
     });
   });
