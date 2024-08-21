@@ -33,9 +33,9 @@ RUN yarn install --immutable;
 # must based on cimg/node:20.11-browsers, which is why this stage
 # is necessary.
 FROM builder as playwright-install
-RUN npx playwright install firefox \
- && npx playwright install webkit \
- && npx playwright install chromium;
+RUN npx playwright install --with-deps firefox \
+ && npx playwright install --with-deps chromium \
+ && npx playwright install --with-deps webkit;
 
 
 # Runs functional tests in our CI. Needs minimal install. Assumes

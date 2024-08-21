@@ -327,6 +327,7 @@ commands:
             NODE_OPTIONS: --dns-result-order=ipv4first
             JEST_JUNIT_OUTPUT_DIR: ./artifacts/tests
             JEST_JUNIT_ADD_FILE_ATTRIBUTE: true
+            PLAYWRIGHT_RUN_IN_ALL_BROWSERS: true
             PLAYWRIGHT_BLOB_OUTPUT_DIR: ./artifacts/blob-report
             PW_TEST_HTML_REPORT_OPEN: never
             ACCOUNTS_DOMAIN: << pipeline.parameters.accounts-domain >>
@@ -865,14 +866,14 @@ workflows:
           resource_class: xlarge
           parallelism: 8
           environment:
-            "true"
+            'true'
           requires:
             - Build (PR)
       #- playwright-functional-test-report:
           #name: Merge Playwright Reports (PR)
           #requires:
             #- Functional Tests - Playwright (PR)
-      - #build-and-deploy-storybooks:
+      #- build-and-deploy-storybooks:
           #name: Deploy Storybooks (PR)
           #requires:
           #  - Build (PR)
