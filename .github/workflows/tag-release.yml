@@ -7,7 +7,8 @@ jobs:
     permissions:
       contents: write # To create a branch and tags
     runs-on: ubuntu-latest
-
+    outputs:
+      TAG: ${{ steps.echo.outputs.tag }}
     steps:
       - name: Show GitHub context
         env:
@@ -24,6 +25,11 @@ jobs:
       - name: Compute new version number
         run: |
           echo versionNumber=$(git tag -l --sort=version:refname | grep -v '-' | tail -1 | awk '{print $2 + 1}' FS='.') >> "$GITHUB_ENV"
+
+      - name: Add git tag to output
+        id: echo
+        run: |
+          echo tag=v1.${{ env.versionNumber }}.0 >> $GITHUB_OUTPUT
 
       - name: Create release branch
         run: git checkout -b train-${{ env.versionNumber }}
@@ -43,3 +49,12 @@ jobs:
         run: |
           git tag -a "v1.${{ env.versionNumber }}.0" -m "Train release ${{ env.versionNumber }}"
           git push origin v1.${{ env.versionNumber }}.0
+
+  docker:
+    uses: ./.github/workflows/docker.yml
+    with:
+      git_tag: ${{ needs.tagrelease.outputs.TAG }}
+    needs: tagrelease
+    permissions:
+      contents: read
+      id-token: write
