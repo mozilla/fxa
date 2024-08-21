@@ -9,10 +9,11 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "123done@workspace:packages/123done"
   dependencies:
+    "@types/cookie-session": ^2
     audit-filter: 0.5.0
-    client-sessions: 0.8.x
     convict: ^6.2.4
     convict-format-with-validator: ^6.2.0
+    cookie-session: ^2.1.0
     eslint: ^7.32.0
     express: ^4.19.2
     ioredis: ^5.0.6
@@ -22494,6 +22495,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/cookie-session@npm:^2":
+  version: 2.0.49
+  resolution: "@types/cookie-session@npm:2.0.49"
+  dependencies:
+    "@types/express": "*"
+    "@types/keygrip": "*"
+  checksum: fbdd5612148da979d1fbb1e3e2eaedd7d262cf60de44e5d0ae5bee189891d8e007455a1c2a11676d4d26d0556114aecabc93bd021416f8bd852bfa88f5b01194
+  languageName: node
+  linkType: hard
+
 "@types/cookie@npm:0.6.0":
   version: 0.6.0
   resolution: "@types/cookie@npm:0.6.0"
@@ -32031,6 +32042,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"cookie-session@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "cookie-session@npm:2.1.0"
+  dependencies:
+    cookies: 0.9.1
+    debug: 3.2.7
+    on-headers: ~1.0.2
+    safe-buffer: 5.2.1
+  checksum: af906891bc18c5256b01ad613c71e6cb42e0d4085719e6c4188b36a33b593effd63d8e6a54fd356b91ec78fe9775f53935e0fff0ab33ded0df34e187c3777793
+  languageName: node
+  linkType: hard
+
 "cookie-signature@npm:1.0.6":
   version: 1.0.6
   resolution: "cookie-signature@npm:1.0.6"
@@ -32070,6 +32093,16 @@ __metadata:
   version: 2.1.4
   resolution: "cookiejar@npm:2.1.4"
   checksum: c4442111963077dc0e5672359956d6556a195d31cbb35b528356ce5f184922b99ac48245ac05ed86cf993f7df157c56da10ab3efdadfed79778a0d9b1b092d5b
+  languageName: node
+  linkType: hard
+
+"cookies@npm:0.9.1":
+  version: 0.9.1
+  resolution: "cookies@npm:0.9.1"
+  dependencies:
+    depd: ~2.0.0
+    keygrip: ~1.1.0
+  checksum: 213e4d14847b582fbd8a003203d3621a4b9fa792a315c37954e89332d38fac5bcc34ba92ef316ad6d5fe28f0187aaa115927fbbe2080744ad1707a93b4313247
   languageName: node
   linkType: hard
 
@@ -33233,6 +33266,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"debug@npm:3.2.7, debug@npm:^3.0.1, debug@npm:^3.1.0, debug@npm:^3.2.5, debug@npm:^3.2.6, debug@npm:^3.2.7":
+  version: 3.2.7
+  resolution: "debug@npm:3.2.7"
+  dependencies:
+    ms: ^2.1.1
+  checksum: b3d8c5940799914d30314b7c3304a43305fd0715581a919dacb8b3176d024a782062368405b47491516d2091d6462d4d11f2f4974a405048094f8bfebfa3071c
+  languageName: node
+  linkType: hard
+
 "debug@npm:4, debug@npm:^4.0.1, debug@npm:^4.1.0, debug@npm:^4.1.1, debug@npm:^4.3.1, debug@npm:^4.3.2, debug@npm:~4.3.1":
   version: 4.3.2
   resolution: "debug@npm:4.3.2"
@@ -33263,15 +33305,6 @@ __metadata:
     supports-color:
       optional: true
   checksum: 3dbad3f94ea64f34431a9cbf0bafb61853eda57bff2880036153438f50fb5a84f27683ba0d8e5426bf41a8c6ff03879488120cf5b3a761e77953169c0600a708
-  languageName: node
-  linkType: hard
-
-"debug@npm:^3.0.1, debug@npm:^3.1.0, debug@npm:^3.2.5, debug@npm:^3.2.6, debug@npm:^3.2.7":
-  version: 3.2.7
-  resolution: "debug@npm:3.2.7"
-  dependencies:
-    ms: ^2.1.1
-  checksum: b3d8c5940799914d30314b7c3304a43305fd0715581a919dacb8b3176d024a782062368405b47491516d2091d6462d4d11f2f4974a405048094f8bfebfa3071c
   languageName: node
   linkType: hard
 

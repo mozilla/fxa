@@ -4,11 +4,11 @@ const express = require('express');
 const morgan = require('morgan');
 const path = require('path');
 const Redis = require('ioredis');
-const sessions = require('client-sessions');
 
 const oauth = require('./oauth');
 const config = require('./config');
 const version = require('./version');
+const cookieSession = require('cookie-session');
 
 const logger = morgan('short');
 
@@ -38,14 +38,11 @@ app.use(function (req, res, next) {
   if (/^\/api/.test(req.url)) {
     res.setHeader('Cache-Control', 'no-cache, max-age=0');
 
-    return sessions({
-      cookieName: config.get('cookie_name'),
+    return cookieSession({
+      name: config.get('cookie_name'),
       secret: config.get('cookie_secret'),
-      requestKey: 'session',
-      cookie: {
-        path: '/api',
-        httpOnly: true,
-      },
+      path: '/api',
+      httpOnly: true,
     })(req, res, next);
   } else {
     return next();
@@ -82,7 +79,7 @@ app.get('/api/auth_status', function (req, res) {
 
 // logout clears the current authenticated user
 app.post('/api/logout', checkAuth, function (req, res) {
-  req.session.reset();
+  req.session = null;
   res.send(200);
 });
 
