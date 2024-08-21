@@ -6,10 +6,7 @@ import { Injectable } from '@nestjs/common';
 
 import { StripeClient } from './stripe.client';
 import { StripePrice } from './stripe.client.types';
-import {
-  PlanIntervalMultiplePlansError,
-  PlanNotFoundError,
-} from './stripe.error';
+import { PlanIntervalMultiplePlansError } from './stripe.error';
 import { SubplatInterval } from './stripe.types';
 import { doesPriceMatchSubplatInterval } from './util/doesPriceMatchSubplatInterval';
 
@@ -19,7 +16,6 @@ export class PriceManager {
 
   async retrieve(priceId: string) {
     const price = await this.client.pricesRetrieve(priceId);
-    if (!price) throw new PlanNotFoundError();
     return price;
   }
 

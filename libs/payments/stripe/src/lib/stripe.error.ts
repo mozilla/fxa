@@ -30,18 +30,6 @@ export class PlanIntervalMultiplePlansError extends StripeError {
   }
 }
 
-export class PlanNotFoundError extends StripeError {
-  constructor() {
-    super('Plan not found');
-  }
-}
-
-export class ProductNotFoundError extends StripeError {
-  constructor() {
-    super('Product not found');
-  }
-}
-
 export class PromotionCodeCouldNotBeAttachedError extends StripeError {
   customerId?: string;
   subscriptionId?: string;
