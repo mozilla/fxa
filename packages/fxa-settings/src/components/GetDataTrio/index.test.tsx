@@ -20,6 +20,7 @@ it('renders Trio as expected', () => {
     <GetDataTrio
       {...{ value, contentType, url, setTooltipVisible }}
       email={MOCK_EMAIL}
+      gleanDataAttrs={{}}
     />
   );
   expect(screen.getByTestId('databutton-download')).toBeInTheDocument();
@@ -37,6 +38,7 @@ it('renders single Copy button as expected', () => {
     <GetDataTrio
       {...{ value, contentType, url, setTooltipVisible }}
       email={MOCK_EMAIL}
+      gleanDataAttrs={{}}
     />
   );
   expect(screen.getByTestId('databutton-copy')).toBeInTheDocument();

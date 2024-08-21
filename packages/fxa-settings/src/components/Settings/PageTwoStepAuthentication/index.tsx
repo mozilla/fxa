@@ -330,6 +330,20 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
                 onCopy={copyRecoveryCodes}
                 contentType="Backup authentication codes"
                 email={account.email}
+                gleanDataAttrs={{
+                  download: {
+                    id: 'two_step_auth_codes_download',
+                    type: 'setup',
+                  },
+                  copy: {
+                    id: 'two_step_auth_codes_copy',
+                    type: 'setup',
+                  },
+                  print: {
+                    id: 'two_step_auth_codes_print',
+                    type: 'setup',
+                  },
+                }}
               />
             </div>
           </div>

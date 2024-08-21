@@ -202,6 +202,20 @@ const InlineRecoverySetup = ({
               onCopy={copyRecoveryCodes}
               contentType="Backup authentication codes"
               {...{ email }}
+              gleanDataAttrs={{
+                download: {
+                  id: 'two_step_auth_codes_download',
+                  type: 'inline setup',
+                },
+                copy: {
+                  id: 'two_step_auth_codes_copy',
+                  type: 'inline setup',
+                },
+                print: {
+                  id: 'two_step_auth_codes_print',
+                  type: 'inline setup',
+                },
+              }}
             />
             <div className="flex justify-center mt-6 mb-4 mx-auto max-w-64">
               <FtlMsg id="inline-recovery-cancel-button">

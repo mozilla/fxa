@@ -25,6 +25,7 @@ export const Default = () => {
         value="Copy that"
         email={MOCK_EMAIL}
         {...{ setTooltipVisible }}
+        gleanDataAttrs={{}}
       />
     </div>
   );
@@ -38,6 +39,7 @@ export const SingleCopyButton = () => {
         value="Copy that"
         email={MOCK_EMAIL}
         {...{ setTooltipVisible }}
+        gleanDataAttrs={{}}
       />
     </div>
   );
@@ -51,6 +53,7 @@ export const SingleCopyButtonInline = () => {
         value="Copy that"
         email={MOCK_EMAIL}
         {...{ setTooltipVisible }}
+        gleanDataAttrs={{}}
       />
     </div>
   );

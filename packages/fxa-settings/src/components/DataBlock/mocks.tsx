@@ -10,5 +10,5 @@ export const Subject = ({
   value = 'ANMD 1S09 7Y2Y 4EES 02CW BJ6Z PYKP H69F',
   ...props // overrides
 }: Partial<DataBlockProps> = {}) => (
-  <DataBlock email={MOCK_EMAIL} {...{ value, ...props }} />
+  <DataBlock email={MOCK_EMAIL} {...{ value, ...props }} gleanDataAttrs={{}} />
 );

@@ -148,6 +148,20 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
                   onCopy={copyRecoveryCodes}
                   contentType="Backup authentication codes"
                   email={account.email}
+                  gleanDataAttrs={{
+                    download: {
+                      id: 'two_step_auth_codes_download',
+                      type: 'replace',
+                    },
+                    copy: {
+                      id: 'two_step_auth_codes_copy',
+                      type: 'replace',
+                    },
+                    print: {
+                      id: 'two_step_auth_codes_print',
+                      type: 'replace',
+                    },
+                  }}
                 />
               ) : (
                 <LoadingSpinner />
