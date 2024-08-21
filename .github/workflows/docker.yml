@@ -2,7 +2,13 @@ name: Docker
 
 on:
   push:
-    tags: '*'
+    tags:
+      - '*'
+  workflow_call:
+    inputs:
+      git_tag:
+        type: string
+        required: true
   workflow_dispatch:
     inputs:
       git_tag:
