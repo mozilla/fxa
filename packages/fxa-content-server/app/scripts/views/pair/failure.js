@@ -23,6 +23,12 @@ class PairFailureView extends FormView {
 
   clickSignin() {
     const params = this.model.get('searchParams');
+
+    // We replace the `email` with `prefillEmail` so that the email
+    // first page gets populated correctly.
+    const email = params.get('email');
+    params.delete('email');
+    params.set('prefillEmail', email);
     window.location.href = `${window.location.origin}${params}`;
   }
 }
