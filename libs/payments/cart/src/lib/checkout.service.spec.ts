@@ -63,6 +63,7 @@ import {
   CartEligibilityMismatchError,
   CartTotalMismatchError,
   CartEmailNotFoundError,
+  CartInvalidPromoCodeError,
 } from './cart.error';
 import { CheckoutService } from './checkout.service';
 
@@ -190,14 +191,17 @@ describe('CheckoutService', () => {
         .spyOn(eligibilityService, 'checkEligibility')
         .mockResolvedValue(EligibilityStatus.CREATE);
       jest
-        .spyOn(productConfigurationManager, 'retrieveStripePriceId')
-        .mockResolvedValue(mockPrice.id);
+        .spyOn(productConfigurationManager, 'retrieveStripePrice')
+        .mockResolvedValue(mockPrice);
       jest
         .spyOn(invoiceManager, 'preview')
         .mockResolvedValue(mockInvoicePreview);
       jest
         .spyOn(subscriptionManager, 'cancelIncompleteSubscriptionsToPrice')
         .mockResolvedValue();
+      jest
+        .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
+        .mockResolvedValue(undefined);
       jest
         .spyOn(promotionCodeManager, 'retrieveByName')
         .mockResolvedValue(mockPromotionCode);
@@ -241,10 +245,9 @@ describe('CheckoutService', () => {
       });
 
       it('fetches promotion code by name', async () => {
-        expect(promotionCodeManager.retrieveByName).toHaveBeenCalledWith(
-          mockCart.couponCode,
-          true
-        );
+        expect(
+          promotionCodeManager.assertValidPromotionCodeNameForPrice
+        ).toHaveBeenCalledWith(mockCart.couponCode, mockPrice);
       });
     });
 
@@ -353,6 +356,26 @@ describe('CheckoutService', () => {
         ).rejects.toBeInstanceOf(CartEligibilityMismatchError);
       });
 
+      it('throws invalid promo code error', async () => {
+        const mockCart = StripeResponseFactory(
+          ResultCartFactory({
+            uid: uid,
+            couponCode: faker.string.uuid(),
+            stripeCustomerId: null,
+            eligibilityStatus: CartEligibilityStatus.CREATE,
+            amount: mockInvoicePreview.subtotal,
+          })
+        );
+
+        jest
+          .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
+          .mockRejectedValue(undefined);
+
+        await expect(
+          checkoutService.prePaySteps(mockCart, mockCustomerData)
+        ).rejects.toBeInstanceOf(CartInvalidPromoCodeError);
+      });
+
       it('throws cart total mismatch error', async () => {
         const mockCart = StripeResponseFactory(
           ResultCartFactory({
@@ -392,7 +415,7 @@ describe('CheckoutService', () => {
     const mockPaymentIntent = StripeResponseFactory(
       StripePaymentIntentFactory()
     );
-    const mockPriceId = StripePriceFactory().id;
+    const mockPrice = StripePriceFactory();
 
     beforeEach(async () => {
       jest.spyOn(checkoutService, 'prePaySteps').mockResolvedValue({
@@ -400,7 +423,7 @@ describe('CheckoutService', () => {
         customer: mockCustomer,
         enableAutomaticTax: true,
         promotionCode: mockPromotionCode,
-        priceId: mockPriceId,
+        price: mockPrice,
       });
       jest
         .spyOn(paymentMethodManager, 'attach')
@@ -463,7 +486,7 @@ describe('CheckoutService', () => {
             promotion_code: mockPromotionCode.id,
             items: [
               {
-                price: mockPriceId, // TODO: fetch price from cart after FXA-8893
+                price: mockPrice.id, // TODO: fetch price from cart after FXA-8893
               },
             ],
           },
@@ -507,7 +530,7 @@ describe('CheckoutService', () => {
     const mockSubscription = StripeResponseFactory(StripeSubscriptionFactory());
     const mockPaypalCustomer = ResultPaypalCustomerFactory();
     const mockInvoice = StripeResponseFactory(StripeInvoiceFactory());
-    const mockPriceId = StripePriceFactory().id;
+    const mockPrice = StripePriceFactory();
 
     beforeEach(async () => {
       jest.spyOn(checkoutService, 'prePaySteps').mockResolvedValue({
@@ -515,7 +538,7 @@ describe('CheckoutService', () => {
         customer: mockCustomer,
         enableAutomaticTax: true,
         promotionCode: mockPromotionCode,
-        priceId: mockPriceId,
+        price: mockPrice,
       });
       jest.spyOn(customerManager, 'update').mockResolvedValue(mockCustomer);
       jest.spyOn(invoiceManager, 'processPayPalInvoice').mockResolvedValue();
@@ -574,7 +597,7 @@ describe('CheckoutService', () => {
             promotion_code: mockPromotionCode.id,
             items: [
               {
-                price: mockPriceId,
+                price: mockPrice.id,
               },
             ],
           },

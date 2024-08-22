@@ -17,8 +17,8 @@ import {
 import { PromotionCodeCouldNotBeAttachedError } from './stripe.error';
 import { STRIPE_PRICE_METADATA, STRIPE_PRODUCT_METADATA } from './stripe.types';
 import {
-  checkSubscriptionPromotionCodes,
-  checkValidPromotionCode,
+  assertSubscriptionPromotionCodes,
+  assertValidPromotionCode,
   getSubscribedPrice,
   getSubscribedPrices,
   getSubscribedProductIds,
@@ -31,11 +31,11 @@ describe('util', () => {
       const mockPromoCode = StripePromotionCodeFactory();
 
       expect(() =>
-        checkSubscriptionPromotionCodes(mockPromoCode, mockPrice, undefined)
+        assertSubscriptionPromotionCodes(mockPromoCode, mockPrice, undefined)
       ).toThrowError(PromotionCodeCouldNotBeAttachedError);
     });
 
-    it('returns true if only subscription price provided', async () => {
+    it('does not throw if only subscription price provided', async () => {
       const mockPromoCode = StripePromotionCodeFactory({
         code: 'promo_code1',
       });
@@ -46,15 +46,12 @@ describe('util', () => {
         },
       });
 
-      const result = checkSubscriptionPromotionCodes(
-        mockPromoCode,
-        mockPrice,
-        undefined
-      );
-      expect(result).toEqual(true);
+      expect(() =>
+        assertSubscriptionPromotionCodes(mockPromoCode, mockPrice, undefined)
+      ).not.toThrow();
     });
 
-    it('returns true if promotion code is included in promotion codes for product', async () => {
+    it('does not throw if promotion code is included in promotion codes for product', async () => {
       const mockPrice = StripePriceFactory({
         metadata: {
           [STRIPE_PRICE_METADATA.PROMOTION_CODES]:
@@ -71,12 +68,9 @@ describe('util', () => {
         code: 'promo_code1',
       });
 
-      const result = checkSubscriptionPromotionCodes(
-        mockPromoCode,
-        mockPrice,
-        mockProduct
-      );
-      expect(result).toEqual(true);
+      expect(() =>
+        assertSubscriptionPromotionCodes(mockPromoCode, mockPrice, mockProduct)
+      ).not.toThrow();
     });
   });
 
@@ -84,7 +78,7 @@ describe('util', () => {
     it('throws error if there is no promotion code', async () => {
       const mockPromotionCode = StripeResponseFactory(undefined);
 
-      expect(() => checkValidPromotionCode(mockPromotionCode)).toThrowError(
+      expect(() => assertValidPromotionCode(mockPromotionCode)).toThrowError(
         PromotionCodeCouldNotBeAttachedError
       );
     });
@@ -94,7 +88,7 @@ describe('util', () => {
         active: false,
       });
 
-      expect(() => checkValidPromotionCode(mockPromotionCode)).toThrowError(
+      expect(() => assertValidPromotionCode(mockPromotionCode)).toThrowError(
         PromotionCodeCouldNotBeAttachedError
       );
     });
@@ -106,7 +100,7 @@ describe('util', () => {
         }),
       });
 
-      expect(() => checkValidPromotionCode(mockPromotionCode)).toThrowError(
+      expect(() => assertValidPromotionCode(mockPromotionCode)).toThrowError(
         PromotionCodeCouldNotBeAttachedError
       );
     });
@@ -117,18 +111,17 @@ describe('util', () => {
         expires_at: expiredTime,
       });
 
-      expect(() => checkValidPromotionCode(mockPromotionCode)).toThrowError(
+      expect(() => assertValidPromotionCode(mockPromotionCode)).toThrowError(
         PromotionCodeCouldNotBeAttachedError
       );
     });
 
-    it('returns true if the promotion code is valid', async () => {
+    it('does not throw if the promotion code is valid', async () => {
       const mockPromotionCode = StripePromotionCodeFactory({
         active: true,
       });
 
-      const result = checkValidPromotionCode(mockPromotionCode);
-      expect(result).toEqual(true);
+      expect(() => assertValidPromotionCode(mockPromotionCode)).not.toThrow();
     });
   });
 

@@ -222,7 +222,7 @@ export class ProductConfigurationManager {
     return planIds;
   }
 
-  async retrieveStripePriceId(
+  async retrieveStripePrice(
     offeringConfigId: string,
     interval: SubplatInterval
   ) {
@@ -232,6 +232,6 @@ export class ProductConfigurationManager {
       interval
     );
     if (!price) throw new ProductConfigError('Plan not found');
-    return price.id;
+    return price;
   }
 }

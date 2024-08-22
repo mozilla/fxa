@@ -110,3 +110,12 @@ export class CartEmailNotFoundError extends CartError {
     });
   }
 }
+
+export class CartInvalidPromoCodeError extends CartError {
+  constructor(promoCode: string, cartId?: string) {
+    super('Cart specified promo code does not exist', {
+      cartId,
+      promoCode,
+    });
+  }
+}

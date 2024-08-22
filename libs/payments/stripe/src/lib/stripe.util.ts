@@ -11,7 +11,7 @@ import {
 import { PromotionCodeCouldNotBeAttachedError } from './stripe.error';
 import { STRIPE_PRICE_METADATA, STRIPE_PRODUCT_METADATA } from './stripe.types';
 
-export const checkSubscriptionPromotionCodes = (
+export const assertSubscriptionPromotionCodes = (
   code: StripePromotionCode,
   price: StripePrice,
   product?: StripeProduct
@@ -43,10 +43,9 @@ export const checkSubscriptionPromotionCodes = (
       }
     );
   }
-  return true;
 };
 
-export const checkValidPromotionCode = (code: StripePromotionCode) => {
+export const assertValidPromotionCode = (code: StripePromotionCode) => {
   const nowSecs = Date.now() / 1000;
   if (
     !code ||
@@ -61,7 +60,6 @@ export const checkValidPromotionCode = (code: StripePromotionCode) => {
         promotionId: code.id,
       }
     );
-  return true;
 };
 
 export const getSubscribedPrice = (subscription: StripeSubscription) => {

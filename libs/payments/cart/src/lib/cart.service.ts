@@ -13,6 +13,7 @@ import {
   InvoiceManager,
   StripeCustomer,
   SubplatInterval,
+  PromotionCodeManager,
 } from '@fxa/payments/stripe';
 import { CartErrorReasonId, CartState } from '@fxa/shared/db/mysql/account';
 import { GeoDBManager } from '@fxa/shared/geodb';
@@ -26,6 +27,7 @@ import {
 } from './cart.types';
 import { handleEligibilityStatusMap } from './cart.utils';
 import { CheckoutService } from './checkout.service';
+import { CartInvalidPromoCodeError } from './cart.error';
 
 @Injectable()
 export class CartService {
@@ -34,6 +36,7 @@ export class CartService {
     private cartManager: CartManager,
     private checkoutService: CheckoutService,
     private customerManager: CustomerManager,
+    private promotionCodeManager: PromotionCodeManager,
     private eligibilityService: EligibilityService,
     private geodbManager: GeoDBManager,
     private invoiceManager: InvoiceManager,
@@ -78,14 +81,13 @@ export class CartService {
       ? this.geodbManager.getTaxAddress(args.ip)
       : undefined;
 
-    const priceId =
-      await this.productConfigurationManager.retrieveStripePriceId(
-        args.offeringConfigId,
-        args.interval
-      );
+    const price = await this.productConfigurationManager.retrieveStripePrice(
+      args.offeringConfigId,
+      args.interval
+    );
 
     const upcomingInvoice = await this.invoiceManager.preview({
-      priceId: priceId,
+      priceId: price.id,
       customer: stripeCustomer,
       taxAddress: taxAddress,
     });
@@ -95,8 +97,18 @@ export class CartService {
       args.offeringConfigId,
       accountCustomer?.stripeCustomerId
     );
-
     const cartEligibilityStatus = handleEligibilityStatusMap[eligibility];
+
+    if (args.promoCode) {
+      try {
+        await this.promotionCodeManager.assertValidPromotionCodeNameForPrice(
+          args.promoCode,
+          price
+        );
+      } catch (e) {
+        throw new CartInvalidPromoCodeError(args.promoCode);
+      }
+    }
 
     const cart = await this.cartManager.createCart({
       interval: args.interval,
@@ -117,6 +129,23 @@ export class CartService {
    */
   async restartCart(cartId: string): Promise<ResultCart> {
     const oldCart = await this.cartManager.fetchCartById(cartId);
+
+    if (oldCart.couponCode) {
+      try {
+        const price =
+          await this.productConfigurationManager.retrieveStripePrice(
+            oldCart.offeringConfigId,
+            oldCart.interval as SubplatInterval
+          );
+
+        this.promotionCodeManager.assertValidPromotionCodeNameForPrice(
+          oldCart.couponCode,
+          price
+        );
+      } catch (e) {
+        throw new CartInvalidPromoCodeError(oldCart.couponCode);
+      }
+    }
 
     const newCart = this.cartManager.createCart({
       uid: oldCart.uid,
@@ -218,11 +247,10 @@ export class CartService {
   async getCart(cartId: string): Promise<WithUpcomingInvoiceCart> {
     const cart = await this.cartManager.fetchCartById(cartId);
 
-    const priceId =
-      await this.productConfigurationManager.retrieveStripePriceId(
-        cart.offeringConfigId,
-        cart.interval as SubplatInterval
-      );
+    const price = await this.productConfigurationManager.retrieveStripePrice(
+      cart.offeringConfigId,
+      cart.interval as SubplatInterval
+    );
 
     let customer: StripeCustomer | undefined;
     if (cart.stripeCustomerId) {
@@ -230,7 +258,7 @@ export class CartService {
     }
 
     const invoicePreview = await this.invoiceManager.preview({
-      priceId,
+      priceId: price.id,
       customer,
       taxAddress: cart.taxAddress || undefined,
     });

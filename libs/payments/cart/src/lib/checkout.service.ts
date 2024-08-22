@@ -19,6 +19,7 @@ import {
   SubplatInterval,
   SubscriptionManager,
   TaxAddress,
+  type StripePromotionCode,
 } from '@fxa/payments/stripe';
 import { AccountManager } from '@fxa/shared/account/account';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
@@ -26,6 +27,7 @@ import {
   CartTotalMismatchError,
   CartEligibilityMismatchError,
   CartEmailNotFoundError,
+  CartInvalidPromoCodeError,
 } from './cart.error';
 import { CartManager } from './cart.manager';
 import { CheckoutCustomerData, ResultCart } from './cart.types';
@@ -123,14 +125,13 @@ export class CheckoutService {
 
     // re-validate total amount against upcoming invoice
     // throws cart total mismatch error if no match found
-    const priceId =
-      await this.productConfigurationManager.retrieveStripePriceId(
-        cart.offeringConfigId,
-        cart.interval as SubplatInterval
-      );
+    const price = await this.productConfigurationManager.retrieveStripePrice(
+      cart.offeringConfigId,
+      cart.interval as SubplatInterval
+    );
 
     const upcomingInvoice = await this.invoiceManager.preview({
-      priceId: priceId,
+      priceId: price.id,
       customer: customer,
       taxAddress: taxAddress,
     });
@@ -146,21 +147,33 @@ export class CheckoutService {
     // check if customer already has subscription to price and cancel if they do
     await this.subscriptionManager.cancelIncompleteSubscriptionsToPrice(
       stripeCustomerId,
-      priceId
+      price.id
     );
 
     const enableAutomaticTax = this.customerManager.isTaxEligible(customer);
 
-    const promotionCode = cart.couponCode
-      ? await this.promotionCodeManager.retrieveByName(cart.couponCode, true)
-      : undefined;
+    let promotionCode: StripePromotionCode | undefined;
+    if (cart.couponCode) {
+      try {
+        await this.promotionCodeManager.assertValidPromotionCodeNameForPrice(
+          cart.couponCode,
+          price
+        );
+
+        promotionCode = await this.promotionCodeManager.retrieveByName(
+          cart.couponCode
+        );
+      } catch (e) {
+        throw new CartInvalidPromoCodeError(cart.couponCode, cart.id);
+      }
+    }
 
     return {
       uid: uid,
       customer,
       enableAutomaticTax,
       promotionCode,
-      priceId,
+      price,
     };
   }
 
@@ -177,7 +190,7 @@ export class CheckoutService {
     paymentMethodId: string,
     customerData: CheckoutCustomerData
   ) {
-    const { customer, enableAutomaticTax, promotionCode, priceId } =
+    const { customer, enableAutomaticTax, promotionCode, price } =
       await this.prePaySteps(cart, customerData);
 
     await this.paymentMethodManager.attach(paymentMethodId, {
@@ -201,7 +214,7 @@ export class CheckoutService {
         promotion_code: promotionCode?.id,
         items: [
           {
-            price: priceId,
+            price: price.id,
           },
         ],
       },
@@ -245,7 +258,7 @@ export class CheckoutService {
     customerData: CheckoutCustomerData,
     token?: string
   ) {
-    const { uid, customer, enableAutomaticTax, promotionCode, priceId } =
+    const { uid, customer, enableAutomaticTax, promotionCode, price } =
       await this.prePaySteps(cart, customerData);
 
     const paypalSubscriptions =
@@ -273,7 +286,7 @@ export class CheckoutService {
         promotion_code: promotionCode?.id,
         items: [
           {
-            price: priceId,
+            price: price.id,
           },
         ],
       },
