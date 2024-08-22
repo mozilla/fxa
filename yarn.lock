@@ -13013,16 +13013,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/schedule@npm:^4.0.1":
-  version: 4.0.1
-  resolution: "@nestjs/schedule@npm:4.0.1"
+"@nestjs/schedule@npm:^4.1.0":
+  version: 4.1.0
+  resolution: "@nestjs/schedule@npm:4.1.0"
   dependencies:
-    cron: 3.1.6
-    uuid: 9.0.1
+    cron: 3.1.7
+    uuid: 10.0.0
   peerDependencies:
     "@nestjs/common": ^8.0.0 || ^9.0.0 || ^10.0.0
     "@nestjs/core": ^8.0.0 || ^9.0.0 || ^10.0.0
-  checksum: 4ab97ea3b09e3087081a8fcd09b5c113a6d5aa99b3c8a70eca83d3031ab14d8a2a53506997bee399d3f3e0adf54bbe811bf064a2a9398d464a31b2b47127e07f
+  checksum: 257abe15f9e815b2da5e27ae0dd90ac1c16e32b6070150644b2844467d637f4719ea194c5135839d1b85a51f4b0a0532b4b5162ccb40c292fccf9074d4ded24c
   languageName: node
   linkType: hard
 
@@ -23381,13 +23381,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/luxon@npm:~3.3.0":
-  version: 3.3.8
-  resolution: "@types/luxon@npm:3.3.8"
-  checksum: 026711b4aefc01c6e233e359c693b6d4c0873acc3f52a08661ea3751b2cf3e34d1ce1d5b0b99b0e40a059a2a3755acc20498d37db5f9a5a4f0f330cdf72db3db
-  languageName: node
-  linkType: hard
-
 "@types/material-ui@npm:^0.21.8":
   version: 0.21.8
   resolution: "@types/material-ui@npm:0.21.8"
@@ -32454,16 +32447,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cron@npm:3.1.6":
-  version: 3.1.6
-  resolution: "cron@npm:3.1.6"
-  dependencies:
-    "@types/luxon": ~3.3.0
-    luxon: ~3.4.0
-  checksum: e97bb6f85acf3195577c609f28bbac2e22812d8632802752a13591882deceeeeefd2c91c1293fb5102ef442f96ae17ca687854fd0b005149aae9a25834363e1d
-  languageName: node
-  linkType: hard
-
 "cron@npm:3.1.7":
   version: 3.1.7
   resolution: "cron@npm:3.1.7"
@@ -40080,7 +40063,7 @@ fsevents@~2.1.1:
     "@nestjs/mapped-types": ^2.0.5
     "@nestjs/passport": ^10.0.3
     "@nestjs/platform-express": ^10.3.4
-    "@nestjs/schedule": ^4.0.1
+    "@nestjs/schedule": ^4.1.0
     "@nestjs/schematics": ^10.1.1
     "@nestjs/testing": ^10.3.4
     "@nx/esbuild": 19.5.3
@@ -66364,6 +66347,15 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
+"uuid@npm:10.0.0, uuid@npm:^10.0.0":
+  version: 10.0.0
+  resolution: "uuid@npm:10.0.0"
+  bin:
+    uuid: dist/bin/uuid
+  checksum: 4b81611ade2885d2313ddd8dc865d93d8dccc13ddf901745edca8f86d99bc46d7a330d678e7532e7ebf93ce616679fb19b2e3568873ac0c14c999032acb25869
+  languageName: node
+  linkType: hard
+
 "uuid@npm:8.0.0":
   version: 8.0.0
   resolution: "uuid@npm:8.0.0"
@@ -66379,15 +66371,6 @@ resolve@1.1.7:
   bin:
     uuid: dist/bin/uuid
   checksum: 39931f6da74e307f51c0fb463dc2462807531dc80760a9bff1e35af4316131b4fc3203d16da60ae33f07fdca5b56f3f1dd662da0c99fea9aaeab2004780cc5f4
-  languageName: node
-  linkType: hard
-
-"uuid@npm:^10.0.0":
-  version: 10.0.0
-  resolution: "uuid@npm:10.0.0"
-  bin:
-    uuid: dist/bin/uuid
-  checksum: 4b81611ade2885d2313ddd8dc865d93d8dccc13ddf901745edca8f86d99bc46d7a330d678e7532e7ebf93ce616679fb19b2e3568873ac0c14c999032acb25869
   languageName: node
   linkType: hard
 
