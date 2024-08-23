@@ -11,6 +11,10 @@ type LinkExternalProps = {
   children: React.ReactNode;
   title?: string;
   'data-testid'?: string;
+  gleanDataAttrs?: {
+    id: string;
+    type?: string;
+  };
   rel?: 'noopener noreferrer' | 'author';
   tabIndex?: number;
   onClick?: () => void;
@@ -23,11 +27,14 @@ export const LinkExternal = ({
   title,
   'data-testid': testid = 'link-external',
   rel = 'noopener noreferrer',
+  gleanDataAttrs,
   tabIndex,
   onClick,
 }: LinkExternalProps) => (
   <a
     data-testid={testid}
+    data-glean-id={gleanDataAttrs?.id}
+    data-glean-type={gleanDataAttrs?.type}
     target="_blank"
     {...{
       className,

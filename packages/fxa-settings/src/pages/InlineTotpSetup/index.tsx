@@ -14,6 +14,7 @@ import AppLayout from '../../components/AppLayout';
 import Banner, { BannerType } from '../../components/Banner';
 import { InlineTotpSetupProps } from './interfaces';
 import DataBlockManual from '../../components/DataBlockManual';
+import { GleanClickEventType2FA } from '../../lib/types';
 
 export const InlineTotpSetup = ({
   totp,
@@ -83,6 +84,10 @@ export const InlineTotpSetup = ({
                   <LinkExternal
                     className="link-blue text-sm"
                     href="https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication"
+                    gleanDataAttrs={{
+                      id: 'two_step_auth_app_link',
+                      type: GleanClickEventType2FA.inline,
+                    }}
                   >
                     these authentication apps
                   </LinkExternal>
@@ -95,6 +100,10 @@ export const InlineTotpSetup = ({
                 <LinkExternal
                   className="link-blue text-sm"
                   href="https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication"
+                  gleanDataAttrs={{
+                    id: 'two_step_auth_app_link',
+                    type: GleanClickEventType2FA.inline,
+                  }}
                 >
                   these authentication apps
                 </LinkExternal>
@@ -248,7 +257,7 @@ export const InlineTotpSetup = ({
                 {...{ localizedCustomCodeRequiredMessage }}
                 gleanDataAttrs={{
                   id: 'two_step_auth_qr_submit',
-                  type: 'inline setup',
+                  type: GleanClickEventType2FA.inline,
                 }}
               />
               <button className="link-blue text-sm mt-4" onClick={onCancel}>

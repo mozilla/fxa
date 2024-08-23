@@ -21,6 +21,7 @@ import {
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { copyRecoveryCodes } from '../../../lib/totp';
 import { FtlMsg } from 'fxa-react/lib/utils';
+import { GleanClickEventType2FA } from '../../../lib/types';
 
 export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
   const alertBar = useAlertBar();
@@ -151,15 +152,15 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
                   gleanDataAttrs={{
                     download: {
                       id: 'two_step_auth_codes_download',
-                      type: 'replace',
+                      type: GleanClickEventType2FA.replace,
                     },
                     copy: {
                       id: 'two_step_auth_codes_copy',
-                      type: 'replace',
+                      type: GleanClickEventType2FA.replace,
                     },
                     print: {
                       id: 'two_step_auth_codes_print',
-                      type: 'replace',
+                      type: GleanClickEventType2FA.replace,
                     },
                   }}
                 />

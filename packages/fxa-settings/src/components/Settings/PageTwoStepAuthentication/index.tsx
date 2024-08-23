@@ -21,6 +21,7 @@ import { useAsync } from 'react-async-hook';
 import { getErrorFtlId } from '../../../lib/error-utils';
 import DataBlockManual from '../../DataBlockManual';
 import GleanMetrics from '../../../lib/glean';
+import { GleanClickEventType2FA } from '../../../lib/types';
 
 export const metricsPreInPostFix = 'settings.two-step-authentication';
 
@@ -214,6 +215,10 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
                     <LinkExternal
                       className="link-blue"
                       href="https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication"
+                      gleanDataAttrs={{
+                        id: 'two_step_auth_app_link',
+                        type: GleanClickEventType2FA.setup,
+                      }}
                     >
                       {' '}
                     </LinkExternal>
@@ -225,6 +230,10 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
                   <LinkExternal
                     className="link-blue"
                     href="https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication"
+                    gleanDataAttrs={{
+                      id: 'two_step_auth_app_link',
+                      type: GleanClickEventType2FA.setup,
+                    }}
                   >
                     these authentication apps
                   </LinkExternal>
@@ -349,15 +358,15 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
                 gleanDataAttrs={{
                   download: {
                     id: 'two_step_auth_codes_download',
-                    type: 'setup',
+                    type: GleanClickEventType2FA.setup,
                   },
                   copy: {
                     id: 'two_step_auth_codes_copy',
-                    type: 'setup',
+                    type: GleanClickEventType2FA.setup,
                   },
                   print: {
                     id: 'two_step_auth_codes_print',
-                    type: 'setup',
+                    type: GleanClickEventType2FA.setup,
                   },
                 }}
               />
