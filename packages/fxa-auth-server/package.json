@@ -93,7 +93,7 @@
     "google-auth-library": "^9.8.0",
     "googleapis": "^135.1.0",
     "hapi-auth-jwt2": "^10.4.0",
-    "hapi-swagger": "^17.2.1",
+    "hapi-swagger": "^17.3.0",
     "hkdf": "0.0.2",
     "hot-shots": "^10.0.0",
     "i18n-iso-countries": "^7.11.0",
