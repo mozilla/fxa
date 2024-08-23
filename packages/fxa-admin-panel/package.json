@@ -42,7 +42,7 @@
     "convict-format-with-validator": "^6.2.0",
     "dateformat": "^4.6.3",
     "express": "^4.19.2",
-    "express-http-proxy": "^2.0.0",
+    "express-http-proxy": "^2.1.1",
     "fxa-admin-server": "workspace:*",
     "fxa-react": "workspace:*",
     "helmet": "^7.1.0",
