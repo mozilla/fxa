@@ -246,6 +246,10 @@ export const InlineTotpSetup = ({
                 codeErrorMessage={totpErrorMessage}
                 setCodeErrorMessage={setTotpErrorMessage}
                 {...{ localizedCustomCodeRequiredMessage }}
+                gleanDataAttrs={{
+                  id: 'two_step_auth_qr_submit',
+                  type: 'inline setup',
+                }}
               />
               <button className="link-blue text-sm mt-4" onClick={onCancel}>
                 <FtlMsg id="inline-totp-setup-cancel-setup-button">

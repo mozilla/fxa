@@ -308,6 +308,8 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
                     GleanMetrics.accountPref.twoStepAuthQrView();
                   }
                 }}
+                data-glean-id="two_step_auth_qr_submit"
+                data-glean-type="setup"
               >
                 Continue
               </button>

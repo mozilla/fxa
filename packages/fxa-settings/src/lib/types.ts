@@ -2,6 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+export type GleanClickEventDataAttrs = {
+  id: string;
+  label?: string;
+  type?: string;
+};
+
 export enum LinkType {
   'reset-password',
   'signin',
