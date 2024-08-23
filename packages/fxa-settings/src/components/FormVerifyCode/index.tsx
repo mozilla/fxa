@@ -9,6 +9,7 @@ import { FtlMsg } from 'fxa-react/lib/utils';
 import { logViewEvent } from '../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../constants';
 import { useFtlMsgResolver } from '../../models';
+import { GleanClickEventDataAttrs } from '../../lib/types';
 
 export enum InputModeEnum {
   text = 'text',
@@ -36,6 +37,7 @@ export type FormVerifyCodeProps = {
   setCodeErrorMessage: React.Dispatch<React.SetStateAction<string>>;
   setClearMessages?: React.Dispatch<React.SetStateAction<boolean>>;
   isLoading?: boolean;
+  gleanDataAttrs?: GleanClickEventDataAttrs;
 };
 
 type FormData = {
@@ -50,6 +52,7 @@ const FormVerifyCode = ({
   codeErrorMessage,
   setCodeErrorMessage,
   setClearMessages,
+  gleanDataAttrs,
 }: FormVerifyCodeProps) => {
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -137,6 +140,9 @@ const FormVerifyCode = ({
           type="submit"
           className="cta-primary cta-xl"
           disabled={isSubmitting}
+          data-glean-id={gleanDataAttrs?.id}
+          data-glean-label={gleanDataAttrs?.label}
+          data-glean-type={gleanDataAttrs?.type}
         >
           {formAttributes.submitButtonText}
         </button>
