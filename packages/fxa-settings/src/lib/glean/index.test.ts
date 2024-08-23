@@ -36,7 +36,7 @@ const sandbox = sinon.createSandbox();
 const mockConfig: Config['glean'] = {
   enabled: false,
   applicationId: 'testo',
-  uploadEnabled: false,
+  uploadEnabled: true,
   appDisplayVersion: '9001',
   channel: 'test',
   serverEndpoint: 'https://metrics.example.io/',

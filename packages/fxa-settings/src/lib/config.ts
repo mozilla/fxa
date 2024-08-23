@@ -150,7 +150,7 @@ export function getDefault() {
     glean: {
       enabled: false,
       applicationId: 'accounts_frontend_dev',
-      uploadEnabled: false,
+      uploadEnabled: true,
       channel: 'development',
       serverEndpoint: 'https://incoming.telemetry.mozilla.org',
       logPings: false,
