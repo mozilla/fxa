@@ -174,15 +174,19 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
                 type="button"
                 className="cta-neutral cta-base-p mx-2 flex-1"
                 onClick={goHome}
+                data-glean-id="two_step_auth_codes_cancel"
+                data-glean-type="replace"
               >
                 Cancel
               </button>
             </FtlMsg>
-            <FtlMsg id="recovery-key-continue-button">
+            <FtlMsg id="tfa-button-continue">
               <button
                 type="submit"
                 className="cta-neutral mx-2 px-10 py-2"
                 data-testid="ack-recovery-code"
+                data-glean-id="two_step_auth_codes_submit"
+                data-glean-type="replace"
                 onClick={() => {
                   activateStep(2);
                 }}
