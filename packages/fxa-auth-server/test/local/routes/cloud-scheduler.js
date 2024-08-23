@@ -50,6 +50,12 @@ describe('CloudSchedulerHandler', function () {
       cloudSchedulerHandler,
       'processAccountDeletionInRange'
     );
+
+    sinon.stub(Date, 'now').returns(new Date('2023-01-01T00:00:00Z').getTime());
+  });
+
+  afterEach(() => {
+    Date.now.restore();
   });
 
   describe('deleteUnverifiedAccounts', () => {
