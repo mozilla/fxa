@@ -370,7 +370,7 @@ const conf = (module.exports = convict({
       format: String,
     },
     uploadEnabled: {
-      default: false,
+      default: true,
       env: 'GLEAN_UPLOAD_ENABLED',
       format: Boolean,
     },
