@@ -76,7 +76,8 @@ describe('lib/glean', () => {
     setUtmTermStub: SinonStub,
     setEntrypointExperimentStub: SinonStub,
     setEntrypointVariationStub: SinonStub,
-    pageLoadStub: SinonStub;
+    pageLoadStub: SinonStub,
+    handleClickEvent: SinonStub;
 
   beforeEach(async () => {
     mockMetricsContext.metricsFlow = {
@@ -117,6 +118,10 @@ describe('lib/glean', () => {
     setEntrypointVariationStub = sandbox.stub(entrypointQuery.variation, 'set');
     submitPingStub = sandbox.stub(pings.accountsEvents, 'submit');
     pageLoadStub = sandbox.stub(GleanMetricsAPI.default, 'pageLoad');
+    handleClickEvent = sandbox.stub(
+      GleanMetricsAPI.default,
+      'handleClickEvent'
+    );
 
     await testResetGlean('glean-test');
   });
@@ -193,6 +198,7 @@ describe('lib/glean', () => {
           channel: mockConfig.channel,
           serverEndpoint: mockConfig.serverEndpoint,
           enableAutoPageLoadEvents: true,
+          enableAutoElementClickEvents: true,
         }
       );
       sinon.assert.calledWith(logPingsStub, mockConfig.logPings);
@@ -945,6 +951,14 @@ describe('lib/glean', () => {
     it('resolves', async () => {
       GleanMetrics.pageLoad();
       sinon.assert.calledOnce(pageLoadStub);
+    });
+  });
+  describe('handleClickEvent', () => {
+    it('resolves', async () => {
+      const fakeEvent = new Event('click');
+      GleanMetrics.handleClickEvent(fakeEvent);
+      sinon.assert.calledOnce(handleClickEvent);
+      sinon.assert.calledWith(handleClickEvent, fakeEvent);
     });
   });
 });

@@ -64,6 +64,7 @@ type GleanMetricsT = {
   getEnabled: () => boolean;
   isDone: () => Promise<void>;
   pageLoad: () => void;
+  handleClickEvent(event: Event): void;
 } & {
   [k in EventMapKeys]: { [eventKey in keyof EventsMap[k]]: PingFn };
 };
@@ -514,7 +515,12 @@ const createEventFn =
 
 export const GleanMetrics: Pick<
   GleanMetricsT,
-  'initialize' | 'setEnabled' | 'getEnabled' | 'isDone' | 'pageLoad'
+  | 'initialize'
+  | 'setEnabled'
+  | 'getEnabled'
+  | 'isDone'
+  | 'pageLoad'
+  | 'handleClickEvent'
 > = {
   initialize: (config: GleanMetricsConfig, context: GleanMetricsContext) => {
     // https://bugzilla.mozilla.org/show_bug.cgi?id=1859629
@@ -527,6 +533,7 @@ export const GleanMetrics: Pick<
           channel: config.channel,
           serverEndpoint: config.serverEndpoint,
           enableAutoPageLoadEvents: true,
+          enableAutoElementClickEvents: true,
         });
         Glean.setLogPings(config.logPings);
         if (config.debugViewTag) {
@@ -554,6 +561,10 @@ export const GleanMetrics: Pick<
 
   pageLoad: () => {
     GleanMetricsAPI.pageLoad();
+  },
+
+  handleClickEvent(event: Event) {
+    GleanMetricsAPI.handleClickEvent(event);
   },
 
   /**

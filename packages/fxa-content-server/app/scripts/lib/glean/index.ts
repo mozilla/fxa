@@ -353,6 +353,7 @@ export const GleanMetrics = {
           // this ensures that events are uploaded.
           maxEvents: 1,
           enableAutoPageLoadEvents: true,
+          enableAutoElementClickEvents: true,
         });
         Glean.setLogPings(config.logPings);
         if (config.debugViewTag) {

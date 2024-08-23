@@ -174,6 +174,7 @@ describe('lib/glean', () => {
           serverEndpoint: mockConfig.serverEndpoint,
           maxEvents: 1,
           enableAutoPageLoadEvents: true,
+          enableAutoElementClickEvents: true,
         }
       );
       sinon.assert.calledWith(logPingsStub, mockConfig.logPings);

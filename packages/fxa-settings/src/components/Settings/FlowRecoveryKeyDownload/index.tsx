@@ -78,6 +78,11 @@ export const FlowRecoveryKeyDownload = ({
           }
           isInline
           {...{ email }}
+          gleanDataAttrs={{
+            copy: {
+              id: 'account_pref_recovery_key_copy',
+            },
+          }}
         />
         <div className="bg-grey-10 p-4 rounded-lg text-grey-400 text-sm">
           <FtlMsg id="flow-recovery-key-download-storage-ideas-heading-v2">

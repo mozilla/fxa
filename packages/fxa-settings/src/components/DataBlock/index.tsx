@@ -7,6 +7,7 @@ import GetDataTrio, {
   DownloadContentType,
   GetDataCopySingleton,
   GetDataCopySingletonInline,
+  GetDataTrioGleanData,
 } from '../GetDataTrio';
 import { Tooltip } from '../Tooltip';
 import { FtlMsg } from 'fxa-react/lib/utils';
@@ -30,6 +31,11 @@ export type DataBlockProps = {
   isIOS?: boolean;
   isInline?: boolean;
   email: string;
+  gleanDataAttrs: {
+    copy?: GetDataTrioGleanData;
+    download?: GetDataTrioGleanData;
+    print?: GetDataTrioGleanData;
+  };
 };
 
 export const DataBlock = ({
@@ -42,6 +48,7 @@ export const DataBlock = ({
   isIOS = false,
   isInline = false,
   email,
+  gleanDataAttrs,
 }: DataBlockProps) => {
   const valueIsArray = Array.isArray(value);
   const [performedAction, setPerformedAction] = useState<actions>();
@@ -97,13 +104,25 @@ export const DataBlock = ({
         )}
         {isInline && (
           <GetDataCopySingletonInline
-            {...{ value, onAction: actionCb, setTooltipVisible, email }}
+            {...{
+              value,
+              onAction: actionCb,
+              setTooltipVisible,
+              email,
+              gleanDataAttrs,
+            }}
           />
         )}
       </div>
       {isIOS && !isInline && (
         <GetDataCopySingleton
-          {...{ value, onAction: actionCb, setTooltipVisible, email }}
+          {...{
+            value,
+            onAction: actionCb,
+            setTooltipVisible,
+            email,
+            gleanDataAttrs,
+          }}
         />
       )}
       {!isIOS && !isInline && (
@@ -114,6 +133,7 @@ export const DataBlock = ({
             onAction: actionCb,
             setTooltipVisible,
             email,
+            gleanDataAttrs,
           }}
         />
       )}
