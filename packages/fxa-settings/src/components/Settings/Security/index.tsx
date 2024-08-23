@@ -59,8 +59,8 @@ export const Security = forwardRef<HTMLDivElement>((_, ref) => {
             header="Password"
             headerId="password"
             headerValueClassName={hasPassword ? 'tracking-wider' : undefined}
-            headerValue={hasPassword ? '••••••••••••••••••' : null}
-            noHeaderValueText={localizedNotSet}
+            headerValue={hasPassword && '••••••••••••••••••'}
+            defaultHeaderValueText={localizedNotSet}
             ctaText={
               hasPassword
                 ? undefined

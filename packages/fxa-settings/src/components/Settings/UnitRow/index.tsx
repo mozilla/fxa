@@ -60,8 +60,9 @@ type UnitRowProps = {
   avatar?: Account['avatar'];
   header: string;
   headerId?: string;
-  headerValue: string | null | boolean;
-  noHeaderValueText?: string;
+  headerValue?: string | boolean;
+  hideHeaderValue?: boolean;
+  defaultHeaderValueText?: string;
   ctaText?: string;
   secondaryCtaText?: string;
   secondaryCtaRoute?: string;
@@ -87,12 +88,13 @@ export const UnitRow = ({
   header,
   headerId,
   headerValue,
+  hideHeaderValue = false,
   route,
   children,
   headerContent,
   actionContent,
   headerValueClassName,
-  noHeaderValueText,
+  defaultHeaderValueText,
   ctaText,
   secondaryCtaText,
   secondaryCtaRoute,
@@ -119,8 +121,9 @@ export const UnitRow = ({
     'Change'
   );
 
-  noHeaderValueText =
-    noHeaderValueText || l10n.getString('row-defaults-status', null, 'None');
+  defaultHeaderValueText =
+    defaultHeaderValueText ||
+    l10n.getString('row-defaults-status', null, 'None');
   secondaryCtaText =
     secondaryCtaText ||
     l10n.getString('row-defaults-action-disable', null, 'Disable');
@@ -153,75 +156,83 @@ export const UnitRow = ({
             {...{ avatar }}
           />
         ) : (
-          <p
-            className={classNames('font-bold', headerValueClassName)}
-            data-testid={formatDataTestId('unit-row-header-value')}
-          >
-            {headerValue || noHeaderValueText}
-          </p>
+          !hideHeaderValue && (
+            <p
+              className={classNames('font-bold', headerValueClassName)}
+              data-testid={formatDataTestId('unit-row-header-value')}
+            >
+              {headerValue || defaultHeaderValueText}
+            </p>
+          )
         )}
         {children}
       </div>
 
-      <div className="unit-row-actions">
-        <div className="flex items-center h-8 gap-2">
-          {disabled ? (
-            <button
-              className="cta-neutral cta-base cta-base-p transition-standard me-1"
-              data-testid={formatDataTestId('unit-row-route')}
-              title={disabledReason}
-              disabled={disabled}
-            >
-              {!hideCtaText && ctaText}
-            </button>
-          ) : (
-            <>
-              {!hideCtaText && route && (
-                <Link
-                  className="cta-neutral cta-base cta-base-p transition-standard me-1"
-                  data-testid={formatDataTestId('unit-row-route')}
-                  to={`${route}${location.search}`}
-                  onClick={ctaOnClickAction}
-                >
-                  {ctaText}
-                </Link>
-              )}
+      {(actionContent ||
+        route ||
+        revealModal ||
+        secondaryCtaRoute ||
+        revealSecondaryModal) && (
+        <div className="unit-row-actions">
+          <div className="flex items-center h-8 gap-2">
+            {disabled ? (
+              <button
+                className="cta-neutral cta-base cta-base-p transition-standard me-1"
+                data-testid={formatDataTestId('unit-row-route')}
+                title={disabledReason}
+                disabled={disabled}
+              >
+                {!hideCtaText && ctaText}
+              </button>
+            ) : (
+              <>
+                {!hideCtaText && route && (
+                  <Link
+                    className="cta-neutral cta-base cta-base-p transition-standard me-1"
+                    data-testid={formatDataTestId('unit-row-route')}
+                    to={`${route}${location.search}`}
+                    onClick={ctaOnClickAction}
+                  >
+                    {ctaText}
+                  </Link>
+                )}
 
-              {revealModal && (
-                <ModalButton
-                  {...{
-                    revealModal,
-                    ctaText,
-                    alertBarRevealed,
-                    prefixDataTestId,
-                  }}
-                />
-              )}
+                {revealModal && (
+                  <ModalButton
+                    {...{
+                      revealModal,
+                      ctaText,
+                      alertBarRevealed,
+                      prefixDataTestId,
+                    }}
+                  />
+                )}
 
-              {secondaryCtaRoute && (
-                <Link
-                  className="cta-neutral cta-base cta-base-p transition-standard me-1"
-                  data-testid={formatDataTestId('unit-row-route')}
-                  to={`${secondaryCtaRoute}${location.search}`}
-                >
-                  {secondaryCtaText}
-                </Link>
-              )}
+                {secondaryCtaRoute && (
+                  <Link
+                    className="cta-neutral cta-base cta-base-p transition-standard me-1"
+                    data-testid={formatDataTestId('unit-row-route')}
+                    to={`${secondaryCtaRoute}${location.search}`}
+                  >
+                    {secondaryCtaText}
+                  </Link>
+                )}
 
-              {revealSecondaryModal && (
-                <ModalButton
-                  revealModal={revealSecondaryModal}
-                  ctaText={secondaryCtaText}
-                  className={secondaryButtonClassName}
-                  alertBarRevealed={alertBarRevealed}
-                  prefixDataTestId={secondaryButtonTestId}
-                />
-              )}
-            </>
-          )}
-          {actionContent}
+                {revealSecondaryModal && (
+                  <ModalButton
+                    revealModal={revealSecondaryModal}
+                    ctaText={secondaryCtaText}
+                    className={secondaryButtonClassName}
+                    alertBarRevealed={alertBarRevealed}
+                    prefixDataTestId={secondaryButtonTestId}
+                  />
+                )}
+              </>
+            )}
+            {actionContent}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

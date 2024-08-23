@@ -11,7 +11,7 @@ import { SETTINGS_PATH } from '../../../constants';
 
 describe('UnitRow', () => {
   it('renders as expected with minimal required attributes', () => {
-    renderWithRouter(<UnitRow header="Foxy" headerValue={null} />);
+    renderWithRouter(<UnitRow header="Foxy" />);
 
     expect(screen.getByTestId('unit-row-header').textContent).toContain('Foxy');
     expect(screen.getByTestId('unit-row-header-value').textContent).toContain(
@@ -25,7 +25,7 @@ describe('UnitRow', () => {
 
   it('renders the children', () => {
     renderWithRouter(
-      <UnitRow header="Display name" headerValue={null}>
+      <UnitRow header="Display name">
         <p data-testid="children">The children!</p>
       </UnitRow>
     );
@@ -65,33 +65,24 @@ describe('UnitRow', () => {
   });
 
   it('renders as expected with `revealModal` prop', () => {
-    renderWithRouter(
-      <UnitRow
-        header="Display name"
-        headerValue={null}
-        revealModal={() => {}}
-      />
-    );
+    renderWithRouter(<UnitRow header="Display name" revealModal={() => {}} />);
 
     expect(screen.getByTestId('unit-row-modal').textContent).toContain('Add');
   });
 
   it('renders as expected with `hideCtaText` prop', () => {
-    renderWithRouter(
-      <UnitRow header="Display name" headerValue={null} hideCtaText={true} />
-    );
+    renderWithRouter(<UnitRow header="Display name" hideCtaText={true} />);
 
     const ctaTextElement = screen.queryByTestId('unit-row-route');
 
     expect(ctaTextElement).not.toBeInTheDocument();
   });
 
-  it('renders non-default `noHeaderValueText` and `ctaText`', () => {
+  it('renders non-default `defaultHeaderValueText` and `ctaText`', () => {
     renderWithRouter(
       <UnitRow
         header="Display name"
-        headerValue={null}
-        noHeaderValueText="Not Set"
+        defaultHeaderValueText="Not Set"
         ctaText="Create"
         route="/display_name"
       />
@@ -169,5 +160,15 @@ describe('UnitRow', () => {
     );
     expect(screen.getByTestId('avatar-nondefault')).toBeInTheDocument();
     expect(screen.queryByTestId('avatar-default')).toBeNull();
+  });
+
+  it('renders as expected when `hideHeaderValue=true` and no action', () => {
+    const { container } = renderWithRouter(
+      <UnitRow header="Foxy" hideHeaderValue />
+    );
+
+    expect(screen.getByTestId('unit-row-header').textContent).toContain('Foxy');
+    expect(screen.queryByTestId('unit-row-header-value')).toBeNull();
+    expect(container.querySelector('unit-row-actions')).not.toBeInTheDocument();
   });
 });

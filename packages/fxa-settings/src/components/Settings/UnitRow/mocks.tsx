@@ -24,7 +24,6 @@ export const SubjectWithModal = () => {
   return (
     <UnitRow
       header={MOCK_HEADER}
-      headerValue={null}
       {...{
         revealModal,
       }}
