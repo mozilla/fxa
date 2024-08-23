@@ -293,6 +293,8 @@ const RecoveryCodeCheck = ({
               !recoveryCodeForm.formState.isDirty ||
               !recoveryCodeForm.formState.isValid
             }
+            data-glean-id="two_step_auth_enter_code_submit"
+            data-glean-type="replace"
           >
             Finish
           </button>
