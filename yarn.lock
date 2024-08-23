@@ -148,14 +148,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@apidevtools/json-schema-ref-parser@npm:^11.1.0":
-  version: 11.5.4
-  resolution: "@apidevtools/json-schema-ref-parser@npm:11.5.4"
+"@apidevtools/json-schema-ref-parser@npm:^11.7.0":
+  version: 11.7.0
+  resolution: "@apidevtools/json-schema-ref-parser@npm:11.7.0"
   dependencies:
     "@jsdevtools/ono": ^7.1.3
     "@types/json-schema": ^7.0.15
     js-yaml: ^4.1.0
-  checksum: 3f4bd685d85e6a1c4dd9df2795f36480e737d50d1b920e8ea21f29e3e76df400beb8bdaf87f31d5bbff3f7f3256384bec8aba101e1cee1234965cd06d5020a6d
+  checksum: ee1c9e7c1bbf0b8d935522f9407c382e20a54464414fa65326fa8f56239e5a6f2b911f48c65fe2888a94d3445dced46ba36c286da435d47cefc8699d4a5b0ae2
   languageName: node
   linkType: hard
 
@@ -10575,6 +10575,13 @@ __metadata:
   version: 11.0.2
   resolution: "@hapi/hoek@npm:11.0.2"
   checksum: 02e5d5d030f2c81180b43c380e6445558d1cb463c8db957c2d50e11dff83687a0ff4539a88530338e2bab1924bb8cdc7896eeb48ebf32199f89e178591d8b0b1
+  languageName: node
+  linkType: hard
+
+"@hapi/hoek@npm:^11.0.4":
+  version: 11.0.4
+  resolution: "@hapi/hoek@npm:11.0.4"
+  checksum: 67dc9782a8235e066e3885352e40faa3c239621d7de29bfc88a72aba60eeb8df76b5c05d77962c734c8b0ef3fc7f818cc692689003d270a1b73ea98ba1508c5b
   languageName: node
   linkType: hard
 
@@ -39204,7 +39211,7 @@ fsevents@~2.1.1:
     grunt-eslint: ^25.0.0
     grunt-newer: 1.3.0
     hapi-auth-jwt2: ^10.4.0
-    hapi-swagger: ^17.2.1
+    hapi-swagger: ^17.3.0
     hkdf: 0.0.2
     hot-shots: ^10.0.0
     i18n-iso-countries: ^7.11.0
@@ -39452,7 +39459,7 @@ fsevents@~2.1.1:
     grunt-cli: ^1.4.3
     grunt-copyright: 0.3.0
     grunt-eslint: ^25.0.0
-    hapi-swagger: ^17.2.1
+    hapi-swagger: ^17.3.0
     hot-shots: ^10.0.0
     ip: ^2.0.1
     ip-reputation-js-client: ^6.0.4
@@ -41911,21 +41918,21 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"hapi-swagger@npm:^17.2.1":
-  version: 17.2.1
-  resolution: "hapi-swagger@npm:17.2.1"
+"hapi-swagger@npm:^17.3.0":
+  version: 17.3.0
+  resolution: "hapi-swagger@npm:17.3.0"
   dependencies:
-    "@apidevtools/json-schema-ref-parser": ^11.1.0
+    "@apidevtools/json-schema-ref-parser": ^11.7.0
     "@hapi/boom": ^10.0.1
-    "@hapi/hoek": ^11.0.2
+    "@hapi/hoek": ^11.0.4
     handlebars: ^4.7.8
-    http-status: ^1.7.3
+    http-status: ^1.7.4
     swagger-parser: ^10.0.3
-    swagger-ui-dist: ^5.9.1
+    swagger-ui-dist: ^5.17.14
   peerDependencies:
     "@hapi/hapi": ">=20.x.x"
     joi: 17.x
-  checksum: 18884432a47e3ea1e00a96ecd582a26406396942af04175940cdbff69fc67c21a01179e41a2b680914e36721d2293a00c73db0453d0103360b960a24158d3452
+  checksum: d557d16b66aef5055ab7c1b26921fb29e05da0cb1b41e29914b1b44f4ca5e9a8d6ecd8f599536a3baa26a71153916d865188ddd7254f7e7b4b31d4e28e56e6b5
   languageName: node
   linkType: hard
 
@@ -42971,7 +42978,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"http-status@npm:^1.7.3":
+"http-status@npm:^1.7.4":
   version: 1.7.4
   resolution: "http-status@npm:1.7.4"
   checksum: 8d6ba6b0ab3356ff7e48bb06fe2343dbbe9f9b8d4acc3766e1b9963fc6ca20bf50e535813b32968b404c8f4232078061f7465cad12dfb3bd6a750010dff3e877
@@ -63379,10 +63386,10 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"swagger-ui-dist@npm:^5.9.1":
-  version: 5.13.0
-  resolution: "swagger-ui-dist@npm:5.13.0"
-  checksum: 3653eb5bb208aa1037aba25a39768c0eb8636372970440a5be0d48bf015a94d8baf038615b9e67f5a95946cefd90620fd8bfcb92a337488b9a3b9e9da61554a8
+"swagger-ui-dist@npm:^5.17.14":
+  version: 5.17.14
+  resolution: "swagger-ui-dist@npm:5.17.14"
+  checksum: e10f8068e370fb17cf6882c8d8b925044862ea74b67296c6d97eef42a904eed3e9ed21867cc0458cbf0de7bd2a49e79282a1a3b7e6a1ccdbba1b650d86b528bb
   languageName: node
   linkType: hard
 
