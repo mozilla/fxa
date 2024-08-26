@@ -38,6 +38,7 @@ const recordThirdPartyAuthSetPasswordCompleteStub = sinon.stub();
 const recordAccountDeleteCompleteStub = sinon.stub();
 const recordPasswordResetEmailConfirmationSentStub = sinon.stub();
 const recordPasswordResetEmailConfirmationSuccessStub = sinon.stub();
+const recordTwoFactorAuthCodeCompleteStub = sinon.stub();
 
 const { gleanMetrics, logErrorWithGlean } = proxyquire(
   '../../../lib/metrics/glean',
@@ -84,6 +85,7 @@ const { gleanMetrics, logErrorWithGlean } = proxyquire(
           recordPasswordResetEmailConfirmationSentStub,
         recordPasswordResetEmailConfirmationSuccess:
           recordPasswordResetEmailConfirmationSuccessStub,
+        recordTwoFactorAuthCodeComplete: recordTwoFactorAuthCodeCompleteStub,
       }),
     },
   }
@@ -412,6 +414,14 @@ describe('Glean server side events', () => {
       const metrics = recordStub.args[0][0];
       assert.equal(metrics['event_name'], 'account_delete_complete');
       sinon.assert.calledOnce(recordAccountDeleteCompleteStub);
+    });
+
+    it('logs a "two_factor_auth_code_complete" event', async () => {
+      await glean.twoFactorAuth.codeComplete(request);
+      sinon.assert.calledOnce(recordStub);
+      const metrics = recordStub.args[0][0];
+      assert.equal(metrics['event_name'], 'two_factor_auth_code_complete');
+      sinon.assert.calledOnce(recordTwoFactorAuthCodeCompleteStub);
     });
   });
 

@@ -873,3 +873,22 @@ third_party_auth:
     expires: never
     data_sensitivity:
       - interaction
+
+two_factor_auth:
+  code_complete:
+    type: event
+    description: |
+      User successfully submitted a backup authentication code to complete two factor auth setup.
+    lifetime: ping
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-9587
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction

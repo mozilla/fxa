@@ -282,6 +282,10 @@ export function gleanMetrics(config: ConfigType) {
     account: {
       deleteComplete: createEventFn('account_delete_complete'),
     },
+
+    twoFactorAuth: {
+      codeComplete: createEventFn('two_factor_auth_code_complete'),
+    },
   };
 }
 
@@ -307,7 +311,11 @@ export const logErrorWithGlean = ({
       glean[
         funnel as keyof Omit<
           ReturnType<typeof gleanMetrics>,
-          'resetPassword' | 'oauth' | 'thirdPartyAuth' | 'account'
+          | 'resetPassword'
+          | 'oauth'
+          | 'thirdPartyAuth'
+          | 'account'
+          | 'twoFactorAuth'
         >
       ];
     funnelFns[event as keyof typeof funnelFns](request, {
