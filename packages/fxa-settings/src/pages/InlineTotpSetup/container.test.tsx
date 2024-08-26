@@ -12,6 +12,7 @@ import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localiz
 import { MozServices } from '../../lib/types';
 import { OAuthIntegration } from '../../models';
 import InlineTotpSetupContainer from './container';
+import GleanMetrics from '../../lib/glean';
 import {
   MOCK_TOTP_TOKEN,
   MOCK_QUERY_PARAMS,
@@ -55,6 +56,15 @@ jest.mock('../../lib/totp', () => {
 
 const mockTotpStatusQuery = jest.fn();
 const mockCreateTotpMutation = jest.fn();
+
+jest.mock('../../lib/glean', () => ({
+  __esModule: true,
+  default: {
+    accountPref: {
+      twoStepAuthQrCodeSuccess: jest.fn(),
+    },
+  },
+}));
 
 function setMocks() {
   mockLocationHook.mockReturnValue({
@@ -318,6 +328,9 @@ describe('InlineTotpSetupContainer', () => {
             .calls[0][0];
           const verifyCodeHandler = args.verifyCodeHandler;
           await verifyCodeHandler('1010');
+          expect(
+            GleanMetrics.accountPref.twoStepAuthQrCodeSuccess
+          ).toHaveBeenCalled();
           expect(mockNavigateHook).toHaveBeenCalledWith(
             `/inline_recovery_setup?${new URLSearchParams(MOCK_QUERY_PARAMS)}`,
             { state: MOCK_SIGNIN_RECOVERY_LOCATION_STATE }

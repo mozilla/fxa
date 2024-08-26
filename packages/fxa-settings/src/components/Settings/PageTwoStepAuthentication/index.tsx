@@ -128,6 +128,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
     const isValidCode = await checkCode(totpInfo.result.secret, totp);
     setTotpVerified(isValidCode);
     if (isValidCode) {
+      GleanMetrics.accountPref.twoStepAuthQrCodeSuccess();
       showRecoveryCodes();
     } else {
       setInvalidCodeError(

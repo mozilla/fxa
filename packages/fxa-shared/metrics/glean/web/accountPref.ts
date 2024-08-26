@@ -365,6 +365,22 @@ export const secondaryEmailSubmit = new EventMetricType(
 );
 
 /**
+ * Authentication code was successfully entered and submitted.
+ *
+ * Generated from `account_pref.two_step_auth_qr_code_success`.
+ */
+export const twoStepAuthQrCodeSuccess = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'two_step_auth_qr_code_success',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
  * User started the 2FA setup process by viewing step 1 of the funnel, complete
  * with QR code for scanning.
  *

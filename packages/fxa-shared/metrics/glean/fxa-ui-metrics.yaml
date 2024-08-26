@@ -1966,6 +1966,23 @@ account_pref:
     expires: never
     data_sensitivity:
       - interaction
+  two_step_auth_qr_code_success:
+    type: event
+    description: |
+      Authentication code was successfully entered and submitted.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-9576
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
   change_password_submit:
     type: event
     description: |
