@@ -34,6 +34,8 @@ jest.mock('../../../lib/glean', () => ({
       twoStepAuthScanCodeLink: jest.fn(),
       twoStepAuthQrView: jest.fn(),
       twoStepAuthQrCodeSuccess: jest.fn(),
+      twoStepAuthCodesView: jest.fn(),
+      twoStepAuthEnterCodeView: jest.fn(),
     },
   },
 }));
@@ -184,6 +186,7 @@ describe('step 2', () => {
       'download',
       expect.stringContaining('Backup authentication codes')
     );
+    expect(GleanMetrics.accountPref.twoStepAuthCodesView).toBeCalled();
   });
 
   it('shows an error when an invalid auth code is entered', async () => {
@@ -217,6 +220,7 @@ describe('step 3', () => {
   it('renders the backup authentication code form', async () => {
     await getRecoveryCodes();
     expect(screen.getByTestId('recovery-code-input-field')).toBeInTheDocument();
+    expect(GleanMetrics.accountPref.twoStepAuthEnterCodeView).toBeCalled();
   });
 
   it('shows an error when an incorrect backup authentication code is entered', async () => {

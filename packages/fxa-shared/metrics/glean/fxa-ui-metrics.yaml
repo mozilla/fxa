@@ -1983,6 +1983,40 @@ account_pref:
     expires: never
     data_sensitivity:
       - interaction
+  two_step_auth_codes_view:
+    type: event
+    description: |
+      User viewed the backup codes page (step 2) of the 2FA setup funnel.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-9579
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+  two_step_auth_enter_code_view:
+    type: event
+    description: |
+      User viewed form to enter one of their authentication codes (step 3).
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-9585
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
   change_password_submit:
     type: event
     description: |

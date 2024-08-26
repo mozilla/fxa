@@ -9,11 +9,21 @@ import { MozServices } from '../../lib/types';
 import { renderWithRouter } from '../../models/mocks';
 import { MOCK_RECOVERY_CODES, MOCK_SERVICE_NAME } from './mocks';
 import { MOCK_EMAIL } from '../mocks';
+import GleanMetrics from '../../lib/glean';
 import { OAUTH_ERRORS, OAuthError } from '../../lib/oauth';
 
 jest.mock('../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
   usePageViewEvent: jest.fn(),
+}));
+jest.mock('../../lib/glean', () => ({
+  __esModule: true,
+  default: {
+    accountPref: {
+      twoStepAuthCodesView: jest.fn(),
+      twoStepAuthEnterCodeView: jest.fn(),
+    },
+  },
 }));
 const cancelSetupHandler = jest.fn();
 const verifyTotpHandler = jest.fn();
@@ -53,6 +63,8 @@ describe('InlineRecoverySetup', () => {
     expect(
       screen.getByRole('button', { name: 'Continue' })
     ).toBeInTheDocument();
+
+    expect(GleanMetrics.accountPref.twoStepAuthCodesView).toBeCalled();
   });
 
   it('renders as expected with a custom service name', () => {
@@ -84,6 +96,7 @@ describe('InlineRecoverySetup', () => {
     screen.getByRole('button', { name: 'Confirm' });
     screen.getByRole('button', { name: 'Back' });
     screen.getByRole('button', { name: 'Cancel setup' });
+    expect(GleanMetrics.accountPref.twoStepAuthEnterCodeView).toBeCalled();
   });
 
   it('renders "showConfirmation" content as expected with a custom service name', async () => {

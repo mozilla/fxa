@@ -365,6 +365,38 @@ export const secondaryEmailSubmit = new EventMetricType(
 );
 
 /**
+ * User viewed the backup codes page (step 2) of the 2FA setup funnel.
+ *
+ * Generated from `account_pref.two_step_auth_codes_view`.
+ */
+export const twoStepAuthCodesView = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'two_step_auth_codes_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * User viewed form to enter one of their authentication codes (step 3).
+ *
+ * Generated from `account_pref.two_step_auth_enter_code_view`.
+ */
+export const twoStepAuthEnterCodeView = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'two_step_auth_enter_code_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
  * Authentication code was successfully entered and submitted.
  *
  * Generated from `account_pref.two_step_auth_qr_code_success`.

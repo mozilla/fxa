@@ -170,6 +170,19 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
       logStep2PageViewEvent(`${metricsPreInPostFix}.recovery-codes`);
   }, [totpVerified, recoveryCodesAcknowledged, logStep2PageViewEvent]);
 
+  useEffect(() => {
+    totpVerified &&
+      !recoveryCodesAcknowledged &&
+      totpInfo.result &&
+      GleanMetrics.accountPref.twoStepAuthCodesView();
+  }, [recoveryCodesAcknowledged, totpInfo.result, totpVerified]);
+
+  useEffect(() => {
+    totpVerified &&
+      recoveryCodesAcknowledged &&
+      GleanMetrics.accountPref.twoStepAuthEnterCodeView();
+  }, [recoveryCodesAcknowledged, totpVerified]);
+
   const moveBack = () => {
     if (!totpVerified) {
       return goHome();
