@@ -177,7 +177,7 @@
     "typescript": "^5.5.3",
     "upng-js": "2.1.0",
     "url-loader": "4.1.1",
-    "webpack-dev-middleware": "^7.3.0",
+    "webpack-dev-middleware": "^7.4.0",
     "xmlhttprequest": "^1.8.0",
     "yargs": "^17.0.1"
   },
