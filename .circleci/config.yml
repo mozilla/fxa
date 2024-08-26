@@ -763,7 +763,7 @@ jobs:
           command: |
             while true; do
               RESPONSE=$(curl --location --request GET "https://circleci.com/api/v2/workflow/$CIRCLE_WORKFLOW_ID/job" --header "Circle-Token: $CCI_Token")
-              STATUS=$(echo $RESPONSE | jq -r '.items[] | select(.name | startswith("Tests Complete") | not) | select(.name | startswith("Check all required jobs are complete") | not ) | .status
+              STATUS=$(echo $RESPONSE | jq -r '.items[] | select(.name | startswith("Tests Complete") | not) | select(.name | startswith("Check all required jobs are complete") | not ) | .status'
               RUNNING_JOBS=$(echo $STATUS | grep -c "running")
 
               echo "DEBUG $RESPONSE"
