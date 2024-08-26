@@ -763,6 +763,7 @@ jobs:
           command: |
             while true; do
               RUNNING_JOBS=$(curl --location --request GET "https://circleci.com/api/v2/workflow/$CIRCLE_WORKFLOW_ID/job" --header "Circle-Token: $CCI_Token" | jq -r '.items[] | select(.name != "check-required-jobs-complete" and .name != "on-complete") | .status' | grep -c "running")
+              echo "$RUNNING_JOBS"
               if [[ $RUNNING_JOBS -eq 0 ]]; then
                 echo "All required jobs have now completed"
                 break
