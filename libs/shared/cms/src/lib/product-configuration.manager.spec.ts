@@ -14,7 +14,7 @@ import {
   SubplatInterval,
 } from '@fxa/payments/stripe';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
-import { StatsDService } from '@fxa/shared/metrics/statsd';
+import { MockStatsDProvider, StatsDService } from '@fxa/shared/metrics/statsd';
 import {
   CapabilityPurchaseResult,
   CapabilityPurchaseResultFactory,
@@ -66,15 +66,12 @@ describe('productConfigurationManager', () => {
   let mockStatsd: StatsD;
 
   beforeEach(async () => {
-    mockStatsd = {
-      timing: jest.fn().mockReturnValue({}),
-    } as unknown as StatsD;
-
     const module = await Test.createTestingModule({
       providers: [
         { provide: StatsDService, useValue: mockStatsd },
         MockStrapiClientConfigProvider,
         MockFirestoreProvider,
+        MockStatsDProvider,
         PriceManager,
         ProductConfigurationManager,
         StrapiClient,
@@ -83,6 +80,7 @@ describe('productConfigurationManager', () => {
       ],
     }).compile();
 
+    mockStatsd = module.get(StatsDService);
     strapiClient = module.get(StrapiClient);
     priceManager = module.get(PriceManager);
     productConfigurationManager = module.get(ProductConfigurationManager);
@@ -100,6 +98,7 @@ describe('productConfigurationManager', () => {
       },
     });
     jest.spyOn(strapiClient.client, 'request').mockResolvedValue(queryData);
+    jest.spyOn(mockStatsd, 'timing');
 
     await productConfigurationManager.getPurchaseDetailsForEligibility([
       'test',
