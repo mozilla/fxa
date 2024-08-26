@@ -306,6 +306,8 @@ module.exports = (log, db, mailer, customs, config, glean) => {
             tokenId: sessionToken && sessionToken.id,
           });
 
+          glean.twoFactorAuth.codeComplete(request, { uid });
+
           await log.notifyAttachedServices('profileDataChange', request, {
             uid: sessionToken.uid,
           });

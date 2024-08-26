@@ -200,6 +200,7 @@ describe('totp', () => {
   describe('/session/verify/totp', () => {
     afterEach(() => {
       glean.login.totpSuccess.reset();
+      glean.twoFactorAuth.codeComplete();
     });
 
     it('should enable and verify TOTP token', () => {
@@ -285,6 +286,8 @@ describe('totp', () => {
           ipAddr: '63.245.221.32',
           tokenId: 'id',
         });
+
+        sinon.assert.calledOnce(glean.twoFactorAuth.codeComplete);
 
         assert.calledWithExactly(accountEventsManager.recordSecurityEvent, db, {
           name: 'account.two_factor_challenge_success',
