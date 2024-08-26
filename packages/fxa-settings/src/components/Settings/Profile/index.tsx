@@ -43,7 +43,7 @@ export const Profile = forwardRef<HTMLDivElement>((_, ref) => {
           <UnitRow
             header="Display name"
             headerId="display-name"
-            headerValue={displayName}
+            headerValue={displayName || undefined}
             headerValueClassName="break-all"
             route="/settings/display_name"
             ctaOnClickAction={() =>

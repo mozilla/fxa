@@ -10,7 +10,6 @@ import {
   mockSettingsContext,
   renderWithRouter,
 } from '../../../models/mocks';
-import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { Account, AppContext } from '../../../models';
 import { SettingsContext } from '../../../models/contexts/SettingsContext';
 
@@ -24,18 +23,34 @@ jest.mock('../../../models/AlertBarInfo');
 
 describe('DataCollection', () => {
   it('renders as expected', () => {
-    const { container } = renderWithLocalizationProvider(<DataCollection />);
+    renderWithRouter(
+      <AppContext.Provider value={mockAppContext({ account })}>
+        <SettingsContext.Provider value={mockSettingsContext()}>
+          <DataCollection />
+        </SettingsContext.Provider>
+      </AppContext.Provider>
+    );
 
-    expect(container).toHaveTextContent('Data Collection and Use');
-    expect(container).toHaveTextContent('Help improve Mozilla accounts');
-    expect(container).toHaveTextContent(
+    screen.getByRole('heading', { level: 2, name: 'Data Collection and Use' });
+    screen.getByRole('heading', { level: 3, name: 'Mozilla accounts' });
+    screen.getByRole('heading', { level: 3, name: 'Firefox browser' });
+    screen.getByText(
       'Allow Mozilla accounts to send technical and interaction data to Mozilla.'
+    );
+    screen.getByText(
+      'To review or update your Firefox browser technical and interaction data settings, open Firefox settings and navigate to Privacy and Security.'
     );
     expect(
       screen.getByTestId('link-external-telemetry-opt-out')
     ).toHaveAttribute(
       'href',
       'https://www.mozilla.org/privacy/mozilla-accounts/'
+    );
+    expect(
+      screen.getByTestId('link-external-firefox-telemetry')
+    ).toHaveAttribute(
+      'href',
+      'https://support.mozilla.org/kb/telemetry-clientid'
     );
   });
 

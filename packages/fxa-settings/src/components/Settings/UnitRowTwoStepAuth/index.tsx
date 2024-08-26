@@ -70,8 +70,11 @@ export const UnitRowTwoStepAuth = () => {
           hideCtaText: true,
         }
       : {
-          headerValue: null,
-          noHeaderValueText: l10n.getString('tfa-row-not-set', null, 'Not Set'),
+          defaultHeaderValueText: l10n.getString(
+            'tfa-row-not-set',
+            null,
+            'Not Set'
+          ),
           ctaText: l10n.getString('tfa-row-action-add', null, 'Add'),
           secondaryCtaText: undefined,
           revealSecondaryModal: undefined,

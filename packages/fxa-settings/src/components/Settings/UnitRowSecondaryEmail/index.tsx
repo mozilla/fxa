@@ -135,7 +135,6 @@ export const UnitRowSecondaryEmail = () => {
         header={l10n.getString('se-heading', null, 'Secondary email')}
         headerId="secondary-email"
         prefixDataTestId="secondary-email"
-        headerValue={null}
         route={`${SETTINGS_PATH}/emails`}
         ctaOnClickAction={() => GleanMetrics.accountPref.secondaryEmailSubmit()}
         {...{

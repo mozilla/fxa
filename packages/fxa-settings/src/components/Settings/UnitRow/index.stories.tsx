@@ -32,27 +32,22 @@ export default {
   ],
 } as Meta;
 
-export const NoHeaderValueAndNoCTA = () => (
-  <UnitRow header={MOCK_HEADER} headerValue={null} />
+export const NoHeaderValueAndNoCTA = () => <UnitRow header={MOCK_HEADER} />;
+export const NoHeaderValueAndNoCTAHideHeader = () => (
+  <UnitRow header={MOCK_HEADER} hideHeaderValue />
 );
 
 export const NoHeaderValueWithDefaultCTA = () => (
-  <UnitRow header={MOCK_HEADER} headerValue={null} route="#" />
+  <UnitRow header={MOCK_HEADER} route="#" />
 );
 
 export const NoHeaderValueWithCustomCTA = () => (
-  <UnitRow
-    header={MOCK_HEADER}
-    headerValue={null}
-    ctaText={MOCK_CTA_TEXT}
-    route="#"
-  />
+  <UnitRow header={MOCK_HEADER} ctaText={MOCK_CTA_TEXT} route="#" />
 );
 
 export const NoHeaderValueWithCustomCTAAndReloadButton = () => (
   <UnitRow
     header={MOCK_HEADER}
-    headerValue={null}
     route="#"
     ctaText={MOCK_CTA_TEXT}
     actionContent={<ButtonIconReload title="Retry" />}

@@ -2,22 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Localized, useLocalization } from '@fluent/react';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import Switch from '../Switch';
 import React, { forwardRef, useCallback, useState } from 'react';
-import { useAlertBar } from '../../../models';
+import { useAlertBar, useFtlMsgResolver } from '../../../models';
 import { useAccount } from '../../../models';
 import { setEnabled } from '../../../lib/metrics';
+import UnitRow from '../UnitRow';
+import { FtlMsg } from 'fxa-react/lib/utils';
 
 export const DataCollection = forwardRef<HTMLDivElement>((_, ref) => {
   const account = useAccount();
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const alertBar = useAlertBar();
-  const { l10n } = useLocalization();
+  const ftlMsgResolver = useFtlMsgResolver();
 
   const localizedHeader = (
-    <Localized id="dc-heading">Data Collection and Use</Localized>
+    <FtlMsg id="dc-heading">Data Collection and Use</FtlMsg>
   );
 
   const handleMetricsOptOutToggle = useCallback(async () => {
@@ -27,30 +28,27 @@ export const DataCollection = forwardRef<HTMLDivElement>((_, ref) => {
       await account.metricsOpt(account.metricsEnabled ? 'out' : 'in');
       setEnabled(account.metricsEnabled);
 
-      const alertArgs: [string, null, string] = account.metricsEnabled
+      const alertArgs: [string, string] = account.metricsEnabled
         ? [
             'dc-opt-in-success-2',
-            null,
             'Thanks! Sharing this data helps us improve Mozilla accounts.',
           ]
         : [
             'dc-opt-out-success-2',
-            null,
             'Opt out successful. Mozilla accounts won’t send technical or interaction data to Mozilla.',
           ];
-      alertBar.success(l10n.getString.apply(l10n, alertArgs));
+      alertBar.success(ftlMsgResolver.getMsg.apply(ftlMsgResolver, alertArgs));
     } catch (err) {
       alertBar.error(
-        l10n.getString(
+        ftlMsgResolver.getMsg(
           'dc-opt-in-out-error-2',
-          null,
           'Sorry, there was a problem changing your data collection preference'
         )
       );
     } finally {
       setIsSubmitting(false);
     }
-  }, [account, alertBar, l10n, setIsSubmitting]);
+  }, [account, alertBar, ftlMsgResolver, setIsSubmitting]);
 
   return (
     <section
@@ -63,31 +61,14 @@ export const DataCollection = forwardRef<HTMLDivElement>((_, ref) => {
         <span id="data-collection" className="nav-anchor" />
         {localizedHeader}
       </h2>
-      <div className="bg-white tablet:rounded-xl shadow px-4 tablet:px-6 pt-7 pb-5">
-        <div className="flex mb-4">
-          <div className="flex-5 tablet:flex-7 ltr:pr-6 tablet:ltr:pr-12 rtl:pl-6 tablet:rtl:pl-12">
-            <Localized id="dc-subheader-2">
-              <h3 className="font-header mb-4">
-                Help improve Mozilla accounts
-              </h3>
-            </Localized>
-
-            <p className="text-sm">
-              <Localized id="dc-subheader-content-2">
-                Allow Mozilla accounts to send technical and interaction data to
-                Mozilla.
-              </Localized>{' '}
-              <LinkExternal
-                href="https://www.mozilla.org/privacy/mozilla-accounts/"
-                className="link-blue"
-                data-testid="link-external-telemetry-opt-out"
-              >
-                <Localized id="dc-learn-more">Learn more</Localized>
-              </LinkExternal>
-            </p>
-          </div>
-
-          <div className="flex-1 flex justify-center tablet:justify-end tablet:pr-4 tablet:pt-1">
+      <div className="bg-white tablet:rounded-xl shadow">
+        <UnitRow
+          header={ftlMsgResolver.getMsg(
+            'dc-subheader-moz-accounts',
+            'Mozilla accounts'
+          )}
+          hideHeaderValue
+          actionContent={
             <Switch
               {...{
                 isSubmitting,
@@ -97,8 +78,47 @@ export const DataCollection = forwardRef<HTMLDivElement>((_, ref) => {
                 localizedLabel: localizedHeader,
               }}
             />
-          </div>
-        </div>
+          }
+        >
+          <p className="mb-4">
+            <FtlMsg id="dc-subheader-content-2">
+              Allow Mozilla accounts to send technical and interaction data to
+              Mozilla.
+            </FtlMsg>{' '}
+            <LinkExternal
+              href="https://www.mozilla.org/privacy/mozilla-accounts/"
+              className="link-blue"
+              data-testid="link-external-telemetry-opt-out"
+            >
+              <FtlMsg id="dc-learn-more">Learn more</FtlMsg>
+            </LinkExternal>
+          </p>
+        </UnitRow>
+
+        <hr className="unit-row-hr" />
+
+        <UnitRow
+          header={ftlMsgResolver.getMsg(
+            'dc-subheader-ff-browser',
+            'Firefox browser'
+          )}
+          hideHeaderValue
+        >
+          <p>
+            <FtlMsg id="dc-subheader-ff-content">
+              To review or update your Firefox browser technical and interaction
+              data settings, open Firefox settings and navigate to Privacy and
+              Security.
+            </FtlMsg>{' '}
+            <LinkExternal
+              href="https://support.mozilla.org/kb/telemetry-clientid"
+              className="link-blue"
+              data-testid="link-external-firefox-telemetry"
+            >
+              <FtlMsg id="dc-learn-more">Learn more</FtlMsg>
+            </LinkExternal>
+          </p>
+        </UnitRow>
       </div>
     </section>
   );
