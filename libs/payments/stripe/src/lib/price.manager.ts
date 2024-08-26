@@ -12,10 +12,10 @@ import { doesPriceMatchSubplatInterval } from './util/doesPriceMatchSubplatInter
 
 @Injectable()
 export class PriceManager {
-  constructor(private client: StripeClient) {}
+  constructor(private stripeClient: StripeClient) {}
 
   async retrieve(priceId: string) {
-    const price = await this.client.pricesRetrieve(priceId);
+    const price = await this.stripeClient.pricesRetrieve(priceId);
     return price;
   }
 

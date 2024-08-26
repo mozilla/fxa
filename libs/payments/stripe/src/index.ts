@@ -41,7 +41,6 @@ export * from './lib/stripe.error';
 export * from './lib/stripe.factories';
 export * from './lib/stripe.service';
 export * from './lib/stripe.types';
-export * from './lib/stripe.util';
 export * from './lib/customer.manager';
 export * from './lib/invoice.manager';
 export * from './lib/paymentMethod.manager';

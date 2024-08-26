@@ -30,21 +30,6 @@ describe('SubscriptionManager', () => {
     stripeClient = module.get(StripeClient);
   });
 
-  describe('getMinimumAmount', () => {
-    it('returns minimum amout for valid currency', () => {
-      const expected = 50;
-      const result = subscriptionManager.getMinimumAmount('usd');
-
-      expect(result).toEqual(expected);
-    });
-
-    it('should throw an error if currency is invalid', () => {
-      expect(() => subscriptionManager.getMinimumAmount('fake')).toThrow(
-        'Currency does not have a minimum charge amount available.'
-      );
-    });
-  });
-
   describe('cancelIncompleteSubscriptionsToPrice', () => {
     it('cancels incomplete subscriptions', async () => {
       const mockCustomer = StripeCustomerFactory();

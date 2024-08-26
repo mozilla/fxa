@@ -14,13 +14,13 @@ import { isCustomerTaxEligible } from './util/isCustomerTaxEligible';
 
 @Injectable()
 export class CustomerManager {
-  constructor(private client: StripeClient) {}
+  constructor(private stripeClient: StripeClient) {}
 
   /**
    * Retrieves a customer record
    */
   async retrieve(customerId: string) {
-    const customer = await this.client.customersRetrieve(customerId);
+    const customer = await this.stripeClient.customersRetrieve(customerId);
     if (customer.deleted) throw new CustomerDeletedError();
     return customer;
   }
@@ -29,7 +29,7 @@ export class CustomerManager {
    * Updates a customer record
    */
   update(customerId: string, params?: Stripe.CustomerUpdateParams) {
-    return this.client.customersUpdate(customerId, params);
+    return this.stripeClient.customersUpdate(customerId, params);
   }
 
   /**
@@ -53,7 +53,7 @@ export class CustomerManager {
         }
       : undefined;
 
-    const customer = await this.client.customersCreate({
+    const customer = await this.stripeClient.customersCreate({
       email,
       name: displayName || '',
       description: uid,
@@ -71,7 +71,7 @@ export class CustomerManager {
     const customerTaxId = await this.getTaxId(customerId);
 
     if (!customerTaxId || customerTaxId !== taxId) {
-      await this.client.customersUpdate(customerId, {
+      await this.stripeClient.customersUpdate(customerId, {
         invoice_settings: {
           custom_fields: [{ name: MOZILLA_TAX_ID, value: taxId }],
         },

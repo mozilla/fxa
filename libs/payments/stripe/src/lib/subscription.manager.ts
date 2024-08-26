@@ -7,56 +7,40 @@ import { Stripe } from 'stripe';
 
 import { StripeClient } from './stripe.client';
 import { StripeSubscription } from './stripe.client.types';
-import {
-  ACTIVE_SUBSCRIPTION_STATUSES,
-  STRIPE_MINIMUM_CHARGE_AMOUNTS,
-} from './stripe.constants';
-import { StripeNoMinimumChargeAmountAvailableError } from './stripe.error';
+import { ACTIVE_SUBSCRIPTION_STATUSES } from './stripe.constants';
 
 @Injectable()
 export class SubscriptionManager {
-  constructor(private client: StripeClient) {}
+  constructor(private stripeClient: StripeClient) {}
 
   async cancel(subscriptionId: string) {
-    return this.client.subscriptionsCancel(subscriptionId);
+    return this.stripeClient.subscriptionsCancel(subscriptionId);
   }
 
   async create(
     params: Stripe.SubscriptionCreateParams,
     options?: Stripe.RequestOptions
   ) {
-    return this.client.subscriptionsCreate(params, options);
+    return this.stripeClient.subscriptionsCreate(params, options);
   }
 
   async retrieve(subscriptionId: string) {
-    return this.client.subscriptionsRetrieve(subscriptionId);
+    return this.stripeClient.subscriptionsRetrieve(subscriptionId);
   }
 
   async update(
     subscriptionId: string,
     params?: Stripe.SubscriptionUpdateParams
   ) {
-    return this.client.subscriptionsUpdate(subscriptionId, params);
+    return this.stripeClient.subscriptionsUpdate(subscriptionId, params);
   }
 
   async listForCustomer(customerId: string) {
-    const result = await this.client.subscriptionsList({
+    const result = await this.stripeClient.subscriptionsList({
       customer: customerId,
     });
 
     return result.data;
-  }
-
-  /**
-   * Returns minimum charge amount for currency
-   * Throws error for invalid currency
-   */
-  getMinimumAmount(currency: string): number {
-    if (STRIPE_MINIMUM_CHARGE_AMOUNTS[currency]) {
-      return STRIPE_MINIMUM_CHARGE_AMOUNTS[currency];
-    }
-
-    throw new StripeNoMinimumChargeAmountAvailableError();
   }
 
   async cancelIncompleteSubscriptionsToPrice(
@@ -70,7 +54,7 @@ export class SubscriptionManager {
 
     for (const sub of targetSubs) {
       if (sub && sub.status === 'incomplete') {
-        await this.client.subscriptionsCancel(sub.id);
+        await this.stripeClient.subscriptionsCancel(sub.id);
       }
     }
   }
@@ -89,7 +73,7 @@ export class SubscriptionManager {
     if (!subscription.latest_invoice) {
       return;
     }
-    const latestInvoice = await this.client.invoicesRetrieve(
+    const latestInvoice = await this.stripeClient.invoicesRetrieve(
       subscription.latest_invoice
     );
 
@@ -97,7 +81,7 @@ export class SubscriptionManager {
       return;
     }
 
-    const paymentIntent = await this.client.paymentIntentRetrieve(
+    const paymentIntent = await this.stripeClient.paymentIntentRetrieve(
       latestInvoice.payment_intent
     );
 

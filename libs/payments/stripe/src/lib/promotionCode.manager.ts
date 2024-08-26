@@ -4,31 +4,23 @@
 
 import { Injectable } from '@nestjs/common';
 
-import { ProductManager } from './product.manager';
 import { StripeClient } from './stripe.client';
 import { PromotionCodeCouldNotBeAttachedError } from './stripe.error';
-import {
-  assertSubscriptionPromotionCodes,
-  assertValidPromotionCode,
-  getSubscribedPrice,
-} from './stripe.util';
-import { SubscriptionManager } from './subscription.manager';
+import { assertPromotionCodeApplicableToPrice } from './util/assertPromotionCodeApplicableToPrice';
+import { assertPromotionCodeActive } from './util/assertPromotionCodeActive';
+import { getPriceFromSubscription } from './util/getPriceFromSubscription';
 import type { StripePrice, StripePromotionCode } from './stripe.client.types';
 
 @Injectable()
 export class PromotionCodeManager {
-  constructor(
-    private client: StripeClient,
-    private productManager: ProductManager,
-    private subscriptionManager: SubscriptionManager
-  ) {}
+  constructor(private stripeClient: StripeClient) {}
 
   async retrieve(id: string) {
-    return this.client.promotionCodesRetrieve(id);
+    return this.stripeClient.promotionCodesRetrieve(id);
   }
 
   async retrieveByName(code: string, active?: boolean) {
-    const promotionCodes = await this.client.promotionCodesList({
+    const promotionCodes = await this.stripeClient.promotionCodesList({
       active,
       code,
     });
@@ -51,12 +43,12 @@ export class PromotionCodeManager {
     promoCode: StripePromotionCode,
     price: StripePrice
   ) {
-    assertValidPromotionCode(promoCode);
+    assertPromotionCodeActive(promoCode);
 
     const productId = price.product;
-    const product = await this.productManager.retrieve(productId);
+    const product = await this.stripeClient.productsRetrieve(productId);
 
-    assertSubscriptionPromotionCodes(promoCode, price, product);
+    assertPromotionCodeApplicableToPrice(promoCode, price, product);
   }
 
   async applyPromoCodeToSubscription(
@@ -65,7 +57,7 @@ export class PromotionCodeManager {
     promotionId: string
   ) {
     try {
-      const subscription = await this.subscriptionManager.retrieve(
+      const subscription = await this.stripeClient.subscriptionsRetrieve(
         subscriptionId
       );
       if (subscription?.status !== 'active')
@@ -84,11 +76,11 @@ export class PromotionCodeManager {
           }
         );
 
-      const price = getSubscribedPrice(subscription);
+      const price = getPriceFromSubscription(subscription);
       const promoCode = await this.retrieve(promotionId);
       await this.assertValidPromotionCodeForPrice(promoCode, price);
 
-      const updatedSubscription = await this.subscriptionManager.update(
+      const updatedSubscription = await this.stripeClient.subscriptionsUpdate(
         subscriptionId,
         {
           discounts: [

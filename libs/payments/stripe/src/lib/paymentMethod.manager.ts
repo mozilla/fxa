@@ -8,12 +8,12 @@ import { StripeClient } from './stripe.client';
 
 @Injectable()
 export class PaymentMethodManager {
-  constructor(private client: StripeClient) {}
+  constructor(private stripeClient: StripeClient) {}
 
   async attach(
     paymentMethodId: string,
     params: Stripe.PaymentMethodAttachParams
   ) {
-    return this.client.paymentMethodsAttach(paymentMethodId, params);
+    return this.stripeClient.paymentMethodsAttach(paymentMethodId, params);
   }
 }
