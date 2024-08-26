@@ -761,7 +761,7 @@ jobs:
       - run:
           name: Wait for required jobs to complete
           command: |
-              while true; do
+            while true; do
               RESPONSE=$(curl --location --request GET "https://circleci.com/api/v2/workflow/$CIRCLE_WORKFLOW_ID/job" --header "Circle-Token: $CCI_Token")
               STATUS=$(echo $RESPONSE | jq -r '.items[] | select(.name != "check-required-jobs-complete" and .name != "on-complete") | .status' )
               RUNNING_JOBS=$(echo $STATUS | grep -c "running")
