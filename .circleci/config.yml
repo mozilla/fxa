@@ -775,7 +775,7 @@ jobs:
                 break
               else
                 echo "Still waiting for jobs to complete..."
-                sleep 40
+                sleep 10
               fi
             done
 
