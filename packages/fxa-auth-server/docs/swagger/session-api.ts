@@ -99,10 +99,16 @@ const SESSION_RESEND_CODE_POST = {
   notes: ['🔒 Authenticated with session token'],
 };
 
-const SESSION_VERIFY_SEND_PUSH_POST = {
+const SESSION_SEND_PUSH_POST = {
   ...TAGS_SESSION,
-  description: '/session/verify/send_push',
+  description: '/session/send_push',
   notes: ['🔒 Authenticated with session token'],
+};
+
+const SESSION_VERIFY_PUSH_POST = {
+  ...TAGS_SESSION,
+  description: '/session/verify_push',
+  notes: ['Used to verify a session token via push notification'],
 };
 
 const API_DOCS = {
@@ -112,7 +118,8 @@ const API_DOCS = {
   SESSION_STATUS_GET,
   SESSION_RESEND_CODE_POST,
   SESSION_VERIFY_CODE_POST,
-  SESSION_VERIFY_SEND_PUSH_POST,
+  SESSION_SEND_PUSH_POST,
+  SESSION_VERIFY_PUSH_POST,
 };
 
 export default API_DOCS;

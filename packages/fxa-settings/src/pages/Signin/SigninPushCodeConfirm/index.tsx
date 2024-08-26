@@ -30,10 +30,11 @@ const SigninPushCodeConfirm = ({
   const handleSubmit = async () => {
     setIsLoading(true);
     try {
-      await authClient.sessionVerifyCode(
-        query.get('id')!,
-        query.get('code')!,
-        {}
+      await authClient.verifyLoginPushRequest(
+        query.get('email')!,
+        query.get('uid')!,
+        query.get('tokenVerificationId')!,
+        query.get('code')!
       );
       setSessionVerified(true);
     } catch (error) {

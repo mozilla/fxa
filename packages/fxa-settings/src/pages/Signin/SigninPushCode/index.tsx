@@ -51,10 +51,7 @@ export const SigninPushCode = ({
 
   useEffect(() => {
     const sendLoginPushNotification = async () => {
-      await authClient.sendLoginPushRequest(
-        signinState.sessionToken,
-        signinState.sessionToken
-      );
+      await authClient.sendLoginPushRequest(signinState.sessionToken);
     };
     sendLoginPushNotification();
   }, []);

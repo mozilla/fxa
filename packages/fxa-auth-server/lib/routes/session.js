@@ -473,28 +473,23 @@ module.exports = function (
     },
     {
       method: 'POST',
-      path: '/session/verify/send_push',
+      path: '/session/send_push',
       options: {
-        ...SESSION_DOCS.SESSION_VERIFY_SEND_PUSH_POST,
+        ...SESSION_DOCS.SESSION_SEND_PUSH_POST,
         auth: {
           strategy: 'sessionToken',
         },
-        validate: {
-          payload: isA.object({
-            is: validators.HEX_STRING,
-          }),
-        },
       },
       handler: async function (request) {
-        log.begin('Session.verify.send_push', request);
+        log.begin('Session.send_push', request);
 
         const sessionToken = request.auth.credentials;
-        const { uid, email } = sessionToken;
+        const { uid, email, tokenVerificationId } = sessionToken;
 
         const allDevices = await db.devices(uid);
 
         // Check to see if this account has a verified TOTP token. If so, then it should
-        // not be allowed to bypass TOTP requirement by sending a sign-in confirmation email.
+        // not be allowed to bypass TOTP requirement by sending a sign-in push notification.
         try {
           const result = await db.totpToken(sessionToken.uid);
 
@@ -512,12 +507,21 @@ module.exports = function (
 
         const code = otpUtils.generateOtpCode(secret, otpOptions);
 
-        // Don't send notification to current device
+        // Filter devices that can accept the push notification.
         const filteredDevices = allDevices.filter((d) => {
-          return d.sessionTokenId !== sessionToken.id;
+          // Don't push to the current device
+          if (d.sessionTokenId === sessionToken.id) {
+            return false;
+          }
+          // Exclude expired devices
+          if (d && d.pushEndpointExpired === true) {
+            return false;
+          }
+          // Currently, we only support sending push notifications to Firefox Desktop
+          return d.type === 'desktop' && d.uaBrowser === 'Firefox';
         });
 
-        const url = `http://localhost:3030/signin_push_code_confirm`;
+        const confirmUrl = `${config.contentServer.url}/signin_push_code_confirm`;
 
         const localizer = new Localizer(new NodeRendererBindings());
 
@@ -546,21 +550,83 @@ module.exports = function (
           body: localizedStrings[bodyFtlId],
         };
 
-        const confirmUrl = `${url}?code=${code}&uid=${uid}&email=${encodeURIComponent(
-          email
-        )}&id=${sessionToken.data}`;
-        console.log('url: ', confirmUrl);
+        const params = new URLSearchParams({
+          tokenVerificationId,
+          code,
+          uid,
+          email,
+        });
+        const url = `${confirmUrl}?${params.toString()}`;
         try {
           await push.notifyVerifyLoginRequest(uid, filteredDevices, {
             ...options,
-            url: confirmUrl,
+            url,
           });
         } catch (err) {
-          log.error('Session.verify.send_push', {
+          log.error('Session.send_push', {
             uid: uid,
             error: err,
           });
         }
+
+        return {};
+      },
+    },
+    {
+      method: 'POST',
+      path: '/session/verify_push',
+      options: {
+        ...SESSION_DOCS.SESSION_VERIFY_CODE_POST,
+        validate: {
+          payload: isA.object({
+            code: validators.DIGITS,
+            tokenVerificationId: validators.hexString.length(32),
+            uid: validators.uid,
+            email: validators.email(),
+            metricsContext: METRICS_CONTEXT_SCHEMA,
+          }),
+        },
+      },
+      handler: async function (request) {
+        log.begin('Session.verify_push', request);
+        const options = request.payload;
+        const { code, email, uid, tokenVerificationId } = options;
+
+        await customs.check(request, email, 'verifySessionCode');
+        request.emitMetricsEvent('session.verify_push');
+
+        const devices = await db.devices(uid);
+        const device = await db.deviceFromTokenVerificationId(
+          uid,
+          tokenVerificationId
+        );
+
+        // If device is not found, this means the device has already been verified.
+        // Since the user can not take any additional action, it is safe to return
+        // a successful response.
+        if (!device) {
+          return {};
+        }
+
+        // Check to see if the otp code passed matches the expected value from
+        // using the account's' `emailCode` as the secret in the otp code generation.
+        const account = await db.account(uid);
+        const secret = account.primaryEmail.emailCode;
+
+        const isValidCode = otpUtils.verifyOtpCode(code, secret, otpOptions);
+
+        if (!isValidCode) {
+          throw error.invalidOrExpiredOtpCode();
+        }
+
+        await db.verifyTokens(tokenVerificationId, account);
+
+        // We have a matching code! Let's verify session and send the
+        // corresponding email and emit metrics.
+        request.emitMetricsEvent('account.confirmed', { uid });
+        glean.login.verifyCodeConfirmed(request, { uid });
+        await signinUtils.cleanupReminders({ verified: true }, account);
+        await push.notifyAccountUpdated(uid, devices, 'accountConfirm');
 
         return {};
       },

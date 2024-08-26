@@ -1798,13 +1798,27 @@ export default class AuthClient {
 
   async sendLoginPushRequest(
     sessionToken: hexstring,
-    id: string,
     headers?: Headers
   ): Promise<void> {
-    return this.sessionPost(
-      '/session/verify/send_push',
-      sessionToken,
-      { id },
+    return this.sessionPost('/session/send_push', sessionToken, {}, headers);
+  }
+
+  async verifyLoginPushRequest(
+    email: string,
+    uid: string,
+    tokenVerificationId: string,
+    code: string,
+    headers?: Headers
+  ): Promise<void> {
+    return await this.request(
+      'POST',
+      '/session/verify_push',
+      {
+        email,
+        uid,
+        tokenVerificationId,
+        code,
+      },
       headers
     );
   }
@@ -2171,15 +2185,6 @@ export default class AuthClient {
       'GET',
       `/oauth/subscriptions/productname?productId=${productId}`,
       null,
-      headers
-    );
-  }
-
-  async sendPushLoginRequest(sessionToken: string, headers?: Headers) {
-    return this.sessionPost(
-      '/session/verify/send_push',
-      sessionToken,
-      {},
       headers
     );
   }
