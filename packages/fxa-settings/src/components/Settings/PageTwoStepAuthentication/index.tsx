@@ -355,6 +355,8 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
                 type="button"
                 className="cta-neutral cta-base-p mx-2 flex-1"
                 onClick={goHome}
+                data-glean-id="two_step_auth_codes_cancel"
+                data-glean-type="setup"
               >
                 Cancel
               </button>
@@ -365,6 +367,8 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
                 type="submit"
                 className="cta-primary cta-base-p mx-2 flex-1"
                 onClick={onRecoveryCodesAcknowledged}
+                data-glean-id="two_step_auth_codes_submit"
+                data-glean-type="setup"
               >
                 Continue
               </button>

@@ -227,6 +227,8 @@ const InlineRecoverySetup = ({
                   type="button"
                   className="cta-neutral mx-2 px-10 py-2 flex-1"
                   onClick={cancelSetupHandler}
+                  data-glean-id="two_step_auth_codes_cancel"
+                  data-glean-type="inline setup"
                 >
                   Cancel
                 </button>
@@ -236,6 +238,8 @@ const InlineRecoverySetup = ({
                   type="button"
                   className="cta-neutral mx-2 px-10 py-2"
                   onClick={continueSetup}
+                  data-glean-id="two_step_auth_codes_submit"
+                  data-glean-type="inline setup"
                 >
                   Continue
                 </button>
