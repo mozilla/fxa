@@ -157,6 +157,10 @@ const InlineRecoverySetup = ({
                 localizedCustomCodeRequiredMessage={
                   localizedRecoveryCodeRequiredError
                 }
+                gleanDataAttrs={{
+                  id: 'two_step_auth_enter_code_submit',
+                  type: 'inline setup',
+                }}
               />
               <div className="flex justify-between mt-4">
                 <FtlMsg id="inline-recovery-back-link">

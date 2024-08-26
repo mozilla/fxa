@@ -418,6 +418,8 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
                   !recoveryCodeForm.formState.isDirty ||
                   !recoveryCodeForm.formState.isValid
                 }
+                data-glean-id="two_step_auth_enter_code_submit"
+                data-glean-type="setup"
               >
                 Finish
               </button>
