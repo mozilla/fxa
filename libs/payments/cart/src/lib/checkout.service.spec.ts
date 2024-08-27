@@ -236,6 +236,10 @@ describe('CheckoutService', () => {
         expect(mockInvoicePreview.subtotal).toEqual(mockCart.amount);
       });
 
+      it('does not update the cart', () => {
+        expect(cartManager.updateFreshCart).not.toHaveBeenCalled();
+      });
+
       it('checks that customer does not have existing subscription to price', () => {
         expect(
           subscriptionManager.cancelIncompleteSubscriptionsToPrice
