@@ -897,19 +897,19 @@ workflows:
           parallelism: 8
           requires:
             - Build (PR)
+      - build-and-deploy-storybooks:
+          name: Deploy Storybooks (PR)
+          requires:
+            - Build (PR)
       - check-required-jobs-complete:
           name: Check all required jobs are complete (PR)
           requires:
-            - Init (PR)
+            - Build (PR)
       - playwright-functional-test-report:
           name: Merge Playwright Reports (PR)
           requires:
             - Check all required jobs are complete (PR)
             - Functional Tests - Playwright (PR)
-      - build-and-deploy-storybooks:
-          name: Deploy Storybooks (PR)
-          requires:
-            - Build (PR)
 
   # Triggered remotely. See .circleci/README.md
   production_smoke_tests:
