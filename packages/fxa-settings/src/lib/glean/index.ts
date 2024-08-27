@@ -398,6 +398,9 @@ const recordEventMetric = (
     case 'account_pref_two_step_auth_qr_view':
       accountPref.twoStepAuthQrView.record();
       break;
+    case 'account_pref_two_step_auth_qr_code_success':
+      accountPref.twoStepAuthQrCodeSuccess.record();
+      break;
     case 'account_pref_change_password_submit':
       accountPref.changePasswordSubmit.record();
       break;

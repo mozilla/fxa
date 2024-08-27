@@ -21,6 +21,7 @@ import { SigninRecoveryLocationState } from '../InlineRecoverySetup/interfaces';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import { QueryParams } from '../..';
 import { queryParamsToMetricsContext } from '../../lib/metrics';
+import GleanMetrics from '../../lib/glean';
 
 export const InlineTotpSetupContainer = ({
   isSignedIn,
@@ -146,6 +147,7 @@ export const InlineTotpSetupContainer = ({
           ...Object.assign({}, signinState),
           ...(totp ? { totp } : {}),
         };
+        GleanMetrics.accountPref.twoStepAuthQrCodeSuccess();
         navTo(
           'inline_recovery_setup',
           Object.keys(state).length > 0 ? state : undefined

@@ -33,6 +33,7 @@ jest.mock('../../../lib/glean', () => ({
     accountPref: {
       twoStepAuthScanCodeLink: jest.fn(),
       twoStepAuthQrView: jest.fn(),
+      twoStepAuthQrCodeSuccess: jest.fn(),
     },
   },
 }));
@@ -316,6 +317,9 @@ describe('step 3', () => {
       await fireEvent.click(screen.getByTestId('submit-recovery-code'));
     });
     expect(getCode).toBeCalledTimes(1);
+    expect(
+      GleanMetrics.accountPref.twoStepAuthQrCodeSuccess
+    ).toHaveBeenCalled();
 
     expect(mockNavigate).toHaveBeenCalledWith(
       SETTINGS_PATH + '#two-step-authentication',
