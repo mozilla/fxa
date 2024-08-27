@@ -12764,6 +12764,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@mozilla/glean@npm:^5.0.3":
+  version: 5.0.3
+  resolution: "@mozilla/glean@npm:5.0.3"
+  dependencies:
+    fflate: ^0.8.0
+    tslib: ^2.3.1
+    uuid: ^9.0.0
+  bin:
+    glean: dist/cli/cli.js
+  checksum: 58ec9e831855d57f319738378694ca04b99217c10fee2c370f62624e61ca9b65b799cd16d499cd3cf9a2d18fc1ea512360c10fba2da0af62971e409e43aaa88d
+  languageName: node
+  linkType: hard
+
 "@mrmlnc/readdir-enhanced@npm:^2.2.1":
   version: 2.2.1
   resolution: "@mrmlnc/readdir-enhanced@npm:2.2.1"
@@ -39143,7 +39156,6 @@ fsevents@~2.1.1:
     "@googlemaps/google-maps-services-js": ^3.4.0
     "@hapi/hapi": ^20.2.1
     "@hapi/hoek": ^11.0.2
-    "@mozilla/glean": ^5.0.2
     "@storybook/addon-controls": ^7.4.6
     "@storybook/addon-docs": ^7.6.12
     "@storybook/addon-toolbars": ^7.0.23
@@ -39299,7 +39311,6 @@ fsevents@~2.1.1:
     "@babel/preset-env": ^7.22.9
     "@babel/preset-react": ^7.24.1
     "@babel/preset-typescript": ^7.24.1
-    "@mozilla/glean": ^5.0.2
     "@types/backbone": ^1.4.19
     "@types/postcss-import": ^14
     "@types/sinon-chai": 3.2.5
@@ -39990,7 +40001,6 @@ fsevents@~2.1.1:
   resolution: "fxa-shared@workspace:packages/fxa-shared"
   dependencies:
     "@fluent/langneg": ^0.7.0
-    "@mozilla/glean": ^5.0.2
     "@types/accept-language-parser": ^1.5.3
     "@types/chai": ^4.3.17
     "@types/chance": ^1.1.2
@@ -40084,7 +40094,7 @@ fsevents@~2.1.1:
     "@graphql-codegen/typescript": ^4.0.1
     "@graphql-codegen/typescript-document-nodes": ^4.0.1
     "@grpc/grpc-js": ^1.11.1
-    "@mozilla/glean": ^5.0.2
+    "@mozilla/glean": ^5.0.3
     "@nestjs/apollo": ^12.1.0
     "@nestjs/cli": ^10.4.2
     "@nestjs/common": ^10.3.4
