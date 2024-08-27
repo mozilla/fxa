@@ -407,7 +407,7 @@ describe('PromotionCodeManager', () => {
           StripeSubscriptionItemFactory({
             price: StripePriceFactory({
               metadata: {
-                [STRIPE_PRICE_METADATA.PROMOTION_CODES]: 'promo_code1',
+                [STRIPE_PRICE_METADATA.PromotionCodes]: 'promo_code1',
               },
             }),
           }),
@@ -420,7 +420,7 @@ describe('PromotionCodeManager', () => {
           StripeSubscriptionItemFactory({
             price: StripePriceFactory({
               metadata: {
-                [STRIPE_PRICE_METADATA.PROMOTION_CODES]:
+                [STRIPE_PRICE_METADATA.PromotionCodes]:
                   'promo_code1,promo_code2',
               },
             }),

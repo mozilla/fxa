@@ -28,7 +28,7 @@ describe('assertPromotionCodeApplicableToPrice', () => {
     });
     const mockPrice = StripePriceFactory({
       metadata: {
-        [STRIPE_PRICE_METADATA.PROMOTION_CODES]:
+        [STRIPE_PRICE_METADATA.PromotionCodes]:
           'promo_code1,promo_code2,promo_code3',
       },
     });
@@ -41,13 +41,13 @@ describe('assertPromotionCodeApplicableToPrice', () => {
   it('does not throw if promotion code is included in promotion codes for product', async () => {
     const mockPrice = StripePriceFactory({
       metadata: {
-        [STRIPE_PRICE_METADATA.PROMOTION_CODES]:
+        [STRIPE_PRICE_METADATA.PromotionCodes]:
           'promo_code1,promo_code2,promo_code3',
       },
     });
     const mockProduct = StripeProductFactory({
       metadata: {
-        [STRIPE_PRODUCT_METADATA.PROMOTION_CODES]:
+        [STRIPE_PRODUCT_METADATA.PromotionCodes]:
           'promo_code1,promo_code2,promo_code3',
       },
     });

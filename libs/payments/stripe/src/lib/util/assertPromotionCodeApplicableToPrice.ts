@@ -19,19 +19,19 @@ export const assertPromotionCodeApplicableToPrice = (
   product?: StripeProduct
 ) => {
   const validPromotionCodes: string[] = [];
-  if (price.metadata && price.metadata[STRIPE_PRICE_METADATA.PROMOTION_CODES]) {
+  if (price.metadata && price.metadata[STRIPE_PRICE_METADATA.PromotionCodes]) {
     validPromotionCodes.push(
-      ...price.metadata[STRIPE_PRICE_METADATA.PROMOTION_CODES]
+      ...price.metadata[STRIPE_PRICE_METADATA.PromotionCodes]
         .split(',')
         .map((c) => c.trim())
     );
   }
   if (
     product?.metadata &&
-    product.metadata[STRIPE_PRODUCT_METADATA.PROMOTION_CODES]
+    product.metadata[STRIPE_PRODUCT_METADATA.PromotionCodes]
   ) {
     validPromotionCodes.push(
-      ...product.metadata[STRIPE_PRODUCT_METADATA.PROMOTION_CODES]
+      ...product.metadata[STRIPE_PRODUCT_METADATA.PromotionCodes]
         .split(',')
         .map((c) => c.trim())
     );
