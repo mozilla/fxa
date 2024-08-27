@@ -740,6 +740,7 @@ jobs:
   check-required-jobs-complete:
     docker:
       - image: circleci/node
+    resource_class: small
     steps:
       - run:
           name: Check if jq is installed
@@ -761,21 +762,18 @@ jobs:
       - run:
           name: Wait for required jobs to complete
           command: |
+            sleep 30
             while true; do
               RESPONSE=$(curl --location --request GET "https://circleci.com/api/v2/workflow/$CIRCLE_WORKFLOW_ID/job" --header "Circle-Token: $CCI_Token")
-              STATUS=$(echo $RESPONSE | jq -r '.items[] | select(.name | startswith("Tests Complete") | not) | select(.name | startswith("Check all required jobs are complete") | not ) | .status')
-              RUNNING_JOBS=$(echo $STATUS | grep -c "running")
+              PENDING=$(echo $RESPONSE | jq -r '.items[] | select(.status == "blocked" or .status == "running") | select(.name | startswith("Tests Complete") | not) | select(.name | startswith("Check all required jobs are complete") | not ) | .name')
+              echo "PENDING JOBS: $PENDING"
 
-              echo "DEBUG $RESPONSE"
-              echo "DEBUG $STATUS"
-              echo "DEBUG $RUNNING_JOBS"
-
-              if [[ $RUNNING_JOBS -eq 0 ]]; then
+              if [[ $(echo $PENDING | wc -l) -eq 0 ]]; then
                 echo "All required jobs have now completed"
-                break
+                exit 0
               else
                 echo "Still waiting for jobs to complete..."
-                sleep 10
+                sleep 1
               fi
             done
 
@@ -925,11 +923,13 @@ workflows:
           requires:
             - Build (PR)
       - check-required-jobs-complete:
-          name: Check all required jobs are complete
+          name: Check all required jobs are complete (PR)
+          requires:
+            - Init (PR)
       - playwright-functional-test-report:
           name: Merge Playwright Reports (PR)
           requires:
-            - Check all required jobs are complete
+            - Check all required jobs are complete (PR)
       - build-and-deploy-storybooks:
           name: Deploy Storybooks (PR)
           requires:
@@ -949,6 +949,7 @@ workflows:
             - Integration Test - Libraries (PR)
             - Functional Tests - Playwright (PR)
             - Deploy Storybooks (PR)
+            - Merge Playwright Reports (PR)
 
   # Triggered remotely. See .circleci/README.md
   production_smoke_tests:
