@@ -53,6 +53,7 @@ jest.mock('@type-cacheable/core', () => ({
       return descriptor;
     };
   },
+  setOptions: jest.fn(),
 }));
 
 jest.mock('@fxa/shared/db/type-cacheable', () => ({
