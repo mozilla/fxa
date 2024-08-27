@@ -8,6 +8,12 @@ export type GleanClickEventDataAttrs = {
   type?: string;
 };
 
+export enum GleanClickEventType2FA {
+  inline = 'inline setup',
+  setup = 'setup',
+  replace = 'replace',
+}
+
 export enum LinkType {
   'reset-password',
   'signin',

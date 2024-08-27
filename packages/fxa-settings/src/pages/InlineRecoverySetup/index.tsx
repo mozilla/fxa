@@ -17,6 +17,7 @@ import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { InlineRecoverySetupProps } from './interfaces';
 import { getErrorFtlId, getLocalizedErrorMessage } from '../../lib/error-utils';
 import GleanMetrics from '../../lib/glean';
+import { GleanClickEventType2FA } from '../../lib/types';
 
 const InlineRecoverySetup = ({
   oAuthError,
@@ -168,7 +169,7 @@ const InlineRecoverySetup = ({
                 }
                 gleanDataAttrs={{
                   id: 'two_step_auth_enter_code_submit',
-                  type: 'inline setup',
+                  type: GleanClickEventType2FA.inline,
                 }}
               />
               <div className="flex justify-between mt-4">
@@ -218,15 +219,15 @@ const InlineRecoverySetup = ({
               gleanDataAttrs={{
                 download: {
                   id: 'two_step_auth_codes_download',
-                  type: 'inline setup',
+                  type: GleanClickEventType2FA.inline,
                 },
                 copy: {
                   id: 'two_step_auth_codes_copy',
-                  type: 'inline setup',
+                  type: GleanClickEventType2FA.inline,
                 },
                 print: {
                   id: 'two_step_auth_codes_print',
-                  type: 'inline setup',
+                  type: GleanClickEventType2FA.inline,
                 },
               }}
             />

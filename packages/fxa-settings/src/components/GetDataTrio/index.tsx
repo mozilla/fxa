@@ -10,6 +10,7 @@ import { ReactComponent as DownloadIcon } from './download.svg';
 import { ReactComponent as PrintIcon } from './print.svg';
 import { useFtlMsgResolver } from '../../models';
 import { FtlMsg } from 'fxa-react/lib/utils';
+import { GleanClickEventType2FA } from '../../lib/types';
 
 export type DownloadContentType =
   | 'Firefox account recovery key'
@@ -29,7 +30,7 @@ export interface GetDataTrioGleanData {
     | 'two_step_auth_codes_copy'
     | 'two_step_auth_codes_print'
     | 'account_pref_recovery_key_copy';
-  type?: 'setup' | 'inline setup' | 'replace';
+  type?: GleanClickEventType2FA;
 }
 
 export type GetDataTrioProps = {
@@ -65,12 +66,8 @@ export const GetDataCopySingleton = ({
         onBlur={() => setTooltipVisible(false)}
         data-testid="databutton-copy"
         className="w-12 h-12 relative inline-block text-grey-500 rounded active:text-blue-600 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 hover:bg-grey-50"
-        {...(gleanDataAttrs?.copy && {
-          'data-glean-id': gleanDataAttrs.copy.id,
-        })}
-        {...(gleanDataAttrs?.copy?.type && {
-          'data-glean-type': gleanDataAttrs.copy.type,
-        })}
+        data-glean-id={gleanDataAttrs.copy?.id}
+        data-glean-type={gleanDataAttrs.copy?.type}
       >
         <CopyIcon
           aria-label="Copy"
@@ -106,12 +103,8 @@ export const GetDataCopySingletonInline = ({
           }}
           onBlur={() => setTooltipVisible(false)}
           data-testid="databutton-copy"
-          {...(gleanDataAttrs?.copy && {
-            'data-glean-id': gleanDataAttrs.copy.id,
-          })}
-          {...(gleanDataAttrs?.copy?.type && {
-            'data-glean-type': gleanDataAttrs.copy.type,
-          })}
+          data-glean-id={gleanDataAttrs.copy?.id}
+          data-glean-type={gleanDataAttrs.copy?.type}
           className="-my-3 -me-4 p-3 rounded text-grey-500 bg-transparent border border-transparent hover:bg-grey-100 active:bg-grey-200 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 focus:bg-grey-50"
         >
           <InlineCopyIcon
@@ -190,12 +183,8 @@ export const GetDataTrio = ({
           onBlur={() => {
             setTooltipVisible(false);
           }}
-          {...(gleanDataAttrs?.download && {
-            'data-glean-id': gleanDataAttrs.download.id,
-          })}
-          {...(gleanDataAttrs?.download?.type && {
-            'data-glean-type': gleanDataAttrs.download.type,
-          })}
+          data-glean-id={gleanDataAttrs.download?.id}
+          data-glean-type={gleanDataAttrs.download?.type}
         >
           <DownloadIcon
             aria-label="Download"
@@ -228,12 +217,8 @@ export const GetDataTrio = ({
           onBlur={() => setTooltipVisible(false)}
           data-testid="databutton-print"
           className="w-12 h-12 relative inline-block text-grey-500 rounded active:text-blue-600 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 hover:bg-grey-50"
-          {...(gleanDataAttrs?.print && {
-            'data-glean-id': gleanDataAttrs.print.id,
-          })}
-          {...(gleanDataAttrs?.print?.type && {
-            'data-glean-type': gleanDataAttrs.print.type,
-          })}
+          data-glean-id={gleanDataAttrs.print?.id}
+          data-glean-type={gleanDataAttrs.print?.type}
         >
           <PrintIcon
             aria-label="Print"
