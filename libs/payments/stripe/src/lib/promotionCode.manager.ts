@@ -8,11 +8,12 @@ import { ProductManager } from './product.manager';
 import { StripeClient } from './stripe.client';
 import { PromotionCodeCouldNotBeAttachedError } from './stripe.error';
 import {
-  checkSubscriptionPromotionCodes,
-  checkValidPromotionCode,
+  assertSubscriptionPromotionCodes,
+  assertValidPromotionCode,
   getSubscribedPrice,
 } from './stripe.util';
 import { SubscriptionManager } from './subscription.manager';
+import type { StripePrice, StripePromotionCode } from './stripe.client.types';
 
 @Injectable()
 export class PromotionCodeManager {
@@ -33,6 +34,29 @@ export class PromotionCodeManager {
     });
 
     return promotionCodes.data.at(0);
+  }
+
+  async assertValidPromotionCodeNameForPrice(
+    promoCodeName: string,
+    price: StripePrice
+  ) {
+    const promoCode = await this.retrieveByName(promoCodeName);
+    if (!promoCode)
+      throw new PromotionCodeCouldNotBeAttachedError('PromoCode not found');
+
+    await this.assertValidPromotionCodeForPrice(promoCode, price);
+  }
+
+  async assertValidPromotionCodeForPrice(
+    promoCode: StripePromotionCode,
+    price: StripePrice
+  ) {
+    assertValidPromotionCode(promoCode);
+
+    const productId = price.product;
+    const product = await this.productManager.retrieve(productId);
+
+    assertSubscriptionPromotionCodes(promoCode, price, product);
   }
 
   async applyPromoCodeToSubscription(
@@ -60,15 +84,9 @@ export class PromotionCodeManager {
           }
         );
 
-      const promotionCode = await this.retrieve(promotionId);
-
-      checkValidPromotionCode(promotionCode);
-
       const price = getSubscribedPrice(subscription);
-      const productId = price.product;
-      const product = await this.productManager.retrieve(productId);
-
-      checkSubscriptionPromotionCodes(promotionCode, price, product);
+      const promoCode = await this.retrieve(promotionId);
+      await this.assertValidPromotionCodeForPrice(promoCode, price);
 
       const updatedSubscription = await this.subscriptionManager.update(
         subscriptionId,

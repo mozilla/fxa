@@ -88,6 +88,128 @@ describe('PromotionCodeManager', () => {
     });
   });
 
+  describe('assertValidPromotionCodeForPrice', () => {
+    it('resolves when valid', () => {
+      const mockPromotionCode = StripePromotionCodeFactory();
+      const mockPrice = StripePriceFactory();
+      const mockProduct = StripeProductFactory();
+
+      mockStripeUtil.assertValidPromotionCode.mockReturnValue();
+      mockStripeUtil.assertSubscriptionPromotionCodes.mockReturnValue();
+
+      jest
+        .spyOn(productManager, 'retrieve')
+        .mockResolvedValue(StripeResponseFactory(mockProduct));
+
+      expect(
+        promotionCodeManager.assertValidPromotionCodeForPrice(
+          mockPromotionCode,
+          mockPrice
+        )
+      ).resolves.toEqual(undefined);
+    });
+
+    it('throws an error if promotion code is invalid', async () => {
+      const mockPromotionCode = StripePromotionCodeFactory();
+      const mockPrice = StripePriceFactory();
+
+      mockStripeUtil.assertValidPromotionCode.mockImplementation(() => {
+        throw new PromotionCodeCouldNotBeAttachedError(
+          'Invalid promotion code'
+        );
+      });
+
+      await expect(
+        promotionCodeManager.assertValidPromotionCodeForPrice(
+          mockPromotionCode,
+          mockPrice
+        )
+      ).rejects.toBeInstanceOf(PromotionCodeCouldNotBeAttachedError);
+    });
+
+    it('throws an error if promotion code is not applicable to price/product', async () => {
+      const mockPromotionCode = StripePromotionCodeFactory();
+      const mockPrice = StripePriceFactory();
+      const mockProduct = StripeProductFactory();
+
+      mockStripeUtil.assertValidPromotionCode.mockReturnValue();
+      mockStripeUtil.assertSubscriptionPromotionCodes.mockImplementation(() => {
+        throw new PromotionCodeCouldNotBeAttachedError(
+          'Invalid promotion code'
+        );
+      });
+
+      jest
+        .spyOn(productManager, 'retrieve')
+        .mockResolvedValue(StripeResponseFactory(mockProduct));
+
+      await expect(
+        promotionCodeManager.assertValidPromotionCodeForPrice(
+          mockPromotionCode,
+          mockPrice
+        )
+      ).rejects.toBeInstanceOf(PromotionCodeCouldNotBeAttachedError);
+    });
+  });
+
+  describe('assertValidPromotionCodeNameForPrice', () => {
+    it('resolves correctly when valid', async () => {
+      const mockPromotionCode = StripePromotionCodeFactory();
+      const mockPrice = StripePriceFactory();
+
+      jest
+        .spyOn(promotionCodeManager, 'retrieveByName')
+        .mockResolvedValue(mockPromotionCode);
+      jest
+        .spyOn(promotionCodeManager, 'assertValidPromotionCodeForPrice')
+        .mockResolvedValue();
+
+      await expect(
+        promotionCodeManager.assertValidPromotionCodeNameForPrice(
+          mockPromotionCode.code,
+          mockPrice
+        )
+      ).resolves.toEqual(undefined);
+    });
+
+    it('throws an error if promotion code is not found', async () => {
+      const mockPromotionCode = StripePromotionCodeFactory();
+      const mockPrice = StripePriceFactory();
+
+      jest
+        .spyOn(stripeClient, 'promotionCodesList')
+        .mockResolvedValue(StripeResponseFactory(StripeApiListFactory([])));
+
+      await expect(() =>
+        promotionCodeManager.assertValidPromotionCodeNameForPrice(
+          mockPromotionCode.code,
+          mockPrice
+        )
+      ).rejects.toBeInstanceOf(PromotionCodeCouldNotBeAttachedError);
+    });
+
+    it('throws an error if promotion code is not valid', async () => {
+      const mockPromotionCode = StripePromotionCodeFactory();
+      const mockPrice = StripePriceFactory();
+
+      jest
+        .spyOn(promotionCodeManager, 'retrieveByName')
+        .mockResolvedValue(mockPromotionCode);
+      jest
+        .spyOn(promotionCodeManager, 'assertValidPromotionCodeForPrice')
+        .mockRejectedValue(
+          new PromotionCodeCouldNotBeAttachedError('Invalid promotion code')
+        );
+
+      await expect(
+        promotionCodeManager.assertValidPromotionCodeNameForPrice(
+          mockPromotionCode.code,
+          mockPrice
+        )
+      ).rejects.toBeInstanceOf(PromotionCodeCouldNotBeAttachedError);
+    });
+  });
+
   describe('applyPromoCodeToSubscription', () => {
     it('throws an error if the subscription is not active', async () => {
       const mockCustomer = StripeCustomerFactory();
@@ -149,7 +271,7 @@ describe('PromotionCodeManager', () => {
         .spyOn(promotionCodeManager, 'retrieve')
         .mockResolvedValue(mockPromoResponse);
 
-      mockStripeUtil.checkValidPromotionCode.mockImplementation(() => {
+      mockStripeUtil.assertValidPromotionCode.mockImplementation(() => {
         throw new PromotionCodeCouldNotBeAttachedError(
           'Invalid promotion code'
         );
@@ -182,7 +304,7 @@ describe('PromotionCodeManager', () => {
         .spyOn(promotionCodeManager, 'retrieve')
         .mockResolvedValue(mockPromoResponse);
 
-      mockStripeUtil.checkValidPromotionCode.mockReturnValue(true);
+      mockStripeUtil.assertValidPromotionCode.mockReturnValue();
       mockStripeUtil.getSubscribedPrice.mockImplementation(() => {
         throw new PromotionCodeCouldNotBeAttachedError(
           'Unknown subscription price'
@@ -220,14 +342,14 @@ describe('PromotionCodeManager', () => {
         .spyOn(promotionCodeManager, 'retrieve')
         .mockResolvedValue(mockPromoResponse);
 
-      mockStripeUtil.checkValidPromotionCode.mockReturnValue(true);
+      mockStripeUtil.assertValidPromotionCode.mockReturnValue();
       mockStripeUtil.getSubscribedPrice.mockReturnValue(mockPrice);
 
       jest
         .spyOn(productManager, 'retrieve')
         .mockResolvedValue(StripeResponseFactory(mockProduct));
 
-      mockStripeUtil.checkSubscriptionPromotionCodes.mockImplementation(() => {
+      mockStripeUtil.assertSubscriptionPromotionCodes.mockImplementation(() => {
         throw new PromotionCodeCouldNotBeAttachedError(
           "Promotion code restricted to a product or specific price that doesn't match the product or price on this subscription"
         );
@@ -311,9 +433,9 @@ describe('PromotionCodeManager', () => {
         .spyOn(promotionCodeManager, 'retrieve')
         .mockResolvedValue(mockPromoCodeResponse);
 
-      mockStripeUtil.checkValidPromotionCode.mockReturnValue(true);
+      mockStripeUtil.assertValidPromotionCode.mockReturnValue();
       mockStripeUtil.getSubscribedPrice.mockReturnValue(mockPrice);
-      mockStripeUtil.checkSubscriptionPromotionCodes.mockReturnValue(true);
+      mockStripeUtil.assertSubscriptionPromotionCodes.mockReturnValue();
 
       jest
         .spyOn(productManager, 'retrieve')

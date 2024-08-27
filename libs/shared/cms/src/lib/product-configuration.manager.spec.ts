@@ -522,7 +522,7 @@ describe('productConfigurationManager', () => {
     });
   });
 
-  describe('retrieveStripePriceId', () => {
+  describe('retrieveStripePrice', () => {
     it('returns plan based on offeringId and interval', async () => {
       const mockPrice = StripeResponseFactory(StripePriceFactory());
       const mockInterval = SubplatInterval.Monthly;
@@ -544,11 +544,11 @@ describe('productConfigurationManager', () => {
         .spyOn(priceManager, 'retrieveByInterval')
         .mockResolvedValue(mockPrice);
 
-      const result = await productConfigurationManager.retrieveStripePriceId(
+      const result = await productConfigurationManager.retrieveStripePrice(
         mockOffering.apiIdentifier,
         mockInterval
       );
-      expect(result).toEqual(mockPrice.id);
+      expect(result).toEqual(mockPrice);
     });
 
     it('throws error if no plans are found', async () => {
@@ -565,7 +565,7 @@ describe('productConfigurationManager', () => {
         .mockResolvedValue(undefined);
 
       await expect(
-        productConfigurationManager.retrieveStripePriceId(
+        productConfigurationManager.retrieveStripePrice(
           mockOffering.apiIdentifier,
           mockInterval
         )
