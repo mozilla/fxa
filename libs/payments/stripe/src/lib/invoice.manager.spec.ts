@@ -4,7 +4,6 @@
 
 import { Test } from '@nestjs/testing';
 
-import { CustomerManager } from './customer.manager';
 import { StripeResponseFactory } from './factories/api-list.factory';
 import { StripeCustomerFactory } from './factories/customer.factory';
 import { StripeInvoiceFactory } from './factories/invoice.factory';
@@ -15,34 +14,30 @@ import { StripeClient } from './stripe.client';
 import { MockStripeConfigProvider } from './stripe.config';
 import { InvoicePreviewFactory } from './stripe.factories';
 import { InvoiceManager } from './invoice.manager';
-import { SubscriptionManager } from './subscription.manager';
-import * as StripeUtil from '../lib/util/stripeInvoiceToFirstInvoicePreviewDTO';
+import { stripeInvoiceToFirstInvoicePreviewDTO } from '../lib/util/stripeInvoiceToFirstInvoicePreviewDTO';
+import { getMinimumChargeAmountForCurrency } from '../lib/util/getMinimumChargeAmountForCurrency';
 
 jest.mock('../lib/util/stripeInvoiceToFirstInvoicePreviewDTO');
+const mockedStripeInvoiceToFirstInvoicePreviewDTO = jest.mocked(
+  stripeInvoiceToFirstInvoicePreviewDTO
+);
 
-const mockStripeUtil = jest.mocked(StripeUtil);
+jest.mock('../lib/util/getMinimumChargeAmountForCurrency');
+const mockedGetMinimumChargeAmountForCurrency = jest.mocked(
+  getMinimumChargeAmountForCurrency
+);
 
 describe('InvoiceManager', () => {
-  let customerManager: CustomerManager;
   let invoiceManager: InvoiceManager;
   let stripeClient: StripeClient;
-  let subscriptionManager: SubscriptionManager;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      providers: [
-        CustomerManager,
-        InvoiceManager,
-        StripeClient,
-        SubscriptionManager,
-        MockStripeConfigProvider,
-      ],
+      providers: [StripeClient, MockStripeConfigProvider, InvoiceManager],
     }).compile();
 
-    customerManager = module.get(CustomerManager);
     invoiceManager = module.get(InvoiceManager);
     stripeClient = module.get(StripeClient);
-    subscriptionManager = module.get(SubscriptionManager);
   });
 
   describe('finalizeWithoutAutoAdvance', () => {
@@ -79,7 +74,7 @@ describe('InvoiceManager', () => {
         .spyOn(stripeClient, 'invoicesRetrieveUpcoming')
         .mockResolvedValue(mockUpcomingInvoice);
 
-      mockStripeUtil.stripeInvoiceToFirstInvoicePreviewDTO.mockReturnValue(
+      mockedStripeInvoiceToFirstInvoicePreviewDTO.mockReturnValue(
         mockInvoicePreview
       );
 
@@ -117,7 +112,7 @@ describe('InvoiceManager', () => {
         })
       );
 
-      jest.spyOn(subscriptionManager, 'getMinimumAmount').mockReturnValue(10);
+      mockedGetMinimumChargeAmountForCurrency.mockReturnValue(10);
       jest
         .spyOn(invoiceManager, 'processPayPalZeroInvoice')
         .mockResolvedValue(mockInvoice);
@@ -139,8 +134,10 @@ describe('InvoiceManager', () => {
         currency: 'usd',
       });
 
-      jest.spyOn(subscriptionManager, 'getMinimumAmount').mockReturnValue(10);
-      jest.spyOn(customerManager, 'retrieve').mockResolvedValue(mockCustomer);
+      mockedGetMinimumChargeAmountForCurrency.mockReturnValue(10);
+      jest
+        .spyOn(stripeClient, 'customersRetrieve')
+        .mockResolvedValue(mockCustomer);
       jest
         .spyOn(invoiceManager, 'processPayPalZeroInvoice')
         .mockResolvedValue(StripeResponseFactory(mockInvoice));

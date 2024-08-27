@@ -5,25 +5,19 @@
 import { Injectable } from '@nestjs/common';
 import { Stripe } from 'stripe';
 
-import { CustomerManager } from './customer.manager';
-import { SubscriptionManager } from './subscription.manager';
-
 import { StripeClient } from './stripe.client';
 import { StripeCustomer, StripeInvoice } from './stripe.client.types';
 import { TaxAddress } from './stripe.types';
 import { isCustomerTaxEligible } from './util/isCustomerTaxEligible';
 import { stripeInvoiceToFirstInvoicePreviewDTO } from './util/stripeInvoiceToFirstInvoicePreviewDTO';
+import { getMinimumChargeAmountForCurrency } from './util/getMinimumChargeAmountForCurrency';
 
 @Injectable()
 export class InvoiceManager {
-  constructor(
-    private client: StripeClient,
-    private customerManager: CustomerManager,
-    private subscriptionManager: SubscriptionManager
-  ) {}
+  constructor(private stripeClient: StripeClient) {}
 
   async finalizeWithoutAutoAdvance(invoiceId: string) {
-    return this.client.invoicesFinalizeInvoice(invoiceId, {
+    return this.stripeClient.invoicesFinalizeInvoice(invoiceId, {
       auto_advance: false,
     });
   }
@@ -65,7 +59,7 @@ export class InvoiceManager {
       subscription_items: [{ price: priceId }],
     };
 
-    const upcomingInvoice = await this.client.invoicesRetrieveUpcoming(
+    const upcomingInvoice = await this.stripeClient.invoicesRetrieveUpcoming(
       requestObject
     );
 
@@ -76,7 +70,7 @@ export class InvoiceManager {
    * Retrieves an invoice
    */
   async retrieve(invoiceId: string) {
-    return this.client.invoicesRetrieve(invoiceId);
+    return this.stripeClient.invoicesRetrieve(invoiceId);
   }
 
   /**
@@ -111,15 +105,17 @@ export class InvoiceManager {
     if (!invoice.customer) throw new Error('Customer not present on invoice');
     const amountInCents = invoice.amount_due;
 
-    if (
-      amountInCents <
-      this.subscriptionManager.getMinimumAmount(invoice.currency)
-    ) {
+    if (amountInCents < getMinimumChargeAmountForCurrency(invoice.currency)) {
       await this.processPayPalZeroInvoice(invoice.id);
       return;
     }
 
-    const customer = await this.customerManager.retrieve(invoice.customer);
+    const customer = await this.stripeClient.customersRetrieve(
+      invoice.customer
+    );
+    if (customer.deleted)
+      throw new Error('Processing paypal invoice on deleted customer');
+
     await this.processPayPalNonZeroInvoice(customer, invoice);
   }
 }

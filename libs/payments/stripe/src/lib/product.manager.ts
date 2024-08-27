@@ -8,10 +8,10 @@ import { StripeClient } from './stripe.client';
 
 @Injectable()
 export class ProductManager {
-  constructor(private client: StripeClient) {}
+  constructor(private stripeClient: StripeClient) {}
 
   async retrieve(productId: string) {
-    const product = await this.client.productsRetrieve(productId);
+    const product = await this.stripeClient.productsRetrieve(productId);
     return product;
   }
 }

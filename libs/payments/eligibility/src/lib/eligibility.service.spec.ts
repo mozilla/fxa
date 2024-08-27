@@ -8,7 +8,6 @@ import {
   StripeClient,
   StripeConfig,
   StripeCustomerFactory,
-  StripeSubscriptionFactory,
   SubplatInterval,
   SubscriptionManager,
 } from '@fxa/payments/stripe';
@@ -31,11 +30,6 @@ import {
   OfferingComparison,
   OfferingOverlapProductResult,
 } from './eligibility.types';
-import * as StripeUtil from '../../../stripe/src/lib/stripe.util';
-
-jest.mock('../../../stripe/src/lib/stripe.util');
-
-const mockStripeUtil = jest.mocked(StripeUtil);
 
 describe('EligibilityService', () => {
   let productConfigurationManager: ProductConfigurationManager;
@@ -113,7 +107,6 @@ describe('EligibilityService', () => {
           type: 'offering',
         },
       ] satisfies OfferingOverlapProductResult[];
-      const mockSubscription = StripeSubscriptionFactory();
 
       jest
         .spyOn(productConfigurationManager, 'getEligibilityContentByOffering')
@@ -127,12 +120,7 @@ describe('EligibilityService', () => {
           )
         );
 
-      jest
-        .spyOn(subscriptionManager, 'listForCustomer')
-        .mockResolvedValue([mockSubscription]);
-
-      mockStripeUtil.getSubscribedPrices.mockReturnValue([]);
-      mockStripeUtil.getSubscribedProductIds.mockReturnValue([]);
+      jest.spyOn(subscriptionManager, 'listForCustomer').mockResolvedValue([]);
 
       jest
         .spyOn(eligibilityManager, 'getProductIdOverlap')

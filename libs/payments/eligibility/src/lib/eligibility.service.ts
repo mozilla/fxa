@@ -3,12 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Injectable } from '@nestjs/common';
-import {
-  getSubscribedPrices,
-  getSubscribedProductIds,
-  SubscriptionManager,
-  SubplatInterval,
-} from '@fxa/payments/stripe';
+import { SubscriptionManager, SubplatInterval } from '@fxa/payments/stripe';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
 import { EligibilityManager } from './eligibility.manager';
 import { EligibilityStatus } from './eligibility.types';
@@ -44,9 +39,11 @@ export class EligibilityService {
       stripeCustomerId
     );
 
-    const subscribedPrices = getSubscribedPrices(subscriptions);
+    const subscribedPrices = subscriptions
+      .flatMap((subscription) => subscription.items.data)
+      .map((item) => item.price);
 
-    const productIds = getSubscribedProductIds(subscribedPrices);
+    const productIds = subscribedPrices.map((price) => price.product);
 
     const overlaps = this.eligibilityManager.getProductIdOverlap(
       productIds,
