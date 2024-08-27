@@ -341,14 +341,19 @@ commands:
       - run:
           name: Ensure directories
           command: mkdir -p artifacts/tests && mkdir -p ~/.pm2/logs && mkdir -p ~/screenshots
+          when: always
       - store_artifacts:
           path: artifacts
+          when: always
       - store_artifacts:
           path: ~/screenshots
+          when: always
       - store_artifacts:
           path: ~/.pm2/logs
+          when: always
       - store_test_results:
           path: artifacts/tests
+          when: always
 
   rename-reports:
     steps:
@@ -370,12 +375,13 @@ commands:
             echo "Listing contents after renaming:"
             ls -la
           when: always
-      - store_artifacts:
-          path: artifacts/blob-report
       - persist_to_workspace:
           root: /home/circleci/project
           paths:
             - artifacts/blob-report
+          when: always
+      - store_artifacts:
+          path: artifacts/blob-report
           when: always
 
   build:
@@ -891,18 +897,19 @@ workflows:
           parallelism: 8
           requires:
             - Build (PR)
-      - check-required-jobs-complete:
-          name: Check all required jobs are complete (PR)
-          requires:
-            - Init (PR)
-      - playwright-functional-test-report:
-          name: Merge Playwright Reports (PR)
-          requires:
-            - Check all required jobs are complete (PR)
       - build-and-deploy-storybooks:
           name: Deploy Storybooks (PR)
           requires:
             - Build (PR)
+      - check-required-jobs-complete:
+          name: Check all required jobs are complete (PR)
+          requires:
+            - Build (PR)
+      - playwright-functional-test-report:
+          name: Merge Playwright Reports (PR)
+          requires:
+            - Check all required jobs are complete (PR)
+            - Functional Tests - Playwright (PR)
 
   # Triggered remotely. See .circleci/README.md
   production_smoke_tests:
