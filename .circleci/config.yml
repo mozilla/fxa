@@ -909,7 +909,6 @@ workflows:
           name: Merge Playwright Reports (PR)
           requires:
             - Check all required jobs are complete (PR)
-            - Functional Tests - Playwright (PR)
 
   # Triggered remotely. See .circleci/README.md
   production_smoke_tests:
