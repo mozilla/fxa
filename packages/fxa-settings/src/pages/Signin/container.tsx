@@ -10,6 +10,7 @@ import {
   useFtlMsgResolver,
   useConfig,
   useSession,
+  isSyncDesktopV3Integration,
 } from '../../models';
 import { MozServices } from '../../lib/types';
 import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
@@ -234,7 +235,7 @@ const SigninContainer = ({
       // warning. The browser will automatically respond with { ok: true } without
       // prompting the user if it matches the email the browser has data for.
       if (
-        integration.isSync() &&
+        isSyncDesktopV3Integration(integration) &&
         queryParamModel.hasLinkedAccount === undefined
       ) {
         const { ok } = await firefox.fxaCanLinkAccount({ email });
