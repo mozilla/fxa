@@ -413,11 +413,11 @@ const Signin = ({
 
       <TermsPrivacyAgreement {...{ isPocketClient, isMonitorClient }} />
 
-      <div className="flex justify-between mt-5">
+      <div className="flex flex-col mt-5 tablet:justify-between tablet:flex-row">
         <FtlMsg id="signin-use-a-different-account-link">
           <a
             href="/"
-            className="text-sm link-blue"
+            className="text-sm link-blue cursor-pointer mb-4 mx-auto tablet:mx-0 tablet:mb-0"
             onClick={(e) => {
               e.preventDefault();
               GleanMetrics.login.diffAccountLinkClick();
@@ -446,7 +446,7 @@ const Signin = ({
               to={`/reset_password${
                 location?.search ? `/${location?.search}` : ''
               }`}
-              className="text-sm link-blue"
+              className="text-sm link-blue mx-auto tablet:mx-0"
               onClick={() =>
                 !isPasswordNeededRef.current
                   ? GleanMetrics.cachedLogin.forgotPassword()
