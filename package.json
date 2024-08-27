@@ -18,7 +18,7 @@
     "ports": "pm2 jlist | json -a -c 'this.pm2_env.env.PORT' pm2_env.env.PORT name",
     "heroku-postbuild": "yarn workspaces foreach --verbose --include 123done install",
     "mysql": "docker exec -it $(docker container ls | grep mysql | cut -d' ' -f1) mysql",
-    "firefox": "./packages/fxa-dev-launcher/bin/fxa-dev-launcher.mjs",
+    "firefox": "FIREFOX_DEBUGGER=true ./packages/fxa-dev-launcher/bin/fxa-dev-launcher.mjs",
     "generate-lockfile": "docker build . -f _dev/docker/ci-lockfile-generator/Dockerfile -t generate-lockfile && docker run generate-lockfile > yarn.lock",
     "l10n:clone": "_scripts/l10n/clone.sh",
     "l10n:prime": "_scripts/l10n/prime.sh",

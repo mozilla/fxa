@@ -34,8 +34,8 @@ module.exports = {
     },
     {
       name: 'sync',
-      script: '_scripts/syncserver.sh',
-      max_restarts: '1',
+      script: '_scripts/sync.sh',
+      max_restarts: '0',
       min_uptime: '2m',
       autorestart: false,
       kill_timeout: 20000,
