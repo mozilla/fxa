@@ -902,22 +902,6 @@ workflows:
           name: Deploy Storybooks (PR)
           requires:
             - Build (PR)
-      - on-complete:
-          name: Tests Complete (PR)
-          stage: Tests
-          job_type: build
-          requires:
-            - Lint (PR)
-            - Compile (PR)
-            - Unit Test (PR)
-            - Integration Test - Frontends (PR)
-            - Integration Test - Servers (PR)
-            - Integration Test - Servers - Auth (PR)
-            - Integration Test - Servers - Auth V2 (PR)
-            - Integration Test - Libraries (PR)
-            - Functional Tests - Playwright (PR)
-            - Deploy Storybooks (PR)
-            - Merge Playwright Reports (PR)
 
   # Triggered remotely. See .circleci/README.md
   production_smoke_tests:
