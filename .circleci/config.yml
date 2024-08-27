@@ -376,6 +376,7 @@ commands:
           root: /home/circleci/project
           paths:
             - artifacts/blob-report
+          when: always
 
   build:
     steps:
