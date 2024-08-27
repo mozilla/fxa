@@ -8,9 +8,7 @@ const Hoek = require('@hapi/hoek');
 const Sentry = require('@sentry/node');
 
 async function configureSentry(server, config, log) {
-  Sentry.configureScope((scope) => {
-    scope.setTag('process', 'customs_server');
-  });
+  Sentry.getCurrentScope().setTag('process', 'customs_server');
 
   // Attach a new Sentry scope to the request for breadcrumbs/tags/extras
   server.ext({
@@ -26,18 +24,11 @@ async function configureSentry(server, config, log) {
       // looks like there might be some other solutions that are more complex, but would work
       // with hapi and distributed tracing.
       //
-      const transaction = Sentry.startTransaction(
-        {
-          op: 'auth-server',
-          name: `${request.method.toUpperCase()} ${request.path}`,
-        },
-        {
-          request: Sentry.Handlers.extractRequestData(request.raw.req),
-        }
-      );
-
-      Sentry.configureScope((scope) => {
-        scope.setSpan(transaction);
+      const transaction = Sentry.startInactiveSpan({
+        op: 'auth-server',
+        name: `${request.method.toUpperCase()} ${request.path}`,
+        forceTransaction: true,
+        request: Sentry.extractRequestData(request.raw.req),
       });
 
       request.app.sentry = {
@@ -62,11 +53,8 @@ async function configureSentry(server, config, log) {
         }
       }
       Sentry.withScope((scope) => {
-        scope.addEventProcessor((_sentryEvent) => {
-          const sentryEvent = Sentry.Handlers.parseRequest(
-            _sentryEvent,
-            request.raw.req
-          );
+        scope.addEventProcessor((sentryEvent) => {
+          sentryEvent.request = Sentry.extractRequestData(request.raw.req);
           sentryEvent.level = 'error';
           return sentryEvent;
         });

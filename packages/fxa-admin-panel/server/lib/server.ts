@@ -30,9 +30,6 @@ logger.info('version', { version: version });
 
 // Initialize Sentry
 const sentryConfig = config.get('sentry');
-if (sentryConfig.dsn) {
-  app.use(Sentry.Handlers.requestHandler());
-}
 
 app.use(
   helmet.frameguard({
@@ -145,7 +142,7 @@ if (proxyUrl) {
 
 // Send errors to sentry.
 if (sentryConfig.dsn) {
-  app.use(Sentry.Handlers.errorHandler());
+  Sentry.setupExpressErrorHandler(app);
 }
 
 export default app;

@@ -114,9 +114,6 @@ module.exports = () => {
   app.disable('x-powered-by');
 
   const sentryConfig = config.get('sentry');
-  if (sentryConfig.dsn) {
-    app.use(Sentry.Handlers.requestHandler());
-  }
 
   const hstsEnabled = config.get('hstsEnabled');
   if (hstsEnabled) {
@@ -224,7 +221,13 @@ module.exports = () => {
     return result;
   }
 
-  function injectHtmlConfig(html, config, featureFlags, paypalCspNonce, gaCspNonce) {
+  function injectHtmlConfig(
+    html,
+    config,
+    featureFlags,
+    paypalCspNonce,
+    gaCspNonce
+  ) {
     return injectMetaContent(html, {
       __SERVER_CONFIG__: config,
       __FEATURE_FLAGS__: featureFlags,
@@ -309,7 +312,7 @@ module.exports = () => {
 
   if (sentryConfig.dsn) {
     // Send errors to sentry.
-    app.use(Sentry.Handlers.errorHandler());
+    Sentry.setupExpressErrorHandler(app);
   }
 
   return {

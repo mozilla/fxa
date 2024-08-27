@@ -34,11 +34,8 @@ function reportSentryError(err, request) {
 
   Sentry.withScope((scope) => {
     if (request) {
-      scope.addEventProcessor((_sentryEvent) => {
-        const sentryEvent = Sentry.Handlers.parseRequest(
-          _sentryEvent,
-          request.raw.req
-        );
+      scope.addEventProcessor((sentryEvent) => {
+        sentryEvent.request = Sentry.extractRequestData(request.raw.req);
         sentryEvent.level = 'error';
         return sentryEvent;
       });
@@ -106,9 +103,7 @@ function reportSentryError(err, request) {
 
 async function configureSentry(server, config, processName = 'key_server') {
   if (config.sentry.dsn) {
-    Sentry.configureScope((scope) => {
-      scope.setTag('process', processName);
-    });
+    Sentry.getCurrentScope().setTag('process', processName);
 
     if (!server) {
       return;
@@ -120,6 +115,7 @@ async function configureSentry(server, config, processName = 'key_server') {
       method(request, h) {
         request.sentryScope = new Sentry.Scope();
 
+        /**
         // Make a transaction per request so we can get performance monitoring. There are
         // some limitations to this approach, and distributed tracing will be off due to
         // hapi's architecture.
@@ -128,23 +124,17 @@ async function configureSentry(server, config, processName = 'key_server') {
         // looks like there might be some other solutions that are more complex, but would work
         // with hapi and distributed tracing.
         //
-        const transaction = Sentry.startTransaction(
-          {
-            op: 'auth-server',
-            name: `${request.method.toUpperCase()} ${request.path}`,
-          },
-          {
-            request: Sentry.Handlers.extractRequestData(request.raw.req),
-          }
-        );
-
-        Sentry.configureScope((scope) => {
-          scope.setSpan(transaction);
+        const transaction = Sentry.startInactiveSpan({
+          op: 'auth-server',
+          name: `${request.method.toUpperCase()} ${request.path}`,
+          forceTransaction: true,
+          request: Sentry.extractRequestData(request.raw.req),
         });
 
         request.app.sentry = {
           transaction,
         };
+        //*/
 
         return h.continue;
       },
