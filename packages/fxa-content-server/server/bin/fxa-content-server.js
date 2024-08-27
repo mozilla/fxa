@@ -211,18 +211,13 @@ function makeApp() {
     );
   }
 
-  if (config.get('env') === 'production') {
-    app.get(settingsPath, modifySettingsStatic);
-
-    addNonSettingsRoutes(modifySettingsStatic);
-
-    app.get(settingsPath + '/*', modifySettingsStatic);
-  }
-
-  if (config.get('env') === 'development') {
+  if (config.get('proxy_settings')) {
     app.use(settingsPath, createSettingsProxy);
-
     addNonSettingsRoutes(createSettingsProxy);
+  } else {
+    app.get(settingsPath, modifySettingsStatic);
+    addNonSettingsRoutes(modifySettingsStatic);
+    app.get(settingsPath + '/*', modifySettingsStatic);
   }
 
   // it's a four-oh-four not found.

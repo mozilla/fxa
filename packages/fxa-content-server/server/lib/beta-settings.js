@@ -9,21 +9,30 @@ const config = require('./configuration');
 const FLOW_ID_KEY = config.get('flow_id_key');
 const flowMetrics = require('./flow-metrics');
 
-let settingsIndexFile;
 const env = config.get('env');
-const settingsIndexPath = join(
-  __dirname,
-  '..',
-  '..',
-  config.get('static_directory'),
-  'settings',
-  'index.html'
-);
 
-if (env !== 'development') {
-  settingsIndexFile = readFileSync(settingsIndexPath, {
-    encoding: 'utf-8',
-  });
+let settingsIndexFile;
+function getSettingsIndexFile() {
+  if (settingsIndexFile === undefined) {
+    const proxy_settings = config.get('proxy_settings');
+    if (!proxy_settings) {
+      const static_directory = config.get('static_directory');
+      const static_settings_directory = config.get('static_settings_directory');
+      const settingsIndexPath = join(
+        __dirname,
+        '..',
+        '..',
+        static_directory,
+        'settings',
+        static_settings_directory,
+        'index.html'
+      );
+      settingsIndexFile = readFileSync(settingsIndexPath, {
+        encoding: 'utf-8',
+      });
+    }
+  }
+  return settingsIndexFile;
 }
 
 const settingsConfig = {
@@ -162,9 +171,14 @@ const createSettingsProxy = createProxyMiddleware({
 
 // Modify the static settings page by replacing __SERVER_CONFIG__ with the config object
 const modifySettingsStatic = function (req, res) {
+  const indexFile = getSettingsIndexFile();
+  if (indexFile === undefined) {
+    throw new Error('Could not locate settings index file.');
+  }
+
   const flowEventData = flowMetrics.create(FLOW_ID_KEY);
   return res.send(
-    swapBetaMeta(settingsIndexFile, {
+    swapBetaMeta(indexFile, {
       __SERVER_CONFIG__: settingsConfig,
       __FLOW_ID__: flowEventData.flowId,
       __FLOW_BEGIN_TIME__: flowEventData.flowBeginTime,
