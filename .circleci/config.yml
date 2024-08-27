@@ -768,7 +768,7 @@ jobs:
               PENDING=$(echo $RESPONSE | jq -r '.items[] | select(.status == "blocked" or .status == "running") | select(.name | startswith("Tests Complete") | not) | select(.name | startswith("Merge Playwright Reports") | not) | select(.name | startswith("Check all required jobs are complete") | not ) | .name')
               echo "PENDING JOBS: $PENDING"
 
-              if [[ $(echo $PENDING | wc -l) -eq 0 ]]; then
+              if [[ $(echo $PENDING | grep -c Test ) -eq 0 ]]; then
                 echo "All required jobs have now completed"
                 exit 0
               else
