@@ -70,6 +70,14 @@ function mockSyncDesktopV3Integration() {
     wantsKeys: () => true,
   } as Integration;
 }
+function mockSyncOAuthIntegration() {
+  integration = {
+    type: IntegrationType.OAuth,
+    getService: () => MozServices.FirefoxSync,
+    isSync: () => true,
+    wantsKeys: () => true,
+  } as Integration;
+}
 
 function mockWebIntegration() {
   integration = {
@@ -501,9 +509,28 @@ describe('signin container', () => {
       afterEach(() => {
         (firefox.fxaCanLinkAccount as jest.Mock).mockRestore();
       });
-      it('is not called when conditions are not met', async () => {
+      it('is not called when conditions are not met (query param)', async () => {
         // this puts hasLinkedAccount=false in the query params
         // We don't want this called when the user was prompted on email-first
+        mockUseValidateModule();
+        (firefox.fxaCanLinkAccount as jest.Mock).mockImplementationOnce(
+          async () => ({
+            ok: true,
+          })
+        );
+        render([mockGqlAvatarUseQuery()]);
+
+        await waitFor(async () => {
+          await currentSigninProps?.beginSigninHandler(
+            MOCK_EMAIL,
+            MOCK_PASSWORD
+          );
+          expect(firefox.fxaCanLinkAccount).not.toHaveBeenCalled();
+        });
+      });
+      it('is not called when conditions are not met (oauth integration)', async () => {
+        mockSyncOAuthIntegration();
+        // TODO: when desktop moves to oauth, we must update this logic and test
         mockUseValidateModule();
         (firefox.fxaCanLinkAccount as jest.Mock).mockImplementationOnce(
           async () => ({
