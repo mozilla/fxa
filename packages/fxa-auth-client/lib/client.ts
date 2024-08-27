@@ -1796,6 +1796,38 @@ export default class AuthClient {
     return this.sessionGet('/totp/exists', sessionToken, headers);
   }
 
+  async sendLoginPushRequest(
+    sessionToken: hexstring,
+    headers?: Headers
+  ): Promise<void> {
+    return this.sessionPost(
+      '/session/verify/send_push',
+      sessionToken,
+      {},
+      headers
+    );
+  }
+
+  async verifyLoginPushRequest(
+    email: string,
+    uid: string,
+    tokenVerificationId: string,
+    code: string,
+    headers?: Headers
+  ): Promise<void> {
+    return await this.request(
+      'POST',
+      '/session/verify/verify_push',
+      {
+        email,
+        uid,
+        tokenVerificationId,
+        code,
+      },
+      headers
+    );
+  }
+
   async verifyTotpCode(
     sessionToken: hexstring,
     code: string,

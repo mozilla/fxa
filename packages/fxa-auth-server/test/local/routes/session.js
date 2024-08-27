@@ -24,6 +24,36 @@ const signupCodeAccount = {
   tokenVerificationId: 'sometoken',
 };
 
+const MOCK_DEVICES = [
+  // Current device
+  {
+    sessionTokenId: 'sessionTokenId',
+    name: 'foo',
+    type: 'desktop',
+    pushEndpointExpired: false,
+    pushPublicKey: 'foo',
+    uaBrowser: 'Firefox',
+  },
+  // Only pushable device
+  {
+    sessionTokenId: 'sessionTokenId2',
+    name: 'foo2',
+    type: 'desktop',
+    pushEndpointExpired: false,
+    pushPublicKey: 'foo',
+    uaBrowser: 'Firefox',
+  },
+  // Unsupported mobile device
+  {
+    sessionTokenId: 'sessionTokenId3',
+    name: 'foo3',
+    type: 'mobile',
+    pushEndpointExpired: false,
+    pushPublicKey: 'foo',
+    uaBrowser: 'Firefox',
+  },
+];
+
 function makeRoutes(options = {}) {
   const config = options.config || {};
   config.oauth = config.oauth || {};
@@ -1289,11 +1319,14 @@ describe('/session/verify/send_push', () => {
   let route, request, log, db, mailer, push;
 
   beforeEach(() => {
-    db = mocks.mockDB({ ...signupCodeAccount });
+    db = mocks.mockDB({ ...signupCodeAccount, devices: MOCK_DEVICES });
+    db.totpToken = sinon.spy(() => Promise.resolve({ enabled: false }));
     log = mocks.mockLog();
     mailer = mocks.mockMailer();
     push = mocks.mockPush();
-    const config = {};
+    const config = {
+      contentServer: { url: 'http://localhost:3030' },
+    };
     const routes = makeRoutes({ log, config, db, mailer, push });
     route = getRoute(routes, '/session/verify/send_push');
 
@@ -1312,15 +1345,156 @@ describe('/session/verify/send_push', () => {
     const response = await runTest(route, request);
     assert.deepEqual(response, {});
     assert.calledOnce(db.devices);
-    assert.calledOnce(push.notifyVerifyLoginRequest);
+    assert.calledOnce(db.totpToken);
+    assert.calledOnce(db.account);
 
     const args = push.notifyVerifyLoginRequest.args[0];
     assert.equal(args[0], 'foo');
-    assert.deepEqual(args[1], []);
+    assert.deepEqual(args[1], [
+      {
+        sessionTokenId: 'sessionTokenId2',
+        name: 'foo2',
+        type: 'desktop',
+        pushEndpointExpired: false,
+        pushPublicKey: 'foo',
+        uaBrowser: 'Firefox',
+      },
+    ]);
     assert.equal(args[2].title, 'Logging in to your Mozilla account?');
     assert.equal(args[2].body, 'Click here to confirm it’s you');
-    assert.include(args[2].url, 'sometoken');
-    assert.include(args[2].url, 'California');
-    assert.include(args[2].url, encodeURIComponent('63.245.221.32'));
+    const url = args[2].url;
+    assert.include(url, 'http://localhost:3030/signin_push_code_confirm?');
+    assert.include(url, 'tokenVerificationId=sometoken');
+    assert.match(url, /code=\d{6}/);
+    assert.include(url, 'uid=foo');
+    assert.include(url, 'email=foo%40example.org');
+    assert.include(
+      url,
+      'remoteMetaData=%257B%2522deviceFamily%2522%253A%2522Firefox%2522%252C%2522ipAddress%2522%253A%252263.245.221.32%2522%257D'
+    );
+  });
+
+  it('should not send a push notification if TOTP token is verified and enabled', async () => {
+    db.totpToken = sinon.spy(() =>
+      Promise.resolve({ verified: true, enabled: true })
+    );
+    const response = await runTest(route, request);
+    assert.deepEqual(response, {});
+    assert.calledOnce(db.totpToken);
+    assert.notCalled(push.notifyVerifyLoginRequest);
+  });
+});
+
+describe('/session/verify/verify_push', () => {
+  let route, request, log, db, mailer, push, customs;
+
+  beforeEach(() => {
+    db = mocks.mockDB({ ...signupCodeAccount, devices: MOCK_DEVICES });
+    db.deviceFromTokenVerificationId = sinon.spy(() =>
+      Promise.resolve(MOCK_DEVICES[1])
+    );
+    log = mocks.mockLog();
+    mailer = mocks.mockMailer();
+    push = mocks.mockPush();
+    customs = mocks.mockCustoms();
+    const config = {};
+    const routes = makeRoutes({ log, config, db, mailer, push, customs });
+    route = getRoute(routes, '/session/verify/verify_push');
+  });
+
+  it('should verify push notification login request', async () => {
+    const expectedCode = getExpectedOtpCode({}, signupCodeAccount.emailCode);
+    request = mocks.mockRequest({
+      log,
+      credentials: {
+        ...signupCodeAccount,
+        uaBrowser: 'Firefox',
+        id: 'sessionTokenId',
+      },
+      payload: {
+        code: expectedCode,
+        uid: 'foo',
+        email: 'a@aa.com',
+        tokenVerificationId: 'sometoken',
+      },
+    });
+    const response = await runTest(route, request);
+    assert.deepEqual(response, {});
+
+    assert.calledOnceWithExactly(
+      customs.check,
+      request,
+      'foo@example.org',
+      'verifySessionCode'
+    );
+    assert.calledOnceWithExactly(db.devices, 'foo');
+    assert.calledOnceWithExactly(
+      db.deviceFromTokenVerificationId,
+      'foo',
+      'sometoken'
+    );
+    assert.calledOnceWithExactly(db.account, 'foo');
+    assert.calledOnceWithMatch(db.verifyTokens, 'sometoken');
+
+    assert.calledOnceWithExactly(
+      push.notifyAccountUpdated,
+      'foo',
+      MOCK_DEVICES,
+      'accountConfirm'
+    );
+  });
+
+  it('should return if session is already verified', async () => {
+    db.deviceFromTokenVerificationId = sinon.spy(() =>
+      Promise.resolve(undefined)
+    );
+    request = mocks.mockRequest({
+      log,
+      credentials: {
+        ...signupCodeAccount,
+        uaBrowser: 'Firefox',
+        id: 'sessionTokenId',
+      },
+      payload: {
+        code: '123123',
+        uid: 'foo',
+        email: 'foo@example.org',
+        tokenVerificationId: 'sometoken',
+      },
+    });
+    const response = await runTest(route, request);
+    assert.deepEqual(response, {});
+    assert.notCalled(db.verifyTokens);
+  });
+
+  it('should fail if invalid code', async () => {
+    request = mocks.mockRequest({
+      log,
+      credentials: {
+        ...signupCodeAccount,
+        uaBrowser: 'Firefox',
+        id: 'sessionTokenId',
+      },
+      payload: {
+        code: '123123',
+        uid: 'foo',
+        email: 'foo@example.org',
+        tokenVerificationId: 'sometoken',
+      },
+    });
+    try {
+      await runTest(route, request);
+      assert.fail('should have thrown');
+    } catch (err) {
+      assert.calledOnceWithExactly(
+        customs.check,
+        request,
+        'foo@example.org',
+        'verifySessionCode'
+      );
+
+      assert.deepEqual(err.errno, 183);
+      assert.deepEqual(err.message, 'Invalid or expired confirmation code');
+    }
   });
 });

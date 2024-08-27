@@ -475,22 +475,19 @@ module.exports = function (
       method: 'POST',
       path: '/session/verify/send_push',
       options: {
-        ...SESSION_DOCS.SESSION_VERIFY_SEND_PUSH_POST,
+        ...SESSION_DOCS.SESSION_SEND_PUSH_POST,
         auth: {
           strategy: 'sessionToken',
         },
       },
       handler: async function (request) {
-        log.begin('Session.verify.send_push', request);
+        log.begin('Session.send_push', request);
 
         const sessionToken = request.auth.credentials;
-        const { uid, tokenVerificationId } = sessionToken;
-
-        const allDevices = await db.devices(uid);
-        const location = request.app.geo.location || {};
+        const { uid, email, tokenVerificationId } = sessionToken;
 
         // Check to see if this account has a verified TOTP token. If so, then it should
-        // not be allowed to bypass TOTP requirement by sending a sign-in confirmation email.
+        // not be allowed to bypass TOTP requirement by sending a sign-in push notification.
         try {
           const result = await db.totpToken(sessionToken.uid);
 
@@ -503,25 +500,28 @@ module.exports = function (
           }
         }
 
-        const { ua } = request.app;
-        const uaInfo = {
-          uaBrowser: ua.browser,
-          uaOS: ua.os,
-          uaDeviceType: ua.deviceType,
-        };
+        const allDevices = await db.devices(uid);
 
-        // Don't send notification to current device
+        const account = await db.account(sessionToken.uid);
+        const secret = account.primaryEmail.emailCode;
+
+        const code = otpUtils.generateOtpCode(secret, otpOptions);
+
+        // Filter devices that can accept the push notification.
         const filteredDevices = allDevices.filter((d) => {
-          return d.sessionTokenId !== sessionToken.id;
+          // Don't push to the current device
+          if (d.sessionTokenId === sessionToken.id) {
+            return false;
+          }
+          // Exclude expired devices
+          if (d.pushEndpointExpired === true) {
+            return false;
+          }
+          // Currently, we only support sending push notifications to Firefox Desktop
+          return d.type === 'desktop' && d.uaBrowser === 'Firefox';
         });
 
-        const url = `${
-          config.smtp.pushVerificationUrl
-        }?type=push_login_verification&code=${tokenVerificationId}&ua=${encodeURIComponent(
-          JSON.stringify(uaInfo)
-        )}&location=${encodeURIComponent(
-          JSON.stringify(location)
-        )}&ip=${encodeURIComponent(request.app.clientAddress)}`;
+        const confirmUrl = `${config.contentServer.url}/signin_push_code_confirm`;
 
         const localizer = new Localizer(new NodeRendererBindings());
 
@@ -548,17 +548,98 @@ module.exports = function (
         const options = {
           title: localizedStrings[titleFtlId],
           body: localizedStrings[bodyFtlId],
-          url,
         };
 
+        const { region, city, country } = request.app.geo;
+        const remoteMetaData = {
+          deviceName: sessionToken.deviceName,
+          deviceFamily: sessionToken.uaBrowser,
+          deviceOS: sessionToken.uaOS,
+          ipAddress: request.app.clientAddress,
+          city,
+          region,
+          country,
+        };
+        const params = new URLSearchParams({
+          tokenVerificationId,
+          code,
+          uid,
+          email,
+          remoteMetaData: encodeURIComponent(JSON.stringify(remoteMetaData)),
+        });
+        const url = `${confirmUrl}?${params.toString()}`;
         try {
-          await push.notifyVerifyLoginRequest(uid, filteredDevices, options);
+          await push.notifyVerifyLoginRequest(uid, filteredDevices, {
+            ...options,
+            url,
+          });
         } catch (err) {
-          log.error('Session.verify.send_push', {
+          log.error('Session.send_push', {
             uid: uid,
             error: err,
           });
         }
+
+        return {};
+      },
+    },
+    {
+      method: 'POST',
+      path: '/session/verify/verify_push',
+      options: {
+        ...SESSION_DOCS.SESSION_VERIFY_CODE_POST,
+        auth: {
+          strategy: 'sessionToken',
+        },
+        validate: {
+          payload: isA.object({
+            code: validators.DIGITS,
+            tokenVerificationId: validators.hexString.length(32),
+          }),
+        },
+      },
+      handler: async function (request) {
+        log.begin('Session.verify_push', request);
+        const options = request.payload;
+        const sessionToken = request.auth.credentials;
+        const { uid, email } = sessionToken;
+        const { code, tokenVerificationId } = options;
+
+        await customs.check(request, email, 'verifySessionCode');
+        request.emitMetricsEvent('session.verify_push');
+
+        const device = await db.deviceFromTokenVerificationId(
+          uid,
+          tokenVerificationId
+        );
+
+        // If device is not found, this means the device has already been verified.
+        // Since the user can not take any additional action, it is safe to return
+        // a successful response.
+        if (!device) {
+          return {};
+        }
+
+        // Check to see if the otp code passed matches the expected value from
+        // using the account's' `emailCode` as the secret in the otp code generation.
+        const account = await db.account(uid);
+        const secret = account.primaryEmail.emailCode;
+
+        const isValidCode = otpUtils.verifyOtpCode(code, secret, otpOptions);
+
+        if (!isValidCode) {
+          throw error.invalidOrExpiredOtpCode();
+        }
+
+        await db.verifyTokens(tokenVerificationId, account);
+
+        // We have a matching code! Let's verify session and send the
+        // corresponding email and emit metrics.
+        request.emitMetricsEvent('account.confirmed', { uid });
+        glean.login.verifyCodeConfirmed(request, { uid });
+        await signinUtils.cleanupReminders({ verified: true }, account);
+        const devices = await db.devices(uid);
+        await push.notifyAccountUpdated(uid, devices, 'accountConfirm');
 
         return {};
       },
