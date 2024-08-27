@@ -6,10 +6,10 @@
 export * from './lib/nestapp/app';
 export * from './lib/nestapp/config';
 export * from './lib/config.utils';
-export * from './lib/server/purchase-details';
-export * from './lib/server/subscription-title';
-export * from './lib/server/terms-and-privacy';
-export * from './lib/server/LoadingSpinner';
+export * from './lib/server/components/LoadingSpinner';
+export * from './lib/server/components/PurchaseDetails';
+export * from './lib/server/components/SubscriptionTitle';
+export * from './lib/server/components/TermsAndPrivacy';
 export * from './lib/utils/types';
 export { fetchCMSData } from './lib/actions/fetchCMSData';
 export { handleStripeErrorAction } from './lib/actions/handleStripeError';

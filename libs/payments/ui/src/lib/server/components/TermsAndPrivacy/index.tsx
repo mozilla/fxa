@@ -9,7 +9,7 @@ import {
   buildFirefoxAccountsTerms,
   buildPaymentTerms,
   buildProductTerms,
-} from '../utils/terms-and-privacy';
+} from '../../../utils/terms-and-privacy';
 import { LocalizerRsc } from '@fxa/shared/l10n/server';
 
 type GenericTermsProps = {

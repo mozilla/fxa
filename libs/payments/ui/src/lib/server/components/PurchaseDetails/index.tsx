@@ -5,7 +5,7 @@
 import Image from 'next/image';
 import { Invoice } from '@fxa/payments/cart';
 import { LocalizerRsc } from '@fxa/shared/l10n/server';
-import { formatPlanPricing } from '../utils/helpers';
+import { formatPlanPricing } from '../../../utils/helpers';
 
 type ListLabelItemProps = {
   labelLocalizationId: string;
@@ -96,8 +96,12 @@ export async function PurchaseDetails(props: PurchaseDetailsProps) {
               },
               formatPlanPricing(listAmount, currency, interval)
             )}
-            &nbsp;&bull;&nbsp;
-            {subtitle}
+            {subtitle && (
+              <span>
+                &nbsp;&bull;&nbsp;
+                {subtitle}
+              </span>
+            )}
           </p>
         </div>
       </div>
