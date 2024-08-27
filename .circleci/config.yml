@@ -766,7 +766,7 @@ jobs:
             while true; do
               RESPONSE=$(curl --location --request GET "https://circleci.com/api/v2/workflow/$CIRCLE_WORKFLOW_ID/job" --header "Circle-Token: $CCI_Token")
 
-              PENDING=$(echo $RESPONSE | jq -r '.items[] | select(.status == "blocked" or .status == "running") | select(.name | startswith("Tests Complete") | not) | select(.name | startswith("Merge Playwright Reports") | not) | select(.name | startswith("Check all required jobs are complete") | not ) | .name')
+              PENDING=$(echo $RESPONSE | jq -r '.items[] | select(.status == "blocked" or .status == "running" or .status == "not_running") | select(.name | startswith("Tests Complete") | not) | select(.name | startswith("Merge Playwright Reports") | not) | select(.name | startswith("Check all required jobs are complete") | not ) | .name')
 
               echo "PENDING JOBS: $PENDING"
 
