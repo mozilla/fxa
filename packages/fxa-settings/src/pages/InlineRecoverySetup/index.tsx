@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { RouteComponentProps } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { useFtlMsgResolver } from '../../models';
@@ -16,6 +16,7 @@ import FormVerifyCode from '../../components/FormVerifyCode';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { InlineRecoverySetupProps } from './interfaces';
 import { getErrorFtlId, getLocalizedErrorMessage } from '../../lib/error-utils';
+import GleanMetrics from '../../lib/glean';
 
 const InlineRecoverySetup = ({
   oAuthError,
@@ -118,6 +119,14 @@ const InlineRecoverySetup = ({
       verifyTotpHandler,
     ]
   );
+
+  useEffect(() => {
+    !showConfirmation && GleanMetrics.accountPref.twoStepAuthCodesView();
+  }, [showConfirmation]);
+
+  useEffect(() => {
+    showConfirmation && GleanMetrics.accountPref.twoStepAuthEnterCodeView();
+  }, [showConfirmation]);
 
   return (
     <AppLayout>

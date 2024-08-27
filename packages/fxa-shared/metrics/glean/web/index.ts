@@ -162,6 +162,8 @@ export const eventsMap = {
     twoStepAuthScanCodeLink: 'account_pref_two_step_auth_scan_code_link',
     twoStepAuthQrView: 'account_pref_two_step_auth_qr_view',
     twoStepAuthQrCodeSuccess: 'account_pref_two_step_auth_qr_code_success',
+    twoStepAuthCodesView: 'two_step_auth_codes_view',
+    twoStepAuthEnterCodeView: 'two_step_auth_enter_code_view',
     changePasswordSubmit: 'account_pref_change_password_submit',
     deviceSignout: 'account_pref_device_signout',
     appleSubmit: 'account_pref_apple_submit',
