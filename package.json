@@ -58,7 +58,7 @@
     "@nestjs/graphql": "^12.2.0",
     "@nestjs/mapped-types": "^2.0.5",
     "@nestjs/passport": "^10.0.3",
-    "@nestjs/platform-express": "^10.3.4",
+    "@nestjs/platform-express": "^10.4.1",
     "@nestjs/schedule": "^4.0.1",
     "@opentelemetry/api": "^1.8.0",
     "@opentelemetry/auto-instrumentations-node": "^0.44.0",
