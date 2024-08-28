@@ -8,16 +8,14 @@ import { AppConfig } from '../config';
 import { determineLocale } from '@fxa/shared/l10n';
 import { Injectable } from '@nestjs/common';
 
-const LEGAL_DOCS_PATH = '/settings/legal-docs';
-
 @Injectable()
 export class LegalService {
-  private settingsUrl: string;
+  private legalDocsUrl: string;
 
   constructor(configService: ConfigService<AppConfig>) {
-    this.settingsUrl = configService.get(
-      'settingsUrl'
-    ) as AppConfig['settingsUrl'];
+    this.legalDocsUrl = configService.get(
+      'legalDocsUrl'
+    ) as AppConfig['legalDocsUrl'];
   }
 
   public async getDoc(locale: string, file: string) {
@@ -49,7 +47,7 @@ export class LegalService {
   }
 
   private async tryGetDoc(locale: string, file: string) {
-    const url = `${this.settingsUrl}${LEGAL_DOCS_PATH}/${locale}/${file}.md`;
+    const url = `${this.legalDocsUrl}/${locale}/${file}.md`;
     const resp = await fetch(url);
     const resText = await resp.text();
 
@@ -61,7 +59,7 @@ export class LegalService {
   }
 
   private async getAvailableLocales(file: string) {
-    const url = `${this.settingsUrl}${LEGAL_DOCS_PATH}/${file}_locales.json`;
+    const url = `${this.legalDocsUrl}/${file}_locales.json`;
     const response = await fetch(`${url}`);
 
     if (!response.ok) {
