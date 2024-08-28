@@ -823,7 +823,7 @@ jobs:
               echo "Fetching reports-$1.zip"
               wget https://output.circle-artifacts.com/output/job/${JOB_ID}/artifacts/$1/artifacts/blob-report/reports-$1.zip
             }
-            for i in $(seq 0 8);
+            for i in $(seq 0 7);
             do
               fetch_report $i
             done
