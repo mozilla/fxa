@@ -21,6 +21,7 @@ import {
   SubplatInterval,
   SubscriptionManager,
   TaxAddress,
+  type StripeCustomer,
   type StripePromotionCode,
 } from '@fxa/payments/stripe';
 import { AccountManager } from '@fxa/shared/account/account';
@@ -56,7 +57,6 @@ export class CheckoutService {
   ) {}
 
   async prePaySteps(cart: ResultCart, customerData: CheckoutCustomerData) {
-    let customer, stripeCustomerId, uid;
     const taxAddress = cart.taxAddress as any as TaxAddress;
 
     if (!cart.email) {
@@ -66,18 +66,18 @@ export class CheckoutService {
     // if uid not found, create stub account customer
     // TODO: update hardcoded verifierVersion
     // https://mozilla-hub.atlassian.net/browse/FXA-9693
-    if (!cart.uid) {
+    let uid = cart.uid;
+    if (!uid) {
       uid = await this.accountManager.createAccountStub(
         cart.email,
         1, // verifierVersion
         customerData.locale
       );
-    } else {
-      uid = cart.uid;
     }
 
-    // if stripeCustomerId not found, create plain stripe account
-    if (!cart.stripeCustomerId) {
+    let stripeCustomerId = cart.stripeCustomerId;
+    let customer: StripeCustomer;
+    if (!stripeCustomerId) {
       customer = await this.customerManager.create({
         uid,
         email: cart.email,
@@ -87,11 +87,9 @@ export class CheckoutService {
 
       stripeCustomerId = customer.id;
     } else {
-      stripeCustomerId = cart.stripeCustomerId;
       customer = await this.customerManager.retrieve(stripeCustomerId);
     }
 
-    // create accountCustomer if it does not exist
     if (!cart.uid) {
       await this.accountCustomerManager.createAccountCustomer({
         uid: uid,
@@ -99,15 +97,13 @@ export class CheckoutService {
       });
     }
 
-    // update cart
-    // TODO: update code so it's conditional only when cart data needs to be updated
-    // NOTE: originally done as two separate calls dependent on if
-    // uid, stripeCustomerId, or both were not found, it was then merged into one
-    // https://github.com/mozilla/fxa/pull/16924#discussion_r1608740674
-    await this.cartManager.updateFreshCart(cart.id, cart.version, {
-      uid: uid,
-      stripeCustomerId: stripeCustomerId,
-    });
+    // Cart only needs to be updated if we created a stub account or if we created a customer
+    if (!cart.uid || !cart.stripeCustomerId) {
+      await this.cartManager.updateFreshCart(cart.id, cart.version, {
+        uid: uid,
+        stripeCustomerId: stripeCustomerId,
+      });
+    }
 
     // validate customer is eligible for product via eligibility service
     // throws cart eligibility mismatch error if no match found
