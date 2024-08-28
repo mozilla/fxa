@@ -372,6 +372,7 @@ commands:
             else
               echo "No report.zip found, skipping rename for this node."
             fi
+            echo "$CIRCLE_WORKFLOW_JOB_ID" > job_id.txt
             echo "Listing contents after renaming:"
             ls -la
           when: always
@@ -771,7 +772,14 @@ jobs:
           command: |
             sleep 30
             while true; do
-              RESPONSE=$(curl --location --request GET "https://circleci.com/api/v2/workflow/$CIRCLE_WORKFLOW_ID/job" --header "Circle-Token: $CCI_Token")
+              RESPONSE=$(curl --request GET "https://circleci.com/api/v2/workflow/$CIRCLE_WORKFLOW_ID/job" --header "Circle-Token: $CCI_Token")
+
+              FUNCTIONAL_TEST_JOB_ID=$(echo $RESPONSE | jq -r '.items[] | select(.status == "running") | select(.name | startswith("functional_tests")) | .id')
+
+              if [[ -n "$FUNCTIONAL_TEST_JOB_ID" ]]; then
+                mkdir -p artifacts/blob-report
+                echo $FUNCTIONAL_TEST_JOB_ID > artifacts/blob-reports/functional_test_job_id.txt
+              fi
 
               JOB_STATUS=$(echo $RESPONSE | jq -r '.items[] | .name + "-" + .status')
               echo "ALL JOB_STATUS:"
@@ -789,6 +797,11 @@ jobs:
                 sleep 1
               fi
             done
+      - persist_to_workspace:
+          root: /home/circleci/project
+          paths:
+            - artifacts/blob-report
+          when: always
 
   playwright-functional-test-report:
     executor: default-executor
@@ -798,6 +811,21 @@ jobs:
       - run:
           name: Merge blob Reports
           command: |
+            cd artifacts/blob-report
+            ls -l
+
+            JOB_ID=(cat functional_test_job_id.txt)
+
+            echo "Fetching reports from circle ci artifact storarge for $JOB_ID"
+            function fetch_report() {
+              echo "Fetching reports-$1.zip"
+              wget https://output.circle-artifacts.com/output/job/${JOB_ID}/artifacts/$1/artifacts/blob-report/reports-$1.zip
+            }
+            for i in $(seq 0 8);
+            do
+              fetch_report $i
+            done
+
             mkdir -p artifacts/blob-reports
             cd artifacts/blob-reports
 
