@@ -1,0 +1,24 @@
+# This config is specific for running Sync in FxA's local development stack.
+
+cors_allowed_origin = "localhost"
+cors_max_age = 86400
+human_logs = 1
+master_secret = "secret0"
+port = 8000
+host = "0.0.0.0"
+
+syncstorage.database_url = "mysql://sync:test@host.docker.internal:3306/syncstorage"
+syncstorage.enable_quota = 0
+syncstorage.enabled = true
+syncstorage.limits.max_total_records = 1666 # See issues #298/#333
+syncstorage.run_migrations = true
+
+tokenserver.database_url = "mysql://sync:test@host.docker.internal:3306/tokenserver"
+tokenserver.enabled = true
+tokenserver.fxa_email_domain = "api-accounts.stage.mozaws.net"
+tokenserver.fxa_metrics_hash_secret = "INSERT_SECRET_KEY_HERE"
+tokenserver.fxa_oauth_server_url = "http://host.docker.internal:9000"
+tokenserver.fxa_browserid_audience = "https://token.stage.mozaws.net"
+tokenserver.fxa_browserid_issuer = "https://api-accounts.stage.mozaws.net"
+tokenserver.fxa_browserid_server_url = "https://verifier.stage.mozaws.net/v2"
+tokenserver.run_migrations = true

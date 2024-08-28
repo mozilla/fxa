@@ -18,6 +18,7 @@ trap on_sigint INT
 
 # Create pushbox db on start (because pushbox doesn't create it)
 docker run --rm --name=mydb \
+  --net fxa \
   -e MYSQL_ALLOW_EMPTY_PASSWORD=true \
   -e MYSQL_ROOT_HOST=% \
   -e MYSQL_DATABASE=pushbox \

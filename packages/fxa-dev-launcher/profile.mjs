@@ -4,7 +4,7 @@ const CONFIGS = {
   local: {
     auth: 'http://localhost:9000/v1',
     content: 'http://localhost:3030/',
-    token: 'http://localhost:5000/token/1.0/sync/1.5',
+    token: 'http://localhost:8000/1.0/sync/1.5',
     loop: 'http://localhost:10222',
     oauth: 'http://localhost:9000/v1',
     profile: 'http://localhost:1111/v1',

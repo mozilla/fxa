@@ -1941,7 +1941,7 @@ const convictConf = convict({
     },
   },
   syncTokenserverUrl: {
-    default: 'http://localhost:5000/token',
+    default: 'http://localhost:8000/token',
     doc: 'The url of the Firefox Sync tokenserver',
     env: 'SYNC_TOKENSERVER_URL',
     format: 'url',

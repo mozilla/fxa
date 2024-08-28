@@ -953,7 +953,7 @@ const conf = (module.exports = convict({
     },
   },
   sync_tokenserver_url: {
-    default: 'http://localhost:5000/token',
+    default: 'http://localhost:8000/token',
     doc: 'The url of the Firefox Sync tokenserver',
     env: 'SYNC_TOKENSERVER_URL',
     format: 'url',
