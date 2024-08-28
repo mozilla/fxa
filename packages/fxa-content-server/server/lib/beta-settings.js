@@ -39,6 +39,10 @@ const settingsConfig = {
   env,
   version: config.get('version'),
   marketingEmailPreferencesUrl: config.get('marketing_email.preferences_url'),
+  l10n: {
+    strict: false,
+    baseUrl: config.get('l10n.baseUrl'),
+  },
   metrics: {
     navTiming: {
       enabled: config.get('statsd.enabled'),

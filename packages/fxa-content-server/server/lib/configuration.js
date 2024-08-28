@@ -991,6 +991,13 @@ const conf = (module.exports = convict({
     doc: 'The path where deployment specific resources will be sought (keys, etc), and logs will be kept.',
     env: 'VAR_PATH',
   },
+  l10n: {
+    baseUrl: {
+      default: '/settings/locales',
+      doc: 'The path (or url) where ftl files are held.',
+      env: 'L10N_BASE_URL',
+    },
+  },
 }));
 
 // At the time this file is required, we'll determine the "process name" for this proc
