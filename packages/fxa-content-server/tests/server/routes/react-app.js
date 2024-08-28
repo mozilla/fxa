@@ -32,6 +32,7 @@ const { registerSuite } = intern.getInterface('object');
 const assert = intern.getPlugin('chai').assert;
 
 const showReactAppAll = {
+  emailFirstRoutes: true,
   simpleRoutes: true,
   resetPasswordRoutes: true,
   oauthRoutes: true,

@@ -60,7 +60,8 @@
     "simpleRoutes": true,
     "resetPasswordRoutes": true,
     "signUpRoutes": true,
-    "signInRoutes": true
+    "signInRoutes": true,
+    "emailFirstRoutes": false
   },
   "featureFlags": {
     "sendFxAStatusOnSettings": true,

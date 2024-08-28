@@ -156,6 +156,7 @@ executors:
       PAYPAL_SANDBOX: true
       FXA_MX_RECORD_EXCLUSIONS: restmail.dev.lcip.org
       # Needed for react conversion playwright tests
+      REACT_CONVERSION_EMAIL_FIRST_ROUTES: true
       REACT_CONVERSION_SIMPLE_ROUTES: true
       REACT_CONVERSION_RESET_PASSWORD_ROUTES: true
       REACT_CONVERSION_OAUTH_ROUTES: true

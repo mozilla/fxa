@@ -47,6 +47,7 @@ export interface AddRoutes {
 }
 
 type ShowReactApp = {
+  emailFirstRoutes: boolean;
   simpleRoutes: boolean;
   resetPasswordRoutes: boolean;
   oauthRoutes: boolean;
