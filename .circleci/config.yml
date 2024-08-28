@@ -721,6 +721,10 @@ jobs:
       - rename-reports
 
   check-required-jobs-complete:
+    docker:
+      - image: circleci/node
+    resource_class: small
+    steps:
       - run:
           name: Wait for required jobs to complete
           command: |
