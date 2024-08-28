@@ -763,7 +763,7 @@ jobs:
       - run:
           name: Fetch and Debug API Response
           command: |
-            curl --location --request GET "https://circleci.com/api/v2/workflow/$CIRCLE_WORKFLOW_ID/job" --header "Circle-Token: $CCI_Token" > response.json
+            curl -s --location --request GET "https://circleci.com/api/v2/workflow/$CIRCLE_WORKFLOW_ID/job" --header "Circle-Token: $CCI_Token" > response.json
             cat response.json
             jq -r '.items[] | select(.name != "Check all required jobs are complete" and .name != "Tests Complete (PR)") | .status' response.json
 
@@ -772,11 +772,12 @@ jobs:
           command: |
             sleep 30
             while true; do
-              RESPONSE=$(curl --request GET "https://circleci.com/api/v2/workflow/$CIRCLE_WORKFLOW_ID/job" --header "Circle-Token: $CCI_Token")
+              RESPONSE=$(curl -s --request GET "https://circleci.com/api/v2/workflow/$CIRCLE_WORKFLOW_ID/job" --header "Circle-Token: $CCI_Token")
 
-              FUNCTIONAL_TEST_JOB_ID=$(echo $RESPONSE | jq -r '.items[] | select(.status == "running") | select(.name | startswith("functional_tests")) | .id')
+              FUNCTIONAL_TEST_JOB_ID=$(echo $RESPONSE | jq -r '.items[] | select(.status == "running") | select(.name | startswith("Functional Tests")) | .id')
 
               if [[ -n "$FUNCTIONAL_TEST_JOB_ID" ]]; then
+                echo "Storing functional test job id for later lookup."
                 mkdir -p artifacts/blob-report
                 echo $FUNCTIONAL_TEST_JOB_ID > artifacts/blob-reports/functional_test_job_id.txt
               fi

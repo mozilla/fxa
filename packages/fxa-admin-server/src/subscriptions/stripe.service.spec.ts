@@ -179,7 +179,7 @@ describe('Stripe Service', () => {
   it('creates manage subscription link', async () => {
     const customerId = 'customer-123';
     const manageSessionUrl =
-      'https://dashboard.stripe.com/customers/customer-123';
+      'https://dashboard.stripe.com/test/customers/customer-123';
 
     const result1 = await service.createManageSubscriptionLink(customerId);
 
