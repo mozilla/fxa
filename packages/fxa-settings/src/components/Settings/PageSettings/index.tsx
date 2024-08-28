@@ -17,9 +17,10 @@ import DataCollection from '../DataCollection';
 import GleanMetrics from '../../../lib/glean';
 import ProductPromo, { ProductPromoType } from '../ProductPromo';
 import SideBar from '../Sidebar';
+import { MozServices } from '../../../lib/types';
 
 export const PageSettings = (_: RouteComponentProps) => {
-  const { uid } = useAccount();
+  const { attachedClients, uid } = useAccount();
 
   Metrics.setProperties({
     lang: document.querySelector('html')?.getAttribute('lang'),
@@ -27,9 +28,36 @@ export const PageSettings = (_: RouteComponentProps) => {
   });
   Metrics.usePageViewEvent(Metrics.settingsViewName);
 
+  const hasMonitor = attachedClients.some(
+    ({ name }) => name === MozServices.Monitor
+  );
+
+  // Will be needed once UX is sorted out for the MonitorPlus promo.
+  // const { subscriptions } = useAccount();
+  // const hasMonitorPlus = subscriptions.some(
+  //   ({ productName }) => productName === MozServices.MonitorPlus
+  // );
+
+  // False by default until UX is sorted out.
+  // Can be enabled for tests and storybook by passing true to the ProductPromo component.
+  // Once ready, this should be set to: hasMonitor && !hasMonitorPlus;
+  const showMonitorPlusPromo = false;
+
+  const showMonitorPromo = !hasMonitor || showMonitorPlusPromo;
+
+  const gleanEvent = showMonitorPlusPromo
+    ? { event: { reason: 'plus' } }
+    : { event: { reason: 'free' } };
+
   useEffect(() => {
     GleanMetrics.accountPref.view();
-  }, []);
+    if (showMonitorPromo) {
+      const gleanPingMetrics = showMonitorPlusPromo
+        ? { event: { reason: 'plus' } }
+        : { event: { reason: 'free' } };
+      GleanMetrics.accountPref.promoMonitorView(gleanPingMetrics);
+    }
+  }, [showMonitorPromo, showMonitorPlusPromo]);
 
   // Scroll to effect
   const profileRef = useRef<HTMLDivElement>(null);
@@ -48,6 +76,9 @@ export const PageSettings = (_: RouteComponentProps) => {
             connectedServicesRef,
             linkedAccountsRef,
             dataCollectionRef,
+            gleanEvent,
+            showMonitorPromo,
+            showMonitorPlusPromo,
           }}
         />
       </div>
@@ -69,7 +100,12 @@ export const PageSettings = (_: RouteComponentProps) => {
             </Link>
           </Localized>
         </div>
-        <ProductPromo type={ProductPromoType.Settings} />
+        {!showMonitorPromo && (
+          <ProductPromo
+            type={ProductPromoType.Settings}
+            {...{ gleanEvent, showMonitorPlusPromo }}
+          />
+        )}
       </div>
     </div>
   );

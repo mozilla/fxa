@@ -7,47 +7,29 @@ import LinkExternal from 'fxa-react/components/LinkExternal';
 import monitorTextLogo from './monitor-text-logo.svg';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import classNames from 'classnames';
-import { MozServices } from '../../../lib/types';
-import { useAccount, useConfig } from '../../../models';
+import { useConfig } from '../../../models';
 import { constructHrefWithUtm } from '../../../lib/utilities';
 import { LINK } from '../../../constants';
 import GleanMetrics from '../../../lib/glean';
+import { GleanPingMetrics } from 'fxa-shared/metrics/glean/web';
 
 export enum ProductPromoType {
   Sidebar = 'sidebar',
   Settings = 'settings',
 }
 
-// TODO, remove this and logic. This is temporary until we work out the UX for
-// this. This was left configurable via props for tests and storybook.
-const MONITOR_PLUS_ENABLED = false;
-
 export interface ProductPromoProps {
+  gleanEvent?: GleanPingMetrics;
+  showMonitorPlusPromo?: boolean;
   type?: ProductPromoType;
-  monitorPlusEnabled?: boolean;
 }
 
 export const ProductPromo = ({
+  gleanEvent,
+  showMonitorPlusPromo = false,
   type = ProductPromoType.Sidebar,
-  monitorPlusEnabled = MONITOR_PLUS_ENABLED,
 }: ProductPromoProps) => {
-  const { attachedClients, subscriptions } = useAccount();
   const { env } = useConfig();
-
-  const hasMonitor = attachedClients.some(
-    ({ name }) => name === MozServices.Monitor
-  );
-
-  const hasMonitorPlus = subscriptions.some(
-    ({ productName }) => productName === MozServices.MonitorPlus
-  );
-
-  const showMonitorPlusPromo =
-    hasMonitor && !hasMonitorPlus && monitorPlusEnabled;
-
-  if (hasMonitor && !showMonitorPlusPromo) {
-    return <></>;
-  }
 
   const monitorPromoLink = constructHrefWithUtm(
     env === 'stage' ? LINK.MONITOR_STAGE : LINK.MONITOR,
@@ -66,12 +48,6 @@ export const ProductPromo = ({
     'monitor-plus',
     'settings-promo'
   );
-
-  const gleanEvent = showMonitorPlusPromo
-    ? { event: { reason: 'plus' } }
-    : { event: { reason: 'free' } };
-
-  GleanMetrics.accountPref.promoMonitorView(gleanEvent);
 
   const promoContent = showMonitorPlusPromo ? (
     <>
