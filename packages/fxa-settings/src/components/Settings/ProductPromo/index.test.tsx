@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
-import ProductPromo from '.';
+import ProductPromo, { ProductPromoType } from '.';
 import { Account, AppContext } from '../../../models';
 import { MOCK_SERVICES } from '../ConnectedServices/mocks';
 import { MozServices } from '../../../lib/types';
@@ -63,7 +63,7 @@ describe('ProductPromo', () => {
 
     const { container } = renderWithLocalizationProvider(
       <AppContext.Provider value={mockAppContext({ account })}>
-        <ProductPromo />
+        <ProductPromo type={ProductPromoType.Settings} />
       </AppContext.Provider>
     );
 
@@ -77,7 +77,7 @@ describe('ProductPromo', () => {
     } as unknown as Account;
     renderWithLocalizationProvider(
       <AppContext.Provider value={mockAppContext({ account })}>
-        <ProductPromo />
+        <ProductPromo type={ProductPromoType.Settings} />
       </AppContext.Provider>
     );
 
@@ -105,7 +105,10 @@ describe('ProductPromo', () => {
     } as unknown as Account;
     renderWithLocalizationProvider(
       <AppContext.Provider value={mockAppContext({ account })}>
-        <ProductPromo monitorPlusEnabled={true} />
+        <ProductPromo
+          monitorPlusEnabled={true}
+          type={ProductPromoType.Settings}
+        />
       </AppContext.Provider>
     );
 
