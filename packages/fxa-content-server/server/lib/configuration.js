@@ -642,7 +642,7 @@ const conf = (module.exports = convict({
     doc: 'The root path of server-rendered page templates',
   },
   page_template_subdirectory: {
-    default: 'src',
+    default: 'dist',
     doc: 'Subdirectory of page_template_root for server-rendered page templates',
     env: 'PAGE_TEMPLATE_SUBDIRECTORY',
     format: ['src', 'dist'],
@@ -890,11 +890,23 @@ const conf = (module.exports = convict({
       env: 'METRIC_PREFIX',
     },
   },
+  proxy_settings: {
+    default: false,
+    doc: 'Indicates if settings requests should proxy to fxa-settings. This should only be true for local development.',
+    env: 'PROXY_SETTINGS',
+    format: Boolean,
+  },
   static_directory: {
-    default: 'app',
+    default: 'dist',
     doc: 'Directory that static files are served from.',
     env: 'STATIC_DIRECTORY',
     format: String,
+  },
+  static_settings_directory: {
+    default: 'prod',
+    doc: 'Directory in fxa-settings build folder that contains the target output.',
+    env: 'STATIC_SETTINGS_DIRECTORY',
+    format: ['dev', 'stage', 'prod'],
   },
   static_max_age: {
     default: '10 minutes',

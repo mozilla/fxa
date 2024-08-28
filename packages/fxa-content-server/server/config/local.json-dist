@@ -40,7 +40,9 @@
       }
     }
   },
+  "proxy_settings": true,
   "static_directory": "app",
+  "page_template_subdirectory": "src",
   "subscriptions": {
     "enabled": true
   },

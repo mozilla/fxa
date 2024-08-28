@@ -1,6 +1,39 @@
 // This file was created by react-scripts' (create-react-app) eject script.
 
-'use strict';
+// Here we determine which builds to create. Webpack will configure assets
+// to use a specific URL. In our case, for stage and production builds, we
+// want this be a CDN url, and for dev it can just be the default relative
+// path.
+//
+// This following is controlled by setting the BUILD_TARGETS env. By default
+// we build 'dev', but if you wanted to build stage and prod assets then
+// you'd do this: BUILD_TARGTES=stage,prod yarn build
+const buildTargets = (process.env.BUILD_TARGETS || 'dev').split(',');
+const buildDirTarget = (process.env.BUILD_PATH || 'build/dev').replace(
+  'build/',
+  ''
+);
+if (!buildTargets.includes(buildDirTarget)) {
+  console.log(`Skipping ${buildDirTarget} build.`);
+  return;
+}
+switch (buildDirTarget) {
+  case 'prod':
+    process.env.PUBLIC_URL = 'https://accounts-cdn.moz.aws.net';
+    break;
+  case 'stage':
+    process.env.PUBLIC_URL = 'https://accounts-cdn.stage.moz.aws.net';
+    break;
+  default:
+    // This is for local development, and will result in everything being relative.
+    process.env.PUBLIC_URL = undefined;
+    break;
+}
+console.log(
+  `Building outputs for: ${buildDirTarget} that will be hosted at ${
+    process.env.PUBLIC_URL || '/'
+  }`
+);
 
 // Do this as the first thing so that any code reading it knows the right env.
 process.env.BABEL_ENV = 'production';
