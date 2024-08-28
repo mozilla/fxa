@@ -8,6 +8,7 @@ import { Stripe } from 'stripe';
 import { StripeClient } from './stripe.client';
 import { StripeSubscription } from './stripe.client.types';
 import { ACTIVE_SUBSCRIPTION_STATUSES } from './stripe.constants';
+import { STRIPE_CUSTOMER_METADATA } from './stripe.types';
 
 @Injectable()
 export class SubscriptionManager {
@@ -32,6 +33,19 @@ export class SubscriptionManager {
     subscriptionId: string,
     params?: Stripe.SubscriptionUpdateParams
   ) {
+    if (params?.metadata) {
+      const newMetadata = params.metadata;
+      Object.keys(newMetadata).forEach((key) => {
+        if (
+          !Object.values(STRIPE_CUSTOMER_METADATA).includes(
+            key as STRIPE_CUSTOMER_METADATA
+          )
+        ) {
+          throw new Error(`Invalid metadata key: ${key}`);
+        }
+      });
+    }
+
     return this.stripeClient.subscriptionsUpdate(subscriptionId, params);
   }
 
