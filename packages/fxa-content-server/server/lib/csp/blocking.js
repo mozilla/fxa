@@ -66,6 +66,7 @@ module.exports = function (config) {
     PAIRING_SERVER_WEBSOCKET,
     PAIRING_SERVER_HTTP,
     SENTRY_SERVER,
+    CDN_URL,
   ];
   const scriptSrc = addCdnRuleIfRequired([SELF]);
   const styleSrc = addCdnRuleIfRequired([SELF]);
