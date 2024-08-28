@@ -15,6 +15,7 @@ import { StripePaymentIntentFactory } from './factories/payment-intent.factory';
 import { StripeSubscriptionFactory } from './factories/subscription.factory';
 import { StripeClient } from './stripe.client';
 import { MockStripeConfigProvider } from './stripe.config';
+import { STRIPE_CUSTOMER_METADATA } from './stripe.types';
 import { SubscriptionManager } from './subscription.manager';
 
 describe('SubscriptionManager', () => {
@@ -166,6 +167,45 @@ describe('SubscriptionManager', () => {
         mockParams
       );
       expect(result).toEqual(mockResponse);
+    });
+
+    it('updates metadata', async () => {
+      const mockParams = {
+        metadata: {
+          [STRIPE_CUSTOMER_METADATA.SubscriptionPromotionCode]: 'test-coupon',
+        },
+      };
+      const mockSubscription = StripeSubscriptionFactory(mockParams);
+      const mockResponse = StripeResponseFactory(mockSubscription);
+
+      jest
+        .spyOn(stripeClient, 'subscriptionsUpdate')
+        .mockResolvedValue(mockResponse);
+
+      const result = await subscriptionManager.update(
+        mockSubscription.id,
+        mockParams
+      );
+
+      expect(stripeClient.subscriptionsUpdate).toBeCalledWith(
+        mockSubscription.id,
+        mockParams
+      );
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('throws if metadata key does not match', async () => {
+      const mockParams = {
+        metadata: {
+          [STRIPE_CUSTOMER_METADATA.SubscriptionPromotionCode]: 'test-coupon',
+          promotionCode: 'test-coupon',
+        },
+      };
+      const mockSubscription = StripeSubscriptionFactory(mockParams);
+
+      expect(() =>
+        subscriptionManager.update(mockSubscription.id, mockParams)
+      ).rejects.toThrow('Invalid metadata key: promotionCode');
     });
   });
 
