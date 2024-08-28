@@ -798,29 +798,34 @@ jobs:
       - run:
           name: Merge blob Reports
           command: |
-            cd artifacts/blob-report
+            mkdir -p artifiacts/blob-reports
+            cd artifiacts/blob-reports
+
+            echo "Fetching reports from circle ci artifact storarge"
+            function fetch_report() {
+              echo "Fetching reports-$1.zip"
+              wget https://output.circle-artifacts.com/output/job/${CIRCLE_WORKFLOW_JOB_ID}/artifacts/$1/artifacts/blob-report/reports-$1.zip
+              if [[ $(cat reports-$1.zip) =~ "not found" ]]; then
+                echo "reports-$1.zip not found!"
+                rm reports-$1.zip
+              fi
+            }
+            for i in $(seq 0 8);
+            do
+              fetch_report $i
+            done
+
             echo "Merging blob reports"
             ls -l
             if ls *.zip 1> /dev/null 2>&1; then
               npx playwright merge-reports --reporter=blob .
+              npx playwright merge-reports --reporter=html .
             else
               echo "No report zip files found, skipping blob merge."
             fi
+            cd ../..
       - store_artifacts:
-          path: blob-report
-      - run:
-          name: Merge html Reports
-          command: |
-            cd artifacts/blob-report
-            echo "Merging HTML reports"
-            ls -l
-            if ls *.zip 1> /dev/null 2>&1; then
-              npx playwright merge-reports --reporter=html .
-            else
-              echo "No report zip files found, skipping HTML merge."
-            fi
-      - store_artifacts:
-          path: playwright-report
+          path: artifiacts/blob-report
 
   build-and-deploy-storybooks:
     executor: default-executor
