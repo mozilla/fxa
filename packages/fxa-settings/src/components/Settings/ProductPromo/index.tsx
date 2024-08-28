@@ -71,7 +71,12 @@ export const ProductPromo = ({
     ? { event: { reason: 'plus' } }
     : { event: { reason: 'free' } };
 
-  GleanMetrics.accountPref.promoMonitorView(gleanEvent);
+  // NOTE, this is a quick fix to prevent double 'view' event firing
+  // since we use this component in two places (sidebar + settings).
+  // We will want to refactor this to be less fragile.
+  if (type === ProductPromoType.Settings) {
+    GleanMetrics.accountPref.promoMonitorView(gleanEvent);
+  }
 
   const promoContent = showMonitorPlusPromo ? (
     <>
@@ -99,6 +104,10 @@ export const ProductPromo = ({
       <LinkExternal
         href={monitorPromoLink}
         className="link-blue"
+        gleanDataAttrs={{
+          id: 'account_pref_promo_monitor_submit',
+          type: 'free',
+        }}
         onClick={() => GleanMetrics.accountPref.promoMonitorSubmit(gleanEvent)}
       >
         <FtlMsg id="product-promo-monitor-cta">Get free scan</FtlMsg>
