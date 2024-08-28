@@ -798,8 +798,8 @@ jobs:
       - run:
           name: Merge blob Reports
           command: |
-            mkdir -p artifiacts/blob-reports
-            cd artifiacts/blob-reports
+            mkdir -p artifacts/blob-reports
+            cd artifacts/blob-reports
 
             echo "Fetching reports from circle ci artifact storarge"
             function fetch_report() {
