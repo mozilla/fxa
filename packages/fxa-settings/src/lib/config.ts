@@ -10,6 +10,7 @@ export interface Config {
   env: string;
   l10n: {
     strict: boolean;
+    baseUrl: string;
   };
   marketingEmailPreferencesUrl: string;
   metrics: {
@@ -96,6 +97,7 @@ export function getDefault() {
     env: 'development',
     l10n: {
       strict: false,
+      baseUrl: '/settings/locales',
     },
     marketingEmailPreferencesUrl: 'https://basket.mozilla.org/fxa/',
     metrics: {
