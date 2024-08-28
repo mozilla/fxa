@@ -20,6 +20,7 @@ let log,
   request,
   requestOptions,
   mailer,
+  profile,
   accountEventsManager;
 
 const glean = mocks.mockGlean();
@@ -109,7 +110,7 @@ describe('totp', () => {
     it('should delete TOTP token in verified session', () => {
       requestOptions.credentials.tokenVerified = true;
       return setup(
-        { db: { email: TEST_EMAIL } },
+        { db: { email: TEST_EMAIL }, profile },
         {},
         '/totp/destroy',
         requestOptions
@@ -119,6 +120,17 @@ describe('totp', () => {
           db.deleteTotpToken.callCount,
           1,
           'called delete TOTP token'
+        );
+
+        assert.equal(
+          profile.deleteCache.callCount,
+          1,
+          'called profile client delete cache'
+        );
+        assert.equal(
+          profile.deleteCache.getCall(0).args[0],
+          'uid',
+          'called profile client delete cache'
         );
 
         assert.equal(
@@ -224,6 +236,17 @@ describe('totp', () => {
         assert.equal(response.success, true, 'should be valid code');
         assert.equal(db.totpToken.callCount, 1, 'called get TOTP token');
         assert.equal(db.updateTotpToken.callCount, 1, 'update TOTP token');
+
+        assert.equal(
+          profile.deleteCache.callCount,
+          1,
+          'called profile client delete cache'
+        );
+        assert.equal(
+          profile.deleteCache.getCall(0).args[0],
+          'uid',
+          'called profile client delete cache'
+        );
 
         assert.equal(
           log.notifyAttachedServices.callCount,
@@ -505,6 +528,7 @@ function setup(results, errors, routePath, requestOptions) {
   customs = mocks.mockCustoms(errors.customs);
   mailer = mocks.mockMailer();
   db = mocks.mockDB(results.db, errors.db);
+  profile = mocks.mockProfile();
   db.createTotpToken = sinon.spy(() => {
     return Promise.resolve({
       qrCodeUrl: 'some base64 encoded png',
@@ -527,24 +551,26 @@ function setup(results, errors, routePath, requestOptions) {
       sharedSecret: secret,
     });
   });
-  routes = makeRoutes({ log, db, customs, mailer, glean });
+  routes = makeRoutes({ log, db, customs, mailer, glean, profile });
   route = getRoute(routes, routePath);
   request = mocks.mockRequest(requestOptions);
   request.emitMetricsEvent = sinon.spy(() => Promise.resolve({}));
+
   return runTest(route, request);
 }
 
 function makeRoutes(options = {}) {
   const config = { step: 30, window: 1 };
   Container.set(AccountEventsManager, accountEventsManager);
-  const { log, db, customs, mailer, glean } = options;
+  const { log, db, customs, mailer, glean, profile } = options;
   return require('../../../lib/routes/totp')(
     log,
     db,
     mailer,
     customs,
     config,
-    glean
+    glean,
+    profile
   );
 }
 

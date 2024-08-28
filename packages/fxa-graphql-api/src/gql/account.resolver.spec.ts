@@ -475,7 +475,7 @@ describe('#integration - AccountResolver', () => {
 
     describe('metricsOpt', () => {
       it('opts out', async () => {
-        const result = await resolver.metricsOpt(USER_1.uid, {
+        const result = await resolver.metricsOpt(headers, USER_1.uid, {
           clientMutationId: 'testid',
           state: 'out',
         });
@@ -494,7 +494,7 @@ describe('#integration - AccountResolver', () => {
       });
 
       it('opts in', async () => {
-        const result = await resolver.metricsOpt(USER_1.uid, {
+        const result = await resolver.metricsOpt(headers, USER_1.uid, {
           clientMutationId: 'testid',
           state: 'in',
         });
@@ -514,7 +514,7 @@ describe('#integration - AccountResolver', () => {
 
       it('fails with bad opt in state', async () => {
         await expect(
-          resolver.metricsOpt(USER_1.uid, {
+          resolver.metricsOpt(headers, USER_1.uid, {
             clientMutationId: 'testid',
             state: 'In' as 'in',
           })

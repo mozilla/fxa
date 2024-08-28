@@ -35,7 +35,7 @@ import {
 } from '../payments/iap/iap-formatter';
 import { PayPalHelper } from '../payments/paypal/helper';
 import { StripeHelper } from '../payments/stripe';
-import { AuthLogger, AuthRequest } from '../types';
+import { AuthLogger, AuthRequest, ProfileClient } from '../types';
 import { deleteAccountIfUnverified } from './utils/account';
 import emailUtils from './utils/email';
 import requestHelper from './utils/request_helper';
@@ -66,6 +66,7 @@ export class AccountHandler {
   private accountEventsManager: AccountEventsManager;
   private accountDeleteManager: AccountDeleteManager;
   private accountTasks: AccountTasks;
+  private profileClient: ProfileClient;
 
   constructor(
     private log: AuthLogger,
@@ -103,6 +104,7 @@ export class AccountHandler {
     this.accountEventsManager = Container.get(AccountEventsManager);
     this.accountDeleteManager = Container.get(AccountDeleteManager);
     this.accountTasks = Container.get(AccountTasks);
+    this.profileClient = Container.get(ProfileClient);
   }
 
   private async generateRandomValues() {
@@ -242,6 +244,8 @@ export class AccountHandler {
       uid: account.uid,
       userAgent: userAgentString,
     });
+
+    await this.profileClient.deleteCache(account.uid);
     await this.log.notifyAttachedServices('profileDataChange', request, {
       uid: account.uid,
     });
@@ -1603,9 +1607,12 @@ export class AccountHandler {
           uid: account.uid,
           generation: account.verifierSetAt,
         }),
-        this.log.notifyAttachedServices('profileDataChange', request, {
-          uid: account.uid,
-        }),
+        (async () => {
+          await this.profileClient.deleteCache(account.uid);
+          await this.log.notifyAttachedServices('profileDataChange', request, {
+            uid: account.uid,
+          });
+        })(),
         this.oauth.removeTokensAndCodes(account.uid),
         this.customs.reset(request, account.email),
       ]);
