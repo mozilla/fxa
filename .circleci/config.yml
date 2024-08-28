@@ -837,7 +837,7 @@ jobs:
                 rm reports-$1.zip
               fi
             }
-            for i in $(seq 0 8);
+            for i in $(seq 0 7);
             do
               fetch_report $i
             done
