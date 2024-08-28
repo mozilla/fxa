@@ -771,15 +771,18 @@ jobs:
           name: Wait for required jobs to complete
           command: |
             sleep 30
+            mkdir -p artifacts/blob-report
             while true; do
               RESPONSE=$(curl -s --request GET "https://circleci.com/api/v2/workflow/$CIRCLE_WORKFLOW_ID/job" --header "Circle-Token: $CCI_Token")
 
               FUNCTIONAL_TEST_JOB_ID=$(echo $RESPONSE | jq -r '.items[] | select(.status == "running") | select(.name | startswith("Functional Tests")) | .id')
-
-              if [[ -n "$FUNCTIONAL_TEST_JOB_ID" ]]; then
-                echo "Storing functional test job id for later lookup."
-                mkdir -p artifacts/blob-report
-                echo $FUNCTIONAL_TEST_JOB_ID > artifacts/blob-reports/functional_test_job_id.txt
+              if [[ -e artifacts/blob-report/functional_test_job_id.txt ]]; then
+                echo "Job id already set"
+              elif [[ -n "$FUNCTIONAL_TEST_JOB_ID" ]]; then
+                echo "Storing job id, $FUNCTIONAL_TEST_JOB_ID, for later lookup."
+                echo $FUNCTIONAL_TEST_JOB_ID > artifacts/blob-report/functional_test_job_id.txt
+              else
+                echo "No job id located. ($FUNCTIONAL_TEST_JOB_ID)"
               fi
 
               JOB_STATUS=$(echo $RESPONSE | jq -r '.items[] | .name + "-" + .status')
@@ -814,9 +817,7 @@ jobs:
           command: |
             cd artifacts/blob-report
             ls -l
-
-            JOB_ID=(cat functional_test_job_id.txt)
-
+            JOB_ID=$(cat functional_test_job_id.txt)
             echo "Fetching reports from circle ci artifact storarge for $JOB_ID"
             function fetch_report() {
               echo "Fetching reports-$1.zip"
@@ -826,9 +827,6 @@ jobs:
             do
               fetch_report $i
             done
-
-            mkdir -p artifacts/blob-reports
-            cd artifacts/blob-reports
 
             echo "Fetching reports from circle ci artifact storarge"
             function fetch_report() {
