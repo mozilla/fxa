@@ -15,10 +15,10 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import LockImage from '@fxa/shared/assets/images/lock.svg';
-import { CheckoutCheckbox } from './CheckoutCheckbox';
-import { PrimaryButton } from './PrimaryButton';
-import { checkoutCartWithStripe } from '../../actions/checkoutCartWithStripe';
-import { handleStripeErrorAction } from '../../actions/handleStripeError';
+import { CheckoutCheckbox } from '../CheckoutCheckbox';
+import { PrimaryButton } from '../PrimaryButton';
+import { checkoutCartWithStripe } from '../../../actions/checkoutCartWithStripe';
+import { handleStripeErrorAction } from '../../../actions/handleStripeError';
 
 interface CheckoutFormProps {
   cmsCommonContent: {

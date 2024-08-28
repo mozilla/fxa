@@ -6,7 +6,7 @@ module.exports = function (grunt) {
   const srcPaths = [
     '.license.header',
     'app/**/*.ftl',
-    '../../../libs/payments/ui/src/lib/**/*.ftl'
+    '../../../libs/payments/ui/src/lib/**/*.ftl',
   ];
 
   grunt.initConfig({
@@ -31,9 +31,9 @@ module.exports = function (grunt) {
       // Call the Payments Next route to restart and reinitialize the Nest App.
       nestapp: {
         options: {
-          url: 'http://localhost:3035/api/dev/nestapp/restart'
-        }
-      }
+          url: 'http://localhost:3035/api/dev/nestapp/restart',
+        },
+      },
     },
     watch: {
       ftl: {
@@ -46,13 +46,13 @@ module.exports = function (grunt) {
       nestapp: {
         files: [
           '../../../libs/payments/**/*.ts',
-          '../../../libs/shared/**/*.ts'
+          '../../../libs/shared/**/*.ts',
         ],
         tasks: ['http:nestapp'],
         options: {
           interrupt: true,
         },
-      }
+      },
     },
     // Allows for multiple watchers tasks to be run concurrently.
     concurrent: {
@@ -60,9 +60,9 @@ module.exports = function (grunt) {
         logConcurrentOutput: true,
       },
       dev: {
-        tasks: ['watch:nestapp', 'watch:ftl']
-      }
-    }
+        tasks: ['watch:nestapp', 'watch:ftl'],
+      },
+    },
   });
 
   grunt.loadNpmTasks('grunt-contrib-copy');
@@ -74,4 +74,3 @@ module.exports = function (grunt) {
   grunt.registerTask('merge-ftl', ['copy:branding-ftl', 'concat:ftl']);
   grunt.registerTask('watchers', ['concurrent:dev']);
 };
-
