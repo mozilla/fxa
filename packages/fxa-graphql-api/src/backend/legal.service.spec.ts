@@ -58,7 +58,9 @@ describe('#unit - LegalService', () => {
     const MockConfig: Provider = {
       provide: ConfigService,
       useValue: {
-        get: jest.fn().mockReturnValue('http://localhost:3030'),
+        get: jest
+          .fn()
+          .mockReturnValue('http://localhost:3030/settings/legal-docs'),
       },
     };
     const module: TestingModule = await Test.createTestingModule({

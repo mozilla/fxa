@@ -58,6 +58,11 @@ const conf = convict({
     default: 'http://localhost:3030',
     env: 'SETTINGS_SERVER_URL',
   },
+  legalDocsUrl: {
+    doc: 'Where legal docs reside',
+    default: 'http://localhost:3030/settings/legal-docs',
+    env: 'SETTINGS_LEGAL_DOCS_URL',
+  },
   database: {
     mysql: {
       auth: makeMySQLConfig('AUTH', 'fxa'),
