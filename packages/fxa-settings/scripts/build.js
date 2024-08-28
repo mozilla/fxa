@@ -19,10 +19,11 @@ if (!buildTargets.includes(buildDirTarget)) {
 }
 switch (buildDirTarget) {
   case 'prod':
-    process.env.PUBLIC_URL = 'https://accounts-cdn.mozaws.net';
+    process.env.PUBLIC_URL = 'https://accounts-cdn.mozaws.net/settings/prod';
     break;
   case 'stage':
-    process.env.PUBLIC_URL = 'https://accounts-cdn.stage.mozaws.net';
+    process.env.PUBLIC_URL =
+      'https://accounts-cdn.stage.mozaws.net/settings/stage';
     break;
   default:
     // This is for local development, and will result in everything being relative.
