@@ -720,6 +720,28 @@ jobs:
       - store-artifacts
       - rename-reports
 
+  check-required-jobs-complete:
+      - run:
+          name: Wait for required jobs to complete
+          command: |
+            sleep 30
+            while true; do
+              RESPONSE=$(curl --location --request GET "https://circleci.com/api/v2/workflow/$CIRCLE_WORKFLOW_ID/job" --header "Circle-Token: $CCI_Token")
+              JOB_STATUS=$(echo $RESPONSE | jq -r '.items[] | .name + "-" + .status')
+              echo "ALL JOB_STATUS:"
+              echo $JOB_STATUS
+              PENDING=$(echo $RESPONSE | jq -r '.items[] | select(.status == "blocked" or .status == "running" or .status == "not_running") | select(.name | startswith("Tests Complete") | not) | select(.name | startswith("Merge Playwright Reports") | not) | select(.name | startswith("Check all required jobs are complete") | not ) | .name')
+              echo "PENDING JOBS OF INTEREST:"
+              echo $PENDING
+              if [[ -z "$PENDING" ]]; then
+                echo "All required jobs have now completed"
+                exit 0
+              else
+                echo "Still waiting for jobs to complete..."
+                sleep 1
+              fi
+            done
+
   playwright-functional-test-report:
     executor: default-executor
     steps:
@@ -855,6 +877,10 @@ workflows:
           name: Integration Test - Libraries (PR)
           nx_run: affected --base=main --head=$CIRCLE_SHA1
           projects: --exclude '*,!tag:scope:shared:*'
+          requires:
+            - Build (PR)
+      - check-required-jobs-complete:
+          name: Check all required jobs are complete (PR)
           requires:
             - Build (PR)
       - playwright-functional-tests:
