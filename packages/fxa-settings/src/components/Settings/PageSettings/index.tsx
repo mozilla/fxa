@@ -17,6 +17,7 @@ import DataCollection from '../DataCollection';
 import GleanMetrics from '../../../lib/glean';
 import ProductPromo, { ProductPromoType } from '../ProductPromo';
 import SideBar from '../Sidebar';
+import Head from 'fxa-react/components/Head';
 
 export const PageSettings = (_: RouteComponentProps) => {
   const { uid } = useAccount();
@@ -40,6 +41,7 @@ export const PageSettings = (_: RouteComponentProps) => {
 
   return (
     <div id="fxa-settings" className="flex">
+      <Head />
       <div className="hidden desktop:block desktop:flex-2">
         <SideBar
           {...{

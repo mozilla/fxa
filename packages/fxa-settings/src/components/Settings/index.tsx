@@ -12,8 +12,12 @@ import {
   useInitialSettingsState,
   useSession,
 } from '../../models';
-import { Redirect, Router, RouteComponentProps } from '@reach/router';
-import Head from 'fxa-react/components/Head';
+import {
+  Redirect,
+  Router,
+  RouteComponentProps,
+  useLocation,
+} from '@reach/router';
 import PageSettings from './PageSettings';
 import PageChangePassword from './PageChangePassword';
 import PageCreatePassword from './PageCreatePassword';
@@ -33,6 +37,7 @@ import { hardNavigate } from 'fxa-react/lib/utils';
 import { SettingsIntegration } from './interfaces';
 import { currentAccount } from '../../lib/cache';
 import { setCurrentAccount } from '../../lib/storage-utils';
+import GleanMetrics from '../../lib/glean';
 
 export const Settings = ({
   integration,
@@ -41,6 +46,7 @@ export const Settings = ({
   const { metricsEnabled, hasPassword } = useAccount();
   const session = useSession();
   const account = useAccount();
+  const location = useLocation();
 
   useEffect(() => {
     if (config.metrics.navTiming.enabled && metricsEnabled) {
@@ -67,6 +73,10 @@ export const Settings = ({
 
   const { loading, error } = useInitialSettingsState();
 
+  useEffect(() => {
+    !loading && GleanMetrics.pageLoad(location.pathname);
+  }, [loading, location.pathname]);
+
   if (loading) {
     return <LoadingSpinner fullScreen />;
   }
@@ -78,7 +88,6 @@ export const Settings = ({
 
   return (
     <AppLayout {...{ integration }}>
-      <Head />
       <Router basepath={SETTINGS_PATH}>
         <ScrollToTop default>
           <PageSettings path="/" />

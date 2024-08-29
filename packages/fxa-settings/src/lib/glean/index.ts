@@ -63,7 +63,7 @@ type GleanMetricsT = {
   setEnabled: (enabled: boolean) => void;
   getEnabled: () => boolean;
   isDone: () => Promise<void>;
-  pageLoad: () => void;
+  pageLoad: (url?: string) => void;
   handleClickEvent(event: Event): void;
 } & {
   [k in EventMapKeys]: { [eventKey in keyof EventsMap[k]]: PingFn };
@@ -568,8 +568,12 @@ export const GleanMetrics: Pick<
     return gleanEnabled;
   },
 
-  pageLoad: () => {
-    GleanMetricsAPI.pageLoad();
+  pageLoad: (url?: string) => {
+    if (url) {
+      GleanMetricsAPI.pageLoad({ url });
+    } else {
+      GleanMetricsAPI.pageLoad();
+    }
   },
 
   handleClickEvent(event: Event) {

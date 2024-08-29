@@ -19,6 +19,7 @@ type AppLayoutProps = {
 
 export const AppLayout = ({ title, children, widthClass }: AppLayoutProps) => {
   const { l10n } = useLocalization();
+
   return (
     <>
       <Head {...{ title }} />
