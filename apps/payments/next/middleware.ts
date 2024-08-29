@@ -7,6 +7,9 @@ export function middleware(request: NextRequest) {
   // Read env vars directly from process.env
   // As of 05-15-2024 its not possible to use app/config in middleware
   const accountsStaticCdn = process.env.CSP__ACCOUNTS_STATIC_CDN;
+  const PAYPAL_SCRIPT_URL = 'https://www.paypal.com';
+  const PAYPAL_API_URL = process.env.CSP__PAYPAL_API;
+  const PAYPAL_OBJECTS = 'https://www.paypalobjects.com';
 
   /*
    * CSP Notes
@@ -18,16 +21,16 @@ export function middleware(request: NextRequest) {
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
   const cspHeader = `
     default-src 'self';
-    connect-src 'self' https://api.stripe.com;
-    frame-src https://js.stripe.com https://hooks.stripe.com;
+    connect-src 'self' https://api.stripe.com ${PAYPAL_API_URL};
+    frame-src https://js.stripe.com https://hooks.stripe.com ${PAYPAL_API_URL} ${PAYPAL_SCRIPT_URL};
     script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https: http: 'unsafe-inline' ${
     process.env.NODE_ENV === 'production' ? '' : `'unsafe-eval'`
-  } https://js.stripe.com;
+  } https://js.stripe.com ${PAYPAL_SCRIPT_URL};
     script-src-elem 'self' 'nonce-${nonce}' 'strict-dynamic' https: http: 'unsafe-inline' ${
     process.env.NODE_ENV === 'production' ? '' : `'unsafe-eval'`
   } https://js.stripe.com;
     style-src 'self' 'unsafe-inline';
-    img-src 'self' blob: data: ${accountsStaticCdn};
+    img-src 'self' blob: data: ${accountsStaticCdn} ${PAYPAL_OBJECTS};
     font-src 'self';
     object-src 'none';
     base-uri 'self';
@@ -41,6 +44,8 @@ export function middleware(request: NextRequest) {
     .trim();
 
   const requestHeaders = new Headers(request.headers);
+  requestHeaders.set('x-nonce', nonce);
+
   requestHeaders.set(
     'Content-Security-Policy',
     contentSecurityPolicyHeaderValue

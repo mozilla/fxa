@@ -19,6 +19,7 @@ import { CheckoutCheckbox } from '../CheckoutCheckbox';
 import { PrimaryButton } from '../PrimaryButton';
 import { checkoutCartWithStripe } from '../../../actions/checkoutCartWithStripe';
 import { handleStripeErrorAction } from '../../../actions/handleStripeError';
+import { PayPalButtons } from '@paypal/react-paypal-js';
 
 interface CheckoutFormProps {
   cmsCommonContent: {
@@ -50,6 +51,7 @@ export function CheckoutForm({
   const [stripeFieldsComplete, setStripeFieldsComplete] = useState(false);
   const [fullName, setFullName] = useState('');
   const [hasFullNameError, setHasFullNameError] = useState(false);
+  const [showPayPalButton, setShowPayPalButton] = useState(false);
 
   useEffect(() => {
     if (elements) {
@@ -66,6 +68,16 @@ export function CheckoutForm({
             if (!stripeFieldsComplete) {
               setStripeFieldsComplete(false);
             }
+          }
+
+          //Show or hide the PayPal button
+          const selectedPaymentMethod = event?.value?.type;
+          if (selectedPaymentMethod === 'external_paypal') {
+            // Show the PayPal button
+            setShowPayPalButton(true);
+          } else {
+            // Hide the PayPal button
+            setShowPayPalButton(false);
           }
         });
       } else {
@@ -164,12 +176,14 @@ export function CheckoutForm({
         }
         onClick={() => setShowConsentError(true)}
       >
-        <Localized id="next-new-user-card-title">
-          <h3 className="font-semibold text-grey-600 text-start">
-            Enter your card information
-          </h3>
-        </Localized>
-        {!isPaymentElementLoading && (
+        {!showPayPalButton && (
+          <Localized id="next-new-user-card-title">
+            <h3 className="font-semibold text-grey-600 text-start">
+              Enter your card information
+            </h3>
+          </Localized>
+        )}
+        {!isPaymentElementLoading && !showPayPalButton && (
           <Form.Field
             name="name"
             serverInvalid={hasFullNameError}
@@ -224,15 +238,29 @@ export function CheckoutForm({
         />
         {!isPaymentElementLoading && (
           <Form.Submit asChild>
-            <PrimaryButton
-              type="submit"
-              aria-disabled={
-                !stripeFieldsComplete || !nonStripeFieldsComplete || loading
-              }
-            >
-              <Image src={LockImage} className="h-4 w-4 mx-3" alt="" />
-              <Localized id="next-new-user-submit">Subscribe Now</Localized>
-            </PrimaryButton>
+            {showPayPalButton ? (
+              <PayPalButtons
+                style={{
+                  layout: 'horizontal',
+                  color: 'gold',
+                  shape: 'pill',
+                  label: 'paypal',
+                  height: 48,
+                  tagline: false,
+                }}
+                className="mt-6"
+              />
+            ) : (
+              <PrimaryButton
+                type="submit"
+                aria-disabled={
+                  !stripeFieldsComplete || !nonStripeFieldsComplete || loading
+                }
+              >
+                <Image src={LockImage} className="h-4 w-4 mx-3" alt="" />
+                <Localized id="next-new-user-submit">Subscribe Now</Localized>
+              </PrimaryButton>
+            )}
           </Form.Submit>
         )}
       </div>
