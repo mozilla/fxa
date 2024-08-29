@@ -8,21 +8,38 @@ import sinon from 'sinon';
 import GleanMetrics from '../../../../scripts/lib/glean';
 
 describe('views/pair/unsupported', () => {
-  let view, desktopNonFirefoxViewEventStub, viewEventStub;
+  let view,
+    cadRedirectDesktopViewEventStub,
+    cadMobilePairUseAppViewEventStub,
+    cadRedirectMobileViewEventStub,
+    cadRedirectDesktopDefaultViewEventStub;
 
   beforeEach(() => {
     initView();
-    viewEventStub = sinon.stub(GleanMetrics.cadMobilePairUseAppView, 'view');
-    desktopNonFirefoxViewEventStub = sinon.stub(
+    cadMobilePairUseAppViewEventStub = sinon.stub(
+      GleanMetrics.cadMobilePairUseAppView,
+      'view'
+    );
+    cadRedirectDesktopViewEventStub = sinon.stub(
       GleanMetrics.cadRedirectDesktop,
       'view'
+    );
+    cadRedirectMobileViewEventStub = sinon.stub(
+      GleanMetrics.cadRedirectMobile,
+      'view'
+    );
+    cadRedirectDesktopDefaultViewEventStub = sinon.stub(
+      GleanMetrics.cadRedirectDesktop,
+      'defaultView'
     );
   });
 
   afterEach(function () {
     view.destroy();
-    viewEventStub.restore();
-    desktopNonFirefoxViewEventStub.restore();
+    cadMobilePairUseAppViewEventStub.restore();
+    cadRedirectDesktopViewEventStub.restore();
+    cadRedirectMobileViewEventStub.restore();
+    cadRedirectDesktopDefaultViewEventStub.restore();
   });
 
   function initView() {
@@ -31,18 +48,25 @@ describe('views/pair/unsupported', () => {
     });
   }
 
-  describe('isDesktopNonFirefox is false', () => {
+  describe('isSystemCameraUrl is true', () => {
     beforeEach(() => {
       sinon.stub(view, 'getUserAgent').callsFake(() => {
         return {
           isAndroid: () => false,
           isFirefox: () => true,
-          isIos: () => false,
+          isIos: () => true,
+        };
+      });
+      sinon.stub(view, 'getHashParams').callsFake(() => {
+        return {
+          channel_id: {},
+          channel_key: {},
         };
       });
     });
     afterEach(function () {
       view.getUserAgent.restore();
+      view.getHashParams.restore();
     });
     it('renders', () => {
       return view.render().then(() => {
@@ -58,8 +82,125 @@ describe('views/pair/unsupported', () => {
       it('logs a view Glean metrics event', () => {
         view.logView();
         return view.render().then(() => {
-          sinon.assert.calledOnce(viewEventStub);
-          sinon.assert.notCalled(desktopNonFirefoxViewEventStub);
+          sinon.assert.calledOnce(cadMobilePairUseAppViewEventStub);
+          sinon.assert.notCalled(cadRedirectMobileViewEventStub);
+        });
+      });
+    });
+  });
+  describe('isMobile, isFirefox, isSystemCameraUrl is false', () => {
+    beforeEach(() => {
+      sinon.stub(view, 'getUserAgent').callsFake(() => {
+        return {
+          isAndroid: () => false,
+          isFirefox: () => true,
+          isIos: () => true,
+        };
+      });
+    });
+    afterEach(function () {
+      view.getUserAgent.restore();
+    });
+    it('renders', () => {
+      return view.render().then(() => {
+        assert.ok(view.$el.find('.bg-image-triple-device-hearts').length);
+        assert.ok(
+          view.$el.find('h1').text(),
+          'Connecting your mobile device with your Mozilla account'
+        );
+        assert.ok(
+          Array.from(view.el.querySelectorAll('p')).some((p) =>
+            p.textContent.includes('Open Firefox on your computer, visit')
+          )
+        );
+        assert.lengthOf(view.$el.find('.bg-icon-warning'), 0);
+        assert.equal(
+          view
+            .$('[data-glean-id="cad_redirect_mobile_learn_more"]')
+            .attr('href'),
+          'https://support.mozilla.org/kb/how-do-i-set-sync-my-computer'
+        );
+      });
+    });
+
+    describe('glean metrics', () => {
+      it('logs a view Glean metrics event', () => {
+        return view.render().then(() => {
+          sinon.assert.calledOnce(cadRedirectMobileViewEventStub);
+          sinon.assert.notCalled(cadMobilePairUseAppViewEventStub);
+        });
+      });
+    });
+  });
+  describe('isMobile, isFirefox is false, isSystemCameraUrl is false', () => {
+    beforeEach(() => {
+      sinon.stub(view, 'getUserAgent').callsFake(() => {
+        return {
+          isAndroid: () => true,
+          isFirefox: () => false,
+          isIos: () => false,
+        };
+      });
+    });
+    afterEach(function () {
+      view.getUserAgent.restore();
+    });
+    it('renders', () => {
+      return view.render().then(() => {
+        assert.ok(view.$el.find('.bg-image-triple-device-hearts').length);
+        assert.ok(view.$el.find('h1').text(), 'Connect another device');
+        assert.ok(
+          Array.from(view.el.querySelectorAll('p')).some((p) =>
+            p.textContent.includes(
+              'Oops! It looks like you’re not using Firefox.'
+            )
+          )
+        );
+        assert.lengthOf(view.$el.find('.bg-icon-warning'), 1);
+        assert.equal(
+          view.$('[data-glean-id="cad_redirect_mobile_download"]').attr('href'),
+          'https://app.adjust.com/2uo1qc?redirect=https%3A%2F%2Fplay.google.com%2Fstore%2Fapps%2Fdetails%3Fid%3Dorg.mozilla.firefox'
+        );
+      });
+    });
+
+    describe('glean metrics', () => {
+      it('logs a view Glean metrics event', () => {
+        return view.render().then(() => {
+          sinon.assert.calledOnce(cadRedirectMobileViewEventStub);
+          sinon.assert.notCalled(cadMobilePairUseAppViewEventStub);
+        });
+      });
+    });
+  });
+  describe('desktop default view (isDesktopNonFirefox is false)', () => {
+    beforeEach(() => {
+      sinon.stub(view, 'getUserAgent').callsFake(() => {
+        return {
+          isAndroid: () => false,
+          isFirefox: () => true,
+          isIos: () => false,
+        };
+      });
+    });
+    afterEach(function () {
+      view.getUserAgent.restore();
+    });
+    it('renders', () => {
+      return view.render().then(() => {
+        assert.ok(view.$el.find('.bg-image-pair-fail').length);
+        assert.ok(view.$el.find('h1').text(), 'Connect another device');
+        assert.ok(view.$el.find('h2').text(), 'Oops! Something went wrong.');
+        assert.lengthOf(view.$el.find('.bg-icon-warning'), 0);
+      });
+    });
+
+    describe('glean metrics', () => {
+      it('logs a view Glean metrics event', () => {
+        view.logView();
+        return view.render().then(() => {
+          sinon.assert.calledOnce(cadRedirectDesktopDefaultViewEventStub);
+          sinon.assert.notCalled(cadRedirectDesktopViewEventStub);
         });
       });
     });
@@ -80,8 +221,9 @@ describe('views/pair/unsupported', () => {
     });
     it('renders', () => {
       return view.render().then(() => {
+        assert.ok(view.$el.find('h1').text(), 'Connect another device');
         assert.ok(
-          view.$el.find('#pair-unsupported-header').text(),
+          view.$el.find('h2').text(),
           'Oops! It looks like you’re not using Firefox.'
         );
         assert.ok(view.$el.find('.bg-no-ff-desktop').length);
@@ -103,8 +245,8 @@ describe('views/pair/unsupported', () => {
       it('logs a view Glean metrics event', () => {
         view.logView();
         return view.render().then(() => {
-          sinon.assert.calledOnce(desktopNonFirefoxViewEventStub);
-          sinon.assert.notCalled(viewEventStub);
+          sinon.assert.calledOnce(cadRedirectDesktopViewEventStub);
+          sinon.assert.notCalled(cadMobilePairUseAppViewEventStub);
         });
       });
 

@@ -38,6 +38,6 @@
 }
 
 .bg-image-pair-fail {
-  @apply mt-9 mb-5 bg-center bg-no-repeat bg-contain h-36;
-  background-image: inline('../images/graphic_hearts_broken.svg');
+  @apply mb-5 bg-center bg-no-repeat bg-contain h-40;
+  background-image: inline('../images/graphic_broken_connection.svg');
 }
