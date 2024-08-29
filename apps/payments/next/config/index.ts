@@ -10,6 +10,14 @@ import {
 class CspConfig {
   @IsUrl()
   accountsStaticCdn!: string;
+
+  @IsUrl()
+  paypalApi!: string;
+}
+
+class PaypalConfig {
+  @IsString()
+  clientId!: string;
 }
 
 class AuthJSConfig {
@@ -28,6 +36,11 @@ export class PaymentsNextConfig extends NestAppRootConfig {
   @ValidateNested()
   @IsDefined()
   auth!: AuthJSConfig;
+
+  @Type(() => PaypalConfig)
+  @ValidateNested()
+  @IsDefined()
+  paypal!: PaypalConfig;
 
   @Type(() => CspConfig)
   @ValidateNested()

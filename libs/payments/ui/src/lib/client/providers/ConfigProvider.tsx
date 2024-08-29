@@ -8,10 +8,12 @@ import { createContext } from 'react';
 
 export interface ConfigContextValues {
   stripePublicApiKey: string;
+  paypalClientId: string;
 }
 
 export const ConfigContext = createContext<ConfigContextValues>({
   stripePublicApiKey: '',
+  paypalClientId: '',
 });
 
 export function ConfigProvider({

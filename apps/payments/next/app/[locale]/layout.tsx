@@ -19,12 +19,17 @@ export default async function RootProviderLayout({
   //  headers().get('accept-language')
   //);
   const locale = headers().get('accept-language') || DEFAULT_LOCALE;
+  const nonce = headers().get('x-nonce') || undefined;
   const fetchedMessages = getApp().getFetchedMessages(locale);
 
   return (
     <Providers
-      config={{ stripePublicApiKey: config.stripePublicApiKey }}
+      config={{
+        stripePublicApiKey: config.stripePublicApiKey,
+        paypalClientId: config.paypal.clientId,
+      }}
       fetchedMessages={fetchedMessages}
+      nonce={nonce}
     >
       {children}
     </Providers>

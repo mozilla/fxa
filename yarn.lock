@@ -15176,6 +15176,37 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@paypal/paypal-js@npm:^8.1.1":
+  version: 8.1.1
+  resolution: "@paypal/paypal-js@npm:8.1.1"
+  dependencies:
+    promise-polyfill: ^8.3.0
+  checksum: 5952989095307c2f9a071a492955370b7f82d04854f57d7684f5d34344d1597c6b9536c52d64973391e9857dcb787e5f5261c7a2fa4fb9583ab32a267135cb41
+  languageName: node
+  linkType: hard
+
+"@paypal/react-paypal-js@npm:^8.6.0":
+  version: 8.6.0
+  resolution: "@paypal/react-paypal-js@npm:8.6.0"
+  dependencies:
+    "@paypal/paypal-js": ^8.1.1
+    "@paypal/sdk-constants": ^1.0.122
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0
+    react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+  checksum: 936ed9dab68ebeca353101e6044ca136f73921f0ad11a9f9b1e811f60ec03d8841fb98375298cae141b56fde59b643d6edfe631df371f40f6b5edaac72976b73
+  languageName: node
+  linkType: hard
+
+"@paypal/sdk-constants@npm:^1.0.122":
+  version: 1.0.149
+  resolution: "@paypal/sdk-constants@npm:1.0.149"
+  dependencies:
+    hi-base32: ^0.5.0
+  checksum: ecc6e10987ca1ab15671c2574620da6e16a39877cd47e48db3cc9ba13d0c970612470bba1c2c179b09135691776ab62114ba6203df3946ad14d662251961c40f
+  languageName: node
+  linkType: hard
+
 "@peculiar/asn1-schema@npm:^2.1.6":
   version: 2.1.8
   resolution: "@peculiar/asn1-schema@npm:2.1.8"
@@ -40069,6 +40100,7 @@ fsevents@~2.1.1:
     "@opentelemetry/sdk-trace-base": ^1.23.0
     "@opentelemetry/sdk-trace-node": ^1.23.0
     "@opentelemetry/sdk-trace-web": ^1.23.0
+    "@paypal/react-paypal-js": ^8.6.0
     "@radix-ui/react-form": ^0.0.3
     "@radix-ui/react-tooltip": ^1.1.2
     "@sentry/browser": ^7.113.0
@@ -42292,6 +42324,13 @@ fsevents@~2.1.1:
   version: 1.0.0
   resolution: "hexoid@npm:1.0.0"
   checksum: 27a148ca76a2358287f40445870116baaff4a0ed0acc99900bf167f0f708ffd82e044ff55e9949c71963852b580fc024146d3ac6d5d76b508b78d927fa48ae2d
+  languageName: node
+  linkType: hard
+
+"hi-base32@npm:^0.5.0":
+  version: 0.5.1
+  resolution: "hi-base32@npm:0.5.1"
+  checksum: 6655682b5796d75ed3068071e61d05a490e2086c4908af3b94a730059147b8a4a5e8870e656b828d0550dcc9988d8748bda54a53e428cbce28e0d7a785b2ffde
   languageName: node
   linkType: hard
 
@@ -57024,6 +57063,13 @@ fsevents@~2.1.1:
   version: 1.0.1
   resolution: "promise-inflight@npm:1.0.1"
   checksum: 22749483091d2c594261517f4f80e05226d4d5ecc1fc917e1886929da56e22b5718b7f2a75f3807e7a7d471bc3be2907fe92e6e8f373ddf5c64bae35b5af3981
+  languageName: node
+  linkType: hard
+
+"promise-polyfill@npm:^8.3.0":
+  version: 8.3.0
+  resolution: "promise-polyfill@npm:8.3.0"
+  checksum: 206373802076c77def0805758d0a8ece64120dfa6603f092404a1004211f8f2f67f33cadbc35953fc2a8ed0b0d38c774e88bdf01e20ce7a920723a60df84b7a5
   languageName: node
   linkType: hard
 
