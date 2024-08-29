@@ -84,6 +84,8 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         'signin_recovery_code',
         'inline_totp_setup',
         'inline_recovery_setup',
+        'signin_push_code',
+        'signin_push_code_confirm',
       ]),
       fullProdRollout: true,
     },

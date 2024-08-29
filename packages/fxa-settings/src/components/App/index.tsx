@@ -70,6 +70,8 @@ import SigninRecoveryCodeContainer from '../../pages/Signin/SigninRecoveryCode/c
 import SigninReported from '../../pages/Signin/SigninReported';
 import SigninTokenCodeContainer from '../../pages/Signin/SigninTokenCode/container';
 import SigninTotpCodeContainer from '../../pages/Signin/SigninTotpCode/container';
+import SigninPushCodeContainer from '../../pages/Signin/SigninPushCode/container';
+import SigninPushCodeConfirmContainer from '../../pages/Signin/SigninPushCodeConfirm/container';
 import SigninUnblockContainer from '../../pages/Signin/SigninUnblock/container';
 import ConfirmSignupCodeContainer from '../../pages/Signup/ConfirmSignupCode/container';
 import SignupContainer from '../../pages/Signup/container';
@@ -439,6 +441,14 @@ const AuthAndAccountSetupRoutes = ({
       />
       <SigninTotpCodeContainer
         path="/signin_totp_code/*"
+        {...{ integration, serviceName }}
+      />
+      <SigninPushCodeContainer
+        path="/signin_push_code/*"
+        {...{ integration, serviceName }}
+      />
+      <SigninPushCodeConfirmContainer
+        path="/signin_push_code_confirm/*"
         {...{ integration, serviceName }}
       />
       <SigninConfirmed
