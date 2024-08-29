@@ -54,7 +54,7 @@ try {
   render(
     <React.StrictMode>
       <AppLocalizationProvider
-        baseDir="/settings/locales"
+        baseDir={config.l10n.baseUrl}
         userLocales={navigator.languages}
       >
         <AppErrorBoundary>
