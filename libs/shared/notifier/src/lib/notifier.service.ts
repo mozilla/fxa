@@ -16,8 +16,8 @@ export class NotifierService {
   private readonly config: NotifierSnsConfig;
 
   constructor(
-    configService: ConfigService,
-    private readonly log: MozLoggerService,
+    @Inject(ConfigService) configService: ConfigService,
+    @Inject(MozLoggerService) private readonly log: MozLoggerService,
     @Inject(NotifierSnsService) private readonly sns: SNS,
     @Inject(StatsDService) private readonly statsd: StatsD | undefined
   ) {

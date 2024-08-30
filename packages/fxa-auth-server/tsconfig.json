@@ -8,12 +8,13 @@
     "checkJs": false,
     "outDir": "./dist",
     "types": ["accept-language", "mocha", "mozlog", "node", "fxa-geodb"],
-    "lib": ["ESNext"]
+    "lib": ["ESNext"],
+    "emitDecoratorMetadata": true
   },
   "include": [
     "bin/*",
     "scripts/*.ts",
     "scripts/delete-account.js",
-    "lib/senders/emails/templates/*/includes.ts"
+    "lib/senders/emails/templates/*/includes.ts",
   ]
 }

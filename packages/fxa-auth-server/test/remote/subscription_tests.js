@@ -15,7 +15,7 @@ const error = require(`${ROOT_DIR}/lib/error`);
 const testServerFactory = require('../test_server');
 const { CapabilityService } = require('../../lib/payments/capability');
 const { StripeHelper } = require('../../lib/payments/stripe');
-const { AuthLogger, ProfileClient } = require('../../lib/types');
+const { AuthLogger, ProfileClient, AppConfig } = require('../../lib/types');
 const {
   PlaySubscriptions,
 } = require('../../lib/payments/iap/google-play/subscriptions');
@@ -101,6 +101,7 @@ const PRODUCT_NAME = 'All Done Pro';
         mockStripeHelper.fetchCustomer = async (uid, email) => ({});
         mockStripeHelper.allMergedPlanConfigs = async () => [];
         mockProfileClient.deleteCache = () => {};
+        Container.set(AppConfig, config);
         Container.set(AuthLogger, { error: () => {} });
         Container.set(StripeHelper, mockStripeHelper);
         Container.set(PlaySubscriptions, mockPlaySubscriptions);

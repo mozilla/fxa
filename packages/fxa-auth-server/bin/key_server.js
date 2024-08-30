@@ -7,6 +7,10 @@
 // Important! Must be required first to get proper hooks in place.
 require('../lib/monitoring');
 
+// Use nest as a DI framework. This lets us configure and reuse our
+// shared libs in hapi as well as nestjs.
+const { bridgeTypeDi } = require('../lib/bridge-nestjs');
+
 const { config } = require('../config');
 
 const { CapabilityManager } = require('@fxa/payments/capability');
@@ -31,12 +35,7 @@ const { Container } = require('typedi');
 const { StripeHelper } = require('../lib/payments/stripe');
 const { PlayBilling } = require('../lib/payments/iap/google-play');
 const { CurrencyHelper } = require('../lib/payments/currencies');
-const {
-  AuthLogger,
-  AuthFirestore,
-  AppConfig,
-  ProfileClient,
-} = require('../lib/types');
+const { AuthLogger, AuthFirestore, ProfileClient } = require('../lib/types');
 const { setupFirestore } = require('../lib/firestore-db');
 const { AppleIAP } = require('../lib/payments/iap/apple-app-store/apple-iap');
 const { AccountEventsManager } = require('../lib/account-events');
@@ -49,22 +48,9 @@ const {
   AccountTasksFactory,
 } = require('@fxa/shared/cloud-tasks');
 async function run(config) {
-  Container.set(AppConfig, config);
-
-  const statsd = config.statsd.enabled
-    ? new StatsD({
-        ...config.statsd,
-        errorHandler: (err) => {
-          // eslint-disable-next-line no-use-before-define
-          log.error('statsd.error', err);
-        },
-      })
-    : {
-        increment: () => {},
-        timing: () => {},
-        close: () => {},
-      };
-  Container.set(StatsD, statsd);
+  // Tranfers DI from nest to typedi
+  await bridgeTypeDi();
+  const statsd = Container.get(StatsD);
 
   const log = require('../lib/log')({
     ...config.log,
