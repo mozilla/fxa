@@ -14,6 +14,7 @@ import { AuthClientService } from './auth-client.service';
 export class ProfileClientService {
   private oauthClientId: string;
   private profileServerUrl: string;
+  private profileServerToken: string;
 
   constructor(
     configService: ConfigService<AppConfig>,
@@ -25,6 +26,7 @@ export class ProfileClientService {
     ) as AppConfig['profileServer'];
     this.oauthClientId = oauthConfig.clientId;
     this.profileServerUrl = profileConfig.url;
+    this.profileServerToken = profileConfig.secretBearerToken;
   }
 
   private async fetchToken(token: string, headers: Headers) {
@@ -101,6 +103,13 @@ export class ProfileClientService {
     const result = await superagent
       .get(this.profileServerUrl + '/profile')
       .set('Authorization', 'Bearer ' + accessToken);
+    return JSON.parse(result.text);
+  }
+
+  async deleteCache(uid: string, headers: Headers) {
+    const result = await superagent
+      .delete(this.profileServerUrl + `/cache/${uid}`)
+      .set('Authorization', 'Bearer ' + this.profileServerToken);
     return JSON.parse(result.text);
   }
 }

@@ -46,6 +46,7 @@ import { FirestoreService } from '../../backend/firestore.service';
 import { BasketService } from '../../newsletters/basket.service';
 import { CloudTasksService } from '../../backend/cloud-tasks.service';
 import { NotifierService } from '@fxa/shared/notifier';
+import { ProfileClientService } from '../../backend/profile-client.service';
 
 export const chance = new Chance();
 
@@ -70,6 +71,7 @@ describe('#integration - AccountResolver', () => {
   let resolver: AccountResolver;
   let logger: any;
   let notifier: any;
+  let profileClient: any;
   let knex: Knex;
   let db = {
     account: Account,
@@ -128,6 +130,12 @@ describe('#integration - AccountResolver', () => {
     const MockNotifier: Provider = {
       provide: NotifierService,
       useValue: notifier,
+    };
+
+    profileClient = { deleteCache: jest.fn() };
+    const MockProfileClient: Provider = {
+      provide: ProfileClientService,
+      useValue: profileClient,
     };
 
     logger = { debug: jest.fn(), error: jest.fn(), info: jest.fn() };
@@ -249,6 +257,7 @@ describe('#integration - AccountResolver', () => {
         MockAuthClient,
         MockCloudTasks,
         MockNotifier,
+        MockProfileClient,
       ],
     }).compile();
 
@@ -281,6 +290,7 @@ describe('#integration - AccountResolver', () => {
     expect(updatedResult).toBeDefined();
     expect(updatedResult.disabledAt).not.toBeNull();
     expect(logger.info).toBeCalledTimes(3);
+    expect(profileClient.deleteCache).toBeCalledWith(USER_1.uid);
     expect(notifier.send).toBeCalledWith({
       event: 'profileDataChange',
       data: {
@@ -300,6 +310,7 @@ describe('#integration - AccountResolver', () => {
     expect(updatedResult).toBeDefined();
     expect(updatedResult.disabledAt).toBeNull();
     expect(logger.info).toBeCalledTimes(2);
+    expect(profileClient.deleteCache).toBeCalledWith(USER_1.uid);
     expect(notifier.send).toBeCalledWith({
       event: 'profileDataChange',
       data: {
@@ -444,6 +455,7 @@ describe('#integration - AccountResolver', () => {
       (await resolver.accountByEmail(USER_1.email, true, 'joe')) || ({} as any);
     expect(result1).toBe(true);
     expect(result2.locale).toBe('en-CA');
+    expect(profileClient.deleteCache).toBeCalledWith(USER_1.uid);
     expect(notifier.send).toBeCalledWith({
       event: 'profileDataChange',
       data: {

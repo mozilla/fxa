@@ -16,7 +16,7 @@ const DESCRIPTION = require('../../docs/swagger/shared/descriptions').default;
 const { Container } = require('typedi');
 const { AccountEventsManager } = require('../account-events');
 
-module.exports = (log, db, mailer, customs, config, glean) => {
+module.exports = (log, db, mailer, customs, config, glean, profileClient) => {
   const otpUtils = require('../../lib/routes/utils/otp')(log, config, db);
 
   // Currently, QR codes are rendered with the highest possible
@@ -155,6 +155,7 @@ module.exports = (log, db, mailer, customs, config, glean) => {
         // See #5154.
         await db.verifyTokensWithMethod(sessionToken.id, 'email-2fa');
 
+        await profileClient.deleteCache(uid);
         await log.notifyAttachedServices(
           'profileDataChange',
           {},
@@ -308,8 +309,9 @@ module.exports = (log, db, mailer, customs, config, glean) => {
 
           glean.twoFactorAuth.codeComplete(request, { uid });
 
+          await profileClient.deleteCache(uid);
           await log.notifyAttachedServices('profileDataChange', request, {
-            uid: sessionToken.uid,
+            uid
           });
         }
 

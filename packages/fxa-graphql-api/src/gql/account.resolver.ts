@@ -449,9 +449,9 @@ export class AccountResolver {
   @UseGuards(GqlAuthGuard, GqlCustomsGuard)
   @CatchGatewayError
   public async metricsOpt(
+    @GqlXHeaders() headers: Headers,
     @GqlUserId() uid: string,
-    @Args('input', { type: () => MetricsOptInput })
-    input: MetricsOptInput
+    @Args('input', { type: () => MetricsOptInput }) input: MetricsOptInput
   ): Promise<BasicPayload> {
     await Account.setMetricsOpt(uid, input.state);
 
@@ -461,6 +461,7 @@ export class AccountResolver {
       );
     }
 
+    await this.profileAPI.deleteCache(uid, headers);
     await this.notifier.send({
       event: 'profileDataChange',
       data: {
