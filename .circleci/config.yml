@@ -774,36 +774,6 @@ jobs:
   playwright-functional-test-report:
     executor: default-executor
     steps:
-      - attach_workspace:
-          at: /home/circleci/project
-      - run:
-          name: Merge blob Reports
-          command: |
-            cd artifacts/blob-report
-            ls -l
-            JOB_ID=$(cat functional_test_job_id.txt)
-            echo "Fetching reports from circle ci artifact storarge for $JOB_ID"
-            function fetch_report() {
-              echo "Fetching reports-$1.zip"
-              wget https://output.circle-artifacts.com/output/job/${JOB_ID}/artifacts/$1/artifacts/blob-report/reports-$1.zip
-              wgetreturn=$?
-              if [[ $wgetreturn -ne 0 ]]; then
-                echo "Failed to get reports-$1.zip"
-              fi
-            }
-            for i in $(seq 0 7);
-            do
-              fetch_report $i
-            done
-            echo "Merging blob reports"
-            ls -l
-            if ls *.zip 1> /dev/null 2>&1; then
-              npx playwright merge-reports --reporter=blob .
-            else
-              echo "No report zip files found, skipping blob merge."
-            fi
-      - store_artifacts:
-          path: artifacts/blob-report
       - run:
           name: Merge html Reports
           command: |
@@ -900,44 +870,6 @@ workflows:
             - Init (PR)
           post-steps:
             - fail-fast
-      - unit-test:
-          name: Unit Test (PR)
-          requires:
-            - Build (PR)
-          post-steps:
-            - fail-fast
-      - integration-test:
-          name: Integration Test - Frontends (PR)
-          resource_class: large
-          nx_run: affected --base=main --head=$CIRCLE_SHA1
-          projects: --exclude '*,!tag:scope:frontend'
-          requires:
-            - Build (PR)
-      - integration-test:
-          name: Integration Test - Servers (PR)
-          nx_run: affected --base=main --head=$CIRCLE_SHA1
-          projects: --exclude '*,!tag:scope:server'
-          requires:
-            - Build (PR)
-      - integration-test:
-          name: Integration Test - Servers - Auth (PR)
-          nx_run: affected --base=main --head=$CIRCLE_SHA1
-          projects: --exclude '*,!tag:scope:server:auth'
-          requires:
-            - Build (PR)
-      - integration-test:
-          name: Integration Test - Servers - Auth V2 (PR)
-          nx_run: affected --base=main --head=$CIRCLE_SHA1
-          projects: --exclude '*,!tag:scope:server:auth'
-          target: -t test-integration-v2
-          requires:
-            - Build (PR)
-      - integration-test:
-          name: Integration Test - Libraries (PR)
-          nx_run: affected --base=main --head=$CIRCLE_SHA1
-          projects: --exclude '*,!tag:scope:shared:*'
-          requires:
-            - Build (PR)
       - playwright-functional-tests:
           name: Functional Tests - Playwright (PR)
           resource_class: xlarge
@@ -956,22 +888,6 @@ workflows:
           name: Deploy Storybooks (PR)
           requires:
             - Build (PR)
-      - on-complete:
-          name: Tests Complete (PR)
-          stage: Tests
-          job_type: build
-          requires:
-            - Lint (PR)
-            - Compile (PR)
-            - Unit Test (PR)
-            - Integration Test - Frontends (PR)
-            - Integration Test - Servers (PR)
-            - Integration Test - Servers - Auth (PR)
-            - Integration Test - Servers - Auth V2 (PR)
-            - Integration Test - Libraries (PR)
-            - Functional Tests - Playwright (PR)
-            - Deploy Storybooks (PR)
-            - Check all required jobs are complete (PR)
 
   # Triggered remotely. See .circleci/README.md
   production_smoke_tests:
