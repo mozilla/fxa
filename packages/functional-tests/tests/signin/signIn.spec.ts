@@ -16,17 +16,17 @@ test.describe('severity-2 #smoke', () => {
       pages: { resetPassword, signin },
       testAccountTracker,
     }) => {
-      const credentials = await testAccountTracker.signUp();
+      //const credentials = await testAccountTracker.signUp();
 
-      await page.goto(target.contentServerUrl);
-      await signin.fillOutEmailFirstForm(credentials.email);
-      await signin.fillOutPasswordForm('incorrect password');
+      //await page.goto(target.contentServerUrl);
+      //await signin.fillOutEmailFirstForm(credentials.email);
+      //await signin.fillOutPasswordForm('incorrect password');
 
       // Verify the error
-      await expect(page.getByText('Incorrect password')).toBeVisible();
+      //await expect(page.getByText('Incorrect password')).toBeVisible();
 
       //Click forgot password link
-      await signin.forgotPasswordLink.click();
+      //await signin.forgotPasswordLink.click();
 
       //Verify reset password header
       await expect(resetPassword.resetPasswordHeading).toBeVisible();

@@ -341,14 +341,19 @@ commands:
       - run:
           name: Ensure directories
           command: mkdir -p artifacts/tests && mkdir -p ~/.pm2/logs && mkdir -p ~/screenshots
+          when: always
       - store_artifacts:
           path: artifacts
+          when: always
       - store_artifacts:
           path: ~/screenshots
+          when: always
       - store_artifacts:
           path: ~/.pm2/logs
+          when: always
       - store_test_results:
           path: artifacts/tests
+          when: always
 
   rename-reports:
     steps:
@@ -721,6 +726,51 @@ jobs:
       - store-artifacts
       - rename-reports
 
+  check-required-jobs-complete:
+    docker:
+      - image: circleci/node
+    resource_class: small
+    steps:
+      - run:
+          name: Wait for required jobs to complete
+          command: |
+            sleep 30
+            mkdir -p artifacts/blob-report
+            while true; do
+              RESPONSE=$(curl -s --request GET "https://circleci.com/api/v2/workflow/$CIRCLE_WORKFLOW_ID/job" --header "Circle-Token: $CCI_Token")
+
+              FUNCTIONAL_TEST_JOB_ID=$(echo $RESPONSE | jq -r '.items[] | select(.status == "running") | select(.name | startswith("Functional Tests")) | .id')
+              if [[ -e artifacts/blob-report/functional_test_job_id.txt ]]; then
+                echo "Job id already set"
+              elif [[ -n "$FUNCTIONAL_TEST_JOB_ID" ]]; then
+                echo "Storing job id, $FUNCTIONAL_TEST_JOB_ID, for later lookup."
+                echo $FUNCTIONAL_TEST_JOB_ID > artifacts/blob-report/functional_test_job_id.txt
+              else
+                echo "No job id located. ($FUNCTIONAL_TEST_JOB_ID)"
+              fi
+
+              JOB_STATUS=$(echo $RESPONSE | jq -r '.items[] | .name + "-" + .status')
+              echo "ALL JOB_STATUS:"
+              echo $JOB_STATUS
+
+              PENDING=$(echo $RESPONSE | jq -r '.items[] | select(.status == "blocked" or .status == "running" or .status == "not_running") | select(.name | startswith("Tests Complete") | not) | select(.name | startswith("Merge Playwright Reports") | not) | select(.name | startswith("Check all required jobs are complete") | not ) | .name')
+              echo "PENDING JOBS OF INTEREST:"
+              echo $PENDING
+
+              if [[ -z "$PENDING" ]]; then
+                echo "All required jobs have now completed"
+                exit 0
+              else
+                echo "Still waiting for jobs to complete..."
+                sleep 1
+              fi
+            done
+      - persist_to_workspace:
+          root: /home/circleci/project
+          paths:
+            - artifacts/blob-report
+          when: always
+
   playwright-functional-test-report:
     executor: default-executor
     steps:
@@ -730,6 +780,21 @@ jobs:
           name: Merge blob Reports
           command: |
             cd artifacts/blob-report
+            ls -l
+            JOB_ID=$(cat functional_test_job_id.txt)
+            echo "Fetching reports from circle ci artifact storarge for $JOB_ID"
+            function fetch_report() {
+              echo "Fetching reports-$1.zip"
+              wget https://output.circle-artifacts.com/output/job/${JOB_ID}/artifacts/$1/artifacts/blob-report/reports-$1.zip
+              wgetreturn=$?
+              if [[ $wgetreturn -ne 0 ]]; then
+                echo "Failed to get reports-$1.zip"
+              fi
+            }
+            for i in $(seq 0 7);
+            do
+              fetch_report $i
+            done
             echo "Merging blob reports"
             ls -l
             if ls *.zip 1> /dev/null 2>&1; then
@@ -738,11 +803,26 @@ jobs:
               echo "No report zip files found, skipping blob merge."
             fi
       - store_artifacts:
-          path: blob-report
+          path: artifacts/blob-report
       - run:
           name: Merge html Reports
           command: |
             cd artifacts/blob-report
+            ls -l
+            JOB_ID=$(cat functional_test_job_id.txt)
+            echo "Fetching reports from circle ci artifact storarge for $JOB_ID"
+            function fetch_report() {
+              echo "Fetching reports-$1.zip"
+              wget https://output.circle-artifacts.com/output/job/${JOB_ID}/artifacts/$1/artifacts/blob-report/reports-$1.zip
+              wgetreturn=$?
+              if [[ $wgetreturn -ne 0 ]]; then
+                echo "Failed to get reports-$1.zip"
+              fi
+            }
+            for i in $(seq 0 7);
+            do
+              fetch_report $i
+            done
             echo "Merging HTML reports"
             ls -l
             if ls *.zip 1> /dev/null 2>&1; then
@@ -864,10 +944,14 @@ workflows:
           parallelism: 8
           requires:
             - Build (PR)
+      - check-required-jobs-complete:
+          name: Check all required jobs are complete (PR)
+          requires:
+            - Build (PR)
       - playwright-functional-test-report:
           name: Merge Playwright Reports (PR)
           requires:
-            - Functional Tests - Playwright (PR)
+            - Check all required jobs are complete (PR)
       - build-and-deploy-storybooks:
           name: Deploy Storybooks (PR)
           requires:
@@ -887,6 +971,7 @@ workflows:
             - Integration Test - Libraries (PR)
             - Functional Tests - Playwright (PR)
             - Deploy Storybooks (PR)
+            - Check all required jobs are complete (PR)
 
   # Triggered remotely. See .circleci/README.md
   production_smoke_tests:
