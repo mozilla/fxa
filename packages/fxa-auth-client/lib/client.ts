@@ -1809,18 +1809,15 @@ export default class AuthClient {
   }
 
   async verifyLoginPushRequest(
-    email: string,
-    uid: string,
+    sessionToken: hexstring,
     tokenVerificationId: string,
     code: string,
     headers?: Headers
   ): Promise<void> {
-    return await this.request(
-      'POST',
+    return this.sessionPost(
       '/session/verify/verify_push',
+      sessionToken,
       {
-        email,
-        uid,
         tokenVerificationId,
         code,
       },

@@ -62,6 +62,8 @@ const FRONTEND_ROUTES = [
   'signin',
   'signin_bounced',
   'signin_token_code',
+  'signin_push_code',
+  'signin_push_code_confirm',
   'signin_totp_code',
   'signin_recovery_code',
   'signin_confirmed',

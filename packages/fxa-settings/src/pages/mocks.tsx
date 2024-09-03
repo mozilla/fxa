@@ -65,3 +65,4 @@ export function mockLoadingSpinnerModule() {
   });
 }
 export const MOCK_RECOVERY_KEY = 'ARJDF300TFEPRJ7SFYB8QVNVYT60WWS2';
+export const MOCK_REMOTE_METADATA = JSON.stringify({});
