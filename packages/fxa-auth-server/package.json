@@ -90,7 +90,7 @@
     "fxa-geodb": "workspace:*",
     "fxa-shared": "workspace:*",
     "google-auth-library": "^9.14.0",
-    "googleapis": "^135.1.0",
+    "googleapis": "^143.0.0",
     "hapi-auth-jwt2": "^10.4.0",
     "hapi-swagger": "^17.3.0",
     "hkdf": "0.0.2",
