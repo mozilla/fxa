@@ -38,7 +38,7 @@ const mockConfig: Config['glean'] = {
   applicationId: 'testo',
   uploadEnabled: true,
   appDisplayVersion: '9001',
-  channel: 'test',
+  appChannel: 'test',
   serverEndpoint: 'https://metrics.example.io/',
   logPings: false,
   debugViewTag: '',
@@ -195,7 +195,7 @@ describe('lib/glean', () => {
         mockConfig.uploadEnabled,
         {
           appDisplayVersion: mockConfig.appDisplayVersion,
-          channel: mockConfig.channel,
+          channel: mockConfig.appChannel,
           serverEndpoint: mockConfig.serverEndpoint,
           enableAutoPageLoadEvents: true,
           enableAutoElementClickEvents: true,
