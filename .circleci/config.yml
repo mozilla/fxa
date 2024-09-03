@@ -951,6 +951,7 @@ workflows:
       - playwright-functional-test-report:
           name: Merge Playwright Reports (PR)
           requires:
+            - Functional Tests - Playwright (PR)
             - Check all required jobs are complete (PR)
       - build-and-deploy-storybooks:
           name: Deploy Storybooks (PR)
@@ -1298,9 +1299,14 @@ workflows:
           parallelism: 8
           requires:
             - Build (nightly)
+      - check-required-jobs-complete:
+          name: Check all required jobs are complete (nightly)
+          requires:
+            - Build (nightly)
       - playwright-functional-test-report:
           name: Merge Playwright Reports (nightly)
           requires:
+            - Check all required jobs are complete (nightly)
             - Functional Tests - Playwright (nightly)
       - on-complete:
           name: Tests Complete (nightly)
@@ -1316,6 +1322,7 @@ workflows:
             - Integration Test - Servers - Auth V2 (nightly)
             - Integration Test - Libraries (nightly)
             - Functional Tests - Playwright (nightly)
+            - Check all required jobs are complete (nightly)
       - build-and-deploy-storybooks:
           name: Deploy Storybooks (nightly)
           requires:
