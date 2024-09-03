@@ -539,7 +539,7 @@ export const GleanMetrics: Pick<
       if (config.enabled) {
         Glean.initialize(config.applicationId, config.uploadEnabled, {
           appDisplayVersion: config.appDisplayVersion,
-          channel: config.channel,
+          channel: config.appChannel,
           serverEndpoint: config.serverEndpoint,
           enableAutoPageLoadEvents: true,
           enableAutoElementClickEvents: true,
