@@ -7,7 +7,7 @@ export type GleanMetricsConfig = {
   applicationId: string;
   uploadEnabled: boolean;
   appDisplayVersion: string;
-  channel: string;
+  appChannel: string;
   serverEndpoint: string;
   logPings: boolean;
   debugViewTag: string;

@@ -171,7 +171,7 @@ export const App = ({
         ...config.glean,
         enabled: metricsEnabled,
         appDisplayVersion: config.version,
-        channel: config.glean.channel,
+        appChannel: config.glean.appChannel,
       },
       {
         metricsFlow,
