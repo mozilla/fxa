@@ -35024,7 +35024,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"enhanced-resolve@npm:^5.17.0":
+"enhanced-resolve@npm:^5.17.0, enhanced-resolve@npm:^5.17.1":
   version: 5.17.1
   resolution: "enhanced-resolve@npm:5.17.1"
   dependencies:
@@ -39261,7 +39261,7 @@ fsevents@~2.1.1:
     tailwindcss: 3.4.3
     tailwindcss-textshadow: ^2.1.3
     typescript: ^5.5.3
-    webpack: ^5.84.1
+    webpack: ^5.94.0
   languageName: unknown
   linkType: soft
 
@@ -39419,7 +39419,7 @@ fsevents@~2.1.1:
     i18n-iso-countries: ^7.11.0
     ioredis: ^4.28.2
     joi: ^17.8.3
-    jose: ^5.7.0
+    jose: ^5.8.0
     jsdom: ^24.1.1
     jsonwebtoken: ^9.0.0
     jsxgettext-recursive-next: 1.1.0
@@ -39473,7 +39473,7 @@ fsevents@~2.1.1:
     uuid: ^10.0.0
     verror: ^1.10.1
     web-push: 3.4.4
-    webpack: ^5.84.1
+    webpack: ^5.94.0
     webpack-watch-files-plugin: ^1.2.1
     ws: ^8.17.1
   bin:
@@ -39629,7 +39629,7 @@ fsevents@~2.1.1:
     url-loader: 4.1.1
     verror: 1.10.1
     webcrypto-liner: 1.4.0
-    webpack: ^5.78.0
+    webpack: ^5.94.0
     webpack-cli: ^5.1.4
     webpack-dev-middleware: ^7.4.0
     xmlhttprequest: ^1.8.0
@@ -39941,7 +39941,7 @@ fsevents@~2.1.1:
     typescript: ^5.5.3
     uuid: ^10.0.0
     wait-for-expect: ^3.0.2
-    webpack: ^5.84.1
+    webpack: ^5.94.0
   languageName: unknown
   linkType: soft
 
@@ -40050,7 +40050,7 @@ fsevents@~2.1.1:
     tailwindcss-dir: ^4.0.0
     tsc-alias: ^1.8.8
     typescript: ^5.5.3
-    webpack: ^5.84.1
+    webpack: ^5.94.0
   languageName: unknown
   linkType: soft
 
@@ -40143,7 +40143,7 @@ fsevents@~2.1.1:
     nx: 18.3.1
     persistgraphql: ^0.3.11
     pm2: ^5.3.0
-    postcss: ^8.4.41
+    postcss: ^8.4.42
     postcss-assets: ^6.0.0
     postcss-flexbugs-fixes: ^5.0.2
     postcss-import: ^16.1.0
@@ -40178,7 +40178,7 @@ fsevents@~2.1.1:
     typescript: ^5.5.3
     ua-parser-js: 1.0.35
     uuid: ^10.0.0
-    webpack: ^5.84.1
+    webpack: ^5.94.0
     webpack-dev-server: ^4.6.0
     webpack-manifest-plugin: ^5.0.0
     workbox-webpack-plugin: ^7.1.0
@@ -40388,7 +40388,7 @@ fsevents@~2.1.1:
     jest: ^29.5.0
     jest-environment-jsdom: ^29.5.0
     jest-environment-node: ^29.7.0
-    jose: ^5.7.0
+    jose: ^5.8.0
     json: ^11.0.0
     knex: ^3.1.0
     kysely: ^0.27.2
@@ -40414,7 +40414,7 @@ fsevents@~2.1.1:
     passport-jwt: ^4.0.1
     persistgraphql: ^0.3.11
     pm2: ^5.3.0
-    postcss: 8.4.41
+    postcss: 8.4.42
     prettier: ^2.6.2
     react: 18.3.1
     react-dom: 18.3.1
@@ -47620,10 +47620,10 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"jose@npm:^5.7.0":
-  version: 5.7.0
-  resolution: "jose@npm:5.7.0"
-  checksum: 7995d7db7b378bf5ffe63cdbd90cce454fce12eabe776ce964ed40e051ed828bdb924d9831dbab3f6131ca7f8b9060d8bcb03361b1be2d9e07b1ebb4a99ae26e
+"jose@npm:^5.8.0":
+  version: 5.8.0
+  resolution: "jose@npm:5.8.0"
+  checksum: bb9cd97ac6ccb8148a8e23d6a7f61e5756a3373a7d65dd783051d8af409c3534bdc2a2c30ecd1820988ea943aba5755b2a45b86955c5765d71691bb0ddd45d61
   languageName: node
   linkType: hard
 
@@ -56978,14 +56978,14 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"postcss@npm:8.4.41, postcss@npm:^8.4.41":
-  version: 8.4.41
-  resolution: "postcss@npm:8.4.41"
+"postcss@npm:8.4.42":
+  version: 8.4.42
+  resolution: "postcss@npm:8.4.42"
   dependencies:
     nanoid: ^3.3.7
     picocolors: ^1.0.1
     source-map-js: ^1.2.0
-  checksum: f865894929eb0f7fc2263811cc853c13b1c75103028b3f4f26df777e27b201f1abe21cb4aa4c2e901c80a04f6fb325ee22979688fe55a70e2ea82b0a517d3b6f
+  checksum: 78a6ea96611b3c7affbd2e1a9a736ba24084f1f5b6f4fc688621e60ca407612472232af008d478b9e5992329f2dfa00eea4425a727fd46fa1eeabe682545d9dd
   languageName: node
   linkType: hard
 
@@ -57074,6 +57074,17 @@ fsevents@~2.1.1:
     picocolors: ^1.0.1
     source-map-js: ^1.2.0
   checksum: afd0cc49d2169dcd96c0f17e155c5d75de048956306a3017f1cfa6a7d66b941592245bed20f7796ceeccb2d8967749b623be2c7b010a74f67ea10fb5bdb8ba28
+  languageName: node
+  linkType: hard
+
+"postcss@npm:^8.4.42":
+  version: 8.4.45
+  resolution: "postcss@npm:8.4.45"
+  dependencies:
+    nanoid: ^3.3.7
+    picocolors: ^1.0.1
+    source-map-js: ^1.2.0
+  checksum: 3223cdad4a9392c0b334ee3ee7e4e8041c631cb6160609cef83c18d2b2580e931dd8068ab13cc6000c1a254d57492ac6c38717efc397c5dcc9756d06bc9c44f3
   languageName: node
   linkType: hard
 
@@ -67650,7 +67661,7 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"webpack@npm:5, webpack@npm:^5, webpack@npm:^5.64.4, webpack@npm:^5.78.0, webpack@npm:^5.84.1":
+"webpack@npm:5, webpack@npm:^5, webpack@npm:^5.64.4":
   version: 5.89.0
   resolution: "webpack@npm:5.89.0"
   dependencies:
@@ -67796,6 +67807,42 @@ resolve@1.1.7:
   bin:
     webpack: bin/webpack.js
   checksum: a7be844d5720a0c6282fec012e6fa34b1137dff953c5d48bf2ef066a6c27c1dbc92a9b9effc05ee61c9fe269499266db9782073f2d82a589d3c5c966ffc56584
+  languageName: node
+  linkType: hard
+
+"webpack@npm:^5.94.0":
+  version: 5.94.0
+  resolution: "webpack@npm:5.94.0"
+  dependencies:
+    "@types/estree": ^1.0.5
+    "@webassemblyjs/ast": ^1.12.1
+    "@webassemblyjs/wasm-edit": ^1.12.1
+    "@webassemblyjs/wasm-parser": ^1.12.1
+    acorn: ^8.7.1
+    acorn-import-attributes: ^1.9.5
+    browserslist: ^4.21.10
+    chrome-trace-event: ^1.0.2
+    enhanced-resolve: ^5.17.1
+    es-module-lexer: ^1.2.1
+    eslint-scope: 5.1.1
+    events: ^3.2.0
+    glob-to-regexp: ^0.4.1
+    graceful-fs: ^4.2.11
+    json-parse-even-better-errors: ^2.3.1
+    loader-runner: ^4.2.0
+    mime-types: ^2.1.27
+    neo-async: ^2.6.2
+    schema-utils: ^3.2.0
+    tapable: ^2.1.1
+    terser-webpack-plugin: ^5.3.10
+    watchpack: ^2.4.1
+    webpack-sources: ^3.2.3
+  peerDependenciesMeta:
+    webpack-cli:
+      optional: true
+  bin:
+    webpack: bin/webpack.js
+  checksum: 6a3d667be304a69cd6dcb8d676bc29f47642c0d389af514cfcd646eaaa809961bc6989fc4b2621a717dfc461130f29c6e20006d62a32e012dafaa9517813a4e6
   languageName: node
   linkType: hard
 
