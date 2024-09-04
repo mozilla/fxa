@@ -33,6 +33,7 @@ RUN yarn install --immutable;
 # is necessary.
 FROM builder as playwright-install
 RUN npx playwright install --with-deps firefox chromium webkit;
+RUN apt-get update && apt-get install -y libxslt1.1 libxslt-dev
 
 
 # Runs functional tests in our CI. Needs minimal install. Assumes
