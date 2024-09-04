@@ -36,11 +36,12 @@ FROM builder as playwright-install
 USER root
 
 # Install Playwright with all its dependencies
-RUN npx playwright install --with-deps firefox chromium webkit
+RUN npx playwright install --with-deps firefox chromium webkit && echo "Playwright installed successfully"
 
-# Debugging: Check if the directory exists
+# Debugging: Check directory structures
+RUN ls -l /home/circleci
 RUN ls -l /home/circleci/.cache
-RUN ls -l /home/circleci/.cache/ms-playwright
+RUN find /home/circleci -type d -name "ms-playwright"
 
 # Install the missing libxslt libraries
 RUN apt-get update && apt-get install -y libxslt1.1 libxslt-dev
