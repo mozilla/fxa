@@ -33,6 +33,7 @@
       "@fxa/payments/stripe": ["libs/payments/stripe/src/index.ts"],
       "@fxa/payments/ui": ["libs/payments/ui/src/index.ts"],
       "@fxa/payments/ui/server": ["libs/payments/ui/src/server.ts"],
+      "@fxa/profile/client": ["libs/profile/client/src/index.ts"],
       "@fxa/shared/account/account": [
         "libs/shared/account/account/src/index.ts"
       ],

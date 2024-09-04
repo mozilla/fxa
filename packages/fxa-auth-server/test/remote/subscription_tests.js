@@ -15,7 +15,8 @@ const error = require(`${ROOT_DIR}/lib/error`);
 const testServerFactory = require('../test_server');
 const { CapabilityService } = require('../../lib/payments/capability');
 const { StripeHelper } = require('../../lib/payments/stripe');
-const { AuthLogger, ProfileClient } = require('../../lib/types');
+const { AuthLogger } = require('../../lib/types');
+const { ProfileClient } = require('@fxa/profile/client');
 const {
   PlaySubscriptions,
 } = require('../../lib/payments/iap/google-play/subscriptions');

@@ -66,11 +66,6 @@ export interface TaxAddress {
   postalCode: string;
 }
 
-export interface ProfileClient {
-  deleteCache(uid: string): Promise<void>;
-  updateDisplayName(uid: string, name: string): Promise<void>;
-}
-
 export interface AuthLogger extends Logger {
   (tags: string | string[], data?: string | object): void;
 
@@ -88,5 +83,3 @@ export interface AuthLogger extends Logger {
 export const AuthLogger = new Token<AuthLogger>('AUTH_LOGGER');
 export const AppConfig = new Token<ConfigType>('APP_CONFIG');
 export { AuthFirestore } from '@fxa/shared/db/firestore';
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const ProfileClient = new Token<ProfileClient>('PROFILE_CLIENT');

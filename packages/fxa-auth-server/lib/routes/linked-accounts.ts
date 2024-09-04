@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { AuthLogger, AuthRequest, ProfileClient } from '../types';
+import { AuthLogger, AuthRequest } from '../types';
 import { ConfigType } from '../../config';
 import { OAuth2Client } from 'google-auth-library';
 import axios from 'axios';
@@ -32,6 +32,12 @@ import {
   AppleSETEvent,
 } from './utils/third-party-events';
 import { gleanMetrics } from '../metrics/glean';
+import { VError } from 'verror';
+import {
+  ProfileClient,
+  ProfileClientError,
+  ProfileClientServiceFailureError,
+} from '@fxa/profile/client';
 
 const HEX_STRING = validators.HEX_STRING;
 
@@ -326,7 +332,7 @@ export class LinkedAccountHandler {
         await this.db.createLinkedAccount(accountRecord.uid, userid, provider);
 
         if (name) {
-          await this.profile.updateDisplayName(accountRecord.uid, name);
+          await this.updateProfileDisplayName(accountRecord.uid, name);
         }
 
         const geoData = request.app.geo;
@@ -414,7 +420,7 @@ export class LinkedAccountHandler {
         await this.db.createLinkedAccount(accountRecord.uid, userid, provider);
 
         if (name) {
-          await this.profile.updateDisplayName(accountRecord.uid, name);
+          await this.updateProfileDisplayName(accountRecord.uid, name);
         }
         // Currently, we treat accounts created from a linked account as a new
         // registration and emit the correspond event. Note that depending on
@@ -514,6 +520,28 @@ export class LinkedAccountHandler {
     return {
       success: true,
     };
+  }
+
+  async updateProfileDisplayName(uid: string, name: string) {
+    try {
+      await this.profile.updateDisplayName(uid, name);
+    } catch (profileError) {
+      // Handle errors from ProfileClient the same way errors were handled
+      // previously, when ProfileClient was part of the auth server.
+      if (profileError instanceof ProfileClientServiceFailureError) {
+        const info = VError.info(profileError);
+        throw error.backendServiceFailure(
+          info.serviceName,
+          info.method.toUpperCase(),
+          { method: info.method.toUpperCase(), path: info.path },
+          profileError.cause()
+        );
+      } else if (profileError instanceof ProfileClientError) {
+        throw profileError.cause();
+      } else {
+        throw profileError;
+      }
+    }
   }
 }
 

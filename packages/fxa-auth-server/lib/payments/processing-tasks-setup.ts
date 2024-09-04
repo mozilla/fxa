@@ -8,13 +8,11 @@ import Container from 'typedi';
 import { setupFirestore } from '../firestore-db';
 import { CurrencyHelper } from '../payments/currencies';
 import { configureSentry } from '../sentry';
-import { AppConfig, AuthFirestore, AuthLogger, ProfileClient } from '../types';
+import { AppConfig, AuthFirestore, AuthLogger } from '../types';
 import { StripeHelper, createStripeHelper } from './stripe';
 
 import convictConf from '../../config';
-import error from '../../lib/error';
-
-const Profile = require('../profile/client');
+import { ProfileClient } from '@fxa/profile/client';
 
 const config = convictConf.getProperties();
 
@@ -49,7 +47,10 @@ export async function setupProcessingTaskObjects(processName: string) {
   // Establish database connection and bind instance to Model using Knex
   setupAuthDatabase(config.database.mysql.auth, log, statsd);
 
-  const profile = new Profile(log, config, error, statsd);
+  const profile = new ProfileClient(log, {
+    ...config.profileServer,
+    serviceName: 'subhub',
+  });
   Container.set(ProfileClient, profile);
 
   const senders = await require('../senders')(
