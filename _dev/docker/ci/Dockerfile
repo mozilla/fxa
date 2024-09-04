@@ -32,7 +32,13 @@ RUN yarn install --immutable;
 # must based on cimg/node:20.11-browsers, which is why this stage
 # is necessary.
 FROM builder as playwright-install
-RUN npx playwright install --with-deps firefox chromium webkit;
+# Ensure running as root to install the packages
+USER root
+
+# Install Playwright with all its dependencies
+RUN npx playwright install --with-deps firefox chromium webkit
+
+# Install the missing libxslt libraries
 RUN apt-get update && apt-get install -y libxslt1.1 libxslt-dev
 
 
