@@ -38,6 +38,10 @@ USER root
 # Install Playwright with all its dependencies
 RUN npx playwright install --with-deps firefox chromium webkit
 
+# Debugging: Check if the directory exists
+RUN ls -l /home/circleci/.cache
+RUN ls -l /home/circleci/.cache/ms-playwright
+
 # Install the missing libxslt libraries
 RUN apt-get update && apt-get install -y libxslt1.1 libxslt-dev
 
