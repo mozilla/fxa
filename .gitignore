@@ -157,6 +157,7 @@ packages/fxa-settings/test/
 
 # payments-next
 apps/payments/next/public/locales
+apps/payments/next/lib/metrics/glean/server_events.ts
 
 Library
 .node
