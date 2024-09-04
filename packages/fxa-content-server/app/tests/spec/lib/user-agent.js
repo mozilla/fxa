@@ -403,23 +403,26 @@ describe('lib/user-agent', () => {
             patch: 0,
           },
 
-          'Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) FxiOS/6.1 Mobile/12F69 Safari/600.1.4': {
-            major: 6,
-            minor: 1,
-            patch: 0,
-          },
+          'Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) FxiOS/6.1 Mobile/12F69 Safari/600.1.4':
+            {
+              major: 6,
+              minor: 1,
+              patch: 0,
+            },
 
-          'Mozilla/5.0 (Linux; Android 4.0.4; Galaxy Nexus Build/IMM76B) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.133 Mobile Safari/535.19': {
-            major: 18,
-            minor: 0,
-            patch: 1025,
-          },
+          'Mozilla/5.0 (Linux; Android 4.0.4; Galaxy Nexus Build/IMM76B) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.133 Mobile Safari/535.19':
+            {
+              major: 18,
+              minor: 0,
+              patch: 1025,
+            },
 
-          'Mozilla/5.0 (Macintosh; Intel Mac OS X x.y; rv:10.0) Gecko/20100101 Firefox/10.0': {
-            major: 10,
-            minor: 0,
-            patch: 0,
-          },
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X x.y; rv:10.0) Gecko/20100101 Firefox/10.0':
+            {
+              major: 10,
+              minor: 0,
+              patch: 0,
+            },
 
           word: {
             major: 0,
@@ -443,6 +446,62 @@ describe('lib/user-agent', () => {
     });
   });
 
+  describe('isThunderbirdDesktop', () => {
+    it('returns `true` if it detects Thunderbird Desktop', () => {
+      const tbDesktopUserAgents = [
+        // windows
+        'Mozilla/5.0 (Windows NT x.y; rv:10.0) Gecko/20100101 Thunderbird/10.0',
+        'Mozilla/5.0 (Windows NT x.y; Win64; x64; rv:10.0) Gecko/20100101 Thunderbird/10.0',
+        'Mozilla/5.0 (Windows NT x.y; Win64; x64; rv:10.0) Gecko/20100101 Firefox/10.0 Thunderbird/10.0a1',
+        'Mozilla/5.0 (Windows NT x.y; WOW64; rv:46.0) Gecko/20100101 Thunderbird/65.0',
+        // mac
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X x.y; rv:10.0) Gecko/20100101 Thunderbird/10.0',
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X x.y; rv:10.0) Gecko/20100101 Firefox/10.0 Thunderbird/10.0a1',
+        'Mozilla/5.0 (Macintosh; PPC Mac OS X x.y; rv:10.0) Gecko/20100101 Thunderbird/10.0',
+        // linux
+        'Mozilla/5.0 (X11; Linux i686; rv:10.0) Gecko/20100101 Thunderbird/10.0',
+        'Mozilla/5.0 (X11; Linux x86_64; rv:10.0) Gecko/20100101 Thunderbird/10.0',
+        'Mozilla/5.0 (X11; Linux x86_64; rv:10.0) Gecko/20100101 Firefox/10.0 Thunderbird/10.0a1',
+        'Mozilla/5.0 (X11; Linux i686 on x86_64; rv:10.0) Gecko/20100101 Thunderbird/10.0',
+      ];
+
+      tbDesktopUserAgents.forEach((userAgentString) => {
+        const uap = new UserAgent(userAgentString);
+        assert.isTrue(uap.isThunderbirdDesktop(), userAgentString);
+      });
+    });
+
+    it('returns `false` if not Thunderbird Desktop', () => {
+      const notTbDesktopUserAgents = [
+        // Firefox desktop
+        'Mozilla/5.0 (Windows NT x.y; Win64; x64; rv:10.0) Gecko/20100101 Firefox/10.0',
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X x.y; rv:10.0) Gecko/20100101 Firefox/10.0',
+        'Mozilla/5.0 (X11; Linux x86_64; rv:10.0) Gecko/20100101 Firefox/10.0',
+        // fx ios
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) ' +
+          'AppleWebKit/600.1.4 (KHTML, like Gecko) FxiOS/1.0 Mobile/12F69 Safari/600.1.4',
+        // fennec
+        'Mozilla/5.0 (Android 4.4; Mobile; rv:46.0) Gecko/46.0 Firefox/65.0',
+        'Mozilla/5.0 (Android 4.4; Tablet; rv:46.0) Gecko/46.0 Firefox/65.0',
+        // Chrome desktop
+        'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 ' +
+          '(KHTML, like Gecko) Chrome/55.0.2883.35 Safari/537.36',
+        // Edge
+        'Mozilla/5.0 (Windows Phone 10.0; Android 4.2.1; Microsoft; Lumia ' +
+          '640 XL LTE) AppleWebKit/537.36 (KHTML, like Gecko) ' +
+          'Chrome/42.0.2311.135 Mobile Safari/537.36 Edge/12.10166',
+        // Chrome Android
+        'Mozilla/5.0 (Linux; Android 4.0.4; Galaxy Nexus Build/IMM76B) ' +
+          'AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.133 Mobile Safari/535.19',
+      ];
+
+      notTbDesktopUserAgents.forEach((userAgentString) => {
+        const uap = new UserAgent(userAgentString);
+        assert.isFalse(uap.isThunderbirdDesktop(), userAgentString);
+      });
+    });
+  });
+
   describe('parseOsVersion', () => {
     it('returns expected major, minor, patch', () => {
       const toTest = {
@@ -452,17 +511,19 @@ describe('lib/user-agent', () => {
           patch: 0,
         },
 
-        'Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) FxiOS/6.1 Mobile/12F69 Safari/600.1.4': {
-          major: 8,
-          minor: 3,
-          patch: 0,
-        },
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) FxiOS/6.1 Mobile/12F69 Safari/600.1.4':
+          {
+            major: 8,
+            minor: 3,
+            patch: 0,
+          },
 
-        'Mozilla/5.0 (Linux; Android 4.0.4; Galaxy Nexus Build/IMM76B) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.133 Mobile Safari/535.19': {
-          major: 4,
-          minor: 0,
-          patch: 4,
-        },
+        'Mozilla/5.0 (Linux; Android 4.0.4; Galaxy Nexus Build/IMM76B) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.133 Mobile Safari/535.19':
+          {
+            major: 4,
+            minor: 0,
+            patch: 4,
+          },
 
         word: {
           major: 0,

@@ -121,6 +121,16 @@ const UserAgent = function (userAgent) {
     },
 
     /**
+     * Check if the browser is Thunderbird desktop. Note that parseVersion will
+     * return the wrong value as the ua-parser-js doesn't detect Thunderbird.
+     *
+     * @returns {Boolean}
+     */
+    isThunderbirdDesktop() {
+      return /(Thunderbird)\/([\w\.]+)/.test(this.ua);
+    },
+
+    /**
      * Some browsers do not support SVG Transform Origin and
      * some of our SVGs will not animate properly.
      *

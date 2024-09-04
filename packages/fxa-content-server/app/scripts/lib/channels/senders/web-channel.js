@@ -122,8 +122,9 @@ function formatEventDetail(win, eventDetail) {
   // See https://bugzilla.mozilla.org/show_bug.cgi?id=1275616 and
   // https://bugzilla.mozilla.org/show_bug.cgi?id=1238128
   if (
-    (userAgent.isFirefoxDesktop() || userAgent.isFirefoxAndroid()) &&
-    userAgent.browser.version >= 50
+    userAgent.isFirefoxDesktop() ||
+    userAgent.isFirefoxAndroid() ||
+    userAgent.isThunderbirdDesktop()
   ) {
     return JSON.stringify(eventDetail);
   } else {
