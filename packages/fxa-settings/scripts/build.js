@@ -19,7 +19,7 @@ if (!buildTargets.includes(buildDirTarget)) {
 }
 switch (buildDirTarget) {
   case 'prod':
-    process.env.PUBLIC_URL = 'https://accounts-cdn.mozaws.net/settings/prod';
+    process.env.PUBLIC_URL = 'https://cdn.accounts.firefox.com/settings/prod';
     break;
   case 'stage':
     process.env.PUBLIC_URL =
