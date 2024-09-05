@@ -15,6 +15,7 @@ import convictConf from '../../config';
 import error from '../../lib/error';
 
 const Profile = require('../profile/client');
+const { AccountEventsManager } = require('../../lib/account-events');
 
 const config = convictConf.getProperties();
 
@@ -74,6 +75,16 @@ export async function setupProcessingTaskObjects(processName: string) {
   } catch (err) {
     log.error('DB.connect', { err: { message: err.message } });
     process.exit(1);
+  }
+
+  if (!Container.has(AccountEventsManager)) {
+    const accountEventsManager = config.accountEvents.enabled
+      ? new AccountEventsManager(database)
+      : {
+          recordEmailEvent: async () => Promise.resolve(),
+          recordSecurityEvent: async () => Promise.resolve(),
+        };
+    Container.set(AccountEventsManager, accountEventsManager);
   }
 
   const currencyHelper = new CurrencyHelper(config);
