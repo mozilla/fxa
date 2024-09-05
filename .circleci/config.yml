@@ -3,7 +3,7 @@ version: 2.1
 parameters:
   enable_test_pull_request:
     type: boolean
-    default: false
+    default: true
   enable_production_smoke_tests:
     type: boolean
     default: false
@@ -1228,7 +1228,7 @@ workflows:
           cron: '0 0 * * *'
           filters:
             branches:
-              only: fix-10298
+              only: main
     jobs:
       - init:
           name: Init (nightly)
