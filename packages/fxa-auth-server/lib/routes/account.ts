@@ -33,9 +33,8 @@ import {
   appStoreSubscriptionPurchaseToAppStoreSubscriptionDTO,
   playStoreSubscriptionPurchaseToPlayStoreSubscriptionDTO,
 } from '../payments/iap/iap-formatter';
-import { PayPalHelper } from '../payments/paypal/helper';
 import { StripeHelper } from '../payments/stripe';
-import { AuthLogger, AuthRequest, ProfileClient } from '../types';
+import { AuthLogger, AuthRequest } from '../types';
 import { deleteAccountIfUnverified } from './utils/account';
 import emailUtils from './utils/email';
 import requestHelper from './utils/request_helper';
@@ -45,6 +44,7 @@ import { gleanMetrics } from '../metrics/glean';
 import { AccountDeleteManager } from '../account-delete';
 import { uuidTransformer } from 'fxa-shared/db/transformers';
 import { AccountTasks, ReasonForDeletion } from '@fxa/shared/cloud-tasks';
+import { ProfileClient } from '@fxa/profile/client';
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 
@@ -58,7 +58,6 @@ const MS_ONE_MONTH = MS_ONE_DAY * 30;
 export class AccountHandler {
   private OAUTH_DISABLE_NEW_CONNECTIONS_FOR_CLIENTS: Set<string>;
 
-  private paypalHelper?: PayPalHelper;
   private otpUtils: any;
   private otpOptions: ConfigType['otp'];
   private skipConfirmationForEmailAddresses: string[];
@@ -94,12 +93,6 @@ export class AccountHandler {
 
     this.otpOptions = config.otp;
 
-    if (
-      stripeHelper &&
-      config.subscriptions?.paypalNvpSigCredentials?.enabled
-    ) {
-      this.paypalHelper = Container.get(PayPalHelper);
-    }
     this.capabilityService = Container.get(CapabilityService);
     this.accountEventsManager = Container.get(AccountEventsManager);
     this.accountDeleteManager = Container.get(AccountDeleteManager);
