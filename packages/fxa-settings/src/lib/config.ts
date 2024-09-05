@@ -89,6 +89,7 @@ export interface Config {
   featureFlags?: {
     keyStretchV2?: boolean;
     resetPasswordWithCode?: boolean;
+    recoveryCodeSetupOnSyncSignIn?: boolean;
   };
 }
 
@@ -166,6 +167,7 @@ export function getDefault() {
     },
     featureFlags: {
       resetPasswordWithCode: false,
+      recoveryCodeSetupOnSyncSignIn: false,
     },
   } as Config;
 }
