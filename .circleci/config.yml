@@ -1228,7 +1228,7 @@ workflows:
           cron: '0 0 * * *'
           filters:
             branches:
-              only: main
+              only: fix-10298
     jobs:
       - init:
           name: Init (nightly)
