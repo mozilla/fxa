@@ -1291,7 +1291,7 @@ workflows:
       - check-required-jobs-complete:
           name: Check all required jobs are complete (nightly)
           requires:
-            - Build (PR)
+            - Build (nightly)
       - playwright-functional-tests:
           name: Functional Tests - Playwright (nightly)
           resource_class: xlarge
