@@ -83,6 +83,8 @@
     "@swc/helpers": "0.5.11",
     "@type-cacheable/core": "^14.0.1",
     "@type-cacheable/ioredis-adapter": "^10.0.4",
+    "agentkeepalive": "^4.5.0",
+    "axios": "^1.7.5",
     "base64url": "^3.0.1",
     "bn.js": "^5.2.1",
     "class-transformer": "^0.5.1",

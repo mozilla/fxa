@@ -27454,6 +27454,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"axios@npm:^1.7.5":
+  version: 1.7.5
+  resolution: "axios@npm:1.7.5"
+  dependencies:
+    follow-redirects: ^1.15.6
+    form-data: ^4.0.0
+    proxy-from-env: ^1.1.0
+  checksum: 2859fe01437cf133eee35571abc1d4b5224bb13e530e66cb3581ca226e170541dd5eef9f46abb41592cee0a2f54930c9e4978354e0cf1064748fc20d9a05e9d5
+  languageName: node
+  linkType: hard
+
 "axobject-query@npm:^3.1.1":
   version: 3.1.1
   resolution: "axobject-query@npm:3.1.1"
@@ -40307,7 +40318,9 @@ fsevents@~2.1.1:
     "@types/uuid": ^10.0.0
     "@typescript-eslint/eslint-plugin": ^5.59.1
     "@typescript-eslint/parser": ^7.1.1
+    agentkeepalive: ^4.5.0
     autoprefixer: ^10.4.14
+    axios: ^1.7.5
     babel-jest: ^29.7.0
     base64url: ^3.0.1
     bn.js: ^5.2.1

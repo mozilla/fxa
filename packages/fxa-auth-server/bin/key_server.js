@@ -31,19 +31,14 @@ const { Container } = require('typedi');
 const { StripeHelper } = require('../lib/payments/stripe');
 const { PlayBilling } = require('../lib/payments/iap/google-play');
 const { CurrencyHelper } = require('../lib/payments/currencies');
-const {
-  AuthLogger,
-  AuthFirestore,
-  AppConfig,
-  ProfileClient,
-} = require('../lib/types');
+const { AuthLogger, AuthFirestore, AppConfig } = require('../lib/types');
 const { setupFirestore } = require('../lib/firestore-db');
 const { AppleIAP } = require('../lib/payments/iap/apple-app-store/apple-iap');
 const { AccountEventsManager } = require('../lib/account-events');
 const { AccountDeleteManager } = require('../lib/account-delete');
 const { gleanMetrics } = require('../lib/metrics/glean');
 const Customs = require('../lib/customs');
-const Profile = require('../lib/profile/client');
+const { ProfileClient } = require('@fxa/profile/client');
 const {
   AccountTasks,
   AccountTasksFactory,
@@ -211,7 +206,10 @@ async function run(config) {
   });
   Container.set(AccountDeleteManager, accountDeleteManager);
 
-  const profile = new Profile(log, config, error, statsd);
+  const profile = new ProfileClient(log, {
+    ...config.profileServer,
+    serviceName: 'subhub',
+  });
   Container.set(ProfileClient, profile);
   const bounces = require('../lib/bounces')(config, database);
   const senders = await require('../lib/senders')(log, config, bounces, statsd);
