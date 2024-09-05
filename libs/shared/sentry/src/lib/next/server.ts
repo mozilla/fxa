@@ -2,22 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import * as Sentry from '@sentry/node';
+import * as Sentry from '@sentry/nextjs';
 import { ErrorEvent } from '@sentry/types';
-import { ExtraErrorData } from '@sentry/integrations';
-import { SentryConfigOpts } from './models/SentryConfigOpts';
-import { buildSentryConfig } from './config-builder';
-import { tagFxaName } from './reporting';
-import { Logger } from './sentry.types';
+import { SentryConfigOpts } from '../models/SentryConfigOpts';
+import { buildSentryConfig } from '../config-builder';
+import { Logger } from '../sentry.types';
+import { tagFxaName } from '../utils/tagFxaName';
 
-export type ExtraOpts = {
+type ExtraOpts = {
   integrations?: any[];
   eventFilters?: Array<(event: ErrorEvent, hint: any) => ErrorEvent>;
 };
 
-export type InitSentryOpts = SentryConfigOpts & ExtraOpts;
+type InitSentryOpts = SentryConfigOpts & ExtraOpts;
 
-export function initSentry(config: InitSentryOpts, log: Logger) {
+export function initSentryForNextjsServer(config: InitSentryOpts, log: Logger) {
   if (!config?.sentry?.dsn) {
     log.error('No Sentry dsn provided. Cannot start sentry');
     return;
@@ -40,7 +39,7 @@ export function initSentry(config: InitSentryOpts, log: Logger) {
 
   const integrations = [
     // Default
-    new ExtraErrorData({ depth: 5 }),
+    Sentry.extraErrorDataIntegration({ depth: 5 }),
 
     // Custom Integrations
     ...(config.integrations || []),
@@ -49,7 +48,6 @@ export function initSentry(config: InitSentryOpts, log: Logger) {
   try {
     Sentry.init({
       // Defaults Options
-      instrumenter: 'otel',
       normalizeDepth: 6,
       maxValueLength: 500,
 

@@ -8,3 +8,4 @@ export * from './lib/nest/sentry.constants';
 export * from './lib/reporting';
 export * from './lib/node';
 export * from './lib/browser';
+export * from './lib/next/server';
