@@ -3,13 +3,13 @@ version: 2.1
 parameters:
   enable_test_pull_request:
     type: boolean
-    default: true
+    default: false
   enable_production_smoke_tests:
     type: boolean
-    default: false
+    default: true
   enable_stage_smoke_tests:
     type: boolean
-    default: false
+    default: true
   enable_deploy_packages:
     type: boolean
     default: true
@@ -985,9 +985,13 @@ workflows:
               only: /.*/
             tags:
               only: /.*/
-      - playwright-functional-test-report:
+      - check-required-jobs-complete:
+          name: Check all required jobs are complete
           requires:
             - Smoke Test Production - Playwright
+      - playwright-functional-test-report:
+          requires:
+            - Check all required jobs are complete
           filters:
             branches:
               only: /.*/
@@ -1008,9 +1012,13 @@ workflows:
               only: /.*/
             tags:
               only: /.*/
+      - check-required-jobs-complete:
+          name: Check all required jobs are complete
+          requires:
+            - Smoke Test Production - Playwright
       - playwright-functional-test-report:
           requires:
-            - Smoke Test Stage - Playwright
+            - Check all required jobs are complete
           filters:
             branches:
               only: /.*/
@@ -1228,7 +1236,7 @@ workflows:
           cron: '0 0 * * *'
           filters:
             branches:
-              only: fix-10298
+              only: main
     jobs:
       - init:
           name: Init (nightly)
