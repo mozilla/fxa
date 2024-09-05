@@ -32,8 +32,9 @@ const {
 const {
   deleteAccountIfUnverified,
 } = require('../../../lib/routes/utils/account');
-const { AppConfig, AuthLogger, ProfileClient } = require('../../../lib/types');
+const { AppConfig, AuthLogger } = require('../../../lib/types');
 const defaultConfig = require('../../../config').default.getProperties();
+const { ProfileClient } = require('@fxa/profile/client');
 const glean = mocks.mockGlean();
 const profile = mocks.mockProfile();
 
