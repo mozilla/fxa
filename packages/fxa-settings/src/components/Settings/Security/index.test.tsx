@@ -26,7 +26,9 @@ describe('Security', () => {
       displayName: 'Jody',
       passwordCreated: 123456789,
       hasPassword: true,
-      recoveryKey: false,
+      recoveryKey: {
+        exists: false,
+      },
       totp: { exists: false },
     } as unknown as Account;
     renderWithRouter(
@@ -51,7 +53,7 @@ describe('Security', () => {
       emails: [],
       displayName: 'Jody',
       passwordCreated: 0,
-      recoveryKey: true,
+      recoveryKey: { exists: true },
       totp: { exists: true, verified: true },
     } as unknown as Account;
     renderWithRouter(
@@ -67,7 +69,7 @@ describe('Security', () => {
   describe('Password row', () => {
     it('renders as expected when account has a password', async () => {
       const account = {
-        recoveryKey: false,
+        recoveryKey: { exists: false },
         totp: { exists: false },
         primaryEmail: {
           email: 'jody@mozilla.com',
@@ -99,7 +101,7 @@ describe('Security', () => {
 
     it('renders as expected when account does not have a password', async () => {
       const account = {
-        recoveryKey: false,
+        recoveryKey: { exists: false },
         totp: { exists: false },
         primaryEmail: {
           email: 'jody@mozilla.com',

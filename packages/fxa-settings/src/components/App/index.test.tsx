@@ -95,7 +95,7 @@ const mockMetricsQueryAccountAmplitude = {
 const mockMetricsQueryAccountResult = {
   account: {
     uid: 'abc123',
-    recoveryKey: true,
+    recoveryKey: { exists: true },
     metricsEnabled: true,
     emails: [
       {

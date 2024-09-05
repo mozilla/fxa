@@ -30,7 +30,7 @@ const coldStartAccount = {
   ...MOCK_ACCOUNT,
   displayName: null,
   avatar: { id: null, url: null },
-  recoveryKey: false,
+  recoveryKey: { exists: false },
   totp: { exists: false, verified: false },
   attachedClients: [SERVICES_NON_MOBILE[0]],
 } as unknown as Account;

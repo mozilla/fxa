@@ -19,17 +19,17 @@ export default {
 
 const accountHasRecoveryKey = {
   hasPassword: true,
-  recoveryKey: true,
+  recoveryKey: { exist: true },
 } as unknown as Account;
 
 const accountWithoutRecoveryKey = {
   hasPassword: true,
-  recoveryKey: false,
+  recoveryKey: { exists: false },
 } as unknown as Account;
 
 const accountWithoutPassword = {
   hasPassword: false,
-  recoveryKey: false,
+  recoveryKey: { exists: false },
 } as unknown as Account;
 
 const storyWithContext = (

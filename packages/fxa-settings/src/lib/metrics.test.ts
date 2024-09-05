@@ -46,7 +46,7 @@ jest.mock('../models', () => ({
     // Keep in mind that jest.mock is hoisted, so importing MOCK_ACCOUNT in a
     // regular fashion "before" this will not work.
     .mockReturnValue({
-      recoveryKey: true,
+      recoveryKey: { exists: true },
       hasSecondaryVerifiedEmail: false,
       totpActive: true,
     }),
@@ -91,7 +91,7 @@ function initFlow(enabled = true) {
   });
   initUserPreferences({
     hasSecondaryVerifiedEmail: MOCK_ACCOUNT.emails.length > 1,
-    recoveryKey: MOCK_ACCOUNT.recoveryKey,
+    recoveryKey: MOCK_ACCOUNT.recoveryKey.exists,
     totpActive: MOCK_ACCOUNT.totp.exists && MOCK_ACCOUNT.totp.verified,
   });
 }

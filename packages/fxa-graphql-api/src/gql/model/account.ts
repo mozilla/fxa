@@ -10,6 +10,7 @@ import { Subscription } from './subscription';
 import { Totp } from './totp';
 import { LinkedAccount } from './linkedAccount';
 import { SecurityEvent } from './securityEvent';
+import { RecoveryKey } from './recoveryKey';
 
 @ObjectType({
   description: "The current authenticated user's Firefox Account record.",
@@ -41,10 +42,10 @@ export class Account {
   @Field((type) => Totp)
   public totp!: Totp;
 
-  @Field({
+  @Field((type) => RecoveryKey, {
     description: 'Whether the user has had an account recovery key issued.',
   })
-  public recoveryKey!: boolean;
+  public recoveryKey!: RecoveryKey;
 
   @Field({ description: 'Whether metrics are enabled and may be reported' })
   public metricsEnabled!: boolean;

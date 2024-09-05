@@ -22,7 +22,10 @@ export const INITIAL_SETTINGS_QUERY = gql`
       }
       accountCreated
       passwordCreated
-      recoveryKey
+      recoveryKey {
+        exists
+        estimatedSyncDeviceCount
+      }
       metricsEnabled
       primaryEmail @client
       emails {

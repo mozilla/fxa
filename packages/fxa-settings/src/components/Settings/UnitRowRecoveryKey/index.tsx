@@ -17,7 +17,7 @@ import GleanMetrics from '../../../lib/glean';
 export const UnitRowRecoveryKey = () => {
   const account = useAccount();
 
-  const recoveryKey = account.recoveryKey;
+  const recoveryKey = account.recoveryKey.exists;
   const alertBar = useAlertBar();
   const [modalRevealed, revealModal, hideModal] = useBooleanState();
   const [isLoading, setIsLoading] = useState<boolean>(false);

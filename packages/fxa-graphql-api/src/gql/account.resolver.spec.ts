@@ -75,7 +75,9 @@ describe('#integration - AccountResolver', () => {
       useValue: notifierService,
     };
     authClient = {};
-    profileClient = {};
+    profileClient = {
+      deleteCache: jest.fn(),
+    };
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AccountResolver,
@@ -159,9 +161,10 @@ describe('#integration - AccountResolver', () => {
       it('resolves recoveryKey', async () => {
         authClient.recoveryKeyExists = jest
           .fn()
-          .mockResolvedValue({ exists: true });
+          .mockResolvedValue({ exists: true, estimatedSyncDeviceCount: 1 });
         const result = await resolver.recoveryKey('token', headers);
-        expect(result).toBeTruthy();
+        expect(result.exists).toBeTruthy();
+        expect(result.estimatedSyncDeviceCount).toBe(1);
       });
 
       it('resolves totp', async () => {

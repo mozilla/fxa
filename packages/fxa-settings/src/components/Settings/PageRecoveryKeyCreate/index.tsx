@@ -32,7 +32,7 @@ export const PageRecoveryKeyCreate = (props: RouteComponentProps) => {
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [formattedRecoveryKey, setFormattedRecoveryKey] = useState<string>('');
 
-  const action = recoveryKey
+  const action = recoveryKey.exists
     ? RecoveryKeyAction.Change
     : RecoveryKeyAction.Create;
   const goHome = () =>
