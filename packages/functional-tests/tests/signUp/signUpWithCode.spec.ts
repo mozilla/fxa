@@ -20,17 +20,17 @@ test.describe('severity-1 #smoke', () => {
       pages: { login },
       testAccountTracker,
     }) => {
-      //const credentials = await testAccountTracker.signUp();
+      const credentials = await testAccountTracker.signUp();
 
-      //await page.goto(target.contentServerUrl);
-      //await login.fillOutFirstSignUp(credentials.email, credentials.password);
+      await page.goto(target.contentServerUrl);
+      await login.fillOutFirstSignUp(credentials.email, credentials.password);
 
-      //await target.authClient.accountDestroy(
-      //credentials.email,
-      //credentials.password,
-      //{},
-      //credentials.sessionToken
-      //);
+      await target.authClient.accountDestroy(
+        credentials.email,
+        credentials.password,
+        {},
+        credentials.sessionToken
+      );
       await expect(await login.waitForPasswordHeader()).toBeVisible();
     });
 
