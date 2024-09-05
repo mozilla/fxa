@@ -103,6 +103,9 @@ const settingsConfig = {
   featureFlags: {
     keyStretchV2: config.get('featureFlags.keyStretchV2'),
     resetPasswordWithCode: config.get('featureFlags.resetPasswordWithCode'),
+    recoveryCodeSetupOnSyncSignIn: config.get(
+      'featureFlags.recoveryCodeSetupOnSyncSignIn'
+    ),
   },
 };
 
