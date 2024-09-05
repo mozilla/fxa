@@ -34,23 +34,8 @@ RUN yarn install --immutable;
 FROM builder as playwright-install
 # Ensure running as root to install the packages
 USER root
-
-# Install Playwright with all its dependencies
-RUN npx playwright install --with-deps firefox chromium webkit && echo "Playwright installed successfully"
-
-# Debugging: Check directory structures
-RUN find /home/circleci -name "playwright*"
-RUN find /home/circleci -name "ms-playwright"
-RUN find /home/circleci -type d -name "*webkit*" -o -name "*chromium*" -o -name "*firefox*"
-RUN echo $PLAYWRIGHT_BROWSERS_PATH
-RUN echo $XDG_CACHE_HOME
-
 ENV PLAYWRIGHT_BROWSERS_PATH=/home/circleci/.cache/ms-playwright
 RUN npx playwright install --with-deps firefox chromium webkit
-RUN ls -l /home/circleci/.cache/ms-playwright
-
-RUN ls -l /root/.cache
-
 # Install the missing libxslt libraries
 RUN apt-get update && apt-get install -y libxslt1.1 libxslt-dev
 
