@@ -43,7 +43,7 @@
     "fetch-mock": "^9.11.0",
     "fxa-shared": "workspace:*",
     "react-helmet": "^6.1.0",
-    "sinon": "^9.2.3",
+    "sinon": "^18.0.0",
     "tailwindcss-dir": "^4.0.0"
   },
   "devDependencies": {

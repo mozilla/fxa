@@ -245,7 +245,7 @@
     "postcss-assets": "^6.0.0",
     "postcss-import": "^16.1.0",
     "prop-types": "^15.8.1",
-    "sinon": "^15.0.1",
+    "sinon": "^18.0.0",
     "storybook": "^7.0.23",
     "storybook-addon-rtl": "^0.5.0",
     "style-loader": "^4.0.0",
