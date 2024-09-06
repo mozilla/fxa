@@ -12,7 +12,7 @@ import base32Encode from 'base32-encode';
 import { logViewEvent } from '../../../lib/metrics';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import InputPassword from '../../InputPassword';
-import { LockImage } from '../../images';
+import { PasswordImage } from '../../images';
 import Banner, { BannerType } from '../../Banner';
 import { RecoveryKeyAction } from '../PageRecoveryKeyCreate';
 import { Link } from '@reach/router';
@@ -122,7 +122,7 @@ export const FlowRecoveryKeyConfirmPwd = ({
             <p className="w-full text-center">{bannerText}</p>
           </Banner>
         )}
-        <LockImage className="mx-auto my-4" />
+        <PasswordImage className="mx-auto my-4" />
 
         <FtlMsg id="flow-recovery-key-confirm-pwd-heading-v2">
           <h2 className="font-bold text-xl">

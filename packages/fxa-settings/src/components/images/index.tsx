@@ -9,10 +9,9 @@ import { ReactComponent as RecoveryCodes } from './graphic_recovery_codes.svg';
 import { ReactComponent as TwoFactorAuth } from './graphic_two_factor_auth.svg';
 import { ReactComponent as PushFactorAuth } from './graphic_push_factor_auth.svg';
 import { ReactComponent as Mail } from './graphic_mail.svg';
-import { ReactComponent as SecurityShield } from './graphic_security_shield.svg';
-import { ReactComponent as Key } from './graphic_recovery_key.svg';
-import { ReactComponent as Lock } from './graphic_lock.svg';
-import { ReactComponent as Lightbulb } from './graphic_lightbulb.svg';
+import { ReactComponent as Key } from './graphic_recovery_key.min.svg';
+import { ReactComponent as Password } from './graphic_password.min.svg';
+import { ReactComponent as Lightbulb } from './graphic_recovery_key_hint.min.svg';
 import { ReactComponent as EmailCode } from './graphic_email_code.svg';
 import { ReactComponent as CircleCheckOutline } from './icon-circle-check-outline.svg';
 
@@ -44,7 +43,7 @@ type PreparedImageProps =
   | PreparedImageAriaVisibleProps;
 
 export const PreparedImage = (props: PreparedImageProps) => {
-  const { className = 'w-3/5 mx-auto', ariaHidden, Image } = props;
+  const { className = 'm-auto w-3/5', ariaHidden, Image } = props;
   const showAriaLabel =
     !ariaHidden && props?.ariaLabel && props?.ariaLabelFtlId;
 
@@ -55,11 +54,7 @@ export const PreparedImage = (props: PreparedImageProps) => {
           <Image role="img" aria-label={props.ariaLabel} {...{ className }} />
         </FtlMsg>
       ) : (
-        <Image
-          className={className}
-          aria-hidden
-          data-testid="aria-hidden-image"
-        />
+        <Image aria-hidden data-testid="aria-hidden-image" {...{ className }} />
       )}
     </>
   );
@@ -124,29 +119,20 @@ export const MailImage = ({ className, ariaHidden }: ImageProps) => (
   />
 );
 
-export const SecurityShieldImage = ({ className, ariaHidden }: ImageProps) => (
-  <PreparedImage
-    ariaLabel="Illustration to represent an account recovery key."
-    ariaLabelFtlId="security-shield-aria-label"
-    Image={SecurityShield}
-    {...{ className, ariaHidden }}
-  />
-);
-
 export const RecoveryKeyImage = ({ className, ariaHidden }: ImageProps) => (
   <PreparedImage
     ariaLabel="Illustration to represent an account recovery key."
     ariaLabelFtlId="recovery-key-image-aria-label"
     Image={Key}
-    {...{ className, ariaHidden }}
+    {...{ ariaHidden, className }}
   />
 );
 
-export const LockImage = ({ className, ariaHidden }: ImageProps) => (
+export const PasswordImage = ({ className, ariaHidden }: ImageProps) => (
   <PreparedImage
-    ariaLabel="Illustration of a lock."
-    ariaLabelFtlId="lock-image-aria-label"
-    Image={Lock}
+    ariaLabel="Illustration to represent typing in a password."
+    ariaLabelFtlId="password-image-aria-label"
+    Image={Password}
     {...{ className, ariaHidden }}
   />
 );
