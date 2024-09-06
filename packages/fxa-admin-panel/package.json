@@ -71,7 +71,7 @@
     "chance": "^1.1.8",
     "eslint": "^7.32.0",
     "eslint-config-react-app": "^6.0.0",
-    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-import": "^2.30.0",
     "eslint-plugin-jest": "^27.6.0",
     "eslint-plugin-react": "^7.32.2",
     "fxa-shared": "workspace:*",
