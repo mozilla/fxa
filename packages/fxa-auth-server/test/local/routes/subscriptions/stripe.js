@@ -16,7 +16,10 @@ const {
   STRIPE_PRICE_METADATA,
 } = require('../../../../lib/payments/stripe');
 const { CurrencyHelper } = require('../../../../lib/payments/currencies');
-const { PromotionCodeManager, StripeError } = require('@fxa/payments/stripe');
+const {
+  PromotionCodeManager,
+  PaymentsCustomerError,
+} = require('@fxa/payments/customer');
 const WError = require('verror').WError;
 const uuidv4 = require('uuid').v4;
 const proxyquire = require('proxyquire').noPreserveCache();
@@ -1012,7 +1015,7 @@ describe('DirectStripeRoutes', () => {
       }
     });
 
-    it('errors with AppError subscriptionPromotionCodeNotApplied if StripeError returned from StripeService', async () => {
+    it('errors with AppError subscriptionPromotionCodeNotApplied if PaymentsCustomerError returned from StripeService', async () => {
       const sentryScope = { setContext: sandbox.stub() };
       sandbox.stub(Sentry, 'withScope').callsFake((cb) => cb(sentryScope));
       sandbox.stub(Sentry, 'captureMessage');
@@ -1041,7 +1044,7 @@ describe('DirectStripeRoutes', () => {
         subscriptionId: mockSubscription.id,
       };
 
-      const stripeError = new StripeError('Oh no.');
+      const stripeError = new PaymentsCustomerError('Oh no.');
       mockPromotionCodeManager.applyPromoCodeToSubscription = sinon.stub();
       mockPromotionCodeManager.applyPromoCodeToSubscription.rejects(
         stripeError

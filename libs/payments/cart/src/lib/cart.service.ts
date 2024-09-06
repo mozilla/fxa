@@ -7,13 +7,15 @@ import { Injectable } from '@nestjs/common';
 import { EligibilityService } from '@fxa/payments/eligibility';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
 import {
-  AccountCustomerManager,
-  AccountCustomerNotFoundError,
   CustomerManager,
   InvoiceManager,
-  StripeCustomer,
   SubplatInterval,
   PromotionCodeManager,
+} from '@fxa/payments/customer';
+import {
+  AccountCustomerManager,
+  AccountCustomerNotFoundError,
+  StripeCustomer,
 } from '@fxa/payments/stripe';
 import { CartErrorReasonId, CartState } from '@fxa/shared/db/mysql/account';
 import { GeoDBManager } from '@fxa/shared/geodb';

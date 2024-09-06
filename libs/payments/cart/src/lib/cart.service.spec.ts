@@ -18,23 +18,25 @@ import {
   PaypalCustomerManager,
 } from '@fxa/payments/paypal';
 import {
-  AccountCustomerManager,
   CustomerManager,
   InvoiceManager,
-  InvoicePreviewFactory,
-  MockStripeConfigProvider,
   PaymentMethodManager,
   PriceManager,
   ProductManager,
   PromotionCodeManager,
+  SubplatInterval,
+  SubscriptionManager,
+  TaxAddressFactory,
+  InvoicePreviewFactory,
+} from '@fxa/payments/customer';
+import {
   ResultAccountCustomerFactory,
   StripeClient,
   StripeCustomerFactory,
   StripePriceFactory,
   StripeResponseFactory,
-  SubplatInterval,
-  SubscriptionManager,
-  TaxAddressFactory,
+  MockStripeConfigProvider,
+  AccountCustomerManager,
 } from '@fxa/payments/stripe';
 import {
   MockStrapiClientConfigProvider,
