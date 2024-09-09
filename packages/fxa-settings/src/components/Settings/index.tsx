@@ -38,6 +38,7 @@ import { SettingsIntegration } from './interfaces';
 import { currentAccount } from '../../lib/cache';
 import { setCurrentAccount } from '../../lib/storage-utils';
 import GleanMetrics from '../../lib/glean';
+import Head from 'fxa-react/components/Head';
 
 export const Settings = ({
   integration,
@@ -88,6 +89,7 @@ export const Settings = ({
 
   return (
     <AppLayout {...{ integration }}>
+      <Head />
       <Router basepath={SETTINGS_PATH}>
         <ScrollToTop default>
           <PageSettings path="/" />
