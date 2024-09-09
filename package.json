@@ -81,7 +81,7 @@
     "@sentry/node": "^7.113.0",
     "@sentry/opentelemetry-node": "^7.113.0",
     "@swc/helpers": "0.5.11",
-    "@type-cacheable/core": "^14.0.1",
+    "@type-cacheable/core": "^14.1.0",
     "@type-cacheable/ioredis-adapter": "^10.0.4",
     "agentkeepalive": "^4.5.0",
     "axios": "^1.7.5",
