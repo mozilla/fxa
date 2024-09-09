@@ -4,11 +4,8 @@
 
 import { Injectable } from '@nestjs/common';
 
-import {
-  PriceManager,
-  StripePrice,
-  SubplatInterval,
-} from '@fxa/payments/stripe';
+import { PriceManager, SubplatInterval } from '@fxa/payments/customer';
+import { StripePrice } from '@fxa/payments/stripe';
 import {
   EligibilityContentOfferingResult,
   ProductConfigurationManager,

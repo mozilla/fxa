@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Test } from '@nestjs/testing';
 
-import { PriceManager, StripeClient, StripeConfig } from '@fxa/payments/stripe';
+import { PriceManager } from '@fxa/payments/customer';
+import { StripeClient, StripeConfig } from '@fxa/payments/stripe';
 import {
   CapabilityCapabilitiesResultFactory,
   CapabilityOfferingResultFactory,

@@ -1,4 +1,4 @@
 {
-  "name": "@fxa/payments/stripe",
+  "name": "payments/stripe",
   "version": "0.0.0"
 }

@@ -11,18 +11,20 @@ import {
   PaypalCustomerManager,
 } from '@fxa/payments/paypal';
 import {
-  AccountCustomerManager,
   CustomerManager,
   InvoiceManager,
   PaymentMethodManager,
   PromotionCodeManager,
   STRIPE_CUSTOMER_METADATA,
-  StripeSubscription,
   SubplatInterval,
   SubscriptionManager,
   TaxAddress,
-  type StripeCustomer,
-  type StripePromotionCode,
+} from '@fxa/payments/customer';
+import {
+  AccountCustomerManager,
+  StripeSubscription,
+  StripeCustomer,
+  StripePromotionCode,
 } from '@fxa/payments/stripe';
 import { AccountManager } from '@fxa/shared/account/account';
 import { ProductConfigurationManager } from '@fxa/shared/cms';

@@ -4,14 +4,13 @@
 import { Test } from '@nestjs/testing';
 import { StatsD } from 'hot-shots';
 
+import { PriceManager, SubplatInterval } from '@fxa/payments/customer';
 import {
-  PriceManager,
   StripeClient,
   StripeConfig,
   StripePlanFactory,
   StripePriceFactory,
   StripeResponseFactory,
-  SubplatInterval,
 } from '@fxa/payments/stripe';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import { MockStatsDProvider, StatsDService } from '@fxa/shared/metrics/statsd';
