@@ -177,3 +177,6 @@ tmp
 # shared-cms
 libs/shared/cms/src/__generated__/graphql.d.ts
 libs/shared/cms/src/__generated__/graphql.js
+
+# Sentry Config File
+.env.sentry-build-plugin
