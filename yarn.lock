@@ -12860,15 +12860,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/core@npm:^10.3.4":
-  version: 10.3.4
-  resolution: "@nestjs/core@npm:10.3.4"
+"@nestjs/core@npm:^10.4.1":
+  version: 10.4.1
+  resolution: "@nestjs/core@npm:10.4.1"
   dependencies:
     "@nuxtjs/opencollective": 0.3.2
     fast-safe-stringify: 2.1.1
     iterare: 1.2.1
     path-to-regexp: 3.2.0
-    tslib: 2.6.2
+    tslib: 2.6.3
     uid: 2.0.2
   peerDependencies:
     "@nestjs/common": ^10.0.0
@@ -12884,7 +12884,7 @@ __metadata:
       optional: true
     "@nestjs/websockets":
       optional: true
-  checksum: e0cb6d9757494f7f4e3a7eab34e9fbb2d2095ddcca5e538eee7b554a2945d77af45ab06546ad23559dfbd29b9b73ad624608c876ca18ba8d29bbadb79f761702
+  checksum: 118613da007e92c66578119b945b148d0fc23cfe34a78cdfaa61d8ac97e8f594f5cf55572ad05f428e8cac9ae3e25a980d58996540dbdeb7bb7adedf09ff43c5
   languageName: node
   linkType: hard
 
@@ -40250,7 +40250,7 @@ fsevents@~2.1.1:
     "@nestjs/cli": ^10.4.2
     "@nestjs/common": ^10.3.4
     "@nestjs/config": ^3.2.0
-    "@nestjs/core": ^10.3.4
+    "@nestjs/core": ^10.4.1
     "@nestjs/graphql": ^12.2.0
     "@nestjs/mapped-types": ^2.0.5
     "@nestjs/passport": ^10.0.3
