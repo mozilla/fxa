@@ -51,9 +51,23 @@ export type AppleJWTSETPayload = {
   events: string;
 };
 
-async function getAccountFromSub(sub: string, db: any, provider: Provider) {
-  return db.getLinkedAccount(sub, provider);
+async function getAccountFromSub(
+  sub: string,
+  db: any,
+  provider: Provider,
+  log: any
+) {
+  try {
+    return db.getLinkedAccount(sub, provider);
+  } catch (err) {
+    // If the account doesn't exist, we can ignore the event.
+    // This might happen if the user has already deleted their account before we got the
+    // security event.
+    log.debug(`Unknown account for sub: ${sub} and provider: ${provider}`);
+    return null;
+  }
 }
+
 async function revokeThirdPartySessions(
   uid: string,
   provider: Provider,
@@ -126,7 +140,7 @@ async function handleAppleConsentRevokedEvent(
   db: any
 ) {
   const sub = eventDetails.sub;
-  const account = await getAccountFromSub(sub, db, 'apple');
+  const account = await getAccountFromSub(sub, db, 'apple', log);
 
   // We have a guard that account exists because it is possible that it was
   // removed in another security event
@@ -150,7 +164,7 @@ async function handleAppleAccountDeleteEvent(
   db: any
 ) {
   const sub = eventDetails.sub;
-  const account = await getAccountFromSub(sub, db, 'apple');
+  const account = await getAccountFromSub(sub, db, 'apple', log);
 
   if (account) {
     await revokeThirdPartySessions(account.uid, 'apple', log, db);
@@ -181,7 +195,7 @@ async function handleGoogleSessionsRevokedEvent(
     return;
   }
   const { sub } = eventDetails.subject;
-  const account = await getAccountFromSub(sub, db, 'google');
+  const account = await getAccountFromSub(sub, db, 'google', log);
 
   if (account) {
     await revokeThirdPartySessions(account.uid, 'google', log, db);
@@ -203,7 +217,7 @@ async function handleGoogleAccountDisabledEvent(
 ) {
   const { sub } = eventDetails.subject;
 
-  const account = await getAccountFromSub(sub, db, 'google');
+  const account = await getAccountFromSub(sub, db, 'google', log);
 
   if (account) {
     await revokeThirdPartySessions(account.uid, 'google', log, db);
