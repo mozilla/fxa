@@ -1597,7 +1597,43 @@ cad_mobile_pair_use_app:
     data_sensitivity:
       - interaction
 
+cad_redirect_mobile:
+  view:
+    type: event
+    description: |
+      User viewed the "Connecting your mobile device" screen with instructions to open on desktop after trying to access the pair flow on mobile
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-10136
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+
 cad_redirect_desktop:
+  default_view:
+    type: event
+    description: |
+      User viewed the default page state on pair/unsupported after trying to access the pair flow
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-10136
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
   view:
     type: event
     description: |

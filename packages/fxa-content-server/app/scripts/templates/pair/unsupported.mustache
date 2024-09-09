@@ -1,12 +1,9 @@
 <div class="card-base">
-  <header>
-    {{#isDesktopNonFirefox}}
+  {{#showCADHeader}}
+    <header>
       <h1 class="mb-5 text-grey-400 text-base">{{#t}}Connect another device{{/t}}</h1>
-    {{/isDesktopNonFirefox}}
-    {{^isDesktopNonFirefox}}
-      <h1 id="pair-unsupported-header" class="card-header">{{#t}}Pair using an app{{/t}}</h1>
-    {{/isDesktopNonFirefox}}
-  </header>
+    </header>
+  {{/showCADHeader}}
 
   <section>
     <div class="error"></div>
@@ -25,11 +22,35 @@
       </div>
     {{/isDesktopNonFirefox}}
 
-    {{^isDesktopNonFirefox}}
-      <div class="bg-image-pair-fail"></div>
+    {{#isMobile}}
+      {{#isSystemCameraUrl}}
+        <div class="bg-image-pair-fail"></div>
+          <h2 id="pair-unsupported-header" class="card-header" tabindex="-1">{{#t}}Pair using an app{{/t}}</h1>
+        <p class="mt-4">{{#t}}Did you use the system camera? You must pair from within a Firefox app.{{/t}}</p>
+      {{/isSystemCameraUrl}}
+      {{^isSystemCameraUrl}}
+        {{^isFirefox}}
+          <div class="flex bg-orange-50 px-4 py-3 rounded-lg mb-8">
+            <div class="bg-icon-warning bg-contain bg-center bg-no-repeat w-10" aria-label="{{#t}}Attention:{{/t}}" role="img"></div>
+            <p class="ps-3 text-sm">{{#t}}Oops! It looks like you’re not using Firefox.{{/t}} <a href="{{{ escapedMobileDownloadLink }}}" target="_blank" class="link-blue" data-glean-id="cad_redirect_mobile_download">{{#t}}Download Firefox now{{/t}}</a></p>
+          </div>
+        {{/isFirefox}}
 
-      <p>{{#t}}Did you use the system camera? You must pair from within a Firefox app.{{/t}}</p>
-    {{/isDesktopNonFirefox}}
+        <div class="bg-image-triple-device-hearts" role="img" aria-label="{{#t}}Devices with hearts on their screens{{/t}}"></div>
 
+        <h1 class="card-header">{{#t}}Connecting your mobile device with your Mozilla account{{/t}}</h1>
+        <p class="mt-4 text-base">Open Firefox on your computer, visit <b class="whitespace-nowrap">firefox.com/pair</b>, and follow the on-screen instructions to connect your mobile device.</p>
+        <p class="mt-3"><a href="https://support.mozilla.org/kb/how-do-i-set-sync-my-computer" target="_blank" class="link-blue" data-glean-id="cad_redirect_mobile_learn_more">{{#t}}Learn more{{/t}}</a></p>
+      {{/isSystemCameraUrl}}
+    {{/isMobile}}
+    {{^isMobile}}
+      {{^isDesktopNonFirefox}}
+        <!-- Users should never see this since desktop Firefox /pair should not redirect to pair/unsupported
+        but fallback to generic message if so -->
+        <div class="bg-image-pair-fail"></div>
+        <h2 id="pair-unsupported-header" class="card-header" tabindex="-1">{{#t}}Oops! Something went wrong.{{/t}}</h2>
+        <p class="mt-3">{{#t}}Please close this tab and try again.{{/t}}</p>
+      {{/isDesktopNonFirefox}}
+    {{/isMobile}}
   </section>
 </div>
