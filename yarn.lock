@@ -22096,14 +22096,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@type-cacheable/core@npm:^14.0.1":
-  version: 14.0.1
-  resolution: "@type-cacheable/core@npm:14.0.1"
+"@type-cacheable/core@npm:^14.1.0":
+  version: 14.1.0
+  resolution: "@type-cacheable/core@npm:14.1.0"
   dependencies:
     blueimp-md5: ^2.19.0
     reflect-metadata: ^0.2.0
     serialize-javascript: ^6.0.0
-  checksum: b325458266dc232b6b051f7cc78f902e6f1cc6ad8fab42c7ac79257279e5ef5d5955dfeb6ddf26447051120b12474f77275ef47fd167afa41ebab1b65b0a29c9
+  checksum: 1fa4208e9793dd208e7dc672d3b37d40df649380d439ab0203c05d84358945f79d0be4f1f22c03d4e3df95ea01b0217107e0f7bdf7ac5890e027890f6efd68df
   languageName: node
   linkType: hard
 
@@ -40300,7 +40300,7 @@ fsevents@~2.1.1:
     "@swc/helpers": 0.5.11
     "@swc/jest": ^0.2.36
     "@testing-library/react": 15.0.6
-    "@type-cacheable/core": ^14.0.1
+    "@type-cacheable/core": ^14.1.0
     "@type-cacheable/ioredis-adapter": ^10.0.4
     "@types/babel__core": ^7
     "@types/bn.js": ^5
