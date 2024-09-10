@@ -3,9 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { ReactNode } from 'react';
-import { render } from '@testing-library/react';
 import { History } from '@reach/router';
-import App from '.';
 import { Account, AppContext, useInitialSettingsState } from '../../models';
 import {
   mockAppContext,
@@ -17,7 +15,7 @@ import { Config } from '../../lib/config';
 import * as NavTiming from 'fxa-shared/metrics/navigation-timing';
 import { SETTINGS_PATH } from '../../constants';
 import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
-import { Subject, createMockSettingsIntegration } from './mocks';
+import { Subject } from './mocks';
 
 jest.mock('../../models', () => ({
   ...jest.requireActual('../../models'),
@@ -30,8 +28,6 @@ jest.mock('./ScrollToTop', () => ({
     <span data-testid="ScrollTop">{children}</span>
   ),
 }));
-
-const integration = createMockSettingsIntegration();
 
 describe('performance metrics', () => {
   beforeEach(() => {
@@ -56,7 +52,7 @@ describe('performance metrics', () => {
       metricsEnabled: true,
       hasPassword: true,
     } as unknown as Account;
-    render(
+    renderWithRouter(
       <AppContext.Provider value={mockAppContext({ account, config })}>
         <Subject />
       </AppContext.Provider>
@@ -72,11 +68,9 @@ describe('performance metrics', () => {
       metricsEnabled: false,
       hasPassword: true,
     } as unknown as Account;
-    render(
+    renderWithRouter(
       <AppContext.Provider value={mockAppContext({ account, config })}>
-        <AppContext.Provider value={mockAppContext({ account, config })}>
-          <Subject />
-        </AppContext.Provider>
+        <Subject />
       </AppContext.Provider>
     );
     expect(NavTiming.observeNavigationTiming).not.toHaveBeenCalled();
