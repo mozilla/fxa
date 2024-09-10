@@ -8,7 +8,7 @@ import monitorTextLogo from './monitor-text-logo.svg';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import classNames from 'classnames';
 import { MozServices } from '../../../lib/types';
-import { useAccount, useConfig } from '../../../models';
+import { AccountData, useAccount, useConfig } from '../../../models';
 import { constructHrefWithUtm } from '../../../lib/utilities';
 import { LINK } from '../../../constants';
 import GleanMetrics from '../../../lib/glean';
@@ -27,13 +27,12 @@ export interface ProductPromoProps {
   monitorPlusEnabled?: boolean;
 }
 
-export const ProductPromo = ({
-  type = ProductPromoType.Sidebar,
-  monitorPlusEnabled = MONITOR_PLUS_ENABLED,
-}: ProductPromoProps) => {
-  const { attachedClients, subscriptions } = useAccount();
-  const { env } = useConfig();
-
+export function getProductPromoData(
+  attachedClients: AccountData['attachedClients'],
+  subscriptions: AccountData['subscriptions'],
+  // Temporary until we work on MonitorPlus
+  monitorPlusEnabled = MONITOR_PLUS_ENABLED
+) {
   const hasMonitor = attachedClients.some(
     ({ name }) => name === MozServices.Monitor
   );
@@ -42,10 +41,29 @@ export const ProductPromo = ({
     ({ productName }) => productName === MozServices.MonitorPlus
   );
 
+  // Temporary until we work on MonitorPlus
   const showMonitorPlusPromo =
     hasMonitor && !hasMonitorPlus && monitorPlusEnabled;
+  const hasAllPromoProducts = hasMonitor && !showMonitorPlusPromo;
 
-  if (hasMonitor && !showMonitorPlusPromo) {
+  const gleanEvent = showMonitorPlusPromo
+    ? { event: { reason: 'plus' } }
+    : { event: { reason: 'free' } };
+
+  return { showMonitorPlusPromo, hasAllPromoProducts, gleanEvent };
+}
+
+export const ProductPromo = ({
+  type = ProductPromoType.Sidebar,
+  // Temporary until we work on MonitorPlus
+  monitorPlusEnabled = MONITOR_PLUS_ENABLED,
+}: ProductPromoProps) => {
+  const { attachedClients, subscriptions } = useAccount();
+  const { env } = useConfig();
+  const { showMonitorPlusPromo, hasAllPromoProducts, gleanEvent } =
+    getProductPromoData(attachedClients, subscriptions, monitorPlusEnabled);
+
+  if (hasAllPromoProducts) {
     return <></>;
   }
 
@@ -66,17 +84,6 @@ export const ProductPromo = ({
     'monitor-plus',
     'settings-promo'
   );
-
-  const gleanEvent = showMonitorPlusPromo
-    ? { event: { reason: 'plus' } }
-    : { event: { reason: 'free' } };
-
-  // NOTE, this is a quick fix to prevent double 'view' event firing
-  // since we use this component in two places (sidebar + settings).
-  // We will want to refactor this to be less fragile.
-  if (type === ProductPromoType.Settings) {
-    GleanMetrics.accountPref.promoMonitorView(gleanEvent);
-  }
 
   const promoContent = showMonitorPlusPromo ? (
     <>

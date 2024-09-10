@@ -26,7 +26,7 @@ export type SigninPushCodeConfirmProps = {
   errorMessage?: string;
 };
 
-const ProductPromotion = () => {
+const Products = () => {
   const products = [
     {
       icon: monitorIcon,
@@ -99,7 +99,7 @@ const LoginApprovedMessage = () => {
           Your login has been approved. Please close this window.
         </p>
       </FtlMsg>
-      <ProductPromotion />
+      <Products />
     </div>
   );
 };

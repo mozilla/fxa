@@ -6,9 +6,19 @@ import React from 'react';
 import { screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import PageSettings from '.';
-import { renderWithRouter } from '../../../models/mocks';
+import {
+  MOCK_ACCOUNT,
+  mockAppContext,
+  renderWithRouter,
+} from '../../../models/mocks';
 import * as Metrics from '../../../lib/metrics';
 import GleanMetrics from '../../../lib/glean';
+import { Account, AppContext } from '../../../models';
+import {
+  ALL_PRODUCT_PROMO_SERVICES,
+  ALL_PRODUCT_PROMO_SUBSCRIPTIONS,
+} from '../../../pages/mocks';
+import { MOCK_SERVICES } from '../ConnectedServices/mocks';
 
 jest.mock('../../../lib/metrics', () => ({
   setProperties: jest.fn(),
@@ -38,6 +48,9 @@ beforeEach(() => {
 });
 
 describe('PageSettings', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
   it('renders without imploding', async () => {
     renderWithRouter(<PageSettings />);
     expect(screen.getByTestId('settings-profile')).toBeInTheDocument();
@@ -67,6 +80,43 @@ describe('PageSettings', () => {
         screen.getByRole('link', { name: 'Delete account' })
       );
       expect(GleanMetrics.deleteAccount.settingsSubmit).toHaveBeenCalled();
+    });
+
+    describe('product promo event', () => {
+      it('user does not have Monitor', async () => {
+        const account = {
+          ...MOCK_ACCOUNT,
+          attachedClients: [],
+          subscriptions: [],
+        } as unknown as Account;
+        renderWithRouter(
+          <AppContext.Provider value={mockAppContext({ account })}>
+            <PageSettings />
+          </AppContext.Provider>
+        );
+        expect(GleanMetrics.accountPref.promoMonitorView).toBeCalledTimes(1);
+        expect(GleanMetrics.accountPref.promoMonitorView).toBeCalledWith({
+          event: { reason: 'free' },
+        });
+      });
+      it('user has all products and subscriptions', async () => {
+        const attachedClients = MOCK_SERVICES.filter((service) =>
+          ALL_PRODUCT_PROMO_SERVICES.some(
+            (promoService) => promoService.name === service.name
+          )
+        );
+        const account = {
+          ...MOCK_ACCOUNT,
+          attachedClients,
+          subscriptions: ALL_PRODUCT_PROMO_SUBSCRIPTIONS,
+        } as unknown as Account;
+        renderWithRouter(
+          <AppContext.Provider value={mockAppContext({ account })}>
+            <PageSettings />
+          </AppContext.Provider>
+        );
+        expect(GleanMetrics.accountPref.promoMonitorView).not.toBeCalled();
+      });
     });
   });
 });
