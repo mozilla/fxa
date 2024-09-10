@@ -202,7 +202,7 @@ export const App = ({
     Metrics.init(metricsEnabled, flowQueryParams);
     if (data?.account?.metricsEnabled) {
       Metrics.initUserPreferences({
-        recoveryKey: data.account.recoveryKey,
+        recoveryKey: data.account.recoveryKey.exists,
         hasSecondaryVerifiedEmail:
           data.account.emails.length > 1 && data.account.emails[1].verified,
         totpActive: data.account.totp.exists && data.account.totp.verified,

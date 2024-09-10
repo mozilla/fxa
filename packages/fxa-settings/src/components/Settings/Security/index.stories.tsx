@@ -32,7 +32,7 @@ const storyWithAccount = (account: Partial<Account>, storyName?: string) => {
 };
 
 export const Default = storyWithAccount({
-  recoveryKey: false,
+  recoveryKey: { exists: false },
   totp: { exists: false, verified: false },
   hasPassword: true,
   passwordCreated: 1651860173938,
@@ -40,7 +40,7 @@ export const Default = storyWithAccount({
 
 export const SecurityFeaturesEnabled = storyWithAccount(
   {
-    recoveryKey: true,
+    recoveryKey: { exists: true },
     totp: { verified: true, exists: true },
     hasPassword: true,
     passwordCreated: 1651860173938,
@@ -50,7 +50,7 @@ export const SecurityFeaturesEnabled = storyWithAccount(
 
 export const NoPassword = storyWithAccount(
   {
-    recoveryKey: false,
+    recoveryKey: { exists: false },
     totp: { verified: false, exists: false },
     hasPassword: false,
   },

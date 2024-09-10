@@ -46,7 +46,7 @@ const mockConfig: Config['glean'] = {
 let mockMetricsFlow: MetricsFlow | null = null;
 const mockAccount = {
   metricsEnabled: true,
-  recoveryKey: true,
+  recoveryKey: { exists: true },
   totpActive: true,
   hasSecondaryVerifiedEmail: false,
 } as unknown as ReturnType<typeof useAccount>;

@@ -16,17 +16,17 @@ jest.mock('../../../lib/metrics', () => ({
 
 const accountHasRecoveryKey = {
   hasPassword: true,
-  recoveryKey: true,
+  recoveryKey: { exists: true },
 } as unknown as Account;
 
 const accountWithoutRecoveryKey = {
   hasPassword: true,
-  recoveryKey: false,
+  recoveryKey: { exists: false },
 } as unknown as Account;
 
 const accountWithoutPassword = {
   hasPassword: false,
-  recoveryKey: false,
+  recoveryKey: { exists: false },
 } as unknown as Account;
 
 const renderWithContext = (
@@ -102,7 +102,7 @@ describe('UnitRowRecoveryKey', () => {
     it('emits correct submit and success metrics on successful deletion', async () => {
       const accountHasRecoveryKeyWithDeleteSuccess = {
         hasPassword: true,
-        recoveryKey: true,
+        recoveryKey: { exists: true },
         deleteRecoveryKey: jest.fn().mockResolvedValue(true),
       } as unknown as Account;
 
@@ -123,7 +123,7 @@ describe('UnitRowRecoveryKey', () => {
     it('emits expected submit and failure metrics on failed deletion', async () => {
       const accountHasRecoveryKeyWithDeleteFailure = {
         hasPassword: true,
-        recoveryKey: true,
+        recoveryKey: { exists: true },
         deleteRecoveryKey: jest.fn().mockRejectedValue(false),
       } as unknown as Account;
 

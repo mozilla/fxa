@@ -37,26 +37,26 @@ import { AuthClientService } from '../backend/auth-client.service';
 import { ProfileClientService } from '../backend/profile-client.service';
 import { GqlSessionToken, GqlUserId, GqlXHeaders } from '../decorators';
 import {
+  AccountResetInput,
+  AccountStatusInput,
   AttachedClientDisconnectInput,
   ChangeRecoveryCodesInput,
   CreateTotpInput,
   DeleteRecoveryKeyInput,
   DeleteTotpInput,
   EmailInput,
-  SendSessionVerificationInput,
-  UpdateDisplayNameInput,
-  VerifyEmailInput,
-  VerifyEmailCodeInput,
-  VerifySessionInput,
-  VerifyTotpInput,
+  PasswordChangeFinishInput,
+  PasswordChangeStartInput,
+  PasswordForgotCodeStatusInput,
   PasswordForgotSendCodeInput,
   PasswordForgotVerifyCodeInput,
-  PasswordForgotCodeStatusInput,
-  AccountResetInput,
-  AccountStatusInput,
   RecoveryKeyBundleInput,
-  PasswordChangeStartInput,
-  PasswordChangeFinishInput,
+  SendSessionVerificationInput,
+  UpdateDisplayNameInput,
+  VerifyEmailCodeInput,
+  VerifyEmailInput,
+  VerifySessionInput,
+  VerifyTotpInput,
 } from './dto/input';
 import { DeleteAvatarInput } from './dto/input/delete-avatar';
 import { MetricsOptInput } from './dto/input/metrics-opt';
@@ -64,21 +64,21 @@ import { RejectUnblockCodeInput } from './dto/input/reject-unblock-code';
 import { SignInInput } from './dto/input/sign-in';
 import { SignUpInput } from './dto/input/sign-up';
 import {
+  AccountResetPayload,
+  AccountStatusPayload,
   BasicPayload,
   ChangeRecoveryCodesPayload,
   CreateTotpPayload,
-  UpdateDisplayNamePayload,
-  VerifyTotpPayload,
+  CredentialStatusPayload,
+  PasswordChangeFinishPayload,
+  PasswordChangeStartPayload,
+  PasswordForgotCodeStatusPayload,
   PasswordForgotSendCodePayload,
   PasswordForgotVerifyCodePayload,
-  PasswordForgotCodeStatusPayload,
-  AccountResetPayload,
-  AccountStatusPayload,
   RecoveryKeyBundlePayload,
-  CredentialStatusPayload,
-  PasswordChangeStartPayload,
+  UpdateDisplayNamePayload,
+  VerifyTotpPayload,
   WrappedKeysPayload,
-  PasswordChangeFinishPayload,
 } from './dto/payload';
 import { SignedInAccountPayload } from './dto/payload/signed-in-account';
 import { SignedUpAccountPayload } from './dto/payload/signed-up-account';
@@ -806,12 +806,7 @@ export class AccountResolver {
     @GqlSessionToken() token: string,
     @GqlXHeaders() headers: Headers
   ) {
-    const result = await this.authAPI.recoveryKeyExists(
-      token,
-      undefined,
-      headers
-    );
-    return result.exists;
+    return await this.authAPI.recoveryKeyExists(token, undefined, headers);
   }
 
   @ResolveField()

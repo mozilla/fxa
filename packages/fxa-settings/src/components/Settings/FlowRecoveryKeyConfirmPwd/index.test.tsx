@@ -35,6 +35,7 @@ jest.mock('base32-encode', () =>
 const setFormattedRecoveryKey = jest.fn();
 
 const accountWithKeyCreationSuccess = {
+  recoveryKey: { exists: false },
   accountRecovery: false,
   createRecoveryKey: jest.fn().mockResolvedValue(new Uint8Array(20)),
 } as unknown as Account;
@@ -48,6 +49,7 @@ const accountWithKeyChangeSuccess = {
 
 const getAccountWithErrorOnKeyCreation = (error: AuthUiError) => {
   return {
+    recoveryKey: { exists: false },
     accountRecovery: false,
     createRecoveryKey: () => {
       throw error;

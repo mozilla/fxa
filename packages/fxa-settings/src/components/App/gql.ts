@@ -11,7 +11,10 @@ export const INITIAL_METRICS_QUERY = gql`
   query GetInitialMetricsState {
     account {
       uid
-      recoveryKey
+      recoveryKey {
+        exists
+        estimatedSyncDeviceCount
+      }
       metricsEnabled
       emails {
         email

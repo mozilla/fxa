@@ -49,12 +49,12 @@ export const FlowRecoveryKeyConfirmPwd = ({
   const [actionType, setActionType] = useState<RecoveryKeyAction>();
 
   useEffect(() => {
-    if (account.recoveryKey === true) {
+    if (account.recoveryKey.exists === true) {
       setActionType(RecoveryKeyAction.Change);
     } else {
       setActionType(RecoveryKeyAction.Create);
     }
-  }, [account.recoveryKey]);
+  }, [account.recoveryKey.exists]);
 
   const { formState, getValues, handleSubmit, register } = useForm<FormData>({
     mode: 'all',
