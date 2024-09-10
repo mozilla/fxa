@@ -12,6 +12,7 @@ import { StripeConfig } from '@fxa/payments/stripe';
 import { StrapiClientConfig } from '@fxa/shared/cms';
 import { FirestoreConfig } from 'libs/shared/db/firestore/src/lib/firestore.config';
 import { StatsDConfig } from 'libs/shared/metrics/statsd/src/lib/statsd.config';
+import { PaymentsGleanConfig } from '@fxa/payments/metrics';
 
 export class RootConfig {
   @Type(() => MySQLConfig)
@@ -52,4 +53,9 @@ export class RootConfig {
   @ValidateNested()
   @IsDefined()
   public readonly statsDConfig!: Partial<StatsDConfig>;
+
+  @Type(() => PaymentsGleanConfig)
+  @ValidateNested()
+  @IsDefined()
+  public readonly gleanConfig!: Partial<PaymentsGleanConfig>;
 }

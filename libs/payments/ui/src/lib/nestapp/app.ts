@@ -10,6 +10,7 @@ import { AppModule } from './app.module';
 import { LocalizerRscFactory } from '@fxa/shared/l10n/server';
 import { singleton } from '../utils/singleton';
 import { NextJSActionsService } from './nextjs-actions.service';
+import { PaymentsGleanService } from '@fxa/payments/metrics';
 
 class AppSingleton {
   private app!: Awaited<
@@ -38,6 +39,10 @@ class AppSingleton {
    */
   getActionsService() {
     return this.app.get(NextJSActionsService);
+  }
+
+  getGleanEmitter() {
+    return this.app.get(PaymentsGleanService).getEmitter();
   }
 }
 

@@ -39,9 +39,9 @@ export function objectToNVP(object: Record<string, any>): string {
   const urlSearchParams = new URLSearchParams(santizedObject);
 
   // Convert array containing L_ objects to Paypal NVP list string
-  if (object.L) {
+  if (object['L']) {
     urlSearchParams.delete('L');
-    object.L.forEach((listItem: any, i: number) => {
+    object['L'].forEach((listItem: any, i: number) => {
       Object.keys(listItem).forEach((key) => {
         urlSearchParams.append(`L_${key}${i}`, listItem[key]);
       });

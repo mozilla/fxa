@@ -20,6 +20,7 @@ const nextConfig = {
   },
   env: {
     version,
+    GLEAN_CONFIG__VERSION: version,
   },
   experimental: {
     instrumentationHook: true,
@@ -34,6 +35,7 @@ const nextConfig = {
       'hot-shots',
       'knex',
       'kysely',
+      'mozlog',
       'mysql2',
       'nest-typed-config',
       'superagent',

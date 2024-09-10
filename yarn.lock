@@ -41632,6 +41632,7 @@ fsevents@~2.1.1:
     mocha-junit-reporter: ^2.2.0
     mocha-multi: ^1.1.7
     module-alias: ^2.2.3
+    mozlog: ^3.0.2
     mysql: ^2.18.1
     mysql2: ^3.9.8
     nest-typed-config: ^2.9.2

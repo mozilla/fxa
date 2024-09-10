@@ -101,6 +101,7 @@
     "kysely": "^0.27.2",
     "lint-staged": "^15.2.0",
     "module-alias": "^2.2.3",
+    "mozlog": "^3.0.2",
     "mysql": "^2.18.1",
     "mysql2": "^3.9.8",
     "nest-typed-config": "^2.9.2",
