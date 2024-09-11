@@ -5,7 +5,7 @@
 import React, { useEffect } from 'react';
 import { FlowContainer } from '../FlowContainer';
 import { ProgressBar } from '../ProgressBar';
-import { SecurityShieldImage } from '../../images';
+import { RecoveryKeyImage } from '../../images';
 import { ShieldIconListItem, KeyIconListItem } from '../../IconListItem';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { logViewEvent } from '../../../lib/metrics';
@@ -48,7 +48,7 @@ export const FlowRecoveryKeyInfo = ({
       }}
     >
       <ProgressBar currentStep={1} numberOfSteps={4} />
-      <SecurityShieldImage className="mx-auto my-6" />
+      <RecoveryKeyImage className="mx-auto my-6" />
       {action === RecoveryKeyAction.Create ? (
         <FtlMsg id="flow-recovery-key-info-header">
           <h2 className="font-bold text-xl mb-4">

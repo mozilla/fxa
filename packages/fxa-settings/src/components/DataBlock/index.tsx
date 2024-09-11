@@ -88,7 +88,7 @@ export const DataBlock = ({
         ) : (
           <span
             className={classNames({
-              'flex flex-col self-center align-middle grow pe-5': isInline,
+              'flex flex-col self-center align-middle grow pe-4': isInline,
             })}
           >
             {value}

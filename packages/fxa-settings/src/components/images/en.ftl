@@ -18,8 +18,8 @@ security-shield-aria-label =
 # Used for an image of a single key.
 recovery-key-image-aria-label =
   .aria-label = Illustration to represent an account recovery key.
-lock-image-aria-label =
-  .aria-label = An illustration of a lock
+password-image-aria-label =
+  .aria-label = An illustration to represent typing in a password.
 lightbulb-aria-label =
   .aria-label = Illustration to represent creating a storage hint.
 email-code-image-aria-label =

@@ -10,11 +10,10 @@ import {
   HeartsBrokenImage,
   HeartsVerifiedImage,
   LightbulbImage,
-  LockImage,
+  PasswordImage,
   MailImage,
   RecoveryCodesImage,
   RecoveryKeyImage,
-  SecurityShieldImage,
   TwoFactorAuthImage,
 } from '.';
 import { withLocalization } from 'fxa-react/lib/storybooks';
@@ -26,11 +25,10 @@ export default {
     HeartsBrokenImage,
     HeartsVerifiedImage,
     LightbulbImage,
-    LockImage,
+    PasswordImage,
     MailImage,
     RecoveryCodesImage,
     RecoveryKeyImage,
-    SecurityShieldImage,
     TwoFactorAuthImage,
   },
   decorators: [withLocalization],
@@ -46,12 +44,10 @@ export const Key = () => <RecoveryKeyImage />;
 
 export const Lightbulb = () => <LightbulbImage />;
 
-export const Lock = () => <LockImage />;
+export const Password = () => <PasswordImage />;
 
 export const Mail = () => <MailImage />;
 
 export const RecoveryCodes = () => <RecoveryCodesImage />;
-
-export const SecurityShield = () => <SecurityShieldImage />;
 
 export const TwoFactorAuth = () => <TwoFactorAuthImage />;
