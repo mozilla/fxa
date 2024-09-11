@@ -4,30 +4,34 @@
 
 'use strict';
 
-const sinon = require('sinon');
-const Sentry = require('@sentry/node');
-const { assert } = require('chai');
-const Chance = require('chance');
-const { setupAuthDatabase } = require('fxa-shared/db');
-const Knex = require('knex');
-const { mockLog, asyncIterable } = require('../../mocks');
-const error = require('../../../lib/error');
-const stripeError = require('stripe').Stripe.errors;
-const uuidv4 = require('uuid').v4;
-const moment = require('moment');
-const { Container } = require('typedi');
+import sinon from 'sinon';
+import Sentry from '@sentry/node';
+import { assert } from 'chai';
+import Chance from 'chance';
+import { setupAuthDatabase } from 'fxa-shared/db';
+import Knex from 'knex';
+import { mockLog, asyncIterable } from '../../mocks';
+import error from '../../../lib/error';
+import stripeErrorModule from "stripe";
+const stripeError = stripeErrorModule.Stripe.errors;
+import { v4 as uuidv4 } from 'uuid';
+import moment from 'moment';
+import { Container } from 'typedi';
 
 const chance = new Chance();
 let mockRedis;
-const proxyquire = require('proxyquire').noPreserveCache();
+import proxyquireModule from "proxyquire";
+const proxyquire = proxyquireModule.noPreserveCache();
 const dbStub = {
   getUidAndEmailByStripeCustomerId: sinon.stub(),
 };
-const {
+
+import {
   MozillaSubscriptionTypes,
   PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE,
   PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT,
-} = require('../../../../fxa-shared/subscriptions/types');
+} from '../../../../fxa-shared/subscriptions/types';
+
 const {
   StripeHelper,
   STRIPE_INVOICE_METADATA,
@@ -39,93 +43,74 @@ const {
   '../redis': (config, log) => mockRedis.init(config, log),
   'fxa-shared/db/models/auth': dbStub,
 });
-const { CurrencyHelper } = require('../../../lib/payments/currencies');
-const {
-  generateIdempotencyKey,
-  roundTime,
-} = require('../../../lib/payments/utils');
-const {
-  stripeInvoiceToLatestInvoiceItemsDTO,
-} = require('../../../lib/payments/stripe-formatter');
-const {
+import { CurrencyHelper } from '../../../lib/payments/currencies';
+import { generateIdempotencyKey, roundTime } from '../../../lib/payments/utils';
+import { stripeInvoiceToLatestInvoiceItemsDTO } from '../../../lib/payments/stripe-formatter';
+
+import {
   ProductConfigurationManager,
   PurchaseWithDetailsOfferingContentTransformedFactory,
   PurchaseDetailsTransformedFactory,
-} = require('@fxa/shared/cms');
+} from '@fxa/shared/cms';
 
-const customer1 = require('./fixtures/stripe/customer1.json');
-const newCustomer = require('./fixtures/stripe/customer_new.json');
-const newCustomerPM = require('./fixtures/stripe/customer_new_pmi.json');
-const deletedCustomer = require('./fixtures/stripe/customer_deleted.json');
-const taxRateDe = require('./fixtures/stripe/taxRateDe.json');
-const taxRateFr = require('./fixtures/stripe/taxRateFr.json');
-const plan1 = require('./fixtures/stripe/plan1.json');
-const plan2 = require('./fixtures/stripe/plan2.json');
-const plan3 = require('./fixtures/stripe/plan3.json');
-const product1 = require('./fixtures/stripe/product1.json');
-const product2 = require('./fixtures/stripe/product2.json');
-const product3 = require('./fixtures/stripe/product3.json');
-const subscription1 = require('./fixtures/stripe/subscription1.json');
-const subscription2 = require('./fixtures/stripe/subscription2.json');
-const multiPlanSubscription = require('./fixtures/stripe/subscription_multiplan.json');
-const subscriptionPMIExpanded = require('./fixtures/stripe/subscription_pmi_expanded.json');
-const subscriptionPMIExpandedIncompleteCVCFail = require('./fixtures/stripe/subscription_pmi_expanded_incomplete_cvc_fail.json');
-const cancelledSubscription = require('./fixtures/stripe/subscription_cancelled.json');
-const pastDueSubscription = require('./fixtures/stripe/subscription_past_due.json');
-const subscriptionCouponOnce = require('./fixtures/stripe/subscription_coupon_once.json');
-const subscriptionCouponForever = require('./fixtures/stripe/subscription_coupon_forever.json');
-const subscriptionCouponRepeating = require('./fixtures/stripe/subscription_coupon_repeating.json');
-const paidInvoice = require('./fixtures/stripe/invoice_paid.json');
-const unpaidInvoice = require('./fixtures/stripe/invoice_open.json');
-const invoiceRetry = require('./fixtures/stripe/invoice_retry.json');
-const successfulPaymentIntent = require('./fixtures/stripe/paymentIntent_succeeded.json');
-const unsuccessfulPaymentIntent = require('./fixtures/stripe/paymentIntent_requires_payment_method.json');
-const paymentMethodAttach = require('./fixtures/stripe/payment_method_attach.json');
-const failedCharge = require('./fixtures/stripe/charge_failed.json');
-const invoicePaidSubscriptionCreate = require('./fixtures/stripe/invoice_paid_subscription_create.json');
-const invoicePaidSubscriptionCreateDiscount = require('./fixtures/stripe/invoice_paid_subscription_create_discount.json');
-const invoicePaidSubscriptionCreateTaxDiscount = require('./fixtures/stripe/invoice_paid_subscription_create_tax_discount.json');
-const invoiceDraftProrationRefund = require('./fixtures/stripe/invoice_draft_proration_refund.json');
-const invoicePaidSubscriptionCreateTax = require('./fixtures/stripe/invoice_paid_subscription_create_tax.json');
-const eventCustomerSourceExpiring = require('./fixtures/stripe/event_customer_source_expiring.json');
-const eventCustomerSubscriptionUpdated = require('./fixtures/stripe/event_customer_subscription_updated.json');
-const subscriptionCreatedInvoice = require('./fixtures/stripe/invoice_paid_subscription_create.json');
-const eventInvoiceCreated = require('./fixtures/stripe/event_invoice_created.json');
-const eventSubscriptionUpdated = require('./fixtures/stripe/event_customer_subscription_updated.json');
-const eventCustomerUpdated = require('./fixtures/stripe/event_customer_updated.json');
-const eventPaymentMethodAttached = require('./fixtures/stripe/event_payment_method_attached.json');
-const eventPaymentMethodDetached = require('./fixtures/stripe/event_payment_method_detached.json');
-const closedPaymementIntent = require('./fixtures/stripe/paymentIntent_succeeded.json');
-const newSetupIntent = require('./fixtures/stripe/setup_intent_new.json');
+import customer1 from './fixtures/stripe/customer1.json';
+import newCustomer from './fixtures/stripe/customer_new.json';
+import newCustomerPM from './fixtures/stripe/customer_new_pmi.json';
+import deletedCustomer from './fixtures/stripe/customer_deleted.json';
+import taxRateDe from './fixtures/stripe/taxRateDe.json';
+import taxRateFr from './fixtures/stripe/taxRateFr.json';
+import plan1 from './fixtures/stripe/plan1.json';
+import plan2 from './fixtures/stripe/plan2.json';
+import plan3 from './fixtures/stripe/plan3.json';
+import product1 from './fixtures/stripe/product1.json';
+import product2 from './fixtures/stripe/product2.json';
+import product3 from './fixtures/stripe/product3.json';
+import subscription1 from './fixtures/stripe/subscription1.json';
+import subscription2 from './fixtures/stripe/subscription2.json';
+import multiPlanSubscription from './fixtures/stripe/subscription_multiplan.json';
+import subscriptionPMIExpanded from './fixtures/stripe/subscription_pmi_expanded.json';
+import subscriptionPMIExpandedIncompleteCVCFail from './fixtures/stripe/subscription_pmi_expanded_incomplete_cvc_fail.json';
+import cancelledSubscription from './fixtures/stripe/subscription_cancelled.json';
+import pastDueSubscription from './fixtures/stripe/subscription_past_due.json';
+import subscriptionCouponOnce from './fixtures/stripe/subscription_coupon_once.json';
+import subscriptionCouponForever from './fixtures/stripe/subscription_coupon_forever.json';
+import subscriptionCouponRepeating from './fixtures/stripe/subscription_coupon_repeating.json';
+import paidInvoice from './fixtures/stripe/invoice_paid.json';
+import unpaidInvoice from './fixtures/stripe/invoice_open.json';
+import invoiceRetry from './fixtures/stripe/invoice_retry.json';
+import successfulPaymentIntent from './fixtures/stripe/paymentIntent_succeeded.json';
+import unsuccessfulPaymentIntent from './fixtures/stripe/paymentIntent_requires_payment_method.json';
+import paymentMethodAttach from './fixtures/stripe/payment_method_attach.json';
+import failedCharge from './fixtures/stripe/charge_failed.json';
+import invoicePaidSubscriptionCreate from './fixtures/stripe/invoice_paid_subscription_create.json';
+import invoicePaidSubscriptionCreateDiscount from './fixtures/stripe/invoice_paid_subscription_create_discount.json';
+import invoicePaidSubscriptionCreateTaxDiscount from './fixtures/stripe/invoice_paid_subscription_create_tax_discount.json';
+import invoiceDraftProrationRefund from './fixtures/stripe/invoice_draft_proration_refund.json';
+import invoicePaidSubscriptionCreateTax from './fixtures/stripe/invoice_paid_subscription_create_tax.json';
+import eventCustomerSourceExpiring from './fixtures/stripe/event_customer_source_expiring.json';
+import eventCustomerSubscriptionUpdated from './fixtures/stripe/event_customer_subscription_updated.json';
+import subscriptionCreatedInvoice from './fixtures/stripe/invoice_paid_subscription_create.json';
+import eventInvoiceCreated from './fixtures/stripe/event_invoice_created.json';
+import eventSubscriptionUpdated from './fixtures/stripe/event_customer_subscription_updated.json';
+import eventCustomerUpdated from './fixtures/stripe/event_customer_updated.json';
+import eventPaymentMethodAttached from './fixtures/stripe/event_payment_method_attached.json';
+import eventPaymentMethodDetached from './fixtures/stripe/event_payment_method_detached.json';
+import closedPaymementIntent from './fixtures/stripe/paymentIntent_succeeded.json';
+import newSetupIntent from './fixtures/stripe/setup_intent_new.json';
 
 // App Store Server API response fixtures
-const appStoreApiResponse = require('./fixtures/apple-app-store/api_response_subscription_status.json');
-const renewalInfo = require('./fixtures/apple-app-store/decoded_renewal_info.json');
-const transactionInfo = require('./fixtures/apple-app-store/decoded_transaction_info.json');
+import appStoreApiResponse from './fixtures/apple-app-store/api_response_subscription_status.json';
 
-const {
-  createAccountCustomer,
-  getAccountCustomerByUid,
-} = require('fxa-shared/db/models/auth');
-const {
-  AppStoreSubscriptionPurchase,
-} = require('../../../lib/payments/iap/apple-app-store/subscription-purchase');
-const {
-  PlayStoreSubscriptionPurchase,
-} = require('../../../lib/payments/iap/google-play/subscription-purchase');
-const { AuthFirestore, AuthLogger, AppConfig } = require('../../../lib/types');
-const {
-  INVOICES_RESOURCE,
-  PAYMENT_METHOD_RESOURCE,
-  STRIPE_PRICE_METADATA,
-} = require('../../../lib/payments/stripe');
-const { GoogleMapsService } = require('../../../lib/google-maps-services');
-const {
-  FirestoreStripeError,
-  newFirestoreStripeError,
-  StripeFirestoreMultiError,
-} = require('../../../lib/payments/stripe-firestore');
-const AppError = require('../../../lib/error');
+import renewalInfo from './fixtures/apple-app-store/decoded_renewal_info.json';
+import transactionInfo from './fixtures/apple-app-store/decoded_transaction_info.json';
+import { createAccountCustomer, getAccountCustomerByUid } from 'fxa-shared/db/models/auth';
+import { AppStoreSubscriptionPurchase } from '../../../lib/payments/iap/apple-app-store/subscription-purchase';
+import { PlayStoreSubscriptionPurchase } from '../../../lib/payments/iap/google-play/subscription-purchase';
+import { AuthFirestore, AuthLogger, AppConfig } from '../../../lib/types';
+import { INVOICES_RESOURCE, PAYMENT_METHOD_RESOURCE, STRIPE_PRICE_METADATA } from '../../../lib/payments/stripe';
+import { GoogleMapsService } from '../../../lib/google-maps-services';
+import { FirestoreStripeError, newFirestoreStripeError, StripeFirestoreMultiError } from '../../../lib/payments/stripe-firestore';
+import AppError from '../../../lib/error';
 
 const mockConfig = {
   authFirestore: {

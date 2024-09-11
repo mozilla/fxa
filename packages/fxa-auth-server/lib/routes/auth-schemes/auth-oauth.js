@@ -2,14 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const AppError = require('../../error');
-const token = require('../../oauth/token');
+import AppError from '../../error';
+
+import token from '../../oauth/token';
 
 const authName = 'fxa-oauth';
 
-exports.AUTH_SCHEME = authName;
+export { authName as AUTH_SCHEME };
 
-exports.strategy = function () {
+export const strategy = function () {
   return {
     authenticate: async function (req, h) {
       const auth = req.headers.authorization;

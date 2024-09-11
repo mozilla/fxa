@@ -4,24 +4,19 @@
 
 'use strict';
 
-const sinon = require('sinon');
-const { default: Container } = require('typedi');
+import sinon from 'sinon';
+import { Container } from 'typedi';
 const assert = { ...sinon.assert, ...require('chai').assert };
-const uuid = require('uuid');
-
-const mocks = require('../../../mocks');
-const {
-  GoogleIapHandler,
-} = require('../../../../lib/routes/subscriptions/google');
-const {
-  PurchaseUpdateError,
-} = require('../../../../lib/payments/iap/google-play/types/errors');
-const error = require('../../../../lib/error');
-const { AuthLogger } = require('../../../../lib/types');
-const { PlayBilling } = require('../../../../lib/payments/iap/google-play');
-const { IAPConfig } = require('../../../../lib/payments/iap/iap-config');
-const { OAUTH_SCOPE_SUBSCRIPTIONS_IAP } = require('fxa-shared/oauth/constants');
-const { CapabilityService } = require('../../../../lib/payments/capability');
+import * as uuid from 'uuid';
+import mocks from '../../../mocks';
+import { GoogleIapHandler } from '../../../../lib/routes/subscriptions/google';
+import { PurchaseUpdateError } from '../../../../lib/payments/iap/google-play/types/errors';
+import error from '../../../../lib/error';
+import { AuthLogger } from '../../../../lib/types';
+import { PlayBilling } from '../../../../lib/payments/iap/google-play';
+import { IAPConfig } from '../../../../lib/payments/iap/iap-config';
+import { OAUTH_SCOPE_SUBSCRIPTIONS_IAP } from 'fxa-shared/oauth/constants';
+import { CapabilityService } from '../../../../lib/payments/capability';
 
 const MOCK_SCOPES = ['profile:email', OAUTH_SCOPE_SUBSCRIPTIONS_IAP];
 const ACCOUNT_LOCALE = 'en-US';

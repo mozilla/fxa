@@ -9,11 +9,11 @@
  *
  * The code examples here were taken from the Google documentation and modified.
  */
-const fs = require('fs');
-const jwt = require('jsonwebtoken');
-const axios = require('axios');
+import fs from 'fs';
 
-const { Command } = require('commander');
+import jwt from 'jsonwebtoken';
+import axios from 'axios';
+import { Command } from 'commander';
 const program = new Command();
 
 program

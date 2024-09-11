@@ -2,19 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const Joi = require('joi');
-const OauthError = require('../../oauth/error');
-const AuthError = require('../../error');
-const config = require('../../../config').default.getProperties();
-const validators = require('../../oauth/validators');
-const verifyAssertion = require('../../oauth/assertion');
-const { validateRequestedGrant } = require('../../oauth/grant');
-const { makeAssertionJWT } = require('../../oauth/util');
-const DESCRIPTION =
-  require('../../../docs/swagger/shared/descriptions').default;
-const OAUTH_DOCS = require('../../../docs/swagger/oauth-api').default;
-const OAUTH_SERVER_DOCS =
-  require('../../../docs/swagger/oauth-server-api').default;
+import Joi from 'joi';
+
+import OauthError from '../../oauth/error';
+import AuthError from '../../error';
+import configModule from "../../../config";
+const config = configModule.getProperties();
+import validators from '../../oauth/validators';
+import verifyAssertion from '../../oauth/assertion';
+import { validateRequestedGrant } from '../../oauth/grant';
+import { makeAssertionJWT } from '../../oauth/util';
+import { default as DESCRIPTION } from '../../../docs/swagger/shared/descriptions';
+import { default as OAUTH_DOCS } from '../../../docs/swagger/oauth-api';
+import { default as OAUTH_SERVER_DOCS } from '../../../docs/swagger/oauth-server-api';
 
 /**
  * We don't yet support rotating individual scoped keys,
@@ -38,7 +38,7 @@ function checkDisabledClientId(payload) {
   }
 }
 
-module.exports = ({ log, oauthDB, statsd }) => {
+export default ({ log, oauthDB, statsd }) => {
   async function keyDataHandler(req) {
     const claims = await verifyAssertion(req.payload.assertion);
 

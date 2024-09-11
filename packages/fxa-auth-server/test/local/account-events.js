@@ -1,16 +1,16 @@
 /*  */ /* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 'use strict';
 
-const sinon = require('sinon');
+import sinon from 'sinon';
 const assert = { ...sinon.assert, ...require('chai').assert };
-const { StatsD } = require('hot-shots');
-const { AccountEventsManager } = require('../../lib/account-events');
-const { default: Container } = require('typedi');
-const { AppConfig, AuthFirestore } = require('../../lib/types');
-const mocks = require('../mocks');
+import { StatsD } from 'hot-shots';
+import { AccountEventsManager } from '../../lib/account-events';
+import { Container } from 'typedi';
+import { AppConfig, AuthFirestore } from '../../lib/types';
+import mocks from '../mocks';
 
 const UID = 'uid';
 

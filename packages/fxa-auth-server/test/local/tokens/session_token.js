@@ -4,14 +4,15 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const sinon = require('sinon');
+import { assert } from 'chai';
+import sinon from 'sinon';
 const log = {
   trace() {},
   info() {},
   error: sinon.spy(),
 };
-const crypto = require('crypto');
+import crypto from 'crypto';
+import TokensModule from '../../../lib/tokens/index';
 
 const TOKEN = {
   createdAt: Date.now(),
@@ -32,7 +33,7 @@ describe('SessionToken, tokenLifetimes.sessionTokenWithoutDevice > 0', () => {
       sessionTokenWithoutDevice: MAX_AGE_WITHOUT_DEVICE,
     },
   };
-  const tokens = require('../../../lib/tokens/index')(log, config);
+  const tokens = TokensModule(log, config);
   const SessionToken = tokens.SessionToken;
 
   it('interface is correct', () => {
@@ -350,7 +351,7 @@ describe('SessionToken, tokenLifetimes.sessionTokenWithoutDevice === 0', () => {
       sessionTokenWithoutDevice: 0,
     },
   };
-  const tokens = require('../../../lib/tokens/index')(log, config);
+  const tokens = TokensModule(log, config);
   const SessionToken = tokens.SessionToken;
 
   it('SessionToken.fromHex creates non-expired token if deviceId is null and createdAt is too old', () => {

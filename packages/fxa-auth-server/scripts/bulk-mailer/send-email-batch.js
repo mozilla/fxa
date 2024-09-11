@@ -4,7 +4,7 @@
 
 'use strict';
 
-module.exports = function sendBatch(batch, sendEmail, log) {
+export default function sendBatch(batch, sendEmail, log) {
   let successCount = 0;
   let errorCount = 0;
 

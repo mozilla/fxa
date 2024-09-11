@@ -4,8 +4,8 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const hkdf = require('../../../lib/crypto/hkdf');
+import { assert } from 'chai';
+import hkdf from '../../../lib/crypto/hkdf';
 
 describe('hkdf', () => {
   it('should extract', () => {

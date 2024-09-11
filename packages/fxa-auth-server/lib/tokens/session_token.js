@@ -4,10 +4,10 @@
 
 'use strict';
 
-const authMethods = require('../authMethods');
-const random = require('../crypto/random');
+import authMethods from '../authMethods';
+import random from '../crypto/random';
 
-module.exports = (log, Token, config) => {
+export default (log, Token, config) => {
   const MAX_AGE_WITHOUT_DEVICE =
     config.tokenLifetimes.sessionTokenWithoutDevice;
 

@@ -4,14 +4,10 @@
 
 'use strict';
 
-const inherits = require('util').inherits;
-const OauthError = require('./oauth/error');
-const verror = require('verror');
-
-const {
-  AUTH_SERVER_ERRNOS: ERRNO,
-  AUTH_SERVER_ERRNOS_REVERSE_MAP,
-} = require('fxa-shared/lib/errors');
+import { inherits } from 'util';
+import OauthError from './oauth/error';
+import verror from 'verror';
+import { AUTH_SERVER_ERRNOS as ERRNO, AUTH_SERVER_ERRNOS_REVERSE_MAP } from 'fxa-shared/lib/errors';
 
 const DEFAULTS = {
   code: 500,
@@ -1657,6 +1653,8 @@ function determineStatusCode(error) {
   return error.statusCode || error.output?.statusCode || error.code;
 }
 
-module.exports = AppError;
-module.exports.ERRNO = ERRNO;
-module.exports.ignoreErrors = ignoreErrors;
+AppError.ERRNO = ERRNO;
+
+export default AppError;
+export { ERRNO };
+export { ignoreErrors };

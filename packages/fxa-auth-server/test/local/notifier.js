@@ -6,9 +6,9 @@
 
 const ROOT_DIR = '../..';
 
-const proxyquire = require('proxyquire');
-const { assert } = require('chai');
-const sinon = require('sinon');
+import proxyquire from 'proxyquire';
+import { assert } from 'chai';
+import sinon from 'sinon';
 
 describe('notifier', () => {
   const log = {

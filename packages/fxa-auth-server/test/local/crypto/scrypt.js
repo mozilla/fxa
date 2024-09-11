@@ -4,7 +4,7 @@
 
 'use strict';
 
-const { assert } = require('chai');
+import { assert } from 'chai';
 const config = { scrypt: { maxPending: 5 } };
 const log = {
   buffer: [],
@@ -13,7 +13,8 @@ const log = {
   },
 };
 
-const scrypt = require('../../../lib/crypto/scrypt')(log, config);
+import scryptModule from "../../../lib/crypto/scrypt";
+const scrypt = scryptModule(log, config);
 
 describe('scrypt', () => {
   it('scrypt basic', async () => {

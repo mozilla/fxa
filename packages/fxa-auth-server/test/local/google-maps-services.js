@@ -4,13 +4,13 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const Sentry = require('@sentry/node');
-const { mockLog } = require('../mocks');
-const sinon = require('sinon');
-const { GoogleMapsService } = require('../../lib/google-maps-services');
-const { default: Container } = require('typedi');
-const { AuthLogger, AppConfig } = require('../../lib/types');
+import { assert } from 'chai';
+import Sentry from '@sentry/node';
+import { mockLog } from '../mocks';
+import sinon from 'sinon';
+import { GoogleMapsService } from '../../lib/google-maps-services';
+import { Container } from 'typedi';
+import { AuthLogger, AppConfig } from '../../lib/types';
 
 function deepCopy(object) {
   return JSON.parse(JSON.stringify(object));

@@ -2,8 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const OauthError = require('./error');
-const jwt = require('./jwt');
+import OauthError from './error';
+
+import jwt from './jwt';
 
 /**
  * Verify the Expiration Time ('exp') claim value from an ID Token.
@@ -15,7 +16,7 @@ const jwt = require('./jwt');
  * @param {Any} exp
  * @returns {Boolean} whether the value is a valid number
  */
-exports._isValidExp = (exp) => {
+export const _isValidExp = (exp) => {
   return typeof exp === 'number' && !isNaN(exp);
 };
 
@@ -44,7 +45,7 @@ exports._isValidExp = (exp) => {
  * @throws `invalidToken` error if ID Token is invalid.
  * @returns {Promise<Object>} resolves with claims in Token
  */
-exports.verify = async function verify(
+export const verify = async function verify(
   idToken,
   clientId,
   expiryGracePeriod = 0

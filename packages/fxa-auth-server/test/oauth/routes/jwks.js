@@ -2,10 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { assert } = require('chai');
-const proxyquire = require('proxyquire');
-const mocks = require('../../lib/mocks');
-const keys = require('../../../lib/oauth/keys');
+import { assert } from 'chai';
+
+import proxyquire from 'proxyquire';
+import mocks from '../../lib/mocks';
+import keys from '../../../lib/oauth/keys';
 
 const routeModulePath = '../../../lib/routes/oauth/jwks';
 var dependencies = mocks.require(

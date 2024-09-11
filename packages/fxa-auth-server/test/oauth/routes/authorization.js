@@ -4,8 +4,8 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const Joi = require('joi');
+import { assert } from 'chai';
+import Joi from 'joi';
 
 const CLIENT_ID = '98e6508e88680e1b';
 // jscs:disable
@@ -17,14 +17,8 @@ const PKCE_CODE_CHALLENGE_METHOD = 'S256';
 const DISABLED_CLIENT_ID = 'd15ab1edd15ab1ed';
 
 const _ = () => {};
-const route = require('../../../lib/routes/oauth/authorization')({
-  log: {
-    info: _,
-    debug: _,
-    warn: _,
-  },
-  oauthDB: {},
-})[1];
+import routeModule from "../../../lib/routes/oauth/authorization";
+const route = routeModule;
 
 describe('/authorization POST', function () {
   describe('input validation', () => {

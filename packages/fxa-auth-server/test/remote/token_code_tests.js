@@ -4,18 +4,16 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const config = require('../../config').default.getProperties();
-const TestServer = require('../test_server');
-const Client = require('../client')();
-const error = require('../../lib/error');
-const { default: Container } = require('typedi');
-const {
-  PlaySubscriptions,
-} = require('../../lib/payments/iap/google-play/subscriptions');
-const {
-  AppStoreSubscriptions,
-} = require('../../lib/payments/iap/apple-app-store/subscriptions');
+import { assert } from 'chai';
+import configModule from '../../config';
+const config = configModule.getProperties();
+import TestServer from '../test_server';
+import ClientModule from '../client';
+const Client = ClientModule();
+import error from '../../lib/error';
+import { Container } from 'typedi';
+import { PlaySubscriptions } from '../../lib/payments/iap/google-play/subscriptions';
+import { AppStoreSubscriptions } from '../../lib/payments/iap/apple-app-store/subscriptions';
 
 [{version:""},{version:"V2"}].forEach((testOptions) => {
 

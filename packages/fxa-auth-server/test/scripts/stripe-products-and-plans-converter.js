@@ -4,21 +4,18 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const sinon = require('sinon');
-const proxyquire = require('proxyquire');
-const fs = require('fs');
-
-const { deleteCollection } = require('../local/payments/util');
-const { AuthFirestore, AuthLogger, AppConfig } = require('../../lib/types');
-const { setupFirestore } = require('../../lib/firestore-db');
-const { deepCopy } = require('../local/payments/util');
-const plan = require('fxa-auth-server/test/local/payments/fixtures/stripe/plan2.json');
-const product = require('fxa-shared/test/fixtures/stripe/product1.json');
-const { mockLog, mockStripeHelper } = require('../mocks');
-const {
-  PLAN_EN_LANG_ERROR,
-} = require('../../scripts/stripe-products-and-plans-to-firestore-documents/plan-language-tags-guesser');
+import { assert } from 'chai';
+import sinon from 'sinon';
+import proxyquire from 'proxyquire';
+import fs from 'fs';
+import { deleteCollection } from '../local/payments/util';
+import { AuthFirestore, AuthLogger, AppConfig } from '../../lib/types';
+import { setupFirestore } from '../../lib/firestore-db';
+import { deepCopy } from '../local/payments/util';
+import plan from 'fxa-auth-server/test/local/payments/fixtures/stripe/plan2.json';
+import product from 'fxa-shared/test/fixtures/stripe/product1.json';
+import { mockLog, mockStripeHelper } from '../mocks';
+import { PLAN_EN_LANG_ERROR } from '../../scripts/stripe-products-and-plans-to-firestore-documents/plan-language-tags-guesser';
 const GOOGLE_ERROR_MESSAGE = 'Google Translate Error Overload';
 const googleTranslateShapedError = {
   code: 403,
@@ -53,14 +50,10 @@ const { StripeProductsAndPlansConverter } = proxyquire(
       langFromMetadataMock,
   }
 );
-const {
-  PaymentConfigManager,
-} = require('../../lib/payments/configuration/manager');
-const { Container } = require('typedi');
-const {
-  ProductConfig,
-} = require('fxa-shared/subscriptions/configuration/product');
-const { PlanConfig } = require('fxa-shared/subscriptions/configuration/plan');
+import { PaymentConfigManager } from '../../lib/payments/configuration/manager';
+import { Container } from 'typedi';
+import { ProductConfig } from 'fxa-shared/subscriptions/configuration/product';
+import { PlanConfig } from 'fxa-shared/subscriptions/configuration/plan';
 
 const sandbox = sinon.createSandbox();
 

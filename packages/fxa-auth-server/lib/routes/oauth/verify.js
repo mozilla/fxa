@@ -2,15 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const Joi = require('joi');
-const DESCRIPTIONS =
-  require('../../../docs/swagger/shared/descriptions').default;
-const token = require('../../oauth/token');
-const validators = require('../../oauth/validators');
-const OAUTH_SERVER_DOCS =
-  require('../../../docs/swagger/oauth-server-api').default;
+import Joi from 'joi';
 
-module.exports = ({ log, glean }) => ({
+import { default as DESCRIPTIONS } from '../../../docs/swagger/shared/descriptions';
+import token from '../../oauth/token';
+import validators from '../../oauth/validators';
+import { default as OAUTH_SERVER_DOCS } from '../../../docs/swagger/oauth-server-api';
+
+export default ({ log, glean }) => ({
   method: 'POST',
   path: '/verify',
   config: {

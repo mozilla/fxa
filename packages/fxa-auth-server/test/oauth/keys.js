@@ -2,10 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { assert } = require('chai');
-const { config } = require('../../config');
-const proxyquire = require('proxyquire');
-const keys = require('../../lib/oauth/keys');
+import { assert } from 'chai';
+
+import { config } from '../../config';
+import proxyquire from 'proxyquire';
+import keys from '../../lib/oauth/keys';
 
 const MOCK_PRIVATE_KEY = {
   kty: 'RSA',

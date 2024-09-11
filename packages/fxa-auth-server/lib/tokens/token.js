@@ -25,13 +25,14 @@
  *
  */
 
-const Bundle = require('./bundle');
-const hkdf = require('../crypto/hkdf');
-const random = require('../crypto/random');
+import Bundle from './bundle';
+
+import hkdf from '../crypto/hkdf';
+import random from '../crypto/random';
 
 const KEYS = ['data', 'id', 'authKey', 'bundleKey'];
 
-module.exports = (log, config) => {
+export default (log, config) => {
   // Token constructor.
   //
   // This directly populates the token from its keys and metadata details.

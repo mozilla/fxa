@@ -4,14 +4,14 @@
 
 'use strict';
 
-const sinon = require('sinon');
+import sinon from 'sinon';
 const assert = { ...sinon.assert, ...require('chai').assert };
-const uuid = require('uuid');
-const getRoute = require('../../routes_helpers').getRoute;
-const mocks = require('../../mocks');
-const nock = require('nock');
-const { supportRoutes } = require('../../../lib/routes/subscriptions/support');
-const AppError = require('../../../lib/error');
+import * as uuid from 'uuid';
+import { getRoute } from '../../routes_helpers';
+import mocks from '../../mocks';
+import nock from 'nock';
+import { supportRoutes } from '../../../lib/routes/subscriptions/support';
+import AppError from '../../../lib/error';
 
 let config,
   log,
@@ -23,7 +23,7 @@ let config,
   requestOptions,
   zendeskClient;
 
-const { OAUTH_SCOPE_SUBSCRIPTIONS } = require('fxa-shared/oauth/constants');
+import { OAUTH_SCOPE_SUBSCRIPTIONS } from 'fxa-shared/oauth/constants';
 
 const TEST_EMAIL = 'test@email.com';
 const UID = uuid.v4({}, Buffer.alloc(16)).toString('hex');

@@ -6,12 +6,12 @@
 
 const ROOT_DIR = '../../..';
 
-const { assert } = require('chai');
-const { mockLog } = require('../../mocks');
-const proxyquire = require('proxyquire');
-const sinon = require('sinon');
-const { default: Container } = require('typedi');
-const { AccountEventsManager } = require('../../../lib/account-events');
+import { assert } from 'chai';
+import { mockLog } from '../../mocks';
+import proxyquire from 'proxyquire';
+import sinon from 'sinon';
+import { Container } from 'typedi';
+import { AccountEventsManager } from '../../../lib/account-events';
 
 const amplitude = sinon.spy();
 const emailHelpers = proxyquire(`${ROOT_DIR}/lib/email/utils/helpers`, {

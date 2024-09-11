@@ -2,11 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { assert } = require('chai');
-const {
-  roundTime,
-  sortClientCapabilities,
-} = require('../../../lib/payments/utils');
+import { assert } from 'chai';
+
+import { roundTime, sortClientCapabilities } from '../../../lib/payments/utils';
 
 it('checks that roundTime() returns time rounded to the nearest minute', async () => {
   const mockDate = new Date('2023-01-03T17:44:44.400Z');

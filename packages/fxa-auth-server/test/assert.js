@@ -9,7 +9,7 @@ const assert = {
   ...require('chai').assert,
 };
 
-module.exports = {
+export default {
   ...assert,
 
   async failsAsync(promise, expected, message) {

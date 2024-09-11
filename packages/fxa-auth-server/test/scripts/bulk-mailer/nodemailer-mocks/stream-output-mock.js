@@ -4,9 +4,9 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const sinon = require('sinon');
-const StreamOutputMock = require('../../../../scripts/bulk-mailer/nodemailer-mocks/stream-output-mock');
+import { assert } from 'chai';
+import sinon from 'sinon';
+import StreamOutputMock from '../../../../scripts/bulk-mailer/nodemailer-mocks/stream-output-mock';
 
 describe('stdout-mock', () => {
   let stdoutMock;

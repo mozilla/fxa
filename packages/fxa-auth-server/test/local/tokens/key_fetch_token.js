@@ -4,11 +4,12 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const crypto = require('crypto');
+import { assert } from 'chai';
+import crypto from 'crypto';
 const log = { trace() {}, error() {} };
 
-const tokens = require('../../../lib/tokens/index')(log);
+import tokensModule from "../../../lib/tokens/index";
+const tokens = tokensModule(log);
 const KeyFetchToken = tokens.KeyFetchToken;
 
 const ACCOUNT = {

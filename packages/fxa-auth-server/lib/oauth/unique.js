@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const crypto = require('crypto');
+import crypto from 'crypto';
 
-const { config } = require('../../config');
+import { config } from '../../config';
 
 function unique(length) {
   return crypto.randomBytes(length); // eslint-disable-line fxa/async-crypto-random
@@ -22,4 +22,4 @@ unique.secret = fn('clientSecret');
 unique.code = fn('code');
 unique.token = fn('token');
 
-module.exports = unique;
+export default unique;

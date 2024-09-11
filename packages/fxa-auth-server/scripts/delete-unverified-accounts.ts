@@ -168,7 +168,7 @@ const init = async () => {
     config,
     log,
     Token(log, config),
-    random.base32(config.signinUnblock.codeLength) as any // TS type inference is failing pretty hard with this
+    random.default.base32(config.signinUnblock.codeLength) as any // TS type inference is failing pretty hard with this
   );
   const fxaDb = await db.connect(config, redis);
 

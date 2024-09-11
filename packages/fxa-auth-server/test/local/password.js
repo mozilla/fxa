@@ -5,10 +5,11 @@
 
 'use strict';
 
-const { assert } = require('chai');
+import { assert } from 'chai';
 const log = {};
 const config = {};
-const Password = require('../../lib/crypto/password')(log, config);
+import PasswordModule from "../../lib/crypto/password";
+const Password = PasswordModule(log, config);
 
 describe('Password', () => {
   it('password version zero', () => {

@@ -4,19 +4,20 @@
 
 'use strict';
 
-const error = require('../error');
-const isA = require('joi');
-const requestHelper = require('../routes/utils/request_helper');
-const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
-const validators = require('./validators');
-const Localizer = require('../l10n').default;
-const NodeRendererBindings =
-  require('../senders/renderer/bindings-node').default;
-const SESSION_DOCS = require('../../docs/swagger/session-api').default;
-const DESCRIPTION = require('../../docs/swagger/shared/descriptions').default;
+import error from '../error';
+import isA from 'joi';
+import requestHelper from '../routes/utils/request_helper';
+import { schema as METRICS_CONTEXT_SCHEMA } from '../metrics/context';
+import * as validators from './validators';
+import { default as Localizer } from '../l10n';
+import { default as NodeRendererBindings } from '../senders/renderer/bindings-node';
+import { default as SESSION_DOCS } from '../../docs/swagger/session-api';
+import { default as DESCRIPTION } from '../../docs/swagger/shared/descriptions';
+import otpUtilsModule from '../../lib/routes/utils/otp';
+
 const HEX_STRING = validators.HEX_STRING;
 
-module.exports = function (
+export default function (
   log,
   db,
   Password,
@@ -28,7 +29,7 @@ module.exports = function (
   customs,
   glean
 ) {
-  const otpUtils = require('../../lib/routes/utils/otp')(log, config, db);
+  const otpUtils = otpUtilsModule(log, config, db);
 
   const OAUTH_DISABLE_NEW_CONNECTIONS_FOR_CLIENTS = new Set(
     config.oauth.disableNewConnectionsForClients || []
@@ -647,4 +648,4 @@ module.exports = function (
   ];
 
   return routes;
-};
+}

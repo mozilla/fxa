@@ -4,16 +4,17 @@
 
 'use strict';
 
-const crypto = require('crypto');
-const EventEmitter = require('events');
-const sinon = require('sinon');
-const { default: Container } = require('typedi');
-const mailbox = require('./mailbox');
-const proxyquire = require('proxyquire').noPreserveCache();
-const createMailHelper = require('./mail_helper');
-const createProfileHelper = require('./profile_helper');
-const { CapabilityService } = require('../lib/payments/capability');
-const { AppConfig } = require('../lib/types');
+import crypto from 'crypto';
+import EventEmitter from 'events';
+import sinon from 'sinon';
+import { Container } from 'typedi';
+import mailbox from './mailbox';
+import proxyquireModule from 'proxyquire';
+const proxyquire = proxyquireModule.noPreserveCache();
+import createMailHelper from './mail_helper';
+import createProfileHelper from './profile_helper';
+import { CapabilityService } from '../lib/payments/capability';
+import { AppConfig } from '../lib/types';
 
 let currentServer;
 
@@ -127,4 +128,4 @@ TestServer.prototype.uniqueUnicodeEmail = function () {
   }@${String.fromCharCode(5678)}restmail.net`;
 };
 
-module.exports = TestServer;
+export default TestServer;

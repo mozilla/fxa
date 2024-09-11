@@ -2,17 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const hex = require('buf').to.hex;
-const Joi = require('joi');
+import hexModule from "buf";
 
-const AppError = require('../../../oauth/error');
-const validators = require('../../../oauth/validators');
-const DESCRIPTION =
-  require('../../../../docs/swagger/shared/descriptions').default;
-const OAUTH_SERVER_DOCS =
-  require('../../../../docs/swagger/oauth-server-api').default;
+const hex = hexModule.to.hex;
+import Joi from 'joi';
+import AppError from '../../../oauth/error';
+import validators from '../../../oauth/validators';
+import { default as DESCRIPTION } from '../../../../docs/swagger/shared/descriptions';
+import { default as OAUTH_SERVER_DOCS } from '../../../../docs/swagger/oauth-server-api';
 
-module.exports = ({ log, oauthDB }) => ({
+export default ({ log, oauthDB }) => ({
   method: 'GET',
   path: '/client/{client_id}',
   config: {

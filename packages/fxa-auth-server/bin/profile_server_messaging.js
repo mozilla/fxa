@@ -4,20 +4,22 @@
 
 'use strict';
 
-const config = require('../config').default.getProperties();
-const StatsD = require('hot-shots');
+import configModule from "../config";
+const config = configModule.getProperties();
+import StatsD from 'hot-shots';
 const statsd = new StatsD(config.statsd);
-const log = require('../lib/log')(
-  config.log.level,
-  'profile-server-messaging',
-  statsd
-);
-const Token = require('../lib/tokens')(log, config);
-const SQSReceiver = require('../lib/sqs')(log, statsd);
-const profileUpdates = require('../lib/profile/updates')(log);
-const push = require('../lib/push');
+import logModule from "../lib/log";
+const log = logModule(config.log.level, 'profile-server-messaging', statsd);
+import TokenModule from "../lib/tokens";
+const Token = TokenModule(log, config);
+import SQSReceiverModule from "../lib/sqs";
+const SQSReceiver = SQSReceiverModule(log, statsd);
+import profileUpdatesModule from "../lib/profile/updates";
+const profileUpdates = profileUpdatesModule(log);
+import push from '../lib/push';
 
-const DB = require('../lib/db')(config, log, Token);
+import DBModule from "../lib/db";
+const DB = DBModule(config, log, Token);
 
 const profileUpdatesQueue = new SQSReceiver(
   config.profileServerMessaging.region,

@@ -2,19 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const crypto = require('crypto');
-const buf = require('buf').hex;
-const Joi = require('joi');
+import crypto from 'crypto';
 
-const OauthError = require('./error');
-const validators = require('./validators');
-const db = require('./db');
-const encrypt = require('fxa-shared/auth/encrypt');
+import { hex as buf } from 'buf';
+import Joi from 'joi';
+import OauthError from './error';
+import * as validators from './validators';
+import db from './db';
+import encrypt from 'fxa-shared/auth/encrypt';
 
 // Client credentials can be provided in either the Authorization header
 // or the request body, but not both.
 // These are some re-useable validators to assert that requirement.
-module.exports.clientAuthValidators = {
+export const clientAuthValidators = {
   headers: Joi.object({
     authorization: Joi.string().regex(validators.BASIC_AUTH_HEADER).optional(),
   }).options({ allowUnknown: true, stripUnknown: false }),
@@ -45,7 +45,7 @@ module.exports.clientAuthValidators = {
  *   @param {String} client_id
  *   @param {String} [client_secret]
  */
-module.exports.getClientCredentials = function getClientCredentials(
+export const getClientCredentials = function getClientCredentials(
   headers,
   params
 ) {
@@ -94,7 +94,7 @@ module.exports.getClientCredentials = function getClientCredentials(
  * @returns {Promise} resolves with info about the client, or
  *                    rejects if invalid credentials were provided
  */
-module.exports.authenticateClient = async function authenticateClient(
+export const authenticateClient = async function authenticateClient(
   headers,
   params
 ) {
@@ -130,7 +130,7 @@ module.exports.authenticateClient = async function authenticateClient(
   throw OauthError.incorrectSecret(client.id);
 };
 
-module.exports.getClientById = async function getClientById(clientId) {
+export const getClientById = async function getClientById(clientId) {
   const client = await db.getClient(buf(clientId));
   if (!client) {
     throw OauthError.unknownClient(clientId);

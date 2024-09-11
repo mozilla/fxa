@@ -4,9 +4,9 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const sendEmailBatch = require('../../../scripts/bulk-mailer/send-email-batch');
-const sinon = require('sinon');
+import { assert } from 'chai';
+import sendEmailBatch from '../../../scripts/bulk-mailer/send-email-batch';
+import sinon from 'sinon';
 
 describe('send-email-batch', () => {
   const batch = ['a', 'b', 'c'].map((c) => ({ email: c }));

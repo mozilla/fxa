@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -10,22 +8,19 @@
 // a deleted template is reinstated by some later commit or only one
 // format of a template is deleted.
 
-'use strict';
-
-const cp = require('child_process');
-const fs = require('fs');
-const path = require('path');
+import { join as joinPath } from 'path:node';
+import { writeFileSync } from 'fs:node';
+import { execSync } from 'child_process';
+import versions from '../lib/senders/emails/templates/_versions.json';
 
 const ROOT_DIR = path.join(__dirname, '..');
-const TEMPLATE_DIR = 'lib/senders/emails/templates';
-const VERSIONS_FILE = '_versions.json';
-const IGNORE = new Set([VERSIONS_FILE, '_storybook']);
+const IGNORE = new Set(['_versions.json', '_storybook']);
 const DEDUP = {};
 
-const versions = require(`../${TEMPLATE_DIR}/${VERSIONS_FILE}`);
-
-const stagedTemplates = cp
-  .execSync('git status --porcelain', { cwd: ROOT_DIR, encoding: 'utf8' })
+const stagedTemplates = execSync('git status --porcelain', {
+  cwd: ROOT_DIR,
+  encoding: 'utf8',
+})
   .split('\n')
   .filter((line) =>
     line.match(`^[AM]. packages/fxa-auth-server/${TEMPLATE_DIR}/\\w+`)
@@ -66,8 +61,8 @@ if (stagedTemplates.length === 0) {
     }
   });
 
-  fs.writeFileSync(
-    path.join(`${ROOT_DIR}/${TEMPLATE_DIR}/${VERSIONS_FILE}`),
+  writeFileSync(
+    joinPath(`${ROOT_DIR}/lib/senders/emails/templates/_versions.json`),
     JSON.stringify(versions, null, '  ')
   );
 }

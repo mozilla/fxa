@@ -4,17 +4,16 @@
 
 'use strict';
 
-const UNBLOCK_CODES_DOCS =
-  require('../../docs/swagger/unblock-codes-api').default;
-const DESCRIPTION = require('../../docs/swagger/shared/descriptions').default;
+import { default as UNBLOCK_CODES_DOCS } from '../../docs/swagger/unblock-codes-api';
+import { default as DESCRIPTION } from '../../docs/swagger/shared/descriptions';
 
-const isA = require('joi');
-const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
-const validators = require('./validators');
+import isA from 'joi';
+import { schema as METRICS_CONTEXT_SCHEMA } from '../metrics/context';
+import * as validators from './validators';
 
 const { HEX_STRING, BASE_36 } = validators;
 
-module.exports = (log, db, mailer, config, customs) => {
+export default (log, db, mailer, config, customs) => {
   const unblockCodeLen = (config && config.codeLength) || 0;
 
   return [

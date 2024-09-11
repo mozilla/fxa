@@ -4,31 +4,34 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const AccessToken = require('../../lib/oauth/db/accessToken');
-const RefreshTokenMetadata = require('../../lib/oauth/db/refreshTokenMetadata');
-const config = require('../../config').default.getProperties();
-const mocks = require('../mocks');
+import { assert } from 'chai';
+import AccessToken from '../../lib/oauth/db/accessToken';
+import RefreshTokenMetadata from '../../lib/oauth/db/refreshTokenMetadata';
+import configModule from "../../config";
+const config = configModule.getProperties();
+import mocks from '../mocks';
 
 const recordLimit = 20;
 const prefix = 'test:';
 const maxttl = 1337;
-const redis = require('../../lib/redis')(
-  {
-    ...config.redis.accessTokens,
-    ...config.redis.sessionTokens,
-    password: config.redis.password,
-    prefix,
-    recordLimit,
-    maxttl,
-  },
-  mocks.mockLog()
-);
+import redisModule from "../../lib/redis";
 
-const downRedis = require('../../lib/redis')(
+const redis = redisModule({
+  ...config.redis.accessTokens,
+  ...config.redis.sessionTokens,
+  password: config.redis.password,
+  prefix,
+  recordLimit,
+  maxttl,
+}, mocks.mockLog());
+
+import downRedisModule from "../../lib/redis";
+
+const downRedis = downRedisModule(
   { enabled: true, port: 1, timeoutMs: 10, lazyConnect: true },
   mocks.mockLog()
 );
+
 downRedis.redis.on('error', () => {});
 
 const uid = 'uid1';

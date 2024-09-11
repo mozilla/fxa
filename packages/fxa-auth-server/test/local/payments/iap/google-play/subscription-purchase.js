@@ -4,15 +4,9 @@
 
 'use strict';
 
-const { assert } = require('chai');
-
-const {
-  PlayStoreSubscriptionPurchase,
-  GOOGLE_PLAY_FORM_OF_PAYMENT,
-} = require('../../../../../lib/payments/iap/google-play/subscription-purchase');
-const {
-  SkuType,
-} = require('../../../../../lib/payments/iap/google-play/types');
+import { assert } from 'chai';
+import { PlayStoreSubscriptionPurchase, GOOGLE_PLAY_FORM_OF_PAYMENT } from '../../../../../lib/payments/iap/google-play/subscription-purchase';
+import { SkuType } from '../../../../../lib/payments/iap/google-play/types';
 
 describe('SubscriptionPurchase', () => {
   beforeEach(() => {});

@@ -2,23 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict';
-
-const Hoek = require('@hapi/hoek');
-const Sentry = require('@sentry/node');
-const verror = require('verror');
-const { ignoreErrors } = require('./error');
-
-const {
+import Hoek from '@hapi/hoek';
+import Sentry from '@sentry/node';
+import verror from 'verror';
+import { ignoreErrors } from './error';
+export {
   formatMetadataValidationErrorMessage,
   reportValidationError,
-} = require('fxa-shared/sentry/report-validation-error');
+} from 'fxa-shared/sentry/report-validation-error';
 // Matches uid, session, oauth and other common tokens which we would
 // prefer not to include in Sentry reports.
 const TOKENREGEX = /[a-fA-F0-9]{32,}/gi;
 const FILTERED = '[Filtered]';
 
-function reportSentryError(err, request) {
+export function reportSentryError(err, request) {
   let exception = '';
   if (err && err.stack) {
     try {
@@ -104,7 +101,11 @@ function reportSentryError(err, request) {
   });
 }
 
-async function configureSentry(server, config, processName = 'key_server') {
+export async function configureSentry(
+  server,
+  config,
+  processName = 'key_server'
+) {
   if (config.sentry.dsn) {
     Sentry.configureScope((scope) => {
       scope.setTag('process', processName);
@@ -157,10 +158,3 @@ async function configureSentry(server, config, processName = 'key_server') {
     });
   }
 }
-
-module.exports = {
-  configureSentry,
-  reportSentryError,
-  reportValidationError,
-  formatMetadataValidationErrorMessage,
-};

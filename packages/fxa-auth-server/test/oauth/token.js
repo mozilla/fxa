@@ -2,10 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { assert } = require('chai');
-const token = require('../../lib/oauth/token');
-const JWTAccessToken = require('../../lib/oauth/jwt_access_token');
-const ScopeSet = require('fxa-shared').oauth.scopes;
+import { assert } from 'chai';
+
+import token from '../../lib/oauth/token';
+import JWTAccessToken from '../../lib/oauth/jwt_access_token';
+import ScopeSetModule from "fxa-shared";
+const ScopeSet = ScopeSetModule.oauth.scopes;
 
 describe('token', function () {
   describe('verify', function () {

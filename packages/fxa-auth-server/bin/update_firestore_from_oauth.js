@@ -4,21 +4,20 @@
 
 'use strict';
 
-const Firestore = require('@google-cloud/firestore');
-const StatsD = require('hot-shots');
-const hex = require('buf').to.hex;
-
-const config = require('../config').getProperties();
-const mysql = require('../lib/oauth/db/mysql');
+import Firestore from '@google-cloud/firestore';
+import StatsD from 'hot-shots';
+import hexModule from "buf";
+const hex = hexModule.to.hex;
+import configModule from "../config";
+const config = configModule.getProperties();
+import mysql from '../lib/oauth/db/mysql';
 
 const statsd = new StatsD(config.statsd);
-const log = require('../lib/log')(
-  config.log.level,
-  'update-firestore-from-oauth',
-  {
-    statsd,
-  }
-);
+import logModule from "../lib/log";
+
+const log = logModule(config.log.level, 'update-firestore-from-oauth', {
+  statsd,
+});
 
 const CLIENT_ID = process.env.CLIENT_ID;
 const REMOVE_CLIENT = process.env.REMOVE_CLIENT === 'true';

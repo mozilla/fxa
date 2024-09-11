@@ -4,10 +4,10 @@
 
 'use strict';
 
-const dumpUsers = require('./dump-users/index');
-const fs = require('fs');
-const path = require('path');
-const program = require('commander');
+import dumpUsers from './dump-users/index';
+import fs from 'fs';
+import path from 'path';
+import program from 'commander';
 
 program
   .option('-e, --emails [emails]', 'Email addresses to dump, comma separated')

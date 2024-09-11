@@ -4,10 +4,10 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const superagent = require('superagent');
-const TestServer = require('../test_server');
-const path = require('path');
+import { assert } from 'chai';
+import superagent from 'superagent';
+import TestServer from '../test_server';
+import path from 'path';
 
 describe(`#integration - remote sign key`, function () {
   this.timeout(15000);

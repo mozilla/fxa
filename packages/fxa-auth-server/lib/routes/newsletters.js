@@ -4,15 +4,14 @@
 
 'use strict';
 
-const MISC_DOCS = require('../../docs/swagger/misc-api').default;
-const validators = require('./validators');
-const ScopeSet = require('fxa-shared/oauth/scopes').scopeSetHelpers;
-const AppError = require('../../lib/error');
-const Joi = require('joi');
+import { default as MISC_DOCS } from '../../docs/swagger/misc-api';
+import * as validators from './validators';
+import { scopeSetHelpers as ScopeSet } from 'fxa-shared/oauth/scopes';
+import AppError from '../../lib/error';
+import Joi from 'joi';
+import { OAUTH_SCOPE_NEWSLETTERS } from 'fxa-shared/oauth/constants';
 
-const { OAUTH_SCOPE_NEWSLETTERS } = require('fxa-shared/oauth/constants');
-
-module.exports = (log, db) => {
+export default (log, db) => {
   return [
     {
       method: 'POST',

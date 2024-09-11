@@ -4,7 +4,7 @@
 
 'use strict';
 
-module.exports = (config) => {
+export default (config) => {
   const otplib = require('otplib');
   const crypto = require('crypto');
   const ClientApi = require('./api')(config);

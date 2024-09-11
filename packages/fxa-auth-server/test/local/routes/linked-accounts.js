@@ -4,12 +4,12 @@
 
 'use strict';
 
-const sinon = require('sinon');
+import sinon from 'sinon';
 const assert = { ...sinon.assert, ...require('chai').assert };
-const getRoute = require('../../routes_helpers').getRoute;
-const mocks = require('../../mocks');
-const error = require('../../../lib/error');
-const proxyquire = require('proxyquire');
+import { getRoute } from '../../routes_helpers';
+import mocks from '../../mocks';
+import error from '../../../lib/error';
+import proxyquire from 'proxyquire';
 const glean = mocks.mockGlean();
 
 const GOOGLE_PROVIDER = 'google';

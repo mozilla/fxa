@@ -1,24 +1,23 @@
-#!/usr/bin/env node -r esbuild-register
-
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const program = require('commander');
-const pckg = require('../package.json');
-const config = require('../config').default.getProperties();
-const StatsD = require('hot-shots');
-const { Container } = require('typedi');
-const { AppConfig, AuthLogger } = require('../lib/types');
+import program from 'commander';
+
+import pckg from '../package.json';
+import configModule from "../config";
+const config = configModule.getProperties();
+import StatsD from 'hot-shots';
+import { Container } from 'typedi';
+import { AppConfig, AuthLogger } from '../lib/types';
 
 const statsd = new StatsD(config.statsd);
-const log = require('../lib/log')(
-  config.log.level,
-  'find-stripe-sync-issues',
-  statsd
-);
-const Token = require('../lib/tokens')(log, config);
-const DB = require('../lib/db')(config, log, Token);
+import logModule from "../lib/log";
+const log = logModule(config.log.level, 'find-stripe-sync-issues', statsd);
+import TokenModule from "../lib/tokens";
+const Token = TokenModule(log, config);
+import DBModule from "../lib/db";
+const DB = DBModule(config, log, Token);
 
 Container.set(AppConfig, config);
 Container.set(AuthLogger, log);

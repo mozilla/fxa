@@ -4,14 +4,15 @@
 
 'use strict';
 
-const chunk = require('lodash.chunk');
-const config = require('../../config').default.getProperties();
-const readUserRecords = require('./read-user-records');
-const sendEmailBatches = require('./send-email-batches');
-const Senders = require('../../lib/senders');
-const UserRecordNormalizer = require('./normalize-user-records');
-const WriteToStreamSenderMock = require('./nodemailer-mocks/stream-output-mock');
-const WriteToDiskSenderMock = require('./nodemailer-mocks/write-to-disk-mock');
+import chunk from 'lodash.chunk';
+import configModule from "../../config";
+const config = configModule.getProperties();
+import readUserRecords from './read-user-records';
+import sendEmailBatches from './send-email-batches';
+import Senders from '../../lib/senders';
+import UserRecordNormalizer from './normalize-user-records';
+import WriteToStreamSenderMock from './nodemailer-mocks/stream-output-mock';
+import WriteToDiskSenderMock from './nodemailer-mocks/write-to-disk-mock';
 
 /**
  * Send an email to users listed in the file `userRecordFilename` using `mailerMethodName`
@@ -29,7 +30,7 @@ const WriteToDiskSenderMock = require('./nodemailer-mocks/write-to-disk-mock');
  *   See `shouldSend`
  * @param {Boolean} useVerboseLogging if `true`, print info/trace messages to the console
  */
-module.exports = async function (
+export default async function (
   userRecordsFilename,
   mailerMethodName,
   batchSize,
@@ -73,7 +74,7 @@ module.exports = async function (
   const isTest = !shouldSend;
 
   return sendEmailBatches(batches, batchDelayMS, sendDelegate, logMock, isTest);
-};
+}
 
 function normalizeUserRecords(userRecords) {
   const normalizer = new UserRecordNormalizer();

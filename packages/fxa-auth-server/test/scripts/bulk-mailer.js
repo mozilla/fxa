@@ -4,26 +4,25 @@
 
 'use strict';
 
-const ROOT_DIR = '../..';
+import { promisify } from 'util';
+import { assert } from 'chai';
+import cp from 'child_process';
+import fs from 'fs';
+import mocks from '../../test/mocks';
+import path from 'path';
+import rimraf from 'rimraf';
+import crypto from 'crypto';
 
-const { promisify } = require('util');
-const { assert } = require('chai');
-const cp = require('child_process');
-const fs = require('fs');
-const mocks = require(`${ROOT_DIR}/test/mocks`);
-const path = require('path');
-const rimraf = require('rimraf');
-const crypto = require('crypto');
-
-const cwd = path.resolve(__dirname, ROOT_DIR);
+const cwd = path.resolve(__dirname, '../..');
 const execAsync = promisify(cp.exec);
 
 const log = mocks.mockLog();
-const config = require('../../config').default.getProperties();
-const Token = require('../../lib/tokens')(log, config);
-const UnblockCode = require('../../lib/crypto/random').base32(
-  config.signinUnblock.codeLength
-);
+import configModule from "../../config";
+const config = configModule.getProperties();
+import TokenModule from "../../lib/tokens";
+const Token = TokenModule(log, config);
+import UnblockCodeModule from "../../lib/crypto/random";
+const UnblockCode = UnblockCodeModule.base32(config.signinUnblock.codeLength);
 
 const OUTPUT_DIRECTORY = path.resolve(__dirname, './test_output');
 const USER_DUMP_PATH = path.join(OUTPUT_DIRECTORY, 'user_dump.json');
@@ -64,7 +63,8 @@ const account2Mock = createAccount(
   'es'
 );
 
-const DB = require('../../lib/db')(config, log, Token, UnblockCode);
+import DBModule from "../../lib/db";
+const DB = DBModule(config, log, Token, UnblockCode);
 
 const execOptions = {
   cwd,

@@ -4,44 +4,40 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const moment = require('moment');
-const util = require('node:util');
+import { assert } from 'chai';
+import moment from 'moment';
+import util from 'node:util';
 const exec = util.promisify(require('node:child_process').exec);
-const path = require('path');
-const mocks = require(`../../test/mocks`);
-const crypto = require('crypto');
+import path from 'path';
+import mocks from '../../test/mocks';
+import crypto from 'crypto';
 
-const config = require('../../config').default.getProperties();
-const UnblockCode = require('../../lib/crypto/random').base32(
-  config.signinUnblock.codeLength
-);
+import configModule from "../../config";
+const config = configModule.getProperties();
+import UnblockCodeModule from "../../lib/crypto/random";
+const UnblockCode = UnblockCodeModule.base32(config.signinUnblock.codeLength);
 
-const { Account } = require('fxa-shared/db/models/auth/account');
-const { SessionToken } = require('fxa-shared/db/models/auth/session-token');
-const {
-  PasswordChangeToken,
-} = require('fxa-shared/db/models/auth/password-change-token');
-const {
-  PasswordForgotToken,
-} = require('fxa-shared/db/models/auth/password-forgot-token');
-const { AccountResetToken, Device } = require('fxa-shared/db/models/auth');
-const { UnblockCodes } = require('fxa-shared/db/models/auth/unblock-codes');
-const { SignInCodes } = require('fxa-shared/db/models/auth/sign-in-codes');
-const { uuidTransformer } = require('fxa-shared/db/transformers');
+import { Account } from 'fxa-shared/db/models/auth/account';
+import { SessionToken } from 'fxa-shared/db/models/auth/session-token';
+import { PasswordChangeToken } from 'fxa-shared/db/models/auth/password-change-token';
+import { PasswordForgotToken } from 'fxa-shared/db/models/auth/password-forgot-token';
+import { AccountResetToken, Device } from 'fxa-shared/db/models/auth';
+import { UnblockCodes } from 'fxa-shared/db/models/auth/unblock-codes';
+import { SignInCodes } from 'fxa-shared/db/models/auth/sign-in-codes';
+import { uuidTransformer } from 'fxa-shared/db/transformers';
 
 const log = mocks.mockLog();
-const Token = require('../../lib/tokens')(log, config);
-const DB = require('../../lib/db')(config, log, Token, UnblockCode);
+import TokenModule from "../../lib/tokens";
+const Token = TokenModule(log, config);
+import DBModule from "../../lib/db";
+const DB = DBModule(config, log, Token, UnblockCode);
+import redisModule from "../../lib/redis";
 
-const redis = require('../../lib/redis')(
-  {
-    ...config.redis,
-    ...config.redis.sessionTokens,
-    maxttl: 1337,
-  },
-  mocks.mockLog()
-);
+const redis = redisModule({
+  ...config.redis,
+  ...config.redis.sessionTokens,
+  maxttl: 1337,
+}, mocks.mockLog());
 
 describe('#integration - scripts/prune-tokens', function () {
   this.timeout(10000);

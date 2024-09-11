@@ -4,25 +4,24 @@
 
 'use strict';
 
-const ROOT_DIR = '../..';
+import { promisify } from 'util';
+import cp from 'child_process';
+import { assert } from 'chai';
+import path from 'path';
+import mocks from '../../test/mocks';
+import crypto from 'crypto';
+import fs from 'fs';
 
-const { promisify } = require('util');
-const cp = require('child_process');
-const { assert } = require('chai');
-const path = require('path');
-const mocks = require(`${ROOT_DIR}/test/mocks`);
-const crypto = require('crypto');
-const fs = require('fs');
-
-const cwd = path.resolve(__dirname, ROOT_DIR);
+const cwd = path.resolve(__dirname, '../..');
 cp.execAsync = promisify(cp.exec);
 
 const log = mocks.mockLog();
-const config = require('../../config').default.getProperties();
-const Token = require('../../lib/tokens')(log, config);
-const UnblockCode = require('../../lib/crypto/random').base32(
-  config.signinUnblock.codeLength
-);
+import configModule from "../../config";
+const config = configModule.getProperties();
+import TokenModule from "../../lib/tokens";
+const Token = TokenModule(log, config);
+import UnblockCodeModule from "../../lib/crypto/random";
+const UnblockCode = UnblockCodeModule.base32(config.signinUnblock.codeLength);
 
 const zeroBuffer16 = Buffer.from(
   '00000000000000000000000000000000',
@@ -57,7 +56,8 @@ const account2Mock = createAccount(
   crypto.randomBytes(16).toString('hex')
 );
 
-const DB = require('../../lib/db')(config, log, Token, UnblockCode);
+import DBModule from "../../lib/db";
+const DB = DBModule(config, log, Token, UnblockCode);
 
 const execOptions = {
   cwd,

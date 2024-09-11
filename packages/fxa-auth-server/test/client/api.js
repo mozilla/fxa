@@ -4,7 +4,7 @@
 
 'use strict';
 
-module.exports = (config) => {
+export default (config) => {
   const EventEmitter = require('events').EventEmitter;
   const util = require('util');
 

@@ -4,29 +4,28 @@
 
 'use strict';
 
-const ROOT_DIR = '../..';
-
-const cp = require('child_process');
-const util = require('util');
-const path = require('path');
-const TestServer = require('../test_server');
+import cp from 'child_process';
+import util from 'util';
+import path from 'path';
+import TestServer from '../test_server';
 
 const execAsync = util.promisify(cp.exec);
-const config = require('../../config').config.getProperties();
-const fs = require('fs');
-
-const mocks = require(`${ROOT_DIR}/test/mocks`);
-const { assert } = require('chai');
+import configModule from "../../config";
+const config = configModule.config.getProperties();
+import fs from 'fs';
+import mocks from '../../test/mocks';
+import { assert } from 'chai';
 const log = mocks.mockLog();
-const Token = require('../../lib/tokens')(log, config);
-const UnblockCode = require('../../lib/crypto/random').base32(
-  config.signinUnblock.codeLength
-);
-const AuthClient = require('../client')();
+import TokenModule from "../../lib/tokens";
+const Token = TokenModule(log, config);
+import UnblockCodeModule from "../../lib/crypto/random";
+const UnblockCode = UnblockCodeModule.base32(config.signinUnblock.codeLength);
+import AuthClientModule from "../client";
+const AuthClient = AuthClientModule();
+import DBModule from "../../lib/db";
+const DB = DBModule(config, log, Token, UnblockCode);
 
-const DB = require('../../lib/db')(config, log, Token, UnblockCode);
-
-const cwd = path.resolve(__dirname, ROOT_DIR);
+const cwd = path.resolve(__dirname, '../..');
 const execOptions = {
   cwd,
   env: {

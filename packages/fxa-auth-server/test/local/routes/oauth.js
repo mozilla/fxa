@@ -4,16 +4,13 @@
 
 'use strict';
 
-const ROOT_DIR = '../../..';
-
-const sinon = require('sinon');
+import sinon from 'sinon';
 const assert = { ...sinon.assert, ...require('chai').assert };
-const getRoute = require('../../routes_helpers').getRoute;
-const mocks = require('../../mocks');
-const error = require('../../../lib/error');
-const JWTIdToken = require(`${ROOT_DIR}/lib/oauth/jwt_id_token`);
-
-const { OAUTH_SCOPE_OLD_SYNC } = require('fxa-shared/oauth/constants');
+import { getRoute } from '../../routes_helpers';
+import mocks from '../../mocks';
+import error from '../../../lib/error';
+import JWTIdToken from '../../../lib/oauth/jwt_id_token';
+import { OAUTH_SCOPE_OLD_SYNC } from 'fxa-shared/oauth/constants';
 const MOCK_CLIENT_ID = '0123456789abcdef';
 const MOCK_USER_ID = '0123456789abcdef0123456789abcdef';
 const MOCK_SCOPES = `profile https://identity.mozilla.com/apps/scoped-example ${OAUTH_SCOPE_OLD_SYNC}`;
@@ -53,8 +50,8 @@ describe('/oauth/ routes', () => {
   }
 
   async function mockSessionToken(props = {}) {
-    const Token = require(`${ROOT_DIR}/lib/tokens/token`)(mockLog);
-    const SessionToken = require(`${ROOT_DIR}/lib/tokens/session_token`)(
+    const Token = require('../../../lib/tokens/token')(mockLog);
+    const SessionToken = require('../../../lib/tokens/session_token')(
       mockLog,
       Token,
       {

@@ -8,18 +8,23 @@
 
 'use strict';
 
-const assert = require('assert');
-const config = require('../config').default.getProperties();
-const crypto = require('crypto');
-const error = require('../lib/error');
-const knownIpLocation = require('./known-ip-location');
-const sinon = require('sinon');
-const { normalizeEmail } = require('fxa-shared').email.helpers;
-const { Container } = require('typedi');
-const { AccountEventsManager } = require('../lib/account-events');
-const { gleanMetrics } = require('../lib/metrics/glean');
+import assert from 'assert';
+import configModule from '../config';
+import crypto from 'crypto';
+import error from '../lib/error';
+import knownIpLocation from './known-ip-location';
+import sinon from 'sinon';
+import { email } from 'fxa-shared';
+import { Container } from 'typedi';
+import { AccountEventsManager } from '../lib/account-events';
+import { gleanMetrics } from '../lib/metrics/glean';
+import proxyquireModule from 'proxyquire';
 
-const proxyquire = require('proxyquire');
+console.log('!!!', proxyquireModule.noCallThru);
+
+const proxyquire = proxyquireModule.noCallThru();
+const config = configModule.getProperties();
+const { normalizeEmail } = email.helpers;
 const amplitudeModule = proxyquire('../lib/metrics/amplitude', {
   'fxa-shared/db/models/auth': {
     Account: {
@@ -299,7 +304,7 @@ const mockCloudTasksConfig = {
   },
 };
 
-module.exports = {
+const mocks = {
   MOCK_PUSH_KEY:
     'BDLugiRzQCANNj5KI1fAqui8ELrE7qboxzfa5K_R0wnUoJ89xY1D_SOXI_QJKNmellykaW_7U2BZ7hnrPW3A3LM',
   asyncIterable: asyncIterable,
@@ -330,6 +335,8 @@ module.exports = {
   mockAccountEventsManager,
   unMockAccountEventsManager,
 };
+
+export default mocks;
 
 function mockCustoms(errors) {
   errors = errors || {};
@@ -843,17 +850,17 @@ function generateMetricsContext() {
 }
 
 function mockRequest(data, errors) {
-  const events = proxyquire('../lib/metrics/events', {
+  const eventsModule = proxyquire('../lib/metrics/events', {
     './amplitude': amplitudeModule,
-  })(data.log || module.exports.mockLog(), {
+  });
+  const events = eventsModule.default(data.log || mocks.mockLog(), {
     amplitude: { rawEvents: false },
     oauth: {
       clientIds: data.clientIds || {},
     },
     verificationReminders: {},
   });
-  const metricsContext =
-    data.metricsContext || module.exports.mockMetricsContext();
+  const metricsContext = data.metricsContext || mocks.mockMetricsContext();
 
   const geo = data.geo || {
     timeZone: knownIpLocation.location.tz,

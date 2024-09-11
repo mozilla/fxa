@@ -2,17 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { assert } = require('chai');
-const jsonwebtoken = require('jsonwebtoken');
+import { assert } from 'chai';
 
-const AppError = require('../../lib/oauth/error');
-const { config } = require('../../config');
-const JWTIdToken = require('../../lib/oauth/jwt_id_token');
-const {
-  SIGNING_PEM,
-  SIGNING_KID,
-  SIGNING_ALG,
-} = require('../../lib/oauth/keys');
+import jsonwebtoken from 'jsonwebtoken';
+import AppError from '../../lib/oauth/error';
+import { config } from '../../config';
+import JWTIdToken from '../../lib/oauth/jwt_id_token';
+import { SIGNING_PEM, SIGNING_KID, SIGNING_ALG } from '../../lib/oauth/keys';
 
 const CLIENT_ID = '59cceb6f8c32317c';
 const ISSUER = config.get('oauthServer.openid.issuer');

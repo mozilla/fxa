@@ -5,59 +5,38 @@
 
 'use strict';
 
-const { URL } = require('url');
-const punycode = require('punycode.js');
-const isA = require('joi');
-const { MozillaSubscriptionTypes } = require('fxa-shared/subscriptions/types');
-const {
-  minimalConfigSchema,
-} = require('fxa-shared/subscriptions/configuration/base');
-const {
-  productConfigJoiKeys,
-} = require('fxa-shared/subscriptions/configuration/product');
-const {
-  planConfigJoiKeys,
-} = require('fxa-shared/subscriptions/configuration/plan');
-const {
-  appStoreSubscriptionSchema,
-  playStoreSubscriptionSchema,
-} = require('fxa-shared/dto/auth/payments/iap-subscription');
-const {
-  latestInvoiceItemsSchema,
-} = require('fxa-shared/dto/auth/payments/invoice');
-const {
-  default: DESCRIPTIONS,
-} = require('../../docs/swagger/shared/descriptions');
-const {
-  subscriptionProductMetadataBaseValidator,
-  capabilitiesClientIdPattern,
-} = require('fxa-shared/subscriptions/validation');
-const {
-  VX_REGEX: CLIENT_SALT_STRING,
-} = require('../../lib/routes/utils/client-key-stretch');
-const { ReasonForDeletion } = require('./cloud-tasks');
+import { URL } from 'url';
+import punycode from 'punycode.js';
+import isA from 'joi';
+import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
+import { minimalConfigSchema } from 'fxa-shared/subscriptions/configuration/base';
+import { productConfigJoiKeys } from 'fxa-shared/subscriptions/configuration/product';
+import { planConfigJoiKeys } from 'fxa-shared/subscriptions/configuration/plan';
+import { appStoreSubscriptionSchema, playStoreSubscriptionSchema } from 'fxa-shared/dto/auth/payments/iap-subscription';
+import { latestInvoiceItemsSchema } from 'fxa-shared/dto/auth/payments/invoice';
+import { default as DESCRIPTIONS } from '../../docs/swagger/shared/descriptions';
+import { subscriptionProductMetadataBaseValidator, capabilitiesClientIdPattern } from 'fxa-shared/subscriptions/validation';
+import { VX_REGEX as CLIENT_SALT_STRING } from '../../lib/routes/utils/client-key-stretch';
+import { ReasonForDeletion } from './cloud-tasks';
 
 // Match any non-empty hex-encoded string.
 const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/;
-module.exports.HEX_STRING = HEX_STRING;
-
-module.exports.BASE_36 = /^[a-zA-Z0-9]*$/;
-module.exports.BASE_10 = /^[0-9]*$/;
+export { HEX_STRING };
+export const BASE_36 = /^[a-zA-Z0-9]*$/;
+export const BASE_10 = /^[0-9]*$/;
 
 // RFC 4648, section 5
-module.exports.URL_SAFE_BASE_64 = /^[A-Za-z0-9_-]+$/;
+export const URL_SAFE_BASE_64 = /^[A-Za-z0-9_-]+$/;
 
 // RFC 7636, section 4.1
-module.exports.PKCE_CODE_VERIFIER = /^[A-Za-z0-9-\._~]{43,128}$/;
+export const PKCE_CODE_VERIFIER = /^[A-Za-z0-9-\._~]{43,128}$/;
 
 // Crude phone number validation. The handler code does it more thoroughly.
-exports.E164_NUMBER = /^\+[1-9]\d{1,14}$/;
+export const E164_NUMBER = /^\+[1-9]\d{1,14}$/;
 
-exports.DIGITS = /^[0-9]+$/;
-
-exports.DEVICE_COMMAND_NAME = /^[a-zA-Z0-9._\/\-:]{1,100}$/;
-
-exports.IP_ADDRESS = isA.string().ip();
+export const DIGITS = /^[0-9]+$/;
+export const DEVICE_COMMAND_NAME = /^[a-zA-Z0-9._\/\-:]{1,100}$/;
+export const IP_ADDRESS = isA.string().ip();
 
 // Match display-safe unicode characters.
 // We're pretty liberal with what's allowed in a unicode string,
@@ -79,30 +58,29 @@ exports.IP_ADDRESS = isA.string().ip();
 
 const DISPLAY_SAFE_UNICODE =
   /^(?:[^\u0000-\u001F\u007F\u0080-\u009F\u2028-\u2029\uD800-\uDFFF\uE000-\uF8FF\uFFF9-\uFFFC\uFFFE-\uFFFF])*$/;
-module.exports.DISPLAY_SAFE_UNICODE = DISPLAY_SAFE_UNICODE;
+export { DISPLAY_SAFE_UNICODE };
 
 // Similar display-safe match but includes non-BMP characters
 const DISPLAY_SAFE_UNICODE_WITH_NON_BMP =
   /^(?:[^\u0000-\u001F\u007F\u0080-\u009F\u2028-\u2029\uE000-\uF8FF\uFFF9-\uFFFC\uFFFE-\uFFFF])*$/;
-module.exports.DISPLAY_SAFE_UNICODE_WITH_NON_BMP =
-  DISPLAY_SAFE_UNICODE_WITH_NON_BMP;
+export { DISPLAY_SAFE_UNICODE_WITH_NON_BMP };
 
 // Bearer auth header regex
 const BEARER_AUTH_REGEX = /^Bearer\s+([a-z0-9+\/]+)$/i;
-module.exports.BEARER_AUTH_REGEX = BEARER_AUTH_REGEX;
+export { BEARER_AUTH_REGEX };
 
 // Joi validator to match any valid email address.
 // This is different to Joi's builtin email validator, and
 // requires a custom validation function.
 
-module.exports.email = function () {
+export const email = function () {
   const email = isA
     .string()
     .max(255)
     .regex(DISPLAY_SAFE_UNICODE)
     .custom((value) => {
       // Do custom validation
-      const isValid = module.exports.isValidEmailAddress(value);
+      const isValid = isValidEmailAddress(value);
 
       if (!isValid) {
         throw new Error('Not a valid email address');
@@ -113,45 +91,57 @@ module.exports.email = function () {
   return email;
 };
 
-module.exports.service = isA
+export const service = isA
   .string()
   .max(16)
   .regex(/^[a-zA-Z0-9\-]*$/);
-module.exports.hexString = isA.string().regex(HEX_STRING);
-module.exports.uid = module.exports.hexString.length(32);
-module.exports.clientId = module.exports.hexString.length(16);
-module.exports.clientSecret = module.exports.hexString;
-module.exports.idToken = module.exports.jwt;
-module.exports.reasonForAccountDeletion = isA
+
+export const hexString = isA.string().regex(HEX_STRING);
+export const uid = hexString.length(32);
+export const clientId = hexString.length(16);
+export const clientSecret = hexString;
+
+export const jwt = isA
+  .string()
+  .max(1024)
+  // JWT format: 'header.payload.signature'
+  .regex(/^([a-zA-Z0-9\-_]+)\.([a-zA-Z0-9\-_]+)\.([a-zA-Z0-9\-_]+)$/);
+
+export const idToken = jwt;
+
+export const reasonForAccountDeletion = isA
   .string()
   .valid(...Object.values(ReasonForDeletion));
-module.exports.refreshToken = module.exports.hexString.length(64);
-module.exports.sessionToken = module.exports.hexString.length(64);
-module.exports.sessionTokenId = module.exports.hexString.length(64);
-module.exports.authorizationCode = module.exports.hexString.length(64);
+
+export const refreshToken = hexString.length(64);
+export const sessionToken = hexString.length(64);
+export const sessionTokenId = hexString.length(64);
+export const authorizationCode = hexString.length(64);
 // Note that the empty string is a valid scope value (meaning "no permissions").
 const scope = isA
   .string()
   .max(256)
   .regex(/^[a-zA-Z0-9 _\/.:-]*$/)
   .allow('');
-module.exports.scope = scope;
-module.exports.assertion = isA
+export { scope };
+
+export const assertion = isA
   .string()
   .min(50)
   .max(10240)
   .regex(/^[a-zA-Z0-9_\-\.~=]+$/);
-module.exports.pkceCodeChallengeMethod = isA.string().valid('S256');
-module.exports.pkceCodeChallenge = isA
-  .string()
-  .length(43)
-  .regex(module.exports.URL_SAFE_BASE_64);
-module.exports.pkceCodeVerifier = isA
+
+export const pkceCodeChallengeMethod = isA.string().valid('S256');
+
+export const pkceCodeChallenge = isA.string().length(43).regex(URL_SAFE_BASE_64);
+
+export const pkceCodeVerifier = isA
   .string()
   .min(43)
   .max(128)
-  .regex(module.exports.PKCE_CODE_VERIFIER);
-module.exports.jwe = isA
+  .regex(PKCE_CODE_VERIFIER);
+
+export const jwe = isA
   .string()
   .max(1024)
   // JWE token format: 'protectedheader.encryptedkey.iv.cyphertext.authenticationtag'
@@ -159,15 +149,7 @@ module.exports.jwe = isA
     /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/
   );
 
-module.exports.jwt = isA
-  .string()
-  .max(1024)
-  // JWT format: 'header.payload.signature'
-  .regex(/^([a-zA-Z0-9\-_]+)\.([a-zA-Z0-9\-_]+)\.([a-zA-Z0-9\-_]+)$/);
-
-module.exports.accessToken = isA
-  .alternatives()
-  .try(module.exports.hexString.length(64), module.exports.jwt);
+export const accessToken = isA.alternatives().try(hexString.length(64), jwt);
 
 // Function to validate an email address.
 //
@@ -183,7 +165,7 @@ const EMAIL_USER = /^[A-Z0-9.!#$%&'*+\/=?^_`{|}~-]{1,64}$/i;
 const EMAIL_DOMAIN =
   /^[A-Z0-9](?:[A-Z0-9-]{0,253}[A-Z0-9])?(?:\.[A-Z0-9](?:[A-Z0-9-]{0,253}[A-Z0-9])?)+$/i;
 
-module.exports.isValidEmailAddress = function (value) {
+export const isValidEmailAddress = function (value) {
   if (!value) {
     return false;
   }
@@ -204,7 +186,7 @@ module.exports.isValidEmailAddress = function (value) {
   return true;
 };
 
-module.exports.redirectTo = function redirectTo(base) {
+export const redirectTo = function redirectTo(base) {
   const validator = isA
     .string()
     .max(2048)
@@ -224,7 +206,7 @@ module.exports.redirectTo = function redirectTo(base) {
   return validator;
 };
 
-module.exports.url = function url(options) {
+export const url = function url(options) {
   const validator = isA
     .string()
     .uri(options)
@@ -240,9 +222,9 @@ module.exports.url = function url(options) {
 
 // resourceUrls must *not* contain a hash fragment.
 // See https://tools.ietf.org/html/draft-ietf-oauth-resource-indicators-02#section-2
-module.exports.resourceUrl = module.exports.url().regex(/#/, { invert: true });
+export const resourceUrl = url().regex(/#/, { invert: true });
 
-module.exports.pushCallbackUrl = function pushUrl(options) {
+export const pushCallbackUrl = function pushUrl(options) {
   const validator = isA
     .string()
     .uri(options)
@@ -287,7 +269,7 @@ function isValidUrl(url, hostnameRegex) {
   return parsed.href;
 }
 
-module.exports.verificationMethod = isA.string().valid(
+export const verificationMethod = isA.string().valid(
   'email', // Verification by email link
   'email-otp', // Verification by email otp code using account long code (`emailCode`) as secret
   'email-2fa', // Verification by email code using randomly generated code (used in login flow)
@@ -295,58 +277,60 @@ module.exports.verificationMethod = isA.string().valid(
   'totp-2fa' // Verification by TOTP authenticator device code, secret is randomly generated
 );
 
-module.exports.authPW = isA.string().length(64).regex(HEX_STRING).required();
-module.exports.wrapKb = isA.string().length(64).regex(HEX_STRING);
-module.exports.authPWVersion2 = isA.string().length(64).regex(HEX_STRING);
-module.exports.clientSalt = isA.string().regex(CLIENT_SALT_STRING);
+export const authPW = isA.string().length(64).regex(HEX_STRING).required();
+export const wrapKb = isA.string().length(64).regex(HEX_STRING);
+export const authPWVersion2 = isA.string().length(64).regex(HEX_STRING);
+export const clientSalt = isA.string().regex(CLIENT_SALT_STRING);
+export const recoveryKeyId = isA.string().regex(HEX_STRING).max(32);
 
-module.exports.recoveryKeyId = isA.string().regex(HEX_STRING).max(32);
-module.exports.recoveryData = isA
+export const recoveryData = isA
   .string()
   .regex(/[a-zA-Z0-9.]/)
   .max(1024)
   .required();
 
-module.exports.recoveryKeyHint = isA
+export const recoveryKeyHint = isA
   .string()
   .max(255)
   .regex(DISPLAY_SAFE_UNICODE);
 
-module.exports.recoveryCode = function (len, base) {
-  const regex = base || module.exports.BASE_36;
+export const recoveryCode = function (len, base) {
+  const regex = base || BASE_36;
   return isA.string().regex(regex).min(8).max(len);
 };
-module.exports.recoveryCodes = function (codeCount, codeLen, base) {
+
+export const recoveryCodes = function (codeCount, codeLen, base) {
   return isA.object({
     recoveryCodes: isA
       .array()
       .min(1)
       .max(codeCount)
       .unique()
-      .items(module.exports.recoveryCode(codeLen, base))
+      .items(recoveryCode(codeLen, base))
       .required(),
   });
 };
 
-module.exports.stripePaymentMethodId = isA.string().max(30);
-module.exports.paypalPaymentToken = isA.string().max(30);
-module.exports.subscriptionsSubscriptionId = isA.string().max(255);
-module.exports.subscriptionsPlanId = isA.string().max(255);
-module.exports.subscriptionsProductId = isA.string().max(255);
-module.exports.subscriptionsProductName = isA.string().max(255);
-module.exports.subscriptionsPaymentToken = isA.string().max(255);
-module.exports.subscriptionPaymentCountryCode = isA
+export const stripePaymentMethodId = isA.string().max(30);
+export const paypalPaymentToken = isA.string().max(30);
+export const subscriptionsSubscriptionId = isA.string().max(255);
+export const subscriptionsPlanId = isA.string().max(255);
+export const subscriptionsProductId = isA.string().max(255);
+export const subscriptionsProductName = isA.string().max(255);
+export const subscriptionsPaymentToken = isA.string().max(255);
+
+export const subscriptionPaymentCountryCode = isA
   .string()
   .length(2)
   .allow(null);
 
 // This is fxa-auth-db-mysql's perspective on an active subscription
-module.exports.activeSubscriptionValidator = isA.object({
+export const activeSubscriptionValidator = isA.object({
   uid: isA.string().required().description(DESCRIPTIONS.uid),
-  subscriptionId: module.exports.subscriptionsSubscriptionId
+  subscriptionId: subscriptionsSubscriptionId
     .required()
     .description(DESCRIPTIONS.subscriptionId),
-  productId: module.exports.subscriptionsProductId
+  productId: subscriptionsProductId
     .required()
     .description(DESCRIPTIONS.productId),
   createdAt: isA.number().required().description(DESCRIPTIONS.createdAt),
@@ -355,7 +339,7 @@ module.exports.activeSubscriptionValidator = isA.object({
     .description(DESCRIPTIONS.cancelledAt),
 });
 
-module.exports.subscriptionsSetupIntent = isA
+export const subscriptionsSetupIntent = isA
   .object({
     client_secret: isA
       .string()
@@ -365,7 +349,7 @@ module.exports.subscriptionsSetupIntent = isA
   .unknown(true);
 
 // This is a Stripe subscription object with latest_invoice.payment_intent expanded
-module.exports.subscriptionsSubscriptionExpandedValidator = isA
+export const subscriptionsSubscriptionExpandedValidator = isA
   .object({
     id: isA.string().required(),
     object: isA.string().allow('subscription').required(),
@@ -388,7 +372,7 @@ module.exports.subscriptionsSubscriptionExpandedValidator = isA
   })
   .unknown(true);
 
-module.exports.subscriptionsInvoicePIExpandedValidator = isA
+export const subscriptionsInvoicePIExpandedValidator = isA
   .object({
     id: isA.string().required(),
     object: isA.string().allow('invoice').required(),
@@ -403,7 +387,7 @@ module.exports.subscriptionsInvoicePIExpandedValidator = isA
   })
   .unknown(true);
 
-module.exports.subscriptionsSubscriptionValidator = isA.object({
+export const subscriptionsSubscriptionValidator = isA.object({
   _subscription_type: MozillaSubscriptionTypes.WEB,
   created: isA.number().required().description(DESCRIPTIONS.createdAt),
   current_period_end: isA
@@ -429,15 +413,13 @@ module.exports.subscriptionsSubscriptionValidator = isA.object({
     .required()
     .description(DESCRIPTIONS.latestInvoice),
   latest_invoice_items: latestInvoiceItemsSchema.required(),
-  plan_id: module.exports.subscriptionsPlanId
-    .required()
-    .description(DESCRIPTIONS.planId),
-  product_id: module.exports.subscriptionsProductId
+  plan_id: subscriptionsPlanId.required().description(DESCRIPTIONS.planId),
+  product_id: subscriptionsProductId
     .required()
     .description(DESCRIPTIONS.productId),
   product_name: isA.string().required().description(DESCRIPTIONS.productName),
   status: isA.string().required().description(DESCRIPTIONS.status),
-  subscription_id: module.exports.subscriptionsSubscriptionId
+  subscription_id: subscriptionsSubscriptionId
     .required()
     .description(DESCRIPTIONS.subscriptionId),
   promotion_amount_off: isA
@@ -477,7 +459,7 @@ module.exports.subscriptionsSubscriptionValidator = isA.object({
 });
 
 // This is support-panel's perspective on a subscription
-module.exports.subscriptionsWebSubscriptionSupportValidator = isA
+export const subscriptionsWebSubscriptionSupportValidator = isA
   .object({
     created: isA.number().required().description(DESCRIPTIONS.createdAt),
     current_period_end: isA
@@ -494,13 +476,13 @@ module.exports.subscriptionsWebSubscriptionSupportValidator = isA
       .description(DESCRIPTIONS.previousProduct),
     product_name: isA.string().required().description(DESCRIPTIONS.productName),
     status: isA.string().required().description(DESCRIPTIONS.status),
-    subscription_id: module.exports.subscriptionsSubscriptionId
+    subscription_id: subscriptionsSubscriptionId
       .required()
       .description(DESCRIPTIONS.subscriptionId),
   })
   .unknown(true);
 
-module.exports.subscriptionsPlaySubscriptionSupportValidator = isA
+export const subscriptionsPlaySubscriptionSupportValidator = isA
   .object({
     _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
     auto_renewing: isA.bool().required(),
@@ -514,7 +496,7 @@ module.exports.subscriptionsPlaySubscriptionSupportValidator = isA
   })
   .unknown(true);
 
-module.exports.subscriptionsAppStoreSubscriptionSupportValidator = isA
+export const subscriptionsAppStoreSubscriptionSupportValidator = isA
   .object({
     _subscription_type: MozillaSubscriptionTypes.IAP_APPLE,
     app_store_product_id: isA.string().required(),
@@ -528,22 +510,20 @@ module.exports.subscriptionsAppStoreSubscriptionSupportValidator = isA
   })
   .unknown(true);
 
-module.exports.subscriptionsSubscriptionSupportValidator = isA.object({
+export const subscriptionsSubscriptionSupportValidator = isA.object({
   [MozillaSubscriptionTypes.WEB]: isA
     .array()
-    .items(module.exports.subscriptionsWebSubscriptionSupportValidator),
+    .items(subscriptionsWebSubscriptionSupportValidator),
   [MozillaSubscriptionTypes.IAP_GOOGLE]: isA
     .array()
-    .items(module.exports.subscriptionsPlaySubscriptionSupportValidator),
+    .items(subscriptionsPlaySubscriptionSupportValidator),
   [MozillaSubscriptionTypes.IAP_APPLE]: isA
     .array()
-    .items(module.exports.subscriptionsAppStoreSubscriptionSupportValidator),
+    .items(subscriptionsAppStoreSubscriptionSupportValidator),
 });
 
-module.exports.subscriptionsSubscriptionListValidator = isA.object({
-  subscriptions: isA
-    .array()
-    .items(module.exports.subscriptionsSubscriptionValidator),
+export const subscriptionsSubscriptionListValidator = isA.object({
+  subscriptions: isA.array().items(subscriptionsSubscriptionValidator),
 });
 
 // https://mana.mozilla.org/wiki/pages/viewpage.action?spaceKey=COPS&title=SP+Tiered+Product+Support#SPTieredProductSupport-MetadataAgreements
@@ -551,9 +531,9 @@ module.exports.subscriptionsSubscriptionListValidator = isA.object({
 // - subhub may not yet be including product / plan metadata in responses
 // - metadata can contain arbitrary keys that we don't expect (e.g. used by other systems)
 // - but we can make a good effort at validating what we expect to see when we see it
-module.exports.subscriptionPlanMetadataValidator = isA.object().unknown(true);
+export const subscriptionPlanMetadataValidator = isA.object().unknown(true);
 
-module.exports.subscriptionProductMetadataValidator = {
+export const subscriptionProductMetadataValidator = {
   validate: function (metadata) {
     const hasCapability = Object.keys(metadata).some((k) =>
       capabilitiesClientIdPattern.test(k)
@@ -599,14 +579,12 @@ module.exports.subscriptionProductMetadataValidator = {
   },
 };
 
-module.exports.subscriptionsPlanWithMetaDataValidator = isA.object({
-  plan_id: module.exports.subscriptionsPlanId
-    .required()
-    .description(DESCRIPTIONS.planId),
-  plan_metadata: module.exports.subscriptionPlanMetadataValidator
+export const subscriptionsPlanWithMetaDataValidator = isA.object({
+  plan_id: subscriptionsPlanId.required().description(DESCRIPTIONS.planId),
+  plan_metadata: subscriptionPlanMetadataValidator
     .optional()
     .description(DESCRIPTIONS.planMetadata),
-  product_id: module.exports.subscriptionsProductId
+  product_id: subscriptionsProductId
     .required()
     .description(DESCRIPTIONS.productId),
   product_name: isA.string().required().description(DESCRIPTIONS.productName),
@@ -633,12 +611,10 @@ module.exports.subscriptionsPlanWithMetaDataValidator = isA.object({
     .allow(null),
 });
 
-module.exports.subscriptionsPlanWithProductConfigValidator = isA.object({
-  plan_id: module.exports.subscriptionsPlanId
-    .required()
-    .description(DESCRIPTIONS.planId),
+export const subscriptionsPlanWithProductConfigValidator = isA.object({
+  plan_id: subscriptionsPlanId.required().description(DESCRIPTIONS.planId),
   plan_metadata: isA.object().optional().description(DESCRIPTIONS.planMetadata),
-  product_id: module.exports.subscriptionsProductId
+  product_id: subscriptionsProductId
     .required()
     .description(DESCRIPTIONS.productId),
   product_name: isA.string().required().description(DESCRIPTIONS.productName),
@@ -665,12 +641,13 @@ module.exports.subscriptionsPlanWithProductConfigValidator = isA.object({
     .required(),
 });
 
-module.exports.customerId = isA
+export const customerId = isA
   .string()
   .optional()
   .description(DESCRIPTIONS.customerId);
-module.exports.subscriptionsCustomerValidator = isA.object({
-  customerId: module.exports.customerId,
+
+export const subscriptionsCustomerValidator = isA.object({
+  customerId: customerId,
   billing_name: isA
     .alternatives(isA.string(), isA.any().allow(null))
     .optional()
@@ -694,12 +671,12 @@ module.exports.subscriptionsCustomerValidator = isA.object({
     .description(DESCRIPTIONS.billingAgreementId),
   subscriptions: isA
     .array()
-    .items(module.exports.subscriptionsSubscriptionValidator)
+    .items(subscriptionsSubscriptionValidator)
     .optional()
     .description(DESCRIPTIONS.subscriptions),
 });
 
-module.exports.subscriptionsStripeIntentValidator = isA
+export const subscriptionsStripeIntentValidator = isA
   .object({
     client_secret: isA
       .string()
@@ -720,7 +697,7 @@ module.exports.subscriptionsStripeIntentValidator = isA
   })
   .unknown(true);
 
-module.exports.subscriptionsStripeSourceValidator = isA
+export const subscriptionsStripeSourceValidator = isA
   .object({
     id: isA.string().required(),
     object: isA.string().required(),
@@ -731,33 +708,33 @@ module.exports.subscriptionsStripeSourceValidator = isA
   })
   .unknown(true);
 
-module.exports.subscriptionsStripeInvoiceValidator = isA
+export const subscriptionsStripeInvoiceValidator = isA
   .object({
     id: isA.string().required(),
     payment_intent: isA
       .alternatives(
         isA.string().allow(null),
-        module.exports.subscriptionsStripeIntentValidator
+        subscriptionsStripeIntentValidator
       )
       .optional(),
   })
   .unknown(true);
 
-module.exports.subscriptionsStripePriceValidator = isA
+export const subscriptionsStripePriceValidator = isA
   .object({
     id: isA.string().required(),
   })
   .unknown(true);
 
-module.exports.subscriptionsStripeSubscriptionItemValidator = isA
+export const subscriptionsStripeSubscriptionItemValidator = isA
   .object({
     id: isA.string().required(),
     created: isA.number().required(),
-    price: module.exports.subscriptionsStripePriceValidator.required(),
+    price: subscriptionsStripePriceValidator.required(),
   })
   .unknown(true);
 
-module.exports.subscriptionsStripeSubscriptionValidator = isA
+export const subscriptionsStripeSubscriptionValidator = isA
   .object({
     id: isA.string().required(),
     cancel_at: isA.alternatives(isA.number(), isA.any().valid(null)),
@@ -782,28 +759,22 @@ module.exports.subscriptionsStripeSubscriptionValidator = isA
       .object({
         data: isA
           .array()
-          .items(module.exports.subscriptionsStripeSubscriptionItemValidator)
+          .items(subscriptionsStripeSubscriptionItemValidator)
           .required(),
       })
       .unknown(true)
       .optional(),
     latest_invoice: isA
-      .alternatives(
-        isA.string(),
-        module.exports.subscriptionsStripeInvoiceValidator
-      )
+      .alternatives(isA.string(), subscriptionsStripeInvoiceValidator)
       .optional(),
     status: isA.string().required().description(DESCRIPTIONS.status),
   })
   .unknown(true);
 
-module.exports.subscriptionsGooglePlaySubscriptionValidator =
-  playStoreSubscriptionSchema;
+export { playStoreSubscriptionSchema as subscriptionsGooglePlaySubscriptionValidator };
+export { appStoreSubscriptionSchema as subscriptionsAppStoreSubscriptionValidator };
 
-module.exports.subscriptionsAppStoreSubscriptionValidator =
-  appStoreSubscriptionSchema;
-
-module.exports.subscriptionsStripeCustomerValidator = isA
+export const subscriptionsStripeCustomerValidator = isA
   .object({
     invoices_settings: isA
       .object({
@@ -815,7 +786,7 @@ module.exports.subscriptionsStripeCustomerValidator = isA
       .object({
         data: isA
           .array()
-          .items(module.exports.subscriptionsStripeSubscriptionValidator)
+          .items(subscriptionsStripeSubscriptionValidator)
           .required(),
       })
       .unknown(true)
@@ -823,9 +794,9 @@ module.exports.subscriptionsStripeCustomerValidator = isA
   })
   .unknown(true);
 
-module.exports.subscriptionsMozillaSubscriptionsValidator = isA
+export const subscriptionsMozillaSubscriptionsValidator = isA
   .object({
-    customerId: module.exports.customerId,
+    customerId: customerId,
     billing_name: isA
       .alternatives(isA.string(), isA.any().allow(null))
       .optional()
@@ -850,20 +821,19 @@ module.exports.subscriptionsMozillaSubscriptionsValidator = isA
     subscriptions: isA
       .array()
       .items(
-        module.exports.subscriptionsSubscriptionValidator,
-        module.exports.subscriptionsGooglePlaySubscriptionValidator,
-        module.exports.subscriptionsAppStoreSubscriptionValidator
+        subscriptionsSubscriptionValidator,
+        playStoreSubscriptionSchema,
+        appStoreSubscriptionSchema
       )
       .required()
       .description(DESCRIPTIONS.subscriptions),
   })
   .unknown(true);
 
-module.exports.ppidSeed = isA.number().integer().min(0).max(1024);
+export const ppidSeed = isA.number().integer().min(0).max(1024);
+export const scopes = isA.array().items(scope).default([]).optional();
 
-module.exports.scopes = isA.array().items(scope).default([]).optional();
-
-module.exports.newsletters = isA
+export const newsletters = isA
   .array()
   .items(
     isA
@@ -884,11 +854,11 @@ module.exports.newsletters = isA
   .default([])
   .optional();
 
-module.exports.thirdPartyProvider = isA
+export const thirdPartyProvider = isA
   .string()
   .max(256)
   .allow('google', 'apple')
   .required();
 
-module.exports.thirdPartyIdToken = module.exports.jwt.optional();
-module.exports.thirdPartyOAuthCode = isA.string().optional();
+export const thirdPartyIdToken = jwt.optional();
+export const thirdPartyOAuthCode = isA.string().optional();

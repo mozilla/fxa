@@ -19,7 +19,7 @@
 // * https://redis.io/topics/data-types#sorted-sets
 // * https://redis.io/topics/data-types-intro#redis-sorted-sets
 
-const { props } = require('fxa-shared/lib/promise-extras');
+import { props } from 'fxa-shared/lib/promise-extras';
 
 const INTERVAL_PATTERN = /^([a-z]+)Interval$/;
 const METADATA_KEY = 'metadata';
@@ -31,7 +31,7 @@ const METADATA_KEY = 'metadata';
  * @param {Object} config
  * @returns {VerificationReminders}
  */
-module.exports = (log, config) => {
+export default (log, config) => {
   if (!config.redis || !config.redis.host) {
     return {
       keys: [],

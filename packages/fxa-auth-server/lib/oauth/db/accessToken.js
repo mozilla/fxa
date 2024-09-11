@@ -2,12 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const unique = require('../unique');
-const encrypt = require('fxa-shared/auth/encrypt');
-const { config } = require('../../../config');
+import unique from '../unique';
+
+import encrypt from 'fxa-shared/auth/encrypt';
+import { config } from '../../../config';
 const MAX_TTL = config.get('oauthServer.expiration.accessToken');
 
-const { AccessToken } = require('fxa-shared/db/models/auth/access-token');
+import { AccessToken } from 'fxa-shared/db/models/auth/access-token';
 
 // Tack on static function
 AccessToken.generate = function (
@@ -40,4 +41,4 @@ AccessToken.generate = function (
   );
 };
 
-module.exports = AccessToken;
+export default AccessToken;

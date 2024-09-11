@@ -4,21 +4,21 @@
 
 'use strict';
 
-const { URL } = require('url');
-const Ajv = require('ajv');
+import { URL } from 'url';
+import Ajv from 'ajv';
 const ajv = new Ajv();
-const hex = require('buf').to.hex;
-const error = require('../error');
-const fs = require('fs');
-const isA = require('joi');
-const path = require('path');
-const validators = require('./validators');
+import hexModule from "buf";
+const hex = hexModule.to.hex;
+import error from '../error';
+import fs from 'fs';
+import isA from 'joi';
+import path from 'path';
+import * as validators from './validators';
 
-const DEVICES_AND_SERVICES_DOCS =
-  require('../../docs/swagger/devices-and-sessions-api').default;
-const DESCRIPTION = require('../../docs/swagger/shared/descriptions').default;
+import { default as DEVICES_AND_SERVICES_DOCS } from '../../docs/swagger/devices-and-sessions-api';
+import { default as DESCRIPTION } from '../../docs/swagger/shared/descriptions';
 const HEX_STRING = validators.HEX_STRING;
-const DEVICES_SCHEMA = require('../devices').schema;
+import { schema as DEVICES_SCHEMA } from '../devices';
 const PUSH_PAYLOADS_SCHEMA_PATH = path.resolve(
   __dirname,
   '../pushpayloads.schema.json'
@@ -29,7 +29,7 @@ const DEFAULT_COMMAND_TTL = new Map([
   ['https://identity.mozilla.com/cmd/open-uri', 30 * 24 * 3600], // 30 days
 ]);
 
-module.exports = (
+export default (
   log,
   db,
   oauth,

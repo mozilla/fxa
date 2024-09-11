@@ -2,10 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const hex = require('buf').to.hex;
-const hkdf = require('../../lib/crypto/hkdf');
-const { config } = require('../../config');
-const validators = require('./validators');
+import hexModule from "buf";
+
+const hex = hexModule.to.hex;
+import hkdf from '../../lib/crypto/hkdf';
+import { config } from '../../config';
+import * as validators from './validators';
 
 const PPID_ENABLED = config.get('oauthServer.ppid.enabled');
 const PPID_CLIENT_IDS = new Set(
@@ -18,7 +20,7 @@ const PPID_ROTATION_PERIOD_MS = config.get('oauthServer.ppid.rotationPeriodMS');
 const PPID_SALT = config.get('oauthServer.ppid.salt');
 const PPID_INFO = 'oidc ppid sub';
 
-module.exports = async function generateSub(
+export default async function generateSub(
   userIdBuf,
   clientIdBuf,
   clientSeed = 0
@@ -57,4 +59,4 @@ module.exports = async function generateSub(
   } else {
     return userIdHex;
   }
-};
+}

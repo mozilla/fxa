@@ -4,32 +4,39 @@
 
 'use strict';
 
-const error = require('../error');
+import error from '../error';
+import Bundle from './bundle';
+import TokenModule from './token';
+import KeyFetchTokenModule from './key_fetch_token';
+import AccountResetTokenModule from './account_reset_token';
+import SessionTokenModule from './session_token';
+import PasswordForgotTokenModule from './password_forgot_token';
+import PasswordChangeTokenModule from './password_change_token';
 
-module.exports = (log, config) => {
+export default (log, config) => {
   config = config || {};
   const lifetimes = (config.tokenLifetimes = config.tokenLifetimes || {
     accountResetToken: 1000 * 60 * 15,
     passwordChangeToken: 1000 * 60 * 15,
     passwordForgotToken: 1000 * 60 * 15,
   });
-  const Bundle = require('./bundle');
-  const Token = require('./token')(log, config);
 
-  const KeyFetchToken = require('./key_fetch_token')(log, Token);
-  const AccountResetToken = require('./account_reset_token')(
+  const Token = TokenModule(log, config);
+
+  const KeyFetchToken = KeyFetchTokenModule(log, Token);
+  const AccountResetToken = AccountResetTokenModule(
     log,
     Token,
     lifetimes.accountResetToken
   );
-  const SessionToken = require('./session_token')(log, Token, config);
-  const PasswordForgotToken = require('./password_forgot_token')(
+  const SessionToken = SessionTokenModule(log, Token, config);
+  const PasswordForgotToken = PasswordForgotTokenModule(
     log,
     Token,
     lifetimes.passwordForgotToken
   );
 
-  const PasswordChangeToken = require('./password_change_token')(
+  const PasswordChangeToken = PasswordChangeTokenModule(
     log,
     Token,
     lifetimes.passwordChangeToken

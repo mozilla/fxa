@@ -4,15 +4,19 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const TestServer = require('../test_server');
-const Client = require('../client')();
+import { assert } from 'chai';
+import TestServer from '../test_server';
+import ClientModule from '../client';
+const Client = ClientModule();
 const log = { trace() {}, info() {}, debug() {}, warn() {}, error() {} };
 
-const config = require('../../config').default.getProperties();
+import configModule from '../../config';
+const config = configModule.getProperties();
+import TokenModule from '../../lib/tokens';
+const Token = TokenModule(log);
+import DBModule from '../../lib/db';
 
-const Token = require('../../lib/tokens')(log);
-const DB = require('../../lib/db')(
+const DB = DBModule(
   config,
   log,
   Token.error,
@@ -23,13 +27,9 @@ const DB = require('../../lib/db')(
   Token.PasswordChangeToken
 );
 
-const { default: Container } = require('typedi');
-const {
-  PlaySubscriptions,
-} = require('../../lib/payments/iap/google-play/subscriptions');
-const {
-  AppStoreSubscriptions,
-} = require('../../lib/payments/iap/apple-app-store/subscriptions');
+import { Container } from 'typedi';
+import { PlaySubscriptions } from '../../lib/payments/iap/google-play/subscriptions';
+import { AppStoreSubscriptions } from '../../lib/payments/iap/apple-app-store/subscriptions';
 
 let client, db, server;
 

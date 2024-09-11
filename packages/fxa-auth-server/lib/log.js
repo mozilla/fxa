@@ -4,17 +4,18 @@
 
 'use strict';
 
-const EventEmitter = require('events').EventEmitter;
-const util = require('util');
-const mozlog = require('mozlog');
-const { config } = require('../config');
+import { EventEmitter } from 'events';
+import util from 'util';
+import mozlog from 'mozlog';
+import { config } from '../config';
 const logConfig = config.get('log');
 const amplitudeConfig = config.get('amplitude');
-const validateAmplitudeEvent = require('fxa-shared').metrics.amplitude.validate;
+import validateAmplitudeEventModule from "fxa-shared";
+const validateAmplitudeEvent = validateAmplitudeEventModule.metrics.amplitude.validate;
 let statsd;
-const Sentry = require('@sentry/node');
-const notifier = require('./notifier');
-const validators = require('./oauth/validators');
+import Sentry from '@sentry/node';
+import notifier from './notifier';
+import validators from './oauth/validators';
 
 const ISSUER = config.get('domain') || '';
 const CLIENT_ID_TO_SERVICE_NAMES = config.get('oauth.clientIds') || {};
@@ -289,7 +290,7 @@ Lug.prototype.amplitudeEvent = function (data) {
   this.logger.info('amplitudeEvent', data);
 };
 
-module.exports = function (level, name, options = {}) {
+export default function (level, name, options = {}) {
   if (arguments.length === 1 && typeof level === 'object') {
     options = level;
     level = options.level;
@@ -311,4 +312,4 @@ module.exports = function (level, name, options = {}) {
   }
 
   return log;
-};
+}

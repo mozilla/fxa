@@ -2,16 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const hex = require('buf').to.hex;
+import hexModule from "buf";
 
-const { config } = require('../../../config');
-const encrypt = require('fxa-shared/auth/encrypt');
-const mysql = require('./mysql');
-const redis = require('./redis');
-const AccessToken = require('./accessToken');
-const { SHORT_ACCESS_TOKEN_TTL_IN_MS } = require('fxa-shared/oauth/constants');
-const RefreshTokenMetadata = require('./refreshTokenMetadata');
-const { ConnectedServicesDb } = require('fxa-shared/connected-services');
+const hex = hexModule.to.hex;
+
+import { config } from '../../../config';
+import encrypt from 'fxa-shared/auth/encrypt';
+import * as mysql from './mysql';
+import redis from './redis';
+import AccessToken from './accessToken';
+import { SHORT_ACCESS_TOKEN_TTL_IN_MS } from 'fxa-shared/oauth/constants';
+import RefreshTokenMetadata from './refreshTokenMetadata';
+import { ConnectedServicesDb } from 'fxa-shared/connected-services';
 
 const JWT_ACCESS_TOKENS_ENABLED = config.get(
   'oauthServer.jwtAccessTokens.enabled'
@@ -339,4 +341,4 @@ async function scopes(db) {
     );
   }
 }
-module.exports = new OauthDB();
+export default new OauthDB();

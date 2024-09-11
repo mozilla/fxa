@@ -4,10 +4,9 @@
 
 'use strict';
 
-const SECURITY_EVENTS_DOCS =
-  require('../../docs/swagger/security-events-api').default;
+import { default as SECURITY_EVENTS_DOCS } from '../../docs/swagger/security-events-api';
 
-module.exports = (log, db, config) => {
+export default (log, db, config) => {
   return [
     {
       method: 'GET',

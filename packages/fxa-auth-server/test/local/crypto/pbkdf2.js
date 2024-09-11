@@ -4,8 +4,8 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const pbkdf2 = require('../../../lib/crypto/pbkdf2');
+import { assert } from 'chai';
+import pbkdf2 from '../../../lib/crypto/pbkdf2';
 const ITERATIONS = 20000;
 const LENGTH = 32;
 

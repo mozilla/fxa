@@ -4,7 +4,7 @@
 
 'use strict';
 
-const sendEmailBatch = require('./send-email-batch');
+import sendEmailBatch from './send-email-batch';
 
 /**
  * Send batches of emails.
@@ -15,7 +15,7 @@ const sendEmailBatch = require('./send-email-batch');
  * @param {Object} log logger
  * @param {Boolean} [isTest=false] is this a test run?
  */
-module.exports = async function (
+export default async function (
   userRecordBatches,
   batchDelayMS,
   sendEmail,
@@ -51,7 +51,7 @@ module.exports = async function (
     errorCount,
     totalCount - successCount - errorCount
   );
-};
+}
 
 function countEmails(emailBatches) {
   return emailBatches.reduce((total, batch) => (total += batch.length), 0);

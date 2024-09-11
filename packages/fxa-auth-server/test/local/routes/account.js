@@ -3,38 +3,37 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 'use strict';
+import sinon from 'sinon';
+import chai from 'chai';
+import mocks from '../../mocks';
+import { getRoute } from '../../routes_helpers';
+import proxyquireModule from 'proxyquire';
+import { AccountTasks, ReasonForDeletion } from '@fxa/shared/cloud-tasks';
+import { v4 as uuidv4 } from 'uuid';
+import crypto from 'crypto';
+import error from '../../../lib/error';
+import log from '../../../lib/log';
+import otplib from 'otplib';
+import { Container } from 'typedi';
+import { CapabilityService } from '../../../lib/payments/capability';
+import { AccountEventsManager } from '../../../lib/account-events';
+import { AccountDeleteManager } from '../../../lib/account-delete';
+import { normalizeEmail } from 'fxa-shared/email/helpers';
+import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
+import { PlaySubscriptions } from '../../../lib/payments/iap/google-play/subscriptions';
+import { AppStoreSubscriptions } from '../../../lib/payments/iap/apple-app-store/subscriptions';
+import { deleteAccountIfUnverified } from '../../../lib/routes/utils/account';
+import { AppConfig, AuthLogger } from '../../../lib/types';
+import config from '../../../config';
+import { ProfileClient } from '@fxa/profile/client';
+import cryptoPasswordModule from '../../../lib/crypto/password';
+import pushModule from '../../../lib/push';
+import signupUtilsModule from '../../../lib/routes/utils/signup';
+import sentryModule from '../../../lib/sentry';
 
-const sinon = require('sinon');
-
-const assert = { ...sinon.assert, ...require('chai').assert };
-const mocks = require('../../mocks');
-const getRoute = require('../../routes_helpers').getRoute;
-const proxyquire = require('proxyquire');
-const { AccountTasks, ReasonForDeletion } = require('@fxa/shared/cloud-tasks');
-
-const uuid = require('uuid');
-const crypto = require('crypto');
-const error = require('../../../lib/error');
-const log = require('../../../lib/log');
-const otplib = require('otplib');
-const { Container } = require('typedi');
-const { CapabilityService } = require('../../../lib/payments/capability');
-const { AccountEventsManager } = require('../../../lib/account-events');
-const { AccountDeleteManager } = require('../../../lib/account-delete');
-const { normalizeEmail } = require('fxa-shared').email.helpers;
-const { MozillaSubscriptionTypes } = require('fxa-shared/subscriptions/types');
-const {
-  PlaySubscriptions,
-} = require('../../../lib/payments/iap/google-play/subscriptions');
-const {
-  AppStoreSubscriptions,
-} = require('../../../lib/payments/iap/apple-app-store/subscriptions');
-const {
-  deleteAccountIfUnverified,
-} = require('../../../lib/routes/utils/account');
-const { AppConfig, AuthLogger } = require('../../../lib/types');
-const defaultConfig = require('../../../config').default.getProperties();
-const { ProfileClient } = require('@fxa/profile/client');
+const proxyquire = proxyquireModule.noCallThru();
+const defaultConfig = config.getProperties();
+const assert = { ...sinon.assert, ...chai.assert };
 const glean = mocks.mockGlean();
 const profile = mocks.mockProfile();
 
@@ -73,23 +72,32 @@ const makeRoutes = function (options = {}, requireMocks = {}) {
 
   const mailer = options.mailer || {};
   const cadReminders = options.cadReminders || mocks.mockCadReminders();
-  const Password =
-    options.Password || require('../../../lib/crypto/password')(log, config);
+  const Password = options.Password || cryptoPasswordModule(log, config);
   const db = options.db || mocks.mockDB();
   const customs = options.customs || {
     check: () => {
       return Promise.resolve(true);
     },
   };
-  const signinUtils =
+  const signinUtilsModule =
     options.signinUtils ||
     proxyquire('../../../lib/routes/utils/signin', {
       '../utils/otp': () => ({ generateOtpCode: sinon.stub() }),
-    })(log, config, customs, db, mailer, cadReminders, glean);
+    });
+  const signinUtils = signinUtilsModule.default(
+    log,
+    config,
+    customs,
+    db,
+    mailer,
+    cadReminders,
+    glean
+  );
   if (options.checkPassword) {
     signinUtils.checkPassword = options.checkPassword;
   }
-  const push = options.push || require('../../../lib/push')(log, db, {});
+
+  const push = options.push || pushModule(log, db, {});
   const verificationReminders =
     options.verificationReminders || mocks.mockVerificationReminders();
   const subscriptionAccountReminders =
@@ -100,16 +108,10 @@ const makeRoutes = function (options = {}, requireMocks = {}) {
       getAccountCustomerByUid: mockGetAccountCustomerByUid,
     },
   });
+
   const signupUtils =
     options.signupUtils ||
-    require('../../../lib/routes/utils/signup')(
-      log,
-      db,
-      mailer,
-      push,
-      verificationReminders,
-      glean
-    );
+    signupUtilsModule(log, db, mailer, push, verificationReminders, glean);
   const pushbox = options.pushbox || { deleteAccount: sinon.fake.resolves() };
   const oauthDb = {
     removeTokensAndCodes: () => {},
@@ -192,7 +194,7 @@ describe('/account/reset', () => {
     oauth;
 
   beforeEach(() => {
-    uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    uid = uuidv4({}, Buffer.alloc(16)).toString('hex');
     mockLog = mocks.mockLog();
     mockMetricsContext = mocks.mockMetricsContext();
     mockRequest = mocks.mockRequest({
@@ -587,7 +589,7 @@ describe('/account/reset', () => {
 });
 
 describe('deleteAccountIfUnverified', () => {
-  const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+  const uid = uuidv4({}, Buffer.alloc(16)).toString('hex');
   const mockDB = mocks.mockDB({
     email: TEST_EMAIL,
     uid,
@@ -677,7 +679,6 @@ describe('deleteAccountIfUnverified', () => {
       hasActiveSubscription: async () => Promise.resolve(false),
       removeCustomer: sinon.stub().throws(stripeError),
     };
-    const sentryModule = require('../../../lib/sentry');
     sinon.stub(sentryModule, 'reportSentryError').returns({});
     try {
       await deleteAccountIfUnverified(
@@ -767,7 +768,7 @@ describe('/account/create', () => {
     const emailCode = hexString(16);
     const keyFetchTokenId = hexString(16);
     const sessionTokenId = hexString(16);
-    const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    const uid = uuidv4({}, Buffer.alloc(16)).toString('hex');
     const mockDB = mocks.mockDB(
       {
         email: TEST_EMAIL,
@@ -1339,7 +1340,7 @@ describe('/account/stub', () => {
     });
     const clientAddress = mockRequest.app.clientAddress;
     const emailCode = hexString(16);
-    const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    const uid = uuidv4({}, Buffer.alloc(16)).toString('hex');
     const mockDB = mocks.mockDB(
       {
         email,
@@ -1479,7 +1480,7 @@ describe('/account/status', () => {
     });
     const clientAddress = mockRequest.app.clientAddress;
     const emailCode = hexString(16);
-    const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    const uid = uuidv4({}, Buffer.alloc(16)).toString('hex');
     const mockDB = mocks.mockDB(
       {
         email,
@@ -1624,7 +1625,7 @@ describe('/account/finish_setup', () => {
     const mockMetricsContext = mocks.mockMetricsContext();
     const email = Math.random() + '_stub@mozilla.com';
     const emailCode = hexString(16);
-    const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    const uid = uuidv4({}, Buffer.alloc(16)).toString('hex');
     const mockRequest = mocks.mockRequest({
       locale: 'en-GB',
       log: mockLog,
@@ -1768,7 +1769,7 @@ describe('/account/set_password', () => {
     const mockMetricsContext = mocks.mockMetricsContext();
     const email = Math.random() + '_stub@mozilla.com';
     const emailCode = hexString(16);
-    const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    const uid = uuidv4({}, Buffer.alloc(16)).toString('hex');
     const mockRequest = mocks.mockRequest({
       auth: {
         credentials: {
@@ -2081,7 +2082,7 @@ describe('/account/login', () => {
   });
   const keyFetchTokenId = hexString(16);
   const sessionTokenId = hexString(16);
-  const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+  const uid = uuidv4({}, Buffer.alloc(16)).toString('hex');
   const mockDB = mocks.mockDB({
     email: TEST_EMAIL,
     emailVerified: true,
@@ -3702,7 +3703,7 @@ describe('/account/login', () => {
 
 describe('/account/keys', () => {
   const keyFetchTokenId = hexString(16);
-  const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+  const uid = uuidv4({}, Buffer.alloc(16)).toString('hex');
   const mockLog = mocks.mockLog();
   const mockRequest = mocks.mockRequest({
     credentials: {
@@ -3799,7 +3800,7 @@ describe('/account/keys', () => {
 
 describe('/account/destroy', () => {
   const email = 'foo@example.com';
-  const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+  const uid = uuidv4({}, Buffer.alloc(16)).toString('hex');
 
   let mockDB, mockLog, mockRequest, mockPush, mockPushbox;
 
@@ -3917,7 +3918,7 @@ describe('/account/destroy', () => {
 
 describe('/account', () => {
   const email = 'foo@example.com';
-  const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+  const uid = uuidv4({}, Buffer.alloc(16)).toString('hex');
 
   let log,
     request,

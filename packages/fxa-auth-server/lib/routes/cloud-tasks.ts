@@ -9,7 +9,7 @@ import { ConfigType } from '../../config';
 import DESCRIPTION from '../../docs/swagger/shared/descriptions';
 import { AccountDeleteManager } from '../account-delete';
 import { AuthLogger, AuthRequest } from '../types';
-import validators from './validators';
+import * as validators from './validators';
 
 import { DeleteAccountTask } from '@fxa/shared/cloud-tasks';
 

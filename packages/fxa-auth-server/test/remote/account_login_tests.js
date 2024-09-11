@@ -4,12 +4,14 @@
 
 'use strict';
 
-const assert = require('assert');
-const Client = require('../client')();
-const crypto = require('crypto');
-const TestServer = require('../test_server');
+import assert from 'assert';
+import ClientModule from "../client";
+const Client = ClientModule();
+import crypto from 'crypto';
+import TestServer from '../test_server';
 
-const config = require('../../config').default.getProperties();
+import configModule from "../../config";
+const config = configModule.getProperties();
 
 // Note, intentionally not indenting for code review.
 [{version:""}, {version:"V2"}].forEach((testOptions) => {

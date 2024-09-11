@@ -4,16 +4,15 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const TestServer = require('../test_server');
-const Client = require('../client')();
-const config = require('../../config').default.getProperties();
-const {
-  OAUTH_SCOPE_SESSION_TOKEN,
-  OAUTH_SCOPE_OLD_SYNC,
-} = require('fxa-shared/oauth/constants');
-const error = require('../../lib/error');
-const testUtils = require('../lib/util');
+import { assert } from 'chai';
+import TestServer from '../test_server';
+import ClientModule from "../client";
+const Client = ClientModule();
+import configModule from "../../config";
+const config = configModule.getProperties();
+import { OAUTH_SCOPE_SESSION_TOKEN, OAUTH_SCOPE_OLD_SYNC } from 'fxa-shared/oauth/constants';
+import error from '../../lib/error';
+import testUtils from '../lib/util';
 
 const OAUTH_CLIENT_NAME = 'Android Components Reference Browser';
 const PUBLIC_CLIENT_ID = '3c49430b43dfba77';

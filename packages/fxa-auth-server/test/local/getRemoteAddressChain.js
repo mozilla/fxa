@@ -2,8 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { assert } = require('chai');
-const { getRemoteAddressChain } = require('../../lib/getRemoteAddressChain');
+import { assert } from 'chai';
+
+import { getRemoteAddressChain } from '../../lib/getRemoteAddressChain';
 
 describe('getRemoteAddressChain', () => {
   describe('when remoteAddressChainOverride is disabled', () => {

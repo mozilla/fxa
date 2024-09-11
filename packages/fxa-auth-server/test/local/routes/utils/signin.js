@@ -4,17 +4,18 @@
 
 'use strict';
 
-const sinon = require('sinon');
+import sinon from 'sinon';
 const assert = { ...sinon.assert, ...require('chai').assert };
-const { Container } = require('typedi');
-
-const mocks = require('../../../mocks');
-const Password = require('../../../../lib/crypto/password')({}, {});
-const error = require('../../../../lib/error');
-const butil = require('../../../../lib/crypto/butil');
-const otpUtils = require('../../../../lib/routes/utils/otp')({}, {}, {});
-const { AppConfig } = require('../../../../lib/types');
-const { AccountEventsManager } = require('../../../../lib/account-events');
+import { Container } from 'typedi';
+import mocks from '../../../mocks';
+import PasswordModule from "../../../../lib/crypto/password";
+const Password = PasswordModule({}, {});
+import error from '../../../../lib/error';
+import butil from '../../../../lib/crypto/butil';
+import otpUtilsModule from "../../../../lib/routes/utils/otp";
+const otpUtils = otpUtilsModule({}, {}, {});
+import { AppConfig } from '../../../../lib/types';
+import { AccountEventsManager } from '../../../../lib/account-events';
 const glean = mocks.mockGlean();
 
 const CLIENT_ADDRESS = '10.0.0.1';

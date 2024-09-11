@@ -5,7 +5,7 @@ import { AppendedAppStoreSubscriptionPurchase } from 'fxa-shared/payments/iap/ap
 import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
 import Container from 'typedi';
 
-import { internalValidationError } from '../../../../lib/error';
+import error from '../../../../lib/error';
 import { AppConfig } from '../../../types';
 import { StripeHelper } from '../../stripe';
 import { SubscriptionsService } from '../types';
@@ -20,7 +20,7 @@ export class AppStoreSubscriptions
   constructor() {
     const config = Container.get(AppConfig);
     if (!config.subscriptions.enabled) {
-      throw internalValidationError(
+      throw error.internalValidationError(
         'AppStoreSubscriptions',
         {},
         new Error(
@@ -30,7 +30,7 @@ export class AppStoreSubscriptions
     }
 
     if (!Container.has(StripeHelper)) {
-      throw internalValidationError(
+      throw error.internalValidationError(
         'AppStoreSubscriptions',
         {},
         new Error(

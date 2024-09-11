@@ -4,10 +4,10 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const verror = require('verror');
-const AppError = require('../../lib/error');
-const OauthError = require('../../lib/oauth/error');
+import { assert } from 'chai';
+import verror from 'verror';
+import AppError from '../../lib/error';
+import OauthError from '../../lib/oauth/error';
 
 describe('AppErrors', () => {
   it('exported functions exist', () => {

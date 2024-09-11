@@ -2,16 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const Joi = require('joi');
-const validators = require('../../../oauth/validators');
-const verifyAssertion = require('../../../oauth/assertion');
-const authorizedClients = require('../../../oauth/authorized_clients');
-const DESCRIPTION =
-  require('../../../../docs/swagger/shared/descriptions').default;
-const OAUTH_SERVER_DOCS =
-  require('../../../../docs/swagger/oauth-server-api').default;
+import Joi from 'joi';
 
-module.exports = () => ({
+import validators from '../../../oauth/validators';
+import verifyAssertion from '../../../oauth/assertion';
+import authorizedClients from '../../../oauth/authorized_clients';
+import { default as DESCRIPTION } from '../../../../docs/swagger/shared/descriptions';
+import { default as OAUTH_SERVER_DOCS } from '../../../../docs/swagger/oauth-server-api';
+
+export default () => ({
   method: 'POST',
   path: '/authorized-clients',
   config: {

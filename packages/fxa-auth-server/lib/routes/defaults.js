@@ -4,11 +4,11 @@
 
 'use strict';
 
-const error = require('../error');
+import error from '../error';
 
-const getVersion = require('../version').getVersion;
+import { getVersion } from '../version';
 
-module.exports = (log, config, db) => {
+export default (log, config, db) => {
   async function versionHandler(request, h) {
     log.begin('Defaults.root', request);
     const versionData = await getVersion();

@@ -1,5 +1,3 @@
-#!/usr/bin/env node -r esbuild-register
-
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -29,10 +27,10 @@
 // without a properly-configured active key.
 process.env.FXA_OPENID_UNSAFELY_ALLOW_MISSING_ACTIVE_KEY = true;
 
-const fs = require('fs');
-const path = require('path');
-const keys = require('../lib/oauth/keys');
-const { config } = require('../config');
+import fs from 'fs';
+import path from 'path';
+import keys from '../lib/oauth/keys';
+import { config } from '../config';
 
 function writeJSONFile(filePath, data) {
   try {
@@ -82,7 +80,7 @@ function main(cb) {
   return cb();
 }
 
-module.exports = main;
+export default main;
 
 if (require.main === module) {
   main();

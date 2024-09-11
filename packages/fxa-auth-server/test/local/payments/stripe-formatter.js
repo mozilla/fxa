@@ -4,16 +4,17 @@
 
 'use strict';
 
-const { assert } = require('chai');
+import { assert } from 'chai';
 
-const {
+import {
   stripeInvoiceToFirstInvoicePreviewDTO,
   stripeInvoicesToSubsequentInvoicePreviewsDTO,
   stripeInvoiceToLatestInvoiceItemsDTO,
-} = require('../../../lib/payments/stripe-formatter');
-const previewInvoiceWithTax = require('./fixtures/stripe/invoice_preview_tax.json');
-const previewInvoiceWithDiscountAndTax = require('./fixtures/stripe/invoice_preview_tax_discount.json');
-const { deepCopy } = require('./util');
+} from '../../../lib/payments/stripe-formatter';
+
+import previewInvoiceWithTax from './fixtures/stripe/invoice_preview_tax.json';
+import previewInvoiceWithDiscountAndTax from './fixtures/stripe/invoice_preview_tax_discount.json';
+import { deepCopy } from './util';
 
 function buildExpectedLineItems(invoice) {
   return invoice.line_items.map((item) => ({

@@ -12,14 +12,18 @@
 
 'use strict';
 
-const { Container } = require('typedi');
-const { StatsD } = require('hot-shots');
-const config = require('../../config').default.getProperties();
-const logger = require('../log')(config.log.level, 'amplitude');
+import { Container } from 'typedi';
+import { StatsD } from 'hot-shots';
+import configModule from '../../config';
+import loggerModule from '../log';
+import { version as VERSION } from '../../package.json';
+import { amplitude } from 'fxa-shared/metrics/amplitude';
+import verificationRemindersModule from '../verification-reminders';
+import subscriptionAccountRemindersModule from '../subscription-account-reminders';
 
-const { GROUPS, initialize } =
-  require('fxa-shared/metrics/amplitude').amplitude;
-const { version: VERSION } = require('../../package.json');
+const config = configModule.getProperties();
+const logger = loggerModule(config.log.level, 'amplitude');
+const { GROUPS, initialize } = amplitude;
 
 // Maps template name to email type
 const EMAIL_TYPES = {
@@ -161,23 +165,22 @@ const FUZZY_EVENTS = new Map([
 const ACCOUNT_RESET_COMPLETE = `${GROUPS.login} - forgot_complete`;
 const LOGIN_COMPLETE = `${GROUPS.login} - complete`;
 
-module.exports = (log, config) => {
+export default (log, config) => {
   if (!log || !config.oauth.clientIds) {
     throw new TypeError('Missing argument');
   }
 
-  const verificationReminders = require('../verification-reminders')(
-    log,
-    config
-  );
+  const verificationReminders = verificationRemindersModule(log, config);
   verificationReminders.keys.forEach((key) => {
     EMAIL_TYPES[
       `verificationReminder${key[0].toUpperCase()}${key.substr(1)}Email`
     ] = 'registration';
   });
 
-  const subscriptionAccountReminders =
-    require('../subscription-account-reminders')(log, config);
+  const subscriptionAccountReminders = subscriptionAccountRemindersModule(
+    log,
+    config
+  );
   subscriptionAccountReminders.keys.forEach((key) => {
     EMAIL_TYPES[
       `subscriptionAccountReminder${key[0].toUpperCase()}${key.substr(1)}Email`
@@ -356,7 +359,7 @@ module.exports = (log, config) => {
   }
 };
 
-module.exports.EMAIL_TYPES = EMAIL_TYPES;
+export { EMAIL_TYPES };
 
 function getFromToken(request, key) {
   if (request.auth && request.auth.credentials) {

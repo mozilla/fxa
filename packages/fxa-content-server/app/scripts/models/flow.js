@@ -20,7 +20,7 @@ import ResumeTokenMixin from './mixins/resume-token';
 import UrlMixin from './mixins/url';
 import vat from '../lib/vat';
 import Url from '../lib/url';
-import uuid from 'uuid';
+import * as uuid from 'uuid';
 
 var Model = Backbone.Model.extend({
   initialize(options) {

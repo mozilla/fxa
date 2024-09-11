@@ -8,8 +8,9 @@
  * This notifier is called by the logger via `notifyAttachedServices`
  * to send notifications to Amazon SNS/SQS.
  */
-const AWS = require('aws-sdk');
-const { config } = require('../config');
+import AWS from 'aws-sdk';
+
+import { config } from '../config';
 
 const notifierSnsTopicArn = config.get('snsTopicArn');
 const notifierSnsTopicEndpoint = config.get('snsTopicEndpoint');
@@ -45,7 +46,7 @@ function formatMessageAttributes(msg) {
   return attrs;
 }
 
-module.exports = function notifierLog(log, statsd) {
+export default function notifierLog(log, statsd) {
   return {
     send: (event, callback) => {
       const msg = event.data || {};
@@ -79,4 +80,4 @@ module.exports = function notifierLog(log, statsd) {
     // exported for testing purposes
     __sns: sns,
   };
-};
+}

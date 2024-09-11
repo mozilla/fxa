@@ -4,28 +4,20 @@
 
 'use strict';
 
-const sinon = require('sinon');
-const { default: Container } = require('typedi');
+import sinon from 'sinon';
+import { Container } from 'typedi';
 const assert = { ...sinon.assert, ...require('chai').assert };
 
-const mocks = require('../../../mocks');
-const {
-  AppleIapHandler,
-} = require('../../../../lib/routes/subscriptions/apple');
-const {
-  PurchaseUpdateError,
-} = require('../../../../lib/payments/iap/apple-app-store/types/errors');
-const error = require('../../../../lib/error');
-const { AuthLogger } = require('../../../../lib/types');
-const {
-  AppleIAP,
-} = require('../../../../lib/payments/iap/apple-app-store/apple-iap');
-const { IAPConfig } = require('../../../../lib/payments/iap/iap-config');
-const { OAUTH_SCOPE_SUBSCRIPTIONS_IAP } = require('fxa-shared/oauth/constants');
-const { CapabilityService } = require('../../../../lib/payments/capability');
-const {
-  CertificateValidationError,
-} = require('app-store-server-api/dist/cjs/Errors');
+import mocks from '../../../mocks';
+import { AppleIapHandler } from '../../../../lib/routes/subscriptions/apple';
+import { PurchaseUpdateError } from '../../../../lib/payments/iap/apple-app-store/types/errors';
+import error from '../../../../lib/error';
+import { AuthLogger } from '../../../../lib/types';
+import { AppleIAP } from '../../../../lib/payments/iap/apple-app-store/apple-iap';
+import { IAPConfig } from '../../../../lib/payments/iap/iap-config';
+import { OAUTH_SCOPE_SUBSCRIPTIONS_IAP } from 'fxa-shared/oauth/constants';
+import { CapabilityService } from '../../../../lib/payments/capability';
+import { CertificateValidationError } from 'app-store-server-api/dist/cjs/Errors';
 
 const MOCK_SCOPES = [OAUTH_SCOPE_SUBSCRIPTIONS_IAP];
 const VALID_REQUEST = {

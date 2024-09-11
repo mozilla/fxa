@@ -22,7 +22,7 @@ import Cocktail from 'cocktail';
 import ResumeTokenMixin from './mixins/resume-token';
 import UrlMixin from './mixins/url';
 import Storage from '../lib/storage';
-import uuid from 'uuid';
+import * as uuid from 'uuid';
 
 var Model = Backbone.Model.extend({
   initialize(options) {

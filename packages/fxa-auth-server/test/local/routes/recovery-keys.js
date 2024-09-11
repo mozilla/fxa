@@ -4,14 +4,14 @@
 
 'use strict';
 
-const uuid = require('uuid');
-const sinon = require('sinon');
-const { assert } = require('chai');
-const getRoute = require('../../routes_helpers').getRoute;
-const mocks = require('../../mocks');
-const errors = require('../../../lib/error');
-const proxyquire = require('proxyquire');
-const { OAUTH_SCOPE_OLD_SYNC } = require('fxa-shared/oauth/constants');
+import * as uuid from 'uuid';
+import sinon from 'sinon';
+import { assert } from 'chai';
+import { getRoute } from '../../routes_helpers';
+import mocks from '../../mocks';
+import errors from '../../../lib/error';
+import proxyquire from 'proxyquire';
+import { OAUTH_SCOPE_OLD_SYNC } from 'fxa-shared/oauth/constants';
 
 let log, db, customs, mailer, glean, routes, route, request, response;
 const email = 'test@email.com';

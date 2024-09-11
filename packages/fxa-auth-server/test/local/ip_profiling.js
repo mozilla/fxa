@@ -4,22 +4,23 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const crypto = require('crypto');
-const getRoute = require('../routes_helpers').getRoute;
-const mocks = require('../mocks');
-const uuid = require('uuid');
-const { Container } = require('typedi');
-const { ProfileClient } = require('@fxa/profile/client');
-const { AccountEventsManager } = require('../../lib/account-events');
-const { AccountDeleteManager } = require('../../lib/account-delete');
-const { AppConfig, AuthLogger } = require('../../lib/types');
-const { gleanMetrics } = require('../../lib/metrics/glean');
-const defaultConfig = require('../../config').default.getProperties();
+import { assert } from 'chai';
+import crypto from 'crypto';
+import { getRoute } from '../routes_helpers';
+import mocks from '../mocks';
+import { v4 as uuidv4 } from 'uuid';
+import { Container } from 'typedi';
+import { ProfileClient } from '@fxa/profile/client';
+import { AccountEventsManager } from '../../lib/account-events';
+import { AccountDeleteManager } from '../../lib/account-delete';
+import { AppConfig, AuthLogger } from '../../lib/types';
+import { gleanMetrics } from '../../lib/metrics/glean';
+import defaultConfigModule from '../../config';
 
+const defaultConfig = defaultConfigModule.getProperties();
 const TEST_EMAIL = 'foo@gmail.com';
 const MS_ONE_DAY = 1000 * 60 * 60 * 24;
-const UID = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+const UID = uuidv4({}, Buffer.alloc(16)).toString('hex');
 
 function makeRoutes(options = {}) {
   const { db, mailer } = options;

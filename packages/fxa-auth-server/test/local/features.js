@@ -4,10 +4,11 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const sinon = require('sinon');
-const proxyquire = require('proxyquire');
+import { assert } from 'chai';
+import sinon from 'sinon';
+import proxyquireModule from 'proxyquire';
 
+const proxyquire = proxyquireModule.noCallThru();
 let hashResult = Array(40).fill('0');
 const hash = {
   update: sinon.spy(),
@@ -26,9 +27,12 @@ const config = {
 
 const MODULE_PATH = '../../lib/features';
 
-const features = proxyquire(MODULE_PATH, {
+const featuresModule = proxyquire(MODULE_PATH, {
   crypto: crypto,
-})(config);
+});
+
+console.log('!!! featuresModule', featuresModule);
+const features = featuresModule.default(config);
 
 describe('features', () => {
   it('interface is correct', () => {

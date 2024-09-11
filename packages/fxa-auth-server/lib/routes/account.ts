@@ -25,7 +25,7 @@ import random from '../crypto/random';
 import error from '../error';
 import { getClientById } from '../oauth/client';
 import { generateAccessToken } from '../oauth/grant';
-import jwt from '../oauth/jwt';
+import * as jwt from '../oauth/jwt';
 import { CapabilityService } from '../payments/capability';
 import { AppStoreSubscriptions } from '../payments/iap/apple-app-store/subscriptions';
 import { PlaySubscriptions } from '../payments/iap/google-play/subscriptions';
@@ -38,13 +38,14 @@ import { AuthLogger, AuthRequest } from '../types';
 import { deleteAccountIfUnverified } from './utils/account';
 import emailUtils from './utils/email';
 import requestHelper from './utils/request_helper';
-import validators from './validators';
+import * as validators from './validators';
 import { AccountEventsManager } from '../account-events';
 import { gleanMetrics } from '../metrics/glean';
 import { AccountDeleteManager } from '../account-delete';
 import { uuidTransformer } from 'fxa-shared/db/transformers';
 import { AccountTasks, ReasonForDeletion } from '@fxa/shared/cloud-tasks';
 import { ProfileClient } from '@fxa/profile/client';
+import otpUtilsModule from './utils/otp';
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 
@@ -83,7 +84,7 @@ export class AccountHandler {
     private stripeHelper: StripeHelper,
     private glean: ReturnType<typeof gleanMetrics>
   ) {
-    this.otpUtils = require('./utils/otp')(log, config, db);
+    this.otpUtils = otpUtilsModule(log, config, db);
     this.skipConfirmationForEmailAddresses = config.signinConfirmation
       .skipForEmailAddresses as string[];
 

@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const sinon = require('sinon');
+import sinon from 'sinon';
+
 const assert = { ...sinon.assert, ...require('chai').assert };
 import { ReasonForDeletion } from '@fxa/shared/cloud-tasks';
 import proxyquire from 'proxyquire';

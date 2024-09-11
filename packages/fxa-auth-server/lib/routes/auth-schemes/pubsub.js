@@ -4,9 +4,9 @@
 
 'use strict';
 
-const jwksRsa = require('jwks-rsa');
+import jwksRsa from 'jwks-rsa';
 
-exports.strategy = (config) => {
+export const strategy = (config) => {
   const shouldValidate = config.pubsub.authenticate;
   const verificationToken = config.pubsub.verificationToken;
 

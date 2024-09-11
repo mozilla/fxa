@@ -4,14 +4,12 @@
 
 'use strict';
 
-const ROOT_DIR = '../../..';
-
-const { assert } = require('chai');
-const crypto = require('crypto');
-const uuid = require('uuid');
-const getRoute = require('../../routes_helpers').getRoute;
-const mocks = require('../../mocks');
-const error = require(`${ROOT_DIR}/lib/error`);
+import { assert } from 'chai';
+import crypto from 'crypto';
+import * as uuid from 'uuid';
+import { getRoute } from '../../routes_helpers';
+import mocks from '../../mocks';
+import error from '../../../lib/error';
 
 describe('/certificate/sign', () => {
   let db, deviceId, mockDevices, mockLog, sessionToken, mockRequest;
@@ -23,8 +21,8 @@ describe('/certificate/sign', () => {
       deviceId: deviceId,
     });
     mockLog = mocks.mockLog();
-    const Token = require(`${ROOT_DIR}/lib/tokens/token`)(mockLog);
-    const SessionToken = require(`${ROOT_DIR}/lib/tokens/session_token`)(
+    const Token = require('../../../lib/tokens/token')(mockLog);
+    const SessionToken = require('../../../lib/tokens/session_token')(
       mockLog,
       Token,
       {

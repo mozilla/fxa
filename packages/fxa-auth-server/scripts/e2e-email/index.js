@@ -1,16 +1,16 @@
-#!/usr/bin/env node
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 'use strict';
 
-const crypto = require('crypto');
-const commander = require('commander');
+import crypto from 'crypto';
+import commander from 'commander';
 
-const Client = require('../../test/client')();
-const mailbox = require('../../test/mailbox');
-const validateEmail = require('./validate-email');
+import ClientModule from "../../test/client";
+const Client = ClientModule();
+import mailbox from '../../test/mailbox';
+import validateEmail from './validate-email';
 
 const emailMessages = {};
 let program;

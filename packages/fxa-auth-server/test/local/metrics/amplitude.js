@@ -4,15 +4,15 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const { version } = require('../../../package.json');
-const { StatsD } = require('hot-shots');
-const { Container } = require('typedi');
-const sinon = require('sinon');
+import { assert } from 'chai';
+import { version } from '../../../package.json';
+import { StatsD } from 'hot-shots';
+import { Container } from 'typedi';
+import sinon from 'sinon';
 const metricsEnabled = sinon.stub();
 metricsEnabled.withArgs('frip').resolves(false);
 metricsEnabled.withArgs('blee').resolves(true);
-const proxyquire = require('proxyquire');
+import proxyquire from 'proxyquire';
 const amplitudeModule = proxyquire('../../../lib/metrics/amplitude', {
   'fxa-shared/db/models/auth': {
     Account: {
@@ -20,7 +20,7 @@ const amplitudeModule = proxyquire('../../../lib/metrics/amplitude', {
     },
   },
 });
-const mocks = require('../../mocks');
+import mocks from '../../mocks';
 const mockAmplitudeConfig = {
   schemaValidation: true,
   rawEvents: false,

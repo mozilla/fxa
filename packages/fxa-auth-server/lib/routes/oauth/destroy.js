@@ -2,27 +2,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const crypto = require('crypto');
-const Joi = require('joi');
-const hex = require('buf').to.hex;
+import crypto from 'crypto';
 
-const OauthError = require('../../oauth/error');
-const AuthError = require('../../error');
-const encrypt = require('fxa-shared/auth/encrypt');
-const validators = require('../../oauth/validators');
-const { getTokenId } = require('../../oauth/token');
-const {
-  authenticateClient,
-  clientAuthValidators,
-} = require('../../oauth/client');
-const OAUTH_DOCS = require('../../../docs/swagger/oauth-api').default;
-const OAUTH_SERVER_DOCS =
-  require('../../../docs/swagger/oauth-server-api').default;
-const DESCRIPTION =
-  require('../../../docs/swagger/shared/descriptions').default;
+import Joi from 'joi';
+import hexModule from "buf";
+const hex = hexModule.to.hex;
+
+import OauthError from '../../oauth/error';
+import AuthError from '../../error';
+import encrypt from 'fxa-shared/auth/encrypt';
+import validators from '../../oauth/validators';
+import { getTokenId } from '../../oauth/token';
+import { authenticateClient, clientAuthValidators } from '../../oauth/client';
+import { default as OAUTH_DOCS } from '../../../docs/swagger/oauth-api';
+import { default as OAUTH_SERVER_DOCS } from '../../../docs/swagger/oauth-server-api';
+import { default as DESCRIPTION } from '../../../docs/swagger/shared/descriptions';
 
 /*jshint camelcase: false*/
-module.exports = ({ log, oauthDB }) => {
+export default ({ log, oauthDB }) => {
   async function destroyHandler(req) {
     let tokenId;
     let getToken;

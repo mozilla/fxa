@@ -4,14 +4,13 @@
 
 'use strict';
 
-const { assert } = require('chai');
-
-const validators = require('../../../lib/routes/validators');
-const plan1 = require('../payments/fixtures/stripe/plan1.json');
+import { assert } from 'chai';
+import * as validators from '../../../lib/routes/validators';
+import plan1 from '../payments/fixtures/stripe/plan1.json';
 const validProductMetadata = plan1.product.metadata;
-const { MozillaSubscriptionTypes } = require('fxa-shared/subscriptions/types');
-const { deepCopy } = require('../payments/util');
-const { ReasonForDeletion } = require('@fxa/shared/cloud-tasks');
+import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
+import { deepCopy } from '../payments/util';
+import { ReasonForDeletion } from '@fxa/shared/cloud-tasks';
 
 describe('lib/routes/validators:', () => {
   it('isValidEmailAddress returns true for valid email addresses', () => {

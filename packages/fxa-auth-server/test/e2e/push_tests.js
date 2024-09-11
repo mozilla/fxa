@@ -4,10 +4,11 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const config = require('../../config').default.getProperties();
-const { mockDB, mockLog } = require('../mocks');
-const { PushManager } = require('../push_helper');
+import { assert } from 'chai';
+import configModule from "../../config";
+const config = configModule.getProperties();
+import { mockDB, mockLog } from '../mocks';
+import { PushManager } from '../push_helper';
 
 const mockUid = 'foo';
 

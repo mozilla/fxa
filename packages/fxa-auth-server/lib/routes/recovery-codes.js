@@ -4,15 +4,14 @@
 
 'use strict';
 
-const errors = require('../error');
-const isA = require('joi');
-const validators = require('./validators');
-const RECOVERY_CODES_DOCS =
-  require('../../docs/swagger/recovery-codes-api').default;
+import errors from '../error';
+import isA from 'joi';
+import * as validators from './validators';
+import { default as RECOVERY_CODES_DOCS } from '../../docs/swagger/recovery-codes-api';
 
 const RECOVERY_CODE_SANE_MAX_LENGTH = 20;
 
-module.exports = (log, db, config, customs, mailer, glean) => {
+export default (log, db, config, customs, mailer, glean) => {
   const codeConfig = config.recoveryCodes;
   const RECOVERY_CODE_COUNT = (codeConfig && codeConfig.count) || 8;
 

@@ -1,5 +1,3 @@
-#!/usr/bin/env node -r esbuild-register
-
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -22,17 +20,17 @@
 
 'use strict';
 
-const fs = require('fs');
-const cp = require('child_process');
-const assert = require('assert');
-const crypto = require('crypto');
-const { pem2jwk } = require('@fxa/shared/pem-jwk');
+import fs from 'fs';
+import cp from 'child_process';
+import assert from 'assert';
+import crypto from 'crypto';
+import { pem2jwk } from '@fxa/shared/pem-jwk';
 
 if (!process.env.NODE_ENV) {
   process.env.NODE_ENV = 'dev';
 }
 
-const { config } = require('../config');
+import { config } from '../config';
 const pubKeyFile = config.get('publicKeyFile');
 const secretKeyFile = config.get('secretKeyFile');
 

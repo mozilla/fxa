@@ -4,20 +4,20 @@
 
 'use strict';
 
-const sinon = require('sinon');
+import sinon from 'sinon';
 const assert = { ...sinon.assert, ...require('chai').assert };
 
-const {
+import {
   StripeFirestore,
   FirestoreStripeError,
   newFirestoreStripeError,
   StripeFirestoreMultiError,
-} = require('../../../lib/payments/stripe-firestore');
+} from '../../../lib/payments/stripe-firestore';
 
-const customer1 = require('./fixtures/stripe/customer1.json');
-const subscription1 = require('./fixtures/stripe/subscription1.json');
-const paidInvoice = require('./fixtures/stripe/invoice_paid.json');
-const paymentMethod = require('./fixtures/stripe/payment_method.json');
+import customer1 from './fixtures/stripe/customer1.json';
+import subscription1 from './fixtures/stripe/subscription1.json';
+import paidInvoice from './fixtures/stripe/invoice_paid.json';
+import paymentMethod from './fixtures/stripe/payment_method.json';
 
 class BulkWriterMock {
   resultCallback;

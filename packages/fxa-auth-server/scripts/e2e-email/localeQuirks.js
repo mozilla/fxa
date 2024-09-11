@@ -117,4 +117,4 @@ Object.keys(translationQuirks).forEach((quirk) => {
   translationQuirks[quirk] = ary2map(locales);
 });
 
-module.exports = translationQuirks;
+export default translationQuirks;

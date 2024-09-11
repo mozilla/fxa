@@ -4,7 +4,7 @@
 
 'use strict';
 
-module.exports = class NodemailerMock {
+export default class NodemailerMock {
   constructor(config) {
     this.messageId = 0;
     this.failureRate = config.failureRate;

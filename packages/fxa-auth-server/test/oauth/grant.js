@@ -2,16 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { assert } = require('chai');
-const sinon = require('sinon');
-const proxyquire = require('proxyquire');
-const { default: Container } = require('typedi');
+import { assert } from 'chai';
 
-const { config } = require('../../config');
-const ScopeSet = require('fxa-shared').oauth.scopes;
-const AppError = require('../../lib/oauth/error');
-const { decodeJWT } = require('../lib/util');
-const { CapabilityService } = require('../../lib/payments/capability');
+import sinon from 'sinon';
+import proxyquire from 'proxyquire';
+import { Container } from 'typedi';
+import { config } from '../../config';
+import ScopeSetModule from 'fxa-shared';
+const ScopeSet = ScopeSetModule.oauth.scopes;
+import AppError from '../../lib/oauth/error';
+import { decodeJWT } from '../lib/util';
+import { CapabilityService } from '../../lib/payments/capability';
 
 async function assertThrowsAsync(fn, errorLike, errMsgMatcher, message) {
   let threw = null;

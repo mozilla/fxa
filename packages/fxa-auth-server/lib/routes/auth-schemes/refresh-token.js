@@ -4,16 +4,18 @@
 
 'use strict';
 
-const AppError = require('../../error');
-const joi = require('joi');
-const hex = require('buf').to.hex;
-const validators = require('../validators');
+import AppError from '../../error';
+import joi from 'joi';
+import hexModule from "buf";
+import * as validators from '../validators';
+import { OAUTH_SCOPE_OLD_SYNC } from 'fxa-shared/oauth/constants';
+import encrypt from 'fxa-shared/auth/encrypt';
+import oauthDB from '../../oauth/db';
+import client from '../../oauth/client';
+import { scopeSetHelpers as ScopeSet } from 'fxa-shared/oauth/scopes';
+
+const hex = hexModule.to.hex;
 const { BEARER_AUTH_REGEX } = validators;
-const { OAUTH_SCOPE_OLD_SYNC } = require('fxa-shared/oauth/constants');
-const encrypt = require('fxa-shared/auth/encrypt');
-const oauthDB = require('../../oauth/db');
-const client = require('../../oauth/client');
-const ScopeSet = require('fxa-shared/oauth/scopes').scopeSetHelpers;
 
 // the refresh token scheme is currently used by things connected to sync,
 // and we're at a transitionary stage of its evolution into something more generic,
@@ -22,7 +24,7 @@ const ALLOWED_REFRESH_TOKEN_SCHEME_SCOPES = ScopeSet.fromArray([
   OAUTH_SCOPE_OLD_SYNC,
 ]);
 
-module.exports = function schemeRefreshTokenScheme(config, db) {
+export default function schemeRefreshTokenScheme(config, db) {
   return function schemeRefreshToken(server, options) {
     return {
       async authenticate(request, h) {
@@ -98,4 +100,4 @@ module.exports = function schemeRefreshTokenScheme(config, db) {
       },
     };
   };
-};
+}

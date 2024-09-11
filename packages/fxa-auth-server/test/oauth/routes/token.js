@@ -2,11 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { assert } = require('chai');
-const buf = require('buf').hex;
-const hex = require('buf').to.hex;
-const proxyquire = require('proxyquire');
-const sinon = require('sinon');
+import { assert } from 'chai';
+
+import { hex as buf } from 'buf';
+import hexModule from "buf";
+const hex = hexModule.to.hex;
+import proxyquire from 'proxyquire';
+import sinon from 'sinon';
 
 const UID = 'eaf0';
 const CLIENT_SECRET =

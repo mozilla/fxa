@@ -4,11 +4,10 @@
 
 'use strict';
 
-const path = require('path');
-const cp = require('child_process');
-const promisify = require('util').promisify;
-
-const version = require('../package.json').version;
+import path from 'path';
+import cp from 'child_process';
+import { promisify } from 'util';
+import { version } from '../package.json';
 let commitHash;
 let sourceRepo;
 
@@ -61,4 +60,4 @@ async function getVersion() {
   return { version, commit: commitHash, source: sourceRepo };
 }
 
-module.exports = { getVersion };
+export default { getVersion };

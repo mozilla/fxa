@@ -4,9 +4,9 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const path = require('path');
-const readUserRecords = require('../../../scripts/bulk-mailer/read-user-records');
+import { assert } from 'chai';
+import path from 'path';
+import readUserRecords from '../../../scripts/bulk-mailer/read-user-records';
 
 describe('read-user-records', () => {
   it('throws if user records file not found', () => {

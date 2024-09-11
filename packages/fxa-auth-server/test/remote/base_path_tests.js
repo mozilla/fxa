@@ -4,10 +4,11 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const TestServer = require('../test_server');
-const Client = require('../client')();
-const superagent = require('superagent');
+import { assert } from 'chai';
+import TestServer from '../test_server';
+import ClientModule from "../client";
+const Client = ClientModule();
+import superagent from 'superagent';
 
 // Note, intentionally not indenting for code review.
 [{version:""},{version:"V2"}].forEach((testOptions) => {

@@ -4,8 +4,9 @@
 
 'use strict';
 
-const crypto = require('crypto');
-const cryptoScrypt = require('util').promisify(crypto.scrypt);
+import crypto from 'crypto';
+import cryptoScryptModule from "util";
+const cryptoScrypt = cryptoScryptModule.promisify(crypto.scrypt);
 
 // Magic numbers from the node crypto docs:
 // https://nodejs.org/api/crypto.html#crypto_crypto_scrypt_password_salt_keylen_options_callback
@@ -19,7 +20,7 @@ const DEFAULT_MAXMEM = MAXMEM_MULTIPLIER * DEFAULT_N * DEFAULT_R;
 // exported object, or by setting the `scrypt.maxPending` config option.
 const DEFAULT_MAX_PENDING = 100;
 
-module.exports = function (log, config) {
+export default function (log, config) {
   const scrypt = {
     hash: hash,
     // The current number of hash operations in progress.
@@ -66,4 +67,4 @@ module.exports = function (log, config) {
   }
 
   return scrypt;
-};
+}

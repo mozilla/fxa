@@ -4,15 +4,13 @@
 
 'use strict';
 
-const ROOT_DIR = '../../..';
-
-const { assert } = require('chai');
-const error = require(`${ROOT_DIR}/lib/error`);
-const { mockLog } = require('../../mocks');
-const notifications = require(`${ROOT_DIR}/lib/email/notifications`);
-const sinon = require('sinon');
-const { default: Container } = require('typedi');
-const { StripeHelper } = require('../../../lib/payments/stripe');
+import { assert } from 'chai';
+import error from '../../../lib/error';
+import { mockLog } from '../../mocks';
+import notifications from '../../../lib/email/notifications';
+import sinon from 'sinon';
+import { Container } from 'typedi';
+import { StripeHelper } from '../../../lib/payments/stripe';
 
 const SIX_HOURS = 1000 * 60 * 60 * 6;
 

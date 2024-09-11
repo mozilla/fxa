@@ -4,12 +4,12 @@
 
 'use strict';
 
-const sinon = require('sinon');
+import sinon from 'sinon';
 const assert = { ...sinon.assert, ...require('chai').assert };
-const getRoute = require('../../routes_helpers').getRoute;
-const mocks = require('../../mocks');
-const ScopeSet = require('fxa-shared/oauth/scopes').scopeSetHelpers;
-const error = require('../../../lib/error');
+import { getRoute } from '../../routes_helpers';
+import mocks from '../../mocks';
+import { scopeSetHelpers as ScopeSet } from 'fxa-shared/oauth/scopes';
+import error from '../../../lib/error';
 
 const { INVALID_PARAMETER, MISSING_PARAMETER } = error.ERRNO;
 

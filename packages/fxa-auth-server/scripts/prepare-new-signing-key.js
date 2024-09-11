@@ -1,5 +1,3 @@
-#!/usr/bin/env node -r esbuild-register
-
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -15,10 +13,11 @@
 
 //eslint-disable no-console
 
-const fs = require('fs');
-const assert = require('assert');
-const keys = require('../lib/oauth/keys');
-const { config } = require('../config');
+import fs from 'fs';
+
+import assert from 'assert';
+import keys from '../lib/oauth/keys';
+import { config } from '../config';
 
 function main(cb) {
   cb = cb || (() => {});
@@ -42,7 +41,7 @@ function main(cb) {
   return cb();
 }
 
-module.exports = main;
+export default main;
 
 if (require.main === module) {
   main();

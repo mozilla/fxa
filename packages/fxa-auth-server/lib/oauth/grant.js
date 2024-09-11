@@ -2,30 +2,32 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const buf = require('buf').hex;
-const hex = require('buf').to.hex;
-const { Container } = require('typedi');
+import { hex as buf } from 'buf';
 
-const { CapabilityService } = require('../payments/capability');
-const { config } = require('../../config');
-const OauthError = require('./error');
-const db = require('./db');
-const util = require('./util');
-const ScopeSet = require('fxa-shared').oauth.scopes;
-const JWTAccessToken = require('./jwt_access_token');
-const sub = require('./jwt_sub');
+import hexModule from "buf";
+const hex = hexModule.to.hex;
+import { Container } from 'typedi';
+import { CapabilityService } from '../payments/capability';
+import { config } from '../../config';
+import OauthError from './error';
+import db from './db';
+import util from './util';
+import ScopeSetModule from "fxa-shared";
+const ScopeSet = ScopeSetModule.oauth.scopes;
+import JWTAccessToken from './jwt_access_token';
+import sub from './jwt_sub';
 
 const ACR_VALUE_AAL2 = 'AAL2';
 const ACCESS_TYPE_OFFLINE = 'offline';
 
 const SCOPE_OPENID = ScopeSet.fromArray(['openid']);
-const { OAUTH_SCOPE_SESSION_TOKEN } = require('fxa-shared/oauth/constants');
+import { OAUTH_SCOPE_SESSION_TOKEN } from 'fxa-shared/oauth/constants';
 
 const ID_TOKEN_EXPIRATION = Math.floor(
   config.get('oauthServer.openid.ttl') / 1000
 );
 
-const jwt = require('./jwt');
+import jwt from './jwt';
 
 const JWT_ACCESS_TOKENS_ENABLED = config.get(
   'oauthServer.jwtAccessTokens.enabled'
@@ -44,7 +46,7 @@ const UNTRUSTED_CLIENT_ALLOWED_SCOPES = ScopeSet.fromArray([
 /** @type {CapabilityService} */
 let capabilityService = undefined;
 
-module.exports.setStripeHelper = function (val) {
+export const setStripeHelper = function (val) {
   // This is a less than ideal hook into the existing call-stack to
   // set the capabilityService at a time after the primary initialization
   // of objects has occurred.
@@ -61,7 +63,7 @@ module.exports.setStripeHelper = function (val) {
 // It does *not* perform any user or client authentication, assuming that the
 // authenticity of the passed-in details has been sufficiently verified by
 // calling code.
-module.exports.validateRequestedGrant = async function validateRequestedGrant(
+export const validateRequestedGrant = async function validateRequestedGrant(
   verifiedClaims,
   client,
   requestedGrant
@@ -154,7 +156,7 @@ module.exports.validateRequestedGrant = async function validateRequestedGrant(
 //
 // This function does *not* perform any authentication or validation, assuming that
 // the specified grant has been sufficiently vetted by calling code.
-module.exports.generateTokens = async function generateTokens(grant) {
+export const generateTokens = async function generateTokens(grant) {
   // We always generate an access_token.
   const access = await exports.generateAccessToken(grant);
 
@@ -224,7 +226,7 @@ async function generateIdToken(grant, accessToken) {
   return jwt.sign(claims);
 }
 
-exports.generateAccessToken = async function generateAccessToken(grant) {
+export const generateAccessToken = async function generateAccessToken(grant) {
   const clientId = hex(grant.clientId).toLowerCase();
   const accessToken = await db.generateAccessToken(grant);
   if (

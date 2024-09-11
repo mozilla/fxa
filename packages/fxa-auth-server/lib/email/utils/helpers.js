@@ -2,14 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict';
-
-const ROOT_DIR = '../../..';
-
-const { config } = require(`${ROOT_DIR}/config`);
-const emailDomains = require(`${ROOT_DIR}/config/popular-email-domains`);
-const { default: Container } = require('typedi');
-const { AccountEventsManager } = require('../../account-events');
+import configModule from '../../../config';
+import emailDomains from '../../../config/popular-email-domains';
+import { Container } from 'typedi';
+import { AccountEventsManager } from '../../account-events';
+import amplitudeModule from '../../metrics/amplitude';
 
 let amplitude, accountEventsManager;
 
@@ -119,7 +116,7 @@ function logEmailEventSent(log, message) {
 
 function logAmplitudeEvent(log, message, eventInfo) {
   if (!amplitude) {
-    amplitude = require('../../metrics/amplitude')(log, config.getProperties());
+    amplitude = amplitudeModule(log, configModule.config.getProperties());
   }
 
   amplitude(
@@ -259,7 +256,7 @@ function getAnonymizedEmailDomain(email) {
   return anonymizedEmailDomain;
 }
 
-module.exports = {
+export default {
   logEmailEventSent,
   logEmailEventFromMessage,
   logErrorIfHeadersAreWeirdOrMissing,

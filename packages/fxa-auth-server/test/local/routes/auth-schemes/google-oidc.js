@@ -2,10 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { assert } = require('chai');
-const sinon = require('sinon');
-const proxyquire = require('proxyquire');
-const AppError = require('../../../../lib/error');
+import { assert } from 'chai';
+
+import sinon from 'sinon';
+import proxyquire from 'proxyquire';
+import AppError from '../../../../lib/error';
 
 let verifyIdTokenStub;
 const GoogleOIDCScheme = proxyquire(

@@ -4,10 +4,10 @@
 
 'use strict';
 
-const leftpad = require('leftpad');
-const { determineLocale } = require('../../../../libs/shared/l10n/src');
+import leftpad from 'leftpad';
+import { determineLocale } from '../../../../libs/shared/l10n/src';
 
-module.exports = class UserRecordNormalizer {
+export default class UserRecordNormalizer {
   /**
    * Normalize the records in `userRecords`. Filters out entries
    * without an `email` field, converts location information to
@@ -88,4 +88,4 @@ module.exports = class UserRecordNormalizer {
       location.location = location.locality;
     }
   }
-};
+}

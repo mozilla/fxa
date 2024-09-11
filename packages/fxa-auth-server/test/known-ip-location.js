@@ -4,7 +4,7 @@
 
 'use strict';
 
-module.exports = {
+export default {
   // This is a known IP address and its expected location.
   //
   // For `city`, results have fluctuated sufficiently that

@@ -4,10 +4,10 @@
 
 'use strict';
 
-const inherits = require('util').inherits;
-const random = require('../crypto/random');
+import { inherits } from 'util';
+import random from '../crypto/random';
 
-module.exports = (log, Token, lifetime) => {
+export default (log, Token, lifetime) => {
   function PasswordForgotToken(keys, details) {
     details.lifetime = lifetime;
     Token.call(this, keys, details);

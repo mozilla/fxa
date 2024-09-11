@@ -4,9 +4,9 @@
 
 'use strict';
 
-const NodemailerMock = require('./nodemailer-mock');
+import NodemailerMock from './nodemailer-mock';
 
-module.exports = class StreamOutputMock extends NodemailerMock {
+export default class StreamOutputMock extends NodemailerMock {
   constructor(config) {
     super(config);
 
@@ -30,4 +30,4 @@ module.exports = class StreamOutputMock extends NodemailerMock {
 
     return super.sendMail(emailConfig, callback);
   }
-};
+}

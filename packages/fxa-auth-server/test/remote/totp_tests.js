@@ -4,19 +4,17 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const crypto = require('crypto');
-const config = require('../../config').default.getProperties();
-const TestServer = require('../test_server');
-const Client = require('../client')();
-const otplib = require('otplib');
-const { default: Container } = require('typedi');
-const {
-  PlaySubscriptions,
-} = require('../../lib/payments/iap/google-play/subscriptions');
-const {
-  AppStoreSubscriptions,
-} = require('../../lib/payments/iap/apple-app-store/subscriptions');
+import { assert } from 'chai';
+import crypto from 'crypto';
+import configModule from '../../config';
+const config = configModule.getProperties();
+import TestServer from '../test_server';
+import ClientModule from '../client';
+const Client = ClientModule();
+import otplib from 'otplib';
+import { Container } from 'typedi';
+import { PlaySubscriptions } from '../../lib/payments/iap/google-play/subscriptions';
+import { AppStoreSubscriptions } from '../../lib/payments/iap/apple-app-store/subscriptions';
 
 [{version:""},{version:"V2"}].forEach((testOptions) => {
 

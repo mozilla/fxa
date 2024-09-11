@@ -4,7 +4,7 @@
 
 'use strict';
 
-const error = require('../../error');
+import error from '../../error';
 
 const BOUNCE_ERRORS = new Set([
   error.ERRNO.BOUNCE_COMPLAINT,
@@ -12,7 +12,7 @@ const BOUNCE_ERRORS = new Set([
   error.ERRNO.BOUNCE_SOFT,
 ]);
 
-module.exports = {
+export default {
   sendError(err, isNewAddress) {
     if (err && BOUNCE_ERRORS.has(err.errno)) {
       return err;

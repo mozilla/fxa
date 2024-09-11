@@ -4,19 +4,20 @@
 
 'use strict';
 
-const errors = require('../error');
-const validators = require('./validators');
-const isA = require('joi');
-const otplib = require('otplib');
-const qrcode = require('qrcode');
-const { promisify } = require('util');
-const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
-const TOTP_DOCS = require('../../docs/swagger/totp-api').default;
-const DESCRIPTION = require('../../docs/swagger/shared/descriptions').default;
-const { Container } = require('typedi');
-const { AccountEventsManager } = require('../account-events');
+import errors from '../error';
+import * as validators from './validators';
+import isA from 'joi';
+import otplib from 'otplib';
+import qrcode from 'qrcode';
+import { promisify } from 'util';
+import { schema as METRICS_CONTEXT_SCHEMA } from '../metrics/context';
+import { default as TOTP_DOCS } from '../../docs/swagger/totp-api';
+import { default as DESCRIPTION } from '../../docs/swagger/shared/descriptions';
+import { Container } from 'typedi';
+import { AccountEventsManager } from '../account-events';
 
-module.exports = (log, db, mailer, customs, config, glean, profileClient) => {
+
+export default (log, db, mailer, customs, config, glean, profileClient) => {
   const otpUtils = require('../../lib/routes/utils/otp')(log, config, db);
 
   // Currently, QR codes are rendered with the highest possible

@@ -4,33 +4,23 @@
 
 'use strict';
 
-const sinon = require('sinon');
-const { assert } = require('chai');
-const { default: Container } = require('typedi');
-const cloneDeep = require('lodash/cloneDeep');
-const retry = require('async-retry');
-const { deleteCollection } = require('../util');
-const {
-  mergeConfigs,
-} = require('fxa-shared/subscriptions/configuration/utils');
+import sinon from 'sinon';
+import { assert } from 'chai';
+import { Container } from 'typedi';
+import cloneDeep from 'lodash/cloneDeep';
+import retry from 'async-retry';
+import { deleteCollection } from '../util';
+import { mergeConfigs } from 'fxa-shared/subscriptions/configuration/utils';
 
 const sandbox = sinon.createSandbox();
 
-const {
-  AuthFirestore,
-  AuthLogger,
-  AppConfig,
-} = require('../../../../lib/types');
-const {
-  PaymentConfigManager,
-} = require('../../../../lib/payments/configuration/manager');
-const { setupFirestore } = require('../../../../lib/firestore-db');
-const { randomUUID } = require('crypto');
-const errors = require('../../../../lib/error');
-const {
-  ProductConfig,
-} = require('fxa-shared/subscriptions/configuration/product');
-const { PlanConfig } = require('fxa-shared/subscriptions/configuration/plan');
+import { AuthFirestore, AuthLogger, AppConfig } from '../../../../lib/types';
+import { PaymentConfigManager } from '../../../../lib/payments/configuration/manager';
+import { setupFirestore } from '../../../../lib/firestore-db';
+import { randomUUID } from 'crypto';
+import errors from '../../../../lib/error';
+import { ProductConfig } from 'fxa-shared/subscriptions/configuration/product';
+import { PlanConfig } from 'fxa-shared/subscriptions/configuration/plan';
 
 const mockConfig = {
   authFirestore: {

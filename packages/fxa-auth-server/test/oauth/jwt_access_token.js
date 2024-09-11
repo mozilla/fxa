@@ -2,14 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { assert } = require('chai');
-const sinon = require('sinon');
-const proxyquire = require('proxyquire');
-const AppError = require('../../lib/oauth/error');
-const ScopeSet = require('fxa-shared').oauth.scopes;
-const { OAUTH_SCOPE_OLD_SYNC } = require('fxa-shared/oauth/constants');
-const TOKEN_SERVER_URL =
-  require('../../config').default.get('syncTokenserverUrl');
+import { assert } from 'chai';
+
+import sinon from 'sinon';
+import proxyquire from 'proxyquire';
+import AppError from '../../lib/oauth/error';
+import ScopeSetModule from "fxa-shared";
+const ScopeSet = ScopeSetModule.oauth.scopes;
+import { OAUTH_SCOPE_OLD_SYNC } from 'fxa-shared/oauth/constants';
+import TOKEN_SERVER_URLModule from "../../config";
+const TOKEN_SERVER_URL = TOKEN_SERVER_URLModule.default.get('syncTokenserverUrl');
 
 describe('lib/jwt_access_token', () => {
   let JWTAccessToken;

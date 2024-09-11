@@ -5,7 +5,9 @@
 'use strict';
 
 /* eslint-disable no-console */
-const Client = require('../client')();
+import ClientModule from "../client";
+
+const Client = ClientModule();
 
 const config = {
   origin: 'http://localhost:9000',

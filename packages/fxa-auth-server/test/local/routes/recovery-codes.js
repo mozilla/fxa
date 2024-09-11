@@ -4,11 +4,11 @@
 
 'use strict';
 
-const sinon = require('sinon');
+import sinon from 'sinon';
 const assert = { ...sinon.assert, ...require('chai').assert };
-const getRoute = require('../../routes_helpers').getRoute;
-const mocks = require('../../mocks');
-const error = require('../../../lib/error');
+import { getRoute } from '../../routes_helpers';
+import mocks from '../../mocks';
+import error from '../../../lib/error';
 
 let log, db, customs, routes, route, request, requestOptions, mailer, glean;
 const TEST_EMAIL = 'test@email.com';

@@ -4,13 +4,12 @@
 
 'use strict';
 
-const sinon = require('sinon');
+import sinon from 'sinon';
 const assert = { ...sinon.assert, ...require('chai').assert };
 
-const mocks = require('../mocks');
-const error = require('../../lib/error');
-
-const authMethods = require('../../lib/authMethods');
+import mocks from '../mocks';
+import error from '../../lib/error';
+import authMethods from '../../lib/authMethods';
 
 const MOCK_ACCOUNT = {
   uid: 'abcdef123456',

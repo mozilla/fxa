@@ -4,14 +4,16 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const crypto = require('crypto');
-const TestServer = require('../test_server');
-const Client = require('../client')();
-const config = require('../../config').default.getProperties();
-const buf = require('buf').hex;
-const testUtils = require('../lib/util');
-const encrypt = require('fxa-shared/auth/encrypt');
+import { assert } from 'chai';
+import crypto from 'crypto';
+import TestServer from '../test_server';
+import ClientModule from "../client";
+const Client = ClientModule();
+import configModule from "../../config";
+const config = configModule.getProperties();
+import { hex as buf } from 'buf';
+import testUtils from '../lib/util';
+import encrypt from 'fxa-shared/auth/encrypt';
 const log = { trace() {}, info() {}, error() {}, debug() {}, warn() {} };
 
 const lastAccessTimeUpdates = {
@@ -19,7 +21,9 @@ const lastAccessTimeUpdates = {
   sampleRate: 1,
   earliestSaneTimestamp: config.lastAccessTimeUpdates.earliestSaneTimestamp,
 };
-const Token = require('../../lib/tokens')(log, {
+import TokenModule from "../../lib/tokens";
+
+const Token = TokenModule(log, {
   lastAccessTimeUpdates: lastAccessTimeUpdates,
   tokenLifetimes: {
     sessionTokenWithoutDevice: 2419200000,

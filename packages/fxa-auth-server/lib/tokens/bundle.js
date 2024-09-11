@@ -24,14 +24,15 @@
  *
  */
 
-const butil = require('../crypto/butil');
-const crypto = require('crypto');
-const error = require('../error');
-const hkdf = require('../crypto/hkdf');
+import butil from '../crypto/butil';
+
+import crypto from 'crypto';
+import error from '../error';
+import hkdf from '../crypto/hkdf';
 
 const HASH_ALGORITHM = 'sha256';
 
-module.exports = {
+export default {
   // Encrypt the given buffer into a hex ciphertext string.
   //
   async bundle(key, keyInfo, payload) {

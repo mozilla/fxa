@@ -4,14 +4,15 @@
 
 'use strict';
 
-const error = require('../error');
-const isA = require('joi');
-const validators = require('./validators');
-const SIGN_DOCS = require('../../docs/swagger/sign-api').default;
-const DESCRIPTION = require('../../docs/swagger/shared/descriptions').default;
-const crypto = require('crypto');
+import error from '../error';
+import isA from 'joi';
+import * as validators from './validators';
+import { default as SIGN_DOCS } from '../../docs/swagger/sign-api';
+import { default as DESCRIPTION } from '../../docs/swagger/shared/descriptions';
+import crypto from 'crypto';
 
-module.exports = (log, signer, db, domain, devices, config, profileClient) => {
+
+export default (log, signer, db, domain, devices, config, profileClient) => {
   const HOUR = 1000 * 60 * 60;
 
   const rolloutRate = config.certificateSignDisableRolloutRate || 0;

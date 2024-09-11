@@ -4,26 +4,24 @@
 
 'use strict';
 
-const fs = require('fs');
-const Hapi = require('@hapi/hapi');
-const HapiSwagger = require('hapi-swagger');
-const path = require('path');
-const { getRemoteAddressChain } = require('./getRemoteAddressChain');
-const userAgent = require('fxa-shared/lib/user-agent').parseToScalars;
-const schemeRefreshToken = require('./routes/auth-schemes/refresh-token');
-const authOauth = require('./routes/auth-schemes/auth-oauth');
-const sharedSecretAuth = require('./routes/auth-schemes/shared-secret');
-const pubsubAuth = require('./routes/auth-schemes/pubsub');
-const googleOIDC = require('./routes/auth-schemes/google-oidc');
-const { HEX_STRING } = require('./routes/validators');
-const { configureSentry } = require('./sentry');
-const { swaggerOptions } = require('../docs/swagger/swagger-options');
-const { Account } = require('fxa-shared/db/models/auth');
-const { determineLocale } = require('../../../libs/shared/l10n/src');
-const {
-  reportValidationError,
-} = require('fxa-shared/sentry/report-validation-error');
-const { logErrorWithGlean } = require('./metrics/glean');
+import fs from 'fs';
+import Hapi from '@hapi/hapi';
+import HapiSwagger from 'hapi-swagger';
+import path from 'path';
+import { getRemoteAddressChain } from './getRemoteAddressChain';
+import { parseToScalars } from 'fxa-shared/lib/user-agent';
+import schemeRefreshToken from './routes/auth-schemes/refresh-token';
+import authOauth from './routes/auth-schemes/auth-oauth';
+import sharedSecretAuth from './routes/auth-schemes/shared-secret';
+import pubsubAuth from './routes/auth-schemes/pubsub';
+import googleOIDC from './routes/auth-schemes/google-oidc';
+import { HEX_STRING } from './routes/validators';
+import { configureSentry } from './sentry';
+import { swaggerOptions } from '../docs/swagger/swagger-options';
+import { Account } from 'fxa-shared/db/models/auth';
+import { determineLocale } from '../../../libs/shared/l10n/src';
+import { reportValidationError } from 'fxa-shared/sentry/report-validation-error';
+import { logErrorWithGlean } from './metrics/glean';
 
 function trimLocale(header) {
   if (!header) {
@@ -202,7 +200,7 @@ async function create(log, error, config, routes, db, statsd, glean) {
     );
 
     defineLazyGetter(request.app, 'ua', () =>
-      userAgent(request.headers['user-agent'])
+      parseToScalars(request.headers['user-agent'])
     );
     defineLazyGetter(request.app, 'geo', () =>
       getGeoData(request.app.clientAddress)
@@ -528,7 +526,7 @@ function metricFactory(statsdClient) {
   return reportMetrics;
 }
 
-module.exports = {
+export default {
   create: create,
   // Functions below exported for testing
   _configureSentry: configureSentry,

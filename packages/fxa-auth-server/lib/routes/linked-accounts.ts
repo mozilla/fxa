@@ -6,9 +6,9 @@ import { ConfigType } from '../../config';
 import { OAuth2Client } from 'google-auth-library';
 import axios from 'axios';
 import * as uuid from 'uuid';
-import * as random from '../crypto/random';
+import random from '../crypto/random';
 import * as jose from 'jose';
-import validators from './validators';
+import * as validators from './validators';
 import {
   Provider,
   PROVIDER,

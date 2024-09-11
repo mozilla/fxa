@@ -2,11 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { assert } = require('chai');
-const proxyquire = require('proxyquire');
-const AppError = require('../../../../lib/error');
-const OauthAppError = require('../../../../lib/oauth/error');
-const ScopeSet = require('fxa-shared').oauth.scopes;
+import { assert } from 'chai';
+
+import proxyquire from 'proxyquire';
+import AppError from '../../../../lib/error';
+import OauthAppError from '../../../../lib/oauth/error';
+import ScopeSetModule from "fxa-shared";
+const ScopeSet = ScopeSetModule.oauth.scopes;
 
 const authOauthPath = '../../../../lib/routes/auth-schemes/auth-oauth';
 const mockRequest = {

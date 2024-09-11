@@ -4,18 +4,17 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const uuid = require('uuid');
-const sinon = require('sinon');
-const { Container } = require('typedi');
-
-const mocks = require('../../../mocks');
-
-const error = require('../../../../lib/error');
-const completedMerchantPaymentNotification = require('../fixtures/merch_pmt_completed.json');
-const pendingMerchantPaymentNotification = require('../fixtures/merch_pmt_pending.json');
-const billingAgreementCancelNotification = require('../fixtures/mp_cancel_successful.json');
-const proxyquire = require('proxyquire').noPreserveCache();
+import { assert } from 'chai';
+import * as uuid from 'uuid';
+import sinon from 'sinon';
+import { Container } from 'typedi';
+import mocks from '../../../mocks';
+import error from '../../../../lib/error';
+import completedMerchantPaymentNotification from '../fixtures/merch_pmt_completed.json';
+import pendingMerchantPaymentNotification from '../fixtures/merch_pmt_pending.json';
+import billingAgreementCancelNotification from '../fixtures/mp_cancel_successful.json';
+import proxyquireModule from "proxyquire";
+const proxyquire = proxyquireModule.noPreserveCache();
 
 const sandbox = sinon.createSandbox();
 
@@ -29,8 +28,8 @@ const { PayPalNotificationHandler } = proxyquire(
   '../../../../lib/routes/subscriptions/paypal-notifications',
   { 'fxa-shared/db/models/auth': dbStub }
 );
-const { PayPalHelper } = require('../../../../lib/payments/paypal/helper');
-const { CapabilityService } = require('../../../../lib/payments/capability');
+import { PayPalHelper } from '../../../../lib/payments/paypal/helper';
+import { CapabilityService } from '../../../../lib/payments/capability';
 
 import { RefundType } from '@fxa/payments/paypal';
 import { SUBSCRIPTIONS_RESOURCE } from '../../../../lib/payments/stripe';

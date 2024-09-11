@@ -4,19 +4,18 @@
 
 'use strict';
 
-const RECOVERY_KEY_DOCS =
-  require('../../docs/swagger/recovery-key-api').default;
-const DESCRIPTION = require('../../docs/swagger/shared/descriptions').default;
+import { default as RECOVERY_KEY_DOCS } from '../../docs/swagger/recovery-key-api';
+import { default as DESCRIPTION } from '../../docs/swagger/shared/descriptions';
 
-const AppError = require('../error');
-const errors = require('../error');
-const { recordSecurityEvent } = require('./utils/security-event');
-const validators = require('./validators');
-const isA = require('joi');
-const { OAUTH_SCOPE_OLD_SYNC } = require('fxa-shared/oauth/constants');
-const { list } = require('../oauth/authorized_clients');
+import AppError from '../error';
+import errors from '../error';
+import { recordSecurityEvent } from './utils/security-event';
+import * as validators from './validators';
+import isA from 'joi';
+import { OAUTH_SCOPE_OLD_SYNC } from 'fxa-shared/oauth/constants';
+import { list } from '../oauth/authorized_clients';
 
-module.exports = (
+export default (
   log,
   db,
   Password,

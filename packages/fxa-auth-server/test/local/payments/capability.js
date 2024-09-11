@@ -4,52 +4,31 @@
 
 'use strict';
 
-const config = require('../../../config').default.getProperties();
-const sinon = require('sinon');
+import configModule from "../../../config";
+import sinon from 'sinon';
+import { Container } from 'typedi';
+import { mockCMSClients, mockLog, mockPlans, mockCMSPlanIdsToClientCapabilities } from '../../mocks';
+import { AppConfig, AuthLogger } from '../../../lib/types';
+import { StripeHelper } from '../../../lib/payments/stripe';
+import { PlayBilling } from '../../../lib/payments/iap/google-play';
+import { AppleIAP } from '../../../lib/payments/iap/apple-app-store';
+import { PaymentConfigManager } from '../../../lib/payments/configuration/manager';
+import subscriptionCreatedModule from "./fixtures/stripe/subscription_created.json";
+import { ProfileClient } from '@fxa/profile/client';
+import { PlayStoreSubscriptionPurchase } from '../../../lib/payments/iap/google-play/subscription-purchase';
+import proxyquireModule from "proxyquire";
+import authDbModule from 'fxa-shared/db/models/auth';
+import { ALL_RPS_CAPABILITIES_KEY } from 'fxa-shared/subscriptions/configuration/base';
+import { PurchaseQueryError } from '../../../lib/payments/iap/google-play/types';
+import { CapabilityManager } from '../../../../../libs/payments/capability/src';
+import { EligibilityManager } from '../../../../../libs/payments/eligibility/src';
+import { SubscriptionEligibilityResult } from 'fxa-shared/subscriptions/types';
+import Sentry from '@sentry/node';
+
+const subscriptionCreated = subscriptionCreatedModule.data.object;
 const assert = { ...sinon.assert, ...require('chai').assert };
-const { Container } = require('typedi');
-
-const {
-  mockCMSClients,
-  mockLog,
-  mockPlans,
-  mockCMSPlanIdsToClientCapabilities,
-} = require('../../mocks');
-const { AppConfig, AuthLogger } = require('../../../lib/types');
-const { StripeHelper } = require('../../../lib/payments/stripe');
-const { PlayBilling } = require('../../../lib/payments/iap/google-play');
-const { AppleIAP } = require('../../../lib/payments/iap/apple-app-store');
-const {
-  PaymentConfigManager,
-} = require('../../../lib/payments/configuration/manager');
-
-const subscriptionCreated =
-  require('./fixtures/stripe/subscription_created.json').data.object;
-
-const { ProfileClient } = require('@fxa/profile/client');
-const {
-  PlayStoreSubscriptionPurchase,
-} = require('../../../lib/payments/iap/google-play/subscription-purchase');
-const proxyquire = require('proxyquire').noPreserveCache();
-
-const authDbModule = require('fxa-shared/db/models/auth');
-const {
-  ALL_RPS_CAPABILITIES_KEY,
-} = require('fxa-shared/subscriptions/configuration/base');
-const {
-  PurchaseQueryError,
-} = require('../../../lib/payments/iap/google-play/types');
-const {
-  CapabilityManager,
-} = require('../../../../../libs/payments/capability/src');
-const {
-  EligibilityManager,
-} = require('../../../../../libs/payments/eligibility/src');
-const {
-  SubscriptionEligibilityResult,
-} = require('fxa-shared/subscriptions/types');
-const Sentry = require('@sentry/node');
-
+const config = configModule.getProperties();
+const proxyquire = proxyquireModule.noPreserveCache();
 const mockAuthEvents = {};
 
 const { CapabilityService } = proxyquire('../../../lib/payments/capability', {

@@ -4,12 +4,14 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const Client = require('../client')();
-const TestServer = require('../test_server');
-const { JWTool } = require('@fxa/vendored/jwtool');
+import { assert } from 'chai';
+import ClientModule from "../client";
+const Client = ClientModule();
+import TestServer from '../test_server';
+import { JWTool } from '@fxa/vendored/jwtool';
 
-const config = require('../../config').default.getProperties();
+import configModule from "../../config";
+const config = configModule.getProperties();
 
 const pubSigKey = JWTool.JWK.fromFile(config.publicKeyFile);
 

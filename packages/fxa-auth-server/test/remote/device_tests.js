@@ -4,13 +4,15 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const TestServer = require('../test_server');
-const Client = require('../client')();
-const config = require('../../config').default.getProperties();
-const crypto = require('crypto');
-const base64url = require('base64url');
-const mocks = require('../mocks');
+import { assert } from 'chai';
+import TestServer from '../test_server';
+import ClientModule from "../client";
+const Client = ClientModule();
+import configModule from "../../config";
+const config = configModule.getProperties();
+import crypto from 'crypto';
+import base64url from 'base64url';
+import mocks from '../mocks';
 
 [{version:""},{version:"V2"}].forEach((testOptions) => {
 

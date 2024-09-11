@@ -21,7 +21,7 @@ import { reportSentryError } from '../../sentry';
 import { msToSec } from '../../time';
 import { AuthLogger, AuthRequest } from '../../types';
 import { sendFinishSetupEmailForStubAccount } from '../subscriptions/account';
-import validators from '../validators';
+import * as validators from '../validators';
 import { StripeWebhookHandler } from './stripe-webhook';
 import { handleAuth } from './utils';
 import { deleteAccountIfUnverified } from '../utils/account';

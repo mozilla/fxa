@@ -4,10 +4,10 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const getRoute = require('../../routes_helpers').getRoute;
-const mocks = require('../../mocks');
-const uuid = require('uuid');
+import { assert } from 'chai';
+import { getRoute } from '../../routes_helpers';
+import mocks from '../../mocks';
+import * as uuid from 'uuid';
 
 let route, routes, request;
 const TEST_EMAIL = 'foo@gmail.com';

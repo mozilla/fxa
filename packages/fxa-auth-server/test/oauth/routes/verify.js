@@ -2,10 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { assert } = require('chai');
-const proxyquire = require('proxyquire');
-const sinon = require('sinon');
-const ScopeSet = require('fxa-shared').oauth.scopes;
+import { assert } from 'chai';
+
+import proxyquire from 'proxyquire';
+import sinon from 'sinon';
+import ScopeSetModule from "fxa-shared";
+const ScopeSet = ScopeSetModule.oauth.scopes;
 
 const TOKEN =
   'df6dcfe7bf6b54a65db5742cbcdce5c0a84a5da81a0bb6bdf5fc793eef041fc6';

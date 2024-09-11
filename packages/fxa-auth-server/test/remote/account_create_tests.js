@@ -4,19 +4,17 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const TestServer = require('../test_server');
-const crypto = require('crypto');
-const Client = require('../client')();
-const config = require('../../config').default.getProperties();
-const mocks = require('../mocks');
-const { default: Container } = require('typedi');
-const {
-  PlaySubscriptions,
-} = require('../../lib/payments/iap/google-play/subscriptions');
-const {
-  AppStoreSubscriptions,
-} = require('../../lib/payments/iap/apple-app-store/subscriptions');
+import { assert } from 'chai';
+import TestServer from '../test_server';
+import crypto from 'crypto';
+import ClientModule from '../client';
+const Client = ClientModule();
+import configModule from '../../config';
+const config = configModule.getProperties();
+import mocks from '../mocks';
+import { Container } from 'typedi';
+import { PlaySubscriptions } from '../../lib/payments/iap/google-play/subscriptions';
+import { AppStoreSubscriptions } from '../../lib/payments/iap/apple-app-store/subscriptions';
 
 // Note, intentionally not indenting for code review.
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {

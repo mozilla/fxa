@@ -4,12 +4,14 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const config = require('../../config').default.getProperties();
-const TestServer = require('../test_server');
-const Client = require('../client')();
-const otplib = require('otplib');
-const BASE_36 = require('../../lib/routes/validators').BASE_36;
+import { assert } from 'chai';
+import configModule from "../../config";
+const config = configModule.getProperties();
+import TestServer from '../test_server';
+import ClientModule from "../client";
+const Client = ClientModule();
+import otplib from 'otplib';
+import { BASE_36 } from '../../lib/routes/validators';
 
 [{version:""},{version:"V2"}].forEach((testOptions) => {
 

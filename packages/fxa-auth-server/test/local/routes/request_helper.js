@@ -4,8 +4,8 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const requestHelper = require('../../../lib/routes/utils/request_helper');
+import { assert } from 'chai';
+import requestHelper from '../../../lib/routes/utils/request_helper';
 
 describe('requestHelper', () => {
   it('interface is correct', () => {

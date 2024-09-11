@@ -7,21 +7,22 @@ import { ERRNO } from '../../../../lib/error';
 
 ('use strict');
 
-const sinon = require('sinon');
-const chai = require('chai');
+import sinon from 'sinon';
+import chai from 'chai';
 const assert = { ...sinon.assert, ...chai.assert };
-const uuid = require('uuid');
+import * as uuid from 'uuid';
 const sandbox = sinon.createSandbox();
-const proxyquire = require('proxyquire');
-const { getRoute } = require('../../../routes_helpers');
-const { OAUTH_SCOPE_SUBSCRIPTIONS } = require('fxa-shared/oauth/constants');
+import proxyquire from 'proxyquire';
+import { getRoute } from '../../../routes_helpers';
+import { OAUTH_SCOPE_SUBSCRIPTIONS } from 'fxa-shared/oauth/constants';
 const UID = uuid.v4({}, Buffer.alloc(16)).toString('hex');
 const TEST_EMAIL = 'testo@example.gg';
 const ACCOUNT_LOCALE = 'en-US';
-const {
+
+import {
   appStoreSubscriptionPurchaseToAppStoreSubscriptionDTO,
   playStoreSubscriptionPurchaseToPlayStoreSubscriptionDTO,
-} = require('../../../../lib/payments/iap/iap-formatter');
+} from '../../../../lib/payments/iap/iap-formatter';
 
 // We want to track the call count of these methods without
 // stubbing them (i.e. we want to use their real implementation),
@@ -135,7 +136,7 @@ const mockAppStoreSubscription = {
   product_id: 'prod_123',
   product_name: 'Cooking with Foxkeh',
 };
-const mocks = require('../../../mocks');
+import mocks from '../../../mocks';
 const log = mocks.mockLog();
 const db = mocks.mockDB({
   uid: UID,

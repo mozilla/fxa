@@ -26,7 +26,8 @@
     "legal:clone": "_scripts/clone-legal-docs.sh",
     "gql:allowlist": "nx run-many -t gql-extract && nx run-many -t gql-copy",
     "check:mysql": "_scripts/check-mysql.sh",
-    "check:url": "_scripts/check-url.sh"
+    "check:url": "_scripts/check-url.sh",
+    "util:to-ejs": "_scripts/cjs-to-esm.sh"
   },
   "homepage": "https://github.com/mozilla/fxa",
   "bugs": {

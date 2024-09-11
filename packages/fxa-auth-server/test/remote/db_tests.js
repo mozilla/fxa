@@ -4,17 +4,18 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const base64url = require('base64url');
-const config = require('../../config').default.getProperties();
-const crypto = require('crypto');
-const sinon = require('sinon');
-const TestServer = require('../test_server');
-const UnblockCode = require('../../lib/crypto/random').base32(
-  config.signinUnblock.codeLength
-);
-const uuid = require('uuid');
-const { normalizeEmail } = require('fxa-shared').email.helpers;
+import { assert } from 'chai';
+import base64url from 'base64url';
+import configModule from '../../config';
+const config = configModule.getProperties();
+import crypto from 'crypto';
+import sinon from 'sinon';
+import TestServer from '../test_server';
+import UnblockCodeModule from '../../lib/crypto/random';
+const UnblockCode = UnblockCodeModule.base32(config.signinUnblock.codeLength);
+import * as uuid from 'uuid';
+import { email } from 'fxa-shared';
+const { normalizeEmail } = email.helpers;
 
 const log = { debug() {}, trace() {}, info() {}, error() {} };
 
@@ -22,7 +23,9 @@ const lastAccessTimeUpdates = {
   enabled: true,
   sampleRate: 1,
 };
-const Token = require('../../lib/tokens')(log, {
+import TokenModule from "../../lib/tokens";
+
+const Token = TokenModule(log, {
   lastAccessTimeUpdates: lastAccessTimeUpdates,
   tokenLifetimes: {
     sessionTokenWithoutDevice: 2419200000,
@@ -33,30 +36,27 @@ const tokenPruning = {
   enabled: true,
   maxAge: 1000 * 60 * 60,
 };
-const DB = require('../../lib/db')(
-  {
-    lastAccessTimeUpdates,
-    signinCodeSize: config.signinCodeSize,
-    redis: {
-      enabled: true,
-      ...config.redis,
-      ...config.redis.sessionTokens,
-    },
-    securityHistory: {
-      ipHmacKey: 'test',
-    },
-    tokenLifetimes: {},
-    tokenPruning,
-    totp: {
-      recoveryCodes: {
-        length: 10,
-      },
+import DBModule from "../../lib/db";
+
+const DB = DBModule({
+  lastAccessTimeUpdates,
+  signinCodeSize: config.signinCodeSize,
+  redis: {
+    enabled: true,
+    ...config.redis,
+    ...config.redis.sessionTokens,
+  },
+  securityHistory: {
+    ipHmacKey: 'test',
+  },
+  tokenLifetimes: {},
+  tokenPruning,
+  totp: {
+    recoveryCodes: {
+      length: 10,
     },
   },
-  log,
-  Token,
-  UnblockCode
-);
+}, log, Token, UnblockCode);
 
 const zeroBuffer16 = Buffer.from(
   '00000000000000000000000000000000',

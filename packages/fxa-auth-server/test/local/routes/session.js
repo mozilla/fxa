@@ -4,17 +4,20 @@
 
 'use strict';
 
-const crypto = require('crypto');
-const getRoute = require('../../routes_helpers').getRoute;
-const knownIpLocation = require('../../known-ip-location');
-const mocks = require('../../mocks');
-const error = require('../../../lib/error');
-const sinon = require('sinon');
-const otplib = require('otplib');
-const assert = require('../../assert');
-const gleanMock = mocks.mockGlean();
+import crypto from 'crypto';
+import { getRoute } from '../../routes_helpers';
+import knownIpLocation from '../../known-ip-location';
+import mocks from '../../mocks';
+import error from '../../../lib/error';
+import sinon from 'sinon';
+import otplib from 'otplib';
+import assert from '../../assert';
+import cryptoPasswordModule from '../../../lib/crypto/password';
+import signinUtilsModule from '../../../lib/routes/utils/signin';
+import signupUtilsModule from '../../../lib/routes/utils/signup';
+import sessionModule from '../../../lib/routes/session';
 
-const ROOT_DIR = '../../..';
+const gleanMock = mocks.mockGlean();
 
 const signupCodeAccount = {
   uid: 'foo',
@@ -64,41 +67,28 @@ function makeRoutes(options = {}) {
   const cadReminders = options.cadReminders || mocks.mockCadReminders();
   const glean = options.glean || gleanMock;
 
-  const Password =
-    options.Password || require('../../../lib/crypto/password')(log, config);
+  const Password = options.Password || cryptoPasswordModule(log, config);
   const customs = options.customs || {
     check: () => {
       return Promise.resolve(true);
     },
   };
+
   const signinUtils =
     options.signinUtils ||
-    require('../../../lib/routes/utils/signin')(
-      log,
-      config,
-      customs,
-      db,
-      mailer,
-      cadReminders
-    );
+    signinUtilsModule(log, config, customs, db, mailer, cadReminders);
 
   const verificationReminders =
     options.verificationReminders || mocks.mockVerificationReminders();
   const push = options.push || mocks.mockPush();
   const signupUtils =
     options.signupUtils ||
-    require('../../../lib/routes/utils/signup')(
-      log,
-      db,
-      mailer,
-      push,
-      verificationReminders,
-      glean
-    );
+    signupUtilsModule(log, db, mailer, push, verificationReminders, glean);
   if (options.checkPassword) {
     signinUtils.checkPassword = options.checkPassword;
   }
-  return require('../../../lib/routes/session')(
+
+  return sessionModule(
     log,
     db,
     Password,
@@ -792,8 +782,8 @@ describe('/session/duplicate', () => {
     const routes = makeRoutes({ log, config, db });
     route = getRoute(routes, '/session/duplicate');
 
-    const Token = require(`${ROOT_DIR}/lib/tokens/token`)(log);
-    const SessionToken = require(`${ROOT_DIR}/lib/tokens/session_token`)(
+    const Token = require('../../../lib/tokens/token')(log);
+    const SessionToken = require('../../../lib/tokens/session_token')(
       log,
       Token,
       {

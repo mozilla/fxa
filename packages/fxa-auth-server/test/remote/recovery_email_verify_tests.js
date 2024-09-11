@@ -4,12 +4,14 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const url = require('url');
-const Client = require('../client')();
-const TestServer = require('../test_server');
+import { assert } from 'chai';
+import url from 'url';
+import ClientModule from "../client";
+const Client = ClientModule();
+import TestServer from '../test_server';
 
-const config = require('../../config').default.getProperties();
+import configModule from "../../config";
+const config = configModule.getProperties();
 
 [{version:""},{version:"V2"}].forEach((testOptions) => {
 

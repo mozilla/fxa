@@ -5,12 +5,14 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const TestServer = require('../test_server');
-const Client = require('../client')();
-const superagent = require('superagent');
+import { assert } from 'chai';
+import TestServer from '../test_server';
+import ClientModule from "../client";
+const Client = ClientModule();
+import superagent from 'superagent';
 
-const config = require('../../config').default.getProperties();
+import configModule from "../../config";
+const config = configModule.getProperties();
 
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
   describe(`#integration${testOptions.version} - remote misc`, function () {

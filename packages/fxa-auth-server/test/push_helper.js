@@ -4,7 +4,7 @@
 
 'use strict';
 
-const WebSocket = require('ws');
+import WebSocket from 'ws';
 
 /**
  * PushManager, helps create subscriptions against a push server
@@ -94,4 +94,4 @@ PushManager.prototype.getSubscription = function getSubscription() {
   });
 };
 
-module.exports.PushManager = PushManager;
+export { PushManager };

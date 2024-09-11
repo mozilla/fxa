@@ -4,9 +4,9 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const proxyquire = require('proxyquire');
-const sinon = require('sinon');
+import { assert } from 'chai';
+import proxyquire from 'proxyquire';
+import sinon from 'sinon';
 
 describe('lib/serverJWT', () => {
   describe('signJWT', () => {

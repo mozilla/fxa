@@ -4,8 +4,8 @@
 
 'use strict';
 
-const sinon = require('sinon');
-const proxyquire = require('proxyquire');
+import sinon from 'sinon';
+import proxyquire from 'proxyquire';
 
 const token = 'a.test.jwt';
 const { sendFinishSetupEmailForStubAccount } = proxyquire(
@@ -16,7 +16,7 @@ const { sendFinishSetupEmailForStubAccount } = proxyquire(
     },
   }
 );
-const invoice = require('../../payments/fixtures/stripe/invoice_open');
+import invoice from '../../payments/fixtures/stripe/invoice_open';
 
 describe('routes/subscriptions/account', () => {
   describe('sendFinishSetupEmailForStubAccount', () => {

@@ -4,16 +4,17 @@
 
 'use strict';
 
-const axios = require('axios');
-const { config } = require('../config');
-const { createHttpAgent, createHttpsAgent } = require('../lib/http-agent');
-const { performance } = require('perf_hooks');
+import axios from 'axios';
+import { config } from '../config';
+import { createHttpAgent, createHttpsAgent } from '../lib/http-agent';
+import { performance } from 'perf_hooks';
+import { localizeTimestamp as localizeTimestampModule } from '@fxa/shared/l10n';
 
-const localizeTimestamp =
-  require('../../../libs/shared/l10n/src').localizeTimestamp({
-    supportedLanguages: config.get('i18n').supportedLanguages,
-    defaultLanguage: config.get('i18n').defaultLanguage,
-  });
+const localizeTimestamp = localizeTimestampModule({
+  supportedLanguages: config.get('i18n').supportedLanguages,
+  defaultLanguage: config.get('i18n').defaultLanguage,
+});
+
 const serviceName = 'customs';
 
 class CustomsClient {
@@ -247,4 +248,4 @@ class CustomsClient {
   }
 }
 
-module.exports = CustomsClient;
+export default CustomsClient;

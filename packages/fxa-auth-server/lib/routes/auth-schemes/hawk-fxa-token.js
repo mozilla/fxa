@@ -2,8 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const AppError = require('../../error');
-const Boom = require('@hapi/boom');
+import AppError from '../../error';
+
+import Boom from '@hapi/boom';
 
 // The following regexes and Hawk header parsing are taken from the Hawk library.
 // See https://github.com/mozilla/hawk/blob/01f3d35479fe76654bb50f2886b37310555d088e/lib/utils.js#L126
@@ -141,6 +142,6 @@ function strategy(getCredentialsFunc) {
   };
 }
 
-module.exports = {
+export default {
   strategy,
 };

@@ -4,9 +4,9 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const proxyquire = require('proxyquire');
-const sinon = require('sinon');
+import { assert } from 'chai';
+import proxyquire from 'proxyquire';
+import sinon from 'sinon';
 const ClientInfo = proxyquire('../../../lib/senders/oauth_client_info', {
   '../oauth/client': {
     getClientById: async function (id) {

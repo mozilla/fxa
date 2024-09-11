@@ -4,8 +4,8 @@
 
 'use strict';
 
-const HKDF = require('hkdf');
-const { NAMESPACE } = require('../routes/utils/client-key-stretch');
+import HKDF from 'hkdf';
+import { NAMESPACE } from '../routes/utils/client-key-stretch';
 
 function KWE(name, email) {
   return Buffer.from(`${NAMESPACE + name}:${email}`);
@@ -27,4 +27,4 @@ function hkdf(km, info, salt, len) {
 hkdf.KW = KW;
 hkdf.KWE = KWE;
 
-module.exports = hkdf;
+export default hkdf;

@@ -4,12 +4,12 @@
 
 'use strict';
 
-module.exports.ONES = Buffer.from(
+export const ONES = Buffer.from(
   'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
   'hex'
 );
 
-module.exports.buffersAreEqual = function buffersAreEqual(buffer1, buffer2) {
+export const buffersAreEqual = function buffersAreEqual(buffer1, buffer2) {
   buffer1 = Buffer.from(buffer1, 'hex');
   buffer2 = Buffer.from(buffer2, 'hex');
   let mismatch = buffer1.length - buffer2.length;
@@ -22,7 +22,7 @@ module.exports.buffersAreEqual = function buffersAreEqual(buffer1, buffer2) {
   return mismatch === 0;
 };
 
-module.exports.xorBuffers = function xorBuffers(buffer1, buffer2) {
+export const xorBuffers = function xorBuffers(buffer1, buffer2) {
   buffer1 = Buffer.from(buffer1, 'hex');
   buffer2 = Buffer.from(buffer2, 'hex');
   if (buffer1.length !== buffer2.length) {

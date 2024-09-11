@@ -2,19 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const url = require('url');
-const { assert } = require('chai');
-const nock = require('nock');
-const cloneDeep = require('lodash.clonedeep');
-const util = require('util');
+import url from 'url';
 
-const jwt = require('jsonwebtoken');
+import { assert } from 'chai';
+import nock from 'nock';
+import cloneDeep from 'lodash.clonedeep';
+import util from 'util';
+import jwt from 'jsonwebtoken';
 const jwtSign = util.promisify(jwt.sign);
 
-const { config } = require('../../config');
-const unique = require('../../lib/oauth/unique');
-
-const verifyAssertion = require('../../lib/oauth/assertion');
+import { config } from '../../config';
+import unique from '../../lib/oauth/unique';
+import verifyAssertion from '../../lib/oauth/assertion';
 
 const ISSUER = config.get('oauthServer.browserid.issuer');
 const AUDIENCE = config.get('publicUrl');

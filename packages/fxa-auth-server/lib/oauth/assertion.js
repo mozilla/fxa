@@ -21,12 +21,12 @@
  *
  */
 
-const Joi = require('joi');
-const validators = require('./validators');
+import Joi from 'joi';
 
-const OauthError = require('./error');
-const { config } = require('../../config');
-const { verifyJWT } = require('../../lib/serverJWT');
+import * as validators from './validators';
+import OauthError from './error';
+import { config } from '../../config';
+import { verifyJWT } from '../../lib/serverJWT';
 
 const HEX_STRING = /^[0-9a-f]+$/;
 
@@ -49,7 +49,9 @@ const CLAIMS_SCHEMA = Joi.object({
 const AUDIENCE = config.get('oauthServer.audience');
 const ALLOWED_ISSUER = config.get('oauthServer.browserid.issuer');
 
-const request = require('request').defaults({
+import requestModule from "request";
+
+const request = requestModule.defaults({
   url: config.get('oauthServer.browserid.verificationUrl'),
   pool: {
     maxSockets: config.get('oauthServer.browserid.maxSockets'),
@@ -101,7 +103,7 @@ async function verifyBrowserID(assertion) {
   return claims;
 }
 
-module.exports = async function verifyAssertion(assertion) {
+export default async function verifyAssertion(assertion) {
   // We can differentiate between JWTs and BrowserID assertions
   // because the former cannot contain "~" while the later always do.
   let claims;
@@ -126,4 +128,4 @@ module.exports = async function verifyAssertion(assertion) {
   } catch (err) {
     return error(assertion, err, claims);
   }
-};
+}

@@ -3,15 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /*jshint camelcase: false*/
-const Joi = require('joi');
-const validators = require('../../oauth/validators');
-const hex = require('buf').to.hex;
-const AppError = require('../../oauth/error');
-const { getTokenId } = require('../../oauth/token');
-const OAUTH_SERVER_DOCS =
-  require('../../../docs/swagger/oauth-server-api').default;
-const DESCRIPTION =
-  require('../../../docs/swagger/shared/descriptions').default;
+import Joi from 'joi';
+
+import validators from '../../oauth/validators';
+import hexModule from "buf";
+const hex = hexModule.to.hex;
+import AppError from '../../oauth/error';
+import { getTokenId } from '../../oauth/token';
+import { default as OAUTH_SERVER_DOCS } from '../../../docs/swagger/oauth-server-api';
+import { default as DESCRIPTION } from '../../../docs/swagger/shared/descriptions';
 const PAYLOAD_SCHEMA = Joi.object({
   token: Joi.string().required().description(DESCRIPTION.tokenOauth),
   token_type_hint: Joi.string()
@@ -21,7 +21,7 @@ const PAYLOAD_SCHEMA = Joi.object({
 
 // The "token introspection" endpoint, per https://tools.ietf.org/html/rfc7662
 
-module.exports = ({ oauthDB }) => ({
+export default ({ oauthDB }) => ({
   method: 'POST',
   path: '/introspect',
   config: {
