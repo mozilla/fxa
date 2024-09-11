@@ -4,10 +4,12 @@
 
 'use server';
 
+import { plainToClass } from 'class-transformer';
+import { revalidatePath } from 'next/cache';
+
 import { UpdateCart } from '@fxa/payments/cart';
 import { getApp } from '../nestapp/app';
 import { UpdateCartActionArgs } from '../nestapp/validators/UpdateCartActionArgs';
-import { plainToClass } from 'class-transformer';
 
 export const updateCartAction = async (
   cartId: string,
@@ -22,5 +24,10 @@ export const updateCartAction = async (
       version,
       cartDetails,
     })
+  );
+
+  revalidatePath(
+    '/[locale]/[offeringId]/checkout/[interval]/[cartId]/start',
+    'page'
   );
 };

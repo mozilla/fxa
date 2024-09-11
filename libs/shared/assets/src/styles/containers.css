@@ -1,7 +1,0 @@
-.component-card {
-  @apply bg-white rounded-b-lg shadow-sm shadow-grey-300;
-}
-
-.component-card.rounded-plan {
-  @apply rounded-lg tablet:mt-0;
-}

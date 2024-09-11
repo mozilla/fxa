@@ -38,10 +38,10 @@ export default function Index() {
         <h2 className="text-xl mt-8">Without auth</h2>
         <div className="flex gap-8">
           <div className="flex flex-col gap-2 p-4 items-center">
-            <h2>VPN - Monthly</h2>
+            <h2>123Done Pro - Monthly</h2>
             <Link
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-              href="/en/vpn/checkout/monthly/new"
+              href="/en/123donepro/checkout/monthly/new"
             >
               Redirect
             </Link>

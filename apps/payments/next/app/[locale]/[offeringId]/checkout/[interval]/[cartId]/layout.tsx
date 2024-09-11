@@ -3,9 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { headers } from 'next/headers';
 
+import { CouponForm } from '@fxa/payments/ui';
 import {
-  getApp,
   fetchCMSData,
+  getApp,
   getCartAction,
   PurchaseDetails,
   SubscriptionTitle,
@@ -66,6 +67,12 @@ export default async function RootLayout({
             )?.attributes ||
             cms.defaultPurchase.data.attributes.purchaseDetails.data.attributes
           }
+        />
+        <CouponForm
+          cartId={cart.id}
+          cartVersion={cart.version}
+          promoCode={cart.couponCode}
+          readOnly={false}
         />
       </section>
 

@@ -2,9 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Optional } from '@nestjs/common';
 import { Type } from 'class-transformer';
-import { IsNumber, IsString, ValidateNested } from 'class-validator';
+import {
+  IsNumber,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
 
 export class UpdateCartActionCartTaxAddress {
   @IsString()
@@ -16,20 +20,20 @@ export class UpdateCartActionCartTaxAddress {
 
 export class UpdateCartActionCartDetailsArgs {
   @IsString()
-  @Optional()
+  @IsOptional()
   uid?: string;
 
-  @Optional()
+  @IsOptional()
   @ValidateNested()
   @Type(() => UpdateCartActionCartTaxAddress)
   taxAddress?: UpdateCartActionCartTaxAddress;
 
   @IsString()
-  @Optional()
+  @IsOptional()
   couponCode?: string;
 
   @IsString()
-  @Optional()
+  @IsOptional()
   email?: string;
 }
 

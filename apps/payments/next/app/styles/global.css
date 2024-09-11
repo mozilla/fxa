@@ -25,7 +25,7 @@ body {
 }
 
 .page-body {
-  @apply component-card border-t-0 mb-6 pt-4 px-4 pb-14 text-grey-600 desktop:px-12 desktop:pb-12;
+  @apply bg-white rounded-b-lg shadow-sm shadow-grey-300 border-t-0 mb-6 pt-4 px-4 pb-14 text-grey-600 desktop:px-12 desktop:pb-12;
 }
 
 .page-header {
