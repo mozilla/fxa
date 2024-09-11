@@ -34,7 +34,7 @@ export class NextJSActionsService {
   ) {}
 
   async getCart(args: GetCartActionArgs) {
-    new Validator().validateOrReject(args);
+    await new Validator().validateOrReject(args);
 
     const cart = await this.cartService.getCart(args.cartId);
 
@@ -42,7 +42,7 @@ export class NextJSActionsService {
   }
 
   async updateCart(args: UpdateCartActionArgs) {
-    new Validator().validateOrReject(args);
+    await new Validator().validateOrReject(args);
 
     await this.cartService.updateCart(
       args.cartId,
@@ -52,7 +52,7 @@ export class NextJSActionsService {
   }
 
   async restartCart(args: RestartCartActionArgs) {
-    new Validator().validateOrReject(args);
+    await new Validator().validateOrReject(args);
 
     const cart = await this.cartService.restartCart(args.cartId);
 
@@ -60,7 +60,7 @@ export class NextJSActionsService {
   }
 
   async setupCart(args: SetupCartActionArgs) {
-    new Validator().validateOrReject(args);
+    await new Validator().validateOrReject(args);
 
     const cart = await this.cartService.setupCart({
       ...args,
@@ -70,7 +70,7 @@ export class NextJSActionsService {
   }
 
   async finalizeCartWithError(args: FinalizeCartWithErrorArgs) {
-    new Validator().validateOrReject(args);
+    await new Validator().validateOrReject(args);
 
     await this.cartService.finalizeCartWithError(
       args.cartId,
@@ -79,7 +79,7 @@ export class NextJSActionsService {
   }
 
   async getPayPalCheckoutToken(args: GetPayPalCheckoutTokenArgs) {
-    new Validator().validateOrReject(args);
+    await new Validator().validateOrReject(args);
 
     const token = await this.checkoutTokenManager.get(args.currencyCode);
 
@@ -87,7 +87,7 @@ export class NextJSActionsService {
   }
 
   async checkoutCartWithPaypal(args: CheckoutCartWithPaypalActionArgs) {
-    new Validator().validateOrReject(args);
+    await new Validator().validateOrReject(args);
 
     await this.cartService.checkoutCartWithPaypal(
       args.cartId,
@@ -98,7 +98,7 @@ export class NextJSActionsService {
   }
 
   async checkoutCartWithStripe(args: CheckoutCartWithStripeActionArgs) {
-    new Validator().validateOrReject(args);
+    await new Validator().validateOrReject(args);
 
     await this.cartService.checkoutCartWithStripe(
       args.cartId,
@@ -109,7 +109,7 @@ export class NextJSActionsService {
   }
 
   async fetchCMSData(args: FetchCMSDataArgs) {
-    new Validator().validateOrReject(args);
+    await new Validator().validateOrReject(args);
 
     const offering = await this.productConfigurationManager.fetchCMSData(
       args.offeringId,
@@ -123,7 +123,7 @@ export class NextJSActionsService {
    * @@todo: Emit event using Emittery. To be added as part of FXA-10087
    */
   async recordGleanEvent(args: RecordGleanEvent) {
-    new Validator().validateOrReject(args);
+    await new Validator().validateOrReject(args);
 
     // Temporary ignore until Emittery logic is added
     //eslint-disable-next-line @typescript-eslint/no-unused-vars
