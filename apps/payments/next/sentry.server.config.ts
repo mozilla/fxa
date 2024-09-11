@@ -7,7 +7,7 @@
 // https://docs.sentry.io/platforms/javascript/guides/nextjs/
 import { initSentryForNextjsServer } from '@fxa/shared/sentry';
 import { config } from './config';
-import { version } from './package.json';
+import packageInfo from './package.json';
 
 const sentryConfig = {
   dsn: config.nextPublicSentryDsn,
@@ -19,7 +19,7 @@ const sentryConfig = {
 
 initSentryForNextjsServer(
   {
-    release: version,
+    release: packageInfo.version,
     sentry: sentryConfig,
   },
   console
