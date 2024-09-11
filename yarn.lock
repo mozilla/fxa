@@ -39959,7 +39959,7 @@ fsevents@~2.1.1:
     prettier: ^2.3.1
     react-router-dom: ^6.26.0
     react-scripts: ^5.0.1
-    serve-static: ^1.14.2
+    serve-static: ^1.16.0
     supertest: ^7.0.0
     tailwindcss: 3.4.3
     tailwindcss-textshadow: ^2.1.3
@@ -40314,7 +40314,7 @@ fsevents@~2.1.1:
     request: ^2.88.2
     request-promise: 4.2.6
     sass-loader: ^14.2.1
-    serve-static: ^1.14.2
+    serve-static: ^1.16.0
     sinon: 4.5.0
     sinon-chai: ^4.0.0
     sinon-express-mock: ^2.2.1
@@ -40634,7 +40634,7 @@ fsevents@~2.1.1:
     redux-devtools-extension: ^2.13.9
     redux-promise-middleware: ^6.2.0
     redux-thunk: ^2.4.1
-    serve-static: ^1.14.2
+    serve-static: ^1.16.0
     sinon: ^9.0.3
     storybook: ^7.0.23
     storybook-addon-mock: 4.2.1
@@ -40846,7 +40846,7 @@ fsevents@~2.1.1:
     nx: 18.3.1
     persistgraphql: ^0.3.11
     pm2: ^5.3.0
-    postcss: ^8.4.43
+    postcss: ^8.4.44
     postcss-assets: ^6.0.0
     postcss-flexbugs-fixes: ^5.0.2
     postcss-import: ^16.1.0
@@ -41120,7 +41120,7 @@ fsevents@~2.1.1:
     passport-jwt: ^4.0.1
     persistgraphql: ^0.3.11
     pm2: ^5.3.0
-    postcss: 8.4.43
+    postcss: 8.4.44
     prettier: ^2.6.2
     react: 18.3.1
     react-dom: 18.3.1
@@ -57784,14 +57784,14 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"postcss@npm:8.4.43":
-  version: 8.4.43
-  resolution: "postcss@npm:8.4.43"
+"postcss@npm:8.4.44":
+  version: 8.4.44
+  resolution: "postcss@npm:8.4.44"
   dependencies:
     nanoid: ^3.3.7
     picocolors: ^1.0.1
     source-map-js: ^1.2.0
-  checksum: d88f413e22f03c469547222993b41fa5d05678c6c50d1f8f4fa2e9fcf00c4f00ac54c51c08ea896ff24a9d0d78519e9f1d906708e062064f35c70b16a160ebde
+  checksum: 64d9ce78253696bb64e608a54b362c9ddb537d3b38b58223ebce8260d6110d4e798ef1b3d57d8c28131417d9809187fd51d5c4263113536363444f8635e11bdb
   languageName: node
   linkType: hard
 
@@ -57883,7 +57883,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"postcss@npm:^8.4.43":
+"postcss@npm:^8.4.44":
   version: 8.4.45
   resolution: "postcss@npm:8.4.45"
   dependencies:
@@ -61894,27 +61894,6 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"send@npm:0.17.2":
-  version: 0.17.2
-  resolution: "send@npm:0.17.2"
-  dependencies:
-    debug: 2.6.9
-    depd: ~1.1.2
-    destroy: ~1.0.4
-    encodeurl: ~1.0.2
-    escape-html: ~1.0.3
-    etag: ~1.8.1
-    fresh: 0.5.2
-    http-errors: 1.8.1
-    mime: 1.6.0
-    ms: 2.1.3
-    on-finished: ~2.3.0
-    range-parser: ~1.2.1
-    statuses: ~1.5.0
-  checksum: c28f36deb4ccba9b8d6e6a1e472b8e7c40a1f51575bdf8f67303568cc9e71131faa3adc36fdb72611616ccad1584358bbe4c3ebf419e663ecc5de868ad3d3f03
-  languageName: node
-  linkType: hard
-
 "send@npm:0.18.0":
   version: 0.18.0
   resolution: "send@npm:0.18.0"
@@ -62082,15 +62061,15 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"serve-static@npm:^1.14.2":
-  version: 1.14.2
-  resolution: "serve-static@npm:1.14.2"
+"serve-static@npm:^1.16.0":
+  version: 1.16.2
+  resolution: "serve-static@npm:1.16.2"
   dependencies:
-    encodeurl: ~1.0.2
+    encodeurl: ~2.0.0
     escape-html: ~1.0.3
     parseurl: ~1.3.3
-    send: 0.17.2
-  checksum: d97f3183b1dfcd8ce9c0e37e18e87fd31147ed6c8ee0b2c3a089d795e44ee851ca5061db01574f806d54f4e4b70bc694d9ca64578653514e04a28cbc97a1de05
+    send: 0.19.0
+  checksum: dffc52feb4cc5c68e66d0c7f3c1824d4e989f71050aefc9bd5f822a42c54c9b814f595fc5f2b717f4c7cc05396145f3e90422af31186a93f76cf15f707019759
   languageName: node
   linkType: hard
 
