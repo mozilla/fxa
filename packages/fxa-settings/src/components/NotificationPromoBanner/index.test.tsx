@@ -27,7 +27,7 @@ describe('NotificationPromoBanner component', () => {
         'Create an Account Recovery Key to restore your sync browsing data if you ever forget your password.',
       route: '/settings/account_recovery',
       dismissKey: 'account-recovery-dismissed',
-      metricsPrefix: 'account-recovery',
+      metricsKey: 'create_recovery_key',
       isVisible: true,
     };
     renderWithLocalizationProvider(
@@ -49,7 +49,7 @@ describe('NotificationPromoBanner component', () => {
         'Create an Account Recovery Key to restore your sync browsing data if you ever forget your password.',
       route: '/settings/account_recovery',
       dismissKey: 'account-recovery-dismissed',
-      metricsPrefix: 'account-recovery',
+      metricsKey: 'create_recovery_key',
       isVisible: true,
     };
     renderWithLocalizationProvider(

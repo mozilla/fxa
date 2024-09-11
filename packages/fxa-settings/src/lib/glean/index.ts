@@ -27,6 +27,7 @@ import * as cadApproveDevice from 'fxa-shared/metrics/glean/web/cadApproveDevice
 import * as cadMobilePair from 'fxa-shared/metrics/glean/web/cadMobilePair';
 import * as cadMobilePairUseApp from 'fxa-shared/metrics/glean/web/cadMobilePairUseApp';
 import * as accountPref from 'fxa-shared/metrics/glean/web/accountPref';
+import * as accountBanner from 'fxa-shared/metrics/glean/web/accountBanner';
 import * as deleteAccount from 'fxa-shared/metrics/glean/web/deleteAccount';
 import * as thirdPartyAuth from 'fxa-shared/metrics/glean/web/thirdPartyAuth';
 import { userIdSha256 } from 'fxa-shared/metrics/glean/web/account';
@@ -498,6 +499,9 @@ const recordEventMetric = (
       accountPref.promoMonitorSubmit.record({
         reason: gleanPingMetrics?.event?.['reason'] || '',
       });
+      break;
+    case 'account_banner_create_recovery_key_view':
+      accountBanner.createRecoveryKeyView.record();
       break;
   }
 };
