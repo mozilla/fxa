@@ -43,13 +43,8 @@ export const Security = forwardRef<HTMLDivElement>((_, ref) => {
   const localizedNotSet = l10n.getString('security-not-set', null, 'Not Set');
 
   return (
-    <section
-      className="mt-11"
-      data-testid="settings-security"
-      {...{ ref }}
-      id="security-section"
-    >
-      <h2 className="font-header font-bold mobileLandscape:ltr:ml-6 mobileLandscape:rtl:ml-6 ltr:ml-4 rtl:mr-4 mb-4 relative">
+    <section data-testid="settings-security" {...{ ref }} id="security-section">
+      <h2 className="font-header font-bold mobileLandscape:ms-6 ms-4 mb-4 relative">
         <span id="security" className="nav-anchor"></span>
         <Localized id="security-heading">Security</Localized>
       </h2>

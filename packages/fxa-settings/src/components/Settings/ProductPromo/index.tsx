@@ -128,8 +128,7 @@ export const ProductPromo = ({
         'bg-white rounded-lg desktop:w-11/12 desktop:max-w-56 desktop:p-4 desktop:pb-6 text-grey-600 text-lg desktop:text-sm text-start',
         type === ProductPromoType.Sidebar &&
           'px-6 mt-4 desktop:mt-20 desktop:max-w-80 desktop:w-11/12',
-        type === ProductPromoType.Settings &&
-          'desktop:hidden mt-12 px-5 py-3 mb-16'
+        type === ProductPromoType.Settings && 'desktop:hidden px-5 py-3 mb-16'
       )}
     >
       <div

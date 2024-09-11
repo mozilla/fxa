@@ -14,13 +14,8 @@ export const Profile = forwardRef<HTMLDivElement>((_, ref) => {
   const { avatar, primaryEmail, displayName } = useAccount();
 
   return (
-    <section
-      className="mt-11"
-      data-testid="settings-profile"
-      {...{ ref }}
-      id="profile-section"
-    >
-      <h2 className="font-header font-bold mobileLandscape:ltr:ml-6 mobileLandscape:rtl:ml-6 ltr:ml-4 rtl:mr-4 mb-4 relative">
+    <section data-testid="settings-profile" {...{ ref }} id="profile-section">
+      <h2 className="font-header font-bold mobileLandscape:ms-6 ms-4 mb-4 relative">
         <span id="profile" className="nav-anchor"></span>
         <FtlMsg id="profile-heading">Profile</FtlMsg>
       </h2>
