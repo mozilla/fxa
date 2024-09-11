@@ -186,6 +186,10 @@ export const eventsMap = {
     bentoVpn: 'account_pref_bento_vpn',
   },
 
+  accountBanner: {
+    createRecoveryKeyView: 'account_banner_create_recovery_key_view',
+  },
+
   deleteAccount: {
     settingsSubmit: 'delete_account_settings_submit',
     view: 'delete_account_view',

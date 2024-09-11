@@ -13,6 +13,7 @@ import * as event from 'fxa-shared/metrics/glean/web/event';
 import * as reg from 'fxa-shared/metrics/glean/web/reg';
 import * as login from 'fxa-shared/metrics/glean/web/login';
 import * as accountPref from 'fxa-shared/metrics/glean/web/accountPref';
+import * as accountBanner from 'fxa-shared/metrics/glean/web/accountBanner';
 import * as deleteAccount from 'fxa-shared/metrics/glean/web/deleteAccount';
 import * as thirdPartyAuth from 'fxa-shared/metrics/glean/web/thirdPartyAuth';
 import { userIdSha256 } from 'fxa-shared/metrics/glean/web/account';
@@ -844,6 +845,20 @@ describe('lib/glean', () => {
         await GleanMetrics.isDone();
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(setEventNameStub, 'account_pref_bento_vpn');
+        sinon.assert.calledOnce(spy);
+      });
+    });
+
+    describe('accountBanner', () => {
+      it('submits a ping with the account_banner_create_recovery_key_view event name', async () => {
+        GleanMetrics.accountBanner.createRecoveryKeyView();
+        const spy = sandbox.spy(accountBanner.createRecoveryKeyView, 'record');
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'account_banner_create_recovery_key_view'
+        );
         sinon.assert.calledOnce(spy);
       });
     });

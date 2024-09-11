@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, RouteComponentProps, useLocation } from '@reach/router';
 import { ReactComponent as IconClose } from '@fxa/shared/assets/images/close.svg';
 import { FtlMsg } from 'fxa-react/lib/utils';
+import GleanMetrics from '../../lib/glean';
 
 type NotificationPromoBannerProps = {
   headerImage: string;
@@ -10,6 +11,7 @@ type NotificationPromoBannerProps = {
   headerDescription: string;
   route: string;
   dismissKey: string;
+  metricsKey: string;
   isVisible: boolean;
 };
 
@@ -21,6 +23,7 @@ const NotificationPromoBanner = ({
   dismissKey,
   isVisible,
   route,
+  metricsKey,
 }: NotificationPromoBannerProps & RouteComponentProps) => {
   const location = useLocation();
 
@@ -36,6 +39,13 @@ const NotificationPromoBanner = ({
   const [bannerClosed] = useState<string | null>(
     localStorage.getItem(notificationBannerClosedLocalStorageKey)
   );
+
+  useEffect(() => {
+    if (visible || bannerClosed === 'false') {
+      // We have to manually emit the custom view event here because the promo banner is not a page
+      GleanMetrics.accountBanner.createRecoveryKeyView();
+    }
+  }, [visible, bannerClosed]);
 
   if (!visible || bannerClosed === 'true') return null;
 
@@ -59,6 +69,7 @@ const NotificationPromoBanner = ({
             setTimeout(() => setVisible(false), 300);
           }}
           className="absolute top-3 end-3"
+          data-glean-id={`account_banner_${metricsKey}_dismiss`}
         >
           <IconClose className="text-black w-3 h-3" role="img" />
         </button>
@@ -78,6 +89,7 @@ const NotificationPromoBanner = ({
         <Link
           className="cta-neutral cta-base cta-base-p transition-standard me-8"
           to={`${route}${location.search}`}
+          data-glean-id={`account_banner_${metricsKey}_submit`}
         >
           {ctaText}
         </Link>

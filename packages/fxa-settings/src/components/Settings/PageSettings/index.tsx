@@ -51,7 +51,7 @@ export const PageSettings = (_: RouteComponentProps) => {
     ),
     route: '/settings/account_recovery',
     dismissKey: 'account-recovery-dismissed',
-    metricsPrefix: 'promote-account-recovery',
+    metricsKey: 'create_recovery_key',
     isVisible: !recoveryKey.exists,
   };
 
