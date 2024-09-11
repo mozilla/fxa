@@ -10,17 +10,20 @@ import ConnectedServices from '../ConnectedServices';
 import LinkedAccounts from '../LinkedAccounts';
 
 import * as Metrics from '../../../lib/metrics';
-import { useAccount } from '../../../models';
+import { useAccount, useFtlMsgResolver } from '../../../models';
 import { SETTINGS_PATH } from 'fxa-settings/src/constants';
 import { Localized } from '@fluent/react';
 import DataCollection from '../DataCollection';
 import GleanMetrics from '../../../lib/glean';
 import ProductPromo, { ProductPromoType } from '../ProductPromo';
 import SideBar from '../Sidebar';
+import NotificationPromoBanner from '../../NotificationPromoBanner';
+import keyImage from '../../NotificationPromoBanner/key.svg';
 import Head from 'fxa-react/components/Head';
 
 export const PageSettings = (_: RouteComponentProps) => {
-  const { uid } = useAccount();
+  const { uid, recoveryKey } = useAccount();
+  const ftlMsgResolver = useFtlMsgResolver();
 
   Metrics.setProperties({
     lang: document.querySelector('html')?.getAttribute('lang'),
@@ -31,6 +34,26 @@ export const PageSettings = (_: RouteComponentProps) => {
   useEffect(() => {
     GleanMetrics.accountPref.view();
   }, []);
+
+  const accountRecoveryNotificationProps = {
+    headerImage: keyImage,
+    ctaText: ftlMsgResolver.getMsg(
+      'account-recovery-notification-cta',
+      'Create'
+    ),
+    headerValue: ftlMsgResolver.getMsg(
+      'account-recovery-notification-header-value',
+      'Don’t lose your data if you forget your password'
+    ),
+    headerDescription: ftlMsgResolver.getMsg(
+      'account-recovery-notification-header-description',
+      'Create an account recovery key to restore your sync browsing data if you ever forget your password.'
+    ),
+    route: '/settings/account_recovery',
+    dismissKey: 'account-recovery-dismissed',
+    metricsPrefix: 'promote-account-recovery',
+    isVisible: !recoveryKey.exists,
+  };
 
   // Scroll to effect
   const profileRef = useRef<HTMLDivElement>(null);
@@ -54,6 +77,7 @@ export const PageSettings = (_: RouteComponentProps) => {
         />
       </div>
       <div className="flex-7 max-w-full">
+        <NotificationPromoBanner {...accountRecoveryNotificationProps} />
         <Profile ref={profileRef} />
         <Security ref={securityRef} />
         <ConnectedServices ref={connectedServicesRef} />
