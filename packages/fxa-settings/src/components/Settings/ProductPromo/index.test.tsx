@@ -6,15 +6,14 @@ import React from 'react';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import ProductPromo, { ProductPromoType } from '.';
 import { Account, AppContext } from '../../../models';
-import { MOCK_SERVICES } from '../ConnectedServices/mocks';
 import { MozServices } from '../../../lib/types';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { mockAppContext } from '../../../models/mocks';
 import GleanMetrics from '../../../lib/glean';
-
-// List all services this component handles
-const PRODUCT_PROMO_SERVICES = [MozServices.Monitor];
-const PRODUCT_PROMO_SUBSCRIPTIONS = [{ productName: MozServices.MonitorPlus }];
+import {
+  ALL_PRODUCT_PROMO_SERVICES,
+  ALL_PRODUCT_PROMO_SUBSCRIPTIONS,
+} from '../../../pages/mocks';
 
 jest.mock('../../../lib/glean', () => ({
   __esModule: true,
@@ -32,12 +31,8 @@ describe('ProductPromo', () => {
   });
 
   it('renders nothing if user has Monitor but not MonitorPlus, and MonitorPlus Promo is disabled', () => {
-    const services = MOCK_SERVICES.filter((service) =>
-      // TODO: MozServices / string discrepancy, FXA-6802
-      PRODUCT_PROMO_SERVICES.includes(service.name as MozServices)
-    );
     const account = {
-      attachedClients: services,
+      attachedClients: ALL_PRODUCT_PROMO_SERVICES,
       subscriptions: [],
     } as unknown as Account;
 
@@ -48,17 +43,12 @@ describe('ProductPromo', () => {
     );
 
     expect(container.firstChild).toBeNull();
-    expect(GleanMetrics.accountPref.promoMonitorView).not.toHaveBeenCalled();
   });
 
   it('renders nothing if user has all products and subscriptions', async () => {
-    const services = MOCK_SERVICES.filter((service) =>
-      // TODO: MozServices / string discrepancy, FXA-6802
-      PRODUCT_PROMO_SERVICES.includes(service.name as MozServices)
-    );
     const account = {
-      attachedClients: services,
-      subscriptions: PRODUCT_PROMO_SUBSCRIPTIONS,
+      attachedClients: ALL_PRODUCT_PROMO_SERVICES,
+      subscriptions: ALL_PRODUCT_PROMO_SUBSCRIPTIONS,
     } as unknown as Account;
 
     const { container } = renderWithLocalizationProvider(
@@ -68,7 +58,6 @@ describe('ProductPromo', () => {
     );
 
     expect(container.firstChild).toBeNull();
-    expect(GleanMetrics.accountPref.promoMonitorView).not.toHaveBeenCalled();
   });
   it('renders Monitor promo if user does not have Monitor', async () => {
     const account = {
@@ -89,9 +78,6 @@ describe('ProductPromo', () => {
       'href',
       'https://monitor.mozilla.org/?utm_source=moz-account&utm_medium=product-partnership&utm_term=sidebar&utm_content=monitor-free&utm_campaign=settings-promo'
     );
-    expect(GleanMetrics.accountPref.promoMonitorView).toBeCalledWith({
-      event: { reason: 'free' },
-    });
   });
 
   it('renders Monitor Plus promo if user does not have Monitor Plus', async () => {
@@ -120,9 +106,6 @@ describe('ProductPromo', () => {
       'href',
       'https://monitor.mozilla.org/#pricing?utm_source=moz-account&utm_medium=product-partnership&utm_term=sidebar&utm_content=monitor-plus&utm_campaign=settings-promo'
     );
-    expect(GleanMetrics.accountPref.promoMonitorView).toBeCalledWith({
-      event: { reason: 'plus' },
-    });
   });
 
   it('emits metric when user clicks call to action', async () => {

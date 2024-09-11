@@ -83,6 +83,11 @@ export interface AttachedClient {
   refreshTokenId: string | null;
 }
 
+interface Subscription {
+  created: number;
+  productName: string;
+}
+
 export interface AccountData {
   uid: hexstring;
   displayName: string | null;
@@ -102,10 +107,7 @@ export interface AccountData {
   attachedClients: AttachedClient[];
   linkedAccounts: LinkedAccount[];
   totp: AccountTotp;
-  subscriptions: {
-    created: number;
-    productName: string;
-  }[];
+  subscriptions: Subscription[];
   securityEvents: SecurityEvent[];
 }
 
