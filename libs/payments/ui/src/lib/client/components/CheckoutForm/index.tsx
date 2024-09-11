@@ -4,6 +4,7 @@
 'use client';
 
 import { Localized, useLocalization } from '@fluent/react';
+import { PayPalButtons } from '@paypal/react-paypal-js';
 import * as Form from '@radix-ui/react-form';
 import {
   PaymentElement,
@@ -14,12 +15,11 @@ import { StripePaymentElementChangeEvent } from '@stripe/stripe-js';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+
+import { BaseButton, ButtonVariant, CheckoutCheckbox } from '@fxa/payments/ui';
 import LockImage from '@fxa/shared/assets/images/lock.svg';
-import { CheckoutCheckbox } from '../CheckoutCheckbox';
-import { PrimaryButton } from '../PrimaryButton';
 import { checkoutCartWithStripe } from '../../../actions/checkoutCartWithStripe';
 import { handleStripeErrorAction } from '../../../actions/handleStripeError';
-import { PayPalButtons } from '@paypal/react-paypal-js';
 
 interface CheckoutFormProps {
   cmsCommonContent: {
@@ -251,15 +251,17 @@ export function CheckoutForm({
                 className="mt-6"
               />
             ) : (
-              <PrimaryButton
+              <BaseButton
+                className="mt-10 w-full"
                 type="submit"
+                variant={ButtonVariant.Primary}
                 aria-disabled={
                   !stripeFieldsComplete || !nonStripeFieldsComplete || loading
                 }
               >
                 <Image src={LockImage} className="h-4 w-4 mx-3" alt="" />
                 <Localized id="next-new-user-submit">Subscribe Now</Localized>
-              </PrimaryButton>
+              </BaseButton>
             )}
           </Form.Submit>
         )}
