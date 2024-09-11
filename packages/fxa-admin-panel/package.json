@@ -36,12 +36,12 @@
     ]
   },
   "dependencies": {
-    "body-parser": "^1.20.1",
+    "body-parser": "^1.20.3",
     "convict": "^6.2.4",
     "convict-format-with-moment": "^6.2.0",
     "convict-format-with-validator": "^6.2.0",
     "dateformat": "^4.6.3",
-    "express": "^4.19.2",
+    "express": "^4.20.0",
     "express-http-proxy": "^2.0.0",
     "fxa-admin-server": "workspace:*",
     "fxa-react": "workspace:*",
