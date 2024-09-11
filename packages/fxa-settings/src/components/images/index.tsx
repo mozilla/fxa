@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import React from 'react';
 import { ReactComponent as HeartsBroken } from './graphic_hearts_broken.svg';
 import { ReactComponent as HeartsVerified } from './graphic_hearts_verified.svg';
@@ -6,10 +10,11 @@ import { ReactComponent as TwoFactorAuth } from './graphic_two_factor_auth.svg';
 import { ReactComponent as PushFactorAuth } from './graphic_push_factor_auth.svg';
 import { ReactComponent as Mail } from './graphic_mail.svg';
 import { ReactComponent as SecurityShield } from './graphic_security_shield.svg';
-import { ReactComponent as Key } from './graphic_key.svg';
+import { ReactComponent as Key } from './graphic_recovery_key.svg';
 import { ReactComponent as Lock } from './graphic_lock.svg';
 import { ReactComponent as Lightbulb } from './graphic_lightbulb.svg';
 import { ReactComponent as EmailCode } from './graphic_email_code.svg';
+import { ReactComponent as CircleCheckOutline } from './icon-circle-check-outline.svg';
 
 import { FtlMsg } from 'fxa-react/lib/utils';
 
@@ -161,5 +166,13 @@ export const EmailCodeImage = ({ className, ariaHidden }: ImageProps) => (
     ariaLabelFtlId="email-code-image-aria-label"
     Image={EmailCode}
     {...{ className, ariaHidden }}
+  />
+);
+
+export const CircleCheckOutlineImage = ({ className }: ImageProps) => (
+  <PreparedImage
+    Image={CircleCheckOutline}
+    ariaHidden={true}
+    {...{ className }}
   />
 );

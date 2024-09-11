@@ -59,33 +59,14 @@ describe('FlowRecoveryKeyDownload', () => {
       level: 2,
       name: 'Account recovery key created — Download and store it now',
     });
+
     screen.getByText(
       'This key allows you to recover your data if you forget your password. Download it now and store it somewhere you’ll remember — you won’t be able to return to this page later.'
     );
-
-    screen.getByText(MOCK_RECOVERY_KEY_VALUE);
-    screen.getByRole('button', { name: 'Copy' });
-
+    // Renders RecoveryKeySetupDownload
     screen.getByRole('heading', {
       level: 3,
       name: 'Places to store your key:',
-    });
-    const list = screen.getByRole('list', {
-      name: 'Places to store your key:',
-    });
-    const listItems = within(list).getAllByRole('listitem');
-    expect(listItems.length).toBe(4);
-
-    await waitFor(
-      () => {
-        const b = screen.getByRole('button', { name: 'Download and continue' });
-        expect(b).toBeInTheDocument();
-      },
-      { timeout: 2000 }
-    );
-
-    screen.getByRole('link', {
-      name: 'Continue without downloading',
     });
   });
 
