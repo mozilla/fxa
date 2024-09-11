@@ -50,10 +50,12 @@ const NotificationPromoBanner = ({
   if (!visible || bannerClosed === 'true') return null;
 
   return (
+    // trasnsparent border is for HCM mode
     <div
-      className={`relative flex justify-between items-center rounded-lg bg-gradient-to-tr from-blue-600/10 to-purple-500/10 p-3 shadow-md space-x-4 mb-5 transition-transform duration-300 ease-in-out ${
-        isClosing ? 'translate-x-full' : 'translate-x-0'
-      }`}
+      className={`relative flex flex-col tablet:flex-row rounded-lg bg-gradient-to-tr from-blue-600/10 to-purple-500/10
+         transition-transform border border-transparent duration-300 ease-in-out p-2 tablet:p-3 ${
+           isClosing ? 'translate-x-full' : 'translate-x-0'
+         }`}
     >
       <FtlMsg id="banner-dismiss-button" attrs={{ ariaLabel: true }}>
         <button
@@ -68,26 +70,29 @@ const NotificationPromoBanner = ({
             setIsClosing(true);
             setTimeout(() => setVisible(false), 300);
           }}
-          className="absolute top-3 end-3"
+          className="self-end absolute top-1 end-1 p-2"
           data-glean-id={`account_banner_${metricsKey}_dismiss`}
         >
-          <IconClose className="text-black w-3 h-3" role="img" />
+          <IconClose className="text-black w-4 h-4" role="img" />
         </button>
       </FtlMsg>
-      <div className="flex-shrink-0 items-center justify-center p-4">
-        {headerImage && (
-          <img src={headerImage} alt="Key Icon" className="w-8 h-8" />
-        )}
-      </div>
+      <div className="flex flex-col tablet:flex-row grow gap-4 py-4 ps-4 pe-4">
+        <div className="flex flex-row grow me-6">
+          {headerImage && (
+            <img
+              src={headerImage}
+              alt="Key Icon"
+              className="w-10 h-10 hidden mobileLandscape:block mobileLandscape:mt-2 mobileLandscape:me-4"
+            />
+          )}
+          <div className="flex flex-col">
+            <p className="font-bold text-black">{headerValue}</p>
+            <p className="text-sm">{headerDescription}</p>
+          </div>
+        </div>
 
-      <div className="flex-grow">
-        <p className="font-bold text-black mb-2">{headerValue}</p>
-        <p className="text-sm leading-relaxed">{headerDescription}</p>
-      </div>
-
-      <div className="flex-shrink-0">
         <Link
-          className="cta-neutral cta-base cta-base-p transition-standard me-8"
+          className="cta-neutral cta-base cta-base-p text-base tablet:text-sm tablet:self-center transition-standard -mt-1 mobileLandscape:mt-0"
           to={`${route}${location.search}`}
           data-glean-id={`account_banner_${metricsKey}_submit`}
         >

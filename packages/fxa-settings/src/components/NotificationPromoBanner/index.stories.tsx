@@ -48,10 +48,3 @@ export const NotVisible = () => (
     {...disabledNotificationProps}
   ></NotificationPromoBanner>
 );
-
-export const Stacked = () => (
-  <>
-    <NotificationPromoBanner {...notificationProps}></NotificationPromoBanner>
-    <NotificationPromoBanner {...notificationProps}></NotificationPromoBanner>
-  </>
-);

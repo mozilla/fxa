@@ -96,7 +96,7 @@ export const PageSettings = (_: RouteComponentProps) => {
           }}
         />
       </div>
-      <div className="flex-7 max-w-full">
+      <div className="flex flex-col flex-7 max-w-full gap-8 mt-10">
         <NotificationPromoBanner {...accountRecoveryNotificationProps} />
         <Profile ref={profileRef} />
         <Security ref={securityRef} />
@@ -107,7 +107,7 @@ export const PageSettings = (_: RouteComponentProps) => {
           <Localized id="delete-account-link">
             <Link
               data-testid="settings-delete-account"
-              className="cta-caution text-sm transition-standard mt-12 py-2 px-5 mobileLandscape:py-1"
+              className="cta-caution text-sm transition-standard mt-2 py-2 px-5 mobileLandscape:py-1"
               to={SETTINGS_PATH + '/delete_account'}
               onClick={() => GleanMetrics.deleteAccount.settingsSubmit()}
             >
