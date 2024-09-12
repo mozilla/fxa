@@ -6,7 +6,6 @@
 // The config you add here will be used whenever a users loads a page in their browser.
 // https://docs.sentry.io/platforms/javascript/guides/nextjs/
 import { initSentryForNextjsClient } from '@fxa/shared/sentry/client';
-import { version } from './package.json';
 
 const DEFAULT_SAMPLE_RATE = '1';
 const DEFAULT_TRACES_SAMPLE_RATE = '1';
@@ -25,6 +24,6 @@ const sentryConfig = {
 };
 
 initSentryForNextjsClient({
-  release: version,
+  release: process.env.version,
   sentry: sentryConfig,
 });
