@@ -38,7 +38,7 @@
   "readmeFilename": "README.md",
   "dependencies": {
     "body-parser": "^1.20.3",
-    "commander": "^6.0.0",
+    "commander": "^12.1.0",
     "convict": "^6.2.4",
     "convict-format-with-moment": "^6.2.0",
     "convict-format-with-validator": "^6.2.0",

@@ -78,7 +78,7 @@
     "app-store-server-api": "^0.7.0",
     "aws-sdk": "^2.1664.0",
     "buf": "0.1.1",
-    "commander": "2.18.0",
+    "commander": "12.1.0",
     "convict": "^6.2.4",
     "convict-format-with-moment": "^6.2.0",
     "convict-format-with-validator": "^6.2.0",

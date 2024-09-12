@@ -46,7 +46,7 @@
   "devDependencies": {
     "@types/sharp": "^0",
     "audit-filter": "^0.5.0",
-    "commander": "9.3.0",
+    "commander": "12.1.0",
     "eslint": "^8.18.0",
     "insist": "1.0.1",
     "mocha": "^10.4.0",

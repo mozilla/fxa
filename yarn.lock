@@ -32222,17 +32222,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"commander@npm:12.1.0, commander@npm:^12.1.0":
+  version: 12.1.0
+  resolution: "commander@npm:12.1.0"
+  checksum: 68e9818b00fc1ed9cdab9eb16905551c2b768a317ae69a5e3c43924c2b20ac9bb65b27e1cab36aeda7b6496376d4da908996ba2c0b5d79463e0fb1e77935d514
+  languageName: node
+  linkType: hard
+
 "commander@npm:2.15.1":
   version: 2.15.1
   resolution: "commander@npm:2.15.1"
   checksum: a1b6b66a98cd1862084fcb230d11f56d3af0e5a42c307158d987464d65112fd9f8de2a682895247d2e475f925895e70e5bda21379b1286b21c55dd5c17f0d5fa
-  languageName: node
-  linkType: hard
-
-"commander@npm:2.18.0":
-  version: 2.18.0
-  resolution: "commander@npm:2.18.0"
-  checksum: 3a31585348a5000bbdc457c9839aabbdf0bb0020e5dfaa1c9f9903680073d67c06911b55368e4c8df2ed166e0d4468f9a668585c1667c321804034a2819a819f
   languageName: node
   linkType: hard
 
@@ -32247,13 +32247,6 @@ __metadata:
   version: 4.1.1
   resolution: "commander@npm:4.1.1"
   checksum: d7b9913ff92cae20cb577a4ac6fcc121bd6223319e54a40f51a14740a681ad5c574fd29a57da478a5f234a6fa6c52cbf0b7c641353e03c648b1ae85ba670b977
-  languageName: node
-  linkType: hard
-
-"commander@npm:9.3.0":
-  version: 9.3.0
-  resolution: "commander@npm:9.3.0"
-  checksum: d421ce66fee25792a1470c69aa8d1b86434bf873a96483aa92c8267f81a6f20c6f7c426f5e82f88ac50a8ec4855d3f2787aebcdef8aa559e1080a2337a95a217
   languageName: node
   linkType: hard
 
@@ -32278,7 +32271,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"commander@npm:^6.0.0, commander@npm:^6.1.0, commander@npm:^6.2.1":
+"commander@npm:^6.1.0, commander@npm:^6.2.1":
   version: 6.2.1
   resolution: "commander@npm:6.2.1"
   checksum: d7090410c0de6bc5c67d3ca41c41760d6d268f3c799e530aafb73b7437d1826bbf0d2a3edac33f8b57cc9887b4a986dce307fa5557e109be40eadb7c43b21742
@@ -40091,7 +40084,7 @@ fsevents@~2.1.1:
     buf: 0.1.1
     chai: ^4.5.0
     chai-as-promised: ^7.1.1
-    commander: 2.18.0
+    commander: 12.1.0
     convict: ^6.2.4
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
@@ -40488,7 +40481,7 @@ fsevents@~2.1.1:
     audit-filter: ^0.5.0
     body-parser: ^1.20.3
     chance: ^1.1.8
-    commander: ^6.0.0
+    commander: ^12.1.0
     convict: ^6.2.4
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
@@ -40663,7 +40656,7 @@ fsevents@~2.1.1:
     bluebird: ^3.7.2
     buf: 0.1.1
     checksum: 1.0.0
-    commander: 9.3.0
+    commander: 12.1.0
     compute-cluster: 0.0.9
     convict: ^6.2.4
     convict-format-with-moment: ^6.2.0
