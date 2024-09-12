@@ -27,7 +27,7 @@ jobs:
         run: |
           # workflow_dispatch
           if [[ "${{ inputs.git_tag }}" != "" ]]; then
-            echo "tag=${{ github.event.inputs.git_tag }}" >> $GITHUB_OUTPUT
+            echo "tag=${{ inputs.git_tag }}" >> $GITHUB_OUTPUT
           # push
           elif [[ "${{ github.ref }}" != "" ]]; then
             echo "tag=$(cut -d \/ -f3 <(echo '${{ github.ref }}'))" >> $GITHUB_OUTPUT
