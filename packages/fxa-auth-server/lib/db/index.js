@@ -845,14 +845,6 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     return SecurityEvent.findByUid(uid);
   };
 
-  DB.prototype.deleteSecurityEvents = async function (params) {
-    log.trace('DB.deleteSecurityEvents', {
-      params: params,
-    });
-    const { uid } = params;
-    await SecurityEvent.delete(uid);
-  };
-
   DB.prototype.createUnblockCode = async function (uid) {
     if (!UnblockCode) {
       return Promise.reject(new Error('Unblock has not been configured'));

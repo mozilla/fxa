@@ -701,13 +701,6 @@ module.exports = (config) => {
     });
   };
 
-  Client.prototype.deleteSecurityEvents = function () {
-    const o = this.sessionToken ? Promise.resolve(null) : this.login();
-    return o.then(() => {
-      return this.api.deleteSecurityEvents(this.sessionToken);
-    });
-  };
-
   Client.prototype.accountProfile = function (oauthToken) {
     if (oauthToken) {
       return this.api.accountProfile(null, {

@@ -21,20 +21,7 @@ const SECURITYEVENTS_GET = {
   ],
 };
 
-const SECURITYEVENTS_DELETE = {
-  ...TAGS_SECURITY_EVENTS,
-  description: '/securityEvents',
-  notes: [
-    dedent`
-      🔒 Authenticated with session token
-
-      Deletes all the security events of a signed in account.
-    `,
-  ],
-};
-
 const API_DOCS = {
-  SECURITYEVENTS_DELETE,
   SECURITYEVENTS_GET,
 };
 

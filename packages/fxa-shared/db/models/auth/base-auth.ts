@@ -36,7 +36,6 @@ export enum Proc {
   DeletePasswordForgotToken = 'deletePasswordForgotToken_1',
   DeleteRecoveryCodes = 'deleteRecoveryCodes_1',
   DeleteRecoveryKey = 'deleteRecoveryKey_2',
-  DeleteSecurityEvents = 'deleteSecurityEventsByUid_1',
   DeleteSessionToken = 'deleteSessionToken_4',
   DeleteTotpToken = 'deleteTotpToken_4',
   Device = 'device_3',
