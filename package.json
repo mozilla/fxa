@@ -234,7 +234,7 @@
     "nx": "19.5.3",
     "nx-cloud": "19.0.0",
     "persistgraphql": "^0.3.11",
-    "postcss": "8.4.43",
+    "postcss": "8.4.44",
     "react-test-renderer": "^18.3.1",
     "reflect-metadata": "^0.2.1",
     "server-only": "^0.0.1",
