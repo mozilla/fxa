@@ -1596,17 +1596,6 @@ export default class AuthClient {
     return this.sessionGet('/securityEvents', sessionToken, headers);
   }
 
-  async deleteSecurityEvents(sessionToken: hexstring, headers?: Headers) {
-    return this.hawkRequest(
-      'DELETE',
-      '/securityEvents',
-      sessionToken,
-      tokenType.sessionToken,
-      {},
-      headers
-    );
-  }
-
   async attachedClients(sessionToken: hexstring, headers?: Headers) {
     return this.sessionGet('/account/attached_clients', sessionToken, headers);
   }

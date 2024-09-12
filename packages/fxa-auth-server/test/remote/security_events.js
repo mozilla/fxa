@@ -19,142 +19,104 @@ function delay(seconds) {
   return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
 }
 
-[{version:""},{version:"V2"}].forEach((testOptions) => {
+[{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
+  describe(`#integration${testOptions.version} - remote securityEvents`, () => {
+    let server;
 
-describe(`#integration${testOptions.version} - remote securityEvents`, () => {
-  let server;
+    before(function () {
+      this.timeout(15000);
+      config.securityHistory.ipProfiling.allowedRecency = 0;
+      config.signinConfirmation.skipForNewAccounts.enabled = false;
+      return TestServer.start(config).then((s) => {
+        server = s;
+      });
+    });
 
-  before(function () {
-    this.timeout(15000);
-    config.securityHistory.ipProfiling.allowedRecency = 0;
-    config.signinConfirmation.skipForNewAccounts.enabled = false;
-    return TestServer.start(config).then((s) => {
-      server = s;
+    it('returns securityEvents on creating and login into an account', () => {
+      const email = server.uniqueEmail();
+      const password = 'abcdef';
+      let client;
+
+      return Client.createAndVerify(
+        config.publicUrl,
+        email,
+        password,
+        server.mailbox,
+        testOptions
+      )
+        .then((x) => {
+          client = x;
+          return client.login().then(() => {
+            return delay(1).then(() => {
+              return client.securityEvents();
+            });
+          });
+        })
+        .then((events) => {
+          assert.equal(events.length, 2);
+          assert.equal(events[0].name, 'account.login');
+          assert.isBelow(events[0].createdAt, new Date().getTime());
+          assert.equal(events[0].verified, false);
+
+          assert.equal(events[1].name, 'account.create');
+          assert.isBelow(events[1].createdAt, new Date().getTime());
+          assert.equal(events[1].verified, true);
+        });
+    });
+
+    it('returns security events after account reset w/o keys, with sessionToken', () => {
+      const email = server.uniqueEmail();
+      const password = 'oldPassword';
+      const newPassword = 'newPassword';
+      let client;
+
+      return Client.createAndVerify(
+        config.publicUrl,
+        email,
+        password,
+        server.mailbox,
+        testOptions
+      )
+        .then((x) => {
+          client = x;
+        })
+        .then(() => {
+          return client.forgotPassword();
+        })
+        .then(() => {
+          return server.mailbox.waitForCode(email);
+        })
+        .then((code) => {
+          assert.isRejected(client.resetPassword(newPassword));
+          return resetPassword(client, code, newPassword);
+        })
+        .then((response) => {
+          assert.ok(response.sessionToken, 'session token is in response');
+          assert(
+            !response.keyFetchToken,
+            'keyFetchToken token is not in response'
+          );
+          assert.equal(response.verified, true, 'verified is true');
+        })
+        .then(() => {
+          return delay(1).then(() => {
+            return client.securityEvents();
+          });
+        })
+        .then((events) => {
+          assert.equal(events.length, 2);
+          assert.equal(events[0].name, 'account.reset');
+          assert.isBelow(events[0].createdAt, new Date().getTime());
+          assert.equal(events[0].verified, true);
+
+          assert.equal(events[1].name, 'account.create');
+          assert.isBelow(events[1].createdAt, new Date().getTime());
+          assert.equal(events[1].verified, true);
+        });
+    });
+
+    after(() => {
+      return TestServer.stop(server);
     });
   });
-
-  it('returns securityEvents on creating and login into an account', () => {
-    const email = server.uniqueEmail();
-    const password = 'abcdef';
-    let client;
-
-    return Client.createAndVerify(
-      config.publicUrl,
-      email,
-      password,
-      server.mailbox,
-      testOptions
-    )
-      .then((x) => {
-        client = x;
-        return client.login().then(() => {
-          return delay(1).then(() => {
-            return client.securityEvents();
-          });
-        });
-      })
-      .then((events) => {
-        assert.equal(events.length, 2);
-        assert.equal(events[0].name, 'account.login');
-        assert.isBelow(events[0].createdAt, new Date().getTime());
-        assert.equal(events[0].verified, false);
-
-        assert.equal(events[1].name, 'account.create');
-        assert.isBelow(events[1].createdAt, new Date().getTime());
-        assert.equal(events[1].verified, true);
-      });
-  });
-
-  it('returns no securityEvents after deleting them', () => {
-    const email = server.uniqueEmail();
-    const password = 'abcdef';
-    let client;
-
-    return Client.createAndVerify(
-      config.publicUrl,
-      email,
-      password,
-      server.mailbox,
-      testOptions
-    )
-      .then((x) => {
-        client = x;
-        return client.login().then(() => {
-          return delay(1).then(() => {
-            return client.securityEvents();
-          });
-        });
-      })
-      .then((events) => {
-        assert.equal(events.length, 2);
-        assert.equal(events[0].name, 'account.login');
-        assert.isBelow(events[0].createdAt, new Date().getTime());
-        assert.equal(events[0].verified, false);
-
-        assert.equal(events[1].name, 'account.create');
-        assert.isBelow(events[1].createdAt, new Date().getTime());
-        assert.equal(events[1].verified, true);
-      })
-      .then(() => client.deleteSecurityEvents())
-      .then((events) => {
-        assert.deepEqual(events, {});
-      });
-  });
-
-  it('returns security events after account reset w/o keys, with sessionToken', () => {
-    const email = server.uniqueEmail();
-    const password = 'oldPassword';
-    const newPassword = 'newPassword';
-    let client;
-
-    return Client.createAndVerify(
-      config.publicUrl,
-      email,
-      password,
-      server.mailbox,
-      testOptions
-    )
-      .then((x) => {
-        client = x;
-      })
-      .then(() => {
-        return client.forgotPassword();
-      })
-      .then(() => {
-        return server.mailbox.waitForCode(email);
-      })
-      .then((code) => {
-        assert.isRejected(client.resetPassword(newPassword));
-        return resetPassword(client, code, newPassword);
-      })
-      .then((response) => {
-        assert.ok(response.sessionToken, 'session token is in response');
-        assert(
-          !response.keyFetchToken,
-          'keyFetchToken token is not in response'
-        );
-        assert.equal(response.verified, true, 'verified is true');
-      })
-      .then(() => {
-        return delay(1).then(() => {
-          return client.securityEvents();
-        });
-      })
-      .then((events) => {
-        assert.equal(events.length, 2);
-        assert.equal(events[0].name, 'account.reset');
-        assert.isBelow(events[0].createdAt, new Date().getTime());
-        assert.equal(events[0].verified, true);
-
-        assert.equal(events[1].name, 'account.create');
-        assert.isBelow(events[1].createdAt, new Date().getTime());
-        assert.equal(events[1].verified, true);
-      });
-  });
-
-  after(() => {
-    return TestServer.stop(server);
-  });
-});
-
 });

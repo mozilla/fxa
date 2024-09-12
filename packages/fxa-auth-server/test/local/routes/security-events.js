@@ -56,18 +56,3 @@ describe('GET /securityEvents', () => {
     });
   });
 });
-
-describe('DELETE /securityEvents', () => {
-  it('deletes the security events', () => {
-    const requestOptions = {
-      credentials: {
-        email: TEST_EMAIL,
-        uid: UID,
-      },
-      method: 'DELETE',
-    };
-    return setup('/securityEvents', requestOptions).then((res) => {
-      assert.deepEqual(res, {});
-    });
-  });
-});

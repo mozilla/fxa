@@ -26,22 +26,5 @@ module.exports = (log, db, config) => {
         return events;
       },
     },
-    {
-      method: 'DELETE',
-      path: '/securityEvents',
-      options: {
-        ...SECURITY_EVENTS_DOCS.SECURITYEVENTS_DELETE,
-        auth: {
-          strategy: 'sessionToken',
-        },
-      },
-      handler: async function (request) {
-        log.begin('SecurityEventsDelete', request);
-        const { uid } = request.auth.credentials;
-
-        await db.deleteSecurityEvents({ uid });
-        return {};
-      },
-    },
   ];
 };
