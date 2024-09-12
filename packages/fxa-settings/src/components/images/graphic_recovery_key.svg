@@ -1,38 +1,30 @@
 <svg width="205" height="160" viewBox="0 0 205 160" fill="none" xmlns="http://www.w3.org/2000/svg">
 <style>
-        .checkmark {
+        .animate-draw-stroke {
             animation: drawCheckmark 3s ease-in forwards;
         }
-
-        .star1 {
-            transform-origin: 152px 76px;
-            animation: scaleStar 2s infinite ease-in-out;
+        .animate-pulse-first {
+            animation: twinkle 2.5s infinite ease-in-out alternate;
         }
-
-        .star2 {
-            transform-origin: 174px 63px;
-            animation: scaleStar 3s infinite ease-in-out;
+        .animate-pulse-second {
+            animation: twinkle 3s infinite ease-in-out alternate;
         }
-
-        .star3 {
-            transform-origin: 156px 47px;
-            animation: scaleStar 2s infinite ease-in-out;
+        .animate-pulse-third {
+            animation: twinkle 3.5s infinite ease-in-out alternate;
         }
-
-        .circle {
-            transform-origin: 58px 115px;
+        .animate-wait-and-appear {
             animation: scaleCircle 2s ease-out 1;
         }
-
-        @keyframes scaleStar {
+        @keyframes twinkle {
             0%, 100% {
-                transform: scale(1);
+                transform: scale(0.9);
+                opacity: 0.2;
             }
             50% {
-                transform: scale(1.5);
+                transform: scale(1.1);
+                opacity: 1;
             }
         }
-
         @keyframes drawCheckmark {
             0%, 50% {
                 stroke-dasharray: 100;
@@ -42,7 +34,6 @@
                 stroke-dashoffset: 0;
             }
         }
-
         @keyframes scaleCircle {
             0%, 40% {
                 transform: scale(0);
@@ -58,7 +49,7 @@
 <circle cx="95.1354" cy="102.607" r="16.1909" fill="white"/>
 <path d="M156.752 98.0741H118.33C115.995 88.3016 107.318 81 96.9746 81C84.8406 81 75 91.0385 75 103.343C75 115.647 84.8406 125.685 96.9746 125.685C108.058 125.685 117.114 117.286 118.623 106.477H144.216V117.215C144.216 119.518 146.057 121.417 148.362 121.417C150.668 121.417 152.509 119.518 152.509 117.215V106.477H156.752C159.058 106.477 160.898 104.578 160.898 102.275C160.898 99.9725 159.058 98.0741 156.752 98.0741ZM96.9746 117.282C89.447 117.282 83.2924 111.045 83.2924 103.343C83.2924 95.6402 89.447 89.4028 96.9746 89.4028C104.502 89.4028 110.657 95.6402 110.657 103.343C110.657 111.045 104.502 117.282 96.9746 117.282Z" fill="#0190ED" stroke="#0190ED" stroke-width="2"/>
 <!-- Star 1 -->
-<g class="star1">
+<g class="animate-pulse-first" style="transform-origin: 152px 76px">
 <path fill-rule="evenodd" clip-rule="evenodd" d="M160.47 76.7347C160.473 76.5934 160.426 76.4555 160.338 76.3456C160.249 76.2356 160.124 76.1606 159.985 76.1341C158.801 75.9198 155.531 75.1471 154.414 74.0477C153.297 72.9483 152.542 69.6783 152.335 68.477C152.31 68.3382 152.236 68.2129 152.126 68.124C152.017 68.0351 151.879 67.9884 151.738 67.9923V76.7347H160.47Z" fill="#DABDFF"/>
 <path fill-rule="evenodd" clip-rule="evenodd" d="M151.774 67.9921C151.632 67.9926 151.495 68.0434 151.387 68.1353C151.279 68.2272 151.207 68.3544 151.184 68.4943C150.984 69.671 150.25 72.8884 149.143 74.0791C148.037 75.2698 144.749 75.9617 143.488 76.1865C143.349 76.2137 143.225 76.2886 143.135 76.3984C143.046 76.5081 142.998 76.6457 143 76.7872H151.781L151.774 67.9921Z" fill="#00B3F4"/>
 <path fill-rule="evenodd" clip-rule="evenodd" d="M151.727 76.735V85.4775C151.868 85.4732 152.004 85.4213 152.113 85.3302C152.221 85.239 152.295 85.1139 152.324 84.9752C152.538 83.7774 153.311 80.4582 154.41 79.3553C155.51 78.2524 158.783 77.5253 159.967 77.3251C160.105 77.3027 160.232 77.2318 160.323 77.125C160.414 77.0183 160.465 76.8826 160.466 76.7421L151.727 76.735Z" fill="#00B3F4"/>
@@ -66,7 +57,7 @@
 </g>
 
 <!-- Star 2 -->
-<g class="star2">
+<g class='animate-pulse-second' style="transform-origin: 174px 63px">
 <path fill-rule="evenodd" clip-rule="evenodd" d="M189.302 63.7583C189.306 63.515 189.225 63.2779 189.073 63.088C188.92 62.8982 188.707 62.7676 188.468 62.7187C186.424 62.3308 180.78 61.0198 178.852 59.1229C176.924 57.2261 175.621 51.5822 175.253 49.507C175.207 49.2675 175.078 49.0519 174.888 48.8991C174.699 48.7462 174.461 48.666 174.217 48.673V63.7583H189.302Z" fill="#DABDFF"/>
 <path fill-rule="evenodd" clip-rule="evenodd" d="M174.3 48.6727C174.056 48.6725 173.819 48.7596 173.634 48.9182C173.448 49.0768 173.325 49.2965 173.287 49.5377C172.938 51.5703 171.674 57.1211 169.761 59.177C167.849 61.2328 162.194 62.4236 160.006 62.7921C159.765 62.8379 159.548 62.9673 159.393 63.1575C159.238 63.3477 159.156 63.5865 159.16 63.8317H174.288L174.3 48.6727Z" fill="#00B3F4"/>
 <path fill-rule="evenodd" clip-rule="evenodd" d="M174.217 63.7581V78.8433C174.461 78.836 174.695 78.7466 174.881 78.5896C175.068 78.4326 175.196 78.2172 175.245 77.9783C175.613 75.9108 176.948 70.1855 178.844 68.2809C180.741 66.3764 186.389 65.1235 188.437 64.7899C188.676 64.7489 188.892 64.6255 189.049 64.4412C189.205 64.2568 189.292 64.0233 189.294 63.7813L174.217 63.7581Z" fill="#00B3F4"/>
@@ -74,16 +65,16 @@
 </g>
 
 <!-- Star 3 -->
-<g class="star3">
+<g class='animate-pulse-third' style="transform-origin: 156px 47px">
 <path fill-rule="evenodd" clip-rule="evenodd" d="M161.886 47.7569C161.887 47.6644 161.856 47.5744 161.798 47.502C161.741 47.4296 161.66 47.3795 161.569 47.36C160.786 47.2195 158.633 46.7137 157.899 45.9867C157.165 45.2596 156.666 43.11 156.522 42.3162C156.505 42.226 156.456 42.1449 156.385 42.087C156.313 42.0292 156.224 41.9984 156.132 42.0001V47.7569H161.886Z" fill="#DABDFF"/>
 <path fill-rule="evenodd" clip-rule="evenodd" d="M156.16 42.0042C156.067 42.0045 155.976 42.0378 155.905 42.0982C155.834 42.1586 155.786 42.2422 155.77 42.3343C155.64 43.1106 155.156 45.2286 154.429 46.0118C153.701 46.7951 151.534 47.2517 150.702 47.3957C150.61 47.413 150.528 47.4619 150.469 47.5338C150.41 47.6057 150.378 47.6961 150.379 47.7891H156.16V42.0042Z" fill="#00B3F4"/>
 <path fill-rule="evenodd" clip-rule="evenodd" d="M156.132 47.7563V53.5167C156.225 53.5131 156.313 53.4786 156.384 53.4188C156.455 53.3589 156.503 53.2772 156.522 53.1865C156.666 52.3962 157.172 50.2115 157.899 49.4774C158.626 48.7433 160.779 48.2726 161.559 48.1427C161.65 48.1276 161.734 48.0805 161.793 48.0097C161.853 47.9388 161.886 47.849 161.886 47.7563H156.132Z" fill="#00B3F4"/>
 <path fill-rule="evenodd" clip-rule="evenodd" d="M150.379 47.7563C150.376 47.8511 150.409 47.9434 150.471 48.0154C150.532 48.0874 150.618 48.134 150.712 48.1462C151.496 48.2761 153.691 48.7573 154.429 49.4879C155.166 50.2185 155.64 52.3821 155.77 53.204C155.781 53.3 155.827 53.3886 155.899 53.4533C155.971 53.518 156.064 53.5542 156.16 53.5553V47.7563H150.379Z" fill="#007BED"/>
 </g>
 <g filter="url(#filter1_d_5165_11763)">
-<circle class="circle" cx="68" cy="114.5" r="22" fill="white"/>
+<circle class="animate-wait-and-appear" cx="68" cy="114.5" r="22" fill="white" style="transform-origin: 58px 115px"/>
 </g>
-<path class="checkmark" d="M57 115L64 122L78 108" stroke="#1CC5A0" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="animate-draw-stroke" d="M57 115L64 122L78 108" stroke="#1CC5A0" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round" />
 <defs>
 <filter id="filter0_d_5165_11763" x="8" y="0" width="184" height="132" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
 <feFlood flood-opacity="0" result="BackgroundImageFix"/>
