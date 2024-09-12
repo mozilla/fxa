@@ -19,7 +19,7 @@ import {
   KeySvg,
   LockSvg,
   PrinterSvg,
-  SecurityShieldSvg,
+  RecoveryKeySvg,
   MozillaLogoSvg,
 } from './VectorImagesForPdf';
 import notoSansMonoSemiBold from './fonts/NotoSansMono-SemiBold.ttf';
@@ -146,7 +146,7 @@ export const RecoveryKeyPDF = ({
           <MozillaLogoSvg />
         </View>
         <View style={styles.purpleSection}>
-          <SecurityShieldSvg />
+          <RecoveryKeySvg />
           <Text style={styles.heading}>{localizedText.heading}</Text>
           {/* TODO in FXA-8313: Verify formatting of RTL dates - bidirectionality markers are not respected
           and numeric values are incorrectly reversed (e.g., 3202 instead of 2023) */}
