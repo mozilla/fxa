@@ -1256,6 +1256,10 @@ workflows:
           projects: --exclude '*,!tag:scope:shared:*'
           requires:
             - Build (nightly)
+      - check-required-jobs-complete:
+          name: Check all required jobs are complete (nightly)
+          requires:
+            - Build (nightly)
       - playwright-functional-tests:
           name: Functional Tests - Playwright (nightly)
           resource_class: xlarge
@@ -1265,7 +1269,7 @@ workflows:
       - playwright-functional-test-report:
           name: Merge Playwright Reports (nightly)
           requires:
-            - Functional Tests - Playwright (nightly)
+            - Check all required jobs are complete (nightly)
       - on-complete:
           name: Tests Complete (nightly)
           stage: Tests (nightly)
@@ -1280,6 +1284,7 @@ workflows:
             - Integration Test - Servers - Auth V2 (nightly)
             - Integration Test - Libraries (nightly)
             - Functional Tests - Playwright (nightly)
+            - Check all required jobs are complete (nightly)
       - build-and-deploy-storybooks:
           name: Deploy Storybooks (nightly)
           requires:
