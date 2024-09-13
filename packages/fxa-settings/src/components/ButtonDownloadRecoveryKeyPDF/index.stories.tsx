@@ -7,8 +7,7 @@ import { Meta } from '@storybook/react';
 import AppLayout from '../AppLayout';
 import ButtonDownloadRecoveryKeyPDF from '.';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import { Account, AppContext } from '../../models';
-import { MOCK_ACCOUNT, mockAppContext } from '../../models/mocks';
+import { MOCK_EMAIL } from '../../pages/mocks';
 
 export default {
   title: 'Components/ButtonDownloadRecoveryKeyPDF',
@@ -19,26 +18,19 @@ export default {
 const recoveryKeyValue = 'ABCD 1234 ABCD 1234 ABCD 1234 ABCD O0O0';
 const viewName = 'settings.recovery-key';
 
-const account = MOCK_ACCOUNT as unknown as Account;
-const accountWithLongEmail = {
-  ...MOCK_ACCOUNT,
-  primaryEmail: {
-    email:
-      'supercalifragilisticexpialidocious.supercalifragilisticexpialidocious@gmail.com',
-  },
-} as unknown as Account;
-
-const storyWithAccount = (account: Account) => {
+const storyWithAccount = (email = MOCK_EMAIL) => {
   const story = () => (
-    <AppContext.Provider value={mockAppContext({ account })}>
-      <AppLayout>
-        <ButtonDownloadRecoveryKeyPDF {...{ recoveryKeyValue, viewName }} />
-      </AppLayout>
-    </AppContext.Provider>
+    <AppLayout>
+      <ButtonDownloadRecoveryKeyPDF
+        {...{ recoveryKeyValue, viewName, email }}
+      />
+    </AppLayout>
   );
   return story;
 };
 
-export const Default = storyWithAccount(account);
+export const Default = storyWithAccount();
 
-export const WithLongEmail = storyWithAccount(accountWithLongEmail);
+export const WithLongEmail = storyWithAccount(
+  'supercalifragilisticexpialidocious.supercalifragilisticexpialidocious@gmail.com'
+);

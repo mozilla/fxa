@@ -28,8 +28,18 @@ interface NavigationTargetError {
 }
 
 // TODO: don't hard navigate once ConnectAnotherDevice is converted to React
-export function getSyncNavigate(queryParams: string) {
+export function getSyncNavigate(
+  queryParams: string,
+  showInlineRecoveryKeySetup?: boolean
+) {
   const searchParams = new URLSearchParams(queryParams);
+  if (showInlineRecoveryKeySetup) {
+    return {
+      to: `/inline_recovery_key_setup?${searchParams}`,
+      shouldHardNavigate: false,
+    };
+  }
+
   searchParams.set('showSuccessMessage', 'true');
   return {
     to: `/connect_another_device?${searchParams}`,
@@ -100,6 +110,7 @@ const getNavigationTarget = async ({
   finishOAuthFlowHandler,
   redirectTo,
   queryParams = '',
+  showInlineRecoveryKeySetup,
 }: NavigationOptions): Promise<NavigationTarget | NavigationTargetError> => {
   const isOAuth = isOAuthIntegration(integration);
   const {
@@ -120,6 +131,7 @@ const getNavigationTarget = async ({
     verificationReason,
     keyFetchToken,
     unwrapBKey,
+    showInlineRecoveryKeySetup,
   });
 
   const getUnverifiedNav = () => {
@@ -185,13 +197,19 @@ const getNavigationTarget = async ({
         redirect,
         state,
       });
-      return getSyncNavigate(queryParams);
+      return {
+        ...getSyncNavigate(queryParams, showInlineRecoveryKeySetup),
+        state: createSigninLocationState(),
+      };
     }
     return { to: redirect, shouldHardNavigate: true };
   }
 
   if (integration.isSync()) {
-    return getSyncNavigate(queryParams);
+    return {
+      ...getSyncNavigate(queryParams, showInlineRecoveryKeySetup),
+      state: createSigninLocationState(),
+    };
   }
 
   if (redirectTo) {

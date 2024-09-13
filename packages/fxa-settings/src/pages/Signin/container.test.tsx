@@ -15,9 +15,9 @@ import { loadErrorMessages, loadDevMessages } from '@apollo/client/dev';
 import { LocationProvider } from '@reach/router';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import SigninContainer from './container';
-import { SigninProps } from './interfaces';
+import { BeginSigninResult, SigninProps } from './interfaces';
 import { MozServices } from '../../lib/types';
-import { screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import { ModelDataProvider } from '../../lib/model-data';
 import { IntegrationType } from '../../models';
 import {
@@ -52,6 +52,9 @@ import VerificationReasons from '../../constants/verification-reasons';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { Integration } from '../../models';
 import { firefox } from '../../lib/channels/firefox';
+import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../models/mocks';
+import { AUTH_DATA_KEY } from '../../lib/sensitive-data-client';
+import { Constants } from '../../lib/constants';
 
 jest.mock('../../lib/channels/firefox', () => ({
   ...jest.requireActual('../../lib/channels/firefox'),
@@ -65,7 +68,7 @@ let integration: Integration;
 function mockSyncDesktopV3Integration() {
   integration = {
     type: IntegrationType.SyncDesktopV3,
-    getService: () => MozServices.FirefoxSync,
+    getService: () => 'sync',
     isSync: () => true,
     wantsKeys: () => true,
   } as Integration;
@@ -73,7 +76,7 @@ function mockSyncDesktopV3Integration() {
 function mockSyncOAuthIntegration() {
   integration = {
     type: IntegrationType.OAuth,
-    getService: () => MozServices.FirefoxSync,
+    getService: () => 'sync',
     isSync: () => true,
     wantsKeys: () => true,
   } as Integration;
@@ -108,11 +111,16 @@ jest.mock('../../models', () => {
   return {
     ...jest.requireActual('../../models'),
     useAuthClient: jest.fn(),
+    useSensitiveDataClient: jest.fn(),
+    useConfig: jest.fn(),
   };
 });
 const mockAuthClient = new AuthClient('http://localhost:9000', {
   keyStretchVersion: 1,
 });
+const mockSensitiveDataClient = createMockSensitiveDataClient();
+mockSensitiveDataClient.setData = jest.fn();
+
 function mockModelsModule() {
   mockAuthClient.accountStatusByEmail = jest.fn().mockResolvedValue({
     exists: true,
@@ -127,9 +135,20 @@ function mockModelsModule() {
     sessionVerified: true,
     emailVerified: true,
   });
+  mockAuthClient.recoveryKeyExists = jest.fn().mockResolvedValue({
+    exists: false,
+  });
   (ModelsModule.useAuthClient as jest.Mock).mockImplementation(
     () => mockAuthClient
   );
+  (ModelsModule.useSensitiveDataClient as jest.Mock).mockImplementation(
+    () => mockSensitiveDataClient
+  );
+  (ModelsModule.useConfig as jest.Mock).mockImplementation(() => ({
+    featureFlags: {
+      recoveryCodeSetupOnSyncSignIn: true,
+    },
+  }));
 }
 // Call this when testing local storage
 function mockCurrentAccount(storedAccount = { uid: '123' }) {
@@ -432,7 +451,6 @@ describe('signin container', () => {
         MOCK_EMAIL,
         MOCK_PASSWORD
       );
-
       // these come from createBeginSigninResponse
       expect(handlerResult?.data?.signIn?.uid).toEqual(MOCK_UID);
       expect(handlerResult?.data?.signIn?.sessionToken).toEqual(
@@ -447,6 +465,76 @@ describe('signin container', () => {
       expect(handlerResult?.data?.signIn?.verificationReason).toEqual(
         MOCK_VERIFICATION.verificationReason
       );
+    });
+
+    describe('showInlineRecoveryKeySetup', () => {
+      beforeEach(() => {
+        mockSyncDesktopV3Integration();
+        // this puts hasLinkedAccount=false in the query params to avoid more canLinkAccount mocking
+        mockUseValidateModule();
+        render([
+          mockGqlAvatarUseQuery(),
+          mockGqlBeginSigninMutation({ keys: true, service: 'sync' }),
+        ]);
+      });
+      it('calls recoveryKeyExists when expected and sets showInlineRecoveryKeySetup', async () => {
+        expect(currentSigninProps).toBeDefined();
+        let handlerResult: BeginSigninResult | undefined;
+        await act(async () => {
+          handlerResult = await currentSigninProps?.beginSigninHandler(
+            MOCK_EMAIL,
+            MOCK_PASSWORD
+          );
+        });
+
+        expect(mockSensitiveDataClient.setData).toBeCalledWith(AUTH_DATA_KEY, {
+          authPW: MOCK_AUTH_PW,
+          emailForAuth: MOCK_EMAIL,
+        });
+        expect(mockAuthClient.recoveryKeyExists).toBeCalledWith(
+          handlerResult?.data?.signIn.sessionToken,
+          MOCK_EMAIL
+        );
+
+        expect(handlerResult?.data?.showInlineRecoveryKeySetup).toEqual(true);
+      });
+
+      it('does not call recoveryKeyExists or set showInlineRecoveryKeySetup when user has dismissed promo', async () => {
+        localStorage.setItem(
+          Constants.DISABLE_PROMO_ACCOUNT_RECOVERY_KEY_DO_IT_LATER,
+          'true'
+        );
+        let handlerResult: BeginSigninResult | undefined;
+        await act(async () => {
+          handlerResult = await currentSigninProps?.beginSigninHandler(
+            MOCK_EMAIL,
+            MOCK_PASSWORD
+          );
+        });
+
+        expect(mockAuthClient.recoveryKeyExists).not.toBeCalled();
+        expect(handlerResult?.data?.showInlineRecoveryKeySetup).toEqual(
+          undefined
+        );
+        localStorage.clear();
+      });
+      it('sets showInlineRecoveryKeySetup to false when user has a recovery key', async () => {
+        mockAuthClient.recoveryKeyExists = jest.fn().mockResolvedValue({
+          exists: true,
+        });
+        let handlerResult: BeginSigninResult | undefined;
+        await act(async () => {
+          handlerResult = await currentSigninProps?.beginSigninHandler(
+            MOCK_EMAIL,
+            MOCK_PASSWORD
+          );
+        });
+        expect(mockAuthClient.recoveryKeyExists).toBeCalledWith(
+          handlerResult?.data?.signIn.sessionToken,
+          MOCK_EMAIL
+        );
+        expect(handlerResult?.data?.showInlineRecoveryKeySetup).toEqual(false);
+      });
     });
 
     it('handles gql mutation error', async () => {

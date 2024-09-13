@@ -7,7 +7,13 @@ import InlineRecoveryKeySetupCreate from '.';
 
 export const Subject = () => (
   <InlineRecoveryKeySetupCreate
-    createRecoveryKeyHandler={() => Promise.resolve()}
+    createRecoveryKeyHandler={() =>
+      Promise.resolve({
+        data: {
+          recoveryKey: new Uint8Array(20),
+        },
+      })
+    }
     doLaterHandler={() => Promise.resolve()}
   />
 );

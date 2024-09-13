@@ -151,7 +151,7 @@ export function mockGqlAvatarUseQuery() {
 }
 
 export function mockGqlBeginSigninMutation(
-  opts: { keys: boolean; originalLoginEmail?: string },
+  opts: { keys: boolean; originalLoginEmail?: string; service?: 'sync' },
   inputOverrides: any = {}
 ) {
   const result = opts.keys
@@ -323,7 +323,11 @@ export function createBeginSigninResponse({
   verificationReason = MOCK_VERIFICATION.verificationReason,
   unwrapBKey = undefined,
   keyFetchToken = undefined,
-}: Partial<BeginSigninResponse['signIn']> & { unwrapBKey?: string } = {}): {
+  showInlineRecoveryKeySetup = undefined,
+}: Partial<BeginSigninResponse['signIn']> & {
+  unwrapBKey?: string;
+  showInlineRecoveryKeySetup?: boolean;
+} = {}): {
   data: BeginSigninResponse;
 } {
   return {
@@ -339,6 +343,7 @@ export function createBeginSigninResponse({
         keyFetchToken,
       },
       unwrapBKey,
+      showInlineRecoveryKeySetup,
     },
   };
 }

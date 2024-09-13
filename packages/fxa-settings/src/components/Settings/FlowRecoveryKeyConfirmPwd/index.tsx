@@ -8,7 +8,6 @@ import ProgressBar from '../ProgressBar';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { useAccount, useFtlMsgResolver } from '../../../models';
 import { useForm } from 'react-hook-form';
-import base32Encode from 'base32-encode';
 import { logViewEvent } from '../../../lib/metrics';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import InputPassword from '../../InputPassword';
@@ -18,6 +17,7 @@ import { RecoveryKeyAction } from '../PageRecoveryKeyCreate';
 import { Link } from '@reach/router';
 import { SETTINGS_PATH } from '../../../constants';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
+import { formatRecoveryKey } from '../../../lib/utilities';
 
 type FormData = {
   password: string;
@@ -71,9 +71,7 @@ export const FlowRecoveryKeyConfirmPwd = ({
     try {
       const replaceKey = actionType === RecoveryKeyAction.Change;
       const recoveryKey = await account.createRecoveryKey(password, replaceKey);
-      setFormattedRecoveryKey(
-        base32Encode(recoveryKey.buffer, 'Crockford').match(/.{4}/g)!.join(' ')
-      );
+      setFormattedRecoveryKey(formatRecoveryKey(recoveryKey.buffer));
       logViewEvent(`flow.${viewName}`, 'confirm-password.success');
       navigateForward();
     } catch (err) {

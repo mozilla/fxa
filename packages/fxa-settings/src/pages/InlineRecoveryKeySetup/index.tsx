@@ -14,50 +14,52 @@ import {
 import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
 import Banner, { BannerType } from '../../components/Banner';
 import { Constants } from '../../lib/constants';
+import { InlineRecoveryKeySetupProps } from './interfaces';
+import RecoveryKeySetupHint from '../../components/RecoveryKeySetupHint';
+
+const viewName = 'inline-recovery-key-setup';
 
 export const InlineRecoveryKeySetup = ({
   createRecoveryKeyHandler,
+  updateRecoveryHintHandler,
   currentStep,
-}: {
-  createRecoveryKeyHandler: () => Promise<void>;
-  currentStep: number;
-} & RouteComponentProps) => {
+  email,
+  formattedRecoveryKey,
+  navigateForward,
+}: InlineRecoveryKeySetupProps & RouteComponentProps) => {
   const doLaterHandler = () => {
     localStorage.setItem(
       Constants.DISABLE_PROMO_ACCOUNT_RECOVERY_KEY_DO_IT_LATER,
       'true'
     );
     // We do a hard navigate because this page is still in the content server, this
-    // also keeps all query params so that correct metrics are emitted.
+    // also keeps all query params so that correct metrics are emitted
+    // but does not show the signed into FF success message
     hardNavigate('/connect_another_device', {}, true);
-  };
-
-  // We don't show this promo if the user has dismissed it or dismissed it from
-  // settings
-  if (
-    localStorage.getItem(
-      Constants.DISABLE_PROMO_ACCOUNT_RECOVERY_KEY_DO_IT_LATER
-    ) === 'true'
-  ) {
-    doLaterHandler();
-
-    // Prevents a flash of the promo banner before redirecting
     return <></>;
-  }
-
-  // nice to have with FXA-10079:
-  // if user refreshes on step 1 and we no longer have PW from previous step,
-  // just take them to CAD with success messaging.
-  // If on step 2 or 3, just take them to Settings with success message
+  };
 
   const renderStepComponent = () => {
     switch (currentStep) {
       case 3:
-        // TODO with FXA-10079, can possibly share with component in Settings?
-        // return <InlineRecoveryKeySetupHint />;
-        return <>TODO</>;
+        return (
+          <>
+            <h1 className="text-grey-400">
+              <FtlMsg id="inline-recovery-key-setup-hint-header">
+                Security recommendation
+              </FtlMsg>
+            </h1>
+            <RecoveryKeySetupHint
+              {...{ viewName }}
+              navigateForward={() => {
+                // Navigate to CAD without success messaging
+                hardNavigate('/connect_another_device', {}, true);
+              }}
+              updateRecoveryKeyHint={updateRecoveryHintHandler}
+            />
+          </>
+        );
       case 2:
-        // possible TODO with FXA-10079, move this to its own component?
         return (
           <>
             <Banner type={BannerType.success} additionalClassNames="mt-0">
@@ -90,11 +92,8 @@ export const InlineRecoveryKeySetup = ({
             </p>
             <div className="w-full flex flex-col gap-4">
               <RecoveryKeySetupDownload
-                // TODO with FXA-10079
-                recoveryKeyValue="my KEYYYYYYYY (todo)"
-                email={'todo@gmail.com'}
-                navigateForward={() => Promise.resolve()}
-                viewName="doweevenwantthis?todo"
+                recoveryKeyValue={formattedRecoveryKey}
+                {...{ email, navigateForward, viewName }}
               />
             </div>
           </>

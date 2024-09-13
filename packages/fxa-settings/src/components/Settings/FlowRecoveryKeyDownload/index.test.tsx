@@ -96,7 +96,7 @@ describe('FlowRecoveryKeyDownload', () => {
 
   it('emits the expected metrics when user navigates forward', () => {
     renderFlowPage();
-    const nextPageLink = screen.getByRole('link', {
+    const nextPageLink = screen.getByRole('button', {
       name: 'Continue without downloading',
     });
     fireEvent.click(nextPageLink);

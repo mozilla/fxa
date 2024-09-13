@@ -12,7 +12,6 @@ import {
 import { FtlMsg } from 'fxa-react/lib/utils';
 import DataBlock from '../DataBlock';
 import { logViewEvent } from '../../lib/metrics';
-import { Link } from '@reach/router';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 
 interface RecoveryKeySetupDownloadProps {
@@ -22,9 +21,8 @@ interface RecoveryKeySetupDownloadProps {
   email: string;
 }
 
-// TODO FXA-8305
 const spinner = (
-  <LoadingSpinner className="bg-grey-20 flex items-center flex-col justify-center h-screen select-none" />
+  <LoadingSpinner className="bg-grey-20 flex items-center flex-col justify-center select-none" />
 );
 
 const ButtonDownloadRecoveryKeyPDF = lazy(
@@ -86,13 +84,12 @@ export const InlineRecoveryKeySetupDownload = ({
 
       <Suspense fallback={spinner}>
         <ButtonDownloadRecoveryKeyPDF
-          {...{ navigateForward, recoveryKeyValue, viewName }}
+          {...{ navigateForward, recoveryKeyValue, viewName, email }}
         />
       </Suspense>
 
       <FtlMsg id="flow-recovery-key-download-next-link-v2">
-        <Link
-          to=""
+        <button
           className="text-sm link-blue text-center py-2 mx-auto"
           onClick={() => {
             logViewEvent(`flow.${viewName}`, 'recovery-key.skip-download');
@@ -100,7 +97,7 @@ export const InlineRecoveryKeySetupDownload = ({
           }}
         >
           Continue without downloading
-        </Link>
+        </button>
       </FtlMsg>
     </>
   );

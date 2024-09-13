@@ -411,10 +411,7 @@ const AuthAndAccountSetupRoutes = ({
         path="/signin_unblock/*"
         {...{ integration, flowQueryParams }}
       />
-      <InlineRecoveryKeySetupContainer
-        path="/inline_recovery_key_setup/*"
-        {...{ integration, serviceName }}
-      />
+      <InlineRecoveryKeySetupContainer path="/inline_recovery_key_setup/*" />
 
       {/* Signup */}
       <CannotCreateAccount path="/cannot_create_account/*" />

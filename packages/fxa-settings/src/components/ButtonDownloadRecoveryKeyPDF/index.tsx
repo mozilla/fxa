@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { useAccount, useAlertBar, useFtlMsgResolver } from '../../models';
+import { useAlertBar, useFtlMsgResolver } from '../../models';
 import { pdf } from '@react-pdf/renderer';
 import { saveAs } from 'file-saver';
 import { RecoveryKeyPDF } from '../ButtonDownloadRecoveryKeyPDF/RecoveryKeyPDF';
@@ -33,6 +33,7 @@ interface ButtonDownloadRecoveryKeyPDFProps {
   navigateForward?: () => void;
   recoveryKeyValue: string;
   viewName: string;
+  email: string;
 }
 
 export const getFilename = (email: string) => {
@@ -49,9 +50,8 @@ export const ButtonDownloadRecoveryKeyPDF = ({
   navigateForward,
   recoveryKeyValue,
   viewName,
+  email,
 }: ButtonDownloadRecoveryKeyPDFProps) => {
-  const account = useAccount();
-  const email = account.primaryEmail.email;
   const keyCreated = Date.now();
   const currentLanguage = determineLocale(
     window.navigator.languages.join(', ')
@@ -127,7 +127,7 @@ export const ButtonDownloadRecoveryKeyPDF = ({
       const asPdf = pdf();
       asPdf.updateContainer(doc);
       const blob = await asPdf.toBlob();
-      const filename = getFilename(account.primaryEmail.email);
+      const filename = getFilename(email);
       saveAs(blob, filename);
       logViewEvent(`flow.${viewName}`, `recovery-key.download-success`);
     } catch (e) {

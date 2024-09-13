@@ -50,6 +50,7 @@ const SigninTokenCode = ({
     verificationReason,
     keyFetchToken,
     unwrapBKey,
+    showInlineRecoveryKeySetup,
   } = signinState;
 
   const [banner, setBanner] = useState<Partial<BannerProps>>({
@@ -154,6 +155,7 @@ const SigninTokenCode = ({
           finishOAuthFlowHandler,
           queryParams: location.search,
           redirectTo,
+          showInlineRecoveryKeySetup,
         };
 
         await GleanMetrics.isDone();
@@ -198,6 +200,7 @@ const SigninTokenCode = ({
       uid,
       unwrapBKey,
       verificationReason,
+      showInlineRecoveryKeySetup,
     ]
   );
 

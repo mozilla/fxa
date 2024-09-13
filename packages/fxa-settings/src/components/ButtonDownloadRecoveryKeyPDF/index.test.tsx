@@ -5,20 +5,15 @@
 import React from 'react';
 import { fireEvent, screen } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import { Account, AppContext } from '../../models';
 import { ButtonDownloadRecoveryKeyPDF, getFilename } from '.';
-import { MOCK_ACCOUNT } from '../../models/mocks';
 import { logViewEvent } from '../../lib/metrics';
 import { TextEncoder } from 'util';
+import { MOCK_EMAIL } from '../../pages/mocks';
 
 Object.assign(global, { TextEncoder });
 
 const recoveryKeyValue = 'WXYZ WXYZ WXYZ WXYZ WXYZ WXYZ WXYZ WXYZ';
 const viewName = 'settings.account-recovery';
-
-const account = {
-  ...MOCK_ACCOUNT,
-} as unknown as Account;
 
 jest.mock('../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
@@ -40,9 +35,10 @@ beforeAll(() => {
 describe('ButtonDownloadRecoveryKeyPDF', () => {
   it('renders button as expected', () => {
     renderWithLocalizationProvider(
-      <AppContext.Provider value={{ account }}>
-        <ButtonDownloadRecoveryKeyPDF {...{ recoveryKeyValue, viewName }} />
-      </AppContext.Provider>
+      <ButtonDownloadRecoveryKeyPDF
+        {...{ recoveryKeyValue, viewName }}
+        email={MOCK_EMAIL}
+      />
     );
     screen.getByText('Download and continue');
   });
@@ -51,9 +47,10 @@ describe('ButtonDownloadRecoveryKeyPDF', () => {
   // including validating that the expected key is included and matches the key in the DataBlock
   it('emits a metrics event when the link is clicked', () => {
     renderWithLocalizationProvider(
-      <AppContext.Provider value={{ account }}>
-        <ButtonDownloadRecoveryKeyPDF {...{ recoveryKeyValue, viewName }} />
-      </AppContext.Provider>
+      <ButtonDownloadRecoveryKeyPDF
+        {...{ recoveryKeyValue, viewName }}
+        email={MOCK_EMAIL}
+      />
     );
     const downloadButton = screen.getByText('Download and continue');
     fireEvent.click(downloadButton);
@@ -67,8 +64,7 @@ describe('ButtonDownloadRecoveryKeyPDF', () => {
 
 describe('getFilename function', () => {
   it('sets the filename as expected with a reasonably-sized email', () => {
-    const regularEmail = MOCK_ACCOUNT.primaryEmail.email;
-    const filename = getFilename(regularEmail);
+    const filename = getFilename(MOCK_EMAIL);
 
     // Test the date formatting
     const mockDateObject = '2023-05-10T17:00:40.722Z';
@@ -83,7 +79,7 @@ describe('getFilename function', () => {
     const date = new Date().toISOString().split('T')[0];
 
     expect(filename).toContain(
-      `Mozilla-Recovery-Key_${date}_${account.primaryEmail.email}.pdf`
+      `Mozilla-Recovery-Key_${date}_${MOCK_EMAIL}.pdf`
     );
     expect(filename.length).toBeLessThanOrEqual(75);
   });
