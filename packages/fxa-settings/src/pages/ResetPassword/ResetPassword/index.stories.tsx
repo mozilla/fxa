@@ -3,21 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
+import ResetPassword from '.';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { Subject } from './mocks';
-import CompleteResetPassword from '.';
 
 export default {
-  title: 'Pages/ResetPasswordRedesign/CompleteResetPassword',
-  component: CompleteResetPassword,
+  title: 'Pages/ResetPassword/ResetPassword',
+  component: ResetPassword,
   decorators: [withLocalization],
 } as Meta;
 
-export const DefaultNoRecoveryKey = () => <Subject recoveryKeyExists={false} />;
-
-export const WithConfirmedRecoveryKey = () => (
-  <Subject recoveryKeyExists={true} hasConfirmedRecoveryKey />
-);
-
-export const UnknownRecoveryKeyStatus = () => <Subject />;
+export const Default = () => <Subject />;
