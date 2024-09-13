@@ -3,6 +3,22 @@
 $schema: moz://mozilla.org/schemas/glean/metrics/2-0-0
 
 account:
+  user_id:
+    type: string
+    description: |
+      The firefox/mozilla account id
+    lifetime: application
+    notification_emails:
+      - subplat-team@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-7531
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=tbd
+    expires: never
+    data_sensitivity:
+      - interaction
+    no_lint:
+      - COMMON_PREFIX
   user_id_sha256:
     type: string
     description: |
@@ -119,12 +135,12 @@ session:
     expires: never
     data_sensitivity:
       - interaction
-      
+
 subscription:
   checkout_type:
     type: string
     description: |
-      Whether the checkout flow is for new users or existing users. 
+      Whether the checkout flow is for new users or existing users.
       One of “with-account” or “without-account"
     lifetime: application
     notification_emails:
@@ -190,7 +206,7 @@ subscription:
       - interaction
   interval:
     type: string
-    description: Interval of a subscription used at checkout 
+    description: Interval of a subscription used at checkout
     lifetime: application
     notification_emails:
       - subplat-team@mozilla.com

@@ -143,6 +143,7 @@ const createEventFn =
         user_agent: request.headers['user-agent'],
         ip_address:
           eventOptions.skipClientIp === true ? '' : request.app.clientAddress,
+        account_user_id: '',
         account_user_id_sha256: '',
         relying_party_oauth_client_id: await findOauthClientId(
           request,
@@ -169,6 +170,7 @@ const createEventFn =
       // uid needs extra handling because we need to hash the value
       const uid = findUid(request, metricsData);
       if (uid !== '') {
+        commonMetrics.account_user_id = uid;
         commonMetrics.account_user_id_sha256 = sha256HashUid(uid);
       }
 

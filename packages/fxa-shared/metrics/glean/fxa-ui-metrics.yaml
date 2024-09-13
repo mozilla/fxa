@@ -58,6 +58,26 @@ event:
       - interaction
 
 account:
+  user_id:
+    type: string
+    description: |
+      The firefox/mozilla account id
+    lifetime: application
+    send_in_pings:
+      - accounts-events
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-7265
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
+    no_lint:
+      - COMMON_PREFIX
   user_id_sha256:
     type: string
     description: |
