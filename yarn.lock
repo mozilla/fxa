@@ -40710,7 +40710,7 @@ fsevents@~2.1.1:
     i18n-iso-countries: ^7.11.0
     ioredis: ^4.28.2
     joi: ^17.8.3
-    jose: ^5.8.0
+    jose: ^5.9.0
     jsdom: ^24.1.1
     jsonwebtoken: ^9.0.0
     jsxgettext-recursive-next: 1.1.0
@@ -41682,7 +41682,7 @@ fsevents@~2.1.1:
     jest: ^29.5.0
     jest-environment-jsdom: ^29.5.0
     jest-environment-node: ^29.7.0
-    jose: ^5.8.0
+    jose: ^5.9.0
     json: ^11.0.0
     knex: ^3.1.0
     kysely: ^0.27.2
@@ -48963,10 +48963,10 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"jose@npm:^5.8.0":
-  version: 5.8.0
-  resolution: "jose@npm:5.8.0"
-  checksum: bb9cd97ac6ccb8148a8e23d6a7f61e5756a3373a7d65dd783051d8af409c3534bdc2a2c30ecd1820988ea943aba5755b2a45b86955c5765d71691bb0ddd45d61
+"jose@npm:^5.9.0":
+  version: 5.9.1
+  resolution: "jose@npm:5.9.1"
+  checksum: 4b1d8d911f59e87517f2e1b2b169cc07f4be98406ef052f8a39b04fed77b70e9be9595c16432d86779cc2da517458d7ad2f7a67c88d781d60e5dce5e294aeb22
   languageName: node
   linkType: hard
 
