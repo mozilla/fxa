@@ -9,7 +9,7 @@ import { withLocalization } from 'fxa-react/lib/storybooks';
 import { Subject } from './mocks';
 
 export default {
-  title: 'Pages/ResetPasswordRedesign/AccountRecoveryConfirmKey',
+  title: 'Pages/ResetPassword/AccountRecoveryConfirmKey',
   component: AccountRecoveryConfirmKey,
   decorators: [withLocalization],
 } as Meta;

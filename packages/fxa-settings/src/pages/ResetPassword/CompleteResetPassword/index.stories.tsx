@@ -5,13 +5,19 @@
 import React from 'react';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import ConfirmResetPassword from '.';
 import { Subject } from './mocks';
+import CompleteResetPassword from '.';
 
 export default {
-  title: 'Pages/ResetPasswordRedesign/ConfirmResetPassword',
-  component: ConfirmResetPassword,
+  title: 'Pages/ResetPassword/CompleteResetPassword',
+  component: CompleteResetPassword,
   decorators: [withLocalization],
 } as Meta;
 
-export const Default = () => <Subject />;
+export const DefaultNoRecoveryKey = () => <Subject recoveryKeyExists={false} />;
+
+export const WithConfirmedRecoveryKey = () => (
+  <Subject recoveryKeyExists={true} hasConfirmedRecoveryKey />
+);
+
+export const UnknownRecoveryKeyStatus = () => <Subject />;

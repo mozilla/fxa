@@ -136,7 +136,6 @@ describe('ConfirmResetPassword', () => {
     expect(mockResendCode).toHaveBeenCalledTimes(1);
   });
 
-
   it('handles Use different account link', async () => {
     let hardNavigateSpy: jest.SpyInstance;
     hardNavigateSpy = jest
