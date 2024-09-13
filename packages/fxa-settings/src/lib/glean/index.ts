@@ -30,7 +30,7 @@ import * as accountPref from 'fxa-shared/metrics/glean/web/accountPref';
 import * as accountBanner from 'fxa-shared/metrics/glean/web/accountBanner';
 import * as deleteAccount from 'fxa-shared/metrics/glean/web/deleteAccount';
 import * as thirdPartyAuth from 'fxa-shared/metrics/glean/web/thirdPartyAuth';
-import { userIdSha256 } from 'fxa-shared/metrics/glean/web/account';
+import { userIdSha256, userId } from 'fxa-shared/metrics/glean/web/account';
 import {
   oauthClientId,
   service,
@@ -155,11 +155,12 @@ const populateMetrics = async (gleanPingMetrics: GleanPingMetrics) => {
     });
   }
 
+  userId.set('');
   userIdSha256.set('');
   try {
     if (metricsContext.account?.uid) {
-      const hashedUid = await hashUid(metricsContext.account.uid);
-      userIdSha256.set(hashedUid);
+      userId.set(metricsContext.account.uid);
+      userIdSha256.set(await hashUid(metricsContext.account.uid));
     }
   } catch (e) {
     // noop

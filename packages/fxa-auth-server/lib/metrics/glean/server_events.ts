@@ -60,6 +60,7 @@ class AccountsEventsServerEvent {
    * @param {string} user_agent - The user agent.
    * @param {string} ip_address - The IP address. Will be used to decode Geo
    *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id - The firefox/mozilla account id.
    * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
    * @param {string} event_name - The name of the event.
    * @param {string} event_reason - additional context-dependent (on event.name) info, e.g. the cause of an error.
@@ -79,6 +80,7 @@ class AccountsEventsServerEvent {
   record({
     user_agent,
     ip_address,
+    account_user_id,
     account_user_id_sha256,
     event_name,
     event_reason,
@@ -97,6 +99,7 @@ class AccountsEventsServerEvent {
   }: {
     user_agent: string;
     ip_address: string;
+    account_user_id: string;
     account_user_id_sha256: string;
     event_name: string;
     event_reason: string;
@@ -118,6 +121,7 @@ class AccountsEventsServerEvent {
     const eventPayload = {
       metrics: {
         string: {
+          'account.user_id': account_user_id,
           'account.user_id_sha256': account_user_id_sha256,
           'event.name': event_name,
           'event.reason': event_reason,
@@ -204,6 +208,7 @@ class EventsServerEventLogger {
   #record({
     user_agent,
     ip_address,
+    account_user_id,
     account_user_id_sha256,
     relying_party_oauth_client_id,
     relying_party_service,
@@ -221,6 +226,7 @@ class EventsServerEventLogger {
   }: {
     user_agent: string;
     ip_address: string;
+    account_user_id: string;
     account_user_id_sha256: string;
     relying_party_oauth_client_id: string;
     relying_party_service: string;
@@ -242,6 +248,7 @@ class EventsServerEventLogger {
     const eventPayload = {
       metrics: {
         string: {
+          'account.user_id': account_user_id,
           'account.user_id_sha256': account_user_id_sha256,
           'relying_party.oauth_client_id': relying_party_oauth_client_id,
           'relying_party.service': relying_party_service,
@@ -299,6 +306,7 @@ class EventsServerEventLogger {
    * @param {string} user_agent - The user agent.
    * @param {string} ip_address - The IP address. Will be used to decode Geo
    *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id - The firefox/mozilla account id.
    * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
    * @param {string} relying_party_oauth_client_id - The client id of the relying party.
    * @param {string} relying_party_service - The service name of the relying party.
@@ -316,6 +324,7 @@ class EventsServerEventLogger {
   recordAccessTokenChecked({
     user_agent,
     ip_address,
+    account_user_id,
     account_user_id_sha256,
     relying_party_oauth_client_id,
     relying_party_service,
@@ -332,6 +341,7 @@ class EventsServerEventLogger {
   }: {
     user_agent: string;
     ip_address: string;
+    account_user_id: string;
     account_user_id_sha256: string;
     relying_party_oauth_client_id: string;
     relying_party_service: string;
@@ -353,6 +363,7 @@ class EventsServerEventLogger {
     this.#record({
       user_agent,
       ip_address,
+      account_user_id,
       account_user_id_sha256,
       relying_party_oauth_client_id,
       relying_party_service,
@@ -377,6 +388,7 @@ class EventsServerEventLogger {
    * @param {string} user_agent - The user agent.
    * @param {string} ip_address - The IP address. Will be used to decode Geo
    *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id - The firefox/mozilla account id.
    * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
    * @param {string} relying_party_oauth_client_id - The client id of the relying party.
    * @param {string} relying_party_service - The service name of the relying party.
@@ -395,6 +407,7 @@ class EventsServerEventLogger {
   recordAccessTokenCreated({
     user_agent,
     ip_address,
+    account_user_id,
     account_user_id_sha256,
     relying_party_oauth_client_id,
     relying_party_service,
@@ -412,6 +425,7 @@ class EventsServerEventLogger {
   }: {
     user_agent: string;
     ip_address: string;
+    account_user_id: string;
     account_user_id_sha256: string;
     relying_party_oauth_client_id: string;
     relying_party_service: string;
@@ -437,6 +451,7 @@ class EventsServerEventLogger {
     this.#record({
       user_agent,
       ip_address,
+      account_user_id,
       account_user_id_sha256,
       relying_party_oauth_client_id,
       relying_party_service,
@@ -461,6 +476,7 @@ class EventsServerEventLogger {
    * @param {string} user_agent - The user agent.
    * @param {string} ip_address - The IP address. Will be used to decode Geo
    *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id - The firefox/mozilla account id.
    * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
    * @param {string} relying_party_oauth_client_id - The client id of the relying party.
    * @param {string} relying_party_service - The service name of the relying party.
@@ -478,6 +494,7 @@ class EventsServerEventLogger {
   recordAccountDeleteComplete({
     user_agent,
     ip_address,
+    account_user_id,
     account_user_id_sha256,
     relying_party_oauth_client_id,
     relying_party_service,
@@ -494,6 +511,7 @@ class EventsServerEventLogger {
   }: {
     user_agent: string;
     ip_address: string;
+    account_user_id: string;
     account_user_id_sha256: string;
     relying_party_oauth_client_id: string;
     relying_party_service: string;
@@ -515,6 +533,7 @@ class EventsServerEventLogger {
     this.#record({
       user_agent,
       ip_address,
+      account_user_id,
       account_user_id_sha256,
       relying_party_oauth_client_id,
       relying_party_service,
@@ -539,6 +558,7 @@ class EventsServerEventLogger {
    * @param {string} user_agent - The user agent.
    * @param {string} ip_address - The IP address. Will be used to decode Geo
    *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id - The firefox/mozilla account id.
    * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
    * @param {string} relying_party_oauth_client_id - The client id of the relying party.
    * @param {string} relying_party_service - The service name of the relying party.
@@ -556,6 +576,7 @@ class EventsServerEventLogger {
   recordAccountPasswordReset({
     user_agent,
     ip_address,
+    account_user_id,
     account_user_id_sha256,
     relying_party_oauth_client_id,
     relying_party_service,
@@ -572,6 +593,7 @@ class EventsServerEventLogger {
   }: {
     user_agent: string;
     ip_address: string;
+    account_user_id: string;
     account_user_id_sha256: string;
     relying_party_oauth_client_id: string;
     relying_party_service: string;
@@ -593,6 +615,7 @@ class EventsServerEventLogger {
     this.#record({
       user_agent,
       ip_address,
+      account_user_id,
       account_user_id_sha256,
       relying_party_oauth_client_id,
       relying_party_service,
@@ -617,6 +640,7 @@ class EventsServerEventLogger {
    * @param {string} user_agent - The user agent.
    * @param {string} ip_address - The IP address. Will be used to decode Geo
    *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id - The firefox/mozilla account id.
    * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
    * @param {string} relying_party_oauth_client_id - The client id of the relying party.
    * @param {string} relying_party_service - The service name of the relying party.
@@ -634,6 +658,7 @@ class EventsServerEventLogger {
   recordLoginBackupCodeSuccess({
     user_agent,
     ip_address,
+    account_user_id,
     account_user_id_sha256,
     relying_party_oauth_client_id,
     relying_party_service,
@@ -650,6 +675,7 @@ class EventsServerEventLogger {
   }: {
     user_agent: string;
     ip_address: string;
+    account_user_id: string;
     account_user_id_sha256: string;
     relying_party_oauth_client_id: string;
     relying_party_service: string;
@@ -671,6 +697,7 @@ class EventsServerEventLogger {
     this.#record({
       user_agent,
       ip_address,
+      account_user_id,
       account_user_id_sha256,
       relying_party_oauth_client_id,
       relying_party_service,
@@ -695,6 +722,7 @@ class EventsServerEventLogger {
    * @param {string} user_agent - The user agent.
    * @param {string} ip_address - The IP address. Will be used to decode Geo
    *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id - The firefox/mozilla account id.
    * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
    * @param {string} relying_party_oauth_client_id - The client id of the relying party.
    * @param {string} relying_party_service - The service name of the relying party.
@@ -712,6 +740,7 @@ class EventsServerEventLogger {
   recordLoginComplete({
     user_agent,
     ip_address,
+    account_user_id,
     account_user_id_sha256,
     relying_party_oauth_client_id,
     relying_party_service,
@@ -728,6 +757,7 @@ class EventsServerEventLogger {
   }: {
     user_agent: string;
     ip_address: string;
+    account_user_id: string;
     account_user_id_sha256: string;
     relying_party_oauth_client_id: string;
     relying_party_service: string;
@@ -749,6 +779,7 @@ class EventsServerEventLogger {
     this.#record({
       user_agent,
       ip_address,
+      account_user_id,
       account_user_id_sha256,
       relying_party_oauth_client_id,
       relying_party_service,
@@ -773,6 +804,7 @@ class EventsServerEventLogger {
    * @param {string} user_agent - The user agent.
    * @param {string} ip_address - The IP address. Will be used to decode Geo
    *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id - The firefox/mozilla account id.
    * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
    * @param {string} relying_party_oauth_client_id - The client id of the relying party.
    * @param {string} relying_party_service - The service name of the relying party.
@@ -790,6 +822,7 @@ class EventsServerEventLogger {
   recordLoginEmailConfirmationSent({
     user_agent,
     ip_address,
+    account_user_id,
     account_user_id_sha256,
     relying_party_oauth_client_id,
     relying_party_service,
@@ -806,6 +839,7 @@ class EventsServerEventLogger {
   }: {
     user_agent: string;
     ip_address: string;
+    account_user_id: string;
     account_user_id_sha256: string;
     relying_party_oauth_client_id: string;
     relying_party_service: string;
@@ -827,6 +861,7 @@ class EventsServerEventLogger {
     this.#record({
       user_agent,
       ip_address,
+      account_user_id,
       account_user_id_sha256,
       relying_party_oauth_client_id,
       relying_party_service,
@@ -851,6 +886,7 @@ class EventsServerEventLogger {
    * @param {string} user_agent - The user agent.
    * @param {string} ip_address - The IP address. Will be used to decode Geo
    *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id - The firefox/mozilla account id.
    * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
    * @param {string} relying_party_oauth_client_id - The client id of the relying party.
    * @param {string} relying_party_service - The service name of the relying party.
@@ -868,6 +904,7 @@ class EventsServerEventLogger {
   recordLoginEmailConfirmationSuccess({
     user_agent,
     ip_address,
+    account_user_id,
     account_user_id_sha256,
     relying_party_oauth_client_id,
     relying_party_service,
@@ -884,6 +921,7 @@ class EventsServerEventLogger {
   }: {
     user_agent: string;
     ip_address: string;
+    account_user_id: string;
     account_user_id_sha256: string;
     relying_party_oauth_client_id: string;
     relying_party_service: string;
@@ -905,6 +943,7 @@ class EventsServerEventLogger {
     this.#record({
       user_agent,
       ip_address,
+      account_user_id,
       account_user_id_sha256,
       relying_party_oauth_client_id,
       relying_party_service,
@@ -929,6 +968,7 @@ class EventsServerEventLogger {
    * @param {string} user_agent - The user agent.
    * @param {string} ip_address - The IP address. Will be used to decode Geo
    *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id - The firefox/mozilla account id.
    * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
    * @param {string} relying_party_oauth_client_id - The client id of the relying party.
    * @param {string} relying_party_service - The service name of the relying party.
@@ -947,6 +987,7 @@ class EventsServerEventLogger {
   recordLoginSubmitBackendError({
     user_agent,
     ip_address,
+    account_user_id,
     account_user_id_sha256,
     relying_party_oauth_client_id,
     relying_party_service,
@@ -964,6 +1005,7 @@ class EventsServerEventLogger {
   }: {
     user_agent: string;
     ip_address: string;
+    account_user_id: string;
     account_user_id_sha256: string;
     relying_party_oauth_client_id: string;
     relying_party_service: string;
@@ -989,6 +1031,7 @@ class EventsServerEventLogger {
     this.#record({
       user_agent,
       ip_address,
+      account_user_id,
       account_user_id_sha256,
       relying_party_oauth_client_id,
       relying_party_service,
@@ -1013,6 +1056,7 @@ class EventsServerEventLogger {
    * @param {string} user_agent - The user agent.
    * @param {string} ip_address - The IP address. Will be used to decode Geo
    *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id - The firefox/mozilla account id.
    * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
    * @param {string} relying_party_oauth_client_id - The client id of the relying party.
    * @param {string} relying_party_service - The service name of the relying party.
@@ -1030,6 +1074,7 @@ class EventsServerEventLogger {
   recordLoginSuccess({
     user_agent,
     ip_address,
+    account_user_id,
     account_user_id_sha256,
     relying_party_oauth_client_id,
     relying_party_service,
@@ -1046,6 +1091,7 @@ class EventsServerEventLogger {
   }: {
     user_agent: string;
     ip_address: string;
+    account_user_id: string;
     account_user_id_sha256: string;
     relying_party_oauth_client_id: string;
     relying_party_service: string;
@@ -1067,6 +1113,7 @@ class EventsServerEventLogger {
     this.#record({
       user_agent,
       ip_address,
+      account_user_id,
       account_user_id_sha256,
       relying_party_oauth_client_id,
       relying_party_service,
@@ -1091,6 +1138,7 @@ class EventsServerEventLogger {
    * @param {string} user_agent - The user agent.
    * @param {string} ip_address - The IP address. Will be used to decode Geo
    *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id - The firefox/mozilla account id.
    * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
    * @param {string} relying_party_oauth_client_id - The client id of the relying party.
    * @param {string} relying_party_service - The service name of the relying party.
@@ -1108,6 +1156,7 @@ class EventsServerEventLogger {
   recordLoginTotpCodeFailure({
     user_agent,
     ip_address,
+    account_user_id,
     account_user_id_sha256,
     relying_party_oauth_client_id,
     relying_party_service,
@@ -1124,6 +1173,7 @@ class EventsServerEventLogger {
   }: {
     user_agent: string;
     ip_address: string;
+    account_user_id: string;
     account_user_id_sha256: string;
     relying_party_oauth_client_id: string;
     relying_party_service: string;
@@ -1145,6 +1195,7 @@ class EventsServerEventLogger {
     this.#record({
       user_agent,
       ip_address,
+      account_user_id,
       account_user_id_sha256,
       relying_party_oauth_client_id,
       relying_party_service,
@@ -1169,6 +1220,7 @@ class EventsServerEventLogger {
    * @param {string} user_agent - The user agent.
    * @param {string} ip_address - The IP address. Will be used to decode Geo
    *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id - The firefox/mozilla account id.
    * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
    * @param {string} relying_party_oauth_client_id - The client id of the relying party.
    * @param {string} relying_party_service - The service name of the relying party.
@@ -1186,6 +1238,7 @@ class EventsServerEventLogger {
   recordLoginTotpCodeSuccess({
     user_agent,
     ip_address,
+    account_user_id,
     account_user_id_sha256,
     relying_party_oauth_client_id,
     relying_party_service,
@@ -1202,6 +1255,7 @@ class EventsServerEventLogger {
   }: {
     user_agent: string;
     ip_address: string;
+    account_user_id: string;
     account_user_id_sha256: string;
     relying_party_oauth_client_id: string;
     relying_party_service: string;
@@ -1223,6 +1277,7 @@ class EventsServerEventLogger {
     this.#record({
       user_agent,
       ip_address,
+      account_user_id,
       account_user_id_sha256,
       relying_party_oauth_client_id,
       relying_party_service,
@@ -1247,6 +1302,7 @@ class EventsServerEventLogger {
    * @param {string} user_agent - The user agent.
    * @param {string} ip_address - The IP address. Will be used to decode Geo
    *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id - The firefox/mozilla account id.
    * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
    * @param {string} relying_party_oauth_client_id - The client id of the relying party.
    * @param {string} relying_party_service - The service name of the relying party.
@@ -1264,6 +1320,7 @@ class EventsServerEventLogger {
   recordPasswordResetCreateNewSuccess({
     user_agent,
     ip_address,
+    account_user_id,
     account_user_id_sha256,
     relying_party_oauth_client_id,
     relying_party_service,
@@ -1280,6 +1337,7 @@ class EventsServerEventLogger {
   }: {
     user_agent: string;
     ip_address: string;
+    account_user_id: string;
     account_user_id_sha256: string;
     relying_party_oauth_client_id: string;
     relying_party_service: string;
@@ -1301,6 +1359,7 @@ class EventsServerEventLogger {
     this.#record({
       user_agent,
       ip_address,
+      account_user_id,
       account_user_id_sha256,
       relying_party_oauth_client_id,
       relying_party_service,
@@ -1325,6 +1384,7 @@ class EventsServerEventLogger {
    * @param {string} user_agent - The user agent.
    * @param {string} ip_address - The IP address. Will be used to decode Geo
    *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id - The firefox/mozilla account id.
    * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
    * @param {string} relying_party_oauth_client_id - The client id of the relying party.
    * @param {string} relying_party_service - The service name of the relying party.
@@ -1342,6 +1402,7 @@ class EventsServerEventLogger {
   recordPasswordResetEmailConfirmationSent({
     user_agent,
     ip_address,
+    account_user_id,
     account_user_id_sha256,
     relying_party_oauth_client_id,
     relying_party_service,
@@ -1358,6 +1419,7 @@ class EventsServerEventLogger {
   }: {
     user_agent: string;
     ip_address: string;
+    account_user_id: string;
     account_user_id_sha256: string;
     relying_party_oauth_client_id: string;
     relying_party_service: string;
@@ -1379,6 +1441,7 @@ class EventsServerEventLogger {
     this.#record({
       user_agent,
       ip_address,
+      account_user_id,
       account_user_id_sha256,
       relying_party_oauth_client_id,
       relying_party_service,
@@ -1403,6 +1466,7 @@ class EventsServerEventLogger {
    * @param {string} user_agent - The user agent.
    * @param {string} ip_address - The IP address. Will be used to decode Geo
    *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id - The firefox/mozilla account id.
    * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
    * @param {string} relying_party_oauth_client_id - The client id of the relying party.
    * @param {string} relying_party_service - The service name of the relying party.
@@ -1420,6 +1484,7 @@ class EventsServerEventLogger {
   recordPasswordResetEmailConfirmationSuccess({
     user_agent,
     ip_address,
+    account_user_id,
     account_user_id_sha256,
     relying_party_oauth_client_id,
     relying_party_service,
@@ -1436,6 +1501,7 @@ class EventsServerEventLogger {
   }: {
     user_agent: string;
     ip_address: string;
+    account_user_id: string;
     account_user_id_sha256: string;
     relying_party_oauth_client_id: string;
     relying_party_service: string;
@@ -1457,6 +1523,7 @@ class EventsServerEventLogger {
     this.#record({
       user_agent,
       ip_address,
+      account_user_id,
       account_user_id_sha256,
       relying_party_oauth_client_id,
       relying_party_service,
@@ -1481,6 +1548,7 @@ class EventsServerEventLogger {
    * @param {string} user_agent - The user agent.
    * @param {string} ip_address - The IP address. Will be used to decode Geo
    *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id - The firefox/mozilla account id.
    * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
    * @param {string} relying_party_oauth_client_id - The client id of the relying party.
    * @param {string} relying_party_service - The service name of the relying party.
@@ -1498,6 +1566,7 @@ class EventsServerEventLogger {
   recordPasswordResetEmailSent({
     user_agent,
     ip_address,
+    account_user_id,
     account_user_id_sha256,
     relying_party_oauth_client_id,
     relying_party_service,
@@ -1514,6 +1583,7 @@ class EventsServerEventLogger {
   }: {
     user_agent: string;
     ip_address: string;
+    account_user_id: string;
     account_user_id_sha256: string;
     relying_party_oauth_client_id: string;
     relying_party_service: string;
@@ -1535,6 +1605,7 @@ class EventsServerEventLogger {
     this.#record({
       user_agent,
       ip_address,
+      account_user_id,
       account_user_id_sha256,
       relying_party_oauth_client_id,
       relying_party_service,
@@ -1559,6 +1630,7 @@ class EventsServerEventLogger {
    * @param {string} user_agent - The user agent.
    * @param {string} ip_address - The IP address. Will be used to decode Geo
    *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id - The firefox/mozilla account id.
    * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
    * @param {string} relying_party_oauth_client_id - The client id of the relying party.
    * @param {string} relying_party_service - The service name of the relying party.
@@ -1576,6 +1648,7 @@ class EventsServerEventLogger {
   recordPasswordResetRecoveryKeyCreateSuccess({
     user_agent,
     ip_address,
+    account_user_id,
     account_user_id_sha256,
     relying_party_oauth_client_id,
     relying_party_service,
@@ -1592,6 +1665,7 @@ class EventsServerEventLogger {
   }: {
     user_agent: string;
     ip_address: string;
+    account_user_id: string;
     account_user_id_sha256: string;
     relying_party_oauth_client_id: string;
     relying_party_service: string;
@@ -1613,6 +1687,7 @@ class EventsServerEventLogger {
     this.#record({
       user_agent,
       ip_address,
+      account_user_id,
       account_user_id_sha256,
       relying_party_oauth_client_id,
       relying_party_service,
@@ -1637,6 +1712,7 @@ class EventsServerEventLogger {
    * @param {string} user_agent - The user agent.
    * @param {string} ip_address - The IP address. Will be used to decode Geo
    *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id - The firefox/mozilla account id.
    * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
    * @param {string} relying_party_oauth_client_id - The client id of the relying party.
    * @param {string} relying_party_service - The service name of the relying party.
@@ -1654,6 +1730,7 @@ class EventsServerEventLogger {
   recordPasswordResetRecoveryKeySuccess({
     user_agent,
     ip_address,
+    account_user_id,
     account_user_id_sha256,
     relying_party_oauth_client_id,
     relying_party_service,
@@ -1670,6 +1747,7 @@ class EventsServerEventLogger {
   }: {
     user_agent: string;
     ip_address: string;
+    account_user_id: string;
     account_user_id_sha256: string;
     relying_party_oauth_client_id: string;
     relying_party_service: string;
@@ -1691,6 +1769,7 @@ class EventsServerEventLogger {
     this.#record({
       user_agent,
       ip_address,
+      account_user_id,
       account_user_id_sha256,
       relying_party_oauth_client_id,
       relying_party_service,
@@ -1715,6 +1794,7 @@ class EventsServerEventLogger {
    * @param {string} user_agent - The user agent.
    * @param {string} ip_address - The IP address. Will be used to decode Geo
    *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id - The firefox/mozilla account id.
    * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
    * @param {string} relying_party_oauth_client_id - The client id of the relying party.
    * @param {string} relying_party_service - The service name of the relying party.
@@ -1732,6 +1812,7 @@ class EventsServerEventLogger {
   recordRegAccCreated({
     user_agent,
     ip_address,
+    account_user_id,
     account_user_id_sha256,
     relying_party_oauth_client_id,
     relying_party_service,
@@ -1748,6 +1829,7 @@ class EventsServerEventLogger {
   }: {
     user_agent: string;
     ip_address: string;
+    account_user_id: string;
     account_user_id_sha256: string;
     relying_party_oauth_client_id: string;
     relying_party_service: string;
@@ -1769,6 +1851,7 @@ class EventsServerEventLogger {
     this.#record({
       user_agent,
       ip_address,
+      account_user_id,
       account_user_id_sha256,
       relying_party_oauth_client_id,
       relying_party_service,
@@ -1793,6 +1876,7 @@ class EventsServerEventLogger {
    * @param {string} user_agent - The user agent.
    * @param {string} ip_address - The IP address. Will be used to decode Geo
    *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id - The firefox/mozilla account id.
    * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
    * @param {string} relying_party_oauth_client_id - The client id of the relying party.
    * @param {string} relying_party_service - The service name of the relying party.
@@ -1810,6 +1894,7 @@ class EventsServerEventLogger {
   recordRegAccVerified({
     user_agent,
     ip_address,
+    account_user_id,
     account_user_id_sha256,
     relying_party_oauth_client_id,
     relying_party_service,
@@ -1826,6 +1911,7 @@ class EventsServerEventLogger {
   }: {
     user_agent: string;
     ip_address: string;
+    account_user_id: string;
     account_user_id_sha256: string;
     relying_party_oauth_client_id: string;
     relying_party_service: string;
@@ -1847,6 +1933,7 @@ class EventsServerEventLogger {
     this.#record({
       user_agent,
       ip_address,
+      account_user_id,
       account_user_id_sha256,
       relying_party_oauth_client_id,
       relying_party_service,
@@ -1871,6 +1958,7 @@ class EventsServerEventLogger {
    * @param {string} user_agent - The user agent.
    * @param {string} ip_address - The IP address. Will be used to decode Geo
    *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id - The firefox/mozilla account id.
    * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
    * @param {string} relying_party_oauth_client_id - The client id of the relying party.
    * @param {string} relying_party_service - The service name of the relying party.
@@ -1888,6 +1976,7 @@ class EventsServerEventLogger {
   recordRegComplete({
     user_agent,
     ip_address,
+    account_user_id,
     account_user_id_sha256,
     relying_party_oauth_client_id,
     relying_party_service,
@@ -1904,6 +1993,7 @@ class EventsServerEventLogger {
   }: {
     user_agent: string;
     ip_address: string;
+    account_user_id: string;
     account_user_id_sha256: string;
     relying_party_oauth_client_id: string;
     relying_party_service: string;
@@ -1925,6 +2015,7 @@ class EventsServerEventLogger {
     this.#record({
       user_agent,
       ip_address,
+      account_user_id,
       account_user_id_sha256,
       relying_party_oauth_client_id,
       relying_party_service,
@@ -1949,6 +2040,7 @@ class EventsServerEventLogger {
    * @param {string} user_agent - The user agent.
    * @param {string} ip_address - The IP address. Will be used to decode Geo
    *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id - The firefox/mozilla account id.
    * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
    * @param {string} relying_party_oauth_client_id - The client id of the relying party.
    * @param {string} relying_party_service - The service name of the relying party.
@@ -1966,6 +2058,7 @@ class EventsServerEventLogger {
   recordRegEmailSent({
     user_agent,
     ip_address,
+    account_user_id,
     account_user_id_sha256,
     relying_party_oauth_client_id,
     relying_party_service,
@@ -1982,6 +2075,7 @@ class EventsServerEventLogger {
   }: {
     user_agent: string;
     ip_address: string;
+    account_user_id: string;
     account_user_id_sha256: string;
     relying_party_oauth_client_id: string;
     relying_party_service: string;
@@ -2003,6 +2097,7 @@ class EventsServerEventLogger {
     this.#record({
       user_agent,
       ip_address,
+      account_user_id,
       account_user_id_sha256,
       relying_party_oauth_client_id,
       relying_party_service,
@@ -2027,6 +2122,7 @@ class EventsServerEventLogger {
    * @param {string} user_agent - The user agent.
    * @param {string} ip_address - The IP address. Will be used to decode Geo
    *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id - The firefox/mozilla account id.
    * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
    * @param {string} relying_party_oauth_client_id - The client id of the relying party.
    * @param {string} relying_party_service - The service name of the relying party.
@@ -2045,6 +2141,7 @@ class EventsServerEventLogger {
   recordRegSubmitError({
     user_agent,
     ip_address,
+    account_user_id,
     account_user_id_sha256,
     relying_party_oauth_client_id,
     relying_party_service,
@@ -2062,6 +2159,7 @@ class EventsServerEventLogger {
   }: {
     user_agent: string;
     ip_address: string;
+    account_user_id: string;
     account_user_id_sha256: string;
     relying_party_oauth_client_id: string;
     relying_party_service: string;
@@ -2087,6 +2185,7 @@ class EventsServerEventLogger {
     this.#record({
       user_agent,
       ip_address,
+      account_user_id,
       account_user_id_sha256,
       relying_party_oauth_client_id,
       relying_party_service,
@@ -2111,6 +2210,7 @@ class EventsServerEventLogger {
    * @param {string} user_agent - The user agent.
    * @param {string} ip_address - The IP address. Will be used to decode Geo
    *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id - The firefox/mozilla account id.
    * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
    * @param {string} relying_party_oauth_client_id - The client id of the relying party.
    * @param {string} relying_party_service - The service name of the relying party.
@@ -2129,6 +2229,7 @@ class EventsServerEventLogger {
   recordRelyingPartyFormView({
     user_agent,
     ip_address,
+    account_user_id,
     account_user_id_sha256,
     relying_party_oauth_client_id,
     relying_party_service,
@@ -2146,6 +2247,7 @@ class EventsServerEventLogger {
   }: {
     user_agent: string;
     ip_address: string;
+    account_user_id: string;
     account_user_id_sha256: string;
     relying_party_oauth_client_id: string;
     relying_party_service: string;
@@ -2171,6 +2273,7 @@ class EventsServerEventLogger {
     this.#record({
       user_agent,
       ip_address,
+      account_user_id,
       account_user_id_sha256,
       relying_party_oauth_client_id,
       relying_party_service,
@@ -2195,6 +2298,7 @@ class EventsServerEventLogger {
    * @param {string} user_agent - The user agent.
    * @param {string} ip_address - The IP address. Will be used to decode Geo
    *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id - The firefox/mozilla account id.
    * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
    * @param {string} relying_party_oauth_client_id - The client id of the relying party.
    * @param {string} relying_party_service - The service name of the relying party.
@@ -2213,6 +2317,7 @@ class EventsServerEventLogger {
   recordThirdPartyAuthAppleLoginComplete({
     user_agent,
     ip_address,
+    account_user_id,
     account_user_id_sha256,
     relying_party_oauth_client_id,
     relying_party_service,
@@ -2230,6 +2335,7 @@ class EventsServerEventLogger {
   }: {
     user_agent: string;
     ip_address: string;
+    account_user_id: string;
     account_user_id_sha256: string;
     relying_party_oauth_client_id: string;
     relying_party_service: string;
@@ -2255,6 +2361,7 @@ class EventsServerEventLogger {
     this.#record({
       user_agent,
       ip_address,
+      account_user_id,
       account_user_id_sha256,
       relying_party_oauth_client_id,
       relying_party_service,
@@ -2279,6 +2386,7 @@ class EventsServerEventLogger {
    * @param {string} user_agent - The user agent.
    * @param {string} ip_address - The IP address. Will be used to decode Geo
    *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id - The firefox/mozilla account id.
    * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
    * @param {string} relying_party_oauth_client_id - The client id of the relying party.
    * @param {string} relying_party_service - The service name of the relying party.
@@ -2296,6 +2404,7 @@ class EventsServerEventLogger {
   recordThirdPartyAuthAppleRegComplete({
     user_agent,
     ip_address,
+    account_user_id,
     account_user_id_sha256,
     relying_party_oauth_client_id,
     relying_party_service,
@@ -2312,6 +2421,7 @@ class EventsServerEventLogger {
   }: {
     user_agent: string;
     ip_address: string;
+    account_user_id: string;
     account_user_id_sha256: string;
     relying_party_oauth_client_id: string;
     relying_party_service: string;
@@ -2333,6 +2443,7 @@ class EventsServerEventLogger {
     this.#record({
       user_agent,
       ip_address,
+      account_user_id,
       account_user_id_sha256,
       relying_party_oauth_client_id,
       relying_party_service,
@@ -2357,6 +2468,7 @@ class EventsServerEventLogger {
    * @param {string} user_agent - The user agent.
    * @param {string} ip_address - The IP address. Will be used to decode Geo
    *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id - The firefox/mozilla account id.
    * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
    * @param {string} relying_party_oauth_client_id - The client id of the relying party.
    * @param {string} relying_party_service - The service name of the relying party.
@@ -2375,6 +2487,7 @@ class EventsServerEventLogger {
   recordThirdPartyAuthGoogleLoginComplete({
     user_agent,
     ip_address,
+    account_user_id,
     account_user_id_sha256,
     relying_party_oauth_client_id,
     relying_party_service,
@@ -2392,6 +2505,7 @@ class EventsServerEventLogger {
   }: {
     user_agent: string;
     ip_address: string;
+    account_user_id: string;
     account_user_id_sha256: string;
     relying_party_oauth_client_id: string;
     relying_party_service: string;
@@ -2417,6 +2531,7 @@ class EventsServerEventLogger {
     this.#record({
       user_agent,
       ip_address,
+      account_user_id,
       account_user_id_sha256,
       relying_party_oauth_client_id,
       relying_party_service,
@@ -2441,6 +2556,7 @@ class EventsServerEventLogger {
    * @param {string} user_agent - The user agent.
    * @param {string} ip_address - The IP address. Will be used to decode Geo
    *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id - The firefox/mozilla account id.
    * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
    * @param {string} relying_party_oauth_client_id - The client id of the relying party.
    * @param {string} relying_party_service - The service name of the relying party.
@@ -2458,6 +2574,7 @@ class EventsServerEventLogger {
   recordThirdPartyAuthGoogleRegComplete({
     user_agent,
     ip_address,
+    account_user_id,
     account_user_id_sha256,
     relying_party_oauth_client_id,
     relying_party_service,
@@ -2474,6 +2591,7 @@ class EventsServerEventLogger {
   }: {
     user_agent: string;
     ip_address: string;
+    account_user_id: string;
     account_user_id_sha256: string;
     relying_party_oauth_client_id: string;
     relying_party_service: string;
@@ -2495,6 +2613,7 @@ class EventsServerEventLogger {
     this.#record({
       user_agent,
       ip_address,
+      account_user_id,
       account_user_id_sha256,
       relying_party_oauth_client_id,
       relying_party_service,
@@ -2519,6 +2638,7 @@ class EventsServerEventLogger {
    * @param {string} user_agent - The user agent.
    * @param {string} ip_address - The IP address. Will be used to decode Geo
    *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id - The firefox/mozilla account id.
    * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
    * @param {string} relying_party_oauth_client_id - The client id of the relying party.
    * @param {string} relying_party_service - The service name of the relying party.
@@ -2536,6 +2656,7 @@ class EventsServerEventLogger {
   recordThirdPartyAuthSetPasswordComplete({
     user_agent,
     ip_address,
+    account_user_id,
     account_user_id_sha256,
     relying_party_oauth_client_id,
     relying_party_service,
@@ -2552,6 +2673,7 @@ class EventsServerEventLogger {
   }: {
     user_agent: string;
     ip_address: string;
+    account_user_id: string;
     account_user_id_sha256: string;
     relying_party_oauth_client_id: string;
     relying_party_service: string;
@@ -2573,6 +2695,7 @@ class EventsServerEventLogger {
     this.#record({
       user_agent,
       ip_address,
+      account_user_id,
       account_user_id_sha256,
       relying_party_oauth_client_id,
       relying_party_service,
@@ -2597,6 +2720,7 @@ class EventsServerEventLogger {
    * @param {string} user_agent - The user agent.
    * @param {string} ip_address - The IP address. Will be used to decode Geo
    *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id - The firefox/mozilla account id.
    * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
    * @param {string} relying_party_oauth_client_id - The client id of the relying party.
    * @param {string} relying_party_service - The service name of the relying party.
@@ -2614,6 +2738,7 @@ class EventsServerEventLogger {
   recordTwoFactorAuthCodeComplete({
     user_agent,
     ip_address,
+    account_user_id,
     account_user_id_sha256,
     relying_party_oauth_client_id,
     relying_party_service,
@@ -2630,6 +2755,7 @@ class EventsServerEventLogger {
   }: {
     user_agent: string;
     ip_address: string;
+    account_user_id: string;
     account_user_id_sha256: string;
     relying_party_oauth_client_id: string;
     relying_party_service: string;
@@ -2651,6 +2777,7 @@ class EventsServerEventLogger {
     this.#record({
       user_agent,
       ip_address,
+      account_user_id,
       account_user_id_sha256,
       relying_party_oauth_client_id,
       relying_party_service,

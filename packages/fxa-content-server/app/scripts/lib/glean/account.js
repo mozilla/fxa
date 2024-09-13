@@ -7,6 +7,19 @@
 import StringMetricType from '@mozilla/glean/private/metrics/string';
 
 /**
+ * The firefox/mozilla account id
+ *
+ * Generated from `account.user_id`.
+ */
+export const userId = new StringMetricType({
+  category: 'account',
+  name: 'user_id',
+  sendInPings: ['accounts-events', 'events'],
+  lifetime: 'application',
+  disabled: false,
+});
+
+/**
  * A hex string of a sha256 hash of the account's uid
  *
  * Generated from `account.user_id_sha256`.

@@ -16,7 +16,7 @@ import * as accountPref from 'fxa-shared/metrics/glean/web/accountPref';
 import * as accountBanner from 'fxa-shared/metrics/glean/web/accountBanner';
 import * as deleteAccount from 'fxa-shared/metrics/glean/web/deleteAccount';
 import * as thirdPartyAuth from 'fxa-shared/metrics/glean/web/thirdPartyAuth';
-import { userIdSha256 } from 'fxa-shared/metrics/glean/web/account';
+import { userIdSha256, userId } from 'fxa-shared/metrics/glean/web/account';
 import {
   oauthClientId,
   service,
@@ -69,6 +69,7 @@ describe('lib/glean', () => {
     setFlowIdStub: SinonStub,
     setOauthClientIdStub: SinonStub,
     setServiceStub: SinonStub,
+    setUserIdStub: SinonStub,
     setUserIdSha256Stub: SinonStub,
     setUtmCampaignStub: SinonStub,
     setUtmContentStub: SinonStub,
@@ -106,6 +107,7 @@ describe('lib/glean', () => {
     setFlowIdStub = sandbox.stub(flowId, 'set');
     setOauthClientIdStub = sandbox.stub(oauthClientId, 'set');
     setServiceStub = sandbox.stub(service, 'set');
+    setUserIdStub = sandbox.stub(userId, 'set');
     setUserIdSha256Stub = sandbox.stub(userIdSha256, 'set');
     setUtmCampaignStub = sandbox.stub(utm.campaign, 'set');
     setUtmContentStub = sandbox.stub(utm.content, 'set');
@@ -175,6 +177,7 @@ describe('lib/glean', () => {
       expect(config.enabled).toBe(false);
       GleanMetrics.registration.view();
       await GleanMetrics.isDone();
+      sinon.assert.notCalled(setUserIdStub);
       sinon.assert.notCalled(setUserIdSha256Stub);
     });
   });
@@ -226,6 +229,7 @@ describe('lib/glean', () => {
       GleanMetrics.registration.view();
       await GleanMetrics.isDone();
 
+      sinon.assert.calledWith(setUserIdStub, '');
       sinon.assert.calledWith(setUserIdSha256Stub, '');
       sinon.assert.calledWith(setOauthClientIdStub, '');
       sinon.assert.calledWith(setServiceStub, '');
@@ -302,7 +306,7 @@ describe('lib/glean', () => {
     });
 
     describe('hashed uid', () => {
-      it('logs hashed uid when session token exists', async () => {
+      it('logs userId when session token exists', async () => {
         mockMetricsContext.account = { uid: 'testo' } as ReturnType<
           typeof useAccount
         >;
@@ -310,8 +314,12 @@ describe('lib/glean', () => {
         // the ping submissions are await'd internally in GleanMetrics...
         await GleanMetrics.isDone();
 
-        sinon.assert.calledTwice(setUserIdSha256Stub);
         // it sets a default of '' first
+        sinon.assert.calledTwice(setUserIdStub);
+        sinon.assert.calledWith(setUserIdStub, '');
+        sinon.assert.calledWith(setUserIdStub, 'testo');
+
+        sinon.assert.calledTwice(setUserIdSha256Stub);
         sinon.assert.calledWith(setUserIdSha256Stub, '');
         sinon.assert.calledWith(
           setUserIdSha256Stub,

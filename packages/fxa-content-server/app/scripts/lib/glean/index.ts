@@ -4,7 +4,7 @@
 
 import Glean from '@mozilla/glean/web';
 
-import { userIdSha256 } from './account';
+import { userIdSha256, userId } from './account';
 import * as cachedLogin from './cachedLogin';
 import * as cadApproveDevice from './cadApproveDevice';
 import * as cadFirefox from './cadFirefox';
@@ -94,9 +94,12 @@ const populateMetrics = async (properties: EventProperties = {}) => {
   // local storage; the user might not have proved that they know the password
   // of the account
   if (account.get('sessionToken')) {
-    const hashedUid = await hashUid(account.get('uid'));
+    const accountUid = account.get('uid');
+    userId.set(accountUid);
+    const hashedUid = await hashUid(accountUid);
     userIdSha256.set(hashedUid);
   } else {
+    userId.set('');
     userIdSha256.set('');
   }
 
