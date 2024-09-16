@@ -751,7 +751,13 @@ jobs:
               JOB_STATUS=$(echo $RESPONSE | jq -r '.items[] | .name + "-" + .status')
               echo "ALL JOB_STATUS:"
               echo $JOB_STATUS
-              PENDING=$(echo $RESPONSE | jq -r '.items[] | select(.status == "blocked" or .status == "running" or .status == "not_running") | select(.name | startswith("Tests Complete") | not) | select(.name | startswith("Merge Playwright Reports") | not) | select(.name | startswith("Check all required jobs are complete") | not ) | .name')
+              PENDING=$(echo $RESPONSE | jq -r '.items[] | select(.status == "blocked" or .status == "running" or .status == "not_running") | select(.name | startswith("Tests Complete") | not) |
+              select(.name | startswith("Merge Playwright Reports") | not) |
+              select(.name | startswith("Deploy Storybooks") | not) |
+              select(.name | startswith("Create FxA Image") | not) |
+              select(.name | startswith("Deploy FxA Image") | not) |
+              select(.name | startswith("Deploy CI Images") | not) |
+              select(.name | startswith("Check all required jobs are complete") | not ) | .name')
               echo "PENDING JOBS OF INTEREST:"
               echo $PENDING
               if [[ -z "$PENDING" ]]; then
