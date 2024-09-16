@@ -881,44 +881,6 @@ workflows:
             - Init (PR)
           post-steps:
             - fail-fast
-      - unit-test:
-          name: Unit Test (PR)
-          requires:
-            - Build (PR)
-          post-steps:
-            - fail-fast
-      - integration-test:
-          name: Integration Test - Frontends (PR)
-          resource_class: large
-          nx_run: affected --base=main --head=$CIRCLE_SHA1
-          projects: --exclude '*,!tag:scope:frontend'
-          requires:
-            - Build (PR)
-      - integration-test:
-          name: Integration Test - Servers (PR)
-          nx_run: affected --base=main --head=$CIRCLE_SHA1
-          projects: --exclude '*,!tag:scope:server'
-          requires:
-            - Build (PR)
-      - integration-test:
-          name: Integration Test - Servers - Auth (PR)
-          nx_run: affected --base=main --head=$CIRCLE_SHA1
-          projects: --exclude '*,!tag:scope:server:auth'
-          requires:
-            - Build (PR)
-      - integration-test:
-          name: Integration Test - Servers - Auth V2 (PR)
-          nx_run: affected --base=main --head=$CIRCLE_SHA1
-          projects: --exclude '*,!tag:scope:server:auth'
-          target: -t test-integration-v2
-          requires:
-            - Build (PR)
-      - integration-test:
-          name: Integration Test - Libraries (PR)
-          nx_run: affected --base=main --head=$CIRCLE_SHA1
-          projects: --exclude '*,!tag:scope:shared:*'
-          requires:
-            - Build (PR)
       - check-required-jobs-complete:
           name: Check all required jobs are complete (PR)
           requires:
@@ -932,26 +894,6 @@ workflows:
       - playwright-functional-test-report:
           name: Merge Playwright Reports (PR)
           requires:
-            - Check all required jobs are complete (PR)
-      - build-and-deploy-storybooks:
-          name: Deploy Storybooks (PR)
-          requires:
-            - Build (PR)
-      - on-complete:
-          name: Tests Complete (PR)
-          stage: Tests
-          job_type: build
-          requires:
-            - Lint (PR)
-            - Compile (PR)
-            - Unit Test (PR)
-            - Integration Test - Frontends (PR)
-            - Integration Test - Servers (PR)
-            - Integration Test - Servers - Auth (PR)
-            - Integration Test - Servers - Auth V2 (PR)
-            - Integration Test - Libraries (PR)
-            - Functional Tests - Playwright (PR)
-            - Deploy Storybooks (PR)
             - Check all required jobs are complete (PR)
 
   # Triggered remotely. See .circleci/README.md

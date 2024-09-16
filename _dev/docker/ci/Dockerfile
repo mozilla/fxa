@@ -36,9 +36,24 @@ FROM builder as playwright-install
 USER root
 ENV PLAYWRIGHT_BROWSERS_PATH=/home/circleci/.cache/ms-playwright
 RUN npx playwright install --with-deps firefox chromium webkit
-# Install the missing libxslt libraries
-RUN apt-get update && apt-get install -y libxslt1.1 libxslt-dev
 
+# Install necessary libraries
+RUN apt-get update && apt-get install -y \
+    libxslt1.1 \
+    libxslt-dev \
+    libxcomposite1 \
+    libxdamage1 \
+    libxrandr2 \
+    libgbm-dev \
+    libpangocairo-1.0-0 \
+    libgdk-pixbuf2.0-0 \
+    libegl1 \
+    libnss3 \
+    libasound2
+
+RUN ldd /home/circleci/.cache/ms-playwright/webkit-1992/minibrowser-wpe/bin/MiniBrowser
+
+RUN ls -l /home/circleci/.cache/ms-playwright/webkit-1992/
 
 # Runs functional tests in our CI. Needs minimal install. Assumes
 # workspace will be restored into the project folder.
