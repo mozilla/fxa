@@ -84,6 +84,7 @@ import ConfirmResetPasswordContainer from '../../pages/ResetPasswordRedesign/Con
 import CompleteResetPasswordWithCodeContainer from '../../pages/ResetPasswordRedesign/CompleteResetPassword/container';
 import AccountRecoveryConfirmKeyContainer from '../../pages/ResetPasswordRedesign/AccountRecoveryConfirmKey/container';
 import SignoutSync from '../Settings/SignoutSync';
+import InlineRecoveryKeySetupContainer from '../../pages/InlineRecoveryKeySetup/container';
 
 const Settings = lazy(() => import('../Settings'));
 
@@ -454,6 +455,10 @@ const AuthAndAccountSetupRoutes = ({
       <SigninUnblockContainer
         path="/signin_unblock/*"
         {...{ integration, flowQueryParams }}
+      />
+      <InlineRecoveryKeySetupContainer
+        path="/inline_recovery_key_setup/*"
+        {...{ integration, serviceName }}
       />
 
       {/* Signup */}

@@ -11,8 +11,9 @@ import {
   CircleCheckOutlineImage,
   RecoveryKeyImage,
 } from '../../components/images';
-import { FtlMsg } from 'fxa-react/lib/utils';
+import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
 import Banner, { BannerType } from '../../components/Banner';
+import { Constants } from '../../lib/constants';
 
 export const InlineRecoveryKeySetup = ({
   createRecoveryKeyHandler,
@@ -21,6 +22,29 @@ export const InlineRecoveryKeySetup = ({
   createRecoveryKeyHandler: () => Promise<void>;
   currentStep: number;
 } & RouteComponentProps) => {
+  const doLaterHandler = () => {
+    localStorage.setItem(
+      Constants.DISABLE_PROMO_ACCOUNT_RECOVERY_KEY_DO_IT_LATER,
+      'true'
+    );
+    // We do a hard navigate because this page is still in the content server, this
+    // also keeps all query params so that correct metrics are emitted.
+    hardNavigate('/connect_another_device', {}, true);
+  };
+
+  // We don't show this promo if the user has dismissed it or dismissed it from
+  // settings
+  if (
+    localStorage.getItem(
+      Constants.DISABLE_PROMO_ACCOUNT_RECOVERY_KEY_DO_IT_LATER
+    ) === 'true'
+  ) {
+    doLaterHandler();
+
+    // Prevents a flash of the promo banner before redirecting
+    return <></>;
+  }
+
   // nice to have with FXA-10079:
   // if user refreshes on step 1 and we no longer have PW from previous step,
   // just take them to CAD with success messaging.
@@ -79,8 +103,8 @@ export const InlineRecoveryKeySetup = ({
         return (
           <InlineRecoveryKeySetupCreate
             {...{ createRecoveryKeyHandler }}
-            // TODO with FXA-10079
-            doLaterHandler={() => Promise.resolve()}
+            doLaterHandler={doLaterHandler}
+            data-glean-id="inline_recovery_key_setup_create_do_it_later"
           />
         );
     }

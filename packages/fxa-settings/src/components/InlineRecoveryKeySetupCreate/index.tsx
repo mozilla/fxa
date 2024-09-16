@@ -12,7 +12,7 @@ export const InlineRecoveryKeySetupCreate = ({
   doLaterHandler,
 }: {
   createRecoveryKeyHandler: () => Promise<void>;
-  doLaterHandler: () => Promise<void>;
+  doLaterHandler: () => void;
 }) => {
   return (
     <>
@@ -58,7 +58,10 @@ export const InlineRecoveryKeySetupCreate = ({
         </button>
       </div>
 
-      <button className="flex justify-center items-center link-blue text-sm mx-auto">
+      <button
+        className="flex justify-center items-center link-blue text-sm mx-auto"
+        onClick={doLaterHandler}
+      >
         <FtlMsg id="inline-recovery-key-setup-later-button">Do it later</FtlMsg>
       </button>
     </>

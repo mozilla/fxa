@@ -189,4 +189,10 @@ export const Constants = {
 
   ENV_DEVELOPMENT: 'development',
   ENV_PRODUCTION: 'production',
+
+  DISABLE_PROMO_ACCOUNT_RECOVERY_KEY_BANNER:
+    '__fxa_storage.fxa_disable_notification_banner.account-recovery-dismissed',
+
+  DISABLE_PROMO_ACCOUNT_RECOVERY_KEY_DO_IT_LATER:
+    '__fxa_storage.disable_promo.account-recovery-do-it-later',
 };
