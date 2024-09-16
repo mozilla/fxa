@@ -18,7 +18,7 @@ __metadata:
     express: ^4.21.0
     ioredis: ^5.0.6
     morgan: ^1.10.0
-    pm2: ^5.3.0
+    pm2: ^5.4.2
     prettier: ^2.3.1
     request: ^2.88.2
   languageName: unknown
@@ -14079,42 +14079,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@opencensus/core@npm:0.0.9":
-  version: 0.0.9
-  resolution: "@opencensus/core@npm:0.0.9"
-  dependencies:
-    continuation-local-storage: ^3.2.1
-    log-driver: ^1.2.7
-    semver: ^5.5.0
-    shimmer: ^1.2.0
-    uuid: ^3.2.1
-  checksum: 37af50394cbf759a835182eedf9fbf328232916bdd2174e75221cf9f29393621d0d05eaf24bb61b89b50c740bc4f625e5c8f891e2db627ce6dbf1888d98857e5
-  languageName: node
-  linkType: hard
-
-"@opencensus/core@npm:^0.0.8":
-  version: 0.0.8
-  resolution: "@opencensus/core@npm:0.0.8"
-  dependencies:
-    continuation-local-storage: ^3.2.1
-    log-driver: ^1.2.7
-    semver: ^5.5.0
-    shimmer: ^1.2.0
-    uuid: ^3.2.1
-  checksum: b4ad6c9a4963407195ab9c2f2751888b1462807c547bd9a7ceb561c473073aacc17555afa9e37cbda01805be5e954085284629e502ed5d3fe7b3c628d9ec2882
-  languageName: node
-  linkType: hard
-
-"@opencensus/propagation-b3@npm:0.0.8":
-  version: 0.0.8
-  resolution: "@opencensus/propagation-b3@npm:0.0.8"
-  dependencies:
-    "@opencensus/core": ^0.0.8
-    uuid: ^3.2.1
-  checksum: c480bd181062ac15f23d5c833a1b1760f2734e013ab7d0bc3fc24d7d1f8330f38f426a56df6d1baf1384727b3dbc1f9ba2851caaac2125500327117fbafa8f70
-  languageName: node
-  linkType: hard
-
 "@opentelemetry/api-logs@npm:0.50.0, @opentelemetry/api-logs@npm:^0.50.0":
   version: 0.50.0
   resolution: "@opentelemetry/api-logs@npm:0.50.0"
@@ -15815,34 +15779,32 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pm2/io@npm:~5.0.0":
-  version: 5.0.0
-  resolution: "@pm2/io@npm:5.0.0"
+"@pm2/io@npm:~6.0.1":
+  version: 6.0.1
+  resolution: "@pm2/io@npm:6.0.1"
   dependencies:
-    "@opencensus/core": 0.0.9
-    "@opencensus/propagation-b3": 0.0.8
     async: ~2.6.1
     debug: ~4.3.1
     eventemitter2: ^6.3.1
     require-in-the-middle: ^5.0.0
-    semver: 6.3.0
+    semver: ~7.5.4
     shimmer: ^1.2.0
     signal-exit: ^3.0.3
     tslib: 1.9.3
-  checksum: f912096e823003de941a539d1098243cdc39b896704dea176e75a1d4fb0e0573b552c0a30e5198c2415fee9e1d8365ce0a8e78257eb85a8bfb994f1fb8153af1
+  checksum: b2e48c6d3c1c944aeae97f14c55c138d9e599319b8f71b37e4caff776df2c40de68085343fec9fb9e814bf410047795f427bb516f314199274fbe54851739aea
   languageName: node
   linkType: hard
 
-"@pm2/js-api@npm:~0.6.7":
-  version: 0.6.7
-  resolution: "@pm2/js-api@npm:0.6.7"
+"@pm2/js-api@npm:~0.8.0":
+  version: 0.8.0
+  resolution: "@pm2/js-api@npm:0.8.0"
   dependencies:
     async: ^2.6.3
-    axios: ^0.21.0
     debug: ~4.3.1
     eventemitter2: ^6.3.1
+    extrareqp2: ^1.0.0
     ws: ^7.0.0
-  checksum: 43d1e4d06328ad18d8929225a0732fa20701694dea0e3af0ea692239e0adc45ef2f48a794599a8df88bc705d2e428b5b8018deb3709983c91ed0b74a834b2f21
+  checksum: c17b01d2a5efe8db370b21a7a0452e144d14066632d35a423cc025b812630563f195440dea842281cce614ae5dc3509fce33e27f68318aa024d815332d28edbd
   languageName: node
   linkType: hard
 
@@ -28354,16 +28316,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"async-listener@npm:^0.6.0":
-  version: 0.6.10
-  resolution: "async-listener@npm:0.6.10"
-  dependencies:
-    semver: ^5.3.0
-    shimmer: ^1.1.0
-  checksum: f64cb835ad1a07d4ee800df6c1532f2a4f99e1c2a11da8e83c1bd4452bc01729a85552377bc120f144abc17be6c0bd0f740ebedfdf4b79ebd18844a51e307326
-  languageName: node
-  linkType: hard
-
 "async-retry@npm:^1.2.1":
   version: 1.3.1
   resolution: "async-retry@npm:1.3.1"
@@ -28680,15 +28632,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:^0.21.0, axios@npm:~0.21.1":
-  version: 0.21.4
-  resolution: "axios@npm:0.21.4"
-  dependencies:
-    follow-redirects: ^1.14.0
-  checksum: 44245f24ac971e7458f3120c92f9d66d1fc695e8b97019139de5b0cc65d9b8104647db01e5f46917728edfc0cfd88eb30fc4c55e6053eef4ace76768ce95ff3c
-  languageName: node
-  linkType: hard
-
 "axios@npm:^0.28.1":
   version: 0.28.1
   resolution: "axios@npm:0.28.1"
@@ -28730,6 +28673,15 @@ __metadata:
     form-data: ^4.0.0
     proxy-from-env: ^1.1.0
   checksum: 2859fe01437cf133eee35571abc1d4b5224bb13e530e66cb3581ca226e170541dd5eef9f46abb41592cee0a2f54930c9e4978354e0cf1064748fc20d9a05e9d5
+  languageName: node
+  linkType: hard
+
+"axios@npm:~0.21.1":
+  version: 0.21.4
+  resolution: "axios@npm:0.21.4"
+  dependencies:
+    follow-redirects: ^1.14.0
+  checksum: 44245f24ac971e7458f3120c92f9d66d1fc695e8b97019139de5b0cc65d9b8104647db01e5f46917728edfc0cfd88eb30fc4c55e6053eef4ace76768ce95ff3c
   languageName: node
   linkType: hard
 
@@ -30702,7 +30654,7 @@ __metadata:
     morgan: ^1.10.0
     mozlog: ^3.0.2
     optimist: 0.6.1
-    pm2: ^5.3.0
+    pm2: ^5.4.2
     prettier: ^2.3.1
     request: ^2.88.2
     should: 13.2.3
@@ -33279,16 +33231,6 @@ __metadata:
   version: 0.3.1
   resolution: "continuable-cache@npm:0.3.1"
   checksum: d88b9891cdc76533bf018613ec80c7f8f3ce7159fa8c1402dae7be546c4b0566ef0c18e488b08da66b8a8f5aab7c91ce9910e4c32d965d902ffe34e095ccc2cb
-  languageName: node
-  linkType: hard
-
-"continuation-local-storage@npm:^3.2.1":
-  version: 3.2.1
-  resolution: "continuation-local-storage@npm:3.2.1"
-  dependencies:
-    async-listener: ^0.6.0
-    emitter-listener: ^1.1.1
-  checksum: 5ac1dcf354563a7121fc1653676ed8dda93565c469698dd7454c3485d9e2c3ca61347d754d02179d13d9e51665d23fffe6bf9e53e89a1865a0c5530384258c2f
   languageName: node
   linkType: hard
 
@@ -36074,15 +36016,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"emitter-listener@npm:^1.1.1":
-  version: 1.1.2
-  resolution: "emitter-listener@npm:1.1.2"
-  dependencies:
-    shimmer: ^1.2.0
-  checksum: 05166bad42a27e51a765ebac3b7d26ac111564fc2d36443cd819f95ef88ea1b9ba6f2895becbcea36f8009890a2a8cb7c36eb9e776d4978e370bd33cb0a181e8
-  languageName: node
-  linkType: hard
-
 "emittery@npm:^0.10.2":
   version: 0.10.2
   resolution: "emittery@npm:0.10.2"
@@ -38806,6 +38739,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"extrareqp2@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "extrareqp2@npm:1.0.0"
+  dependencies:
+    follow-redirects: ^1.14.0
+  checksum: 1c64c2669715a8dbb07c88ba81a3aa1dd1fe29a794b27db5bece17994de32d3f21ca686af265f56174a748203b57eebdf8ae22afda05f361fc29420059ed14ae
+  languageName: node
+  linkType: hard
+
 "extsprintf@npm:1.3.0":
   version: 1.3.0
   resolution: "extsprintf@npm:1.3.0"
@@ -40110,7 +40052,7 @@ __metadata:
     express: ^4.21.0
     fxa-shared: "workspace:*"
     morgan: ^1.10.0
-    pm2: ^5.3.0
+    pm2: ^5.4.2
     prettier: ^2.3.1
     stylelint: ^16.8.0
     stylelint-config-prettier: ^9.0.3
@@ -40542,7 +40484,7 @@ fsevents@~2.1.1:
     nx: 18.3.1
     on-headers: ^1.0.2
     persistgraphql: ^0.3.11
-    pm2: ^5.3.0
+    pm2: ^5.4.2
     postcss-import: ^16.1.0
     prettier: ^2.3.1
     react-router-dom: ^6.26.0
@@ -40586,7 +40528,7 @@ fsevents@~2.1.1:
     hot-shots: ^10.0.0
     jest: 29.3.1
     knex: ^3.1.0
-    pm2: ^5.3.0
+    pm2: ^5.4.2
     rimraf: ^5.0.0
     supertest: ^7.0.0
     tailwindcss: 3.4.3
@@ -40741,7 +40683,7 @@ fsevents@~2.1.1:
     otplib: ^11.0.1
     p-queue-compat: ^1.0.225
     p-retry: ^4.2.0
-    pm2: ^5.3.0
+    pm2: ^5.4.2
     poolee: ^1.0.1
     prettier: ^2.3.1
     proxyquire: ^2.1.3
@@ -40892,7 +40834,7 @@ fsevents@~2.1.1:
     normalize.css: 8.0.1
     on-headers: 1.0.2
     otplib: ^11.0.1
-    pm2: ^5.3.0
+    pm2: ^5.4.2
     postcss-assets: ^6.0.0
     postcss-cli: 11.0.0
     postcss-import: ^16.1.0
@@ -40956,7 +40898,7 @@ fsevents@~2.1.1:
     ip: ^2.0.1
     ip-reputation-js-client: ^6.0.4
     load-grunt-tasks: ^5.1.0
-    pm2: ^5.3.0
+    pm2: ^5.4.2
     prettier: ^2.3.1
     proxyquire: ^2.1.3
     request: ^2.88.2
@@ -41023,7 +40965,7 @@ fsevents@~2.1.1:
     mozlog: ^3.0.2
     nock: ^13.5.1
     p-event: ^6.0.0
-    pm2: ^5.3.0
+    pm2: ^5.4.2
     prettier: ^2.3.1
     rimraf: ^5.0.0
     sqs-consumer: ^11.0.1
@@ -41098,7 +41040,7 @@ fsevents@~2.1.1:
     mozlog: ^3.0.2
     mysql: ^2.18.1
     nock: ^13.5.1
-    pm2: ^5.3.0
+    pm2: ^5.4.2
     prettier: ^2.3.1
     rimraf: ^5.0.0
     superagent: ^9.0.2
@@ -41210,7 +41152,7 @@ fsevents@~2.1.1:
     normalize.css: 8.0.1
     nx: 18.3.1
     on-headers: ^1.0.2
-    pm2: ^5.3.0
+    pm2: ^5.4.2
     postcss-import: 16.1.0
     prettier: ^2.3.1
     react-redux: ^9.1.0
@@ -41267,7 +41209,7 @@ fsevents@~2.1.1:
     mysql: ^2.18.1
     nock: ^13.5.1
     nyc: ^15.1.0
-    pm2: ^5.3.0
+    pm2: ^5.4.2
     pngparse: 2.0.1
     poolee: ^1.0.1
     prettier: ^2.3.1
@@ -41329,7 +41271,7 @@ fsevents@~2.1.1:
     jest: 27.5.1
     jest-environment-jsdom: ^27.5.1
     nx: 18.3.1
-    pm2: ^5.3.0
+    pm2: ^5.4.2
     postcss-import: ^16.1.0
     prettier: ^2.3.1
     react-helmet: ^6.1.0
@@ -41433,7 +41375,7 @@ fsevents@~2.1.1:
     mutationobserver-shim: ^0.3.7
     nx: 18.3.1
     persistgraphql: ^0.3.11
-    pm2: ^5.3.0
+    pm2: ^5.4.2
     postcss: ^8.4.45
     postcss-assets: ^6.0.0
     postcss-flexbugs-fixes: ^5.0.2
@@ -41538,7 +41480,7 @@ fsevents@~2.1.1:
     node-uap: "https://github.com/mozilla-fxa/node-uap.git#494714db3e65a4dbfae772f536c8697269174574"
     nyc: ^15.1.0
     objection: ^3.1.3
-    pm2: ^5.3.0
+    pm2: ^5.4.2
     prettier: ^2.3.1
     proxyquire: ^2.1.3
     sinon: ^9.0.3
@@ -41707,7 +41649,7 @@ fsevents@~2.1.1:
     passport-http-bearer: ^1.0.1
     passport-jwt: ^4.0.1
     persistgraphql: ^0.3.11
-    pm2: ^5.3.0
+    pm2: ^5.4.2
     postcss: 8.4.45
     prettier: ^2.6.2
     react: 18.3.1
@@ -49089,7 +49031,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"js-yaml@npm:4.1.0, js-yaml@npm:^4.0.0, js-yaml@npm:^4.1.0":
+"js-yaml@npm:4.1.0, js-yaml@npm:^4.0.0, js-yaml@npm:^4.1.0, js-yaml@npm:~4.1.0":
   version: 4.1.0
   resolution: "js-yaml@npm:4.1.0"
   dependencies:
@@ -50846,13 +50788,6 @@ fsevents@~2.1.1:
   version: 2.4.2
   resolution: "lodash@npm:2.4.2"
   checksum: b18a5e5858091e2a0e6498e9f0efde559f64a2cc7adfa240c7da92930b7c734a9e52519101522e9fbd7acfcfb0ef682ce9b9cb668b5fea4809cb340435c1764d
-  languageName: node
-  linkType: hard
-
-"log-driver@npm:^1.2.7":
-  version: 1.2.7
-  resolution: "log-driver@npm:1.2.7"
-  checksum: 14949119f830d897f52a0f83b058d8af3d13b9d21deedcc341c65c523091d4f95b0c151798b0bb988ed2712f487d9d44c302cd95b177708a80ac8e47a6a28a16
   languageName: node
   linkType: hard
 
@@ -56754,13 +56689,13 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"pm2@npm:^5.3.0":
-  version: 5.3.0
-  resolution: "pm2@npm:5.3.0"
+"pm2@npm:^5.4.2":
+  version: 5.4.2
+  resolution: "pm2@npm:5.4.2"
   dependencies:
     "@pm2/agent": ~2.0.0
-    "@pm2/io": ~5.0.0
-    "@pm2/js-api": ~0.6.7
+    "@pm2/io": ~6.0.1
+    "@pm2/js-api": ~0.8.0
     "@pm2/pm2-version-check": latest
     async: ~3.2.0
     blessed: 0.1.81
@@ -56774,6 +56709,7 @@ fsevents@~2.1.1:
     enquirer: 2.3.6
     eventemitter2: 5.0.1
     fclone: 1.0.11
+    js-yaml: ~4.1.0
     mkdirp: 1.0.4
     needle: 2.4.0
     pidusage: ~3.0
@@ -56787,7 +56723,6 @@ fsevents@~2.1.1:
     source-map-support: 0.5.21
     sprintf-js: 1.1.2
     vizion: ~2.2.1
-    yamljs: 0.3.0
   dependenciesMeta:
     pm2-sysmonit:
       optional: true
@@ -56796,7 +56731,7 @@ fsevents@~2.1.1:
     pm2-dev: bin/pm2-dev
     pm2-docker: bin/pm2-docker
     pm2-runtime: bin/pm2-runtime
-  checksum: ca1a655ab11b8aa8f7c10098578e7f0ed508fb19fae02694c5478f4167a75cb150eb2c305d734b7420696b70193bb765ffbbca498d2ce427f85ae9d25ef19842
+  checksum: 652d80bb754c30bd0f3e7793e0116e1765699ad53aee936788c1043f5dc40432f3d9a2570e3f9abd0ecaebdc896835fa8ec87052f65b88a51222e83c12729327
   languageName: node
   linkType: hard
 
@@ -62364,21 +62299,21 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"semver@npm:6.3.0, semver@npm:^6.0.0, semver@npm:^6.1.1, semver@npm:^6.1.2, semver@npm:^6.3.0":
-  version: 6.3.0
-  resolution: "semver@npm:6.3.0"
-  bin:
-    semver: ./bin/semver.js
-  checksum: 1b26ecf6db9e8292dd90df4e781d91875c0dcc1b1909e70f5d12959a23c7eebb8f01ea581c00783bbee72ceeaad9505797c381756326073850dc36ed284b21b9
-  languageName: node
-  linkType: hard
-
 "semver@npm:7.0.0, semver@npm:~7.0.0":
   version: 7.0.0
   resolution: "semver@npm:7.0.0"
   bin:
     semver: bin/semver.js
   checksum: 272c11bf8d083274ef79fe40a81c55c184dff84dd58e3c325299d0927ba48cece1f020793d138382b85f89bab5002a35a5ba59a3a68a7eebbb597eb733838778
+  languageName: node
+  linkType: hard
+
+"semver@npm:^6.0.0, semver@npm:^6.1.1, semver@npm:^6.1.2, semver@npm:^6.3.0":
+  version: 6.3.0
+  resolution: "semver@npm:6.3.0"
+  bin:
+    semver: ./bin/semver.js
+  checksum: 1b26ecf6db9e8292dd90df4e781d91875c0dcc1b1909e70f5d12959a23c7eebb8f01ea581c00783bbee72ceeaad9505797c381756326073850dc36ed284b21b9
   languageName: node
   linkType: hard
 
@@ -62391,7 +62326,7 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"semver@npm:^7.0.0, semver@npm:^7.5.2, semver@npm:^7.5.4":
+"semver@npm:^7.0.0, semver@npm:^7.5.2, semver@npm:^7.5.4, semver@npm:~7.5.4":
   version: 7.5.4
   resolution: "semver@npm:7.5.4"
   dependencies:
@@ -62971,7 +62906,7 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"shimmer@npm:^1.1.0, shimmer@npm:^1.2.0, shimmer@npm:^1.2.1":
+"shimmer@npm:^1.2.0, shimmer@npm:^1.2.1":
   version: 1.2.1
   resolution: "shimmer@npm:1.2.1"
   checksum: aa0d6252ad1c682a4fdfda69e541be987f7a265ac7b00b1208e5e48cc68dc55f293955346ea4c71a169b7324b82c70f8400b3d3d2d60b2a7519f0a3522423250
@@ -68338,7 +68273,7 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"uuid@npm:^3.1.0, uuid@npm:^3.2.1, uuid@npm:^3.3.2, uuid@npm:^3.3.3":
+"uuid@npm:^3.1.0, uuid@npm:^3.3.2, uuid@npm:^3.3.3":
   version: 3.4.0
   resolution: "uuid@npm:3.4.0"
   bin:
@@ -70502,19 +70437,6 @@ resolve@1.1.7:
   bin:
     yaml: bin.mjs
   checksum: 3c25ebae34ee702af772ebbd1855a980b1487cd21d6220d952592edb4f7d89322aafd14753d99924ba7076eb4c5b3d809c64bb532402b01af280f7af674277f1
-  languageName: node
-  linkType: hard
-
-"yamljs@npm:0.3.0":
-  version: 0.3.0
-  resolution: "yamljs@npm:0.3.0"
-  dependencies:
-    argparse: ^1.0.7
-    glob: ^7.0.5
-  bin:
-    json2yaml: ./bin/json2yaml
-    yaml2json: ./bin/yaml2json
-  checksum: 76b770d34c7b9babdc4508e4c7c0cbdf371e17129cc027095d9eac0ae5b841c1b16fc2d625ebb542cc299ed4593478abdfcca172b3f0169e0939c6f2ed2e81a4
   languageName: node
   linkType: hard
 

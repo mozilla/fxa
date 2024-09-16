@@ -241,7 +241,7 @@
     "mutationobserver-shim": "^0.3.7",
     "nx": "18.3.1",
     "persistgraphql": "^0.3.11",
-    "pm2": "^5.3.0",
+    "pm2": "^5.4.2",
     "postcss-assets": "^6.0.0",
     "postcss-import": "^16.1.0",
     "prop-types": "^15.8.1",
