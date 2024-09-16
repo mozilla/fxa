@@ -148,6 +148,7 @@ async function run(config) {
       const strapiClient = new StrapiClient(strapiClientConfig, firestore);
       const productConfigurationManager = new ProductConfigurationManager(
         strapiClient,
+        priceManager,
         statsd
       );
       Container.set(ProductConfigurationManager, productConfigurationManager);

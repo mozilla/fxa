@@ -152,7 +152,7 @@ export class StrapiClient {
 
   private setupCacheBust() {
     const cacheTTL =
-      this.strapiClientConfig.memCacheTTL || DEFAULT_MEM_CACHE_TTL * 1000;
+      (this.strapiClientConfig.memCacheTTL || DEFAULT_MEM_CACHE_TTL) * 1000;
 
     setInterval(() => {
       this.graphqlMemCache = {};
