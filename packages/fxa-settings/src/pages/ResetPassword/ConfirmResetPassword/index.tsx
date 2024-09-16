@@ -19,6 +19,7 @@ import { EmailCodeImage } from '../../../components/images';
 import GleanMetrics from '../../../lib/glean';
 
 const ConfirmResetPassword = ({
+  clearBanners,
   email,
   errorMessage,
   setErrorMessage,
@@ -33,15 +34,6 @@ const ConfirmResetPassword = ({
 
   const ftlMsgResolver = useFtlMsgResolver();
   const location = useLocation();
-
-  const localizedInputGroupLabel = ftlMsgResolver.getMsg(
-    'confirm-reset-password-code-input-group-label',
-    'Enter 8-digit code within 10 minutes'
-  );
-  const localizedSubmitButtonText = ftlMsgResolver.getMsg(
-    'confirm-reset-password-otp-submit-button',
-    'Continue'
-  );
 
   const spanElement = <span className="font-bold">{email}</span>;
 
@@ -58,6 +50,11 @@ const ConfirmResetPassword = ({
       <FtlMsg id="password-reset-flow-heading">
         <p className="text-start text-grey-400 text-sm">Reset your password</p>
       </FtlMsg>
+      {resendStatus === ResendStatus.sent && <ResendEmailSuccessBanner />}
+      {hasResendError && (
+        <Banner type={BannerType.error}>{resendErrorMessage}</Banner>
+      )}
+      {errorMessage && <Banner type={BannerType.error}>{errorMessage}</Banner>}
       <EmailCodeImage className="mx-auto" />
       <FtlMsg id="confirm-reset-password-with-code-heading">
         <h2 className="card-header text-start my-4">Check your email</h2>
@@ -71,16 +68,20 @@ const ConfirmResetPassword = ({
           We sent a confirmation code to {spanElement}.
         </p>
       </FtlMsg>
-      {resendStatus === ResendStatus.sent && <ResendEmailSuccessBanner />}
-      {hasResendError && (
-        <Banner type={BannerType.error}>{resendErrorMessage}</Banner>
-      )}
       <FormVerifyTotp
         codeLength={8}
+        codeType="numeric"
+        localizedInputLabel={ftlMsgResolver.getMsg(
+          'confirm-reset-password-code-input-group-label',
+          'Enter 8-digit code within 10 minutes'
+        )}
+        localizedSubmitButtonText={ftlMsgResolver.getMsg(
+          'confirm-reset-password-otp-submit-button',
+          'Continue'
+        )}
         {...{
+          clearBanners,
           errorMessage,
-          localizedInputGroupLabel,
-          localizedSubmitButtonText,
           setErrorMessage,
           verifyCode,
         }}

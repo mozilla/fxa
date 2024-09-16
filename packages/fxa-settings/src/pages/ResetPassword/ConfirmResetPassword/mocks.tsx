@@ -10,27 +10,54 @@ import { ResendStatus } from '../../../lib/types';
 import { ConfirmResetPasswordProps } from './interfaces';
 
 const mockVerifyCode = (code: string) => Promise.resolve();
-const mockResendCode = () => Promise.resolve();
 
 export const Subject = ({
-  resendStatus = ResendStatus.none,
+  resendCode,
   resendErrorMessage = '',
-  resendCode = mockResendCode,
+  resendStatus = ResendStatus.none,
+  resendSuccess = true,
   verifyCode = mockVerifyCode,
-}: Partial<ConfirmResetPasswordProps>) => {
+}: Partial<ConfirmResetPasswordProps> & { resendSuccess?: boolean }) => {
   const email = MOCK_EMAIL;
   const [errorMessage, setErrorMessage] = useState('');
+  const [codeResendErrorMessage, setResendErrorMessage] =
+    useState(resendErrorMessage);
+  const [codeResendStatus, setResendStatus] = useState(resendStatus);
+
+  const clearBanners = () => {
+    setErrorMessage('');
+    setResendStatus(ResendStatus.none);
+    setResendErrorMessage('');
+  };
+
+  const mockResendCodeSuccess = () => {
+    clearBanners();
+    setResendStatus(ResendStatus.sent);
+    return Promise.resolve();
+  };
+
+  const mockResendCodeError = () => {
+    clearBanners();
+    setResendStatus(ResendStatus.error);
+    setResendErrorMessage('Resend error');
+    return Promise.resolve();
+  };
+
+  const mockResendCode = resendSuccess
+    ? () => mockResendCodeSuccess()
+    : () => mockResendCodeError();
 
   return (
     <LocationProvider>
       <ConfirmResetPassword
+        resendCode={resendCode || mockResendCode}
+        resendErrorMessage={codeResendErrorMessage}
+        resendStatus={codeResendStatus}
         {...{
+          clearBanners,
           email,
           errorMessage,
           setErrorMessage,
-          resendCode,
-          resendStatus,
-          resendErrorMessage,
           verifyCode,
         }}
       />

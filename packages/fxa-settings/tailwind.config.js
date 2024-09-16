@@ -7,6 +7,7 @@
 const { resolve } = require('path');
 const extractImportedComponents = require('fxa-react/extract-imported-components');
 const config = require('fxa-react/configs/tailwind');
+const { transform } = require('typescript');
 
 if (process.env.NODE_ENV === 'production') {
   const matches = extractImportedComponents(
@@ -101,6 +102,22 @@ config.theme.extend = {
       '0%, 70%': { transform: 'rotate(0deg)' },
       '80%, 100%': { transform: 'rotate(360deg)' },
     },
+    'fade-in': {
+      '0%, 10%': {
+        opacity: 0,
+        transform: 'scale(0)',
+      },
+      '24%': {
+        transform: 'scale(0.95)',
+      },
+      '25%': {
+        opacity: 0.25,
+      },
+      '30%, 100%': {
+        opacity: 1,
+        transform: 'translateY(0) scale(1)',
+      },
+    },
   },
 
   animation: {
@@ -128,6 +145,7 @@ config.theme.extend = {
     'type-fourth-repeat': 'appear-fourth 5s ease-in-out infinite',
     'pulse-stroke': 'pulse-stroke 2s linear infinite',
     'wait-and-rotate': 'wait-and-rotate 5s infinite ease-out',
+    'fade-in': 'fade-in 1s 1 ease-in',
   },
 };
 

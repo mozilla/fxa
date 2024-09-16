@@ -34,7 +34,13 @@ export type InputTextProps = {
   pattern?: string;
   anchorPosition?: 'start' | 'middle' | 'end';
   spellCheck?: boolean;
-  autoComplete?: string;
+  // https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofilling-form-controls:-the-autocomplete-attribute
+  autoComplete?:
+    | 'off'
+    | 'username'
+    | 'current-password'
+    | 'new-password'
+    | 'one-time-code';
   inputMode?: 'text' | 'numeric' | 'tel' | 'email';
   required?: boolean;
   tooltipPosition?: 'top' | 'bottom';

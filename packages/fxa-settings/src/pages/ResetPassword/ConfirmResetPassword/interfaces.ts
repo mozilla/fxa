@@ -16,6 +16,7 @@ export type RecoveryKeyCheckResult = {
 };
 
 export type ConfirmResetPasswordProps = {
+  clearBanners?: () => void;
   email: string;
   errorMessage: string;
   setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
