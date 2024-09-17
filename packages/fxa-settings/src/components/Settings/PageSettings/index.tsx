@@ -55,6 +55,13 @@ export const PageSettings = (_: RouteComponentProps) => {
     }
   }, [attachedClients, subscriptions, productPromoGleanEventSent]);
 
+  // The estimated Sync devices is optionally returned by the auth-server,
+  // if it is not present, we default to 0.
+  let estimatedSyncDeviceCount = 0;
+  if (recoveryKey.estimatedSyncDeviceCount) {
+    estimatedSyncDeviceCount = recoveryKey.estimatedSyncDeviceCount;
+  }
+
   const accountRecoveryNotificationProps = {
     headerImage: keyImage,
     ctaText: ftlMsgResolver.getMsg(
@@ -72,7 +79,7 @@ export const PageSettings = (_: RouteComponentProps) => {
     route: '/settings/account_recovery',
     dismissKey: 'account-recovery-dismissed',
     metricsKey: 'create_recovery_key',
-    isVisible: !recoveryKey.exists,
+    isVisible: estimatedSyncDeviceCount > 0 && !recoveryKey.exists,
   };
 
   // Scroll to effect

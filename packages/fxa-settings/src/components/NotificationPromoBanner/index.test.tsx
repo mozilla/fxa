@@ -68,4 +68,22 @@ describe('NotificationPromoBanner component', () => {
     );
     expect(key).toBe('true');
   });
+
+  it('can set not visible', () => {
+    const notificationProps = {
+      headerImage: keyImage,
+      ctaText: 'Create',
+      headerValue: 'Don’t lose your data if you forget your password',
+      headerDescription:
+        'Create an Account Recovery Key to restore your sync browsing data if you ever forget your password.',
+      route: '/settings/account_recovery',
+      dismissKey: 'account-recovery-dismissed',
+      metricsKey: 'create_recovery_key',
+      isVisible: false,
+    };
+    renderWithLocalizationProvider(
+      <NotificationPromoBanner {...notificationProps} />
+    );
+    expect(screen.queryByText('Create')).not.toBeInTheDocument();
+  });
 });
