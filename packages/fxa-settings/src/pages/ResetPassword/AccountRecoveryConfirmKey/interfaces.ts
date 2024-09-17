@@ -2,15 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { MozServices } from '../../../lib/types';
-
 export interface AccountRecoveryConfirmKeyFormData {
   recoveryKey: string;
 }
-
-export type AccountRecoveryConfirmKeyContainerProps = {
-  serviceName: MozServices;
-};
 
 export interface AccountRecoveryConfirmKeyLocationState {
   code: string;
@@ -21,14 +15,15 @@ export interface AccountRecoveryConfirmKeyLocationState {
   accountResetToken?: string;
   emailToHashWith?: string;
   recoveryKeyExists?: boolean;
+  recoveryKeyHint?: string;
 }
 
 export interface AccountRecoveryConfirmKeyProps
   extends AccountRecoveryConfirmKeyLocationState {
   errorMessage: string;
-  isSubmitting: boolean;
-  serviceName: MozServices;
+  recoveryKeyHint?: string;
+  isSubmitDisabled: boolean;
   setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
-  setIsSubmitting: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsSubmitDisabled: React.Dispatch<React.SetStateAction<boolean>>;
   verifyRecoveryKey: (recoveryKey: string) => Promise<void>;
 }

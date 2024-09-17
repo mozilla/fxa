@@ -10,20 +10,15 @@ import { decryptRecoveryKeyData } from 'fxa-auth-client/lib/recoveryKey';
 import { useAccount, useSensitiveDataClient } from '../../../models';
 import { useFtlMsgResolver } from '../../../models/hooks';
 
-import {
-  AccountRecoveryConfirmKeyContainerProps,
-  AccountRecoveryConfirmKeyLocationState,
-} from './interfaces';
+import { AccountRecoveryConfirmKeyLocationState } from './interfaces';
 
 import AccountRecoveryConfirmKey from '.';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 
-const AccountRecoveryConfirmKeyContainer = ({
-  serviceName,
-}: AccountRecoveryConfirmKeyContainerProps & RouteComponentProps) => {
+const AccountRecoveryConfirmKeyContainer = (_: RouteComponentProps) => {
   const [errorMessage, setErrorMessage] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
   const account = useAccount();
   const ftlMsgResolver = useFtlMsgResolver();
   const location = useLocation();
@@ -37,6 +32,7 @@ const AccountRecoveryConfirmKeyContainer = ({
     emailToHashWith,
     estimatedSyncDeviceCount,
     recoveryKeyExists,
+    recoveryKeyHint,
     token,
     uid,
   } = (location.state as AccountRecoveryConfirmKeyLocationState) || {};
@@ -99,7 +95,7 @@ const AccountRecoveryConfirmKeyContainer = ({
         ftlMsgResolver,
         error
       );
-      setIsSubmitting(false);
+      setIsSubmitDisabled(false);
       setErrorMessage(localizedBannerMessage);
     }
   };
@@ -113,11 +109,11 @@ const AccountRecoveryConfirmKeyContainer = ({
         emailToHashWith,
         errorMessage,
         estimatedSyncDeviceCount,
-        isSubmitting,
+        isSubmitDisabled,
         recoveryKeyExists,
-        serviceName,
+        recoveryKeyHint,
         setErrorMessage,
-        setIsSubmitting,
+        setIsSubmitDisabled,
         token,
         verifyRecoveryKey,
         uid,

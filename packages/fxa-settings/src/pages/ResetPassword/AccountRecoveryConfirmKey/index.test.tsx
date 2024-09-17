@@ -6,9 +6,12 @@ import React from 'react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { Subject } from './mocks';
 import { screen, waitFor } from '@testing-library/react';
-import { MozServices } from '../../../lib/types';
 import userEvent from '@testing-library/user-event';
-import { MOCK_RECOVERY_KEY } from '../../mocks';
+import {
+  MOCK_RECOVERY_KEY,
+  MOCK_RECOVERY_KEY_INVALID,
+  MOCK_RECOVERY_KEY_WITH_SPACES,
+} from '../../mocks';
 import GleanMetrics from '../../../lib/glean';
 
 const mockVerifyRecoveryKey = jest.fn((_recoveryKey: string) =>
@@ -32,34 +35,27 @@ describe('AccountRecoveryConfirmKey', () => {
   it('renders as expected', async () => {
     renderWithLocalizationProvider(<Subject />);
 
-    await screen.findByRole('heading', {
-      level: 1,
-      name: 'Reset password with account recovery key to continue to account settings',
-    });
+    const headings = await screen.findAllByRole('heading');
+    expect(headings).toHaveLength(2);
+    expect(headings[0]).toHaveTextContent('Reset your password');
+    expect(headings[1]).toHaveTextContent('Enter your account recovery key');
 
     screen.getByText(
-      'Please enter the one time use account recovery key you stored in a safe place to regain access to your Mozilla account.'
+      'This key recovers your encrypted browsing data, such as passwords and bookmarks, from Firefox servers.'
     );
-    screen.getByTestId('warning-message-container');
-    screen.getByLabelText('Enter account recovery key');
-    screen.getByRole('button', { name: 'Confirm account recovery key' });
+    screen.getByLabelText('Enter your 32-character account recovery key');
+    screen.getByRole('button', { name: 'Continue' });
     screen.getByRole('link', {
-      name: 'Don’t have an account recovery key?',
+      name: 'Can’t find your account recovery key?',
     });
   });
 
-  describe('serviceName', () => {
-    it('renders the default', async () => {
-      renderWithLocalizationProvider(<Subject />);
-      await screen.findByText(`to continue to ${MozServices.Default}`);
-    });
+  it('renders with a recovery key hint', async () => {
+    renderWithLocalizationProvider(
+      <Subject recoveryKeyHint="This is a hint" />
+    );
 
-    it('renders non-default', async () => {
-      renderWithLocalizationProvider(
-        <Subject serviceName={MozServices.FirefoxSync} />
-      );
-      await screen.findByText(`to continue to Firefox Sync`);
-    });
+    expect(screen.getByText('This is a hint')).toBeVisible();
   });
 
   describe('submit', () => {
@@ -69,17 +65,11 @@ describe('AccountRecoveryConfirmKey', () => {
         renderWithLocalizationProvider(
           <Subject verifyRecoveryKey={mockVerifyRecoveryKey} />
         );
-        // adding text in the field enables the submit button
         await waitFor(() =>
-          user.type(
-            screen.getByLabelText('Enter account recovery key'),
-            MOCK_RECOVERY_KEY
-          )
+          user.type(screen.getByRole('textbox'), MOCK_RECOVERY_KEY)
         );
 
-        const submitButton = screen.getByRole('button', {
-          name: 'Confirm account recovery key',
-        });
+        const submitButton = screen.getByRole('button');
         expect(submitButton).toBeEnabled();
         await waitFor(() => user.click(submitButton));
 
@@ -94,20 +84,11 @@ describe('AccountRecoveryConfirmKey', () => {
         renderWithLocalizationProvider(
           <Subject verifyRecoveryKey={mockVerifyRecoveryKey} />
         );
-        const submitButton = screen.getByRole('button', {
-          name: 'Confirm account recovery key',
-        });
+        const submitButton = screen.getByRole('button');
 
-        const input = screen.getByLabelText('Enter account recovery key');
+        const input = screen.getByRole('textbox');
 
-        const recoveryKeyWithSpaces = MOCK_RECOVERY_KEY.replace(
-          /(.{4})/g,
-          '$1 '
-        );
-        expect(recoveryKeyWithSpaces).toHaveLength(40);
-
-        // adding text in the field enables the submit button
-        await waitFor(() => user.type(input, recoveryKeyWithSpaces));
+        await waitFor(() => user.type(input, MOCK_RECOVERY_KEY_WITH_SPACES));
         expect(submitButton).toBeEnabled();
         await waitFor(() => user.click(submitButton));
 
@@ -118,18 +99,9 @@ describe('AccountRecoveryConfirmKey', () => {
 
     describe('errors', () => {
       it('with an empty input', async () => {
-        const user = userEvent.setup();
         renderWithLocalizationProvider(<Subject />);
-        const submitButton = screen.getByRole('button', {
-          name: 'Confirm account recovery key',
-        });
+        const submitButton = screen.getByRole('button');
         expect(submitButton).toBeDisabled();
-
-        const input = screen.getByLabelText('Enter account recovery key');
-
-        // adding text in the field enables the submit button
-        await waitFor(() => user.type(input, 'a'));
-        expect(submitButton).not.toBeDisabled();
       });
 
       it('with less than 32 characters', async () => {
@@ -137,19 +109,11 @@ describe('AccountRecoveryConfirmKey', () => {
         renderWithLocalizationProvider(
           <Subject verifyRecoveryKey={mockVerifyRecoveryKey} />
         );
-        const submitButton = screen.getByRole('button', {
-          name: 'Confirm account recovery key',
-        });
-        const input = screen.getByLabelText('Enter account recovery key');
+        const submitButton = screen.getByRole('button');
+        const input = screen.getByRole('textbox');
 
-        // adding text in the field enables the submit button
         await waitFor(() => user.type(input, MOCK_RECOVERY_KEY.slice(0, -1)));
-        expect(submitButton).toBeEnabled();
-
-        await waitFor(() => user.click(submitButton));
-
-        expect(mockVerifyRecoveryKey).not.toHaveBeenCalled();
-        await screen.findByText('Invalid account recovery key');
+        expect(submitButton).toBeDisabled();
       });
 
       it('with more than 32 characters', async () => {
@@ -157,20 +121,13 @@ describe('AccountRecoveryConfirmKey', () => {
         renderWithLocalizationProvider(
           <Subject verifyRecoveryKey={mockVerifyRecoveryKey} />
         );
-        const submitButton = screen.getByRole('button', {
-          name: 'Confirm account recovery key',
-        });
+        const submitButton = screen.getByRole('button');
         expect(submitButton).toBeDisabled();
 
-        const input = screen.getByLabelText('Enter account recovery key');
+        const input = screen.getByRole('textbox');
 
-        // adding text in the field enables the submit button
         await waitFor(() => user.type(input, `${MOCK_RECOVERY_KEY}abc`));
-        expect(submitButton).toBeEnabled();
-        await waitFor(() => user.click(submitButton));
-
-        await screen.findByText('Invalid account recovery key');
-        expect(mockVerifyRecoveryKey).not.toHaveBeenCalled();
+        expect(submitButton).toBeDisabled();
       });
 
       it('with invalid Crockford base32', async () => {
@@ -178,12 +135,12 @@ describe('AccountRecoveryConfirmKey', () => {
         renderWithLocalizationProvider(
           <Subject verifyRecoveryKey={mockVerifyRecoveryKey} />
         );
-        const submitButton = screen.getByRole('button', {
-          name: 'Confirm account recovery key',
-        });
+        const submitButton = screen.getByRole('button');
 
-        const input = screen.getByLabelText('Enter account recovery key');
-        await waitFor(() => user.type(input, `${MOCK_RECOVERY_KEY}L`.slice(1)));
+        const input = screen.getByRole('textbox');
+        // contains a character that is not valid in Crockford base32
+        // but length is correct
+        await waitFor(() => user.type(input, MOCK_RECOVERY_KEY_INVALID));
         expect(submitButton).toBeEnabled();
         await waitFor(() => user.click(submitButton));
 

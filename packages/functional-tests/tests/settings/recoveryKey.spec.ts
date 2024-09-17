@@ -122,6 +122,7 @@ test.describe('severity-1 #smoke', () => {
 
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.recoveryKey.status).toHaveText('Enabled');
+      await expect(settings.recoveryKey.deleteButton).toBeEnabled();
 
       await settings.goto();
 
