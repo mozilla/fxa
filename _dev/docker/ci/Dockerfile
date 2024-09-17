@@ -15,7 +15,7 @@ RUN cp yarn.lock yarn.lock.base;
 
 
 # Runs initial build stage in CI. Needs full install. Responsible for
-# setting up the initially workspace state. This image installs npm
+# setting up the initial workspace state. This image installs npm
 # packages and builds heavily referenced workspaces.
 FROM test-runner as builder
 WORKDIR /home/circleci
@@ -26,67 +26,27 @@ ENV FXA_AUTO_INSTALL=0
 RUN _scripts/l10n/clone.sh
 RUN yarn install --immutable;
 
-# Acts as an intermediate stage for adding the firefox install. Note,
-# that a yarn install must happen first to ensure the correct version
-# of firefox is installed. Also note that the functional-test-runner
-# must based on cimg/node:20.11-browsers, which is why this stage
-# is necessary.
-FROM builder as playwright-install
-# Ensure running as root to install the packages
-USER root
-RUN rm -rf /home/circleci/.cache/ms-playwright
-ENV PLAYWRIGHT_BROWSERS_PATH=/home/circleci/.cache/ms-playwright
 
-# Install necessary system libraries including libxslt and additional dependencies for WebKit
-RUN apt-get update && apt-get install -y \
-    libxslt1.1 \
-    libxslt-dev \
-    libxcomposite1 \
-    libxdamage1 \
-    libxrandr2 \
-    libgbm-dev \
-    libpangocairo-1.0-0 \
-    libgdk-pixbuf2.0-0 \
-    libegl1 \
-    libnss3 \
-    libasound2 \
-    libfontconfig1 \
-    libx11-xcb1 \
-    libxshmfence1 \
-    libxrender1 \
-    libjpeg62-turbo \
-    libopengl0 \
-    libenchant1c2a \
-    libwoff1 \
-    libharfbuzz-icu0 \
-    libgtk-3-0 \
-    libharfbuzz-dev \
-    libgstreamer1.0-0 \
-    libgstreamer-gl1.0-0 \
-    libgstreamer-plugins-base1.0-0 \
-    gstreamer1.0-libav \
-    gstreamer1.0-plugins-good \
-    gstreamer1.0-plugins-bad \
-    gstreamer1.0-plugins-ugly
+# Use the official Playwright image to install Playwright and browsers
+FROM mcr.microsoft.com/playwright:v1.46.0-noble as playwright-install
 
+WORKDIR /home/pwuser
+# Playwright comes preinstalled in this image, so we don't need additional steps here.
 
-# Create symbolic link to ensure the library is accessible
-RUN ln -s /lib/x86_64-linux-gnu/libxslt.so.1 /usr/lib/libxslt.so.1
-
-# Ensure correct library path at runtime
-ENV LD_LIBRARY_PATH=/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
-
-RUN npx playwright install --with-deps webkit --force
-
-RUN ldd /home/circleci/.cache/ms-playwright/webkit-1992/minibrowser-wpe/bin/MiniBrowser | grep libxslt
-
-# RUN ls -l /home/circleci/.cache/ms-playwright/webkit-1992/
-
-# Runs functional tests in our CI. Needs minimal install. Assumes
-# workspace will be restored into the project folder.
+# Runs functional tests in our CI, using the cimg/node image and the Playwright installation
 FROM cimg/node:20.11-browsers as functional-test-runner
 WORKDIR /home/circleci
-COPY --chown=circleci:circleci --from=playwright-install /home/circleci/.cache/ms-playwright .cache/ms-playwright/
+
+# Copy the Playwright browsers and setup from the official image
+COPY --from=playwright-install /ms-playwright /ms-playwright
+
+# Copy project files
 COPY --chown=circleci:circleci project project
 WORKDIR /home/circleci/project
+
+# Ensure correct library path at runtime
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+ENV LD_LIBRARY_PATH=/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
+
+# Copy the install script and any necessary binaries
 COPY --chown=circleci:circleci install /usr/local/bin/
