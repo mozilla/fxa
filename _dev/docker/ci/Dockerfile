@@ -28,7 +28,7 @@ RUN yarn install --immutable;
 
 
 # Use the official Playwright image to install Playwright and browsers
-FROM mcr.microsoft.com/playwright:v1.43.1-noble as playwright-install
+FROM mcr.microsoft.com/playwright:v1.46.1-noble as playwright-install
 
 WORKDIR /home/pwuser
 # Playwright comes preinstalled in this image, so we don't need additional steps here.
