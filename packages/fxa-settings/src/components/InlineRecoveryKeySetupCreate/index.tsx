@@ -61,6 +61,7 @@ export const InlineRecoveryKeySetupCreate = ({
       <button
         className="flex justify-center items-center link-blue text-sm mx-auto"
         onClick={doLaterHandler}
+        data-glean-id="inline_recovery_key_setup_create_do_it_later"
       >
         <FtlMsg id="inline-recovery-key-setup-later-button">Do it later</FtlMsg>
       </button>

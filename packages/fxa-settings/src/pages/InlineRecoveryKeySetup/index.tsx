@@ -102,9 +102,7 @@ export const InlineRecoveryKeySetup = ({
       default:
         return (
           <InlineRecoveryKeySetupCreate
-            {...{ createRecoveryKeyHandler }}
-            doLaterHandler={doLaterHandler}
-            data-glean-id="inline_recovery_key_setup_create_do_it_later"
+            {...{ createRecoveryKeyHandler, doLaterHandler }}
           />
         );
     }
