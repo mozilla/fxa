@@ -73,10 +73,11 @@ export const Settings = ({
   }, [account, session]);
 
   const { loading, error } = useInitialSettingsState();
+  const { enabled: gleanEnabled } = GleanMetrics.useGlean();
 
   useEffect(() => {
-    !loading && GleanMetrics.pageLoad(location.pathname);
-  }, [loading, location.pathname]);
+    !loading && gleanEnabled && GleanMetrics.pageLoad(location.pathname);
+  }, [loading, location.pathname, gleanEnabled]);
 
   if (loading) {
     return <LoadingSpinner fullScreen />;

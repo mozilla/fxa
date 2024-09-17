@@ -87,7 +87,7 @@ const hashUid = async (uid) => {
   return hex;
 };
 
-const populateMetrics = async (properties: EventProperties = {}) => {
+const initMetrics = async () => {
   const account = gleanMetricsContext.user.getSignedInAccount();
 
   // the "signed in" account could just be the most recently used account from
@@ -101,10 +101,6 @@ const populateMetrics = async (properties: EventProperties = {}) => {
   } else {
     userId.set('');
     userIdSha256.set('');
-  }
-
-  for (const n of eventPropertyNames) {
-    event[n].set(properties[n] || '');
   }
 
   const flowEventMetadata = gleanMetricsContext.metrics.getFlowEventMetadata();
@@ -124,6 +120,13 @@ const populateMetrics = async (properties: EventProperties = {}) => {
 
   entrypointQuery.experiment.set(flowEventMetadata.entrypointExperiment || '');
   entrypointQuery.variation.set(flowEventMetadata.entrypointVariation || '');
+};
+
+const populateMetrics = async (properties: EventProperties = {}) => {
+  await initMetrics();
+  for (const n of eventPropertyNames) {
+    event[n].set(properties[n] || '');
+  }
 };
 
 const recordEventMetric = (eventName: string, properties: EventProperties) => {
@@ -349,7 +352,10 @@ const createEventFn =
   };
 
 export const GleanMetrics = {
-  initialize: (config: GleanMetricsConfig, context: GleanMetricsContext) => {
+  initialize: async (
+    config: GleanMetricsConfig,
+    context: GleanMetricsContext
+  ) => {
     // https://bugzilla.mozilla.org/show_bug.cgi?id=1859629
     // Starting with glean.js v2, accessing localStorage during
     // initialization could cause an error
@@ -373,6 +379,7 @@ export const GleanMetrics = {
         gleanMetricsContext = context;
       }
       GleanMetrics.setEnabled(config.enabled);
+      await initMetrics();
     } catch (_) {
       // set some states so we won't try to do anything with glean.js later
       config.enabled = false;

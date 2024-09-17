@@ -161,6 +161,11 @@ export const App = ({
       return;
     }
 
+    // This is in a useMemo because we want Glean to be initialized _before_
+    // other components are rendered.  `useEffect` is called after a component
+    // is rendered, which for this means _after_ all the children components
+    // are rendered and _their `useEffect` hooks are called_.
+
     GleanMetrics.initialize(
       {
         ...config.glean,
@@ -297,10 +302,11 @@ const AuthAndAccountSetupRoutes = ({
   // TODO: MozServices / string discrepancy, FXA-6802
   const serviceName = integration.getServiceName() as MozServices;
   const location = useLocation();
+  const { enabled: gleanEnabled } = GleanMetrics.useGlean();
 
   useEffect(() => {
-    GleanMetrics.pageLoad(location.pathname);
-  }, [location.pathname]);
+    gleanEnabled && GleanMetrics.pageLoad(location.pathname);
+  }, [location.pathname, gleanEnabled]);
 
   return (
     <Router>

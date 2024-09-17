@@ -66,6 +66,8 @@ type GleanMetricsT = {
   isDone: () => Promise<void>;
   pageLoad: (url?: string) => void;
   handleClickEvent(event: Event): void;
+
+  useGlean: () => { enabled: boolean };
 } & {
   [k in EventMapKeys]: { [eventKey in keyof EventsMap[k]]: PingFn };
 };
@@ -127,34 +129,7 @@ const getDeviceType: () => DeviceTypes | void = () => {
   }
 };
 
-const populateMetrics = async (gleanPingMetrics: GleanPingMetrics) => {
-  if (gleanPingMetrics?.event) {
-    // The event here is the Glean `event` metric type, not an "metrics event" in
-    // a more general sense
-
-    for (const name of booleanEventPropertyNames) {
-      const eventValue = gleanPingMetrics.event[name];
-      if (eventValue) {
-        event[name].set(eventValue);
-      }
-    }
-    for (const name of stringEventPropertyNames) {
-      event[name].set(gleanPingMetrics.event[name] || '');
-    }
-  }
-
-  if (gleanPingMetrics?.sync?.cwts) {
-    Object.entries(gleanPingMetrics.sync.cwts).forEach(([k, v]) => {
-      sync.cwts[k].set(v);
-    });
-  }
-
-  if (gleanPingMetrics?.standard?.marketing) {
-    Object.entries(gleanPingMetrics.standard.marketing).forEach(([k, v]) => {
-      standard.marketing[k].set(v);
-    });
-  }
-
+const initMetrics = async () => {
   userId.set('');
   userIdSha256.set('');
   try {
@@ -185,6 +160,37 @@ const populateMetrics = async (gleanPingMetrics: GleanPingMetrics) => {
   entrypointQuery.experiment.set(
     metricsContext.integration.data.entrypointExperiment || ''
   );
+};
+
+const populateMetrics = async (gleanPingMetrics: GleanPingMetrics) => {
+  await initMetrics();
+
+  if (gleanPingMetrics?.event) {
+    // The event here is the Glean `event` metric type, not an "metrics event" in
+    // a more general sense
+
+    for (const name of booleanEventPropertyNames) {
+      const eventValue = gleanPingMetrics.event[name];
+      if (eventValue) {
+        event[name].set(eventValue);
+      }
+    }
+    for (const name of stringEventPropertyNames) {
+      event[name].set(gleanPingMetrics.event[name] || '');
+    }
+  }
+
+  if (gleanPingMetrics?.sync?.cwts) {
+    Object.entries(gleanPingMetrics.sync.cwts).forEach(([k, v]) => {
+      sync.cwts[k].set(v);
+    });
+  }
+
+  if (gleanPingMetrics?.standard?.marketing) {
+    Object.entries(gleanPingMetrics.standard.marketing).forEach(([k, v]) => {
+      standard.marketing[k].set(v);
+    });
+  }
 };
 
 const recordEventMetric = (
@@ -532,11 +538,15 @@ export const GleanMetrics: Pick<
   | 'initialize'
   | 'setEnabled'
   | 'getEnabled'
+  | 'useGlean'
   | 'isDone'
   | 'pageLoad'
   | 'handleClickEvent'
 > = {
-  initialize: (config: GleanMetricsConfig, context: GleanMetricsContext) => {
+  initialize: async (
+    config: GleanMetricsConfig,
+    context: GleanMetricsContext
+  ) => {
     // https://bugzilla.mozilla.org/show_bug.cgi?id=1859629
     // Starting with glean.js v2, accessing localStorage during
     // initialization could cause an error
@@ -557,6 +567,10 @@ export const GleanMetrics: Pick<
       GleanMetrics.setEnabled(config.enabled);
       metricsContext = context;
       ua = null;
+
+      // try to initialize any available metrics prior to any automatic Glean
+      // events
+      await initMetrics();
     } catch (_) {
       // set some states so we won't try to do anything with glean.js later
       config.enabled = false;
@@ -572,6 +586,8 @@ export const GleanMetrics: Pick<
   getEnabled: () => {
     return gleanEnabled;
   },
+
+  useGlean: () => ({ enabled: GleanMetrics.getEnabled() }),
 
   pageLoad: (url?: string) => {
     if (url) {
