@@ -44,6 +44,7 @@ const CompleteResetPasswordContainer = ({
 
   if (!location.state) {
     navigate('/reset_password', { replace: true });
+    return;
   }
 
   const {
