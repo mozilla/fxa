@@ -166,6 +166,10 @@ describe('lib/glean', () => {
       sinon.assert.notCalled(setEntrypointExperimentStub);
       sinon.assert.notCalled(setEntrypointVariationStub);
     });
+
+    it('returns false for enabed in useGlean', () => {
+      expect(GleanMetrics.useGlean().enabled).toBe(false);
+    });
   });
 
   describe('initialization error', () => {
@@ -209,6 +213,10 @@ describe('lib/glean', () => {
       sinon.assert.notCalled(debugViewTagStub);
       sinon.assert.calledOnce(setEnabledSpy);
       sinon.assert.calledWith(setEnabledSpy, true);
+    });
+
+    it('returns true for enabed in useGlean', () => {
+      expect(GleanMetrics.useGlean().enabled).toBe(true);
     });
 
     it('submits a ping on an event', async () => {

@@ -187,7 +187,8 @@ describe('lib/glean', () => {
     });
 
     it('submits a ping on an event', async () => {
-      await GleanMetrics.registration.view();
+      GleanMetrics.registration.view();
+      await GleanMetrics.isDone();
       sinon.assert.calledOnce(submitPingStub);
     });
 

@@ -81,6 +81,7 @@ jest.mock('../../lib/glean', () => ({
   default: {
     initialize: jest.fn(),
     getEnabled: jest.fn(),
+    useGlean: jest.fn().mockReturnValue({ enabled: true }),
     accountPref: { view: jest.fn(), promoMonitorView: jest.fn() },
     pageLoad: jest.fn(),
   },

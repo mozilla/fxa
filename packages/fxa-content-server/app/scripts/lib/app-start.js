@@ -172,7 +172,7 @@ Start.prototype = {
   },
 
   initializeGlean() {
-    GleanMetrics.initialize(this._config.glean, {
+    return GleanMetrics.initialize(this._config.glean, {
       metrics: this._metrics,
       relier: this._relier,
       user: this._user,
