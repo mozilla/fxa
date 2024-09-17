@@ -40,22 +40,35 @@ ENV PLAYWRIGHT_BROWSERS_PATH=/home/circleci/.cache/ms-playwright
 # Install necessary system libraries including libxslt and additional dependencies for WebKit
 RUN apt-get update && apt-get install -y \
     libxslt1.1 \
-    libxslt-dev
-    # libxcomposite1 \
-    # libxdamage1 \
-    # libxrandr2 \
-    # libgbm-dev \
-    # libpangocairo-1.0-0 \
-    # libgdk-pixbuf2.0-0 \
-    # libegl1 \
-    # libnss3 \
-    # libasound2 \
-    # libfontconfig1 \
-    # libx11-xcb1 \
-    # libxshmfence1 \
-    # libxrender1 \
-    # libjpeg62-turbo \
-    # libopengl0
+    libxslt-dev \
+    libxcomposite1 \
+    libxdamage1 \
+    libxrandr2 \
+    libgbm-dev \
+    libpangocairo-1.0-0 \
+    libgdk-pixbuf2.0-0 \
+    libegl1 \
+    libnss3 \
+    libasound2 \
+    libfontconfig1 \
+    libx11-xcb1 \
+    libxshmfence1 \
+    libxrender1 \
+    libjpeg62-turbo \
+    libopengl0 \
+    libenchant1c2a \
+    libwoff1 \
+    libharfbuzz-icu0 \
+    libgtk-3-0 \
+    libharfbuzz-dev \
+    libgstreamer1.0-0 \
+    libgstreamer-gl1.0-0 \
+    libgstreamer-plugins-base1.0-0 \
+    gstreamer1.0-libav \
+    gstreamer1.0-plugins-good \
+    gstreamer1.0-plugins-bad \
+    gstreamer1.0-plugins-ugly
+
 
 # Create symbolic link to ensure the library is accessible
 RUN ln -s /lib/x86_64-linux-gnu/libxslt.so.1 /usr/lib/libxslt.so.1
@@ -63,7 +76,7 @@ RUN ln -s /lib/x86_64-linux-gnu/libxslt.so.1 /usr/lib/libxslt.so.1
 # Ensure correct library path at runtime
 ENV LD_LIBRARY_PATH=/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
 
-RUN npx playwright install --with-deps webkit
+RUN npx playwright install --with-deps webkit --force
 
 RUN ldd /home/circleci/.cache/ms-playwright/webkit-1992/minibrowser-wpe/bin/MiniBrowser | grep libxslt
 
