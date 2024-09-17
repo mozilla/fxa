@@ -56,38 +56,38 @@ export default defineConfig<PlaywrightTestConfig<TestOptions, WorkerOptions>>({
     viewport: { width: 1280, height: 720 },
   },
   projects: [
-    ...TargetNames.map(
-      (name) =>
-        ({
-          name,
-          use: {
-            browserName: 'firefox',
-            targetName: name,
-            launchOptions: {
-              args: DEBUG ? ['-start-debugger-server'] : undefined,
-              firefoxUserPrefs: getFirefoxUserPrefs(name, DEBUG),
-              headless: !DEBUG,
-              slowMo: SLOWMO,
-            },
-            trace: 'retain-on-failure',
-          },
-        } as Project)
-    ),
-    ...TargetNames.map(
-      (name) =>
-        ({
-          name: `${name}-chromium`,
-          use: {
-            browserName: 'chromium',
-            targetName: name,
-            launchOptions: {
-              headless: !DEBUG,
-              slowMo: SLOWMO,
-            },
-            trace: 'retain-on-failure',
-          },
-        } as Project)
-    ),
+    // ...TargetNames.map(
+    //   (name) =>
+    //     ({
+    //       name,
+    //       use: {
+    //         browserName: 'firefox',
+    //         targetName: name,
+    //         launchOptions: {
+    //           args: DEBUG ? ['-start-debugger-server'] : undefined,
+    //           firefoxUserPrefs: getFirefoxUserPrefs(name, DEBUG),
+    //           headless: !DEBUG,
+    //           slowMo: SLOWMO,
+    //         },
+    //         trace: 'retain-on-failure',
+    //       },
+    //     } as Project)
+    // ),
+    // ...TargetNames.map(
+    //   (name) =>
+    //     ({
+    //       name: `${name}-chromium`,
+    //       use: {
+    //         browserName: 'chromium',
+    //         targetName: name,
+    //         launchOptions: {
+    //           headless: !DEBUG,
+    //           slowMo: SLOWMO,
+    //         },
+    //         trace: 'retain-on-failure',
+    //       },
+    //     } as Project)
+    // ),
     ...TargetNames.map(
       (name) =>
         ({
