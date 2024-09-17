@@ -34,26 +34,28 @@ RUN yarn install --immutable;
 FROM builder as playwright-install
 # Ensure running as root to install the packages
 USER root
+RUN rm -rf /home/circleci/.cache/ms-playwright
 ENV PLAYWRIGHT_BROWSERS_PATH=/home/circleci/.cache/ms-playwright
-RUN npx playwright install --with-deps firefox chromium webkit
+RUN npx playwright install --with-deps webkit
+
 
 # Install necessary libraries
-RUN apt-get update && apt-get install -y \
-    libxslt1.1 \
-    libxslt-dev \
-    libxcomposite1 \
-    libxdamage1 \
-    libxrandr2 \
-    libgbm-dev \
-    libpangocairo-1.0-0 \
-    libgdk-pixbuf2.0-0 \
-    libegl1 \
-    libnss3 \
-    libasound2
+# RUN apt-get update && apt-get install -y \
+#     libxslt1.1 \
+#     libxslt-dev \
+#     libxcomposite1 \
+#     libxdamage1 \
+#     libxrandr2 \
+#     libgbm-dev \
+#     libpangocairo-1.0-0 \
+#     libgdk-pixbuf2.0-0 \
+#     libegl1 \
+#     libnss3 \
+#     libasound2
 
-RUN ldd /home/circleci/.cache/ms-playwright/webkit-1992/minibrowser-wpe/bin/MiniBrowser
+# RUN ldd /home/circleci/.cache/ms-playwright/webkit-1992/minibrowser-wpe/bin/MiniBrowser
 
-RUN ls -l /home/circleci/.cache/ms-playwright/webkit-1992/
+# RUN ls -l /home/circleci/.cache/ms-playwright/webkit-1992/
 
 # Runs functional tests in our CI. Needs minimal install. Assumes
 # workspace will be restored into the project folder.
