@@ -2,11 +2,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { screen } from '@testing-library/react';
+import { act, fireEvent, screen } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { Subject } from './mocks';
+import { Constants } from '../../lib/constants';
+import * as ReactUtils from '../../../../fxa-react/lib/utils';
+
+function mockReactUtilsModule() {
+  jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => {});
+}
 
 describe('InlineRecoveryKeySetup', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    mockReactUtilsModule();
+  });
+
   it('renders as expected, step 1', () => {
     renderWithLocalizationProvider(<Subject currentStep={1} />);
 
@@ -42,5 +53,35 @@ describe('InlineRecoveryKeySetup', () => {
   it('renders as expected, step 3', () => {
     renderWithLocalizationProvider(<Subject currentStep={3} />);
     screen.getByText('TODO');
+  });
+
+  it('redirects to `connect_another_device` if promo has been dismissed before', async () => {
+    localStorage.setItem(
+      Constants.DISABLE_PROMO_ACCOUNT_RECOVERY_KEY_DO_IT_LATER,
+      'true'
+    );
+    renderWithLocalizationProvider(<Subject />);
+    expect(ReactUtils.hardNavigate).toHaveBeenCalledWith(
+      '/connect_another_device',
+      {},
+      true
+    );
+  });
+
+  it('clicks `do it later` navigates to `connect_another_device`', async () => {
+    renderWithLocalizationProvider(<Subject />);
+    await act(async () => {
+      fireEvent.click(await screen.findByText('Do it later'));
+    });
+    expect(ReactUtils.hardNavigate).toHaveBeenCalledWith(
+      '/connect_another_device',
+      {},
+      true
+    );
+    expect(
+      localStorage.getItem(
+        Constants.DISABLE_PROMO_ACCOUNT_RECOVERY_KEY_DO_IT_LATER
+      )
+    ).toBe('true');
   });
 });

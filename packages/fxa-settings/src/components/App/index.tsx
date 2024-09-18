@@ -77,6 +77,7 @@ import PrimaryEmailVerified from '../../pages/Signup/PrimaryEmailVerified';
 import SignupConfirmed from '../../pages/Signup/SignupConfirmed';
 import WebChannelExample from '../../pages/WebChannelExample';
 import SignoutSync from '../Settings/SignoutSync';
+import InlineRecoveryKeySetupContainer from '../../pages/InlineRecoveryKeySetup/container';
 
 const Settings = lazy(() => import('../Settings'));
 
@@ -409,6 +410,10 @@ const AuthAndAccountSetupRoutes = ({
       <SigninUnblockContainer
         path="/signin_unblock/*"
         {...{ integration, flowQueryParams }}
+      />
+      <InlineRecoveryKeySetupContainer
+        path="/inline_recovery_key_setup/*"
+        {...{ integration, serviceName }}
       />
 
       {/* Signup */}

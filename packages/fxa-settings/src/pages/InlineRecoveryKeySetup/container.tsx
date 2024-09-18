@@ -12,7 +12,7 @@ export const InlineRecoveryKeySetupContainer = ({
 }: {
   integration: Integration;
 } & RouteComponentProps) => {
-  const [currentStep, setCurrentStep] = useState<number>(1);
+  const [currentStep] = useState<number>(1);
   const createRecoveryKeyHandler = useCallback(async () => {
     // TODO in FXA-10079
   }, []);

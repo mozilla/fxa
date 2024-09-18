@@ -18,6 +18,10 @@ jest.mock('@reach/router', () => ({
 }));
 
 describe('NotificationPromoBanner component', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
   it('renders as expected', () => {
     const notificationProps = {
       headerImage: keyImage,

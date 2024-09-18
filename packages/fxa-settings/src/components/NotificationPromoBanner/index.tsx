@@ -3,6 +3,7 @@ import { Link, RouteComponentProps, useLocation } from '@reach/router';
 import { ReactComponent as IconClose } from '@fxa/shared/assets/images/close.svg';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import GleanMetrics from '../../lib/glean';
+import { Constants } from '../../lib/constants';
 
 type NotificationPromoBannerProps = {
   headerImage: string;
@@ -13,6 +14,11 @@ type NotificationPromoBannerProps = {
   dismissKey: string;
   metricsKey: string;
   isVisible: boolean;
+};
+
+const PromoKeys: { [key: string]: string } = {
+  'account-recovery-dismissed':
+    Constants.DISABLE_PROMO_ACCOUNT_RECOVERY_KEY_BANNER,
 };
 
 const NotificationPromoBanner = ({
@@ -34,7 +40,7 @@ const NotificationPromoBanner = ({
   // This value is used to animate the banner out of view when the user dismisses it.
   const [isClosing, setIsClosing] = useState(false);
 
-  const notificationBannerClosedLocalStorageKey = `__fxa_storage.fxa_disable_notification_banner.${dismissKey}`;
+  const notificationBannerClosedLocalStorageKey = PromoKeys[dismissKey];
 
   const [bannerClosed] = useState<string | null>(
     localStorage.getItem(notificationBannerClosedLocalStorageKey)
