@@ -6,12 +6,15 @@ import { Test } from '@nestjs/testing';
 
 import {
   StripeClient,
-  StripeResponseFactory,
+  MockStripeConfigProvider,
+  StripeApiListFactory,
+  StripeCouponFactory,
   StripeCustomerFactory,
   StripeInvoiceFactory,
   StripePriceFactory,
+  StripePromotionCodeFactory,
+  StripeResponseFactory,
   StripeUpcomingInvoiceFactory,
-  MockStripeConfigProvider,
 } from '@fxa/payments/stripe';
 import { TaxAddressFactory } from './factories/tax-address.factory';
 import { InvoicePreviewFactory } from './invoice.factories';
@@ -84,6 +87,43 @@ describe('InvoiceManager', () => {
         priceId: mockPrice.id,
         customer: mockCustomer,
         taxAddress: mockTaxAddress,
+      });
+      expect(result).toEqual(mockInvoicePreview);
+    });
+
+    it('returns upcoming invoice with coupon', async () => {
+      const mockCustomer = StripeCustomerFactory();
+      const mockPrice = StripePriceFactory();
+      const mockUpcomingInvoice = StripeResponseFactory(
+        StripeUpcomingInvoiceFactory()
+      );
+      const mockPromotionCode = StripePromotionCodeFactory({
+        coupon: StripeCouponFactory({
+          valid: true,
+        }),
+      });
+
+      const mockTaxAddress = TaxAddressFactory();
+      const mockInvoicePreview = InvoicePreviewFactory();
+
+      jest
+        .spyOn(stripeClient, 'promotionCodesList')
+        .mockResolvedValue(
+          StripeResponseFactory(StripeApiListFactory([mockPromotionCode]))
+        );
+      jest
+        .spyOn(stripeClient, 'invoicesRetrieveUpcoming')
+        .mockResolvedValue(mockUpcomingInvoice);
+
+      mockedStripeInvoiceToFirstInvoicePreviewDTO.mockReturnValue(
+        mockInvoicePreview
+      );
+
+      const result = await invoiceManager.preview({
+        priceId: mockPrice.id,
+        customer: mockCustomer,
+        taxAddress: mockTaxAddress,
+        couponCode: mockPromotionCode.code,
       });
       expect(result).toEqual(mockInvoicePreview);
     });

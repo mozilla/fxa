@@ -51,6 +51,30 @@ export class PromotionCodeCouldNotBeAttachedError extends PaymentsCustomerError 
   }
 }
 
+export class CouponErrorExpired extends PromotionCodeCouldNotBeAttachedError {
+  constructor() {
+    super('The code you entered has expired.');
+  }
+}
+
+export class CouponErrorGeneric extends PromotionCodeCouldNotBeAttachedError {
+  constructor() {
+    super('An error occurred processing the code. Please try again.');
+  }
+}
+
+export class CouponErrorInvalid extends PromotionCodeCouldNotBeAttachedError {
+  constructor() {
+    super('The code you entered is invalid.');
+  }
+}
+
+export class CouponErrorLimitReached extends PromotionCodeCouldNotBeAttachedError {
+  constructor() {
+    super('The code you entered has reached its limit.');
+  }
+}
+
 export class StripeNoMinimumChargeAmountAvailableError extends PaymentsCustomerError {
   constructor() {
     super('Currency does not have a minimum charge amount available.');
