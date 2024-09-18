@@ -99,7 +99,7 @@
     "jquery": "3.7.0",
     "jquery-modal": "https://github.com/mozilla-fxa/jquery-modal.git#0576775d1b4590314b114386019f4c7421c77503",
     "jquery-simulate": "1.0.2",
-    "jquery-ui": "1.13.2",
+    "jquery-ui": "1.14.0",
     "jquery-ui-touch-punch-amd": "1.0.1",
     "js-md5": "0.7.3",
     "jsxgettext-recursive-next": "1.1.0",
