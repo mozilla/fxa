@@ -18,8 +18,9 @@ import { Localized } from '@fluent/react';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import LinkExternal from 'fxa-react/components/LinkExternal';
-import { getErrorFtlId } from '../../../lib/error-utils';
+import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import GleanMetrics from '../../../lib/glean';
+import { useFtlMsgResolver } from '../../../models/hooks';
 
 type FormData = {
   password: string;
@@ -104,6 +105,7 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
   );
   const navigate = useNavigate();
   const alertBar = useAlertBar();
+  const ftlMsgResolver = useFtlMsgResolver();
   const goHome = useCallback(() => window.history.back(), []);
 
   const account = useAccount();
@@ -143,11 +145,7 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
         );
         hardNavigate('/', { delete_account_success: true }, true);
       } catch (e) {
-        const localizedError = l10n.getString(
-          getErrorFtlId(AuthUiErrors.INCORRECT_PASSWORD),
-          null,
-          AuthUiErrors.INCORRECT_PASSWORD.message
-        );
+        const localizedError = getLocalizedErrorMessage(ftlMsgResolver, e);
         if (e.errno === AuthUiErrors.INCORRECT_PASSWORD.errno) {
           setErrorText(localizedError);
           setValue('password', '');
@@ -157,7 +155,7 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
         }
       }
     },
-    [account, l10n, setErrorText, setValue, alertBar]
+    [account, setErrorText, setValue, alertBar, ftlMsgResolver]
   );
 
   const handleConfirmChange =
