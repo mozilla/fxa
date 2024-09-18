@@ -12,6 +12,7 @@ export interface ConfirmResetPasswordLocationState {
 
 export type RecoveryKeyCheckResult = {
   exists?: boolean;
+  hint?: string;
   estimatedSyncDeviceCount?: number;
 };
 

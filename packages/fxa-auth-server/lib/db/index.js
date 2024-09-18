@@ -1087,13 +1087,9 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     return RecoveryKey.update({ uid, recoveryKeyId, enabled });
   };
 
-  DB.prototype.getRecoveryKeyHint = async function (uid) {
-    log.trace('DB.getRecoveryKeyHint', { uid });
-    const data = await RecoveryKey.findByUid(uid);
-    if (!data) {
-      throw error.recoveryKeyNotFound();
-    }
-    return { hint: await RecoveryKey.findHintByUid(uid) };
+  DB.prototype.getRecoveryKeyRecordWithHint = async function (uid) {
+    log.trace('DB.getRecoveryKeyRecordWithHint', { uid });
+    return await RecoveryKey.findRecordWithHintByUid(uid);
   };
 
   DB.prototype.updateRecoveryKeyHint = async function (uid, hint) {

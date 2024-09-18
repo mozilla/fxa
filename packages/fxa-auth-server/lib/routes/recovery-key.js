@@ -296,17 +296,23 @@ module.exports = (
       options: {
         ...RECOVERY_KEY_DOCS.RECOVERYKEY_EXISTS_POST,
         auth: {
-          mode: 'optional',
-          strategy: 'sessionToken',
+          strategies: [
+            'multiStrategySessionToken',
+            'multiStrategyPasswordForgotToken',
+          ],
         },
         validate: {
-          payload: isA.object({
-            email: validators.email().optional(),
-          }),
+          payload: isA
+            .object({
+              email: validators.email().optional(),
+            })
+            .optional()
+            .allow(null),
         },
         response: {
           schema: isA.object({
             exists: isA.boolean().required(),
+            hint: isA.string().optional().allow(null),
             estimatedSyncDeviceCount: isA.number().optional(),
           }),
         },
@@ -314,26 +320,10 @@ module.exports = (
       async handler(request) {
         log.begin('recoveryKeyExists', request);
 
-        const { email } = request.payload;
-
-        let uid;
-        if (request.auth.credentials) {
-          uid = request.auth.credentials.uid;
-        }
-
-        if (!uid) {
-          // If not using a sessionToken, an email is required to check
-          // for an account recovery key. This occurs when checking from the
-          // password reset page and allows us to redirect the user to either
-          // the regular password reset or account recovery password reset.
-          if (!email) {
-            throw errors.missingRequestParameter('email');
-          }
-
-          await customs.check(request, email, 'recoveryKeyExists');
-          ({ uid } = await db.accountRecord(email));
-        }
-        const exists = await db.recoveryKeyExists(uid);
+        const uid = request.auth.credentials.uid;
+        const recoveryKeyRecordWithHint = await db.getRecoveryKeyRecordWithHint(
+          uid
+        );
 
         // We try our best to estimate the number of Sync devices that could be impacted by using a recovery key.
         // It is an estimate because we currently can't query the Sync service to get the actual number of items
@@ -347,70 +337,12 @@ module.exports = (
         );
 
         return {
-          exists: exists.exists,
+          exists: !!recoveryKeyRecordWithHint,
+          hint: recoveryKeyRecordWithHint?.hint,
           estimatedSyncDeviceCount,
         };
       },
     },
-    // This method is not yet in use
-    // Disabled until we are ready to enable as part of FXA-6670
-    // GET request for authenticated user should use the sessionToken to display the hint in /settings
-    // To display the hint during password reset, this method will need to be usable without authenticating,
-    // but unauthenticated requests should be rate limited by IP and email to prevent checking multiple emails for hints
-    // TODO : Review in FXA-7400 - possibly convert to POST to pass payload instead of using param, and enforce rate limiting
-    // {
-    //   method: 'GET',
-    //   path: '/recoveryKey/hint',
-    //   options: {
-    //     ...RECOVERY_KEY_DOCS.RECOVERYKEY_HINT_GET,
-    //     auth: {
-    //       mode: 'optional',
-    //       strategy: 'sessionToken',
-    //     },
-    //     validate: {
-    //       query: {
-    //         email: validators.email().optional(),
-    //       },
-    //     },
-    //   },
-    //   handler: async function (request) {
-    //     log.begin('getRecoveryKeyHint', request);
-
-    //     const { email } = request.query;
-
-    //     let uid;
-    //     if (request.auth.credentials) {
-    //       uid = request.auth.credentials.uid;
-    //     }
-
-    //     if (!uid) {
-    //       // If not using a sessionToken, an email is required to check
-    //       // for an account recovery key.
-    //       if (!email) {
-    //         throw errors.missingRequestParameter('email');
-    //       }
-
-    //       // When this request is unauthenticated, we must rate-limit by IP and email
-    //       // to review in FXA-7400, rate limiting does not seem to be working as expected
-    //       await customs.check(request, email, 'recoveryKeyExists');
-    //       try {
-    //         const result = await db.accountRecord(email);
-    //         uid = result.uid;
-    //       } catch (err) {
-    //         throw errors.unknownAccount();
-    //       }
-    //     }
-
-    //     const result = await db.recoveryKeyExists(uid);
-    //     if (!result.exists) {
-    //       throw errors.recoveryKeyNotFound();
-    //     }
-
-    //     const hint = await db.getRecoveryKeyHint(uid);
-
-    //     return hint;
-    //   },
-    // },
     {
       method: 'POST',
       path: '/recoveryKey/hint',
