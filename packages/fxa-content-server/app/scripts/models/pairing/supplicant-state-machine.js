@@ -29,10 +29,7 @@ class SupplicantState extends State {
   }
 
   socketError(error) {
-    this.navigate('pair/failure', {
-      error,
-      searchParams: window.location.search,
-    });
+    this.navigate('pair/failure', { error });
   }
 }
 
