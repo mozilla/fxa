@@ -100,6 +100,7 @@ const NotificationPromoBanner = ({
         <Link
           className="cta-neutral cta-base cta-base-p text-base tablet:mr-8 tablet:text-sm tablet:self-center transition-standard -mt-1 mobileLandscape:mt-0"
           to={`${route}${location.search}`}
+          data-testid={`submit_${metricsKey}`}
           data-glean-id={`account_banner_${metricsKey}_submit`}
         >
           {ctaText}

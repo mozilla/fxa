@@ -140,10 +140,6 @@ test.describe('severity-2 #smoke', () => {
       },
       testAccountTracker,
     }) => {
-      test.skip(
-        true,
-        'TODO in FXA-10081, functional tests for inline recovery key setup'
-      );
       const credentials = await testAccountTracker.signUpSync();
 
       await page.goto(

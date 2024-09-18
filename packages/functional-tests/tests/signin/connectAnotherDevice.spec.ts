@@ -19,7 +19,8 @@ test.describe('severity-2 #smoke', () => {
       await signin.fillOutEmailFirstForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
 
-      await expect(page).toHaveURL(/connect_another_device/);
+      await page.waitForURL(/connect_another_device/);
+
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
       await expect(
         connectAnotherDevice.connectAnotherDeviceButton
