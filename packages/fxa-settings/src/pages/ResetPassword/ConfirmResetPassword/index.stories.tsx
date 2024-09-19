@@ -14,4 +14,6 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-export const Default = () => <Subject />;
+export const WithResendSuccess = () => <Subject />;
+
+export const WithResendError = () => <Subject resendSuccess={false} />;

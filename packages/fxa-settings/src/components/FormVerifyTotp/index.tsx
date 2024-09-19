@@ -2,87 +2,120 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useRef, useState } from 'react';
-import TotpInputGroup from '../TotpInputGroup';
-import { FtlMsg } from 'fxa-react/lib/utils';
-import Banner, { BannerType } from '../Banner';
+import React, { useState } from 'react';
+import InputText from '../InputText';
+import { useForm } from 'react-hook-form';
+import { getLocalizedErrorMessage } from '../../lib/error-utils';
+import { useFtlMsgResolver } from '../../models';
+import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
+import { FormVerifyTotpProps, VerifyTotpFormData } from './interfaces';
 
-export type CodeArray = Array<string | undefined>;
-
-export type FormVerifyTotpProps = {
-  codeLength: 6 | 8;
-  errorMessage: string;
-  localizedInputGroupLabel: string;
-  localizedSubmitButtonText: string;
-  setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
-  verifyCode: (code: string) => void;
-};
+// Split inputs are not recommended for accesibility
+// Code inputs should be a single input field
+// See FXA-10390 for details on reverting from split input to single input
 
 const FormVerifyTotp = ({
+  clearBanners,
   codeLength,
+  codeType,
   errorMessage,
-  localizedInputGroupLabel,
+  localizedInputLabel,
   localizedSubmitButtonText,
   setErrorMessage,
   verifyCode,
 }: FormVerifyTotpProps) => {
-  const inputRefs = useRef(
-    Array.from({ length: codeLength }, () =>
-      React.createRef<HTMLInputElement>()
-    )
-  );
+  const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
 
-  const [codeArray, setCodeArray] = useState<CodeArray>(new Array(codeLength));
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const ftlMsgResolver = useFtlMsgResolver();
 
-  const stringifiedCode = codeArray.join('');
+  const { handleSubmit, register } = useForm<VerifyTotpFormData>({
+    mode: 'onBlur',
+    criteriaMode: 'all',
+    defaultValues: {
+      code: '',
+    },
+  });
 
-  const isFormValid = stringifiedCode.length === codeLength && !errorMessage;
-  const isSubmitDisabled = isSubmitting || !isFormValid;
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (errorMessage) {
+      setErrorMessage('');
+    }
+    // only accept characters that match the code type (numeric or alphanumeric)
+    // strip out any other characters
+    const filteredCode = e.target.value.replace(
+      codeType === 'numeric' ? /[^0-9]/g : /[^a-zA-Z0-9]/g,
+      ''
+    );
+    e.target.value = filteredCode;
+    console.log(e.target.value.length);
+    e.target.value.length === codeLength
+      ? setIsSubmitDisabled(false)
+      : setIsSubmitDisabled(true);
+  };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async ({ code }: VerifyTotpFormData) => {
+    clearBanners && clearBanners();
+    setIsSubmitDisabled(true);
+    // Only submit the code if it is the correct length
+    // Otherwise, show an error message
+    if (code.length !== codeLength) {
+      setErrorMessage(
+        getLocalizedErrorMessage(ftlMsgResolver, AuthUiErrors.INVALID_OTP_CODE)
+      );
+    } else if (!isSubmitDisabled) {
+      await verifyCode(code);
+    }
+    setIsSubmitDisabled(false);
+  };
 
-    if (!isSubmitDisabled) {
-      setIsSubmitting(true);
-      await verifyCode(stringifiedCode);
-      setIsSubmitting(false);
+  const getDisabledButtonTitle = () => {
+    if (codeType === 'numeric') {
+      return ftlMsgResolver.getMsg(
+        'form-verify-totp-disabled-button-title-numeric',
+        `Enter ${codeLength}-digit code to continue`,
+        { codeLength }
+      );
+    } else {
+      return ftlMsgResolver.getMsg(
+        'form-verify-totp-disabled-button-title-alphanumeric',
+        `Enter ${codeLength}-character code to continue`,
+        { codeLength }
+      );
     }
   };
 
   return (
-    <>
-      {errorMessage && <Banner type={BannerType.error}>{errorMessage}</Banner>}
-      <form
-        noValidate
-        className="flex flex-col gap-4 my-6"
-        onSubmit={handleSubmit}
+    <form
+      noValidate
+      className="flex flex-col gap-4 my-6"
+      onSubmit={handleSubmit(onSubmit)}
+    >
+      {/* Using `type="text" inputmode="numeric"` shows the numeric keyboard on mobile
+      and strips out whitespace on desktop, but does not add an incrementer. */}
+      <InputText
+        name="code"
+        type="text"
+        inputMode={codeType === 'numeric' ? 'numeric' : 'text'}
+        label={localizedInputLabel}
+        onChange={handleChange}
+        autoFocus
+        maxLength={codeLength}
+        className="text-start"
+        anchorPosition="start"
+        autoComplete="one-time-code"
+        spellCheck={false}
+        inputRef={register({ required: true })}
+        hasErrors={!!errorMessage}
+      />
+      <button
+        type="submit"
+        className="cta-primary cta-xl"
+        disabled={isSubmitDisabled}
+        title={isSubmitDisabled ? getDisabledButtonTitle() : ''}
       >
-        <TotpInputGroup
-          {...{
-            codeArray,
-            codeLength,
-            inputRefs,
-            localizedInputGroupLabel,
-            setCodeArray,
-            setErrorMessage,
-            errorMessage,
-          }}
-        />
-        <FtlMsg
-          id="form-verify-code-submit-button-2"
-          vars={{ codeValue: stringifiedCode }}
-        >
-          <button
-            type="submit"
-            className="cta-primary cta-xl"
-            disabled={isSubmitDisabled}
-          >
-            {localizedSubmitButtonText}
-          </button>
-        </FtlMsg>
-      </form>
-    </>
+        {localizedSubmitButtonText}
+      </button>
+    </form>
   );
 };
 

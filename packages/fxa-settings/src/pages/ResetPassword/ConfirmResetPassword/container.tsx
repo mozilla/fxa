@@ -112,6 +112,7 @@ const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
         recoveryKeyExists
       );
     } catch (error) {
+      // return custom error for expired or incorrect code
       const localizerErrorMessage = getLocalizedErrorMessage(
         ftlMsgResolver,
         error
@@ -140,6 +141,7 @@ const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
   return (
     <ConfirmResetPassword
       {...{
+        clearBanners,
         email,
         errorMessage,
         resendCode,

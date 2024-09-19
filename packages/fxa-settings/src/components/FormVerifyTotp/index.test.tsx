@@ -12,7 +12,7 @@ describe('FormVerifyTotp component', () => {
   it('renders as expected with default props', async () => {
     renderWithLocalizationProvider(<Subject />);
     expect(screen.getByText('Enter 6-digit code')).toBeVisible();
-    expect(screen.getAllByRole('textbox')).toHaveLength(6);
+    expect(screen.getAllByRole('textbox')).toHaveLength(1);
     const button = screen.getByRole('button');
     expect(button).toHaveTextContent('Submit');
   });
@@ -28,61 +28,31 @@ describe('FormVerifyTotp component', () => {
     it('is enabled when numbers are typed into all inputs', async () => {
       const user = userEvent.setup();
       renderWithLocalizationProvider(<Subject />);
+      const input = screen.getByRole('textbox');
       const button = screen.getByRole('button');
       expect(button).toHaveTextContent('Submit');
       expect(button).toBeDisabled();
 
-      await waitFor(() =>
-        user.click(screen.getByRole('textbox', { name: 'Digit 1 of 6' }))
-      );
+      await user.type(input, '123456');
 
-      // type in each input
-      for (let i = 1; i <= 6; i++) {
-        await waitFor(() =>
-          user.type(
-            screen.getByRole('textbox', { name: `Digit ${i} of 6` }),
-            i.toString()
-          )
-        );
-      }
       expect(button).toBeEnabled();
     });
 
     it('is enabled when numbers are pasted into all inputs', async () => {
       const user = userEvent.setup();
       renderWithLocalizationProvider(<Subject />);
+      const input = screen.getByRole('textbox');
       const button = screen.getByRole('button');
       expect(button).toHaveTextContent('Submit');
       expect(button).toBeDisabled();
 
-      await waitFor(() =>
-        user.click(screen.getByRole('textbox', { name: 'Digit 1 of 6' }))
-      );
+      await user.click(input);
 
       await waitFor(() => {
         user.paste('123456');
       });
 
       expect(button).toBeEnabled();
-    });
-  });
-
-  describe('errors', () => {
-    it('are cleared when typing in input', async () => {
-      const user = userEvent.setup();
-      renderWithLocalizationProvider(
-        <Subject initialErrorMessage="Something went wrong" />
-      );
-
-      expect(screen.getByText('Something went wrong')).toBeVisible();
-
-      await waitFor(() =>
-        user.type(screen.getByRole('textbox', { name: 'Digit 1 of 6' }), '1')
-      );
-
-      expect(
-        screen.queryByText('Something went wrong')
-      ).not.toBeInTheDocument();
     });
   });
 });

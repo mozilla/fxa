@@ -64,7 +64,7 @@ describe('ConfirmResetPassword', () => {
 
     expect(screen.getByText(MOCK_EMAIL)).toBeVisible();
 
-    expect(screen.getAllByRole('textbox')).toHaveLength(8);
+    expect(screen.getAllByRole('textbox')).toHaveLength(1);
     const buttons = await screen.findAllByRole('button');
     expect(buttons).toHaveLength(2);
     expect(buttons[0]).toHaveTextContent('Continue');

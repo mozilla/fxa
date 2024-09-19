@@ -4,17 +4,19 @@
 
 import React, { useCallback, useState } from 'react';
 import AppLayout from '../AppLayout';
-import FormVerifyTotp, { FormVerifyTotpProps } from '.';
+import FormVerifyTotp from '.';
+import { FormVerifyTotpProps } from './interfaces';
 
 export const Subject = ({
   codeLength = 6,
+  codeType = 'numeric',
   success = true,
   initialErrorMessage = '',
 }: Partial<FormVerifyTotpProps> & {
   success?: Boolean;
   initialErrorMessage?: string;
 }) => {
-  const localizedInputGroupLabel = `Enter ${codeLength.toString()}-digit code`;
+  const localizedInputLabel = `Enter ${codeLength.toString()}-digit code`;
   const localizedSubmitButtonText = 'Submit';
   const [errorMessage, setErrorMessage] = useState(initialErrorMessage);
 
@@ -35,8 +37,9 @@ export const Subject = ({
       <FormVerifyTotp
         {...{
           codeLength,
+          codeType,
           errorMessage,
-          localizedInputGroupLabel,
+          localizedInputLabel,
           localizedSubmitButtonText,
           setErrorMessage,
           verifyCode,
