@@ -9,6 +9,7 @@ import {
   StripeClient,
   StripeCustomer,
   StripeInvoice,
+  StripePromotionCode,
 } from '@fxa/payments/stripe';
 import { TaxAddress } from './types';
 import { isCustomerTaxEligible } from './util/isCustomerTaxEligible';
@@ -29,11 +30,21 @@ export class InvoiceManager {
     priceId,
     customer,
     taxAddress,
+    couponCode,
   }: {
     priceId: string;
     customer?: StripeCustomer;
     taxAddress?: TaxAddress;
+    couponCode?: string;
   }) {
+    let promoCode: StripePromotionCode | undefined;
+    if (couponCode) {
+      const promotionCodes = await this.stripeClient.promotionCodesList({
+        active: true,
+        code: couponCode,
+      });
+      promoCode = promotionCodes.data.at(0);
+    }
     const automaticTax = !!(
       (customer && isCustomerTaxEligible(customer)) ||
       (!customer && taxAddress)
@@ -60,6 +71,7 @@ export class InvoiceManager {
         shipping,
       },
       subscription_items: [{ price: priceId }],
+      discounts: [{ promotion_code: promoCode?.id }],
     };
 
     const upcomingInvoice = await this.stripeClient.invoicesRetrieveUpcoming(

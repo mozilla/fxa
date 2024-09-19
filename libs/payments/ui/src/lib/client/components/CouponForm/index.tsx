@@ -5,6 +5,7 @@
 'use client';
 
 import { Localized } from '@fluent/react';
+import { useFormState } from 'react-dom';
 import { ButtonVariant } from '../BaseButton';
 import { SubmitButton } from '../SubmitButton';
 import { updateCartAction } from '../../../actions/updateCart';
@@ -67,15 +68,15 @@ const WithoutCoupon = ({
   cartVersion,
   readOnly,
 }: WithoutCouponProps) => {
-  async function applyCoupon(formData: FormData) {
+  async function applyCoupon(_: any, formData: FormData) {
     const promotionCode = formData.get('coupon') as string;
 
-    await updateCartAction(cartId, cartVersion, {
+    return updateCartAction(cartId, cartVersion, {
       couponCode: promotionCode,
     });
   }
 
-  const error = null;
+  const [error, formAction] = useFormState(applyCoupon, null);
 
   return (
     <>
@@ -83,7 +84,7 @@ const WithoutCoupon = ({
         <Localized id="next-coupon-promo-code">Promo Code</Localized>
       </h2>
 
-      <form action={applyCoupon} data-testid="coupon-form">
+      <form action={formAction} data-testid="coupon-form">
         <div className="flex gap-4 justify-between items-center">
           <Localized attrs={{ placeholder: true }} id="next-coupon-enter-code">
             <input

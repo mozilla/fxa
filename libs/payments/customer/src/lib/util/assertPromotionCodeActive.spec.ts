@@ -7,7 +7,12 @@ import {
   StripeCouponFactory,
   StripePromotionCodeFactory,
 } from '@fxa/payments/stripe';
-import { PromotionCodeCouldNotBeAttachedError } from '../error';
+import {
+  CouponErrorExpired,
+  CouponErrorGeneric,
+  CouponErrorInvalid,
+  CouponErrorLimitReached,
+} from '../error';
 import { assertPromotionCodeActive } from './assertPromotionCodeActive';
 
 describe('assertPromotionCodeActive', () => {
@@ -15,7 +20,7 @@ describe('assertPromotionCodeActive', () => {
     const mockPromotionCode = StripeResponseFactory(undefined);
 
     expect(() => assertPromotionCodeActive(mockPromotionCode)).toThrowError(
-      PromotionCodeCouldNotBeAttachedError
+      CouponErrorGeneric
     );
   });
 
@@ -25,7 +30,7 @@ describe('assertPromotionCodeActive', () => {
     });
 
     expect(() => assertPromotionCodeActive(mockPromotionCode)).toThrowError(
-      PromotionCodeCouldNotBeAttachedError
+      CouponErrorGeneric
     );
   });
 
@@ -37,7 +42,18 @@ describe('assertPromotionCodeActive', () => {
     });
 
     expect(() => assertPromotionCodeActive(mockPromotionCode)).toThrowError(
-      PromotionCodeCouldNotBeAttachedError
+      CouponErrorInvalid
+    );
+  });
+
+  it('throws error if the promotion code coupon reached max redemption', async () => {
+    const mockPromotionCode = StripePromotionCodeFactory({
+      max_redemptions: 3,
+      times_redeemed: 3,
+    });
+
+    expect(() => assertPromotionCodeActive(mockPromotionCode)).toThrowError(
+      CouponErrorLimitReached
     );
   });
 
@@ -48,7 +64,7 @@ describe('assertPromotionCodeActive', () => {
     });
 
     expect(() => assertPromotionCodeActive(mockPromotionCode)).toThrowError(
-      PromotionCodeCouldNotBeAttachedError
+      CouponErrorExpired
     );
   });
 
