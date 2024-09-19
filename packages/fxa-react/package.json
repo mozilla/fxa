@@ -48,7 +48,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.24.4",
-    "@babel/plugin-transform-typescript": "^7.24.4",
+    "@babel/plugin-transform-typescript": "^7.25.2",
     "@babel/preset-env": "^7.22.9",
     "@babel/preset-react": "^7.24.1",
     "@babel/preset-typescript": "^7.24.1",
