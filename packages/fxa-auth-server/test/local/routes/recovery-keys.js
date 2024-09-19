@@ -587,7 +587,7 @@ describe('POST /recoveryKey/exists', () => {
         log,
       };
       return setup(
-        { db: { recoveryData } },
+        { db: { recoveryData, hint: 'so wow much encryption' } },
         {},
         '/recoveryKey/exists',
         requestOptions
@@ -596,6 +596,7 @@ describe('POST /recoveryKey/exists', () => {
 
     it('returned the correct response', () => {
       assert.equal(response.exists, true, 'exists ');
+      assert.equal(response.hint, 'so wow much encryption');
       assert.equal(response.estimatedSyncDeviceCount, 0);
     });
 
@@ -607,9 +608,9 @@ describe('POST /recoveryKey/exists', () => {
       assert.equal(args[1], request);
     });
 
-    it('called db.recoveryKeyExists correctly', () => {
-      assert.equal(db.recoveryKeyExists.callCount, 1);
-      const args = db.recoveryKeyExists.args[0];
+    it('called db.getRecoveryKeyRecordWithHint correctly', () => {
+      assert.equal(db.getRecoveryKeyRecordWithHint.callCount, 1);
+      const args = db.getRecoveryKeyRecordWithHint.args[0];
       assert.equal(args.length, 1);
       assert.equal(args[0], uid);
     });
@@ -707,48 +708,6 @@ describe('POST /recoveryKey/exists', () => {
       assert.equal(response.estimatedSyncDeviceCount, 1);
     });
   });
-
-  describe('should check if account recovery key exists using email', () => {
-    beforeEach(() => {
-      const requestOptions = {
-        payload: { email },
-        log,
-      };
-      return setup(
-        { db: { uid, email, recoveryData } },
-        {},
-        '/recoveryKey/exists',
-        requestOptions
-      ).then((r) => (response = r));
-    });
-
-    it('returned the correct response', () => {
-      assert.deepEqual(response.exists, true, 'exists ');
-    });
-
-    it('called log.begin correctly', () => {
-      assert.equal(log.begin.callCount, 1);
-      const args = log.begin.args[0];
-      assert.equal(args.length, 2);
-      assert.equal(args[0], 'recoveryKeyExists');
-      assert.equal(args[1], request);
-    });
-
-    it('called customs.check correctly', () => {
-      assert.equal(customs.check.callCount, 1);
-      const args = customs.check.args[0];
-      assert.equal(args.length, 3);
-      assert.equal(args[1], email);
-      assert.equal(args[2], 'recoveryKeyExists');
-    });
-
-    it('called db.recoveryKeyExists correctly', () => {
-      assert.equal(db.recoveryKeyExists.callCount, 1);
-      const args = db.recoveryKeyExists.args[0];
-      assert.equal(args.length, 1);
-      assert.equal(args[0], uid);
-    });
-  });
 });
 
 describe('DELETE /recoveryKey', () => {
@@ -844,220 +803,6 @@ describe('DELETE /recoveryKey', () => {
     });
   });
 });
-
-// TODO: FXA-7400 - Enable these tests
-// describe('GET /recoveryKey/hint', () => {
-//   describe('should fail when provided with no session token or email', () => {
-//     beforeEach(() => {
-//       const requestOptions = {
-//         method: 'GET',
-//         log,
-//       };
-//       return setup(
-//         { db: { uid, email, recoveryData, hint } },
-//         {},
-//         '/recoveryKey/hint',
-//         requestOptions
-//       ).then(assert.fail, (err) => (response = err));
-//     });
-
-//     it('returned the correct response', () => {
-//       assert.equal(
-//         response.errno,
-//         errors.ERRNO.MISSING_PARAMETER,
-//         'Missing parameter: email'
-//       );
-//     });
-
-//     it('called log.begin correctly', () => {
-//       sinon.assert.calledOnceWithExactly(
-//         log.begin,
-//         'getRecoveryKeyHint',
-//         request
-//       );
-//     });
-//   });
-
-//   describe('should fail when there is no account associated with the email', () => {
-//     beforeEach(() => {
-//       const requestOptions = {
-//         method: 'GET',
-//         query: { email: email },
-//         log,
-//       };
-//       return setup({}, {}, '/recoveryKey/hint', requestOptions).then(
-//         assert.fail,
-//         (err) => (response = err)
-//       );
-//     });
-
-//     it('returned the correct response', () => {
-//       assert.equal(
-//         response.errno,
-//         errors.ERRNO.ACCOUNT_UNKNOWN,
-//         'Unknown account'
-//       );
-//     });
-
-//     it('called log.begin correctly', () => {
-//       sinon.assert.calledOnceWithExactly(
-//         log.begin,
-//         'getRecoveryKeyHint',
-//         request
-//       );
-//     });
-
-//     it('called customs.check correctly', () => {
-//       sinon.assert.calledOnceWithExactly(
-//         customs.check,
-//         request,
-//         email,
-//         'recoveryKeyExists'
-//       );
-//     });
-//   });
-
-//   describe('should fail for unknown recovery key when provided with a session token', () => {
-//     beforeEach(() => {
-//       const requestOptions = {
-//         method: 'GET',
-//         credentials: { uid, email },
-//         log,
-//       };
-//       return setup(
-//         { db: { uid, email } },
-//         {},
-//         '/recoveryKey/hint',
-//         requestOptions
-//       ).then(assert.fail, (err) => (response = err));
-//     });
-
-//     it('returned the correct response', () => {
-//       assert.equal(
-//         response.errno,
-//         errors.ERRNO.RECOVERY_KEY_NOT_FOUND,
-//         'Account recovery key not found'
-//       );
-//     });
-
-//     it('called log.begin correctly', () => {
-//       sinon.assert.calledOnceWithExactly(
-//         log.begin,
-//         'getRecoveryKeyHint',
-//         request
-//       );
-//     });
-//   });
-
-//   describe('should fail for unknown recovery key when provided with an email', () => {
-//     beforeEach(() => {
-//       const requestOptions = {
-//         method: 'GET',
-//         query: { email: email },
-//         log,
-//       };
-//       return setup(
-//         { db: { uid, email } },
-//         {},
-//         '/recoveryKey/hint',
-//         requestOptions
-//       ).then(assert.fail, (err) => (response = err));
-//     });
-
-//     it('returned the correct response', () => {
-//       assert.equal(
-//         response.errno,
-//         errors.ERRNO.RECOVERY_KEY_NOT_FOUND,
-//         'Account recovery key not found'
-//       );
-//     });
-
-//     it('called log.begin correctly', () => {
-//       sinon.assert.calledOnceWithExactly(
-//         log.begin,
-//         'getRecoveryKeyHint',
-//         request
-//       );
-//     });
-
-//     it('called customs.check correctly', () => {
-//       sinon.assert.calledOnceWithExactly(
-//         customs.check,
-//         request,
-//         email,
-//         'recoveryKeyExists'
-//       );
-//     });
-//   });
-
-//   describe('should retrieve the recovery key hint using sessionToken', () => {
-//     beforeEach(() => {
-//       const requestOptions = {
-//         credentials: { uid, email },
-//         log,
-//       };
-//       return setup(
-//         { db: { recoveryData, hint } },
-//         {},
-//         '/recoveryKey/hint',
-//         requestOptions
-//       ).then((r) => (response = r));
-//     });
-
-//     it('returned the correct response', () => {
-//       assert.deepEqual(response.hint, hint);
-//       sinon.assert.calledOnceWithExactly(db.getRecoveryKeyHint, uid);
-//     });
-
-//     it('called log.begin correctly', () => {
-//       sinon.assert.calledOnceWithExactly(
-//         log.begin,
-//         'getRecoveryKeyHint',
-//         request
-//       );
-//     });
-//   });
-
-//   describe('should retrieve the recovery key hint using email', () => {
-//     beforeEach(async () => {
-//       const requestOptions = {
-//         method: 'GET',
-//         query: { email: email },
-//         log,
-//       };
-//       response = await setup(
-//         { db: { recoveryData, hint, uid, email } },
-//         {},
-//         '/recoveryKey/hint',
-//         requestOptions
-//       );
-//     });
-
-//     it('returned the correct response', () => {
-//       assert.deepEqual(response.hint, hint);
-//       sinon.assert.calledOnceWithExactly(db.getRecoveryKeyHint, uid);
-//     });
-
-//     it('called log.begin correctly', () => {
-//       sinon.assert.calledOnceWithExactly(
-//         log.begin,
-//         'getRecoveryKeyHint',
-//         request
-//       );
-//     });
-
-//     // TODO - FXA-7400 verify that request throws an error and aborts the rest of the call
-//     // if the request is rate-limited
-//     it('called customs.check correctly', () => {
-//       sinon.assert.calledOnceWithExactly(
-//         customs.check,
-//         request,
-//         email,
-//         'recoveryKeyExists'
-//       );
-//     });
-//   });
-// });
 
 describe('POST /recoveryKey/hint', () => {
   describe('should fail for unverified session', () => {

@@ -846,12 +846,8 @@ module.exports = (config) => {
     return this.api.getRecoveryKey(this.accountResetToken, recoveryKeyId);
   };
 
-  Client.prototype.getRecoveryKeyExists = function (email) {
-    if (!email) {
-      return this.api.getRecoveryKeyExistsWithSession(this.sessionToken);
-    } else {
-      return this.api.getRecoveryKeyExistsWithEmail(email);
-    }
+  Client.prototype.getRecoveryKeyExists = function () {
+    return this.api.getRecoveryKeyExistsWithSession(this.sessionToken);
   };
 
   Client.prototype.deleteRecoveryKey = function () {

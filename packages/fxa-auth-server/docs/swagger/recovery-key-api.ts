@@ -34,8 +34,8 @@ const RECOVERYKEY_EXISTS_POST = {
   ...TAGS_RECOVERY_KEY,
   description: '/recoveryKey/exists',
   notes: [
-    '🔒🔓 Optionally authenticated with session token',
-    'This route checks to see if given user has setup an account recovery key. When used during the password reset flow, an email can be provided (instead of a sessionToken) to check for the status. However, when using an email, the request is rate limited.',
+    '🔒🔓 Authenticated with session token or password-forgot token',
+    'This route checks to see if given user has setup an account recovery key. When used during the password reset flow, a password-forgot token to check for the status.',
   ],
 };
 

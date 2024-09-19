@@ -428,13 +428,6 @@ export class Account implements AccountData {
     );
   }
 
-  async hasRecoveryKey(email: string): Promise<boolean> {
-    // Users may not be logged in (no session token) so we currently can't use GQL here
-    return this.withLoadingStatus(
-      await this.authClient.recoveryKeyExists(sessionToken()!, email)
-    );
-  }
-
   async getAccountStatusByEmail(email: string): Promise<boolean> {
     return this.withLoadingStatus(
       (await this.authClient.accountStatusByEmail(email)).exists

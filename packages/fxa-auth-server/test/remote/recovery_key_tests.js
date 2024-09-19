@@ -364,39 +364,6 @@ const { JWTool } = require('@fxa/vendored/jwtool');
           assert.equal(res.exists, false, 'account recovery key doesnt exists');
         });
       });
-
-      describe('with email', () => {
-        it('should return true if account recovery key exists', () => {
-          return client.getRecoveryKeyExists(email).then((res) => {
-            assert.equal(res.exists, true, 'account recovery key exists');
-          });
-        });
-
-        it("should return false if account recovery key doesn't exist", () => {
-          email = server.uniqueEmail();
-          return Client.createAndVerify(
-            config.publicUrl,
-            email,
-            password,
-            server.mailbox,
-            {
-              ...testOptions,
-              keys: true,
-            }
-          )
-            .then((c) => {
-              client = c;
-              return client.getRecoveryKeyExists(email);
-            })
-            .then((res) => {
-              assert.equal(
-                res.exists,
-                false,
-                "account recovery key doesn't exist"
-              );
-            });
-        });
-      });
     });
 
     after(() => {

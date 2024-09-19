@@ -78,7 +78,16 @@ function parseAuthorizationHeader(header, keys) {
  * @param {Function} getCredentialsFunc - The function to get the credentials.
  * @returns {Function}
  */
-function strategy(getCredentialsFunc) {
+function strategy(
+  getCredentialsFunc,
+  authStrategyOptions = { throwOnFailure: true }
+) {
+  const tokenNotFoundError = () => {
+    const error = AppError.unauthorized('Token not found');
+    error.isMissing = true;
+    return error;
+  };
+
   return function (server, options) {
     return {
       authenticate: async function (req, h) {
@@ -89,22 +98,28 @@ function strategy(getCredentialsFunc) {
             return h.continue;
           }
 
-          const error = AppError.unauthorized('Token not found');
-          error.isMissing = true;
-          throw error;
+          throw tokenNotFoundError();
         }
 
         if (auth.toLowerCase().indexOf('hawk') > -1) {
           // If a Hawk token is found, lets parse it and get the token's id
           const parsedHeader = parseAuthorizationHeader(auth);
-          const token = await getCredentialsFunc(parsedHeader.id);
+          let token;
+
+          try {
+            token = await getCredentialsFunc(parsedHeader.id);
+          } catch (_) {
+            // we'll handle the empty token case below
+          }
 
           // If a token isn't found, this means it doesn't exist or expired and
           // was removed from database
           if (!token) {
-            const error = AppError.unauthorized('Token not found');
-            error.isMissing = true;
-            throw error;
+            if (authStrategyOptions.throwOnFailure) {
+              throw tokenNotFoundError();
+            } else {
+              return Boom.unauthorized(null, 'hawkFxaToken');
+            }
           }
 
           return h.authenticated({
@@ -125,9 +140,11 @@ function strategy(getCredentialsFunc) {
         //   } catch (err) {}
         // }
 
-        const error = AppError.unauthorized('Token not found');
-        error.isMissing = true;
-        throw error;
+        if (authStrategyOptions.throwOnFailure) {
+          throw tokenNotFoundError();
+        }
+
+        return Boom.unauthorized(null, 'hawkFxaToken');
       },
       payload: async function (req, h) {
         // Since we skip Hawk header validation, we don't need to perform payload validation either...

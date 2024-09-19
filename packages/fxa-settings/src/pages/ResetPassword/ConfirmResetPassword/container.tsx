@@ -42,7 +42,8 @@ const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
     token: string,
     uid: string,
     estimatedSyncDeviceCount?: number,
-    recoveryKeyExists?: boolean
+    recoveryKeyExists?: boolean,
+    recoveryKeyHint?: string
   ) => {
     if (recoveryKeyExists === true) {
       navigate('/account_recovery_confirm_key', {
@@ -52,6 +53,7 @@ const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
           emailToHashWith,
           estimatedSyncDeviceCount,
           recoveryKeyExists,
+          recoveryKeyHint,
           token,
           uid,
         },
@@ -73,16 +75,15 @@ const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
     }
   };
 
-  const checkForRecoveryKey = async () => {
+  const checkForRecoveryKey = async (passwordForgotToken: hexstring) => {
     try {
-      const result: RecoveryKeyCheckResult = await authClient.recoveryKeyExists(
-        undefined,
-        email
-      );
+      const result: RecoveryKeyCheckResult =
+        await authClient.passwordForgotRecoveryKeyStatus(passwordForgotToken);
       return result;
     } catch (error) {
       return {
         exist: undefined,
+        hint: undefined,
         estimatedSyncDeviceCount: undefined,
       } as RecoveryKeyCheckResult;
     }
@@ -101,15 +102,19 @@ const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
       GleanMetrics.passwordReset.emailConfirmationSubmit();
       const { code, emailToHashWith, token, uid } =
         await authClient.passwordForgotVerifyOtp(email, otpCode, options);
-      const { exists: recoveryKeyExists, estimatedSyncDeviceCount } =
-        await checkForRecoveryKey();
+      const {
+        exists: recoveryKeyExists,
+        hint: recoveryKeyHint,
+        estimatedSyncDeviceCount,
+      } = await checkForRecoveryKey(token);
       handleNavigation(
         code,
         emailToHashWith,
         token,
         uid,
         estimatedSyncDeviceCount,
-        recoveryKeyExists
+        recoveryKeyExists,
+        recoveryKeyHint
       );
     } catch (error) {
       // return custom error for expired or incorrect code

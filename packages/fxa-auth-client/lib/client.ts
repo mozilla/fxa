@@ -775,6 +775,20 @@ export default class AuthClient {
     );
   }
 
+  async passwordForgotRecoveryKeyStatus(
+    passwordForgotToken: hexstring,
+    headers?: Headers
+  ) {
+    return this.hawkRequest(
+      'POST',
+      '/recoveryKey/exists',
+      passwordForgotToken,
+      tokenType.passwordForgotToken,
+      null,
+      headers
+    );
+  }
+
   // TODO: Once password reset react is 100% and stable in production
   // we can remove this.
   async accountReset(
@@ -1903,17 +1917,6 @@ export default class AuthClient {
       headers
     );
   }
-
-  // TODO: Review in FXA-7400 - possibly convert to POST to pass payload instead of using param, and enforce rate limiting
-  // async getRecoveryKeyHint(
-  //   sessionToken: hexstring | undefined,
-  //   email?: string
-  // ): Promise<{ hint: string | null }> {
-  //   if (sessionToken) {
-  //     return this.sessionGet('/recoveryKey/hint', sessionToken);
-  //   }
-  //   return this.request('GET', `/recoveryKey/hint?email=${email}`);
-  // }
 
   async updateRecoveryKeyHint(
     sessionToken: hexstring,
