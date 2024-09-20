@@ -10,6 +10,8 @@ import { ButtonVariant } from '../BaseButton';
 import { SubmitButton } from '../SubmitButton';
 import { updateCartAction } from '../../../actions/updateCart';
 import { getFallbackTextByFluentId } from '../../../utils/error-ftl-messages';
+import { useSearchParams } from 'next/navigation';
+import { useEffect } from 'react';
 
 interface WithCouponProps {
   cartId: string;
@@ -75,6 +77,14 @@ const WithoutCoupon = ({
       couponCode: promotionCode,
     });
   }
+  const routeCoupon = useSearchParams().get('coupon') || undefined;
+  useEffect(() => {
+    if (routeCoupon) {
+      const formData = new FormData();
+      formData.set('coupon', routeCoupon);
+      formAction(formData);
+    }
+  }, []);
 
   const [error, formAction] = useFormState(applyCoupon, null);
 
@@ -94,6 +104,7 @@ const WithoutCoupon = ({
               data-testid="coupon-input"
               placeholder="Enter code"
               disabled={readOnly}
+              defaultValue={routeCoupon}
             />
           </Localized>
           <div>

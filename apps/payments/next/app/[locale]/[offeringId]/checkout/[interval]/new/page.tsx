@@ -21,19 +21,33 @@ export default async function CheckoutNew({
   searchParams: Record<string, string>;
 }) {
   const { offeringId, interval } = params;
+  const { coupon } = searchParams;
   const session = await auth();
 
   const fxaUid = session?.user?.id;
   const ip = (headers().get('x-forwarded-for') ?? '127.0.0.1').split(',')[0];
 
-  const { id: cartId } = await setupCartAction(
-    interval,
-    offeringId,
-    undefined,
-    undefined,
-    fxaUid,
-    ip
-  );
+  let cartId: string;
+  try {
+    cartId = (
+      await setupCartAction(interval, offeringId, undefined, coupon, fxaUid, ip)
+    ).id;
+  } catch (error) {
+    if (error.constructor.name === 'CartInvalidPromoCodeError') {
+      cartId = (
+        await setupCartAction(
+          interval,
+          offeringId,
+          undefined,
+          undefined,
+          fxaUid,
+          ip
+        )
+      ).id;
+    } else {
+      throw error;
+    }
+  }
 
   const searchParamsString = new URLSearchParams(searchParams).toString();
   if (searchParamsString) {

@@ -192,6 +192,7 @@ describe('CartService', () => {
         taxAddress,
         currency: mockResolvedCurrency,
         eligibilityStatus: CartEligibilityStatus.CREATE,
+        couponCode: args.promoCode,
       });
       expect(result).toEqual(mockResultCart);
     });
