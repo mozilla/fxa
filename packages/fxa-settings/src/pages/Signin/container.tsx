@@ -11,6 +11,7 @@ import {
   useConfig,
   useSession,
   isSyncDesktopV3Integration,
+  useSensitiveDataClient,
 } from '../../models';
 import { MozServices } from '../../lib/types';
 import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
@@ -70,6 +71,11 @@ import {
   getLocalizedErrorMessage,
 } from '../../lib/error-utils';
 import { firefox } from '../../lib/channels/firefox';
+import {
+  AUTH_DATA_KEY,
+  SensitiveDataClient,
+} from '../../lib/sensitive-data-client';
+import { Constants } from '../../lib/constants';
 
 /*
  * In content-server, the `email` param is optional. If it's provided, we
@@ -119,6 +125,7 @@ const SigninContainer = ({
     state?: LocationState;
   };
   const session = useSession();
+  const sensitiveDataClient = useSensitiveDataClient();
 
   const { queryParamModel, validationError } =
     useValidatedQueryParams(SigninQueryParams);
@@ -277,6 +284,7 @@ const SigninContainer = ({
         unverifiedAccount,
         beginSignin,
         options,
+        sensitiveDataClient,
         async (correctedEmail: string) => {
           return {
             v1Credentials: await getCredentials(correctedEmail, password),
@@ -284,6 +292,41 @@ const SigninContainer = ({
           };
         }
       );
+
+      // Check recovery key status if signin was successful, user is on sync Desktop
+      // and they didn't click "Do it later"; this affects navigation.
+      if (
+        'data' in result &&
+        result.data &&
+        options.service === 'sync' &&
+        config.featureFlags?.recoveryCodeSetupOnSyncSignIn === true &&
+        localStorage.getItem(
+          Constants.DISABLE_PROMO_ACCOUNT_RECOVERY_KEY_DO_IT_LATER
+        ) !== 'true'
+      ) {
+        try {
+          // We must use auth-client here in case the user has 2FA or should be
+          // taken to signin_token_code, else GQL responds with 'Invalid token'
+          const { exists } = await authClient.recoveryKeyExists(
+            result.data.signIn.sessionToken,
+            email
+          );
+          cache.modify({
+            id: cache.identify({ __typename: 'Account' }),
+            fields: {
+              recoveryKey() {
+                return {
+                  exists,
+                };
+              },
+            },
+          });
+          result.data.showInlineRecoveryKeySetup = !exists;
+        } catch (e) {
+          // no-op, don't block the user from anything and just
+          // skip the inline_recovery_key_setup step this time.
+        }
+      }
 
       return result;
     },
@@ -299,6 +342,8 @@ const SigninContainer = ({
       wantsKeys,
       flowQueryParams,
       queryParamModel.hasLinkedAccount,
+      authClient,
+      sensitiveDataClient,
     ]
   );
 
@@ -616,6 +661,7 @@ export async function trySignIn(
     unblockCode?: string;
     originalLoginEmail?: string;
   },
+  sensitiveDataClient: SensitiveDataClient,
   onRetryCorrectedEmail?: (correctedEmail: string) => Promise<{
     v1Credentials: { authPW: string; unwrapBKey: string };
     v2Credentials: { authPW: string; unwrapBKey: string } | undefined;
@@ -641,6 +687,13 @@ export async function trySignIn(
         v2Credentials && !unverifiedAccount
           ? v2Credentials.unwrapBKey
           : v1Credentials.unwrapBKey;
+
+      // Store for inline recovery key flow
+      sensitiveDataClient.setData(AUTH_DATA_KEY, {
+        authPW,
+        // Store this in case the email was corrected
+        emailForAuth: email,
+      });
 
       return {
         data: {
@@ -677,7 +730,8 @@ export async function trySignIn(
         {
           ...options,
           originalLoginEmail: email,
-        }
+        },
+        sensitiveDataClient
       );
     }
 

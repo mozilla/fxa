@@ -66,6 +66,11 @@ export const test = base.extend<TestOptions, WorkerOptions>({
               name: '__fxa_storage.experiment.generalizedReactApp',
               value: JSON.stringify({ enrolled: false }),
             },
+            // TODO in FXA-10081
+            {
+              name: '__fxa_storage.disable_promo.account-recovery-do-it-later',
+              value: 'true',
+            },
           ],
         },
       ],

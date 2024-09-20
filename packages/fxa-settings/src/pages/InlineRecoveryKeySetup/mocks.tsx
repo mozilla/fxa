@@ -4,10 +4,21 @@
 
 import React from 'react';
 import InlineRecoveryKeySetup from '.';
+import { MOCK_EMAIL, MOCK_RECOVERY_KEY } from '../mocks';
 
 export const Subject = ({ currentStep = 1 }: { currentStep?: number }) => (
   <InlineRecoveryKeySetup
-    createRecoveryKeyHandler={() => Promise.resolve()}
     {...{ currentStep }}
+    createRecoveryKeyHandler={() =>
+      Promise.resolve({
+        data: {
+          recoveryKey: new Uint8Array(20),
+        },
+      })
+    }
+    updateRecoveryHintHandler={() => Promise.resolve()}
+    email={MOCK_EMAIL}
+    formattedRecoveryKey={MOCK_RECOVERY_KEY}
+    navigateForward={() => {}}
   />
 );

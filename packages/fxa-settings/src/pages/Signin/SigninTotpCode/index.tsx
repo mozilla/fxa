@@ -66,6 +66,7 @@ export const SigninTotpCode = ({
     verificationReason,
     keyFetchToken,
     unwrapBKey,
+    showInlineRecoveryKeySetup,
   } = signinState;
 
   const localizedCustomCodeRequiredMessage = ftlMsgResolver.getMsg(
@@ -128,6 +129,7 @@ export const SigninTotpCode = ({
         finishOAuthFlowHandler,
         redirectTo,
         queryParams: location.search,
+        showInlineRecoveryKeySetup,
       };
 
       const { error } = await handleNavigation(navigationOptions, true);

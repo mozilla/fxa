@@ -357,6 +357,38 @@ describe('Signin', () => {
             });
           });
 
+          it('navigates to /inline_recovery_key_setup when showInlineRecoveryKeySetup is true', async () => {
+            const integration = createMockSigninSyncIntegration();
+            const beginSigninHandler = jest.fn().mockReturnValueOnce(
+              createBeginSigninResponse({
+                showInlineRecoveryKeySetup: true,
+                keyFetchToken: MOCK_KEY_FETCH_TOKEN,
+                unwrapBKey: MOCK_UNWRAP_BKEY,
+              })
+            );
+            render({ beginSigninHandler, integration });
+
+            enterPasswordAndSubmit();
+            await waitFor(() => {
+              expect(navigate).toHaveBeenCalledWith(
+                '/inline_recovery_key_setup?',
+                {
+                  state: {
+                    email: MOCK_EMAIL,
+                    uid: MOCK_UID,
+                    sessionToken: MOCK_SESSION_TOKEN,
+                    verified: true,
+                    keyFetchToken: MOCK_KEY_FETCH_TOKEN,
+                    unwrapBKey: MOCK_UNWRAP_BKEY,
+                    showInlineRecoveryKeySetup: true,
+                    verificationMethod: 'email-otp',
+                    verificationReason: VerificationReasons.SIGN_IN,
+                  },
+                }
+              );
+            });
+          });
+
           it('navigates to /settings', async () => {
             const beginSigninHandler = jest
               .fn()

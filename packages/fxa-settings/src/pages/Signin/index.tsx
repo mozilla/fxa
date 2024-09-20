@@ -205,6 +205,7 @@ const Signin = ({
               ? integration.data.redirectTo
               : '',
           queryParams: location.search,
+          showInlineRecoveryKeySetup: data.showInlineRecoveryKeySetup,
         };
 
         const { error: navError } = await handleNavigation(

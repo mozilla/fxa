@@ -52,20 +52,13 @@ describe('InlineRecoveryKeySetup', () => {
   });
   it('renders as expected, step 3', () => {
     renderWithLocalizationProvider(<Subject currentStep={3} />);
-    screen.getByText('TODO');
-  });
-
-  it('redirects to `connect_another_device` if promo has been dismissed before', async () => {
-    localStorage.setItem(
-      Constants.DISABLE_PROMO_ACCOUNT_RECOVERY_KEY_DO_IT_LATER,
-      'true'
-    );
-    renderWithLocalizationProvider(<Subject />);
-    expect(ReactUtils.hardNavigate).toHaveBeenCalledWith(
-      '/connect_another_device',
-      {},
-      true
-    );
+    screen.getByRole('heading', {
+      name: 'Security recommendation',
+    });
+    // Renders RecoveryKeySetupHint
+    screen.getByRole('heading', {
+      name: 'Add a hint to help find your key',
+    });
   });
 
   it('clicks `do it later` navigates to `connect_another_device`', async () => {

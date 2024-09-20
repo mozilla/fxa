@@ -4,6 +4,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+export const AUTH_DATA_KEY = 'auth';
+
 /**
  * Class representing a client for handling sensitive data.
  *

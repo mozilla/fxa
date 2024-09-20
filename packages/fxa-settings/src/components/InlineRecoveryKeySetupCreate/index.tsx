@@ -2,18 +2,33 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { CircleCheckOutlineImage, RecoveryKeyImage } from '../images';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import Banner, { BannerType } from '../Banner';
+import { CreateRecoveryKeyHandler } from '../../pages/InlineRecoveryKeySetup/interfaces';
 
 export const InlineRecoveryKeySetupCreate = ({
   createRecoveryKeyHandler,
   doLaterHandler,
 }: {
-  createRecoveryKeyHandler: () => Promise<void>;
+  createRecoveryKeyHandler: () => Promise<CreateRecoveryKeyHandler>;
   doLaterHandler: () => void;
 }) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [bannerError, setBannerError] = useState('');
+
+  const createRecoveryKey = async () => {
+    setIsLoading(true);
+    setBannerError('');
+
+    const { localizedErrorMessage } = await createRecoveryKeyHandler();
+    if (localizedErrorMessage) {
+      setBannerError(localizedErrorMessage);
+    }
+    setIsLoading(false);
+  };
+
   return (
     <>
       <Banner type={BannerType.success} additionalClassNames="mt-0">
@@ -26,6 +41,11 @@ export const InlineRecoveryKeySetupCreate = ({
           </span>
         </p>
       </Banner>
+      {bannerError && (
+        <Banner type={BannerType.error}>
+          <p className="text-center">{bannerError}</p>
+        </Banner>
+      )}
       <h1 className="text-grey-400 mb-3 mt-5">
         <FtlMsg id="inline-recovery-key-setup-create-header">
           Secure your account
@@ -51,6 +71,9 @@ export const InlineRecoveryKeySetupCreate = ({
         <button
           className="flex justify-center items-center cta-primary cta-xl"
           type="submit"
+          onClick={createRecoveryKey}
+          disabled={isLoading}
+          data-glean-id="inline_recovery_key_cta_submit"
         >
           <FtlMsg id="inline-recovery-key-setup-start-button">
             Create account recovery key

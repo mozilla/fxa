@@ -109,7 +109,7 @@ describe('PageRecoveryKeyCreate when recovery key not enabled', () => {
     });
 
     // Go to page 4
-    const flowPage3Button = screen.getByRole('link', {
+    const flowPage3Button = screen.getByRole('button', {
       name: 'Continue without downloading',
     });
     fireEvent.click(flowPage3Button);
@@ -180,7 +180,7 @@ describe('PageRecoveryKeyCreate when recovery key is enabled', () => {
     });
 
     // Go to page 4
-    const flowPage3Button = screen.getByRole('link', {
+    const flowPage3Button = screen.getByRole('button', {
       name: 'Continue without downloading',
     });
     fireEvent.click(flowPage3Button);

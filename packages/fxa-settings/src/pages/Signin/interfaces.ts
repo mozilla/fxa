@@ -77,6 +77,8 @@ export interface BeginSigninResponse {
     keyFetchToken?: hexstring;
   };
   unwrapBKey?: hexstring;
+  authPW?: hexstring;
+  showInlineRecoveryKeySetup?: boolean;
 }
 
 export type CachedSigninHandler = (
@@ -163,6 +165,7 @@ export interface NavigationOptions {
   finishOAuthFlowHandler: FinishOAuthFlowHandler;
   redirectTo?: string;
   queryParams: string;
+  showInlineRecoveryKeySetup?: boolean;
 }
 
 export interface OAuthSigninResult {
@@ -179,6 +182,7 @@ export interface SigninLocationState {
   verificationReason?: VerificationReasons;
   keyFetchToken?: hexstring;
   unwrapBKey?: hexstring;
+  showInlineRecoveryKeySetup?: boolean;
 }
 
 export type TotpToken = Awaited<ReturnType<Account['createTotp']>>;

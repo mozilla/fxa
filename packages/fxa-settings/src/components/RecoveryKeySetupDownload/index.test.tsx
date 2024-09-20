@@ -33,7 +33,7 @@ describe('RecoveryKeySetupDownload', () => {
       { timeout: 2000 }
     );
 
-    screen.getByRole('link', {
+    screen.getByRole('button', {
       name: 'Continue without downloading',
     });
   });

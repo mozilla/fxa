@@ -61,7 +61,7 @@ export class RecoveryKeyPage extends SettingsLayout {
   }
 
   get continueWithoutDownloadingLink() {
-    return this.page.getByRole('link', {
+    return this.page.getByRole('button', {
       name: 'Continue without downloading',
     });
   }

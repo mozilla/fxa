@@ -72,7 +72,7 @@ export const DataBlock = ({
           valueIsArray ? 'max-w-sm py-4' : 'max-w-lg',
           valueIsArray && !isInline && ' py-5',
           isInline
-            ? 'flex-nowrap w-full rounded py-2 px-4'
+            ? 'flex-nowrap w-full rounded py-2 px-3'
             : 'flex-wrap mb-8 rounded-lg px-6'
         )}
         data-testid={dataTestId}
@@ -88,7 +88,7 @@ export const DataBlock = ({
         ) : (
           <span
             className={classNames({
-              'flex flex-col self-center align-middle grow pe-4': isInline,
+              'flex flex-col self-center align-middle grow': isInline,
             })}
           >
             {value}
