@@ -54,24 +54,30 @@ export const test = base.extend<TestOptions, WorkerOptions>({
     await testAccountTracker.destroyAllAccounts();
   },
 
-  storageState: async ({ target }, use) => {
+  storageState: async ({ target }, use, testInfo) => {
     // This is to store our session without logging in through the ui
+    const localStorageItems = [
+      {
+        name: '__fxa_storage.experiment.generalizedReactApp',
+        value: JSON.stringify({ enrolled: false }),
+      },
+    ];
+
+    // Temporary fix, only set this flag if the test is not a recovery key promo test
+    // Once this is no longer feature flagged, we can update all our test and remove this
+    if (!testInfo.titlePath.includes('recovery key promo')) {
+      localStorageItems.push({
+        name: '__fxa_storage.disable_promo.account-recovery-do-it-later',
+        value: 'true',
+      });
+    }
+
     await use({
       cookies: [],
       origins: [
         {
           origin: target.contentServerUrl,
-          localStorage: [
-            {
-              name: '__fxa_storage.experiment.generalizedReactApp',
-              value: JSON.stringify({ enrolled: false }),
-            },
-            // TODO in FXA-10081
-            {
-              name: '__fxa_storage.disable_promo.account-recovery-do-it-later',
-              value: 'true',
-            },
-          ],
+          localStorage: localStorageItems,
         },
       ],
     });

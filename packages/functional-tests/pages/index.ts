@@ -33,6 +33,7 @@ import { SignupPage } from './signup';
 import { SubscribePage } from './products';
 import { TermsOfService } from './termsOfService';
 import { TotpPage } from './settings/totp';
+import { InlineRecoveryKey } from './inlineRecoveryKey';
 
 export function create(page: Page, target: BaseTarget) {
   return {
@@ -47,6 +48,7 @@ export function create(page: Page, target: BaseTarget) {
     forceAuth: new ForceAuthPage(page, target),
     fourOhFour: new FourOhFourPage(page, target),
     fxDesktopV3ForceAuth: new FxDesktopV3ForceAuthPage(page, target),
+    inlineRecoveryKey: new InlineRecoveryKey(page, target),
     legal: new LegalPage(page, target),
     login: new LoginPage(page, target),
     page,
