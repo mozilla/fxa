@@ -176,23 +176,11 @@ export const App = ({
       },
       {
         metricsFlow,
-        account: {
-          metricsEnabled: data?.account?.metricsEnabled,
-          uid: data?.account?.uid,
-        },
         userAgent: navigator.userAgent,
         integration,
       }
     );
-  }, [
-    config.glean,
-    config.version,
-    data?.account?.metricsEnabled,
-    data?.account?.uid,
-    metricsFlow,
-    integration,
-    metricsEnabled,
-  ]);
+  }, [metricsEnabled, integration, config.glean, config.version, metricsFlow]);
 
   useEffect(() => {
     if (!metricsEnabled) {

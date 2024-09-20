@@ -46,11 +46,11 @@ import * as utm from 'fxa-shared/metrics/glean/web/utm';
 import * as entrypointQuery from 'fxa-shared/metrics/glean/web/entrypoint';
 import { Integration } from '../../models';
 import { MetricsFlow } from '../metrics-flow';
+import { currentAccount } from '../../lib/cache';
 
 type DeviceTypes = 'mobile' | 'tablet' | 'desktop';
 export type GleanMetricsContext = {
   metricsFlow: MetricsFlow | null;
-  account?: { uid?: hexstring; metricsEnabled?: boolean };
   userAgent: string;
   integration: Integration;
 };
@@ -132,10 +132,11 @@ const getDeviceType: () => DeviceTypes | void = () => {
 const initMetrics = async () => {
   userId.set('');
   userIdSha256.set('');
+  const account = currentAccount();
   try {
-    if (metricsContext.account?.uid) {
-      userId.set(metricsContext.account.uid);
-      userIdSha256.set(await hashUid(metricsContext.account.uid));
+    if (account?.uid) {
+      userId.set(account.uid);
+      userIdSha256.set(await hashUid(account.uid));
     }
   } catch (e) {
     // noop
