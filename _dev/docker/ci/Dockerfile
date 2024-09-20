@@ -15,7 +15,7 @@ RUN cp yarn.lock yarn.lock.base;
 
 
 # Runs initial build stage in CI. Needs full install. Responsible for
-# setting up the initially workspace state. This image installs npm
+# setting up the initial workspace state. This image installs npm
 # packages and builds heavily referenced workspaces.
 FROM test-runner as builder
 WORKDIR /home/circleci
@@ -26,20 +26,52 @@ ENV FXA_AUTO_INSTALL=0
 RUN _scripts/l10n/clone.sh
 RUN yarn install --immutable;
 
-# Acts as an intermediate stage for adding the firefox install. Note,
-# that a yarn install must happen first to ensure the correct version
-# of firefox is installed. Also note that the functional-test-runner
-# must based on cimg/node:20.11-browsers, which is why this stage
-# is necessary.
-FROM builder as playwright-install
-RUN npx playwright install --with-deps firefox chromium webkit;
 
+# Use the official Playwright image to install Playwright and browsers
+FROM mcr.microsoft.com/playwright:v1.46.1-noble as playwright-install
 
-# Runs functional tests in our CI. Needs minimal install. Assumes
-# workspace will be restored into the project folder.
+RUN apt-get update && apt-get install -y \
+    libicu-dev \
+    libxslt1.1 \
+    libwoff1 \
+    libvpx-dev \
+    libevent-dev \
+    libopus-dev \
+    gstreamer1.0-libav \
+    gstreamer1.0-plugins-base \
+    gstreamer1.0-plugins-good \
+    gstreamer1.0-plugins-bad \
+    gstreamer1.0-plugins-ugly \
+    gstreamer1.0-alsa \
+    gstreamer1.0-pulseaudio \
+    gstreamer1.0-plugins-rtp \
+    gstreamer1.0-tools \
+    gstreamer1.0-x \
+    libwebpdemux2 \
+    libenchant-2-2 \
+    libsecret-1-0 \
+    libhyphen0 \
+    libmanette-0.2-0 \
+    libflite1 \
+    libx264-dev
+
+WORKDIR /home/pwuser
+# Playwright comes preinstalled in this image, so we don't need additional steps here.
+
+# Runs functional tests in our CI, using the cimg/node image and the Playwright installation
 FROM cimg/node:20.11-browsers as functional-test-runner
 WORKDIR /home/circleci
-COPY --chown=circleci:circleci --from=playwright-install /home/circleci/.cache/ms-playwright .cache/ms-playwright/
+
+# Copy the Playwright browsers and setup from the official image
+COPY --from=playwright-install /ms-playwright /ms-playwright
+
+# Copy project files
 COPY --chown=circleci:circleci project project
 WORKDIR /home/circleci/project
+
+# Ensure correct library path at runtime
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+ENV LD_LIBRARY_PATH=/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
+
+# Copy the install script and any necessary binaries
 COPY --chown=circleci:circleci install /usr/local/bin/
