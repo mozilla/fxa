@@ -42,7 +42,7 @@ export function getSyncNavigate(
 
   searchParams.set('showSuccessMessage', 'true');
   return {
-    to: `/connect_another_device?${searchParams}`,
+    to: `/pair?${searchParams}`,
     shouldHardNavigate: true,
   };
 }

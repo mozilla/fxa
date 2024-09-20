@@ -28,8 +28,23 @@ const UserAgent = function (userAgent) {
     },
 
     /**
+     * Check if the device is iOS or Android.
+     *
+     * This does not work for latest iPad, see note above isDesktopFirefoxOnIpad.
+     *
+     * @returns {Boolean}
+     */
+    isMobile() {
+      return this.isIos() || this.isAndroid();
+    },
+
+    /**
      * iPads using FF iOS 13+ send a desktop UA.
      * The OS shows as a Mac, but 'Firefox iOS' in the UA family.
+     *
+     * NOTE, as of at least Sept 2024, this is no longer reliable.
+     * The UA for iPad Safari exactly matches the UA for iPad Firefox
+     * except for "Version" which is unreliable.
      *
      * @returns {Boolean}
      */

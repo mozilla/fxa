@@ -25,7 +25,7 @@
     {{#isMobile}}
       {{#isSystemCameraUrl}}
         <div class="bg-image-pair-fail"></div>
-          <h2 id="pair-unsupported-header" class="card-header" tabindex="-1">{{#t}}Pair using an app{{/t}}</h1>
+          <h2 id="pair-unsupported-header" class="card-header" tabindex="-1">{{#t}}Pair using an app{{/t}}</h2>
         <p class="mt-4">{{#t}}Did you use the system camera? You must pair from within a Firefox app.{{/t}}</p>
       {{/isSystemCameraUrl}}
       {{^isSystemCameraUrl}}
@@ -37,11 +37,9 @@
         {{/isFirefox}}
 
         <div class="bg-image-triple-device-hearts" role="img" aria-label="{{#t}}Devices with hearts on their screens{{/t}}"></div>
+        {{{ unsupportedPairHtml }}}
 
-        <h1 class="card-header">{{#t}}Connecting your mobile device with your Mozilla account{{/t}}</h1>
-        <p class="mt-4 text-base">Open Firefox on your computer, visit <b class="whitespace-nowrap">firefox.com/pair</b>, and follow the on-screen instructions to connect your mobile device.</p>
-        <p class="mt-3"><a href="https://support.mozilla.org/kb/how-do-i-set-sync-my-computer" target="_blank" class="link-blue" data-glean-id="cad_redirect_mobile_learn_more">{{#t}}Learn more{{/t}}</a></p>
-      {{/isSystemCameraUrl}}
+        {{/isSystemCameraUrl}}
     {{/isMobile}}
     {{^isMobile}}
       {{^isDesktopNonFirefox}}

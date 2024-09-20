@@ -111,7 +111,7 @@ describe('InlineRecoveryKeySetupContainer', () => {
     render(<InlineRecoveryKeySetupContainer />);
 
     expect(hardNavigateSpy).toHaveBeenCalledWith(
-      '/connect_another_device?showSuccessMessage=true'
+      '/pair?showSuccessMessage=true'
     );
     expect(InlineRecoveryKeySetupModule.default).not.toBeCalled();
   });

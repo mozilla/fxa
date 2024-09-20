@@ -22,6 +22,7 @@ import MarketingMixin from './mixins/marketing-mixin';
 import PairingGraphicsMixin from './mixins/pairing-graphics-mixin';
 import SyncAuthMixin from './mixins/sync-auth-mixin';
 import VerificationReasonMixin from './mixins/verification-reason-mixin';
+import UnsupportedPairTemplate from '../templates/partial/unsupported-pair.mustache';
 
 const entrypoints = Object.keys(Constants)
   .filter((k) => k.endsWith('_ENTRYPOINT'))
@@ -56,6 +57,16 @@ const ConnectAnotherDeviceView = FormView.extend({
     // on whether the url is allowed to be redirected to.
     if (this.getSearchParam('redirect_immediately') === 'true') {
       this.navigate('/settings');
+    }
+
+    // If users are signed in, directly access this page (no query params)
+    // on desktop, redirect them
+    if (
+      this._isSignedIn() &&
+      window.location.search === '' &&
+      !this.getUserAgent().isMobile()
+    ) {
+      this.navigate('/pair');
     }
   },
 
@@ -182,7 +193,9 @@ const ConnectAnotherDeviceView = FormView.extend({
       isSignIn,
       isSignUp,
       pairingUrl,
+      isMobile: this.getUserAgent().isMobile(),
       showSuccessMessage,
+      unsupportedPairHtml: this.renderTemplate(UnsupportedPairTemplate),
     });
   },
 

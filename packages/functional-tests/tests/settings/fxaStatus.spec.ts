@@ -23,7 +23,8 @@ test.describe('fxa_status web channel message in Settings', () => {
       `${target.contentServerUrl}/?context=fx_desktop_v3&service=sync`
     );
     const credentials = await signInAccount(signin, testAccountTracker);
-    await expect(connectAnotherDevice.header).toBeVisible();
+    await page.waitForURL(/pair/);
+    await expect(connectAnotherDevice.fxaConnected).toBeVisible();
 
     await page.goto(target.contentServerUrl);
     await signin.useDifferentAccountLink.click();
@@ -45,7 +46,7 @@ test.describe('fxa_status web channel message in Settings', () => {
       `${target.contentServerUrl}/?context=fx_desktop_v3&service=sync`
     );
     await signInAccount(signin, testAccountTracker);
-    await expect(connectAnotherDevice.header).toBeVisible();
+    await expect(connectAnotherDevice.fxaConnected).toBeEnabled();
 
     await page.goto(target.contentServerUrl);
     await signin.useDifferentAccountLink.click();

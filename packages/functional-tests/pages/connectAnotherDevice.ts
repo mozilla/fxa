@@ -10,10 +10,11 @@ export class ConnectAnotherDevicePage extends BaseLayout {
   readonly selectors = {
     CONNECT_ANOTHER_DEVICE_HEADER: '#fxa-connect-another-device-header',
     CONNECT_ANOTHER_DEVICE_SIGNIN_BUTTON: 'form div a',
-    FXA_CONNECTED_HEADER: '#fxa-connected-heading',
+    FXA_CONNECTED_HEADER: '#cad-header',
     TEXT_INSTALL_FX_DESKTOP: '#install-mobile-firefox-desktop',
     SUCCESS: '.success',
     NOT_NOW: '#cad-not-now',
+    NOT_NOW_PAIR: '#choice-pair-not-now',
   };
 
   get header() {
@@ -48,5 +49,9 @@ export class ConnectAnotherDevicePage extends BaseLayout {
 
   async clickNotNow() {
     return this.page.locator(this.selectors.NOT_NOW).click();
+  }
+
+  async clickNotNowPair() {
+    return this.page.locator(this.selectors.NOT_NOW_PAIR).click();
   }
 }

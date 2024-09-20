@@ -211,7 +211,7 @@ describe('SigninPushCode container', () => {
         await render();
       });
       expect(ReactUtils.hardNavigate).toBeCalledWith(
-        '/connect_another_device?showSuccessMessage=true'
+        '/pair?showSuccessMessage=true'
       );
     });
   });

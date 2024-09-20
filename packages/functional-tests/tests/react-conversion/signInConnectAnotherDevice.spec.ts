@@ -6,7 +6,7 @@ import { expect, test } from '../../lib/fixtures/standard';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('connect_another_device', () => {
-    test('react signin Fx Desktop, load /connect_another_device page', async ({
+    test('react signin Fx Desktop, load /pair page', async ({
       syncBrowserPages: { configPage, connectAnotherDevice, page, signin },
       testAccountTracker,
     }) => {
@@ -26,13 +26,8 @@ test.describe('severity-2 #smoke', () => {
       await signin.fillOutEmailFirstForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
 
-      await expect(page).toHaveURL(/connect_another_device/);
+      await expect(page).toHaveURL(/pair/);
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
-      await expect(
-        connectAnotherDevice.connectAnotherDeviceButton
-      ).toBeVisible();
-      await expect(connectAnotherDevice.signInButton).toBeHidden();
-      await expect(connectAnotherDevice.success).toBeHidden();
     });
   });
 });

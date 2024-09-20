@@ -222,8 +222,8 @@ test.describe('severity-2 #smoke', () => {
 
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
 
-      //Delete blocked account, required before teardown
-      await connectAnotherDevice.startBrowsingButton.click();
+      // Delete blocked account, required before teardown
+      await connectAnotherDevice.clickNotNowPair();
       await settings.deleteAccountButton.click();
       await deleteAccount.deleteAccount(credentials.password);
 

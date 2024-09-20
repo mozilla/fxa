@@ -132,8 +132,6 @@ describe('views/pair/index', () => {
           view.$el.find('#pair-header').text(),
           'Download Firefox on your phone or tablet'
         );
-        assert.ok(view.$el.find('#start-pairing').length);
-        assert.ok(view.$el.find('.bg-image-triple-device-hearts').length);
       });
     });
 
@@ -172,7 +170,6 @@ describe('views/pair/index', () => {
       let viewChoiceEventStub;
       beforeEach(() => {
         viewChoiceEventStub = sinon.stub(GleanMetrics.cadFirefox, 'choiceView');
-        sinon.stub(view, 'showDownloadFirefoxQrCode').callsFake(() => true);
         return view.render();
       });
 
@@ -383,7 +380,6 @@ describe('views/pair/index', () => {
     describe('pairNotNowHandler', () => {
       let notNowEventStub;
       beforeEach(() => {
-        sinon.stub(view, 'showDownloadFirefoxQrCode').callsFake(() => true);
         notNowEventStub = sinon.stub(GleanMetrics.cadFirefox, 'notnowSubmit');
       });
       afterEach(() => {
@@ -395,23 +391,6 @@ describe('views/pair/index', () => {
           view.$('#pair-not-now').click();
           sinon.assert.calledOnce(notNowEventStub);
         });
-      });
-    });
-
-    it('does not ask for mobile status', () => {
-      sinon.stub(view, 'showDownloadFirefoxQrCode').callsFake(() => false);
-      return view.render().then(() => {
-        const heading = view.$('#pair-header');
-        assert.strictEqual(
-          heading.text(),
-          'Sync Firefox on your phone or tablet'
-        );
-
-        const pairButton = view.$('#start-pairing');
-        assert.equal(pairButton.length, 1);
-
-        const qrCode = view.$el.find('.bg-image-cad-qr-code');
-        assert.equal(qrCode.length, 0);
       });
     });
   });

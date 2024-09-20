@@ -422,7 +422,7 @@ describe('Signin', () => {
                 expect(fxaLoginSpy).toHaveBeenCalled();
               });
               expect(hardNavigateSpy).toHaveBeenCalledWith(
-                '/connect_another_device?showSuccessMessage=true'
+                '/pair?showSuccessMessage=true'
               );
             });
             it('is not sent if user has 2FA enabled', async () => {
@@ -561,7 +561,7 @@ describe('Signin', () => {
                 expect(fxaLoginSpy).toHaveBeenCalled();
                 expect(fxaOAuthLoginSpy).toHaveBeenCalled();
                 expect(hardNavigateSpy).toHaveBeenCalledWith(
-                  '/connect_another_device?showSuccessMessage=true'
+                  '/pair?showSuccessMessage=true'
                 );
               });
             });

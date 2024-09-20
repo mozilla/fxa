@@ -93,7 +93,7 @@ test.describe('severity-1 #smoke', () => {
       const code = await getCode(secret);
       await signin.fillOutAuthenticationForm(code);
 
-      await expect(page).toHaveURL(/connect_another_device/);
+      await expect(page).toHaveURL(/pair/);
 
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
 
