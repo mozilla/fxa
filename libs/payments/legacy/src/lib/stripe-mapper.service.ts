@@ -95,13 +95,23 @@ export class StripeMapperService {
         continue;
       }
 
-      const commonContent =
-        cmsConfigData.offering.data.attributes.commonContent;
-      const purchaseDetails = cmsConfigData.purchaseDetails;
+      const commonContentAttributes =
+        cmsConfigData.offering.data.attributes.commonContent.data.attributes;
+      const commonContentAttributesLocalized = commonContentAttributes
+        .localizations.data.length
+        ? commonContentAttributes.localizations.data[0].attributes
+        : commonContentAttributes;
+
+      const purchaseDetailsAttributes =
+        cmsConfigData.purchaseDetails.data.attributes;
+      const purchaseDetailsLocalizedAttributes = purchaseDetailsAttributes
+        .localizations.data.length
+        ? purchaseDetailsAttributes.localizations.data[0].attributes
+        : purchaseDetailsAttributes;
 
       const planMapper = new PlanMapperUtil(
-        commonContent.data.attributes,
-        purchaseDetails.data.attributes,
+        commonContentAttributesLocalized,
+        purchaseDetailsLocalizedAttributes,
         mergedStripeMetadata,
         cmsEnabled
       );
