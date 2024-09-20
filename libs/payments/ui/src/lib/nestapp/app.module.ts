@@ -17,15 +17,16 @@ import {
   PaypalCustomerManager,
 } from '@fxa/payments/paypal';
 import {
+  AccountCustomerManager,
   CustomerManager,
   InvoiceManager,
   PaymentMethodManager,
   PriceManager,
   ProductManager,
   PromotionCodeManager,
+  StripeClient,
   SubscriptionManager,
-} from '@fxa/payments/customer';
-import { AccountCustomerManager, StripeClient } from '@fxa/payments/stripe';
+} from '@fxa/payments/stripe';
 import { AccountManager } from '@fxa/shared/account/account';
 import { ProductConfigurationManager, StrapiClient } from '@fxa/shared/cms';
 import { FirestoreProvider } from '@fxa/shared/db/firestore';

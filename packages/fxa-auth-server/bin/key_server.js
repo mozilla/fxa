@@ -12,12 +12,12 @@ const { config } = require('../config');
 const { CapabilityManager } = require('@fxa/payments/capability');
 const { EligibilityManager } = require('@fxa/payments/eligibility');
 const {
+  StripeClient,
   ProductManager,
   PriceManager,
   SubscriptionManager,
   PromotionCodeManager,
-} = require('@fxa/payments/customer');
-const { StripeClient } = require('@fxa/payments/stripe');
+} = require('@fxa/payments/stripe');
 const {
   ProductConfigurationManager,
   StrapiClient,

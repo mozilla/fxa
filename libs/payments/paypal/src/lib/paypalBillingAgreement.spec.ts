@@ -7,9 +7,10 @@ import { Test } from '@nestjs/testing';
 import {
   CustomerManager,
   InvoiceManager,
+  MockStripeConfigProvider,
+  StripeClient,
   SubscriptionManager,
-} from '@fxa/payments/customer';
-import { MockStripeConfigProvider, StripeClient } from '@fxa/payments/stripe';
+} from '@fxa/payments/stripe';
 import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
 
 import {

@@ -4,13 +4,14 @@
 
 import { Test } from '@nestjs/testing';
 
-import { PriceManager, SubplatInterval } from '@fxa/payments/customer';
 import {
+  PriceManager,
   StripeClient,
   StripeConfig,
   StripePrice,
   StripePriceFactory,
   StripePriceRecurringFactory,
+  SubplatInterval,
 } from '@fxa/payments/stripe';
 import {
   EligibilityContentByPlanIdsResultFactory,
