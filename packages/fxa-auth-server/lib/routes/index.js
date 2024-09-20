@@ -152,8 +152,7 @@ module.exports = function (
     db,
     config.domain,
     devicesImpl,
-    config,
-    profile
+    config
   );
   const unblockCodes = require('./unblock-codes')(
     log,
@@ -162,15 +161,7 @@ module.exports = function (
     config.signinUnblock,
     customs
   );
-  const totp = require('./totp')(
-    log,
-    db,
-    mailer,
-    customs,
-    config.totp,
-    glean,
-    profile
-  );
+  const totp = require('./totp')(log, db, mailer, customs, config.totp, glean);
   const recoveryCodes = require('./recovery-codes')(
     log,
     db,

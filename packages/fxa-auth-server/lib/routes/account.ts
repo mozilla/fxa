@@ -44,7 +44,6 @@ import { gleanMetrics } from '../metrics/glean';
 import { AccountDeleteManager } from '../account-delete';
 import { uuidTransformer } from 'fxa-shared/db/transformers';
 import { AccountTasks, ReasonForDeletion } from '@fxa/shared/cloud-tasks';
-import { ProfileClient } from '@fxa/profile/client';
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 
@@ -65,7 +64,6 @@ export class AccountHandler {
   private accountEventsManager: AccountEventsManager;
   private accountDeleteManager: AccountDeleteManager;
   private accountTasks: AccountTasks;
-  private profileClient: ProfileClient;
 
   constructor(
     private log: AuthLogger,
@@ -97,7 +95,6 @@ export class AccountHandler {
     this.accountEventsManager = Container.get(AccountEventsManager);
     this.accountDeleteManager = Container.get(AccountDeleteManager);
     this.accountTasks = Container.get(AccountTasks);
-    this.profileClient = Container.get(ProfileClient);
   }
 
   private async generateRandomValues() {
@@ -237,8 +234,6 @@ export class AccountHandler {
       uid: account.uid,
       userAgent: userAgentString,
     });
-
-    await this.profileClient.deleteCache(account.uid);
     await this.log.notifyAttachedServices('profileDataChange', request, {
       uid: account.uid,
     });
@@ -1600,12 +1595,9 @@ export class AccountHandler {
           uid: account.uid,
           generation: account.verifierSetAt,
         }),
-        (async () => {
-          await this.profileClient.deleteCache(account.uid);
-          await this.log.notifyAttachedServices('profileDataChange', request, {
-            uid: account.uid,
-          });
-        })(),
+        this.log.notifyAttachedServices('profileDataChange', request, {
+          uid: account.uid,
+        }),
         this.oauth.removeTokensAndCodes(account.uid),
         this.customs.reset(request, account.email),
       ]);
