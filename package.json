@@ -185,7 +185,7 @@
     "@storybook/html-webpack5": "^7.6.13",
     "@storybook/nextjs": "^7.6.14",
     "@storybook/react-webpack5": "^7.4.5",
-    "@swc-node/register": "1.9.2",
+    "@swc-node/register": "1.10.9",
     "@swc/cli": "0.3.12",
     "@swc/core": "1.5.29",
     "@swc/jest": "^0.2.36",
