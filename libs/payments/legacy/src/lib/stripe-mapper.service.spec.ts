@@ -5,8 +5,8 @@
 import { Test } from '@nestjs/testing';
 import { Stripe } from 'stripe';
 
-import { PriceManager } from '@fxa/payments/customer';
 import {
+  PriceManager,
   StripeClient,
   StripeConfig,
   StripePlanFactory,

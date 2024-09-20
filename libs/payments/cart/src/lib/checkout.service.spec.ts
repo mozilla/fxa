@@ -25,18 +25,17 @@ import {
   ResultPaypalCustomerFactory,
 } from '@fxa/payments/paypal';
 import {
+  AccountCustomerManager,
   CustomerManager,
   InvoiceManager,
   InvoicePreviewFactory,
+  MockStripeConfigProvider,
   PaymentMethodManager,
   PriceManager,
   ProductManager,
   PromotionCodeManager,
+  ResultAccountCustomerFactory,
   STRIPE_CUSTOMER_METADATA,
-  SubscriptionManager,
-  TaxAddressFactory,
-} from '@fxa/payments/customer';
-import {
   StripeClient,
   StripeConfig,
   StripeCustomerFactory,
@@ -47,9 +46,8 @@ import {
   StripePromotionCodeFactory,
   StripeResponseFactory,
   StripeSubscriptionFactory,
-  ResultAccountCustomerFactory,
-  MockStripeConfigProvider,
-  AccountCustomerManager,
+  SubscriptionManager,
+  TaxAddressFactory,
 } from '@fxa/payments/stripe';
 import { AccountManager } from '@fxa/shared/account/account';
 import {

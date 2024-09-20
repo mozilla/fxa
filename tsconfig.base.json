@@ -75,8 +75,7 @@
       "@fxa/vendored/jwtool": ["libs/vendored/jwtool/src/index.ts"],
       "@fxa/vendored/typesafe-node-firestore": [
         "libs/vendored/typesafe-node-firestore/src/index.ts"
-      ],
-      "@fxa/payments/customer": ["libs/payments/customer/src/index.ts"]
+      ]
     },
     "typeRoots": [
       "./types",

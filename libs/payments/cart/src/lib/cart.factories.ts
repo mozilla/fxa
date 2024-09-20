@@ -4,7 +4,7 @@
 
 import { faker } from '@faker-js/faker';
 
-import { TaxAddressFactory } from '@fxa/payments/customer';
+import { TaxAddressFactory } from '@fxa/payments/stripe';
 import {
   CartEligibilityStatus,
   CartErrorReasonId,
