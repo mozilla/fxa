@@ -36,7 +36,6 @@ const { AppConfig, AuthLogger } = require('../../../lib/types');
 const defaultConfig = require('../../../config').default.getProperties();
 const { ProfileClient } = require('@fxa/profile/client');
 const glean = mocks.mockGlean();
-const profile = mocks.mockProfile();
 
 const TEST_EMAIL = 'foo@gmail.com';
 
@@ -143,8 +142,6 @@ const makeRoutes = function (options = {}, requireMocks = {}) {
   });
   accountManagerMock.quickDelete = mockAccountQuickDelete;
   Container.set(AccountDeleteManager, accountManagerMock);
-
-  Container.set(ProfileClient, profile);
 
   return accountRoutes(
     log,
@@ -704,9 +701,6 @@ describe('deleteAccountIfUnverified', () => {
 });
 
 describe('/account/create', () => {
-  beforeEach(() => {
-    profile.deleteCache.resetHistory();
-  });
   afterEach(() => {
     glean.registration.accountCreated.reset();
     glean.registration.confirmationEmailSent.reset();
@@ -942,9 +936,6 @@ describe('/account/create', () => {
         'it contained the correct metrics context metadata'
       );
 
-      assert.equal(profile.deleteCache.callCount, 1);
-      assert.equal(profile.deleteCache.getCall(0).args[0], uid);
-
       eventData = mockLog.notifier.send.getCall(1).args[0];
       assert.equal(eventData.event, 'profileDataChange');
       assert.equal(eventData.data.uid, uid);
@@ -1160,10 +1151,6 @@ describe('/account/create', () => {
         'foo',
         'it was for the expected service'
       );
-
-      assert.equal(profile.deleteCache.callCount, 1);
-      assert.equal(profile.deleteCache.getCall(0).args[0], uid);
-
       eventData = mockLog.notifier.send.getCall(1).args[0];
       assert.equal(eventData.event, 'profileDataChange');
       assert.equal(eventData.data.uid, uid);

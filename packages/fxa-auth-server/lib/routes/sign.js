@@ -11,7 +11,7 @@ const SIGN_DOCS = require('../../docs/swagger/sign-api').default;
 const DESCRIPTION = require('../../docs/swagger/shared/descriptions').default;
 const crypto = require('crypto');
 
-module.exports = (log, signer, db, domain, devices, config, profileClient) => {
+module.exports = (log, signer, db, domain, devices, config) => {
   const HOUR = 1000 * 60 * 60;
 
   const rolloutRate = config.certificateSignDisableRolloutRate || 0;
@@ -176,9 +176,7 @@ module.exports = (log, signer, db, domain, devices, config, profileClient) => {
               locale: request.app.acceptLanguage,
             });
             db.updateLocale(sessionToken.uid, request.app.acceptLanguage);
-
-            await profileClient.deleteCache(sessionToken.uid);
-            await log.notifyAttachedServices(
+            log.notifyAttachedServices(
               'profileDataChange',
               {},
               {

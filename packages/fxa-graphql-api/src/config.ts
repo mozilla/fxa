@@ -166,12 +166,6 @@ const conf = convict({
       env: 'PROFILE_SERVER_URL',
       default: 'http://localhost:1111/v1',
     },
-    secretBearerToken: {
-      default: 'YOU MUST CHANGE ME',
-      doc: 'Secret for server-to-server bearer token auth for fxa-profile-server',
-      env: 'PROFILE_SERVER_AUTH_SECRET_BEARER_TOKEN',
-      format: 'String',
-    },
   },
   redis: {
     accessTokens: {

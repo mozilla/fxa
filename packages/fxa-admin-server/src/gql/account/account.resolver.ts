@@ -53,7 +53,6 @@ import {
   AccountDeleteTaskStatus,
 } from '../model/account-delete-task.model';
 import { NotifierService } from '@fxa/shared/notifier';
-import { ProfileClientService } from '../../backend/profile-client.service';
 
 const ACCOUNT_COLUMNS = [
   'uid',
@@ -117,8 +116,7 @@ export class AccountResolver {
     private notifier: NotifierService,
     @Inject(AuthClientService) private authAPI: AuthClient,
     @Inject(FirestoreService) private firestore: Firestore,
-    @Inject(CloudTasksService) private cloudTask: CloudTasks,
-    @Inject(ProfileClientService) private profileClient: ProfileClientService
+    @Inject(CloudTasksService) private cloudTask: CloudTasks
   ) {}
 
   @Features(AdminPanelFeature.AccountSearch)
@@ -200,7 +198,6 @@ export class AccountResolver {
   @Mutation((returns) => Boolean)
   public async disableAccount(@Args('uid') uid: string) {
     this.eventLogging.onEvent(EventNames.DisableLogin);
-    await this.profileClient.deleteCache(uid);
     await this.notifier.send({
       event: 'profileDataChange',
       data: {
@@ -229,7 +226,6 @@ export class AccountResolver {
       .update({ locale: locale })
       .where('uid', uidBuffer);
 
-    await this.profileClient.deleteCache(uid);
     await this.notifier.send({
       event: 'profileDataChange',
       data: {
@@ -250,7 +246,6 @@ export class AccountResolver {
       .update({ disabledAt: null } as any)
       .where('uid', uidBuffer);
 
-    await this.profileClient.deleteCache(uid);
     await this.notifier.send({
       event: 'profileDataChange',
       data: {
