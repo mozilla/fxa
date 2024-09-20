@@ -11,4 +11,4 @@ form-verify-totp-disabled-button-title-numeric = Enter { $codeLength }-digit cod
 # Submit button is disabled unless a valid code format is entered
 # Used when the code may contain numbers and/or letters
 # $codeLength : number of characters in a valid code
-form-verify-totp-disabled-button-title-alphanumeric = Enter { $codeLength }-character code to continue bloop
+form-verify-totp-disabled-button-title-alphanumeric = Enter { $codeLength }-character code to continue
