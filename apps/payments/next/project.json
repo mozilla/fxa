@@ -73,7 +73,7 @@
     },
     "glean-generate": {
       "dependsOn": ["glean-lint"],
-      "command": "yarn glean translate libs/shared/metrics/glean/src/registry/subplat-backend-metrics.yaml -f typescript_server -o apps/payments/next/lib/metrics/glean"
+      "command": "yarn glean translate libs/shared/metrics/glean/src/registry/subplat-backend-metrics.yaml -f typescript_server -o libs/payments/metrics/src/lib/glean/__generated__"
     },
     "glean-lint": {
       "command": "yarn glean glinter libs/shared/metrics/glean/src/registry/subplat-backend-metrics.yaml"

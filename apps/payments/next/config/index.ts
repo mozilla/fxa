@@ -104,4 +104,10 @@ export class PaymentsNextConfig extends NestAppRootConfig {
   nextPublicSentryTracesSampleRate!: number;
 }
 
-export const config = validate(process.env, PaymentsNextConfig);
+export const config = validate(
+  {
+    ...process.env,
+    GLEAN_CONFIG__VERSION: process.env['GLEAN_CONFIG__VERSION'],
+  },
+  PaymentsNextConfig
+);

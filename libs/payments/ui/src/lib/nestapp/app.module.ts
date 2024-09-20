@@ -33,6 +33,11 @@ import { AccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
 import { GeoDBManager, GeoDBNestFactory } from '@fxa/shared/geodb';
 import { LocalizerRscFactoryProvider } from '@fxa/shared/l10n/server';
 import { StatsDProvider } from '@fxa/shared/metrics/statsd';
+import {
+  PaymentsGleanManager,
+  PaymentsGleanFactory,
+  PaymentsGleanService,
+} from '@fxa/payments/metrics';
 
 import { RootConfig } from './config';
 import { NextJSActionsService } from './nextjs-actions.service';
@@ -45,7 +50,16 @@ import { validate } from '../config.utils';
       // Use the same validate function as apps/payments-next/config
       // to ensure the same environment variables are loaded following
       // the same process.
-      load: () => validate(process.env, RootConfig),
+      // Note: If just passing in process.env, GLEAN_CONFIG__VERSION
+      // seems to not be available in validate function.
+      load: () =>
+        validate(
+          {
+            ...process.env,
+            GLEAN_CONFIG__VERSION: process.env['GLEAN_CONFIG__VERSION'],
+          },
+          RootConfig
+        ),
     }),
   ],
   controllers: [],
@@ -78,6 +92,9 @@ import { validate } from '../config.utils';
     StrapiClient,
     StripeClient,
     SubscriptionManager,
+    PaymentsGleanFactory,
+    PaymentsGleanManager,
+    PaymentsGleanService,
   ],
 })
 export class AppModule {}
