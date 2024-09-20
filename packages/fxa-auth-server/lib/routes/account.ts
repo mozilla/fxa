@@ -44,7 +44,6 @@ import { gleanMetrics } from '../metrics/glean';
 import { AccountDeleteManager } from '../account-delete';
 import { uuidTransformer } from 'fxa-shared/db/transformers';
 import { AccountTasks, ReasonForDeletion } from '@fxa/shared/cloud-tasks';
-import { ProfileClient } from '@fxa/profile/client';
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 
