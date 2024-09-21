@@ -55,6 +55,9 @@ module.exports = function (config) {
   const FEATURE_FLAGS_RESET_PWD_WITH_CODE = config.get(
     'featureFlags.resetPasswordWithCode'
   );
+  const FEATURE_FLAGS_RECOVERY_CODE_SETUP_ON_SYNC_SIGN_IN = config.get(
+    'featureFlags.recoveryCodeSetupOnSyncSignIn'
+  );
   const GLEAN_ENABLED = config.get('glean.enabled');
   const GLEAN_APPLICATION_ID = config.get('glean.applicationId');
   const GLEAN_UPLOAD_ENABLED = config.get('glean.uploadEnabled');
@@ -114,6 +117,8 @@ module.exports = function (config) {
     featureFlags: {
       sendFxAStatusOnSettings: FEATURE_FLAGS_FXA_STATUS_ON_SETTINGS,
       resetPasswordWithCode: FEATURE_FLAGS_RESET_PWD_WITH_CODE,
+      recoveryCodeSetupOnSyncSignIn:
+        FEATURE_FLAGS_RECOVERY_CODE_SETUP_ON_SYNC_SIGN_IN,
     },
     glean: {
       // feature toggle

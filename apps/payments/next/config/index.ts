@@ -1,7 +1,18 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import 'reflect-metadata';
 import 'server-only';
 import { Type } from 'class-transformer';
-import { IsString, ValidateNested, IsDefined, IsUrl } from 'class-validator';
+import {
+  IsString,
+  ValidateNested,
+  IsDefined,
+  IsUrl,
+  IsNumber,
+  IsOptional,
+} from 'class-validator';
 import {
   RootConfig as NestAppRootConfig,
   validate,
@@ -18,6 +29,14 @@ class CspConfig {
 class PaypalConfig {
   @IsString()
   clientId!: string;
+}
+
+class SentryServerConfig {
+  @IsString()
+  serverName!: string;
+
+  @IsString()
+  authToken!: string;
 }
 
 class AuthJSConfig {
@@ -47,6 +66,11 @@ export class PaymentsNextConfig extends NestAppRootConfig {
   @IsDefined()
   csp!: CspConfig;
 
+  @Type(() => SentryServerConfig)
+  @ValidateNested()
+  @IsDefined()
+  sentry!: SentryServerConfig;
+
   @IsString()
   authSecret!: string;
 
@@ -55,6 +79,35 @@ export class PaymentsNextConfig extends NestAppRootConfig {
 
   @IsUrl({ require_tld: false })
   contentServerUrl!: string;
+
+  /**
+   * Nextjs Public Environment Variables
+   */
+
+  /**
+   * Sentry Config
+   */
+  @IsOptional()
+  @IsString()
+  nextPublicSentryDsn?: string;
+
+  @IsString()
+  nextPublicSentryEnv!: string;
+
+  @IsString()
+  nextPublicSentryClientName!: string;
+
+  @IsNumber()
+  nextPublicSentrySampleRate!: number;
+
+  @IsNumber()
+  nextPublicSentryTracesSampleRate!: number;
 }
 
-export const config = validate(process.env, PaymentsNextConfig);
+export const config = validate(
+  {
+    ...process.env,
+    GLEAN_CONFIG__VERSION: process.env['GLEAN_CONFIG__VERSION'],
+  },
+  PaymentsNextConfig
+);

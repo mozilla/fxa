@@ -7,7 +7,7 @@ import { testResetGlean } from '@mozilla/glean/testing';
 import GleanMetrics from '../../../scripts/lib/glean';
 import * as event from '../../../scripts/lib/glean/event';
 import * as pings from '../../../scripts/lib/glean/pings';
-import { userIdSha256 } from '../../../scripts/lib/glean/account';
+import { userIdSha256, userId } from '../../../scripts/lib/glean/account';
 import {
   oauthClientId,
   service,
@@ -66,6 +66,7 @@ describe('lib/glean', () => {
     setFlowIdStub,
     setOauthClientIdStub,
     setServiceStub,
+    setUserIdStub,
     setuserIdSha256Stub,
     setUtmCampaignStub,
     setUtmContentStub,
@@ -84,6 +85,7 @@ describe('lib/glean', () => {
     setFlowIdStub = sandbox.stub(flowId, 'set');
     setOauthClientIdStub = sandbox.stub(oauthClientId, 'set');
     setServiceStub = sandbox.stub(service, 'set');
+    setUserIdStub = sandbox.stub(userId, 'set');
     setuserIdSha256Stub = sandbox.stub(userIdSha256, 'set');
     setUtmCampaignStub = sandbox.stub(utm.campaign, 'set');
     setUtmContentStub = sandbox.stub(utm.content, 'set');
@@ -149,6 +151,7 @@ describe('lib/glean', () => {
       sinon.assert.calledOnce(initStub);
       assert.isFalse(config.enabled);
       // does not try to set a value since internal enabled state is false
+      sinon.assert.notCalled(setUserIdStub);
       sinon.assert.notCalled(setuserIdSha256Stub);
     });
   });
@@ -184,13 +187,15 @@ describe('lib/glean', () => {
     });
 
     it('submits a ping on an event', async () => {
-      await GleanMetrics.registration.view();
+      GleanMetrics.registration.view();
+      await GleanMetrics.isDone();
       sinon.assert.calledOnce(submitPingStub);
     });
 
     it('sets empty strings as defaults', async () => {
       await GleanMetrics.registration.view();
 
+      sinon.assert.calledWith(setUserIdStub, '');
       sinon.assert.calledWith(setuserIdSha256Stub, '');
 
       sinon.assert.calledWith(setOauthClientIdStub, '');
@@ -335,6 +340,8 @@ describe('lib/glean', () => {
             sinon.assert.calledTwice(accountGetterStub);
             sinon.assert.calledWith(accountGetterStub, 'sessionToken');
             sinon.assert.calledWith(accountGetterStub, 'uid');
+            sinon.assert.calledOnce(setUserIdStub);
+            sinon.assert.calledWith(setUserIdStub, 'testo');
             sinon.assert.calledOnce(setuserIdSha256Stub);
             sinon.assert.calledWith(
               setuserIdSha256Stub,

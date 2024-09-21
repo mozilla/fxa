@@ -27,9 +27,10 @@ import * as cadApproveDevice from 'fxa-shared/metrics/glean/web/cadApproveDevice
 import * as cadMobilePair from 'fxa-shared/metrics/glean/web/cadMobilePair';
 import * as cadMobilePairUseApp from 'fxa-shared/metrics/glean/web/cadMobilePairUseApp';
 import * as accountPref from 'fxa-shared/metrics/glean/web/accountPref';
+import * as accountBanner from 'fxa-shared/metrics/glean/web/accountBanner';
 import * as deleteAccount from 'fxa-shared/metrics/glean/web/deleteAccount';
 import * as thirdPartyAuth from 'fxa-shared/metrics/glean/web/thirdPartyAuth';
-import { userIdSha256 } from 'fxa-shared/metrics/glean/web/account';
+import { userIdSha256, userId } from 'fxa-shared/metrics/glean/web/account';
 import {
   oauthClientId,
   service,
@@ -63,8 +64,10 @@ type GleanMetricsT = {
   setEnabled: (enabled: boolean) => void;
   getEnabled: () => boolean;
   isDone: () => Promise<void>;
-  pageLoad: () => void;
+  pageLoad: (url?: string) => void;
   handleClickEvent(event: Event): void;
+
+  useGlean: () => { enabled: boolean };
 } & {
   [k in EventMapKeys]: { [eventKey in keyof EventsMap[k]]: PingFn };
 };
@@ -126,7 +129,42 @@ const getDeviceType: () => DeviceTypes | void = () => {
   }
 };
 
+const initMetrics = async () => {
+  userId.set('');
+  userIdSha256.set('');
+  try {
+    if (metricsContext.account?.uid) {
+      userId.set(metricsContext.account.uid);
+      userIdSha256.set(await hashUid(metricsContext.account.uid));
+    }
+  } catch (e) {
+    // noop
+  }
+
+  oauthClientId.set(metricsContext.integration.data.clientId || '');
+  service.set(metricsContext.integration.data.service || '');
+
+  deviceType.set(getDeviceType() || '');
+  entrypoint.set(metricsContext.integration.data.entrypoint || '');
+  flowId.set(metricsContext.metricsFlow?.flowId || '');
+
+  utm.campaign.set(metricsContext.integration.data.utmCampaign || '');
+  utm.content.set(metricsContext.integration.data.utmContent || '');
+  utm.medium.set(metricsContext.integration.data.utmMedium || '');
+  utm.source.set(metricsContext.integration.data.utmSource || '');
+  utm.term.set(metricsContext.integration.data.utmTerm || '');
+
+  entrypointQuery.variation.set(
+    metricsContext.integration.data.entrypointVariation || ''
+  );
+  entrypointQuery.experiment.set(
+    metricsContext.integration.data.entrypointExperiment || ''
+  );
+};
+
 const populateMetrics = async (gleanPingMetrics: GleanPingMetrics) => {
+  await initMetrics();
+
   if (gleanPingMetrics?.event) {
     // The event here is the Glean `event` metric type, not an "metrics event" in
     // a more general sense
@@ -153,36 +191,6 @@ const populateMetrics = async (gleanPingMetrics: GleanPingMetrics) => {
       standard.marketing[k].set(v);
     });
   }
-
-  userIdSha256.set('');
-  try {
-    if (metricsContext.account?.uid) {
-      const hashedUid = await hashUid(metricsContext.account.uid);
-      userIdSha256.set(hashedUid);
-    }
-  } catch (e) {
-    // noop
-  }
-
-  oauthClientId.set(metricsContext.integration.data.clientId || '');
-  service.set(metricsContext.integration.data.service || '');
-
-  deviceType.set(getDeviceType() || '');
-  entrypoint.set(metricsContext.integration.data.entrypoint || '');
-  flowId.set(metricsContext.metricsFlow?.flowId || '');
-
-  utm.campaign.set(metricsContext.integration.data.utmCampaign || '');
-  utm.content.set(metricsContext.integration.data.utmContent || '');
-  utm.medium.set(metricsContext.integration.data.utmMedium || '');
-  utm.source.set(metricsContext.integration.data.utmSource || '');
-  utm.term.set(metricsContext.integration.data.utmTerm || '');
-
-  entrypointQuery.variation.set(
-    metricsContext.integration.data.entrypointVariation || ''
-  );
-  entrypointQuery.experiment.set(
-    metricsContext.integration.data.entrypointExperiment || ''
-  );
 };
 
 const recordEventMetric = (
@@ -499,6 +507,9 @@ const recordEventMetric = (
         reason: gleanPingMetrics?.event?.['reason'] || '',
       });
       break;
+    case 'account_banner_create_recovery_key_view':
+      accountBanner.createRecoveryKeyView.record();
+      break;
   }
 };
 
@@ -527,11 +538,15 @@ export const GleanMetrics: Pick<
   | 'initialize'
   | 'setEnabled'
   | 'getEnabled'
+  | 'useGlean'
   | 'isDone'
   | 'pageLoad'
   | 'handleClickEvent'
 > = {
-  initialize: (config: GleanMetricsConfig, context: GleanMetricsContext) => {
+  initialize: async (
+    config: GleanMetricsConfig,
+    context: GleanMetricsContext
+  ) => {
     // https://bugzilla.mozilla.org/show_bug.cgi?id=1859629
     // Starting with glean.js v2, accessing localStorage during
     // initialization could cause an error
@@ -539,7 +554,7 @@ export const GleanMetrics: Pick<
       if (config.enabled) {
         Glean.initialize(config.applicationId, config.uploadEnabled, {
           appDisplayVersion: config.appDisplayVersion,
-          channel: config.channel,
+          channel: config.appChannel,
           serverEndpoint: config.serverEndpoint,
           enableAutoPageLoadEvents: true,
           enableAutoElementClickEvents: true,
@@ -552,6 +567,10 @@ export const GleanMetrics: Pick<
       GleanMetrics.setEnabled(config.enabled);
       metricsContext = context;
       ua = null;
+
+      // try to initialize any available metrics prior to any automatic Glean
+      // events
+      await initMetrics();
     } catch (_) {
       // set some states so we won't try to do anything with glean.js later
       config.enabled = false;
@@ -568,8 +587,14 @@ export const GleanMetrics: Pick<
     return gleanEnabled;
   },
 
-  pageLoad: () => {
-    GleanMetricsAPI.pageLoad();
+  useGlean: () => ({ enabled: GleanMetrics.getEnabled() }),
+
+  pageLoad: (url?: string) => {
+    if (url) {
+      GleanMetricsAPI.pageLoad({ url });
+    } else {
+      GleanMetricsAPI.pageLoad();
+    }
   },
 
   handleClickEvent(event: Event) {

@@ -193,12 +193,11 @@ export const ConnectedServices = forwardRef<HTMLDivElement>((_, ref) => {
 
   return (
     <section
-      className="mt-11"
       data-testid="settings-connected-services"
       id="connected-services-section"
       {...{ ref }}
     >
-      <h2 className="font-header font-bold mobileLandscape:ltr:ml-6 mobileLandscape:rtl:ml-6 ltr:ml-4 rtl:mr-4 mb-4 relative">
+      <h2 className="font-header font-bold mobileLandscape:ms-6 ms-4 mb-4 relative">
         <span id="connected-services" className="nav-anchor"></span>
         <Localized id="cs-heading">Connected Services</Localized>
       </h2>

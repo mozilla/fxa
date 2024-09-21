@@ -2,32 +2,33 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { LinkStatus } from '../../../lib/types';
-import { BaseIntegration, IntegrationType } from '../../../models';
-import { CompleteResetPasswordLink } from '../../../models/reset-password/verification';
+import { MozServices } from '../../../lib/types';
 
 export interface AccountRecoveryConfirmKeyFormData {
   recoveryKey: string;
 }
 
-interface RequiredParamsAccountRecoveryConfirmKey {
-  email: string;
-  token: string;
+export type AccountRecoveryConfirmKeyContainerProps = {
+  serviceName: MozServices;
+};
+
+export interface AccountRecoveryConfirmKeyLocationState {
   code: string;
+  email: string;
+  estimatedSyncDeviceCount: number;
+  token: string;
   uid: string;
+  accountResetToken?: string;
+  emailToHashWith?: string;
+  recoveryKeyExists?: boolean;
 }
 
-export type AccountRecoveryConfirmKeySubmitData = {
-  recoveryKey: string;
-} & RequiredParamsAccountRecoveryConfirmKey;
-
-export interface AccountRecoveryConfirmKeyProps {
-  linkModel: CompleteResetPasswordLink;
-  setLinkStatus: React.Dispatch<React.SetStateAction<LinkStatus>>;
-  integration: AccountRecoveryConfirmKeyBaseIntegration;
-}
-
-export interface AccountRecoveryConfirmKeyBaseIntegration {
-  type: IntegrationType;
-  getServiceName: () => ReturnType<BaseIntegration['getServiceName']>;
+export interface AccountRecoveryConfirmKeyProps
+  extends AccountRecoveryConfirmKeyLocationState {
+  errorMessage: string;
+  isSubmitting: boolean;
+  serviceName: MozServices;
+  setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
+  setIsSubmitting: React.Dispatch<React.SetStateAction<boolean>>;
+  verifyRecoveryKey: (recoveryKey: string) => Promise<void>;
 }

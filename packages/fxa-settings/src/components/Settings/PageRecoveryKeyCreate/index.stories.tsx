@@ -21,7 +21,7 @@ const recoveryKeyRaw = new Uint8Array(20);
 
 const accountWithSuccess = {
   ...MOCK_ACCOUNT,
-  recoveryKey: false,
+  recoveryKey: { exists: false },
   createRecoveryKey: () => recoveryKeyRaw,
 } as unknown as Account;
 
@@ -48,7 +48,7 @@ const accountWithUnexpectedError = {
 
 const accountWithKeyEnabled = {
   ...MOCK_ACCOUNT,
-  recoveryKey: true,
+  recoveryKey: { exists: true },
   createRecoveryKey: () => recoveryKeyRaw,
   deleteRecoveryKey: () => true,
 } as unknown as Account;

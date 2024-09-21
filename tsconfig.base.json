@@ -27,12 +27,15 @@
       "@fxa/payments/capability": ["libs/payments/capability/src/index.ts"],
       "@fxa/payments/cart": ["libs/payments/cart/src/index.ts"],
       "@fxa/payments/currency": ["libs/payments/currency/src/index.ts"],
+      "@fxa/payments/customer": ["libs/payments/customer/src/index.ts"],
       "@fxa/payments/eligibility": ["libs/payments/eligibility/src/index.ts"],
       "@fxa/payments/legacy": ["libs/payments/legacy/src/index.ts"],
+      "@fxa/payments/metrics": ["libs/payments/metrics/src/index.ts"],
       "@fxa/payments/paypal": ["libs/payments/paypal/src/index.ts"],
       "@fxa/payments/stripe": ["libs/payments/stripe/src/index.ts"],
       "@fxa/payments/ui": ["libs/payments/ui/src/index.ts"],
       "@fxa/payments/ui/server": ["libs/payments/ui/src/server.ts"],
+      "@fxa/profile/client": ["libs/profile/client/src/index.ts"],
       "@fxa/shared/account/account": [
         "libs/shared/account/account/src/index.ts"
       ],
@@ -61,6 +64,7 @@
       "@fxa/shared/pem-jwk": ["libs/shared/pem-jwk/src/index.ts"],
       "@fxa/shared/react": ["libs/shared/react/src/index.ts"],
       "@fxa/shared/sentry": ["libs/shared/sentry/src/index.ts"],
+      "@fxa/shared/sentry/client": ["libs/shared/sentry/src/client.ts"],
       "@fxa/vendored/common-password-list": [
         "libs/vendored/common-password-list/src/index.ts"
       ],

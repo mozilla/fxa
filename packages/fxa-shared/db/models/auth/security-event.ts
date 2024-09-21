@@ -104,18 +104,6 @@ export class SecurityEvent extends BaseAuthModel {
     return !!result;
   }
 
-  static async delete(uid: string) {
-    try {
-      await this.callProcedure(
-        Proc.DeleteSecurityEvents,
-        uuidTransformer.to(uid)
-      );
-    } catch (e) {
-      console.error(e);
-      throw convertError(e);
-    }
-  }
-
   static async findByUid(uid: string) {
     const id = uuidTransformer.to(uid);
     return this.query()

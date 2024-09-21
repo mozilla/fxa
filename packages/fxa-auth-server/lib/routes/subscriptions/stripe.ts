@@ -6,7 +6,10 @@ import { ServerRoute } from '@hapi/hapi';
 import isA from 'joi';
 import * as Sentry from '@sentry/node';
 import { SeverityLevel } from '@sentry/types';
-import { PromotionCodeManager, StripeError } from '@fxa/payments/stripe';
+import {
+  PaymentsCustomerError,
+  PromotionCodeManager,
+} from '@fxa/payments/customer';
 import { getAccountCustomerByUid } from 'fxa-shared/db/models/auth';
 import {
   AbbrevPlan,
@@ -558,7 +561,7 @@ export class StripeHandler {
         uid,
       });
 
-      if (err instanceof StripeError) {
+      if (err instanceof PaymentsCustomerError) {
         throw error.subscriptionPromotionCodeNotApplied(err, err.message);
       } else {
         throw err;

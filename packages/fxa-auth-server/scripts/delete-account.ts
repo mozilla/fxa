@@ -25,19 +25,13 @@ import { PayPalClient } from '@fxa/payments/paypal';
 
 import { AccountDeleteManager } from '../lib/account-delete';
 import configProperties from '../config';
-import error from '../lib/error';
 import { setupFirestore } from '../lib/firestore-db';
 import { CurrencyHelper } from '../lib/payments/currencies';
 import { PayPalHelper } from '../lib/payments/paypal';
 import { StripeHelper } from '../lib/payments/stripe';
-import Profile from '../lib/profile/client';
-import {
-  AppConfig,
-  AuthFirestore,
-  AuthLogger,
-  ProfileClient,
-} from '../lib/types';
+import { AppConfig, AuthFirestore, AuthLogger } from '../lib/types';
 import { AccountTasks, AccountTasksFactory } from '@fxa/shared/cloud-tasks';
+import { ProfileClient } from '@fxa/profile/client';
 
 const config = configProperties.getProperties();
 const mailer = null;
@@ -58,7 +52,10 @@ Container.set(AppConfig, config);
 Container.set(AuthLogger, log);
 const authFirestore = setupFirestore(config);
 Container.set(AuthFirestore, authFirestore);
-const profile = new Profile(log, config, error, statsd);
+const profile = new ProfileClient(log, {
+  ...config.profileServer,
+  serviceName: 'subhub',
+});
 Container.set(ProfileClient, profile);
 
 DB.connect(config).then(async (db: any) => {

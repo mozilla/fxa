@@ -18,23 +18,26 @@ import {
   PaypalCustomerManager,
 } from '@fxa/payments/paypal';
 import {
-  AccountCustomerManager,
+  CouponErrorExpired,
   CustomerManager,
   InvoiceManager,
   InvoicePreviewFactory,
-  MockStripeConfigProvider,
   PaymentMethodManager,
   PriceManager,
   ProductManager,
   PromotionCodeManager,
+  SubplatInterval,
+  SubscriptionManager,
+  TaxAddressFactory,
+} from '@fxa/payments/customer';
+import {
   ResultAccountCustomerFactory,
   StripeClient,
   StripeCustomerFactory,
   StripePriceFactory,
   StripeResponseFactory,
-  SubplatInterval,
-  SubscriptionManager,
-  TaxAddressFactory,
+  MockStripeConfigProvider,
+  AccountCustomerManager,
 } from '@fxa/payments/stripe';
 import {
   MockStrapiClientConfigProvider,
@@ -475,6 +478,56 @@ describe('CartService', () => {
         mockCart.version,
         mockUpdateCart
       );
+    });
+
+    describe('updates cart with coupon code', () => {
+      const mockCart = ResultCartFactory();
+      const mockPrice = StripePriceFactory();
+      const mockUpdateCart = UpdateCartFactory({
+        couponCode: faker.word.noun(),
+      });
+
+      beforeEach(async () => {
+        jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+        jest
+          .spyOn(productConfigurationManager, 'retrieveStripePrice')
+          .mockResolvedValue(mockPrice);
+      });
+
+      it('success if coupon is valid', async () => {
+        jest
+          .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
+          .mockResolvedValue(undefined);
+
+        jest.spyOn(cartManager, 'updateFreshCart').mockResolvedValue();
+
+        await cartService.updateCart(
+          mockCart.id,
+          mockCart.version,
+          mockUpdateCart
+        );
+
+        expect(cartManager.updateFreshCart).toHaveBeenCalledWith(
+          mockCart.id,
+          mockCart.version,
+          mockUpdateCart
+        );
+      });
+
+      it('throws if coupon is not valid', async () => {
+        jest
+          .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
+          .mockImplementation(() => {
+            throw new CouponErrorExpired();
+          });
+        jest.spyOn(cartManager, 'updateFreshCart').mockRejectedValue(undefined);
+
+        await expect(
+          cartService.updateCart(mockCart.id, mockCart.version, mockUpdateCart)
+        ).rejects.toBeInstanceOf(CouponErrorExpired);
+
+        expect(cartManager.updateFreshCart).not.toHaveBeenCalledWith();
+      });
     });
   });
 

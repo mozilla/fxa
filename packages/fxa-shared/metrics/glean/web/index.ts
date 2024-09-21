@@ -7,7 +7,7 @@ export type GleanMetricsConfig = {
   applicationId: string;
   uploadEnabled: boolean;
   appDisplayVersion: string;
-  channel: string;
+  appChannel: string;
   serverEndpoint: string;
   logPings: boolean;
   debugViewTag: string;
@@ -162,8 +162,8 @@ export const eventsMap = {
     twoStepAuthScanCodeLink: 'account_pref_two_step_auth_scan_code_link',
     twoStepAuthQrView: 'account_pref_two_step_auth_qr_view',
     twoStepAuthQrCodeSuccess: 'account_pref_two_step_auth_qr_code_success',
-    twoStepAuthCodesView: 'two_step_auth_codes_view',
-    twoStepAuthEnterCodeView: 'two_step_auth_enter_code_view',
+    twoStepAuthCodesView: 'account_pref_two_step_auth_codes_view',
+    twoStepAuthEnterCodeView: 'account_pref_two_step_auth_enter_code_view',
     changePasswordSubmit: 'account_pref_change_password_submit',
     deviceSignout: 'account_pref_device_signout',
     appleSubmit: 'account_pref_apple_submit',
@@ -184,6 +184,10 @@ export const eventsMap = {
     bentoPocket: 'account_pref_bento_pocket',
     bentoRelay: 'account_pref_bento_relay',
     bentoVpn: 'account_pref_bento_vpn',
+  },
+
+  accountBanner: {
+    createRecoveryKeyView: 'account_banner_create_recovery_key_view',
   },
 
   deleteAccount: {

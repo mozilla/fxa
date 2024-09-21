@@ -26,7 +26,7 @@ const {
 const subscriptionCreated =
   require('./fixtures/stripe/subscription_created.json').data.object;
 
-const { ProfileClient } = require('../../../lib/types');
+const { ProfileClient } = require('@fxa/profile/client');
 const {
   PlayStoreSubscriptionPurchase,
 } = require('../../../lib/payments/iap/google-play/subscription-purchase');

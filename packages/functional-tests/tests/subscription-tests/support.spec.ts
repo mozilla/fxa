@@ -51,8 +51,8 @@ test.describe('severity-2 #smoke', () => {
       credentials,
     }, { project }) => {
       test.skip(
-        project.name === 'production',
-        'no real payment method available in prod'
+        project.name === 'production' || project.name === 'local-chromium',
+        'no real payment method available in prod or local-chromium'
       );
       await relier.goto();
       await relier.clickSubscribe();

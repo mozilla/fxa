@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import base32Encode from 'base32-encode';
 import { AttachedClient } from '../models/Account';
 
 // Various utilities that don't fit in a standalone lib
@@ -109,6 +110,10 @@ export function isMobileDevice(client?: AttachedClient) {
 const B32_STRING = /^[0-9A-HJ-KM-NP-TV-Z]+$/i;
 export function isBase32Crockford(value: string) {
   return B32_STRING.test(value);
+}
+
+export function formatRecoveryKey(recoveryKeyBuffer: ArrayBufferLike) {
+  return base32Encode(recoveryKeyBuffer, 'Crockford').match(/.{4}/g)!.join(' ');
 }
 
 /**

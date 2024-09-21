@@ -61,4 +61,14 @@ progress[value]::-moz-progress-bar {
   .break-word {
     word-break: break-word;
   }
+
+  /* This global setting ensures that all animated SVGs are paused if a user prefers reduced motion.
+  Media queries that are directly added to SVG styles are lost when the SVG is imported as a react component */
+  @media (prefers-reduced-motion: reduce) {
+    svg,
+    svg * {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
 }

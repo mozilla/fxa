@@ -82,7 +82,7 @@ executors:
   # step, and the saving the initial a workspace state.
   build-executor:
     docker:
-      - image: mozilla/fxa-circleci:ci-builder-v3
+      - image: mozilla/fxa-circleci:ci-builder-v4
     environment:
       NODE_ENV: development
       FIRESTORE_EMULATOR_HOST: localhost:9090
@@ -98,7 +98,7 @@ executors:
         default: medium
     resource_class: << parameters.resource_class >>
     docker:
-      - image: mozilla/fxa-circleci:ci-test-runner-v3
+      - image: mozilla/fxa-circleci:ci-test-runner-v4
     environment:
       NODE_ENV: development
       FIRESTORE_EMULATOR_HOST: localhost:9090
@@ -114,7 +114,7 @@ executors:
         default: large
     resource_class: << parameters.resource_class >>
     docker:
-      - image: mozilla/fxa-circleci:ci-test-runner-v3
+      - image: mozilla/fxa-circleci:ci-test-runner-v4
       - image: cimg/mysql:8.0
         command: --default-authentication-plugin=mysql_native_password
       - image: jdlk7/firestore-emulator
@@ -137,7 +137,7 @@ executors:
         default: large
     resource_class: << parameters.resource_class >>
     docker:
-      - image: mozilla/fxa-circleci:ci-functional-test-runner-v3
+      - image: mozilla/fxa-circleci:ci-functional-test-runner-v4
       - image: redis
       - image: pafortin/goaws
       - image: cimg/mysql:8.0
@@ -178,7 +178,7 @@ executors:
         default: medium+
     resource_class: << parameters.resource_class >>
     docker:
-      - image: mozilla/fxa-circleci:ci-functional-test-runner-v3
+      - image: mozilla/fxa-circleci:ci-functional-test-runner-v4
     environment:
       NODE_ENV: development
       CUSTOMS_SERVER_URL: none
@@ -336,19 +336,50 @@ commands:
             RELIER_DOMAIN: << pipeline.parameters.relier-domain >>
             UNTRUSTED_RELIER_DOMAIN: << pipeline.parameters.untrusted-relier-domain >>
 
+  run-playwright-tests-chromium:
+    parameters:
+      project:
+        type: string
+    steps:
+      - run:
+          name: Running Playwright tests
+          # Supports 'Re-run failed tests only'. See this for more info: https://circleci.com/docs/rerun-failed-tests-only/
+          command: |
+            npx nx build fxa-auth-client
+            cd packages/functional-tests/tests
+            TEST_FILES=$(circleci tests glob "./**/*.spec.ts")
+            cd ..
+            echo $TEST_FILES | circleci tests run --command="xargs yarn playwright test --project=<< parameters.project >>-chromium $GREP" --verbose --split-by=timings --timings-type=classname
+          environment:
+            NODE_OPTIONS: --dns-result-order=ipv4first
+            JEST_JUNIT_OUTPUT_DIR: ./artifacts/tests
+            JEST_JUNIT_ADD_FILE_ATTRIBUTE: true
+            PLAYWRIGHT_BLOB_OUTPUT_DIR: ./artifacts/blob-report
+            PW_TEST_HTML_REPORT_OPEN: never
+            ACCOUNTS_DOMAIN: << pipeline.parameters.accounts-domain >>
+            PAYMENTS_DOMAIN: << pipeline.parameters.payments-domain >>
+            ACCOUNTS_API_DOMAIN: << pipeline.parameters.accounts-api-domain >>
+            RELIER_DOMAIN: << pipeline.parameters.relier-domain >>
+            UNTRUSTED_RELIER_DOMAIN: << pipeline.parameters.untrusted-relier-domain >>
+
   store-artifacts:
     steps:
       - run:
           name: Ensure directories
           command: mkdir -p artifacts/tests && mkdir -p ~/.pm2/logs && mkdir -p ~/screenshots
+          when: always
       - store_artifacts:
           path: artifacts
+          when: always
       - store_artifacts:
           path: ~/screenshots
+          when: always
       - store_artifacts:
           path: ~/.pm2/logs
+          when: always
       - store_test_results:
           path: artifacts/tests
+          when: always
 
   rename-reports:
     steps:
@@ -362,11 +393,41 @@ commands:
             echo "Listing contents before renaming:"
             ls -la
             if [ -f report.zip ]; then
-              mv report.zip reports-${CIRCLE_NODE_INDEX}.zip
-              echo "Renamed report.zip to reports-${CIRCLE_NODE_INDEX}.zip"
+              mv report.zip reports-${CIRCLE_NODE_INDEX}-firefox.zip
+              echo "Renamed report.zip to reports-${CIRCLE_NODE_INDEX}-firefox.zip"
             else
               echo "No report.zip found, skipping rename for this node."
             fi
+            echo "$CIRCLE_WORKFLOW_JOB_ID" > job_id_firefox.txt
+            echo "Listing contents after renaming:"
+            ls -la
+          when: always
+      - store_artifacts:
+          path: artifacts/blob-report
+      - persist_to_workspace:
+          root: /home/circleci/project
+          paths:
+            - artifacts/blob-report
+
+
+  rename-reports-chromium:
+    steps:
+      - run:
+          name: Rename Reports
+          command: |
+            mkdir -p artifacts/blob-report && mkdir -p artifacts/playwright-report
+            echo "Starting rename reports step"
+            cd artifacts/blob-report || { echo "Directory artifacts/blob-report not found"; exit 1; }
+            echo "Current directory: $(pwd)"
+            echo "Listing contents before renaming:"
+            ls -la
+            if [ -f report.zip ]; then
+              mv report.zip reports-${CIRCLE_NODE_INDEX}-chromium.zip
+              echo "Renamed report.zip to reports-${CIRCLE_NODE_INDEX}-chromium.zip"
+            else
+              echo "No report.zip found, skipping rename for this node."
+            fi
+            echo "$CIRCLE_WORKFLOW_JOB_ID" > job_id_chromium.txt
             echo "Listing contents after renaming:"
             ls -la
           when: always
@@ -468,7 +529,7 @@ commands:
             docker build . \
                 -f ./project/_dev/docker/ci/Dockerfile \
                 --target << parameters.target >> \
-                -t mozilla/fxa-circleci:ci-<< parameters.target >>-v3
+                -t mozilla/fxa-circleci:ci-<< parameters.target >>-v4
 
   create-fxa-ci-images:
     # Build CI images. Images are built on top of each other. Each is optimized for a specific task.
@@ -497,10 +558,10 @@ commands:
           name: Push CI Images and Extract Yarn Cache
           command: |
             docker login -u $DOCKER_USER_fxa_circleci -p $DOCKER_PASS_fxa_circleci
-            .circleci/docker-copy-cache.sh mozilla/fxa-circleci:ci-builder-v3
-            docker push mozilla/fxa-circleci:ci-test-runner-v3
-            docker push mozilla/fxa-circleci:ci-functional-test-runner-v3
-            docker push mozilla/fxa-circleci:ci-builder-v3
+            .circleci/docker-copy-cache.sh mozilla/fxa-circleci:ci-builder-v4
+            docker push mozilla/fxa-circleci:ci-test-runner-v4
+            docker push mozilla/fxa-circleci:ci-functional-test-runner-v4
+            docker push mozilla/fxa-circleci:ci-builder-v4
             wait
 
 jobs:
@@ -721,6 +782,84 @@ jobs:
       - store-artifacts
       - rename-reports
 
+  playwright-functional-tests-chromium:
+    parameters:
+      resource_class:
+        type: string
+        default: large
+      parallelism:
+        type: integer
+        default: 4
+    executor: functional-test-executor
+    resource_class: << parameters.resource_class >>
+    parallelism: << parameters.parallelism >>
+    steps:
+      - git-checkout
+      - restore-workspace
+      - run:
+          name: Add localhost
+          command: |
+            sudo tee -a /etc/hosts \<<<'127.0.0.1 localhost'
+            sudo cat /etc/hosts
+      - wait-for-infrastructure
+      - run:
+          name: Start services for playwright tests
+          command: ./packages/functional-tests/scripts/start-services.sh
+          environment:
+            NODE_ENV: test
+      - run-playwright-tests-chromium:
+          project: local
+      - store-artifacts
+      - rename-reports-chromium
+
+  # Currently HTML reports are being generated for Firefox tests only hence we are only using firefox functional test job id below
+  check-required-jobs-complete:
+    docker:
+      - image: circleci/node
+    resource_class: small
+    steps:
+      - run:
+          name: Wait for required jobs to complete
+          command: |
+            sleep 30
+            mkdir -p artifacts/blob-report
+            while true; do
+              RESPONSE=$(curl -s --request GET "https://circleci.com/api/v2/workflow/$CIRCLE_WORKFLOW_ID/job" --header "Circle-Token: $CCI_Token")
+              FUNCTIONAL_TEST_JOB_ID=$(echo $RESPONSE | jq -r '.items[] | select(.status == "running") | select(.name | startswith("Firefox Functional Tests")) | .id')
+              if [[ -e artifacts/blob-report/functional_test_job_id.txt ]]; then
+                echo "Job id already set"
+              elif [[ -n "$FUNCTIONAL_TEST_JOB_ID" ]]; then
+                echo "Storing job id, $FUNCTIONAL_TEST_JOB_ID, for later lookup."
+                echo $FUNCTIONAL_TEST_JOB_ID > artifacts/blob-report/functional_test_job_id.txt
+              else
+                echo "No job id located. ($FUNCTIONAL_TEST_JOB_ID)"
+              fi
+              JOB_STATUS=$(echo $RESPONSE | jq -r '.items[] | .name + "-" + .status')
+              echo "ALL JOB_STATUS:"
+              echo $JOB_STATUS
+              PENDING=$(echo $RESPONSE | jq -r '.items[] | select(.status == "blocked" or .status == "running" or .status == "not_running") | select(.name | startswith("Tests Complete") | not) |
+              select(.name | startswith("Merge Playwright Reports") | not) |
+              select(.name | startswith("Deploy Storybooks") | not) |
+              select(.name | startswith("Create FxA Image") | not) |
+              select(.name | startswith("Deploy FxA Image") | not) |
+              select(.name | startswith("Deploy CI Images") | not) |
+              select(.name | startswith("Check all required jobs are complete") | not ) | .name')
+              echo "PENDING JOBS OF INTEREST:"
+              echo $PENDING
+              if [[ -z "$PENDING" ]]; then
+                echo "All required jobs have now completed"
+                exit 0
+              else
+                echo "Still waiting for jobs to complete..."
+                sleep 1
+              fi
+            done
+      - persist_to_workspace:
+          root: /home/circleci/project
+          paths:
+            - artifacts/blob-report
+          when: always
+
   playwright-functional-test-report:
     executor: default-executor
     steps:
@@ -730,25 +869,39 @@ jobs:
           name: Merge blob Reports
           command: |
             cd artifacts/blob-report
-            echo "Merging blob reports"
-            ls -l
+            JOB_ID=$(cat functional_test_job_id.txt)
+            echo "Fetching reports from circle ci artifact storarge for $JOB_ID"
+            function fetch_report() {
+              echo "Fetching reports-$1-firefox.zip"
+              wget https://output.circle-artifacts.com/output/job/${JOB_ID}/artifacts/$1/artifacts/blob-report/reports-$1-firefox.zip
+              wgetreturn=$?
+              if [[ $wgetreturn -ne 0 ]]; then
+                echo "Failed to get reports-$1-firefox.zip"
+              fi
+            }
+            for i in $(seq 0 7); do
+              fetch_report $i
+            done
+
+            echo "Fetched all reports"
+
             if ls *.zip 1> /dev/null 2>&1; then
+              echo "Merging blob reports"
               npx playwright merge-reports --reporter=blob .
             else
-              echo "No report zip files found, skipping blob merge."
+              echo "No report zip files found, skipping merge."
             fi
       - store_artifacts:
-          path: blob-report
+          path: artifacts/blob-report
       - run:
-          name: Merge html Reports
+          name: Merge HTML Reports
           command: |
             cd artifacts/blob-report
-            echo "Merging HTML reports"
-            ls -l
             if ls *.zip 1> /dev/null 2>&1; then
+              echo "Merging HTML reports"
               npx playwright merge-reports --reporter=html .
             else
-              echo "No report zip files found, skipping HTML merge."
+              echo "No report zip files found, skipping merge."
             fi
       - store_artifacts:
           path: playwright-report
@@ -858,8 +1011,12 @@ workflows:
           projects: --exclude '*,!tag:scope:shared:*'
           requires:
             - Build (PR)
+      - check-required-jobs-complete:
+          name: Check all required jobs are complete (PR)
+          requires:
+            - Build (PR)
       - playwright-functional-tests:
-          name: Functional Tests - Playwright (PR)
+          name: Firefox Functional Tests - Playwright (PR)
           resource_class: xlarge
           parallelism: 8
           requires:
@@ -867,7 +1024,7 @@ workflows:
       - playwright-functional-test-report:
           name: Merge Playwright Reports (PR)
           requires:
-            - Functional Tests - Playwright (PR)
+            - Check all required jobs are complete (PR)
       - build-and-deploy-storybooks:
           name: Deploy Storybooks (PR)
           requires:
@@ -885,8 +1042,9 @@ workflows:
             - Integration Test - Servers - Auth (PR)
             - Integration Test - Servers - Auth V2 (PR)
             - Integration Test - Libraries (PR)
-            - Functional Tests - Playwright (PR)
+            - Firefox Functional Tests - Playwright (PR)
             - Deploy Storybooks (PR)
+            - Check all required jobs are complete (PR)
 
   # Triggered remotely. See .circleci/README.md
   production_smoke_tests:
@@ -903,14 +1061,6 @@ workflows:
               only: /.*/
             tags:
               only: /.*/
-      - playwright-functional-test-report:
-          requires:
-            - Smoke Test Production - Playwright
-          filters:
-            branches:
-              only: /.*/
-            tags:
-              only: /.*/
 
   # Triggered remotely. See .circleci/README.md
   stage_smoke_tests:
@@ -921,14 +1071,6 @@ workflows:
           project: stage
           resource_class: xlarge
           parallelism: 8
-          filters:
-            branches:
-              only: /.*/
-            tags:
-              only: /.*/
-      - playwright-functional-test-report:
-          requires:
-            - Smoke Test Stage - Playwright
           filters:
             branches:
               only: /.*/
@@ -976,8 +1118,7 @@ workflows:
             branches:
               only:
                 - main
-                - chore/update-tsconfig-for-node-20
-                - update-functional-test-executor
+                - update-ci-image
             tags:
               ignore: /.*/
           force-deploy: << pipeline.parameters.force-deploy-fxa-ci-images >>
@@ -1207,8 +1348,18 @@ workflows:
           projects: --exclude '*,!tag:scope:shared:*'
           requires:
             - Build (nightly)
+      - check-required-jobs-complete:
+          name: Check all required jobs are complete (nightly)
+          requires:
+            - Build (nightly)
       - playwright-functional-tests:
-          name: Functional Tests - Playwright (nightly)
+          name: Firefox Functional Tests - Playwright (nightly)
+          resource_class: xlarge
+          parallelism: 8
+          requires:
+            - Build (nightly)
+      - playwright-functional-tests-chromium:
+          name: Chromium Functional Tests - Playwright (nightly)
           resource_class: xlarge
           parallelism: 8
           requires:
@@ -1216,7 +1367,7 @@ workflows:
       - playwright-functional-test-report:
           name: Merge Playwright Reports (nightly)
           requires:
-            - Functional Tests - Playwright (nightly)
+            - Check all required jobs are complete (nightly)
       - on-complete:
           name: Tests Complete (nightly)
           stage: Tests (nightly)
@@ -1230,7 +1381,9 @@ workflows:
             - Integration Test - Servers - Auth (nightly)
             - Integration Test - Servers - Auth V2 (nightly)
             - Integration Test - Libraries (nightly)
-            - Functional Tests - Playwright (nightly)
+            - Firefox Functional Tests - Playwright (nightly)
+            - Check all required jobs are complete (nightly)
+            - Chromium Functional Tests - Playwright (nightly)
       - build-and-deploy-storybooks:
           name: Deploy Storybooks (nightly)
           requires:

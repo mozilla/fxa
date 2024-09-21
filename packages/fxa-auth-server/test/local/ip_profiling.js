@@ -10,9 +10,10 @@ const getRoute = require('../routes_helpers').getRoute;
 const mocks = require('../mocks');
 const uuid = require('uuid');
 const { Container } = require('typedi');
-const { ProfileClient } = require('../../lib/types');
+const { ProfileClient } = require('@fxa/profile/client');
 const { AccountEventsManager } = require('../../lib/account-events');
 const { AccountDeleteManager } = require('../../lib/account-delete');
+const { AppConfig, AuthLogger } = require('../../lib/types');
 const { gleanMetrics } = require('../../lib/metrics/glean');
 const defaultConfig = require('../../config').default.getProperties();
 
@@ -33,11 +34,13 @@ function makeRoutes(options = {}) {
     signinConfirmation: {},
     smtp: {},
   };
+  const log = mocks.mockLog();
   Container.set(AccountEventsManager, {
     recordSecurityEvent: () => {},
   });
   Container.set(AccountDeleteManager, { enqueue: () => {} });
-  const log = mocks.mockLog();
+  Container.set(AppConfig, config);
+  Container.set(AuthLogger, log);
   const cadReminders = mocks.mockCadReminders();
   const customs = {
     check() {

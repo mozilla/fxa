@@ -11,3 +11,5 @@ complete-reset-password-success-alert = Password set
 complete-reset-password-error-alert = Sorry, there was a problem setting your password
 complete-reset-password-recovery-key-error-v2 = Sorry, there was a problem checking if you have an account recovery key.
 complete-reset-password-recovery-key-link = Reset your password with your account recovery key.
+
+account-restored-success-message = You have successfully restored your account using your account recovery key. Create a new password to secure your data, and store it in a safe location.

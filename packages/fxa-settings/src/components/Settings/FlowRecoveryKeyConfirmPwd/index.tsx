@@ -8,16 +8,16 @@ import ProgressBar from '../ProgressBar';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { useAccount, useFtlMsgResolver } from '../../../models';
 import { useForm } from 'react-hook-form';
-import base32Encode from 'base32-encode';
 import { logViewEvent } from '../../../lib/metrics';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import InputPassword from '../../InputPassword';
-import { LockImage } from '../../images';
+import { PasswordImage } from '../../images';
 import Banner, { BannerType } from '../../Banner';
 import { RecoveryKeyAction } from '../PageRecoveryKeyCreate';
 import { Link } from '@reach/router';
 import { SETTINGS_PATH } from '../../../constants';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
+import { formatRecoveryKey } from '../../../lib/utilities';
 
 type FormData = {
   password: string;
@@ -49,12 +49,12 @@ export const FlowRecoveryKeyConfirmPwd = ({
   const [actionType, setActionType] = useState<RecoveryKeyAction>();
 
   useEffect(() => {
-    if (account.recoveryKey === true) {
+    if (account.recoveryKey.exists === true) {
       setActionType(RecoveryKeyAction.Change);
     } else {
       setActionType(RecoveryKeyAction.Create);
     }
-  }, [account.recoveryKey]);
+  }, [account.recoveryKey.exists]);
 
   const { formState, getValues, handleSubmit, register } = useForm<FormData>({
     mode: 'all',
@@ -71,9 +71,7 @@ export const FlowRecoveryKeyConfirmPwd = ({
     try {
       const replaceKey = actionType === RecoveryKeyAction.Change;
       const recoveryKey = await account.createRecoveryKey(password, replaceKey);
-      setFormattedRecoveryKey(
-        base32Encode(recoveryKey.buffer, 'Crockford').match(/.{4}/g)!.join(' ')
-      );
+      setFormattedRecoveryKey(formatRecoveryKey(recoveryKey.buffer));
       logViewEvent(`flow.${viewName}`, 'confirm-password.success');
       navigateForward();
     } catch (err) {
@@ -122,7 +120,7 @@ export const FlowRecoveryKeyConfirmPwd = ({
             <p className="w-full text-center">{bannerText}</p>
           </Banner>
         )}
-        <LockImage className="mx-auto my-4" />
+        <PasswordImage className="mx-auto my-4" />
 
         <FtlMsg id="flow-recovery-key-confirm-pwd-heading-v2">
           <h2 className="font-bold text-xl">

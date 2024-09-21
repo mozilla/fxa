@@ -19,7 +19,7 @@ import { firefox } from '../../lib/channels/firefox';
 import * as MetricsFlow from '../../lib/metrics-flow';
 import GleanMetrics from '../../lib/glean';
 import * as Metrics from '../../lib/metrics';
-import { LinkType, MozServices } from '../../lib/types';
+import { MozServices } from '../../lib/types';
 
 import {
   Integration,
@@ -34,7 +34,6 @@ import {
   initializeSettingsContext,
   SettingsContext,
 } from '../../models/contexts/SettingsContext';
-import { CreateCompleteResetPasswordLink } from '../../models/reset-password/verification/factory';
 
 import { hardNavigate } from 'fxa-react/lib/utils';
 
@@ -54,11 +53,10 @@ import Legal from '../../pages/Legal';
 import LegalPrivacy from '../../pages/Legal/Privacy';
 import LegalTerms from '../../pages/Legal/Terms';
 import ThirdPartyAuthCallback from '../../pages/PostVerify/ThirdPartyAuthCallback';
-import ResetPassword from '../../pages/ResetPassword';
-import AccountRecoveryConfirmKey from '../../pages/ResetPassword/AccountRecoveryConfirmKey';
-import AccountRecoveryResetPasswordContainer from '../../pages/ResetPassword/AccountRecoveryResetPassword/container';
+import ResetPasswordContainer from '../../pages/ResetPassword/ResetPassword/container';
+import ConfirmResetPasswordContainer from '../../pages/ResetPassword/ConfirmResetPassword/container';
 import CompleteResetPasswordContainer from '../../pages/ResetPassword/CompleteResetPassword/container';
-import ConfirmResetPassword from '../../pages/ResetPassword/ConfirmResetPassword';
+import AccountRecoveryConfirmKeyContainer from '../../pages/ResetPassword/AccountRecoveryConfirmKey/container';
 import ResetPasswordConfirmed from '../../pages/ResetPassword/ResetPasswordConfirmed';
 import ResetPasswordWithRecoveryKeyVerified from '../../pages/ResetPassword/ResetPasswordWithRecoveryKeyVerified';
 import CompleteSigninContainer from '../../pages/Signin/CompleteSignin/container';
@@ -70,18 +68,16 @@ import SigninRecoveryCodeContainer from '../../pages/Signin/SigninRecoveryCode/c
 import SigninReported from '../../pages/Signin/SigninReported';
 import SigninTokenCodeContainer from '../../pages/Signin/SigninTokenCode/container';
 import SigninTotpCodeContainer from '../../pages/Signin/SigninTotpCode/container';
+import SigninPushCodeContainer from '../../pages/Signin/SigninPushCode/container';
+import SigninPushCodeConfirmContainer from '../../pages/Signin/SigninPushCodeConfirm/container';
 import SigninUnblockContainer from '../../pages/Signin/SigninUnblock/container';
 import ConfirmSignupCodeContainer from '../../pages/Signup/ConfirmSignupCode/container';
 import SignupContainer from '../../pages/Signup/container';
 import PrimaryEmailVerified from '../../pages/Signup/PrimaryEmailVerified';
 import SignupConfirmed from '../../pages/Signup/SignupConfirmed';
 import WebChannelExample from '../../pages/WebChannelExample';
-import LinkValidator from '../LinkValidator';
-import ResetPasswordContainer from '../../pages/ResetPasswordRedesign/ResetPassword/container';
-import ConfirmResetPasswordContainer from '../../pages/ResetPasswordRedesign/ConfirmResetPassword/container';
-import CompleteResetPasswordWithCodeContainer from '../../pages/ResetPasswordRedesign/CompleteResetPassword/container';
-import AccountRecoveryConfirmKeyContainer from '../../pages/ResetPasswordRedesign/AccountRecoveryConfirmKey/container';
 import SignoutSync from '../Settings/SignoutSync';
+import InlineRecoveryKeySetupContainer from '../../pages/InlineRecoveryKeySetup/container';
 
 const Settings = lazy(() => import('../Settings'));
 
@@ -166,12 +162,17 @@ export const App = ({
       return;
     }
 
+    // This is in a useMemo because we want Glean to be initialized _before_
+    // other components are rendered.  `useEffect` is called after a component
+    // is rendered, which for this means _after_ all the children components
+    // are rendered and _their `useEffect` hooks are called_.
+
     GleanMetrics.initialize(
       {
         ...config.glean,
         enabled: metricsEnabled,
         appDisplayVersion: config.version,
-        channel: config.glean.channel,
+        appChannel: config.glean.appChannel,
       },
       {
         metricsFlow,
@@ -200,7 +201,7 @@ export const App = ({
     Metrics.init(metricsEnabled, flowQueryParams);
     if (data?.account?.metricsEnabled) {
       Metrics.initUserPreferences({
-        recoveryKey: data.account.recoveryKey,
+        recoveryKey: data.account.recoveryKey.exists,
         hasSecondaryVerifiedEmail:
           data.account.emails.length > 1 && data.account.emails[1].verified,
         totpActive: data.account.totp.exists && data.account.totp.verified,
@@ -258,10 +259,6 @@ const SettingsRoutes = ({
   const location = useLocation();
   const isSync = integration != null ? integration.isSync() : false;
 
-  useEffect(() => {
-    GleanMetrics.pageLoad();
-  }, [location.pathname]);
-
   // If the user is not signed in, they cannot access settings! Direct them accordingly
   if (!isSignedIn) {
     const params = new URLSearchParams(window.location.search);
@@ -302,15 +299,15 @@ const AuthAndAccountSetupRoutes = ({
   integration: Integration;
   flowQueryParams: QueryParams;
 } & RouteComponentProps) => {
-  const config = useConfig();
   const localAccount = currentAccount();
   // TODO: MozServices / string discrepancy, FXA-6802
   const serviceName = integration.getServiceName() as MozServices;
-
   const location = useLocation();
+  const { enabled: gleanEnabled } = GleanMetrics.useGlean();
+
   useEffect(() => {
-    GleanMetrics.pageLoad();
-  }, [location.pathname]);
+    gleanEnabled && GleanMetrics.pageLoad(location.pathname);
+  }, [location.pathname, gleanEnabled]);
 
   return (
     <Router>
@@ -333,68 +330,25 @@ const AuthAndAccountSetupRoutes = ({
       />
 
       {/* Reset password */}
-      {config.featureFlags?.resetPasswordWithCode === true ? (
-        <>
-          <ResetPasswordContainer
-            path="/reset_password/*"
-            {...{ flowQueryParams, serviceName }}
-          />
-          <ConfirmResetPasswordContainer path="/confirm_reset_password/*" />
-          <CompleteResetPasswordWithCodeContainer
-            path="/complete_reset_password/*"
-            {...{ integration }}
-          />
-          <CompleteResetPasswordWithCodeContainer
-            path="/account_recovery_reset_password/*"
-            {...{ integration }}
-          />
-          <AccountRecoveryConfirmKeyContainer
-            path="/account_recovery_confirm_key/*"
-            {...{
-              serviceName,
-            }}
-          />
-        </>
-      ) : (
-        <>
-          <ResetPassword
-            path="/reset_password/*"
-            {...{ integration, flowQueryParams }}
-          />
-          <ConfirmResetPassword
-            path="/confirm_reset_password/*"
-            {...{ integration }}
-          />
-          <CompleteResetPasswordContainer
-            path="/complete_reset_password/*"
-            {...{ integration }}
-          />
-          <LinkValidator
-            path="/account_recovery_confirm_key/*"
-            linkType={LinkType['reset-password']}
-            viewName="account-recovery-confirm-key"
-            createLinkModel={() => {
-              return CreateCompleteResetPasswordLink();
-            }}
-            {...{ integration }}
-          >
-            {({ setLinkStatus, linkModel }) => (
-              <AccountRecoveryConfirmKey
-                {...{
-                  setLinkStatus,
-                  linkModel,
-                  integration,
-                }}
-              />
-            )}
-          </LinkValidator>
-          <AccountRecoveryResetPasswordContainer
-            path="/account_recovery_reset_password/*"
-            {...{ integration }}
-          />
-        </>
-      )}
-
+      <ResetPasswordContainer
+        path="/reset_password/*"
+        {...{ flowQueryParams, serviceName }}
+      />
+      <ConfirmResetPasswordContainer path="/confirm_reset_password/*" />
+      <CompleteResetPasswordContainer
+        path="/complete_reset_password/*"
+        {...{ integration }}
+      />
+      <CompleteResetPasswordContainer
+        path="/account_recovery_reset_password/*"
+        {...{ integration }}
+      />
+      <AccountRecoveryConfirmKeyContainer
+        path="/account_recovery_confirm_key/*"
+        {...{
+          serviceName,
+        }}
+      />
       <ResetPasswordWithRecoveryKeyVerified
         path="/reset_password_with_recovery_key_verified/*"
         {...{ integration, isSignedIn }}
@@ -441,6 +395,14 @@ const AuthAndAccountSetupRoutes = ({
         path="/signin_totp_code/*"
         {...{ integration, serviceName }}
       />
+      <SigninPushCodeContainer
+        path="/signin_push_code/*"
+        {...{ integration, serviceName }}
+      />
+      <SigninPushCodeConfirmContainer
+        path="/signin_push_code_confirm/*"
+        {...{ integration, serviceName }}
+      />
       <SigninConfirmed
         path="/signin_verified/*"
         {...{ isSignedIn, serviceName }}
@@ -449,6 +411,7 @@ const AuthAndAccountSetupRoutes = ({
         path="/signin_unblock/*"
         {...{ integration, flowQueryParams }}
       />
+      <InlineRecoveryKeySetupContainer path="/inline_recovery_key_setup/*" />
 
       {/* Signup */}
       <CannotCreateAccount path="/cannot_create_account/*" />

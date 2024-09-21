@@ -79,6 +79,7 @@ test.describe('severity-2 #smoke', () => {
         page,
       },
       testAccountTracker,
+      storageState,
     }) => {
       const credentials = await testAccountTracker.signUpSync();
       const newPassword = testAccountTracker.generatePassword();

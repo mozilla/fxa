@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Injectable } from '@nestjs/common';
-import { SubscriptionManager, SubplatInterval } from '@fxa/payments/stripe';
+import { SubscriptionManager, SubplatInterval } from '@fxa/payments/customer';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
 import { EligibilityManager } from './eligibility.manager';
 import { EligibilityStatus } from './eligibility.types';

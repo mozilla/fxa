@@ -75,6 +75,7 @@ suite.tests['set default values to empty strings'] = () => {
   const glean = serverGlean(config);
   glean.rp.formView(request, { reason: 'testo' });
   const metricsArg = accountEventsLoggerStub.args[0][0];
+  assert.equal(metricsArg.account_user_id, '');
   assert.equal(metricsArg.account_user_id_sha256, '');
   assert.equal(metricsArg.relying_party_oauth_client_id, '');
   assert.equal(metricsArg.relying_party_service, '');
@@ -118,6 +119,7 @@ suite.tests['set common metrics'] = () => {
   const metricsArg = accountEventsLoggerStub.args[0][0];
   assert.equal(metricsArg.user_agent, req.headers['user-agent']);
   assert.equal(metricsArg.ip_address, '10.10.10.99');
+  assert.equal(metricsArg.account_user_id, '');
   assert.equal(metricsArg.account_user_id_sha256, '');
   assert.equal(metricsArg.relying_party_oauth_client_id, '1212');
   assert.equal(metricsArg.relying_party_service, 'wibble');

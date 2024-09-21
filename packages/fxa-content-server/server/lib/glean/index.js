@@ -47,6 +47,7 @@ const createEventFn = (eventName, options) => {
     const commonMetrics = {
       user_agent: req.headers['user-agent'],
       ip_address: getRemoteAddress(req).clientAddress,
+      account_user_id: '',
       account_user_id_sha256: '',
       relying_party_oauth_client_id: maybeMetrics.service || '',
       relying_party_service: oauthIdToServiceMap[maybeMetrics.service] || '',

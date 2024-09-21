@@ -71,7 +71,10 @@ export function defaultAppContext(context?: AppContextValue) {
     accountCreated: 123456789,
     passwordCreated: 123456789,
     hasPassword: true,
-    recoveryKey: true,
+    recoveryKey: {
+      exists: true,
+      estimatedSyncDeviceCount: 0,
+    },
     metricsEnabled: true,
     attachedClients: [],
     subscriptions: [],

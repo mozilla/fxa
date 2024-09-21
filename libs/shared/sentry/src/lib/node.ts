@@ -24,6 +24,9 @@ export function initSentry(config: InitSentryOpts, log: Logger) {
   }
 
   const opts = buildSentryConfig(config, log);
+  /**
+   * @@todo - Move to lib/utils/beforeSend.server.ts - FXA-10402
+   */
   const beforeSend = function (event: ErrorEvent, hint: any) {
     // Default
     event = tagFxaName(event, config.sentry?.serverName || 'unknown');

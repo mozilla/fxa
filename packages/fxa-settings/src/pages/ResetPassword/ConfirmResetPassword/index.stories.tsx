@@ -3,11 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import ConfirmResetPassword from '.';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import { renderStoryWithHistory } from '../../../lib/storybook-utils';
-import { createMockConfirmResetPasswordOAuthIntegration } from './mocks';
+import ConfirmResetPassword from '.';
+import { Subject } from './mocks';
 
 export default {
   title: 'Pages/ResetPassword/ConfirmResetPassword',
@@ -15,10 +14,6 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-export const Default = () =>
-  renderStoryWithHistory(
-    <ConfirmResetPassword
-      integration={createMockConfirmResetPasswordOAuthIntegration()}
-    />,
-    '/confirm_reset_password'
-  );
+export const WithResendSuccess = () => <Subject />;
+
+export const WithResendError = () => <Subject resendSuccess={false} />;

@@ -1,10 +1,4 @@
-<div class="card">
-  <header>
-    <h1 id="fxa-pair-failure-header" class="card-header">
-      {{#t}}Pairing not successful{{/t}}
-    </h1>
-  </header>
-
+<div class="card-base">
   <section>
     <div class="error"></div>
     <div class="success"></div>
@@ -12,13 +6,13 @@
     <form novalidate>
       <div class="bg-image-pair-fail"></div>
 
-      <p>{{#t}}The setup process was terminated. Please sign in with your email.{{/t}}</p>
+      <header>
+        <h1 id="fxa-pair-failure-header" class="card-header">
+          {{#t}}Device pairing failed{{/t}}
+        </h1>
+      </header>
 
-      {{#showSigninLink}}
-        <div class="button-row">
-          <button class="button primary-button mt-5" id="signin-button" type="button">{{#t}}Sign in{{/t}}</button>
-        </div>
-      {{/showSigninLink}}
+      <p class="mt-3">{{#t}}The setup couldn’t be completed. Please sign in with your email.{{/t}}</p>
 
     </form>
   </section>

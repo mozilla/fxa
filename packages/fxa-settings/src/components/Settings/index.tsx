@@ -12,8 +12,12 @@ import {
   useInitialSettingsState,
   useSession,
 } from '../../models';
-import { Redirect, Router, RouteComponentProps } from '@reach/router';
-import Head from 'fxa-react/components/Head';
+import {
+  Redirect,
+  Router,
+  RouteComponentProps,
+  useLocation,
+} from '@reach/router';
 import PageSettings from './PageSettings';
 import PageChangePassword from './PageChangePassword';
 import PageCreatePassword from './PageCreatePassword';
@@ -33,6 +37,8 @@ import { hardNavigate } from 'fxa-react/lib/utils';
 import { SettingsIntegration } from './interfaces';
 import { currentAccount } from '../../lib/cache';
 import { setCurrentAccount } from '../../lib/storage-utils';
+import GleanMetrics from '../../lib/glean';
+import Head from 'fxa-react/components/Head';
 
 export const Settings = ({
   integration,
@@ -41,6 +47,7 @@ export const Settings = ({
   const { metricsEnabled, hasPassword } = useAccount();
   const session = useSession();
   const account = useAccount();
+  const location = useLocation();
 
   useEffect(() => {
     if (config.metrics.navTiming.enabled && metricsEnabled) {
@@ -66,6 +73,11 @@ export const Settings = ({
   }, [account, session]);
 
   const { loading, error } = useInitialSettingsState();
+  const { enabled: gleanEnabled } = GleanMetrics.useGlean();
+
+  useEffect(() => {
+    !loading && gleanEnabled && GleanMetrics.pageLoad(location.pathname);
+  }, [loading, location.pathname, gleanEnabled]);
 
   if (loading) {
     return <LoadingSpinner fullScreen />;

@@ -7,6 +7,7 @@ import FormView from '../form';
 import Template from '../../templates/pair/unsupported.mustache';
 import GleanMetrics from '../../lib/glean';
 import UserAgentMixin from '../../lib/user-agent-mixin';
+import UrlMixin from 'lib/url-mixin';
 
 class PairUnsupportedView extends FormView {
   template = Template;
@@ -22,21 +23,40 @@ class PairUnsupportedView extends FormView {
 
   setInitialContext(context) {
     const uap = this.getUserAgent();
+    const isFirefox = uap.isFirefox();
+    const isMobile = uap.isAndroid() || uap.isIos();
     // Assume the user is on non-Firefox desktop in this case.
-    const isDesktopNonFirefox =
-      !uap.isFirefox() && !uap.isAndroid() && !uap.isIos();
+    const isDesktopNonFirefox = !isFirefox && !isMobile;
+    const hashParams = this.getHashParams(['channel_id, channel_key']);
+    const isSystemCameraUrl =
+      hashParams.channel_id && hashParams.channel_key && isMobile;
+
+    // Links taken from buttons in /settings
+    const escapedMobileDownloadLink = uap.isIos()
+      ? 'https://app.adjust.com/2uo1qc?redirect=https%3A%2F%2Fitunes.apple.com%2Fus%2Fapp%2Ffirefox-private-safe-browser%2Fid989804926'
+      : 'https://app.adjust.com/2uo1qc?redirect=https%3A%2F%2Fplay.google.com%2Fstore%2Fapps%2Fdetails%3Fid%3Dorg.mozilla.firefox';
 
     if (isDesktopNonFirefox) {
       GleanMetrics.cadRedirectDesktop.view();
-    } else {
+    } else if (isSystemCameraUrl) {
       GleanMetrics.cadMobilePairUseAppView.view();
+    } else if (isMobile) {
+      GleanMetrics.cadRedirectMobile.view();
+    } else {
+      GleanMetrics.cadRedirectDesktop.defaultView();
     }
+
     context.set({
       isDesktopNonFirefox,
+      isFirefox,
+      isMobile,
+      isSystemCameraUrl,
+      escapedMobileDownloadLink,
+      showCADHeader: !(isMobile && !isSystemCameraUrl),
     });
   }
 }
 
-Cocktail.mixin(PairUnsupportedView, UserAgentMixin);
+Cocktail.mixin(PairUnsupportedView, UserAgentMixin, UrlMixin);
 
 export default PairUnsupportedView;

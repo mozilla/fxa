@@ -15,12 +15,11 @@ export const LinkedAccounts = forwardRef<HTMLDivElement>((_, ref) => {
     <>
       {!!linkedAccounts.length && (
         <section
-          className="mt-11"
           data-testid="settings-linked-accounts"
           id="linked-accounts-section"
           {...{ ref }}
         >
-          <h2 className="font-header font-bold ltr:ml-4 rtl:mr-4 mb-4 relative">
+          <h2 className="font-header font-bold mobileLandscape:ms-6 ms-4 mb-4 relative">
             <span id="linked-accounts" className="nav-anchor"></span>
             <Localized id="la-heading">Linked Accounts</Localized>
           </h2>

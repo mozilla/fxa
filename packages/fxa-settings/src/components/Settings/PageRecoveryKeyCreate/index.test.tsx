@@ -43,13 +43,13 @@ window.URL.createObjectURL = jest.fn();
 
 const accountWithoutKey = {
   ...MOCK_ACCOUNT,
-  recoveryKey: false,
+  recoveryKey: { exists: false },
   createRecoveryKey: jest.fn().mockResolvedValue(new Uint8Array(20)),
 } as unknown as Account;
 
 const accountWithKey = {
   ...MOCK_ACCOUNT,
-  recoveryKey: true,
+  recoveryKey: { exists: true },
   createRecoveryKey: jest.fn().mockResolvedValue(new Uint8Array(20)),
   deleteRecoveryKey: jest.fn().mockResolvedValue(true),
 } as unknown as Account;
@@ -109,7 +109,7 @@ describe('PageRecoveryKeyCreate when recovery key not enabled', () => {
     });
 
     // Go to page 4
-    const flowPage3Button = screen.getByRole('link', {
+    const flowPage3Button = screen.getByRole('button', {
       name: 'Continue without downloading',
     });
     fireEvent.click(flowPage3Button);
@@ -180,7 +180,7 @@ describe('PageRecoveryKeyCreate when recovery key is enabled', () => {
     });
 
     // Go to page 4
-    const flowPage3Button = screen.getByRole('link', {
+    const flowPage3Button = screen.getByRole('button', {
       name: 'Continue without downloading',
     });
     fireEvent.click(flowPage3Button);

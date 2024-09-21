@@ -81,6 +81,7 @@ jest.mock('../../lib/glean', () => ({
   default: {
     initialize: jest.fn(),
     getEnabled: jest.fn(),
+    useGlean: jest.fn().mockReturnValue({ enabled: true }),
     accountPref: { view: jest.fn(), promoMonitorView: jest.fn() },
     pageLoad: jest.fn(),
   },
@@ -95,7 +96,7 @@ const mockMetricsQueryAccountAmplitude = {
 const mockMetricsQueryAccountResult = {
   account: {
     uid: 'abc123',
-    recoveryKey: true,
+    recoveryKey: { exists: true },
     metricsEnabled: true,
     emails: [
       {
@@ -218,7 +219,7 @@ describe('glean', () => {
         ...config.glean,
         enabled: mockMetricsQueryAccountGlean.metricsEnabled,
         appDisplayVersion: config.version,
-        channel: config.glean.channel,
+        appChannel: config.glean.appChannel,
       },
       {
         metricsFlow: updatedFlowQueryParams,

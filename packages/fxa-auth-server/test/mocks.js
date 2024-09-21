@@ -63,7 +63,6 @@ const DB_METHOD_NAMES = [
   'deleteEmail',
   'deleteKeyFetchToken',
   'deletePasswordChangeToken',
-  'deleteSecurityEvents',
   'deleteSessionToken',
   'deviceFromTokenVerificationId',
   'deleteRecoveryKey',
@@ -74,7 +73,7 @@ const DB_METHOD_NAMES = [
   'emailRecord',
   'forgotPasswordVerified',
   'getRecoveryKey',
-  'getRecoveryKeyHint',
+  'getRecoveryKeyRecordWithHint',
   'getSecondaryEmail',
   'keyFetchToken',
   'keyFetchTokenWithVerificationStatus',
@@ -543,9 +542,6 @@ function mockDB(data, errors) {
       assert.ok(device);
       return Promise.resolve(device);
     }),
-    deleteSecurityEvents: sinon.spy(() => {
-      return Promise.resolve({});
-    }),
     deleteSessionToken: sinon.spy(() => {
       return Promise.resolve();
     }),
@@ -597,7 +593,7 @@ function mockDB(data, errors) {
         recoveryData: data.recoveryData,
       });
     }),
-    getRecoveryKeyHint: sinon.spy(() => {
+    getRecoveryKeyRecordWithHint: sinon.spy(() => {
       return Promise.resolve({ hint: data.hint });
     }),
     recoveryKeyExists: sinon.spy(() => {

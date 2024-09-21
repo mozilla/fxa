@@ -32,7 +32,9 @@ const accountWithChangeKeySuccess = {
   createRecoveryKey: () => {
     return new Uint8Array(20);
   },
-  recoveryKey: true,
+  recoveryKey: {
+    exists: true,
+  },
 } as unknown as Account;
 
 const accountWithCreateKeySuccess = {
@@ -40,7 +42,7 @@ const accountWithCreateKeySuccess = {
   createRecoveryKey: () => {
     return new Uint8Array(20);
   },
-  recoveryKey: false,
+  recoveryKey: { exists: false },
 } as unknown as Account;
 
 const accountWithInvalidPasswordOnSubmit = {
@@ -48,7 +50,7 @@ const accountWithInvalidPasswordOnSubmit = {
   createRecoveryKey: () => {
     throw AuthUiErrors.INCORRECT_PASSWORD;
   },
-  recoveryKey: false,
+  recoveryKey: { exists: false },
 } as unknown as Account;
 
 const accountWithThrottledErrorOnSubmit = {
@@ -56,7 +58,7 @@ const accountWithThrottledErrorOnSubmit = {
   createRecoveryKey: () => {
     throw AuthUiErrors.THROTTLED;
   },
-  recoveryKey: false,
+  recoveryKey: { exists: false },
 } as unknown as Account;
 
 const StoryWithContext = (account: Account) => {

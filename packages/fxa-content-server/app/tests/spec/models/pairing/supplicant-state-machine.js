@@ -84,10 +84,7 @@ describe('models/auth_brokers/pairing/supplicant-state-machine', function () {
       const err = new Error('socker error;');
       state.socketError(err);
       assert.isTrue(
-        state.navigate.calledOnceWith('pair/failure', {
-          error: err,
-          searchParams: '',
-        })
+        state.navigate.calledOnceWith('pair/failure', { error: err })
       );
     });
   });

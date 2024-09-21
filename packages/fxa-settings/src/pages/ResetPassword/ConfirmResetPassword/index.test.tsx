@@ -1,138 +1,179 @@
+// TODO in FXA-7890 import tests from previous design and update
+
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { fireEvent, screen, waitFor } from '@testing-library/react';
-import ConfirmResetPassword, { viewName } from '.';
-// import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
-// import { FluentBundle } from '@fluent/bundle';
-import {
-  MOCK_PASSWORD_FORGOT_TOKEN,
-  createMockConfirmResetPasswordOAuthIntegration,
-} from './mocks';
-import { REACT_ENTRYPOINT } from '../../../constants';
-import { Account } from '../../../models';
-import {
-  mockAppContext,
-  MOCK_ACCOUNT,
-  createAppContext,
-  renderWithRouter,
-  createHistoryWithQuery,
-} from '../../../models/mocks';
-import { usePageViewEvent, logViewEvent } from '../../../lib/metrics';
-import { MOCK_EMAIL, MOCK_REDIRECT_URI, MOCK_SERVICE } from '../../mocks';
-import { createMockWebIntegration } from '../../../lib/integrations/mocks';
+import { Subject } from './mocks';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+import * as utils from 'fxa-react/lib/utils';
+import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { MOCK_EMAIL } from '../../mocks';
+import { ResendStatus } from '../../../lib/types';
+import GleanMetrics from '../../../lib/glean';
 
-jest.mock('../../../lib/metrics', () => ({
-  logViewEvent: jest.fn(),
-  usePageViewEvent: jest.fn(),
-}));
-
-const account = MOCK_ACCOUNT as unknown as Account;
-
-const route = '/confirm_reset_password';
-const renderWithHistory = (ui: any, account?: Account) => {
-  const history = createHistoryWithQuery(route);
-  return renderWithRouter(
-    ui,
-    {
-      route,
-      history,
+jest.mock('../../../lib/glean', () => ({
+  __esModule: true,
+  default: {
+    passwordReset: {
+      emailConfirmationView: jest.fn(),
+      emailConfirmationDifferentAccount: jest.fn(),
+      emailConfirmationSignin: jest.fn(),
     },
-    mockAppContext({
-      ...createAppContext(),
-      ...(account && { account }),
-    })
-  );
-};
-
-const mockNavigate = jest.fn();
-jest.mock('@reach/router', () => ({
-  ...jest.requireActual('@reach/router'),
-  useNavigate: () => mockNavigate,
-  useLocation: () => {
-    return {
-      state: {
-        email: MOCK_EMAIL,
-        passwordForgotToken: MOCK_PASSWORD_FORGOT_TOKEN,
-      },
-    };
   },
 }));
 
-const ConfirmResetPasswordWithWebIntegration = () => (
-  <ConfirmResetPassword integration={createMockWebIntegration()} />
-);
+jest.mock('fxa-react/lib/utils', () => ({
+  ...jest.requireActual('fxa-react/lib/utils'),
+  hardNavigate: jest.fn(),
+}));
 
-describe('ConfirmResetPassword page', () => {
-  // TODO enable l10n testing
-  // let bundle: FluentBundle;
-  // beforeAll(async () => {
-  //   bundle = await getFtlBundle('settings');
-  // });
+const mockResendCode = jest.fn(() => Promise.resolve());
+const mockVerifyCode = jest.fn((code: string) => Promise.resolve());
 
-  it('renders as expected', () => {
-    renderWithHistory(<ConfirmResetPasswordWithWebIntegration />);
+describe('ConfirmResetPassword', () => {
+  let locationAssignSpy: jest.Mock;
 
-    // testAllL10n(screen, bundle);
+  beforeEach(() => {
+    jest.clearAllMocks();
 
-    const headingEl = screen.getByRole('heading', { level: 1 });
-    expect(headingEl).toHaveTextContent('Reset email sent');
+    locationAssignSpy = jest.fn();
 
-    const confirmPwResetInstructions = screen.getByText(
-      `Click the link emailed to ${MOCK_EMAIL} within the next hour to create a new password.`
-    );
-    expect(confirmPwResetInstructions).toBeInTheDocument();
-
-    const resendEmailButton = screen.getByRole('button', {
-      name: 'Not in inbox or spam folder? Resend',
+    Object.defineProperty(window, 'location', {
+      value: {
+        // mock content server url for URL constructor
+        origin: 'http://localhost:3030',
+        assign: locationAssignSpy,
+      },
+      writable: true,
     });
-    expect(resendEmailButton).toBeInTheDocument();
   });
 
-  it('sends a new email when clicking on resend button, with OAuth integration', async () => {
-    account.resetPassword = jest.fn().mockImplementation(() => {
-      return {
-        passwordForgotToken: '123',
-      };
-    });
-
-    renderWithHistory(
-      <ConfirmResetPassword
-        integration={createMockConfirmResetPasswordOAuthIntegration()}
-      />,
-      account
-    );
-
-    const resendEmailButton = await screen.findByRole('button', {
-      name: 'Not in inbox or spam folder? Resend',
-    });
-
-    expect(resendEmailButton).toBeInTheDocument();
-    fireEvent.click(resendEmailButton);
-
-    await waitFor(() => new Promise((r) => setTimeout(r, 100)));
-
-    expect(account.resetPassword).toHaveBeenCalledWith(
-      MOCK_EMAIL,
-      MOCK_SERVICE
-    );
-    expect(logViewEvent).toHaveBeenCalledWith(
-      'confirm-reset-password',
-      'resend',
-      REACT_ENTRYPOINT
-    );
+  afterEach(() => {
+    locationAssignSpy.mockRestore();
   });
 
-  it('emits the expected metrics on render', async () => {
-    renderWithHistory(<ConfirmResetPasswordWithWebIntegration />);
-    expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
+  it('renders as expected', async () => {
+    renderWithLocalizationProvider(<Subject />);
+
+    await expect(
+      screen.getByRole('heading', { name: 'Check your email' })
+    ).toBeVisible();
+
+    expect(screen.getByText(MOCK_EMAIL)).toBeVisible();
+
+    expect(screen.getAllByRole('textbox')).toHaveLength(1);
+    const buttons = await screen.findAllByRole('button');
+    expect(buttons).toHaveLength(2);
+    expect(buttons[0]).toHaveTextContent('Continue');
+    expect(buttons[0]).toBeDisabled();
+    expect(buttons[1]).toHaveTextContent('Resend code');
+
+    const links = await screen.findAllByRole('link');
+    expect(links).toHaveLength(3);
+    expect(links[0]).toHaveAccessibleName(/Mozilla logo/);
+    expect(links[1]).toHaveTextContent('Sign in');
+    expect(links[2]).toHaveTextContent('Use a different account');
   });
 
-  it('renders a "Remember your password?" link', () => {
-    renderWithHistory(<ConfirmResetPasswordWithWebIntegration />);
-    expect(screen.getByText('Remember your password?')).toBeVisible();
-    expect(screen.getByRole('link', { name: 'Sign in' })).toBeVisible();
+  it('emits the expected metrics event on render', async () => {
+    renderWithLocalizationProvider(<Subject />);
+
+    await expect(
+      screen.getByRole('heading', { name: 'Check your email' })
+    ).toBeVisible();
+
+    expect(
+      GleanMetrics.passwordReset.emailConfirmationView
+    ).toHaveBeenCalledTimes(1);
+  });
+
+  it('submits with valid code', async () => {
+    const user = userEvent.setup();
+    renderWithLocalizationProvider(<Subject verifyCode={mockVerifyCode} />);
+
+    const textboxes = screen.getAllByRole('textbox');
+    await waitFor(() => user.click(textboxes[0]));
+    await waitFor(() => {
+      user.paste('12345678');
+    });
+
+    const submitButton = screen.getByRole('button', {
+      name: 'Continue',
+    });
+    expect(submitButton).toBeEnabled();
+
+    await waitFor(() => user.click(submitButton));
+    expect(mockVerifyCode).toHaveBeenCalledTimes(1);
+    expect(mockVerifyCode).toHaveBeenCalledWith('12345678');
+  });
+
+  it('handles click on signin', async () => {
+    const user = userEvent.setup();
+    renderWithLocalizationProvider(<Subject />);
+
+    const signinLink = screen.getByRole('link', {
+      name: 'Sign in',
+    });
+
+    await waitFor(() => user.click(signinLink));
+    expect(
+      GleanMetrics.passwordReset.emailConfirmationSignin
+    ).toHaveBeenCalledTimes(1);
+  });
+
+  it('handles resend code', async () => {
+    const user = userEvent.setup();
+    renderWithLocalizationProvider(<Subject resendCode={mockResendCode} />);
+
+    const resendButton = screen.getByRole('button', {
+      name: 'Resend code',
+    });
+
+    await waitFor(() => user.click(resendButton));
+    expect(mockResendCode).toHaveBeenCalledTimes(1);
+  });
+
+  it('handles Use different account link', async () => {
+    let hardNavigateSpy: jest.SpyInstance;
+    hardNavigateSpy = jest
+      .spyOn(utils, 'hardNavigate')
+      .mockImplementation(() => {});
+
+    const user = userEvent.setup();
+    renderWithLocalizationProvider(<Subject />);
+
+    await waitFor(() =>
+      user.click(screen.getByRole('link', { name: /^Use a different account/ }))
+    );
+    expect(hardNavigateSpy).toHaveBeenCalledTimes(1);
+    expect(
+      GleanMetrics.passwordReset.emailConfirmationDifferentAccount
+    ).toHaveBeenCalledTimes(1);
+  });
+
+  describe('banners', () => {
+    it('shows resend success banner', async () => {
+      renderWithLocalizationProvider(
+        <Subject resendStatus={ResendStatus.sent} />
+      );
+
+      await expect(screen.getByText(/Email re?-sent/)).toBeVisible();
+    });
+
+    it('shows resend error banner', async () => {
+      renderWithLocalizationProvider(
+        <Subject
+          resendStatus={ResendStatus.error}
+          resendErrorMessage="Something went wrong. Please try again."
+        />
+      );
+
+      await expect(
+        screen.getByText('Something went wrong. Please try again.')
+      ).toBeVisible();
+    });
   });
 });

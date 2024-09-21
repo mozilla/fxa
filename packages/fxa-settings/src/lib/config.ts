@@ -72,7 +72,7 @@ export interface Config {
     applicationId: string;
     uploadEnabled: boolean;
     appDisplayVersion: string;
-    channel: string;
+    appChannel: string;
     serverEndpoint: string;
     logPings: boolean;
     debugViewTag: string;
@@ -88,7 +88,7 @@ export interface Config {
   };
   featureFlags?: {
     keyStretchV2?: boolean;
-    resetPasswordWithCode?: boolean;
+    recoveryCodeSetupOnSyncSignIn?: boolean;
   };
 }
 
@@ -153,7 +153,7 @@ export function getDefault() {
       enabled: false,
       applicationId: 'accounts_frontend_dev',
       uploadEnabled: true,
-      channel: 'development',
+      appChannel: 'development',
       serverEndpoint: 'https://incoming.telemetry.mozilla.org',
       logPings: false,
       debugViewTag: '',
@@ -165,7 +165,7 @@ export function getDefault() {
       signInRoutes: false,
     },
     featureFlags: {
-      resetPasswordWithCode: false,
+      recoveryCodeSetupOnSyncSignIn: false,
     },
   } as Config;
 }

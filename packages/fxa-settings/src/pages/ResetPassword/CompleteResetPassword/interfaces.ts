@@ -2,54 +2,52 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { IntegrationSubsetType } from '../../../lib/integrations';
-import { LinkStatus } from '../../../lib/types';
-import {
-  IntegrationType,
-  OAuthIntegration,
-  OAuthIntegrationData,
-} from '../../../models';
-import { CompleteResetPasswordLink } from '../../../models/reset-password/verification';
-
-export enum CompleteResetPasswordErrorType {
-  'none',
-  'recovery-key',
-  'complete-reset',
-}
+import { Integration, OAuthIntegration } from '../../../models';
 
 export interface CompleteResetPasswordFormData {
   newPassword: string;
   confirmPassword: string;
 }
 
-export type CompleteResetPasswordSubmitData = {
-  newPassword: string;
-} & CompleteResetPasswordParams;
-
-export interface CompleteResetPasswordLocationState {
-  lostRecoveryKey: boolean;
-  accountResetToken: string;
-}
-
-export interface CompleteResetPasswordParams {
-  email: string;
-  emailToHashWith: string | undefined;
+export type CompleteResetPasswordLocationState = {
   code: string;
+  email: string;
   token: string;
-}
+  uid: string;
+  accountResetToken?: string;
+  emailToHashWith?: string;
+  estimatedSyncDeviceCount?: number;
+  kB?: string;
+  recoveryKeyExists?: boolean;
+  recoveryKeyId?: string;
+};
 
-export interface CompleteResetPasswordOAuthIntegration {
-  type: IntegrationType.OAuth;
-  data: { uid: OAuthIntegrationData['uid'] };
-  isSync: () => ReturnType<OAuthIntegration['isSync']>;
-}
+export type CompleteResetPasswordOAuthIntegration = Pick<
+  OAuthIntegration,
+  'type' | 'data' | 'isSync'
+>;
 
-export type CompleteResetPasswordIntegration =
-  | CompleteResetPasswordOAuthIntegration
-  | IntegrationSubsetType;
+type CompleteResetPasswordIntegration =
+  | Pick<Integration, 'type' | 'getServiceName'>
+  | CompleteResetPasswordOAuthIntegration;
+
+export type CompleteResetPasswordContainerProps = {
+  integration: CompleteResetPasswordIntegration;
+};
 
 export interface CompleteResetPasswordProps {
-  linkModel: CompleteResetPasswordLink;
-  setLinkStatus: React.Dispatch<React.SetStateAction<LinkStatus>>;
-  integration: CompleteResetPasswordIntegration;
+  email: string;
+  errorMessage: string;
+  locationState: CompleteResetPasswordLocationState;
+  submitNewPassword: (newPassword: string) => Promise<void>;
+  hasConfirmedRecoveryKey?: boolean;
 }
+
+export type AccountResetData = {
+  authAt: number;
+  keyFetchToken: string;
+  sessionToken: string;
+  uid: string;
+  unwrapBKey: string;
+  verified: boolean;
+};

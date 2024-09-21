@@ -30,7 +30,7 @@ const coldStartAccount = {
   ...MOCK_ACCOUNT,
   displayName: null,
   avatar: { id: null, url: null },
-  recoveryKey: false,
+  recoveryKey: { exists: false },
   totp: { exists: false, verified: false },
   attachedClients: [SERVICES_NON_MOBILE[0]],
 } as unknown as Account;
@@ -38,6 +38,15 @@ const coldStartAccount = {
 const partiallyFilledOutAccount = {
   ...MOCK_ACCOUNT,
   displayName: null,
+  totp: { exists: true, verified: false },
+  attachedClients: SERVICES_NON_MOBILE,
+  linkedAccounts: MOCK_LINKED_ACCOUNTS,
+} as unknown as Account;
+
+const accountWithoutRecoveryKey = {
+  ...MOCK_ACCOUNT,
+  displayName: null,
+  recoveryKey: { exists: false },
   totp: { exists: true, verified: false },
   attachedClients: SERVICES_NON_MOBILE,
   linkedAccounts: MOCK_LINKED_ACCOUNTS,
@@ -83,4 +92,9 @@ export const PartiallyFilledOut = storyWithContext(
 export const CompletelyFilledOut = storyWithContext(
   completelyFilledOutAccount,
   'completely filled out'
+);
+
+export const PartiallyFilledOutWithKeyPromo = storyWithContext(
+  accountWithoutRecoveryKey,
+  'with recovery key promo'
 );

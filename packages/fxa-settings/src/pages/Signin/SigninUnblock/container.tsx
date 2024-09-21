@@ -39,6 +39,7 @@ import {
 import { getCredentials, getCredentialsV2 } from 'fxa-auth-client/lib/crypto';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { SignInOptions } from 'fxa-auth-client/browser';
+import { AUTH_DATA_KEY } from '../../../lib/sensitive-data-client';
 
 const SigninUnblockContainer = ({
   integration,
@@ -54,7 +55,6 @@ const SigninUnblockContainer = ({
     state: SigninUnblockLocationState;
   };
 
-  const AUTH_DATA_KEY = 'auth';
   const sensitiveDataClient = useSensitiveDataClient();
   const sensitiveData = sensitiveDataClient.getData(AUTH_DATA_KEY);
   const { password } = (sensitiveData as unknown as { password: string }) || {};

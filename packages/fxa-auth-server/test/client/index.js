@@ -701,13 +701,6 @@ module.exports = (config) => {
     });
   };
 
-  Client.prototype.deleteSecurityEvents = function () {
-    const o = this.sessionToken ? Promise.resolve(null) : this.login();
-    return o.then(() => {
-      return this.api.deleteSecurityEvents(this.sessionToken);
-    });
-  };
-
   Client.prototype.accountProfile = function (oauthToken) {
     if (oauthToken) {
       return this.api.accountProfile(null, {
@@ -853,12 +846,8 @@ module.exports = (config) => {
     return this.api.getRecoveryKey(this.accountResetToken, recoveryKeyId);
   };
 
-  Client.prototype.getRecoveryKeyExists = function (email) {
-    if (!email) {
-      return this.api.getRecoveryKeyExistsWithSession(this.sessionToken);
-    } else {
-      return this.api.getRecoveryKeyExistsWithEmail(email);
-    }
+  Client.prototype.getRecoveryKeyExists = function () {
+    return this.api.getRecoveryKeyExistsWithSession(this.sessionToken);
   };
 
   Client.prototype.deleteRecoveryKey = function () {

@@ -34,7 +34,7 @@ import { SeverityLevel } from '@sentry/types';
 
 import error from '../error';
 import { authEvents } from '../events';
-import { AppConfig, AuthLogger, AuthRequest, ProfileClient } from '../types';
+import { AppConfig, AuthLogger, AuthRequest } from '../types';
 import { ConfigType } from '../../config';
 import { PaymentConfigManager } from './configuration/manager';
 import { AppleIAP } from './iap/apple-app-store/apple-iap';
@@ -47,6 +47,7 @@ import {
   clientIdCapabilityMapFromMetadata,
   sortClientCapabilities,
 } from './utils';
+import { ProfileClient } from '@fxa/profile/client';
 
 function hex(blob: Buffer | string): string {
   if (Buffer.isBuffer(blob)) {

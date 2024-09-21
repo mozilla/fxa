@@ -93,11 +93,12 @@ export class RecoveryKey extends BaseAuthModel {
     return RecoveryKey.fromDatabaseJson(rows[0]);
   }
 
-  static async findHintByUid(uid: string) {
-    const recoveryKey = await RecoveryKey.query()
+  static async findRecordWithHintByUid(uid: string) {
+    return await RecoveryKey.query()
       .select('hint')
-      .where('uid', uuidTransformer.to(uid));
-    return recoveryKey[0].hint;
+      .where('uid', uuidTransformer.to(uid))
+      .andWhereRaw('enabled = 1')
+      .first();
   }
 
   static async exists(uid: string) {

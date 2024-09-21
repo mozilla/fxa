@@ -73,6 +73,21 @@ export default defineConfig<PlaywrightTestConfig<TestOptions, WorkerOptions>>({
           },
         } as Project)
     ),
+    ...TargetNames.map(
+      (name) =>
+        ({
+          name: `${name}-chromium`,
+          use: {
+            browserName: 'chromium',
+            targetName: name,
+            launchOptions: {
+              headless: !DEBUG,
+              slowMo: SLOWMO,
+            },
+            trace: 'retain-on-failure',
+          },
+        } as Project)
+    ),
   ],
   reporter: CI
     ? [

@@ -4,11 +4,12 @@
 
 import Glean from '@mozilla/glean/web';
 
-import { userIdSha256 } from './account';
+import { userIdSha256, userId } from './account';
 import * as cachedLogin from './cachedLogin';
 import * as cadApproveDevice from './cadApproveDevice';
 import * as cadFirefox from './cadFirefox';
 import * as cadMobilePair from './cadMobilePair';
+import * as cadRedirectMobile from './cadRedirectMobile';
 import * as cadMobilePairUseApp from './cadMobilePairUseApp';
 import * as cad from './cad';
 import * as cadRedirectDesktop from './cadRedirectDesktop';
@@ -86,21 +87,20 @@ const hashUid = async (uid) => {
   return hex;
 };
 
-const populateMetrics = async (properties: EventProperties = {}) => {
+const initMetrics = async () => {
   const account = gleanMetricsContext.user.getSignedInAccount();
 
   // the "signed in" account could just be the most recently used account from
   // local storage; the user might not have proved that they know the password
   // of the account
   if (account.get('sessionToken')) {
-    const hashedUid = await hashUid(account.get('uid'));
+    const accountUid = account.get('uid');
+    userId.set(accountUid);
+    const hashedUid = await hashUid(accountUid);
     userIdSha256.set(hashedUid);
   } else {
+    userId.set('');
     userIdSha256.set('');
-  }
-
-  for (const n of eventPropertyNames) {
-    event[n].set(properties[n] || '');
   }
 
   const flowEventMetadata = gleanMetricsContext.metrics.getFlowEventMetadata();
@@ -120,6 +120,13 @@ const populateMetrics = async (properties: EventProperties = {}) => {
 
   entrypointQuery.experiment.set(flowEventMetadata.entrypointExperiment || '');
   entrypointQuery.variation.set(flowEventMetadata.entrypointVariation || '');
+};
+
+const populateMetrics = async (properties: EventProperties = {}) => {
+  await initMetrics();
+  for (const n of eventPropertyNames) {
+    event[n].set(properties[n] || '');
+  }
 };
 
 const recordEventMetric = (eventName: string, properties: EventProperties) => {
@@ -288,6 +295,12 @@ const recordEventMetric = (eventName: string, properties: EventProperties) => {
     case 'cad_submit':
       cad.submit.record();
       break;
+    case 'cad_redirect_mobile_view':
+      cadRedirectMobile.view.record();
+      break;
+    case 'cad_redirect_desktop_default_view':
+      cadRedirectDesktop.defaultView.record();
+      break;
     case 'cad_redirect_desktop_view':
       cadRedirectDesktop.view.record();
       break;
@@ -339,7 +352,10 @@ const createEventFn =
   };
 
 export const GleanMetrics = {
-  initialize: (config: GleanMetricsConfig, context: GleanMetricsContext) => {
+  initialize: async (
+    config: GleanMetricsConfig,
+    context: GleanMetricsContext
+  ) => {
     // https://bugzilla.mozilla.org/show_bug.cgi?id=1859629
     // Starting with glean.js v2, accessing localStorage during
     // initialization could cause an error
@@ -363,6 +379,7 @@ export const GleanMetrics = {
         gleanMetricsContext = context;
       }
       GleanMetrics.setEnabled(config.enabled);
+      await initMetrics();
     } catch (_) {
       // set some states so we won't try to do anything with glean.js later
       config.enabled = false;
@@ -463,8 +480,12 @@ export const GleanMetrics = {
     submit: createEventFn('cad_approve_device_submit'),
   },
   cadRedirectDesktop: {
+    defaultView: createEventFn('cad_redirect_desktop_default_view'),
     view: createEventFn('cad_redirect_desktop_view'),
     download: createEventFn('cad_redirect_desktop_download'),
+  },
+  cadRedirectMobile: {
+    view: createEventFn('cad_redirect_mobile_view'),
   },
   setPasswordThirdPartyAuth: {
     view: createEventFn('third_party_auth_set_password_view'),

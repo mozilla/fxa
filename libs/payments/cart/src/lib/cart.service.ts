@@ -4,17 +4,19 @@
 
 import { Injectable } from '@nestjs/common';
 
+import {
+  CustomerManager,
+  InvoiceManager,
+  SubplatInterval,
+  PromotionCodeManager,
+} from '@fxa/payments/customer';
 import { EligibilityService } from '@fxa/payments/eligibility';
-import { ProductConfigurationManager } from '@fxa/shared/cms';
 import {
   AccountCustomerManager,
   AccountCustomerNotFoundError,
-  CustomerManager,
-  InvoiceManager,
   StripeCustomer,
-  SubplatInterval,
-  PromotionCodeManager,
 } from '@fxa/payments/stripe';
+import { ProductConfigurationManager } from '@fxa/shared/cms';
 import { CartErrorReasonId, CartState } from '@fxa/shared/db/mysql/account';
 import { GeoDBManager } from '@fxa/shared/geodb';
 
@@ -90,6 +92,7 @@ export class CartService {
       priceId: price.id,
       customer: stripeCustomer,
       taxAddress: taxAddress,
+      couponCode: args.promoCode,
     });
 
     const eligibility = await this.eligibilityService.checkEligibility(
@@ -233,11 +236,19 @@ export class CartService {
   /**
    * Update a cart in the database by ID or with an existing cart reference
    */
-  async updateCart(
-    cartId: string,
-    version: number,
-    cartDetails: UpdateCart
-  ): Promise<void> {
+  async updateCart(cartId: string, version: number, cartDetails: UpdateCart) {
+    if (cartDetails?.couponCode) {
+      const oldCart = await this.cartManager.fetchCartById(cartId);
+      const price = await this.productConfigurationManager.retrieveStripePrice(
+        oldCart.offeringConfigId,
+        oldCart.interval as SubplatInterval
+      );
+
+      await this.promotionCodeManager.assertValidPromotionCodeNameForPrice(
+        cartDetails.couponCode,
+        price
+      );
+    }
     await this.cartManager.updateFreshCart(cartId, version, cartDetails);
   }
 
@@ -261,6 +272,7 @@ export class CartService {
       priceId: price.id,
       customer,
       taxAddress: cart.taxAddress || undefined,
+      couponCode: cart.couponCode || undefined,
     });
 
     return {

@@ -15,10 +15,17 @@ type AppLayoutProps = {
   title?: string;
   children: React.ReactNode;
   widthClass?: string;
+  cardClass?: string;
 };
 
-export const AppLayout = ({ title, children, widthClass }: AppLayoutProps) => {
+export const AppLayout = ({
+  title,
+  children,
+  widthClass,
+  cardClass = 'card',
+}: AppLayoutProps) => {
   const { l10n } = useLocalization();
+
   return (
     <>
       <Head {...{ title }} />
@@ -46,7 +53,7 @@ export const AppLayout = ({ title, children, widthClass }: AppLayoutProps) => {
         </header>
         <main className="mobileLandscape:flex mobileLandscape:items-center mobileLandscape:flex-1">
           <section>
-            <div className={classNames('card', widthClass)}>{children}</div>
+            <div className={classNames(cardClass, widthClass)}>{children}</div>
           </section>
         </main>
       </div>

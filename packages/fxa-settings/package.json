@@ -121,7 +121,7 @@
   },
   "dependencies": {
     "@babel/core": "^7.24.4",
-    "@emotion/react": "^11.11.1",
+    "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
     "@material-ui/core": "v5.0.0-alpha.24",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.3",
@@ -161,7 +161,7 @@
     "jest-watch-typeahead": "^1.0.0",
     "lodash.groupby": "^4.6.0",
     "mini-css-extract-plugin": "^2.9.0",
-    "postcss": "^8.4.41",
+    "postcss": "^8.4.46",
     "postcss-flexbugs-fixes": "^5.0.2",
     "postcss-loader": "^8.1.1",
     "postcss-normalize": "^10.0.1",
@@ -187,14 +187,14 @@
     "terser-webpack-plugin": "^5.2.5",
     "ua-parser-js": "1.0.35",
     "uuid": "^10.0.0",
-    "webpack": "^5.64.4",
+    "webpack": "^5.94.0",
     "webpack-dev-server": "^4.6.0",
     "webpack-manifest-plugin": "^5.0.0",
     "workbox-webpack-plugin": "^7.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.24.4",
-    "@babel/plugin-transform-typescript": "^7.24.4",
+    "@babel/plugin-transform-typescript": "^7.25.2",
     "@babel/preset-typescript": "^7.24.1",
     "@babel/types": "^7.24.0",
     "@storybook/addon-actions": "^8.0.0",
@@ -241,7 +241,7 @@
     "mutationobserver-shim": "^0.3.7",
     "nx": "18.3.1",
     "persistgraphql": "^0.3.11",
-    "pm2": "^5.3.0",
+    "pm2": "^5.4.2",
     "postcss-assets": "^6.0.0",
     "postcss-import": "^16.1.0",
     "prop-types": "^15.8.1",
@@ -252,7 +252,7 @@
     "ts-jest": "^29.2.3",
     "type-fest": "^4.25.0",
     "typescript": "^5.5.3",
-    "webpack": "^5.84.1"
+    "webpack": "^5.94.0"
   },
   "nx": {
     "implicitDependencies": [

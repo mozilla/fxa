@@ -401,6 +401,24 @@ async function create(log, error, config, routes, db, statsd, glean) {
     hawkFxAToken.strategy(makeCredentialFn(db.passwordChangeToken.bind(db)))
   );
 
+  // the recoveryKey/exists route accepts a session token or a password-forgot
+  // token.  in order for Hapi to try all the strategies (until auth succeeds),
+  // the strategy's authenticate function _must not_ throw on failed
+  // authentication. otherwise, Hapi will stop at the first strategy that
+  // throws.
+  server.auth.scheme(
+    'multi-strategy-fxa-hawk-session-token',
+    hawkFxAToken.strategy(makeCredentialFn(db.sessionToken.bind(db)), {
+      throwOnFailure: false,
+    })
+  );
+  server.auth.scheme(
+    'multi-strategy-fxa-hawk-passwordForgot-token',
+    hawkFxAToken.strategy(makeCredentialFn(db.passwordForgotToken.bind(db)), {
+      throwOnFailure: false,
+    })
+  );
+
   server.auth.strategy('sessionToken', 'fxa-hawk-session-token');
   server.auth.strategy('keyFetchToken', 'fxa-hawk-keyFetch-token');
   server.auth.strategy(
@@ -412,6 +430,15 @@ async function create(log, error, config, routes, db, statsd, glean) {
   server.auth.strategy('accountResetToken', 'fxa-hawk-accountReset-token');
   server.auth.strategy('passwordForgotToken', 'fxa-hawk-passwordForgot-token');
   server.auth.strategy('passwordChangeToken', 'fxa-hawk-passwordChange-token');
+
+  server.auth.strategy(
+    'multiStrategySessionToken',
+    'multi-strategy-fxa-hawk-session-token'
+  );
+  server.auth.strategy(
+    'multiStrategyPasswordForgotToken',
+    'multi-strategy-fxa-hawk-passwordForgot-token'
+  );
 
   server.auth.scheme(authOauth.AUTH_SCHEME, authOauth.strategy);
   server.auth.strategy('oauthToken', authOauth.AUTH_SCHEME, config.oauth);

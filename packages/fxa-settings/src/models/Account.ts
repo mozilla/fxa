@@ -83,6 +83,11 @@ export interface AttachedClient {
   refreshTokenId: string | null;
 }
 
+interface Subscription {
+  created: number;
+  productName: string;
+}
+
 export interface AccountData {
   uid: hexstring;
   displayName: string | null;
@@ -92,17 +97,17 @@ export interface AccountData {
   accountCreated: number;
   passwordCreated: number;
   hasPassword: boolean;
-  recoveryKey: boolean;
+  recoveryKey: {
+    exists: boolean;
+    estimatedSyncDeviceCount?: number;
+  };
   metricsEnabled: boolean;
   primaryEmail: Email;
   emails: Email[];
   attachedClients: AttachedClient[];
   linkedAccounts: LinkedAccount[];
   totp: AccountTotp;
-  subscriptions: {
-    created: number;
-    productName: string;
-  }[];
+  subscriptions: Subscription[];
   securityEvents: SecurityEvent[];
 }
 
@@ -145,7 +150,10 @@ export const GET_ACCOUNT = gql`
       }
       accountCreated
       passwordCreated
-      recoveryKey
+      recoveryKey {
+        exists
+        estimatedSyncDeviceCount
+      }
       metricsEnabled
       primaryEmail @client
       emails {
@@ -222,7 +230,9 @@ export const GET_CONNECTED_CLIENTS = gql`
 export const GET_RECOVERY_KEY_EXISTS = gql`
   query GetRecoveryKeyExists {
     account {
-      recoveryKey
+      recoveryKey {
+        exists
+      }
     }
   }
 `;
@@ -415,13 +425,6 @@ export class Account implements AccountData {
         fetchPolicy: 'network-only',
         query,
       })
-    );
-  }
-
-  async hasRecoveryKey(email: string): Promise<boolean> {
-    // Users may not be logged in (no session token) so we currently can't use GQL here
-    return this.withLoadingStatus(
-      (await this.authClient.recoveryKeyExists(sessionToken()!, email)).exists
     );
   }
 
@@ -1022,8 +1025,11 @@ export class Account implements AccountData {
     cache.modify({
       id: cache.identify({ __typename: 'Account' }),
       fields: {
-        recoveryKey() {
-          return false;
+        recoveryKey(existingData) {
+          return {
+            exists: false,
+            estimatedSyncDeviceCount: existingData.estimatedSyncDeviceCount,
+          };
         },
       },
     });
@@ -1186,8 +1192,11 @@ export class Account implements AccountData {
     cache.modify({
       id: cache.identify({ __typename: 'Account' }),
       fields: {
-        recoveryKey() {
-          return true;
+        recoveryKey(existingData) {
+          return {
+            exists: true,
+            estimatedSyncDeviceCount: existingData.estimatedSyncDeviceCount,
+          };
         },
       },
     });
@@ -1281,8 +1290,11 @@ export class Account implements AccountData {
     cache.modify({
       id: cache.identify({ __typename: 'Account' }),
       fields: {
-        recoveryKey() {
-          return false;
+        recoveryKey(existingData) {
+          return {
+            exists: false,
+            estimatedSyncDeviceCount: existingData.estimatedSyncDeviceCount,
+          };
         },
       },
     });

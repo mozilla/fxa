@@ -33,7 +33,7 @@ export class FirestoreAdapter implements CacheClient {
       .get();
 
     const data = result?.data();
-    const cachedValue = data?.value;
+    const cachedValue = data?.['value'];
 
     return cachedValue;
   }

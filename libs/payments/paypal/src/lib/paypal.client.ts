@@ -289,7 +289,7 @@ export class PayPalClient {
       REFERENCEID: options.billingAgreementId,
     };
     if (options.cancel) {
-      data.BILLINGAGREEMENTSTATUS = 'Canceled';
+      data['BILLINGAGREEMENTSTATUS'] = 'Canceled';
     }
     return this.doRequest<NVPBAUpdateTransactionResponse>(
       PaypalMethods.BillAgreementUpdate,

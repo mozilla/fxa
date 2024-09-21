@@ -775,6 +775,20 @@ export default class AuthClient {
     );
   }
 
+  async passwordForgotRecoveryKeyStatus(
+    passwordForgotToken: hexstring,
+    headers?: Headers
+  ) {
+    return this.hawkRequest(
+      'POST',
+      '/recoveryKey/exists',
+      passwordForgotToken,
+      tokenType.passwordForgotToken,
+      null,
+      headers
+    );
+  }
+
   // TODO: Once password reset react is 100% and stable in production
   // we can remove this.
   async accountReset(
@@ -1596,17 +1610,6 @@ export default class AuthClient {
     return this.sessionGet('/securityEvents', sessionToken, headers);
   }
 
-  async deleteSecurityEvents(sessionToken: hexstring, headers?: Headers) {
-    return this.hawkRequest(
-      'DELETE',
-      '/securityEvents',
-      sessionToken,
-      tokenType.sessionToken,
-      {},
-      headers
-    );
-  }
-
   async attachedClients(sessionToken: hexstring, headers?: Headers) {
     return this.sessionGet('/account/attached_clients', sessionToken, headers);
   }
@@ -1809,18 +1812,15 @@ export default class AuthClient {
   }
 
   async verifyLoginPushRequest(
-    email: string,
-    uid: string,
+    sessionToken: hexstring,
     tokenVerificationId: string,
     code: string,
     headers?: Headers
   ): Promise<void> {
-    return await this.request(
-      'POST',
+    return this.sessionPost(
       '/session/verify/verify_push',
+      sessionToken,
       {
-        email,
-        uid,
         tokenVerificationId,
         code,
       },
@@ -1917,17 +1917,6 @@ export default class AuthClient {
       headers
     );
   }
-
-  // TODO: Review in FXA-7400 - possibly convert to POST to pass payload instead of using param, and enforce rate limiting
-  // async getRecoveryKeyHint(
-  //   sessionToken: hexstring | undefined,
-  //   email?: string
-  // ): Promise<{ hint: string | null }> {
-  //   if (sessionToken) {
-  //     return this.sessionGet('/recoveryKey/hint', sessionToken);
-  //   }
-  //   return this.request('GET', `/recoveryKey/hint?email=${email}`);
-  // }
 
   async updateRecoveryKeyHint(
     sessionToken: hexstring,

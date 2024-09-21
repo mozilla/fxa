@@ -158,6 +158,9 @@ packages/fxa-settings/test/
 # payments-next
 apps/payments/next/public/locales
 
+# payments-metrics
+libs/payments/metrics/src/lib/glean/__generated__/server_events.ts
+
 Library
 .node
 process.yml
@@ -176,3 +179,6 @@ tmp
 # shared-cms
 libs/shared/cms/src/__generated__/graphql.d.ts
 libs/shared/cms/src/__generated__/graphql.js
+
+# Sentry Config File
+.env.sentry-build-plugin

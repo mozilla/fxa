@@ -153,7 +153,7 @@ FxaClientWrapper.prototype = {
     }
 
     const options = {
-      keyStretchVersion: determineKeyStretchVersion()
+      keyStretchVersion: determineKeyStretchVersion(),
     };
 
     return AuthClient.create(this._authServerUrl, options).then((client) => {
@@ -918,14 +918,6 @@ FxaClientWrapper.prototype = {
    * @returns {Promise} resolves with response when complete.
    */
   securityEvents: createClientDelegate('securityEvents'),
-
-  /**
-   * Delete user's security events
-   *
-   * @param {String} sessionToken
-   * @returns {Promise} resolves with empty response when complete.
-   */
-  deleteSecurityEvents: createClientDelegate('deleteSecurityEvents'),
 
   /**
    * Get user's attached clients

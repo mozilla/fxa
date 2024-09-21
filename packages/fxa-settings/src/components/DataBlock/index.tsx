@@ -68,9 +68,12 @@ export const DataBlock = ({
     <div className="flex flex-col items-center">
       <div
         className={classNames(
-          'relative flex rounded-lg px-6 font-mono text-center text-sm font-bold text-black bg-gradient-to-tr from-blue-600/10 to-purple-500/10 border border-transparent',
-          valueIsArray ? 'max-w-sm py-4' : 'max-w-lg py-5',
-          isInline ? 'flex-nowrap w-full my-2' : 'flex-wrap mb-8'
+          'relative flex font-mono text-center text-sm font-bold text-black bg-gradient-to-tr from-blue-600/10 to-purple-500/10 border border-transparent',
+          valueIsArray ? 'max-w-sm py-4' : 'max-w-lg',
+          valueIsArray && !isInline && ' py-5',
+          isInline
+            ? 'flex-nowrap w-full rounded py-2 px-3'
+            : 'flex-wrap mb-8 rounded-lg px-6'
         )}
         data-testid={dataTestId}
         {...{ onCopy }}
@@ -85,7 +88,7 @@ export const DataBlock = ({
         ) : (
           <span
             className={classNames({
-              'flex flex-col self-center align-middle grow pe-5': isInline,
+              'flex flex-col self-center align-middle grow': isInline,
             })}
           >
             {value}

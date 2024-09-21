@@ -6,7 +6,7 @@ import { getOperationName } from '@apollo/client/utilities';
 import { Inject, Injectable } from '@nestjs/common';
 import { StatsD } from 'hot-shots';
 
-import { PriceManager, SubplatInterval } from '@fxa/payments/stripe';
+import { PriceManager, SubplatInterval } from '@fxa/payments/customer';
 import { StatsDService } from '@fxa/shared/metrics/statsd';
 import {
   EligibilityContentByPlanIdsQuery,

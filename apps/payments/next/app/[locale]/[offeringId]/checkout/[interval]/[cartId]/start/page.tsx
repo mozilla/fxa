@@ -4,7 +4,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { headers } from 'next/headers';
-import { PaymentSection } from '@fxa/payments/ui';
+import { BaseButton, ButtonVariant, PaymentSection } from '@fxa/payments/ui';
 import {
   getApp,
   getCartOrRedirectAction,
@@ -16,12 +16,18 @@ import {
   getCMSContent,
 } from 'apps/payments/next/app/_lib/apiClient';
 import { auth, signIn } from 'apps/payments/next/auth';
-import { PrimaryButton } from 'libs/payments/ui/src/lib/client/components/PrimaryButton';
 import { CheckoutParams } from '../layout';
+import { getCommonGleanMetrics } from 'apps/payments/next/lib/utils/getCommonGleanMetrics';
 
 export const dynamic = 'force-dynamic';
 
-export default async function Checkout({ params }: { params: CheckoutParams }) {
+export default async function Checkout({
+  params,
+  searchParams,
+}: {
+  params: CheckoutParams;
+  searchParams: Record<string, string>;
+}) {
   // Temporarily defaulting to `accept-language`
   // This to be updated in FXA-9404
   //const locale = getLocaleFromRequest(
@@ -44,6 +50,17 @@ export default async function Checkout({ params }: { params: CheckoutParams }) {
     fakeCartDataPromise,
     cmsPromise,
   ]);
+
+  getApp()
+    .getGleanEmitter()
+    .emit('fxaPaySetupView', {
+      currency: 'USD',
+      checkoutType: 'without-accounts',
+      params: { ...params },
+      searchParams,
+      ...cart,
+      ...getCommonGleanMetrics(),
+    });
 
   return (
     <section>
@@ -110,7 +127,14 @@ export default async function Checkout({ params }: { params: CheckoutParams }) {
                 name="email"
                 className="w-full border rounded-md border-black/30 p-3 placeholder:text-grey-500 placeholder:font-normal focus:border focus:!border-black/30 focus:!shadow-[0_0_0_3px_rgba(10,132,255,0.3)] focus-visible:outline-none data-[invalid=true]:border-alert-red data-[invalid=true]:text-alert-red data-[invalid=true]:shadow-inputError"
               />
-              <PrimaryButton type="submit"> Set email</PrimaryButton>
+              <BaseButton
+                className="mt-10 w-full"
+                type="submit"
+                variant={ButtonVariant.Primary}
+              >
+                {' '}
+                Set email
+              </BaseButton>
             </form>
           </div>
 

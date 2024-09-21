@@ -3,18 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { Account } from '../../../models';
 import AccountRecoveryConfirmKey from '.';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import {
-  createMockOAuthIntegration,
-  createMockWebIntegration,
-  getSubject,
-  mockCompleteResetPasswordParams,
-  paramsWithMissingEmail,
-} from './mocks';
-import { produceComponent } from '../../../models/mocks';
+import { Subject } from './mocks';
 
 export default {
   title: 'Pages/ResetPassword/AccountRecoveryConfirmKey',
@@ -22,67 +14,4 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-function renderStory(
-  {
-    account = accountValid,
-    params = mockCompleteResetPasswordParams,
-    integration = createMockWebIntegration(),
-  } = {},
-  storyName?: string
-) {
-  const { Subject, history, appCtx } = getSubject(account, params, integration);
-  const story = () => produceComponent(<Subject />, { history }, appCtx);
-  story.storyName = storyName;
-  return story();
-}
-
-const accountValid = {
-  resetPasswordStatus: () => Promise.resolve(true),
-  getRecoveryKeyBundle: () => Promise.resolve(true),
-  verifyPasswordForgotToken: () => Promise.resolve(false),
-} as unknown as Account;
-
-const accountWithExpiredLink = {
-  resetPasswordStatus: () => Promise.resolve(false),
-} as unknown as Account;
-
-const accountWithInvalidRecoveryKey = {
-  resetPasswordStatus: () => Promise.resolve(true),
-  getRecoveryKeyBundle: () => {
-    throw Error('boop');
-  },
-  verifyPasswordForgotToken: () => Promise.resolve(true),
-} as unknown as Account;
-
-export const OnConfirmValidKey = () => {
-  return renderStory(
-    {},
-    'Valid recovery key (32 characters). Users will be redirected to AccountRecoveryResetPassword on confirm'
-  );
-};
-
-export const OnConfirmInvalidKey = () => {
-  return renderStory({
-    account: accountWithInvalidRecoveryKey,
-    params: mockCompleteResetPasswordParams,
-  });
-};
-
-export const ThroughRelyingParty = () => {
-  return renderStory({
-    integration: createMockOAuthIntegration(),
-  });
-};
-
-export const OnConfirmLinkExpired = () => {
-  return renderStory({
-    account: accountWithExpiredLink,
-    params: mockCompleteResetPasswordParams,
-  });
-};
-
-export const WithDamagedLink = () => {
-  return renderStory({
-    params: paramsWithMissingEmail,
-  });
-};
+export const Default = () => <Subject />;

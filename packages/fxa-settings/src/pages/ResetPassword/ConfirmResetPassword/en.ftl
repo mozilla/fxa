@@ -1,9 +1,21 @@
-## Confirm Reset Password Component
+## Confirm Reset Password With Code
 
-# Second step of password reset flow for Firefox accounts
-# Header confirming that a password reset email has been sent to the user's email address
-confirm-pw-reset-header = Reset email sent
+confirm-reset-password-with-code-heading = Check your email
 
-# Instructions to continue the password reset process
-# { $email } is the email entered by the user and where the password reset instructions were sent
-confirm-pw-reset-instructions = Click the link emailed to { $email } within the next hour to create a new password.
+# Text within span appears in bold
+# $email - email address for which a password reset was requested
+confirm-reset-password-with-code-instruction = We sent a confirmation code to <span>{ $email }</span>.
+
+# Shown above a group of 8 single-digit input boxes
+# Only numbers allowed
+confirm-reset-password-code-input-group-label = Enter 8-digit code within 10 minutes
+
+# Clicking the button submits and verifies the code
+# If succesful, continues to the next step of the password reset
+confirm-reset-password-otp-submit-button = Continue
+
+# Button to request a new reset password confirmation code
+confirm-reset-password-otp-resend-code-button = Resend code
+
+# Link to cancel the password reset and sign in with a different account
+confirm-reset-password-otp-different-account-link = Use a different account

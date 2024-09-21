@@ -232,6 +232,12 @@ const conf = (module.exports = convict({
       format: Boolean,
       env: 'FEATURE_FLAGS_RESET_PWD_WITH_CODE',
     },
+    recoveryCodeSetupOnSyncSignIn: {
+      default: false,
+      doc: 'Enables setting up a recovery code after a Sync sign in',
+      format: Boolean,
+      env: 'FEATURE_FLAGS_RECOVERY_CODE_SETUP_ON_SYNC_SIGN_IN',
+    },
   },
   showReactApp: {
     emailFirstRoutes: {

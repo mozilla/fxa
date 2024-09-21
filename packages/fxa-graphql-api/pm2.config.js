@@ -38,6 +38,7 @@ module.exports = {
         SNS_TOPIC_ARN:
           'arn:aws:sns:us-east-1:100010001000:fxa-account-change-dev',
         SNS_TOPIC_ENDPOINT: 'http://localhost:4100/',
+        PROFILE_SERVER_AUTH_SECRET_BEARER_TOKEN: '8675309jenny',
       },
       filter_env: ['npm_'],
       watch: ['src'],

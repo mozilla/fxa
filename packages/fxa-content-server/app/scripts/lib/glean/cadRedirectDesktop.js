@@ -7,6 +7,23 @@
 import EventMetricType from '@mozilla/glean/private/metrics/event';
 
 /**
+ * User viewed the default page state on pair/unsupported after trying to access
+ * the pair flow
+ *
+ * Generated from `cad_redirect_desktop.default_view`.
+ */
+export const defaultView = new EventMetricType(
+  {
+    category: 'cad_redirect_desktop',
+    name: 'default_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
  * User clicked "Download Firefox" on the "Switch to Firefox" page after trying to
  * access the pair flow
  *

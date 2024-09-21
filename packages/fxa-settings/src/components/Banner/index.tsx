@@ -46,7 +46,7 @@ const Banner = ({
 }: BannerProps) => {
   // Transparent border is for Windows HCM  - to ensure there is a border around the banner
   const baseClassNames =
-    'text-xs font-bold p-3 my-3 rounded border border-transparent';
+    'text-xs font-bold p-3 my-3 rounded border border-transparent animate-fade-in';
 
   return (
     <div

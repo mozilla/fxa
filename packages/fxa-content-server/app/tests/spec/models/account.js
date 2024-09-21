@@ -3022,21 +3022,6 @@ describe('models/account', function () {
     });
   });
 
-  describe('deleteSecurityEvents', () => {
-    it('deletes the security events', () => {
-      account.set('sessionToken', SESSION_TOKEN);
-      sinon.stub(fxaClient, 'deleteSecurityEvents').callsFake(() => {
-        return Promise.resolve({});
-      });
-
-      return account.deleteSecurityEvents().then((res) => {
-        assert.isTrue(fxaClient.deleteSecurityEvents.calledOnce);
-        assert.isTrue(fxaClient.deleteSecurityEvents.calledWith(SESSION_TOKEN));
-        assert.deepEqual(res, {});
-      });
-    });
-  });
-
   describe('verifyIdToken', () => {
     beforeEach(() => {
       sinon

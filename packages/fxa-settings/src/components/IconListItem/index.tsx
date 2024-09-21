@@ -14,20 +14,21 @@ import { ReactElement } from 'react-markdown/lib/react-markdown';
 interface IconListItemProps {
   icon: ReactElement;
   listItemClassnames?: string;
+  spanClassNames?: string;
   children: string | ReactElement;
 }
 
 export const IconListItem = ({
   icon,
   listItemClassnames,
+  spanClassNames = 'me-1 text-grey-400',
   children,
 }: IconListItemProps) => {
   return (
     <li className={`flex gap-2 items-start my-2 ${listItemClassnames}`}>
       <span
-        className="me-1 text-grey-400"
+        className={spanClassNames}
         aria-hidden="true"
-        role="img"
         data-testid="list-item-icon"
       >
         {icon}
@@ -43,7 +44,8 @@ export const FolderIconListItem = ({
 }: Omit<IconListItemProps, 'icon'>) => {
   return (
     <IconListItem
-      icon={<IconFolder className="w-5 h-5 items-center justify-center" />}
+      spanClassNames="text-grey-600"
+      icon={<IconFolder className="w-4 h-4 items-center justify-center" />}
       {...{ listItemClassnames }}
     >
       {children}
@@ -58,7 +60,8 @@ export const GlobeIconListItem = ({
   return (
     <IconListItem
       {...{ listItemClassnames }}
-      icon={<IconGlobe className="w-5 h-5 items-center justify-center" />}
+      spanClassNames="text-grey-600"
+      icon={<IconGlobe className="w-4 h-4 items-center justify-center" />}
     >
       {children}
     </IconListItem>
@@ -85,7 +88,8 @@ export const LockIconListItem = ({
 }: Omit<IconListItemProps, 'icon'>) => {
   return (
     <IconListItem
-      icon={<IconLock className="w-5 h-5 items-center justify-center" />}
+      spanClassNames="text-grey-600"
+      icon={<IconLock className="w-4 h-4 items-center justify-center" />}
       {...{ listItemClassnames }}
     >
       {children}
@@ -99,7 +103,8 @@ export const PrinterIconListItem = ({
 }: Omit<IconListItemProps, 'icon'>) => {
   return (
     <IconListItem
-      icon={<IconPrinter className="w-5 h-5 items-center justify-center" />}
+      spanClassNames="text-grey-600"
+      icon={<IconPrinter className="w-4 h-4 items-center justify-center" />}
       {...{ listItemClassnames }}
     >
       {children}
