@@ -37,7 +37,7 @@ export const eligibilityContentByPlanIdsQuery = graphql(`
             data {
               attributes {
                 stripeProductId
-                stripeLegacyPlans {
+                stripeLegacyPlans(pagination: { limit: 200 }) {
                   stripeLegacyPlan
                 }
                 countries
@@ -49,7 +49,7 @@ export const eligibilityContentByPlanIdsQuery = graphql(`
                         data {
                           attributes {
                             stripeProductId
-                            stripeLegacyPlans {
+                            stripeLegacyPlans(pagination: { limit: 200 }) {
                               stripeLegacyPlan
                             }
                             countries

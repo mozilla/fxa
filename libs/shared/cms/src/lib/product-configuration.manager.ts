@@ -189,8 +189,8 @@ export class ProductConfigurationManager {
     const stripePlans: string[][] = [];
 
     // reduce query size by making multiple calls to CMS
-    for (let i = 0; i < stripePlanIds.length; i += 150) {
-      stripePlans.push(stripePlanIds.slice(i, i + 150));
+    for (let i = 0; i < stripePlanIds.length; i += 100) {
+      stripePlans.push(stripePlanIds.slice(i, i + 100));
     }
 
     while (stripePlans.length > 0) {

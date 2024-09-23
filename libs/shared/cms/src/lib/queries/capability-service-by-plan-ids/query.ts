@@ -36,7 +36,7 @@ export const capabilityServiceByPlanIdsQuery = graphql(`
           offering {
             data {
               attributes {
-                stripeLegacyPlans {
+                stripeLegacyPlans(pagination: { limit: 200 }) {
                   stripeLegacyPlan
                 }
                 capabilities {
