@@ -41,6 +41,8 @@ test.describe('severity-1 #smoke', () => {
       await expect(page.getByText('Incorrect password')).toBeVisible();
 
       await signin.fillOutPasswordForm(credentials.password);
+      // Fill out unblock
+      await expect(page).toHaveURL(/signin_unblock/);
       await unblockAccount(blockedEmail, target, signinUnblock);
       await expect(settings.settingsHeading).toBeVisible();
       // reset primary email to non-blocked email for account cleanup

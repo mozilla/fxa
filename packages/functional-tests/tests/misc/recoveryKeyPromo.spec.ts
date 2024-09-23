@@ -57,11 +57,15 @@ test.describe('recovery key promo', () => {
   });
 
   test.describe('inline', () => {
-    test.beforeEach(async ({ pages: { configPage } }) => {
+    test.beforeEach(async ({ pages: { configPage } }, { project }) => {
       const config = await configPage.getConfig();
       test.skip(
         config.featureFlags.recoveryCodeSetupOnSyncSignIn !== true,
         'inline recovery key setup is not enabled'
+      );
+      test.skip(
+        project.name === 'local-chromium',
+        'Sync tests can not run on Chrome'
       );
     });
 
