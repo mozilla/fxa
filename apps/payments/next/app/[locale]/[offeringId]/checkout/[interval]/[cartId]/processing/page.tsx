@@ -2,9 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { getApp, LoadingSpinner } from '@fxa/payments/ui/server';
+import { getApp } from '@fxa/payments/ui/server';
 import { DEFAULT_LOCALE } from '@fxa/shared/l10n';
 import { headers } from 'next/headers';
+import { LoadingSpinner } from '@fxa/payments/ui';
 
 export default async function ProcessingPage() {
   const locale = headers().get('accept-language') || DEFAULT_LOCALE;
@@ -15,7 +16,7 @@ export default async function ProcessingPage() {
       className="flex flex-col text-center text-sm"
       data-testid="payment-processing"
     >
-      <LoadingSpinner l10n={l10n} />
+      <LoadingSpinner />
       {l10n.getString(
         'payment-processing-message',
         'Please wait while we process your payment…'

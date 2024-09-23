@@ -152,5 +152,3 @@ export function CouponForm({
     </div>
   );
 }
-
-export default CouponForm;

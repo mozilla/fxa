@@ -17,3 +17,4 @@ export { getCartAction } from './lib/actions/getCart';
 export { getCartOrRedirectAction } from './lib/actions/getCartOrRedirect';
 export { setupCartAction } from './lib/actions/setupCart';
 export { updateCartAction } from './lib/actions/updateCart';
+export { restartCartAction } from './lib/actions/restartCart';
