@@ -17,7 +17,14 @@ import { NotifierSnsFactory, NotifierService } from '@fxa/shared/notifier';
 import { LegacyStatsDProvider } from '@fxa/shared/metrics/statsd';
 
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import { Module } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  MiddlewareConsumer,
+  Module,
+  NestMiddleware,
+  NestModule,
+} from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { GraphQLModule } from '@nestjs/graphql';
@@ -31,6 +38,7 @@ import { EventLoggingModule } from './event-logging/event-logging.module';
 import { GqlModule } from './gql/gql.module';
 import { NewslettersModule } from './newsletters/newsletters.module';
 import { SubscriptionModule } from './subscriptions/subscriptions.module';
+import { Request, Response, NextFunction } from 'express';
 
 const version = getVersionInfo(__dirname);
 
@@ -88,4 +96,40 @@ const version = getVersionInfo(__dirname);
     LegacyStatsDProvider,
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer): void {
+    consumer.apply(AppLoggerMiddleware).forRoutes('*');
+  }
+}
+
+/**
+ * Temporary logger to possibly pinpoint slow response times from our API.
+ * Traces should also do this, but this is just a secondary sanity check
+ * in case we are missing something, or traces are getting truncated.
+ */
+@Injectable()
+export class AppLoggerMiddleware implements NestMiddleware {
+  private logger = new Logger('HTTP');
+
+  use(request: Request, response: Response, next: NextFunction): void {
+    const { ip, method, path: url } = request;
+    const userAgent = request.get('user-agent') || '';
+
+    const start = Date.now();
+    const id = Math.random();
+    this.logger.debug(`${id}: ${method} ${url} - ${ip}`);
+
+    response.on('close', () => {
+      const { statusCode } = response;
+      const contentLength = response.get('content-length');
+
+      this.logger.debug(
+        `${id}: ${url} ${statusCode} - ${ip} - contentLength: ${contentLength}, duration: ${
+          Date.now() - start
+        }`
+      );
+    });
+
+    next();
+  }
+}
