@@ -67,11 +67,18 @@ export type Capability = {
   createdAt: Maybe<Scalars['DateTime']['output']>;
   description: Maybe<Scalars['String']['output']>;
   internalName: Scalars['String']['output'];
-  offering: Maybe<OfferingEntityResponse>;
+  offerings: Maybe<OfferingRelationResponseCollection>;
   publishedAt: Maybe<Scalars['DateTime']['output']>;
   services: Maybe<ServiceRelationResponseCollection>;
   slug: Scalars['String']['output'];
   updatedAt: Maybe<Scalars['DateTime']['output']>;
+};
+
+export type CapabilityOfferingsArgs = {
+  filters: InputMaybe<OfferingFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  publicationState?: InputMaybe<PublicationState>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
 };
 
 export type CapabilityServicesArgs = {
@@ -105,7 +112,7 @@ export type CapabilityFiltersInput = {
   id: InputMaybe<IdFilterInput>;
   internalName: InputMaybe<StringFilterInput>;
   not: InputMaybe<CapabilityFiltersInput>;
-  offering: InputMaybe<OfferingFiltersInput>;
+  offerings: InputMaybe<OfferingFiltersInput>;
   or: InputMaybe<Array<InputMaybe<CapabilityFiltersInput>>>;
   publishedAt: InputMaybe<DateTimeFilterInput>;
   services: InputMaybe<ServiceFiltersInput>;
@@ -116,7 +123,7 @@ export type CapabilityFiltersInput = {
 export type CapabilityInput = {
   description: InputMaybe<Scalars['String']['input']>;
   internalName: InputMaybe<Scalars['String']['input']>;
-  offering: InputMaybe<Scalars['ID']['input']>;
+  offerings: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   publishedAt: InputMaybe<Scalars['DateTime']['input']>;
   services: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   slug: InputMaybe<Scalars['String']['input']>;
@@ -135,7 +142,7 @@ export type CommonContent = {
   internalName: Scalars['String']['output'];
   locale: Maybe<Scalars['String']['output']>;
   localizations: Maybe<CommonContentRelationResponseCollection>;
-  newsletterLabelTextCode: Maybe<Scalars['JSON']['output']>;
+  newsletterLabelTextCode: Maybe<Scalars['String']['output']>;
   newsletterSlug: Maybe<Scalars['JSON']['output']>;
   privacyNoticeDownloadUrl: Scalars['String']['output'];
   privacyNoticeUrl: Scalars['String']['output'];
@@ -180,7 +187,7 @@ export type CommonContentFiltersInput = {
   internalName: InputMaybe<StringFilterInput>;
   locale: InputMaybe<StringFilterInput>;
   localizations: InputMaybe<CommonContentFiltersInput>;
-  newsletterLabelTextCode: InputMaybe<JsonFilterInput>;
+  newsletterLabelTextCode: InputMaybe<StringFilterInput>;
   newsletterSlug: InputMaybe<JsonFilterInput>;
   not: InputMaybe<CommonContentFiltersInput>;
   or: InputMaybe<Array<InputMaybe<CommonContentFiltersInput>>>;
@@ -198,7 +205,7 @@ export type CommonContentInput = {
   cancellationUrl: InputMaybe<Scalars['String']['input']>;
   emailIcon: InputMaybe<Scalars['String']['input']>;
   internalName: InputMaybe<Scalars['String']['input']>;
-  newsletterLabelTextCode: InputMaybe<Scalars['JSON']['input']>;
+  newsletterLabelTextCode: InputMaybe<Scalars['String']['input']>;
   newsletterSlug: InputMaybe<Scalars['JSON']['input']>;
   privacyNoticeDownloadUrl: InputMaybe<Scalars['String']['input']>;
   privacyNoticeUrl: InputMaybe<Scalars['String']['input']>;
@@ -2391,7 +2398,7 @@ export type PageContentForOfferingQuery = {
               emailIcon: string | null;
               successActionButtonUrl: string;
               successActionButtonLabel: string | null;
-              newsletterLabelTextCode: any | null;
+              newsletterLabelTextCode: string | null;
               newsletterSlug: any | null;
               localizations: {
                 __typename?: 'CommonContentRelationResponseCollection';
@@ -2407,7 +2414,7 @@ export type PageContentForOfferingQuery = {
                     emailIcon: string | null;
                     successActionButtonUrl: string;
                     successActionButtonLabel: string | null;
-                    newsletterLabelTextCode: any | null;
+                    newsletterLabelTextCode: string | null;
                     newsletterSlug: any | null;
                   } | null;
                 }>;
@@ -2492,7 +2499,7 @@ export type PurchaseWithDetailsOfferingContentQuery = {
                     emailIcon: string | null;
                     successActionButtonUrl: string;
                     successActionButtonLabel: string | null;
-                    newsletterLabelTextCode: any | null;
+                    newsletterLabelTextCode: string | null;
                     newsletterSlug: any | null;
                     localizations: {
                       __typename?: 'CommonContentRelationResponseCollection';
@@ -2508,7 +2515,7 @@ export type PurchaseWithDetailsOfferingContentQuery = {
                           emailIcon: string | null;
                           successActionButtonUrl: string;
                           successActionButtonLabel: string | null;
-                          newsletterLabelTextCode: any | null;
+                          newsletterLabelTextCode: string | null;
                           newsletterSlug: any | null;
                         } | null;
                       }>;
@@ -2821,6 +2828,31 @@ export const CapabilityServiceByPlanIdsDocument = {
                                                   kind: 'Name',
                                                   value: 'stripeLegacyPlans',
                                                 },
+                                                arguments: [
+                                                  {
+                                                    kind: 'Argument',
+                                                    name: {
+                                                      kind: 'Name',
+                                                      value: 'pagination',
+                                                    },
+                                                    value: {
+                                                      kind: 'ObjectValue',
+                                                      fields: [
+                                                        {
+                                                          kind: 'ObjectField',
+                                                          name: {
+                                                            kind: 'Name',
+                                                            value: 'limit',
+                                                          },
+                                                          value: {
+                                                            kind: 'IntValue',
+                                                            value: '200',
+                                                          },
+                                                        },
+                                                      ],
+                                                    },
+                                                  },
+                                                ],
                                                 selectionSet: {
                                                   kind: 'SelectionSet',
                                                   selections: [
@@ -3561,6 +3593,31 @@ export const EligibilityContentByPlanIdsDocument = {
                                                   kind: 'Name',
                                                   value: 'stripeLegacyPlans',
                                                 },
+                                                arguments: [
+                                                  {
+                                                    kind: 'Argument',
+                                                    name: {
+                                                      kind: 'Name',
+                                                      value: 'pagination',
+                                                    },
+                                                    value: {
+                                                      kind: 'ObjectValue',
+                                                      fields: [
+                                                        {
+                                                          kind: 'ObjectField',
+                                                          name: {
+                                                            kind: 'Name',
+                                                            value: 'limit',
+                                                          },
+                                                          value: {
+                                                            kind: 'IntValue',
+                                                            value: '200',
+                                                          },
+                                                        },
+                                                      ],
+                                                    },
+                                                  },
+                                                ],
                                                 selectionSet: {
                                                   kind: 'SelectionSet',
                                                   selections: [
@@ -3669,6 +3726,38 @@ export const EligibilityContentByPlanIdsDocument = {
                                                                                                   value:
                                                                                                     'stripeLegacyPlans',
                                                                                                 },
+                                                                                                arguments:
+                                                                                                  [
+                                                                                                    {
+                                                                                                      kind: 'Argument',
+                                                                                                      name: {
+                                                                                                        kind: 'Name',
+                                                                                                        value:
+                                                                                                          'pagination',
+                                                                                                      },
+                                                                                                      value:
+                                                                                                        {
+                                                                                                          kind: 'ObjectValue',
+                                                                                                          fields:
+                                                                                                            [
+                                                                                                              {
+                                                                                                                kind: 'ObjectField',
+                                                                                                                name: {
+                                                                                                                  kind: 'Name',
+                                                                                                                  value:
+                                                                                                                    'limit',
+                                                                                                                },
+                                                                                                                value:
+                                                                                                                  {
+                                                                                                                    kind: 'IntValue',
+                                                                                                                    value:
+                                                                                                                      '200',
+                                                                                                                  },
+                                                                                                              },
+                                                                                                            ],
+                                                                                                        },
+                                                                                                    },
+                                                                                                  ],
                                                                                                 selectionSet:
                                                                                                   {
                                                                                                     kind: 'SelectionSet',
@@ -5168,6 +5257,31 @@ export const PurchaseWithDetailsOfferingContentDocument = {
                                                   kind: 'Name',
                                                   value: 'stripeLegacyPlans',
                                                 },
+                                                arguments: [
+                                                  {
+                                                    kind: 'Argument',
+                                                    name: {
+                                                      kind: 'Name',
+                                                      value: 'pagination',
+                                                    },
+                                                    value: {
+                                                      kind: 'ObjectValue',
+                                                      fields: [
+                                                        {
+                                                          kind: 'ObjectField',
+                                                          name: {
+                                                            kind: 'Name',
+                                                            value: 'limit',
+                                                          },
+                                                          value: {
+                                                            kind: 'IntValue',
+                                                            value: '200',
+                                                          },
+                                                        },
+                                                      ],
+                                                    },
+                                                  },
+                                                ],
                                                 selectionSet: {
                                                   kind: 'SelectionSet',
                                                   selections: [

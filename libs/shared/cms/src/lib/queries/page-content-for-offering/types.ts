@@ -13,7 +13,7 @@ export interface PageContentCommonContentResult {
   emailIcon: string | null;
   successActionButtonUrl: string;
   successActionButtonLabel: string;
-  newsletterLabelTextCode: string[] | null;
+  newsletterLabelTextCode: string | null;
   newsletterSlug: string[] | null;
 }
 
