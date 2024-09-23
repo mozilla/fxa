@@ -17,6 +17,15 @@ const { AppConfig } = require('../lib/types');
 
 let currentServer;
 
+const uuid = require('uuid').v4;
+const { performance, PerformanceObserver } = require('perf_hooks');
+const perfObserver = new PerformanceObserver((items, obs) => {
+  for (const entry of items.getEntries()) {
+    console.log(`test server perf - ${entry.name} took ms: ${entry.duration}`);
+  }
+});
+perfObserver.observe({ entryTypes: ['measure'], buffer: true });
+
 /* eslint-disable no-console */
 function TestServer(config, printLogs, options = {}) {
   Container.set(AppConfig, config);
@@ -65,6 +74,9 @@ TestServer.start = async function (config, printLogs, options) {
 };
 
 TestServer.prototype.start = function () {
+  this.uuid = uuid();
+  performance.mark(`${this.uuid}-start-start`);
+
   const { authServerMockDependencies = {} } = this.options;
   const createAuthServer = proxyquire(
     '../bin/key_server',
@@ -83,6 +95,12 @@ TestServer.prototype.start = function () {
     this.server = auth;
     this.mail = mail;
     this.profileServer = profileServer;
+    performance.mark(`${this.uuid}-start-end`);
+    performance.measure(
+      `${this.uuid}-start`,
+      `${this.uuid}-start-start`,
+      `${this.uuid}-start-end`
+    );
   });
 };
 
@@ -101,6 +119,7 @@ TestServer.stop = async function (maybeServer) {
 };
 
 TestServer.prototype.stop = async function () {
+  performance.mark(`${this.uuid}-stop-start`);
   currentServer = undefined;
 
   if (this.server) {
@@ -108,9 +127,24 @@ TestServer.prototype.stop = async function () {
     if (this.profileServer) {
       doomed.push(this.profileServer.close());
     }
-    return Promise.all(doomed);
+    return Promise.all(doomed).then((res) => {
+      performance.mark(`${this.uuid}-stop-end`);
+      performance.measure(
+        `${this.uuid}-stop`,
+        `${this.uuid}-stop-start`,
+        `${this.uuid}-stop-end`
+      );
+      return res;
+    });
   } else {
-    return Promise.resolve();
+    return Promise.resolve().then(() => {
+      performance.mark(`${this.uuid}-stop-end`);
+      performance.measure(
+        `${this.uuid}-stop`,
+        `${this.uuid}-stop-start`,
+        `${this.uuid}-stop-end`
+      );
+    });
   }
 };
 
