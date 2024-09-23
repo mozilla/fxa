@@ -223,7 +223,6 @@ describe('glean', () => {
       },
       {
         metricsFlow: updatedFlowQueryParams,
-        account: mockMetricsQueryAccountGlean,
         userAgent: navigator.userAgent,
         integration: mockIntegration,
       }

@@ -32,6 +32,11 @@ import * as entrypointQuery from 'fxa-shared/metrics/glean/web/entrypoint';
 import { Config } from '../config';
 import { WebIntegration, useAccount } from '../../models';
 import { MetricsFlow } from '../metrics-flow';
+import { currentAccount } from '../cache';
+
+jest.mock('../../lib/cache', () => ({
+  currentAccount: jest.fn(),
+}));
 
 const sandbox = sinon.createSandbox();
 const mockConfig: Config['glean'] = {
@@ -46,6 +51,7 @@ const mockConfig: Config['glean'] = {
 };
 let mockMetricsFlow: MetricsFlow | null = null;
 const mockAccount = {
+  uid: 'testo',
   metricsEnabled: true,
   recoveryKey: { exists: true },
   totpActive: true,
@@ -55,7 +61,6 @@ let mockUserAgent = '';
 const mockIntegration = { data: {} } as unknown as WebIntegration;
 const mockMetricsContext: GleanMetricsContext = {
   metricsFlow: mockMetricsFlow,
-  account: mockAccount,
   userAgent: mockUserAgent,
   integration: mockIntegration,
 };
@@ -135,6 +140,7 @@ describe('lib/glean', () => {
 
   describe('disabled', () => {
     it('does not call Glean.initialize', () => {
+      (currentAccount as jest.Mock).mockReturnValue(undefined);
       const initStub = sandbox.stub(Glean, 'initialize');
       sandbox.stub(Glean, 'setUploadEnabled');
       const setEnabledSpy = sandbox.spy(GleanMetrics, 'setEnabled');
@@ -229,7 +235,6 @@ describe('lib/glean', () => {
       mockIntegration.data = {};
       mockMetricsContext.userAgent = '';
       mockMetricsContext.metricsFlow = null;
-      mockMetricsContext.account = undefined;
       GleanMetrics.initialize(
         { ...mockConfig, enabled: true },
         mockMetricsContext
@@ -315,9 +320,7 @@ describe('lib/glean', () => {
 
     describe('hashed uid', () => {
       it('logs userId when session token exists', async () => {
-        mockMetricsContext.account = { uid: 'testo' } as ReturnType<
-          typeof useAccount
-        >;
+        (currentAccount as jest.Mock).mockReturnValue(mockAccount);
         GleanMetrics.login.success();
         // the ping submissions are await'd internally in GleanMetrics...
         await GleanMetrics.isDone();
