@@ -1799,6 +1799,20 @@ export default class AuthClient {
     return this.sessionGet('/totp/exists', sessionToken, headers);
   }
 
+  async checkTotpTokenExistsWithPasswordForgotToken(
+    token: hexstring,
+    headers?: Headers
+  ): Promise<{ exists: boolean; verified: boolean }> {
+    return this.hawkRequest(
+      'GET',
+      '/totp/exists',
+      token,
+      tokenType.passwordForgotToken,
+      null,
+      headers
+    );
+  }
+
   async sendLoginPushRequest(
     sessionToken: hexstring,
     headers?: Headers

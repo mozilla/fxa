@@ -208,7 +208,10 @@ module.exports = (log, db, mailer, customs, config, glean, profileClient) => {
       options: {
         ...TOTP_DOCS.TOTP_EXISTS_GET,
         auth: {
-          strategy: 'sessionToken',
+          strategies: [
+            'multiStrategySessionToken',
+            'multiStrategyPasswordForgotToken',
+          ],
         },
         response: {
           schema: isA.object({
@@ -311,7 +314,7 @@ module.exports = (log, db, mailer, customs, config, glean, profileClient) => {
 
           await profileClient.deleteCache(uid);
           await log.notifyAttachedServices('profileDataChange', request, {
-            uid
+            uid,
           });
         }
 
