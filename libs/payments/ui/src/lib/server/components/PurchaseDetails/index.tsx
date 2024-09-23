@@ -4,6 +4,7 @@
 
 import Image from 'next/image';
 import { Invoice } from '@fxa/payments/cart';
+import infoLogo from '@fxa/shared/assets/images/info.svg';
 import { LocalizerRsc } from '@fxa/shared/l10n/server';
 import { formatPlanPricing } from '../../../utils/helpers';
 
@@ -57,10 +58,19 @@ type PurchaseDetailsProps = {
     productName: string;
     webIcon: string;
   };
+  discountEnd?: number | null;
+  discountType?: string;
 };
 
 export async function PurchaseDetails(props: PurchaseDetailsProps) {
-  const { purchaseDetails, invoice, interval, l10n } = props;
+  const {
+    purchaseDetails,
+    discountEnd,
+    discountType,
+    invoice,
+    interval,
+    l10n,
+  } = props;
   const { currency, listAmount, discountAmount, totalAmount, taxAmounts } =
     invoice;
   const { details, subtitle, productName, webIcon } = purchaseDetails;
@@ -189,7 +199,43 @@ export async function PurchaseDetails(props: PurchaseDetailsProps) {
           </span>
         </li>
       </ul>
-      {/* TODO - Add InfoBox as part of Coupon Form - Consider adding as child component */}
+
+      {!discountType || discountType === 'forever' ? null : discountEnd ? (
+        <div
+          className="flex items-center justify-center gap-2 text-green-900 pt-2 pb-6 font-medium"
+          data-testid="coupon-success-with-date"
+        >
+          <Image src={infoLogo} alt="" />
+          <div>
+            {l10n.getString(
+              'next-coupon-success-repeating',
+              {
+                couponDurationDate: l10n.getLocalizedDateString(
+                  discountEnd,
+                  true
+                ),
+              },
+              `Your plan will automatically renew after ${l10n.getLocalizedDateString(
+                discountEnd,
+                true
+              )} at the list price.`
+            )}
+          </div>
+        </div>
+      ) : (
+        <div
+          className="flex items-center justify-center gap-2 text-green-900 pt-2 pb-6 font-medium"
+          data-testid="coupon-success"
+        >
+          <Image src={infoLogo} alt="" />
+          <div>
+            {l10n.getString(
+              'next-coupon-success',
+              'Your plan will automatically renew at the list price.'
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

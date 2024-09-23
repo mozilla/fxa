@@ -9,6 +9,8 @@ export type InvoicePreview = {
   taxAmounts: TaxAmount[];
   discountAmount: number | null;
   subtotal: number;
+  discountEnd?: number | null;
+  discountType?: string;
 };
 
 export interface TaxAmount {
