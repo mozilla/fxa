@@ -4,15 +4,18 @@
 
 'use strict';
 
-const emailUtils = require('./email');
-const isA = require('joi');
-const validators = require('../validators');
-const butil = require('../../crypto/butil');
-const error = require('../../error');
-const { Container } = require('typedi');
-const { AccountEventsManager } = require('../../account-events');
-const { emailsMatch } = require('fxa-shared').email.helpers;
-const otp = require('../utils/otp');
+import emailUtils from './email';
+import isA from 'joi';
+import * as validators from '../validators';
+import butil from '../../crypto/butil';
+import error from '../../error';
+import { Container } from 'typedi';
+import { AccountEventsManager } from '../../account-events';
+import { email } from 'fxa-shared';
+import otp from '../utils/otp';
+
+const { emailsMatch } = email.helpers;
+
 
 const BASE_36 = validators.BASE_36;
 
@@ -20,7 +23,7 @@ const BASE_36 = validators.BASE_36;
 // Currently, only for metrics purposes, not enforced.
 const MAX_ACTIVE_SESSIONS = 200;
 
-module.exports = (log, config, customs, db, mailer, cadReminders, glean) => {
+export default (log, config, customs, db, mailer, cadReminders, glean) => {
   const unblockCodeLifetime =
     (config.signinUnblock && config.signinUnblock.codeLifetime) || 0;
   const unblockCodeLen =

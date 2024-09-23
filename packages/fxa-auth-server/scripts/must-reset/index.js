@@ -4,7 +4,7 @@
 
 'use strict';
 
-module.exports = async function main(items, dbFunction) {
+export default async function main(items, dbFunction) {
   const butil = require('../../lib/crypto/butil');
   const config = require('../../config').default.getProperties();
   const crypto = require('crypto');

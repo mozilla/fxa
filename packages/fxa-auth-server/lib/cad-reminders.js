@@ -13,8 +13,8 @@
 // * https://redis.io/topics/data-types-intro#redis-sorted-sets
 'use strict';
 
-const redis = require('./redis');
-const { props } = require('fxa-shared/lib/promise-extras');
+import redis from './redis';
+import { props } from 'fxa-shared/lib/promise-extras';
 
 // The config file determines the number of intervals. Ex `firstInterval` is stored
 // in set called `first`.
@@ -189,6 +189,6 @@ class CadReminders {
   }
 }
 
-module.exports = (config, log) => {
+export default (config, log) => {
   return new CadReminders(config, log);
 };

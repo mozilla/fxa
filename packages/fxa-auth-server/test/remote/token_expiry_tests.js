@@ -4,16 +4,13 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const TestServer = require('../test_server');
-const Client = require('../client')();
-const { default: Container } = require('typedi');
-const {
-  PlaySubscriptions,
-} = require('../../lib/payments/iap/google-play/subscriptions');
-const {
-  AppStoreSubscriptions,
-} = require('../../lib/payments/iap/apple-app-store/subscriptions');
+import { assert } from 'chai';
+import TestServer from '../test_server';
+import ClientModule from '../client';
+const Client = ClientModule();
+import { Container } from 'typedi';
+import { PlaySubscriptions } from '../../lib/payments/iap/google-play/subscriptions';
+import { AppStoreSubscriptions } from '../../lib/payments/iap/apple-app-store/subscriptions';
 
 function fail() {
   throw new Error();

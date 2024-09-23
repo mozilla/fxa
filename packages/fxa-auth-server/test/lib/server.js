@@ -1,18 +1,19 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-const { default: Container } = require('typedi');
-const sinon = require('sinon');
+import { Container } from 'typedi';
+
+import sinon from 'sinon';
 
 process.env.CONFIG_FILES = require.resolve('./oauth-test.json');
-const { config } = require('../../config');
+import { config } from '../../config';
 const version = config.get('apiVersion');
 config.set('log.level', 'critical');
 config.set('cloudTasks.oidc.aud', 'cloud-tasks');
 config.set('cloudTasks.oidc.serviceAccountEmail', 'testo@iam.gcp.g.co');
 const testConfig = config.getProperties();
-const createServer = require('../../bin/key_server');
-const { CapabilityService } = require('../../lib/payments/capability');
+import createServer from '../../bin/key_server';
+import { CapabilityService } from '../../lib/payments/capability';
 
 function wrapServer(server, close) {
   var wrap = {};
@@ -62,7 +63,7 @@ function wrapServer(server, close) {
   return wrap;
 }
 
-module.exports.start = async function () {
+export const start = async function () {
   if (!Container.has(CapabilityService)) {
     Container.set(CapabilityService, {
       subscriptionCapabilities: sinon.fake.resolves([]),
@@ -73,4 +74,4 @@ module.exports.start = async function () {
   return wrapServer(server, close);
 };
 
-module.exports.config = config;
+export { config };

@@ -4,9 +4,9 @@
 
 'use strict';
 
-const pick = require('lodash.pick');
+import pick from 'lodash.pick';
 
-module.exports = function dumpUsers(keys, dbFunc, usePretty) {
+export default function dumpUsers(keys, dbFunc, usePretty) {
   const config = require('../../config').default.getProperties();
   const log = {
     error: (msg) => {},
@@ -52,7 +52,7 @@ module.exports = function dumpUsers(keys, dbFunc, usePretty) {
     .then(() => {
       process.exit(0);
     });
-};
+}
 
 function marshallUserRecords(userRecords) {
   return userRecords.map((userRecord) => {

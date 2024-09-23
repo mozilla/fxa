@@ -6,12 +6,13 @@
  * signJWT/verifyJWT functions for use with server to server JWTs
  */
 
-const util = require('util');
-const jsonwebtoken = require('jsonwebtoken');
+import util from 'util';
+
+import jsonwebtoken from 'jsonwebtoken';
 const verifyJwt = util.promisify(jsonwebtoken.verify);
 const signJwt = util.promisify(jsonwebtoken.sign);
 
-exports.signJWT = async function signJWT(
+export const signJWT = async function signJWT(
   claims,
   audience,
   issuer,
@@ -31,7 +32,7 @@ exports.signJWT = async function signJWT(
 // Verify a JWT assertion.
 // Since it's just a symmetric HMAC signature,
 // this should be safe and performant enough to do in-process.
-exports.verifyJWT = async function verifyJWT(jwt, audience, issuer, keys) {
+export const verifyJWT = async function verifyJWT(jwt, audience, issuer, keys) {
   const opts = {
     algorithms: ['HS256'],
     audience,

@@ -2,12 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const hex = require('buf').to.hex;
-const OauthError = require('./error');
-const jwt = require('./jwt');
-const sub = require('./jwt_sub');
-const { OAUTH_SCOPE_OLD_SYNC } = require('fxa-shared/oauth/constants');
-const { config } = require('../../config');
+import hexModule from "buf";
+
+const hex = hexModule.to.hex;
+import OauthError from './error';
+import jwt from './jwt';
+import sub from './jwt_sub';
+import { OAUTH_SCOPE_OLD_SYNC } from 'fxa-shared/oauth/constants';
+import { config } from '../../config';
 const TOKEN_SERVER_URL = config.get('syncTokenserverUrl');
 
 const HEADER_TYP = 'at+JWT';
@@ -15,7 +17,7 @@ const HEADER_TYP = 'at+JWT';
 /**
  * Create a JWT access token from `grant`
  */
-exports.create = async function generateJWTAccessToken(accessToken, grant) {
+export const create = async function generateJWTAccessToken(accessToken, grant) {
   const clientId = hex(grant.clientId);
   // For historical reasons (based on an early draft of the JWT-access-token spec) we
   // always include the client_id in the `aud` claim. A future iteration of this code
@@ -70,7 +72,7 @@ exports.create = async function generateJWTAccessToken(accessToken, grant) {
  * @param {Object} claims
  * @returns {Promise<JWT>}
  */
-exports.sign = function sign(claims) {
+export const sign = function sign(claims) {
   return jwt.sign(claims, {
     header: {
       typ: HEADER_TYP,
@@ -84,7 +86,7 @@ exports.sign = function sign(claims) {
  * @param {String} accessToken
  * @throws `invalidToken` error if access token is invalid.
  */
-exports.tokenId = async function tokenId(accessToken) {
+export const tokenId = async function tokenId(accessToken) {
   // The access token ID is stored in the jti field of
   // a JWT access token.
   const payload = await exports.verify(accessToken);
@@ -101,7 +103,7 @@ exports.tokenId = async function tokenId(accessToken) {
  * @throws `invalidToken` error if access token is invalid.
  * @returns {Promise<Object>}
  */
-exports.verify = async function verify(accessToken) {
+export const verify = async function verify(accessToken) {
   let payload;
   try {
     payload = await jwt.verify(accessToken, {

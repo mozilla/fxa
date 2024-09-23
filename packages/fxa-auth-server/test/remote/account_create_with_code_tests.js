@@ -5,11 +5,13 @@
 
 'use strict';
 
-const assert = require('../assert');
-const TestServer = require('../test_server');
-const Client = require('../client')();
-const config = require('../../config').default.getProperties();
-const otplib = require('otplib');
+import assert from '../assert';
+import TestServer from '../test_server';
+import ClientModule from "../client";
+const Client = ClientModule();
+import configModule from "../../config";
+const config = configModule.getProperties();
+import otplib from 'otplib';
 
 // Note, intentionally not indenting for code review.
 [{version:""},{version:"V2"}].forEach((testOptions) => {

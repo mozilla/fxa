@@ -1,6 +1,6 @@
-const oauthDB = require('../../oauth/db');
+import oauthDB from '../../oauth/db';
 
-module.exports = (log, config, db, mailer, devices, statsd, glean) => {
+export default (log, config, db, mailer, devices, statsd, glean) => {
   const routes = [
     require('./authorization')({ log, oauthDB, config }),
     require('./authorized-clients/destroy')({ oauthDB }),

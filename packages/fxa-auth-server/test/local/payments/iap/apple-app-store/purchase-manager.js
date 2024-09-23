@@ -4,25 +4,23 @@
 
 'use strict';
 
-const sinon = require('sinon');
-const { assert } = require('chai');
-const { default: Container } = require('typedi');
-const proxyquire = require('proxyquire').noPreserveCache();
-const {
+import sinon from 'sinon';
+import { assert } from 'chai';
+import { Container } from 'typedi';
+import proxyquireModule from 'proxyquire';
+const proxyquire = proxyquireModule.noPreserveCache();
+import {
   NotificationType,
   NotificationSubtype,
   SubscriptionStatus,
-} = require('app-store-server-api/dist/cjs');
-
-const { mockLog } = require('../../../../mocks');
-const { AppConfig, AuthLogger } = require('../../../../../lib/types');
-const {
+} from 'app-store-server-api/dist/cjs';
+import { mockLog } from '../../../../mocks';
+import { AppConfig, AuthLogger } from '../../../../../lib/types';
+import {
   PurchaseQueryError,
   PurchaseUpdateError,
-} = require('../../../../../lib/payments/iap/apple-app-store/types');
-const {
-  AppStoreSubscriptionPurchase,
-} = require('../../../../../lib/payments/iap/apple-app-store/subscription-purchase');
+} from '../../../../../lib/payments/iap/apple-app-store/types';
+import { AppStoreSubscriptionPurchase } from '../../../../../lib/payments/iap/apple-app-store/subscription-purchase';
 
 const sandbox = sinon.createSandbox();
 

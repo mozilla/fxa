@@ -2,17 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const buf = require('buf').hex;
-const encrypt = require('fxa-shared/auth/encrypt');
-const ScopeSet = require('fxa-shared').oauth.scopes;
-const unique = require('../../unique');
-const AccessToken = require('../accessToken');
+import { hex as buf } from 'buf';
+
+import encrypt from 'fxa-shared/auth/encrypt';
+import ScopeSetModule from "fxa-shared";
+const ScopeSet = ScopeSetModule.oauth.scopes;
+import unique from '../../unique';
+import AccessToken from '../accessToken';
 
 // Shared base class
-const { MysqlOAuthShared } = require('fxa-shared/db/mysql');
-const { Container } = require('typedi');
-const { AuthLogger } = require('../../../types');
-const { StatsD } = require('hot-shots');
+import { MysqlOAuthShared } from 'fxa-shared/db/mysql';
+
+import { Container } from 'typedi';
+import { AuthLogger } from '../../../types';
+import { StatsD } from 'hot-shots';
 
 const REQUIRED_SQL_MODES = ['STRICT_ALL_TABLES', 'NO_ENGINE_SUBSTITUTION'];
 
@@ -714,9 +717,6 @@ class MysqlStore extends MysqlOAuthShared {
   }
 }
 
-function connect(config) {
+export function connect(config) {
   return new MysqlStore(config);
 }
-
-module.exports = connect;
-module.exports.connect = connect;

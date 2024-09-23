@@ -4,36 +4,42 @@
 
 'use strict';
 
-const crypto = require('crypto');
-const error = require('../error');
-const random = require('../crypto/random');
-const { StatsD } = require('hot-shots');
-const { normalizeEmail } = require('fxa-shared').email.helpers;
-const { Container } = require('typedi');
-const {
+import crypto from 'crypto';
+import error from '../error';
+import random from '../crypto/random';
+import { StatsD } from 'hot-shots';
+import { email } from 'fxa-shared';
+import { Container } from 'typedi';
+
+import {
   mergeDevicesAndSessionTokens,
   mergeDeviceAndSessionToken,
   mergeCachedSessionTokens,
   filterExpiredTokens,
-} = require('fxa-shared/connected-services');
-const { setupAuthDatabase } = require('fxa-shared/db');
-const {
+} from 'fxa-shared/connected-services';
+
+import { setupAuthDatabase } from 'fxa-shared/db';
+
+import {
   Account,
-  AccountResetToken: RawAccountResetToken,
+  AccountResetToken as RawAccountResetToken,
   BaseToken,
   Device,
   Email,
   EmailBounce,
-  KeyFetchToken: RawKeyFetchToken,
-  PasswordChangeToken: RawPasswordChangeToken,
-  PasswordForgotToken: RawPasswordForgotToken,
+  KeyFetchToken as RawKeyFetchToken,
+  PasswordChangeToken as RawPasswordChangeToken,
+  PasswordForgotToken as RawPasswordForgotToken,
   LinkedAccount,
-  SessionToken: RawSessionToken,
+  SessionToken as RawSessionToken,
   RecoveryKey,
   TotpToken,
   SecurityEvent,
-} = require('fxa-shared/db/models/auth');
-const { base32 } = require('../crypto/random');
+} from 'fxa-shared/db/models/auth';
+
+import { base32 } from '../crypto/random';
+
+const { normalizeEmail } = email.helpers;
 
 function resolveMetrics() {
   if (Container.has(StatsD)) {
@@ -41,7 +47,7 @@ function resolveMetrics() {
   }
 }
 
-module.exports = (config, log, Token, UnblockCode = null) => {
+export default (config, log, Token, UnblockCode = null) => {
   const scrypt = require('../crypto/scrypt')(log, config);
   const features = require('../features')(config);
   const {

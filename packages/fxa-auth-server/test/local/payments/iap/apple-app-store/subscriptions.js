@@ -2,19 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const sinon = require('sinon');
+import sinon from 'sinon';
+
 const assert = { ...sinon.assert, ...require('chai').assert };
-const { Container } = require('typedi');
-const {
-  AppleIAP,
-} = require('../../../../../lib/payments/iap/apple-app-store/apple-iap');
-const {
-  AppStoreSubscriptions,
-} = require('../../../../../lib/payments/iap/apple-app-store/subscriptions');
-const { MozillaSubscriptionTypes } = require('fxa-shared/subscriptions/types');
-const { AppConfig } = require('../../../../../lib/types');
-const { StripeHelper } = require('../../../../../lib/payments/stripe');
-const { deepCopy } = require('../../util');
+import { Container } from 'typedi';
+import { AppleIAP } from '../../../../../lib/payments/iap/apple-app-store/apple-iap';
+import { AppStoreSubscriptions } from '../../../../../lib/payments/iap/apple-app-store/subscriptions';
+import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
+import { AppConfig } from '../../../../../lib/types';
+import { StripeHelper } from '../../../../../lib/payments/stripe';
+import { deepCopy } from '../../util';
 
 describe('AppStoreSubscriptions', () => {
   const UID = 'uid8675309';

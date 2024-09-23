@@ -2,11 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { assert } = require('chai');
-const sinon = require('sinon');
+import { assert } from 'chai';
+
+import sinon from 'sinon';
 const sandbox = sinon.createSandbox();
 
-const googleTranslate = require('@google-cloud/translate');
+import googleTranslate from '@google-cloud/translate';
 const googleTranslateV2Mock = sandbox.createStubInstance(
   googleTranslate.v2.Translate
 );
@@ -21,9 +22,7 @@ const supportedLanguages = [
   'nl-be',
 ];
 
-const {
-  getLanguageTagFromPlanMetadata,
-} = require('../../scripts/stripe-products-and-plans-to-firestore-documents/plan-language-tags-guesser');
+import { getLanguageTagFromPlanMetadata } from '../../scripts/stripe-products-and-plans-to-firestore-documents/plan-language-tags-guesser';
 
 describe('getLanguageTagFromPlanMetadata', () => {
   const plan = {

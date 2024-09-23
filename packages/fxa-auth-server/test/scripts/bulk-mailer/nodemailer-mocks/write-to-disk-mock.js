@@ -4,11 +4,11 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const fs = require('fs');
-const path = require('path');
-const rimraf = require('rimraf');
-const WriteToDiskMock = require('../../../../scripts/bulk-mailer/nodemailer-mocks/write-to-disk-mock');
+import { assert } from 'chai';
+import fs from 'fs';
+import path from 'path';
+import rimraf from 'rimraf';
+import WriteToDiskMock from '../../../../scripts/bulk-mailer/nodemailer-mocks/write-to-disk-mock';
 
 const OUTPUT_DIR = path.resolve(__dirname, 'test_output');
 

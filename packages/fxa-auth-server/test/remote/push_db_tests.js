@@ -4,17 +4,20 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const uuid = require('uuid');
-const crypto = require('crypto');
-const base64url = require('base64url');
-const proxyquire = require('proxyquire');
+import { assert } from 'chai';
+import * as uuid from 'uuid';
+import crypto from 'crypto';
+import base64url from 'base64url';
+import proxyquire from 'proxyquire';
 const log = { trace() {}, info() {}, error() {}, debug() {}, warn() {} };
 
-const config = require('../../config').default.getProperties();
-const TestServer = require('../test_server');
-const Token = require('../../lib/tokens')(log);
-const DB = require('../../lib/db')(config, log, Token);
+import configModule from "../../config";
+const config = configModule.getProperties();
+import TestServer from '../test_server';
+import TokenModule from "../../lib/tokens";
+const Token = TokenModule(log);
+import DBModule from "../../lib/db";
+const DB = DBModule(config, log, Token);
 const mockStatsD = { increment: () => {} };
 
 const zeroBuffer16 = Buffer.from(

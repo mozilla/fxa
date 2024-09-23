@@ -4,14 +4,15 @@
 
 'use strict';
 
-const sinon = require('sinon');
-const { assert } = require('chai');
-const { default: Container } = require('typedi');
-const proxyquire = require('proxyquire').noPreserveCache();
+import sinon from 'sinon';
+import { assert } from 'chai';
+import { Container } from 'typedi';
+import proxyquireModule from 'proxyquire';
+const proxyquire = proxyquireModule.noPreserveCache();
 
-const { mockLog } = require('../../../../mocks');
-const { AuthLogger, AppConfig } = require('../../../../../lib/types');
-const { AppStoreServerAPI } = require('app-store-server-api');
+import { mockLog } from '../../../../mocks';
+import { AuthLogger, AppConfig } from '../../../../../lib/types';
+import { AppStoreServerAPI } from 'app-store-server-api';
 
 const mockAppStoreServerAPI = sinon.createStubInstance(AppStoreServerAPI);
 const { AppStoreHelper } = proxyquire(

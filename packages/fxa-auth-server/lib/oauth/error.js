@@ -2,8 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const util = require('util');
-const hex = require('buf').to.hex;
+import util from 'util';
+
+import hexModule from "buf";
+const hex = hexModule.to.hex;
 
 const DEFAULTS = {
   code: 500,
@@ -59,7 +61,7 @@ OauthError.isOauthRoute = function isOauthRoute(path) {
   return (
     // For now we use a fragile heuristic that all oauth routes set cors config
     // TODO: when we merge oauth errors into auth, rethink this.
-    routes.findIndex((r) => `/v1${r.path}` === path && r.config.cors) > -1
+    (routes.findIndex((r) => `/v1${r.path}` === path && r.config.cors) > -1)
   );
 };
 
@@ -384,4 +386,4 @@ OauthError.disabledClient = function disabledClient(clientId) {
 
 // Deprecated. New error types should be defined in lib/error.js
 
-module.exports = OauthError;
+export default OauthError;

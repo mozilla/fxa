@@ -2,18 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { config } = require('../../../config');
-const redis = require('../../redis');
-const { ConnectedServicesCache } = require('fxa-shared/connected-services');
-const { AuthLogger } = require('../../types');
-const { Container } = require('typedi');
+import { config } from '../../../config';
+
+import redis from '../../redis';
+import { ConnectedServicesCache } from 'fxa-shared/connected-services';
+import { AuthLogger } from '../../types';
+import { Container } from 'typedi';
 
 // These are used only in type declarations.
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const AccessToken = require('./accessToken');
+import AccessToken from './accessToken';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const RefreshTokenMetadata = require('./refreshTokenMetadata');
+import RefreshTokenMetadata from './refreshTokenMetadata';
 
 function resolveLogger() {
   if (Container.has(AuthLogger)) return Container.get(AuthLogger);
@@ -126,6 +127,6 @@ class OAuthRedis extends ConnectedServicesCache {
   }
 }
 
-module.exports = () => {
+export default () => {
   return new OAuthRedis();
 };

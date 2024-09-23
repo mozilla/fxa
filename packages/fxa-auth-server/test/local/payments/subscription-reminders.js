@@ -4,25 +4,21 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const sinon = require('sinon');
-const { Container } = require('typedi');
-const { DateTime, Duration, Interval } = require('luxon');
-
-const { mockLog } = require('../../mocks');
-const { CurrencyHelper } = require('../../../lib/payments/currencies');
-const { StripeHelper } = require('../../../lib/payments/stripe');
-const { SentEmail } = require('fxa-shared/db/models/auth/sent-email');
-const {
-  EMAIL_TYPE,
-  SubscriptionReminders,
-} = require('../../../lib/payments/subscription-reminders');
-const invoicePreview = require('./fixtures/stripe/invoice_preview_tax.json');
-const longPlan1 = require('./fixtures/stripe/plan1.json');
-const longPlan2 = require('./fixtures/stripe/plan2.json');
-const shortPlan1 = require('./fixtures/stripe/plan3.json');
-const longSubscription1 = require('./fixtures/stripe/subscription1.json'); // sub to plan 1
-const longSubscription2 = require('./fixtures/stripe/subscription2.json'); // sub to plan 2
+import { assert } from 'chai';
+import sinon from 'sinon';
+import { Container } from 'typedi';
+import { DateTime, Duration, Interval } from 'luxon';
+import { mockLog } from '../../mocks';
+import { CurrencyHelper } from '../../../lib/payments/currencies';
+import { StripeHelper } from '../../../lib/payments/stripe';
+import { SentEmail } from 'fxa-shared/db/models/auth/sent-email';
+import { EMAIL_TYPE, SubscriptionReminders } from '../../../lib/payments/subscription-reminders';
+import invoicePreview from './fixtures/stripe/invoice_preview_tax.json';
+import longPlan1 from './fixtures/stripe/plan1.json';
+import longPlan2 from './fixtures/stripe/plan2.json';
+import shortPlan1 from './fixtures/stripe/plan3.json';
+import longSubscription1 from './fixtures/stripe/subscription1.json'; // sub to plan 1
+import longSubscription2 from './fixtures/stripe/subscription2.json'; // sub to plan 2
 const planLength = 30; // days
 const planDuration = Duration.fromObject({ days: planLength });
 const reminderLength = 14; // days

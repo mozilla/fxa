@@ -4,14 +4,18 @@
 
 'use strict';
 
-const sinon = require('sinon');
-const assert = { ...sinon.assert, ...require('chai').assert };
-const crypto = require('crypto');
-const getRoute = require('../../routes_helpers').getRoute;
-const mocks = require('../../mocks');
-const error = require('../../../lib/error');
-const proxyquire = require('proxyquire');
-const uuid = require('uuid');
+import sinon from 'sinon';
+import crypto from 'crypto';
+import { getRoute } from '../../routes_helpers';
+import mocks from '../../mocks';
+import error from '../../../lib/error';
+import proxyquire from 'proxyquire';
+import * as uuid from 'uuid';
+import chai from 'chai';
+import pushModule from '../../../lib/push';
+import devicesModule from '../../../lib/devices';
+
+const assert = { ...sinon.assert, ...chai.assert };
 
 const EARLIEST_SANE_TIMESTAMP = 31536000000;
 
@@ -38,9 +42,10 @@ function makeRoutes(options = {}) {
 
   const log = options.log || mocks.mockLog();
   const db = options.db || mocks.mockDB();
-  const push = options.push || require('../../../lib/push')(log, db, {});
-  const devices =
-    options.devices || require('../../../lib/devices')(log, db, push);
+
+  const push = options.push || pushModule(log, db, {});
+
+  const devices = options.devices || devicesModule(log, db, push);
   const clientUtils =
     options.clientUtils ||
     require('../../../lib/routes/utils/clients')(log, config);

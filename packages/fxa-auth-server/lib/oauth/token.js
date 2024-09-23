@@ -2,15 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const ScopeSet = require('fxa-shared').oauth.scopes;
+import ScopeSetModule from "fxa-shared";
 
-const OauthError = require('./error');
-const { config } = require('../../config');
-const db = require('./db');
-const encrypt = require('fxa-shared/auth/encrypt');
-const JWTAccessToken = require('./jwt_access_token');
-const validators = require('./validators');
-const { SHORT_ACCESS_TOKEN_TTL_IN_MS } = require('fxa-shared/oauth/constants');
+const ScopeSet = ScopeSetModule.oauth.scopes;
+
+import OauthError from './error';
+import { config } from '../../config';
+import db from './db';
+import encrypt from 'fxa-shared/auth/encrypt';
+import JWTAccessToken from './jwt_access_token';
+import * as validators from './validators';
+import { SHORT_ACCESS_TOKEN_TTL_IN_MS } from 'fxa-shared/oauth/constants';
 
 /**
  * Get the tokenId stored in the DB for `accessToken`
@@ -18,7 +20,7 @@ const { SHORT_ACCESS_TOKEN_TTL_IN_MS } = require('fxa-shared/oauth/constants');
  * @throws `invalidToken` error if a JWT access token
  *   is passed and invalid.
  */
-exports.getTokenId = async function getTokenId(accessToken) {
+export const getTokenId = async function getTokenId(accessToken) {
   let unhashedAccessTokenId = accessToken;
 
   if (!validators.jwt.validate(accessToken).error) {
@@ -30,7 +32,7 @@ exports.getTokenId = async function getTokenId(accessToken) {
 /**
  * Verify an accessToken.
  */
-exports.verify = async function verify(accessToken) {
+export const verify = async function verify(accessToken) {
   // JWT tokens with lifespan < SHORT_ACCESS_TOKEN_TTL_IN_MS are not
   // stored in the db
   if (!validators.jwt.validate(accessToken).error) {

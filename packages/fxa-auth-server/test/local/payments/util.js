@@ -10,7 +10,7 @@
  *
  * @param {Object} object
  */
-function deepCopy(object) {
+export function deepCopy(object) {
   return JSON.parse(JSON.stringify(object));
 }
 
@@ -38,12 +38,10 @@ async function deleteQueryBatch(db, query, resolve) {
   });
 }
 
-async function deleteCollection(db, collectionRef, batchSize) {
+export async function deleteCollection(db, collectionRef, batchSize) {
   const query = collectionRef.orderBy('__name__').limit(batchSize);
 
   return new Promise((resolve, reject) => {
     deleteQueryBatch(db, query, resolve).catch(reject);
   });
 }
-
-module.exports = { deepCopy, deleteCollection };

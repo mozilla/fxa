@@ -4,11 +4,12 @@
 
 'use strict';
 
-const config = require('../config').default.getProperties();
-const hapi = require('@hapi/hapi');
-const url = require('url');
+import configModule from "../config";
+const config = configModule.getProperties();
+import hapi from '@hapi/hapi';
+import url from 'url';
 
-module.exports = () => {
+export default () => {
   return new Promise((resolve, reject) => {
     const api = new hapi.Server({
       host: url.parse(config.profileServer.url).hostname,

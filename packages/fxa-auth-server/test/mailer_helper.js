@@ -6,8 +6,9 @@
 
 'use strict';
 
-const uuid = require('uuid');
-const { normalizeEmail } = require('fxa-shared').email.helpers;
+import * as uuid from 'uuid';
+import { email } from 'fxa-shared';
+const { normalizeEmail } = email.helpers;
 
 const zeroBuffer16 = Buffer.from(
   '00000000000000000000000000000000',
@@ -39,6 +40,6 @@ function createTestAccount() {
   return account;
 }
 
-module.exports = {
+export default {
   createTestAccount: createTestAccount,
 };

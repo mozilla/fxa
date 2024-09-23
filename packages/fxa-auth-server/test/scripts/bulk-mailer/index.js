@@ -4,11 +4,11 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const path = require('path');
-const proxyquire = require('proxyquire');
-const rimraf = require('rimraf');
-const sinon = require('sinon');
+import { assert } from 'chai';
+import path from 'path';
+import proxyquire from 'proxyquire';
+import rimraf from 'rimraf';
+import sinon from 'sinon';
 
 const OUTPUT_DIR = path.resolve(__dirname, 'test_output');
 

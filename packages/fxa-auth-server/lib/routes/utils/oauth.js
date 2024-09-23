@@ -4,20 +4,18 @@
 
 'use strict';
 
-const encrypt = require('fxa-shared/auth/encrypt');
-const client = require('../../oauth/client');
-const {
-  OAUTH_SCOPE_OLD_SYNC,
-  MAX_NEW_ACCOUNT_AGE,
-} = require('fxa-shared/oauth/constants');
-const token = require('../../oauth/token');
-const ScopeSet = require('fxa-shared').oauth.scopes;
+import encrypt from 'fxa-shared/auth/encrypt';
+import client from '../../oauth/client';
+import { OAUTH_SCOPE_OLD_SYNC, MAX_NEW_ACCOUNT_AGE } from 'fxa-shared/oauth/constants';
+import token from '../../oauth/token';
+import ScopeSetModule from "fxa-shared";
+const ScopeSet = ScopeSetModule.oauth.scopes;
 
 // right now we only care about notifications for the following scopes
 // if not a match, then we don't notify
 const NOTIFICATION_SCOPES = ScopeSet.fromArray([OAUTH_SCOPE_OLD_SYNC]);
 
-module.exports = {
+export default {
   newTokenNotification: async function newTokenNotification(
     db,
     mailer,

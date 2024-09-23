@@ -4,13 +4,13 @@
 
 'use strict';
 
-const { assert } = require('chai');
+import { assert } from 'chai';
 
-const EventEmitter = require('events').EventEmitter;
-const { mockLog } = require('../../mocks');
-const sinon = require('sinon');
-const emailHelpers = require('../../../lib/email/utils/helpers');
-const delivery = require('../../../lib/email/delivery');
+import { EventEmitter } from 'events';
+import { mockLog } from '../../mocks';
+import sinon from 'sinon';
+import emailHelpers from '../../../lib/email/utils/helpers';
+import delivery from '../../../lib/email/delivery';
 
 let sandbox;
 const mockDeliveryQueue = new EventEmitter();

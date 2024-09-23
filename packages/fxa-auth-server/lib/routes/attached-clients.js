@@ -4,20 +4,19 @@
 
 'use strict';
 
-const isA = require('joi');
-const validators = require('./validators');
-const authorizedClients = require('../oauth/authorized_clients');
-const error = require('../error');
+import isA from 'joi';
+import * as validators from './validators';
+import authorizedClients from '../oauth/authorized_clients';
+import error from '../error';
 
 const HEX_STRING = validators.HEX_STRING;
-const DEVICES_SCHEMA = require('../devices').schema;
-const DEVICES_AND_SESSIONS_DOC =
-  require('../../docs/swagger/devices-and-sessions-api').default;
+import { schema as DEVICES_SCHEMA } from '../devices';
+import { default as DEVICES_AND_SESSIONS_DOC } from '../../docs/swagger/devices-and-sessions-api';
 
-const { ConnectedServicesFactory } = require('fxa-shared/connected-services');
-const DESCRIPTIONS = require('../../docs/swagger/shared/descriptions').default;
+import { ConnectedServicesFactory } from 'fxa-shared/connected-services';
+import { default as DESCRIPTIONS } from '../../docs/swagger/shared/descriptions';
 
-module.exports = (log, db, devices, clientUtils) => {
+export default (log, db, devices, clientUtils) => {
   return [
     {
       method: 'GET',

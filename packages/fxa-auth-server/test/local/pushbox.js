@@ -4,15 +4,14 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const sinon = require('sinon');
+import { assert } from 'chai';
+import sinon from 'sinon';
 const sandbox = sinon.createSandbox();
-const nock = require('nock');
-
-const { pushboxApi } = require('../../lib/pushbox');
-const pushboxDbModule = require('../../lib/pushbox/db');
-const error = require('../../lib/error');
-const { mockLog } = require('../mocks');
+import nock from 'nock';
+import { pushboxApi } from '../../lib/pushbox';
+import pushboxDbModule from '../../lib/pushbox/db';
+import error from '../../lib/error';
+import { mockLog } from '../mocks';
 let mockStatsD;
 
 const mockConfig = {

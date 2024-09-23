@@ -11,7 +11,7 @@ import { StatsD } from 'hot-shots';
 import { Container } from 'typedi';
 
 import appConfig from '../config';
-import * as random from '../lib/crypto/random';
+import random from '../lib/crypto/random';
 import DB from '../lib/db';
 import { setupFirestore } from '../lib/firestore-db';
 import initLog from '../lib/log';

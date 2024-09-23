@@ -4,18 +4,23 @@
 
 'use strict';
 
-const config = require('../config').default.getProperties();
-const StatsD = require('hot-shots');
-const { CurrencyHelper } = require('../lib/payments/currencies');
-
-const { Container } = require('typedi');
-const { AuthFirestore, AppConfig, AuthLogger } = require('../lib/types');
-const { StripeHelper } = require('../lib/payments/stripe');
-const { setupFirestore } = require('../lib/firestore-db');
+import configModule from '../config';
+const config = configModule.getProperties();
+import StatsD from 'hot-shots';
+import { CurrencyHelper } from '../lib/payments/currencies';
+import { Container } from 'typedi';
+import { AuthFirestore, AppConfig, AuthLogger } from '../lib/types';
+import { StripeHelper } from '../lib/payments/stripe';
+import { setupFirestore } from '../lib/firestore-db';
+import { createStripeHelper } from '../lib/payments/stripe';
+import { PayPalClient } from '@fxa/payments/paypal';
+import { PayPalHelper } from '../lib/payments/paypal/helper';
 
 const statsd = new StatsD(config.statsd);
 Container.set(StatsD, statsd);
-const log = require('../lib/log')(config.log.level, 'fxa-email-bouncer', {
+import logModule from '../lib/log';
+
+const log = logModule(config.log.level, 'fxa-email-bouncer', {
   statsd,
 });
 
@@ -40,13 +45,10 @@ Container.set(AuthFirestore, authFirestore);
 /** @type {undefined | import('../lib/payments/stripe').StripeHelper} */
 let stripeHelper = undefined;
 if (config.subscriptions && config.subscriptions.stripeApiKey) {
-  const { createStripeHelper } = require('../lib/payments/stripe');
   stripeHelper = createStripeHelper(log, config, statsd);
   Container.set(StripeHelper, stripeHelper);
 
   if (config.subscriptions.paypalNvpSigCredentials.enabled) {
-    const { PayPalClient } = require('@fxa/payments/paypal');
-    const { PayPalHelper } = require('../lib/payments/paypal/helper');
     const paypalClient = new PayPalClient(
       config.subscriptions.paypalNvpSigCredentials
     );
@@ -56,14 +58,19 @@ if (config.subscriptions && config.subscriptions.stripeApiKey) {
   }
 }
 
-const error = require('../lib/error');
-const Token = require('../lib/tokens')(log, config);
-const SQSReceiver = require('../lib/sqs')(log, statsd);
-const bounces = require('../lib/email/bounces')(log, error);
-const delivery = require('../lib/email/delivery')(log);
-const notifications = require('../lib/email/notifications')(log, error);
-
-const DB = require('../lib/db')(config, log, Token);
+import error from '../lib/error';
+import TokenModule from '../lib/tokens';
+const Token = TokenModule(log, config);
+import SQSReceiverModule from '../lib/sqs';
+const SQSReceiver = SQSReceiverModule(log, statsd);
+import bouncesModule from '../lib/email/bounces';
+const bounces = bouncesModule(log, error);
+import deliveryModule from '../lib/email/delivery';
+const delivery = deliveryModule(log);
+import notificationsModule from '../lib/email/notifications';
+const notifications = notificationsModule(log, error);
+import DBModule from '../lib/db';
+const DB = DBModule(config, log, Token);
 
 const {
   bounceQueueUrl,

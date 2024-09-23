@@ -4,7 +4,7 @@
 
 'use strict';
 
-const error = require('./error');
+import error from './error';
 
 // Maps our variety of verification methods down to a few short standard
 // "authentication method reference" strings that we're happy to expose to
@@ -30,7 +30,7 @@ const AMR_TO_TYPE = {
   otp: 'have',
 };
 
-module.exports = {
+export default {
   /**
    * Returns the set of authentication methods available
    * for the given account, as amr value strings.

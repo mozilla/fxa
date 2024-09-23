@@ -4,7 +4,7 @@
 
 'use strict';
 
-exports.getRoute = function (routes, path, method) {
+export const getRoute = function (routes, path, method) {
   let route = null;
 
   routes.some((r) => {

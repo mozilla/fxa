@@ -4,12 +4,12 @@
 
 'use strict';
 
-const sinon = require('sinon');
+import sinon from 'sinon';
 const assert = { ...sinon.assert, ...require('chai').assert };
 
-const EventEmitter = require('events').EventEmitter;
-const { mockDB, mockLog } = require('../../mocks');
-const profileUpdates = require('../../../lib/profile/updates');
+import { EventEmitter } from 'events';
+import { mockDB, mockLog } from '../../mocks';
+import profileUpdates from '../../../lib/profile/updates';
 
 const mockDeliveryQueue = new EventEmitter();
 mockDeliveryQueue.start = function start() {};

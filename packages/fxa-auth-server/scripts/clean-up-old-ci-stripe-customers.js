@@ -1,15 +1,14 @@
-#!/usr/bin/env node -r esbuild-register
-
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const path = require('path');
-const program = require('commander');
-const pckg = require('../package.json');
-const { Container } = require('typedi');
-const { AppConfig, AuthFirestore, AuthLogger } = require('../lib/types');
-const { setupFirestore } = require('../lib/firestore-db');
+import path from 'path';
+
+import program from 'commander';
+import pckg from '../package.json';
+import { Container } from 'typedi';
+import { AppConfig, AuthFirestore, AuthLogger } from '../lib/types';
+import { setupFirestore } from '../lib/firestore-db';
 
 async function init() {
   program

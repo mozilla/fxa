@@ -4,9 +4,8 @@
 
 'use strict';
 
-const { assert } = require('chai');
-
-const { CurrencyHelper } = require('../../../lib/payments/currencies');
+import { assert } from 'chai';
+import { CurrencyHelper } from '../../../lib/payments/currencies';
 
 const payPalEnabledSubscriptionsConfig = {
   paypalNvpSigCredentials: {

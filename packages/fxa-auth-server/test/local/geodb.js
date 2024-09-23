@@ -4,10 +4,10 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const knownIpLocation = require('../known-ip-location');
-const proxyquire = require('proxyquire');
-const mockLog = require('../mocks').mockLog;
+import { assert } from 'chai';
+import knownIpLocation from '../known-ip-location';
+import proxyquire from 'proxyquire';
+import { mockLog } from '../mocks';
 const modulePath = '../../lib/geodb';
 
 describe('geodb', () => {

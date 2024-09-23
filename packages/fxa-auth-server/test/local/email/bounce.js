@@ -4,17 +4,15 @@
 
 'use strict';
 
-const ROOT_DIR = '../../..';
-
-const { assert } = require('chai');
-const bounces = require(`${ROOT_DIR}/lib/email/bounces`);
-const error = require(`${ROOT_DIR}/lib/error`);
-const { EventEmitter } = require('events');
-const { mockLog } = require('../../mocks');
-const sinon = require('sinon');
-const { default: Container } = require('typedi');
-const { StripeHelper } = require('../../../lib/payments/stripe');
-const emailHelpers = require('../../../lib/email/utils/helpers');
+import { assert } from 'chai';
+import bounces from '../../../lib/email/bounces';
+import error from '../../../lib/error';
+import { EventEmitter } from 'events';
+import { mockLog } from '../../mocks';
+import sinon from 'sinon';
+import { Container } from 'typedi';
+import { StripeHelper } from '../../../lib/payments/stripe';
+import emailHelpers from '../../../lib/email/utils/helpers';
 
 const mockBounceQueue = new EventEmitter();
 mockBounceQueue.start = function start() {};

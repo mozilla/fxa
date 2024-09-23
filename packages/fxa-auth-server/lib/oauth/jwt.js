@@ -2,13 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const jsonwebtoken = require('jsonwebtoken');
-const { publicPEM, SIGNING_PEM, SIGNING_KID, SIGNING_ALG } = require('./keys');
+import jsonwebtoken from 'jsonwebtoken';
 
-const { config } = require('../../config');
+import { publicPEM, SIGNING_PEM, SIGNING_KID, SIGNING_ALG } from './keys';
+import { config } from '../../config';
 const ISSUER = config.get('oauthServer.openid.issuer');
 
-const jwtverify = require('util').promisify(jsonwebtoken.verify);
+import jwtverifyModule from "util";
+const jwtverify = jwtverifyModule.promisify(jsonwebtoken.verify);
 
 /**
  * Sign `claims` using SIGNING_PEM from keys.js, returning a JWT.
@@ -16,7 +17,7 @@ const jwtverify = require('util').promisify(jsonwebtoken.verify);
  * @param {Object} claims
  * @returns {Promise} resolves with signed JWT when complete
  */
-exports.sign = function sign(claims, options) {
+export const sign = function sign(claims, options) {
   return jsonwebtoken.sign(
     {
       // force an issuer to be set for direct calls to .sign,
@@ -33,7 +34,7 @@ exports.sign = function sign(claims, options) {
   );
 };
 
-exports.verify = async function verify(jwt, options = {}) {
+export const verify = async function verify(jwt, options = {}) {
   const getKey = (header, callback) => {
     if (options.typ) {
       if (normalizeTyp(options.typ) !== normalizeTyp(header.typ)) {

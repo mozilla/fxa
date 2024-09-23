@@ -4,28 +4,29 @@
 
 'use strict';
 
-const sinon = require('sinon');
+import sinon from 'sinon';
+import assert from '../../assert';
+import crypto from 'crypto';
+import error from '../../../lib/error';
+import { getRoute } from '../../routes_helpers';
+import knownIpLocation from '../../known-ip-location';
+import mocks from '../../mocks';
+import nock from 'nock';
+import proxyquire from 'proxyquire';
+import * as uuid from 'uuid';
+import { normalizeEmail } from 'fxa-shared/email/helpers';
+import { gleanMetrics } from '../../../lib/metrics/glean';
+import pushModule from '../../../lib/push';
+import singupUtilsModule from '../../../lib/routes/utils/signup';
+import CUSTOMER_1 from '../payments/fixtures/stripe/customer1.json';
+import CUSTOMER_1_UPDATED from '../payments/fixtures/stripe/customer1_new_email.json';
 
-const assert = require('../../assert');
-const crypto = require('crypto');
-const error = require('../../../lib/error');
-const getRoute = require('../../routes_helpers').getRoute;
-const knownIpLocation = require('../../known-ip-location');
-const mocks = require('../../mocks');
-const nock = require('nock');
-const proxyquire = require('proxyquire');
-const uuid = require('uuid');
-const { normalizeEmail } = require('fxa-shared').email.helpers;
-const { gleanMetrics } = require('../../../lib/metrics/glean');
 const gleanConfig = {
   enabled: false,
   applicationId: 'accounts_backend_test',
   channel: 'test',
   loggerAppName: 'auth-server-tests',
 };
-
-const CUSTOMER_1 = require('../payments/fixtures/stripe/customer1.json');
-const CUSTOMER_1_UPDATED = require('../payments/fixtures/stripe/customer1_new_email.json');
 const TEST_EMAIL = 'foo@gmail.com';
 const TEST_EMAIL_ADDITIONAL = 'foo2@gmail.com';
 const TEST_EMAIL_INVALID = 'example@dotless-domain';
@@ -144,10 +145,8 @@ let cadReminders;
 let db;
 let glean;
 
-const updateZendeskPrimaryEmail =
-  require('../../../lib/routes/emails')._updateZendeskPrimaryEmail;
-const updateStripeEmail =
-  require('../../../lib/routes/emails')._updateStripeEmail;
+import { _updateZendeskPrimaryEmail as updateZendeskPrimaryEmail } from '../../../lib/routes/emails';
+import { _updateStripeEmail as updateStripeEmail } from '../../../lib/routes/emails';
 
 const makeRoutes = function (options = {}, requireMocks) {
   const config = options.config || {};
@@ -175,7 +174,7 @@ const makeRoutes = function (options = {}, requireMocks) {
       return Promise.resolve(true);
     },
   };
-  const push = options.push || require('../../../lib/push')(log, db, {});
+  const push = options.push || pushModule(log, db, {});
   const mailer = options.mailer || {};
   const verificationReminders =
     options.verificationReminders || mocks.mockVerificationReminders();
@@ -184,15 +183,13 @@ const makeRoutes = function (options = {}, requireMocks) {
 
   const signupUtils =
     options.signupUtils ||
-    require('../../../lib/routes/utils/signup')(
-      log,
-      db,
-      mailer,
-      push,
-      verificationReminders,
-      glean
-    );
-  return proxyquire('../../../lib/routes/emails', requireMocks || {})(
+    singupUtilsModule(log, db, mailer, push, verificationReminders, glean);
+
+  const emailsModule = proxyquire(
+    '../../../lib/routes/emails',
+    requireMocks || {}
+  );
+  return emailsModule.default(
     log,
     db,
     mailer,

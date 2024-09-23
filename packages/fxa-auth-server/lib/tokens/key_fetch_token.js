@@ -4,9 +4,9 @@
 
 'use strict';
 
-const inherits = require('util').inherits;
+import { inherits } from 'util';
 
-module.exports = function (log, Token) {
+export default function (log, Token) {
   function KeyFetchToken(keys, details) {
     Token.call(this, keys, details);
     this.keyBundle = details.keyBundle;
@@ -55,4 +55,4 @@ module.exports = function (log, Token) {
   };
 
   return KeyFetchToken;
-};
+}

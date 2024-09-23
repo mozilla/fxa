@@ -4,7 +4,7 @@
 
 'use strict';
 
-const { pbkdf2 } = require('crypto');
+import { pbkdf2 } from 'crypto';
 
 /** pbkdf2 string creator
  *
@@ -25,4 +25,4 @@ function derive(input, salt, iterations, len) {
   });
 }
 
-module.exports.derive = derive;
+export { derive };

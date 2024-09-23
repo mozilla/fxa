@@ -4,10 +4,10 @@
 
 'use strict';
 
-const errors = require('../../error');
-const otplib = require('otplib');
+import errors from '../../error';
+import otplib from 'otplib';
 
-module.exports = (log, config, db) => {
+export default (log, config, db) => {
   return {
     /**
      * Helper function to check if the specified account has a verified

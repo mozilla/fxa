@@ -4,15 +4,19 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const TestServer = require('../test_server');
-const Client = require('../client')();
-const config = require('../../config').default.getProperties();
-const tokens = require('../../lib/tokens')({ trace: () => {} }, config);
-const testUtils = require('../lib/util');
-const ScopeSet = require('fxa-shared').oauth.scopes;
-const buf = require('buf').hex;
-const hashRefreshToken = require('fxa-shared/auth/encrypt').hash;
+import { assert } from 'chai';
+import TestServer from '../test_server';
+import ClientModule from "../client";
+const Client = ClientModule();
+import configModule from "../../config";
+const config = configModule.getProperties();
+import tokensModule from "../../lib/tokens";
+const tokens = tokensModule({ trace: () => {} }, config);
+import testUtils from '../lib/util';
+import ScopeSetModule from "fxa-shared";
+const ScopeSet = ScopeSetModule.oauth.scopes;
+import { hex as buf } from 'buf';
+import { hash as hashRefreshToken } from 'fxa-shared/auth/encrypt';
 
 const PUBLIC_CLIENT_ID = '3c49430b43dfba77';
 

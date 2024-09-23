@@ -4,13 +4,15 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const TestServer = require('../test_server');
-const Client = require('../client')();
-const config = require('../../config').default.getProperties();
+import { assert } from 'chai';
+import TestServer from '../test_server';
+import ClientModule from "../client";
+const Client = ClientModule();
+import configModule from "../../config";
+const config = configModule.getProperties();
 config.redis.sessionTokens.enabled = false;
-const url = require('url');
-const { JWTool } = require('@fxa/vendored/jwtool');
+import url from 'url';
+import { JWTool } from '@fxa/vendored/jwtool';
 const pubSigKey = JWTool.JWK.fromFile(config.publicKeyFile);
 const duration = 1000 * 60 * 60 * 24; // 24 hours
 const publicKey = {
@@ -19,7 +21,7 @@ const publicKey = {
   e: '65537',
 };
 
-const mocks = require('../mocks');
+import mocks from '../mocks';
 
 // Note, intentionally not indenting for code review.
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {

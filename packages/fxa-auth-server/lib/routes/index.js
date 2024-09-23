@@ -4,10 +4,10 @@
 
 'use strict';
 
-const url = require('url');
-const tracing = require('fxa-shared/tracing/node-tracing');
+import url from 'url';
+import tracing from 'fxa-shared/tracing/node-tracing';
 
-module.exports = function (
+export default function (
   log,
   serverPublicKeys,
   signer,
@@ -301,4 +301,4 @@ module.exports = function (
   });
 
   return allRoutes;
-};
+}

@@ -4,10 +4,10 @@
 
 'use strict';
 
-const Keyv = require('keyv');
-const client = require('../oauth/client');
+import Keyv from 'keyv';
+import client from '../oauth/client';
 
-module.exports = (log, config) => {
+export default (log, config) => {
   const OAUTH_CLIENT_INFO_CACHE_TTL = config.oauth.clientInfoCacheTTL;
   const OAUTH_CLIENT_INFO_CACHE_NAMESPACE = 'oauthClientInfo';
   const FIREFOX_CLIENT = {

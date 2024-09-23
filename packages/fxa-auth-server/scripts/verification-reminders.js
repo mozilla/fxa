@@ -1,5 +1,3 @@
-#!/usr/bin/env node -r esbuild-register
-
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
@@ -13,25 +11,20 @@
 // It's expected that it will be invoked at regular intervals on the
 // fxa-admin box.
 
-'use strict';
+import configModule1 from '../config';
 
-const ROOT_DIR = '..';
-const LIB_DIR = `${ROOT_DIR}/lib`;
+import error from '../lib/error';
+import logModule from "../lib/log";
+const log = logModule(config.log);
+import jwt from '../lib/oauth/jwt';
+import verificationRemindersModule from "../lib/verification-reminders";
+const verificationReminders = verificationRemindersModule(log, config);
+import Sentry from '@sentry/node';
 
-const config = require(`${ROOT_DIR}/config`).default.getProperties();
-
-const error = require(`${LIB_DIR}/error`);
-const log = require(`${LIB_DIR}/log`)(config.log);
-const jwt = require(`${LIB_DIR}/oauth/jwt`);
-const verificationReminders = require(`${LIB_DIR}/verification-reminders`)(
-  log,
-  config
-);
-const Sentry = require('@sentry/node');
-
-const cadReminders = require(`${LIB_DIR}/cad-reminders`)(config, log);
-const subscriptionAccountReminders =
-  require(`${LIB_DIR}/subscription-account-reminders`)(log, config);
+import cadRemindersModule from "../lib/cad-reminders";
+const cadReminders = cadRemindersModule(configModule1.getProperties(), log);
+import subscriptionAccountRemindersModule from "../lib/subscription-account-reminders";
+const subscriptionAccountReminders = subscriptionAccountRemindersModule(log, configModule1.getProperties());
 
 Sentry.init({});
 const checkInId = Sentry.captureCheckIn({
@@ -70,10 +63,10 @@ async function run() {
     verificationReminders.process(),
     subscriptionAccountReminders.process(),
     cadReminders.process(),
-    require(`${LIB_DIR}/db`)(config, log, {}, {}).connect(config),
+    require(`../lib/db`)(config, log, {}, {}).connect(config),
   ]);
-  const bounces = require(`${LIB_DIR}/bounces`)(config, db);
-  const Mailer = require(`${LIB_DIR}/senders/email`)(log, config, bounces);
+  const bounces = require(`../lib/bounces`)(config, db);
+  const Mailer = require(`../lib/senders/email`)(log, config, bounces);
 
   const mailer = new Mailer(config.smtp);
 

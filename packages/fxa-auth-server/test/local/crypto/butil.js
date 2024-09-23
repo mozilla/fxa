@@ -4,8 +4,8 @@
 
 'use strict';
 
-const assert = require('assert');
-const butil = require('../../../lib/crypto/butil');
+import assert from 'assert';
+import butil from '../../../lib/crypto/butil';
 
 describe('butil', () => {
   describe('.buffersAreEqual', () => {

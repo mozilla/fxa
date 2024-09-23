@@ -1,5 +1,3 @@
-#!/usr/bin/env node -r esbuild-register
-
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -21,14 +19,14 @@
 
 'use strict';
 
-const fs = require('fs');
-const webpush = require('web-push');
+import fs from 'fs';
+import webpush from 'web-push';
 
 if (!process.env.NODE_ENV) {
   process.env.NODE_ENV = 'dev';
 }
 
-const { config } = require('../config');
+import { config } from '../config';
 const vapidKeysFile = config.get('vapidKeysFile');
 
 const fileExists = fs.existsSync(vapidKeysFile);

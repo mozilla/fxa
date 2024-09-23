@@ -4,7 +4,7 @@
 import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
 import Container from 'typedi';
 
-import { internalValidationError } from '../../../../lib/error';
+import error from '../../../../lib/error';
 import { AppConfig } from '../../../types';
 import { StripeHelper } from '../../stripe';
 import { SubscriptionsService } from '../types';
@@ -20,7 +20,7 @@ export class PlaySubscriptions
   constructor() {
     const config = Container.get(AppConfig);
     if (!config.subscriptions.enabled) {
-      throw internalValidationError(
+      throw error.internalValidationError(
         'PlaySubscriptions',
         {},
         new Error(
@@ -30,7 +30,7 @@ export class PlaySubscriptions
     }
 
     if (!Container.has(StripeHelper)) {
-      throw internalValidationError(
+      throw error.internalValidationError(
         'PlaySubscriptions',
         {},
         new Error(

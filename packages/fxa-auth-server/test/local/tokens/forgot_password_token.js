@@ -4,13 +4,13 @@
 
 'use strict';
 
-const { assert } = require('chai');
+import { assert } from 'chai';
 const log = { trace() {} };
 
 const timestamp = Date.now();
 
-const PasswordForgotToken = require('../../../lib/tokens')(log)
-  .PasswordForgotToken;
+import PasswordForgotTokenModule from "../../../lib/tokens";
+const PasswordForgotToken = PasswordForgotTokenModule.PasswordForgotToken;
 
 const ACCOUNT = {
   uid: 'xxx',

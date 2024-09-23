@@ -2,9 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const AuthError = require('../error');
-const { signJWT } = require('../serverJWT');
-const crypto = require('crypto');
+import AuthError from '../error';
+
+import { signJWT } from '../serverJWT';
+import crypto from 'crypto';
 
 /**
  * .base64URLEncode
@@ -75,7 +76,7 @@ function makeAssertionJWT(config, credentials) {
   );
 }
 
-module.exports = {
+export default {
   base64URLEncode,
   generateTokenHash,
   makeAssertionJWT,

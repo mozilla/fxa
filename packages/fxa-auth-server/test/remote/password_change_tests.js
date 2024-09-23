@@ -4,14 +4,17 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const { JWTool } = require('@fxa/vendored/jwtool');
-const Client = require('../client')();
-const config = require('../../config').default.getProperties();
-const TestServer = require('../test_server');
-const url = require('url');
+import { assert } from 'chai';
+import { JWTool } from '@fxa/vendored/jwtool';
+import ClientModule from "../client";
+const Client = ClientModule();
+import configModule from "../../config";
+const config = configModule.getProperties();
+import TestServer from '../test_server';
+import url from 'url';
 
-const tokens = require('../../lib/tokens')({ trace: function () {} });
+import tokensModule from "../../lib/tokens";
+const tokens = tokensModule({ trace: function () {} });
 function getSessionTokenId(sessionTokenHex) {
   return tokens.SessionToken.fromHex(sessionTokenHex).then((token) => {
     return token.id;

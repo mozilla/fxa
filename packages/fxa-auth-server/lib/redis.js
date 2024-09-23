@@ -1,17 +1,19 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
-const { RedisShared } = require('fxa-shared/db/redis');
-const { resolve } = require('path');
-const { AuthLogger } = require('./types');
-const { Container } = require('typedi');
-const { StatsD } = require('hot-shots');
-const opentelemetry = require('@opentelemetry/api');
+import { RedisShared } from 'fxa-shared/db/redis';
+
+import { resolve } from 'path';
+import { AuthLogger } from './types';
+import { Container } from 'typedi';
+import { StatsD } from 'hot-shots';
+import opentelemetry from '@opentelemetry/api';
 
 ('use strict');
 
 const tracer = opentelemetry.trace.getTracer('redis-tracer');
-const hex = require('buf').to.hex;
+import hexModule from "buf";
+const hex = hexModule.to.hex;
 
 function resolveLogger() {
   if (Container.has(AuthLogger)) return Container.get(AuthLogger);
@@ -215,7 +217,7 @@ class FxaRedis extends RedisShared {
   }
 }
 
-module.exports = (config, log) => {
+export default (config, log) => {
   log = log || resolveLogger();
 
   if (!config) {

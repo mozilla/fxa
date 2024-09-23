@@ -4,17 +4,20 @@
 
 'use strict';
 
-const sinon = require('sinon');
-const assert = { ...sinon.assert, ...require('chai').assert };
-const crypto = require('crypto');
-const Joi = require('joi');
-const error = require('../../../lib/error');
-const getRoute = require('../../routes_helpers').getRoute;
-const mocks = require('../../mocks');
-const moment = require('moment'); // Ensure consistency with production code
-const proxyquire = require('proxyquire');
-const uuid = require('uuid');
+import sinon from 'sinon';
+import crypto from 'crypto';
+import Joi from 'joi';
+import error from '../../../lib/error';
+import { getRoute } from '../../routes_helpers';
+import mocks from '../../mocks';
+import moment from 'moment'; // Ensure consistency with production code
+import proxyquire from 'proxyquire';
+import * as uuid from 'uuid';
+import clientUtilsModule from '../../../lib/routes/utils/clients';
+import devicesModule from '../../../lib/devices';
+import pushModule from '../../../lib/push';
 
+const assert = { ...sinon.assert, ...require('chai').assert };
 const EARLIEST_SANE_TIMESTAMP = 31536000000;
 
 function makeRoutes(options = {}, requireMocks) {
@@ -44,16 +47,16 @@ function makeRoutes(options = {}, requireMocks) {
       return Promise.resolve(true);
     },
   };
-  const push = options.push || require('../../../lib/push')(log, db, {});
+
+  const push = options.push || pushModule(log, db, {});
   const pushbox = options.pushbox || mocks.mockPushbox();
-  const clientUtils =
-    options.clientUtils ||
-    require('../../../lib/routes/utils/clients')(log, config);
+  const clientUtils = options.clientUtils || clientUtilsModule(log, config);
   const redis = options.redis || {};
-  return proxyquire(
+  const devicesAndSessionModule = proxyquire(
     '../../../lib/routes/devices-and-sessions',
     requireMocks || {}
-  )(
+  );
+  const devicesAndSession = devicesAndSessionModule.default(
     log,
     db,
     oauth,
@@ -61,10 +64,11 @@ function makeRoutes(options = {}, requireMocks) {
     customs,
     push,
     pushbox,
-    options.devices || require('../../../lib/devices')(log, db, oauth, push),
+    options.devices || devicesModule(log, db, oauth, push),
     clientUtils,
     redis
   );
+  return devicesAndSession;
 }
 
 async function runTest(route, request, onSuccess, onError) {

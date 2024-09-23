@@ -4,14 +4,13 @@
 
 'use strict';
 
-const ROOT_DIR = '../../..';
-
-const { assert } = require('chai');
-const config = require(`${ROOT_DIR}/config`).default.getProperties();
-const crypto = require('crypto');
-const mocks = require(`${ROOT_DIR}/test/mocks`);
-const senders = require(`${ROOT_DIR}/lib/senders`);
-const sinon = require('sinon');
+import { assert } from 'chai';
+import configModule from "../../../config";
+const config = configModule.getProperties();
+import crypto from 'crypto';
+import mocks from '../../../test/mocks';
+import senders from '../../../lib/senders';
+import sinon from 'sinon';
 
 const nullLog = mocks.mockLog();
 

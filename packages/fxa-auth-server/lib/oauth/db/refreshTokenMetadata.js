@@ -29,4 +29,4 @@ class RefreshTokenMetadata {
   }
 }
 
-module.exports = RefreshTokenMetadata;
+export default RefreshTokenMetadata;

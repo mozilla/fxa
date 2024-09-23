@@ -5,10 +5,11 @@
 /* eslint-disable no-console */
 
 'use strict';
-const MailParser = require('mailparser').MailParser;
-const simplesmtp = require('simplesmtp');
+import { MailParser } from 'mailparser';
+import simplesmtp from 'simplesmtp';
 
-const config = require('../config').default.getProperties();
+import configModule from "../config";
+const config = configModule.getProperties();
 
 const TEMPLATES_WITH_NO_CODE = new Set(['passwordResetEmail']);
 
@@ -21,7 +22,7 @@ function emailName(emailAddress) {
   return utf8Address.split('@')[0];
 }
 
-module.exports = (printLogs) => {
+export default (printLogs) => {
   printLogs = printLogs || process.env.MAIL_HELPER_LOGS;
   const console = printLogs
     ? global.console

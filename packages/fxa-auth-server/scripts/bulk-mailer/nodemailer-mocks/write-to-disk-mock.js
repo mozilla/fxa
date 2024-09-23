@@ -4,11 +4,11 @@
 
 'use strict';
 
-const fs = require('fs');
-const path = require('path');
-const NodemailerMock = require('./nodemailer-mock');
+import fs from 'fs';
+import path from 'path';
+import NodemailerMock from './nodemailer-mock';
 
-module.exports = class WriteToDiskMock extends NodemailerMock {
+export default class WriteToDiskMock extends NodemailerMock {
   constructor(config) {
     super(config);
 
@@ -36,7 +36,7 @@ module.exports = class WriteToDiskMock extends NodemailerMock {
 
     return super.sendMail(emailConfig, callback);
   }
-};
+}
 
 function ensureOutputDirExists(outputDir) {
   let dirStats;

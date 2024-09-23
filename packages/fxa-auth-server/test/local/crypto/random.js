@@ -4,9 +4,8 @@
 
 'use strict';
 
-const { assert } = require('chai');
-
-const random = require('../../../lib/crypto/random');
+import { assert } from 'chai';
+import random from '../../../lib/crypto/random';
 const base10 = random.base10;
 const base32 = random.base32;
 

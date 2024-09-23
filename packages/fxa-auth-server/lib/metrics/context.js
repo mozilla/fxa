@@ -4,10 +4,10 @@
 
 'use strict';
 
-const crypto = require('crypto');
-const HEX_STRING = require('../routes/validators').HEX_STRING;
-const isA = require('joi');
-const { MetricsRedis } = require('../metricsCache');
+import crypto from 'crypto';
+import { HEX_STRING } from '../routes/validators';
+import isA from 'joi';
+import { MetricsRedis } from '../metricsCache';
 
 const FLOW_ID_LENGTH = 64;
 
@@ -49,7 +49,7 @@ const SCHEMA = isA
   .unknown(false)
   .and('flowId', 'flowBeginTime');
 
-module.exports = function (log, config) {
+export default function (log, config) {
   const cache = new MetricsRedis(config);
 
   return {
@@ -349,7 +349,7 @@ module.exports = function (log, config) {
       this.payload.metricsContext.flowType = flowType;
     }
   }
-};
+}
 
 function calculateFlowTime(time, flowBeginTime) {
   if (time <= flowBeginTime) {
@@ -373,6 +373,7 @@ function getKey(token) {
 }
 
 // HACK: Force the API docs to expand SCHEMA inline
-module.exports.SCHEMA = SCHEMA;
-module.exports.schema = SCHEMA.optional();
-module.exports.requiredSchema = SCHEMA.required();
+export { SCHEMA };
+
+export const schema = SCHEMA.optional();
+export const requiredSchema = SCHEMA.required();

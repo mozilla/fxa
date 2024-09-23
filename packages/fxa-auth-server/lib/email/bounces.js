@@ -2,18 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict';
-
-const { default: Container } = require('typedi');
-const { StripeHelper } = require('../../lib/payments/stripe');
-
-const eaddrs = require('email-addresses');
-const utils = require('./utils/helpers');
-const isValidEmailAddress =
-  require('./../routes/validators').isValidEmailAddress;
+import { Container } from 'typedi';
+import { StripeHelper } from '../../lib/payments/stripe';
+import eaddrs from 'email-addresses';
+import utils from './utils/helpers';
+import { isValidEmailAddress } from './../routes/validators';
 const SIX_HOURS = 1000 * 60 * 60 * 6;
 
-module.exports = function (log, error) {
+export default function (log, error) {
   const stripeHelper = Container.get(StripeHelper);
 
   return function start(bounceQueue, db) {
@@ -186,4 +182,4 @@ module.exports = function (log, error) {
       handleBounce: handleBounce,
     };
   };
-};
+}

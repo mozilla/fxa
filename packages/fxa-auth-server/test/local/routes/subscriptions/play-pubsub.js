@@ -4,20 +4,16 @@
 
 'use strict';
 
-const sinon = require('sinon');
+import sinon from 'sinon';
 const assert = { ...sinon.assert, ...require('chai').assert };
-const uuid = require('uuid');
-const mocks = require('../../../mocks');
-
-const {
-  PlayPubsubHandler,
-} = require('../../../../lib/routes/subscriptions/play-pubsub');
-
-const { default: Container } = require('typedi');
-const { mockLog } = require('../../../mocks');
-const { AuthLogger } = require('../../../../lib/types');
-const { PlayBilling } = require('../../../../lib/payments/iap/google-play');
-const { CapabilityService } = require('../../../../lib/payments/capability');
+import * as uuid from 'uuid';
+import mocks from '../../../mocks';
+import { PlayPubsubHandler } from '../../../../lib/routes/subscriptions/play-pubsub';
+import { Container } from 'typedi';
+import { mockLog } from '../../../mocks';
+import { AuthLogger } from '../../../../lib/types';
+import { PlayBilling } from '../../../../lib/payments/iap/google-play';
+import { CapabilityService } from '../../../../lib/payments/capability';
 
 const ACCOUNT_LOCALE = 'en-US';
 const TEST_EMAIL = 'test@email.com';

@@ -4,9 +4,9 @@
 
 'use strict';
 
-const utils = require('./utils/helpers');
+import utils from './utils/helpers';
 
-module.exports = function (log) {
+export default function (log) {
   return function start(deliveryQueue) {
     async function handleDelivery(message) {
       utils.logErrorIfHeadersAreWeirdOrMissing(log, message, 'delivery');
@@ -55,4 +55,4 @@ module.exports = function (log) {
       handleDelivery: handleDelivery,
     };
   };
-};
+}

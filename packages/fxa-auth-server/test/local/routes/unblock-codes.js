@@ -4,11 +4,11 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const getRoute = require('../../routes_helpers').getRoute;
-const mocks = require('../../mocks');
-const proxyquire = require('proxyquire');
-const uuid = require('uuid');
+import { assert } from 'chai';
+import { getRoute } from '../../routes_helpers';
+import mocks from '../../mocks';
+import proxyquire from 'proxyquire';
+import * as uuid from 'uuid';
 
 function makeRoutes(options = {}, requireMocks) {
   const config = options.config || {};
@@ -20,7 +20,11 @@ function makeRoutes(options = {}, requireMocks) {
     },
   };
 
-  return proxyquire('../../../lib/routes/unblock-codes', requireMocks || {})(
+  const unblockCodesModule = proxyquire(
+    '../../../lib/routes/unblock-codes',
+    requireMocks || {}
+  );
+  return unblockCodesModule.default(
     log,
     db,
     options.mailer || {},

@@ -4,23 +4,19 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const {
-  SubscriptionStatus,
-  OfferType,
-  Environment,
-} = require('app-store-server-api/dist/cjs');
-const { deepCopy } = require('../../util');
+import { assert } from 'chai';
+import { SubscriptionStatus, OfferType, Environment } from 'app-store-server-api/dist/cjs';
+import { deepCopy } from '../../util';
 
-const {
+import {
   APPLE_APP_STORE_FORM_OF_PAYMENT,
   SUBSCRIPTION_PURCHASE_REQUIRED_PROPERTIES,
   AppStoreSubscriptionPurchase,
-} = require('../../../../../lib/payments/iap/apple-app-store/subscription-purchase');
+} from '../../../../../lib/payments/iap/apple-app-store/subscription-purchase';
 
-const appStoreApiResponse = require('../../fixtures/apple-app-store/api_response_subscription_status.json');
-const renewalInfo = require('../../fixtures/apple-app-store/decoded_renewal_info.json');
-const transactionInfo = require('../../fixtures/apple-app-store/decoded_transaction_info.json');
+import appStoreApiResponse from '../../fixtures/apple-app-store/api_response_subscription_status.json';
+import renewalInfo from '../../fixtures/apple-app-store/decoded_renewal_info.json';
+import transactionInfo from '../../fixtures/apple-app-store/decoded_transaction_info.json';
 
 describe('SubscriptionPurchase', () => {
   const autoRenewStatus = 1;

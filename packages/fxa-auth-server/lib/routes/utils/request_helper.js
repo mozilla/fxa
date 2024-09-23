@@ -22,7 +22,7 @@ function urlSafeBase64(hex) {
     .replace(/=/g, '');
 }
 
-module.exports = {
+export default {
   wantsKeys,
   urlSafeBase64,
 };

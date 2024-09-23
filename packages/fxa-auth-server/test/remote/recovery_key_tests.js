@@ -4,12 +4,14 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const config = require('../../config').default.getProperties();
-const crypto = require('crypto');
-const TestServer = require('../test_server');
-const Client = require('../client')();
-const { JWTool } = require('@fxa/vendored/jwtool');
+import { assert } from 'chai';
+import configModule from "../../config";
+const config = configModule.getProperties();
+import crypto from 'crypto';
+import TestServer from '../test_server';
+import ClientModule from "../client";
+const Client = ClientModule();
+import { JWTool } from '@fxa/vendored/jwtool';
 
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
   describe(`#integration${testOptions.version} - remote recovery keys`, function () {

@@ -4,10 +4,12 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const Client = require('../client')();
-const TestServer = require('../test_server');
-const config = require('../../config').default.getProperties();
+import { assert } from 'chai';
+import ClientModule from "../client";
+const Client = ClientModule();
+import TestServer from '../test_server';
+import configModule from "../../config";
+const config = configModule.getProperties();
 
 function resetPassword(client, code, newPassword, options) {
   return client.verifyPasswordResetCode(code).then(() => {

@@ -4,13 +4,12 @@
 
 'use strict';
 
-const ROOT_DIR = '../..';
 
-const sinon = require('sinon');
+import sinon from 'sinon';
 const assert = { ...sinon.assert, ...require('chai').assert };
-const mocks = require('../mocks');
-const error = require(`${ROOT_DIR}/lib/error.js`);
-const nock = require('nock');
+import mocks from '../mocks';
+import error from '../../lib/error.js';
+import nock from 'nock';
 
 const CUSTOMS_URL_REAL = 'http://localhost:7000';
 const CUSTOMS_URL_MISSING = 'http://localhost:7001';
@@ -18,7 +17,7 @@ const CUSTOMS_URL_MISSING = 'http://localhost:7001';
 const customsServer = nock(CUSTOMS_URL_REAL).defaultReplyHeaders({
   'Content-Type': 'application/json',
 });
-const Customs = require(`${ROOT_DIR}/lib/customs.js`);
+import Customs from '../../lib/customs.js';
 
 describe('Customs', () => {
   let customsNoUrl;

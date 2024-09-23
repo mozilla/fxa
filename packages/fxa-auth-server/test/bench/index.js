@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -6,9 +5,10 @@
 'use strict';
 
 /* eslint-disable no-console */
-const cp = require('child_process');
-const split = require('binary-split');
-const through = require('through');
+import cp from 'child_process';
+
+import split from 'binary-split';
+import through from 'through';
 
 let clientCount = 2;
 const pathStats = {};

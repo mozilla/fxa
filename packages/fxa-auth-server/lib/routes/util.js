@@ -4,14 +4,14 @@
 
 'use strict';
 
-const isA = require('joi');
-const random = require('../crypto/random');
-const validators = require('./validators');
-const UTIL_DOCS = require('../../docs/swagger/util-api').default;
+import isA from 'joi';
+import random from '../crypto/random';
+import * as validators from './validators';
+import { default as UTIL_DOCS } from '../../docs/swagger/util-api';
 
 const HEX_STRING = validators.HEX_STRING;
 
-module.exports = (log, config, redirectDomain) => {
+export default (log, config, redirectDomain) => {
   return [
     {
       method: 'POST',

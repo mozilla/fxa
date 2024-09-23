@@ -4,22 +4,14 @@
 
 'use strict';
 
-const sinon = require('sinon');
-const { assert } = require('chai');
-const { default: Container } = require('typedi');
-
-const { mockLog } = require('../../../../mocks');
-
-const {
-  UserManager,
-} = require('../../../../../lib/payments/iap/google-play/user-manager');
-const { AuthLogger } = require('../../../../../lib/types');
-const {
-  PlayStoreSubscriptionPurchase,
-} = require('../../../../../lib/payments/iap/google-play/subscription-purchase');
-const {
-  PurchaseQueryError,
-} = require('../../../../../lib/payments/iap/google-play/types');
+import sinon from 'sinon';
+import { assert } from 'chai';
+import { Container } from 'typedi';
+import { mockLog } from '../../../../mocks';
+import { UserManager } from '../../../../../lib/payments/iap/google-play/user-manager';
+import { AuthLogger } from '../../../../../lib/types';
+import { PlayStoreSubscriptionPurchase } from '../../../../../lib/payments/iap/google-play/subscription-purchase';
+import { PurchaseQueryError } from '../../../../../lib/payments/iap/google-play/types';
 
 const USER_ID = 'testUser';
 const VALID_SUB_API_RESPONSE = {

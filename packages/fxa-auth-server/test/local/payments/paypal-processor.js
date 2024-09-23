@@ -4,31 +4,22 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const sinon = require('sinon');
-const { Container } = require('typedi');
-
-const { PayPalHelper } = require('../../../lib/payments/paypal/helper');
-const { mockLog } = require('../../mocks');
-const { PaypalProcessor } = require('../../../lib/payments/paypal/processor');
-const { StripeHelper } = require('../../../lib/payments/stripe');
-const error = require('../../../lib/error');
-const paidInvoice = require('./fixtures/stripe/invoice_paid.json');
-const unpaidInvoice = require('./fixtures/stripe/invoice_open.json');
-const customer1 = require('./fixtures/stripe/customer1.json');
-const failedDoReferenceTransactionResponse = require('./fixtures/paypal/do_reference_transaction_failure.json');
-const {
-  PayPalClientError,
-  PayPalNVPError,
-  nvpToObject,
-  objectToNVP,
-} = require('@fxa/payments/paypal');
-const {
-  PAYPAL_BILLING_AGREEMENT_INVALID,
-  PAYPAL_SOURCE_ERRORS,
-} = require('../../../lib/payments/paypal/error-codes');
-const { CurrencyHelper } = require('../../../lib/payments/currencies');
-const { CapabilityService } = require('../../../lib/payments/capability');
+import { assert } from 'chai';
+import sinon from 'sinon';
+import { Container } from 'typedi';
+import { PayPalHelper } from '../../../lib/payments/paypal/helper';
+import { mockLog } from '../../mocks';
+import { PaypalProcessor } from '../../../lib/payments/paypal/processor';
+import { StripeHelper } from '../../../lib/payments/stripe';
+import error from '../../../lib/error';
+import paidInvoice from './fixtures/stripe/invoice_paid.json';
+import unpaidInvoice from './fixtures/stripe/invoice_open.json';
+import customer1 from './fixtures/stripe/customer1.json';
+import failedDoReferenceTransactionResponse from './fixtures/paypal/do_reference_transaction_failure.json';
+import { PayPalClientError, PayPalNVPError, nvpToObject, objectToNVP } from '@fxa/payments/paypal';
+import { PAYPAL_BILLING_AGREEMENT_INVALID, PAYPAL_SOURCE_ERRORS } from '../../../lib/payments/paypal/error-codes';
+import { CurrencyHelper } from '../../../lib/payments/currencies';
+import { CapabilityService } from '../../../lib/payments/capability';
 
 const sandbox = sinon.createSandbox();
 

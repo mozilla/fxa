@@ -5,44 +5,67 @@
 'use strict';
 
 // Important! Must be required first to get proper hooks in place.
-require('../lib/monitoring');
+import '../lib/monitoring';
 
-const { config } = require('../config');
+import { config } from '../config';
+import { CapabilityManager } from '@fxa/payments/capability';
+import { EligibilityManager } from '@fxa/payments/eligibility';
 
-const { CapabilityManager } = require('@fxa/payments/capability');
-const { EligibilityManager } = require('@fxa/payments/eligibility');
-const {
+import {
   ProductManager,
   PriceManager,
   SubscriptionManager,
-  PromotionCodeManager,
-} = require('@fxa/payments/customer');
-const { StripeClient } = require('@fxa/payments/stripe');
-const {
+  PromotionCodeManager
+} from '@fxa/payments/customer';
+import { StripeClient } from '@fxa/payments/stripe';
+
+import {
   ProductConfigurationManager,
   StrapiClient,
-} = require('@fxa/shared/cms');
-const TracingProvider = require('fxa-shared/tracing/node-tracing');
+} from '@fxa/shared/cms';
 
-const error = require('../lib/error');
-const { JWTool } = require('@fxa/vendored/jwtool');
-const { StatsD } = require('hot-shots');
-const { Container } = require('typedi');
-const { StripeHelper } = require('../lib/payments/stripe');
-const { PlayBilling } = require('../lib/payments/iap/google-play');
-const { CurrencyHelper } = require('../lib/payments/currencies');
-const { AuthLogger, AuthFirestore, AppConfig } = require('../lib/types');
-const { setupFirestore } = require('../lib/firestore-db');
-const { AppleIAP } = require('../lib/payments/iap/apple-app-store/apple-iap');
-const { AccountEventsManager } = require('../lib/account-events');
-const { AccountDeleteManager } = require('../lib/account-delete');
-const { gleanMetrics } = require('../lib/metrics/glean');
-const Customs = require('../lib/customs');
-const { ProfileClient } = require('@fxa/profile/client');
-const {
-  AccountTasks,
-  AccountTasksFactory,
-} = require('@fxa/shared/cloud-tasks');
+import { ProductConfigurationManager, StrapiClient } from '@fxa/shared/cms';
+import TracingProvider from 'fxa-shared/tracing/node-tracing';
+import error from '../lib/error';
+import { JWTool } from '@fxa/vendored/jwtool';
+import { StatsD } from 'hot-shots';
+import { Container } from 'typedi';
+import { StripeHelper } from '../lib/payments/stripe';
+import { PlayBilling } from '../lib/payments/iap/google-play';
+import { CurrencyHelper } from '../lib/payments/currencies';
+import {
+  AuthLogger,
+  AuthFirestore,
+  AppConfig,
+} from '../lib/types';
+import { ProfileClient } from '@fxa/profile/client';
+import { setupFirestore } from '../lib/firestore-db';
+import { AppleIAP } from '../lib/payments/iap/apple-app-store/apple-iap';
+import { AccountEventsManager } from '../lib/account-events';
+import { AccountDeleteManager } from '../lib/account-delete';
+import { gleanMetrics } from '../lib/metrics/glean';
+import Customs from '../lib/customs';
+import Profile from '../lib/profile/client';
+import { AccountTasks, AccountTasksFactory } from '@fxa/shared/cloud-tasks';
+import logMoudle from '../lib/log';
+import redisModule from '../lib/redis';
+import dbModule from '../lib/db';
+import tokensModule from '../lib/tokens';
+import pushModule from '../lib/push';
+import oauthDbModule from '../lib/oauth/db';
+import { pushboxApi } from '../lib/pushbox';
+import cryptoRandom from '../lib/crypto/random';
+import { createStripeHelper } from '../lib/payments/stripe';
+import { PayPalClient } from '@fxa/payments/paypal';
+import { PayPalHelper } from '../lib/payments/paypal/helper';
+import bouncesModule from '../lib/bounces';
+import sendersModule from '../lib/senders';
+import signerModule from '../lib/signer';
+import cryptoPasswordModule from '../lib/crypto/password';
+import { createZendeskClient } from '../lib/zendesk-client';
+import routesModule from '../lib/routes';
+import Server from '../lib/server';
+
 async function run(config) {
   Container.set(AppConfig, config);
 
@@ -61,7 +84,7 @@ async function run(config) {
       };
   Container.set(StatsD, statsd);
 
-  const log = require('../lib/log')({
+  const log = logMoudle({
     ...config.log,
     statsd,
     nodeTracer: TracingProvider.getCurrent(),
@@ -73,20 +96,20 @@ async function run(config) {
     Container.set(AuthFirestore, authFirestore);
   }
 
-  const sessionTokensRedis = require('../lib/redis')(
+  const sessionTokensRedis = redisModule(
     { ...config.redis, ...config.redis.sessionTokens },
     log
   );
-  const authServerCacheRedis = require('../lib/redis')(
+  const authServerCacheRedis = redisModule(
     { ...config.redis, ...config.redis.authServerCache },
     log
   );
 
-  const DB = require('../lib/db')(
+  const DB = dbModule(
     config,
     log,
-    require('../lib/tokens')(log, config),
-    require('../lib/crypto/random').base32(config.signinUnblock.codeLength)
+    tokensModule(log, config),
+    cryptoRandom.base32(config.signinUnblock.codeLength)
   );
   let database = null;
   try {
@@ -96,9 +119,9 @@ async function run(config) {
     process.exit(1);
   }
 
-  const oauthDb = require('../lib/oauth/db');
-  const push = require('../lib/push')(log, database, config, statsd);
-  const { pushboxApi } = require('../lib/pushbox');
+  const oauthDb = oauthDbModule;
+  const push = pushModule(log, database, config, statsd);
+
   const pushbox = pushboxApi(log, config, statsd);
 
   const accountEventsManager = config.accountEvents.enabled
@@ -162,13 +185,10 @@ async function run(config) {
       Container.set(EligibilityManager, eligibilityManager);
     }
 
-    const { createStripeHelper } = require('../lib/payments/stripe');
     stripeHelper = createStripeHelper(log, config, statsd);
     Container.set(StripeHelper, stripeHelper);
 
     if (config.subscriptions.paypalNvpSigCredentials.enabled) {
-      const { PayPalClient } = require('@fxa/payments/paypal');
-      const { PayPalHelper } = require('../lib/payments/paypal/helper');
       const paypalClient = new PayPalClient(
         config.subscriptions.paypalNvpSigCredentials
       );
@@ -211,8 +231,8 @@ async function run(config) {
     serviceName: 'subhub',
   });
   Container.set(ProfileClient, profile);
-  const bounces = require('../lib/bounces')(config, database);
-  const senders = await require('../lib/senders')(log, config, bounces, statsd);
+  const bounces = bouncesModule(config, database);
+  const senders = await sendersModule(log, config, bounces, statsd);
 
   const serverPublicKeys = {
     primary: JWTool.JWK.fromFile(config.publicKeyFile, {
@@ -228,18 +248,14 @@ async function run(config) {
         })
       : null,
   };
-  const signer = require('../lib/signer').default(
-    config.secretKeyFile,
-    config.domain
-  );
-  const Password = require('../lib/crypto/password')(log, config);
+  const signer = signerModule(config.secretKeyFile, config.domain);
+  const Password = cryptoPasswordModule(log, config);
   const customs = new Customs(config.customsUrl, log, error, statsd);
-  const zendeskClient = require('../lib/zendesk-client').createZendeskClient(
-    config
-  );
+
+  const zendeskClient = createZendeskClient(config);
   const glean = gleanMetrics(config);
 
-  const routes = require('../lib/routes')(
+  const routes = routesModule(
     log,
     serverPublicKeys,
     signer,
@@ -259,7 +275,6 @@ async function run(config) {
     authServerCacheRedis
   );
 
-  const Server = require('../lib/server');
   const server = await Server.create(
     log,
     error,

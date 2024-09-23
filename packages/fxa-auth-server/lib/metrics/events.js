@@ -4,7 +4,8 @@
 
 'use strict';
 
-const error = require('../error');
+import error from '../error';
+import amplitudeModule from './amplitude';
 
 const ACTIVITY_EVENTS = new Set([
   'account.changedPassword',
@@ -82,8 +83,8 @@ function shouldLogFlowEvent(event, service) {
   return true;
 }
 
-module.exports = (log, config, glean) => {
-  const amplitude = require('./amplitude')(log, config);
+export default (log, config, glean) => {
+  const amplitude = amplitudeModule(log, config);
 
   return {
     /**

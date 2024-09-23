@@ -2,10 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { assert } = require('chai');
-const proxyquire = require('proxyquire');
-const jsonwebtoken = require('jsonwebtoken');
-const JWT = require('../../lib/oauth/jwt');
+import { assert } from 'chai';
+
+import proxyquire from 'proxyquire';
+import jsonwebtoken from 'jsonwebtoken';
+import JWT from '../../lib/oauth/jwt';
 
 describe('lib/jwt', () => {
   describe('sign', () => {

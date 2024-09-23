@@ -4,27 +4,22 @@
 
 'use strict';
 
-const ROOT_DIR = '../..';
-
-const { assert } = require('chai');
-const { default: Container } = require('typedi');
-const { OAUTH_SCOPE_SUBSCRIPTIONS } = require('fxa-shared/oauth/constants');
-const clientFactory = require('../client')();
-const config = require(`${ROOT_DIR}/config`).default.getProperties();
-const error = require(`${ROOT_DIR}/lib/error`);
-const testServerFactory = require('../test_server');
-const { CapabilityService } = require('../../lib/payments/capability');
-const { StripeHelper } = require('../../lib/payments/stripe');
-const { AuthLogger } = require('../../lib/types');
-const { ProfileClient } = require('@fxa/profile/client');
-const {
-  PlaySubscriptions,
-} = require('../../lib/payments/iap/google-play/subscriptions');
-const {
-  AppStoreSubscriptions,
-} = require('../../lib/payments/iap/apple-app-store/subscriptions');
-
-const { CapabilityManager } = require('@fxa/payments/capability');
+import { assert } from 'chai';
+import { Container } from 'typedi';
+import { OAUTH_SCOPE_SUBSCRIPTIONS } from 'fxa-shared/oauth/constants';
+import clientFactoryModule from '../client';
+const clientFactory = clientFactoryModule();
+import configModule from '../../config';
+const config = configModule.getProperties();
+import error from '../../lib/error';
+import testServerFactory from '../test_server';
+import { CapabilityService } from '../../lib/payments/capability';
+import { StripeHelper } from '../../lib/payments/stripe';
+import { AuthLogger } from '../../lib/types';
+import { ProfileClient } from '@fxa/profile/client';
+import { PlaySubscriptions } from '../../lib/payments/iap/google-play/subscriptions';
+import { AppStoreSubscriptions } from '../../lib/payments/iap/apple-app-store/subscriptions';
+import { CapabilityManager } from '@fxa/payments/capability';
 
 const validClients = config.oauthServer.clients.filter(
   (client) => client.trusted && client.canGrant && client.publicClient

@@ -4,16 +4,16 @@
 
 'use strict';
 
-const utils = require('./utils/helpers');
-const { default: Container } = require('typedi');
-const { StripeHelper } = require('../../lib/payments/stripe');
+import utils from './utils/helpers';
+import { Container } from 'typedi';
+import { StripeHelper } from '../../lib/payments/stripe';
 
 // Account deletion threshold for new unverified accounts that receive
 // a bounce or complaint notification. Unverified accounts younger than
 // 6 hours old will be deleted if a bounce or complaint occurs.
 const SIX_HOURS = 1000 * 60 * 60 * 6;
 
-module.exports = (log, error) => {
+export default (log, error) => {
   const stripeHelper = Container.get(StripeHelper);
   return (queue, db) => {
     queue.start();

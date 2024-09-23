@@ -4,19 +4,22 @@
 
 'use strict';
 
-const butil = require('../crypto/butil');
-const emailUtils = require('./utils/email');
-const error = require('../error');
-const isA = require('joi');
-const random = require('../crypto/random');
-const Sentry = require('@sentry/node');
-const validators = require('./validators');
-const { emailsMatch, normalizeEmail } = require('fxa-shared').email.helpers;
-const { recordSecurityEvent } = require('./utils/security-event');
-const EMAILS_DOCS = require('../../docs/swagger/emails-api').default;
-const DESCRIPTION = require('../../docs/swagger/shared/descriptions').default;
+import butil from '../crypto/butil';
+import emailUtils from './utils/email';
+import error from '../error';
+import isA from 'joi';
+import random from '../crypto/random';
+import Sentry from '@sentry/node';
+import * as validators from './validators';
+import { email } from 'fxa-shared';
+import { recordSecurityEvent } from './utils/security-event';
+import { default as EMAILS_DOCS } from '../../docs/swagger/emails-api';
+import { default as DESCRIPTION } from '../../docs/swagger/shared/descriptions';
+import otpUtilsModule from '../../lib/routes/utils/otp';
+
 const HEX_STRING = validators.HEX_STRING;
 const MAX_SECONDARY_EMAILS = 3;
+const { emailsMatch, normalizeEmail } = email.helpers;
 
 async function updateZendeskPrimaryEmail(
   zendeskClient,
@@ -76,7 +79,7 @@ async function updateStripeEmail(
   });
 }
 
-module.exports = (
+export default (
   log,
   db,
   mailer,
@@ -95,7 +98,7 @@ module.exports = (
   );
 
   const otpOptions = config.otp;
-  const otpUtils = require('../../lib/routes/utils/otp')(log, config, db);
+  const otpUtils = otpUtilsModule(log, config, db);
 
   return [
     {
@@ -1069,5 +1072,6 @@ module.exports = (
 };
 
 // Exported for testing purposes.
-module.exports._updateZendeskPrimaryEmail = updateZendeskPrimaryEmail;
-module.exports._updateStripeEmail = updateStripeEmail;
+export { updateZendeskPrimaryEmail as _updateZendeskPrimaryEmail };
+
+export { updateStripeEmail as _updateStripeEmail };

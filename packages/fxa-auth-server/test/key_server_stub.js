@@ -4,4 +4,4 @@
 
 'use strict';
 
-require('../bin/key_server.js');
+import '../bin/key_server.js';

@@ -4,12 +4,12 @@
 
 'use strict';
 
-const AWS = require('aws-sdk');
-const inherits = require('util').inherits;
-const EventEmitter = require('events').EventEmitter;
-const URL = require('url').URL;
+import AWS from 'aws-sdk';
+import { inherits } from 'util';
+import { EventEmitter } from 'events';
+import { URL } from 'url';
 
-module.exports = function (log, statsd) {
+export default function (log, statsd) {
   function SQSReceiver(region, urls) {
     this.sqs = new AWS.SQS({ region: region });
     this.queueUrls = urls || [];
@@ -96,4 +96,4 @@ module.exports = function (log, statsd) {
   };
 
   return SQSReceiver;
-};
+}

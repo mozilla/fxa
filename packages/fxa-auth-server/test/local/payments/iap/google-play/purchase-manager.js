@@ -4,19 +4,20 @@
 
 'use strict';
 
-const sinon = require('sinon');
-const { assert } = require('chai');
-const { default: Container } = require('typedi');
-const proxyquire = require('proxyquire').noPreserveCache();
+import sinon from 'sinon';
+import { assert } from 'chai';
+import { Container } from 'typedi';
+import proxyquireModule from 'proxyquire';
+const proxyquire = proxyquireModule.noPreserveCache();
 
-const { mockLog } = require('../../../../mocks');
-const { AuthLogger } = require('../../../../../lib/types');
-const {
+import { mockLog } from '../../../../mocks';
+import { AuthLogger } from '../../../../../lib/types';
+import {
   PurchaseQueryError,
   SkuType,
   PurchaseUpdateError,
   NotificationType,
-} = require('../../../../../lib/payments/iap/google-play/types');
+} from '../../../../../lib/payments/iap/google-play/types';
 
 const mockSubscriptionPurchase = {};
 const mockMergePurchase = sinon.fake.returns({});

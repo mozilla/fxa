@@ -4,9 +4,9 @@
 
 'use strict';
 
-const createMailer = require('./email');
+import createMailer from './email';
 
-module.exports = async (
+export default async (
   log,
   config,
   bounces,

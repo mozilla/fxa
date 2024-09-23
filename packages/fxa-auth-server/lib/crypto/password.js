@@ -4,11 +4,12 @@
 
 'use strict';
 
-const hkdf = require('./hkdf');
-const butil = require('./butil');
+import hkdf from './hkdf';
+import butil from './butil';
+import scriptModule from './scrypt';
 
-module.exports = function (log, config) {
-  const scrypt = require('./scrypt')(log, config);
+export default function (log, config) {
+  const scrypt = scriptModule(log, config);
 
   const hashVersions = {
     0: function (authPW, authSalt) {
@@ -70,4 +71,4 @@ module.exports = function (log, config) {
   };
 
   return Password;
-};
+}

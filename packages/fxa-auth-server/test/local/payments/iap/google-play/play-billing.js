@@ -4,17 +4,12 @@
 
 'use strict';
 
-const sinon = require('sinon');
-const { assert } = require('chai');
-const { default: Container } = require('typedi');
-
-const { mockLog } = require('../../../../mocks');
-const {
-  AuthFirestore,
-  AuthLogger,
-  AppConfig,
-} = require('../../../../../lib/types');
-const { PlayBilling } = require('../../../../../lib/payments/iap/google-play');
+import sinon from 'sinon';
+import { assert } from 'chai';
+import { Container } from 'typedi';
+import { mockLog } from '../../../../mocks';
+import { AuthFirestore, AuthLogger, AppConfig } from '../../../../../lib/types';
+import { PlayBilling } from '../../../../../lib/payments/iap/google-play';
 
 const mockConfig = {
   authFirestore: {

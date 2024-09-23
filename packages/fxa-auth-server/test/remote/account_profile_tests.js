@@ -4,10 +4,12 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const TestServer = require('../test_server');
-const Client = require('../client')();
-const config = require('../../config').default.getProperties();
+import { assert } from 'chai';
+import TestServer from '../test_server';
+import ClientModule from "../client";
+const Client = ClientModule();
+import configModule from "../../config";
+const config = configModule.getProperties();
 
 const CLIENT_ID = config.oauthServer.clients.find(
   (client) => client.trusted && client.canGrant && client.publicClient

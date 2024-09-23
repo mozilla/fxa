@@ -4,11 +4,10 @@
 
 'use strict';
 
-const sinon = require('sinon');
+import sinon from 'sinon';
 const assert = { ...sinon.assert, ...require('chai').assert };
-const proxyquire = require('proxyquire');
-
-const { mockRequest, mockMetricsContext } = require('../mocks');
+import proxyquire from 'proxyquire';
+import { mockRequest, mockMetricsContext } from '../mocks';
 const mockAmplitudeConfig = { schemaValidation: true };
 
 let sentryScope, mockSentry;

@@ -6,9 +6,9 @@
 
 const ROOT_DIR = '../..';
 
-const cp = require('child_process');
-const util = require('util');
-const path = require('path');
+import cp from 'child_process';
+import util from 'util';
+import path from 'path';
 
 const execAsync = util.promisify(cp.exec);
 

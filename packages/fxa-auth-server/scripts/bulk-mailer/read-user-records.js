@@ -10,7 +10,7 @@
  * @param {String} userRecordsPath JSON file that contains user records
  * @returns {Promise} resolves to an array of user records when complete
  */
-module.exports = async function readUserRecords(userRecordsPath) {
+export default async function readUserRecords(userRecordsPath) {
   const records = require(userRecordsPath);
 
   if (!records || !records.length) {

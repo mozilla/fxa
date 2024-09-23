@@ -4,16 +4,16 @@
 
 'use strict';
 
-const ROOT_DIR = '../..';
 const REMINDERS = ['first', 'second', 'third'];
 const EXPECTED_CREATE_DELETE_RESULT = REMINDERS.reduce((expected, reminder) => {
   expected[reminder] = 1;
   return expected;
 }, {});
 
-const { assert } = require('chai');
-const config = require(`${ROOT_DIR}/config`).default.getProperties();
-const mocks = require('../mocks');
+import { assert } from 'chai';
+import configModule from "../../config";
+const config = configModule.getProperties();
+import mocks from '../mocks';
 
 describe('#integration - lib/subscription-account-reminders', () => {
   let log, mockConfig, redis, subscriptionAccountReminders;
@@ -43,10 +43,7 @@ describe('#integration - lib/subscription-account-reminders', () => {
       mocks.mockLog()
     );
     subscriptionAccountReminders =
-      require(`${ROOT_DIR}/lib/subscription-account-reminders`)(
-        log,
-        mockConfig
-      );
+      require('../../lib/subscription-account-reminders')(log, mockConfig);
   });
 
   afterEach(() => {

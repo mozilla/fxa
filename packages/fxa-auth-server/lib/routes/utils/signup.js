@@ -3,11 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 'use strict';
-const ScopeSet = require('fxa-shared').oauth.scopes;
-const { OAUTH_SCOPE_OLD_SYNC } = require('fxa-shared/oauth/constants');
+import ScopeSetModule from "fxa-shared";
+const ScopeSet = ScopeSetModule.oauth.scopes;
+import { OAUTH_SCOPE_OLD_SYNC } from 'fxa-shared/oauth/constants';
 const NOTIFICATION_SCOPES = ScopeSet.fromArray([OAUTH_SCOPE_OLD_SYNC]);
 
-module.exports = (log, db, mailer, push, verificationReminders, glean) => {
+export default (log, db, mailer, push, verificationReminders, glean) => {
   return {
     /**
      * Verify the account with the specified options. This function takes

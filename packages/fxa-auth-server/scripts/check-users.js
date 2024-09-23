@@ -13,11 +13,12 @@
 //
 // Usage: node scripts/check-users.js -i <input file> -o <output file>
 
-const fs = require('fs');
-const path = require('path');
-const program = require('commander');
-const pbkdf2 = require('../lib/crypto/pbkdf2');
-const hkdf = require('../lib/crypto/hkdf');
+import fs from 'fs';
+
+import path from 'path';
+import program from 'commander';
+import pbkdf2 from '../lib/crypto/pbkdf2';
+import hkdf from '../lib/crypto/hkdf';
 
 program
   .option('-d, --delimiter [delimiter]', 'Delimiter for input file', ':')
@@ -33,11 +34,16 @@ if (!program.input) {
   process.exit(1);
 }
 
-const log = require('../lib/log')({});
-const config = require('../config').config.getProperties();
-const Token = require('../lib/tokens')(log, config);
-const AuthDB = require('../lib/db')(config, log, Token);
-const Password = require('../lib/crypto/password')(log, config);
+import logModule from "../lib/log";
+const log = logModule({});
+import configModule from "../config";
+const config = configModule.config.getProperties();
+import TokenModule from "../lib/tokens";
+const Token = TokenModule(log, config);
+import AuthDBModule from "../lib/db";
+const AuthDB = AuthDBModule(config, log, Token);
+import PasswordModule from "../lib/crypto/password";
+const Password = PasswordModule(log, config);
 
 function sanitizeValue(v) {
   if (v === undefined || v === null) {

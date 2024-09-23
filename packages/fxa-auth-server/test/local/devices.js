@@ -4,13 +4,13 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const sinon = require('sinon');
-const proxyquire = require('proxyquire');
-const crypto = require('crypto');
-const mocks = require('../mocks');
-const error = require('../../lib/error');
-const uuid = require('uuid');
+import { assert } from 'chai';
+import sinon from 'sinon';
+import proxyquire from 'proxyquire';
+import crypto from 'crypto';
+import mocks from '../mocks';
+import error from '../../lib/error';
+import * as uuid from 'uuid';
 
 describe('lib/devices:', () => {
   describe('instantiate:', () => {

@@ -4,15 +4,15 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const sinon = require('sinon');
-const { deepCopy } = require('./util');
-const { MozillaSubscriptionTypes } = require('fxa-shared/subscriptions/types');
+import { assert } from 'chai';
+import sinon from 'sinon';
+import { deepCopy } from './util';
+import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
 
-const {
+import {
   appStoreSubscriptionPurchaseToAppStoreSubscriptionDTO,
   playStoreSubscriptionPurchaseToPlayStoreSubscriptionDTO,
-} = require('../../../lib/payments/iap/iap-formatter.ts');
+} from '../../../lib/payments/iap/iap-formatter.ts';
 
 const mockExtraStripeInfo = {
   price_id: 'price_lol',

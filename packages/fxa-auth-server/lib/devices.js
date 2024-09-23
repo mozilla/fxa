@@ -4,21 +4,18 @@
 
 'use strict';
 
-const isA = require('joi');
-const Sentry = require('@sentry/node');
-const DESCRIPTION = require('../docs/swagger/shared/descriptions').default;
-const validators = require('./routes/validators');
-const error = require('./error');
-const oauthDB = require('./oauth/db');
-const { DISPLAY_SAFE_UNICODE_WITH_NON_BMP, HEX_STRING, URL_SAFE_BASE_64 } =
-  validators;
-const PUSH_SERVER_REGEX = require('../config').default.get(
-  'push.allowedServerRegex'
-);
-const { synthesizeClientName } = require('fxa-shared/connected-services');
+import isA from 'joi';
+import Sentry from '@sentry/node';
+import { default as DESCRIPTION } from '../docs/swagger/shared/descriptions';
+import * as validators from './routes/validators';
+import error from './error';
+import oauthDB from './oauth/db';
+import config from '../config';
+import { synthesizeClientName } from 'fxa-shared/connected-services';
 
+const PUSH_SERVER_REGEX = config.get('push.allowedServerRegex');
 const SCHEMA = {
-  id: isA.string().length(32).regex(HEX_STRING),
+  id: isA.string().length(32).regex(validators.HEX_STRING),
   location: isA
     .object({
       city: isA.string().optional().allow(null),
@@ -27,7 +24,10 @@ const SCHEMA = {
       stateCode: isA.string().optional().allow(null),
     })
     .description(DESCRIPTION.location),
-  name: isA.string().max(255).regex(DISPLAY_SAFE_UNICODE_WITH_NON_BMP),
+  name: isA
+    .string()
+    .max(255)
+    .regex(validators.DISPLAY_SAFE_UNICODE_WITH_NON_BMP),
   // We previously allowed devices to register with arbitrary unicode names,
   // so we can't assert DISPLAY_SAFE_UNICODE_WITH_NON_BMP in the response schema.
   nameResponse: isA.string().max(255).allow(''),
@@ -37,8 +37,16 @@ const SCHEMA = {
     .regex(PUSH_SERVER_REGEX)
     .max(255)
     .allow(''),
-  pushPublicKey: isA.string().max(88).regex(URL_SAFE_BASE_64).allow(''),
-  pushAuthKey: isA.string().max(24).regex(URL_SAFE_BASE_64).allow(''),
+  pushPublicKey: isA
+    .string()
+    .max(88)
+    .regex(validators.URL_SAFE_BASE_64)
+    .allow(''),
+  pushAuthKey: isA
+    .string()
+    .max(24)
+    .regex(validators.URL_SAFE_BASE_64)
+    .allow(''),
   pushEndpointExpired: isA.boolean().strict(),
   // An object mapping command names to metadata bundles.
   availableCommands: isA
@@ -46,7 +54,7 @@ const SCHEMA = {
     .pattern(validators.DEVICE_COMMAND_NAME, isA.string().max(2048)),
 };
 
-module.exports = (log, db, push, pushbox) => {
+export default (log, db, push, pushbox) => {
   return { isSpuriousUpdate, upsert, destroy, synthesizeName };
 
   // Clients have been known to send spurious device updates,
@@ -226,7 +234,7 @@ module.exports = (log, db, push, pushbox) => {
   }
 };
 
-module.exports.schema = SCHEMA;
+export { SCHEMA as schema };
 
 function isLike(object, archetype) {
   return Object.entries(archetype).every(

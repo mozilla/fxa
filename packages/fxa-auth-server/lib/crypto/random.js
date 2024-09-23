@@ -4,8 +4,9 @@
 
 'use strict';
 
-const assert = require('assert');
-const randomBytes = require('util').promisify(require('crypto').randomBytes);
+import assert from 'assert';
+import randomBytesModule from "util";
+const randomBytes = randomBytesModule.promisify(require('crypto').randomBytes);
 
 const BASE32 = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
 const BASE10 = '0123456789';
@@ -65,4 +66,4 @@ random.base32 = function (len) {
   return () => randomValue(BASE32, len);
 };
 
-module.exports = random;
+export default random;

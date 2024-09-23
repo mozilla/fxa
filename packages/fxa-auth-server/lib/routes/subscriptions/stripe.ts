@@ -44,7 +44,7 @@ import {
 } from '../../payments/stripe-formatter';
 import { AuthLogger, AuthRequest, TaxAddress } from '../../types';
 import { sendFinishSetupEmailForStubAccount } from '../subscriptions/account';
-import validators from '../validators';
+import * as validators from '../validators';
 import { handleAuth } from './utils';
 import { generateIdempotencyKey } from '../../payments/utils';
 import { deleteAccountIfUnverified } from '../utils/account';

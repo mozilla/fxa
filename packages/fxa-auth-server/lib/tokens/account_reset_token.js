@@ -4,9 +4,9 @@
 
 'use strict';
 
-const inherits = require('util').inherits;
+import { inherits } from 'util';
 
-module.exports = function (log, Token, lifetime) {
+export default function (log, Token, lifetime) {
   function AccountResetToken(keys, details) {
     details.lifetime = lifetime;
     Token.call(this, keys, details);
@@ -27,4 +27,4 @@ module.exports = function (log, Token, lifetime) {
   };
 
   return AccountResetToken;
-};
+}

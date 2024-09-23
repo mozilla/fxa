@@ -4,17 +4,16 @@
 
 'use strict';
 
-const sinon = require('sinon');
-const { assert } = require('chai');
+import sinon from 'sinon';
+import { assert } from 'chai';
+import mocks from '../../mocks';
+import { getRoute } from '../../routes_helpers';
+import * as uuid from 'uuid';
+import crypto from 'crypto';
+import error from '../../../lib/error';
+import log from '../../../lib/log';
+import random from '../../../lib/crypto/random';
 
-const mocks = require('../../mocks');
-const getRoute = require('../../routes_helpers').getRoute;
-
-const uuid = require('uuid');
-const crypto = require('crypto');
-const error = require('../../../lib/error');
-const log = require('../../../lib/log');
-const random = require('../../../lib/crypto/random');
 const glean = mocks.mockGlean();
 
 const TEST_EMAIL = 'foo@gmail.com';

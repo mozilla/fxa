@@ -4,22 +4,21 @@
 
 'use strict';
 
-const emailUtils = require('../email/utils/helpers');
-const moment = require('moment-timezone');
-const AWS = require('aws-sdk');
-const nodemailer = require('nodemailer');
-const safeUserAgent = require('fxa-shared/lib/user-agent').default;
-const url = require('url');
-const { URL } = url;
-const {
-  localizedPlanConfig,
-} = require('fxa-shared/subscriptions/configuration/utils');
-const { productDetailsFromPlan } = require('fxa-shared').subscriptions.metadata;
-const Renderer = require('./renderer').default;
-const { NodeRendererBindings } = require('./renderer/bindings-node');
-const { determineLocale } = require('../../../../libs/shared/l10n/src');
+import emailUtils from '../email/utils/helpers';
+import moment from 'moment-timezone';
+import AWS from 'aws-sdk';
+import nodemailer from 'nodemailer';
+import { default as safeUserAgent } from 'fxa-shared/lib/user-agent';
+import { URL } from 'url';
+import { localizedPlanConfig } from 'fxa-shared/subscriptions/configuration/utils';
+import { subscriptions } from 'fxa-shared';
 
-const TEMPLATE_VERSIONS = require('./emails/templates/_versions.json');
+import { default as Renderer } from './renderer';
+import { NodeRendererBindings } from './renderer/bindings-node';
+import { determineLocale } from '../../../../libs/shared/l10n/src';
+import TEMPLATE_VERSIONS from './emails/templates/_versions.json';
+
+const { productDetailsFromPlan } = subscriptions.metadata;
 
 const DEFAULT_LOCALE = 'en';
 const DEFAULT_TIMEZONE = 'Etc/UTC';
@@ -28,7 +27,7 @@ const UTM_PREFIX = 'fx-';
 const X_SES_CONFIGURATION_SET = 'X-SES-CONFIGURATION-SET';
 const X_SES_MESSAGE_TAGS = 'X-SES-MESSAGE-TAGS';
 
-module.exports = function (log, config, bounces) {
+export default function (log, config, bounces) {
   const oauthClientInfo = require('./oauth_client_info')(log, config);
   const verificationReminders = require('../verification-reminders')(
     log,
@@ -3147,7 +3146,7 @@ module.exports = function (log, config, bounces) {
   };
 
   return Mailer;
-};
+}
 
 function optionalHeader(key, value) {
   if (value) {

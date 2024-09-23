@@ -4,16 +4,16 @@
 
 'use strict';
 
-const ROOT_DIR = '../..';
 const REMINDERS = ['first', 'second', 'third'];
 const EXPECTED_CREATE_DELETE_RESULT = REMINDERS.reduce((expected, reminder) => {
   expected[reminder] = 1;
   return expected;
 }, {});
 
-const { assert } = require('chai');
-const config = require(`${ROOT_DIR}/config`).default.getProperties();
-const mocks = require('../mocks');
+import { assert } from 'chai';
+import configModule from "../../config";
+const config = configModule.getProperties();
+import mocks from '../mocks';
 
 describe('lib/cad-reminders', () => {
   let log, mockConfig, redis, cadReminders;
@@ -42,7 +42,7 @@ describe('lib/cad-reminders', () => {
       },
       mocks.mockLog()
     );
-    cadReminders = require(`${ROOT_DIR}/lib/cad-reminders`)(mockConfig, log);
+    cadReminders = require('../../lib/cad-reminders')(mockConfig, log);
   });
 
   afterEach(async () => {

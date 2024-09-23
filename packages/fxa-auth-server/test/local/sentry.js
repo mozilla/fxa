@@ -4,19 +4,18 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const EndpointError = require('poolee/lib/error')(require('util').inherits);
-const sinon = require('sinon');
-const verror = require('verror');
-const Hapi = require('@hapi/hapi');
-const Sentry = require('@sentry/node');
-const error = require('../../lib/error');
+import { assert } from 'chai';
+import EndpointErrorModule from "poolee/lib/error";
+const EndpointError = EndpointErrorModule(require('util').inherits);
+import sinon from 'sinon';
+import verror from 'verror';
+import Hapi from '@hapi/hapi';
+import Sentry from '@sentry/node';
+import error from '../../lib/error';
 
-const config = require('../../config').default.getProperties();
-const {
-  configureSentry,
-  formatMetadataValidationErrorMessage,
-} = require('../../lib/sentry');
+import configModule from "../../config";
+const config = configModule.getProperties();
+import { configureSentry, formatMetadataValidationErrorMessage } from '../../lib/sentry';
 
 const sandbox = sinon.createSandbox();
 

@@ -4,21 +4,20 @@
 
 'use strict';
 
-const ROOT_DIR = '../..';
-
-const { assert } = require('chai');
-const EndpointError = require('poolee/lib/error')(require('util').inherits);
-const error = require(`${ROOT_DIR}/lib/error`);
-const knownIpLocation = require('../known-ip-location');
-const mocks = require('../mocks');
-const proxyquire = require('proxyquire');
-const sinon = require('sinon');
-const { Account } = require('fxa-shared/db/models/auth/account');
+import { assert } from 'chai';
+import EndpointErrorModule from "poolee/lib/error";
+const EndpointError = EndpointErrorModule(require('util').inherits);
+import error from '../../lib/error';
+import knownIpLocation from '../known-ip-location';
+import mocks from '../mocks';
+import proxyquire from 'proxyquire';
+import sinon from 'sinon';
+import { Account } from 'fxa-shared/db/models/auth/account';
 const glean = mocks.mockGlean();
 
 const sandbox = sinon.createSandbox();
 const mockReportValidationError = sandbox.stub();
-const server = proxyquire(`${ROOT_DIR}/lib/server`, {
+const server = proxyquire(`../../lib/server`, {
   'fxa-shared/sentry/report-validation-error': {
     reportValidationError: mockReportValidationError,
   },

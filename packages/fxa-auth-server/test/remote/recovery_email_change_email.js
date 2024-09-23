@@ -4,9 +4,10 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const TestServer = require('../test_server');
-const Client = require('../client')();
+import { assert } from 'chai';
+import TestServer from '../test_server';
+import ClientModule from "../client";
+const Client = ClientModule();
 
 let config, server, client, email, secondEmail;
 const password = 'allyourbasearebelongtous',

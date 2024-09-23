@@ -4,55 +4,51 @@
 
 'use strict';
 
-const sinon = require('sinon');
+import sinon from 'sinon';
 const assert = { ...sinon.assert, ...require('chai').assert };
-const uuid = require('uuid');
-const mocks = require('../../../mocks');
-const error = require('../../../../lib/error');
-const Sentry = require('@sentry/node');
-const {
+import * as uuid from 'uuid';
+import mocks from '../../../mocks';
+import error from '../../../../lib/error';
+import Sentry from '@sentry/node';
+import {
   StripeHelper,
   SUBSCRIPTION_UPDATE_TYPES,
   CUSTOMER_RESOURCE,
-} = require('../../../../lib/payments/stripe');
-const moment = require('moment');
-const authDbModule = require('fxa-shared/db/models/auth');
-
-const {
-  StripeWebhookHandler,
-} = require('../../../../lib/routes/subscriptions/stripe-webhook');
-
-const customerFixture = require('../../payments/fixtures/stripe/customer1.json');
-const invoiceFixture = require('../../payments/fixtures/stripe/invoice_paid.json');
-const subscriptionCreated = require('../../payments/fixtures/stripe/subscription_created.json');
-const subscriptionCreatedIncomplete = require('../../payments/fixtures/stripe/subscription_created_incomplete.json');
-const subscriptionDeleted = require('../../payments/fixtures/stripe/subscription_deleted.json');
-const subscriptionUpdated = require('../../payments/fixtures/stripe/subscription_updated.json');
-const subscriptionUpdatedFromIncomplete = require('../../payments/fixtures/stripe/subscription_updated_from_incomplete.json');
-const eventInvoiceCreated = require('../../payments/fixtures/stripe/event_invoice_created.json');
-const eventInvoicePaid = require('../../payments/fixtures/stripe/event_invoice_paid.json');
-const eventInvoicePaymentFailed = require('../../payments/fixtures/stripe/event_invoice_payment_failed.json');
-const eventInvoiceUpcoming = require('../../payments/fixtures/stripe/event_invoice_upcoming.json');
-const eventCouponCreated = require('../../payments/fixtures/stripe/event_coupon_created.json');
-const eventCustomerUpdated = require('../../payments/fixtures/stripe/event_customer_updated.json');
-const eventCustomerSubscriptionUpdated = require('../../payments/fixtures/stripe/event_customer_subscription_updated.json');
-const eventCustomerSourceExpiring = require('../../payments/fixtures/stripe/event_customer_source_expiring.json');
-const eventProductUpdated = require('../../payments/fixtures/stripe/product_updated_event.json');
-const eventPlanUpdated = require('../../payments/fixtures/stripe/plan_updated_event.json');
-const eventCreditNoteCreated = require('../../payments/fixtures/stripe/event_credit_note_created.json');
-const eventTaxRateCreated = require('../../payments/fixtures/stripe/event_tax_rate_created.json');
-const eventTaxRateUpdated = require('../../payments/fixtures/stripe/event_tax_rate_created.json');
-const { default: Container } = require('typedi');
-const { PayPalHelper } = require('../../../../lib/payments/paypal/helper');
-const { CapabilityService } = require('../../../../lib/payments/capability');
-const { CurrencyHelper } = require('../../../../lib/payments/currencies');
-const { asyncIterable } = require('../../../mocks');
-const { RefusedError } = require('../../../../lib/payments/paypal/error');
-const { RefundType } = require('@fxa/payments/paypal');
-const {
+} from '../../../../lib/payments/stripe';
+import moment from 'moment';
+import authDbModule from 'fxa-shared/db/models/auth';
+import { StripeWebhookHandler } from '../../../../lib/routes/subscriptions/stripe-webhook';
+import customerFixture from '../../payments/fixtures/stripe/customer1.json';
+import invoiceFixture from '../../payments/fixtures/stripe/invoice_paid.json';
+import subscriptionCreated from '../../payments/fixtures/stripe/subscription_created.json';
+import subscriptionCreatedIncomplete from '../../payments/fixtures/stripe/subscription_created_incomplete.json';
+import subscriptionDeleted from '../../payments/fixtures/stripe/subscription_deleted.json';
+import subscriptionUpdated from '../../payments/fixtures/stripe/subscription_updated.json';
+import subscriptionUpdatedFromIncomplete from '../../payments/fixtures/stripe/subscription_updated_from_incomplete.json';
+import eventInvoiceCreated from '../../payments/fixtures/stripe/event_invoice_created.json';
+import eventInvoicePaid from '../../payments/fixtures/stripe/event_invoice_paid.json';
+import eventInvoicePaymentFailed from '../../payments/fixtures/stripe/event_invoice_payment_failed.json';
+import eventInvoiceUpcoming from '../../payments/fixtures/stripe/event_invoice_upcoming.json';
+import eventCouponCreated from '../../payments/fixtures/stripe/event_coupon_created.json';
+import eventCustomerUpdated from '../../payments/fixtures/stripe/event_customer_updated.json';
+import eventCustomerSubscriptionUpdated from '../../payments/fixtures/stripe/event_customer_subscription_updated.json';
+import eventCustomerSourceExpiring from '../../payments/fixtures/stripe/event_customer_source_expiring.json';
+import eventProductUpdated from '../../payments/fixtures/stripe/product_updated_event.json';
+import eventPlanUpdated from '../../payments/fixtures/stripe/plan_updated_event.json';
+import eventCreditNoteCreated from '../../payments/fixtures/stripe/event_credit_note_created.json';
+import eventTaxRateCreated from '../../payments/fixtures/stripe/event_tax_rate_created.json';
+import eventTaxRateUpdated from '../../payments/fixtures/stripe/event_tax_rate_created.json';
+import { Container } from 'typedi';
+import { PayPalHelper } from '../../../../lib/payments/paypal/helper';
+import { CapabilityService } from '../../../../lib/payments/capability';
+import { CurrencyHelper } from '../../../../lib/payments/currencies';
+import { asyncIterable } from '../../../mocks';
+import { RefusedError } from '../../../../lib/payments/paypal/error';
+import { RefundType } from '@fxa/payments/paypal';
+import {
   FirestoreStripeErrorBuilder,
   FirestoreStripeError,
-} = require('fxa-shared/payments/stripe-firestore');
+} from 'fxa-shared/payments/stripe-firestore';
 
 let config, log, db, customs, push, mailer, profile, mockCapabilityService;
 

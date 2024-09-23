@@ -2,8 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { assert } = require('chai');
-const util = require('../../lib/oauth/util');
+import { assert } from 'chai';
+
+import util from '../../lib/oauth/util';
 
 describe('util', function () {
   describe('base64URLEncode', function () {

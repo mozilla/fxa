@@ -16,7 +16,7 @@ import {
 } from '../../payments/iap/iap-formatter';
 import { PaymentBillingDetails, StripeHelper } from '../../payments/stripe';
 import { AuthLogger, AuthRequest } from '../../types';
-import validators from '../validators';
+import * as validators from '../validators';
 import { handleAuth } from './utils';
 import DESCRIPTIONS from '../../../docs/swagger/shared/descriptions';
 

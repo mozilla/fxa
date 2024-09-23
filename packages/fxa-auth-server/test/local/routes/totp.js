@@ -4,13 +4,13 @@
 
 'use strict';
 
-const sinon = require('sinon');
+import sinon from 'sinon';
 const assert = { ...sinon.assert, ...require('chai').assert };
-const getRoute = require('../../routes_helpers').getRoute;
-const mocks = require('../../mocks');
-const otplib = require('otplib');
-const { Container } = require('typedi');
-const { AccountEventsManager } = require('../../../lib/account-events');
+import { getRoute } from '../../routes_helpers';
+import mocks from '../../mocks';
+import otplib from 'otplib';
+import { Container } from 'typedi';
+import { AccountEventsManager } from '../../../lib/account-events';
 
 let log,
   db,

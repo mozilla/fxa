@@ -4,10 +4,10 @@
 
 'use strict';
 
-const sinon = require('sinon');
+import sinon from 'sinon';
 const assert = { ...sinon.assert, ...require('chai').assert };
-const mocks = require('../../../mocks');
-const proxyquire = require('proxyquire');
+import mocks from '../../../mocks';
+import proxyquire from 'proxyquire';
 
 const TEST_EMAIL = 'foo@gmail.com';
 const MOCK_UID = '23d4847823f24b0f95e1524987cb0391';

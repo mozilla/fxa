@@ -4,13 +4,12 @@
 
 'use strict';
 
-const ROOT_DIR = '../..';
-
-const assert = require('assert');
-const config = require(`${ROOT_DIR}/config`).default.getProperties();
-const createBounces = require(`${ROOT_DIR}/lib/bounces`);
-const error = require(`${ROOT_DIR}/lib/error`);
-const sinon = require('sinon');
+import assert from 'assert';
+import configModule from "../../config";
+const config = configModule.getProperties();
+import createBounces from '../../lib/bounces';
+import error from '../../lib/error';
+import sinon from 'sinon';
 
 const EMAIL = Math.random() + '@example.test';
 const BOUNCE_TYPE_HARD = 1;

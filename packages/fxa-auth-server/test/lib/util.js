@@ -6,7 +6,7 @@
 
 'use strict';
 
-const assert = require('assert');
+import assert from 'assert';
 const ORIGINAL_STDOUT_WRITE = process.stdout.write;
 const LOGS_REGEX = /^\[1mfxa-oauth-server/i; // eslint-disable-line no-control-regex
 
@@ -51,7 +51,7 @@ function assertSecurityHeaders(res, expect = {}) {
   });
 }
 
-module.exports = {
+export default {
   assertSecurityHeaders,
   decodeJWT,
   disableLogs,

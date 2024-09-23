@@ -4,25 +4,24 @@
 
 'use strict';
 
-const proxyquire = require('proxyquire');
-const sinon = require('sinon');
-const { Container } = require('typedi');
+import proxyquire from 'proxyquire';
+import sinon from 'sinon';
+import { Container } from 'typedi';
 const assert = { ...sinon.assert, ...require('chai').assert };
-const { filterCustomer } = require('fxa-shared/subscriptions/stripe');
-
-const error = require('../../../../lib/error');
-const { getRoute } = require('../../../routes_helpers');
-const mocks = require('../../../mocks');
-const { PayPalHelper } = require('../../../../lib/payments/paypal/helper');
-const uuid = require('uuid');
-const { StripeHelper } = require('../../../../lib/payments/stripe');
-const customerFixture = require('../../payments/fixtures/stripe/customer1.json');
-const planFixture = require('../../payments/fixtures/stripe/plan1.json');
-const subscription2 = require('../../payments/fixtures/stripe/subscription2.json');
-const openInvoice = require('../../payments/fixtures/stripe/invoice_open.json');
-const { filterSubscription } = require('fxa-shared/subscriptions/stripe');
-const { CurrencyHelper } = require('../../../../lib/payments/currencies');
-const { AuthLogger, AppConfig } = require('../../../../lib/types');
+import { filterCustomer } from 'fxa-shared/subscriptions/stripe';
+import error from '../../../../lib/error';
+import { getRoute } from '../../../routes_helpers';
+import mocks from '../../../mocks';
+import { PayPalHelper } from '../../../../lib/payments/paypal/helper';
+import * as uuid from 'uuid';
+import { StripeHelper } from '../../../../lib/payments/stripe';
+import customerFixture from '../../payments/fixtures/stripe/customer1.json';
+import planFixture from '../../payments/fixtures/stripe/plan1.json';
+import subscription2 from '../../payments/fixtures/stripe/subscription2.json';
+import openInvoice from '../../payments/fixtures/stripe/invoice_open.json';
+import { filterSubscription } from 'fxa-shared/subscriptions/stripe';
+import { CurrencyHelper } from '../../../../lib/payments/currencies';
+import { AuthLogger, AppConfig } from '../../../../lib/types';
 const deleteAccountIfUnverifiedStub = sinon.stub();
 const buildRoutes = proxyquire('../../../../lib/routes/subscriptions', {
   './paypal': proxyquire('../../../../lib/routes/subscriptions/paypal', {
@@ -33,21 +32,15 @@ const buildRoutes = proxyquire('../../../../lib/routes/subscriptions', {
 }).default;
 
 const ACCOUNT_LOCALE = 'en-US';
-const { OAUTH_SCOPE_SUBSCRIPTIONS } = require('fxa-shared/oauth/constants');
-const { CapabilityService } = require('../../../../lib/payments/capability');
-const {
-  PlaySubscriptions,
-} = require('../../../../lib/payments/iap/google-play/subscriptions');
-const {
-  AppStoreSubscriptions,
-} = require('../../../../lib/payments/iap/apple-app-store/subscriptions');
-const { PlayBilling } = require('../../../../lib/payments/iap/google-play');
+import { OAUTH_SCOPE_SUBSCRIPTIONS } from 'fxa-shared/oauth/constants';
+import { CapabilityService } from '../../../../lib/payments/capability';
+import { PlaySubscriptions } from '../../../../lib/payments/iap/google-play/subscriptions';
+import { AppStoreSubscriptions } from '../../../../lib/payments/iap/apple-app-store/subscriptions';
+import { PlayBilling } from '../../../../lib/payments/iap/google-play';
 const TEST_EMAIL = 'test@email.com';
 const UID = uuid.v4({}, Buffer.alloc(16)).toString('hex');
 const MOCK_SCOPES = ['profile:email', OAUTH_SCOPE_SUBSCRIPTIONS];
-const {
-  SubscriptionEligibilityResult,
-} = require('fxa-shared/subscriptions/types');
+import { SubscriptionEligibilityResult } from 'fxa-shared/subscriptions/types';
 
 let log,
   config,

@@ -1,21 +1,18 @@
 /*  */ /* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const sinon = require('sinon');
-const { assert } = require('chai');
-const proxyquire = require('proxyquire');
-const { default: Container } = require('typedi');
-const { AppConfig, AuthLogger } = require('../../lib/types');
-const mocks = require('../mocks');
-const uuid = require('uuid');
-const error = require('../../lib/error');
-const {
-  AppleIAP,
-} = require('../../lib/payments/iap/apple-app-store/apple-iap');
-const {
-  PlayBilling,
-} = require('../../lib/payments/iap/google-play/play-billing');
+import sinon from 'sinon';
+
+import { assert } from 'chai';
+import proxyquire from 'proxyquire';
+import { Container } from 'typedi';
+import { AppConfig, AuthLogger } from '../../lib/types';
+import mocks from '../mocks';
+import * as uuid from 'uuid';
+import error from '../../lib/error';
+import { AppleIAP } from '../../lib/payments/iap/apple-app-store/apple-iap';
+import { PlayBilling } from '../../lib/payments/iap/google-play/play-billing';
 
 const email = 'foo@example.com';
 const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');

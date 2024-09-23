@@ -6,16 +6,16 @@
 
 const ROOT_DIR = '../..';
 
-const proxyquire = require('proxyquire');
-const sinon = require('sinon');
+import proxyquire from 'proxyquire';
+import sinon from 'sinon';
 const assert = { ...sinon.assert, ...require('chai').assert };
-const Ajv = require('ajv');
+import Ajv from 'ajv';
 const ajv = new Ajv();
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 const match = sinon.match;
 
-const mocks = require('../mocks');
+import mocks from '../mocks';
 const mockUid = 'deadbeef';
 
 const TTL = '42';

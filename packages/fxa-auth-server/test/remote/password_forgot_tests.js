@@ -4,16 +4,18 @@
 
 'use strict';
 
-const chai = require('chai');
-const chaiAsPromised = require('chai-as-promised');
-const url = require('url');
-const Client = require('../client')();
-const TestServer = require('../test_server');
-const crypto = require('crypto');
-const base64url = require('base64url');
+import chai from 'chai';
+import chaiAsPromised from 'chai-as-promised';
+import url from 'url';
+import ClientModule from "../client";
+const Client = ClientModule();
+import TestServer from '../test_server';
+import crypto from 'crypto';
+import base64url from 'base64url';
 
-const config = require('../../config').default.getProperties();
-const mocks = require('../mocks');
+import configModule from "../../config";
+const config = configModule.getProperties();
+import mocks from '../mocks';
 
 chai.use(chaiAsPromised);
 const { assert } = chai;

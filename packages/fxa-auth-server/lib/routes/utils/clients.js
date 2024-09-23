@@ -4,8 +4,8 @@
 
 'use strict';
 
-const { ClientFormatter } = require('fxa-shared/connected-services');
+import { ClientFormatter } from 'fxa-shared/connected-services';
 
-module.exports = (log, config) => {
+export default (log, config) => {
   return new ClientFormatter(config, () => log);
 };

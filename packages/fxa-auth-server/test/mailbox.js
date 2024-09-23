@@ -4,11 +4,11 @@
 
 'use strict';
 
-const request = require('request');
-const EventEmitter = require('events').EventEmitter;
+import request from 'request';
+import { EventEmitter } from 'events';
 
 /* eslint-disable no-console */
-module.exports = function (host, port, printLogs) {
+export default function (host, port, printLogs) {
   host = host || 'localhost';
   port = port || 9001;
 
@@ -84,4 +84,4 @@ module.exports = function (host, port, printLogs) {
     waitForCode: waitForCode,
     eventEmitter: eventEmitter,
   };
-};
+}

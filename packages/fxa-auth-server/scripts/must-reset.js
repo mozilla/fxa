@@ -1,5 +1,3 @@
-#!/usr/bin/env node -r esbuild-register
-
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -24,10 +22,10 @@
 // HACK: Prevent config falling over due to missing secrets
 process.env.NODE_ENV = 'dev';
 
-const commandLineOptions = require('commander');
-const fs = require('fs');
-const main = require('./must-reset/index');
-const path = require('path');
+import commandLineOptions from 'commander';
+import fs from 'fs';
+import main from './must-reset/index';
+import path from 'path';
 
 commandLineOptions
   .option('-e, --emails [emails]', 'Email addresses')

@@ -4,8 +4,11 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const sinon = require('sinon');
+import { assert } from 'chai';
+import sinon from 'sinon';
+import mocks from '../../mocks';
+import proxyquireModule from 'proxyquire';
+
 const log = {
   activityEvent: sinon.spy(),
   amplitudeEvent: sinon.spy(),
@@ -14,9 +17,8 @@ const log = {
   info: sinon.spy(),
   trace: sinon.spy(),
 };
-const mocks = require('../../mocks');
 const glean = mocks.mockGlean();
-const proxyquire = require('proxyquire');
+const proxyquire = proxyquireModule.noCallThru();
 const amplitudeModule = proxyquire('../../../lib/metrics/amplitude', {
   'fxa-shared/db/models/auth': {
     Account: {
@@ -24,9 +26,10 @@ const amplitudeModule = proxyquire('../../../lib/metrics/amplitude', {
     },
   },
 });
-const events = proxyquire('../../../lib/metrics/events', {
+const eventsModule = proxyquire('../../../lib/metrics/events', {
   './amplitude': amplitudeModule,
-})(
+});
+const events = eventsModule.default(
   log,
   {
     amplitude: { rawEvents: false },

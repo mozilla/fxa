@@ -4,38 +4,35 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const { StatsD } = require('hot-shots');
-const sinon = require('sinon');
-const { Container } = require('typedi');
+import { assert } from 'chai';
+import { StatsD } from 'hot-shots';
+import sinon from 'sinon';
+import { Container } from 'typedi';
 
-const {
+import {
   PayPalClient,
   PayPalClientError,
   PayPalNVPError,
   RefundType,
   objectToNVP,
   nvpToObject,
-} = require('@fxa/payments/paypal');
-const { PayPalHelper, RefusedError } = require('../../../lib/payments/paypal');
-const { mockLog } = require('../../mocks');
-const error = require('../../../lib/error');
-const successfulSetExpressCheckoutResponse = require('./fixtures/paypal/set_express_checkout_success.json');
-const successfulDoReferenceTransactionResponse = require('./fixtures/paypal/do_reference_transaction_success.json');
-const successfulRefundTransactionResponse = require('./fixtures/paypal/refund_transaction_success.json');
-const failedDoReferenceTransactionResponse = require('./fixtures/paypal/do_reference_transaction_failure.json');
-const successfulBAUpdateResponse = require('./fixtures/paypal/ba_update_success.json');
-const searchTransactionResponse = require('./fixtures/paypal/transaction_search_success.json');
-const eventCustomerSourceExpiring = require('./fixtures/stripe/event_customer_source_expiring.json');
-const sampleIpnMessage = require('./fixtures/paypal/sample_ipn_message.json');
-const { StripeHelper } = require('../../../lib/payments/stripe');
-const { CurrencyHelper } = require('../../../lib/payments/currencies');
-const {
-  PAYPAL_BILLING_AGREEMENT_INVALID,
-  PAYPAL_APP_ERRORS,
-  PAYPAL_RETRY_ERRORS,
-} = require('../../../lib/payments/paypal/error-codes');
-const { RefundError } = require('../../../lib/payments/paypal/helper');
+} from '@fxa/payments/paypal';
+
+import { PayPalHelper, RefusedError } from '../../../lib/payments/paypal';
+import { mockLog } from '../../mocks';
+import error from '../../../lib/error';
+import successfulSetExpressCheckoutResponse from './fixtures/paypal/set_express_checkout_success.json';
+import successfulDoReferenceTransactionResponse from './fixtures/paypal/do_reference_transaction_success.json';
+import successfulRefundTransactionResponse from './fixtures/paypal/refund_transaction_success.json';
+import failedDoReferenceTransactionResponse from './fixtures/paypal/do_reference_transaction_failure.json';
+import successfulBAUpdateResponse from './fixtures/paypal/ba_update_success.json';
+import searchTransactionResponse from './fixtures/paypal/transaction_search_success.json';
+import eventCustomerSourceExpiring from './fixtures/stripe/event_customer_source_expiring.json';
+import sampleIpnMessage from './fixtures/paypal/sample_ipn_message.json';
+import { StripeHelper } from '../../../lib/payments/stripe';
+import { CurrencyHelper } from '../../../lib/payments/currencies';
+import { PAYPAL_BILLING_AGREEMENT_INVALID, PAYPAL_APP_ERRORS, PAYPAL_RETRY_ERRORS } from '../../../lib/payments/paypal/error-codes';
+import { RefundError } from '../../../lib/payments/paypal/helper';
 
 describe('PayPalHelper', () => {
   /** @type PayPalHelper */

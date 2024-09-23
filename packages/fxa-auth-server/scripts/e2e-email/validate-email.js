@@ -4,10 +4,9 @@
 
 'use strict';
 
-const util = require('util');
-const url = require('url');
-
-const localeQuirks = require('./localeQuirks');
+import util from 'util';
+import url from 'url';
+import localeQuirks from './localeQuirks';
 
 const errors = {};
 function reportError(lang, msg) {
@@ -196,9 +195,9 @@ function verifyMailbox(mbox) {
   });
 }
 
-module.exports = function validateEmail(messages) {
+export default function validateEmail(messages) {
   Object.keys(messages).forEach((key) => {
     verifyMailbox(messages[key]);
   });
   return errors;
-};
+}

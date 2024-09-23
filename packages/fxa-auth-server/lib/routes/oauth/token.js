@@ -25,36 +25,30 @@
 // So, we've tried to make it as readable as possible, but...be careful in there!
 
 /*jshint camelcase: false*/
-const crypto = require('crypto');
-const OauthError = require('../../oauth/error');
-const AuthError = require('../../error');
-const buf = require('buf').hex;
-const hex = require('buf').to.hex;
-const Joi = require('joi');
+import crypto from 'crypto';
 
-const {
-  OAUTH_SCOPE_OLD_SYNC,
-  OAUTH_SCOPE_SESSION_TOKEN,
-} = require('fxa-shared/oauth/constants');
-const { config } = require('../../../config');
-const encrypt = require('fxa-shared/auth/encrypt');
-const util = require('../../oauth/util');
-const oauthRouteUtils = require('../utils/oauth');
-const token = require('../../oauth/token');
-const validators = require('../../oauth/validators');
-const { validateRequestedGrant, generateTokens } = require('../../oauth/grant');
-const verifyAssertion = require('../../oauth/assertion');
-const { makeAssertionJWT } = require('../../oauth/util');
-const {
-  authenticateClient,
-  clientAuthValidators,
-} = require('../../oauth/client');
-const ScopeSet = require('fxa-shared').oauth.scopes;
-const OAUTH_DOCS = require('../../../docs/swagger/oauth-api').default;
-const OAUTH_SERVER_DOCS =
-  require('../../../docs/swagger/oauth-server-api').default;
-const DESCRIPTION =
-  require('../../../docs/swagger/shared/descriptions').default;
+import OauthError from '../../oauth/error';
+import AuthError from '../../error';
+import { hex as buf } from 'buf';
+import hexModule from "buf";
+const hex = hexModule.to.hex;
+import Joi from 'joi';
+import { OAUTH_SCOPE_OLD_SYNC, OAUTH_SCOPE_SESSION_TOKEN } from 'fxa-shared/oauth/constants';
+import { config } from '../../../config';
+import encrypt from 'fxa-shared/auth/encrypt';
+import util from '../../oauth/util';
+import oauthRouteUtils from '../utils/oauth';
+import token from '../../oauth/token';
+import validators from '../../oauth/validators';
+import { validateRequestedGrant, generateTokens } from '../../oauth/grant';
+import verifyAssertion from '../../oauth/assertion';
+import { makeAssertionJWT } from '../../oauth/util';
+import { authenticateClient, clientAuthValidators } from '../../oauth/client';
+import ScopeSetModule from "fxa-shared";
+const ScopeSet = ScopeSetModule.oauth.scopes;
+import { default as OAUTH_DOCS } from '../../../docs/swagger/oauth-api';
+import { default as OAUTH_SERVER_DOCS } from '../../../docs/swagger/oauth-server-api';
+import { default as DESCRIPTION } from '../../../docs/swagger/shared/descriptions';
 
 const MAX_TTL_S = config.get('oauthServer.expiration.accessToken') / 1000;
 
@@ -179,7 +173,7 @@ const PAYLOAD_SCHEMA = Joi.object({
   resource: validators.resourceUrl.optional().description(DESCRIPTION.resource),
 });
 
-module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
+export default ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
   async function validateGrantParameters(client, params) {
     let requestedGrant;
     switch (params.grant_type) {

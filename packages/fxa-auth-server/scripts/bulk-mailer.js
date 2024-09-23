@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -22,8 +20,8 @@
 // HACK: Prevent config falling over due to missing secrets
 process.env.NODE_ENV = 'dev';
 
-const program = require('commander');
-const path = require('path');
+import program from 'commander';
+import path from 'path';
 
 program
   .option(
@@ -53,7 +51,7 @@ requiredOptions.forEach(checkRequiredOption);
 
 // Loading the bulk-mailer is slow, only do
 // so after checking all the required options.
-const bulkMailer = require('./bulk-mailer/index');
+import bulkMailer from './bulk-mailer/index';
 
 bulkMailer(
   path.resolve(program.input),

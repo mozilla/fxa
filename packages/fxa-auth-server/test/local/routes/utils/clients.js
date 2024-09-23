@@ -4,10 +4,10 @@
 
 'use strict';
 
-const sinon = require('sinon');
+import sinon from 'sinon';
 const assert = { ...sinon.assert, ...require('chai').assert };
-const mocks = require('../../../mocks');
-const moment = require('moment');
+import mocks from '../../../mocks';
+import moment from 'moment';
 
 const EARLIEST_SANE_TIMESTAMP = 31536000000;
 

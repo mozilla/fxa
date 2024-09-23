@@ -4,9 +4,9 @@
 
 'use strict';
 
-const BN = require('bn.js');
+import BN from 'bn.js';
 
-const MISC_DOCS = require('../../docs/swagger/misc-api').default;
+import { default as MISC_DOCS } from '../../docs/swagger/misc-api';
 
 function b64toDec(str) {
   const n = new BN(Buffer.from(str, 'base64'));
@@ -33,7 +33,7 @@ function browseridFormat(keys) {
   };
 }
 
-module.exports = function (log, serverPublicKeys) {
+export default function (log, serverPublicKeys) {
   const keys = [serverPublicKeys.primary];
   if (serverPublicKeys.secondary) {
     keys.push(serverPublicKeys.secondary);
@@ -73,4 +73,4 @@ module.exports = function (log, serverPublicKeys) {
   ];
 
   return routes;
-};
+}

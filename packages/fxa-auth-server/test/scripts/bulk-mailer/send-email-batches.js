@@ -4,10 +4,12 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const proxyquire = require('proxyquire').noCallThru();
-const sinon = require('sinon');
-const retry = require('async-retry');
+import { assert } from 'chai';
+import proxyquireModule from 'proxyquire';
+import sinon from 'sinon';
+import retry from 'async-retry';
+
+const proxyquire = proxyquireModule.noCallThru();
 
 describe('send-email-batches', () => {
   const batches = [

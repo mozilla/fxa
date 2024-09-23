@@ -5,7 +5,7 @@
 import _ from 'underscore';
 import { assert } from 'chai';
 import BaseExperiment from 'lib/experiments/grouping-rules/base';
-import uuid from 'uuid';
+import * as uuid from 'uuid';
 
 describe('lib/experiments/grouping-rules/base', () => {
   let experiment;

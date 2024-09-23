@@ -4,9 +4,9 @@
 
 'use strict';
 
-const crypto = require('crypto');
-const base64url = require('base64url');
-const webpush = require('web-push');
+import crypto from 'crypto';
+import base64url from 'base64url';
+import webpush from 'web-push';
 
 const PUSH_PAYLOAD_SCHEMA_VERSION = 1;
 const PUSH_COMMANDS = {
@@ -87,7 +87,7 @@ const MAX_ACTIVE_DEVICES = 200;
  * @typedef {Object} Device
  */
 
-module.exports = function (log, db, config, statsd) {
+export default function (log, db, config, statsd) {
   let vapid;
   if (config.vapidKeysFile) {
     const vapidKeys = require(config.vapidKeysFile);
@@ -551,4 +551,4 @@ module.exports = function (log, db, config, statsd) {
       });
     },
   };
-};
+}

@@ -10,7 +10,7 @@ import {
 import { version } from '../../../package.json';
 import { createHash } from 'crypto';
 import { AuthRequest } from '../../types';
-import * as AppError from '../../error';
+import AppError from '../../error';
 import { clientId as clientIdValidator } from '../../oauth/validators';
 
 // According to @types/hapi, request.auth.credentials.user is of type

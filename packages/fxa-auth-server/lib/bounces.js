@@ -4,9 +4,9 @@
 
 'use strict';
 
-const error = require('./error');
+import error from './error';
 
-module.exports = (config, db) => {
+export default (config, db) => {
   const configBounces = (config.smtp && config.smtp.bounces) || {};
   const ignoreTemplates = configBounces.ignoreTemplates || [];
   const BOUNCES_ENABLED = !!configBounces.enabled;

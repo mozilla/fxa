@@ -4,9 +4,9 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const sinon = require('sinon');
-const UserRecordNormalizer = require('../../../scripts/bulk-mailer/normalize-user-records');
+import { assert } from 'chai';
+import sinon from 'sinon';
+import UserRecordNormalizer from '../../../scripts/bulk-mailer/normalize-user-records';
 
 describe('normalize-user-records', () => {
   let normalizer;

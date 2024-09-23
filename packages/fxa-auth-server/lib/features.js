@@ -4,12 +4,12 @@
 
 'use strict';
 
-const crypto = require('crypto');
-const isA = require('joi');
+import crypto from 'crypto';
+import isA from 'joi';
 
 const SCHEMA = isA.array().items(isA.string()).optional();
 
-module.exports = (config) => {
+export default (config) => {
   const lastAccessTimeUpdates = config.lastAccessTimeUpdates || {};
 
   return {
@@ -78,4 +78,4 @@ function hash(uid, key) {
 }
 
 // Joi schema for endpoints that can take a `features` parameter.
-module.exports.schema = SCHEMA;
+export { SCHEMA as schema };

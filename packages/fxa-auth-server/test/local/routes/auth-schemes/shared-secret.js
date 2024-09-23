@@ -2,14 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { assert } = require('chai');
-const AppError = require('../../../../lib/error');
-const SharedSecretScheme = require('../../../../lib/routes/auth-schemes/shared-secret');
+import { assert } from 'chai';
+
+import AppError from '../../../../lib/error';
+import * as SharedSecretScheme from '../../../../lib/routes/auth-schemes/shared-secret';
 const authStrategy = SharedSecretScheme.strategy('goodsecret')();
 const noThrowStrategy = SharedSecretScheme.strategy('goodsecret', {
   throwOnFailure: false,
 })();
-const sinon = require('sinon');
+import sinon from 'sinon';
 
 describe('lib/routes/auth-schemes/shared-secret', () => {
   it('should throws an invalid token error if the secrets do not match', () => {

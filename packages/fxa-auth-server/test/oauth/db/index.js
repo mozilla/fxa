@@ -2,17 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const crypto = require('crypto');
+import crypto from 'crypto';
 
-const { assert } = require('chai');
-const buf = require('buf').hex;
-const hex = require('buf').to.hex;
-const ScopeSet = require('fxa-shared').oauth.scopes;
+import { assert } from 'chai';
+import { hex as buf } from 'buf';
+import hexModule from "buf";
+const hex = hexModule.to.hex;
+import ScopeSetModule from "fxa-shared";
+const ScopeSet = ScopeSetModule.oauth.scopes;
 
-const encrypt = require('fxa-shared/auth/encrypt');
-const db = require('../../../lib/oauth/db');
-
-const { config } = require('../../../config');
+import encrypt from 'fxa-shared/auth/encrypt';
+import db from '../../../lib/oauth/db';
+import { config } from '../../../config';
 
 function randomString(len) {
   return crypto.randomBytes(Math.ceil(len)).toString('hex');

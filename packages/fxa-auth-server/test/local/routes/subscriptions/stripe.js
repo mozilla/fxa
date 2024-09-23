@@ -1,37 +1,55 @@
-/* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+// /* This Source Code Form is subject to the terms of the Mozilla Public
+//  * License, v. 2.0. If a copy of the MPL was not distributed with this
+//  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict';
+// 'use strict';
 
-const sinon = require('sinon');
-const assert = require('chai').assert;
-const { Container } = require('typedi');
-const uuid = require('uuid');
-const mocks = require('../../../mocks');
-const error = require('../../../../lib/error');
-const Sentry = require('@sentry/node');
-const {
+
+import sinon from 'sinon';
+import { assert } from 'chai';
+import { Container } from 'typedi';
+import * as uuid from 'uuid';
+import mocks from '../../../mocks';
+import error from '../../../../lib/error';
+import Sentry from '@sentry/node';
+import {
   StripeHelper,
   STRIPE_PRICE_METADATA,
-} = require('../../../../lib/payments/stripe');
-const { CurrencyHelper } = require('../../../../lib/payments/currencies');
-const {
+} from '../../../../lib/payments/stripe';
+import { CurrencyHelper } from '../../../../lib/payments/currencies';
+import {
   PromotionCodeManager,
   PaymentsCustomerError,
-} = require('@fxa/payments/customer');
-const WError = require('verror').WError;
-const uuidv4 = require('uuid').v4;
-const proxyquire = require('proxyquire').noPreserveCache();
+} from '@fxa/payments/customer';
+import { WError } from 'verror';
+import proxyquireModule from "proxyquire";
+import { sanitizePlans, handleAuth } from '../../../../lib/routes/subscriptions';
+import accountUtils from '../../../../lib/routes/utils/account.ts';
+import { AuthLogger, AppConfig } from '../../../../lib/types';
+import { CapabilityService } from '../../../../lib/payments/capability';
+import { PlayBilling } from '../../../../lib/payments/iap/google-play';
+import {
+  stripeInvoiceToFirstInvoicePreviewDTO,
+  stripeInvoicesToSubsequentInvoicePreviewsDTO,
+} from '../../../../lib/payments/stripe-formatter';
+import { subscriptions } from 'fxa-shared';
+import subscription2 from '../../payments/fixtures/stripe/subscription2.json';
+import cancelledSubscription from '../../payments/fixtures/stripe/subscription_cancelled.json';
+import trialSubscription from '../../payments/fixtures/stripe/subscription_trialing.json';
+import pastDueSubscription from '../../payments/fixtures/stripe/subscription_past_due.json';
+import customerFixture from '../../payments/fixtures/stripe/customer1.json';
+import emptyCustomer from '../../payments/fixtures/stripe/customer_new.json';
+import openInvoice from '../../payments/fixtures/stripe/invoice_open.json';
+import invoicePreviewTax from '../../payments/fixtures/stripe/invoice_preview_tax.json';
+import newSetupIntent from '../../payments/fixtures/stripe/setup_intent_new.json';
+import paymentMethodFixture from '../../payments/fixtures/stripe/payment_method.json';
+import { OAUTH_SCOPE_SUBSCRIPTIONS } from 'fxa-shared/oauth/constants';
+import { SubscriptionEligibilityResult } from 'fxa-shared/subscriptions/types';
+
+const proxyquire = proxyquireModule.noPreserveCache();
 const dbStub = {
   getAccountCustomerByUid: sinon.stub(),
 };
-
-const {
-  sanitizePlans,
-  handleAuth,
-} = require('../../../../lib/routes/subscriptions');
-
 const deleteAccountIfUnverifiedStub = sinon.stub();
 const { StripeHandler: DirectStripeRoutes } = proxyquire(
   '../../../../lib/routes/subscriptions/stripe',
@@ -42,30 +60,7 @@ const { StripeHandler: DirectStripeRoutes } = proxyquire(
     },
   }
 );
-
-const accountUtils = require('../../../../lib/routes/utils/account.ts');
-const { AuthLogger, AppConfig } = require('../../../../lib/types');
-const { CapabilityService } = require('../../../../lib/payments/capability');
-const { PlayBilling } = require('../../../../lib/payments/iap/google-play');
-const {
-  stripeInvoiceToFirstInvoicePreviewDTO,
-  stripeInvoicesToSubsequentInvoicePreviewsDTO,
-} = require('../../../../lib/payments/stripe-formatter');
-
-const { filterCustomer, filterSubscription, filterInvoice, filterIntent } =
-  require('fxa-shared').subscriptions.stripe;
-
-const subscription2 = require('../../payments/fixtures/stripe/subscription2.json');
-const cancelledSubscription = require('../../payments/fixtures/stripe/subscription_cancelled.json');
-const trialSubscription = require('../../payments/fixtures/stripe/subscription_trialing.json');
-const pastDueSubscription = require('../../payments/fixtures/stripe/subscription_past_due.json');
-const customerFixture = require('../../payments/fixtures/stripe/customer1.json');
-const emptyCustomer = require('../../payments/fixtures/stripe/customer_new.json');
-const openInvoice = require('../../payments/fixtures/stripe/invoice_open.json');
-const invoicePreviewTax = require('../../payments/fixtures/stripe/invoice_preview_tax.json');
-const newSetupIntent = require('../../payments/fixtures/stripe/setup_intent_new.json');
-const paymentMethodFixture = require('../../payments/fixtures/stripe/payment_method.json');
-
+const { filterCustomer, filterSubscription, filterInvoice, filterIntent } = subscriptions.stripe
 const currencyHelper = new CurrencyHelper({
   currenciesToCountries: { USD: ['US', 'GB', 'CA'] },
 });
@@ -73,12 +68,6 @@ const mockCapabilityService = {};
 const mockPromotionCodeManager = {};
 
 let config, log, db, customs, push, mailer, profile;
-
-const { OAUTH_SCOPE_SUBSCRIPTIONS } = require('fxa-shared/oauth/constants');
-const {
-  SubscriptionEligibilityResult,
-} = require('fxa-shared/subscriptions/types');
-
 const ACCOUNT_LOCALE = 'en-US';
 const TEST_EMAIL = 'test@email.com';
 const UID = uuid.v4({}, Buffer.alloc(16)).toString('hex');
@@ -535,7 +524,7 @@ describe('DirectStripeRoutes', () => {
       );
       VALID_REQUEST.payload = {
         displayName: 'Jane Doe',
-        idempotencyKey: uuidv4(),
+        idempotencyKey: uuid.v4(),
       };
       VALID_REQUEST.app.geo = {};
 
@@ -557,7 +546,7 @@ describe('DirectStripeRoutes', () => {
       );
       VALID_REQUEST.payload = {
         displayName: 'Jane Doe',
-        idempotencyKey: uuidv4(),
+        idempotencyKey: uuid.v4(),
       };
       VALID_REQUEST.app.geo = {
         location: {
@@ -1172,7 +1161,7 @@ describe('DirectStripeRoutes', () => {
       VALID_REQUEST.payload = {
         priceId: 'Jane Doe',
         paymentMethodId: 'pm_asdf',
-        idempotencyKey: uuidv4(),
+        idempotencyKey: uuid.v4(),
       };
       return { sourceCountry, expected };
     }
@@ -1270,7 +1259,7 @@ describe('DirectStripeRoutes', () => {
       directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(undefined);
       VALID_REQUEST.payload = {
         displayName: 'Jane Doe',
-        idempotencyKey: uuidv4(),
+        idempotencyKey: uuid.v4(),
       };
       try {
         await directStripeRoutesInstance.createSubscriptionWithPMI(
@@ -1290,7 +1279,7 @@ describe('DirectStripeRoutes', () => {
 
       VALID_REQUEST.payload = {
         displayName: 'Jane Doe',
-        idempotencyKey: uuidv4(),
+        idempotencyKey: uuid.v4(),
       };
       try {
         await directStripeRoutesInstance.createSubscriptionWithPMI(
@@ -1312,7 +1301,7 @@ describe('DirectStripeRoutes', () => {
       VALID_REQUEST.payload = {
         priceId: 'Jane Doe',
         paymentMethodId: 'pm_asdf',
-        idempotencyKey: uuidv4(),
+        idempotencyKey: uuid.v4(),
       };
       try {
         await directStripeRoutesInstance.createSubscriptionWithPMI(
@@ -1337,7 +1326,7 @@ describe('DirectStripeRoutes', () => {
       VALID_REQUEST.payload = {
         priceId: 'Jane Doe',
         paymentMethodId: 'pm_asdf',
-        idempotencyKey: uuidv4(),
+        idempotencyKey: uuid.v4(),
       };
       try {
         await directStripeRoutesInstance.createSubscriptionWithPMI(
@@ -1362,7 +1351,7 @@ describe('DirectStripeRoutes', () => {
       VALID_REQUEST.payload = {
         priceId: 'Jane Doe',
         paymentMethodId: 'pm_asdf',
-        idempotencyKey: uuidv4(),
+        idempotencyKey: uuid.v4(),
       };
 
       deleteAccountIfUnverifiedStub.reset();
@@ -1388,7 +1377,7 @@ describe('DirectStripeRoutes', () => {
       VALID_REQUEST.payload = {
         priceId: 'Jane Doe',
         paymentMethodId: 'pm_asdf',
-        idempotencyKey: uuidv4(),
+        idempotencyKey: uuid.v4(),
       };
 
       deleteAccountIfUnverifiedStub.reset();
@@ -1414,7 +1403,7 @@ describe('DirectStripeRoutes', () => {
       VALID_REQUEST.payload = {
         priceId: 'Jane Doe',
         paymentMethodId: 'pm_asdf',
-        idempotencyKey: uuidv4(),
+        idempotencyKey: uuid.v4(),
       };
 
       deleteAccountIfUnverifiedStub.reset();
@@ -1479,7 +1468,7 @@ describe('DirectStripeRoutes', () => {
       VALID_REQUEST.payload = {
         priceId: 'Jane Doe',
         paymentMethodId: 'pm_asdf',
-        idempotencyKey: uuidv4(),
+        idempotencyKey: uuid.v4(),
       };
 
       const deleteAccountIfUnverifiedStub = sandbox
@@ -1510,7 +1499,7 @@ describe('DirectStripeRoutes', () => {
       directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI.resolves(
         expected
       );
-      const idempotencyKey = uuidv4();
+      const idempotencyKey = uuid.v4();
 
       VALID_REQUEST.payload = {
         priceId: 'quux',
@@ -1570,7 +1559,7 @@ describe('DirectStripeRoutes', () => {
 
       VALID_REQUEST.payload = {
         priceId: 'quux',
-        idempotencyKey: uuidv4(),
+        idempotencyKey: uuid.v4(),
       };
 
       await directStripeRoutesInstance.createSubscriptionWithPMI(VALID_REQUEST);
@@ -1602,7 +1591,7 @@ describe('DirectStripeRoutes', () => {
       directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI.resolves(
         expected
       );
-      const idempotencyKey = uuidv4();
+      const idempotencyKey = uuid.v4();
 
       VALID_REQUEST.payload = {
         priceId: 'quux',
@@ -1630,7 +1619,7 @@ describe('DirectStripeRoutes', () => {
       directStripeRoutesInstance.stripeHelper.addTaxIdToCustomer.resolves({});
       VALID_REQUEST.payload = {
         priceId: 'Jane Doe',
-        idempotencyKey: uuidv4(),
+        idempotencyKey: uuid.v4(),
       };
 
       const actual = await directStripeRoutesInstance.createSubscriptionWithPMI(
@@ -1684,7 +1673,7 @@ describe('DirectStripeRoutes', () => {
       VALID_REQUEST.payload = {
         priceId: 'Jane Doe',
         paymentMethodId: 'pm_asdf',
-        idempotencyKey: uuidv4(),
+        idempotencyKey: uuid.v4(),
       };
 
       const sentryScope = { setContext: sandbox.stub() };
@@ -1713,7 +1702,7 @@ describe('DirectStripeRoutes', () => {
       VALID_REQUEST.payload = {
         invoiceId: 'in_testinvoice',
         paymentMethodId: 'pm_asdf',
-        idempotencyKey: uuidv4(),
+        idempotencyKey: uuid.v4(),
       };
 
       const actual = await directStripeRoutesInstance.retryInvoice(
@@ -1734,7 +1723,7 @@ describe('DirectStripeRoutes', () => {
       dbStub.getAccountCustomerByUid.resolves({});
       VALID_REQUEST.payload = {
         displayName: 'Jane Doe',
-        idempotencyKey: uuidv4(),
+        idempotencyKey: uuid.v4(),
       };
       try {
         await directStripeRoutesInstance.retryInvoice(VALID_REQUEST);

@@ -4,10 +4,10 @@
 
 'use strict';
 
-const sinon = require('sinon');
+import sinon from 'sinon';
 const assert = { ...sinon.assert, ...require('chai').assert };
-const mocks = require('../../../mocks');
-const { gleanMetrics } = require('../../../../lib/metrics/glean');
+import mocks from '../../../mocks';
+import { gleanMetrics } from '../../../../lib/metrics/glean';
 
 const TEST_EMAIL = 'test@email.com';
 const TEST_UID = '123123';

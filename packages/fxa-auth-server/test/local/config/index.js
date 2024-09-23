@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 'use strict';
 
-const { assert } = require('chai');
-const proxyquire = require('proxyquire');
+import { assert } from 'chai';
+import proxyquire from 'proxyquire';
 
 const ROOT_DIR = '../../..';
 

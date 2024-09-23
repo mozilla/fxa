@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { PUBLIC_KEYS } = require('../../oauth/keys');
-const OAUTH_SERVER_DOCS =
-  require('../../../docs/swagger/oauth-server-api').default;
+import { PUBLIC_KEYS } from '../../oauth/keys';
 
-module.exports = () => ({
+import { default as OAUTH_SERVER_DOCS } from '../../../docs/swagger/oauth-server-api';
+
+export default () => ({
   method: 'GET',
   path: '/jwks',
   config: {

@@ -2,28 +2,29 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const url = require('url');
-const { assert } = require('chai');
-const nock = require('nock');
-const buf = require('buf').hex;
-const generateRSAKeypair = require('keypair');
-const { JWTool } = require('@fxa/vendored/jwtool');
-const testServer = require('../lib/server');
-const ScopeSet = require('fxa-shared').oauth.scopes;
-const { decodeJWT } = require('../lib/util');
-const sinon = require('sinon');
+import url from 'url';
 
-const db = require('../../lib/oauth/db');
-const encrypt = require('fxa-shared/auth/encrypt');
+import { assert } from 'chai';
+import nock from 'nock';
+import { hex as buf } from 'buf';
+import generateRSAKeypair from 'keypair';
+import { JWTool } from '@fxa/vendored/jwtool';
+import testServer from '../lib/server';
+import ScopeSetModule from "fxa-shared";
+const ScopeSet = ScopeSetModule.oauth.scopes;
+import { decodeJWT } from '../lib/util';
+import sinon from 'sinon';
+import db from '../../lib/oauth/db';
+import encrypt from 'fxa-shared/auth/encrypt';
 const config = testServer.config;
 let Server;
 let Server2;
 
-const unique = require('../../lib/oauth/unique');
-const util = require('../../lib/oauth/util');
-const validators = require('../../lib/oauth/validators');
+import unique from '../../lib/oauth/unique';
+import util from '../../lib/oauth/util';
+import validators from '../../lib/oauth/validators';
 
-const assertSecurityHeaders = require('../lib/util').assertSecurityHeaders;
+import { assertSecurityHeaders } from '../lib/util';
 
 const USERID = unique(16).toString('hex');
 const VEMAIL = unique(4).toString('hex') + '@mozilla.com';
