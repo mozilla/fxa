@@ -84,6 +84,7 @@ export const ResultCartFactory = (
   interval: faker.string.numeric(),
   experiment: null,
   taxAddress: TaxAddressFactory(),
+  currency: faker.finance.currencyCode(),
   createdAt: faker.date.past().getTime(),
   updatedAt: faker.date.past().getTime(),
   couponCode: null,

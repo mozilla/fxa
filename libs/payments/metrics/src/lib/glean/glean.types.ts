@@ -14,11 +14,8 @@ export type CommonMetrics = {
 };
 
 export type CartMetrics = Partial<
-  Pick<ResultCart, 'uid' | 'errorReasonId' | 'couponCode'>
-> & {
-  //TODO - Replace on completion of FXA-7584 and pick from ResultCart
-  currency: string;
-};
+  Pick<ResultCart, 'uid' | 'errorReasonId' | 'couponCode' | 'currency'>
+>;
 
 export type FxaPaySetupMetrics = CommonMetrics & CartMetrics;
 

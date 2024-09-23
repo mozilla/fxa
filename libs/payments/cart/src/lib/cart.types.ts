@@ -52,6 +52,7 @@ export type SetupCart = {
   offeringConfigId: string;
   experiment?: string;
   taxAddress?: TaxAddress;
+  currency?: string;
   couponCode?: string;
   stripeCustomerId?: string;
   email?: string;
@@ -68,6 +69,7 @@ export interface TaxAmount {
 export type UpdateCart = {
   uid?: string;
   taxAddress?: TaxAddress;
+  currency?: string;
   couponCode?: string;
   email?: string;
   stripeCustomerId?: string;

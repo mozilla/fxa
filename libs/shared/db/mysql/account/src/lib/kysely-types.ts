@@ -95,6 +95,7 @@ export interface Carts {
     countryCode: string;
     postalCode: string;
   }> | null;
+  currency: string | null;
   createdAt: number;
   updatedAt: number;
   couponCode: string | null;

@@ -34,6 +34,7 @@ import {
   CartEligibilityMismatchError,
   CartEmailNotFoundError,
   CartInvalidPromoCodeError,
+  CartInvalidCurrencyError,
 } from './cart.error';
 import { CartManager } from './cart.manager';
 import { CheckoutCustomerData, ResultCart } from './cart.types';
@@ -63,6 +64,13 @@ export class CheckoutService {
 
     if (!cart.email) {
       throw new CartEmailNotFoundError(cart.id);
+    }
+
+    if (!cart.currency) {
+      throw new CartInvalidCurrencyError(
+        cart.currency || undefined,
+        taxAddress.countryCode
+      );
     }
 
     // if uid not found, create stub account customer

@@ -54,7 +54,6 @@ export default async function Checkout({
   getApp()
     .getGleanEmitter()
     .emit('fxaPaySetupView', {
-      currency: 'USD',
       checkoutType: 'without-accounts',
       params: { ...params },
       searchParams,

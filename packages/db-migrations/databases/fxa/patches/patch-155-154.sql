@@ -1,0 +1,5 @@
+--  Drop `currency` column from the `carts` table.
+-- ALTER TABLE carts DROP COLUMN currency,
+-- ALGORITHM = INPLACE, LOCK = NONE;
+-- 
+-- UPDATE dbMetadata SET value = '154' WHERE name = 'schema-patch-level';

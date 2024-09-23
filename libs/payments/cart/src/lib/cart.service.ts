@@ -17,6 +17,7 @@ import {
   StripeCustomer,
 } from '@fxa/payments/stripe';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
+import { CurrencyManager } from '@fxa/payments/currency';
 import { CartErrorReasonId, CartState } from '@fxa/shared/db/mysql/account';
 import { GeoDBManager } from '@fxa/shared/geodb';
 
@@ -29,7 +30,10 @@ import {
 } from './cart.types';
 import { handleEligibilityStatusMap } from './cart.utils';
 import { CheckoutService } from './checkout.service';
-import { CartInvalidPromoCodeError } from './cart.error';
+import {
+  CartInvalidCurrencyError,
+  CartInvalidPromoCodeError,
+} from './cart.error';
 
 @Injectable()
 export class CartService {
@@ -37,6 +41,7 @@ export class CartService {
     private accountCustomerManager: AccountCustomerManager,
     private cartManager: CartManager,
     private checkoutService: CheckoutService,
+    private currencyManager: CurrencyManager,
     private customerManager: CustomerManager,
     private promotionCodeManager: PromotionCodeManager,
     private eligibilityService: EligibilityService,
@@ -113,6 +118,16 @@ export class CartService {
       }
     }
 
+    let currency: string | undefined;
+    if (taxAddress?.countryCode) {
+      currency = this.currencyManager.getCurrencyForCountry(
+        taxAddress?.countryCode
+      );
+      if (!currency) {
+        throw new CartInvalidCurrencyError(currency, taxAddress.countryCode);
+      }
+    }
+
     const cart = await this.cartManager.createCart({
       interval: args.interval,
       offeringConfigId: args.offeringConfigId,
@@ -121,6 +136,7 @@ export class CartService {
       stripeCustomerId: accountCustomer?.stripeCustomerId || undefined,
       experiment: args.experiment,
       taxAddress,
+      currency,
       eligibilityStatus: cartEligibilityStatus,
     });
 
@@ -156,6 +172,7 @@ export class CartService {
       offeringConfigId: oldCart.offeringConfigId,
       experiment: oldCart.experiment || undefined,
       taxAddress: oldCart.taxAddress || undefined,
+      currency: oldCart.currency || undefined,
       couponCode: oldCart.couponCode || undefined,
       stripeCustomerId: oldCart.stripeCustomerId || undefined,
       email: oldCart.email || undefined,
@@ -249,6 +266,19 @@ export class CartService {
         price
       );
     }
+
+    if (cartDetails.taxAddress?.countryCode) {
+      cartDetails.currency = this.currencyManager.getCurrencyForCountry(
+        cartDetails.taxAddress?.countryCode
+      );
+      if (!cartDetails.currency) {
+        throw new CartInvalidCurrencyError(
+          cartDetails.currency,
+          cartDetails.taxAddress.countryCode
+        );
+      }
+    }
+
     await this.cartManager.updateFreshCart(cartId, version, cartDetails);
   }
 
