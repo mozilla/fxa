@@ -32,6 +32,7 @@ module.exports = function (grunt) {
       nestapp: {
         options: {
           url: 'http://localhost:3035/api/dev/nestapp/restart',
+          timeout: 60 * 1000, // 60 seconds
         },
       },
     },

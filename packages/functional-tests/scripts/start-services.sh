@@ -27,4 +27,17 @@ CI=false NODE_ENV=test npx nx run-many \
     fxa-settings \
     > ~/.pm2/logs/startup.log
 
+
+# Temporary manual step while docker image is updated
+sudo apt-get update && sudo apt-get install -y \
+    python3-venv
+
+# Start payments-next if necessary
+CI=false NODE_ENV=test npx nx affected \
+    -t start \
+    --parallel=1 \
+    --verbose \
+    --exclude='*,!tag:payments-next' \
+    >> ~/.pm2/logs/startup.log
+
 npx pm2 ls
