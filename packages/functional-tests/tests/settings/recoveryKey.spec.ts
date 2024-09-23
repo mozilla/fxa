@@ -119,12 +119,14 @@ test.describe('severity-1 #smoke', () => {
 
       await settings.recoveryKey.createButton.click();
       await recoveryKey.createRecoveryKey(credentials.password, HINT);
+      await expect(page.getByRole('alert')).toHaveText(
+        'Account recovery key created'
+      );
 
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.recoveryKey.status).toHaveText('Enabled');
+      await expect(settings.recoveryKey.deleteButton).toBeVisible();
       await expect(settings.recoveryKey.deleteButton).toBeEnabled();
-
-      await settings.goto();
 
       await settings.recoveryKey.deleteButton.click();
 
