@@ -15,3 +15,9 @@ export default {
 } as Meta;
 
 export const Default = () => <Subject />;
+
+export const WithError = () => <Subject success={false} />;
+
+export const WithHint = () => (
+  <Subject recoveryKeyHint="My key is stored in Fort Knox" />
+);

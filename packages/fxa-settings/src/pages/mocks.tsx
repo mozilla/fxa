@@ -64,7 +64,10 @@ export function mockLoadingSpinnerModule() {
     return <div>loading spinner mock</div>;
   });
 }
-export const MOCK_RECOVERY_KEY = 'ARJDF300TFEPRJ7SFYB8QVNVYT60WWS2';
+export const MOCK_RECOVERY_KEY = 'ANMD1S097Y2Y4EES02CWBJ6ZPYKPH69F';
+export const MOCK_RECOVERY_KEY_WITH_SPACES =
+  'ANMD 1S09 7Y2Y 4EES 02CW BJ6Z PYKP H69F';
+export const MOCK_RECOVERY_KEY_INVALID = 'ANMD1S097Y2Y4EES02CWBJ6ZPYKPH69L';
 export const MOCK_REMOTE_METADATA = JSON.stringify({});
 export const ALL_PRODUCT_PROMO_SERVICES = [{ name: MozServices.Monitor }];
 export const ALL_PRODUCT_PROMO_SUBSCRIPTIONS = [

@@ -20,7 +20,7 @@ export const UnitRowRecoveryKey = () => {
   const recoveryKey = account.recoveryKey.exists;
   const alertBar = useAlertBar();
   const [modalRevealed, revealModal, hideModal] = useBooleanState();
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const ftlMsgResolver = useFtlMsgResolver();
 
   const deleteRecoveryKey = useCallback(async () => {
@@ -44,7 +44,7 @@ export const UnitRowRecoveryKey = () => {
       );
       logViewEvent('flow.settings.account-recovery', 'confirm-revoke.fail');
     } finally {
-      setIsLoading(false);
+      setIsDeleting(false);
     }
   }, [account, hideModal, alertBar, ftlMsgResolver]);
 
@@ -81,7 +81,7 @@ export const UnitRowRecoveryKey = () => {
           <ButtonIconTrash
             title={localizedDeleteRKIconButton}
             classNames="inline-block mobileLandscape:hidden ms-1"
-            disabled={!recoveryKey || account.loading}
+            disabled={!recoveryKey || isDeleting}
             onClick={revealModal}
           />
         )
@@ -92,7 +92,7 @@ export const UnitRowRecoveryKey = () => {
           <ButtonIconTrash
             title={localizedDeleteRKIconButton}
             classNames="hidden mobileLandscape:inline-block ms-1"
-            disabled={!recoveryKey || account.loading}
+            disabled={!recoveryKey || isDeleting}
             onClick={revealModal}
           />
         )
@@ -125,7 +125,7 @@ export const UnitRowRecoveryKey = () => {
               hideModal();
             }}
             onConfirm={() => {
-              setIsLoading(true);
+              setIsDeleting(true);
               deleteRecoveryKey();
               logViewEvent(
                 'flow.settings.account-recovery',
@@ -136,7 +136,7 @@ export const UnitRowRecoveryKey = () => {
             confirmText={ftlMsgResolver.getMsg('rk-action-remove', 'Remove')}
             headerId="recovery-key-header"
             descId="recovery-key-desc"
-            isLoading={isLoading}
+            isLoading={isDeleting}
           >
             <FtlMsg id="rk-remove-modal-heading-1">
               <h2

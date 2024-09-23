@@ -4,7 +4,7 @@
 
 import { Link, useLocation } from '@reach/router';
 import React, { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { Control, useForm, useWatch } from 'react-hook-form';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import GleanMetrics from '../../../lib/glean';
@@ -13,15 +13,18 @@ import { useFtlMsgResolver } from '../../../models/hooks';
 
 import AppLayout from '../../../components/AppLayout';
 import Banner, { BannerType } from '../../../components/Banner';
-import CardHeader from '../../../components/CardHeader';
 import InputText from '../../../components/InputText';
-import WarningMessage from '../../../components/WarningMessage';
 
 import {
   AccountRecoveryConfirmKeyFormData,
   AccountRecoveryConfirmKeyProps,
 } from './interfaces';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
+import { RecoveryKeyImage } from '../../../components/images';
+import { Constants } from '../../../lib/constants';
+
+// TODO in FXA-7894 use sensitive data client to pass sensitive data
+// Depends on FXA-7400
 
 const AccountRecoveryConfirmKey = ({
   accountResetToken,
@@ -30,11 +33,11 @@ const AccountRecoveryConfirmKey = ({
   emailToHashWith,
   errorMessage,
   estimatedSyncDeviceCount,
-  isSubmitting,
+  recoveryKeyHint,
+  isSubmitDisabled,
   recoveryKeyExists,
-  serviceName,
   setErrorMessage,
-  setIsSubmitting,
+  setIsSubmitDisabled,
   verifyRecoveryKey,
   token,
   uid,
@@ -42,7 +45,7 @@ const AccountRecoveryConfirmKey = ({
   const ftlMsgResolver = useFtlMsgResolver();
   const location = useLocation();
 
-  const { getValues, handleSubmit, register, formState } =
+  const { control, getValues, handleSubmit, register } =
     useForm<AccountRecoveryConfirmKeyFormData>({
       mode: 'onChange',
       criteriaMode: 'all',
@@ -55,17 +58,15 @@ const AccountRecoveryConfirmKey = ({
     GleanMetrics.passwordReset.recoveryKeyView();
   }, []);
 
+  const removeSpaces = (key: string) => key.replace(/\s/g, '');
+
   const onSubmit = () => {
     setErrorMessage('');
-    // When users create their recovery key, the copyable output has spaces and we
-    // display it visually this way to users as well for easier reading. Strip that
-    // from here for less copy-and-paste friction for users.
-    const recoveryKey = getValues('recoveryKey').replace(/\s/g, '');
-
-    if (recoveryKey.length === 32 && isBase32Crockford(recoveryKey)) {
-      setIsSubmitting(true);
+    const key = removeSpaces(getValues().recoveryKey);
+    if (isBase32Crockford(key)) {
+      setIsSubmitDisabled(true);
       GleanMetrics.passwordReset.recoveryKeySubmit();
-      verifyRecoveryKey(recoveryKey);
+      verifyRecoveryKey(key);
     } else {
       // if the submitted key does not match the expected format,
       // abort before submitting to the auth server
@@ -74,46 +75,75 @@ const AccountRecoveryConfirmKey = ({
         AuthUiErrors.INVALID_RECOVERY_KEY
       );
       setErrorMessage(localizedErrorMessage);
-      setIsSubmitting(false);
     }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (errorMessage) {
+      setErrorMessage('');
+    }
+    // strip out any characters other than letters, numbers, spaces
+    // and only allow single spaces
+    const filteredCode = e.target.value
+      .replace(/[^a-zA-Z0-9\s]/g, '')
+      .replace(/\s{2,}/g, ' ');
+    // only count letters and numbers to assess if submit should be disabled
+    setIsSubmitDisabled(removeSpaces(filteredCode).length !== 32);
+    e.target.value = filteredCode;
+  };
+
+  const ControlledCharacterCount = ({
+    control,
+  }: {
+    control: Control<AccountRecoveryConfirmKeyFormData>;
+  }) => {
+    const recoveryKey: string = useWatch({
+      control,
+      name: 'recoveryKey',
+      defaultValue: getValues().recoveryKey,
+    });
+    return (
+      <p className="text-end text-xs -my-2">
+        {removeSpaces(recoveryKey).length}/{Constants.RECOVERY_KEY_LENGTH}
+      </p>
+    );
   };
 
   return (
     <AppLayout>
-      <CardHeader
-        headingWithDefaultServiceFtlId="account-recovery-confirm-key-heading-w-default-service"
-        headingWithCustomServiceFtlId="account-recovery-confirm-key-heading-w-custom-service"
-        headingText="Reset password with account recovery key"
-        {...{ serviceName }}
-      />
-
+      <FtlMsg id="password-reset-flow-heading">
+        <h1 className="text-start text-grey-400 text-sm">
+          Reset your password
+        </h1>
+      </FtlMsg>
       {errorMessage && <Banner type={BannerType.error}>{errorMessage}</Banner>}
-
-      <FtlMsg id="account-recovery-confirm-key-instructions-2">
-        <p className="mt-4 text-sm">
-          Please enter the one time use account recovery key you stored in a
-          safe place to regain access to your Mozilla account.
+      <RecoveryKeyImage className="mx-auto my-2" />
+      <FtlMsg id="account-recovery-confirm-key-heading">
+        <h2 className="card-header text-start mb-2">
+          Enter your account recovery key
+        </h2>
+      </FtlMsg>
+      <FtlMsg id="account-recovery-confirm-key-instruction">
+        <p className="text-start text-sm">
+          This key recovers your encrypted browsing data, such as passwords and
+          bookmarks, from Firefox servers.
         </p>
       </FtlMsg>
-      <WarningMessage
-        warningMessageFtlId="account-recovery-confirm-key-warning-message"
-        warningType="Note:"
-      >
-        If you reset your password and don’t have account recovery key saved,
-        some of your data will be erased (including synced server data like
-        history and bookmarks).
-      </WarningMessage>
 
       <form
         noValidate
-        className="flex flex-col gap-4"
+        className="flex flex-col gap-4 mt-8"
         onSubmit={handleSubmit(onSubmit)}
         data-testid="account-recovery-confirm-key-form"
       >
-        <FtlMsg id="account-recovery-confirm-key-input" attrs={{ label: true }}>
+        <ControlledCharacterCount {...{ control }} />
+        <FtlMsg
+          id="account-recovery-confirm-key-input-label"
+          attrs={{ label: true }}
+        >
           <InputText
             type="text"
-            label="Enter account recovery key"
+            label="Enter your 32-character account recovery key"
             name="recoveryKey"
             autoFocus
             // Crockford base32 encoding is case insensitive, so visually display as
@@ -124,25 +154,32 @@ const AccountRecoveryConfirmKey = ({
             spellCheck={false}
             prefixDataTestId="account-recovery-confirm-key"
             inputRef={register({ required: true })}
+            onChange={handleChange}
+            hasErrors={!!errorMessage}
           />
         </FtlMsg>
 
-        <FtlMsg id="account-recovery-confirm-key-button">
+        {recoveryKeyHint && (
+          <div className="bg-grey-50 p-4 text-start text-sm rounded-md">
+            <FtlMsg id="account-recovery-confirm-key-hint">
+              <p className="text-grey-500">Your storage hint is:</p>
+            </FtlMsg>
+            <p className="break-words">{recoveryKeyHint}</p>
+          </div>
+        )}
+
+        <FtlMsg id="account-recovery-confirm-key-button-2">
           <button
             type="submit"
             className="cta-primary cta-xl mb-6"
-            disabled={
-              isSubmitting ||
-              !formState.isDirty ||
-              !!formState.errors.recoveryKey
-            }
+            disabled={isSubmitDisabled}
           >
-            Confirm account recovery key
+            Continue
           </button>
         </FtlMsg>
       </form>
 
-      <FtlMsg id="account-recovery-lost-recovery-key-link">
+      <FtlMsg id="account-recovery-lost-recovery-key-link-2">
         <Link
           to={`/complete_reset_password${location.search}`}
           className="link-blue text-sm"
@@ -159,7 +196,7 @@ const AccountRecoveryConfirmKey = ({
           }}
           onClick={() => GleanMetrics.passwordReset.recoveryKeyCannotFind()}
         >
-          Don’t have an account recovery key?
+          Can’t find your account recovery key?
         </Link>
       </FtlMsg>
     </AppLayout>

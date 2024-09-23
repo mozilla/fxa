@@ -10,11 +10,13 @@ import { isEmailValid } from 'fxa-shared/email/helpers';
 export type LinkRememberPasswordProps = {
   email?: string;
   clickHandler?: () => void;
+  textStart?: boolean;
 };
 
 const LinkRememberPassword = ({
   email,
   clickHandler,
+  textStart,
 }: LinkRememberPasswordProps) => {
   let linkHref: string;
   const location = useLocation();
@@ -44,7 +46,11 @@ const LinkRememberPassword = ({
   };
 
   return (
-    <div className="flex flex-wrap gap-2 justify-center text-sm mt-6">
+    <div
+      className={`flex flex-wrap gap-2 text-sm mt-6 ${
+        textStart ? 'text-start' : 'justify-center'
+      }`}
+    >
       <FtlMsg id="remember-password-text">
         <p>Remember your password?</p>
       </FtlMsg>

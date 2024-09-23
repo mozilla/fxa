@@ -1,20 +1,16 @@
 ## AccountRecoveryConfirmKey page
 
-# Strings within the <span> elements appear as a subheading.
-# If more appropriate in a locale, the string within the <span>, "to continue to account settings" can stand alone as "Continue to account settings"
-account-recovery-confirm-key-heading-w-default-service = Reset password with account recovery key <span>to continue to account settings</span>
-# Strings within the <span> elements appear as a subheading.
-# If more appropriate in a locale, the string within the <span>, "to continue to { $serviceName }" can stand alone as "Continue to { $serviceName }"
-# { $serviceName } represents a product name (e.g., Mozilla VPN) that will be passed in as a variable
-account-recovery-confirm-key-heading-w-custom-service = Reset password with account recovery key <span>to continue to { $serviceName }</span>
+account-recovery-confirm-key-heading = Enter your account recovery key
 
-account-recovery-confirm-key-instructions-2 = Please enter the one time use account recovery key you stored in a safe place to regain access to your { -product-mozilla-account }.
+account-recovery-confirm-key-instruction = This key recovers your encrypted browsing data, such as passwords and bookmarks, from { -brand-firefox } servers.
 
-account-recovery-confirm-key-warning-message = <span>Note:</span> If you reset your password and don’t have your account recovery key saved, some of your data will be erased (including synced server data like history and bookmarks).
-# Prompts the user to enter their account recovery code
-account-recovery-confirm-key-input =
-  .label = Enter account recovery key
+# Prompts the user to enter their account recovery key
+# Account recovery key contains a mix of letters and numbers, no special characters
+account-recovery-confirm-key-input-label =
+  .label = Enter your 32-character account recovery key
+# When setting up an account recovery key, users have the option of storing an account recovery key hint that is shown during password reset
+account-recovery-confirm-key-hint = Your storage hint is:
 # Clicking this button checks if the recovery key provided by the user is correct and associated with their account
-account-recovery-confirm-key-button = Confirm account recovery key
+account-recovery-confirm-key-button-2 = Continue
 # Link that leads to the password reset page (without recovery code)
-account-recovery-lost-recovery-key-link = Don’t have an account recovery key?
+account-recovery-lost-recovery-key-link-2 = Can’t find your account recovery key?

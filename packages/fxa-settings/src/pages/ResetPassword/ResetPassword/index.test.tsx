@@ -7,7 +7,6 @@ import { screen, waitFor } from '@testing-library/react';
 import GleanMetrics from '../../../lib/glean';
 import { Subject } from './mocks';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import { MozServices } from '../../../lib/types';
 import userEvent from '@testing-library/user-event';
 import { MOCK_EMAIL } from '../../mocks';
 

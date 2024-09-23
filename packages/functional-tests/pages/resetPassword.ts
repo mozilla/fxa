@@ -94,25 +94,25 @@ export class ResetPasswordPage extends BaseLayout {
 
   get confirmRecoveryKeyHeading() {
     return this.page.getByRole('heading', {
-      name: 'Reset password with account recovery key',
+      name: 'Enter your account recovery key',
     });
   }
 
   get recoveryKeyTextbox() {
     return this.page.getByRole('textbox', {
-      name: 'Enter account recovery key',
+      name: 'Enter your 32-character account recovery key',
     });
   }
 
   get confirmRecoveryKeyButton() {
     return this.page.getByRole('button', {
-      name: 'Confirm account recovery key',
+      name: 'Continue',
     });
   }
 
   get forgotKeyLink() {
     return this.page.getByRole('link', {
-      name: 'Don’t have an account recovery key?',
+      name: 'Can’t find your account recovery key?',
     });
   }
 

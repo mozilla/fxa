@@ -3,41 +3,46 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState } from 'react';
-import { MozServices } from '../../../lib/types';
 import { MOCK_EMAIL, MOCK_HEXSTRING_32, MOCK_UID } from '../../mocks';
 import AccountRecoveryConfirmKey from '.';
 import { LocationProvider } from '@reach/router';
 import { AccountRecoveryConfirmKeyProps } from './interfaces';
-
-const mockVerifyRecoveryKey = (key: string) => Promise.resolve();
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 
 export const Subject = ({
-  serviceName = MozServices.Default,
-  verifyRecoveryKey = mockVerifyRecoveryKey,
-}: Partial<AccountRecoveryConfirmKeyProps>) => {
+  recoveryKeyHint = '',
+  success = true,
+  verifyRecoveryKey,
+}: Partial<AccountRecoveryConfirmKeyProps> & { success?: boolean }) => {
   const [errorMessage, setErrorMessage] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
   const code = MOCK_HEXSTRING_32;
   const email = MOCK_EMAIL;
   const estimatedSyncDeviceCount = 2;
   const token = MOCK_HEXSTRING_32;
   const uid = MOCK_UID;
+  const mockVerifyRecoveryKey = success
+    ? () => Promise.resolve()
+    : () => {
+        setErrorMessage(AuthUiErrors.INVALID_RECOVERY_KEY.message);
+        return Promise.resolve();
+      };
 
   return (
     <LocationProvider>
       <AccountRecoveryConfirmKey
+        verifyRecoveryKey={verifyRecoveryKey || mockVerifyRecoveryKey}
         {...{
           code,
           email,
           errorMessage,
           estimatedSyncDeviceCount,
-          isSubmitting,
-          serviceName,
+          recoveryKeyHint,
+          isSubmitDisabled,
           setErrorMessage,
-          setIsSubmitting,
+          setIsSubmitDisabled,
           token,
           uid,
-          verifyRecoveryKey,
         }}
       />
     </LocationProvider>
