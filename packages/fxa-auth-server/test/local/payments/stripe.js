@@ -50,7 +50,6 @@ const {
 const {
   ProductConfigurationManager,
   PurchaseWithDetailsOfferingContentTransformedFactory,
-  PurchaseDetailsTransformedFactory,
 } = require('@fxa/shared/cms');
 
 const customer1 = require('./fixtures/stripe/customer1.json');
@@ -3426,15 +3425,11 @@ describe('#integration - StripeHelper', () => {
       const newWebIconURL = 'http://strapi.example/webicon';
       const mockCMSConfigUtil = {
         transformedPurchaseWithCommonContentForPlanId: (planId) => {
-          return PurchaseWithDetailsOfferingContentTransformedFactory({
-            purchaseDetails: {
-              data: {
-                attributes: PurchaseDetailsTransformedFactory({
-                  webIcon: newWebIconURL,
-                }),
-              },
-            },
-          });
+          const mockValue =
+            PurchaseWithDetailsOfferingContentTransformedFactory();
+          mockValue.purchaseDetails.data.attributes.webIcon = newWebIconURL;
+          mockValue.purchaseDetails.data.attributes.localizations.data = [];
+          return mockValue;
         },
       };
       const mockProductConfigurationManager = {

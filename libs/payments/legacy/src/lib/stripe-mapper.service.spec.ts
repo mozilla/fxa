@@ -147,8 +147,9 @@ describe('StripeMapperService', () => {
       expect(nonMatchingPlans[0].split(' - ')[1]).toBe('webIconURL');
     });
 
-    it('should return data from cms', async () => {
+    it('should return data from cms default locale if no localization data is available', async () => {
       const expected = PurchaseWithDetailsOfferingContentTransformedFactory();
+      expected.purchaseDetails.data.attributes.localizations.data = [];
       mockCMSConfigUtil.transformedPurchaseWithCommonContentForPlanId.mockReturnValueOnce(
         expected
       );
@@ -168,6 +169,39 @@ describe('StripeMapperService', () => {
       );
       expect(actualProduct.metadata?.['webIconURL']).toBe(
         expected.purchaseDetails.data.attributes.webIcon
+      );
+      expect(actualProduct.metadata?.['productSet']).toBe(
+        productMetadata.productSet
+      );
+      expect(actualProduct.metadata?.['productOrder']).toBe(
+        productMetadata.productOrder
+      );
+      expect(nonMatchingPlans).toHaveLength(0);
+    });
+
+    it('should return data from cms for locale when available', async () => {
+      const expected = PurchaseWithDetailsOfferingContentTransformedFactory();
+      mockCMSConfigUtil.transformedPurchaseWithCommonContentForPlanId.mockReturnValueOnce(
+        expected
+      );
+      const productMetadata = {
+        productSet: 'set',
+        productOrder: 'order',
+      };
+      const stripePlan = StripePlanFactory() as Stripe.Plan;
+      stripePlan.product = StripeProductFactory({
+        metadata: productMetadata,
+      });
+      const { mappedPlans, nonMatchingPlans } =
+        await stripeMapper.mapCMSToStripePlans([stripePlan], 'en', false);
+      const actualProduct = mappedPlans[0].product as Stripe.Product;
+      expect(mappedPlans[0].metadata?.['webIconURL']).toBe(
+        expected.purchaseDetails.data.attributes.localizations.data[0]
+          .attributes.webIcon
+      );
+      expect(actualProduct.metadata?.['webIconURL']).toBe(
+        expected.purchaseDetails.data.attributes.localizations.data[0]
+          .attributes.webIcon
       );
       expect(actualProduct.metadata?.['productSet']).toBe(
         productMetadata.productSet
