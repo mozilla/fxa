@@ -3,20 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { getCode } from 'fxa-settings/src/lib/totp';
-import { expect, test } from '../../../lib/fixtures/standard';
-import { ResetPasswordPage } from '../../../pages/resetPassword';
-import { SigninPage } from '../../../pages/signin';
+import { expect, test } from '../../lib/fixtures/standard';
+import { ResetPasswordPage } from '../../pages/resetPassword';
+import { SigninPage } from '../../pages/signin';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('oauth reset password', () => {
-    test.beforeEach(async ({ pages: { configPage } }) => {
-      const config = await configPage.getConfig();
-      test.skip(
-        config.featureFlags.resetPasswordWithCode !== true,
-        'see FXA-9728, remove conditional skip when feature flag removed'
-      );
-    });
-
     test('reset password', async ({
       target,
       page,

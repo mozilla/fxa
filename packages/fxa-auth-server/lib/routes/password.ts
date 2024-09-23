@@ -59,9 +59,10 @@ module.exports = function (
   statsd: StatsD
 ) {
   const otpUtils = require('../../lib/routes/utils/otp')(log, config, db);
-  const otpRedisAdapter = config.passwordForgotOtp.enabled
-    ? new OtpRedisAdapter(authServerCacheRedis, config.passwordForgotOtp.ttl)
-    : { set: async () => null, get: async () => null, del: async () => null };
+  const otpRedisAdapter = new OtpRedisAdapter(
+    authServerCacheRedis,
+    config.passwordForgotOtp.ttl
+  );
   const otpManager = new OtpManager(
     { kind: 'passwordForgot', digits: config.passwordForgotOtp.digits },
     otpRedisAdapter
@@ -575,10 +576,6 @@ module.exports = function (
         },
       },
       handler: async function (request: AuthRequest) {
-        if (!config.passwordForgotOtp.enabled) {
-          throw error.featureNotEnabled();
-        }
-
         log.begin('Password.forgotOtp', request);
         await request.emitMetricsEvent('password.forgot.send_otp.start');
         const payload = request.payload as {
@@ -672,10 +669,6 @@ module.exports = function (
         },
       },
       handler: async function (request: any) {
-        if (!config.passwordForgotOtp.enabled) {
-          throw error.featureNotEnabled();
-        }
-
         log.begin('Password.forgotOtpVerify', request);
         await request.emitMetricsEvent('password.forgot.verify_otp.start');
         statsd.increment('otp.passwordForgot.attempt');

@@ -65,7 +65,6 @@
   },
   "featureFlags": {
     "sendFxAStatusOnSettings": true,
-    "resetPasswordWithCode": true,
     "recoveryCodeSetupOnSyncSignIn": true
   }
 }

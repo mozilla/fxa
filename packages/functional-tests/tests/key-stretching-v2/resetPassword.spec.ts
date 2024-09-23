@@ -57,21 +57,9 @@ test.describe('severity-2 #smoke', () => {
     test(`signs up as v${signupVersion.version} resets password as v${resetVersion.version} and signs in as v${signinVersion.version}`, async ({
       page,
       target,
-      pages: {
-        configPage,
-        signin,
-        signup,
-        settings,
-        resetPassword,
-        confirmSignupCode,
-      },
+      pages: { signin, signup, settings, resetPassword, confirmSignupCode },
       testAccountTracker,
     }) => {
-      const config = await configPage.getConfig();
-      test.skip(
-        config.featureFlags.resetPasswordWithCode !== true,
-        'TODO in FXA-9728, remove this config check'
-      );
       const { email, password } = testAccountTracker.generateAccountDetails();
       await page.goto(
         `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react&${signupVersion.query}`
