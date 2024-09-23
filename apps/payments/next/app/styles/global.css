@@ -10,24 +10,12 @@ body {
 }
 
 /* Purchase Details */
-.plan-details-item {
-  @apply flex items-center justify-between gap-2 leading-5 text-grey-600 text-sm;
-}
-
 .row-divider-grey-200 {
   @apply border-b border-grey-200;
 }
 
 /* offeringId */
 /* checkout, error, success pages */
-.payment-panel {
-  @apply mb-6 tablet:mt-6 tablet:min-w-[18rem] tablet:max-w-xs tablet:col-start-2 tablet:col-end-auto tablet:row-start-1 tablet:row-end-3;
-}
-
-.page-body {
-  @apply bg-white rounded-b-lg shadow-sm shadow-grey-300 border-t-0 mb-6 pt-4 px-4 pb-14 text-grey-600 desktop:px-12 desktop:pb-12;
-}
-
 .page-header {
   @apply font-semibold leading-8 mb-2 text-grey-600 text-xl;
 }

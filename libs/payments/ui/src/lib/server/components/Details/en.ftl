@@ -1,4 +1,4 @@
-## Component - PurchaseDetails
+## Component - Details
 
 next-plan-details-header = Product details
 next-plan-details-list-price = List Price
@@ -8,11 +8,6 @@ next-plan-details-total-label = Total
 ## Purchase details - shared by multiple components, including purchase details and payment form
 ## $amount (Number) - The amount billed. It will be formatted as currency.
 
-plan-price-interval-daily = { $amount } daily
-plan-price-interval-weekly = { $amount } weekly
-plan-price-interval-monthly = { $amount } monthly
-plan-price-interval-6monthly = { $amount } every 6 months
-plan-price-interval-yearly = { $amount } yearly
 list-positive-amount = { $amount }
 list-negative-amount = - { $amount }
 

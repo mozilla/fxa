@@ -5,7 +5,9 @@
 import { getLocalizedCurrencyString } from '@fxa/shared/l10n';
 import { StripePrice } from '@fxa/payments/stripe';
 
-export type PriceInterval = NonNullable<StripePrice['recurring']>['interval']; // TODO - Replace once FXA-7507 lands
+export type PriceIntervalType = NonNullable<
+  StripePrice['recurring']
+>['interval']; // TODO - Replace once FXA-7507 lands
 
 /**
  * The following functions are for creating fallback text for Subscription Intervals
@@ -77,7 +79,7 @@ export function formatPlanInterval({
   interval,
   intervalCount,
 }: {
-  interval: PriceInterval; // TODO - Replace once FXA-7507 lands
+  interval: PriceIntervalType; // TODO - Replace once FXA-7507 lands
   intervalCount?: number;
 }): string {
   switch (interval) {
