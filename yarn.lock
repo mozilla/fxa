@@ -41810,7 +41810,7 @@ fsevents@~2.1.1:
     mysql: ^2.18.1
     mysql2: ^3.9.8
     nest-typed-config: ^2.9.2
-    nest-winston: ^1.9.4
+    nest-winston: ^1.10.0
     next: 14.2.10
     next-auth: beta
     node-fetch: ^2.6.7
@@ -53710,15 +53710,15 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"nest-winston@npm:^1.9.4":
-  version: 1.9.4
-  resolution: "nest-winston@npm:1.9.4"
+"nest-winston@npm:^1.10.0":
+  version: 1.10.0
+  resolution: "nest-winston@npm:1.10.0"
   dependencies:
     fast-safe-stringify: ^2.1.1
   peerDependencies:
     "@nestjs/common": ^5.0.0 || ^6.6.0 || ^7.0.0 || ^8.0.0 || ^9.0.0 || ^10.0.0
     winston: ^3.0.0
-  checksum: 595d23135b4760d7ac18613acf018dff538f8167eac7052a473c4995a6609c3584270dd4d82d6a4b3d7fba688284c04e33b93479bbe933a1e2f27d1cd964a681
+  checksum: 0d30d5b8eda4c249551df798da611f17e3dfc587a85b7bb7a507b0b864dd28d4109d636224974de8c8b1b1d4469a88b7d1fe3684ec0ad8a7e71222c82b19f1d9
   languageName: node
   linkType: hard
 
