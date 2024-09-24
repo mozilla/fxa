@@ -30,6 +30,7 @@ export const CartFactory = (override?: Partial<NewCart>): NewCart => ({
     'semiannually',
     'annually',
   ]),
+  currency: faker.finance.currencyCode(),
   createdAt: faker.date.recent().getTime(),
   updatedAt: faker.date.recent().getTime(),
   amount: faker.number.int(10000),

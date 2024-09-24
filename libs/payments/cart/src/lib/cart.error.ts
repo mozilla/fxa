@@ -119,3 +119,17 @@ export class CartInvalidPromoCodeError extends CartError {
     });
   }
 }
+
+export class CartInvalidCurrencyError extends CartError {
+  constructor(
+    currency: string | undefined,
+    country: string | undefined,
+    cartId?: string
+  ) {
+    super('Cart specified currency is not supported', {
+      cartId,
+      currency,
+      country,
+    });
+  }
+}

@@ -42,6 +42,7 @@ import {
 import { RootConfig } from './config';
 import { NextJSActionsService } from './nextjs-actions.service';
 import { validate } from '../config.utils';
+import { CurrencyManager } from '@fxa/payments/currency';
 
 @Module({
   imports: [
@@ -71,6 +72,7 @@ import { validate } from '../config.utils';
     CartService,
     CheckoutTokenManager,
     CustomerManager,
+    CurrencyManager,
     CheckoutService,
     EligibilityManager,
     EligibilityService,

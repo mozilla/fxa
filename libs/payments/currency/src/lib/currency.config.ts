@@ -13,10 +13,18 @@ export class CurrencyConfig {
   )
   @IsObject()
   public readonly taxIds!: { [key: string]: string };
+
+  @Transform(
+    ({ value }) => (value instanceof Object ? value : JSON.parse(value)),
+    { toClassOnly: true }
+  )
+  @IsObject()
+  public readonly currenciesToCountries!: { [key: string]: string[] };
 }
 
 export const MockCurrencyConfig = {
   taxIds: { EUR: 'EU1234' },
+  currenciesToCountries: { USD: ['US'] },
 } satisfies CurrencyConfig;
 
 export const MockCurrencyConfigProvider = {

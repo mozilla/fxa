@@ -68,6 +68,7 @@ import {
   CartTotalMismatchError,
   CartEmailNotFoundError,
   CartInvalidPromoCodeError,
+  CartInvalidCurrencyError,
 } from './cart.error';
 import { CheckoutService } from './checkout.service';
 
@@ -345,6 +346,18 @@ describe('CheckoutService', () => {
         await expect(
           checkoutService.prePaySteps(mockCart, mockCustomerData)
         ).rejects.toBeInstanceOf(CartEmailNotFoundError);
+      });
+
+      it('throws cart currency invalid error', async () => {
+        const mockCart = StripeResponseFactory(
+          ResultCartFactory({
+            currency: null,
+          })
+        );
+
+        await expect(
+          checkoutService.prePaySteps(mockCart, mockCustomerData)
+        ).rejects.toBeInstanceOf(CartInvalidCurrencyError);
       });
 
       it('throws cart eligibility mismatch error', async () => {

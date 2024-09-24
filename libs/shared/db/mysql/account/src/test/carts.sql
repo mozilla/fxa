@@ -7,6 +7,7 @@ CREATE TABLE `carts` (
   `interval` varchar(255) COLLATE utf8mb4_bin NOT NULL,
   `experiment` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL,
   `taxAddress` json DEFAULT NULL,
+  `currency` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL,
   `createdAt` bigint unsigned NOT NULL,
   `updatedAt` bigint unsigned NOT NULL,
   `couponCode` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL,

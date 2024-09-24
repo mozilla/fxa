@@ -60,4 +60,16 @@ export class CurrencyManager {
   getTaxId(currency: string) {
     return this.taxIds[currency.toUpperCase()];
   }
+
+  getCurrencyForCountry(country: string) {
+    for (const [currency, countries] of Object.entries(
+      this.config.currenciesToCountries
+    )) {
+      if (countries.includes(country)) {
+        return currency;
+      }
+    }
+
+    return undefined;
+  }
 }
