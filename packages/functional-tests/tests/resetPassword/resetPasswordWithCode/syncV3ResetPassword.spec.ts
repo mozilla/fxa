@@ -31,6 +31,8 @@ test.describe('severity-1 #smoke', () => {
       );
 
       await resetPassword.fillOutResetPasswordCodeForm(code);
+
+      await expect(resetPassword.dataLossWarning).toBeVisible();
       await resetPassword.fillOutNewPasswordForm(newPassword);
 
       await expect(page).toHaveURL(/reset_password_verified/);

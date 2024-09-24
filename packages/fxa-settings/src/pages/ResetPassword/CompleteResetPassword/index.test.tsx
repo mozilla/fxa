@@ -33,27 +33,26 @@ describe('CompleteResetPassword page', () => {
   });
 
   describe('default reset without recovery key', () => {
-    it('renders as expected', async () => {
-      renderWithLocalizationProvider(<Subject />);
+    it('renders as expected for account with sync', async () => {
+      renderWithLocalizationProvider(
+        <Subject recoveryKeyExists={false} estimatedSyncDeviceCount={2} />
+      );
 
       await waitFor(() =>
         expect(
           screen.getByRole('heading', {
-            name: 'Create new password',
+            name: 'Create a new password',
           })
         ).toBeVisible()
       );
+
+      // Warning message about data loss should should be displayed
       expect(
         screen.getByText(
-          'When you reset your password, you reset your account. You may lose some of your personal information (including history, bookmarks, and passwords). That’s because we encrypt your data with your password to protect your privacy. You’ll still keep any subscriptions you may have and Pocket data will not be affected.'
+          'Resetting your password may delete your encrypted browser data.'
         )
       ).toBeVisible();
-      // no recovery key specific messaging
-      expect(
-        screen.queryByText(
-          'You have successfully restored your account using your account recovery key. Create a new password to secure your data, and store it in a safe location.'
-        )
-      ).not.toBeInTheDocument();
+
       const inputs = screen.getAllByRole('textbox');
       expect(inputs).toHaveLength(2);
       expect(screen.getByLabelText('New password')).toBeVisible();
@@ -70,8 +69,36 @@ describe('CompleteResetPassword page', () => {
       );
     });
 
+    it('renders as expected for account without sync', async () => {
+      renderWithLocalizationProvider(
+        <Subject recoveryKeyExists={false} estimatedSyncDeviceCount={0} />
+      );
+
+      await waitFor(() =>
+        expect(
+          screen.getByRole('heading', {
+            name: 'Create a new password',
+          })
+        ).toBeVisible()
+      );
+
+      // Warning messages about data loss should not be displayed.
+      expect(
+        screen.queryByText(
+          'Resetting your password may delete your encrypted browser data.'
+        )
+      ).not.toBeInTheDocument();
+
+      // Warning message about using recovery ke should not be displayed
+      expect(
+        screen.queryByText('Reset your password with your recovery key.')
+      ).not.toBeInTheDocument();
+    });
+
     it('sends the expected metrics on render', () => {
-      renderWithLocalizationProvider(<Subject />);
+      renderWithLocalizationProvider(
+        <Subject recoveryKeyExists={false} estimatedSyncDeviceCount={2} />
+      );
       expect(GleanMetrics.passwordReset.createNewView).toHaveBeenCalledTimes(1);
     });
   });
@@ -83,22 +110,23 @@ describe('CompleteResetPassword page', () => {
       await waitFor(() =>
         expect(
           screen.getByRole('heading', {
-            name: 'Create new password',
+            name: 'Create a new password',
           })
         ).toBeVisible()
       );
-      // recovery key specific messaging
-      expect(
-        screen.getByText(
-          'You have successfully restored your account using your account recovery key. Create a new password to secure your data, and store it in a safe location.'
-        )
-      ).toBeVisible();
-      // no warning
+
+      // Warning messages about data loss should not be displayed.
       expect(
         screen.queryByText(
-          'When you reset your password, you reset your account. You may lose some of your personal information (including history, bookmarks, and passwords). That’s because we encrypt your data with your password to protect your privacy. You’ll still keep any subscriptions you may have and Pocket data will not be affected.'
+          'Resetting your password may delete your encrypted browser data.'
         )
       ).not.toBeInTheDocument();
+
+      // Warning message about using recovery key should not be displayed
+      expect(
+        screen.queryByText('Reset your password with your recovery key.')
+      ).not.toBeInTheDocument();
+
       const inputs = screen.getAllByRole('textbox');
       expect(inputs).toHaveLength(2);
       expect(screen.getByLabelText('New password')).toBeVisible();
@@ -120,6 +148,38 @@ describe('CompleteResetPassword page', () => {
       expect(
         GleanMetrics.passwordReset.recoveryKeyCreatePasswordView
       ).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('reset with unconfimred account recovery key', () => {
+    it('renders as expected', async () => {
+      renderWithLocalizationProvider(
+        <Subject
+          hasConfirmedRecoveryKey={false}
+          recoveryKeyExists={true}
+          estimatedSyncDeviceCount={2}
+        />
+      );
+
+      await waitFor(() =>
+        expect(
+          screen.getByRole('heading', {
+            name: 'Create a new password',
+          })
+        ).toBeVisible()
+      );
+
+      // Warning messages about data loss should not be displayed.
+      expect(
+        screen.queryByText(
+          'Resetting your password may delete your encrypted browser data.'
+        )
+      ).not.toBeInTheDocument();
+
+      // Warning message about using recovery key should be displayed
+      expect(
+        screen.getByText('Reset your password with your recovery key.')
+      ).toBeVisible();
     });
   });
 
@@ -151,7 +211,7 @@ describe('CompleteResetPassword page', () => {
     await waitFor(() =>
       expect(
         screen.getByRole('heading', {
-          name: 'Create new password',
+          name: 'Create a new password',
         })
       ).toBeVisible()
     );

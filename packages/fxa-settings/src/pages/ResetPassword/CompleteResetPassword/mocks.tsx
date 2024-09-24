@@ -16,10 +16,10 @@ const mockSubmitNewPassword = (newPassword: string) => Promise.resolve();
 export const Subject = ({
   submitNewPassword = mockSubmitNewPassword,
   hasConfirmedRecoveryKey = false,
-  recoveryKeyExists = undefined,
+  recoveryKeyExists,
   testErrorMessage = '',
+  estimatedSyncDeviceCount,
 }: Partial<CompleteResetPasswordProps> & {
-  recoveryKeyExists?: boolean | undefined;
   testErrorMessage?: string;
 }) => {
   const email = MOCK_EMAIL;
@@ -42,6 +42,8 @@ export const Subject = ({
           setErrorMessage,
           submitNewPassword,
           hasConfirmedRecoveryKey,
+          recoveryKeyExists,
+          estimatedSyncDeviceCount,
         }}
       />
     </LocationProvider>

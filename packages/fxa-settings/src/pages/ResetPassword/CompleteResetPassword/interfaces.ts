@@ -41,6 +41,8 @@ export interface CompleteResetPasswordProps {
   locationState: CompleteResetPasswordLocationState;
   submitNewPassword: (newPassword: string) => Promise<void>;
   hasConfirmedRecoveryKey?: boolean;
+  estimatedSyncDeviceCount?: number | undefined;
+  recoveryKeyExists?: boolean | undefined;
 }
 
 export type AccountResetData = {

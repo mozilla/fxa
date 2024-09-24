@@ -83,10 +83,13 @@ test.describe('severity-1 #smoke', () => {
 
       await resetPassword.fillOutResetPasswordCodeForm(code);
 
-      await resetPassword.fillOutNewPasswordForm(passwordValue);
+      await resetPassword.fillOutNewPasswordForm(passwordValue, false);
 
       await expect(page.getByText(error)).toBeVisible();
-      await expect(resetPassword.newPasswordTextbox).toBeFocused();
+      await expect(resetPassword.resetPasswordButton).toBeDisabled();
+      await expect(resetPassword.newPasswordLabel).toHaveClass(
+        /border-red-700/
+      );
     });
   }
 

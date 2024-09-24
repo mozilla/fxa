@@ -133,6 +133,7 @@ test.describe('severity-1 #smoke', () => {
 
       await resetPassword.fillOutResetPasswordCodeForm(code);
       await resetPassword.forgotKeyLink.click();
+      await expect(resetPassword.resetPasswordWithRecoveryKey).toBeVisible();
       await resetPassword.fillOutNewPasswordForm(newPassword);
 
       await expect(

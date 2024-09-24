@@ -71,11 +71,15 @@ export class ResetPasswordPage extends BaseLayout {
   }
 
   get newPasswordHeading() {
-    return this.page.getByRole('heading', { name: 'Create new password' });
+    return this.page.getByRole('heading', { name: 'Create a new password' });
   }
 
   get newPasswordTextbox() {
     return this.page.getByRole('textbox', { name: 'New password' });
+  }
+
+  get newPasswordLabel() {
+    return this.page.getByTestId('new-password-input-container');
   }
 
   get reenterPasswordTextbox() {
@@ -110,6 +114,18 @@ export class ResetPasswordPage extends BaseLayout {
     });
   }
 
+  get dataLossWarning() {
+    return this.page.getByText(
+      'Resetting your password may delete your encrypted browser data.'
+    );
+  }
+
+  get resetPasswordWithRecoveryKey() {
+    return this.page.getByRole('link', {
+      name: 'Reset your password with your recovery key.',
+    });
+  }
+
   get forgotKeyLink() {
     return this.page.getByRole('link', {
       name: 'Don’t have an account recovery key?',
@@ -138,12 +154,15 @@ export class ResetPasswordPage extends BaseLayout {
     await this.beginResetButton.click();
   }
 
-  async fillOutNewPasswordForm(password: string) {
+  async fillOutNewPasswordForm(password: string, submit = true) {
     await expect(this.newPasswordHeading).toBeVisible();
 
     await this.newPasswordTextbox.fill(password);
     await this.reenterPasswordTextbox.fill(password);
-    await this.resetPasswordButton.click();
+
+    if (submit) {
+      await this.resetPasswordButton.click();
+    }
   }
 
   async fillOutRecoveryKeyForm(key: string) {

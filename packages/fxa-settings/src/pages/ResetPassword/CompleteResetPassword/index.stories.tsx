@@ -14,10 +14,25 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-export const DefaultNoRecoveryKey = () => <Subject recoveryKeyExists={false} />;
 
-export const WithConfirmedRecoveryKey = () => (
-  <Subject recoveryKeyExists={true} hasConfirmedRecoveryKey />
+export const NoSync = () => <Subject estimatedSyncDeviceCount={0} />;
+
+export const SyncAndNoRecoveryKey = () => (
+  <Subject recoveryKeyExists={false} estimatedSyncDeviceCount={2} />
 );
 
-export const UnknownRecoveryKeyStatus = () => <Subject />;
+export const SyncAndUnconfirmedRecoveryKey = () => (
+  <Subject
+    estimatedSyncDeviceCount={2}
+    recoveryKeyExists={true}
+    hasConfirmedRecoveryKey={false}
+  />
+);
+
+export const SyncAndConfirmedRecoveryKey = () => (
+  <Subject
+    estimatedSyncDeviceCount={2}
+    recoveryKeyExists={true}
+    hasConfirmedRecoveryKey={true}
+  />
+);
