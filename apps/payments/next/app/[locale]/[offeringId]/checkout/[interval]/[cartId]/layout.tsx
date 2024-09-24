@@ -67,6 +67,8 @@ export default async function RootLayout({
             )?.attributes ||
             cms.defaultPurchase.data.attributes.purchaseDetails.data.attributes
           }
+          discountEnd={cart.invoicePreview.discountEnd}
+          discountType={cart.invoicePreview.discountType}
         />
         <CouponForm
           cartId={cart.id}

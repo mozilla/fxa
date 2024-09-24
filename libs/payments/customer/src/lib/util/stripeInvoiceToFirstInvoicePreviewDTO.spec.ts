@@ -4,10 +4,11 @@
 
 import { stripeInvoiceToFirstInvoicePreviewDTO } from './stripeInvoiceToFirstInvoicePreviewDTO';
 import {
+  StripeDiscountFactory,
   StripeResponseFactory,
-  StripeUpcomingInvoiceFactory,
   StripeTotalDiscountAmountsFactory,
   StripeTotalTaxAmountsFactory,
+  StripeUpcomingInvoiceFactory,
 } from '@fxa/payments/stripe';
 
 describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
@@ -35,6 +36,39 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
       ],
       discountAmount: mockDiscountAmount.amount,
       subtotal: mockUpcomingInvoice.subtotal,
+      discountEnd: undefined,
+      discountType: undefined,
+    });
+  });
+
+  it('formats invoice with discount', () => {
+    const mockDiscountAmount = StripeTotalDiscountAmountsFactory();
+    const mockTaxAmount = StripeTotalTaxAmountsFactory();
+    const mockDiscount = StripeDiscountFactory();
+    const mockUpcomingInvoice = StripeResponseFactory(
+      StripeUpcomingInvoiceFactory({
+        discount: mockDiscount,
+        total_discount_amounts: [mockDiscountAmount],
+        total_tax_amounts: [mockTaxAmount],
+      })
+    );
+
+    const result = stripeInvoiceToFirstInvoicePreviewDTO(mockUpcomingInvoice);
+    expect(result).toEqual({
+      currency: mockUpcomingInvoice.currency,
+      listAmount: mockUpcomingInvoice.amount_due,
+      totalAmount: mockUpcomingInvoice.total,
+      taxAmounts: [
+        {
+          title: mockTaxAmount.tax_rate.display_name,
+          inclusive: mockTaxAmount.inclusive,
+          amount: mockTaxAmount.amount,
+        },
+      ],
+      discountAmount: mockDiscountAmount.amount,
+      subtotal: mockUpcomingInvoice.subtotal,
+      discountEnd: null,
+      discountType: 'forever',
     });
   });
 
@@ -69,6 +103,8 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
       ],
       discountAmount: mockDiscountAmount1.amount + mockDiscountAmount2.amount,
       subtotal: mockUpcomingInvoice.subtotal,
+      discountEnd: undefined,
+      discountType: undefined,
     });
   });
 

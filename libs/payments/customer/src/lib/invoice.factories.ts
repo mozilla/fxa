@@ -14,5 +14,7 @@ export const InvoicePreviewFactory = (
   taxAmounts: [],
   discountAmount: null,
   subtotal: faker.number.int({ max: 1000 }),
+  discountEnd: null,
+  discountType: faker.helpers.arrayElement(['forever', 'once', 'repeating']),
   ...override,
 });

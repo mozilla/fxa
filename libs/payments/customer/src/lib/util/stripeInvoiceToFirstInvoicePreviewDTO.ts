@@ -31,5 +31,7 @@ export function stripeInvoiceToFirstInvoicePreviewDTO(
     taxAmounts,
     discountAmount,
     subtotal: invoice.subtotal,
+    discountEnd: invoice.discount?.end,
+    discountType: invoice.discount?.coupon.duration,
   };
 }
