@@ -16000,14 +16000,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@playwright/test@npm:^1.43.1":
-  version: 1.43.1
-  resolution: "@playwright/test@npm:1.43.1"
+"@playwright/test@npm:^1.47.2":
+  version: 1.47.2
+  resolution: "@playwright/test@npm:1.47.2"
   dependencies:
-    playwright: 1.43.1
+    playwright: 1.47.2
   bin:
     playwright: cli.js
-  checksum: f9db387b488a03125e5dc22dd7ffed9c661d1f2428188912a35a2235b3bd9d826b390e7600d04998639994f5a96695b9dc9034ca9cb59e261d2fdee93a60df3f
+  checksum: 4f149613c0fd4a40061425efdf5c7a257df09e1b6b797ad221597ddde52381edb69fce6645bf3b95a11eee74147a2025c1951041f29dbc717dab0cc46d9c3427
   languageName: node
   linkType: hard
 
@@ -40672,7 +40672,7 @@ fsevents@~2.1.1:
   version: 0.0.0-use.local
   resolution: "functional-tests@workspace:packages/functional-tests"
   dependencies:
-    "@playwright/test": ^1.43.1
+    "@playwright/test": ^1.47.2
     "@types/eslint": ^8
     "@types/pdf-parse": ^1.1.4
     "@types/upng-js": ^2
@@ -56874,27 +56874,27 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"playwright-core@npm:1.43.1":
-  version: 1.43.1
-  resolution: "playwright-core@npm:1.43.1"
+"playwright-core@npm:1.47.2":
+  version: 1.47.2
+  resolution: "playwright-core@npm:1.47.2"
   bin:
     playwright-core: cli.js
-  checksum: 7c96b3a4a4bce2ee22c3cd680c9b0bb9e4bf07ee4b51d1e9a7f47a6489c7b0b960d4b550e530b8f41d1ffeadd26c7c6bb626ae8689dfd90dce1cb8e35ae78ff7
+  checksum: c06109a08dd672a92eb048ce7c9a1451ed701e62ff78f0d67c67ee6b06c88f0dc5422c2a7bb26e5fca05840e2adba154a25ca988e56f76c233affe61f42453a3
   languageName: node
   linkType: hard
 
-"playwright@npm:1.43.1":
-  version: 1.43.1
-  resolution: "playwright@npm:1.43.1"
+"playwright@npm:1.47.2":
+  version: 1.47.2
+  resolution: "playwright@npm:1.47.2"
   dependencies:
     fsevents: 2.3.2
-    playwright-core: 1.43.1
+    playwright-core: 1.47.2
   dependenciesMeta:
     fsevents:
       optional: true
   bin:
     playwright: cli.js
-  checksum: de9db021f93018a18275bbb5af09ebf1804aa0534f47578b35b440064abc774509740205802824afc94a99fc84dd55ffe9e215718ad3ecc691b251ab3882b096
+  checksum: 41ec99d62c9d7282a3d0dd2444892a379be2f4c61e9045a0b1cfc5897796747d220df5af11c6a7515c56c82df02a1025a46a5da7abc17485b4e981e133588261
   languageName: node
   linkType: hard
 
