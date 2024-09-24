@@ -2,43 +2,100 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { HealthModule } from 'fxa-shared/nestjs/health/health.module';
-import { LoggerModule } from 'fxa-shared/nestjs/logger/logger.module';
-import { MetricsFactory } from 'fxa-shared/nestjs/metrics.service';
-import {
-  createContext,
-  SentryPlugin,
-} from 'fxa-shared/nestjs/sentry/sentry.plugin';
-import { getVersionInfo } from 'fxa-shared/nestjs/version';
-import { join } from 'path';
+ const start = Date.now();
+ let last = start;
+ const l = (step: string) => {
+   const tick = Date.now();
+   console.log(`!!! app.module:`, {
+     step,
+     delta: tick - last,
+     elapsed: tick - start,
+   });
+   last = tick;
+ };
 
-import { MozLoggerService } from '@fxa/shared/mozlog';
-import { NotifierSnsFactory, NotifierService } from '@fxa/shared/notifier';
-import { LegacyStatsDProvider } from '@fxa/shared/metrics/statsd';
+ import { HealthModule } from 'fxa-shared/nestjs/health/health.module';
+ l('fxa-shared/nestjs/health/health.module complete');
 
-import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import {
-  Injectable,
-  Logger,
-  MiddlewareConsumer,
-  Module,
-  NestMiddleware,
-  NestModule,
-} from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { APP_GUARD } from '@nestjs/core';
-import { GraphQLModule } from '@nestjs/graphql';
+ import { LoggerModule } from 'fxa-shared/nestjs/logger/logger.module';
+ l('fxa-shared/nestjs/logger/logger.module complete');
 
-import { UserGroupGuard } from './auth/user-group-header.guard';
-import { BackendModule } from './backend/backend.module';
-import Config, { AppConfig } from './config';
-import { DatabaseModule } from './database/database.module';
-import { DatabaseService } from './database/database.service';
-import { EventLoggingModule } from './event-logging/event-logging.module';
-import { GqlModule } from './gql/gql.module';
-import { NewslettersModule } from './newsletters/newsletters.module';
-import { SubscriptionModule } from './subscriptions/subscriptions.module';
-import { Request, Response, NextFunction } from 'express';
+ import { MetricsFactory } from 'fxa-shared/nestjs/metrics.service';
+ l('fxa-shared/nestjs/metrics.service complete');
+
+ import {
+   createContext,
+   SentryPlugin,
+ } from 'fxa-shared/nestjs/sentry/sentry.plugin';
+ l('fxa-shared/nestjs/sentry/sentry.plugin complete');
+
+ import { getVersionInfo } from 'fxa-shared/nestjs/version';
+ l('fxa-shared/nestjs/version complete');
+
+ import { join } from 'path';
+ l('path complete');
+
+ import { MozLoggerService } from '@fxa/shared/mozlog';
+ l('@fxa/shared/mozlog complete');
+
+ import { NotifierSnsFactory, NotifierService } from '@fxa/shared/notifier';
+ l('@fxa/shared/notifier');
+
+ import { LegacyStatsDProvider } from '@fxa/shared/metrics/statsd';
+ l('@fxa/shared/metrics/statsd');
+
+ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+ l('@nestjs/apollo');
+
+ import {
+   Injectable,
+   Logger,
+   MiddlewareConsumer,
+   Module,
+   NestMiddleware,
+   NestModule,
+ } from '@nestjs/common';
+ l('@nestjs/common');
+
+ import { ConfigModule, ConfigService } from '@nestjs/config';
+ l('@nestjs/config');
+
+ import { APP_GUARD } from '@nestjs/core';
+ l('@nestjs/core');
+
+ import { GraphQLModule } from '@nestjs/graphql';
+ l('@nestjs/graphql');
+
+ import { UserGroupGuard } from './auth/user-group-header.guard';
+ l('./auth/user-group-header.guard');
+
+ import { BackendModule } from './backend/backend.module';
+ l('./backend/backend.module');
+
+ import Config, { AppConfig } from './config';
+ l('./config');
+
+ import { DatabaseModule } from './database/database.module';
+ l('./database/database.module');
+
+ import { DatabaseService } from './database/database.service';
+ l('./database/database.service');
+
+ import { EventLoggingModule } from './event-logging/event-logging.module';
+ l('./event-logging/event-logging.module');
+
+ import { GqlModule } from './gql/gql.module';
+ l('./gql/gql.module');
+
+ import { NewslettersModule } from './newsletters/newsletters.module';
+ l('./newsletters/newsletters.module');
+
+ import { SubscriptionModule } from './subscriptions/subscriptions.module';
+ l('./subscriptions/subscriptions.module');
+
+ import { Request, Response, NextFunction } from 'express';
+ l('express');
+
 
 const version = getVersionInfo(__dirname);
 
