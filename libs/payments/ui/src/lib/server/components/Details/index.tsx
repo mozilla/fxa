@@ -4,9 +4,9 @@
 
 import Image from 'next/image';
 import { Invoice } from '@fxa/payments/cart';
+import { PriceInterval } from '@fxa/payments/ui/server';
 import infoLogo from '@fxa/shared/assets/images/info.svg';
 import { LocalizerRsc } from '@fxa/shared/l10n/server';
-import { formatPlanPricing } from '../../../utils/helpers';
 
 type ListLabelItemProps = {
   labelLocalizationId: string;
@@ -25,7 +25,7 @@ export const ListLabelItem = ({
   positiveAmount = true,
 }: ListLabelItemProps) => {
   return (
-    <li className="plan-details-item">
+    <li className="flex items-center justify-between gap-2 leading-5 text-grey-600 text-sm">
       {l10n.getString(labelLocalizationId, labelFallbackText)}
       <div>
         {positiveAmount
@@ -48,7 +48,7 @@ export const ListLabelItem = ({
   );
 };
 
-type PurchaseDetailsProps = {
+type DetailsProps = {
   l10n: LocalizerRsc;
   interval: string;
   invoice: Invoice;
@@ -62,7 +62,7 @@ type PurchaseDetailsProps = {
   discountType?: string;
 };
 
-export async function PurchaseDetails(props: PurchaseDetailsProps) {
+export async function Details(props: DetailsProps) {
   const {
     purchaseDetails,
     discountEnd,
@@ -73,54 +73,18 @@ export async function PurchaseDetails(props: PurchaseDetailsProps) {
   } = props;
   const { currency, listAmount, discountAmount, totalAmount, taxAmounts } =
     invoice;
-  const { details, subtitle, productName, webIcon } = purchaseDetails;
+  const { details } = purchaseDetails;
   const exclusiveTaxRates = taxAmounts.filter(
     (taxAmount) => !taxAmount.inclusive
   );
 
   return (
-    <div className="bg-white rounded-b-lg shadow-sm shadow-grey-300 text-sm px-4 rounded-t-none tablet:rounded-t-lg">
-      <div className="flex gap-4 my-0 py-4 row-divider-grey-200">
-        <Image
-          src={webIcon}
-          alt={productName}
-          data-testid="product-logo"
-          className="w-16 h-16 rounded-lg"
-          width={64}
-          height={64}
-        />
-
-        <div className="text-start">
-          <h2
-            id="plan-details-product"
-            className="text-grey-600 font-semibold leading-5 my-0 break-words"
-          >
-            {productName}
-          </h2>
-
-          <p className="text-grey-400 mt-1 mb-0">
-            {l10n.getString(
-              `plan-price-interval-${interval}`,
-              {
-                amount: l10n.getLocalizedCurrency(listAmount, currency),
-              },
-              formatPlanPricing(listAmount, currency, interval)
-            )}
-            {subtitle && (
-              <span>
-                &nbsp;&bull;&nbsp;
-                {subtitle}
-              </span>
-            )}
-          </p>
-        </div>
-      </div>
-
+    <>
       <h3 className="text-grey-600 font-semibold my-4">
         {l10n.getString('next-plan-details-header', 'Plan Details')}
       </h3>
 
-      <ul className="row-divider-grey-200 text-grey-400 m-0 px-3 list-disc">
+      <ul className="border-b border-grey-200 text-grey-400 m-0 px-3 list-disc">
         {details.map((detail, idx) => (
           <li className="mb-4 leading-5 marker:text-xs" key={idx}>
             {detail}
@@ -180,7 +144,7 @@ export async function PurchaseDetails(props: PurchaseDetailsProps) {
             />
           ))}
 
-        <li className="plan-details-item mt-6 pt-4 pb-6 font-semibold border-t border-grey-200">
+        <li className="flex items-center justify-between gap-2 leading-5 text-grey-600 text-sm mt-6 pt-4 pb-6 font-semibold border-t border-grey-200">
           <h3 className="text-base">
             {l10n.getString('next-plan-details-total-label', 'Total')}
           </h3>
@@ -189,13 +153,13 @@ export async function PurchaseDetails(props: PurchaseDetailsProps) {
             data-testid="total-price"
             id="total-price"
           >
-            {l10n.getString(
-              `plan-price-interval-${interval}`,
-              {
-                amount: l10n.getLocalizedCurrency(totalAmount, currency),
-              },
-              formatPlanPricing(totalAmount, currency, interval)
-            )}
+            <PriceInterval
+              l10n={l10n}
+              currency={currency}
+              interval={interval}
+              listAmount={listAmount}
+              totalAmount={totalAmount}
+            />
           </span>
         </li>
       </ul>
@@ -236,8 +200,8 @@ export async function PurchaseDetails(props: PurchaseDetailsProps) {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
 
-export default PurchaseDetails;
+export default Details;

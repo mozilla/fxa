@@ -3,12 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { headers } from 'next/headers';
 
-import { CouponForm } from '@fxa/payments/ui';
+import { CouponForm, PurchaseDetails } from '@fxa/payments/ui';
 import {
   fetchCMSData,
   getApp,
   getCartAction,
-  PurchaseDetails,
+  Details,
+  PriceInterval,
   SubscriptionTitle,
   TermsAndPrivacy,
 } from '@fxa/payments/ui/server';
@@ -56,20 +57,39 @@ export default async function RootLayout({
     <>
       <SubscriptionTitle cartState={cart.state} l10n={l10n} />
 
-      <section className="payment-panel" aria-label="Purchase details">
+      <section
+        className="mb-6 tablet:mt-6 tablet:min-w-[18rem] tablet:max-w-xs tablet:col-start-2 tablet:col-end-auto tablet:row-start-1 tablet:row-end-3"
+        aria-label="Purchase details"
+      >
         <PurchaseDetails
-          l10n={l10n}
-          interval={cart.interval}
-          invoice={cart.invoicePreview}
+          priceInterval={
+            <PriceInterval
+              l10n={l10n}
+              currency={cart.invoicePreview.currency}
+              interval={cart.interval}
+              listAmount={cart.invoicePreview.listAmount}
+            />
+          }
           purchaseDetails={
             cms.defaultPurchase.data.attributes.purchaseDetails.data.attributes.localizations.data.at(
               0
             )?.attributes ||
             cms.defaultPurchase.data.attributes.purchaseDetails.data.attributes
           }
-          discountEnd={cart.invoicePreview.discountEnd}
-          discountType={cart.invoicePreview.discountType}
-        />
+        >
+          <Details
+            l10n={l10n}
+            interval={cart.interval}
+            invoice={cart.invoicePreview}
+            purchaseDetails={
+              cms.defaultPurchase.data.attributes.purchaseDetails.data.attributes.localizations.data.at(
+                0
+              )?.attributes ||
+              cms.defaultPurchase.data.attributes.purchaseDetails.data
+                .attributes
+            }
+          />
+        </PurchaseDetails>
         <CouponForm
           cartId={cart.id}
           cartVersion={cart.version}
@@ -78,7 +98,7 @@ export default async function RootLayout({
         />
       </section>
 
-      <div className="page-body rounded-t-lg tablet:rounded-t-none">
+      <div className="bg-white rounded-b-lg shadow-sm shadow-grey-300 border-t-0 mb-6 pt-4 px-4 pb-14 text-grey-600 desktop:px-12 desktop:pb-12 rounded-t-lg tablet:rounded-t-none">
         {children}
         <TermsAndPrivacy
           l10n={l10n}
