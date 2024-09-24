@@ -3,6 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 export * from './lib/glean/glean.types';
 export * from './lib/glean/glean.manager';
-export * from './lib/glean/glean.service';
 export * from './lib/glean/glean.config';
-export * from './lib/glean/glean.provider';
+export * from './lib/glean/glean.factory';
+export * from './lib/glean/glean.test-provider';

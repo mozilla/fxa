@@ -6,7 +6,6 @@ export * from './checkoutCartWithPaypal';
 export * from './checkoutCartWithStripe';
 export * from './fetchCMSData';
 export * from './getCart';
-export * from './getCartOrRedirect';
 export * from './getPayPalCheckoutToken';
 export * from './handleStripeError';
 export * from './restartCart';

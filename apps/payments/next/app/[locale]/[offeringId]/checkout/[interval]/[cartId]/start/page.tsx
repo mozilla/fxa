@@ -17,17 +17,10 @@ import {
 } from 'apps/payments/next/app/_lib/apiClient';
 import { auth, signIn } from 'apps/payments/next/auth';
 import { CheckoutParams } from '../layout';
-import { getCommonGleanMetrics } from 'apps/payments/next/lib/utils/getCommonGleanMetrics';
 
 export const dynamic = 'force-dynamic';
 
-export default async function Checkout({
-  params,
-  searchParams,
-}: {
-  params: CheckoutParams;
-  searchParams: Record<string, string>;
-}) {
+export default async function Checkout({ params }: { params: CheckoutParams }) {
   // Temporarily defaulting to `accept-language`
   // This to be updated in FXA-9404
   //const locale = getLocaleFromRequest(
@@ -50,16 +43,6 @@ export default async function Checkout({
     fakeCartDataPromise,
     cmsPromise,
   ]);
-
-  getApp()
-    .getGleanEmitter()
-    .emit('fxaPaySetupView', {
-      checkoutType: 'without-accounts',
-      params: { ...params },
-      searchParams,
-      ...cart,
-      ...getCommonGleanMetrics(),
-    });
 
   return (
     <section>
@@ -175,7 +158,9 @@ export default async function Checkout({
           amount: fakeCart.amount,
           currency: fakeCart.nextInvoice.currency,
         }}
-        cart={cart}
+        cart={{
+          ...cart,
+        }}
         locale={locale}
       />
     </section>

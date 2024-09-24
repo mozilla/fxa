@@ -15,6 +15,7 @@ import {
   getApp,
   fetchCMSData,
   getCartOrRedirectAction,
+  recordEmitterEventAction,
 } from '@fxa/payments/ui/server';
 
 export const dynamic = 'force-dynamic';
@@ -50,8 +51,10 @@ interface CheckoutParams {
 
 export default async function CheckoutSuccess({
   params,
+  searchParams,
 }: {
   params: CheckoutParams;
+  searchParams: Record<string, string>;
 }) {
   // Temporarily defaulting to `accept-language`
   // This to be updated in FXA-9404
@@ -73,6 +76,13 @@ export default async function CheckoutSuccess({
     cartDataPromise,
     fakeCartDataPromise,
   ]);
+
+  recordEmitterEventAction(
+    'checkoutSuccess',
+    { ...params },
+    searchParams,
+    'stripe'
+  );
 
   const { productName } =
     cms.defaultPurchase.data.attributes.purchaseDetails.data.attributes.localizations.data.at(

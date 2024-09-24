@@ -1,15 +1,16 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+import { CheckoutParamsFactory } from '../glean.factory';
 import { mapParams } from './mapParams';
 
 describe('mapParams', () => {
   it('should map the values if present', () => {
-    expect(
-      mapParams({ offeringId: 'offeringId', interval: 'interval' })
-    ).toEqual({
-      offeringId: 'offeringId',
-      interval: 'interval',
+    const params = CheckoutParamsFactory();
+    expect(mapParams(params)).toEqual({
+      offeringId: params['offeringId'],
+      interval: params['interval'],
+      cartId: params['cartId'],
     });
   });
 
@@ -17,6 +18,7 @@ describe('mapParams', () => {
     expect(mapParams({})).toEqual({
       offeringId: '',
       interval: '',
+      cartId: '',
     });
   });
 });

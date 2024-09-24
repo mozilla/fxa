@@ -2,16 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { faker } from '@faker-js/faker';
-import {
-  CartMetrics,
-  CmsMetricsData,
-  CommonMetrics,
-  FxaPaySetupMetrics,
-  FxaPaySetupViewMetrics,
-} from './glean.types';
+import { CartMetrics, CmsMetricsData, CommonMetrics } from './glean.types';
 import { ResultCartFactory } from '@fxa/payments/cart';
+import { SubplatInterval } from '@fxa/payments/customer';
 
-export const ParamsFactory = (
+export const CheckoutParamsFactory = (
   override?: Record<string, string>
 ): Record<string, string> => ({
   locale: faker.helpers.arrayElement(['en-US', 'de', 'es', 'fr-FR']),
@@ -22,13 +17,8 @@ export const ParamsFactory = (
     'hubs',
     'mdnplus',
   ]),
-  interval: faker.helpers.arrayElement([
-    'daily',
-    'weekly',
-    'monthly',
-    '6monthly',
-    'yearly',
-  ]),
+  interval: faker.helpers.enumValue(SubplatInterval),
+  cartId: faker.string.uuid(),
   ...override,
 });
 
@@ -46,7 +36,9 @@ export const CommonMetricsFactory = (
 export const CartMetricsFactory = (
   override?: Partial<CartMetrics>
 ): CartMetrics => {
-  const resultCart = ResultCartFactory();
+  const resultCart = ResultCartFactory({
+    ...override,
+  });
 
   return {
     uid: resultCart.uid,
@@ -56,25 +48,6 @@ export const CartMetricsFactory = (
     ...override,
   };
 };
-
-export const FxaPaySetupMetricsFactory = (
-  override?: Partial<FxaPaySetupMetrics>
-): FxaPaySetupMetrics => ({
-  ...CommonMetricsFactory(),
-  ...CartMetricsFactory(),
-  ...override,
-});
-
-export const FxaPaySetupViewMetricsFactory = (
-  override?: Partial<FxaPaySetupViewMetrics>
-): FxaPaySetupViewMetrics => ({
-  ...FxaPaySetupMetricsFactory(),
-  checkoutType: faker.helpers.arrayElement([
-    'with-accounts',
-    'without-accounts',
-  ]),
-  ...override,
-});
 
 export const CmsMetricsDataFactory = (
   override?: Partial<CmsMetricsData>

@@ -13,13 +13,15 @@ import {
 } from '@stripe/react-stripe-js';
 import { StripePaymentElementChangeEvent } from '@stripe/stripe-js';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import { BaseButton, ButtonVariant, CheckoutCheckbox } from '@fxa/payments/ui';
 import LockImage from '@fxa/shared/assets/images/lock.svg';
-import { checkoutCartWithStripe } from '../../../actions/checkoutCartWithStripe';
+import { useCallbackOnce } from '../../hooks/useCallbackOnce';
 import { handleStripeErrorAction } from '../../../actions/handleStripeError';
+import { recordEmitterEventAction } from '../../../actions/recordEmitterEvent';
+import { checkoutCartWithStripe } from '../../../actions/checkoutCartWithStripe';
 
 interface CheckoutFormProps {
   cmsCommonContent: {
@@ -30,6 +32,10 @@ interface CheckoutFormProps {
     id: string;
     version: number;
     email: string | null;
+    uid?: string | null;
+    errorReasonId: string | null;
+    couponCode: string | null;
+    currency: string | null;
   };
   locale: string;
 }
@@ -43,6 +49,8 @@ export function CheckoutForm({
   const elements = useElements();
   const router = useRouter();
   const stripe = useStripe();
+  const params = useParams();
+  const searchParams = useSearchParams();
 
   const [formEnabled, setFormEnabled] = useState(false);
   const [showConsentError, setShowConsentError] = useState(false);
@@ -52,6 +60,14 @@ export function CheckoutForm({
   const [fullName, setFullName] = useState('');
   const [hasFullNameError, setHasFullNameError] = useState(false);
   const [showPayPalButton, setShowPayPalButton] = useState(false);
+
+  const engageGlean = useCallbackOnce(() => {
+    recordEmitterEventAction(
+      'checkoutEngage',
+      { ...params },
+      Object.fromEntries(searchParams)
+    );
+  }, []);
 
   useEffect(() => {
     if (elements) {
@@ -128,6 +144,13 @@ export function CheckoutForm({
       }
     }
 
+    recordEmitterEventAction(
+      'checkoutSubmit',
+      { ...params },
+      Object.fromEntries(searchParams),
+      'stripe'
+    );
+
     await checkoutCartWithStripe(cart.id, cart.version, paymentMethod.id, {
       locale,
       displayName: fullName,
@@ -158,7 +181,12 @@ export function CheckoutForm({
   const nonStripeFieldsComplete = !!fullName;
 
   return (
-    <Form.Root onSubmit={submitHandler}>
+    <Form.Root
+      onSubmit={submitHandler}
+      onChange={() => {
+        engageGlean();
+      }}
+    >
       <CheckoutCheckbox
         isRequired={showConsentError}
         termsOfService={cmsCommonContent.termsOfServiceUrl}
