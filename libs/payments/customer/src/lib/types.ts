@@ -34,6 +34,11 @@ export enum STRIPE_PRODUCT_METADATA {
   PromotionCodes = 'promotionCodes',
 }
 
+export enum STRIPE_SUBSCRIPTION_METADATA {
+  Currency = 'currency',
+  Amount = 'amount',
+}
+
 export enum SubplatInterval {
   Daily = 'daily',
   Weekly = 'weekly',

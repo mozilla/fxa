@@ -16,6 +16,7 @@ import {
   PaymentMethodManager,
   PromotionCodeManager,
   STRIPE_CUSTOMER_METADATA,
+  STRIPE_SUBSCRIPTION_METADATA,
   SubplatInterval,
   SubscriptionManager,
   TaxAddress,
@@ -242,6 +243,11 @@ export class CheckoutService {
             price: price.id,
           },
         ],
+        metadata: {
+          // Note: These fields are due to missing Fivetran support on Stripe multi-currency plans
+          [STRIPE_SUBSCRIPTION_METADATA.Amount]: cart.amount,
+          [STRIPE_SUBSCRIPTION_METADATA.Currency]: cart.currency,
+        },
       },
       {
         idempotencyKey: cart.id,
@@ -316,6 +322,11 @@ export class CheckoutService {
             price: price.id,
           },
         ],
+        metadata: {
+          // Note: These fields are due to missing Fivetran support on Stripe multi-currency plans
+          [STRIPE_SUBSCRIPTION_METADATA.Amount]: cart.amount,
+          [STRIPE_SUBSCRIPTION_METADATA.Currency]: cart.currency,
+        },
       },
       {
         idempotencyKey: cart.id,

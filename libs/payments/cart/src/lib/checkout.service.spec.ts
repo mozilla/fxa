@@ -573,6 +573,10 @@ describe('CheckoutService', () => {
                 price: mockPrice.id, // TODO: fetch price from cart after FXA-8893
               },
             ],
+            metadata: {
+              amount: mockCart.amount,
+              currency: mockCart.currency,
+            },
           },
           { idempotencyKey: mockCart.id }
         );
@@ -687,6 +691,10 @@ describe('CheckoutService', () => {
                 price: mockPrice.id,
               },
             ],
+            metadata: {
+              amount: mockCart.amount,
+              currency: mockCart.currency,
+            },
           },
           { idempotencyKey: mockCart.id }
         );
