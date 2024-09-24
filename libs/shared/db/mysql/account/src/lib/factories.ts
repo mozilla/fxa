@@ -4,7 +4,12 @@
 
 import { faker } from '@faker-js/faker';
 
-import { AccountCustomer, NewCart, PaypalCustomer } from './associated-types';
+import {
+  Account,
+  AccountCustomer,
+  NewCart,
+  PaypalCustomer,
+} from './associated-types';
 import { CartEligibilityStatus, CartState } from './kysely-types';
 
 export const CartFactory = (override?: Partial<NewCart>): NewCart => ({
@@ -36,6 +41,51 @@ export const CartFactory = (override?: Partial<NewCart>): NewCart => ({
   amount: faker.number.int(10000),
   version: 0,
   eligibilityStatus: faker.helpers.enumValue(CartEligibilityStatus),
+  ...override,
+});
+
+const getHexBuffer = (length: number, prefix = ''): Buffer => {
+  return Buffer.from(
+    faker.string.hexadecimal({
+      length,
+      prefix,
+      casing: 'lower',
+    }),
+    'hex'
+  );
+};
+
+export const AccountFactory = (override?: Partial<Account>): Account => ({
+  uid: getHexBuffer(32),
+  createdAt: faker.date.recent().getTime(),
+  email: faker.internet.email(),
+  normalizedEmail: faker.internet.email().toLocaleLowerCase(),
+  emailCode: getHexBuffer(16),
+  emailVerified: 1,
+  verifierVersion: 1,
+  kA: getHexBuffer(32),
+  wrapWrapKb: Buffer.from(
+    faker.string.hexadecimal({
+      length: 32,
+      prefix: '',
+      casing: 'lower',
+    }),
+    'hex'
+  ),
+  wrapWrapKbVersion2: getHexBuffer(32),
+  authSalt: getHexBuffer(32),
+  verifyHash: getHexBuffer(32),
+  verifierSetAt: faker.date.recent().getTime(),
+  verifyHashVersion2: getHexBuffer(32),
+  locale: 'en-US',
+  lockedAt: null,
+  profileChangedAt: null,
+  keysChangedAt: null,
+  ecosystemAnonId: faker.string.numeric(),
+  disabledAt: null,
+  metricsOptOutAt: null,
+  clientSalt: null,
+  atLeast18AtReg: 1,
   ...override,
 });
 
