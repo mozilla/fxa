@@ -52,7 +52,7 @@ export const purchaseWithDetailsOfferingContentQuery = graphql(`
             data {
               attributes {
                 stripeProductId
-                stripeLegacyPlans {
+                stripeLegacyPlans(pagination: { limit: 200 }) {
                   stripeLegacyPlan
                 }
                 commonContent {

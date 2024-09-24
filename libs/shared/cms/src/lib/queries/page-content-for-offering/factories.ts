@@ -139,7 +139,7 @@ export const PageContentCommonContentResultFactory = (
   emailIcon: faker.internet.url(),
   successActionButtonUrl: faker.internet.url(),
   successActionButtonLabel: faker.string.alpha(10),
-  newsletterLabelTextCode: faker.helpers.arrayElements([
+  newsletterLabelTextCode: faker.helpers.arrayElement([
     'snp',
     'hubs',
     'mdnplus',
