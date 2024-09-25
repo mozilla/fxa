@@ -46,12 +46,16 @@ export const FirestoreService = Symbol('FIRESTORE');
 export const FirestoreProvider: Provider<Firestore> = {
   provide: FirestoreService,
   useFactory: (config: FirestoreConfig) => {
+    const credentials =
+      config.credentials?.clientEmail && config.credentials?.privateKey
+        ? {
+            client_email: config.credentials?.clientEmail,
+            private_key: config.credentials?.privateKey,
+          }
+        : undefined;
     const firestoreConfig: FirebaseFirestore.Settings = {
       ...config,
-      credentials: {
-        client_email: config.credentials?.clientEmail,
-        private_key: config.credentials?.privateKey,
-      },
+      credentials,
     };
     return setupFirestore(firestoreConfig);
   },
