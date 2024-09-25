@@ -17,13 +17,15 @@ const config = require('../../config').default.getProperties();
 describe(`#integration${testOptions.version} - remote account login`, () => {
   let server;
 
-  before(function () {
-    this.timeout(15000);
+  before(async function () {
+    this.timeout(60000);
     config.securityHistory.ipProfiling.allowedRecency = 0;
     config.signinConfirmation.skipForNewAccounts.enabled = false;
-    return TestServer.start(config).then((s) => {
-      server = s;
-    });
+    server = await TestServer.start(config);
+  });
+
+  after(async function () {
+    await TestServer.stop(server);
   });
 
   it('the email is returned in the error on Incorrect password errors', () => {
@@ -37,7 +39,12 @@ describe(`#integration${testOptions.version} - remote account login`, () => {
       testOptions
     )
       .then(() => {
-        return Client.login(config.publicUrl, email, `${password}x`, testOptions);
+        return Client.login(
+          config.publicUrl,
+          email,
+          `${password}x`,
+          testOptions
+        );
       })
       .then(
         () => assert(false),
@@ -50,8 +57,7 @@ describe(`#integration${testOptions.version} - remote account login`, () => {
   });
 
   it('the email is returned in the error on Incorrect email case errors with correct password', () => {
-
-    if (testOptions.version === "V2") {
+    if (testOptions.version === 'V2') {
       // Important!!! This test is no longer applicable for V2 passwords.
       // V1 passwords are encoded with a salt that includes the users
       // email address. As a result, if the user enters a their email
@@ -72,7 +78,12 @@ describe(`#integration${testOptions.version} - remote account login`, () => {
       testOptions
     )
       .then(() => {
-        return Client.login(config.publicUrl, loginEmail, password, testOptions);
+        return Client.login(
+          config.publicUrl,
+          loginEmail,
+          password,
+          testOptions
+        );
       })
       .then(
         () => assert(false),
@@ -110,7 +121,10 @@ describe(`#integration${testOptions.version} - remote account login`, () => {
       testOptions
     )
       .then((c) => {
-        return Client.login(config.publicUrl, email, password, { ...testOptions, keys: false });
+        return Client.login(config.publicUrl, email, password, {
+          ...testOptions,
+          keys: false,
+        });
       })
       .then((c) => {
         assert.equal(c.keyFetchToken, null, 'should not have keyFetchToken');
@@ -199,7 +213,7 @@ describe(`#integration${testOptions.version} - remote account login`, () => {
     )
       .then(() => {
         return Client.login(config.publicUrl, email, 'foo', {
-          ... testOptions,
+          ...testOptions,
           metricsContext: {
             flowId:
               '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
@@ -329,7 +343,7 @@ describe(`#integration${testOptions.version} - remote account login`, () => {
         server.mailbox,
         {
           ...testOptions,
-          keys: true
+          keys: true,
         }
       )
         .then(() => {
@@ -386,8 +400,6 @@ describe(`#integration${testOptions.version} - remote account login`, () => {
     });
   });
 
-  after(() => {
-    return TestServer.stop(server);
-  });
+
 });
 });

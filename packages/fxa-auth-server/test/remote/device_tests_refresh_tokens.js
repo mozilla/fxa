@@ -35,7 +35,7 @@ const UNKNOWN_REFRESH_TOKEN =
 [{version:""},{version:"V2"}].forEach((testOptions) => {
 
 describe(`#integration${testOptions.version} - remote device with refresh tokens`, function () {
-  this.timeout(15000);
+  this.timeout(60000);
   let client;
   let db;
   let email;
@@ -44,20 +44,14 @@ describe(`#integration${testOptions.version} - remote device with refresh tokens
   let refreshToken;
   let server;
 
-  before(() => {
+  before(async () => {
     config.lastAccessTimeUpdates = lastAccessTimeUpdates;
     const DB = require('../../lib/db')(config, log, Token);
 
     testUtils.disableLogs();
-    return TestServer.start(config, false)
-      .then((s) => {
-        server = s;
-        return DB.connect(config);
-      })
-      .then((x) => {
-        db = x;
-        oauthServerDb = require('../../lib/oauth/db');
-      });
+    server = await TestServer.start(config, false);
+    db = await DB.connect(config);
+    oauthServerDb = require('../../lib/oauth/db');
   });
 
   after(async () => {

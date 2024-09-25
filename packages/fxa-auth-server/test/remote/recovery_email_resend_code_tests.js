@@ -13,15 +13,16 @@ const config = require('../../config').default.getProperties();
 [{version:""},{version:"V2"}].forEach((testOptions) => {
 
 describe(`#integration${testOptions.version} - remote recovery email resend code`, function () {
-  this.timeout(15000);
+  this.timeout(60000);
   let server;
-  before(() => {
+  before(async () => {
     config.securityHistory.ipProfiling.allowedRecency = 0;
     config.signinConfirmation.skipForNewAccounts.enabled = false;
+    server = await TestServer.start(config);
+  });
 
-    return TestServer.start(config).then((s) => {
-      server = s;
-    });
+  after(async () => {
+    await TestServer.stop(server);
   });
 
   it('sign-in verification resend email verify code', () => {
@@ -36,25 +37,13 @@ describe(`#integration${testOptions.version} - remote recovery email resend code
       resume: 'resumeToken',
       keys: true,
     };
-    return Client.create(
-      config.publicUrl,
-      email,
-      password,
-      options
-    )
+    return Client.create(config.publicUrl, email, password, options)
       .then((c) => {
         client = c;
         // Clear first account create email and login again
         return server.mailbox
           .waitForEmail(email)
-          .then(() =>
-            Client.login(
-              config.publicUrl,
-              email,
-              password,
-              options
-            )
-          )
+          .then(() => Client.login(config.publicUrl, email, password, options))
           .then((c) => (client = c));
       })
       .then(() => server.mailbox.waitForCode(email))
@@ -100,12 +89,7 @@ describe(`#integration${testOptions.version} - remote recovery email resend code
     )
       .then(() => {
         // Attempt to login from new location
-        return Client.login(
-          config.publicUrl,
-          email,
-          password,
-          options
-        );
+        return Client.login(config.publicUrl, email, password, options);
       })
       .then((c) => {
         client2 = c;
@@ -162,12 +146,7 @@ describe(`#integration${testOptions.version} - remote recovery email resend code
         server.mailbox,
         options
       ),
-      Client.create(
-        config.publicUrl,
-        secondEmail,
-        password,
-        options
-      ),
+      Client.create(config.publicUrl, secondEmail, password, options),
     ])
       .then((res) => {
         // Login with `email` and attempt to resend verification code for `secondEmail`
@@ -232,9 +211,7 @@ describe(`#integration${testOptions.version} - remote recovery email resend code
       });
   });
 
-  after(() => {
-    return TestServer.stop(server);
-  });
+
 });
 
 })

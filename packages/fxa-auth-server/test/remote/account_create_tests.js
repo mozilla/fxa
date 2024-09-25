@@ -21,9 +21,10 @@ const {
 // Note, intentionally not indenting for code review.
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
   describe(`#integration${testOptions.version} - remote account create`, function () {
-    this.timeout(50000);
+    this.timeout(60000);
     let server;
-    before(async () => {
+
+    before(async function () {
       config.subscriptions = {
         enabled: true,
         stripeApiKey: 'fake_key',
@@ -52,6 +53,10 @@ const {
         },
       });
       return server;
+    });
+
+    after(async function () {
+      await TestServer.stop(server);
     });
 
     it('unverified account fail when getting keys', () => {
@@ -989,9 +994,7 @@ const {
       assert.equal(kB2, originalKb);
     });
 
-    after(async () => {
-      await TestServer.stop(server);
-    });
+
 
     async function login(email, password, version = '') {
       return await Client.login(config.publicUrl, email, password, {

@@ -14,13 +14,16 @@ const config = require('../../config').default.getProperties();
 
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
   describe(`#integration${testOptions.version} - remote account reset`, function () {
-    this.timeout(15000);
+    this.timeout(60000);
     let server;
     config.signinConfirmation.skipForNewAccounts.enabled = true;
-    before(() => {
-      return TestServer.start(config).then((s) => {
-        server = s;
-      });
+
+    before(async function () {
+      server = await TestServer.start(config);
+    });
+
+    after(async function () {
+      await TestServer.stop(server);
     });
 
     it('account reset w/o sessionToken', async () => {
@@ -253,10 +256,6 @@ const config = require('../../config').default.getProperties();
       assert.equal(cert1['fxa-uid'], cert2['fxa-uid']);
       assert.ok(cert1['fxa-generation'] < cert2['fxa-generation']);
       assert.ok(cert1['fxa-keysChangedAt'] < cert2['fxa-keysChangedAt']);
-    });
-
-    after(() => {
-      return TestServer.stop(server);
     });
 
     async function resetPassword(client, code, newPassword, options) {

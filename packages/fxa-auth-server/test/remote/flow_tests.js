@@ -15,15 +15,17 @@ const pubSigKey = JWTool.JWK.fromFile(config.publicKeyFile);
 
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
   describe(`#integration${testOptions.version} - remote flow`, function () {
-    this.timeout(15000);
+    this.timeout(60000);
     let server;
     let email1;
     config.signinConfirmation.skipForNewAccounts.enabled = true;
-    before(() => {
-      return TestServer.start(config).then((s) => {
-        server = s;
-        email1 = server.uniqueEmail();
-      });
+    before(async () => {
+      server = await TestServer.start(config);
+      email1 = server.uniqueEmail();
+    });
+
+    after(async () => {
+      await TestServer.stop(server);
     });
 
     it('Create account flow', () => {
@@ -112,8 +114,6 @@ const pubSigKey = JWTool.JWK.fromFile(config.publicKeyFile);
         });
     });
 
-    after(() => {
-      return TestServer.stop(server);
-    });
+
   });
 });

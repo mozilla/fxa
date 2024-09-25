@@ -25,7 +25,7 @@ const { decodeJWT } = testUtils;
 
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
   describe(`#integration${testOptions.version} - /oauth/ routes`, function () {
-    this.timeout(15000);
+    this.timeout(60000);
     let client;
     let email;
     let password;

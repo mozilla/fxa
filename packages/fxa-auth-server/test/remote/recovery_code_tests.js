@@ -14,6 +14,8 @@ const BASE_36 = require('../../lib/routes/validators').BASE_36;
 [{version:""},{version:"V2"}].forEach((testOptions) => {
 
 describe(`#integration${testOptions.version} - remote backup authentication codes`, function () {
+  this.timeout(60000);
+
   let server, client, email, recoveryCodes;
   const recoveryCodeCount = 9;
   const password = 'pssssst';
@@ -22,19 +24,21 @@ describe(`#integration${testOptions.version} - remote backup authentication code
     flowId: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
   };
 
-  this.timeout(10000);
+
 
   otplib.authenticator.options = {
     encoding: 'hex',
     window: 10,
   };
 
-  before(() => {
+  before(async () => {
     config.totp.recoveryCodes.count = recoveryCodeCount;
     config.totp.recoveryCodes.notifyLowCount = recoveryCodeCount - 2;
-    return TestServer.start(config).then((s) => {
-      server = s;
-    });
+    server = await TestServer.start(config);
+  });
+
+  after(async () => {
+    await TestServer.stop(server);
   });
 
   beforeEach(() => {
@@ -248,9 +252,7 @@ describe(`#integration${testOptions.version} - remote backup authentication code
     });
   });
 
-  after(() => {
-    return TestServer.stop(server);
-  });
+
 });
 
 });

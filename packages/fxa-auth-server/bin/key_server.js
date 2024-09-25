@@ -288,15 +288,39 @@ async function run(config) {
     log: log,
     async close() {
       log.info('shutdown');
-      await server.stop();
-      statsd.close();
+
+      try {
+        await server.stop();
+      } catch (e) {
+        log.warn('shutdown', {
+          message: 'Server did not shut down cleanly. ' + e.message,
+        });
+      }
+
+      try {
+        statsd.close();
+      } catch (e) {
+        log.warn('shutdown', {
+          message: 'Statsd did not shut down cleanly. ' + e.message,
+        });
+      }
+
       try {
         senders.email.stop();
       } catch (e) {
         // XXX: simplesmtp module may quit early and set socket to `false`, stopping it may fail
-        log.warn('shutdown', { message: 'Mailer client already disconnected' });
+        log.warn('shutdown', {
+          message: 'senders.email did not shut down cleanly. ' + e.message
+        });
       }
-      await database.close();
+
+      try {
+        await database.close();
+      } catch (e) {
+        log.warn('shutdown', {
+          message: 'Database connection did not shutdown cleanly. ' + e.message,
+        });
+      }
     },
   };
 }

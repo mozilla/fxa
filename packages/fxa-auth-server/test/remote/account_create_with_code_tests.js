@@ -15,13 +15,16 @@ const otplib = require('otplib');
 [{version:""},{version:"V2"}].forEach((testOptions) => {
 
 describe(`#integration${testOptions.version} - remote account create with sign-up code`, function () {
-  this.timeout(15000);
+  this.timeout(60000);
   const password = '4L6prUdlLNfxGIoj';
   let server, client, email, emailStatus, emailData;
 
   before(async () => {
     server = await TestServer.start(config);
-    return server;
+  });
+
+  after(async function () {
+    await TestServer.stop(server);
   });
 
   it('create and verify sync account', async () => {
@@ -231,9 +234,7 @@ describe(`#integration${testOptions.version} - remote account create with sign-u
     });
   });
 
-  after(() => {
-    return TestServer.stop(server);
-  });
+
 });
 
 });

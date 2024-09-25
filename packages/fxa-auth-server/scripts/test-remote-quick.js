@@ -18,7 +18,7 @@ TestServer.start(config, false).then((server) => {
     { stdio: 'inherit' }
   );
 
-  cp.on('close', (code) => {
-    server.stop();
+  cp.on('close', async (code) => {
+    await server.stop();
   });
 });

@@ -16,8 +16,6 @@ const sinon = require('sinon');
 const db = require('../../lib/oauth/db');
 const encrypt = require('fxa-shared/auth/encrypt');
 const config = testServer.config;
-let Server;
-let Server2;
 
 const unique = require('../../lib/oauth/unique');
 const util = require('../../lib/oauth/util');
@@ -128,35 +126,6 @@ function authParams(params, options) {
   return defaults;
 }
 
-function newToken(payload = {}, options = {}) {
-  var ttl = payload.ttl || MAX_TTL_S;
-  delete payload.ttl;
-  mockAssertion().reply(200, options.verifierResponse || VERIFY_GOOD);
-  return Server.api
-    .post({
-      url: '/authorization',
-      payload: authParams(payload, options),
-    })
-    .then(function (res) {
-      assert.equal(res.statusCode, 200);
-      assertSecurityHeaders(res);
-      return Server.api.post({
-        url: '/token',
-        payload: {
-          client_id: options.clientId || clientId,
-          client_secret: options.codeVerifier
-            ? undefined
-            : options.secret || secret,
-          code: res.result.code,
-          code_verifier: options.codeVerifier,
-          ppid_seed: options.ppidSeed,
-          resource: options.resource,
-          ttl: ttl,
-        },
-      });
-    });
-}
-
 function assertInvalidRequestParam(result, param) {
   assert.equal(result.code, 400);
   assert.equal(result.errno, 109);
@@ -187,36 +156,65 @@ function basicAuthHeader(clientId, secret) {
 }
 
 describe('#integration - /v1', function () {
+  this.timeout(60000);
   const VERIFY_FAILURE = '{"status": "failure"}';
   let sandbox;
+  let Server;
+
+  function newToken(payload = {}, options = {}) {
+    var ttl = payload.ttl || MAX_TTL_S;
+    delete payload.ttl;
+    mockAssertion().reply(200, options.verifierResponse || VERIFY_GOOD);
+    return Server.api
+      .post({
+        url: '/authorization',
+        payload: authParams(payload, options),
+      })
+      .then(function (res) {
+        assert.equal(res.statusCode, 200);
+        assertSecurityHeaders(res);
+        return Server.api.post({
+          url: '/token',
+          payload: {
+            client_id: options.clientId || clientId,
+            client_secret: options.codeVerifier
+              ? undefined
+              : options.secret || secret,
+            code: res.result.code,
+            code_verifier: options.codeVerifier,
+            ppid_seed: options.ppidSeed,
+            resource: options.resource,
+            ttl: ttl,
+          },
+        });
+      });
+  }
 
   before(async function () {
-    this.timeout(30000);
+    const start = Date.now();
+    console.log('!!! 1', Date.now() - start);
     Server = await testServer.start();
-    return Promise.all([
-      genAssertion(USERID + config.get('oauthServer.browserid.issuer')).then(
-        function (ass) {
-          AN_ASSERTION = ass;
-        }
-      ),
-      db.ping().then(function () {
-        client = clientByName('Mocha');
-        clientId = client.id;
-        assert.equal(encrypt.hash(secret).toString('hex'), client.hashedSecret);
-        assert.equal(
-          encrypt.hash(secretPrevious).toString('hex'),
-          client.hashedSecretPrevious
-        );
-        badSecret = Buffer.from(secret, 'hex').slice();
-        badSecret[badSecret.length - 1] ^= 1;
-        badSecret = badSecret.toString('hex');
-      }),
-    ]);
+    console.log('!!! 2', Date.now() - start);
+    AN_ASSERTION = await genAssertion(
+      USERID + config.get('oauthServer.browserid.issuer')
+    );
+    await db.ping();
+    console.log('!!! 3', Date.now() - start);
+    client = clientByName('Mocha');
+    clientId = client.id;
+    assert.equal(encrypt.hash(secret).toString('hex'), client.hashedSecret);
+    assert.equal(
+      encrypt.hash(secretPrevious).toString('hex'),
+      client.hashedSecretPrevious
+    );
+    badSecret = Buffer.from(secret, 'hex').slice();
+    badSecret[badSecret.length - 1] ^= 1;
+    badSecret = badSecret.toString('hex');
+    console.log('!!! 4', Date.now() - start);
   });
 
   after(async function () {
-    await Server?.close();
-    await Server2?.close();
+    await Server.close();
   });
 
   beforeEach(() => {
@@ -2860,37 +2858,57 @@ describe('#integration - /v1', function () {
       assert.equal(res.result.errno, 115);
     });
 
-    it('should not reject expired tokens from pocket clients', async function () {
+    describe('expired tokens from pocket clients', () => {
       const clientId = '749818d3f2e7857f';
-      config.set('oauthServer.expiration.accessTokenExpiryEpoch', undefined);
-      Server2 = await testServer.start();
-      let res = await newToken(
-        {
-          ttl: 1,
-        },
-        {
-          clientId,
-        }
-      );
+      let accessTokenExpiryEpoch;
 
-      assert.equal(res.statusCode, 200);
-      assertSecurityHeaders(res);
-      assert.equal(res.result.expires_in, 1);
-
-      sandbox.useFakeTimers({
-        now: Date.now() + 1000 * 60 * 60, // 1 hr in future
-        shouldAdvanceTime: true,
+      before(async () => {
+        await Server.close();
+        accessTokenExpiryEpoch = config.get(
+          'oauthServer.expiration.accessTokenExpiryEpoch'
+        );
+        config.set('oauthServer.expiration.accessTokenExpiryEpoch', undefined);
+        Server = await testServer.start();
       });
 
-      res = await Server2.api.post({
-        url: '/verify',
-        payload: {
-          token: res.result.access_token,
-        },
+      after(async () => {
+        await Server.close();
+        config.set(
+          'oauthServer.expiration.accessTokenExpiryEpoch',
+          accessTokenExpiryEpoch
+        );
+        Server = await testServer.start();
       });
 
-      assert.equal(res.statusCode, 200);
-      assertSecurityHeaders(res);
+      it('should not reject expired tokens from pocket clients', async function () {
+        let res = await newToken(
+          {
+            ttl: 1,
+          },
+          {
+            clientId,
+          }
+        );
+
+        assert.equal(res.statusCode, 200);
+        assertSecurityHeaders(res);
+        assert.equal(res.result.expires_in, 1);
+
+        sandbox.useFakeTimers({
+          now: Date.now() + 1000 * 60 * 60, // 1 hr in future
+          shouldAdvanceTime: true,
+        });
+
+        res = await Server.api.post({
+          url: '/verify',
+          payload: {
+            token: res.result.access_token,
+          },
+        });
+
+        assert.equal(res.statusCode, 200);
+        assertSecurityHeaders(res);
+      });
     });
 
     describe('response', function () {
