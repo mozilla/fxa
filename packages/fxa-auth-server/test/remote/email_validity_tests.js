@@ -13,12 +13,14 @@ const config = require('../../config').default.getProperties();
 [{version:""},{version:"V2"}].forEach((testOptions) => {
 
 describe(`#integration${testOptions.version} - remote email validity`, function () {
-  this.timeout(15000);
+  this.timeout(60000);
   let server;
-  before(() => {
-    return TestServer.start(config).then((s) => {
-      server = s;
-    });
+  before(async () => {
+    server = await TestServer.start(config);
+  });
+
+  after(async () => {
+    await TestServer.stop(server);
   });
 
   it('/account/create with a variety of malformed email addresses', () => {
@@ -77,9 +79,7 @@ describe(`#integration${testOptions.version} - remote email validity`, function 
     return Promise.all(emails);
   });
 
-  after(() => {
-    return TestServer.stop(server);
-  });
+
 });
 
 

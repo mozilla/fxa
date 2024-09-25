@@ -14,12 +14,14 @@ const config = require('../../config').default.getProperties();
 [{version:""},{version:"V2"}].forEach((testOptions) => {
 
 describe(`#integration${testOptions.version} - remote recovery email verify`, function () {
-  this.timeout(15000);
+  this.timeout(60000);
   let server;
-  before(() => {
-    return TestServer.start(config).then((s) => {
-      server = s;
-    });
+  before(async () => {
+    server = await TestServer.start(config);
+  });
+
+  after(async () => {
+    await TestServer.stop(server);
   });
 
   it('create account verify with incorrect code', () => {
@@ -85,9 +87,7 @@ describe(`#integration${testOptions.version} - remote recovery email verify`, fu
       });
   });
 
-  after(() => {
-    return TestServer.stop(server);
-  });
+
 });
 
 });

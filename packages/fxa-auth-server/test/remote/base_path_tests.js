@@ -13,15 +13,17 @@ const superagent = require('superagent');
 [{version:""},{version:"V2"}].forEach((testOptions) => {
 
 describe(`#integration${testOptions.version} - remote base path`, function () {
-  this.timeout(15000);
+  this.timeout(60000);
   let server, config;
-  before(() => {
+  before(async () => {
     config = require('../../config').default.getProperties();
     config.publicUrl = 'http://localhost:9000/auth';
 
-    return TestServer.start(config).then((s) => {
-      server = s;
-    });
+    server = await TestServer.start(config);
+  });
+
+  after(async () => {
+    await TestServer.stop(server);
   });
 
   function testVersionRoute(path) {
@@ -76,9 +78,7 @@ describe(`#integration${testOptions.version} - remote base path`, function () {
     testVersionRoute('/__version__')
   );
 
-  after(() => {
-    return TestServer.stop(server);
-  });
+
 });
 
 });

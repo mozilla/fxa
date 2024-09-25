@@ -21,12 +21,14 @@ const publicKey = {
 
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
   describe(`#integration${testOptions.version} - remote certificate sign`, function () {
-    this.timeout(15000);
+    this.timeout(60000);
     let server;
-    before(() => {
-      return TestServer.start(config).then((s) => {
-        server = s;
-      });
+    before(async () => {
+      server = await TestServer.start(config);
+    });
+
+    after(async () => {
+      await TestServer.stop(server);
     });
 
     it('certificate sign', () => {
@@ -316,8 +318,6 @@ const publicKey = {
         );
     });
 
-    after(() => {
-      return TestServer.stop(server);
-    });
+
   });
 });

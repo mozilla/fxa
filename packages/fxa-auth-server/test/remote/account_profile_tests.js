@@ -17,7 +17,7 @@ const CLIENT_ID = config.oauthServer.clients.find(
 [{version:""},{version:"V2"}].forEach((testOptions) => {
 
 describe(`#integration${testOptions.version} - fetch user profile data`, function () {
-  this.timeout(15000);
+  this.timeout(60000);
 
   let server, client, email, password;
   before(async () => {

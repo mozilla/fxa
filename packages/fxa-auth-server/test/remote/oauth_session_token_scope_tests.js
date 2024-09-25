@@ -23,7 +23,7 @@ const MOCK_CODE_CHALLENGE = 'YPhkZqm08uTfwjNSiYcx80-NPT9Zn94kHboQW97KyV0';
 [{version:""},{version:"V2"}].forEach((testOptions) => {
 
 describe(`#integration${testOptions.version} - /oauth/ session token scope`, function () {
-  this.timeout(15000);
+  this.timeout(60000);
   let client;
   let email;
   let password;

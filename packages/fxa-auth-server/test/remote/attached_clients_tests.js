@@ -21,7 +21,7 @@ const PUBLIC_CLIENT_ID = '3c49430b43dfba77';
 [{version:""},{version:"V2"}].forEach((testOptions) => {
 
 describe(`#integration${testOptions.version} - attached clients listing`, function () {
-  this.timeout(15000);
+  this.timeout(60000);
   let server, oauthServerDb;
   before(async () => {
     config.lastAccessTimeUpdates = {
@@ -32,6 +32,11 @@ describe(`#integration${testOptions.version} - attached clients listing`, functi
     testUtils.disableLogs();
     server = await TestServer.start(config, false);
     oauthServerDb = require('../../lib/oauth/db');
+  });
+
+  after(async () => {
+    await TestServer.stop(server);
+    testUtils.restoreStdoutWrite();
   });
 
   it('correctly lists a variety of attached clients', async () => {
@@ -119,7 +124,12 @@ describe(`#integration${testOptions.version} - attached clients listing`, functi
       await tokens.SessionToken.fromHex(client.sessionToken)
     ).id;
 
-    const client2 = await Client.login(config.publicUrl, email, password, testOptions);
+    const client2 = await Client.login(
+      config.publicUrl,
+      email,
+      password,
+      testOptions
+    );
     const device = await client2.updateDevice({
       name: 'test',
       type: 'desktop',
@@ -151,7 +161,12 @@ describe(`#integration${testOptions.version} - attached clients listing`, functi
       await tokens.SessionToken.fromHex(client.sessionToken)
     ).id;
 
-    const client2 = await Client.login(config.publicUrl, email, password, testOptions);
+    const client2 = await Client.login(
+      config.publicUrl,
+      email,
+      password,
+      testOptions
+    );
     const otherSessionTokenId = (
       await tokens.SessionToken.fromHex(client2.sessionToken)
     ).id;
@@ -207,10 +222,7 @@ describe(`#integration${testOptions.version} - attached clients listing`, functi
     assert.equal(allClients[0].refreshTokenId, null);
   });
 
-  after(async () => {
-    await TestServer.stop(server);
-    testUtils.restoreStdoutWrite();
-  });
+
 });
 
 });

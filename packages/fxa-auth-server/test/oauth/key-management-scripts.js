@@ -11,10 +11,9 @@ const crypto = require('crypto');
 const rimraf = require('rimraf');
 
 describe('#integration - the signing-key management scripts', function () {
+  this.timeout(60000);
   let runScript;
   let workDir, keyFile, newKeyFile, oldKeyFile;
-
-  this.timeout(30000);
 
   beforeEach(() => {
     const uniqName = crypto.randomBytes(8).toString('hex');

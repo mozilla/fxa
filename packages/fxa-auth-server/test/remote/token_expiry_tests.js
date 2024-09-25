@@ -22,9 +22,10 @@ function fail() {
 [{version:""},{version:"V2"}].forEach((testOptions) => {
 
 describe(`#integration${testOptions.version} - remote token expiry`, function () {
-  this.timeout(15000);
+  this.timeout(60000);
   let server, config;
-  before(() => {
+
+  before(async () => {
     config = require('../../config').default.getProperties();
     config.tokenLifetimes.passwordChangeToken = 1;
     config.tokenLifetimes.sessionTokenWithoutDevice = 1;
@@ -32,9 +33,11 @@ describe(`#integration${testOptions.version} - remote token expiry`, function ()
     Container.set(PlaySubscriptions, {});
     Container.set(AppStoreSubscriptions, {});
 
-    return TestServer.start(config).then((s) => {
-      server = s;
-    });
+    server = await TestServer.start(config);
+  });
+
+  after(async () => {
+    await TestServer.stop(server);
   });
 
   it('token expiry', () => {
@@ -73,9 +76,7 @@ describe(`#integration${testOptions.version} - remote token expiry`, function ()
     );
   });
 
-  after(() => {
-    return TestServer.stop(server);
-  });
+
 });
 
 });

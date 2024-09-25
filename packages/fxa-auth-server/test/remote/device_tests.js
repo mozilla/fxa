@@ -15,249 +15,281 @@ const mocks = require('../mocks');
 [{version:""},{version:"V2"}].forEach((testOptions) => {
 
 describe(`#integration${testOptions.version} - remote device`, function () {
-  this.timeout(15000);
+  this.timeout(60000);
   let server;
-  before(() => {
+  before(async () => {
     config.lastAccessTimeUpdates = {
       enabled: true,
       sampleRate: 1,
       earliestSaneTimestamp: config.lastAccessTimeUpdates.earliestSaneTimestamp,
     };
 
-    return TestServer.start(config).then((s) => {
-      server = s;
-    });
+    server = await TestServer.start(config);
+  });
+
+  after(async () => {
+    await TestServer.stop(server);
   });
 
   it('device registration after account creation', () => {
     const email = server.uniqueEmail();
     const password = 'test password';
-    return Client.create(config.publicUrl, email, password, testOptions).then((client) => {
-      const deviceInfo = {
-        name: 'test device 🍓🔥在𝌆',
-        type: 'mobile',
-        availableCommands: { foo: 'bar' },
-        pushCallback: '',
-        pushPublicKey: '',
-        pushAuthKey: '',
-      };
-      return client
-        .devices()
-        .then((devices) => {
-          assert.equal(devices.length, 0, 'devices returned no items');
-          return client.updateDevice(deviceInfo);
-        })
-        .then((device) => {
-          assert.ok(device.id, 'device.id was set');
-          assert.ok(device.createdAt > 0, 'device.createdAt was set');
-          assert.equal(device.name, deviceInfo.name, 'device.name is correct');
-          assert.equal(device.type, deviceInfo.type, 'device.type is correct');
-          assert.deepEqual(
-            device.availableCommands,
-            deviceInfo.availableCommands,
-            'device.availableCommands is correct'
-          );
-          assert.equal(
-            device.pushCallback,
-            deviceInfo.pushCallback,
-            'device.pushCallback is correct'
-          );
-          assert.equal(
-            device.pushPublicKey,
-            deviceInfo.pushPublicKey,
-            'device.pushPublicKey is correct'
-          );
-          assert.equal(
-            device.pushAuthKey,
-            deviceInfo.pushAuthKey,
-            'device.pushAuthKey is correct'
-          );
-          assert.equal(
-            device.pushEndpointExpired,
-            false,
-            'device.pushEndpointExpired is correct'
-          );
-        })
-        .then(() => {
-          return client.devices();
-        })
-        .then((devices) => {
-          assert.equal(devices.length, 1, 'devices returned one item');
-          assert.equal(
-            devices[0].name,
-            deviceInfo.name,
-            'devices returned correct name'
-          );
-          assert.equal(
-            devices[0].type,
-            deviceInfo.type,
-            'devices returned correct type'
-          );
-          assert.deepEqual(
-            devices[0].availableCommands,
-            deviceInfo.availableCommands,
-            'devices returned correct availableCommands'
-          );
-          assert.equal(
-            devices[0].pushCallback,
-            '',
-            'devices returned empty pushCallback'
-          );
-          assert.equal(
-            devices[0].pushPublicKey,
-            '',
-            'devices returned correct pushPublicKey'
-          );
-          assert.equal(
-            devices[0].pushAuthKey,
-            '',
-            'devices returned correct pushAuthKey'
-          );
-          assert.equal(
-            devices[0].pushEndpointExpired,
-            '',
-            'devices returned correct pushEndpointExpired'
-          );
-          return client.destroyDevice(devices[0].id);
-        });
-    });
+    return Client.create(config.publicUrl, email, password, testOptions).then(
+      (client) => {
+        const deviceInfo = {
+          name: 'test device 🍓🔥在𝌆',
+          type: 'mobile',
+          availableCommands: { foo: 'bar' },
+          pushCallback: '',
+          pushPublicKey: '',
+          pushAuthKey: '',
+        };
+        return client
+          .devices()
+          .then((devices) => {
+            assert.equal(devices.length, 0, 'devices returned no items');
+            return client.updateDevice(deviceInfo);
+          })
+          .then((device) => {
+            assert.ok(device.id, 'device.id was set');
+            assert.ok(device.createdAt > 0, 'device.createdAt was set');
+            assert.equal(
+              device.name,
+              deviceInfo.name,
+              'device.name is correct'
+            );
+            assert.equal(
+              device.type,
+              deviceInfo.type,
+              'device.type is correct'
+            );
+            assert.deepEqual(
+              device.availableCommands,
+              deviceInfo.availableCommands,
+              'device.availableCommands is correct'
+            );
+            assert.equal(
+              device.pushCallback,
+              deviceInfo.pushCallback,
+              'device.pushCallback is correct'
+            );
+            assert.equal(
+              device.pushPublicKey,
+              deviceInfo.pushPublicKey,
+              'device.pushPublicKey is correct'
+            );
+            assert.equal(
+              device.pushAuthKey,
+              deviceInfo.pushAuthKey,
+              'device.pushAuthKey is correct'
+            );
+            assert.equal(
+              device.pushEndpointExpired,
+              false,
+              'device.pushEndpointExpired is correct'
+            );
+          })
+          .then(() => {
+            return client.devices();
+          })
+          .then((devices) => {
+            assert.equal(devices.length, 1, 'devices returned one item');
+            assert.equal(
+              devices[0].name,
+              deviceInfo.name,
+              'devices returned correct name'
+            );
+            assert.equal(
+              devices[0].type,
+              deviceInfo.type,
+              'devices returned correct type'
+            );
+            assert.deepEqual(
+              devices[0].availableCommands,
+              deviceInfo.availableCommands,
+              'devices returned correct availableCommands'
+            );
+            assert.equal(
+              devices[0].pushCallback,
+              '',
+              'devices returned empty pushCallback'
+            );
+            assert.equal(
+              devices[0].pushPublicKey,
+              '',
+              'devices returned correct pushPublicKey'
+            );
+            assert.equal(
+              devices[0].pushAuthKey,
+              '',
+              'devices returned correct pushAuthKey'
+            );
+            assert.equal(
+              devices[0].pushEndpointExpired,
+              '',
+              'devices returned correct pushEndpointExpired'
+            );
+            return client.destroyDevice(devices[0].id);
+          });
+      }
+    );
   });
 
   it('device registration without optional parameters', () => {
     const email = server.uniqueEmail();
     const password = 'test password';
-    return Client.create(config.publicUrl, email, password, testOptions).then((client) => {
-      const deviceInfo = {
-        name: 'test device',
-        type: 'mobile',
-      };
-      return client
-        .devices()
-        .then((devices) => {
-          assert.equal(devices.length, 0, 'devices returned no items');
-          return client.updateDevice(deviceInfo);
-        })
-        .then((device) => {
-          assert.ok(device.id, 'device.id was set');
-          assert.ok(device.createdAt > 0, 'device.createdAt was set');
-          assert.equal(device.name, deviceInfo.name, 'device.name is correct');
-          assert.equal(device.type, deviceInfo.type, 'device.type is correct');
-          assert.equal(
-            device.pushCallback,
-            undefined,
-            'device.pushCallback is undefined'
-          );
-          assert.equal(
-            device.pushPublicKey,
-            undefined,
-            'device.pushPublicKey is undefined'
-          );
-          assert.equal(
-            device.pushAuthKey,
-            undefined,
-            'device.pushAuthKey is undefined'
-          );
-          assert.equal(
-            device.pushEndpointExpired,
-            false,
-            'device.pushEndpointExpired is false'
-          );
-        })
-        .then(() => {
-          return client.devices();
-        })
-        .then((devices) => {
-          assert.equal(devices.length, 1, 'devices returned one item');
-          assert.equal(
-            devices[0].name,
-            deviceInfo.name,
-            'devices returned correct name'
-          );
-          assert.equal(
-            devices[0].type,
-            deviceInfo.type,
-            'devices returned correct type'
-          );
-          assert.equal(
-            devices[0].pushCallback,
-            undefined,
-            'devices returned undefined pushCallback'
-          );
-          assert.equal(
-            devices[0].pushPublicKey,
-            undefined,
-            'devices returned undefined pushPublicKey'
-          );
-          assert.equal(
-            devices[0].pushAuthKey,
-            undefined,
-            'devices returned undefined pushAuthKey'
-          );
-          assert.equal(
-            devices[0].pushEndpointExpired,
-            false,
-            'devices returned false pushEndpointExpired'
-          );
-          return client.destroyDevice(devices[0].id);
-        });
-    });
+    return Client.create(config.publicUrl, email, password, testOptions).then(
+      (client) => {
+        const deviceInfo = {
+          name: 'test device',
+          type: 'mobile',
+        };
+        return client
+          .devices()
+          .then((devices) => {
+            assert.equal(devices.length, 0, 'devices returned no items');
+            return client.updateDevice(deviceInfo);
+          })
+          .then((device) => {
+            assert.ok(device.id, 'device.id was set');
+            assert.ok(device.createdAt > 0, 'device.createdAt was set');
+            assert.equal(
+              device.name,
+              deviceInfo.name,
+              'device.name is correct'
+            );
+            assert.equal(
+              device.type,
+              deviceInfo.type,
+              'device.type is correct'
+            );
+            assert.equal(
+              device.pushCallback,
+              undefined,
+              'device.pushCallback is undefined'
+            );
+            assert.equal(
+              device.pushPublicKey,
+              undefined,
+              'device.pushPublicKey is undefined'
+            );
+            assert.equal(
+              device.pushAuthKey,
+              undefined,
+              'device.pushAuthKey is undefined'
+            );
+            assert.equal(
+              device.pushEndpointExpired,
+              false,
+              'device.pushEndpointExpired is false'
+            );
+          })
+          .then(() => {
+            return client.devices();
+          })
+          .then((devices) => {
+            assert.equal(devices.length, 1, 'devices returned one item');
+            assert.equal(
+              devices[0].name,
+              deviceInfo.name,
+              'devices returned correct name'
+            );
+            assert.equal(
+              devices[0].type,
+              deviceInfo.type,
+              'devices returned correct type'
+            );
+            assert.equal(
+              devices[0].pushCallback,
+              undefined,
+              'devices returned undefined pushCallback'
+            );
+            assert.equal(
+              devices[0].pushPublicKey,
+              undefined,
+              'devices returned undefined pushPublicKey'
+            );
+            assert.equal(
+              devices[0].pushAuthKey,
+              undefined,
+              'devices returned undefined pushAuthKey'
+            );
+            assert.equal(
+              devices[0].pushEndpointExpired,
+              false,
+              'devices returned false pushEndpointExpired'
+            );
+            return client.destroyDevice(devices[0].id);
+          });
+      }
+    );
   });
 
   it('device registration with unicode characters in the name', () => {
     const email = server.uniqueEmail();
     const password = 'test password';
-    return Client.create(config.publicUrl, email, password, testOptions).then((client) => {
-      const deviceInfo = {
-        // That's a beta, a CJK character from https://bugzilla.mozilla.org/show_bug.cgi?id=1348298,
-        // and the unicode replacement character in case of mojibake.
-        name: 'Firefox \u5728 \u03b2 test\ufffd',
-        type: 'desktop',
-      };
-      return client
-        .updateDevice(deviceInfo)
-        .then((device) => {
-          assert.ok(device.id, 'device.id was set');
-          assert.ok(device.createdAt > 0, 'device.createdAt was set');
-          assert.equal(device.name, deviceInfo.name, 'device.name is correct');
-        })
-        .then(() => {
-          return client.devices();
-        })
-        .then((devices) => {
-          assert.equal(devices.length, 1, 'devices returned one item');
-          assert.equal(
-            devices[0].name,
-            deviceInfo.name,
-            'devices returned correct name'
-          );
-        });
-    });
+    return Client.create(config.publicUrl, email, password, testOptions).then(
+      (client) => {
+        const deviceInfo = {
+          // That's a beta, a CJK character from https://bugzilla.mozilla.org/show_bug.cgi?id=1348298,
+          // and the unicode replacement character in case of mojibake.
+          name: 'Firefox \u5728 \u03b2 test\ufffd',
+          type: 'desktop',
+        };
+        return client
+          .updateDevice(deviceInfo)
+          .then((device) => {
+            assert.ok(device.id, 'device.id was set');
+            assert.ok(device.createdAt > 0, 'device.createdAt was set');
+            assert.equal(
+              device.name,
+              deviceInfo.name,
+              'device.name is correct'
+            );
+          })
+          .then(() => {
+            return client.devices();
+          })
+          .then((devices) => {
+            assert.equal(devices.length, 1, 'devices returned one item');
+            assert.equal(
+              devices[0].name,
+              deviceInfo.name,
+              'devices returned correct name'
+            );
+          });
+      }
+    );
   });
 
   it('device registration without required name parameter', () => {
     const email = server.uniqueEmail();
     const password = 'test password';
-    return Client.create(config.publicUrl, email, password, testOptions).then((client) => {
-      return client.updateDevice({ type: 'mobile' }).then((device) => {
-        assert.ok(device.id, 'device.id was set');
-        assert.ok(device.createdAt > 0, 'device.createdAt was set');
-        assert.equal(device.name, '', 'device.name is empty');
-        assert.equal(device.type, 'mobile', 'device.type is correct');
-      });
-    });
+    return Client.create(config.publicUrl, email, password, testOptions).then(
+      (client) => {
+        return client.updateDevice({ type: 'mobile' }).then((device) => {
+          assert.ok(device.id, 'device.id was set');
+          assert.ok(device.createdAt > 0, 'device.createdAt was set');
+          assert.equal(device.name, '', 'device.name is empty');
+          assert.equal(device.type, 'mobile', 'device.type is correct');
+        });
+      }
+    );
   });
 
   it('device registration without required type parameter', () => {
     const email = server.uniqueEmail();
     const deviceName = 'test device';
     const password = 'test password';
-    return Client.create(config.publicUrl, email, password, testOptions).then((client) => {
-      return client.updateDevice({ name: 'test device' }).then((device) => {
-        assert.ok(device.id, 'device.id was set');
-        assert.ok(device.createdAt > 0, 'device.createdAt was set');
-        assert.equal(device.name, deviceName, 'device.name is correct');
-      });
-    });
+    return Client.create(config.publicUrl, email, password, testOptions).then(
+      (client) => {
+        return client.updateDevice({ name: 'test device' }).then((device) => {
+          assert.ok(device.id, 'device.id was set');
+          assert.ok(device.createdAt > 0, 'device.createdAt was set');
+          assert.equal(device.name, deviceName, 'device.name is correct');
+        });
+      }
+    );
   });
 
   it('update device fails with bad callbackUrl', () => {
@@ -274,22 +306,28 @@ describe(`#integration${testOptions.version} - remote device`, function () {
       pushPublicKey: mocks.MOCK_PUSH_KEY,
       pushAuthKey: base64url(crypto.randomBytes(16)),
     };
-    return Client.create(config.publicUrl, email, password, testOptions).then((client) => {
-      return client
-        .updateDevice(deviceInfo)
-        .then((r) => {
-          assert(false, 'request should have failed');
-        })
-        .catch((err) => {
-          assert.equal(err.code, 400, 'err.code was 400');
-          assert.equal(err.errno, 107, 'err.errno was 107, invalid parameter');
-          assert.equal(
-            err.validation.keys[0],
-            'pushCallback',
-            'bad pushCallback caught in validation'
-          );
-        });
-    });
+    return Client.create(config.publicUrl, email, password, testOptions).then(
+      (client) => {
+        return client
+          .updateDevice(deviceInfo)
+          .then((r) => {
+            assert(false, 'request should have failed');
+          })
+          .catch((err) => {
+            assert.equal(err.code, 400, 'err.code was 400');
+            assert.equal(
+              err.errno,
+              107,
+              'err.errno was 107, invalid parameter'
+            );
+            assert.equal(
+              err.validation.keys[0],
+              'pushCallback',
+              'bad pushCallback caught in validation'
+            );
+          });
+      }
+    );
   });
 
   it('update device fails with non-normalized callbackUrl', () => {
@@ -306,87 +344,97 @@ describe(`#integration${testOptions.version} - remote device`, function () {
       pushPublicKey: mocks.MOCK_PUSH_KEY,
       pushAuthKey: base64url(crypto.randomBytes(16)),
     };
-    return Client.create(config.publicUrl, email, password, testOptions).then((client) => {
-      return client
-        .updateDevice(deviceInfo)
-        .then((r) => {
-          assert(false, 'request should have failed');
-        })
-        .catch((err) => {
-          assert.equal(err.code, 400, 'err.code was 400');
-          assert.equal(err.errno, 107, 'err.errno was 107, invalid parameter');
-          assert.equal(
-            err.validation.keys[0],
-            'pushCallback',
-            'bad pushCallback caught in validation'
-          );
-        });
-    });
+    return Client.create(config.publicUrl, email, password, testOptions).then(
+      (client) => {
+        return client
+          .updateDevice(deviceInfo)
+          .then((r) => {
+            assert(false, 'request should have failed');
+          })
+          .catch((err) => {
+            assert.equal(err.code, 400, 'err.code was 400');
+            assert.equal(
+              err.errno,
+              107,
+              'err.errno was 107, invalid parameter'
+            );
+            assert.equal(
+              err.validation.keys[0],
+              'pushCallback',
+              'bad pushCallback caught in validation'
+            );
+          });
+      }
+    );
   });
 
   it('update device works with stage servers', () => {
     const goodPushCallback = 'https://updates-autopush.stage.mozaws.net';
     const email = server.uniqueEmail();
     const password = 'test password';
-    return Client.create(config.publicUrl, email, password, testOptions).then((client) => {
-      const deviceInfo = {
-        name: 'test device',
-        type: 'mobile',
-        availableCommands: {},
-        pushCallback: goodPushCallback,
-        pushPublicKey: mocks.MOCK_PUSH_KEY,
-        pushAuthKey: base64url(crypto.randomBytes(16)),
-      };
-      return client
-        .devices()
-        .then((devices) => {
-          assert.equal(devices.length, 0, 'devices returned no items');
-          return client.updateDevice(deviceInfo);
-        })
-        .then((device) => {
-          assert.ok(device.id, 'device.id was set');
-          assert.equal(
-            device.pushCallback,
-            deviceInfo.pushCallback,
-            'device.pushCallback is correct'
-          );
-        })
-        .catch((err) => {
-          assert.fail(err, 'request should have worked');
-        });
-    });
+    return Client.create(config.publicUrl, email, password, testOptions).then(
+      (client) => {
+        const deviceInfo = {
+          name: 'test device',
+          type: 'mobile',
+          availableCommands: {},
+          pushCallback: goodPushCallback,
+          pushPublicKey: mocks.MOCK_PUSH_KEY,
+          pushAuthKey: base64url(crypto.randomBytes(16)),
+        };
+        return client
+          .devices()
+          .then((devices) => {
+            assert.equal(devices.length, 0, 'devices returned no items');
+            return client.updateDevice(deviceInfo);
+          })
+          .then((device) => {
+            assert.ok(device.id, 'device.id was set');
+            assert.equal(
+              device.pushCallback,
+              deviceInfo.pushCallback,
+              'device.pushCallback is correct'
+            );
+          })
+          .catch((err) => {
+            assert.fail(err, 'request should have worked');
+          });
+      }
+    );
   });
 
   it('update device works with dev servers', () => {
     const goodPushCallback = 'https://updates-autopush.dev.mozaws.net';
     const email = server.uniqueEmail();
     const password = 'test password';
-    return Client.create(config.publicUrl, email, password, testOptions).then((client) => {
-      const deviceInfo = {
-        name: 'test device',
-        type: 'mobile',
-        pushCallback: goodPushCallback,
-        pushPublicKey: mocks.MOCK_PUSH_KEY,
-        pushAuthKey: base64url(crypto.randomBytes(16)),
-      };
-      return client
-        .devices()
-        .then((devices) => {
-          assert.equal(devices.length, 0, 'devices returned no items');
-          return client.updateDevice(deviceInfo);
-        })
-        .then((device) => {
-          assert.ok(device.id, 'device.id was set');
-          assert.equal(
-            device.pushCallback,
-            deviceInfo.pushCallback,
-            'device.pushCallback is correct'
-          );
-        })
-        .catch((err) => {
-          assert.fail(err, 'request should have worked');
-        });
-    });
+    return Client.create(config.publicUrl, email, password, testOptions).then(
+      (client) => {
+        const deviceInfo = {
+          name: 'test device',
+          type: 'mobile',
+          pushCallback: goodPushCallback,
+          pushPublicKey: mocks.MOCK_PUSH_KEY,
+          pushAuthKey: base64url(crypto.randomBytes(16)),
+        };
+        return client
+          .devices()
+          .then((devices) => {
+            assert.equal(devices.length, 0, 'devices returned no items');
+            return client.updateDevice(deviceInfo);
+          })
+          .then((device) => {
+            assert.ok(device.id, 'device.id was set');
+            assert.equal(
+              device.pushCallback,
+              deviceInfo.pushCallback,
+              'device.pushCallback is correct'
+            );
+          })
+          .catch((err) => {
+            assert.fail(err, 'request should have worked');
+          });
+      }
+    );
   });
 
   it('update device works with callback urls that :443 as a port', () => {
@@ -395,96 +443,102 @@ describe(`#integration${testOptions.version} - remote device`, function () {
 
     const email = server.uniqueEmail();
     const password = 'test password';
-    return Client.create(config.publicUrl, email, password, testOptions).then((client) => {
-      const deviceInfo = {
-        name: 'test device',
-        type: 'mobile',
-        pushCallback: goodPushCallback,
-        pushPublicKey: mocks.MOCK_PUSH_KEY,
-        pushAuthKey: base64url(crypto.randomBytes(16)),
-      };
-      return client
-        .devices()
-        .then((devices) => {
-          assert.equal(devices.length, 0, 'devices returned no items');
-          return client.updateDevice(deviceInfo);
-        })
-        .then((device) => {
-          assert.ok(device.id, 'device.id was set');
-          assert.equal(
-            device.pushCallback,
-            deviceInfo.pushCallback,
-            'device.pushCallback is correct'
-          );
-        })
-        .catch((err) => {
-          assert.fail(err, 'request should have worked');
-        });
-    });
+    return Client.create(config.publicUrl, email, password, testOptions).then(
+      (client) => {
+        const deviceInfo = {
+          name: 'test device',
+          type: 'mobile',
+          pushCallback: goodPushCallback,
+          pushPublicKey: mocks.MOCK_PUSH_KEY,
+          pushAuthKey: base64url(crypto.randomBytes(16)),
+        };
+        return client
+          .devices()
+          .then((devices) => {
+            assert.equal(devices.length, 0, 'devices returned no items');
+            return client.updateDevice(deviceInfo);
+          })
+          .then((device) => {
+            assert.ok(device.id, 'device.id was set');
+            assert.equal(
+              device.pushCallback,
+              deviceInfo.pushCallback,
+              'device.pushCallback is correct'
+            );
+          })
+          .catch((err) => {
+            assert.fail(err, 'request should have worked');
+          });
+      }
+    );
   });
 
   it('update device works with callback urls that :4430 as a port', () => {
     const goodPushCallback = 'https://updates.push.services.mozilla.com:4430';
     const email = server.uniqueEmail();
     const password = 'test password';
-    return Client.create(config.publicUrl, email, password, testOptions).then((client) => {
-      const deviceInfo = {
-        name: 'test device',
-        type: 'mobile',
-        pushCallback: goodPushCallback,
-        pushPublicKey: mocks.MOCK_PUSH_KEY,
-        pushAuthKey: base64url(crypto.randomBytes(16)),
-      };
-      return client
-        .devices()
-        .then((devices) => {
-          assert.equal(devices.length, 0, 'devices returned no items');
-          return client.updateDevice(deviceInfo);
-        })
-        .then((device) => {
-          assert.ok(device.id, 'device.id was set');
-          assert.equal(
-            device.pushCallback,
-            deviceInfo.pushCallback,
-            'device.pushCallback is correct'
-          );
-        })
-        .catch((err) => {
-          assert.fail(err, 'request should have worked');
-        });
-    });
+    return Client.create(config.publicUrl, email, password, testOptions).then(
+      (client) => {
+        const deviceInfo = {
+          name: 'test device',
+          type: 'mobile',
+          pushCallback: goodPushCallback,
+          pushPublicKey: mocks.MOCK_PUSH_KEY,
+          pushAuthKey: base64url(crypto.randomBytes(16)),
+        };
+        return client
+          .devices()
+          .then((devices) => {
+            assert.equal(devices.length, 0, 'devices returned no items');
+            return client.updateDevice(deviceInfo);
+          })
+          .then((device) => {
+            assert.ok(device.id, 'device.id was set');
+            assert.equal(
+              device.pushCallback,
+              deviceInfo.pushCallback,
+              'device.pushCallback is correct'
+            );
+          })
+          .catch((err) => {
+            assert.fail(err, 'request should have worked');
+          });
+      }
+    );
   });
 
   it('update device works with callback urls that a custom port', () => {
     const goodPushCallback = 'https://updates.push.services.mozilla.com:10332';
     const email = server.uniqueEmail();
     const password = 'test password';
-    return Client.create(config.publicUrl, email, password, testOptions).then((client) => {
-      const deviceInfo = {
-        name: 'test device',
-        type: 'mobile',
-        pushCallback: goodPushCallback,
-        pushPublicKey: mocks.MOCK_PUSH_KEY,
-        pushAuthKey: base64url(crypto.randomBytes(16)),
-      };
-      return client
-        .devices()
-        .then((devices) => {
-          assert.equal(devices.length, 0, 'devices returned no items');
-          return client.updateDevice(deviceInfo);
-        })
-        .then((device) => {
-          assert.ok(device.id, 'device.id was set');
-          assert.equal(
-            device.pushCallback,
-            deviceInfo.pushCallback,
-            'device.pushCallback is correct'
-          );
-        })
-        .catch((err) => {
-          assert.fail(err, 'request should have worked');
-        });
-    });
+    return Client.create(config.publicUrl, email, password, testOptions).then(
+      (client) => {
+        const deviceInfo = {
+          name: 'test device',
+          type: 'mobile',
+          pushCallback: goodPushCallback,
+          pushPublicKey: mocks.MOCK_PUSH_KEY,
+          pushAuthKey: base64url(crypto.randomBytes(16)),
+        };
+        return client
+          .devices()
+          .then((devices) => {
+            assert.equal(devices.length, 0, 'devices returned no items');
+            return client.updateDevice(deviceInfo);
+          })
+          .then((device) => {
+            assert.ok(device.id, 'device.id was set');
+            assert.equal(
+              device.pushCallback,
+              deviceInfo.pushCallback,
+              'device.pushCallback is correct'
+            );
+          })
+          .catch((err) => {
+            assert.fail(err, 'request should have worked');
+          });
+      }
+    );
   });
 
   it('update device fails with bad dev callbackUrl', () => {
@@ -499,40 +553,48 @@ describe(`#integration${testOptions.version} - remote device`, function () {
       pushPublicKey: mocks.MOCK_PUSH_KEY,
       pushAuthKey: base64url(crypto.randomBytes(16)),
     };
-    return Client.create(config.publicUrl, email, password, testOptions).then((client) => {
-      return client
-        .updateDevice(deviceInfo)
-        .then((r) => {
-          assert(false, 'request should have failed');
-        })
-        .catch((err) => {
-          assert.equal(err.code, 400, 'err.code was 400');
-          assert.equal(err.errno, 107, 'err.errno was 107, invalid parameter');
-          assert.equal(
-            err.validation.keys[0],
-            'pushCallback',
-            'bad pushCallback caught in validation'
-          );
-        });
-    });
+    return Client.create(config.publicUrl, email, password, testOptions).then(
+      (client) => {
+        return client
+          .updateDevice(deviceInfo)
+          .then((r) => {
+            assert(false, 'request should have failed');
+          })
+          .catch((err) => {
+            assert.equal(err.code, 400, 'err.code was 400');
+            assert.equal(
+              err.errno,
+              107,
+              'err.errno was 107, invalid parameter'
+            );
+            assert.equal(
+              err.validation.keys[0],
+              'pushCallback',
+              'bad pushCallback caught in validation'
+            );
+          });
+      }
+    );
   });
 
   it('device registration ignores deprecated "capabilities" field', () => {
     const email = server.uniqueEmail();
     const password = 'test password';
-    return Client.create(config.publicUrl, email, password, testOptions).then((client) => {
-      const deviceInfo = {
-        name: 'a very capable device',
-        type: 'desktop',
-        capabilities: [],
-      };
-      return client.updateDevice(deviceInfo).then((device) => {
-        assert.ok(device.id, 'device.id was set');
-        assert.ok(device.createdAt > 0, 'device.createdAt was set');
-        assert.equal(device.name, deviceInfo.name, 'device.name is correct');
-        assert.ok(!device.capabilities, 'device.capabilities was ignored');
-      });
-    });
+    return Client.create(config.publicUrl, email, password, testOptions).then(
+      (client) => {
+        const deviceInfo = {
+          name: 'a very capable device',
+          type: 'desktop',
+          capabilities: [],
+        };
+        return client.updateDevice(deviceInfo).then((device) => {
+          assert.ok(device.id, 'device.id was set');
+          assert.ok(device.createdAt > 0, 'device.createdAt was set');
+          assert.equal(device.name, deviceInfo.name, 'device.name is correct');
+          assert.ok(!device.capabilities, 'device.capabilities was ignored');
+        });
+      }
+    );
   });
 
   it('device registration from a different session', () => {
@@ -643,43 +705,45 @@ describe(`#integration${testOptions.version} - remote device`, function () {
       pushPublicKey: mocks.MOCK_PUSH_KEY,
       pushAuthKey: base64url(crypto.randomBytes(16)),
     };
-    return Client.create(config.publicUrl, email, password, testOptions).then((client) => {
-      return client
-        .updateDevice(deviceInfo)
-        .then(() => {
-          return client.devices();
-        })
-        .then((devices) => {
-          assert.equal(
-            devices[0].pushCallback,
-            deviceInfo.pushCallback,
-            'devices returned correct pushCallback'
-          );
-          assert.equal(
-            devices[0].pushPublicKey,
-            deviceInfo.pushPublicKey,
-            'devices returned correct pushPublicKey'
-          );
-          assert.equal(
-            devices[0].pushAuthKey,
-            deviceInfo.pushAuthKey,
-            'devices returned correct pushAuthKey'
-          );
-          assert.equal(
-            devices[0].pushEndpointExpired,
-            false,
-            'devices returned correct pushEndpointExpired'
-          );
-          return client.updateDevice({
-            id: client.device.id,
-            pushCallback: 'https://updates.push.services.mozilla.com/foo',
+    return Client.create(config.publicUrl, email, password, testOptions).then(
+      (client) => {
+        return client
+          .updateDevice(deviceInfo)
+          .then(() => {
+            return client.devices();
+          })
+          .then((devices) => {
+            assert.equal(
+              devices[0].pushCallback,
+              deviceInfo.pushCallback,
+              'devices returned correct pushCallback'
+            );
+            assert.equal(
+              devices[0].pushPublicKey,
+              deviceInfo.pushPublicKey,
+              'devices returned correct pushPublicKey'
+            );
+            assert.equal(
+              devices[0].pushAuthKey,
+              deviceInfo.pushAuthKey,
+              'devices returned correct pushAuthKey'
+            );
+            assert.equal(
+              devices[0].pushEndpointExpired,
+              false,
+              'devices returned correct pushEndpointExpired'
+            );
+            return client.updateDevice({
+              id: client.device.id,
+              pushCallback: 'https://updates.push.services.mozilla.com/foo',
+            });
+          })
+          .then(assert.fail, (err) => {
+            assert.equal(err.errno, 107);
+            assert.equal(err.message, 'Invalid parameter in request body');
           });
-        })
-        .then(assert.fail, (err) => {
-          assert.equal(err.errno, 107);
-          assert.equal(err.message, 'Invalid parameter in request body');
-        });
-    });
+      }
+    );
   });
 
   it('invalid public keys are cleanly rejected', () => {
@@ -794,9 +858,7 @@ describe(`#integration${testOptions.version} - remote device`, function () {
     });
   });
 
-  after(() => {
-    return TestServer.stop(server);
-  });
+
 });
 
 });

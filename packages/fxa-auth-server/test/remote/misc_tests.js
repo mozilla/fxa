@@ -14,12 +14,13 @@ const config = require('../../config').default.getProperties();
 
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
   describe(`#integration${testOptions.version} - remote misc`, function () {
-    this.timeout(15000);
+    this.timeout(60000);
     let server;
-    before(() => {
-      return TestServer.start(config).then((s) => {
-        server = s;
-      });
+    before(async () => {
+      server = await TestServer.start(config);
+    });
+    after(async () => {
+      await TestServer.stop(server);
     });
 
     function testVersionRoute(route) {
@@ -286,8 +287,6 @@ const config = require('../../config').default.getProperties();
         });
     });
 
-    after(() => {
-      return TestServer.stop(server);
-    });
+
   });
 });

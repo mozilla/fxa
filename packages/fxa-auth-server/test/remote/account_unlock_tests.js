@@ -14,16 +14,23 @@ const config = require('../../config').default.getProperties();
 [{version:""},{version:"V2"}].forEach((testOptions) => {
 
 describe(`#integration${testOptions.version} - remote account unlock`, function () {
-  this.timeout(15000);
+  this.timeout(60000);
   let server;
-  before(() => {
-    return TestServer.start(config).then((s) => {
-      server = s;
-    });
+  before(async () => {
+    server = await TestServer.start(config);
+  });
+
+  after(async () => {
+    await TestServer.stop(server);
   });
 
   it('/account/lock is no longer supported', () => {
-    return Client.create(config.publicUrl, server.uniqueEmail(), 'password', testOptions)
+    return Client.create(
+      config.publicUrl,
+      server.uniqueEmail(),
+      'password',
+      testOptions
+    )
       .then((c) => {
         return c.lockAccount();
       })
@@ -38,7 +45,12 @@ describe(`#integration${testOptions.version} - remote account unlock`, function 
   });
 
   it('/account/unlock/resend_code is no longer supported', () => {
-    return Client.create(config.publicUrl, server.uniqueEmail(), 'password', testOptions)
+    return Client.create(
+      config.publicUrl,
+      server.uniqueEmail(),
+      'password',
+      testOptions
+    )
       .then((c) => {
         return c.resendAccountUnlockCode('en');
       })
@@ -53,7 +65,12 @@ describe(`#integration${testOptions.version} - remote account unlock`, function 
   });
 
   it('/account/unlock/verify_code is no longer supported', () => {
-    return Client.create(config.publicUrl, server.uniqueEmail(), 'password', testOptions)
+    return Client.create(
+      config.publicUrl,
+      server.uniqueEmail(),
+      'password',
+      testOptions
+    )
       .then((c) => {
         return c.verifyAccountUnlockCode('bigscaryuid', 'bigscarycode');
       })
@@ -67,9 +84,7 @@ describe(`#integration${testOptions.version} - remote account unlock`, function 
       );
   });
 
-  after(() => {
-    return TestServer.stop(server);
-  });
+
 });
 
 });

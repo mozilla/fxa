@@ -95,26 +95,23 @@ module.exports = (config) => {
     this.unwrapBKeyVersion2 = unwrapBKeyVersion2;
   };
 
-  Client.create = function (origin, email, password, options = {}) {
+  Client.create = async function (origin, email, password, options = {}) {
     const c = new Client(origin, options);
 
     if (options.version === 'V2') {
-      return (async function () {
-        await c.setupCredentials(email, password);
-        await c.setupCredentialsV2(email, password);
+      await c.setupCredentials(email, password);
+      await c.setupCredentialsV2(email, password);
 
-        c.generateNewWrapKb();
-        c.deriveWrapKbVersion2FromKb();
+      c.generateNewWrapKb();
+      c.deriveWrapKbVersion2FromKb();
 
-        await c.createV2();
-
-        return c;
-      })();
+      const result = await c.createV2();
+      return result;
+    } else {
+      await c.setupCredentials(email, password);
+      const result = await c.create(options);
+      return result;
     }
-
-    return c.setupCredentials(email, password).then(() => {
-      return c.create(options);
-    });
   };
 
   Client.login = function (origin, email, password, options) {

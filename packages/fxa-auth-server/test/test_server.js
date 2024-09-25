@@ -15,8 +15,6 @@ const createProfileHelper = require('./profile_helper');
 const { CapabilityService } = require('../lib/payments/capability');
 const { AppConfig } = require('../lib/types');
 
-let currentServer;
-
 /* eslint-disable no-console */
 function TestServer(config, printLogs, options = {}) {
   Container.set(AppConfig, config);
@@ -57,60 +55,42 @@ function TestServer(config, printLogs, options = {}) {
 }
 
 TestServer.start = async function (config, printLogs, options) {
-  await TestServer.stop();
-
-  currentServer = new TestServer(config, printLogs, options);
-
-  return currentServer.start().then(() => currentServer);
+  const server = new TestServer(config, printLogs, options);
+  await server.start();
+  return server;
 };
 
-TestServer.prototype.start = function () {
+TestServer.prototype.start = async function () {
   const { authServerMockDependencies = {} } = this.options;
   const createAuthServer = proxyquire(
     '../bin/key_server',
     authServerMockDependencies
   );
 
-  const promises = [
-    createAuthServer(this.config),
-    createMailHelper(this.printLogs),
-  ];
+  this.server = await createAuthServer(this.config);
+  this.mail = await createMailHelper(this.printLogs);
 
-  if (this.config.profileServer.url && !this.profileServer) {
-    promises.push(createProfileHelper());
+  if (this.config.profileServer.url) {
+    this.profileServer = await createProfileHelper();
   }
-  return Promise.all(promises).then(([auth, mail, profileServer]) => {
-    this.server = auth;
-    this.mail = mail;
-    this.profileServer = profileServer;
-  });
 };
 
-TestServer.stop = async function (maybeServer) {
-  if (maybeServer) {
-    await maybeServer.stop();
-    maybeServer = undefined;
+TestServer.stop = async function (server) {
+  if (!server) {
+    throw new Error('Server must be provided');
   }
-
-  if (currentServer) {
-    await currentServer.stop();
-    currentServer = undefined;
-  }
-
-  return Promise.resolve();
+  await server.stop();
 };
 
 TestServer.prototype.stop = async function () {
-  currentServer = undefined;
-
   if (this.server) {
-    const doomed = [this.server.close(), this.mail.close()];
-    if (this.profileServer) {
-      doomed.push(this.profileServer.close());
-    }
-    return Promise.all(doomed);
-  } else {
-    return Promise.resolve();
+    await this.server.close();
+  }
+  if (this.mail) {
+    await this.mail.close();
+  }
+  if (this.profileServer) {
+    await this.profileServer.close();
   }
 };
 
