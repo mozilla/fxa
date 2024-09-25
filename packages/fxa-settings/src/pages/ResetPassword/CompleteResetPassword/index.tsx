@@ -8,10 +8,12 @@ import GleanMetrics from '../../../lib/glean';
 
 import AppLayout from '../../../components/AppLayout';
 import Banner, { BannerType } from '../../../components/Banner';
-import CardHeader from '../../../components/CardHeader';
-import FormPasswordWithBalloons from '../../../components/FormPasswordWithBalloons';
+import FormPasswordWithInlineCriteria from '../../../components/FormPasswordWithInlineCriteria';
 import LinkRememberPassword from '../../../components/LinkRememberPassword';
-import WarningMessage from '../../../components/WarningMessage';
+import { ReactComponent as BangIcon } from './icon-bang.svg';
+import { ReactComponent as WarnIcon } from './icon-warn.svg';
+import { ReactComponent as IconNonSyncDevice } from './icon-non-sync-device.svg';
+import { ReactComponent as IconSyncDevice } from './icon-sync-device.svg';
 
 import {
   CompleteResetPasswordFormData,
@@ -26,6 +28,8 @@ const CompleteResetPassword = ({
   hasConfirmedRecoveryKey,
   locationState,
   submitNewPassword,
+  estimatedSyncDeviceCount,
+  recoveryKeyExists,
 }: CompleteResetPasswordProps) => {
   const location = useLocation();
 
@@ -36,6 +40,8 @@ const CompleteResetPassword = ({
   }, [hasConfirmedRecoveryKey]);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const hasSyncDevices =
+    estimatedSyncDeviceCount !== undefined && estimatedSyncDeviceCount > 0;
 
   const { handleSubmit, register, getValues, errors, formState, trigger } =
     useForm<CompleteResetPasswordFormData>({
@@ -55,67 +61,117 @@ const CompleteResetPassword = ({
 
   return (
     <AppLayout>
-      <CardHeader
-        headingText="Create new password"
-        headingTextFtlId="complete-reset-pw-header"
-      />
+      <p className="text-start text-grey-400 text-sm">
+        <FtlMsg id="password-reset-flow-heading">Reset your password</FtlMsg>
+      </p>
 
-      {!hasConfirmedRecoveryKey &&
-        locationState.recoveryKeyExists === undefined && (
-          <Banner type={BannerType.error}>
-            <>
-              <FtlMsg id="complete-reset-password-recovery-key-error-v2">
-                <p>
-                  Sorry, there was a problem checking if you have an account
-                  recovery key.
-                </p>
-              </FtlMsg>
-              <FtlMsg id="complete-reset-password-recovery-key-link">
-                <Link
-                  to={`/account_recovery_confirm_key${location.search}`}
-                  state={locationState}
-                  className="link-white underline-offset-4"
-                  onClick={() =>
-                    GleanMetrics.passwordReset.createNewRecoveryKeyMessageClick()
-                  }
-                >
-                  Reset your password with your account recovery key.
-                </Link>
-              </FtlMsg>
-            </>
-          </Banner>
-        )}
-
+      {/*
+        In the event of serious error. A bright red banner will be displayed indicating
+        the problem.
+      */}
       {errorMessage && <Banner type={BannerType.error}>{errorMessage}</Banner>}
 
-      {hasConfirmedRecoveryKey ? (
-        <FtlMsg id="account-restored-success-message">
-          <p className="text-sm mb-4">
-            You have successfully restored your account using your account
-            recovery key. Create a new password to secure your data, and store
-            it in a safe location.
-          </p>
-        </FtlMsg>
-      ) : (
-        <WarningMessage
-          warningMessageFtlId="complete-reset-password-warning-message-2"
-          warningType="Remember:"
+      {/*
+        Inline message to help the user understand the status and ramifications
+        of their password reset. ie Will their data persist, or is an way to
+        recover it.
+      */}
+      {hasConfirmedRecoveryKey === false && recoveryKeyExists === undefined && (
+        <div
+          className={`bg-red-100 rounded-lg text-sm mt-6 text-left rtl:text-right p-3`}
+          data-testid="warning-message-container"
         >
-          When you reset your password, you reset your account. You may lose
-          some of your personal information (including history, bookmarks, and
-          passwords). That’s because we encrypt your data with your password to
-          protect your privacy. You’ll still keep any subscriptions you may have
-          and Pocket data will not be affected.
-        </WarningMessage>
+          <div className="flex">
+            <BangIcon role="img" className="flex-initial me-2 mt-1" />
+            <div className="flex-1 text-xs">
+              <FtlMsg id="password-reset-could-not-determine-account-recovery-key">
+                Have an account recovery key?
+              </FtlMsg>{' '}
+              <br />
+              <Link
+                to={`/account_recovery_confirm_key${location.search}`}
+                state={locationState}
+                className="link-blue"
+                onClick={() =>
+                  GleanMetrics.passwordReset.createNewRecoveryKeyMessageClick()
+                }
+              >
+                <FtlMsg id="password-reset-use-account-recovery-key">
+                  Reset your password with your recovery key.
+                </FtlMsg>
+              </Link>{' '}
+            </div>
+          </div>
+        </div>
       )}
 
-      {/* Hidden email field is to allow Fx password manager
-          to correctly save the updated password. Without it,
-          the password manager tries to save the old password
-          as the username. */}
+      {hasConfirmedRecoveryKey === false &&
+        recoveryKeyExists !== undefined &&
+        hasSyncDevices && (
+          <div
+            className={`bg-orange-50 rounded-lg text-sm mt-6 text-left rtl:text-right p-4 border-transparent`}
+            data-testid="warning-message-container"
+          >
+            <div className="flex font-semibold">
+              <WarnIcon role="img" className="flex-initial me-2 mt-1" />
+              <h1 className="flex-1">
+                <FtlMsg id="password-reset-data-may-not-be-recovered">
+                  Resetting your password may delete your encrypted browser
+                  data.
+                </FtlMsg>
+              </h1>
+            </div>
+            <div className="ps-4">
+              <p className="font-semibold pt-4">
+                <IconSyncDevice role="img" className="inline-block mr-2" />
+                <FtlMsg id="password-reset-previously-signed-in-device">
+                  Have a device where you previously signed in?
+                </FtlMsg>
+              </p>
+              <p className="ps-6 text-xs">
+                <FtlMsg id="password-reset-data-maybe-saved-locally">
+                  Your browser data may be locally saved on that device. Sign in
+                  there with your new password to restore and sync.
+                </FtlMsg>
+              </p>
+              <p className="font-semibold pt-4">
+                <IconNonSyncDevice role="img" className="inline-block mr-2" />
+                <FtlMsg id="password-reset-no-old-device">
+                  Have a new device but don’t have your old one?
+                </FtlMsg>
+              </p>
+              <p className="ps-6 text-xs">
+                <FtlMsg id="password-reset-encrypted-data-cannot-be-recovered">
+                  We’re sorry, but your encrypted browser data on Firefox
+                  servers can’t be recovered.
+                </FtlMsg>
+              </p>
+              <p className="ps-6 text-xs mt-4">
+                <a
+                  href="https://support.mozilla.org/en-US/kb/how-reset-your-password-without-account-recovery-keys-access-data"
+                  className="link-blue"
+                >
+                  <FtlMsg id="password-reset-learn-about-restoring-account-data">
+                    Learn more about restoring account data.
+                  </FtlMsg>
+                </a>
+              </p>
+            </div>
+          </div>
+        )}
+      {/*
+        Hidden email field is to allow Fx password manager
+        to correctly save the updated password. Without it,
+        the password manager tries to save the old password
+        as the username.
+      */}
       <input type="email" value={email} className="hidden" readOnly />
-      <section className="text-start mt-4">
-        <FormPasswordWithBalloons
+
+      <h1 className="font-semibold text-xl text-start mt-6">
+        <FtlMsg id="complete-reset-pw-header-v2">Create a new password</FtlMsg>
+      </h1>
+      <section className="text-start mt-2">
+        <FormPasswordWithInlineCriteria
           {...{
             email,
             errors,

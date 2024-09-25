@@ -55,6 +55,8 @@ const CompleteResetPasswordContainer = ({
     emailToHashWith,
     kB,
     recoveryKeyId,
+    recoveryKeyExists,
+    estimatedSyncDeviceCount,
   } = location.state as CompleteResetPasswordLocationState;
 
   const hasConfirmedRecoveryKey = !!(
@@ -181,6 +183,7 @@ const CompleteResetPasswordContainer = ({
   if (!(hasConfirmedRecoveryKey || isResetWithoutRecoveryKey)) {
     navigate('/reset_password', { replace: true });
   }
+
   return (
     <CompleteResetPassword
       {...{
@@ -188,6 +191,8 @@ const CompleteResetPasswordContainer = ({
         errorMessage,
         submitNewPassword,
         hasConfirmedRecoveryKey,
+        recoveryKeyExists,
+        estimatedSyncDeviceCount,
       }}
       locationState={location.state as CompleteResetPasswordLocationState}
     />

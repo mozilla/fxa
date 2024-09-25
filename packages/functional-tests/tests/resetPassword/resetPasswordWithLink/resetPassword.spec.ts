@@ -136,7 +136,10 @@ test.describe('severity-1 #smoke', () => {
         await diffResetPasswordReact.fillOutNewPasswordForm(passwordValue);
 
         await expect(diffPage.getByText(error)).toBeVisible();
-        await expect(diffResetPasswordReact.newPasswordTextbox).toBeFocused();
+        await expect(diffResetPasswordReact.resetPasswordButton).toBeDisabled();
+        await expect(diffResetPasswordReact.newPasswordTextbox).toHaveClass(
+          'error'
+        );
       });
     }
 

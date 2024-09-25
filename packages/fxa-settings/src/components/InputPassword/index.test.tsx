@@ -36,6 +36,14 @@ it('can have a default value', () => {
 it('can be toggled', () => {
   renderWithLocalizationProvider(<InputPassword {...{ label }} />);
   expect(screen.getByTestId('input-field')).toHaveAttribute('type', 'password');
+  expect(screen.getByTestId('visibility-toggle')).toHaveAttribute(
+    'aria-pressed',
+    'false'
+  );
   fireEvent.click(screen.getByTestId('visibility-toggle'));
   expect(screen.getByTestId('input-field')).toHaveAttribute('type', 'text');
+  expect(screen.getByTestId('visibility-toggle')).toHaveAttribute(
+    'aria-pressed',
+    'true'
+  );
 });

@@ -107,6 +107,7 @@ export const InputPassword = ({
                 'Your password is currently hidden.'
               )
         }
+        aria-pressed={visible ? 'true' : 'false'}
       >
         {visible ? (
           <ClosedEye
