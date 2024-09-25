@@ -17,7 +17,7 @@ import { LegacyStatsDProvider } from '@fxa/shared/metrics/statsd';
 import { MozLoggerService } from '@fxa/shared/mozlog';
 import {
   LegacyNotifierServiceProvider,
-  NotifierSnsFactory,
+  LegacyNotifierSnsFactory,
 } from '@fxa/shared/notifier';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
@@ -89,8 +89,8 @@ const version = getVersionInfo(__dirname);
       provide: LOGGER_PROVIDER,
       useClass: MozLoggerService,
     },
-    NotifierSnsFactory,
     LegacyNotifierServiceProvider,
+    LegacyNotifierSnsFactory,
     LegacyStatsDProvider,
   ],
 })

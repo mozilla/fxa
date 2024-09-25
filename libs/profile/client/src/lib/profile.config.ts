@@ -7,7 +7,7 @@ import { faker } from '@faker-js/faker';
 import { Provider } from '@nestjs/common';
 
 export class ProfileClientConfig {
-  @IsUrl()
+  @IsUrl({ require_tld: false })
   public readonly url!: string;
 
   @IsString()

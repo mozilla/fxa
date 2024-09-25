@@ -5,8 +5,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import { SNS } from 'aws-sdk';
+import { MockNotifierSnsConfig } from './notifier.sns.config';
 import {
-  NotifierSnsFactory,
+  LegacyNotifierSnsFactory,
   NotifierSnsService,
 } from './notifier.sns.provider';
 
@@ -22,14 +23,10 @@ jest.mock('aws-sdk', () => {
 describe('NotifierSnsFactory', () => {
   let sns: SNS;
 
-  const mockConfig = {
-    snsTopicArn: 'arn:aws:sns:us-east-1:100010001000:fxa-account-change-dev',
-    snsTopicEndpoint: 'http://localhost:4100/',
-  };
   const mockConfigService = {
     get: jest.fn().mockImplementation((key: string) => {
       if (key === 'notifier.sns') {
-        return mockConfig;
+        return MockNotifierSnsConfig;
       }
       return null;
     }),
@@ -39,11 +36,8 @@ describe('NotifierSnsFactory', () => {
     jest.clearAllMocks();
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        NotifierSnsFactory,
-        {
-          provide: ConfigService,
-          useValue: mockConfigService,
-        },
+        LegacyNotifierSnsFactory,
+        { provide: ConfigService, useValue: mockConfigService },
       ],
     }).compile();
 
@@ -53,8 +47,8 @@ describe('NotifierSnsFactory', () => {
   it('should provide statsd', async () => {
     expect(sns).toBeDefined();
     expect(mockSNS).toBeCalledWith({
-      endpoint: mockConfig.snsTopicEndpoint,
-      region: 'us-east-1',
+      endpoint: MockNotifierSnsConfig.snsTopicEndpoint,
+      region: 'us-west-2',
     });
   });
 });

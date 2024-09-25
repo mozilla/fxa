@@ -25,7 +25,19 @@ export function setupSns(config: NotifierSnsConfig) {
  * Factory for providing access to SNS
  */
 export const NotifierSnsService = Symbol('NOTIFIER_SNS');
-export const NotifierSnsFactory: Provider<SNS> = {
+export const NotifierSnsProvider: Provider<SNS> = {
+  provide: NotifierSnsService,
+  useFactory: (config: NotifierSnsConfig) => {
+    if (config == null) {
+      throw new Error('Could not locate notifier.sns config');
+    }
+    const sns = setupSns(config);
+    return sns;
+  },
+  inject: [NotifierSnsConfig],
+};
+
+export const LegacyNotifierSnsFactory: Provider<SNS> = {
   provide: NotifierSnsService,
   useFactory: (configService: ConfigService) => {
     const config = configService.get<NotifierSnsConfig>('notifier.sns');

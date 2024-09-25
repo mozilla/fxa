@@ -7,7 +7,7 @@ import { LegacyStatsDProvider } from '@fxa/shared/metrics/statsd';
 import { MozLoggerService } from '@fxa/shared/mozlog';
 import {
   LegacyNotifierServiceProvider,
-  NotifierSnsFactory,
+  LegacyNotifierSnsFactory,
 } from '@fxa/shared/notifier';
 import { Module } from '@nestjs/common';
 import { BackendModule } from '../backend/backend.module';
@@ -31,8 +31,8 @@ import { RelyingPartyResolver } from './relying-party/relying-party.resolver';
     AccountResolver,
     EmailBounceResolver,
     LegacyStatsDProvider,
-    NotifierSnsFactory,
     LegacyNotifierServiceProvider,
+    LegacyNotifierSnsFactory,
     {
       provide: LOGGER_PROVIDER,
       useClass: MozLoggerService,

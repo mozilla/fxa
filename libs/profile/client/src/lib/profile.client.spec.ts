@@ -1,8 +1,8 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { Test } from '@nestjs/testing';
 
+import { Test } from '@nestjs/testing';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { ProfileClient } from './profile.client';
 import { MockProfileClientConfigProvider } from './profile.config';
@@ -47,11 +47,9 @@ describe('ProfileClient', () => {
       jest
         .spyOn(profileClient as any, 'makeRequest')
         .mockRejectedValue(new Error('fail'));
-      try {
-        await profileClient.deleteCache('test');
-      } catch (e) {
-        expect(mockLogger.error).toHaveBeenCalled();
-      }
+
+      await expect(profileClient.deleteCache('test')).rejects.toThrow();
+      expect(mockLogger.error).toHaveBeenCalled();
     });
   });
 
@@ -65,11 +63,12 @@ describe('ProfileClient', () => {
       jest
         .spyOn(profileClient as any, 'makeRequest')
         .mockRejectedValue(new Error('fail'));
-      try {
-        await profileClient.updateDisplayName('test', 'test');
-      } catch (e) {
-        expect(mockLogger.error).toHaveBeenCalled();
-      }
+
+      await expect(
+        profileClient.updateDisplayName('test', 'test')
+      ).rejects.toThrow();
+
+      expect(mockLogger.error).toHaveBeenCalled();
     });
   });
 });

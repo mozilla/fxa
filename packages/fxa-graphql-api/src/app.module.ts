@@ -7,7 +7,7 @@ import { LegacyStatsDProvider } from '@fxa/shared/metrics/statsd';
 import { MozLoggerService } from '@fxa/shared/mozlog';
 import {
   LegacyNotifierServiceProvider,
-  NotifierSnsFactory,
+  LegacyNotifierSnsFactory,
 } from '@fxa/shared/notifier';
 import { HealthModule } from 'fxa-shared/nestjs/health/health.module';
 
@@ -56,8 +56,8 @@ const version = getVersionInfo(__dirname);
   providers: [
     LegacyStatsDProvider,
     MozLoggerService,
-    NotifierSnsFactory,
     LegacyNotifierServiceProvider,
+    LegacyNotifierSnsFactory,
     ComplexityPlugin,
     {
       provide: LOGGER_PROVIDER,

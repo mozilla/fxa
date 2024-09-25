@@ -27,9 +27,11 @@ import {
   StripeCustomer,
   StripePromotionCode,
 } from '@fxa/payments/stripe';
+import { ProfileClient } from '@fxa/profile/client';
 import { AccountManager } from '@fxa/shared/account/account';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
 import { StatsDService } from '@fxa/shared/metrics/statsd';
+import { NotifierService } from '@fxa/shared/notifier';
 import {
   CartTotalMismatchError,
   CartEligibilityMismatchError,
@@ -51,14 +53,31 @@ export class CheckoutService {
     private customerManager: CustomerManager,
     private eligibilityService: EligibilityService,
     private invoiceManager: InvoiceManager,
+    private notifierService: NotifierService,
     private paymentMethodManager: PaymentMethodManager,
     private paypalBillingAgreementManager: PaypalBillingAgreementManager,
     private paypalCustomerManager: PaypalCustomerManager,
     private productConfigurationManager: ProductConfigurationManager,
+    private profileClient: ProfileClient,
     private promotionCodeManager: PromotionCodeManager,
     private subscriptionManager: SubscriptionManager,
     @Inject(StatsDService) private statsd: StatsD
   ) {}
+
+  /**
+   * Reload the customer data to reflect a change.
+   */
+  private async customerChanged(uid: string) {
+    await this.profileClient.deleteCache(uid);
+
+    this.notifierService.send({
+      event: 'profileDataChange',
+      data: {
+        ts: Date.now() / 1000,
+        uid,
+      },
+    });
+  }
 
   async prePaySteps(cart: ResultCart, customerData: CheckoutCustomerData) {
     const taxAddress = cart.taxAddress as any as TaxAddress;
@@ -182,18 +201,23 @@ export class CheckoutService {
     return {
       uid: uid,
       customer,
+      email: cart.email,
       enableAutomaticTax,
       promotionCode,
       price,
     };
   }
 
-  async postPaySteps(cart: ResultCart, subscription: StripeSubscription) {
+  async postPaySteps(
+    cart: ResultCart,
+    subscription: StripeSubscription,
+    uid: string
+  ) {
     const { customer: customerId, currency } = subscription;
 
     await this.customerManager.setTaxId(customerId, currency);
 
-    // TODO: call customerChanged
+    await this.customerChanged(uid);
 
     if (cart.couponCode) {
       const subscriptionMetadata = {
@@ -214,7 +238,7 @@ export class CheckoutService {
     paymentMethodId: string,
     customerData: CheckoutCustomerData
   ) {
-    const { customer, enableAutomaticTax, promotionCode, price } =
+    const { uid, customer, enableAutomaticTax, promotionCode, price } =
       await this.prePaySteps(cart, customerData);
 
     await this.paymentMethodManager.attach(paymentMethodId, {
@@ -281,7 +305,7 @@ export class CheckoutService {
       );
     }
 
-    await this.postPaySteps(cart, subscription);
+    await this.postPaySteps(cart, subscription, uid);
   }
 
   async payWithPaypal(
@@ -360,6 +384,6 @@ export class CheckoutService {
       await this.paypalBillingAgreementManager.cancel(billingAgreementId);
     }
 
-    await this.postPaySteps(cart, subscription);
+    await this.postPaySteps(cart, subscription, uid);
   }
 }

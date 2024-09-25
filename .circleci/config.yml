@@ -409,7 +409,6 @@ commands:
           paths:
             - artifacts/blob-report
 
-
   rename-reports-chromium:
     steps:
       - run:
@@ -624,7 +623,7 @@ jobs:
 
   build:
     executor: default-executor
-    resource_class: large
+    resource_class: xlarge
     steps:
       - git-checkout
       - restore-workspace
@@ -908,7 +907,7 @@ jobs:
 
   build-and-deploy-storybooks:
     executor: default-executor
-    resource_class: large
+    resource_class: xlarge
     steps:
       - git-checkout
       - restore-workspace

@@ -14,6 +14,8 @@ import { FirestoreConfig } from 'libs/shared/db/firestore/src/lib/firestore.conf
 import { StatsDConfig } from 'libs/shared/metrics/statsd/src/lib/statsd.config';
 import { PaymentsGleanConfig } from '@fxa/payments/metrics';
 import { CurrencyConfig } from 'libs/payments/currency/src/lib/currency.config';
+import { ProfileClientConfig } from '@fxa/profile/client';
+import { NotifierSnsConfig } from '@fxa/shared/notifier';
 
 export class RootConfig {
   @Type(() => MySQLConfig)
@@ -64,4 +66,14 @@ export class RootConfig {
   @ValidateNested()
   @IsDefined()
   public readonly gleanConfig!: Partial<PaymentsGleanConfig>;
+
+  @Type(() => ProfileClientConfig)
+  @ValidateNested()
+  @IsDefined()
+  public readonly profileClientConfig!: Partial<ProfileClientConfig>;
+
+  @Type(() => NotifierSnsConfig)
+  @ValidateNested()
+  @IsDefined()
+  public readonly notifierSnsConfig!: Partial<NotifierSnsConfig>;
 }

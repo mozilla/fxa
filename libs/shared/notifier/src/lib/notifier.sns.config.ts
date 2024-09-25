@@ -9,7 +9,7 @@ export class NotifierSnsConfig {
   @IsString()
   public readonly snsTopicArn!: string;
 
-  @IsUrl()
+  @IsUrl({ require_tld: false })
   public readonly snsTopicEndpoint!: string;
 }
 

@@ -161,7 +161,7 @@ export class CartService {
             oldCart.interval as SubplatInterval
           );
 
-        this.promotionCodeManager.assertValidPromotionCodeNameForPrice(
+        await this.promotionCodeManager.assertValidPromotionCodeNameForPrice(
           oldCart.couponCode,
           price
         );
