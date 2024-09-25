@@ -7,6 +7,7 @@
 // https://docs.sentry.io/platforms/javascript/guides/nextjs/
 
 import * as Sentry from '@sentry/nextjs';
+import * as SentryTypes from '@sentry/types';
 import { SentryConfigOpts } from '../models/SentryConfigOpts';
 import { buildSentryConfig } from '../config-builder';
 import { Logger } from '../sentry.types';
@@ -44,7 +45,7 @@ export function initSentryForNextjsClient(
           enableInp: true,
         }),
       ],
-      beforeSend: function (event: Sentry.ErrorEvent) {
+      beforeSend: function (event: SentryTypes.ErrorEvent) {
         return beforeSend(sentryEnabled, opts, event);
       },
     });
