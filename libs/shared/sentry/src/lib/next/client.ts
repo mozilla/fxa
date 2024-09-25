@@ -39,11 +39,6 @@ export function initSentryForNextjsClient(
   try {
     Sentry.init({
       ...opts,
-      integrations: [
-        Sentry.browserTracingIntegration({
-          enableInp: true,
-        }),
-      ],
       beforeSend: function (event: Sentry.ErrorEvent) {
         return beforeSend(sentryEnabled, opts, event);
       },

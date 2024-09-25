@@ -106,18 +106,11 @@ exports.create = async function createServer() {
         // looks like there might be some other solutions that are more complex, but would work
         // with hapi and distributed tracing.
         //
-        const transaction = Sentry.startTransaction(
-          {
-            op: 'profile-server',
-            name: `${request.method.toUpperCase()} ${request.path}`,
-          },
-          {
-            request: Sentry.Handlers.extractRequestData(request.raw.req),
-          }
-        );
-
-        Sentry.configureScope((scope) => {
-          scope.setSpan(transaction);
+        const transaction = Sentry.startInactiveSpan({
+          op: 'profile-server',
+          name: `${request.method.toUpperCase()} ${request.path}`,
+          forceTransaction: true,
+          request: Sentry.extractRequestData(request.raw.req),
         });
 
         request.app.sentry = {

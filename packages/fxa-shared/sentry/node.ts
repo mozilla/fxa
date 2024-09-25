@@ -46,7 +46,6 @@ export function initSentry(config: InitSentryOpts, log: ILogger) {
   try {
     Sentry.init({
       // Defaults Options
-      instrumenter: 'otel',
       normalizeDepth: 6,
       maxValueLength: 500,
 
