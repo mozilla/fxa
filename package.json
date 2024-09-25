@@ -78,7 +78,7 @@
     "@radix-ui/react-tooltip": "^1.1.2",
     "@sentry/browser": "^7.113.0",
     "@sentry/integrations": "^7.113.0",
-    "@sentry/nextjs": "^7",
+    "@sentry/nextjs": "^8.28.0",
     "@sentry/node": "^7.113.0",
     "@sentry/opentelemetry-node": "^7.113.0",
     "@swc/helpers": "0.5.11",
