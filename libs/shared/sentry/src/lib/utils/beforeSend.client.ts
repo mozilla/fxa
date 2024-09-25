@@ -4,6 +4,7 @@
 
 // Change to @sentry/browser after upgrade to Sentry 8
 import * as Sentry from '@sentry/nextjs';
+import * as SentryTypes from '@sentry/types';
 import { cleanUpQueryParam } from './cleanUpQueryParam';
 import { SentryConfigOpts } from '../models/SentryConfigOpts';
 import { tagFxaName } from './tagFxaName';
@@ -20,7 +21,7 @@ import { tagFxaName } from './tagFxaName';
 export function beforeSend(
   sentryEnabled: boolean,
   opts: SentryConfigOpts,
-  event: Sentry.ErrorEvent
+  event: SentryTypes.ErrorEvent
 ) {
   if (sentryEnabled === false) {
     return null;
