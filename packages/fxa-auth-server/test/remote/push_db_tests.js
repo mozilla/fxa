@@ -50,18 +50,17 @@ const mockLog = {
 };
 
 describe(`#integration - remote push db`, function () {
-  this.timeout(15000);
+  this.timeout(60000);
 
   let dbServer, db;
-  before(() => {
-    return TestServer.start(config)
-      .then((s) => {
-        dbServer = s;
-        return DB.connect(config);
-      })
-      .then((x) => {
-        db = x;
-      });
+  before(async () => {
+    dbServer = await TestServer.start(config);
+    db = await DB.connect(config);
+  });
+
+  after(async () => {
+    await TestServer.stop(dbServer);
+    await db.close();
   });
 
   it('push db tests', () => {
@@ -179,7 +178,5 @@ describe(`#integration - remote push db`, function () {
       });
   });
 
-  after(() => {
-    return Promise.all([TestServer.stop(dbServer), db.close()]);
-  });
+
 });

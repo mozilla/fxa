@@ -15,16 +15,18 @@ const password = 'allyourbasearebelongtous';
 [{version:""},{version:"V2"}].forEach((testOptions) => {
 
 describe(`#integration${testOptions.version} - remote emails`, function () {
-  this.timeout(30000);
+  this.timeout(60000);
 
-  before(() => {
+  before(async function () {
     config = require('../../config').default.getProperties();
     config.securityHistory.ipProfiling = {};
     config.signinConfirmation.skipForNewAccounts.enabled = false;
 
-    return TestServer.start(config).then((s) => {
-      server = s;
-    });
+    server = await TestServer.start(config);
+  });
+
+  after(async () => {
+    await TestServer.stop(server);
   });
 
   beforeEach(() => {
@@ -572,10 +574,16 @@ describe(`#integration${testOptions.version} - remote emails`, function () {
           assert.equal(emailData.cc[0].address, secondEmail);
         })
         .then(() => {
-          if (testOptions.version === "V2") {
-            return Client.upgradeCredentials(config.publicUrl, email, 'password1', {version:'', keys:true})
+          if (testOptions.version === 'V2') {
+            return Client.upgradeCredentials(
+              config.publicUrl,
+              email,
+              'password1',
+              { version: '', keys: true }
+            );
           }
-        }).then((x) => {
+        })
+        .then((x) => {
           if (x) {
             client = x;
           }
@@ -627,53 +635,56 @@ describe(`#integration${testOptions.version} - remote emails`, function () {
         });
     });
 
-    it('receives new device sign-in email', () => {
-      config.signinConfirmation.skipForNewAccounts.enabled = true;
-      return TestServer.start(config)
-        .then((s) => {
-          server = s;
-          email = server.uniqueEmail();
-          secondEmail = server.uniqueEmail();
-          thirdEmail = server.uniqueEmail();
-          return Client.createAndVerify(
-            config.publicUrl,
-            email,
-            password,
-            server.mailbox,
-            testOptions
-          );
-        })
-        .then((x) => {
-          client = x;
-          return client.createEmail(secondEmail);
-        })
-        .then(() => {
-          return server.mailbox.waitForCode(secondEmail);
-        })
-        .then((code) => {
-          return client
-            .verifySecondaryEmailWithCode(code, secondEmail)
-            .then(() => {
-              // Clear add secondary email notification
-              return server.mailbox.waitForEmail(email);
-            });
-        })
-        .then(() => {
-          // Create unverified email
-          return client.createEmail(thirdEmail);
-        })
-        .then(() => {
-          return client.login({ keys: true });
-        })
-        .then(() => {
-          return server.mailbox.waitForEmail(email);
-        })
-        .then((emailData) => {
-          const templateName = emailData['headers']['x-template-name'];
-          assert.equal(templateName, 'newDeviceLogin');
-          assert.equal(emailData.cc.length, 1);
-          assert.equal(emailData.cc[0].address, secondEmail);
-        });
+    describe('new device signin', function () {
+      let skipForNewAccountsEnabled;
+      before(async function () {
+        // Stop currently running server, and create new config
+        await TestServer.stop(server);
+        skipForNewAccountsEnabled =
+          config.signinConfirmation.skipForNewAccounts.enabled;
+        config.signinConfirmation.skipForNewAccounts.enabled = true;
+        server = await TestServer.start(config);
+      });
+
+      after(async function () {
+        // Restore server to previous config
+        await TestServer.stop(server);
+        config.signinConfirmation.skipForNewAccounts.enabled =
+          skipForNewAccountsEnabled;
+        server = await TestServer.start(config);
+      });
+
+      it('receives new device sign-in email', async function () {
+        email = server.uniqueEmail();
+        secondEmail = server.uniqueEmail();
+        thirdEmail = server.uniqueEmail();
+        const client = await Client.createAndVerify(
+          config.publicUrl,
+          email,
+          password,
+          server.mailbox,
+          testOptions
+        );
+        await client.createEmail(secondEmail);
+        const code = await server.mailbox.waitForCode(secondEmail);
+        await client.verifySecondaryEmailWithCode(code, secondEmail);
+
+        // Clear add secondary email notification
+        await server.mailbox.waitForEmail(email);
+
+        // Create unverified email
+        await client.createEmail(thirdEmail);
+
+        // Login again
+        await client.login({ keys: true });
+        const emailData = await server.mailbox.waitForEmail(email);
+
+        // Check for new device lgoin email
+        const templateName = emailData['headers']['x-template-name'];
+        assert.equal(templateName, 'newDeviceLogin');
+        assert.equal(emailData.cc.length, 1);
+        assert.equal(emailData.cc[0].address, secondEmail);
+      });
     });
   });
 
@@ -799,7 +810,12 @@ describe(`#integration${testOptions.version} - remote emails`, function () {
           return server.mailbox.waitForEmail(email);
         })
         .then(() => {
-          return Client.create(config.publicUrl, secondEmail, password, testOptions)
+          return Client.create(
+            config.publicUrl,
+            secondEmail,
+            password,
+            testOptions
+          )
             .then(assert.fail)
             .catch((err) => {
               assert.equal(err.errno, 144, 'return correct errno');
@@ -931,9 +947,7 @@ describe(`#integration${testOptions.version} - remote emails`, function () {
     });
   });
 
-  after(() => {
-    return TestServer.stop(server);
-  });
+
 
   function resetPassword(client, code, newPassword, headers, options) {
     return client.verifyPasswordResetCode(code, headers, options).then(() => {

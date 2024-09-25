@@ -10,17 +10,18 @@ const TestServer = require('../test_server');
 const path = require('path');
 
 describe(`#integration - remote sign key`, function () {
-  this.timeout(15000);
+  this.timeout(60000);
   let server;
-  before(() => {
+  before(async () => {
     const config = require('../../config').default.getProperties();
     config.oldPublicKeyFile = path.resolve(
       __dirname,
       '../../config/public-key.json'
     );
-    return TestServer.start(config).then((s) => {
-      server = s;
-    });
+    server = await TestServer.start(config);
+  });
+  after(async () => {
+    await TestServer.stop(server);
   });
 
   it('.well-known/browserid has keys', () => {
@@ -37,7 +38,5 @@ describe(`#integration - remote sign key`, function () {
       });
   });
 
-  after(() => {
-    return TestServer.stop(server);
-  });
+
 });

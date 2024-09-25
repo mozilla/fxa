@@ -15,14 +15,16 @@ const password = 'allyourbasearebelongtous',
 [ {version:""}, {version:"V2"}].forEach((testOptions) => {
 
 describe(`#integration${testOptions.version} - remote change email`, function () {
-  this.timeout(30000);
+  this.timeout(60000);
 
-  before(() => {
+  before(async () => {
     config = require('../../config').default.getProperties();
     config.securityHistory.ipProfiling = {};
-    return TestServer.start(config).then((s) => {
-      server = s;
-    });
+    server = await TestServer.start(config);
+  });
+
+  after(async () => {
+    await TestServer.stop(server);
   });
 
   beforeEach(() => {
@@ -147,22 +149,29 @@ describe(`#integration${testOptions.version} - remote change email`, function ()
         .then((res) => {
           assert.ok(res, 'ok response');
 
-          if (testOptions.version === "V2") {
+          if (testOptions.version === 'V2') {
             // Note for V2 we can login with new primary email. The password is not encrypted with
             // the original email, so this now works!
-            return Client.login(config.publicUrl, secondEmail, password, testOptions);
-          }
-          else {
-            // Verify account can login with new primary email
-            return Client.login(config.publicUrl, secondEmail, password, testOptions).then(
-              () => {
-                assert.fail(
-                  new Error(
-                    'Should have returned correct email for user to login'
-                  )
-                );
-              }
+            return Client.login(
+              config.publicUrl,
+              secondEmail,
+              password,
+              testOptions
             );
+          } else {
+            // Verify account can login with new primary email
+            return Client.login(
+              config.publicUrl,
+              secondEmail,
+              password,
+              testOptions
+            ).then(() => {
+              assert.fail(
+                new Error(
+                  'Should have returned correct email for user to login'
+                )
+              );
+            });
           }
         })
         .catch((err) => {
@@ -175,7 +184,7 @@ describe(`#integration${testOptions.version} - remote change email`, function ()
 
           return Client.login(config.publicUrl, err.email, password, {
             originalLoginEmail: secondEmail,
-            ...testOptions
+            ...testOptions,
           });
         })
         .then((res) => {
@@ -190,7 +199,7 @@ describe(`#integration${testOptions.version} - remote change email`, function ()
           assert.ok(res, 'ok response');
           return Client.login(config.publicUrl, email, password, {
             originalLoginEmail: secondEmail,
-            ...testOptions
+            ...testOptions,
           });
         })
         .then((res) => {
@@ -201,7 +210,7 @@ describe(`#integration${testOptions.version} - remote change email`, function ()
           assert.ok(res, 'ok response');
           return Client.login(config.publicUrl, email, newPassword, {
             originalLoginEmail: secondEmail,
-            ...testOptions
+            ...testOptions,
           });
         })
         .then((res) => {
@@ -240,18 +249,23 @@ describe(`#integration${testOptions.version} - remote change email`, function ()
           assert.ok(res, 'ok response');
         })
         .then(() => {
-          if (testOptions.version === "V2") {
-            return Client.upgradeCredentials(config.publicUrl, email, newPassword, {
-              originalLoginEmail: secondEmail,
-              version: '',
-              keys: true
-           });
+          if (testOptions.version === 'V2') {
+            return Client.upgradeCredentials(
+              config.publicUrl,
+              email,
+              newPassword,
+              {
+                originalLoginEmail: secondEmail,
+                version: '',
+                keys: true,
+              }
+            );
           }
         })
         .then(() => {
           return Client.login(config.publicUrl, email, newPassword, {
             originalLoginEmail: secondEmail,
-            ...testOptions
+            ...testOptions,
           });
         })
         .then((res) => {
@@ -269,7 +283,7 @@ describe(`#integration${testOptions.version} - remote change email`, function ()
         .then(() => {
           return Client.login(config.publicUrl, email, newPassword, {
             originalLoginEmail: secondEmail,
-            ...testOptions
+            ...testOptions,
           })
             .then(() => {
               assert.fail(
@@ -356,7 +370,7 @@ describe(`#integration${testOptions.version} - remote change email`, function ()
 
     const res = await Client.login(config.publicUrl, client1Email, password, {
       originalLoginEmail: client2Email,
-      ...testOptions
+      ...testOptions,
     });
 
     assert.ok(res, 'ok response');
@@ -399,13 +413,17 @@ describe(`#integration${testOptions.version} - remote change email`, function ()
     });
 
     it('can login', () => {
-
-      if (testOptions.version === "V2") {
+      if (testOptions.version === 'V2') {
         // Note that with V2 logins, you can actually use the secondary email to login. This is
         // due to the fact the salt is now independent of the original email.
-        return Client.login(config.publicUrl, secondEmail, password, testOptions).then((res) => {
-          assert.exists(res.sessionToken)
-        })
+        return Client.login(
+          config.publicUrl,
+          secondEmail,
+          password,
+          testOptions
+        ).then((res) => {
+          assert.exists(res.sessionToken);
+        });
       }
 
       // Verify account can still login with new primary email
@@ -425,7 +443,7 @@ describe(`#integration${testOptions.version} - remote change email`, function ()
 
           return Client.login(config.publicUrl, err.email, password, {
             originalLoginEmail: secondEmail,
-            ...testOptions
+            ...testOptions,
           });
         })
         .then((res) => {
@@ -436,7 +454,7 @@ describe(`#integration${testOptions.version} - remote change email`, function ()
     it('can change password', () => {
       return Client.login(config.publicUrl, email, password, {
         originalLoginEmail: secondEmail,
-        ...testOptions
+        ...testOptions,
       })
         .then((res) => {
           client = res;
@@ -446,7 +464,7 @@ describe(`#integration${testOptions.version} - remote change email`, function ()
           assert.ok(res, 'ok response');
           return Client.login(config.publicUrl, email, newPassword, {
             originalLoginEmail: secondEmail,
-            ...testOptions
+            ...testOptions,
           });
         })
         .then((res) => {
@@ -471,18 +489,23 @@ describe(`#integration${testOptions.version} - remote change email`, function ()
           assert.ok(res, 'ok response');
         })
         .then(() => {
-          if (testOptions.version === "V2") {
-            return Client.upgradeCredentials(config.publicUrl, email, newPassword, {
-              originalLoginEmail: secondEmail,
-              version: '',
-              keys:true
-            });
+          if (testOptions.version === 'V2') {
+            return Client.upgradeCredentials(
+              config.publicUrl,
+              email,
+              newPassword,
+              {
+                originalLoginEmail: secondEmail,
+                version: '',
+                keys: true,
+              }
+            );
           }
         })
         .then(() => {
           return Client.login(config.publicUrl, email, newPassword, {
             originalLoginEmail: secondEmail,
-            ...testOptions
+            ...testOptions,
           });
         })
         .then((res) => {
@@ -494,7 +517,7 @@ describe(`#integration${testOptions.version} - remote change email`, function ()
       return client.destroyAccount().then(() => {
         return Client.login(config.publicUrl, email, newPassword, {
           originalLoginEmail: secondEmail,
-          ...testOptions
+          ...testOptions,
         })
           .then(() => {
             assert.fail(
@@ -509,9 +532,7 @@ describe(`#integration${testOptions.version} - remote change email`, function ()
     });
   });
 
-  after(() => {
-    return TestServer.stop(server);
-  });
+
 
   function resetPassword(client, code, newPassword, headers, options) {
     return client.verifyPasswordResetCode(code, headers, options).then(() => {

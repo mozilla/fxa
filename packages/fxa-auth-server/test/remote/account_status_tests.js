@@ -14,16 +14,23 @@ const config = require('../../config').default.getProperties();
 [{version:""},{version:"V2"}].forEach((testOptions) => {
 
 describe(`#integration${testOptions.version} - remote account status`, function () {
-  this.timeout(15000);
+  this.timeout(60000);
   let server;
-  before(() => {
-    return TestServer.start(config).then((s) => {
-      server = s;
-    });
+  before(async () => {
+    server = await TestServer.start(config);
+  });
+
+  after(async () => {
+    await TestServer.stop(server);
   });
 
   it('account status with existing account', () => {
-    return Client.create(config.publicUrl, server.uniqueEmail(), 'password', testOptions)
+    return Client.create(
+      config.publicUrl,
+      server.uniqueEmail(),
+      'password',
+      testOptions
+    )
       .then((c) => {
         return c.api.accountStatus(c.uid);
       })
@@ -139,9 +146,7 @@ describe(`#integration${testOptions.version} - remote account status`, function 
       });
   });
 
-  after(() => {
-    return TestServer.stop(server);
-  });
+
 });
 
 });

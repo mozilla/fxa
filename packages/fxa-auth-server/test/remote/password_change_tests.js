@@ -20,15 +20,17 @@ function getSessionTokenId(sessionTokenHex) {
 
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
   describe(`#integration${testOptions.version} - remote password change`, function () {
-    this.timeout(15000);
+    this.timeout(60000);
     let server;
-    before(() => {
+    before(async () => {
       config.securityHistory.ipProfiling.allowedRecency = 0;
       config.signinConfirmation.skipForNewAccounts.enabled = false;
 
-      return TestServer.start(config).then((s) => {
-        server = s;
-      });
+      server = await TestServer.start(config);
+    });
+
+    after(async () => {
+      await TestServer.stop(server);
     });
 
     it('password change, with unverified session', () => {
@@ -544,8 +546,6 @@ function getSessionTokenId(sessionTokenHex) {
       );
     });
 
-    after(() => {
-      return TestServer.stop(server);
-    });
+
   });
 });

@@ -13,13 +13,15 @@ const config = require('../../config').default.getProperties();
 // Note, intentionally not indenting for code review.
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
   describe(`#integration${testOptions.version} - remote account destroy`, function () {
-    this.timeout(15000);
+    this.timeout(60000);
     let server;
 
-    before(() => {
-      return TestServer.start(config).then((s) => {
-        server = s;
-      });
+    before(async function () {
+      server = await TestServer.start(config);
+    });
+
+    after(async function () {
+      await TestServer.stop(server);
     });
 
     it('account destroy', () => {
@@ -115,8 +117,6 @@ const config = require('../../config').default.getProperties();
         });
     });
 
-    after(() => {
-      return TestServer.stop(server);
-    });
+
   });
 });

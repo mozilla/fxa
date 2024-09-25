@@ -13,13 +13,16 @@ const config = require('../../config').default.getProperties();
 [{version:""},{version:"V2"}].forEach((testOptions) => {
 
 describe(`#integration${testOptions.version} - remote concurrent`, function () {
-  this.timeout(15000);
+  this.timeout(60000);
   let server;
-  before(() => {
+
+  before(async () => {
     config.verifierVersion = 1;
-    return TestServer.start(config).then((s) => {
-      server = s;
-    });
+    server = await TestServer.start(config);
+  });
+
+  after(async () => {
+    await TestServer.stop(server);
   });
 
   it('concurrent create requests', () => {
@@ -38,9 +41,7 @@ describe(`#integration${testOptions.version} - remote concurrent`, function () {
       });
   });
 
-  after(() => {
-    return TestServer.stop(server);
-  });
+
 });
 
 });

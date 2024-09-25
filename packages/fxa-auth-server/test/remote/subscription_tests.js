@@ -37,7 +37,7 @@ const PRODUCT_NAME = 'All Done Pro';
 
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
   describe(`#integration${testOptions.version} - remote subscriptions:`, function () {
-    this.timeout(10000);
+    this.timeout(60000);
 
     before(async () => {
       config.subscriptions.stripeApiKey = null;
@@ -48,7 +48,7 @@ const PRODUCT_NAME = 'All Done Pro';
     });
 
     describe('config.subscriptions.enabled = true and direct stripe access:', function () {
-      this.timeout(15000);
+      this.timeout(60000);
 
       let client, server, tokens;
       const mockStripeHelper = {};

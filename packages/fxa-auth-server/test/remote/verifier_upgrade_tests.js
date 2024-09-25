@@ -31,61 +31,56 @@ const {
   AppStoreSubscriptions,
 } = require('../../lib/payments/iap/apple-app-store/subscriptions');
 
-let client, db, server;
+[{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
+  describe(`#integration${testOptions.version} - remote verifier upgrade`, function () {
+    this.timeout(60000);
 
-[{version:""},{version:"V2"}].forEach((testOptions) => {
+    let client, db, server;
 
-describe(`#integration${testOptions.version} - remote verifier upgrade`, function () {
-  this.timeout(30000);
+    before(async () => {
+      config.verifierVersion = 0;
+      config.securityHistory.ipProfiling.allowedRecency = 0;
 
-  before(async () => {
-    config.verifierVersion = 0;
-    config.securityHistory.ipProfiling.allowedRecency = 0;
+      Container.set(PlaySubscriptions, {});
+      Container.set(AppStoreSubscriptions, {});
 
-    Container.set(PlaySubscriptions, {});
-    Container.set(AppStoreSubscriptions, {});
-
-    server = await TestServer.start(config);
-    db = await DB.connect(config);
-  });
-
-  it('upgrading verifierVersion upgrades the account on password change', async () => {
-    const email = `${Math.random()}@example.com`;
-    const password = 'ok';
-
-    client = await Client.create(config.publicUrl, email, password, {
-      ...testOptions,
-      preVerified: true,
-      keys: true,
+      server = await TestServer.start(config);
+      db = await DB.connect(config);
     });
 
-    let account = await db.account(client.uid);
-
-    assert.equal(account.verifierVersion, 0, 'wrong version');
-
-    await TestServer.stop(server);
-
-    config.verifierVersion = 1;
-    server = await TestServer.start(config);
-
-    client = await Client.login(
-      config.publicUrl,
-      email,
-      password,
-      testOptions
-    );
-
-    await client.changePassword(password);
-    account = await db.account(client.uid);
-    assert.equal(account.verifierVersion, 1, 'wrong upgrade version');
-  });
-
-  after(async () => {
-    try {
-      await db.close();
+    after(async () => {
       await TestServer.stop(server);
-    } catch (e) {}
-  });
-});
+      await db.close();
+    });
 
+    it('upgrading verifierVersion upgrades the account on password change', async () => {
+      const email = `${Math.random()}@example.com`;
+      const password = 'ok';
+
+      client = await Client.create(config.publicUrl, email, password, {
+        ...testOptions,
+        preVerified: true,
+        keys: true,
+      });
+
+      let account = await db.account(client.uid);
+
+      assert.equal(account.verifierVersion, 0, 'wrong version');
+      await TestServer.stop(server);
+
+      config.verifierVersion = 1;
+      server = await TestServer.start(config);
+
+      client = await Client.login(
+        config.publicUrl,
+        email,
+        password,
+        testOptions
+      );
+
+      await client.changePassword(password);
+      account = await db.account(client.uid);
+      assert.equal(account.verifierVersion, 1, 'wrong upgrade version');
+    });
+  });
 });

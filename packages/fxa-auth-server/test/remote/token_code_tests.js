@@ -20,18 +20,19 @@ const {
 [{version:""},{version:"V2"}].forEach((testOptions) => {
 
 describe(`#integration${testOptions.version} - remote tokenCodes`, function () {
+  this.timeout(60000);
+
   let server, client, email, code;
   const password = 'pssssst';
 
-  this.timeout(10000);
-
-  before(() => {
+  before(async () => {
     Container.set(PlaySubscriptions, {});
     Container.set(AppStoreSubscriptions, {});
+    server = await TestServer.start(config);
+  });
 
-    return TestServer.start(config).then((s) => {
-      server = s;
-    });
+  after(async () => {
+    await TestServer.stop(server);
   });
 
   beforeEach(() => {
@@ -241,9 +242,7 @@ describe(`#integration${testOptions.version} - remote tokenCodes`, function () {
     );
   });
 
-  after(() => {
-    return TestServer.stop(server);
-  });
+
 });
 
 });

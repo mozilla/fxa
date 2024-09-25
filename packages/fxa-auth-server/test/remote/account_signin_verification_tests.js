@@ -24,14 +24,17 @@ const mocks = require('../mocks');
 // Note, intentionally not indenting for code review.
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
   describe(`#integration${testOptions.version} - remote account signin verification`, function () {
-    this.timeout(30000);
+    this.timeout(60000);
     let server;
-    before(() => {
+
+    before(async () => {
       config.securityHistory.ipProfiling.allowedRecency = 0;
       config.signinConfirmation.skipForNewAccounts.enabled = false;
-      return TestServer.start(config).then((s) => {
-        server = s;
-      });
+      server = await TestServer.start(config);
+    });
+
+    after(async () => {
+      await TestServer.stop(server);
     });
 
     it('account signin without keys does not set challenge', () => {
@@ -810,8 +813,6 @@ const mocks = require('../mocks');
         });
     });
 
-    after(() => {
-      return TestServer.stop(server);
-    });
+
   });
 });

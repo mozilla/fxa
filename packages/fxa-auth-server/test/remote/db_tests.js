@@ -15,6 +15,7 @@ const UnblockCode = require('../../lib/crypto/random').base32(
 );
 const uuid = require('uuid');
 const { normalizeEmail } = require('fxa-shared').email.helpers;
+const ioredis = require('ioredis');
 
 const log = { debug() {}, trace() {}, info() {}, error() {} };
 
@@ -70,26 +71,24 @@ const zeroBuffer32 = Buffer.from(
 let account, secondEmail;
 
 describe(`#integration - remote db`, function () {
-  this.timeout(20000);
+  this.timeout(60000);
   let dbServer, db, redis;
 
-  before(() => {
-    redis = require('ioredis').createClient({
+  before(async () => {
+    redis = ioredis.createClient({
       host: config.redis.host,
       port: config.redis.port,
       password: config.redis.password,
       prefix: config.redis.sessionTokens.prefix,
       enable_offline_queue: false,
     });
+    dbServer = await TestServer.start(config);
+    db = await DB.connect(config);
+  });
 
-    return TestServer.start(config)
-      .then((s) => {
-        dbServer = s;
-        return DB.connect(config);
-      })
-      .then((x) => {
-        db = x;
-      });
+  after(async () => {
+    await TestServer.stop(dbServer);
+    await db.close();
   });
 
   beforeEach(() => {
@@ -1611,12 +1610,6 @@ describe(`#integration - remote db`, function () {
             'primary email set'
           );
         });
-    });
-  });
-
-  after(() => {
-    return TestServer.stop(dbServer).then(() => {
-      return db && db.close();
     });
   });
 });

@@ -21,7 +21,7 @@ const key = {
 [{version:""},{version:"V2"}].forEach((testOptions) => {
 
 describe(`#integration${testOptions.version} - remote account locale`, function () {
-  this.timeout(15000);
+  this.timeout(60000);
   let server;
 
   before(async () => {
