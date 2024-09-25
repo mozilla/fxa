@@ -467,8 +467,5 @@
   "subscriptionAccountReminders": {
     "firstInterval": "5s",
     "secondInterval": "10s"
-  },
-  "passwordForgotOtp": {
-    "enabled": true
   }
 }

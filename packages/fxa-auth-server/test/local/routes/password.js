@@ -24,7 +24,6 @@ function makeRoutes(options = {}) {
     verifierVersion: 0,
     smtp: {},
     passwordForgotOtp: {
-      enabled: false,
       digits: 8,
     },
   };
@@ -80,7 +79,6 @@ describe('/password', () => {
   describe('/forgot/send_otp', () => {
     const mockConfig = {
       passwordForgotOtp: {
-        enabled: true,
         digits: 8,
         ttl: 300,
       },
@@ -207,51 +205,11 @@ describe('/password', () => {
         );
       });
     });
-
-    it('returns an error when not enabled', () => {
-      const configDisabled = {
-        ...mockConfig,
-        passwordForgotOtp: { enabled: false, digits: 8 },
-      };
-      const passwordRoutes = makeRoutes({
-        config: configDisabled,
-        customs: mockCustoms,
-        db: mockDB,
-        mailer: mockMailer,
-        metricsContext: mockMetricsContext,
-        log: mockLog,
-        authServerCacheRedis: mockRedis,
-        statsd: mockStatsd,
-      });
-
-      const mockRequest = mocks.mockRequest({
-        log: mockLog,
-        payload: {
-          email: TEST_EMAIL,
-          metricsContext: {
-            deviceId: 'wibble',
-            flowId:
-              'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
-            flowBeginTime: Date.now() - 1,
-          },
-        },
-        query: {},
-        metricsContext: mockMetricsContext,
-      });
-      return runRoute(
-        passwordRoutes,
-        '/password/forgot/send_otp',
-        mockRequest
-      ).catch((response) => {
-        assert.equal(response.errno, error.featureNotEnabled().errno);
-      });
-    });
   });
 
   describe('/forgot/verify_otp', () => {
     const mockConfig = {
       passwordForgotOtp: {
-        enabled: true,
         digits: 8,
         ttl: 300,
       },
@@ -403,31 +361,6 @@ describe('/password', () => {
             tokenId: undefined,
           })
         );
-      });
-    });
-
-    it('returns an error when not enabled', () => {
-      const configDisabled = {
-        ...mockConfig,
-        passwordForgotOtp: { enabled: false, digits: 8 },
-      };
-      const passwordRoutes = makeRoutes({
-        config: configDisabled,
-        customs: mockCustoms,
-        db: mockDB,
-        mailer: mockMailer,
-        metricsContext: mockMetricsContext,
-        log: mockLog,
-        authServerCacheRedis: mockRedis,
-        statsd: mockStatsd,
-      });
-
-      return runRoute(
-        passwordRoutes,
-        '/password/forgot/verify_otp',
-        mockRequest
-      ).catch((response) => {
-        assert.equal(response.errno, error.featureNotEnabled().errno);
       });
     });
   });
@@ -988,7 +921,7 @@ describe('/password', () => {
         config: {
           domain: 'wibble',
           smtp: {},
-          passwordForgotOtp: { enabled: false, digits: 8 },
+          passwordForgotOtp: { digits: 8 },
         },
         db: mockDB,
         push: mockPush,
@@ -1098,7 +1031,7 @@ describe('/password', () => {
         config: {
           domain: 'wibble',
           smtp: {},
-          passwordForgotOtp: { enabled: false, digits: 8 },
+          passwordForgotOtp: { digits: 8 },
         },
         db: mockDB,
         push: mockPush,

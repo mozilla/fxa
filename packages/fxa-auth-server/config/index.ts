@@ -1921,12 +1921,6 @@ const convictConf = convict({
     },
   },
   passwordForgotOtp: {
-    enabled: {
-      doc: 'Feature flag for init password reset with emailed OTP',
-      format: Boolean,
-      default: false,
-      env: 'OTP_PASSWORD_FORGOT_ENABLED',
-    },
     digits: {
       doc: 'Number of digits in token',
       default: 8,

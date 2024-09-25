@@ -2,21 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { expect, test } from '../../../lib/fixtures/standard';
-import { syncMobileOAuthQueryParams } from '../../../lib/query-params';
-import { ResetPasswordPage } from '../../../pages/resetPassword';
-import { SigninPage } from '../../../pages/signin';
+import { expect, test } from '../../lib/fixtures/standard';
+import { syncMobileOAuthQueryParams } from '../../lib/query-params';
+import { ResetPasswordPage } from '../../pages/resetPassword';
+import { SigninPage } from '../../pages/signin';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('oauth reset password Sync mobile react', () => {
-    test.beforeEach(async ({ pages: { configPage } }) => {
-      const config = await configPage.getConfig();
-      test.skip(
-        config.featureFlags.resetPasswordWithCode !== true,
-        'see FXA-9728, remove conditional skip when feature flag removed'
-      );
-    });
-
     test('reset password through Sync mobile', async ({
       target,
       syncBrowserPages: { page, connectAnotherDevice, resetPassword, signin },

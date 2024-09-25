@@ -2,17 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { expect, test } from '../../../lib/fixtures/standard';
+import { expect, test } from '../../lib/fixtures/standard';
 
 test.describe('severity-1 #smoke', () => {
-  test.beforeEach(async ({ pages: { configPage } }) => {
-    const config = await configPage.getConfig();
-    test.skip(
-      config.featureFlags.resetPasswordWithCode !== true,
-      'see FXA-9728, remove conditional skip when feature flag removed'
-    );
-  });
-
   test('can reset password', async ({
     page,
     target,

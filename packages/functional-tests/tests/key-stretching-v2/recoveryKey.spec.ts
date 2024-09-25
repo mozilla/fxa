@@ -59,7 +59,6 @@ test.describe('severity-2 #smoke', () => {
       page,
       target,
       pages: {
-        configPage,
         signin,
         signup,
         settings,
@@ -69,11 +68,6 @@ test.describe('severity-2 #smoke', () => {
       },
       testAccountTracker,
     }) => {
-      const config = await configPage.getConfig();
-      test.skip(
-        config.featureFlags.resetPasswordWithCode !== true,
-        'TODO in FXA-9728, remove this config check'
-      );
       const { email, password } = testAccountTracker.generateAccountDetails();
       await page.goto(
         `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react&${signupVersion.query}`
