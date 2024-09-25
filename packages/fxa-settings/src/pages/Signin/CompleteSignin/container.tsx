@@ -74,7 +74,7 @@ const CompleteSigninContainer = (_: RouteComponentProps) => {
     // TODO in FXA-9132 - Add metrics event
     // Backbone had 'verification.success' and 'signin.success';
 
-    hardNavigate('/connect_another_device', {}, true);
+    hardNavigate('/pair', {}, true);
   };
 
   if (validationError) {

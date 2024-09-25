@@ -61,16 +61,12 @@ describe('InlineRecoveryKeySetup', () => {
     });
   });
 
-  it('clicks `do it later` navigates to `connect_another_device`', async () => {
+  it('clicks `do it later` navigates to `pair`', async () => {
     renderWithLocalizationProvider(<Subject />);
     await act(async () => {
       fireEvent.click(await screen.findByText('Do it later'));
     });
-    expect(ReactUtils.hardNavigate).toHaveBeenCalledWith(
-      '/connect_another_device',
-      {},
-      true
-    );
+    expect(ReactUtils.hardNavigate).toHaveBeenCalledWith('/pair', {}, true);
     expect(
       localStorage.getItem(
         Constants.DISABLE_PROMO_ACCOUNT_RECOVERY_KEY_DO_IT_LATER
