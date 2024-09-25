@@ -27,7 +27,7 @@ describe('FormPasswordWithInlineCriteria component', () => {
     await waitFor(() => {
       screen.getByLabelText('New password');
     });
-    screen.getByLabelText('Re-enter password');
+    screen.getByLabelText('Confirm password');
     screen.getByRole('button', { name: 'Create new password' });
   });
 
