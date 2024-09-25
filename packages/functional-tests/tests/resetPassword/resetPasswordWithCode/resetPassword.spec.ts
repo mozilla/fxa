@@ -87,7 +87,7 @@ test.describe('severity-1 #smoke', () => {
 
       await expect(page.getByText(error)).toBeVisible();
       await expect(resetPassword.resetPasswordButton).toBeDisabled();
-      await expect(resetPassword.newPasswordLabel).toHaveClass(
+      await expect(resetPassword.newPasswordInput).toHaveClass(
         /border-red-700/
       );
     });

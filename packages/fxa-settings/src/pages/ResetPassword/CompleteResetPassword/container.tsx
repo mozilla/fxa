@@ -184,12 +184,6 @@ const CompleteResetPasswordContainer = ({
     navigate('/reset_password', { replace: true });
   }
 
-  console.log('!!! CompleteResetPassword', {
-    hasConfirmedRecoveryKey,
-    recoveryKeyExists,
-    estimatedSyncDeviceCount,
-  });
-
   return (
     <CompleteResetPassword
       {...{

@@ -8,7 +8,8 @@ import { ReactComponent as Failed } from './icon-x.svg';
 import { FtlMsg } from 'fxa-react/lib/utils';
 
 export type PasswordStrengthInlineProps = {
-  hasUserTakenAction: boolean;
+  isPasswordEmpty: boolean;
+  isConfirmedPasswordEmpty: boolean;
   isTooShort: boolean;
   isSameAsEmail: boolean;
   isCommon: boolean;
@@ -24,7 +25,8 @@ const ValidationIcon = ({ hasError }: { hasError: boolean }) => {
 };
 
 export const PasswordStrengthInline = ({
-  hasUserTakenAction,
+  isPasswordEmpty,
+  isConfirmedPasswordEmpty,
   isTooShort,
   isSameAsEmail,
   isCommon,
@@ -36,20 +38,20 @@ export const PasswordStrengthInline = ({
       id="password-strength-inline"
       aria-live="polite"
     >
-      <p className="mb-2">
+      <p className="mb-2 text-left">
         Pick a strong password you haven’t used on other sites. Ensure it meets
         the security requirements:
       </p>
       <ul className="mt-2 mb-2">
         <li data-testid="password-min-char-req" className="flex ">
           <span className="w-7 h-7 text-center">
-            {!hasUserTakenAction && '•'}
-            {hasUserTakenAction && <ValidationIcon hasError={isTooShort} />}
+            {isPasswordEmpty && '•'}
+            {!isPasswordEmpty && <ValidationIcon hasError={isTooShort} />}
           </span>
           <FtlMsg id="password-strength-inline-min-length">
             <span
-              className={`ltr:pl-2 rtl:pr-2 ${
-                isTooShort ? 'text-red-700' : ''
+              className={`ps-2 ${
+                !isPasswordEmpty && isTooShort ? 'text-red-700' : ''
               }`}
             >
               At least 8 characters
@@ -58,15 +60,17 @@ export const PasswordStrengthInline = ({
         </li>
         <li data-testid="password-not-email-req" className="flex ">
           <span className="w-7 h-7 text-center">
-            {!hasUserTakenAction && '•'}
-            {hasUserTakenAction && (
+            {isPasswordEmpty && '•'}
+            {!isPasswordEmpty && (
               <ValidationIcon hasError={!isTooShort && isSameAsEmail} />
             )}
           </span>
           <FtlMsg id="password-strength-inline-not-email">
             <span
-              className={`ltr:pl-2 rtl:pr-2 ${
-                !isTooShort && isSameAsEmail ? 'text-red-700' : ''
+              className={`ps-2  ${
+                !isPasswordEmpty && !isTooShort && isSameAsEmail
+                  ? 'text-red-700'
+                  : ''
               }`}
             >
               Not your email address
@@ -75,12 +79,14 @@ export const PasswordStrengthInline = ({
         </li>
         <li data-testid="password-not-common-req" className="flex ">
           <span className="w-7 h-7 text-center">
-            {!hasUserTakenAction && '•'}
-            {hasUserTakenAction && <ValidationIcon hasError={isCommon} />}
+            {isPasswordEmpty && '•'}
+            {!isPasswordEmpty && <ValidationIcon hasError={isCommon} />}
           </span>
           <FtlMsg id="password-strength-inline-not-common">
             <span
-              className={`ltr:pl-2 rtl:pr-2 ${isCommon ? 'text-red-700' : ''}`}
+              className={`ps-2 ${
+                !isPasswordEmpty && isCommon ? 'text-red-700' : ''
+              }`}
             >
               Not a commonly used password
             </span>
@@ -89,18 +95,20 @@ export const PasswordStrengthInline = ({
         {isUnconfirmed !== undefined && (
           <li data-testid="passwords-match" className="flex ">
             <span className="w-7 h-7 text-center">
-              {!hasUserTakenAction && '•'}
-              {hasUserTakenAction && (
+              {(isPasswordEmpty || isConfirmedPasswordEmpty) && '•'}
+              {!(isPasswordEmpty || isConfirmedPasswordEmpty) && (
                 <ValidationIcon hasError={isUnconfirmed} />
               )}
             </span>
             <FtlMsg id="password-strength-inline-confirmed-must-match">
               <span
-                className={`ltr:pl-2 rtl:pr-2 ${
-                  isUnconfirmed ? 'text-red-700' : ''
+                className={`ps-2 ${
+                  !isPasswordEmpty && !isConfirmedPasswordEmpty && isUnconfirmed
+                    ? 'text-red-700'
+                    : ''
                 }`}
               >
-                Confirmed password must match
+                Confirmation matches the new password
               </span>
             </FtlMsg>
           </li>

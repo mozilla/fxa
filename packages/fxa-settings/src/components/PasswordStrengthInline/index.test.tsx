@@ -19,7 +19,8 @@ describe('PasswordStrengthInline component', () => {
   it('renders password requirements as expected', () => {
     renderWithLocalizationProvider(
       <PasswordStrengthInline
-        hasUserTakenAction={false}
+        isPasswordEmpty={true}
+        isConfirmedPasswordEmpty={true}
         isTooShort={true}
         isSameAsEmail={false}
         isCommon={false}
@@ -31,13 +32,14 @@ describe('PasswordStrengthInline component', () => {
     screen.getByText('At least 8 characters');
     screen.getByText('Not your email address');
     screen.getByText('Not a commonly used password');
-    screen.getByText('Not a commonly used password');
+    screen.getByText('Confirmation matches the new password');
   });
 
   it('displays checkmark icon when password requirements are respected', () => {
     renderWithLocalizationProvider(
       <PasswordStrengthInline
-        hasUserTakenAction={true}
+        isPasswordEmpty={false}
+        isConfirmedPasswordEmpty={false}
         isTooShort={false}
         isSameAsEmail={false}
         isCommon={false}
@@ -55,7 +57,8 @@ describe('PasswordStrengthInline component', () => {
   it('displays x icon when password is too short', () => {
     renderWithLocalizationProvider(
       <PasswordStrengthInline
-        hasUserTakenAction={true}
+        isPasswordEmpty={false}
+        isConfirmedPasswordEmpty={false}
         isTooShort={true}
         isSameAsEmail={false}
         isCommon={false}
@@ -72,7 +75,8 @@ describe('PasswordStrengthInline component', () => {
   it('displays x icon when password is the same as email', () => {
     renderWithLocalizationProvider(
       <PasswordStrengthInline
-        hasUserTakenAction={true}
+        isPasswordEmpty={false}
+        isConfirmedPasswordEmpty={false}
         isTooShort={false}
         isSameAsEmail={true}
         isCommon={false}
@@ -89,7 +93,8 @@ describe('PasswordStrengthInline component', () => {
   it('displays x icon when password is common', () => {
     renderWithLocalizationProvider(
       <PasswordStrengthInline
-        hasUserTakenAction={true}
+        isPasswordEmpty={false}
+        isConfirmedPasswordEmpty={false}
         isTooShort={false}
         isSameAsEmail={false}
         isCommon={true}
@@ -103,10 +108,11 @@ describe('PasswordStrengthInline component', () => {
     );
   });
 
-  it('displays x icon when password do not match', () => {
+  it('displays dot icon when confirmed password is empty', () => {
     renderWithLocalizationProvider(
       <PasswordStrengthInline
-        hasUserTakenAction={true}
+        isPasswordEmpty={false}
+        isConfirmedPasswordEmpty={false}
         isTooShort={false}
         isSameAsEmail={false}
         isCommon={false}
@@ -119,4 +125,23 @@ describe('PasswordStrengthInline component', () => {
       'icon-x.svg'
     );
   });
+
+  it('displays x icon when password do not match', () => {
+    renderWithLocalizationProvider(
+      <PasswordStrengthInline
+        isPasswordEmpty={false}
+        isConfirmedPasswordEmpty={false}
+        isTooShort={false}
+        isSameAsEmail={false}
+        isCommon={false}
+        isUnconfirmed={true}
+      />
+    );
+
+    const container = screen.getByTestId('passwords-match');
+    expect(container.getElementsByTagName('svg').item(0)).toHaveTextContent(
+      'icon-x.svg'
+    );
+  });
+
 });

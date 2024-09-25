@@ -17,7 +17,8 @@ export default {
 
 const storyWithProps = (
   props: PasswordStrengthInlineProps,
-  passwordExample: string
+  passwordExample: string,
+  confirmPasswordExample: string
 ) => {
   const story = () => (
     <AppLayout>
@@ -28,6 +29,15 @@ const storyWithProps = (
           className="text-start"
           disabled
         />
+        <br />
+        <InputPassword
+          label="Confirm Password (example only, disabled for storybook)"
+          defaultValue={confirmPasswordExample}
+          className="text-start"
+          disabled
+        />
+        <br />
+
         <PasswordStrengthInline {...props} />
       </div>
     </AppLayout>
@@ -38,51 +48,105 @@ const storyWithProps = (
 export const BeforePasswordInput = storyWithProps(
   {
     ...{
-      hasUserTakenAction: false,
-      isTooShort: true,
+      isPasswordEmpty: true,
+      isConfirmedPasswordEmpty: true,
+      isTooShort: false,
       isSameAsEmail: false,
       isCommon: false,
-      isUnconfirmed: undefined,
+      isUnconfirmed: true,
     },
   },
+  '',
   ''
 );
 
 export const isTooShort = storyWithProps(
   {
     ...{
-      hasUserTakenAction: true,
+      isPasswordEmpty: false,
+      isConfirmedPasswordEmpty: true,
       isTooShort: true,
       isSameAsEmail: false,
       isCommon: false,
-      isUnconfirmed: undefined,
+      isUnconfirmed: true,
     },
   },
-  'fg5hs34'
+  'fg5hs34',
+  ''
 );
 
 export const isSameAsEmail = storyWithProps(
   {
     ...{
-      hasUserTakenAction: true,
+      isPasswordEmpty: false,
+      isConfirmedPasswordEmpty: true,
       isTooShort: false,
       isSameAsEmail: true,
       isCommon: false,
-      isUnconfirmed: undefined,
+      isUnconfirmed: true,
     },
   },
-  'test@example.com'
+  'test@example.com',
+  ''
 );
 
 export const isCommon = storyWithProps(
   {
     ...{
-      hasUserTakenAction: true,
+      isPasswordEmpty: false,
+      isConfirmedPasswordEmpty: true,
       isTooShort: false,
       isSameAsEmail: false,
       isCommon: true,
-      isUnconfirmed: undefined,
+      isUnconfirmed: true,
     },
   },
+  '123456789',
+  ''
+);
+
+export const beforeConfirmedInput = storyWithProps(
+  {
+    ...{
+      isPasswordEmpty: false,
+      isConfirmedPasswordEmpty: true,
+      isTooShort: false,
+      isSameAsEmail: false,
+      isCommon: false,
+      isUnconfirmed: true,
+    },
+  },
+  '123456789',
+  ''
+);
+
+export const afterConfirmedInputDoesNotMatch = storyWithProps(
+  {
+    ...{
+      isPasswordEmpty: false,
+      isConfirmedPasswordEmpty: false,
+      isTooShort: false,
+      isSameAsEmail: false,
+      isCommon: false,
+      isUnconfirmed: true,
+    },
+  },
+  '123456789',
+  '12345678'
+);
+
+export const afterConfirmedInputMatches = storyWithProps(
+  {
+    ...{
+      isPasswordEmpty: false,
+      isConfirmedPasswordEmpty: false,
+      confirmPassword: '1324abcde',
+      isTooShort: false,
+      isSameAsEmail: false,
+      isCommon: false,
+      isUnconfirmed: false,
+    },
+  },
+  '123456789',
   '123456789'
 );

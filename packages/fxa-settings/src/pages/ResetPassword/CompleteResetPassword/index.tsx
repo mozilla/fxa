@@ -76,52 +76,44 @@ const CompleteResetPassword = ({
         of their password reset. ie Will their data persist, or is an way to
         recover it.
       */}
-      {hasConfirmedRecoveryKey === false &&
-        recoveryKeyExists &&
-        hasSyncDevices && (
-          <div
-            className={`bg-red-100 rounded-lg text-sm mt-6 text-left rtl:text-right p-3`}
-            data-testid="warning-message-container"
-          >
-            <div className="flex">
-              <BangIcon
-                role="img"
-                className="flex-initial mr-2 rtl:ml-2 mt-1"
-              />
-              <div className="flex-1 text-xs">
-                <FtlMsg id="password-reset-could-not-determine-account-recovery-key">
-                  Have an account recovery key?
-                </FtlMsg>{' '}
-                <br />
-                <Link
-                  to={`/account_recovery_confirm_key${location.search}`}
-                  state={locationState}
-                  className="link-blue"
-                  onClick={() =>
-                    GleanMetrics.passwordReset.createNewRecoveryKeyMessageClick()
-                  }
-                >
-                  <FtlMsg id="password-reset-use-account-recovery-key">
-                    Reset your password with your recovery key.
-                  </FtlMsg>
-                </Link>{' '}
-              </div>
+      {hasConfirmedRecoveryKey === false && recoveryKeyExists === undefined && (
+        <div
+          className={`bg-red-100 rounded-lg text-sm mt-6 text-left rtl:text-right p-3`}
+          data-testid="warning-message-container"
+        >
+          <div className="flex">
+            <BangIcon role="img" className="flex-initial me-2 mt-1" />
+            <div className="flex-1 text-xs">
+              <FtlMsg id="password-reset-could-not-determine-account-recovery-key">
+                Have an account recovery key?
+              </FtlMsg>{' '}
+              <br />
+              <Link
+                to={`/account_recovery_confirm_key${location.search}`}
+                state={locationState}
+                className="link-blue"
+                onClick={() =>
+                  GleanMetrics.passwordReset.createNewRecoveryKeyMessageClick()
+                }
+              >
+                <FtlMsg id="password-reset-use-account-recovery-key">
+                  Reset your password with your recovery key.
+                </FtlMsg>
+              </Link>{' '}
             </div>
           </div>
-        )}
+        </div>
+      )}
 
       {hasConfirmedRecoveryKey === false &&
-        recoveryKeyExists === false &&
+        recoveryKeyExists !== undefined &&
         hasSyncDevices && (
           <div
-            className={`bg-orange-50 rounded-lg text-sm mt-6 text-left rtl:text-right p-3`}
+            className={`bg-orange-50 rounded-lg text-sm mt-6 text-left rtl:text-right p-4 border-transparent`}
             data-testid="warning-message-container"
           >
             <div className="flex font-semibold">
-              <WarnIcon
-                role="img"
-                className="flex-initial mr-2 rtl:ml-2 mt-1"
-              />
+              <WarnIcon role="img" className="flex-initial me-2 mt-1" />
               <h1 className="flex-1">
                 <FtlMsg id="password-reset-data-may-not-be-recovered">
                   Resetting your password may delete your encrypted browser
@@ -129,7 +121,7 @@ const CompleteResetPassword = ({
                 </FtlMsg>
               </h1>
             </div>
-            <div className="ps-4 pb-6">
+            <div className="ps-4">
               <p className="font-semibold pt-4">
                 <IconSyncDevice role="img" className="inline-block mr-2" />
                 <FtlMsg id="password-reset-previously-signed-in-device">
@@ -156,7 +148,7 @@ const CompleteResetPassword = ({
               </p>
               <p className="ps-6 text-xs mt-4">
                 <a
-                  href="https://support.mozilla.org/en-US/kb/reset-your-firefox-account-password-recovery-keys"
+                  href="https://support.mozilla.org/en-US/kb/how-reset-your-password-without-account-recovery-keys-access-data"
                   className="link-blue"
                 >
                   <FtlMsg id="password-reset-learn-about-restoring-account-data">
@@ -175,7 +167,7 @@ const CompleteResetPassword = ({
       */}
       <input type="email" value={email} className="hidden" readOnly />
 
-      <h1 className="font-semibold text-xl text-left rtl:text-right mt-6">
+      <h1 className="font-semibold text-xl text-start mt-6">
         <FtlMsg id="complete-reset-pw-header-v2">Create a new password</FtlMsg>
       </h1>
       <section className="text-start mt-2">

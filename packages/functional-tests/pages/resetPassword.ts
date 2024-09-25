@@ -78,7 +78,7 @@ export class ResetPasswordPage extends BaseLayout {
     return this.page.getByRole('textbox', { name: 'New password' });
   }
 
-  get newPasswordLabel() {
+  get newPasswordInput() {
     return this.page.getByTestId('new-password-input-container');
   }
 

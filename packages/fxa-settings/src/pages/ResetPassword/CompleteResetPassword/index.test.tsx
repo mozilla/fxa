@@ -174,6 +174,38 @@ describe('CompleteResetPassword page', () => {
         screen.queryByText(
           'Resetting your password may delete your encrypted browser data.'
         )
+      ).toBeInTheDocument();
+
+      // Warning message about using recovery key should be displayed
+      expect(
+        screen.queryByText('Reset your password with your recovery key.')
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  describe('reset with issue determining if recovery key exists', () => {
+    it('renders as expected', async () => {
+      renderWithLocalizationProvider(
+        <Subject
+          hasConfirmedRecoveryKey={false}
+          recoveryKeyExists={undefined}
+          estimatedSyncDeviceCount={2}
+        />
+      );
+
+      await waitFor(() =>
+        expect(
+          screen.getByRole('heading', {
+            name: 'Create a new password',
+          })
+        ).toBeVisible()
+      );
+
+      // Warning messages about data loss should not be displayed.
+      expect(
+        screen.queryByText(
+          'Resetting your password may delete your encrypted browser data.'
+        )
       ).not.toBeInTheDocument();
 
       // Warning message about using recovery key should be displayed

@@ -2,16 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useRef, useState, useEffect } from 'react';
+import React, { useCallback, useState } from 'react';
 import { UseFormMethods } from 'react-hook-form';
 import InputPassword from '../InputPassword';
 import PasswordValidator from '../../lib/password-validator';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { useFtlMsgResolver } from '../../models';
-import {
-  SHOW_BALLOON_TIMEOUT as SHOW_TIMEOUT,
-  HIDE_BALLOON_TIMEOUT as HIDE_TIMEOUT,
-} from '../../constants';
 import PasswordStrengthInline from '../PasswordStrengthInline';
 
 export type PasswordFormType = 'signup' | 'reset';
@@ -85,9 +81,6 @@ export const FormPasswordWithInlineCriteria = ({
   const [passwordMatchErrorText, setPasswordMatchErrorText] =
     useState<string>('');
   const [hasNewPwdFocused, setHasNewPwdFocused] = useState<boolean>(false);
-  const [hasUserTakenAction, setHasUserTakenAction] = useState<boolean>(false);
-  const [isConfirmPwdRequirementsVisible, setIsConfirmPwdCriteriaVisible] =
-    useState<boolean>(false);
   const [srOnlyPwdFeedbackMessage, setSROnlyPwdFeedbackMessage] =
     useState<string>();
   const [srOnlyConfirmPwdFeedbackMessage, setSROnlyConfirmPwdFeedbackMessage] =
@@ -100,35 +93,6 @@ export const FormPasswordWithInlineCriteria = ({
   );
 
   const templateValues = getTemplateValues(passwordFormType);
-
-  // Timeout to delay showing/hiding info, prevents jankiness
-  // TODO: Validate clearTimeout method in FXA-6495
-  const showSomethingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
-    null
-  );
-  const hideSomethingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
-    null
-  );
-  useEffect(() => {
-    return () => {
-      const showTimer = showSomethingTimerRef.current;
-      showTimer && clearTimeout(showTimer);
-      const hideTimer = hideSomethingTimerRef.current;
-      hideTimer && clearTimeout(hideTimer);
-    };
-  }, []);
-
-  const showConfirmPwdInfo = useCallback(() => {
-    showSomethingTimerRef.current = setTimeout(() => {
-      setIsConfirmPwdCriteriaVisible(true);
-    }, SHOW_TIMEOUT);
-  }, [setIsConfirmPwdCriteriaVisible]);
-
-  const hideConfirmPwdInfo = useCallback(() => {
-    hideSomethingTimerRef.current = setTimeout(() => {
-      setIsConfirmPwdCriteriaVisible(false);
-    }, HIDE_TIMEOUT);
-  }, [setIsConfirmPwdCriteriaVisible]);
 
   const onNewPwdFocus = () => {
     setSROnlyPwdFeedbackMessage('');
@@ -192,19 +156,9 @@ export const FormPasswordWithInlineCriteria = ({
     setPasswordMatchErrorText('');
     setSROnlyPwdFeedbackMessage('');
     setSROnlyConfirmPwdFeedbackMessage('');
-    if (
-      passwordFormType === 'signup' &&
-      getValues('newPassword') !== '' &&
-      !errors.newPassword
-    )
-      showConfirmPwdInfo();
-  }, [errors.newPassword, getValues, passwordFormType, showConfirmPwdInfo]);
+  }, []);
 
   const onBlurConfirmPassword = useCallback(() => {
-    passwordFormType === 'signup' &&
-      isConfirmPwdRequirementsVisible &&
-      hideConfirmPwdInfo();
-
     if (getValues('confirmPassword') !== getValues('newPassword')) {
       setPasswordMatchErrorText(localizedPasswordMatchError);
     } else {
@@ -222,10 +176,7 @@ export const FormPasswordWithInlineCriteria = ({
     formState,
     ftlMsgResolver,
     getValues,
-    hideConfirmPwdInfo,
-    isConfirmPwdRequirementsVisible,
     localizedPasswordMatchError,
-    passwordFormType,
     setPasswordMatchErrorText,
     trigger,
   ]);
@@ -234,7 +185,6 @@ export const FormPasswordWithInlineCriteria = ({
     const newPassword = getValues('newPassword');
     const confirmPassword = getValues('confirmPassword');
     if (inputName === 'newPassword') {
-      !hasUserTakenAction && setHasUserTakenAction(true);
       trigger('newPassword');
     }
 
@@ -265,24 +215,24 @@ export const FormPasswordWithInlineCriteria = ({
           readOnly
         />
         <div>
+          <PasswordStrengthInline
+            {...{
+              isPasswordEmpty: (getValues('newPassword')?.length || 0) === 0,
+              isConfirmedPasswordEmpty:
+                (getValues('confirmPassword')?.length || 0) === 0,
+              isTooShort: errors.newPassword?.types?.length,
+              isSameAsEmail: errors.newPassword?.types?.notEmail,
+              isCommon: errors.newPassword?.types?.uncommon,
+              isUnconfirmed:
+                getValues('confirmPassword') !== getValues('newPassword'),
+            }}
+          />
           <span
             id="password-requirements"
             aria-live="polite"
             className="text-xs"
           >
-            <PasswordStrengthInline
-              {...{
-                hasUserTakenAction,
-                isTooShort: errors.newPassword?.types?.length,
-                isSameAsEmail: errors.newPassword?.types?.notEmail,
-                isCommon: errors.newPassword?.types?.uncommon,
-                isUnconfirmed:
-                  getValues('confirmPassword') !== getValues('newPassword'),
-              }}
-            />
-            {srOnlyPwdFeedbackMessage && (
-              <span className="sr-only">{srOnlyPwdFeedbackMessage}</span>
-            )}
+            <span className="sr-only">{srOnlyPwdFeedbackMessage}</span>
           </span>
         </div>
 
@@ -300,8 +250,6 @@ export const FormPasswordWithInlineCriteria = ({
               inputRef={register({
                 required: true,
                 validate: {
-                  // TODO in FXA-7482, review our password requirements and best way to display them
-                  // For now, this most closely matches parity to Backbone for a space-only password
                   length: (value: string) =>
                     value.length > 7 && value.trim() !== '',
                   notEmail: (value: string) => {
@@ -354,9 +302,7 @@ export const FormPasswordWithInlineCriteria = ({
             aria-live="polite"
             className="text-xs"
           >
-            {srOnlyConfirmPwdFeedbackMessage && (
-              <span className="sr-only">{srOnlyConfirmPwdFeedbackMessage}</span>
-            )}
+            <span className="sr-only">{srOnlyConfirmPwdFeedbackMessage}</span>
           </span>
         </div>
 
@@ -366,9 +312,7 @@ export const FormPasswordWithInlineCriteria = ({
             type="submit"
             className="cta-primary cta-xl"
             disabled={
-              loading ||
-              !hasUserTakenAction ||
-              (disableButtonUntilValid && !formState.isValid)
+              loading || (disableButtonUntilValid && !formState.isValid)
             }
           >
             {templateValues.buttonText}

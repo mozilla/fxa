@@ -59,7 +59,7 @@ describe('FormPasswordWithInlineCriteria component', () => {
     await user.type(passwordField, '        ');
 
     expect(screen.getAllByLabelText('passed')).toHaveLength(2);
-    expect(screen.getAllByLabelText('failed')).toHaveLength(2);
+    expect(screen.getAllByLabelText('failed')).toHaveLength(1);
     const passwordMinCharRequirement = screen.getByTestId(
       'password-min-char-req'
     );
@@ -73,7 +73,7 @@ describe('FormPasswordWithInlineCriteria component', () => {
     const passwordField = screen.getByLabelText('Password');
     await user.type(passwordField, 'mozilla accounts');
     expect(screen.getAllByLabelText('passed')).toHaveLength(2);
-    expect(screen.getAllByLabelText('failed')).toHaveLength(2);
+    expect(screen.getAllByLabelText('failed')).toHaveLength(1);
     expect(
       screen.getByTestId('password-not-common-req').querySelector('svg')
     ).toHaveTextContent('icon-x.svg');
