@@ -58,7 +58,7 @@ describe('CompleteResetPassword page', () => {
       expect(screen.getByLabelText('New password')).toBeVisible();
       expect(screen.getByLabelText('Re-enter password')).toBeVisible();
       expect(
-        screen.getByRole('button', { name: 'Reset password' })
+        screen.getByRole('button', { name: 'Create new password' })
       ).toBeVisible();
       expect(screen.getByText('Remember your password?')).toBeVisible();
       const link = screen.getByRole('link', { name: 'Sign in' });
@@ -132,7 +132,7 @@ describe('CompleteResetPassword page', () => {
       expect(screen.getByLabelText('New password')).toBeVisible();
       expect(screen.getByLabelText('Re-enter password')).toBeVisible();
       expect(
-        screen.getByRole('button', { name: 'Reset password' })
+        screen.getByRole('button', { name: 'Create new password' })
       ).toBeVisible();
       expect(screen.getByText('Remember your password?')).toBeVisible();
       const link = screen.getByRole('link', { name: 'Sign in' });
@@ -227,7 +227,7 @@ describe('CompleteResetPassword page', () => {
     await waitFor(() =>
       user.type(screen.getByLabelText('Re-enter password'), MOCK_PASSWORD)
     );
-    const button = screen.getByRole('button', { name: 'Reset password' });
+    const button = screen.getByRole('button', { name: 'Create new password' });
     expect(button).toBeEnabled();
     await waitFor(() => user.click(button));
 

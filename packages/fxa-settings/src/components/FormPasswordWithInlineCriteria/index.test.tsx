@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { screen, fireEvent, waitFor, within } from '@testing-library/react';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
 import { UserEvent, userEvent } from '@testing-library/user-event';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
@@ -28,7 +28,7 @@ describe('FormPasswordWithInlineCriteria component', () => {
       screen.getByLabelText('New password');
     });
     screen.getByLabelText('Re-enter password');
-    screen.getByRole('button', { name: 'Reset password' });
+    screen.getByRole('button', { name: 'Create new password' });
   });
 
   it('renders as expected for the signup form type', async () => {
