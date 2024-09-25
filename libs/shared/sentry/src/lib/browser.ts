@@ -49,7 +49,11 @@ export const _Sentry = {
  *  Modified error object data
  * @private
  */
-function beforeSend(opts: SentryConfigOpts, event: Sentry.Event, hint?: any) {
+function beforeSend(
+  opts: SentryConfigOpts,
+  event: Sentry.ErrorEvent,
+  hint?: Sentry.EventHint
+) {
   if (sentryEnabled === false) {
     return null;
   }
@@ -166,12 +170,7 @@ function configure(config: SentryConfigOpts, log?: Logger) {
   try {
     Sentry.init({
       ...opts,
-      integrations: [
-        Sentry.browserTracingIntegration({
-          enableInp: true,
-        }),
-      ],
-      beforeSend: function (event: Sentry.Event, hint?: any) {
+      beforeSend: function (event: Sentry.ErrorEvent, hint: Sentry.EventHint) {
         return beforeSend(opts, event, hint);
       },
     });

@@ -1,9 +1,6 @@
 import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node';
 import { TracingOpts } from '../config';
-import {
-  SentrySpanProcessor,
-  SentryPropagator,
-} from '@sentry/opentelemetry-node';
+import { SentrySpanProcessor, SentryPropagator } from '@sentry/opentelemetry';
 import { TracingPiiFilter } from '../pii-filters';
 import { ILogger } from '../../log';
 

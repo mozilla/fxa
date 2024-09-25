@@ -13,7 +13,6 @@
  */
 
 import { Request } from 'express';
-import { GraphQLError } from 'graphql';
 
 import {
   ApolloServerPlugin,
@@ -23,7 +22,6 @@ import {
 } from '@apollo/server';
 import { Plugin } from '@nestjs/apollo';
 import * as Sentry from '@sentry/node';
-import { Transaction } from '@sentry/types';
 
 import {
   ExtraContext,
@@ -35,14 +33,15 @@ import { Inject } from '@nestjs/common';
 import { MozLoggerService } from '../logger/logger.service';
 
 interface Context extends BaseContext {
-  transaction: Transaction;
+  transaction: Sentry.Span;
   request: Request;
 }
 
 export async function createContext(ctx: any): Promise<Context> {
-  const transaction = Sentry.startTransaction({
+  const transaction = Sentry.startInactiveSpan({
     op: 'gql',
     name: 'GraphQLTransaction',
+    forceTransaction: true,
   });
   return { request: ctx.req, transaction };
 }
@@ -59,16 +58,16 @@ export class SentryPlugin implements ApolloServerPlugin<Context> {
 
     if (request.operationName) {
       try {
-        contextValue.transaction.setName(request.operationName!);
+        contextValue.transaction.updateName(request.operationName!);
       } catch (err) {
         log.error('sentry-plugin', err);
       }
     }
 
     return {
-      async willSendResponse({ contextValue }) {
+      async willSendResponse({ contextValue: Context }) {
         try {
-          contextValue.transaction.finish();
+          contextValue.transaction.end();
         } catch (err) {
           log.error('sentry-plugin', err);
         }
@@ -77,18 +76,19 @@ export class SentryPlugin implements ApolloServerPlugin<Context> {
       async executionDidStart() {
         return {
           willResolveField({ contextValue, info }) {
-            let span: any;
+            let span: Sentry.Span;
             try {
-              span = contextValue.transaction.startChild({
+              span = Sentry.startInactiveSpan({
                 op: 'resolver',
-                description: `${info.parentType.name}.${info.fieldName}`,
+                name: `${info.parentType.name}.${info.fieldName}`,
+                scope: contextValue.transaction,
               });
             } catch (err) {
               log.error('sentry-plugin', err);
             }
 
             return () => {
-              span?.finish();
+              span?.end();
             };
           },
         };

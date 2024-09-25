@@ -4,7 +4,7 @@
 
 import * as Sentry from '@sentry/node';
 import { ErrorEvent } from '@sentry/types';
-import { ExtraErrorData } from '@sentry/integrations';
+import { extraErrorDataIntegration } from '@sentry/node';
 import { SentryConfigOpts } from './models/SentryConfigOpts';
 import { buildSentryConfig } from './config-builder';
 import { tagFxaName } from './reporting';
@@ -39,8 +39,7 @@ export function initSentry(config: InitSentryOpts, log: Logger) {
   };
 
   const integrations = [
-    // Default
-    new ExtraErrorData({ depth: 5 }),
+    extraErrorDataIntegration({ depth: 5 }),
 
     // Custom Integrations
     ...(config.integrations || []),
@@ -49,7 +48,6 @@ export function initSentry(config: InitSentryOpts, log: Logger) {
   try {
     Sentry.init({
       // Defaults Options
-      instrumenter: 'otel',
       normalizeDepth: 6,
       maxValueLength: 500,
 

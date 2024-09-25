@@ -6,6 +6,8 @@
 
 'use strict';
 
+const sentry = require('../lib/sentry');
+
 // setup version first for the rest of the modules
 const loggerFactory = require('../lib/logging/log');
 const logger = loggerFactory('server.main');
@@ -30,7 +32,6 @@ const https = require('https');
 const path = require('path');
 const serveStatic = require('serve-static');
 
-const sentry = require('../lib/sentry');
 const statsd = require('../lib/statsd');
 const { cors, routing } = require('fxa-shared/express').express();
 const {
@@ -104,9 +105,6 @@ function makeApp() {
   app.engine('html', consolidate.handlebars);
   app.set('view engine', 'html');
   app.set('views', PAGE_TEMPLATE_DIRECTORY);
-
-  // The request handler must be the first item
-  app.use(sentry.sentryModule.Handlers.requestHandler());
 
   // i18n adds metadata to a request to help
   // with translating templates on the server.
@@ -237,17 +235,15 @@ function makeApp() {
   });
 
   // The sentry error handler must be before any other error middleware
-  app.use(
-    sentry.sentryModule.Handlers.errorHandler({
-      shouldHandleError(error) {
-        const success = tryCaptureValidationError(error);
+  sentry.sentryModule.setupExpressErrorHandler(app, {
+    shouldHandleError(error) {
+      const success = tryCaptureValidationError(error);
 
-        // If the validation was explicitly captured, we return false. Otherwise the
-        // error is reported twice.
-        return !success;
-      },
-    })
-  );
+      // If the validation was explicitly captured, we return false. Otherwise the
+      // error is reported twice.
+      return !success;
+    },
+  });
 
   // log and capture any errors
   app.use((err, req, res, next) => {

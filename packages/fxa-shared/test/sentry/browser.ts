@@ -56,7 +56,7 @@ describe('sentry/browser', () => {
     it('works without request url', () => {
       const data = {
         key: 'value',
-      } as Sentry.Event;
+      } as unknown as Sentry.ErrorEvent;
 
       const resultData = sentryMetrics.__beforeSend(config, data, {});
 
@@ -71,7 +71,7 @@ describe('sentry/browser', () => {
         tags: {
           errno: '100',
         },
-      } as Sentry.Event;
+      } as unknown as Sentry.ErrorEvent;
 
       const resultData = sentryMetrics.__beforeSend(config, data, {});
 
@@ -92,7 +92,7 @@ describe('sentry/browser', () => {
         request: {
           url: url + badQuery,
         },
-      };
+      } as unknown as Sentry.ErrorEvent;
 
       const goodData = {
         request: {
@@ -115,7 +115,7 @@ describe('sentry/browser', () => {
             Referer: url + badQuery,
           },
         },
-      };
+      } as unknown as Sentry.ErrorEvent;
 
       const goodData = {
         request: {
@@ -161,7 +161,7 @@ describe('sentry/browser', () => {
         request: {
           url,
         },
-      };
+      } as unknown as Sentry.ErrorEvent;
 
       const resultData = sentryMetrics.__beforeSend(config, data);
 
@@ -227,7 +227,7 @@ describe('sentry/browser', () => {
 
     it('will return null from before send when disabled', () => {
       sentryMetrics.disable();
-      assert.isNull(sentryMetrics.__beforeSend({}, {}, {}));
+      assert.isNull(sentryMetrics.__beforeSend({}, {} as any, {}));
     });
   });
 });

@@ -47,7 +47,7 @@ if (sentryConfig.dsn) {
       return event;
     },
   });
-  app.use(Sentry.Handlers.requestHandler());
+  Sentry.setupExpressErrorHandler(app);
 }
 
 var verifier = new CCVerifier({

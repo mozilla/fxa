@@ -140,11 +140,6 @@ SentryMetrics.prototype = {
 
       Sentry.init({
         ...opts,
-        integrations: [
-          Sentry.browserTracingIntegration({
-            enableInp: true,
-          }),
-        ],
         beforeSend(event) {
           event = tagCriticalEvent(event);
           event = tagFxaName(event, opts.clientName);
@@ -181,7 +176,7 @@ SentryMetrics.prototype = {
    * @param {*} severity Enum passed to Sentry.captureMessage to set severity level
    */
   captureMessage(message, contextKey, context, severity) {
-    Sentry.withScope(function(scope) {
+    Sentry.withScope(function (scope) {
       scope.setContext(contextKey, context);
       Sentry.captureMessage(message, severity);
     });

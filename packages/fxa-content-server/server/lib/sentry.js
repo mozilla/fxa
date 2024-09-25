@@ -73,7 +73,7 @@ if (config.get('sentry.dsn')) {
       event = tagFxaName(event, opts.serverName);
       return event;
     },
-    integrations: [new Sentry.Integrations.LinkedErrors({ key: 'jse_cause' })],
+    integrations: [Sentry.linkedErrorsIntegration({ key: 'jse_cause' })],
   });
 }
 

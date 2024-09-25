@@ -12,7 +12,6 @@ import {
   NestInterceptor,
 } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
-import { Transaction } from '@sentry/types';
 
 import { ignoreError, processException } from '../reporting';
 
@@ -22,11 +21,13 @@ export class SentryInterceptor implements NestInterceptor {
     // If there is http context request start a transaction for it. Note that this will not
     // pick up graphql queries
     const req = context.switchToHttp().getRequest();
-    let transaction: Transaction;
+    let transaction: Sentry.Span;
+
     if (req) {
-      transaction = Sentry.startTransaction({
+      transaction = Sentry.startInactiveSpan({
         op: 'nestjs.http',
         name: `${req.method} ${req.path}`,
+        forceTransaction: true,
       });
     }
 
@@ -42,7 +43,7 @@ export class SentryInterceptor implements NestInterceptor {
         },
       }),
       finalize(() => {
-        transaction?.finish();
+        transaction?.end();
       })
     );
   }

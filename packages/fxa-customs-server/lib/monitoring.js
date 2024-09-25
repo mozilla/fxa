@@ -13,6 +13,6 @@ initMonitoring({
   config: {
     ...config,
     release: version,
-    integrations: [new Sentry.Integrations.LinkedErrors({ key: 'jse_cause' })],
+    integrations: [Sentry.linkedErrorsIntegration({ key: 'jse_cause' })],
   },
 });

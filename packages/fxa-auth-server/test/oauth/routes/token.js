@@ -5,6 +5,7 @@
 const { assert } = require('chai');
 const buf = require('buf').hex;
 const hex = require('buf').to.hex;
+const path = require('path');
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 
@@ -23,7 +24,8 @@ const CODE_WITHOUT_KEYS = 'f0f0f0';
 const mockDb = { touchSessionToken: sinon.stub() };
 const mockStatsD = { increment: sinon.stub() };
 const mockGlean = { oauth: { tokenCreated: sinon.stub() } };
-const tokenRoutes = proxyquire('../../../lib/routes/oauth/token', {
+const tokenRoutePath = path.join(__dirname, '../../../lib/routes/oauth/token');
+const tokenRoutes = proxyquire(tokenRoutePath, {
   '../../oauth/assertion': async () => true,
   '../../oauth/client': {
     authenticateClient: (_, params) => ({

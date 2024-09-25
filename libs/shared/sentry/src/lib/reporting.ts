@@ -167,11 +167,11 @@ export function reportRequestException(
   }
 
   Sentry.withScope((scope: Sentry.Scope) => {
-    scope.addEventProcessor((event: Sentry.Event) => {
+    scope.addEventProcessor((event) => {
       if (request) {
-        const sentryEvent = Sentry.Handlers.parseRequest(event, request);
-        sentryEvent.level = 'error';
-        return sentryEvent;
+        event.request = Sentry.extractRequestData(request);
+        event.level = 'error';
+        return event;
       }
       return null;
     });

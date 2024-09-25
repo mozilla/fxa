@@ -3,12 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { assert } from 'chai';
-import {
-  BrowserClient,
-  makeFetchTransport,
-  defaultStackParser,
-  makeXHRTransport,
-} from '@sentry/browser';
+import { BrowserClient } from '@sentry/browser';
 import moment from 'moment';
 import sinon from 'sinon';
 
