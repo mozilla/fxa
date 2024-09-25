@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // Change to @sentry/browser after upgrade to Sentry 8
-import * as Sentry from '@sentry/nextjs';
+import * as SentryTypes from '@sentry/types';
 import { cleanUpQueryParam } from './cleanUpQueryParam';
 import { SentryConfigOpts } from '../models/SentryConfigOpts';
 import { tagFxaName } from './tagFxaName';
@@ -20,7 +20,7 @@ import { tagFxaName } from './tagFxaName';
 export function beforeSend(
   sentryEnabled: boolean,
   opts: SentryConfigOpts,
-  event: Sentry.ErrorEvent
+  event: SentryTypes.ErrorEvent
 ) {
   if (sentryEnabled === false) {
     return null;
@@ -42,7 +42,7 @@ export function beforeSend(
     }
 
     if (event.exception?.values) {
-      event.exception.values.forEach((value: Sentry.Exception) => {
+      event.exception.values.forEach((value: SentryTypes.Exception) => {
         if (value.stacktrace && value.stacktrace.frames) {
           value.stacktrace.frames.forEach((frame: { abs_path?: string }) => {
             if (frame.abs_path) {
