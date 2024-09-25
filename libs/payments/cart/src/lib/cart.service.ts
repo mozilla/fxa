@@ -138,6 +138,7 @@ export class CartService {
       taxAddress,
       currency,
       eligibilityStatus: cartEligibilityStatus,
+      couponCode: args.promoCode,
     });
 
     return cart;
