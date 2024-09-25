@@ -55,6 +55,7 @@ describe('views/pair/unsupported', () => {
           isAndroid: () => false,
           isFirefox: () => true,
           isIos: () => true,
+          isMobile: () => true,
         };
       });
       sinon.stub(view, 'getHashParams').callsFake(() => {
@@ -95,6 +96,7 @@ describe('views/pair/unsupported', () => {
           isAndroid: () => false,
           isFirefox: () => true,
           isIos: () => true,
+          isMobile: () => true,
         };
       });
     });
@@ -139,6 +141,7 @@ describe('views/pair/unsupported', () => {
           isAndroid: () => true,
           isFirefox: () => false,
           isIos: () => false,
+          isMobile: () => true,
         };
       });
     });
@@ -180,6 +183,7 @@ describe('views/pair/unsupported', () => {
           isAndroid: () => false,
           isFirefox: () => true,
           isIos: () => false,
+          isMobile: () => false,
         };
       });
     });
@@ -213,6 +217,7 @@ describe('views/pair/unsupported', () => {
           isAndroid: () => false,
           isFirefox: () => false,
           isIos: () => false,
+          isMobile: () => false,
         };
       });
     });

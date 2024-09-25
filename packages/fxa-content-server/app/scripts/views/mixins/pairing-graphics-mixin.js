@@ -10,7 +10,6 @@
  */
 
 import UserAgentMixin from '../../lib/user-agent-mixin';
-import Constants from '../../lib/constants';
 import UrlMixin from '../../lib/url-mixin';
 
 export default {
@@ -22,21 +21,5 @@ export default {
       return 'bg-image-triple-device-hearts';
     }
     return 'bg-image-cad';
-  },
-
-  /**
-   * Returns true if we believe the current entry points merits that we show the user
-   * a QR code that can be used download firefox on a mobile device.
-   */
-  showDownloadFirefoxQrCode() {
-    const entryPoint = this.getSearchParam('entrypoint');
-    return (
-      entryPoint === Constants.FIREFOX_MENU_ENTRYPOINT ||
-      entryPoint === Constants.FIREFOX_PREFERENCES_ENTRYPOINT ||
-      entryPoint === Constants.FIREFOX_SYNCED_TABS_ENTRYPOINT ||
-      entryPoint === Constants.FIREFOX_TABS_SIDEBAR_ENTRYPOINT ||
-      entryPoint === Constants.FIREFOX_FX_VIEW_ENTRYPOINT ||
-      entryPoint === Constants.FIREFOX_TOOLBAR_ENTRYPOINT
-    );
   },
 };

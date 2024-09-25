@@ -34,7 +34,7 @@ test.describe('severity-1 #smoke', () => {
     await signin.fillOutPasswordForm(credentials.password);
 
     await expect(connectAnotherDevice.fxaConnected).toBeEnabled();
-    await connectAnotherDevice.startBrowsingButton.click();
+    await connectAnotherDevice.clickNotNowPair();
     await expect(page).toHaveURL(/settings/, { timeout: 1000 });
 
     await settings.disconnectSync(credentials);

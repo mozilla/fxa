@@ -73,7 +73,7 @@ test.describe('severity-1 #smoke', () => {
         credentials.email
       );
       await signinTokenCode.fillOutCodeForm(code);
-      await expect(page).toHaveURL(/connect_another_device/);
+      await expect(page).toHaveURL(/pair/);
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
       await fxDesktopV3ForceAuth.checkWebChannelMessage(FirefoxCommand.Login);
     });
@@ -142,7 +142,7 @@ test.describe('severity-1 #smoke', () => {
       const code = await target.emailClient.getUnblockCode(credentials.email);
       await signinUnblock.fillOutCodeForm(code);
 
-      await expect(page).toHaveURL(/connect_another_device/);
+      await expect(page).toHaveURL(/pair/);
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
       await fxDesktopV3ForceAuth.checkWebChannelMessage(FirefoxCommand.Login);
 

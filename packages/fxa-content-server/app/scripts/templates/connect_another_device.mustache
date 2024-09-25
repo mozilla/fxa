@@ -18,7 +18,7 @@
     {{/isSignedIn}}
   {{/showSuccessMessage}}
   <section>
-    <div class="{{graphicId}}" role="img" aria-label="{{#t}}Devices with hearts on their screens{{/t}}"></div>
+    <div class="bg-image-triple-device-hearts" role="img" aria-label="{{#t}}Devices with hearts on their screens{{/t}}"></div>
     {{#showSuccessMessage}}
       {{#isSignedIn}}
         {{#isFirefoxDesktop}}
@@ -65,33 +65,10 @@
           {{/isSignedIn}}
         </p>
       {{/isFirefoxDesktop}}
-      {{#isFirefoxIos}}
-        <!-- user verifies in Fx for iOS, assume they are not signed in -->
-        <p id="signin-fxios">
-          {{#t}}Still adding devices? Sign in to Firefox on another device to complete set-up{{/t}}
-        </p>
-      {{/isFirefoxIos}}
-      {{#isOtherAndroid}}
-        <!-- Another android browser, encourage Fx for Android installation -->
-        <p id="install-mobile-firefox-android">
-          {{#t}}Sign in to Firefox for Android to complete set-up{{/t}}
-        </p>
-      {{/isOtherAndroid}}
-      {{#isOtherIos}}
-        <!-- Safari or Chrome for iOS, encourage installation of Fx -->
-        <p id="install-mobile-firefox-ios">
-          {{#t}}Sign in to Firefox for iOS to complete set-up{{/t}}
-        </p>
-      {{/isOtherIos}}
-      {{#isOther}}
-        <!-- probably some desktop browser -->
-        <p id="install-mobile-firefox-other">
-          {{#isSignIn}}
-            {{#t}}Still adding devices?{{/t}}
-          {{/isSignIn}}
-          {{#t}}Sign in to Firefox on another device to complete set-up{{/t}}
-        </p>
-      {{/isOther}}
+
+      {{#isMobile}}
+        {{{ unsupportedPairHtml }}}
+      {{/isMobile}}
 
       {{^isFirefoxDesktop}}
         <div class="marketing-area"></div>

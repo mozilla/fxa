@@ -8,6 +8,7 @@ import Template from '../../templates/pair/unsupported.mustache';
 import GleanMetrics from '../../lib/glean';
 import UserAgentMixin from '../../lib/user-agent-mixin';
 import UrlMixin from 'lib/url-mixin';
+import UnsupportedPairTemplate from '../../templates/partial/unsupported-pair.mustache';
 
 class PairUnsupportedView extends FormView {
   template = Template;
@@ -24,7 +25,7 @@ class PairUnsupportedView extends FormView {
   setInitialContext(context) {
     const uap = this.getUserAgent();
     const isFirefox = uap.isFirefox();
-    const isMobile = uap.isAndroid() || uap.isIos();
+    const isMobile = uap.isMobile();
     // Assume the user is on non-Firefox desktop in this case.
     const isDesktopNonFirefox = !isFirefox && !isMobile;
     const hashParams = this.getHashParams(['channel_id, channel_key']);
@@ -53,6 +54,7 @@ class PairUnsupportedView extends FormView {
       isSystemCameraUrl,
       escapedMobileDownloadLink,
       showCADHeader: !(isMobile && !isSystemCameraUrl),
+      unsupportedPairHtml: this.renderTemplate(UnsupportedPairTemplate),
     });
   }
 }

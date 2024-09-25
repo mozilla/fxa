@@ -50,7 +50,7 @@ test.describe('severity-1 #smoke', () => {
       // new passwowrd works
       await signin.fillOutPasswordForm(newPassword);
 
-      await expect(connectAnotherDevice.header).toBeVisible();
+      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
 
       // update password for cleanup function
       credentials.password = newPassword;

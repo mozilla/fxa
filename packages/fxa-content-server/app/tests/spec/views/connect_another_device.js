@@ -26,7 +26,7 @@ describe('views/connect_another_device', () => {
   let windowMock;
 
   const FXA_CONNECTED_SELECTOR = '#fxa-connected-heading';
-  const FXA_CAD_HEADER = '#fxa-connect-another-device-header';
+  const FXA_UNSUPPORTED_HEADER_SELECTOR = '#unsupported-header';
 
   beforeEach(() => {
     account = new Account();
@@ -65,10 +65,11 @@ describe('views/connect_another_device', () => {
 
   describe('render/afterVisible', () => {
     let viewEventStub;
-    describe('with a Fx desktop user that is signed in', () => {
+    describe('with a Fx desktop user that is signed in navigate to pair', () => {
       beforeEach(() => {
         viewEventStub = sinon.stub(GleanMetrics.cad, 'view');
         sinon.stub(view, '_isSignedIn').callsFake(() => true);
+        sinon.spy(view, 'navigate');
 
         windowMock.navigator.userAgent =
           'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:55.0) Gecko/20100101 Firefox/55.0';
@@ -86,30 +87,8 @@ describe('views/connect_another_device', () => {
         sinon.assert.calledOnce(viewEventStub);
       });
 
-      it('shows the pairing link, logs appropriately', () => {
-        assert.isTrue(view._isSignedIn.called);
-        assert.lengthOf(view.$('#sync-firefox-devices'), 1);
-        assert.lengthOf(view.$('#pair-value-prop'), 1);
-        assert.isTrue(
-          view
-            .$('#sync-firefox-devices')
-            .prop('href')
-            .endsWith('/pair?entrypoint=fxa_app_menu')
-        );
-        assert.isTrue(
-          view.$('#cad-not-now').prop('href').endsWith('/settings')
-        );
-        testIsFlowEventLogged('signedin.true');
-        testIsFlowEventLogged('signin.ineligible');
-        testIsFlowEventLogged('install_from.fx_desktop');
-      });
-
-      it('shows the success message', () => {
-        assert.lengthOf(view.$(FXA_CONNECTED_SELECTOR), 1);
-      });
-
-      it('shows the connect another device header', () => {
-        assert.lengthOf(view.$(FXA_CAD_HEADER), 1);
+      it('navigates to pair', () => {
+        assert.isTrue(view.navigate.calledWith('/pair'));
       });
     });
 
@@ -173,8 +152,7 @@ describe('views/connect_another_device', () => {
       'fxa_app_menu',
       'fx-view',
     ].forEach((entrypoint) => {
-      describe(`with known entrypoint ${entrypoint} and action=email'
-      }`, () => {
+      describe(`with known entrypoint ${entrypoint} and action=email`, () => {
         beforeEach(() => {
           viewEventStub = sinon.stub(GleanMetrics.cad, 'view');
           sinon.stub(view, '_isSignedIn').callsFake(() => true);
@@ -201,56 +179,9 @@ describe('views/connect_another_device', () => {
           sinon.assert.calledOnce(viewEventStub);
         });
 
-        it('shows the success message and does not redirect', () => {
-          assert.lengthOf(view.$(FXA_CONNECTED_SELECTOR), 1);
-          assert.isTrue(view.navigate.notCalled);
+        it('navigates to pair', () => {
+          assert.isTrue(view.navigate.calledWith('/pair'));
         });
-
-        it('passes the entrypoint param through', () => {
-          assert.isTrue(
-            view
-              .$('#sync-firefox-devices')
-              .attr('href')
-              .includes(`entrypoint=${entrypoint}`)
-          );
-        });
-      });
-    });
-
-    describe('with an invalid entrypoint', () => {
-      beforeEach(() => {
-        viewEventStub = sinon.stub(GleanMetrics.cad, 'view');
-        sinon.stub(view, '_isSignedIn').callsFake(() => true);
-        sinon.spy(view, 'navigate');
-        windowMock.location.search = '?entrypoint=t3st0';
-        windowMock.navigator.userAgent =
-          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:55.0) Gecko/20100101 Firefox/55.0';
-
-        return view.render().then(() => {
-          view.afterVisible();
-        });
-      });
-
-      afterEach(() => {
-        viewEventStub.restore();
-      });
-
-      it('logs the view event', () => {
-        sinon.assert.calledOnce(viewEventStub);
-      });
-
-      it('shows the success message and does not redirect', () => {
-        assert.lengthOf(view.$(FXA_CONNECTED_SELECTOR), 1);
-        assert.isTrue(view.navigate.notCalled);
-      });
-
-      it('sets entrypoint param with to the default', () => {
-        assert.isTrue(
-          view
-            .$('#sync-firefox-devices')
-            .attr('href')
-            .includes('entrypoint=fxa_app_menu')
-        );
       });
     });
 
@@ -265,6 +196,7 @@ describe('views/connect_another_device', () => {
             isFirefoxIos: () => false,
             isIos: () => false,
             supportsSvgTransformOrigin: () => true,
+            isMobile: () => true,
           };
         });
 
@@ -283,8 +215,8 @@ describe('views/connect_another_device', () => {
         testIsFlowEventLogged('install_from.fx_android');
       });
 
-      it('shows the success message', () => {
-        assert.lengthOf(view.$(FXA_CONNECTED_SELECTOR), 1);
+      it('shows unsupported messaging', () => {
+        assert.lengthOf(view.$(FXA_UNSUPPORTED_HEADER_SELECTOR), 1);
       });
     });
 
@@ -299,6 +231,7 @@ describe('views/connect_another_device', () => {
             isFirefoxIos: () => false,
             isIos: () => false,
             supportsSvgTransformOrigin: () => true,
+            isMobile: () => false,
           };
         });
 
@@ -335,6 +268,7 @@ describe('views/connect_another_device', () => {
             isFirefoxIos: () => false,
             isIos: () => false,
             supportsSvgTransformOrigin: () => true,
+            isMobile: () => true,
           };
         });
 
@@ -360,103 +294,6 @@ describe('views/connect_another_device', () => {
       });
     });
 
-    describe('with a user that cannot sign in', () => {
-      beforeEach(() => {
-        sinon.stub(view, '_isSignedIn').callsFake(() => false);
-        sinon.stub(view, '_canSignIn').callsFake(() => false);
-      });
-
-      it('shows FxiOS help text and marketing area, hides CAD header, to users on FxiOS', () => {
-        sinon.stub(view, 'getUserAgent').callsFake(() => {
-          return {
-            isAndroid: () => false,
-            isFirefox: () => true,
-            isFirefoxAndroid: () => false,
-            isFirefoxDesktop: () => false,
-            isFirefoxIos: () => true,
-            isIos: () => true,
-            supportsSvgTransformOrigin: () => true,
-          };
-        });
-
-        return view.render().then(() => {
-          view.afterVisible();
-          assert.isTrue(view._isSignedIn.called);
-
-          assert.lengthOf(view.$(FXA_CAD_HEADER), 0);
-          assert.lengthOf(view.$('#signin-fxios'), 1);
-          assert.lengthOf(view.$('.marketing-area'), 1);
-          testIsFlowEventLogged('signin_from.fx_ios');
-        });
-      });
-
-      it('shows iOS text, marketing area to users on iOS', () => {
-        sinon.stub(view, 'getUserAgent').callsFake(() => {
-          return {
-            isAndroid: () => false,
-            isFirefox: () => false,
-            isFirefoxAndroid: () => false,
-            isFirefoxDesktop: () => false,
-            isFirefoxIos: () => false,
-            isIos: () => true,
-            supportsSvgTransformOrigin: () => true,
-          };
-        });
-
-        return view.render().then(() => {
-          view.afterVisible();
-
-          assert.lengthOf(view.$('#install-mobile-firefox-ios'), 1);
-          assert.lengthOf(view.$('.marketing-area'), 1);
-          testIsFlowEventLogged('install_from.other_ios');
-        });
-      });
-
-      it('shows Android text, marketing area to users on Android', () => {
-        sinon.stub(view, 'getUserAgent').callsFake(() => {
-          return {
-            isAndroid: () => true,
-            isFirefox: () => false,
-            isFirefoxAndroid: () => false,
-            isFirefoxDesktop: () => false,
-            isFirefoxIos: () => false,
-            isIos: () => false,
-            supportsSvgTransformOrigin: () => true,
-          };
-        });
-
-        return view.render().then(() => {
-          view.afterVisible();
-
-          assert.lengthOf(view.$('#install-mobile-firefox-android'), 1);
-          assert.lengthOf(view.$('.marketing-area'), 1);
-          testIsFlowEventLogged('install_from.other_android');
-        });
-      });
-
-      it('shows Other text, marketing area to everyone else', () => {
-        sinon.stub(view, 'getUserAgent').callsFake(() => {
-          return {
-            isAndroid: () => false,
-            isFirefox: () => false,
-            isFirefoxAndroid: () => false,
-            isFirefoxDesktop: () => false,
-            isFirefoxIos: () => false,
-            isIos: () => false,
-            supportsSvgTransformOrigin: () => true,
-          };
-        });
-
-        return view.render().then(() => {
-          view.afterVisible();
-
-          assert.lengthOf(view.$('#install-mobile-firefox-other'), 1);
-          assert.lengthOf(view.$('.marketing-area'), 1);
-          testIsFlowEventLogged('install_from.other');
-        });
-      });
-    });
-
     describe('with showSuccessMessage set to false', () => {
       beforeEach(() => {
         model.set('showSuccessMessage', false);
@@ -475,24 +312,6 @@ describe('views/connect_another_device', () => {
       });
     });
 
-    describe('with showSuccessMessage in the search params', () => {
-      beforeEach(() => {
-        sinon.stub(view, '_isSignedIn').callsFake(() => true);
-
-        windowMock.navigator.userAgent =
-          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:55.0) Gecko/20100101 Firefox/55.0';
-        windowMock.location.search = 'showSuccessMessage=true';
-
-        return view.render().then(() => {
-          view.afterVisible();
-        });
-      });
-
-      it('shows the success message', () => {
-        assert.lengthOf(view.$(FXA_CONNECTED_SELECTOR), 1);
-      });
-    });
-
     describe('with a Fx desktop sync declined user', () => {
       beforeEach(() => {
         sinon.stub(view, '_isSignedIn').callsFake(() => true);
@@ -500,24 +319,15 @@ describe('views/connect_another_device', () => {
 
         windowMock.navigator.userAgent =
           'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:55.0) Gecko/20100101 Firefox/55.0';
-
+        sinon.spy(view, 'navigate');
         return view.render().then(() => {
           view.afterVisible();
         });
       });
 
-      it('shows the marketing area, logs appropriately', () => {
-        assert.isTrue(view._isSignedIn.called);
-        assert.isTrue(
-          view.$('#cad-not-now').prop('href').endsWith('/settings')
-        );
-        testIsFlowEventLogged('signedin.true');
-        testIsFlowEventLogged('signin.ineligible');
-        testIsFlowEventLogged('install_from.fx_desktop');
-      });
-
-      it('shows the success message', () => {
-        assert.lengthOf(view.$(FXA_CONNECTED_SELECTOR), 1);
+      it('navigates to pair', () => {
+        // Even though Sync isn't enabled, a user can still pair a device
+        assert.isTrue(view.navigate.calledWith('/pair'));
       });
     });
   });
@@ -625,6 +435,7 @@ describe('views/connect_another_device', () => {
           isFirefoxIos: () => false,
           isIos: () => false,
           supportsSvgTransformOrigin: () => true,
+          isMobile: () => false,
         };
       });
 
@@ -644,40 +455,6 @@ describe('views/connect_another_device', () => {
 
       it('notifies of click', () => {
         testIsFlowEventLogged('link.signin');
-      });
-    });
-  });
-
-  describe('svg-graphic', () => {
-    const userAgentObj = {
-      isAndroid: () => false,
-      isFirefox: () => true,
-      isFirefoxAndroid: () => false,
-      isFirefoxDesktop: () => true,
-      isFirefoxIos: () => false,
-      isIos: () => false,
-      supportsSvgTransformOrigin: () => true,
-    };
-
-    beforeEach(() => {
-      account.set('email', 'testuser@testuser.com');
-      sinon.stub(user, 'isSignedInAccount').callsFake(() => false);
-      sinon.stub(view, '_canSignIn').callsFake(() => true);
-      return view.render();
-    });
-
-    it('shows animated hearts where supportsSvgTransformOrigin is supported', () => {
-      sinon.stub(view, 'getUserAgent').callsFake(() => userAgentObj);
-      assert.equal(view.$el.find('.bg-image-triple-device-hearts').length, 1);
-      assert.equal(view.$el.find('.bg-image-cad').length, 0);
-    });
-
-    it('shows non-animated hearts where supportsSvgTransformOrigin is not supported', () => {
-      userAgentObj.supportsSvgTransformOrigin = () => false;
-      sinon.stub(view, 'getUserAgent').callsFake(() => userAgentObj);
-      return view.render().then(() => {
-        assert.equal(view.$el.find('.bg-image-triple-device-hearts').length, 0);
-        assert.equal(view.$el.find('.bg-image-cad').length, 1);
       });
     });
   });

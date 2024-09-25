@@ -77,8 +77,7 @@ test.describe('recovery key promo', () => {
       const credentials = testAccountTracker.generateSignupAccountDetails();
 
       await page.goto(
-        `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`,
-        { waitUntil: 'load' }
+        `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
       );
       await signup.fillOutEmailForm(credentials.email);
       await signup.fillOutSignupForm(credentials.password, '21');
@@ -89,7 +88,7 @@ test.describe('recovery key promo', () => {
       await login.setCode(code);
       await login.clickSubmit();
 
-      await expect(connectAnotherDevice.header).toBeVisible();
+      await expect(connectAnotherDevice.fxaConnected).toBeEnabled();
     });
 
     test('not shown if user already has a recovery key', async ({
@@ -100,7 +99,7 @@ test.describe('recovery key promo', () => {
       const credentials = await testAccountTracker.signUp();
 
       // Sign-in without Sync, otw you will get prompted to create a recovery key
-      await page.goto(target.contentServerUrl, { waitUntil: 'load' });
+      await page.goto(target.contentServerUrl);
 
       await signin.fillOutEmailFirstForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
@@ -119,13 +118,12 @@ test.describe('recovery key promo', () => {
 
       // Not shown recovery key promo
       await page.goto(
-        `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`,
-        { waitUntil: 'load' }
+        `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
       );
       await signin.fillOutEmailFirstForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
 
-      await expect(connectAnotherDevice.header).toBeVisible();
+      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
     });
 
     test('can setup recovery key inline after sign-in', async ({
@@ -152,7 +150,7 @@ test.describe('recovery key promo', () => {
       await inlineRecoveryKey.fillOutHint('hint');
       await inlineRecoveryKey.clickFinish();
 
-      await expect(connectAnotherDevice.header).toBeVisible();
+      await expect(connectAnotherDevice.header).toBeEnabled();
     });
 
     test('can setup recovery key inline after email code', async ({
@@ -189,7 +187,8 @@ test.describe('recovery key promo', () => {
       await inlineRecoveryKey.fillOutHint('hint');
       await inlineRecoveryKey.clickFinish();
 
-      await expect(connectAnotherDevice.header).toBeVisible();
+      await page.waitForURL(/connect_another_device/);
+      await expect(connectAnotherDevice.header).toBeAttached();
     });
 
     test('can setup recovery key inline after 2FA', async ({
@@ -236,7 +235,8 @@ test.describe('recovery key promo', () => {
       await inlineRecoveryKey.fillOutHint('hint');
       await inlineRecoveryKey.clickFinish();
 
-      await expect(connectAnotherDevice.header).toBeVisible();
+      await page.waitForURL(/connect_another_device/);
+      await expect(connectAnotherDevice.header).toBeEnabled();
 
       await settings.goto();
       await settings.disconnectTotp(); // Required before teardown
@@ -266,7 +266,8 @@ test.describe('recovery key promo', () => {
       await inlineRecoveryKey.clickDoItLater();
 
       // User taken to connect another device page
-      await expect(connectAnotherDevice.header).toBeVisible();
+      await page.waitForURL(/connect_another_device/);
+      await expect(connectAnotherDevice.header).toBeEnabled();
 
       await connectAnotherDevice.startBrowsingButton.click();
 
@@ -283,7 +284,7 @@ test.describe('recovery key promo', () => {
       );
       await signin.fillOutEmailFirstForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
-      await expect(connectAnotherDevice.header).toBeVisible();
+      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
     });
   });
 });

@@ -154,7 +154,7 @@ test.describe('severity-2 #smoke', () => {
         credentials.email
       );
       await signinTokenCode.fillOutCodeForm(code);
-      await expect(page).toHaveURL(/connect_another_device/);
+      await expect(page).toHaveURL(/pair/);
 
       await settings.goto();
       //Click Delete account

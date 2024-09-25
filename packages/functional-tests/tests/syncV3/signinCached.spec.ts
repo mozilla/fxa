@@ -33,8 +33,8 @@ test.describe('severity-2 #smoke', () => {
       await expect(signin.passwordFormHeading).toBeVisible();
       await expect(page.getByText(credentials.email)).toBeVisible();
       await signin.fillOutPasswordForm(credentials.password);
-      await expect(page).toHaveURL(/connect_another_device/);
-      await connectAnotherDevice.clickNotNow();
+      await expect(page).toHaveURL(/pair/);
+      await connectAnotherDevice.clickNotNowPair();
 
       //Verify logged in on Settings page
       await expect(settings.settingsHeading).toBeVisible();

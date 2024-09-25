@@ -65,23 +65,19 @@ class PairIndexView extends FormView {
   }
 
   setInitialContext(context) {
-    // Check the entrypoint. If we aren't in a entrypoint=fxa_app_menu context,
-    // then don't ask if the user needs to download Fx mobile then show QR code.
     const graphicId = this.getGraphicsId();
-    const askMobileStatus = this.showDownloadFirefoxQrCode();
     const needsMobileConfirmed = this.model.get('needsMobileConfirmed');
 
-    if (askMobileStatus) {
-      GleanMetrics.cadFirefox.choiceView();
-    }
     if (needsMobileConfirmed) {
       GleanMetrics.cadFirefox.view();
+    } else {
+      GleanMetrics.cadFirefox.choiceView();
     }
 
     context.set({
       graphicId,
-      askMobileStatus,
       needsMobileConfirmed,
+      showSuccessMessage: this.showSuccessMessage(),
     });
   }
 
@@ -138,6 +134,13 @@ class PairIndexView extends FormView {
   choicePairNotNowHandler() {
     GleanMetrics.cadFirefox.choiceNotnowSubmit();
     return true;
+  }
+
+  showSuccessMessage() {
+    return (
+      !!this.model.get('showSuccessMessage') ||
+      !!this.getSearchParam('showSuccessMessage')
+    );
   }
 }
 

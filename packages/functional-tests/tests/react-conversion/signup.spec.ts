@@ -91,8 +91,8 @@ test.describe('severity-1 #smoke', () => {
       const code = await target.emailClient.getVerifyShortCode(email);
       await confirmSignupCode.fillOutCodeForm(code);
 
-      await expect(page).toHaveURL(/connect_another_device/);
-      await expect(page.getByText('You’re signed in to Firefox')).toBeVisible();
+      await expect(page).toHaveURL(/pair/);
+      await expect(page.getByText('Signed in successfully')).toBeVisible();
     });
   });
 });

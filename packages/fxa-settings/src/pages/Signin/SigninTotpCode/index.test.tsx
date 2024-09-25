@@ -175,7 +175,7 @@ describe('Sign in with TOTP code page', () => {
         );
         expect(fxaLoginSpy).toHaveBeenCalled();
         expect(hardNavigateSpy).toHaveBeenCalledWith(
-          '/connect_another_device?showSuccessMessage=true'
+          '/pair?showSuccessMessage=true'
         );
       });
       it('is not sent otherwise', async () => {

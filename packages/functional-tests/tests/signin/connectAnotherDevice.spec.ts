@@ -19,14 +19,8 @@ test.describe('severity-2 #smoke', () => {
       await signin.fillOutEmailFirstForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
 
-      await page.waitForURL(/connect_another_device/);
-
+      await expect(page).toHaveURL(/pair/);
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
-      await expect(
-        connectAnotherDevice.connectAnotherDeviceButton
-      ).toBeVisible();
-      await expect(connectAnotherDevice.signInButton).toBeHidden();
-      await expect(connectAnotherDevice.success).toBeHidden();
     });
   });
 });
