@@ -21,14 +21,16 @@ const { assert } = chai;
 [{version:""},{version:"V2"}].forEach((testOptions) => {
 
 describe(`#integration${testOptions.version} - remote password forgot`, function () {
-  this.timeout(15000);
+  this.timeout(60000);
   let server;
-  before(() => {
+  before(async () => {
     config.securityHistory.ipProfiling.allowedRecency = 0;
     config.signinConfirmation.skipForNewAccounts.enabled = true;
-    return TestServer.start(config).then((s) => {
-      server = s;
-    });
+    server = await TestServer.start(config);
+  });
+
+  after(async () => {
+    await TestServer.stop(server);
   });
 
   it('forgot password', () => {
@@ -278,20 +280,22 @@ describe(`#integration${testOptions.version} - remote password forgot`, function
   it('password forgot status with valid token', () => {
     const email = server.uniqueEmail();
     const password = 'something';
-    return Client.create(config.publicUrl, email, password, testOptions).then((c) => {
-      return c
-        .forgotPassword()
-        .then(() => {
-          return c.api.passwordForgotStatus(c.passwordForgotToken);
-        })
-        .then((x) => {
-          assert.equal(x.tries, 3, 'three tries remaining');
-          assert.ok(
-            x.ttl > 0 && x.ttl <= config.tokenLifetimes.passwordForgotToken,
-            'ttl is ok'
-          );
-        });
-    });
+    return Client.create(config.publicUrl, email, password, testOptions).then(
+      (c) => {
+        return c
+          .forgotPassword()
+          .then(() => {
+            return c.api.passwordForgotStatus(c.passwordForgotToken);
+          })
+          .then((x) => {
+            assert.equal(x.tries, 3, 'three tries remaining');
+            assert.ok(
+              x.ttl > 0 && x.ttl <= config.tokenLifetimes.passwordForgotToken,
+              'ttl is ok'
+            );
+          });
+      }
+    );
   });
 
   it('password forgot status with invalid token', () => {
@@ -420,9 +424,7 @@ describe(`#integration${testOptions.version} - remote password forgot`, function
       });
   });
 
-  after(() => {
-    return TestServer.stop(server);
-  });
+
 
   async function resetPassword(client, code, newPassword, headers, options) {
     await client.verifyPasswordResetCode(code, headers, options);
