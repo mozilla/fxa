@@ -36,6 +36,9 @@ config.theme.extend = {
   content: {
     ...config.theme.extend.content,
     'circle-check': "inline('../images/circle-check.svg')",
+    // Note, this is also used in fxa-settings but as an inlined SVG
+    'icon-circle-check-outline':
+      "inline('../images/icon-circle-check-outline.svg')",
     lock: "inline('../images/icon-lock.svg')",
     alert: "inline('../images/icon-warning-red-50.svg')",
     'check-blue': "inline('../images/icon-check-blue-50.svg')",

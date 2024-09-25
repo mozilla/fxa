@@ -2,7 +2,10 @@
 <div class="card-base">
   <header class="relative">
     {{#showSuccessMessage}}
-      <h2 id="fxa-connected-heading" class="w-full text-md font-bold p-3 my-3 rounded bg-green-500 text-gray-900 text-center">{{#t}}Signed in successfully!{{/t}}</h2>
+      <div id="fxa-connected-heading"
+          class="w-full text-md font-bold p-3 mb-5 rounded bg-green-500 text-gray-900 flex items-center justify-center before:content-icon-circle-check-outline before:flex">
+        <span class="ps-3 align-middle">{{#t}}Signed in successfully!{{/t}}</span>
+      </div>
     {{/showSuccessMessage}}
 
     {{#needsMobileConfirmed}}

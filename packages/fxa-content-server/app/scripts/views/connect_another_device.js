@@ -59,13 +59,8 @@ const ConnectAnotherDeviceView = FormView.extend({
       this.navigate('/settings');
     }
 
-    // If users are signed in, directly access this page (no query params)
-    // on desktop, redirect them
-    if (
-      this._isSignedIn() &&
-      window.location.search === '' &&
-      !this.getUserAgent().isMobile()
-    ) {
+    // If users are signed in on desktop and access this page, redirect them
+    if (this._isSignedIn() && !this.getUserAgent().isMobile()) {
       this.navigate('/pair');
     }
   },

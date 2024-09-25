@@ -140,7 +140,7 @@ test.describe('severity-2 #smoke', () => {
       await expect(signup.cannotCreateAccountHeading).toBeVisible();
     });
 
-    test('signup via product page and redirect after confirm', async ({
+    test('signup via product subscription page and redirect after confirm', async ({
       page,
       target,
       pages: { confirmSignupCode, relier, settings, signup, subscribe },

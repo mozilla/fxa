@@ -35,7 +35,7 @@ export const InlineRecoveryKeySetup = ({
     // We do a hard navigate because this page is still in the content server, this
     // also keeps all query params so that correct metrics are emitted
     // but does not show the signed into FF success message
-    hardNavigate('/connect_another_device', {}, true);
+    hardNavigate('/pair', {}, true);
     return <></>;
   };
 
@@ -52,8 +52,7 @@ export const InlineRecoveryKeySetup = ({
             <RecoveryKeySetupHint
               {...{ viewName }}
               navigateForward={() => {
-                // Navigate to CAD without success messaging
-                hardNavigate('/connect_another_device', {}, true);
+                hardNavigate('/pair', {}, true);
               }}
               updateRecoveryKeyHint={updateRecoveryHintHandler}
             />
