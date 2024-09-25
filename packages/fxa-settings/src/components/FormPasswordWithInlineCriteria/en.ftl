@@ -10,7 +10,7 @@ form-password-with-inline-criteria-reset-new-password =
   .label = New password
 form-password-with-inline-criteria-confirm-password =
   .label = Re-enter password
-form-password-with-inline-criteria-reset-submit-button = Reset password
+form-password-with-inline-criteria-reset-submit-button-2 = Create new password
 
 form-password-with-inline-criteria-match-error = Passwords do not match
 form-password-with-inline-criteria-sr-too-short-message = Password must contain at least 8 characters.

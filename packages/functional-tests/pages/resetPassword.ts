@@ -87,7 +87,7 @@ export class ResetPasswordPage extends BaseLayout {
   }
 
   get resetPasswordButton() {
-    return this.page.getByRole('button', { name: 'Reset password' });
+    return this.page.getByRole('button', { name: 'Create new password' });
   }
 
   get passwordResetConfirmationHeading() {
