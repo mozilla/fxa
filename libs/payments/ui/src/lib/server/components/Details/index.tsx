@@ -58,21 +58,19 @@ type DetailsProps = {
     productName: string;
     webIcon: string;
   };
-  discountEnd?: number | null;
-  discountType?: string;
 };
 
 export async function Details(props: DetailsProps) {
+  const { purchaseDetails, invoice, interval, l10n } = props;
   const {
-    purchaseDetails,
+    currency,
+    listAmount,
+    discountAmount,
     discountEnd,
     discountType,
-    invoice,
-    interval,
-    l10n,
-  } = props;
-  const { currency, listAmount, discountAmount, totalAmount, taxAmounts } =
-    invoice;
+    totalAmount,
+    taxAmounts,
+  } = invoice;
   const { details } = purchaseDetails;
   const exclusiveTaxRates = taxAmounts.filter(
     (taxAmount) => !taxAmount.inclusive
