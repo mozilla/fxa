@@ -12,7 +12,7 @@ RUN set -x \
     app
 
 # Utilities for fxa build
-FROM fxa-base as fxa-build-utils
+FROM fxa-base AS fxa-build-utils
 RUN apt-get update && apt-get install -y \
     git-core \
     python3-setuptools \
@@ -25,7 +25,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Utilities for fxa services
-FROM fxa-base as fxa-utils
+FROM fxa-base AS fxa-utils
 RUN apt-get update && apt-get install -y \
     netcat-traditional \
     openssl \
@@ -35,14 +35,14 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Build mono repo
-FROM fxa-build-utils as fxa-build
+FROM fxa-build-utils AS fxa-build
 COPY --chown=app:app . /fxa
 USER app
 WORKDIR /fxa
 RUN _dev/docker/mono/build.sh $(cat packages/version.json | jq -r '.version.version')
 
 # Final image
-FROM fxa-utils as fxa-mono
+FROM fxa-utils AS fxa-mono
 COPY --from=fxa-build --chown=app:app /fxa /fxa
 COPY --from=fxa-build --chown=app:app /fxa/packages/version.json /app/version.json
 USER app

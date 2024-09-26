@@ -4,7 +4,7 @@
 
 # Runs tests and common CI operations. Needs minimal install. Assumes
 # workspace will be restored into the project folder.
-FROM cimg/node:20.11 as test-runner
+FROM cimg/node:20.11 AS test-runner
 RUN sudo apt-get update && sudo apt-get install -y \
     python3-venv
 WORKDIR /home/circleci
@@ -17,7 +17,7 @@ RUN cp yarn.lock yarn.lock.base;
 # Runs initial build stage in CI. Needs full install. Responsible for
 # setting up the initially workspace state. This image installs npm
 # packages and builds heavily referenced workspaces.
-FROM test-runner as builder
+FROM test-runner AS builder
 WORKDIR /home/circleci
 COPY --chown=circleci:circleci .yarn .yarn
 WORKDIR /home/circleci/project
@@ -31,13 +31,13 @@ RUN yarn install --immutable;
 # of firefox is installed. Also note that the functional-test-runner
 # must based on cimg/node:20.11-browsers, which is why this stage
 # is necessary.
-FROM builder as playwright-install
+FROM builder AS playwright-install
 RUN npx playwright install --with-deps firefox chromium webkit;
 
 
 # Runs functional tests in our CI. Needs minimal install. Assumes
 # workspace will be restored into the project folder.
-FROM cimg/node:20.11-browsers as functional-test-runner
+FROM cimg/node:20.11-browsers AS functional-test-runner
 WORKDIR /home/circleci
 COPY --chown=circleci:circleci --from=playwright-install /home/circleci/.cache/ms-playwright .cache/ms-playwright/
 COPY --chown=circleci:circleci project project
