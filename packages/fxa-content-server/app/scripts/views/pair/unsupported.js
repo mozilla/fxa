@@ -28,7 +28,7 @@ class PairUnsupportedView extends FormView {
     const isMobile = uap.isMobile();
     // Assume the user is on non-Firefox desktop in this case.
     const isDesktopNonFirefox = !isFirefox && !isMobile;
-    const hashParams = this.getHashParams(['channel_id, channel_key']);
+    const hashParams = this.getHashParams(['channel_id', 'channel_key']);
     const isSystemCameraUrl =
       hashParams.channel_id && hashParams.channel_key && isMobile;
 
