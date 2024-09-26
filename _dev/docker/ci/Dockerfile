@@ -32,6 +32,10 @@ RUN yarn install --immutable;
 # must based on cimg/node:20.11-browsers, which is why this stage
 # is necessary.
 FROM builder as playwright-install
+# Ensure all dependencies are installed first
+WORKDIR /home/circleci/project
+RUN yarn install --immutable
+# Install Playwright and all the browsers (firefox, chromium, and webkit)
 RUN npx playwright install --with-deps firefox chromium webkit;
 
 
@@ -43,6 +47,3 @@ COPY --chown=circleci:circleci --from=playwright-install /home/circleci/.cache/m
 COPY --chown=circleci:circleci project project
 WORKDIR /home/circleci/project
 COPY --chown=circleci:circleci install /usr/local/bin/
-
-# Run Playwright install command to ensure everything is up-to-date during runtime
-RUN npx playwright install
