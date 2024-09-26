@@ -816,7 +816,7 @@ jobs:
   # Currently HTML reports are being generated for Firefox tests only hence we are only using firefox functional test job id below
   check-required-jobs-complete:
     docker:
-      - image: circleci/node
+      - image: cimg/node:20.11.1
     resource_class: small
     steps:
       - run:
