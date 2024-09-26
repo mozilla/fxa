@@ -32,9 +32,9 @@ test.describe('severity-1 #smoke', () => {
       const { email, password } =
         testAccountTracker.generateSignupAccountDetails();
 
-      relier.goto();
+      await relier.goto();
 
-      relier.clickEmailFirst();
+      await relier.clickEmailFirst();
 
       // wait for navigation
       await expect(page).toHaveURL(/oauth\//);
@@ -66,9 +66,9 @@ test.describe('severity-1 #smoke', () => {
       const { email, password } =
         testAccountTracker.generateSignupAccountDetails();
 
-      relier.goto();
+      await relier.goto();
 
-      relier.clickEmailFirst();
+      await relier.clickEmailFirst();
 
       // wait for navigation, and get search params
       await page.waitForURL(/oauth\//);

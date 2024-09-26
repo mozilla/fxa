@@ -150,7 +150,7 @@ test.describe('recovery key promo', () => {
       await inlineRecoveryKey.fillOutHint('hint');
       await inlineRecoveryKey.clickFinish();
 
-      await expect(connectAnotherDevice.header).toBeEnabled();
+      await expect(connectAnotherDevice.fxaConnected).toBeEnabled();
     });
 
     test('can setup recovery key inline after email code', async ({
@@ -187,8 +187,8 @@ test.describe('recovery key promo', () => {
       await inlineRecoveryKey.fillOutHint('hint');
       await inlineRecoveryKey.clickFinish();
 
-      await page.waitForURL(/connect_another_device/);
-      await expect(connectAnotherDevice.header).toBeAttached();
+      await page.waitForURL(/pair/);
+      await expect(connectAnotherDevice.fxaConnected).toBeEnabled();
     });
 
     test('can setup recovery key inline after 2FA', async ({
@@ -235,8 +235,8 @@ test.describe('recovery key promo', () => {
       await inlineRecoveryKey.fillOutHint('hint');
       await inlineRecoveryKey.clickFinish();
 
-      await page.waitForURL(/connect_another_device/);
-      await expect(connectAnotherDevice.header).toBeEnabled();
+      await page.waitForURL(/pair/);
+      await expect(connectAnotherDevice.fxaConnected).toBeEnabled();
 
       await settings.goto();
       await settings.disconnectTotp(); // Required before teardown
@@ -266,10 +266,10 @@ test.describe('recovery key promo', () => {
       await inlineRecoveryKey.clickDoItLater();
 
       // User taken to connect another device page
-      await page.waitForURL(/connect_another_device/);
-      await expect(connectAnotherDevice.header).toBeEnabled();
+      await page.waitForURL(/pair/);
+      await expect(connectAnotherDevice.fxaConnected).toBeEnabled();
 
-      await connectAnotherDevice.startBrowsingButton.click();
+      await connectAnotherDevice.clickNotNowPair();
 
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.recoveryKey.status).toHaveText('Not Set');

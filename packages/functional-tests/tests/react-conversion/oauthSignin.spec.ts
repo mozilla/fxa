@@ -25,7 +25,7 @@ test.describe('severity-1 #smoke', () => {
       await relier.goto();
       await relier.clickEmailFirst();
 
-      await expect(page).toHaveURL(/oauth\//);
+      await page.waitForURL(/oauth\//);
 
       // reload page with React experiment params
       await page.goto(
@@ -47,7 +47,7 @@ test.describe('severity-1 #smoke', () => {
       await relier.goto();
       await relier.clickEmailFirst();
 
-      await expect(page).toHaveURL(/oauth\//);
+      await page.waitForURL(/oauth\//);
 
       // reload page with React experiment params
       await page.goto(
@@ -64,6 +64,7 @@ test.describe('severity-1 #smoke', () => {
       await relier.clickEmailFirst();
 
       // wait for navigation
+      await page.waitForURL(/oauth\/signin/);
       await expect(page).toHaveURL(/oauth\/signin/);
 
       // reload page with React experiment params
@@ -89,7 +90,7 @@ test.describe('severity-1 #smoke', () => {
       await relier.goto();
       await relier.clickEmailFirst();
 
-      await expect(page).toHaveURL(/oauth\//);
+      await page.waitForURL(/oauth\//);
 
       // reload page with React experiment params
       await page.goto(
@@ -106,6 +107,7 @@ test.describe('severity-1 #smoke', () => {
       await relier.clickEmailFirst();
 
       // wait for navigation
+      await page.waitForURL(/oauth\/signin/);
       await expect(page).toHaveURL(/oauth\/signin/);
 
       // reload page with React experiment params
@@ -124,7 +126,7 @@ test.describe('severity-1 #smoke', () => {
       await relier.goto();
       await relier.clickEmailFirst();
 
-      await expect(page).toHaveURL(/oauth\//);
+      await page.waitForURL(/oauth\//);
 
       // reload page with React experiment params
       await page.goto(
@@ -155,7 +157,8 @@ test.describe('severity-1 #smoke', () => {
 
       await relier.goto();
       await relier.clickEmailFirst();
-      await expect(page).toHaveURL(/oauth\//);
+
+      await page.waitForURL(/oauth\//);
 
       // reload page with React experiment params
       await page.goto(
@@ -199,6 +202,8 @@ test.describe('severity-1 #smoke', () => {
 
       await relier.goto();
       await relier.clickEmailFirst();
+
+      await page.waitForURL(/oauth\/signin/);
       await expect(page).toHaveURL(/oauth\/signin/);
 
       // reload page with React experiment params
@@ -238,7 +243,7 @@ test.describe('severity-1 #smoke', () => {
       await relier.goto();
       await relier.clickChooseFlow();
 
-      await expect(page).toHaveURL(/oauth\//);
+      await page.waitForURL(/oauth\//);
 
       // reload page with React experiment params
       await page.goto(
@@ -260,6 +265,7 @@ test.describe('severity-1 #smoke', () => {
       await relier.goto();
       await relier.clickChooseFlow();
 
+      await page.waitForURL(/oauth\/signin/);
       await expect(page).toHaveURL(/oauth\/signin/);
 
       // reload page with React experiment params

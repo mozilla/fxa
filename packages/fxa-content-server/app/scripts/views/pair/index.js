@@ -138,8 +138,9 @@ class PairIndexView extends FormView {
 
   showSuccessMessage() {
     return (
-      !!this.model.get('showSuccessMessage') ||
-      !!this.getSearchParam('showSuccessMessage')
+      !this.model.get('needsMobileConfirmed') &&
+      (!!this.model.get('showSuccessMessage') ||
+        !!this.getSearchParam('showSuccessMessage'))
     );
   }
 }

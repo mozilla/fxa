@@ -83,11 +83,7 @@ describe('CompleteSignin container', () => {
 
       expect(screen.getByText('Validating sign-in…')).toBeInTheDocument();
       await waitFor(() => {
-        expect(ReactUtils.hardNavigate).toHaveBeenCalledWith(
-          '/connect_another_device',
-          {},
-          true
-        );
+        expect(ReactUtils.hardNavigate).toHaveBeenCalledWith('/pair', {}, true);
       });
     });
 

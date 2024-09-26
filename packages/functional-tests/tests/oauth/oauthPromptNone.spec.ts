@@ -33,6 +33,7 @@ test.describe('severity-1 #smoke', () => {
       await relier.signInPromptNone();
 
       //Verify error message
+      await page.waitForURL(/authorization/);
       await expect(page.getByText('User is not signed in')).toBeVisible();
     });
 
@@ -118,7 +119,8 @@ test.describe('severity-1 #smoke', () => {
       await page.goto(`${target.relierUrl}/?${query.toString()}`);
       await relier.signInPromptNone();
 
-      //Verify error message
+      // Verify error message
+      await page.waitForURL(/authorization/);
       await expect(page.getByText('User is not signed in')).toBeVisible();
     });
 

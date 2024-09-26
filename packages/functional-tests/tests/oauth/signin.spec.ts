@@ -118,6 +118,7 @@ test.describe('severity-1 #smoke', () => {
       await signup.fillOutEmailForm(email);
       await signup.fillOutSignupForm(password, '21');
       // Dont verify account and attempt to login via relier
+      await page.waitForURL(/confirm_signup_code/);
       await expect(page).toHaveURL(/confirm_signup_code/);
       await relier.goto();
       await relier.clickEmailFirst();
