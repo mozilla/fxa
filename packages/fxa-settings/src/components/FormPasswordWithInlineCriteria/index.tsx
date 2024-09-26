@@ -54,9 +54,9 @@ const getTemplateValues = (passwordFormType: PasswordFormType) => {
       templateValues.passwordLabel = 'New password';
       templateValues.confirmPasswordFtlId =
         'form-password-with-inline-criteria-confirm-password';
-      templateValues.confirmPasswordLabel = 'Re-enter password';
+      templateValues.confirmPasswordLabel = 'Confirm password';
       templateValues.buttonFtlId =
-        'form-password-with-inline-criteria-reset-submit-button-2';
+        'form-password-with-inline-criteria-reset-submit-button';
       templateValues.buttonText = 'Create new password';
       break;
   }

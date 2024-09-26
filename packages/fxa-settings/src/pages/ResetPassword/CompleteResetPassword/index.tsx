@@ -11,9 +11,6 @@ import Banner, { BannerType } from '../../../components/Banner';
 import FormPasswordWithInlineCriteria from '../../../components/FormPasswordWithInlineCriteria';
 import LinkRememberPassword from '../../../components/LinkRememberPassword';
 import { ReactComponent as BangIcon } from './icon-bang.svg';
-import { ReactComponent as WarnIcon } from './icon-warn.svg';
-import { ReactComponent as IconNonSyncDevice } from './icon-non-sync-device.svg';
-import { ReactComponent as IconSyncDevice } from './icon-sync-device.svg';
 
 import {
   CompleteResetPasswordFormData,
@@ -21,6 +18,7 @@ import {
 } from './interfaces';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { Link, useLocation } from '@reach/router';
+import ResetPasswordWarning from '../../../components/ResetPasswordWarning';
 
 const CompleteResetPassword = ({
   email,
@@ -61,9 +59,11 @@ const CompleteResetPassword = ({
 
   return (
     <AppLayout>
-      <p className="text-start text-grey-400 text-sm">
-        <FtlMsg id="password-reset-flow-heading">Reset your password</FtlMsg>
-      </p>
+      <FtlMsg id="password-reset-flow-heading">
+        <p className="text-start text-grey-400 text-sm mb-6">
+          Reset your password
+        </p>
+      </FtlMsg>
 
       {/*
         In the event of serious error. A bright red banner will be displayed indicating
@@ -78,16 +78,15 @@ const CompleteResetPassword = ({
       */}
       {hasConfirmedRecoveryKey === false && recoveryKeyExists === undefined && (
         <div
-          className={`bg-red-100 rounded-lg text-sm mt-6 text-left rtl:text-right p-3`}
+          className="flex bg-red-50 rounded-sm text-xs text-start p-3"
           data-testid="warning-message-container"
         >
-          <div className="flex">
-            <BangIcon role="img" className="flex-initial me-2 mt-1" />
-            <div className="flex-1 text-xs">
-              <FtlMsg id="password-reset-could-not-determine-account-recovery-key">
-                Have an account recovery key?
-              </FtlMsg>{' '}
-              <br />
+          <BangIcon role="img" className="flex-initial me-2 mt-1" />
+          <div className="flex-1">
+            <FtlMsg id="password-reset-could-not-determine-account-recovery-key">
+              <p>Got your account recovery key?</p>
+            </FtlMsg>
+            <FtlMsg id="password-reset-use-account-recovery-key">
               <Link
                 to={`/account_recovery_confirm_key${location.search}`}
                 state={locationState}
@@ -96,69 +95,16 @@ const CompleteResetPassword = ({
                   GleanMetrics.passwordReset.createNewRecoveryKeyMessageClick()
                 }
               >
-                <FtlMsg id="password-reset-use-account-recovery-key">
-                  Reset your password with your recovery key.
-                </FtlMsg>
-              </Link>{' '}
-            </div>
+                Reset your password and keep your data
+              </Link>
+            </FtlMsg>
           </div>
         </div>
       )}
 
       {hasConfirmedRecoveryKey === false &&
         recoveryKeyExists !== undefined &&
-        hasSyncDevices && (
-          <div
-            className={`bg-orange-50 rounded-lg text-sm mt-6 text-left rtl:text-right p-4 border-transparent`}
-            data-testid="warning-message-container"
-          >
-            <div className="flex font-semibold">
-              <WarnIcon role="img" className="flex-initial me-2 mt-1" />
-              <h1 className="flex-1">
-                <FtlMsg id="password-reset-data-may-not-be-recovered">
-                  Resetting your password may delete your encrypted browser
-                  data.
-                </FtlMsg>
-              </h1>
-            </div>
-            <div className="ps-4">
-              <p className="font-semibold pt-4">
-                <IconSyncDevice role="img" className="inline-block mr-2" />
-                <FtlMsg id="password-reset-previously-signed-in-device">
-                  Have a device where you previously signed in?
-                </FtlMsg>
-              </p>
-              <p className="ps-6 text-xs">
-                <FtlMsg id="password-reset-data-maybe-saved-locally">
-                  Your browser data may be locally saved on that device. Sign in
-                  there with your new password to restore and sync.
-                </FtlMsg>
-              </p>
-              <p className="font-semibold pt-4">
-                <IconNonSyncDevice role="img" className="inline-block mr-2" />
-                <FtlMsg id="password-reset-no-old-device">
-                  Have a new device but don’t have your old one?
-                </FtlMsg>
-              </p>
-              <p className="ps-6 text-xs">
-                <FtlMsg id="password-reset-encrypted-data-cannot-be-recovered">
-                  We’re sorry, but your encrypted browser data on Firefox
-                  servers can’t be recovered.
-                </FtlMsg>
-              </p>
-              <p className="ps-6 text-xs mt-4">
-                <a
-                  href="https://support.mozilla.org/en-US/kb/how-reset-your-password-without-account-recovery-keys-access-data"
-                  className="link-blue"
-                >
-                  <FtlMsg id="password-reset-learn-about-restoring-account-data">
-                    Learn more about restoring account data.
-                  </FtlMsg>
-                </a>
-              </p>
-            </div>
-          </div>
-        )}
+        hasSyncDevices && <ResetPasswordWarning />}
       {/*
         Hidden email field is to allow Fx password manager
         to correctly save the updated password. Without it,
@@ -167,9 +113,11 @@ const CompleteResetPassword = ({
       */}
       <input type="email" value={email} className="hidden" readOnly />
 
-      <h1 className="font-semibold text-xl text-start mt-6">
-        <FtlMsg id="complete-reset-pw-header-v2">Create a new password</FtlMsg>
-      </h1>
+      <FtlMsg id="complete-reset-pw-header-v2">
+        <h1 className="font-semibold text-xl text-start mt-6">
+          Create a new password
+        </h1>
+      </FtlMsg>
       <section className="text-start mt-2">
         <FormPasswordWithInlineCriteria
           {...{

@@ -48,15 +48,13 @@ describe('CompleteResetPassword page', () => {
 
       // Warning message about data loss should should be displayed
       expect(
-        screen.getByText(
-          'Resetting your password may delete your encrypted browser data.'
-        )
+        screen.getByText('Your browser data may not be recovered')
       ).toBeVisible();
 
       const inputs = screen.getAllByRole('textbox');
       expect(inputs).toHaveLength(2);
       expect(screen.getByLabelText('New password')).toBeVisible();
-      expect(screen.getByLabelText('Re-enter password')).toBeVisible();
+      expect(screen.getByLabelText('Confirm password')).toBeVisible();
       expect(
         screen.getByRole('button', { name: 'Create new password' })
       ).toBeVisible();
@@ -84,14 +82,12 @@ describe('CompleteResetPassword page', () => {
 
       // Warning messages about data loss should not be displayed.
       expect(
-        screen.queryByText(
-          'Resetting your password may delete your encrypted browser data.'
-        )
+        screen.queryByText('Your browser data may not be recovered')
       ).not.toBeInTheDocument();
 
       // Warning message about using recovery ke should not be displayed
       expect(
-        screen.queryByText('Reset your password with your recovery key.')
+        screen.queryByText('Reset your password and keep your data')
       ).not.toBeInTheDocument();
     });
 
@@ -117,20 +113,18 @@ describe('CompleteResetPassword page', () => {
 
       // Warning messages about data loss should not be displayed.
       expect(
-        screen.queryByText(
-          'Resetting your password may delete your encrypted browser data.'
-        )
+        screen.queryByText('Your browser data may not be recovered')
       ).not.toBeInTheDocument();
 
       // Warning message about using recovery key should not be displayed
       expect(
-        screen.queryByText('Reset your password with your recovery key.')
+        screen.queryByText('Reset your password and keep your data')
       ).not.toBeInTheDocument();
 
       const inputs = screen.getAllByRole('textbox');
       expect(inputs).toHaveLength(2);
       expect(screen.getByLabelText('New password')).toBeVisible();
-      expect(screen.getByLabelText('Re-enter password')).toBeVisible();
+      expect(screen.getByLabelText('Confirm password')).toBeVisible();
       expect(
         screen.getByRole('button', { name: 'Create new password' })
       ).toBeVisible();
@@ -151,7 +145,7 @@ describe('CompleteResetPassword page', () => {
     });
   });
 
-  describe('reset with unconfimred account recovery key', () => {
+  describe('reset with unconfirmed account recovery key', () => {
     it('renders as expected', async () => {
       renderWithLocalizationProvider(
         <Subject
@@ -171,14 +165,12 @@ describe('CompleteResetPassword page', () => {
 
       // Warning messages about data loss should not be displayed.
       expect(
-        screen.queryByText(
-          'Resetting your password may delete your encrypted browser data.'
-        )
+        screen.queryByText('Your browser data may not be recovered')
       ).toBeInTheDocument();
 
       // Warning message about using recovery key should be displayed
       expect(
-        screen.queryByText('Reset your password with your recovery key.')
+        screen.queryByText('Reset your password and keep your data')
       ).not.toBeInTheDocument();
     });
   });
@@ -203,14 +195,12 @@ describe('CompleteResetPassword page', () => {
 
       // Warning messages about data loss should not be displayed.
       expect(
-        screen.queryByText(
-          'Resetting your password may delete your encrypted browser data.'
-        )
+        screen.queryByText('Your browser data may not be recovered')
       ).not.toBeInTheDocument();
 
       // Warning message about using recovery key should be displayed
       expect(
-        screen.getByText('Reset your password with your recovery key.')
+        screen.getByText('Reset your password and keep your data')
       ).toBeVisible();
     });
   });
@@ -225,7 +215,7 @@ describe('CompleteResetPassword page', () => {
       user.type(screen.getByLabelText('New password'), MOCK_PASSWORD)
     );
     await waitFor(() =>
-      user.type(screen.getByLabelText('Re-enter password'), MOCK_PASSWORD)
+      user.type(screen.getByLabelText('Confirm password'), MOCK_PASSWORD)
     );
     const button = screen.getByRole('button', { name: 'Create new password' });
     expect(button).toBeEnabled();

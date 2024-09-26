@@ -83,7 +83,7 @@ export class ResetPasswordPage extends BaseLayout {
   }
 
   get reenterPasswordTextbox() {
-    return this.page.getByRole('textbox', { name: 'Re-enter password' });
+    return this.page.getByRole('textbox', { name: 'Confirm password' });
   }
 
   get resetPasswordButton() {
@@ -115,14 +115,12 @@ export class ResetPasswordPage extends BaseLayout {
   }
 
   get dataLossWarning() {
-    return this.page.getByText(
-      'Resetting your password may delete your encrypted browser data.'
-    );
+    return this.page.getByText('Your browser data may not be recovered');
   }
 
   get resetPasswordWithRecoveryKey() {
     return this.page.getByRole('link', {
-      name: 'Reset your password with your recovery key.',
+      name: 'Reset your password and keep your data',
     });
   }
 

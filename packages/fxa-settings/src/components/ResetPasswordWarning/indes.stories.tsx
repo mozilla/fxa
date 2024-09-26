@@ -3,29 +3,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import WarningMessage from '.';
-import AppLayout from '../AppLayout';
 import { Meta } from '@storybook/react';
-import {
-  MOCK_WARNING_MESSAGE_FTL_ID,
-  MOCK_WARNING_MESSAGE,
-  MOCK_WARNING_TYPE,
-} from './mocks';
 import { withLocalization } from 'fxa-react/lib/storybooks';
+import ResetPasswordWarning from '.';
+import AppLayout from '../AppLayout';
 
 export default {
-  title: 'Components/WarningMessage',
-  component: WarningMessage,
+  title: 'Components/ResetPasswordWarning',
+  component: ResetPasswordWarning,
   decorators: [withLocalization],
 } as Meta;
 
 export const Default = () => (
   <AppLayout>
-    <WarningMessage
-      warningMessageFtlId={MOCK_WARNING_MESSAGE_FTL_ID}
-      warningType={MOCK_WARNING_TYPE}
-    >
-      {MOCK_WARNING_MESSAGE}
-    </WarningMessage>
+    <ResetPasswordWarning />
   </AppLayout>
 );
