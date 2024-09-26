@@ -7,6 +7,7 @@ import { ProductConfigurationManager } from '@fxa/shared/cms';
 import { Injectable } from '@nestjs/common';
 import { mapParams } from './utils/mapParams';
 import { PaymentsGleanManager } from './glean.manager';
+import { AccountManager } from '@fxa/shared/account/account';
 import { SubplatInterval } from '@fxa/payments/customer';
 
 @Injectable()
@@ -15,7 +16,8 @@ export class PaymentsGleanService {
 
   constructor(
     private productConfigurationManager: ProductConfigurationManager,
-    private paymentsGleanManager: PaymentsGleanManager
+    private paymentsGleanManager: PaymentsGleanManager,
+    private accountManager: AccountManager
   ) {
     this.emitter = new Emittery<GleanEvents>();
     this.emitter.on(
@@ -30,9 +32,17 @@ export class PaymentsGleanService {
 
   async handleEventFxaPaySetupView(metricsData: FxaPaySetupViewMetrics) {
     const { offeringId, interval } = mapParams(metricsData.params);
-    const cmsData = await this.retrieveCMSData(offeringId, interval);
+    const [cmsData, optedOut] = await Promise.all([
+      this.retrieveCMSData(offeringId, interval),
+      this.retrieveOptOut(metricsData.uid),
+    ]);
 
-    await this.paymentsGleanManager.recordFxaPaySetupView(metricsData, cmsData);
+    if (!optedOut) {
+      await this.paymentsGleanManager.recordFxaPaySetupView(
+        metricsData,
+        cmsData
+      );
+    }
   }
 
   private async retrieveCMSData(offeringId: string, interval: SubplatInterval) {
@@ -52,5 +62,11 @@ export class PaymentsGleanService {
         productId: '',
       };
     }
+  }
+
+  private async retrieveOptOut(uid?: string): Promise<boolean> {
+    if (!uid) return false;
+    const accounts = await this.accountManager.getAccounts([uid]);
+    return accounts[0].metricsOptOutAt !== null;
   }
 }

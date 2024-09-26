@@ -6,6 +6,7 @@ export * from './lib/associated-types';
 export * from './lib/kysely-types';
 export {
   CartFactory,
+  AccountFactory,
   AccountCustomerFactory,
   PaypalCustomerFactory,
 } from './lib/factories';
