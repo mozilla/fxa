@@ -7,7 +7,8 @@
 import EventMetricType from '@mozilla/glean/private/metrics/event';
 
 /**
- * User clicks "Start browsing" on "Connect another device page"
+ * User clicks "Manage your account" on "Connect another device page". This CTA
+ * used to be "Start browsing".
  *
  * Generated from `cad.startbrowsing_submit`.
  */

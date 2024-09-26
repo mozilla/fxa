@@ -212,7 +212,7 @@ describe('views/ready', function () {
       });
     });
 
-    it('shows the `Start browsing` for Sync', () => {
+    it('shows the `Manage your account` for Sync', () => {
       createView(VerificationReasons.SIGN_UP);
       sinon.stub(relier, 'isSync').callsFake(() => true);
 
