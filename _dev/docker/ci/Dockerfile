@@ -43,3 +43,6 @@ COPY --chown=circleci:circleci --from=playwright-install /home/circleci/.cache/m
 COPY --chown=circleci:circleci project project
 WORKDIR /home/circleci/project
 COPY --chown=circleci:circleci install /usr/local/bin/
+
+# Run Playwright install command to ensure everything is up-to-date during runtime
+RUN npx playwright install
