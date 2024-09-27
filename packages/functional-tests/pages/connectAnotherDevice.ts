@@ -35,8 +35,8 @@ export class ConnectAnotherDevicePage extends BaseLayout {
     );
   }
 
-  get startBrowsingButton() {
-    return this.page.getByRole('link', { name: 'Start browsing' });
+  get manageYourAccountButton() {
+    return this.page.getByRole('link', { name: 'Manage your account' });
   }
 
   get installFxDesktop() {

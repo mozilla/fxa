@@ -124,9 +124,9 @@ const Ready = ({
               </p>
             </FtlMsg>
             <div className="flex justify-center mx-auto mt-6">
-              <FtlMsg id="ready-start-browsing-button">
+              <FtlMsg id="manage-your-account-button">
                 <button className="cta-primary cta-xl" onClick={startBrowsing}>
-                  Start browsing
+                  Manage your account
                 </button>
               </FtlMsg>
             </div>

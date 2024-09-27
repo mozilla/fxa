@@ -73,7 +73,7 @@ describe('ResetPasswordWithRecoveryKeyVerified', () => {
   //   bundle = await getFtlBundle('settings');
   // });
 
-  const startBrowsingText = 'Start browsing';
+  const startBrowsingText = 'Manage your account';
   const signedInText = 'You’re now ready to use account settings';
   const singedOutText = 'Your account is ready!';
   const syncText =

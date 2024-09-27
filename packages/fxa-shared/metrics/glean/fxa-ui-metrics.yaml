@@ -1727,7 +1727,7 @@ cad:
   startbrowsing_submit:
     type: event
     description: |
-      User clicks "Start browsing" on "Connect another device page"
+      User clicks "Manage your account" on "Connect another device page". This CTA used to be "Start browsing".
     send_in_pings:
       - events
     notification_emails:
