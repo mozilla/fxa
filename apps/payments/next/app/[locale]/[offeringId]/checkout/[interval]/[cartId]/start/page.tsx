@@ -78,7 +78,7 @@ export default async function Checkout({
               await signIn('fxa');
             }}
           >
-            <p className="text-grey-400 text-sm mt-2 pb-4 row-divider-grey-200">
+            <p className="text-grey-400 text-sm mt-2 pb-4 ">
               {l10n.getFragmentWithSource(
                 'next-new-user-sign-in-link-2',
                 {

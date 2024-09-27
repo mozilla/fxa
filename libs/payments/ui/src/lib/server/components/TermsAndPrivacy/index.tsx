@@ -29,7 +29,7 @@ function GenericTerms({
 }: GenericTermsProps) {
   return (
     <div
-      className="clear-both mt-5 text-xs leading-5 text-center"
+      className="mt-5 text-xs leading-5 text-center"
       role="group"
       aria-labelledby={titleId}
     >
@@ -37,7 +37,7 @@ function GenericTerms({
         {l10n.getString(titleLocalizationId, title)}
       </h3>
 
-      <ul className="flex justify-center gap-4 m-0 text-grey-500">
+      <ul className="tablet:flex tablet:justify-center gap-4 m-0 text-grey-500">
         {items.map((item) => (
           <li key={`span-${item.key}`}>
             <a

@@ -46,7 +46,6 @@ const WithCoupon = ({
         {readOnly ? null : (
           <span>
             <SubmitButton
-              className="w-24"
               variant={ButtonVariant.Secondary}
               data-testid="coupon-remove-button"
             >
@@ -109,7 +108,6 @@ const WithoutCoupon = ({
           </Localized>
           <div>
             <SubmitButton
-              className="w-20"
               variant={ButtonVariant.Primary}
               type="submit"
               data-testid="coupon-button"

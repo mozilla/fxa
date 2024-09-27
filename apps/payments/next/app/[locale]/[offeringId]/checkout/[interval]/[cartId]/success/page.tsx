@@ -31,7 +31,7 @@ const ConfirmationDetail = ({
   detail2,
 }: ConfirmationDetailProps) => {
   return (
-    <div className="row-divider-grey-200 pb-6 text-sm">
+    <div className="border-b border-grey-200 pb-6 text-sm">
       <div className="font-semibold py-4">{title}</div>
       <div className="flex items-center justify-between text-grey-400">
         <span>{detail1}</span>
@@ -86,7 +86,7 @@ export default async function CheckoutSuccess({
   return (
     <>
       <section className="h-[640px]" aria-label="Payment confirmation">
-        <div className="page-message-container row-divider-grey-200">
+        <div className="flex flex-col items-center text-center pb-8 mt-5 desktop:mt-2 border-b border-grey-200">
           <Image src={circledConfirm} alt="" className="w-16 h-16" />
 
           <h4 className="text-xl font-normal mx-0 mt-6 mb-3">
@@ -96,7 +96,7 @@ export default async function CheckoutSuccess({
             )}
           </h4>
 
-          <p className="page-message">
+          <p className="text-grey-400 max-w-sm text-sm">
             {l10n.getString(
               'next-payment-confirmation-thanks-subheading',
               {
@@ -158,7 +158,10 @@ export default async function CheckoutSuccess({
           )}
         />
 
-        <a className="page-button" href={successActionButtonUrl}>
+        <a
+          className="flex items-center justify-center bg-blue-500 hover:bg-blue-700 font-semibold h-12 my-8 rounded-md text-white w-full"
+          href={successActionButtonUrl}
+        >
           {successActionButtonLabel ||
             l10n.getString(
               'next-payment-confirmation-download-button',

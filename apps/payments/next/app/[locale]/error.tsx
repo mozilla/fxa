@@ -68,7 +68,7 @@ export default function Error({
 
   return (
     <section
-      className="page-message-container h-[640px]"
+      className="flex flex-col items-center text-center pb-8 mt-5 desktop:mt-2 h-[640px]"
       aria-label="Payment error"
     >
       <Image src={errorIcon} alt="" className="mt-16 mb-10" />
@@ -82,7 +82,7 @@ export default function Error({
           ),
         }}
       >
-        <p className="page-message px-7 py-0 mb-4 ">
+        <p className="text-grey-400 max-w-sm text-sm px-7 py-0 mb-4 ">
           Something went wrong. Please try again or
           <Link href={SUPPORT_URL} className="underline hover:text-grey-400">
             contact support.
@@ -90,18 +90,21 @@ export default function Error({
         </p>
       </Localized>
 
-      {hasProductData &&
-        (loading ? (
-          <button className="page-button" disabled>
-            <LoadingSpinner />
-          </button>
-        ) : (
-          <Localized id="checkout-error-boundary-retry-button">
-            <button className="page-button" onClick={handleProductRetry}>
+      {hasProductData && (
+        <button
+          className="flex items-center justify-center bg-blue-500 hover:bg-blue-700 font-semibold h-12 my-8 rounded-md text-white w-full"
+          disabled={loading}
+          onClick={handleProductRetry}
+        >
+          {loading ? (
+            <LoadingSpinner className="w-8 h-8" />
+          ) : (
+            <Localized id="checkout-error-boundary-retry-button">
               Try again
-            </button>
-          </Localized>
-        ))}
+            </Localized>
+          )}
+        </button>
+      )}
     </section>
   );
 }

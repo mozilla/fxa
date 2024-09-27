@@ -33,11 +33,14 @@ export function SubmitButton({
       className={className}
     >
       {isSubmitting ? (
-        <Image
-          src={spinnerWhiteImage}
-          alt=""
-          className="animate-spin h-9 w-9"
-        />
+        <>
+          <Image
+            src={spinnerWhiteImage}
+            alt=""
+            className="absolute animate-spin h-8 w-8"
+          />
+          <div className="text-transparent">{children}</div>
+        </>
       ) : (
         children
       )}
