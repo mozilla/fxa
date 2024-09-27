@@ -116,7 +116,7 @@ describe('AccountRecoveryConfirmKey', () => {
         expect(submitButton).toBeDisabled();
       });
 
-      it('with more than 32 characters', async () => {
+      it('with more than 32 characters extra characters are truncated', async () => {
         const user = userEvent.setup();
         renderWithLocalizationProvider(
           <Subject verifyRecoveryKey={mockVerifyRecoveryKey} />
@@ -127,7 +127,8 @@ describe('AccountRecoveryConfirmKey', () => {
         const input = screen.getByRole('textbox');
 
         await waitFor(() => user.type(input, `${MOCK_RECOVERY_KEY}abc`));
-        expect(submitButton).toBeDisabled();
+        expect(input).toHaveValue(MOCK_RECOVERY_KEY);
+        expect(submitButton).toBeEnabled();
       });
 
       it('with invalid Crockford base32', async () => {

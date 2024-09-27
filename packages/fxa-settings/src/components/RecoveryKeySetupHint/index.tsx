@@ -35,7 +35,7 @@ export const RecoveryKeySetupHint = ({
 }: RecoveryKeySetupHintProps) => {
   const [bannerText, setBannerText] = useState<string>();
   const [hintError, setHintError] = useState<string>();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitDisabled, setIsSubmitDisabled] = useState(false);
   const ftlMsgResolver = useFtlMsgResolver();
 
   const { control, getValues, handleSubmit, register } = useForm<FormData>({
@@ -67,7 +67,7 @@ export const RecoveryKeySetupHint = ({
   };
 
   const onSubmit = async ({ hint }: FormData) => {
-    setIsLoading(true);
+    setIsSubmitDisabled(true);
     const trimmedHint = hint.trim();
 
     if (trimmedHint.length === 0) {
@@ -98,8 +98,6 @@ export const RecoveryKeySetupHint = ({
           }
           setBannerText(localizedError);
           logViewEvent(`flow.${viewName}`, 'create-hint.fail', e);
-        } finally {
-          setIsLoading(false);
         }
       }
     }
@@ -116,6 +114,7 @@ export const RecoveryKeySetupHint = ({
       defaultValue: getValues().hint,
     });
     const isTooLong: boolean = hint.length > MAX_HINT_LENGTH;
+
     return (
       <p
         className={classNames('text-end text-xs mt-2', {
@@ -159,7 +158,9 @@ export const RecoveryKeySetupHint = ({
             onChange={() => {
               setHintError(undefined);
               setBannerText(undefined);
+              isSubmitDisabled && setIsSubmitDisabled(false);
             }}
+            maxLength={MAX_HINT_LENGTH}
             {...{ errorText: hintError }}
           />
         </FtlMsg>
@@ -168,7 +169,7 @@ export const RecoveryKeySetupHint = ({
           <button
             className="cta-primary cta-xl w-full mt-6 mb-4"
             type="submit"
-            disabled={isLoading}
+            disabled={isSubmitDisabled}
           >
             Finish
           </button>
