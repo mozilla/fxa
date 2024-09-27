@@ -104,5 +104,5 @@
       }
     }
   },
-  "tags": ["app", "payments", "type:sp3"]
+  "tags": ["app", "payments", "type:sp3", "payments-next"]
 }

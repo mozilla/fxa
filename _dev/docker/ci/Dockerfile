@@ -38,6 +38,8 @@ RUN npx playwright install --with-deps firefox chromium webkit;
 # Runs functional tests in our CI. Needs minimal install. Assumes
 # workspace will be restored into the project folder.
 FROM cimg/node:20.11-browsers as functional-test-runner
+RUN sudo apt-get update && sudo apt-get install -y \
+    python3-venv
 WORKDIR /home/circleci
 COPY --chown=circleci:circleci --from=playwright-install /home/circleci/.cache/ms-playwright .cache/ms-playwright/
 COPY --chown=circleci:circleci project project
