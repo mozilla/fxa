@@ -28796,9 +28796,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"aws-sdk@npm:^2.1664.0":
-  version: 2.1664.0
-  resolution: "aws-sdk@npm:2.1664.0"
+"aws-sdk@npm:^2.1691.0":
+  version: 2.1691.0
+  resolution: "aws-sdk@npm:2.1691.0"
   dependencies:
     buffer: 4.9.2
     events: 1.1.1
@@ -28810,7 +28810,7 @@ __metadata:
     util: ^0.12.4
     uuid: 8.0.0
     xml2js: 0.6.2
-  checksum: 144bb86f4726eea7fc7a0454211947a407e359b70c8a1dfde6c44c6b77cd2bc222f692b983f64e0c6ae5a8d6eb9f95596aeba1cc182acfaa56c9fb52133c8b24
+  checksum: 8a7d614e98aedd7afa04792be38c377609a59424e966302aa26bec958c83f868f56a95a1bf78e8a897be243e16ea8c895c3a81f1ad794195743e8f8cc3dc8513
   languageName: node
   linkType: hard
 
@@ -40874,7 +40874,7 @@ fsevents@~2.1.1:
     app-store-server-api: ^0.7.0
     async-retry: ^1.3.3
     audit-filter: ^0.5.0
-    aws-sdk: ^2.1664.0
+    aws-sdk: ^2.1691.0
     babel-loader: ^9.1.3
     binary-split: 1.0.5
     buf: 0.1.1
@@ -41448,7 +41448,7 @@ fsevents@~2.1.1:
     "@hapi/inert": 7.1.0
     "@types/sharp": ^0
     audit-filter: ^0.5.0
-    aws-sdk: ^2.1664.0
+    aws-sdk: ^2.1691.0
     bluebird: ^3.7.2
     buf: 0.1.1
     checksum: 1.0.0
@@ -41706,7 +41706,7 @@ fsevents@~2.1.1:
     ajv: ^8.17.1
     app-store-server-api: ^0.7.0
     audit-filter: ^0.5.0
-    aws-sdk: ^2.1664.0
+    aws-sdk: ^2.1691.0
     buf: ^0.1.1
     celebrate: ^15.0.1
     chai: ^4.5.0
