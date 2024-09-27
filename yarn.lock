@@ -25828,14 +25828,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/webpack@npm:5.28.0":
-  version: 5.28.0
-  resolution: "@types/webpack@npm:5.28.0"
+"@types/webpack@npm:5.28.5":
+  version: 5.28.5
+  resolution: "@types/webpack@npm:5.28.5"
   dependencies:
     "@types/node": "*"
     tapable: ^2.2.0
     webpack: ^5
-  checksum: a038d7e12dd109c6a8d2eb744fd32070ef94f1655e730fb1443b370db98864c3a0e408638b02d12ba08269b9c012b3be8b801117ced2d1102e7676203fd663ed
+  checksum: 14359d9ccecef7ef1ea271c00baec5337213c7fda63a34c61b9e519505b3928d0807cdbb5b1172d1994e1179920b89c57eaf2cbf64599958b67cd70720ac2a9b
   languageName: node
   linkType: hard
 
@@ -40753,7 +40753,7 @@ fsevents@~2.1.1:
     tailwindcss: 3.4.3
     tailwindcss-textshadow: ^2.1.3
     typescript: ^5.5.3
-    webpack: ^5.94.0
+    webpack: ^5.95.0
   languageName: unknown
   linkType: soft
 
@@ -40868,7 +40868,7 @@ fsevents@~2.1.1:
     "@types/sass": ^1
     "@types/uuid": ^10.0.0
     "@types/verror": ^1.10.4
-    "@types/webpack": 5.28.0
+    "@types/webpack": 5.28.5
     agentkeepalive: ^4.5.0
     ajv: ^8.17.1
     app-store-server-api: ^0.7.0
@@ -40965,7 +40965,7 @@ fsevents@~2.1.1:
     uuid: ^10.0.0
     verror: ^1.10.1
     web-push: 3.4.4
-    webpack: ^5.94.0
+    webpack: ^5.95.0
     webpack-watch-files-plugin: ^1.2.1
     ws: ^8.17.1
   bin:
@@ -41121,7 +41121,7 @@ fsevents@~2.1.1:
     url-loader: 4.1.1
     verror: 1.10.1
     webcrypto-liner: 1.4.0
-    webpack: ^5.94.0
+    webpack: ^5.95.0
     webpack-cli: ^5.1.4
     webpack-dev-middleware: ^7.4.0
     xmlhttprequest: ^1.8.0
@@ -41366,7 +41366,7 @@ fsevents@~2.1.1:
     "@types/storybook__addon-links": ^5.2.1
     "@types/superagent": ^4.1.11
     "@types/uuid": ^10.0.0
-    "@types/webpack": 5.28.0
+    "@types/webpack": 5.28.5
     "@typescript-eslint/eslint-plugin": ^5.59.0
     "@typescript-eslint/parser": ^7.1.1
     accept-language-parser: ^1.5.0
@@ -41433,7 +41433,7 @@ fsevents@~2.1.1:
     typescript: ^5.5.3
     uuid: ^10.0.0
     wait-for-expect: ^3.0.2
-    webpack: ^5.94.0
+    webpack: ^5.95.0
   languageName: unknown
   linkType: soft
 
@@ -41542,7 +41542,7 @@ fsevents@~2.1.1:
     tailwindcss-dir: ^4.0.0
     tsc-alias: ^1.8.8
     typescript: ^5.5.3
-    webpack: ^5.94.0
+    webpack: ^5.95.0
   languageName: unknown
   linkType: soft
 
@@ -41590,7 +41590,7 @@ fsevents@~2.1.1:
     "@types/testing-library__react-hooks": ^4
     "@types/ua-parser-js": ^0.7.36
     "@types/uuid": ^10
-    "@types/webpack": 5.28.0
+    "@types/webpack": 5.28.5
     babel-jest: ^29.7.0
     babel-loader: ^9.1.3
     babel-plugin-named-exports-order: ^0.0.2
@@ -41670,7 +41670,7 @@ fsevents@~2.1.1:
     typescript: ^5.5.3
     ua-parser-js: 1.0.35
     uuid: ^10.0.0
-    webpack: ^5.94.0
+    webpack: ^5.95.0
     webpack-dev-server: ^4.6.0
     webpack-manifest-plugin: ^5.0.0
     workbox-webpack-plugin: ^7.1.0
@@ -69517,9 +69517,9 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"webpack@npm:^5.94.0":
-  version: 5.94.0
-  resolution: "webpack@npm:5.94.0"
+"webpack@npm:^5.95.0":
+  version: 5.95.0
+  resolution: "webpack@npm:5.95.0"
   dependencies:
     "@types/estree": ^1.0.5
     "@webassemblyjs/ast": ^1.12.1
@@ -69549,7 +69549,7 @@ resolve@1.1.7:
       optional: true
   bin:
     webpack: bin/webpack.js
-  checksum: 6a3d667be304a69cd6dcb8d676bc29f47642c0d389af514cfcd646eaaa809961bc6989fc4b2621a717dfc461130f29c6e20006d62a32e012dafaa9517813a4e6
+  checksum: 0c3dfe288de4d62f8f3dc25478a618894883cab739121330763b7847e43304630ea2815ae2351a5f8ff6ab7c9642caf530d503d89bda261fe2cd220e524dd5d1
   languageName: node
   linkType: hard
 
