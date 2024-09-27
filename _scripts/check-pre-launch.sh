@@ -30,3 +30,17 @@ if [ -z $(jq -r ".googleAuthConfig.clientId // empty" $FILE) ]; then
   echo "❌ $FILE is missing the googleAuthConfig.clientId key.  Google 3rd Party Auth won't be functional without it."
   echo "    See https://mozilla.github.io/ecosystem-platform/tutorials/development-setup#step-3-optional-additions"
 fi
+
+# Pull docker images before startup. Some docker images are large, and downloading them
+# at runtime can result in a the appearance of a hanging system. This is especially if a
+# developer has a slow internet connection and no docker images cached.
+echo "Pulling required docker images"
+docker pull mozilla/cirrus:latest
+docker pull ghcr.io/aertje/cloud-tasks-emulator:latest
+docker pull andreysenov/firebase-tools:latest
+docker pull andreysenov/firebase-tools:latest
+docker pull pafortin/goaws:latest
+docker pull jaegertracing/all-in-one:latest
+docker pull mysql/mysql-server:8.0
+docker pull otel/opentelemetry-collector-contrib:0.61.0
+docker pull redis:latest

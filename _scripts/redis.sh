@@ -6,4 +6,4 @@ else
     REQUIREPASS_ARG="--requirepass $REDIS_PASSWORD";
 fi
 
-docker run --rm --name redis-server --net fxa -p 6379:6379 redis $REQUIREPASS_ARG
+docker run --rm --name redis-server --net fxa -p 6379:6379 redis:latest $REQUIREPASS_ARG
