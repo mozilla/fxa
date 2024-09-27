@@ -26,7 +26,7 @@ import {
   CheckoutCustomerData,
   ResultCart,
   UpdateCart,
-  WithUpcomingInvoiceCart,
+  WithContextCart,
 } from './cart.types';
 import { handleEligibilityStatusMap } from './cart.utils';
 import { CheckoutService } from './checkout.service';
@@ -34,11 +34,13 @@ import {
   CartInvalidCurrencyError,
   CartInvalidPromoCodeError,
 } from './cart.error';
+import { AccountManager } from '@fxa/shared/account/account';
 
 @Injectable()
 export class CartService {
   constructor(
     private accountCustomerManager: AccountCustomerManager,
+    private accountManager: AccountManager,
     private cartManager: CartManager,
     private checkoutService: CheckoutService,
     private currencyManager: CurrencyManager,
@@ -69,14 +71,13 @@ export class CartService {
     // - Fetch stripeCustomerId if uid is passed and has a customer id
     let accountCustomer;
     if (args.uid) {
-      try {
-        accountCustomer =
-          await this.accountCustomerManager.getAccountCustomerByUid(args.uid);
-      } catch (error) {
-        if (!(error instanceof AccountCustomerNotFoundError)) {
-          throw error;
-        }
-      }
+      accountCustomer = await this.accountCustomerManager
+        .getAccountCustomerByUid(args.uid)
+        .catch((error) => {
+          if (!(error instanceof AccountCustomerNotFoundError)) {
+            throw error;
+          }
+        });
     }
 
     const stripeCustomerId = accountCustomer?.stripeCustomerId;
@@ -93,18 +94,20 @@ export class CartService {
       args.interval
     );
 
-    const upcomingInvoice = await this.invoiceManager.preview({
-      priceId: price.id,
-      customer: stripeCustomer,
-      taxAddress: taxAddress,
-      couponCode: args.promoCode,
-    });
+    const [upcomingInvoice, eligibility] = await Promise.all([
+      this.invoiceManager.preview({
+        priceId: price.id,
+        customer: stripeCustomer,
+        taxAddress: taxAddress,
+        couponCode: args.promoCode,
+      }),
+      this.eligibilityService.checkEligibility(
+        args.interval,
+        args.offeringConfigId,
+        accountCustomer?.stripeCustomerId
+      ),
+    ]);
 
-    const eligibility = await this.eligibilityService.checkEligibility(
-      args.interval,
-      args.offeringConfigId,
-      accountCustomer?.stripeCustomerId
-    );
     const cartEligibilityStatus = handleEligibilityStatusMap[eligibility];
 
     if (args.promoCode) {
@@ -167,7 +170,7 @@ export class CartService {
       }
     }
 
-    const newCart = this.cartManager.createCart({
+    return await this.cartManager.createCart({
       uid: oldCart.uid,
       interval: oldCart.interval,
       offeringConfigId: oldCart.offeringConfigId,
@@ -180,8 +183,6 @@ export class CartService {
       amount: oldCart.amount,
       eligibilityStatus: oldCart.eligibilityStatus,
     });
-
-    return newCart;
   }
 
   async checkoutCartWithStripe(
@@ -255,8 +256,8 @@ export class CartService {
    * Update a cart in the database by ID or with an existing cart reference
    */
   async updateCart(cartId: string, version: number, cartDetails: UpdateCart) {
+    const oldCart = await this.cartManager.fetchCartById(cartId);
     if (cartDetails?.couponCode) {
-      const oldCart = await this.cartManager.fetchCartById(cartId);
       const price = await this.productConfigurationManager.retrieveStripePrice(
         oldCart.offeringConfigId,
         oldCart.interval as SubplatInterval
@@ -286,13 +287,16 @@ export class CartService {
   /**
    * Fetch a cart from the database by ID
    */
-  async getCart(cartId: string): Promise<WithUpcomingInvoiceCart> {
+  async getCart(cartId: string): Promise<WithContextCart> {
     const cart = await this.cartManager.fetchCartById(cartId);
 
-    const price = await this.productConfigurationManager.retrieveStripePrice(
-      cart.offeringConfigId,
-      cart.interval as SubplatInterval
-    );
+    const [price, metricsOptedOut] = await Promise.all([
+      this.productConfigurationManager.retrieveStripePrice(
+        cart.offeringConfigId,
+        cart.interval as SubplatInterval
+      ),
+      this.metricsOptedOut(cart.uid),
+    ]);
 
     let customer: StripeCustomer | undefined;
     if (cart.stripeCustomerId) {
@@ -309,6 +313,18 @@ export class CartService {
     return {
       ...cart,
       invoicePreview,
+      metricsOptedOut,
     };
+  }
+
+  async metricsOptedOut(accountId?: string): Promise<boolean> {
+    if (accountId) {
+      const accountResp = await this.accountManager.getAccounts([accountId]);
+      return accountResp && accountResp.length > 0
+        ? accountResp[0].metricsOptOutAt !== null
+        : false;
+    } else {
+      return false;
+    }
   }
 }

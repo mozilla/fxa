@@ -12,6 +12,7 @@ export * from './lib/client/components/PaymentSection';
 export * from './lib/client/components/PurchaseDetails';
 export * from './lib/client/components/SubmitButton';
 export * from './lib/client/components/LoadingSpinner';
+export * from './lib/client/components/MetricsWrapper';
 export * from './lib/client/providers/Providers';
 export * from './lib/utils/helpers';
 export * from './lib/utils/types';

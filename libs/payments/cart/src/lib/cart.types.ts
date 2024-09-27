@@ -44,8 +44,9 @@ export type ResultCart = Readonly<Omit<Cart, 'id' | 'uid'>> & {
   readonly uid?: string;
 };
 
-export type WithUpcomingInvoiceCart = ResultCart & {
+export type WithContextCart = ResultCart & {
   invoicePreview: Invoice;
+  metricsOptedOut: boolean;
 };
 
 export type SetupCart = {
