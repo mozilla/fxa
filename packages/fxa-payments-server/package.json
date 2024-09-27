@@ -87,7 +87,7 @@
     "@types/storybook__addon-links": "^5.2.1",
     "@types/superagent": "^4.1.11",
     "@types/uuid": "^10.0.0",
-    "@types/webpack": "5.28.0",
+    "@types/webpack": "5.28.5",
     "@typescript-eslint/eslint-plugin": "^5.59.0",
     "@typescript-eslint/parser": "^7.1.1",
     "audit-filter": "^0.5.0",
@@ -120,7 +120,7 @@
     "tailwindcss": "3.4.3",
     "typescript": "^5.5.3",
     "wait-for-expect": "^3.0.2",
-    "webpack": "^5.94.0"
+    "webpack": "^5.95.0"
   },
   "dependencies": {
     "@stripe/react-stripe-js": "^2.7.1",
