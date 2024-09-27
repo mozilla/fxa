@@ -298,6 +298,10 @@ const SigninContainer = ({
       if (
         'data' in result &&
         result.data &&
+        // NOTE, Oauth desktop needs to add `service=sync` as a query parameter for this
+        // to take users to the inline recovery key flow (SYNC-4408). (We may want
+        // check for client ID to determine oauth desktop instead, TBD slight refactor for
+        // FXA-10313).
         options.service === 'sync' &&
         config.featureFlags?.recoveryCodeSetupOnSyncSignIn === true &&
         localStorage.getItem(

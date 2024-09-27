@@ -295,7 +295,7 @@
         "id": "5882386c6d801776",
         "hashedSecret": "71b5283536f1f1c331eca2f75c58a5947d7a7ac54164eadb4b33a889afe89fbf",
         "imageUri": "",
-        "redirectUri": "urn:ietf:wg:oauth:2.0:oob:oauth-redirect-webchannel",
+        "redirectUri": "urn:ietf:wg:oauth:2.0:oob:oauth-redirect-webchannel,http://localhost:3030/oauth/success/5882386c6d801776",
         "allowedScopes": "https://identity.mozilla.com/apps/oldsync https://identity.mozilla.com/tokens/session https://identity.mozilla.com/ids/ecosystem_telemetry",
         "trusted": true,
         "canGrant": true,

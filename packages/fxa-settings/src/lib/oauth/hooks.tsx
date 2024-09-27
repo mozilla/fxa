@@ -15,7 +15,7 @@ import { Constants } from '../constants';
 import { AuthError, OAUTH_ERRORS, OAuthError } from './oauth-errors';
 import { AuthUiErrors } from '../auth-errors/auth-errors';
 
-type OAuthCode = {
+export type OAuthData = {
   code: string;
   state: string;
   redirect: string; // you probably don't want this, see comment below
@@ -107,7 +107,7 @@ async function constructKeysJwe(
  * @param keysJwe - An encrypted JWE bundle of key material, to be returned to the client when it redeems the authorization code
  * @returns An OAuth code
  */
-async function constructOAuthCode(
+async function getOAuthData(
   authClient: AuthClient,
   integration: OAuthIntegration,
   sessionToken: string,
@@ -126,7 +126,7 @@ async function constructOAuthCode(
     opts.access_type = integration.data.accessType;
   }
 
-  const result: OAuthCode | null = await authClient.createOAuthCode(
+  const result: OAuthData | null = await authClient.createOAuthCode(
     sessionToken,
     integration.data.clientId,
     integration.data.state,
@@ -141,14 +141,14 @@ async function constructOAuthCode(
  * @param oauthCode
  * @returns
  */
-function constructOAuthRedirectUrl(oauthCode: OAuthCode, redirectUri: string) {
+function constructOAuthRedirectUrl(oauthData: OAuthData, redirectUri: string) {
   // Update the state of the redirect URI
   let constructedRedirectUri = new URL(redirectUri);
-  if (oauthCode.code) {
-    constructedRedirectUri.searchParams.set('code', oauthCode.code);
+  if (oauthData.code) {
+    constructedRedirectUri.searchParams.set('code', oauthData.code);
   }
-  if (oauthCode.state) {
-    constructedRedirectUri.searchParams.set('state', oauthCode.state);
+  if (oauthData.state) {
+    constructedRedirectUri.searchParams.set('state', oauthData.state);
   }
   return constructedRedirectUri;
 }
@@ -213,15 +213,15 @@ export function useFinishOAuthFlowHandler(
       // using the relier's locally-validated redirectUri (clientInfo.redirectUri).
       // The previous 'redirect' is still included in the oAuthCode object, but is rejected by the relier
       // as having incorrect state if used directly unless the redirect URI is not provided by the relier
-      let oAuthCode;
+      let oAuthData;
       try {
-        oAuthCode = await constructOAuthCode(
+        oAuthData = await getOAuthData(
           authClient,
           oAuthIntegration,
           sessionToken,
           keys
         );
-        if (!oAuthCode) throw new OAuthError('INVALID_RESULT');
+        if (!oAuthData) throw new OAuthError('INVALID_RESULT');
       } catch (error) {
         // We only care about these errors, else just tell the user to try again.
         if (
@@ -236,7 +236,7 @@ export function useFinishOAuthFlowHandler(
       const redirect = isSyncOAuth
         ? Constants.OAUTH_WEBCHANNEL_REDIRECT
         : constructOAuthRedirectUrl(
-            oAuthCode,
+            oAuthData,
             // We know this is not falsey because this value will have already been checked
             oAuthIntegration.clientInfo?.redirectUri!
           ).href;
@@ -247,11 +247,11 @@ export function useFinishOAuthFlowHandler(
       // the server occurs to get the state from
       // the redirect_uri returned when creating
       // the token or code.
-      const state = isSyncOAuth ? integration.data.state : oAuthCode.state;
+      const state = isSyncOAuth ? integration.data.state : oAuthData.state;
 
       return {
         redirect,
-        code: oAuthCode.code,
+        code: oAuthData.code,
         state,
       };
     },

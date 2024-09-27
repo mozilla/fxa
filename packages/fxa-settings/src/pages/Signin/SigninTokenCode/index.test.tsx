@@ -254,7 +254,9 @@ describe('SigninTokenCode page', () => {
 
         await expectSuccessGleanEvents();
         expect(hardNavigateSpy).toHaveBeenCalledWith(
-          '/post_verify/password/force_password_change'
+          '/post_verify/password/force_password_change',
+          {},
+          true
         );
       });
       // it('with sync integration', () => {
