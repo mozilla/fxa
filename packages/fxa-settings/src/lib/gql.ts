@@ -148,7 +148,7 @@ export function createApolloClient(gqlServerUri: string) {
   // errorLink handles error responses from the server
   const errorLink = onError(errorHandler);
 
-  apolloClientInstance = new ApolloClient({
+  const apolloClientConfig = {
     cache,
     link: from([
       errorLink,
@@ -158,7 +158,13 @@ export function createApolloClient(gqlServerUri: string) {
       httpLink,
     ]),
     typeDefs,
-  });
+    connectToDevTools: window.location.host === 'localhost:3030',
+    devtools: {
+      enabled: window.location.host === 'localhost:3030',
+      name: window.location.host === 'localhost:3030' ? 'settings' : '',
+    },
+  };
+  apolloClientInstance = new ApolloClient(apolloClientConfig);
 
   return apolloClientInstance;
 }
