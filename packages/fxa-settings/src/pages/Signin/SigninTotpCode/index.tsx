@@ -7,8 +7,6 @@ import { Link, RouteComponentProps, useLocation } from '@reach/router';
 import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
 import { useFtlMsgResolver } from '../../../models';
 import { logViewEvent } from '../../../lib/metrics';
-import { TwoFactorAuthImage } from '../../../components/images';
-import CardHeader from '../../../components/CardHeader';
 import FormVerifyCode, {
   FormAttributes,
 } from '../../../components/FormVerifyCode';
@@ -25,6 +23,7 @@ import {
   BeginSigninError,
   getLocalizedErrorMessage,
 } from '../../../lib/error-utils';
+import protectionShieldIcon from './protection-shield.svg';
 
 // TODO: show a banner success message if a user is coming from reset password
 // in FXA-6491. This differs from content-server where currently, users only
@@ -75,8 +74,8 @@ export const SigninTotpCode = ({
   );
 
   const formAttributes: FormAttributes = {
-    inputFtlId: 'signin-totp-code-input-label-v2',
-    inputLabelText: 'Enter 6-digit code',
+    inputFtlId: 'signin-totp-code-input-label-v3',
+    inputLabelText: 'Enter code',
     pattern: '[0-9]{6}',
     maxLength: 6,
     submitButtonFtlId: 'signin-totp-code-confirm-button',
@@ -141,25 +140,22 @@ export const SigninTotpCode = ({
 
   return (
     <AppLayout>
-      <CardHeader
-        headingWithDefaultServiceFtlId="signin-totp-code-heading-w-default-service-v2"
-        headingWithCustomServiceFtlId="signin-totp-code-heading-w-custom-service-v2"
-        headingText="Enter authentication code"
-        {...{ serviceName }}
-      />
+      <h2 className="font-bold text-xl text-left">
+        <FtlMsg id="signin-totp-code-subheader">
+          Enter your two-factor authentication security code (2FA)
+        </FtlMsg>
+      </h2>
 
-      {bannerError && <Banner type={BannerType.error}>{bannerError}</Banner>}
-
-      <div className="flex justify-center mx-auto">
-        <TwoFactorAuthImage className="w-3/5" />
+      <div className="flex space-x-4">
+        <img src={protectionShieldIcon} alt="" />
+        <FtlMsg id="signin-totp-code-instruction-v3">
+          <p id="totp-code-instruction" className="my-5 text-md text-left">
+            Check your authenticator app to confirm your sign-in.
+          </p>
+        </FtlMsg>
       </div>
 
-      <FtlMsg id="signin-totp-code-instruction-v2">
-        <p id="totp-code-instruction" className="my-5 text-sm">
-          Open your authentication app and enter the authentication code it
-          provides.
-        </p>
-      </FtlMsg>
+      {bannerError && <Banner type={BannerType.error}>{bannerError}</Banner>}
 
       <FormVerifyCode
         {...{

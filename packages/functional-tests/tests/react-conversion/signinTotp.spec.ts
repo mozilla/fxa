@@ -16,7 +16,7 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('add totp', async ({
-      pages: { settings, totp, page, signin, signup },
+      pages: { settings, totp, page, signin, signup, signinTotpCode },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
@@ -41,8 +41,9 @@ test.describe('severity-1 #smoke', () => {
       await signin.goto();
       await signup.fillOutEmailForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
-      const code = await getCode(secret);
-      await signin.fillOutAuthenticationForm(code);
+      await page.waitForURL(/signin_totp_code/);
+      const totpCode = await getCode(secret);
+      await signinTotpCode.fillOutCodeForm(totpCode);
 
       await expect(page).toHaveURL(/settings/);
       await expect(settings.settingsHeading).toBeVisible();
@@ -59,6 +60,7 @@ test.describe('severity-1 #smoke', () => {
         page,
         signin,
         signup,
+        signinTotpCode,
       },
       testAccountTracker,
     }) => {
@@ -90,8 +92,9 @@ test.describe('severity-1 #smoke', () => {
 
       await signup.fillOutEmailForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
-      const code = await getCode(secret);
-      await signin.fillOutAuthenticationForm(code);
+      await page.waitForURL(/signin_totp_code/);
+      const totpCode = await getCode(secret);
+      await signinTotpCode.fillOutCodeForm(totpCode);
 
       await expect(page).toHaveURL(/pair/);
 
@@ -102,7 +105,7 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('error message when totp code is invalid', async ({
-      pages: { settings, totp, signin, signup },
+      pages: { page, settings, totp, signin, signup, signinTotpCode },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
@@ -127,7 +130,9 @@ test.describe('severity-1 #smoke', () => {
       await signin.goto();
       await signup.fillOutEmailForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
-      await signin.fillOutAuthenticationForm('111111');
+
+      await page.waitForURL(/signin_totp_code/);
+      await signinTotpCode.fillOutCodeForm('111111');
 
       await expect(signin.authenticationCodeTextboxTooltip).toHaveText(
         'Invalid two-step authentication code'
@@ -135,7 +140,7 @@ test.describe('severity-1 #smoke', () => {
 
       // Required before teardown
       const code = await getCode(secret);
-      await signin.fillOutAuthenticationForm(code);
+      await signinTotpCode.fillOutCodeForm(code);
       await settings.disconnectTotp();
     });
   });

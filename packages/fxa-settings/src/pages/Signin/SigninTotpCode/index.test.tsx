@@ -78,11 +78,11 @@ describe('Sign in with TOTP code page', () => {
     renderWithLocalizationProvider(<Subject />);
     // testAllL10n(screen, bundle);
 
-    const headingEl = screen.getByRole('heading', { level: 1 });
+    const headingEl = screen.getByRole('heading', { level: 2 });
     expect(headingEl).toHaveTextContent(
-      'Enter authentication code to continue to account settings'
+      'Enter your two-factor authentication security code (2FA)'
     );
-    screen.getByLabelText('Enter 6-digit code');
+    screen.getByLabelText('Enter code');
 
     screen.getByRole('button', { name: 'Confirm' });
     screen.getByRole('link', { name: 'Use a different account' });
@@ -97,9 +97,9 @@ describe('Sign in with TOTP code page', () => {
         }}
       />
     );
-    const headingEl = screen.getByRole('heading', { level: 1 });
+    const headingEl = screen.getByRole('heading', { level: 2 });
     expect(headingEl).toHaveTextContent(
-      'Enter authentication code to continue to Mozilla VPN'
+      'Enter your two-factor authentication security code (2FA)'
     );
   });
 
@@ -132,7 +132,7 @@ describe('Sign in with TOTP code page', () => {
         />
       );
 
-      fireEvent.input(screen.getByLabelText('Enter 6-digit code'), {
+      fireEvent.input(screen.getByLabelText('Enter code'), {
         target: { value: '123456' },
       });
       screen.getByRole('button', { name: 'Confirm' }).click();
