@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { screen } from '@testing-library/react';
+import { screen, act } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import HeaderLockup from '.';
 import { createMockSettingsIntegration } from '../mocks';
@@ -48,7 +48,9 @@ describe('HeaderLockup', () => {
     renderWithLocalizationProvider(
       <HeaderLockup integration={createMockSettingsIntegration()} />
     );
-    await userEvent.click(screen.getByRole('link', { name: 'Help' }));
+    await act(async () => {
+      await userEvent.click(screen.getByRole('link', { name: 'Help' }));
+    });
     expect(GleanMetrics.accountPref.help).toHaveBeenCalled();
   });
 });

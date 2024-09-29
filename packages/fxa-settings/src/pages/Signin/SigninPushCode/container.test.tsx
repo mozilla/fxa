@@ -11,14 +11,12 @@ import { Integration } from '../../../models';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { LocationProvider } from '@reach/router';
 import SigninPushCodeContainer from './container';
-import { waitFor } from '@testing-library/react';
+import { waitFor, act } from '@testing-library/react';
 import { MOCK_EMAIL, MOCK_STORED_ACCOUNT } from '../../mocks';
 import {
   createMockSigninLocationState,
   createMockSyncIntegration,
 } from './mocks';
-
-import { act } from 'react-dom/test-utils';
 
 import { MozServices } from '../../../lib/types';
 

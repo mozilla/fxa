@@ -36,6 +36,7 @@ import { SigninFormData, SigninProps } from './interfaces';
 import { handleNavigation } from './utils';
 import { useWebRedirect } from '../../lib/hooks/useWebRedirect';
 import { getLocalizedErrorMessage } from '../../lib/error-utils';
+import { act } from '@testing-library/react';
 
 export const viewName = 'signin';
 
@@ -177,6 +178,7 @@ const Signin = ({
       GleanMetrics.login.submit();
 
       setSigninLoading(true);
+
       const { data, error } = await beginSigninHandler(email, password);
 
       if (data) {

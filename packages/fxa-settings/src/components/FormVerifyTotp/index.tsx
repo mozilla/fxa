@@ -9,6 +9,7 @@ import { getLocalizedErrorMessage } from '../../lib/error-utils';
 import { useFtlMsgResolver } from '../../models';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { FormVerifyTotpProps, VerifyTotpFormData } from './interfaces';
+import { act } from '@testing-library/react';
 
 // Split inputs are not recommended for accesibility
 // Code inputs should be a single input field
@@ -48,9 +49,11 @@ const FormVerifyTotp = ({
     );
     e.target.value = filteredCode;
     console.log(e.target.value.length);
-    e.target.value.length === codeLength
-      ? setIsSubmitDisabled(false)
-      : setIsSubmitDisabled(true);
+    act(() => {
+      e.target.value.length === codeLength
+        ? setIsSubmitDisabled(false)
+        : setIsSubmitDisabled(true);
+    });
   };
 
   const onSubmit = async ({ code }: VerifyTotpFormData) => {

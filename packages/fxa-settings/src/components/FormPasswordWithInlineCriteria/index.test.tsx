@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { screen, fireEvent, waitFor } from '@testing-library/react';
+import { screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { UserEvent, userEvent } from '@testing-library/user-event';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
@@ -56,8 +56,9 @@ describe('FormPasswordWithInlineCriteria component', () => {
   it('disallows space-only passwords', async () => {
     renderWithLocalizationProvider(<Subject passwordFormType="signup" />);
     const passwordField = screen.getByLabelText('Password');
-    await user.type(passwordField, '        ');
-
+    await act(async () => {
+      await user.type(passwordField, '        ');
+    });
     expect(screen.getAllByLabelText('passed')).toHaveLength(2);
     expect(screen.getAllByLabelText('failed')).toHaveLength(1);
     const passwordMinCharRequirement = screen.getByTestId(
@@ -71,7 +72,9 @@ describe('FormPasswordWithInlineCriteria component', () => {
   it('disallows common passwords', async () => {
     renderWithLocalizationProvider(<Subject passwordFormType="signup" />);
     const passwordField = screen.getByLabelText('Password');
-    await user.type(passwordField, 'mozilla accounts');
+    await act(async () => {
+      await user.type(passwordField, 'mozilla accounts');
+    });
     expect(screen.getAllByLabelText('passed')).toHaveLength(2);
     expect(screen.getAllByLabelText('failed')).toHaveLength(1);
     expect(
