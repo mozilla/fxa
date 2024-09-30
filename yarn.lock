@@ -12734,6 +12734,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@keyv/serialize@npm:*":
+  version: 1.0.1
+  resolution: "@keyv/serialize@npm:1.0.1"
+  dependencies:
+    buffer: ^6.0.3
+  checksum: ff3dd9a6246b17fca3d1b0aba312dea931059fdecc36027f4d8133e59dbb3554a0a516b1f3dfc7fb2b3ca7a3d6fa307804f299566ab214febd3fb9d0502eebed
+  languageName: node
+  linkType: hard
+
 "@leichtgewicht/ip-codec@npm:^2.0.1":
   version: 2.0.4
   resolution: "@leichtgewicht/ip-codec@npm:2.0.4"
@@ -40918,7 +40927,7 @@ fsevents@~2.1.1:
     jwks-rsa: ^3.1.0
     jws: 4.0.0
     keypair: 1.0.4
-    keyv: 4.5.0
+    keyv: 5.0.3
     leftpad: 0.0.1
     load-grunt-tasks: ^5.1.0
     lodash: ^4.17.21
@@ -50116,12 +50125,12 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"keyv@npm:4.5.0":
-  version: 4.5.0
-  resolution: "keyv@npm:4.5.0"
+"keyv@npm:5.0.3":
+  version: 5.0.3
+  resolution: "keyv@npm:5.0.3"
   dependencies:
-    json-buffer: 3.0.1
-  checksum: d294873cf88ec8f691e5edeb7b4b884f886c5f021a01902a0e243c362449db2b55419d7fb7187d059add747b7398321e39e44d391b65f94935174ce13452714d
+    "@keyv/serialize": "*"
+  checksum: bb2cbce2bc3fe6723bc17443e0f6fd9b9a590bbb245b0e8fb030a8c20c6ab28c11e2ee4f727778a259449c18f5f4c76bc5b20dc80ea67d1c84018fc251fb8d89
   languageName: node
   linkType: hard
 
