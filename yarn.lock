@@ -9611,12 +9611,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@google-cloud/bigquery@npm:^7.7.0":
-  version: 7.7.0
-  resolution: "@google-cloud/bigquery@npm:7.7.0"
+"@google-cloud/bigquery@npm:^7.9.1":
+  version: 7.9.1
+  resolution: "@google-cloud/bigquery@npm:7.9.1"
   dependencies:
     "@google-cloud/common": ^5.0.0
-    "@google-cloud/paginator": ^5.0.0
+    "@google-cloud/paginator": ^5.0.2
     "@google-cloud/precise-date": ^4.0.0
     "@google-cloud/promisify": ^4.0.0
     arrify: ^2.0.1
@@ -9626,7 +9626,7 @@ __metadata:
     is: ^3.3.0
     stream-events: ^1.0.5
     uuid: ^9.0.0
-  checksum: cc75aedd65b6893fe50645ac4a41eee0066e595855f31bf9b4867d49e5e1408cdfde0473f9c121fc3b0729ba1006183dde469cd22bce78d1a565b6d6aa0f60e0
+  checksum: 4348565b5e07825767402bd3f0b021b667dae4597692c31de0d46ac48a274fd38129ea469bc66790f3a9656cb156029a6136e2b8f7a3d3e12e3c9f30e26690d1
   languageName: node
   linkType: hard
 
@@ -9696,6 +9696,16 @@ __metadata:
     arrify: ^2.0.0
     extend: ^3.0.2
   checksum: 7b8236ce610bef5c5de62a0ec267b0e4368480397621a692d213c56ffe66b20a8e6d4de0fe0606fd165672c873467ea313493f035a582e674df72c29dd20b7ef
+  languageName: node
+  linkType: hard
+
+"@google-cloud/paginator@npm:^5.0.2":
+  version: 5.0.2
+  resolution: "@google-cloud/paginator@npm:5.0.2"
+  dependencies:
+    arrify: ^2.0.0
+    extend: ^3.0.2
+  checksum: eeb4a387807270ba9f69f22d7439d60c5bd6663573c2da9ea7d998c373d77671d77450b87f0f229c28418df654af4064e70554fa4dcde7edb3c0f5c05f208246
   languageName: node
   linkType: hard
 
@@ -41765,7 +41775,7 @@ fsevents@~2.1.1:
     "@faker-js/faker": ^9.0.0
     "@fluent/bundle": ^0.18.0
     "@fluent/react": ^0.15.2
-    "@google-cloud/bigquery": ^7.7.0
+    "@google-cloud/bigquery": ^7.9.1
     "@google-cloud/firestore": ^7.9.0
     "@google-cloud/opentelemetry-cloud-trace-exporter": ^2.2.0
     "@google-cloud/pubsub": ^4.3.1
