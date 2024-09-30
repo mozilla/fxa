@@ -46,7 +46,7 @@
     "@types/dedent": "^0",
     "audit-filter": "^0.5.0",
     "chai": "^4.5.0",
-    "eslint": "^7.32.0",
+    "eslint": "^9.11.1",
     "fxa-shared": "workspace:*",
     "grunt": "^1.6.1",
     "grunt-cli": "^1.4.3",

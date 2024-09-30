@@ -47,7 +47,7 @@
     "@types/sharp": "^0",
     "audit-filter": "^0.5.0",
     "commander": "9.3.0",
-    "eslint": "^8.18.0",
+    "eslint": "^9.11.1",
     "insist": "1.0.1",
     "mocha": "^10.4.0",
     "mocha-text-cov": "0.1.1",
