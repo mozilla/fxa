@@ -30,3 +30,16 @@ if [ -z $(jq -r ".googleAuthConfig.clientId // empty" $FILE) ]; then
   echo "❌ $FILE is missing the googleAuthConfig.clientId key.  Google 3rd Party Auth won't be functional without it."
   echo "    See https://mozilla.github.io/ecosystem-platform/tutorials/development-setup#step-3-optional-additions"
 fi
+
+# Nx Cache Size
+if [ -d ".nx/cache" ]; then
+  cd .nx/cache
+  NX_CACHE_SIZE=$(du -s . | cut -f1)
+  cd ../..
+  NX_CACHE_SIZE_GB=$(($NX_CACHE_SIZE*512/1024/1024/1024))
+
+  if (( $NX_CACHE_SIZE_GB > 50 )); then
+    echo "❌ NX cache size is about $NX_CACHE_SIZE_GB GB! That's pretty big!"
+    read -p "Do you want to delete it now? (Y/N): " confirm && [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] && rm -rf .nx/cache && echo "Cache deleted!" || echo "Cache kept!"
+  fi
+fi
