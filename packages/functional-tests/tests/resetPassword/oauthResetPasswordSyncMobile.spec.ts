@@ -11,7 +11,13 @@ test.describe('severity-1 #smoke', () => {
   test.describe('oauth reset password Sync mobile react', () => {
     test('reset password through Sync mobile', async ({
       target,
-      syncBrowserPages: { page, connectAnotherDevice, resetPassword, signin },
+      syncBrowserPages: {
+        page,
+        connectAnotherDevice,
+        resetPassword,
+        signin,
+        settings,
+      },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
@@ -32,25 +38,10 @@ test.describe('severity-1 #smoke', () => {
       await resetPassword.fillOutResetPasswordCodeForm(code);
       await resetPassword.fillOutNewPasswordForm(newPassword);
 
-      await expect(page).toHaveURL(/reset_password_verified/);
-      await expect(
-        resetPassword.passwordResetConfirmationHeading
-      ).toBeVisible();
-
-      // TODO in FXA-9561 - Remove this temporary test of sign in with new password
-      await page.goto(
-        `${
-          target.contentServerUrl
-        }/authorization/?${syncMobileOAuthQueryParams.toString()}`
+      await expect(settings.settingsHeading).toBeVisible();
+      await expect(settings.alertBar).toHaveText(
+        'Your password has been reset'
       );
-      // expect user to be signed in to sync and prompted for cached signin
-      // old password fails
-      await signin.fillOutPasswordForm(credentials.password);
-      await expect(page.getByText('Incorrect password')).toBeVisible();
-      // new passwowrd works
-      await signin.fillOutPasswordForm(newPassword);
-
-      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
 
       // update password for cleanup function
       credentials.password = newPassword;

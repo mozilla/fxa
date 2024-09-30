@@ -95,6 +95,7 @@ export const App = ({
 
   // Determine if user is actually signed in
   const [isSignedIn, setIsSignedIn] = useState<boolean | undefined>(undefined);
+
   useEffect(() => {
     if (!integration) {
       return;

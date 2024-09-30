@@ -7,7 +7,9 @@ import { RouteComponentProps, useLocation } from '@reach/router';
 import { useValidatedQueryParams } from '../../../lib/hooks/useValidate';
 import {
   Integration,
+  isWebIntegration,
   useAccount,
+  useAlertBar,
   useConfig,
   useFtlMsgResolver,
 } from '../../../models';
@@ -23,6 +25,8 @@ import firefox from '../../../lib/channels/firefox';
 import { useState } from 'react';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
+import { storeAccountData } from '../../../lib/storage-utils';
+import { SETTINGS_PATH } from '../../../constants';
 
 // This component is used for both /complete_reset_password and /account_recovery_reset_password routes
 // for easier maintenance
@@ -35,6 +39,7 @@ const CompleteResetPasswordContainer = ({
   const keyStretchExperiment = useValidatedQueryParams(KeyStretchExperiment);
 
   const account = useAccount();
+  const alertBar = useAlertBar();
   const config = useConfig();
   const ftlMsgResolver = useFtlMsgResolver();
   const navigate = useNavigateWithQuery();
@@ -72,7 +77,22 @@ const CompleteResetPasswordContainer = ({
     navigate('/reset_password_with_recovery_key_verified');
   };
 
-  const handleNavigationWithoutRecoveryKey = () => {
+  const handleNavigationWithoutRecoveryKey = async (
+    accountResetData: AccountResetData
+  ) => {
+    if (
+      accountResetData.verified &&
+      (isWebIntegration(integration) || integration.isSync())
+    ) {
+      alertBar.success(
+        ftlMsgResolver.getMsg(
+          'reset-password-complete-header',
+          'Your password has been reset'
+        )
+      );
+      return navigate(SETTINGS_PATH, { replace: true });
+    }
+
     navigate('/reset_password_verified', {
       replace: true,
     });
@@ -120,7 +140,17 @@ const CompleteResetPasswordContainer = ({
     return accountResetData;
   };
 
-  const notifyBrowserOfSignin = async (accountResetData: AccountResetData) => {
+  const notifyClientOfSignin = (accountResetData: AccountResetData) => {
+    if (accountResetData.verified) {
+      storeAccountData({
+        uid: accountResetData.uid,
+        email,
+        lastLogin: Date.now(),
+        sessionToken: accountResetData.sessionToken,
+        verified: accountResetData.verified,
+      });
+    }
+
     if (integration.isSync()) {
       firefox.fxaLoginSignedInUser({
         authAt: accountResetData.authAt,
@@ -156,7 +186,7 @@ const CompleteResetPasswordContainer = ({
           recoveryKeyId
         );
         // TODO add frontend Glean event for successful reset?
-        notifyBrowserOfSignin(accountResetData);
+        notifyClientOfSignin(accountResetData);
         handleNavigationWithRecoveryKey();
       } else if (isResetWithoutRecoveryKey) {
         GleanMetrics.passwordReset.createNewSubmit();
@@ -167,8 +197,14 @@ const CompleteResetPasswordContainer = ({
           token
         );
         // TODO add frontend Glean event for successful reset?
-        notifyBrowserOfSignin(accountResetData);
-        handleNavigationWithoutRecoveryKey();
+        notifyClientOfSignin(accountResetData);
+
+        // DO NOT REMOVE THIS MAKES THE NAVIGATION WORK
+        // Despite all the awaiting in the code path, the signed in state in
+        // the apollo client cache does not seem to update before the re-render
+        // from the navigate call.
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        await handleNavigationWithoutRecoveryKey(accountResetData);
       }
     } catch (err) {
       const localizedBannerMessage = getLocalizedErrorMessage(

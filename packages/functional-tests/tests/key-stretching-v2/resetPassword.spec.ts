@@ -98,14 +98,6 @@ test.describe('severity-2 #smoke', () => {
 
       await resetPassword.fillOutNewPasswordForm(password);
 
-      await expect(page).toHaveURL(/reset_password_verified/);
-
-      await page.goto(
-        `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react&${signinVersion.query}`
-      );
-      await signin.fillOutEmailFirstForm(email);
-      await signin.fillOutPasswordForm(password);
-
       await expect(page).toHaveURL(/settings/);
       const keys2 = await _getKeys(
         signinVersion.version,
