@@ -45,7 +45,7 @@
     "express-http-proxy": "^2.0.0",
     "fxa-admin-server": "workspace:*",
     "fxa-react": "workspace:*",
-    "helmet": "^7.1.0",
+    "helmet": "^8.0.0",
     "mozlog": "^3.0.2",
     "on-headers": "^1.0.2",
     "react-router-dom": "^6.26.0",

@@ -50,7 +50,7 @@
     "fxa-shared": "workspace:*",
     "graphql-parse-resolve-info": "^4.13.0",
     "graphql-query-complexity": "^0.12.0",
-    "helmet": "^7.1.0",
+    "helmet": "^8.0.0",
     "hot-shots": "^10.0.0",
     "knex": "^3.1.0",
     "mozlog": "^3.0.2",

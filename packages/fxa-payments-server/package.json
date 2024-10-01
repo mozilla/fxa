@@ -138,7 +138,7 @@
     "fxa-react": "workspace:*",
     "fxa-settings": "workspace:*",
     "fxa-shared": "workspace:*",
-    "helmet": "^7.1.0",
+    "helmet": "^8.0.0",
     "hot-shots": "^10.0.0",
     "jest-watch-typeahead": "0.6.5",
     "joi": "^17.8.3",

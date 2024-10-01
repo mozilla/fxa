@@ -48,7 +48,7 @@
     "fxa-auth-client": "workspace:*",
     "fxa-shared": "workspace:*",
     "googleapis": "^143.0.0",
-    "helmet": "^7.1.0",
+    "helmet": "^8.0.0",
     "hot-shots": "^10.0.0",
     "knex": "^3.1.0",
     "rimraf": "^5.0.0",
