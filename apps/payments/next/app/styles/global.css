@@ -8,39 +8,3 @@
 body {
   @apply grid min-h-[100vh] tablet:justify-center text-base font-body bg-grey-10 text-grey-900 leading-[1.15];
 }
-
-/* Purchase Details */
-.row-divider-grey-200 {
-  @apply border-b border-grey-200;
-}
-
-/* offeringId */
-/* checkout, error, success pages */
-.page-header {
-  @apply font-semibold leading-8 mb-2 text-grey-600 text-xl;
-}
-
-.page-title-container {
-  @apply bg-white shadow-sm shadow-grey-300 text-center my-0 pt-5 px-4 pb-px tablet:mx-0;
-}
-
-/* error, success pages */
-.page-button {
-  @apply flex items-center justify-center bg-blue-500 hover:bg-blue-700 font-semibold h-12 my-8 rounded-md text-white w-full;
-}
-
-.page-message {
-  @apply text-grey-400 max-w-sm text-sm;
-}
-
-.page-message-container {
-  @apply flex flex-col items-center text-center pb-8 mt-5 desktop:mt-2;
-}
-
-.page-subheader {
-  @apply flex items-center justify-center gap-2 text-green-900 mb-4;
-}
-
-.page-subheader-text {
-  @apply font-semibold text-sm;
-}

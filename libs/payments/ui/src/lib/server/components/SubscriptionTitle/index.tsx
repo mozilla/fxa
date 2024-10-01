@@ -54,17 +54,17 @@ export async function SubscriptionTitle({
 
   return (
     <header
-      className="page-title-container"
+      className="bg-white shadow-sm shadow-grey-300 text-center my-0 pt-5 px-4 pb-px tablet:mx-0"
       aria-label={l10n.getString(componentTitle.titleFtl, componentTitle.title)}
     >
-      <h1 className="page-header">
+      <h1 className="font-semibold leading-8 mb-2 text-grey-600 text-xl">
         {l10n.getString(componentTitle.titleFtl, componentTitle.title)}
       </h1>
 
       {displaySubtitle && (
-        <div className="page-subheader">
+        <div className="flex items-center justify-center gap-2 text-green-900 mb-4">
           <Image src={checkLogo} alt="" />
-          <span className="page-subheader-text">
+          <span className="font-semibold text-sm">
             {l10n.getString(
               'next-sub-guarantee',
               '30-day money-back guarantee'

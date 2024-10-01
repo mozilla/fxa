@@ -7,12 +7,13 @@ export enum ButtonVariant {
   Secondary,
 }
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface BaseButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
   variant?: ButtonVariant;
 }
 
-export function BaseButton({ children, variant, ...props }: ButtonProps) {
+export function BaseButton({ children, variant, ...props }: BaseButtonProps) {
   let variantStyles = '';
   switch (variant) {
     case ButtonVariant.Primary:

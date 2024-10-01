@@ -5,21 +5,21 @@
 'use client';
 
 import { Localized } from '@fluent/react';
-import spinnerImage from '@fxa/shared/assets/images/spinner.svg';
 import Image from 'next/image';
+import spinnerImage from '@fxa/shared/assets/images/spinner.svg';
 
 /**
  * Next.js implementation of a loading spinner for use within client components
  */
-export function LoadingSpinner() {
+export function LoadingSpinner({ className }: { className?: string }) {
   return (
     <div className="mx-auto my-16 relative" data-testid="loading-spinner">
       <Localized id="payments-client-loading-spinner">
         <Image
           src={spinnerImage}
-          alt={'Loading…'}
-          aria-label={'Loading…'}
-          className="animate-spin h-9 w-9"
+          alt="Loading…"
+          aria-label="Loading…"
+          className={`animate-spin ${className}`}
         />
       </Localized>
     </div>
