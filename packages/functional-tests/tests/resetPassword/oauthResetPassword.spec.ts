@@ -43,12 +43,11 @@ test.describe('severity-1 #smoke', () => {
 
       await relier.goto();
       await relier.clickEmailFirst();
-      await signin.fillOutEmailFirstForm(credentials.email);
-      // old password fails
-      await signin.fillOutPasswordForm(credentials.password);
-      await expect(page.getByText('Incorrect password')).toBeVisible();
-      // new passwowrd works
-      await signin.fillOutPasswordForm(newPassword);
+
+      // a successful password reset means that the user is signed in
+      await expect(signin.cachedSigninHeading).toBeVisible();
+      await signin.signInButton.click();
+
       await expect(page).toHaveURL(target.relierUrl);
       expect(await relier.isLoggedIn()).toBe(true);
 

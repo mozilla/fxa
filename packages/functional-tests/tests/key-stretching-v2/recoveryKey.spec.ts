@@ -115,8 +115,9 @@ test.describe('severity-2 #smoke', () => {
       await page.goto(
         `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react&${signinVersion.query}`
       );
-      await signin.fillOutEmailFirstForm(email);
-      await signin.fillOutPasswordForm(password);
+      // a successful password reset means that the user is signed in
+      await expect(signin.cachedSigninHeading).toBeVisible();
+      await signin.signInButton.click();
 
       await expect(page).toHaveURL(/settings/);
       const keys2 = await _getKeys(

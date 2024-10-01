@@ -27,15 +27,6 @@ test.describe('severity-1 #smoke', () => {
     // Create and submit new password
     await resetPassword.fillOutNewPasswordForm(newPassword);
 
-    // Wait for new page to navigate
-    await expect(page).toHaveURL(/reset_password_verified/);
-
-    await page.goto(target.contentServerUrl);
-
-    await signin.fillOutEmailFirstForm(credentials.email);
-
-    await signin.fillOutPasswordForm(newPassword);
-
     await expect(settings.settingsHeading).toBeVisible();
 
     // Cleanup requires setting this value to correct password

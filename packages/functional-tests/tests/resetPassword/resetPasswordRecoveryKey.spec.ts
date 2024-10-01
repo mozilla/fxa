@@ -127,11 +127,10 @@ test.describe('severity-1 #smoke', () => {
       await expect(resetPassword.dataLossWarning).toBeVisible();
       await resetPassword.fillOutNewPasswordForm(newPassword);
 
-      await expect(
-        resetPassword.passwordResetConfirmationHeading
-      ).toBeVisible();
-
-      await signinAccount(credentials.email, newPassword, settings, signin);
+      await expect(settings.settingsHeading).toBeVisible();
+      await expect(settings.alertBar).toHaveText(
+        'Your password has been reset'
+      );
 
       await expect(settings.recoveryKey.status).toHaveText('Not Set');
 

@@ -8,7 +8,7 @@ test.describe('severity-1 #smoke', () => {
   test.describe('Firefox Desktop Sync v3 reset password react', () => {
     test('reset pw for sync user', async ({
       target,
-      syncBrowserPages: { page, resetPassword },
+      syncBrowserPages: { page, resetPassword, settings },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
@@ -27,13 +27,10 @@ test.describe('severity-1 #smoke', () => {
       await expect(resetPassword.dataLossWarning).toBeVisible();
       await resetPassword.fillOutNewPasswordForm(newPassword);
 
-      await expect(page).toHaveURL(/reset_password_verified/);
-      await expect(
-        resetPassword.passwordResetConfirmationHeading
-      ).toBeVisible();
-
-      // TODO in FXA-9561 - Verify that the service name is displayed in the "Continue to ${serviceName}" button
-      // This functionality is not yet implemented in the reset password flow
+      await expect(settings.settingsHeading).toBeVisible();
+      await expect(settings.alertBar).toHaveText(
+        'Your password has been reset'
+      );
 
       // Update credentials file so that account can be deleted as part of test cleanup
       credentials.password = newPassword;
