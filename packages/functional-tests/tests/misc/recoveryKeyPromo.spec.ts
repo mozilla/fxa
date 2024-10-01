@@ -200,6 +200,7 @@ test.describe('recovery key promo', () => {
         settings,
         connectAnotherDevice,
         totp,
+        signinTotpCode,
       },
       testAccountTracker,
     }) => {
@@ -226,8 +227,8 @@ test.describe('recovery key promo', () => {
 
       await page.waitForURL(/signin_totp_code/);
 
-      const code = await getCode(secret);
-      await signin.fillOutAuthenticationForm(code);
+      const totpCode = await getCode(secret);
+      await signinTotpCode.fillOutCodeForm(totpCode);
 
       await inlineRecoveryKey.getInlineRecoveryHeader();
       await inlineRecoveryKey.clickCreateRecoveryKey();
