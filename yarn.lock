@@ -40746,7 +40746,7 @@ fsevents@~2.1.1:
     fxa-admin-server: "workspace:*"
     fxa-react: "workspace:*"
     fxa-shared: "workspace:*"
-    helmet: ^7.1.0
+    helmet: ^8.0.0
     jest: 27.5.1
     jest-watch-typeahead: 0.6.5
     mozlog: ^3.0.2
@@ -40793,7 +40793,7 @@ fsevents@~2.1.1:
     fxa-auth-client: "workspace:*"
     fxa-shared: "workspace:*"
     googleapis: ^143.0.0
-    helmet: ^7.1.0
+    helmet: ^8.0.0
     hot-shots: ^10.0.0
     jest: 29.3.1
     knex: ^3.1.0
@@ -41073,7 +41073,7 @@ fsevents@~2.1.1:
     grunt-usemin: 3.1.1
     grunt-z-schema: 0.1.0
     handlebars: ^4.7.7
-    helmet: ^7.1.0
+    helmet: ^8.0.0
     hot-shots: ^10.0.0
     htmlparser2: 9.1.0
     http-proxy-middleware: ^2.0.0
@@ -41302,7 +41302,7 @@ fsevents@~2.1.1:
     fxa-shared: "workspace:*"
     graphql-parse-resolve-info: ^4.13.0
     graphql-query-complexity: ^0.12.0
-    helmet: ^7.1.0
+    helmet: ^8.0.0
     hot-shots: ^10.0.0
     jest: 29.3.1
     knex: ^3.1.0
@@ -41406,7 +41406,7 @@ fsevents@~2.1.1:
     grunt-contrib-concat: ^2.1.0
     grunt-contrib-watch: ^1.1.0
     handlebars: ^4.7.7
-    helmet: ^7.1.0
+    helmet: ^8.0.0
     hot-shots: ^10.0.0
     intl: 1.2.5
     jest: 27.5.1
@@ -44086,10 +44086,10 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"helmet@npm:^7.1.0":
-  version: 7.1.0
-  resolution: "helmet@npm:7.1.0"
-  checksum: 16aaa0df997eaa18821e71389bc9ceffeeaa935df98427ede2bb006065f7e02bb1941caabea16d5a93a791cb3fe7d8a760266bc57b3b9ca5dd7da17ea84244b8
+"helmet@npm:^8.0.0":
+  version: 8.0.0
+  resolution: "helmet@npm:8.0.0"
+  checksum: 1a7ef94d35d8e4adae8697f65f9f85d75b3711e4c8b5db5bc7c0480de31e16cf28c92dabe8204eb98aac43db82c69951c771f685a9cd011b15415ffba6fe293b
   languageName: node
   linkType: hard
 
