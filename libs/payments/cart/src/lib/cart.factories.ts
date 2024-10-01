@@ -89,6 +89,7 @@ export const ResultCartFactory = (
   updatedAt: faker.date.past().getTime(),
   couponCode: null,
   stripeCustomerId: faker.string.uuid(),
+  stripeSubscriptionId: faker.string.uuid(),
   email: faker.internet.email(),
   amount: faker.number.int(),
   version: faker.number.int(),
