@@ -290,7 +290,7 @@
     "@fluent/langneg": "^0.7.0",
     "accept-language-parser": "^1.5.0",
     "ajv": "^8.17.1",
-    "app-store-server-api": "^0.7.0",
+    "app-store-server-api": "^0.15.2",
     "aws-sdk": "^2.1691.0",
     "buf": "^0.1.1",
     "celebrate": "^15.0.1",
