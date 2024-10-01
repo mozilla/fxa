@@ -11,7 +11,6 @@ import { FtlMsg } from 'fxa-react/lib/utils';
 
 import AppLayout from '../../../components/AppLayout';
 import Banner, { BannerType } from '../../../components/Banner';
-import CardHeader from '../../../components/CardHeader';
 import { InputText } from '../../../components/InputText';
 import LinkRememberPassword from '../../../components/LinkRememberPassword';
 import { isEmailValid } from 'fxa-shared/email/helpers';
@@ -83,10 +82,9 @@ const ResetPassword = ({
 
   return (
     <AppLayout>
-      <CardHeader
-        headingText="Reset your password"
-        headingTextFtlId="password-reset-start-heading"
-      />
+      <FtlMsg id="password-reset-start-heading">
+        <h1 className="card-header text-start">Reset your password</h1>
+      </FtlMsg>
 
       {errorMessage && (
         <Banner type={BannerType.error}>
@@ -94,10 +92,10 @@ const ResetPassword = ({
         </Banner>
       )}
 
-      <FtlMsg id="password-reset-body">
-        <p className="my-6">
-          Enter your email and we’ll send you a confirmation code to confirm
-          it’s really you.
+      <FtlMsg id="password-reset-body-2">
+        <p className="text-start mt-2 mb-6">
+          We’ll ask for a couple of things only you know to keep your account
+          safe.
         </p>
       </FtlMsg>
 
@@ -119,13 +117,13 @@ const ResetPassword = ({
           />
         </FtlMsg>
 
-        <FtlMsg id="password-reset-submit-button">
+        <FtlMsg id="password-reset-submit-button-2">
           <button
             type="submit"
             className="cta-primary cta-xl"
             disabled={isSubmitting}
           >
-            Send me reset instructions
+            Continue
           </button>
         </FtlMsg>
       </form>

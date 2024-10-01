@@ -9,14 +9,9 @@ export class ResetPasswordPage extends BaseLayout {
   readonly path = '';
 
   get resetPasswordHeading() {
-    return (
-      this.page
-        // TODO in FXA-9728, remove the second option in regex
-        // (support for reset password with link)
-        .getByRole('heading', {
-          name: /^(?:Reset your password|Reset password)/,
-        })
-    );
+    return this.page.getByRole('heading', {
+      name: /^Reset your password/,
+    });
   }
 
   get emailTextbox() {
@@ -24,36 +19,21 @@ export class ResetPasswordPage extends BaseLayout {
   }
 
   get beginResetButton() {
-    return (
-      this.page
-        // TODO in FXA-9728, remove the second option in regex
-        // (support for reset password with link)
-        .getByRole('button', {
-          name: /^(?:Send me reset instructions|Begin reset)/,
-        })
-    );
+    return this.page.getByRole('button', {
+      name: /Continue/,
+    });
   }
 
   get confirmResetPasswordHeading() {
-    return (
-      this.page
-        // TODO in FXA-9728, remove the second option in regex
-        // (support for reset password with link)
-        .getByRole('heading', {
-          name: /^(?:Check your email|Reset email sent)/,
-        })
-    );
+    return this.page.getByRole('heading', {
+      name: /^Check your email/,
+    });
   }
 
   get resendButton() {
-    return (
-      this.page
-        // TODO in FXA-9728, remove the second option in regex
-        // (support for reset password with link)
-        .getByRole('button', {
-          name: /^(?:Resend code|Not in inbox or spam folder)/,
-        })
-    );
+    return this.page.getByRole('button', {
+      name: /^Resend code/,
+    });
   }
 
   get statusBar() {

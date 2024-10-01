@@ -8,9 +8,6 @@ import { BaseTarget } from '../../lib/targets/base';
 const AGE_21 = '21';
 const HINT = 'secret key location';
 
-// This test file includes the new version of the reset password flow (reset with code)
-// TODO in FXA-9728: remove this comment when code flow is fully rolled out in production
-
 /**
  * These tests represent various permutations between interacting with V1 and V2
  * key stretched passwords. We need to ensure that operations are interchangeable!

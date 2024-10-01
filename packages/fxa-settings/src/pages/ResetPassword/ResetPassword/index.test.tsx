@@ -34,9 +34,7 @@ describe('ResetPassword', () => {
       expect(
         screen.getByRole('textbox', { name: 'Enter your email' })
       ).toBeVisible();
-      expect(
-        screen.getByRole('button', { name: 'Send me reset instructions' })
-      ).toBeVisible();
+      expect(screen.getByRole('button', { name: 'Continue' })).toBeVisible();
       expect(screen.getByText('Remember your password?')).toBeVisible();
       expect(screen.getByRole('link', { name: 'Sign in' })).toBeVisible();
     });
