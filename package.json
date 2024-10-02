@@ -105,7 +105,7 @@
     "mysql2": "^3.9.8",
     "nest-typed-config": "^2.9.2",
     "nest-winston": "^1.10.0",
-    "next": "14.2.10",
+    "next": "^14.2.14",
     "next-auth": "beta",
     "node-fetch": "^2.6.7",
     "node-hkdf": "^0.0.2",
