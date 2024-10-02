@@ -184,6 +184,13 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
       GleanMetrics.accountPref.twoStepAuthEnterCodeView();
   }, [recoveryCodesAcknowledged, totpVerified]);
 
+  useEffect(() => {
+    !totpVerified &&
+      showQrCode &&
+      totpInfo.result &&
+      GleanMetrics.accountPref.twoStepAuthQrView();
+  }, [showQrCode, totpInfo.result, totpVerified]);
+
   const moveBack = () => {
     if (!totpVerified) {
       return goHome();
@@ -326,11 +333,6 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
                 disabled={
                   !totpForm.formState.isDirty || !totpForm.formState.isValid
                 }
-                onClick={() => {
-                  if (showQrCode) {
-                    GleanMetrics.accountPref.twoStepAuthQrView();
-                  }
-                }}
                 data-glean-id="two_step_auth_qr_submit"
                 data-glean-type="setup"
               >
