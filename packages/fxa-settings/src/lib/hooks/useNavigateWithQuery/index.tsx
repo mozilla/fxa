@@ -9,6 +9,8 @@ export function useNavigateWithQuery() {
 
   return (to: string, options?: NavigateOptions<{}>) => {
     const location = window.location;
+    console.log('location', location);
+    debugger;
     let path = to;
 
     if (to.includes('?')) {

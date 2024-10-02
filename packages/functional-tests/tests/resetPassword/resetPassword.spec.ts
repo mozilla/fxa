@@ -187,13 +187,8 @@ test.describe('severity-1 #smoke', () => {
     // Create and submit new password
     await resetPassword.fillOutNewPasswordForm(newPassword);
 
-    // Wait for new page to navigate
-    await expect(page).toHaveURL(/reset_password_verified/);
-
-    await page.goto(target.contentServerUrl);
-
-    await signin.fillOutEmailFirstForm(credentials.email);
-
+    await expect(page).toHaveURL(/signin/);
+    await expect(resetPassword.passwordResetSuccessMessage).toBeVisible();
     await signin.fillOutPasswordForm(newPassword);
 
     totpCode = await getCode(secret);
@@ -258,13 +253,8 @@ test.describe('severity-1 #smoke', () => {
     // Create and submit new password
     await resetPassword.fillOutNewPasswordForm(newPassword);
 
-    // Wait for new page to navigate
-    await expect(page).toHaveURL(/reset_password_verified/);
-
-    await page.goto(target.contentServerUrl);
-
-    await signin.fillOutEmailFirstForm(credentials.email);
-
+    await expect(page).toHaveURL(/signin/);
+    await expect(resetPassword.passwordResetSuccessMessage).toBeVisible();
     await signin.fillOutPasswordForm(newPassword);
 
     const totpCode = await getCode(secret);
@@ -395,10 +385,7 @@ test.describe('severity-1 #smoke', () => {
 
     // Create recovery key
     await settings.recoveryKey.createButton.click();
-    const key = await recoveryKey.createRecoveryKey(
-      credentials.password,
-      'hint'
-    );
+    await recoveryKey.createRecoveryKey(credentials.password, 'hint');
 
     // Verify status as 'enabled'
     await expect(settings.settingsHeading).toBeVisible();
@@ -430,11 +417,8 @@ test.describe('severity-1 #smoke', () => {
     // Create and submit new password
     await resetPassword.fillOutNewPasswordForm(newPassword);
 
-    // Wait for new page to navigate
-    await expect(page).toHaveURL(/reset_password_verified/);
-
-    await page.goto(target.contentServerUrl);
-    await signin.fillOutEmailFirstForm(credentials.email);
+    await expect(page).toHaveURL(/signin/);
+    await expect(resetPassword.passwordResetSuccessMessage).toBeVisible();
     await signin.fillOutPasswordForm(newPassword);
 
     // Prompted for 2FA on new login

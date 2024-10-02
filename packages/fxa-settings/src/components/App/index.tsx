@@ -57,8 +57,8 @@ import ResetPasswordContainer from '../../pages/ResetPassword/ResetPassword/cont
 import ConfirmResetPasswordContainer from '../../pages/ResetPassword/ConfirmResetPassword/container';
 import CompleteResetPasswordContainer from '../../pages/ResetPassword/CompleteResetPassword/container';
 import AccountRecoveryConfirmKeyContainer from '../../pages/ResetPassword/AccountRecoveryConfirmKey/container';
-import ResetPasswordConfirmed from '../../pages/ResetPassword/ResetPasswordConfirmed';
 import ConfirmTotpResetPasswordContainer from '../../pages/ResetPassword/ConfirmTotpResetPassword/container';
+import ResetPasswordConfirmedContainer from '../../pages/ResetPassword/ResetPasswordConfirmed/container';
 import ResetPasswordWithRecoveryKeyVerified from '../../pages/ResetPassword/ResetPasswordWithRecoveryKeyVerified';
 import CompleteSigninContainer from '../../pages/Signin/CompleteSignin/container';
 import SigninContainer from '../../pages/Signin/container';
@@ -344,9 +344,9 @@ const AuthAndAccountSetupRoutes = ({
         path="/reset_password_with_recovery_key_verified/*"
         {...{ integration, isSignedIn }}
       />
-      <ResetPasswordConfirmed
+      <ResetPasswordConfirmedContainer
         path="/reset_password_verified/*"
-        {...{ isSignedIn, serviceName }}
+        {...{ integration, serviceName }}
       />
 
       {/* Signin */}

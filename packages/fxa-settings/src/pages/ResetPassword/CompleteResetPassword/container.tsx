@@ -7,11 +7,12 @@ import { RouteComponentProps, useLocation } from '@reach/router';
 import { useValidatedQueryParams } from '../../../lib/hooks/useValidate';
 import {
   Integration,
-  isWebIntegration,
+  isOAuthIntegration,
   useAccount,
   useAlertBar,
   useConfig,
   useFtlMsgResolver,
+  useSensitiveDataClient,
 } from '../../../models';
 import { KeyStretchExperiment } from '../../../models/experiments';
 
@@ -42,13 +43,14 @@ const CompleteResetPasswordContainer = ({
   const alertBar = useAlertBar();
   const config = useConfig();
   const ftlMsgResolver = useFtlMsgResolver();
-  const navigate = useNavigateWithQuery();
+  const navigateWithQuery = useNavigateWithQuery();
   const location = useLocation();
+  const sensitiveDataClient = useSensitiveDataClient();
 
   const [errorMessage, setErrorMessage] = useState('');
 
   if (!location.state) {
-    navigate('/reset_password', { replace: true });
+    navigateWithQuery('/reset_password', { replace: true });
     return;
   }
 
@@ -73,29 +75,53 @@ const CompleteResetPasswordContainer = ({
 
   const isResetWithoutRecoveryKey = !!(code && token);
 
+  const localizedSuccessMessage = ftlMsgResolver.getMsg(
+    'reset-password-complete-header',
+    'Your password has been reset'
+  );
+
   const handleNavigationWithRecoveryKey = () => {
-    navigate('/reset_password_with_recovery_key_verified');
+    navigateWithQuery('/reset_password_with_recovery_key_verified');
   };
 
   const handleNavigationWithoutRecoveryKey = async (
     accountResetData: AccountResetData
   ) => {
-    if (
-      accountResetData.verified &&
-      (isWebIntegration(integration) || integration.isSync())
-    ) {
-      alertBar.success(
-        ftlMsgResolver.getMsg(
-          'reset-password-complete-header',
-          'Your password has been reset'
-        )
-      );
-      return navigate(SETTINGS_PATH, { replace: true });
+    if (accountResetData.verified) {
+      // For verified users with OAuth integration, navigate to confirmation page then to the relying party
+      if (isOAuthIntegration(integration) && !integration.isSync()) {
+        const sensitiveData = { ...accountResetData, email };
+        sensitiveDataClient.setData('accountResetData', sensitiveData);
+        return navigateWithQuery('/reset_password_verified', {
+          replace: true,
+        });
+      }
+
+      // For web integration and sync navigate to settings
+      // Sync users will see an account recovery key promotion banner in settings
+      // if they don't have one configured
+      alertBar.success(localizedSuccessMessage);
+      return navigateWithQuery(SETTINGS_PATH, { replace: true });
     }
 
-    navigate('/reset_password_verified', {
-      replace: true,
-    });
+    // if the session is not verified (e.g., 2FA verification is required), navigate to the sign-in page
+    if (location.search && location.search.includes('email')) {
+      return navigateWithQuery('/signin', {
+        replace: true,
+        state: {
+          bannerSuccessMessage: localizedSuccessMessage,
+        },
+      });
+    } else {
+      // if user started directly from the reset password page without passing GO (index),
+      // the email needs to be added to query params to avoid redirecting to the index page
+      return navigateWithQuery(`/signin?email=${encodeURIComponent(email)}`, {
+        replace: true,
+        state: {
+          bannerSuccessMessage: localizedSuccessMessage,
+        },
+      });
+    }
   };
 
   const resetPasswordWithRecoveryKey = async (
@@ -217,7 +243,7 @@ const CompleteResetPasswordContainer = ({
 
   // handle the case where we don't have all data required
   if (!(hasConfirmedRecoveryKey || isResetWithoutRecoveryKey)) {
-    navigate('/reset_password', { replace: true });
+    navigateWithQuery('/reset_password', { replace: true });
   }
 
   return (

@@ -37,6 +37,7 @@ export interface LocationState {
   hasLinkedAccount?: boolean;
   hasPassword?: boolean;
   localizedErrorMessage?: string;
+  bannerSuccessMessage?: string;
 }
 
 export interface SigninProps {
@@ -53,6 +54,7 @@ export interface SigninProps {
   avatarLoading: boolean;
   localizedErrorFromLocationState?: string;
   finishOAuthFlowHandler: FinishOAuthFlowHandler;
+  bannerSuccessMessage?: string;
 }
 
 export type BeginSigninHandler = (
