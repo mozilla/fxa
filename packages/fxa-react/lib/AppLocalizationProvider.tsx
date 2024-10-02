@@ -7,9 +7,39 @@ import { LocalizationProvider, ReactLocalization } from '@fluent/react';
 import React, { Component } from 'react';
 import { EN_GB_LOCALES, parseAcceptLanguage } from '@fxa/shared/l10n';
 
-async function fetchMessages(baseDir: string, locale: string, bundle: string) {
+/**
+ * Gets l10n messages from server
+ * @param baseDir The root location where locales folders are held
+ * @param locale The target language
+ * @param bundle The target bundle (ie main)
+ * @param mappings A set of mappings for static resources.
+ * @returns
+ */
+async function fetchMessages(
+  baseDir: string,
+  locale: string,
+  bundle: string,
+  mappings?: Record<string, string>
+) {
   try {
-    const response = await fetch(`${baseDir}/${locale}/${bundle}.ftl`);
+    // Build the path to l10n file
+    let path = `locales/${locale}/${bundle}.ftl`;
+
+    // If mappings were proivided see if there is one for the path. This
+    // will be a location where the file path contains a hash in the file
+    // name
+    if (mappings) {
+      path = mappings[path];
+    }
+
+    // If we don't have mapped path, there are no l10n resources for this language.
+    if (!path) {
+      return '';
+    }
+
+    // Fetch the file and return the messages
+    const resolvedPath = `${baseDir}/${path}`;
+    const response = await fetch(resolvedPath);
     const messages = await response.text();
 
     return messages;
@@ -23,11 +53,24 @@ async function fetchMessages(baseDir: string, locale: string, bundle: string) {
 function fetchAllMessages(
   baseDir: string,
   locale: string,
-  bundles: Array<string>
+  bundles: Array<string>,
+  mappings?: Record<string, string>
 ) {
   return Promise.all(
-    bundles.map((bndl) => fetchMessages(baseDir, locale, bndl))
+    bundles.map((bndl) => fetchMessages(baseDir, locale, bndl, mappings))
   );
+}
+
+async function fetchL10nHashedMappings(mappingUrl: string) {
+  try {
+    // These mappigns are currently generated with grunt. See grunt task hash-static
+    // in fxa-settings for an example of how the mappings are generated.
+    const mappingsResponse = await fetch(mappingUrl);
+    const json = await mappingsResponse.json();
+    return json;
+  } catch (err) {
+    return undefined;
+  }
 }
 
 async function createFluentBundleGenerator(
@@ -35,11 +78,16 @@ async function createFluentBundleGenerator(
   currentLocales: Array<string>,
   bundles: Array<string>
 ) {
+  const mappings = await fetchL10nHashedMappings(
+    `${baseDir}/static-asset-manifest.json`
+  );
   const fetched = await Promise.all(
     currentLocales
       .filter((l) => !EN_GB_LOCALES.includes(l))
       .map(async (locale) => {
-        return { [locale]: await fetchAllMessages(baseDir, locale, bundles) };
+        return {
+          [locale]: await fetchAllMessages(baseDir, locale, bundles, mappings),
+        };
       })
   );
 
@@ -84,7 +132,7 @@ type Props = {
 
 export default class AppLocalizationProvider extends Component<Props, State> {
   static defaultProps: Props = {
-    baseDir: '/locales',
+    baseDir: '',
     userLocales: ['en'],
     bundles: ['main'],
     children: React.createElement('div'),

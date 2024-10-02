@@ -37,6 +37,23 @@ module.exports = function (grunt) {
         dest: 'test/settings.ftl',
       },
     },
+    hash: {
+      options: {
+        mapping: 'public/static/static-asset-manifest.json', // The file where the hashed file names will be stored
+        srcBasePath: 'public/', // the base Path you want to remove from the `key` string in the mapping file
+        destBasePath: 'public/static',
+      },
+      locales: {
+        expand: true,
+        cwd: 'public/locales',
+        src: '**/*.ftl',
+        dest: 'public/static/locales/',
+        rename: function (dest, src) {
+          const lang = src.split('/')[0];
+          return `${dest}/${lang}`;
+        },
+      },
+    },
     watch: {
       ftl: {
         files: srcPaths,
@@ -51,8 +68,11 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-concat');
+  grunt.loadNpmTasks('grunt-hash');
 
   grunt.registerTask('merge-ftl', ['copy:branding-ftl', 'concat:ftl']);
   grunt.registerTask('merge-ftl:test', ['concat:ftl-test']);
   grunt.registerTask('watch-ftl', ['watch:ftl']);
+
+  grunt.registerTask('hash-static', ['hash']);
 };
