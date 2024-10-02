@@ -16,15 +16,13 @@ const config: SentryConfigOpts = {
   },
 };
 
-const sentryEnabled = true;
-
 describe('beforeSend', () => {
   it('works without request url', () => {
     const data = {
       key: 'value',
     } as unknown as Sentry.ErrorEvent;
 
-    const resultData = beforeSend(sentryEnabled, config, data);
+    const resultData = beforeSend(config, data);
 
     expect(data).toEqual(resultData);
   });
@@ -40,7 +38,7 @@ describe('beforeSend', () => {
       type: undefined,
     } as Sentry.ErrorEvent;
 
-    const resultData = beforeSend(sentryEnabled, config, data);
+    const resultData = beforeSend(config, data);
     expect(resultData?.fingerprint?.[0]).toEqual('errno100');
     expect(resultData?.level).toEqual('info');
   });
@@ -62,7 +60,7 @@ describe('beforeSend', () => {
       },
     };
 
-    const resultData = beforeSend(sentryEnabled, config, badData);
+    const resultData = beforeSend(config, badData);
     expect(resultData?.request?.url).toEqual(goodData.request.url);
   });
 
@@ -88,7 +86,7 @@ describe('beforeSend', () => {
       },
     };
 
-    const resultData = beforeSend(sentryEnabled, config, badData);
+    const resultData = beforeSend(config, badData);
     expect(resultData?.request?.headers?.Referer).toEqual(
       goodData.request.headers.Referer
     );
@@ -125,7 +123,7 @@ describe('beforeSend', () => {
       type: undefined,
     };
 
-    const resultData = beforeSend(sentryEnabled, config, data);
+    const resultData = beforeSend(config, data);
 
     expect(
       resultData?.exception?.values?.[0].stacktrace?.frames?.[0].abs_path
@@ -133,5 +131,27 @@ describe('beforeSend', () => {
     expect(
       resultData?.exception?.values?.[0].stacktrace?.frames?.[1].abs_path
     ).toEqual(goodAbsPath);
+  });
+
+  it('doesn\t send data if metricsOptOut tag is set and true', () => {
+    const data = {
+      key: 'value',
+      tags: {
+        metricsOptedOut: true,
+      },
+    } as unknown as Sentry.ErrorEvent;
+    const resultData = beforeSend(config, data);
+    expect(resultData).toBeNull();
+  });
+
+  it('sends data if metricsOptOut tag is set and false', () => {
+    const data = {
+      key: 'value',
+      tags: {
+        metricsOptedOut: false,
+      },
+    } as unknown as Sentry.ErrorEvent;
+    const resultData = beforeSend(config, data);
+    expect(data).toEqual(resultData);
   });
 });

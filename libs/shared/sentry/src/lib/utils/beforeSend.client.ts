@@ -17,12 +17,8 @@ import { tagFxaName } from './tagFxaName';
  *  Modified error object data
  * @private
  */
-export function beforeSend(
-  sentryEnabled: boolean,
-  opts: SentryConfigOpts,
-  event: Sentry.ErrorEvent
-) {
-  if (sentryEnabled === false) {
+export function beforeSend(opts: SentryConfigOpts, event: Sentry.ErrorEvent) {
+  if (event.tags?.metricsOptedOut) {
     return null;
   }
 

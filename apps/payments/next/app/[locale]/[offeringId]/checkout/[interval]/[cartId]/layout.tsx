@@ -15,6 +15,7 @@ import {
 } from '@fxa/payments/ui/server';
 import { DEFAULT_LOCALE } from '@fxa/shared/l10n';
 import { config } from 'apps/payments/next/config';
+import { MetricsWrapper } from '@fxa/payments/ui';
 
 // TODO - Replace these placeholders as part of FXA-8227
 export const metadata = {
@@ -54,7 +55,7 @@ export default async function RootLayout({
   const [cms, cart] = await Promise.all([cmsDataPromise, cartDataPromise]);
 
   return (
-    <>
+    <MetricsWrapper cart={cart}>
       <SubscriptionTitle cartState={cart.state} l10n={l10n} />
 
       <section
@@ -114,6 +115,6 @@ export default async function RootLayout({
           showFXALinks={true}
         />
       </div>
-    </>
+    </MetricsWrapper>
   );
 }

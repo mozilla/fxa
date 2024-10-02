@@ -46,6 +46,7 @@ import {
 } from '@fxa/shared/cms';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import {
+  AccountFactory,
   CartEligibilityStatus,
   CartErrorReasonId,
   CartState,
@@ -75,6 +76,7 @@ import { CurrencyManager } from '@fxa/payments/currency';
 import { MockCurrencyConfigProvider } from 'libs/payments/currency/src/lib/currency.config';
 
 describe('CartService', () => {
+  let accountManager: AccountManager;
   let accountCustomerManager: AccountCustomerManager;
   let cartService: CartService;
   let cartManager: CartManager;
@@ -125,6 +127,7 @@ describe('CartService', () => {
       ],
     }).compile();
 
+    accountManager = moduleRef.get(AccountManager);
     accountCustomerManager = moduleRef.get(AccountCustomerManager);
     cartManager = moduleRef.get(CartManager);
     cartService = moduleRef.get(CartService);
@@ -150,7 +153,11 @@ describe('CartService', () => {
         offeringConfigId: faker.string.uuid(),
         experiment: faker.string.uuid(),
         promoCode: faker.word.noun(),
-        uid: faker.string.uuid(),
+        uid: faker.string.hexadecimal({
+          length: 32,
+          prefix: '',
+          casing: 'lower',
+        }),
         ip: faker.internet.ipv4(),
       };
       const taxAddress = TaxAddressFactory();
@@ -198,6 +205,7 @@ describe('CartService', () => {
     });
 
     it('throws an error when couponCode is invalid', async () => {
+      const mockAccount = AccountFactory();
       const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
       const mockAccountCustomer = ResultAccountCustomerFactory({
         stripeCustomerId: mockCustomer.id,
@@ -208,7 +216,11 @@ describe('CartService', () => {
         offeringConfigId: faker.string.uuid(),
         experiment: faker.string.uuid(),
         promoCode: faker.word.noun(),
-        uid: faker.string.uuid(),
+        uid: faker.string.hexadecimal({
+          length: 32,
+          prefix: '',
+          casing: 'lower',
+        }),
         ip: faker.internet.ipv4(),
       };
       const taxAddress = TaxAddressFactory();
@@ -233,6 +245,9 @@ describe('CartService', () => {
         .spyOn(invoiceManager, 'preview')
         .mockResolvedValue(mockInvoicePreview);
       jest.spyOn(cartManager, 'createCart').mockResolvedValue(mockResultCart);
+      jest
+        .spyOn(accountManager, 'getAccounts')
+        .mockResolvedValue([mockAccount]);
 
       await expect(() => cartService.setupCart(args)).rejects.toThrowError(
         CartInvalidPromoCodeError
@@ -242,6 +257,7 @@ describe('CartService', () => {
     });
 
     it('throws an error when country to currency result is invalid', async () => {
+      const mockAccount = AccountFactory();
       const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
       const mockAccountCustomer = ResultAccountCustomerFactory({
         stripeCustomerId: mockCustomer.id,
@@ -252,7 +268,11 @@ describe('CartService', () => {
         offeringConfigId: faker.string.uuid(),
         experiment: faker.string.uuid(),
         promoCode: faker.word.noun(),
-        uid: faker.string.uuid(),
+        uid: faker.string.hexadecimal({
+          length: 32,
+          prefix: '',
+          casing: 'lower',
+        }),
         ip: faker.internet.ipv4(),
       };
       const taxAddress = TaxAddressFactory();
@@ -283,6 +303,9 @@ describe('CartService', () => {
         .spyOn(currencyManager, 'getCurrencyForCountry')
         .mockReturnValue(undefined);
       jest.spyOn(cartManager, 'createCart').mockResolvedValue(mockResultCart);
+      jest
+        .spyOn(accountManager, 'getAccounts')
+        .mockResolvedValue([mockAccount]);
 
       await expect(() => cartService.setupCart(args)).rejects.toThrowError(
         CartInvalidCurrencyError
@@ -531,6 +554,7 @@ describe('CartService', () => {
       const mockCart = ResultCartFactory();
       const mockUpdateCart = UpdateCartFactory();
 
+      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
       jest.spyOn(cartManager, 'updateFreshCart').mockResolvedValue();
 
       await cartService.updateCart(
@@ -633,6 +657,7 @@ describe('CartService', () => {
       expect(result).toEqual({
         ...mockCart,
         invoicePreview: mockInvoicePreview,
+        metricsOptedOut: false,
       });
 
       expect(cartManager.fetchCartById).toHaveBeenCalledWith(mockCart.id);
@@ -669,6 +694,7 @@ describe('CartService', () => {
       expect(result).toEqual({
         ...mockCart,
         invoicePreview: mockInvoicePreview,
+        metricsOptedOut: false,
       });
 
       expect(cartManager.fetchCartById).toHaveBeenCalledWith(mockCart.id);
@@ -681,6 +707,130 @@ describe('CartService', () => {
         customer: undefined,
         taxAddress: mockCart.taxAddress,
       });
+    });
+
+    it("has metricsOptedOut set to true if the cart's account has opted out of metrics", async () => {
+      const mockUid = faker.string.hexadecimal({
+        length: 32,
+        prefix: '',
+        casing: 'lower',
+      });
+      const mockAccount = AccountFactory({
+        uid: Buffer.from(mockUid, 'hex'),
+        metricsOptOutAt: faker.date.recent().valueOf(),
+      });
+      const mockCart = ResultCartFactory({ uid: mockUid });
+      const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
+      const mockPrice = StripePriceFactory();
+      const mockInvoicePreview = InvoicePreviewFactory();
+
+      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+      jest
+        .spyOn(productConfigurationManager, 'retrieveStripePrice')
+        .mockResolvedValue(mockPrice);
+      jest.spyOn(customerManager, 'retrieve').mockResolvedValue(mockCustomer);
+      jest
+        .spyOn(invoiceManager, 'preview')
+        .mockResolvedValue(mockInvoicePreview);
+      jest
+        .spyOn(accountManager, 'getAccounts')
+        .mockResolvedValue([mockAccount]);
+
+      const result = await cartService.getCart(mockCart.id);
+      expect(accountManager.getAccounts).toHaveBeenCalledWith([mockUid]);
+      expect(result.metricsOptedOut).toBeTruthy();
+    });
+
+    it("has metricsOptedOut set to false if the cart's account has not opted out of metrics", async () => {
+      const mockUid = faker.string.hexadecimal({
+        length: 32,
+        prefix: '',
+        casing: 'lower',
+      });
+      const mockAccount = AccountFactory({
+        uid: Buffer.from(mockUid, 'hex'),
+      });
+      const mockCart = ResultCartFactory({ uid: mockUid });
+      const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
+      const mockPrice = StripePriceFactory();
+      const mockInvoicePreview = InvoicePreviewFactory();
+
+      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+      jest
+        .spyOn(productConfigurationManager, 'retrieveStripePrice')
+        .mockResolvedValue(mockPrice);
+      jest.spyOn(customerManager, 'retrieve').mockResolvedValue(mockCustomer);
+      jest
+        .spyOn(invoiceManager, 'preview')
+        .mockResolvedValue(mockInvoicePreview);
+      jest
+        .spyOn(accountManager, 'getAccounts')
+        .mockResolvedValue([mockAccount]);
+
+      const result = await cartService.getCart(mockCart.id);
+      expect(accountManager.getAccounts).toHaveBeenCalledWith([mockUid]);
+      expect(result.metricsOptedOut).toBeFalsy();
+    });
+
+    it('has metricsOptedOut set to false if the cart has no associated account', async () => {
+      const mockCart = ResultCartFactory();
+      const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
+      const mockPrice = StripePriceFactory();
+      const mockInvoicePreview = InvoicePreviewFactory();
+
+      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+      jest
+        .spyOn(productConfigurationManager, 'retrieveStripePrice')
+        .mockResolvedValue(mockPrice);
+      jest.spyOn(customerManager, 'retrieve').mockResolvedValue(mockCustomer);
+      jest
+        .spyOn(invoiceManager, 'preview')
+        .mockResolvedValue(mockInvoicePreview);
+      jest.spyOn(accountManager, 'getAccounts').mockResolvedValue([]);
+
+      const result = await cartService.getCart(mockCart.id);
+      expect(accountManager.getAccounts).not.toHaveBeenCalled();
+      expect(result.metricsOptedOut).toBeFalsy();
+    });
+  });
+
+  describe('metricsOptedOut', () => {
+    it('returns true if account has opted out of metrics', async () => {
+      const mockUid = faker.string.hexadecimal({
+        length: 32,
+        prefix: '',
+        casing: 'lower',
+      });
+      const mockAccount = AccountFactory({
+        uid: Buffer.from(mockUid, 'hex'),
+        metricsOptOutAt: faker.date.recent().valueOf(),
+      });
+
+      jest
+        .spyOn(accountManager, 'getAccounts')
+        .mockResolvedValue([mockAccount]);
+
+      const result = await cartService.metricsOptedOut(mockUid);
+      expect(accountManager.getAccounts).toHaveBeenCalledWith([mockUid]);
+      expect(result).toBeTruthy();
+    });
+    it('returns false if account has not opted out of metrics', async () => {
+      const mockUid = faker.string.hexadecimal({
+        length: 32,
+        prefix: '',
+        casing: 'lower',
+      });
+      const mockAccount = AccountFactory({
+        uid: Buffer.from(mockUid, 'hex'),
+      });
+
+      jest
+        .spyOn(accountManager, 'getAccounts')
+        .mockResolvedValue([mockAccount]);
+
+      const result = await cartService.metricsOptedOut(mockUid);
+      expect(accountManager.getAccounts).toHaveBeenCalledWith([mockUid]);
+      expect(result).toBeFalsy();
     });
   });
 });

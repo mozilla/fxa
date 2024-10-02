@@ -12,12 +12,7 @@ import { buildSentryConfig } from '../config-builder';
 import { Logger } from '../sentry.types';
 import { beforeSend } from '../utils/beforeSend.client';
 
-/**
- * @@todo - To be worked on in FXA-10398
- */
-const sentryEnabled = true;
-
-export function initSentryForNextjsClient(
+export async function initSentryForNextjsClient(
   config: SentryConfigOpts,
   log?: Logger
 ) {
@@ -40,7 +35,7 @@ export function initSentryForNextjsClient(
     Sentry.init({
       ...opts,
       beforeSend: function (event: Sentry.ErrorEvent) {
-        return beforeSend(sentryEnabled, opts, event);
+        return beforeSend(opts, event);
       },
     });
   } catch (e) {
