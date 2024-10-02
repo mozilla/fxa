@@ -415,9 +415,16 @@ Router = Router.extend({
       );
     },
 
-    'reset_password_confirmed(/)': createViewHandler(ReadyView, {
-      type: VerificationReasons.PASSWORD_RESET,
-    }),
+    'reset_password_confirmed(/)': function () {
+      this.createReactOrBackboneViewHandler(
+        'reset_password_verified',
+        ReadyView,
+        null,
+        {
+          type: VerificationReasons.PASSWORD_RESET,
+        }
+      );
+    },
 
     'reset_password_with_recovery_key_verified(/)': function () {
       this.createReactOrBackboneViewHandler(

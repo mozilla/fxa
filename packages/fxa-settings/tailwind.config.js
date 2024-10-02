@@ -90,6 +90,30 @@ config.theme.extend = {
       '0%, 50%': { strokeDashoffset: 100, strokeDasharray: 100 },
       '60%, 100%': { strokeDashoffset: 0 },
     },
+    'draw-stroke-and-fade-out': {
+      '0%': {
+        strokeDasharray: 100,
+        strokeDashoffset: 100,
+        opacity: 0,
+      },
+      '10%': {
+        opacity: 1,
+      },
+      '50%': {
+        strokeDasharray: 100,
+        strokeDashoffset: 100,
+      },
+      '60%': {
+        strokeDashoffset: 0,
+      },
+      '80%': {
+        opacity: 1,
+      },
+      '100%': {
+        opacity: 0,
+        strokeDashoffset: 0,
+      },
+    },
     'pulse-stroke': {
       '0%, 100%': { 'stroke-dashoffset': 6, 'stroke-dasharray': 10 },
       '50%': { 'stroke-dashoffset': 0, 'stroke-dasharray': 10 },
@@ -134,6 +158,7 @@ config.theme.extend = {
     'pulse-second': 'twinkle 3s infinite ease-in-out alternate',
     'pulse-third': 'twinkle 3.5s infinite ease-in-out alternate',
     'draw-stroke': 'draw-stroke 5s ease-in forwards',
+    'draw-stroke-repeat': 'draw-stroke-and-fade-out 5s ease-in infinite',
     'wait-and-appear': 'wait-and-appear 2s ease-out 1',
     'glide-right': 'glide-right 3s 1 ease-in-out',
     'appear-first': 'appear-first 3s ease-in-out ',

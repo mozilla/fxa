@@ -3,71 +3,54 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import ResetPasswordConfirmed, { viewName } from '.';
-import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
-import { REACT_ENTRYPOINT } from '../../../constants';
+import ResetPasswordConfirmed from '.';
 import { MozServices } from '../../../lib/types';
+import userEvent from '@testing-library/user-event';
 
-jest.mock('../../../lib/metrics', () => ({
-  logViewEvent: jest.fn(),
-  usePageViewEvent: jest.fn(),
-}));
-jest.mock('../../../lib/glean', () => ({
-  passwordReset: {
-    createNewSuccess: jest.fn(),
-  },
-}));
+const mockContinueHandler = jest.fn();
 
 describe('ResetPasswordConfirmed', () => {
-  async function renderResetPasswordConfirmed(
-    props: {
-      isSignedIn: boolean;
-      serviceName: MozServices;
-      continueHandler?: Function;
-    } = {
-      isSignedIn: false,
-      serviceName: MozServices.Default,
-    }
-  ) {
-    renderWithLocalizationProvider(<ResetPasswordConfirmed {...props} />);
-    await waitFor(() => new Promise((r) => setTimeout(r, 100)));
-  }
-
-  it('renders Ready component as expected when signed in', async () => {
-    await renderResetPasswordConfirmed({
-      isSignedIn: true,
-      serviceName: MozServices.Default,
-    });
-    const passwordResetConfirmation = screen.getByText(
-      'Your password has been reset'
+  it('renders as expected', async () => {
+    renderWithLocalizationProvider(
+      <ResetPasswordConfirmed
+        continueHandler={mockContinueHandler}
+        serviceName={MozServices.Monitor}
+      />
     );
-    const serviceAvailabilityConfirmation = screen.getByText(
-      'You’re now ready to use account settings'
+    expect(
+      screen.getByText('Your password has been reset')
+    ).toBeInTheDocument();
+    const submitButton = screen.getByRole('button');
+    expect(submitButton).toHaveTextContent('Continue to Mozilla Monitor');
+    expect(submitButton).toHaveAttribute(
+      'data-glean-id',
+      'password_reset_success_continue_to_relying_party_submit'
     );
-    expect(passwordResetConfirmation).toBeInTheDocument();
-    expect(serviceAvailabilityConfirmation).toBeInTheDocument();
   });
 
-  it('emits the expected metrics on render', async () => {
-    await renderResetPasswordConfirmed();
-    expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
+  it('renders an error message when one is provided', async () => {
+    const errorMessage = 'An error occurred';
+    renderWithLocalizationProvider(
+      <ResetPasswordConfirmed
+        continueHandler={mockContinueHandler}
+        serviceName={MozServices.Monitor}
+        {...{ errorMessage }}
+      />
+    );
+    expect(screen.getByText(errorMessage)).toBeInTheDocument();
   });
 
-  it('emits the expected metrics when a user clicks `Continue`', async () => {
-    await renderResetPasswordConfirmed({
-      isSignedIn: false,
-      serviceName: MozServices.Default,
-      continueHandler: () => {},
-    });
-    const passwordResetContinueButton = screen.getByText('Continue');
-
-    fireEvent.click(passwordResetContinueButton);
-    expect(logViewEvent).toHaveBeenCalledWith(
-      viewName,
-      `flow.${viewName}.continue`,
-      REACT_ENTRYPOINT
+  it('handles submit correctly', async () => {
+    const user = userEvent.setup();
+    renderWithLocalizationProvider(
+      <ResetPasswordConfirmed
+        continueHandler={mockContinueHandler}
+        serviceName={MozServices.Monitor}
+      />
     );
+    user.click(screen.getByRole('button'));
+    await waitFor(() => expect(mockContinueHandler).toHaveBeenCalledTimes(1));
   });
 });

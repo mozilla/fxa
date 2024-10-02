@@ -63,36 +63,18 @@ test.describe('severity-1 #smoke', () => {
       await resetPassword.fillOutNewPasswordForm(newPassword);
 
       // After using a recovery key to reset password, expect to be prompted to create a new one
+      await expect(page).toHaveURL(/reset_password_with_recovery_key_verified/);
+      await expect(resetPassword.passwordResetSuccessMessage).toBeVisible();
       await expect(resetPassword.generateRecoveryKeyButton).toBeVisible();
+
+      // User is shown a prompt to generate a new recovery key
+      // and is signed in after the password reset so can click through to create a new key.
       await resetPassword.generateRecoveryKeyButton.click();
+      await expect(recoveryKey.accountRecoveryKeyHeading).toBeVisible();
+      await recoveryKey.createRecoveryKey(newPassword, 'hint');
 
-      // TODO in FXA-7904 - Verify that a new recovery key is generated without needing to sign in again
-      // not currently implemented
-      await page.waitForURL(/settings\/account_recovery/);
-
-      // Attempt to sign in with new password
-      const { sessionToken } = await target.authClient.signIn(
-        credentials.email,
-        newPassword
-      );
-
-      const newAccountData = await target.authClient.sessionReauth(
-        sessionToken,
-        credentials.email,
-        newPassword,
-        {
-          keys: true,
-          reason: 'recovery_key',
-        }
-      );
-      expect(newAccountData.keyFetchToken).toBeDefined();
-      expect(newAccountData.unwrapBKey).toBeDefined();
-
-      const newEncryptionKeys = await target.authClient.accountKeys(
-        newAccountData.keyFetchToken as string,
-        newAccountData.unwrapBKey as string
-      );
-      expect(originalEncryptionKeys).toEqual(newEncryptionKeys);
+      await expect(settings.settingsHeading).toBeVisible();
+      await expect(settings.recoveryKey.status).toHaveText('Enabled');
 
       // update password for cleanup function
       credentials.password = newPassword;

@@ -8,7 +8,7 @@ import InlineRecoveryKeySetupCreate from '../../components/InlineRecoveryKeySetu
 import RecoveryKeySetupDownload from '../../components/RecoveryKeySetupDownload';
 import AppLayout from '../../components/AppLayout';
 import {
-  CircleCheckOutlineImage,
+  CheckmarkCircleOutlineIcon,
   RecoveryKeyImage,
 } from '../../components/images';
 import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
@@ -63,7 +63,7 @@ export const InlineRecoveryKeySetup = ({
           <>
             <Banner type={BannerType.success} additionalClassNames="mt-0">
               <p className="flex justify-center text-base">
-                <CircleCheckOutlineImage className="me-3" />
+                <CheckmarkCircleOutlineIcon className="me-3" />
                 <span>
                   <FtlMsg id="inline-recovery-key-setup-recovery-created">
                     Account recovery key created

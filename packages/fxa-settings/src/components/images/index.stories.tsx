@@ -15,6 +15,9 @@ import {
   RecoveryCodesImage,
   RecoveryKeyImage,
   TwoFactorAuthImage,
+  CheckmarkCircleOutlineIcon,
+  CheckmarkCircleFullIcon,
+  PasswordSuccessImage,
 } from '.';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 
@@ -30,6 +33,9 @@ export default {
     RecoveryCodesImage,
     RecoveryKeyImage,
     TwoFactorAuthImage,
+    CheckmarkCircleOutlineIcon,
+    CheckmarkCircleFullIcon,
+    PasswordSuccessImage,
   },
   decorators: [withLocalization],
 } as Meta;
@@ -51,3 +57,9 @@ export const Mail = () => <MailImage />;
 export const RecoveryCodes = () => <RecoveryCodesImage />;
 
 export const TwoFactorAuth = () => <TwoFactorAuthImage />;
+
+export const CircleCheckOutline = () => <CheckmarkCircleOutlineIcon />;
+
+export const CircleCheckFull = () => <CheckmarkCircleFullIcon />;
+
+export const PasswordSuccess = () => <PasswordSuccessImage />;

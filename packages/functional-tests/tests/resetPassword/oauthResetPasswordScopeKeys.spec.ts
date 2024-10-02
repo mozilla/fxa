@@ -32,12 +32,16 @@ test.describe('severity-1 #smoke', () => {
       await resetPassword.fillOutNewPasswordForm(newPassword);
 
       await expect(page).toHaveURL(/reset_password_verified/);
+      await expect(resetPassword.passwordResetSuccessMessage).toBeVisible();
+
       await expect(
-        resetPassword.passwordResetConfirmationHeading
+        resetPassword.passwordResetConfirmationContinueButton
       ).toBeVisible();
 
-      // TODO in FXA-9561 - Verify that the service name is displayed in the "Continue to ${serviceName}" button
-      // This functionality is not yet implemented in the reset password flow
+      await resetPassword.passwordResetConfirmationContinueButton.click();
+
+      await expect(page).toHaveURL(target.relierUrl);
+      expect(await relier.isLoggedIn()).toBe(true);
 
       // update password for cleanup function
       credentials.password = newPassword;

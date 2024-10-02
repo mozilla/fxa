@@ -13,7 +13,9 @@ import { ReactComponent as Key } from './graphic_recovery_key.min.svg';
 import { ReactComponent as Password } from './graphic_password.min.svg';
 import { ReactComponent as Lightbulb } from './graphic_recovery_key_hint.min.svg';
 import { ReactComponent as EmailCode } from './graphic_email_code.svg';
-import { ReactComponent as CircleCheckOutline } from './icon-circle-check-outline.svg';
+import { ReactComponent as CircleCheckOutline } from './icon_checkmark_circle_outline.svg';
+import { ReactComponent as CircleCheckFull } from './icon_checkmark_circle_full.svg';
+import { ReactComponent as PasswordSuccess } from './graphic_password_success.min.svg';
 
 import { FtlMsg } from 'fxa-react/lib/utils';
 
@@ -155,10 +157,23 @@ export const EmailCodeImage = ({ className, ariaHidden }: ImageProps) => (
   />
 );
 
-export const CircleCheckOutlineImage = ({ className }: ImageProps) => (
+export const PasswordSuccessImage = ({ className, ariaHidden }: ImageProps) => (
+  <PreparedImage
+    ariaLabel="Illustration to represent a successful password change."
+    ariaLabelFtlId="password-success-image-aria-label"
+    Image={PasswordSuccess}
+    {...{ className, ariaHidden }}
+  />
+);
+
+export const CheckmarkCircleOutlineIcon = ({ className }: ImageProps) => (
   <PreparedImage
     Image={CircleCheckOutline}
     ariaHidden={true}
     {...{ className }}
   />
+);
+
+export const CheckmarkCircleFullIcon = ({ className }: ImageProps) => (
+  <PreparedImage Image={CircleCheckFull} ariaHidden={true} {...{ className }} />
 );
