@@ -73,11 +73,29 @@ export function persistAccount(accountData: StoredAccountData) {
   storage.set('accounts', accounts);
 }
 
+/**
+ * Checks to see there is an account stored in local storage for the give uid
+ * @param uid An account id
+ */
+export function hasAccount(uid: string) {
+  const storage = localStorage();
+  let accounts = storage.get('accounts') || {};
+  return !!accounts[uid];
+}
+
+/**
+ * Sets the current account uid, aka the 'active' account id.
+ * @param uid
+ */
 export function setCurrentAccount(uid: string) {
   const storage = localStorage();
   storage.set('currentAccountUid', uid);
 }
 
+/**
+ * Stores account data in local storage
+ * @param accountData
+ */
 export function storeAccountData(accountData: StoredAccountData) {
   persistAccount(accountData);
   setCurrentAccount(accountData.uid);
