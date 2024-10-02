@@ -647,6 +647,24 @@ const convictConf = convict({
     env: 'SNS_TOPIC_ENDPOINT',
     default: undefined,
   },
+
+  notifier: {
+    sns: {
+      snsTopicArn: {
+        doc: 'Amazon SNS topic on which to send account event notifications. Set to "disabled" to turn off the notifier',
+        format: String,
+        env: 'SNS_TOPIC_ARN',
+        default: '',
+      },
+
+      snsTopicEndpoint: {
+        doc: 'Amazon SNS topic endpoint',
+        format: String,
+        env: 'SNS_TOPIC_ENDPOINT',
+        default: undefined,
+      },
+    },
+  },
   emailNotifications: {
     region: {
       doc: 'The region where the queues live, most likely the same region we are sending email e.g. us-east-1, us-west-2',

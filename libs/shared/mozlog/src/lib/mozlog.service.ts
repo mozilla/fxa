@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Injectable, Scope } from '@nestjs/common';
+import { Inject, Injectable, Scope } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import mozlog, { Logger as MozLogger, LoggerFactory } from 'mozlog';
 
@@ -12,7 +12,7 @@ let logFactory: LoggerFactory;
 export class MozLoggerService {
   private mozlog: MozLogger;
 
-  constructor(configService: ConfigService) {
+  constructor(@Inject(ConfigService) configService: ConfigService) {
     if (!logFactory) {
       logFactory = mozlog(configService.get('log'));
     }

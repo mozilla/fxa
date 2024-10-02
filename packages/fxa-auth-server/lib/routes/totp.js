@@ -311,7 +311,7 @@ module.exports = (log, db, mailer, customs, config, glean, profileClient) => {
 
           await profileClient.deleteCache(uid);
           await log.notifyAttachedServices('profileDataChange', request, {
-            uid
+            uid,
           });
         }
 
