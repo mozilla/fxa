@@ -12,6 +12,8 @@ Available options:
 - `FIREFOX_DEBUGGER=true` - open the [Browser Toolbox](https://developer.mozilla.org/en-US/docs/Tools/Browser_Toolbox) on start (NOTE: `false` by default for speed).
 - `FXA_DESKTOP_CONTEXT` - context value for the fxa-content-server: `context=[value]` (NOTE: `fx_desktop_v3` is default).
 
+Tip: run `FXA_DESKTOP_CONTEXT=oauth_webchannel_v1 yarn firefox` to test the OAuth Desktop flow.
+
 ### Basic Usage Example in OS X
 
 - Download node.js

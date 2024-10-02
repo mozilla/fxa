@@ -18,7 +18,7 @@ export function hardNavigate(
   // If there are any query params in the href, we automatically include them in the new url.
   const url = new URL(href, window.location.origin);
 
-  if (includeCurrentQueryParams) {
+  if (includeCurrentQueryParams && window.location.search) {
     const currentSearchParams = new URLSearchParams(window.location.search);
     currentSearchParams.forEach((value, key) => {
       if (!url.searchParams.has(key)) {

@@ -132,10 +132,10 @@ const SigninUnblock = ({
         queryParams: location.search,
       };
 
-      const { error: navError } = await handleNavigation(
-        navigationOptions,
-        true
-      );
+      const { error: navError } = await handleNavigation(navigationOptions, {
+        handleFxaLogin: true,
+        handleFxaOAuthLogin: true,
+      });
       if (navError) {
         setBannerErrorMessage(
           getLocalizedErrorMessage(ftlMsgResolver, navError)

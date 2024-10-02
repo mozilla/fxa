@@ -208,10 +208,10 @@ const Signin = ({
           showInlineRecoveryKeySetup: data.showInlineRecoveryKeySetup,
         };
 
-        const { error: navError } = await handleNavigation(
-          navigationOptions,
-          true
-        );
+        const { error: navError } = await handleNavigation(navigationOptions, {
+          handleFxaLogin: true,
+          handleFxaOAuthLogin: true,
+        });
         if (navError) {
           setBannerError(getLocalizedErrorMessage(ftlMsgResolver, navError));
         }

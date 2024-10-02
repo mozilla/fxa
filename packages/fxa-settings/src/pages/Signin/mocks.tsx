@@ -107,9 +107,11 @@ export function createMockSigninWebIntegration(): SigninIntegration {
   };
 }
 
-export function createMockSigninSyncIntegration(): SigninIntegration {
+export function createMockSigninSyncIntegration(
+  type = IntegrationType.OAuth
+): SigninIntegration {
   return {
-    type: IntegrationType.OAuth,
+    type,
     isSync: () => true,
     wantsKeys: () => true,
     getService: () => MozServices.FirefoxSync,

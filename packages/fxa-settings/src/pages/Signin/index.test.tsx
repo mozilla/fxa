@@ -37,6 +37,8 @@ import {
 } from '../../models/integrations/client-matching';
 import firefox from '../../lib/channels/firefox';
 import { navigate } from '@reach/router';
+import { sessionToken } from '../../lib/cache';
+import { IntegrationType } from '../../models';
 
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
@@ -402,7 +404,7 @@ describe('Signin', () => {
           });
 
           // When CAD is converted to React, just test navigation since CAD will handle fxaLogin
-          describe('fxaLogin webchannel message (tempHandleSyncLogin)', () => {
+          describe('fxaLogin webchannel message', () => {
             let fxaLoginSpy: jest.SpyInstance;
             let hardNavigateSpy: jest.SpyInstance;
             beforeEach(() => {
@@ -412,14 +414,28 @@ describe('Signin', () => {
                 .mockImplementation(() => {});
             });
             it('is sent if Sync integration and navigates to CAD', async () => {
-              const beginSigninHandler = jest
-                .fn()
-                .mockReturnValueOnce(createBeginSigninResponse());
-              const integration = createMockSigninSyncIntegration();
+              const beginSigninHandler = jest.fn().mockReturnValueOnce(
+                createBeginSigninResponse({
+                  keyFetchToken: MOCK_KEY_FETCH_TOKEN,
+                  unwrapBKey: MOCK_UNWRAP_BKEY,
+                })
+              );
+              const integration = createMockSigninSyncIntegration(
+                IntegrationType.SyncDesktopV3
+              );
               render({ beginSigninHandler, integration });
               enterPasswordAndSubmit();
               await waitFor(() => {
-                expect(fxaLoginSpy).toHaveBeenCalled();
+                // Since it's not OAuth, this should be called with keyFetchToken and unwrapBKey
+                expect(fxaLoginSpy).toHaveBeenCalledWith({
+                  email: MOCK_EMAIL,
+                  sessionToken: MOCK_SESSION_TOKEN,
+                  uid: MOCK_UID,
+                  verified: true,
+                  services: { sync: {} },
+                  keyFetchToken: MOCK_KEY_FETCH_TOKEN,
+                  unwrapBKey: MOCK_UNWRAP_BKEY,
+                });
               });
               expect(hardNavigateSpy).toHaveBeenCalledWith(
                 '/pair?showSuccessMessage=true'
@@ -558,8 +574,23 @@ describe('Signin', () => {
               });
               enterPasswordAndSubmit();
               await waitFor(() => {
-                expect(fxaLoginSpy).toHaveBeenCalled();
+                // Ensure it's not called with keyFetchToken or unwrapBKey
+                expect(fxaLoginSpy).toHaveBeenCalledWith({
+                  email: MOCK_EMAIL,
+                  sessionToken: MOCK_SESSION_TOKEN,
+                  uid: MOCK_UID,
+                  verified: true,
+                  services: { sync: {} },
+                });
                 expect(fxaOAuthLoginSpy).toHaveBeenCalled();
+
+                const fxaLoginCallOrder =
+                  fxaLoginSpy.mock.invocationCallOrder[0];
+                const fxaOAuthLoginCallOrder =
+                  fxaOAuthLoginSpy.mock.invocationCallOrder[0];
+                // Ensure fxaLogin is called first
+                expect(fxaLoginCallOrder).toBeLessThan(fxaOAuthLoginCallOrder);
+
                 expect(hardNavigateSpy).toHaveBeenCalledWith(
                   '/pair?showSuccessMessage=true'
                 );

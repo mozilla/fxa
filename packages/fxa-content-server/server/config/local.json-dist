@@ -24,6 +24,7 @@
         "redirectUris": [
           "http://localhost:3030/oauth/success/a2270f727f45f648",
           "http://localhost:3030/oauth/success/1b1a3e44c54fbb58",
+          "http://localhost:3030/oauth/success/5882386c6d801776",
           "urn:ietf:wg:oauth:2.0:oob:pair-auth-webchannel",
           "urn:ietf:wg:oauth:2.0:oob:oauth-redirect-webchannel"
         ]

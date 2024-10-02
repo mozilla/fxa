@@ -160,7 +160,10 @@ const SigninTokenCode = ({
 
         await GleanMetrics.isDone();
 
-        const { error: navError } = await handleNavigation(navigationOptions);
+        const { error: navError } = await handleNavigation(navigationOptions, {
+          handleFxaLogin: false,
+          handleFxaOAuthLogin: true,
+        });
         if (navError) {
           const localizedError = getLocalizedErrorMessage(
             ftlMsgResolver,
