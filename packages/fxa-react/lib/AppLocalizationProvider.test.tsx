@@ -26,6 +26,17 @@ describe('<AppLocalizationProvider/>', () => {
   }
 
   beforeAll(() => {
+    fetchMock.get(
+      '/static-asset-manifest.json',
+      `
+      {
+        "/locales/en-US/greetings.ftl": "/locales/en-US/greetings.ftl",
+        "/locales/en-US/farewells.ftl": "/locales/en-US/farewells.ftl",
+        "/locales/es-ES/greetings.ftl": "/locales/es-ES/greetings.ftl",
+        "/locales/en-GB/greetings.ftl": "/locales/en-GB/greetings.ftl",
+      }
+      `
+    );
     fetchMock.get('/locales/en-US/greetings.ftl', 'hello = Hello\n');
     fetchMock.get('/locales/en-US/farewells.ftl', 'goodbye = Goodbye\n');
     fetchMock.get('/locales/es-ES/greetings.ftl', 'hello = Hola\n');

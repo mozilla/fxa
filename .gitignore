@@ -150,6 +150,7 @@ packages/fxa-react/test/
 
 # fxa-settings
 packages/fxa-settings/fxa-content-server-l10n/
+packages/fxa-settings/public/static
 packages/fxa-settings/public/locales
 packages/fxa-settings/legal-docs/
 packages/fxa-settings/public/legal-docs

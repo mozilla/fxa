@@ -999,7 +999,7 @@ const conf = (module.exports = convict({
   },
   l10n: {
     baseUrl: {
-      default: '/settings/locales',
+      default: '/settings/static',
       doc: 'The path (or url) where ftl files are held.',
       env: 'L10N_BASE_URL',
     },
