@@ -41301,7 +41301,7 @@ fsevents@~2.1.1:
     fxa-profile-server: "workspace:*"
     fxa-shared: "workspace:*"
     graphql-parse-resolve-info: ^4.13.0
-    graphql-query-complexity: ^0.12.0
+    graphql-query-complexity: ^1.0.0
     helmet: ^8.0.0
     hot-shots: ^10.0.0
     jest: 29.3.1
@@ -43105,14 +43105,14 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"graphql-query-complexity@npm:^0.12.0":
-  version: 0.12.0
-  resolution: "graphql-query-complexity@npm:0.12.0"
+"graphql-query-complexity@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "graphql-query-complexity@npm:1.0.0"
   dependencies:
     lodash.get: ^4.4.2
   peerDependencies:
     graphql: ^14.6.0 || ^15.0.0 || ^16.0.0
-  checksum: 9323bebd2a3cc5d85c34a8426f6312721a5bf5f465eb00c1fceb5fd2779a1f26edc48c119a3db6cf8e000390aacfe2126de3b316a159bd6742877ae97519df2f
+  checksum: 1cc9ce5379922f69acf3fbb63a88500d759340a179c93df845d385f1835b59aad7153bc15fce6d654af04954414b689b9fa6d7ba576470c4e17fefe2955bd23a
   languageName: node
   linkType: hard
 
