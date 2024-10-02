@@ -41635,6 +41635,7 @@ fsevents@~2.1.1:
     grunt-cli: ^1.4.3
     grunt-contrib-concat: ^2.1.0
     grunt-contrib-watch: ^1.1.0
+    grunt-hash: ^0.5.0
     html-webpack-plugin: ^5.6.0
     identity-obj-proxy: ^3.0.0
     jest: ^29.7.0
@@ -41653,6 +41654,7 @@ fsevents@~2.1.1:
     postcss-normalize: ^10.0.1
     postcss-preset-env: ^10.0.5
     prop-types: ^15.8.1
+    raw-loader: ^4.0.2
     react-app-polyfill: ^3.0.0
     react-async-hook: ^4.0.0
     react-dev-utils: ^12.0.1
@@ -43344,6 +43346,15 @@ fsevents@~2.1.1:
   version: 1.0.2
   resolution: "grunt-file-rev@npm:1.0.2"
   checksum: 014549ba086c7f7f4c9995d22802102a4bb5d472984606eef15b160d779088fdc1a661939f2a3a6b226c5e5fb7ab89b95a320f92464abd9ff3137bb7a358d1b2
+  languageName: node
+  linkType: hard
+
+"grunt-hash@npm:^0.5.0":
+  version: 0.5.0
+  resolution: "grunt-hash@npm:0.5.0"
+  bin:
+    grunt-hash: bin/grunt-hash
+  checksum: 2781250dbd476e8302085d816e60a94e0f94f9696e8cd434cecbb66dfc444a561d251409ae88e1f5d82be2996c390aa8681d5fb8f3638ba30e496417e61cf5cd
   languageName: node
   linkType: hard
 
@@ -59761,6 +59772,18 @@ fsevents@~2.1.1:
     bytes: 1
     string_decoder: 0.10
   checksum: 75ab1815ac54992abccccdffb27bd9ad9f5b6f5fb66e740474ad0d1bd3c1425e407b2be5eb34e0bef3da2c66bfa6a2c2b77498596f5b9999ead2d449fff0226f
+  languageName: node
+  linkType: hard
+
+"raw-loader@npm:^4.0.2":
+  version: 4.0.2
+  resolution: "raw-loader@npm:4.0.2"
+  dependencies:
+    loader-utils: ^2.0.0
+    schema-utils: ^3.0.0
+  peerDependencies:
+    webpack: ^4.0.0 || ^5.0.0
+  checksum: 51cc1b0d0e8c37c4336b5318f3b2c9c51d6998ad6f56ea09612afcfefc9c1f596341309e934a744ae907177f28efc9f1654eacd62151e82853fcc6d37450e795
   languageName: node
   linkType: hard
 
