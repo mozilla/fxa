@@ -11,11 +11,10 @@ import { Integration } from '../../../models';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { LocationProvider } from '@reach/router';
 import SigninTokenCodeContainer from './container';
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, act } from '@testing-library/react';
 import { MOCK_EMAIL, MOCK_STORED_ACCOUNT } from '../../mocks';
 import { createMockWebIntegration } from '../../../lib/integrations/mocks';
 import { createMockSigninLocationState } from './mocks';
-import { act } from 'react-dom/test-utils';
 
 let integration: Integration;
 

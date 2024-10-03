@@ -22,6 +22,7 @@ import { hardNavigate } from 'fxa-react/lib/utils';
 import { QueryParams } from '../..';
 import { queryParamsToMetricsContext } from '../../lib/metrics';
 import GleanMetrics from '../../lib/glean';
+import { act } from '@testing-library/react';
 
 export const InlineTotpSetupContainer = ({
   isSignedIn,
@@ -79,7 +80,9 @@ export const InlineTotpSetupContainer = ({
       // The user is navigated to this page by the web application in response to
       // a sign-in attempt.  But let's do some sanity checks.
       const verified = await session.isSessionVerified();
-      setSessionVerified(verified);
+      await act(async () => {
+        setSessionVerified(verified);
+      });
     })();
   }, [session, sessionVerified]);
 
@@ -97,6 +100,9 @@ export const InlineTotpSetupContainer = ({
         },
       });
       setTotp(totpResp.data?.createTotp);
+      await act(async () => {
+        setTotp(totpResp.data?.createTotp);
+      });
     })();
   }, [createTotp, metricsContext, totpStatus, totpStatusLoading, totp]);
 

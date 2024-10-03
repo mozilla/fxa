@@ -4,6 +4,7 @@
 
 import React, { ChangeEvent, useState, useCallback } from 'react';
 import { ReactComponent as Checkmark } from './checkmark.svg';
+import { act } from '@testing-library/react';
 
 export type CheckboxProps = {
   defaultChecked?: boolean;
@@ -29,7 +30,9 @@ export const Checkbox = ({
   }, [setFocused]);
 
   const checkboxBlur = useCallback(() => {
-    setFocused(false);
+    act(() => {
+      setFocused(false);
+    });
   }, [setFocused]);
 
   const checkboxChange = useCallback(

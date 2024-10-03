@@ -11,6 +11,7 @@ import React, {
 } from 'react';
 import classNames from 'classnames';
 import { Tooltip } from '../Tooltip';
+import { act } from '@testing-library/react';
 
 export type InputTextProps = {
   defaultValue?: string | number;
@@ -86,12 +87,17 @@ export const InputText = ({
   }, [onFocusCb]);
 
   const checkHasContent = (event: ChangeEvent<HTMLInputElement>) =>
-    setHasContent(event.target.value.length > 0);
+    //setHasContent(event.target.value.length > 0);
+    act(() => {
+      setHasContent(event.target.value.length > 0);
+    });
 
   const onBlur = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
       checkHasContent(event);
-      setFocused(false);
+      act(() => {
+        setFocused(false);
+      });
       if (onBlurCb) {
         onBlurCb();
       }

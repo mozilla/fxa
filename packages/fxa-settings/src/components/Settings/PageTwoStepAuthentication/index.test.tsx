@@ -73,7 +73,7 @@ const render = (acct: Account = account, verified: boolean = true) =>
 
 const inputTotp = async (totp: string) => {
   await act(async () => {
-    await fireEvent.input(screen.getByTestId('totp-input-field'), {
+    fireEvent.input(screen.getByTestId('totp-input-field'), {
       target: { value: totp },
     });
   });
@@ -82,7 +82,7 @@ const inputTotp = async (totp: string) => {
 const submitTotp = async (totp: string) => {
   await inputTotp(totp);
   await act(async () => {
-    await fireEvent.click(screen.getByTestId('submit-totp'));
+    fireEvent.click(screen.getByTestId('submit-totp'));
   });
 };
 
@@ -207,7 +207,7 @@ describe('step 3', () => {
     });
     await submitTotp('867530');
     await act(async () => {
-      await fireEvent.click(screen.getByTestId('ack-recovery-code'));
+      fireEvent.click(screen.getByTestId('ack-recovery-code'));
     });
   };
 
@@ -226,12 +226,12 @@ describe('step 3', () => {
   it('shows an error when an incorrect backup authentication code is entered', async () => {
     await getRecoveryCodes();
     await act(async () => {
-      await fireEvent.input(screen.getByTestId('recovery-code-input-field'), {
+      fireEvent.input(screen.getByTestId('recovery-code-input-field'), {
         target: { value: 'bogus' },
       });
     });
     await act(async () => {
-      await fireEvent.click(screen.getByTestId('submit-recovery-code'));
+      fireEvent.click(screen.getByTestId('submit-recovery-code'));
     });
     expect(screen.getByTestId('tooltip')).toBeInTheDocument();
     expect(screen.getByTestId('tooltip')).toHaveTextContent(
@@ -251,14 +251,14 @@ describe('step 3', () => {
     await getRecoveryCodes(account);
     (getCode as jest.Mock).mockResolvedValue('999911');
     await act(async () => {
-      await fireEvent.input(screen.getByTestId('recovery-code-input-field'), {
+      fireEvent.input(screen.getByTestId('recovery-code-input-field'), {
         target: {
           value: totp.recoveryCodes[0],
         },
       });
     });
     await act(async () => {
-      await fireEvent.click(screen.getByTestId('submit-recovery-code'));
+      fireEvent.click(screen.getByTestId('submit-recovery-code'));
     });
   });
 
@@ -275,14 +275,14 @@ describe('step 3', () => {
     await getRecoveryCodes(account);
     (getCode as jest.Mock).mockResolvedValue('009001');
     await act(async () => {
-      await fireEvent.input(screen.getByTestId('recovery-code-input-field'), {
+      fireEvent.input(screen.getByTestId('recovery-code-input-field'), {
         target: {
           value: totp.recoveryCodes[0],
         },
       });
     });
     await act(async () => {
-      await fireEvent.click(screen.getByTestId('submit-recovery-code'));
+      fireEvent.click(screen.getByTestId('submit-recovery-code'));
     });
     expect(screen.getByTestId('tooltip')).toBeInTheDocument();
   });
@@ -305,20 +305,20 @@ describe('step 3', () => {
 
     await submitTotp('867530');
     await act(async () => {
-      await fireEvent.click(screen.getByTestId('ack-recovery-code'));
+      fireEvent.click(screen.getByTestId('ack-recovery-code'));
     });
 
     (getCode as jest.Mock).mockClear();
     (getCode as jest.Mock).mockResolvedValue('001980');
     await act(async () => {
-      await fireEvent.input(screen.getByTestId('recovery-code-input-field'), {
+      fireEvent.input(screen.getByTestId('recovery-code-input-field'), {
         target: {
           value: totp.recoveryCodes[0],
         },
       });
     });
     await act(async () => {
-      await fireEvent.click(screen.getByTestId('submit-recovery-code'));
+      fireEvent.click(screen.getByTestId('submit-recovery-code'));
     });
     expect(getCode).toBeCalledTimes(1);
     expect(
@@ -360,29 +360,29 @@ describe('metrics', () => {
     await submitTotp('867530');
 
     await act(async () => {
-      await fireEvent.click(screen.getByTestId('databutton-copy'));
+      fireEvent.click(screen.getByTestId('databutton-copy'));
     });
     await act(async () => {
-      await fireEvent.click(screen.getByTestId('databutton-print'));
+      fireEvent.click(screen.getByTestId('databutton-print'));
     });
     await act(async () => {
-      await fireEvent.click(screen.getByTestId('databutton-download'));
+      fireEvent.click(screen.getByTestId('databutton-download'));
     });
 
     await act(async () => {
-      await fireEvent.click(screen.getByTestId('ack-recovery-code'));
+      fireEvent.click(screen.getByTestId('ack-recovery-code'));
     });
 
     (getCode as jest.Mock).mockResolvedValue('001980');
     await act(async () => {
-      await fireEvent.input(screen.getByTestId('recovery-code-input-field'), {
+      fireEvent.input(screen.getByTestId('recovery-code-input-field'), {
         target: {
           value: totp.recoveryCodes[0],
         },
       });
     });
     await act(async () => {
-      await fireEvent.click(screen.getByTestId('submit-recovery-code'));
+      fireEvent.click(screen.getByTestId('submit-recovery-code'));
     });
 
     expect(mockLogPageViewEvent).toBeCalledTimes(2);
@@ -420,10 +420,10 @@ describe('back button', () => {
     });
     await submitTotp('867530');
     await act(async () => {
-      await fireEvent.click(screen.getByTestId('ack-recovery-code'));
+      fireEvent.click(screen.getByTestId('ack-recovery-code'));
     });
     await act(async () => {
-      await fireEvent.input(screen.getByTestId('recovery-code-input-field'), {
+      fireEvent.input(screen.getByTestId('recovery-code-input-field'), {
         target: {
           value: totp.recoveryCodes[0],
         },
@@ -434,13 +434,13 @@ describe('back button', () => {
 
     // back to step two
     await act(async () => {
-      await fireEvent.click(screen.getByTestId('flow-container-back-btn'));
+      fireEvent.click(screen.getByTestId('flow-container-back-btn'));
     });
     expect(screen.getByTestId('2fa-recovery-codes')).toBeInTheDocument();
 
     // back to step one
     await act(async () => {
-      await fireEvent.click(screen.getByTestId('flow-container-back-btn'));
+      fireEvent.click(screen.getByTestId('flow-container-back-btn'));
     });
     expect(screen.getByTestId('totp-input')).toBeInTheDocument();
     expect(screen.getByTestId('submit-totp')).toBeInTheDocument();

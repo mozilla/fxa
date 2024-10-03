@@ -177,6 +177,7 @@ const Signin = ({
       GleanMetrics.login.submit();
 
       setSigninLoading(true);
+
       const { data, error } = await beginSigninHandler(email, password);
 
       if (data) {

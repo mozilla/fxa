@@ -3,10 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { fireEvent, screen } from '@testing-library/react';
+import { fireEvent, screen, act } from '@testing-library/react';
 import FlowContainer from './index';
 import { renderWithRouter } from '../../../models/mocks';
-import { act } from 'react-dom/test-utils';
 
 it('renders', async () => {
   renderWithRouter(<FlowContainer />);
