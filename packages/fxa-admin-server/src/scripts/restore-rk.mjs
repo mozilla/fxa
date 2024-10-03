@@ -5,7 +5,10 @@
 import knex from 'knex';
 import yargs from 'yargs/yargs';
 import { hideBin } from 'yargs/helpers';
-import { appendFile } from 'node:fs/promises';
+import { appendFile, open } from 'node:fs/promises';
+
+let usersWithoutKeys = 0;
+let usersWithKeys = 0;
 
 const run = Date.now();
 const argv = yargs(hideBin(process.argv))
@@ -13,12 +16,16 @@ const argv = yargs(hideBin(process.argv))
     // TODO: Make start /stop
     start: { type: 'string', default: '2024-10-02' },
     stop: { type: 'string', default: '2024-10-03' },
-    // No writes when true
-    dry: { type: 'boolean', default: true },
+    // When provided, skips the initial query and just runs
+    // off a local file.
+    usersFile: { type: 'string', default: '' },
+    checkForMissingKeys: { type: 'boolean', default: false },
+    updateMissingKeys: { type: 'boolean', default: false },
   })
   .parseSync();
 
 const connectionCache = {};
+let mainKnex;
 async function getKnexConnection(dbId) {
   // Use cached instance if possible. We connect to lots of different backups.
   if (connectionCache[dbId]) {
@@ -54,32 +61,11 @@ async function record(filepath, uid) {
   await appendFile(filepath, uid.toString('hex') + '\n');
 }
 
-async function main() {
-  console.log('ARGS', {
-    start: argv.start,
-    stop: argv.stop,
-    dry: argv.dry,
-  });
+async function processUser(row) {
+  // Record user id.
+  console.log('Checking for user: ', row.email);
 
-  // Connect to production read replica
-  const mainKnex = await getKnexConnection('PROD');
-  const accountsQuery = `
-    SELECT accounts.uid, emails.email, accounts.keysChangedAt
-    FROM accounts
-      JOIN emails ON
-        accounts.uid = emails.uid and emails.isPrimary
-    WHERE
-      accounts.keysChangedAt >= (UNIX_TIMESTAMP(DATE(?))*1000)
-      AND accounts.keysChangedAt <= (UNIX_TIMESTAMP(DATE(?))*1000)
-      -- A user that had v2
-      AND accounts.verifyHashVersion2 IS NOT NULL
-      -- A user that potential had their recovery key deleted
-      AND accounts.uid not in (select uid from recoveryKeys)
-  `;
-  const stream = mainKnex.raw(accountsQuery, [argv.start, argv.stop]).stream();
-  for await (const row of stream) {
-    console.log('Checking for user: ', row.email);
-
+  if (argv.checkForMissingKeys) {
     const uid = row.uid;
     const keysChangedAt = new Date(row.keysChangedAt);
     let backupDate = keysChangedAt.toISOString().replace(/T.*|-/g, '');
@@ -95,30 +81,100 @@ async function main() {
 
     // If we still don't have a result, then user did not have recovery key
     if (result[0].length === 0) {
-      console.log('No recovery key found account for', uid, uid);
+      console.log('No recovery key found account for', uid.toString('hex'));
       await record(`accounts_without_recovery_keys.${run}.txt`, uid);
+      usersWithoutKeys++;
     } else {
-      console.log('Recovery key found account for', uid, row.email);
+      console.log(
+        'Recovery key found account for',
+        uid.toString('hex'),
+        row.email
+      );
+      await record(`accounts_with_recovery_keys.${run}.txt`, uid);
+      usersWithKeys++;
+
       // Now we have a recovery, let's restore it
-      if (argv.dry === false) {
+      if (argv.updateMissingKeys) {
         const row = result[0][0];
         console.log('Restoring key in database.', row);
-        result = await mainKnex.raw(
-          `INSERT INTO recoveryKeys (uid, recoveryData, recoveryKeyIdHash, createdAt, verifiedAt, enabled, hint) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-          [
-            row.uid,
-            row.recoveryData,
-            row.recoveryKeyIdHash,
-            row.createdAt,
-            row.verifiedAt,
-            row.enabled,
-            row.hint,
-          ]
-        );
+        try {
+          result = await mainKnex.raw(
+            `INSERT INTO recoveryKeys (uid, recoveryData, recoveryKeyIdHash, createdAt, verifiedAt, enabled, hint) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            [
+              row.uid,
+              row.recoveryData,
+              row.recoveryKeyIdHash,
+              row.createdAt,
+              row.verifiedAt,
+              row.enabled,
+              row.hint,
+            ]
+          );
+          console.log('Recovery key restored for: ', row.uid.toString('hex'));
+        } catch (err) {
+          console.log(
+            'Failed to update recovery keys for account',
+            uid.toString('hex')
+          );
+          await record(`accounts_with_failed_restore.${run}.txt`, uid);
+        }
       }
-      await record(`accounts_with_recovery_keys_restored.${run}.txt`, uid);
     }
   }
+}
+
+async function main() {
+  console.log('ARGS', {
+    start: argv.start,
+    stop: argv.stop,
+    usersFile: argv.usersFile,
+    checkForMissingKeys: argv.checkForMissingKeys,
+    updateMissingKeys: argv.updateMissingKeys,
+  });
+
+  // Connect to production read replica
+  mainKnex = await getKnexConnection('PROD');
+
+  if (argv.usersFile) {
+    console.log('Reading users from: ', argv.usersFile);
+    const file = await open(argv.usersFile);
+    for await (const line of file.readLines()) {
+      const uid = Buffer.from(line, 'hex');
+      const result = await mainKnex.raw(
+        `SELECT accounts.uid, emails.email, accounts.keysChangedAt
+         FROM accounts join emails on accounts.uid = emails.uid and emails.isPrimary
+         WHERE accounts.uid=?`,
+        [uid]
+      );
+      if (result[0].length === 1) {
+        await processUser(result[0][0]);
+      } else {
+        console.log('Could not locate user: ', uid.toString('hex'));
+      }
+    }
+  } else {
+    const accountsQuery = `
+      SELECT accounts.uid, emails.email, accounts.keysChangedAt
+      FROM accounts
+        JOIN emails ON
+          accounts.uid = emails.uid and emails.isPrimary
+      WHERE
+        accounts.keysChangedAt >= (UNIX_TIMESTAMP(DATE(?))*1000)
+        AND accounts.keysChangedAt <= (UNIX_TIMESTAMP(DATE(?))*1000)
+        -- A user that had v2
+        AND accounts.verifyHashVersion2 IS NOT NULL
+        -- A user that potential had their recovery key deleted
+        AND accounts.uid not in (select uid from recoveryKeys)
+    `;
+    const stream = mainKnex
+      .raw(accountsQuery, [argv.start, argv.stop])
+      .stream();
+    for await (const row of stream) {
+      await record(`users-${argv.start}-${argv.stop}.${run}.txt`, row.uid);
+      await processUser(row);
+    }
+  }
+
   return 0;
 }
 
@@ -128,6 +184,8 @@ main()
   })
   .finally(async () => {
     console.log('Complete!');
+    console.log('Users With Keys: ', usersWithKeys);
+    console.log('Users Without Keys: ', usersWithoutKeys);
     for (const db of Object.values(connectionCache)) {
       await db.destroy();
     }
