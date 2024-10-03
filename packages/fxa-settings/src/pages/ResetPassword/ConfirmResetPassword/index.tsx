@@ -87,7 +87,7 @@ const ConfirmResetPassword = ({
         }}
       />
       <LinkRememberPassword {...{ email }} clickHandler={signinClickHandler} />
-      <div className="flex justify-between mt-8 text-sm">
+      <div className="flex justify-between mt-4 text-sm">
         <FtlMsg id="confirm-reset-password-otp-resend-code-button">
           <button type="button" className="link-blue" onClick={resendCode}>
             Resend code

@@ -9,5 +9,5 @@ complete-reset-password-success-alert = Password set
 # Displayed in an alert bar
 complete-reset-password-error-alert = Sorry, there was a problem setting your password
 
-password-reset-could-not-determine-account-recovery-key = Got your account recovery key?
-password-reset-use-account-recovery-key = Reset your password and keep your data
+# Link to go back and use an account recovery key before resetting the password
+complete-reset-pw-recovery-key-link = Use account recovery key

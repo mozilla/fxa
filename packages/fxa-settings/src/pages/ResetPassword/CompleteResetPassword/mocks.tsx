@@ -19,6 +19,7 @@ export const Subject = ({
   recoveryKeyExists,
   testErrorMessage = '',
   estimatedSyncDeviceCount,
+  integrationIsSync = false,
 }: Partial<CompleteResetPasswordProps> & {
   testErrorMessage?: string;
 }) => {
@@ -44,6 +45,7 @@ export const Subject = ({
           hasConfirmedRecoveryKey,
           recoveryKeyExists,
           estimatedSyncDeviceCount,
+          integrationIsSync,
         }}
       />
     </LocationProvider>

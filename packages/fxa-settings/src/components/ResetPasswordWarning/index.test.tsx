@@ -6,10 +6,13 @@ import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localiz
 import { screen, waitFor } from '@testing-library/react';
 import ResetPasswordWarning from '.';
 import userEvent from '@testing-library/user-event';
+import { createMockLocationState } from './mocks';
 
 describe('ResetPasswordWarning component', () => {
-  it('renders as expected', async () => {
-    renderWithLocalizationProvider(<ResetPasswordWarning />);
+  it('renders as expected when no recovery key exists', async () => {
+    renderWithLocalizationProvider(
+      <ResetPasswordWarning locationState={createMockLocationState(false)} />
+    );
 
     expect(
       screen.getByRole('img', {
@@ -24,22 +27,28 @@ describe('ResetPasswordWarning component', () => {
     expect(screen.getByRole('img', { name: 'Collapse warning' })).toBeVisible();
 
     expect(
-      screen.getByText('Have a device where you previously signed in?')
+      screen.queryByText('Have an account recovery key?')
+    ).not.toBeInTheDocument();
+
+    expect(
+      screen.getByText('Have any device where you previously signed in?')
     ).toBeVisible();
 
     expect(
       screen.getByText(
-        'Your browser data may be locally saved on that device. Sign in there with your new password to restore and sync.'
+        'Your browser data might be saved on that device. Reset your password, then sign in there to restore and sync your data.'
       )
     ).toBeVisible();
 
     expect(
-      screen.getByText('Have a new device but don’t have your old one?')
+      screen.getByText(
+        'Have a new device but don’t have access to any of your previous ones?'
+      )
     ).toBeVisible();
 
     expect(
       screen.getByText(
-        'We’re sorry, but your encrypted browser data on Firefox servers can’t be recovered. However, you can still access your local data on any device where you have previously signed in.'
+        'We’re sorry, but your encrypted browser data on Firefox servers can’t be recovered.'
       )
     ).toBeVisible();
 
@@ -55,11 +64,34 @@ describe('ResetPasswordWarning component', () => {
     );
   });
 
+  it('renders additional message point when recovery key exists', async () => {
+    renderWithLocalizationProvider(
+      <ResetPasswordWarning locationState={createMockLocationState(true)} />
+    );
+
+    expect(screen.getByText('Have an account recovery key?')).toBeVisible();
+    expect(
+      screen.getByRole('link', {
+        name: 'Use it now to reset your password and keep your data',
+      })
+    ).toBeVisible();
+  });
+
+  it('renders additional message point when recovery key status is undefined', async () => {
+    renderWithLocalizationProvider(
+      <ResetPasswordWarning locationState={createMockLocationState()} />
+    );
+
+    expect(screen.getByText('Have an account recovery key?')).toBeVisible();
+  });
+
   it('renders as expected with mobile width', async () => {
     global.innerWidth = 375; // Set mobile width
     global.dispatchEvent(new Event('resize'));
 
-    renderWithLocalizationProvider(<ResetPasswordWarning />);
+    renderWithLocalizationProvider(
+      <ResetPasswordWarning locationState={createMockLocationState(false)} />
+    );
 
     expect(
       screen.getByRole('img', {
@@ -74,7 +106,7 @@ describe('ResetPasswordWarning component', () => {
     expect(screen.getByRole('img', { name: 'Expand warning' })).toBeVisible();
 
     expect(
-      screen.queryByText('Have a device where you previously signed in?')
+      screen.queryByText('Have any device where you previously signed in?')
     ).not.toBeVisible();
   });
 
@@ -83,7 +115,9 @@ describe('ResetPasswordWarning component', () => {
     global.innerWidth = 375; // Set mobile width
     global.dispatchEvent(new Event('resize'));
 
-    renderWithLocalizationProvider(<ResetPasswordWarning />);
+    renderWithLocalizationProvider(
+      <ResetPasswordWarning locationState={createMockLocationState(false)} />
+    );
 
     user.click(screen.getByRole('img', { name: 'Expand warning' }));
 

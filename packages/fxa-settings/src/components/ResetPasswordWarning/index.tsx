@@ -11,8 +11,17 @@ import { ReactComponent as Chevron } from './chevron.svg';
 
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { useFtlMsgResolver } from '../../models';
+import { Link } from '@reach/router';
+import { CompleteResetPasswordLocationState } from '../../pages/ResetPassword/CompleteResetPassword/interfaces';
+import GleanMetrics from '../../lib/glean';
 
-const ResetPasswordWarning = () => {
+const ResetPasswordWarning = ({
+  locationState,
+  searchParams,
+}: {
+  locationState: CompleteResetPasswordLocationState;
+  searchParams?: string;
+}) => {
   const ftlMsgResolver = useFtlMsgResolver();
   // component is expanded by default on desktop
   // and collapsed by default on mobile
@@ -32,7 +41,7 @@ const ResetPasswordWarning = () => {
       <summary className="flex items-center cursor-pointer list-none [&::-webkit-details-marker]:hidden">
         <WarnIcon
           role="img"
-          className="flex-initial me-4"
+          className="me-4"
           aria-label={ftlMsgResolver.getMsg(
             'reset-password-warning-icon',
             'Warning'
@@ -49,50 +58,82 @@ const ResetPasswordWarning = () => {
           aria-label={expanded ? 'Collapse warning' : 'Expand warning'}
         />
       </summary>
-      <div className="flex flex-col ps-8 pt-4 pb-2 gap-4">
-        <div className="flex items-start gap-2">
-          <IconSyncDevice
-            role="img"
-            className="flex-initial"
-            aria-hidden={true}
-          />
-          <div className="flex flex-col flex-1 -mt-1 gap-1">
-            <FtlMsg id="password-reset-previously-signed-in-device">
-              <p className="font-semibold">
-                Have a device where you previously signed in?
+      <div className="flex flex-col pt-4 pb-2 gap-4 text-xs leading-snug">
+        {locationState.recoveryKeyExists !== false && (
+          <div className="flex">
+            <IconSyncDevice
+              role="img"
+              className="me-4 mt-[2px]"
+              aria-hidden={true}
+            />
+            <div className="flex flex-col flex-1 gap-1">
+              <FtlMsg id="password-reset-warning-have-key">
+                <p className="font-semibold text-sm">
+                  Have an account recovery key?
+                </p>
+              </FtlMsg>
+              <div>
+                <FtlMsg id="password-reset-warning-use-key-link">
+                  <Link
+                    to={`/account_recovery_confirm_key${searchParams || ''}`}
+                    state={locationState}
+                    className="link-blue"
+                    onClick={() =>
+                      GleanMetrics.passwordReset.createNewRecoveryKeyMessageClick()
+                    }
+                  >
+                    Use it now to reset your password and keep your data
+                  </Link>
+                </FtlMsg>
+              </div>
+            </div>
+          </div>
+        )}
+        <div className="flex items-start gap-4">
+          <IconSyncDevice role="img" className="mt-[2px]" aria-hidden={true} />
+          <div className="flex flex-col flex-1 gap-1">
+            <FtlMsg id="password-reset-previously-signed-in-device-2">
+              <p className="font-semibold text-sm">
+                Have any device where you previously signed in?
               </p>
             </FtlMsg>
-            <p className="text-grey-500 text-xs">
-              <FtlMsg id="password-reset-data-may-be-saved-locally">
-                Your browser data may be locally saved on that device. Sign in
-                there with your new password to restore and sync.
-              </FtlMsg>
-            </p>
+            <FtlMsg id="password-reset-data-may-be-saved-locally-2">
+              <p className="text-grey-500">
+                Your browser data might be saved on that device. Reset your
+                password, then sign in there to restore and sync your data.
+              </p>
+            </FtlMsg>
           </div>
         </div>
-        <div className="flex items-start gap-2">
-          <IconNonSyncDevice role="img" aria-hidden={true} />
-          <div className="flex flex-col flex-1 -mt-1 gap-1">
-            <FtlMsg id="password-reset-no-old-device">
-              <p className="font-semibold">
-                Have a new device but don’t have your old one?
+        <div className="flex items-start gap-4">
+          <IconNonSyncDevice
+            role="img"
+            className="mt-[2px]"
+            aria-hidden={true}
+          />
+          <div className="flex flex-col flex-1 gap-1">
+            <FtlMsg id="password-reset-no-old-device-2">
+              <p className="font-semibold text-sm">
+                Have a new device but don’t have access to any of your previous
+                ones?
               </p>
             </FtlMsg>
-            <FtlMsg id="password-reset-encrypted-data-cannot-be-recovered">
-              <p className="text-grey-500 text-xs">
+            <FtlMsg id="password-reset-encrypted-data-cannot-be-recovered-2">
+              <p className="text-grey-500">
                 We’re sorry, but your encrypted browser data on Firefox servers
-                can’t be recovered. However, you can still access your local
-                data on any device where you have previously signed in.
+                can’t be recovered.
               </p>
             </FtlMsg>
-            <FtlMsg id="password-reset-learn-about-restoring-account-data">
-              <a
-                href="https://support.mozilla.org/kb/how-reset-your-password-without-account-recovery-keys-access-data"
-                className="link-blue"
-              >
-                Learn more about restoring account data
-              </a>
-            </FtlMsg>
+            <div>
+              <FtlMsg id="password-reset-learn-about-restoring-account-data">
+                <a
+                  href="https://support.mozilla.org/kb/how-reset-your-password-without-account-recovery-keys-access-data"
+                  className="link-blue"
+                >
+                  Learn more about restoring account data
+                </a>
+              </FtlMsg>
+            </div>
           </div>
         </div>
       </div>

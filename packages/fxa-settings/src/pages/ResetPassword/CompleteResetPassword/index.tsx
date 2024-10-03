@@ -10,15 +10,14 @@ import AppLayout from '../../../components/AppLayout';
 import Banner, { BannerType } from '../../../components/Banner';
 import FormPasswordWithInlineCriteria from '../../../components/FormPasswordWithInlineCriteria';
 import LinkRememberPassword from '../../../components/LinkRememberPassword';
-import { ReactComponent as BangIcon } from './icon-bang.svg';
 
 import {
   CompleteResetPasswordFormData,
   CompleteResetPasswordProps,
 } from './interfaces';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { Link, useLocation } from '@reach/router';
 import ResetPasswordWarning from '../../../components/ResetPasswordWarning';
+import { Link, useLocation } from '@reach/router';
 
 const CompleteResetPassword = ({
   email,
@@ -28,9 +27,10 @@ const CompleteResetPassword = ({
   submitNewPassword,
   estimatedSyncDeviceCount,
   recoveryKeyExists,
+  integrationIsSync,
 }: CompleteResetPasswordProps) => {
   const location = useLocation();
-
+  const searchParams = location.search;
   useEffect(() => {
     hasConfirmedRecoveryKey
       ? GleanMetrics.passwordReset.recoveryKeyCreatePasswordView()
@@ -38,8 +38,13 @@ const CompleteResetPassword = ({
   }, [hasConfirmedRecoveryKey]);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const hasSyncDevices =
-    estimatedSyncDeviceCount !== undefined && estimatedSyncDeviceCount > 0;
+  const isSyncUser = !!(
+    integrationIsSync ||
+    (estimatedSyncDeviceCount !== undefined && estimatedSyncDeviceCount > 0)
+  );
+  const showSyncWarning = !!(!hasConfirmedRecoveryKey && isSyncUser);
+
+  const showRecoveryKeyLink = !!(recoveryKeyExists && !hasConfirmedRecoveryKey);
 
   const { handleSubmit, register, getValues, errors, formState, trigger } =
     useForm<CompleteResetPasswordFormData>({
@@ -71,40 +76,11 @@ const CompleteResetPassword = ({
       */}
       {errorMessage && <Banner type={BannerType.error}>{errorMessage}</Banner>}
 
-      {/*
-        Inline message to help the user understand the status and ramifications
-        of their password reset. ie Will their data persist, or is an way to
-        recover it.
-      */}
-      {hasConfirmedRecoveryKey === false && recoveryKeyExists === undefined && (
-        <div
-          className="flex bg-red-50 rounded-sm text-xs text-start p-3"
-          data-testid="warning-message-container"
-        >
-          <BangIcon role="img" className="flex-initial me-2 mt-1" />
-          <div className="flex-1">
-            <FtlMsg id="password-reset-could-not-determine-account-recovery-key">
-              <p>Got your account recovery key?</p>
-            </FtlMsg>
-            <FtlMsg id="password-reset-use-account-recovery-key">
-              <Link
-                to={`/account_recovery_confirm_key${location.search}`}
-                state={locationState}
-                className="link-blue"
-                onClick={() =>
-                  GleanMetrics.passwordReset.createNewRecoveryKeyMessageClick()
-                }
-              >
-                Reset your password and keep your data
-              </Link>
-            </FtlMsg>
-          </div>
-        </div>
+      {/* Show an error message to sync users who do not have or have not used a recovery key */}
+      {showSyncWarning && (
+        <ResetPasswordWarning {...{ locationState, searchParams }} />
       )}
 
-      {hasConfirmedRecoveryKey === false &&
-        recoveryKeyExists !== undefined &&
-        hasSyncDevices && <ResetPasswordWarning />}
       {/*
         Hidden email field is to allow Fx password manager
         to correctly save the updated password. Without it,
@@ -133,7 +109,21 @@ const CompleteResetPassword = ({
           loading={isSubmitting}
         />
       </section>
-      <LinkRememberPassword email={email} />
+      <div className="flex flex-col mt-6 gap-4">
+        <LinkRememberPassword {...{ email }} />
+        {showRecoveryKeyLink && (
+          <FtlMsg id="complete-reset-pw-recovery-key-link">
+            <Link
+              to={`/account_recovery_confirm_key${location.search}`}
+              state={locationState}
+              className="link-blue text-sm"
+              data-glean-id="complete_reset_password_recovery_key_link"
+            >
+              Use account recovery key
+            </Link>
+          </FtlMsg>
+        )}
+      </div>
     </AppLayout>
   );
 };
