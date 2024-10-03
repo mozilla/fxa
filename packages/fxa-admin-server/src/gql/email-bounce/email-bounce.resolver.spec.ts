@@ -1,12 +1,12 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { DatabaseService } from 'fxa-admin-server/src/database/database.service';
 import { Account, EmailBounce } from 'fxa-shared/db/models/auth';
-import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import { testDatabaseSetup } from 'fxa-shared/test/db/helpers';
 import {
   randomAccount,
@@ -47,7 +47,7 @@ describe('#integration - EmailBounceResolver', () => {
   beforeEach(async () => {
     logger = { debug: jest.fn(), error: jest.fn(), info: jest.fn() };
     const MockMozLogger: Provider = {
-      provide: MozLoggerService,
+      provide: LOGGER_PROVIDER,
       useValue: logger,
     };
     const MockConfig: Provider = {

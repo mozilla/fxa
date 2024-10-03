@@ -17,19 +17,20 @@ import { Request } from 'express';
 import {
   ApolloServerPlugin,
   BaseContext,
-  GraphQLRequestListener,
   GraphQLRequestContext,
+  GraphQLRequestListener,
 } from '@apollo/server';
 import { Plugin } from '@nestjs/apollo';
 import * as Sentry from '@sentry/node';
 
+import { LOGGER_PROVIDER } from '@fxa/shared/log';
+import type { LoggerService } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 import {
   ExtraContext,
   ignoreError,
   reportRequestException,
 } from '../reporting';
-import { Inject } from '@nestjs/common';
-import { MozLoggerService } from '@fxa/shared/mozlog';
 
 interface Context extends BaseContext {
   transaction: Sentry.Span;
@@ -47,7 +48,7 @@ export async function createContext(ctx: any): Promise<Context> {
 
 @Plugin()
 export class SentryPlugin implements ApolloServerPlugin<Context> {
-  constructor(@Inject(MozLoggerService) private log: MozLoggerService) {}
+  constructor(@Inject(LOGGER_PROVIDER) private log: LoggerService) {}
 
   async requestDidStart({
     request,

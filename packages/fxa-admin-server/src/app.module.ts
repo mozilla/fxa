@@ -12,9 +12,10 @@ import {
 import { getVersionInfo } from 'fxa-shared/nestjs/version';
 import { join } from 'path';
 
-import { MozLoggerService } from '@fxa/shared/mozlog';
-import { NotifierSnsFactory, NotifierService } from '@fxa/shared/notifier';
+import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { LegacyStatsDProvider } from '@fxa/shared/metrics/statsd';
+import { MozLoggerService } from '@fxa/shared/mozlog';
+import { NotifierService, NotifierSnsFactory } from '@fxa/shared/notifier';
 
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
@@ -82,7 +83,10 @@ const version = getVersionInfo(__dirname);
       useClass: UserGroupGuard,
     },
     SentryPlugin,
-    MozLoggerService,
+    {
+      provide: LOGGER_PROVIDER,
+      useClass: MozLoggerService,
+    },
     NotifierSnsFactory,
     NotifierService,
     LegacyStatsDProvider,

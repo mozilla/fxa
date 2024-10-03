@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { ApolloServerPlugin, GraphQLRequestListener } from '@apollo/server';
-import { Plugin } from '@nestjs/apollo';
-import { getComplexity, simpleEstimator } from 'graphql-query-complexity';
-import { GraphQLError } from 'graphql';
-import { GraphQLSchemaHost } from '@nestjs/graphql';
-import { Inject } from '@nestjs/common';
 import { MozLoggerService } from '@fxa/shared/mozlog';
+import { Plugin } from '@nestjs/apollo';
+import { Inject } from '@nestjs/common';
+import { GraphQLSchemaHost } from '@nestjs/graphql';
+import { GraphQLError } from 'graphql';
+import { getComplexity, simpleEstimator } from 'graphql-query-complexity';
 
 const maxComplexity = 1000;
 

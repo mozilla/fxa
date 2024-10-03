@@ -70,35 +70,38 @@ describe('MozLoggerService', () => {
 
   it('logs info', () => {
     service.info('info', {});
-    expect(mockMozLog.info).toBeCalledWith('info', {});
+    expect(mockMozLog.info).toBeCalledWith('', { message: 'info', '0': {} });
   });
 
   it('logs debug', () => {
     service.debug('debug', {});
-    expect(mockMozLog.debug).toBeCalledWith('debug', {});
+    expect(mockMozLog.debug).toBeCalledWith('', { message: 'debug', '0': {} });
   });
   it('logs error', () => {
     service.error('error', {});
-    expect(mockMozLog.error).toBeCalledWith('error', {});
+    expect(mockMozLog.error).toBeCalledWith('', { message: 'error', '0': {} });
   });
 
   it('logs warn', () => {
     service.warn('warn', {});
-    expect(mockMozLog.warn).toBeCalledWith('warn', {});
+    expect(mockMozLog.warn).toBeCalledWith('', { message: 'warn', '0': {} });
   });
 
   it('logs verbose', () => {
     service.verbose('verbose', {});
-    expect(mockMozLog.verbose).toBeCalledWith('verbose', {});
+    expect(mockMozLog.verbose).toBeCalledWith('', {
+      message: 'verbose',
+      '0': {},
+    });
   });
 
   it('logs trace', () => {
     service.trace('trace', {});
-    expect(mockMozLog.trace).toBeCalledWith('trace', {});
+    expect(mockMozLog.trace).toBeCalledWith('', { message: 'trace', '0': {} });
   });
 
   it('logs warning', () => {
     service.warn('warning', {});
-    expect(mockMozLog.warn).toBeCalledWith('warning', {});
+    expect(mockMozLog.warn).toBeCalledWith('', { message: 'warning', '0': {} });
   });
 });

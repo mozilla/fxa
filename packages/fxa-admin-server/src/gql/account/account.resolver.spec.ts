@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { LOGGER_PROVIDER } from '@fxa/shared/log';
+import { NotifierService } from '@fxa/shared/notifier';
 import { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -24,7 +26,6 @@ import {
   TotpToken,
 } from 'fxa-shared/db/models/auth';
 import { uuidTransformer } from 'fxa-shared/db/transformers';
-import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import { testDatabaseSetup } from 'fxa-shared/test/db/helpers';
 import {
   randomAccount,
@@ -38,15 +39,14 @@ import {
   randomTotp,
 } from 'fxa-shared/test/db/models/auth/helpers';
 import { Knex } from 'knex';
+import { AuthClientService } from '../../backend/auth-client.service';
+import { CloudTasksService } from '../../backend/cloud-tasks.service';
+import { FirestoreService } from '../../backend/firestore.service';
+import { ProfileClientService } from '../../backend/profile-client.service';
 import { EventLoggingService } from '../../event-logging/event-logging.service';
+import { BasketService } from '../../newsletters/basket.service';
 import { SubscriptionsService } from '../../subscriptions/subscriptions.service';
 import { AccountResolver } from './account.resolver';
-import { AuthClientService } from '../../backend/auth-client.service';
-import { FirestoreService } from '../../backend/firestore.service';
-import { BasketService } from '../../newsletters/basket.service';
-import { CloudTasksService } from '../../backend/cloud-tasks.service';
-import { NotifierService } from '@fxa/shared/notifier';
-import { ProfileClientService } from '../../backend/profile-client.service';
 
 export const chance = new Chance();
 
@@ -140,7 +140,7 @@ describe('#integration - AccountResolver', () => {
 
     logger = { debug: jest.fn(), error: jest.fn(), info: jest.fn() };
     const MockMozLogger: Provider = {
-      provide: MozLoggerService,
+      provide: LOGGER_PROVIDER,
       useValue: logger,
     };
     const MockConfig: Provider = {

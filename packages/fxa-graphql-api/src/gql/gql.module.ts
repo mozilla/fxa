@@ -2,12 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { createContext, SentryPlugin } from '@fxa/shared/sentry';
 import { NextFunction, Request, Response } from 'express';
 import { CustomsModule } from 'fxa-shared/nestjs/customs/customs.module';
 import { CustomsService } from 'fxa-shared/nestjs/customs/customs.service';
-import { createContext, SentryPlugin } from '@fxa/shared/sentry';
 import path, { join } from 'path';
 
+import { LOGGER_PROVIDER } from '@fxa/shared/log';
+import { LegacyStatsDProvider } from '@fxa/shared/metrics/statsd';
+import { MozLoggerService } from '@fxa/shared/mozlog';
+import { NotifierService, NotifierSnsFactory } from '@fxa/shared/notifier';
 import {
   HttpException,
   MiddlewareConsumer,
@@ -19,13 +23,10 @@ import { ConfigService } from '@nestjs/config';
 import { BackendModule } from '../backend/backend.module';
 import Config, { AppConfig } from '../config';
 import { AccountResolver } from './account.resolver';
-import { LegalResolver } from './legal.resolver';
-import { SubscriptionResolver } from './subscription.resolver';
 import { ClientInfoResolver } from './clientInfo.resolver';
+import { LegalResolver } from './legal.resolver';
 import { SessionResolver } from './session.resolver';
-import { NotifierService, NotifierSnsFactory } from '@fxa/shared/notifier';
-import { LegacyStatsDProvider } from '@fxa/shared/metrics/statsd';
-import { MozLoggerService } from '@fxa/shared/mozlog';
+import { SubscriptionResolver } from './subscription.resolver';
 
 const config = Config.getProperties();
 
@@ -52,17 +53,21 @@ export const GraphQLConfigFactory = async (
 @Module({
   imports: [BackendModule, CustomsModule],
   providers: [
-    LegacyStatsDProvider,
-    NotifierSnsFactory,
-    NotifierService,
     AccountResolver,
-    CustomsService,
-    SessionResolver,
-    LegalResolver,
     ClientInfoResolver,
-    SubscriptionResolver,
+    CustomsService,
+    LegacyStatsDProvider,
+    LegalResolver,
     MozLoggerService,
+    NotifierService,
+    NotifierSnsFactory,
     SentryPlugin,
+    SessionResolver,
+    SubscriptionResolver,
+    {
+      provide: LOGGER_PROVIDER,
+      useClass: MozLoggerService,
+    },
   ],
 })
 export class GqlModule implements NestModule {

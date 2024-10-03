@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject, LoggerService } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
+import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { AbbrevPlan } from 'fxa-shared/subscriptions/types';
 import Stripe from 'stripe';
 import { MozSubscription } from '../gql/model/moz-subscription.model';
@@ -60,7 +60,7 @@ export class SubscriptionsService {
    */
   constructor(
     protected readonly configService: ConfigService,
-    protected readonly logger: MozLoggerService,
+    @Inject(LOGGER_PROVIDER) protected readonly logger: LoggerService,
     protected readonly stripeService: StripeService,
     protected readonly appStoreService: AppStoreService,
     protected readonly playStoreService: PlayStoreService

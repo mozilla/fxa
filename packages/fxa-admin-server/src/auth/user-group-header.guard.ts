@@ -2,24 +2,33 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { LOGGER_PROVIDER } from '@fxa/shared/log';
+import { MozLoggerService } from '@fxa/shared/mozlog';
+import {
+  CanActivate,
+  ExecutionContext,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import {
-  USER_GROUP_HEADER,
+  AdminPanelEnv,
   AdminPanelFeature,
   AdminPanelGuard,
-  AdminPanelEnv,
+  USER_GROUP_HEADER,
 } from 'fxa-shared/guards';
-import { FEATURE_KEY } from './user-group-header.decorator';
-import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import config from '../config';
+import { FEATURE_KEY } from './user-group-header.decorator';
 
 const guard = new AdminPanelGuard(config.get('guard.env') as AdminPanelEnv);
 
 @Injectable()
 export class UserGroupGuard implements CanActivate {
-  constructor(private reflector?: Reflector, private log?: MozLoggerService) {}
+  constructor(
+    private reflector?: Reflector,
+    @Inject(LOGGER_PROVIDER) private log?: MozLoggerService
+  ) {}
 
   canActivate(context: ExecutionContext): boolean {
     // Reflect on the end point to determine if it has been tagged with admin panel feature.

@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Test } from '@nestjs/testing';
 
+import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { ProfileClient } from './profile.client';
 import { MockProfileClientConfigProvider } from './profile.config';
-import { MozLoggerService } from '@fxa/shared/mozlog';
 
 describe('ProfileClient', () => {
   let profileClient: ProfileClient;
@@ -20,7 +20,7 @@ describe('ProfileClient', () => {
       providers: [
         MockProfileClientConfigProvider,
         {
-          provide: MozLoggerService,
+          provide: LOGGER_PROVIDER,
           useValue: mockLogger,
         },
         ProfileClient,

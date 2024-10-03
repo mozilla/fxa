@@ -2,52 +2,63 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Injectable, Scope } from '@nestjs/common';
+import { Inject, Injectable, LoggerService, Scope } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import mozlog, { Logger as MozLogger, LoggerFactory } from 'mozlog';
+import { INQUIRER } from '@nestjs/core';
+import mozlog, { LoggerFactory, Logger as MozLogger } from 'mozlog';
 
 let logFactory: LoggerFactory;
 
 @Injectable({ scope: Scope.TRANSIENT })
-export class MozLoggerService {
+export class MozLoggerService implements LoggerService {
   private mozlog: MozLogger;
 
-  constructor(configService: ConfigService) {
+  constructor(
+    configService: ConfigService,
+    @Inject(INQUIRER) private parentClass: object
+  ) {
     if (!logFactory) {
       logFactory = mozlog(configService.get('log'));
     }
     this.mozlog = logFactory('default');
+    if (this.parentClass?.constructor?.name) {
+      this.setContext(this.parentClass.constructor.name);
+    }
   }
 
   public setContext(name: string): void {
     this.mozlog = logFactory(name);
   }
 
-  info(type: string, fields: Record<string, any>): void {
-    this.mozlog.info(type, fields);
+  log(message: any, ...optionalParams: any[]): void {
+    this.mozlog.info('', { message, ...optionalParams });
   }
 
-  error(type: string, fields: Record<string, any>): void {
-    this.mozlog.error(type, fields);
+  info(message: any, ...optionalParams: any[]): void {
+    this.mozlog.info('', { message, ...optionalParams });
   }
 
-  warn(type: string, fields: Record<string, any>): void {
-    this.mozlog.warn(type, fields);
+  error(message: any, ...optionalParams: any[]): void {
+    this.mozlog.error('', { message, ...optionalParams });
   }
 
-  debug(type: string, fields: Record<string, any>): void {
-    this.mozlog.debug(type, fields);
+  warn(message: any, ...optionalParams: any[]): void {
+    this.mozlog.warn('', { message, ...optionalParams });
   }
 
-  verbose(type: string, fields: Record<string, any>): void {
-    this.mozlog.verbose(type, fields);
+  debug(message: any, ...optionalParams: any[]): void {
+    this.mozlog.debug('', { message, ...optionalParams });
   }
 
-  trace(type: string, fields: Record<string, any>): void {
-    this.mozlog.trace(type, fields);
+  verbose(message: any, ...optionalParams: any[]): void {
+    this.mozlog.verbose('', { message, ...optionalParams });
   }
 
-  warning(type: string, fields: Record<string, any>): void {
-    this.mozlog.warn(type, fields);
+  trace(message: any, ...optionalParams: any[]): void {
+    this.mozlog.trace('', { message, ...optionalParams });
+  }
+
+  warning(message: any, ...optionalParams: any[]): void {
+    this.mozlog.warn('', { message, ...optionalParams });
   }
 }

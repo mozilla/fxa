@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { LOGGER_PROVIDER } from '@fxa/shared/log';
+import { StatsDService } from '@fxa/shared/metrics/statsd';
+import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotifierService } from './notifier.service';
-import { ConfigService } from '@nestjs/config';
 import { NotifierSnsService } from './notifier.sns.provider';
-import { MozLoggerService } from '@fxa/shared/mozlog';
-import { StatsDService } from '@fxa/shared/metrics/statsd';
 
 describe('NotifierService', () => {
   let service: NotifierService;
@@ -50,7 +50,7 @@ describe('NotifierService', () => {
           useValue: mockStatsD,
         },
         {
-          provide: MozLoggerService,
+          provide: LOGGER_PROVIDER,
           useValue: mockLogger,
         },
         {
@@ -112,10 +112,10 @@ describe('NotifierService', () => {
       'notifier.publish',
       expect.any(Number)
     );
-    expect(mockLogger.debug).toBeCalledWith('Notifier.publish', {
-      success: true,
-      data: responseData,
-    });
+    expect(mockLogger.debug).toBeCalledWith(
+      'Notifier.publish success',
+      responseData
+    );
     expect(callback).toBeCalledWith(undefined, responseData);
   });
 
@@ -160,9 +160,7 @@ describe('NotifierService', () => {
       'notifier.publish',
       expect.any(Number)
     );
-    expect(mockLogger.error).toBeCalledWith('Notifier.publish', {
-      err,
-    });
+    expect(mockLogger.error).toBeCalledWith('Notifier.publish', err);
     expect(callback).toBeCalledWith(err, responseData);
   });
 });

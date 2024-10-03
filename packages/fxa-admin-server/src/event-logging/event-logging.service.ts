@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Injectable } from '@nestjs/common';
+import { LOGGER_PROVIDER } from '@fxa/shared/log';
+import { Inject, Injectable } from '@nestjs/common';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 
 /** Known event names */
@@ -26,7 +27,9 @@ export class EventLoggingService {
    * Creates new event logger
    * @param log
    */
-  constructor(private readonly log: MozLoggerService) {}
+  constructor(
+    @Inject(LOGGER_PROVIDER) private readonly log: MozLoggerService
+  ) {}
 
   /**
    * Logs an event occurrence
