@@ -16,6 +16,7 @@ import {
   getCartOrRedirectAction,
   recordEmitterEventAction,
 } from '@fxa/payments/ui/actions';
+import { CheckoutParams } from '@fxa/payments/ui/server';
 
 export const dynamic = 'force-dynamic';
 
@@ -40,13 +41,6 @@ const ConfirmationDetail = ({
     </div>
   );
 };
-
-interface CheckoutParams {
-  cartId: string;
-  locale: string;
-  interval: string;
-  offeringId: string;
-}
 
 export default async function CheckoutSuccess({
   params,

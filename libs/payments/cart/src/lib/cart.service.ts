@@ -9,6 +9,7 @@ import {
   InvoiceManager,
   SubplatInterval,
   PromotionCodeManager,
+  SubscriptionManager,
 } from '@fxa/payments/customer';
 import { EligibilityService } from '@fxa/payments/eligibility';
 import {
@@ -24,6 +25,7 @@ import { GeoDBManager } from '@fxa/shared/geodb';
 import { CartManager } from './cart.manager';
 import {
   CheckoutCustomerData,
+  PollCartResponse,
   ResultCart,
   UpdateCart,
   WithContextCart,
@@ -31,8 +33,10 @@ import {
 import { handleEligibilityStatusMap } from './cart.utils';
 import { CheckoutService } from './checkout.service';
 import {
+  CartError,
   CartInvalidCurrencyError,
   CartInvalidPromoCodeError,
+  CartSubscriptionNotFoundError,
 } from './cart.error';
 import { AccountManager } from '@fxa/shared/account/account';
 
@@ -49,7 +53,8 @@ export class CartService {
     private eligibilityService: EligibilityService,
     private geodbManager: GeoDBManager,
     private invoiceManager: InvoiceManager,
-    private productConfigurationManager: ProductConfigurationManager
+    private productConfigurationManager: ProductConfigurationManager,
+    private subscriptionManager: SubscriptionManager
   ) {}
 
   /**
@@ -94,6 +99,12 @@ export class CartService {
       args.interval
     );
 
+    const fxaAccounts = args.uid
+      ? await this.accountManager.getAccounts([args.uid])
+      : undefined;
+    const fxaAccount =
+      fxaAccounts && fxaAccounts.length > 0 ? fxaAccounts[0] : undefined;
+
     const [upcomingInvoice, eligibility] = await Promise.all([
       this.invoiceManager.preview({
         priceId: price.id,
@@ -136,6 +147,7 @@ export class CartService {
       offeringConfigId: args.offeringConfigId,
       amount: upcomingInvoice.subtotal,
       uid: args.uid,
+      email: fxaAccount?.email || undefined,
       stripeCustomerId: accountCustomer?.stripeCustomerId || undefined,
       experiment: args.experiment,
       taxAddress,
@@ -194,13 +206,17 @@ export class CartService {
     try {
       const cart = await this.cartManager.fetchCartById(cartId);
 
-      await this.checkoutService.payWithStripe(
+      const paymentIntent = await this.checkoutService.payWithStripe(
         cart,
         paymentMethodId,
         customerData
       );
 
-      await this.cartManager.finishCart(cartId, version, {});
+      const updatedCart = await this.cartManager.fetchCartById(cartId);
+
+      if (paymentIntent.status === 'succeeded') {
+        await this.cartManager.finishCart(cartId, updatedCart.version, {});
+      }
     } catch (e) {
       // TODO: Handle errors and provide an associated reason for failure
       await this.cartManager.finishErrorCart(cartId, {
@@ -218,7 +234,7 @@ export class CartService {
     try {
       const cart = await this.cartManager.fetchCartById(cartId);
 
-      this.checkoutService.payWithPaypal(cart, customerData, token);
+      await this.checkoutService.payWithPaypal(cart, customerData, token);
 
       await this.cartManager.finishCart(cartId, version, {});
     } catch (e) {
@@ -227,6 +243,70 @@ export class CartService {
         errorReasonId: CartErrorReasonId.Unknown,
       });
     }
+  }
+
+  /**
+   * return the cart state, and the stripe client secret if the cart has a
+   * stripe paymentIntent with `requires_action` actions for the client to handle
+   */
+  async pollCart(cartId: string): Promise<PollCartResponse> {
+    const cart = await this.cartManager.fetchCartById(cartId);
+
+    // respect cart state set elsewhere
+    if (cart.state === CartState.FAIL || cart.state === CartState.SUCCESS) {
+      return { cartState: cart.state };
+    }
+
+    if (!cart.stripeSubscriptionId) {
+      return { cartState: cart.state };
+    }
+
+    const subscription = await this.subscriptionManager.retrieve(
+      cart.stripeSubscriptionId
+    );
+    if (!subscription) {
+      return { cartState: cart.state };
+    }
+
+    // PayPal payment method collection
+    if (subscription.collection_method === 'send_invoice') {
+      return { cartState: cart.state };
+    }
+
+    // Stripe payment method collection
+    const paymentIntent =
+      await this.subscriptionManager.processStripeSubscription(subscription);
+
+    if (paymentIntent.status === 'requires_action') {
+      return {
+        cartState: cart.state,
+        stripeClientSecret: paymentIntent.client_secret ?? undefined,
+      };
+    }
+
+    return { cartState: cart.state };
+  }
+
+  async finalizeProcessingCart(cartId: string): Promise<void> {
+    const cart = await this.cartManager.fetchCartById(cartId);
+
+    if (!cart.uid) {
+      throw new CartError('Cart must have a uid to finalize', { cartId });
+    }
+
+    if (!cart.stripeSubscriptionId) {
+      throw new CartSubscriptionNotFoundError(cartId);
+    }
+    const subscription = await this.subscriptionManager.retrieve(
+      cart.stripeSubscriptionId
+    );
+    if (!subscription) {
+      throw new CartSubscriptionNotFoundError(cartId);
+    }
+    await Promise.all([
+      this.checkoutService.postPaySteps(cart, subscription, cart.uid),
+      await this.cartManager.finishCart(cart.id, cart.version, {}),
+    ]);
   }
 
   /**
@@ -250,6 +330,13 @@ export class CartService {
         throw e;
       }
     }
+  }
+
+  /**
+   * Update a cart to be in the processing state
+   */
+  async setCartProcessing(cartId: string): Promise<void> {
+    await this.cartManager.setProcessingCart(cartId);
   }
 
   /**

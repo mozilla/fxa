@@ -8,3 +8,10 @@ export enum SupportedPages {
   SUCCESS = 'success',
   ERROR = 'error',
 }
+
+export type CheckoutParams = {
+  cartId: string;
+  locale: string;
+  interval: string;
+  offeringId: string;
+};

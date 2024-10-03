@@ -26,6 +26,7 @@ import {
   StripeSubscription,
   StripeCustomer,
   StripePromotionCode,
+  StripePaymentIntent,
 } from '@fxa/payments/stripe';
 import { ProfileClient } from '@fxa/profile/client';
 import { AccountManager } from '@fxa/shared/account/account';
@@ -81,6 +82,7 @@ export class CheckoutService {
 
   async prePaySteps(cart: ResultCart, customerData: CheckoutCustomerData) {
     const taxAddress = cart.taxAddress as any as TaxAddress;
+    let version = cart.version;
 
     if (!cart.email) {
       throw new CartEmailNotFoundError(cart.id);
@@ -133,6 +135,7 @@ export class CheckoutService {
         uid: uid,
         stripeCustomerId: stripeCustomerId,
       });
+      version += 1;
     }
 
     // validate customer is eligible for product via eligibility service
@@ -204,6 +207,7 @@ export class CheckoutService {
       email: cart.email,
       enableAutomaticTax,
       promotionCode,
+      version,
       price,
     };
   }
@@ -237,9 +241,15 @@ export class CheckoutService {
     cart: ResultCart,
     paymentMethodId: string,
     customerData: CheckoutCustomerData
-  ) {
-    const { uid, customer, enableAutomaticTax, promotionCode, price } =
-      await this.prePaySteps(cart, customerData);
+  ): Promise<StripePaymentIntent> {
+    const {
+      uid,
+      customer,
+      enableAutomaticTax,
+      promotionCode,
+      version: updatedVersion,
+      price,
+    } = await this.prePaySteps(cart, customerData);
 
     await this.paymentMethodManager.attach(paymentMethodId, {
       customer: customer.id,
@@ -278,6 +288,10 @@ export class CheckoutService {
       }
     );
 
+    await this.cartManager.updateFreshCart(cart.id, updatedVersion, {
+      stripeSubscriptionId: subscription.id,
+    });
+
     const paymentIntent = await this.subscriptionManager.getLatestPaymentIntent(
       subscription
     );
@@ -305,7 +319,10 @@ export class CheckoutService {
       );
     }
 
-    await this.postPaySteps(cart, subscription, uid);
+    if (paymentIntent.status === 'succeeded') {
+      await this.postPaySteps(cart, subscription, uid);
+    }
+    return paymentIntent;
   }
 
   async payWithPaypal(

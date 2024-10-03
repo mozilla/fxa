@@ -20,6 +20,9 @@ import { SetupCartActionArgs } from './validators/SetupCartActionArgs';
 import { UpdateCartActionArgs } from './validators/UpdateCartActionArgs';
 import { RecordEmitterEventArgs } from './validators/RecordEmitterEvent';
 import { PaymentsEmitterService } from '../emitter/emitter.service';
+import { SetCartProcessingActionArgs } from './validators/SetCartProcessingActionArgs';
+import { FinalizeProcessingCartActionArgs } from './validators/finalizeProcessingCartActionArgs';
+import { PollCartActionArgs } from './validators/pollCartActionArgs';
 
 /**
  * ANY AND ALL methods exposed via this service should be considered publicly accessible and callable with any arguments.
@@ -71,6 +74,14 @@ export class NextJSActionsService {
     return cart;
   }
 
+  async pollCart(args: PollCartActionArgs) {
+    await new Validator().validateOrReject(args);
+
+    const cart = await this.cartService.pollCart(args.cartId);
+
+    return cart;
+  }
+
   async finalizeCartWithError(args: FinalizeCartWithErrorArgs) {
     await new Validator().validateOrReject(args);
 
@@ -78,6 +89,18 @@ export class NextJSActionsService {
       args.cartId,
       args.errorReasonId
     );
+  }
+
+  async finalizeProcessingCart(args: FinalizeProcessingCartActionArgs) {
+    await new Validator().validateOrReject(args);
+
+    await this.cartService.finalizeProcessingCart(args.cartId);
+  }
+
+  async setCartProcessing(args: SetCartProcessingActionArgs) {
+    await new Validator().validateOrReject(args);
+
+    await this.cartService.setCartProcessing(args.cartId);
   }
 
   async getPayPalCheckoutToken(args: GetPayPalCheckoutTokenArgs) {
