@@ -19,6 +19,8 @@ const argv = yargs(hideBin(process.argv))
     // When provided, skips the initial query and just runs
     // off a local file.
     usersFile: { type: 'string', default: '' },
+    sanityCheckUserDestroyedKeys: { type: 'boolean', default: false },
+    sanityCheckUpdatedAccounts: { type: 'boolean', default: false },
     checkForMissingKeys: { type: 'boolean', default: false },
     updateMissingKeys: { type: 'boolean', default: false },
   })
@@ -64,6 +66,47 @@ async function record(filepath, uid) {
 async function processUser(row) {
   // Record user id.
   console.log('Checking for user: ', row.email);
+
+  if (argv.sanityCheckUserDestroyedKeys) {
+    console.log('Sanity checking for destroyed recovery keys.');
+    const result = await mainKnex.raw(
+      `SELECT accounts.uid
+       FROM accounts join securityEvents on accounts.uid = securityEvents.uid
+       WHERE
+        accounts.uid=?
+        AND accounts.keysChangedAt < securityEvents.createdAt
+        AND (securityEvents.nameId = 18 or securityEvents.nameId = 14)`,
+      [uid]
+    );
+
+    if (result[0].length > 0) {
+      console.log(
+        'Account with restored recovery keys deleted post-facto.',
+        row.uid.toString('hex')
+      );
+      await record(`accounts_with_deleted_keys.${run}.txt`, result[0][0].uid);
+    }
+  }
+
+  if (argv.sanityCheckUpdatedAccounts) {
+    console.log('Running sanity check on updated accounts.');
+    const backupKnex = await getKnexConnection('BACKUP');
+    const query = `
+      SELECT COUNT(recoveryKeys.uid) as count
+      FROM recoveryKeys
+      WHERE recoveryKeys.uid=?`;
+
+    const resultPre = await backupKnex.raw(query, row.uid);
+    const countPre = resultPre[0][0].count;
+
+    const resultPost = await mainKnex.raw(query, row.uid);
+    const countPost = resultPost[0][0].count;
+
+    if (countPre === 0 && countPost === 1) {
+      console.log('Found updated accounted: ', row.uid.toString('hex'));
+      await record(`accounts_updated.${run}.txt`, row.uid);
+    }
+  }
 
   if (argv.checkForMissingKeys) {
     const uid = row.uid;
