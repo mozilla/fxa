@@ -26,6 +26,8 @@ import { Constants } from '../../../lib/constants';
 // TODO in FXA-7894 use sensitive data client to pass sensitive data
 // Depends on FXA-7400
 
+const RECOVERY_KEY_LENGTH = 32;
+
 const AccountRecoveryConfirmKey = ({
   accountResetToken,
   code,
@@ -78,18 +80,42 @@ const AccountRecoveryConfirmKey = ({
     }
   };
 
+  const truncateCode = (code: string) => {
+    // Truncate any characters beyond the expected length of the recovery key (keeping spaces but ignoring them in the count).
+    let count = 0;
+    let truncatedCode = '';
+    for (let i = 0; i < code.length; i++) {
+      if (count === RECOVERY_KEY_LENGTH) {
+        break;
+      }
+      if (code[i].match(/[a-zA-Z0-9]/)) {
+        count++;
+      }
+      truncatedCode += code[i];
+    }
+    return truncatedCode;
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (errorMessage) {
       setErrorMessage('');
     }
-    // strip out any characters other than letters, numbers, spaces
-    // and only allow single spaces
+
     const filteredCode = e.target.value
+      // filter out any characters other than alphanumeric characters and spaces
       .replace(/[^a-zA-Z0-9\s]/g, '')
+      // only allow single spaces
       .replace(/\s{2,}/g, ' ');
-    // only count letters and numbers to assess if submit should be disabled
-    setIsSubmitDisabled(removeSpaces(filteredCode).length !== 32);
-    e.target.value = filteredCode;
+
+    // truncate any characters beyond the expected length of the recovery key (keeping spaces but ignoring them in the count)
+    const truncatedCode = truncateCode(filteredCode);
+
+    // update the input value to reflect the filtered and truncated code
+    e.target.value = truncatedCode;
+
+    // check if submit should be enabled/disabled
+    const codeLengthWithoutSpaces = removeSpaces(truncatedCode).length;
+    setIsSubmitDisabled(codeLengthWithoutSpaces !== RECOVERY_KEY_LENGTH);
   };
 
   const ControlledCharacterCount = ({

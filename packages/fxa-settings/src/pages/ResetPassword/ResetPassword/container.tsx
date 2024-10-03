@@ -24,12 +24,6 @@ const ResetPasswordContainer = ({
 
   let localizedErrorMessage = '';
 
-  console.log(
-    queryParamsToMetricsContext(
-      flowQueryParams as unknown as Record<string, string>
-    )
-  );
-
   const requestResetPasswordCode = async (email: string) => {
     const metricsContext = queryParamsToMetricsContext(
       flowQueryParams as unknown as Record<string, string>

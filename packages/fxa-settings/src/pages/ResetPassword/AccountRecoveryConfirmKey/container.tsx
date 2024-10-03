@@ -95,7 +95,6 @@ const AccountRecoveryConfirmKeyContainer = (_: RouteComponentProps) => {
         ftlMsgResolver,
         error
       );
-      setIsSubmitDisabled(false);
       setErrorMessage(localizedBannerMessage);
     }
   };

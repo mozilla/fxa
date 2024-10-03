@@ -10,6 +10,7 @@ import RecoveryKeySetupHint, { MAX_HINT_LENGTH } from '.';
 import { viewName } from '../Settings/PageRecoveryKeyCreate';
 import { renderWithRouter, MOCK_ACCOUNT } from '../../models/mocks';
 import { AuthUiErrorNos } from '../../lib/auth-errors/auth-errors';
+import userEvent from '@testing-library/user-event';
 
 const gqlUnexpectedError: any = AuthUiErrorNos[999];
 
@@ -99,31 +100,15 @@ describe('RecoveryKeySetupHint', () => {
     });
   });
 
-  it('displays error tooltip if the hint is too long', async () => {
+  it('limits the input to a max length', async () => {
+    const user = userEvent.setup();
     renderWithContext(accountWithSuccess);
     const hintValueTooLong = 'a'.repeat(MAX_HINT_LENGTH + 5);
     const textInput = screen.getByRole('textbox', {
       name: 'Enter a hint (optional)',
     });
-    const submitButton = screen.getByText('Finish');
-    fireEvent.input(textInput, {
-      target: { value: hintValueTooLong },
-    });
-    await waitFor(() => {
-      expect(textInput).toHaveValue(hintValueTooLong);
-    });
-    fireEvent.click(submitButton);
-    await waitFor(() => {
-      expect(screen.getByTestId('tooltip')).toHaveTextContent(
-        'The hint must contain fewer than 255 characters.'
-      );
-      expect(accountWithSuccess.updateRecoveryKeyHint).not.toBeCalled();
-      expect(logViewEvent).not.toBeCalledWith(
-        `flow.${viewName}`,
-        'create-hint.submit'
-      );
-      expect(navigateForward).not.toBeCalled();
-    });
+    await waitFor(() => user.type(textInput, hintValueTooLong));
+    expect(textInput).toHaveValue('a'.repeat(MAX_HINT_LENGTH));
   });
 
   it('logs an error if saving a valid hint failed', async () => {

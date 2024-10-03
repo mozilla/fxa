@@ -47,7 +47,6 @@ const FormVerifyTotp = ({
       ''
     );
     e.target.value = filteredCode;
-    console.log(e.target.value.length);
     e.target.value.length === codeLength
       ? setIsSubmitDisabled(false)
       : setIsSubmitDisabled(true);
@@ -65,7 +64,6 @@ const FormVerifyTotp = ({
     } else if (!isSubmitDisabled) {
       await verifyCode(code);
     }
-    setIsSubmitDisabled(false);
   };
 
   const getDisabledButtonTitle = () => {
