@@ -143,8 +143,11 @@ async function main() {
       const result = await mainKnex.raw(
         `SELECT accounts.uid, emails.email, accounts.keysChangedAt
          FROM accounts join emails on accounts.uid = emails.uid and emails.isPrimary
-         WHERE accounts.uid=?`,
-        [uid]
+         WHERE
+          accounts.uid=?
+          AND accounts.keysChangedAt >= (UNIX_TIMESTAMP(DATE(?))*1000)
+          AND accounts.keysChangedAt <= (UNIX_TIMESTAMP(DATE(?))*1000)`,
+        [uid, argv.start, argv.stop]
       );
       if (result[0].length === 1) {
         await processUser(result[0][0]);
