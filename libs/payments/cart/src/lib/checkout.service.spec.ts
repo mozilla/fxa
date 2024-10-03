@@ -442,7 +442,7 @@ describe('CheckoutService', () => {
         StripeSubscriptionFactory({
           metadata: {
             [STRIPE_CUSTOMER_METADATA.SubscriptionPromotionCode]:
-              mockCart.couponCode,
+              mockCart.couponCode as string,
           },
         })
       );
@@ -516,6 +516,7 @@ describe('CheckoutService', () => {
         .spyOn(subscriptionManager, 'cancel')
         .mockResolvedValue(mockSubscription);
       jest.spyOn(checkoutService, 'postPaySteps').mockResolvedValue();
+      jest.spyOn(cartManager, 'updateFreshCart').mockResolvedValue();
     });
 
     describe('success', () => {

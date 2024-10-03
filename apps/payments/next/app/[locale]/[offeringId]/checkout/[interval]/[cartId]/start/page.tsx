@@ -5,7 +5,7 @@
 import { revalidatePath } from 'next/cache';
 import { headers } from 'next/headers';
 import { BaseButton, ButtonVariant, PaymentSection } from '@fxa/payments/ui';
-import { getApp, SupportedPages } from '@fxa/payments/ui/server';
+import { getApp, SupportedPages,   CheckoutParams, } from '@fxa/payments/ui/server';
 import { getCartOrRedirectAction } from '@fxa/payments/ui/actions';
 import { DEFAULT_LOCALE } from '@fxa/shared/l10n';
 import {
@@ -13,7 +13,6 @@ import {
   getCMSContent,
 } from 'apps/payments/next/app/_lib/apiClient';
 import { auth, signIn } from 'apps/payments/next/auth';
-import { CheckoutParams } from '../layout';
 
 export const dynamic = 'force-dynamic';
 

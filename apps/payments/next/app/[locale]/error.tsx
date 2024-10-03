@@ -7,10 +7,9 @@
 import { useEffect, useState } from 'react';
 import * as Sentry from '@sentry/nextjs';
 import { useRouter, useParams } from 'next/navigation';
-import { CheckoutParams } from './[offeringId]/checkout/[interval]/[cartId]/layout';
 import Image from 'next/image';
 import errorIcon from '@fxa/shared/assets/images/error.svg';
-import { LoadingSpinner } from '@fxa/payments/ui';
+import { CheckoutParams, LoadingSpinner } from '@fxa/payments/ui';
 import Link from 'next/link';
 import { Localized } from '@fluent/react';
 import { restartCartAction, getCartAction } from '@fxa/payments/ui/actions';
