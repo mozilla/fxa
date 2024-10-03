@@ -18,6 +18,7 @@ export const Subject = ({
       <PasswordResetConfirmTotp
         codeLength={codeLength}
         onComplete={onComplete}
+        passwordForgotToken="test"
       />
     </AppLayout>
   );

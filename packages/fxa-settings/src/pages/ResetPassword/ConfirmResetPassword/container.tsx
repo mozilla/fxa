@@ -14,8 +14,6 @@ import { ResendStatus } from '../../../lib/types';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import GleanMetrics from '../../../lib/glean';
-import PasswordResetConfirmTotp from '../../../components/PasswordResetConfirmTotp';
-import AppLayout from '../../../components/AppLayout';
 
 const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
   const [resendStatus, setResendStatus] = useState<ResendStatus>(
@@ -23,7 +21,6 @@ const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
   );
   const [errorMessage, setErrorMessage] = useState('');
   const [resendErrorMessage, setResendErrorMessage] = useState('');
-  const [shouldConfirmTotp, setShouldConfirmTotp] = useState(false);
 
   const authClient = useAuthClient();
   const ftlMsgResolver = useFtlMsgResolver();
@@ -47,9 +44,24 @@ const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
     uid: string,
     estimatedSyncDeviceCount?: number,
     recoveryKeyExists?: boolean,
-    recoveryKeyHint?: string
+    recoveryKeyHint?: string,
+    totpExists?: boolean
   ) => {
-    if (recoveryKeyExists === true) {
+    if (totpExists && recoveryKeyExists === false) {
+      navigate('/confirm_totp_reset_password', {
+        state: {
+          code,
+          email,
+          emailToHashWith,
+          estimatedSyncDeviceCount,
+          recoveryKeyExists,
+          recoveryKeyHint,
+          token,
+          uid,
+        },
+        replace: true,
+      });
+    } else if (recoveryKeyExists === true) {
       navigate('/account_recovery_confirm_key', {
         state: {
           code,
@@ -127,21 +139,16 @@ const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
       } = await checkForRecoveryKey(token);
       const { exists: totpExists } = await checkForTotp(token);
 
-      if (totpExists) {
-        setShouldConfirmTotp(true);
-        return;
-      }
-
-      if (!!recoveryKeyExists) {
-        handleNavigation(
-          code,
-          emailToHashWith,
-          token,
-          uid,
-          estimatedSyncDeviceCount,
-          recoveryKeyExists
-        );
-      }
+      handleNavigation(
+        code,
+        emailToHashWith,
+        token,
+        uid,
+        estimatedSyncDeviceCount,
+        recoveryKeyExists,
+        recoveryKeyHint,
+        totpExists
+      );
     } catch (error) {
       // return custom error for expired or incorrect code
       const localizerErrorMessage = getLocalizedErrorMessage(
@@ -170,32 +177,18 @@ const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
   };
 
   return (
-    <div>
-      {shouldConfirmTotp ? (
-        <AppLayout>
-          <PasswordResetConfirmTotp
-            codeLength={6}
-            onComplete={() => {
-              console.log('Verfieid herehehrehrehrehrehrh');
-              return Promise.resolve();
-            }}
-          ></PasswordResetConfirmTotp>
-        </AppLayout>
-      ) : (
-        <ConfirmResetPassword
-          {...{
-            email,
-            errorMessage,
-            resendCode,
-            resendStatus,
-            resendErrorMessage,
-            setErrorMessage,
-            setResendStatus,
-            verifyCode,
-          }}
-        />
-      )}
-    </div>
+    <ConfirmResetPassword
+      {...{
+        email,
+        errorMessage,
+        resendCode,
+        resendStatus,
+        resendErrorMessage,
+        setErrorMessage,
+        setResendStatus,
+        verifyCode,
+      }}
+    />
   );
 };
 

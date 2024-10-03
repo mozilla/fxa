@@ -3,8 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { expect, test } from '../../lib/fixtures/standard';
+import { getCode } from 'fxa-settings/src/lib/totp';
 
-test.describe('severity-1 #smoke', () => {
+test.describe('severity-1 #smoke reset123', () => {
   test('can reset password', async ({
     page,
     target,
@@ -135,5 +136,215 @@ test.describe('severity-1 #smoke', () => {
     await resetPassword.fillOutEmailForm(credentials.email);
 
     await expect(resetPassword.confirmResetPasswordHeading).toBeVisible();
+  });
+
+  test('can reset password with 2FA enabled', async ({
+    page,
+    target,
+    pages: { signin, resetPassword, settings, totp, signinTotpCode },
+    testAccountTracker,
+  }) => {
+    const credentials = await testAccountTracker.signUp();
+    const newPassword = testAccountTracker.generatePassword();
+
+    await signin.goto();
+    await signin.fillOutEmailFirstForm(credentials.email);
+    await signin.fillOutPasswordForm(credentials.password);
+
+    await expect(settings.settingsHeading).toBeVisible();
+    await expect(settings.totp.status).toHaveText('Not Set');
+
+    await settings.totp.addButton.click();
+    const { secret } = await totp.fillOutTotpForms();
+
+    await expect(settings.settingsHeading).toBeVisible();
+    await expect(settings.alertBar).toHaveText(
+      'Two-step authentication enabled'
+    );
+    await expect(settings.totp.status).toHaveText('Enabled');
+
+    await settings.signOut();
+
+    await resetPassword.goto();
+
+    await resetPassword.fillOutEmailForm(credentials.email);
+
+    const code = await target.emailClient.getResetPasswordCode(
+      credentials.email
+    );
+    await resetPassword.fillOutResetPasswordCodeForm(code);
+
+    // Fill out the TOTP form
+    let totpCode = await getCode(secret);
+    await page.waitForTimeout(60000);
+    await resetPassword.fillOutTotpForm(totpCode);
+
+    // Create and submit new password
+    await resetPassword.fillOutNewPasswordForm(newPassword);
+
+    // Wait for new page to navigate
+    await expect(page).toHaveURL(/reset_password_verified/);
+
+    await page.goto(target.contentServerUrl);
+
+    await signin.fillOutEmailFirstForm(credentials.email);
+
+    await signin.fillOutPasswordForm(newPassword);
+
+    totpCode = await getCode(secret);
+    await page.waitForURL(/signin_totp_code/);
+    await signinTotpCode.fillOutCodeForm(totpCode);
+
+    await expect(settings.settingsHeading).toBeVisible();
+
+    // Remove TOTP before teardown
+    await settings.disconnectTotp();
+    // Cleanup requires setting this value to correct password
+    credentials.password = newPassword;
+  });
+
+  test('can reset password with 2FA recovery code', async ({
+    page,
+    target,
+    pages: { signin, resetPassword, settings, totp, signinTotpCode },
+    testAccountTracker,
+  }) => {
+    const credentials = await testAccountTracker.signUp();
+    const newPassword = testAccountTracker.generatePassword();
+
+    await signin.goto();
+    await signin.fillOutEmailFirstForm(credentials.email);
+    await signin.fillOutPasswordForm(credentials.password);
+
+    await expect(settings.settingsHeading).toBeVisible();
+    await expect(settings.totp.status).toHaveText('Not Set');
+
+    await settings.totp.addButton.click();
+    const { secret, recoveryCodes } = await totp.fillOutTotpForms();
+
+    await expect(settings.settingsHeading).toBeVisible();
+    await expect(settings.alertBar).toHaveText(
+      'Two-step authentication enabled'
+    );
+    await expect(settings.totp.status).toHaveText('Enabled');
+
+    await settings.signOut();
+
+    await resetPassword.goto();
+
+    await resetPassword.fillOutEmailForm(credentials.email);
+
+    const code = await target.emailClient.getResetPasswordCode(
+      credentials.email
+    );
+    await resetPassword.fillOutResetPasswordCodeForm(code);
+
+    // Fill out the Recovery code form
+    await resetPassword.clickTroubleEnteringCode();
+    await resetPassword.fillOurRecoveryCodeForm(recoveryCodes[0]);
+
+    // Create and submit new password
+    await resetPassword.fillOutNewPasswordForm(newPassword);
+
+    // Wait for new page to navigate
+    await expect(page).toHaveURL(/reset_password_verified/);
+
+    await page.goto(target.contentServerUrl);
+
+    await signin.fillOutEmailFirstForm(credentials.email);
+
+    await signin.fillOutPasswordForm(newPassword);
+
+    const totpCode = await getCode(secret);
+    await page.waitForURL(/signin_totp_code/);
+    await signinTotpCode.fillOutCodeForm(totpCode);
+
+    await expect(settings.settingsHeading).toBeVisible();
+
+    // Remove TOTP before teardown
+    await settings.disconnectTotp();
+    // Cleanup requires setting this value to correct password
+    credentials.password = newPassword;
+  });
+
+  test('can reset password with recovery key and 2FA', async ({
+    page,
+    target,
+    pages: {
+      signin,
+      resetPassword,
+      settings,
+      totp,
+      signinTotpCode,
+      recoveryKey,
+    },
+    testAccountTracker,
+  }) => {
+    const credentials = await testAccountTracker.signUp();
+    const newPassword = testAccountTracker.generatePassword();
+
+    await signin.goto();
+    await signin.fillOutEmailFirstForm(credentials.email);
+    await signin.fillOutPasswordForm(credentials.password);
+
+    // Enable 2FA
+    await expect(settings.settingsHeading).toBeVisible();
+    await expect(settings.totp.status).toHaveText('Not Set');
+
+    await settings.totp.addButton.click();
+    const { secret } = await totp.fillOutTotpForms();
+
+    await expect(settings.settingsHeading).toBeVisible();
+    await expect(settings.alertBar).toHaveText(
+      'Two-step authentication enabled'
+    );
+    await expect(settings.totp.status).toHaveText('Enabled');
+
+    // Create recovery key
+    await settings.recoveryKey.createButton.click();
+    const key = await recoveryKey.createRecoveryKey(
+      credentials.password,
+      'hint'
+    );
+
+    // Verify status as 'enabled'
+    await expect(settings.settingsHeading).toBeVisible();
+    await expect(settings.recoveryKey.status).toHaveText('Enabled');
+
+    await settings.signOut();
+
+    await resetPassword.goto();
+
+    await resetPassword.fillOutEmailForm(credentials.email);
+
+    const code = await target.emailClient.getResetPasswordCode(
+      credentials.email
+    );
+    await resetPassword.fillOutResetPasswordCodeForm(code);
+
+    // Not prompted for 2FA during reset password
+    await resetPassword.fillOutRecoveryKeyForm(key);
+    await resetPassword.fillOutNewPasswordForm(newPassword);
+
+    await expect(page).toHaveURL(/reset_password_with_recovery_key_verified/);
+
+    await page.goto(target.contentServerUrl);
+    await signin.fillOutEmailFirstForm(credentials.email);
+    await signin.fillOutPasswordForm(newPassword);
+
+    // Prompted for 2FA on new login
+    const totpCode = await getCode(secret);
+    await page.waitForURL(/signin_totp_code/);
+    await signinTotpCode.fillOutCodeForm(totpCode);
+
+    await expect(settings.settingsHeading).toBeVisible();
+
+    // Recovery key has been consumed
+    await expect(settings.recoveryKey.status).toHaveText('Create');
+
+    // Remove TOTP before teardown
+    await settings.disconnectTotp();
+    // Cleanup requires setting this value to correct password
+    credentials.password = newPassword;
   });
 });

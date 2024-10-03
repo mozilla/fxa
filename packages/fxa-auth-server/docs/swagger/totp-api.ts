@@ -45,6 +45,30 @@ const TOTP_EXISTS_GET = {
   ],
 };
 
+const TOTP_VERIFY_POST = {
+  ...TAGS_TOTP,
+  description: '/totp/verify',
+  notes: [
+    dedent`
+      🔒 Authenticated with password forgot token
+
+      Checks to see if a TOTP code is valid. This is used when a user is resetting their password.
+    `,
+  ],
+};
+
+const TOTP_VERIFY_RECOVERY_CODE_POST = {
+  ...TAGS_TOTP,
+  description: '/totp/verify/recoveryCode',
+  notes: [
+    dedent`
+      🔒 Authenticated with password forgot token
+
+      Checks to see if a Recovery code is valid. If the code is valid, it will be consumed and deleted. This is used when a user is resetting their password.
+    `,
+  ],
+};
+
 const SESSION_VERIFY_TOTP_POST = {
   ...TAGS_TOTP,
   description: '/session/verifiy/totp',
@@ -62,6 +86,8 @@ const API_DOCS = {
   TOTP_CREATE_POST,
   TOTP_DESTROY_POST,
   TOTP_EXISTS_GET,
+  TOTP_VERIFY_POST,
+  TOTP_VERIFY_RECOVERY_CODE_POST,
 };
 
 export default API_DOCS;

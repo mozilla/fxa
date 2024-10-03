@@ -16,6 +16,8 @@ const DESCRIPTION = require('../../docs/swagger/shared/descriptions').default;
 const { Container } = require('typedi');
 const { AccountEventsManager } = require('../account-events');
 
+const RECOVERY_CODE_SANE_MAX_LENGTH = 20;
+
 module.exports = (log, db, mailer, customs, config, glean, profileClient) => {
   const otpUtils = require('../../lib/routes/utils/otp')(log, config, db);
 
@@ -241,6 +243,111 @@ module.exports = (log, db, mailer, customs, config, glean, profileClient) => {
             throw err;
           }
         }
+      },
+    },
+    {
+      method: 'POST',
+      path: '/totp/verify',
+      options: {
+        ...TOTP_DOCS.TOTP_VERIFY_POST,
+        auth: {
+          strategy: 'passwordForgotToken',
+        },
+        validate: {
+          payload: isA.object({
+            code: isA
+              .string()
+              .max(32)
+              .regex(validators.DIGITS)
+              .required()
+              .description(DESCRIPTION.codeTotp),
+          }),
+        },
+        response: {
+          schema: isA.object({
+            success: isA.boolean(),
+          }),
+        },
+      },
+      handler: async function (request) {
+        log.begin('totp.verify', request);
+
+        const code = request.payload.code;
+        const passwordForgotToken = request.auth.credentials;
+        const email = passwordForgotToken.email;
+
+        await customs.check(request, email, 'verifyTotpCode');
+
+        try {
+          const totpRecord = await db.totpToken(passwordForgotToken.uid);
+          const sharedSecret = totpRecord.sharedSecret;
+
+          // Default options for TOTP
+          const otpOptions = {
+            encoding: 'hex',
+            step: config.step,
+            window: config.window,
+          };
+
+          const isValidCode = otpUtils.verifyOtpCode(
+            code,
+            sharedSecret,
+            otpOptions
+          );
+
+          return {
+            success: isValidCode,
+          };
+        } catch (err) {
+          if (err.errno === errors.ERRNO.TOTP_TOKEN_NOT_FOUND) {
+            return { success: false };
+          } else {
+            throw err;
+          }
+        }
+      },
+    },
+    {
+      method: 'POST',
+      path: '/totp/verify/recoveryCode',
+      options: {
+        ...TOTP_DOCS.TOTP_VERIFY_RECOVERY_CODE_POST,
+        auth: {
+          strategy: 'passwordForgotToken',
+        },
+        validate: {
+          payload: isA.object({
+            // Validation here is done with BASE_36 superset to be backwards compatible...
+            // Ideally all backup authentication codes are Crockford Base32.
+            code: validators.recoveryCode(
+              RECOVERY_CODE_SANE_MAX_LENGTH,
+              validators.BASE_36
+            ),
+          }),
+        },
+        response: {
+          schema: isA.object({
+            remaining: isA.number(),
+          }),
+        },
+      },
+      handler: async function (request) {
+        log.begin('totp.verify.recoveryCode', request);
+
+        const code = request.payload.code;
+        const passwordForgotToken = request.auth.credentials;
+        const email = passwordForgotToken.email;
+
+        await customs.check(request, email, 'verifyRecoveryCode');
+
+        const { remaining } = await db.consumeRecoveryCode(
+          passwordForgotToken.uid,
+          code
+        );
+
+        return {
+          remaining,
+        };
       },
     },
     {

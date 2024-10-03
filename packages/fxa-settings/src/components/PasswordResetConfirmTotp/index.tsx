@@ -3,19 +3,21 @@ import { FtlMsg } from 'fxa-react/lib/utils';
 import Banner, { BannerType } from '../Banner';
 import FormVerifyCode, { FormAttributes } from '../FormVerifyCode';
 import { Link } from '@reach/router';
-import { useFtlMsgResolver } from '../../models';
+import { useFtlMsgResolver, useAuthClient } from '../../models';
 import protectionShieldIcon from './protection-shield.svg';
 
 export type CodeArray = Array<string | undefined>;
 
 export type PasswordResetConfirmTotpProps = {
   codeLength: 6 | 8;
+  passwordForgotToken: string;
   onComplete: () => Promise<void>;
 };
 
 const PasswordResetConfirmTotp = ({
   codeLength,
   onComplete,
+  passwordForgotToken,
 }: PasswordResetConfirmTotpProps) => {
   const inputRefs = useRef(
     Array.from({ length: codeLength }, () =>
@@ -23,6 +25,7 @@ const PasswordResetConfirmTotp = ({
     )
   );
   const ftlMsgResolver = useFtlMsgResolver();
+  const authClient = useAuthClient();
 
   const [codeArray, setCodeArray] = useState<CodeArray>(new Array(codeLength));
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -34,8 +37,14 @@ const PasswordResetConfirmTotp = ({
   const isFormValid = stringifiedCode.length === codeLength && !errorMessage;
   const isSubmitDisabled = isSubmitting || !isFormValid;
 
-  const verifyCode = async () => {
-    console.log('Verifiing code');
+  const verifyCode = async (code: string) => {
+    const result = await authClient.checkTotpTokenCodeWithPasswordForgotToken(
+      passwordForgotToken,
+      code
+    );
+    if (result.success) {
+      await onComplete();
+    }
   };
 
   const formAttributes: FormAttributes = {
@@ -68,14 +77,15 @@ const PasswordResetConfirmTotp = ({
       </h2>
 
       {bannerError && <Banner type={BannerType.error}>{bannerError}</Banner>}
-      <FtlMsg id="password-reset-confirm-totp-instruction">
-        <div className="flex space-x-4">
-          <img src={protectionShieldIcon} alt="" />
+
+      <div className="flex space-x-4">
+        <img src={protectionShieldIcon} alt="" />
+        <FtlMsg id="password-reset-confirm-totp-instruction">
           <p id="totp-code-instruction" className="my-5 text-md">
             Check your authenticator app to reset your password.
           </p>
-        </div>
-      </FtlMsg>
+        </FtlMsg>
+      </div>
 
       <FormVerifyCode
         {...{
