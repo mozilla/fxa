@@ -70,6 +70,9 @@ type SyncIntegrationTypes =
  * via webchannels. Currently it is only used 1) when a user is on a verification page
  * through Sync in a different browser, which will no longer be the case once we use
  * codes for reset PW, and 2) as a base class for sync desktop v3.
+ *
+ * TODO in FXA-10313, let's just get rid of this now that we're on codes.
+ * Move methods into SyncDesktopV3Integration.
  */
 export class SyncBasicIntegration<
   T extends SyncIntegrationFeatures

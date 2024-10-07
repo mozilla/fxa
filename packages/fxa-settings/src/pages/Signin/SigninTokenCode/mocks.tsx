@@ -24,6 +24,7 @@ export function createMockWebIntegration() {
     getService: () => MozServices.Default,
     isSync: () => false,
     wantsKeys: () => false,
+    isDesktopSync: () => false,
     data: {},
   };
 }

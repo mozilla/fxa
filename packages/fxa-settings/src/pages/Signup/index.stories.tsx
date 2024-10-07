@@ -8,7 +8,7 @@ import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import {
-  createMockSignupOAuthIntegration,
+  createMockSignupOAuthWebIntegration,
   createMockSignupSyncDesktopV3Integration,
   mockBeginSignupHandler,
   signupQueryParams,
@@ -21,10 +21,6 @@ import {
   POCKET_CLIENTIDS,
 } from '../../models/integrations/client-matching';
 import { getSyncEngineIds } from '../../components/ChooseWhatToSync/sync-engines';
-import {
-  isSyncOAuthIntegration,
-  isSyncDesktopV3Integration,
-} from '../../models';
 import { MOCK_CLIENT_ID } from '../mocks';
 
 export default {
@@ -37,10 +33,8 @@ const urlQueryData = mockUrlQueryData(signupQueryParams);
 const queryParamModel = new SignupQueryParams(urlQueryData);
 
 const storyWithProps = (
-  integration: SignupIntegration = createMockSignupOAuthIntegration()
+  integration: SignupIntegration = createMockSignupOAuthWebIntegration()
 ) => {
-  const isSyncOAuth = isSyncOAuthIntegration(integration);
-
   const story = () => (
     <LocationProvider>
       <Signup
@@ -49,9 +43,6 @@ const storyWithProps = (
           queryParamModel,
           beginSignupHandler: mockBeginSignupHandler,
           webChannelEngines: getSyncEngineIds(),
-          isSyncWebChannel:
-            isSyncOAuth || isSyncDesktopV3Integration(integration),
-          isSyncOAuth,
         }}
       />
     </LocationProvider>
@@ -64,11 +55,11 @@ export const Default = storyWithProps();
 export const CantChangeEmail = storyWithProps();
 
 export const ClientIsPocket = storyWithProps(
-  createMockSignupOAuthIntegration(POCKET_CLIENTIDS[0])
+  createMockSignupOAuthWebIntegration(POCKET_CLIENTIDS[0])
 );
 
 export const ClientIsMonitor = storyWithProps(
-  createMockSignupOAuthIntegration(MONITOR_CLIENTIDS[0])
+  createMockSignupOAuthWebIntegration(MONITOR_CLIENTIDS[0])
 );
 
 export const SyncDesktopV3 = storyWithProps(
@@ -76,5 +67,5 @@ export const SyncDesktopV3 = storyWithProps(
 );
 
 export const SyncOAuth = storyWithProps(
-  createMockSignupOAuthIntegration(MOCK_CLIENT_ID, true)
+  createMockSignupOAuthWebIntegration(MOCK_CLIENT_ID)
 );

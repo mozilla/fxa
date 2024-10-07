@@ -6,7 +6,7 @@ import { RouteComponentProps, useLocation } from '@reach/router';
 import { useNavigateWithQuery as useNavigate } from '../../lib/hooks/useNavigateWithQuery';
 import {
   Integration,
-  isOAuthIntegration,
+  isOAuthNativeIntegrationSync,
   isSyncDesktopV3Integration,
   useAuthClient,
   useConfig,
@@ -96,10 +96,9 @@ const SignupContainer = ({
     string[] | undefined
   >();
 
-  const isOAuth = isOAuthIntegration(integration);
-  const isSyncOAuth = isOAuth && integration.isSync();
+  const isSyncOAuth = isOAuthNativeIntegrationSync(integration);
   const isSyncDesktopV3 = isSyncDesktopV3Integration(integration);
-  const isSyncWebChannel = isSyncOAuth || isSyncDesktopV3;
+  const isSync = integration.isSync();
   const wantsKeys = integration.wantsKeys();
 
   useEffect(() => {
@@ -141,7 +140,7 @@ const SignupContainer = ({
     // that we listen for.
     // TODO: In content-server, we send this on app-start for all integration types.
     // Do we want to move this somewhere else once the index page is Reactified?
-    if (isSyncWebChannel) {
+    if (isSync) {
       (async () => {
         const status = await firefox.fxaStatus({
           // TODO: Improve getting 'context', probably set this on the integration
@@ -154,6 +153,8 @@ const SignupContainer = ({
         if (!webChannelEngines && status.capabilities.engines) {
           // choose_what_to_sync may be disabled for mobile sync, see:
           // https://github.com/mozilla/application-services/issues/1761
+          // Desktop OAuth Sync will always provide this capability too
+          // for consistency.
           if (
             isSyncDesktopV3 ||
             (isSyncOAuth && status.capabilities.choose_what_to_sync)
@@ -163,7 +164,7 @@ const SignupContainer = ({
         }
       })();
     }
-  }, [isSyncWebChannel, isSyncDesktopV3, isSyncOAuth, webChannelEngines]);
+  }, [isSync, isSyncDesktopV3, isSyncOAuth, webChannelEngines]);
 
   const [beginSignup] = useMutation<BeginSignupResponse>(BEGIN_SIGNUP_MUTATION);
 
@@ -272,8 +273,6 @@ const SignupContainer = ({
         queryParamModel,
         beginSignupHandler,
         webChannelEngines,
-        isSyncWebChannel,
-        isSyncOAuth,
       }}
     />
   );

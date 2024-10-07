@@ -104,11 +104,12 @@ export function createMockSigninWebIntegration(): SigninIntegration {
     getService: () => MozServices.Default,
     wantsKeys: () => false,
     data: {},
+    isDesktopSync: () => false,
   };
 }
 
 export function createMockSigninSyncIntegration(
-  type = IntegrationType.OAuth
+  type = IntegrationType.OAuthNative
 ): SigninIntegration {
   return {
     type,
@@ -116,6 +117,7 @@ export function createMockSigninSyncIntegration(
     wantsKeys: () => true,
     getService: () => MozServices.FirefoxSync,
     data: {},
+    isDesktopSync: () => true,
   };
 }
 
@@ -129,12 +131,13 @@ export function createMockSigninOAuthIntegration({
   isSync?: boolean;
 } = {}): SigninOAuthIntegration {
   return {
-    type: IntegrationType.OAuth,
+    type: IntegrationType.OAuthWeb,
     getService: () => clientId || MOCK_CLIENT_ID,
     isSync: () => isSync,
     wantsKeys: () => wantsKeys,
     wantsLogin: () => false,
     wantsTwoStepAuthentication: () => false,
+    isDesktopSync: () => isSync,
     data: {},
   };
 }

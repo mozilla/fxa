@@ -4,8 +4,6 @@
 
 import {
   BaseIntegration,
-  Integration,
-  IntegrationFeatures,
   IntegrationType,
   RelierAccount,
   RelierClientInfo,
@@ -29,10 +27,6 @@ import {
 } from 'class-validator';
 import { AuthUiError } from '../../lib/auth-errors/auth-errors';
 
-export interface OAuthIntegrationFeatures extends IntegrationFeatures {
-  webChannelSupport: boolean;
-}
-
 export enum OAuthPrompt {
   CONSENT = 'consent',
   NONE = 'none',
@@ -40,24 +34,12 @@ export enum OAuthPrompt {
 }
 
 type OAuthIntegrationTypes =
-  | IntegrationType.OAuth
+  | IntegrationType.OAuthWeb
+  | IntegrationType.OAuthNative
   | IntegrationType.PairingSupplicant
   | IntegrationType.PairingAuthority;
 
 export type SearchParam = IntegrationFlags['searchParam'];
-
-export function isOAuthIntegration(integration: {
-  type: IntegrationType;
-}): integration is OAuthIntegration {
-  return (integration as OAuthIntegration).type === IntegrationType.OAuth;
-}
-
-/**
- * Sync mobile or sync desktop with context=oauth_webchannel_v1 (FF 123+)
- */
-export const isSyncOAuthIntegration = (
-  integration: Pick<Integration, 'type'>
-) => isOAuthIntegration(integration) && integration.isSync();
 
 // TODO: probably move this somewhere else
 export class OAuthIntegrationData extends BaseIntegrationData {
@@ -180,12 +162,18 @@ export type OAuthIntegrationOptions = {
   isPromptNoneEnabledClientIds: Array<string>;
 };
 
-export class OAuthIntegration extends BaseIntegration<OAuthIntegrationFeatures> {
+/**
+ * This integration is used for relying party OAuth implementations. FxA should
+ * not send or receive web channel messages if this integration is created.
+ *
+ * This is a base class for OAuthNativeIntegration.
+ */
+export class OAuthWebIntegration extends BaseIntegration {
   constructor(
     data: ModelDataStore,
     protected readonly storageData: ModelDataStore,
     public readonly opts: OAuthIntegrationOptions,
-    type: OAuthIntegrationTypes = IntegrationType.OAuth
+    type: OAuthIntegrationTypes = IntegrationType.OAuthWeb
   ) {
     super(type, new OAuthIntegrationData(data));
     this.setFeatures({
@@ -233,9 +221,8 @@ export class OAuthIntegration extends BaseIntegration<OAuthIntegrationFeatures> 
     return this.getRedirectToRPUrl({ error: err.errno });
   }
 
-  // prefer client id if available (for oauth) otherwise fallback to service (e.g. for sync)
   getService() {
-    return this.data.clientId || this.data.service;
+    return this.data.clientId;
   }
 
   restoreOAuthState() {
@@ -293,10 +280,6 @@ export class OAuthIntegration extends BaseIntegration<OAuthIntegrationFeatures> 
     return this.clientInfo;
   }
 
-  isSync() {
-    return this.data.context === Constants.OAUTH_WEBCHANNEL_CONTEXT;
-  }
-
   isTrusted() {
     return this.clientInfo?.trusted === true;
   }
@@ -323,9 +306,6 @@ export class OAuthIntegration extends BaseIntegration<OAuthIntegrationFeatures> 
   }
 
   wantsKeys(): boolean {
-    if (this.isSync()) {
-      return true;
-    }
     if (!this.opts.scopedKeysEnabled) {
       return false;
     }
