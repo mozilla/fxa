@@ -100,6 +100,18 @@ export abstract class Integration<
     return false;
   }
 
+  isDesktopSync() {
+    return false;
+  }
+
+  isFirefoxMobileClient() {
+    return false;
+  }
+
+  isFirefoxDesktopClient() {
+    return false;
+  }
+
   getServiceName(): string {
     // If the service is not defined, then check the client info
     if (!this.data.service && this.clientInfo?.serviceName) {

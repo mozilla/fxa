@@ -294,7 +294,23 @@ export class OAuthIntegration extends BaseIntegration<OAuthIntegrationFeatures> 
   }
 
   isSync() {
-    return this.data.context === Constants.OAUTH_WEBCHANNEL_CONTEXT;
+    return (
+      this.data.context === Constants.OAUTH_WEBCHANNEL_CONTEXT &&
+      (this.isDesktopSync() || this.isFirefoxMobileClient())
+    );
+  }
+
+  isDesktopSync() {
+    return this.isFirefoxDesktopClient() && this.data.service === 'sync';
+  }
+
+  // Mobile does not provide service=sync, it is just Sync by default
+  isFirefoxMobileClient() {
+    return this.clientInfo?.clientId === 'TBD';
+  }
+
+  isFirefoxDesktopClient() {
+    return this.clientInfo?.clientId === '5882386c6d801776';
   }
 
   isTrusted() {
