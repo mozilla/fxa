@@ -1799,6 +1799,50 @@ export default class AuthClient {
     return this.sessionGet('/totp/exists', sessionToken, headers);
   }
 
+  async checkTotpTokenExistsWithPasswordForgotToken(
+    token: hexstring,
+    headers?: Headers
+  ): Promise<{ exists: boolean; verified: boolean }> {
+    return this.hawkRequest(
+      'GET',
+      '/totp/exists',
+      token,
+      tokenType.passwordForgotToken,
+      null,
+      headers
+    );
+  }
+
+  async checkTotpTokenCodeWithPasswordForgotToken(
+    token: hexstring,
+    code: string,
+    headers?: Headers
+  ): Promise<{ success: boolean }> {
+    return this.hawkRequest(
+      'POST',
+      '/totp/verify',
+      token,
+      tokenType.passwordForgotToken,
+      { code },
+      headers
+    );
+  }
+
+  async consumeRecoveryCodeWithPasswordForgotToken(
+    token: hexstring,
+    code: string,
+    headers?: Headers
+  ): Promise<{ success: boolean }> {
+    return this.hawkRequest(
+      'POST',
+      '/totp/verify/recoveryCode',
+      token,
+      tokenType.passwordForgotToken,
+      { code },
+      headers
+    );
+  }
+
   async sendLoginPushRequest(
     sessionToken: hexstring,
     headers?: Headers
