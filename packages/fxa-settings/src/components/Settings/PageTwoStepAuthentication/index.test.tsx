@@ -133,6 +133,7 @@ describe('step 1', () => {
       'alt',
       expect.stringContaining('JFXE6ULUGM4U4WDHOFVFIRDPKZITATSK')
     );
+    expect(GleanMetrics.accountPref.twoStepAuthQrView).toHaveBeenCalled();
   });
 
   it('does not display the QR code for the unverified', async () => {
@@ -140,6 +141,9 @@ describe('step 1', () => {
       render(account, false);
     });
     expect(screen.queryByTestId('2fa-qr-code')).toBeNull();
+    expect(
+      GleanMetrics.accountPref.twoStepAuthScanCodeLink
+    ).toHaveBeenCalledTimes(0);
   });
 
   it('displays the totp secret', async () => {
@@ -152,15 +156,6 @@ describe('step 1', () => {
 
     expect(screen.getByTestId('manual-code')).toBeInTheDocument();
     expect(GleanMetrics.accountPref.twoStepAuthScanCodeLink).toHaveBeenCalled();
-  });
-
-  it('sends metrics when step 1 is submitted without viewing manual code', async () => {
-    await act(async () => {
-      render();
-    });
-    await submitTotp('867530');
-
-    expect(GleanMetrics.accountPref.twoStepAuthQrView).toHaveBeenCalled();
   });
 });
 
