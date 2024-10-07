@@ -5,13 +5,10 @@ import { graphql } from '../../../__generated__/gql';
 
 export const purchaseWithDetailsOfferingContentQuery = graphql(`
   query PurchaseWithDetailsOfferingContent(
-    $skip: Int!
-    $limit: Int!
     $locale: String!
     $stripePlanIds: [String]!
   ) {
     purchases(
-      pagination: { start: $skip, limit: $limit }
       filters: {
         or: [
           { stripePlanChoices: { stripePlanChoice: { in: $stripePlanIds } } }
@@ -22,73 +19,50 @@ export const purchaseWithDetailsOfferingContentQuery = graphql(`
           }
         ]
       }
+      pagination: { limit: 500 }
     ) {
-      data {
-        attributes {
-          stripePlanChoices {
-            stripePlanChoice
-          }
-          purchaseDetails {
-            data {
-              attributes {
-                details
-                productName
-                subtitle
-                webIcon
-                localizations(filters: { locale: { eq: $locale } }) {
-                  data {
-                    attributes {
-                      details
-                      productName
-                      subtitle
-                      webIcon
-                    }
-                  }
-                }
-              }
-            }
-          }
-          offering {
-            data {
-              attributes {
-                stripeProductId
-                stripeLegacyPlans(pagination: { limit: 200 }) {
-                  stripeLegacyPlan
-                }
-                commonContent {
-                  data {
-                    attributes {
-                      privacyNoticeUrl
-                      privacyNoticeDownloadUrl
-                      termsOfServiceUrl
-                      termsOfServiceDownloadUrl
-                      cancellationUrl
-                      emailIcon
-                      successActionButtonUrl
-                      successActionButtonLabel
-                      newsletterLabelTextCode
-                      newsletterSlug
-                      localizations(filters: { locale: { eq: $locale } }) {
-                        data {
-                          attributes {
-                            privacyNoticeUrl
-                            privacyNoticeDownloadUrl
-                            termsOfServiceUrl
-                            termsOfServiceDownloadUrl
-                            cancellationUrl
-                            emailIcon
-                            successActionButtonUrl
-                            successActionButtonLabel
-                            newsletterLabelTextCode
-                            newsletterSlug
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
+      stripePlanChoices {
+        stripePlanChoice
+      }
+      purchaseDetails {
+        details
+        productName
+        subtitle
+        webIcon
+        localizations(filters: { locale: { eq: $locale } }) {
+          details
+          productName
+          subtitle
+          webIcon
+        }
+      }
+      offering {
+        stripeProductId
+        stripeLegacyPlans(pagination: { limit: 200 }) {
+          stripeLegacyPlan
+        }
+        commonContent {
+          privacyNoticeUrl
+          privacyNoticeDownloadUrl
+          termsOfServiceUrl
+          termsOfServiceDownloadUrl
+          cancellationUrl
+          emailIcon
+          successActionButtonUrl
+          successActionButtonLabel
+          newsletterLabelTextCode
+          newsletterSlug
+          localizations(filters: { locale: { eq: $locale } }) {
+            privacyNoticeUrl
+            privacyNoticeDownloadUrl
+            termsOfServiceUrl
+            termsOfServiceDownloadUrl
+            cancellationUrl
+            emailIcon
+            successActionButtonUrl
+            successActionButtonLabel
+            newsletterLabelTextCode
+            newsletterSlug
           }
         }
       }

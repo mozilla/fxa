@@ -5,42 +5,34 @@ import {
   PurchaseDetailsResultFactory,
   PurchaseWithDetailsOfferingContentByPlanIdsResultFactory,
 } from './factories';
-import { PurchaseWithDetailsOfferingContentByPlanIdsResult } from './types';
 import { PurchaseWithDetailsOfferingContentUtil } from './util';
 
 describe('PurchaseWithDetailsOfferingContentUtil', () => {
   it('should create a util from response', () => {
     const result = PurchaseWithDetailsOfferingContentByPlanIdsResultFactory();
-    const result2 = PurchaseWithDetailsOfferingContentByPlanIdsResultFactory();
-    const purchase = result.purchases?.data[0];
-    const planId = purchase.attributes.stripePlanChoices?.[0];
-    const legacyPlanId =
-      purchase.attributes.offering.data.attributes.stripeLegacyPlans?.[0];
-    const util = new PurchaseWithDetailsOfferingContentUtil([
-      result as PurchaseWithDetailsOfferingContentByPlanIdsResult,
-      result2 as PurchaseWithDetailsOfferingContentByPlanIdsResult,
-    ]);
+    const purchase = result.purchases[0];
+    const planId = purchase.stripePlanChoices?.[0];
+    const legacyPlanId = purchase.offering.stripeLegacyPlans?.[0];
+    const util = new PurchaseWithDetailsOfferingContentUtil(result);
     expect(util).toBeDefined();
     expect(
       util.transformedPurchaseWithCommonContentForPlanId(
         planId.stripePlanChoice ?? ''
-      )?.offering.data.attributes.stripeProductId
+      )?.offering.stripeProductId
     ).toBeDefined();
     expect(
       util.transformedPurchaseWithCommonContentForPlanId(
         legacyPlanId.stripeLegacyPlan ?? ''
-      )?.offering.data.attributes.stripeProductId
+      )?.offering.stripeProductId
     ).toBeDefined();
-    expect(util.purchases.data.length).toBe(2);
+    expect(util.purchases.length).toBe(1);
   });
 
   describe('transformPurchaseDetails', () => {
     let util: PurchaseWithDetailsOfferingContentUtil;
     beforeAll(() => {
       const result = PurchaseWithDetailsOfferingContentByPlanIdsResultFactory();
-      util = new PurchaseWithDetailsOfferingContentUtil([
-        result as PurchaseWithDetailsOfferingContentByPlanIdsResult,
-      ]);
+      util = new PurchaseWithDetailsOfferingContentUtil(result);
     });
 
     it('should transform details', () => {

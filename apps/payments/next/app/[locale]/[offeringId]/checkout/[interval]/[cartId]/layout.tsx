@@ -71,10 +71,8 @@ export default async function RootLayout({
             />
           }
           purchaseDetails={
-            cms.defaultPurchase.data.attributes.purchaseDetails.data.attributes.localizations.data.at(
-              0
-            )?.attributes ||
-            cms.defaultPurchase.data.attributes.purchaseDetails.data.attributes
+            cms.defaultPurchase.purchaseDetails.localizations.at(0) ||
+            cms.defaultPurchase.purchaseDetails
           }
         >
           <Details
@@ -82,11 +80,8 @@ export default async function RootLayout({
             interval={cart.interval}
             invoice={cart.invoicePreview}
             purchaseDetails={
-              cms.defaultPurchase.data.attributes.purchaseDetails.data.attributes.localizations.data.at(
-                0
-              )?.attributes ||
-              cms.defaultPurchase.data.attributes.purchaseDetails.data
-                .attributes
+              cms.defaultPurchase.purchaseDetails.localizations.at(0) ||
+              cms.defaultPurchase.purchaseDetails
             }
           />
         </PurchaseDetails>
@@ -103,13 +98,9 @@ export default async function RootLayout({
         <TermsAndPrivacy
           l10n={l10n}
           {...cart}
-          {...(cms.commonContent.data.attributes.localizations.data.at(0)
-            ?.attributes || cms.commonContent.data.attributes)}
-          {...(cms.defaultPurchase.data.attributes.purchaseDetails.data.attributes.localizations.data.at(
-            0
-          )?.attributes ||
-            cms.defaultPurchase.data.attributes.purchaseDetails.data
-              .attributes)}
+          {...(cms.commonContent.localizations.at(0) || cms.commonContent)}
+          {...(cms.defaultPurchase.purchaseDetails.localizations.at(0) ||
+            cms.defaultPurchase.purchaseDetails)}
           contentServerUrl={config.contentServerUrl}
           showFXALinks={true}
         />

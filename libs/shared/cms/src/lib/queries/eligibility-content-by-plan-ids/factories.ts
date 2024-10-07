@@ -12,21 +12,12 @@ import {
   EligibilitySubgroupResult,
   type EligibilityContentByPlanIdsResult,
 } from '.';
-import { StrapiEntityFactory } from '../../factories';
 
 export const EligibilityContentByPlanIdsQueryFactory = (
   override?: Partial<EligibilityContentByPlanIdsQuery>
 ): EligibilityContentByPlanIdsQuery => {
-  const data = [StrapiEntityFactory(EligibilityPurchaseResultFactory())];
   return {
-    purchases: {
-      meta: {
-        pagination: {
-          total: data.length,
-        },
-      },
-      data,
-    },
+    purchases: [EligibilityPurchaseResultFactory()],
     ...override,
   };
 };
@@ -34,16 +25,8 @@ export const EligibilityContentByPlanIdsQueryFactory = (
 export const EligibilityContentByPlanIdsResultFactory = (
   override?: Partial<EligibilityContentByPlanIdsResult>
 ): EligibilityContentByPlanIdsResult => {
-  const data = [StrapiEntityFactory(EligibilityPurchaseResultFactory())];
   return {
-    purchases: {
-      meta: {
-        pagination: {
-          total: data.length,
-        },
-      },
-      data,
-    },
+    purchases: [EligibilityPurchaseResultFactory()],
     ...override,
   };
 };
@@ -56,9 +39,7 @@ export const EligibilityPurchaseResultFactory = (
       stripePlanChoice: faker.string.sample(),
     },
   ],
-  offering: {
-    data: StrapiEntityFactory(EligibilityOfferingResultFactory()),
-  },
+  offering: EligibilityOfferingResultFactory(),
   ...override,
 });
 
@@ -73,9 +54,7 @@ export const EligibilityOfferingResultFactory = (
     })
   ),
   countries: [faker.string.sample()],
-  subGroups: {
-    data: [StrapiEntityFactory(EligibilitySubgroupResultFactory())],
-  },
+  subGroups: [EligibilitySubgroupResultFactory()],
   ...override,
 });
 
@@ -83,9 +62,7 @@ export const EligibilitySubgroupResultFactory = (
   override?: Partial<EligibilitySubgroupResult>
 ): EligibilitySubgroupResult => ({
   groupName: faker.string.sample(),
-  offerings: {
-    data: [StrapiEntityFactory(EligibilitySubgroupOfferingResultFactory())],
-  },
+  offerings: [EligibilitySubgroupOfferingResultFactory()],
   ...override,
 });
 

@@ -11,20 +11,15 @@ import {
 export class CapabilityServiceByPlanIdsResultUtil {
   private purchaseByPlanId: Record<string, CapabilityPurchaseResult> = {};
 
-  constructor(rawResults: CapabilityServiceByPlanIdsResult[]) {
-    for (const rawResult of rawResults) {
-      for (const purchase of rawResult.purchases.data) {
-        purchase.attributes.stripePlanChoices?.forEach(
-          ({ stripePlanChoice }) => {
-            this.purchaseByPlanId[stripePlanChoice] = purchase.attributes;
-          }
-        );
+  constructor(rawResult: CapabilityServiceByPlanIdsResult) {
+    for (const purchase of rawResult.purchases) {
+      for (const stripePlanChoice of purchase.stripePlanChoices ?? []) {
+        this.purchaseByPlanId[stripePlanChoice.stripePlanChoice] = purchase;
+      }
 
-        purchase.attributes.offering.data.attributes.stripeLegacyPlans?.forEach(
-          ({ stripeLegacyPlan }) => {
-            this.purchaseByPlanId[stripeLegacyPlan] = purchase.attributes;
-          }
-        );
+      for (const stripeLegacyPlan of purchase.offering.stripeLegacyPlans ??
+        []) {
+        this.purchaseByPlanId[stripeLegacyPlan.stripeLegacyPlan] = purchase;
       }
     }
   }
@@ -32,6 +27,6 @@ export class CapabilityServiceByPlanIdsResultUtil {
   capabilityOfferingForPlanId(
     planId: string
   ): CapabilityOfferingResult | undefined {
-    return this.purchaseByPlanId[planId]?.offering.data.attributes;
+    return this.purchaseByPlanId[planId]?.offering;
   }
 }

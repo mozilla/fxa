@@ -4,7 +4,6 @@
 
 export * from './lib/cms.error';
 export * from './lib/constants';
-export * from './lib/factories';
 export * from './lib/product-configuration.manager';
 export * from './lib/queries/capability-service-by-plan-ids';
 export * from './lib/queries/eligibility-content-by-offering';

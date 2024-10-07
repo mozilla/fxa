@@ -20,7 +20,6 @@ import {
   MockStrapiClientConfigProvider,
   ProductConfigurationManager,
   StrapiClient,
-  StrapiEntityFactory,
 } from '@fxa/shared/cms';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
@@ -84,7 +83,7 @@ describe('EligibilityService', () => {
         .mockResolvedValue(
           new EligibilityContentByOfferingResultUtil(
             EligibilityContentByOfferingResultFactory({
-              offerings: { data: [] },
+              offerings: [],
             })
           )
         );
@@ -115,9 +114,7 @@ describe('EligibilityService', () => {
         .mockResolvedValue(
           new EligibilityContentByOfferingResultUtil(
             EligibilityContentByOfferingResultFactory({
-              offerings: {
-                data: [StrapiEntityFactory(mockOffering)],
-              },
+              offerings: [mockOffering],
             })
           )
         );

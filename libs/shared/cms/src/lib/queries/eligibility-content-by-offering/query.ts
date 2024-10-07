@@ -7,44 +7,24 @@ import { graphql } from '../../../__generated__/gql';
 export const eligibilityContentByOfferingQuery = graphql(`
   query EligibilityContentByOffering($apiIdentifier: String!) {
     offerings(
-      pagination: { start: 0, limit: 2 }
       filters: { apiIdentifier: { eq: $apiIdentifier } }
+      pagination: { limit: 200 }
     ) {
-      data {
-        attributes {
+      apiIdentifier
+      stripeProductId
+      defaultPurchase {
+        stripePlanChoices {
+          stripePlanChoice
+        }
+      }
+      subGroups {
+        groupName
+        offerings {
           apiIdentifier
           stripeProductId
           defaultPurchase {
-            data {
-              attributes {
-                stripePlanChoices {
-                  stripePlanChoice
-                }
-              }
-            }
-          }
-          subGroups {
-            data {
-              attributes {
-                groupName
-                offerings {
-                  data {
-                    attributes {
-                      apiIdentifier
-                      stripeProductId
-                      defaultPurchase {
-                        data {
-                          attributes {
-                            stripePlanChoices {
-                              stripePlanChoice
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
+            stripePlanChoices {
+              stripePlanChoice
             }
           }
         }

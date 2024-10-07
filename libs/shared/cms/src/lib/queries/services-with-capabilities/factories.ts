@@ -6,14 +6,11 @@ import { faker } from '@faker-js/faker';
 
 import { ServicesWithCapabilitiesQuery } from '../../../__generated__/graphql';
 import { CapabilitiesResult, ServiceResult } from '.';
-import { StrapiEntityFactory } from '../../factories';
 
 export const ServicesWithCapabilitiesQueryFactory = (
   override?: Partial<ServicesWithCapabilitiesQuery>
 ): ServicesWithCapabilitiesQuery => ({
-  services: {
-    data: [StrapiEntityFactory(ServiceResultFactory())],
-  },
+  services: [ServiceResultFactory()],
   ...override,
 });
 
@@ -21,9 +18,7 @@ export const ServiceResultFactory = (
   override?: Partial<ServiceResult>
 ): ServiceResult => ({
   oauthClientId: faker.string.sample(),
-  capabilities: {
-    data: [StrapiEntityFactory(CapabilitiesResultFactory())],
-  },
+  capabilities: [CapabilitiesResultFactory()],
   ...override,
 });
 

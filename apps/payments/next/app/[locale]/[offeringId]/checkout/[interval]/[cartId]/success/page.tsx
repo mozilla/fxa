@@ -75,13 +75,10 @@ export default async function CheckoutSuccess({
   ]);
 
   const { productName } =
-    cms.defaultPurchase.data.attributes.purchaseDetails.data.attributes.localizations.data.at(
-      0
-    )?.attributes ||
-    cms.defaultPurchase.data.attributes.purchaseDetails.data.attributes;
+    cms.defaultPurchase.purchaseDetails.localizations.at(0) ||
+    cms.defaultPurchase.purchaseDetails;
   const { successActionButtonUrl, successActionButtonLabel } =
-    cms.commonContent.data.attributes.localizations.data.at(0)?.attributes ||
-    cms.commonContent.data.attributes;
+    cms.commonContent.localizations.at(0) || cms.commonContent;
 
   return (
     <>

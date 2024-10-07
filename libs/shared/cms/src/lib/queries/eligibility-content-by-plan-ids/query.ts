@@ -5,13 +5,8 @@
 import { graphql } from '../../../__generated__/gql';
 
 export const eligibilityContentByPlanIdsQuery = graphql(`
-  query EligibilityContentByPlanIds(
-    $skip: Int!
-    $limit: Int!
-    $stripePlanIds: [String]!
-  ) {
+  query EligibilityContentByPlanIds($stripePlanIds: [String]!) {
     purchases(
-      pagination: { start: $skip, limit: $limit }
       filters: {
         or: [
           { stripePlanChoices: { stripePlanChoice: { in: $stripePlanIds } } }
@@ -22,45 +17,25 @@ export const eligibilityContentByPlanIdsQuery = graphql(`
           }
         ]
       }
+      pagination: { limit: 200 }
     ) {
-      meta {
-        pagination {
-          total
-        }
+      stripePlanChoices {
+        stripePlanChoice
       }
-      data {
-        attributes {
-          stripePlanChoices {
-            stripePlanChoice
-          }
-          offering {
-            data {
-              attributes {
-                stripeProductId
-                stripeLegacyPlans(pagination: { limit: 200 }) {
-                  stripeLegacyPlan
-                }
-                countries
-                subGroups {
-                  data {
-                    attributes {
-                      groupName
-                      offerings {
-                        data {
-                          attributes {
-                            stripeProductId
-                            stripeLegacyPlans(pagination: { limit: 200 }) {
-                              stripeLegacyPlan
-                            }
-                            countries
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
+      offering {
+        stripeProductId
+        stripeLegacyPlans(pagination: { limit: 200 }) {
+          stripeLegacyPlan
+        }
+        countries
+        subGroups {
+          groupName
+          offerings {
+            stripeProductId
+            stripeLegacyPlans(pagination: { limit: 200 }) {
+              stripeLegacyPlan
             }
+            countries
           }
         }
       }

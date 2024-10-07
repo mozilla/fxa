@@ -5,14 +5,11 @@
 import { faker } from '@faker-js/faker';
 
 import { Locale, LocalesResult } from '.';
-import { StrapiEntityFactory } from '../../factories';
 
 export const LocalesResultFactory = (
   override?: Partial<LocalesResult>
 ): LocalesResult => ({
-  i18NLocales: {
-    data: [StrapiEntityFactory(LocaleFactory())],
-  },
+  i18NLocales: [LocaleFactory()],
   ...override,
 });
 

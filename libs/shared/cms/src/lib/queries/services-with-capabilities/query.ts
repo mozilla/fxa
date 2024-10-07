@@ -5,19 +5,11 @@
 import { graphql } from '../../../__generated__/gql';
 
 export const servicesWithCapabilitiesQuery = graphql(`
-  query ServicesWithCapabilities($skip: Int!, $limit: Int!) {
-    services(pagination: { start: $skip, limit: $limit }) {
-      data {
-        attributes {
-          oauthClientId
-          capabilities {
-            data {
-              attributes {
-                slug
-              }
-            }
-          }
-        }
+  query ServicesWithCapabilities {
+    services(pagination: { limit: 500 }) {
+      oauthClientId
+      capabilities {
+        slug
       }
     }
   }

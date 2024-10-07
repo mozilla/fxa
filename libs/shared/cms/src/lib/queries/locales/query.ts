@@ -7,11 +7,7 @@ import { graphql } from '../../../__generated__/gql';
 export const localesQuery = graphql(`
   query Locales {
     i18NLocales {
-      data {
-        attributes {
-          code
-        }
-      }
+      code
     }
   }
 `);

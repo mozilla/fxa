@@ -3427,8 +3427,8 @@ describe('#integration - StripeHelper', () => {
         transformedPurchaseWithCommonContentForPlanId: (planId) => {
           const mockValue =
             PurchaseWithDetailsOfferingContentTransformedFactory();
-          mockValue.purchaseDetails.data.attributes.webIcon = newWebIconURL;
-          mockValue.purchaseDetails.data.attributes.localizations.data = [];
+          mockValue.purchaseDetails.webIcon = newWebIconURL;
+          mockValue.purchaseDetails.localizations = [];
           return mockValue;
         },
       };

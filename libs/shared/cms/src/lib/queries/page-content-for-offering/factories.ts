@@ -15,19 +15,11 @@ import {
   PageContentPurchaseDetailsResult,
   PageContentPurchaseDetailsTransformed,
 } from '.';
-import { StrapiEntityFactory } from '../../factories';
 
 export const PageContentForOfferingQueryFactory = (
   override?: Partial<PageContentForOfferingQuery>
 ): PageContentForOfferingQuery => ({
-  offerings: {
-    meta: {
-      pagination: {
-        total: 1,
-      },
-    },
-    data: [StrapiEntityFactory(PageContentOfferingResultFactory())],
-  },
+  offerings: [PageContentOfferingResultFactory()],
   ...override,
 });
 
@@ -35,12 +27,8 @@ export const PageContentOfferingDefaultPurchaseResultFactory = (
   override?: Partial<PageContentOfferingDefaultPurchaseResult>
 ): PageContentOfferingDefaultPurchaseResult => ({
   purchaseDetails: {
-    data: StrapiEntityFactory({
-      ...PageContentPurchaseDetailsResultFactory(),
-      localizations: {
-        data: [StrapiEntityFactory(PageContentPurchaseDetailsResultFactory())],
-      },
-    }),
+    ...PageContentPurchaseDetailsResultFactory(),
+    localizations: [PageContentPurchaseDetailsResultFactory()],
   },
   ...override,
 });
@@ -49,14 +37,8 @@ export const PageContentOfferingDefaultPurchaseTransformedFactory = (
   override?: Partial<PageContentOfferingDefaultPurchaseTransformed>
 ): PageContentOfferingDefaultPurchaseTransformed => ({
   purchaseDetails: {
-    data: StrapiEntityFactory({
-      ...PageContentPurchaseDetailsTransformedFactory(),
-      localizations: {
-        data: [
-          StrapiEntityFactory(PageContentPurchaseDetailsTransformedFactory()),
-        ],
-      },
-    }),
+    ...PageContentPurchaseDetailsTransformedFactory(),
+    localizations: [PageContentPurchaseDetailsTransformedFactory()],
   },
   ...override,
 });
@@ -66,25 +48,10 @@ export const PageContentOfferingResultFactory = (
 ): PageContentOfferingResult => ({
   apiIdentifier: faker.string.sample(),
   stripeProductId: faker.string.sample(),
-  defaultPurchase: {
-    data: StrapiEntityFactory({
-      ...PageContentOfferingDefaultPurchaseResultFactory(),
-      localizations: {
-        data: [
-          StrapiEntityFactory(
-            PageContentOfferingDefaultPurchaseResultFactory()
-          ),
-        ],
-      },
-    }),
-  },
+  defaultPurchase: PageContentOfferingDefaultPurchaseResultFactory(),
   commonContent: {
-    data: StrapiEntityFactory({
-      ...PageContentCommonContentResultFactory(),
-      localizations: {
-        data: [StrapiEntityFactory(PageContentCommonContentResultFactory())],
-      },
-    }),
+    ...PageContentCommonContentResultFactory(),
+    localizations: [PageContentCommonContentResultFactory()],
   },
   ...override,
 });
@@ -93,18 +60,7 @@ export const PageContentOfferingTransformedFactory = (
   override?: Partial<PageContentOfferingTransformed>
 ): PageContentOfferingTransformed => ({
   ...PageContentOfferingResultFactory(),
-  defaultPurchase: {
-    data: StrapiEntityFactory({
-      ...PageContentOfferingDefaultPurchaseTransformedFactory(),
-      localizations: {
-        data: [
-          StrapiEntityFactory(
-            PageContentOfferingDefaultPurchaseTransformedFactory()
-          ),
-        ],
-      },
-    }),
-  },
+  defaultPurchase: PageContentOfferingDefaultPurchaseTransformedFactory(),
   ...override,
 });
 

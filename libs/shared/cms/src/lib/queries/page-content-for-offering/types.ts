@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { StrapiEntity } from '../../types';
-
 export interface PageContentCommonContentResult {
   privacyNoticeUrl: string;
   privacyNoticeDownloadUrl: string;
@@ -30,60 +28,31 @@ export interface PageContentPurchaseDetailsTransformed
 }
 
 export interface PageContentOfferingDefaultPurchaseResult {
-  purchaseDetails: {
-    data: StrapiEntity<
-      PageContentPurchaseDetailsResult & {
-        localizations: {
-          data: StrapiEntity<PageContentPurchaseDetailsResult>[];
-        };
-      }
-    >;
+  purchaseDetails: PageContentPurchaseDetailsResult & {
+    localizations: PageContentPurchaseDetailsResult[];
   };
 }
 
 export interface PageContentOfferingDefaultPurchaseTransformed {
-  purchaseDetails: {
-    data: StrapiEntity<
-      PageContentPurchaseDetailsTransformed & {
-        localizations: {
-          data: StrapiEntity<PageContentPurchaseDetailsTransformed>[];
-        };
-      }
-    >;
+  purchaseDetails: PageContentPurchaseDetailsTransformed & {
+    localizations: PageContentPurchaseDetailsTransformed[];
   };
 }
 
 export interface PageContentOfferingTransformed
   extends Omit<PageContentOfferingResult, 'defaultPurchase'> {
-  defaultPurchase: {
-    data: StrapiEntity<PageContentOfferingDefaultPurchaseTransformed>;
-  };
+  defaultPurchase: PageContentOfferingDefaultPurchaseTransformed;
 }
 
 export interface PageContentOfferingResult {
   apiIdentifier: string;
   stripeProductId: string;
-  defaultPurchase: {
-    data: StrapiEntity<PageContentOfferingDefaultPurchaseResult>;
-  };
-  commonContent: {
-    data: StrapiEntity<
-      PageContentCommonContentResult & {
-        localizations: {
-          data: StrapiEntity<PageContentCommonContentResult>[];
-        };
-      }
-    >;
+  defaultPurchase: PageContentOfferingDefaultPurchaseResult;
+  commonContent: PageContentCommonContentResult & {
+    localizations: PageContentCommonContentResult[];
   };
 }
 
 export interface PageContentForOfferingResult {
-  offerings: {
-    meta: {
-      pagination: {
-        total: number;
-      };
-    };
-    data: StrapiEntity<PageContentOfferingResult>[];
-  };
+  offerings: PageContentOfferingResult[];
 }

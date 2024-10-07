@@ -17,7 +17,3 @@ export type ContentfulErrorResponse = {
   requestId: string;
   details?: NonNullable<unknown>;
 };
-
-export interface StrapiEntity<T> {
-  attributes: T;
-}

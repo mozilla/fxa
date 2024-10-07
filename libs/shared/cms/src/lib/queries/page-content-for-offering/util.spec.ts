@@ -16,7 +16,7 @@ describe('PageContentForOfferingUtil', () => {
       result as PageContentForOfferingResult
     );
     expect(util).toBeDefined();
-    expect(util.offerings.data).toHaveLength(1);
+    expect(util.offerings).toHaveLength(1);
   });
 
   describe('transformPageContentPurchaseDetails', () => {

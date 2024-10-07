@@ -24,7 +24,6 @@ import {
   MockStrapiClientConfigProvider,
   ProductConfigurationManager,
   StrapiClient,
-  StrapiEntityFactory,
 } from '@fxa/shared/cms';
 import { CartEligibilityStatus } from '@fxa/shared/db/mysql/account';
 
@@ -66,9 +65,9 @@ describe('EligibilityManager', () => {
       jest
         .spyOn(productConfigurationManager, 'getPurchaseDetailsForEligibility')
         .mockResolvedValue(
-          new EligibilityContentByPlanIdsResultUtil([
-            EligibilityContentByPlanIdsResultFactory(),
-          ])
+          new EligibilityContentByPlanIdsResultUtil(
+            EligibilityContentByPlanIdsResultFactory()
+          )
         );
 
       const result = await manager.getOfferingOverlap(['test'], [], 'test');
@@ -77,7 +76,7 @@ describe('EligibilityManager', () => {
 
     it('should return same offeringStripeProductIds as same comparison', async () => {
       const eligibilityContentByPlanIdsResultUtil =
-        new EligibilityContentByPlanIdsResultUtil([]);
+        new EligibilityContentByPlanIdsResultUtil({ purchases: [] });
       jest
         .spyOn(productConfigurationManager, 'getPurchaseDetailsForEligibility')
         .mockResolvedValue(eligibilityContentByPlanIdsResultUtil);
@@ -100,39 +99,27 @@ describe('EligibilityManager', () => {
     it('should return subgroup upgrade target offeringStripeProductIds as upgrade comparison', async () => {
       const mockOfferingResult = EligibilityOfferingResultFactory({
         stripeProductId: 'prod_test3',
-        subGroups: {
-          data: [
-            StrapiEntityFactory(
-              EligibilitySubgroupResultFactory({
-                offerings: {
-                  data: [
-                    StrapiEntityFactory(
-                      EligibilitySubgroupOfferingResultFactory({
-                        stripeProductId: 'prod_test',
-                        countries: ['usa'],
-                      })
-                    ),
-                    StrapiEntityFactory(
-                      EligibilitySubgroupOfferingResultFactory({
-                        stripeProductId: 'prod_test2',
-                        countries: ['usa'],
-                      })
-                    ),
-                    StrapiEntityFactory(
-                      EligibilitySubgroupOfferingResultFactory({
-                        stripeProductId: 'prod_test3',
-                        countries: ['usa'],
-                      })
-                    ),
-                  ],
-                },
-              })
-            ),
-          ],
-        },
+        subGroups: [
+          EligibilitySubgroupResultFactory({
+            offerings: [
+              EligibilitySubgroupOfferingResultFactory({
+                stripeProductId: 'prod_test',
+                countries: ['usa'],
+              }),
+              EligibilitySubgroupOfferingResultFactory({
+                stripeProductId: 'prod_test2',
+                countries: ['usa'],
+              }),
+              EligibilitySubgroupOfferingResultFactory({
+                stripeProductId: 'prod_test3',
+                countries: ['usa'],
+              }),
+            ],
+          }),
+        ],
       });
       const eligibilityContentByPlanIdsResultUtil =
-        new EligibilityContentByPlanIdsResultUtil([]);
+        new EligibilityContentByPlanIdsResultUtil({ purchases: [] });
       jest
         .spyOn(productConfigurationManager, 'getPurchaseDetailsForEligibility')
         .mockResolvedValue(eligibilityContentByPlanIdsResultUtil);
@@ -152,33 +139,23 @@ describe('EligibilityManager', () => {
     it('should return subgroup downgrade target offeringStripeProductIds as downgrade comparison', async () => {
       const mockOfferingResult = EligibilityOfferingResultFactory({
         stripeProductId: 'prod_test',
-        subGroups: {
-          data: [
-            StrapiEntityFactory(
-              EligibilitySubgroupResultFactory({
-                offerings: {
-                  data: [
-                    StrapiEntityFactory(
-                      EligibilitySubgroupOfferingResultFactory({
-                        stripeProductId: 'prod_test',
-                        countries: ['usa'],
-                      })
-                    ),
-                    StrapiEntityFactory(
-                      EligibilitySubgroupOfferingResultFactory({
-                        stripeProductId: 'prod_test2',
-                        countries: ['usa'],
-                      })
-                    ),
-                  ],
-                },
-              })
-            ),
-          ],
-        },
+        subGroups: [
+          EligibilitySubgroupResultFactory({
+            offerings: [
+              EligibilitySubgroupOfferingResultFactory({
+                stripeProductId: 'prod_test',
+                countries: ['usa'],
+              }),
+              EligibilitySubgroupOfferingResultFactory({
+                stripeProductId: 'prod_test2',
+                countries: ['usa'],
+              }),
+            ],
+          }),
+        ],
       });
       const eligibilityContentByPlanIdsResultUtil =
-        new EligibilityContentByPlanIdsResultUtil([]);
+        new EligibilityContentByPlanIdsResultUtil({ purchases: [] });
       jest
         .spyOn(productConfigurationManager, 'getPurchaseDetailsForEligibility')
         .mockResolvedValue(eligibilityContentByPlanIdsResultUtil);
@@ -203,7 +180,7 @@ describe('EligibilityManager', () => {
         stripeProductId: 'prod_test',
       });
       const eligibilityContentByPlanIdsResultUtil =
-        new EligibilityContentByPlanIdsResultUtil([]);
+        new EligibilityContentByPlanIdsResultUtil({ purchases: [] });
       jest
         .spyOn(productConfigurationManager, 'getPurchaseDetailsForEligibility')
         .mockResolvedValue(eligibilityContentByPlanIdsResultUtil);
@@ -224,36 +201,26 @@ describe('EligibilityManager', () => {
     it('should return upgrade comparison for upgrade priceId', async () => {
       const mockOfferingResult = EligibilityOfferingResultFactory({
         stripeProductId: 'prod_test2',
-        subGroups: {
-          data: [
-            StrapiEntityFactory(
-              EligibilitySubgroupResultFactory({
-                offerings: {
-                  data: [
-                    StrapiEntityFactory(
-                      EligibilitySubgroupOfferingResultFactory({
-                        stripeProductId: 'prod_test',
-                        countries: ['usa'],
-                      })
-                    ),
-                    StrapiEntityFactory(
-                      EligibilitySubgroupOfferingResultFactory({
-                        stripeProductId: 'prod_test2',
-                        countries: ['usa'],
-                      })
-                    ),
-                  ],
-                },
-              })
-            ),
-          ],
-        },
+        subGroups: [
+          EligibilitySubgroupResultFactory({
+            offerings: [
+              EligibilitySubgroupOfferingResultFactory({
+                stripeProductId: 'prod_test',
+                countries: ['usa'],
+              }),
+              EligibilitySubgroupOfferingResultFactory({
+                stripeProductId: 'prod_test2',
+                countries: ['usa'],
+              }),
+            ],
+          }),
+        ],
       });
       const existingResult = EligibilityOfferingResultFactory({
         stripeProductId: 'prod_test',
       });
       const eligibilityContentByPlanIdsResultUtil =
-        new EligibilityContentByPlanIdsResultUtil([]);
+        new EligibilityContentByPlanIdsResultUtil({ purchases: [] });
       jest
         .spyOn(productConfigurationManager, 'getPurchaseDetailsForEligibility')
         .mockResolvedValue(eligibilityContentByPlanIdsResultUtil);
@@ -274,62 +241,42 @@ describe('EligibilityManager', () => {
     it('should return multiple comparisons in multiple subgroups', async () => {
       const mockOfferingResult = EligibilityOfferingResultFactory({
         stripeProductId: 'prod_test2',
-        subGroups: {
-          data: [
-            StrapiEntityFactory(
-              EligibilitySubgroupResultFactory({
-                offerings: {
-                  data: [
-                    StrapiEntityFactory(
-                      EligibilitySubgroupOfferingResultFactory({
-                        stripeProductId: 'prod_test',
-                        countries: ['usa'],
-                      })
-                    ),
-                    StrapiEntityFactory(
-                      EligibilitySubgroupOfferingResultFactory({
-                        stripeProductId: 'prod_test2',
-                        countries: ['usa'],
-                      })
-                    ),
-                    StrapiEntityFactory(
-                      EligibilitySubgroupOfferingResultFactory({
-                        stripeProductId: 'prod_test3',
-                        countries: ['usa'],
-                      })
-                    ),
-                  ],
-                },
-              })
-            ),
-            StrapiEntityFactory(
-              EligibilitySubgroupResultFactory({
-                offerings: {
-                  data: [
-                    StrapiEntityFactory(
-                      EligibilitySubgroupOfferingResultFactory({
-                        stripeProductId: 'prod_test',
-                        countries: ['usa'],
-                      })
-                    ),
-                    StrapiEntityFactory(
-                      EligibilitySubgroupOfferingResultFactory({
-                        stripeProductId: 'prod_test2',
-                        countries: ['usa'],
-                      })
-                    ),
-                  ],
-                },
-              })
-            ),
-          ],
-        },
+        subGroups: [
+          EligibilitySubgroupResultFactory({
+            offerings: [
+              EligibilitySubgroupOfferingResultFactory({
+                stripeProductId: 'prod_test',
+                countries: ['usa'],
+              }),
+              EligibilitySubgroupOfferingResultFactory({
+                stripeProductId: 'prod_test2',
+                countries: ['usa'],
+              }),
+              EligibilitySubgroupOfferingResultFactory({
+                stripeProductId: 'prod_test3',
+                countries: ['usa'],
+              }),
+            ],
+          }),
+          EligibilitySubgroupResultFactory({
+            offerings: [
+              EligibilitySubgroupOfferingResultFactory({
+                stripeProductId: 'prod_test',
+                countries: ['usa'],
+              }),
+              EligibilitySubgroupOfferingResultFactory({
+                stripeProductId: 'prod_test2',
+                countries: ['usa'],
+              }),
+            ],
+          }),
+        ],
       });
       const existingResult = EligibilityOfferingResultFactory({
         stripeProductId: 'prod_test',
       });
       const eligibilityContentByPlanIdsResultUtil =
-        new EligibilityContentByPlanIdsResultUtil([]);
+        new EligibilityContentByPlanIdsResultUtil({ purchases: [] });
       jest
         .spyOn(productConfigurationManager, 'getPurchaseDetailsForEligibility')
         .mockResolvedValue(eligibilityContentByPlanIdsResultUtil);
@@ -385,33 +332,21 @@ describe('EligibilityManager', () => {
     it('should return subgroup upgrade target offeringStripeProductIds as upgrade comparison', async () => {
       const mockTargetOfferingResult = EligibilityContentOfferingResultFactory({
         stripeProductId: 'prod_test3',
-        subGroups: {
-          data: [
-            StrapiEntityFactory(
-              EligibilityContentSubgroupResultFactory({
-                offerings: {
-                  data: [
-                    StrapiEntityFactory(
-                      EligibilityContentSubgroupOfferingResultFactory({
-                        stripeProductId: 'prod_test',
-                      })
-                    ),
-                    StrapiEntityFactory(
-                      EligibilityContentSubgroupOfferingResultFactory({
-                        stripeProductId: 'prod_test2',
-                      })
-                    ),
-                    StrapiEntityFactory(
-                      EligibilityContentSubgroupOfferingResultFactory({
-                        stripeProductId: 'prod_test3',
-                      })
-                    ),
-                  ],
-                },
-              })
-            ),
-          ],
-        },
+        subGroups: [
+          EligibilityContentSubgroupResultFactory({
+            offerings: [
+              EligibilityContentSubgroupOfferingResultFactory({
+                stripeProductId: 'prod_test',
+              }),
+              EligibilityContentSubgroupOfferingResultFactory({
+                stripeProductId: 'prod_test2',
+              }),
+              EligibilityContentSubgroupOfferingResultFactory({
+                stripeProductId: 'prod_test3',
+              }),
+            ],
+          }),
+        ],
       });
 
       const result = manager.getProductIdOverlap(
@@ -425,28 +360,18 @@ describe('EligibilityManager', () => {
     it('should return subgroup downgrade target offeringStripeProductIds as downgrade comparison', async () => {
       const mockTargetOfferingResult = EligibilityContentOfferingResultFactory({
         stripeProductId: 'prod_test',
-        subGroups: {
-          data: [
-            StrapiEntityFactory(
-              EligibilityContentSubgroupResultFactory({
-                offerings: {
-                  data: [
-                    StrapiEntityFactory(
-                      EligibilityContentSubgroupOfferingResultFactory({
-                        stripeProductId: 'prod_test',
-                      })
-                    ),
-                    StrapiEntityFactory(
-                      EligibilityContentSubgroupOfferingResultFactory({
-                        stripeProductId: 'prod_test2',
-                      })
-                    ),
-                  ],
-                },
-              })
-            ),
-          ],
-        },
+        subGroups: [
+          EligibilityContentSubgroupResultFactory({
+            offerings: [
+              EligibilityContentSubgroupOfferingResultFactory({
+                stripeProductId: 'prod_test',
+              }),
+              EligibilityContentSubgroupOfferingResultFactory({
+                stripeProductId: 'prod_test2',
+              }),
+            ],
+          }),
+        ],
       });
 
       const result = manager.getProductIdOverlap(
@@ -473,28 +398,18 @@ describe('EligibilityManager', () => {
     it('should return upgrade comparison for upgrade priceId', async () => {
       const mockTargetOfferingResult = EligibilityContentOfferingResultFactory({
         stripeProductId: 'prod_test2',
-        subGroups: {
-          data: [
-            StrapiEntityFactory(
-              EligibilityContentSubgroupResultFactory({
-                offerings: {
-                  data: [
-                    StrapiEntityFactory(
-                      EligibilityContentSubgroupOfferingResultFactory({
-                        stripeProductId: 'prod_test',
-                      })
-                    ),
-                    StrapiEntityFactory(
-                      EligibilityContentSubgroupOfferingResultFactory({
-                        stripeProductId: 'prod_test2',
-                      })
-                    ),
-                  ],
-                },
-              })
-            ),
-          ],
-        },
+        subGroups: [
+          EligibilityContentSubgroupResultFactory({
+            offerings: [
+              EligibilityContentSubgroupOfferingResultFactory({
+                stripeProductId: 'prod_test',
+              }),
+              EligibilityContentSubgroupOfferingResultFactory({
+                stripeProductId: 'prod_test2',
+              }),
+            ],
+          }),
+        ],
       });
       const result = manager.getProductIdOverlap(
         ['prod_test'],
@@ -507,51 +422,31 @@ describe('EligibilityManager', () => {
     it('should return multiple comparisons in multiple subgroups', async () => {
       const mockTargetOfferingResult = EligibilityContentOfferingResultFactory({
         stripeProductId: 'prod_test2',
-        subGroups: {
-          data: [
-            StrapiEntityFactory(
-              EligibilityContentSubgroupResultFactory({
-                offerings: {
-                  data: [
-                    StrapiEntityFactory(
-                      EligibilityContentSubgroupOfferingResultFactory({
-                        stripeProductId: 'prod_test',
-                      })
-                    ),
-                    StrapiEntityFactory(
-                      EligibilityContentSubgroupOfferingResultFactory({
-                        stripeProductId: 'prod_test2',
-                      })
-                    ),
-                    StrapiEntityFactory(
-                      EligibilityContentSubgroupOfferingResultFactory({
-                        stripeProductId: 'prod_test3',
-                      })
-                    ),
-                  ],
-                },
-              })
-            ),
-            StrapiEntityFactory(
-              EligibilityContentSubgroupResultFactory({
-                offerings: {
-                  data: [
-                    StrapiEntityFactory(
-                      EligibilityContentSubgroupOfferingResultFactory({
-                        stripeProductId: 'prod_test',
-                      })
-                    ),
-                    StrapiEntityFactory(
-                      EligibilityContentSubgroupOfferingResultFactory({
-                        stripeProductId: 'prod_test2',
-                      })
-                    ),
-                  ],
-                },
-              })
-            ),
-          ],
-        },
+        subGroups: [
+          EligibilityContentSubgroupResultFactory({
+            offerings: [
+              EligibilityContentSubgroupOfferingResultFactory({
+                stripeProductId: 'prod_test',
+              }),
+              EligibilityContentSubgroupOfferingResultFactory({
+                stripeProductId: 'prod_test2',
+              }),
+              EligibilityContentSubgroupOfferingResultFactory({
+                stripeProductId: 'prod_test3',
+              }),
+            ],
+          }),
+          EligibilityContentSubgroupResultFactory({
+            offerings: [
+              EligibilityContentSubgroupOfferingResultFactory({
+                stripeProductId: 'prod_test',
+              }),
+              EligibilityContentSubgroupOfferingResultFactory({
+                stripeProductId: 'prod_test2',
+              }),
+            ],
+          }),
+        ],
       });
       const result = manager.getProductIdOverlap(
         ['prod_test2', 'prod_test3'],

@@ -144,10 +144,7 @@ export class StrapiClient {
   private async getLocales(): Promise<string[]> {
     const localesResult = (await this.query(localesQuery, {})) as LocalesResult;
 
-    return (
-      localesResult.i18NLocales.data.map((locale) => locale.attributes.code) ||
-      []
-    );
+    return localesResult.i18NLocales.map((locale) => locale.code) || [];
   }
 
   private setupCacheBust() {
