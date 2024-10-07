@@ -11,6 +11,7 @@ const mocks = require('../../mocks');
 const otplib = require('otplib');
 const { Container } = require('typedi');
 const { AccountEventsManager } = require('../../../lib/account-events');
+const authErrors = require('../../../lib/error');
 
 let log,
   db,
@@ -519,6 +520,92 @@ describe('totp', () => {
       });
     });
   });
+
+  describe('/totp/verify', () => {
+    it('should verify a valid totp code', async () => {
+      const authenticator = new otplib.authenticator.Authenticator();
+      authenticator.options = Object.assign({}, otplib.authenticator.options, {
+        secret,
+      });
+      requestOptions.payload = {
+        code: authenticator.generate(secret),
+      };
+      const response = await setup(
+        { db: { email: TEST_EMAIL } },
+        {},
+        '/totp/verify',
+        requestOptions
+      );
+
+      assert.isTrue(response.success);
+      assert.calledOnceWithExactly(db.totpToken, 'uid');
+      assert.calledOnceWithExactly(
+        customs.check,
+        request,
+        TEST_EMAIL,
+        'verifyTotpCode'
+      );
+    });
+
+    it('should fail for a invalid totp code', async () => {
+      requestOptions.payload = {
+        code: '123123',
+      };
+      const response = await setup(
+        { db: { email: TEST_EMAIL } },
+        {},
+        '/totp/verify',
+        requestOptions
+      );
+
+      assert.isFalse(response.success);
+      assert.calledOnceWithExactly(db.totpToken, 'uid');
+      assert.calledOnceWithExactly(
+        customs.check,
+        request,
+        TEST_EMAIL,
+        'verifyTotpCode'
+      );
+    });
+  });
+
+  describe('/totp/verify/recoveryCode', () => {
+    it('should verify recovery code', async () => {
+      requestOptions.payload.code = '1234567890';
+      const response = await setup(
+        { db: { email: TEST_EMAIL } },
+        {},
+        '/totp/verify/recoveryCode',
+        requestOptions
+      );
+
+      assert.equal(response.remaining, 2);
+      assert.calledOnceWithExactly(db.consumeRecoveryCode, 'uid', '1234567890');
+      assert.calledOnceWithExactly(
+        customs.check,
+        request,
+        TEST_EMAIL,
+        'verifyRecoveryCode'
+      );
+    });
+
+    it('should fail for invalid recovery code', async () => {
+      requestOptions.payload.code = '1234567890';
+      try {
+        await setup(
+          { db: { email: TEST_EMAIL } },
+          { consumeRecoveryCode: true },
+          '/totp/verify/recoveryCode',
+          requestOptions
+        );
+
+        assert.fail();
+      } catch (err) {
+        assert.equal(err.errno, 156);
+        assert.deepEqual(err.message, 'Backup authentication code not found.');
+      }
+    });
+  });
 });
 
 function setup(results, errors, routePath, requestOptions) {
@@ -529,6 +616,14 @@ function setup(results, errors, routePath, requestOptions) {
   mailer = mocks.mockMailer();
   db = mocks.mockDB(results.db, errors.db);
   profile = mocks.mockProfile();
+  db.consumeRecoveryCode = sinon.spy(() => {
+    if (errors.consumeRecoveryCode) {
+      return Promise.reject(authErrors.recoveryCodeNotFound());
+    }
+    return Promise.resolve({
+      remaining: 2,
+    });
+  });
   db.createTotpToken = sinon.spy(() => {
     return Promise.resolve({
       qrCodeUrl: 'some base64 encoded png',
