@@ -312,7 +312,7 @@ describe('sign-up-container', () => {
   });
 
   describe('web-channel-interactions', () => {
-    describe('sync desktop', () => {
+    describe('SyncDesktopV3 integration', () => {
       beforeEach(() => {
         // here we override some key behaviors to alter the containers behavior
         serviceName = MozServices.FirefoxSync;
@@ -338,12 +338,12 @@ describe('sign-up-container', () => {
       });
     });
 
-    describe('sync-service-on-oauth', () => {
+    describe('OAuth native integration with Sync', () => {
       beforeEach(() => {
         serviceName = MozServices.FirefoxSync;
         integration.getService = () => MozServices.FirefoxSync;
         integration.isSync = () => true;
-        integration.type = IntegrationType.OAuth;
+        integration.type = IntegrationType.OAuthNative;
       });
       it('adds event listeners and sends', async () => {
         await render();
@@ -359,10 +359,11 @@ describe('sign-up-container', () => {
       });
     });
 
-    describe('non-sync-service', () => {
+    describe('Web integration, default service', () => {
       beforeEach(() => {
         integration.type = IntegrationType.Web;
         integration.getService = () => MozServices.Default;
+        integration.isSync = () => false;
       });
 
       it('did not add event listeners and send command', async () => {

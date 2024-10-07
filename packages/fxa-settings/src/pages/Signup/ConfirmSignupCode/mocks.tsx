@@ -5,7 +5,7 @@
 import React from 'react';
 import { LocationProvider } from '@reach/router';
 import ConfirmSignupCode from '.';
-import { IntegrationType } from '../../../models';
+import { IntegrationType, OAuthNativeClients } from '../../../models';
 import {
   MOCK_EMAIL,
   MOCK_FLOW_ID,
@@ -42,17 +42,29 @@ export function createMockWebIntegration({
   };
 }
 
-export function createMockOAuthIntegration(
+export function createMockOAuthWebIntegration(
   serviceName = MOCK_SERVICE
 ): ConfirmSignupCodeOAuthIntegration {
   return {
-    type: IntegrationType.OAuth,
+    type: IntegrationType.OAuthWeb,
     data: { uid: MOCK_UID, redirectTo: undefined },
     getRedirectUri: () => MOCK_REDIRECT_URI,
     getService: () => serviceName,
     wantsTwoStepAuthentication: () => false,
-    getPermissions: () => [],
     isSync: () => false,
+    getPermissions: () => [],
+  };
+}
+
+export function createMockOAuthNativeIntegration(): ConfirmSignupCodeOAuthIntegration {
+  return {
+    type: IntegrationType.OAuthNative,
+    data: { uid: MOCK_UID, redirectTo: undefined },
+    getRedirectUri: () => MOCK_REDIRECT_URI,
+    getService: () => OAuthNativeClients.FirefoxDesktop,
+    wantsTwoStepAuthentication: () => false,
+    isSync: () => true,
+    getPermissions: () => [],
   };
 }
 
@@ -60,10 +72,14 @@ export const Subject = ({
   integration = createMockWebIntegration(),
   newsletterSlugs,
   finishOAuthFlowHandler = mockFinishOAuthFlowHandler,
+  offeredSyncEngines,
+  declinedSyncEngines,
 }: {
   integration?: ConfirmSignupCodeIntegration;
   newsletterSlugs?: string[];
   finishOAuthFlowHandler?: FinishOAuthFlowHandler;
+  offeredSyncEngines?: string[];
+  declinedSyncEngines?: string[];
 }) => {
   return (
     <LocationProvider>
@@ -72,6 +88,8 @@ export const Subject = ({
           integration,
           newsletterSlugs,
           finishOAuthFlowHandler,
+          offeredSyncEngines,
+          declinedSyncEngines,
         }}
         flowQueryParams={{ flowId: MOCK_FLOW_ID }}
         email={MOCK_EMAIL}

@@ -22,9 +22,9 @@ export type SyncEngineId = EngineConfig['id'] | WebChannelEngineConfig['id'];
 /* These sync engines are always offered to the user in Sync fx_desktop_v3
  * and other engines can be received and added with a webchannel message.
  *
- * For OAuth Sync (oauth_webchannel_v1) which includes sync mobile and sync
- * desktop on FF 123+, we do not display options by default and instead, we
- * receive the webchannel message and overwrite the options.
+ * For OAuth Sync (oauth_webchannel_v1) which includes sync mobile and
+ * oauth sync desktop, we do not display options by default and instead,
+ * we receive the webchannel message and overwrite the options.
  */
 export const defaultDesktopV3SyncEngineConfigs = [
   {

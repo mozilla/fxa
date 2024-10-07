@@ -5,34 +5,33 @@
 import React from 'react';
 import { LocationProvider } from '@reach/router';
 import { MozServices } from '../../lib/types';
-import { IntegrationType } from '../../models';
+import { IntegrationType, OAuthIntegration } from '../../models';
 import { IndexIntegration } from './interfaces';
 import Index from '.';
 import { MOCK_CLIENT_ID } from '../mocks';
+
+export function createMockIndexOAuthIntegration({
+  clientId = MOCK_CLIENT_ID,
+}): IndexIntegration {
+  return {
+    type: IntegrationType.OAuthWeb,
+    isSync: () => false,
+    getService: () => clientId,
+  };
+}
+export function createMockIndexSyncIntegration(): IndexIntegration {
+  return {
+    type: IntegrationType.OAuthNative,
+    isSync: () => true,
+    getService: () => MOCK_CLIENT_ID,
+  };
+}
 
 export function createMockIndexWebIntegration(): IndexIntegration {
   return {
     type: IntegrationType.Web,
     isSync: () => false,
     getService: () => undefined,
-  };
-}
-
-export function createMockIndexSyncIntegration(): IndexIntegration {
-  return {
-    type: IntegrationType.OAuth,
-    isSync: () => true,
-    getService: () => MOCK_CLIENT_ID,
-  };
-}
-
-export function createMockIndexOAuthIntegration({
-  clientId = MOCK_CLIENT_ID,
-}): IndexIntegration {
-  return {
-    type: IntegrationType.OAuth,
-    isSync: () => false,
-    getService: () => clientId,
   };
 }
 

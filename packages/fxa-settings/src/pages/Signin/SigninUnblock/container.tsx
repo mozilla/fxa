@@ -10,7 +10,6 @@ import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import VerificationMethods from '../../../constants/verification-methods';
 import {
   Integration,
-  isOAuthIntegration,
   useAuthClient,
   useFtlMsgResolver,
   useSensitiveDataClient,
@@ -61,8 +60,7 @@ const SigninUnblockContainer = ({
 
   const { email, hasLinkedAccount, hasPassword } = location.state || {};
 
-  const wantsTwoStepAuthentication =
-    isOAuthIntegration(integration) && integration.wantsTwoStepAuthentication();
+  const wantsTwoStepAuthentication = integration.wantsTwoStepAuthentication();
 
   const { finishOAuthFlowHandler, oAuthDataError } = useFinishOAuthFlowHandler(
     authClient,

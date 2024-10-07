@@ -41,6 +41,7 @@ import { StoredAccountData, storeAccountData } from '../../lib/storage-utils';
 import { MozServices } from '../../lib/types';
 import {
   isOAuthIntegration,
+  isOAuthNativeIntegrationSync,
   isSyncDesktopV3Integration,
   useFtlMsgResolver,
 } from '../../models';
@@ -57,8 +58,6 @@ export const Signup = ({
   queryParamModel,
   beginSignupHandler,
   webChannelEngines,
-  isSyncWebChannel,
-  isSyncOAuth,
 }: SignupProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
@@ -66,6 +65,8 @@ export const Signup = ({
     GleanMetrics.registration.view();
   }, []);
 
+  const isSyncOAuth = isOAuthNativeIntegrationSync(integration);
+  const isSyncDesktopV3 = isSyncDesktopV3Integration(integration);
   const isSync = integration.isSync();
   const email = queryParamModel.email;
 
@@ -111,7 +112,7 @@ export const Signup = ({
 
   useEffect(() => {
     if (webChannelEngines) {
-      if (isSyncDesktopV3Integration(integration)) {
+      if (isSyncDesktopV3) {
         // Desktop v3 web channel message sends additional engines
         setOfferedSyncEngineConfigs([
           ...defaultDesktopV3SyncEngineConfigs,
@@ -119,7 +120,7 @@ export const Signup = ({
             webChannelEngines.includes(engine.id)
           ),
         ]);
-      } else if (isSyncWebChannel) {
+      } else if (isSyncOAuth) {
         // OAuth Webchannel context sends all engines
         setOfferedSyncEngineConfigs(
           syncEngineConfigs.filter((engine) =>
@@ -128,7 +129,7 @@ export const Signup = ({
         );
       }
     }
-  }, [integration, isSyncWebChannel, webChannelEngines]);
+  }, [isSyncDesktopV3, isSyncOAuth, webChannelEngines]);
 
   useEffect(() => {
     if (offeredSyncEngineConfigs) {
@@ -244,7 +245,7 @@ export const Signup = ({
         const getOfferedSyncEngines = () =>
           getSyncEngineIds(offeredSyncEngineConfigs || []);
 
-        if (integration.isSync()) {
+        if (isSync) {
           const syncEngines = {
             offeredEngines: getOfferedSyncEngines(),
             declinedEngines: declinedSyncEngines,
@@ -315,7 +316,7 @@ export const Signup = ({
       selectedNewsletterSlugs,
       declinedSyncEngines,
       email,
-      integration,
+      isSync,
       offeredSyncEngineConfigs,
       isSyncOAuth,
       localizedValidAgeError,
@@ -323,7 +324,7 @@ export const Signup = ({
   );
 
   const showCWTS = () => {
-    if (isSyncWebChannel) {
+    if (isSync) {
       if (offeredSyncEngineConfigs) {
         return (
           <ChooseWhatToSync

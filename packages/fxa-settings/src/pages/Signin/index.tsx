@@ -23,10 +23,10 @@ import GleanMetrics from '../../lib/glean';
 import { usePageViewEvent } from '../../lib/metrics';
 import { StoredAccountData, storeAccountData } from '../../lib/storage-utils';
 import {
-  isOAuthIntegration,
   useSensitiveDataClient,
   useFtlMsgResolver,
   isWebIntegration,
+  isOAuthIntegration,
 } from '../../models';
 import {
   isClientMonitor,

@@ -91,7 +91,7 @@ function applyMocks() {
   jest.restoreAllMocks();
 
   integration = {
-    type: ModelsModule.IntegrationType.OAuth,
+    type: ModelsModule.IntegrationType.OAuthWeb,
   } as Integration;
   jest
     .spyOn(ConfirmSignupCodeModule, 'default')

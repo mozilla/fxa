@@ -57,7 +57,7 @@ export class DefaultIntegrationFlags implements IntegrationFlags {
     return this.searchParam('context') === Constants.FX_DESKTOP_V3_CONTEXT;
   }
 
-  // Sync mobile, Sync FF Desktop 123+, and supplicant pairing use this context
+  // Sync mobile, Sync FF OAuth Desktop, and supplicant pairing use this context
   isOAuthWebChannelContext() {
     return this.searchParam('context') === Constants.OAUTH_WEBCHANNEL_CONTEXT;
   }
