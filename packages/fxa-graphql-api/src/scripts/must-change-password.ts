@@ -33,7 +33,6 @@ import { batchAccountUpdate } from 'fxa-shared/db/models/auth';
 import { uuidTransformer } from 'fxa-shared/db/transformers';
 import { NotifierService, setupSns } from '@fxa/shared/notifier';
 import { MozLoggerService } from '@fxa/shared/mozlog';
-import { ConfigService } from '@nestjs/config';
 
 const config = Config.getProperties();
 const logger = mozlog(config.log)('must-change-password');
@@ -114,12 +113,13 @@ async function main() {
   );
   const oauthKnex = setupDatabase(config.database.mysql.oauth, logger, metrics);
 
-  const sns = setupSns({
+  const notifierSnsConfig = {
     snsTopicArn: config.notifier.sns.snsTopicArn || '',
     snsTopicEndpoint: config.notifier.sns.snsTopicEndpoint || '',
-  });
+  };
+  const sns = setupSns(notifierSnsConfig);
   const notifier = new NotifierService(
-    Config as unknown as ConfigService,
+    notifierSnsConfig,
     logger as MozLoggerService,
     sns,
     metrics

@@ -11,7 +11,10 @@ import path, { join } from 'path';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { LegacyStatsDProvider } from '@fxa/shared/metrics/statsd';
 import { MozLoggerService } from '@fxa/shared/mozlog';
-import { NotifierService, NotifierSnsFactory } from '@fxa/shared/notifier';
+import {
+  LegacyNotifierServiceProvider,
+  NotifierSnsFactory,
+} from '@fxa/shared/notifier';
 import {
   HttpException,
   MiddlewareConsumer,
@@ -58,8 +61,8 @@ export const GraphQLConfigFactory = async (
     CustomsService,
     LegacyStatsDProvider,
     LegalResolver,
+    LegacyNotifierServiceProvider,
     MozLoggerService,
-    NotifierService,
     NotifierSnsFactory,
     SentryPlugin,
     SessionResolver,

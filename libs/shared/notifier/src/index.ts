@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // export * from './lib/notifier.module';
+export * from './lib/notifier.provider';
 export * from './lib/notifier.service';
 export * from './lib/notifier.sns.config';
 export * from './lib/notifier.sns.provider';

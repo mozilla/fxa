@@ -5,7 +5,6 @@
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { StatsDService } from '@fxa/shared/metrics/statsd';
 import { Inject, Injectable, LoggerService } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { AWSError, SNS } from 'aws-sdk';
 import { StatsD } from 'hot-shots';
 
@@ -14,27 +13,22 @@ import { NotifierSnsService } from './notifier.sns.provider';
 
 @Injectable()
 export class NotifierService {
-  private readonly config: NotifierSnsConfig;
-
   constructor(
-    configService: ConfigService,
+    private readonly notifierSnsConfig: NotifierSnsConfig,
     @Inject(LOGGER_PROVIDER) readonly log: LoggerService,
     @Inject(NotifierSnsService) private readonly sns: SNS,
     @Inject(StatsDService) private readonly statsd: StatsD | undefined
   ) {
-    const config = configService.get<NotifierSnsConfig>('notifier.sns');
-    if (config == null) {
+    if (notifierSnsConfig == null) {
       throw new Error('Could not locate sns.notifier config');
     }
 
-    if (!config.snsTopicArn) {
+    if (!notifierSnsConfig.snsTopicArn) {
       this.log.warn('snsTopicArn missing!');
     }
-    if (!config.snsTopicEndpoint) {
+    if (!notifierSnsConfig.snsTopicEndpoint) {
       this.log.warn('snsTopicEndpoint missing!');
     }
-
-    this.config = config;
   }
 
   send(
@@ -48,7 +42,7 @@ export class NotifierService {
 
     this.sns.publish(
       {
-        TopicArn: this.config.snsTopicArn,
+        TopicArn: this.notifierSnsConfig.snsTopicArn,
         Message: JSON.stringify(msg),
         MessageAttributes: this.formatMessageAttributes(msg),
       },
