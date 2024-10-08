@@ -230,6 +230,7 @@ const CompleteResetPasswordContainer = ({
         recoveryKeyExists,
         estimatedSyncDeviceCount,
       }}
+      integrationIsSync={integration.isSync()}
       locationState={location.state as CompleteResetPasswordLocationState}
     />
   );

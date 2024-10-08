@@ -52,12 +52,13 @@ test.describe('severity-1 #smoke', () => {
     const email2 = credentials.email.replace('@', '.2@');
     const password2 = credentials.password;
 
-    await openNewTab(context, target, pages);
+    const newTab = await openNewTab(context, target, pages);
     await signin.useDifferentAccountLink.click();
 
     await signup.fillOutEmailForm(email2);
     await signup.fillOutSignupForm(password2, '21');
     const code = await target.emailClient.getVerifyShortCode(email2);
+    await expect(newTab).toHaveURL(/confirm_signup_code/);
     await confirmSignupCode.fillOutCodeForm(code);
     await expect(settings.settingsHeading).toBeVisible();
 

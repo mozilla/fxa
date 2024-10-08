@@ -77,7 +77,7 @@ const ResetPassword = ({
       name: 'email',
       defaultValue: getValues().email,
     });
-    return <LinkRememberPassword {...{ email }} />;
+    return <LinkRememberPassword textStart {...{ email }} />;
   };
 
   return (
@@ -101,7 +101,7 @@ const ResetPassword = ({
 
       <form
         noValidate
-        className="flex flex-col gap-4"
+        className="flex flex-col gap-4 mb-4"
         onSubmit={handleSubmit(onSubmit)}
       >
         <FtlMsg id="password-reset-email-input" attrs={{ label: true }}>

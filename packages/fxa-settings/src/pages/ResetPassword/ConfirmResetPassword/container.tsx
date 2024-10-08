@@ -82,7 +82,7 @@ const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
       return result;
     } catch (error) {
       return {
-        exist: undefined,
+        exists: undefined,
         hint: undefined,
         estimatedSyncDeviceCount: undefined,
       } as RecoveryKeyCheckResult;

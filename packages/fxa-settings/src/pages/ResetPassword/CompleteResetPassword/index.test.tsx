@@ -65,6 +65,10 @@ describe('CompleteResetPassword page', () => {
         'href',
         `/?prefillEmail=${encodeURIComponent(MOCK_EMAIL)}`
       );
+
+      expect(
+        screen.queryByRole('link', { name: 'Use account recovery key' })
+      ).not.toBeInTheDocument();
     });
 
     it('renders as expected for account without sync', async () => {
@@ -85,17 +89,26 @@ describe('CompleteResetPassword page', () => {
         screen.queryByText('Your browser data may not be recovered')
       ).not.toBeInTheDocument();
 
-      // Warning message about using recovery ke should not be displayed
+      // Warning message about using recovery key should not be displayed
       expect(
         screen.queryByText('Reset your password and keep your data')
       ).not.toBeInTheDocument();
+
+      expect(
+        screen.queryByRole('link', { name: 'Use account recovery key' })
+      ).not.toBeInTheDocument();
     });
 
-    it('sends the expected metrics on render', () => {
+    it('sends the expected metrics on render', async () => {
       renderWithLocalizationProvider(
         <Subject recoveryKeyExists={false} estimatedSyncDeviceCount={2} />
       );
-      expect(GleanMetrics.passwordReset.createNewView).toHaveBeenCalledTimes(1);
+
+      await waitFor(() =>
+        expect(GleanMetrics.passwordReset.createNewView).toHaveBeenCalledTimes(
+          1
+        )
+      );
     });
   });
 
@@ -135,17 +148,23 @@ describe('CompleteResetPassword page', () => {
         'href',
         `/?prefillEmail=${encodeURIComponent(MOCK_EMAIL)}`
       );
+      expect(
+        screen.queryByRole('link', { name: 'Use account recovery key' })
+      ).not.toBeInTheDocument();
     });
 
-    it('sends the expected metrics on render', () => {
+    it('sends the expected metrics on render', async () => {
       renderWithLocalizationProvider(<Subject hasConfirmedRecoveryKey />);
-      expect(
-        GleanMetrics.passwordReset.recoveryKeyCreatePasswordView
-      ).toHaveBeenCalledTimes(1);
+
+      await waitFor(() =>
+        expect(
+          GleanMetrics.passwordReset.recoveryKeyCreatePasswordView
+        ).toHaveBeenCalledTimes(1)
+      );
     });
   });
 
-  describe('reset with unconfirmed account recovery key', () => {
+  describe('reset when account has a recovery key but user lost it', () => {
     it('renders as expected', async () => {
       renderWithLocalizationProvider(
         <Subject
@@ -163,14 +182,41 @@ describe('CompleteResetPassword page', () => {
         ).toBeVisible()
       );
 
-      // Warning messages about data loss should not be displayed.
+      // Warning messages about data loss should be displayed.
       expect(
         screen.queryByText('Your browser data may not be recovered')
       ).toBeInTheDocument();
 
-      // Warning message about using recovery key should be displayed
+      // Option to use recovery key should be displayed
+      expect(screen.getByText('Have an account recovery key?')).toBeVisible();
+
       expect(
-        screen.queryByText('Reset your password and keep your data')
+        screen.getByRole('link', { name: 'Use account recovery key' })
+      ).toBeVisible();
+    });
+  });
+
+  describe('reset when account has a recovery key but user lost the key and does not have synced devices', () => {
+    it('renders as expected', async () => {
+      renderWithLocalizationProvider(
+        <Subject
+          hasConfirmedRecoveryKey={false}
+          recoveryKeyExists={true}
+          estimatedSyncDeviceCount={0}
+        />
+      );
+
+      await waitFor(() =>
+        expect(
+          screen.getByRole('heading', {
+            name: 'Create a new password',
+          })
+        ).toBeVisible()
+      );
+
+      // Warning is only shown to sync users
+      expect(
+        screen.queryByText('Your browser data may not be recovered')
       ).not.toBeInTheDocument();
     });
   });
@@ -196,47 +242,49 @@ describe('CompleteResetPassword page', () => {
       // Warning messages about data loss should not be displayed.
       expect(
         screen.queryByText('Your browser data may not be recovered')
-      ).not.toBeInTheDocument();
+      ).toBeInTheDocument();
 
-      // Warning message about using recovery key should be displayed
-      expect(
-        screen.getByText('Reset your password and keep your data')
-      ).toBeVisible();
+      // Option to use recovery key should be displayed
+      expect(screen.getByText('Have an account recovery key?')).toBeVisible();
     });
   });
 
-  it('handles submit with valid password', async () => {
-    const user = userEvent.setup();
-    renderWithLocalizationProvider(
-      <Subject submitNewPassword={mockSubmitNewPassword} />
-    );
+  describe('submitting new password', () => {
+    it('handles submit with valid password', async () => {
+      const user = userEvent.setup();
+      renderWithLocalizationProvider(
+        <Subject submitNewPassword={mockSubmitNewPassword} />
+      );
 
-    await waitFor(() =>
-      user.type(screen.getByLabelText('New password'), MOCK_PASSWORD)
-    );
-    await waitFor(() =>
-      user.type(screen.getByLabelText('Confirm password'), MOCK_PASSWORD)
-    );
-    const button = screen.getByRole('button', { name: 'Create new password' });
-    expect(button).toBeEnabled();
-    await waitFor(() => user.click(button));
+      await waitFor(() =>
+        user.type(screen.getByLabelText('New password'), MOCK_PASSWORD)
+      );
+      await waitFor(() =>
+        user.type(screen.getByLabelText('Confirm password'), MOCK_PASSWORD)
+      );
+      const button = screen.getByRole('button', {
+        name: 'Create new password',
+      });
+      expect(button).toBeEnabled();
+      await waitFor(() => user.click(button));
 
-    expect(mockSubmitNewPassword).toHaveBeenCalledTimes(1);
-    expect(mockSubmitNewPassword).toHaveBeenCalledWith(MOCK_PASSWORD);
-  });
+      expect(mockSubmitNewPassword).toHaveBeenCalledTimes(1);
+      expect(mockSubmitNewPassword).toHaveBeenCalledWith(MOCK_PASSWORD);
+    });
 
-  it('handles errors', async () => {
-    renderWithLocalizationProvider(
-      <Subject testErrorMessage="Something went wrong" />
-    );
+    it('handles errors', async () => {
+      renderWithLocalizationProvider(
+        <Subject testErrorMessage="Something went wrong" />
+      );
 
-    await waitFor(() =>
-      expect(
-        screen.getByRole('heading', {
-          name: 'Create a new password',
-        })
-      ).toBeVisible()
-    );
-    expect(screen.getByText('Something went wrong')).toBeVisible();
+      await waitFor(() =>
+        expect(
+          screen.getByRole('heading', {
+            name: 'Create a new password',
+          })
+        ).toBeVisible()
+      );
+      expect(screen.getByText('Something went wrong')).toBeVisible();
+    });
   });
 });
