@@ -196,7 +196,7 @@
   "devDependencies": {
     "@babel/core": "^7.24.4",
     "@babel/plugin-transform-typescript": "^7.25.2",
-    "@babel/preset-typescript": "^7.24.1",
+    "@babel/preset-typescript": "^7.25.7",
     "@babel/types": "^7.24.0",
     "@storybook/addon-actions": "^8.0.0",
     "@storybook/addon-essentials": "^7.6.15",
