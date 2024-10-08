@@ -343,6 +343,7 @@ module.exports = function (
                 wrapWrapKb: wrapWrapKb,
                 wrapWrapKbVersion2: wrapWrapKbVersion2,
                 keysHaveChanged: false,
+                isPasswordUpgrade: true,
               },
               true
             );
