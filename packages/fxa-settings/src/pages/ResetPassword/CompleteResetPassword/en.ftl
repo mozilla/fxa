@@ -11,3 +11,8 @@ complete-reset-password-error-alert = Sorry, there was a problem setting your pa
 
 # Link to go back and use an account recovery key before resetting the password
 complete-reset-pw-recovery-key-link = Use account recovery key
+
+# A message informing the user that the password reset was successful and reminding them to create another recovery key
+# Displayed on the sign in page
+reset-password-complete-banner-heading = Your password has been reset.
+reset-password-complete-banner-message = Don’t forget to generate a new account recovery key from your { -product-mozilla-account } settings to prevent future sign-in issues.

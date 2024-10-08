@@ -328,10 +328,14 @@ test.describe('severity-1 #smoke', () => {
     await resetPassword.fillOutRecoveryKeyForm(key);
     await resetPassword.fillOutNewPasswordForm(newPassword);
 
-    await expect(page).toHaveURL(/reset_password_with_recovery_key_verified/);
+    await expect(page).toHaveURL(/signin/);
+    await expect(
+      resetPassword.passwordResetSuccessRecovyerKeyReminderHeading
+    ).toBeVisible();
+    await expect(
+      resetPassword.passwordResetSuccessRecovyerKeyReminderMessage
+    ).toBeVisible();
 
-    await page.goto(target.contentServerUrl);
-    await signin.fillOutEmailFirstForm(credentials.email);
     await signin.fillOutPasswordForm(newPassword);
 
     // Prompted for 2FA on new login

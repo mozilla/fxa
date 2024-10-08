@@ -11,6 +11,5 @@ export interface ResetPasswordWithRecoveryKeyVerifiedIntegration {
 }
 
 export interface ResetPasswordWithRecoveryKeyVerifiedProps {
-  isSignedIn: boolean;
   integration: ResetPasswordWithRecoveryKeyVerifiedIntegration;
 }

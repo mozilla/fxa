@@ -74,10 +74,40 @@ export class ResetPasswordPage extends BaseLayout {
     return this.page.getByText('Your password has been reset');
   }
 
+  get passwordResetSuccessRecovyerKeyReminderHeading() {
+    return this.page.getByText('Your password has been reset.');
+  }
+
+  get passwordResetSuccessRecovyerKeyReminderMessage() {
+    return this.page.getByText('generate a new account recovery key');
+  }
+
   get passwordResetConfirmationContinueButton() {
     return this.page.getByRole('button', {
       name: /^Continue to/,
     });
+  }
+
+  get passwordResetPasswordSaved() {
+    return this.page.getByText('New password saved!');
+  }
+
+  get recoveryKey() {
+    return this.page.getByTestId('datablock');
+  }
+
+  get recoveryKeyHintHeading() {
+    return this.page.getByRole('heading', {
+      name: 'Add a hint to help find your key',
+    });
+  }
+
+  get recoveryKeyHintTextbox() {
+    return this.page.getByRole('textbox', { name: 'hint' });
+  }
+
+  get recoveryKeyFinishButton() {
+    return this.page.getByRole('button', { name: 'Finish' });
   }
 
   get confirmRecoveryKeyHeading() {
@@ -177,5 +207,13 @@ export class ResetPasswordPage extends BaseLayout {
       .getByLabel('Enter 10-digit backup authentication code')
       .fill(code);
     return this.page.getByRole('button', { name: 'Confirm' }).click();
+  }
+
+  async downloadRecoveryKey() {
+    const [download] = await Promise.all([
+      this.page.waitForEvent('download'),
+      this.page.getByText('Download and continue').click(),
+    ]);
+    return download;
   }
 }
