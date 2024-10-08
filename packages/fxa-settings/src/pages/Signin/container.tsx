@@ -10,7 +10,6 @@ import {
   useFtlMsgResolver,
   useConfig,
   useSession,
-  isSyncDesktopV3Integration,
   useSensitiveDataClient,
 } from '../../models';
 import { MozServices } from '../../lib/types';
@@ -242,7 +241,7 @@ const SigninContainer = ({
       // warning. The browser will automatically respond with { ok: true } without
       // prompting the user if it matches the email the browser has data for.
       if (
-        isSyncDesktopV3Integration(integration) &&
+        integration.isDesktopSync() &&
         queryParamModel.hasLinkedAccount === undefined
       ) {
         const { ok } = await firefox.fxaCanLinkAccount({ email });
@@ -298,11 +297,9 @@ const SigninContainer = ({
       if (
         'data' in result &&
         result.data &&
-        // NOTE, Oauth desktop needs to add `service=sync` as a query parameter for this
-        // to take users to the inline recovery key flow (SYNC-4408). (We may want
-        // check for client ID to determine oauth desktop instead, TBD slight refactor for
-        // FXA-10313).
-        options.service === 'sync' &&
+        // NOTE, SYNC-4408 must be completed (adding `service=sync` as a query parameter
+        // to OAuth Desktop) for this to take users to the inline recovery key flow.
+        integration.isDesktopSync() &&
         config.featureFlags?.recoveryCodeSetupOnSyncSignIn === true &&
         localStorage.getItem(
           Constants.DISABLE_PROMO_ACCOUNT_RECOVERY_KEY_DO_IT_LATER

@@ -10,7 +10,7 @@ import {
 } from './sync-basic-integration';
 
 /**
- * Sync desktop with context=fx_desktop_v3 (FF < 123)
+ * Sync desktop with context=fx_desktop_v3
  */
 export function isSyncDesktopV3Integration(integration: {
   type: IntegrationType;
@@ -21,7 +21,7 @@ export function isSyncDesktopV3Integration(integration: {
   );
 }
 
-/* This is a legacy integration for desktop Firefox < 123 that must be supported
+/* This is a legacy integration for desktop Firefox that must be supported
  * for the foreseeable future.
  */
 export class SyncDesktopV3Integration extends SyncBasicIntegration<SyncIntegrationFeatures> {

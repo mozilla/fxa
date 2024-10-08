@@ -41,6 +41,7 @@ export enum OAuthPrompt {
 
 type OAuthIntegrationTypes =
   | IntegrationType.OAuth
+  | IntegrationType.OAuthBrowser
   | IntegrationType.PairingSupplicant
   | IntegrationType.PairingAuthority;
 
@@ -179,7 +180,6 @@ export type OAuthIntegrationOptions = {
   isPromptNoneEnabled: boolean;
   isPromptNoneEnabledClientIds: Array<string>;
 };
-
 export class OAuthIntegration extends BaseIntegration<OAuthIntegrationFeatures> {
   constructor(
     data: ModelDataStore,
@@ -235,7 +235,7 @@ export class OAuthIntegration extends BaseIntegration<OAuthIntegrationFeatures> 
 
   // prefer client id if available (for oauth) otherwise fallback to service (e.g. for sync)
   getService() {
-    return this.data.clientId || this.data.service;
+    return this.data.clientId;
   }
 
   restoreOAuthState() {
@@ -268,6 +268,8 @@ export class OAuthIntegration extends BaseIntegration<OAuthIntegrationFeatures> 
 
   getServiceName() {
     const permissions = this.getPermissions();
+    // TODO, can we remove this now that we have oauth-browser-integration?
+    //
     // As a special case for UX purposes, any client requesting access to
     // the user's sync data must have a display name of "Firefox Sync".
     // This is also used to check against `integration.isSync()`.
@@ -291,26 +293,6 @@ export class OAuthIntegration extends BaseIntegration<OAuthIntegrationFeatures> 
 
   getClientInfo(): RelierClientInfo | undefined {
     return this.clientInfo;
-  }
-
-  isSync() {
-    return (
-      this.data.context === Constants.OAUTH_WEBCHANNEL_CONTEXT &&
-      (this.isDesktopSync() || this.isFirefoxMobileClient())
-    );
-  }
-
-  isDesktopSync() {
-    return this.isFirefoxDesktopClient() && this.data.service === 'sync';
-  }
-
-  // Mobile does not provide service=sync, it is just Sync by default
-  isFirefoxMobileClient() {
-    return this.clientInfo?.clientId === 'TBD';
-  }
-
-  isFirefoxDesktopClient() {
-    return this.clientInfo?.clientId === '5882386c6d801776';
   }
 
   isTrusted() {
@@ -339,9 +321,6 @@ export class OAuthIntegration extends BaseIntegration<OAuthIntegrationFeatures> 
   }
 
   wantsKeys(): boolean {
-    if (this.isSync()) {
-      return true;
-    }
     if (!this.opts.scopedKeysEnabled) {
       return false;
     }

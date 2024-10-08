@@ -6,6 +6,7 @@ export * from './base-integration';
 export * from './channel-info';
 export * from './client-info';
 export * from './oauth-integration';
+export * from './oauth-browser-integration';
 export * from './pairing-authority-integration';
 export * from './pairing-supplicant-integration';
 export * from './signin-signup-info';

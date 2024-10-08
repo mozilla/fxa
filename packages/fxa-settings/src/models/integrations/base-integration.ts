@@ -5,7 +5,8 @@
 import { MozServices } from '../../lib/types';
 
 export enum IntegrationType {
-  OAuth = 'OAuth',
+  OAuth = 'OAuth', // OAuth for non-browser services/RPs
+  OAuthBrowser = 'OAuthBrowser', // OAuth for desktop & mobile clients
   PairingAuthority = 'PairingAuthority', // TODO
   PairingSupplicant = 'PairingSupplicant', // TODO
   SyncBasic = 'SyncBasic',
@@ -174,11 +175,6 @@ export abstract class Integration<
   isTrusted() {
     return true;
   }
-
-  // TODO: This seems like feature envy... Move logic elsewhere.
-  // accountNeedsPermissions(account:RelierAccount): boolean {
-  //   return false;
-  // }
 }
 
 export class BaseIntegration<
