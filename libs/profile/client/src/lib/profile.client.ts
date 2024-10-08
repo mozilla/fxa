@@ -2,15 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { LOGGER_PROVIDER } from '@fxa/shared/log';
+import { Inject, Injectable, LoggerService } from '@nestjs/common';
 import Agent from 'agentkeepalive';
 import axios, { AxiosInstance } from 'axios';
-import { MozLoggerService } from '@fxa/shared/mozlog';
 import { ProfileClientConfig } from './profile.config';
 import {
   ProfileClientError,
   ProfileClientServiceFailureError,
 } from './profile.error';
-import { Injectable } from '@nestjs/common';
 
 const PATH_PREFIX = '/v1';
 
@@ -25,7 +25,7 @@ type SupportedMethods = 'post' | 'delete';
 export class ProfileClient {
   private axiosInstance: AxiosInstance;
   constructor(
-    private log: MozLoggerService,
+    @Inject(LOGGER_PROVIDER) private log: LoggerService,
     private config: ProfileClientConfig
   ) {
     this.axiosInstance = axios.create({
@@ -85,7 +85,7 @@ export class ProfileClient {
         'delete'
       );
     } catch (err) {
-      this.log.error('profile.deleteCache.failed', { uid, err });
+      this.log.error('profile.deleteCache.failed', uid, err);
       throw err;
     }
   }
@@ -98,7 +98,7 @@ export class ProfileClient {
         'post'
       );
     } catch (err) {
-      this.log.error('profile.updateDisplayName.failed', { uid, name, err });
+      this.log.error('profile.updateDisplayName.failed', uid, name, err);
       throw err;
     }
   }

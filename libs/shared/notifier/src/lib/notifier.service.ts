@@ -2,14 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Inject, Injectable } from '@nestjs/common';
-import { StatsD } from 'hot-shots';
-import { SNS, AWSError } from 'aws-sdk';
-import { NotifierSnsService } from './notifier.sns.provider';
-import { ConfigService } from '@nestjs/config';
-import { NotifierSnsConfig } from './notifier.sns.config';
+import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { StatsDService } from '@fxa/shared/metrics/statsd';
-import { MozLoggerService } from '@fxa/shared/mozlog';
+import { Inject, Injectable, LoggerService } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { AWSError, SNS } from 'aws-sdk';
+import { StatsD } from 'hot-shots';
+
+import { NotifierSnsConfig } from './notifier.sns.config';
+import { NotifierSnsService } from './notifier.sns.provider';
 
 @Injectable()
 export class NotifierService {
@@ -17,7 +18,7 @@ export class NotifierService {
 
   constructor(
     configService: ConfigService,
-    private readonly log: MozLoggerService,
+    @Inject(LOGGER_PROVIDER) readonly log: LoggerService,
     @Inject(NotifierSnsService) private readonly sns: SNS,
     @Inject(StatsDService) private readonly statsd: StatsD | undefined
   ) {
@@ -27,10 +28,10 @@ export class NotifierService {
     }
 
     if (!config.snsTopicArn) {
-      this.log.warn('', { message: 'snsTopicArn missing!' });
+      this.log.warn('snsTopicArn missing!');
     }
     if (!config.snsTopicEndpoint) {
-      this.log.warn('', { message: 'snsTopicEndpoint missing!' });
+      this.log.warn('snsTopicEndpoint missing!');
     }
 
     this.config = config;
@@ -68,9 +69,9 @@ export class NotifierService {
     }
 
     if (err) {
-      this.log.error('Notifier.publish', { err });
+      this.log.error('Notifier.publish', err);
     } else {
-      this.log.debug('Notifier.publish', { success: true, data });
+      this.log.debug?.('Notifier.publish success', data);
     }
 
     if (callback) {

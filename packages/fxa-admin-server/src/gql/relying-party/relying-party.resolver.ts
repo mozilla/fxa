@@ -2,16 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { UseGuards } from '@nestjs/common';
+import { LOGGER_PROVIDER } from '@fxa/shared/log';
+import { Inject, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import { uuidTransformer } from '../../database/transformers';
 
-import { Features } from '../../auth/user-group-header.decorator';
+import { AdminPanelFeature } from 'fxa-shared/guards';
 import { GqlAuthHeaderGuard } from '../../auth/auth-header.guard';
+import { Features } from '../../auth/user-group-header.decorator';
 import { DatabaseService } from '../../database/database.service';
 import { RelyingParty } from '../../gql/model/relying-party.model';
-import { AdminPanelFeature } from 'fxa-shared/guards';
 
 const RELYING_PARTY_COLUMNS = [
   'id',
@@ -29,7 +30,10 @@ const RELYING_PARTY_COLUMNS = [
 @UseGuards(GqlAuthHeaderGuard)
 @Resolver((of: any) => [RelyingParty])
 export class RelyingPartyResolver {
-  constructor(private log: MozLoggerService, private db: DatabaseService) {}
+  constructor(
+    @Inject(LOGGER_PROVIDER) private log: MozLoggerService,
+    private db: DatabaseService
+  ) {}
 
   @Features(AdminPanelFeature.RelyingParties)
   @Query((returns) => [RelyingParty])

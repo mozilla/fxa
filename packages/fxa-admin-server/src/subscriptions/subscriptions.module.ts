@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Module } from '@nestjs/common';
+import { MozLoggerService } from '@fxa/shared/mozlog';
+import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { MetricsFactory } from 'fxa-shared/nestjs/metrics.service';
 import {
   AppStoreHelperService,
@@ -25,19 +27,23 @@ import { SubscriptionsService } from './subscriptions.service';
 
 @Module({
   providers: [
-    SubscriptionsService,
-    MetricsFactory,
-    FirestoreFactory,
-    StripeFactory,
-    AppStoreService,
     AppStoreHelperService,
     AppStorePurchaseManagerService,
+    AppStoreService,
+    FirestoreFactory,
+    MetricsFactory,
+    PlayStorePurchaseManagerService,
     PlayStoreService,
     PlayStoreUserManagerService,
-    PlayStorePurchaseManagerService,
-    StripeService,
+    StripeFactory,
     StripeFirestoreService,
     StripePaymentConfigManagerService,
+    StripeService,
+    SubscriptionsService,
+    {
+      provide: LOGGER_PROVIDER,
+      useClass: MozLoggerService,
+    },
   ],
   exports: [SubscriptionsService],
 })

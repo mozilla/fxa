@@ -4,5 +4,5 @@
 
 export { logger } from './lib/logging';
 export { monkeyPatchServerLogging } from './lib/monkey-patch';
-export { LoggingModule } from './lib/nest/logging.module';
+export { LoggingModule, LOGGER_PROVIDER } from './lib/nest/logging.module';
 export type { Logger } from './lib/nest/logging.module';

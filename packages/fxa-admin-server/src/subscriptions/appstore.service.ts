@@ -2,21 +2,25 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { LOGGER_PROVIDER } from '@fxa/shared/log';
+import { MozLoggerService } from '@fxa/shared/mozlog';
 import { Firestore } from '@google-cloud/firestore';
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, LoggerService } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import { AppStoreHelper } from 'fxa-shared/payments/iap/apple-app-store/app-store-helper';
 import { PurchaseManager } from 'fxa-shared/payments/iap/apple-app-store/purchase-manager';
-import { AppConfig } from '../config';
 import { FirestoreService } from '../backend/firestore.service';
+import { AppConfig } from '../config';
 
 /**
  * Extends AppStoreHelper to be service like
  */
 @Injectable()
 export class AppStoreHelperService extends AppStoreHelper {
-  constructor(configService: ConfigService, logger: MozLoggerService) {
+  constructor(
+    configService: ConfigService,
+    @Inject(LOGGER_PROVIDER) logger: MozLoggerService
+  ) {
     const config = { subscriptions: configService.get('subscriptions') };
     super(config, logger);
   }
@@ -30,7 +34,7 @@ export class AppStorePurchaseManagerService extends PurchaseManager {
   constructor(
     appStoreHelper: AppStoreHelperService,
     configService: ConfigService<AppConfig>,
-    logger: MozLoggerService,
+    @Inject(LOGGER_PROVIDER) logger: MozLoggerService,
     @Inject(FirestoreService) firestore: Firestore
   ) {
     const config = {

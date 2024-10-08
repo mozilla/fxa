@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { LOGGER_PROVIDER } from '@fxa/shared/log';
+import { NotifierService } from '@fxa/shared/notifier';
+import { Firestore } from '@google-cloud/firestore';
 import { Inject, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
@@ -12,7 +15,7 @@ import {
   Resolver,
   Root,
 } from '@nestjs/graphql';
-import { Firestore } from '@google-cloud/firestore';
+import AuthClient from 'fxa-auth-client';
 import {
   ClientFormatter,
   ConnectedServicesFactory,
@@ -23,9 +26,17 @@ import { Account, getAccountCustomerByUid } from 'fxa-shared/db/models/auth';
 import { SecurityEventNames } from 'fxa-shared/db/models/auth/security-event';
 import { AdminPanelFeature } from 'fxa-shared/guards';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
+import { ReasonForDeletion } from '../../../../../libs/shared/cloud-tasks/src';
 import { CurrentUser } from '../../auth/auth-header.decorator';
 import { GqlAuthHeaderGuard } from '../../auth/auth-header.guard';
 import { Features } from '../../auth/user-group-header.decorator';
+import { AuthClientService } from '../../backend/auth-client.service';
+import {
+  CloudTasks,
+  CloudTasksService,
+} from '../../backend/cloud-tasks.service';
+import { FirestoreService } from '../../backend/firestore.service';
+import { ProfileClientService } from '../../backend/profile-client.service';
 import { AppConfig } from '../../config';
 import { DatabaseService } from '../../database/database.service';
 import { uuidTransformer } from '../../database/transformers';
@@ -33,27 +44,17 @@ import {
   EventLoggingService,
   EventNames,
 } from '../../event-logging/event-logging.service';
+import { AccountEvent as AccountEventType } from '../../gql/model/account-events.model';
 import { Account as AccountType } from '../../gql/model/account.model';
 import { AttachedClient } from '../../gql/model/attached-clients.model';
 import { Email as EmailType } from '../../gql/model/emails.model';
-import { AccountEvent as AccountEventType } from '../../gql/model/account-events.model';
-import { SubscriptionsService } from '../../subscriptions/subscriptions.service';
-import { AuthClientService } from '../../backend/auth-client.service';
-import { FirestoreService } from '../../backend/firestore.service';
-import AuthClient from 'fxa-auth-client';
 import { BasketService } from '../../newsletters/basket.service';
-import {
-  CloudTasks,
-  CloudTasksService,
-} from '../../backend/cloud-tasks.service';
-import { ReasonForDeletion } from '../../../../../libs/shared/cloud-tasks/src';
+import { SubscriptionsService } from '../../subscriptions/subscriptions.service';
 import {
   AccountDeleteResponse,
   AccountDeleteStatus,
   AccountDeleteTaskStatus,
 } from '../model/account-delete-task.model';
-import { NotifierService } from '@fxa/shared/notifier';
-import { ProfileClientService } from '../../backend/profile-client.service';
 
 const ACCOUNT_COLUMNS = [
   'uid',
@@ -108,7 +109,7 @@ export class AccountResolver {
   }
 
   constructor(
-    private log: MozLoggerService,
+    @Inject(LOGGER_PROVIDER) private log: MozLoggerService,
     private db: DatabaseService,
     private subscriptionsService: SubscriptionsService,
     private configService: ConfigService<AppConfig>,

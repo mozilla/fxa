@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { Firestore } from '@google-cloud/firestore';
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, LoggerService } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import { PurchaseManager } from 'fxa-shared/payments/iap/google-play/purchase-manager';
 import { UserManager } from 'fxa-shared/payments/iap/google-play/user-manager';
 import { Auth, google } from 'googleapis';
@@ -19,7 +19,7 @@ export class PlayStorePurchaseManagerService extends PurchaseManager {
   constructor(
     configService: ConfigService,
     @Inject(FirestoreService) firestore: Firestore,
-    logger: MozLoggerService
+    @Inject(LOGGER_PROVIDER) logger: LoggerService
   ) {
     const prefix = `${configService.get('authFirestore.prefix')}iap-`;
     const purchasesDbRef = firestore.collection(`${prefix}play-purchases`);
@@ -41,7 +41,7 @@ export class PlayStorePurchaseManagerService extends PurchaseManager {
       auth: new Auth.JWT(authConfig),
     });
 
-    super(purchasesDbRef, playDeveloperApiClient, logger);
+    super(purchasesDbRef, playDeveloperApiClient, logger as any);
   }
 }
 
@@ -52,14 +52,14 @@ export class PlayStorePurchaseManagerService extends PurchaseManager {
 export class PlayStoreUserManagerService extends UserManager {
   constructor(
     configService: ConfigService,
-    logger: MozLoggerService,
+    @Inject(LOGGER_PROVIDER) logger: LoggerService,
     purchaseManager: PlayStorePurchaseManagerService,
     @Inject(FirestoreService) firestore: Firestore
   ) {
     const prefix = `${configService.get('authFirestore.prefix')}iap-`;
     const purchasesDbRef = firestore.collection(`${prefix}play-purchases`);
 
-    super(purchasesDbRef, purchaseManager, logger);
+    super(purchasesDbRef, purchaseManager, logger as any);
   }
 }
 

@@ -2,15 +2,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { ProductConfigurationManager } from '@fxa/shared/cms';
+import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { Firestore } from '@google-cloud/firestore';
-import { Inject, Injectable, OnModuleDestroy, Provider } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  LoggerService,
+  OnModuleDestroy,
+  Provider,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import { PaymentConfigManager } from 'fxa-shared/payments/configuration/manager';
 import {
   determineIapIdentifiers,
-  StripeHelper,
   STRIPE_PRICE_METADATA,
+  StripeHelper,
 } from 'fxa-shared/payments/stripe';
 import { StripeFirestore } from 'fxa-shared/payments/stripe-firestore';
 import {
@@ -24,9 +31,8 @@ import {
 } from 'fxa-shared/subscriptions/validation';
 import { StatsD } from 'hot-shots';
 import Stripe from 'stripe';
-import { AppConfig } from '../config';
 import { FirestoreService } from '../backend/firestore.service';
-import { ProductConfigurationManager } from '@fxa/shared/cms';
+import { AppConfig } from '../config';
 
 export const StripeFactory: Provider<Stripe> = {
   provide: 'STRIPE',
@@ -67,7 +73,7 @@ export class StripePaymentConfigManagerService
 {
   constructor(
     configService: ConfigService<AppConfig>,
-    logger: MozLoggerService,
+    @Inject(LOGGER_PROVIDER) logger: LoggerService,
     @Inject(FirestoreService) firestore: Firestore
   ) {
     const config = {
@@ -75,7 +81,7 @@ export class StripePaymentConfigManagerService
       authFirestore: configService.get('authFirestore'),
     };
 
-    super(config, firestore, logger);
+    super(config, firestore, logger as any);
   }
 
   async onModuleDestroy() {
@@ -120,7 +126,7 @@ export class StripeService extends StripeHelper {
 
   constructor(
     configService: ConfigService<AppConfig>,
-    logger: MozLoggerService,
+    @Inject(LOGGER_PROVIDER) logger: LoggerService,
     stripeFirestore: StripeFirestoreService,
     paymentConfigManager: StripePaymentConfigManagerService,
     @Inject('STRIPE') stripe: Stripe,
@@ -134,7 +140,7 @@ export class StripeService extends StripeHelper {
       redis: configService.get('redis'),
       cms: configService.get('cms'),
     };
-    super(config, metrics, logger);
+    super(config, metrics, logger as any);
 
     this.isTestingApi = /sk_test/.test(config.subscriptions.stripeApiKey);
     this.stripe = stripe;
