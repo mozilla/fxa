@@ -8,6 +8,8 @@ account:
     description: |
       The firefox/mozilla account id
     lifetime: application
+    send_in_pings:
+      - events
     notification_emails:
       - subplat-team@mozilla.com
     bugs:

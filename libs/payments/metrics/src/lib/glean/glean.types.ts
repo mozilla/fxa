@@ -3,7 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { ResultCart } from '@fxa/payments/cart';
 
-type CheckoutType = 'with-accounts' | 'without-accounts';
+export const CheckoutTypes = ['with-accounts', 'without-accounts'] as const;
+export type CheckoutTypesType = (typeof CheckoutTypes)[number];
+
+export const PaymentProviders = [
+  'stripe',
+  'paypal',
+  'google',
+  'apple',
+] as const;
+export type PaymentProvidersType = (typeof PaymentProviders)[number];
 
 export type CommonMetrics = {
   ipAddress: string;
@@ -13,21 +22,22 @@ export type CommonMetrics = {
   searchParams: Record<string, string>;
 };
 
-export type CartMetrics = Partial<
-  Pick<ResultCart, 'uid' | 'errorReasonId' | 'couponCode' | 'currency'>
+export type CartMetrics = Pick<
+  ResultCart,
+  'uid' | 'errorReasonId' | 'couponCode' | 'currency'
 >;
-
-export type FxaPaySetupMetrics = CommonMetrics & CartMetrics;
-
-export type FxaPaySetupViewMetrics = FxaPaySetupMetrics & {
-  checkoutType: CheckoutType;
-};
-
-export type GleanEvents = {
-  fxaPaySetupView: FxaPaySetupViewMetrics;
-};
 
 export type CmsMetricsData = {
   productId: string;
   priceId: string;
+};
+
+export const PaymentsGleanProvider = Symbol('GleanServerEventsProvider');
+
+export type PaymentsGleanServerEventsLoggerTester = {
+  recordPaySetupView: () => void;
+  recordPaySetupEngage: (data: any) => void;
+  recordPaySetupSubmit: (data: any) => void;
+  recordPaySetupSuccess: (data: any) => void;
+  recordPaySetupFail: (data: any) => void;
 };

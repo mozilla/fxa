@@ -9,9 +9,11 @@ export function mapParams(params: Record<string, string>) {
   const interval = normalizeGleanFalsyValues(
     params['interval']
   ) as SubplatInterval;
+  const cartId = normalizeGleanFalsyValues(params['cartId']);
 
   return {
     offeringId,
     interval,
+    cartId,
   };
 }

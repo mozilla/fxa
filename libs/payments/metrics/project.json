@@ -30,8 +30,7 @@
       "options": {
         "jestConfig": "libs/payments/metrics/jest.config.ts",
         "testPathPattern": ["^(?!.*\\.in\\.spec\\.ts$).*$"]
-      },
-      "dependsOn": ["glean-generate"]
+      }
     },
     "test-integration": {
       "executor": "@nx/jest:jest",

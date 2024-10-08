@@ -20,6 +20,10 @@ interface PaymentFormProps {
     id: string;
     version: number;
     email: string | null;
+    uid?: string | null;
+    errorReasonId: string | null;
+    couponCode: string | null;
+    currency: string | null;
   };
   locale: string;
 }

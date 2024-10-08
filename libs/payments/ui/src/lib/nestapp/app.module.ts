@@ -33,16 +33,14 @@ import { AccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
 import { GeoDBManager, GeoDBNestFactory } from '@fxa/shared/geodb';
 import { LocalizerRscFactoryProvider } from '@fxa/shared/l10n/server';
 import { StatsDProvider } from '@fxa/shared/metrics/statsd';
-import {
-  PaymentsGleanManager,
-  PaymentsGleanFactory,
-  PaymentsGleanService,
-} from '@fxa/payments/metrics';
+import { PaymentsGleanManager } from '@fxa/payments/metrics';
 
 import { RootConfig } from './config';
 import { NextJSActionsService } from './nextjs-actions.service';
 import { validate } from '../config.utils';
 import { CurrencyManager } from '@fxa/payments/currency';
+import { PaymentsEmitterService } from '../emitter/emitter.service';
+import { PaymentsGleanFactory } from '@fxa/payments/metrics/provider';
 
 @Module({
   imports: [
@@ -96,7 +94,7 @@ import { CurrencyManager } from '@fxa/payments/currency';
     SubscriptionManager,
     PaymentsGleanFactory,
     PaymentsGleanManager,
-    PaymentsGleanService,
+    PaymentsEmitterService,
   ],
 })
 export class AppModule {}

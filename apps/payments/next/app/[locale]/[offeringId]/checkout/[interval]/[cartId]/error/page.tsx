@@ -13,6 +13,7 @@ import {
   SupportedPages,
   getApp,
   getCartOrRedirectAction,
+  recordEmitterEventAction,
 } from '@fxa/payments/ui/server';
 import { CartErrorReasonId } from '@fxa/shared/db/mysql/account';
 
@@ -49,8 +50,10 @@ interface CheckoutParams {
 
 export default async function CheckoutError({
   params,
+  searchParams,
 }: {
   params: CheckoutParams;
+  searchParams: Record<string, string>;
 }) {
   // Temporarily defaulting to `accept-language`
   // This to be updated in FXA-9404
@@ -66,6 +69,13 @@ export default async function CheckoutError({
   );
   const l10n = getApp().getL10n(locale);
   const [cart] = await Promise.all([cartPromise]);
+
+  recordEmitterEventAction(
+    'checkoutFail',
+    { ...params },
+    searchParams,
+    'stripe'
+  );
 
   const errorReason = getErrorReason(cart.errorReasonId);
 

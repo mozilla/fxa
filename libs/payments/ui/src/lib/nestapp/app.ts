@@ -10,7 +10,7 @@ import { AppModule } from './app.module';
 import { LocalizerRscFactory } from '@fxa/shared/l10n/server';
 import { singleton } from '../utils/singleton';
 import { NextJSActionsService } from './nextjs-actions.service';
-import { PaymentsGleanService } from '@fxa/payments/metrics';
+import { PaymentsEmitterService } from '../emitter/emitter.service';
 
 class AppSingleton {
   private app!: Awaited<
@@ -42,7 +42,7 @@ class AppSingleton {
   }
 
   getGleanEmitter() {
-    return this.app.get(PaymentsGleanService).getEmitter();
+    return this.app.get(PaymentsEmitterService).getEmitter();
   }
 }
 

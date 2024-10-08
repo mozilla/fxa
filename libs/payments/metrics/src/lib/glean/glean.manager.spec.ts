@@ -4,18 +4,25 @@
 import { Test } from '@nestjs/testing';
 import { PaymentsGleanManager } from './glean.manager';
 import {
+  CartMetricsFactory,
   CmsMetricsDataFactory,
-  FxaPaySetupViewMetricsFactory,
+  CommonMetricsFactory,
 } from './glean.factory';
-import {
-  MockPaymentsGleanFactory,
-  PaymentsGleanProvider,
-  PaymentsGleanServerEventsLogger,
-} from './glean.provider';
+import { PaymentsGleanProvider } from './glean.types';
+import { MockPaymentsGleanFactory } from './glean.test-provider';
 
-describe('PaymentsGleanService', () => {
+const mockCommonMetricsData = {
+  commonMetricsData: CommonMetricsFactory(),
+  cartMetricsData: CartMetricsFactory(),
+  cmsMetricsData: CmsMetricsDataFactory(),
+};
+const mockCommonMetrics = { common: 'metrics' };
+const mockPaymentProvider = 'stripe';
+
+describe('PaymentsGleanManager', () => {
   let paymentsGleanManager: PaymentsGleanManager;
-  let paymentsGleanServerEventsLogger: PaymentsGleanServerEventsLogger;
+  let paymentsGleanServerEventsLogger: any;
+  let spyPopulateCommonMetrics: jest.SpyInstance;
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -31,27 +38,122 @@ describe('PaymentsGleanService', () => {
   });
 
   describe('recordFxaPaySetupView', () => {
-    const mockCmsData = CmsMetricsDataFactory();
-    const mockMetricsData = FxaPaySetupViewMetricsFactory();
-
     beforeEach(() => {
       jest
         .spyOn(paymentsGleanServerEventsLogger, 'recordPaySetupView')
-        .mockReturnValue();
+        .mockReturnValue({});
+      spyPopulateCommonMetrics = jest
+        .spyOn(paymentsGleanManager as any, 'populateCommonMetrics')
+        .mockReturnValue(mockCommonMetrics);
     });
 
-    it('should record fxa pay setup view', async () => {
-      await paymentsGleanManager.recordFxaPaySetupView(
-        mockMetricsData,
-        mockCmsData
-      );
+    it('should record fxa pay setup view', () => {
+      paymentsGleanManager.recordFxaPaySetupView(mockCommonMetricsData);
       expect(
         paymentsGleanServerEventsLogger.recordPaySetupView
-      ).toHaveBeenCalledWith(
-        expect.objectContaining({
-          subscription_checkout_type: mockMetricsData.checkoutType,
-        })
+      ).toHaveBeenCalledWith(mockCommonMetrics);
+    });
+  });
+
+  describe('recordFxaPaySetupEngage', () => {
+    beforeEach(() => {
+      jest
+        .spyOn(paymentsGleanServerEventsLogger, 'recordPaySetupEngage')
+        .mockReturnValue({});
+      spyPopulateCommonMetrics = jest
+        .spyOn(paymentsGleanManager as any, 'populateCommonMetrics')
+        .mockReturnValue(mockCommonMetrics);
+    });
+
+    it('should record fxa pay setup engage', () => {
+      paymentsGleanManager.recordFxaPaySetupEngage(mockCommonMetricsData);
+      expect(spyPopulateCommonMetrics).toHaveBeenCalledWith(
+        mockCommonMetricsData
       );
+      expect(
+        paymentsGleanServerEventsLogger.recordPaySetupEngage
+      ).toHaveBeenCalledWith(mockCommonMetrics);
+    });
+  });
+
+  describe('recordFxaPaySetupSubmit', () => {
+    beforeEach(() => {
+      jest
+        .spyOn(paymentsGleanServerEventsLogger, 'recordPaySetupSubmit')
+        .mockReturnValue({});
+      spyPopulateCommonMetrics = jest
+        .spyOn(paymentsGleanManager as any, 'populateCommonMetrics')
+        .mockReturnValue(mockCommonMetrics);
+    });
+
+    it('should record fxa pay setup engage', () => {
+      paymentsGleanManager.recordFxaPaySetupSubmit(
+        mockCommonMetricsData,
+        mockPaymentProvider
+      );
+      expect(spyPopulateCommonMetrics).toHaveBeenCalledWith(
+        mockCommonMetricsData
+      );
+      expect(
+        paymentsGleanServerEventsLogger.recordPaySetupSubmit
+      ).toHaveBeenCalledWith({
+        ...mockCommonMetrics,
+        subscription_payment_provider: mockPaymentProvider,
+      });
+    });
+  });
+
+  describe('recordFxaPaySetupSuccess', () => {
+    beforeEach(() => {
+      jest
+        .spyOn(paymentsGleanServerEventsLogger, 'recordPaySetupSuccess')
+        .mockReturnValue({});
+      spyPopulateCommonMetrics = jest
+        .spyOn(paymentsGleanManager as any, 'populateCommonMetrics')
+        .mockReturnValue(mockCommonMetrics);
+    });
+
+    it('should record fxa pay setup engage', () => {
+      paymentsGleanManager.recordFxaPaySetupSuccess(
+        mockCommonMetricsData,
+        mockPaymentProvider
+      );
+      expect(spyPopulateCommonMetrics).toHaveBeenCalledWith(
+        mockCommonMetricsData
+      );
+      expect(
+        paymentsGleanServerEventsLogger.recordPaySetupSuccess
+      ).toHaveBeenCalledWith({
+        ...mockCommonMetrics,
+        subscription_payment_provider: mockPaymentProvider,
+      });
+    });
+  });
+
+  describe('recordFxaPaySetupFail', () => {
+    beforeEach(() => {
+      jest
+        .spyOn(paymentsGleanServerEventsLogger, 'recordPaySetupFail')
+        .mockReturnValue({});
+      spyPopulateCommonMetrics = jest
+        .spyOn(paymentsGleanManager as any, 'populateCommonMetrics')
+        .mockReturnValue(mockCommonMetrics);
+    });
+
+    it('should record fxa pay setup engage', () => {
+      paymentsGleanManager.recordFxaPaySetupFail(
+        mockCommonMetricsData,
+        mockPaymentProvider
+      );
+      expect(spyPopulateCommonMetrics).toHaveBeenCalledWith(
+        mockCommonMetricsData
+      );
+      expect(
+        paymentsGleanServerEventsLogger.recordPaySetupFail
+      ).toHaveBeenCalledWith({
+        ...mockCommonMetrics,
+        subscription_payment_provider: mockPaymentProvider,
+      });
     });
   });
 });

@@ -3,41 +3,47 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { CartErrorReasonId } from '@fxa/shared/db/mysql/account';
 import {
+  CartMetricsFactory,
   CmsMetricsDataFactory,
-  FxaPaySetupViewMetricsFactory,
-  ParamsFactory,
+  CommonMetricsFactory,
+  CheckoutParamsFactory,
 } from '../glean.factory';
 import { mapSubscription } from './mapSubscription';
 
 describe('mapSubscription', () => {
   it('should map all values', () => {
-    const mockMetricsData = FxaPaySetupViewMetricsFactory({
-      params: ParamsFactory(),
+    const mockCommonData = CommonMetricsFactory({
+      params: CheckoutParamsFactory(),
+    });
+    const mockCartData = CartMetricsFactory({
       couponCode: 'couponCode',
       errorReasonId: CartErrorReasonId.BASIC_ERROR,
     });
     const mockCmsMetricsData = CmsMetricsDataFactory();
     const result = mapSubscription({
-      metricsData: mockMetricsData,
+      commonMetricsData: mockCommonData,
+      cartMetricsData: mockCartData,
       cmsMetricsData: mockCmsMetricsData,
     });
     expect(result).toEqual({
-      subscription_checkout_type: '',
-      subscription_currency: mockMetricsData.currency,
-      subscription_error_id: mockMetricsData.errorReasonId,
-      subscription_interval: mockMetricsData.params['interval'],
-      subscription_offering_id: mockMetricsData.params['offeringId'],
+      subscription_checkout_type: 'without-accounts',
+      subscription_currency: mockCartData.currency,
+      subscription_error_id: mockCartData.errorReasonId,
+      subscription_interval: mockCommonData.params['interval'],
+      subscription_offering_id: mockCommonData.params['offeringId'],
       subscription_payment_provider: '',
       subscription_plan_id: mockCmsMetricsData.priceId,
       subscription_product_id: mockCmsMetricsData.productId,
-      subscription_promotion_code: mockMetricsData.couponCode,
+      subscription_promotion_code: mockCartData.couponCode,
       subscription_subscribed_plan_ids: '',
     });
   });
 
   it('should return empty strings if values are not present', () => {
-    const mockMetricsData = FxaPaySetupViewMetricsFactory({
+    const mockCommonData = CommonMetricsFactory({
       params: {},
+    });
+    const mockCartData = CartMetricsFactory({
       currency: undefined,
       errorReasonId: null,
       couponCode: null,
@@ -47,18 +53,19 @@ describe('mapSubscription', () => {
       priceId: undefined,
     });
     const result = mapSubscription({
-      metricsData: mockMetricsData,
+      commonMetricsData: mockCommonData,
+      cartMetricsData: mockCartData,
       cmsMetricsData: mockCmsMetricsData,
     });
     expect(result).toEqual({
-      subscription_checkout_type: '',
+      subscription_checkout_type: 'without-accounts',
       subscription_currency: '',
       subscription_error_id: '',
       subscription_interval: '',
       subscription_offering_id: '',
       subscription_payment_provider: '',
-      subscription_plan_id: mockCmsMetricsData.priceId,
-      subscription_product_id: mockCmsMetricsData.productId,
+      subscription_plan_id: '',
+      subscription_product_id: '',
       subscription_promotion_code: '',
       subscription_subscribed_plan_ids: '',
     });
