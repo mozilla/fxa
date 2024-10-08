@@ -197,6 +197,7 @@ export class Account extends BaseAuthModel {
     verifierSetAt,
     verifierVersion,
     keysHaveChanged,
+    isPasswordUpgrade,
   }: Pick<
     Account,
     | 'uid'
@@ -210,6 +211,7 @@ export class Account extends BaseAuthModel {
     | 'clientSalt'
   > & {
     keysHaveChanged?: boolean;
+    isPasswordUpgrade?: boolean;
   }) {
     return Account.callProcedure(
       Proc.ResetAccount,
@@ -222,7 +224,8 @@ export class Account extends BaseAuthModel {
       wrapWrapKbVersion2 ? uuidTransformer.to(wrapWrapKbVersion2) : null,
       verifierSetAt || Date.now(),
       verifierVersion,
-      !!keysHaveChanged
+      !!keysHaveChanged,
+      !!isPasswordUpgrade
     );
   }
 
