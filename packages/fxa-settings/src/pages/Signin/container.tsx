@@ -10,7 +10,6 @@ import {
   useFtlMsgResolver,
   useConfig,
   useSession,
-  isSyncDesktopV3Integration,
   useSensitiveDataClient,
 } from '../../models';
 import { MozServices } from '../../lib/types';
@@ -242,7 +241,9 @@ const SigninContainer = ({
       // warning. The browser will automatically respond with { ok: true } without
       // prompting the user if it matches the email the browser has data for.
       if (
-        isSyncDesktopV3Integration(integration) &&
+        // NOTE, SYNC-4408 OAuth desktop needs to add `service=sync` as a query parameter
+        // for this to work for OAuth desktop
+        integration.data.service === 'sync' &&
         queryParamModel.hasLinkedAccount === undefined
       ) {
         const { ok } = await firefox.fxaCanLinkAccount({ email });

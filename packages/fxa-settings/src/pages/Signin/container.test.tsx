@@ -71,14 +71,18 @@ function mockSyncDesktopV3Integration() {
     getService: () => 'sync',
     isSync: () => true,
     wantsKeys: () => true,
+    data: { service: 'sync' },
   } as Integration;
 }
-function mockSyncOAuthIntegration() {
+function mockSyncOAuthIntegration(
+  { data }: { data?: { service?: string } } = { data: { service: 'sync' } }
+) {
   integration = {
     type: IntegrationType.OAuth,
     getService: () => 'sync',
     isSync: () => true,
     wantsKeys: () => true,
+    data,
   } as Integration;
 }
 
@@ -88,6 +92,7 @@ function mockWebIntegration() {
     getService: () => MozServices.Default,
     isSync: () => false,
     wantsKeys: () => false,
+    data: {},
   } as Integration;
 }
 
@@ -617,9 +622,24 @@ describe('signin container', () => {
         });
       });
       it('is not called when conditions are not met (oauth integration)', async () => {
+        mockSyncOAuthIntegration({ data: {} });
+        (firefox.fxaCanLinkAccount as jest.Mock).mockImplementationOnce(
+          async () => ({
+            ok: true,
+          })
+        );
+        render([mockGqlAvatarUseQuery()]);
+
+        await waitFor(async () => {
+          await currentSigninProps?.beginSigninHandler(
+            MOCK_EMAIL,
+            MOCK_PASSWORD
+          );
+          expect(firefox.fxaCanLinkAccount).not.toHaveBeenCalled();
+        });
+      });
+      it('calls fxaCanLinkAccount when conditions are met (oauth integration)', async () => {
         mockSyncOAuthIntegration();
-        // TODO: when desktop moves to oauth, we must update this logic and test
-        mockUseValidateModule();
         (firefox.fxaCanLinkAccount as jest.Mock).mockImplementationOnce(
           async () => ({
             ok: true,

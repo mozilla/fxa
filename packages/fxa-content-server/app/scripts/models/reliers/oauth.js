@@ -218,7 +218,10 @@ var OAuthRelier = Relier.extend({
 
     // OAuth reliers are not allowed to specify a service. `service`
     // is used in the verification flow, it'll be set to the `client_id`.
-    if (this.getSearchParam('service')) {
+    if (
+      this.getSearchParam('service') &&
+      this.getSearchParam('service') !== 'sync'
+    ) {
       throw OAuthErrors.toInvalidParameterError('service');
     }
   },
