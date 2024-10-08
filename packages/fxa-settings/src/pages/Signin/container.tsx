@@ -144,6 +144,7 @@ const SigninContainer = ({
     hasPassword: hasPasswordFromLocationState,
     localizedErrorMessage: localizedErrorFromLocationState,
     bannerSuccessMessage,
+    fancyBannerSuccessMessage,
   } = location.state || {};
 
   const [accountStatus, setAccountStatus] = useState({
@@ -477,6 +478,7 @@ const SigninContainer = ({
         localizedErrorFromLocationState,
         finishOAuthFlowHandler,
         bannerSuccessMessage,
+        fancyBannerSuccessMessage,
       }}
     />
   );

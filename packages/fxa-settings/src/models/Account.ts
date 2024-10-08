@@ -773,10 +773,12 @@ export class Account implements AccountData {
       accountReset.unwrapBKeyVersion2 = credentialsV2?.unwrapBKey;
       currentAccount(getStoredAccountData(accountReset));
       sessionToken(accountReset.sessionToken);
-      this.apolloClient.cache.writeQuery({
-        query: GET_LOCAL_SIGNED_IN_STATUS,
-        data: { isSignedIn: true },
-      });
+      if (accountReset.verified) {
+        this.apolloClient.cache.writeQuery({
+          query: GET_LOCAL_SIGNED_IN_STATUS,
+          data: { isSignedIn: true },
+        });
+      }
       return accountReset;
     } catch (err) {
       throw getHandledError(err);
