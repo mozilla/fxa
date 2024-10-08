@@ -59,7 +59,7 @@ import CompleteResetPasswordContainer from '../../pages/ResetPassword/CompleteRe
 import AccountRecoveryConfirmKeyContainer from '../../pages/ResetPassword/AccountRecoveryConfirmKey/container';
 import ConfirmTotpResetPasswordContainer from '../../pages/ResetPassword/ConfirmTotpResetPassword/container';
 import ResetPasswordConfirmedContainer from '../../pages/ResetPassword/ResetPasswordConfirmed/container';
-import ResetPasswordWithRecoveryKeyVerified from '../../pages/ResetPassword/ResetPasswordWithRecoveryKeyVerified';
+import ResetPasswordWithRecoveryKeyVerifiedContainer from '../../pages/ResetPassword/ResetPasswordWithRecoveryKeyVerified/container';
 import CompleteSigninContainer from '../../pages/Signin/CompleteSignin/container';
 import SigninContainer from '../../pages/Signin/container';
 import ReportSigninContainer from '../../pages/Signin/ReportSignin/container';
@@ -340,9 +340,9 @@ const AuthAndAccountSetupRoutes = ({
           serviceName,
         }}
       />
-      <ResetPasswordWithRecoveryKeyVerified
+      <ResetPasswordWithRecoveryKeyVerifiedContainer
         path="/reset_password_with_recovery_key_verified/*"
-        {...{ integration, isSignedIn }}
+        {...{ integration }}
       />
       <ResetPasswordConfirmedContainer
         path="/reset_password_verified/*"

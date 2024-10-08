@@ -8,7 +8,6 @@ import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { Account } from '../../../models';
 import { renderStoryWithHistory } from '../../../lib/storybook-utils';
-import { createMockResetPasswordWithRecoveryKeyVerifiedWebIntegration } from './mocks';
 
 export default {
   title: 'Pages/ResetPassword/ResetPasswordWithRecoveryKeyVerified',
@@ -18,21 +17,23 @@ export default {
 
 type RenderStoryOptions = {
   account?: Account;
-  props?: { isSignedIn: boolean };
   queryParams?: string;
+  props?: Partial<Parameters<typeof ResetPasswordWithRecoveryKeyVerified>[0]>;
 };
 
-function renderStory({
-  account,
-  props = {
-    isSignedIn: false,
-  },
-  queryParams,
-}: RenderStoryOptions = {}) {
+function renderStory({ account, queryParams, props }: RenderStoryOptions = {}) {
   return renderStoryWithHistory(
     <ResetPasswordWithRecoveryKeyVerified
-      {...props}
-      integration={createMockResetPasswordWithRecoveryKeyVerifiedWebIntegration()}
+      {...{
+        email: 'testo@example.gg',
+        newRecoveryKey: '90019001900190019001900190019001',
+        showHint: false,
+        oAuthError: undefined,
+        navigateToHint: () => {},
+        updateRecoveryKeyHint: (x) => Promise.resolve(),
+        navigateNext: () => Promise.resolve(),
+        ...props,
+      }}
     />,
     '/reset_password_with_recovery_key_verified',
     account,
@@ -40,17 +41,5 @@ function renderStory({
   );
 }
 
-export const DefaultAccountSignedIn = () =>
-  renderStory({
-    props: {
-      isSignedIn: true,
-    },
-  });
-export const DefaultAccountSignedOut = () => renderStory();
-export const WithSyncAccountSignedIn = () =>
-  renderStory({
-    props: { isSignedIn: true },
-    queryParams: `service=sync`,
-  });
-export const WithSyncAccountSignedOut = () =>
-  renderStory({ queryParams: `service=sync` });
+export const RecoveryKeyGenerated = () => renderStory({});
+export const RecoveryKeyHint = () => renderStory({ props: { showHint: true } });

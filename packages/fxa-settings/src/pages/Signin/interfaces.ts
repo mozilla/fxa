@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { FancyBannerMessage } from '../../components/Banner';
 import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
 import { AuthUiError } from '../../lib/auth-errors/auth-errors';
@@ -38,6 +39,7 @@ export interface LocationState {
   hasPassword?: boolean;
   localizedErrorMessage?: string;
   bannerSuccessMessage?: string;
+  fancyBannerSuccessMessage?: FancyBannerMessage;
 }
 
 export interface SigninProps {
@@ -55,6 +57,7 @@ export interface SigninProps {
   localizedErrorFromLocationState?: string;
   finishOAuthFlowHandler: FinishOAuthFlowHandler;
   bannerSuccessMessage?: string;
+  fancyBannerSuccessMessage?: FancyBannerMessage;
 }
 
 export type BeginSigninHandler = (

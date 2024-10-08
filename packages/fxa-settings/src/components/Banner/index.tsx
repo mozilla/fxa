@@ -7,6 +7,7 @@ import React, { ReactElement } from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { ReactComponent as IconClose } from '@fxa/shared/assets/images/close.svg';
 import { FIREFOX_NOREPLY_EMAIL } from '../../constants';
+import { CheckmarkCircleOutlineIcon } from '../images';
 
 export enum BannerType {
   info = 'info',
@@ -34,6 +35,11 @@ type Animation = {
   className: string;
   handleAnimationEnd: () => void;
   animate: boolean;
+};
+
+export type FancyBannerMessage = {
+  heading: string;
+  message: string;
 };
 
 const Banner = ({
@@ -97,6 +103,36 @@ export const ResendEmailSuccessBanner = ({
         {`Email re-sent. Add ${FIREFOX_NOREPLY_EMAIL} to your contacts to ensure a
     smooth delivery.`}
       </FtlMsg>
+    </Banner>
+  );
+};
+
+export const FancyBanner = (
+  props: Parameters<typeof Banner>[0] & {
+    message: FancyBannerMessage;
+    iconImage?: JSX.Element;
+  }
+) => {
+  const icon =
+    (props.iconImage && <>{props.iconImage}</>) ||
+    ((messageType) => {
+      switch (messageType) {
+        case BannerType.success:
+          return <CheckmarkCircleOutlineIcon />;
+        default:
+          return null;
+      }
+    })(props.type);
+
+  return (
+    <Banner {...{ ...props, additionalClassNames: 'text-left' }}>
+      <div className="flex flex-row gap-x-1">
+        <div className="basis-1/5 place-self-center">{icon}</div>
+        <div className="">
+          <h2 className="text-base">{props.message.heading}</h2>
+          <p className="font-normal">{props.message.message}</p>
+        </div>
+      </div>
     </Banner>
   );
 };

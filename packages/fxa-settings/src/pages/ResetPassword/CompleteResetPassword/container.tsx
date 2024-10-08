@@ -80,8 +80,44 @@ const CompleteResetPasswordContainer = ({
     'Your password has been reset'
   );
 
-  const handleNavigationWithRecoveryKey = () => {
-    navigateWithQuery('/reset_password_with_recovery_key_verified');
+  const successBannerMessageHeading = ftlMsgResolver.getMsg(
+    'reset-password-complete-banner-heading',
+    'Your password has been reset.'
+  );
+  const successBannerMessageMessage = ftlMsgResolver.getMsg(
+    'reset-password-complete-banner-message',
+    'Don’t forget to generate a new account recovery key from your Mozilla account settings to prevent future sign-in issues.'
+  );
+
+  const signInNavigationDestination = (email: string) =>
+    location.search?.includes('email')
+      ? // if the session is not verified (e.g., 2FA verification is required), navigate to the sign-in page
+        '/signin'
+      : // if user started directly from the reset password page without passing GO (index),
+        // the email needs to be added to query params to avoid redirecting to the index page
+        `/signin?email=${encodeURIComponent(email)}`;
+
+  const handleNavigationWithRecoveryKey = (
+    state: Record<string, any>,
+    hasVerifiedSession: boolean
+  ) => {
+    if (!hasVerifiedSession) {
+      const destination = signInNavigationDestination(state.email);
+
+      return navigateWithQuery(destination, {
+        replace: true,
+        state: {
+          fancyBannerSuccessMessage: {
+            heading: successBannerMessageHeading,
+            message: successBannerMessageMessage,
+          },
+        },
+      });
+    } else {
+      return navigateWithQuery('/reset_password_with_recovery_key_verified', {
+        state,
+      });
+    }
   };
 
   const handleNavigationWithoutRecoveryKey = async (
@@ -104,24 +140,13 @@ const CompleteResetPasswordContainer = ({
       return navigateWithQuery(SETTINGS_PATH, { replace: true });
     }
 
-    // if the session is not verified (e.g., 2FA verification is required), navigate to the sign-in page
-    if (location.search && location.search.includes('email')) {
-      return navigateWithQuery('/signin', {
-        replace: true,
-        state: {
-          bannerSuccessMessage: localizedSuccessMessage,
-        },
-      });
-    } else {
-      // if user started directly from the reset password page without passing GO (index),
-      // the email needs to be added to query params to avoid redirecting to the index page
-      return navigateWithQuery(`/signin?email=${encodeURIComponent(email)}`, {
-        replace: true,
-        state: {
-          bannerSuccessMessage: localizedSuccessMessage,
-        },
-      });
-    }
+    const destination = signInNavigationDestination(email);
+    return navigateWithQuery(destination, {
+      replace: true,
+      state: {
+        bannerSuccessMessage: localizedSuccessMessage,
+      },
+    });
   };
 
   const resetPasswordWithRecoveryKey = async (
@@ -211,9 +236,28 @@ const CompleteResetPasswordContainer = ({
           newPassword,
           recoveryKeyId
         );
+
         // TODO add frontend Glean event for successful reset?
         notifyClientOfSignin(accountResetData);
-        handleNavigationWithRecoveryKey();
+
+        sensitiveDataClient.setData('accountResetData', accountResetData);
+
+        // we cannot create a new recovery key if the session is not verified
+        if (accountResetData.verified) {
+          await account.refresh('account');
+          const createRecoveryKeyResult = await account.createRecoveryKey(
+            newPassword
+          );
+          sensitiveDataClient.setData(
+            'newRecoveryKeyData',
+            createRecoveryKeyResult
+          );
+        }
+
+        handleNavigationWithRecoveryKey(
+          { email: emailToUse },
+          accountResetData.verified
+        );
       } else if (isResetWithoutRecoveryKey) {
         GleanMetrics.passwordReset.createNewSubmit();
         const accountResetData = await resetPasswordWithoutRecoveryKey(
