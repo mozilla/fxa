@@ -138,7 +138,9 @@ test.describe('severity-1 #smoke', () => {
 
       await resetPassword.fillOutResetPasswordCodeForm(code);
 
-      // TODO in FXA-9352 - update test to include 2FA steps before a new password can be set
+      // Fill out the TOTP form
+      let totpCode = await getCode(secret);
+      await resetPassword.fillOutTotpForm(totpCode);
 
       await resetPassword.fillOutNewPasswordForm(newPassword);
 
@@ -154,7 +156,7 @@ test.describe('severity-1 #smoke', () => {
 
       await expect(page).toHaveURL(/signin_totp_code/);
 
-      const totpCode = await getCode(secret);
+      totpCode = await getCode(secret);
       await expect(page).toHaveURL(/signin_totp_code/);
       await signinTotpCode.fillOutCodeForm(totpCode);
 

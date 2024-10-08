@@ -35,6 +35,7 @@ const AccountRecoveryConfirmKeyContainer = (_: RouteComponentProps) => {
     recoveryKeyHint,
     token,
     uid,
+    totpExists,
   } = (location.state as AccountRecoveryConfirmKeyLocationState) || {};
 
   // The password forgot code can only be used once to retrieve `accountResetToken`
@@ -116,6 +117,7 @@ const AccountRecoveryConfirmKeyContainer = (_: RouteComponentProps) => {
         token,
         verifyRecoveryKey,
         uid,
+        totpExists,
       }}
     />
   );

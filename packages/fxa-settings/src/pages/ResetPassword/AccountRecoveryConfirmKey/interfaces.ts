@@ -16,6 +16,7 @@ export interface AccountRecoveryConfirmKeyLocationState {
   emailToHashWith?: string;
   recoveryKeyExists?: boolean;
   recoveryKeyHint?: string;
+  totpExists?: boolean;
 }
 
 export interface AccountRecoveryConfirmKeyProps

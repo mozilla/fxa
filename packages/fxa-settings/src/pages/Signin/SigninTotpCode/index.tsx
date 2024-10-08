@@ -23,7 +23,7 @@ import {
   BeginSigninError,
   getLocalizedErrorMessage,
 } from '../../../lib/error-utils';
-import protectionShieldIcon from './protection-shield.svg';
+import protectionShieldIcon from '@fxa/shared/assets/images/protection-shield.svg';
 
 // TODO: show a banner success message if a user is coming from reset password
 // in FXA-6491. This differs from content-server where currently, users only
