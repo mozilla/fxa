@@ -15,8 +15,10 @@ import { join } from 'path';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { LegacyStatsDProvider } from '@fxa/shared/metrics/statsd';
 import { MozLoggerService } from '@fxa/shared/mozlog';
-import { NotifierService, NotifierSnsFactory } from '@fxa/shared/notifier';
-
+import {
+  LegacyNotifierServiceProvider,
+  NotifierSnsFactory,
+} from '@fxa/shared/notifier';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -88,7 +90,7 @@ const version = getVersionInfo(__dirname);
       useClass: MozLoggerService,
     },
     NotifierSnsFactory,
-    NotifierService,
+    LegacyNotifierServiceProvider,
     LegacyStatsDProvider,
   ],
 })

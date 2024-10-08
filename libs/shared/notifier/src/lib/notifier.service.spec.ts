@@ -3,35 +3,26 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
-import { StatsDService } from '@fxa/shared/metrics/statsd';
-import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
+import { StatsD } from 'hot-shots';
+
+import { MockStatsDProvider, StatsDService } from '@fxa/shared/metrics/statsd';
 import { NotifierService } from './notifier.service';
+import {
+  MockNotifierSnsConfig,
+  MockNotifierSnsConfigProvider,
+} from './notifier.sns.config';
 import { NotifierSnsService } from './notifier.sns.provider';
 
 describe('NotifierService', () => {
-  let service: NotifierService;
-  const mockStatsD = {
-    timing: jest.fn(),
-    error: jest.fn(),
-    trace: jest.fn(),
-  };
+  let notifierService: NotifierService;
+  let statsd: StatsD;
+
   const mockLogger = {
     error: jest.fn(),
     debug: jest.fn(),
   };
-  const mockConfig = {
-    snsTopicArn: 'arn:aws:sns:us-east-1:100010001000:fxa-account-change-dev',
-    snsTopicEndpoint: 'http://localhost:4100/',
-  };
-  const mockConfigService = {
-    get: jest.fn().mockImplementation((key: string) => {
-      if (key === 'notifier.sns') {
-        return mockConfig;
-      }
-      return null;
-    }),
-  };
+
   const mockSnsService = {
     publish: jest.fn(),
   };
@@ -41,14 +32,8 @@ describe('NotifierService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         NotifierService,
-        {
-          provide: ConfigService,
-          useValue: mockConfigService,
-        },
-        {
-          provide: StatsDService,
-          useValue: mockStatsD,
-        },
+        MockNotifierSnsConfigProvider,
+        MockStatsDProvider,
         {
           provide: LOGGER_PROVIDER,
           useValue: mockLogger,
@@ -60,12 +45,13 @@ describe('NotifierService', () => {
       ],
     }).compile();
 
-    service = module.get<NotifierService>(NotifierService);
+    notifierService = module.get<NotifierService>(NotifierService);
+    statsd = module.get<StatsD>(StatsDService);
   });
 
   it('should be defined', async () => {
-    expect(service).toBeDefined();
-    expect(service).toBeInstanceOf(NotifierService);
+    expect(notifierService).toBeDefined();
+    expect(notifierService).toBeInstanceOf(NotifierService);
   });
 
   it('sends without error', () => {
@@ -81,15 +67,21 @@ describe('NotifierService', () => {
       event: 'foo',
     };
 
+    jest.spyOn(statsd, 'timing');
     mockSnsService.publish.mockImplementation((params, callback) => {
-      service.onPublish(undefined, responseData, Date.now() - 100, callback);
+      notifierService.onPublish(
+        undefined,
+        responseData,
+        Date.now() - 100,
+        callback
+      );
     });
 
-    service.send(event, callback);
+    notifierService.send(event, callback);
 
     expect(mockSnsService.publish).toBeCalledWith(
       {
-        TopicArn: mockConfig.snsTopicArn,
+        TopicArn: MockNotifierSnsConfig.snsTopicArn,
         Message: JSON.stringify({
           email: event.data.email,
           bar: event.data.bar,
@@ -108,7 +100,7 @@ describe('NotifierService', () => {
       },
       expect.anything()
     );
-    expect(mockStatsD.timing).toBeCalledWith(
+    expect(statsd.timing).toBeCalledWith(
       'notifier.publish',
       expect.any(Number)
     );
@@ -135,15 +127,16 @@ describe('NotifierService', () => {
       data: {},
     };
 
+    jest.spyOn(statsd, 'timing');
     mockSnsService.publish.mockImplementation((params, callback) => {
-      service.onPublish(err, responseData, Date.now() - 100, callback);
+      notifierService.onPublish(err, responseData, Date.now() - 100, callback);
     });
 
-    service.send(event, callback);
+    notifierService.send(event, callback);
 
     expect(mockSnsService.publish).toBeCalledWith(
       {
-        TopicArn: mockConfig.snsTopicArn,
+        TopicArn: MockNotifierSnsConfig.snsTopicArn,
         Message: JSON.stringify({
           event: event.event,
         }),
@@ -156,7 +149,7 @@ describe('NotifierService', () => {
       },
       expect.anything()
     );
-    expect(mockStatsD.timing).toBeCalledWith(
+    expect(statsd.timing).toBeCalledWith(
       'notifier.publish',
       expect.any(Number)
     );

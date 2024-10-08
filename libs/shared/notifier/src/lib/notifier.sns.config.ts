@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { Provider } from '@nestjs/common';
 import { IsString, IsUrl } from 'class-validator';
 
 export class NotifierSnsConfig {
@@ -11,3 +12,13 @@ export class NotifierSnsConfig {
   @IsUrl()
   public readonly snsTopicEndpoint!: string;
 }
+
+export const MockNotifierSnsConfig = {
+  snsTopicArn: 'arn:aws:sns:us-west-2:123456789012:MyTopic',
+  snsTopicEndpoint: 'http://localhost:4566',
+} satisfies NotifierSnsConfig;
+
+export const MockNotifierSnsConfigProvider = {
+  provide: NotifierSnsConfig,
+  useValue: MockNotifierSnsConfig,
+} satisfies Provider<NotifierSnsConfig>;
