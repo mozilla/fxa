@@ -112,66 +112,39 @@ export class ProductConfigurationManager {
   async getPurchaseDetailsForCapabilityServiceByPlanIds(
     stripePlanIds: string[]
   ): Promise<CapabilityServiceByPlanIdsResultUtil> {
-    let total: number | undefined;
-    let count = 0;
-    const queryResults: DeepNonNullable<CapabilityServiceByPlanIdsQuery>[] = [];
-    const pageSize = 20;
+    const queryResult = await this.strapiClient.query(
+      capabilityServiceByPlanIdsQuery,
+      {
+        locale: DEFAULT_LOCALE,
+        stripePlanIds,
+      }
+    );
 
-    while (total === undefined || count < total) {
-      const queryResult = (await this.strapiClient.query(
-        capabilityServiceByPlanIdsQuery,
-        {
-          skip: count,
-          limit: pageSize,
-          locale: DEFAULT_LOCALE,
-          stripePlanIds,
-        }
-      )) as DeepNonNullable<CapabilityServiceByPlanIdsQuery>;
-
-      queryResults.push(queryResult);
-      count += pageSize;
-      total = queryResult.purchases.meta.pagination.total;
-    }
-
-    return new CapabilityServiceByPlanIdsResultUtil(queryResults);
+    return new CapabilityServiceByPlanIdsResultUtil(
+      queryResult as DeepNonNullable<CapabilityServiceByPlanIdsQuery>
+    );
   }
 
   async getPurchaseDetailsForEligibility(
     stripePlanIds: string[]
   ): Promise<EligibilityContentByPlanIdsResultUtil> {
-    let total: number | undefined;
-    let count = 0;
-    const queryResults: DeepNonNullable<EligibilityContentByPlanIdsQuery>[] =
-      [];
-    const pageSize = 20;
+    const queryResult = await this.strapiClient.query(
+      eligibilityContentByPlanIdsQuery,
+      {
+        locale: DEFAULT_LOCALE,
+        stripePlanIds,
+      }
+    );
 
-    while (total === undefined || count < total) {
-      const queryResult = (await this.strapiClient.query(
-        eligibilityContentByPlanIdsQuery,
-        {
-          skip: count,
-          limit: pageSize,
-          locale: DEFAULT_LOCALE,
-          stripePlanIds,
-        }
-      )) as DeepNonNullable<EligibilityContentByPlanIdsQuery>;
-
-      queryResults.push(queryResult);
-      count += pageSize;
-      total = queryResult.purchases.meta.pagination.total;
-    }
-
-    return new EligibilityContentByPlanIdsResultUtil(queryResults);
+    return new EligibilityContentByPlanIdsResultUtil(
+      queryResult as DeepNonNullable<EligibilityContentByPlanIdsQuery>
+    );
   }
 
   async getServicesWithCapabilities(): Promise<ServicesWithCapabilitiesResultUtil> {
     const queryResult = await this.strapiClient.query(
       servicesWithCapabilitiesQuery,
-      {
-        skip: 0,
-        limit: 100,
-        locale: DEFAULT_LOCALE,
-      }
+      {}
     );
 
     return new ServicesWithCapabilitiesResultUtil(
@@ -184,30 +157,18 @@ export class ProductConfigurationManager {
     acceptLanguage: string
   ): Promise<PurchaseWithDetailsOfferingContentUtil> {
     const locale = await this.strapiClient.getLocale(acceptLanguage);
-    const queryResults: DeepNonNullable<PurchaseWithDetailsOfferingContentQuery>[] =
-      [];
-    const stripePlans: string[][] = [];
 
-    // reduce query size by making multiple calls to CMS
-    for (let i = 0; i < stripePlanIds.length; i += 100) {
-      stripePlans.push(stripePlanIds.slice(i, i + 100));
-    }
+    const queryResult = await this.strapiClient.query(
+      purchaseWithDetailsOfferingContentQuery,
+      {
+        locale,
+        stripePlanIds,
+      }
+    );
 
-    while (stripePlans.length > 0) {
-      const queryResult = (await this.strapiClient.query(
-        purchaseWithDetailsOfferingContentQuery,
-        {
-          skip: 0,
-          limit: 100,
-          locale,
-          stripePlanIds: stripePlans[0],
-        }
-      )) as DeepNonNullable<PurchaseWithDetailsOfferingContentQuery>;
-      queryResults.push(queryResult);
-      stripePlans.shift();
-    }
-
-    return new PurchaseWithDetailsOfferingContentUtil(queryResults);
+    return new PurchaseWithDetailsOfferingContentUtil(
+      queryResult as DeepNonNullable<PurchaseWithDetailsOfferingContentQuery>
+    );
   }
 
   async getOfferingPlanIds(apiIdentifier: string) {
@@ -215,10 +176,9 @@ export class ProductConfigurationManager {
       apiIdentifier
     );
     const offering = offeringResult.getOffering();
-    const planIds =
-      offering.defaultPurchase.data.attributes.stripePlanChoices.map(
-        (el) => el.stripePlanChoice
-      );
+    const planIds = offering.defaultPurchase.stripePlanChoices.map(
+      (el) => el.stripePlanChoice
+    );
     return planIds;
   }
 

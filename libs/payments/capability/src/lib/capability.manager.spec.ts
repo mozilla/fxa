@@ -21,7 +21,6 @@ import {
   ServicesWithCapabilitiesResult,
   StrapiClient,
   MockStrapiClientConfigProvider,
-  StrapiEntityFactory,
 } from '@fxa/shared/cms';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
@@ -53,39 +52,21 @@ describe('CapabilityManager', () => {
   describe('getClients', () => {
     it('should return services with capabilities', async () => {
       const clientResults = [
-        StrapiEntityFactory(
-          ServiceResultFactory({
-            oauthClientId: 'client1',
-            capabilities: {
-              data: [
-                StrapiEntityFactory(
-                  CapabilitiesResultFactory({ slug: 'exampleCap8' })
-                ),
-                StrapiEntityFactory(
-                  CapabilitiesResultFactory({ slug: 'exampleCap0' })
-                ),
-                StrapiEntityFactory(
-                  CapabilitiesResultFactory({ slug: 'exampleCap2' })
-                ),
-                StrapiEntityFactory(
-                  CapabilitiesResultFactory({ slug: 'exampleCap4' })
-                ),
-                StrapiEntityFactory(
-                  CapabilitiesResultFactory({ slug: 'exampleCap5' })
-                ),
-                StrapiEntityFactory(
-                  CapabilitiesResultFactory({ slug: 'exampleCap6' })
-                ),
-              ],
-            },
-          })
-        ),
+        ServiceResultFactory({
+          oauthClientId: 'client1',
+          capabilities: [
+            CapabilitiesResultFactory({ slug: 'exampleCap8' }),
+            CapabilitiesResultFactory({ slug: 'exampleCap0' }),
+            CapabilitiesResultFactory({ slug: 'exampleCap2' }),
+            CapabilitiesResultFactory({ slug: 'exampleCap4' }),
+            CapabilitiesResultFactory({ slug: 'exampleCap5' }),
+            CapabilitiesResultFactory({ slug: 'exampleCap6' }),
+          ],
+        }),
       ];
       const mockServicesWithCapabilitiesQuery =
         ServicesWithCapabilitiesQueryFactory({
-          services: {
-            data: clientResults,
-          },
+          services: clientResults,
         });
       jest
         .spyOn(productConfigurationManager, 'getServicesWithCapabilities')
@@ -99,8 +80,8 @@ describe('CapabilityManager', () => {
       expect(result.length).toBe(1);
       expect(result.at(0)?.clientId).toBe('client1');
 
-      const actualCapabilities = clientResults[0].attributes.capabilities.data
-        .map((capability) => capability.attributes.slug)
+      const actualCapabilities = clientResults[0].capabilities
+        .map((capability) => capability.slug)
         .sort();
 
       expect(result.at(0)?.capabilities).toHaveLength(6);
@@ -118,9 +99,9 @@ describe('CapabilityManager', () => {
           'getPurchaseDetailsForCapabilityServiceByPlanIds'
         )
         .mockResolvedValue(
-          new CapabilityServiceByPlanIdsResultUtil([
-            mockCapabilityServiceByPlanIdsQuery,
-          ] as CapabilityServiceByPlanIdsResult[])
+          new CapabilityServiceByPlanIdsResultUtil(
+            mockCapabilityServiceByPlanIdsQuery as CapabilityServiceByPlanIdsResult
+          )
         );
       const result = await capabilityManager.priceIdsToClientCapabilities([
         'planId1',
@@ -129,30 +110,15 @@ describe('CapabilityManager', () => {
     });
 
     it('should return empty results when there are no capability collection items', async () => {
-      const mockCapabilityOfferingResult = StrapiEntityFactory(
-        CapabilityOfferingResultFactory({
-          capabilities: {
-            data: [],
-          },
-        })
-      );
-      const mockCapabilityPurchaseResult = StrapiEntityFactory(
-        CapabilityPurchaseResultFactory({
-          offering: {
-            data: mockCapabilityOfferingResult,
-          },
-        })
-      );
+      const mockCapabilityOfferingResult = CapabilityOfferingResultFactory({
+        capabilities: [],
+      });
+      const mockCapabilityPurchaseResult = CapabilityPurchaseResultFactory({
+        offering: mockCapabilityOfferingResult,
+      });
       const mockCapabilityServiceByPlanIdsQuery =
         CapabilityServiceByPlanIdsQueryFactory({
-          purchases: {
-            meta: {
-              pagination: {
-                total: 1,
-              },
-            },
-            data: [mockCapabilityPurchaseResult],
-          },
+          purchases: [mockCapabilityPurchaseResult],
         });
       jest
         .spyOn(
@@ -160,9 +126,9 @@ describe('CapabilityManager', () => {
           'getPurchaseDetailsForCapabilityServiceByPlanIds'
         )
         .mockResolvedValue(
-          new CapabilityServiceByPlanIdsResultUtil([
-            mockCapabilityServiceByPlanIdsQuery,
-          ] as CapabilityServiceByPlanIdsResult[])
+          new CapabilityServiceByPlanIdsResultUtil(
+            mockCapabilityServiceByPlanIdsQuery as CapabilityServiceByPlanIdsResult
+          )
         );
 
       const result = await capabilityManager.priceIdsToClientCapabilities([
@@ -172,39 +138,20 @@ describe('CapabilityManager', () => {
     });
 
     it('should return empty results when there are no service collection items', async () => {
-      const mockCapabilityOfferingResult = StrapiEntityFactory(
-        CapabilityOfferingResultFactory({
-          capabilities: {
-            data: [
-              StrapiEntityFactory(
-                CapabilityCapabilitiesResultFactory({
-                  slug: 'slug1',
-                  services: {
-                    data: [],
-                  },
-                })
-              ),
-            ],
-          },
-        })
-      );
-      const mockCapabilityPurchaseResult = StrapiEntityFactory(
-        CapabilityPurchaseResultFactory({
-          offering: {
-            data: mockCapabilityOfferingResult,
-          },
-        })
-      );
+      const mockCapabilityOfferingResult = CapabilityOfferingResultFactory({
+        capabilities: [
+          CapabilityCapabilitiesResultFactory({
+            slug: 'slug1',
+            services: [],
+          }),
+        ],
+      });
+      const mockCapabilityPurchaseResult = CapabilityPurchaseResultFactory({
+        offering: mockCapabilityOfferingResult,
+      });
       const mockCapabilityServiceByPlanIdsQuery =
         CapabilityServiceByPlanIdsQueryFactory({
-          purchases: {
-            meta: {
-              pagination: {
-                total: 1,
-              },
-            },
-            data: [mockCapabilityPurchaseResult],
-          },
+          purchases: [mockCapabilityPurchaseResult],
         });
       jest
         .spyOn(
@@ -212,9 +159,9 @@ describe('CapabilityManager', () => {
           'getPurchaseDetailsForCapabilityServiceByPlanIds'
         )
         .mockResolvedValue(
-          new CapabilityServiceByPlanIdsResultUtil([
-            mockCapabilityServiceByPlanIdsQuery,
-          ] as CapabilityServiceByPlanIdsResult[])
+          new CapabilityServiceByPlanIdsResultUtil(
+            mockCapabilityServiceByPlanIdsQuery as CapabilityServiceByPlanIdsResult
+          )
         );
 
       const result = await capabilityManager.priceIdsToClientCapabilities([
@@ -224,74 +171,41 @@ describe('CapabilityManager', () => {
     });
 
     it('should return planIds to client capabilities', async () => {
-      const mockCapabilityOfferingResult = StrapiEntityFactory(
-        CapabilityOfferingResultFactory({
-          capabilities: {
-            data: [
-              StrapiEntityFactory(
-                CapabilityCapabilitiesResultFactory({
-                  slug: 'slug1',
-                  services: {
-                    data: [
-                      StrapiEntityFactory(
-                        CapabilityServicesResultFactory({
-                          oauthClientId: 'clientId1',
-                        })
-                      ),
-                    ],
-                  },
-                })
-              ),
-              StrapiEntityFactory(
-                CapabilityCapabilitiesResultFactory({
-                  slug: 'slug2a',
-                  services: {
-                    data: [
-                      StrapiEntityFactory(
-                        CapabilityServicesResultFactory({
-                          oauthClientId: 'clientId2',
-                        })
-                      ),
-                    ],
-                  },
-                })
-              ),
-              StrapiEntityFactory(
-                CapabilityCapabilitiesResultFactory({
-                  slug: 'slug2b',
-                  services: {
-                    data: [
-                      StrapiEntityFactory(
-                        CapabilityServicesResultFactory({
-                          oauthClientId: 'clientId2',
-                        })
-                      ),
-                    ],
-                  },
-                })
-              ),
+      const mockCapabilityOfferingResult = CapabilityOfferingResultFactory({
+        capabilities: [
+          CapabilityCapabilitiesResultFactory({
+            slug: 'slug1',
+            services: [
+              CapabilityServicesResultFactory({
+                oauthClientId: 'clientId1',
+              }),
             ],
-          },
-        })
-      );
-      const mockCapabilityPurchaseResult = StrapiEntityFactory(
-        CapabilityPurchaseResultFactory({
-          stripePlanChoices: [{ stripePlanChoice: 'planId1' }],
-          offering: {
-            data: mockCapabilityOfferingResult,
-          },
-        })
-      );
+          }),
+          CapabilityCapabilitiesResultFactory({
+            slug: 'slug2a',
+            services: [
+              CapabilityServicesResultFactory({
+                oauthClientId: 'clientId2',
+              }),
+            ],
+          }),
+          CapabilityCapabilitiesResultFactory({
+            slug: 'slug2b',
+            services: [
+              CapabilityServicesResultFactory({
+                oauthClientId: 'clientId2',
+              }),
+            ],
+          }),
+        ],
+      });
+      const mockCapabilityPurchaseResult = CapabilityPurchaseResultFactory({
+        stripePlanChoices: [{ stripePlanChoice: 'planId1' }],
+        offering: mockCapabilityOfferingResult,
+      });
       const mockCapabilityServiceByPlanIdsQuery =
         CapabilityServiceByPlanIdsQueryFactory({
-          purchases: {
-            meta: {
-              pagination: {
-                total: 1,
-              },
-            },
-            data: [mockCapabilityPurchaseResult],
-          },
+          purchases: [mockCapabilityPurchaseResult],
         });
       jest
         .spyOn(
@@ -299,9 +213,9 @@ describe('CapabilityManager', () => {
           'getPurchaseDetailsForCapabilityServiceByPlanIds'
         )
         .mockResolvedValue(
-          new CapabilityServiceByPlanIdsResultUtil([
-            mockCapabilityServiceByPlanIdsQuery,
-          ] as CapabilityServiceByPlanIdsResult[])
+          new CapabilityServiceByPlanIdsResultUtil(
+            mockCapabilityServiceByPlanIdsQuery as CapabilityServiceByPlanIdsResult
+          )
         );
 
       const result = await capabilityManager.priceIdsToClientCapabilities([

@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { StrapiEntity } from '../../types';
-
 export interface PurchaseDetailsResult {
   details: string;
   productName: string;
@@ -34,14 +32,8 @@ export interface PurchaseOfferingResult {
   stripeLegacyPlans: {
     stripeLegacyPlan: string;
   }[];
-  commonContent: {
-    data: StrapiEntity<
-      OfferingCommonContentResult & {
-        localizations: {
-          data: StrapiEntity<OfferingCommonContentResult>[];
-        };
-      }
-    >;
+  commonContent: OfferingCommonContentResult & {
+    localizations: OfferingCommonContentResult[];
   };
 }
 
@@ -49,35 +41,19 @@ export interface PurchaseWithDetailsOfferingContentResult {
   stripePlanChoices: {
     stripePlanChoice: string;
   }[];
-  purchaseDetails: {
-    data: StrapiEntity<
-      PurchaseDetailsResult & {
-        localizations: {
-          data: StrapiEntity<PurchaseDetailsResult>[];
-        };
-      }
-    >;
+  purchaseDetails: PurchaseDetailsResult & {
+    localizations: PurchaseDetailsResult[];
   };
-  offering: {
-    data: StrapiEntity<PurchaseOfferingResult>;
-  };
+  offering: PurchaseOfferingResult;
 }
 
 export interface PurchaseWithDetailsOfferingContentTransformed
   extends Omit<PurchaseWithDetailsOfferingContentResult, 'purchaseDetails'> {
-  purchaseDetails: {
-    data: StrapiEntity<
-      PurchaseDetailsTransformed & {
-        localizations: {
-          data: StrapiEntity<PurchaseDetailsTransformed>[];
-        };
-      }
-    >;
+  purchaseDetails: PurchaseDetailsTransformed & {
+    localizations: PurchaseDetailsTransformed[];
   };
 }
 
 export interface PurchaseWithDetailsOfferingContentByPlanIdsResult {
-  purchases: {
-    data: StrapiEntity<PurchaseWithDetailsOfferingContentResult>[];
-  };
+  purchases: PurchaseWithDetailsOfferingContentResult[];
 }

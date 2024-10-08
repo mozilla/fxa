@@ -112,8 +112,7 @@ export class EligibilityManager {
     if (overlap.comparison === OfferingComparison.DOWNGRADE)
       return EligibilityStatus.DOWNGRADE;
 
-    const targetPriceIds =
-      targetOffering.defaultPurchase.data.attributes.stripePlanChoices;
+    const targetPriceIds = targetOffering.defaultPurchase.stripePlanChoices;
     const targetPrice = await this.priceManager.retrieveByInterval(
       targetPriceIds.map((el) => el.stripePlanChoice),
       interval

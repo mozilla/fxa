@@ -17,8 +17,8 @@ export class CapabilityManager {
     ).getServices();
 
     return clients.map((client: ServiceResult) => {
-      const capabilities = client.capabilities.data.map(
-        (capability) => capability.attributes.slug
+      const capabilities = client.capabilities.map(
+        (capability) => capability.slug
       );
       const sortedCapabilities = capabilities.sort();
       return {
@@ -50,20 +50,16 @@ export class CapabilityManager {
         purchaseDetails.capabilityOfferingForPlanId(subscribedPrice);
 
       // continue if neither offering nor capabilities exist
-      if (!capabilityOffering || !capabilityOffering?.capabilities?.data)
-        continue;
+      if (!capabilityOffering || !capabilityOffering?.capabilities) continue;
 
-      for (const capabilityCollection of capabilityOffering.capabilities.data) {
+      for (const capabilityCollection of capabilityOffering.capabilities) {
         // continue if individual capability does not contain any services
-        if (!capabilityCollection.attributes.services.data) continue;
+        if (!capabilityCollection.services) continue;
 
-        for (const capability of capabilityCollection.attributes.services
-          .data) {
-          result[capability.attributes.oauthClientId] ||= [];
+        for (const capability of capabilityCollection.services) {
+          result[capability.oauthClientId] ||= [];
 
-          result[capability.attributes.oauthClientId].push(
-            capabilityCollection.attributes.slug
-          );
+          result[capability.oauthClientId].push(capabilityCollection.slug);
         }
       }
     }

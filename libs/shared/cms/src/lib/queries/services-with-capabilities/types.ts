@@ -2,21 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { StrapiEntity } from '../../types';
-
 export interface CapabilitiesResult {
   slug: string;
 }
 
 export interface ServiceResult {
   oauthClientId: string;
-  capabilities: {
-    data: StrapiEntity<CapabilitiesResult>[];
-  };
+  capabilities: CapabilitiesResult[];
 }
 
 export interface ServicesWithCapabilitiesResult {
-  services: {
-    data: StrapiEntity<ServiceResult>[];
-  };
+  services: ServiceResult[];
 }

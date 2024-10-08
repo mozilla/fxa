@@ -10,14 +10,11 @@ import {
   OfferingDefaultPurchaseResult,
   OfferingResult,
 } from '.';
-import { StrapiEntityFactory } from '../../factories';
 
 export const OfferingQueryFactory = (
   override?: Partial<OfferingQuery>
 ): OfferingQuery => ({
-  offering: {
-    data: StrapiEntityFactory(OfferingResultFactory()),
-  },
+  offering: OfferingResultFactory(),
   ...override,
 });
 
@@ -27,9 +24,7 @@ export const OfferingResultFactory = (
   return {
     stripeProductId: faker.string.sample(),
     countries: [faker.string.sample()],
-    defaultPurchase: {
-      data: StrapiEntityFactory(OfferingDefaultPurchaseResultFactory()),
-    },
+    defaultPurchase: OfferingDefaultPurchaseResultFactory(),
     ...override,
   };
 };
@@ -38,12 +33,8 @@ export const OfferingDefaultPurchaseResultFactory = (
   override?: Partial<OfferingDefaultPurchaseResult>
 ): OfferingDefaultPurchaseResult => ({
   purchaseDetails: {
-    data: StrapiEntityFactory({
-      ...OfferingPurchaseResultFactory(),
-      localizations: {
-        data: [StrapiEntityFactory(OfferingPurchaseResultFactory())],
-      },
-    }),
+    ...OfferingPurchaseResultFactory(),
+    localizations: [OfferingPurchaseResultFactory()],
   },
   ...override,
 });

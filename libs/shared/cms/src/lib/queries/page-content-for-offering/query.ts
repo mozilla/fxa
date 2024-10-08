@@ -7,76 +7,47 @@ import { graphql } from '../../../__generated__/gql';
 export const pageContentForOfferingQuery = graphql(`
   query PageContentForOffering($locale: String!, $apiIdentifier: String!) {
     offerings(
-      pagination: { start: 0, limit: 2 }
       filters: { apiIdentifier: { eq: $apiIdentifier } }
+      pagination: { limit: 200 }
     ) {
-      meta {
-        pagination {
-          total
+      apiIdentifier
+      stripeProductId
+      defaultPurchase {
+        purchaseDetails {
+          details
+          productName
+          subtitle
+          webIcon
+          localizations(filters: { locale: { eq: $locale } }) {
+            details
+            productName
+            subtitle
+            webIcon
+          }
         }
       }
-      data {
-        attributes {
-          apiIdentifier
-          stripeProductId
-          defaultPurchase {
-            data {
-              attributes {
-                purchaseDetails {
-                  data {
-                    attributes {
-                      details
-                      productName
-                      subtitle
-                      webIcon
-                      localizations(filters: { locale: { eq: $locale } }) {
-                        data {
-                          attributes {
-                            details
-                            productName
-                            subtitle
-                            webIcon
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-          commonContent {
-            data {
-              attributes {
-                privacyNoticeUrl
-                privacyNoticeDownloadUrl
-                termsOfServiceUrl
-                termsOfServiceDownloadUrl
-                cancellationUrl
-                emailIcon
-                successActionButtonUrl
-                successActionButtonLabel
-                newsletterLabelTextCode
-                newsletterSlug
-                localizations(filters: { locale: { eq: $locale } }) {
-                  data {
-                    attributes {
-                      privacyNoticeUrl
-                      privacyNoticeDownloadUrl
-                      termsOfServiceUrl
-                      termsOfServiceDownloadUrl
-                      cancellationUrl
-                      emailIcon
-                      successActionButtonUrl
-                      successActionButtonLabel
-                      newsletterLabelTextCode
-                      newsletterSlug
-                    }
-                  }
-                }
-              }
-            }
-          }
+      commonContent {
+        privacyNoticeUrl
+        privacyNoticeDownloadUrl
+        termsOfServiceUrl
+        termsOfServiceDownloadUrl
+        cancellationUrl
+        emailIcon
+        successActionButtonUrl
+        successActionButtonLabel
+        newsletterLabelTextCode
+        newsletterSlug
+        localizations(filters: { locale: { eq: $locale } }) {
+          privacyNoticeUrl
+          privacyNoticeDownloadUrl
+          termsOfServiceUrl
+          termsOfServiceDownloadUrl
+          cancellationUrl
+          emailIcon
+          successActionButtonUrl
+          successActionButtonLabel
+          newsletterLabelTextCode
+          newsletterSlug
         }
       }
     }

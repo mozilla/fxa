@@ -11,15 +11,12 @@ import {
   EligibilityContentSubgroupResult,
   EligibilityContentByOfferingResult,
 } from '.';
-import { StrapiEntityFactory } from '../../factories';
 
 export const EligibilityContentByOfferingQueryFactory = (
   override?: Partial<EligibilityContentByOfferingQuery>
 ): EligibilityContentByOfferingQuery => {
   return {
-    offerings: {
-      data: [StrapiEntityFactory(EligibilityContentOfferingResultFactory())],
-    },
+    offerings: [EligibilityContentOfferingResultFactory()],
     ...override,
   };
 };
@@ -28,9 +25,7 @@ export const EligibilityContentByOfferingResultFactory = (
   override?: Partial<EligibilityContentByOfferingResult>
 ): EligibilityContentByOfferingResult => {
   return {
-    offerings: {
-      data: [StrapiEntityFactory(EligibilityContentOfferingResultFactory())],
-    },
+    offerings: [EligibilityContentOfferingResultFactory()],
     ...override,
   };
 };
@@ -41,17 +36,13 @@ export const EligibilityContentOfferingResultFactory = (
   apiIdentifier: faker.string.sample(),
   stripeProductId: faker.string.sample(),
   defaultPurchase: {
-    data: StrapiEntityFactory({
-      stripePlanChoices: [
-        {
-          stripePlanChoice: faker.string.sample(),
-        },
-      ],
-    }),
+    stripePlanChoices: [
+      {
+        stripePlanChoice: faker.string.sample(),
+      },
+    ],
   },
-  subGroups: {
-    data: [StrapiEntityFactory(EligibilityContentSubgroupResultFactory())],
-  },
+  subGroups: [EligibilityContentSubgroupResultFactory()],
   ...override,
 });
 
@@ -59,23 +50,7 @@ export const EligibilityContentSubgroupResultFactory = (
   override?: Partial<EligibilityContentSubgroupResult>
 ): EligibilityContentSubgroupResult => ({
   groupName: faker.string.sample(),
-  offerings: {
-    data: [
-      StrapiEntityFactory({
-        apiIdentifier: faker.string.sample(),
-        stripeProductId: faker.string.sample(),
-        defaultPurchase: {
-          data: StrapiEntityFactory({
-            stripePlanChoices: [
-              {
-                stripePlanChoice: faker.string.sample(),
-              },
-            ],
-          }),
-        },
-      }),
-    ],
-  },
+  offerings: [EligibilityContentSubgroupOfferingResultFactory()],
   ...override,
 });
 
@@ -85,13 +60,11 @@ export const EligibilityContentSubgroupOfferingResultFactory = (
   apiIdentifier: faker.string.sample(),
   stripeProductId: faker.string.sample(),
   defaultPurchase: {
-    data: StrapiEntityFactory({
-      stripePlanChoices: [
-        {
-          stripePlanChoice: faker.string.sample(),
-        },
-      ],
-    }),
+    stripePlanChoices: [
+      {
+        stripePlanChoice: faker.string.sample(),
+      },
+    ],
   },
   ...override,
 });

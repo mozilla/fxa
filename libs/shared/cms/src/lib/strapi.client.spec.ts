@@ -132,12 +132,7 @@ describe('StrapiClient', () => {
   describe('getLocale', () => {
     const ACCEPT_LANGUAGE = 'en-US,fr-FR;q=0.7,de-DE;q=0.3';
     const localesQueryResult = LocalesResultFactory({
-      i18NLocales: {
-        data: [
-          { attributes: { code: 'en' } },
-          { attributes: { code: 'fr-FR' } },
-        ],
-      },
+      i18NLocales: [{ code: 'en' }, { code: 'fr-FR' }],
     });
 
     beforeEach(() => {

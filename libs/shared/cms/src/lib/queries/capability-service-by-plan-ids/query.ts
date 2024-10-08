@@ -5,11 +5,7 @@
 import { graphql } from '../../../__generated__/gql';
 
 export const capabilityServiceByPlanIdsQuery = graphql(`
-  query CapabilityServiceByPlanIds(
-    $skip: Int!
-    $limit: Int!
-    $stripePlanIds: [String]!
-  ) {
+  query CapabilityServiceByPlanIds($stripePlanIds: [String]!) {
     purchases(
       filters: {
         or: [
@@ -21,40 +17,19 @@ export const capabilityServiceByPlanIdsQuery = graphql(`
           }
         ]
       }
-      pagination: { start: $skip, limit: $limit }
+      pagination: { limit: 200 }
     ) {
-      meta {
-        pagination {
-          total
-        }
+      stripePlanChoices {
+        stripePlanChoice
       }
-      data {
-        attributes {
-          stripePlanChoices {
-            stripePlanChoice
-          }
-          offering {
-            data {
-              attributes {
-                stripeLegacyPlans(pagination: { limit: 200 }) {
-                  stripeLegacyPlan
-                }
-                capabilities {
-                  data {
-                    attributes {
-                      slug
-                      services {
-                        data {
-                          attributes {
-                            oauthClientId
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
+      offering {
+        stripeLegacyPlans(pagination: { limit: 200 }) {
+          stripeLegacyPlan
+        }
+        capabilities {
+          slug
+          services {
+            oauthClientId
           }
         }
       }

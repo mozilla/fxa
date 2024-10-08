@@ -11,11 +11,11 @@ export class EligibilityContentByOfferingResultUtil {
   constructor(private rawResult: EligibilityContentByOfferingResult) {}
 
   getOffering(): EligibilityContentOfferingResult {
-    const offering = this.offerings.data.at(0);
+    const offering = this.offerings.at(0);
     if (!offering) throw Error('getOffering - No offering exists');
-    if (this.offerings.data.length > 1)
+    if (this.offerings.length > 1)
       throw Error('getOffering - More than one offering');
-    return offering.attributes;
+    return offering;
   }
 
   get offerings(): EligibilityContentByOfferingResult['offerings'] {

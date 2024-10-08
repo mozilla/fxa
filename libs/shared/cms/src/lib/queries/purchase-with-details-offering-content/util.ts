@@ -15,61 +15,31 @@ export class PurchaseWithDetailsOfferingContentUtil {
   > = {};
 
   constructor(
-    private rawResults: PurchaseWithDetailsOfferingContentByPlanIdsResult[]
+    private rawResult: PurchaseWithDetailsOfferingContentByPlanIdsResult
   ) {
-    for (const rawResult of rawResults) {
-      for (const purchase of rawResult.purchases.data) {
-        purchase.attributes.stripePlanChoices?.forEach(
-          ({ stripePlanChoice }) => {
-            this.transformedPurchaseByPlanId[stripePlanChoice] = {
-              ...purchase.attributes,
-              purchaseDetails: {
-                data: {
-                  attributes: {
-                    ...this.purchaseDetailsTransform(
-                      purchase.attributes.purchaseDetails.data.attributes
-                    ),
-                    localizations: {
-                      data: purchase.attributes.purchaseDetails.data.attributes.localizations.data.map(
-                        (localization) => ({
-                          attributes: this.purchaseDetailsTransform(
-                            localization.attributes
-                          ),
-                        })
-                      ),
-                    },
-                  },
-                },
-              },
-            };
-          }
-        );
-        purchase.attributes.offering.data.attributes.stripeLegacyPlans?.forEach(
-          ({ stripeLegacyPlan }) => {
-            this.transformedPurchaseByPlanId[stripeLegacyPlan] = {
-              ...purchase.attributes,
-              purchaseDetails: {
-                data: {
-                  attributes: {
-                    ...this.purchaseDetailsTransform(
-                      purchase.attributes.purchaseDetails.data.attributes
-                    ),
-                    localizations: {
-                      data: purchase.attributes.purchaseDetails.data.attributes.localizations.data.map(
-                        (localization) => ({
-                          attributes: this.purchaseDetailsTransform(
-                            localization.attributes
-                          ),
-                        })
-                      ),
-                    },
-                  },
-                },
-              },
-            };
-          }
-        );
-      }
+    for (const purchase of rawResult.purchases) {
+      purchase.stripePlanChoices?.forEach(({ stripePlanChoice }) => {
+        this.transformedPurchaseByPlanId[stripePlanChoice] = {
+          ...purchase,
+          purchaseDetails: {
+            ...this.purchaseDetailsTransform(purchase.purchaseDetails),
+            localizations: purchase.purchaseDetails.localizations.map(
+              (localization) => this.purchaseDetailsTransform(localization)
+            ),
+          },
+        };
+      });
+      purchase.offering.stripeLegacyPlans?.forEach(({ stripeLegacyPlan }) => {
+        this.transformedPurchaseByPlanId[stripeLegacyPlan] = {
+          ...purchase,
+          purchaseDetails: {
+            ...this.purchaseDetailsTransform(purchase.purchaseDetails),
+            localizations: purchase.purchaseDetails.localizations.map(
+              (localization) => this.purchaseDetailsTransform(localization)
+            ),
+          },
+        };
+      });
     }
   }
 
@@ -93,17 +63,6 @@ export class PurchaseWithDetailsOfferingContentUtil {
   }
 
   get purchases(): PurchaseWithDetailsOfferingContentByPlanIdsResult['purchases'] {
-    // Deduplicating items as there could be duplicates from splitting up the
-    // stripePlanIds and making multiple CMS calls
-    return {
-      data: [
-        ...new Map(
-          this.rawResults
-            .map((rawResult) => rawResult.purchases.data)
-            .flat()
-            .map((res) => [JSON.stringify(res), res])
-        ).values(),
-      ],
-    };
+    return this.rawResult.purchases;
   }
 }

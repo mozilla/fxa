@@ -11,7 +11,6 @@ import {
   PurchaseWithDetailsOfferingContentResult,
   PurchaseWithDetailsOfferingContentTransformed,
 } from './types';
-import { StrapiEntityFactory } from '../../factories';
 
 export const PurchaseDetailsResultFactory = (
   override?: Partial<PurchaseDetailsResult>
@@ -69,12 +68,8 @@ export const PurchaseOfferingResultFactory = (
     })
   ),
   commonContent: {
-    data: StrapiEntityFactory({
-      ...OfferingCommonContentResultFactory(),
-      localizations: {
-        data: [StrapiEntityFactory(OfferingCommonContentResultFactory())],
-      },
-    }),
+    ...OfferingCommonContentResultFactory(),
+    localizations: [OfferingCommonContentResultFactory()],
   },
   ...override,
 });
@@ -89,16 +84,10 @@ export const PurchaseWithDetailsOfferingContentResultFactory = (
     })
   ),
   purchaseDetails: {
-    data: StrapiEntityFactory({
-      ...PurchaseDetailsResultFactory(),
-      localizations: {
-        data: [StrapiEntityFactory(PurchaseDetailsResultFactory())],
-      },
-    }),
+    ...PurchaseDetailsResultFactory(),
+    localizations: [PurchaseDetailsResultFactory()],
   },
-  offering: {
-    data: StrapiEntityFactory(PurchaseOfferingResultFactory()),
-  },
+  offering: PurchaseOfferingResultFactory(),
   ...override,
 });
 
@@ -107,12 +96,8 @@ export const PurchaseWithDetailsOfferingContentTransformedFactory = (
 ): PurchaseWithDetailsOfferingContentTransformed => ({
   ...PurchaseWithDetailsOfferingContentResultFactory(),
   purchaseDetails: {
-    data: StrapiEntityFactory({
-      ...PurchaseDetailsTransformedFactory(),
-      localizations: {
-        data: [StrapiEntityFactory(PurchaseDetailsTransformedFactory())],
-      },
-    }),
+    ...PurchaseDetailsTransformedFactory(),
+    localizations: [PurchaseDetailsTransformedFactory()],
   },
   ...override,
 });
@@ -120,10 +105,6 @@ export const PurchaseWithDetailsOfferingContentTransformedFactory = (
 export const PurchaseWithDetailsOfferingContentByPlanIdsResultFactory = (
   override?: Partial<PurchaseWithDetailsOfferingContentByPlanIdsResult>
 ): PurchaseWithDetailsOfferingContentByPlanIdsResult => ({
-  purchases: {
-    data: [
-      StrapiEntityFactory(PurchaseWithDetailsOfferingContentResultFactory()),
-    ],
-  },
+  purchases: [PurchaseWithDetailsOfferingContentResultFactory()],
   ...override,
 });

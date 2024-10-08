@@ -24,15 +24,15 @@ export const offeringComparison = (
 ) => {
   if (targetOffering.stripeProductId === fromOfferingProductId)
     return OfferingComparison.SAME;
-  const commonSubgroups = targetOffering.subGroups.data.filter(
+  const commonSubgroups = targetOffering.subGroups.filter(
     (subgroup) =>
-      !!subgroup.attributes.offerings.data.find(
-        (oc) => oc.attributes.stripeProductId === fromOfferingProductId
+      !!subgroup.offerings.find(
+        (oc) => oc.stripeProductId === fromOfferingProductId
       )
   );
   if (!commonSubgroups.length) return null;
-  const subgroupProductIds = commonSubgroups[0].attributes.offerings.data.map(
-    (o) => o.attributes.stripeProductId
+  const subgroupProductIds = commonSubgroups[0].offerings.map(
+    (o) => o.stripeProductId
   );
   const existingIndex = subgroupProductIds.indexOf(fromOfferingProductId);
   const targetIndex = subgroupProductIds.indexOf(

@@ -15,7 +15,7 @@ describe('ServicesWithCapabilitiesResultUtil', () => {
       result as ServicesWithCapabilitiesResult
     );
     expect(util).toBeDefined();
-    expect(util.services.data.length).toBe(1);
+    expect(util.services.length).toBe(1);
   });
 
   it('getServices - should return services and capabilities', () => {
@@ -25,12 +25,11 @@ describe('ServicesWithCapabilitiesResultUtil', () => {
     );
     expect(util.getServices()[0].oauthClientId).toBeDefined();
     expect(util.getServices()[0].oauthClientId).toEqual(
-      result.services?.data[0]?.attributes?.oauthClientId
+      result.services?.[0]?.oauthClientId
     );
-    expect(util.getServices()[0].capabilities.data).toBeDefined();
-    expect(util.getServices()[0].capabilities.data[0].attributes.slug).toEqual(
-      result.services?.data[0]?.attributes?.capabilities?.data[0].attributes
-        ?.slug
+    expect(util.getServices()[0].capabilities).toBeDefined();
+    expect(util.getServices()[0].capabilities[0].slug).toEqual(
+      result.services?.[0]?.capabilities?.[0]?.slug
     );
   });
 });

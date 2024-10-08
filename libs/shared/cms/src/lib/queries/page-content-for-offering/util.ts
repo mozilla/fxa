@@ -17,36 +17,22 @@ export class PageContentForOfferingResultUtil {
   }
 
   getOffering(): PageContentOfferingTransformed {
-    const offering = this.offerings.data.at(0);
+    const offering = this.offerings.at(0);
     if (!offering) throw Error('getOffering - No offering exists');
-    if (this.offerings.data.length > 1)
+    if (this.offerings.length > 1)
       throw Error('getOffering - More than one offering');
 
     return {
-      ...offering.attributes,
+      ...offering,
       defaultPurchase: {
-        data: {
-          attributes: {
-            purchaseDetails: {
-              data: {
-                attributes: {
-                  ...this.purchaseDetailsTransform(
-                    offering.attributes.defaultPurchase.data.attributes
-                      .purchaseDetails.data.attributes
-                  ),
-                  localizations: {
-                    data: offering.attributes.defaultPurchase.data.attributes.purchaseDetails.data.attributes.localizations.data.map(
-                      (localization) => ({
-                        attributes: this.purchaseDetailsTransform(
-                          localization.attributes
-                        ),
-                      })
-                    ),
-                  },
-                },
-              },
-            },
-          },
+        purchaseDetails: {
+          ...this.purchaseDetailsTransform(
+            offering.defaultPurchase.purchaseDetails
+          ),
+          localizations:
+            offering.defaultPurchase.purchaseDetails.localizations.map(
+              (localization) => this.purchaseDetailsTransform(localization)
+            ),
         },
       },
     };

@@ -95,18 +95,16 @@ export class StripeMapperService {
         continue;
       }
 
-      const commonContentAttributes =
-        cmsConfigData.offering.data.attributes.commonContent.data.attributes;
+      const commonContentAttributes = cmsConfigData.offering.commonContent;
       const commonContentAttributesLocalized = commonContentAttributes
-        .localizations.data.length
-        ? commonContentAttributes.localizations.data[0].attributes
+        .localizations.length
+        ? commonContentAttributes.localizations[0]
         : commonContentAttributes;
 
-      const purchaseDetailsAttributes =
-        cmsConfigData.purchaseDetails.data.attributes;
+      const purchaseDetailsAttributes = cmsConfigData.purchaseDetails;
       const purchaseDetailsLocalizedAttributes = purchaseDetailsAttributes
-        .localizations.data.length
-        ? purchaseDetailsAttributes.localizations.data[0].attributes
+        .localizations.length
+        ? purchaseDetailsAttributes.localizations[0]
         : purchaseDetailsAttributes;
 
       const planMapper = new PlanMapperUtil(

@@ -11,21 +11,12 @@ import {
   CapabilityCapabilitiesResult,
   CapabilityServicesResult,
 } from '.';
-import { StrapiEntityFactory } from '../../factories';
 
 export const CapabilityServiceByPlanIdsQueryFactory = (
   override?: Partial<CapabilityServiceByPlanIdsQuery>
 ): CapabilityServiceByPlanIdsQuery => {
-  const data = [StrapiEntityFactory(CapabilityPurchaseResultFactory())];
   return {
-    purchases: {
-      meta: {
-        pagination: {
-          total: data.length,
-        },
-      },
-      data,
-    },
+    purchases: [CapabilityPurchaseResultFactory()],
     ...override,
   };
 };
@@ -38,9 +29,7 @@ export const CapabilityPurchaseResultFactory = (
       stripePlanChoice: faker.string.sample(),
     },
   ],
-  offering: {
-    data: StrapiEntityFactory(CapabilityOfferingResultFactory()),
-  },
+  offering: CapabilityOfferingResultFactory(),
   ...override,
 });
 
@@ -53,9 +42,7 @@ export const CapabilityOfferingResultFactory = (
       stripeLegacyPlan: faker.string.alpha(10),
     })
   ),
-  capabilities: {
-    data: [StrapiEntityFactory(CapabilityCapabilitiesResultFactory())],
-  },
+  capabilities: [CapabilityCapabilitiesResultFactory()],
   ...override,
 });
 
@@ -63,9 +50,7 @@ export const CapabilityCapabilitiesResultFactory = (
   override?: Partial<CapabilityCapabilitiesResult>
 ): CapabilityCapabilitiesResult => ({
   slug: faker.string.sample(),
-  services: {
-    data: [StrapiEntityFactory(CapabilityServicesResultFactory())],
-  },
+  services: [CapabilityServicesResultFactory()],
   ...override,
 });
 
