@@ -243,6 +243,11 @@ export function gleanMetrics(config: ConfigType) {
       otpEmailSent: createEventFn('password_reset_email_confirmation_sent'),
       otpVerified: createEventFn('password_reset_email_confirmation_success'),
 
+      twoFactorSuccess: createEventFn('password_reset_two_factor_success'),
+      twoFactorRecoveryCodeSuccess: createEventFn(
+        'password_reset_recovery_code_success'
+      ),
+
       recoveryKeyCreatePasswordSuccess: createEventFn(
         'password_reset_recovery_key_create_success'
       ),
