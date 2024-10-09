@@ -1,0 +1,15 @@
+passwordResetSyncNoRecoveryKey-title = "Your password has been reset"
+
+passwordResetSyncNoRecoveryKey-description-2 = "You reset your Mozilla account password on:"
+
+<%- include('/partials/userInfo/index.txt') %>
+
+passwordResetSyncNoRecoveryKey-cta-description = "You’ll need to sign in again on all of your synced devices. Keep your data safe next time with an account recovery key. This allows you to recover your data if you forget your password."
+
+passwordResetSyncNoRecoveryKey-action-txt = "Create account recovery key:"
+
+<%- link %>
+
+<%- include('/partials/appBadges/index.txt') %>
+
+<%- include('/partials/automatedEmailChangePassword/index.txt') %>

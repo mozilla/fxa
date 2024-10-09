@@ -1,6 +1,8 @@
-passwordReset-title = "Your account password was changed"
+passwordReset-title-2 = "Your password has been reset"
 
-passwordReset-description = "You will need to enter your new password on other devices to resume syncing."
+passwordReset-description-2 = "You reset your Mozilla account password on:"
+
+<%- include('/partials/userInfo/index.txt') %>
 
 <%- include('/partials/automatedEmailResetPassword/index.txt') %>
 
