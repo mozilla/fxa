@@ -10,13 +10,12 @@ import { DEFAULT_LOCALE } from '@fxa/shared/l10n';
 
 import { getFakeCartData } from 'apps/payments/next/app/_lib/apiClient';
 import circledConfirm from '@fxa/shared/assets/images/circled-confirm.svg';
+import { SupportedPages, getApp } from '@fxa/payments/ui/server';
 import {
-  SupportedPages,
-  getApp,
   fetchCMSData,
   getCartOrRedirectAction,
   recordEmitterEventAction,
-} from '@fxa/payments/ui/server';
+} from '@fxa/payments/ui/actions';
 
 export const dynamic = 'force-dynamic';
 

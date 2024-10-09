@@ -19,9 +19,11 @@ import { useEffect, useState } from 'react';
 import { BaseButton, ButtonVariant, CheckoutCheckbox } from '@fxa/payments/ui';
 import LockImage from '@fxa/shared/assets/images/lock.svg';
 import { useCallbackOnce } from '../../hooks/useCallbackOnce';
-import { handleStripeErrorAction } from '../../../actions/handleStripeError';
-import { recordEmitterEventAction } from '../../../actions/recordEmitterEvent';
-import { checkoutCartWithStripe } from '../../../actions/checkoutCartWithStripe';
+import {
+  handleStripeErrorAction,
+  recordEmitterEventAction,
+  checkoutCartWithStripe,
+} from '@fxa/payments/ui/actions';
 
 interface CheckoutFormProps {
   cmsCommonContent: {

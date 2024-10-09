@@ -5,11 +5,8 @@
 import { revalidatePath } from 'next/cache';
 import { headers } from 'next/headers';
 import { BaseButton, ButtonVariant, PaymentSection } from '@fxa/payments/ui';
-import {
-  getApp,
-  getCartOrRedirectAction,
-  SupportedPages,
-} from '@fxa/payments/ui/server';
+import { getApp, SupportedPages } from '@fxa/payments/ui/server';
+import { getCartOrRedirectAction } from '@fxa/payments/ui/actions';
 import { DEFAULT_LOCALE } from '@fxa/shared/l10n';
 import {
   getFakeCartData,

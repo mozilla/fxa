@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { setupCartAction } from '@fxa/payments/ui/server';
+import { setupCartAction } from '@fxa/payments/ui/actions';
 import { auth } from 'apps/payments/next/auth';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
