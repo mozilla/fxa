@@ -31,22 +31,13 @@ test.describe('severity-1 #smoke', () => {
       await resetPassword.fillOutNewPasswordForm(newPassword);
 
       await expect(page).toHaveURL(/reset_password_verified/);
+      await expect(resetPassword.passwordResetSuccessMessage).toBeVisible();
+
       await expect(
-        resetPassword.passwordResetConfirmationHeading
+        resetPassword.passwordResetConfirmationContinueButton
       ).toBeVisible();
 
-      // TODO in FXA-9561 - Verify that the service name is displayed in the "Continue to ${serviceName}" button
-      // This functionality is not yet implemented in the reset password flow
-
-      // TODO in FXA-9561 - Remove this temporary test of sign in with new password
-      // user should be signed in and able to navigate to the relying party
-
-      await relier.goto();
-      await relier.clickEmailFirst();
-
-      // a successful password reset means that the user is signed in
-      await expect(signin.cachedSigninHeading).toBeVisible();
-      await signin.signInButton.click();
+      await resetPassword.passwordResetConfirmationContinueButton.click();
 
       await expect(page).toHaveURL(target.relierUrl);
       expect(await relier.isLoggedIn()).toBe(true);
@@ -61,6 +52,10 @@ test.describe('severity-1 #smoke', () => {
       pages: { resetPassword, signin },
       testAccountTracker,
     }) => {
+      test.fixme(
+        true,
+        'FXA-10518 - 123Done PKCE button is not working, and this test does not validate the PKCE flow for sign-in after reset password'
+      );
       const credentials = await testAccountTracker.signUp();
       const newPassword = testAccountTracker.generatePassword();
 
@@ -89,12 +84,7 @@ test.describe('severity-1 #smoke', () => {
       await resetPassword.fillOutNewPasswordForm(newPassword);
 
       await expect(page).toHaveURL(/reset_password_verified/);
-      await expect(
-        resetPassword.passwordResetConfirmationHeading
-      ).toBeVisible();
-
-      // TODO in FXA-9561 - Verify that the service name is displayed in the "Continue to ${serviceName}" button
-      // This functionality is not yet implemented in the reset password flow
+      await expect(resetPassword.passwordResetSuccessMessage).toBeVisible();
 
       // update password for cleanup function
       credentials.password = newPassword;
@@ -144,21 +134,22 @@ test.describe('severity-1 #smoke', () => {
 
       await resetPassword.fillOutNewPasswordForm(newPassword);
 
-      await expect(page).toHaveURL(/reset_password_verified/);
-      await expect(
-        resetPassword.passwordResetConfirmationHeading
-      ).toBeVisible();
+      await expect(page).toHaveURL(/signin/);
+      await expect(resetPassword.passwordResetSuccessMessage).toBeVisible();
+
+      await expect(signin.passwordFormHeading).toBeVisible();
+      await signin.fillOutPasswordForm(newPassword);
+      await expect(page).toHaveURL(/signin_totp_code/);
+      totpCode = await getCode(secret);
+      await signinTotpCode.fillOutCodeForm(totpCode);
+
+      await expect(page).toHaveURL(target.relierUrl);
+      expect(await relier.isLoggedIn()).toBe(true);
 
       // Goes to settings and disables totp on user's account (required for cleanup)
       await signin.goto();
-      await signin.fillOutEmailFirstForm(credentials.email);
-      await signin.fillOutPasswordForm(newPassword);
-
-      await expect(page).toHaveURL(/signin_totp_code/);
-
-      totpCode = await getCode(secret);
-      await expect(page).toHaveURL(/signin_totp_code/);
-      await signinTotpCode.fillOutCodeForm(totpCode);
+      await expect(signin.cachedSigninHeading).toBeVisible();
+      await signin.signInButton.click();
 
       await expect(settings.settingsHeading).toBeVisible();
       await settings.disconnectTotp();

@@ -58,6 +58,7 @@ const Signin = ({
   avatarLoading,
   localizedErrorFromLocationState,
   finishOAuthFlowHandler,
+  bannerSuccessMessage,
 }: SigninProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const location = useLocation();
@@ -312,6 +313,9 @@ const Signin = ({
 
   return (
     <AppLayout>
+      {bannerSuccessMessage && (
+        <Banner type={BannerType.success}>{bannerSuccessMessage}</Banner>
+      )}
       {isPasswordNeededRef.current ? (
         <CardHeader
           headingText="Enter your password"

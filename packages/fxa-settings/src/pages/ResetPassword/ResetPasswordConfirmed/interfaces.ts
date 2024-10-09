@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 export type ResetPasswordConfirmedProps = {
-  continueHandler?: Function;
-  isSignedIn: boolean;
+  continueHandler: Function;
   serviceName: string;
+  errorMessage?: string;
 };

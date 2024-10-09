@@ -6,9 +6,7 @@ import React from 'react';
 import ResetPasswordConfirmed from '.';
 import { MozServices } from '../../../lib/types';
 import { Meta } from '@storybook/react';
-import { renderStoryWithHistory } from '../../../lib/storybook-utils';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import { ResetPasswordConfirmedProps } from './interfaces';
 
 export default {
   title: 'Pages/ResetPassword/ResetPasswordConfirmed',
@@ -16,49 +14,17 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-function renderStory(
-  incomingProps: Partial<ResetPasswordConfirmedProps> = {},
-  queryParams: string
-) {
-  const defaultProps: ResetPasswordConfirmedProps = {
-    isSignedIn: true,
-    serviceName: MozServices.Default,
-  };
+export const Default = () => (
+  <ResetPasswordConfirmed
+    continueHandler={() => {}}
+    serviceName={MozServices.Monitor}
+  />
+);
 
-  const props: ResetPasswordConfirmedProps = {
-    ...defaultProps,
-    ...incomingProps,
-  };
-
-  return renderStoryWithHistory(
-    <ResetPasswordConfirmed {...props} />,
-    '/reset_password_verified',
-    undefined,
-    queryParams
-  );
-}
-
-export const DefaultSignedIn = () => renderStory({ isSignedIn: true }, ``);
-
-export const DefaultIsSync = () =>
-  renderStory(
-    { isSignedIn: true, serviceName: MozServices.FirefoxSync },
-    'service=sync'
-  );
-
-export const DefaultSignedOut = () =>
-  renderStory({ isSignedIn: false }, 'service=');
-
-export const WithRelyingPartyNoContinueAction = () =>
-  renderStory({ isSignedIn: true }, `service=${MozServices.MozillaVPN}`);
-
-export const WithRelyingPartyAndContinueAction = () =>
-  renderStory(
-    {
-      isSignedIn: true,
-      continueHandler: () => {
-        console.log('Arbitrary action');
-      },
-    },
-    `service=`
-  );
+export const WithErrorMessage = () => (
+  <ResetPasswordConfirmed
+    errorMessage="An error occurred"
+    serviceName={MozServices.Default}
+    continueHandler={() => {}}
+  />
+);

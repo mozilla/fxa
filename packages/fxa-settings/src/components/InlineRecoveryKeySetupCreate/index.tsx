@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState } from 'react';
-import { CircleCheckOutlineImage, RecoveryKeyImage } from '../images';
+import { CheckmarkCircleOutlineIcon, RecoveryKeyImage } from '../images';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import Banner, { BannerType } from '../Banner';
 import { CreateRecoveryKeyHandler } from '../../pages/InlineRecoveryKeySetup/interfaces';
@@ -33,7 +33,7 @@ export const InlineRecoveryKeySetupCreate = ({
     <>
       <Banner type={BannerType.success} additionalClassNames="mt-0">
         <p className="flex justify-center text-base">
-          <CircleCheckOutlineImage className="me-3" />
+          <CheckmarkCircleOutlineIcon className="me-3" />
           <span>
             <FtlMsg id="inline-recovery-key-setup-signed-in-firefox">
               You’re signed in to Firefox

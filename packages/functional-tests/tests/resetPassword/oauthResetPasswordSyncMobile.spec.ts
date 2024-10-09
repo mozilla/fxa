@@ -11,13 +11,7 @@ test.describe('severity-1 #smoke', () => {
   test.describe('oauth reset password Sync mobile react', () => {
     test('reset password through Sync mobile', async ({
       target,
-      syncBrowserPages: {
-        page,
-        connectAnotherDevice,
-        resetPassword,
-        signin,
-        settings,
-      },
+      syncBrowserPages: { page, resetPassword, signin, settings },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();

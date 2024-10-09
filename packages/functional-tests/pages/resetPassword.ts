@@ -70,9 +70,13 @@ export class ResetPasswordPage extends BaseLayout {
     return this.page.getByRole('button', { name: 'Create new password' });
   }
 
-  get passwordResetConfirmationHeading() {
-    return this.page.getByRole('heading', {
-      name: 'Your password has been reset',
+  get passwordResetSuccessMessage() {
+    return this.page.getByText('Your password has been reset');
+  }
+
+  get passwordResetConfirmationContinueButton() {
+    return this.page.getByRole('button', {
+      name: /^Continue to/,
     });
   }
 

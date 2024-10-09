@@ -1,6 +1,5 @@
 ## Ready component
 
-reset-password-complete-header = Your password has been reset
 ready-complete-set-up-instruction = Complete setup by entering your new password on your other { -brand-firefox } devices.
 manage-your-account-button = Manage your account
 # This is a string that tells the user they can use whatever service prompted them to reset their password or to verify their email
