@@ -158,4 +158,20 @@ export class ResetPasswordPage extends BaseLayout {
     await this.confirmationCodeFirstInput.pressSequentially(code);
     await this.confirmationCodeSubmitButton.click();
   }
+
+  async fillOutTotpForm(code: string) {
+    await this.page.getByLabel('Enter code').fill(code);
+    return this.page.getByRole('button', { name: 'Confirm' }).click();
+  }
+
+  async clickTroubleEnteringCode() {
+    return this.page.getByText('Trouble entering code?').click();
+  }
+
+  async fillOurRecoveryCodeForm(code: string) {
+    await this.page
+      .getByLabel('Enter 10-digit backup authentication code')
+      .fill(code);
+    return this.page.getByRole('button', { name: 'Confirm' }).click();
+  }
 }

@@ -43,6 +43,7 @@ const AccountRecoveryConfirmKey = ({
   verifyRecoveryKey,
   token,
   uid,
+  totpExists,
 }: AccountRecoveryConfirmKeyProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   const location = useLocation();
@@ -206,24 +207,45 @@ const AccountRecoveryConfirmKey = ({
       </form>
 
       <FtlMsg id="account-recovery-lost-recovery-key-link-2">
-        <Link
-          to={`/complete_reset_password${location.search}`}
-          className="link-blue text-sm"
-          id="lost-recovery-key"
-          state={{
-            accountResetToken,
-            code,
-            email,
-            emailToHashWith,
-            estimatedSyncDeviceCount,
-            recoveryKeyExists,
-            token,
-            uid,
-          }}
-          onClick={() => GleanMetrics.passwordReset.recoveryKeyCannotFind()}
-        >
-          Can’t find your account recovery key?
-        </Link>
+        {totpExists ? (
+          <Link
+            to={`/confirm_totp_reset_password${location.search}`}
+            className="link-blue text-sm"
+            id="lost-recovery-key"
+            state={{
+              accountResetToken,
+              code,
+              email,
+              emailToHashWith,
+              estimatedSyncDeviceCount,
+              recoveryKeyExists,
+              token,
+              uid,
+            }}
+            onClick={() => GleanMetrics.passwordReset.recoveryKeyCannotFind()}
+          >
+            Can’t find your account recovery key?
+          </Link>
+        ) : (
+          <Link
+            to={`/complete_reset_password${location.search}`}
+            className="link-blue text-sm"
+            id="lost-recovery-key"
+            state={{
+              accountResetToken,
+              code,
+              email,
+              emailToHashWith,
+              estimatedSyncDeviceCount,
+              recoveryKeyExists,
+              token,
+              uid,
+            }}
+            onClick={() => GleanMetrics.passwordReset.recoveryKeyCannotFind()}
+          >
+            Can’t find your account recovery key?
+          </Link>
+        )}
       </FtlMsg>
     </AppLayout>
   );

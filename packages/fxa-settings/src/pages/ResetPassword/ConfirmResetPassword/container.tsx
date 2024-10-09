@@ -21,6 +21,7 @@ const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
   );
   const [errorMessage, setErrorMessage] = useState('');
   const [resendErrorMessage, setResendErrorMessage] = useState('');
+
   const authClient = useAuthClient();
   const ftlMsgResolver = useFtlMsgResolver();
 
@@ -43,9 +44,24 @@ const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
     uid: string,
     estimatedSyncDeviceCount?: number,
     recoveryKeyExists?: boolean,
-    recoveryKeyHint?: string
+    recoveryKeyHint?: string,
+    totpExists?: boolean
   ) => {
-    if (recoveryKeyExists === true) {
+    if (totpExists && recoveryKeyExists === false) {
+      navigate('/confirm_totp_reset_password', {
+        state: {
+          code,
+          email,
+          emailToHashWith,
+          estimatedSyncDeviceCount,
+          recoveryKeyExists,
+          recoveryKeyHint,
+          token,
+          uid,
+        },
+        replace: true,
+      });
+    } else if (recoveryKeyExists === true) {
       navigate('/account_recovery_confirm_key', {
         state: {
           code,
@@ -56,6 +72,7 @@ const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
           recoveryKeyHint,
           token,
           uid,
+          totpExists,
         },
         replace: true,
       });
@@ -89,6 +106,10 @@ const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
     }
   };
 
+  const checkForTotp = async (token: string) => {
+    return await authClient.checkTotpTokenExistsWithPasswordForgotToken(token);
+  };
+
   const clearBanners = () => {
     setErrorMessage('');
     setResendErrorMessage('');
@@ -107,6 +128,8 @@ const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
         hint: recoveryKeyHint,
         estimatedSyncDeviceCount,
       } = await checkForRecoveryKey(token);
+      const { exists: totpExists } = await checkForTotp(token);
+
       handleNavigation(
         code,
         emailToHashWith,
@@ -114,7 +137,8 @@ const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
         uid,
         estimatedSyncDeviceCount,
         recoveryKeyExists,
-        recoveryKeyHint
+        recoveryKeyHint,
+        totpExists
       );
     } catch (error) {
       // return custom error for expired or incorrect code
@@ -146,7 +170,6 @@ const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
   return (
     <ConfirmResetPassword
       {...{
-        clearBanners,
         email,
         errorMessage,
         resendCode,
