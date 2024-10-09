@@ -295,6 +295,12 @@ module.exports = (log, db, mailer, customs, config, glean, profileClient) => {
             otpOptions
           );
 
+          if (isValidCode) {
+            glean.resetPassword.twoFactorSuccess(request, {
+              uid: passwordForgotToken.uid,
+            });
+          }
+
           return {
             success: isValidCode,
           };
@@ -344,6 +350,10 @@ module.exports = (log, db, mailer, customs, config, glean, profileClient) => {
           passwordForgotToken.uid,
           code
         );
+
+        glean.resetPassword.twoFactorRecoveryCodeSuccess(request, {
+          uid: passwordForgotToken.uid,
+        });
 
         return {
           remaining,
