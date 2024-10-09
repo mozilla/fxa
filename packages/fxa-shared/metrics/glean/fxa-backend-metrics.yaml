@@ -696,6 +696,40 @@ password_reset:
     expires: never
     data_sensitivity:
       - interaction
+  two_factor_success:
+    type: event
+    description: |
+      User successfully verified their two factor authentication code before password reset
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-9994
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1896950
+    expires: never
+    data_sensitivity:
+      - interaction
+  recovery_code_success:
+    type: event
+    description: |
+      User successfully verified their recovery code before password reset
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-9994
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1896950
+    expires: never
+    data_sensitivity:
+      - interaction
 reg:
   acc_created:
     type: event

@@ -537,6 +537,7 @@ describe('totp', () => {
         requestOptions
       );
 
+      assert.calledOnce(glean.resetPassword.twoFactorSuccess);
       assert.isTrue(response.success);
       assert.calledOnceWithExactly(db.totpToken, 'uid');
       assert.calledOnceWithExactly(
@@ -578,6 +579,8 @@ describe('totp', () => {
         '/totp/verify/recoveryCode',
         requestOptions
       );
+
+      assert.calledOnce(glean.resetPassword.twoFactorRecoveryCodeSuccess);
 
       assert.equal(response.remaining, 2);
       assert.calledOnceWithExactly(db.consumeRecoveryCode, 'uid', '1234567890');

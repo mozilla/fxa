@@ -39,6 +39,8 @@ const recordAccountDeleteCompleteStub = sinon.stub();
 const recordPasswordResetEmailConfirmationSentStub = sinon.stub();
 const recordPasswordResetEmailConfirmationSuccessStub = sinon.stub();
 const recordTwoFactorAuthCodeCompleteStub = sinon.stub();
+const recordPasswordResetTwoFactorSuccessStub = sinon.stub();
+const recordPasswordResetRecoveryCodeSuccessStub = sinon.stub();
 
 const { gleanMetrics, logErrorWithGlean } = proxyquire(
   '../../../lib/metrics/glean',
@@ -86,6 +88,10 @@ const { gleanMetrics, logErrorWithGlean } = proxyquire(
         recordPasswordResetEmailConfirmationSuccess:
           recordPasswordResetEmailConfirmationSuccessStub,
         recordTwoFactorAuthCodeComplete: recordTwoFactorAuthCodeCompleteStub,
+        recordPasswordResetTwoFactorSuccess:
+          recordPasswordResetTwoFactorSuccessStub,
+        recordPasswordResetRecoveryCodeSuccess:
+          recordPasswordResetRecoveryCodeSuccessStub,
       }),
     },
   }
