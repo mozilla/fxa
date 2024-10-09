@@ -52,6 +52,7 @@ const EMAIL_TYPES = {
   passwordForgotOtp: 'reset_password',
   passwordReset: 'reset_password',
   passwordResetAccountRecovery: 'account_recovery',
+  passwordResetWithRecoveryKeyPrompt: 'reset_password',
   postAddLinkedAccount: 'login',
   postChangePrimary: 'change_email',
   postRemoveSecondary: 'secondary_email',

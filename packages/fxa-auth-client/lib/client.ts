@@ -747,6 +747,7 @@ export default class AuthClient {
     passwordForgotToken: hexstring,
     options: {
       accountResetWithRecoveryKey?: boolean;
+      includeRecoveryKeyPrompt?: boolean;
     } = {},
     headers?: Headers
   ) {

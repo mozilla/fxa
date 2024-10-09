@@ -71,6 +71,7 @@ module.exports = function (log, config, bounces) {
     passwordForgotOtp: 'password-forgot-otp',
     passwordReset: 'password-reset-success',
     passwordResetAccountRecovery: 'password-reset-account-recovery-success',
+    passwordResetWithRecoveryKeyPrompt: 'password-reset-w-recovery-key-prompt',
     postAddLinkedAccount: 'account-linked',
     postRemoveSecondary: 'account-email-removed',
     postVerify: 'account-verified',
@@ -121,7 +122,8 @@ module.exports = function (log, config, bounces) {
     passwordChangeRequired: 'password-change',
     passwordForgotOtp: 'password-reset',
     passwordReset: 'password-reset',
-    passwordResetAccountRecovery: 'create-recovery-key',
+    passwordResetAccountRecovery: 'manage-account',
+    passwordResetWithRecoveryKeyPrompt: 'create-recovery-key',
     postAddLinkedAccount: 'manage-account',
     postRemoveSecondary: 'account-email-removed',
     postVerify: 'connect-device',
@@ -1164,6 +1166,10 @@ module.exports = function (log, config, bounces) {
       {},
       templateName
     );
+    const [time, date] = this._constructLocalTimeString(
+      message.timeZone,
+      message.acceptLanguage
+    );
 
     const headers = {
       'X-Link': links.resetLink,
@@ -1174,11 +1180,14 @@ module.exports = function (log, config, bounces) {
       headers,
       template: templateName,
       templateValues: {
+        date,
+        device: this._formatUserAgentInfo(message),
         privacyUrl: links.privacyUrl,
         resetLink: links.resetLink,
         resetLinkAttributes: links.resetLinkAttributes,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
+        time,
       },
     });
   };
@@ -1718,10 +1727,7 @@ module.exports = function (log, config, bounces) {
     });
 
     const templateName = 'passwordResetAccountRecovery';
-    const links = this._generateCreateAccountRecoveryLinks(
-      message,
-      templateName
-    );
+    const links = this._generateSettingLinks(message, templateName);
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
       message.acceptLanguage
@@ -1741,6 +1747,43 @@ module.exports = function (log, config, bounces) {
         device: this._formatUserAgentInfo(message),
         email: message.email,
         iosUrl: links.iosLink,
+        link: links.link,
+        privacyUrl: links.privacyUrl,
+        productName: 'Firefox',
+        passwordChangeLink: links.passwordChangeLink,
+        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+        supportLinkAttributes: links.supportLinkAttributes,
+        supportUrl: links.supportUrl,
+        time,
+      },
+    });
+  };
+
+  Mailer.prototype.passwordResetWithRecoveryKeyPromptEmail = function (
+    message
+  ) {
+    const templateName = 'passwordResetWithRecoveryKeyPrompt';
+    const links = this._generateCreateAccountRecoveryLinks(
+      message,
+      templateName
+    );
+    const [time, date] = this._constructLocalTimeString(
+      message.timeZone,
+      message.acceptLanguage
+    );
+
+    const headers = {
+      'X-Link': links.link,
+    };
+
+    return this.send({
+      ...message,
+      headers,
+      template: templateName,
+      templateValues: {
+        date,
+        device: this._formatUserAgentInfo(message),
+        email: message.email,
         link: links.link,
         privacyUrl: links.privacyUrl,
         productName: 'Firefox',

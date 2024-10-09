@@ -4,7 +4,7 @@
     "message": "Your password has been reset"
   },
   "action": {
-    "id": "passwordResetAccountRecovery-action-3",
-    "message": "Create account recovery key"
+    "id": "passwordResetAccountRecovery-action-4",
+    "message": "Manage account"
   }
 }

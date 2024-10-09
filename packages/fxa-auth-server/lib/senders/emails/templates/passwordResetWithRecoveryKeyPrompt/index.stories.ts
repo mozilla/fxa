@@ -7,18 +7,18 @@ import { MOCK_USER_INFO } from '../../partials/userInfo/mocks';
 import { storyWithProps } from '../../storybook-email';
 
 export default {
-  title: 'FxA Emails/Templates/passwordResetAccountRecovery',
+  title: 'FxA Emails/Templates/passwordResetWithRecoveryKeyPrompt',
 } as Meta;
 
 const createStory = storyWithProps(
-  'passwordResetAccountRecovery',
-  'Sent when account recovery key is used.',
+  'passwordResetWithRecoveryKeyPrompt',
+  'Sent when a sync user resets their password without an account recovery key.',
   {
     ...MOCK_USER_INFO,
-    link: 'http://localhost:3030/settings',
+    link: 'http://localhost:3030/settings/account_recovery',
     passwordChangeLink: 'http://localhost:3030/settings/change_password',
     productName: 'Firefox',
   }
 );
 
-export const PasswordResetAccountRecovery = createStory();
+export const PasswordResetWithRecoveryKeyPrompt = createStory();

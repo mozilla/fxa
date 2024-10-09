@@ -21,7 +21,7 @@
   "passwordChanged": 5,
   "passwordChangeRequired": 3,
   "passwordForgotOtp": 1,
-  "passwordReset": 5,
+  "passwordReset": 6,
   "postAddLinkedAccount": 1,
   "postChangePrimary": 5,
   "postRemoveSecondary": 5,
@@ -42,12 +42,13 @@
   "postRemoveTwoStepAuthentication": 9,
   "postConsumeRecoveryCode": 7,
   "postNewRecoveryCodes": 7,
-  "passwordResetAccountRecovery": 8,
+  "passwordResetAccountRecovery": 9,
   "postAddAccountRecovery": 9,
   "postChangeAccountRecovery": 1,
   "postRemoveAccountRecovery": 8,
   "cadReminderFirst": 3,
   "cadReminderSecond": 3,
   "subscriptionAccountReminderFirst": 3,
-  "subscriptionAccountReminderSecond": 3
+  "subscriptionAccountReminderSecond": 3,
+  "passwordResetWithRecoveryKeyPrompt": 1
 }

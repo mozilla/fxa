@@ -5,11 +5,11 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-header">
-      <span data-l10n-id="passwordResetAccountRecovery-title-3">Your password has been reset</span>
+      <span data-l10n-id="passwordResetWithRecoveryKeyPrompt-title">Your password has been reset</span>
     </mj-text>
 
     <mj-text css-class="text-body">
-      <span data-l10n-id="passwordResetAccountRecovery-description-3">You used your account recovery key to update your Mozilla account password on:</span>
+      <span data-l10n-id="passwordResetWithRecoveryKeyPrompt-description">You reset your Mozilla account password on:</span>
     </mj-text>
   </mj-column>
 </mj-section>
@@ -19,15 +19,14 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-body">
-      <span data-l10n-id="passwordResetAccountRecovery-information">We logged you out of all your synced devices. We created a new account recovery key to replace the one you used. You can change it in your account settings.</span>
+      <span data-l10n-id="passwordResetWithRecoveryKeyPrompt-cta-description">Youʼll need to sign in again on all of your synced devices. Keep your data safe next time with an account recovery key. This allows you to recover your data if you forget your password.</span>
     </mj-text>
   </mj-column>
 </mj-section>
 
 <%- include('/partials/button/index.mjml', {
-  buttonL10nId: "passwordResetAccountRecovery-action-4",
-  buttonText: "Manage account"
+  buttonL10nId: "passwordResetWithRecoveryKeyPrompt-action",
+  buttonText: "Create account recovery key"
 }) %>
 
-<%- include('/partials/appBadges/index.mjml') %>
 <%- include('/partials/automatedEmailChangePassword/index.mjml') %>
