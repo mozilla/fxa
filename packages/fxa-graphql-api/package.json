@@ -51,7 +51,7 @@
     "graphql-parse-resolve-info": "^4.13.0",
     "graphql-query-complexity": "^1.0.0",
     "helmet": "^8.0.0",
-    "hot-shots": "^10.0.0",
+    "hot-shots": "^10.1.1",
     "knex": "^3.1.0",
     "mozlog": "^3.0.2",
     "mysql": "^2.18.1",

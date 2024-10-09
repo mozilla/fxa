@@ -92,7 +92,7 @@
     "grunt-z-schema": "0.1.0",
     "handlebars": "^4.7.7",
     "helmet": "^8.0.0",
-    "hot-shots": "^10.0.0",
+    "hot-shots": "^10.1.1",
     "http-proxy-middleware": "^2.0.0",
     "i18n-abide": "0.0.26",
     "joi": "^17.8.3",
