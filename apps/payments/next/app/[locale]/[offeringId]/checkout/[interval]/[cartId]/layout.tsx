@@ -5,9 +5,7 @@ import { headers } from 'next/headers';
 
 import { CouponForm, PurchaseDetails } from '@fxa/payments/ui';
 import {
-  fetchCMSData,
   getApp,
-  getCartAction,
   Details,
   PriceInterval,
   SubscriptionTitle,
@@ -16,6 +14,7 @@ import {
 import { DEFAULT_LOCALE } from '@fxa/shared/l10n';
 import { config } from 'apps/payments/next/config';
 import { MetricsWrapper } from '@fxa/payments/ui';
+import { fetchCMSData, getCartAction } from '@fxa/payments/ui/actions';
 
 // TODO - Replace these placeholders as part of FXA-8227
 export const metadata = {

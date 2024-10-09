@@ -9,12 +9,11 @@ import Link from 'next/link';
 import { DEFAULT_LOCALE } from '@fxa/shared/l10n';
 
 import errorIcon from '@fxa/shared/assets/images/error.svg';
+import { SupportedPages, getApp } from '@fxa/payments/ui/server';
 import {
-  SupportedPages,
-  getApp,
   getCartOrRedirectAction,
   recordEmitterEventAction,
-} from '@fxa/payments/ui/server';
+} from '@fxa/payments/ui/actions';
 import { CartErrorReasonId } from '@fxa/shared/db/mysql/account';
 
 // forces dynamic rendering
