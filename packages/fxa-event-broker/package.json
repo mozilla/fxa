@@ -42,7 +42,7 @@
     "convict-format-with-validator": "^6.2.0",
     "express": "^4.21.0",
     "fxa-shared": "workspace:*",
-    "hot-shots": "^10.0.0",
+    "hot-shots": "^10.1.1",
     "joi": "^17.8.3",
     "jwks-rsa": "^3.1.0",
     "mozlog": "^3.0.2",
