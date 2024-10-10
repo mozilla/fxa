@@ -1,10 +1,10 @@
-passwordResetAccountRecovery-title-2 = "Password reset successfully"
+passwordResetAccountRecovery-title-3 = "Your password has been reset"
 
-passwordResetAccountRecovery-description-2 = "You used your account recovery key to update your password from:"
+passwordResetAccountRecovery-description-3 = "You used your account recovery key to update your Mozilla account password on:"
 
 <%- include('/partials/userInfo/index.txt') %>
 
-passwordResetAccountRecovery-regen-required-txt-1 = "You’ll need to sign in again on all of your synced devices. Remember to create a new account recovery key to replace the one you used:"
+passwordResetAccountRecovery-regen-required-txt-1 = "We logged you out of all your synced devices. We created a new account recovery key to replace the one you used. You can change it in your account settings:"
 
 <%- link %>
 

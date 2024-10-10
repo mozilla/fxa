@@ -636,11 +636,13 @@ export class Account implements AccountData {
    * @param token passwordForgotToken
    * @param code code
    * @param accountResetWithRecoveryKey is account being reset with recovery key?
+   * @param includeRecoveryKeyPrompt should a prompt to create a recovery key be included in the success email?
    * */
   async passwordForgotVerifyCode(
     token: string,
     code: string,
-    accountResetWithRecoveryKey = false
+    accountResetWithRecoveryKey = false,
+    includeRecoveryKeyPrompt = false
   ): Promise<string> {
     // TODO: There is a bug in Backbone and React reset PW around `accountResetWithRecoveryKey`.
     // We attempt to validate the `code` and `token` provided here, but because the
@@ -650,7 +652,10 @@ export class Account implements AccountData {
     // to a normal reset if a user can't use their key.
     const { accountResetToken } =
       await this.authClient.passwordForgotVerifyCode(code, token, {
-        accountResetWithRecoveryKey,
+        ...{
+          accountResetWithRecoveryKey,
+          includeRecoveryKeyPrompt,
+        },
       });
     return accountResetToken;
   }
@@ -710,7 +715,8 @@ export class Account implements AccountData {
     email: string,
     newPassword: string,
     resetToken?: string,
-    kB?: string
+    kB?: string,
+    includeRecoveryKeyPrompt = false
   ): Promise<any> {
     try {
       // TODO: Temporary workaround (use auth-client directly) for GraphQL not
@@ -719,8 +725,15 @@ export class Account implements AccountData {
       //   token,
       //   code
       // );
+      // if we already have a reset token, that means the user successfully used a recovery key
       const accountResetToken =
-        resetToken || (await this.passwordForgotVerifyCode(token, code));
+        resetToken ||
+        (await this.passwordForgotVerifyCode(
+          token,
+          code,
+          false,
+          includeRecoveryKeyPrompt
+        ));
       const credentials = await getCredentials(email, newPassword);
 
       let credentialsV2 = undefined;

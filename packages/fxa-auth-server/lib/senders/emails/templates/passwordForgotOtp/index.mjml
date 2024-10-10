@@ -22,8 +22,8 @@ can obtain one at http://mozilla.org/MPL/2.0/. %>
   <mj-column>
 
     <mj-text css-class="text-body">
-      <span data-l10n-id="password-forgot-otp-code">
-        If yes, here is your confirmation code to proceed:
+      <span data-l10n-id="password-forgot-otp-code-2">
+        If this was you, here is your confirmation code to proceed:
       </span>
     </mj-text>
 

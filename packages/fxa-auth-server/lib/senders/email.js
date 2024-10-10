@@ -71,6 +71,7 @@ module.exports = function (log, config, bounces) {
     passwordForgotOtp: 'password-forgot-otp',
     passwordReset: 'password-reset-success',
     passwordResetAccountRecovery: 'password-reset-account-recovery-success',
+    passwordResetSyncNoRecoveryKey: 'password-reset-sync-no-recovery-key',
     postAddLinkedAccount: 'account-linked',
     postRemoveSecondary: 'account-email-removed',
     postVerify: 'account-verified',
@@ -121,7 +122,8 @@ module.exports = function (log, config, bounces) {
     passwordChangeRequired: 'password-change',
     passwordForgotOtp: 'password-reset',
     passwordReset: 'password-reset',
-    passwordResetAccountRecovery: 'create-recovery-key',
+    passwordResetAccountRecovery: 'manage-account',
+    passwordResetSyncNoRecoveryKey: 'create-recovery-key',
     postAddLinkedAccount: 'manage-account',
     postRemoveSecondary: 'account-email-removed',
     postVerify: 'connect-device',
@@ -1157,12 +1159,21 @@ module.exports = function (log, config, bounces) {
   };
 
   Mailer.prototype.passwordResetEmail = function (message) {
+    log.trace('mailer.passwordResetEmail', {
+      email: message.email,
+      uid: message.uid,
+    });
+
     const templateName = 'passwordReset';
     const links = this._generateLinks(
       this.initiatePasswordResetUrl,
       message,
       {},
       templateName
+    );
+    const [time, date] = this._constructLocalTimeString(
+      message.timeZone,
+      message.acceptLanguage
     );
 
     const headers = {
@@ -1174,11 +1185,14 @@ module.exports = function (log, config, bounces) {
       headers,
       template: templateName,
       templateValues: {
+        date,
+        device: this._formatUserAgentInfo(message),
         privacyUrl: links.privacyUrl,
         resetLink: links.resetLink,
         resetLinkAttributes: links.resetLinkAttributes,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
+        time,
       },
     });
   };
@@ -1718,6 +1732,45 @@ module.exports = function (log, config, bounces) {
     });
 
     const templateName = 'passwordResetAccountRecovery';
+    const links = this._generateSettingLinks(message, templateName);
+    const [time, date] = this._constructLocalTimeString(
+      message.timeZone,
+      message.acceptLanguage
+    );
+
+    const headers = {
+      'X-Link': links.link,
+    };
+
+    return this.send({
+      ...message,
+      headers,
+      template: templateName,
+      templateValues: {
+        androidUrl: links.androidLink,
+        date,
+        device: this._formatUserAgentInfo(message),
+        email: message.email,
+        iosUrl: links.iosLink,
+        link: links.link,
+        privacyUrl: links.privacyUrl,
+        productName: 'Firefox',
+        passwordChangeLink: links.passwordChangeLink,
+        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+        supportLinkAttributes: links.supportLinkAttributes,
+        supportUrl: links.supportUrl,
+        time,
+      },
+    });
+  };
+
+  Mailer.prototype.passwordResetSyncNoRecoveryKeyEmail = function (message) {
+    log.trace('mailer.passwordResetSyncNoRecoveryKeyEmail', {
+      email: message.email,
+      uid: message.uid,
+    });
+
+    const templateName = 'passwordResetSyncNoRecoveryKey';
     const links = this._generateCreateAccountRecoveryLinks(
       message,
       templateName

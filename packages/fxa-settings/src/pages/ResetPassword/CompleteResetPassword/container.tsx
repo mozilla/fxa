@@ -75,6 +75,10 @@ const CompleteResetPasswordContainer = ({
 
   const isResetWithoutRecoveryKey = !!(code && token);
 
+  const isSyncUser =
+    integration.isSync() ||
+    (estimatedSyncDeviceCount && estimatedSyncDeviceCount > 0);
+
   const localizedSuccessMessage = ftlMsgResolver.getMsg(
     'reset-password-complete-header',
     'Your password has been reset'
@@ -131,6 +135,7 @@ const CompleteResetPasswordContainer = ({
     newPassword: string,
     recoveryKeyId: string
   ) => {
+    console.log('with recovery key');
     const options = {
       accountResetToken,
       emailToHashWith: emailToUse,
@@ -151,8 +156,10 @@ const CompleteResetPasswordContainer = ({
     code: string,
     emailToUse: string,
     newPassword: string,
-    token: string
+    token: string,
+    includeRecoveryKeyPrompt: boolean
   ) => {
+    console.log('without recovery key');
     // TODO in FXA-9672: do not use Account model in reset password pages
     const accountResetData: AccountResetData =
       await account.completeResetPassword(
@@ -161,7 +168,9 @@ const CompleteResetPasswordContainer = ({
         code,
         emailToUse,
         newPassword,
-        accountResetToken
+        undefined,
+        undefined,
+        includeRecoveryKeyPrompt
       );
     return accountResetData;
   };
@@ -216,11 +225,15 @@ const CompleteResetPasswordContainer = ({
         handleNavigationWithRecoveryKey();
       } else if (isResetWithoutRecoveryKey) {
         GleanMetrics.passwordReset.createNewSubmit();
+        const includeRecoveryKeyPrompt = !!(
+          isResetWithoutRecoveryKey && isSyncUser
+        );
         const accountResetData = await resetPasswordWithoutRecoveryKey(
           code,
           emailToUse,
           newPassword,
-          token
+          token,
+          includeRecoveryKeyPrompt
         );
         // TODO add frontend Glean event for successful reset?
         notifyClientOfSignin(accountResetData);
