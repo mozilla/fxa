@@ -120,10 +120,10 @@ export class CheckoutService {
       customer = await this.customerManager.retrieve(stripeCustomerId);
     }
 
-    if (!cart.uid) {
+    if (uid && stripeCustomerId) {
       await this.accountCustomerManager.createAccountCustomer({
-        uid: uid,
-        stripeCustomerId: stripeCustomerId,
+        uid,
+        stripeCustomerId,
       });
     }
 
