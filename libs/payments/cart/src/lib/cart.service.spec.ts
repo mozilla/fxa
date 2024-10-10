@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { faker } from '@faker-js/faker';
-import { ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
 
 import {
@@ -40,6 +39,10 @@ import {
   AccountCustomerManager,
 } from '@fxa/payments/stripe';
 import {
+  MockProfileClientConfigProvider,
+  ProfileClient,
+} from '@fxa/profile/client';
+import {
   MockStrapiClientConfigProvider,
   ProductConfigurationManager,
   StrapiClient,
@@ -57,8 +60,14 @@ import {
   GeoDBManagerConfig,
   MockGeoDBNestFactory,
 } from '@fxa/shared/geodb';
+import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 import { AccountManager } from '@fxa/shared/account/account';
+import {
+  MockNotifierSnsConfigProvider,
+  NotifierService,
+  NotifierSnsProvider,
+} from '@fxa/shared/notifier';
 import {
   CheckoutCustomerDataFactory,
   FinishErrorCartFactory,
@@ -89,6 +98,11 @@ describe('CartService', () => {
   let invoiceManager: InvoiceManager;
   let productConfigurationManager: ProductConfigurationManager;
 
+  const mockLogger = {
+    error: jest.fn(),
+    debug: jest.fn(),
+  };
+
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
       providers: [
@@ -97,7 +111,6 @@ describe('CartService', () => {
         CartManager,
         CartService,
         CheckoutService,
-        ConfigService,
         CustomerManager,
         EligibilityManager,
         EligibilityService,
@@ -107,10 +120,14 @@ describe('CartService', () => {
         MockAccountDatabaseNestFactory,
         MockFirestoreProvider,
         MockGeoDBNestFactory,
+        MockNotifierSnsConfigProvider,
         MockPaypalClientConfigProvider,
+        MockProfileClientConfigProvider,
         MockStatsDProvider,
         MockStrapiClientConfigProvider,
         MockStripeConfigProvider,
+        NotifierService,
+        NotifierSnsProvider,
         PaymentMethodManager,
         PaypalBillingAgreementManager,
         PayPalClient,
@@ -118,12 +135,17 @@ describe('CartService', () => {
         PriceManager,
         ProductConfigurationManager,
         ProductManager,
+        ProfileClient,
         PromotionCodeManager,
         StrapiClient,
         StripeClient,
         SubscriptionManager,
         CurrencyManager,
         MockCurrencyConfigProvider,
+        {
+          provide: LOGGER_PROVIDER,
+          useValue: mockLogger,
+        },
       ],
     }).compile();
 
@@ -142,43 +164,49 @@ describe('CartService', () => {
   });
 
   describe('setupCart', () => {
-    it('calls createCart with expected parameters', async () => {
-      const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
-      const mockAccountCustomer = ResultAccountCustomerFactory({
-        stripeCustomerId: mockCustomer.id,
-      });
-      const mockResultCart = ResultCartFactory();
-      const args = {
-        interval: SubplatInterval.Monthly,
-        offeringConfigId: faker.string.uuid(),
-        experiment: faker.string.uuid(),
-        promoCode: faker.word.noun(),
-        uid: faker.string.hexadecimal({
-          length: 32,
-          prefix: '',
-          casing: 'lower',
-        }),
-        ip: faker.internet.ipv4(),
-      };
-      const taxAddress = TaxAddressFactory();
-      const mockPrice = StripePriceFactory();
-      const mockInvoicePreview = InvoicePreviewFactory();
-      const mockResolvedCurrency = faker.finance.currencyCode();
+    const args = {
+      interval: SubplatInterval.Monthly,
+      offeringConfigId: faker.string.uuid(),
+      experiment: faker.string.uuid(),
+      promoCode: faker.word.noun(),
+      uid: faker.string.hexadecimal({
+        length: 32,
+        prefix: '',
+        casing: 'lower',
+      }),
+      ip: faker.internet.ipv4(),
+    };
 
-      jest
-        .spyOn(eligibilityService, 'checkEligibility')
-        .mockResolvedValue(EligibilityStatus.CREATE);
-      jest.spyOn(geodbManager, 'getTaxAddress').mockReturnValue(taxAddress);
+    const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
+    const mockAccountCustomer = ResultAccountCustomerFactory({
+      stripeCustomerId: mockCustomer.id,
+    });
+    const mockInvoicePreview = InvoicePreviewFactory();
+    const mockResultCart = ResultCartFactory();
+    const mockPrice = StripePriceFactory();
+    const taxAddress = TaxAddressFactory();
+
+    beforeEach(async () => {
       jest
         .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
         .mockResolvedValue(mockAccountCustomer);
+      jest.spyOn(customerManager, 'retrieve').mockResolvedValue(mockCustomer);
+      jest.spyOn(geodbManager, 'getTaxAddress').mockReturnValue(taxAddress);
       jest
         .spyOn(productConfigurationManager, 'retrieveStripePrice')
         .mockResolvedValue(mockPrice);
-      jest.spyOn(customerManager, 'retrieve').mockResolvedValue(mockCustomer);
       jest
         .spyOn(invoiceManager, 'preview')
         .mockResolvedValue(mockInvoicePreview);
+      jest
+        .spyOn(eligibilityService, 'checkEligibility')
+        .mockResolvedValue(EligibilityStatus.CREATE);
+    });
+
+    it('calls createCart with expected parameters', async () => {
+      const mockResultCart = ResultCartFactory();
+      const mockResolvedCurrency = faker.finance.currencyCode();
+
       jest
         .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
         .mockResolvedValue(undefined);
@@ -206,44 +234,10 @@ describe('CartService', () => {
 
     it('throws an error when couponCode is invalid', async () => {
       const mockAccount = AccountFactory();
-      const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
-      const mockAccountCustomer = ResultAccountCustomerFactory({
-        stripeCustomerId: mockCustomer.id,
-      });
-      const mockResultCart = ResultCartFactory();
-      const args = {
-        interval: SubplatInterval.Monthly,
-        offeringConfigId: faker.string.uuid(),
-        experiment: faker.string.uuid(),
-        promoCode: faker.word.noun(),
-        uid: faker.string.hexadecimal({
-          length: 32,
-          prefix: '',
-          casing: 'lower',
-        }),
-        ip: faker.internet.ipv4(),
-      };
-      const taxAddress = TaxAddressFactory();
-      const mockPrice = StripePriceFactory();
-      const mockInvoicePreview = InvoicePreviewFactory();
 
       jest
         .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
         .mockRejectedValue(undefined);
-      jest
-        .spyOn(eligibilityService, 'checkEligibility')
-        .mockResolvedValue(EligibilityStatus.CREATE);
-      jest.spyOn(geodbManager, 'getTaxAddress').mockReturnValue(taxAddress);
-      jest
-        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
-        .mockResolvedValue(mockAccountCustomer);
-      jest
-        .spyOn(productConfigurationManager, 'retrieveStripePrice')
-        .mockResolvedValue(mockPrice);
-      jest.spyOn(customerManager, 'retrieve').mockResolvedValue(mockCustomer);
-      jest
-        .spyOn(invoiceManager, 'preview')
-        .mockResolvedValue(mockInvoicePreview);
       jest.spyOn(cartManager, 'createCart').mockResolvedValue(mockResultCart);
       jest
         .spyOn(accountManager, 'getAccounts')
@@ -258,44 +252,7 @@ describe('CartService', () => {
 
     it('throws an error when country to currency result is invalid', async () => {
       const mockAccount = AccountFactory();
-      const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
-      const mockAccountCustomer = ResultAccountCustomerFactory({
-        stripeCustomerId: mockCustomer.id,
-      });
-      const mockResultCart = ResultCartFactory();
-      const args = {
-        interval: SubplatInterval.Monthly,
-        offeringConfigId: faker.string.uuid(),
-        experiment: faker.string.uuid(),
-        promoCode: faker.word.noun(),
-        uid: faker.string.hexadecimal({
-          length: 32,
-          prefix: '',
-          casing: 'lower',
-        }),
-        ip: faker.internet.ipv4(),
-      };
-      const taxAddress = TaxAddressFactory();
-      const mockPrice = StripePriceFactory();
-      const mockInvoicePreview = InvoicePreviewFactory();
 
-      jest
-        .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
-        .mockRejectedValue(undefined);
-      jest
-        .spyOn(eligibilityService, 'checkEligibility')
-        .mockResolvedValue(EligibilityStatus.CREATE);
-      jest.spyOn(geodbManager, 'getTaxAddress').mockReturnValue(taxAddress);
-      jest
-        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
-        .mockResolvedValue(mockAccountCustomer);
-      jest
-        .spyOn(productConfigurationManager, 'retrieveStripePrice')
-        .mockResolvedValue(mockPrice);
-      jest.spyOn(customerManager, 'retrieve').mockResolvedValue(mockCustomer);
-      jest
-        .spyOn(invoiceManager, 'preview')
-        .mockResolvedValue(mockInvoicePreview);
       jest
         .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
         .mockResolvedValue(undefined);
@@ -316,21 +273,24 @@ describe('CartService', () => {
   });
 
   describe('restartCart', () => {
-    it('fetches old cart and creates new cart with same details', async () => {
-      const mockOldCart = ResultCartFactory({
-        couponCode: faker.word.noun(),
-      });
-      const mockNewCart = ResultCartFactory();
-      const mockPrice = StripePriceFactory();
+    const mockOldCart = ResultCartFactory({
+      couponCode: faker.word.noun(),
+    });
+    const mockNewCart = ResultCartFactory();
+    const mockPrice = StripePriceFactory();
 
+    beforeEach(async () => {
       jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockOldCart);
-      jest.spyOn(cartManager, 'createCart').mockResolvedValue(mockNewCart);
       jest
         .spyOn(productConfigurationManager, 'retrieveStripePrice')
         .mockResolvedValue(mockPrice);
+    });
+
+    it('fetches old cart and creates new cart with same details', async () => {
       jest
         .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
         .mockResolvedValue(undefined);
+      jest.spyOn(cartManager, 'createCart').mockResolvedValue(mockNewCart);
 
       const result = await cartService.restartCart(mockOldCart.id);
 
@@ -351,16 +311,10 @@ describe('CartService', () => {
     });
 
     it('throws an error when couponCode is invalid', async () => {
-      const mockOldCart = ResultCartFactory({
-        couponCode: faker.word.noun(),
-      });
-      const mockNewCart = ResultCartFactory();
-
-      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockOldCart);
-      jest.spyOn(cartManager, 'createCart').mockResolvedValue(mockNewCart);
       jest
         .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
         .mockRejectedValue(undefined);
+      jest.spyOn(cartManager, 'createCart').mockResolvedValue(mockNewCart);
 
       await expect(() =>
         cartService.restartCart(mockOldCart.id)

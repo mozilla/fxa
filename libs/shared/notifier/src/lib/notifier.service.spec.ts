@@ -5,7 +5,6 @@
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { Test, TestingModule } from '@nestjs/testing';
 import { StatsD } from 'hot-shots';
-
 import { MockStatsDProvider, StatsDService } from '@fxa/shared/metrics/statsd';
 import { NotifierService } from './notifier.service';
 import {

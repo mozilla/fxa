@@ -51,6 +51,10 @@ import {
   MockStripeConfigProvider,
   AccountCustomerManager,
 } from '@fxa/payments/stripe';
+import {
+  MockProfileClientConfigProvider,
+  ProfileClient,
+} from '@fxa/profile/client';
 import { AccountManager } from '@fxa/shared/account/account';
 import {
   MockStrapiClientConfigProvider,
@@ -62,7 +66,13 @@ import {
   CartEligibilityStatus,
   MockAccountDatabaseNestFactory,
 } from '@fxa/shared/db/mysql/account';
+import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { MockStatsDProvider, StatsDService } from '@fxa/shared/metrics/statsd';
+import {
+  MockNotifierSnsConfigProvider,
+  NotifierService,
+  NotifierSnsProvider,
+} from '@fxa/shared/notifier';
 import {
   CartEligibilityMismatchError,
   CartTotalMismatchError,
@@ -80,13 +90,20 @@ describe('CheckoutService', () => {
   let customerManager: CustomerManager;
   let eligibilityService: EligibilityService;
   let invoiceManager: InvoiceManager;
-  let mockStatsd: StatsD;
   let paymentMethodManager: PaymentMethodManager;
   let paypalBillingAgreementManager: PaypalBillingAgreementManager;
   let paypalCustomerManager: PaypalCustomerManager;
+  let privateMethod: any;
   let productConfigurationManager: ProductConfigurationManager;
+  let profileClient: ProfileClient;
   let promotionCodeManager: PromotionCodeManager;
+  let statsd: StatsD;
   let subscriptionManager: SubscriptionManager;
+
+  const mockLogger = {
+    error: jest.fn(),
+    debug: jest.fn(),
+  };
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -101,9 +118,13 @@ describe('CheckoutService', () => {
         InvoiceManager,
         MockAccountDatabaseNestFactory,
         MockFirestoreProvider,
+        MockNotifierSnsConfigProvider,
+        MockProfileClientConfigProvider,
         MockStatsDProvider,
         MockStrapiClientConfigProvider,
         MockStripeConfigProvider,
+        NotifierService,
+        NotifierSnsProvider,
         PaymentMethodManager,
         PaypalBillingAgreementManager,
         PayPalClient,
@@ -112,11 +133,16 @@ describe('CheckoutService', () => {
         PriceManager,
         ProductConfigurationManager,
         ProductManager,
+        ProfileClient,
         PromotionCodeManager,
         StrapiClient,
         StripeClient,
         StripeConfig,
         SubscriptionManager,
+        {
+          provide: LOGGER_PROVIDER,
+          useValue: mockLogger,
+        },
       ],
     }).compile();
 
@@ -127,14 +153,18 @@ describe('CheckoutService', () => {
     customerManager = moduleRef.get(CustomerManager);
     eligibilityService = moduleRef.get(EligibilityService);
     invoiceManager = moduleRef.get(InvoiceManager);
-    mockStatsd = moduleRef.get(StatsDService);
     paymentMethodManager = moduleRef.get(PaymentMethodManager);
     paypalBillingAgreementManager = moduleRef.get(
       PaypalBillingAgreementManager
     );
     paypalCustomerManager = moduleRef.get(PaypalCustomerManager);
+    privateMethod = jest
+      .spyOn(checkoutService as any, 'customerChanged')
+      .mockResolvedValue({});
+    profileClient = moduleRef.get(ProfileClient);
     productConfigurationManager = moduleRef.get(ProductConfigurationManager);
     promotionCodeManager = moduleRef.get(PromotionCodeManager);
+    statsd = moduleRef.get(StatsDService);
     subscriptionManager = moduleRef.get(SubscriptionManager);
   });
 
@@ -415,29 +445,31 @@ describe('CheckoutService', () => {
   });
 
   describe('postPaySteps', () => {
+    const mockUid = faker.string.uuid();
+    const mockSubscription = StripeResponseFactory(StripeSubscriptionFactory());
+
+    beforeEach(async () => {
+      jest.spyOn(customerManager, 'setTaxId').mockResolvedValue();
+      jest.spyOn(profileClient, 'deleteCache').mockResolvedValue('test');
+    });
+
     it('success', async () => {
       const mockCart = ResultCartFactory();
-      const mockSubscription = StripeResponseFactory(
-        StripeSubscriptionFactory()
-      );
 
-      jest.spyOn(customerManager, 'setTaxId').mockResolvedValue();
-
-      await checkoutService.postPaySteps(mockCart, mockSubscription);
+      await checkoutService.postPaySteps(mockCart, mockSubscription, mockUid);
 
       expect(customerManager.setTaxId).toHaveBeenCalledWith(
         mockSubscription.customer,
         mockSubscription.currency
       );
+
+      expect(privateMethod).toHaveBeenCalled();
     });
 
     it('success - adds coupon code to subscription metadata if it exists', async () => {
       const mockCart = ResultCartFactory({
         couponCode: faker.string.uuid(),
       });
-      const mockSubscription = StripeResponseFactory(
-        StripeSubscriptionFactory()
-      );
       const mockUpdatedSubscription = StripeResponseFactory(
         StripeSubscriptionFactory({
           metadata: {
@@ -447,17 +479,17 @@ describe('CheckoutService', () => {
         })
       );
 
-      jest.spyOn(customerManager, 'setTaxId').mockResolvedValue();
       jest
         .spyOn(subscriptionManager, 'update')
         .mockResolvedValue(mockUpdatedSubscription);
 
-      await checkoutService.postPaySteps(mockCart, mockSubscription);
+      await checkoutService.postPaySteps(mockCart, mockSubscription, mockUid);
 
       expect(customerManager.setTaxId).toHaveBeenCalledWith(
         mockSubscription.customer,
         mockSubscription.currency
       );
+      expect(privateMethod).toHaveBeenCalled();
       expect(subscriptionManager.update).toHaveBeenCalledWith(
         mockSubscription.id,
         {
@@ -497,6 +529,7 @@ describe('CheckoutService', () => {
       jest.spyOn(checkoutService, 'prePaySteps').mockResolvedValue({
         uid: mockCart.uid as string,
         customer: mockCustomer,
+        email: faker.internet.email(),
         enableAutomaticTax: true,
         promotionCode: mockPromotionCode,
         price: mockPrice,
@@ -505,7 +538,7 @@ describe('CheckoutService', () => {
         .spyOn(paymentMethodManager, 'attach')
         .mockResolvedValue(mockPaymentMethod);
       jest.spyOn(customerManager, 'update').mockResolvedValue(mockCustomer);
-      jest.spyOn(mockStatsd, 'increment');
+      jest.spyOn(statsd, 'increment');
       jest
         .spyOn(subscriptionManager, 'create')
         .mockResolvedValue(mockSubscription);
@@ -552,12 +585,9 @@ describe('CheckoutService', () => {
       });
 
       it('increments the statsd counter', async () => {
-        expect(mockStatsd.increment).toHaveBeenCalledWith(
-          'stripe_subscription',
-          {
-            payment_provider: 'stripe',
-          }
-        );
+        expect(statsd.increment).toHaveBeenCalledWith('stripe_subscription', {
+          payment_provider: 'stripe',
+        });
       });
 
       it('creates the subscription', async () => {
@@ -618,6 +648,7 @@ describe('CheckoutService', () => {
       jest.spyOn(checkoutService, 'prePaySteps').mockResolvedValue({
         uid: mockCart.uid as string,
         customer: mockCustomer,
+        email: faker.internet.email(),
         enableAutomaticTax: true,
         promotionCode: mockPromotionCode,
         price: mockPrice,
@@ -628,7 +659,7 @@ describe('CheckoutService', () => {
       jest
         .spyOn(paypalBillingAgreementManager, 'retrieveOrCreateId')
         .mockResolvedValue(mockBillingAgreementId);
-      jest.spyOn(mockStatsd, 'increment');
+      jest.spyOn(statsd, 'increment');
       jest
         .spyOn(subscriptionManager, 'create')
         .mockResolvedValue(mockSubscription);
@@ -668,12 +699,9 @@ describe('CheckoutService', () => {
       });
 
       it('increments the statsd counter', async () => {
-        expect(mockStatsd.increment).toHaveBeenCalledWith(
-          'stripe_subscription',
-          {
-            payment_provider: 'paypal',
-          }
-        );
+        expect(statsd.increment).toHaveBeenCalledWith('stripe_subscription', {
+          payment_provider: 'paypal',
+        });
       });
 
       it('creates the subscription', async () => {

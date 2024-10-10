@@ -4,7 +4,8 @@
 
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { StatsDService } from '@fxa/shared/metrics/statsd';
-import { Inject, Injectable, LoggerService } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import type { LoggerService } from '@nestjs/common';
 import { AWSError, SNS } from 'aws-sdk';
 import { StatsD } from 'hot-shots';
 

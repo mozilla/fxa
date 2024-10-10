@@ -25,22 +25,25 @@ import {
   PromotionCodeManager,
   SubscriptionManager,
 } from '@fxa/payments/customer';
+import { PaymentsGleanManager } from '@fxa/payments/metrics';
+import { PaymentsGleanFactory } from '@fxa/payments/metrics/provider';
 import { AccountCustomerManager, StripeClient } from '@fxa/payments/stripe';
+import { ProfileClient } from '@fxa/profile/client';
 import { AccountManager } from '@fxa/shared/account/account';
 import { ProductConfigurationManager, StrapiClient } from '@fxa/shared/cms';
 import { FirestoreProvider } from '@fxa/shared/db/firestore';
 import { AccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
 import { GeoDBManager, GeoDBNestFactory } from '@fxa/shared/geodb';
 import { LocalizerRscFactoryProvider } from '@fxa/shared/l10n/server';
+import { logger, LOGGER_PROVIDER } from '@fxa/shared/log';
 import { StatsDProvider } from '@fxa/shared/metrics/statsd';
-import { PaymentsGleanManager } from '@fxa/payments/metrics';
+import { NotifierService, NotifierSnsProvider } from '@fxa/shared/notifier';
 
 import { RootConfig } from './config';
 import { NextJSActionsService } from './nextjs-actions.service';
 import { validate } from '../config.utils';
 import { CurrencyManager } from '@fxa/payments/currency';
 import { PaymentsEmitterService } from '../emitter/emitter.service';
-import { PaymentsGleanFactory } from '@fxa/payments/metrics/provider';
 
 @Module({
   imports: [
@@ -80,6 +83,8 @@ import { PaymentsGleanFactory } from '@fxa/payments/metrics/provider';
     InvoiceManager,
     LocalizerRscFactoryProvider,
     NextJSActionsService,
+    NotifierService,
+    NotifierSnsProvider,
     PaymentMethodManager,
     PaypalBillingAgreementManager,
     PayPalClient,
@@ -87,6 +92,7 @@ import { PaymentsGleanFactory } from '@fxa/payments/metrics/provider';
     PriceManager,
     ProductConfigurationManager,
     ProductManager,
+    ProfileClient,
     PromotionCodeManager,
     StatsDProvider,
     StrapiClient,
@@ -95,6 +101,7 @@ import { PaymentsGleanFactory } from '@fxa/payments/metrics/provider';
     PaymentsGleanFactory,
     PaymentsGleanManager,
     PaymentsEmitterService,
+    { provide: LOGGER_PROVIDER, useValue: logger },
   ],
 })
 export class AppModule {}

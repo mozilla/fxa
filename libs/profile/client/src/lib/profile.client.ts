@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
-import { Inject, Injectable, LoggerService } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import type { LoggerService } from '@nestjs/common';
 import Agent from 'agentkeepalive';
 import axios, { AxiosInstance } from 'axios';
 import { ProfileClientConfig } from './profile.config';

@@ -13,7 +13,7 @@ import { LegacyStatsDProvider } from '@fxa/shared/metrics/statsd';
 import { MozLoggerService } from '@fxa/shared/mozlog';
 import {
   LegacyNotifierServiceProvider,
-  NotifierSnsFactory,
+  LegacyNotifierSnsFactory,
 } from '@fxa/shared/notifier';
 import {
   HttpException,
@@ -59,11 +59,11 @@ export const GraphQLConfigFactory = async (
     AccountResolver,
     ClientInfoResolver,
     CustomsService,
+    LegacyNotifierServiceProvider,
+    LegacyNotifierSnsFactory,
     LegacyStatsDProvider,
     LegalResolver,
-    LegacyNotifierServiceProvider,
     MozLoggerService,
-    NotifierSnsFactory,
     SentryPlugin,
     SessionResolver,
     SubscriptionResolver,
