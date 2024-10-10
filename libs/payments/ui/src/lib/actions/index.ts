@@ -13,3 +13,6 @@ export { recordEmitterEventAction } from './recordEmitterEvent';
 export { restartCartAction } from './restartCart';
 export { setupCartAction } from './setupCart';
 export { updateCartAction } from './updateCart';
+export { pollCartAction } from './pollCart';
+export { finalizeCartWithError } from './finalizeCartWithError';
+export { finalizeProcessingCartAction } from './finalizeProcessingCart';

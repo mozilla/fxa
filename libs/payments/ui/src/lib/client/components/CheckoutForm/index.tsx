@@ -158,8 +158,7 @@ export function CheckoutForm({
       displayName: fullName,
     });
 
-    // TODO - To be added in M3B - Redirect customer to '/processing' page
-    router.push('./start');
+    router.push('./processing');
     // TODO - To be moved in M3B - Confirm Payment on '/processing' page
     // Confirm the Intent using the details collected by the Payment Element
     //const { error } = await stripe.confirmPayment({

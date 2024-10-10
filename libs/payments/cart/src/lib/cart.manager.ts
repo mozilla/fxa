@@ -33,11 +33,12 @@ import type { AccountDatabase } from '@fxa/shared/db/mysql/account';
 // For an action to be executed, the cart state needs to be in one of
 // valid states listed in the array of CartStates below
 const ACTIONS_VALID_STATE = {
-  updateFreshCart: [CartState.START],
+  updateFreshCart: [CartState.START, CartState.PROCESSING],
   finishCart: [CartState.PROCESSING],
   finishErrorCart: [CartState.START, CartState.PROCESSING],
   deleteCart: [CartState.START, CartState.PROCESSING],
   restartCart: [CartState.START, CartState.PROCESSING, CartState.FAIL],
+  setProcessingCart: [CartState.START],
 };
 
 // Type guard to check if action is valid key in ACTIONS_VALID_STATE
@@ -177,6 +178,21 @@ export class CartManager {
     } catch (error) {
       const cause = error instanceof CartNotUpdatedError ? undefined : error;
       throw new CartNotUpdatedError(cartId, items, cause);
+    }
+  }
+
+  public async setProcessingCart(cartId: string) {
+    const cart = await this.fetchCartById(cartId);
+
+    this.checkActionForValidCartState(cart, 'setProcessingCart');
+
+    try {
+      await updateCart(this.db, Buffer.from(cartId, 'hex'), cart.version, {
+        state: CartState.PROCESSING,
+      });
+    } catch (error) {
+      const cause = error instanceof CartNotUpdatedError ? undefined : error;
+      throw new CartNotUpdatedError(cartId, cause);
     }
   }
 

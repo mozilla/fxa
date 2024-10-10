@@ -133,3 +133,11 @@ export class CartInvalidCurrencyError extends CartError {
     });
   }
 }
+
+export class CartSubscriptionNotFoundError extends CartError {
+  constructor(cartId: string) {
+    super('Cart subscription not found', {
+      cartId,
+    });
+  }
+}

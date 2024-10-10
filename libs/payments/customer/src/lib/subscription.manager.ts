@@ -5,9 +5,14 @@
 import { Injectable } from '@nestjs/common';
 import { Stripe } from 'stripe';
 
-import { StripeClient, StripeSubscription } from '@fxa/payments/stripe';
+import {
+  StripeClient,
+  StripePaymentIntent,
+  StripeSubscription,
+} from '@fxa/payments/stripe';
 import { ACTIVE_SUBSCRIPTION_STATUSES } from '@fxa/payments/stripe';
 import { STRIPE_CUSTOMER_METADATA } from './types';
+import { InvalidPaymentIntentError, PaymentIntentNotFoundError } from './error';
 
 @Injectable()
 export class SubscriptionManager {
@@ -97,6 +102,27 @@ export class SubscriptionManager {
     const paymentIntent = await this.stripeClient.paymentIntentRetrieve(
       latestInvoice.payment_intent
     );
+
+    return paymentIntent;
+  }
+
+  async processStripeSubscription(
+    subscription: StripeSubscription
+  ): Promise<StripePaymentIntent> {
+    const paymentIntent = await this.getLatestPaymentIntent(subscription);
+
+    if (!paymentIntent) {
+      throw new PaymentIntentNotFoundError();
+    }
+
+    if (paymentIntent.last_payment_error) {
+      await this.cancel(subscription.id);
+      throw new InvalidPaymentIntentError();
+    }
+
+    if (paymentIntent.status === 'requires_confirmation') {
+      await this.stripeClient.paymentIntentConfirm(paymentIntent.id);
+    }
 
     return paymentIntent;
   }

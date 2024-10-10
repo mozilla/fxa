@@ -38,6 +38,7 @@ import {
   StripeResponseFactory,
   MockStripeConfigProvider,
   AccountCustomerManager,
+  StripePaymentIntentFactory,
 } from '@fxa/payments/stripe';
 import {
   MockStrapiClientConfigProvider,
@@ -74,6 +75,7 @@ import {
 } from './cart.error';
 import { CurrencyManager } from '@fxa/payments/currency';
 import { MockCurrencyConfigProvider } from 'libs/payments/currency/src/lib/currency.config';
+import { CheckoutError } from './checkout.error';
 
 describe('CartService', () => {
   let accountManager: AccountManager;
@@ -147,6 +149,7 @@ describe('CartService', () => {
       const mockAccountCustomer = ResultAccountCustomerFactory({
         stripeCustomerId: mockCustomer.id,
       });
+
       const mockResultCart = ResultCartFactory();
       const args = {
         interval: SubplatInterval.Monthly,
@@ -160,6 +163,7 @@ describe('CartService', () => {
         }),
         ip: faker.internet.ipv4(),
       };
+      const mockAccount = AccountFactory({ uid: Buffer.from(args.uid, 'hex') });
       const taxAddress = TaxAddressFactory();
       const mockPrice = StripePriceFactory();
       const mockInvoicePreview = InvoicePreviewFactory();
@@ -172,6 +176,10 @@ describe('CartService', () => {
       jest
         .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
         .mockResolvedValue(mockAccountCustomer);
+
+      jest
+        .spyOn(accountManager, 'getAccounts')
+        .mockResolvedValue([mockAccount]);
       jest
         .spyOn(productConfigurationManager, 'retrieveStripePrice')
         .mockResolvedValue(mockPrice);
@@ -200,6 +208,7 @@ describe('CartService', () => {
         currency: mockResolvedCurrency,
         eligibilityStatus: CartEligibilityStatus.CREATE,
         couponCode: args.promoCode,
+        email: mockAccount.email,
       });
       expect(result).toEqual(mockResultCart);
     });
@@ -376,9 +385,14 @@ describe('CartService', () => {
     it('accepts payment with stripe', async () => {
       const mockCart = ResultCartFactory();
       const mockPaymentMethodId = faker.string.uuid();
+      const mockPaymentIntent = StripePaymentIntentFactory({
+        status: 'succeeded',
+      });
 
       jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
-      jest.spyOn(checkoutService, 'payWithStripe').mockResolvedValue();
+      jest
+        .spyOn(checkoutService, 'payWithStripe')
+        .mockResolvedValue(mockPaymentIntent);
       jest.spyOn(cartManager, 'finishCart').mockResolvedValue();
       jest.spyOn(cartManager, 'finishErrorCart').mockResolvedValue();
 
@@ -402,12 +416,49 @@ describe('CartService', () => {
       expect(cartManager.finishErrorCart).not.toHaveBeenCalled();
     });
 
+    it('does not proceed with payment if the paymentIntent is not completed', async () => {
+      const mockCart = ResultCartFactory();
+      const mockPaymentMethodId = faker.string.uuid();
+      const mockPaymentIntent = StripePaymentIntentFactory({
+        status: 'requires_action',
+      });
+
+      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+      jest
+        .spyOn(checkoutService, 'payWithStripe')
+        .mockResolvedValue(mockPaymentIntent);
+      jest.spyOn(cartManager, 'finishCart').mockResolvedValue();
+      jest.spyOn(cartManager, 'finishErrorCart').mockResolvedValue();
+      jest.spyOn(cartManager, 'updateFreshCart').mockResolvedValue();
+
+      await cartService.checkoutCartWithStripe(
+        mockCart.id,
+        mockCart.version,
+        mockPaymentMethodId,
+        mockCustomerData
+      );
+
+      expect(checkoutService.payWithStripe).toHaveBeenCalledWith(
+        mockCart,
+        mockPaymentMethodId,
+        mockCustomerData
+      );
+      expect(cartManager.finishCart).not.toHaveBeenCalled();
+      expect(cartManager.finishErrorCart).not.toHaveBeenCalled();
+    });
+
     it('calls cartManager.finishErrorCart when error occurs during checkout', async () => {
       const mockCart = ResultCartFactory();
       const mockPaymentMethodId = faker.string.uuid();
+      const mockPaymentIntent = StripePaymentIntentFactory();
 
       jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
-      jest.spyOn(checkoutService, 'payWithStripe').mockResolvedValue();
+      jest
+        .spyOn(checkoutService, 'payWithStripe')
+        .mockResolvedValue(mockPaymentIntent);
+      jest
+        .spyOn(checkoutService, 'payWithStripe')
+        .mockRejectedValue(new CheckoutError(''));
       jest.spyOn(cartManager, 'finishCart').mockRejectedValue(undefined);
       jest.spyOn(cartManager, 'finishErrorCart').mockResolvedValue();
 
@@ -461,7 +512,9 @@ describe('CartService', () => {
       const mockToken = faker.string.uuid();
 
       jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
-      jest.spyOn(checkoutService, 'payWithPaypal').mockResolvedValue();
+      jest
+        .spyOn(checkoutService, 'payWithPaypal')
+        .mockRejectedValue(new CheckoutError(''));
       jest.spyOn(cartManager, 'finishCart').mockRejectedValue(undefined);
       jest.spyOn(cartManager, 'finishErrorCart').mockResolvedValue();
 
