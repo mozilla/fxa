@@ -129,4 +129,41 @@ test.describe('severity-2 #smoke', () => {
       expect(keys2.kB).toEqual(keys.kB);
     });
   }
+
+  test(`recovery key is preserved upon upgrade`, async ({
+    page,
+    target,
+    pages: { signin, signup, settings, recoveryKey, confirmSignupCode },
+    testAccountTracker,
+  }) => {
+    const { email, password } = testAccountTracker.generateAccountDetails();
+    await page.goto(
+      `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react&stretch=1`
+    );
+    await signup.fillOutEmailForm(email);
+    await signup.fillOutSignupForm(password, AGE_21);
+    await expect(page).toHaveURL(/confirm_signup_code/);
+    const code = await target.emailClient.getVerifyShortCode(email);
+    await confirmSignupCode.fillOutCodeForm(code);
+
+    await expect(page).toHaveURL(/settings/);
+    await expect(settings.recoveryKey.status).toHaveText('Not Set');
+
+    await settings.recoveryKey.createButton.click();
+    await recoveryKey.createRecoveryKey(password, HINT);
+    await expect(settings.recoveryKey.status).toHaveText('Enabled');
+    await settings.signOut();
+
+    await page.goto(
+      `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react&stretch=2`
+    );
+    await signin.fillOutEmailFirstForm(email);
+    await signin.fillOutPasswordForm(password);
+
+    await expect(page).toHaveURL(/settings/);
+
+    await expect(page).toHaveURL(/settings/);
+    await expect(settings.settingsHeading).toBeVisible();
+    await expect(settings.recoveryKey.status).toHaveText('Enabled');
+  });
 });

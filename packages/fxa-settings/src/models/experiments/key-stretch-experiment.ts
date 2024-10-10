@@ -34,6 +34,12 @@ export class KeyStretchExperiment extends ModelDataProvider {
       return true;
     }
 
+    // If stretch=1 in the URL, then force V1 key stretching for this page render,
+    // This is used for dev/test purposes.
+    if (this.stretch === '1') {
+      return false;
+    }
+
     // If force experiment params are in URL, then force V2 key stretching, and
     // automatically enroll in experiment, so that content server will pick it up.
     if (
