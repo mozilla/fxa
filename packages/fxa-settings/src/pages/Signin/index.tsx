@@ -11,7 +11,7 @@ import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import AppLayout from '../../components/AppLayout';
-import Banner, { BannerType } from '../../components/Banner';
+import Banner, { BannerType, FancyBanner } from '../../components/Banner';
 import CardHeader from '../../components/CardHeader';
 import InputPassword from '../../components/InputPassword';
 import Avatar from '../../components/Settings/Avatar';
@@ -59,6 +59,7 @@ const Signin = ({
   localizedErrorFromLocationState,
   finishOAuthFlowHandler,
   bannerSuccessMessage,
+  fancyBannerSuccessMessage,
 }: SigninProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const location = useLocation();
@@ -313,8 +314,15 @@ const Signin = ({
 
   return (
     <AppLayout>
-      {bannerSuccessMessage && (
+      {bannerSuccessMessage && !fancyBannerSuccessMessage && (
         <Banner type={BannerType.success}>{bannerSuccessMessage}</Banner>
+      )}
+      {fancyBannerSuccessMessage && (
+        <FancyBanner
+          type={BannerType.success}
+          message={fancyBannerSuccessMessage}
+          children={''}
+        />
       )}
       {isPasswordNeededRef.current ? (
         <CardHeader
