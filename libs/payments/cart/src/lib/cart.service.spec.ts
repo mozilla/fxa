@@ -37,6 +37,7 @@ import {
   StripeResponseFactory,
   MockStripeConfigProvider,
   AccountCustomerManager,
+  StripePaymentIntentFactory,
 } from '@fxa/payments/stripe';
 import {
   MockProfileClientConfigProvider,
@@ -214,6 +215,7 @@ describe('CartService', () => {
         .spyOn(currencyManager, 'getCurrencyForCountry')
         .mockReturnValue(mockResolvedCurrency);
       jest.spyOn(cartManager, 'createCart').mockResolvedValue(mockResultCart);
+      jest.spyOn(accountManager, 'getAccounts').mockResolvedValue([]);
 
       const result = await cartService.setupCart(args);
 
@@ -330,9 +332,15 @@ describe('CartService', () => {
     it('accepts payment with stripe', async () => {
       const mockCart = ResultCartFactory();
       const mockPaymentMethodId = faker.string.uuid();
+      const mockPaymentIntent = StripePaymentIntentFactory({
+        payment_method: mockPaymentMethodId,
+        status: 'succeeded',
+      });
 
       jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
-      jest.spyOn(checkoutService, 'payWithStripe').mockResolvedValue();
+      jest
+        .spyOn(checkoutService, 'payWithStripe')
+        .mockResolvedValue(mockPaymentIntent);
       jest.spyOn(cartManager, 'finishCart').mockResolvedValue();
       jest.spyOn(cartManager, 'finishErrorCart').mockResolvedValue();
 
@@ -359,9 +367,15 @@ describe('CartService', () => {
     it('calls cartManager.finishErrorCart when error occurs during checkout', async () => {
       const mockCart = ResultCartFactory();
       const mockPaymentMethodId = faker.string.uuid();
+      const mockPaymentIntent = StripePaymentIntentFactory({
+        payment_method: mockPaymentMethodId,
+        status: 'succeeded',
+      });
 
       jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
-      jest.spyOn(checkoutService, 'payWithStripe').mockResolvedValue();
+      jest
+        .spyOn(checkoutService, 'payWithStripe')
+        .mockResolvedValue(mockPaymentIntent);
       jest.spyOn(cartManager, 'finishCart').mockRejectedValue(undefined);
       jest.spyOn(cartManager, 'finishErrorCart').mockResolvedValue();
 

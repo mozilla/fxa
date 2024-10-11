@@ -222,4 +222,26 @@ export class StripeClient {
     });
     return result as StripeResponse<StripePromotionCode>;
   }
+
+  async paymentIntentConfirm(
+    paymentIntentId: string,
+    params?: Stripe.PaymentIntentConfirmParams
+  ) {
+    const result = await this.stripe.paymentIntents.confirm(paymentIntentId, {
+      ...params,
+      expand: undefined,
+    });
+    return result as StripeResponse<StripePaymentIntent>;
+  }
+
+  async paymentIntentCancel(
+    paymentIntentId: string,
+    params?: Stripe.PaymentIntentCancelParams
+  ) {
+    const result = await this.stripe.paymentIntents.cancel(paymentIntentId, {
+      ...params,
+      expand: undefined,
+    });
+    return result as StripeResponse<StripePaymentIntent>;
+  }
 }

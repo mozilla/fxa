@@ -76,10 +76,16 @@ export type UpdateCart = {
   couponCode?: string;
   email?: string;
   stripeCustomerId?: string;
+  stripeSubscriptionId?: string;
 };
 
 export type CartEligibilityDetails = {
   eligibilityStatus: CartEligibilityStatus;
   state: CartState;
   errorReasonId?: CartErrorReasonId;
+};
+
+export type PollCartResponse = {
+  cartState: CartState;
+  stripeClientSecret?: string;
 };

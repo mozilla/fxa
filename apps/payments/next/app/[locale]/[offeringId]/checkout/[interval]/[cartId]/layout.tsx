@@ -10,6 +10,7 @@ import {
   PriceInterval,
   SubscriptionTitle,
   TermsAndPrivacy,
+  CheckoutParams,
 } from '@fxa/payments/ui/server';
 import { DEFAULT_LOCALE } from '@fxa/shared/l10n';
 import { config } from 'apps/payments/next/config';
@@ -21,13 +22,6 @@ export const metadata = {
   title: 'Mozilla accounts',
   description: 'Mozilla accounts',
 };
-
-export interface CheckoutParams {
-  cartId: string;
-  locale: string;
-  interval: string;
-  offeringId: string;
-}
 
 export interface CheckoutSearchParams {
   experiment?: string;

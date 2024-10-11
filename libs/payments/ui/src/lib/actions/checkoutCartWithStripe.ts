@@ -10,6 +10,7 @@ import {
   CheckoutCartWithStripeActionArgs,
   CheckoutCartWithStripeActionCustomerData,
 } from '../nestapp/validators/CheckoutCartWithStripeActionArgs';
+import { SetCartProcessingActionArgs } from '../nestapp/validators/SetCartProcessingActionArgs';
 
 export const checkoutCartWithStripe = async (
   cartId: string,
@@ -17,12 +18,22 @@ export const checkoutCartWithStripe = async (
   paymentMethodId: string,
   customerData: CheckoutCartWithStripeActionCustomerData
 ) => {
-  await getApp().getActionsService().checkoutCartWithStripe(
-    plainToClass(CheckoutCartWithStripeActionArgs, {
-      cartId,
-      version,
-      customerData,
-      paymentMethodId,
-    })
-  );
+  await getApp()
+    .getActionsService()
+    .setCartProcessing(
+      plainToClass(SetCartProcessingActionArgs, { cartId, version })
+    );
+
+  const updatedVersion = version + 1;
+
+  getApp()
+    .getActionsService()
+    .checkoutCartWithStripe(
+      plainToClass(CheckoutCartWithStripeActionArgs, {
+        cartId,
+        version: updatedVersion,
+        customerData,
+        paymentMethodId,
+      })
+    );
 };

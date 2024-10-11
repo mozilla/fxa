@@ -158,26 +158,7 @@ export function CheckoutForm({
       displayName: fullName,
     });
 
-    // TODO - To be added in M3B - Redirect customer to '/processing' page
-    router.push('./start');
-    // TODO - To be moved in M3B - Confirm Payment on '/processing' page
-    // Confirm the Intent using the details collected by the Payment Element
-    //const { error } = await stripe.confirmPayment({
-    //  clientSecret,
-    //  confirmParams: {
-    //    return_url: successRedirectUrl,
-    //  },
-    //});
-    //
-    //if (error) {
-    //  // This point is only reached if there's an immediate error when confirming the Intent.
-    //  // Show the error to your customer (for example, "payment details incomplete").
-    //  await handleStripeErrorAction(cart.id, cart.version, error);
-    //} else {
-    //  // Your customer is redirected to your `return_url`. For some payment
-    //  // methods like iDEAL, your customer is redirected to an intermediate
-    //  // site first to authorize the payment, then redirected to the `return_url`.
-    //}
+    router.push('./processing');
   };
 
   const nonStripeFieldsComplete = !!fullName;

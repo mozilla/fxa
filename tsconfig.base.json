@@ -48,6 +48,9 @@
       "@fxa/shared/db/mysql/account": [
         "libs/shared/db/mysql/account/src/index.ts"
       ],
+      "@fxa/shared/db/mysql/account/*": [
+        "libs/shared/db/mysql/account/src/lib/*"
+      ],
       "@fxa/shared/db/mysql/core": ["libs/shared/db/mysql/core/src/index.ts"],
       "@fxa/shared/db/type-cacheable": [
         "libs/shared/db/type-cacheable/src/index.ts"

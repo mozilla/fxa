@@ -9,7 +9,11 @@ import Link from 'next/link';
 import { DEFAULT_LOCALE } from '@fxa/shared/l10n';
 
 import errorIcon from '@fxa/shared/assets/images/error.svg';
-import { SupportedPages, getApp } from '@fxa/payments/ui/server';
+import {
+  getApp,
+  CheckoutParams,
+  SupportedPages,
+} from '@fxa/payments/ui/server';
 import {
   getCartOrRedirectAction,
   recordEmitterEventAction,
@@ -39,13 +43,6 @@ const getErrorReason = (reason: CartErrorReasonId | null) => {
       };
   }
 };
-
-interface CheckoutParams {
-  cartId: string;
-  locale: string;
-  interval: string;
-  offeringId: string;
-}
 
 export default async function CheckoutError({
   params,

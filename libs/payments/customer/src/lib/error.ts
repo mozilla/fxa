@@ -80,3 +80,15 @@ export class StripeNoMinimumChargeAmountAvailableError extends PaymentsCustomerE
     super('Currency does not have a minimum charge amount available.');
   }
 }
+
+export class PaymentIntentNotFoundError extends PaymentsCustomerError {
+  constructor() {
+    super('Payment intent not found');
+  }
+}
+
+export class InvalidPaymentIntentError extends PaymentsCustomerError {
+  constructor() {
+    super('Invalid payment intent');
+  }
+}
