@@ -440,4 +440,63 @@ test.describe('severity-1 #smoke', () => {
     // Cleanup requires setting this value to correct password
     credentials.password = newPassword;
   });
+
+  test('can reset password with unverified 2FA and skip recovery key', async ({
+    page,
+    target,
+    pages: {
+      signin,
+      resetPassword,
+      settings,
+      totp,
+      signinTotpCode,
+      recoveryKey,
+    },
+    testAccountTracker,
+  }) => {
+    const credentials = await testAccountTracker.signUp();
+    const newPassword = testAccountTracker.generatePassword();
+
+    await signin.goto();
+    await signin.fillOutEmailFirstForm(credentials.email);
+    await signin.fillOutPasswordForm(credentials.password);
+
+    // Enable 2FA
+    await expect(settings.settingsHeading).toBeVisible();
+    await expect(settings.totp.status).toHaveText('Not Set');
+
+    await settings.totp.addButton.click();
+    await totp.fillOutStep1FormQR();
+    await page.getByTestId('flow-container-back-btn').click();
+    await page.getByTestId('flow-container-back-btn').click();
+
+    await expect(settings.settingsHeading).toBeVisible();
+    await expect(settings.totp.status).not.toHaveText('Enabled');
+
+    // Create recovery key
+    await settings.recoveryKey.createButton.click();
+    await recoveryKey.createRecoveryKey(credentials.password, 'hint');
+
+    // Verify status as 'enabled'
+    await expect(settings.settingsHeading).toBeVisible();
+    await expect(settings.recoveryKey.status).toHaveText('Enabled');
+
+    await settings.signOut();
+    await resetPassword.goto();
+    await resetPassword.fillOutEmailForm(credentials.email);
+    const code = await target.emailClient.getResetPasswordCode(
+      credentials.email
+    );
+    await resetPassword.fillOutResetPasswordCodeForm(code);
+
+    await resetPassword.forgotKeyLink.click();
+    await expect(resetPassword.dataLossWarning).toBeVisible();
+    await resetPassword.fillOutNewPasswordForm(newPassword);
+
+    await expect(settings.settingsHeading).toBeVisible();
+    await expect(settings.alertBar).toHaveText('Your password has been reset');
+
+    // Cleanup requires setting this value to correct password
+    credentials.password = newPassword;
+  });
 });
