@@ -128,7 +128,8 @@ const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
         hint: recoveryKeyHint,
         estimatedSyncDeviceCount,
       } = await checkForRecoveryKey(token);
-      const { exists: totpExists } = await checkForTotp(token);
+      const totpStatus = await checkForTotp(token);
+      const totpExists = totpStatus.exists && totpStatus.verified;
 
       handleNavigation(
         code,
