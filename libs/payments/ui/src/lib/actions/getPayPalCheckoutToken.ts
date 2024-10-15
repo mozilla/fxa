@@ -8,7 +8,7 @@ import { plainToClass } from 'class-transformer';
 import { getApp } from '../nestapp/app';
 import { GetPayPalCheckoutTokenArgs } from '../nestapp/validators/GetPayPalCheckoutTokenArgs';
 
-export const getPayPalCheckoutToken = async (currencyCode: string) => {
+export const getPayPalCheckoutToken = async (currencyCode?: string | null) => {
   const actionsService = getApp().getActionsService();
 
   const token = await actionsService.getPayPalCheckoutToken(

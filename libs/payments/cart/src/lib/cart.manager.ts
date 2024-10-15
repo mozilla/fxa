@@ -72,7 +72,7 @@ export class CartManager {
    * Fetch a cart from the database by id and validate that the version
    * matches the version passed in.
    */
-  private async fetchAndValidateCartVersion(cartId: string, version: number) {
+  async fetchAndValidateCartVersion(cartId: string, version: number) {
     const cart = await this.fetchCartById(cartId);
 
     if (cart.version !== version) {

@@ -81,6 +81,7 @@ import {
   CartInvalidCurrencyError,
 } from './cart.error';
 import { CheckoutService } from './checkout.service';
+import { PrePayStepsResultFactory } from './checkout.factories';
 
 describe('CheckoutService', () => {
   let accountCustomerManager: AccountCustomerManager;
@@ -451,12 +452,18 @@ describe('CheckoutService', () => {
     beforeEach(async () => {
       jest.spyOn(customerManager, 'setTaxId').mockResolvedValue();
       jest.spyOn(profileClient, 'deleteCache').mockResolvedValue('test');
+      jest.spyOn(cartManager, 'finishCart').mockResolvedValue();
     });
 
     it('success', async () => {
       const mockCart = ResultCartFactory();
 
-      await checkoutService.postPaySteps(mockCart, mockSubscription, mockUid);
+      await checkoutService.postPaySteps(
+        mockCart,
+        mockCart.version,
+        mockSubscription,
+        mockUid
+      );
 
       expect(customerManager.setTaxId).toHaveBeenCalledWith(
         mockSubscription.customer,
@@ -464,6 +471,7 @@ describe('CheckoutService', () => {
       );
 
       expect(privateMethod).toHaveBeenCalled();
+      expect(cartManager.finishCart).toHaveBeenCalled();
     });
 
     it('success - adds coupon code to subscription metadata if it exists', async () => {
@@ -483,7 +491,12 @@ describe('CheckoutService', () => {
         .spyOn(subscriptionManager, 'update')
         .mockResolvedValue(mockUpdatedSubscription);
 
-      await checkoutService.postPaySteps(mockCart, mockSubscription, mockUid);
+      await checkoutService.postPaySteps(
+        mockCart,
+        mockCart.version,
+        mockSubscription,
+        mockUid
+      );
 
       expect(customerManager.setTaxId).toHaveBeenCalledWith(
         mockSubscription.customer,
@@ -526,14 +539,14 @@ describe('CheckoutService', () => {
     const mockPrice = StripePriceFactory();
 
     beforeEach(async () => {
-      jest.spyOn(checkoutService, 'prePaySteps').mockResolvedValue({
-        uid: mockCart.uid as string,
-        customer: mockCustomer,
-        email: faker.internet.email(),
-        enableAutomaticTax: true,
-        promotionCode: mockPromotionCode,
-        price: mockPrice,
-      });
+      jest.spyOn(checkoutService, 'prePaySteps').mockResolvedValue(
+        PrePayStepsResultFactory({
+          uid: mockCart.uid,
+          customer: mockCustomer,
+          promotionCode: mockPromotionCode,
+          price: mockPrice,
+        })
+      );
       jest
         .spyOn(paymentMethodManager, 'attach')
         .mockResolvedValue(mockPaymentMethod);
@@ -646,14 +659,14 @@ describe('CheckoutService', () => {
     const mockPrice = StripePriceFactory();
 
     beforeEach(async () => {
-      jest.spyOn(checkoutService, 'prePaySteps').mockResolvedValue({
-        uid: mockCart.uid as string,
-        customer: mockCustomer,
-        email: faker.internet.email(),
-        enableAutomaticTax: true,
-        promotionCode: mockPromotionCode,
-        price: mockPrice,
-      });
+      jest.spyOn(checkoutService, 'prePaySteps').mockResolvedValue(
+        PrePayStepsResultFactory({
+          uid: mockCart.uid,
+          customer: mockCustomer,
+          promotionCode: mockPromotionCode,
+          price: mockPrice,
+        })
+      );
       jest
         .spyOn(subscriptionManager, 'getCustomerPayPalSubscriptions')
         .mockResolvedValue([]);
