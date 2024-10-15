@@ -4,6 +4,7 @@
 
 const AppError = require('../../error');
 const Boom = require('@hapi/boom');
+const error = require('../../error');
 
 // The following regexes and Hawk header parsing are taken from the Hawk library.
 // See https://github.com/mozilla/hawk/blob/01f3d35479fe76654bb50f2886b37310555d088e/lib/utils.js#L126
@@ -108,8 +109,15 @@ function strategy(
 
           try {
             token = await getCredentialsFunc(parsedHeader.id);
-          } catch (_) {
-            // we'll handle the empty token case below
+          } catch (err) {
+            // An error in the getCredentialsFunc means that the token was not found
+            // or it does not have a high enough assurance level to be used for this request.
+            // (e.g. a session token that is not 2FA verified)
+            if (err.errno === error.ERRNO.SESSION_UNVERIFIED) {
+              throw err;
+            }
+
+            // handle the empty token case below
           }
 
           // If a token isn't found, this means it doesn't exist or expired and

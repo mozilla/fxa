@@ -103,7 +103,7 @@ module.exports = function (
       options: {
         ...SESSION_DOCS.SESSION_REAUTH_POST,
         auth: {
-          strategy: 'sessionToken',
+          strategy: 'sessionTokenNoAssurance',
           payload: 'required',
         },
         validate: {
