@@ -4,7 +4,7 @@ password-forgot-otp-request = "We received a request for a password change on yo
 
 <%- include('/partials/userInfo/index.txt') %>
 
-password-forgot-otp-code = "If yes, here is your confirmation code to proceed:"
+password-forgot-otp-code-2 = "If this was you, here is your confirmation code to proceed:"
 
 <%- code %>
 

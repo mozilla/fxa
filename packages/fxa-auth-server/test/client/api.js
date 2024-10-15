@@ -865,6 +865,8 @@ module.exports = (config) => {
             code: code,
             accountResetWithRecoveryKey:
               options.accountResetWithRecoveryKey || undefined,
+            includeRecoveryKeyPrompt:
+              options.includeRecoveryKeyPrompt || undefined,
           },
           headers
         );

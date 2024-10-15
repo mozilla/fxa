@@ -1,6 +1,6 @@
 {
   "subject": {
-    "id": "passwordReset-subject",
-    "message": "Password updated"
+    "id": "passwordReset-subject-2",
+    "message": "Your password has been reset"
   }
 }

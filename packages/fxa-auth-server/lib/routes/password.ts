@@ -961,6 +961,7 @@ module.exports = function (
               .required()
               .description(DESCRIPTION.codeRecovery),
             accountResetWithRecoveryKey: isA.boolean().optional(),
+            includeRecoveryKeyPrompt: isA.boolean().optional(),
           }),
         },
         response: {
@@ -972,10 +973,12 @@ module.exports = function (
       handler: async function (request: AuthRequest) {
         log.begin('Password.forgotVerify', request);
         const passwordForgotToken = request.auth.credentials as any;
-        const { code, accountResetWithRecoveryKey } = request.payload as {
-          code: string;
-          accountResetWithRecoveryKey?: boolean;
-        };
+        const { code, accountResetWithRecoveryKey, includeRecoveryKeyPrompt } =
+          request.payload as {
+            code: string;
+            accountResetWithRecoveryKey?: boolean;
+            includeRecoveryKeyPrompt?: boolean;
+          };
 
         const { deviceId, flowId, flowBeginTime } = await request.app
           .metricsContext;
@@ -1013,18 +1016,45 @@ module.exports = function (
           db.accountEmails(passwordForgotToken.uid),
         ]);
 
+        const {
+          browser: uaBrowser,
+          browserVersion: uaBrowserVersion,
+          os: uaOS,
+          osVersion: uaOSVersion,
+          deviceType: uaDeviceType,
+        } = request.app.ua;
+
+        const emailOptions = {
+          code,
+          acceptLanguage: request.app.acceptLanguage,
+          deviceId,
+          flowId,
+          flowBeginTime,
+          uaBrowser,
+          uaBrowserVersion,
+          uaOS,
+          uaOSVersion,
+          uaDeviceType,
+          uid: passwordForgotToken.uid,
+        };
+
         // To prevent multiple password change emails being sent to a user,
         // we check for a flag to see if this is a reset using an account recovery key.
         // If it is, then the notification email will be sent in `/account/reset`
         if (!accountResetWithRecoveryKey) {
-          await mailer.sendPasswordResetEmail(emails, passwordForgotToken, {
-            code,
-            acceptLanguage: request.app.acceptLanguage,
-            deviceId,
-            flowId,
-            flowBeginTime,
-            uid: passwordForgotToken.uid,
-          });
+          if (includeRecoveryKeyPrompt) {
+            await mailer.sendPasswordResetWithRecoveryKeyPromptEmail(
+              emails,
+              passwordForgotToken,
+              emailOptions
+            );
+          } else {
+            await mailer.sendPasswordResetEmail(
+              emails,
+              passwordForgotToken,
+              emailOptions
+            );
+          }
         }
 
         await request.emitMetricsEvent('password.forgot.verify_code.completed');

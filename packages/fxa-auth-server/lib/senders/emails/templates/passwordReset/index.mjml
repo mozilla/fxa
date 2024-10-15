@@ -5,17 +5,19 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-header">
-      <span data-l10n-id="passwordReset-title">Your account password was changed</span>
+      <span data-l10n-id="passwordReset-title-2">Your password has been updated</span>
     </mj-text>
   </mj-column>
 </mj-section>
 
 <mj-section>
   <mj-column>
-    <mj-text css-class="text-body-no-margin">
-      <span data-l10n-id="passwordReset-description">You will need to enter your new password on other devices to resume syncing.</span>
+    <mj-text css-class="text-body">
+      <span data-l10n-id="passwordReset-description-2">You reset your Mozilla account password on:</span>
     </mj-text>
   </mj-column>
 </mj-section>
+
+<%- include('/partials/userInfo/index.mjml') %>
 
 <%- include('/partials/automatedEmailResetPassword/index.mjml') %>
