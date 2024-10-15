@@ -106,7 +106,7 @@ export const ConnectedServices = forwardRef<HTMLDivElement>((_, ref) => {
         // disconnect all clients/sessions with this name since only unique names
         // are displayed to the user. This is batched into one network request
         // via BatchHttpLink
-        const clientsWithMatchingName = groupedByName[client.name];
+        const clientsWithMatchingName = groupedByName[client.name || 'unknown'];
         const hasMultipleSessions = clientsWithMatchingName.length > 1;
         if (hasMultipleSessions) {
           await Promise.all(
@@ -132,7 +132,7 @@ export const ConnectedServices = forwardRef<HTMLDivElement>((_, ref) => {
           hideConfirmDisconnectModal();
           revealAdviceModal();
         } else {
-          const name = client.name;
+          const name = client.name || 'unknown';
           alertBar.success(
             l10n.getString(
               'cs-logged-out-2',
@@ -220,9 +220,9 @@ export const ConnectedServices = forwardRef<HTMLDivElement>((_, ref) => {
         {!!sortedAndUniqueClients.length &&
           sortedAndUniqueClients.map((client, i) => (
             <Service
-              key={`${client.lastAccessTime}:${client.name}`}
+              key={`${client.lastAccessTime}:${client.name || 'unknown'}`}
               {...{
-                name: client.name,
+                name: client.name || 'unknown',
                 deviceType: client.deviceType,
                 location: client.location,
                 lastAccessTimeFormatted: client.lastAccessTimeFormatted,
@@ -284,7 +284,7 @@ export const ConnectedServices = forwardRef<HTMLDivElement>((_, ref) => {
 
               <Localized
                 id="cs-disconnect-sync-content-3"
-                vars={{ device: selectedClient!.name }}
+                vars={{ device: selectedClient?.name || 'unknown' }}
                 elems={{ span: <span className="break-word"></span> }}
               >
                 <p
@@ -292,19 +292,24 @@ export const ConnectedServices = forwardRef<HTMLDivElement>((_, ref) => {
                   className="my-4 text-center"
                 >
                   Your browsing data will remain on{' '}
-                  <span className="break-word">{selectedClient!.name}</span>,
-                  but it will no longer sync with your account.
+                  <span className="break-word">
+                    {selectedClient?.name || 'unknown'}
+                  </span>
+                  , but it will no longer sync with your account.
                 </p>
               </Localized>
 
               <Localized
                 id="cs-disconnect-sync-reason-3"
-                vars={{ device: selectedClient!.name }}
+                vars={{ device: selectedClient?.name || 'unknown' }}
                 elems={{ span: <span className="break-word"></span> }}
               >
                 <p className="my-4 text-center">
                   What's the main reason for disconnecting{' '}
-                  <span className="break-word">{selectedClient!.name}</span>?
+                  <span className="break-word">
+                    {selectedClient?.name || 'unknown'}
+                  </span>
+                  ?
                 </p>
               </Localized>
               <form

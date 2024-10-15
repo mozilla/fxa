@@ -66,13 +66,14 @@ export interface RecoveryKeyBundlePayload {
 }
 
 // TODO: why doesn't this match fxa-graphql-api/src/lib/resolvers/types/attachedClient.ts?
+// DOUBLE TODO: The fact it doeesn't can cuase type safety issues. See FXA-10326
 export interface AttachedClient {
   clientId: string;
   isCurrentSession: boolean;
   userAgent: string;
   deviceType: string | null;
   deviceId: string | null;
-  name: string;
+  name: string | null;
   lastAccessTime: number;
   lastAccessTimeFormatted: string;
   approximateLastAccessTime: number | null;

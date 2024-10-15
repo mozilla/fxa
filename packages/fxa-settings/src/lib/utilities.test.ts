@@ -6,6 +6,7 @@ import {
   constructHrefWithUtm,
   deepMerge,
   isBase32Crockford,
+  isMobileDevice,
   once,
   resetOnce,
   searchParam,
@@ -192,5 +193,18 @@ describe('constructHrefWithUtm', () => {
     const expected =
       'https://example.com?utm_source=moz-account&utm_medium=product-partnership&utm_term=sidebar&utm_content=vpn&utm_campaign=connect-device';
     expect(result).toBe(expected);
+  });
+});
+
+describe('check for mobile device', () => {
+  it('handles typical client', () => {
+    expect(isMobileDevice({ deviceType: 'mobile', name: '' })).toBeTruthy();
+  });
+  it('handles ipad edge case', () => {
+    expect(isMobileDevice({ deviceType: '', name: 'apple ipad' })).toBeTruthy();
+  });
+  it('handles client without name', () => {
+    // See FXA-10326. Somehow an undefined value sneaks in here...
+    expect(isMobileDevice({ deviceType: 'mobile', name: null })).toBeTruthy();
   });
 });
