@@ -94,7 +94,7 @@
     "graphql": "^16.9.0",
     "graphql-request": "^6.1.0",
     "hot-shots": "^10.1.1",
-    "husky": "^4.2.5",
+    "husky": "^9.1.6",
     "jose": "^5.9.4",
     "knex": "^3.1.0",
     "kysely": "^0.27.2",
