@@ -13,7 +13,7 @@ if [[ "${CIRCLECI}" == "true" ]]; then
 elif [[ "${GITHUB_ACTIONS}" == "true" ]]; then
   printf '{"version":{"hash":"%s","version":"%s","source":"https://github.com/%s","build":"%s/%s/actions/runs/%s"}}\n' \
     "${GITHUB_SHA}" \
-    "${GITHUB_REF_NAME}" \
+    "${GIT_TAG}" \
     "${GITHUB_REPOSITORY}" \
     "${GITHUB_SERVER_URL}" \
     "${GITHUB_REPOSITORY}" \

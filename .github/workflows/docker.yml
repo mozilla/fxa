@@ -49,13 +49,13 @@ jobs:
       GCP_PROJECT_ID: moz-fx-fxa-prod
       IMAGE: fxa-mono
       RUN_ID: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-      TAG: ${{ needs.tag.outputs.TAG }}
+      GIT_TAG: ${{ needs.tag.outputs.TAG }}
     needs:
       - tag
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ env.TAG }}
+          ref: ${{ env.GIT_TAG }}
 
       - uses: actions/setup-node@v4
         with:
@@ -87,7 +87,7 @@ jobs:
         with:
           context: .
           file: _dev/docker/mono/Dockerfile
-          tags: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY}}/${{ env.IMAGE}}:${{ env.TAG }}
+          tags: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY}}/${{ env.IMAGE}}:${{ env.GIT_TAG }}
           push: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
