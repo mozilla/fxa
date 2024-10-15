@@ -86,6 +86,7 @@ async function create(log, error, config, routes, db, statsd, glean) {
   const metricsContext = require('./metrics/context')(log, config);
   const metricsEvents = require('./metrics/events')(log, config, glean);
   const { sharedSecret: SUBSCRIPTIONS_SECRET } = config.subscriptions;
+  const otpUtils = require('./routes/utils/otp')(log, config, db);
 
   function makeCredentialFn(dbGetFn) {
     return function (id) {
@@ -376,6 +377,22 @@ async function create(log, error, config, routes, db, statsd, glean) {
   // Register auth strategies for all token types. These strategies support Hawk (without validation) and FxA token types.
   server.auth.scheme(
     'fxa-hawk-session-token',
+    hawkFxAToken.strategy(
+      makeCredentialFn(async function (id) {
+        const sessionToken = await db.sessionToken(id);
+
+        const hasTotpToken = await otpUtils.hasTotpToken(sessionToken);
+
+        if (hasTotpToken && sessionToken.authenticatorAssuranceLevel < 1) {
+          throw error.unverifiedSession();
+        }
+
+        return sessionToken;
+      })
+    )
+  );
+  server.auth.scheme(
+    'fxa-hawk-session-token-unverified',
     hawkFxAToken.strategy(makeCredentialFn(db.sessionToken.bind(db)))
   );
   server.auth.scheme(
