@@ -10677,13 +10677,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@grpc/grpc-js@npm:^1.10.9, @grpc/grpc-js@npm:^1.11.1":
+"@grpc/grpc-js@npm:^1.10.9":
   version: 1.11.1
   resolution: "@grpc/grpc-js@npm:1.11.1"
   dependencies:
     "@grpc/proto-loader": ^0.7.13
     "@js-sdsl/ordered-map": ^4.4.2
   checksum: 906894851a13b09f5a95052e1bec572b1b5760cc53635e80b50155c7546591cc8b8768d2723e2ec2ff5d7b086f65a27809db345fd3038fd50e3fc5e827ee88c6
+  languageName: node
+  linkType: hard
+
+"@grpc/grpc-js@npm:^1.12.2":
+  version: 1.12.2
+  resolution: "@grpc/grpc-js@npm:1.12.2"
+  dependencies:
+    "@grpc/proto-loader": ^0.7.13
+    "@js-sdsl/ordered-map": ^4.4.2
+  checksum: ee51317f92ec5331931b68bf3a4e485a6f7a715609b8aaa29573b3a2b211d5f37c48cda084e25e2bf21142925f8ec9ca49a9e613cbbe06b73785150825d171df
   languageName: node
   linkType: hard
 
@@ -42046,7 +42056,7 @@ fsevents@~2.1.1:
     "@graphql-codegen/client-preset": ^4.3.2
     "@graphql-codegen/typescript": ^4.0.1
     "@graphql-codegen/typescript-document-nodes": ^4.0.1
-    "@grpc/grpc-js": ^1.11.1
+    "@grpc/grpc-js": ^1.12.2
     "@mozilla/glean": ^5.0.3
     "@nestjs/apollo": ^12.1.0
     "@nestjs/cli": ^10.4.2
