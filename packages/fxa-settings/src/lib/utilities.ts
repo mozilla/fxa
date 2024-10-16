@@ -96,11 +96,13 @@ export function splitEncodedParams(
     .reduce((newObj, key) => Object.assign(newObj, { [key]: terms[key] }), {});
 }
 
-export function isMobileDevice(client?: AttachedClient) {
+export function isMobileDevice(
+  client?: Pick<AttachedClient, 'deviceType' | 'name'>
+) {
   if (client) {
     return (
       client.deviceType === 'mobile' ||
-      client.name.toLowerCase().includes('ipad')
+      (client.name || '').toLowerCase().includes('ipad')
     );
   }
   return /mobi/i.test(navigator.userAgent);
