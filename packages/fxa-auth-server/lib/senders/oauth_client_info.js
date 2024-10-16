@@ -13,6 +13,9 @@ module.exports = (log, config) => {
   const FIREFOX_CLIENT = {
     name: 'Firefox',
   };
+  const MOZILLA_CLIENT = {
+    name: 'Mozilla',
+  };
   // TODO: prob don't need this cache anymore now that it's just a db call
   const clientCache = new Keyv({
     ttl: OAUTH_CLIENT_INFO_CACHE_TTL,
@@ -28,8 +31,15 @@ module.exports = (log, config) => {
   async function fetch(clientId) {
     log.trace('fetch.start');
 
-    if (!clientId || clientId === 'sync') {
-      log.trace('fetch.sync');
+    // if there is no clientId, default to the more general 'Mozilla'
+    if (!clientId) {
+      log.trace('fetch.noClientId');
+      return MOZILLA_CLIENT;
+    }
+
+    // if the client is 'sync' or (desktop) relay, client is Firefox
+    if (clientId === 'sync' || clientId === 'relay') {
+      log.trace('fetch.firefoxClient');
       return FIREFOX_CLIENT;
     }
 
@@ -50,7 +60,9 @@ module.exports = (log, config) => {
       } else {
         log.warn('fetch.failedForClient', { clientId });
       }
-      return FIREFOX_CLIENT;
+      // default to the more generic 'Mozilla' if there is an error fetching client info
+      // (and client Id is neither 'sync' nor 'relay')
+      return MOZILLA_CLIENT;
     }
 
     log.trace('fetch.usedServer', { body: clientInfo });
