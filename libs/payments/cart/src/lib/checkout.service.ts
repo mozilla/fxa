@@ -167,7 +167,7 @@ export class CheckoutService {
       cart.interval as SubplatInterval
     );
 
-    const upcomingInvoice = await this.invoiceManager.preview({
+    const upcomingInvoice = await this.invoiceManager.previewUpcoming({
       priceId: price.id,
       customer: customer,
       taxAddress: taxAddress,
@@ -237,7 +237,6 @@ export class CheckoutService {
         metadata: subscriptionMetadata,
       });
     }
-
     await this.cartManager.finishCart(cart.id, version, {});
 
     // TODO: call sendFinishSetupEmailForStubAccount
@@ -249,14 +248,8 @@ export class CheckoutService {
     paymentMethodId: string,
     customerData: CheckoutCustomerData
   ): Promise<StripePaymentIntent> {
-    const {
-      uid,
-      customer,
-      enableAutomaticTax,
-      promotionCode,
-      version: updatedVersion,
-      price,
-    } = await this.prePaySteps(cart, customerData);
+    const { uid, customer, enableAutomaticTax, promotionCode, version, price } =
+      await this.prePaySteps(cart, customerData);
 
     await this.paymentMethodManager.attach(paymentMethodId, {
       customer: customer.id,
@@ -295,9 +288,10 @@ export class CheckoutService {
       }
     );
 
-    await this.cartManager.updateFreshCart(cart.id, updatedVersion, {
+    await this.cartManager.updateFreshCart(cart.id, version, {
       stripeSubscriptionId: subscription.id,
     });
+    const updatedVersion = version + 1;
 
     const paymentIntent = await this.subscriptionManager.getLatestPaymentIntent(
       subscription

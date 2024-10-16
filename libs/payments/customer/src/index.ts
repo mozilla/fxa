@@ -13,3 +13,4 @@ export * from './lib/subscription.manager';
 export * from './lib/types';
 export * from './lib/factories/tax-address.factory';
 export * from './lib/error';
+export * from './lib/util/stripeInvoiceToFirstInvoicePreviewDTO';

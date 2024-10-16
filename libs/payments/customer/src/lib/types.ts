@@ -11,6 +11,7 @@ export type InvoicePreview = {
   subtotal: number;
   discountEnd?: number | null;
   discountType?: string;
+  number: string | null; // customer-facing invoice identifier
 };
 
 export interface TaxAmount {

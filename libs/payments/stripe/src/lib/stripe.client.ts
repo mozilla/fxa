@@ -188,6 +188,17 @@ export class StripeClient {
     return result as StripeResponse<StripePaymentMethod>;
   }
 
+  async paymentMethodRetrieve(
+    id: string,
+    params?: Stripe.PaymentMethodRetrieveParams
+  ) {
+    const result = await this.stripe.paymentMethods.retrieve(id, {
+      ...params,
+      expand: undefined,
+    });
+    return result as StripeResponse<StripePaymentMethod>;
+  }
+
   async pricesRetrieve(id: string, params?: Stripe.PriceRetrieveParams) {
     const result = await this.stripe.prices.retrieve(id, {
       ...params,

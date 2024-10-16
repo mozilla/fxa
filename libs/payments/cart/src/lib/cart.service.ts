@@ -10,6 +10,8 @@ import {
   SubplatInterval,
   PromotionCodeManager,
   SubscriptionManager,
+  InvoicePreview,
+  PaymentMethodManager,
 } from '@fxa/payments/customer';
 import { EligibilityService } from '@fxa/payments/eligibility';
 import {
@@ -40,6 +42,7 @@ import {
   CartSubscriptionNotFoundError,
 } from './cart.error';
 import { AccountManager } from '@fxa/shared/account/account';
+import assert from 'assert';
 
 @Injectable()
 export class CartService {
@@ -55,7 +58,8 @@ export class CartService {
     private geodbManager: GeoDBManager,
     private invoiceManager: InvoiceManager,
     private productConfigurationManager: ProductConfigurationManager,
-    private subscriptionManager: SubscriptionManager
+    private subscriptionManager: SubscriptionManager,
+    private paymentMethodManager: PaymentMethodManager
   ) {}
 
   /**
@@ -107,7 +111,7 @@ export class CartService {
       fxaAccounts && fxaAccounts.length > 0 ? fxaAccounts[0] : undefined;
 
     const [upcomingInvoice, eligibility] = await Promise.all([
-      this.invoiceManager.preview({
+      this.invoiceManager.previewUpcoming({
         priceId: price.id,
         customer: stripeCustomer,
         taxAddress: taxAddress,
@@ -148,7 +152,7 @@ export class CartService {
       offeringConfigId: args.offeringConfigId,
       amount: upcomingInvoice.subtotal,
       uid: args.uid,
-      email: fxaAccount?.email || undefined,
+      email: fxaAccount?.email,
       stripeCustomerId: accountCustomer?.stripeCustomerId || undefined,
       experiment: args.experiment,
       taxAddress,
@@ -408,16 +412,46 @@ export class CartService {
       customer = await this.customerManager.retrieve(cart.stripeCustomerId);
     }
 
-    const invoicePreview = await this.invoiceManager.preview({
+    const upcomingInvoicePreview = await this.invoiceManager.previewUpcoming({
       priceId: price.id,
       customer,
       taxAddress: cart.taxAddress || undefined,
       couponCode: cart.couponCode || undefined,
     });
 
+    // Cart latest invoice data
+    let latestInvoicePreview: InvoicePreview | undefined;
+    let last4: string | undefined;
+    if (customer && cart.stripeSubscriptionId) {
+      // fetch latest payment info from subscription
+      const subscription = await this.subscriptionManager.retrieve(
+        cart.stripeSubscriptionId
+      );
+      assert(subscription.latest_invoice, 'Subscription not found');
+      latestInvoicePreview = await this.invoiceManager.preview(
+        subscription.latest_invoice
+      );
+
+      // fetch payment method info
+      if (subscription.collection_method === 'send_invoice') {
+        // PayPal payment method collection
+        // TODO: render paypal payment info in the UI (FXA-10608)
+      } else {
+        // Stripe payment method collection
+        if (customer.invoice_settings.default_payment_method) {
+          const paymentMethod = await this.paymentMethodManager.retrieve(
+            customer.invoice_settings.default_payment_method
+          );
+          last4 = paymentMethod?.card?.last4;
+        }
+      }
+    }
+
     return {
       ...cart,
-      invoicePreview,
+      upcomingInvoicePreview,
+      latestInvoicePreview,
+      last4,
       metricsOptedOut,
     };
   }

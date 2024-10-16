@@ -3,13 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { headers } from 'next/headers';
-import Image from 'next/image';
 
 import { formatPlanPricing } from '@fxa/payments/ui';
 import { DEFAULT_LOCALE } from '@fxa/shared/l10n';
 
-import { getFakeCartData } from 'apps/payments/next/app/_lib/apiClient';
-import circledConfirm from '@fxa/shared/assets/images/circled-confirm.svg';
 import { SupportedPages, getApp } from '@fxa/payments/ui/server';
 import {
   fetchCMSData,
@@ -63,12 +60,7 @@ export default async function CheckoutSuccess({
     SupportedPages.SUCCESS
   );
   const l10n = getApp().getL10n(locale);
-  const fakeCartDataPromise = getFakeCartData(params.cartId);
-  const [cms, cart, fakeCart] = await Promise.all([
-    cmsDataPromise,
-    cartDataPromise,
-    fakeCartDataPromise,
-  ]);
+  const [cms, cart] = await Promise.all([cmsDataPromise, cartDataPromise]);
 
   recordEmitterEventAction(
     'checkoutSuccess',
@@ -77,35 +69,31 @@ export default async function CheckoutSuccess({
     'stripe'
   );
 
-  const { productName } =
-    cms.defaultPurchase.purchaseDetails.localizations.at(0) ||
-    cms.defaultPurchase.purchaseDetails;
   const { successActionButtonUrl, successActionButtonLabel } =
     cms.commonContent.localizations.at(0) || cms.commonContent;
 
   return (
     <>
       <section className="h-[640px]" aria-label="Payment confirmation">
-        <div className="flex flex-col items-center text-center pb-8 mt-5 desktop:mt-2 border-b border-grey-200">
-          <Image src={circledConfirm} alt="" className="w-16 h-16" />
+        <div className="flex flex-col items-center text-center pb-16 border-b border-grey-200">
+          <div className="bg-[#D5F9FF] rounded-md py-5 px-8 mt-5">
+            <h4 className="text-xl font-medium mx-0 mb-2">
+              {l10n.getString(
+                'next-payment-confirmation-thanks-heading-account-exists',
+                'Thanks, now check your email!'
+              )}
+            </h4>
 
-          <h4 className="text-xl font-normal mx-0 mt-6 mb-3">
-            {l10n.getString(
-              'next-payment-confirmation-thanks-heading',
-              'Thank you!'
-            )}
-          </h4>
-
-          <p className="text-grey-400 max-w-sm text-sm">
-            {l10n.getString(
-              'next-payment-confirmation-thanks-subheading',
-              {
-                email: cart.email || '',
-                product_name: productName,
-              },
-              `A confirmation email has been sent to ${cart.email} with details on how to get started with ${productName}.`
-            )}
-          </p>
+            <p className="text-black max-w-sm text-sm leading-5 font-normal">
+              {l10n.getString(
+                'next-payment-confirmation-thanks-subheading',
+                {
+                  email: cart.email || '',
+                },
+                `You'll receive an email at ${cart.email} with instructions about your subscription, as well as your payment details.`
+              )}
+            </p>
+          </div>
         </div>
 
         <ConfirmationDetail
@@ -116,9 +104,9 @@ export default async function CheckoutSuccess({
           detail1={l10n.getString(
             'next-payment-confirmation-invoice-number',
             {
-              invoiceNumber: fakeCart.invoiceNumber,
+              invoiceNumber: cart.latestInvoicePreview?.number ?? '',
             },
-            `Invoice #${fakeCart.invoiceNumber}`
+            `Invoice #${cart.latestInvoicePreview?.number}`
           )}
           detail2={l10n.getString(
             'next-payment-confirmation-invoice-date',
@@ -138,23 +126,23 @@ export default async function CheckoutSuccess({
             'next-payment-confirmation-amount',
             {
               amount: l10n.getLocalizedCurrency(
-                fakeCart.nextInvoice.totalAmount,
-                fakeCart.nextInvoice.currency
+                cart.latestInvoicePreview?.totalAmount ?? null,
+                cart.latestInvoicePreview?.currency ?? ''
               ),
               interval: cart.interval,
             },
             formatPlanPricing(
-              fakeCart.nextInvoice.totalAmount,
-              fakeCart.nextInvoice.currency,
+              cart.latestInvoicePreview?.totalAmount ?? null,
+              cart.latestInvoicePreview?.currency ?? '',
               cart.interval
             )
           )}
           detail2={l10n.getString(
             'next-payment-confirmation-cc-card-ending-in',
             {
-              last4: fakeCart.last4,
+              last4: cart.last4 ?? '',
             },
-            `Card ending in ${fakeCart.last4}`
+            `Card ending in ${cart.last4}`
           )}
         />
 
