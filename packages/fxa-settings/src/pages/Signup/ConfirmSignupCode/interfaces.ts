@@ -44,7 +44,7 @@ export interface ConfirmSignupCodeFormData {
 
 export type ConfirmSignupCodeBaseIntegration = Pick<
   Integration,
-  'type' | 'data' | 'getService'
+  'type' | 'data' | 'getService' | 'getClientId'
 >;
 
 export type ConfirmSignupCodeOAuthIntegration = Pick<
@@ -52,6 +52,7 @@ export type ConfirmSignupCodeOAuthIntegration = Pick<
   | 'type'
   | 'data'
   | 'getService'
+  | 'getClientId'
   | 'getRedirectUri'
   | 'wantsTwoStepAuthentication'
   | 'isSync'

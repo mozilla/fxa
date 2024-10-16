@@ -552,8 +552,7 @@ module.exports = function (log, config, bounces) {
       'X-Verify-Code': message.code,
     };
 
-    const clientInfo = await oauthClientInfo.fetch(message.service);
-    const serviceName = clientInfo.name;
+    const { name: serviceName } = await oauthClientInfo.fetch(message.service);
 
     return this.send({
       ...message,
@@ -771,7 +770,7 @@ module.exports = function (log, config, bounces) {
     });
   };
 
-  Mailer.prototype.verifyLoginEmail = function (message) {
+  Mailer.prototype.verifyLoginEmail = async function (message) {
     log.trace('mailer.verifyLoginEmail', {
       email: message.email,
       uid: message.uid,
@@ -805,40 +804,31 @@ module.exports = function (log, config, bounces) {
       'X-Verify-Code': message.code,
     };
 
-    return oauthClientInfo.fetch(message.service).then((clientInfo) => {
-      let clientName = clientInfo.name;
-      const [time, date] = this._constructLocalTimeString(
-        message.timeZone,
-        message.acceptLanguage
-      );
+    const { name: clientName } = await oauthClientInfo.fetch(message.service);
 
-      /**
-       * Edge case. We assume the service is firefox, which is true when the service is sync. However, if
-       * the service is not sync we must be more general. A user could be signing directly into settings.
-       */
-      if (clientName === 'Firefox' && message.service !== 'sync') {
-        clientName = 'Mozilla';
-      }
+    const [time, date] = this._constructLocalTimeString(
+      message.timeZone,
+      message.acceptLanguage
+    );
 
-      return this.send({
-        ...message,
-        headers,
-        template: templateName,
-        templateValues: {
-          clientName,
-          date,
-          device: this._formatUserAgentInfo(message),
-          email: message.email,
-          link: links.link,
-          oneClickLink: links.oneClickLink,
-          passwordChangeLink: links.passwordChangeLink,
-          passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
-          privacyUrl: links.privacyUrl,
-          supportLinkAttributes: links.supportLinkAttributes,
-          supportUrl: links.supportUrl,
-          time,
-        },
-      });
+    return this.send({
+      ...message,
+      headers,
+      template: templateName,
+      templateValues: {
+        clientName,
+        date,
+        device: this._formatUserAgentInfo(message),
+        email: message.email,
+        link: links.link,
+        oneClickLink: links.oneClickLink,
+        passwordChangeLink: links.passwordChangeLink,
+        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+        privacyUrl: links.privacyUrl,
+        supportLinkAttributes: links.supportLinkAttributes,
+        supportUrl: links.supportUrl,
+        time,
+      },
     });
   };
 
@@ -879,15 +869,7 @@ module.exports = function (log, config, bounces) {
       'X-Signin-Verify-Code': message.code,
     };
 
-    let { name: serviceName } = await oauthClientInfo.fetch(message.service);
-
-    /**
-     * Edge case. We assume the service is firefox, which is true when the service is sync. However, if
-     * the service is not sync we must be more general. A user could be signing directly into settings.
-     */
-    if (serviceName === 'Firefox' && message.service !== 'sync') {
-      serviceName = 'Mozilla';
-    }
+    const { name: serviceName } = await oauthClientInfo.fetch(message.service);
 
     return this.send({
       ...message,
@@ -1230,7 +1212,7 @@ module.exports = function (log, config, bounces) {
     });
   };
 
-  Mailer.prototype.newDeviceLoginEmail = function (message) {
+  Mailer.prototype.newDeviceLoginEmail = async function (message) {
     log.trace('mailer.newDeviceLoginEmail', {
       email: message.email,
       uid: message.uid,
@@ -1242,39 +1224,28 @@ module.exports = function (log, config, bounces) {
       'X-Link': links.passwordChangeLink,
     };
 
-    return oauthClientInfo.fetch(message.service).then((clientInfo) => {
-      let clientName = clientInfo.name;
-      const [time, date] = this._constructLocalTimeString(
-        message.timeZone,
-        message.acceptLanguage
-      );
+    const { name: clientName } = await oauthClientInfo.fetch(message.service);
+    const [time, date] = this._constructLocalTimeString(
+      message.timeZone,
+      message.acceptLanguage
+    );
 
-      /**
-       * Edge case. We assume the service is firefox, which is true when the service is sync. However, if
-       * the service is not sync we must be more general. A user could be signing directly into settings.
-       */
-      if (clientName === 'Firefox' && message.service !== 'sync') {
-        clientName = 'Mozilla';
-      }
-
-      return this.send({
-        ...message,
-        headers,
-        template: templateName,
-        templateValues: {
-          clientName,
-          date,
-          device: this._formatUserAgentInfo(message),
-
-          link: links.link,
-          passwordChangeLink: links.passwordChangeLink,
-          passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
-          privacyUrl: links.privacyUrl,
-          supportLinkAttributes: links.supportLinkAttributes,
-          supportUrl: links.supportUrl,
-          time,
-        },
-      });
+    return this.send({
+      ...message,
+      headers,
+      template: templateName,
+      templateValues: {
+        clientName,
+        date,
+        device: this._formatUserAgentInfo(message),
+        link: links.link,
+        passwordChangeLink: links.passwordChangeLink,
+        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+        privacyUrl: links.privacyUrl,
+        supportLinkAttributes: links.supportLinkAttributes,
+        supportUrl: links.supportUrl,
+        time,
+      },
     });
   };
 

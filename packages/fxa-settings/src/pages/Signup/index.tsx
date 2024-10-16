@@ -96,7 +96,7 @@ export const Signup = ({
 
   useEffect(() => {
     if (isOAuthIntegration(integration)) {
-      const clientId = integration.getService();
+      const clientId = integration.getClientId();
       if (isClientPocket(clientId)) {
         setClient(MozServices.Pocket);
         setIsAccountSuggestionBannerVisible(true);

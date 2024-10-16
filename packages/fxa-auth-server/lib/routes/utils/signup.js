@@ -65,8 +65,16 @@ module.exports = (log, db, mailer, push, verificationReminders, glean) => {
 
       // Our post-verification email is very specific to sync,
       // so only send it if we're sure this is for sync or sync scoped client.
+      // Do not send for browser sign-ins that are not sync.
       const scopeSet = ScopeSet.fromArray(scopes);
-      if (service === 'sync' || scopeSet.intersects(NOTIFICATION_SCOPES)) {
+      if (
+        service === 'sync' ||
+        // if legacy sync scope is included, only consider the service
+        // to be sync if there is no service specified
+        // (we already accounted for service === 'sync' above,
+        // so any other service will not be sync)
+        (scopeSet.intersects(NOTIFICATION_SCOPES) && !service)
+      ) {
         const onMobileDevice = request.app.ua.deviceType === 'mobile';
         const mailOptions = {
           acceptLanguage: request.app.acceptLanguage,

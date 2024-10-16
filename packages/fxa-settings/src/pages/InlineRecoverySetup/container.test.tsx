@@ -22,6 +22,7 @@ import InlineRecoverySetupContainer from './container';
 import AuthClient from 'fxa-auth-client/browser';
 import { waitFor } from '@testing-library/react';
 import {
+  MOCK_CLIENT_ID,
   MOCK_NO_TOTP,
   MOCK_OAUTH_FLOW_HANDLER_RESPONSE,
   MOCK_TOTP_STATUS_VERIFIED,
@@ -124,7 +125,8 @@ const defaultProps = {
   isSignedIn: true,
   integration: {
     returnOnError: () => true,
-    getService: () => '0123456789abcdef',
+    getService: () => undefined,
+    getClientId: () => MOCK_CLIENT_ID,
     getRedirectWithErrorUrl: (error: AuthUiError) =>
       `https://localhost:8080/?error=${error.errno}`,
   } as unknown as OAuthIntegration,
@@ -260,7 +262,7 @@ describe('InlineRecoverySetupContainer', () => {
             variables: {
               input: {
                 code: '123456',
-                service: '0123456789abcdef',
+                service: MOCK_CLIENT_ID,
               },
             },
           });

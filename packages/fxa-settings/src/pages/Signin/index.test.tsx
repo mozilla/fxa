@@ -1015,6 +1015,7 @@ describe('Signin', () => {
           serviceName={MozServices.Pocket}
           integration={createMockSigninOAuthIntegration({
             clientId: POCKET_CLIENTIDS[0],
+            service: MozServices.Pocket,
             wantsKeys: false,
           })}
         />
@@ -1029,6 +1030,7 @@ describe('Signin', () => {
         <Subject
           integration={createMockSigninOAuthIntegration({
             clientId: POCKET_CLIENTIDS[0],
+            service: MozServices.Pocket,
           })}
         />
       );
@@ -1058,6 +1060,7 @@ describe('Signin', () => {
         <Subject
           integration={createMockSigninOAuthIntegration({
             clientId: MONITOR_CLIENTIDS[0],
+            service: MozServices.Monitor,
           })}
         />
       );

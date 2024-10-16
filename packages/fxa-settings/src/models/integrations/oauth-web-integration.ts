@@ -222,6 +222,10 @@ export class OAuthWebIntegration extends BaseIntegration {
   }
 
   getService() {
+    return this.data.service;
+  }
+
+  getClientId() {
     return this.data.clientId;
   }
 

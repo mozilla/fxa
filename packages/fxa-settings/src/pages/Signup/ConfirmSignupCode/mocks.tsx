@@ -7,6 +7,7 @@ import { LocationProvider } from '@reach/router';
 import ConfirmSignupCode from '.';
 import { IntegrationType, OAuthNativeClients } from '../../../models';
 import {
+  MOCK_CLIENT_ID,
   MOCK_EMAIL,
   MOCK_FLOW_ID,
   MOCK_KEY_FETCH_TOKEN,
@@ -39,6 +40,7 @@ export function createMockWebIntegration({
     type: IntegrationType.Web,
     data: { uid: MOCK_UID, redirectTo },
     getService: () => MozServices.Default,
+    getClientId: () => undefined,
   };
 }
 
@@ -50,6 +52,7 @@ export function createMockOAuthWebIntegration(
     data: { uid: MOCK_UID, redirectTo: undefined },
     getRedirectUri: () => MOCK_REDIRECT_URI,
     getService: () => serviceName,
+    getClientId: () => MOCK_CLIENT_ID,
     wantsTwoStepAuthentication: () => false,
     isSync: () => false,
     getPermissions: () => [],
@@ -65,6 +68,7 @@ export function createMockOAuthNativeIntegration(
     data: { uid: MOCK_UID, redirectTo: undefined },
     getRedirectUri: () => MOCK_REDIRECT_URI,
     getService: () => OAuthNativeClients.FirefoxDesktop,
+    getClientId: () => MOCK_CLIENT_ID,
     wantsTwoStepAuthentication: () => false,
     isSync: () => isSync,
     getPermissions: () => [],

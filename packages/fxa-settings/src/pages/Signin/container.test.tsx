@@ -45,6 +45,7 @@ import {
   mockGqlPasswordChangeFinishMutation,
   mockGqlPasswordChangeStartMutation,
   MOCK_FLOW_ID,
+  MOCK_CLIENT_ID,
 } from './mocks';
 import AuthClient from 'fxa-auth-client/browser';
 import VerificationMethods from '../../constants/verification-methods';
@@ -69,6 +70,7 @@ function mockSyncDesktopV3Integration() {
   integration = {
     type: IntegrationType.SyncDesktopV3,
     getService: () => 'sync',
+    getClientId: () => undefined,
     isSync: () => true,
     wantsKeys: () => true,
     data: { service: 'sync' },
@@ -81,6 +83,7 @@ function mockOAuthWebIntegration(
   integration = {
     type: IntegrationType.OAuthWeb,
     getService: () => MozServices.Monitor,
+    getClientId: () => MOCK_CLIENT_ID,
     isSync: () => false,
     wantsKeys: () => true,
     data,
@@ -92,6 +95,7 @@ function mockOAuthNativeIntegration() {
   integration = {
     type: IntegrationType.OAuthNative,
     getService: () => 'sync',
+    getClientId: () => undefined,
     isSync: () => true,
     wantsKeys: () => true,
     isDesktopSync: () => true,
@@ -102,6 +106,7 @@ function mockWebIntegration() {
   integration = {
     type: IntegrationType.Web,
     getService: () => MozServices.Default,
+    getClientId: () => undefined,
     isSync: () => false,
     wantsKeys: () => false,
     isDesktopSync: () => false,

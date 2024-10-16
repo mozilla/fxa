@@ -59,8 +59,17 @@ export const InlineRecoverySetupContainer = ({
   const verifyTotpHandler = useCallback(async () => {
     const code = await getCode(totp!.secret);
     const service = integration.getService();
+    const clientId = integration.getClientId();
+
+    const isBrowserClient = service === 'sync' || service === 'relay';
+
     const result = await verifyTotp({
-      variables: { input: { code, service } },
+      variables: {
+        input: {
+          code,
+          ...(isBrowserClient ? { service } : { service: clientId }),
+        },
+      },
     });
     return result.data!.verifyTotp.success;
   }, [integration, totp, verifyTotp]);

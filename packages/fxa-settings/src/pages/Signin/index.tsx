@@ -77,7 +77,7 @@ const Signin = ({
   const [hasEngaged, setHasEngaged] = useState<boolean>(false);
 
   const isOAuth = isOAuthIntegration(integration);
-  const clientId = integration.getService();
+  const clientId = integration.getClientId();
   const isPocketClient = isOAuth && isClientPocket(clientId);
   const isMonitorClient = isOAuth && isClientMonitor(clientId);
   const hasLinkedAccountAndNoPassword = hasLinkedAccount && !hasPassword;

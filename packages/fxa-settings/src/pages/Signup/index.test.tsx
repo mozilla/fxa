@@ -245,7 +245,9 @@ describe('Signup page', () => {
   });
   it('renders as expected when service=relay', async () => {
     renderWithLocalizationProvider(
-      <Subject integration={createMockSignupOAuthNativeIntegration(false)} />
+      <Subject
+        integration={createMockSignupOAuthNativeIntegration('relay', false)}
+      />
     );
 
     // CWTS, newsletters, and third party auth should not be displayed
@@ -775,7 +777,7 @@ describe('Signup page', () => {
 
         renderWithLocalizationProvider(
           <Subject
-            integration={createMockSignupOAuthNativeIntegration(false)}
+            integration={createMockSignupOAuthNativeIntegration('relay', false)}
             beginSignupHandler={mockBeginSignupHandler}
           />
         );

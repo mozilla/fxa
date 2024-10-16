@@ -176,6 +176,10 @@ export abstract class Integration<
     return this.data.service;
   }
 
+  getClientId() {
+    return this.data.clientId;
+  }
+
   isTrusted() {
     return true;
   }

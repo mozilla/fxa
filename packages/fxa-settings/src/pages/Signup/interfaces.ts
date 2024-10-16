@@ -56,11 +56,12 @@ export type SignupOAuthIntegration = Pick<
   | 'getService'
   | 'isDesktopRelay'
   | 'wantsKeys'
+  | 'getClientId'
 >;
 
 export type SignupBaseIntegration = Pick<
   BaseIntegration,
-  'type' | 'isSync' | 'getService' | 'isDesktopRelay' | 'wantsKeys'
+  'type' | 'isSync' | 'getService' | 'isDesktopRelay' | 'wantsKeys' | 'getClientId'
 >;
 
 export interface SignupFormData {
