@@ -13340,12 +13340,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/common@npm:^10.3.4":
-  version: 10.3.4
-  resolution: "@nestjs/common@npm:10.3.4"
+"@nestjs/common@npm:^10.4.4":
+  version: 10.4.4
+  resolution: "@nestjs/common@npm:10.4.4"
   dependencies:
     iterare: 1.2.1
-    tslib: 2.6.2
+    tslib: 2.7.0
     uid: 2.0.2
   peerDependencies:
     class-transformer: "*"
@@ -13357,7 +13357,7 @@ __metadata:
       optional: true
     class-validator:
       optional: true
-  checksum: 256bc543819c575940a78caf39cfc0edc93e2adc421f91f52d5c7913e36fe12983cca63c2f94318f53bc54fd0a526ec74d027a10271054eee0f5b4bc0d187c44
+  checksum: 1e7b711709e77346c4f65d711493e3ebf1d1109d9ed17a97a9e817fb04b81fe90f0fc7e51258b3ba8898cc9509a3161aae32d56724336f9be87550bb56412060
   languageName: node
   linkType: hard
 
@@ -42069,7 +42069,7 @@ fsevents@~2.1.1:
     "@mozilla/glean": ^5.0.3
     "@nestjs/apollo": ^12.1.0
     "@nestjs/cli": ^10.4.2
-    "@nestjs/common": ^10.3.4
+    "@nestjs/common": ^10.4.4
     "@nestjs/config": ^3.2.0
     "@nestjs/core": ^10.4.1
     "@nestjs/graphql": ^12.2.0
@@ -67624,6 +67624,13 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
+"tslib@npm:2.7.0, tslib@npm:^2.6.3":
+  version: 2.7.0
+  resolution: "tslib@npm:2.7.0"
+  checksum: 1606d5c89f88d466889def78653f3aab0f88692e80bb2066d090ca6112ae250ec1cfa9dbfaab0d17b60da15a4186e8ec4d893801c67896b277c17374e36e1d28
+  languageName: node
+  linkType: hard
+
 "tslib@npm:^1.13.0, tslib@npm:^1.8.1, tslib@npm:^1.9.0":
   version: 1.14.1
   resolution: "tslib@npm:1.14.1"
@@ -67656,13 +67663,6 @@ resolve@1.1.7:
   version: 2.6.0
   resolution: "tslib@npm:2.6.0"
   checksum: c01066038f950016a18106ddeca4649b4d76caa76ec5a31e2a26e10586a59fceb4ee45e96719bf6c715648e7c14085a81fee5c62f7e9ebee68e77a5396e5538f
-  languageName: node
-  linkType: hard
-
-"tslib@npm:^2.6.3":
-  version: 2.7.0
-  resolution: "tslib@npm:2.7.0"
-  checksum: 1606d5c89f88d466889def78653f3aab0f88692e80bb2066d090ca6112ae250ec1cfa9dbfaab0d17b60da15a4186e8ec4d893801c67896b277c17374e36e1d28
   languageName: node
   linkType: hard
 
