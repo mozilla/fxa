@@ -6,6 +6,7 @@ import Image from 'next/image';
 import checkLogo from '@fxa/shared/assets/images/check.svg';
 import { CartState } from '@fxa/shared/db/mysql/account';
 import { LocalizerRsc } from '@fxa/shared/l10n/server';
+import circledConfirm from '@fxa/shared/assets/images/circled-confirm-clouds.svg';
 
 const getComponentTitle = (cartState: CartState) => {
   switch (cartState) {
@@ -57,12 +58,17 @@ export async function SubscriptionTitle({
       className="bg-white shadow-sm shadow-grey-300 text-center my-0 pt-5 px-4 pb-px tablet:mx-0"
       aria-label={l10n.getString(componentTitle.titleFtl, componentTitle.title)}
     >
-      <h1 className="font-semibold leading-8 mb-2 text-grey-600 text-xl">
+      {cartState === CartState.SUCCESS && (
+        <div className="flex items-center justify-center padding pb-6">
+          <Image src={circledConfirm} alt="" className="w-30 h-30" />
+        </div>
+      )}
+      <h1 className="font-semibold leading-8 mb-1 text-grey-600 text-xl">
         {l10n.getString(componentTitle.titleFtl, componentTitle.title)}
       </h1>
 
       {displaySubtitle && (
-        <div className="flex items-center justify-center gap-2 text-green-900 mb-4">
+        <div className="flex items-center justify-center gap-2 text-green-900">
           <Image src={checkLogo} alt="" />
           <span className="font-semibold text-sm">
             {l10n.getString(

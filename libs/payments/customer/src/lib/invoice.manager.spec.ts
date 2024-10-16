@@ -15,16 +15,18 @@ import {
   StripePromotionCodeFactory,
   StripeResponseFactory,
   StripeUpcomingInvoiceFactory,
+  StripePaymentIntentFactory,
+  StripePaymentMethodFactory,
 } from '@fxa/payments/stripe';
 import { TaxAddressFactory } from './factories/tax-address.factory';
 import { InvoicePreviewFactory } from './invoice.factories';
 import { InvoiceManager } from './invoice.manager';
-import { stripeInvoiceToFirstInvoicePreviewDTO } from '../lib/util/stripeInvoiceToFirstInvoicePreviewDTO';
+import { stripeInvoiceToInvoicePreviewDTO } from './util/stripeInvoiceToFirstInvoicePreviewDTO';
 import { getMinimumChargeAmountForCurrency } from '../lib/util/getMinimumChargeAmountForCurrency';
 
 jest.mock('../lib/util/stripeInvoiceToFirstInvoicePreviewDTO');
 const mockedStripeInvoiceToFirstInvoicePreviewDTO = jest.mocked(
-  stripeInvoiceToFirstInvoicePreviewDTO
+  stripeInvoiceToInvoicePreviewDTO
 );
 
 jest.mock('../lib/util/getMinimumChargeAmountForCurrency');
@@ -71,6 +73,12 @@ describe('InvoiceManager', () => {
       const mockUpcomingInvoice = StripeResponseFactory(
         StripeUpcomingInvoiceFactory()
       );
+      const mockPaymentIntent = StripeResponseFactory(
+        StripePaymentIntentFactory()
+      );
+      const mockPaymentMethod = StripeResponseFactory(
+        StripePaymentMethodFactory()
+      );
 
       const mockTaxAddress = TaxAddressFactory();
       const mockInvoicePreview = InvoicePreviewFactory();
@@ -78,17 +86,26 @@ describe('InvoiceManager', () => {
       jest
         .spyOn(stripeClient, 'invoicesRetrieveUpcoming')
         .mockResolvedValue(mockUpcomingInvoice);
+      jest
+        .spyOn(stripeClient, 'paymentIntentRetrieve')
+        .mockResolvedValue(mockPaymentIntent);
+      jest
+        .spyOn(stripeClient, 'paymentMethodRetrieve')
+        .mockResolvedValue(mockPaymentMethod);
 
       mockedStripeInvoiceToFirstInvoicePreviewDTO.mockReturnValue(
         mockInvoicePreview
       );
 
-      const result = await invoiceManager.preview({
+      const result = await invoiceManager.previewUpcoming({
         priceId: mockPrice.id,
         customer: mockCustomer,
         taxAddress: mockTaxAddress,
       });
-      expect(result).toEqual(mockInvoicePreview);
+      expect(result).toEqual({
+        ...mockInvoicePreview,
+        last4: mockPaymentMethod.card?.last4,
+      });
     });
 
     it('returns upcoming invoice with coupon', async () => {
@@ -102,6 +119,12 @@ describe('InvoiceManager', () => {
           valid: true,
         }),
       });
+      const mockPaymentIntent = StripeResponseFactory(
+        StripePaymentIntentFactory()
+      );
+      const mockPaymentMethod = StripeResponseFactory(
+        StripePaymentMethodFactory()
+      );
 
       const mockTaxAddress = TaxAddressFactory();
       const mockInvoicePreview = InvoicePreviewFactory();
@@ -114,18 +137,27 @@ describe('InvoiceManager', () => {
       jest
         .spyOn(stripeClient, 'invoicesRetrieveUpcoming')
         .mockResolvedValue(mockUpcomingInvoice);
+      jest
+        .spyOn(stripeClient, 'paymentIntentRetrieve')
+        .mockResolvedValue(mockPaymentIntent);
+      jest
+        .spyOn(stripeClient, 'paymentMethodRetrieve')
+        .mockResolvedValue(mockPaymentMethod);
 
       mockedStripeInvoiceToFirstInvoicePreviewDTO.mockReturnValue(
         mockInvoicePreview
       );
 
-      const result = await invoiceManager.preview({
+      const result = await invoiceManager.previewUpcoming({
         priceId: mockPrice.id,
         customer: mockCustomer,
         taxAddress: mockTaxAddress,
         couponCode: mockPromotionCode.code,
       });
-      expect(result).toEqual(mockInvoicePreview);
+      expect(result).toEqual({
+        ...mockInvoicePreview,
+        last4: mockPaymentMethod.card?.last4,
+      });
     });
   });
 
