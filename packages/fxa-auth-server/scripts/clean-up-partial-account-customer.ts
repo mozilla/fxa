@@ -12,7 +12,7 @@ import { Container } from 'typedi';
 
 import appConfig from '../config';
 import * as random from '../lib/crypto/random';
-import DB from '../lib/db';
+import { createDB } from '../lib/db';
 import { setupFirestore } from '../lib/firestore-db';
 import initLog from '../lib/log';
 import { CurrencyHelper } from '../lib/payments/currencies';
@@ -82,7 +82,7 @@ const init = async () => {
     { ...config.redis, ...config.redis.sessionTokens },
     log
   );
-  const db = DB(
+  const db = createDB(
     config,
     log,
     Token(log, config),

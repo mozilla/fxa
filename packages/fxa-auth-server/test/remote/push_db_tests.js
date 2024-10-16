@@ -14,8 +14,9 @@ const log = { trace() {}, info() {}, error() {}, debug() {}, warn() {} };
 const config = require('../../config').default.getProperties();
 const TestServer = require('../test_server');
 const Token = require('../../lib/tokens')(log);
-const DB = require('../../lib/db')(config, log, Token);
+const { createDB } = require('../../lib/db');
 const mockStatsD = { increment: () => {} };
+const DB = createDB(config, log, Token);
 
 const zeroBuffer16 = Buffer.from(
   '00000000000000000000000000000000',
@@ -177,6 +178,4 @@ describe(`#integration - remote push db`, function () {
         );
       });
   });
-
-
 });

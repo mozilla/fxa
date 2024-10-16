@@ -45,6 +45,7 @@ import { AccountDeleteManager } from '../account-delete';
 import { uuidTransformer } from 'fxa-shared/db/transformers';
 import { AccountTasks, ReasonForDeletion } from '@fxa/shared/cloud-tasks';
 import { ProfileClient } from '@fxa/profile/client';
+import { DB } from '../db';
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 
@@ -69,7 +70,7 @@ export class AccountHandler {
 
   constructor(
     private log: AuthLogger,
-    private db: any,
+    private db: DB,
     private mailer: any,
     private Password: any,
     private config: ConfigType,
@@ -819,8 +820,8 @@ export class AccountHandler {
     const auth = request.auth;
     const { user: uid } = auth.credentials;
 
-    const account = await this.db.account(uid);
-    const email = account.primaryEmail.email;
+    const account = await this.db.account(uid as string);
+    const email = account.primaryEmail?.email;
 
     await this.customs.check(request, email, 'setPassword');
 
@@ -1367,7 +1368,7 @@ export class AccountHandler {
         });
         // account must exist or unknown account error is thrown
         result.exists = true;
-        result.hasLinkedAccount = account.linkedAccounts.length > 0;
+        result.hasLinkedAccount = (account.linkedAccounts?.length || 0) > 0;
         result.hasPassword = account.verifierSetAt > 0;
       } else {
         const exist = await this.db.accountExists(email);
@@ -1403,10 +1404,10 @@ export class AccountHandler {
     }
 
     const res: Record<string, any> = {};
-    const account = await this.db.account(uid);
+    const account = await this.db.account(uid as string);
 
     if (scope.contains('profile:email')) {
-      res.email = account.primaryEmail.email;
+      res.email = account.primaryEmail?.email;
     }
     if (scope.contains('profile:locale') && account.locale) {
       res.locale = account.locale;
@@ -1456,7 +1457,13 @@ export class AccountHandler {
 
   async keys(request: AuthRequest) {
     this.log.begin('Account.keys', request);
-    const keyFetchToken = request.auth.credentials;
+    const keyFetchToken = request.auth.credentials as unknown as {
+      id: string;
+      uid: string;
+      tokenVerified: boolean;
+      emailVerified: boolean;
+      keyBundle: any;
+    };
 
     const verified = keyFetchToken.tokenVerified && keyFetchToken.emailVerified;
     if (!verified) {
@@ -1475,7 +1482,7 @@ export class AccountHandler {
   async reset(request: AuthRequest) {
     this.log.begin('Account.reset', request);
 
-    const accountResetToken = request.auth.credentials;
+    const accountResetToken = request.auth.credentials as any;
     const {
       authPW,
       authPWVersion2,

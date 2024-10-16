@@ -82,7 +82,8 @@ async function run(config) {
     log
   );
 
-  const DB = require('../lib/db')(
+  const { createDB } = require('../lib/db');
+  const DB = createDB(
     config,
     log,
     require('../lib/tokens')(log, config),
@@ -310,7 +311,7 @@ async function run(config) {
       } catch (e) {
         // XXX: simplesmtp module may quit early and set socket to `false`, stopping it may fail
         log.warn('shutdown', {
-          message: 'senders.email did not shut down cleanly. ' + e.message
+          message: 'senders.email did not shut down cleanly. ' + e.message,
         });
       }
 

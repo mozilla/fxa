@@ -12,7 +12,8 @@ const log = { trace() {}, info() {}, debug() {}, warn() {}, error() {} };
 const config = require('../../config').default.getProperties();
 
 const Token = require('../../lib/tokens')(log);
-const DB = require('../../lib/db')(
+const { createDB } = require('../../lib/db');
+const DB = createDB(
   config,
   log,
   Token.error,

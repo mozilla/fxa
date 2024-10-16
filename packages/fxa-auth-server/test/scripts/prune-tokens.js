@@ -32,7 +32,8 @@ const { uuidTransformer } = require('fxa-shared/db/transformers');
 
 const log = mocks.mockLog();
 const Token = require('../../lib/tokens')(log, config);
-const DB = require('../../lib/db')(config, log, Token, UnblockCode);
+const { createDB } = require('../../lib/db');
+const DB = createDB(config, log, Token, UnblockCode);
 
 const redis = require('../../lib/redis')(
   {

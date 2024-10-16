@@ -11,7 +11,6 @@ import { Container } from 'typedi';
 import * as Sentry from '@sentry/node';
 
 import { ConfigType } from '../config';
-import DB from './db/index';
 import { ERRNO } from './error';
 import OAuthDb from './oauth/db';
 import { AppleIAP } from './payments/iap/apple-app-store/apple-iap';
@@ -23,11 +22,8 @@ import { StripeFirestoreMultiError } from './payments/stripe-firestore';
 import pushBuilder from './push';
 import pushboxApi from './pushbox';
 import { AppConfig, AuthLogger, AuthRequest } from './types';
+import { DB } from './db';
 
-type FxaDbDeleteAccount = Pick<
-  Awaited<ReturnType<ReturnType<typeof DB>['connect']>>,
-  'deleteAccount' | 'accountRecord' | 'account' | 'devices'
->;
 type OAuthDbDeleteAccount = Pick<typeof OAuthDb, 'removeTokensAndCodes'>;
 type PushboxDeleteAccount = Pick<
   ReturnType<typeof pushboxApi>,
@@ -40,7 +36,7 @@ type PushForDeleteAccount = Pick<
 type Log = AuthLogger & { activityEvent: (data: Record<string, any>) => void };
 
 export class AccountDeleteManager {
-  private fxaDb: FxaDbDeleteAccount;
+  private fxaDb: DB;
   private oauthDb: OAuthDbDeleteAccount;
   private push: PushForDeleteAccount;
   private pushbox: PushboxDeleteAccount;
@@ -58,7 +54,7 @@ export class AccountDeleteManager {
     push,
     pushbox,
   }: {
-    fxaDb: FxaDbDeleteAccount;
+    fxaDb: DB;
     oauthDb: OAuthDbDeleteAccount;
     config: ConfigType;
     push: PushForDeleteAccount;

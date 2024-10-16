@@ -482,8 +482,8 @@ export class Account extends BaseAuthModel {
 
   static async findByPrimaryEmail(
     email: string,
-    options: { linkedAccounts?: boolean } = {}
-  ) {
+    options: { linkedAccounts?: boolean } = { linkedAccounts: false }
+  ): Promise<(Account & { linkedAccounts?: LinkedAccount[] }) | null> {
     let account: Account | null = null;
     const { rows } = await Account.callProcedure(Proc.AccountRecord, email);
     if (rows.length) {
@@ -525,7 +525,10 @@ export class Account extends BaseAuthModel {
     return allAccounts;
   }
 
-  static async findByUid(uid: string, options?: AccountOptions) {
+  static async findByUid(
+    uid: string,
+    options?: AccountOptions
+  ): Promise<Account | null> {
     const account = await Account.query()
       .select(...selectFields)
       .where('uid', uuidTransformer.to(uid))

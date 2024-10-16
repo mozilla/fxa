@@ -34,7 +34,8 @@ const tokenPruning = {
   enabled: true,
   maxAge: 1000 * 60 * 60,
 };
-const DB = require('../../lib/db')(
+const { createDB } = require('../../lib/db');
+const DB = createDB(
   {
     lastAccessTimeUpdates,
     signinCodeSize: config.signinCodeSize,

@@ -21,7 +21,8 @@ module.exports = function dumpUsers(keys, dbFunc, usePretty) {
     config.signinUnblock.codeLength
   );
 
-  const DB = require('../../lib/db')(config, log, Token, UnblockCode);
+  const { createDB } = require('../../lib/db');
+  const DB = createDB(config, log, Token, UnblockCode);
 
   let db;
 

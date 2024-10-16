@@ -63,7 +63,8 @@ export async function setupProcessingTaskObjects(processName: string) {
     { ...config.redis, ...config.redis.sessionTokens },
     log
   );
-  const DB = require('../db')(
+  const { createDB } = require('../db');
+  const DB = createDB(
     config,
     log,
     require('../tokens')(log, config),
