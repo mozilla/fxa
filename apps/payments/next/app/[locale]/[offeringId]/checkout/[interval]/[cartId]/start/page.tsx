@@ -2,17 +2,28 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { revalidatePath } from 'next/cache';
 import { headers } from 'next/headers';
-import { BaseButton, ButtonVariant, PaymentSection } from '@fxa/payments/ui';
-import { getApp, SupportedPages,   CheckoutParams, } from '@fxa/payments/ui/server';
+import Image from 'next/image';
+import {
+  BaseButton,
+  ButtonVariant,
+  PaymentSection,
+  SignInForm,
+} from '@fxa/payments/ui';
+import {
+  getApp,
+  CheckoutParams,
+  SupportedPages,
+} from '@fxa/payments/ui/server';
 import { getCartOrRedirectAction } from '@fxa/payments/ui/actions';
+import AppleLogo from '@fxa/shared/assets/images/apple-logo.svg';
+import GoogleLogo from '@fxa/shared/assets/images/google-logo.svg';
 import { DEFAULT_LOCALE } from '@fxa/shared/l10n';
 import {
   getFakeCartData,
   getCMSContent,
 } from 'apps/payments/next/app/_lib/apiClient';
-import { auth, signIn } from 'apps/payments/next/auth';
+import { auth } from 'apps/payments/next/auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -46,74 +57,37 @@ export default async function Checkout({ params }: { params: CheckoutParams }) {
         <>
           <h2 className="font-semibold text-grey-600 text-lg mt-10">
             {l10n.getString(
-              'next-new-user-step-1-2',
-              '1. Create a Mozilla account'
+              'checkout-signin-or-create',
+              '1. Sign in or create a Mozilla account'
             )}
           </h2>
 
-          <form
-            action={async () => {
-              'use server';
-              await signIn('fxa');
-            }}
-          >
-            <p className="text-grey-400 text-sm mt-2 pb-4 ">
-              {l10n.getFragmentWithSource(
-                'next-new-user-sign-in-link-2',
-                {
-                  elems: {
-                    a: (
-                      <button className="underline hover:text-grey-400">
-                        Sign in
-                      </button>
-                    ),
-                  },
-                },
-                <>
-                  Already have a Mozilla account?&nbsp;
-                  <button className="underline hover:text-grey-400">
-                    Sign in
-                  </button>
-                </>
-              )}
-            </p>
-          </form>
+          <SignInForm
+            newsletterLabel={cms.commonContent.newsletterLabelTextCode}
+          />
 
-          <div className="p-6 text-center">
-            {/**
-              Temporary Content. This will be replaced in M3b by the Passwordless
-              email signup form.
-            */}
-            <p className="mb-6">{`Current cart email: ${cart.email}`}</p>
-            <form
-              action={async (formData: FormData) => {
-                'use server';
-                const email =
-                  formData.get('email')?.toString() || 'test@example.com';
-                await getApp().getActionsService().updateCart({
-                  cartId: cart.id,
-                  version: cart.version,
-                  cartDetails: {
-                    email,
-                  },
-                });
-                revalidatePath('/');
-              }}
-            >
-              <input
-                type="email"
-                name="email"
-                className="w-full border rounded-md border-black/30 p-3 placeholder:text-grey-500 placeholder:font-normal focus:border focus:!border-black/30 focus:!shadow-[0_0_0_3px_rgba(10,132,255,0.3)] focus-visible:outline-none data-[invalid=true]:border-alert-red data-[invalid=true]:text-alert-red data-[invalid=true]:shadow-inputError"
-              />
-              <BaseButton
-                className="mt-10 w-full"
-                type="submit"
-                variant={ButtonVariant.Primary}
-              >
-                {' '}
-                Set email
-              </BaseButton>
-            </form>
+          <h3 className="font-semibold text-grey-600 text-start">
+            {l10n.getString(
+              'checkout-create-account',
+              'Create a Mozilla account'
+            )}
+          </h3>
+
+          <div className="flex flex-col gap-4 mt-6 mb-10 desktop:flex-row desktop:items-center desktop:justify-center">
+            <BaseButton variant={ButtonVariant.ThirdParty}>
+              <Image src={GoogleLogo} alt="" />
+              {l10n.getString(
+                'next-continue-with-google-button',
+                'Continue with Google'
+              )}
+            </BaseButton>
+            <BaseButton variant={ButtonVariant.ThirdParty}>
+              <Image src={AppleLogo} alt="" />
+              {l10n.getString(
+                'next-continue-with-apple-button',
+                'Continue with Apple'
+              )}
+            </BaseButton>
           </div>
 
           <hr className="mx-auto w-full border-grey-200" />
