@@ -26,6 +26,25 @@ const VERIFICATION_METHOD = {
 export type VerificationMethod = keyof typeof VERIFICATION_METHOD;
 export type SessionVerifiedState = 'verified' | 'unverified';
 
+export function verificationMethodToNumber(
+  method: VerificationMethod | number
+) {
+  return typeof method === 'number' ? method : VERIFICATION_METHOD[method];
+}
+
+export function verificationMethodToString(
+  method: VerificationMethod | number
+): string {
+  if (typeof method === 'number') {
+    return (
+      (Object.keys(VERIFICATION_METHOD) as VerificationMethod[]).find(
+        (key) => VERIFICATION_METHOD[key] === method
+      ) || 'unknown'
+    );
+  }
+  return method;
+}
+
 /** Session Token
  *
  * Note that this class does not currently implement all the functionality of the
@@ -202,7 +221,7 @@ export class SessionToken extends BaseToken {
           Proc.VerifyTokenWithMethod,
           txn,
           uuidTransformer.to(id),
-          typeof method === 'number' ? method : VERIFICATION_METHOD[method],
+          verificationMethodToNumber(method),
           Date.now()
         );
         if (status.affectedRows < 1) {
