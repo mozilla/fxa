@@ -30,6 +30,10 @@ import { StatsD } from 'hot-shots';
 import { Container } from 'typedi';
 import random, { base32 } from './crypto/random';
 import error from './error';
+import {
+  verificationMethodToString,
+  VerificationMethod,
+} from 'fxa-shared/db/models/auth/session-token';
 
 function resolveMetrics(): StatsD | undefined {
   return Container.has(StatsD) ? Container.get(StatsD) : undefined;
@@ -131,11 +135,16 @@ export const createDB = (
       };
       try {
         await Account.create(data);
+        this.metrics?.increment('db.account.created', { result: 'success' });
         return data;
       } catch (err) {
         if (isRecordAlreadyExistsError(err)) {
+          this.metrics?.increment('db.account.created', {
+            result: 'accountExists',
+          });
           throw error.accountExists(data.email);
         }
+        this.metrics?.increment('db.account.created', { result: 'error' });
         throw err;
       }
     }
@@ -157,6 +166,7 @@ export const createDB = (
       }
       await RawSessionToken.create(sessionToken);
 
+      this.metrics?.increment('db.sessionToken.created');
       return sessionToken;
     }
 
@@ -164,6 +174,7 @@ export const createDB = (
       log.trace('DB.createKeyFetchToken', { uid: authToken && authToken.uid });
       const keyFetchToken = await KeyFetchToken.create(authToken);
       await RawKeyFetchToken.create(keyFetchToken);
+      this.metrics?.increment('db.keyFetchToken.created');
       return keyFetchToken;
     }
 
@@ -173,6 +184,7 @@ export const createDB = (
       });
       const passwordForgotToken = await PasswordForgotToken.create(emailRecord);
       await RawPasswordForgotToken.create(passwordForgotToken);
+      this.metrics?.increment('db.passwordForgotToken.created');
       return passwordForgotToken;
     }
 
@@ -180,6 +192,7 @@ export const createDB = (
       log.trace('DB.createPasswordChangeToken', { uid: data.uid });
       const passwordChangeToken = await PasswordChangeToken.create(data);
       await RawPasswordChangeToken.create(passwordChangeToken);
+      this.metrics?.increment('db.passwordChangeToken.created');
       return passwordChangeToken;
     }
 
@@ -190,10 +203,10 @@ export const createDB = (
       const result = await Account.checkPassword(uid, verifyHash);
 
       if (result.v1) {
-        resolveMetrics()?.increment('check.password.v1.success');
+        this.metrics?.increment('check.password.v1.success');
       }
       if (result.v2) {
-        resolveMetrics()?.increment('check.password.v2.success');
+        this.metrics?.increment('check.password.v2.success');
       }
 
       return result;
@@ -203,6 +216,9 @@ export const createDB = (
       log.trace('DB.accountExists', { email: email });
       // TODO this could be optimized with a new query
       const account = await Account.findByPrimaryEmail(email);
+      this.metrics?.increment('db.account.exists', {
+        exists: (!!account).toString(),
+      });
       return !!account;
     }
 
@@ -251,6 +267,7 @@ export const createDB = (
         mysql: mysqlSessionTokens.length,
         redis: Object.keys(redisSessionTokens).length,
       });
+      this.metrics?.increment('db.sessions');
       return sessions;
     }
 
@@ -258,8 +275,14 @@ export const createDB = (
       log.trace('DB.keyFetchToken', { id });
       const data = await RawKeyFetchToken.findByTokenId(id);
       if (!data) {
+        this.metrics?.increment('db.keyFetchToken.retrieve', {
+          result: 'notFound',
+        });
         throw error.invalidToken('The authentication token could not be found');
       }
+      this.metrics?.increment('db.keyFetchToken.retrieve', {
+        result: 'success',
+      });
       return KeyFetchToken.fromId(id, data);
     }
 
@@ -267,8 +290,16 @@ export const createDB = (
       log.trace('DB.keyFetchTokenWithVerificationStatus', { id });
       const data = await RawKeyFetchToken.findByTokenId(id, true);
       if (!data) {
+        this.metrics?.increment(
+          'db.keyFetchTokenWithVerificationStatus.retrieve',
+          { result: 'notFound' }
+        );
         throw error.invalidToken('The authentication token could not be found');
       }
+      this.metrics?.increment(
+        'db.keyFetchTokenWithVerificationStatus.retrieve',
+        { result: 'success' }
+      );
       return KeyFetchToken.fromId(id, data);
     }
 
@@ -276,8 +307,14 @@ export const createDB = (
       log.trace('DB.accountResetToken', { id });
       const data = await RawAccountResetToken.findByTokenId(id);
       if (!data) {
+        this.metrics?.increment('db.accountResetToken.retrieve', {
+          result: 'notFound',
+        });
         throw error.invalidToken('The authentication token could not be found');
       }
+      this.metrics?.increment('db.accountResetToken.retrieve', {
+        result: 'success',
+      });
       return AccountResetToken.fromHex(data.tokenData, data);
     }
 
@@ -285,8 +322,14 @@ export const createDB = (
       log.trace('DB.passwordForgotToken', { id });
       const data = await RawPasswordForgotToken.findByTokenId(id);
       if (!data) {
+        this.metrics?.increment('db.passwordForgotToken.retrieve', {
+          result: 'notFound',
+        });
         throw error.invalidToken('The authentication token could not be found');
       }
+      this.metrics?.increment('db.passwordForgotToken.retrieve', {
+        result: 'success',
+      });
       return PasswordForgotToken.fromHex(data.tokenData, data);
     }
 
@@ -294,8 +337,14 @@ export const createDB = (
       log.trace('DB.passwordChangeToken', { id });
       const data = await RawPasswordChangeToken.findByTokenId(id);
       if (!data) {
+        this.metrics?.increment('db.passwordChangeToken.retrieve', {
+          result: 'notFound',
+        });
         throw error.invalidToken('The authentication token could not be found');
       }
+      this.metrics?.increment('db.passwordChangeToken.retrieve', {
+        result: 'success',
+      });
       return PasswordChangeToken.fromHex(data.tokenData, data);
     }
 
@@ -303,8 +352,14 @@ export const createDB = (
       log.trace('DB.accountRecord', { email });
       const account = await Account.findByPrimaryEmail(email, options);
       if (!account) {
+        this.metrics?.increment('db.accountRecord.retrieve', {
+          result: 'notFound',
+        });
         throw error.unknownAccount(email);
       }
+      this.metrics?.increment('db.accountRecord.retrieve', {
+        result: 'success',
+      });
       return account;
     }
     // Legacy alias
@@ -315,8 +370,10 @@ export const createDB = (
       log.trace('DB.account', { uid });
       const account = await Account.findByUid(uid, { include: ['emails'] });
       if (!account) {
+        this.metrics?.increment('db.account.retrieve', { result: 'notFound' });
         throw error.unknownAccount();
       }
+      this.metrics?.increment('db.account.retrieve', { result: 'success' });
       return account;
     }
 
@@ -334,6 +391,9 @@ export const createDB = (
       log.trace('DB.devices', { uid });
 
       if (!uid) {
+        this.metrics?.increment('db.devices.retrieve', {
+          result: 'uidNotFound',
+        });
         throw error.unknownAccount();
       }
 
@@ -347,6 +407,8 @@ export const createDB = (
         const [devices, redisSessionTokens = {}] = await Promise.all(promises);
         const lastAccessTimeEnabled =
           features.isLastAccessTimeEnabledForUser(uid);
+
+        this.metrics?.increment('db.devices.retrieve', { result: 'success' });
         return mergeDevicesAndSessionTokens(
           devices,
           redisSessionTokens,
@@ -354,8 +416,13 @@ export const createDB = (
         );
       } catch (err) {
         if (isNotFoundError(err)) {
+          this.metrics?.increment('db.devices.retrieve', {
+            result: 'notFound',
+          });
           throw error.unknownAccount();
         }
+
+        this.metrics?.increment('db.devices.retrieve', { result: 'error' });
         throw err;
       }
     }
@@ -364,8 +431,14 @@ export const createDB = (
       log.trace('DB.sessionToken', { id });
       const data = await RawSessionToken.findByTokenId(id);
       if (!data) {
+        this.metrics?.increment('db.sessionToken.retrieve', {
+          result: 'notFound',
+        });
         throw error.invalidToken('The authentication token could not be found');
       }
+      this.metrics?.increment('db.sessionToken.retrieve', {
+        result: 'success',
+      });
       return SessionToken.fromHex(data.tokenData, data);
     }
 
@@ -384,11 +457,14 @@ export const createDB = (
       }
       const [device, redisSessionTokens = {}] = await Promise.all(promises);
       if (!device) {
+        this.metrics?.increment('db.device.retrieve', { result: 'notFound' });
         throw error.unknownDevice();
       }
       const lastAccessTimeEnabled =
         features.isLastAccessTimeEnabledForUser(uid);
       const token = (redisSessionTokens as any)[device.sessionTokenId];
+
+      this.metrics?.increment('db.device.retrieve', { result: 'success' });
       return mergeDeviceAndSessionToken(device, token, lastAccessTimeEnabled);
     }
 
@@ -403,6 +479,7 @@ export const createDB = (
 
     async getLinkedAccounts(uid: string) {
       log.trace('DB.getLinkedAccounts', { uid });
+      this.metrics?.increment('db.linkedAccounts.retrieve');
       return LinkedAccount.findByUid(uid);
     }
 
@@ -412,16 +489,19 @@ export const createDB = (
       provider: any
     ): Promise<LinkedAccount> {
       log.trace('DB.createLinkedAccount', { uid, id, provider });
+      this.metrics?.increment('db.linkedAccount.create');
       return LinkedAccount.createLinkedAccount(uid, id, provider);
     }
 
     async deleteLinkedAccount(uid: string, provider: any) {
       log.trace('DB.deleteLinkedAccount', { uid, provider });
+      this.metrics?.increment('db.linkedAccount.delete');
       return LinkedAccount.deleteLinkedAccount(uid, provider);
     }
 
     async getLinkedAccount(id: string, provider: any) {
       log.trace('DB.getLinkedAccount', { id, provider });
+      this.metrics?.increment('db.linkedAccount.retrieve');
       return LinkedAccount.findByLinkedAccount(id, provider);
     }
 
@@ -429,8 +509,12 @@ export const createDB = (
       log.trace('DB.totpToken', { uid });
       const totp = await TotpToken.findByUid(uid);
       if (!totp) {
+        this.metrics?.increment('db.totpToken.retrieve', {
+          result: 'notFound',
+        });
         throw error.totpTokenNotFound();
       }
+      this.metrics?.increment('db.totpToken.retrieve', { result: 'success' });
       return totp;
     }
 
@@ -438,6 +522,9 @@ export const createDB = (
       log.trace('DB.getRecoveryKey', { uid });
       const data = await RecoveryKey.findByUid(uid);
       if (!data) {
+        this.metrics?.increment('db.recoveryKey.retrieve', {
+          result: 'notFound',
+        });
         throw error.recoveryKeyNotFound();
       }
       const idHash = crypto
@@ -450,13 +537,19 @@ export const createDB = (
           Buffer.from(data.recoveryKeyIdHash, 'hex') as any
         )
       ) {
+        this.metrics?.increment('db.recoveryKey.retrieve', {
+          result: 'invalid',
+        });
         throw error.recoveryKeyInvalid();
       }
+
+      this.metrics?.increment('db.recoveryKey.retrieve', { result: 'success' });
       return data;
     }
 
     async recoveryKeyExists(uid: string) {
       log.trace('DB.recoveryKeyExists', { uid });
+      this.metrics?.increment('db.recoveryKey.exists');
       return {
         exists: await RecoveryKey.exists(uid),
       };
@@ -490,11 +583,17 @@ export const createDB = (
     async setPrimaryEmail(uid: string, email: string) {
       log.trace('DB.setPrimaryEmail', { email });
       try {
-        return await Account.setPrimaryEmail(uid, email);
+        const account = await Account.setPrimaryEmail(uid, email);
+        this.metrics?.increment('db.primaryEmail.set', { result: 'success' });
+        return account;
       } catch (err) {
         if (isNotFoundError(err)) {
+          this.metrics?.increment('db.primaryEmail.set', {
+            result: 'notFound',
+          });
           throw error.unknownAccount(email);
         }
+        this.metrics?.increment('db.primaryEmail.set', { result: 'error' });
         throw err;
       }
     }
@@ -506,6 +605,7 @@ export const createDB = (
     }) {
       log.trace('DB.udatePasswordForgotToken', { uid: token && token.uid });
       const { id } = token;
+      this.metrics?.increment('db.passwordForgotToken.update');
       return RawPasswordForgotToken.update(id, token.tries);
     }
 
@@ -587,6 +687,7 @@ export const createDB = (
 
       await this.touchSessionToken(sessionToken, geo);
       await RawSessionToken.update({ id, ...sessionToken });
+      this.metrics?.increment('db.sessionToken.update');
     }
 
     async pruneSessionTokens(uid: string, sessionTokens: any) {
@@ -644,6 +745,9 @@ export const createDB = (
             (device: any) => device.id === deviceInfo.id
           );
           if (duplicateDevice) {
+            this.metrics?.increment('db.device.create', {
+              result: 'duplicate',
+            });
             return this.createDevice(uid, deviceInfo);
           }
 
@@ -652,11 +756,16 @@ export const createDB = (
               (sessionTokenId && device.sessionTokenId === sessionTokenId) ||
               (refreshTokenId && device.refreshTokenId === refreshTokenId)
           );
+          this.metrics?.increment('db.device.create', {
+            result: 'conflict',
+          });
           throw error.deviceSessionConflict(conflictingDevice?.id);
         }
+        this.metrics?.increment('db.device.create', { result: 'error' });
         throw err;
       }
       deviceInfo.pushEndpointExpired = false;
+      this.metrics?.increment('db.device.create', { result: 'success' });
       return deviceInfo;
     }
 
@@ -670,6 +779,7 @@ export const createDB = (
         });
       } catch (err) {
         if (isNotFoundError(err)) {
+          this.metrics?.increment('db.device.update', { result: 'notfound' });
           throw error.unknownDevice();
         }
         if (isRecordAlreadyExistsError(err)) {
@@ -679,10 +789,15 @@ export const createDB = (
           const conflictingDevice = devices.find(
             (device: any) => device.sessionTokenId === sessionTokenId
           );
+          this.metrics?.increment('db.device.update', {
+            result: 'conflict',
+          });
           throw error.deviceSessionConflict(conflictingDevice?.id);
         }
+        this.metrics?.increment('db.device.update', { result: 'error' });
         throw err;
       }
+      this.metrics?.increment('db.device.update', { result: 'success' });
       return deviceInfo;
     }
 
@@ -695,6 +810,7 @@ export const createDB = (
       if (this.redis) {
         await this.redis.del(uid);
       }
+      this.metrics?.increment('db.account.delete');
       return Account.delete(uid);
     }
 
@@ -704,12 +820,14 @@ export const createDB = (
       log.trace('DB.deleteSessionToken', { id, uid });
 
       await this.deleteSessionTokenFromRedis(uid, id);
+      this.metrics?.increment('db.sessionToken.delete');
       return RawSessionToken.delete(id);
     }
 
     async deleteKeyFetchToken(keyFetchToken: { id: string; uid: string }) {
       const { id, uid } = keyFetchToken;
       log.trace('DB.deleteKeyFetchToken', { id, uid });
+      this.metrics?.increment('db.keyFetchToken.delete');
       return RawKeyFetchToken.delete(id);
     }
 
@@ -719,6 +837,7 @@ export const createDB = (
     }) {
       const { id, uid } = accountResetToken;
       log.trace('DB.deleteAccountResetToken', { id, uid });
+      this.metrics?.increment('db.accountResetToken.delete');
       return RawAccountResetToken.delete(id);
     }
 
@@ -728,6 +847,7 @@ export const createDB = (
     }) {
       const { id, uid } = passwordForgotToken;
       log.trace('DB.deletePasswordForgotToken', { id, uid });
+      this.metrics?.increment('db.passwordForgotToken.delete');
       return RawPasswordForgotToken.delete(id);
     }
 
@@ -737,6 +857,7 @@ export const createDB = (
     }) {
       const { id, uid } = passwordChangeToken;
       log.trace('DB.deletePasswordChangeToken', { id, uid });
+      this.metrics?.increment('db.passwordChangeToken.delete');
       return RawPasswordChangeToken.delete(id);
     }
 
@@ -746,11 +867,14 @@ export const createDB = (
       try {
         const result = await Device.delete(uid, deviceId);
         await this.deleteSessionTokenFromRedis(uid, result.sessionTokenId);
+        this.metrics?.increment('db.device.delete', { result: 'success' });
         return result;
       } catch (err) {
         if (isNotFoundError(err)) {
+          this.metrics?.increment('db.device.delete', { result: 'notfound' });
           throw error.unknownDevice();
         }
+        this.metrics?.increment('db.device.delete', { result: 'error' });
         throw err;
       }
     }
@@ -771,9 +895,9 @@ export const createDB = (
       data.verifierSetAt = Date.now();
 
       if (data.verifyHashVersion2 != null) {
-        resolveMetrics()?.increment('reset.account.v2');
+        this.metrics?.increment('reset.account.v2');
       } else {
-        resolveMetrics()?.increment('reset.account.v1');
+        this.metrics?.increment('reset.account.v1');
       }
 
       return Account.reset({ uid, ...data });
@@ -782,6 +906,7 @@ export const createDB = (
     async verifyEmail(account: { uid: string }, emailCode: string) {
       const { uid } = account;
       log.trace('DB.verifyEmail', { uid, emailCode });
+      this.metrics?.increment('db.verify.email');
       await Account.verifyEmail(uid, emailCode);
     }
 
@@ -789,16 +914,27 @@ export const createDB = (
       log.trace('DB.verifyTokens', { tokenVerificationId });
       try {
         await BaseToken.verifyToken(accountData.uid, tokenVerificationId);
+        this.metrics?.increment('db.verify.tokens', { result: 'success' });
       } catch (err) {
         if (isNotFoundError(err)) {
+          this.metrics?.increment('db.verify.tokens', {
+            result: 'notfound',
+          });
           throw error.invalidVerificationCode();
         }
+        this.metrics?.increment('db.verify.tokens', { result: 'error' });
         throw err;
       }
     }
 
-    async verifyTokensWithMethod(tokenId: string, verificationMethod: any) {
+    async verifyTokensWithMethod(
+      tokenId: string,
+      verificationMethod: VerificationMethod | number
+    ) {
       log.trace('DB.verifyTokensWithMethod', { tokenId, verificationMethod });
+      this.metrics?.increment('db.verify.tokensWithMethod', {
+        method: verificationMethodToString(verificationMethod),
+      });
       await RawSessionToken.verify(tokenId, verificationMethod);
     }
 
@@ -810,6 +946,7 @@ export const createDB = (
       log.trace('DB.forgotPasswordVerified', { uid });
       const accountResetToken = await AccountResetToken.create({ uid });
       await RawPasswordForgotToken.verify(id, accountResetToken);
+      this.metrics?.increment('db.forgotPasswordVerified');
       return accountResetToken;
     }
 
@@ -825,7 +962,9 @@ export const createDB = (
     ) {
       log.trace('DB.createPassword', { uid });
       if (clientSalt && verifyHashVersion2 && wrapWrapKbVersion2) {
-        resolveMetrics()?.increment('create.password.v2');
+        this.metrics?.increment('create.password.v2');
+      } else {
+        this.metrics?.increment('create.password.v1');
       }
       return Account.createPassword(
         uid,
@@ -841,6 +980,7 @@ export const createDB = (
 
     async updateLocale(uid: string, locale: string) {
       log.trace('DB.updateLocale', { uid, locale });
+      this.metrics?.increment('db.updateLocale');
       return Account.updateLocale(uid, locale);
     }
 
@@ -882,6 +1022,7 @@ export const createDB = (
       const code = await UnblockCode();
       try {
         await Account.createUnblockCode(uid, code);
+        this.metrics?.increment('db.unblockCode.create', { result: 'success' });
         return code;
       } catch (err) {
         // duplicates should be super rare, but it's feasible that a
@@ -891,8 +1032,13 @@ export const createDB = (
             err: err,
             uid: uid,
           });
+          this.metrics?.increment('db.unblockCode.create', {
+            result: 'duplicate',
+          });
           return this.createUnblockCode(uid);
         }
+
+        this.metrics?.increment('db.unblockCode.create', { result: 'error' });
         throw err;
       }
     }
@@ -900,11 +1046,19 @@ export const createDB = (
     async consumeUnblockCode(uid: string, code: string) {
       log.trace('DB.consumeUnblockCode', { uid });
       try {
-        return await Account.consumeUnblockCode(uid, code);
+        const result = await Account.consumeUnblockCode(uid, code);
+        this.metrics?.increment('db.unblockCode.consume', {
+          result: 'success',
+        });
+        return result;
       } catch (err) {
         if (isNotFoundError(err)) {
+          this.metrics?.increment('db.unblockCode.consume', {
+            result: 'invalid',
+          });
           throw error.invalidUnblockCode();
         }
+        this.metrics?.increment('db.unblockCode.consume', { result: 'error' });
         throw err;
       }
     }
@@ -915,6 +1069,7 @@ export const createDB = (
       log.trace('DB.createEmailBounce', {
         bounceData: bounceData,
       });
+      this.metrics?.increment('db.emailBounce.create');
       await EmailBounce.create(bounceData);
     }
 
@@ -926,10 +1081,13 @@ export const createDB = (
 
       try {
         await Account.createEmail({ uid, ...emailData });
+        this.metrics?.increment('db.email.create', { result: 'success' });
       } catch (err) {
         if (isEmailAlreadyExistsError(err)) {
+          this.metrics?.increment('db.email.create', { result: 'duplicate' });
           throw error.emailExists();
         }
+        this.metrics?.increment('db.email.create', { result: 'error' });
         throw err;
       }
     }
@@ -938,11 +1096,17 @@ export const createDB = (
       log.trace('DB.deleteEmail', { uid });
 
       try {
-        return await Account.deleteEmail(uid, email);
+        const result = await Account.deleteEmail(uid, email);
+        this.metrics?.increment('db.email.delete', { result: 'success' });
+        return result;
       } catch (err) {
         if (isEmailDeletePrimaryError(err)) {
+          this.metrics?.increment('db.email.delete', {
+            result: 'noDeletePrimary',
+          });
           throw error.cannotDeletePrimaryEmail();
         }
+        this.metrics?.increment('db.email.delete', { result: 'error' });
         throw err;
       }
     }
@@ -956,22 +1120,34 @@ export const createDB = (
       } catch (err) {
         if (isRecordAlreadyExistsError(err)) {
           log.warn('DB.createSigninCode.duplicate');
+          this.metrics?.increment('db.signinCode.create', {
+            result: 'alreadyExists',
+          });
           return this.createSigninCode(uid, flowId);
         }
+
+        this.metrics?.increment('db.signinCode.create', { result: 'error' });
         throw err;
       }
+
+      this.metrics?.increment('db.signinCode.create', { result: 'success' });
       return code;
     }
 
     async consumeSigninCode(code: string) {
       log.trace('DB.consumeSigninCode', { code });
       try {
-        return await Account.consumeSigninCode(code);
+        const result = await Account.consumeSigninCode(code);
+        this.metrics?.increment('db.signinCode.consume', { result: 'success' });
+        return result;
       } catch (err) {
         if (isNotFoundError(err)) {
+          this.metrics?.increment('db.signinCode.consume', {
+            result: 'invalid',
+          });
           throw error.invalidSigninCode();
         }
-
+        this.metrics?.increment('db.signinCode.consume', { result: 'error' });
         throw err;
       }
     }
@@ -979,6 +1155,7 @@ export const createDB = (
     async resetAccountTokens(uid: string) {
       log.trace('DB.resetAccountTokens', { uid });
 
+      this.metrics?.increment('db.resetAccountTokens');
       await Account.resetTokens(uid);
     }
 
@@ -991,10 +1168,16 @@ export const createDB = (
           sharedSecret,
           epoch,
         });
+        this.metrics?.increment('db.totpToken.create', { result: 'success' });
       } catch (err) {
         if (isRecordAlreadyExistsError(err)) {
+          this.metrics?.increment('db.totpToken.create', {
+            result: 'alreadyExists',
+          });
           throw error.totpTokenAlreadyExists();
         }
+
+        this.metrics?.increment('db.totpToken.create', { result: 'error' });
         throw err;
       }
     }
@@ -1003,11 +1186,18 @@ export const createDB = (
       log.trace('DB.deleteTotpToken', { uid });
 
       try {
-        return await TotpToken.delete(uid);
+        const result = await TotpToken.delete(uid);
+        this.metrics?.increment('db.totpToken.delete', { result: 'success' });
+        return result;
       } catch (err) {
         if (isNotFoundError(err)) {
+          this.metrics?.increment('db.totpToken.delete', {
+            result: 'notFound',
+          });
           throw error.totpTokenNotFound();
         }
+
+        this.metrics?.increment('db.totpToken.delete', { result: 'error' });
         throw err;
       }
     }
@@ -1020,10 +1210,16 @@ export const createDB = (
 
       try {
         await TotpToken.update(uid, data.verified, data.enabled);
+        this.metrics?.increment('db.totpToken.update', { result: 'success' });
       } catch (err) {
         if (isNotFoundError(err)) {
+          this.metrics?.increment('db.totpToken.update', {
+            result: 'notFound',
+          });
           throw error.totpTokenNotFound();
         }
+
+        this.metrics?.increment('db.totpToken.update', { result: 'error' });
         throw err;
       }
     }
@@ -1032,6 +1228,8 @@ export const createDB = (
       log.trace('DB.replaceRecoveryCodes', { uid });
       const codes = await this.createRecoveryCodes(uid, count);
       await this.updateRecoveryCodes(uid, codes);
+
+      this.metrics?.increment('db.recoveryCodes.replace');
       return codes;
     }
 
@@ -1043,6 +1241,8 @@ export const createDB = (
           return (await getCode()).toLowerCase();
         })
       );
+
+      this.metrics?.increment('db.recoveryCodes.create');
       return codes;
     }
 
@@ -1065,6 +1265,8 @@ export const createDB = (
         })
       );
       await Account.replaceRecoveryCodes(uid, hashes);
+
+      this.metrics?.increment('db.recoveryCodes.update');
     }
 
     async consumeRecoveryCode(uid: string, code: string) {
@@ -1081,11 +1283,21 @@ export const createDB = (
       };
       try {
         const remaining = await Account.consumeRecoveryCode(uid, codeChecker);
+        this.metrics?.increment('db.recoveryCodes.consume', {
+          result: 'success',
+        });
         return { remaining };
       } catch (err) {
         if (isNotFoundError(err)) {
+          this.metrics?.increment('db.recoveryCodes.consume', {
+            result: 'notFound',
+          });
           throw error.recoveryCodeNotFound();
         }
+
+        this.metrics?.increment('db.recoveryCodes.consume', {
+          result: 'error',
+        });
         throw err;
       }
     }
@@ -1100,10 +1312,16 @@ export const createDB = (
 
       try {
         await RecoveryKey.create({ uid, recoveryKeyId, recoveryData, enabled });
+        this.metrics?.increment('db.recoveryKey.create', { result: 'success' });
       } catch (err) {
         if (isRecordAlreadyExistsError(err)) {
+          this.metrics?.increment('db.recoveryKey.create', {
+            result: 'alreadyExists',
+          });
           throw error.recoveryKeyExists();
         }
+
+        this.metrics?.increment('db.recoveryKey.create', { result: 'error' });
         throw err;
       }
     }
@@ -1111,6 +1329,7 @@ export const createDB = (
     async deleteRecoveryKey(uid: string) {
       log.trace('DB.deleteRecoveryKey', { uid });
 
+      this.metrics?.increment('db.recoveryKey.delete');
       return RecoveryKey.delete(uid);
     }
 
@@ -1121,17 +1340,21 @@ export const createDB = (
     ) {
       log.trace('DB.updateRecoveryKey', { uid });
 
+      this.metrics?.increment('db.recoveryKey.update');
       return RecoveryKey.update({ uid, recoveryKeyId, enabled });
     }
 
     async getRecoveryKeyRecordWithHint(uid: string) {
       log.trace('DB.getRecoveryKeyRecordWithHint', { uid });
+
+      this.metrics?.increment('db.recoveryKey.getWithHint');
       return await RecoveryKey.findRecordWithHintByUid(uid);
     }
 
     async updateRecoveryKeyHint(uid: string, hint: string) {
       log.trace('DB.updateRecoveryKeyHint', { uid, hint });
 
+      this.metrics?.increment('db.recoveryKey.updateHint');
       return RecoveryKey.updateRecoveryKeyHint(uid, hint);
     }
 
