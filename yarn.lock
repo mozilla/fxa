@@ -16867,28 +16867,27 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@radix-ui/react-form@npm:^0.0.3":
-  version: 0.0.3
-  resolution: "@radix-ui/react-form@npm:0.0.3"
+"@radix-ui/react-form@npm:^0.1.0":
+  version: 0.1.0
+  resolution: "@radix-ui/react-form@npm:0.1.0"
   dependencies:
-    "@babel/runtime": ^7.13.10
-    "@radix-ui/primitive": 1.0.1
-    "@radix-ui/react-compose-refs": 1.0.1
-    "@radix-ui/react-context": 1.0.1
-    "@radix-ui/react-id": 1.0.1
-    "@radix-ui/react-label": 2.0.2
-    "@radix-ui/react-primitive": 1.0.3
+    "@radix-ui/primitive": 1.1.0
+    "@radix-ui/react-compose-refs": 1.1.0
+    "@radix-ui/react-context": 1.1.0
+    "@radix-ui/react-id": 1.1.0
+    "@radix-ui/react-label": 2.1.0
+    "@radix-ui/react-primitive": 2.0.0
   peerDependencies:
     "@types/react": "*"
     "@types/react-dom": "*"
-    react: ^16.8 || ^17.0 || ^18.0
-    react-dom: ^16.8 || ^17.0 || ^18.0
+    react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
   peerDependenciesMeta:
     "@types/react":
       optional: true
     "@types/react-dom":
       optional: true
-  checksum: a2cc8e3787643b16e8c7a77aeac3707e7d7858ca65818631d46184abd7ab7047d496f646f404cbeddc4aeaf974a4e0d778044b09236d156ca2ab6f5e21851dac
+  checksum: e58b918ae0ead9621e9112b40918796fe8e13a7990c836ee3ad18767515f89839e5ec296e5a36641a0159ce8966ad9fee08993507bb0e1e4ae75b0d75e7bb7db
   languageName: node
   linkType: hard
 
@@ -16923,23 +16922,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@radix-ui/react-label@npm:2.0.2":
-  version: 2.0.2
-  resolution: "@radix-ui/react-label@npm:2.0.2"
+"@radix-ui/react-label@npm:2.1.0":
+  version: 2.1.0
+  resolution: "@radix-ui/react-label@npm:2.1.0"
   dependencies:
-    "@babel/runtime": ^7.13.10
-    "@radix-ui/react-primitive": 1.0.3
+    "@radix-ui/react-primitive": 2.0.0
   peerDependencies:
     "@types/react": "*"
     "@types/react-dom": "*"
-    react: ^16.8 || ^17.0 || ^18.0
-    react-dom: ^16.8 || ^17.0 || ^18.0
+    react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
   peerDependenciesMeta:
     "@types/react":
       optional: true
     "@types/react-dom":
       optional: true
-  checksum: fe3bd8902bc523fb5125fa96167a13b8a60d007413787eae9573e4b00b0edff0487c4c0620ea5dc37e6da13833ebc4f8d7e00b6c846f2a5686e7f173672b8dde
+  checksum: 462f3b47f43bd69c937e660dee229eb05990441e1b214923cdcf848aea62226e9f1c4673de6664bb4ad66f8a480acdb0f5d2ce4c88c425652b47432876b3f32f
   languageName: node
   linkType: hard
 
@@ -42102,7 +42100,7 @@ fsevents@~2.1.1:
     "@opentelemetry/sdk-trace-node": ^1.23.0
     "@opentelemetry/sdk-trace-web": ^1.23.0
     "@paypal/react-paypal-js": ^8.7.0
-    "@radix-ui/react-form": ^0.0.3
+    "@radix-ui/react-form": ^0.1.0
     "@radix-ui/react-tooltip": ^1.1.2
     "@sentry/browser": ^8.34.0
     "@sentry/nextjs": ^8.34.0
