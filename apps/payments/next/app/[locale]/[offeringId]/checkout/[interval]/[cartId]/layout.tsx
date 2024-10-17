@@ -59,9 +59,9 @@ export default async function RootLayout({
           priceInterval={
             <PriceInterval
               l10n={l10n}
-              currency={cart.invoicePreview.currency}
+              currency={cart.upcomingInvoicePreview.currency}
               interval={cart.interval}
-              listAmount={cart.invoicePreview.listAmount}
+              listAmount={cart.upcomingInvoicePreview.listAmount}
             />
           }
           purchaseDetails={
@@ -72,7 +72,7 @@ export default async function RootLayout({
           <Details
             l10n={l10n}
             interval={cart.interval}
-            invoice={cart.invoicePreview}
+            invoice={cart.upcomingInvoicePreview}
             purchaseDetails={
               cms.defaultPurchase.purchaseDetails.localizations.at(0) ||
               cms.defaultPurchase.purchaseDetails
@@ -87,7 +87,10 @@ export default async function RootLayout({
         />
       </section>
 
-      <div className="bg-white rounded-b-lg shadow-sm shadow-grey-300 border-t-0 mb-6 pt-4 px-4 pb-14 text-grey-600 desktop:px-12 desktop:pb-12 rounded-t-lg tablet:rounded-t-none">
+      <div
+        style={{ clipPath: 'inset(0px -5px -5px -5px' }}
+        className="bg-white rounded-b-lg shadow-sm shadow-grey-300 border-t-0 mb-6 pt-4 px-4 pb-14 text-grey-600 desktop:px-12 desktop:pb-12 rounded-t-lg tablet:rounded-t-none"
+      >
         {children}
         <TermsAndPrivacy
           l10n={l10n}

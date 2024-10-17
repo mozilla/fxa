@@ -150,7 +150,10 @@ export class StripeClient {
   ) {
     const result = await this.stripe.invoices.retrieveUpcoming({
       ...params,
-      expand: ['total_tax_amounts.tax_rate'],
+      expand: [
+        'total_tax_amounts.tax_rate',
+        'payment_intent.payment_method.card',
+      ],
     });
     return result as StripeResponse<StripeUpcomingInvoice>;
   }
@@ -182,6 +185,17 @@ export class StripeClient {
     params: Stripe.PaymentMethodAttachParams
   ) {
     const result = await this.stripe.paymentMethods.attach(id, {
+      ...params,
+      expand: undefined,
+    });
+    return result as StripeResponse<StripePaymentMethod>;
+  }
+
+  async paymentMethodRetrieve(
+    id: string,
+    params?: Stripe.PaymentMethodRetrieveParams
+  ) {
+    const result = await this.stripe.paymentMethods.retrieve(id, {
       ...params,
       expand: undefined,
     });
