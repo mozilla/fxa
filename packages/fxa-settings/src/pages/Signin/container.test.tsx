@@ -72,17 +72,29 @@ function mockSyncDesktopV3Integration() {
     isSync: () => true,
     wantsKeys: () => true,
     data: { service: 'sync' },
+    isDesktopSync: () => true,
   } as Integration;
 }
-function mockSyncOAuthIntegration(
+function mockOAuthWebIntegration(
   { data }: { data?: { service?: string } } = { data: { service: 'sync' } }
 ) {
   integration = {
-    type: IntegrationType.OAuth,
+    type: IntegrationType.OAuthWeb,
+    getService: () => MozServices.Monitor,
+    isSync: () => false,
+    wantsKeys: () => true,
+    data,
+    isDesktopSync: () => false,
+  } as Integration;
+}
+
+function mockOAuthNativeIntegration() {
+  integration = {
+    type: IntegrationType.OAuthNative,
     getService: () => 'sync',
     isSync: () => true,
     wantsKeys: () => true,
-    data,
+    isDesktopSync: () => true,
   } as Integration;
 }
 
@@ -92,6 +104,7 @@ function mockWebIntegration() {
     getService: () => MozServices.Default,
     isSync: () => false,
     wantsKeys: () => false,
+    isDesktopSync: () => false,
     data: {},
   } as Integration;
 }
@@ -623,8 +636,8 @@ describe('signin container', () => {
           expect(firefox.fxaCanLinkAccount).not.toHaveBeenCalled();
         });
       });
-      it('is not called when conditions are not met (oauth integration)', async () => {
-        mockSyncOAuthIntegration({ data: {} });
+      it('is not called when conditions are not met (oauth web integration)', async () => {
+        mockOAuthWebIntegration({ data: {} });
         (firefox.fxaCanLinkAccount as jest.Mock).mockImplementationOnce(
           async () => ({
             ok: true,
@@ -640,8 +653,8 @@ describe('signin container', () => {
           expect(firefox.fxaCanLinkAccount).not.toHaveBeenCalled();
         });
       });
-      it('calls fxaCanLinkAccount when conditions are met (oauth integration)', async () => {
-        mockSyncOAuthIntegration();
+      it('calls fxaCanLinkAccount when conditions are met (oauth native integration, isSyncDesktop)', async () => {
+        mockOAuthNativeIntegration();
         (firefox.fxaCanLinkAccount as jest.Mock).mockImplementationOnce(
           async () => ({
             ok: true,

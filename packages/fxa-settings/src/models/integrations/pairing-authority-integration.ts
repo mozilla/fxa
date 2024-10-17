@@ -5,10 +5,10 @@
 import { ModelDataStore } from '../../lib/model-data';
 import { IntegrationType } from './base-integration';
 import {
-  OAuthIntegration,
+  OAuthWebIntegration,
   OAuthIntegrationData,
   OAuthIntegrationOptions,
-} from './oauth-integration';
+} from './oauth-web-integration';
 import { bind, KeyTransforms as T } from '../../lib/model-data';
 import { IsBase64, IsNotEmpty } from 'class-validator';
 
@@ -24,7 +24,7 @@ export class PairingAuthorityIntegrationData extends OAuthIntegrationData {
 //
 // Also keep in mind, in content-server:
 // Authority auth_broker extends from Base auth_broker and Authority relier extends from OAuthRelier
-export class PairingAuthorityIntegration extends OAuthIntegration {
+export class PairingAuthorityIntegration extends OAuthWebIntegration {
   constructor(
     data: ModelDataStore,
     protected readonly storageData: ModelDataStore,

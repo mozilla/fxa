@@ -7,8 +7,8 @@ import { useCallback } from 'react';
 import {
   Integration,
   OAuthIntegration,
+  isOAuthNativeIntegrationSync,
   isOAuthIntegration,
-  isSyncOAuthIntegration,
 } from '../../models';
 import { createEncryptedBundle } from '../crypto/scoped-keys';
 import { Constants } from '../constants';
@@ -181,7 +181,7 @@ export function useFinishOAuthFlowHandler(
   authClient: AuthClient,
   integration: Integration
 ): UseFinishOAuthFlowHandlerResult {
-  const isSyncOAuth = isSyncOAuthIntegration(integration);
+  const isSyncOAuth = isOAuthNativeIntegrationSync(integration);
 
   const finishOAuthFlowHandler: FinishOAuthFlowHandler = useCallback(
     async (accountUid, sessionToken, keyFetchToken, unwrapBKey) => {

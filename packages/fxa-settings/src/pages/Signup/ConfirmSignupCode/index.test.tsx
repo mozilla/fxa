@@ -15,10 +15,15 @@ import {
   MOCK_AUTH_ERROR,
   MOCK_SIGNUP_CODE,
   Subject,
-  createMockOAuthIntegration,
+  createMockOAuthNativeIntegration,
+  createMockOAuthWebIntegration,
   createMockWebIntegration,
 } from './mocks';
-import { MOCK_STORED_ACCOUNT } from '../../mocks';
+import {
+  MOCK_OAUTH_FLOW_HANDLER_RESPONSE,
+  MOCK_STORED_ACCOUNT,
+  mockFinishOAuthFlowHandler,
+} from '../../mocks';
 import GleanMetrics from '../../../lib/glean';
 import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
 import { ConfirmSignupCodeIntegration } from './interfaces';
@@ -28,6 +33,7 @@ import {
   tryAgainError,
 } from '../../../lib/oauth/hooks';
 import { OAUTH_ERRORS } from '../../../lib/oauth';
+import firefox from '../../../lib/channels/firefox';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -80,15 +86,27 @@ function renderWithSession({
   newsletterSlugs,
   integration,
   finishOAuthFlowHandler,
+  offeredSyncEngines,
+  declinedSyncEngines,
 }: {
   session?: Session;
   newsletterSlugs?: string[];
   integration?: ConfirmSignupCodeIntegration;
   finishOAuthFlowHandler?: FinishOAuthFlowHandler;
+  offeredSyncEngines?: string[];
+  declinedSyncEngines?: string[];
 }) {
   renderWithLocalizationProvider(
     <AppContext.Provider value={mockAppContext({ session })}>
-      <Subject {...{ newsletterSlugs, integration, finishOAuthFlowHandler }} />
+      <Subject
+        {...{
+          newsletterSlugs,
+          integration,
+          finishOAuthFlowHandler,
+          offeredSyncEngines,
+          declinedSyncEngines,
+        }}
+      />
     </AppContext.Provider>
   );
 }
@@ -205,8 +223,12 @@ describe('ConfirmSignupCode page', () => {
     });
   });
 
-  describe('OAuth integration', () => {
-    const integration = createMockOAuthIntegration();
+  describe('OAuth web integration', () => {
+    let fxaOAuthLoginSpy: jest.SpyInstance;
+    beforeEach(() => {
+      fxaOAuthLoginSpy = jest.spyOn(firefox, 'fxaOAuthLogin');
+    });
+    const integration = createMockOAuthWebIntegration();
 
     it('shows an error banner for an OAuth error', async () => {
       renderWithSession({
@@ -218,6 +240,49 @@ describe('ConfirmSignupCode page', () => {
 
       await waitFor(() => {
         screen.getByText(OAUTH_ERRORS.TRY_AGAIN.message);
+      });
+    });
+
+    it('does not send web channel messages', async () => {
+      renderWithSession({
+        session,
+        integration,
+        finishOAuthFlowHandler: jest.fn(),
+      });
+      submit();
+
+      await waitFor(() => {
+        expect(fxaOAuthLoginSpy).not.toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe('OAuth native integration', () => {
+    let fxaOAuthLoginSpy: jest.SpyInstance;
+    beforeEach(() => {
+      fxaOAuthLoginSpy = jest.spyOn(firefox, 'fxaOAuthLogin');
+    });
+    const integration = createMockOAuthNativeIntegration();
+
+    it('sends expected web channel messages', async () => {
+      const offeredSyncEngines = ['blabbitybee', 'bloopitybop'];
+      const declinedSyncEngines = ['bloopitybop'];
+      renderWithSession({
+        session,
+        integration,
+        finishOAuthFlowHandler: mockFinishOAuthFlowHandler,
+        declinedSyncEngines,
+        offeredSyncEngines,
+      });
+      submit();
+
+      await waitFor(() => {
+        expect(fxaOAuthLoginSpy).toHaveBeenCalledWith({
+          declinedSyncEngines,
+          offeredSyncEngines,
+          action: 'signup',
+          ...MOCK_OAUTH_FLOW_HANDLER_RESPONSE,
+        });
       });
     });
   });

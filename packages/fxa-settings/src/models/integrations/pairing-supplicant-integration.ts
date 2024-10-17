@@ -5,7 +5,10 @@ import { ModelDataStore } from '../../lib/model-data';
 import { OAuthIntegrationData } from '.';
 import { IntegrationType } from './base-integration';
 import { bind } from '../../lib/model-data';
-import { OAuthIntegration, OAuthIntegrationOptions } from './oauth-integration';
+import {
+  OAuthWebIntegration,
+  OAuthIntegrationOptions,
+} from './oauth-web-integration';
 import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 // TODO in the 'Pairing' React epic. This shouldn't have any `feature` overrides but feel
@@ -19,7 +22,7 @@ export class PairingSupplicantIntegrationData extends OAuthIntegrationData {
   scope: string | undefined = '';
 }
 
-export class PairingSupplicantIntegration extends OAuthIntegration {
+export class PairingSupplicantIntegration extends OAuthWebIntegration {
   constructor(
     data: ModelDataStore,
     protected readonly storageData: ModelDataStore,

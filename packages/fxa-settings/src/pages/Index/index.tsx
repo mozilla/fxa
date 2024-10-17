@@ -11,11 +11,11 @@ import InputText from '../../components/InputText';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import ThirdPartyAuth from '../../components/ThirdPartyAuth';
 import TermsPrivacyAgreement from '../../components/TermsPrivacyAgreement';
-import { isOAuthIntegration } from '../../models';
 import {
   isClientMonitor,
   isClientPocket,
 } from '../../models/integrations/client-matching';
+import { isOAuthIntegration } from '../../models';
 
 export const Index = ({
   integration,

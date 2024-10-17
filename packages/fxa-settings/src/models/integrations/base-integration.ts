@@ -5,7 +5,8 @@
 import { MozServices } from '../../lib/types';
 
 export enum IntegrationType {
-  OAuth = 'OAuth',
+  OAuthWeb = 'OAuthWeb', // OAuth for non-browser services/RPs
+  OAuthNative = 'OAuthNative', // OAuth for desktop & mobile clients
   PairingAuthority = 'PairingAuthority', // TODO
   PairingSupplicant = 'PairingSupplicant', // TODO
   SyncBasic = 'SyncBasic',
@@ -96,7 +97,19 @@ export abstract class Integration<
     this.features = { ...this.features, ...features } as T;
   }
 
-  isSync(): boolean {
+  isSync() {
+    return false;
+  }
+
+  isDesktopSync() {
+    return false;
+  }
+
+  isFirefoxMobileClient() {
+    return false;
+  }
+
+  isFirefoxDesktopClient() {
     return false;
   }
 
@@ -162,11 +175,6 @@ export abstract class Integration<
   isTrusted() {
     return true;
   }
-
-  // TODO: This seems like feature envy... Move logic elsewhere.
-  // accountNeedsPermissions(account:RelierAccount): boolean {
-  //   return false;
-  // }
 }
 
 export class BaseIntegration<
