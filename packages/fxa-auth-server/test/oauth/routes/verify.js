@@ -121,6 +121,7 @@ describe('/verify POST', () => {
       sinon.assert.calledOnceWithExactly(mocks.glean.oauth.tokenChecked, req, {
         uid: 'bar',
         oauthClientId: 'foo',
+        scopes: ['bar:foo', 'clients:write'],
       });
     });
   });
