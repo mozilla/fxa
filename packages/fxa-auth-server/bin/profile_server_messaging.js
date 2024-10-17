@@ -17,7 +17,8 @@ const SQSReceiver = require('../lib/sqs')(log, statsd);
 const profileUpdates = require('../lib/profile/updates')(log);
 const push = require('../lib/push');
 
-const DB = require('../lib/db')(config, log, Token);
+const { createDB } = require('../lib/db');
+const DB = createDB(config, log, Token);
 
 const profileUpdatesQueue = new SQSReceiver(
   config.profileServerMessaging.region,

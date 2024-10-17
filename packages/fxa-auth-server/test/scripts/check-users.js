@@ -24,7 +24,8 @@ const UnblockCode = require('../../lib/crypto/random').base32(
 );
 const AuthClient = require('../client')();
 
-const DB = require('../../lib/db')(config, log, Token, UnblockCode);
+const { createDB } = require('../../lib/db');
+const DB = createDB(config, log, Token, UnblockCode);
 
 const cwd = path.resolve(__dirname, ROOT_DIR);
 const execOptions = {

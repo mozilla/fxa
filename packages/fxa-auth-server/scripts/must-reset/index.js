@@ -10,7 +10,8 @@ module.exports = async function main(items, dbFunction) {
   const crypto = require('crypto');
   const log = require('../../lib/log')({});
   const Token = require('../../lib/tokens')(log, config);
-  const AuthDB = require('../../lib/db')(config, log, Token);
+  const { createDB } = require('../../lib/db');
+  const AuthDB = createDB(config, log, Token);
   const oauth = require('../../lib/oauth/db');
   const db = await AuthDB.connect(config);
 

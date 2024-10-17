@@ -18,7 +18,8 @@ const log = require('../lib/log')(
   statsd
 );
 const Token = require('../lib/tokens')(log, config);
-const DB = require('../lib/db')(config, log, Token);
+const { createDB } = require('../lib/db');
+const DB = createDB(config, log, Token);
 
 Container.set(AppConfig, config);
 Container.set(AuthLogger, log);

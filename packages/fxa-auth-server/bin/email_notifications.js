@@ -63,7 +63,8 @@ const bounces = require('../lib/email/bounces')(log, error);
 const delivery = require('../lib/email/delivery')(log);
 const notifications = require('../lib/email/notifications')(log, error);
 
-const DB = require('../lib/db')(config, log, Token);
+const { createDB } = require('../lib/db');
+const DB = createDB(config, log, Token);
 
 const {
   bounceQueueUrl,

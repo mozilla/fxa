@@ -45,7 +45,8 @@ const log = require('../lib/log')(config.log.level, 'delete-account-script', {
   statsd,
 });
 const Token = require('../lib/tokens')(log, config);
-const DB = require('../lib/db')(config, log, Token);
+const { createDB } = require('../lib/db');
+const DB = createDB(config, log, Token);
 
 Container.set(StatsD, statsd);
 Container.set(AppConfig, config);

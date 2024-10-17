@@ -57,7 +57,8 @@ const account2Mock = createAccount(
   crypto.randomBytes(16).toString('hex')
 );
 
-const DB = require('../../lib/db')(config, log, Token, UnblockCode);
+const { createDB } = require('../../lib/db');
+const DB = createDB(config, log, Token, UnblockCode);
 
 describe('#integration - scripts/must-reset', async function () {
   this.timeout(10000);

@@ -66,11 +66,12 @@ run()
   });
 
 async function run() {
+  const { createDB } = require(`${LIB_DIR}/db`);
   const [vReminders, saReminders, cReminders, db] = await Promise.all([
     verificationReminders.process(),
     subscriptionAccountReminders.process(),
     cadReminders.process(),
-    require(`${LIB_DIR}/db`)(config, log, {}, {}).connect(config),
+    createDB(config, log, {}, {}).connect(config),
   ]);
   const bounces = require(`${LIB_DIR}/bounces`)(config, db);
   const Mailer = require(`${LIB_DIR}/senders/email`)(log, config, bounces);
