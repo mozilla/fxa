@@ -65,6 +65,7 @@ module.exports = (log, db, mailer, push, verificationReminders, glean) => {
 
       // Our post-verification email is very specific to sync,
       // so only send it if we're sure this is for sync or sync scoped client.
+      // Do not send for desktop Relay even if the client is Firefox
       const scopeSet = ScopeSet.fromArray(scopes);
       if (service === 'sync' || scopeSet.intersects(NOTIFICATION_SCOPES)) {
         const onMobileDevice = request.app.ua.deviceType === 'mobile';
