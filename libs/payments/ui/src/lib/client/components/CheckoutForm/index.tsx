@@ -23,7 +23,9 @@ import {
   handleStripeErrorAction,
   recordEmitterEventAction,
   checkoutCartWithStripe,
+  finalizeCartWithError,
 } from '@fxa/payments/ui/actions';
+import { CartErrorReasonId } from '@fxa/shared/db/mysql/account/kysely-types';
 
 interface CheckoutFormProps {
   cmsCommonContent: {
@@ -260,6 +262,14 @@ export function CheckoutForm({
                   tagline: false,
                 }}
                 className="mt-6"
+                onError={async () => {
+                  await finalizeCartWithError(
+                    cart.id,
+                    CartErrorReasonId.BASIC_ERROR
+                  );
+                  router.push('./error');
+                }}
+                disabled={loading || !formEnabled}
               />
             ) : (
               <BaseButton
