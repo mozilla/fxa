@@ -107,13 +107,11 @@ module.exports = {
       // These classes must be included here
       // To be picked up by fxa-settings' Typography design guide
       // Even if the settings are the same as Tailwind's defaults
-      xs: '12px',
-      sm: '14px',
-      base: '16px',
-      lg: '18px',
-      xl: '22px',
-      xxl: '28px',
-      xxxl: '32px',
+      xs: '0.8125rem', // 13px
+      sm: '0.9375rem', // 15px
+      base: '1.0625rem', // 17px
+      lg: '1.25rem', // 20px
+      xl: '1.5rem', // 24px
     },
     fontFamily: {
       body: [

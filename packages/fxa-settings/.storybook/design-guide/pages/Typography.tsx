@@ -9,7 +9,7 @@ import LinkExternal from 'fxa-react/components/LinkExternal';
  *
  * font-body font-header font-mono
  * font-normal font-bold
- * text-xs text-sm text-base text-lg text-xl text-xxl text-xxxl
+ * text-xs text-sm text-base text-lg text-xl text-2xl text-3xl
  */
 
 export const Typography = ({ config }) => {
@@ -79,7 +79,7 @@ export const Typography = ({ config }) => {
               </td>
               <td className="flex-2">
                 <code>{twFontSizes[fontSize]}</code> (
-                <code>{parseInt(twFontSizes[fontSize]) / 16}rem</code>)
+                <code>{parseFloat(twFontSizes[fontSize]) * 16}px</code>)
               </td>
               <td
                 className={`text-${fontSize} font-${fontFamilyShortName} ${fontWeightClass} flex-7`}
