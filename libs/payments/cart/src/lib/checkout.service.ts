@@ -44,6 +44,7 @@ import { CartManager } from './cart.manager';
 import { CheckoutCustomerData, ResultCart } from './cart.types';
 import { handleEligibilityStatusMap } from './cart.utils';
 import { CheckoutError, CheckoutPaymentError } from './checkout.error';
+import { PrePayStepsResult } from './checkout.types';
 
 @Injectable()
 export class CheckoutService {
@@ -80,7 +81,10 @@ export class CheckoutService {
     });
   }
 
-  async prePaySteps(cart: ResultCart, customerData: CheckoutCustomerData) {
+  async prePaySteps(
+    cart: ResultCart,
+    customerData: CheckoutCustomerData
+  ): Promise<PrePayStepsResult> {
     const taxAddress = cart.taxAddress as any as TaxAddress;
     let version = cart.version;
 
@@ -214,6 +218,7 @@ export class CheckoutService {
 
   async postPaySteps(
     cart: ResultCart,
+    version: number,
     subscription: StripeSubscription,
     uid: string
   ) {
@@ -232,6 +237,8 @@ export class CheckoutService {
         metadata: subscriptionMetadata,
       });
     }
+
+    await this.cartManager.finishCart(cart.id, version, {});
 
     // TODO: call sendFinishSetupEmailForStubAccount
     console.log(cart.id, subscription.id);
@@ -320,7 +327,7 @@ export class CheckoutService {
     }
 
     if (paymentIntent.status === 'succeeded') {
-      await this.postPaySteps(cart, subscription, uid);
+      await this.postPaySteps(cart, updatedVersion, subscription, uid);
     }
     return paymentIntent;
   }
@@ -330,8 +337,14 @@ export class CheckoutService {
     customerData: CheckoutCustomerData,
     token?: string
   ) {
-    const { uid, customer, enableAutomaticTax, promotionCode, price } =
-      await this.prePaySteps(cart, customerData);
+    const {
+      uid,
+      customer,
+      enableAutomaticTax,
+      promotionCode,
+      price,
+      version: updatedVersion,
+    } = await this.prePaySteps(cart, customerData);
 
     const paypalSubscriptions =
       await this.subscriptionManager.getCustomerPayPalSubscriptions(
@@ -401,6 +414,6 @@ export class CheckoutService {
       await this.paypalBillingAgreementManager.cancel(billingAgreementId);
     }
 
-    await this.postPaySteps(cart, subscription, uid);
+    await this.postPaySteps(cart, updatedVersion, subscription, uid);
   }
 }

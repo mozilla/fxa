@@ -7,6 +7,7 @@
 import { plainToClass } from 'class-transformer';
 import { getApp } from '../nestapp/app';
 import { CheckoutCartWithPaypalActionArgs } from '../nestapp/validators/CheckoutCartWithPaypalActionArgs';
+import { redirect } from 'next/navigation';
 
 export const checkoutCartWithPaypal = async (
   cartId: string,
@@ -22,4 +23,6 @@ export const checkoutCartWithPaypal = async (
       token,
     })
   );
+
+  redirect('processing');
 };

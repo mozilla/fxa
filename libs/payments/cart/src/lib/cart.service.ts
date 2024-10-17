@@ -36,6 +36,7 @@ import {
   CartError,
   CartInvalidCurrencyError,
   CartInvalidPromoCodeError,
+  CartStateProcessingError,
   CartSubscriptionNotFoundError,
 } from './cart.error';
 import { AccountManager } from '@fxa/shared/account/account';
@@ -231,18 +232,33 @@ export class CartService {
     customerData: CheckoutCustomerData,
     token?: string
   ) {
+    let updatedCart: ResultCart | null = null;
     try {
-      const cart = await this.cartManager.fetchCartById(cartId);
+      //Ensure that the cart version matches the value passed in from FE
+      const cart = await this.cartManager.fetchAndValidateCartVersion(
+        cartId,
+        version
+      );
 
-      await this.checkoutService.payWithPaypal(cart, customerData, token);
-
-      await this.cartManager.finishCart(cartId, version, {});
+      await this.cartManager.setProcessingCart(cartId);
+      updatedCart = {
+        ...cart,
+        version: cart.version + 1,
+      };
     } catch (e) {
-      // TODO: Handle errors and provide an associated reason for failure
-      await this.cartManager.finishErrorCart(cartId, {
-        errorReasonId: CartErrorReasonId.Unknown,
-      });
+      throw new CartStateProcessingError(cartId, e);
     }
+
+    // Intentionally left out of try/catch block to so that the rest of the logic
+    // is non-blocking and can be handled asynchronously.
+    this.checkoutService
+      .payWithPaypal(updatedCart, customerData, token)
+      .catch(async () => {
+        // TODO: Handle errors and provide an associated reason for failure
+        await this.cartManager.finishErrorCart(cartId, {
+          errorReasonId: CartErrorReasonId.Unknown,
+        });
+      });
   }
 
   /**
@@ -303,10 +319,12 @@ export class CartService {
     if (!subscription) {
       throw new CartSubscriptionNotFoundError(cartId);
     }
-    await Promise.all([
-      this.checkoutService.postPaySteps(cart, subscription, cart.uid),
-      await this.cartManager.finishCart(cart.id, cart.version, {}),
-    ]);
+    await this.checkoutService.postPaySteps(
+      cart,
+      cart.version,
+      subscription,
+      cart.uid
+    );
   }
 
   /**

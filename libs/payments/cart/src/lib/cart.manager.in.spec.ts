@@ -123,6 +123,31 @@ describe('CartManager', () => {
     });
   });
 
+  describe('fetchAndValidateCartVersion', () => {
+    it('succeeds', async () => {
+      const cart = await cartManager.fetchAndValidateCartVersion(CART_ID, 0);
+      expect(cart.id).toEqual(CART_ID);
+    });
+
+    it('errors - NotFound', async () => {
+      try {
+        await cartManager.fetchAndValidateCartVersion(RANDOM_ID, 1);
+        fail('Error in fetchCartById');
+      } catch (error) {
+        expect(error).toBeInstanceOf(CartNotFoundError);
+      }
+    });
+
+    it('errors - with cart version mismatch', async () => {
+      try {
+        await cartManager.fetchAndValidateCartVersion(CART_ID, 99);
+        fail('Error in fetchCartById');
+      } catch (error) {
+        expect(error).toBeInstanceOf(CartVersionMismatchError);
+      }
+    });
+  });
+
   describe('updateFreshCart', () => {
     it('succeeds', async () => {
       const updateItems = UpdateCartFactory({

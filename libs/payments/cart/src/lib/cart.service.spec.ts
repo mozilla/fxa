@@ -81,6 +81,7 @@ import { CheckoutService } from './checkout.service';
 import {
   CartInvalidCurrencyError,
   CartInvalidPromoCodeError,
+  CartStateProcessingError,
 } from './cart.error';
 import { CurrencyManager } from '@fxa/payments/currency';
 import { MockCurrencyConfigProvider } from 'libs/payments/currency/src/lib/currency.config';
@@ -399,9 +400,11 @@ describe('CartService', () => {
       const mockCart = ResultCartFactory();
       const mockToken = faker.string.uuid();
 
-      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+      jest
+        .spyOn(cartManager, 'fetchAndValidateCartVersion')
+        .mockResolvedValue(mockCart);
+      jest.spyOn(cartManager, 'setProcessingCart').mockResolvedValue();
       jest.spyOn(checkoutService, 'payWithPaypal').mockResolvedValue();
-      jest.spyOn(cartManager, 'finishCart').mockResolvedValue();
       jest.spyOn(cartManager, 'finishErrorCart').mockResolvedValue();
 
       await cartService.checkoutCartWithPaypal(
@@ -412,14 +415,9 @@ describe('CartService', () => {
       );
 
       expect(checkoutService.payWithPaypal).toHaveBeenCalledWith(
-        mockCart,
+        { ...mockCart, version: mockCart.version + 1 },
         mockCustomerData,
         mockToken
-      );
-      expect(cartManager.finishCart).toHaveBeenCalledWith(
-        mockCart.id,
-        mockCart.version,
-        {}
       );
       expect(cartManager.finishErrorCart).not.toHaveBeenCalled();
     });
@@ -428,9 +426,13 @@ describe('CartService', () => {
       const mockCart = ResultCartFactory();
       const mockToken = faker.string.uuid();
 
-      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
-      jest.spyOn(checkoutService, 'payWithPaypal').mockResolvedValue();
-      jest.spyOn(cartManager, 'finishCart').mockRejectedValue(undefined);
+      jest
+        .spyOn(cartManager, 'fetchAndValidateCartVersion')
+        .mockResolvedValue(mockCart);
+      jest.spyOn(cartManager, 'setProcessingCart').mockResolvedValue();
+      jest
+        .spyOn(checkoutService, 'payWithPaypal')
+        .mockRejectedValue(new Error('test'));
       jest.spyOn(cartManager, 'finishErrorCart').mockResolvedValue();
 
       await cartService.checkoutCartWithPaypal(
@@ -443,6 +445,29 @@ describe('CartService', () => {
       expect(cartManager.finishErrorCart).toHaveBeenCalledWith(mockCart.id, {
         errorReasonId: CartErrorReasonId.Unknown,
       });
+    });
+
+    it('reject with CartStateProcessingError if cart could not be set to processing', async () => {
+      const mockCart = ResultCartFactory();
+      const mockToken = faker.string.uuid();
+
+      jest
+        .spyOn(cartManager, 'fetchAndValidateCartVersion')
+        .mockRejectedValue(new Error('test'));
+      jest
+        .spyOn(checkoutService, 'payWithPaypal')
+        .mockRejectedValue(new Error('test'));
+
+      await expect(
+        cartService.checkoutCartWithPaypal(
+          mockCart.id,
+          mockCart.version,
+          mockCustomerData,
+          mockToken
+        )
+      ).rejects.toBeInstanceOf(CartStateProcessingError);
+
+      expect(checkoutService.payWithPaypal).not.toHaveBeenCalled();
     });
   });
 

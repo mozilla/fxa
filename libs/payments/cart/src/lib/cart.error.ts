@@ -55,6 +55,12 @@ export class CartNotUpdatedError extends CartError {
   }
 }
 
+export class CartStateProcessingError extends CartError {
+  constructor(cartId: string, cause: Error) {
+    super('Cart state not changed to processing', { cartId }, cause);
+  }
+}
+
 export class CartStateFinishedError extends CartError {
   constructor() {
     super('Cart state is already finished', {});

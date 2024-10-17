@@ -24,6 +24,8 @@ import {
   recordEmitterEventAction,
   checkoutCartWithStripe,
   finalizeCartWithError,
+  getPayPalCheckoutToken,
+  checkoutCartWithPaypal,
 } from '@fxa/payments/ui/actions';
 import { CartErrorReasonId } from '@fxa/shared/db/mysql/account/kysely-types';
 
@@ -256,12 +258,25 @@ export function CheckoutForm({
                 style={{
                   layout: 'horizontal',
                   color: 'gold',
-                  shape: 'pill',
+                  shape: 'rect',
                   label: 'paypal',
                   height: 48,
+                  borderRadius: 6, // This should match 0.375rem
                   tagline: false,
                 }}
                 className="mt-6"
+                createOrder={async () => getPayPalCheckoutToken(cart.currency)}
+                onApprove={async (data: { orderID: string }) => {
+                  await checkoutCartWithPaypal(
+                    cart.id,
+                    cart.version,
+                    {
+                      locale,
+                      displayName: '',
+                    },
+                    data.orderID
+                  );
+                }}
                 onError={async () => {
                   await finalizeCartWithError(
                     cart.id,
