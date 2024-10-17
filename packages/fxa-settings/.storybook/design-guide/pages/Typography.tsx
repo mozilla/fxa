@@ -9,7 +9,7 @@ import LinkExternal from 'fxa-react/components/LinkExternal';
  *
  * font-body font-header font-mono
  * font-normal font-bold
- * text-xs text-sm text-base text-lg text-xl text-2xl text-3xl
+ * text-xs text-sm text-base text-lg text-xl
  */
 
 export const Typography = ({ config }) => {
