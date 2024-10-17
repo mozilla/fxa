@@ -169,6 +169,7 @@ export function CheckoutForm({
 
   return (
     <Form.Root
+      aria-label="Checkout form"
       onSubmit={submitHandler}
       onChange={() => {
         engageGlean();

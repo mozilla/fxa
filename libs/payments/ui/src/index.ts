@@ -10,6 +10,7 @@ export * from './lib/client/components/CheckoutCheckbox';
 export * from './lib/client/components/CouponForm';
 export * from './lib/client/components/PaymentSection';
 export * from './lib/client/components/PurchaseDetails';
+export * from './lib/client/components/SignInForm';
 export * from './lib/client/components/SubmitButton';
 export * from './lib/client/components/LoadingSpinner';
 export * from './lib/client/components/MetricsWrapper';

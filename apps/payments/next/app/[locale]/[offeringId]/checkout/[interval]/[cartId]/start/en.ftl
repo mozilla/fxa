@@ -1,6 +1,8 @@
 ## Page
-next-new-user-step-1-2 = 1. Create a { -product-mozilla-account }
-next-new-user-sign-in-link-2 = Already have a { -product-mozilla-account }? <a>Sign in</a>
+checkout-signin-or-create = 1. Sign in or create a { -product-mozilla-account }
+checkout-create-account = Create a { -product-mozilla-account }
+next-continue-with-google-button = Continue with { -brand-google }
+next-continue-with-apple-button = Continue with { -brand-apple }
 next-payment-confirm-with-legal-links-static-3 = I authorize { -brand-mozilla } to charge my payment method for the amount shown, according to <termsOfServiceLink>Terms of Service</termsOfServiceLink> and <privacyNoticeLink>Privacy Notice</privacyNoticeLink>, until I cancel my subscription.
 
 next-payment-method-header = Choose your payment method
