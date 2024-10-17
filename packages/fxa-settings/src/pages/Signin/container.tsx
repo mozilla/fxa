@@ -150,12 +150,17 @@ const SigninContainer = ({
   const [accountStatus, setAccountStatus] = useState({
     hasLinkedAccount:
       // TODO: in FXA-9177, retrieve hasLinkedAccount and hasPassword from Apollo cache (not state)
-      queryParamModel.hasLinkedAccount || hasLinkedAccountFromLocationState,
-    hasPassword: queryParamModel.hasPassword || hasPasswordFromLocationState,
+      hasLinkedAccountFromLocationState !== undefined
+        ? hasLinkedAccountFromLocationState
+        : queryParamModel.hasLinkedAccount,
+    hasPassword:
+      hasPasswordFromLocationState !== undefined
+        ? hasPasswordFromLocationState
+        : queryParamModel.hasPassword,
   });
   const { hasLinkedAccount, hasPassword } = accountStatus;
 
-  const email = queryParamModel.email || emailFromLocationState;
+  const email = emailFromLocationState || queryParamModel.email;
 
   const { sessionToken, uid } = getAccountInfo(email);
 

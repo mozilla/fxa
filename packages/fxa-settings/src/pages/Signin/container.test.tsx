@@ -302,12 +302,12 @@ describe('signin container', () => {
         });
         expect(SigninModule.default).toBeCalled();
       });
-      it('query param state takes precedence over router state', async () => {
+      it('router state takes precendence over query param state', async () => {
         mockUseValidateModule();
         mockLocationState = MOCK_LOCATION_STATE_COMPLETE;
         render([mockGqlAvatarUseQuery()]);
         await waitFor(() => {
-          expect(currentSigninProps?.email).toBe(MOCK_QUERY_PARAM_EMAIL);
+          expect(currentSigninProps?.email).toBe(MOCK_ROUTER_STATE_EMAIL);
         });
         expect(SigninModule.default).toBeCalled();
       });
@@ -451,7 +451,9 @@ describe('signin container', () => {
         mockGqlBeginSigninMutation({ keys: false }),
       ]);
 
-      expect(currentSigninProps).toBeDefined();
+      await waitFor(() => {
+        expect(currentSigninProps).toBeDefined();
+      });
       const handlerResult = await currentSigninProps?.beginSigninHandler(
         MOCK_EMAIL,
         MOCK_PASSWORD

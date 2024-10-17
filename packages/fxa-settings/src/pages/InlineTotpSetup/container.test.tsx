@@ -133,12 +133,14 @@ describe('InlineTotpSetupContainer', () => {
   });
 
   describe('redirects away', () => {
-    it('redirects when user is not signed in', () => {
+    it('redirects when user is not signed in', async () => {
       render({ isSignedIn: false });
       const location = mockLocationHook();
-      expect(mockNavigateHook).toHaveBeenCalledWith(
-        `/signup${location.search}`,
-        { state: undefined }
+      await waitFor(() =>
+        expect(mockNavigateHook).toHaveBeenCalledWith(
+          `/signup${location.search}`,
+          { state: undefined }
+        )
       );
     });
 
