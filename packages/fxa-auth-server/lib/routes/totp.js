@@ -126,7 +126,7 @@ module.exports = (log, db, mailer, customs, config, glean, profileClient) => {
       options: {
         ...TOTP_DOCS.TOTP_DESTROY_POST,
         auth: {
-          strategy: 'sessionToken',
+          strategy: 'sessionTokenNoAssurance',
         },
         response: {},
       },
@@ -366,7 +366,7 @@ module.exports = (log, db, mailer, customs, config, glean, profileClient) => {
       options: {
         ...TOTP_DOCS.SESSION_VERIFY_TOTP_POST,
         auth: {
-          strategy: 'sessionToken',
+          strategy: 'sessionTokenNoAssurance',
           payload: 'required',
         },
         validate: {

@@ -104,7 +104,7 @@ module.exports = (
       options: {
         ...EMAILS_DOCS.RECOVERY_EMAIL_STATUS_GET,
         auth: {
-          strategy: 'sessionToken',
+          strategy: 'sessionTokenNoAssurance',
         },
         validate: {
           query: {
