@@ -93,24 +93,15 @@ const CompleteResetPasswordContainer = ({
     'Don’t forget to generate a new account recovery key from your Mozilla account settings to prevent future sign-in issues.'
   );
 
-  const signInNavigationDestination = (email: string) =>
-    location.search?.includes('email')
-      ? // if the session is not verified (e.g., 2FA verification is required), navigate to the sign-in page
-        '/signin'
-      : // if user started directly from the reset password page without passing GO (index),
-        // the email needs to be added to query params to avoid redirecting to the index page
-        `/signin?email=${encodeURIComponent(email)}`;
-
   const handleNavigationWithRecoveryKey = (
     state: Record<string, any>,
     hasVerifiedSession: boolean
   ) => {
     if (!hasVerifiedSession) {
-      const destination = signInNavigationDestination(state.email);
-
-      return navigateWithQuery(destination, {
+      return navigateWithQuery('/signin', {
         replace: true,
         state: {
+          email,
           fancyBannerSuccessMessage: {
             heading: successBannerMessageHeading,
             message: successBannerMessageMessage,
@@ -144,10 +135,11 @@ const CompleteResetPasswordContainer = ({
       return navigateWithQuery(SETTINGS_PATH, { replace: true });
     }
 
-    const destination = signInNavigationDestination(email);
-    return navigateWithQuery(destination, {
+    // if the session is not verified (e.g., 2FA verification is required), navigate to the sign-in page
+    return navigateWithQuery('/signin', {
       replace: true,
       state: {
+        email,
         bannerSuccessMessage: localizedSuccessMessage,
       },
     });

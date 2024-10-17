@@ -18,8 +18,6 @@ import {
   createMockSyncIntegration,
 } from './mocks';
 
-import { act } from 'react-dom/test-utils';
-
 import { MozServices } from '../../../lib/types';
 
 let integration: Integration;
@@ -166,9 +164,7 @@ describe('SigninPushCode container', () => {
 
       it('redirects to totp screen if user has totp enabled', async () => {
         mockHasTotpAuthClient = true;
-        await act(async () => {
-          await render();
-        });
+        render();
 
         await waitFor(() => {
           expect(mockNavigate).toBeCalledWith('/signin_totp_code', {
@@ -179,9 +175,7 @@ describe('SigninPushCode container', () => {
 
       it('does not redirect with totp false', async () => {
         mockHasTotpAuthClient = false;
-        await act(async () => {
-          await render();
-        });
+        render();
 
         await waitFor(() => {
           expect(mockNavigate).not.toBeCalled();
@@ -198,20 +192,20 @@ describe('SigninPushCode container', () => {
     it('sends push notification', async () => {
       mockSessionStatus = 'false';
       mockLocationState = createMockSigninLocationState();
-      await act(async () => {
-        await render();
-      });
-      expect(mockSendLoginPushRequest).toBeCalled();
+      render();
+
+      await waitFor(() => expect(mockSendLoginPushRequest).toBeCalled());
     });
 
     it('navigates when session verified', async () => {
       mockSessionStatus = 'verified';
       mockLocationState = createMockSigninLocationState();
-      await act(async () => {
-        await render();
-      });
-      expect(ReactUtils.hardNavigate).toBeCalledWith(
-        '/pair?showSuccessMessage=true'
+      render();
+
+      await waitFor(() =>
+        expect(ReactUtils.hardNavigate).toBeCalledWith(
+          '/pair?showSuccessMessage=true'
+        )
       );
     });
   });

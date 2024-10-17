@@ -15,7 +15,6 @@ import { screen, waitFor } from '@testing-library/react';
 import { MOCK_EMAIL, MOCK_STORED_ACCOUNT } from '../../mocks';
 import { createMockWebIntegration } from '../../../lib/integrations/mocks';
 import { createMockSigninLocationState } from './mocks';
-import { act } from 'react-dom/test-utils';
 
 let integration: Integration;
 
@@ -157,9 +156,7 @@ describe('SigninTokenCode container', () => {
 
       it('redirects to totp screen if user has totp enabled', async () => {
         mockHasTotpAuthClient = true;
-        await act(async () => {
-          await render();
-        });
+        render();
 
         await waitFor(() => {
           expect(mockNavigate).toBeCalledWith('/signin_totp_code', {
@@ -170,9 +167,7 @@ describe('SigninTokenCode container', () => {
 
       it('does not redirect with totp false', async () => {
         mockHasTotpAuthClient = false;
-        await act(async () => {
-          await render();
-        });
+        render();
 
         await waitFor(() => {
           expect(mockNavigate).not.toBeCalled();
