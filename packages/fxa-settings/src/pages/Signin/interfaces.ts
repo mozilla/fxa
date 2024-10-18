@@ -21,7 +21,13 @@ export interface AvatarResponse {
 export type SigninIntegration =
   | Pick<
       Integration,
-      'type' | 'isSync' | 'getService' | 'wantsKeys' | 'data' | 'isDesktopSync'
+      | 'type'
+      | 'isSync'
+      | 'getService'
+      | 'wantsKeys'
+      | 'data'
+      | 'isDesktopSync'
+      | 'isDesktopRelay'
     >
   | SigninOAuthIntegration;
 
@@ -35,6 +41,7 @@ export type SigninOAuthIntegration = Pick<
   | 'wantsLogin'
   | 'data'
   | 'isDesktopSync'
+  | 'isDesktopRelay'
 >;
 
 export interface LocationState {

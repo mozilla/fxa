@@ -8,6 +8,7 @@ import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import {
+  createMockSignupOAuthNativeIntegration,
   createMockSignupOAuthWebIntegration,
   createMockSignupSyncDesktopV3Integration,
   mockBeginSignupHandler,
@@ -21,7 +22,6 @@ import {
   POCKET_CLIENTIDS,
 } from '../../models/integrations/client-matching';
 import { getSyncEngineIds } from '../../components/ChooseWhatToSync/sync-engines';
-import { MOCK_CLIENT_ID } from '../mocks';
 
 export default {
   title: 'Pages/Signup',
@@ -67,5 +67,9 @@ export const SyncDesktopV3 = storyWithProps(
 );
 
 export const SyncOAuth = storyWithProps(
-  createMockSignupOAuthWebIntegration(MOCK_CLIENT_ID)
+  createMockSignupOAuthNativeIntegration()
+);
+
+export const OAuthDestkopServiceRelay = storyWithProps(
+  createMockSignupOAuthNativeIntegration(false)
 );

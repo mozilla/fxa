@@ -83,6 +83,15 @@ jest.mock('../../lib/glean', () => ({
   },
 }));
 
+const commonFxaLoginOptions = {
+  email: MOCK_EMAIL,
+  keyFetchToken: BEGIN_SIGNUP_HANDLER_RESPONSE.data.signUp.keyFetchToken,
+  sessionToken: BEGIN_SIGNUP_HANDLER_RESPONSE.data.signUp.sessionToken,
+  uid: BEGIN_SIGNUP_HANDLER_RESPONSE.data.signUp.uid,
+  unwrapBKey: BEGIN_SIGNUP_HANDLER_RESPONSE.data.unwrapBKey,
+  verified: false,
+};
+
 describe('Signup page', () => {
   beforeEach(() => {
     jest.resetAllMocks();
@@ -233,6 +242,28 @@ describe('Signup page', () => {
     expect(
       screen.queryByRole('button', { name: /Continue with Apple/ })
     ).not.toBeInTheDocument();
+  });
+  it('renders as expected when service=relay', async () => {
+    renderWithLocalizationProvider(
+      <Subject integration={createMockSignupOAuthNativeIntegration(false)} />
+    );
+
+    // CWTS, newsletters, and third party auth should not be displayed
+    await waitFor(() =>
+      expect(screen.queryByText('Choose what to sync')).not.toBeInTheDocument()
+    );
+    expect(screen.queryAllByRole('checkbox')).toHaveLength(0);
+    expect(
+      screen.queryByRole('button', { name: /Continue with Google/ })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /Continue with Apple/ })
+    ).not.toBeInTheDocument();
+
+    screen.getByRole('heading', { name: 'Create a password' });
+    screen.getByText(
+      'A password is needed to securely manage your masked emails and access Mozilla’s security tools.'
+    );
   });
 
   it('renders and handles newsletters', async () => {
@@ -525,15 +556,6 @@ describe('Signup page', () => {
       });
 
       describe('Sync integrations', () => {
-        const commonFxaLoginOptions = {
-          email: MOCK_EMAIL,
-          keyFetchToken:
-            BEGIN_SIGNUP_HANDLER_RESPONSE.data.signUp.keyFetchToken,
-          sessionToken: BEGIN_SIGNUP_HANDLER_RESPONSE.data.signUp.sessionToken,
-          uid: BEGIN_SIGNUP_HANDLER_RESPONSE.data.signUp.uid,
-          unwrapBKey: BEGIN_SIGNUP_HANDLER_RESPONSE.data.unwrapBKey,
-          verified: false,
-        };
         const offeredEngines = getSyncEngineIds();
 
         let mockBeginSignupHandler: jest.Mock;
@@ -745,6 +767,38 @@ describe('Signup page', () => {
             },
           },
         });
+      });
+      it('on success with OAuth Native integration, service=relay', async () => {
+        const mockBeginSignupHandler = jest
+          .fn()
+          .mockResolvedValue(BEGIN_SIGNUP_HANDLER_RESPONSE);
+
+        renderWithLocalizationProvider(
+          <Subject
+            integration={createMockSignupOAuthNativeIntegration(false)}
+            beginSignupHandler={mockBeginSignupHandler}
+          />
+        );
+        await fillOutForm();
+        submit();
+
+        await waitFor(() => {
+          // Does not send services: { sync: {...} }
+          expect(fxaLoginSpy).toBeCalledWith({
+            ...commonFxaLoginOptions,
+          });
+        });
+
+        await waitFor(() => {
+          expect(mockBeginSignupHandler).toHaveBeenCalledWith(
+            MOCK_EMAIL,
+            MOCK_PASSWORD,
+            true
+          );
+        });
+        expect(GleanMetrics.registration.cwts).toHaveBeenCalledTimes(0);
+        expect(GleanMetrics.registration.success).toHaveBeenCalledTimes(1);
+        expect(GleanMetrics.registration.marketing).not.toBeCalled();
       });
     });
 

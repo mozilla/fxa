@@ -3,11 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { HandledError } from '../../lib/error-utils';
-import {
-  BaseIntegration,
-  IntegrationType,
-  OAuthIntegration,
-} from '../../models';
+import { BaseIntegration, OAuthIntegration } from '../../models';
 import { SignupQueryParams } from '../../models/pages/signup';
 import { MetricsContext } from 'fxa-auth-client/browser';
 
@@ -51,19 +47,21 @@ export interface SignupProps {
 
 export type SignupIntegration = SignupOAuthIntegration | SignupBaseIntegration;
 
-export interface SignupOAuthIntegration {
-  type: IntegrationType.OAuthWeb | IntegrationType.OAuthNative;
-  isSync: () => ReturnType<OAuthIntegration['isSync']>;
-  getRedirectUri: () => ReturnType<OAuthIntegration['getRedirectUri']>;
-  saveOAuthState: () => ReturnType<OAuthIntegration['saveOAuthState']>;
-  getService: () => ReturnType<OAuthIntegration['getService']>;
-}
+export type SignupOAuthIntegration = Pick<
+  OAuthIntegration,
+  | 'type'
+  | 'isSync'
+  | 'getRedirectUri'
+  | 'saveOAuthState'
+  | 'getService'
+  | 'isDesktopRelay'
+  | 'wantsKeys'
+>;
 
-export interface SignupBaseIntegration {
-  type: IntegrationType;
-  isSync: () => ReturnType<BaseIntegration['isSync']>;
-  getService: () => ReturnType<BaseIntegration['getService']>;
-}
+export type SignupBaseIntegration = Pick<
+  BaseIntegration,
+  'type' | 'isSync' | 'getService' | 'isDesktopRelay' | 'wantsKeys'
+>;
 
 export interface SignupFormData {
   email: string;

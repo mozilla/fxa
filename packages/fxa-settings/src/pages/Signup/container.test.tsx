@@ -38,12 +38,12 @@ import * as ReactUtils from 'fxa-react/lib/utils';
 // Typical imports
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { screen, waitFor } from '@testing-library/react';
-import SignupContainer, { SignupContainerIntegration } from './container';
+import SignupContainer from './container';
 import { IntegrationType, useAuthClient } from '../../models';
 import { MozServices } from '../../lib/types';
 import { FirefoxCommand } from '../../lib/channels/firefox';
 import { Constants } from '../../lib/constants';
-import { SignupProps } from './interfaces';
+import { SignupIntegration, SignupProps } from './interfaces';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { GraphQLError } from 'graphql';
 import { ApolloClient } from '@apollo/client';
@@ -57,20 +57,14 @@ import { mockLoadingSpinnerModule, MOCK_FLOW_ID } from '../mocks';
 // Principle, will limit the amount you need to mock. Here, we let the container specify
 // the SignupContainerIntegration interface which is a subset (and therefore compatible)
 // larger and often more specific interfaces like Integration, OAuthIntegration, etc...
-let integration: SignupContainerIntegration;
+let integration: SignupIntegration;
 function mockIntegration() {
   integration = {
     type: IntegrationType.SyncDesktopV3,
     getService: () => MozServices.Default,
     isSync: () => true,
     wantsKeys: () => true,
-    features: {
-      allowUidChange: false,
-      fxaStatus: false,
-      handleSignedInNotification: false,
-      reuseExistingSession: false,
-      supportsPairing: false,
-    },
+    isDesktopRelay: () => false,
   };
 }
 let serviceName: MozServices;

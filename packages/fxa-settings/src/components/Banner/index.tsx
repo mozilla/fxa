@@ -128,7 +128,7 @@ export const FancyBanner = (
     <Banner {...{ ...props, additionalClassNames: 'text-left' }}>
       <div className="flex flex-row gap-x-1">
         <div className="basis-1/5 place-self-center">{icon}</div>
-        <div className="">
+        <div>
           <h2 className="text-base">{props.message.heading}</h2>
           <p className="font-normal">{props.message.message}</p>
         </div>

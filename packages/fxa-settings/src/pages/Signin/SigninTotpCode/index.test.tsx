@@ -18,7 +18,7 @@ import { Subject } from './mocks';
 import { MOCK_OAUTH_FLOW_HANDLER_RESPONSE } from '../../mocks';
 import {
   createMockSigninOAuthIntegration,
-  createMockSigninSyncIntegration,
+  createMockSigninOAuthNativeSyncIntegration,
 } from '../mocks';
 import { SigninIntegration } from '../interfaces';
 import {
@@ -152,8 +152,7 @@ describe('Sign in with TOTP code page', () => {
       expect(navigate).toHaveBeenCalledWith('/settings');
     });
 
-    // When CAD is converted to React, just test navigation since CAD will handle fxaLogin
-    describe('fxaLogin webchannel message (tempHandleSyncLogin)', () => {
+    describe('fxaLogin webchannel message', () => {
       let fxaLoginSpy: jest.SpyInstance;
       let hardNavigateSpy: jest.SpyInstance;
       beforeEach(() => {
@@ -162,8 +161,8 @@ describe('Sign in with TOTP code page', () => {
           .spyOn(utils, 'hardNavigate')
           .mockImplementation(() => {});
       });
-      it('is sent if Sync integration and navigates to CAD', async () => {
-        const integration = createMockSigninSyncIntegration();
+      it('is sent if Sync integration and navigates to pair', async () => {
+        const integration = createMockSigninOAuthNativeSyncIntegration();
         await waitFor(() =>
           renderAndSubmitTotpCode(
             {

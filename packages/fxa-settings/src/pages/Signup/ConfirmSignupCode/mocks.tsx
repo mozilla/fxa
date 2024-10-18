@@ -53,18 +53,22 @@ export function createMockOAuthWebIntegration(
     wantsTwoStepAuthentication: () => false,
     isSync: () => false,
     getPermissions: () => [],
+    isDesktopRelay: () => false,
   };
 }
 
-export function createMockOAuthNativeIntegration(): ConfirmSignupCodeOAuthIntegration {
+export function createMockOAuthNativeIntegration(
+  isSync = true
+): ConfirmSignupCodeOAuthIntegration {
   return {
     type: IntegrationType.OAuthNative,
     data: { uid: MOCK_UID, redirectTo: undefined },
     getRedirectUri: () => MOCK_REDIRECT_URI,
     getService: () => OAuthNativeClients.FirefoxDesktop,
     wantsTwoStepAuthentication: () => false,
-    isSync: () => true,
+    isSync: () => isSync,
     getPermissions: () => [],
+    isDesktopRelay: () => !isSync,
   };
 }
 

@@ -37,6 +37,14 @@ export enum OAuthNativeClients {
 }
 
 /**
+ * These come through via data.service (a query parameter).
+ */
+enum OAuthNativeServices {
+  Sync = 'sync',
+  Relay = 'relay',
+}
+
+/**
  * A convenience function for the OAuthNativeIntegration type guard + isSync().
  */
 export const isOAuthNativeIntegrationSync = (
@@ -70,7 +78,17 @@ export class OAuthNativeIntegration extends OAuthWebIntegration {
       this.isFirefoxDesktopClient() &&
       // Sync oauth desktop should always provide a `service=sync` parameter but
       // we'll also default to Sync if it's missing.
-      (this.data.service === undefined || this.data.service === 'sync')
+      (this.data.service === undefined ||
+        this.data.service === OAuthNativeServices.Sync)
+    );
+  }
+
+  // Note, if/when we expand this to other services, possibly consider making a
+  // isSyncOptional method (or whatever name makes sense) instead
+  isDesktopRelay() {
+    return (
+      this.isFirefoxDesktopClient() &&
+      this.data.service === OAuthNativeServices.Relay
     );
   }
 

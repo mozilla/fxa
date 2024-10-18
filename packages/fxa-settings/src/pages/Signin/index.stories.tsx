@@ -9,7 +9,7 @@ import { Meta } from '@storybook/react';
 import {
   Subject,
   createMockSigninOAuthIntegration,
-  createMockSigninSyncIntegration,
+  createMockSigninOAuthNativeSyncIntegration,
 } from './mocks';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { SigninProps } from './interfaces';
@@ -70,5 +70,5 @@ export const NoLinkedAccountAndNoPassword = storyWithProps({
 export const NoThirdPartyAuthBecauseSyncWithPassword = storyWithProps({
   hasLinkedAccount: true,
   hasPassword: true,
-  integration: createMockSigninSyncIntegration(),
+  integration: createMockSigninOAuthNativeSyncIntegration(),
 });
