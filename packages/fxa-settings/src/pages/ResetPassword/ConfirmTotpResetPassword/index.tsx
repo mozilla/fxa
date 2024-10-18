@@ -5,7 +5,7 @@
 import React, { Dispatch, SetStateAction, useState } from 'react';
 import AppLayout from '../../../components/AppLayout';
 import { useFtlMsgResolver } from '../../../models';
-import { FtlMsg } from 'fxa-react/lib/utils';
+import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
 import protectionShieldIcon from '@fxa/shared/assets/images/protection-shield.svg';
 import FormVerifyCode, {
   FormAttributes,
@@ -70,11 +70,11 @@ const ConfirmTotpResetPassword = ({
 
           <div className="flex space-x-4">
             <img src={protectionShieldIcon} alt="" />
-            <FtlMsg id="confirm-totp-reset-password-instruction">
-              <p className="my-5 text-md text-start">
+            <p className="my-5 text-md text-start">
+              <FtlMsg id="confirm-totp-reset-password-instruction">
                 Check your download or saved backup recovery code.
-              </p>
-            </FtlMsg>
+              </FtlMsg>
+            </p>
           </div>
 
           <FormVerifyCode
@@ -85,18 +85,22 @@ const ConfirmTotpResetPassword = ({
               viewName: 'confirm-recovery-code-reset-password',
               codeErrorMessage,
               setCodeErrorMessage,
+              gleanDataAttrs: {
+                id: 'reset_password_confirm_recovery_code_submit_button',
+              },
             }}
           />
           <div className="mt-5 link-blue text-sm flex justify-end">
-            <FtlMsg id="confirm-recovery-code-reset-password-trouble-code">
-              <div
-                onClick={() => {
-                  setShowRecoveryCode(false);
-                }}
-              >
+            <div
+              onClick={() => {
+                setShowRecoveryCode(false);
+              }}
+              data-glean-id="reset_password_confirm_recovery_code_trouble_with_code_button"
+            >
+              <FtlMsg id="confirm-recovery-code-reset-password-trouble-code">
                 Back
-              </div>
-            </FtlMsg>
+              </FtlMsg>
+            </div>
           </div>
         </AppLayout>
       ) : (
@@ -115,11 +119,11 @@ const ConfirmTotpResetPassword = ({
 
           <div className="flex space-x-4">
             <img src={protectionShieldIcon} alt="" />
-            <FtlMsg id="confirm-totp-reset-password-instruction">
-              <p className="my-5 text-md text-start">
+            <p className="my-5 text-md text-start">
+              <FtlMsg id="confirm-totp-reset-password-instruction">
                 Check your authenticator app to reset your password.
-              </p>
-            </FtlMsg>
+              </FtlMsg>
+            </p>
           </div>
 
           <FormVerifyCode
@@ -130,18 +134,35 @@ const ConfirmTotpResetPassword = ({
               codeErrorMessage,
               setCodeErrorMessage,
               viewName: 'confirm-totp-reset-password',
+              gleanDataAttrs: {
+                id: 'reset_password_confirm_totp_code_submit_button',
+              },
             }}
           />
-          <div className="mt-5 link-blue text-sm flex justify-end">
-            <FtlMsg id="confirm-totp-reset-password-trouble-code">
-              <button
-                onClick={() => {
-                  setShowRecoveryCode(true);
-                }}
-              >
+          <div className="mt-5 flex justify-between items-center">
+            <button
+              className="link-blue text-sm"
+              data-glean-id="reset_password_confirm_totp_use_different_account_button"
+              onClick={() => {
+                // Navigate to email first page and keep search params
+                hardNavigate('/', {}, true);
+              }}
+            >
+              <FtlMsg id="confirm-totp-reset-password-use-different-account">
+                Use different account
+              </FtlMsg>
+            </button>
+            <button
+              className="link-blue text-sm"
+              onClick={() => {
+                setShowRecoveryCode(true);
+              }}
+              data-glean-id="reset_password_confirm_totp_trouble_with_code_button"
+            >
+              <FtlMsg id="confirm-totp-reset-password-trouble-code">
                 Trouble entering code?
-              </button>
-            </FtlMsg>
+              </FtlMsg>
+            </button>
           </div>
         </AppLayout>
       )}
