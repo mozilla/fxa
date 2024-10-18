@@ -249,6 +249,8 @@ export class AccountHandler {
 
   private setMetricsFlowCompleteSignal(request: AuthRequest, service?: string) {
     let flowCompleteSignal;
+    // 'account.signed' is only used for 'sync'
+    // use the default for all others including desktop Relay
     if (service === 'sync') {
       flowCompleteSignal = 'account.signed';
     } else {
