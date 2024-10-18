@@ -200,7 +200,7 @@ module.exports = (log, db, config, customs, mailer, glean) => {
           );
         }
 
-        await Promise.all(mailerPromises);
+        await Promise.allSettled(mailerPromises);
 
         log.info('account.recoveryCode.verified', { uid });
 

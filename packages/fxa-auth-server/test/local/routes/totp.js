@@ -573,6 +573,10 @@ describe('totp', () => {
   describe('/totp/verify/recoveryCode', () => {
     it('should verify recovery code', async () => {
       requestOptions.payload.code = '1234567890';
+      requestOptions.credentials = {
+        uid: 'uid',
+        email: TEST_EMAIL,
+      };
       const response = await setup(
         { db: { email: TEST_EMAIL } },
         {},
@@ -581,6 +585,9 @@ describe('totp', () => {
       );
 
       assert.calledOnce(glean.resetPassword.twoFactorRecoveryCodeSuccess);
+
+      assert.calledOnce(mailer.sendPostConsumeRecoveryCodeEmail);
+      assert.notCalled(mailer.sendLowRecoveryCodesEmail);
 
       assert.equal(response.remaining, 2);
       assert.calledOnceWithExactly(db.consumeRecoveryCode, 'uid', '1234567890');
@@ -608,6 +615,25 @@ describe('totp', () => {
         assert.deepEqual(err.message, 'Backup authentication code not found.');
       }
     });
+
+    it('sends low recovery codes email', async () => {
+      requestOptions.payload.code = '1234567890';
+      requestOptions.credentials = {
+        uid: 'uid',
+        email: TEST_EMAIL,
+      };
+      requestOptions.remaining = 1;
+      const response = await setup(
+        { db: { email: TEST_EMAIL } },
+        {},
+        '/totp/verify/recoveryCode',
+        requestOptions
+      );
+
+      assert.calledOnce(mailer.sendLowRecoveryCodesEmail);
+      assert.equal(response.remaining, 1);
+      assert.calledOnceWithExactly(db.consumeRecoveryCode, 'uid', '1234567890');
+    });
   });
 });
 
@@ -624,7 +650,7 @@ function setup(results, errors, routePath, requestOptions) {
       return Promise.reject(authErrors.recoveryCodeNotFound());
     }
     return Promise.resolve({
-      remaining: 2,
+      remaining: requestOptions.remaining || 2,
     });
   });
   db.createTotpToken = sinon.spy(() => {
@@ -658,7 +684,13 @@ function setup(results, errors, routePath, requestOptions) {
 }
 
 function makeRoutes(options = {}) {
-  const config = { step: 30, window: 1 };
+  const config = {
+    step: 30,
+    window: 1,
+    recoveryCodes: {
+      notifyLowCount: 1,
+    },
+  };
   Container.set(AccountEventsManager, accountEventsManager);
   const { log, db, customs, mailer, glean, profile } = options;
   return require('../../../lib/routes/totp')(
