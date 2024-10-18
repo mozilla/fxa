@@ -130,6 +130,7 @@ describe('Glean server side events', () => {
     recordRegAccVerifiedStub.reset();
     recordRegCompleteStub.reset();
     recordRegSubmitErrorStub.reset();
+    recordAccessTokenCheckedStub.reset();
   });
 
   describe('enabled state', () => {
@@ -558,6 +559,36 @@ describe('Glean server side events', () => {
         sinon.assert.calledOnce(recordStub);
         const metrics = recordStub.args[0][0];
         assert.equal(metrics['ip_address'], '');
+      });
+
+      it('handles undefined scopes', async () => {
+        const glean = gleanMetrics(config);
+        await glean.oauth.tokenChecked(request, {
+          scopes: undefined,
+        });
+        sinon.assert.calledOnce(recordAccessTokenCheckedStub);
+        const metrics = recordAccessTokenCheckedStub.args[0][0];
+        assert.equal(metrics['scopes'], '');
+      });
+
+      it('handles empty scopes', async () => {
+        const glean = gleanMetrics(config);
+        await glean.oauth.tokenChecked(request, {
+          scopes: '',
+        });
+        sinon.assert.calledOnce(recordAccessTokenCheckedStub);
+        const metrics = recordAccessTokenCheckedStub.args[0][0];
+        assert.equal(metrics['scopes'], '');
+      });
+
+      it('includes sorted comma separated scopes', async () => {
+        const glean = gleanMetrics(config);
+        await glean.oauth.tokenChecked(request, {
+          scopes: ['profile', 'openid'],
+        });
+        sinon.assert.calledOnce(recordAccessTokenCheckedStub);
+        const metrics = recordAccessTokenCheckedStub.args[0][0];
+        assert.equal(metrics['scopes'], 'openid,profile');
       });
     });
   });

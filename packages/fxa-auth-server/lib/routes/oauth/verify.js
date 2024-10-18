@@ -46,6 +46,7 @@ module.exports = ({ log, glean }) => ({
       glean.oauth.tokenChecked(req, {
         uid: info.user,
         oauthClientId: info.client_id,
+        scopes: info.scope,
       });
       return info;
     },
