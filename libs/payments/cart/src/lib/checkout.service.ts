@@ -167,7 +167,7 @@ export class CheckoutService {
       cart.interval as SubplatInterval
     );
 
-    const upcomingInvoice = await this.invoiceManager.preview({
+    const upcomingInvoice = await this.invoiceManager.previewUpcoming({
       priceId: price.id,
       customer: customer,
       taxAddress: taxAddress,

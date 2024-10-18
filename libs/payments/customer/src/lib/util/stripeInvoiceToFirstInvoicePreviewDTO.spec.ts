@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { stripeInvoiceToFirstInvoicePreviewDTO } from './stripeInvoiceToFirstInvoicePreviewDTO';
+import { stripeInvoiceToInvoicePreviewDTO } from './stripeInvoiceToFirstInvoicePreviewDTO';
 import {
   StripeDiscountFactory,
   StripeResponseFactory,
@@ -22,7 +22,7 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
       })
     );
 
-    const result = stripeInvoiceToFirstInvoicePreviewDTO(mockUpcomingInvoice);
+    const result = stripeInvoiceToInvoicePreviewDTO(mockUpcomingInvoice);
     expect(result).toEqual({
       currency: mockUpcomingInvoice.currency,
       listAmount: mockUpcomingInvoice.amount_due,
@@ -38,6 +38,7 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
       subtotal: mockUpcomingInvoice.subtotal,
       discountEnd: undefined,
       discountType: undefined,
+      number: null,
     });
   });
 
@@ -53,7 +54,7 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
       })
     );
 
-    const result = stripeInvoiceToFirstInvoicePreviewDTO(mockUpcomingInvoice);
+    const result = stripeInvoiceToInvoicePreviewDTO(mockUpcomingInvoice);
     expect(result).toEqual({
       currency: mockUpcomingInvoice.currency,
       listAmount: mockUpcomingInvoice.amount_due,
@@ -69,6 +70,7 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
       subtotal: mockUpcomingInvoice.subtotal,
       discountEnd: null,
       discountType: 'forever',
+      number: null,
     });
   });
 
@@ -84,7 +86,7 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
       })
     );
 
-    const result = stripeInvoiceToFirstInvoicePreviewDTO(mockUpcomingInvoice);
+    const result = stripeInvoiceToInvoicePreviewDTO(mockUpcomingInvoice);
     expect(result).toEqual({
       currency: mockUpcomingInvoice.currency,
       listAmount: mockUpcomingInvoice.amount_due,
@@ -105,6 +107,7 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
       subtotal: mockUpcomingInvoice.subtotal,
       discountEnd: undefined,
       discountType: undefined,
+      number: null,
     });
   });
 
@@ -116,7 +119,7 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
       })
     );
 
-    const result = stripeInvoiceToFirstInvoicePreviewDTO(mockUpcomingInvoice);
+    const result = stripeInvoiceToInvoicePreviewDTO(mockUpcomingInvoice);
     expect(result.taxAmounts).toEqual([]);
     expect(result.discountAmount).toEqual(0);
   });
@@ -128,7 +131,7 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
       })
     );
 
-    const result = stripeInvoiceToFirstInvoicePreviewDTO(mockUpcomingInvoice);
+    const result = stripeInvoiceToInvoicePreviewDTO(mockUpcomingInvoice);
     expect(result.discountAmount).toBeNull();
   });
 });

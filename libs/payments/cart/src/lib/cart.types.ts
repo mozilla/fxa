@@ -37,6 +37,8 @@ export interface Invoice {
   subtotal: number;
   discountEnd?: number | null;
   discountType?: string;
+  last4?: string;
+  number: string | null; // customer-facing invoice identifier
 }
 
 export type ResultCart = Readonly<Omit<Cart, 'id' | 'uid'>> & {
@@ -45,7 +47,8 @@ export type ResultCart = Readonly<Omit<Cart, 'id' | 'uid'>> & {
 };
 
 export type WithContextCart = ResultCart & {
-  invoicePreview: Invoice;
+  upcomingInvoicePreview: Invoice;
+  latestInvoicePreview?: Invoice;
   metricsOptedOut: boolean;
 };
 

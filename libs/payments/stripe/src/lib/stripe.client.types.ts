@@ -158,6 +158,7 @@ export type StripeInvoice = NegotiateExpanded<
     {
       lines: Stripe.ApiList<StripeInvoiceLineItem>;
       discount: StripeDiscount | null;
+      total_tax_amounts: StripeInvoiceLineItemTaxAmount[];
     }
   >,
   | 'charge'

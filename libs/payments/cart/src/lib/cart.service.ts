@@ -10,11 +10,13 @@ import {
   SubplatInterval,
   PromotionCodeManager,
   SubscriptionManager,
+  InvoicePreview,
 } from '@fxa/payments/customer';
 import { EligibilityService } from '@fxa/payments/eligibility';
 import {
   AccountCustomerManager,
   AccountCustomerNotFoundError,
+  StripeClient,
   StripeCustomer,
 } from '@fxa/payments/stripe';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
@@ -40,6 +42,7 @@ import {
   CartSubscriptionNotFoundError,
 } from './cart.error';
 import { AccountManager } from '@fxa/shared/account/account';
+import { stripeInvoiceToInvoicePreviewDTO } from '@fxa/payments/customer';
 
 @Injectable()
 export class CartService {
@@ -55,7 +58,8 @@ export class CartService {
     private geodbManager: GeoDBManager,
     private invoiceManager: InvoiceManager,
     private productConfigurationManager: ProductConfigurationManager,
-    private subscriptionManager: SubscriptionManager
+    private subscriptionManager: SubscriptionManager,
+    private stripeClient: StripeClient
   ) {}
 
   /**
@@ -107,7 +111,7 @@ export class CartService {
       fxaAccounts && fxaAccounts.length > 0 ? fxaAccounts[0] : undefined;
 
     const [upcomingInvoice, eligibility] = await Promise.all([
-      this.invoiceManager.preview({
+      this.invoiceManager.previewUpcoming({
         priceId: price.id,
         customer: stripeCustomer,
         taxAddress: taxAddress,
@@ -390,6 +394,45 @@ export class CartService {
   }
 
   /**
+   * Fetch the invoice preview for the latest invoice associated with a cart
+   */
+  async previewLatestInvoice(
+    cartId: string
+  ): Promise<InvoicePreview | undefined> {
+    const cart = await this.cartManager.fetchCartById(cartId);
+    if (!cart.stripeSubscriptionId) return;
+
+    const subscription = await this.subscriptionManager.retrieve(
+      cart.stripeSubscriptionId
+    );
+    const paymentIntent = await this.subscriptionManager.getLatestPaymentIntent(
+      subscription
+    );
+    if (!paymentIntent || !paymentIntent.invoice) return;
+    const latestInvoice = await this.invoiceManager.retrieve(
+      paymentIntent.invoice
+    );
+    const latestInvoiceDTO = stripeInvoiceToInvoicePreviewDTO(latestInvoice);
+
+    const paymentMethodId =
+      typeof paymentIntent.payment_method === 'string'
+        ? paymentIntent.payment_method
+        : paymentIntent.payment_method?.id;
+
+    if (!paymentMethodId) return latestInvoiceDTO;
+
+    const paymentMethod = await this.stripeClient.paymentMethodRetrieve(
+      paymentMethodId
+    );
+    const last4 = paymentMethod.card?.last4;
+
+    return {
+      ...latestInvoiceDTO,
+      last4,
+    };
+  }
+
+  /**
    * Fetch a cart from the database by ID
    */
   async getCart(cartId: string): Promise<WithContextCart> {
@@ -408,16 +451,19 @@ export class CartService {
       customer = await this.customerManager.retrieve(cart.stripeCustomerId);
     }
 
-    const invoicePreview = await this.invoiceManager.preview({
+    const upcomingInvoicePreview = await this.invoiceManager.previewUpcoming({
       priceId: price.id,
       customer,
       taxAddress: cart.taxAddress || undefined,
       couponCode: cart.couponCode || undefined,
     });
 
+    const latestInvoicePreview = await this.previewLatestInvoice(cartId);
+
     return {
       ...cart,
-      invoicePreview,
+      upcomingInvoicePreview,
+      latestInvoicePreview,
       metricsOptedOut,
     };
   }
