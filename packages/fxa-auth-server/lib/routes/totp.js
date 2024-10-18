@@ -30,6 +30,8 @@ module.exports = (log, db, mailer, customs, config, glean, profileClient) => {
   const RECOVERY_CODE_COUNT =
     (config.recoveryCodes && config.recoveryCodes.count) || 8;
 
+  const codeConfig = config.recoveryCodes;
+
   promisify(qrcode.toDataURL);
 
   const accountEventsManager = Container.get(AccountEventsManager);
@@ -341,18 +343,47 @@ module.exports = (log, db, mailer, customs, config, glean, profileClient) => {
         log.begin('totp.verify.recoveryCode', request);
 
         const code = request.payload.code;
-        const passwordForgotToken = request.auth.credentials;
-        const email = passwordForgotToken.email;
+        const { uid, email } = request.auth.credentials;
 
         await customs.check(request, email, 'verifyRecoveryCode');
 
-        const { remaining } = await db.consumeRecoveryCode(
-          passwordForgotToken.uid,
-          code
-        );
+        const account = await db.account(uid);
+        const { acceptLanguage, clientAddress: ip, geo, ua } = request.app;
+
+        const { remaining } = await db.consumeRecoveryCode(uid, code);
+
+        const mailerPromises = [
+          mailer.sendPostConsumeRecoveryCodeEmail(account.emails, account, {
+            acceptLanguage,
+            ip,
+            location: geo.location,
+            numberRemaining: remaining,
+            timeZone: geo.timeZone,
+            uaBrowser: ua.browser,
+            uaBrowserVersion: ua.browserVersion,
+            uaOS: ua.os,
+            uaOSVersion: ua.osVersion,
+            uaDeviceType: ua.deviceType,
+            uid,
+          }),
+        ];
+
+        if (remaining <= codeConfig.notifyLowCount) {
+          log.info('account.recoveryCode.notifyLowCount', { uid, remaining });
+
+          mailerPromises.push(
+            mailer.sendLowRecoveryCodesEmail(account.emails, account, {
+              acceptLanguage,
+              numberRemaining: remaining,
+              uid,
+            })
+          );
+        }
+
+        await Promise.all(mailerPromises);
 
         glean.resetPassword.twoFactorRecoveryCodeSuccess(request, {
-          uid: passwordForgotToken.uid,
+          uid,
         });
 
         return {
