@@ -37,7 +37,6 @@ import {
 } from '../../models/integrations/client-matching';
 import firefox from '../../lib/channels/firefox';
 import { navigate } from '@reach/router';
-import { sessionToken } from '../../lib/cache';
 import { IntegrationType } from '../../models';
 
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';

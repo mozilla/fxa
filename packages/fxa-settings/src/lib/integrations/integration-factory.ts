@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import {
-  OAuthIntegration,
+  OAuthWebIntegration,
+  OAuthNativeIntegration,
   PairingAuthorityIntegration,
   PairingSupplicantIntegration,
   Integration,
@@ -12,6 +13,7 @@ import {
   WebIntegration,
   RelierClientInfo,
   RelierSubscriptionInfo,
+  OAuthIntegration,
 } from '../../models/integrations';
 import {
   ModelDataStore,
@@ -106,7 +108,11 @@ export class IntegrationFactory {
     } else if (flags.isDevicePairingAsSupplicant()) {
       return this.createPairingSupplicationIntegration(data, storageData);
     } else if (flags.isOAuth()) {
-      return this.createOAuthIntegration(data, storageData);
+      if (flags.isOAuthWebChannelContext()) {
+        return this.createOAuthNativeIntegration(data, storageData);
+      } else {
+        return this.createOAuthWebIntegration(data, storageData);
+      }
     } else if (flags.isV3DesktopContext()) {
       return this.createSyncDesktopV3Integration(data);
     } else if (flags.isServiceSync()) {
@@ -144,12 +150,31 @@ export class IntegrationFactory {
     return integration;
   }
 
-  private createOAuthIntegration(
+  private createOAuthWebIntegration(
     data: ModelDataStore,
     storageData: ModelDataStore
   ) {
     // Resolve configuration settings for oauth relier
-    const integration = new OAuthIntegration(data, storageData, config.oauth);
+    const integration = new OAuthWebIntegration(
+      data,
+      storageData,
+      config.oauth
+    );
+    this.initIntegration(integration);
+    this.initOAuthIntegration(integration, this.flags);
+    this.initClientInfo(integration);
+    return integration;
+  }
+
+  private createOAuthNativeIntegration(
+    data: ModelDataStore,
+    storageData: ModelDataStore
+  ) {
+    const integration = new OAuthNativeIntegration(
+      data,
+      storageData,
+      config.oauth
+    );
     this.initIntegration(integration);
     this.initOAuthIntegration(integration, this.flags);
     this.initClientInfo(integration);

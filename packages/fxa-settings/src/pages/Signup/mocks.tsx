@@ -5,11 +5,7 @@
 import { LocationProvider } from '@reach/router';
 import Signup from '.';
 import { MozServices } from '../../lib/types';
-import {
-  IntegrationType,
-  isSyncDesktopV3Integration,
-  isSyncOAuthIntegration,
-} from '../../models';
+import { IntegrationType } from '../../models';
 import { mockUrlQueryData } from '../../models/mocks';
 import { SignupQueryParams } from '../../models/pages/signup';
 import {
@@ -50,12 +46,24 @@ export function createMockSignupSyncDesktopV3Integration(): SignupBaseIntegratio
   };
 }
 
-export function createMockSignupOAuthIntegration(
-  clientId?: string,
-  isSync = false
+export function createMockSignupOAuthWebIntegration(
+  clientId?: string
 ): SignupOAuthIntegration {
   return {
-    type: IntegrationType.OAuth,
+    type: IntegrationType.OAuthWeb,
+    getRedirectUri: () => MOCK_REDIRECT_URI,
+    saveOAuthState: () => {},
+    getService: () => clientId || MOCK_CLIENT_ID,
+    isSync: () => false,
+  };
+}
+
+export function createMockSignupOAuthNativeIntegration(
+  clientId?: string,
+  isSync = true
+): SignupOAuthIntegration {
+  return {
+    type: IntegrationType.OAuthNative,
     getRedirectUri: () => MOCK_REDIRECT_URI,
     saveOAuthState: () => {},
     getService: () => clientId || MOCK_CLIENT_ID,
@@ -118,7 +126,6 @@ export const Subject = ({
 }) => {
   const urlQueryData = mockUrlQueryData(queryParams);
   const queryParamModel = new SignupQueryParams(urlQueryData);
-  const isSyncOAuth = isSyncOAuthIntegration(integration);
   return (
     <LocationProvider>
       <Signup
@@ -126,9 +133,6 @@ export const Subject = ({
           integration,
           queryParamModel,
           beginSignupHandler,
-          isSyncOAuth,
-          isSyncWebChannel:
-            isSyncOAuth || isSyncDesktopV3Integration(integration),
           webChannelEngines: getSyncEngineIds(),
         }}
       />

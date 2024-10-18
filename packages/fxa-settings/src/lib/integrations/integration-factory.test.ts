@@ -8,6 +8,9 @@ import {
   Integration,
   IntegrationType,
   OAuthIntegration,
+  OAuthNativeClients,
+  OAuthNativeIntegration,
+  OAuthWebIntegration,
   PairingAuthorityIntegration,
   PairingSupplicantIntegration,
   RelierClientInfo,
@@ -25,6 +28,7 @@ type IntegrationFlagOverrides = {
   isOAuth?: boolean;
   isServiceSync?: boolean;
   isV3DesktopContext?: boolean;
+  isOAuthWebChannelContext?: boolean;
 };
 
 type FactoryCallCounts = {
@@ -67,12 +71,13 @@ describe('lib/integrations/integration-factory', () => {
     sandbox
       .stub(flags, 'isV3DesktopContext')
       .returns(!!flagOverrides.isV3DesktopContext);
+    sandbox
+      .stub(flags, 'isOAuthWebChannelContext')
+      .returns(!!flagOverrides.isOAuthWebChannelContext);
 
     urlQueryData.set('scope', 'profile');
     urlQueryData.set('client_id', '720bc80adfa6988d');
     urlQueryData.set('redirect_uri', 'https://redirect.to');
-
-    urlHashData.set('scope', 'profile');
 
     // Create a factory with current state
     const factory = new IntegrationFactory({
@@ -149,21 +154,9 @@ describe('lib/integrations/integration-factory', () => {
       expect(integration.wantsKeys()).toBeFalsy();
       expect(integration.isTrusted()).toBeTruthy();
     });
-
-    // TODO: Remove with approval.
-    //
-    // I think maybe this is feature envy, perhaps we should have some dedicated thing that checks integration state
-    // and account state to determine if features are needed. As far as I can tell the integration models
-    // themselves really shouldn't know or care about 'accounts'
-    //
-    // describe('accountNeedsPermissions', function () {
-    //   it('returns `false`', function () {
-    //     assert.isFalse(integration.accountNeedsPermissions());
-    //   });
-    // });
   });
 
-  describe('SyncDesktop creation', () => {
+  describe('SyncDesktopV3 creation', () => {
     const ACTION = 'email';
     const CONTEXT = 'fx_desktop_v3';
     const COUNTRY = 'RO';
@@ -206,7 +199,7 @@ describe('lib/integrations/integration-factory', () => {
     // TODO: Port remaining tests from content-server
   });
 
-  describe('OAuthIntegration creation', () => {
+  describe('OAuthWebIntegration creation', () => {
     let integration: OAuthIntegration;
 
     describe('OAuth redirect', () => {
@@ -214,40 +207,66 @@ describe('lib/integrations/integration-factory', () => {
         integration = await setup<OAuthIntegration>(
           { isOAuth: true },
           { initIntegration: 1, initOAuthIntegration: 1, initClientInfo: 1 },
-          (i: Integration) => i instanceof OAuthIntegration
+          (i: Integration) => i instanceof OAuthWebIntegration
         );
       });
 
       it('has correct state', async () => {
-        expect(integration.type).toEqual(IntegrationType.OAuth);
+        expect(integration.type).toEqual(IntegrationType.OAuthWeb);
         expect(integration.isSync()).toBeFalsy();
         expect(integration.wantsKeys()).toBeFalsy();
         expect(integration.isTrusted()).toBeTruthy();
       });
     });
 
-    describe('OAuth Sync', () => {
+    // TODO: Port remaining tests from content-server
+  });
+
+  describe('OAuthNativeIntegration creation', () => {
+    let integration: OAuthNativeIntegration;
+
+    describe('without sync', () => {
       beforeEach(async () => {
-        integration = await setup<OAuthIntegration>(
+        integration = await setup<OAuthNativeIntegration>(
           { isOAuth: true },
           { initIntegration: 1, initOAuthIntegration: 1, initClientInfo: 1 },
-          (i: Integration) => i instanceof OAuthIntegration
+          (i: Integration) => i instanceof OAuthNativeIntegration
+        );
+      });
+
+      it('has correct state', async () => {
+        expect(integration.type).toEqual(IntegrationType.OAuthWeb);
+        expect(integration.isSync()).toBeFalsy();
+        expect(integration.wantsKeys()).toBeFalsy();
+        expect(integration.isTrusted()).toBeTruthy();
+      });
+    });
+
+    describe('with sync', () => {
+      beforeEach(async () => {
+        integration = await setup<OAuthNativeIntegration>(
+          { isOAuth: true, isOAuthWebChannelContext: true },
+          { initIntegration: 1, initOAuthIntegration: 1, initClientInfo: 1 },
+          (i: Integration) => i instanceof OAuthNativeIntegration
         );
         await mockSearchParams({
           scope: Constants.OAUTH_OLDSYNC_SCOPE,
           context: Constants.OAUTH_WEBCHANNEL_CONTEXT,
+          clientId: OAuthNativeClients.FirefoxIOS,
         });
+        sandbox.stub(integration, 'clientInfo').get(() => ({
+          ...clientInfo,
+          clientId: OAuthNativeClients.FirefoxIOS,
+        }));
       });
 
       it('has correct state', async () => {
-        expect(integration.type).toEqual(IntegrationType.OAuth);
+        expect(integration.type).toEqual(IntegrationType.OAuthNative);
         expect(integration.isSync()).toBeTruthy();
         expect(integration.wantsKeys()).toBeTruthy();
         expect(integration.isTrusted()).toBeTruthy();
       });
     });
-
-    // TODO: Port remaining tests from content-server
   });
 
   describe('PairingSupplicantIntegration creation', () => {
