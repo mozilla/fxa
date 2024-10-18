@@ -46,6 +46,7 @@ export const EligibilityPurchaseResultFactory = (
 export const EligibilityOfferingResultFactory = (
   override?: Partial<EligibilityOfferingResult>
 ): EligibilityOfferingResult => ({
+  apiIdentifier: faker.string.alpha(10),
   stripeProductId: faker.string.sample(),
   stripeLegacyPlans: Array.from(
     { length: faker.number.int({ min: 1, max: 5 }) },
@@ -69,6 +70,7 @@ export const EligibilitySubgroupResultFactory = (
 export const EligibilitySubgroupOfferingResultFactory = (
   override?: Partial<EligibilitySubgroupOfferingResult>
 ): EligibilitySubgroupOfferingResult => ({
+  apiIdentifier: faker.string.alpha(10),
   stripeProductId: faker.string.sample(),
   stripeLegacyPlans: Array.from(
     { length: faker.number.int({ min: 1, max: 5 }) },

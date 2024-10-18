@@ -24,24 +24,10 @@ export enum IntervalComparison {
   SHORTER = 'shorter',
 }
 
-export type OfferingOverlapBaseResult = {
+export type OfferingOverlapResult = {
   comparison: OfferingComparison;
-  type: string;
-};
-
-export type OfferingOverlapPlanResult = OfferingOverlapBaseResult & {
   priceId: string;
-  type: 'price';
 };
-
-export type OfferingOverlapProductResult = OfferingOverlapBaseResult & {
-  offeringProductId: string;
-  type: 'offering';
-};
-
-export type OfferingOverlapResult =
-  | OfferingOverlapPlanResult
-  | OfferingOverlapProductResult;
 
 export type Interval = {
   unit: 'day' | 'week' | 'month' | 'year';

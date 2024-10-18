@@ -29,7 +29,7 @@ import { EligibilityService } from './eligibility.service';
 import {
   EligibilityStatus,
   OfferingComparison,
-  OfferingOverlapProductResult,
+  OfferingOverlapResult,
 } from './eligibility.types';
 
 describe('EligibilityService', () => {
@@ -104,10 +104,9 @@ describe('EligibilityService', () => {
       const mockOverlapResult = [
         {
           comparison: OfferingComparison.UPGRADE,
-          offeringProductId: 'prod_test',
-          type: 'offering',
+          priceId: 'prod_test',
         },
-      ] satisfies OfferingOverlapProductResult[];
+      ] satisfies OfferingOverlapResult[];
 
       jest
         .spyOn(productConfigurationManager, 'getEligibilityContentByOffering')
@@ -122,8 +121,8 @@ describe('EligibilityService', () => {
       jest.spyOn(subscriptionManager, 'listForCustomer').mockResolvedValue([]);
 
       jest
-        .spyOn(eligibilityManager, 'getProductIdOverlap')
-        .mockReturnValue(mockOverlapResult);
+        .spyOn(eligibilityManager, 'getOfferingOverlap')
+        .mockResolvedValue(mockOverlapResult);
 
       jest
         .spyOn(eligibilityManager, 'compareOverlap')
@@ -141,9 +140,9 @@ describe('EligibilityService', () => {
       expect(subscriptionManager.listForCustomer).toHaveBeenCalledWith(
         mockCustomer.id
       );
-      expect(eligibilityManager.getProductIdOverlap).toHaveBeenCalledWith(
+      expect(eligibilityManager.getOfferingOverlap).toHaveBeenCalledWith(
         [],
-        mockOffering
+        mockOffering.apiIdentifier
       );
       expect(eligibilityManager.compareOverlap).toHaveBeenCalledWith(
         mockOverlapResult,

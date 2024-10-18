@@ -1,7 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import assert from 'assert';
 import { getUidAndEmailByStripeCustomerId } from 'fxa-shared/db/models/auth';
 import { commaSeparatedListToArray } from 'fxa-shared/lib/utils';
 import { ALL_RPS_CAPABILITIES_KEY } from 'fxa-shared/subscriptions/configuration/base';
@@ -417,13 +416,17 @@ export class CapabilityService {
       return {
         subscriptionEligibilityResult: SubscriptionEligibilityResult.INVALID,
       };
-    const iapProductIds = iapSubscribedPlans.map((p) => p.product_id);
-    const planIds = stripeSubscribedPlans.map((p) => p.plan_id);
-    const overlaps = await this.eligibilityManager.getOfferingOverlap(
-      planIds,
-      iapProductIds,
+    const stripePlanIds = stripeSubscribedPlans.map((p) => p.plan_id);
+    const stripeOverlaps = await this.eligibilityManager.getOfferingOverlap(
+      stripePlanIds,
       targetPlan.plan_id
     );
+    const iapPlanIds = iapSubscribedPlans.map((p) => p.plan_id);
+    const iapOverlaps = await this.eligibilityManager.getOfferingOverlap(
+      iapPlanIds,
+      targetPlan.plan_id
+    );
+    const overlaps = [...stripeOverlaps, ...iapOverlaps];
 
     // No overlap, we can create a new subscription
     if (!overlaps.length)
@@ -433,11 +436,7 @@ export class CapabilityService {
 
     // Users with IAP Offering overlaps should not be allowed to proceed
     const iapRoadblockPlan = iapSubscribedPlans.find((plan) => {
-      return overlaps?.some(
-        (overlap) =>
-          overlap.type === 'offering' &&
-          iapProductIds.includes(overlap.offeringProductId)
-      );
+      return iapOverlaps.some((overlap) => plan.plan_id === overlap.priceId);
     });
 
     if (iapRoadblockPlan)
@@ -454,10 +453,6 @@ export class CapabilityService {
       };
 
     const overlap = overlaps[0];
-    assert(
-      overlap.type === 'price',
-      'Unexpected overlap type, only plans are compared.'
-    );
     const overlapAbbrev = stripeSubscribedPlans.find(
       (p) => p.plan_id === overlap.priceId
     );

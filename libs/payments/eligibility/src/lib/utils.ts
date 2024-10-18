@@ -19,25 +19,21 @@ import {
  * @returns OfferingComparison if there's overlap, null otherwise.
  */
 export const offeringComparison = (
-  fromOfferingProductId: string,
+  fromOfferingId: string,
   targetOffering: EligibilityContentOfferingResult | EligibilityOfferingResult
 ) => {
-  if (targetOffering.stripeProductId === fromOfferingProductId)
+  if (targetOffering.apiIdentifier === fromOfferingId)
     return OfferingComparison.SAME;
   const commonSubgroups = targetOffering.subGroups.filter(
     (subgroup) =>
-      !!subgroup.offerings.find(
-        (oc) => oc.stripeProductId === fromOfferingProductId
-      )
+      !!subgroup.offerings.find((oc) => oc.apiIdentifier === fromOfferingId)
   );
   if (!commonSubgroups.length) return null;
-  const subgroupProductIds = commonSubgroups[0].offerings.map(
-    (o) => o.stripeProductId
+  const subgroupOfferingIds = commonSubgroups[0].offerings.map(
+    (o) => o.apiIdentifier
   );
-  const existingIndex = subgroupProductIds.indexOf(fromOfferingProductId);
-  const targetIndex = subgroupProductIds.indexOf(
-    targetOffering.stripeProductId
-  );
+  const existingIndex = subgroupOfferingIds.indexOf(fromOfferingId);
+  const targetIndex = subgroupOfferingIds.indexOf(targetOffering.apiIdentifier);
 
   const resultIndex = targetIndex - existingIndex;
   if (resultIndex === 0) {

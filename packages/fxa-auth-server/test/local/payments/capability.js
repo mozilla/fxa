@@ -621,13 +621,17 @@ describe('CapabilityService', () => {
       });
 
       it('returns blocked_iap for targetPlan with productSet the user is subscribed to with IAP', async () => {
-        mockEligibilityManager.getOfferingOverlap = sinon.fake.resolves([
-          {
-            comparison: 'same',
-            offeringProductId: mockPlanTier1ShortInterval.product_id,
-            type: 'offering',
-          },
-        ]);
+        mockEligibilityManager.getOfferingOverlap = sinon
+          .stub()
+          .onCall(0)
+          .resolves([])
+          .onCall(1)
+          .resolves([
+            {
+              comparison: 'same',
+              priceId: mockPlanTier1ShortInterval.plan_id,
+            },
+          ]);
         const actual =
           await capabilityService.eligibilityFromEligibilityManager(
             [],
@@ -642,7 +646,7 @@ describe('CapabilityService', () => {
       });
 
       it('returns create for targetPlan with offering user is not subscribed to', async () => {
-        mockEligibilityManager.getOfferingOverlap = sinon.fake.resolves([]);
+        mockEligibilityManager.getOfferingOverlap = sinon.stub().resolves([]);
         const actual =
           await capabilityService.eligibilityFromEligibilityManager(
             [],
@@ -655,13 +659,17 @@ describe('CapabilityService', () => {
       });
 
       it('returns upgrade for targetPlan with offering user is subscribed to a lower tier of', async () => {
-        mockEligibilityManager.getOfferingOverlap = sinon.fake.resolves([
-          {
-            comparison: 'upgrade',
-            priceId: mockPlanTier1ShortInterval.plan_id,
-            type: 'price',
-          },
-        ]);
+        mockEligibilityManager.getOfferingOverlap = sinon
+          .stub()
+          .onCall(0)
+          .resolves([
+            {
+              comparison: 'upgrade',
+              priceId: mockPlanTier1ShortInterval.plan_id,
+            },
+          ])
+          .onCall(1)
+          .resolves([]);
         const actual =
           await capabilityService.eligibilityFromEligibilityManager(
             [mockPlanTier1ShortInterval],
@@ -675,13 +683,17 @@ describe('CapabilityService', () => {
       });
 
       it('returns downgrade for targetPlan with offering user is subscribed to a higher tier of', async () => {
-        mockEligibilityManager.getOfferingOverlap = sinon.fake.resolves([
-          {
-            comparison: 'downgrade',
-            priceId: mockPlanTier1ShortInterval.plan_id,
-            type: 'price',
-          },
-        ]);
+        mockEligibilityManager.getOfferingOverlap = sinon
+          .stub()
+          .onCall(0)
+          .resolves([
+            {
+              comparison: 'downgrade',
+              priceId: mockPlanTier1ShortInterval.plan_id,
+            },
+          ])
+          .onCall(1)
+          .resolves([]);
         const actual =
           await capabilityService.eligibilityFromEligibilityManager(
             [mockPlanTier2LongInterval],
@@ -696,13 +708,17 @@ describe('CapabilityService', () => {
       });
 
       it('returns upgrade for targetPlan with offering user is subscribed to a higher interval of', async () => {
-        mockEligibilityManager.getOfferingOverlap = sinon.fake.resolves([
-          {
-            comparison: 'upgrade',
-            priceId: mockPlanTier1ShortInterval.plan_id,
-            type: 'price',
-          },
-        ]);
+        mockEligibilityManager.getOfferingOverlap = sinon
+          .stub()
+          .onCall(0)
+          .resolves([
+            {
+              comparison: 'upgrade',
+              priceId: mockPlanTier1ShortInterval.plan_id,
+            },
+          ])
+          .onCall(1)
+          .resolves([]);
         const actual =
           await capabilityService.eligibilityFromEligibilityManager(
             [mockPlanTier1ShortInterval],
@@ -716,13 +732,17 @@ describe('CapabilityService', () => {
       });
 
       it('returns upgrade for targetPlan with offering user is subscribed and interval is not shorter', async () => {
-        mockEligibilityManager.getOfferingOverlap = sinon.fake.resolves([
-          {
-            comparison: 'upgrade',
-            priceId: mockPlanTier1ShortInterval.plan_id,
-            type: 'price',
-          },
-        ]);
+        mockEligibilityManager.getOfferingOverlap = sinon
+          .stub()
+          .onCall(0)
+          .resolves([
+            {
+              comparison: 'upgrade',
+              priceId: mockPlanTier1ShortInterval.plan_id,
+            },
+          ])
+          .onCall(1)
+          .resolves([]);
         const actual =
           await capabilityService.eligibilityFromEligibilityManager(
             [mockPlanTier1ShortInterval],
@@ -736,13 +756,17 @@ describe('CapabilityService', () => {
       });
 
       it('returns upgrade for targetPlan with same offering and longer interval', async () => {
-        mockEligibilityManager.getOfferingOverlap = sinon.fake.resolves([
-          {
-            comparison: 'same',
-            priceId: mockPlanTier1ShortInterval.plan_id,
-            type: 'price',
-          },
-        ]);
+        mockEligibilityManager.getOfferingOverlap = sinon
+          .stub()
+          .onCall(0)
+          .resolves([
+            {
+              comparison: 'same',
+              priceId: mockPlanTier1ShortInterval.plan_id,
+            },
+          ])
+          .onCall(1)
+          .resolves([]);
         const actual =
           await capabilityService.eligibilityFromEligibilityManager(
             [mockPlanTier1ShortInterval],
@@ -756,13 +780,17 @@ describe('CapabilityService', () => {
       });
 
       it('returns downgrade for targetPlan with shorter interval but higher tier than user is subscribed to', async () => {
-        mockEligibilityManager.getOfferingOverlap = sinon.fake.resolves([
-          {
-            comparison: 'upgrade',
-            priceId: mockPlanTier1LongInterval.plan_id,
-            type: 'price',
-          },
-        ]);
+        mockEligibilityManager.getOfferingOverlap = sinon
+          .stub()
+          .onCall(0)
+          .resolves([
+            {
+              comparison: 'upgrade',
+              priceId: mockPlanTier1LongInterval.plan_id,
+            },
+          ])
+          .onCall(1)
+          .resolves([]);
         Container.set(EligibilityManager, mockEligibilityManager);
         capabilityService = new CapabilityService();
         const actual =
@@ -779,13 +807,17 @@ describe('CapabilityService', () => {
       });
 
       it('returns invalid for targetPlan with same offering user is subscribed to', async () => {
-        mockEligibilityManager.getOfferingOverlap = sinon.fake.resolves([
-          {
-            comparison: 'upgrade',
-            priceId: mockPlanTier1ShortInterval.plan_id,
-            type: 'price',
-          },
-        ]);
+        mockEligibilityManager.getOfferingOverlap = sinon
+          .stub()
+          .onCall(0)
+          .resolves([
+            {
+              comparison: 'upgrade',
+              priceId: mockPlanTier1ShortInterval.plan_id,
+            },
+          ])
+          .onCall(1)
+          .resolves([]);
         const actual =
           await capabilityService.eligibilityFromEligibilityManager(
             [mockPlanTier1ShortInterval],
@@ -798,13 +830,17 @@ describe('CapabilityService', () => {
       });
 
       it('returns invalid for targetPlan with same offering user is subscribed to but different currency', async () => {
-        mockEligibilityManager.getOfferingOverlap = sinon.fake.resolves([
-          {
-            comparison: 'same',
-            priceId: mockPlanTier2LongInterval.plan_id,
-            type: 'price',
-          },
-        ]);
+        mockEligibilityManager.getOfferingOverlap = sinon
+          .stub()
+          .onCall(0)
+          .resolves([
+            {
+              comparison: 'same',
+              priceId: mockPlanTier2LongInterval.plan_id,
+            },
+          ])
+          .onCall(1)
+          .resolves([]);
         const actual =
           await capabilityService.eligibilityFromEligibilityManager(
             [mockPlanTier2LongInterval],
@@ -900,13 +936,17 @@ describe('CapabilityService', () => {
       });
 
       it('returns blocked_iap result from both', async () => {
-        mockEligibilityManager.getOfferingOverlap = sinon.fake.resolves([
-          {
-            comparison: 'same',
-            offeringProductId: mockPlanTier1ShortInterval.product_id,
-            type: 'offering',
-          },
-        ]);
+        mockEligibilityManager.getOfferingOverlap = sinon
+          .stub()
+          .onCall(0)
+          .resolves([])
+          .onCall(1)
+          .resolves([
+            {
+              comparison: 'same',
+              priceId: mockPlanTier1ShortInterval.plan_id,
+            },
+          ]);
 
         capabilityService.fetchSubscribedPricesFromAppStore =
           sinon.fake.resolves(['plan_123456']);
