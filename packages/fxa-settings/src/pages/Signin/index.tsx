@@ -107,7 +107,8 @@ const Signin = ({
     },
   });
 
-  const hideThirdPartyAuth = integration.isSync() && hasPassword;
+  const hideThirdPartyAuth =
+    (integration.isSync() || integration.isDesktopRelay()) && hasPassword;
 
   useEffect(() => {
     if (!isPasswordNeededRef.current) {

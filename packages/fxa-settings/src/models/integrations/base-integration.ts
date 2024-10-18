@@ -105,6 +105,10 @@ export abstract class Integration<
     return false;
   }
 
+  isDesktopRelay() {
+    return false;
+  }
+
   isFirefoxMobileClient() {
     return false;
   }

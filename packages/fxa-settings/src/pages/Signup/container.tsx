@@ -5,8 +5,7 @@
 import { RouteComponentProps, useLocation } from '@reach/router';
 import { useNavigateWithQuery as useNavigate } from '../../lib/hooks/useNavigateWithQuery';
 import {
-  Integration,
-  isOAuthNativeIntegrationSync,
+  isOAuthIntegration,
   isSyncDesktopV3Integration,
   useAuthClient,
   useConfig,
@@ -20,6 +19,7 @@ import {
   BeginSignUpOptions,
   BeginSignupHandler,
   BeginSignupResponse,
+  SignupIntegration,
 } from './interfaces';
 import { BEGIN_SIGNUP_MUTATION } from './gql';
 import { useCallback, useEffect, useState } from 'react';
@@ -61,11 +61,6 @@ import { QueryParams } from '../..';
  * If we want to mimic this functionality we can once index is converted.
  */
 
-export type SignupContainerIntegration = Pick<
-  Integration,
-  'type' | 'getService' | 'features' | 'isSync' | 'wantsKeys'
->;
-
 type LocationState = {
   emailStatusChecked?: boolean;
 };
@@ -74,7 +69,7 @@ const SignupContainer = ({
   integration,
   flowQueryParams,
 }: {
-  integration: SignupContainerIntegration;
+  integration: SignupIntegration;
   flowQueryParams: QueryParams;
 } & RouteComponentProps) => {
   const authClient = useAuthClient();
@@ -96,7 +91,8 @@ const SignupContainer = ({
     string[] | undefined
   >();
 
-  const isSyncOAuth = isOAuthNativeIntegrationSync(integration);
+  const isOAuth = isOAuthIntegration(integration);
+  const isSyncOAuth = isOAuth && integration.isSync();
   const isSyncDesktopV3 = isSyncDesktopV3Integration(integration);
   const isSync = integration.isSync();
   const wantsKeys = integration.wantsKeys();

@@ -20,6 +20,7 @@ const mockWebIntegration = {
   getService: () => MozServices.Default,
   isSync: () => false,
   wantsKeys: () => false,
+  isDesktopRelay: () => false,
 } as Integration;
 
 export const MOCK_TOTP_LOCATION_STATE = {

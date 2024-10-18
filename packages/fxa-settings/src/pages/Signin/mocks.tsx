@@ -105,10 +105,11 @@ export function createMockSigninWebIntegration(): SigninIntegration {
     wantsKeys: () => false,
     data: {},
     isDesktopSync: () => false,
+    isDesktopRelay: () => false,
   };
 }
 
-export function createMockSigninSyncIntegration(
+export function createMockSigninOAuthNativeSyncIntegration(
   type = IntegrationType.OAuthNative
 ): SigninIntegration {
   return {
@@ -118,6 +119,7 @@ export function createMockSigninSyncIntegration(
     getService: () => MozServices.FirefoxSync,
     data: {},
     isDesktopSync: () => true,
+    isDesktopRelay: () => false,
   };
 }
 
@@ -139,6 +141,25 @@ export function createMockSigninOAuthIntegration({
     wantsTwoStepAuthentication: () => false,
     isDesktopSync: () => isSync,
     data: {},
+    isDesktopRelay: () => false,
+  };
+}
+
+export function createMockSigninOAuthNativeIntegration({
+  isSync = true,
+}: {
+  isSync?: boolean;
+} = {}): SigninOAuthIntegration {
+  return {
+    type: IntegrationType.OAuthNative,
+    getService: () => MOCK_CLIENT_ID,
+    isSync: () => isSync,
+    wantsKeys: () => true,
+    wantsLogin: () => false,
+    wantsTwoStepAuthentication: () => false,
+    isDesktopSync: () => isSync,
+    data: {},
+    isDesktopRelay: () => !isSync,
   };
 }
 

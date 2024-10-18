@@ -94,6 +94,16 @@ const ConfirmSignupCode = ({
     'Confirmation code is required'
   );
 
+  function goToSettingsWithAlertSuccess() {
+    alertBar.success(
+      ftlMsgResolver.getMsg(
+        'confirm-signup-code-success-alert',
+        'Account confirmed successfully'
+      )
+    );
+    navigate('/settings', { replace: true });
+  }
+
   async function handleResendCode() {
     try {
       await session.sendVerificationCode();
@@ -207,6 +217,17 @@ const ConfirmSignupCode = ({
             const { to } = getSyncNavigate(location.search);
             hardNavigate(to);
             return;
+          } else if (integration.isDesktopRelay()) {
+            firefox.fxaOAuthLogin({
+              action: 'signup',
+              code,
+              redirect,
+              state,
+              services: {
+                relay: {},
+              },
+            });
+            goToSettingsWithAlertSuccess();
           } else {
             // Navigate to relying party
             hardNavigate(redirect);
@@ -228,13 +249,7 @@ const ConfirmSignupCode = ({
             });
           }
         } else {
-          alertBar.success(
-            ftlMsgResolver.getMsg(
-              'confirm-signup-code-success-alert',
-              'Account confirmed successfully'
-            )
-          );
-          navigate('/settings', { replace: true });
+          goToSettingsWithAlertSuccess();
         }
       }
     } catch (error) {

@@ -12,7 +12,8 @@ import {
   createBeginSigninResponseError,
   createCachedSigninResponseError,
   createMockSigninOAuthIntegration,
-  createMockSigninSyncIntegration,
+  createMockSigninOAuthNativeIntegration,
+  createMockSigninOAuthNativeSyncIntegration,
   Subject,
 } from './mocks';
 import {
@@ -204,7 +205,7 @@ describe('Signin', () => {
       });
 
       it('does not render third party auth for sync, emits expected Glean event', () => {
-        const integration = createMockSigninSyncIntegration();
+        const integration = createMockSigninOAuthNativeSyncIntegration();
         render({ integration });
         enterPasswordAndSubmit();
 
@@ -359,7 +360,7 @@ describe('Signin', () => {
           });
 
           it('navigates to /inline_recovery_key_setup when showInlineRecoveryKeySetup is true', async () => {
-            const integration = createMockSigninSyncIntegration();
+            const integration = createMockSigninOAuthNativeSyncIntegration();
             const beginSigninHandler = jest.fn().mockReturnValueOnce(
               createBeginSigninResponse({
                 showInlineRecoveryKeySetup: true,
@@ -419,7 +420,7 @@ describe('Signin', () => {
                   unwrapBKey: MOCK_UNWRAP_BKEY,
                 })
               );
-              const integration = createMockSigninSyncIntegration(
+              const integration = createMockSigninOAuthNativeSyncIntegration(
                 IntegrationType.SyncDesktopV3
               );
               render({ beginSigninHandler, integration });
@@ -447,7 +448,7 @@ describe('Signin', () => {
                   verificationMethod: VerificationMethods.TOTP_2FA,
                 })
               );
-              const integration = createMockSigninSyncIntegration();
+              const integration = createMockSigninOAuthNativeSyncIntegration();
               render({ beginSigninHandler, integration });
               enterPasswordAndSubmit();
               expect(fxaLoginSpy).not.toHaveBeenCalled();
@@ -556,16 +557,14 @@ describe('Signin', () => {
                 );
               });
             });
-            it('verified, sync, navigates to CAD and sends fxaOAuthLogin', async () => {
+            it('verified, service=sync, navigates to pair and sends fxaOAuthLogin', async () => {
               const beginSigninHandler = jest.fn().mockReturnValueOnce(
                 createBeginSigninResponse({
                   keyFetchToken: MOCK_KEY_FETCH_TOKEN,
                   unwrapBKey: MOCK_UNWRAP_BKEY,
                 })
               );
-              const integration = createMockSigninOAuthIntegration({
-                isSync: true,
-              });
+              const integration = createMockSigninOAuthNativeIntegration();
               render({
                 beginSigninHandler,
                 integration,
@@ -581,7 +580,11 @@ describe('Signin', () => {
                   verified: true,
                   services: { sync: {} },
                 });
-                expect(fxaOAuthLoginSpy).toHaveBeenCalled();
+                // Ensure it's not called with services: { relay: {} }
+                expect(fxaOAuthLoginSpy).toHaveBeenCalledWith({
+                  action: 'signin',
+                  ...MOCK_OAUTH_FLOW_HANDLER_RESPONSE,
+                });
 
                 const fxaLoginCallOrder =
                   fxaLoginSpy.mock.invocationCallOrder[0];
@@ -593,6 +596,47 @@ describe('Signin', () => {
                 expect(hardNavigateSpy).toHaveBeenCalledWith(
                   '/pair?showSuccessMessage=true'
                 );
+              });
+            });
+
+            it('verified, OAuthNative service=relay, navigates to settings and sends fxaOAuthLogin', async () => {
+              const beginSigninHandler = jest.fn().mockReturnValueOnce(
+                createBeginSigninResponse({
+                  keyFetchToken: MOCK_KEY_FETCH_TOKEN,
+                  unwrapBKey: MOCK_UNWRAP_BKEY,
+                })
+              );
+              const integration = createMockSigninOAuthNativeIntegration({
+                isSync: false,
+              });
+              render({
+                beginSigninHandler,
+                integration,
+                finishOAuthFlowHandler,
+              });
+              enterPasswordAndSubmit();
+              await waitFor(() => {
+                // Ensure it's not called with keyFetchToken or unwrapBKey, or services: { sync: {} }
+                expect(fxaLoginSpy).toHaveBeenCalledWith({
+                  email: MOCK_EMAIL,
+                  sessionToken: MOCK_SESSION_TOKEN,
+                  uid: MOCK_UID,
+                  verified: true,
+                });
+                expect(fxaOAuthLoginSpy).toHaveBeenCalledWith({
+                  action: 'signin',
+                  ...MOCK_OAUTH_FLOW_HANDLER_RESPONSE,
+                  services: { relay: {} },
+                });
+
+                const fxaLoginCallOrder =
+                  fxaLoginSpy.mock.invocationCallOrder[0];
+                const fxaOAuthLoginCallOrder =
+                  fxaOAuthLoginSpy.mock.invocationCallOrder[0];
+                // Ensure fxaLogin is called first
+                expect(fxaLoginCallOrder).toBeLessThan(fxaOAuthLoginCallOrder);
+
+                expect(navigate).toHaveBeenCalledWith('/settings');
               });
             });
           });
