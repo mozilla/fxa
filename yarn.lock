@@ -7996,6 +7996,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@csstools/normalize.css@npm:12.1.1":
+  version: 12.1.1
+  resolution: "@csstools/normalize.css@npm:12.1.1"
+  checksum: a356ee0fcb922f3e0bc23df4468bb4f27fc26c767e25359c079455fe30301d253d8a60c443859b04350c8174393edbb11bad2a9ef2f8cce0e371f6abf6c7ef36
+  languageName: node
+  linkType: hard
+
 "@csstools/postcss-cascade-layers@npm:^1.1.1":
   version: 1.1.1
   resolution: "@csstools/postcss-cascade-layers@npm:1.1.1"
@@ -41950,7 +41957,7 @@ fsevents@~2.1.1:
     postcss-flexbugs-fixes: ^5.0.2
     postcss-import: ^16.1.0
     postcss-loader: ^8.1.1
-    postcss-normalize: ^10.0.1
+    postcss-normalize: ^13.0.1
     postcss-preset-env: ^10.0.5
     prop-types: ^15.8.1
     raw-loader: ^4.0.2
@@ -57538,6 +57545,16 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"postcss-browser-comments@npm:^6.0.1":
+  version: 6.0.1
+  resolution: "postcss-browser-comments@npm:6.0.1"
+  peerDependencies:
+    browserslist: ^4.23.1
+    postcss: ^8.4
+  checksum: eae1a10ff4aacfa79793884179ac2eb772154b68e54aa3517191a8432b1b5e85218f6c7410cdc9c0e2c313491ad052494c0985ccb1ef2b72fa9a4ed4b10e6996
+  languageName: node
+  linkType: hard
+
 "postcss-calc@npm:^8.2.3":
   version: 8.2.4
   resolution: "postcss-calc@npm:8.2.4"
@@ -58532,6 +58549,20 @@ fsevents@~2.1.1:
     browserslist: ">= 4"
     postcss: ">= 8"
   checksum: af67ade84e5d65de0cf84cde479840da96ffb2037fe6bf86737788216f67e414622e718e7d84182885ad65fa948150e4a0c3e454ca63e619dd5c7b4eb4224c39
+  languageName: node
+  linkType: hard
+
+"postcss-normalize@npm:^13.0.1":
+  version: 13.0.1
+  resolution: "postcss-normalize@npm:13.0.1"
+  dependencies:
+    "@csstools/normalize.css": 12.1.1
+    postcss-browser-comments: ^6.0.1
+    sanitize.css: 13.0.0
+  peerDependencies:
+    browserslist: ">= 4"
+    postcss: ">= 8"
+  checksum: b292ca2ae09533725fd7d9d528bd2b49e596aaaa22e4c116f3d7b4d1d750ec40fad5d8bbb38b060bd4ff18bac6d0a61f59bfcf43232e3caaa05f5cee795e083b
   languageName: node
   linkType: hard
 
@@ -62602,7 +62633,7 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"sanitize.css@npm:*":
+"sanitize.css@npm:*, sanitize.css@npm:13.0.0":
   version: 13.0.0
   resolution: "sanitize.css@npm:13.0.0"
   checksum: a99ca77c4d135800a4a93c3555e5aa4a2eb040a833df716dbe9132e1f2086fbf9acdb8021a579f40dcf77166d2d50f3358b4b6121a247d26fed5a0e6f5af3bb7
