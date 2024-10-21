@@ -444,14 +444,7 @@ test.describe('severity-1 #smoke', () => {
   test('can reset password with unverified 2FA and skip recovery key', async ({
     page,
     target,
-    pages: {
-      signin,
-      resetPassword,
-      settings,
-      totp,
-      signinTotpCode,
-      recoveryKey,
-    },
+    pages: { signin, resetPassword, settings, totp, recoveryKey },
     testAccountTracker,
   }) => {
     const credentials = await testAccountTracker.signUp();
