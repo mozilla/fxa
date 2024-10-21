@@ -33,9 +33,7 @@ export default function RootLayout({
             width={120}
           />
         </header>
-        <main className="mt-16 mx-7 min-h-[calc(100vh_-_4rem)] tablet:grid tablet:grid-cols-[minmax(min-content,500px)_minmax(20rem,1fr)] tablet:grid-rows-[min-content] tablet:gap-x-8 tablet:mt-20 tablet:mb-auto desktop:grid-cols-[600px_1fr]">
-          {children}
-        </main>
+        <main className="mt-16 min-h-[calc(100vh_-_4rem)]">{children}</main>
       </body>
     </html>
   );

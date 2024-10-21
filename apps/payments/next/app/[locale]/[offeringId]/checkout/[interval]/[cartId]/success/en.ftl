@@ -1,7 +1,7 @@
 next-payment-confirmation-thanks-heading-account-exists = Thanks, now check your email!
 
 # $email (String) - The user's email.
-next-payment-confirmation-thanks-subheading = You’ll receive an email at { $email } with instructions about your subscription, as well as your payment details.
+payment-confirmation-thanks-subheading-account-exists-2 = You’ll receive an email at { $email } with instructions about your subscription, as well as your payment details.
 
 next-payment-confirmation-order-heading = Order details
 # $invoiceNumber (String) - Invoice number of the successful payment
