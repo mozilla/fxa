@@ -16,6 +16,7 @@ const PASSWORD_CHECKING_ACTION = {
 // but if you're doing it a lot, you're probably a baddie.
 const CODE_VERIFYING_ACTION = {
   recoveryEmailVerifyCode: true,
+  recoveryEmailSecondaryVerifyCode: true,
   passwordForgotVerifyCode: true,
   verifyRecoveryCode: true,
   verifySessionCode: true,
