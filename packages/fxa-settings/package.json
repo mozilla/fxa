@@ -138,7 +138,7 @@
     "base32-encode": "^1.2.0",
     "bfj": "^8.0.0",
     "browserify-zlib": "^0.2.0",
-    "browserslist": "^4.23.0",
+    "browserslist": "^4.24.0",
     "camelcase": "^6.2.1",
     "case-sensitive-paths-webpack-plugin": "^2.4.0",
     "classnames": "^2.5.1",
