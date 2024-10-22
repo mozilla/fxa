@@ -11,9 +11,9 @@ import {
   StripeInvoice,
   StripePromotionCode,
 } from '@fxa/payments/stripe';
-import { TaxAddress } from './types';
+import { InvoicePreview, TaxAddress } from './types';
 import { isCustomerTaxEligible } from './util/isCustomerTaxEligible';
-import { stripeInvoiceToFirstInvoicePreviewDTO } from './util/stripeInvoiceToFirstInvoicePreviewDTO';
+import { stripeInvoiceToInvoicePreviewDTO } from './util/stripeInvoiceToFirstInvoicePreviewDTO';
 import { getMinimumChargeAmountForCurrency } from './util/getMinimumChargeAmountForCurrency';
 
 @Injectable()
@@ -26,7 +26,7 @@ export class InvoiceManager {
     });
   }
 
-  async preview({
+  async previewUpcoming({
     priceId,
     customer,
     taxAddress,
@@ -36,7 +36,7 @@ export class InvoiceManager {
     customer?: StripeCustomer;
     taxAddress?: TaxAddress;
     couponCode?: string;
-  }) {
+  }): Promise<InvoicePreview> {
     let promoCode: StripePromotionCode | undefined;
     if (couponCode) {
       const promotionCodes = await this.stripeClient.promotionCodesList({
@@ -78,7 +78,15 @@ export class InvoiceManager {
       requestObject
     );
 
-    return stripeInvoiceToFirstInvoicePreviewDTO(upcomingInvoice);
+    return stripeInvoiceToInvoicePreviewDTO(upcomingInvoice);
+  }
+
+  /**
+   * Fetch the invoice preview for the latest invoice associated with a cart
+   */
+  async preview(invoiceId: string): Promise<InvoicePreview> {
+    const invoice = await this.retrieve(invoiceId);
+    return stripeInvoiceToInvoicePreviewDTO(invoice);
   }
 
   /**

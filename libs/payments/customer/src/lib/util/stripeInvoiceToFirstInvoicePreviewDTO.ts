@@ -2,14 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { StripeUpcomingInvoice } from '@fxa/payments/stripe';
+import { StripeInvoice, StripeUpcomingInvoice } from '@fxa/payments/stripe';
 import { InvoicePreview } from '../types';
 
 /**
  * Formats a Stripe Invoice to the FirstInvoicePreview DTO format.
  */
-export function stripeInvoiceToFirstInvoicePreviewDTO(
-  invoice: StripeUpcomingInvoice
+export function stripeInvoiceToInvoicePreviewDTO(
+  invoice: StripeUpcomingInvoice | StripeInvoice
 ): InvoicePreview {
   const taxAmounts = invoice.total_tax_amounts.map((amount) => ({
     title: amount.tax_rate.display_name,
@@ -33,5 +33,6 @@ export function stripeInvoiceToFirstInvoicePreviewDTO(
     subtotal: invoice.subtotal,
     discountEnd: invoice.discount?.end,
     discountType: invoice.discount?.coupon.duration,
+    number: invoice.number,
   };
 }

@@ -16,4 +16,8 @@ export class PaymentMethodManager {
   ) {
     return this.stripeClient.paymentMethodsAttach(paymentMethodId, params);
   }
+
+  async retrieve(paymentMethodId: string) {
+    return this.stripeClient.paymentMethodRetrieve(paymentMethodId);
+  }
 }

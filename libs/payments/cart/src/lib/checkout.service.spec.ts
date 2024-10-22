@@ -229,7 +229,7 @@ describe('CheckoutService', () => {
         .spyOn(productConfigurationManager, 'retrieveStripePrice')
         .mockResolvedValue(mockPrice);
       jest
-        .spyOn(invoiceManager, 'preview')
+        .spyOn(invoiceManager, 'previewUpcoming')
         .mockResolvedValue(mockInvoicePreview);
       jest
         .spyOn(subscriptionManager, 'cancelIncompleteSubscriptionsToPrice')

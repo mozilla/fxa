@@ -19,12 +19,12 @@ import {
 import { TaxAddressFactory } from './factories/tax-address.factory';
 import { InvoicePreviewFactory } from './invoice.factories';
 import { InvoiceManager } from './invoice.manager';
-import { stripeInvoiceToFirstInvoicePreviewDTO } from '../lib/util/stripeInvoiceToFirstInvoicePreviewDTO';
+import { stripeInvoiceToInvoicePreviewDTO } from './util/stripeInvoiceToFirstInvoicePreviewDTO';
 import { getMinimumChargeAmountForCurrency } from '../lib/util/getMinimumChargeAmountForCurrency';
 
 jest.mock('../lib/util/stripeInvoiceToFirstInvoicePreviewDTO');
 const mockedStripeInvoiceToFirstInvoicePreviewDTO = jest.mocked(
-  stripeInvoiceToFirstInvoicePreviewDTO
+  stripeInvoiceToInvoicePreviewDTO
 );
 
 jest.mock('../lib/util/getMinimumChargeAmountForCurrency');
@@ -83,7 +83,7 @@ describe('InvoiceManager', () => {
         mockInvoicePreview
       );
 
-      const result = await invoiceManager.preview({
+      const result = await invoiceManager.previewUpcoming({
         priceId: mockPrice.id,
         customer: mockCustomer,
         taxAddress: mockTaxAddress,
@@ -119,7 +119,7 @@ describe('InvoiceManager', () => {
         mockInvoicePreview
       );
 
-      const result = await invoiceManager.preview({
+      const result = await invoiceManager.previewUpcoming({
         priceId: mockPrice.id,
         customer: mockCustomer,
         taxAddress: mockTaxAddress,

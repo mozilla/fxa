@@ -16,5 +16,9 @@ export const InvoicePreviewFactory = (
   subtotal: faker.number.int({ max: 1000 }),
   discountEnd: null,
   discountType: faker.helpers.arrayElement(['forever', 'once', 'repeating']),
+  number:
+    faker.string.alphanumeric({ length: 8 }).toLocaleUpperCase() +
+    '-' +
+    faker.string.numeric({ length: 4, allowLeadingZeros: true }),
   ...override,
 });
