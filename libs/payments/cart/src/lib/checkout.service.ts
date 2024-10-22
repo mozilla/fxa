@@ -13,7 +13,7 @@ import {
 import {
   CustomerManager,
   InvoiceManager,
-  PaymentMethodManager,
+  PaymentIntentManager,
   PromotionCodeManager,
   STRIPE_CUSTOMER_METADATA,
   STRIPE_SUBSCRIPTION_METADATA,
@@ -26,7 +26,6 @@ import {
   StripeSubscription,
   StripeCustomer,
   StripePromotionCode,
-  StripePaymentIntent,
 } from '@fxa/payments/stripe';
 import { ProfileClient } from '@fxa/profile/client';
 import { AccountManager } from '@fxa/shared/account/account';
@@ -43,8 +42,9 @@ import {
 import { CartManager } from './cart.manager';
 import { CheckoutCustomerData, ResultCart } from './cart.types';
 import { handleEligibilityStatusMap } from './cart.utils';
-import { CheckoutError, CheckoutPaymentError } from './checkout.error';
+import { CheckoutError } from './checkout.error';
 import { PrePayStepsResult } from './checkout.types';
+import assert from 'assert';
 
 @Injectable()
 export class CheckoutService {
@@ -56,7 +56,7 @@ export class CheckoutService {
     private eligibilityService: EligibilityService,
     private invoiceManager: InvoiceManager,
     private notifierService: NotifierService,
-    private paymentMethodManager: PaymentMethodManager,
+    private paymentIntents: PaymentIntentManager,
     private paypalBillingAgreementManager: PaypalBillingAgreementManager,
     private paypalCustomerManager: PaypalCustomerManager,
     private productConfigurationManager: ProductConfigurationManager,
@@ -245,21 +245,11 @@ export class CheckoutService {
 
   async payWithStripe(
     cart: ResultCart,
-    paymentMethodId: string,
+    confirmationTokenId: string,
     customerData: CheckoutCustomerData
-  ): Promise<StripePaymentIntent> {
+  ) {
     const { uid, customer, enableAutomaticTax, promotionCode, version, price } =
       await this.prePaySteps(cart, customerData);
-
-    await this.paymentMethodManager.attach(paymentMethodId, {
-      customer: customer.id,
-    });
-
-    await this.customerManager.update(customer.id, {
-      invoice_settings: {
-        default_payment_method: paymentMethodId,
-      },
-    });
 
     this.statsd.increment('stripe_subscription', {
       payment_provider: 'stripe',
@@ -277,6 +267,7 @@ export class CheckoutService {
             price: price.id,
           },
         ],
+        payment_behavior: 'default_incomplete',
         metadata: {
           // Note: These fields are due to missing Fivetran support on Stripe multi-currency plans
           [STRIPE_SUBSCRIPTION_METADATA.Amount]: cart.amount,
@@ -293,37 +284,37 @@ export class CheckoutService {
     });
     const updatedVersion = version + 1;
 
-    const paymentIntent = await this.subscriptionManager.getLatestPaymentIntent(
-      subscription
+    assert(
+      subscription.latest_invoice,
+      'latest_invoice does not exist on subscription'
     );
-    if (!paymentIntent) {
-      throw new CheckoutError(
-        'Could not retrieve paymentIntent for subscription',
-        {
-          info: {
-            subscription,
+    const invoice = await this.invoiceManager.retrieve(
+      subscription.latest_invoice
+    );
+
+    assert(
+      invoice.payment_intent,
+      'payment_intent does not exist on subscription'
+    );
+    // Confirm intent with collected payment method
+    const { status, payment_method } = await this.paymentIntents.confirm(
+      invoice.payment_intent,
+      {
+        confirmation_token: confirmationTokenId,
+      }
+    );
+
+    if (status === 'succeeded') {
+      if (payment_method) {
+        await this.customerManager.update(customer.id, {
+          invoice_settings: {
+            default_payment_method: payment_method,
           },
-        }
-      );
-    }
-
-    if (paymentIntent.last_payment_error) {
-      await this.subscriptionManager.cancel(subscription.id);
-
-      throw new CheckoutPaymentError(
-        'Checkout payment intent has error on payment attempt',
-        {
-          info: {
-            error: paymentIntent.last_payment_error,
-          },
-        }
-      );
-    }
-
-    if (paymentIntent.status === 'succeeded') {
+        });
+      }
       await this.postPaySteps(cart, updatedVersion, subscription, uid);
     }
-    return paymentIntent;
+    return status;
   }
 
   async payWithPaypal(

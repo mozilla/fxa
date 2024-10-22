@@ -128,7 +128,7 @@ export class NextJSActionsService {
     await this.cartService.checkoutCartWithStripe(
       args.cartId,
       args.version,
-      args.paymentMethodId,
+      args.confirmationTokenId,
       args.customerData
     );
   }

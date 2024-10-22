@@ -21,7 +21,7 @@ export class CheckoutCartWithStripeActionArgs {
   version!: number;
 
   @IsString()
-  paymentMethodId!: string;
+  confirmationTokenId!: string;
 
   @Type(() => CheckoutCartWithStripeActionCustomerData)
   @ValidateNested()

@@ -17,7 +17,7 @@ const DEFAULT_NEWSLETTER_STRING_ID =
  * The newsletter string is a configurable field. This function returns the correct
  * localization string ID and fallback text for the different newsletter string ID options.
  */
-function getNewsletterStringInfo(newsletterLabelTextCode: string) {
+function getNewsletterStringInfo(newsletterLabelTextCode?: string | null) {
   switch (newsletterLabelTextCode) {
     case 'mdnplus':
       return {
@@ -38,7 +38,7 @@ function getNewsletterStringInfo(newsletterLabelTextCode: string) {
 }
 
 interface SignInFormProps {
-  newsletterLabel: string;
+  newsletterLabel?: string | null;
 }
 
 export const SignInForm = ({ newsletterLabel }: SignInFormProps) => {

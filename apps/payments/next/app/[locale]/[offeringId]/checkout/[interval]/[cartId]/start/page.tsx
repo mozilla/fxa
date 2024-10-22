@@ -12,19 +12,15 @@ import {
 } from '@fxa/payments/ui';
 import {
   getApp,
+  SupportedPages,
   CheckoutParams,
   SignedIn,
-  SupportedPages,
 } from '@fxa/payments/ui/server';
-import { getCartOrRedirectAction } from '@fxa/payments/ui/actions';
 import AppleLogo from '@fxa/shared/assets/images/apple-logo.svg';
 import GoogleLogo from '@fxa/shared/assets/images/google-logo.svg';
 import { DEFAULT_LOCALE } from '@fxa/shared/l10n';
-import {
-  getFakeCartData,
-  getCMSContent,
-} from 'apps/payments/next/app/_lib/apiClient';
 import { auth } from 'apps/payments/next/auth';
+import { fetchCMSData, getCartOrRedirectAction } from '@fxa/payments/ui/actions';
 
 export const dynamic = 'force-dynamic';
 
@@ -38,18 +34,16 @@ export default async function Checkout({ params }: { params: CheckoutParams }) {
   const locale = headers().get('accept-language') || DEFAULT_LOCALE;
   const sessionPromise = auth();
   const l10n = getApp().getL10n(locale);
+  const cmsDataPromise = fetchCMSData(params.offeringId, locale);
   const cartPromise = getCartOrRedirectAction(
     params.cartId,
     SupportedPages.START
   );
   //TODO - Replace with cartPromise as part of FXA-8903
-  const fakeCartDataPromise = getFakeCartData(params.cartId);
-  const cmsPromise = getCMSContent(params.offeringId, locale);
-  const [session, cart, fakeCart, cms] = await Promise.all([
+  const [session, cart, cms] = await Promise.all([
     sessionPromise,
     cartPromise,
-    fakeCartDataPromise,
-    cmsPromise,
+    cmsDataPromise,
   ]);
 
   return (
@@ -128,17 +122,32 @@ export default async function Checkout({ params }: { params: CheckoutParams }) {
         )}
       </h3>
 
-      <PaymentSection
-        cmsCommonContent={cms.commonContent}
-        paymentsInfo={{
-          amount: fakeCart.amount,
-          currency: fakeCart.nextInvoice.currency,
-        }}
-        cart={{
-          ...cart,
-        }}
-        locale={locale}
-      />
+      {/* 
+        If currency could not be determiend, it is most likely due to an invalid
+        or undetermined tax address. Future work will add the Tax Location picker
+        which should allow a customer to set their tax location, which would then
+        provide a valid currency.
+      */}
+      {cart.currency &&
+        cart.taxAddress?.countryCode &&
+        cart.taxAddress?.postalCode && (
+          <PaymentSection
+            cmsCommonContent={cms.commonContent}
+            paymentsInfo={{
+              amount: cart.amount,
+              currency: cart.currency.toLowerCase(),
+            }}
+            cart={{
+              ...cart,
+              currency: cart.currency,
+              taxAddress: {
+                countryCode: cart.taxAddress.countryCode,
+                postalCode: cart.taxAddress.postalCode,
+              },
+            }}
+            locale={locale}
+          />
+        )}
     </section>
   );
 }

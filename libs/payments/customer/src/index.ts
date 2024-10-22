@@ -5,6 +5,7 @@
 export * from './lib/customer.manager';
 export * from './lib/invoice.manager';
 export * from './lib/invoice.factories';
+export * from './lib/paymentIntent.manager';
 export * from './lib/paymentMethod.manager';
 export * from './lib/price.manager';
 export * from './lib/product.manager';

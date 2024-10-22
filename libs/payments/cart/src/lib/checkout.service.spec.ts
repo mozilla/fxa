@@ -28,7 +28,7 @@ import {
   CustomerManager,
   InvoiceManager,
   InvoicePreviewFactory,
-  PaymentMethodManager,
+  PaymentIntentManager,
   PriceManager,
   ProductManager,
   PromotionCodeManager,
@@ -50,6 +50,7 @@ import {
   ResultAccountCustomerFactory,
   MockStripeConfigProvider,
   AccountCustomerManager,
+  StripeConfirmationTokenFactory,
 } from '@fxa/payments/stripe';
 import {
   MockProfileClientConfigProvider,
@@ -82,6 +83,7 @@ import {
 } from './cart.error';
 import { CheckoutService } from './checkout.service';
 import { PrePayStepsResultFactory } from './checkout.factories';
+import { AssertionError } from 'assert';
 
 describe('CheckoutService', () => {
   let accountCustomerManager: AccountCustomerManager;
@@ -91,7 +93,7 @@ describe('CheckoutService', () => {
   let customerManager: CustomerManager;
   let eligibilityService: EligibilityService;
   let invoiceManager: InvoiceManager;
-  let paymentMethodManager: PaymentMethodManager;
+  let paymentIntentManager: PaymentIntentManager;
   let paypalBillingAgreementManager: PaypalBillingAgreementManager;
   let paypalCustomerManager: PaypalCustomerManager;
   let privateMethod: any;
@@ -126,7 +128,7 @@ describe('CheckoutService', () => {
         MockStripeConfigProvider,
         NotifierService,
         NotifierSnsProvider,
-        PaymentMethodManager,
+        PaymentIntentManager,
         PaypalBillingAgreementManager,
         PayPalClient,
         PaypalClientConfig,
@@ -154,7 +156,7 @@ describe('CheckoutService', () => {
     customerManager = moduleRef.get(CustomerManager);
     eligibilityService = moduleRef.get(EligibilityService);
     invoiceManager = moduleRef.get(InvoiceManager);
-    paymentMethodManager = moduleRef.get(PaymentMethodManager);
+    paymentIntentManager = moduleRef.get(PaymentIntentManager);
     paypalBillingAgreementManager = moduleRef.get(
       PaypalBillingAgreementManager
     );
@@ -529,14 +531,20 @@ describe('CheckoutService', () => {
     const mockPromotionCode = StripeResponseFactory(
       StripePromotionCodeFactory()
     );
-    const mockPaymentMethod = StripeResponseFactory(
-      StripePaymentMethodFactory()
-    );
     const mockSubscription = StripeResponseFactory(StripeSubscriptionFactory());
     const mockPaymentIntent = StripeResponseFactory(
-      StripePaymentIntentFactory()
+      StripePaymentIntentFactory({
+        status: 'succeeded',
+        payment_method: StripePaymentMethodFactory().id,
+      })
     );
     const mockPrice = StripePriceFactory();
+    const mockConfirmationToken = StripeConfirmationTokenFactory();
+    const mockInvoice = StripeResponseFactory(
+      StripeInvoiceFactory({
+        payment_intent: mockPaymentIntent.id,
+      })
+    );
 
     beforeEach(async () => {
       jest.spyOn(checkoutService, 'prePaySteps').mockResolvedValue(
@@ -548,28 +556,23 @@ describe('CheckoutService', () => {
         })
       );
       jest
-        .spyOn(paymentMethodManager, 'attach')
-        .mockResolvedValue(mockPaymentMethod);
-      jest.spyOn(customerManager, 'update').mockResolvedValue(mockCustomer);
-      jest.spyOn(statsd, 'increment');
-      jest
         .spyOn(subscriptionManager, 'create')
         .mockResolvedValue(mockSubscription);
-      jest
-        .spyOn(subscriptionManager, 'getLatestPaymentIntent')
-        .mockResolvedValue(mockPaymentIntent);
-      jest
-        .spyOn(subscriptionManager, 'cancel')
-        .mockResolvedValue(mockSubscription);
-      jest.spyOn(checkoutService, 'postPaySteps').mockResolvedValue();
       jest.spyOn(cartManager, 'updateFreshCart').mockResolvedValue();
+      jest.spyOn(invoiceManager, 'retrieve').mockResolvedValue(mockInvoice);
+      jest
+        .spyOn(paymentIntentManager, 'confirm')
+        .mockResolvedValue(mockPaymentIntent);
+      jest.spyOn(customerManager, 'update').mockResolvedValue(mockCustomer);
+      jest.spyOn(statsd, 'increment');
+      jest.spyOn(checkoutService, 'postPaySteps').mockResolvedValue();
     });
 
     describe('success', () => {
       beforeEach(async () => {
         await checkoutService.payWithStripe(
           mockCart,
-          mockPaymentMethod.id,
+          mockConfirmationToken.id,
           mockCustomerData
         );
       });
@@ -579,23 +582,6 @@ describe('CheckoutService', () => {
           mockCart,
           mockCustomerData
         );
-      });
-
-      it('attaches payment method to customer', async () => {
-        expect(paymentMethodManager.attach).toHaveBeenCalledWith(
-          mockPaymentMethod.id,
-          {
-            customer: mockCustomer.id,
-          }
-        );
-      });
-
-      it('updates the customer with a default payment method', async () => {
-        expect(customerManager.update).toHaveBeenCalledWith(mockCustomer.id, {
-          invoice_settings: {
-            default_payment_method: mockPaymentMethod.id,
-          },
-        });
       });
 
       it('increments the statsd counter', async () => {
@@ -617,6 +603,7 @@ describe('CheckoutService', () => {
                 price: mockPrice.id, // TODO: fetch price from cart after FXA-8893
               },
             ],
+            payment_behavior: 'default_incomplete',
             metadata: {
               amount: mockCart.amount,
               currency: mockCart.currency,
@@ -626,14 +613,74 @@ describe('CheckoutService', () => {
         );
       });
 
-      it('retrieves the latest payment intent', () => {
-        expect(subscriptionManager.getLatestPaymentIntent).toHaveBeenCalledWith(
-          mockSubscription
+      it('retrieves latest invoice', async () => {
+        expect(invoiceManager.retrieve).toHaveBeenCalledWith(
+          mockSubscription.latest_invoice
         );
       });
 
-      it('does not cancel the subscription', () => {
-        expect(subscriptionManager.cancel).not.toHaveBeenCalled();
+      it('confirms payment intent', async () => {
+        expect(paymentIntentManager.confirm).toHaveBeenCalledWith(
+          mockPaymentIntent.id,
+          {
+            confirmation_token: mockConfirmationToken.id,
+          }
+        );
+      });
+
+      it('updates the customer with a default payment method', async () => {
+        expect(customerManager.update).toHaveBeenCalledWith(mockCustomer.id, {
+          invoice_settings: {
+            default_payment_method: mockPaymentIntent.payment_method,
+          },
+        });
+      });
+    });
+
+    describe('fail', () => {
+      it('does not update customer if status is not succeeded', async () => {
+        jest
+          .spyOn(paymentIntentManager, 'confirm')
+          .mockResolvedValue({
+            ...mockPaymentIntent,
+            status: 'requires_action',
+          });
+
+        await checkoutService.payWithStripe(
+          mockCart,
+          mockConfirmationToken.id,
+          mockCustomerData
+        );
+
+        expect(customerManager.update).not.toHaveBeenCalled();
+      });
+
+      it('rejects if subscription does not have latest_invoice', async () => {
+        jest
+          .spyOn(subscriptionManager, 'create')
+          .mockResolvedValue({ ...mockSubscription, latest_invoice: null });
+
+        await expect(
+          checkoutService.payWithStripe(
+            mockCart,
+            mockConfirmationToken.id,
+            mockCustomerData
+          )
+        ).rejects.toThrow(AssertionError);
+      });
+
+      it('rejects if invoice does not have payment_intent', async () => {
+        jest
+          .spyOn(invoiceManager, 'retrieve')
+          .mockResolvedValue({ ...mockInvoice, payment_intent: null });
+
+        await expect(
+          checkoutService.payWithStripe(
+            mockCart,
+            mockConfirmationToken.id,
+            mockCustomerData
+          )
+        ).rejects.toThrow(AssertionError);
       });
     });
   });
