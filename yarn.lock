@@ -24695,15 +24695,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/http-proxy@npm:^1.17.5":
-  version: 1.17.5
-  resolution: "@types/http-proxy@npm:1.17.5"
-  dependencies:
-    "@types/node": "*"
-  checksum: 4f783924249457202d3b21c12467c438b9fcb17e6247df7c1f7d2f9436f00a402e27643a5c68d7faf62bfafb00b449f6317255652f321623cca2183b97541d06
-  languageName: node
-  linkType: hard
-
 "@types/http-proxy@npm:^1.17.8":
   version: 1.17.11
   resolution: "@types/http-proxy@npm:1.17.11"
@@ -41199,7 +41190,7 @@ fsevents@~2.1.1:
     i18n-iso-countries: ^7.12.0
     ioredis: ^4.28.2
     joi: ^17.8.3
-    jose: ^5.9.4
+    jose: ^5.9.6
     jsdom: ^24.1.1
     jsonwebtoken: ^9.0.0
     jsxgettext-recursive-next: 1.1.0
@@ -41354,7 +41345,7 @@ fsevents@~2.1.1:
     helmet: ^8.0.0
     hot-shots: ^10.1.1
     htmlparser2: 9.1.0
-    http-proxy-middleware: ^2.0.0
+    http-proxy-middleware: ^2.0.7
     i18n-abide: 0.0.26
     install: 0.13.0
     intern: ^4.10.1
@@ -42172,7 +42163,7 @@ fsevents@~2.1.1:
     jest: ^29.5.0
     jest-environment-jsdom: ^29.5.0
     jest-environment-node: ^29.7.0
-    jose: ^5.9.4
+    jose: ^5.9.6
     json: ^11.0.0
     knex: ^3.1.0
     kysely: ^0.27.2
@@ -44958,19 +44949,6 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"http-proxy-middleware@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "http-proxy-middleware@npm:2.0.0"
-  dependencies:
-    "@types/http-proxy": ^1.17.5
-    http-proxy: ^1.18.1
-    is-glob: ^4.0.1
-    is-plain-obj: ^3.0.0
-    micromatch: ^4.0.2
-  checksum: 1cf880d06f7ba44836e890f738df3fa257a03591fea47b09be60476bf4a9fc997fd329f857c997797372904a5ad4a150bbf7d933a8b048c78dfb84231e9f0b90
-  languageName: node
-  linkType: hard
-
 "http-proxy-middleware@npm:^2.0.3":
   version: 2.0.6
   resolution: "http-proxy-middleware@npm:2.0.6"
@@ -44986,6 +44964,24 @@ fsevents@~2.1.1:
     "@types/express":
       optional: true
   checksum: 2ee85bc878afa6cbf34491e972ece0f5be0a3e5c98a60850cf40d2a9a5356e1fc57aab6cff33c1fc37691b0121c3a42602d2b1956c52577e87a5b77b62ae1c3a
+  languageName: node
+  linkType: hard
+
+"http-proxy-middleware@npm:^2.0.7":
+  version: 2.0.7
+  resolution: "http-proxy-middleware@npm:2.0.7"
+  dependencies:
+    "@types/http-proxy": ^1.17.8
+    http-proxy: ^1.18.1
+    is-glob: ^4.0.1
+    is-plain-obj: ^3.0.0
+    micromatch: ^4.0.2
+  peerDependencies:
+    "@types/express": ^4.17.13
+  peerDependenciesMeta:
+    "@types/express":
+      optional: true
+  checksum: 18caa21145917aa1054740353916e8f03f5a3a93bede9106f1f44d84f7b174df17af1c72bf5fade5cc440c2058ee813f47cbb2bdd6ae6874af1cf33e0ac575f3
   languageName: node
   linkType: hard
 
@@ -49507,10 +49503,10 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"jose@npm:^5.9.4":
-  version: 5.9.4
-  resolution: "jose@npm:5.9.4"
-  checksum: d1c3dd0fb6dbfb6c16e0904f4930b9df1abde784d137b0987777b7722798b39b4ab15e6aff7b768195018f1656618a368d04b758c318436ad482a2a7ae92db82
+"jose@npm:^5.9.6":
+  version: 5.9.6
+  resolution: "jose@npm:5.9.6"
+  checksum: 4b536da0201858ed4c4582e8bb479081f11e0c63dd0f5e473adde16fc539785e1f2f0409bc1fc7cbbb5b68026776c960b4952da3a06f6fdfff0b9764c9127ae0
   languageName: node
   linkType: hard
 
