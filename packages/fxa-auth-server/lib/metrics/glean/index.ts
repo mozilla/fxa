@@ -26,6 +26,7 @@ type MetricsData = {
   uid?: string;
   reason?: string;
   oauthClientId?: string;
+  scopes?: string;
 };
 
 type AdditionalMetricsCallback = (
@@ -162,6 +163,7 @@ const createEventFn =
         utm_medium: metricsContext.utmMedium || '',
         utm_source: metricsContext.utmSource || '',
         utm_term: metricsContext.utmTerm || '',
+        scopes: metricsData?.scopes || '',
       };
 
       // reason is sent in access_token_created, login_submit_backend_error, and reg_submit_error
@@ -259,6 +261,13 @@ export function gleanMetrics(config: ConfigType) {
       }),
       tokenChecked: createEventFn('access_token_checked', {
         skipClientIp: true,
+        additionalMetrics: (metrics) => ({
+          scopes: metrics.scopes
+            ? Array.isArray(metrics.scopes)
+              ? metrics.scopes.sort().join(',')
+              : metrics.scopes
+            : '',
+        }),
       }),
     },
 

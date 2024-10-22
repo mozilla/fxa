@@ -414,6 +414,10 @@ access_token:
     expires: never
     data_sensitivity:
       - interaction
+    extra_keys:
+      scopes:
+        description: The scopes of the access token
+        type: string
   created:
     type: event
     description: |
