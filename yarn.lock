@@ -41841,7 +41841,7 @@ fsevents@~2.1.1:
     "@babel/core": ^7.24.4
     "@babel/plugin-transform-typescript": ^7.25.2
     "@babel/preset-typescript": ^7.25.7
-    "@babel/types": ^7.24.0
+    "@babel/types": ^7.25.8
     "@emotion/react": ^11.13.3
     "@emotion/styled": ^11.13.0
     "@material-ui/core": v5.0.0-alpha.24
