@@ -2,13 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {
-  FF_OAUTH_CLIENT_ID,
-  FirefoxCommand,
-  FxAStatusResponse,
-} from '../../lib/channels';
+import { FirefoxCommand } from '../../lib/channels';
 import { expect, test } from '../../lib/fixtures/standard';
-import { syncMobileOAuthQueryParams } from '../../lib/query-params';
+import { syncDesktopOAuthQueryParams } from '../../lib/query-params';
 
 const AGE_21 = '21';
 
@@ -97,49 +93,23 @@ test.describe('severity-1 #smoke', () => {
       await relier.signOut();
     });
 
-    test('signup oauth webchannel - sync mobile or FF desktop 123+', async ({
+    test('signup oauth webchannel with Sync desktop', async ({
       target,
-      syncBrowserPages: { confirmSignupCode, page, login, signup },
+      syncOAuthBrowserPages: { confirmSignupCode, page, signup },
       testAccountTracker,
     }) => {
-      test.fixme(true, 'Fix required as of 2024/06/28 (see FXA-10003).');
       const { email, password } =
         testAccountTracker.generateSignupAccountDetails();
-      const customEventDetail: FxAStatusResponse = {
-        id: 'account_updates',
-        message: {
-          command: FirefoxCommand.FxAStatus,
-          data: {
-            signedInUser: null,
-            clientId: FF_OAUTH_CLIENT_ID,
-            capabilities: {
-              pairing: false,
-              multiService: false,
-              choose_what_to_sync: true,
-              engines: ['bookmarks', 'history'],
-            },
-          },
-        },
-      };
 
-      await signup.goto('/authorization', syncMobileOAuthQueryParams);
+      await signup.goto('/authorization', syncDesktopOAuthQueryParams);
 
       await signup.fillOutEmailForm(email);
 
       await expect(signup.signupFormHeading).toBeVisible();
 
-      await signup.sendWebChannelMessage(customEventDetail);
-
-      // Only engines provided via web channel for Sync mobile are displayed
       await expect(signup.CWTSEngineHeader).toBeVisible();
       await expect(signup.CWTSEngineBookmarks).toBeVisible();
       await expect(signup.CWTSEngineHistory).toBeVisible();
-      await expect(signup.CWTSEnginePasswords).toBeHidden();
-      await expect(signup.CWTSEngineAddons).toBeHidden();
-      await expect(signup.CWTSEngineOpenTabs).toBeHidden();
-      await expect(signup.CWTSEnginePreferences).toBeHidden();
-      await expect(signup.CWTSEngineCreditCards).toBeHidden();
-      await expect(signup.CWTSEngineAddresses).toBeHidden();
 
       await signup.fillOutSignupForm(password, AGE_21);
 

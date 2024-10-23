@@ -31,9 +31,11 @@ const UA_OVERRIDE =
 
 export function getFirefoxUserPrefs(
   target: 'local' | 'stage' | 'production',
-  debug?: boolean
+  debug?: boolean,
+  context: 'fx_desktop_v3' | 'oauth_webchannel_v1' = 'fx_desktop_v3'
 ) {
   const fxaEnv = CONFIGS[target];
+
   const debugOptions = {
     'devtools.chrome.enabled': true,
     'devtools.debugger.prompt-connection': false,
@@ -54,20 +56,20 @@ export function getFirefoxUserPrefs(
     'identity.fxaccounts.allowHttp': target === 'local',
     'identity.fxaccounts.remote.root': fxaEnv.content,
     'identity.fxaccounts.remote.force_auth.uri':
-      fxaEnv.content + 'force_auth?service=sync&context=fx_desktop_v3',
+      fxaEnv.content + `force_auth?service=sync&context=${context}`,
     'identity.fxaccounts.remote.signin.uri':
-      fxaEnv.content + 'signin?service=sync&context=fx_desktop_v3',
+      fxaEnv.content + `signin?service=sync&context=${context}`,
     'identity.fxaccounts.remote.signup.uri':
-      fxaEnv.content + 'signup?service=sync&context=fx_desktop_v3',
+      fxaEnv.content + `signup?service=sync&context=${context}`,
     'identity.fxaccounts.remote.webchannel.uri': fxaEnv.content,
     'identity.fxaccounts.remote.oauth.uri': fxaEnv.oauth,
     'identity.fxaccounts.remote.profile.uri': fxaEnv.profile,
     'identity.fxaccounts.settings.uri':
-      fxaEnv.content + 'settings?service=sync&context=fx_desktop_v3',
+      fxaEnv.content + `settings?service=sync&context=${context}`,
     // for some reason there are 2 settings for the token server
     'identity.sync.tokenserver.uri': fxaEnv.token,
     'services.sync.tokenServerURI': fxaEnv.token,
-    'identity.fxaccounts.contextParam': 'fx_desktop_v3',
+    'identity.fxaccounts.contextParam': context,
     'identity.fxaccounts.lastSignedInUserHash': '',
     'browser.newtabpage.activity-stream.fxaccounts.endpoint': fxaEnv.content,
     // allow webchannel url, strips slash from content-server origin.
@@ -75,5 +77,6 @@ export function getFirefoxUserPrefs(
     ...(debug ? debugOptions : {}),
     // Override the user agent so that feature flags and experiments are not set
     'general.useragent.override': UA_OVERRIDE,
+    'identity.fxaccounts.oauth.enabled': context === 'oauth_webchannel_v1',
   };
 }

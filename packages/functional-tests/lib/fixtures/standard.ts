@@ -18,6 +18,7 @@ export type POMS = ReturnType<typeof createPages>;
 export type TestOptions = {
   pages: POMS;
   syncBrowserPages: POMS;
+  syncOAuthBrowserPages: POMS;
   testAccountTracker: TestAccountTracker;
 };
 export type WorkerOptions = { targetName: TargetName; target: ServerTarget };
@@ -40,6 +41,17 @@ export const test = base.extend<TestOptions, WorkerOptions>({
 
   syncBrowserPages: async ({ target }, use) => {
     const syncBrowserPages = await newPagesForSync(target);
+
+    await use(syncBrowserPages);
+
+    await syncBrowserPages.browser?.close();
+  },
+
+  syncOAuthBrowserPages: async ({ target }, use) => {
+    const syncBrowserPages = await newPagesForSync(
+      target,
+      'oauth_webchannel_v1'
+    );
 
     await use(syncBrowserPages);
 
@@ -96,10 +108,13 @@ export async function newPages(browser: Browser, target: BaseTarget) {
 // `identity.fxaccounts.lastSignedInUserHash` to the last
 // user signed in. On subsequent login to Sync, a dialog is prompted for the user
 // to confirm. Playwright does not have functionality to click browser ui.
-async function newPagesForSync(target: BaseTarget) {
+async function newPagesForSync(
+  target: BaseTarget,
+  context: 'fx_desktop_v3' | 'oauth_webchannel_v1' = 'fx_desktop_v3'
+) {
   const browser = await firefox.launch({
     args: DEBUG ? ['-start-debugger-server'] : undefined,
-    firefoxUserPrefs: getFirefoxUserPrefs(target.name, DEBUG),
+    firefoxUserPrefs: getFirefoxUserPrefs(target.name, DEBUG, context),
     headless: !DEBUG,
   });
   return {
