@@ -23,6 +23,7 @@ export const eligibilityContentByPlanIdsQuery = graphql(`
         stripePlanChoice
       }
       offering {
+        apiIdentifier
         stripeProductId
         stripeLegacyPlans(pagination: { limit: 200 }) {
           stripeLegacyPlan
@@ -31,6 +32,7 @@ export const eligibilityContentByPlanIdsQuery = graphql(`
         subGroups {
           groupName
           offerings {
+            apiIdentifier
             stripeProductId
             stripeLegacyPlans(pagination: { limit: 200 }) {
               stripeLegacyPlan

@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 export interface EligibilitySubgroupOfferingResult {
+  apiIdentifier: string;
   stripeProductId: string;
   stripeLegacyPlans: {
     stripeLegacyPlan: string;
@@ -16,6 +17,7 @@ export interface EligibilitySubgroupResult {
 }
 
 export interface EligibilityOfferingResult {
+  apiIdentifier: string;
   stripeProductId: string;
   stripeLegacyPlans: {
     stripeLegacyPlan: string;
