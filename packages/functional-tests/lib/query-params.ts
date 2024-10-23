@@ -40,6 +40,21 @@ export const syncDesktopOAuthQueryParams = new URLSearchParams({
   service: 'sync',
 });
 
+export const relayDesktopOAuthQueryParams = new URLSearchParams({
+  ...Object.fromEntries(oauthWebchannelV1.entries()),
+  client_id: FF_OAUTH_CLIENT_ID, // Firefox Desktop
+  code_challenge_method: 'S256',
+  code_challenge: '2oc_C4v1qHeefWAGu5LI5oDG1oX4FV_Itc148D8_oQI',
+  // eslint-disable-next-line camelcase
+  keys_jwk:
+    'eyJrdHkiOiJFQyIsImNydiI6IlAtMjU2IiwieCI6ImdUejVIWFJfa2pxSFRtMG43ZjhxcDMybVZFaHZ1cGo1dXNUV1h5TWZsb1kiLCJ5IjoiVER5TlhkalhibHZld1pWLVc5MXNDZU9fRWd0NU9WYXhpblBzOEFTQ3owZyJ9',
+  scope:
+    'https://identity.mozilla.com/apps/oldsync https://identity.mozilla.com/tokens/session',
+  state: 'fakestate',
+  automatedBrowser: 'true',
+  service: 'relay',
+});
+
 export const syncDesktopV3QueryParams = new URLSearchParams({
   context: 'fx_desktop_v3',
   service: 'sync',
