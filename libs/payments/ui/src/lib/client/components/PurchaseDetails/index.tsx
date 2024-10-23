@@ -25,7 +25,7 @@ export function PurchaseDetails(props: PurchaseDetailsProps) {
   const { subtitle, productName, webIcon } = purchaseDetails;
   const [detailsHidden, setDetailsState] = useState(true);
   return (
-    <div className="bg-white rounded-b-lg shadow-sm shadow-grey-300 text-sm px-4 rounded-t-none tablet:rounded-t-lg">
+    <div className="bg-white rounded-b-lg shadow-sm shadow-grey-300 text-sm px-4 rounded-t-none clip-shadow tablet:rounded-t-lg">
       <div className="flex gap-4 my-0 py-4 border-b border-grey-200">
         <Image
           src={webIcon}

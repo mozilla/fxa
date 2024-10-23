@@ -8,3 +8,9 @@
 body {
   @apply grid min-h-[100vh] tablet:justify-center text-base font-body bg-grey-10 text-grey-900 leading-[1.15];
 }
+
+@layer utilities {
+  .clip-shadow {
+    clip-path: inset(0px -5px -5px);
+  }
+}

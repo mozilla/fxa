@@ -13,6 +13,7 @@ import {
 import {
   getApp,
   CheckoutParams,
+  SignedIn,
   SupportedPages,
 } from '@fxa/payments/ui/server';
 import { getCartOrRedirectAction } from '@fxa/payments/ui/actions';
@@ -52,7 +53,7 @@ export default async function Checkout({ params }: { params: CheckoutParams }) {
   ]);
 
   return (
-    <section>
+    <section aria-label="Checkout">
       {!session && (
         <>
           <h2 className="font-semibold text-grey-600 text-lg mt-10">
@@ -94,7 +95,7 @@ export default async function Checkout({ params }: { params: CheckoutParams }) {
         </>
       )}
 
-      {!session ? (
+      {!session?.user?.email ? (
         <h2
           className="font-semibold text-grey-600 text-lg mt-10 mb-5"
           data-testid="header-prefix"
@@ -105,20 +106,25 @@ export default async function Checkout({ params }: { params: CheckoutParams }) {
           )}
         </h2>
       ) : (
-        <h2
-          className="font-semibold text-grey-600 text-lg mt-10 mb-5"
-          data-testid="header"
-        >
-          {l10n.getString(
-            'next-payment-method-header',
-            'Choose your payment method'
-          )}
-        </h2>
+        <>
+          <div className="hidden tablet:block">
+            <SignedIn email={session.user.email} />
+          </div>
+          <h2
+            className="font-semibold text-grey-600 text-lg mt-10 mb-5"
+            data-testid="header"
+          >
+            {l10n.getString(
+              'next-payment-method-header',
+              'Choose your payment method'
+            )}
+          </h2>
+        </>
       )}
       <h3 className="font-semibold text-grey-600 text-start">
         {l10n.getString(
           'next-payment-method-first-approve',
-          `First you'll need to approve your subscription`
+          'First you’ll need to approve your subscription'
         )}
       </h3>
 

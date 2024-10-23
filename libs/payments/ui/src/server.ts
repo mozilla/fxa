@@ -8,6 +8,7 @@ export * from './lib/nestapp/config';
 export * from './lib/config.utils';
 export * from './lib/server/components/Details';
 export * from './lib/server/components/PriceInterval';
+export * from './lib/server/components/SignedIn';
 export * from './lib/server/components/SubscriptionTitle';
 export * from './lib/server/components/TermsAndPrivacy';
 export * from './lib/utils/types';

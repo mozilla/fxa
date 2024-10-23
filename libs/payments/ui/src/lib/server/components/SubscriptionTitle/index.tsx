@@ -54,7 +54,7 @@ export async function SubscriptionTitle({
   const displaySubtitle = subheaders.includes(cartState);
 
   return (
-    <header
+    <div
       className="bg-white shadow-sm shadow-grey-300 text-center my-0 pt-5 px-4 pb-px tablet:mx-0"
       aria-label={l10n.getString(componentTitle.titleFtl, componentTitle.title)}
     >
@@ -78,6 +78,6 @@ export async function SubscriptionTitle({
           </span>
         </div>
       )}
-    </header>
+    </div>
   );
 }
