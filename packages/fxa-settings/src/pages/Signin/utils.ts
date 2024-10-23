@@ -6,7 +6,7 @@ import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
 import { NavigationOptions, SigninLocationState } from './interfaces';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
-import { isOAuthIntegration } from '../../models';
+import { isOAuthIntegration, isOAuthNativeIntegration } from '../../models';
 import { navigate } from '@reach/router';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import { currentAccount } from '../../lib/cache';
@@ -69,13 +69,14 @@ export async function handleNavigation(
 ) {
   const { integration } = navigationOptions;
   const isOAuth = isOAuthIntegration(integration);
-  const isSync = integration.isSync();
+  const isWebChannelIntegration =
+    integration.isSync() || integration.isDesktopRelay();
 
   if (!navigationOptions.signinData.verified) {
     const { to, locationState } =
       getUnverifiedNavigationTarget(navigationOptions);
     if (
-      isSync &&
+      isWebChannelIntegration &&
       handleFxaLogin &&
       // If the _next page_ is `signin_totp_code`, we don't want to send this
       // because we end up sending it twice with the first message containing
@@ -97,7 +98,7 @@ export async function handleNavigation(
     return { error: undefined };
   }
 
-  if (isSync && handleFxaLogin) {
+  if (isWebChannelIntegration && handleFxaLogin) {
     // This _must_ be sent before fxaOAuthLogin for Desktop OAuth flow.
     // Mobile doesn't care about this message (see FXA-10388)
     sendFxaLogin(navigationOptions);
@@ -119,12 +120,22 @@ export async function handleNavigation(
     if (error) {
       return { error };
     }
-    if (isSync && handleFxaOAuthLogin && oauthData) {
+    if (
+      isOAuthNativeIntegration(integration) &&
+      handleFxaOAuthLogin &&
+      oauthData
+    ) {
       firefox.fxaOAuthLogin({
         action: 'signin',
         code: oauthData.code,
         redirect: oauthData.redirect,
         state: oauthData.state,
+        // OAuth desktop sync optional flow sends service in fxaOAuthLogin
+        ...(integration.isDesktopRelay() && {
+          services: {
+            relay: {},
+          },
+        }),
       });
     }
     performNavigation({ to, locationState, shouldHardNavigate });
@@ -176,10 +187,12 @@ function sendFxaLogin(navigationOptions: NavigationOptions) {
       keyFetchToken: navigationOptions.signinData.keyFetchToken!,
       unwrapBKey: navigationOptions.unwrapBKey!,
     }),
-    // This is necessary or the user will be signed in but Sync will be 'off'
-    services: {
-      sync: {},
-    },
+    // OAuth desktop sync optional flow sends service in fxaOAuthLogin
+    ...(!navigationOptions.integration.isDesktopRelay() && {
+      services: {
+        sync: {},
+      },
+    }),
   });
 }
 
@@ -281,6 +294,15 @@ const getOAuthNavigationTarget = async (
         state,
       },
       locationState,
+    };
+  } else if (navigationOptions.integration.isDesktopRelay()) {
+    return {
+      to: '/settings',
+      oauthData: {
+        code,
+        redirect,
+        state,
+      },
     };
   }
   return { to: redirect, shouldHardNavigate: true };

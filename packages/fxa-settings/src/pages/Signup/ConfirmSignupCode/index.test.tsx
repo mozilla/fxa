@@ -262,9 +262,9 @@ describe('ConfirmSignupCode page', () => {
     beforeEach(() => {
       fxaOAuthLoginSpy = jest.spyOn(firefox, 'fxaOAuthLogin');
     });
-    const integration = createMockOAuthNativeIntegration();
 
-    it('sends expected web channel messages', async () => {
+    it('sends expected web channel messages when service=sync', async () => {
+      const integration = createMockOAuthNativeIntegration();
       const offeredSyncEngines = ['blabbitybee', 'bloopitybop'];
       const declinedSyncEngines = ['bloopitybop'];
       renderWithSession({
@@ -282,6 +282,25 @@ describe('ConfirmSignupCode page', () => {
           offeredSyncEngines,
           action: 'signup',
           ...MOCK_OAUTH_FLOW_HANDLER_RESPONSE,
+        });
+      });
+    });
+    it('sends expected web channel messages when service=relay', async () => {
+      const integration = createMockOAuthNativeIntegration(false);
+      renderWithSession({
+        session,
+        integration,
+        finishOAuthFlowHandler: mockFinishOAuthFlowHandler,
+      });
+      submit();
+
+      await waitFor(() => {
+        expect(fxaOAuthLoginSpy).toHaveBeenCalledWith({
+          action: 'signup',
+          ...MOCK_OAUTH_FLOW_HANDLER_RESPONSE,
+          services: {
+            relay: {},
+          },
         });
       });
     });

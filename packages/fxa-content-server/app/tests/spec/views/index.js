@@ -275,6 +275,36 @@ describe('views/index', () => {
             );
           });
         });
+
+        describe('isOAuthNativeRelay', () => {
+          beforeEach(() => {
+            relier.set({
+              action: 'email',
+              service: 'relay',
+            });
+            sinon.stub(relier, 'isOAuthNativeRelay').callsFake(() => true);
+          });
+          it('renders expected text when service=relay', () => {
+            return view.render().then(() => {
+              assert.include(
+                view.$(Selectors.HEADER).text(),
+                'Create an email mask'
+              );
+              assert.include(
+                view.$(Selectors.SUB_HEADER).text(),
+                'Please provide the email address where you’d like to forward emails from your masked email.'
+              );
+            });
+          });
+
+          it('does not render FF family or third party auth buttons when service=relay', () => {
+            return view.render().then(() => {
+              assert.lengthOf(view.$(Selectors.FIREFOX_FAMILY_SERVICES), 0);
+              assert.lengthOf(view.$(Selectors.THIRD_PARTY_AUTH.GOOGLE), 0);
+              assert.lengthOf(view.$(Selectors.THIRD_PARTY_AUTH.APPLE), 0);
+            });
+          });
+        });
       });
 
       describe('fallback behavior', () => {

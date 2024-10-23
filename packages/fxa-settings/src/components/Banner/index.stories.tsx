@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import Banner, { BannerType } from '.';
+import Banner, { BannerType, FancyBanner } from '.';
 import { Meta } from '@storybook/react';
 import AppLayout from '../AppLayout';
 import { Subject } from './mocks';
@@ -42,5 +42,14 @@ export const Error = () => (
 export const DismissibleInfo = () => (
   <AppLayout>
     <Subject />
+  </AppLayout>
+);
+export const FancySuccess = () => (
+  <AppLayout>
+    <FancyBanner
+      type={BannerType.success}
+      message={{ heading: 'Fancy heading', message: 'Fancy message' }}
+      children={''}
+    />
   </AppLayout>
 );

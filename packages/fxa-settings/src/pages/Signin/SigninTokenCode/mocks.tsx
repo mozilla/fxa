@@ -25,6 +25,7 @@ export function createMockWebIntegration() {
     isSync: () => false,
     wantsKeys: () => false,
     isDesktopSync: () => false,
+    isDesktopRelay: () => false,
     data: {},
   };
 }

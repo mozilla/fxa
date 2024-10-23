@@ -33,6 +33,7 @@ export default {
       serviceName: subscriptionProductName || serviceName,
       serviceLogo,
       isSync: this.relier.isSync(),
+      isOAuthNativeRelay: this.relier.isOAuthNativeRelay(),
     });
   },
 

@@ -210,9 +210,11 @@ const CompleteResetPasswordContainer = ({
         uid: accountResetData.uid,
         unwrapBKey: accountResetData.unwrapBKey,
         verified: accountResetData.verified,
-        services: {
-          sync: {},
-        },
+        ...(!integration.isDesktopRelay() && {
+          services: {
+            sync: {},
+          },
+        }),
       });
     }
   };

@@ -10,19 +10,29 @@
       </p>
       {{/isSync}}
       {{^isSync}}
-        <h1 id="fxa-enter-email-header" class="card-header">
-          {{#t}}Enter your email{{/t}}
-          <span class="block text-sm font-body font-normal mt-1" id="subheader">
-            {{#serviceLogo}}
-              <!-- L10N: For languages structured like English, the phrase can read "to continue to" with Pocket image following -->
-              {{#unsafeTranslate}}Continue to <div class="graphic %(serviceLogo)s">%(serviceName)s</div>{{/unsafeTranslate}}
-            {{/serviceLogo}}
-            {{^serviceLogo}}
-              <!-- L10N: For languages structured like English, the phrase can read "to continue to %(serviceName)s" -->
-              {{#t}}Continue to %(serviceName)s{{/t}}
-            {{/serviceLogo}}
-          </span>
-        </h1>
+        {{^isOAuthNativeRelay}}
+          <h1 id="fxa-enter-email-header" class="card-header">
+            {{#t}}Enter your email{{/t}}
+            <span class="block text-sm font-body font-normal mt-1" id="subheader">
+              {{#serviceLogo}}
+                <!-- L10N: For languages structured like English, the phrase can read "to continue to" with Pocket image following -->
+                {{#unsafeTranslate}}Continue to <div class="graphic %(serviceLogo)s">%(serviceName)s</div>{{/unsafeTranslate}}
+              {{/serviceLogo}}
+              {{^serviceLogo}}
+                <!-- L10N: For languages structured like English, the phrase can read "to continue to %(serviceName)s" -->
+                {{#t}}Continue to %(serviceName)s{{/t}}
+              {{/serviceLogo}}
+            </span>
+          </h1>
+        {{/isOAuthNativeRelay}}
+        {{#isOAuthNativeRelay}}
+          <h1 id="fxa-enter-email-header" class="card-header">
+            {{#t}}Create an email mask{{/t}}
+          </h1>
+          <p class="mt-1 mb-9 text-grey-600" id="subheader">
+            {{#t}}Please provide the email address where you’d like to forward emails from your masked email.{{/t}}
+          </p>
+        {{/isOAuthNativeRelay}}
       {{/isSync}}
   </header>
 
@@ -44,10 +54,14 @@
     </form>
 
     {{^isSync}}
-      {{{ unsafeThirdPartyAuthHTML }}}
+      {{^isOAuthNativeRelay}}
+        {{{ unsafeThirdPartyAuthHTML }}}
+      {{/isOAuthNativeRelay}}
     {{/isSync}}
 
-    <div class="text-xs text-grey-500 mb-0 mt-5">
+    <div class="text-xs text-grey-500 mb-0
+    {{#isOAuthNativeRelay}}mt-8{{/isOAuthNativeRelay}}
+    {{^isOAuthNativeRelay}}mt-5{{/isOAuthNativeRelay}}">
       {{#isSync}}
         <p id="firefox-family-services" class="mb-2">
           {{#t}}A Mozilla account also unlocks access to more privacy-protecting products from Mozilla.{{/t}}

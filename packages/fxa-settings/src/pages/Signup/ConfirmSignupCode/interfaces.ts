@@ -56,6 +56,7 @@ export type ConfirmSignupCodeOAuthIntegration = Pick<
   | 'wantsTwoStepAuthentication'
   | 'isSync'
   | 'getPermissions'
+  | 'isDesktopRelay'
 >;
 
 export type ConfirmSignupCodeIntegration =

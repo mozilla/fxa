@@ -117,6 +117,10 @@ export type FxAOAuthLogin = {
   // For sync oauth signup
   declinedSyncEngines?: string[];
   offeredSyncEngines?: string[];
+  // For sync optional flows (currently only Relay)
+  services?: {
+    relay: {};
+  };
 };
 
 // ref: https://searchfox.org/mozilla-central/rev/82828dba9e290914eddd294a0871533875b3a0b5/services/fxaccounts/FxAccountsWebChannel.sys.mjs#230

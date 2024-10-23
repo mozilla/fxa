@@ -169,7 +169,14 @@ var OAuthRelier = Relier.extend({
   },
 
   isSync() {
-    return this.get('serviceName') === Constants.RELIER_SYNC_SERVICE_NAME;
+    return (
+      this.get('serviceName') === Constants.RELIER_SYNC_SERVICE_NAME &&
+      !this.isOAuthNativeRelay()
+    );
+  },
+
+  isOAuthNativeRelay() {
+    return this.get('service') === 'relay';
   },
 
   _isVerificationFlow() {
@@ -216,11 +223,12 @@ var OAuthRelier = Relier.extend({
       this.set('email', this.get('loginHint'));
     }
 
-    // OAuth reliers are not allowed to specify a service. `service`
-    // is used in the verification flow, it'll be set to the `client_id`.
+    // OAuth reliers (at the moment, only oauth desktop) are only allowed to
+    // specify 'sync' or 'relay' as the service.
     if (
       this.getSearchParam('service') &&
-      this.getSearchParam('service') !== 'sync'
+      this.getSearchParam('service') !== 'sync' &&
+      this.getSearchParam('service') !== 'relay'
     ) {
       throw OAuthErrors.toInvalidParameterError('service');
     }

@@ -38,6 +38,16 @@ var Relier = Backbone.Model.extend({
   },
 
   /**
+   * Check if the relier is OAuth desktop (desktop only for now)
+   * with service=relay; this is a "sync optional" flow
+   *
+   * @returns {Boolean}
+   */
+  isOAuthNativeRelay() {
+    return false;
+  },
+
+  /**
    * Check if the relier should offer Sync
    *
    * @returns {Boolean}

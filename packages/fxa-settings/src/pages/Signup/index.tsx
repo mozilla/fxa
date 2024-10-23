@@ -68,6 +68,7 @@ export const Signup = ({
   const isSyncOAuth = isOAuthNativeIntegrationSync(integration);
   const isSyncDesktopV3 = isSyncDesktopV3Integration(integration);
   const isSync = integration.isSync();
+  const isDesktopRelay = integration.isDesktopRelay();
   const email = queryParamModel.email;
 
   const onFocusMetricsEvent = () => {
@@ -270,6 +271,17 @@ export const Signup = ({
               sync: syncEngines,
             },
           });
+        } else if (isDesktopRelay) {
+          firefox.fxaLogin({
+            email,
+            // keyFetchToken and unwrapBKey should always exist if integration wants keys
+            keyFetchToken: data.signUp.keyFetchToken!,
+            unwrapBKey: data.unwrapBKey!,
+            sessionToken: data.signUp.sessionToken,
+            uid: data.signUp.uid,
+            verified: false,
+            // OAuth desktop sync optional flow sends service in fxaOAuthLogin
+          });
         } else {
           GleanMetrics.registration.marketing({
             standard: {
@@ -320,6 +332,7 @@ export const Signup = ({
       offeredSyncEngineConfigs,
       isSyncOAuth,
       localizedValidAgeError,
+      isDesktopRelay,
     ]
   );
 
@@ -349,10 +362,25 @@ export const Signup = ({
     // TODO: FXA-8268, if force_auth && AuthErrors.is(error, 'DELETED_ACCOUNT'):
     //       - forceMessage('Account no longer exists. Recreate it?')
     <AppLayout>
-      <CardHeader
-        headingText="Set your password"
-        headingTextFtlId="signup-heading"
-      />
+      {isDesktopRelay ? (
+        <>
+          <CardHeader
+            headingText="Create a password"
+            headingTextFtlId="signup-heading-relay"
+          />
+          <FtlMsg id="signup-relay-info">
+            <p className="text-sm">
+              A password is needed to securely manage your masked emails and
+              access Mozilla’s security tools.
+            </p>
+          </FtlMsg>
+        </>
+      ) : (
+        <CardHeader
+          headingText="Set your password"
+          headingTextFtlId="signup-heading"
+        />
+      )}
 
       {bannerErrorText && (
         <Banner type={BannerType.error}>
@@ -472,31 +500,34 @@ export const Signup = ({
         <FtlMsg id="signup-coppa-check-explanation-link">
           <LinkExternal
             href="https://www.ftc.gov/business-guidance/resources/childrens-online-privacy-protection-rule-not-just-kids-sites"
-            className="link-blue text-start text-sm py-1 -mt-2 mb-4 self-start"
+            className={`link-blue text-start text-sm py-1 -mt-2 self-start ${
+              isDesktopRelay ? 'mb-8' : 'mb-4'
+            }`}
             onClick={() => GleanMetrics.registration.whyWeAsk()}
           >
             Why do we ask?
           </LinkExternal>
         </FtlMsg>
 
-        {isSync ? (
-          showCWTS()
-        ) : (
-          <ChooseNewsletters
-            {...{
-              newsletters,
-              setSelectedNewsletterSlugs,
-            }}
-          />
-        )}
+        {isSync
+          ? showCWTS()
+          : !isDesktopRelay && (
+              <ChooseNewsletters
+                {...{
+                  newsletters,
+                  setSelectedNewsletterSlugs,
+                }}
+              />
+            )}
       </FormPasswordWithBalloons>
 
       {/* Third party auth is not currently supported for sync */}
-      {!isSync && <ThirdPartyAuth viewName="signup" />}
+      {!isSync && !isDesktopRelay && <ThirdPartyAuth viewName="signup" />}
 
       <TermsPrivacyAgreement
         isPocketClient={client === MozServices.Pocket}
         isMonitorClient={client === MozServices.Monitor}
+        marginClassName={isDesktopRelay ? 'mt-8' : undefined}
       />
     </AppLayout>
   );
