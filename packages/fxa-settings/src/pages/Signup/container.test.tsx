@@ -62,6 +62,7 @@ function mockIntegration() {
   integration = {
     type: IntegrationType.SyncDesktopV3,
     getService: () => MozServices.Default,
+    getClientId: () => undefined,
     isSync: () => true,
     wantsKeys: () => true,
     isDesktopRelay: () => false,
@@ -310,7 +311,7 @@ describe('sign-up-container', () => {
       beforeEach(() => {
         // here we override some key behaviors to alter the containers behavior
         serviceName = MozServices.FirefoxSync;
-        integration.getService = () => MozServices.FirefoxSync;
+        integration.getService = () => 'sync';
         integration.type = IntegrationType.SyncDesktopV3;
       });
 
@@ -335,7 +336,7 @@ describe('sign-up-container', () => {
     describe('OAuth native integration with Sync', () => {
       beforeEach(() => {
         serviceName = MozServices.FirefoxSync;
-        integration.getService = () => MozServices.FirefoxSync;
+        integration.getService = () => 'sync';
         integration.isSync = () => true;
         integration.type = IntegrationType.OAuthNative;
       });
@@ -375,7 +376,7 @@ describe('sign-up-container', () => {
   describe('begin-sign-up-handler', () => {
     beforeEach(() => {
       serviceName = MozServices.FirefoxSync;
-      integration.getService = () => MozServices.FirefoxSync;
+      integration.getService = () => 'sync';
       integration.type = IntegrationType.SyncDesktopV3;
     });
 
@@ -396,7 +397,7 @@ describe('sign-up-container', () => {
             options: {
               verificationMethod: 'email-otp',
               keys: true,
-              service: MozServices.FirefoxSync,
+              service: 'sync',
               atLeast18AtReg: true,
               metricsContext: {
                 flowId: MOCK_FLOW_ID,

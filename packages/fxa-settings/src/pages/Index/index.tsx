@@ -21,7 +21,7 @@ export const Index = ({
   integration,
   serviceName,
 }: IndexProps & RouteComponentProps) => {
-  const clientId = integration.getService();
+  const clientId = integration.getClientId();
   const isSync = integration.isSync();
   const isOAuth = isOAuthIntegration(integration);
   const isPocketClient = isOAuth && isClientPocket(clientId);

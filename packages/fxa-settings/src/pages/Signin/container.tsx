@@ -263,6 +263,9 @@ const SigninContainer = ({
       }
 
       const service = integration.getService();
+      const clientId = integration.getClientId();
+
+      const isBrowserClient = service === 'sync' || service === 'relay';
 
       const { error, unverifiedAccount, v1Credentials, v2Credentials } =
         await tryKeyStretchingUpgrade(
@@ -278,7 +281,10 @@ const SigninContainer = ({
       const options = {
         verificationMethod: VerificationMethods.EMAIL_OTP,
         keys: wantsKeys,
-        ...(service !== MozServices.Default && { service }),
+        // See oauth_client_info in the auth-server for details on service/clientId
+        // Sending up the clientId when the user is not signing in to the browser
+        // is used to show the correct service name in emails
+        ...(isBrowserClient ? { service } : { service: clientId }),
         metricsContext: queryParamsToMetricsContext(
           flowQueryParams as ReturnType<typeof searchParams>
         ),

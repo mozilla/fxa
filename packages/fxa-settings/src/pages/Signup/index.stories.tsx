@@ -71,5 +71,5 @@ export const SyncOAuth = storyWithProps(
 );
 
 export const OAuthDestkopServiceRelay = storyWithProps(
-  createMockSignupOAuthNativeIntegration(false)
+  createMockSignupOAuthNativeIntegration('relay', false)
 );

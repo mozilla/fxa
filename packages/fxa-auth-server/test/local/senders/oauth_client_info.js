@@ -48,9 +48,9 @@ describe('lib/senders/oauth_client_info:', () => {
       return clientInfo.__clientCache.clear();
     });
 
-    it('returns Firefox if no client id', () => {
+    it('returns Mozilla if no service', () => {
       return fetch().then((res) => {
-        assert.equal(res.name, 'Firefox');
+        assert.equal(res.name, 'Mozilla');
       });
     });
 
@@ -60,9 +60,15 @@ describe('lib/senders/oauth_client_info:', () => {
       });
     });
 
-    it('falls back to Firefox if error', () => {
-      return fetch('0000000000000000').then((res) => {
+    it('returns Firefox if service=relay', () => {
+      return fetch('relay').then((res) => {
         assert.equal(res.name, 'Firefox');
+      });
+    });
+
+    it('falls back to Mozilla if error', () => {
+      return fetch('0000000000000000').then((res) => {
+        assert.equal(res.name, 'Mozilla');
         assert.ok(mockLog.fatal.calledOnce, 'called fatal log');
       });
     });

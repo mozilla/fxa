@@ -13,6 +13,10 @@ module.exports = (log, config) => {
   const FIREFOX_CLIENT = {
     name: 'Firefox',
   };
+
+  const MOZILLA_CLIENT = {
+    name: 'Mozilla',
+  };
   // TODO: prob don't need this cache anymore now that it's just a db call
   const clientCache = new Keyv({
     ttl: OAUTH_CLIENT_INFO_CACHE_TTL,
@@ -22,18 +26,29 @@ module.exports = (log, config) => {
   /**
    * Fetches OAuth client info from the OAuth server.
    * Stores the data into server memory.
-   * @param clientId
+   * @param service
    * @returns {Promise<any>}
    */
-  async function fetch(clientId) {
+  async function fetch(service) {
     log.trace('fetch.start');
 
-    if (!clientId || clientId === 'sync') {
-      log.trace('fetch.sync');
+    // Default to 'Mozilla' if the service is undefined
+    // If the service is undefined for a sync sign-in (where scope is provided but not service),
+    // this may result in some edge cases where the client name is 'Mozilla' instead of 'Firefox' in emails
+    // however, defaulting to Mozilla works best for web sign-ins with other browsers (e.g. Chrome)
+    // We might want to consider passing in scopes as well to more accurately determine the client name
+    if (!service) {
+      log.trace('fetch.noService');
+      return MOZILLA_CLIENT;
+    }
+
+    // Set the client name to 'Firefox' if the service is browser-based
+    if (service === 'sync' || service === 'relay') {
+      log.trace('fetch.firefoxClient');
       return FIREFOX_CLIENT;
     }
 
-    const cachedRecord = await clientCache.get(clientId);
+    const cachedRecord = await clientCache.get(service);
     if (cachedRecord) {
       // used the cachedRecord if it exists
       log.trace('fetch.usedCache');
@@ -42,21 +57,22 @@ module.exports = (log, config) => {
 
     let clientInfo;
     try {
-      clientInfo = await client.getClientById(clientId);
+      clientInfo = await client.getClientById(service);
     } catch (err) {
       // fallback to the Firefox client if request fails
       if (!err.statusCode) {
         log.fatal('fetch.failed', { err });
       } else {
-        log.warn('fetch.failedForClient', { clientId });
+        log.warn('fetch.failedForClient', { service });
       }
-      return FIREFOX_CLIENT;
+      // default to 'Mozilla' if there is an error fetching client info
+      return MOZILLA_CLIENT;
     }
 
     log.trace('fetch.usedServer', { body: clientInfo });
     // We deliberately don't wait for this to resolve, since the
     // client doesn't need to wait for us to write to the cache.
-    clientCache.set(clientId, clientInfo);
+    clientCache.set(service, clientInfo);
     return clientInfo;
   }
 

@@ -27,7 +27,6 @@ import {
 } from './interfaces';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
-import { MozServices } from '../../../lib/types';
 import { QueryParams } from '../../..';
 import { queryParamsToMetricsContext } from '../../../lib/metrics';
 import OAuthDataError from '../../../components/OAuthDataError';
@@ -78,10 +77,17 @@ const SigninUnblockContainer = ({
     signInOptions?: SignInOptions
   ) => {
     const service = integration.getService();
+    const clientId = integration.getClientId();
+
+    const isBrowserClient = service === 'sync' || service === 'relay';
+
     const options: SignInOptions = signInOptions ?? {
       verificationMethod: VerificationMethods.EMAIL_OTP,
       keys: integration.wantsKeys(),
-      ...(service !== MozServices.Default && { service }),
+      // See oauth_client_info in the auth-server for details on service/clientId
+      // Sending up the clientId when the user is not signing in to the browser
+      // is used to show the correct service name in emails
+      ...(isBrowserClient ? { service } : { service: clientId }),
       unblockCode,
       metricsContext: queryParamsToMetricsContext(
         flowQueryParams as unknown as Record<string, string>

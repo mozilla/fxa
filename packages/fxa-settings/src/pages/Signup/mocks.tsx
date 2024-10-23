@@ -34,6 +34,7 @@ export function createMockSignupWebIntegration(): SignupBaseIntegration {
   return {
     type: IntegrationType.Web,
     getService: () => Promise.resolve(MozServices.Default),
+    getClientId: () => undefined,
     isSync: () => false,
     isDesktopRelay: () => false,
     wantsKeys: () => false,
@@ -44,6 +45,7 @@ export function createMockSignupSyncDesktopV3Integration(): SignupBaseIntegratio
   return {
     type: IntegrationType.SyncDesktopV3,
     getService: () => Promise.resolve(MozServices.FirefoxSync),
+    getClientId: () => undefined,
     isSync: () => true,
     isDesktopRelay: () => false,
     wantsKeys: () => false,
@@ -51,13 +53,15 @@ export function createMockSignupSyncDesktopV3Integration(): SignupBaseIntegratio
 }
 
 export function createMockSignupOAuthWebIntegration(
-  clientId?: string
+  clientId?: string,
+  service?: MozServices
 ): SignupOAuthIntegration {
   return {
     type: IntegrationType.OAuthWeb,
     getRedirectUri: () => MOCK_REDIRECT_URI,
     saveOAuthState: () => {},
-    getService: () => clientId || MOCK_CLIENT_ID,
+    getService: () => service || MozServices.Default,
+    getClientId: () => clientId || MOCK_CLIENT_ID,
     isSync: () => false,
     isDesktopRelay: () => false,
     wantsKeys: () => false,
@@ -65,13 +69,15 @@ export function createMockSignupOAuthWebIntegration(
 }
 
 export function createMockSignupOAuthNativeIntegration(
+  service?: string,
   isSync = true
 ): SignupOAuthIntegration {
   return {
     type: IntegrationType.OAuthNative,
     getRedirectUri: () => MOCK_REDIRECT_URI,
     saveOAuthState: () => {},
-    getService: () => MOCK_CLIENT_ID,
+    getService: () => service,
+    getClientId: () => MOCK_CLIENT_ID,
     isSync: () => isSync,
     isDesktopRelay: () => !isSync,
     wantsKeys: () => true,

@@ -25,7 +25,7 @@ import FormVerifyCode, {
   FormAttributes,
 } from '../../../components/FormVerifyCode';
 import { MailImage } from '../../../components/images';
-import { MozServices, ResendStatus } from 'fxa-settings/src/lib/types';
+import { ResendStatus } from 'fxa-settings/src/lib/types';
 import {
   isOAuthIntegration,
   isSyncDesktopV3Integration,
@@ -134,13 +134,19 @@ const ConfirmSignupCode = ({
     try {
       const hasSelectedNewsletters = newsletters && newsletters.length > 0;
       const service = integration.getService();
+      const clientId = integration.getClientId();
+
+      const isBrowserClient = service === 'sync' || service === 'relay';
 
       const options = {
         ...(hasSelectedNewsletters && { ...{ newsletters } }),
         ...(isOAuthIntegration(integration) && {
           scopes: integration.getPermissions(),
         }),
-        ...(service !== MozServices.Default && { service }),
+        // See oauth_client_info in the auth-server for details on service/clientId
+        // Sending up the clientId when the user is not signing in to the browser
+        // is used to show the correct service name in emails
+        ...(isBrowserClient ? { service } : { service: clientId }),
       };
 
       await session.verifySession(code, options);
