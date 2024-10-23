@@ -10,6 +10,7 @@ import {
   isOAuthIntegration,
   useAccount,
   useAlertBar,
+  useAuthClient,
   useConfig,
   useFtlMsgResolver,
   useSensitiveDataClient,
@@ -29,6 +30,8 @@ import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import { storeAccountData } from '../../../lib/storage-utils';
 import { SETTINGS_PATH } from '../../../constants';
 import { LocationState } from '../../Signin/interfaces';
+import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
+import OAuthDataError from '../../../components/OAuthDataError';
 
 // This component is used for both /complete_reset_password and /account_recovery_reset_password routes
 // for easier maintenance
@@ -47,6 +50,11 @@ const CompleteResetPasswordContainer = ({
   const navigateWithQuery = useNavigateWithQuery();
   const location = useLocation();
   const sensitiveDataClient = useSensitiveDataClient();
+  const authClient = useAuthClient();
+  const { finishOAuthFlowHandler, oAuthDataError } = useFinishOAuthFlowHandler(
+    authClient,
+    integration
+  );
 
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -222,6 +230,42 @@ const CompleteResetPasswordContainer = ({
     }
   };
 
+  // We send an oauth_login web channel message when we are in
+  // an oauth flow and the integration is for sync.
+  // This is needed to ensure that Sync is turned on after a password reset.
+  //
+  // N.B: the call site is only when the flow is not using a recovery key. For the other case,
+  // the message is sent later in the flow.
+  const maybeNotifyOAuthClient = async (accountResetData: AccountResetData) => {
+    if (!isOAuthIntegration(integration)) {
+      return;
+    }
+
+    if (integration.isSync()) {
+      const { error, redirect, code, state } = await finishOAuthFlowHandler(
+        accountResetData.uid,
+        accountResetData.sessionToken,
+        accountResetData.keyFetchToken,
+        accountResetData.unwrapBKey
+      );
+
+      if (error) {
+        const localizedBannerMessage = getLocalizedErrorMessage(
+          ftlMsgResolver,
+          error
+        );
+        setErrorMessage(localizedBannerMessage);
+        return;
+      }
+      firefox.fxaOAuthLogin({
+        action: 'signin',
+        code: code,
+        redirect: redirect,
+        state: state,
+      });
+    }
+  };
+
   const submitNewPassword = async (newPassword: string) => {
     try {
       // The `emailToHashWith` option is returned by the auth-server to let the front-end
@@ -274,6 +318,7 @@ const CompleteResetPasswordContainer = ({
         );
         // TODO add frontend Glean event for successful reset?
         notifyClientOfSignin(accountResetData);
+        await maybeNotifyOAuthClient(accountResetData);
 
         // DO NOT REMOVE THIS MAKES THE NAVIGATION WORK
         // Despite all the awaiting in the code path, the signed in state in
@@ -294,6 +339,10 @@ const CompleteResetPasswordContainer = ({
   // handle the case where we don't have all data required
   if (!(hasConfirmedRecoveryKey || isResetWithoutRecoveryKey)) {
     navigateWithQuery('/reset_password', { replace: true });
+  }
+
+  if (oAuthDataError) {
+    return <OAuthDataError error={oAuthDataError} />;
   }
 
   return (
