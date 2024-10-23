@@ -15,7 +15,7 @@ import { SetCartProcessingActionArgs } from '../nestapp/validators/SetCartProces
 export const checkoutCartWithStripe = async (
   cartId: string,
   version: number,
-  paymentMethodId: string,
+  confirmationTokenId: string,
   customerData: CheckoutCartWithStripeActionCustomerData
 ) => {
   await getApp()
@@ -33,7 +33,7 @@ export const checkoutCartWithStripe = async (
         cartId,
         version: updatedVersion,
         customerData,
-        paymentMethodId,
+        confirmationTokenId,
       })
     );
 };

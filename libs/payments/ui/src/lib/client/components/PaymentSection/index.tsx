@@ -23,7 +23,11 @@ interface PaymentFormProps {
     uid?: string | null;
     errorReasonId: string | null;
     couponCode: string | null;
-    currency: string | null;
+    currency: string;
+    taxAddress: {
+      countryCode: string;
+      postalCode: string;
+    };
   };
   locale: string;
 }

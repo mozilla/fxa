@@ -21,6 +21,7 @@ import {
   CustomerManager,
   InvoiceManager,
   InvoicePreviewFactory,
+  PaymentIntentManager,
   PaymentMethodManager,
   PriceManager,
   ProductManager,
@@ -134,6 +135,7 @@ describe('CartService', () => {
         MockStripeConfigProvider,
         NotifierService,
         NotifierSnsProvider,
+        PaymentIntentManager,
         PaymentMethodManager,
         PaypalBillingAgreementManager,
         PayPalClient,
@@ -347,7 +349,7 @@ describe('CartService', () => {
       jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
       jest
         .spyOn(checkoutService, 'payWithStripe')
-        .mockResolvedValue(mockPaymentIntent);
+        .mockResolvedValue(mockPaymentIntent.status);
       jest.spyOn(cartManager, 'finishCart').mockResolvedValue();
       jest.spyOn(cartManager, 'finishErrorCart').mockResolvedValue();
 
@@ -382,7 +384,7 @@ describe('CartService', () => {
       jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
       jest
         .spyOn(checkoutService, 'payWithStripe')
-        .mockResolvedValue(mockPaymentIntent);
+        .mockResolvedValue(mockPaymentIntent.status);
       jest.spyOn(cartManager, 'finishCart').mockRejectedValue(undefined);
       jest.spyOn(cartManager, 'finishErrorCart').mockResolvedValue();
 

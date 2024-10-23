@@ -41,7 +41,11 @@ interface CheckoutFormProps {
     uid?: string | null;
     errorReasonId: string | null;
     couponCode: string | null;
-    currency: string | null;
+    currency: string;
+    taxAddress: {
+      countryCode: string;
+      postalCode: string;
+    };
   };
   locale: string;
 }
@@ -130,22 +134,30 @@ export function CheckoutForm({
       return;
     }
 
-    const { paymentMethod, error: methodError } =
-      await stripe.createPaymentMethod({
+    // Create the ConfirmationToken using the details collected by the Payment Element
+    // and additional shipping information
+    const { error: confirmationTokenError, confirmationToken } =
+      await stripe.createConfirmationToken({
         elements,
         params: {
-          billing_details: {
-            name: fullName,
-            email: cart.email || '',
+          payment_method_data: {
+            allow_redisplay: 'always',
+            billing_details: {
+              name: fullName,
+              address: {
+                country: cart.taxAddress.countryCode,
+                postal_code: cart.taxAddress.postalCode,
+              },
+            },
           },
         },
       });
 
-    if (methodError || !paymentMethod) {
-      if (methodError.type === 'validation_error') {
+    if (confirmationTokenError) {
+      if (confirmationTokenError.type === 'validation_error') {
         return;
       } else {
-        await handleStripeErrorAction(cart.id, methodError);
+        await handleStripeErrorAction(cart.id, confirmationTokenError);
         return;
       }
     }
@@ -157,7 +169,7 @@ export function CheckoutForm({
       'stripe'
     );
 
-    await checkoutCartWithStripe(cart.id, cart.version, paymentMethod.id, {
+    await checkoutCartWithStripe(cart.id, cart.version, confirmationToken.id, {
       locale,
       displayName: fullName,
     });
@@ -250,6 +262,14 @@ export function CheckoutForm({
               spacedAccordionItems: true,
             },
             readOnly: !formEnabled,
+            fields: {
+              billingDetails: {
+                address: {
+                  country: 'never',
+                  postalCode: 'never',
+                },
+              },
+            },
           }}
         />
         {!isPaymentElementLoading && (

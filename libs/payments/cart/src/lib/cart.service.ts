@@ -205,21 +205,27 @@ export class CartService {
   async checkoutCartWithStripe(
     cartId: string,
     version: number,
-    paymentMethodId: string,
+    confirmationTokenId: string,
     customerData: CheckoutCustomerData
   ) {
     try {
-      const cart = await this.cartManager.fetchCartById(cartId);
+      //Ensure that the cart version matches the value passed in from FE
+      const cart = await this.cartManager.fetchAndValidateCartVersion(
+        cartId,
+        version
+      );
 
-      const paymentIntent = await this.checkoutService.payWithStripe(
+      const status = await this.checkoutService.payWithStripe(
         cart,
-        paymentMethodId,
+        confirmationTokenId,
         customerData
       );
 
       const updatedCart = await this.cartManager.fetchCartById(cartId);
 
-      if (paymentIntent.status === 'succeeded') {
+      if (status === 'succeeded') {
+        // multiple threads is causing this to be called on an already-successful cart
+        // this then throws an error, and has us trying to finish the cart while its in an error state
         await this.cartManager.finishCart(cartId, updatedCart.version, {});
       }
     } catch (e) {

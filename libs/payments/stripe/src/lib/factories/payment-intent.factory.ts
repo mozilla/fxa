@@ -8,7 +8,7 @@ import { StripePaymentIntent } from '../stripe.client.types';
 export const StripePaymentIntentFactory = (
   override?: Partial<StripePaymentIntent>
 ): StripePaymentIntent => ({
-  id: `promo_${faker.string.alphanumeric({ length: 14 })}`,
+  id: `pi_${faker.string.alphanumeric({ length: 14 })}`,
   object: 'payment_intent',
   amount: faker.number.int({ min: 1000, max: 5000 }),
   amount_capturable: 0,

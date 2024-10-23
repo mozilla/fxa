@@ -176,10 +176,19 @@ export type StripeInvoice = NegotiateExpanded<
   | 'test_clock'
 >;
 
+/**
+ * Stripe.PaymentIntent with expanded fields removed
+ */
 export type StripePaymentIntent = NegotiateExpanded<
   never,
   Stripe.PaymentIntent,
-  'application' | 'invoice' | 'on_behalf_of' | 'review'
+  | 'application'
+  | 'customer'
+  | 'invoice'
+  | 'latest_charge'
+  | 'on_behalf_of'
+  | 'payment_method'
+  | 'review'
 >;
 
 /**
