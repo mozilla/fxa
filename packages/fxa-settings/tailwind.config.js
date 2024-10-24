@@ -7,7 +7,6 @@
 const { resolve } = require('path');
 const extractImportedComponents = require('fxa-react/extract-imported-components');
 const config = require('fxa-react/configs/tailwind');
-const { transform } = require('typescript');
 
 if (process.env.NODE_ENV === 'production') {
   const matches = extractImportedComponents(
