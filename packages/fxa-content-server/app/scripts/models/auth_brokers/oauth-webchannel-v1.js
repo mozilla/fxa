@@ -6,6 +6,7 @@
  * WebChannel OAuth broker that speaks 'v1' of the protocol.
  */
 import _ from 'underscore';
+import AuthErrors from '../../lib/auth-errors';
 import ChannelMixin from './mixins/channel';
 import Cocktail from 'cocktail';
 import Constants from '../../lib/constants';
@@ -15,6 +16,7 @@ import ScopedKeys from 'lib/crypto/scoped-keys';
 import WebChannel from '../../lib/channels/web';
 import SyncEngines from '../sync-engines';
 import ConnectAnotherDeviceBehavior from '../../views/behaviors/connect-another-device';
+import UserAgentMixin from '../../lib/user-agent-mixin';
 
 const ALLOWED_LOGIN_FIELDS = ['email', 'sessionToken', 'uid', 'verified'];
 
@@ -45,7 +47,8 @@ const OAuthWebChannelBroker = OAuthRedirectAuthenticationBroker.extend({
     'FXA_STATUS',
     'LOGIN',
     'OAUTH_LOGIN',
-    'DELETE_ACCOUNT'
+    'DELETE_ACCOUNT',
+    'CAN_LINK_ACCOUNT'
   ),
 
   type: Constants.OAUTH_WEBCHANNEL_BROKER,
@@ -70,6 +73,47 @@ const OAuthWebChannelBroker = OAuthRedirectAuthenticationBroker.extend({
     // the about:accounts tab and have Sync still successfully start.
     return this._notifyRelierOfLogin(account).then(() =>
       proto.beforeSignUpConfirmationPoll.call(this, account)
+    );
+  },
+
+  // Note this was mostly copied from the Sync broker (fx_desktop_v3), but
+  // also checks that the UA matches Firefox desktop since this broker is
+  // also used for mobile. We probably want to support this in mobile in
+  // the future but while Android responds with 'ok: true' automatically,
+  // we only very recently landed changes for iOS to respond automatically
+  // as well, so for now this only sends for oauth desktop. See FXA-10316
+  beforeSignIn(account) {
+    const email = account.get('email');
+    const uap = this.getUserAgent();
+
+    if (this._verifiedCanLinkEmail === email || !uap.isFirefoxDesktop()) {
+      // This user has already been asked and responded that
+      // they want to link the account. Do not ask again or
+      // else the user sees the "can link account" browser
+      // dialog twice in the "Signin unblock" flow.
+      return proto.beforeSignIn.call(this, account);
+    }
+
+    // This will send a message over the channel to determine whether
+    // we should cancel the login to sync or not based on Desktop
+    // specific checks and dialogs. It throws an error with
+    // message='USER_CANCELED_LOGIN' and errno=1001 if that's the case.
+    return this.request(this.getCommand('CAN_LINK_ACCOUNT'), { email }).then(
+      (response) => {
+        if (response && !response.ok) {
+          throw AuthErrors.toError('USER_CANCELED_LOGIN');
+        }
+
+        this._verifiedCanLinkEmail = email;
+        return proto.beforeSignIn.call(this, account);
+      },
+      (err) => {
+        this._logger.error('beforeSignIn failed with', err);
+        // If the browser doesn't implement this command, then it will
+        // handle prompting the relink warning after sign in completes.
+        // This can likely be changed to 'reject' after Fx31 hits nightly,
+        // because all browsers will likely support 'can_link_account'
+      }
     );
   },
 
@@ -242,6 +286,6 @@ const OAuthWebChannelBroker = OAuthRedirectAuthenticationBroker.extend({
   },
 });
 
-Cocktail.mixin(OAuthWebChannelBroker, ChannelMixin);
+Cocktail.mixin(OAuthWebChannelBroker, ChannelMixin, UserAgentMixin);
 
 export default OAuthWebChannelBroker;

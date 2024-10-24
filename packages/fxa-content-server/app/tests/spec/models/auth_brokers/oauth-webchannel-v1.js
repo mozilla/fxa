@@ -3,6 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import AuthErrors from 'lib/auth-errors';
 import Constants from 'lib/constants';
 import WebChannel from 'lib/channels/web';
 import OAuthWebChannelBroker from 'models/auth_brokers/oauth-webchannel-v1';
@@ -300,6 +301,121 @@ describe('models/auth_brokers/oauth-webchannel-v1', () => {
       account.unset('uid');
       return broker.beforeSignUpConfirmationPoll(account).then((result) => {
         assert.isTrue(broker.send.notCalled);
+      });
+    });
+  });
+
+  // These tests were lifted and modified from fx-sync-channel tests
+  describe('beforeSignIn', () => {
+    it('is happy if the user clicks `yes`', () => {
+      channelMock.request = sinon.spy(() => Promise.resolve({ ok: true }));
+
+      createAuthBroker();
+      broker.fetch();
+      // setTimeout due to async nature of the messages
+      setTimeout(() => {
+        sinon.stub(broker, 'getUserAgent').returns({
+          isFirefoxDesktop: () => true,
+        });
+        return broker.beforeSignIn(account).then(() => {
+          assert.isTrue(metrics.flush.calledOnce);
+          assert.isTrue(channelMock.request.calledOnceWith('can_link_account'));
+        });
+      });
+    });
+
+    it('does not repeat can_link_account requests for the same user', () => {
+      channelMock.request = sinon.spy(() => Promise.resolve({ ok: true }));
+
+      createAuthBroker();
+      broker.fetch();
+      // setTimeout due to async nature of the messages
+      setTimeout(() => {
+        sinon.stub(broker, 'getUserAgent').returns({
+          isFirefoxDesktop: () => true,
+        });
+        return broker
+          .beforeSignIn(account)
+          .then(() => broker.beforeSignIn(account))
+          .then(() => {
+            assert.isTrue(channelMock.request.calledOnce);
+            assert.isTrue(channelMock.request.calledWith('can_link_account'));
+          });
+      });
+    });
+
+    it('does not call can_link_account if isFirefoxDesktop is false', () => {
+      channelMock.request = sinon.spy(() => Promise.resolve({ ok: true }));
+
+      createAuthBroker();
+      broker.fetch();
+      // setTimeout due to async nature of the messages
+      setTimeout(() => {
+        sinon.stub(broker, 'getUserAgent').returns({
+          isFirefoxDesktop: () => false,
+        });
+        return broker
+          .beforeSignIn(account)
+          .then(() => broker.beforeSignIn(account))
+          .then(() => {
+            assert.isTrue(channelMock.request.notCalled);
+          });
+      });
+    });
+
+    it('does repeat can_link_account requests for different users', () => {
+      channelMock.request = sinon.spy(() => Promise.resolve({ ok: true }));
+
+      const account2 = user.initAccount({
+        email: 'testuser2@testuser.com',
+      });
+
+      createAuthBroker();
+      broker.fetch();
+      // setTimeout due to async nature of the messages
+      setTimeout(() => {
+        return broker
+          .beforeSignIn(account)
+          .then(() => broker.beforeSignIn(account2))
+          .then(() => {
+            assert.equal(channelMock.request.callCount, 2);
+            assert.equal(channelMock.request.args[0][0], 'can_link_account');
+            assert.equal(channelMock.request.args[1][0], 'can_link_account');
+          });
+      });
+    });
+
+    it('throws a USER_CANCELED_LOGIN error if user rejects', () => {
+      channelMock.request = sinon.spy(() => {
+        return Promise.resolve({ data: {} });
+      });
+
+      createAuthBroker();
+      broker.fetch();
+      // setTimeout due to async nature of the messages
+      setTimeout(() => {
+        return broker.beforeSignIn(account).then(assert.fail, function (err) {
+          assert.isTrue(AuthErrors.is(err, 'USER_CANCELED_LOGIN'));
+          assert.isTrue(channelMock.request.calledWith('can_link_account'));
+        });
+      });
+    });
+
+    it('swallows errors returned by the browser', () => {
+      channelMock.request = sinon.spy(() => {
+        return Promise.reject(new Error('uh oh'));
+      });
+
+      sinon.spy(console, 'error');
+
+      createAuthBroker();
+      broker.fetch();
+      // setTimeout due to async nature of the messages
+      setTimeout(() => {
+        return broker.beforeSignIn(account).then(() => {
+          assert.isTrue(console.error.called);
+          console.error.restore();
+        });
       });
     });
   });
