@@ -65,6 +65,7 @@ export const Signup = ({
     GleanMetrics.registration.view();
   }, []);
 
+  const isOAuth = isOAuthIntegration(integration);
   const isSyncOAuth = isOAuthNativeIntegrationSync(integration);
   const isSyncDesktopV3 = isSyncDesktopV3Integration(integration);
   const isSync = integration.isSync();
@@ -95,7 +96,7 @@ export const Signup = ({
   const [hasAgeInputFocused, setHasAgeInputFocused] = useState<boolean>(false);
 
   useEffect(() => {
-    if (isOAuthIntegration(integration)) {
+    if (isOAuth) {
       const clientId = integration.getClientId();
       if (isClientPocket(clientId)) {
         setClient(MozServices.Pocket);
@@ -105,7 +106,7 @@ export const Signup = ({
         setClient(MozServices.Monitor);
       }
     }
-  }, [integration]);
+  }, [integration, isOAuth]);
 
   const [offeredSyncEngineConfigs, setOfferedSyncEngineConfigs] = useState<
     typeof syncEngineConfigs | undefined
@@ -261,9 +262,13 @@ export const Signup = ({
           GleanMetrics.registration.cwts({ sync: { cwts: syncOptions } });
           firefox.fxaLogin({
             email,
-            // keyFetchToken and unwrapBKey should always exist if Sync integration
-            keyFetchToken: data.signUp.keyFetchToken!,
-            unwrapBKey: data.unwrapBKey!,
+            // Do not send these values if OAuth. Mobile doesn't care about this message, and
+            // sending these values can cause intermittent sync disconnect issues in oauth desktop.
+            ...(!isOAuth && {
+              // keyFetchToken and unwrapBKey should always exist if Sync integration
+              keyFetchToken: data.signUp.keyFetchToken!,
+              unwrapBKey: data.unwrapBKey!,
+            }),
             sessionToken: data.signUp.sessionToken,
             uid: data.signUp.uid,
             verified: false,
@@ -274,9 +279,6 @@ export const Signup = ({
         } else if (isDesktopRelay) {
           firefox.fxaLogin({
             email,
-            // keyFetchToken and unwrapBKey should always exist if integration wants keys
-            keyFetchToken: data.signUp.keyFetchToken!,
-            unwrapBKey: data.unwrapBKey!,
             sessionToken: data.signUp.sessionToken,
             uid: data.signUp.uid,
             verified: false,
@@ -333,6 +335,7 @@ export const Signup = ({
       isSyncOAuth,
       localizedValidAgeError,
       isDesktopRelay,
+      isOAuth,
     ]
   );
 
