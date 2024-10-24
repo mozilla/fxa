@@ -1671,7 +1671,7 @@ const convictConf = convict({
     },
     window: {
       doc: 'Tokens in the previous x-windows that should be considered valid',
-      default: 1,
+      default: 2,
       format: 'nat',
       env: 'TOTP_WINDOW',
     },

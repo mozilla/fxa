@@ -75,7 +75,7 @@ module.exports = (log, db, mailer, customs, config, glean, profileClient) => {
         const otpOptions = {
           encoding: 'hex',
           step: config.step,
-          window: config.window,
+          window: [1, 1],
         };
 
         const authenticator = new otplib.authenticator.Authenticator();
@@ -288,7 +288,7 @@ module.exports = (log, db, mailer, customs, config, glean, profileClient) => {
           const otpOptions = {
             encoding: 'hex',
             step: config.step,
-            window: config.window,
+            window: [1, 1],
           };
 
           const isValidCode = otpUtils.verifyOtpCode(
@@ -434,7 +434,7 @@ module.exports = (log, db, mailer, customs, config, glean, profileClient) => {
         const otpOptions = {
           encoding: 'hex',
           step: config.step,
-          window: config.window,
+          window: [1, 1],
         };
 
         const isValidCode = otpUtils.verifyOtpCode(
