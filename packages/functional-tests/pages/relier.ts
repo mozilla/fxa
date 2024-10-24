@@ -119,6 +119,11 @@ export class RelierPage extends BaseLayout {
     return this.page.waitForURL(`${this.target.paymentsServerUrl}/**`);
   }
 
+  async clickRequire2FA() {
+    await this.page.getByText('Sign In (Require 2FA)').click();
+    return this.page.waitForURL(`${this.target.contentServerUrl}/**`);
+  }
+
   async getUrl() {
     const expectedPathRegExp = new RegExp(
       `\\/subscriptions\\/products\\/${this.target.subscriptionConfig.product}\\?plan=${this.target.subscriptionConfig.plan}&service=(\\w+)`,

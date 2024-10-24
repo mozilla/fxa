@@ -5,7 +5,7 @@
 import { RouteComponentProps, useLocation } from '@reach/router';
 import { useNavigateWithQuery as useNavigate } from '../../lib/hooks/useNavigateWithQuery';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import InlineTotpSetup from '.';
 import { MozServices } from '../../lib/types';
 import { OAuthIntegration, useSession } from '../../models';
@@ -46,6 +46,7 @@ export const InlineTotpSetupContainer = ({
   const metricsContext = queryParamsToMetricsContext(
     flowQueryParams as unknown as Record<string, string>
   );
+  const isTotpCreating = useRef(false);
 
   const [createTotp] = useMutation<{ createTotp: TotpToken }>(
     CREATE_TOTP_MUTATION
@@ -81,14 +82,19 @@ export const InlineTotpSetupContainer = ({
       const verified = await session.isSessionVerified();
       setSessionVerified(verified);
     })();
-  }, [session, sessionVerified]);
+  }, [session, sessionVerified, setSessionVerified]);
 
   // Determine if a totp needs to be setup, and if so trigger setup.
   useEffect(() => {
-    if (totp !== undefined || totpStatus?.account.totp.verified === true) {
+    if (
+      totp !== undefined ||
+      totpStatus?.account.totp.verified === true ||
+      isTotpCreating.current
+    ) {
       return;
     }
     (async () => {
+      isTotpCreating.current = true;
       const totpResp = await createTotp({
         variables: {
           input: {
