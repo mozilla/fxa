@@ -409,9 +409,7 @@ describe('Resending a new code from ConfirmSignupCode page', () => {
     fireEvent.click(resendEmailButton);
     await waitFor(() => {
       expect(
-        screen.getByText(
-          'Email re-sent. Add accounts@firefox.com to your contacts to ensure a smooth delivery.'
-        )
+        screen.getByText(/A new code was sent to your email./)
       ).toBeInTheDocument();
     });
   });

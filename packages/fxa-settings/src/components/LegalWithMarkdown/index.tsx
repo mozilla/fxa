@@ -9,12 +9,12 @@ import { FtlMsg } from 'fxa-react/lib/utils';
 import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
 import CardHeader from '../CardHeader';
 import MarkdownLegal from '../MarkdownLegal';
-import Banner, { BannerType } from '../Banner';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { REACT_ENTRYPOINT } from '../../constants';
 import { fetchLegalMd, LegalDocFile } from '../../lib/file-utils-legal';
-import { AppContext } from '../../models';
+import { AppContext, useFtlMsgResolver } from '../../models';
 import { searchParams } from '../../lib/utilities';
+import Banner from '../Banner';
 
 export type FetchLegalDoc = (
   locale: string,
@@ -42,6 +42,7 @@ const LegalWithMarkdown = ({
   const [markdown, setMarkdown] = useState<string | undefined>();
   const [error, setError] = useState<string | undefined>();
   const { apolloClient } = useContext(AppContext);
+  const ftlMsgResolver = useFtlMsgResolver();
 
   useEffect(() => {
     let isMounted = true;
@@ -90,10 +91,17 @@ const LegalWithMarkdown = ({
         <CardHeader {...{ headingTextFtlId, headingText }} />
       )}
 
+      {/* Currently this only returns a generic error message, we should verify if we want to display the specific error that occurred */}
       {!markdown && error && (
-        <Banner type={BannerType.error}>
-          <FtlMsg id="app-general-err-message">{error}</FtlMsg>
-        </Banner>
+        <Banner
+          type="error"
+          content={{
+            localizedHeading: ftlMsgResolver.getMsg(
+              'app-general-err-message',
+              'Something went wrong. Please try again later.'
+            ),
+          }}
+        />
       )}
 
       {!markdown && !error && (

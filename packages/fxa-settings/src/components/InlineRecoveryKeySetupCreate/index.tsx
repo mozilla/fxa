@@ -4,10 +4,10 @@
 
 import React, { useState } from 'react';
 import { RecoveryKeyImage } from '../images';
-import { CheckmarkCircleOutlineBlackIcon } from '../Icons';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import Banner, { BannerType } from '../Banner';
 import { CreateRecoveryKeyHandler } from '../../pages/InlineRecoveryKeySetup/interfaces';
+import Banner from '../Banner';
+import { useFtlMsgResolver } from '../../models';
 
 export const InlineRecoveryKeySetupCreate = ({
   createRecoveryKeyHandler,
@@ -17,35 +17,38 @@ export const InlineRecoveryKeySetupCreate = ({
   doLaterHandler: () => void;
 }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [bannerError, setBannerError] = useState('');
+  const [localizedErrorBannerMessage, setLocalizedErrorBannerMessage] =
+    useState('');
+
+  const ftlMsgResolver = useFtlMsgResolver();
 
   const createRecoveryKey = async () => {
     setIsLoading(true);
-    setBannerError('');
+    setLocalizedErrorBannerMessage('');
 
     const { localizedErrorMessage } = await createRecoveryKeyHandler();
     if (localizedErrorMessage) {
-      setBannerError(localizedErrorMessage);
+      setLocalizedErrorBannerMessage(localizedErrorMessage);
     }
     setIsLoading(false);
   };
 
   return (
     <>
-      <Banner type={BannerType.success} additionalClassNames="mt-0">
-        <p className="flex justify-center text-base">
-          <CheckmarkCircleOutlineBlackIcon className="me-3" mode="success" />
-          <span>
-            <FtlMsg id="inline-recovery-key-setup-signed-in-firefox">
-              You’re signed in to Firefox
-            </FtlMsg>
-          </span>
-        </p>
-      </Banner>
-      {bannerError && (
-        <Banner type={BannerType.error}>
-          <p className="text-center">{bannerError}</p>
-        </Banner>
+      <Banner
+        type="success"
+        content={{
+          localizedHeading: ftlMsgResolver.getMsg(
+            'inline-recovery-key-setup-signed-in-firefox-2',
+            'You’re signed in to Firefox.'
+          ),
+        }}
+      />
+      {localizedErrorBannerMessage && (
+        <Banner
+          type="error"
+          content={{ localizedHeading: localizedErrorBannerMessage }}
+        />
       )}
       <h1 className="text-grey-400 mb-3 mt-5">
         <FtlMsg id="inline-recovery-key-setup-create-header">

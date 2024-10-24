@@ -8,12 +8,12 @@ import InlineRecoveryKeySetupCreate from '../../components/InlineRecoveryKeySetu
 import RecoveryKeySetupDownload from '../../components/RecoveryKeySetupDownload';
 import AppLayout from '../../components/AppLayout';
 import { RecoveryKeyImage } from '../../components/images';
-import { CheckmarkCircleOutlineBlackIcon } from '../../components/Icons';
 import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
-import Banner, { BannerType } from '../../components/Banner';
 import { Constants } from '../../lib/constants';
 import { InlineRecoveryKeySetupProps } from './interfaces';
 import RecoveryKeySetupHint from '../../components/RecoveryKeySetupHint';
+import Banner from '../../components/Banner';
+import { useFtlMsgResolver } from '../../models';
 
 const viewName = 'inline-recovery-key-setup';
 
@@ -25,6 +25,7 @@ export const InlineRecoveryKeySetup = ({
   formattedRecoveryKey,
   navigateForward,
 }: InlineRecoveryKeySetupProps & RouteComponentProps) => {
+  const ftlMsgResolver = useFtlMsgResolver();
   const doLaterHandler = () => {
     localStorage.setItem(
       Constants.DISABLE_PROMO_ACCOUNT_RECOVERY_KEY_DO_IT_LATER,
@@ -59,19 +60,15 @@ export const InlineRecoveryKeySetup = ({
       case 2:
         return (
           <>
-            <Banner type={BannerType.success} additionalClassNames="mt-0">
-              <p className="flex justify-center text-base">
-                <CheckmarkCircleOutlineBlackIcon
-                  className="me-3"
-                  mode="success"
-                />
-                <span>
-                  <FtlMsg id="inline-recovery-key-setup-recovery-created">
-                    Account recovery key created
-                  </FtlMsg>
-                </span>
-              </p>
-            </Banner>
+            <Banner
+              type="success"
+              content={{
+                localizedHeading: ftlMsgResolver.getMsg(
+                  'inline-recovery-key-setup-recovery-created',
+                  'Account recovery key created'
+                ),
+              }}
+            />
             <h1 className="text-grey-400 mb-3 mt-5">
               <FtlMsg id="inline-recovery-key-setup-download-header">
                 Secure your account

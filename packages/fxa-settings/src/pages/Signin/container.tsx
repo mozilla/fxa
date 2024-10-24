@@ -144,9 +144,11 @@ const SigninContainer = ({
     hasLinkedAccount: hasLinkedAccountFromLocationState,
     hasPassword: hasPasswordFromLocationState,
     localizedErrorMessage: localizedErrorFromLocationState,
-    bannerSuccessMessage,
-    fancyBannerSuccessMessage,
-  } = location.state || {};
+    successBanner,
+  } = location.state || ({} as LocationState);
+
+  const { localizedSuccessBannerHeading, localizedSuccessBannerDescription } =
+    successBanner || {};
 
   const [accountStatus, setAccountStatus] = useState({
     hasLinkedAccount:
@@ -484,8 +486,8 @@ const SigninContainer = ({
         avatarLoading,
         localizedErrorFromLocationState,
         finishOAuthFlowHandler,
-        bannerSuccessMessage,
-        fancyBannerSuccessMessage,
+        localizedSuccessBannerHeading,
+        localizedSuccessBannerDescription,
       }}
     />
   );

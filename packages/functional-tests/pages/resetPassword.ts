@@ -71,11 +71,11 @@ export class ResetPasswordPage extends BaseLayout {
   }
 
   get passwordResetSuccessMessage() {
-    return this.page.getByText('Your password has been reset');
+    return this.page.getByText(/Your password has been reset/);
   }
 
   get passwordResetSuccessRecovyerKeyReminderHeading() {
-    return this.page.getByText('Your password has been reset.');
+    return this.page.getByText(/Your password has been reset/);
   }
 
   get passwordResetSuccessRecovyerKeyReminderMessage() {

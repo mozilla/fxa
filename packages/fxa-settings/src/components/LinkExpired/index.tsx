@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { ReactElement } from 'react';
+import React from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import CardHeader from '../CardHeader';
 import AppLayout from '../AppLayout';
 import { ResendStatus } from '../../lib/types';
-import Banner, { ResendEmailSuccessBanner, BannerType } from '../Banner';
+import Banner, { ResendLinkSuccessBanner } from '../Banner';
 
 export type LinkExpiredProps = {
   headingText: string;
@@ -17,7 +17,7 @@ export type LinkExpiredProps = {
   showResendLink?: boolean;
   resendLinkHandler?: () => Promise<void>;
   resendStatus?: ResendStatus;
-  errorMessage?: string | ReactElement;
+  errorMessage?: string;
 };
 
 export const LinkExpired = ({
@@ -34,16 +34,16 @@ export const LinkExpired = ({
     <AppLayout>
       <CardHeader {...{ headingText, headingTextFtlId }} />
 
-      {resendStatus === ResendStatus.sent && <ResendEmailSuccessBanner />}
+      {resendStatus === ResendStatus.sent && <ResendLinkSuccessBanner />}
       {resendStatus === ResendStatus.error && errorMessage && (
-        <Banner type={BannerType.error}>{errorMessage}</Banner>
+        <Banner type="error" content={{ localizedHeading: errorMessage }} />
       )}
 
       <FtlMsg id={messageFtlId}>
         <p className="text-sm my-4">{messageText}</p>
       </FtlMsg>
       {showResendLink && resendLinkHandler && (
-        <FtlMsg id="reset-pwd-resend-link">
+        <FtlMsg id="link-expired-new-link-button">
           <button onClick={resendLinkHandler} className="link-blue text-sm">
             Receive new link
           </button>
@@ -52,3 +52,5 @@ export const LinkExpired = ({
     </AppLayout>
   );
 };
+
+export default LinkExpired;

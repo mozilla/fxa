@@ -11,10 +11,10 @@ import CardHeader from '../../components/CardHeader';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import FormVerifyCode from '../../components/FormVerifyCode';
 import AppLayout from '../../components/AppLayout';
-import Banner, { BannerType } from '../../components/Banner';
 import { InlineTotpSetupProps } from './interfaces';
 import DataBlockManual from '../../components/DataBlockManual';
 import { GleanClickEventType2FA } from '../../lib/types';
+import Banner from '../../components/Banner';
 
 export const InlineTotpSetup = ({
   totp,
@@ -35,25 +35,18 @@ export const InlineTotpSetup = ({
   const [showIntro, setShowIntro] = useState(true);
   const [showQR, setShowQR] = useState(true);
   const [totpErrorMessage, setTotpErrorMessage] = useState('');
-  const [bannerErrorText, setBannerErrorText] = useState<string>('');
+  const [localizedBannerMessage, setLocalizedBannerMessage] =
+    useState<string>('');
 
   const onCancel = useCallback(() => {
     try {
       cancelSetupHandler();
     } catch (error) {
-      setBannerErrorText(ftlMsgResolver.getMsg(error.ftlId, error.message));
+      setLocalizedBannerMessage(
+        ftlMsgResolver.getMsg(error.ftlId, error.message)
+      );
     }
   }, [cancelSetupHandler, ftlMsgResolver]);
-
-  const showBannerError = useCallback(
-    () =>
-      bannerErrorText ? (
-        <Banner type={BannerType.error}>
-          <p>{bannerErrorText}</p>
-        </Banner>
-      ) : null,
-    [bannerErrorText]
-  );
 
   const onSubmit = async (code: string) => {
     try {
@@ -74,7 +67,12 @@ export const InlineTotpSetup = ({
             headingWithDefaultServiceFtlId="inline-totp-setup-enable-two-step-authentication-default-header-2"
             {...{ serviceName }}
           />
-          {showBannerError()}
+          {localizedBannerMessage && (
+            <Banner
+              type="error"
+              content={{ localizedHeading: localizedBannerMessage }}
+            />
+          )}
           <section className="flex flex-col items-center">
             <TwoFactorAuthImage className="w-1/2" />
             <FtlMsg
@@ -115,7 +113,7 @@ export const InlineTotpSetup = ({
               className="cta-primary cta-xl w-full my-4"
               onClick={() => {
                 setShowIntro(false);
-                setBannerErrorText('');
+                setLocalizedBannerMessage('');
               }}
             >
               <FtlMsg id="inline-totp-setup-continue-button">Continue</FtlMsg>
@@ -149,7 +147,12 @@ export const InlineTotpSetup = ({
               {...{ serviceName }}
             />
           )}
-          {showBannerError()}
+          {localizedBannerMessage && (
+            <Banner
+              type="error"
+              content={{ localizedHeading: localizedBannerMessage }}
+            />
+          )}
           <section>
             <div id="totp" className="totp-details">
               {showQR ? (

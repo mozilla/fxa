@@ -5,10 +5,10 @@
 import React from 'react';
 import { RouteComponentProps } from '@reach/router';
 import { usePageViewEvent } from '../../../lib/metrics';
-import Banner, { BannerType } from '../../../components/Banner';
 import AppLayout from '../../../components/AppLayout';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+import Banner from '../../../components/Banner';
 
 // pair/supp is the gateway to the supplicant pairing flow
 // see pairing-architecture.md for functionality to be implemented in FXA-6502
@@ -27,9 +27,7 @@ const Supp = ({ error }: SuppProps & RouteComponentProps) => {
   return (
     <AppLayout>
       {error ? (
-        <Banner type={BannerType.error}>
-          <p>{error}</p>
-        </Banner>
+        <Banner type="error" content={{ localizedHeading: error }} />
       ) : (
         <LoadingSpinner fullScreen />
       )}

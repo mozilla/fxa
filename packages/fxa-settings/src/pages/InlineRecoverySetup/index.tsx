@@ -10,7 +10,6 @@ import DataBlock from '../../components/DataBlock';
 import { BackupCodesImage } from '../../components/images';
 import CardHeader from '../../components/CardHeader';
 import AppLayout from '../../components/AppLayout';
-import Banner, { BannerType } from '../../components/Banner';
 import { copyRecoveryCodes } from '../../lib/totp';
 import FormVerifyCode, {
   commonBackupCodeFormAttributes,
@@ -20,6 +19,7 @@ import { InlineRecoverySetupProps } from './interfaces';
 import { getErrorFtlId, getLocalizedErrorMessage } from '../../lib/error-utils';
 import GleanMetrics from '../../lib/glean';
 import { GleanClickEventType2FA } from '../../lib/types';
+import Banner from '../../components/Banner';
 
 const InlineRecoverySetup = ({
   oAuthError,
@@ -48,23 +48,31 @@ const InlineRecoverySetup = ({
   const showBannerSuccess = useCallback(
     () =>
       successfulTotpSetup && (
-        <Banner type={BannerType.success}>
-          <p>
-            {ftlMsgResolver.getMsg(
+        <Banner
+          type="error"
+          content={{
+            localizedHeading: ftlMsgResolver.getMsg(
               'inline-recovery-2fa-enabled',
               'Two-step authentication enabled'
-            )}
-          </p>
-        </Banner>
+            ),
+          }}
+        />
       ),
     [ftlMsgResolver, successfulTotpSetup]
   );
+
   const showBannerError = useCallback(
     () =>
       oAuthError && (
-        <Banner type={BannerType.error}>
-          <p>{getLocalizedErrorMessage(ftlMsgResolver, oAuthError)}</p>
-        </Banner>
+        <Banner
+          type="error"
+          content={{
+            localizedHeading: getLocalizedErrorMessage(
+              ftlMsgResolver,
+              oAuthError
+            ),
+          }}
+        />
       ),
     [ftlMsgResolver, oAuthError]
   );

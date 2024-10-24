@@ -8,16 +8,18 @@ import { RouteComponentProps } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import Storage from '../../lib/storage';
-import Banner, { BannerType } from '../../components/Banner';
 import { searchParams } from '../../lib/utilities';
 import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
 import CardHeader from '../../components/CardHeader';
 import { REACT_ENTRYPOINT } from '../../constants';
+import Banner from '../../components/Banner';
+import { useFtlMsgResolver } from '../../models';
 
 export const viewName = 'cookies-disabled';
 
 const CookiesDisabled = (_: RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
+  const ftlMsgResolver = useFtlMsgResolver();
 
   /* HACK / TODO when sunsetting content-server: if this page is hit through content-server's
    * router instead of hitting it directly via `/cookies_disabled?showReactApp=true`, which
@@ -51,11 +53,15 @@ const CookiesDisabled = (_: RouteComponentProps) => {
       />
 
       {stillDisabled && (
-        <Banner type={BannerType.error}>
-          <FtlMsg id="auth-error-1003">
-            <p>Local storage or cookies are still disabled</p>
-          </FtlMsg>
-        </Banner>
+        <Banner
+          type="error"
+          content={{
+            localizedHeading: ftlMsgResolver.getMsg(
+              'auth-error-1003',
+              'Local storage or cookies are still disabled'
+            ),
+          }}
+        />
       )}
 
       <FtlMsg id="cookies-disabled-enable-prompt-2">

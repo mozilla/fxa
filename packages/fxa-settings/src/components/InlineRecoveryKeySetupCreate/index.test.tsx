@@ -14,10 +14,13 @@ describe('InlineRecoveryKeySetupCreate', () => {
     screen.getByRole('heading', {
       name: 'Secure your account',
     });
-    screen.getByLabelText('account recovery key', {
-      selector: 'svg',
-      exact: false,
-    });
+    screen.getByLabelText(
+      'Illustration to represent an account recovery key.',
+      {
+        selector: 'svg',
+        exact: false,
+      }
+    );
     screen.getByRole('heading', {
       name: 'Got a minute to protect your data?',
     });

@@ -6,10 +6,10 @@ import React from 'react';
 import { RouteComponentProps } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import CardHeader from '../../../components/CardHeader';
-import Banner, { BannerType } from '../../../components/Banner';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { HeartsVerifiedImage } from '../../../components/images';
 import { REACT_ENTRYPOINT } from '../../../constants';
+import Banner from '../../../components/Banner';
 
 type PairSuccessProps = { error?: string };
 export const viewName = 'pair-success';
@@ -19,11 +19,7 @@ const PairSuccess = ({ error }: PairSuccessProps & RouteComponentProps) => {
   // error, or passing in an error id to compose the ftl id)
   return (
     <>
-      {error && (
-        <Banner type={BannerType.error}>
-          <p>{error}</p>
-        </Banner>
-      )}
+      {error && <Banner type="error" content={{ localizedHeading: error }} />}
       <CardHeader
         headingTextFtlId="pair-success-header-2"
         headingText="Device connected"

@@ -12,7 +12,6 @@ import { isBase32Crockford } from '../../../lib/utilities';
 import { useFtlMsgResolver } from '../../../models/hooks';
 
 import AppLayout from '../../../components/AppLayout';
-import Banner, { BannerType } from '../../../components/Banner';
 import InputText from '../../../components/InputText';
 
 import {
@@ -22,6 +21,7 @@ import {
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import { RecoveryKeyImage } from '../../../components/images';
 import { Constants } from '../../../lib/constants';
+import Banner from '../../../components/Banner';
 
 // TODO in FXA-7894 use sensitive data client to pass sensitive data
 // Depends on FXA-7400
@@ -73,11 +73,12 @@ const AccountRecoveryConfirmKey = ({
     } else {
       // if the submitted key does not match the expected format,
       // abort before submitting to the auth server
-      const localizedErrorMessage = getLocalizedErrorMessage(
-        ftlMsgResolver,
-        AuthUiErrors.INVALID_RECOVERY_KEY
+      setErrorMessage(
+        getLocalizedErrorMessage(
+          ftlMsgResolver,
+          AuthUiErrors.INVALID_RECOVERY_KEY
+        )
       );
-      setErrorMessage(localizedErrorMessage);
     }
   };
 
@@ -143,7 +144,9 @@ const AccountRecoveryConfirmKey = ({
           Reset your password
         </h1>
       </FtlMsg>
-      {errorMessage && <Banner type={BannerType.error}>{errorMessage}</Banner>}
+      {errorMessage && (
+        <Banner type="error" content={{ localizedHeading: errorMessage }} />
+      )}
       <RecoveryKeyImage className="mx-auto my-2" />
       <FtlMsg id="account-recovery-confirm-key-heading">
         <h2 className="card-header text-start mb-2">

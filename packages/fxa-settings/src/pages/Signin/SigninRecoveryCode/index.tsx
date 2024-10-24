@@ -17,12 +17,12 @@ import GleanMetrics from '../../../lib/glean';
 import AppLayout from '../../../components/AppLayout';
 import { SigninRecoveryCodeProps } from './interfaces';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import Banner, { BannerType } from '../../../components/Banner';
 import { storeAccountData } from '../../../lib/storage-utils';
 import { handleNavigation } from '../utils';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
 import { isBase32Crockford } from '../../../lib/utilities';
+import Banner from '../../../components/Banner';
 
 export const viewName = 'signin-recovery-code';
 
@@ -164,7 +164,10 @@ const SigninRecoveryCode = ({
       />
 
       {bannerErrorMessage && (
-        <Banner type={BannerType.error}>{bannerErrorMessage}</Banner>
+        <Banner
+          type="error"
+          content={{ localizedHeading: bannerErrorMessage }}
+        />
       )}
       <div className="flex justify-center mx-auto">
         <BackupCodesImage className="w-3/5" />

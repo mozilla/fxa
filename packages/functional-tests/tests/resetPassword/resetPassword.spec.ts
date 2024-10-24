@@ -109,7 +109,9 @@ test.describe('severity-1 #smoke', () => {
 
     resetPassword.resendButton.click();
 
-    await expect(resetPassword.statusBar).toHaveText(/Email re-?sent/);
+    await expect(resetPassword.statusBar).toHaveText(
+      /A new code was sent to your email./
+    );
   });
 
   test('open /reset_password page, enter unknown email, wait for error', async ({

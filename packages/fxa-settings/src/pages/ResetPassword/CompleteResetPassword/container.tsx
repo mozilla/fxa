@@ -28,6 +28,7 @@ import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import { storeAccountData } from '../../../lib/storage-utils';
 import { SETTINGS_PATH } from '../../../constants';
+import { LocationState } from '../../Signin/interfaces';
 
 // This component is used for both /complete_reset_password and /account_recovery_reset_password routes
 // for easier maintenance
@@ -79,20 +80,6 @@ const CompleteResetPasswordContainer = ({
     integration.isSync() ||
     (estimatedSyncDeviceCount && estimatedSyncDeviceCount > 0);
 
-  const localizedSuccessMessage = ftlMsgResolver.getMsg(
-    'reset-password-complete-header',
-    'Your password has been reset'
-  );
-
-  const successBannerMessageHeading = ftlMsgResolver.getMsg(
-    'reset-password-complete-banner-heading',
-    'Your password has been reset.'
-  );
-  const successBannerMessageMessage = ftlMsgResolver.getMsg(
-    'reset-password-complete-banner-message',
-    'Don’t forget to generate a new account recovery key from your Mozilla account settings to prevent future sign-in issues.'
-  );
-
   const handleNavigationWithRecoveryKey = (
     state: Record<string, any>,
     hasVerifiedSession: boolean
@@ -102,10 +89,16 @@ const CompleteResetPasswordContainer = ({
         replace: true,
         state: {
           email,
-          fancyBannerSuccessMessage: {
-            heading: successBannerMessageHeading,
-            message: successBannerMessageMessage,
-          },
+          successBanner: {
+            localizedSuccessBannerHeading: ftlMsgResolver.getMsg(
+              'reset-password-complete-banner-heading',
+              'Your password has been reset.'
+            ),
+            localizedSuccessBannerDescription: ftlMsgResolver.getMsg(
+              'reset-password-complete-banner-message',
+              'Don’t forget to generate a new account recovery key from your Mozilla account settings to prevent future sign-in issues.'
+            ),
+          } as LocationState,
         },
       });
     } else {
@@ -131,7 +124,12 @@ const CompleteResetPasswordContainer = ({
       // For web integration and sync navigate to settings
       // Sync users will see an account recovery key promotion banner in settings
       // if they don't have one configured
-      alertBar.success(localizedSuccessMessage);
+      alertBar.success(
+        ftlMsgResolver.getMsg(
+          'reset-password-complete-header',
+          'Your password has been reset'
+        )
+      );
       return navigateWithQuery(SETTINGS_PATH, { replace: true });
     }
 
@@ -140,8 +138,13 @@ const CompleteResetPasswordContainer = ({
       replace: true,
       state: {
         email,
-        bannerSuccessMessage: localizedSuccessMessage,
-      },
+        successBanner: {
+          localizedSuccessBannerHeading: ftlMsgResolver.getMsg(
+            'reset-password-complete-banner-heading',
+            'Your password has been reset.'
+          ),
+        },
+      } as LocationState,
     });
   };
 

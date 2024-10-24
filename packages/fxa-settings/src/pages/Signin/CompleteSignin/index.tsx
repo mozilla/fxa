@@ -7,8 +7,8 @@ import { RouteComponentProps } from '@reach/router';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import AppLayout from '../../../components/AppLayout';
-import Banner, { BannerType } from '../../../components/Banner';
 import CardHeader from '../../../components/CardHeader';
+import Banner from '../../../components/Banner';
 
 export type CompleteSigninProps = { errorMessage?: string };
 
@@ -22,9 +22,7 @@ const CompleteSignin = ({
           headingText="Confirmation error"
           headingTextFtlId="complete-signin-error-header"
         />
-        <Banner type={BannerType.error} additionalClassNames="-mb-2">
-          {errorMessage}
-        </Banner>
+        <Banner type="error" content={{ localizedHeading: errorMessage }} />
       </AppLayout>
     );
   } else {

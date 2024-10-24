@@ -6,24 +6,33 @@ import React from 'react';
 import RecoveryKeySetupHint from '.';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
+import AppLayout from '../AppLayout';
 
 export default {
-  title: 'Components/Settings/RecoveryKeySetupHint',
+  title: 'Components/RecoveryKeySetupHint',
   component: RecoveryKeySetupHint,
   decorators: [withLocalization],
 } as Meta;
 
-const storyWithProps = () => {
+const storyWithProps = (
+  updateRecoveryKeyHint?: (hint: string) => Promise<void>
+) => {
   const story = () => (
-    <RecoveryKeySetupHint
-      viewName="whatever"
-      navigateForward={() => {
-        alert('navigating to next view within wizard');
-      }}
-      updateRecoveryKeyHint={() => Promise.resolve()}
-    />
+    <AppLayout cardClass="card-base">
+      <RecoveryKeySetupHint
+        viewName="whatever"
+        navigateForward={() => Promise.resolve()}
+        updateRecoveryKeyHint={
+          updateRecoveryKeyHint || (() => Promise.resolve())
+        }
+      />
+    </AppLayout>
   );
   return story;
 };
 
 export const Default = storyWithProps();
+
+export const WithErrorOnSubmittingHint = storyWithProps((hint: string) => {
+  return Promise.reject(new Error('Failed to update recovery key hint'));
+});

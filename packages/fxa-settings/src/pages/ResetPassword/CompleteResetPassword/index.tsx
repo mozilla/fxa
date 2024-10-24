@@ -7,7 +7,6 @@ import { useForm } from 'react-hook-form';
 import GleanMetrics from '../../../lib/glean';
 
 import AppLayout from '../../../components/AppLayout';
-import Banner, { BannerType } from '../../../components/Banner';
 import FormPasswordWithInlineCriteria from '../../../components/FormPasswordWithInlineCriteria';
 import LinkRememberPassword from '../../../components/LinkRememberPassword';
 
@@ -18,6 +17,7 @@ import {
 import { FtlMsg } from 'fxa-react/lib/utils';
 import ResetPasswordWarning from '../../../components/ResetPasswordWarning';
 import { Link, useLocation } from '@reach/router';
+import Banner from '../../../components/Banner';
 
 const CompleteResetPassword = ({
   email,
@@ -74,7 +74,9 @@ const CompleteResetPassword = ({
         In the event of serious error. A bright red banner will be displayed indicating
         the problem.
       */}
-      {errorMessage && <Banner type={BannerType.error}>{errorMessage}</Banner>}
+      {errorMessage && (
+        <Banner type="error" content={{ localizedHeading: errorMessage }} />
+      )}
 
       {/* Show an error message to sync users who do not have or have not used a recovery key */}
       {showSyncWarning && (

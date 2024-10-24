@@ -62,7 +62,7 @@ describe('LegalWithMarkdown', () => {
 
     it('displays an error state', async () => {
       renderWithLocalizationProvider(<Subject />);
-      await screen.findByText('boop');
+      await screen.findByText('Something went wrong. Please try again later.');
     });
   });
 });

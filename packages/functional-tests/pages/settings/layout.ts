@@ -23,11 +23,13 @@ export abstract class SettingsLayout extends BaseLayout {
   }
 
   get alertBar() {
-    return this.page.getByTestId('alert-bar-content');
+    return this.page.getByRole('alert');
   }
 
   get alertBarDismissButton() {
-    return this.page.getByTestId('alert-bar-dismiss');
+    return this.page
+      .getByRole('alert')
+      .getByRole('button', { name: 'Close message' });
   }
 
   get avatarDropDownMenu() {

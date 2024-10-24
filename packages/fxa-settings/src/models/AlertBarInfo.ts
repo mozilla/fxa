@@ -1,10 +1,10 @@
 import { makeVar } from '@apollo/client';
 import { consumeAlertTextExternal } from '../lib/cache';
 
-export type AlertBarType = 'success' | 'info' | 'error';
+export type NotificationType = 'success' | 'info' | 'error' | 'warning';
 
 export const alertContent = makeVar(consumeAlertTextExternal() || '');
-export const alertType = makeVar<AlertBarType>('success');
+export const alertType = makeVar<NotificationType>('success');
 export const alertVisible = makeVar(!!alertContent());
 
 export class AlertBarInfo {
@@ -20,7 +20,7 @@ export class AlertBarInfo {
     alertVisible(false);
   }
 
-  setType(type: AlertBarType) {
+  setType(type: NotificationType) {
     alertType(type);
   }
 

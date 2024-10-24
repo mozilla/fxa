@@ -160,7 +160,9 @@ describe('ConfirmResetPassword', () => {
         <Subject resendStatus={ResendStatus.sent} />
       );
 
-      await expect(screen.getByText(/Email re?-sent/)).toBeVisible();
+      await expect(
+        screen.getByText(/A new code was sent to your email./)
+      ).toBeVisible();
     });
 
     it('shows resend error banner', async () => {

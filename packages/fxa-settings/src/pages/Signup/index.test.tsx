@@ -204,7 +204,7 @@ describe('Signup page', () => {
 
     // info banner is dismissible
     const infoBannerDismissButton = screen.getByRole('button', {
-      name: 'Close',
+      name: 'Close banner',
     });
     fireEvent.click(infoBannerDismissButton);
     await waitFor(() => {

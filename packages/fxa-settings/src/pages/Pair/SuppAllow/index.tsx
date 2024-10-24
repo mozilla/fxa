@@ -6,23 +6,19 @@ import React, { ReactElement } from 'react';
 import { Link, RouteComponentProps } from '@reach/router';
 import { RemoteMetadata } from '../../../lib/types';
 import { usePageViewEvent } from '../../../lib/metrics';
-import Banner, { BannerType } from '../../../components/Banner';
 import AppLayout from '../../../components/AppLayout';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import DeviceInfoBlock from '../../../components/DeviceInfoBlock';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import GleanMetrics from '../../../lib/glean';
-
-export type BannerMessage = {
-  messageType: BannerType;
-  messageElement: ReactElement;
-};
+import Banner from '../../../components/Banner';
 
 export type SuppAllowProps = {
   authDeviceInfo: RemoteMetadata;
   // TODO: In FXA-6638 - Listen to broken for error/success messages
   // included in props temporarily for tests/storybook
-  bannerMessage?: BannerMessage;
+  bannerType?: 'success' | 'error';
+  bannerMessage?: string;
   email: string;
 };
 
@@ -37,6 +33,7 @@ const handleSubmit = () => {
 
 const SuppAllow = ({
   authDeviceInfo,
+  bannerType,
   bannerMessage,
   email,
 }: SuppAllowProps & RouteComponentProps) => {
@@ -56,21 +53,17 @@ const SuppAllow = ({
       >
         <h1 className="card-header">Confirm pairing {spanElement}</h1>
       </FtlMsg>
-      {bannerMessage && (
-        <Banner type={bannerMessage.messageType}>
-          {bannerMessage.messageElement}
-        </Banner>
+      {bannerType && bannerMessage && (
+        <Banner
+          type={bannerType}
+          content={{ localizedHeading: bannerMessage }}
+        />
       )}
       <form noValidate onSubmit={handleSubmit}>
         <DeviceInfoBlock remoteMetadata={authDeviceInfo} />
         <div className="flex flex-col justify-center">
           <FtlMsg id="pair-supp-allow-confirm-button">
-            <button
-              type="submit"
-              className="cta-primary cta-xl w-full"
-              // Should the submit button be disabled if there is an error?
-              disabled={bannerMessage?.messageType === BannerType.error}
-            >
+            <button type="submit" className="cta-primary cta-xl w-full">
               Confirm pairing
             </button>
           </FtlMsg>

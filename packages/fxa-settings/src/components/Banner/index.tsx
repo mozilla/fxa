@@ -2,137 +2,142 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import React from 'react';
+import { BannerProps } from './interfaces';
+import {
+  CheckmarkCircleOutlineCurrentIcon,
+  CloseIcon,
+  InformationOutlineCurrentIcon as InfoIcon,
+  AlertOutlineCurrentIcon as WarningIcon,
+  ErrorOutlineCurrentIcon as ErrorIcon,
+} from '../Icons';
 import classNames from 'classnames';
-import React, { ReactElement } from 'react';
-import { FtlMsg } from 'fxa-react/lib/utils';
-import { ReactComponent as IconClose } from '@fxa/shared/assets/images/close.svg';
+import { useFtlMsgResolver } from '../../models';
 import { FIREFOX_NOREPLY_EMAIL } from '../../constants';
-import { CheckmarkCircleOutlineBlackIcon } from '../Icons';
+import LinkExternal from 'fxa-react/components/LinkExternal';
+import { Link } from '@reach/router';
 
-export enum BannerType {
-  info = 'info',
-  success = 'success',
-  error = 'error',
-}
-
-type DefaultProps = {
-  type: BannerType;
-  children: ReactElement | string;
-  additionalClassNames?: string;
-  animation?: Animation;
-};
-
-type OptionalProps =
-  | {
-      dismissible: boolean;
-      setIsVisible: React.Dispatch<React.SetStateAction<boolean>>;
-    }
-  | { dismissible?: never; setIsVisible?: never };
-
-export type BannerProps = DefaultProps & OptionalProps;
-
-type Animation = {
-  className: string;
-  handleAnimationEnd: () => void;
-  animate: boolean;
-};
-
-export type FancyBannerMessage = {
-  heading: string;
-  message: string;
-};
-
-const Banner = ({
+export const Banner = ({
   type,
-  children,
-  additionalClassNames,
-  dismissible,
-  setIsVisible,
+  content,
   animation,
+  dismissButton,
+  link,
 }: BannerProps) => {
-  // Transparent border is for Windows HCM  - to ensure there is a border around the banner
-  const baseClassNames =
-    'text-xs font-bold p-3 my-3 rounded border border-transparent animate-fade-in';
-
   return (
     <div
       className={classNames(
-        baseClassNames,
-        type === BannerType.info && 'bg-grey-50 text-black',
-        type === BannerType.success && 'bg-green-500 text-grey-900',
-        type === BannerType.error && 'bg-red-700 text-white',
-        dismissible && 'flex gap-2 items-center ',
-        animation?.animate && animation?.className,
-        additionalClassNames
+        'my-4 flex flex-row no-wrap items-center px-4 py-3 gap-3.5 rounded-md border border-transparent text-start text-sm',
+        type === 'error' && 'bg-red-100',
+        type === 'info' && 'bg-blue-50',
+        type === 'success' && 'bg-green-200',
+        type === 'warning' && 'bg-orange-50',
+        animation?.animate && animation?.className
       )}
-      onAnimationEnd={animation?.handleAnimationEnd}
       role="status"
+      onAnimationEnd={animation?.handleAnimationEnd}
     >
-      {dismissible ? (
-        <>
-          <div className="grow ltr:pl-5 rtl:pr-5">{children}</div>
-          <FtlMsg id="banner-dismiss-button" attrs={{ ariaLabel: true }}>
-            <button
-              type="button"
-              aria-label="Close"
-              onClick={() => setIsVisible(false)}
+      {/* Icon fills use 'currentColor' (from text color) for better accessibility in HCM mode */}
+      {type === 'error' && <ErrorIcon className="shrink-0" />}
+      {type === 'info' && <InfoIcon className="shrink-0" />}
+      {type === 'success' && (
+        <CheckmarkCircleOutlineCurrentIcon
+          className="shrink-0"
+          mode="success"
+        />
+      )}
+      {type === 'warning' && <WarningIcon className="shrink-0" />}
+
+      <div className="flex flex-col grow ">
+        {content.localizedHeading && (
+          <p className="font-bold">{content.localizedHeading}</p>
+        )}
+        {content.localizedDescription && <p>{content.localizedDescription}</p>}
+        {/* Link is optional and can be either an external or internal link */}
+        {/* Link color here was tweaked for accessibility - this colour passes AAA for all banner background colors */}
+        {link && link.url && (
+          <span className="grow-0">
+            <LinkExternal
+              className="text-sm link-blue"
+              href={link.url}
+              {...(link.gleanId && { 'data-glean-id': link.gleanId })}
             >
-              <IconClose className="text-black w-3 h-3" role="img" />
-            </button>
-          </FtlMsg>
-        </>
-      ) : (
-        <>{children}</>
+              {link.localizedText}
+            </LinkExternal>
+          </span>
+        )}
+        {link && link.path && (
+          <span>
+            <Link
+              className="text-sm link-blue"
+              to={link.path}
+              {...(link.gleanId && { 'data-glean-id': link.gleanId })}
+            >
+              {link.localizedText}
+            </Link>
+          </span>
+        )}
+      </div>
+      {dismissButton && (
+        <button
+          aria-label={`Close banner`}
+          className={classNames(
+            'shrink-0 self-start hover:backdrop-saturate-150 focus:backdrop-saturate-200',
+            type === 'error' && 'hover:bg-red-200 focus:bg-red-300',
+            type === 'info' && 'hover:bg-blue-100 focus:bg-blue-200',
+            type === 'success' && 'hover:bg-green-400 focus:bg-green-500',
+            type === 'warning' && 'hover:bg-orange-100 focus:bg-orange-200'
+          )}
+          type="button"
+          onClick={dismissButton.action}
+          {...(dismissButton.gleanId && {
+            'data-glean-id': dismissButton.gleanId,
+          })}
+        >
+          <CloseIcon className="w-6 h-6" />
+        </button>
       )}
     </div>
   );
 };
-export default Banner;
 
-export const ResendEmailSuccessBanner = ({
+export const ResendCodeSuccessBanner = ({
   animation,
-}: {
-  animation?: Animation;
-}) => {
-  return (
-    <Banner type={BannerType.success} {...{ animation }}>
-      <FtlMsg
-        id="link-expired-resent-link-success-message"
-        vars={{ accountsEmail: FIREFOX_NOREPLY_EMAIL }}
-      >
-        {`Email re-sent. Add ${FIREFOX_NOREPLY_EMAIL} to your contacts to ensure a
-    smooth delivery.`}
-      </FtlMsg>
-    </Banner>
-  );
+}: Partial<BannerProps>) => {
+  const ftlMsgResolver = useFtlMsgResolver();
+
+  const content = {
+    localizedHeading: ftlMsgResolver.getMsg(
+      'resend-code-success-heading',
+      'A new code was sent to your email.'
+    ),
+    localizedDescription: ftlMsgResolver.getMsg(
+      'resend-success-banner-description',
+      `Add ${FIREFOX_NOREPLY_EMAIL} to your contacts to ensure a smooth delivery.`,
+      { accountsEmail: FIREFOX_NOREPLY_EMAIL }
+    ),
+  };
+
+  return <Banner type="success" {...{ animation, content }} />;
 };
 
-export const FancyBanner = (
-  props: Parameters<typeof Banner>[0] & {
-    message: FancyBannerMessage;
-    iconImage?: JSX.Element;
-  }
-) => {
-  const icon =
-    (props.iconImage && <>{props.iconImage}</>) ||
-    ((messageType) => {
-      switch (messageType) {
-        case BannerType.success:
-          return <CheckmarkCircleOutlineBlackIcon mode="success" />;
-        default:
-          return null;
-      }
-    })(props.type);
+export const ResendLinkSuccessBanner = ({
+  animation,
+}: Partial<BannerProps>) => {
+  const ftlMsgResolver = useFtlMsgResolver();
+  const content = {
+    localizedHeading: ftlMsgResolver.getMsg(
+      'resend-link-success-banner-heading',
+      'A new link was sent to your email.'
+    ),
+    localizedDescription: ftlMsgResolver.getMsg(
+      'resend-success-banner-description',
+      `Add ${FIREFOX_NOREPLY_EMAIL} to your contacts to ensure smooth delivery.`,
+      { accountsEmail: FIREFOX_NOREPLY_EMAIL }
+    ),
+  };
 
-  return (
-    <Banner {...{ ...props, additionalClassNames: 'text-left' }}>
-      <div className="flex flex-row gap-x-1">
-        <div className="basis-1/5 place-self-center">{icon}</div>
-        <div>
-          <h2 className="text-base">{props.message.heading}</h2>
-          <p className="font-normal">{props.message.message}</p>
-        </div>
-      </div>
-    </Banner>
-  );
+  return <Banner type="success" {...{ animation, content }} />;
 };
+
+export default Banner;

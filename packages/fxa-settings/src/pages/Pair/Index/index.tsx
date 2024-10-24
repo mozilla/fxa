@@ -9,12 +9,12 @@ import { RouteComponentProps } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { useFtlMsgResolver } from '../../../models';
-import Banner, { BannerType } from '../../../components/Banner';
 import CardHeader from '../../../components/CardHeader';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { ENTRYPOINTS, REACT_ENTRYPOINT } from '../../../../src/constants';
 import { HeartsVerifiedImage } from '../../../components/images';
 import GleanMetrics from '../../../lib/glean';
+import Banner from '../../../components/Banner';
 
 type PairProps = {
   error?: string;
@@ -84,11 +84,7 @@ const Pair = ({
       )}
 
       <section>
-        {error && (
-          <Banner type={BannerType.error}>
-            <p>{error}</p>
-          </Banner>
-        )}
+        {error && <Banner type="error" content={{ localizedHeading: error }} />}
         {showQRCode ? (
           <>
             <div className="mt-9 mb-5">

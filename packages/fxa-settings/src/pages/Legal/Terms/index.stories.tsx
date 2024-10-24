@@ -15,3 +15,11 @@ export default {
 } as Meta;
 
 export const Basic = () => <LegalTerms {...{ fetchLegalDoc }} />;
+
+export const WithError = () => (
+  <LegalTerms
+    fetchLegalDoc={() =>
+      Promise.resolve({ error: 'Failed to fetch terms of service' })
+    }
+  />
+);

@@ -9,7 +9,7 @@ import { ResetPasswordConfirmedProps } from './interfaces';
 import { PasswordSuccessImage } from '../../../components/images';
 import { CheckmarkCircleFullGreenIcon } from '../../../components/Icons';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import Banner, { BannerType } from '../../../components/Banner';
+import Banner from '../../../components/Banner';
 
 const ResetPasswordConfirmed = ({
   continueHandler,
@@ -19,9 +19,7 @@ const ResetPasswordConfirmed = ({
   return (
     <AppLayout>
       {errorMessage && (
-        <Banner type={BannerType.error} additionalClassNames="mb-6">
-          {errorMessage}
-        </Banner>
+        <Banner type="error" content={{ localizedHeading: errorMessage }} />
       )}
       <div className="flex items-top justify-center">
         <CheckmarkCircleFullGreenIcon
