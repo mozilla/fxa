@@ -83,13 +83,17 @@ jest.mock('../../lib/glean', () => ({
   },
 }));
 
-const commonFxaLoginOptions = {
+const oauthCommonFxaLoginOptions = {
   email: MOCK_EMAIL,
-  keyFetchToken: BEGIN_SIGNUP_HANDLER_RESPONSE.data.signUp.keyFetchToken,
   sessionToken: BEGIN_SIGNUP_HANDLER_RESPONSE.data.signUp.sessionToken,
   uid: BEGIN_SIGNUP_HANDLER_RESPONSE.data.signUp.uid,
-  unwrapBKey: BEGIN_SIGNUP_HANDLER_RESPONSE.data.unwrapBKey,
   verified: false,
+};
+
+const commonFxaLoginOptions = {
+  ...oauthCommonFxaLoginOptions,
+  keyFetchToken: BEGIN_SIGNUP_HANDLER_RESPONSE.data.signUp.keyFetchToken,
+  unwrapBKey: BEGIN_SIGNUP_HANDLER_RESPONSE.data.unwrapBKey,
 };
 
 describe('Signup page', () => {
@@ -636,7 +640,7 @@ describe('Signup page', () => {
             });
 
             expect(fxaLoginSpy).toBeCalledWith({
-              ...commonFxaLoginOptions,
+              ...oauthCommonFxaLoginOptions,
               services: {
                 sync: {
                   declinedEngines: [],
@@ -667,7 +671,7 @@ describe('Signup page', () => {
             });
 
             expect(fxaLoginSpy).toBeCalledWith({
-              ...commonFxaLoginOptions,
+              ...oauthCommonFxaLoginOptions,
               services: {
                 sync: {
                   declinedEngines: ['prefs', 'bookmarks'],
@@ -711,7 +715,7 @@ describe('Signup page', () => {
             });
 
             expect(fxaLoginSpy).toBeCalledWith({
-              ...commonFxaLoginOptions,
+              ...oauthCommonFxaLoginOptions,
               services: {
                 sync: {
                   declinedEngines: offeredEngines,
@@ -787,7 +791,7 @@ describe('Signup page', () => {
         await waitFor(() => {
           // Does not send services: { sync: {...} }
           expect(fxaLoginSpy).toBeCalledWith({
-            ...commonFxaLoginOptions,
+            ...oauthCommonFxaLoginOptions,
           });
         });
 
