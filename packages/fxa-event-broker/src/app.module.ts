@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
+import { APP_FILTER } from '@nestjs/core';
+import { SentryGlobalGraphQLFilter, SentryModule } from '@sentry/nestjs/setup';
 import { HealthModule } from 'fxa-shared/nestjs/health/health.module';
 import { LoggerModule } from 'fxa-shared/nestjs/logger/logger.module';
-import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import { MetricsFactory } from 'fxa-shared/nestjs/metrics.service';
-import { SentryModule } from 'fxa-shared/nestjs/sentry/sentry.module';
 import { getVersionInfo } from 'fxa-shared/nestjs/version';
 
 import { AuthModule } from './auth/auth.module';
@@ -36,20 +36,17 @@ const version = getVersionInfo(__dirname);
     JwtsetModule,
     LoggerModule,
     ScheduleModule.forRoot(),
-    SentryModule.forRootAsync({
-      imports: [ConfigModule, LoggerModule],
-      inject: [ConfigService, MozLoggerService],
-      useFactory: (configService: ConfigService<AppConfig>) => ({
-        sentryConfig: {
-          sentry: configService.get('sentry'),
-          version: version.version,
-        },
-      }),
-    }),
+    SentryModule.forRoot(),
     QueueworkerModule,
     PubsubProxyModule,
   ],
   controllers: [],
-  providers: [MetricsFactory],
+  providers: [
+    MetricsFactory,
+    {
+      provide: APP_FILTER,
+      useClass: SentryGlobalGraphQLFilter,
+    },
+  ],
 })
 export class AppModule {}

@@ -9,7 +9,6 @@ import './monitoring';
 import bodyParser from 'body-parser';
 import { Request, Response } from 'express';
 import { allowlistGqlQueries } from 'fxa-shared/nestjs/gql/gql-allowlist';
-import { SentryInterceptor } from '@fxa/shared/sentry';
 import helmet from 'helmet';
 
 import { NestApplicationOptions } from '@nestjs/common';
@@ -76,9 +75,6 @@ async function bootstrap() {
     origin: appConfig.env === 'development' ? '*' : appConfig.corsOrigin,
     methods: ['OPTIONS', 'POST'],
   });
-
-  // Add sentry as error reporter
-  app.useGlobalInterceptors(new SentryInterceptor());
 
   // Starts listening for shutdown hooks
   app.enableShutdownHooks();

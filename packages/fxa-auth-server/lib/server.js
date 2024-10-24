@@ -20,9 +20,7 @@ const { configureSentry } = require('./sentry');
 const { swaggerOptions } = require('../docs/swagger/swagger-options');
 const { Account } = require('fxa-shared/db/models/auth');
 const { determineLocale } = require('../../../libs/shared/l10n/src');
-const {
-  reportValidationError,
-} = require('fxa-shared/sentry/report-validation-error');
+const { reportValidationError } = require('@fxa/shared/sentry-node');
 const { logErrorWithGlean } = require('./metrics/glean');
 
 function trimLocale(header) {

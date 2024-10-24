@@ -5,7 +5,7 @@
 import convict from 'convict';
 import fs from 'fs';
 import path from 'path';
-import { tracingConfig } from 'fxa-shared/tracing/config';
+import { tracingConfig } from '@fxa/shared/otel';
 
 const FIVE_MINUTES = 60 * 5;
 

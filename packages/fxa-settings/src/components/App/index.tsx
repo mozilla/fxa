@@ -37,7 +37,7 @@ import {
 
 import { hardNavigate } from 'fxa-react/lib/utils';
 
-import sentryMetrics from 'fxa-shared/sentry/browser';
+import { disableSentry, enableSentry } from '@fxa/shared/sentry-utils';
 
 // Components
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
@@ -213,9 +213,9 @@ export const App = ({
 
   useEffect(() => {
     if (metricsEnabled) {
-      sentryMetrics.enable();
+      enableSentry();
     } else {
-      sentryMetrics.disable();
+      disableSentry();
     }
   }, [
     data?.account?.metricsEnabled,

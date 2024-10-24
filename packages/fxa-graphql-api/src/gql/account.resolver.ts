@@ -19,10 +19,7 @@ import {
   SessionToken,
 } from 'fxa-shared/db/models/auth';
 import { profileByUid, selectedAvatar } from 'fxa-shared/db/models/profile';
-import {
-  ExtraContext,
-  reportRequestException,
-} from 'fxa-shared/nestjs/sentry/reporting';
+import { ExtraContext, reportRequestException } from '@fxa/shared/sentry-nest';
 import { GraphQLResolveInfo } from 'graphql';
 import {
   parseResolveInfo,

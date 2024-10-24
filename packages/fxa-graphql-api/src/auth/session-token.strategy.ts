@@ -6,7 +6,6 @@ import { PassportStrategy } from '@nestjs/passport';
 import { deriveHawkCredentials } from 'fxa-auth-client';
 import { SessionToken } from 'fxa-shared/db/models/auth/session-token';
 import { ExtendedError } from 'fxa-shared/nestjs/error';
-import { Token } from 'graphql';
 import { Strategy } from 'passport-http-bearer';
 
 export interface SessionTokenResult {

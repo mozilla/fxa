@@ -2,5 +2,9 @@
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./dist/esm",
+    "declaration": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "target": "esnext",
   },
 }

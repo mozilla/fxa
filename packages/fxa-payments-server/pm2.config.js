@@ -11,7 +11,7 @@ const apps = [];
 apps.push({
   name: 'payments',
   cwd: __dirname,
-  script: 'node server/bin/fxa-payments-server.js',
+  script: 'node -r esbuild-register server/bin/fxa-payments-server.js',
   max_restarts: '1',
   min_uptime: '2m',
   env: {

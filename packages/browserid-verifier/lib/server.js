@@ -17,11 +17,7 @@ const express = require('express'),
   v1api = require('./v1'),
   v2api = require('./v2');
 
-const {
-  tagCriticalEvent,
-  buildSentryConfig,
-  tagFxaName,
-} = require('fxa-shared/sentry');
+const { buildSentryConfig, tagFxaName } = require('@fxa/shared/sentry-utils');
 
 log.debug('starting');
 
@@ -42,7 +38,6 @@ if (sentryConfig.dsn) {
   Sentry.init({
     ...opts,
     beforeSend(event, _hint) {
-      event = tagCriticalEvent(event);
       event = tagFxaName(event, opts.serverName);
       return event;
     },

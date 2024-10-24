@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { createContext, SentryPlugin } from '@fxa/shared/sentry';
+import { SentryGlobalGraphQLFilter } from '@sentry/nestjs/setup';
+
 import { NextFunction, Request, Response } from 'express';
 import { CustomsModule } from 'fxa-shared/nestjs/customs/customs.module';
 import { CustomsService } from 'fxa-shared/nestjs/customs/customs.service';
@@ -30,6 +31,7 @@ import { ClientInfoResolver } from './clientInfo.resolver';
 import { LegalResolver } from './legal.resolver';
 import { SessionResolver } from './session.resolver';
 import { SubscriptionResolver } from './subscription.resolver';
+import { APP_FILTER } from '@nestjs/core';
 
 const config = Config.getProperties();
 
@@ -47,7 +49,6 @@ export const GraphQLConfigFactory = async (
   useGlobalPrefix: true,
   playground: configService.get<string>('env') !== 'production',
   autoSchemaFile: join(path.dirname(__dirname), './schema.gql'),
-  context: ({ req, connection }: any) => createContext({ req, connection }),
   // Disabling cors here allows the cors middleware from NestJS to be applied
   cors: false,
   uploads: false,
@@ -64,12 +65,15 @@ export const GraphQLConfigFactory = async (
     LegacyStatsDProvider,
     LegalResolver,
     MozLoggerService,
-    SentryPlugin,
     SessionResolver,
     SubscriptionResolver,
     {
       provide: LOGGER_PROVIDER,
       useClass: MozLoggerService,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: SentryGlobalGraphQLFilter,
     },
   ],
 })

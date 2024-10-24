@@ -38,7 +38,6 @@ export const StripeFactory: Provider<Stripe> = {
   provide: 'STRIPE',
   useFactory: (configService: ConfigService) => {
     const stripeConfig = configService.get('subscriptions');
-    const env = configService.get<string>('env') || '';
     const stripe = new Stripe(stripeConfig.stripeApiKey, {
       apiVersion: '2024-04-10',
       maxNetworkRetries: 3,

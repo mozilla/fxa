@@ -5,7 +5,7 @@
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { MozLoggerService } from '@fxa/shared/mozlog';
 import { Firestore } from '@google-cloud/firestore';
-import { Inject, Injectable, LoggerService } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AppStoreHelper } from 'fxa-shared/payments/iap/apple-app-store/app-store-helper';
 import { PurchaseManager } from 'fxa-shared/payments/iap/apple-app-store/purchase-manager';

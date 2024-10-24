@@ -2,12 +2,27 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import Config, { AppConfig } from './config';
+import * as Sentry from '@sentry/nestjs';
+import Config from './config';
 import mozLog from 'mozlog';
-import { initTracing } from 'fxa-shared/tracing/node-tracing';
-import { initSentry } from 'fxa-shared/sentry/node';
+import { initTracing } from '@fxa/shared/otel';
+import { initSentry } from '@fxa/shared/sentry-nest';
+import { version } from '../package.json';
 
-const log = mozLog(Config.getProperties().log)(Config.getProperties().log.app);
-const appConfig = Config.getProperties() as AppConfig;
-initTracing(appConfig.tracing, log);
-initSentry(appConfig, log);
+const config = Config.getProperties();
+const log = mozLog(config.log)(config.log.app);
+
+initTracing(config.tracing, log);
+initSentry(
+  {
+    ...config,
+    release: version,
+    integrations: [Sentry.extraErrorDataIntegration({ depth: 5 })],
+  },
+  {
+    warn: (type, data) => log.warn(type.replace(/ /g, '-'), data as any),
+    debug: (type, data) => log.debug(type.replace(/ /g, '-'), data as any),
+    info: (type, data) => log.info(type.replace(/ /g, '-'), data as any),
+    error: (type, data) => log.error(type.replace(/ /g, '-'), data as any),
+  }
+);

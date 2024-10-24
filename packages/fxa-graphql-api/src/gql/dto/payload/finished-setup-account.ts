@@ -4,8 +4,7 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
-export class FinishedSetupAccountPassword
-{
+export class FinishedSetupAccountPassword {
   @Field()
   public wrapKb!: string;
 

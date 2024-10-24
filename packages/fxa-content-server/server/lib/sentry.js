@@ -2,19 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const get = require('lodash/get');
-
-const config = require('./configuration');
-const STACKTRACE_FRAME_LENGTH = 10;
-const RELEASE = require('../../package.json').version;
-const {
-  tagCriticalEvent,
-  buildSentryConfig,
-  tagFxaName,
-} = require('fxa-shared/sentry');
-const logger = require('./logging/log')('sentry');
-
 const Sentry = require('@sentry/node');
+const get = require('lodash/get');
+const config = require('./configuration');
+const { initSentry } = require('@fxa/shared/sentry-node');
+const logger = require('./logging/log')('sentry');
+const { version } = require('../../package.json');
+
+const STACKTRACE_FRAME_LENGTH = 10;
 
 function removeQuery(url) {
   if (!url) {
@@ -27,8 +22,6 @@ function removeQuery(url) {
 }
 
 const eventFilter = (event) => {
-  event = tagCriticalEvent(event);
-
   if (get(event, 'request.headers.Referer')) {
     event.request.headers.Referer = removeQuery(event.request.headers.Referer);
   }
@@ -50,32 +43,22 @@ const eventFilter = (event) => {
   return event;
 };
 
-if (config.get('sentry.dsn')) {
-  // if no DSN provided then error reporting is disabled
-  const opts = buildSentryConfig(
-    {
-      release: RELEASE,
-      sentry: {
-        dsn: config.get('sentry.dsn'),
-        env: config.get('sentry.env'),
-        sampleRate: config.get('sentry.sampleRate'),
-        tracesSampleRate: config.get('sentry.tracesSampleRate'),
-        serverName: config.get('sentry.serverName'),
-      },
-    },
-    logger
-  );
-
-  Sentry.init({
-    ...opts,
-    beforeSend(event, _hint) {
-      event = eventFilter(event);
-      event = tagFxaName(event, opts.serverName);
-      return event;
-    },
-    integrations: [Sentry.linkedErrorsIntegration({ key: 'jse_cause' })],
-  });
-}
+initSentry(
+  {
+    ...config.getProperties(),
+    release: version,
+    integrations: [
+      Sentry.extraErrorDataIntegration({ depth: 5 }),
+      Sentry.linkedErrorsIntegration({ key: 'jse_cause' }),
+    ],
+  },
+  {
+    warn: (type, data) => logger.warn(type.replace(/ /g, '-'), data),
+    debug: (type, data) => logger.debug(type.replace(/ /g, '-'), data),
+    info: (type, data) => logger.info(type.replace(/ /g, '-'), data),
+    error: (type, data) => logger.error(type.replace(/ /g, '-'), data),
+  }
+);
 
 /**
  * Attempts to capture an error and report it to sentry. If the error is a

@@ -9,7 +9,8 @@
     "clean": "rimraf dist",
     "prebuild": "mkdir -p var/public",
     "outdated": "npm outdated --depth 0 || exit 0",
-    "build": "echo 'Build not required'",
+    "build": "tsc --build && tsc-alias",
+    "compile": "tsc --noEmit",
     "start": "pm2 start pm2.config.js && yarn check:url localhost:1111/__heartbeat__",
     "stop": "pm2 stop pm2.config.js",
     "restart": "pm2 restart pm2.config.js",
@@ -58,7 +59,9 @@
     "prettier": "^2.3.1",
     "rimraf": "^6.0.1",
     "sinon": "^14.0.0",
-    "through": "2.3.8"
+    "through": "2.3.8",
+    "tsc-alias": "^1.8.8",
+    "typescript": "^5.5.3"
   },
   "repository": {
     "type": "git",

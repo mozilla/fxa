@@ -36,3 +36,10 @@ export const logger = createLogger({
   exitOnError: true,
   ...exceptionHandling,
 } as LoggerOptions);
+
+export type ILogger = {
+  error: (...args: any[]) => void;
+  debug: (...args: any[]) => void;
+  info: (...args: any[]) => void;
+  warn: (...args: any[]) => void;
+};

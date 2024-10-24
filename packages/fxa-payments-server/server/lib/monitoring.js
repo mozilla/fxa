@@ -3,19 +3,26 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const Sentry = require('@sentry/node');
-const { initMonitoring } = require('fxa-shared/monitoring');
-const { config } = require('../config');
+const { initTracing } = require('@fxa/shared/otel');
+const { initSentry } = require('@fxa/shared/sentry-node');
+const config = require('../config');
 const log = require('./logging/log')('configure-sentry');
 const { version } = require('../../package.json');
 
-/**
- * Initialize sentry and otel tracing. Note that order matters!
- */
-initMonitoring({
-  log,
-  config: {
-    ...config,
+initTracing(config.get('tracing'), log);
+initSentry(
+  {
+    ...config.get(''),
     release: version,
-    integrations: [Sentry.linkedErrorsIntegration({ key: 'jse_cause' })],
+    integrations: [
+      Sentry.extraErrorDataIntegration({ depth: 5 }),
+      Sentry.linkedErrorsIntegration({ key: 'jse_cause' }),
+    ],
   },
-});
+  {
+    warn: (type, data) => log.warn(type.replace(/ /g, '-'), data),
+    debug: (type, data) => log.debug(type.replace(/ /g, '-'), data),
+    info: (type, data) => log.info(type.replace(/ /g, '-'), data),
+    error: (type, data) => log.error(type.replace(/ /g, '-'), data),
+  }
+);

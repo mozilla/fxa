@@ -82,6 +82,12 @@ const webpackConfig = {
       uuid: require.resolve('node-uuid/uuid'),
       vat: require.resolve('node-vat/vat'),
       'fxa-auth-client/browser': require.resolve('fxa-auth-client/browser'),
+      '@fxa/shared/sentry-browser': require.resolve(
+        path.resolve(__dirname, '../../dist/libs/shared/sentry-browser')
+      ),
+      '@fxa/shared/sentry-utils': require.resolve(
+        path.resolve(__dirname, '../../dist/libs/shared/sentry-utils')
+      ),
     },
   },
 

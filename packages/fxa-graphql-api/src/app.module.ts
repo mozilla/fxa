@@ -24,6 +24,8 @@ import Config, { AppConfig } from './config';
 import { DatabaseModule } from './database/database.module';
 import { DatabaseService } from './database/database.service';
 import { GqlModule, GraphQLConfigFactory } from './gql/gql.module';
+import { APP_FILTER } from '@nestjs/core';
+import { SentryGlobalGraphQLFilter, SentryModule } from '@sentry/nestjs/setup';
 
 const version = getVersionInfo(__dirname);
 
@@ -51,6 +53,7 @@ const version = getVersionInfo(__dirname);
         extraHealthData: () => db.dbHealthCheck(),
       }),
     }),
+    SentryModule.forRoot(),
   ],
   controllers: [],
   providers: [
@@ -62,6 +65,10 @@ const version = getVersionInfo(__dirname);
     {
       provide: LOGGER_PROVIDER,
       useClass: MozLoggerService,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: SentryGlobalGraphQLFilter,
     },
   ],
 })

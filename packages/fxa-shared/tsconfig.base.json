@@ -5,6 +5,7 @@
     "declaration": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "target": "esnext",
     "types": ["mocha", "mozlog", "jest", "node"]
   },
   "include": ["./**/*", "./**/**/*", "./*", "./**/*.json"],

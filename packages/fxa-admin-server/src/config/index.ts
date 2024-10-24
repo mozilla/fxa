@@ -6,7 +6,7 @@ import convict from 'convict';
 import fs from 'fs';
 import { makeMySQLConfig, makeRedisConfig } from 'fxa-shared/db/config';
 import { GuardConfig, USER_EMAIL_HEADER } from 'fxa-shared/guards';
-import { tracingConfig } from 'fxa-shared/tracing/config';
+import { tracingConfig } from '@fxa/shared/otel';
 import path from 'path';
 import { CloudTasksConvictConfigFactory } from '@fxa/shared/cloud-tasks';
 

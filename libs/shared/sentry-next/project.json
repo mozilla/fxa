@@ -1,0 +1,28 @@
+{
+  "name": "shared-sentry-next",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/sentry-next/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/shared/sentry-next",
+        "main": "libs/shared/sentry-next/src/index.ts",
+        "tsConfig": "libs/shared/sentry-next/tsconfig.lib.json",
+        "assets": ["libs/shared/sentry-next/*.md"],
+        "generatePackageJson": true,
+        "format": ["cjs"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/shared/sentry-next/jest.config.ts"
+      }
+    }
+  }
+}

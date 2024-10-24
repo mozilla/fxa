@@ -2,8 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sentryMetrics from 'fxa-shared/sentry/browser';
-
+import { initSentry } from '@fxa/shared/sentry-browser';
 import React from 'react';
 import { render } from 'react-dom';
 import AppErrorBoundary from 'fxa-react/components/AppErrorBoundary';
@@ -41,7 +40,7 @@ try {
   });
 
   // Must be configured before apollo is created. Otherwise baggage and sentry-trace headers won't be added
-  sentryMetrics.configure({
+  initSentry({
     release: config.version,
     sentry: {
       ...config.sentry,

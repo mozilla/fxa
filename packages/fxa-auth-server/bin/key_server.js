@@ -22,7 +22,7 @@ const {
   ProductConfigurationManager,
   StrapiClient,
 } = require('@fxa/shared/cms');
-const TracingProvider = require('fxa-shared/tracing/node-tracing');
+const TracingProvider = require('@fxa/shared/otel');
 
 const error = require('../lib/error');
 const { JWTool } = require('@fxa/vendored/jwtool');
@@ -310,7 +310,7 @@ async function run(config) {
       } catch (e) {
         // XXX: simplesmtp module may quit early and set socket to `false`, stopping it may fail
         log.warn('shutdown', {
-          message: 'senders.email did not shut down cleanly. ' + e.message
+          message: 'senders.email did not shut down cleanly. ' + e.message,
         });
       }
 

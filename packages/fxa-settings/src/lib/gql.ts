@@ -15,7 +15,7 @@ import { BatchHttpLink } from '@apollo/client/link/batch-http';
 import { cache, sessionToken, typeDefs } from './cache';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
 import { GET_LOCAL_SIGNED_IN_STATUS } from '../components/App/gql';
-import sentryMetrics from 'fxa-shared/sentry/browser';
+import { captureException } from '@sentry/browser';
 
 /**
  * These operation names either require auth with a valid session token
@@ -103,8 +103,10 @@ export const errorHandler: ErrorHandler = ({ graphQLErrors, networkError }) => {
     }
     console.error('graphQLErrors', graphQLErrors);
   }
+
+  // TODO: Is this related to FXA-8385
   if (networkError) {
-    sentryMetrics.captureException(networkError);
+    captureException(networkError);
     console.error('networkError', networkError);
   }
 };

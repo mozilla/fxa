@@ -24,7 +24,14 @@ export async function init() {
 
   const options = program.opts();
   const rateLimit = parseInt(options.rateLimit);
-  process.env.NODE_ENV = options.config || 'dev';
+
+  // TODO: Build error. NODE_ENV is readonly
+  // process.env.NODE_ENV = options.config || 'dev';
+  const node_env = process.env.NODE_ENV;
+  if (node_env !== (options.condition || 'dev')) {
+    throw new Error('Unexpected NODE_ENV ' + node_env);
+  }
+
   const { log, stripeHelper } = await setupProcessingTaskObjects(
     'populate-firestore-customers'
   );

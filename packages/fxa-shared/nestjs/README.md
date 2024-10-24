@@ -53,44 +53,6 @@ export class AppModule {}
 
 **Note**: Only one `HealthModule` import from above should be used.
 
-## Sentry Module
-
-To use the Sentry module two code changes should be made.
-
-Update `main.ts` to use the Sentry global intercepter:
-
-```typescript
-import { SentryInterceptor } from 'fxa-shared/nestjs/sentry/sentry.interceptor';
-
-//...
-
-async function bootstrap() {
-  // app is initialized
-  // remaining app setup
-}
-```
-
-Update `app.module.ts` to include the Sentry module, note that we also fetch the version:
-
-```typescript
-import { SentryModule } from 'fxa-shared/nestjs/sentry/sentry.module';
-import { getVersionInfo } from 'fxa-shared/nestjs/version';
-
-// Must be called from within the app so that the current working directory can be passed in
-const version = getVersionInfo(__dirname);
-
-@Module({
-  imports: [
-    // .. app imports ..
-    SentryModule,
-    // .. remaining imports, etc.
-  ],
-  controllers: [],
-  providers: [],
-})
-export class AppModule {}
-```
-
 ## Logging Module
 
 The logging module only requires an import in `app.module.ts` for dependency injection, and then provides a `MozLoggerService` for logging. Because no configuration is passed in, the application's `ConfigService` must include a `log` key that returns a config object that can be passed to `mozlog`.

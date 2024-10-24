@@ -25,7 +25,6 @@ const exec = util.promisify(require('node:child_process').exec);
 const cwd = path.resolve(__dirname, '..');
 
 describe('#integration - scripts/audit-tokens', () => {
-  let fxaDb: Knex;
   let fxaOauthDb: Knex;
   let fxaProfileDb: Knex;
   const uid = 'f9916686c226415abd06ae550f073cea';
@@ -37,7 +36,6 @@ describe('#integration - scripts/audit-tokens', () => {
     // Create DB connections. Note that in the real world, these would be
     // separate databases instances. During local testing, we use the same
     // instance for all databases.
-    fxaDb = bindKnex(config.database.fxa);
     fxaProfileDb = bindKnex(config.database.profile, TargetDB.profile);
     fxaOauthDb = bindKnex(config.database.fxa_oauth, TargetDB.oauth);
 

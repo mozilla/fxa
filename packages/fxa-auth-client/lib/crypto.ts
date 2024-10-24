@@ -9,7 +9,7 @@ import {
   xor,
 } from './utils';
 import { NAMESPACE, createSaltV1, parseSalt } from './salt';
-
+import { hexstring } from './types';
 
 /**
  * A credentials model.
@@ -87,11 +87,16 @@ export async function getCredentials(email: string, password: string) {
   };
 }
 
-export async function getCredentialsV2({password,clientSalt}:{password: string, clientSalt: string}) {
-
+export async function getCredentialsV2({
+  password,
+  clientSalt,
+}: {
+  password: string;
+  clientSalt: string;
+}) {
   const result = parseSalt(clientSalt);
   if (result.version !== 2) {
-    throw new Error('Invalid v2 clientSalt')
+    throw new Error('Invalid v2 clientSalt');
   }
 
   const passkey = await crypto.subtle.importKey(
@@ -384,12 +389,15 @@ export async function checkWebCrypto() {
   }
 }
 
-export async function getKeysV2({kB, v1, v2}:{
-  kB?:string,
-  v1: Credentials,
-  v2: Credentials,
+export async function getKeysV2({
+  kB,
+  v1,
+  v2,
+}: {
+  kB?: string;
+  v1: Credentials;
+  v2: Credentials;
 }) {
-
   if (!kB) {
     kB = uint8ToHex(crypto.getRandomValues(new Uint8Array(32)));
   }
@@ -400,6 +408,6 @@ export async function getKeysV2({kB, v1, v2}:{
   return {
     kB,
     wrapKb: uint8ToHex(wrapKb),
-    wrapKbVersion2: uint8ToHex(wrapKbVersion2)
-  }
+    wrapKbVersion2: uint8ToHex(wrapKbVersion2),
+  };
 }

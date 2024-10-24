@@ -68,7 +68,7 @@ import { subscriptionProductMetadataValidator } from '../routes/validators';
 import {
   formatMetadataValidationErrorMessage,
   reportValidationError,
-} from 'fxa-shared/sentry/report-validation-error';
+} from '@fxa/shared/sentry-node';
 import { AppConfig, AuthFirestore, AuthLogger, TaxAddress } from '../types';
 import { PaymentConfigManager } from './configuration/manager';
 import { CurrencyHelper } from './currencies';

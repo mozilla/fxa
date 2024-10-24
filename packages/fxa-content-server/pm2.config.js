@@ -11,7 +11,8 @@ const apps = [];
 
 apps.push({
   name: 'content',
-  script: 'node --inspect=9130 server/bin/fxa-content-server.js',
+  script:
+    'node -r esbuild-register --inspect=9130 server/bin/fxa-content-server.js',
   cwd: __dirname,
   env: {
     NODE_ENV: 'development',

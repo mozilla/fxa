@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sentryMetrics from 'fxa-shared/sentry/browser';
+import { captureException } from '@sentry/browser';
 import { window } from './window';
 import { v4 as uuid } from 'uuid';
 import { QueryParams } from '..';
@@ -317,7 +317,7 @@ export function logEvents(
     );
   } catch (e) {
     console.error('AppError', e);
-    sentryMetrics.captureException(e);
+    captureException(e);
   }
 }
 

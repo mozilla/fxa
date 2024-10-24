@@ -4,9 +4,10 @@
   "description": "Firefox Accounts Content Server",
   "scripts": {
     "prebuild": "yarn l10n-prime && yarn copy-local-config && yarn check-local-config ",
-    "build": "yarn build-l10n && yarn build-css && yarn build-js",
+    "build": "yarn build-l10n && yarn build-css && yarn build-js && yarn build-ts",
     "build-css": "NODE_ENV=production tailwindcss --postcss -i ./app/styles/tailwind.css -o ./app/styles/tailwind.out.css",
     "build-js": "NODE_ENV=production grunt build",
+    "build-ts": "tsc --build",
     "build-l10n": "yarn l10n-create-json",
     "check-local-config": "node scripts/check-local-config",
     "clean": "rimraf dist",
