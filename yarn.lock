@@ -41061,7 +41061,7 @@ fsevents@~2.1.1:
     express: ^4.21.1
     fxa-auth-client: "workspace:*"
     fxa-shared: "workspace:*"
-    googleapis: ^143.0.0
+    googleapis: ^144.0.0
     helmet: ^8.0.0
     hot-shots: ^10.1.1
     jest: 29.3.1
@@ -41174,7 +41174,7 @@ fsevents@~2.1.1:
     fxa-geodb: "workspace:*"
     fxa-shared: "workspace:*"
     google-auth-library: ^9.14.0
-    googleapis: ^143.0.0
+    googleapis: ^144.0.0
     grunt: ^1.6.1
     grunt-cli: ^1.4.3
     grunt-contrib-concat: ^2.1.0
@@ -43242,13 +43242,13 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"googleapis@npm:^143.0.0":
-  version: 143.0.0
-  resolution: "googleapis@npm:143.0.0"
+"googleapis@npm:^144.0.0":
+  version: 144.0.0
+  resolution: "googleapis@npm:144.0.0"
   dependencies:
     google-auth-library: ^9.0.0
     googleapis-common: ^7.0.0
-  checksum: eba77dc40e6cde1b6973ab3d6cb842fd179732b6a789444f4a3cfb34b75009acfcface9626e1f788e805a0990ad676c12e7709674e93c6420915bdf8f29cb4ac
+  checksum: c9e8197114ed4d72dc535e5db578dc7748c066df75459c2a5634f639e89dfe98b5a63e9ac67feb7b362f6ee16d43837c68dcfb11e31fc2eeb946f3117c2ab75d
   languageName: node
   linkType: hard
 

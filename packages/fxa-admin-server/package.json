@@ -47,7 +47,7 @@
     "express": "^4.21.1",
     "fxa-auth-client": "workspace:*",
     "fxa-shared": "workspace:*",
-    "googleapis": "^143.0.0",
+    "googleapis": "^144.0.0",
     "helmet": "^8.0.0",
     "hot-shots": "^10.1.1",
     "knex": "^3.1.0",
