@@ -282,7 +282,9 @@ export const Signup = ({
             sessionToken: data.signUp.sessionToken,
             uid: data.signUp.uid,
             verified: false,
-            // OAuth desktop sync optional flow sends service in fxaOAuthLogin
+            services: {
+              relay: {},
+            },
           });
         } else {
           GleanMetrics.registration.marketing({
