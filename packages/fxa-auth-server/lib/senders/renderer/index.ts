@@ -40,7 +40,7 @@ class Renderer extends Localizer {
   ) {
     // l10n will only be undefined in tests
     if (!l10n) {
-      l10n = (await super.setupLocalizer(context.acceptLanguage)).l10n;
+      l10n = (await super.setupLocalizer(context.acceptLanguage || '')).l10n;
     }
 
     const localizedString =
@@ -61,7 +61,7 @@ class Renderer extends Localizer {
   async renderEmail(templateContext: TemplateContext) {
     const { acceptLanguage, template, layout } = templateContext;
     const { l10n, selectedLocale } = await super.setupDomLocalizer(
-      acceptLanguage
+      acceptLanguage || ''
     );
 
     const context = {
@@ -99,7 +99,7 @@ class Renderer extends Localizer {
     }
 
     const { text, rootElement } = await this.bindings.renderTemplate(
-      template,
+      template || '',
       context,
       layout
     );

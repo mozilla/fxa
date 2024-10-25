@@ -11,7 +11,7 @@ const apps = [];
 apps.push({
   name: 'payments',
   cwd: __dirname,
-  script: 'node server/bin/fxa-payments-server.js',
+  script: 'node -r esbuild-register server/bin/fxa-payments-server.js',
   max_restarts: '1',
   min_uptime: '2m',
   env: {
@@ -25,6 +25,7 @@ apps.push({
     SENTRY_ENV: 'local',
     SENTRY_DSN: process.env.SENTRY_DSN_PAYMENTS,
     TRACING_SERVICE_NAME: 'fxa-payments-server',
+    TS_NODE_PROJECT: 'server/tsconfig.json',
   },
   filter_env: ['npm_'],
   time: true,

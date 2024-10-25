@@ -10,7 +10,7 @@ module.exports = {
   apps: [
     {
       name: 'profile',
-      script: 'node bin/server.js',
+      script: 'node -r esbuild-register bin/server.js',
       cwd: __dirname,
       max_restarts: '1',
       env: {
@@ -30,7 +30,7 @@ module.exports = {
     },
     {
       name: 'profile-worker',
-      script: 'node bin/worker.js',
+      script: 'node -r esbuild-register bin/worker.js',
       cwd: __dirname,
       max_restarts: '1',
       env: {
@@ -46,7 +46,7 @@ module.exports = {
     },
     {
       name: 'profile-static',
-      script: 'node bin/_static.js',
+      script: 'node -r esbuild-register bin/_static.js',
       cwd: __dirname,
       max_restarts: '1',
       env: {

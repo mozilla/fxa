@@ -1,10 +1,17 @@
 {
   "extends": "../../tsconfig.base.json",
-  "include": ["**/*.ts"],
+  "include": [
+    "./app/**/*.js",
+    "./app/**/*.ts",
+    "./server/**/*.js",
+    "./server/**/*.ts",
+  ],
+  "exclude": ["dist", "node_modules"],
   "compilerOptions": {
-    "outDir": "./.tscompiled/",
-    "rootDirs": ["./app/scripts/", "./server/lib/routes/react-app"],
-    "baseUrl": "./app/scripts",
-    "noImplicitAny": false
+    "module": "commonjs",
+    "allowJs": true,
+    "checkJs": false,
+    "noImplicitAny": false,
+    "outDir": "./dist"
   }
 }

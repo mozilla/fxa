@@ -1,0 +1,29 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "module": "commonjs",
+    "allowJs": true,
+    "checkJs": false,
+    "outDir": "../dist",
+    "types": ["node"],
+    "lib": ["ESNext"],
+    "paths": {
+      "@fxa/shared/db/mysql/account": [
+        "libs/shared/db/mysql/account/src/index"
+      ],
+      "@fxa/payments/cart": ["libs/payments/cart/src/index"],
+      "@fxa/shared/log": ["libs/shared/log/src/index"],
+      "@fxa/shared/l10n": ["libs/shared/l10n/src/index"],
+      "@fxa/shared/db/mysql/core": ["libs/shared/db/mysql/core/src/index"],
+      "@fxa/shared/metrics/statsd": ["libs/shared/metrics/statsd/src/index"],
+      "@fxa/shared/monitoring": ["libs/shared/monitoring/src/index"],
+      "@fxa/shared/mozlog": ["libs/shared/mozlog/src/index"],
+      "@fxa/shared/notifier": ["libs/shared/notifier/src/index"],
+      "@fxa/shared/otel": ["libs/shared/otel/src/index"],
+      "@fxa/shared/sentry-utils": ["libs/shared/sentry-utils/src/index"],
+      "@fxa/shared/sentry-node": ["libs/shared/sentry-node/src/index"]
+    }
+  },
+  "include": ["**/*"]
+}

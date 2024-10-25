@@ -228,6 +228,7 @@ describe('StripeAutomaticTaxConverterHelpers', () => {
         ...mockSubscription,
         automatic_tax: {
           enabled: false,
+          liability: null,
         },
       });
 
@@ -239,6 +240,7 @@ describe('StripeAutomaticTaxConverterHelpers', () => {
         ...mockSubscription,
         automatic_tax: {
           enabled: true,
+          liability: null,
         },
       });
 

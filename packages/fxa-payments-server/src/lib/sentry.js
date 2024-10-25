@@ -5,11 +5,7 @@
 import Logger from './logger';
 import * as Sentry from '@sentry/browser';
 
-import {
-  tagFxaName,
-  tagCriticalEvent,
-  buildSentryConfig,
-} from 'fxa-shared/sentry';
+import { tagFxaName, buildSentryConfig } from '@fxa/shared/sentry-utils';
 
 var ALLOWED_QUERY_PARAMETERS = [
   'automatedBrowser',
@@ -138,10 +134,10 @@ SentryMetrics.prototype = {
     try {
       const opts = buildSentryConfig(config, this._logger);
 
+      // TODO: use @fxa/shared/sentry-node
       Sentry.init({
         ...opts,
         beforeSend(event) {
-          event = tagCriticalEvent(event);
           event = tagFxaName(event, opts.clientName);
           return event;
         },

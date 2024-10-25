@@ -296,6 +296,8 @@ export function gleanMetrics(config: ConfigType) {
   };
 }
 
+export type GleanMetricsType = ReturnType<typeof gleanMetrics>;
+
 const routePathToErrorPingFnMap = {
   '/account/create': 'registration.error',
   '/account/login': 'login.error',

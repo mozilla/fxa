@@ -5,7 +5,7 @@
 // This file configures the initialization of Sentry on the client.
 // The config you add here will be used whenever a users loads a page in their browser.
 // https://docs.sentry.io/platforms/javascript/guides/nextjs/
-import { initSentryForNextjsClient } from '@fxa/shared/sentry/client';
+import { initSentryForNextjsClient } from '@fxa/shared/sentry-next';
 
 const DEFAULT_SAMPLE_RATE = '1';
 const DEFAULT_TRACES_SAMPLE_RATE = '1';

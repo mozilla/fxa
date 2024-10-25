@@ -7,7 +7,7 @@ import { Operation, NextLink, ServerError } from '@apollo/client/core';
 import { GraphQLError } from 'graphql';
 import { cache } from './cache';
 import { GET_LOCAL_SIGNED_IN_STATUS } from '../components/App/gql';
-import sentryMetrics from 'fxa-shared/sentry/browser';
+import * as Sentry from '@sentry/browser';
 
 describe('errorHandler', () => {
   beforeAll(() => {
@@ -48,7 +48,7 @@ describe('errorHandler', () => {
     };
     const captureExceptionMock = jest.fn();
     jest
-      .spyOn(sentryMetrics, 'captureException')
+      .spyOn(Sentry, 'captureException')
       .mockImplementation(captureExceptionMock);
 
     errorHandler(errorResponse);

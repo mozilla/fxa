@@ -1,4 +1,4 @@
-type MjIncludeTag = { path: string; inline: boolean; type: string };
+type MjIncludeTag = { path?: string; inline: boolean; type?: string };
 
 /**
  * Important! At the current momement, mjml-browser does not support <mj-include>.
@@ -48,7 +48,7 @@ export function transformMjIncludeTags(mjml: string): string {
 function extractMjIncludeTags(mjml: string): MjIncludeTag[] {
   let chomp = false;
   let include = '';
-  const includes = [];
+  const includes = new Array<MjIncludeTag>();
   mjml
     .replace(/<mj-include/g, ' <mj-include')
     .split(/\n|\s/g)
@@ -96,7 +96,7 @@ function parseMjIncludeTag(include: string): MjIncludeTag {
 
   // Convert relative paths. The requests will now be made to the root
   // of the webserver.
-  res.path = res.path.replace(/\.\//, '/');
+  res.path = res.path?.replace(/\.\//, '/');
 
   return res;
 }

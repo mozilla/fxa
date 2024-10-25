@@ -27,11 +27,11 @@ describe('#integration - SentEmail', () => {
       oauth: false,
       profile: false,
     });
-    emailTypeId = (
-      await EmailType.query().findOne({
-        emailType,
-      })
-    ).id;
+    const firstEmailType = await EmailType.query().findOne({
+      emailType,
+    });
+    assert.isDefined(firstEmailType);
+    emailTypeId = firstEmailType.id;
   });
 
   after(async () => {
@@ -42,6 +42,7 @@ describe('#integration - SentEmail', () => {
     it('inserts correctly without params', async () => {
       const acct = randomAccount();
       const inserted = await SentEmail.createSentEmail(acct.uid, emailType);
+      assert.isDefined(inserted);
       assert.strictEqual(inserted.uid, acct.uid);
       assert.strictEqual(inserted.emailTypeId, emailTypeId);
       assert.approximately(inserted.sentAt, Date.now(), 2000);
@@ -55,6 +56,7 @@ describe('#integration - SentEmail', () => {
         emailType,
         emailParams
       );
+      assert.isDefined(inserted);
       assert.strictEqual(inserted.uid, acct.uid);
       assert.strictEqual(inserted.emailTypeId, emailTypeId);
       assert.approximately(inserted.sentAt, Date.now(), 2000);

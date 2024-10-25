@@ -4,7 +4,11 @@
     "paths": {
       "@fxa/shared/pem-jwk": ["libs/shared/pem-jwk/src/index"],
       "@fxa/vendored/jwtool": ["libs/vendored/jwtool/src/index"],
-      "@fxa/vendored/typesafe-node-firestore": ["libs/vendored/typesafe-node-firestore/src/index"]
+      "@fxa/vendored/typesafe-node-firestore": ["libs/vendored/typesafe-node-firestore/src/index"],
+      "@fxa/shared/otel": ["libs/shared/otel/src/index"],
+      "@fxa/shared/sentry-nest": ["libs/shared/sentry-nest/src/index"],
+      "@fxa/shared/sentry-utils": ["libs/shared/sentry-utils/src/index"],
+      "@fxa/shared/log": ["libs/shared/log/src/index"]
     }
   },
   "exclude": ["node_modules", "test", "dist", "**/*spec.ts"]

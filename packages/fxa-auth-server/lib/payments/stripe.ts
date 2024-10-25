@@ -68,7 +68,7 @@ import { subscriptionProductMetadataValidator } from '../routes/validators';
 import {
   formatMetadataValidationErrorMessage,
   reportValidationError,
-} from 'fxa-shared/sentry/report-validation-error';
+} from '@fxa/shared/sentry-node';
 import { AppConfig, AuthFirestore, AuthLogger, TaxAddress } from '../types';
 import { PaymentConfigManager } from './configuration/manager';
 import { CurrencyHelper } from './currencies';
@@ -327,7 +327,7 @@ export class StripeHelper extends StripeHelperBase {
    * Fetch all active tax rates.
    */
   async fetchAllTaxRates() {
-    const taxRates = [];
+    const taxRates = new Array<Stripe.TaxRate>();
     for await (const taxRate of this.stripe.taxRates.list({ active: true })) {
       taxRates.push(taxRate);
     }
@@ -1534,7 +1534,7 @@ export class StripeHelper extends StripeHelperBase {
   async *fetchOpenInvoices(
     created: Stripe.InvoiceListParams['created'],
     customerId?: string
-  ) {
+  ): AsyncGenerator<Stripe.Invoice> {
     for await (const invoice of this.stripe.invoices.list({
       customer: customerId,
       limit: 100,
@@ -1907,7 +1907,7 @@ export class StripeHelper extends StripeHelperBase {
       );
     });
     const iapType = getIapPurchaseType(purchases[0]);
-    const purchasedPrices = [];
+    const purchasedPrices = new Array<string>();
     for (const price of prices) {
       const purchaseIds = this.priceToIapIdentifiers(price, iapType);
       if (purchaseIds.some((id) => purchasedIds.includes(id))) {
@@ -2482,7 +2482,7 @@ export class StripeHelper extends StripeHelperBase {
   async formatSubscriptionsForSupport(
     subscriptions: Stripe.ApiList<Stripe.Subscription>
   ) {
-    const subs = [];
+    const subs = new Array<any>();
     for (const sub of subscriptions.data) {
       const plan = singlePlan(sub);
       if (!plan) {
@@ -2503,8 +2503,8 @@ export class StripeHelper extends StripeHelperBase {
       }
       const product_name = product.name;
 
-      let previous_product = null;
-      let plan_changed = null;
+      let previous_product: string | null = null;
+      let plan_changed: number | null = null;
 
       if (sub.metadata.previous_plan_id !== undefined) {
         const previousPlan = await this.findAbbrevPlanById(
@@ -2618,8 +2618,8 @@ export class StripeHelper extends StripeHelperBase {
 
     // if the invoice does not have the deprecated discount property but has a discount ID in discounts
     // expand the discount
-    let discountType = null;
-    let discountDuration = null;
+    let discountType: Stripe.Coupon.Duration | null = null;
+    let discountDuration: number | null = null;
 
     if (invoice.discount) {
       discountType = invoice.discount.coupon.duration;
@@ -2801,7 +2801,7 @@ export class StripeHelper extends StripeHelperBase {
       return [];
     }
 
-    const formattedSubscriptions = [];
+    const formattedSubscriptions = new Array<FormattedSubscriptionForEmail>();
 
     for (const subscription of customer.subscriptions.data) {
       if (ACTIVE_SUBSCRIPTION_STATUSES.includes(subscription.status)) {
@@ -3183,10 +3183,10 @@ export class StripeHelper extends StripeHelperBase {
   }
 
   async extractCustomerDefaultPaymentDetails(customer: Stripe.Customer) {
-    let lastFour = null;
-    let cardType = null;
-    let country = null;
-    let postalCode = null;
+    let lastFour: string | null = null;
+    let cardType: string | null = null;
+    let country: string | null = null;
+    let postalCode: string | null = null;
 
     if (customer.invoice_settings.default_payment_method) {
       // Post-SCA customer with a default PaymentMethod

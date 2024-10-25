@@ -7,6 +7,9 @@ import sinon, { SinonStub } from 'sinon';
 import { assert } from 'chai';
 import AppError from '../../../lib/error';
 import mocks from '../../mocks';
+import { GleanMetricsType } from '../../../lib/metrics/glean';
+import { AuthRequest } from '../../../lib/types';
+import { Dictionary } from 'lodash';
 
 const recordStub = sinon.stub();
 
@@ -42,60 +45,59 @@ const recordTwoFactorAuthCodeCompleteStub = sinon.stub();
 const recordPasswordResetTwoFactorSuccessStub = sinon.stub();
 const recordPasswordResetRecoveryCodeSuccessStub = sinon.stub();
 
-const { gleanMetrics, logErrorWithGlean } = proxyquire(
-  '../../../lib/metrics/glean',
-  {
-    './server_events': {
-      createAccountsEventsEvent: () => ({ record: recordStub }),
-      createEventsServerEventLogger: () => ({
-        recordRegAccCreated: recordRegAccCreatedStub,
-        recordRegEmailSent: recordRegEmailSentStub,
-        recordRegAccVerified: recordRegAccVerifiedStub,
-        recordRegComplete: recordRegCompleteStub,
-        recordRegSubmitError: recordRegSubmitErrorStub,
-        recordLoginSuccess: recordLoginSuccessStub,
-        recordLoginSubmitBackendError: recordLoginSubmitBackendErrorStub,
-        recordLoginTotpCodeSuccess: recordLoginTotpCodeSuccessStub,
-        recordLoginTotpCodeFailure: recordLoginTotpCodeFailureStub,
-        recordLoginBackupCodeSuccess: recordLoginBackupCodeSuccessStub,
-        recordLoginEmailConfirmationSent: recordLoginEmailConfirmationSentStub,
-        recordLoginEmailConfirmationSuccess:
-          recordLoginEmailConfirmationSuccessStub,
-        recordLoginComplete: recordLoginCompleteStub,
-        recordPasswordResetEmailSent: recordPasswordResetEmailSentStub,
-        recordPasswordResetCreateNewSuccess:
-          recordPasswordResetCreateNewSuccessStub,
-        recordAccountPasswordReset: recordAccountPasswordResetStub,
-        recordPasswordResetRecoveryKeySuccess:
-          recordPasswordResetRecoveryKeySuccessStub,
-        recordPasswordResetRecoveryKeyCreateSuccess:
-          recordPasswordResetRecoveryKeyCreateSuccessStub,
-        recordAccessTokenCreated: recordAccessTokenCreatedStub,
-        recordAccessTokenChecked: recordAccessTokenCheckedStub,
-        recordThirdPartyAuthGoogleLoginComplete:
-          recordThirdPartyAuthGoogleLoginCompleteStub,
-        recordThirdPartyAuthAppleLoginComplete:
-          recordThirdPartyAuthAppleLoginCompleteStub,
-        recordThirdPartyAuthGoogleRegComplete:
-          recordThirdPartyAuthGoogleRegCompleteStub,
-        recordThirdPartyAuthAppleRegComplete:
-          recordThirdPartyAuthAppleRegCompleteStub,
-        recordThirdPartyAuthSetPasswordComplete:
-          recordThirdPartyAuthSetPasswordCompleteStub,
-        recordAccountDeleteComplete: recordAccountDeleteCompleteStub,
-        recordPasswordResetEmailConfirmationSent:
-          recordPasswordResetEmailConfirmationSentStub,
-        recordPasswordResetEmailConfirmationSuccess:
-          recordPasswordResetEmailConfirmationSuccessStub,
-        recordTwoFactorAuthCodeComplete: recordTwoFactorAuthCodeCompleteStub,
-        recordPasswordResetTwoFactorSuccess:
-          recordPasswordResetTwoFactorSuccessStub,
-        recordPasswordResetRecoveryCodeSuccess:
-          recordPasswordResetRecoveryCodeSuccessStub,
-      }),
-    },
-  }
-);
+const gleanProxy = proxyquire('../../../lib/metrics/glean', {
+  './server_events': {
+    createAccountsEventsEvent: () => ({ record: recordStub }),
+    createEventsServerEventLogger: () => ({
+      recordRegAccCreated: recordRegAccCreatedStub,
+      recordRegEmailSent: recordRegEmailSentStub,
+      recordRegAccVerified: recordRegAccVerifiedStub,
+      recordRegComplete: recordRegCompleteStub,
+      recordRegSubmitError: recordRegSubmitErrorStub,
+      recordLoginSuccess: recordLoginSuccessStub,
+      recordLoginSubmitBackendError: recordLoginSubmitBackendErrorStub,
+      recordLoginTotpCodeSuccess: recordLoginTotpCodeSuccessStub,
+      recordLoginTotpCodeFailure: recordLoginTotpCodeFailureStub,
+      recordLoginBackupCodeSuccess: recordLoginBackupCodeSuccessStub,
+      recordLoginEmailConfirmationSent: recordLoginEmailConfirmationSentStub,
+      recordLoginEmailConfirmationSuccess:
+        recordLoginEmailConfirmationSuccessStub,
+      recordLoginComplete: recordLoginCompleteStub,
+      recordPasswordResetEmailSent: recordPasswordResetEmailSentStub,
+      recordPasswordResetCreateNewSuccess:
+        recordPasswordResetCreateNewSuccessStub,
+      recordAccountPasswordReset: recordAccountPasswordResetStub,
+      recordPasswordResetRecoveryKeySuccess:
+        recordPasswordResetRecoveryKeySuccessStub,
+      recordPasswordResetRecoveryKeyCreateSuccess:
+        recordPasswordResetRecoveryKeyCreateSuccessStub,
+      recordAccessTokenCreated: recordAccessTokenCreatedStub,
+      recordAccessTokenChecked: recordAccessTokenCheckedStub,
+      recordThirdPartyAuthGoogleLoginComplete:
+        recordThirdPartyAuthGoogleLoginCompleteStub,
+      recordThirdPartyAuthAppleLoginComplete:
+        recordThirdPartyAuthAppleLoginCompleteStub,
+      recordThirdPartyAuthGoogleRegComplete:
+        recordThirdPartyAuthGoogleRegCompleteStub,
+      recordThirdPartyAuthAppleRegComplete:
+        recordThirdPartyAuthAppleRegCompleteStub,
+      recordThirdPartyAuthSetPasswordComplete:
+        recordThirdPartyAuthSetPasswordCompleteStub,
+      recordAccountDeleteComplete: recordAccountDeleteCompleteStub,
+      recordPasswordResetEmailConfirmationSent:
+        recordPasswordResetEmailConfirmationSentStub,
+      recordPasswordResetEmailConfirmationSuccess:
+        recordPasswordResetEmailConfirmationSuccessStub,
+      recordTwoFactorAuthCodeComplete: recordTwoFactorAuthCodeCompleteStub,
+      recordPasswordResetTwoFactorSuccess:
+        recordPasswordResetTwoFactorSuccessStub,
+      recordPasswordResetRecoveryCodeSuccess:
+        recordPasswordResetRecoveryCodeSuccessStub,
+    }),
+  },
+});
+const gleanMetrics: (config: any) => GleanMetricsType = gleanProxy.gleanMetrics;
+const logErrorWithGlean = gleanProxy.logErrorWithGlean;
 
 const config = {
   gleanMetrics: {
@@ -120,7 +122,7 @@ const request = {
   headers: {
     'user-agent': 'ELinks/0.9.3 (textmode; SunOS)',
   },
-};
+} as unknown as AuthRequest;
 
 describe('Glean server side events', () => {
   afterEach(() => {
@@ -149,7 +151,7 @@ describe('Glean server side events', () => {
       await glean.login.success({
         ...request,
         app: { ...request.app, isMetricsEnabled: false },
-      });
+      } as unknown as AuthRequest);
 
       sinon.assert.notCalled(recordStub);
     });
@@ -162,7 +164,7 @@ describe('Glean server side events', () => {
   });
 
   describe('metrics', () => {
-    let glean;
+    let glean: GleanMetricsType;
 
     beforeEach(() => {
       glean = gleanMetrics(config);
@@ -199,7 +201,7 @@ describe('Glean server side events', () => {
             ...request.auth,
             credentials: { ...request.auth.credentials, uid: 'athens_texas' },
           },
-        };
+        } as unknown as AuthRequest;
         await glean.login.success(sessionAuthedReq);
         const metrics = recordStub.args[0][0];
         assert.equal(
@@ -218,7 +220,7 @@ describe('Glean server side events', () => {
               user: 'paris_tennessee',
             },
           },
-        };
+        } as unknown as AuthRequest;
         await glean.login.success(oauthReq);
         const metrics = recordStub.args[0][0];
         assert.equal(
@@ -246,7 +248,7 @@ describe('Glean server side events', () => {
               client_id: 'runny_eggs',
             },
           },
-        };
+        } as unknown as AuthRequest;
         await glean.login.success(req);
         const metrics = recordStub.args[0][0];
         assert.equal(metrics['relying_party_oauth_client_id'], 'runny_eggs');
@@ -255,8 +257,8 @@ describe('Glean server side events', () => {
       it('uses the client id from the payload', async () => {
         const req = {
           ...request,
-          payload: { ...request.payload, client_id: 'corny_jokes' },
-        };
+          payload: { ...(request.payload as object), client_id: 'corny_jokes' },
+        } as unknown as AuthRequest;
         await glean.login.success(req);
         const metrics = recordStub.args[0][0];
         assert.equal(metrics['relying_party_oauth_client_id'], 'corny_jokes');
@@ -278,7 +280,7 @@ describe('Glean server side events', () => {
               service: 'brass_monkey',
             },
           },
-        };
+        } as unknown as AuthRequest;
         await glean.login.success(req);
         const metrics = recordStub.args[0][0];
         assert.equal(metrics['relying_party_service'], 'brass_monkey');
@@ -295,7 +297,7 @@ describe('Glean server side events', () => {
               service: '7f1a38488a0df47b',
             },
           },
-        };
+        } as unknown as AuthRequest;
         await glean.login.success(req);
         const metrics = recordStub.args[0][0];
         assert.equal(
@@ -316,7 +318,7 @@ describe('Glean server side events', () => {
               deviceType: 'phablet',
             },
           },
-        };
+        } as unknown as AuthRequest;
         await glean.login.success(req);
         const metrics = recordStub.args[0][0];
         assert.equal(metrics['session_device_type'], 'phablet');
@@ -332,7 +334,7 @@ describe('Glean server side events', () => {
               entrypoint: 'homepage',
             },
           },
-        };
+        } as unknown as AuthRequest;
         await glean.login.success(req);
         const metrics = recordStub.args[0][0];
         assert.equal(metrics['session_entrypoint'], 'homepage');
@@ -348,7 +350,7 @@ describe('Glean server side events', () => {
               flowId: '101',
             },
           },
-        };
+        } as unknown as AuthRequest;
         await glean.login.success(req);
         const metrics = recordStub.args[0][0];
         assert.equal(metrics['session_flow_id'], '101');
@@ -356,7 +358,7 @@ describe('Glean server side events', () => {
     });
 
     describe('utm', () => {
-      let metrics;
+      let metrics: Dictionary<string>;
 
       beforeEach(async () => {
         const req = {
@@ -372,7 +374,7 @@ describe('Glean server side events', () => {
               utmTerm: 'erm',
             },
           },
-        };
+        } as unknown as AuthRequest;
         await glean.login.success(req);
         metrics = recordStub.args[0][0];
       });
@@ -400,7 +402,7 @@ describe('Glean server side events', () => {
   });
 
   describe('account events', () => {
-    let glean;
+    let glean: GleanMetricsType;
 
     beforeEach(() => {
       glean = gleanMetrics(config);
@@ -432,7 +434,7 @@ describe('Glean server side events', () => {
   });
 
   describe('registration', () => {
-    let glean;
+    let glean: GleanMetricsType;
 
     beforeEach(() => {
       glean = gleanMetrics(config);
@@ -493,7 +495,7 @@ describe('Glean server side events', () => {
   });
 
   describe('login', () => {
-    let glean;
+    let glean: GleanMetricsType;
 
     beforeEach(() => {
       glean = gleanMetrics(config);
@@ -608,7 +610,7 @@ describe('Glean server side events', () => {
       });
 
       it('log string and event metrics with account linking for Apple', async () => {
-        const glean = gleanMetrics(config);
+        const glean: GleanMetricsType = gleanMetrics(config);
         await glean.thirdPartyAuth.appleLoginComplete(request, {
           reason: 'linking',
         });
@@ -626,7 +628,7 @@ describe('Glean server side events', () => {
       });
 
       it('log string and event metrics without account linking for Apple', async () => {
-        const glean = gleanMetrics(config);
+        const glean: GleanMetricsType = gleanMetrics(config);
         await glean.thirdPartyAuth.appleLoginComplete(request);
         sinon.assert.calledOnce(recordStub);
         const metrics = recordStub.args[0][0];
@@ -647,7 +649,7 @@ describe('Glean server side events', () => {
       });
 
       it('log string and event metrics for Google', async () => {
-        const glean = gleanMetrics(config);
+        const glean: GleanMetricsType = gleanMetrics(config);
         await glean.thirdPartyAuth.googleRegComplete(request);
         sinon.assert.calledOnce(recordStub);
         const metrics = recordStub.args[0][0];
@@ -664,7 +666,7 @@ describe('Glean server side events', () => {
       });
 
       it('log string and event metrics for Google', async () => {
-        const glean = gleanMetrics(config);
+        const glean: GleanMetricsType = gleanMetrics(config);
         await glean.thirdPartyAuth.appleRegComplete(request);
         sinon.assert.calledOnce(recordStub);
         const metrics = recordStub.args[0][0];
@@ -681,7 +683,7 @@ describe('Glean server side events', () => {
       });
 
       it('log string and event metrics with account linking', async () => {
-        const glean = gleanMetrics(config);
+        const glean: GleanMetricsType = gleanMetrics(config);
         await glean.thirdPartyAuth.setPasswordComplete(request);
         sinon.assert.calledOnce(recordStub);
         const metrics = recordStub.args[0][0];

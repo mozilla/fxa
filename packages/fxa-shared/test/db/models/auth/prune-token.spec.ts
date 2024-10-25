@@ -14,7 +14,7 @@ import { ILogger } from '../../../../log';
 import { defaultOpts, testDatabaseSetup } from '../../helpers';
 import crypto from 'crypto';
 
-const toRandomBuff = (size) =>
+const toRandomBuff = (size: number) =>
   uuidTransformer.to(crypto.randomBytes(size).toString('hex'));
 
 describe('#integration - PruneTokens', () => {
@@ -104,11 +104,23 @@ describe('#integration - PruneTokens', () => {
     createdAt: number,
     lastAccessTime: number
   ) {
-    await SessionToken.query().insert({
-      tokenId,
-      tokenData,
-      uid,
+    await SessionToken.create({
+      id: tokenId.toString('hex'),
+      data: tokenData.toString('hex'),
+      uid: uid.toString('hex'),
       createdAt,
+      uaBrowser: '',
+      uaBrowserVersion: '',
+      uaOS: '',
+      uaOSVersion: '',
+      uaDeviceType: '',
+      uaFormFactor: '',
+      tokenVerificationId: '',
+      mustVerify: false,
+      providerId: 1,
+    });
+    await SessionToken.update({
+      id: tokenId.toString('hex'),
       lastAccessTime,
       uaBrowser: '',
       uaBrowserVersion: '',
@@ -117,9 +129,7 @@ describe('#integration - PruneTokens', () => {
       uaDeviceType: '',
       uaFormFactor: '',
       authAt: 1,
-      verificationMethod: 0,
-      verifiedAt: 0,
-      mustVerify: 0,
+      mustVerify: false,
     });
   }
 
@@ -206,8 +216,8 @@ describe('#integration - PruneTokens', () => {
       0,
       1000
     );
-    const tokens = (await SessionToken.query().select('tokenId')).map((x) =>
-      x.tokenId.toString('hex')
+    const tokens = (await SessionToken.query().select('tokenId')).map(
+      (x) => x.tokenId
     );
 
     expect(result.outputs['@totalDeletions']).to.equal(100);
@@ -233,8 +243,8 @@ describe('#integration - PruneTokens', () => {
 
   it('Limits sessions and respects deletion limit', async () => {
     const result = await pruneTokens.limitSessions(uid.toString('hex'), 0, 0);
-    const tokens = (await SessionToken.query().select('tokenId')).map((x) =>
-      x.tokenId.toString('hex')
+    const tokens = (await SessionToken.query().select('tokenId')).map(
+      (x) => x.tokenId
     );
 
     expect(result.outputs['@totalDeletions']).to.equal(0);
@@ -252,8 +262,8 @@ describe('#integration - PruneTokens', () => {
       40,
       1000
     );
-    const tokens = (await SessionToken.query().select('tokenId')).map((x) =>
-      x.tokenId.toString('hex')
+    const tokens = (await SessionToken.query().select('tokenId')).map(
+      (x) => x.tokenId
     );
 
     expect(result.outputs['@totalDeletions']).to.equal(60);
@@ -267,8 +277,8 @@ describe('#integration - PruneTokens', () => {
 
   it('Respects max sessions and deletion limit', async () => {
     const result = await pruneTokens.limitSessions(uid.toString('hex'), 50, 10);
-    const tokens = (await SessionToken.query().select('tokenId')).map((x) =>
-      x.tokenId.toString('hex')
+    const tokens = (await SessionToken.query().select('tokenId')).map(
+      (x) => x.tokenId
     );
 
     expect(result.outputs['@totalDeletions']).to.equal(10);

@@ -1,5 +1,10 @@
 {
   "extends": ["plugin:fxa/recommended"],
   "plugins": ["fxa"],
+  "ignorePatterns": [
+    "dist",
+    "node_modules",
+    "pm2.config.js"
+  ],
   "root": true
 }

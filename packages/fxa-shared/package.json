@@ -129,10 +129,6 @@
       "import": "./dist/esm/packages/fxa-shared/log/*.js",
       "require": "./dist/cjs/packages/fxa-shared/log/*.js"
     },
-    "./monitoring": {
-      "import": "./dist/esm/packages/fxa-shared/monitoring/index.js",
-      "require": "./dist/cjs/packages/fxa-shared/monitoring/index.js"
-    },
     "./metrics/*": {
       "import": "./dist/esm/packages/fxa-shared/metrics/*.js",
       "require": "./dist/cjs/packages/fxa-shared/metrics/*.js"
@@ -177,14 +173,6 @@
       "import": "./dist/esm/packages/fxa-shared/scripts/*.js",
       "require": "./dist/cjs/packages/fxa-shared/scripts/*.js"
     },
-    "./sentry": {
-      "import": "./dist/esm/packages/fxa-shared/sentry/index.js",
-      "require": "./dist/cjs/packages/fxa-shared/sentry/index.js"
-    },
-    "./sentry/*": {
-      "import": "./dist/esm/packages/fxa-shared/sentry/*.js",
-      "require": "./dist/cjs/packages/fxa-shared/sentry/*.js"
-    },
     "./speed-trap/*": {
       "import": "./dist/esm/packages/fxa-shared/speed-trap/*.js",
       "require": "./dist/cjs/packages/fxa-shared/speed-trap/*.js"
@@ -193,10 +181,6 @@
       "import": "./dist/esm/packages/fxa-shared/subscriptions/*.js",
       "require": "./dist/cjs/packages/fxa-shared/subscriptions/*.js"
     },
-    "./tracing/*": {
-      "import": "./dist/esm/packages/fxa-shared/tracing/*.js",
-      "require": "./dist/cjs/packages/fxa-shared/tracing/*.js"
-    },
     "./test/db/models/auth/*": {
       "import": "./dist/esm/packages/fxa-shared/test/db/models/auth/*.js",
       "require": "./dist/cjs/packages/fxa-shared/test/db/models/auth/*.js"
@@ -204,7 +188,9 @@
   },
   "scripts": {
     "build": "yarn build-ts && yarn copy-assets && yarn copy-sql",
-    "build-ts": "tsc --build && tsc-alias && tsc --build tsconfig.cjs.json && tsc-alias -p tsconfig.cjs.json",
+    "build-ts": "yarn build-esm-ts && yarn build-cjs-ts",
+    "build-esm-ts": "tsc --build && tsc-alias",
+    "build-cjs-ts": "tsc --build tsconfig.cjs.json && tsc-alias -p tsconfig.cjs.json",
     "clean": "rm -rf dist",
     "compile": "yarn build-ts",
     "copy-assets": "cp -r ./db/luaScripts ./dist/esm/packages/fxa-shared/db/luaScripts; cp -r ./db/luaScripts ./dist/cjs/packages/fxa-shared/db/luaScripts",
@@ -218,9 +204,9 @@
     "test": "yarn test-mocha && yarn test-jest",
     "test-unit": "yarn test-mocha-unit && yarn test-jest-unit",
     "test-integration": "yarn test-mocha-integration && yarn test-jest-integration",
-    "test-mocha": "tsc --build && node ./scripts/mocha-coverage.js -r esbuild-register --recursive test/**/*.{js,ts}",
-    "test-mocha-unit": "NODE_OPTIONS=--no-experimental-fetch MOCHA_FILE=../../artifacts/tests/$npm_package_name/mocha-unit.xml mocha -r esbuild-register -r tsconfig-paths/register --recursive test/**/*.{js,ts} -g '#integration' --invert",
-    "test-mocha-integration": "MOCHA_FILE=../../artifacts/tests/$npm_package_name/mocha-unit.xml mocha -r esbuild-register -r tsconfig-paths/register --recursive test/**/*.{js,ts} -g '#integration'",
+    "test-mocha": "TS_NODE_PROJECT=tsconfig.cjs.json node ./scripts/mocha-coverage.js -r ts-node/register -r tsconfig-paths/register --recursive test/**/*.{js,ts}",
+    "test-mocha-unit": "TS_NODE_PROJECT=tsconfig.cjs.json NODE_OPTIONS=--no-experimental-fetch MOCHA_FILE=../../artifacts/tests/$npm_package_name/mocha-unit.xml mocha -r ts-node/register -r tsconfig-paths/register --recursive test/**/*.{js,ts} -g '#integration' --invert",
+    "test-mocha-integration": "TS_NODE_PROJECT=tsconfig.cjs.json MOCHA_FILE=../../artifacts/tests/$npm_package_name/mocha-unit.xml mocha -r ts-node/register -r tsconfig-paths/register --recursive test/**/*.{js,ts} -g '#integration'",
     "test-jest": "jest --runInBand --logHeapUsage --coverage",
     "test-jest-unit": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-unit.xml jest --coverage --runInBand --logHeapUsage --forceExit --coverage -t '^(?!.*?#integration).*' --ci --reporters=default --reporters=jest-junit",
     "test-jest-integration": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-integration.xml jest --coverage --runInBand --logHeapUsage --coverage -t '#integration' --ci --reporters=default --reporters=jest-junit",
@@ -278,7 +264,7 @@
     "prettier": "^2.3.1",
     "proxyquire": "^2.1.3",
     "sinon": "^9.0.3",
-    "ts-jest": "^29.2.3",
+    "ts-jest": "^29.2.5",
     "ts-loader": "^9.5.1",
     "tsc-alias": "^1.8.8",
     "tsconfig-paths": "^4.2.0",

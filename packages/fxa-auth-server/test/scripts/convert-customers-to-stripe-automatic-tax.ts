@@ -596,7 +596,7 @@ describe('StripeAutomaticTaxConverter', () => {
   });
 
   describe('fetchInvoicePreview', () => {
-    let result: Stripe.Invoice;
+    let result: Stripe.Response<Stripe.UpcomingInvoice>;
     let stub: sinon.SinonStub;
 
     beforeEach(async () => {

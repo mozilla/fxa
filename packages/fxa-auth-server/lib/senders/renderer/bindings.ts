@@ -47,7 +47,7 @@ export type TemplateValues = {
 
 // TODO: better typing for 'template' with enums? from _versions.json
 export interface TemplateContext {
-  acceptLanguage: string;
+  acceptLanguage?: string;
   template: string;
   layout?: string;
   templateValues?: TemplateValues;
