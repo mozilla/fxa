@@ -33,7 +33,7 @@ export const MOCK_SEARCH_PARAMS = {
 export function createMockSignupWebIntegration(): SignupBaseIntegration {
   return {
     type: IntegrationType.Web,
-    getService: () => Promise.resolve(MozServices.Default),
+    getService: () => undefined,
     getClientId: () => undefined,
     isSync: () => false,
     isDesktopRelay: () => false,
@@ -44,7 +44,7 @@ export function createMockSignupWebIntegration(): SignupBaseIntegration {
 export function createMockSignupSyncDesktopV3Integration(): SignupBaseIntegration {
   return {
     type: IntegrationType.SyncDesktopV3,
-    getService: () => Promise.resolve(MozServices.FirefoxSync),
+    getService: () => 'sync',
     getClientId: () => undefined,
     isSync: () => true,
     isDesktopRelay: () => false,

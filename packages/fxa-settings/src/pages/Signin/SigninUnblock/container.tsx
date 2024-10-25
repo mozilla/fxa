@@ -38,6 +38,7 @@ import { getCredentials, getCredentialsV2 } from 'fxa-auth-client/lib/crypto';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { SignInOptions } from 'fxa-auth-client/browser';
 import { AUTH_DATA_KEY } from '../../../lib/sensitive-data-client';
+import { isFirefoxService } from '../../../models/integrations/utils';
 
 const SigninUnblockContainer = ({
   integration,
@@ -79,15 +80,13 @@ const SigninUnblockContainer = ({
     const service = integration.getService();
     const clientId = integration.getClientId();
 
-    const isBrowserClient = service === 'sync' || service === 'relay';
-
     const options: SignInOptions = signInOptions ?? {
       verificationMethod: VerificationMethods.EMAIL_OTP,
       keys: integration.wantsKeys(),
       // See oauth_client_info in the auth-server for details on service/clientId
       // Sending up the clientId when the user is not signing in to the browser
       // is used to show the correct service name in emails
-      ...(isBrowserClient ? { service } : { service: clientId }),
+      ...(isFirefoxService(service) ? { service } : { service: clientId }),
       unblockCode,
       metricsContext: queryParamsToMetricsContext(
         flowQueryParams as unknown as Record<string, string>

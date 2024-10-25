@@ -75,6 +75,7 @@ import {
   SensitiveDataClient,
 } from '../../lib/sensitive-data-client';
 import { Constants } from '../../lib/constants';
+import { isFirefoxService } from '../../models/integrations/utils';
 
 /*
  * In content-server, the `email` param is optional. If it's provided, we
@@ -265,8 +266,6 @@ const SigninContainer = ({
       const service = integration.getService();
       const clientId = integration.getClientId();
 
-      const isBrowserClient = service === 'sync' || service === 'relay';
-
       const { error, unverifiedAccount, v1Credentials, v2Credentials } =
         await tryKeyStretchingUpgrade(
           email,
@@ -284,7 +283,7 @@ const SigninContainer = ({
         // See oauth_client_info in the auth-server for details on service/clientId
         // Sending up the clientId when the user is not signing in to the browser
         // is used to show the correct service name in emails
-        ...(isBrowserClient ? { service } : { service: clientId }),
+        ...(isFirefoxService(service) ? { service } : { service: clientId }),
         metricsContext: queryParamsToMetricsContext(
           flowQueryParams as ReturnType<typeof searchParams>
         ),

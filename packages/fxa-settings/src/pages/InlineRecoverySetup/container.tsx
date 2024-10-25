@@ -22,6 +22,7 @@ import { SigninRecoveryLocationState } from './interfaces';
 import { TotpStatusResponse } from '../Signin/SigninTokenCode/interfaces';
 import { GET_TOTP_STATUS } from '../../components/App/gql';
 import OAuthDataError from '../../components/OAuthDataError';
+import { isFirefoxService } from '../../models/integrations/utils';
 
 export const InlineRecoverySetupContainer = ({
   isSignedIn,
@@ -61,13 +62,11 @@ export const InlineRecoverySetupContainer = ({
     const service = integration.getService();
     const clientId = integration.getClientId();
 
-    const isBrowserClient = service === 'sync' || service === 'relay';
-
     const result = await verifyTotp({
       variables: {
         input: {
           code,
-          ...(isBrowserClient ? { service } : { service: clientId }),
+          ...(isFirefoxService(service) ? { service } : { service: clientId }),
         },
       },
     });

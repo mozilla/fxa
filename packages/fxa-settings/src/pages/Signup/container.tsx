@@ -37,6 +37,7 @@ import { handleGQLError } from './utils';
 import VerificationMethods from '../../constants/verification-methods';
 import { queryParamsToMetricsContext } from '../../lib/metrics';
 import { QueryParams } from '../..';
+import { isFirefoxService } from '../../models/integrations/utils';
 
 /*
  * In content-server, the `email` param is optional. If it's provided, we
@@ -167,7 +168,6 @@ const SignupContainer = ({
     async (email, password, atLeast18AtReg) => {
       const service = integration.getService();
       const clientId = integration.getClientId();
-      const isBrowserClient = service === 'sync' || service === 'relay';
 
       const options: BeginSignUpOptions = {
         verificationMethod: VerificationMethods.EMAIL_OTP,
@@ -175,7 +175,7 @@ const SignupContainer = ({
         // See oauth_client_info in the auth-server for details on service/clientId
         // Sending up the clientId when the user is not signing in to the browser
         // is used to show the correct service name in emails
-        ...(isBrowserClient ? { service } : { service: clientId }),
+        ...(isFirefoxService(service) ? { service } : { service: clientId }),
         atLeast18AtReg,
         metricsContext: queryParamsToMetricsContext(
           flowQueryParams as unknown as Record<string, string>
