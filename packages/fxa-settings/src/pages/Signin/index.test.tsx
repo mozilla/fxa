@@ -572,7 +572,7 @@ describe('Signin', () => {
               });
               enterPasswordAndSubmit();
               await waitFor(() => {
-                // Ensure it's not called with keyFetchToken or unwrapBKey
+                // Ensure it's not called with keyFetchToken, unwrapBKey, or { relay: {} }
                 expect(fxaLoginSpy).toHaveBeenCalledWith({
                   email: MOCK_EMAIL,
                   sessionToken: MOCK_SESSION_TOKEN,
@@ -580,7 +580,6 @@ describe('Signin', () => {
                   verified: true,
                   services: { sync: {} },
                 });
-                // Ensure it's not called with services: { relay: {} }
                 expect(fxaOAuthLoginSpy).toHaveBeenCalledWith({
                   action: 'signin',
                   ...MOCK_OAUTH_FLOW_HANDLER_RESPONSE,
@@ -622,11 +621,11 @@ describe('Signin', () => {
                   sessionToken: MOCK_SESSION_TOKEN,
                   uid: MOCK_UID,
                   verified: true,
+                  services: { relay: {} },
                 });
                 expect(fxaOAuthLoginSpy).toHaveBeenCalledWith({
                   action: 'signin',
                   ...MOCK_OAUTH_FLOW_HANDLER_RESPONSE,
-                  services: { relay: {} },
                 });
 
                 const fxaLoginCallOrder =

@@ -84,12 +84,17 @@ export type FxALoginRequest = {
   keyFetchToken?: hexstring;
   unwrapBKey?: string;
   verifiedCanLinkAccount?: boolean;
-  services?: {
-    sync: {
-      offeredEngines?: string[];
-      declinedEngines?: string[];
-    };
-  };
+  services?:
+    | {
+        sync: {
+          offeredEngines?: string[];
+          declinedEngines?: string[];
+        };
+      }
+    // For sync optional flows (currently only Relay)
+    | {
+        relay: {};
+      };
 };
 
 // ref: [FxAccounts.sys.mjs](https://searchfox.org/mozilla-central/rev/82828dba9e290914eddd294a0871533875b3a0b5/services/fxaccounts/FxAccounts.sys.mjs#910)
@@ -114,13 +119,11 @@ export type FxAOAuthLogin = {
   code: string;
   redirect: string;
   state: string;
-  // For sync oauth signup
+  // OAuth desktop looks at the syc engine list in fxaLogin.
+  // OAuth mobile currently looks at fxaOAuthLogin, but should
+  // eventually move to look at fxaLogin as well to prevent FXA-10596.
   declinedSyncEngines?: string[];
   offeredSyncEngines?: string[];
-  // For sync optional flows (currently only Relay)
-  services?: {
-    relay: {};
-  };
 };
 
 // ref: https://searchfox.org/mozilla-central/rev/82828dba9e290914eddd294a0871533875b3a0b5/services/fxaccounts/FxAccountsWebChannel.sys.mjs#230

@@ -792,6 +792,7 @@ describe('Signup page', () => {
           // Does not send services: { sync: {...} }
           expect(fxaLoginSpy).toBeCalledWith({
             ...oauthCommonFxaLoginOptions,
+            services: { relay: {} },
           });
         });
 
