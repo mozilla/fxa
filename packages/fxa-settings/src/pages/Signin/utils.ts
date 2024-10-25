@@ -130,12 +130,6 @@ export async function handleNavigation(
         code: oauthData.code,
         redirect: oauthData.redirect,
         state: oauthData.state,
-        // OAuth desktop sync optional flow sends service in fxaOAuthLogin
-        ...(integration.isDesktopRelay() && {
-          services: {
-            relay: {},
-          },
-        }),
       });
     }
     performNavigation({ to, locationState, shouldHardNavigate });
@@ -187,12 +181,9 @@ function sendFxaLogin(navigationOptions: NavigationOptions) {
       keyFetchToken: navigationOptions.signinData.keyFetchToken!,
       unwrapBKey: navigationOptions.unwrapBKey!,
     }),
-    // OAuth desktop sync optional flow sends service in fxaOAuthLogin
-    ...(!navigationOptions.integration.isDesktopRelay() && {
-      services: {
-        sync: {},
-      },
-    }),
+    services: navigationOptions.integration.isDesktopRelay()
+      ? { relay: {} }
+      : { sync: {} },
   });
 }
 

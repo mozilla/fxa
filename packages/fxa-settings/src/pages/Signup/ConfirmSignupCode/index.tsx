@@ -212,6 +212,9 @@ const ConfirmSignupCode = ({
 
           if (integration.isSync()) {
             firefox.fxaOAuthLogin({
+              // OAuth desktop looks at the syc engine list in fxaLogin. Oauth
+              // mobile currently looks at the engines provided here, but should
+              // eventually move to look at fxaLogin as well to prevent FXA-10596.
               declinedSyncEngines,
               offeredSyncEngines,
               action: 'signup',
@@ -229,9 +232,6 @@ const ConfirmSignupCode = ({
               code,
               redirect,
               state,
-              services: {
-                relay: {},
-              },
             });
             goToSettingsWithAlertSuccess();
           } else {

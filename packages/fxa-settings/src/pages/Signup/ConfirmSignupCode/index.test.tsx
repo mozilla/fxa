@@ -298,9 +298,6 @@ describe('ConfirmSignupCode page', () => {
         expect(fxaOAuthLoginSpy).toHaveBeenCalledWith({
           action: 'signup',
           ...MOCK_OAUTH_FLOW_HANDLER_RESPONSE,
-          services: {
-            relay: {},
-          },
         });
       });
     });
