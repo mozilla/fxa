@@ -117,6 +117,14 @@ export class CartEmailNotFoundError extends CartError {
   }
 }
 
+export class CartUidNotFoundError extends CartError {
+  constructor(cartId: string) {
+    super('Cart uid not found', {
+      cartId,
+    });
+  }
+}
+
 export class CartInvalidPromoCodeError extends CartError {
   constructor(promoCode: string, cartId?: string) {
     super('Cart specified promo code does not exist', {

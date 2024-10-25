@@ -56,7 +56,6 @@ import {
   MockProfileClientConfigProvider,
   ProfileClient,
 } from '@fxa/profile/client';
-import { AccountManager } from '@fxa/shared/account/account';
 import {
   MockStrapiClientConfigProvider,
   ProductConfigurationManager,
@@ -80,6 +79,7 @@ import {
   CartEmailNotFoundError,
   CartInvalidPromoCodeError,
   CartInvalidCurrencyError,
+  CartUidNotFoundError,
 } from './cart.error';
 import { CheckoutService } from './checkout.service';
 import { PrePayStepsResultFactory } from './checkout.factories';
@@ -87,7 +87,6 @@ import { AssertionError } from 'assert';
 
 describe('CheckoutService', () => {
   let accountCustomerManager: AccountCustomerManager;
-  let accountManager: AccountManager;
   let cartManager: CartManager;
   let checkoutService: CheckoutService;
   let customerManager: CustomerManager;
@@ -112,7 +111,6 @@ describe('CheckoutService', () => {
     const moduleRef = await Test.createTestingModule({
       providers: [
         AccountCustomerManager,
-        AccountManager,
         CartManager,
         CheckoutService,
         CustomerManager,
@@ -150,7 +148,6 @@ describe('CheckoutService', () => {
     }).compile();
 
     accountCustomerManager = moduleRef.get(AccountCustomerManager);
-    accountManager = moduleRef.get(AccountManager);
     cartManager = moduleRef.get(CartManager);
     checkoutService = moduleRef.get(CheckoutService);
     customerManager = moduleRef.get(CustomerManager);
@@ -217,7 +214,6 @@ describe('CheckoutService', () => {
     );
 
     beforeEach(async () => {
-      jest.spyOn(accountManager, 'createAccountStub').mockResolvedValue(uid);
       jest.spyOn(customerManager, 'create').mockResolvedValue(mockCustomer);
       jest.spyOn(customerManager, 'retrieve').mockResolvedValue(mockCustomer);
       jest
@@ -292,82 +288,6 @@ describe('CheckoutService', () => {
       });
     });
 
-    describe('success - with new account customer stub account', () => {
-      const mockCart = StripeResponseFactory(
-        ResultCartFactory({
-          uid: undefined,
-          couponCode: faker.string.uuid(),
-          stripeCustomerId: mockCustomer.id,
-          eligibilityStatus: CartEligibilityStatus.CREATE,
-          amount: mockInvoicePreview.subtotal,
-        })
-      );
-
-      beforeEach(async () => {
-        await checkoutService.prePaySteps(mockCart, mockCustomerData);
-      });
-
-      it('creates a new account customer stub account', () => {
-        expect(accountManager.createAccountStub).toHaveBeenCalledWith(
-          mockCart.email,
-          1,
-          mockCustomerData.locale
-        );
-      });
-
-      it('updates the cart', () => {
-        const { id, version } = mockCart;
-
-        expect(cartManager.updateFreshCart).toHaveBeenCalledWith(id, version, {
-          uid: uid,
-          stripeCustomerId: mockCart.stripeCustomerId,
-        });
-      });
-
-      it('creates an account customer', () => {
-        expect(
-          accountCustomerManager.createAccountCustomer
-        ).toHaveBeenCalledWith({
-          uid: uid,
-          stripeCustomerId: mockCart.stripeCustomerId,
-        });
-      });
-    });
-
-    describe('success - with new stripe customer stub account', () => {
-      const mockCart = StripeResponseFactory(
-        ResultCartFactory({
-          uid: uid,
-          couponCode: faker.string.uuid(),
-          stripeCustomerId: null,
-          eligibilityStatus: CartEligibilityStatus.CREATE,
-          amount: mockInvoicePreview.subtotal,
-        })
-      );
-
-      beforeEach(async () => {
-        await checkoutService.prePaySteps(mockCart, mockCustomerData);
-      });
-
-      it('creates a new stripe customer stub account', () => {
-        expect(customerManager.create).toHaveBeenCalledWith({
-          uid: uid,
-          email: mockCart.email,
-          displayName: mockCustomerData.displayName,
-          taxAddress: mockCart.taxAddress,
-        });
-      });
-
-      it('updates the cart', () => {
-        const { uid, id, version } = mockCart;
-
-        expect(cartManager.updateFreshCart).toHaveBeenCalledWith(id, version, {
-          uid: uid,
-          stripeCustomerId: mockCustomer.id,
-        });
-      });
-    });
-
     describe('fail', () => {
       it('throws cart email not found error', async () => {
         const mockCart = StripeResponseFactory(
@@ -379,6 +299,18 @@ describe('CheckoutService', () => {
         await expect(
           checkoutService.prePaySteps(mockCart, mockCustomerData)
         ).rejects.toBeInstanceOf(CartEmailNotFoundError);
+      });
+
+      it('throws cart uid not found error', async () => {
+        const mockCart = StripeResponseFactory(
+          ResultCartFactory({
+            uid: undefined,
+          })
+        );
+
+        await expect(
+          checkoutService.prePaySteps(mockCart, mockCustomerData)
+        ).rejects.toBeInstanceOf(CartUidNotFoundError);
       });
 
       it('throws cart currency invalid error', async () => {
@@ -639,12 +571,10 @@ describe('CheckoutService', () => {
 
     describe('fail', () => {
       it('does not update customer if status is not succeeded', async () => {
-        jest
-          .spyOn(paymentIntentManager, 'confirm')
-          .mockResolvedValue({
-            ...mockPaymentIntent,
-            status: 'requires_action',
-          });
+        jest.spyOn(paymentIntentManager, 'confirm').mockResolvedValue({
+          ...mockPaymentIntent,
+          status: 'requires_action',
+        });
 
         await checkoutService.payWithStripe(
           mockCart,

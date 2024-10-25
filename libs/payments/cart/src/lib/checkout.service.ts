@@ -28,7 +28,6 @@ import {
   StripePromotionCode,
 } from '@fxa/payments/stripe';
 import { ProfileClient } from '@fxa/profile/client';
-import { AccountManager } from '@fxa/shared/account/account';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
 import { StatsDService } from '@fxa/shared/metrics/statsd';
 import { NotifierService } from '@fxa/shared/notifier';
@@ -38,6 +37,7 @@ import {
   CartEmailNotFoundError,
   CartInvalidPromoCodeError,
   CartInvalidCurrencyError,
+  CartUidNotFoundError,
 } from './cart.error';
 import { CartManager } from './cart.manager';
 import { CheckoutCustomerData, ResultCart } from './cart.types';
@@ -50,7 +50,6 @@ import assert from 'assert';
 export class CheckoutService {
   constructor(
     private accountCustomerManager: AccountCustomerManager,
-    private accountManager: AccountManager,
     private cartManager: CartManager,
     private customerManager: CustomerManager,
     private eligibilityService: EligibilityService,
@@ -99,16 +98,9 @@ export class CheckoutService {
       );
     }
 
-    // if uid not found, create stub account customer
-    // TODO: update hardcoded verifierVersion
-    // https://mozilla-hub.atlassian.net/browse/FXA-9693
-    let uid = cart.uid;
+    const uid = cart.uid;
     if (!uid) {
-      uid = await this.accountManager.createAccountStub(
-        cart.email,
-        1, // verifierVersion
-        customerData.locale
-      );
+      throw new CartUidNotFoundError(cart.id);
     }
 
     let stripeCustomerId = cart.stripeCustomerId;
@@ -133,7 +125,7 @@ export class CheckoutService {
       });
     }
 
-    // Cart only needs to be updated if we created a stub account or if we created a customer
+    // Cart only needs to be updated if we created a customer
     if (!cart.uid || !cart.stripeCustomerId) {
       await this.cartManager.updateFreshCart(cart.id, cart.version, {
         uid: uid,
