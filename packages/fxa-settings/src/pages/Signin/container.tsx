@@ -266,11 +266,12 @@ const SigninContainer = ({
 
       const service = integration.getService();
 
+      const v2Enabled = keyStretchExp.queryParamModel.isV2(config);
       const { error, unverifiedAccount, v1Credentials, v2Credentials } =
         await tryKeyStretchingUpgrade(
           email,
           password,
-          keyStretchExp.queryParamModel.isV2(config),
+          v2Enabled,
           credentialStatus,
           passwordChangeStart,
           getWrappedKeys,
@@ -300,6 +301,25 @@ const SigninContainer = ({
           };
         }
       );
+      // Sanity Check
+      if (
+        integration.isSync() &&
+        'data' in result &&
+        result.data?.unwrapBKey == null
+      ) {
+        Sentry.captureMessage('Warning missing unwrapBKey after trySignIn', {
+          extra: {
+            v2Enabled,
+            unverifiedAccount,
+            hasError: 'error' in result,
+            has_unwrapBKey: 'data' in result && !!result.data?.unwrapBKey,
+            has_v1Credentials: !!v1Credentials,
+            has_v1Credentials_unwrapBKey: !!v1Credentials?.unwrapBKey,
+            has_v2Credentials: !!v2Credentials,
+            has_v2Credentials_unwrapBKey: !!v2Credentials?.unwrapBKey,
+          },
+        });
+      }
 
       // Check recovery key status if signin was successful, user is on sync Desktop
       // and they didn't click "Do it later"; this affects navigation.
@@ -527,15 +547,23 @@ export async function tryKeyStretchingUpgrade(
         },
       });
     } catch (error) {
-      Sentry.captureMessage(
-        'Failure to finish v2 upgrade. Could not fetch credential status.'
-      );
-      return {
+      const result = {
         ...getHandledError(error),
         unverifiedAccount,
         v1Credentials,
         v2Credentials,
       };
+      Sentry.captureMessage(
+        'Failure to finish v2 upgrade. Could not fetch credential status.',
+        {
+          extra: {
+            errno: result?.error?.errno,
+            code: result?.error?.code,
+            message: result?.error?.message,
+          },
+        }
+      );
+      return result;
     }
 
     // We might have to upgrade the credentials in place.
@@ -557,17 +585,26 @@ export async function tryKeyStretchingUpgrade(
         keyFetchToken = data?.keyFetchToken || '';
         passwordChangeToken = data?.passwordChangeToken || '';
       } catch (error) {
-        // If the user enters the wrong password, they will see an invalid password error.
-        // Otherwise something has going wrong and we should show a general error.
-        Sentry.captureMessage(
-          'Failure to finish v2 upgrade. Could not start password change.'
-        );
-        return {
+        const result = {
           ...getHandledError(error),
           unverifiedAccount,
           v1Credentials,
           v2Credentials,
         };
+        // Don't include invalid passwords errors.
+        if (result.error?.errno !== 103) {
+          Sentry.captureMessage(
+            'Failure to finish v2 upgrade. Could not start password change.',
+            {
+              extra: {
+                errno: result?.error?.errno,
+                code: result?.error?.code,
+                message: result?.error?.message,
+              },
+            }
+          );
+        }
+        return result;
       }
 
       // Determine wrapKb.
@@ -590,12 +627,24 @@ export async function tryKeyStretchingUpgrade(
             Sentry.captureMessage(
               'Failure to finish v2 upgrade. Could not get wrapped keys.'
             );
-            return {
+            const result = {
               ...getHandledError(error),
               unverifiedAccount,
               v1Credentials,
               v2Credentials,
             };
+            Sentry.captureMessage(
+              'Failure to finish v2 upgrade. Could not get wrapped keys.',
+              {
+                extra: {
+                  unverifiedAccount,
+                  errno: result?.error?.errno,
+                  code: result?.error?.code,
+                  message: result?.error?.message,
+                },
+              }
+            );
+            return result;
           }
         }
       }
@@ -631,15 +680,23 @@ export async function tryKeyStretchingUpgrade(
             },
           });
         } catch (error) {
-          Sentry.captureMessage(
-            'Failure to finish v2 upgrade. Could not finish password change.'
-          );
-          return {
+          const result = {
             ...getHandledError(error),
             unverifiedAccount,
             v1Credentials,
             v2Credentials,
           };
+          Sentry.captureMessage(
+            'Failure to finish v2 upgrade. Could not finish password change.',
+            {
+              extra: {
+                errno: result?.error?.errno,
+                code: result?.error?.code,
+                message: result?.error?.message,
+              },
+            }
+          );
+          return result;
         }
       }
     } else if (credentialStatusData.data?.credentialStatus.clientSalt) {
