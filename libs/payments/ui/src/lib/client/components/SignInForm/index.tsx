@@ -55,9 +55,24 @@ export const SignInForm = ({ newsletterLabel }: SignInFormProps) => {
             className="w-full border rounded-md border-black/30 p-3 placeholder:text-grey-500 placeholder:font-normal focus:border focus:!border-black/30 focus:!shadow-[0_0_0_3px_rgba(10,132,255,0.3)] focus-visible:outline-none data-[invalid=true]:border-alert-red data-[invalid=true]:text-alert-red data-[invalid=true]:shadow-inputError"
             type="email"
             data-testid="email"
+            required
             aria-required
           />
         </Form.Control>
+        <Form.Message match="valueMissing">
+          <Localized id="signin-form-email-input-missing">
+            <p className="mt-1 text-alert-red" role="alert">
+              Please enter your email
+            </p>
+          </Localized>
+        </Form.Message>
+        <Form.Message match="typeMismatch">
+          <Localized id="signin-form-email-input-invalid">
+            <p className="mt-1 text-alert-red" role="alert">
+              Please provide a valid email
+            </p>
+          </Localized>
+        </Form.Message>
       </Form.Field>
 
       <Form.Field
