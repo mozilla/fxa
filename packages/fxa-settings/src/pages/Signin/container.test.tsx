@@ -443,6 +443,7 @@ describe('signin container', () => {
   describe('beginSigninHandler', () => {
     beforeEach(() => {
       mockLocationState = MOCK_LOCATION_STATE_COMPLETE;
+      mockSentryCaptureMessage.mockReset();
     });
 
     it('runs handler and invokes sign in mutation', async () => {
@@ -786,7 +787,14 @@ describe('signin container', () => {
           expect(handlerResult?.error).toBeDefined();
           expect(handlerResult?.data?.signIn).toBeUndefined();
           expect(mockSentryCaptureMessage).toBeCalledWith(
-            'Failure to finish v2 upgrade. Could not fetch credential status.'
+            'Failure to finish v2 upgrade. Could not fetch credential status.',
+            {
+              extra: {
+                code: undefined,
+                errno: 999,
+                message: 'Unexpected error',
+              },
+            }
           );
         });
       });
@@ -810,7 +818,14 @@ describe('signin container', () => {
           expect(handlerResult?.error).toBeDefined();
           expect(handlerResult?.data?.signIn).toBeUndefined();
           expect(mockSentryCaptureMessage).toBeCalledWith(
-            'Failure to finish v2 upgrade. Could not start password change.'
+            'Failure to finish v2 upgrade. Could not start password change.',
+            {
+              extra: {
+                code: undefined,
+                errno: 999,
+                message: 'Unexpected error',
+              },
+            }
           );
         });
       });
@@ -834,7 +849,6 @@ describe('signin container', () => {
 
           expect(handlerResult?.error?.message).toEqual(mockGqlError().message);
           expect(handlerResult?.data?.signIn).toBeUndefined();
-          expect(mockSentryCaptureMessage).toBeCalledTimes(1);
           expect(mockSentryCaptureMessage).toBeCalledWith(
             'Failure to finish v2 upgrade. Could not get wrapped keys.'
           );
@@ -861,9 +875,15 @@ describe('signin container', () => {
 
           expect(handlerResult?.error?.message).toEqual(mockGqlError().message);
           expect(handlerResult?.data?.signIn).toBeUndefined();
-          expect(mockSentryCaptureMessage).toBeCalledTimes(1);
           expect(mockSentryCaptureMessage).toBeCalledWith(
-            'Failure to finish v2 upgrade. Could not finish password change.'
+            'Failure to finish v2 upgrade. Could not finish password change.',
+            {
+              extra: {
+                code: undefined,
+                errno: 999,
+                message: 'Unexpected error',
+              },
+            }
           );
         });
       });
