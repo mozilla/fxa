@@ -4,11 +4,6 @@
 import { faker } from '@faker-js/faker';
 import { Test } from '@nestjs/testing';
 
-import {
-  CustomerManager,
-  InvoiceManager,
-  SubscriptionManager,
-} from '@fxa/payments/customer';
 import { MockStripeConfigProvider, StripeClient } from '@fxa/payments/stripe';
 import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
 
@@ -33,8 +28,6 @@ describe('PaypalBillingAgreementManager', () => {
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
       providers: [
-        CustomerManager,
-        InvoiceManager,
         PaypalBillingAgreementManager,
         PayPalClient,
         PaypalCustomerManager,
@@ -42,7 +35,6 @@ describe('PaypalBillingAgreementManager', () => {
         MockStripeConfigProvider,
         MockPaypalClientConfigProvider,
         StripeClient,
-        SubscriptionManager,
       ],
     }).compile();
 

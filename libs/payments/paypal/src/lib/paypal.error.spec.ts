@@ -4,10 +4,7 @@
 import { faker } from '@faker-js/faker';
 import { MultiError, VError } from 'verror';
 
-import {
-  NVPErrorFactory,
-  NVPErrorResponseFactory,
-} from '../../../../payments/paypal/src/lib/factories';
+import { NVPErrorFactory, NVPErrorResponseFactory } from './factories';
 import { PayPalClientError, PayPalNVPError } from './paypal.error';
 
 describe('PayPal Errors', () => {

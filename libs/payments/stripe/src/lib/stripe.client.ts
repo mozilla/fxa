@@ -166,6 +166,28 @@ export class StripeClient {
     return result as StripeResponse<StripeInvoice>;
   }
 
+  async invoicesUpdate(invoiceId: string, params?: Stripe.InvoiceUpdateParams) {
+    const result = await this.stripe.invoices.update(invoiceId, {
+      ...params,
+      expand: undefined,
+    });
+    return result as StripeResponse<StripeInvoice>;
+  }
+
+  async invoicesPay(invoiceId: string) {
+    try {
+      await this.stripe.invoices.pay(invoiceId, {
+        paid_out_of_band: true,
+      });
+    } catch (err) {
+      if (err.message.includes('Invoice is already paid')) {
+        // This was already marked paid, we can ignore the error.
+        return;
+      }
+      throw err;
+    }
+  }
+
   async paymentIntentRetrieve(
     paymentIntentId: string,
     params?: Stripe.PaymentIntentRetrieveParams

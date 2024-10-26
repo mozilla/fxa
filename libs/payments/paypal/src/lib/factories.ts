@@ -19,6 +19,7 @@ import {
   NVPErrorSeverity,
   TransactionSearchResult,
 } from './paypal.client.types';
+import { ChargeOptions, ChargeResponse } from './paypal.types';
 
 export const NVPBaseResponseFactory = (
   override?: Partial<NVPBaseResponse>
@@ -152,5 +153,35 @@ export const NVPTransactionSearchResponseFactory = (
 ): NVPTransactionSearchResponse => ({
   ...NVPResponseFactory(),
   L: [TransactionSearchResultFactory(), TransactionSearchResultFactory()],
+  ...override,
+});
+
+export const ChargeResponseFactory = (
+  override?: Partial<ChargeResponse>
+): ChargeResponse => ({
+  avsCode: faker.string.alpha(1).toUpperCase(),
+  currencyCode: faker.finance.currencyCode(),
+  cvv2Match: faker.finance.creditCardCVV(),
+  transactionId: faker.string.uuid(),
+  parentTransactionId: faker.string.uuid(),
+  transactionType: 'express-checkout',
+  paymentType: faker.finance.transactionType(),
+  orderTime: faker.date.recent().toISOString(),
+  amount: faker.finance.amount(),
+  paymentStatus: 'Completed',
+  pendingReason: 'none',
+  reasonCode: 'none',
+  ...override,
+});
+
+export const ChargeOptionsFactory = (
+  override?: Partial<ChargeOptions>
+): ChargeOptions => ({
+  amountInCents: faker.number.int({ max: 100000000 }),
+  billingAgreementId: faker.string.uuid(),
+  currencyCode: faker.finance.currencyCode(),
+  idempotencyKey: faker.string.uuid(),
+  invoiceNumber: faker.string.uuid(),
+  taxAmountInCents: faker.number.int({ max: 100000000 }),
   ...override,
 });

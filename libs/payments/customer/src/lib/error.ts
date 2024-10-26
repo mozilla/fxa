@@ -92,3 +92,21 @@ export class InvalidPaymentIntentError extends PaymentsCustomerError {
     super('Invalid payment intent');
   }
 }
+
+export class InvalidInvoiceError extends PaymentsCustomerError {
+  constructor() {
+    super('Invalid invoice');
+  }
+}
+
+export class StripePayPalAgreementNotFoundError extends PaymentsCustomerError {
+  constructor(customerId: string) {
+    super(`PayPal agreement not found for Stripe customer ${customerId}`);
+  }
+}
+
+export class PayPalPaymentFailedError extends PaymentsCustomerError {
+  constructor(status?: string) {
+    super(`PayPal payment failed with status ${status ?? 'undefined'}`);
+  }
+}

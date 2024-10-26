@@ -262,12 +262,9 @@ export class CartService {
       throw new CartStateProcessingError(cartId, e);
     }
 
-    // Intentionally left out of try/catch block to so that the rest of the logic
-    // is non-blocking and can be handled asynchronously.
     this.checkoutService
       .payWithPaypal(updatedCart, customerData, token)
       .catch(async () => {
-        // TODO: Handle errors and provide an associated reason for failure
         await this.cartManager.finishErrorCart(cartId, {
           errorReasonId: CartErrorReasonId.Unknown,
         });
@@ -299,6 +296,18 @@ export class CartService {
 
     // PayPal payment method collection
     if (subscription.collection_method === 'send_invoice') {
+      if (!cart.stripeCustomerId) {
+        throw new CartError('Invalid stripe customer id on cart', {
+          cartId,
+        });
+      }
+      if (subscription.latest_invoice) {
+        const invoice = await this.invoiceManager.retrieve(
+          subscription.latest_invoice
+        );
+        await this.invoiceManager.processPayPalInvoice(invoice);
+      }
+
       return { cartState: cart.state };
     }
 

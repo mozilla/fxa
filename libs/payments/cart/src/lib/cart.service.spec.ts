@@ -40,6 +40,8 @@ import {
   AccountCustomerManager,
   StripeSubscriptionFactory,
   StripePaymentMethodFactory,
+  StripePaymentIntentFactory,
+  StripeInvoiceFactory,
 } from '@fxa/payments/stripe';
 import {
   MockProfileClientConfigProvider,
@@ -106,6 +108,7 @@ describe('CartService', () => {
   let productConfigurationManager: ProductConfigurationManager;
   let subscriptionManager: SubscriptionManager;
   let paymentMethodManager: PaymentMethodManager;
+  let stripeClient: StripeClient;
 
   const mockLogger = {
     error: jest.fn(),
@@ -173,6 +176,7 @@ describe('CartService', () => {
     productConfigurationManager = moduleRef.get(ProductConfigurationManager);
     subscriptionManager = moduleRef.get(SubscriptionManager);
     paymentMethodManager = moduleRef.get(PaymentMethodManager);
+    stripeClient = moduleRef.get(StripeClient);
   });
 
   describe('setupCart', () => {
@@ -467,6 +471,107 @@ describe('CartService', () => {
       ).rejects.toBeInstanceOf(CartStateProcessingError);
 
       expect(checkoutService.payWithPaypal).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('pollCart', () => {
+    it('returns cartState if cart is in failed state', async () => {
+      const mockart = ResultCartFactory({ state: CartState.FAIL });
+
+      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockart);
+
+      const result = await cartService.pollCart(mockart.id);
+
+      expect(result).toEqual({ cartState: mockart.state });
+    });
+
+    it('returns cartState if cart is in success state', async () => {
+      const mockart = ResultCartFactory({ state: CartState.SUCCESS });
+
+      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockart);
+
+      const result = await cartService.pollCart(mockart.id);
+
+      expect(result).toEqual({ cartState: mockart.state });
+    });
+
+    it('calls invoiceManager.processPayPalNonZeroInvoice for send_invoice subscriptions', async () => {
+      const mockSubscriptionId = faker.string.uuid();
+      const mockInvoiceId = faker.string.uuid();
+      const mockCart = ResultCartFactory({
+        state: CartState.PROCESSING,
+        stripeSubscriptionId: mockSubscriptionId,
+      });
+      const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
+      const mockInvoice = StripeResponseFactory(
+        StripeInvoiceFactory({
+          id: mockInvoiceId,
+          currency: 'usd',
+          amount_due: 1000,
+          tax: 100,
+        })
+      );
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory({
+          id: mockSubscriptionId,
+          latest_invoice: mockInvoiceId,
+          collection_method: 'send_invoice',
+        })
+      );
+
+      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(mockSubscription);
+      jest
+        .spyOn(stripeClient, 'customersRetrieve')
+        .mockResolvedValue(mockCustomer);
+      jest.spyOn(invoiceManager, 'retrieve').mockResolvedValue(mockInvoice);
+      jest
+        .spyOn(invoiceManager, 'processPayPalNonZeroInvoice')
+        .mockResolvedValue(mockInvoice);
+
+      const result = await cartService.pollCart(mockCart.id);
+
+      expect(invoiceManager.processPayPalNonZeroInvoice).toHaveBeenCalledWith(
+        mockCustomer,
+        mockInvoice
+      );
+
+      expect(result).toEqual({ cartState: CartState.PROCESSING });
+    });
+
+    it('calls subscriptionManager.processStripeSubscription for stripe subscriptions', async () => {
+      const mockSubscriptionId = faker.string.uuid();
+      const mockCart = ResultCartFactory({
+        state: CartState.PROCESSING,
+        stripeSubscriptionId: mockSubscriptionId,
+      });
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory({
+          id: mockSubscriptionId,
+          collection_method: 'charge_automatically',
+        })
+      );
+      const mockPaymentIntent = StripeResponseFactory(
+        StripePaymentIntentFactory({ status: 'processing' })
+      );
+
+      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(mockSubscription);
+      jest
+        .spyOn(subscriptionManager, 'processStripeSubscription')
+        .mockResolvedValue(mockPaymentIntent);
+
+      const result = await cartService.pollCart(mockCart.id);
+
+      expect(
+        subscriptionManager.processStripeSubscription
+      ).toHaveBeenCalledWith(mockSubscription);
+
+      expect(result).toEqual({ cartState: CartState.PROCESSING });
     });
   });
 

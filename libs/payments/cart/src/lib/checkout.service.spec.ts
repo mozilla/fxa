@@ -536,6 +536,7 @@ describe('CheckoutService', () => {
               },
             ],
             payment_behavior: 'default_incomplete',
+            currency: mockCart.currency,
             metadata: {
               amount: mockCart.amount,
               currency: mockCart.currency,
@@ -642,6 +643,7 @@ describe('CheckoutService', () => {
           customer: mockCustomer,
           promotionCode: mockPromotionCode,
           price: mockPrice,
+          version: mockCart.version + 1,
         })
       );
       jest
@@ -666,6 +668,7 @@ describe('CheckoutService', () => {
       jest.spyOn(subscriptionManager, 'cancel');
       jest.spyOn(paypalBillingAgreementManager, 'cancel').mockResolvedValue();
       jest.spyOn(checkoutService, 'postPaySteps').mockResolvedValue();
+      jest.spyOn(cartManager, 'updateFreshCart').mockResolvedValue();
     });
 
     describe('success', () => {
@@ -710,6 +713,7 @@ describe('CheckoutService', () => {
                 price: mockPrice.id,
               },
             ],
+            currency: mockCart.currency,
             metadata: {
               amount: mockCart.amount,
               currency: mockCart.currency,
@@ -754,6 +758,33 @@ describe('CheckoutService', () => {
 
       it('does not cancel the billing agreement', () => {
         expect(paypalBillingAgreementManager.cancel).not.toHaveBeenCalled();
+      });
+
+      it('updates the customers paypal agreement id', () => {
+        expect(customerManager.update).toHaveBeenCalledWith(mockCustomer.id, {
+          metadata: {
+            [STRIPE_CUSTOMER_METADATA.PaypalAgreement]: mockBillingAgreementId,
+          },
+        });
+      });
+
+      it('calls updateFreshCart', () => {
+        expect(cartManager.updateFreshCart).toHaveBeenCalledWith(
+          mockCart.id,
+          mockCart.version + 1,
+          {
+            stripeSubscriptionId: mockSubscription.id,
+          }
+        );
+      });
+
+      it('calls postPaySteps with the correct arguments', () => {
+        expect(checkoutService.postPaySteps).toHaveBeenCalledWith(
+          mockCart,
+          mockCart.version + 2,
+          mockSubscription,
+          mockCart.uid
+        );
       });
     });
   });
