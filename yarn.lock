@@ -37925,7 +37925,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-react-hooks@npm:4.6.0, eslint-plugin-react-hooks@npm:^4.3.0":
+"eslint-plugin-react-hooks@npm:5.0.0":
+  version: 5.0.0
+  resolution: "eslint-plugin-react-hooks@npm:5.0.0"
+  peerDependencies:
+    eslint: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0 || ^9.0.0
+  checksum: eddd514a8796e8f805aa0c712d5fe6120fa6db778e3ad2949459b208f8a4bed6a48c152edfa9613f137c7527b00b42d489b5f94363d01d3a509e1f31630674dd
+  languageName: node
+  linkType: hard
+
+"eslint-plugin-react-hooks@npm:^4.3.0":
   version: 4.6.0
   resolution: "eslint-plugin-react-hooks@npm:4.6.0"
   peerDependencies:
@@ -42148,7 +42157,7 @@ fsevents@~2.1.1:
     eslint-plugin-jest: ^27.6.0
     eslint-plugin-jsx-a11y: 6.10.0
     eslint-plugin-react: ^7.32.2
-    eslint-plugin-react-hooks: 4.6.0
+    eslint-plugin-react-hooks: 5.0.0
     graphql: ^16.9.0
     graphql-request: ^6.1.0
     grunt: ^1.6.1
