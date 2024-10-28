@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { captureException } from '@sentry/browser';
+
 export enum FirefoxCommand {
   AccountDeleted = 'fxaccounts:delete',
   ProfileChanged = 'profile:change',
@@ -317,10 +319,36 @@ export class Firefox extends EventTarget {
   }
 
   fxaLogin(options: FxALoginRequest): void {
+    if (!options.unwrapBKey) {
+      try {
+        throw new Error('Unwrapkey missing from FxALoginRequest');
+      } catch (err) {
+        captureException(err, {
+          extra: {
+            partial: options.email.substring(4),
+            hasKeyFetchToken: !!options.keyFetchToken,
+            hasUnwrapBKey: !!options.unwrapBKey,
+          },
+        });
+      }
+    }
     this.send(FirefoxCommand.Login, options);
   }
 
   fxaLoginSignedInUser(options: FxALoginSignedInUserRequest) {
+    if (!options.unwrapBKey) {
+      try {
+        throw new Error('Unwrapkey missing from FxALoginSignedInUserRequest');
+      } catch (err) {
+        captureException(err, {
+          extra: {
+            partialEmail: options.email.substring(4),
+            hasKeyFetchToken: !!options.keyFetchToken,
+            hasUnwrapBKey: !!options.unwrapBKey,
+          },
+        });
+      }
+    }
     this.send(FirefoxCommand.Login, options);
   }
 
