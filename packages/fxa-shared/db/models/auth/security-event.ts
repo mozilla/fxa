@@ -11,7 +11,7 @@ import { convertError } from '../../mysql';
 // These are the values of the `securityEventNames` table in the fxa DB.  The
 // numeric id is a MySQL auto_increment'd value.  It's best to run the
 // migrations and then add the id values here when adding more event types.
-const EVENT_NAMES = {
+export const EVENT_NAMES = {
   'account.create': 1,
   'account.login': 2,
   'account.reset': 3,
