@@ -133,6 +133,11 @@ export class PurchaseManager extends PurchaseManagerBase {
     originalTransactionId: string;
   }> {
     const decodedPayload = await decodeNotificationPayload(payload);
+
+    if (!decodedPayload.data) {
+      throw new Error('Decoded payload contains no data');
+    }
+
     const { bundleId, originalTransactionId } = await decodeTransaction(
       decodedPayload.data.signedTransactionInfo
     );

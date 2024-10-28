@@ -84,6 +84,7 @@
     "@type-cacheable/core": "^14.1.0",
     "@type-cacheable/ioredis-adapter": "^10.0.4",
     "agentkeepalive": "^4.5.0",
+    "app-store-server-api": "^0.15.3",
     "axios": "^1.7.5",
     "base64url": "^3.0.1",
     "bn.js": "^5.2.1",

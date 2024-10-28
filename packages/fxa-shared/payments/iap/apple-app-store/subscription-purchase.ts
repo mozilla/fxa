@@ -109,6 +109,11 @@ export class AppStoreSubscriptionPurchase {
   private renewalOfferIdentifier?: string;
   private revocationDate?: number;
   private revocationReason?: number;
+  private currency!: string;
+  private price!: number;
+  private storefront!: string;
+  private renewalCurrency?: string;
+  private renewalPrice?: number;
 
   // Library-managed properties
   userId?: string; // hex string for FxA user id
@@ -136,6 +141,9 @@ export class AppStoreSubscriptionPurchase {
     purchase.transactionId = transactionInfo.transactionId;
     purchase.type = transactionInfo.type;
     purchase.verifiedAt = verifiedAt;
+    purchase.currency = transactionInfo.currency;
+    purchase.price = transactionInfo.price;
+    purchase.storefront = transactionInfo.storefront;
 
     if (renewalInfo.expirationIntent) {
       purchase.expirationIntent = renewalInfo.expirationIntent;
@@ -178,6 +186,12 @@ export class AppStoreSubscriptionPurchase {
     }
     if (transactionInfo.hasOwnProperty('revocationReason')) {
       purchase.revocationReason = transactionInfo.revocationReason;
+    }
+    if (renewalInfo.currency) {
+      purchase.renewalCurrency = renewalInfo.currency;
+    }
+    if (renewalInfo.renewalPrice) {
+      purchase.renewalPrice = renewalInfo.renewalPrice;
     }
 
     return purchase;
