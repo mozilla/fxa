@@ -4,4 +4,7 @@
 
 export const dynamic = 'force-dynamic';
 
-export { GET } from '../%5F_lbheartbeat__/route';
+export {
+  /* @next-codemod-error `GET` export is re-exported. Check if this component uses `params` or `searchParams`*/
+  GET,
+} from '../%5F_lbheartbeat__/route';

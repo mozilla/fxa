@@ -13,19 +13,20 @@ interface CheckoutNewParams {
   interval: string;
 }
 
-export default async function CheckoutNew({
-  params,
-  searchParams,
-}: {
-  params: CheckoutNewParams;
-  searchParams: Record<string, string>;
+export default async function CheckoutNew(props: {
+  params: Promise<CheckoutNewParams>;
+  searchParams: Promise<Record<string, string>>;
 }) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const { offeringId, interval } = params;
   const { coupon } = searchParams;
   const session = await auth();
 
   const fxaUid = session?.user?.id;
-  const ip = (headers().get('x-forwarded-for') ?? '127.0.0.1').split(',')[0];
+  const ip = ((await headers()).get('x-forwarded-for') ?? '127.0.0.1').split(
+    ','
+  )[0];
 
   let cartId: string;
   try {

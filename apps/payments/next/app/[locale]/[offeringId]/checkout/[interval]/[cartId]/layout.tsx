@@ -28,20 +28,21 @@ export interface CheckoutSearchParams {
   promotion_code?: string;
 }
 
-export default async function RootLayout({
-  children,
-  params,
-}: {
+export default async function RootLayout(props: {
   children: React.ReactNode;
-  params: CheckoutParams;
+  params: Promise<CheckoutParams>;
 }) {
+  const params = await props.params;
+
+  const { children } = props;
+
   // Temporarily defaulting to `accept-language`
   // This to be updated in FXA-9404
   //const locale = getLocaleFromRequest(
   //  params,
   //  headers().get('accept-language')
   //);
-  const locale = headers().get('accept-language') || DEFAULT_LOCALE;
+  const locale = (await headers()).get('accept-language') || DEFAULT_LOCALE;
   const cmsDataPromise = fetchCMSData(params.offeringId, locale);
   const cartDataPromise = getCartAction(params.cartId);
   const sessionPromise = auth();

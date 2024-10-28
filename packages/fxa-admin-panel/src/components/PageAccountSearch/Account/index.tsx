@@ -386,7 +386,6 @@ export const Account = ({
           </p>
         )}
       </section>
-
       <DangerZone
         {...{
           uid,

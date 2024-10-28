@@ -11,8 +11,11 @@ import { getApp } from '@fxa/payments/ui/server';
 import { headers } from 'next/headers';
 import { DEFAULT_LOCALE } from '@fxa/shared/l10n';
 
-export default function ProcessingPage({ params }: { params: CheckoutParams }) {
-  const locale = headers().get('accept-language') || DEFAULT_LOCALE;
+export default async function ProcessingPage(props: {
+  params: Promise<CheckoutParams>;
+}) {
+  const params = await props.params;
+  const locale = (await headers()).get('accept-language') || DEFAULT_LOCALE;
   const l10n = getApp().getL10n(locale);
   return (
     <section

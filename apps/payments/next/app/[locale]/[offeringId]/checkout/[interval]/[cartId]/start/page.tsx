@@ -20,18 +20,24 @@ import AppleLogo from '@fxa/shared/assets/images/apple-logo.svg';
 import GoogleLogo from '@fxa/shared/assets/images/google-logo.svg';
 import { DEFAULT_LOCALE } from '@fxa/shared/l10n';
 import { auth } from 'apps/payments/next/auth';
-import { fetchCMSData, getCartOrRedirectAction } from '@fxa/payments/ui/actions';
+import {
+  fetchCMSData,
+  getCartOrRedirectAction,
+} from '@fxa/payments/ui/actions';
 
 export const dynamic = 'force-dynamic';
 
-export default async function Checkout({ params }: { params: CheckoutParams }) {
+export default async function Checkout(props: {
+  params: Promise<CheckoutParams>;
+}) {
+  const params = await props.params;
   // Temporarily defaulting to `accept-language`
   // This to be updated in FXA-9404
   //const locale = getLocaleFromRequest(
   //  params,
   //  headers().get('accept-language')
   //);
-  const locale = headers().get('accept-language') || DEFAULT_LOCALE;
+  const locale = (await headers()).get('accept-language') || DEFAULT_LOCALE;
   const sessionPromise = auth();
   const l10n = getApp().getL10n(locale);
   const cmsDataPromise = fetchCMSData(params.offeringId, locale);

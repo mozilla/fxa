@@ -70,7 +70,6 @@ const AuthTotp = ({
         headingText="Enter authentication code"
         {...{ serviceName }}
       />
-
       <main>
         <div className="flex justify-center mx-auto">
           <TwoFactorAuthImage className="w-3/5" />

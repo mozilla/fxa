@@ -809,8 +809,7 @@ Start.prototype = {
         // verification
         this._isOAuthVerificationSameBrowser()
       ) ||
-      this._isOAuthVerificationDifferentBrowser() ||
-      // any URL with 'oauth' in the path.
+      this._isOAuthVerificationDifferentBrowser() || // any URL with 'oauth' in the path.
       /oauth/.test(this._window.location.pathname)
     );
   },

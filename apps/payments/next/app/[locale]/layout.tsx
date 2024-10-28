@@ -18,8 +18,8 @@ export default async function RootProviderLayout({
   //  params,
   //  headers().get('accept-language')
   //);
-  const locale = headers().get('accept-language') || DEFAULT_LOCALE;
-  const nonce = headers().get('x-nonce') || undefined;
+  const locale = (await headers()).get('accept-language') || DEFAULT_LOCALE;
+  const nonce = (await headers()).get('x-nonce') || undefined;
   const fetchedMessages = getApp().getFetchedMessages(locale);
 
   return (

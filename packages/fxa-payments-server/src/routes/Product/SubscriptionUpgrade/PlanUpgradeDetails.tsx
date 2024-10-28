@@ -63,15 +63,11 @@ export const PlanUpgradeDetails = ({
       <p className="plan-label current-plan-label">
         <Localized id="sub-update-current-plan-label">Current plan</Localized>
       </p>
-
       <PlanDetailsCard className="from-plan" plan={upgradeFromPlan} />
-
       <p className="plan-label new-plan-label">
         <Localized id="sub-update-new-plan-label">New plan</Localized>
       </p>
-
       <PlanDetailsCard className="to-plan" plan={selectedPlan} />
-
       <div className="py-6 border-t-0">
         {showTax && !!subTotal && !!exclusiveTaxRates.length && (
           <>

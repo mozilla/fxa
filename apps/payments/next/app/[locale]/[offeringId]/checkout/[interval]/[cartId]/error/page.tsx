@@ -44,20 +44,19 @@ const getErrorReason = (reason: CartErrorReasonId | null) => {
   }
 };
 
-export default async function CheckoutError({
-  params,
-  searchParams,
-}: {
-  params: CheckoutParams;
-  searchParams: Record<string, string>;
+export default async function CheckoutError(props: {
+  params: Promise<CheckoutParams>;
+  searchParams: Promise<Record<string, string>>;
 }) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   // Temporarily defaulting to `accept-language`
   // This to be updated in FXA-9404
   //const locale = getLocaleFromRequest(
   //  params,
   //  headers().get('accept-language')
   //);
-  const locale = headers().get('accept-language') || DEFAULT_LOCALE;
+  const locale = (await headers()).get('accept-language') || DEFAULT_LOCALE;
 
   const cartPromise = getCartOrRedirectAction(
     params.cartId,

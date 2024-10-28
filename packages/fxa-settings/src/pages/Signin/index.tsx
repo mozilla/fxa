@@ -417,16 +417,13 @@ const Signin = ({
           </div>
         </form>
       )}
-
       {!hideThirdPartyAuth && (
         <ThirdPartyAuth
           showSeparator={!hasLinkedAccountAndNoPassword}
           {...{ viewName }}
         />
       )}
-
       <TermsPrivacyAgreement {...{ isPocketClient, isMonitorClient }} />
-
       <div className="flex flex-col mt-5 tablet:justify-between tablet:flex-row">
         <FtlMsg id="signin-use-a-different-account-link">
           <a

@@ -12,20 +12,20 @@ import { PaymentsEmitterEventsKeysType } from '../emitter/emitter.types';
 
 async function recordEmitterEventAction(
   eventName: PaymentsEmitterEventsKeysType,
-  params: Record<string, string | string[]>,
+  params: Record<string, string | string[] | undefined>,
   searchParams: Record<string, string>
 ): Promise<void>;
 
 async function recordEmitterEventAction(
   eventName: 'checkoutSubmit' | 'checkoutSuccess' | 'checkoutFail',
-  params: Record<string, string | string[]>,
+  params: Record<string, string | string[] | undefined>,
   searchParams: Record<string, string>,
   paymentProvider: PaymentProvidersType
 ): Promise<void>;
 
 async function recordEmitterEventAction(
   eventName: PaymentsEmitterEventsKeysType,
-  params: Record<string, string | string[]>,
+  params: Record<string, string | string[] | undefined>,
   searchParams: Record<string, string>,
   paymentProvider?: PaymentProvidersType
 ) {

@@ -386,13 +386,11 @@ export const Signup = ({
           headingTextFtlId="signup-heading"
         />
       )}
-
       {bannerErrorText && (
         <Banner type={BannerType.error}>
           <p>{bannerErrorText}</p>
         </Banner>
       )}
-
       {/* AccountSuggestion is only shown to Pocket clients */}
       {isAccountSuggestionBannerVisible && (
         <Banner
@@ -425,7 +423,6 @@ export const Signup = ({
           </FtlMsg>
         </Banner>
       )}
-
       <div className="mt-4 mb-6">
         <p className="break-all">{email}</p>
 
@@ -456,7 +453,6 @@ export const Signup = ({
           </a>
         </FtlMsg>
       </div>
-
       <FormPasswordWithBalloons
         {...{
           formState,
@@ -525,10 +521,8 @@ export const Signup = ({
               />
             )}
       </FormPasswordWithBalloons>
-
       {/* Third party auth is not currently supported for sync */}
       {!isSync && !isDesktopRelay && <ThirdPartyAuth viewName="signup" />}
-
       <TermsPrivacyAgreement
         isPocketClient={client === MozServices.Pocket}
         isMonitorClient={client === MozServices.Monitor}

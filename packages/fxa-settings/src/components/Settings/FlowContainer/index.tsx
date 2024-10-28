@@ -36,7 +36,6 @@ export const FlowContainer = ({
       data-testid="flow-container"
     >
       <Head title={title} />
-
       <div className="relative flex items-center">
         <button
           onClick={onBackButtonClick}

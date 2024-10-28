@@ -21,17 +21,16 @@ interface ErrorAuthSigninSearchParams {
  * was attempting to reach.
  *
  */
-export default async function Error({
-  searchParams,
-}: {
-  searchParams: ErrorAuthSigninSearchParams;
+export default async function Error(props: {
+  searchParams: Promise<ErrorAuthSigninSearchParams>;
 }) {
+  const searchParams = await props.searchParams;
   const fallbackErrorPagePath = '/error';
 
   if (searchParams?.error !== 'OAuthCallbackError') {
     redirect(fallbackErrorPagePath);
   }
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const redirectUrl = cookieStore.get('authjs.callback-url');
 
   if (redirectUrl?.value) {

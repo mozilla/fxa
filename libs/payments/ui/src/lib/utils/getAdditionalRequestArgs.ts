@@ -2,12 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import 'server-only';
-import { headers } from 'next/headers';
+import { headers, type UnsafeUnwrappedHeaders } from 'next/headers';
 import { userAgentFromString } from 'next/server';
 import { getIpAddress } from './getIpAddress';
 
 export function getAdditionalRequestArgs() {
-  const userAgentString = headers().get('user-agent') || '';
+  const userAgentString =
+    (headers() as unknown as UnsafeUnwrappedHeaders).get('user-agent') || '';
   const userAgent = userAgentFromString(userAgentString);
   return {
     ipAddress: getIpAddress(),

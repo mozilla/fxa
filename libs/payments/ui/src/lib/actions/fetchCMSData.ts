@@ -8,7 +8,10 @@ import { plainToClass } from 'class-transformer';
 import { getApp } from '../nestapp/app';
 import { FetchCMSDataArgs } from '../nestapp/validators/FetchCMSDataArgs';
 
-export const fetchCMSData = (offeringId: string, acceptLanguage: string) => {
+export const fetchCMSData = async (
+  offeringId: string,
+  acceptLanguage: string
+) => {
   return getApp().getActionsService().fetchCMSData(
     plainToClass(FetchCMSDataArgs, {
       offeringId,
