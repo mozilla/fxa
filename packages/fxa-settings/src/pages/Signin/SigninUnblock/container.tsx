@@ -91,22 +91,33 @@ const SigninUnblockContainer = ({
     };
 
     // Get credentials with the correct key version
+    const status = await (async () => {
+      try {
+        const { data } = await credentialStatus({
+          variables: {
+            input: email,
+          },
+        });
+        return data?.credentialStatus;
+      } catch (err) {
+        console.warn('Could not get credential status!', {
+          err,
+        });
+      }
+      return undefined;
+    })();
+
     const credentials = await (async () => {
-      const { data } = await credentialStatus({
-        variables: {
-          input: email,
-        },
-      });
-      const currentVersion = data?.credentialStatus.currentVersion;
+      const currentVersion = status?.currentVersion;
       if (currentVersion === 'v2') {
-        const clientSalt = data?.credentialStatus.clientSalt || '';
+        const clientSalt = status?.clientSalt || '';
         return await getCredentialsV2({ password, clientSalt });
       }
       return await getCredentials(authEmail, password);
     })();
 
     try {
-      return await beginSignin({
+      const response = await beginSignin({
         variables: {
           input: {
             email: authEmail,
@@ -115,6 +126,10 @@ const SigninUnblockContainer = ({
           },
         },
       });
+      if (response.data != null) {
+        response.data.unwrapBKey = credentials.unwrapBKey;
+      }
+      return response;
     } catch (error) {
       const result = getHandledError(error);
       if (
