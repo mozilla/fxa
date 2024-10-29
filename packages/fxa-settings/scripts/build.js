@@ -7,7 +7,7 @@
 //
 // This following is controlled by setting the BUILD_TARGETS env. By default
 // we build 'dev', but if you wanted to build stage and prod assets then
-// you'd do this: BUILD_TARGTES=stage,prod yarn build
+// you'd do this: BUILD_TARGETS=stage,prod yarn build
 const buildTargets = (process.env.BUILD_TARGETS || 'dev').split(',');
 const buildDirTarget = (process.env.BUILD_PATH || 'build/dev').replace(
   'build/',

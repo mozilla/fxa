@@ -7,7 +7,7 @@ import {
   buildSentryConfig,
   tagCriticalEvent,
   tagFxaName,
-} from 'fxa-shared/sentry';
+} from '@fxa/shared/sentry-utils';
 import _ from 'underscore';
 
 import Logger from './logger';

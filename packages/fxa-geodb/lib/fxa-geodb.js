@@ -7,6 +7,7 @@ var ERRORS = require('./errors');
 var maxmind = require('maxmind');
 var Location = require('./location');
 const fs = require('fs');
+const path = require('path');
 
 module.exports = function (options) {
   'use strict';
@@ -14,7 +15,7 @@ module.exports = function (options) {
   options = options || {};
   var dbPath = options.dbPath || DEFAULTS.DB_PATH;
 
-  const buffer = fs.readFileSync(dbPath);
+  const buffer = fs.readFileSync(path.resolve(__dirname, dbPath));
 
   const dbLookup = new maxmind.Reader(buffer);
 

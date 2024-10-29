@@ -1,0 +1,23 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "allowJs": true,
+    "outDir": "./dist",
+    "module": "commonjs",
+    "declaration": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "noEmitHelpers": true,
+    "importHelpers": true,
+    "types": ["jest"],
+    "paths": {
+      "@fxa/shared/log": ["libs/shared/log/src/index"],
+      "@fxa/shared/l10n": ["libs/shared/l10n/src/index"],
+      "@fxa/shared/otel": ["libs/shared/otel/src/index"],
+      "@fxa/shared/sentry-utils": ["libs/shared/sentry-utils/src/index"],
+      "@fxa/shared/sentry-node": ["libs/shared/sentry-node/src/index"]
+    }
+  },
+  "include": ["server/**/*"],
+  "exclude": ["dist", "coverage"]
+}

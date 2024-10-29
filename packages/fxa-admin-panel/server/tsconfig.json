@@ -5,7 +5,13 @@
     "module": "commonjs",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "types": ["jest", "mozlog"]
+    "types": ["jest", "mozlog"],
+    "paths": {
+      "@fxa/shared/otel": ["libs/shared/otel/src/index"],
+      "@fxa/shared/sentry-nest": ["libs/shared/sentry-nest/src/index"],
+      "@fxa/shared/sentry-utils": ["libs/shared/sentry-utils/src/index"],
+      "@fxa/shared/log": ["libs/shared/log/src/index"]
+    }
   },
-  "include": ["."]
+  "include": [".", "tsconfig.build.json"]
 }

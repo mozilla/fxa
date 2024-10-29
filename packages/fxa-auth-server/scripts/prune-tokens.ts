@@ -137,7 +137,7 @@ Exit Codes:
   // Start max session pruning
   if (maxSessions > 0) {
     // Locate large accounts
-    const targetAccounts = [];
+    const targetAccounts = new Array<string>();
     try {
       log.info('finding large accounts', {
         maxSessions,
@@ -268,7 +268,7 @@ Exit Codes:
 
         // Iterate through current set of redis tokens, and remove any that
         // don't exist in the sql database anymore.
-        const orphanedTokens = [];
+        const orphanedTokens = new Array<string>();
         for (const redisSessionTokenId of redisSessionTokenIds) {
           const dbSessionTokens = await SessionToken.findByTokenId(
             redisSessionTokenId

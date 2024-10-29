@@ -12,7 +12,7 @@ const { ignoreErrors } = require('./error');
 const {
   formatMetadataValidationErrorMessage,
   reportValidationError,
-} = require('fxa-shared/sentry/report-validation-error');
+} = require('@fxa/shared/sentry-node');
 // Matches uid, session, oauth and other common tokens which we would
 // prefer not to include in Sentry reports.
 const TOKENREGEX = /[a-fA-F0-9]{32,}/gi;

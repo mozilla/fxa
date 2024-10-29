@@ -1,6 +1,17 @@
+const { pathsToModuleNameMapper } = require('ts-jest');
+const { compilerOptions } = require('./tsconfig.build.json');
+
 module.exports = {
-  roots: ['<rootDir>/src'],
+  moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths),
+  rootDir: 'src',
+  modulePaths: ['<rootDir>'],
   transform: {
-    '^.+\\.tsx?$':  [ "ts-jest", { "isolatedModules": true } ]
+    '^.+\\.(t|j)s$': [
+      'ts-jest',
+      {
+        isolatedModules: true,
+      },
+    ],
   },
+  coverageDirectory: './coverage',
 };

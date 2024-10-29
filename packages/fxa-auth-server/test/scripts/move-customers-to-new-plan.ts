@@ -365,7 +365,8 @@ describe('CustomerPlanMover', () => {
     it("returns false if the customer does not have a price that's excluded", () => {
       const result = customerPlanMover.isCustomerExcluded([
         {
-          ...subscription1,
+          // TODO: Either provide full mock, or reduce type required isCustomerExcluded
+          ...(subscription1 as unknown as Stripe.Subscription),
         },
       ]);
       expect(result).false;

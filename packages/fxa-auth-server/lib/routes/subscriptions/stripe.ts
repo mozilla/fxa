@@ -285,7 +285,13 @@ export class StripeHandler {
     const customer = await this.stripeHelper.fetchCustomer(uid, [
       'subscriptions',
     ]);
-    const activeSubscriptions = [];
+    const activeSubscriptions = new Array<{
+      uid: string;
+      productId: string | Stripe.Product | Stripe.DeletedProduct | null;
+      subscriptionId: string;
+      createdAt: number;
+      cancelledAt: number | null;
+    }>();
 
     if (customer && customer.subscriptions) {
       for (const subscription of customer.subscriptions.data) {
@@ -388,7 +394,7 @@ export class StripeHandler {
       string
     >;
 
-    let customer = undefined;
+    let customer: Stripe.Customer | void = undefined;
     if (request.auth.credentials) {
       const { uid, email } = await handleAuth(this.db, request.auth, true);
       await this.customs.check(request, email, 'previewInvoice');

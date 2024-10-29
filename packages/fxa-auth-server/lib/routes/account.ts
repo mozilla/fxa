@@ -153,7 +153,7 @@ export class AccountHandler {
     );
 
     // Handle authPWVersion2 credentials
-    let password2 = undefined;
+    let password2: any | undefined = undefined;
     let verifyHashVersion2 = undefined;
     let wrapWrapKb = await random.hex(32);
     let wrapWrapKbVersion2 = undefined;
@@ -163,8 +163,8 @@ export class AccountHandler {
         authSalt,
         this.config.verifierVersion
       );
-      verifyHashVersion2 = await password2.verifyHash();
-      wrapWrapKbVersion2 = await password2.wrap(wrapKbVersion2);
+      verifyHashVersion2 = await password2?.verifyHash();
+      wrapWrapKbVersion2 = await password2?.wrap(wrapKbVersion2);
 
       // When version 2 credentials are supplied, the wrapKb will also be supplied.
       // This is necessary to the same kB values are produced for both passwords.

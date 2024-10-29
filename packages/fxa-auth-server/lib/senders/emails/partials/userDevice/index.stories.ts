@@ -4,7 +4,6 @@
 
 import { Meta } from '@storybook/html';
 import { storyWithProps } from '../../storybook-email';
-import { MOCK_USER_INFO_TRUNCATED } from '../userInfo/mocks';
 import {
   MOCK_DEVICE_ALL,
   MOCK_DEVICE_BROWSER,
@@ -24,7 +23,6 @@ const createStory = storyWithProps(
     subject: 'N/A',
     partial: 'userInfo',
     layout: null,
-    ...MOCK_USER_INFO_TRUNCATED,
   }
 );
 

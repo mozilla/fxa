@@ -98,6 +98,8 @@ describe('#integration - auth', () => {
           userId,
           'cus_o8ghropsigjpser'
         );
+
+        assert.isDefined(secondCustomer);
         assert.equal(
           secondCustomer.stripeCustomerId,
           testCustomer.stripeCustomerId
@@ -521,6 +523,8 @@ describe('#integration - auth', () => {
           id,
           GOOGLE_PROVIDER
         );
+
+        assert.isDefined(linkedAccount);
         assert.equal(linkedAccount.uid, userId);
         assert.equal(linkedAccount.id, id);
         assert.equal(linkedAccount.providerId, 1);

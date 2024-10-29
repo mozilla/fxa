@@ -1,4 +1,5 @@
 # React built files
 build
+dist
 storybook-static
 fxa-content-server-l10n

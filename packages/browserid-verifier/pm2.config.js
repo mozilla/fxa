@@ -10,7 +10,7 @@ module.exports = {
   apps: [
     {
       name: 'browserid',
-      script: 'node server.js',
+      script: 'node -r esbuild-register server.js',
       cwd: __dirname,
       env: {
         PATH,

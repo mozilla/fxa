@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { tracingConfig } = require('fxa-shared/tracing/config');
+const { tracingConfig } = require('@fxa/shared/otel');
 const { makeRedisConfig } = require('fxa-shared/db/config');
 
 module.exports = function (fs, path, url, convict) {

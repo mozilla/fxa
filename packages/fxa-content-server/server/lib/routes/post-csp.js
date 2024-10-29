@@ -12,9 +12,7 @@ const joi = require('joi');
 const logger = require('../logging/log')();
 const url = require('url');
 const validation = require('../validation');
-const {
-  overrideJoiMessages,
-} = require('fxa-shared/sentry/joi-message-overrides');
+const { overrideJoiMessages } = require('@fxa/shared/sentry-node');
 
 const INTEGER_TYPE = validation.TYPES.INTEGER;
 const STRING_TYPE = validation.TYPES.LONG_STRING;

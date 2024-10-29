@@ -66,7 +66,7 @@ class Localizer {
     return generateBundles;
   }
 
-  async getLocalizerDeps(acceptLanguage: string) {
+  async getLocalizerDeps(acceptLanguage?: string) {
     const currentLocales = parseAcceptLanguage(acceptLanguage);
     const selectedLocale = determineLocale(acceptLanguage);
     const messages = await this.fetchMessages(currentLocales);
@@ -74,14 +74,14 @@ class Localizer {
     return { currentLocales, messages, generateBundles, selectedLocale };
   }
 
-  async setupDomLocalizer(acceptLanguage: string) {
+  async setupDomLocalizer(acceptLanguage?: string) {
     const { currentLocales, generateBundles, selectedLocale } =
       await this.getLocalizerDeps(acceptLanguage);
     const l10n = new DOMLocalization(currentLocales, generateBundles);
     return { l10n, selectedLocale };
   }
 
-  async setupLocalizer(acceptLanguage: string) {
+  async setupLocalizer(acceptLanguage?: string) {
     const { currentLocales, generateBundles, selectedLocale } =
       await this.getLocalizerDeps(acceptLanguage);
     const l10n = new Localization(currentLocales, generateBundles);

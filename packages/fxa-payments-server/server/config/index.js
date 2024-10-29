@@ -5,7 +5,7 @@
 const fs = require('fs');
 const path = require('path');
 const convict = require('convict');
-const { tracingConfig } = require('fxa-shared/tracing/config');
+const { tracingConfig } = require('@fxa/shared/otel');
 
 convict.addFormats(require('convict-format-with-moment'));
 convict.addFormats(require('convict-format-with-validator'));
@@ -126,7 +126,7 @@ const conf = convict({
   },
   geodb: {
     dbPath: {
-      default: path.resolve(__dirname, '../../../fxa-geodb/db/cities-db.mmdb'),
+      default: '../db/cities-db.mmdb',
       doc: 'Path to maxmind database file',
       env: 'GEODB_DBPATH',
       format: String,

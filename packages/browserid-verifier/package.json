@@ -37,11 +37,15 @@
     "request": "^2.88.2",
     "should": "13.2.3",
     "temp": "0.9.4",
+    "tsc-alias": "^1.8.8",
+    "typescript": "^5.5.3",
     "walk": "^2.3.15"
   },
   "scripts": {
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "lint": "eslint .",
+    "build": "tsc --build && tsc-alias",
+    "compile": "tsc --noEmit",
     "test": "mocha --exit -t 5000 -R spec tests/*.js",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'",
     "start": "pm2 start pm2.config.js",

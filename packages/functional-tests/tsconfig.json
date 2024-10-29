@@ -8,7 +8,7 @@
     "noEmitHelpers": true,
     "importHelpers": true,
     "module": "commonjs",
-    "types": ["../fxa-auth-client/lib/types", "mozlog", "jest"]
+    "types": ["mozlog", "jest"]
   },
   "include": ["lib","pages","tests"]
 }

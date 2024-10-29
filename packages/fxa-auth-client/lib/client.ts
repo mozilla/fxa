@@ -7,6 +7,7 @@ import { Credentials } from './crypto';
 import * as hawk from './hawk';
 import { SaltVersion, createSaltV2 } from './salt';
 import * as Sentry from '@sentry/browser';
+import { hexstring, v2Credentials } from './types';
 
 enum ERRORS {
   INVALID_TIMESTAMP = 111,
@@ -390,11 +391,13 @@ export default class AuthClient {
   ): Promise<SignedUpAccountData> {
     const credentialsV1 = await crypto.getCredentials(email, password);
 
-    let credentialsV2 = undefined;
-    if (this.keyStretchVersion === 2) {
-      const clientSalt = await createSaltV2();
-      credentialsV2 = await crypto.getCredentialsV2({ password, clientSalt });
-    }
+    const credentialsV2 = await (async () => {
+      if (this.keyStretchVersion === 2) {
+        const clientSalt = await createSaltV2();
+        return await crypto.getCredentialsV2({ password, clientSalt });
+      }
+      return undefined;
+    })();
 
     const v2Payload = await this.getPayloadV2({
       v1: credentialsV1,

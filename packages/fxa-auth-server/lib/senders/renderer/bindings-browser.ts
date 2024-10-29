@@ -66,7 +66,14 @@ export class BrowserRendererBindings extends RendererBindings {
     );
   }
 
-  renderEjs(template: string, context: TemplateContext, body?: string) {
+  renderEjs(
+    template: string,
+    context: Pick<
+      TemplateContext,
+      'acceptLanguage' | 'templateValues' | 'layout'
+    >,
+    body?: string
+  ) {
     return ejs.render(template, { ...context, body: body }, this.opts.ejs);
   }
 

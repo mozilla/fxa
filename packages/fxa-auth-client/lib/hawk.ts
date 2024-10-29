@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { hexToUint8, uint8ToBase64, uint8ToHex } from './utils';
 import { NAMESPACE } from './salt';
+import { hexstring } from './types';
 
 const encoder = () => new TextEncoder();
 
