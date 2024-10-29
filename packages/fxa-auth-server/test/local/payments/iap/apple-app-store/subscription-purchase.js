@@ -42,6 +42,9 @@ describe('SubscriptionPurchase', () => {
   const decodedTransactionInfo = deepCopy(transactionInfo);
   const decodedRenewalInfo = deepCopy(renewalInfo);
   const verifiedAt = Date.now();
+  const currency = 'USD';
+  const price = 999;
+  const storefront = 'USA';
   describe('fromApiResponse', () => {
     const expected = {
       autoRenewStatus,
@@ -60,6 +63,9 @@ describe('SubscriptionPurchase', () => {
       originalPurchaseDate,
       autoRenewProductId,
       purchaseDate,
+      currency,
+      price,
+      storefront,
     };
 
     it('parses an active subscription correctly', () => {
