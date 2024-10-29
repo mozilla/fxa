@@ -172,8 +172,8 @@ const init = async () => {
       .where((builder) => {
         builder
           .whereNull('emailUids.uid')
-          .orWhereNull('sessionTokenUids.uid')
-          .orWhereNull('securityEventUids.uid');
+          .whereNull('sessionTokenUids.uid')
+          .whereNull('securityEventUids.uid');
       })
       .orderBy('accounts.createdAt', 'asc')
       .orderBy('accounts.uid', 'asc');
