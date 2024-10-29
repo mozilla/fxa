@@ -30,10 +30,13 @@ import { setupFirestore } from '../../lib/firestore-db';
 import { CurrencyHelper } from '../../lib/payments/currencies';
 import { createStripeHelper, StripeHelper } from '../../lib/payments/stripe';
 import * as oauthDb from '../../lib/oauth/db';
-import { Account, SecurityEvent } from 'fxa-shared/db/models/auth';
+import {
+  Account,
+  Email,
+  SecurityEvent,
+  SessionToken,
+} from 'fxa-shared/db/models/auth';
 import { EVENT_NAMES } from 'fxa-shared/db/models/auth/security-event';
-import { SessionToken } from 'fxa-shared/models/SessionToken';
-import { uuidTransformer } from 'fxa-shared/db/transformers';
 import { getAccountCustomerByUid } from 'fxa-shared/db/models/auth';
 import { PlayBilling } from '../../lib/payments/iap/google-play';
 import { PlaySubscriptions } from '../../lib/payments/iap/google-play/subscriptions';
@@ -138,46 +141,53 @@ const init = async () => {
   Container.get(AppleIAP);
   const appStoreSubscriptions = Container.get(AppStoreSubscriptions);
 
+  const emailUids = Email.query()
+    .distinct('uid')
+    .where('verifiedAt', '>=', activeByDateTimestamp)
+    .as('emailUids');
+
+  const sessionTokenUids = SessionToken.query()
+    .distinct('uid')
+    .where('lastAccessTime', '>=', activeByDateTimestamp)
+    .as('sessionTokenUids');
+
+  const securityEventUids = SecurityEvent.query()
+    .distinct('uid')
+    .where('createdAt', '>=', activeByDateTimestamp)
+    .whereIn('nameId', [
+      EVENT_NAMES['account.login'],
+      EVENT_NAMES['account.password_reset_success'],
+      EVENT_NAMES['account.password_changed'],
+    ])
+    .as('securityEventUids');
+
   const accountWhereAndOrderBy = () =>
     Account.query()
-      .where('emailVerified', 1)
-      .where('createdAt', '>=', startDateTimestamp)
-      .where('createdAt', '<', endDateTimestamp)
-      .orderBy('createdAt', 'asc')
-      .orderBy('uid', 'asc');
+      .leftJoin(emailUids, 'emailUids.uid', 'accounts.uid')
+      .leftJoin(sessionTokenUids, 'sessionTokenUids.uid', 'accounts.uid')
+      .leftJoin(securityEventUids, 'securityEventUids.uid', 'accounts.uid')
+      .where('accounts.emailVerified', 1)
+      .where('accounts.createdAt', '>=', startDateTimestamp)
+      .where('accounts.createdAt', '<', endDateTimestamp)
+      .where((builder) => {
+        builder
+          .whereNull('emailUids.uid')
+          .orWhereNull('sessionTokenUids.uid')
+          .orWhereNull('securityEventUids.uid');
+      })
+      .orderBy('accounts.createdAt', 'asc')
+      .orderBy('accounts.uid', 'asc');
   const accountQueryBuilder = () =>
     accountWhereAndOrderBy()
       .select('uid')
       .limit(program.resultsLimit || 100000);
 
-  const securityEventQueryBuilder = () =>
-    SecurityEvent.query()
-      .select('id')
-      .where('createdAt', '>=', activeByDateTimestamp)
-      .limit(1);
-  const accountLoginSecurityEventQueryBuilder = () =>
-    securityEventQueryBuilder().where('nameId', EVENT_NAMES['account.login']);
-  const passwordResetSecurityEventQueryBuilder = () =>
-    securityEventQueryBuilder().where(
-      'nameId',
-      EVENT_NAMES['account.password_reset_success']
-    );
-  const passwordChangeSecurityEventQueryBuilder = () =>
-    securityEventQueryBuilder().where(
-      'nameId',
-      EVENT_NAMES['account.password_changed']
-    );
-
+  // Unlike the left join above this includes the agumented last access time
+  // from redis
   const hasActiveSessionToken = async (accountRecord: Account) => {
     const sessionTokens = await fxaDb.sessions(accountRecord.uid);
     return sessionTokens.some(
       (token: SessionToken) => token.lastAccessTime >= activeByDateTimestamp
-    );
-  };
-  const hasVerifiedAnEmail = async (accountRecord: Account) => {
-    const emails = await fxaDb.accountEmails(accountRecord.uid);
-    return emails.some(
-      (e) => e.verifiedAt && e.verifiedAt >= activeByDateTimestamp
     );
   };
   const hasActiveRefreshToken = async (accountRecord: Account) => {
@@ -189,20 +199,6 @@ const init = async () => {
   const hasAccessToken = async (accountRecord: Account) => {
     const accessTokens = await oauthDb.getAccessTokensByUid(accountRecord.uid);
     return accessTokens.length > 0;
-  };
-  const hasSecurityEvent = async (accountRecord: Account) => {
-    const uidBuffer = uuidTransformer.to(accountRecord.uid);
-    return (
-      !!(await accountLoginSecurityEventQueryBuilder()
-        .where('uid', uidBuffer)
-        .first()) ||
-      !!(await passwordResetSecurityEventQueryBuilder()
-        .where('uid', uidBuffer)
-        .first()) ||
-      !!(await passwordChangeSecurityEventQueryBuilder()
-        .where('uid', uidBuffer)
-        .first())
-    );
   };
   const isStripeCustomer = async (accountRecord: Account) =>
     !!(await getAccountCustomerByUid(accountRecord.uid));
@@ -217,18 +213,18 @@ const init = async () => {
   const isActive = async (accountRecord: Account) => {
     return (
       (await hasActiveSessionToken(accountRecord)) ||
-      (await hasVerifiedAnEmail(accountRecord)) ||
       (await hasActiveRefreshToken(accountRecord)) ||
       (await hasAccessToken(accountRecord)) ||
-      (await hasSecurityEvent(accountRecord)) ||
       (await hasSubscription(accountRecord))
     );
   };
 
   if (isDryRun) {
-    const acctsCount: any = await accountWhereAndOrderBy()
-      .count({ total: 'uid' })
-      .first();
+    const countQuery = accountWhereAndOrderBy().count({
+      total: 'accounts.uid',
+    });
+    console.log(`Count query used: ${countQuery.toKnexQuery().toQuery()}`);
+    const acctsCount: any = await countQuery.first();
     console.log(`Number of accounts to be processed: ${acctsCount.total}`);
     return 0;
   }
