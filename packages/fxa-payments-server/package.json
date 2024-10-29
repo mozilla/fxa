@@ -159,7 +159,7 @@
     "redux-thunk": "^2.4.1",
     "serve-static": "^1.16.0",
     "typedi": "^0.8.0",
-    "uuid": "^10.0.0"
+    "uuid": "^11.0.2"
   },
   "readmeFilename": "README.md",
   "jest": {

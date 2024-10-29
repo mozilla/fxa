@@ -48,7 +48,7 @@
     "mozlog": "^3.0.2",
     "rimraf": "^6.0.1",
     "sqs-consumer": "^11.2.0",
-    "uuid": "^10.0.0"
+    "uuid": "^11.0.2"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.4.2",
