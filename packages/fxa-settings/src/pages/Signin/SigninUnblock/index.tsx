@@ -34,7 +34,7 @@ import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 
 export const viewName = 'signin-unblock';
 
-const SigninUnblock = ({
+export const SigninUnblock = ({
   email,
   hasLinkedAccount,
   hasPassword,

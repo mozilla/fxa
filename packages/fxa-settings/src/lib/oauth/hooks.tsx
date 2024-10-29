@@ -179,7 +179,7 @@ export function tryAgainError() {
  */
 export function useFinishOAuthFlowHandler(
   authClient: AuthClient,
-  integration: Integration
+  integration: Pick<Integration, 'clientInfo' | 'type' | 'wantsKeys' | 'data'>
 ): UseFinishOAuthFlowHandlerResult {
   const isSyncOAuth = isOAuthNativeIntegrationSync(integration);
 
