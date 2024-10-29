@@ -14,6 +14,7 @@ import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import {
   CheckoutParamsFactory,
   CommonMetricsFactory,
+  MockPaymentsGleanConfigProvider,
   MockPaymentsGleanFactory,
   PaymentProvidersType,
   PaymentsGleanManager,
@@ -48,6 +49,7 @@ describe('PaymentsEmitterService', () => {
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
       providers: [
+        MockPaymentsGleanConfigProvider,
         MockAccountDatabaseNestFactory,
         MockPaymentsGleanFactory,
         MockStrapiClientConfigProvider,

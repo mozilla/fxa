@@ -15,10 +15,12 @@ import { mapUtm } from './utils/mapUtm';
 import { mapSubscription } from './utils/mapSubscription';
 import { mapRelyingParty } from './utils/mapRelyingParty';
 import { normalizeGleanFalsyValues } from './utils/normalizeGleanFalsyValues';
+import { PaymentsGleanConfig } from './glean.config';
 
 @Injectable()
 export class PaymentsGleanManager {
   constructor(
+    private paymentsGleanConfig: PaymentsGleanConfig,
     @Inject(PaymentsGleanProvider)
     private paymentsGleanServerEventsLogger: PaymentsGleanServerEventsLogger
   ) {}
@@ -28,9 +30,11 @@ export class PaymentsGleanManager {
     cartMetricsData: CartMetrics;
     cmsMetricsData: CmsMetricsData;
   }) {
-    this.paymentsGleanServerEventsLogger.recordPaySetupView(
-      this.populateCommonMetrics(metrics)
-    );
+    if (this.paymentsGleanConfig.enabled) {
+      this.paymentsGleanServerEventsLogger.recordPaySetupView(
+        this.populateCommonMetrics(metrics)
+      );
+    }
   }
 
   recordFxaPaySetupEngage(metrics: {
@@ -38,9 +42,11 @@ export class PaymentsGleanManager {
     cartMetricsData: CartMetrics;
     cmsMetricsData: CmsMetricsData;
   }) {
-    this.paymentsGleanServerEventsLogger.recordPaySetupEngage(
-      this.populateCommonMetrics(metrics)
-    );
+    if (this.paymentsGleanConfig.enabled) {
+      this.paymentsGleanServerEventsLogger.recordPaySetupEngage(
+        this.populateCommonMetrics(metrics)
+      );
+    }
   }
 
   recordFxaPaySetupSubmit(
@@ -51,10 +57,13 @@ export class PaymentsGleanManager {
     },
     paymentProvider?: PaymentProvidersType
   ) {
-    this.paymentsGleanServerEventsLogger.recordPaySetupSubmit({
-      ...this.populateCommonMetrics(metrics),
-      subscription_payment_provider: normalizeGleanFalsyValues(paymentProvider),
-    });
+    if (this.paymentsGleanConfig.enabled) {
+      this.paymentsGleanServerEventsLogger.recordPaySetupSubmit({
+        ...this.populateCommonMetrics(metrics),
+        subscription_payment_provider:
+          normalizeGleanFalsyValues(paymentProvider),
+      });
+    }
   }
 
   recordFxaPaySetupSuccess(
@@ -67,10 +76,13 @@ export class PaymentsGleanManager {
   ) {
     const commonMetrics = this.populateCommonMetrics(metrics);
 
-    this.paymentsGleanServerEventsLogger.recordPaySetupSuccess({
-      ...commonMetrics,
-      subscription_payment_provider: normalizeGleanFalsyValues(paymentProvider),
-    });
+    if (this.paymentsGleanConfig.enabled) {
+      this.paymentsGleanServerEventsLogger.recordPaySetupSuccess({
+        ...commonMetrics,
+        subscription_payment_provider:
+          normalizeGleanFalsyValues(paymentProvider),
+      });
+    }
   }
 
   recordFxaPaySetupFail(
@@ -83,10 +95,13 @@ export class PaymentsGleanManager {
   ) {
     const commonMetrics = this.populateCommonMetrics(metrics);
 
-    this.paymentsGleanServerEventsLogger.recordPaySetupFail({
-      ...commonMetrics,
-      subscription_payment_provider: normalizeGleanFalsyValues(paymentProvider),
-    });
+    if (this.paymentsGleanConfig.enabled) {
+      this.paymentsGleanServerEventsLogger.recordPaySetupFail({
+        ...commonMetrics,
+        subscription_payment_provider:
+          normalizeGleanFalsyValues(paymentProvider),
+      });
+    }
   }
 
   private populateCommonMetrics(metrics: {
