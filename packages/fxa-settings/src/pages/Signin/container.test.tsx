@@ -75,6 +75,7 @@ function mockSyncDesktopV3Integration() {
     wantsKeys: () => true,
     data: { service: 'sync' },
     isDesktopSync: () => true,
+    isDesktopRelay: () => false,
   } as Integration;
 }
 function mockOAuthWebIntegration(
@@ -88,6 +89,7 @@ function mockOAuthWebIntegration(
     wantsKeys: () => true,
     data,
     isDesktopSync: () => false,
+    isDesktopRelay: () => false,
   } as Integration;
 }
 
@@ -99,6 +101,7 @@ function mockOAuthNativeIntegration() {
     isSync: () => true,
     wantsKeys: () => true,
     isDesktopSync: () => true,
+    isDesktopRelay: () => false,
   } as Integration;
 }
 
@@ -110,6 +113,7 @@ function mockWebIntegration() {
     isSync: () => false,
     wantsKeys: () => false,
     isDesktopSync: () => false,
+    isDesktopRelay: () => false,
     data: {},
   } as Integration;
 }
