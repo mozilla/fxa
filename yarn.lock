@@ -41267,7 +41267,7 @@ fsevents@~2.1.1:
     redlock: ^5.0.0-beta.2
     request: ^2.88.2
     rimraf: ^6.0.1
-    sass: ^1.79.5
+    sass: ^1.80.4
     simplesmtp: 0.3.35
     sinon: ^9.0.3
     storybook: ^7.4.6
@@ -62765,9 +62765,9 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"sass@npm:^1.79.5":
-  version: 1.79.5
-  resolution: "sass@npm:1.79.5"
+"sass@npm:^1.80.4":
+  version: 1.80.4
+  resolution: "sass@npm:1.80.4"
   dependencies:
     "@parcel/watcher": ^2.4.1
     chokidar: ^4.0.0
@@ -62775,7 +62775,7 @@ resolve@1.1.7:
     source-map-js: ">=0.6.2 <2.0.0"
   bin:
     sass: sass.js
-  checksum: 1c7fb299b58d9602732a122180a7fb4cedba5404b9c94f271e4b0338def56f475d30cd9588285afcf887d4f746d0da3217d51130dfa597ed66bf2fb5a8db41c1
+  checksum: 83278e922a5972c2643500044935d4989204b01500cf19e0abfa275462a7b0139f42b2a848ad82c28c756fbcd5ada32aa8e92ce3fb17814dff195e8d89193531
   languageName: node
   linkType: hard
 
