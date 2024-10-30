@@ -15,6 +15,7 @@ export type ACCOUNT_TABLES =
   | 'accountCustomers'
   | 'paypalCustomers'
   | 'carts'
+  | 'recoveryCodes'
   | 'emails';
 
 export async function testAccountDatabaseSetup(
