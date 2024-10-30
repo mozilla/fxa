@@ -31,7 +31,9 @@
       "@fxa/payments/eligibility": ["libs/payments/eligibility/src/index.ts"],
       "@fxa/payments/legacy": ["libs/payments/legacy/src/index.ts"],
       "@fxa/payments/metrics": ["libs/payments/metrics/src/index.ts"],
-      "@fxa/payments/metrics/provider": ["libs/payments/metrics/src/provider.ts"],
+      "@fxa/payments/metrics/provider": [
+        "libs/payments/metrics/src/provider.ts"
+      ],
       "@fxa/payments/paypal": ["libs/payments/paypal/src/index.ts"],
       "@fxa/payments/stripe": ["libs/payments/stripe/src/index.ts"],
       "@fxa/payments/ui": ["libs/payments/ui/src/index.ts"],
@@ -65,11 +67,15 @@
       "@fxa/shared/metrics/statsd": ["libs/shared/metrics/statsd/src/index.ts"],
       "@fxa/shared/mozlog": ["libs/shared/mozlog/src/index.ts"],
       "@fxa/shared/notifier": ["libs/shared/notifier/src/index.ts"],
+      "@fxa/shared/otel": ["libs/shared/otel/src/index.ts"],
       "@fxa/shared/otp": ["libs/shared/otp/src/index.ts"],
       "@fxa/shared/pem-jwk": ["libs/shared/pem-jwk/src/index.ts"],
       "@fxa/shared/react": ["libs/shared/react/src/index.ts"],
-      "@fxa/shared/sentry": ["libs/shared/sentry/src/index.ts"],
-      "@fxa/shared/sentry/client": ["libs/shared/sentry/src/client.ts"],
+      "@fxa/shared/sentry-browser": ["libs/shared/sentry-browser/src/index.ts"],
+      "@fxa/shared/sentry-nest": ["libs/shared/sentry-nest/src/index.ts"],
+      "@fxa/shared/sentry-next": ["libs/shared/sentry-next/src/index.ts"],
+      "@fxa/shared/sentry-node": ["libs/shared/sentry-node/src/index.ts"],
+      "@fxa/shared/sentry-utils": ["libs/shared/sentry-utils/src/index.ts"],
       "@fxa/vendored/common-password-list": [
         "libs/vendored/common-password-list/src/index.ts"
       ],

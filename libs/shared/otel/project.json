@@ -1,0 +1,29 @@
+{
+  "name": "shared-otel",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/otel/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/shared/otel",
+        "main": "libs/shared/otel/src/index.ts",
+        "tsConfig": "libs/shared/otel/tsconfig.lib.json",
+        "assets": ["libs/shared/otel/*.md"],
+        "generatePackageJson": true,
+        "declaration": true,
+        "platform": "node"
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/shared/otel/jest.config.ts"
+      }
+    }
+  }
+}

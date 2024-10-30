@@ -74,7 +74,7 @@
       "outputs": []
     },
     "start": {
-      "dependsOn": ["build", "gen-keys", "^start"],
+      "dependsOn": ["gen-keys", "^start"],
       "inputs": ["production", "^production"],
       "outputs": []
     },

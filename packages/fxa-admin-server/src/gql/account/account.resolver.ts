@@ -15,6 +15,7 @@ import {
   Resolver,
   Root,
 } from '@nestjs/graphql';
+import { SentryTraced } from '@sentry/nestjs';
 import AuthClient from 'fxa-auth-client';
 import {
   ClientFormatter,
@@ -124,6 +125,7 @@ export class AccountResolver {
 
   @Features(AdminPanelFeature.AccountSearch)
   @Query((returns) => AccountType, { nullable: true })
+  @SentryTraced('accountByUid')
   public async accountByUid(
     @Args('uid', { nullable: false }) uid: string,
     @CurrentUser() user: string
@@ -144,6 +146,7 @@ export class AccountResolver {
 
   @Features(AdminPanelFeature.AccountSearch)
   @Query((returns) => AccountType, { nullable: true })
+  @SentryTraced('accountByEmail')
   public async accountByEmail(
     @Args('email', { nullable: false }) email: string,
     @Args('autoCompleted', { nullable: false }) autoCompleted: boolean,
