@@ -179,7 +179,7 @@ const init = async () => {
       .orderBy('accounts.uid', 'asc');
   const accountQueryBuilder = () =>
     accountWhereAndOrderBy()
-      .select('uid')
+      .select('accounts.uid')
       .limit(program.resultsLimit || 100000);
 
   // Unlike the left join above this includes the agumented last access time
