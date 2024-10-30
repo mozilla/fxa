@@ -43,7 +43,7 @@ import { PlaySubscriptions } from '../../lib/payments/iap/google-play/subscripti
 import { AppleIAP } from '../../lib/payments/iap/apple-app-store/apple-iap';
 import { AppStoreSubscriptions } from '../../lib/payments/iap/apple-app-store/subscriptions';
 
-const setDateToUTC = (someDate) => {
+const setDateToUTC = (someDate: number) => {
   const utcDate = new Date(someDate);
   utcDate.setUTCHours(0, 0, 0, 0);
   return utcDate;
@@ -187,14 +187,16 @@ const init = async () => {
   const hasActiveSessionToken = async (accountRecord: Account) => {
     const sessionTokens = await fxaDb.sessions(accountRecord.uid);
     return sessionTokens.some(
-      (token: SessionToken) => token.lastAccessTime >= activeByDateTimestamp
+      (token: any) => token.lastAccessTime >= activeByDateTimestamp
     );
   };
   const hasActiveRefreshToken = async (accountRecord: Account) => {
     const refreshTokens = await oauthDb.getRefreshTokensByUid(
       accountRecord.uid
     );
-    return refreshTokens.some((t) => t.lastUsedAt >= activeByDateTimestamp);
+    return refreshTokens.some(
+      (t: any) => t.lastUsedAt >= activeByDateTimestamp
+    );
   };
   const hasAccessToken = async (accountRecord: Account) => {
     const accessTokens = await oauthDb.getAccessTokensByUid(accountRecord.uid);
