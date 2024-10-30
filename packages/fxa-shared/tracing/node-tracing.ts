@@ -13,7 +13,6 @@ import { addConsoleExporter } from './exporters/fxa-console';
 import { addGcpTraceExporter } from './exporters/fxa-gcp';
 import { addOtlpTraceExporter } from './exporters/fxa-otlp';
 import { createPiiFilter } from './pii-filters';
-import { addSentryTraceExporter } from './exporters/fxa-sentry';
 import { createNodeProvider } from './providers/node-provider';
 const log_type = 'node-tracing';
 
@@ -38,7 +37,6 @@ export class NodeTracingInitializer {
     this.provider = createNodeProvider(this.opts);
 
     const filter = createPiiFilter(!!this.opts?.filterPii, this.logger);
-    addSentryTraceExporter(opts, this.provider, filter, this.logger);
     addGcpTraceExporter(opts, this.provider, filter, this.logger);
     addOtlpTraceExporter(opts, this.provider, undefined, filter, this.logger);
     addConsoleExporter(opts, this.provider, filter);

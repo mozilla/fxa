@@ -5,13 +5,10 @@
 import { HealthModule } from 'fxa-shared/nestjs/health/health.module';
 import { LoggerModule } from 'fxa-shared/nestjs/logger/logger.module';
 import { MetricsFactory } from 'fxa-shared/nestjs/metrics.service';
-import {
-  createContext,
-  SentryPlugin,
-} from 'fxa-shared/nestjs/sentry/sentry.plugin';
 import { getVersionInfo } from 'fxa-shared/nestjs/version';
 import { join } from 'path';
-
+import { APP_FILTER } from '@nestjs/core';
+import { SentryGlobalGraphQLFilter, SentryModule } from '@sentry/nestjs/setup';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { LegacyStatsDProvider } from '@fxa/shared/metrics/statsd';
 import { MozLoggerService } from '@fxa/shared/mozlog';
@@ -46,6 +43,7 @@ const version = getVersionInfo(__dirname);
     BackendModule,
     DatabaseModule,
     EventLoggingModule,
+    SentryModule.forRoot(),
     SubscriptionModule,
     NewslettersModule,
     GqlModule,
@@ -62,8 +60,6 @@ const version = getVersionInfo(__dirname);
         definitions: {
           path: join(process.cwd(), 'src/graphql.ts'),
         },
-        context: ({ req, connection }: any) =>
-          createContext({ req, connection }),
         fieldResolverEnhancers: ['guards'],
       }),
     }),
@@ -84,7 +80,6 @@ const version = getVersionInfo(__dirname);
       provide: APP_GUARD,
       useClass: UserGroupGuard,
     },
-    SentryPlugin,
     {
       provide: LOGGER_PROVIDER,
       useClass: MozLoggerService,
@@ -92,6 +87,10 @@ const version = getVersionInfo(__dirname);
     LegacyNotifierServiceProvider,
     LegacyNotifierSnsFactory,
     LegacyStatsDProvider,
+    {
+      provide: APP_FILTER,
+      useClass: SentryGlobalGraphQLFilter,
+    },
   ],
 })
 export class AppModule {}
