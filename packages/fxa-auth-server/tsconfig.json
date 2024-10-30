@@ -12,7 +12,7 @@
   },
   "include": [
     "bin/*",
-    "scripts/*.ts",
+    "scripts/**/*.ts",
     "scripts/delete-account.js",
     "lib/senders/emails/templates/*/includes.ts"
   ]
