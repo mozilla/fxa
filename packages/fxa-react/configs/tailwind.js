@@ -96,6 +96,10 @@ module.exports = {
       listStyleType: {
         circle: 'circle',
       },
+      transitionDelay: {
+        1200: '1200ms',
+        1500: '1500ms',
+      },
     },
     screens: {
       mobileLandscape: '480px',
@@ -272,6 +276,22 @@ module.exports = {
     },
   },
   plugins: [
+    // this gives us the same classes as delay-* (for transition),
+    // but for animation-delay-* instead
+    plugin(({ matchUtilities, theme }) => {
+      matchUtilities(
+        {
+          'animation-delay': (value) => {
+            return {
+              'animation-delay': value,
+            };
+          },
+        },
+        {
+          values: theme('transitionDelay'),
+        }
+      );
+    }),
     plugin(function ({ addUtilities }) {
       const customUtilities = {
         '.clip-auto': {

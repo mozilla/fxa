@@ -7,7 +7,7 @@ import { RouteComponentProps } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { useFtlMsgResolver } from '../../models';
 import DataBlock from '../../components/DataBlock';
-import { RecoveryCodesImage } from '../../components/images';
+import { BackupCodesImage } from '../../components/images';
 import CardHeader from '../../components/CardHeader';
 import AppLayout from '../../components/AppLayout';
 import Banner, { BannerType } from '../../components/Banner';
@@ -143,7 +143,7 @@ const InlineRecoverySetup = ({
           {showBannerError()}
           <section>
             <div>
-              <RecoveryCodesImage className="mx-auto" />
+              <BackupCodesImage className="mx-auto" />
               <FtlMsg id="inline-recovery-confirmation-description">
                 <p className="text-sm mb-6">
                   To ensure that you will be able to regain access to your

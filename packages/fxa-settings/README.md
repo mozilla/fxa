@@ -491,6 +491,30 @@ background-image: url('/path-to-image.svg');
 
 To use a background-image with Tailwind, you'll need to add a class to the `backgroundImage` object in the Tailwind config file. Check config files for examples.
 
+#### Animated SVGs
+
+Since SVGs are just XML, we can add styles and classes to them to animate them with CSS. This has been shown to increase user engagement and our animated SVGs respect `prefers-reduced-motion` if users don't wish to see animations.
+
+UX should give a brief description of what they're visualizing. When possible and agreeable with UX, for best a11y practices, try to keep animations at 5 seconds and under, try to only use "infinite" animations on small movements, and consider pushing back against very large movement animations.
+
+##### Developing
+
+**Note that our CSP prevents global `<style>` tags in SVGs from being used**. This is a pitfall because global styles allow animations to show directly on the SVG in PR reviews and will look fine in local development, but there will be CSP errors and no animation as soon as it reaches stage.
+
+You may find it easiest to use something like CodePen (paste the SVG into the HTML section) to figure out the initial animation and confer with UX for immediate feedback, but you can also work in Storybook instead. Inspect SVGs with dev tools to see what vector path corresponds with what is visually displayed and add a `class` property like you would with HTML.
+
+If new `keyframes` are needed, add them to the Tailwind config file and add your new animation under `animation`. Tailwind names, e.g. `my-new-thing` under `animation`, will become classes like `animate-my-new-thing`. Keep in mind you may not need a new `keyframe` if you can use an existing `keyframe` with a new `animation` name and style and that you can also add `animation-delay-*` etc. in conjunction with your animation class. If you are working in Storybook after updating a Tailwind config file you may need to manually run `yarn build-css` in `fxa-settings` - check the `tailwind.out.css` file to confirm your generated class names.
+
+If you need to "group" paths together like you would with a div or span, use `<g></g>` tags to apply classes to a group of elements. You may also need to move a `path` around, adjust the `viewBox`, or request a new SVG if certain vector segments aren't created well for the desired animation (e.g. two layered `path`s look fine, but once you animate the top one, there's a gap on the bottom one; each vector piece should be exported to be whole).
+
+Since SVGs contain unique vector paths/shapes with inconsistent widths/heights, you _may_ want to add something like a one-off `transform-origin` in an inline `style` to prevent these CSS classes from being included in our final tailwind.out.css file.
+
+#### Minifying SVGs
+
+Use [SVGO](https://github.com/svg/svgo) to minify SVGs. Always double check SVGs after minifying them because occasionally, something is removed or modified that changes the appearance of the SVG.
+
+Recently, we've been keeping original SVGs and appending a `.min` to those SVGs that have been ran through SVGO to make it obvious which SVGs have been minified. This can also make tweaking animations on SVGs easier as well or any other reason we may want to refer to the original graphic.
+
 ### Metrics
 
 Metrics reports are currently sent to the fxa-content-server metrics endpoint. Use the [metrics library](./src/lib/metrics.ts) to log events and other information.
