@@ -41,6 +41,7 @@ import {
   getErrorFtlId,
   getLocalizedErrorMessage,
 } from '../../../lib/error-utils';
+import { isFirefoxService } from '../../../models/integrations/utils';
 
 export const viewName = 'confirm-signup-code';
 
@@ -136,8 +137,6 @@ const ConfirmSignupCode = ({
       const service = integration.getService();
       const clientId = integration.getClientId();
 
-      const isBrowserClient = service === 'sync' || service === 'relay';
-
       const options = {
         ...(hasSelectedNewsletters && { ...{ newsletters } }),
         ...(isOAuthIntegration(integration) && {
@@ -146,7 +145,7 @@ const ConfirmSignupCode = ({
         // See oauth_client_info in the auth-server for details on service/clientId
         // Sending up the clientId when the user is not signing in to the browser
         // is used to show the correct service name in emails
-        ...(isBrowserClient ? { service } : { service: clientId }),
+        ...(isFirefoxService(service) ? { service } : { service: clientId }),
       };
 
       await session.verifySession(code, options);
@@ -212,7 +211,7 @@ const ConfirmSignupCode = ({
 
           if (integration.isSync()) {
             firefox.fxaOAuthLogin({
-              // OAuth desktop looks at the syc engine list in fxaLogin. Oauth
+              // OAuth desktop looks at the sync engine list in fxaLogin. Oauth
               // mobile currently looks at the engines provided here, but should
               // eventually move to look at fxaLogin as well to prevent FXA-10596.
               declinedSyncEngines,

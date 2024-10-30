@@ -39,7 +39,7 @@ export enum OAuthNativeClients {
 /**
  * These come through via data.service (a query parameter).
  */
-enum OAuthNativeServices {
+export enum OAuthNativeServices {
   Sync = 'sync',
   Relay = 'relay',
 }

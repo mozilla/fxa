@@ -172,11 +172,11 @@ export abstract class Integration<
     return undefined;
   }
 
-  getService() {
+  getService(): string | undefined {
     return this.data.service;
   }
 
-  getClientId() {
+  getClientId(): string | undefined {
     return this.data.clientId;
   }
 

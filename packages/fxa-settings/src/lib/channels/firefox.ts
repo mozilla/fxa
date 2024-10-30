@@ -119,7 +119,7 @@ export type FxAOAuthLogin = {
   code: string;
   redirect: string;
   state: string;
-  // OAuth desktop looks at the syc engine list in fxaLogin.
+  // OAuth desktop looks at the sync engine list in fxaLogin.
   // OAuth mobile currently looks at fxaOAuthLogin, but should
   // eventually move to look at fxaLogin as well to prevent FXA-10596.
   declinedSyncEngines?: string[];

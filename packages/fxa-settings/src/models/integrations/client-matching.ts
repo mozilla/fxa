@@ -14,10 +14,10 @@ export const POCKET_CLIENTIDS = [
   '749818d3f2e7857f', // pocket-web
 ];
 
-export const isClientPocket = (clientId: string) => {
-  return POCKET_CLIENTIDS.includes(clientId);
+export const isClientPocket = (clientId?: string) => {
+  return !!(clientId && POCKET_CLIENTIDS.includes(clientId));
 };
 
-export const isClientMonitor = (clientId: string) => {
-  return MONITOR_CLIENTIDS.includes(clientId);
+export const isClientMonitor = (clientId?: string) => {
+  return !!(clientId && MONITOR_CLIENTIDS.includes(clientId));
 };
