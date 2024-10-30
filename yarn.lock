@@ -23772,15 +23772,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ts-morph/common@npm:~0.23.0":
-  version: 0.23.0
-  resolution: "@ts-morph/common@npm:0.23.0"
+"@ts-morph/common@npm:~0.25.0":
+  version: 0.25.0
+  resolution: "@ts-morph/common@npm:0.25.0"
   dependencies:
-    fast-glob: ^3.3.2
-    minimatch: ^9.0.3
-    mkdirp: ^3.0.1
+    minimatch: ^9.0.4
     path-browserify: ^1.0.1
-  checksum: 96463742ec1114900901ded8aecc2c9664b20119454a56c896042e6a5e5b153af1d986467362d737ed0130506aeac9655731922dc8c4e851a16f9c1a8a8099b4
+    tinyglobby: ^0.2.9
+  checksum: b8177f7969b058a8da6c79e28dc71c326acc4431e1138b04d2311be98cf46d9506053064eb3304f49970a58daf1f4ea0c0760c0d3b50636179424a5d71b9c74f
   languageName: node
   linkType: hard
 
@@ -33025,10 +33024,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"code-block-writer@npm:^13.0.1":
-  version: 13.0.1
-  resolution: "code-block-writer@npm:13.0.1"
-  checksum: 678b740d1723c7cc3c5addcbc1a91d9a7a3f033510eb8e0639154fcaae456c80630dbd40d16aefdffaf3edb5ffb352d7d46f195f69c8be692c4d7debb1dc7933
+"code-block-writer@npm:^13.0.3":
+  version: 13.0.3
+  resolution: "code-block-writer@npm:13.0.3"
+  checksum: 8e234f0ec2db9625d5efb9f05bdae79da6559bb4d9df94a6aa79a89a7b5ae25093b70d309fc5122840c9c07995cb14b4dd3f98a30f8878e3a3372e177df79454
   languageName: node
   linkType: hard
 
@@ -39668,6 +39667,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"fdir@npm:^6.4.2":
+  version: 6.4.2
+  resolution: "fdir@npm:6.4.2"
+  peerDependencies:
+    picomatch: ^3 || ^4
+  peerDependenciesMeta:
+    picomatch:
+      optional: true
+  checksum: 517ad31c495f1c0778238eef574a7818788efaaf2ce1969ffa18c70793e2951a9763dfa2e6720b8fcef615e602a3cbb47f9b8aea9da0b02147579ab36043f22f
+  languageName: node
+  linkType: hard
+
 "fecha@npm:^4.2.0":
   version: 4.2.3
   resolution: "fecha@npm:4.2.3"
@@ -41107,7 +41118,7 @@ fsevents@~2.1.1:
     supertest: ^7.0.0
     tailwindcss: 3.4.3
     ts-jest: ^29.2.3
-    ts-morph: ^22.0.0
+    ts-morph: ^24.0.0
     tslib: ^2.6.2
     typescript: ^5.5.3
     yargs: ^17.0.1
@@ -53543,7 +53554,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"mkdirp@npm:3.0.1, mkdirp@npm:^3.0.1":
+"mkdirp@npm:3.0.1":
   version: 3.0.1
   resolution: "mkdirp@npm:3.0.1"
   bin:
@@ -57106,6 +57117,13 @@ fsevents@~2.1.1:
   version: 2.3.1
   resolution: "picomatch@npm:2.3.1"
   checksum: 050c865ce81119c4822c45d3c84f1ced46f93a0126febae20737bd05ca20589c564d6e9226977df859ed5e03dc73f02584a2b0faad36e896936238238b0446cf
+  languageName: node
+  linkType: hard
+
+"picomatch@npm:^4.0.2":
+  version: 4.0.2
+  resolution: "picomatch@npm:4.0.2"
+  checksum: a7a5188c954f82c6585720e9143297ccd0e35ad8072231608086ca950bee672d51b0ef676254af0788205e59bd4e4deb4e7708769226bed725bf13370a7d1464
   languageName: node
   linkType: hard
 
@@ -67003,6 +67021,16 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
+"tinyglobby@npm:^0.2.9":
+  version: 0.2.10
+  resolution: "tinyglobby@npm:0.2.10"
+  dependencies:
+    fdir: ^6.4.2
+    picomatch: ^4.0.2
+  checksum: 7e2ffe262ebc149036bdef37c56b32d02d52cf09efa7d43dbdab2ea3c12844a4da881058835ce4c74d1891190e5ad5ec5133560a11ec8314849b68ad0d99d3f4
+  languageName: node
+  linkType: hard
+
 "title-case@npm:^3.0.3":
   version: 3.0.3
   resolution: "title-case@npm:3.0.3"
@@ -67491,13 +67519,13 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"ts-morph@npm:^22.0.0":
-  version: 22.0.0
-  resolution: "ts-morph@npm:22.0.0"
+"ts-morph@npm:^24.0.0":
+  version: 24.0.0
+  resolution: "ts-morph@npm:24.0.0"
   dependencies:
-    "@ts-morph/common": ~0.23.0
-    code-block-writer: ^13.0.1
-  checksum: 7bf0ec8cc9ab2a4ce528ec249634db315caa01b5783259484fd91ac0dae2f05b94d9c53ba236939fad2b8ab882e7fce1c82a689ab7c9a4a9dcec5c1160d77264
+    "@ts-morph/common": ~0.25.0
+    code-block-writer: ^13.0.3
+  checksum: 49eabeaa00f0922d2d6b955b85f17e6fd49e1270116ef37f1948c5515d2c84c1b6aa821bba436292c67568cd74e0b2734c37219b8f155b1d444150c8383580e0
   languageName: node
   linkType: hard
 
