@@ -6,13 +6,17 @@ import { ResultCart } from '@fxa/payments/cart';
 export const CheckoutTypes = ['with-accounts', 'without-accounts'] as const;
 export type CheckoutTypesType = (typeof CheckoutTypes)[number];
 
-export const PaymentProviders = [
-  'stripe',
-  'paypal',
-  'google',
-  'apple',
+export const PaymentProvidersTypePartial = [
+  'card',
+  'google_iap',
+  'apple_iap',
+  'external_paypal',
 ] as const;
-export type PaymentProvidersType = (typeof PaymentProviders)[number];
+export type PaymentProvidersType =
+  | 'card'
+  | 'google_iap'
+  | 'apple_iap'
+  | 'external_paypal';
 
 export type CommonMetrics = {
   ipAddress: string;

@@ -12,8 +12,10 @@ import {
 } from 'class-validator';
 import { PaymentsEmitterEventsKeys } from '../../emitter/emitter.types';
 import type { PaymentsEmitterEventsKeysType } from '../../emitter/emitter.types';
-import { PaymentProviders } from '@fxa/payments/metrics';
-import type { PaymentProvidersType } from '@fxa/payments/metrics';
+import {
+  PaymentProvidersTypePartial,
+  type PaymentProvidersType,
+} from '@fxa/payments/metrics';
 
 /**
  * Common metrics that can be found on all events
@@ -44,6 +46,6 @@ export class RecordEmitterEventArgs {
   requestArgs!: RequestArgs;
 
   @IsOptional()
-  @IsEnum(PaymentProviders)
+  @IsEnum(PaymentProvidersTypePartial)
   paymentProvider?: PaymentProvidersType;
 }

@@ -28,6 +28,7 @@ import {
   checkoutCartWithPaypal,
 } from '@fxa/payments/ui/actions';
 import { CartErrorReasonId } from '@fxa/shared/db/mysql/account/kysely-types';
+import { PaymentProvidersType } from '@fxa/payments/cart';
 
 interface CheckoutFormProps {
   cmsCommonContent: {
@@ -69,7 +70,7 @@ export function CheckoutForm({
   const [stripeFieldsComplete, setStripeFieldsComplete] = useState(false);
   const [fullName, setFullName] = useState('');
   const [hasFullNameError, setHasFullNameError] = useState(false);
-  const [showPayPalButton, setShowPayPalButton] = useState(false);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
 
   const engageGlean = useCallbackOnce(() => {
     recordEmitterEventAction(
@@ -97,14 +98,7 @@ export function CheckoutForm({
           }
 
           //Show or hide the PayPal button
-          const selectedPaymentMethod = event?.value?.type;
-          if (selectedPaymentMethod === 'external_paypal') {
-            // Show the PayPal button
-            setShowPayPalButton(true);
-          } else {
-            // Hide the PayPal button
-            setShowPayPalButton(false);
-          }
+          setSelectedPaymentMethod(event?.value?.type || '');
         });
       } else {
         setIsPaymentElementLoading(false);
@@ -166,7 +160,7 @@ export function CheckoutForm({
       'checkoutSubmit',
       { ...params },
       Object.fromEntries(searchParams),
-      'stripe'
+      selectedPaymentMethod as PaymentProvidersType
     );
 
     await checkoutCartWithStripe(cart.id, cart.version, confirmationToken.id, {
@@ -178,6 +172,7 @@ export function CheckoutForm({
   };
 
   const nonStripeFieldsComplete = !!fullName;
+  const showPayPalButton = selectedPaymentMethod === 'external_paypal';
 
   return (
     <Form.Root

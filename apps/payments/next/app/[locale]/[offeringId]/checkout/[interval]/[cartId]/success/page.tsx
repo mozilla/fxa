@@ -14,30 +14,41 @@ import {
   recordEmitterEventAction,
 } from '@fxa/payments/ui/actions';
 import { CheckoutParams } from '@fxa/payments/ui/server';
+import Image from 'next/image';
+import Amex from '@fxa/shared/assets/images/payment-methods/amex.svg';
+import Diners from '@fxa/shared/assets/images/payment-methods/diners.svg';
+import Discover from '@fxa/shared/assets/images/payment-methods/discover.svg';
+import Jcb from '@fxa/shared/assets/images/payment-methods/jcb.svg';
+import Mastercard from '@fxa/shared/assets/images/payment-methods/mastercard.svg';
+import Paypal from '@fxa/shared/assets/images/payment-methods/paypal.svg';
+import Unbranded from '@fxa/shared/assets/images/payment-methods/unbranded.svg';
+import UnionPay from '@fxa/shared/assets/images/payment-methods/unionpay.svg';
+import Visa from '@fxa/shared/assets/images/payment-methods/visa.svg';
 
 export const dynamic = 'force-dynamic';
 
-type ConfirmationDetailProps = {
-  title: string;
-  detail1: string | Promise<string>;
-  detail2: string;
-};
-
-const ConfirmationDetail = ({
-  title,
-  detail1,
-  detail2,
-}: ConfirmationDetailProps) => {
-  return (
-    <div className="border-b border-grey-200 pb-6 text-sm">
-      <div className="font-semibold py-4">{title}</div>
-      <div className="flex items-center justify-between text-grey-400">
-        <span>{detail1}</span>
-        <span>{detail2}</span>
-      </div>
-    </div>
-  );
-};
+function getCardIcon(cardBrand: string) {
+  switch (cardBrand) {
+    case 'amex':
+      return Amex;
+    case 'diners':
+      return Diners;
+    case 'discover':
+      return Discover;
+    case 'jcb':
+      return Jcb;
+    case 'mastercard':
+      return Mastercard;
+    case 'paypal':
+      return Paypal;
+    case 'unionpay':
+      return UnionPay;
+    case 'visa':
+      return Visa;
+    default:
+      return Unbranded;
+  }
+}
 
 export default async function CheckoutSuccess({
   params,
@@ -66,7 +77,7 @@ export default async function CheckoutSuccess({
     'checkoutSuccess',
     { ...params },
     searchParams,
-    'stripe'
+    cart.paymentInfo.type
   );
 
   const { successActionButtonUrl, successActionButtonLabel } =
@@ -86,7 +97,7 @@ export default async function CheckoutSuccess({
 
             <p className="text-black max-w-sm text-sm leading-5 font-normal">
               {l10n.getString(
-                'next-payment-confirmation-thanks-subheading',
+                'payment-confirmation-thanks-subheading-account-exists-2',
                 {
                   email: cart.email || '',
                 },
@@ -96,55 +107,71 @@ export default async function CheckoutSuccess({
           </div>
         </div>
 
-        <ConfirmationDetail
-          title={l10n.getString(
-            'next-payment-confirmation-order-heading',
-            'Order details'
-          )}
-          detail1={l10n.getString(
-            'next-payment-confirmation-invoice-number',
-            {
-              invoiceNumber: cart.latestInvoicePreview?.number ?? '',
-            },
-            `Invoice #${cart.latestInvoicePreview?.number}`
-          )}
-          detail2={l10n.getString(
-            'next-payment-confirmation-invoice-date',
-            {
-              invoiceDate: l10n.getLocalizedDate(cart.createdAt / 1000),
-            },
-            l10n.getLocalizedDateString(cart.createdAt / 1000)
-          )}
-        />
+        <div className="border-b border-grey-200 pb-6 text-sm">
+          <div className="font-semibold py-4">
+            {l10n.getString(
+              'next-payment-confirmation-order-heading',
+              'Order details'
+            )}
+          </div>
+          <div className="flex items-center justify-between text-grey-400">
+            <span>
+              {l10n.getString(
+                'next-payment-confirmation-invoice-number',
+                {
+                  invoiceNumber: cart.latestInvoicePreview?.number ?? '',
+                },
+                `Invoice #${cart.latestInvoicePreview?.number}`
+              )}
+            </span>
+            <span>
+              {l10n.getString(
+                'next-payment-confirmation-invoice-date',
+                {
+                  invoiceDate: l10n.getLocalizedDate(cart.createdAt / 1000),
+                },
+                l10n.getLocalizedDateString(cart.createdAt / 1000)
+              )}
+            </span>
+          </div>
+        </div>
 
-        <ConfirmationDetail
-          title={l10n.getString(
-            'next-payment-confirmation-details-heading-2',
-            'Payment information'
-          )}
-          detail1={l10n.getString(
-            'next-payment-confirmation-amount',
-            {
-              amount: l10n.getLocalizedCurrency(
+        <div className="border-b border-grey-200 pb-6 text-sm">
+          <div className="font-semibold py-4">
+            {l10n.getString(
+              'next-payment-confirmation-details-heading-2',
+              'Payment information'
+            )}
+          </div>
+          <div className="flex items-center justify-between text-grey-400">
+            <span>
+              {formatPlanPricing(
                 cart.latestInvoicePreview?.totalAmount ?? null,
-                cart.latestInvoicePreview?.currency ?? ''
-              ),
-              interval: cart.interval,
-            },
-            formatPlanPricing(
-              cart.latestInvoicePreview?.totalAmount ?? null,
-              cart.latestInvoicePreview?.currency ?? '',
-              cart.interval
-            )
-          )}
-          detail2={l10n.getString(
-            'next-payment-confirmation-cc-card-ending-in',
-            {
-              last4: cart.last4 ?? '',
-            },
-            `Card ending in ${cart.last4}`
-          )}
-        />
+                cart.latestInvoicePreview?.currency ?? '',
+                cart.interval
+              )}
+            </span>
+            {cart.paymentInfo.type === 'external_paypal' ? (
+              <Image src={getCardIcon('paypal')} alt="paypal" />
+            ) : (
+              <span className="flex items-center gap-2">
+                {cart.paymentInfo.brand && (
+                  <Image
+                    src={getCardIcon(cart.paymentInfo.brand)}
+                    alt={cart.paymentInfo.brand}
+                  />
+                )}
+                {l10n.getString(
+                  'next-payment-confirmation-cc-card-ending-in',
+                  {
+                    last4: cart.paymentInfo.last4 ?? '',
+                  },
+                  `Card ending in ${cart.paymentInfo.last4}`
+                )}
+              </span>
+            )}
+          </div>
+        </div>
 
         <a
           className="flex items-center justify-center bg-blue-500 hover:bg-blue-700 font-semibold h-12 my-8 rounded-md text-white w-full"
