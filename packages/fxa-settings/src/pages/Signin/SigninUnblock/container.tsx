@@ -9,7 +9,6 @@ import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 
 import VerificationMethods from '../../../constants/verification-methods';
 import {
-  Integration,
   useAuthClient,
   useFtlMsgResolver,
   useSensitiveDataClient,
@@ -17,7 +16,11 @@ import {
 
 // using default signin handlers
 import { BEGIN_SIGNIN_MUTATION, CREDENTIAL_STATUS_MUTATION } from '../gql';
-import { BeginSigninResponse, CredentialStatusResponse } from '../interfaces';
+import {
+  BeginSigninResponse,
+  CredentialStatusResponse,
+  SigninUnblockIntegration,
+} from '../interfaces';
 
 import SigninUnblock from '.';
 import {
@@ -39,11 +42,11 @@ import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { SignInOptions } from 'fxa-auth-client/browser';
 import { AUTH_DATA_KEY } from '../../../lib/sensitive-data-client';
 
-const SigninUnblockContainer = ({
+export const SigninUnblockContainer = ({
   integration,
   flowQueryParams,
 }: {
-  integration: Integration;
+  integration: SigninUnblockIntegration;
   flowQueryParams: QueryParams;
 } & RouteComponentProps) => {
   const authClient = useAuthClient();
@@ -95,22 +98,32 @@ const SigninUnblockContainer = ({
     };
 
     // Get credentials with the correct key version
+    const status = await (async () => {
+      try {
+        const { data } = await credentialStatus({
+          variables: {
+            input: email,
+          },
+        });
+        return data?.credentialStatus;
+      } catch (err) {
+        // In the event there's a downstream error, this could be useful a breadcrumb to capture.
+        console.warn('Could not get credential status!');
+      }
+      return undefined;
+    })();
+
     const credentials = await (async () => {
-      const { data } = await credentialStatus({
-        variables: {
-          input: email,
-        },
-      });
-      const currentVersion = data?.credentialStatus.currentVersion;
+      const currentVersion = status?.currentVersion;
       if (currentVersion === 'v2') {
-        const clientSalt = data?.credentialStatus.clientSalt || '';
+        const clientSalt = status?.clientSalt || '';
         return await getCredentialsV2({ password, clientSalt });
       }
       return await getCredentials(authEmail, password);
     })();
 
     try {
-      return await beginSignin({
+      const response = await beginSignin({
         variables: {
           input: {
             email: authEmail,
@@ -119,6 +132,10 @@ const SigninUnblockContainer = ({
           },
         },
       });
+      if (response.data != null) {
+        response.data.unwrapBKey = credentials.unwrapBKey;
+      }
+      return response;
     } catch (error) {
       const result = getHandledError(error);
       if (

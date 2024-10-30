@@ -14,7 +14,6 @@ import {
   MOCK_SESSION_TOKEN,
   MOCK_UID,
   MOCK_AVATAR_NON_DEFAULT,
-  MOCK_UNWRAP_BKEY,
   mockFinishOAuthFlowHandler,
   MOCK_CLIENT_ID,
   MOCK_AVATAR_DEFAULT,
@@ -185,13 +184,20 @@ export function mockGqlAvatarUseQuery() {
 }
 
 export function mockGqlBeginSigninMutation(
-  opts: { keys: boolean; originalLoginEmail?: string; service?: 'sync' },
+  opts: {
+    keys: boolean;
+    originalLoginEmail?: string;
+    service?: string;
+    unblockCode?: string;
+  },
   inputOverrides: any = {}
 ) {
   const result = opts.keys
     ? createBeginSigninResponse({
         keyFetchToken: MOCK_KEY_FETCH_TOKEN,
-        unwrapBKey: MOCK_UNWRAP_BKEY,
+        // This doesn't actually come back from the server. We have to 'patch it' with
+        // the current client side credentials after the request comes back.
+        // unwrapBKey: MOCK_UNWRAP_BKEY,
       })
     : createBeginSigninResponse();
 
@@ -215,7 +221,11 @@ export function mockGqlBeginSigninMutation(
   };
 }
 
-export function mockGqlCredentialStatusMutation() {
+export function mockGqlCredentialStatusMutation(overrides?: {
+  upgradeNeeded?: boolean;
+  currentVersion?: 'v1' | 'v2';
+  clientSalt?: string;
+}) {
   return {
     request: {
       query: CREDENTIAL_STATUS_MUTATION,
@@ -227,8 +237,9 @@ export function mockGqlCredentialStatusMutation() {
       data: {
         credentialStatus: {
           upgradeNeeded: true,
-          version: 2,
+          currentVersion: 'v2',
           clientSalt: MOCK_CLIENT_SALT,
+          ...(overrides || {}),
         },
       },
     },

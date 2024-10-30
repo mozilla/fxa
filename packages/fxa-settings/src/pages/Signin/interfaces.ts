@@ -18,6 +18,20 @@ export interface AvatarResponse {
   };
 }
 
+export type SigninUnblockIntegration = Pick<
+  Integration,
+  | 'type'
+  | 'isSync'
+  | 'getService'
+  | 'getClientId'
+  | 'wantsTwoStepAuthentication'
+  | 'clientInfo'
+  | 'wantsKeys'
+  | 'data'
+  | 'isDesktopSync'
+  | 'isDesktopRelay'
+>;
+
 export type SigninIntegration =
   | Pick<
       Integration,
