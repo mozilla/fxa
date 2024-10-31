@@ -5,7 +5,7 @@
 import React from 'react';
 import { screen } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import { HeartsVerifiedImage } from '.';
+import { HeartsVerifiedImage } from '../images';
 
 it('applies localization by default', () => {
   renderWithLocalizationProvider(<HeartsVerifiedImage />);
@@ -30,7 +30,7 @@ it('applies a11y by default', () => {
   ).toBeInTheDocument();
 });
 
-it('can be hidden from screenreaders when desired', () => {
+it('can be hidden from screen readers when desired', () => {
   renderWithLocalizationProvider(<HeartsVerifiedImage ariaHidden />);
   const image = screen.getByTestId('aria-hidden-image');
   expect(image).toBeInTheDocument();
@@ -44,4 +44,18 @@ it('applies custom classNames when desired', () => {
     <HeartsVerifiedImage className={MOCK_CLASS} />
   );
   expect(screen.getByRole('img')).toHaveClass(MOCK_CLASS);
+});
+
+describe('images without l10n', () => {
+  it('applies basic styles by default', () => {
+    renderWithLocalizationProvider(<HeartsVerifiedImage />);
+    expect(screen.getByRole('img')).toHaveClass('w-3/5');
+  });
+  it('applies custom classNames when desired', () => {
+    const MOCK_CLASS = 'w-full';
+    renderWithLocalizationProvider(
+      <HeartsVerifiedImage className={MOCK_CLASS} />
+    );
+    expect(screen.getByRole('img')).toHaveClass(MOCK_CLASS);
+  });
 });

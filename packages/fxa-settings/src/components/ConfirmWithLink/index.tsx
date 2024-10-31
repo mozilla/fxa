@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { MailImage } from '../../components/images';
+import { MailImage } from '../images';
 import CardHeader from '../CardHeader';
 import { ResendStatus } from '../../lib/types';
 import Banner, { BannerType, ResendEmailSuccessBanner } from '../Banner';
