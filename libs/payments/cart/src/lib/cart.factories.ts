@@ -4,7 +4,10 @@
 
 import { faker } from '@faker-js/faker';
 
-import { TaxAddressFactory } from '@fxa/payments/customer';
+import {
+  InvoicePreviewFactory,
+  TaxAddressFactory,
+} from '@fxa/payments/customer';
 import {
   CartEligibilityStatus,
   CartErrorReasonId,
@@ -14,10 +17,13 @@ import {
   CheckoutCustomerData,
   FinishCart,
   FinishErrorCart,
+  PaymentInfo,
   ResultCart,
   SetupCart,
+  SuccessCart,
   TaxAmount,
   UpdateCart,
+  WithContextCart,
 } from './cart.types';
 
 const OFFERING_CONFIG_IDS = [
@@ -51,6 +57,18 @@ export const TaxAmountFactory = (override?: Partial<TaxAmount>): TaxAmount => ({
   inclusive: false,
   title: faker.location.state({ abbreviated: true }),
   amount: faker.number.int(10000),
+  ...override,
+});
+
+export const PaymentInfoFactory = (
+  override?: Partial<PaymentInfo>
+): PaymentInfo => ({
+  type: faker.helpers.arrayElement([
+    'card',
+    'google_iap',
+    'apple_iap',
+    'external_paypal',
+  ]),
   ...override,
 });
 
@@ -94,5 +112,24 @@ export const ResultCartFactory = (
   amount: faker.number.int(),
   version: faker.number.int(),
   eligibilityStatus: faker.helpers.enumValue(CartEligibilityStatus),
+  ...override,
+});
+
+export const WithContextCartFactory = (
+  override?: Partial<WithContextCart>
+): WithContextCart => ({
+  ...ResultCartFactory(),
+  metricsOptedOut: false,
+  upcomingInvoicePreview: InvoicePreviewFactory(),
+  ...override,
+});
+
+export const SuccessCartFactory = (
+  override?: Partial<SuccessCart>
+): SuccessCart => ({
+  ...WithContextCartFactory(),
+  state: CartState.SUCCESS,
+  latestInvoicePreview: InvoicePreviewFactory(),
+  paymentInfo: PaymentInfoFactory(),
   ...override,
 });

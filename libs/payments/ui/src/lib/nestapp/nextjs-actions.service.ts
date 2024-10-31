@@ -46,6 +46,14 @@ export class NextJSActionsService {
     return cart;
   }
 
+  async getSuccessCart(args: GetCartActionArgs) {
+    await new Validator().validateOrReject(args);
+
+    const cart = await this.cartService.getSuccessCart(args.cartId);
+
+    return cart;
+  }
+
   async updateCart(args: UpdateCartActionArgs) {
     await new Validator().validateOrReject(args);
 

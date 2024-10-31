@@ -9,6 +9,7 @@ import {
   CartErrorReasonId,
   CartState,
 } from '@fxa/shared/db/mysql/account';
+import Stripe from 'stripe';
 
 export type CheckoutCustomerData = {
   locale: string;
@@ -40,16 +41,33 @@ export interface Invoice {
   number: string | null; // customer-facing invoice identifier
 }
 
+export type PaymentProvidersType =
+  | Stripe.PaymentMethod.Type
+  | 'google_iap'
+  | 'apple_iap'
+  | 'external_paypal';
+
+export interface PaymentInfo {
+  type: PaymentProvidersType;
+  last4?: string;
+  brand?: string;
+}
+
 export type ResultCart = Readonly<Omit<Cart, 'id' | 'uid'>> & {
   readonly id: string;
   readonly uid?: string;
 };
 
 export type WithContextCart = ResultCart & {
+  metricsOptedOut: boolean;
   upcomingInvoicePreview: Invoice;
   latestInvoicePreview?: Invoice;
-  metricsOptedOut: boolean;
-  last4?: string;
+  paymentInfo?: PaymentInfo;
+};
+
+export type SuccessCart = WithContextCart & {
+  latestInvoicePreview: Invoice;
+  paymentInfo: PaymentInfo;
 };
 
 export type SetupCart = {

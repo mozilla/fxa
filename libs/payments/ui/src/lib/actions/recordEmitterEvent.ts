@@ -7,7 +7,7 @@ import { getApp } from '../nestapp/app';
 import { plainToClass } from 'class-transformer';
 import { RecordEmitterEventArgs } from '../nestapp/validators/RecordEmitterEvent';
 import { getAdditionalRequestArgs } from '../utils/getAdditionalRequestArgs';
-import { PaymentProvidersType } from '@fxa/payments/metrics';
+import { PaymentProvidersType } from '@fxa/payments/cart';
 import { PaymentsEmitterEventsKeysType } from '../emitter/emitter.types';
 
 async function recordEmitterEventAction(
@@ -17,7 +17,14 @@ async function recordEmitterEventAction(
 ): Promise<void>;
 
 async function recordEmitterEventAction(
-  eventName: 'checkoutSubmit' | 'checkoutSuccess' | 'checkoutFail',
+  eventName: 'checkoutFail',
+  params: Record<string, string | string[]>,
+  searchParams: Record<string, string>,
+  paymentProvider?: PaymentProvidersType
+): Promise<void>;
+
+async function recordEmitterEventAction(
+  eventName: 'checkoutSubmit' | 'checkoutSuccess',
   params: Record<string, string | string[]>,
   searchParams: Record<string, string>,
   paymentProvider: PaymentProvidersType

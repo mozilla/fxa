@@ -29,12 +29,7 @@ export function CartPoller() {
       if (!isPolling) return;
 
       try {
-        retries = await pollCart(
-          checkoutParams,
-          getCartOrRedirectAction,
-          retries,
-          stripe
-        );
+        retries = await pollCart(checkoutParams, retries, stripe);
       } catch (error) {
         console.error(error);
         throw error;

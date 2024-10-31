@@ -27,8 +27,10 @@ import { GeoDBManager } from '@fxa/shared/geodb';
 import { CartManager } from './cart.manager';
 import {
   CheckoutCustomerData,
+  PaymentInfo,
   PollCartResponse,
   ResultCart,
+  SuccessCart,
   UpdateCart,
   WithContextCart,
 } from './cart.types';
@@ -38,8 +40,10 @@ import {
   CartError,
   CartInvalidCurrencyError,
   CartInvalidPromoCodeError,
+  CartInvalidStateForActionError,
   CartStateProcessingError,
   CartSubscriptionNotFoundError,
+  CartSuccessMissingRequired,
 } from './cart.error';
 import { AccountManager } from '@fxa/shared/account/account';
 import assert from 'assert';
@@ -427,7 +431,7 @@ export class CartService {
 
     // Cart latest invoice data
     let latestInvoicePreview: InvoicePreview | undefined;
-    let last4: string | undefined;
+    let paymentInfo: PaymentInfo | undefined;
     if (customer && cart.stripeSubscriptionId) {
       // fetch latest payment info from subscription
       const subscription = await this.subscriptionManager.retrieve(
@@ -442,13 +446,20 @@ export class CartService {
       if (subscription.collection_method === 'send_invoice') {
         // PayPal payment method collection
         // TODO: render paypal payment info in the UI (FXA-10608)
+        paymentInfo = {
+          type: 'external_paypal',
+        };
       } else {
         // Stripe payment method collection
         if (customer.invoice_settings.default_payment_method) {
           const paymentMethod = await this.paymentMethodManager.retrieve(
             customer.invoice_settings.default_payment_method
           );
-          last4 = paymentMethod?.card?.last4;
+          paymentInfo = {
+            type: paymentMethod.type,
+            last4: paymentMethod.card?.last4,
+            brand: paymentMethod.card?.brand,
+          };
         }
       }
     }
@@ -456,9 +467,34 @@ export class CartService {
     return {
       ...cart,
       upcomingInvoicePreview,
-      latestInvoicePreview,
-      last4,
       metricsOptedOut,
+      latestInvoicePreview,
+      paymentInfo,
+    };
+  }
+
+  /**
+   * Fetch a success cart from the database by UID
+   */
+  async getSuccessCart(cartId: string): Promise<SuccessCart> {
+    const cart = await this.getCart(cartId);
+
+    if (cart.state !== CartState.SUCCESS) {
+      throw new CartInvalidStateForActionError(
+        cartId,
+        cart.state,
+        'getSuccessCart'
+      );
+    }
+
+    if (!cart.latestInvoicePreview || !cart.paymentInfo?.type) {
+      throw new CartSuccessMissingRequired(cartId);
+    }
+
+    return {
+      ...cart,
+      latestInvoicePreview: cart.latestInvoicePreview,
+      paymentInfo: cart.paymentInfo,
     };
   }
 

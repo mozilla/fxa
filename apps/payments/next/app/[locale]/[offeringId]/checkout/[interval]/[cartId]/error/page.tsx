@@ -70,7 +70,7 @@ export default async function CheckoutError({
     'checkoutFail',
     { ...params },
     searchParams,
-    'stripe'
+    cart.paymentInfo?.type
   );
 
   const errorReason = getErrorReason(cart.errorReasonId);

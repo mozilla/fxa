@@ -4,6 +4,7 @@ import {
   pollCartAction,
   finalizeProcessingCartAction,
   finalizeCartWithError,
+  getCartOrRedirectAction,
 } from '@fxa/payments/ui/actions';
 import { CartErrorReasonId } from '@fxa/shared/db/mysql/account/kysely-types';
 
@@ -14,14 +15,16 @@ export const pollCart = async (
     interval: string;
     offeringId: string;
   },
-  validatePageCb: (cartId: string, page: SupportedPages) => Promise<any>,
   retries = 0,
   stripeClient: Stripe | null
 ): Promise<number> => {
   const pollCartResponse = await pollCartAction(checkoutParams.cartId);
 
   if (pollCartResponse.cartState !== 'processing') {
-    await validatePageCb(checkoutParams.cartId, SupportedPages.PROCESSING);
+    await getCartOrRedirectAction(
+      checkoutParams.cartId,
+      SupportedPages.PROCESSING
+    );
   } else if (
     pollCartResponse.cartState === 'processing' &&
     pollCartResponse.stripeClientSecret
@@ -53,12 +56,12 @@ export const pollCart = async (
         // TODO: handle other paymentIntent statuses. For now, retry
         retries += 1;
       }
-      validatePageCb(checkoutParams.cartId, SupportedPages.PROCESSING);
+      getCartOrRedirectAction(checkoutParams.cartId, SupportedPages.PROCESSING);
       return retries;
     }
   }
 
-  validatePageCb(checkoutParams.cartId, SupportedPages.PROCESSING),
+  getCartOrRedirectAction(checkoutParams.cartId, SupportedPages.PROCESSING),
     (retries += 1);
   return retries;
 };
