@@ -446,7 +446,7 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
           // XXX TODO: To be able to fully replace the /token route from oauth-server,
           // this route must also be able to accept 'client_secret' as Basic Auth in header.
           mode: 'optional',
-          strategy: 'sessionToken',
+          strategy: 'sessionTokenNoAssurance',
         },
         validate: {
           // Note: the use of 'alternatives' here means that `grant_type` will default to
