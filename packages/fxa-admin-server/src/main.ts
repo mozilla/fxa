@@ -9,24 +9,14 @@ import './monitoring';
 import { NestApplicationOptions } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { SentryInterceptor } from 'fxa-shared/nestjs/sentry/sentry.interceptor';
-import { initTracing } from 'fxa-shared/tracing/node-tracing';
-import mozLog from 'mozlog';
+import { allowlistGqlQueries } from 'fxa-shared/nestjs/gql/gql-allowlist';
 import helmet from 'helmet';
-
 import { AppModule } from './app.module';
 import Config, { AppConfig } from './config';
-import { allowlistGqlQueries } from 'fxa-shared/nestjs/gql/gql-allowlist';
 
 const appConfig = Config.getProperties() as AppConfig;
 
 async function bootstrap() {
-  // Initialize tracing first
-  initTracing(
-    appConfig.tracing,
-    mozLog(Config.getProperties().log)(Config.getProperties().log.app)
-  );
-
   const nestConfig: NestApplicationOptions = {};
   if (appConfig.env !== 'development') {
     nestConfig.logger = false;
@@ -49,9 +39,6 @@ async function bootstrap() {
   if (appConfig.env !== 'development') {
     app.set('trust proxy', true);
   }
-
-  // Add sentry as error reporter
-  app.useGlobalInterceptors(new SentryInterceptor());
 
   // Starts listening for shutdown hooks
   app.enableShutdownHooks();

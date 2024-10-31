@@ -247,7 +247,10 @@ export class EmailFilter extends PiiRegexFilter {
         }
       }
       if (url.pathname) {
-        url.pathname = url.pathname.replace(this.regex, this.replaceWith);
+        // substring of 1000 fixes this code ql warning: https://github.com/mozilla/fxa/security/code-scanning/244
+        url.pathname = url.pathname
+          .substring(1000)
+          .replace(this.regex, this.replaceWith);
       }
       try {
         val = decodeURI(url.toString());
@@ -264,7 +267,9 @@ export class EmailFilter extends PiiRegexFilter {
     this.encode.forEach((x, i) => {
       val = val.replace(x, this.decode[i]);
     });
-    val = val.replace(this.regex, this.replaceWith);
+
+    // substring of 1000 fixes this code ql warning: https://github.com/mozilla/fxa/security/code-scanning/244
+    val = val.substring(0, 1000).replace(this.regex, this.replaceWith);
     this.decode.forEach((x, i) => {
       val = val.replace(x, this.encode[i]);
     });

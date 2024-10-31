@@ -10,12 +10,13 @@ import { ExportResult } from '@opentelemetry/core';
 import {
   BasicTracerProvider,
   ReadableSpan,
-} from '@opentelemetry/sdk-trace-base';
+} from '@opentelemetry/sdk-trace-node';
 import { TracingOpts } from '../config';
 import { TracingPiiFilter } from '../pii-filters';
 import { addExporter } from './exporters';
 import { checkDuration } from './util';
 import { ILogger } from '../../log';
+import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node';
 
 /** Gcp exporter customized for FxA */
 
@@ -41,7 +42,7 @@ export class FxaGcpTraceExporter extends GcpTraceExporter {
 
 export function addGcpTraceExporter(
   opts: TracingOpts,
-  provider: BasicTracerProvider,
+  provider: NodeTracerProvider,
   filter?: TracingPiiFilter,
   logger?: ILogger
 ) {

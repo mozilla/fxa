@@ -7,7 +7,7 @@ import {
   BatchSpanProcessor,
   ConsoleSpanExporter,
   SimpleSpanProcessor,
-} from '@opentelemetry/sdk-trace-base';
+} from '@opentelemetry/sdk-trace-node';
 import { expect } from 'chai';
 import { addConsoleExporter } from '../../tracing/exporters/fxa-console';
 import { addGcpTraceExporter } from '../../tracing/exporters/fxa-gcp';
@@ -16,7 +16,6 @@ import sinon from 'sinon';
 import { TracingOpts } from '../../tracing/config';
 import { addExporter } from '../../tracing/exporters/exporters';
 import { checkDuration } from '../../tracing/exporters/util';
-import { addSentryTraceExporter } from '../../tracing/exporters/fxa-sentry';
 
 describe('tracing exports', () => {
   const sandbox = sinon.createSandbox();
@@ -63,11 +62,6 @@ describe('tracing exports', () => {
 
     it('creates otlp exporter', () => {
       expect(addOtlpTraceExporter(opts, provider)).to.exist;
-      sinon.assert.calledOnce(addSpanProcessorSpy);
-    });
-
-    it('creates sentry exporter', () => {
-      expect(addSentryTraceExporter(opts, provider)).to.exist;
       sinon.assert.calledOnce(addSpanProcessorSpy);
     });
 
@@ -121,11 +115,6 @@ describe('tracing exports', () => {
 
     it('creates otlp exporter', () => {
       expect(addOtlpTraceExporter(opts, provider)).to.not.exist;
-      sinon.assert.notCalled(addSpanProcessorSpy);
-    });
-
-    it('creates sentry exporter', () => {
-      expect(addSentryTraceExporter(opts, provider)).to.not.exist;
       sinon.assert.notCalled(addSpanProcessorSpy);
     });
   });

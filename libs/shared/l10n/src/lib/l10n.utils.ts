@@ -17,7 +17,7 @@ import { DEFAULT_LOCALE, EN_GB_LOCALES } from './l10n.constants';
  *
  */
 export function parseAcceptLanguage(
-  acceptLanguage: string,
+  acceptLanguage?: string,
   supportedLanguages?: string[]
 ) {
   if (!supportedLanguages) {
@@ -144,7 +144,7 @@ export function getLocaleFromRequest(
  * @returns The best fitting locale
  */
 export function determineLocale(
-  acceptLanguage: string,
+  acceptLanguage?: string,
   supportedLanguages?: string[]
 ) {
   // Returns languages in order of precedence, so we can just grab the first one.

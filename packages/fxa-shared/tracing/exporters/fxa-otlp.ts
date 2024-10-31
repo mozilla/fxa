@@ -8,7 +8,7 @@ import { OTLPExporterConfigBase } from '@opentelemetry/otlp-exporter-base';
 import {
   BasicTracerProvider,
   ReadableSpan,
-} from '@opentelemetry/sdk-trace-base';
+} from '@opentelemetry/sdk-trace-node';
 import { TracingOpts } from '../config';
 import { TracingPiiFilter } from '../pii-filters';
 import { addExporter } from './exporters';

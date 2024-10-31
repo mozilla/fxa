@@ -18,6 +18,8 @@ import { SubscriptionModule } from '../subscriptions/subscriptions.module';
 import { AccountResolver } from './account/account.resolver';
 import { EmailBounceResolver } from './email-bounce/email-bounce.resolver';
 import { RelyingPartyResolver } from './relying-party/relying-party.resolver';
+import { APP_FILTER } from '@nestjs/core';
+import { SentryGlobalGraphQLFilter } from '@sentry/nestjs/setup';
 
 @Module({
   imports: [
@@ -38,6 +40,10 @@ import { RelyingPartyResolver } from './relying-party/relying-party.resolver';
       useClass: MozLoggerService,
     },
     RelyingPartyResolver,
+    {
+      provide: APP_FILTER,
+      useClass: SentryGlobalGraphQLFilter,
+    },
   ],
 })
 export class GqlModule {}
