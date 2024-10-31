@@ -1,0 +1,28 @@
+{
+  "name": "recovery-phone",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/accounts/recovery-phone/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/accounts/recovery-phone",
+        "main": "libs/accounts/recovery-phone/src/index.ts",
+        "tsConfig": "libs/accounts/recovery-phone/tsconfig.lib.json",
+        "assets": ["libs/accounts/recovery-phone/*.md"],
+        "generatePackageJson": true,
+        "format": ["cjs"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/accounts/recovery-phone/jest.config.ts"
+      }
+    }
+  }
+}

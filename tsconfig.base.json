@@ -24,6 +24,9 @@
     "useUnknownInCatchVariables": false,
     "baseUrl": ".",
     "paths": {
+      "@fxa/accounts/recovery-phone": [
+        "libs/accounts/recovery-phone/src/index.ts"
+      ],
       "@fxa/payments/capability": ["libs/payments/capability/src/index.ts"],
       "@fxa/payments/cart": ["libs/payments/cart/src/index.ts"],
       "@fxa/payments/currency": ["libs/payments/currency/src/index.ts"],
@@ -31,7 +34,9 @@
       "@fxa/payments/eligibility": ["libs/payments/eligibility/src/index.ts"],
       "@fxa/payments/legacy": ["libs/payments/legacy/src/index.ts"],
       "@fxa/payments/metrics": ["libs/payments/metrics/src/index.ts"],
-      "@fxa/payments/metrics/provider": ["libs/payments/metrics/src/provider.ts"],
+      "@fxa/payments/metrics/provider": [
+        "libs/payments/metrics/src/provider.ts"
+      ],
       "@fxa/payments/paypal": ["libs/payments/paypal/src/index.ts"],
       "@fxa/payments/stripe": ["libs/payments/stripe/src/index.ts"],
       "@fxa/payments/ui": ["libs/payments/ui/src/index.ts"],
