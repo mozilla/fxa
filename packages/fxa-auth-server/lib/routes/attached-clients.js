@@ -25,7 +25,7 @@ module.exports = (log, db, devices, clientUtils) => {
       options: {
         ...DEVICES_AND_SESSIONS_DOC.ACCOUNT_ATTACHED_CLIENTS_GET,
         auth: {
-          strategy: 'sessionToken',
+          strategy: 'sessionTokenNoAssurance',
         },
         validate: {
           query: isA.object({

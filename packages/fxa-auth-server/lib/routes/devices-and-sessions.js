@@ -99,7 +99,7 @@ module.exports = (
       options: {
         ...DEVICES_AND_SERVICES_DOCS.ACCOUNT_DEVICE_POST,
         auth: {
-          strategies: ['sessionToken', 'refreshToken'],
+          strategies: ['sessionTokenNoAssurance', 'refreshToken'],
         },
         validate: {
           payload: isA
@@ -548,7 +548,7 @@ module.exports = (
       options: {
         ...DEVICES_AND_SERVICES_DOCS.ACCOUNT_DEVICES_GET,
         auth: {
-          strategies: ['sessionToken', 'refreshToken'],
+          strategies: ['sessionTokenNoAssurance', 'refreshToken'],
         },
         validate: {
           query: isA.object({
