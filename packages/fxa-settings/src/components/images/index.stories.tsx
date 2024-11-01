@@ -12,12 +12,14 @@ import {
   LightbulbImage,
   PasswordImage,
   MailImage,
-  RecoveryCodesImage,
+  BackupCodesImage,
   RecoveryKeyImage,
   TwoFactorAuthImage,
   CheckmarkCircleOutlineIcon,
   CheckmarkCircleFullIcon,
   PasswordSuccessImage,
+  BackupRecoveryPhoneImage,
+  BackupRecoveryPhoneCodeImage,
 } from '.';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 
@@ -30,12 +32,14 @@ export default {
     LightbulbImage,
     PasswordImage,
     MailImage,
-    RecoveryCodesImage,
+    BackupCodesImage,
     RecoveryKeyImage,
     TwoFactorAuthImage,
     CheckmarkCircleOutlineIcon,
     CheckmarkCircleFullIcon,
     PasswordSuccessImage,
+    BackupRecoveryPhoneImage,
+    BackupRecoveryPhoneCodeImage,
   },
   decorators: [withLocalization],
 } as Meta;
@@ -54,7 +58,7 @@ export const Password = () => <PasswordImage />;
 
 export const Mail = () => <MailImage />;
 
-export const RecoveryCodes = () => <RecoveryCodesImage />;
+export const BackupCodes = () => <BackupCodesImage />;
 
 export const TwoFactorAuth = () => <TwoFactorAuthImage />;
 
@@ -63,3 +67,7 @@ export const CircleCheckOutline = () => <CheckmarkCircleOutlineIcon />;
 export const CircleCheckFull = () => <CheckmarkCircleFullIcon />;
 
 export const PasswordSuccess = () => <PasswordSuccessImage />;
+
+export const BackupRecoveryPhone = () => <BackupRecoveryPhoneImage />;
+
+export const BackupRecoveryPhoneCode = () => <BackupRecoveryPhoneCodeImage />;

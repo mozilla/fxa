@@ -5,7 +5,7 @@
 import React from 'react';
 import { ReactComponent as HeartsBroken } from './graphic_hearts_broken.svg';
 import { ReactComponent as HeartsVerified } from './graphic_hearts_verified.svg';
-import { ReactComponent as RecoveryCodes } from './graphic_recovery_codes.svg';
+import { ReactComponent as BackupCodes } from './graphic_backup_codes.min.svg';
 import { ReactComponent as TwoFactorAuth } from './graphic_two_factor_auth.svg';
 import { ReactComponent as PushFactorAuth } from './graphic_push_factor_auth.svg';
 import { ReactComponent as Mail } from './graphic_mail.svg';
@@ -16,6 +16,8 @@ import { ReactComponent as EmailCode } from './graphic_email_code.svg';
 import { ReactComponent as CircleCheckOutline } from './icon_checkmark_circle_outline.svg';
 import { ReactComponent as CircleCheckFull } from './icon_checkmark_circle_full.svg';
 import { ReactComponent as PasswordSuccess } from './graphic_password_success.min.svg';
+import { ReactComponent as BackupRecoveryPhone } from './graphic_backup_recovery_phone.min.svg';
+import { ReactComponent as BackupRecoveryPhoneCode } from './graphic_phone_code.min.svg';
 
 import { FtlMsg } from 'fxa-react/lib/utils';
 
@@ -85,11 +87,35 @@ export const HeartsVerifiedImage = ({ className, ariaHidden }: ImageProps) => (
   />
 );
 
-export const RecoveryCodesImage = ({ className, ariaHidden }: ImageProps) => (
+export const BackupCodesImage = ({ className, ariaHidden }: ImageProps) => (
   <PreparedImage
     ariaLabel="Document that contains hidden text."
     ariaLabelFtlId="signin-recovery-code-image-description"
-    Image={RecoveryCodes}
+    Image={BackupCodes}
+    {...{ className, ariaHidden }}
+  />
+);
+
+export const BackupRecoveryPhoneImage = ({
+  className,
+  ariaHidden,
+}: ImageProps) => (
+  <PreparedImage
+    ariaLabel="Mobile device that receives a code by text message."
+    ariaLabelFtlId="recovery-phone-image-description"
+    Image={BackupRecoveryPhone}
+    {...{ className, ariaHidden }}
+  />
+);
+
+export const BackupRecoveryPhoneCodeImage = ({
+  className,
+  ariaHidden,
+}: ImageProps) => (
+  <PreparedImage
+    ariaLabel="Code received on a mobile device."
+    ariaLabelFtlId="recovery-phone-code-image-description"
+    Image={BackupRecoveryPhoneCode}
     {...{ className, ariaHidden }}
   />
 );

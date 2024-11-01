@@ -7,7 +7,6 @@
 const { resolve } = require('path');
 const extractImportedComponents = require('fxa-react/extract-imported-components');
 const config = require('fxa-react/configs/tailwind');
-const { transform } = require('typescript');
 
 if (process.env.NODE_ENV === 'production') {
   const matches = extractImportedComponents(
@@ -142,6 +141,47 @@ config.theme.extend = {
         transform: 'translateY(0) scale(1)',
       },
     },
+    'spin-xl': {
+      '0%': {
+        transform: 'rotate(0deg)',
+      },
+      '100%': {
+        transform: 'rotate(720deg)',
+      },
+    },
+    'fade-out-in': {
+      '0%, 100%': {
+        opacity: 1,
+      },
+      '50%': {
+        opacity: 0.2,
+      },
+    },
+    grow: {
+      '0%': {
+        transform: 'scale(.3)',
+      },
+      '100%': {
+        transform: 'scale(1)',
+      },
+    },
+    'subtle-move': {
+      '0%': {
+        transform: 'translate(0px, 0px)',
+      },
+      '25%': {
+        transform: 'translate(2px, -1px)',
+      },
+      '50%': {
+        transform: 'translate(-2px, 1px)',
+      },
+      '75%': {
+        transform: 'translate(2px, 1px)',
+      },
+      '100%': {
+        transform: 'translate(0px, 0px)',
+      },
+    },
   },
 
   animation: {
@@ -171,6 +211,16 @@ config.theme.extend = {
     'pulse-stroke': 'pulse-stroke 2s linear infinite',
     'wait-and-rotate': 'wait-and-rotate 5s infinite ease-out',
     'fade-in': 'fade-in 1s 1 ease-in',
+    'spin-xl': 'spin-xl 1s forwards ease-in-out',
+    'fade-out-in': 'fade-out-in 2s forwards',
+    'grow-and-stay': 'grow 1s ease-in-out forwards',
+    'pulse-twinkle-first':
+      'sparkle 2s ease-in-out infinite, twinkle 2s infinite ease-in-out',
+    'pulse-twinkle-second':
+      'sparkle 1s ease-in-out infinite, twinkle 2.5s infinite ease-in-out',
+    'pulse-twinkle-third':
+      'sparkle 3s ease-in-out infinite, twinkle 3s infinite ease-in-out',
+    'subtle-move': 'subtle-move ease-in-out infinite 5s',
   },
 };
 

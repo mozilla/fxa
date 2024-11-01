@@ -24,3 +24,7 @@ lightbulb-aria-label =
   .aria-label = Illustration to represent creating a storage hint.
 email-code-image-aria-label =
   .aria-label = Illustration to represent an email containing a code.
+recovery-phone-image-description =
+  .aria-label = Mobile device that receives a code by text message.
+recovery-phone-code-image-description =
+  .aria-label = Code received on a mobile device.

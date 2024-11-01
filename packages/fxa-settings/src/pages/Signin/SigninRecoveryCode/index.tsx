@@ -6,7 +6,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Link, RouteComponentProps, useLocation } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { isWebIntegration, useFtlMsgResolver } from '../../../models';
-import { RecoveryCodesImage } from '../../../components/images';
+import { BackupCodesImage } from '../../../components/images';
 import CardHeader from '../../../components/CardHeader';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import FormVerifyCode, {
@@ -167,7 +167,7 @@ const SigninRecoveryCode = ({
         <Banner type={BannerType.error}>{bannerErrorMessage}</Banner>
       )}
       <div className="flex justify-center mx-auto">
-        <RecoveryCodesImage className="w-3/5" />
+        <BackupCodesImage className="w-3/5" />
       </div>
 
       <FtlMsg id="signin-recovery-code-instruction">
