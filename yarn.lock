@@ -24413,6 +24413,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/glob-to-regexp@npm:^0.4.4":
+  version: 0.4.4
+  resolution: "@types/glob-to-regexp@npm:0.4.4"
+  checksum: be9c924d664592a16129c825aa392365335ce455c34e1c9d3f6dd8b45371088bb5d4a45bbb576559f2b63d4f8bcf464cbd5baafb08cdf89b71d3b6a79356b747
+  languageName: node
+  linkType: hard
+
 "@types/glob@npm:*":
   version: 7.1.1
   resolution: "@types/glob@npm:7.1.1"
@@ -33839,13 +33846,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"core-js@npm:^3.0.0, core-js@npm:^3.6.5, core-js@npm:^3.8.2":
-  version: 3.15.1
-  resolution: "core-js@npm:3.15.1"
-  checksum: d44c1099b4028bee17990473df0b508ad0f6701aba9e13055183fe4a8bd1459e9e22f22b8e6c0b0a6ac0974b404672df47d52be3341a776a227fc368f2aa1fbe
-  languageName: node
-  linkType: hard
-
 "core-js@npm:^3.19.2":
   version: 3.31.1
   resolution: "core-js@npm:3.31.1"
@@ -33871,6 +33871,13 @@ __metadata:
   version: 3.39.0
   resolution: "core-js@npm:3.39.0"
   checksum: 7a3670e9a2a89e0a049daa288d742d09f6e16d27a8945c5e2ef6fc45dc57e5c4bc5db589da05947486f54ae978d14cf27bd3fb1db0b9907000a611e8af37355b
+  languageName: node
+  linkType: hard
+
+"core-js@npm:^3.6.5, core-js@npm:^3.8.2":
+  version: 3.15.1
+  resolution: "core-js@npm:3.15.1"
+  checksum: d44c1099b4028bee17990473df0b508ad0f6701aba9e13055183fe4a8bd1459e9e22f22b8e6c0b0a6ac0974b404672df47d52be3341a776a227fc368f2aa1fbe
   languageName: node
   linkType: hard
 
@@ -39483,26 +39490,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fetch-mock@npm:^9.11.0":
-  version: 9.11.0
-  resolution: "fetch-mock@npm:9.11.0"
+"fetch-mock@npm:^12.0.2":
+  version: 12.0.2
+  resolution: "fetch-mock@npm:12.0.2"
   dependencies:
-    "@babel/core": ^7.0.0
-    "@babel/runtime": ^7.0.0
-    core-js: ^3.0.0
-    debug: ^4.1.1
-    glob-to-regexp: ^0.4.0
-    is-subset: ^0.1.1
-    lodash.isequal: ^4.5.0
-    path-to-regexp: ^2.2.1
-    querystring: ^0.2.0
-    whatwg-url: ^6.5.0
-  peerDependencies:
-    node-fetch: "*"
-  peerDependenciesMeta:
-    node-fetch:
-      optional: true
-  checksum: debc4dd83bcda79b0aa71c38d08da6036906cdc49393343eb3426112314a7e57557255664f745d2e3f0b9b2a6e852bd3a564ae3f08332c27e422d3441bb865bd
+    "@types/glob-to-regexp": ^0.4.4
+    dequal: ^2.0.3
+    glob-to-regexp: ^0.4.1
+    is-subset-of: ^3.1.10
+    regexparam: ^3.0.0
+  checksum: 6de234c4a3e2e36dd1505a4cfc19138e75b7dd123665a33a85047d9a675cbe88309f995d0ec8a8df32d8d9b028c6607e6e1a275b2a5c04c420b21c22d88568d8
   languageName: node
   linkType: hard
 
@@ -41651,7 +41648,7 @@ fsevents@~2.1.1:
     camelcase: ^6.3.0
     classnames: ^2.5.1
     eslint: ^7.32.0
-    fetch-mock: ^9.11.0
+    fetch-mock: ^12.0.2
     file-loader: ^6.2.0
     fxa-shared: "workspace:*"
     grunt: ^1.6.1
@@ -42531,7 +42528,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"glob-to-regexp@npm:^0.4.0, glob-to-regexp@npm:^0.4.1":
+"glob-to-regexp@npm:^0.4.1":
   version: 0.4.1
   resolution: "glob-to-regexp@npm:0.4.1"
   checksum: e795f4e8f06d2a15e86f76e4d92751cf8bbfcf0157cea5c2f0f35678a8195a750b34096b1256e436f0cebc1883b5ff0888c47348443e69546a5a87f9e1eb1167
@@ -46704,10 +46701,12 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"is-subset@npm:^0.1.1":
-  version: 0.1.1
-  resolution: "is-subset@npm:0.1.1"
-  checksum: 97b8d7852af165269b7495095691a6ce6cf20bdfa1f846f97b4560ee190069686107af4e277fbd93aa0845c4d5db704391460ff6e9014aeb73264ba87893df44
+"is-subset-of@npm:^3.1.10":
+  version: 3.1.10
+  resolution: "is-subset-of@npm:3.1.10"
+  dependencies:
+    typedescriptor: 3.0.2
+  checksum: 98773fc775596dcfbb0f444e037e5ad101319a7932b82d85f706e77f6e53fe5b8bf19a3a8bea950269313c81c7f4ddec51fb107eedb9b51323b2d97a8dfb06c3
   languageName: node
   linkType: hard
 
@@ -56666,13 +56665,6 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"path-to-regexp@npm:^2.2.1":
-  version: 2.4.0
-  resolution: "path-to-regexp@npm:2.4.0"
-  checksum: 581175bf2968e51452f2b8c71f10e75c995693668b4ecf7d0b48962fbe0c56830661ca5dd5fd6d8e2f0cc9a045ce07e89af504ab133e1d21887c2712df85b1f4
-  languageName: node
-  linkType: hard
-
 "path-to-regexp@npm:^6.2.1":
   version: 6.2.1
   resolution: "path-to-regexp@npm:6.2.1"
@@ -59825,7 +59817,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"querystring@npm:0.2.0, querystring@npm:0.2.x, querystring@npm:^0.2.0":
+"querystring@npm:0.2.0, querystring@npm:0.2.x":
   version: 0.2.0
   resolution: "querystring@npm:0.2.0"
   checksum: 8258d6734f19be27e93f601758858c299bdebe71147909e367101ba459b95446fbe5b975bf9beb76390156a592b6f4ac3a68b6087cea165c259705b8b4e56a69
@@ -61333,6 +61325,13 @@ fsevents@~2.1.1:
     es-errors: ^1.3.0
     set-function-name: ^2.0.1
   checksum: d7f333667d5c564e2d7a97c56c3075d64c722c9bb51b2b4df6822b2e8096d623a5e63088fb4c83df919b6951ef8113841de8b47de7224872fa6838bc5d8a7d64
+  languageName: node
+  linkType: hard
+
+"regexparam@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "regexparam@npm:3.0.0"
+  checksum: c8649af1538ccc12b5c5d250525f61bd370227dce41f4fb908433a9651e18b7be21dd8f8518c322dd9ebd75f7caaaea4921e374c39a469c11d4f9d0c738043e0
   languageName: node
   linkType: hard
 
@@ -67897,6 +67896,13 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
+"typedescriptor@npm:3.0.2":
+  version: 3.0.2
+  resolution: "typedescriptor@npm:3.0.2"
+  checksum: 90e637ece22df0687acae70e152e88dd07ec10d0f4c87de2752bbcb78e420c5f5c86c3fe5e41d9f315a741a1e379e197fc5cb52044f33aafe891be6c63825ef7
+  languageName: node
+  linkType: hard
+
 "typedi@npm:^0.8.0":
   version: 0.8.0
   resolution: "typedi@npm:0.8.0"
@@ -69932,17 +69938,6 @@ resolve@1.1.7:
     tr46: ~0.0.3
     webidl-conversions: ^3.0.0
   checksum: b8daed4ad3356cc4899048a15b2c143a9aed0dfae1f611ebd55073310c7b910f522ad75d727346ad64203d7e6c79ef25eafd465f4d12775ca44b90fa82ed9e2c
-  languageName: node
-  linkType: hard
-
-"whatwg-url@npm:^6.5.0":
-  version: 6.5.0
-  resolution: "whatwg-url@npm:6.5.0"
-  dependencies:
-    lodash.sortby: ^4.7.0
-    tr46: ^1.0.1
-    webidl-conversions: ^4.0.2
-  checksum: a10bd5e29f4382cd19789c2a7bbce25416e606b6fefc241c7fe34a2449de5bc5709c165bd13634eda433942d917ca7386a52841780b82dc37afa8141c31a8ebd
   languageName: node
   linkType: hard
 
