@@ -7,7 +7,7 @@ import { navigate, RouteComponentProps } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../constants';
-import { HeartsVerifiedImage } from '../../components/images';
+import { HeartsVerifiedImage } from '../images';
 import CardHeader from '../CardHeader';
 import Banner, { BannerType } from '../Banner';
 import { MozServices } from '../../lib/types';

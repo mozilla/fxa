@@ -7,7 +7,7 @@ import React, { ReactElement } from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { ReactComponent as IconClose } from '@fxa/shared/assets/images/close.svg';
 import { FIREFOX_NOREPLY_EMAIL } from '../../constants';
-import { CheckmarkCircleOutlineIcon } from '../images';
+import { CheckmarkCircleOutlineBlackIcon } from '../Icons';
 
 export enum BannerType {
   info = 'info',
@@ -118,7 +118,7 @@ export const FancyBanner = (
     ((messageType) => {
       switch (messageType) {
         case BannerType.success:
-          return <CheckmarkCircleOutlineIcon />;
+          return <CheckmarkCircleOutlineBlackIcon mode="success" />;
         default:
           return null;
       }

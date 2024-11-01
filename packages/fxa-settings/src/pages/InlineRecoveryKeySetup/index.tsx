@@ -7,10 +7,8 @@ import { RouteComponentProps } from '@reach/router';
 import InlineRecoveryKeySetupCreate from '../../components/InlineRecoveryKeySetupCreate';
 import RecoveryKeySetupDownload from '../../components/RecoveryKeySetupDownload';
 import AppLayout from '../../components/AppLayout';
-import {
-  CheckmarkCircleOutlineIcon,
-  RecoveryKeyImage,
-} from '../../components/images';
+import { RecoveryKeyImage } from '../../components/images';
+import { CheckmarkCircleOutlineBlackIcon } from '../../components/Icons';
 import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
 import Banner, { BannerType } from '../../components/Banner';
 import { Constants } from '../../lib/constants';
@@ -63,7 +61,10 @@ export const InlineRecoveryKeySetup = ({
           <>
             <Banner type={BannerType.success} additionalClassNames="mt-0">
               <p className="flex justify-center text-base">
-                <CheckmarkCircleOutlineIcon className="me-3" />
+                <CheckmarkCircleOutlineBlackIcon
+                  className="me-3"
+                  mode="success"
+                />
                 <span>
                   <FtlMsg id="inline-recovery-key-setup-recovery-created">
                     Account recovery key created

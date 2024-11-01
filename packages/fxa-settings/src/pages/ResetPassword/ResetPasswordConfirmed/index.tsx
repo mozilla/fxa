@@ -6,10 +6,8 @@ import React from 'react';
 import { RouteComponentProps } from '@reach/router';
 import AppLayout from '../../../components/AppLayout';
 import { ResetPasswordConfirmedProps } from './interfaces';
-import {
-  CheckmarkCircleFullIcon,
-  PasswordSuccessImage,
-} from '../../../components/images';
+import { PasswordSuccessImage } from '../../../components/images';
+import { CheckmarkCircleFullGreenIcon } from '../../../components/Icons';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import Banner, { BannerType } from '../../../components/Banner';
 
@@ -26,7 +24,10 @@ const ResetPasswordConfirmed = ({
         </Banner>
       )}
       <div className="flex items-top justify-center">
-        <CheckmarkCircleFullIcon className="shrink-0 me-4" />
+        <CheckmarkCircleFullGreenIcon
+          className="shrink-0 me-4"
+          mode="success"
+        />
         <FtlMsg id="reset-password-complete-header">
           <h1 className="card-header -mt-1">Your password has been reset</h1>
         </FtlMsg>

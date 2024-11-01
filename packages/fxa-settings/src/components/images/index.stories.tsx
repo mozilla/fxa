@@ -15,8 +15,6 @@ import {
   BackupCodesImage,
   RecoveryKeyImage,
   TwoFactorAuthImage,
-  CheckmarkCircleOutlineIcon,
-  CheckmarkCircleFullIcon,
   PasswordSuccessImage,
   BackupRecoveryPhoneImage,
   BackupRecoveryPhoneCodeImage,
@@ -35,8 +33,6 @@ export default {
     BackupCodesImage,
     RecoveryKeyImage,
     TwoFactorAuthImage,
-    CheckmarkCircleOutlineIcon,
-    CheckmarkCircleFullIcon,
     PasswordSuccessImage,
     BackupRecoveryPhoneImage,
     BackupRecoveryPhoneCodeImage,
@@ -61,10 +57,6 @@ export const Mail = () => <MailImage />;
 export const BackupCodes = () => <BackupCodesImage />;
 
 export const TwoFactorAuth = () => <TwoFactorAuthImage />;
-
-export const CircleCheckOutline = () => <CheckmarkCircleOutlineIcon />;
-
-export const CircleCheckFull = () => <CheckmarkCircleFullIcon />;
 
 export const PasswordSuccess = () => <PasswordSuccessImage />;
 

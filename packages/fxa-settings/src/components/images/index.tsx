@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
+import { ImageProps, PreparedImage } from '../PreparedImage';
 import { ReactComponent as HeartsBroken } from './graphic_hearts_broken.svg';
 import { ReactComponent as HeartsVerified } from './graphic_hearts_verified.svg';
 import { ReactComponent as BackupCodes } from './graphic_backup_codes.min.svg';
@@ -13,61 +14,9 @@ import { ReactComponent as Key } from './graphic_recovery_key.min.svg';
 import { ReactComponent as Password } from './graphic_password.min.svg';
 import { ReactComponent as Lightbulb } from './graphic_recovery_key_hint.min.svg';
 import { ReactComponent as EmailCode } from './graphic_email_code.svg';
-import { ReactComponent as CircleCheckOutline } from './icon_checkmark_circle_outline.svg';
-import { ReactComponent as CircleCheckFull } from './icon_checkmark_circle_full.svg';
 import { ReactComponent as PasswordSuccess } from './graphic_password_success.min.svg';
 import { ReactComponent as BackupRecoveryPhone } from './graphic_backup_recovery_phone.min.svg';
 import { ReactComponent as BackupRecoveryPhoneCode } from './graphic_phone_code.min.svg';
-
-import { FtlMsg } from 'fxa-react/lib/utils';
-
-// Use this component to add your image into the collection of images exported below.
-// If the component is not being reused across directories, it should remain in the directory
-// where it is being used. If you are introducing an image which was previously shared and
-// had localized alt-text, or a localized aria-label, please add the existing ftl id to spare
-// translating it again. Don't forget to add new FTL strings into the `en.ftl` file!
-
-interface PreparedImageBaseProps {
-  className?: string;
-  Image: React.ElementType;
-}
-
-interface PreparedImageAriaHiddenProps extends PreparedImageBaseProps {
-  ariaHidden: true;
-}
-
-interface PreparedImageAriaVisibleProps extends PreparedImageBaseProps {
-  ariaHidden?: false;
-  ariaLabel: string;
-  ariaLabelFtlId: string;
-}
-
-type PreparedImageProps =
-  | PreparedImageAriaHiddenProps
-  | PreparedImageAriaVisibleProps;
-
-export const PreparedImage = (props: PreparedImageProps) => {
-  const { className = 'm-auto w-3/5', ariaHidden, Image } = props;
-  const showAriaLabel =
-    !ariaHidden && props?.ariaLabel && props?.ariaLabelFtlId;
-
-  return (
-    <>
-      {showAriaLabel ? (
-        <FtlMsg id={props.ariaLabelFtlId} attrs={{ ariaLabel: true }}>
-          <Image role="img" aria-label={props.ariaLabel} {...{ className }} />
-        </FtlMsg>
-      ) : (
-        <Image aria-hidden data-testid="aria-hidden-image" {...{ className }} />
-      )}
-    </>
-  );
-};
-
-export type ImageProps = {
-  className?: string;
-  ariaHidden?: boolean;
-};
 
 export const HeartsBrokenImage = ({ className, ariaHidden }: ImageProps) => (
   <PreparedImage
@@ -190,16 +139,4 @@ export const PasswordSuccessImage = ({ className, ariaHidden }: ImageProps) => (
     Image={PasswordSuccess}
     {...{ className, ariaHidden }}
   />
-);
-
-export const CheckmarkCircleOutlineIcon = ({ className }: ImageProps) => (
-  <PreparedImage
-    Image={CircleCheckOutline}
-    ariaHidden={true}
-    {...{ className }}
-  />
-);
-
-export const CheckmarkCircleFullIcon = ({ className }: ImageProps) => (
-  <PreparedImage Image={CircleCheckFull} ariaHidden={true} {...{ className }} />
 );
