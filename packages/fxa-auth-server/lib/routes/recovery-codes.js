@@ -128,7 +128,7 @@ module.exports = (log, db, config, customs, mailer, glean) => {
       options: {
         ...RECOVERY_CODES_DOCS.SESSION_VERIFY_RECOVERYCODE_POST,
         auth: {
-          strategy: 'sessionTokenNoAssurance',
+          strategy: 'sessionToken',
           payload: 'required',
         },
         validate: {
