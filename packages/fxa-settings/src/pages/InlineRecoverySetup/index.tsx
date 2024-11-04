@@ -12,7 +12,9 @@ import CardHeader from '../../components/CardHeader';
 import AppLayout from '../../components/AppLayout';
 import Banner, { BannerType } from '../../components/Banner';
 import { copyRecoveryCodes } from '../../lib/totp';
-import FormVerifyCode from '../../components/FormVerifyCode';
+import FormVerifyCode, {
+  commonBackupCodeFormAttributes,
+} from '../../components/FormVerifyCode';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { InlineRecoverySetupProps } from './interfaces';
 import { getErrorFtlId, getLocalizedErrorMessage } from '../../lib/error-utils';
@@ -159,8 +161,7 @@ const InlineRecoverySetup = ({
                   inputFtlId: 'inline-recovery-backup-authentication-code',
                   submitButtonText: 'Confirm',
                   submitButtonFtlId: 'inline-recovery-confirm-button',
-                  pattern: '\\w{10}',
-                  maxLength: 10,
+                  ...commonBackupCodeFormAttributes,
                 }}
                 codeErrorMessage={recoveryCodeError}
                 setCodeErrorMessage={setRecoveryCodeError}
