@@ -1,0 +1,11 @@
+-- SET NAMES utf8mb4 COLLATE utf8mb4_bin;
+--
+-- CALL assertPatchLevel('158');
+--
+-- DROP INDEX emails_uid_verifiedAt ON emails;
+--
+-- DROP INDEX sessionTokens_uid_lastAccessTime;
+--
+-- DROP INDEX securityEvents_nameId_uid_createdAt ON securityEvents;
+--
+-- UPDATE dbMetadata SET value = '157' WHERE name = 'schema-patch-level';
