@@ -16,7 +16,6 @@ import ScopedKeys from 'lib/crypto/scoped-keys';
 import WebChannel from '../../lib/channels/web';
 import SyncEngines from '../sync-engines';
 import ConnectAnotherDeviceBehavior from '../../views/behaviors/connect-another-device';
-import UserAgentMixin from '../../lib/user-agent-mixin';
 
 const ALLOWED_LOGIN_FIELDS = ['email', 'sessionToken', 'uid', 'verified'];
 
@@ -76,17 +75,11 @@ const OAuthWebChannelBroker = OAuthRedirectAuthenticationBroker.extend({
     );
   },
 
-  // Note this was mostly copied from the Sync broker (fx_desktop_v3), but
-  // also checks that the UA matches Firefox desktop since this broker is
-  // also used for mobile. We probably want to support this in mobile in
-  // the future but while Android responds with 'ok: true' automatically,
-  // we only very recently landed changes for iOS to respond automatically
-  // as well, so for now this only sends for oauth desktop. See FXA-10316
+  // Note this was mostly copied from the Sync broker (fx_desktop_v3).
   beforeSignIn(account) {
     const email = account.get('email');
-    const uap = this.getUserAgent();
 
-    if (this._verifiedCanLinkEmail === email || !uap.isFirefoxDesktop()) {
+    if (this._verifiedCanLinkEmail === email) {
       // This user has already been asked and responded that
       // they want to link the account. Do not ask again or
       // else the user sees the "can link account" browser
@@ -286,6 +279,6 @@ const OAuthWebChannelBroker = OAuthRedirectAuthenticationBroker.extend({
   },
 });
 
-Cocktail.mixin(OAuthWebChannelBroker, ChannelMixin, UserAgentMixin);
+Cocktail.mixin(OAuthWebChannelBroker, ChannelMixin);
 
 export default OAuthWebChannelBroker;

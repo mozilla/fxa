@@ -314,9 +314,6 @@ describe('models/auth_brokers/oauth-webchannel-v1', () => {
       broker.fetch();
       // setTimeout due to async nature of the messages
       setTimeout(() => {
-        sinon.stub(broker, 'getUserAgent').returns({
-          isFirefoxDesktop: () => true,
-        });
         return broker.beforeSignIn(account).then(() => {
           assert.isTrue(metrics.flush.calledOnce);
           assert.isTrue(channelMock.request.calledOnceWith('can_link_account'));
@@ -331,34 +328,12 @@ describe('models/auth_brokers/oauth-webchannel-v1', () => {
       broker.fetch();
       // setTimeout due to async nature of the messages
       setTimeout(() => {
-        sinon.stub(broker, 'getUserAgent').returns({
-          isFirefoxDesktop: () => true,
-        });
         return broker
           .beforeSignIn(account)
           .then(() => broker.beforeSignIn(account))
           .then(() => {
             assert.isTrue(channelMock.request.calledOnce);
             assert.isTrue(channelMock.request.calledWith('can_link_account'));
-          });
-      });
-    });
-
-    it('does not call can_link_account if isFirefoxDesktop is false', () => {
-      channelMock.request = sinon.spy(() => Promise.resolve({ ok: true }));
-
-      createAuthBroker();
-      broker.fetch();
-      // setTimeout due to async nature of the messages
-      setTimeout(() => {
-        sinon.stub(broker, 'getUserAgent').returns({
-          isFirefoxDesktop: () => false,
-        });
-        return broker
-          .beforeSignIn(account)
-          .then(() => broker.beforeSignIn(account))
-          .then(() => {
-            assert.isTrue(channelMock.request.notCalled);
           });
       });
     });

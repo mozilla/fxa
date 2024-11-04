@@ -249,7 +249,10 @@ const SigninContainer = ({
       // warning. The browser will automatically respond with { ok: true } without
       // prompting the user if it matches the email the browser has data for.
       if (
-        integration.isDesktopSync() &&
+        // Currently for email-first, we send this if `context=oauth_webchannel_v1`.
+        // Let's check that here too (TBD if we want this for isDesktopRelay; if not,
+        // we'll remove).
+        (integration.isSync() || integration.isDesktopRelay()) &&
         queryParamModel.hasLinkedAccount === undefined
       ) {
         const { ok } = await firefox.fxaCanLinkAccount({ email });
