@@ -8,8 +8,8 @@ import { useFtlMsgResolver } from '../../../models';
 import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
 import protectionShieldIcon from '@fxa/shared/assets/images/protection-shield.svg';
 import FormVerifyCode, {
+  commonBackupCodeFormAttributes,
   FormAttributes,
-  InputModeEnum,
 } from '../../../components/FormVerifyCode';
 
 export type ConfirmTotpResetPasswordProps = {
@@ -40,11 +40,9 @@ const ConfirmTotpResetPassword = ({
   const recoveryCodeFormAttributes: FormAttributes = {
     inputFtlId: 'confirm-recovery-code-reset-password-input-label',
     inputLabelText: 'Enter 10-digit backup authentication code',
-    inputMode: InputModeEnum.text,
-    pattern: '[a-zA-Z0-9]',
-    maxLength: 10,
     submitButtonFtlId: 'confirm-totp-reset-password-confirm-button',
     submitButtonText: 'Confirm',
+    ...commonBackupCodeFormAttributes,
   };
 
   const localizedCustomCodeRequiredMessage = ftlMsgResolver.getMsg(

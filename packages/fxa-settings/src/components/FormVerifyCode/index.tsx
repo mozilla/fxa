@@ -18,6 +18,12 @@ export enum InputModeEnum {
   numeric = 'numeric',
 }
 
+export const commonBackupCodeFormAttributes = {
+  inputMode: InputModeEnum.text,
+  pattern: '[a-zA-Z0-9]',
+  maxLength: 10,
+};
+
 export type FormAttributes = {
   inputLabelText: string;
   inputFtlId: string;
