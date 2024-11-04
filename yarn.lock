@@ -41992,7 +41992,7 @@ fsevents@~2.1.1:
     module-alias: ^2.2.3
     mozlog: ^3.0.2
     mysql: ^2.18.1
-    mysql2: ^3.9.8
+    mysql2: ^3.11.3
     nest-typed-config: ^2.9.2
     nest-winston: ^1.10.0
     next: ^14.2.14
@@ -51450,13 +51450,6 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"lru-cache@npm:^8.0.0":
-  version: 8.0.5
-  resolution: "lru-cache@npm:8.0.5"
-  checksum: 87d72196d8f46e8299c4ab576ed2ec8a07e3cbef517dc9874399c0b2470bd9bf62aacec3b67f84ed6d74aaa1ef31636d048edf996f76248fd17db72bfb631609
-  languageName: node
-  linkType: hard
-
 "lru-cache@npm:^9.1.1":
   version: 9.1.1
   resolution: "lru-cache@npm:9.1.1"
@@ -51481,6 +51474,13 @@ fsevents@~2.1.1:
     lodash.clonedeep: ^4.5.0
     lru-cache: ~4.0.0
   checksum: 555f672b3ff6b4fec63792ca1cda7b585fc54f5e8f0b73166e6d513cc4103032cd69f5d40b32700807c9ca94671728e9108a3fe0803fc3f1b08716946c5a6098
+  languageName: node
+  linkType: hard
+
+"lru.min@npm:^1.0.0":
+  version: 1.1.1
+  resolution: "lru.min@npm:1.1.1"
+  checksum: 26ec06c656220a240427f29c3528871b9cfb3214bd5d1bf4c5f2b2cb69402f7558c560e30055fc09bd61e4bf651c1eda2f9b1ab1b16336616fca381b7d42ecba
   languageName: node
   linkType: hard
 
@@ -53689,20 +53689,20 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"mysql2@npm:^3.9.8":
-  version: 3.10.3
-  resolution: "mysql2@npm:3.10.3"
+"mysql2@npm:^3.11.3":
+  version: 3.11.3
+  resolution: "mysql2@npm:3.11.3"
   dependencies:
     aws-ssl-profiles: ^1.1.1
     denque: ^2.1.0
     generate-function: ^2.3.1
     iconv-lite: ^0.6.3
     long: ^5.2.1
-    lru-cache: ^8.0.0
+    lru.min: ^1.0.0
     named-placeholders: ^1.1.3
     seq-queue: ^0.0.5
     sqlstring: ^2.3.2
-  checksum: 1b3a74e043750055e94547a3296bbe1e99557a29f9b9aa5a6f1d802a90d8baa8fe0048040a9fbeaab785017f536a9894e29dc20a01bc8518f31a61dcd899b803
+  checksum: ae62b5b997da429a33f0762158db965d22daece0030e75ac8e822b0b342ad082fa5f1ead87d922d0ba93595e9d5491036916ef91457c762517f25f41afa6e2d9
   languageName: node
   linkType: hard
 
