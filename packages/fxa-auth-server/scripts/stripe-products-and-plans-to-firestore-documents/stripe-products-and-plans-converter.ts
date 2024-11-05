@@ -99,7 +99,7 @@ export class StripeProductsAndPlansConverter {
     metadata: Stripe.Product['metadata'],
     metadataKeyPrefix: string
   ): string[] {
-    const metadataValues = [];
+    const metadataValues = new Array<any>();
     for (const [metadataKey, metadataValue] of Object.entries(metadata)) {
       if (metadataKey.startsWith(metadataKeyPrefix)) {
         metadataValues.push(metadataValue);

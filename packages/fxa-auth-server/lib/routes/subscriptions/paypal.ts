@@ -388,7 +388,7 @@ export class PayPalHandler extends StripeWebhookHandler {
     );
 
     const nowSeconds = msToSec(Date.now());
-    const invoices = [];
+    const invoices = new Array<any>();
     for await (const invoice of this.stripeHelper.fetchOpenInvoices(
       nowSeconds,
       customer.id

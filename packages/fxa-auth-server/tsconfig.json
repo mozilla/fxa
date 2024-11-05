@@ -8,12 +8,10 @@
     "checkJs": false,
     "outDir": "./dist",
     "types": ["accept-language", "mocha", "mozlog", "node", "fxa-geodb"],
-    "lib": ["ESNext"]
+    "lib": ["ESNext"],
+    // We should remove this, but for whatever reason, esbuild was not complaining
+    // about these explicit any
+    "noImplicitAny": false
   },
-  "include": [
-    "bin/*",
-    "scripts/**/*.ts",
-    "scripts/delete-account.js",
-    "lib/senders/emails/templates/*/includes.ts"
-  ]
+  "include": ["bin/**/*.ts", "lib/**/*.ts", "scripts/**/*.ts"]
 }

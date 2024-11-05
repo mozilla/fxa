@@ -26,7 +26,7 @@ type MetricsData = {
   uid?: string;
   reason?: string;
   oauthClientId?: string;
-  scopes?: string;
+  scopes?: string | Array<string>;
 };
 
 type AdditionalMetricsCallback = (
@@ -265,7 +265,7 @@ export function gleanMetrics(config: ConfigType) {
           scopes: metrics.scopes
             ? Array.isArray(metrics.scopes)
               ? metrics.scopes.sort().join(',')
-              : metrics.scopes
+              : metrics.scopes.split(',').sort().join(',')
             : '',
         }),
       }),
@@ -304,6 +304,8 @@ export function gleanMetrics(config: ConfigType) {
     },
   };
 }
+
+export type GleanMetricsType = ReturnType<typeof gleanMetrics>;
 
 const routePathToErrorPingFnMap = {
   '/account/create': 'registration.error',

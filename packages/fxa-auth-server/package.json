@@ -21,7 +21,7 @@
     "bump-template-versions": "node scripts/template-version-bump",
     "clean": "rimraf dist",
     "clean-up-old-ci-stripe-customers": "node -r esbuild-register ./scripts/clean-up-old-ci-stripe-customers.js --limit 1000",
-    "compile": "tsc --noEmit",
+    "compile": "yarn install-ejs && tsc --noEmit",
     "create-mock-iap": "NODE_ENV=dev FIRESTORE_EMULATOR_HOST=localhost:9090 node -r esbuild-register ./scripts/create-mock-iap-subscriptions.ts",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "glean-generate": "npx glean translate ../fxa-shared/metrics/glean/fxa-backend-pings.yaml ../fxa-shared/metrics/glean/fxa-backend-metrics.yaml -f typescript_server -o lib/metrics/glean",

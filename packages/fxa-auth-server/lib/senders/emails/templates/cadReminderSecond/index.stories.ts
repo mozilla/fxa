@@ -13,7 +13,7 @@ export default {
 const createStory = storyWithProps(
   'cadReminderSecond',
   'Sent 72 hours after a user clicks "send me a reminder" on the connect another device page.',
-  cadReminderFirst.CadReminderDefault.args.variables
+  cadReminderFirst.CadReminderDefault.args?.variables
 );
 
 export const CadReminderDefault = createStory();
