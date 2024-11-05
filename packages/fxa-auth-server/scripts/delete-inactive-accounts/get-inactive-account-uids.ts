@@ -29,15 +29,15 @@ import { createDB } from '../../lib/db';
 import { setupFirestore } from '../../lib/firestore-db';
 import { CurrencyHelper } from '../../lib/payments/currencies';
 import { createStripeHelper, StripeHelper } from '../../lib/payments/stripe';
-import * as oauthDb from '../../lib/oauth/db';
+import oauthDb from '../../lib/oauth/db';
 import {
   Account,
+  AccountCustomers,
   Email,
   SecurityEvent,
   SessionToken,
 } from 'fxa-shared/db/models/auth';
 import { EVENT_NAMES } from 'fxa-shared/db/models/auth/security-event';
-import { getAccountCustomerByUid } from 'fxa-shared/db/models/auth';
 import { PlayBilling } from '../../lib/payments/iap/google-play';
 import { PlaySubscriptions } from '../../lib/payments/iap/google-play/subscriptions';
 import { AppleIAP } from '../../lib/payments/iap/apple-app-store/apple-iap';
@@ -108,8 +108,6 @@ const init = async () => {
   ).valueOf();
   const filepath = program.outputPath || createFilepath(endDate);
 
-  const fd = fs.openSync(filepath, 'a');
-
   const config = appConfig.getProperties();
   const log = initLog({
     ...config.log,
@@ -161,11 +159,16 @@ const init = async () => {
     ])
     .as('securityEventUids');
 
+  const accountCustomerUids = AccountCustomers.query()
+    .select('uid')
+    .as('accountCustomerUids');
+
   const accountWhereAndOrderBy = () =>
     Account.query()
       .leftJoin(emailUids, 'emailUids.uid', 'accounts.uid')
       .leftJoin(sessionTokenUids, 'sessionTokenUids.uid', 'accounts.uid')
       .leftJoin(securityEventUids, 'securityEventUids.uid', 'accounts.uid')
+      .leftJoin(accountCustomerUids, 'accountCustomerUids.uid', 'accounts.uid')
       .where('accounts.emailVerified', 1)
       .where('accounts.createdAt', '>=', startDateTimestamp)
       .where('accounts.createdAt', '<', endDateTimestamp)
@@ -173,7 +176,8 @@ const init = async () => {
         builder
           .whereNull('emailUids.uid')
           .whereNull('sessionTokenUids.uid')
-          .whereNull('securityEventUids.uid');
+          .whereNull('securityEventUids.uid')
+          .whereNull('accountCustomerUids.uid');
       })
       .orderBy('accounts.createdAt', 'asc')
       .orderBy('accounts.uid', 'asc');
@@ -202,22 +206,17 @@ const init = async () => {
     const accessTokens = await oauthDb.getAccessTokensByUid(accountRecord.uid);
     return accessTokens.length > 0;
   };
-  const isStripeCustomer = async (accountRecord: Account) =>
-    !!(await getAccountCustomerByUid(accountRecord.uid));
   const hasIapSubscription = async (accountRecord: Account) =>
     (await playSubscriptions.getSubscriptions(accountRecord.uid)).length > 0 ||
     (await appStoreSubscriptions.getSubscriptions(accountRecord.uid)).length >
       0;
-  const hasSubscription = async (accountRecord: Account) =>
-    (await isStripeCustomer(accountRecord)) ||
-    (await hasIapSubscription(accountRecord));
 
   const isActive = async (accountRecord: Account) => {
     return (
       (await hasActiveSessionToken(accountRecord)) ||
       (await hasActiveRefreshToken(accountRecord)) ||
       (await hasAccessToken(accountRecord)) ||
-      (await hasSubscription(accountRecord))
+      (await hasIapSubscription(accountRecord))
     );
   };
 
@@ -230,6 +229,8 @@ const init = async () => {
     console.log(`Number of accounts to be processed: ${acctsCount.total}`);
     return 0;
   }
+
+  const fd = fs.openSync(filepath, 'a');
 
   let hasMaxResultsCount = true;
   let totalRowsReturned = 0;
