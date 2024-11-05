@@ -30511,16 +30511,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bfj@npm:^8.0.0":
-  version: 8.0.0
-  resolution: "bfj@npm:8.0.0"
+"bfj@npm:^9.1.1":
+  version: 9.1.1
+  resolution: "bfj@npm:9.1.1"
   dependencies:
-    bluebird: ^3.7.2
     check-types: ^11.2.3
     hoopy: ^0.1.4
     jsonpath: ^1.1.1
     tryer: ^1.0.1
-  checksum: f22d49cd2661a92e7526015edac0e02858a881a36438fe4e67df320dddc08cba09e197a7e128f282abc2c26127f5abb3ca8e8b7eff0737df20e5b8c4ee6273e9
+  checksum: 1f2b3610b1bc29e97340591ad7433952186cdf473aa9334d8c4221b6751e28f19477c1b1a39f6dacdfd27585f43a4db23bd8f7a7473b5973888f2a3cb6dabc17
   languageName: node
   linkType: hard
 
@@ -41762,7 +41761,7 @@ fsevents@~2.1.1:
     babel-preset-react-app: ^10.0.1
     base32-decode: ^1.0.0
     base32-encode: ^1.2.0
-    bfj: ^8.0.0
+    bfj: ^9.1.1
     browserify-zlib: ^0.2.0
     browserslist: ^4.24.0
     camelcase: ^6.2.1
