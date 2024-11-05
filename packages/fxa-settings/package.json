@@ -136,7 +136,7 @@
     "babel-preset-react-app": "^10.0.1",
     "base32-decode": "^1.0.0",
     "base32-encode": "^1.2.0",
-    "bfj": "^8.0.0",
+    "bfj": "^9.1.1",
     "browserify-zlib": "^0.2.0",
     "browserslist": "^4.24.0",
     "camelcase": "^6.2.1",
