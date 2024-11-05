@@ -70,8 +70,12 @@
     @apply bg-red-500/40 border-transparent text-white/50 cursor-not-allowed;
   }
 
-  .cta-base {
-    @apply text-base mt-6;
+  .cta-base-common {
+    @apply text-base;
+  }
+
+  .cta-base extends .cta-base-common {
+    @apply mt-6;
   }
 
   @media (hover: hover) {

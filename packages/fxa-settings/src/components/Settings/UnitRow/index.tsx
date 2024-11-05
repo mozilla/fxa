@@ -9,6 +9,7 @@ import classNames from 'classnames';
 import { useFocusOnTriggeringElementOnClose } from '../../../lib/hooks';
 import { Link, RouteComponentProps, useLocation } from '@reach/router';
 import { useLocalization } from '@fluent/react';
+import { AlertFullIcon, CheckmarkGreenIcon } from '../../Icons';
 
 type ModalButtonProps = {
   ctaText: string;
@@ -44,8 +45,9 @@ export const ModalButton = ({
   return (
     <button
       className={classNames(
-        'cta-base transition-standard',
-        className || 'cta-neutral cta-base-p'
+        'cta-base-common transition-standard',
+        className || 'cta-neutral cta-base-p',
+        'w-full @mobileLandscape/unitRow:w-auto @mobileLandscape/unitRow:text-xs @mobileLandscape/unitRow:py-1 @mobileLandscape/unitRow:px-5 @mobileLandscape/unitRow:mt-0'
       )}
       data-testid={formatDataTestId('unit-row-modal')}
       ref={modalTriggerElement}
@@ -56,7 +58,7 @@ export const ModalButton = ({
   );
 };
 
-type UnitRowProps = {
+export type UnitRowProps = {
   avatar?: Account['avatar'];
   header: string;
   headerId?: string;
@@ -81,6 +83,8 @@ type UnitRowProps = {
   disabled?: boolean;
   disabledReason?: string;
   ctaOnClickAction?: () => void;
+  statusIcon?: 'checkmark' | 'alert';
+  subRows?: React.ReactNode;
 };
 
 export const UnitRow = ({
@@ -108,6 +112,8 @@ export const UnitRow = ({
   disabled = false,
   disabledReason = '',
   ctaOnClickAction,
+  statusIcon,
+  subRows,
 }: UnitRowProps & RouteComponentProps) => {
   const { l10n } = useLocalization();
   const localizedCtaAdd = l10n.getString(
@@ -136,7 +142,7 @@ export const UnitRow = ({
   }
 
   return (
-    <div className="unit-row">
+    <div className="unit-row @container/row">
       <div className="font-header w-full mb-1 mobileLandscape:flex-none mobileLandscape:mb-0 mobileLandscape:me-2 mobileLandscape:w-40">
         <span className="flex justify-between items-center">
           <h3
@@ -149,90 +155,103 @@ export const UnitRow = ({
           {headerContent && <span>{headerContent}</span>}
         </span>
       </div>
-      <div className="unit-row-content">
-        {avatar ? (
-          <Avatar
-            className="mx-auto mobileLandscape:mx-0 w-32 mobileLandscape:w-16"
-            {...{ avatar }}
-          />
-        ) : (
-          !hideHeaderValue && (
-            <p
-              className={classNames('font-bold', headerValueClassName)}
-              data-testid={formatDataTestId('unit-row-header-value')}
-            >
-              {headerValue || defaultHeaderValueText}
-            </p>
-          )
-        )}
-        {children}
-      </div>
-
-      {(actionContent ||
-        route ||
-        revealModal ||
-        secondaryCtaRoute ||
-        revealSecondaryModal) && (
-        <div className="unit-row-actions">
-          <div className="flex items-center h-8 gap-2">
-            {disabled ? (
-              <button
-                className="cta-neutral cta-base cta-base-p transition-standard me-1"
-                data-testid={formatDataTestId('unit-row-route')}
-                title={disabledReason}
-                disabled={disabled}
-              >
-                {!hideCtaText && ctaText}
-              </button>
+      <div className="flex flex-col w-full @container/unitRow">
+        <div className="w-full @mobileLandscape/unitRow:flex">
+          <div className="unit-row-content">
+            {avatar ? (
+              <Avatar
+                className="mx-auto @mobileLandscape/unitRow:mx-0 w-32 @mobileLandscape/unitRow:w-16 text-center"
+                {...{ avatar }}
+              />
             ) : (
-              <>
-                {!hideCtaText && route && (
-                  <Link
-                    className="cta-neutral cta-base cta-base-p transition-standard me-1"
-                    data-testid={formatDataTestId('unit-row-route')}
-                    to={`${route}${location.search}`}
-                    onClick={ctaOnClickAction}
+              !hideHeaderValue && (
+                <div className="flex gap-2">
+                  {statusIcon && statusIcon === 'checkmark' && (
+                    <CheckmarkGreenIcon className="scale-125" mode="enabled" />
+                  )}
+                  {statusIcon && statusIcon === 'alert' && (
+                    <AlertFullIcon className="scale-125" mode="attention" />
+                  )}
+                  <p
+                    className={classNames('font-bold', headerValueClassName)}
+                    data-testid={formatDataTestId('unit-row-header-value')}
                   >
-                    {ctaText}
-                  </Link>
-                )}
-
-                {revealModal && (
-                  <ModalButton
-                    {...{
-                      revealModal,
-                      ctaText,
-                      alertBarRevealed,
-                      prefixDataTestId,
-                    }}
-                  />
-                )}
-
-                {secondaryCtaRoute && (
-                  <Link
-                    className="cta-neutral cta-base cta-base-p transition-standard me-1"
-                    data-testid={formatDataTestId('unit-row-route')}
-                    to={`${secondaryCtaRoute}${location.search}`}
-                  >
-                    {secondaryCtaText}
-                  </Link>
-                )}
-
-                {revealSecondaryModal && (
-                  <ModalButton
-                    revealModal={revealSecondaryModal}
-                    ctaText={secondaryCtaText}
-                    className={secondaryButtonClassName}
-                    alertBarRevealed={alertBarRevealed}
-                    prefixDataTestId={secondaryButtonTestId}
-                  />
-                )}
-              </>
+                    {headerValue || defaultHeaderValueText}
+                  </p>
+                </div>
+              )
             )}
-            {actionContent}
+            {children}
           </div>
+
+          {(actionContent ||
+            route ||
+            revealModal ||
+            secondaryCtaRoute ||
+            revealSecondaryModal) && (
+            <div className="unit-row-actions @mobileLandscape/unitRow:flex-1 @mobileLandscape/unitRow:flex @mobileLandscape/unitRow:justify-end ">
+              <div className="flex items-center h-8 gap-2 mt-2 @mobileLandscape/unitRow:mt-0 ">
+                {disabled ? (
+                  <button
+                    className="cta-neutral cta-base-common cta-base-p transition-standard me-1 w-full @mobileLandscape/unitRow:w-auto @mobileLandscape/unitRow:text-xs @mobileLandscape/unitRow:py-1 @mobileLandscape/unitRow:px-5 @mobileLandscape/unitRow:mt-0"
+                    data-testid={formatDataTestId('unit-row-route')}
+                    title={disabledReason}
+                    disabled={disabled}
+                  >
+                    {!hideCtaText && ctaText}
+                  </button>
+                ) : (
+                  <>
+                    {!hideCtaText && route && (
+                      <Link
+                        className="cta-neutral cta-base-common cta-base-p transition-standard me-1 w-full @mobileLandscape/unitRow:w-auto @mobileLandscape/unitRow:text-xs @mobileLandscape/unitRow:py-1 @mobileLandscape/unitRow:px-5 @mobileLandscape/unitRow:mt-0"
+                        data-testid={formatDataTestId('unit-row-route')}
+                        to={`${route}${location.search}`}
+                        onClick={ctaOnClickAction}
+                      >
+                        {ctaText}
+                      </Link>
+                    )}
+
+                    {revealModal && (
+                      <ModalButton
+                        {...{
+                          revealModal,
+                          ctaText,
+                          alertBarRevealed,
+                          prefixDataTestId,
+                        }}
+                      />
+                    )}
+
+                    {secondaryCtaRoute && (
+                      <Link
+                        className="cta-neutral cta-base cta-base-p transition-standard me-1"
+                        data-testid={formatDataTestId('unit-row-route')}
+                        to={`${secondaryCtaRoute}${location.search}`}
+                      >
+                        {secondaryCtaText}
+                      </Link>
+                    )}
+
+                    {revealSecondaryModal && (
+                      <ModalButton
+                        revealModal={revealSecondaryModal}
+                        ctaText={secondaryCtaText}
+                        className={secondaryButtonClassName}
+                        alertBarRevealed={alertBarRevealed}
+                        prefixDataTestId={secondaryButtonTestId}
+                      />
+                    )}
+                  </>
+                )}
+                {actionContent}
+              </div>
+            </div>
+          )}
         </div>
-      )}
+        {subRows ? subRows : ''}
+      </div>
     </div>
   );
 };

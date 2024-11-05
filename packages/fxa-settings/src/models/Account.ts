@@ -27,6 +27,7 @@ import { LinkedAccountProviderIds, MozServices } from '../lib/types';
 import {
   GET_LOCAL_SIGNED_IN_STATUS,
   GET_TOTP_STATUS,
+  GET_BACKUP_CODES_STATUS,
 } from '../components/App/gql';
 import {
   AccountAvatar,
@@ -420,7 +421,13 @@ export class Account implements AccountData {
   }
 
   async refresh(
-    field: 'account' | 'clients' | 'totp' | 'recovery' | 'securityEvents'
+    field:
+      | 'account'
+      | 'clients'
+      | 'totp'
+      | 'recovery'
+      | 'securityEvents'
+      | 'backupCodes'
   ) {
     let query = GET_ACCOUNT;
     switch (field) {
@@ -432,6 +439,9 @@ export class Account implements AccountData {
         break;
       case 'totp':
         query = GET_TOTP_STATUS;
+        break;
+      case 'backupCodes':
+        query = GET_BACKUP_CODES_STATUS;
         break;
     }
     await this.withLoadingStatus(
@@ -996,6 +1006,7 @@ export class Account implements AccountData {
     const result = await this.withLoadingStatus(
       this.authClient.updateRecoveryCodes(sessionToken()!, recoveryCodes)
     );
+    await this.refresh('backupCodes');
     return result;
   }
 
@@ -1169,6 +1180,7 @@ export class Account implements AccountData {
         },
       },
     });
+    await this.refresh('backupCodes');
   }
 
   async uploadAvatar(file: Blob) {

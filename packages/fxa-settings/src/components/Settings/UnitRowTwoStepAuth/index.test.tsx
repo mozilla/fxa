@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { screen, act, fireEvent } from '@testing-library/react';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
 import { UnitRowTwoStepAuth } from '.';
 import {
   renderWithRouter,
@@ -16,6 +16,7 @@ import { SettingsContext } from '../../../models/contexts/SettingsContext';
 jest.mock('../../../models/AlertBarInfo');
 const account = {
   hasPassword: true,
+  backupCodes: { hasBackupCodes: true, count: 3 },
   totp: { exists: true, verified: true },
   disableTwoStepAuth: jest.fn().mockResolvedValue(true),
 } as unknown as Account;
@@ -33,31 +34,14 @@ describe('UnitRowTwoStepAuth', () => {
     expect(
       screen.getByTestId('two-step-unit-row-header-value').textContent
     ).toContain('Enabled');
-    expect(
-      screen.getByTestId('two-step-disable-button-unit-row-modal').textContent
-    ).toContain('Disable');
+    expect(screen.getByRole('button', { name: 'Disable' })).toBeVisible();
   });
 
-  it('renders proper modal when Two-step authentication is enabled and "change" is clicked', async () => {
-    renderWithRouter(
-      <AppContext.Provider value={mockAppContext({ account })}>
-        <UnitRowTwoStepAuth />
-      </AppContext.Provider>
-    );
-
-    await act(async () => {
-      fireEvent.click(screen.getByTestId('two-step-unit-row-modal'));
-    });
-
-    expect(
-      screen.queryByTestId('change-codes-modal-header')
-    ).toBeInTheDocument();
-  });
-
-  it('renders when Two-step authentication is not enabled', () => {
+  it('renders as expected when Two-step authentication is not enabled', () => {
     const account = {
       hasPassword: true,
       totp: { exists: false, verified: false },
+      backupCodes: { hasBackupCodes: false, count: 0 },
     } as unknown as Account;
     renderWithRouter(
       <AppContext.Provider value={mockAppContext({ account })}>
@@ -69,30 +53,10 @@ describe('UnitRowTwoStepAuth', () => {
     ).toContain('Two-step authentication');
     expect(
       screen.getByTestId('two-step-unit-row-header-value').textContent
-    ).toContain('Not Set');
+    ).toContain('Disabled');
     expect(screen.getByTestId('two-step-unit-row-route').textContent).toContain(
       'Add'
     );
-  });
-
-  it('can be refreshed', async () => {
-    const account = {
-      hasPassword: true,
-      totp: { exists: false, verified: false },
-      refresh: jest.fn(),
-    } as unknown as Account;
-    renderWithRouter(
-      <AppContext.Provider value={mockAppContext({ account })}>
-        <UnitRowTwoStepAuth />
-      </AppContext.Provider>
-    );
-    expect(
-      screen.getByTestId('two-step-unit-row-header-value')
-    ).toHaveTextContent('Not Set');
-    await act(async () => {
-      fireEvent.click(screen.getByTestId('two-step-refresh'));
-    });
-    expect(account.refresh).toBeCalledWith('totp');
   });
 
   it('renders view as not enabled after disabling TOTP', async () => {
@@ -106,27 +70,27 @@ describe('UnitRowTwoStepAuth', () => {
       </AppContext.Provider>
     );
 
-    await act(async () => {
-      fireEvent.click(
-        screen.getByTestId('two-step-disable-button-unit-row-modal')
-      );
-    });
+    fireEvent.click(screen.getByRole('button', { name: 'Disable' }));
 
-    expect(
-      screen.queryByTestId('disable-totp-modal-header')
-    ).toBeInTheDocument();
+    await waitFor(() =>
+      expect(
+        screen.queryByTestId('disable-totp-modal-header')
+      ).toBeInTheDocument()
+    );
 
-    await act(async () => {
-      fireEvent.click(screen.getByTestId('modal-confirm'));
-    });
+    // using test id here because the modal cta has the same name as the row button
+    fireEvent.click(screen.getByTestId('modal-confirm'));
 
-    expect(settingsContext.alertBarInfo?.success).toBeCalledTimes(1);
+    await waitFor(() =>
+      expect(settingsContext.alertBarInfo?.success).toBeCalledTimes(1)
+    );
   });
 
   it('renders disabled state when account has no password', async () => {
     const account = {
       hasPassword: false,
       totp: { exists: false, verified: false },
+      backupCodes: { hasBackupCodes: false, count: 0 },
     } as unknown as Account;
 
     renderWithRouter(
@@ -135,15 +99,17 @@ describe('UnitRowTwoStepAuth', () => {
       </AppContext.Provider>
     );
 
-    expect(screen.getByTestId('two-step-unit-row-route').textContent).toContain(
-      'Add'
-    );
-    expect(
-      screen
-        .getByTestId('two-step-unit-row-route')
-        .attributes.getNamedItem('title')?.value
-    ).toEqual(
+    const mainButton = await screen.findByText('Add');
+    expect(mainButton).toBeDisabled();
+    expect(mainButton).toHaveAttribute(
+      'title',
       'Set a password to sync and use certain account security features.'
     );
+    expect(
+      screen.getByTestId('two-step-unit-row-header-value').textContent
+    ).toContain('Disabled');
+    expect(
+      screen.queryByTestId('backup-authentication-codes-sub-row')
+    ).not.toBeInTheDocument();
   });
 });

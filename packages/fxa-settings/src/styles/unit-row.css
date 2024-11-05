@@ -25,19 +25,5 @@
 @screen mobileLandscape {
   .unit-row {
     @apply flex-nowrap px-6;
-
-    &-content {
-      @apply flex-2;
-    }
-
-    &-actions {
-      @apply flex-1 flex justify-end;
-    }
-  }
-}
-
-@screen desktop {
-  .unit-row-content {
-    @apply flex-4;
   }
 }

@@ -252,11 +252,11 @@ const RecoveryCodeCheck = ({
 
   return (
     <form onSubmit={recoveryCodeForm.handleSubmit(onSubmit)}>
-      <FtlMsg id="tfa-enter-code-to-confirm-1">
+      <FtlMsg id="tfa-enter-code-to-confirm-v2">
         <p className="mt-4 mb-4">
-          Please enter one of your backup authentication codes now to confirm
-          you've saved it. You’ll need a code to login if you don’t have access
-          to your mobile device.
+          Please enter one of your new backup authentication codes to confirm
+          that you have saved them. Your old backup authentication codes will be
+          disabled once this step is completed.
         </p>
       </FtlMsg>
       <div className="mt-4 mb-6" data-testid="recovery-code-input">

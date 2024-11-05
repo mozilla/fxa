@@ -58,6 +58,7 @@
     "@storybook/addons": "^7.5.2",
     "@storybook/react": "^7.1.1",
     "@storybook/react-webpack5": "^7.0.23",
+    "@tailwindcss/container-queries": "^0.1.1",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/user-event": "^14.5.1",

@@ -46,7 +46,9 @@ export const Banner = ({
           mode="success"
         />
       )}
-      {type === 'warning' && <WarningIcon className="shrink-0" />}
+      {type === 'warning' && (
+        <WarningIcon className="shrink-0" mode="attention" />
+      )}
 
       <div className="flex flex-col grow ">
         {content.localizedHeading && (

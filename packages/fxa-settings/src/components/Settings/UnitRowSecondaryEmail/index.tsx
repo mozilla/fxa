@@ -161,9 +161,9 @@ export const UnitRowSecondaryEmail = () => {
 
     return (
       <>
-        <div className="mobileLandscape:flex unit-row-multi-row">
+        <div className="@mobileLandscape/unitRow:flex unit-row-multi-row">
           <div
-            className="unit-row-content"
+            className="unit-row-content @mobileLandscape/unitRow:flex-2 @desktop/unitRow:flex-4"
             data-testid="secondary-email-unit-row-content"
           >
             <p
@@ -176,7 +176,7 @@ export const UnitRowSecondaryEmail = () => {
                   <Localized id="se-remove-email" attrs={{ title: true }}>
                     <ButtonIconTrash
                       title="Remove email"
-                      classNames="mobileLandscape:hidden ltr:ml-1 rtl:mr-1"
+                      classNames="@mobileLandscape/unitRow:hidden ms-1"
                       disabled={account.loading}
                       onClick={() => {
                         queueEmailAction(() => deleteEmail(email));
@@ -187,7 +187,7 @@ export const UnitRowSecondaryEmail = () => {
                     <Localized id="se-refresh-email" attrs={{ title: true }}>
                       <ButtonIconReload
                         title="Refresh email"
-                        classNames="mobileLandscape:hidden ltr:ml-1 rtl:mr-1"
+                        classNames="@mobileLandscape/unitRow:hidden ms-1"
                         disabled={account.loading}
                         onClick={() => account.refresh('account')}
                       />
@@ -238,7 +238,7 @@ export const UnitRowSecondaryEmail = () => {
             )}
           </div>
           <div
-            className="unit-row-actions"
+            className="unit-row-actions @mobileLandscape/unitRow:flex-1 @mobileLandscape/unitRow:flex @mobileLandscape/unitRow:justify-end "
             data-testid="secondary-email-unit-row-actions"
           >
             <div className="flex items-center -mt-1">
@@ -246,7 +246,7 @@ export const UnitRowSecondaryEmail = () => {
                 <Localized id="se-make-primary">
                   <button
                     disabled={account.loading}
-                    className="cta-neutral cta-base cta-base-p disabled:cursor-wait whitespace-nowrap"
+                    className="cta-neutral cta-base-common cta-base-p disabled:cursor-wait whitespace-nowrap w-full @mobileLandscape/unitRow:w-auto @mobileLandscape/unitRow:text-xs @mobileLandscape/unitRow:py-1 @mobileLandscape/unitRow:px-5 @mobileLandscape/unitRow:mt-0"
                     onClick={() => {
                       queueEmailAction(() => makeEmailPrimary(email));
                     }}
@@ -259,7 +259,7 @@ export const UnitRowSecondaryEmail = () => {
               <Localized id="se-remove-email" attrs={{ title: true }}>
                 <ButtonIconTrash
                   title="Remove email"
-                  classNames="hidden mobileLandscape:inline-block ltr:ml-1 rtl:mr-1"
+                  classNames="hidden @mobileLandscape/unitRow:inline-block ms-1"
                   disabled={account.loading}
                   testId="secondary-email-delete"
                   onClick={() => {
@@ -271,7 +271,7 @@ export const UnitRowSecondaryEmail = () => {
                 <Localized id="se-refresh-email" attrs={{ title: true }}>
                   <ButtonIconReload
                     title="Refresh email"
-                    classNames="hidden mobileLandscape:inline-block ltr:ml-1 rtl:mr-1"
+                    classNames="hidden @mobileLandscape/unitRow:inline-block ms-1"
                     testId="secondary-email-refresh"
                     disabled={account.loading}
                     onClick={() => account.refresh('account')}
@@ -299,8 +299,8 @@ export const UnitRowSecondaryEmail = () => {
   // user has at least one secondary email (verified or unverified) set
   return (
     <SecondaryEmailUtilities>
-      <div className="unit-row">
-        <div className="font-header w-full mb-1 mobileLandscape:flex-none mobileLandscape:mb-0 mobileLandscape:mr-2 mobileLandscape:w-40">
+      <div className="unit-row @container/unitRow">
+        <div className="font-header w-full mb-1 @mobileLandscape/unitRow:flex-none @mobileLandscape/unitRow:mb-0 @mobileLandscape/unitRow:mr-2 @mobileLandscape/unitRow:w-40">
           <Localized id="se-heading">
             <h3
               data-testid="secondary-email-unit-row-header"
@@ -310,7 +310,7 @@ export const UnitRowSecondaryEmail = () => {
             </h3>
           </Localized>
         </div>
-        <div className="mobileLandscape:flex-3 desktop:flex-5">
+        <div className="@mobileLandscape/unitRow:flex-3 desktop:flex-5">
           {secondaryEmails.map((secondary, index) => (
             <UnitRowSecondaryEmailContentAndActions
               key={secondary.email}
