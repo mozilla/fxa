@@ -38,7 +38,8 @@ const ACTIONS_VALID_STATE = {
   finishErrorCart: [CartState.START, CartState.PROCESSING],
   deleteCart: [CartState.START, CartState.PROCESSING],
   restartCart: [CartState.START, CartState.PROCESSING, CartState.FAIL],
-  setProcessingCart: [CartState.START],
+  setProcessingCart: [CartState.START, CartState.NEEDS_INPUT],
+  setNeedsInputCart: [CartState.PROCESSING],
 };
 
 // Type guard to check if action is valid key in ACTIONS_VALID_STATE
@@ -178,6 +179,21 @@ export class CartManager {
     } catch (error) {
       const cause = error instanceof CartNotUpdatedError ? undefined : error;
       throw new CartNotUpdatedError(cartId, items, cause);
+    }
+  }
+
+  public async setNeedsInputCart(cartId: string) {
+    const cart = await this.fetchCartById(cartId);
+
+    this.checkActionForValidCartState(cart, 'setNeedsInputCart');
+
+    try {
+      await updateCart(this.db, Buffer.from(cartId, 'hex'), cart.version, {
+        state: CartState.NEEDS_INPUT,
+      });
+    } catch (error) {
+      const cause = error instanceof CartNotUpdatedError ? undefined : error;
+      throw new CartNotUpdatedError(cartId, cause);
     }
   }
 

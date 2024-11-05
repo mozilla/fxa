@@ -1,7 +1,7 @@
 CREATE TABLE `carts` (
   `id` binary(16) NOT NULL,
   `uid` binary(16) DEFAULT NULL,
-  `state` enum('start','processing','success','fail') COLLATE utf8mb4_bin NOT NULL,
+  `state` enum('start','processing','success','fail','needs_input') COLLATE utf8mb4_bin NOT NULL,
   `errorReasonId` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL,
   `offeringConfigId` varchar(255) COLLATE utf8mb4_bin NOT NULL,
   `interval` varchar(255) COLLATE utf8mb4_bin NOT NULL,

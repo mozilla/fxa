@@ -226,6 +226,27 @@ describe('CartManager', () => {
     });
   });
 
+  describe('setNeedsInputcart', () => {
+    it('succeeds', async () => {
+      await directUpdate(db, { state: CartState.PROCESSING }, testCart.id);
+      testCart = await cartManager.fetchCartById(testCart.id);
+
+      await cartManager.setNeedsInputCart(testCart.id);
+      const cart = await cartManager.fetchCartById(testCart.id);
+
+      expect(cart.state).toEqual(CartState.NEEDS_INPUT);
+    });
+
+    it('fails - invalid state', async () => {
+      try {
+        await cartManager.setNeedsInputCart(testCart.id);
+        fail('Error in finishCart');
+      } catch (error) {
+        expect(error).toBeInstanceOf(CartInvalidStateForActionError);
+      }
+    });
+  });
+
   describe('finishErrorCart', () => {
     it('succeeds', async () => {
       const items = FinishErrorCartFactory();
