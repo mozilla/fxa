@@ -10,6 +10,10 @@ import {
 } from './glean.factory';
 import { PaymentsGleanProvider } from './glean.types';
 import { MockPaymentsGleanFactory } from './glean.test-provider';
+import {
+  MockPaymentsGleanConfigProvider,
+  PaymentsGleanConfig,
+} from './glean.config';
 
 const mockCommonMetricsData = {
   commonMetricsData: CommonMetricsFactory(),
@@ -26,7 +30,11 @@ describe('PaymentsGleanManager', () => {
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
-      providers: [MockPaymentsGleanFactory, PaymentsGleanManager],
+      providers: [
+        MockPaymentsGleanFactory,
+        PaymentsGleanManager,
+        MockPaymentsGleanConfigProvider,
+      ],
     }).compile();
 
     paymentsGleanManager = moduleRef.get(PaymentsGleanManager);
@@ -155,5 +163,71 @@ describe('PaymentsGleanManager', () => {
         subscription_payment_provider: mockPaymentProvider,
       });
     });
+  });
+
+  describe('enabled is false', () => {
+    {
+      let paymentsGleanManager: PaymentsGleanManager;
+      let paymentsGleanServerEventsLogger: any;
+
+      beforeAll(async () => {
+        const moduleRef = await Test.createTestingModule({
+          providers: [
+            MockPaymentsGleanFactory,
+            PaymentsGleanManager,
+            MockPaymentsGleanConfigProvider,
+            {
+              provide: PaymentsGleanConfig,
+              useValue: {
+                enabled: false,
+              },
+            },
+          ],
+        }).compile();
+
+        paymentsGleanManager = moduleRef.get(PaymentsGleanManager);
+        paymentsGleanServerEventsLogger = moduleRef.get(PaymentsGleanProvider);
+        jest.spyOn(paymentsGleanServerEventsLogger, 'recordPaySetupView');
+        jest.spyOn(paymentsGleanServerEventsLogger, 'recordPaySetupEngage');
+        jest.spyOn(paymentsGleanServerEventsLogger, 'recordPaySetupSubmit');
+        jest.spyOn(paymentsGleanServerEventsLogger, 'recordPaySetupSuccess');
+        jest.spyOn(paymentsGleanServerEventsLogger, 'recordPaySetupFail');
+      });
+
+      it('recordFxaPaySetupView', () => {
+        paymentsGleanManager.recordFxaPaySetupView(mockCommonMetricsData);
+        expect(
+          paymentsGleanServerEventsLogger.recordPaySetupView
+        ).not.toHaveBeenCalled();
+      });
+
+      it('recordFxaPaySetupEngage', () => {
+        paymentsGleanManager.recordFxaPaySetupEngage(mockCommonMetricsData);
+        expect(
+          paymentsGleanServerEventsLogger.recordPaySetupEngage
+        ).not.toHaveBeenCalled();
+      });
+
+      it('recordFxaPaySetupSubmit', () => {
+        paymentsGleanManager.recordFxaPaySetupSubmit(mockCommonMetricsData);
+        expect(
+          paymentsGleanServerEventsLogger.recordPaySetupSubmit
+        ).not.toHaveBeenCalled();
+      });
+
+      it('recordFxaPaySetupSuccess', () => {
+        paymentsGleanManager.recordFxaPaySetupSuccess(mockCommonMetricsData);
+        expect(
+          paymentsGleanServerEventsLogger.recordPaySetupSuccess
+        ).not.toHaveBeenCalled();
+      });
+
+      it('recordFxaPaySetupFail', () => {
+        paymentsGleanManager.recordFxaPaySetupFail(mockCommonMetricsData);
+        expect(
+          paymentsGleanServerEventsLogger.recordPaySetupFail
+        ).not.toHaveBeenCalled();
+      });
+    }
   });
 });
