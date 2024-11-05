@@ -27,6 +27,9 @@
       "@fxa/accounts/recovery-phone": [
         "libs/accounts/recovery-phone/src/index.ts"
       ],
+      "@fxa/accounts/two-factor": [
+        "libs/accounts/two-factor/src/index.ts"
+      ],
       "@fxa/payments/capability": ["libs/payments/capability/src/index.ts"],
       "@fxa/payments/cart": ["libs/payments/cart/src/index.ts"],
       "@fxa/payments/currency": ["libs/payments/currency/src/index.ts"],
@@ -93,7 +96,9 @@
       "@fxa/vendored/jwtool": ["libs/vendored/jwtool/src/index.ts"],
       "@fxa/vendored/typesafe-node-firestore": [
         "libs/vendored/typesafe-node-firestore/src/index.ts"
-      ]
+      ],
+      "accounts/recovery-phone": ["libs/accounts/recovery-phone/src/index.ts"],
+      "accounts/two-factor": ["libs/accounts/two-factor/src/index.ts"]
     },
     "typeRoots": [
       "./types",
