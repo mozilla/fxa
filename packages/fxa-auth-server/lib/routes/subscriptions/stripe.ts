@@ -243,8 +243,8 @@ export class StripeHandler {
     // Stripe does not allow customers to change currency after a currency is set, which
     // occurs on initial subscription. (https://stripe.com/docs/billing/customer#payment)
     const customer = await this.stripeHelper.fetchCustomer(uid);
-    const planCurrency = (await this.stripeHelper.findAbbrevPlanById(planId))
-      .currency;
+    const { currency: planCurrency } =
+      await this.stripeHelper.findAbbrevPlanById(planId);
     if (customer && customer.currency !== planCurrency) {
       throw error.currencyCurrencyMismatch(customer.currency, planCurrency);
     }
@@ -590,9 +590,6 @@ export class StripeHandler {
         throw error.unknownCustomer(uid);
       }
 
-      const automaticTax =
-        this.stripeHelper.isCustomerStripeTaxEligible(customer);
-
       const {
         priceId,
         paymentMethodId,
@@ -624,11 +621,17 @@ export class StripeHandler {
 
       let paymentMethod: Stripe.PaymentMethod | undefined;
 
+      const planCurrency = (await this.stripeHelper.findAbbrevPlanById(priceId))
+        .currency;
+
+      const automaticTax =
+        this.stripeHelper.isCustomerTaxableWithSubscriptionCurrency(
+          customer,
+          planCurrency
+        );
+
       // Skip the payment source check if there's no payment method id.
       if (paymentMethodId) {
-        const planCurrency = (
-          await this.stripeHelper.findAbbrevPlanById(priceId)
-        ).currency;
         paymentMethod = await this.stripeHelper.getPaymentMethod(
           paymentMethodId
         );

@@ -433,7 +433,8 @@ describe('subscriptions payPalRoutes', () => {
         authDbModule.getAccountCustomerByUid =
           sinon.fake.resolves(accountCustomer);
         stripeHelper.updateCustomerPaypalAgreement = sinon.fake.resolves({});
-        stripeHelper.isCustomerStripeTaxEligible = sinon.fake.returns(true);
+        stripeHelper.isCustomerTaxableWithSubscriptionCurrency =
+          sinon.fake.returns(true);
         payPalHelper.processInvoice = sinon.fake.resolves({});
         payPalHelper.processZeroInvoice = sinon.fake.resolves({});
       });
@@ -515,7 +516,8 @@ describe('subscriptions payPalRoutes', () => {
             state: 'Ontario',
           },
         };
-        stripeHelper.isCustomerStripeTaxEligible = sinon.fake.returns(false);
+        stripeHelper.isCustomerTaxableWithSubscriptionCurrency =
+          sinon.fake.returns(false);
         const actual = await runTest('/oauth/subscriptions/active/new-paypal', {
           ...requestOptions,
           payload: { token },
@@ -639,7 +641,8 @@ describe('subscriptions payPalRoutes', () => {
         };
         c.subscriptions.data[0].collection_method = 'send_invoice';
         stripeHelper.fetchCustomer = sinon.fake.resolves(c);
-        stripeHelper.isCustomerStripeTaxEligible = sinon.fake.returns(true);
+        stripeHelper.isCustomerTaxableWithSubscriptionCurrency =
+          sinon.fake.returns(true);
         stripeHelper.getCustomerPaypalAgreement =
           sinon.fake.returns(paypalAgreementId);
         payPalHelper.processInvoice = sinon.fake.resolves({});

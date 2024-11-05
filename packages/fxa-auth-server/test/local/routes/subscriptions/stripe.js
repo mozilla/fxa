@@ -1200,7 +1200,7 @@ describe('DirectStripeRoutes', () => {
 
     it('creates a subscription with a payment method and promotion code', async () => {
       const { sourceCountry, expected } = setupCreateSuccessWithTaxIds();
-      directStripeRoutesInstance.stripeHelper.isCustomerStripeTaxEligible.returns(
+      directStripeRoutesInstance.stripeHelper.isCustomerTaxableWithSubscriptionCurrency.returns(
         true
       );
       directStripeRoutesInstance.extractPromotionCode = sinon.stub().resolves({
@@ -1226,7 +1226,7 @@ describe('DirectStripeRoutes', () => {
 
     it('creates a subscription with a payment method', async () => {
       const { sourceCountry, expected } = setupCreateSuccessWithTaxIds();
-      directStripeRoutesInstance.stripeHelper.isCustomerStripeTaxEligible.returns(
+      directStripeRoutesInstance.stripeHelper.isCustomerTaxableWithSubscriptionCurrency.returns(
         true
       );
       const actual = await directStripeRoutesInstance.createSubscriptionWithPMI(
@@ -1247,7 +1247,7 @@ describe('DirectStripeRoutes', () => {
 
     it('creates a subscription with a payment method using automatic tax but in an unsupported region', async () => {
       const { sourceCountry, expected } = setupCreateSuccessWithTaxIds();
-      directStripeRoutesInstance.stripeHelper.isCustomerStripeTaxEligible.returns(
+      directStripeRoutesInstance.stripeHelper.isCustomerTaxableWithSubscriptionCurrency.returns(
         false
       );
       const actual = await directStripeRoutesInstance.createSubscriptionWithPMI(
@@ -1503,7 +1503,7 @@ describe('DirectStripeRoutes', () => {
       );
       const customer = deepCopy(emptyCustomer);
       directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(customer);
-      directStripeRoutesInstance.stripeHelper.isCustomerStripeTaxEligible.returns(
+      directStripeRoutesInstance.stripeHelper.isCustomerTaxableWithSubscriptionCurrency.returns(
         true
       );
       const expected = deepCopy(subscription2);
@@ -1561,7 +1561,7 @@ describe('DirectStripeRoutes', () => {
       );
       const customer = deepCopy(emptyCustomer);
       directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(customer);
-      directStripeRoutesInstance.stripeHelper.isCustomerStripeTaxEligible.returns(
+      directStripeRoutesInstance.stripeHelper.isCustomerTaxableWithSubscriptionCurrency.returns(
         true
       );
       directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI.resolves(
