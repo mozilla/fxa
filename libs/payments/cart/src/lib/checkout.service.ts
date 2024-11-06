@@ -306,7 +306,6 @@ export class CheckoutService {
       }
       await this.postPaySteps(cart, updatedVersion, subscription, uid);
     }
-    return status;
   }
 
   async payWithPaypal(

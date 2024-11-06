@@ -20,7 +20,6 @@ import { SetupCartActionArgs } from './validators/SetupCartActionArgs';
 import { UpdateCartActionArgs } from './validators/UpdateCartActionArgs';
 import { RecordEmitterEventArgs } from './validators/RecordEmitterEvent';
 import { PaymentsEmitterService } from '../emitter/emitter.service';
-import { SetCartProcessingActionArgs } from './validators/SetCartProcessingActionArgs';
 import { FinalizeProcessingCartActionArgs } from './validators/finalizeProcessingCartActionArgs';
 import { PollCartActionArgs } from './validators/pollCartActionArgs';
 
@@ -103,12 +102,6 @@ export class NextJSActionsService {
     await new Validator().validateOrReject(args);
 
     await this.cartService.finalizeProcessingCart(args.cartId);
-  }
-
-  async setCartProcessing(args: SetCartProcessingActionArgs) {
-    await new Validator().validateOrReject(args);
-
-    await this.cartService.setCartProcessing(args.cartId);
   }
 
   async getPayPalCheckoutToken(args: GetPayPalCheckoutTokenArgs) {

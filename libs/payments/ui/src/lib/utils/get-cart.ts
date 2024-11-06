@@ -7,6 +7,7 @@ import { SupportedPages } from './types';
 export const cartStateToPageMap = {
   [CartState.START]: SupportedPages.START,
   [CartState.PROCESSING]: SupportedPages.PROCESSING,
+  [CartState.NEEDS_INPUT]: SupportedPages.PROCESSING,
   [CartState.SUCCESS]: SupportedPages.SUCCESS,
   [CartState.FAIL]: SupportedPages.ERROR,
 };

@@ -212,32 +212,32 @@ export class CartService {
     confirmationTokenId: string,
     customerData: CheckoutCustomerData
   ) {
+    let updatedCart: ResultCart | null = null;
     try {
       //Ensure that the cart version matches the value passed in from FE
-      const cart = await this.cartManager.fetchAndValidateCartVersion(
+      await this.cartManager.fetchAndValidateCartVersion(cartId, version);
+
+      await this.cartManager.setProcessingCart(cartId);
+
+      // Ensure we have a positive lock on the processing cart
+      updatedCart = await this.cartManager.fetchAndValidateCartVersion(
         cartId,
-        version
+        version + 1
       );
-
-      const status = await this.checkoutService.payWithStripe(
-        cart,
-        confirmationTokenId,
-        customerData
-      );
-
-      const updatedCart = await this.cartManager.fetchCartById(cartId);
-
-      if (status === 'succeeded') {
-        // multiple threads is causing this to be called on an already-successful cart
-        // this then throws an error, and has us trying to finish the cart while its in an error state
-        await this.cartManager.finishCart(cartId, updatedCart.version, {});
-      }
     } catch (e) {
-      // TODO: Handle errors and provide an associated reason for failure
-      await this.cartManager.finishErrorCart(cartId, {
-        errorReasonId: CartErrorReasonId.Unknown,
-      });
+      throw new CartStateProcessingError(cartId, e);
     }
+
+    // Intentionally left out of try/catch block to so that the rest of the logic
+    // is non-blocking and can be handled asynchronously.
+    this.checkoutService
+      .payWithStripe(updatedCart, confirmationTokenId, customerData)
+      .catch(async () => {
+        // TODO: Handle errors and provide an associated reason for failure
+        await this.cartManager.finishErrorCart(cartId, {
+          errorReasonId: CartErrorReasonId.Unknown,
+        });
+      });
   }
 
   async checkoutCartWithPaypal(
@@ -249,16 +249,15 @@ export class CartService {
     let updatedCart: ResultCart | null = null;
     try {
       //Ensure that the cart version matches the value passed in from FE
-      const cart = await this.cartManager.fetchAndValidateCartVersion(
-        cartId,
-        version
-      );
+      await this.cartManager.fetchAndValidateCartVersion(cartId, version);
 
       await this.cartManager.setProcessingCart(cartId);
-      updatedCart = {
-        ...cart,
-        version: cart.version + 1,
-      };
+
+      // Ensure we have a positive lock on the processing cart
+      updatedCart = await this.cartManager.fetchAndValidateCartVersion(
+        cartId,
+        version + 1
+      );
     } catch (e) {
       throw new CartStateProcessingError(cartId, e);
     }
@@ -362,13 +361,6 @@ export class CartService {
         throw e;
       }
     }
-  }
-
-  /**
-   * Update a cart to be in the processing state
-   */
-  async setCartProcessing(cartId: string): Promise<void> {
-    await this.cartManager.setProcessingCart(cartId);
   }
 
   /**

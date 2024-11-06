@@ -26,6 +26,7 @@ export enum CartState {
   START = 'start',
   PROCESSING = 'processing',
   SUCCESS = 'success',
+  NEEDS_INPUT = 'needs_input',
   FAIL = 'fail',
 }
 

@@ -38,7 +38,6 @@ import {
   StripeResponseFactory,
   MockStripeConfigProvider,
   AccountCustomerManager,
-  StripePaymentIntentFactory,
   StripeSubscriptionFactory,
   StripePaymentMethodFactory,
 } from '@fxa/payments/stripe';
@@ -344,16 +343,12 @@ describe('CartService', () => {
     it('accepts payment with stripe', async () => {
       const mockCart = ResultCartFactory();
       const mockPaymentMethodId = faker.string.uuid();
-      const mockPaymentIntent = StripePaymentIntentFactory({
-        payment_method: mockPaymentMethodId,
-        status: 'succeeded',
-      });
 
-      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
       jest
-        .spyOn(checkoutService, 'payWithStripe')
-        .mockResolvedValue(mockPaymentIntent.status);
-      jest.spyOn(cartManager, 'finishCart').mockResolvedValue();
+        .spyOn(cartManager, 'fetchAndValidateCartVersion')
+        .mockResolvedValue(mockCart);
+      jest.spyOn(cartManager, 'setProcessingCart').mockResolvedValue();
+      jest.spyOn(checkoutService, 'payWithStripe').mockResolvedValue();
       jest.spyOn(cartManager, 'finishErrorCart').mockResolvedValue();
 
       await cartService.checkoutCartWithStripe(
@@ -368,27 +363,20 @@ describe('CartService', () => {
         mockPaymentMethodId,
         mockCustomerData
       );
-      expect(cartManager.finishCart).toHaveBeenCalledWith(
-        mockCart.id,
-        mockCart.version,
-        {}
-      );
       expect(cartManager.finishErrorCart).not.toHaveBeenCalled();
     });
 
     it('calls cartManager.finishErrorCart when error occurs during checkout', async () => {
       const mockCart = ResultCartFactory();
       const mockPaymentMethodId = faker.string.uuid();
-      const mockPaymentIntent = StripePaymentIntentFactory({
-        payment_method: mockPaymentMethodId,
-        status: 'succeeded',
-      });
 
-      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+      jest
+        .spyOn(cartManager, 'fetchAndValidateCartVersion')
+        .mockResolvedValue(mockCart);
+      jest.spyOn(cartManager, 'setProcessingCart').mockResolvedValue();
       jest
         .spyOn(checkoutService, 'payWithStripe')
-        .mockResolvedValue(mockPaymentIntent.status);
-      jest.spyOn(cartManager, 'finishCart').mockRejectedValue(undefined);
+        .mockRejectedValue(new Error('test'));
       jest.spyOn(cartManager, 'finishErrorCart').mockResolvedValue();
 
       await cartService.checkoutCartWithStripe(
@@ -426,7 +414,7 @@ describe('CartService', () => {
       );
 
       expect(checkoutService.payWithPaypal).toHaveBeenCalledWith(
-        { ...mockCart, version: mockCart.version + 1 },
+        mockCart,
         mockCustomerData,
         mockToken
       );
