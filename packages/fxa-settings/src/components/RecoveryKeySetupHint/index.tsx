@@ -10,13 +10,9 @@ import { useFtlMsgResolver } from '../../models';
 import { logViewEvent } from '../../lib/metrics';
 import { LightbulbImage } from '../images';
 import { DISPLAY_SAFE_UNICODE } from '../../constants';
-import Banner, { BannerType } from '../Banner';
-import {
-  AuthUiErrorNos,
-  AuthUiErrors,
-} from '../../lib/auth-errors/auth-errors';
 import classNames from 'classnames';
-import { getErrorFtlId } from '../../lib/error-utils';
+import { getLocalizedErrorMessage } from '../../lib/error-utils';
+import Banner from '../Banner';
 
 export type RecoveryKeySetupHintProps = {
   updateRecoveryKeyHint: (hint: string) => Promise<void>;
@@ -33,7 +29,7 @@ export const RecoveryKeySetupHint = ({
   navigateForward,
   viewName,
 }: RecoveryKeySetupHintProps) => {
-  const [bannerText, setBannerText] = useState<string>();
+  const [localizedErrorMessage, setLocalizedErrorMessage] = useState<string>();
   const [hintError, setHintError] = useState<string>();
   const [isSubmitDisabled, setIsSubmitDisabled] = useState(false);
   const ftlMsgResolver = useFtlMsgResolver();
@@ -84,20 +80,11 @@ export const RecoveryKeySetupHint = ({
           await updateRecoveryKeyHint(trimmedHint);
           logViewEvent(`flow.${viewName}`, 'create-hint.success');
           navigateForward();
-        } catch (e) {
-          let localizedError: string;
-          if (e.errno && AuthUiErrorNos[e.errno]) {
-            localizedError = ftlMsgResolver.getMsg(getErrorFtlId(e), e.message);
-          } else {
-            // Any errors that aren't matched to a known error are reported to the user as an unexpected error
-            const unexpectedError = AuthUiErrors.UNEXPECTED_ERROR;
-            localizedError = ftlMsgResolver.getMsg(
-              getErrorFtlId(unexpectedError),
-              unexpectedError.message
-            );
-          }
-          setBannerText(localizedError);
-          logViewEvent(`flow.${viewName}`, 'create-hint.fail', e);
+        } catch (error) {
+          setLocalizedErrorMessage(
+            getLocalizedErrorMessage(ftlMsgResolver, error)
+          );
+          logViewEvent(`flow.${viewName}`, 'create-hint.fail', error);
         }
       }
     }
@@ -128,10 +115,11 @@ export const RecoveryKeySetupHint = ({
 
   return (
     <>
-      {bannerText && (
-        <Banner type={BannerType.error}>
-          <p className="w-full text-center">{bannerText}</p>
-        </Banner>
+      {localizedErrorMessage && (
+        <Banner
+          type="error"
+          content={{ localizedHeading: localizedErrorMessage }}
+        />
       )}
       <LightbulbImage className="mx-auto my-6" />
       <FtlMsg id="flow-recovery-key-hint-header-v2">
@@ -157,7 +145,7 @@ export const RecoveryKeySetupHint = ({
             inputRef={register()}
             onChange={() => {
               setHintError(undefined);
-              setBannerText(undefined);
+              setLocalizedErrorMessage('');
               isSubmitDisabled && setIsSubmitDisabled(false);
             }}
             maxLength={MAX_HINT_LENGTH}

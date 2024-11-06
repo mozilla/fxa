@@ -10,12 +10,12 @@ import { useFtlMsgResolver } from '../../../models';
 import { FtlMsg } from 'fxa-react/lib/utils';
 
 import AppLayout from '../../../components/AppLayout';
-import Banner, { BannerType } from '../../../components/Banner';
 import { InputText } from '../../../components/InputText';
 import LinkRememberPassword from '../../../components/LinkRememberPassword';
 import { isEmailValid } from 'fxa-shared/email/helpers';
 import { ResetPasswordFormData, ResetPasswordProps } from './interfaces';
 import GleanMetrics from '../../../lib/glean';
+import Banner from '../../../components/Banner';
 
 export const viewName = 'reset-password';
 
@@ -87,9 +87,7 @@ const ResetPassword = ({
       </FtlMsg>
 
       {errorMessage && (
-        <Banner type={BannerType.error}>
-          <p>{errorMessage}</p>
-        </Banner>
+        <Banner type="error" content={{ localizedHeading: errorMessage }} />
       )}
 
       <FtlMsg id="password-reset-body-2">

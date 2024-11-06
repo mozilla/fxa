@@ -6,11 +6,11 @@ import React, { useEffect } from 'react';
 import { RouteComponentProps } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import CardHeader from '../../../components/CardHeader';
-import Banner, { BannerType } from '../../../components/Banner';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { HeartsBrokenImage } from '../../../components/images';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import GleanMetrics from '../../../lib/glean';
+import Banner from '../../../components/Banner';
 type PairUnsupportedProps = { error?: string };
 export const viewName = 'pair-unsupported';
 
@@ -24,11 +24,7 @@ const PairUnsupported = ({
 
   return (
     <>
-      {error && (
-        <Banner type={BannerType.error}>
-          <p>{error}</p>
-        </Banner>
-      )}
+      {error && <Banner type="error" content={{ localizedHeading: error }} />}
       <CardHeader
         headingTextFtlId="pair-unsupported-header"
         headingText="Pair using an app"

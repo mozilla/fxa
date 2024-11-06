@@ -23,9 +23,9 @@ describe('AlertBar', () => {
     expect(screen.getByTestId('alert-bar-root')).toContainElement(
       screen.getByTestId('alert-bar')
     );
-    expect(screen.getByTestId('alert-bar-content')).toBeInTheDocument();
+    expect(screen.getByRole('alert')).toHaveTextContent('message');
     expect(screen.queryByTestId('alert-bar')).toHaveAttribute('role', 'alert');
-    expect(screen.getByTestId('alert-bar-dismiss')).toHaveAttribute(
+    expect(screen.getByRole('button')).toHaveAttribute(
       'title',
       'Close message'
     );

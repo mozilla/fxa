@@ -17,11 +17,7 @@ import FormVerifyCode, {
 import { useFtlMsgResolver } from '../../../models';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { SigninUnblockProps } from './interfaces';
-import Banner, {
-  BannerType,
-  ResendEmailSuccessBanner,
-} from '../../../components/Banner';
-import { MailImage } from '../../../components/images';
+import { EmailCodeImage } from '../../../components/images';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import GleanMetrics from '../../../lib/glean';
 import {
@@ -31,6 +27,7 @@ import {
 import { handleNavigation } from '../utils';
 import { ResendStatus } from '../../../lib/types';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
+import Banner, { ResendCodeSuccessBanner } from '../../../components/Banner';
 
 export const viewName = 'signin-unblock';
 
@@ -188,10 +185,13 @@ export const SigninUnblock = ({
         headingTextFtlId="signin-unblock-header"
       />
       {bannerErrorMessage && (
-        <Banner type={BannerType.error}>{bannerErrorMessage}</Banner>
+        <Banner
+          type="error"
+          content={{ localizedHeading: bannerErrorMessage }}
+        />
       )}
-      {resendStatus === ResendStatus.sent && <ResendEmailSuccessBanner />}
-      <MailImage />
+      {resendStatus === ResendStatus.sent && <ResendCodeSuccessBanner />}
+      <EmailCodeImage className="w-3/5 mx-auto mb-2" />
       <FtlMsg id="signin-unblock-body" vars={{ email }}>
         <p className="text-sm">
           Check your email for the authorization code sent to {email}.

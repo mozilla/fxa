@@ -6,12 +6,12 @@ import React from 'react';
 import { Link, RouteComponentProps } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import CardHeader from '../../../components/CardHeader';
-import Banner, { BannerType } from '../../../components/Banner';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { HeartsVerifiedImage } from '../../../components/images';
 import { RemoteMetadata } from '../../../lib/types';
 import AppLayout from '../../../components/AppLayout';
 import { REACT_ENTRYPOINT } from '../../../constants';
+import Banner from '../../../components/Banner';
 
 export const viewName = 'pair.auth.complete';
 
@@ -50,11 +50,7 @@ const AuthComplete = ({
         headingText="Device connected"
       />
       {/* TODO: Errors will need to be localized */}
-      {error && (
-        <Banner type={BannerType.error}>
-          <p>{error}</p>
-        </Banner>
-      )}
+      {error && <Banner type="error" content={{ localizedHeading: error }} />}
       {/* HeartsVerifiedImage was previously only shown if user agent supports SVG Transform Origin
          Current support is at 96.5% as of 02/2023: https://caniuse.com/mdn-css_properties_transform-origin_support_in_svg
          Non-animated version likely no longer necessary.

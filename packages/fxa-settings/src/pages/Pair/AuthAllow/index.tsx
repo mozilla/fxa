@@ -2,28 +2,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { ReactElement } from 'react';
+import React from 'react';
 import { Link, RouteComponentProps } from '@reach/router';
 import { RemoteMetadata } from '../../../lib/types';
 import { usePageViewEvent } from '../../../lib/metrics';
-import Banner, { BannerType } from '../../../components/Banner';
 import AppLayout from '../../../components/AppLayout';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import DeviceInfoBlock from '../../../components/DeviceInfoBlock';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { ReactComponent as LocationBalloonImage } from './confirm-pairing.svg';
 import GleanMetrics from '../../../lib/glean';
-
-export type BannerMessage = {
-  messageType: BannerType;
-  messageElement: ReactElement;
-};
+import Banner from '../../../components/Banner';
 
 export type AuthAllowProps = {
   suppDeviceInfo: RemoteMetadata;
   // TODO: In FXA-6639 - Listen to broken for error/success messages
   // included in props temporarily for tests/storybook
-  bannerMessage?: BannerMessage;
+  bannerType?: 'success' | 'error';
+  localizedBannerMessage?: string;
   email: string;
 };
 
@@ -36,7 +32,8 @@ const handleSubmit = () => {
 
 const AuthAllow = ({
   suppDeviceInfo,
-  bannerMessage,
+  bannerType,
+  localizedBannerMessage,
   email,
 }: AuthAllowProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
@@ -54,22 +51,18 @@ const AuthAllow = ({
         <h1 className="card-header">Did you just sign in to Firefox?</h1>
       </FtlMsg>
       <p className="card-subheader mb-2">{email}</p>
-      {bannerMessage && (
-        <Banner type={bannerMessage.messageType}>
-          {bannerMessage.messageElement}
-        </Banner>
+      {localizedBannerMessage && bannerType && (
+        <Banner
+          type={bannerType}
+          content={{ localizedHeading: localizedBannerMessage }}
+        />
       )}
       <LocationBalloonImage className="w-3/5 mx-auto mt-8" />
       <form noValidate onSubmit={handleSubmit}>
         <DeviceInfoBlock remoteMetadata={suppDeviceInfo} />
         <div className="flex flex-col justify-center">
           <FtlMsg id="pair-auth-allow-confirm-button">
-            <button
-              type="submit"
-              className="cta-primary cta-xl w-full my-4"
-              // Should the submit button be disabled if there is an error?
-              disabled={bannerMessage?.messageType === BannerType.error}
-            >
+            <button type="submit" className="cta-primary cta-xl w-full my-4">
               Yes, approve device
             </button>
           </FtlMsg>

@@ -10,7 +10,6 @@ import {
   MOCK_METADATA_WITH_DEVICE_NAME,
   MOCK_METADATA_WITH_LOCATION,
 } from '../../../components/DeviceInfoBlock/mocks';
-import { MOCK_BANNER_MESSAGE } from './mocks';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 
 export default {
@@ -34,6 +33,7 @@ export const WithDeviceName = () => (
 export const WithErrorMessage = () => (
   <AuthWaitForSupp
     suppDeviceInfo={MOCK_METADATA_WITH_DEVICE_NAME}
-    bannerMessage={MOCK_BANNER_MESSAGE}
+    bannerType="error"
+    localizedBannerMessage="This is an error message"
   />
 );

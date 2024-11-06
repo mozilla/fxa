@@ -11,7 +11,7 @@ import {
   useSession,
 } from '../../../models';
 import { usePageViewEvent } from '../../../lib/metrics';
-import { MailImage } from '../../../components/images';
+import { EmailCodeImage } from '../../../components/images';
 import FormVerifyCode, {
   FormAttributes,
 } from '../../../components/FormVerifyCode';
@@ -21,14 +21,10 @@ import GleanMetrics from '../../../lib/glean';
 import AppLayout from '../../../components/AppLayout';
 import { SigninTokenCodeProps } from './interfaces';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import Banner, {
-  BannerProps,
-  BannerType,
-  ResendEmailSuccessBanner,
-} from '../../../components/Banner';
 import { handleNavigation } from '../utils';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
+import Banner, { ResendCodeSuccessBanner } from '../../../components/Banner';
 
 export const viewName = 'signin-token-code';
 
@@ -53,10 +49,9 @@ const SigninTokenCode = ({
     showInlineRecoveryKeySetup,
   } = signinState;
 
-  const [banner, setBanner] = useState<Partial<BannerProps>>({
-    type: undefined,
-    children: undefined,
-  });
+  const [localizedErrorBannerMessage, setLocalizedErrorBannerMessage] =
+    useState('');
+  const [showResendSuccessBanner, setShowResendSuccessBanner] = useState(false);
   const [animateBanner, setAnimateBanner] = useState(false);
   const [codeErrorMessage, setCodeErrorMessage] = useState<string>('');
   const [resendCodeLoading, setResendCodeLoading] = useState<boolean>(false);
@@ -101,25 +96,23 @@ const SigninTokenCode = ({
     setResendCodeLoading(true);
     try {
       await session.sendVerificationCode();
-      if (banner.type === BannerType.success) {
+      if (showResendSuccessBanner) {
+        // shake the banner if it is already displayed
         setAnimateBanner(true);
       } else {
-        setBanner({
-          type: BannerType.success,
-        });
+        setShowResendSuccessBanner(true);
       }
     } catch (error) {
-      const localizedErrorMessage =
+      setShowResendSuccessBanner(false);
+      // TODO in FXA-9714 - verify if we only want to display a specific message for throttled errors
+      setLocalizedErrorBannerMessage(
         error.errno === AuthUiErrors.THROTTLED.errno
           ? getLocalizedErrorMessage(ftlMsgResolver, error)
           : ftlMsgResolver.getMsg(
-              'link-expired-resent-code-error-message',
+              'signin-token-code-resend-error',
               'Something went wrong. A new code could not be sent.'
-            );
-      setBanner({
-        type: BannerType.error,
-        children: <p>{localizedErrorMessage}</p>,
-      });
+            )
+      );
     } finally {
       setResendCodeLoading(false);
     }
@@ -165,14 +158,9 @@ const SigninTokenCode = ({
           handleFxaOAuthLogin: true,
         });
         if (navError) {
-          const localizedError = getLocalizedErrorMessage(
-            ftlMsgResolver,
-            navError
+          setLocalizedErrorBannerMessage(
+            getLocalizedErrorMessage(ftlMsgResolver, navError)
           );
-          setBanner({
-            type: BannerType.error,
-            children: <p>{localizedError}</p>,
-          });
         }
       } catch (error) {
         const localizedErrorMessage = getLocalizedErrorMessage(
@@ -180,11 +168,10 @@ const SigninTokenCode = ({
           error
         );
         if (error.errno === AuthUiErrors.THROTTLED.errno) {
-          setBanner({
-            type: BannerType.error,
-            children: <p>{localizedErrorMessage}</p>,
-          });
+          setShowResendSuccessBanner(false);
+          setLocalizedErrorBannerMessage(localizedErrorMessage);
         } else {
+          // TODO in FXA-9714 - show in tooltip or banner? we might end up with unexpected errors shown in tooltip with current pattern
           setCodeErrorMessage(localizedErrorMessage);
         }
       }
@@ -213,8 +200,8 @@ const SigninTokenCode = ({
         headingText="Enter confirmation code"
         headingAndSubheadingFtlId="signin-token-code-heading-2"
       />
-      {banner.type === BannerType.success && banner.children === undefined && (
-        <ResendEmailSuccessBanner
+      {showResendSuccessBanner && !localizedErrorBannerMessage && (
+        <ResendCodeSuccessBanner
           animation={{
             handleAnimationEnd,
             animate: animateBanner,
@@ -222,12 +209,15 @@ const SigninTokenCode = ({
           }}
         />
       )}
-      {banner.type && banner.children && (
-        <Banner type={banner.type}>{banner.children}</Banner>
+      {localizedErrorBannerMessage && (
+        <Banner
+          type="error"
+          content={{ localizedHeading: localizedErrorBannerMessage }}
+        />
       )}
 
       <div className="flex justify-center mx-auto">
-        <MailImage className="w-3/5" />
+        <EmailCodeImage className="w-3/5" />
       </div>
 
       <FtlMsg id="signin-token-code-instruction" vars={{ email }}>

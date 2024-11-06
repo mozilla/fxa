@@ -7,14 +7,11 @@ import { LocationProvider } from '@reach/router';
 import { StoryFn } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { LinkExpired, LinkExpiredProps } from '.';
-import { LinkExpiredResetPassword } from '../LinkExpiredResetPassword';
 import { ResendStatus } from 'fxa-settings/src/lib/types';
-import { MOCK_ACCOUNT } from 'fxa-settings/src/models/mocks';
 
 const meta = {
   title: 'Components/LinkExpired',
   component: LinkExpired,
-  subcomponents: { LinkExpiredResetPassword },
   decorators: [
     withLocalization,
     (Story: StoryFn) => (
@@ -26,9 +23,6 @@ const meta = {
 };
 
 export default meta;
-
-const viewName = 'example-view-name';
-const email = MOCK_ACCOUNT.primaryEmail.email;
 
 const mockResendHandler = async () => {
   try {
@@ -42,11 +36,18 @@ const mockedProps: LinkExpiredProps = {
   messageText: 'Some text',
   messageFtlId: 'mock-message-id',
   resendLinkHandler: mockResendHandler,
-  resendStatus: ResendStatus.none,
 };
 
 export const Default = () => <LinkExpired {...mockedProps} />;
 
-export const LinkExpiredForResetPassword = () => (
-  <LinkExpiredResetPassword {...{ email, viewName }} />
+export const ResendError = () => (
+  <LinkExpired
+    {...mockedProps}
+    resendStatus={ResendStatus.error}
+    errorMessage="Mocked resend failure."
+  />
+);
+
+export const ResendSuccess = () => (
+  <LinkExpired {...mockedProps} resendStatus={ResendStatus.sent} />
 );

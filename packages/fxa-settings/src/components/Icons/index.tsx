@@ -4,24 +4,43 @@
 
 import React from 'react';
 import { ImageProps, PreparedImage as PreparedIcon } from '../PreparedImage';
-import { ReactComponent as Alert } from './icon_alert.svg';
-import { ReactComponent as AuthenticatorApp } from './icon_authenticator_app.svg';
-import { ReactComponent as BackupCodes } from './icon_backup_codes.svg';
-import { ReactComponent as BackupCodesDisabled } from './icon_backup_codes_disabled.svg';
-import { ReactComponent as BackupRecoverySmsDisabled } from './icon_backup_recovery_sms_disabled.svg';
-import { ReactComponent as BackupRecoverySms } from './icon_backup_recovery_sms.svg';
-import { ReactComponent as CheckmarkGreen } from './icon_checkmark_green.svg';
-import { ReactComponent as CheckmarkCircleFullGreen } from './icon_checkmark_circle_full_green.svg';
-import { ReactComponent as CheckmarkCircleOutlineBlack } from './icon_checkmark_circle_outline_black.svg';
-import { ReactComponent as Code } from './icon_code.svg';
-import { ReactComponent as FlagCanada } from './icon_flag_canada.svg';
-import { ReactComponent as FlagUsa } from './icon_flag_usa.svg';
-import { ReactComponent as InformationCircleOutlineBlue } from './icon_information_circle_outline_blue.svg';
-import { ReactComponent as InformationCircleOutlineBlack } from './icon_information_circle_outline_black.svg';
+import { ReactComponent as AlertFull } from './icon_alert_triangle_full_yellow.min.svg';
+import { ReactComponent as AlertOutlineCurrent } from './icon_alert_triangle_outline_current.min.svg';
+import { ReactComponent as AuthenticatorApp } from './icon_authenticator_app.min.svg';
+import { ReactComponent as BackupCodes } from './icon_backup_codes.min.svg';
+import { ReactComponent as BackupCodesDisabled } from './icon_backup_codes_disabled.min.svg';
+import { ReactComponent as BackupRecoverySmsDisabled } from './icon_backup_recovery_sms_disabled.min.svg';
+import { ReactComponent as BackupRecoverySms } from './icon_backup_recovery_sms.min.svg';
+import { ReactComponent as CheckmarkGreen } from './icon_checkmark_green.min.svg';
+import { ReactComponent as CheckmarkCircleFullGreen } from './icon_checkmark_circle_full_green.min.svg';
+import { ReactComponent as CheckmarkCircleOutlineCurrent } from './icon_checkmark_circle_outline_current.min.svg';
+import { ReactComponent as Close } from './icon_close.min.svg';
+import { ReactComponent as Code } from './icon_code.min.svg';
+import { ReactComponent as ErrorOutlineCurrent } from './icon_error_circle_outline_current.min.svg';
+import { ReactComponent as FlagCanada } from './icon_flag_canada.min.svg';
+import { ReactComponent as FlagUsa } from './icon_flag_usa.min.svg';
+import { ReactComponent as InformationOutlineCurrent } from './icon_information_circle_outline_current.min.svg';
+import { ReactComponent as InformationOutlineBlue } from './icon_information_circle_outline_blue.min.svg';
 
-export const AlertIcon = ({ className, ariaHidden }: ImageProps) => (
+export const AlertFullIcon = ({ className, ariaHidden }: ImageProps) => (
   <PreparedIcon
-    Image={Alert}
+    Image={AlertFull}
+    ariaLabel="Alert"
+    ariaLabelFtlId="alert-icon-aria-label"
+    {...{ className, ariaHidden }}
+  />
+);
+
+/**
+ * To modify the icon color, pass in a tailwind classname with the desired color (text-blue-50, text-red-50, etc.)
+ * This SVG icon uses currentColor for better support in High Contrast Mode
+ */
+export const AlertOutlineCurrentIcon = ({
+  className,
+  ariaHidden,
+}: ImageProps) => (
+  <PreparedIcon
+    Image={AlertOutlineCurrent}
     ariaLabel="Alert"
     ariaLabelFtlId="alert-icon-aria-label"
     {...{ className, ariaHidden }}
@@ -134,13 +153,19 @@ export const CheckmarkCircleFullGreenIcon = ({
     }}
   />
 );
-export const CheckmarkCircleOutlineBlackIcon = ({
+
+/**
+ * To modify the icon color, pass in a tailwind classname with the desired color (text-blue-50, text-red-50, etc.)
+ * This SVG icon uses currentColor for better support in High Contrast Mode
+ * Checkmark icons should NOT be reversed for RTL languages. Ref: https://spectrum.adobe.com/page/bi-directionality/#Dont-mirror-checkmarks
+ */
+export const CheckmarkCircleOutlineCurrentIcon = ({
   className,
   ariaHidden,
   mode,
 }: CheckmarkProps) => (
   <PreparedIcon
-    Image={CheckmarkCircleOutlineBlack}
+    Image={CheckmarkCircleOutlineCurrent}
     {...{
       className,
       ariaHidden,
@@ -149,11 +174,40 @@ export const CheckmarkCircleOutlineBlackIcon = ({
   />
 );
 
+/**
+ * To modify the icon color, pass in a tailwind classname with the desired color (text-blue-50, text-red-50, etc.)
+ * This SVG icon uses currentColor for better support in High Contrast Mode
+ */
+export const CloseIcon = ({ className, ariaHidden }: ImageProps) => (
+  <PreparedIcon
+    ariaLabel="Close message"
+    ariaLabelFtlId="close-icon-aria-label"
+    Image={Close}
+    {...{ className, ariaHidden }}
+  />
+);
+
 export const CodeIcon = ({ className, ariaHidden }: ImageProps) => (
   <PreparedIcon
     Image={Code}
     ariaLabel="Code"
     ariaLabelFtlId="code-icon-aria-label"
+    {...{ className, ariaHidden }}
+  />
+);
+
+/**
+ * To modify the icon color, pass in a tailwind classname with the desired color (text-blue-50, text-red-50, etc.)
+ * This SVG icon uses currentColor for better support in High Contrast Mode
+ */
+export const ErrorOutlineCurrentIcon = ({
+  className,
+  ariaHidden,
+}: ImageProps) => (
+  <PreparedIcon
+    Image={ErrorOutlineCurrent}
+    ariaLabel="Error"
+    ariaLabelFtlId="error-icon-aria-label"
     {...{ className, ariaHidden }}
   />
 );
@@ -176,24 +230,28 @@ export const FlagUsaIcon = ({ className, ariaHidden }: ImageProps) => (
   />
 );
 
-export const InformationCircleOutlineBlueIcon = ({
+export const InformationOutlineBlueIcon = ({
   className,
   ariaHidden,
 }: ImageProps) => (
   <PreparedIcon
-    Image={InformationCircleOutlineBlue}
+    Image={InformationOutlineBlue}
     ariaLabel="Information"
     ariaLabelFtlId="info-icon-aria-label"
     {...{ className, ariaHidden }}
   />
 );
 
-export const InformationCircleOutlineBlackIcon = ({
+/**
+ * To modify the icon color, pass in a tailwind classname with the desired color (text-blue-50, text-red-50, etc.)
+ * This SVG icon uses currentColor for better support in High Contrast Mode
+ */
+export const InformationOutlineCurrentIcon = ({
   className,
   ariaHidden,
 }: ImageProps) => (
   <PreparedIcon
-    Image={InformationCircleOutlineBlack}
+    Image={InformationOutlineCurrent}
     ariaLabel="Information"
     ariaLabelFtlId="info-icon-aria-label"
     {...{ className, ariaHidden }}

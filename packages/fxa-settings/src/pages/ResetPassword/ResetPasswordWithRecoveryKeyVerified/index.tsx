@@ -9,13 +9,13 @@ import { REACT_ENTRYPOINT } from '../../../constants';
 import AppLayout from '../../../components/AppLayout';
 import { useFtlMsgResolver } from '../../../models';
 import GleanMetrics from '../../../lib/glean';
-import Banner, { BannerType } from '../../../components/Banner';
 import { RecoveryKeyImage } from '../../../components/images';
 import DataBlock from '../../../components/DataBlock';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import RecoveryKeySetupHint from '../../../components/RecoveryKeySetupHint';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import { AuthError } from '../../../lib/oauth';
+import Banner from '../../../components/Banner';
 
 export const viewName = 'reset-password-with-recovery-key-verified';
 
@@ -63,9 +63,15 @@ const ResetPasswordWithRecoveryKeyVerified = ({
   if (oAuthError) {
     return (
       <AppLayout title={localizedPageTitle} cardClass="card-base">
-        <Banner type={BannerType.error}>
-          <p>{getLocalizedErrorMessage(ftlMsgResolver, oAuthError)}</p>
-        </Banner>
+        <Banner
+          type="error"
+          content={{
+            localizedHeading: getLocalizedErrorMessage(
+              ftlMsgResolver,
+              oAuthError
+            ),
+          }}
+        />
       </AppLayout>
     );
   }
@@ -96,11 +102,15 @@ const ResetPasswordWithRecoveryKeyVerified = ({
   return (
     <AppLayout title={localizedPageTitle} cardClass="card-base">
       <div className="w-full flex flex-col gap-4">
-        <Banner type={BannerType.success} additionalClassNames="text-center">
-          <FtlMsg id="reset-password-complete-new-password-saved">
-            <p>New password saved!</p>
-          </FtlMsg>
-        </Banner>
+        <Banner
+          type="success"
+          content={{
+            localizedHeading: ftlMsgResolver.getMsg(
+              'reset-password-complete-new-password-saved',
+              'New password saved!'
+            ),
+          }}
+        />
         <RecoveryKeyImage className="my-6 mx-auto" />
         <FtlMsg id="reset-password-complete-recovery-key-created">
           <h2 className="font-bold text-xl">

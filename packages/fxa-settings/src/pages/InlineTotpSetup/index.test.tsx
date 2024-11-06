@@ -37,7 +37,9 @@ describe('InlineTotpSetup', () => {
       name: `Enable two-step authentication to continue to ${MozServices.Default}`,
     });
     expect(
-      screen.getByLabelText('A device with a hidden 6-digit code.')
+      screen.getByLabelText('A device with a hidden 6-digit code.', {
+        selector: 'svg',
+      })
     ).toBeInTheDocument();
 
     expect(
@@ -58,7 +60,9 @@ describe('InlineTotpSetup', () => {
       name: `Enable two-step authentication to continue to ${MozServices.Monitor}`,
     });
     expect(
-      screen.getByLabelText('A device with a hidden 6-digit code.')
+      screen.getByLabelText('A device with a hidden 6-digit code.', {
+        selector: 'svg',
+      })
     ).toBeInTheDocument();
 
     expect(

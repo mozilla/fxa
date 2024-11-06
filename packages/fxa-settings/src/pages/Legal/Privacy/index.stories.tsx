@@ -15,3 +15,11 @@ export default {
 } as Meta;
 
 export const Basic = () => <LegalPrivacy {...{ fetchLegalDoc }} />;
+
+export const WithError = () => (
+  <LegalPrivacy
+    fetchLegalDoc={() =>
+      Promise.resolve({ error: 'Failed to fetch privacy notice' })
+    }
+  />
+);

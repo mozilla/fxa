@@ -7,9 +7,9 @@ import { RouteComponentProps, Link, navigate } from '@reach/router';
 import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
 import { ENTRYPOINTS, REACT_ENTRYPOINT } from '../../constants';
 import { HeartsVerifiedImage } from '../../components/images';
-import { ReactComponent as CircleCheck } from './circle-check.svg';
-import Banner, { BannerType } from '../../components/Banner';
 import { FtlMsg } from 'fxa-react/lib/utils';
+import Banner from '../../components/Banner';
+import { useFtlMsgResolver } from '../../models';
 
 export type ConnectAnotherDeviceProps = {
   email: string;
@@ -45,6 +45,9 @@ const ConnectAnotherDevice = ({
   device = Devices.FIREFOX_MENU,
 }: ConnectAnotherDeviceProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
+
+  const ftlMsgResolver = useFtlMsgResolver();
+
   // TODO: Add metrics about how specifically the user is being nudged to connect another device
   const getEscapedSignInUrl = () => {
     // TODO:
@@ -85,30 +88,39 @@ const ConnectAnotherDevice = ({
       {showSuccessMessage && (
         <>
           {isSignedIn && (
-            <div className="mb-8 flex justify-center rtl:flex-row-reverse">
-              <CircleCheck className="ltr:mr-3 rtl:ml-3" />
-              <FtlMsg id="connect-another-device-signed-in-header">
-                <h1 className="card-header align-top">
-                  You’re signed into Firefox
-                </h1>
-              </FtlMsg>
-            </div>
+            <Banner
+              type="success"
+              content={{
+                localizedHeading: ftlMsgResolver.getMsg(
+                  'connect-another-device-signed-in-header',
+                  'You’re signed into Firefox'
+                ),
+              }}
+            />
           )}
           {!isSignedIn && (
             <>
               {isSignUp && (
-                <Banner type={BannerType.success}>
-                  <FtlMsg id="connect-another-device-email-confirmed-banner">
-                    <p>Email confirmed</p>
-                  </FtlMsg>
-                </Banner>
+                <Banner
+                  type="success"
+                  content={{
+                    localizedHeading: ftlMsgResolver.getMsg(
+                      'connect-another-device-email-confirmed-banner',
+                      'Email confirmed'
+                    ),
+                  }}
+                />
               )}
               {isSignIn && (
-                <Banner type={BannerType.success}>
-                  <FtlMsg id="connect-another-device-signin-confirmed-banner">
-                    <p>Sign-in confirmed</p>
-                  </FtlMsg>
-                </Banner>
+                <Banner
+                  type="success"
+                  content={{
+                    localizedHeading: ftlMsgResolver.getMsg(
+                      'connect-another-device-signin-confirmed-banner',
+                      'Sign-in confirmed'
+                    ),
+                  }}
+                />
               )}
             </>
           )}

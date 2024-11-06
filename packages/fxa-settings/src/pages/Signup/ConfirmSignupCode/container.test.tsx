@@ -279,7 +279,7 @@ describe('confirm-signup-container', () => {
       await waitFor(() =>
         expect(screen.getByText('Bad Request')).toBeInTheDocument()
       );
-      expect(screen.getByText('BOOM')).toBeInTheDocument();
+      expect(screen.getByText('Unexpected error')).toBeInTheDocument();
     });
   });
 });

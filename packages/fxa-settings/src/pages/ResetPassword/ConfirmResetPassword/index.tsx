@@ -10,13 +10,10 @@ import { RouteComponentProps, useLocation } from '@reach/router';
 import { useFtlMsgResolver } from '../../../models';
 import LinkRememberPassword from '../../../components/LinkRememberPassword';
 import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
-import Banner, {
-  BannerType,
-  ResendEmailSuccessBanner,
-} from '../../../components/Banner';
 import { ResendStatus } from '../../../lib/types';
 import { EmailCodeImage } from '../../../components/images';
 import GleanMetrics from '../../../lib/glean';
+import Banner, { ResendCodeSuccessBanner } from '../../../components/Banner';
 
 const ConfirmResetPassword = ({
   clearBanners,
@@ -50,11 +47,18 @@ const ConfirmResetPassword = ({
       <FtlMsg id="password-reset-flow-heading">
         <p className="text-start text-grey-400 text-sm">Reset your password</p>
       </FtlMsg>
-      {resendStatus === ResendStatus.sent && <ResendEmailSuccessBanner />}
-      {hasResendError && (
-        <Banner type={BannerType.error}>{resendErrorMessage}</Banner>
+      {resendStatus === ResendStatus.sent && !hasResendError && (
+        <ResendCodeSuccessBanner />
       )}
-      {errorMessage && <Banner type={BannerType.error}>{errorMessage}</Banner>}
+      {hasResendError && (
+        <Banner
+          type="error"
+          content={{ localizedHeading: resendErrorMessage }}
+        />
+      )}
+      {errorMessage && (
+        <Banner type="error" content={{ localizedHeading: errorMessage }} />
+      )}
       <EmailCodeImage className="mx-auto" />
       <FtlMsg id="confirm-reset-password-with-code-heading">
         <h2 className="card-header text-start my-4">Check your email</h2>

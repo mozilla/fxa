@@ -5,7 +5,6 @@
 import React from 'react';
 import SuppAllow from '.';
 import { Meta } from '@storybook/react';
-import { MOCK_BANNER_MESSAGE } from './mocks';
 import {
   MOCK_METADATA_UNKNOWN_LOCATION,
   MOCK_METADATA_WITH_DEVICE_NAME,
@@ -45,6 +44,7 @@ export const WithErrorMessage = () => (
   <SuppAllow
     email={MOCK_ACCOUNT.primaryEmail.email}
     authDeviceInfo={MOCK_METADATA_WITH_DEVICE_NAME}
-    bannerMessage={MOCK_BANNER_MESSAGE}
+    bannerType="error"
+    bannerMessage="There was an error"
   />
 );

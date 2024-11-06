@@ -15,16 +15,11 @@ import {
   useSession,
 } from '../../../models/hooks';
 import AppLayout from '../../../components/AppLayout';
-import Banner, {
-  BannerProps,
-  BannerType,
-  ResendEmailSuccessBanner,
-} from '../../../components/Banner';
 import CardHeader from '../../../components/CardHeader';
 import FormVerifyCode, {
   FormAttributes,
 } from '../../../components/FormVerifyCode';
-import { MailImage } from '../../../components/images';
+import { EmailCodeImage } from '../../../components/images';
 import { ResendStatus } from 'fxa-settings/src/lib/types';
 import {
   isOAuthIntegration,
@@ -41,6 +36,7 @@ import {
   getErrorFtlId,
   getLocalizedErrorMessage,
 } from '../../../lib/error-utils';
+import Banner, { ResendCodeSuccessBanner } from '../../../components/Banner';
 import { isFirefoxService } from '../../../models/integrations/utils';
 
 export const viewName = 'confirm-signup-code';
@@ -76,10 +72,8 @@ const ConfirmSignupCode = ({
     GleanMetrics.signupConfirmation.view();
   }, []);
 
-  const [banner, setBanner] = useState<Partial<BannerProps>>({
-    type: undefined,
-    children: undefined,
-  });
+  const [localizedErrorBannerHeading, setLocalizedErrorBannerHeading] =
+    useState('');
 
   const formAttributes: FormAttributes = {
     inputFtlId: 'confirm-signup-code-input-label',
@@ -109,23 +103,13 @@ const ConfirmSignupCode = ({
     try {
       await session.sendVerificationCode();
       // if resending a code is successful, clear any banner already present on screen
-      if (resendStatus !== ResendStatus.sent) {
-        setBanner({
-          type: undefined,
-          children: undefined,
-        });
-        setResendStatus(ResendStatus.sent);
-      }
+      setLocalizedErrorBannerHeading('');
+      setResendStatus(ResendStatus.sent);
     } catch (error) {
-      setResendStatus(ResendStatus.none);
-      const localizedErrorMessage = getLocalizedErrorMessage(
-        ftlMsgResolver,
-        error
+      setResendStatus(ResendStatus.error);
+      setLocalizedErrorBannerHeading(
+        getLocalizedErrorMessage(ftlMsgResolver, error)
       );
-      setBanner({
-        type: BannerType.error,
-        children: <p>{localizedErrorMessage}</p>,
-      });
     }
   }
 
@@ -200,12 +184,9 @@ const ConfirmSignupCode = ({
             unwrapBKey!
           );
           if (error) {
-            setBanner({
-              type: BannerType.error,
-              children: (
-                <p>{getLocalizedErrorMessage(ftlMsgResolver, error)}</p>
-              ),
-            });
+            setLocalizedErrorBannerHeading(
+              getLocalizedErrorMessage(ftlMsgResolver, error)
+            );
             return;
           }
 
@@ -248,10 +229,9 @@ const ConfirmSignupCode = ({
             // Even if the code submission is successful, show the user this error
             // message if the redirect is invalid to match parity with content-server.
             // This may but may be revisited when we look at our signup flows as a whole.
-            setBanner({
-              type: BannerType.error,
-              children: <p>{webRedirectCheck.getLocalizedErrorMessage()}</p>,
-            });
+            setLocalizedErrorBannerHeading(
+              webRedirectCheck.getLocalizedErrorMessage()
+            );
           }
         } else {
           goToSettingsWithAlertSuccess();
@@ -283,34 +263,34 @@ const ConfirmSignupCode = ({
         // Clear resend link success banner (if displayed) before rendering an error banner
         setResendStatus(ResendStatus.none);
         // Any other error messages should be displayed in an error banner
-        setBanner({
-          type: BannerType.error,
-          children: <p>{localizedErrorMessage}</p>,
-        });
+        setLocalizedErrorBannerHeading(localizedErrorMessage);
       }
     }
   }
 
-  const localizedPageTitle = ftlMsgResolver.getMsg(
-    'confirm-signup-code-page-title',
-    'Enter confirmation code'
-  );
-
   return (
-    <AppLayout title={localizedPageTitle}>
+    <AppLayout
+      title={ftlMsgResolver.getMsg(
+        'confirm-signup-code-page-title',
+        'Enter confirmation code'
+      )}
+    >
       <CardHeader
         headingText="Enter confirmation code"
         headingAndSubheadingFtlId="confirm-signup-code-heading-2"
       />
 
-      {banner.type && banner.children && (
-        <Banner type={banner.type}>{banner.children}</Banner>
+      {localizedErrorBannerHeading && (
+        <Banner
+          type="error"
+          content={{ localizedHeading: localizedErrorBannerHeading }}
+        />
       )}
 
-      {resendStatus === ResendStatus.sent && <ResendEmailSuccessBanner />}
+      {resendStatus === ResendStatus.sent && <ResendCodeSuccessBanner />}
 
       <div className="flex justify-center mx-auto">
-        <MailImage className="w-3/5" />
+        <EmailCodeImage className="w-3/5" />
       </div>
 
       <FtlMsg id="confirm-signup-code-instruction" vars={{ email: email! }}>

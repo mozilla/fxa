@@ -97,7 +97,9 @@ test.describe('severity-2 #smoke', () => {
       await signinUnblock.resendCodeButton.click();
 
       //Verify success message
-      await expect(page.getByText(/Email re-?sent/)).toBeVisible();
+      await expect(
+        page.getByText(/A new code was sent to your email./)
+      ).toBeVisible();
 
       //Unblock the email
       const code = await target.emailClient.getUnblockCode(credentials.email);

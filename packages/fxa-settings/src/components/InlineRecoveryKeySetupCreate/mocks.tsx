@@ -4,16 +4,19 @@
 
 import React from 'react';
 import InlineRecoveryKeySetupCreate from '.';
+import AppLayout from '../AppLayout';
 
 export const Subject = () => (
-  <InlineRecoveryKeySetupCreate
-    createRecoveryKeyHandler={() =>
-      Promise.resolve({
-        data: {
-          recoveryKey: new Uint8Array(20),
-        },
-      })
-    }
-    doLaterHandler={() => Promise.resolve()}
-  />
+  <AppLayout cardClass="card-base">
+    <InlineRecoveryKeySetupCreate
+      createRecoveryKeyHandler={() =>
+        Promise.resolve({
+          data: {
+            recoveryKey: new Uint8Array(20),
+          },
+        })
+      }
+      doLaterHandler={() => Promise.resolve()}
+    />
+  </AppLayout>
 );

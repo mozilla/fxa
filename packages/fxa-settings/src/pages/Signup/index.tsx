@@ -11,7 +11,6 @@ import { isEmailMask } from 'fxa-shared/email/helpers';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import AppLayout from '../../components/AppLayout';
-import Banner, { BannerType } from '../../components/Banner';
 import CardHeader from '../../components/CardHeader';
 import ChooseNewsletters from '../../components/ChooseNewsletters';
 import { newsletters } from '../../components/ChooseNewsletters/newsletters';
@@ -50,6 +49,7 @@ import {
   isClientPocket,
 } from '../../models/integrations/client-matching';
 import { SignupFormData, SignupProps } from './interfaces';
+import Banner from '../../components/Banner';
 
 export const viewName = 'signup';
 
@@ -388,42 +388,31 @@ export const Signup = ({
       )}
 
       {bannerErrorText && (
-        <Banner type={BannerType.error}>
-          <p>{bannerErrorText}</p>
-        </Banner>
+        <Banner type="error" content={{ localizedHeading: bannerErrorText }} />
       )}
 
       {/* AccountSuggestion is only shown to Pocket clients */}
       {isAccountSuggestionBannerVisible && (
         <Banner
-          type={BannerType.info}
-          dismissible
-          setIsVisible={setIsAccountSuggestionBannerVisible}
-        >
-          <FtlMsg
-            id="signup-info-banner-for-pocket"
-            elems={{
-              linkExternal: (
-                <LinkExternal
-                  href="https://support.mozilla.org/kb/pocket-firefox-account-migration"
-                  className="underline"
-                >
-                  Find out here
-                </LinkExternal>
-              ),
-            }}
-          >
-            <p>
-              Why do I need to create this account?{' '}
-              <LinkExternal
-                href="https://support.mozilla.org/kb/pocket-firefox-account-migration"
-                className="underline"
-              >
-                Find out here
-              </LinkExternal>
-            </p>
-          </FtlMsg>
-        </Banner>
+          type="info"
+          content={{
+            localizedHeading: ftlMsgResolver.getMsg(
+              'signup-pocket-info-banner',
+              'Why do I need to create this account?'
+            ),
+          }}
+          link={{
+            url: 'https://support.mozilla.org/kb/pocket-firefox-account-migration',
+            localizedText: ftlMsgResolver.getMsg(
+              'signup-pocket-info-banner-link',
+              'Find out here'
+            ),
+            gleanId: 'signup-pocket-info-banner-link',
+          }}
+          dismissButton={{
+            action: () => setIsAccountSuggestionBannerVisible(false),
+          }}
+        />
       )}
 
       <div className="mt-4 mb-6">

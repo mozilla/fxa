@@ -12,12 +12,12 @@ import { logViewEvent } from '../../../lib/metrics';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import InputPassword from '../../InputPassword';
 import { PasswordImage } from '../../images';
-import Banner, { BannerType } from '../../Banner';
 import { RecoveryKeyAction } from '../PageRecoveryKeyCreate';
 import { Link } from '@reach/router';
 import { SETTINGS_PATH } from '../../../constants';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import { formatRecoveryKey } from '../../../lib/utilities';
+import Banner from '../../Banner';
 
 type FormData = {
   password: string;
@@ -44,7 +44,8 @@ export const FlowRecoveryKeyConfirmPwd = ({
   const ftlMsgResolver = useFtlMsgResolver();
 
   const [errorText, setErrorText] = useState<string>();
-  const [bannerText, setBannerText] = useState<string>();
+  const [localizedErrorBannerMessage, setLocalizedErrorBannerMessage] =
+    useState<string>();
   const [isLoading, setIsLoading] = useState(false);
   const [actionType, setActionType] = useState<RecoveryKeyAction>();
 
@@ -67,7 +68,7 @@ export const FlowRecoveryKeyConfirmPwd = ({
     const password = getValues('password');
     logViewEvent(`flow.${viewName}`, 'confirm-password.submit');
     // if there is an error banner, clear it on form submission
-    setBannerText(undefined);
+    setLocalizedErrorBannerMessage('');
     try {
       const replaceKey = actionType === RecoveryKeyAction.Change;
       const recoveryKey = await account.createRecoveryKey(password, replaceKey);
@@ -75,16 +76,19 @@ export const FlowRecoveryKeyConfirmPwd = ({
       logViewEvent(`flow.${viewName}`, 'confirm-password.success');
       navigateForward();
     } catch (err) {
-      const errorMessage = getLocalizedErrorMessage(ftlMsgResolver, err);
+      const localizedErrorMessage = getLocalizedErrorMessage(
+        ftlMsgResolver,
+        err
+      );
 
       if (err.errno === AuthUiErrors.INCORRECT_PASSWORD.errno) {
         // show error in tooltip if password is incorrect
         // the error will be cleared when the input content is changed
-        setErrorText(errorMessage);
+        setErrorText(localizedErrorMessage);
       } else {
         // otherwise show in a banner
         // the error will persist until the form is re-submitted
-        setBannerText(errorMessage);
+        setLocalizedErrorBannerMessage(localizedErrorMessage);
       }
       logViewEvent(`flow.${viewName}`, 'confirm-password.fail');
       setIsLoading(false);
@@ -95,7 +99,6 @@ export const FlowRecoveryKeyConfirmPwd = ({
     ftlMsgResolver,
     getValues,
     navigateForward,
-    setBannerText,
     setErrorText,
     setIsLoading,
     setFormattedRecoveryKey,
@@ -115,10 +118,11 @@ export const FlowRecoveryKeyConfirmPwd = ({
     >
       <div className="w-full flex flex-col gap-4">
         <ProgressBar currentStep={2} numberOfSteps={4} />
-        {bannerText && (
-          <Banner type={BannerType.error}>
-            <p className="w-full text-center">{bannerText}</p>
-          </Banner>
+        {localizedErrorBannerMessage && (
+          <Banner
+            type="error"
+            content={{ localizedHeading: localizedErrorBannerMessage }}
+          />
         )}
         <PasswordImage className="mx-auto my-4" />
 

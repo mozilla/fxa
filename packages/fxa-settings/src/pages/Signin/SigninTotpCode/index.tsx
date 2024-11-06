@@ -12,7 +12,6 @@ import FormVerifyCode, {
 } from '../../../components/FormVerifyCode';
 import { MozServices } from '../../../lib/types';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import Banner, { BannerType } from '../../../components/Banner';
 import AppLayout from '../../../components/AppLayout';
 import GleanMetrics from '../../../lib/glean';
 import { SigninIntegration, SigninLocationState } from '../interfaces';
@@ -24,6 +23,7 @@ import {
   getLocalizedErrorMessage,
 } from '../../../lib/error-utils';
 import protectionShieldIcon from '@fxa/shared/assets/images/protection-shield.svg';
+import Banner from '../../../components/Banner';
 
 // TODO: show a banner success message if a user is coming from reset password
 // in FXA-6491. This differs from content-server where currently, users only
@@ -158,7 +158,9 @@ export const SigninTotpCode = ({
         </FtlMsg>
       </div>
 
-      {bannerError && <Banner type={BannerType.error}>{bannerError}</Banner>}
+      {bannerError && (
+        <Banner type="error" content={{ localizedHeading: bannerError }} />
+      )}
 
       <FormVerifyCode
         {...{

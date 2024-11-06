@@ -91,7 +91,7 @@ describe('InlineRecoverySetup', () => {
     screen.getByRole('heading', {
       name: `Confirm backup authentication code to continue to ${MozServices.Default}`,
     });
-    screen.queryByLabelText('Document that contains hidden text.');
+    screen.getByLabelText('Document that contains hidden text.');
     screen.getByLabelText('Backup authentication code');
     screen.getByRole('button', { name: 'Confirm' });
     screen.getByRole('button', { name: 'Back' });

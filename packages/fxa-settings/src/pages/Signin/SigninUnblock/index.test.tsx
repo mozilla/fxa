@@ -114,7 +114,7 @@ describe('SigninUnblock', () => {
     renderWithSuccess();
 
     screen.getByRole('heading', { name: 'Authorize this sign-in' });
-    screen.getByRole('img', { name: 'An envelope containing a link' });
+    screen.getByRole('img', { name: 'Illustration to represent an email containing a code.' });
     screen.getByRole('textbox', { name: 'Enter authorization code' });
     screen.getByRole('button', { name: 'Continue' });
     screen.getByRole('button', {
@@ -271,7 +271,9 @@ describe('SigninUnblock', () => {
       resendButton.click();
       expect(resendUnblockCodeHandler).toHaveBeenCalled();
       await waitFor(() => {
-        expect(screen.getByText(/Email re-sent/)).toBeInTheDocument();
+        expect(
+          screen.getByText(/A new code was sent to your email./)
+        ).toBeInTheDocument();
       });
     });
 

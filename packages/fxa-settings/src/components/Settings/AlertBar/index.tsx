@@ -2,20 +2,26 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useEscKeydownEffect, useChangeFocusEffect } from '../../../lib/hooks';
 import { ReactComponent as CloseIcon } from '@fxa/shared/assets/images/close.svg';
 import { alertContent, alertType, alertVisible } from '../../../models';
 import { useReactiveVar } from '@apollo/client';
 import { useClickOutsideEffect } from 'fxa-react/lib/hooks';
 import { useLocalization } from '@fluent/react';
+import classNames from 'classnames';
 
-export const typeClasses = {
-  success: 'text-grey-900 bg-green-500 success',
-  error: 'text-white bg-red-500 error',
-  info: 'text-white bg-blue-500 info',
-};
-
+/**
+ * AlertBar component displays an alert message at the top of the screen.
+ * It supports different alert types such as error, info, success, and warning.
+ * The component also handles click outside and escape key events to close the alert.
+ *
+ * The overflow check is performed to determine if the alert content exceeds the height limit (48px).
+ * If the content overflows, the text alignment is set to start and overflow-wrap is applied to ensure
+ * the content is displayed properly without breaking the layout.
+ *
+ * @returns {JSX.Element | null} The AlertBar component or null if not visible.
+ */
 export const AlertBar = () => {
   const { l10n } = useLocalization();
   const visible = useReactiveVar(alertVisible);
@@ -37,6 +43,28 @@ export const AlertBar = () => {
   // it's removed from the DOM, the message won't be read. Setting focus
   // ensures screenreaders receive feedback and makes the "close" button
   // the next tabbable element after reveal.
+
+  const alertBarInnerRef = useRef<HTMLDivElement>(null);
+  const [isOverflowing, setIsOverflowing] = useState(false);
+
+  const checkOverflow = () => {
+    if (alertBarInnerRef.current) {
+      setIsOverflowing(alertBarInnerRef.current.scrollHeight > 48);
+    }
+  };
+
+  useEffect(() => {
+    checkOverflow();
+    window.addEventListener('resize', checkOverflow);
+    return () => {
+      window.removeEventListener('resize', checkOverflow);
+    };
+  }, []);
+
+  useEffect(() => {
+    checkOverflow();
+  }, [alertBarInnerRef.current?.scrollHeight]);
+
   const tabFenceRef = useChangeFocusEffect();
   useEscKeydownEffect(() => alertVisible(false));
   const alertBar = visible && (
@@ -58,31 +86,49 @@ export const AlertBar = () => {
           className="outline-none"
         >
           <div
+            ref={alertBarInnerRef}
             data-testid="alert-bar-inner"
-            // Transparent border is for Windows HCM - to ensure there is a border around the alert when background color is removed
-            className={`max-w-2xl w-full desktop:min-w-sm flex shadow-md rounded font-bold text-sm border border-transparent ${
-              typeClasses[alertType()]
-            }`}
+            className={classNames(
+              'max-w-full desktop:max-w-2xl w-full desktop:min-w-sm flex shadow-md rounded-sm text-sm font-medium text-grey-700 border border-transparent',
+              {
+                'bg-red-100 error': alertType() === 'error',
+                'bg-blue-50 info': alertType() === 'info',
+                'bg-green-200 success': alertType() === 'success',
+                'bg-orange-50 warning': alertType() === 'warning',
+              }
+            )}
           >
-            <div className="flex-1 py-2 px-8 text-center">
-              <p data-testid="alert-bar-content">{alertContent()}</p>
-            </div>
-            <div className="flex">
-              <button
-                data-testid="alert-bar-dismiss"
-                className={`self-center rounded-r h-full px-1 ${
-                  typeClasses[alertType()]
-                } hover:bg-black/20 active:bg-black/30`}
-                onClick={() => alertVisible(false)}
-                title={l10n.getString(
-                  'alert-bar-close-message',
-                  null,
-                  'Close message'
-                )}
-              >
-                <CloseIcon className="w-3 h-3 m-2 fill-current" />
-              </button>
-            </div>
+            <p
+              className={classNames(
+                'flex-1 py-2 px-8',
+                isOverflowing
+                  ? 'text-start [overflow-wrap:anywhere]'
+                  : 'text-center'
+              )}
+            >
+              {alertContent()}
+            </p>
+            <button
+              className={classNames(
+                'shrink-0 items-stretch justify-center py-2 px-3',
+                {
+                  'hover:bg-red-200 focus:bg-red-300': alertType() === 'error',
+                  'hover:bg-blue-100 focus:bg-blue-200': alertType() === 'info',
+                  'hover:bg-green-300 focus:bg-green-500':
+                    alertType() === 'success',
+                  'hover:bg-orange-100 focus:bg-orange-200':
+                    alertType() === 'warning',
+                }
+              )}
+              onClick={() => alertVisible(false)}
+              title={l10n.getString(
+                'alert-bar-close-message',
+                null,
+                'Close message'
+              )}
+            >
+              <CloseIcon className="w-3.5" />
+            </button>
           </div>
         </div>
       </div>

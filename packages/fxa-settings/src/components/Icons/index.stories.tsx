@@ -6,7 +6,8 @@ import React from 'react';
 import { Meta } from '@storybook/react';
 
 import {
-  AlertIcon,
+  AlertFullIcon,
+  AlertOutlineCurrentIcon,
   AuthenticatorAppIcon,
   BackupCodesIcon,
   BackupCodesDisabledIcon,
@@ -14,37 +15,43 @@ import {
   BackupRecoverySmsDisabledIcon,
   CheckmarkGreenIcon,
   CheckmarkCircleFullGreenIcon,
-  CheckmarkCircleOutlineBlackIcon,
+  CheckmarkCircleOutlineCurrentIcon,
+  CloseIcon,
   CodeIcon,
+  ErrorOutlineCurrentIcon,
   FlagCanadaIcon,
   FlagUsaIcon,
-  InformationCircleOutlineBlueIcon,
-  InformationCircleOutlineBlackIcon,
+  InformationOutlineBlueIcon,
+  InformationOutlineCurrentIcon,
 } from '.';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 
 export default {
   title: 'Components/Icons',
   subcomponents: {
-    AlertIcon,
+    AlertFullIcon,
+    AlertOutlineCurrentIcon,
     AuthenticatorAppIcon,
     BackupCodesIcon,
     BackupCodesDisabledIcon,
     BackupRecoverySmsIcon,
     BackupRecoverySmsDisabledIcon,
-    CheckmarkIcon: CheckmarkGreenIcon,
-    CheckmarkCircleFullIcon: CheckmarkCircleFullGreenIcon,
-    CheckmarkCircleOutlineIcon: CheckmarkCircleOutlineBlackIcon,
+    CheckmarkGreenIcon,
+    CheckmarkCircleFullGreenIcon,
+    CheckmarkCircleOutlineCurrentIcon,
+    CloseIcon,
     CodeIcon,
+    ErrorOutlineCurrentIcon,
     FlagCanadaIcon,
     FlagUsaIcon,
-    InformationCircleOutlineBlueIcon,
-    InformationCircleOutlineBlackIcon,
+    InformationOutlineBlueIcon,
+    InformationOutlineCurrentIcon,
   },
   decorators: [withLocalization],
 } as Meta;
 
-export const Alert = () => <AlertIcon />;
+export const Alert = () => <AlertFullIcon />;
+export const AlertOutline = () => <AlertOutlineCurrentIcon />;
 export const AuthenticatorApp = () => <AuthenticatorAppIcon />;
 export const BackupCodes = () => <BackupCodesIcon />;
 export const BackupCodesDisabled = () => <BackupCodesDisabledIcon />;
@@ -56,15 +63,17 @@ export const Checkmark = () => <CheckmarkGreenIcon mode="check" />;
 export const CheckmarkCircleFull = () => (
   <CheckmarkCircleFullGreenIcon mode="enabled" />
 );
-export const CheckmarkCircleOutline = () => (
-  <CheckmarkCircleOutlineBlackIcon mode="success" />
+export const CheckmarkCircleOutlineCurrent = () => (
+  <CheckmarkCircleOutlineCurrentIcon mode="success" />
 );
+export const Close = () => <CloseIcon />;
 export const Code = () => <CodeIcon />;
+export const ErrorOutlineCurrent = () => <ErrorOutlineCurrentIcon />;
 export const FlagCanada = () => <FlagCanadaIcon />;
 export const FlagUsa = () => <FlagUsaIcon />;
 export const InformationCircleOutlineBlue = () => (
-  <InformationCircleOutlineBlueIcon />
+  <InformationOutlineBlueIcon />
 );
-export const InformationCircleBlack = () => (
-  <InformationCircleOutlineBlackIcon />
+export const InformationCircleOutlineCurrent = () => (
+  <InformationOutlineCurrentIcon />
 );

@@ -120,7 +120,9 @@ test.describe('severity-2 #smoke', () => {
       await expect(signinTokenCode.resendCodeButton).toBeVisible();
       await signinTokenCode.resendCodeButton.click();
 
-      await expect(page.getByText(/Email re-?sent/)).toBeVisible();
+      await expect(
+        page.getByText(/A new code was sent to your email./)
+      ).toBeVisible();
 
       // Retrieves the code from the new email
       code = await target.emailClient.getVerifyLoginCode(credentials.email);

@@ -11,7 +11,6 @@ import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import AppLayout from '../../components/AppLayout';
-import Banner, { BannerType, FancyBanner } from '../../components/Banner';
 import CardHeader from '../../components/CardHeader';
 import InputPassword from '../../components/InputPassword';
 import Avatar from '../../components/Settings/Avatar';
@@ -36,6 +35,7 @@ import { SigninFormData, SigninProps } from './interfaces';
 import { handleNavigation } from './utils';
 import { useWebRedirect } from '../../lib/hooks/useWebRedirect';
 import { getLocalizedErrorMessage } from '../../lib/error-utils';
+import Banner from '../../components/Banner';
 
 export const viewName = 'signin';
 
@@ -58,8 +58,8 @@ const Signin = ({
   avatarLoading,
   localizedErrorFromLocationState,
   finishOAuthFlowHandler,
-  bannerSuccessMessage,
-  fancyBannerSuccessMessage,
+  localizedSuccessBannerHeading,
+  localizedSuccessBannerDescription,
 }: SigninProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const location = useLocation();
@@ -68,7 +68,7 @@ const Signin = ({
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
   const sensitiveDataClient = useSensitiveDataClient();
 
-  const [bannerError, setBannerError] = useState(
+  const [localizedBannerError, setLocalizedBannerError] = useState(
     localizedErrorFromLocationState || ''
   );
   const [passwordTooltipErrorText, setPasswordTooltipErrorText] =
@@ -152,11 +152,15 @@ const Signin = ({
 
         const { error: navError } = await handleNavigation(navigationOptions);
         if (navError) {
-          setBannerError(getLocalizedErrorMessage(ftlMsgResolver, navError));
+          setLocalizedBannerError(
+            getLocalizedErrorMessage(ftlMsgResolver, navError)
+          );
         }
       }
       if (error) {
-        setBannerError(getLocalizedErrorMessage(ftlMsgResolver, error));
+        setLocalizedBannerError(
+          getLocalizedErrorMessage(ftlMsgResolver, error)
+        );
         if (error.errno === AuthUiErrors.SESSION_EXPIRED.errno) {
           isPasswordNeededRef.current = true;
         }
@@ -167,7 +171,7 @@ const Signin = ({
       cachedSigninHandler,
       email,
       ftlMsgResolver,
-      setBannerError,
+      setLocalizedBannerError,
       integration,
       finishOAuthFlowHandler,
       location.search,
@@ -216,35 +220,35 @@ const Signin = ({
           handleFxaOAuthLogin: true,
         });
         if (navError) {
-          setBannerError(getLocalizedErrorMessage(ftlMsgResolver, navError));
+          setLocalizedBannerError(
+            getLocalizedErrorMessage(ftlMsgResolver, navError)
+          );
         }
       }
       if (error) {
         GleanMetrics.login.error({ event: { reason: error.message } });
         const { errno } = error;
 
-        const localizedErrorMessage = getLocalizedErrorMessage(
-          ftlMsgResolver,
-          error
-        );
-
         if (
           errno === AuthUiErrors.PASSWORD_REQUIRED.errno ||
           errno === AuthUiErrors.INCORRECT_PASSWORD.errno
         ) {
-          setBannerError('');
-          setPasswordTooltipErrorText(localizedErrorMessage);
+          setLocalizedBannerError('');
+          setPasswordTooltipErrorText(
+            getLocalizedErrorMessage(ftlMsgResolver, error)
+          );
         } else {
           switch (errno) {
             case AuthUiErrors.THROTTLED.errno:
             case AuthUiErrors.REQUEST_BLOCKED.errno:
-              const { localizedErrorMessage: unblockErrorMessage } =
-                await sendUnblockEmailHandler(email);
-              if (unblockErrorMessage) {
+              const { localizedErrorMessage } = await sendUnblockEmailHandler(
+                email
+              );
+              if (localizedErrorMessage) {
                 // Sending the unblock email could itself be rate limited.
                 // If it is, the error should be displayed on this screen
                 // and the user shouldn't even have the chance to continue.
-                setBannerError(unblockErrorMessage);
+                setLocalizedBannerError(localizedErrorMessage);
                 setSigninLoading(false);
                 break;
               }
@@ -269,7 +273,9 @@ const Signin = ({
               navigate('/signin_bounced');
               break;
             default:
-              setBannerError(localizedErrorMessage);
+              setLocalizedBannerError(
+                getLocalizedErrorMessage(ftlMsgResolver, error)
+              );
               setSigninLoading(false);
               break;
           }
@@ -284,7 +290,7 @@ const Signin = ({
       hasPassword,
       navigate,
       sendUnblockEmailHandler,
-      setBannerError,
+      setLocalizedBannerError,
       finishOAuthFlowHandler,
       integration,
       location.search,
@@ -315,14 +321,13 @@ const Signin = ({
 
   return (
     <AppLayout>
-      {bannerSuccessMessage && !fancyBannerSuccessMessage && (
-        <Banner type={BannerType.success}>{bannerSuccessMessage}</Banner>
-      )}
-      {fancyBannerSuccessMessage && (
-        <FancyBanner
-          type={BannerType.success}
-          message={fancyBannerSuccessMessage}
-          children={''}
+      {(localizedSuccessBannerHeading || localizedSuccessBannerDescription) && (
+        <Banner
+          type="success"
+          content={{
+            localizedHeading: localizedSuccessBannerHeading || '',
+            localizedDescription: localizedSuccessBannerDescription || '',
+          }}
         />
       )}
       {isPasswordNeededRef.current ? (
@@ -340,10 +345,11 @@ const Signin = ({
           {...{ clientId, serviceName }}
         />
       )}
-      {bannerError && (
-        <Banner type={BannerType.error}>
-          <p>{bannerError}</p>
-        </Banner>
+      {localizedBannerError && (
+        <Banner
+          type="error"
+          content={{ localizedHeading: localizedBannerError }}
+        />
       )}
       <div className="mt-9">
         {sessionToken && avatarData?.account.avatar ? (

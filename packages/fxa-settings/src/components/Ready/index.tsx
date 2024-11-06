@@ -9,9 +9,9 @@ import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../constants';
 import { HeartsVerifiedImage } from '../images';
 import CardHeader from '../CardHeader';
-import Banner, { BannerType } from '../Banner';
 import { MozServices } from '../../lib/types';
 import GleanMetrics from '../../lib/glean';
+import Banner from '../Banner';
 
 export type ReadyProps = {
   continueHandler?: Function;
@@ -107,9 +107,7 @@ const Ready = ({
         headingTextFtlId={templateValues.headerId}
       />
       {errorMessage && (
-        <Banner type={BannerType.error}>
-          <p>{errorMessage}</p>
-        </Banner>
+        <Banner type="error" content={{ localizedHeading: errorMessage }} />
       )}
       <div className="flex justify-center mx-auto">
         <HeartsVerifiedImage className="w-3/5" />

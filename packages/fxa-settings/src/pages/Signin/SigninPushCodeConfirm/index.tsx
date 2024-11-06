@@ -9,7 +9,6 @@ import { RemoteMetadata } from '../../../lib/types';
 import AppLayout from '../../../components/AppLayout';
 import DeviceInfoBlock from '../../../components/DeviceInfoBlock';
 import { FtlMsg } from '../../../../../fxa-react/lib/utils';
-import Banner, { BannerType } from '../../../components/Banner';
 
 // Reuse these images temporarily
 import monitorIcon from '../../../components/Settings/BentoMenu/monitor.svg';
@@ -17,6 +16,7 @@ import relayIcon from '../../../components/Settings/BentoMenu/relay.svg';
 import vpnIcon from '../../../components/Settings/BentoMenu/vpn-logo.svg';
 import checkmarkIcon from './greencheck.svg';
 import { LinkExternal } from 'fxa-react/components/LinkExternal';
+import Banner from '../../../components/Banner';
 
 export type SigninPushCodeConfirmProps = {
   authDeviceInfo: RemoteMetadata;
@@ -122,7 +122,7 @@ const SigninPushCodeConfirm = ({
           </FtlMsg>
 
           {errorMessage && (
-            <Banner type={BannerType.error}>{errorMessage || ''}</Banner>
+            <Banner type="error" content={{ localizedHeading: errorMessage }} />
           )}
 
           <FtlMsg id="signin-push-code-confirm-description">
