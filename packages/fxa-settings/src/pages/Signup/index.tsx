@@ -43,6 +43,7 @@ import {
   isOAuthNativeIntegrationSync,
   isSyncDesktopV3Integration,
   useFtlMsgResolver,
+  useSensitiveDataClient,
 } from '../../models';
 import {
   isClientMonitor,
@@ -50,6 +51,7 @@ import {
 } from '../../models/integrations/client-matching';
 import { SignupFormData, SignupProps } from './interfaces';
 import Banner from '../../components/Banner';
+import { AUTH_DATA_KEY } from '../../lib/sensitive-data-client';
 
 export const viewName = 'signup';
 
@@ -59,6 +61,7 @@ export const Signup = ({
   beginSignupHandler,
   webChannelEngines,
 }: SignupProps) => {
+  const sensitiveDataClient = useSensitiveDataClient();
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
   useEffect(() => {
@@ -244,6 +247,12 @@ export const Signup = ({
         // this allows the recent account to be used for /signin
         storeAccountData(accountData);
 
+        // Set these for use in ConfirmSignupCode
+        sensitiveDataClient.setData(AUTH_DATA_KEY, {
+          keyFetchToken: data.signUp.keyFetchToken,
+          unwrapBKey: data.unwrapBKey,
+        });
+
         const getOfferedSyncEngines = () =>
           getSyncEngineIds(offeredSyncEngineConfigs || []);
 
@@ -303,8 +312,6 @@ export const Signup = ({
           state: {
             origin: 'signup',
             selectedNewsletterSlugs,
-            keyFetchToken: data.signUp.keyFetchToken,
-            unwrapBKey: data.unwrapBKey,
             // Sync desktop v3 sends a web channel message up on Signup
             // while OAuth Sync does on confirm signup
             ...(isSyncOAuth && {
@@ -338,6 +345,7 @@ export const Signup = ({
       localizedValidAgeError,
       isDesktopRelay,
       isOAuth,
+      sensitiveDataClient,
     ]
   );
 

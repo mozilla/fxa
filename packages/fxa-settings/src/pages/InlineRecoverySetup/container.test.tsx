@@ -11,7 +11,8 @@ import { LocationProvider } from '@reach/router';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { AuthUiError, AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { MozServices } from '../../lib/types';
-import { OAuthIntegration } from '../../models';
+import { OAuthIntegration, useSensitiveDataClient } from '../../models';
+import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../models/mocks';
 import {
   MOCK_QUERY_PARAMS,
   MOCK_SIGNIN_LOCATION_STATE,
@@ -27,7 +28,11 @@ import {
   MOCK_OAUTH_FLOW_HANDLER_RESPONSE,
   MOCK_TOTP_STATUS_VERIFIED,
 } from '../Signin/mocks';
-import { useFinishOAuthFlowHandler } from '../../lib/oauth/hooks';
+import {
+  useFinishOAuthFlowHandler,
+  useOAuthKeysCheck,
+} from '../../lib/oauth/hooks';
+import { AUTH_DATA_KEY } from '../../lib/sensitive-data-client';
 
 let mockLocationState = {};
 const mockSearch = '?' + new URLSearchParams(MOCK_QUERY_PARAMS);
@@ -52,9 +57,12 @@ jest.mock('../../lib/oauth/hooks.tsx', () => {
   return {
     __esModule: true,
     useFinishOAuthFlowHandler: jest.fn(),
+    useOAuthKeysCheck: jest.fn(),
   };
 });
 
+const mockSensitiveDataClient = createMockSensitiveDataClient();
+mockSensitiveDataClient.getData = jest.fn();
 const mockAuthClient = new AuthClient('http://localhost:9000', {
   keyStretchVersion: 1,
 });
@@ -64,6 +72,7 @@ jest.mock('../../models', () => {
     ...jest.requireActual('../../models'),
     useSession: jest.fn(() => mockSessionHook()),
     useAuthClient: jest.fn(() => mockAuthClient),
+    useSensitiveDataClient: jest.fn(),
   };
 });
 
@@ -118,6 +127,12 @@ function setMocks() {
       .fn()
       .mockReturnValueOnce(MOCK_OAUTH_FLOW_HANDLER_RESPONSE),
     oAuthDataError: null,
+  }));
+  (useSensitiveDataClient as jest.Mock).mockImplementation(
+    () => mockSensitiveDataClient
+  );
+  (useOAuthKeysCheck as jest.Mock).mockImplementation(() => ({
+    oAuthKeysCheckError: null,
   }));
 }
 
@@ -199,6 +214,13 @@ describe('InlineRecoverySetupContainer', () => {
         expect(args.recoveryCodes).toBe(MOCK_TOTP_TOKEN.recoveryCodes);
         expect(args.serviceName).toBe(MozServices.Default);
       });
+    });
+
+    it('reads data from sensitive data client', () => {
+      render();
+      expect(mockSensitiveDataClient.getData).toHaveBeenCalledWith(
+        AUTH_DATA_KEY
+      );
     });
 
     describe('callbacks', () => {

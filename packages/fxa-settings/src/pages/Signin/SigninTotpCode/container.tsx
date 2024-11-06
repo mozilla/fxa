@@ -12,13 +12,25 @@ import VerificationMethods from '../../../constants/verification-methods';
 import { VERIFY_TOTP_CODE_MUTATION } from './gql';
 import { getSigninState } from '../utils';
 import { SigninLocationState } from '../interfaces';
-import { Integration, isWebIntegration, useAuthClient } from '../../../models';
-import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
+import {
+  Integration,
+  isWebIntegration,
+  useAuthClient,
+  useSensitiveDataClient,
+} from '../../../models';
+import {
+  useFinishOAuthFlowHandler,
+  useOAuthKeysCheck,
+} from '../../../lib/oauth/hooks';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import OAuthDataError from '../../../components/OAuthDataError';
 import { getHandledError } from '../../../lib/error-utils';
 import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
+import {
+  AUTH_DATA_KEY,
+  SensitiveDataClientAuthKeys,
+} from '../../../lib/sensitive-data-client';
 
 export type SigninTotpCodeContainerProps = {
   integration: Integration;
@@ -38,13 +50,22 @@ export const SigninTotpCodeContainer = ({
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state: SigninLocationState;
   };
-
   const signinState = getSigninState(location.state);
+  const sensitiveDataClient = useSensitiveDataClient();
+  const sensitiveData = sensitiveDataClient.getData(AUTH_DATA_KEY);
+  const { keyFetchToken, unwrapBKey } =
+    (sensitiveData as SensitiveDataClientAuthKeys) || {};
 
   const { queryParamModel } = useValidatedQueryParams(SigninQueryParams);
   const { service } = queryParamModel;
 
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
+
+  const { oAuthKeysCheckError } = useOAuthKeysCheck(
+    integration,
+    keyFetchToken,
+    unwrapBKey
+  );
 
   const redirectTo =
     isWebIntegration(integration) && webRedirectCheck.isValid()
@@ -78,6 +99,9 @@ export const SigninTotpCodeContainer = ({
   if (oAuthDataError) {
     return <OAuthDataError error={oAuthDataError} />;
   }
+  if (oAuthKeysCheckError) {
+    return <OAuthDataError error={oAuthKeysCheckError} />;
+  }
 
   if (
     !signinState ||
@@ -97,6 +121,8 @@ export const SigninTotpCodeContainer = ({
         signinState,
         submitTotpCode,
         serviceName,
+        keyFetchToken,
+        unwrapBKey,
       }}
     />
   );

@@ -34,6 +34,8 @@ const SigninTokenCode = ({
   finishOAuthFlowHandler,
   integration,
   signinState,
+  keyFetchToken,
+  unwrapBKey,
 }: SigninTokenCodeProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const session = useSession();
@@ -44,8 +46,6 @@ const SigninTokenCode = ({
     uid,
     sessionToken,
     verificationReason,
-    keyFetchToken,
-    unwrapBKey,
     showInlineRecoveryKeySetup,
   } = signinState;
 

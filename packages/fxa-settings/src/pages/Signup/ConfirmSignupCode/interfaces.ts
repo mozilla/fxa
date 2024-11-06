@@ -7,6 +7,7 @@ import { FinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import { Integration, OAuthWebIntegration } from '../../../models';
 import { StoredAccountData } from '../../../lib/storage-utils';
 import { QueryParams } from '../../..';
+import { SensitiveDataClientAuthKeys } from '../../../lib/sensitive-data-client';
 
 export type LocationState = {
   origin: 'signup' | undefined;
@@ -35,7 +36,7 @@ export type ConfirmSignupCodeProps = {
   offeredSyncEngines?: string[];
   declinedSyncEngines?: string[];
   flowQueryParams: QueryParams;
-} & Pick<LocationState, 'keyFetchToken' | 'unwrapBKey'> &
+} & SensitiveDataClientAuthKeys &
   RouteComponentProps;
 
 export interface ConfirmSignupCodeFormData {

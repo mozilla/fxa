@@ -177,11 +177,8 @@ const ConfirmSignupCode = ({
           const { redirect, code, state, error } = await finishOAuthFlowHandler(
             uid,
             sessionToken,
-            // yes, non-null operator is gross, but it's temporary.
-            // see note in container component / router.js for this page, once
-            // we've converted the index page we can remove
-            keyFetchToken!,
-            unwrapBKey!
+            keyFetchToken,
+            unwrapBKey
           );
           if (error) {
             setLocalizedErrorBannerHeading(

@@ -18,6 +18,8 @@ import { StoredAccountData } from '../../../lib/storage-utils';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import SignupConfirmCodeContainer from './container';
 import { Integration } from '../../../models';
+import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../../models/mocks';
+
 import {
   MOCK_EMAIL,
   MOCK_FLOW_ID,
@@ -26,6 +28,7 @@ import {
   MOCK_UID,
   MOCK_UNWRAP_BKEY,
 } from '../../mocks';
+import { OAUTH_ERRORS } from '../../../lib/oauth';
 
 // Setup mocks
 
@@ -34,6 +37,7 @@ jest.mock('../../../models', () => {
   return {
     ...jest.requireActual('../../../models'),
     useAuthClient: jest.fn(),
+    useSensitiveDataClient: jest.fn(),
   };
 });
 
@@ -48,10 +52,10 @@ let integration: Integration;
 let mockAuthClient = new AuthClient('localhost:9000', { keyStretchVersion: 1 });
 let currentProps: any | undefined;
 let mockEmailBounceStatusQuery = jest.fn();
+const mockSensitiveDataClient = createMockSensitiveDataClient();
 
 function mockLocation(
   originIsSignup: boolean = true,
-  withIntegrationProps: boolean = true,
   withAccountInfo: boolean = true
 ) {
   jest.spyOn(ReachRouterModule, 'useLocation').mockImplementation(() => {
@@ -62,8 +66,6 @@ function mockLocation(
         sessionToken: withAccountInfo ? MOCK_SESSION_TOKEN : undefined,
         origin: originIsSignup ? 'signup' : null,
         selectedNewsletterSlugs: 'slugs',
-        keyFetchToken: withIntegrationProps ? MOCK_KEY_FETCH_TOKEN : null,
-        unwrapBKey: withIntegrationProps ? MOCK_UNWRAP_BKEY : null,
       },
     } as ReturnType<typeof ReachRouterModule.useLocation>;
   });
@@ -92,6 +94,7 @@ function applyMocks() {
 
   integration = {
     type: ModelsModule.IntegrationType.OAuthWeb,
+    wantsKeys: () => false,
   } as Integration;
   jest
     .spyOn(ConfirmSignupCodeModule, 'default')
@@ -106,6 +109,13 @@ function applyMocks() {
   (ModelsModule.useAuthClient as jest.Mock).mockImplementation(
     () => mockAuthClient
   );
+  (ModelsModule.useSensitiveDataClient as jest.Mock).mockImplementation(
+    () => mockSensitiveDataClient
+  );
+  mockSensitiveDataClient.getData = jest.fn().mockReturnValue({
+    keyFetchToken: MOCK_KEY_FETCH_TOKEN,
+    unwrapBKey: MOCK_UNWRAP_BKEY,
+  });
   jest
     .spyOn(HooksModule, 'useFinishOAuthFlowHandler')
     .mockImplementation(() => {
@@ -164,7 +174,7 @@ describe('confirm-signup-container', () => {
     });
 
     it('renders as expected with account info in local storage', async () => {
-      mockLocation(true, true, false);
+      mockLocation(true, false);
       jest.spyOn(CacheModule, 'currentAccount').mockImplementationOnce(() => {
         return {
           uid: MOCK_UID,
@@ -231,7 +241,7 @@ describe('confirm-signup-container', () => {
 
   describe('renders-spinner', () => {
     it('has no account in location state or local storage', async () => {
-      mockLocation(false, false, false);
+      mockLocation(false, false);
       jest.spyOn(CacheModule, 'currentAccount').mockImplementationOnce(() => {
         return {} as StoredAccountData;
       });
@@ -242,15 +252,6 @@ describe('confirm-signup-container', () => {
       );
       expect(ReactUtils.hardNavigate).toBeCalledWith(
         expect.stringMatching('/')
-      );
-    });
-
-    it('has missing integration', async () => {
-      // Testing type safety violation
-      integration = undefined as any as Integration;
-      render();
-      await waitFor(() =>
-        expect(screen.getByText('loading spinner mock')).toBeInTheDocument()
       );
     });
   });
@@ -280,6 +281,23 @@ describe('confirm-signup-container', () => {
         expect(screen.getByText('Bad Request')).toBeInTheDocument()
       );
       expect(screen.getByText('Unexpected error')).toBeInTheDocument();
+    });
+  });
+  describe('useOAuthKeysCheck', () => {
+    it('renders error component when value is undefined', () => {
+      integration = {
+        type: ModelsModule.IntegrationType.OAuthNative,
+        wantsKeys: () => true,
+      } as Integration;
+      mockSensitiveDataClient.getData = jest.fn().mockReturnValue({
+        keyFetchToken: undefined,
+        unwrapBKey: undefined,
+      });
+      render();
+      screen.getByText('Bad Request');
+      screen.getByText(
+        'Something went wrong. Please close this tab and try again.'
+      );
     });
   });
 });

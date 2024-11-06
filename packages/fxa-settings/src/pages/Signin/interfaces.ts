@@ -213,8 +213,6 @@ export interface SigninLocationState {
   verified: boolean;
   verificationMethod?: VerificationMethods;
   verificationReason?: VerificationReasons;
-  keyFetchToken?: hexstring;
-  unwrapBKey?: hexstring;
   showInlineRecoveryKeySetup?: boolean;
 }
 

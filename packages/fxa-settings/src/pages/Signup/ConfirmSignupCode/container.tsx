@@ -6,8 +6,15 @@ import React, { useCallback, useEffect } from 'react';
 import { RouteComponentProps, useLocation } from '@reach/router';
 import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
 import { currentAccount } from '../../../lib/cache';
-import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
-import { Integration, useAuthClient } from '../../../models';
+import {
+  useFinishOAuthFlowHandler,
+  useOAuthKeysCheck,
+} from '../../../lib/oauth/hooks';
+import {
+  Integration,
+  useAuthClient,
+  useSensitiveDataClient,
+} from '../../../models';
 import ConfirmSignupCode from '.';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
@@ -16,6 +23,10 @@ import { useQuery } from '@apollo/client';
 import { EMAIL_BOUNCE_STATUS_QUERY } from './gql';
 import OAuthDataError from '../../../components/OAuthDataError';
 import { QueryParams } from '../../..';
+import {
+  AUTH_DATA_KEY,
+  SensitiveDataClientAuthKeys,
+} from '../../../lib/sensitive-data-client';
 
 export const POLL_INTERVAL = 5000;
 
@@ -45,6 +56,17 @@ const SignupConfirmCodeContainer = ({
   flowQueryParams: QueryParams;
 } & RouteComponentProps) => {
   const authClient = useAuthClient();
+  const sensitiveDataClient = useSensitiveDataClient();
+  const sensitiveData = sensitiveDataClient.getData(AUTH_DATA_KEY);
+  const { keyFetchToken, unwrapBKey } =
+    (sensitiveData as SensitiveDataClientAuthKeys) || {};
+
+  const { oAuthKeysCheckError } = useOAuthKeysCheck(
+    integration,
+    keyFetchToken,
+    unwrapBKey
+  );
+
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state: LocationState;
   };
@@ -53,8 +75,6 @@ const SignupConfirmCodeContainer = ({
     selectedNewsletterSlugs: newsletterSlugs,
     offeredSyncEngines,
     declinedSyncEngines,
-    keyFetchToken,
-    unwrapBKey,
     sessionToken: sessionTokenFromLocationState,
     email: emailFromLocationState,
     uid: uidFromLocationState,
@@ -136,6 +156,9 @@ const SignupConfirmCodeContainer = ({
 
   if (oAuthDataError) {
     return <OAuthDataError error={oAuthDataError} />;
+  }
+  if (oAuthKeysCheckError) {
+    return <OAuthDataError error={oAuthKeysCheckError} />;
   }
 
   return (

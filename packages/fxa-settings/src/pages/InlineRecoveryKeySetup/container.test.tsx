@@ -55,6 +55,7 @@ function mockModelsModule() {
   mockSensitiveDataClient.getData = jest.fn().mockReturnValue({
     emailForAuth: 'bloop@gmail.com',
     authPW: MOCK_AUTH_PW,
+    unwrapBKey: MOCK_UNWRAP_BKEY,
   });
 }
 

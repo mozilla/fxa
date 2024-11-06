@@ -706,11 +706,13 @@ export async function trySignIn(
           ? v2Credentials.unwrapBKey
           : v1Credentials.unwrapBKey;
 
-      // Store for inline recovery key flow
       sensitiveDataClient.setData(AUTH_DATA_KEY, {
+        // Store for inline recovery key flow
         authPW,
         // Store this in case the email was corrected
         emailForAuth: email,
+        unwrapBKey,
+        keyFetchToken: data.signIn.keyFetchToken,
       });
 
       return {

@@ -36,6 +36,7 @@ import { handleNavigation } from './utils';
 import { useWebRedirect } from '../../lib/hooks/useWebRedirect';
 import { getLocalizedErrorMessage } from '../../lib/error-utils';
 import Banner from '../../components/Banner';
+import { AUTH_DATA_KEY } from '../../lib/sensitive-data-client';
 
 export const viewName = 'signin';
 
@@ -254,7 +255,7 @@ const Signin = ({
               }
 
               // Store password to be used in another component
-              sensitiveDataClient.setData('auth', {
+              sensitiveDataClient.setData(AUTH_DATA_KEY, {
                 password,
               });
               // navigate only if sending the unblock code email is successful
