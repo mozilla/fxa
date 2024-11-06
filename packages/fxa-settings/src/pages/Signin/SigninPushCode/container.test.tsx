@@ -7,16 +7,22 @@ import { SigninPushCodeProps } from './interfaces';
 import * as ReactUtils from 'fxa-react/lib/utils';
 import * as CacheModule from '../../../lib/cache';
 
-import { Integration } from '../../../models';
+import { Integration, useSensitiveDataClient } from '../../../models';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { LocationProvider } from '@reach/router';
 import SigninPushCodeContainer from './container';
 import { waitFor } from '@testing-library/react';
-import { MOCK_EMAIL, MOCK_STORED_ACCOUNT } from '../../mocks';
+import {
+  MOCK_EMAIL,
+  MOCK_KEY_FETCH_TOKEN,
+  MOCK_STORED_ACCOUNT,
+  MOCK_UNWRAP_BKEY,
+} from '../../mocks';
 import {
   createMockSigninLocationState,
   createMockSyncIntegration,
 } from './mocks';
+import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../../models/mocks';
 
 import { MozServices } from '../../../lib/types';
 
@@ -35,8 +41,11 @@ function applyDefaultMocks() {
 
   mockSigninPushCodeModule();
   mockCurrentAccount();
+  resetMockSensitiveDataClient();
 }
 
+const mockSensitiveDataClient = createMockSensitiveDataClient();
+mockSensitiveDataClient.setData = jest.fn();
 let mockHasTotpAuthClient = false;
 let mockSessionStatus = 'verified';
 let mockSendLoginPushRequest = jest.fn().mockResolvedValue({});
@@ -54,6 +63,7 @@ jest.mock('../../../models', () => {
         sendLoginPushRequest: mockSendLoginPushRequest,
       };
     },
+    useSensitiveDataClient: jest.fn(),
   };
 });
 
@@ -94,6 +104,16 @@ function mockReactUtilsModule() {
 // Set this when testing local storage
 function mockCurrentAccount(storedAccount = { uid: '123' }) {
   jest.spyOn(CacheModule, 'currentAccount').mockReturnValue(storedAccount);
+}
+
+function resetMockSensitiveDataClient() {
+  (useSensitiveDataClient as jest.Mock).mockImplementation(
+    () => mockSensitiveDataClient
+  );
+  mockSensitiveDataClient.getData = jest.fn().mockReturnValue({
+    keyFetchToken: MOCK_KEY_FETCH_TOKEN,
+    unwrapBKey: MOCK_UNWRAP_BKEY,
+  });
 }
 
 async function render() {

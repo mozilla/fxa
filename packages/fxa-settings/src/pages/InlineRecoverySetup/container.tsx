@@ -11,10 +11,15 @@ import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import {
   FinishOAuthFlowHandlerResult,
   useFinishOAuthFlowHandler,
+  useOAuthKeysCheck,
 } from '../../lib/oauth/hooks';
 import { getCode } from '../../lib/totp';
 import { MozServices } from '../../lib/types';
-import { OAuthIntegration, useAuthClient } from '../../models';
+import {
+  OAuthIntegration,
+  useAuthClient,
+  useSensitiveDataClient,
+} from '../../models';
 import { VERIFY_TOTP_MUTATION } from './gql';
 import InlineRecoverySetup from './index';
 import { hardNavigate } from 'fxa-react/lib/utils';
@@ -23,6 +28,10 @@ import { TotpStatusResponse } from '../Signin/SigninTokenCode/interfaces';
 import { GET_TOTP_STATUS } from '../../components/App/gql';
 import OAuthDataError from '../../components/OAuthDataError';
 import { isFirefoxService } from '../../models/integrations/utils';
+import {
+  AUTH_DATA_KEY,
+  SensitiveDataClientAuthKeys,
+} from '../../lib/sensitive-data-client';
 
 export const InlineRecoverySetupContainer = ({
   isSignedIn,
@@ -46,6 +55,16 @@ export const InlineRecoverySetupContainer = ({
   };
   const signinRecoveryLocationState = location.state;
   const { totp, ...signinLocationState } = signinRecoveryLocationState || {};
+  const sensitiveDataClient = useSensitiveDataClient();
+  const sensitiveData = sensitiveDataClient.getData(AUTH_DATA_KEY);
+  const { keyFetchToken, unwrapBKey } =
+    (sensitiveData as SensitiveDataClientAuthKeys) || {};
+
+  const { oAuthKeysCheckError } = useOAuthKeysCheck(
+    integration,
+    keyFetchToken,
+    unwrapBKey
+  );
 
   const [recoveryCodes, setRecoveryCodes] = useState<string[]>();
   const [verifyTotp] = useMutation<{ verifyTotp: { success: boolean } }>(
@@ -78,15 +97,20 @@ export const InlineRecoverySetupContainer = ({
     const { redirect, error } = await finishOAuthFlowHandler(
       signinRecoveryLocationState!.uid,
       signinRecoveryLocationState!.sessionToken,
-      signinRecoveryLocationState!.keyFetchToken,
-      signinRecoveryLocationState!.unwrapBKey
+      keyFetchToken,
+      unwrapBKey
     );
     if (error) {
       setOAuthError(error);
       return;
     }
     hardNavigate(redirect);
-  }, [signinRecoveryLocationState, finishOAuthFlowHandler]);
+  }, [
+    signinRecoveryLocationState,
+    finishOAuthFlowHandler,
+    keyFetchToken,
+    unwrapBKey,
+  ]);
 
   const cancelSetupHandler = useCallback(() => {
     const error = AuthUiErrors.TOTP_REQUIRED;
@@ -124,6 +148,11 @@ export const InlineRecoverySetupContainer = ({
 
   if (oAuthDataError) {
     return <OAuthDataError error={oAuthDataError} />;
+  }
+  // Note that we don't currently need this check on this page right now since AMO is the only
+  // RP requiring 2FA and it doesn't require keys. However it's here for consistency.
+  if (oAuthKeysCheckError) {
+    return <OAuthDataError error={oAuthKeysCheckError} />;
   }
 
   return (

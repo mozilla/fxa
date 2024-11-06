@@ -6,6 +6,20 @@
 
 export const AUTH_DATA_KEY = 'auth';
 
+export type SensitiveDataClientData = {
+  [AUTH_DATA_KEY]: {
+    emailForAuth?: string;
+    authPW?: string;
+    keyFetchToken?: hexstring;
+    unwrapBKey?: hexstring;
+  };
+};
+
+export type SensitiveDataClientAuthKeys = Pick<
+  SensitiveDataClientData[typeof AUTH_DATA_KEY],
+  'keyFetchToken' | 'unwrapBKey'
+>;
+
 /**
  * Class representing a client for handling sensitive data.
  *

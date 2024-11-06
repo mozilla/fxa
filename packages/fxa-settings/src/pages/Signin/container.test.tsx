@@ -46,6 +46,7 @@ import {
   mockGqlPasswordChangeStartMutation,
   MOCK_FLOW_ID,
   MOCK_CLIENT_ID,
+  MOCK_KEY_FETCH_TOKEN,
 } from './mocks';
 import AuthClient from 'fxa-auth-client/browser';
 import VerificationMethods from '../../constants/verification-methods';
@@ -177,6 +178,7 @@ function mockModelsModule() {
     },
   }));
 }
+
 // Call this when testing local storage
 function mockCurrentAccount(storedAccount = { uid: '123' }) {
   jest.spyOn(CacheModule, 'currentAccount').mockReturnValue(storedAccount);
@@ -519,6 +521,8 @@ describe('signin container', () => {
         expect(mockSensitiveDataClient.setData).toBeCalledWith(AUTH_DATA_KEY, {
           authPW: MOCK_AUTH_PW,
           emailForAuth: MOCK_EMAIL,
+          unwrapBKey: MOCK_UNWRAP_BKEY,
+          keyFetchToken: MOCK_KEY_FETCH_TOKEN,
         });
         expect(mockAuthClient.recoveryKeyExists).toBeCalledWith(
           handlerResult?.data?.signIn.sessionToken,

@@ -24,12 +24,7 @@ import {
   createMockSignupOAuthNativeIntegration,
   createMockSignupSyncDesktopV3Integration,
 } from './mocks';
-import {
-  MOCK_EMAIL,
-  MOCK_KEY_FETCH_TOKEN,
-  MOCK_PASSWORD,
-  MOCK_UNWRAP_BKEY,
-} from '../mocks';
+import { MOCK_EMAIL, MOCK_PASSWORD } from '../mocks';
 import { newsletters } from '../../components/ChooseNewsletters/newsletters';
 import firefox from '../../lib/channels/firefox';
 import GleanMetrics from '../../lib/glean';
@@ -40,6 +35,9 @@ import {
   syncEngineConfigs,
 } from '../../components/ChooseWhatToSync/sync-engines';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
+import { AUTH_DATA_KEY } from '../../lib/sensitive-data-client';
+import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../models/mocks';
+import { useSensitiveDataClient } from '../../models';
 
 jest.mock('../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -83,6 +81,16 @@ jest.mock('../../lib/glean', () => ({
   },
 }));
 
+jest.mock('../../models', () => {
+  return {
+    ...jest.requireActual('../../models'),
+    useSensitiveDataClient: jest.fn(),
+  };
+});
+
+const mockSensitiveDataClient = createMockSensitiveDataClient();
+mockSensitiveDataClient.setData = jest.fn();
+
 const oauthCommonFxaLoginOptions = {
   email: MOCK_EMAIL,
   sessionToken: BEGIN_SIGNUP_HANDLER_RESPONSE.data.signUp.sessionToken,
@@ -100,6 +108,10 @@ describe('Signup page', () => {
   beforeEach(() => {
     jest.resetAllMocks();
     cleanup();
+
+    (useSensitiveDataClient as jest.Mock).mockImplementation(
+      () => mockSensitiveDataClient
+    );
   });
   // TODO: enable l10n tests when they've been updated to handle embedded tags in ftl strings
   // TODO: in FXA-6461
@@ -332,6 +344,27 @@ describe('Signup page', () => {
       fireEvent.click(screen.getByRole('button', { name: 'Create account' }));
     }
 
+    it('sets data on sensitive data client', async () => {
+      const mockBeginSignupHandler = jest
+        .fn()
+        .mockResolvedValue(BEGIN_SIGNUP_HANDLER_RESPONSE);
+      renderWithLocalizationProvider(
+        <Subject beginSignupHandler={mockBeginSignupHandler} />
+      );
+      await fillOutForm();
+      submit();
+      await waitFor(() => {
+        expect(mockSensitiveDataClient.setData).toHaveBeenCalledWith(
+          AUTH_DATA_KEY,
+          {
+            keyFetchToken:
+              BEGIN_SIGNUP_HANDLER_RESPONSE.data.signUp.keyFetchToken,
+            unwrapBKey: BEGIN_SIGNUP_HANDLER_RESPONSE.data.unwrapBKey,
+          }
+        );
+      });
+    });
+
     describe('cookies', () => {
       // Clean up cookies to start with a clean slate and avoid polluting other tests.
       const originalCookie = document.cookie;
@@ -491,7 +524,6 @@ describe('Signup page', () => {
           `/confirm_signup_code${mockLocation().search}`,
           {
             state: {
-              keyFetchToken: MOCK_KEY_FETCH_TOKEN,
               origin: 'signup',
               // we expect three newsletter options, but 4 slugs should be passed
               // because the first newsletter checkbox subscribes the user to 2 newsletters
@@ -501,7 +533,6 @@ describe('Signup page', () => {
                 'mozilla-foundation',
                 'test-pilot',
               ],
-              unwrapBKey: MOCK_UNWRAP_BKEY,
             },
             replace: true,
           }
@@ -551,10 +582,8 @@ describe('Signup page', () => {
           `/confirm_signup_code${mockLocation().search}`,
           {
             state: {
-              keyFetchToken: MOCK_KEY_FETCH_TOKEN,
               origin: 'signup',
               selectedNewsletterSlugs: [],
-              unwrapBKey: MOCK_UNWRAP_BKEY,
             },
             replace: true,
           }

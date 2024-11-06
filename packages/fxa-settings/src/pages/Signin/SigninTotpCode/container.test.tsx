@@ -20,7 +20,9 @@ import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localiz
 import SigninTotpCodeContainer from './container';
 import { MozServices } from '../../../lib/types';
 import { createMockWebIntegration } from '../SigninTokenCode/mocks';
-import { Integration } from '../../../models';
+import { Integration, useSensitiveDataClient } from '../../../models';
+import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../../models/mocks';
+
 import {
   MOCK_NON_TOTP_LOCATION_STATE,
   MOCK_TOTP_LOCATION_STATE,
@@ -60,6 +62,7 @@ jest.mock('../../../models', () => {
   return {
     ...jest.requireActual('../../../models'),
     useAuthClient: jest.fn(),
+    useSensitiveDataClient: jest.fn(),
   };
 });
 
@@ -119,6 +122,13 @@ function mockVerifyTotp(success: boolean = true, errorOut: boolean = false) {
     },
   ]);
 }
+const mockSensitiveDataClient = createMockSensitiveDataClient();
+mockSensitiveDataClient.getData = jest.fn();
+function restMockSensitiveDataClient() {
+  (useSensitiveDataClient as jest.Mock).mockImplementation(
+    () => mockSensitiveDataClient
+  );
+}
 
 function applyDefaultMocks() {
   jest.resetAllMocks();
@@ -131,6 +141,7 @@ function applyDefaultMocks() {
   mockReachRouter(MOCK_TOTP_LOCATION_STATE);
   mockVerifyTotp();
   mockWebIntegration();
+  restMockSensitiveDataClient();
 }
 
 describe('signin totp code container', () => {

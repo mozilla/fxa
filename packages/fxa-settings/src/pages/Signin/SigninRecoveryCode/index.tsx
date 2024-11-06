@@ -32,6 +32,8 @@ const SigninRecoveryCode = ({
   serviceName,
   signinState,
   submitRecoveryCode,
+  keyFetchToken,
+  unwrapBKey,
 }: SigninRecoveryCodeProps & RouteComponentProps) => {
   useEffect(() => {
     GleanMetrics.loginBackupCode.view();
@@ -63,15 +65,8 @@ const SigninRecoveryCode = ({
     submitButtonText: 'Confirm',
   };
 
-  const {
-    email,
-    sessionToken,
-    uid,
-    verificationMethod,
-    verificationReason,
-    keyFetchToken,
-    unwrapBKey,
-  } = signinState;
+  const { email, sessionToken, uid, verificationMethod, verificationReason } =
+    signinState;
 
   const onSuccessNavigate = useCallback(async () => {
     const navigationOptions = {

@@ -7,12 +7,23 @@ import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavig
 import SigninTokenCode from '.';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { hardNavigate } from 'fxa-react/lib/utils';
-import { Integration, useAuthClient } from '../../../models';
-import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
+import {
+  Integration,
+  useAuthClient,
+  useSensitiveDataClient,
+} from '../../../models';
+import {
+  useFinishOAuthFlowHandler,
+  useOAuthKeysCheck,
+} from '../../../lib/oauth/hooks';
 import { SigninLocationState } from '../interfaces';
 import { getSigninState } from '../utils';
 import OAuthDataError from '../../../components/OAuthDataError';
 import { useEffect, useState } from 'react';
+import {
+  AUTH_DATA_KEY,
+  SensitiveDataClientAuthKeys,
+} from '../../../lib/sensitive-data-client';
 
 // The email with token code (verifyLoginCodeEmail) is sent on `/signin`
 // submission if conditions are met.
@@ -28,11 +39,20 @@ const SigninTokenCodeContainer = ({
   };
 
   const signinState = getSigninState(location.state);
+  const sensitiveDataClient = useSensitiveDataClient();
+  const sensitiveData = sensitiveDataClient.getData(AUTH_DATA_KEY);
+  const { keyFetchToken, unwrapBKey } =
+    (sensitiveData as SensitiveDataClientAuthKeys) || {};
 
   const authClient = useAuthClient();
   const { finishOAuthFlowHandler, oAuthDataError } = useFinishOAuthFlowHandler(
     authClient,
     integration
+  );
+  const { oAuthKeysCheckError } = useOAuthKeysCheck(
+    integration,
+    keyFetchToken,
+    unwrapBKey
   );
 
   const [totpVerified, setTotpVerified] = useState<boolean>(false);
@@ -67,6 +87,9 @@ const SigninTokenCodeContainer = ({
   if (oAuthDataError) {
     return <OAuthDataError error={oAuthDataError} />;
   }
+  if (oAuthKeysCheckError) {
+    return <OAuthDataError error={oAuthKeysCheckError} />;
+  }
 
   return (
     <SigninTokenCode
@@ -74,6 +97,8 @@ const SigninTokenCodeContainer = ({
         finishOAuthFlowHandler,
         integration,
         signinState,
+        keyFetchToken,
+        unwrapBKey,
       }}
     />
   );

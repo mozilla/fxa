@@ -14,7 +14,8 @@ import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localiz
 import SigninRecoveryCodeContainer from './container';
 import { createMockWebIntegration } from '../../../lib/integrations/mocks';
 import { MozServices } from '../../../lib/types';
-import { Integration } from '../../../models';
+import { Integration, useSensitiveDataClient } from '../../../models';
+import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../../models/mocks';
 import {
   MOCK_STORED_ACCOUNT,
   MOCK_RECOVERY_CODE,
@@ -25,6 +26,7 @@ import { mockGqlError, mockSigninLocationState } from '../mocks';
 import { mockConsumeRecoveryCodeUseMutation } from './mocks';
 import { waitFor } from '@testing-library/react';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import { AUTH_DATA_KEY } from '../../../lib/sensitive-data-client';
 
 let integration: Integration;
 function mockWebIntegration() {
@@ -47,10 +49,13 @@ jest.mock('../../../models', () => {
   return {
     ...jest.requireActual('../../../models'),
     useAuthClient: jest.fn(),
+    useSensitiveDataClient: jest.fn(),
   };
 });
 
 let currentSigninRecoveryCodeProps: SigninRecoveryCodeProps | undefined;
+const mockSensitiveDataClient = createMockSensitiveDataClient();
+mockSensitiveDataClient.getData = jest.fn();
 function mockSigninRecoveryCodeModule() {
   currentSigninRecoveryCodeProps = undefined;
   jest
@@ -96,16 +101,22 @@ function mockReachRouter(
     .mockImplementation(() => mockLocation(pathname, mockLocationState));
 }
 
+function resetMockSensitiveDataClient() {
+  (useSensitiveDataClient as jest.Mock).mockImplementation(
+    () => mockSensitiveDataClient
+  );
+}
+
 function applyDefaultMocks() {
   jest.resetAllMocks();
   jest.restoreAllMocks();
   mockSigninRecoveryCodeModule();
   mockLoadingSpinnerModule();
-  //   mockUseValidateModule();
   mockReactUtilsModule();
   mockCache();
   mockReachRouter(undefined, 'signin_recovery_code', mockSigninLocationState);
   mockWebIntegration();
+  resetMockSensitiveDataClient();
 }
 
 function render(mocks: Array<MockedResponse>) {
@@ -150,6 +161,13 @@ describe('SigninRecoveryCode container', () => {
       mockCache(MOCK_STORED_ACCOUNT);
       await render([]);
       expect(ReactUtils.hardNavigate).not.toBeCalledWith('/', {}, true);
+    });
+
+    it('reads data from sensitive data client', () => {
+      render([]);
+      expect(mockSensitiveDataClient.getData).toHaveBeenCalledWith(
+        AUTH_DATA_KEY
+      );
     });
   });
 
