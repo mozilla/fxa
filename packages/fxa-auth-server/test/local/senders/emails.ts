@@ -2941,7 +2941,7 @@ describe('lib/senders/emails:', () => {
   describe('mock sendMail method:', () => {
     beforeEach(() => {
       mailer.localize = () => ({ language: 'en' });
-      sinon.stub(mailer.mailer, 'sendMail').callsFake((config, cb) => {
+      sinon.stub(mailer.mailer, 'sendMail').callsFake((_config, cb: any) => {
         cb(null, { resp: 'ok' });
       });
     });
@@ -2971,9 +2971,9 @@ describe('lib/senders/emails:', () => {
   describe('mock failing sendMail method:', () => {
     beforeEach(() => {
       mailer.localize = () => ({});
-      sinon
-        .stub(mailer.mailer, 'sendMail')
-        .callsFake((config, cb) => cb(new Error('Fail')));
+      sinon.stub(mailer.mailer, 'sendMail').callsFake((_config, cb: any) => {
+        cb(new Error('Fail'));
+      });
     });
 
     it('rejects sendMail status', () => {
@@ -2984,7 +2984,7 @@ describe('lib/senders/emails:', () => {
         uid: 'foo',
       };
 
-      return mailer.send(message).then(assert.notOk, (err) => {
+      return mailer.send(message).then(assert.notOk, (err: any) => {
         assert.equal(err.message, 'Fail');
       });
     });
@@ -2992,7 +2992,7 @@ describe('lib/senders/emails:', () => {
 });
 
 describe('mailer constructor:', () => {
-  let mailerConfig, mockLog, mailer;
+  let mailerConfig: any, mockLog: any, mailer: any;
 
   before(async () => {
     mailerConfig = [
@@ -3014,7 +3014,7 @@ describe('mailer constructor:', () => {
       'verificationUrl',
       'verifyLoginUrl',
       'verifyPrimaryEmailUrl',
-    ].reduce((target, key) => {
+    ].reduce((target: any, key) => {
       target[key] = `mock ${key}`;
       return target;
     }, {});

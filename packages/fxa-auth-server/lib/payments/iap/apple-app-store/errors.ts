@@ -13,5 +13,6 @@ export class AppStoreRetryableError extends Error {
     super(errorMessage);
     this.name = 'AppStoreRetryableError';
     this.errorCode = errorCode;
+    this.errorMessage = errorMessage;
   }
 }

@@ -94,9 +94,9 @@ module.exports = function (
 
         await customs.check(request, email, 'passwordChange');
 
-        let keyFetchToken = undefined;
-        let keyFetchToken2 = undefined;
-        let passwordChangeToken = undefined;
+        let keyFetchToken: any | undefined = undefined;
+        let keyFetchToken2: any | undefined = undefined;
+        let passwordChangeToken: any | undefined = undefined;
 
         try {
           const emailRecord = await db.accountRecord(email);
@@ -315,7 +315,7 @@ module.exports = function (
 
           // For the time being we store both passwords in the DB. authPW is created
           // with the old quickStretch and authPWVersion2 is created with improved 'quick' stretch.
-          let password2 = undefined;
+          let password2: any | undefined = undefined;
           let verifyHashVersion2 = undefined;
           let wrapWrapKbVersion2 = undefined;
           if (authPWVersion2) {
@@ -325,8 +325,8 @@ module.exports = function (
               verifierVersion,
               2
             );
-            verifyHashVersion2 = await password2.verifyHash();
-            wrapWrapKbVersion2 = await password2.wrap(wrapKbVersion2);
+            verifyHashVersion2 = await password2?.verifyHash();
+            wrapWrapKbVersion2 = await password2?.wrap(wrapKbVersion2);
           }
 
           await db.deletePasswordChangeToken(passwordChangeToken);
