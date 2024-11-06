@@ -13,5 +13,9 @@
     // about these explicit any
     "noImplicitAny": false
   },
-  "include": ["bin/**/*.ts", "lib/**/*.ts", "scripts/**/*.ts"]
+  "include": [
+    "bin/*", // Include bin so that it's included in `build-ts`, specifically for "tsc-alias".
+    "lib/**/*.ts",
+    "scripts/**/*.ts"
+  ]
 }
