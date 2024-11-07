@@ -22,9 +22,11 @@ export class AppleIAP {
     this.firestore = Container.get(AuthFirestore);
     const { authFirestore } = Container.get(AppConfig);
     this.prefix = `${authFirestore.prefix}iap-`;
-    const purchasesDbRef = this.firestore.collection(
-      `${this.prefix}app-store-purchases`
-    );
+    const purchasesDbRef = this.purchasesDbRef();
     this.purchaseManager = new PurchaseManager(purchasesDbRef, appStoreHelper);
+  }
+
+  purchasesDbRef() {
+    return this.firestore.collection(`${this.prefix}app-store-purchases`);
   }
 }
