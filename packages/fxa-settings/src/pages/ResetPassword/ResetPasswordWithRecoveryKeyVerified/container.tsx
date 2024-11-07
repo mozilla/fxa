@@ -21,6 +21,7 @@ import {
 } from '../../../lib/oauth/hooks';
 import ResetPasswordWithRecoveryKeyVerified from './index';
 import { SETTINGS_PATH } from '../../../constants';
+import firefox from '../../../lib/channels/firefox';
 
 const ResetPasswordWithRecoveryKeyVerifiedContainer = ({
   integration,
@@ -54,17 +55,30 @@ const ResetPasswordWithRecoveryKeyVerifiedContainer = ({
   const navigateToHint = () => setShowHint(true);
   const navigateNext = async (continueToAccountEvent: () => void) => {
     if (isOAuthIntegration(integration)) {
-      const { redirect, error } = await finishOAuthFlowHandler(
+      const { redirect, code, state, error } = await finishOAuthFlowHandler(
         accountResetData.uid,
         accountResetData.sessionToken,
         accountResetData.keyFetchToken,
         accountResetData.unwrapBKey
       );
+
       if (error) {
         setOAuthError(error);
         return;
       }
-      hardNavigate(redirect);
+
+      if (integration.isSync()) {
+        // This will complete the signin into sync.
+        firefox.fxaOAuthLogin({
+          action: 'signin',
+          code,
+          redirect,
+          state,
+        });
+        navigate('/settings', { replace: true });
+      } else {
+        hardNavigate(redirect);
+      }
     } else {
       continueToAccountEvent();
       navigate(SETTINGS_PATH, { replace: true });
