@@ -30,24 +30,19 @@ import { setupFirestore } from '../../lib/firestore-db';
 import { CurrencyHelper } from '../../lib/payments/currencies';
 import { createStripeHelper, StripeHelper } from '../../lib/payments/stripe';
 import oauthDb from '../../lib/oauth/db';
-import {
-  Account,
-  AccountCustomers,
-  Email,
-  SecurityEvent,
-  SessionToken,
-} from 'fxa-shared/db/models/auth';
-import { EVENT_NAMES } from 'fxa-shared/db/models/auth/security-event';
+import { Account } from 'fxa-shared/db/models/auth';
 import { PlayBilling } from '../../lib/payments/iap/google-play';
 import { PlaySubscriptions } from '../../lib/payments/iap/google-play/subscriptions';
 import { AppleIAP } from '../../lib/payments/iap/apple-app-store/apple-iap';
 import { AppStoreSubscriptions } from '../../lib/payments/iap/apple-app-store/subscriptions';
 
-const setDateToUTC = (someDate: number) => {
-  const utcDate = new Date(someDate);
-  utcDate.setUTCHours(0, 0, 0, 0);
-  return utcDate;
-};
+import {
+  accountWhereAndOrderByQueryBuilder,
+  hasAccessToken,
+  hasActiveRefreshToken,
+  hasActiveSessionToken,
+  setDateToUTC,
+} from './lib';
 
 const createFilepath = (endDate: Date) =>
   `inactive-account-uids-${endDate.toISOString().substring(0, 10)}.csv`;
@@ -134,88 +129,60 @@ const init = async () => {
   Container.set(CurrencyHelper, currencyHelper);
   const stripeHelper = createStripeHelper(log, config, statsd);
   Container.set(StripeHelper, stripeHelper);
-  Container.get(PlayBilling);
+  const playBilling = Container.get(PlayBilling);
   const playSubscriptions = Container.get(PlaySubscriptions);
-  Container.get(AppleIAP);
+  const appleIap = Container.get(AppleIAP);
   const appStoreSubscriptions = Container.get(AppStoreSubscriptions);
 
-  const emailUids = Email.query()
-    .distinct('uid')
-    .where('verifiedAt', '>=', activeByDateTimestamp)
-    .as('emailUids');
-
-  const sessionTokenUids = SessionToken.query()
-    .distinct('uid')
-    .where('lastAccessTime', '>=', activeByDateTimestamp)
-    .as('sessionTokenUids');
-
-  const securityEventUids = SecurityEvent.query()
-    .distinct('uid')
-    .where('createdAt', '>=', activeByDateTimestamp)
-    .whereIn('nameId', [
-      EVENT_NAMES['account.login'],
-      EVENT_NAMES['account.password_reset_success'],
-      EVENT_NAMES['account.password_changed'],
-    ])
-    .as('securityEventUids');
-
-  const accountCustomerUids = AccountCustomers.query()
-    .select('uid')
-    .as('accountCustomerUids');
-
   const accountWhereAndOrderBy = () =>
-    Account.query()
-      .leftJoin(emailUids, 'emailUids.uid', 'accounts.uid')
-      .leftJoin(sessionTokenUids, 'sessionTokenUids.uid', 'accounts.uid')
-      .leftJoin(securityEventUids, 'securityEventUids.uid', 'accounts.uid')
-      .leftJoin(accountCustomerUids, 'accountCustomerUids.uid', 'accounts.uid')
-      .where('accounts.emailVerified', 1)
-      .where('accounts.createdAt', '>=', startDateTimestamp)
-      .where('accounts.createdAt', '<', endDateTimestamp)
-      .where((builder) => {
-        builder
-          .whereNull('emailUids.uid')
-          .whereNull('sessionTokenUids.uid')
-          .whereNull('securityEventUids.uid')
-          .whereNull('accountCustomerUids.uid');
-      })
-      .orderBy('accounts.createdAt', 'asc')
-      .orderBy('accounts.uid', 'asc');
+    accountWhereAndOrderByQueryBuilder(
+      startDateTimestamp,
+      endDateTimestamp,
+      activeByDateTimestamp
+    );
+
   const accountQueryBuilder = () =>
     accountWhereAndOrderBy()
       .select('accounts.uid')
       .limit(program.resultsLimit || 100000);
 
-  // Unlike the left join above this includes the agumented last access time
-  // from redis
-  const hasActiveSessionToken = async (accountRecord: Account) => {
-    const sessionTokens = await fxaDb.sessions(accountRecord.uid);
-    return sessionTokens.some(
-      (token: any) => token.lastAccessTime >= activeByDateTimestamp
-    );
-  };
-  const hasActiveRefreshToken = async (accountRecord: Account) => {
-    const refreshTokens = await oauthDb.getRefreshTokensByUid(
-      accountRecord.uid
-    );
-    return refreshTokens.some(
-      (t: any) => t.lastUsedAt >= activeByDateTimestamp
-    );
-  };
-  const hasAccessToken = async (accountRecord: Account) => {
-    const accessTokens = await oauthDb.getAccessTokensByUid(accountRecord.uid);
-    return accessTokens.length > 0;
-  };
+  const sessionTokensFn = fxaDb.sessions.bind(fxaDb);
+  const refreshTokensFn = oauthDb.getRefreshTokensByUid.bind(oauthDb);
+  const accessTokensFn = oauthDb.getAccessTokensByUid.bind(oauthDb);
+
+  const iapSubUids = new Set<string>();
+  const playSubscriptionsCollection = await playBilling.purchaseDbRef().get();
+  const appleSubscriptionsCollection = await appleIap.purchasesDbRef().get();
+  ((collections) => {
+    for (const c of collections) {
+      for (const purchaseRecordSnapshot of c.docs) {
+        const x = purchaseRecordSnapshot.data();
+        if (x.userId) {
+          iapSubUids.add(x.userId);
+        }
+      }
+    }
+  })([playSubscriptionsCollection, appleSubscriptionsCollection]);
+
   const hasIapSubscription = async (accountRecord: Account) =>
-    (await playSubscriptions.getSubscriptions(accountRecord.uid)).length > 0 ||
-    (await appStoreSubscriptions.getSubscriptions(accountRecord.uid)).length >
-      0;
+    iapSubUids.has(accountRecord.uid) &&
+    ((await playSubscriptions.getSubscriptions(accountRecord.uid)).length > 0 ||
+      (await appStoreSubscriptions.getSubscriptions(accountRecord.uid)).length >
+        0);
 
   const isActive = async (accountRecord: Account) => {
     return (
-      (await hasActiveSessionToken(accountRecord)) ||
-      (await hasActiveRefreshToken(accountRecord)) ||
-      (await hasAccessToken(accountRecord)) ||
+      (await hasActiveSessionToken(
+        sessionTokensFn,
+        accountRecord.uid,
+        activeByDateTimestamp
+      )) ||
+      (await hasActiveRefreshToken(
+        refreshTokensFn,
+        accountRecord.uid,
+        activeByDateTimestamp
+      )) ||
+      (await hasAccessToken(accessTokensFn, accountRecord.uid)) ||
       (await hasIapSubscription(accountRecord))
     );
   };

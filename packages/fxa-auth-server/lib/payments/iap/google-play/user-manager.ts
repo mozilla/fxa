@@ -56,7 +56,6 @@ export class UserManager extends UserManagerBase {
 
     try {
       // Create query to fetch possibly active subscriptions from Firestore
-      // Create query to fetch possibly active subscriptions from Firestore
       let query = this.purchasesDbRef
         .where('formOfPayment', '==', GOOGLE_PLAY_FORM_OF_PAYMENT)
         .where('skuType', '==', SkuType.SUBS)
