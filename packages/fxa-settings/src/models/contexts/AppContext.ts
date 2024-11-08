@@ -94,6 +94,10 @@ export function defaultAppContext(context?: AppContextValue) {
       exists: true,
       verified: true,
     },
+    backupCodes: {
+      hasBackupCodes: false,
+      count: 0,
+    },
     linkedAccounts: [],
     securityEvents: [],
   };

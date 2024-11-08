@@ -28,7 +28,11 @@ import {
   GET_LOCAL_SIGNED_IN_STATUS,
   GET_TOTP_STATUS,
 } from '../components/App/gql';
-import { AccountAvatar, AccountTotp } from '../lib/interfaces';
+import {
+  AccountAvatar,
+  AccountBackupCodes,
+  AccountTotp,
+} from '../lib/interfaces';
 import { createSaltV2 } from 'fxa-auth-client/lib/salt';
 import { getHandledError } from '../lib/error-utils';
 
@@ -108,6 +112,7 @@ export interface AccountData {
   attachedClients: AttachedClient[];
   linkedAccounts: LinkedAccount[];
   totp: AccountTotp;
+  backupCodes: AccountBackupCodes;
   subscriptions: Subscription[];
   securityEvents: SecurityEvent[];
 }
@@ -186,6 +191,10 @@ export const GET_ACCOUNT = gql`
       totp {
         exists
         verified
+      }
+      backupCodes {
+        hasBackupCodes
+        count
       }
       subscriptions {
         created
@@ -388,6 +397,10 @@ export class Account implements AccountData {
 
   get totpActive() {
     return this.totp.exists && this.totp.verified;
+  }
+
+  get backupCodes() {
+    return this.data.backupCodes;
   }
 
   get attachedClients() {

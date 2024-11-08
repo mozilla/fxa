@@ -95,6 +95,16 @@ describe(`#integration${testOptions.version} - remote backup authentication code
     });
   });
 
+  it('can retrieve a count of backup authentication codes', () => {
+    const result = client.getRecoveryCodesExist();
+    assert.equal(result.hasBackupCodes, true, 'recovery codes exist');
+    assert.equal(
+      result.count,
+      recoveryCodeCount,
+      'correct remaining codes'
+    );
+  });
+
   it('should replace backup authentication codes', () => {
     return client
       .replaceRecoveryCodes()

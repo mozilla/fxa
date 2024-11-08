@@ -1187,6 +1187,11 @@ module.exports = (config) => {
     });
   };
 
+  ClientApi.prototype.getRecoveryCodesExist = async function (sessionTokenHex) {
+    const token = await tokens.SessionToken.fromHex(sessionTokenHex);
+    return this.doRequest('GET', `${this.baseURL}/recoveryCodes/exists`, token);
+  };
+
   ClientApi.prototype.consumeRecoveryCode = function (
     sessionTokenHex,
     code,

@@ -13,3 +13,8 @@ export interface AccountTotp {
   exists: boolean;
   verified: boolean;
 }
+
+export interface AccountBackupCodes {
+  hasBackupCodes: boolean;
+  count: number;
+}

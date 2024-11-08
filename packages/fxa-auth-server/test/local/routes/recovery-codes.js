@@ -9,10 +9,12 @@ const assert = { ...sinon.assert, ...require('chai').assert };
 const getRoute = require('../../routes_helpers').getRoute;
 const mocks = require('../../mocks');
 const error = require('../../../lib/error');
+const { Container } = require('typedi');
 
 let log, db, customs, routes, route, request, requestOptions, mailer, glean;
 const TEST_EMAIL = 'test@email.com';
 const UID = 'uid';
+let sandbox;
 
 function runTest(routePath, requestOptions, method) {
   const config = {
@@ -32,12 +34,17 @@ function runTest(routePath, requestOptions, method) {
   );
   route = getRoute(routes, routePath, method);
   request = mocks.mockRequest(requestOptions);
-  request.emitMetricsEvent = sinon.spy(() => Promise.resolve({}));
+  request.emitMetricsEvent = sandbox.spy(() => Promise.resolve({}));
 
   return route.handler(request);
 }
 
 describe('backup authentication codes', () => {
+  sandbox = sinon.createSandbox();
+  const mockBackupCodeManager = {
+    getCountForUserId: sandbox.fake(),
+  };
+
   beforeEach(() => {
     log = mocks.mockLog();
     customs = mocks.mockCustoms();
@@ -62,6 +69,11 @@ describe('backup authentication codes', () => {
         },
       },
     };
+    Container.set('BackupCodeManager', mockBackupCodeManager);
+  });
+
+  afterEach(() => {
+    sandbox.restore();
   });
 
   describe('GET /recoveryCodes', () => {
@@ -124,9 +136,36 @@ describe('backup authentication codes', () => {
     });
   });
 
+  describe('GET /recoveryCodes/exists', () => {
+    it('should return hasBackupCodes and count', async () => {
+      mockBackupCodeManager.getCountForUserId = sandbox.fake.returns({
+        hasBackupCodes: true,
+        count: 8,
+      });
+
+      const res = await runTest('/recoveryCodes/exists', requestOptions, 'GET');
+      assert.isDefined(res);
+      assert.equal(res.hasBackupCodes, true);
+      assert.equal(res.count, 8);
+      sandbox.assert.calledOnce(mockBackupCodeManager.getCountForUserId);
+      sandbox.assert.calledWithExactly(
+        mockBackupCodeManager.getCountForUserId,
+        UID
+      );
+    });
+
+    it('should handle empty response from backupCodeManager', async () => {
+      mockBackupCodeManager.getCountForUserId = sandbox.fake.returns({});
+
+      const res = await runTest('/recoveryCodes/exists', requestOptions, 'GET');
+      assert.equal(res.hasBackupCodes, undefined);
+      assert.equal(res.count, undefined);
+    });
+  });
+
   describe('POST /session/verify/recoveryCode', () => {
     it('sends email if backup authentication codes are low', async () => {
-      db.consumeRecoveryCode = sinon.spy((code) => {
+      db.consumeRecoveryCode = sandbox.spy((code) => {
         return Promise.resolve({ remaining: 1 });
       });
       await runTest('/session/verify/recoveryCode', requestOptions);
@@ -138,7 +177,7 @@ describe('backup authentication codes', () => {
 
     it('should rate-limit attempts to use a backup authentication code via customs', () => {
       requestOptions.payload.code = '1234567890';
-      db.consumeRecoveryCode = sinon.spy((code) => {
+      db.consumeRecoveryCode = sandbox.spy((code) => {
         throw error.recoveryCodeNotFound();
       });
       return runTest('/session/verify/recoveryCode', requestOptions).then(
@@ -156,11 +195,11 @@ describe('backup authentication codes', () => {
     });
 
     it('should emit a glean event on successful verification', async () => {
-      db.consumeRecoveryCode = sinon.spy((code) => {
+      db.consumeRecoveryCode = sandbox.spy((code) => {
         return Promise.resolve({ remaining: 4 });
       });
       await runTest('/session/verify/recoveryCode', requestOptions);
-      sinon.assert.calledOnceWithExactly(
+      sandbox.assert.calledOnceWithExactly(
         glean.login.recoveryCodeSuccess,
         request,
         { uid: UID }

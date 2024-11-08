@@ -818,6 +818,14 @@ export class AccountResolver {
   }
 
   @ResolveField()
+  public backupCodes(
+    @GqlSessionToken() token: string,
+    @GqlXHeaders() headers: Headers
+  ) {
+    return this.authAPI.getRecoveryCodesExist(token, headers);
+  }
+
+  @ResolveField()
   public attachedClients(
     @GqlSessionToken() token: string,
     @GqlXHeaders() headers: Headers
