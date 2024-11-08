@@ -35,13 +35,15 @@ export class PlayBilling {
     });
     this.prefix = `${config.authFirestore.prefix}iap-`;
     this.firestore = Container.get(AuthFirestore);
-    const purchasesDbRef = this.firestore.collection(
-      `${this.prefix}play-purchases`
-    );
+    const purchasesDbRef = this.purchaseDbRef();
     this.purchaseManager = new PurchaseManager(
       purchasesDbRef,
       playDeveloperApiClient
     );
     this.userManager = new UserManager(purchasesDbRef, this.purchaseManager);
+  }
+
+  purchaseDbRef() {
+    return this.firestore.collection(`${this.prefix}play-purchases`);
   }
 }
