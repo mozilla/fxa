@@ -18253,9 +18253,9 @@ __metadata:
   linkType: hard
 
 "@sentry/types@npm:^7.113.0":
-  version: 7.119.0
-  resolution: "@sentry/types@npm:7.119.0"
-  checksum: ffb8dcaf1d5c96defe860e663553511e602cd6bfbe63b0c3fd8cba5ec1c3ea9ad47597527f4d9ef314ba1b11bccf89c4d6f50435df7cbfb92f5a398c6c261f0b
+  version: 7.119.2
+  resolution: "@sentry/types@npm:7.119.2"
+  checksum: 8417841df4d2bc24e1d553b9b0a320e0f641ac173cbb85a05537a4722e28b2e2010e31012f2363e75dcbc53f9a154bdff684fd5de40716d003887d73e6fca809
   languageName: node
   linkType: hard
 
@@ -18289,15 +18289,6 @@ __metadata:
   peerDependencies:
     webpack: ">=4.40.0"
   checksum: f6eb12337e35d6514b750acf6bee75227fec7da142a62b660a864e48a3ece6b7d7e96dc8a3c126ebb650ea8acaa6b423399a31a6f48e59e51708965745d3a3f4
-  languageName: node
-  linkType: hard
-
-"@sideway/address@npm:^4.1.3":
-  version: 4.1.3
-  resolution: "@sideway/address@npm:4.1.3"
-  dependencies:
-    "@hapi/hoek": ^9.0.0
-  checksum: 3c1faf6ef37a0b59b62ce42b59c012c00ef1fc4194ad6776c65c2f9a6dd6c1710c6f6362b3ca3fa582fdb93984f0cb64ca44f9f5e02940634805f5e561279c22
   languageName: node
   linkType: hard
 
@@ -49532,20 +49523,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"joi@npm:17.x.x, joi@npm:^17.3.0":
-  version: 17.8.3
-  resolution: "joi@npm:17.8.3"
-  dependencies:
-    "@hapi/hoek": ^9.0.0
-    "@hapi/topo": ^5.0.0
-    "@sideway/address": ^4.1.3
-    "@sideway/formula": ^3.0.1
-    "@sideway/pinpoint": ^2.0.0
-  checksum: d93ea768740fc447d19a3340734af8062a53616bfe61d117992632f5064c0abe7ca495a29747317a4f6cd655839507a0e3c9daa90f4f14a7e57a5ad653c43714
-  languageName: node
-  linkType: hard
-
-"joi@npm:^17.13.3":
+"joi@npm:17.x.x, joi@npm:^17.13.3, joi@npm:^17.3.0":
   version: 17.13.3
   resolution: "joi@npm:17.13.3"
   dependencies:
