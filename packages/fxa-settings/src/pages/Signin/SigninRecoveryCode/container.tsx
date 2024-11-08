@@ -6,17 +6,28 @@ import { RouteComponentProps, useLocation } from '@reach/router';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import { MozServices } from '../../../lib/types';
 import SigninRecoveryCode from '.';
-import { Integration, useAuthClient } from '../../../models';
+import {
+  Integration,
+  useAuthClient,
+  useSensitiveDataClient,
+} from '../../../models';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { useMutation } from '@apollo/client';
 import { CONSUME_RECOVERY_CODE_MUTATION } from './gql';
 import { useCallback } from 'react';
 import { getSigninState } from '../utils';
 import { SigninLocationState } from '../interfaces';
-import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
+import {
+  useFinishOAuthFlowHandler,
+  useOAuthKeysCheck,
+} from '../../../lib/oauth/hooks';
 import { ConsumeRecoveryCodeResponse, SubmitRecoveryCode } from './interfaces';
 import OAuthDataError from '../../../components/OAuthDataError';
 import { getHandledError } from '../../../lib/error-utils';
+import {
+  AUTH_DATA_KEY,
+  SensitiveDataClientAuthKeys,
+} from '../../../lib/sensitive-data-client';
 
 export type SigninRecoveryCodeContainerProps = {
   integration: Integration;
@@ -36,8 +47,17 @@ export const SigninRecoveryCodeContainer = ({
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state: SigninLocationState;
   };
-
   const signinState = getSigninState(location.state);
+  const sensitiveDataClient = useSensitiveDataClient();
+  const sensitiveData = sensitiveDataClient.getData(AUTH_DATA_KEY);
+  const { keyFetchToken, unwrapBKey } =
+    (sensitiveData as SensitiveDataClientAuthKeys) || {};
+
+  const { oAuthKeysCheckError } = useOAuthKeysCheck(
+    integration,
+    keyFetchToken,
+    unwrapBKey
+  );
 
   const [consumeRecoveryCode] = useMutation<ConsumeRecoveryCodeResponse>(
     CONSUME_RECOVERY_CODE_MUTATION
@@ -64,6 +84,9 @@ export const SigninRecoveryCodeContainer = ({
   if (oAuthDataError) {
     return <OAuthDataError error={oAuthDataError} />;
   }
+  if (oAuthKeysCheckError) {
+    return <OAuthDataError error={oAuthKeysCheckError} />;
+  }
 
   if (!signinState) {
     hardNavigate('/', {}, true);
@@ -78,6 +101,8 @@ export const SigninRecoveryCodeContainer = ({
         serviceName,
         signinState,
         submitRecoveryCode,
+        keyFetchToken,
+        unwrapBKey,
       }}
     />
   );

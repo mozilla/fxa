@@ -7,7 +7,12 @@ import SigninPushCode from '.';
 import { MozServices } from '../../../lib/types';
 import { getSigninState, handleNavigation } from '../utils';
 import { SigninLocationState } from '../interfaces';
-import { Integration, isWebIntegration, useAuthClient } from '../../../models';
+import {
+  Integration,
+  isWebIntegration,
+  useAuthClient,
+  useSensitiveDataClient,
+} from '../../../models';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
@@ -15,6 +20,10 @@ import OAuthDataError from '../../../components/OAuthDataError';
 import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
 import { useEffect, useState } from 'react';
 import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
+import {
+  AUTH_DATA_KEY,
+  SensitiveDataClientAuthKeys,
+} from '../../../lib/sensitive-data-client';
 
 export type SigninPushCodeContainerProps = {
   integration: Integration;
@@ -35,8 +44,10 @@ export const SigninPushCodeContainer = ({
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state: SigninLocationState;
   };
-
   const signinState = getSigninState(location.state);
+  const sensitiveDataClient = useSensitiveDataClient();
+  const sensitiveData = sensitiveDataClient.getData(AUTH_DATA_KEY);
+  const { unwrapBKey } = (sensitiveData as SensitiveDataClientAuthKeys) || {};
 
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
 
@@ -82,7 +93,7 @@ export const SigninPushCodeContainer = ({
     const navigationOptions = {
       email: signinState.email,
       signinData: { ...signinState, verified: true },
-      unwrapBKey: signinState.unwrapBKey,
+      unwrapBKey,
       integration,
       finishOAuthFlowHandler,
       queryParams: location.search,

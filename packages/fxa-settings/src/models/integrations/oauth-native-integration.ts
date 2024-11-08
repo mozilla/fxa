@@ -20,6 +20,9 @@ export function isOAuthNativeIntegration(integration: {
 
 export type OAuthIntegration = OAuthWebIntegration | OAuthNativeIntegration;
 
+/**
+ * Check if the integration is OAuthWeb or OAuthNative
+ */
 export function isOAuthIntegration(integration: {
   type: IntegrationType;
 }): integration is OAuthIntegration {

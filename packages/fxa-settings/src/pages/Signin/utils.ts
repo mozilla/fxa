@@ -149,9 +149,7 @@ const createSigninLocationState = (
       verified,
       verificationMethod,
       verificationReason,
-      keyFetchToken,
     },
-    unwrapBKey,
     showInlineRecoveryKeySetup,
   } = navigationOptions;
   return {
@@ -161,8 +159,6 @@ const createSigninLocationState = (
     verified,
     verificationMethod,
     verificationReason,
-    keyFetchToken,
-    unwrapBKey,
     showInlineRecoveryKeySetup,
   };
 };
@@ -178,8 +174,8 @@ function sendFxaLogin(navigationOptions: NavigationOptions) {
     // sending these values can cause intermittent sync disconnect issues in oauth desktop.
     ...(!isOAuth && {
       // keyFetchToken and unwrapBKey should always exist if Sync integration
-      keyFetchToken: navigationOptions.signinData.keyFetchToken!,
-      unwrapBKey: navigationOptions.unwrapBKey!,
+      keyFetchToken: navigationOptions.signinData.keyFetchToken,
+      unwrapBKey: navigationOptions.unwrapBKey,
     }),
     services: navigationOptions.integration.isDesktopRelay()
       ? { relay: {} }

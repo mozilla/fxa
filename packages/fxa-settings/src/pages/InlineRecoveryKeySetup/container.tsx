@@ -28,13 +28,16 @@ export const InlineRecoveryKeySetupContainer = (_: RouteComponentProps) => {
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state?: SigninLocationState;
   };
-  const { email, uid, sessionToken, unwrapBKey } = location.state || {};
+  const { email, uid, sessionToken } = location.state || {};
 
   const sensitiveDataClient = useSensitiveDataClient();
   const sensitiveData = sensitiveDataClient.getData(AUTH_DATA_KEY);
-  const { authPW, emailForAuth } =
-    (sensitiveData as unknown as { emailForAuth: string; authPW: string }) ||
-    {};
+  const { authPW, emailForAuth, unwrapBKey } =
+    (sensitiveData as {
+      emailForAuth?: string;
+      authPW?: string;
+      unwrapBKey?: hexstring;
+    }) || {};
 
   const navigateForward = useCallback(() => {
     setCurrentStep(currentStep + 1);
@@ -44,7 +47,9 @@ export const InlineRecoveryKeySetupContainer = (_: RouteComponentProps) => {
     (
         uid: string,
         sessionToken: string,
-        unwrapBKey: string
+        unwrapBKey: string,
+        emailForAuth: string,
+        authPW: string
       ): (() => Promise<CreateRecoveryKeyHandler>) =>
       async () => {
         try {
@@ -93,7 +98,7 @@ export const InlineRecoveryKeySetupContainer = (_: RouteComponentProps) => {
           };
         }
       },
-    [authClient, emailForAuth, authPW, navigateForward, ftlMsgResolver]
+    [authClient, navigateForward, ftlMsgResolver]
   );
 
   const updateRecoveryHint = useCallback(
@@ -124,7 +129,9 @@ export const InlineRecoveryKeySetupContainer = (_: RouteComponentProps) => {
   const createRecoveryKeyHandler = createRecoveryKey(
     uid,
     sessionToken,
-    unwrapBKey
+    unwrapBKey,
+    emailForAuth,
+    authPW
   );
   const updateRecoveryHintHandler = updateRecoveryHint(sessionToken);
 

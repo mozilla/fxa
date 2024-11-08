@@ -9,6 +9,7 @@ import {
   OAuthIntegration,
   isOAuthNativeIntegrationSync,
   isOAuthIntegration,
+  isSyncDesktopV3Integration,
 } from '../../models';
 import { createEncryptedBundle } from '../crypto/scoped-keys';
 import { Constants } from '../constants';
@@ -282,4 +283,32 @@ export function useFinishOAuthFlowHandler(
     return { oAuthDataError, finishOAuthFlowHandler };
   }
   return { oAuthDataError: null, finishOAuthFlowHandler };
+}
+
+/**
+ * If we don't have `keyFetchToken` or `unwrapBKey` and it's required, the user needs to
+ * restart the flow. We only store these values in memory, so they don't persist across page
+ * refreshes or browser session restarts. We can't redirect to /signin and reprompt for
+ * password in a browser session restart/crash because the browser stores the flow state in
+ * memory and the query params won't match after a browser session is restored.
+ *
+ * TODO: Can we check session storage for if the user just refreshed so we can redirect them
+ * to /signin instead of showing an error component? FXA-10707
+ */
+export function useOAuthKeysCheck(
+  integration: Pick<Integration, 'type' | 'wantsKeys'>,
+  keyFetchToken?: hexstring,
+  unwrapBKey?: hexstring
+) {
+  if (
+    (isOAuthIntegration(integration) ||
+      isSyncDesktopV3Integration(integration)) &&
+    integration.wantsKeys() &&
+    (!keyFetchToken || !unwrapBKey)
+  ) {
+    return {
+      oAuthKeysCheckError: OAUTH_ERRORS.TRY_AGAIN,
+    };
+  }
+  return { oAuthKeysCheckError: null };
 }

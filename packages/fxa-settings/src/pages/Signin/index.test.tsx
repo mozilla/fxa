@@ -39,6 +39,7 @@ import {
 import firefox from '../../lib/channels/firefox';
 import { navigate } from '@reach/router';
 import { IntegrationType } from '../../models';
+import { AUTH_DATA_KEY } from '../../lib/sensitive-data-client';
 
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
@@ -173,7 +174,7 @@ function differentAccountLinkRendered() {
   screen.getByRole('link', { name: 'Use a different account' });
 }
 
-describe('Signin', () => {
+describe('Signin component', () => {
   // let bundle: FluentBundle;
   // beforeAll(async () => {
   //   bundle = await getFtlBundle('settings');
@@ -380,8 +381,6 @@ describe('Signin', () => {
                     uid: MOCK_UID,
                     sessionToken: MOCK_SESSION_TOKEN,
                     verified: true,
-                    keyFetchToken: MOCK_KEY_FETCH_TOKEN,
-                    unwrapBKey: MOCK_UNWRAP_BKEY,
                     showInlineRecoveryKeySetup: true,
                     verificationMethod: 'email-otp',
                     verificationReason: VerificationReasons.SIGN_IN,
@@ -502,8 +501,6 @@ describe('Signin', () => {
                     verified: false,
                     verificationReason: 'signup',
                     verificationMethod: 'email-otp',
-                    keyFetchToken: MOCK_KEY_FETCH_TOKEN,
-                    unwrapBKey: MOCK_UNWRAP_BKEY,
                   },
                 });
               });
@@ -672,7 +669,7 @@ describe('Signin', () => {
         enterPasswordAndSubmit();
         await waitFor(() => {
           expect(sendUnblockEmailHandler).toHaveBeenCalled();
-          expect(mockSetData).toHaveBeenCalledWith('auth', {
+          expect(mockSetData).toHaveBeenCalledWith(AUTH_DATA_KEY, {
             password: MOCK_PASSWORD,
           });
           expect(mockNavigate).toHaveBeenCalledWith('/signin_unblock', {
