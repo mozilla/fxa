@@ -4,7 +4,7 @@
 
 'use strict';
 
-const Keyv = require('keyv');
+const { Keyv } = require('keyv');
 const client = require('../oauth/client');
 
 module.exports = (log, config) => {
