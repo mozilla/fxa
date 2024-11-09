@@ -1,5 +1,4 @@
 import React from 'react';
-import { storiesOf } from '@storybook/react';
 import MockApp from '../../../../.storybook/components/MockApp';
 import { defaultAppContext, AppContextType } from '../../../lib/AppContext';
 import { SignInLayout } from '../../../components/AppLayout';
@@ -39,31 +38,30 @@ const IapRoadblockView = ({
   </MockApp>
 );
 
-function init() {
-  storiesOf('routes/Product/IapRoadblock', module)
-    .add('with a Google Play subscription', () => (
-      <IapRoadblockView
-        props={{
-          ...MOCK_PROPS,
-        }}
-      />
-    ))
-    .add('with an Apple App Store subscription', () => (
-      <IapRoadblockView
-        props={{
-          ...MOCK_PROPS,
-          subscription: IAP_APPLE_SUBSCRIPTION,
-        }}
-      />
-    ))
-    .add('Mozilla support needed for upgrade', () => (
-      <IapRoadblockView
-        props={{
-          ...MOCK_PROPS,
-          code: 'iap_upgrade_contact_support',
-        }}
-      />
-    ));
-}
+export default { title: 'routes/Product/IapRoadblock' };
 
-init();
+export const withAGooglePlaySubscription = () => (
+  <IapRoadblockView
+    props={{
+      ...MOCK_PROPS,
+    }}
+  />
+);
+
+export const withAnAppleAppStoreSubscription = () => (
+  <IapRoadblockView
+    props={{
+      ...MOCK_PROPS,
+      subscription: IAP_APPLE_SUBSCRIPTION,
+    }}
+  />
+);
+
+export const MozillaSupportNeededForUpgrade = () => (
+  <IapRoadblockView
+    props={{
+      ...MOCK_PROPS,
+      code: 'iap_upgrade_contact_support',
+    }}
+  />
+);

@@ -5,7 +5,7 @@
 import React from 'react';
 import { LocationProvider } from '@reach/router';
 import { ConnectAnotherDevicePromo } from '.';
-import { Meta } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { AppContext } from '../../../models';
 import { mockAppContext, mockSettingsContext } from '../../../models/mocks';
@@ -16,7 +16,7 @@ export default {
   component: ConnectAnotherDevicePromo,
   decorators: [
     withLocalization,
-    (Story) => (
+    (Story: StoryObj) => (
       <LocationProvider>
         <AppContext.Provider value={mockAppContext()}>
           <SettingsContext.Provider

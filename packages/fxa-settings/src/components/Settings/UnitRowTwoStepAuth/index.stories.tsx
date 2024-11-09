@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { Meta } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { LocationProvider } from '@reach/router';
 import UnitRowTwoStepAuth from '.';
@@ -15,7 +15,7 @@ export default {
   component: UnitRowTwoStepAuth,
   decorators: [
     withLocalization,
-    (Story) => (
+    (Story: StoryObj) => (
       <LocationProvider>
         <Story />
       </LocationProvider>

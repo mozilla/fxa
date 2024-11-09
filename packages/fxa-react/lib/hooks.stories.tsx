@@ -1,36 +1,39 @@
 import React, { useCallback } from 'react';
-import { storiesOf } from '@storybook/react';
 import { useAwait, PromiseState } from './hooks';
 import LoadingSpinner from '../components/LoadingSpinner';
 
 const API_URL = '//worldtimeapi.org/api/ip';
 
-storiesOf('hooks|useAwait', module)
-  .add('basic', () => (
-    <>
-      <UseAwaitExample />
-      <UseAwaitExample apiUrl="//worldtimeapi.org/api/timezone/Europe/London" />
-      <UseAwaitExample apiUrl="//worldtimeapi.org/api/timezone/America/Detroit" />
-    </>
-  ))
-  .add('with initial state', () => (
-    <UseAwaitExample
-      initialState={{
-        result: initialResult(),
-        pending: false,
-        error: undefined,
-      }}
-    />
-  ))
-  .add('with immediate execution', () => (
-    <UseAwaitExample
-      executeImmediately={true}
-      fetchApiFn={() => fetchApi(API_URL)}
-    />
-  ))
-  .add('with error', () => (
-    <UseAwaitExample apiUrl="//worldtimeapi.org/badPage" />
-  ));
+export default { title: 'hooks|useAwait' };
+
+export const basic = () => (
+  <>
+    <UseAwaitExample />
+    <UseAwaitExample apiUrl="//worldtimeapi.org/api/timezone/Europe/London" />
+    <UseAwaitExample apiUrl="//worldtimeapi.org/api/timezone/America/Detroit" />
+  </>
+);
+
+export const withInitialState = () => (
+  <UseAwaitExample
+    initialState={{
+      result: initialResult(),
+      pending: false,
+      error: undefined,
+    }}
+  />
+);
+
+export const withImmediateExecution = () => (
+  <UseAwaitExample
+    executeImmediately={true}
+    fetchApiFn={() => fetchApi(API_URL)}
+  />
+);
+
+export const withError = () => (
+  <UseAwaitExample apiUrl="//worldtimeapi.org/badPage" />
+);
 
 const UseAwaitExample = ({
   fetchApiFn = fetchApi,
@@ -43,10 +46,10 @@ const UseAwaitExample = ({
     executeImmediately,
     initialState,
   });
-  const executeWithApiUrl = useCallback(() => apiExecute(apiUrl), [
-    apiUrl,
-    apiExecute,
-  ]);
+  const executeWithApiUrl = useCallback(
+    () => apiExecute(apiUrl),
+    [apiUrl, apiExecute]
+  );
 
   const buttonClassNames = 'mr-1 py-1 px-2 bg-grey-100 border-grey-600';
   return (

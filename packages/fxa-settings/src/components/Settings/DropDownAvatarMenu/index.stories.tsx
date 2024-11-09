@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { Meta } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import DropDownAvatarMenu from '.';
 import { Account, AppContext } from 'fxa-settings/src/models';
@@ -15,7 +15,7 @@ export default {
   component: DropDownAvatarMenu,
   decorators: [
     withLocalization,
-    (Story) => (
+    (Story: StoryObj) => (
       <div className="w-full flex justify-end">
         <div className="flex pr-10 pt-4">
           <Story />

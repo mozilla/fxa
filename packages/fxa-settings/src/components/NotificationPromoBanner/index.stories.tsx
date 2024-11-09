@@ -4,7 +4,7 @@
 
 import React from 'react';
 import NotificationPromoBanner from '.';
-import { Meta } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { LocationProvider } from '@reach/router';
 import keyImage from './key.svg';
@@ -14,7 +14,7 @@ export default {
   component: NotificationPromoBanner,
   decorators: [
     withLocalization,
-    (Story) => (
+    (Story: StoryObj) => (
       <LocationProvider>
         <Story />
       </LocationProvider>

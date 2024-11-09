@@ -4,7 +4,7 @@
 
 import React from 'react';
 import SigninRecoveryCode from '.';
-import { Meta } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react';
 import { MozServices } from '../../../lib/types';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
@@ -19,7 +19,7 @@ export default {
   component: SigninRecoveryCode,
   decorators: [
     withLocalization,
-    (Story) => (
+    (Story: StoryObj) => (
       <LocationProvider>
         <Story />
       </LocationProvider>

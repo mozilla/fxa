@@ -6,10 +6,7 @@
       "dom.iterable",
       "esnext"
     ],
-    "types": [
-      "jest",
-      "@testing-library/jest-dom"
-    ],
+    "types": ["jest", "@testing-library/jest-dom", "node"],
     "isolatedModules": true,
     "noEmit": true,
   },

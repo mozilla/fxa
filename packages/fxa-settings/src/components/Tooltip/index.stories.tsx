@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { Meta } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react';
 import Tooltip from './index';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 
@@ -12,7 +12,7 @@ export default {
   component: Tooltip,
   decorators: [
     withLocalization,
-    (Story) => (
+    (Story: StoryObj) => (
       <div className="flex flex-col items-center p-20 max-w-md">
         <div className="relative p-2 bg-grey-100">
           <Story />

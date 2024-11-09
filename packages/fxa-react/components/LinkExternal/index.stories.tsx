@@ -1,9 +1,9 @@
 import React from 'react';
-import { storiesOf } from '@storybook/react';
 import LinkExternal from './index';
 import AppLocalizationProvider from '../../lib/AppLocalizationProvider';
 
-storiesOf('Components/LinkExternal', module).add('basic', () => (
+export default { title: 'Components/LinkExternal' };
+export const basic = () => (
   <AppLocalizationProvider
     baseDir="./locales"
     userLocales={navigator.languages}
@@ -12,4 +12,4 @@ storiesOf('Components/LinkExternal', module).add('basic', () => (
       Keep the internet open and accessible to all.
     </LinkExternal>
   </AppLocalizationProvider>
-));
+);

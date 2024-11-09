@@ -3,15 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { storiesOf } from '@storybook/react';
 import { Footer } from './index';
 import AppLocalizationProvider from '../../lib/AppLocalizationProvider';
 
-storiesOf('Components/Footer', module).add('default', () => (
+export default { title: 'Components/Footer' };
+export const Default = () => (
   <AppLocalizationProvider
     baseDir="./locales"
     userLocales={navigator.languages}
   >
     <Footer />
   </AppLocalizationProvider>
-));
+);

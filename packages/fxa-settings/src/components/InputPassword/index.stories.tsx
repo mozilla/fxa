@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { Meta } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import InputPassword from '.';
 import { SubjectWithPairedInputs } from './mocks';
@@ -13,7 +13,7 @@ export default {
   component: InputPassword,
   decorators: [
     withLocalization,
-    (Story) => (
+    (Story: StoryObj) => (
       <div className="flex flex-col gap-4 p-10 max-w-lg">
         <Story />
       </div>
