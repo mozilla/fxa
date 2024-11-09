@@ -11078,6 +11078,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@hapi/hoek@npm:^9.3.0":
+  version: 9.3.0
+  resolution: "@hapi/hoek@npm:9.3.0"
+  checksum: 4771c7a776242c3c022b168046af4e324d116a9d2e1d60631ee64f474c6e38d1bb07092d898bf95c7bc5d334c5582798a1456321b2e53ca817d4e7c88bc25b43
+  languageName: node
+  linkType: hard
+
 "@hapi/inert@npm:7.1.0":
   version: 7.1.0
   resolution: "@hapi/inert@npm:7.1.0"
@@ -11242,6 +11249,15 @@ __metadata:
   dependencies:
     "@hapi/hoek": ^9.0.0
   checksum: 8aa81f71696f88d7daeab4547e120e43c6ab78081a4f215eec5103dd858f3122a703512cdacc43aa7e27d99607345165acfeb2ee69e556e63afd50c5c57a36c3
+  languageName: node
+  linkType: hard
+
+"@hapi/topo@npm:^5.1.0":
+  version: 5.1.0
+  resolution: "@hapi/topo@npm:5.1.0"
+  dependencies:
+    "@hapi/hoek": ^9.0.0
+  checksum: 604dfd5dde76d5c334bd03f9001fce69c7ce529883acf92da96f4fe7e51221bf5e5110e964caca287a6a616ba027c071748ab636ff178ad750547fba611d6014
   languageName: node
   linkType: hard
 
@@ -18044,9 +18060,9 @@ __metadata:
   linkType: hard
 
 "@sentry/types@npm:^7.113.0":
-  version: 7.119.0
-  resolution: "@sentry/types@npm:7.119.0"
-  checksum: ffb8dcaf1d5c96defe860e663553511e602cd6bfbe63b0c3fd8cba5ec1c3ea9ad47597527f4d9ef314ba1b11bccf89c4d6f50435df7cbfb92f5a398c6c261f0b
+  version: 7.119.2
+  resolution: "@sentry/types@npm:7.119.2"
+  checksum: 8417841df4d2bc24e1d553b9b0a320e0f641ac173cbb85a05537a4722e28b2e2010e31012f2363e75dcbc53f9a154bdff684fd5de40716d003887d73e6fca809
   languageName: node
   linkType: hard
 
@@ -18084,12 +18100,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sideway/address@npm:^4.1.3":
-  version: 4.1.3
-  resolution: "@sideway/address@npm:4.1.3"
+"@sideway/address@npm:^4.1.5":
+  version: 4.1.5
+  resolution: "@sideway/address@npm:4.1.5"
   dependencies:
     "@hapi/hoek": ^9.0.0
-  checksum: 3c1faf6ef37a0b59b62ce42b59c012c00ef1fc4194ad6776c65c2f9a6dd6c1710c6f6362b3ca3fa582fdb93984f0cb64ca44f9f5e02940634805f5e561279c22
+  checksum: 3e3ea0f00b4765d86509282290368a4a5fd39a7995fdc6de42116ca19a96120858e56c2c995081def06e1c53e1f8bccc7d013f6326602bec9d56b72ee2772b9d
   languageName: node
   linkType: hard
 
@@ -41011,7 +41027,7 @@ fsevents@~2.1.1:
     hot-shots: ^10.1.1
     i18n-iso-countries: ^7.12.0
     ioredis: ^4.28.2
-    joi: ^17.8.3
+    joi: ^17.13.3
     jose: ^5.9.6
     jsdom: ^24.1.1
     jsonwebtoken: ^9.0.0
@@ -41171,7 +41187,7 @@ fsevents@~2.1.1:
     i18n-abide: 0.0.26
     install: 0.13.0
     intern: ^4.10.1
-    joi: ^17.8.3
+    joi: ^17.13.3
     jquery: 3.7.0
     jquery-modal: "https://github.com/mozilla-fxa/jquery-modal.git#0576775d1b4590314b114386019f4c7421c77503"
     jquery-simulate: 1.0.2
@@ -41320,7 +41336,7 @@ fsevents@~2.1.1:
     fxa-shared: "workspace:*"
     hot-shots: ^10.1.1
     jest: 27.5.1
-    joi: ^17.8.3
+    joi: ^17.13.3
     jwks-rsa: ^3.1.0
     mozlog: ^3.0.2
     nock: ^13.5.1
@@ -41502,7 +41518,7 @@ fsevents@~2.1.1:
     intl: 1.2.5
     jest: 27.5.1
     jest-watch-typeahead: 0.6.5
-    joi: ^17.8.3
+    joi: ^17.13.3
     jquery-modal: "https://github.com/mozilla-fxa/jquery-modal.git#0576775d1b4590314b114386019f4c7421c77503"
     morgan: ^1.10.0
     mozlog: ^3.0.2
@@ -41561,7 +41577,7 @@ fsevents@~2.1.1:
     eslint: ^8.18.0
     fxa-shared: "workspace:*"
     insist: 1.0.1
-    joi: ^17.8.3
+    joi: ^17.13.3
     lodash: ^4.17.21
     mocha: ^10.4.0
     mocha-text-cov: 0.1.1
@@ -41826,7 +41842,7 @@ fsevents@~2.1.1:
     ip: ^2.0.1
     jest: 27.5.1
     jest-junit: ^16.0.0
-    joi: ^17.8.3
+    joi: ^17.13.3
     js-md5: ^0.7.3
     jsdom: 24.1.1
     jsdom-global: 3.0.2
@@ -49260,16 +49276,16 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"joi@npm:17.x.x, joi@npm:^17.3.0, joi@npm:^17.8.3":
-  version: 17.8.3
-  resolution: "joi@npm:17.8.3"
+"joi@npm:17.x.x, joi@npm:^17.13.3, joi@npm:^17.3.0":
+  version: 17.13.3
+  resolution: "joi@npm:17.13.3"
   dependencies:
-    "@hapi/hoek": ^9.0.0
-    "@hapi/topo": ^5.0.0
-    "@sideway/address": ^4.1.3
+    "@hapi/hoek": ^9.3.0
+    "@hapi/topo": ^5.1.0
+    "@sideway/address": ^4.1.5
     "@sideway/formula": ^3.0.1
     "@sideway/pinpoint": ^2.0.0
-  checksum: d93ea768740fc447d19a3340734af8062a53616bfe61d117992632f5064c0abe7ca495a29747317a4f6cd655839507a0e3c9daa90f4f14a7e57a5ad653c43714
+  checksum: 66ed454fee3d8e8da1ce21657fd2c7d565d98f3e539d2c5c028767e5f38cbd6297ce54df8312d1d094e62eb38f9452ebb43da4ce87321df66cf5e3f128cbc400
   languageName: node
   linkType: hard
 
