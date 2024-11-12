@@ -219,6 +219,14 @@ export interface RecoveryKeys {
   hint: string | null;
 }
 
+export interface RecoveryPhones {
+  createdAt: number;
+  lastConfirmed: number;
+  lookupData: Json | null;
+  phoneNumber: string;
+  uid: Buffer;
+}
+
 export interface SecurityEventNames {
   id: Generated<number>;
   name: string;
@@ -317,6 +325,7 @@ export interface DB {
   paypalCustomers: PaypalCustomers;
   recoveryCodes: RecoveryCodes;
   recoveryKeys: RecoveryKeys;
+  recoveryPhones: RecoveryPhones;
   securityEventNames: SecurityEventNames;
   securityEvents: SecurityEvents;
   sentEmails: SentEmails;
