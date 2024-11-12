@@ -13,6 +13,7 @@
 
 import fs from 'fs';
 import os from 'os';
+import { performance } from 'perf_hooks';
 
 import { Command } from 'commander';
 import { StatsD } from 'hot-shots';
@@ -46,6 +47,22 @@ import {
 
 const createFilepath = (endDate: Date) =>
   `inactive-account-uids-${endDate.toISOString().substring(0, 10)}.csv`;
+
+const _collectPerfStatsOn = (statsMap: Map<string, number[]>) => {
+  const sm = statsMap;
+
+  return <T extends (...args) => ReturnType<T>>(name: string, fn: T) => {
+    const stats: number[] = [];
+    sm.set(name, stats);
+
+    return async (...args: Parameters<T>) => {
+      const start = performance.now();
+      const result = await fn(...args);
+      stats.push(performance.now() - start);
+      return result;
+    };
+  };
+};
 
 const init = async () => {
   const program = new Command();
@@ -89,7 +106,8 @@ const init = async () => {
       '--results-limit [number]',
       'The number of results per accounts DB query.  Defaults to 100000.',
       parseInt
-    );
+    )
+    .option('--perf-stats [true|false]', 'Print out performance stats.', false);
 
   program.parse(process.argv);
 
@@ -102,6 +120,10 @@ const init = async () => {
     program.activeByDate || endDate
   ).valueOf();
   const filepath = program.outputPath || createFilepath(endDate);
+  const perfStats = program.perfStats ? new Map() : null;
+  const collectPerfStatsOn = perfStats
+    ? _collectPerfStatsOn(perfStats)
+    : <T extends (...args) => ReturnType<T>>(_, fn: T) => fn;
 
   const config = appConfig.getProperties();
   const log = initLog({
@@ -150,9 +172,33 @@ const init = async () => {
   const refreshTokensFn = oauthDb.getRefreshTokensByUid.bind(oauthDb);
   const accessTokensFn = oauthDb.getAccessTokensByUid.bind(oauthDb);
 
+  const checkActiveSessionToken = collectPerfStatsOn(
+    'Session Token Check',
+    async (uid: string, activeByDateTimestamp: number) =>
+      await hasActiveSessionToken(sessionTokensFn, uid, activeByDateTimestamp)
+  );
+  const checkRefreshToken = collectPerfStatsOn(
+    'Refresh Token Check',
+    async (uid: string, activeByDateTimestamp: number) =>
+      await hasActiveRefreshToken(refreshTokensFn, uid, activeByDateTimestamp)
+  );
+  const checkAccessToken = collectPerfStatsOn(
+    'Access Token Check',
+    async (uid: string) => await hasAccessToken(accessTokensFn, uid)
+  );
+
+  const getPlaySubscriptionsCollection = collectPerfStatsOn(
+    'Get Play Collection',
+    async () => await playBilling.purchaseDbRef().get()
+  );
+  const getAppleSubscriptionsCollection = collectPerfStatsOn(
+    'Get Apple Collection',
+    async () => await appleIap.purchasesDbRef().get()
+  );
+
   const iapSubUids = new Set<string>();
-  const playSubscriptionsCollection = await playBilling.purchaseDbRef().get();
-  const appleSubscriptionsCollection = await appleIap.purchasesDbRef().get();
+  const playSubscriptionsCollection = await getPlaySubscriptionsCollection();
+  const appleSubscriptionsCollection = await getAppleSubscriptionsCollection();
   ((collections) => {
     for (const c of collections) {
       for (const purchaseRecordSnapshot of c.docs) {
@@ -164,28 +210,37 @@ const init = async () => {
     }
   })([playSubscriptionsCollection, appleSubscriptionsCollection]);
 
-  const hasIapSubscription = async (accountRecord: Account) =>
-    iapSubUids.has(accountRecord.uid) &&
-    ((await playSubscriptions.getSubscriptions(accountRecord.uid)).length > 0 ||
-      (await appStoreSubscriptions.getSubscriptions(accountRecord.uid)).length >
-        0);
+  const getPlaySubscriptions = collectPerfStatsOn(
+    'Get Play Subscriptions',
+    async (uid: string) => await playSubscriptions.getSubscriptions(uid)
+  );
+  const getAppleSubscriptions = collectPerfStatsOn(
+    'Get Apple Subscriptions',
+    async (uid: string) => await appStoreSubscriptions.getSubscriptions(uid)
+  );
 
-  const isActive = async (accountRecord: Account) => {
-    return (
-      (await hasActiveSessionToken(
-        sessionTokensFn,
-        accountRecord.uid,
-        activeByDateTimestamp
-      )) ||
-      (await hasActiveRefreshToken(
-        refreshTokensFn,
-        accountRecord.uid,
-        activeByDateTimestamp
-      )) ||
-      (await hasAccessToken(accessTokensFn, accountRecord.uid)) ||
-      (await hasIapSubscription(accountRecord))
-    );
-  };
+  const hasIapSubscription = collectPerfStatsOn(
+    'Has IAP Check',
+    async (accountRecord: Account) =>
+      iapSubUids.has(accountRecord.uid) &&
+      ((await getPlaySubscriptions(accountRecord.uid)).length > 0 ||
+        (await getAppleSubscriptions(accountRecord.uid)).length > 0)
+  );
+
+  const isActive = collectPerfStatsOn(
+    'Active Status Check',
+    async (accountRecord: Account) => {
+      return (
+        (await checkActiveSessionToken(
+          accountRecord.uid,
+          activeByDateTimestamp
+        )) ||
+        (await checkRefreshToken(accountRecord.uid, activeByDateTimestamp)) ||
+        (await checkAccessToken(accountRecord.uid)) ||
+        (await hasIapSubscription(accountRecord))
+      );
+    }
+  );
 
   if (isDryRun) {
     const countQuery = accountWhereAndOrderBy().count({
@@ -248,6 +303,30 @@ const init = async () => {
   console.log(`Total accounts processed: ${totalRowsReturned}`);
   console.log(`Number of inactive accounts: ${totalInactiveAccounts}`);
   console.log(`Inactive account UIDs written to: ${filepath}`);
+
+  if (perfStats) {
+    const stats = {};
+
+    perfStats.forEach((xs, k) => {
+      const cols = {};
+      const sorted = xs.sort((a, b) => a - b);
+      cols['Total Calls'] = sorted.length;
+      cols['Duration (ms)'] = sorted.reduce((a, b) => a + b, 0);
+      cols['Avg'] =
+        sorted.length === 0 ? 0 : cols['Duration (ms)'] / cols['Total Calls'];
+      cols['Median'] =
+        sorted.length === 0
+          ? 0
+          : sorted.length % 2 === 0
+          ? (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2
+          : sorted[Math.floor(sorted.length / 2)];
+
+      stats[k] = cols;
+    });
+
+    console.log('Performance Stats:');
+    console.table(stats);
+  }
 
   return 0;
 };
