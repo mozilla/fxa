@@ -18,6 +18,7 @@ import { performance } from 'perf_hooks';
 import { Command } from 'commander';
 import { StatsD } from 'hot-shots';
 import { Container } from 'typedi';
+import PQueue from 'p-queue-compat';
 
 import { parseDryRun } from '../lib/args';
 import { AppConfig, AuthFirestore, AuthLogger } from '../../lib/types';
@@ -105,6 +106,11 @@ const init = async () => {
     .option(
       '--results-limit [number]',
       'The number of results per accounts DB query.  Defaults to 100000.',
+      parseInt
+    )
+    .option(
+      '--concurrency [number]',
+      'The number inflight active checks.  Defaults to 6.',
       parseInt
     )
     .option('--perf-stats [true|false]', 'Print out performance stats.', false);
@@ -253,6 +259,10 @@ const init = async () => {
   }
 
   const fd = fs.openSync(filepath, 'a');
+  const concurrency = program.concurrency || 6;
+  const queue = new PQueue({
+    concurrency,
+  });
 
   let hasMaxResultsCount = true;
   let totalRowsReturned = 0;
@@ -271,10 +281,15 @@ const init = async () => {
 
     const inactiveUids: string[] = [];
     for (const accountRecord of accounts) {
-      if (!(await isActive(accountRecord))) {
-        inactiveUids.push(accountRecord.uid);
-      }
+      await queue.onSizeLessThan(concurrency * 5);
+
+      queue.add(async () => {
+        if (!(await isActive(accountRecord))) {
+          inactiveUids.push(accountRecord.uid);
+        }
+      });
     }
+    await queue.onIdle();
 
     if (inactiveUids.length) {
       totalInactiveAccounts += inactiveUids.length;
