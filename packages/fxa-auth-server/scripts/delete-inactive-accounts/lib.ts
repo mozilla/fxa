@@ -102,3 +102,67 @@ export const hasAccessToken = async (
   const accessTokens = await tokensFn(uid);
   return accessTokens.length > 0;
 };
+
+export type ActiveConditionFn = (
+  uid: string
+) => Promise<boolean> | Promise<Promise<boolean>>;
+
+/**
+ * This simple builder exists purely to make it clear, and in one place, what
+ * conditions are required to consider an account (in)active, in addition to
+ * the DB query conditions.
+ */
+export class IsActiveFnBuilder {
+  // @TODO we need to add in the RP exclusion check here if it's not possible with MySQL
+
+  requiredFn = (message: string) => () => {
+    throw new Error(message);
+  };
+  activeSessionTokenFn: ActiveConditionFn;
+  refreshTokenFn: ActiveConditionFn;
+  accessTokenFn: ActiveConditionFn;
+  iapSubscriptionFn: ActiveConditionFn;
+
+  constructor() {
+    this.activeSessionTokenFn = this.requiredFn(
+      'A function to check for an active session token is required.'
+    );
+    this.refreshTokenFn = this.requiredFn(
+      'A function to check for a refresh token is required.'
+    );
+    this.accessTokenFn = this.requiredFn(
+      'A function to check for an access token is required.'
+    );
+    this.iapSubscriptionFn = this.requiredFn(
+      'A function to check for an IAP subscription is required.'
+    );
+  }
+
+  setActiveSessionTokenFn(fn: ActiveConditionFn) {
+    this.activeSessionTokenFn = fn;
+    return this;
+  }
+
+  setRefreshTokenFn(fn: ActiveConditionFn) {
+    this.refreshTokenFn = fn;
+    return this;
+  }
+
+  setAccessTokenFn(fn: ActiveConditionFn) {
+    this.accessTokenFn = fn;
+    return this;
+  }
+
+  setIapSubscriptionFn(fn: ActiveConditionFn) {
+    this.iapSubscriptionFn = fn;
+    return this;
+  }
+
+  build() {
+    return (async (uid: string) =>
+      (await this.activeSessionTokenFn(uid)) ||
+      (await this.refreshTokenFn(uid)) ||
+      (await this.accessTokenFn(uid)) ||
+      (await this.iapSubscriptionFn(uid))).bind(this);
+  }
+}
