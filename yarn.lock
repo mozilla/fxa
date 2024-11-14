@@ -23017,9 +23017,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swc/cli@npm:0.3.12":
-  version: 0.3.12
-  resolution: "@swc/cli@npm:0.3.12"
+"@swc/cli@npm:0.5.0":
+  version: 0.5.0
+  resolution: "@swc/cli@npm:0.5.0"
   dependencies:
     "@mole-inc/bin-wrapper": ^8.0.1
     "@swc/counter": ^0.1.3
@@ -23040,7 +23040,7 @@ __metadata:
     spack: bin/spack.js
     swc: bin/swc.js
     swcx: bin/swcx.js
-  checksum: a0d6a388110fbd4d482e9db3edffc3fb452e4f2cbb58b77d2ce9c1600a3a9d8a97fa68f534da4108531be5e9e1d9684a8a03a3112365313e6e1cfcf5270d6349
+  checksum: d4ef80594c6fe50243b614c8b0d075119984e6d7da4b406346046af9f90657807ac2cb93ad61f7a0508ae806203ef573226edbb6ca7d8b11619d865a4d0790ff
   languageName: node
   linkType: hard
 
@@ -41924,7 +41924,7 @@ fsevents@~2.1.1:
     "@storybook/nextjs": ^7.6.14
     "@storybook/react-webpack5": ^7.4.5
     "@swc-node/register": 1.10.9
-    "@swc/cli": 0.3.12
+    "@swc/cli": 0.5.0
     "@swc/core": 1.5.29
     "@swc/helpers": 0.5.11
     "@swc/jest": ^0.2.36
