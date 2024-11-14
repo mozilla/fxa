@@ -25,3 +25,9 @@ export class RecoveryNumberAlreadyExistsError extends RecoveryPhoneError {
     super('Recovery number already exists', { uid, phoneNumber }, cause);
   }
 }
+
+export class RecoveryNumberNotSupportedError extends RecoveryPhoneError {
+  constructor(uid: string, phoneNumber: string, cause?: Error) {
+    super('Phone number not supported.', { uid, phoneNumber }, cause);
+  }
+}
