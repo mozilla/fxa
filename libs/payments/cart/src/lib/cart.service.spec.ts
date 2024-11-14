@@ -41,7 +41,6 @@ import {
   StripeSubscriptionFactory,
   StripePaymentMethodFactory,
   StripePaymentIntentFactory,
-  StripeInvoiceFactory,
 } from '@fxa/payments/stripe';
 import {
   MockProfileClientConfigProvider,
@@ -84,14 +83,20 @@ import { CartManager } from './cart.manager';
 import { CartService } from './cart.service';
 import { CheckoutService } from './checkout.service';
 import {
+  CartError,
   CartInvalidCurrencyError,
   CartInvalidPromoCodeError,
   CartInvalidStateForActionError,
   CartStateProcessingError,
+  CartSubscriptionNotFoundError,
   CartSuccessMissingRequired,
 } from './cart.error';
 import { CurrencyManager } from '@fxa/payments/currency';
 import { MockCurrencyConfigProvider } from 'libs/payments/currency/src/lib/currency.config';
+import { NeedsInputType } from './cart.types';
+import { redirect } from 'next/navigation';
+
+jest.mock('next/navigation');
 
 describe('CartService', () => {
   let accountManager: AccountManager;
@@ -101,6 +106,7 @@ describe('CartService', () => {
   let checkoutService: CheckoutService;
   let customerManager: CustomerManager;
   let currencyManager: CurrencyManager;
+  let paymentIntentManager: PaymentIntentManager;
   let promotionCodeManager: PromotionCodeManager;
   let eligibilityService: EligibilityService;
   let geodbManager: GeoDBManager;
@@ -108,7 +114,6 @@ describe('CartService', () => {
   let productConfigurationManager: ProductConfigurationManager;
   let subscriptionManager: SubscriptionManager;
   let paymentMethodManager: PaymentMethodManager;
-  let stripeClient: StripeClient;
 
   const mockLogger = {
     error: jest.fn(),
@@ -169,6 +174,7 @@ describe('CartService', () => {
     checkoutService = moduleRef.get(CheckoutService);
     customerManager = moduleRef.get(CustomerManager);
     currencyManager = moduleRef.get(CurrencyManager);
+    paymentIntentManager = moduleRef.get(PaymentIntentManager);
     promotionCodeManager = moduleRef.get(PromotionCodeManager);
     eligibilityService = moduleRef.get(EligibilityService);
     geodbManager = moduleRef.get(GeoDBManager);
@@ -176,7 +182,6 @@ describe('CartService', () => {
     productConfigurationManager = moduleRef.get(ProductConfigurationManager);
     subscriptionManager = moduleRef.get(SubscriptionManager);
     paymentMethodManager = moduleRef.get(PaymentMethodManager);
-    stripeClient = moduleRef.get(StripeClient);
   });
 
   describe('setupCart', () => {
@@ -474,104 +479,56 @@ describe('CartService', () => {
     });
   });
 
-  describe('pollCart', () => {
-    it('returns cartState if cart is in failed state', async () => {
-      const mockart = ResultCartFactory({ state: CartState.FAIL });
+  describe('finalizeProcessingCart', () => {
+    it('throws an error for a cart that has no uid', async () => {
+      const mockCart = ResultCartFactory();
 
-      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockart);
-
-      const result = await cartService.pollCart(mockart.id);
-
-      expect(result).toEqual({ cartState: mockart.state });
+      await expect(
+        cartService.finalizeProcessingCart(mockCart.id)
+      ).rejects.toThrowError(CartError);
     });
-
-    it('returns cartState if cart is in success state', async () => {
-      const mockart = ResultCartFactory({ state: CartState.SUCCESS });
-
-      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockart);
-
-      const result = await cartService.pollCart(mockart.id);
-
-      expect(result).toEqual({ cartState: mockart.state });
-    });
-
-    it('calls invoiceManager.processPayPalNonZeroInvoice for send_invoice subscriptions', async () => {
-      const mockSubscriptionId = faker.string.uuid();
-      const mockInvoiceId = faker.string.uuid();
+    it('throws a CartSubscriptionNotFoundError', async () => {
       const mockCart = ResultCartFactory({
-        state: CartState.PROCESSING,
-        stripeSubscriptionId: mockSubscriptionId,
+        uid: faker.string.hexadecimal({
+          length: 32,
+          prefix: '',
+          casing: 'lower',
+        }),
+        stripeSubscriptionId: null,
       });
-      const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
-      const mockInvoice = StripeResponseFactory(
-        StripeInvoiceFactory({
-          id: mockInvoiceId,
-          currency: 'usd',
-          amount_due: 1000,
-          tax: 100,
-        })
-      );
+
+      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+
+      await expect(
+        cartService.finalizeProcessingCart(mockCart.id)
+      ).rejects.toThrowError(CartSubscriptionNotFoundError);
+    });
+    it('calls checkoutService.postPaySteps', async () => {
+      const mockCart = ResultCartFactory({
+        uid: faker.string.hexadecimal({
+          length: 32,
+          prefix: '',
+          casing: 'lower',
+        }),
+      });
       const mockSubscription = StripeResponseFactory(
-        StripeSubscriptionFactory({
-          id: mockSubscriptionId,
-          latest_invoice: mockInvoiceId,
-          collection_method: 'send_invoice',
-        })
+        StripeSubscriptionFactory()
       );
 
       jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
       jest
         .spyOn(subscriptionManager, 'retrieve')
         .mockResolvedValue(mockSubscription);
-      jest
-        .spyOn(stripeClient, 'customersRetrieve')
-        .mockResolvedValue(mockCustomer);
-      jest.spyOn(invoiceManager, 'retrieve').mockResolvedValue(mockInvoice);
-      jest
-        .spyOn(invoiceManager, 'processPayPalNonZeroInvoice')
-        .mockResolvedValue(mockInvoice);
+      jest.spyOn(checkoutService, 'postPaySteps').mockResolvedValue();
 
-      const result = await cartService.pollCart(mockCart.id);
+      await cartService.finalizeProcessingCart(mockCart.id);
 
-      expect(invoiceManager.processPayPalNonZeroInvoice).toHaveBeenCalledWith(
-        mockCustomer,
-        mockInvoice
+      expect(checkoutService.postPaySteps).toHaveBeenCalledWith(
+        mockCart,
+        mockCart.version,
+        mockSubscription,
+        mockCart.uid
       );
-
-      expect(result).toEqual({ cartState: CartState.PROCESSING });
-    });
-
-    it('calls subscriptionManager.processStripeSubscription for stripe subscriptions', async () => {
-      const mockSubscriptionId = faker.string.uuid();
-      const mockCart = ResultCartFactory({
-        state: CartState.PROCESSING,
-        stripeSubscriptionId: mockSubscriptionId,
-      });
-      const mockSubscription = StripeResponseFactory(
-        StripeSubscriptionFactory({
-          id: mockSubscriptionId,
-          collection_method: 'charge_automatically',
-        })
-      );
-      const mockPaymentIntent = StripeResponseFactory(
-        StripePaymentIntentFactory({ status: 'processing' })
-      );
-
-      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
-      jest
-        .spyOn(subscriptionManager, 'retrieve')
-        .mockResolvedValue(mockSubscription);
-      jest
-        .spyOn(subscriptionManager, 'processStripeSubscription')
-        .mockResolvedValue(mockPaymentIntent);
-
-      const result = await cartService.pollCart(mockCart.id);
-
-      expect(
-        subscriptionManager.processStripeSubscription
-      ).toHaveBeenCalledWith(mockSubscription);
-
-      expect(result).toEqual({ cartState: CartState.PROCESSING });
     });
   });
 
@@ -1038,6 +995,162 @@ describe('CartService', () => {
       const result = await cartService.metricsOptedOut(mockUid);
       expect(accountManager.getAccounts).toHaveBeenCalledWith([mockUid]);
       expect(result).toBeFalsy();
+    });
+  });
+
+  describe('getNeedsInput', () => {
+    it('returns StripeHandleNextActionResponse for requires_action payment intents', async () => {
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory()
+      );
+      const mockCart = ResultCartFactory({
+        state: CartState.NEEDS_INPUT,
+        stripeSubscriptionId: mockSubscription.id,
+      });
+      const mockPaymentIntent = StripeResponseFactory(
+        StripePaymentIntentFactory({ status: 'requires_action' })
+      );
+
+      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(mockSubscription);
+      jest
+        .spyOn(subscriptionManager, 'getLatestPaymentIntent')
+        .mockResolvedValue(mockPaymentIntent);
+
+      const result = await cartService.getNeedsInput(mockCart.id);
+      expect(result).toEqual({
+        inputType: NeedsInputType.StripeHandleNextAction,
+        data: { clientSecret: mockPaymentIntent.client_secret },
+      });
+    });
+    it('returns NoInputNeededResponse for non requires_action payment intents', async () => {
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory()
+      );
+      const mockCart = ResultCartFactory({
+        state: CartState.NEEDS_INPUT,
+        stripeSubscriptionId: mockSubscription.id,
+      });
+      const mockPaymentIntent = StripeResponseFactory(
+        StripePaymentIntentFactory({ status: 'processing' })
+      );
+
+      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(mockSubscription);
+      jest
+        .spyOn(subscriptionManager, 'getLatestPaymentIntent')
+        .mockResolvedValue(mockPaymentIntent);
+      jest.spyOn(cartManager, 'setProcessingCart').mockResolvedValue();
+
+      const result = await cartService.getNeedsInput(mockCart.id);
+      expect(result).toEqual({
+        inputType: NeedsInputType.NotRequired,
+      });
+    });
+    it('throws an error if the cart is not in the NEEDS_INPUT state', async () => {
+      const mockCart = ResultCartFactory({ state: CartState.SUCCESS });
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory()
+      );
+      const mockPaymentIntent = StripeResponseFactory(
+        StripePaymentIntentFactory({ status: 'processing' })
+      );
+
+      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(mockSubscription);
+      jest
+        .spyOn(subscriptionManager, 'processStripeSubscription')
+        .mockResolvedValue(mockPaymentIntent);
+
+      await expect(() =>
+        cartService.getNeedsInput(mockCart.id)
+      ).rejects.toThrowError(CartInvalidStateForActionError);
+    });
+  });
+
+  describe('submitNeedsInput', () => {
+    it('changes the cart state and calls postPaySteps', async () => {
+      const mockCart = ResultCartFactory({
+        state: CartState.NEEDS_INPUT,
+        uid: faker.string.hexadecimal({
+          length: 32,
+          prefix: '',
+          casing: 'lower',
+        }),
+      });
+      const mockPaymentMethod = StripeResponseFactory(
+        StripePaymentMethodFactory()
+      );
+      const mockPaymentIntent = StripeResponseFactory(
+        StripePaymentIntentFactory({
+          status: 'succeeded',
+          payment_method: mockPaymentMethod.id,
+        })
+      );
+      const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory()
+      );
+
+      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+      jest
+        .spyOn(paymentIntentManager, 'retrieve')
+        .mockResolvedValue(mockPaymentIntent);
+      jest.spyOn(customerManager, 'retrieve').mockResolvedValue(mockCustomer);
+      jest.spyOn(customerManager, 'update').mockResolvedValue(mockCustomer);
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(mockSubscription);
+      jest
+        .spyOn(subscriptionManager, 'getLatestPaymentIntent')
+        .mockResolvedValue(mockPaymentIntent);
+      jest.spyOn(checkoutService, 'postPaySteps').mockResolvedValue();
+      jest.spyOn(cartService, 'finalizeCartWithError').mockResolvedValue();
+      jest.mocked(redirect).mockImplementation();
+
+      await cartService.submitNeedsInput(mockCart.id);
+
+      expect(customerManager.update).toHaveBeenCalledWith(mockCustomer.id, {
+        invoice_settings: {
+          default_payment_method: mockPaymentMethod.id,
+        },
+      });
+      expect(checkoutService.postPaySteps).toHaveBeenCalledWith(
+        mockCart,
+        mockCart.version,
+        mockSubscription,
+        mockCart.uid
+      );
+    });
+
+    it('throws an error if the cart is not in the NEEDS_INPUT state', async () => {
+      const mockCart = ResultCartFactory({
+        state: CartState.SUCCESS,
+        uid: faker.string.hexadecimal({
+          length: 32,
+          prefix: '',
+          casing: 'lower',
+        }),
+      });
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory()
+      );
+
+      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+      jest.spyOn(cartService, 'finalizeCartWithError').mockResolvedValue();
+      jest
+        .spyOn(subscriptionManager, 'cancel')
+        .mockResolvedValue(mockSubscription);
+
+      await expect(() =>
+        cartService.submitNeedsInput(mockCart.id)
+      ).rejects.toThrowError(CartInvalidStateForActionError);
     });
   });
 });

@@ -21,7 +21,8 @@ import { UpdateCartActionArgs } from './validators/UpdateCartActionArgs';
 import { RecordEmitterEventArgs } from './validators/RecordEmitterEvent';
 import { PaymentsEmitterService } from '../emitter/emitter.service';
 import { FinalizeProcessingCartActionArgs } from './validators/finalizeProcessingCartActionArgs';
-import { PollCartActionArgs } from './validators/pollCartActionArgs';
+import { SubmitNeedsInputActionArgs } from './validators/SubmitNeedsInputActionArgs';
+import { GetNeedsInputActionArgs } from './validators/GetNeedsInputActionArgs';
 
 /**
  * ANY AND ALL methods exposed via this service should be considered publicly accessible and callable with any arguments.
@@ -77,14 +78,6 @@ export class NextJSActionsService {
     const cart = await this.cartService.setupCart({
       ...args,
     });
-
-    return cart;
-  }
-
-  async pollCart(args: PollCartActionArgs) {
-    await new Validator().validateOrReject(args);
-
-    const cart = await this.cartService.pollCart(args.cartId);
 
     return cart;
   }
@@ -171,5 +164,17 @@ export class NextJSActionsService {
         throw new Error(`Event ${args.eventName} not supported`);
       }
     }
+  }
+
+  async getNeedsInput(args: GetNeedsInputActionArgs) {
+    await new Validator().validateOrReject(args);
+
+    return await this.cartService.getNeedsInput(args.cartId);
+  }
+
+  async submitNeedsInput(args: SubmitNeedsInputActionArgs) {
+    await new Validator().validateOrReject(args);
+
+    return await this.cartService.submitNeedsInput(args.cartId);
   }
 }

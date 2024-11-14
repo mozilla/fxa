@@ -106,7 +106,24 @@ export type CartEligibilityDetails = {
   errorReasonId?: CartErrorReasonId;
 };
 
-export type PollCartResponse = {
-  cartState: CartState;
-  stripeClientSecret?: string;
+export enum NeedsInputType {
+  StripeHandleNextAction = 'stripeHandleNextAction',
+  NotRequired = 'notRequired',
+}
+type StripeHandleNextActionData = {
+  clientSecret: string;
 };
+
+export type GetNeedsInputResponse = {
+  inputType: NeedsInputType;
+  data: StripeHandleNextActionData;
+};
+
+export interface StripeHandleNextActionResponse extends GetNeedsInputResponse {
+  inputType: NeedsInputType.StripeHandleNextAction;
+  data: StripeHandleNextActionData;
+}
+
+export interface NoInputNeededResponse extends GetNeedsInputResponse {
+  inputType: NeedsInputType.NotRequired;
+}

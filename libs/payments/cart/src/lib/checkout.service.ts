@@ -38,13 +38,14 @@ import {
   CartInvalidPromoCodeError,
   CartInvalidCurrencyError,
   CartUidNotFoundError,
+  CartError,
 } from './cart.error';
 import { CartManager } from './cart.manager';
 import { CheckoutCustomerData, ResultCart } from './cart.types';
 import { handleEligibilityStatusMap } from './cart.utils';
-import { CheckoutError } from './checkout.error';
 import { PrePayStepsResult } from './checkout.types';
 import assert from 'assert';
+import { CheckoutPaymentError } from './checkout.error';
 
 @Injectable()
 export class CheckoutService {
@@ -55,7 +56,7 @@ export class CheckoutService {
     private eligibilityService: EligibilityService,
     private invoiceManager: InvoiceManager,
     private notifierService: NotifierService,
-    private paymentIntents: PaymentIntentManager,
+    private paymentIntentManager: PaymentIntentManager,
     private paypalBillingAgreementManager: PaypalBillingAgreementManager,
     private paypalCustomerManager: PaypalCustomerManager,
     private productConfigurationManager: ProductConfigurationManager,
@@ -275,6 +276,7 @@ export class CheckoutService {
     await this.cartManager.updateFreshCart(cart.id, version, {
       stripeSubscriptionId: subscription.id,
     });
+
     const updatedVersion = version + 1;
 
     assert(
@@ -290,22 +292,34 @@ export class CheckoutService {
       'payment_intent does not exist on subscription'
     );
     // Confirm intent with collected payment method
-    const { status, payment_method } = await this.paymentIntents.confirm(
+    const paymentIntent = await this.paymentIntentManager.confirm(
       invoice.payment_intent,
       {
         confirmation_token: confirmationTokenId,
       }
     );
 
-    if (status === 'succeeded') {
-      if (payment_method) {
+    if (paymentIntent.status === 'requires_action') {
+      await this.cartManager.setNeedsInputCart(cart.id);
+      return;
+    } else if (paymentIntent.status === 'succeeded') {
+      if (paymentIntent.payment_method) {
         await this.customerManager.update(customer.id, {
           invoice_settings: {
-            default_payment_method: payment_method,
+            default_payment_method: paymentIntent.payment_method,
           },
         });
+      } else {
+        throw new CartError(
+          'Failed to update customer default payment method',
+          { cartId: cart.id }
+        );
       }
       await this.postPaySteps(cart, updatedVersion, subscription, uid);
+    } else {
+      throw new CheckoutPaymentError(
+        `Expected payment intent status to be one of [requires_action, succeeded], instead found: ${paymentIntent.status}`
+      );
     }
   }
 
@@ -314,97 +328,88 @@ export class CheckoutService {
     customerData: CheckoutCustomerData,
     token?: string
   ) {
-    try {
-      const {
+    const { uid, customer, enableAutomaticTax, promotionCode, price, version } =
+      await this.prePaySteps(cart, customerData);
+
+    const paypalSubscriptions =
+      await this.subscriptionManager.getCustomerPayPalSubscriptions(
+        customer.id
+      );
+
+    const billingAgreementId =
+      await this.paypalBillingAgreementManager.retrieveOrCreateId(
         uid,
-        customer,
-        enableAutomaticTax,
-        promotionCode,
-        price,
-        version,
-      } = await this.prePaySteps(cart, customerData);
+        !!paypalSubscriptions.length,
+        token
+      );
 
-      const paypalSubscriptions =
-        await this.subscriptionManager.getCustomerPayPalSubscriptions(
-          customer.id
-        );
+    this.statsd.increment('stripe_subscription', {
+      payment_provider: 'paypal',
+    });
 
-      const billingAgreementId =
-        await this.paypalBillingAgreementManager.retrieveOrCreateId(
-          uid,
-          !!paypalSubscriptions.length,
-          token
-        );
-
-      this.statsd.increment('stripe_subscription', {
-        payment_provider: 'paypal',
-      });
-
-      const subscription = await this.subscriptionManager.create(
-        {
-          customer: customer.id,
-          automatic_tax: {
-            enabled: enableAutomaticTax,
-          },
-          collection_method: 'send_invoice',
-          days_until_due: 1,
-          promotion_code: promotionCode?.id,
-          items: [
-            {
-              price: price.id,
-            },
-          ],
-          currency: cart.currency ?? undefined,
-          metadata: {
-            // Note: These fields are due to missing Fivetran support on Stripe multi-currency plans
-            [STRIPE_SUBSCRIPTION_METADATA.Amount]: cart.amount,
-            [STRIPE_SUBSCRIPTION_METADATA.Currency]: cart.currency,
-          },
+    const subscription = await this.subscriptionManager.create(
+      {
+        customer: customer.id,
+        automatic_tax: {
+          enabled: enableAutomaticTax,
         },
-        {
-          idempotencyKey: cart.id,
-        }
-      );
-
-      await this.paypalCustomerManager.deletePaypalCustomersByUid(uid);
-      await Promise.all([
-        this.paypalCustomerManager.createPaypalCustomer({
-          uid,
-          billingAgreementId,
-          status: 'active',
-          endedAt: null,
-        }),
-        this.customerManager.update(customer.id, {
-          metadata: {
-            [STRIPE_CUSTOMER_METADATA.PaypalAgreement]: billingAgreementId,
+        collection_method: 'send_invoice',
+        days_until_due: 1,
+        promotion_code: promotionCode?.id,
+        items: [
+          {
+            price: price.id,
           },
-        }),
-        this.cartManager.updateFreshCart(cart.id, version, {
-          stripeSubscriptionId: subscription.id,
-        }),
-      ]);
-
-      const updatedVersion = version + 1;
-
-      if (!subscription.latest_invoice) {
-        throw new CheckoutError(
-          'latest_invoice does not exist on subscription'
-        );
+        ],
+        currency: cart.currency ?? undefined,
+        metadata: {
+          // Note: These fields are due to missing Fivetran support on Stripe multi-currency plans
+          [STRIPE_SUBSCRIPTION_METADATA.Amount]: cart.amount,
+          [STRIPE_SUBSCRIPTION_METADATA.Currency]: cart.currency,
+        },
+      },
+      {
+        idempotencyKey: cart.id,
       }
-      const latestInvoice = await this.invoiceManager.retrieve(
-        subscription.latest_invoice
-      );
-      try {
-        this.invoiceManager.processPayPalInvoice(latestInvoice);
-      } catch (e) {
-        await this.subscriptionManager.cancel(subscription.id);
-        await this.paypalBillingAgreementManager.cancel(billingAgreementId);
-      }
+    );
 
+    await this.paypalCustomerManager.deletePaypalCustomersByUid(uid);
+    await Promise.all([
+      this.paypalCustomerManager.createPaypalCustomer({
+        uid,
+        billingAgreementId,
+        status: 'active',
+        endedAt: null,
+      }),
+      this.customerManager.update(customer.id, {
+        metadata: {
+          [STRIPE_CUSTOMER_METADATA.PaypalAgreement]: billingAgreementId,
+        },
+      }),
+      this.cartManager.updateFreshCart(cart.id, version, {
+        stripeSubscriptionId: subscription.id,
+      }),
+    ]);
+
+    const updatedVersion = version + 1;
+
+    if (!subscription.latest_invoice) {
+      throw new CartError('No latest invoice found for subscription', {
+        subscriptionId: subscription.id,
+      });
+    }
+    const latestInvoice = await this.invoiceManager.retrieve(
+      subscription.latest_invoice
+    );
+    const processedInvoice = await this.invoiceManager.processPayPalInvoice(
+      latestInvoice
+    );
+    if (['paid', 'open'].includes(processedInvoice.status ?? '')) {
       await this.postPaySteps(cart, updatedVersion, subscription, uid);
-    } catch (error) {
-      console.error(error);
-      throw error;
+    } else {
+      throw new CheckoutPaymentError(
+        `Expected processed invoice status to be one of [paid, open], instead found: ${processedInvoice.status}`
+      );
     }
   }
 }

@@ -29,6 +29,10 @@ async function getCartOrRedirectAction(
 ): Promise<WithContextCart>;
 async function getCartOrRedirectAction(
   cartId: string,
+  page: SupportedPages.NEEDS_INPUT
+): Promise<WithContextCart>;
+async function getCartOrRedirectAction(
+  cartId: string,
   page: SupportedPages.ERROR
 ): Promise<WithContextCart>;
 async function getCartOrRedirectAction(
@@ -60,6 +64,7 @@ async function getCartOrRedirectAction(
     }
     case SupportedPages.START:
     case SupportedPages.PROCESSING:
+    case SupportedPages.NEEDS_INPUT:
     case SupportedPages.ERROR: {
       cart = await getApp().getActionsService().getCart(
         plainToClass(GetCartActionArgs, {

@@ -94,8 +94,8 @@ export class InvalidPaymentIntentError extends PaymentsCustomerError {
 }
 
 export class InvalidInvoiceError extends PaymentsCustomerError {
-  constructor() {
-    super('Invalid invoice');
+  constructor(message: string) {
+    super(message);
   }
 }
 

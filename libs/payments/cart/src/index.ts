@@ -7,3 +7,4 @@ export * from './lib/cart.manager';
 export * from './lib/cart.service';
 export * from './lib/cart.utils';
 export * from './lib/checkout.service';
+export * from './lib/checkout.error';

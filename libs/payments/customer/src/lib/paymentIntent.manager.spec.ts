@@ -48,4 +48,22 @@ describe('PaymentIntentManager', () => {
       expect(result).toEqual(mockResponse);
     });
   });
+
+  describe('retrieve', () => {
+    it('should retrieve a payment intent', async () => {
+      const mockPaymentIntent = StripePaymentIntentFactory();
+      const mockResponse = StripeResponseFactory(mockPaymentIntent);
+
+      jest
+        .spyOn(stripeClient, 'paymentIntentRetrieve')
+        .mockResolvedValue(mockResponse);
+
+      const result = await paymentIntentManager.retrieve(mockPaymentIntent.id);
+
+      expect(stripeClient.paymentIntentRetrieve).toHaveBeenCalledWith(
+        mockPaymentIntent.id
+      );
+      expect(result).toEqual(mockResponse);
+    });
+  });
 });

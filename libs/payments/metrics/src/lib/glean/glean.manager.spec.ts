@@ -21,7 +21,7 @@ const mockCommonMetricsData = {
   cmsMetricsData: CmsMetricsDataFactory(),
 };
 const mockCommonMetrics = { common: 'metrics' };
-const mockPaymentProvider = 'stripe';
+const mockPaymentProvider = 'card';
 
 describe('PaymentsGleanManager', () => {
   let paymentsGleanManager: PaymentsGleanManager;
