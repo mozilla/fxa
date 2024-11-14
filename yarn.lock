@@ -528,15 +528,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@auth/core@npm:0.30.0":
-  version: 0.30.0
-  resolution: "@auth/core@npm:0.30.0"
+"@auth/core@npm:0.37.2":
+  version: 0.37.2
+  resolution: "@auth/core@npm:0.37.2"
   dependencies:
-    "@panva/hkdf": ^1.1.1
+    "@panva/hkdf": ^1.2.1
     "@types/cookie": 0.6.0
-    cookie: 0.6.0
-    jose: ^5.1.3
-    oauth4webapi: ^2.4.0
+    cookie: 0.7.1
+    jose: ^5.9.3
+    oauth4webapi: ^3.0.0
     preact: 10.11.3
     preact-render-to-string: 5.2.3
   peerDependencies:
@@ -550,7 +550,7 @@ __metadata:
       optional: true
     nodemailer:
       optional: true
-  checksum: a12220ffa7375973917ada215cb10e59c4080e021141e0d9c6f1bfadf142a0fb62f36ba2ac440d8a4fbd19364a722a27d38f0a43fef7b911127dd7c82f987d80
+  checksum: 669eea9bf2d84e97d179f2dd0b7f7915269aa23d6014d0dd177f072bf3f894f1a6844a346bcdea868325976cc064baa6c26925715447ba61aa96875782458969
   languageName: node
   linkType: hard
 
@@ -15900,10 +15900,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@panva/hkdf@npm:^1.1.1":
-  version: 1.1.1
-  resolution: "@panva/hkdf@npm:1.1.1"
-  checksum: f0dd12903751d8792420353f809ed3c7de860cf506399759fff5f59f7acfef8a77e2b64012898cee7e5b047708fa0bd91dff5ef55a502bf8ea11aad9842160da
+"@panva/hkdf@npm:^1.2.1":
+  version: 1.2.1
+  resolution: "@panva/hkdf@npm:1.2.1"
+  checksum: a4a9d1812f88f02bc163b365524bbaa5239cc4711e5e7be1bda68dabae1c896cf1cd12520949b0925a6910733d1afcb25ab51fd3cf06f0f69aee988fffebf56e
   languageName: node
   linkType: hard
 
@@ -49290,14 +49290,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"jose@npm:^5.1.3":
-  version: 5.2.4
-  resolution: "jose@npm:5.2.4"
-  checksum: 81e1f4494f406debd14392975327f0daa8b88ff09c83f2fe94754dcd7cfdefdb1adf785b2ec7481751927e609d342581cd41cb444628ef62fca423facebcd280
-  languageName: node
-  linkType: hard
-
-"jose@npm:^5.9.6":
+"jose@npm:^5.9.3, jose@npm:^5.9.6":
   version: 5.9.6
   resolution: "jose@npm:5.9.6"
   checksum: 4b536da0201858ed4c4582e8bb479081f11e0c63dd0f5e473adde16fc539785e1f2f0409bc1fc7cbbb5b68026776c960b4952da3a06f6fdfff0b9764c9127ae0
@@ -54012,16 +54005,16 @@ fsevents@~2.1.1:
   linkType: hard
 
 "next-auth@npm:beta":
-  version: 5.0.0-beta.17
-  resolution: "next-auth@npm:5.0.0-beta.17"
+  version: 5.0.0-beta.25
+  resolution: "next-auth@npm:5.0.0-beta.25"
   dependencies:
-    "@auth/core": 0.30.0
+    "@auth/core": 0.37.2
   peerDependencies:
     "@simplewebauthn/browser": ^9.0.1
     "@simplewebauthn/server": ^9.0.2
-    next: ^14
+    next: ^14.0.0-0 || ^15.0.0-0
     nodemailer: ^6.6.5
-    react: ^18.2.0
+    react: ^18.2.0 || ^19.0.0-0
   peerDependenciesMeta:
     "@simplewebauthn/browser":
       optional: true
@@ -54029,7 +54022,7 @@ fsevents@~2.1.1:
       optional: true
     nodemailer:
       optional: true
-  checksum: afdf069936490814ff3a37a1992bdfd2ac6b1b1af1dbc04569ad2a59dbdea139a6628ba5ca4f65b4058f72bd5a0dcf8e94492f4288dcf5696d96e6587fb1a40d
+  checksum: 5a3f52e6d32ae6c954e438496b96bb8d46ba60ca6dbfab146af718d50e7fe8b967b7019fda162e5fa32bfc5219160f7b995c327d62d5144e7935bb18b9b61e39
   languageName: node
   linkType: hard
 
@@ -55250,10 +55243,10 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"oauth4webapi@npm:^2.4.0":
-  version: 2.10.3
-  resolution: "oauth4webapi@npm:2.10.3"
-  checksum: 339c5e6f8752644ceb603cd711e23c283bf8a6cf7a61a2ed2914fc270d1a178f3448585f22aaea59d5f05c6465f6e7988bc850765cf40359a8bb61e590fee706
+"oauth4webapi@npm:^3.0.0":
+  version: 3.1.2
+  resolution: "oauth4webapi@npm:3.1.2"
+  checksum: cd986eba0ee3d8853a4abb1ee3296cafa876cc9a8d2716213d01a3d396f1758581d1fe83e8b9fb1be16c226b0e1392ce528f06558532082ea2a928bb244407d8
   languageName: node
   linkType: hard
 
