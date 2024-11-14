@@ -12,6 +12,7 @@ import {
   IsUrl,
   IsNumber,
   IsOptional,
+  IsBoolean,
 } from 'class-validator';
 import {
   RootConfig as NestAppRootConfig,
@@ -46,8 +47,17 @@ class AuthJSConfig {
   @IsUrl({ require_tld: false })
   wellKnownUrl!: string;
 
+  @IsUrl({ require_tld: false })
+  tokenUrl!: string;
+
+  @IsUrl({ require_tld: false })
+  userinfoUrl!: string;
+
   @IsString()
   clientId!: string;
+
+  @IsString()
+  clientSecret!: string;
 }
 
 export class PaymentsNextConfig extends NestAppRootConfig {
@@ -74,11 +84,17 @@ export class PaymentsNextConfig extends NestAppRootConfig {
   @IsString()
   authSecret!: string;
 
+  @IsBoolean()
+  authTrustHost!: boolean;
+
   @IsString()
   stripePublicApiKey!: string;
 
   @IsUrl({ require_tld: false })
   contentServerUrl!: string;
+
+  @IsUrl({ require_tld: false })
+  baseUrl!: string;
 
   /**
    * Nextjs Public Environment Variables
