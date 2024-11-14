@@ -69,11 +69,10 @@ export const DataBlock = ({
       <div
         className={classNames(
           'relative flex font-mono text-center text-sm font-bold text-black bg-gradient-to-tr from-blue-600/10 to-purple-500/10 border border-transparent',
-          valueIsArray ? 'max-w-sm py-4' : 'max-w-lg',
-          valueIsArray && !isInline && ' py-5',
+          valueIsArray ? 'max-w-sm' : 'max-w-lg',
           isInline
             ? 'flex-nowrap w-full rounded py-2 px-3'
-            : 'flex-wrap mb-8 rounded-lg px-6'
+            : 'flex-wrap mb-8 rounded-lg px-6 py-4'
         )}
         data-testid={dataTestId}
         {...{ onCopy }}

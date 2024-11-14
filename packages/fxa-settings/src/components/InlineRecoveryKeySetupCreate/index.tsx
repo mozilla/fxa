@@ -55,7 +55,7 @@ export const InlineRecoveryKeySetupCreate = ({
         <HeadingPrimary>Secure your account</HeadingPrimary>
       </FtlMsg>
 
-      <RecoveryKeyImage className="my-6 mx-auto" />
+      <RecoveryKeyImage />
 
       <h2 className="font-bold text-xl mb-5">
         <FtlMsg id="inline-recovery-key-setup-create-subheader">

@@ -9,6 +9,7 @@ import Avatar from '.';
 import {
   MOCK_AVATAR_DEFAULT,
   MOCK_AVATAR_NON_DEFAULT,
+  PLACEHOLDER_IMAGE_URL,
 } from '../../../pages/mocks';
 
 describe('Avatar', () => {
@@ -35,7 +36,7 @@ describe('Avatar', () => {
 
     expect(screen.getByTestId('avatar-nondefault')).toHaveAttribute(
       'src',
-      'http://placekitten.com/512/512'
+      PLACEHOLDER_IMAGE_URL
     );
     expect(screen.getByTestId('avatar-nondefault')).toHaveAttribute(
       'alt',

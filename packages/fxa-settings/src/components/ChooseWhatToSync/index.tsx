@@ -32,16 +32,14 @@ const ChooseWhatToSync = ({
   return (
     <>
       <FtlMsg id="choose-what-to-sync-prompt-2">
-        <h2 className="font-normal mb-4 text-base text-center">
-          Choose what to sync
-        </h2>
+        <h2 className="mb-2 font-bold">Choose what to sync</h2>
       </FtlMsg>
-      <ul className="flex flex-wrap text-start text-sm mb-4 ltr:mobileLandscape:ml-6 rtl:mobileLandscape:mr-6">
+      <ul className="flex flex-wrap text-sm mb-4">
         {offeredSyncEngineConfigs.map((engineConfig) => {
           return (
             <li
               key={engineConfig.id}
-              className="flex-50% rtl:mobileLandscape:pr-6 ltr:mobileLandscape:pl-6 rtl:pr-3 ltr:pl-3"
+              className="basis-1/2 mobileLandscape:ps-4 pe-2"
             >
               <FtlMsg id={engineConfig.ftlId} attrs={{ label: true }}>
                 <InputCheckboxBlue

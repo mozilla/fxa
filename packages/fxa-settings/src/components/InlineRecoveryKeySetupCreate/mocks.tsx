@@ -7,7 +7,7 @@ import InlineRecoveryKeySetupCreate from '.';
 import AppLayout from '../AppLayout';
 
 export const Subject = () => (
-  <AppLayout cardClass="card-base">
+  <AppLayout>
     <InlineRecoveryKeySetupCreate
       createRecoveryKeyHandler={() =>
         Promise.resolve({

@@ -5,15 +5,18 @@
 import React from 'react';
 import RecoveryKeySetupDownload from '.';
 import { MOCK_ACCOUNT } from '../../models/mocks';
-import { MOCK_RECOVERY_KEY } from '../../pages/mocks';
+import { MOCK_RECOVERY_KEY_WITH_SPACES } from '../../pages/mocks';
+import AppLayout from '../AppLayout';
 
 export const Subject = () => {
   return (
-    <RecoveryKeySetupDownload
-      recoveryKeyValue={MOCK_RECOVERY_KEY}
-      email={MOCK_ACCOUNT.primaryEmail.email}
-      navigateForward={() => Promise.resolve()}
-      viewName="viewName"
-    />
+    <AppLayout>
+      <RecoveryKeySetupDownload
+        recoveryKeyValue={MOCK_RECOVERY_KEY_WITH_SPACES}
+        email={MOCK_ACCOUNT.primaryEmail.email}
+        navigateForward={() => Promise.resolve()}
+        viewName="viewName"
+      />
+    </AppLayout>
   );
 };

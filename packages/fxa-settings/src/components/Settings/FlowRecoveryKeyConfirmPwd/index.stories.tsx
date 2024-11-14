@@ -9,7 +9,7 @@ import { Account, AppContext, useFtlMsgResolver } from '../../../models';
 import { MOCK_ACCOUNT, mockAppContext } from '../../../models/mocks';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import { MockSettingsAppLayout } from '../AppLayout/mocks';
+import { MockSettingsAppLayout } from '../SettingsLayout/mocks';
 
 export default {
   title: 'Components/Settings/FlowRecoveryKeyConfirmPwd',

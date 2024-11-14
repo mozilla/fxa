@@ -18,7 +18,7 @@ it('applies localization by default', () => {
 
 it('applies basic styles by default', () => {
   renderWithLocalizationProvider(<HeartsVerifiedImage />);
-  expect(screen.getByRole('img')).toHaveClass('w-3/5');
+  expect(screen.getByRole('img')).toHaveClass('mx-auto my-4 max-h-44');
 });
 
 it('applies a11y by default', () => {
@@ -49,7 +49,7 @@ it('applies custom classNames when desired', () => {
 describe('images without l10n', () => {
   it('applies basic styles by default', () => {
     renderWithLocalizationProvider(<HeartsVerifiedImage />);
-    expect(screen.getByRole('img')).toHaveClass('w-3/5');
+    expect(screen.getByRole('img')).toHaveClass('mx-auto my-4 max-h-44');
   });
   it('applies custom classNames when desired', () => {
     const MOCK_CLASS = 'w-full';

@@ -16,7 +16,7 @@ import { AppContext } from 'fxa-settings/src/models';
 import { MOCK_LINKED_ACCOUNTS } from '../LinkedAccounts/mocks';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import { MockSettingsAppLayout } from '../AppLayout/mocks';
+import { MockSettingsAppLayout } from '../SettingsLayout/mocks';
 
 const SERVICES_NON_MOBILE = MOCK_SERVICES.filter((d) => !isMobileDevice(d));
 

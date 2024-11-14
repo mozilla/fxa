@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect } from 'react';
-import AppLayout from './AppLayout';
+import SettingsLayout from './SettingsLayout';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import AppErrorDialog from 'fxa-react/components/AppErrorDialog';
 import {
@@ -141,7 +141,7 @@ export const Settings = ({
   }
 
   return (
-    <AppLayout {...{ integration }}>
+    <SettingsLayout {...{ integration }}>
       <Head />
       <Router basepath={SETTINGS_PATH}>
         <ScrollToTop default>
@@ -194,7 +194,7 @@ export const Settings = ({
           <Redirect from="/avatar/change" to="/settings/avatar/" noThrow />
         </ScrollToTop>
       </Router>
-    </AppLayout>
+    </SettingsLayout>
   );
 };
 

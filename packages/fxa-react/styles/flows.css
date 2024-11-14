@@ -6,13 +6,8 @@
  * applied after content-server no longer needs it */
 /* Transparent border around card is for Windows HCM mode */
 
-/* Does not specify text-align */
-.card-base {
-  @apply relative w-full border border-transparent mobileLandscape:w-120 mobileLandscape:bg-white rounded-xl px-8 pb-12 pt-9 mobileLandscape:shadow-card-grey-drop mb-6;
-}
-
 .card {
-  @apply card-base text-center;
+  @apply relative w-full border border-transparent mobileLandscape:w-120 mobileLandscape:bg-white rounded-xl px-8 py-9 mobileLandscape:shadow-card-grey-drop mb-6;
 
   /* HACK until content-server no longer needs .card, otherwise component classes take precedence */
   &.card-xl {

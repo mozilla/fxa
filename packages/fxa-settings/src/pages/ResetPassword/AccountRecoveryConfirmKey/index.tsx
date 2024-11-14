@@ -139,14 +139,14 @@ const AccountRecoveryConfirmKey = ({
   };
 
   return (
-    <AppLayout cardClass="card-base">
+    <AppLayout>
       <FtlMsg id="password-reset-flow-heading">
         <HeadingPrimary>Reset your password</HeadingPrimary>
       </FtlMsg>
       {errorMessage && (
         <Banner type="error" content={{ localizedHeading: errorMessage }} />
       )}
-      <RecoveryKeyImage className="mx-auto my-2" />
+      <RecoveryKeyImage />
       <FtlMsg id="account-recovery-confirm-key-heading">
         <h2 className="card-header mb-2">Enter your account recovery key</h2>
       </FtlMsg>

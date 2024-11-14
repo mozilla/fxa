@@ -150,7 +150,7 @@ const SigninRecoveryCode = ({
   };
 
   return (
-    <AppLayout cardClass="card-base">
+    <AppLayout>
       <FtlMsg id="signin-recovery-code-heading">
         <HeadingPrimary>Sign in</HeadingPrimary>
       </FtlMsg>
@@ -161,10 +161,7 @@ const SigninRecoveryCode = ({
           content={{ localizedHeading: bannerErrorMessage }}
         />
       )}
-
-      <div className="flex justify-center mx-auto">
-        <BackupCodesImage className="w-3/5" />
-      </div>
+      <BackupCodesImage />
 
       <FtlMsg id="signin-recovery-code-sub-heading">
         <h2 className="card-header">Enter backup authentication code</h2>

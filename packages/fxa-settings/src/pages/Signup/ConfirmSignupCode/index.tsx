@@ -286,12 +286,10 @@ const ConfirmSignupCode = ({
 
       {resendStatus === ResendStatus.sent && <ResendCodeSuccessBanner />}
 
-      <div className="flex justify-center mx-auto">
-        <EmailCodeImage className="w-3/5" />
-      </div>
+      <EmailCodeImage />
 
       <FtlMsg id="confirm-signup-code-instruction" vars={{ email: email! }}>
-        <p className="m-5 text-sm">
+        <p className="mt-2 text-sm">
           Enter the code that was sent to {email} within 5 minutes.
         </p>
       </FtlMsg>
@@ -307,7 +305,7 @@ const ConfirmSignupCode = ({
         }}
       />
 
-      <div className="animate-delayed-fade-in opacity-0 text-grey-500 text-xs inline-flex gap-1">
+      <div className="animate-delayed-fade-in opacity-0 text-grey-500 text-sm inline-flex gap-1">
         <>
           <FtlMsg id="confirm-signup-code-code-expired">
             <p>Code expired?</p>

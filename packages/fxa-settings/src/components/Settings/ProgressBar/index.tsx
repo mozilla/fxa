@@ -34,7 +34,7 @@ export const ProgressBar = ({
       aria-valuetext={currentStep.toString()}
       value={currentStep}
       max={numberOfSteps}
-      className="h-2 w-full bg-grey-100 rounded flex ltr:flex-row rtl:flex-row-reverse"
+      className="h-2 w-full bg-grey-100 rounded flex ltr:flex-row rtl:flex-row-reverse mb-4"
     />
   );
 };

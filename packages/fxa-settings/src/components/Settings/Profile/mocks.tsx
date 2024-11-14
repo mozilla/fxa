@@ -4,6 +4,7 @@
 
 import { Account } from '../../../models';
 import { mockEmail } from '../../../models/mocks';
+import { MOCK_AVATAR_NON_DEFAULT } from '../../../pages/mocks';
 
 export const MOCK_PROFILE_EMPTY = {
   displayName: null,
@@ -19,7 +20,7 @@ export const MOCK_PROFILE_UNCONFIRMED_FEATURES = {
 
 export const MOCK_PROFILE_ALL = {
   displayName: 'John Dope',
-  avatar: { id: 'abc123', url: 'http://placekitten.com/512/512' },
+  avatar: MOCK_AVATAR_NON_DEFAULT,
   primaryEmail: mockEmail(),
   emails: [mockEmail(), mockEmail('johndope2@example.com', false)],
 } as unknown as Account;

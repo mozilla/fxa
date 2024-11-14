@@ -8,6 +8,7 @@ import { SETTINGS_PATH } from '../../../constants';
 import { UnitRow } from '.';
 import { Modal } from '../Modal';
 import { AppContext } from 'fxa-settings/src/models';
+import { PLACEHOLDER_IMAGE_URL } from '../../../pages/mocks';
 
 export const MOCK_HEADER = 'Some header';
 export const MOCK_HEADER_VALUE = 'Some header value';
@@ -91,7 +92,7 @@ export const SubjectWithDefaultAvatar = () => {
 export const SubjectWithCustomAvatar = () => {
   const avatar = {
     id: null,
-    url: 'http://placekitten.com/512/512?image=0',
+    url: PLACEHOLDER_IMAGE_URL,
     isDefault: false,
   };
   return (

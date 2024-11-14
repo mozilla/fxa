@@ -38,7 +38,7 @@ export const ReportSignin = ({
       </FtlMsg>
       <form
         noValidate
-        className="my-4"
+        className="mt-4 mb-8"
         onSubmit={(event) => {
           event.preventDefault();
           submitReport();

@@ -72,7 +72,7 @@ const CookiesDisabled = (_: RouteComponentProps) => {
         </p>
       </FtlMsg>
 
-      <div className="my-6">
+      <div className="mt-2 mb-4">
         <LinkExternal
           className="link-blue text-sm"
           href="https://support.mozilla.org/kb/cookies-information-websites-store-on-your-computer"

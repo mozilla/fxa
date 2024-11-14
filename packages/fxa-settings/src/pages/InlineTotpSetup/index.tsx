@@ -74,7 +74,7 @@ export const InlineTotpSetup = ({
             />
           )}
           <section className="flex flex-col items-center">
-            <TwoFactorAuthImage className="w-1/2" />
+            <TwoFactorAuthImage />
             <FtlMsg
               id="inline-totp-setup-add-security-link"
               elems={{
@@ -110,7 +110,7 @@ export const InlineTotpSetup = ({
             </FtlMsg>
             <button
               type="submit"
-              className="cta-primary cta-xl w-full my-4"
+              className="cta-primary cta-xl w-full my-6"
               onClick={() => {
                 setShowIntro(false);
                 setLocalizedBannerMessage('');

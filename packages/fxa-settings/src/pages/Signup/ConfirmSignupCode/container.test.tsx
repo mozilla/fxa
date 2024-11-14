@@ -28,7 +28,6 @@ import {
   MOCK_UID,
   MOCK_UNWRAP_BKEY,
 } from '../../mocks';
-import { OAUTH_ERRORS } from '../../../lib/oauth';
 
 // Setup mocks
 

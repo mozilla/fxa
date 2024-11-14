@@ -143,7 +143,7 @@ export const SigninTotpCode = ({
   };
 
   return (
-    <AppLayout cardClass="card-base">
+    <AppLayout>
       <FtlMsg id="signin-totp-code-header">
         <HeadingPrimary>Sign in</HeadingPrimary>
       </FtlMsg>
@@ -175,7 +175,7 @@ export const SigninTotpCode = ({
           setCodeErrorMessage,
         }}
       />
-      <div className="mt-10 link-blue text-sm flex justify-between">
+      <div className="mt-8 link-blue text-sm flex justify-between">
         <FtlMsg id="signin-totp-code-other-account-link">
           {/* TODO in FXA-8636 replace with Link component once index reactified */}
           <a

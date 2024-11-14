@@ -16,12 +16,13 @@ import {
 } from './mocks';
 import { SignupIntegration } from './interfaces';
 import { SignupQueryParams } from '../../models/pages/signup';
-import { mockUrlQueryData } from '../../models/mocks';
+import { mockAppContext, mockUrlQueryData } from '../../models/mocks';
 import {
   MONITOR_CLIENTIDS,
   POCKET_CLIENTIDS,
 } from '../../models/integrations/client-matching';
 import { getSyncEngineIds } from '../../components/ChooseWhatToSync/sync-engines';
+import { AppContext } from '../../models';
 
 export default {
   title: 'Pages/Signup',
@@ -36,16 +37,18 @@ const storyWithProps = (
   integration: SignupIntegration = createMockSignupOAuthWebIntegration()
 ) => {
   const story = () => (
-    <LocationProvider>
-      <Signup
-        {...{
-          integration,
-          queryParamModel,
-          beginSignupHandler: mockBeginSignupHandler,
-          webChannelEngines: getSyncEngineIds(),
-        }}
-      />
-    </LocationProvider>
+    <AppContext.Provider value={mockAppContext()}>
+      <LocationProvider>
+        <Signup
+          {...{
+            integration,
+            queryParamModel,
+            beginSignupHandler: mockBeginSignupHandler,
+            webChannelEngines: getSyncEngineIds(),
+          }}
+        />
+      </LocationProvider>
+    </AppContext.Provider>
   );
   return story;
 };

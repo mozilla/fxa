@@ -7,7 +7,7 @@ import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import PageAvatar from './';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import { MockSettingsAppLayout } from '../AppLayout/mocks';
+import { MockSettingsAppLayout } from '../SettingsLayout/mocks';
 
 export default {
   title: 'Pages/Settings/Avatar',

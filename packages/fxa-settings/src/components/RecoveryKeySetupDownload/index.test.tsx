@@ -6,13 +6,13 @@ import React from 'react';
 import { screen, waitFor, within } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { Subject } from './mocks';
-import { MOCK_RECOVERY_KEY } from '../../pages/mocks';
+import { MOCK_RECOVERY_KEY_WITH_SPACES } from '../../pages/mocks';
 
 describe('RecoveryKeySetupDownload', () => {
   it('renders as expected', async () => {
     renderWithLocalizationProvider(<Subject />);
 
-    screen.getByText(MOCK_RECOVERY_KEY);
+    screen.getByText(MOCK_RECOVERY_KEY_WITH_SPACES);
     screen.getByRole('button', { name: 'Copy' });
 
     screen.getByRole('heading', {

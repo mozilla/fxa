@@ -37,7 +37,7 @@ export const InlineRecoveryKeySetupDownload = ({
 }: RecoveryKeySetupDownloadProps) => {
   return (
     <>
-      <div className="rounded p-2 text-sm border-2 border-grey-100 mb-1">
+      <div className="rounded p-2 text-sm border-2 border-grey-100">
         <DataBlock
           value={recoveryKeyValue}
           onAction={() =>
@@ -90,7 +90,7 @@ export const InlineRecoveryKeySetupDownload = ({
 
       <FtlMsg id="flow-recovery-key-download-next-link-v2">
         <button
-          className="text-sm link-blue text-center py-2 mx-auto"
+          className="text-sm link-blue text-center mt-6 mx-auto"
           onClick={() => {
             logViewEvent(`flow.${viewName}`, 'recovery-key.skip-download');
             navigateForward();

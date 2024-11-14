@@ -216,12 +216,10 @@ const SigninTokenCode = ({
         />
       )}
 
-      <div className="flex justify-center mx-auto">
-        <EmailCodeImage className="w-3/5" />
-      </div>
+      <EmailCodeImage />
 
       <FtlMsg id="signin-token-code-instruction" vars={{ email }}>
-        <p id="verification-email-message" className="m-5 text-sm">
+        <p id="verification-email-message" className="my-4 text-sm">
           Enter the code that was sent to {email} within 5 minutes.
         </p>
       </FtlMsg>

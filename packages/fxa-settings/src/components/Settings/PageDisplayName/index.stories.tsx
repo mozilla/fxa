@@ -7,7 +7,7 @@ import React from 'react';
 import { PageDisplayName } from '.';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import { MockSettingsAppLayout } from '../AppLayout/mocks';
+import { MockSettingsAppLayout } from '../SettingsLayout/mocks';
 
 export default {
   title: 'Pages/Settings/DisplayName',

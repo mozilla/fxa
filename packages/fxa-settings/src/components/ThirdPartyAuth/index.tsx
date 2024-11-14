@@ -72,7 +72,7 @@ const ThirdPartyAuth = ({
                 <>
                   <GoogleLogo />
                   <FtlMsg id="continue-with-google-button">
-                    Continue with Google
+                    <p className="pe-4">Continue with Google</p>
                   </FtlMsg>
                 </>
               ),
@@ -94,7 +94,7 @@ const ThirdPartyAuth = ({
                 <>
                   <AppleLogo />
                   <FtlMsg id="continue-with-apple-button">
-                    Continue with Apple
+                    <p className="pe-4">Continue with Apple</p>
                   </FtlMsg>
                 </>
               ),
@@ -192,7 +192,7 @@ const ThirdPartySignInForm = ({
 
       <button
         type="submit"
-        className="w-full mt-2 justify-center text-black bg-transparent border-grey-300 border hover:border-black rounded-lg text-md text-center inline-flex items-center"
+        className="w-full px-2 mt-2 justify-center text-black bg-transparent border-grey-300 border hover:border-black rounded-lg text-md text-center inline-flex items-center"
         onClick={onClick}
       >
         {buttonText}

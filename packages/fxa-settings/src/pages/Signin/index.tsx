@@ -371,7 +371,7 @@ const Signin = ({
           // There was an error, so just show default avatar
           <Avatar className={avatarClassNames} />
         )}
-        <div className="my-5 text-base break-all">{email}</div>
+        <div className="my-5 text-base break-all text-center">{email}</div>
       </div>
       {!hasLinkedAccountAndNoPassword && (
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -381,7 +381,7 @@ const Signin = ({
             <InputPassword
               name="password"
               anchorPosition="start"
-              className="mb-5 text-start"
+              className="mb-5"
               label={localizedPasswordFormLabel}
               errorText={passwordTooltipErrorText}
               tooltipPosition="bottom"
@@ -434,7 +434,7 @@ const Signin = ({
 
       <TermsPrivacyAgreement {...{ isPocketClient, isMonitorClient }} />
 
-      <div className="flex flex-col mt-5 tablet:justify-between tablet:flex-row">
+      <div className="flex flex-col mt-8 tablet:justify-between tablet:flex-row">
         <FtlMsg id="signin-use-a-different-account-link">
           <a
             href="/"
