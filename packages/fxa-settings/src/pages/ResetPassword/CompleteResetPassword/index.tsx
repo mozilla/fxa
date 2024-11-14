@@ -18,6 +18,7 @@ import { FtlMsg } from 'fxa-react/lib/utils';
 import ResetPasswordWarning from '../../../components/ResetPasswordWarning';
 import { Link, useLocation } from '@reach/router';
 import Banner from '../../../components/Banner';
+import { HeadingPrimary } from '../../../components/HeadingPrimary';
 
 const CompleteResetPassword = ({
   email,
@@ -63,11 +64,9 @@ const CompleteResetPassword = ({
   };
 
   return (
-    <AppLayout>
+    <AppLayout cardClass="card-base">
       <FtlMsg id="password-reset-flow-heading">
-        <p className="text-start text-grey-400 text-sm mb-6">
-          Reset your password
-        </p>
+        <HeadingPrimary>Reset your password</HeadingPrimary>
       </FtlMsg>
 
       {/*
@@ -92,11 +91,9 @@ const CompleteResetPassword = ({
       <input type="email" value={email} className="hidden" readOnly />
 
       <FtlMsg id="complete-reset-pw-header-v2">
-        <h1 className="font-semibold text-xl text-start mt-6">
-          Create a new password
-        </h1>
+        <h1 className="font-semibold text-xl mt-6">Create a new password</h1>
       </FtlMsg>
-      <section className="text-start mt-2">
+      <section className="mt-2">
         <FormPasswordWithInlineCriteria
           {...{
             email,

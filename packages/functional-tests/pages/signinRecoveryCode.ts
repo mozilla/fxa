@@ -10,7 +10,7 @@ export class SigninRecoveryCodePage extends BaseTokenCodePage {
   get codeInput() {
     this.checkPath();
     return this.page
-      .getByLabel('Enter 10-digit backup') // React
+      .getByLabel('Enter 10-character code') // React
       .or(this.page.getByPlaceholder('Enter 10-digit backup')); //Backbone
   }
 }

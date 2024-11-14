@@ -30,14 +30,15 @@ describe('ConfirmTotpResetPassword', () => {
     ).toBeVisible();
 
     expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent(
-      'Enter your two-factor authentication security code (2FA)'
+      'Enter two-step authentication code'
     );
 
-    expect(screen.getByRole('textbox', { name: 'Enter code' })).toBeVisible();
-
     expect(
-      screen.getByText('Check your authenticator app to reset your password.')
+      screen.getByRole('textbox', { name: 'Enter 6-digit code' })
     ).toBeVisible();
+
+    screen.getByText('authenticator app', { exact: false });
+    screen.getByText('to reset your password', { exact: false });
     expect(screen.getByRole('button', { name: 'Confirm' })).toBeVisible();
     expect(screen.getByText('Trouble entering code?')).toBeVisible();
   });
@@ -47,7 +48,7 @@ describe('ConfirmTotpResetPassword', () => {
     renderWithLocalizationProvider(<Subject verifyCode={mockVerifyCode} />);
 
     await waitFor(() =>
-      screen.getByRole('textbox', { name: 'Enter code' }).click()
+      screen.getByRole('textbox', { name: 'Enter 6-digit code' }).click()
     );
     await waitFor(() => {
       user.paste('123456');

@@ -8,6 +8,7 @@ import { FtlMsg } from 'fxa-react/lib/utils';
 import { CreateRecoveryKeyHandler } from '../../pages/InlineRecoveryKeySetup/interfaces';
 import Banner from '../Banner';
 import { useFtlMsgResolver } from '../../models';
+import { HeadingPrimary } from '../HeadingPrimary';
 
 export const InlineRecoveryKeySetupCreate = ({
   createRecoveryKeyHandler,
@@ -50,11 +51,9 @@ export const InlineRecoveryKeySetupCreate = ({
           content={{ localizedHeading: localizedErrorBannerMessage }}
         />
       )}
-      <h1 className="text-grey-400 mb-3 mt-5">
-        <FtlMsg id="inline-recovery-key-setup-create-header">
-          Secure your account
-        </FtlMsg>
-      </h1>
+      <FtlMsg id="inline-recovery-key-setup-create-header">
+        <HeadingPrimary>Secure your account</HeadingPrimary>
+      </FtlMsg>
 
       <RecoveryKeyImage className="my-6 mx-auto" />
 

@@ -22,6 +22,7 @@ import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import { RecoveryKeyImage } from '../../../components/images';
 import { Constants } from '../../../lib/constants';
 import Banner from '../../../components/Banner';
+import { HeadingPrimary } from '../../../components/HeadingPrimary';
 
 // TODO in FXA-7894 use sensitive data client to pass sensitive data
 // Depends on FXA-7400
@@ -138,23 +139,19 @@ const AccountRecoveryConfirmKey = ({
   };
 
   return (
-    <AppLayout>
+    <AppLayout cardClass="card-base">
       <FtlMsg id="password-reset-flow-heading">
-        <h1 className="text-start text-grey-400 text-sm">
-          Reset your password
-        </h1>
+        <HeadingPrimary>Reset your password</HeadingPrimary>
       </FtlMsg>
       {errorMessage && (
         <Banner type="error" content={{ localizedHeading: errorMessage }} />
       )}
       <RecoveryKeyImage className="mx-auto my-2" />
       <FtlMsg id="account-recovery-confirm-key-heading">
-        <h2 className="card-header text-start mb-2">
-          Enter your account recovery key
-        </h2>
+        <h2 className="card-header mb-2">Enter your account recovery key</h2>
       </FtlMsg>
       <FtlMsg id="account-recovery-confirm-key-instruction">
-        <p className="text-start text-sm">
+        <p className="text-sm">
           This key recovers your encrypted browsing data, such as passwords and
           bookmarks, from Firefox servers.
         </p>
@@ -190,7 +187,7 @@ const AccountRecoveryConfirmKey = ({
         </FtlMsg>
 
         {recoveryKeyHint && (
-          <div className="bg-grey-50 p-4 text-start text-sm rounded-md">
+          <div className="bg-grey-50 p-4 text-sm rounded-md">
             <FtlMsg id="account-recovery-confirm-key-hint">
               <p className="text-grey-500">Your storage hint is:</p>
             </FtlMsg>

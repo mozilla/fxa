@@ -14,6 +14,7 @@ import { ResendStatus } from '../../../lib/types';
 import { EmailCodeImage } from '../../../components/images';
 import GleanMetrics from '../../../lib/glean';
 import Banner, { ResendCodeSuccessBanner } from '../../../components/Banner';
+import { HeadingPrimary } from '../../../components/HeadingPrimary';
 
 const ConfirmResetPassword = ({
   clearBanners,
@@ -43,9 +44,9 @@ const ConfirmResetPassword = ({
   };
 
   return (
-    <AppLayout>
+    <AppLayout cardClass="card-base">
       <FtlMsg id="password-reset-flow-heading">
-        <p className="text-start text-grey-400 text-sm">Reset your password</p>
+        <HeadingPrimary marginClass="">Reset your password</HeadingPrimary>
       </FtlMsg>
       {resendStatus === ResendStatus.sent && !hasResendError && (
         <ResendCodeSuccessBanner />
@@ -61,16 +62,14 @@ const ConfirmResetPassword = ({
       )}
       <EmailCodeImage className="mx-auto" />
       <FtlMsg id="confirm-reset-password-with-code-heading">
-        <h2 className="card-header text-start my-4">Check your email</h2>
+        <h2 className="card-header my-4">Check your email</h2>
       </FtlMsg>
       <FtlMsg
         id="confirm-reset-password-with-code-instruction"
         vars={{ email }}
         elems={{ span: spanElement }}
       >
-        <p className="text-start">
-          We sent a confirmation code to {spanElement}.
-        </p>
+        <p>We sent a confirmation code to {spanElement}.</p>
       </FtlMsg>
       <FormVerifyTotp
         codeLength={8}
@@ -91,7 +90,7 @@ const ConfirmResetPassword = ({
         }}
       />
       <LinkRememberPassword {...{ email }} clickHandler={signinClickHandler} />
-      <div className="flex justify-between mt-4 text-sm">
+      <div className="flex justify-between mt-5 text-sm">
         <FtlMsg id="confirm-reset-password-otp-resend-code-button">
           <button type="button" className="link-blue" onClick={resendCode}>
             Resend code

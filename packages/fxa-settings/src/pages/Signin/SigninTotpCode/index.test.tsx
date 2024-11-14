@@ -79,10 +79,8 @@ describe('Sign in with TOTP code page', () => {
     // testAllL10n(screen, bundle);
 
     const headingEl = screen.getByRole('heading', { level: 2 });
-    expect(headingEl).toHaveTextContent(
-      'Enter your two-factor authentication security code (2FA)'
-    );
-    screen.getByLabelText('Enter code');
+    expect(headingEl).toHaveTextContent('Enter two-step authentication code');
+    screen.getByLabelText('Enter 6-digit code');
 
     screen.getByRole('button', { name: 'Confirm' });
     screen.getByRole('link', { name: 'Use a different account' });
@@ -98,9 +96,7 @@ describe('Sign in with TOTP code page', () => {
       />
     );
     const headingEl = screen.getByRole('heading', { level: 2 });
-    expect(headingEl).toHaveTextContent(
-      'Enter your two-factor authentication security code (2FA)'
-    );
+    expect(headingEl).toHaveTextContent('Enter two-step authentication code');
   });
 
   it('emits a metrics event on render', () => {
@@ -132,7 +128,7 @@ describe('Sign in with TOTP code page', () => {
         />
       );
 
-      fireEvent.input(screen.getByLabelText('Enter code'), {
+      fireEvent.input(screen.getByLabelText('Enter 6-digit code'), {
         target: { value: '123456' },
       });
       screen.getByRole('button', { name: 'Confirm' }).click();

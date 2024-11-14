@@ -51,16 +51,18 @@ describe('PageSigninRecoveryCode', () => {
       </LocationProvider>
     );
 
-    const headingEl = screen.getByRole('heading', { level: 1 });
-    expect(headingEl).toHaveTextContent(
-      'Enter backup authentication code to continue to account settings'
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
+      'Sign in'
+    );
+    expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent(
+      'Enter backup authentication code'
     );
     screen.getByRole('img', { name: 'Document that contains hidden text.' });
     screen.getByText(
-      'Please enter a backup authentication code that was provided to you during two step authentication setup.'
+      'Enter one of the one-time use backup authentication codes you saved during two-step authentication setup.'
     );
     screen.getByRole('textbox', {
-      name: 'Enter 10-digit backup authentication code',
+      name: 'Enter 10-character code',
     });
 
     screen.getByRole('button', { name: 'Confirm' });
@@ -68,25 +70,6 @@ describe('PageSigninRecoveryCode', () => {
     screen.getByRole('link', {
       name: /Are you locked out?/,
     });
-  });
-
-  it('shows the relying party in the header when a service name is provided', () => {
-    const mockSubmitRecoveryCode = jest.fn();
-    renderWithLocalizationProvider(
-      <LocationProvider>
-        <SigninRecoveryCode
-          finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
-          integration={mockIntegration}
-          signinState={mockSigninLocationState}
-          submitRecoveryCode={mockSubmitRecoveryCode}
-          serviceName={MozServices.MozillaVPN}
-        />
-      </LocationProvider>
-    );
-    const headingEl = screen.getByRole('heading', { level: 1 });
-    expect(headingEl).toHaveTextContent(
-      'Enter backup authentication code to continue to Mozilla VPN'
-    );
   });
 
   describe('metrics', () => {
