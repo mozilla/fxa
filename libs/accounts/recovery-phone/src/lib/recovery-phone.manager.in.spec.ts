@@ -11,6 +11,12 @@ describe('RecoveryPhoneManager', () => {
   let recoveryPhoneManager: RecoveryPhoneManager;
   let db: AccountDatabase;
 
+  const mockRedis = {
+    set: jest.fn(),
+    get: jest.fn(),
+    del: jest.fn(),
+  };
+
   beforeAll(async () => {
     db = await testAccountDatabaseSetup(['accounts', 'recoveryPhones']);
     const moduleRef = await Test.createTestingModule({
@@ -19,6 +25,10 @@ describe('RecoveryPhoneManager', () => {
         {
           provide: AccountDbProvider,
           useValue: db,
+        },
+        {
+          provide: 'Redis',
+          useValue: mockRedis,
         },
       ],
     }).compile();
@@ -75,5 +85,50 @@ describe('RecoveryPhoneManager', () => {
     await expect(
       recoveryPhoneManager.registerPhoneNumber(uid.toString('hex'), phoneNumber)
     ).rejects.toThrow('Database error');
+  });
+
+  it('should store unconfirmed phone number data in Redis', async () => {
+    const mockPhone = RecoveryPhoneFactory();
+    const { uid, phoneNumber } = mockPhone;
+    const code = '123456';
+    const isSetup = true;
+    const lookupData = { foo: 'bar' };
+
+    await recoveryPhoneManager.storeUnconfirmed(
+      uid.toString('hex'),
+      code,
+      phoneNumber,
+      isSetup,
+      lookupData
+    );
+
+    const expectedData = JSON.stringify({
+      phoneNumber,
+      isSetup,
+      lookupData: JSON.stringify(lookupData),
+    });
+    const redisKey = `sms-attempt:${uid.toString('hex')}:${code}`;
+
+    expect(mockRedis.set).toHaveBeenCalledWith(
+      redisKey,
+      expectedData,
+      'EX',
+      600
+    );
+  });
+
+  it('should return null if no unconfirmed phone number data is found in Redis', async () => {
+    const mockPhone = RecoveryPhoneFactory();
+    const { uid } = mockPhone;
+    const code = '123456';
+
+    mockRedis.get.mockResolvedValue(null);
+
+    const result = await recoveryPhoneManager.getUnconfirmed(
+      uid.toString('hex'),
+      code
+    );
+
+    expect(result).toBeNull();
   });
 });
