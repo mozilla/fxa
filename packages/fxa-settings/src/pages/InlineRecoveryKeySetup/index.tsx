@@ -14,6 +14,7 @@ import { InlineRecoveryKeySetupProps } from './interfaces';
 import RecoveryKeySetupHint from '../../components/RecoveryKeySetupHint';
 import Banner from '../../components/Banner';
 import { useFtlMsgResolver } from '../../models';
+import { HeadingPrimary } from '../../components/HeadingPrimary';
 
 const viewName = 'inline-recovery-key-setup';
 
@@ -43,11 +44,9 @@ export const InlineRecoveryKeySetup = ({
       case 3:
         return (
           <>
-            <h1 className="text-grey-400">
-              <FtlMsg id="inline-recovery-key-setup-hint-header">
-                Security recommendation
-              </FtlMsg>
-            </h1>
+            <FtlMsg id="inline-recovery-key-setup-hint-header">
+              <HeadingPrimary>Security recommendation</HeadingPrimary>
+            </FtlMsg>
             <RecoveryKeySetupHint
               {...{ viewName }}
               navigateForward={() => {
@@ -69,11 +68,9 @@ export const InlineRecoveryKeySetup = ({
                 ),
               }}
             />
-            <h1 className="text-grey-400 mb-3 mt-5">
-              <FtlMsg id="inline-recovery-key-setup-download-header">
-                Secure your account
-              </FtlMsg>
-            </h1>
+            <FtlMsg id="inline-recovery-key-setup-download-header">
+              <HeadingPrimary>Secure your account</HeadingPrimary>
+            </FtlMsg>
             <RecoveryKeyImage className="my-6 mx-auto" />
 
             <h2 className="font-bold text-xl mb-5">

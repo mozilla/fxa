@@ -99,7 +99,7 @@ const ResetPassword = ({
 
       <form
         noValidate
-        className="flex flex-col gap-4 mb-4"
+        className="flex flex-col gap-4 mb-5"
         onSubmit={handleSubmit(onSubmit)}
       >
         <FtlMsg id="password-reset-email-input" attrs={{ label: true }}>

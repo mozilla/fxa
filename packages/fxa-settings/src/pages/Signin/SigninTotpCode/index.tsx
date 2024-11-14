@@ -25,6 +25,7 @@ import {
 import protectionShieldIcon from '@fxa/shared/assets/images/protection-shield.svg';
 import Banner from '../../../components/Banner';
 import { SensitiveDataClientAuthKeys } from '../../../lib/sensitive-data-client';
+import { HeadingPrimary } from '../../../components/HeadingPrimary';
 
 // TODO: show a banner success message if a user is coming from reset password
 // in FXA-6491. This differs from content-server where currently, users only
@@ -74,8 +75,8 @@ export const SigninTotpCode = ({
   );
 
   const formAttributes: FormAttributes = {
-    inputFtlId: 'signin-totp-code-input-label-v3',
-    inputLabelText: 'Enter code',
+    inputFtlId: 'signin-totp-code-input-label-v4',
+    inputLabelText: 'Enter 6-digit code',
     pattern: '[0-9]{6}',
     maxLength: 6,
     submitButtonFtlId: 'signin-totp-code-confirm-button',
@@ -142,18 +143,20 @@ export const SigninTotpCode = ({
   };
 
   return (
-    <AppLayout>
-      <h2 className="font-bold text-xl text-left">
-        <FtlMsg id="signin-totp-code-subheader">
-          Enter your two-factor authentication security code (2FA)
-        </FtlMsg>
-      </h2>
+    <AppLayout cardClass="card-base">
+      <FtlMsg id="signin-totp-code-header">
+        <HeadingPrimary>Sign in</HeadingPrimary>
+      </FtlMsg>
+      <FtlMsg id="signin-totp-code-subheader-v2">
+        <h2 className="card-header">Enter two-step authentication code</h2>
+      </FtlMsg>
 
       <div className="flex space-x-4">
         <img src={protectionShieldIcon} alt="" />
-        <FtlMsg id="signin-totp-code-instruction-v3">
-          <p id="totp-code-instruction" className="my-5 text-md text-left">
-            Check your authenticator app to confirm your sign-in.
+        <FtlMsg id="signin-totp-code-instruction-v4">
+          <p className="my-5 text-md">
+            Check your <strong>authenticator app</strong> to confirm your
+            sign-in.
           </p>
         </FtlMsg>
       </div>
@@ -172,7 +175,7 @@ export const SigninTotpCode = ({
           setCodeErrorMessage,
         }}
       />
-      <div className="mt-5 link-blue text-sm flex justify-between">
+      <div className="mt-10 link-blue text-sm flex justify-between">
         <FtlMsg id="signin-totp-code-other-account-link">
           {/* TODO in FXA-8636 replace with Link component once index reactified */}
           <a

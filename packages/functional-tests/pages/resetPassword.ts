@@ -194,7 +194,7 @@ export class ResetPasswordPage extends BaseLayout {
   }
 
   async fillOutTotpForm(code: string) {
-    await this.page.getByLabel('Enter code').fill(code);
+    await this.page.getByLabel('Enter 6-digit code').fill(code);
     return this.page.getByRole('button', { name: 'Confirm' }).click();
   }
 
@@ -203,9 +203,7 @@ export class ResetPasswordPage extends BaseLayout {
   }
 
   async fillOurRecoveryCodeForm(code: string) {
-    await this.page
-      .getByLabel('Enter 10-digit backup authentication code')
-      .fill(code);
+    await this.page.getByLabel('Enter 10-character code').fill(code);
     return this.page.getByRole('button', { name: 'Confirm' }).click();
   }
 

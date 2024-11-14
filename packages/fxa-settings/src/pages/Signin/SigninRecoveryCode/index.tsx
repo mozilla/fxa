@@ -7,7 +7,6 @@ import { Link, RouteComponentProps, useLocation } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { isWebIntegration, useFtlMsgResolver } from '../../../models';
 import { BackupCodesImage } from '../../../components/images';
-import CardHeader from '../../../components/CardHeader';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import FormVerifyCode, {
   FormAttributes,
@@ -23,6 +22,7 @@ import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
 import { isBase32Crockford } from '../../../lib/utilities';
 import Banner from '../../../components/Banner';
+import { HeadingPrimary } from '../../../components/HeadingPrimary';
 
 export const viewName = 'signin-recovery-code';
 
@@ -56,8 +56,8 @@ const SigninRecoveryCode = ({
       : '';
 
   const formAttributes: FormAttributes = {
-    inputFtlId: 'signin-recovery-code-input-label',
-    inputLabelText: 'Enter 10-digit backup authentication code',
+    inputFtlId: 'signin-recovery-code-input-label-v2',
+    inputLabelText: 'Enter 10-character code',
     inputMode: InputModeEnum.text,
     pattern: '[a-zA-Z0-9]',
     maxLength: 10,
@@ -150,13 +150,10 @@ const SigninRecoveryCode = ({
   };
 
   return (
-    <AppLayout>
-      <CardHeader
-        headingWithDefaultServiceFtlId="signin-recovery-code-heading-w-default-service"
-        headingWithCustomServiceFtlId="signin-recovery-code-heading-w-custom-service"
-        headingText="Enter backup authentication code"
-        {...{ serviceName }}
-      />
+    <AppLayout cardClass="card-base">
+      <FtlMsg id="signin-recovery-code-heading">
+        <HeadingPrimary>Sign in</HeadingPrimary>
+      </FtlMsg>
 
       {bannerErrorMessage && (
         <Banner
@@ -164,14 +161,19 @@ const SigninRecoveryCode = ({
           content={{ localizedHeading: bannerErrorMessage }}
         />
       )}
+
       <div className="flex justify-center mx-auto">
         <BackupCodesImage className="w-3/5" />
       </div>
 
-      <FtlMsg id="signin-recovery-code-instruction">
-        <p className="m-5 text-sm">
-          Please enter a backup authentication code that was provided to you
-          during two step authentication setup.
+      <FtlMsg id="signin-recovery-code-sub-heading">
+        <h2 className="card-header">Enter backup authentication code</h2>
+      </FtlMsg>
+
+      <FtlMsg id="signin-recovery-code-instruction-v2">
+        <p className="mt-2 text-sm">
+          Enter one of the one-time use backup authentication codes you saved
+          during two-step authentication setup.
         </p>
       </FtlMsg>
 
@@ -186,7 +188,7 @@ const SigninRecoveryCode = ({
         }}
       />
 
-      <div className="mt-5 link-blue text-sm flex justify-between">
+      <div className="mt-10 link-blue text-sm flex justify-between">
         <FtlMsg id="signin-recovery-code-back-link">
           <Link
             to={`/signin_totp_code${location.search || ''}`}

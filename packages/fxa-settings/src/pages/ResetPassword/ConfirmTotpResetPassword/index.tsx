@@ -11,6 +11,7 @@ import FormVerifyCode, {
   commonBackupCodeFormAttributes,
   FormAttributes,
 } from '../../../components/FormVerifyCode';
+import { HeadingPrimary } from '../../../components/HeadingPrimary';
 
 export type ConfirmTotpResetPasswordProps = {
   verifyCode: (code: string) => Promise<void>;
@@ -29,8 +30,8 @@ const ConfirmTotpResetPassword = ({
   const [showRecoveryCode, setShowRecoveryCode] = useState<boolean>(false);
 
   const totpFormAttributes: FormAttributes = {
-    inputFtlId: 'confirm-totp-reset-password-input-label',
-    inputLabelText: 'Enter code',
+    inputFtlId: 'confirm-totp-reset-password-input-label-v2',
+    inputLabelText: 'Enter 6-digit code',
     pattern: '[0-9]{6}',
     maxLength: 6,
     submitButtonFtlId: 'confirm-totp-reset-password-confirm-button',
@@ -39,7 +40,7 @@ const ConfirmTotpResetPassword = ({
 
   const recoveryCodeFormAttributes: FormAttributes = {
     inputFtlId: 'confirm-recovery-code-reset-password-input-label',
-    inputLabelText: 'Enter 10-digit backup authentication code',
+    inputLabelText: 'Enter 10-character code',
     submitButtonFtlId: 'confirm-totp-reset-password-confirm-button',
     submitButtonText: 'Confirm',
     ...commonBackupCodeFormAttributes,
@@ -54,13 +55,11 @@ const ConfirmTotpResetPassword = ({
     <>
       {showRecoveryCode ? (
         <AppLayout cardClass="card-base">
-          <h1 className="text-grey-400 mb-6 text-start">
-            <FtlMsg id="confirm-totp-reset-password-header">
-              Reset your password
-            </FtlMsg>
-          </h1>
+          <FtlMsg id="confirm-totp-reset-password-header">
+            <HeadingPrimary>Reset your password</HeadingPrimary>
+          </FtlMsg>
 
-          <h2 className="font-bold text-xl text-start">
+          <h2 className="font-bold text-xl">
             <FtlMsg id="confirm-totp-reset-password-subheader">
               Enter your backup recovery code
             </FtlMsg>
@@ -68,7 +67,7 @@ const ConfirmTotpResetPassword = ({
 
           <div className="flex space-x-4">
             <img src={protectionShieldIcon} alt="" />
-            <p className="my-5 text-md text-start">
+            <p className="my-5 text-md">
               <FtlMsg id="confirm-totp-reset-password-instruction">
                 Check your download or saved backup recovery code.
               </FtlMsg>
@@ -103,25 +102,24 @@ const ConfirmTotpResetPassword = ({
         </AppLayout>
       ) : (
         <AppLayout cardClass="card-base">
-          <h1 className="text-grey-400 mb-6 text-start">
-            <FtlMsg id="confirm-totp-reset-password-header">
-              Reset your password
-            </FtlMsg>
-          </h1>
+          <FtlMsg id="confirm-totp-reset-password-header">
+            <HeadingPrimary>Reset your password</HeadingPrimary>
+          </FtlMsg>
 
-          <h2 className="font-bold text-xl text-start">
-            <FtlMsg id="confirm-totp-reset-password-subheader">
-              Enter your two-factor authentication security code (2FA)
+          <h2 className="font-bold text-xl">
+            <FtlMsg id="confirm-totp-reset-password-subheader-v2">
+              Enter two-step authentication code
             </FtlMsg>
           </h2>
 
           <div className="flex space-x-4">
             <img src={protectionShieldIcon} alt="" />
-            <p className="my-5 text-md text-start">
-              <FtlMsg id="confirm-totp-reset-password-instruction">
-                Check your authenticator app to reset your password.
-              </FtlMsg>
-            </p>
+            <FtlMsg id="confirm-totp-reset-password-instruction-v2">
+              <p className="my-5 text-md">
+                Check your <strong>authenticator app</strong> to reset your
+                password.
+              </p>
+            </FtlMsg>
           </div>
 
           <FormVerifyCode
