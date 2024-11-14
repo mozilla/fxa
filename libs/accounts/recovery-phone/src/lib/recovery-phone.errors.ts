@@ -14,6 +14,12 @@ export class RecoveryPhoneError extends BaseError {
   }
 }
 
+export class RecoveryNumberNotExistsError extends RecoveryPhoneError {
+  constructor(uid: string, cause?: Error) {
+    super('Recovery number does not exist', { uid }, cause);
+  }
+}
+
 export class RecoveryNumberInvalidFormatError extends RecoveryPhoneError {
   constructor(uid: string, phoneNumber: string, cause?: Error) {
     super('Invalid phone number format', { uid, phoneNumber }, cause);
