@@ -51,7 +51,6 @@ export class SmsManager {
       });
       return msg;
     } catch (err) {
-      // console.log('!!!', err, this.metrics.increment);
       this.metrics.increment('sms.send.error');
       throw err;
     }

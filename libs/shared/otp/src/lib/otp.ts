@@ -15,6 +15,7 @@ type OtpManagerOptions = {
   digits: number;
 };
 
+/** Manages creation and storage of otp codes. */
 export class OtpManager {
   kind: OtpManagerOptions['kind'];
   digits: number;
@@ -32,7 +33,11 @@ export class OtpManager {
     return `otp:${this.kind}:${key}`;
   }
 
-  private async getCode() {
+  /**
+   * Generates an otp code. Note that the calling code will be responsible for storing the code.
+   * @returns An otpCode
+   */
+  public async generateCode() {
     const randInt = await new Promise((resolve, reject) => {
       randomInt(0, this.max, (err, value) => {
         if (err) reject(err);
@@ -42,13 +47,24 @@ export class OtpManager {
     return String(randInt).padStart(this.digits, '0');
   }
 
+  /**
+   * Creates and stores an otp code.
+   * @param key A unique key for the code
+   * @returns An otp code
+   */
   async create(key: string) {
     const storageKey = this.getStorageKey(key);
-    const code = await this.getCode();
+    const code = await this.generateCode();
     await this.storage.set(storageKey, code);
     return code;
   }
 
+  /**
+   * Validates a previously created code.
+   * @param key The key
+   * @param code  The code's value
+   * @returns True if code is valid
+   */
   async isValid(key: string, code: string) {
     const storedVal = await this.storage.get(this.getStorageKey(key));
 
@@ -59,6 +75,11 @@ export class OtpManager {
     return timingSafeEqual(Buffer.from(code), Buffer.from(String(storedVal)));
   }
 
+  /**
+   * Removes a code from the store
+   * @param key Key to fetch code.
+   * @returns null upon deletion
+   */
   async delete(key: string) {
     return await this.storage.del(this.getStorageKey(key));
   }
