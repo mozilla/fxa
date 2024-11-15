@@ -198,4 +198,8 @@ export const eventsMap = {
     passwordView: 'delete_account_password_view',
     passwordSubmit: 'delete_account_password_submit',
   },
+
+  error: {
+    view: 'error_view',
+  },
 } as const;
