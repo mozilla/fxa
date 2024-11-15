@@ -40,6 +40,32 @@ describe('RecoveryPhoneManager', () => {
     await db.destroy();
   });
 
+  it('should get a recovery phone', async () => {
+    const mockPhone = RecoveryPhoneFactory();
+
+    const { uid, phoneNumber } = mockPhone;
+    await recoveryPhoneManager.registerPhoneNumber(
+      uid.toString('hex'),
+      phoneNumber
+    );
+
+    const result = await recoveryPhoneManager.getConfirmedPhoneNumber(
+      uid.toString('hex')
+    );
+    expect(result.uid).toEqual(mockPhone.uid);
+    expect(result.phoneNumber).toEqual(mockPhone.phoneNumber);
+  });
+
+  it('should throw if no recovery phone found', async () => {
+    const mockPhone = RecoveryPhoneFactory();
+
+    const { uid } = mockPhone;
+
+    await expect(
+      recoveryPhoneManager.getConfirmedPhoneNumber(uid.toString('hex'))
+    ).rejects.toThrow('Recovery number does not exist');
+  });
+
   it('should create a recovery phone', async () => {
     const insertIntoSpy = jest.spyOn(db, 'insertInto');
     const mockPhone = RecoveryPhoneFactory();
@@ -62,7 +88,7 @@ describe('RecoveryPhoneManager', () => {
     ).rejects.toThrow('Invalid phone number format');
   });
 
-  it('should fail to register if recovery phone already exists', async () => {
+  it('should throw if recovery phone already exists', async () => {
     const mockPhone = RecoveryPhoneFactory();
     const { uid, phoneNumber } = mockPhone;
     await recoveryPhoneManager.registerPhoneNumber(
@@ -73,6 +99,34 @@ describe('RecoveryPhoneManager', () => {
     await expect(
       recoveryPhoneManager.registerPhoneNumber(uid.toString('hex'), phoneNumber)
     ).rejects.toThrow('Recovery number already exists');
+  });
+
+  it('should remove a recovery phone', async () => {
+    const deleteFromSpy = jest.spyOn(db, 'deleteFrom');
+    const mockPhone = RecoveryPhoneFactory();
+
+    const { uid, phoneNumber } = mockPhone;
+    await recoveryPhoneManager.registerPhoneNumber(
+      uid.toString('hex'),
+      phoneNumber
+    );
+
+    const result = await recoveryPhoneManager.removePhoneNumber(
+      mockPhone.uid.toString('hex')
+    );
+    expect(deleteFromSpy).toBeCalledWith('recoveryPhones');
+    expect(result).toBe(true);
+  });
+
+  it('should return false if no phone number removed', async () => {
+    const deleteFromSpy = jest.spyOn(db, 'deleteFrom');
+    const mockPhone = RecoveryPhoneFactory();
+
+    const result = await recoveryPhoneManager.removePhoneNumber(
+      mockPhone.uid.toString('hex')
+    );
+    expect(deleteFromSpy).toBeCalledWith('recoveryPhones');
+    expect(result).toBe(false);
   });
 
   it('should handle database errors gracefully', async () => {

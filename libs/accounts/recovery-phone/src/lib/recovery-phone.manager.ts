@@ -7,10 +7,15 @@ import {
   AccountDbProvider,
 } from '@fxa/shared/db/mysql/account';
 import { Inject, Injectable } from '@nestjs/common';
-import { registerPhoneNumber } from './recovery-phone.repository';
+import {
+  getConfirmedPhoneNumber,
+  registerPhoneNumber,
+  removePhoneNumber,
+} from './recovery-phone.repository';
 import {
   RecoveryNumberAlreadyExistsError,
   RecoveryNumberInvalidFormatError,
+  RecoveryNumberNotExistsError,
 } from './recovery-phone.errors';
 import { Redis } from 'ioredis';
 
@@ -62,6 +67,30 @@ export class RecoveryPhoneManager {
       }
       throw err;
     }
+  }
+
+  /**
+   * Get the confirmed phone number for a user.
+   *
+   * @param uid
+   */
+  async getConfirmedPhoneNumber(uid: string): Promise<any> {
+    const uidBuffer = Buffer.from(uid, 'hex');
+    const result = await getConfirmedPhoneNumber(this.db, uidBuffer);
+    if (!result) {
+      throw new RecoveryNumberNotExistsError(uid);
+    }
+    return result;
+  }
+
+  /**
+   * Remove account phone number.
+   *
+   * @param uid
+   */
+  async removePhoneNumber(uid: string): Promise<boolean> {
+    const uidBuffer = Buffer.from(uid, 'hex');
+    return await removePhoneNumber(this.db, uidBuffer);
   }
 
   /**
