@@ -369,15 +369,14 @@
       {
         "id": "32aaeb6f1c21316a",
         "name": "Firefox Accounts Payments Next",
-        "hashedSecret": "b312c769bfce7682c2482c701199d88a8b67e40cee43cbe03bafe6eca47fff75",
+        "hashedSecret": "674609e00c64cedb4b486caf5ed3914f1fa86be25cc5cc6927a8a3d1c6981c4e",
         "redirectUri": "http://localhost:3035/api/auth/callback/fxa",
         "imageUri": "",
         "canGrant": true,
         "termsUri": "",
         "privacyUri": "",
         "trusted": true,
-        "allowedScopes": "https://identity.mozilla.com/account/subscriptions https://identity.mozilla.com/account/newsletters",
-        "publicClient": true
+        "allowedScopes": "https://identity.mozilla.com/account/subscriptions https://identity.mozilla.com/account/newsletters"
       },
       {
         "name": "Thunderbird",

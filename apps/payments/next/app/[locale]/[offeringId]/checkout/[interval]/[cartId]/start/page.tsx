@@ -6,6 +6,7 @@ import { headers } from 'next/headers';
 import Image from 'next/image';
 import {
   BaseButton,
+  buildRedirectUrl,
   ButtonVariant,
   PaymentSection,
   SignInForm,
@@ -19,12 +20,22 @@ import {
 import AppleLogo from '@fxa/shared/assets/images/apple-logo.svg';
 import GoogleLogo from '@fxa/shared/assets/images/google-logo.svg';
 import { DEFAULT_LOCALE } from '@fxa/shared/l10n';
-import { auth } from 'apps/payments/next/auth';
-import { fetchCMSData, getCartOrRedirectAction } from '@fxa/payments/ui/actions';
+import { auth, signIn } from 'apps/payments/next/auth';
+import {
+  fetchCMSData,
+  getCartOrRedirectAction,
+} from '@fxa/payments/ui/actions';
+import { config } from 'apps/payments/next/config';
 
 export const dynamic = 'force-dynamic';
 
-export default async function Checkout({ params }: { params: CheckoutParams }) {
+export default async function Checkout({
+  params,
+  searchParams,
+}: {
+  params: CheckoutParams;
+  searchParams: Record<string, string> | undefined;
+}) {
   // Temporarily defaulting to `accept-language`
   // This to be updated in FXA-9404
   //const locale = getLocaleFromRequest(
@@ -46,9 +57,17 @@ export default async function Checkout({ params }: { params: CheckoutParams }) {
     cmsDataPromise,
   ]);
 
+  const redirectTo = buildRedirectUrl(
+    params.offeringId,
+    params.interval,
+    'new',
+    'checkout',
+    { baseUrl: config.baseUrl, locale: params.locale, searchParams }
+  );
+
   return (
     <section aria-label="Checkout">
-      {!session && (
+      {!session?.user && (
         <>
           <h2 className="font-semibold text-grey-600 text-lg mt-10">
             {l10n.getString(
@@ -58,6 +77,13 @@ export default async function Checkout({ params }: { params: CheckoutParams }) {
           </h2>
 
           <SignInForm
+            submitAction={async (email?: string) => {
+              'use server';
+              const additionalParams = email
+                ? { login_hint: email }
+                : undefined;
+              await signIn('fxa', { redirectTo }, additionalParams);
+            }}
             newsletterLabel={cms.commonContent.newsletterLabelTextCode}
           />
 
@@ -69,20 +95,38 @@ export default async function Checkout({ params }: { params: CheckoutParams }) {
           </h3>
 
           <div className="flex flex-col gap-4 mt-6 mb-10 desktop:flex-row desktop:items-center desktop:justify-center">
-            <BaseButton variant={ButtonVariant.ThirdParty}>
-              <Image src={GoogleLogo} alt="" />
-              {l10n.getString(
-                'next-continue-with-google-button',
-                'Continue with Google'
-              )}
-            </BaseButton>
-            <BaseButton variant={ButtonVariant.ThirdParty}>
-              <Image src={AppleLogo} alt="" />
-              {l10n.getString(
-                'next-continue-with-apple-button',
-                'Continue with Apple'
-              )}
-            </BaseButton>
+            <form
+              action={async () => {
+                'use server';
+                await signIn(
+                  'fxa',
+                  { redirectTo },
+                  { deeplink: 'googleLogin' }
+                );
+              }}
+            >
+              <BaseButton variant={ButtonVariant.ThirdParty}>
+                <Image src={GoogleLogo} alt="" />
+                {l10n.getString(
+                  'next-continue-with-google-button',
+                  'Continue with Google'
+                )}
+              </BaseButton>
+            </form>
+            <form
+              action={async () => {
+                'use server';
+                await signIn('fxa', { redirectTo }, { deeplink: 'appleLogin' });
+              }}
+            >
+              <BaseButton variant={ButtonVariant.ThirdParty}>
+                <Image src={AppleLogo} alt="" />
+                {l10n.getString(
+                  'next-continue-with-apple-button',
+                  'Continue with Apple'
+                )}
+              </BaseButton>
+            </form>
           </div>
 
           <hr className="mx-auto w-full border-grey-200" />

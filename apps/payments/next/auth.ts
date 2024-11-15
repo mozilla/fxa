@@ -17,15 +17,15 @@ export const {
     {
       id: 'fxa',
       name: 'Firefox Accounts',
-      type: 'oidc',
+      type: 'oauth',
       issuer: config.auth.issuerUrl,
       wellKnown: config.auth.wellKnownUrl,
-      checks: ['pkce', 'state'],
-      client: {
-        token_endpoint_auth_method: 'none',
-      },
-      authorization: { params: { scope: 'openid email profile' } },
+      checks: ['state'],
+      authorization: { params: { scope: 'email profile' } },
       clientId: config.auth.clientId,
+      clientSecret: config.auth.clientSecret,
+      token: config.auth.tokenUrl,
+      userinfo: config.auth.userinfoUrl,
     },
   ],
   callbacks: {
@@ -33,8 +33,9 @@ export const {
       params.session.user.id = params.token.fxaUid;
       return params.session;
     },
-    async jwt({ token, account }) {
-      const fxaUid = token.fxaUid || account?.providerAccountId;
+    async jwt({ token, profile }) {
+      // Note profile is only defined once after user sign in.
+      const fxaUid = token.fxaUid || profile?.uid;
       return {
         ...token,
         fxaUid,
