@@ -32,7 +32,6 @@ import { setupFirestore } from '../../lib/firestore-db';
 import { CurrencyHelper } from '../../lib/payments/currencies';
 import { createStripeHelper, StripeHelper } from '../../lib/payments/stripe';
 import oauthDb from '../../lib/oauth/db';
-import { Account } from 'fxa-shared/db/models/auth';
 import { PlayBilling } from '../../lib/payments/iap/google-play';
 import { PlaySubscriptions } from '../../lib/payments/iap/google-play/subscriptions';
 import { AppleIAP } from '../../lib/payments/iap/apple-app-store/apple-iap';
@@ -43,6 +42,7 @@ import {
   hasAccessToken,
   hasActiveRefreshToken,
   hasActiveSessionToken,
+  IsActiveFnBuilder,
   setDateToUTC,
 } from './lib';
 
@@ -180,12 +180,12 @@ const init = async () => {
 
   const checkActiveSessionToken = collectPerfStatsOn(
     'Session Token Check',
-    async (uid: string, activeByDateTimestamp: number) =>
+    async (uid: string) =>
       await hasActiveSessionToken(sessionTokensFn, uid, activeByDateTimestamp)
   );
   const checkRefreshToken = collectPerfStatsOn(
     'Refresh Token Check',
-    async (uid: string, activeByDateTimestamp: number) =>
+    async (uid: string) =>
       await hasActiveRefreshToken(refreshTokensFn, uid, activeByDateTimestamp)
   );
   const checkAccessToken = collectPerfStatsOn(
@@ -227,26 +227,19 @@ const init = async () => {
 
   const hasIapSubscription = collectPerfStatsOn(
     'Has IAP Check',
-    async (accountRecord: Account) =>
-      iapSubUids.has(accountRecord.uid) &&
-      ((await getPlaySubscriptions(accountRecord.uid)).length > 0 ||
-        (await getAppleSubscriptions(accountRecord.uid)).length > 0)
+    async (uid: string) =>
+      iapSubUids.has(uid) &&
+      ((await getPlaySubscriptions(uid)).length > 0 ||
+        (await getAppleSubscriptions(uid)).length > 0)
   );
 
-  const isActive = collectPerfStatsOn(
-    'Active Status Check',
-    async (accountRecord: Account) => {
-      return (
-        (await checkActiveSessionToken(
-          accountRecord.uid,
-          activeByDateTimestamp
-        )) ||
-        (await checkRefreshToken(accountRecord.uid, activeByDateTimestamp)) ||
-        (await checkAccessToken(accountRecord.uid)) ||
-        (await hasIapSubscription(accountRecord))
-      );
-    }
-  );
+  const _isActive = new IsActiveFnBuilder()
+    .setActiveSessionTokenFn(checkActiveSessionToken)
+    .setRefreshTokenFn(checkRefreshToken)
+    .setAccessTokenFn(checkAccessToken)
+    .setIapSubscriptionFn(hasIapSubscription)
+    .build();
+  const isActive = collectPerfStatsOn('Active Status Check', _isActive);
 
   if (isDryRun) {
     const countQuery = accountWhereAndOrderBy().count({
@@ -284,7 +277,7 @@ const init = async () => {
       await queue.onSizeLessThan(concurrency * 5);
 
       queue.add(async () => {
-        if (!(await isActive(accountRecord))) {
+        if (!(await isActive(accountRecord.uid))) {
           inactiveUids.push(accountRecord.uid);
         }
       });
