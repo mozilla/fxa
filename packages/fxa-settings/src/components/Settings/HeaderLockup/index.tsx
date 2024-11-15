@@ -12,15 +12,10 @@ import DropDownAvatarMenu from '../DropDownAvatarMenu';
 import { ReactComponent as Help } from './help.svg';
 import { ReactComponent as Menu } from './menu.svg';
 import { ReactComponent as Close } from './close.svg';
-import { SettingsIntegration } from '../interfaces';
 import Sidebar from '../Sidebar';
 import GleanMetrics from '../../../lib/glean';
 
-export const HeaderLockup = ({
-  integration,
-}: {
-  integration: SettingsIntegration;
-}) => {
+export const HeaderLockup = () => {
   const [sidebarRevealedState, setNavState] = useState(false);
   const { l10n } = useLocalization();
   const localizedHelpText = l10n.getString('header-help', null, 'Help');
@@ -87,7 +82,7 @@ export const HeaderLockup = ({
         />
       </LinkExternal>
       <BentoMenu />
-      <DropDownAvatarMenu {...{ integration }} />
+      <DropDownAvatarMenu />
     </>
   );
 

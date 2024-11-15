@@ -6,7 +6,6 @@ import React from 'react';
 import { screen } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import HeaderLockup from '.';
-import { createMockSettingsIntegration } from '../mocks';
 import { userEvent } from '@testing-library/user-event';
 import GleanMetrics from '../../../lib/glean';
 
@@ -21,9 +20,7 @@ jest.mock('../../../lib/glean', () => ({
 
 describe('HeaderLockup', () => {
   it('renders as expected', () => {
-    renderWithLocalizationProvider(
-      <HeaderLockup integration={createMockSettingsIntegration()} />
-    );
+    renderWithLocalizationProvider(<HeaderLockup />);
     const headerMenu = screen.getByTestId('header-menu');
 
     expect(
@@ -45,9 +42,7 @@ describe('HeaderLockup', () => {
   });
 
   it('emits Glean event on help link click', async () => {
-    renderWithLocalizationProvider(
-      <HeaderLockup integration={createMockSettingsIntegration()} />
-    );
+    renderWithLocalizationProvider(<HeaderLockup />);
     await userEvent.click(screen.getByRole('link', { name: 'Help' }));
     expect(GleanMetrics.accountPref.help).toHaveBeenCalled();
   });

@@ -11,13 +11,8 @@ import { ReactComponent as SignOut } from './sign-out.svg';
 import { logViewEvent, settingsViewName } from '../../../lib/metrics';
 import { Localized, useLocalization } from '@fluent/react';
 import firefox from '../../../lib/channels/firefox';
-import { SettingsIntegration } from '../interfaces';
 
-export const DropDownAvatarMenu = ({
-  integration,
-}: {
-  integration: SettingsIntegration;
-}) => {
+export const DropDownAvatarMenu = () => {
   const { displayName, primaryEmail, avatar, uid } = useAccount();
   const session = useSession();
   const [isRevealed, setRevealed] = useState(false);
@@ -39,9 +34,10 @@ export const DropDownAvatarMenu = ({
       try {
         await session.destroy();
 
-        if (integration.isSync()) {
-          firefox.fxaLogout({ uid });
-        }
+        // Send a logout event to Firefox even if the user is in a non-Sync flow.
+        // If the user is signed into the browser, they need to drop the now
+        // destroyed session token.
+        firefox.fxaLogout({ uid });
 
         logViewEvent(settingsViewName, 'signout.success');
         window.location.assign(window.location.origin);

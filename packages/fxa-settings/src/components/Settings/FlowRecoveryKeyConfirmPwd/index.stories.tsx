@@ -9,7 +9,7 @@ import { Account, AppContext, useFtlMsgResolver } from '../../../models';
 import { MOCK_ACCOUNT, mockAppContext } from '../../../models/mocks';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import { MockSettingsAppLayout } from '../SettingsLayout/mocks';
+import SettingsLayout from '../SettingsLayout';
 
 export default {
   title: 'Components/Settings/FlowRecoveryKeyConfirmPwd',
@@ -76,7 +76,7 @@ const StoryWithContext = (account: Account) => {
 
   return (
     <AppContext.Provider value={mockAppContext({ account })}>
-      <MockSettingsAppLayout>
+      <SettingsLayout>
         <FlowRecoveryKeyConfirmPwd
           {...{
             localizedBackButtonTitle,
@@ -87,7 +87,7 @@ const StoryWithContext = (account: Account) => {
             viewName,
           }}
         />
-      </MockSettingsAppLayout>
+      </SettingsLayout>
     </AppContext.Provider>
   );
 };

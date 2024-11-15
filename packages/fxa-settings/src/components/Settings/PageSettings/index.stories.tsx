@@ -16,7 +16,7 @@ import { AppContext } from 'fxa-settings/src/models';
 import { MOCK_LINKED_ACCOUNTS } from '../LinkedAccounts/mocks';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import { MockSettingsAppLayout } from '../SettingsLayout/mocks';
+import SettingsLayout from '../SettingsLayout';
 
 const SERVICES_NON_MOBILE = MOCK_SERVICES.filter((d) => !isMobileDevice(d));
 
@@ -72,9 +72,9 @@ const storyWithContext = (
   const story = () => (
     <LocationProvider>
       <AppContext.Provider value={mockAppContext(context)}>
-        <MockSettingsAppLayout>
+        <SettingsLayout>
           <PageSettings />
-        </MockSettingsAppLayout>
+        </SettingsLayout>
       </AppContext.Provider>
     </LocationProvider>
   );
