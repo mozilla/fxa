@@ -49,7 +49,7 @@
     "fxa-shared": "workspace:*",
     "googleapis": "^144.0.0",
     "helmet": "^8.0.0",
-    "hot-shots": "^10.1.1",
+    "hot-shots": "^10.2.1",
     "knex": "^3.1.0",
     "rimraf": "^6.0.1",
     "ts-morph": "^24.0.0",

@@ -40889,7 +40889,7 @@ fsevents@~2.1.1:
     fxa-shared: "workspace:*"
     googleapis: ^144.0.0
     helmet: ^8.0.0
-    hot-shots: ^10.1.1
+    hot-shots: ^10.2.1
     jest: 29.3.1
     knex: ^3.1.0
     pm2: ^5.4.2
@@ -41011,7 +41011,7 @@ fsevents@~2.1.1:
     hapi-auth-jwt2: ^10.4.0
     hapi-swagger: ^17.3.0
     hkdf: 0.0.2
-    hot-shots: ^10.1.1
+    hot-shots: ^10.2.1
     i18n-iso-countries: ^7.12.0
     ioredis: ^4.28.2
     joi: ^17.13.3
@@ -41168,7 +41168,7 @@ fsevents@~2.1.1:
     grunt-z-schema: 0.1.0
     handlebars: ^4.7.7
     helmet: ^8.0.0
-    hot-shots: ^10.1.1
+    hot-shots: ^10.2.1
     htmlparser2: 9.1.0
     http-proxy-middleware: ^2.0.7
     i18n-abide: 0.0.26
@@ -41257,7 +41257,7 @@ fsevents@~2.1.1:
     grunt-copyright: 0.3.0
     grunt-eslint: ^25.0.0
     hapi-swagger: ^17.3.0
-    hot-shots: ^10.1.1
+    hot-shots: ^10.2.1
     ip: ^2.0.1
     ip-reputation-js-client: ^6.0.4
     load-grunt-tasks: ^5.1.0
@@ -41321,7 +41321,7 @@ fsevents@~2.1.1:
     express: ^4.21.1
     factory-bot-ts: ^0.1.5
     fxa-shared: "workspace:*"
-    hot-shots: ^10.1.1
+    hot-shots: ^10.2.1
     jest: 27.5.1
     joi: ^17.13.3
     jwks-rsa: ^3.1.0
@@ -41397,7 +41397,7 @@ fsevents@~2.1.1:
     graphql-parse-resolve-info: ^4.13.0
     graphql-query-complexity: ^1.0.0
     helmet: ^8.0.0
-    hot-shots: ^10.1.1
+    hot-shots: ^10.2.1
     jest: 29.3.1
     knex: ^3.1.0
     mozlog: ^3.0.2
@@ -41501,7 +41501,7 @@ fsevents@~2.1.1:
     grunt-contrib-watch: ^1.1.0
     handlebars: ^4.7.7
     helmet: ^8.0.0
-    hot-shots: ^10.1.1
+    hot-shots: ^10.2.1
     intl: 1.2.5
     jest: 27.5.1
     jest-watch-typeahead: 0.6.5
@@ -41824,7 +41824,7 @@ fsevents@~2.1.1:
     express: ^4.21.1
     find-up: ^5.0.0
     graphql: ^16.9.0
-    hot-shots: ^10.1.1
+    hot-shots: ^10.2.1
     ioredis: ^4.28.2
     ip: ^2.0.1
     jest: 27.5.1
@@ -41977,7 +41977,7 @@ fsevents@~2.1.1:
     grunt-contrib-copy: ^1.0.0
     grunt-contrib-watch: ^1.1.0
     grunt-http: ^2.3.3
-    hot-shots: ^10.1.1
+    hot-shots: ^10.2.1
     husky: ^4.2.5
     jest: ^29.5.0
     jest-environment-jsdom: ^29.5.0
@@ -44329,15 +44329,15 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"hot-shots@npm:^10.1.1":
-  version: 10.1.1
-  resolution: "hot-shots@npm:10.1.1"
+"hot-shots@npm:^10.2.1":
+  version: 10.2.1
+  resolution: "hot-shots@npm:10.2.1"
   dependencies:
     unix-dgram: 2.x
   dependenciesMeta:
     unix-dgram:
       optional: true
-  checksum: e0e22e914de8ddb8fa9a2c7909391f2ecc09a60806ec28ea0d21e012958e1ce62efd5ff54762e9ecf1da2e50c8d3cf25dced78ef5402ca132f9387c04d1a0631
+  checksum: 2075d8b2290638bbf9faebf301007020d5a56ec305ef66d568cd0a8bba6e73acee91e48d3b624551086a14116a7cb8864805e6734dfb3cf454ce4b3d3c643ee1
   languageName: node
   linkType: hard
 
