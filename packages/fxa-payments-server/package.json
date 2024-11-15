@@ -139,7 +139,7 @@
     "fxa-settings": "workspace:*",
     "fxa-shared": "workspace:*",
     "helmet": "^8.0.0",
-    "hot-shots": "^10.1.1",
+    "hot-shots": "^10.2.1",
     "jest-watch-typeahead": "0.6.5",
     "joi": "^17.13.3",
     "jquery-modal": "https://github.com/mozilla-fxa/jquery-modal.git#0576775d1b4590314b114386019f4c7421c77503",
