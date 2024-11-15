@@ -104,7 +104,7 @@ export const RecoveryKeySetupHint = ({
 
     return (
       <p
-        className={classNames('text-end text-xs mt-2', {
+        className={classNames('text-end text-xs my-2', {
           'text-red-600': isTooLong,
         })}
       >
@@ -121,7 +121,7 @@ export const RecoveryKeySetupHint = ({
           content={{ localizedHeading: localizedErrorMessage }}
         />
       )}
-      <LightbulbImage className="mx-auto my-6" />
+      <LightbulbImage />
       <FtlMsg id="flow-recovery-key-hint-header-v2">
         <h2 className="font-bold text-xl mb-4">
           Add a hint to help find your key
@@ -136,6 +136,7 @@ export const RecoveryKeySetupHint = ({
         </p>
       </FtlMsg>
       <form onSubmit={handleSubmit(onSubmit)}>
+        <ControlledCharacterCount {...{ control }} />
         <FtlMsg id="flow-recovery-key-hint-input-v2" attrs={{ label: true }}>
           <InputText
             name="hint"
@@ -152,10 +153,9 @@ export const RecoveryKeySetupHint = ({
             {...{ errorText: hintError }}
           />
         </FtlMsg>
-        <ControlledCharacterCount {...{ control }} />
         <FtlMsg id="flow-recovery-key-hint-cta-text">
           <button
-            className="cta-primary cta-xl w-full mt-6 mb-4"
+            className="cta-primary cta-xl w-full mt-4 mb-4"
             type="submit"
             disabled={isSubmitDisabled}
           >

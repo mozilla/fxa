@@ -49,7 +49,7 @@ const InlineRecoverySetup = ({
     () =>
       successfulTotpSetup && (
         <Banner
-          type="error"
+          type="success"
           content={{
             localizedHeading: ftlMsgResolver.getMsg(
               'inline-recovery-2fa-enabled',
@@ -153,7 +153,7 @@ const InlineRecoverySetup = ({
           {showBannerError()}
           <section>
             <div>
-              <BackupCodesImage className="mx-auto" />
+              <BackupCodesImage />
               <FtlMsg id="inline-recovery-confirmation-description">
                 <p className="text-sm mb-6">
                   To ensure that you will be able to regain access to your

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import AppLayout from '.';
+import SettingsLayout from '.';
 import { createMockSettingsIntegration } from '../mocks';
 
 // Does not follow "Subject" naming convention for clarity because we use
@@ -14,8 +14,8 @@ export const MockSettingsAppLayout = ({
   children: React.ReactNode;
 }) => {
   return (
-    <AppLayout integration={createMockSettingsIntegration()}>
+    <SettingsLayout integration={createMockSettingsIntegration()}>
       {children}
-    </AppLayout>
+    </SettingsLayout>
   );
 };

@@ -191,7 +191,7 @@ export const SigninUnblock = ({
         />
       )}
       {resendStatus === ResendStatus.sent && <ResendCodeSuccessBanner />}
-      <EmailCodeImage className="w-3/5 mx-auto mb-2" />
+      <EmailCodeImage />
       <FtlMsg id="signin-unblock-body" vars={{ email }}>
         <p className="text-sm">
           Check your email for the authorization code sent to {email}.
@@ -208,7 +208,7 @@ export const SigninUnblock = ({
           isLoading,
         }}
       />
-      <div className="flex flex-col items-center gap-3">
+      <div className="flex flex-col items-center gap-3 mt-8">
         <FtlMsg id="signin-unblock-resend-code-button">
           <button className="link-blue text-sm" onClick={handleResend}>
             Not in inbox or spam folder? Resend

@@ -13,7 +13,7 @@ import { Page2faReplaceRecoveryCodes } from '.';
 import { Meta } from '@storybook/react';
 import { LocationProvider } from '@reach/router';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import { MockSettingsAppLayout } from '../AppLayout/mocks';
+import { MockSettingsAppLayout } from '../SettingsLayout/mocks';
 
 const session = mockSession(true);
 const account = {

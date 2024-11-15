@@ -62,7 +62,7 @@ const ResetPasswordWithRecoveryKeyVerified = ({
 
   if (oAuthError) {
     return (
-      <AppLayout title={localizedPageTitle} cardClass="card-base">
+      <AppLayout title={localizedPageTitle}>
         <Banner
           type="error"
           content={{
@@ -78,7 +78,7 @@ const ResetPasswordWithRecoveryKeyVerified = ({
 
   if (showHint) {
     return (
-      <AppLayout title={localizedPageTitle} cardClass="card-base">
+      <AppLayout title={localizedPageTitle}>
         <div className="w-full flex flex-col gap-4">
           <RecoveryKeySetupHint
             {...{
@@ -100,8 +100,8 @@ const ResetPasswordWithRecoveryKeyVerified = ({
   }
 
   return (
-    <AppLayout title={localizedPageTitle} cardClass="card-base">
-      <div className="w-full flex flex-col gap-4">
+    <AppLayout title={localizedPageTitle}>
+      <div className="w-full flex flex-col">
         <Banner
           type="success"
           content={{
@@ -111,14 +111,14 @@ const ResetPasswordWithRecoveryKeyVerified = ({
             ),
           }}
         />
-        <RecoveryKeyImage className="my-6 mx-auto" />
+        <RecoveryKeyImage />
         <FtlMsg id="reset-password-complete-recovery-key-created">
           <h2 className="font-bold text-xl">
             New account recovery key created. Download and store it now.
           </h2>
         </FtlMsg>
         <FtlMsg id="reset-password-complete-recovery-key-download-info">
-          <p>
+          <p className="text-sm my-4">
             This key is essential for data recovery if you forget your password.{' '}
             <b>
               Download and store it securely now, as you won’t be able to access
@@ -151,7 +151,7 @@ const ResetPasswordWithRecoveryKeyVerified = ({
         </Suspense>
         <FtlMsg id="flow-recovery-key-download-next-link-v2">
           <button
-            className="text-sm link-blue text-center py-2 mx-auto"
+            className="text-sm link-blue text-center mx-auto mt-6"
             onClick={() => {
               logViewEvent(`flow.${viewName}`, 'recovery-key.skip-download');
               navigateToHint();

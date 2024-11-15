@@ -48,7 +48,7 @@ export const FlowRecoveryKeyInfo = ({
       }}
     >
       <ProgressBar currentStep={1} numberOfSteps={4} />
-      <RecoveryKeyImage className="mx-auto my-6" />
+      <RecoveryKeyImage />
       {action === RecoveryKeyAction.Create ? (
         <FtlMsg id="flow-recovery-key-info-header">
           <h2 className="font-bold text-xl mb-4">

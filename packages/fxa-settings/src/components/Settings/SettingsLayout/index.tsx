@@ -14,7 +14,7 @@ type AppLayoutProps = {
   integration: SettingsIntegration;
 };
 
-export const AppLayout = ({ children, integration }: AppLayoutProps) => {
+export const SettingsLayout = ({ children, integration }: AppLayoutProps) => {
   return (
     <div
       className="flex flex-col justify-between min-h-screen"
@@ -35,4 +35,4 @@ export const AppLayout = ({ children, integration }: AppLayoutProps) => {
   );
 };
 
-export default AppLayout;
+export default SettingsLayout;

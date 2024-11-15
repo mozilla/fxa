@@ -44,7 +44,7 @@ const ConfirmResetPassword = ({
   };
 
   return (
-    <AppLayout cardClass="card-base">
+    <AppLayout>
       <FtlMsg id="password-reset-flow-heading">
         <HeadingPrimary marginClass="">Reset your password</HeadingPrimary>
       </FtlMsg>
@@ -60,7 +60,7 @@ const ConfirmResetPassword = ({
       {errorMessage && (
         <Banner type="error" content={{ localizedHeading: errorMessage }} />
       )}
-      <EmailCodeImage className="mx-auto" />
+      <EmailCodeImage />
       <FtlMsg id="confirm-reset-password-with-code-heading">
         <h2 className="card-header my-4">Check your email</h2>
       </FtlMsg>

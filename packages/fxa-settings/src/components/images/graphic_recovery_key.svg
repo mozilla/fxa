@@ -1,4 +1,4 @@
-<svg width="205" height="160" viewBox="0 0 205 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width="205" height="160" viewBox="30 10 175 145" fill="none" xmlns="http://www.w3.org/2000/svg">
 <style>
         .animate-draw-stroke {
             animation: drawCheckmark 3s ease-in forwards;

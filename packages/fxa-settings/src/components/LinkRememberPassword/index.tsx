@@ -47,7 +47,7 @@ const LinkRememberPassword = ({
 
   return (
     <div
-      className={`flex flex-wrap shrink-0 gap-1 text-sm ${
+      className={`flex flex-wrap mt-8 shrink-0 gap-1 text-sm ${
         textStart ? 'text-start' : 'justify-center'
       }`}
     >

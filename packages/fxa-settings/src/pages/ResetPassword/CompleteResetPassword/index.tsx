@@ -64,7 +64,7 @@ const CompleteResetPassword = ({
   };
 
   return (
-    <AppLayout cardClass="card-base">
+    <AppLayout>
       <FtlMsg id="password-reset-flow-heading">
         <HeadingPrimary>Reset your password</HeadingPrimary>
       </FtlMsg>

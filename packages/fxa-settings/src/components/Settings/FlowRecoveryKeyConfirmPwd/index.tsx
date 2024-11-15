@@ -124,7 +124,7 @@ export const FlowRecoveryKeyConfirmPwd = ({
             content={{ localizedHeading: localizedErrorBannerMessage }}
           />
         )}
-        <PasswordImage className="mx-auto my-4" />
+        <PasswordImage />
 
         <FtlMsg id="flow-recovery-key-confirm-pwd-heading-v2">
           <h2 className="font-bold text-xl">

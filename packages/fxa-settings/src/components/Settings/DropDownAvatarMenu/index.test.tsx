@@ -16,6 +16,7 @@ import { Account, AppContext } from '../../../models';
 import { SettingsContext } from '../../../models/contexts/SettingsContext';
 import { createMockSettingsIntegration } from '../mocks';
 import firefox from '../../../lib/channels/firefox';
+import { PLACEHOLDER_IMAGE_URL } from '../../../pages/mocks';
 
 jest.mock('../../../models/AlertBarInfo');
 jest.mock('fxa-settings/src/lib/metrics', () => ({
@@ -26,7 +27,7 @@ jest.mock('fxa-settings/src/lib/metrics', () => ({
 const account = {
   avatar: {
     id: 'abc1234',
-    url: 'http://placekitten.com/512/512',
+    url: PLACEHOLDER_IMAGE_URL,
     isDefault: false,
   },
   primaryEmail: {

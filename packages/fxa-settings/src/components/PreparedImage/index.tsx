@@ -31,7 +31,7 @@ export type PreparedImageProps =
 // translating it again. Don't forget to add new FTL strings into the `en.ftl` file!
 
 export const PreparedImage = (props: PreparedImageProps) => {
-  const { className = 'm-auto w-3/5', ariaHidden, Image } = props;
+  const { className = 'mx-auto my-4 max-h-44', ariaHidden, Image } = props;
   const showAriaLabel =
     !ariaHidden && props?.ariaLabel && props?.ariaLabelFtlId;
 

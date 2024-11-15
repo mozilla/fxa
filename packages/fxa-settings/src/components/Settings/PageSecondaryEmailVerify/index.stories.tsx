@@ -7,7 +7,7 @@ import { Meta } from '@storybook/react';
 import { PageSecondaryEmailVerify } from '.';
 import { WindowLocation, LocationProvider } from '@reach/router';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import { MockSettingsAppLayout } from '../AppLayout/mocks';
+import { MockSettingsAppLayout } from '../SettingsLayout/mocks';
 
 export default {
   title: 'Pages/Settings/SecondaryEmailVerify',

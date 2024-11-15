@@ -18,7 +18,7 @@ const storyWithProps = (
   updateRecoveryKeyHint?: (hint: string) => Promise<void>
 ) => {
   const story = () => (
-    <AppLayout cardClass="card-base">
+    <AppLayout>
       <RecoveryKeySetupHint
         viewName="whatever"
         navigateForward={() => Promise.resolve()}

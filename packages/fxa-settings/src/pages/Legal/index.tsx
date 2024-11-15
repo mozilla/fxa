@@ -7,7 +7,6 @@ import AppLayout from '../../components/AppLayout';
 import { Link, RouteComponentProps } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { usePageViewEvent } from '../../lib/metrics';
-import CardHeader from '../../components/CardHeader';
 import { REACT_ENTRYPOINT } from '../../constants';
 
 export const viewName = 'legal';
@@ -17,7 +16,9 @@ const Legal = (_: RouteComponentProps) => {
 
   return (
     <AppLayout>
-      <CardHeader headingTextFtlId="legal-header" headingText="Legal" />
+      <FtlMsg id="legal-header">
+        <h1 className="card-header text-center mb-4">Legal</h1>
+      </FtlMsg>
 
       <div className="flex mobileLandscape:justify-between gap-x-10 text-sm">
         <Link className="link-blue" to="/legal/terms">

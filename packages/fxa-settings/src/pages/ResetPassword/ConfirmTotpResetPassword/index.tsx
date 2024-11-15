@@ -54,7 +54,7 @@ const ConfirmTotpResetPassword = ({
   return (
     <>
       {showRecoveryCode ? (
-        <AppLayout cardClass="card-base">
+        <AppLayout>
           <FtlMsg id="confirm-totp-reset-password-header">
             <HeadingPrimary>Reset your password</HeadingPrimary>
           </FtlMsg>
@@ -101,7 +101,7 @@ const ConfirmTotpResetPassword = ({
           </div>
         </AppLayout>
       ) : (
-        <AppLayout cardClass="card-base">
+        <AppLayout>
           <FtlMsg id="confirm-totp-reset-password-header">
             <HeadingPrimary>Reset your password</HeadingPrimary>
           </FtlMsg>

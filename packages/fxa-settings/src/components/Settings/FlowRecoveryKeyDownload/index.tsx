@@ -38,9 +38,9 @@ export const FlowRecoveryKeyDownload = ({
       }}
       {...{ localizedBackButtonTitle }}
     >
-      <div className="w-full flex flex-col gap-4">
+      <div className="w-full flex flex-col">
         <ProgressBar currentStep={3} numberOfSteps={4} />
-        <RecoveryKeyImage className="my-6 mx-auto" />
+        <RecoveryKeyImage />
 
         <FtlMsg id="flow-recovery-key-download-heading-v2">
           <h2 className="font-bold text-xl">
@@ -48,7 +48,7 @@ export const FlowRecoveryKeyDownload = ({
           </h2>
         </FtlMsg>
         <FtlMsg id="flow-recovery-key-download-info-v2">
-          <p>
+          <p className="my-4">
             This key allows you to recover your data if you forget your
             password. Download it now and store it somewhere you’ll remember —
             you won’t be able to return to this page later.

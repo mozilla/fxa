@@ -1,4 +1,4 @@
-<svg width="239" height="180" viewBox="0 0 239 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width="239" height="180" viewBox="20 10 210 170" fill="none" xmlns="http://www.w3.org/2000/svg">
 <style>
     .animate-glide-right {
         animation: smallCloudAnimation 3s 1 ease-in-out;

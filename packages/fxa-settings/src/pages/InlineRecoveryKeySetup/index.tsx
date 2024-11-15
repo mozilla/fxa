@@ -71,7 +71,7 @@ export const InlineRecoveryKeySetup = ({
             <FtlMsg id="inline-recovery-key-setup-download-header">
               <HeadingPrimary>Secure your account</HeadingPrimary>
             </FtlMsg>
-            <RecoveryKeyImage className="my-6 mx-auto" />
+            <RecoveryKeyImage />
 
             <h2 className="font-bold text-xl mb-5">
               <FtlMsg id="inline-recovery-key-setup-download-subheader">
@@ -101,7 +101,7 @@ export const InlineRecoveryKeySetup = ({
     }
   };
 
-  return <AppLayout cardClass="card-base">{renderStepComponent()}</AppLayout>;
+  return <AppLayout>{renderStepComponent()}</AppLayout>;
 };
 
 export default InlineRecoveryKeySetup;

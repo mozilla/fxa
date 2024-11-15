@@ -65,7 +65,7 @@ export function defaultAppContext(context?: AppContextValue) {
     displayName: 'John Dope',
     avatar: {
       id: 'abc1234',
-      url: 'http://placekitten.com/512/512',
+      url: 'https://loremflickr.com/512/512',
       isDefault: false,
     },
     accountCreated: 123456789,

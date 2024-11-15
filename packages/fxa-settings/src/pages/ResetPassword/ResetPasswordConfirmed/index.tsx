@@ -30,10 +30,10 @@ const ResetPasswordConfirmed = ({
           <h1 className="card-header -mt-1">Your password has been reset</h1>
         </FtlMsg>
       </div>
-      <PasswordSuccessImage className="mt-4 mb-8 mx-auto" />
+      <PasswordSuccessImage />
       <FtlMsg id="reset-password-confirmed-cta" vars={{ serviceName }}>
         <button
-          className="cta-primary cta-xl w-full"
+          className="cta-primary cta-xl w-full mt-6"
           type="button"
           data-glean-id="password_reset_success_continue_to_relying_party_submit"
           onClick={() => continueHandler()}

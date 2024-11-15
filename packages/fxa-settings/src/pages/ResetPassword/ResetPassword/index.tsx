@@ -83,7 +83,7 @@ const ResetPassword = ({
   return (
     <AppLayout>
       <FtlMsg id="password-reset-start-heading">
-        <h1 className="card-header text-start">Reset your password</h1>
+        <h1 className="card-header">Reset your password</h1>
       </FtlMsg>
 
       {errorMessage && (
@@ -91,7 +91,7 @@ const ResetPassword = ({
       )}
 
       <FtlMsg id="password-reset-body-2">
-        <p className="text-start mt-2 mb-6">
+        <p className="mt-2 mb-6">
           We’ll ask for a couple of things only you know to keep your account
           safe.
         </p>

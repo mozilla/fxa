@@ -102,17 +102,15 @@ const Ready = ({
 
   return (
     <>
-      <CardHeader
-        headingText={templateValues.headerText}
-        headingTextFtlId={templateValues.headerId}
-      />
       {errorMessage && (
         <Banner type="error" content={{ localizedHeading: errorMessage }} />
       )}
-      <div className="flex justify-center mx-auto">
-        <HeartsVerifiedImage className="w-3/5" />
-      </div>
-      <section>
+      <span className="text-center">
+        <CardHeader
+          headingText={templateValues.headerText}
+          headingTextFtlId={templateValues.headerId}
+        />
+        <HeartsVerifiedImage />
         {isSync && (
           <>
             <FtlMsg id="ready-complete-set-up-instruction">
@@ -147,7 +145,7 @@ const Ready = ({
             <p className="my-4 text-sm">Your account is ready!</p>
           </FtlMsg>
         )}
-      </section>
+      </span>
       {continueHandler && (
         <div className="flex justify-center mx-auto mt-6">
           <button

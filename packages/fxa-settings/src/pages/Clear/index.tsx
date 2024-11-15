@@ -22,7 +22,7 @@ const Clear = (_: RouteComponentProps) => {
         temporarily added this ID because intern tests still refer to this page
         and it's been rolled out to 100% in prod. Remove this ID once intern tests
         referring to this header are fully converted to Playwright. */}
-      <h1 className="card-header" id="clear-storage">
+      <h1 className="card-header text-center" id="clear-storage">
         Browser storage is cleared
       </h1>
     </AppLayout>

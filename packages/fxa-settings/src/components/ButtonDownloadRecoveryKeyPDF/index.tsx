@@ -145,7 +145,7 @@ export const ButtonDownloadRecoveryKeyPDF = ({
     <>
       <FtlMsg id="recovery-key-download-button-v3">
         <button
-          className="cta-primary cta-xl w-full"
+          className="cta-primary cta-xl w-full mt-4"
           onClick={async () => {
             logViewEvent(`flow.${viewName}`, `recovery-key.download-option`);
             await downloadFile();

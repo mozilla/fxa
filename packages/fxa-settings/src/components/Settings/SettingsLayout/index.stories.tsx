@@ -1,19 +1,19 @@
 import React from 'react';
-import AppLayout from './index';
+import SettingsLayout from './index';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { createMockSettingsIntegration } from '../mocks';
 
 export default {
-  title: 'Components/Settings/AppLayout',
-  component: AppLayout,
+  title: 'Components/Settings/SettingsLayout',
+  component: SettingsLayout,
   decorators: [withLocalization],
 } as Meta;
 
 const integration = createMockSettingsIntegration();
 
 export const Basic = () => (
-  <AppLayout {...{ integration }}>
+  <SettingsLayout {...{ integration }}>
     <p>App content goes here</p>
-  </AppLayout>
+  </SettingsLayout>
 );
