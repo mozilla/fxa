@@ -8621,6 +8621,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@discoveryjs/json-ext@npm:0.5.7":
+  version: 0.5.7
+  resolution: "@discoveryjs/json-ext@npm:0.5.7"
+  checksum: 2176d301cc258ea5c2324402997cf8134ebb212469c0d397591636cea8d3c02f2b3cf9fd58dcb748c7a0dade77ebdc1b10284fa63e608c033a1db52fddc69918
+  languageName: node
+  linkType: hard
+
 "@discoveryjs/json-ext@npm:^0.5.0, @discoveryjs/json-ext@npm:^0.5.3":
   version: 0.5.3
   resolution: "@discoveryjs/json-ext@npm:0.5.3"
@@ -13652,6 +13659,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@next/bundle-analyzer@npm:^15.0.3":
+  version: 15.0.3
+  resolution: "@next/bundle-analyzer@npm:15.0.3"
+  dependencies:
+    webpack-bundle-analyzer: 4.10.1
+  checksum: 79c7c3bfdcbe33d153e7008fd90bae7d8c0c44e5c5647ffc9441bf9553eea0e1d03c97d25eae6364204d160dca87d4a4e0749d571ed85e4435e5f0f086fa89ce
+  languageName: node
+  linkType: hard
+
 "@next/env@npm:14.2.14":
   version: 14.2.14
   resolution: "@next/env@npm:14.2.14"
@@ -16332,6 +16348,13 @@ __metadata:
     webpack-plugin-serve:
       optional: true
   checksum: 3490649181878cc8808fb91f3870ef095e5a1fb9647b3ac83740df07379c9d1cf540f24bf2b09d5f26a3a8c805b2c6b9c5be7192bdb9317d0ffffa67426e9f66
+  languageName: node
+  linkType: hard
+
+"@polka/url@npm:^1.0.0-next.24":
+  version: 1.0.0-next.28
+  resolution: "@polka/url@npm:1.0.0-next.28"
+  checksum: 7402aaf1de781d0eb0870d50cbcd394f949aee11b38a267a5c3b4e3cfee117e920693e6e93ce24c87ae2d477a59634f39d9edde8e86471cae756839b07c79af7
   languageName: node
   linkType: hard
 
@@ -27303,6 +27326,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"acorn-walk@npm:^8.0.0":
+  version: 8.3.4
+  resolution: "acorn-walk@npm:8.3.4"
+  dependencies:
+    acorn: ^8.11.0
+  checksum: 4ff03f42323e7cf90f1683e08606b0f460e1e6ac263d2730e3df91c7665b6f64e696db6ea27ee4bed18c2599569be61f28a8399fa170c611161a348c402ca19c
+  languageName: node
+  linkType: hard
+
 "acorn-walk@npm:^8.0.2, acorn-walk@npm:^8.1.1":
   version: 8.2.0
   resolution: "acorn-walk@npm:8.2.0"
@@ -27337,6 +27369,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"acorn@npm:^8.0.4, acorn@npm:^8.11.0, acorn@npm:^8.14.0":
+  version: 8.14.0
+  resolution: "acorn@npm:8.14.0"
+  bin:
+    acorn: bin/acorn
+  checksum: 8755074ba55fff94e84e81c72f1013c2d9c78e973c31231c8ae505a5f966859baf654bddd75046bffd73ce816b149298977fff5077a3033dedba0ae2aad152d4
+  languageName: node
+  linkType: hard
+
 "acorn@npm:^8.1.0, acorn@npm:^8.8.1":
   version: 8.8.2
   resolution: "acorn@npm:8.8.2"
@@ -27361,15 +27402,6 @@ __metadata:
   bin:
     acorn: bin/acorn
   checksum: 76d8e7d559512566b43ab4aadc374f11f563f0a9e21626dd59cb2888444e9445923ae9f3699972767f18af61df89cd89f5eaaf772d1327b055b45cb829b4a88c
-  languageName: node
-  linkType: hard
-
-"acorn@npm:^8.14.0":
-  version: 8.14.0
-  resolution: "acorn@npm:8.14.0"
-  bin:
-    acorn: bin/acorn
-  checksum: 8755074ba55fff94e84e81c72f1013c2d9c78e973c31231c8ae505a5f966859baf654bddd75046bffd73ce816b149298977fff5077a3033dedba0ae2aad152d4
   languageName: node
   linkType: hard
 
@@ -34842,7 +34874,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"debounce@npm:^1.2.0":
+"debounce@npm:^1.2.0, debounce@npm:^1.2.1":
   version: 1.2.1
   resolution: "debounce@npm:1.2.1"
   checksum: 682a89506d9e54fb109526f4da255c5546102fbb8e3ae75eef3b04effaf5d4853756aee97475cd4650641869794e44f410eeb20ace2b18ea592287ab2038519e
@@ -41351,7 +41383,6 @@ fsevents@~2.1.1:
     cron: 3.2.1
     eslint: ^8.19.0
     fxa-shared: "workspace:*"
-    maxmind: ^4.3.6
     mocha: ^10.4.0
     mozlog: ^3.0.2
     nyc: ^17.1.0
@@ -41893,6 +41924,7 @@ fsevents@~2.1.1:
     "@nestjs/schedule": ^4.0.1
     "@nestjs/schematics": ^10.2.3
     "@nestjs/testing": ^10.3.4
+    "@next/bundle-analyzer": ^15.0.3
     "@nx/esbuild": 19.5.3
     "@nx/eslint-plugin": 19.5.3
     "@nx/jest": 19.5.3
@@ -41923,6 +41955,8 @@ fsevents@~2.1.1:
     "@storybook/html-webpack5": ^7.6.13
     "@storybook/nextjs": ^7.6.14
     "@storybook/react-webpack5": ^7.4.5
+    "@stripe/react-stripe-js": ^2.7.1
+    "@stripe/stripe-js": ^4.9.0
     "@swc-node/register": 1.10.9
     "@swc/cli": 0.5.0
     "@swc/core": 1.5.29
@@ -41987,6 +42021,7 @@ fsevents@~2.1.1:
     knex: ^3.1.0
     kysely: ^0.27.2
     lint-staged: ^15.2.0
+    maxmind: ^4.3.22
     mocha-junit-reporter: ^2.2.0
     mocha-multi: ^1.1.7
     module-alias: ^2.2.3
@@ -44410,7 +44445,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"html-escaper@npm:^2.0.0":
+"html-escaper@npm:^2.0.0, html-escaper@npm:^2.0.2":
   version: 2.0.2
   resolution: "html-escaper@npm:2.0.2"
   checksum: d2df2da3ad40ca9ee3a39c5cc6475ef67c8f83c234475f24d8e9ce0dc80a2c82df8e1d6fa78ddd1e9022a586ea1bd247a615e80a5cd9273d90111ddda7d9e974
@@ -51798,13 +51833,13 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"maxmind@npm:^4.3.6":
-  version: 4.3.6
-  resolution: "maxmind@npm:4.3.6"
+"maxmind@npm:^4.3.22":
+  version: 4.3.22
+  resolution: "maxmind@npm:4.3.22"
   dependencies:
-    mmdb-lib: 2.0.2
-    tiny-lru: 8.0.2
-  checksum: 5ffa7d685d7cf0d31cb1be9fa2e38b31f9bfc735c7f3911b8d9e511348d6912277e333d943361973b3dc2707a618d81b6d3fd0d31507bd6294e1e4378ac720bd
+    mmdb-lib: 2.1.1
+    tiny-lru: 11.2.11
+  checksum: 1112ce535c2c155610cf25983deee30e3dbe046b18feef72e11c8fd56e5905b0aacc1da520142f9e7caa5e9cb59b988d34e430773cebbbe699e295be1f13188b
   languageName: node
   linkType: hard
 
@@ -53368,10 +53403,10 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"mmdb-lib@npm:2.0.2":
-  version: 2.0.2
-  resolution: "mmdb-lib@npm:2.0.2"
-  checksum: a8e3b6c81300915e351a34e46d89471f32d9ff2ee35b857901afed563d261cad90d8dd395898528d9430dfe6e015507c0bf290f56341efd691eec2ce21507c7b
+"mmdb-lib@npm:2.1.1":
+  version: 2.1.1
+  resolution: "mmdb-lib@npm:2.1.1"
+  checksum: 8208ef6a0910062f68caaf8ea79dab64b4a363b34b6c73f537e1a22b63cb4a7174bc4862ec0cc1431dce2031b4b87ce6b6860971bd2c86f21a2fb9aeddd7484e
   languageName: node
   linkType: hard
 
@@ -53595,6 +53630,13 @@ fsevents@~2.1.1:
   version: 1.2.0
   resolution: "mri@npm:1.2.0"
   checksum: 83f515abbcff60150873e424894a2f65d68037e5a7fcde8a9e2b285ee9c13ac581b63cfc1e6826c4732de3aeb84902f7c1e16b7aff46cd3f897a0f757a894e85
+  languageName: node
+  linkType: hard
+
+"mrmime@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "mrmime@npm:2.0.0"
+  checksum: f6fe11ec667c3d96f1ce5fd41184ed491d5f0a5f4045e82446a471ccda5f84c7f7610dff61d378b73d964f73a320bd7f89788f9e6b9403e32cc4be28ba99f569
   languageName: node
   linkType: hard
 
@@ -55687,6 +55729,15 @@ fsevents@~2.1.1:
   bin:
     opener: bin/opener-bin.js
   checksum: d6bda549cbc1542200256bc5f7ddd4dd97ff1fa208b2c274fcd099869ce8358050c67526d259d091fca529a9220b46968e34709c5edd8dc42cce0c68e115535f
+  languageName: node
+  linkType: hard
+
+"opener@npm:^1.5.2":
+  version: 1.5.2
+  resolution: "opener@npm:1.5.2"
+  bin:
+    opener: bin/opener-bin.js
+  checksum: 33b620c0d53d5b883f2abc6687dd1c5fd394d270dbe33a6356f2d71e0a2ec85b100d5bac94694198ccf5c30d592da863b2292c5539009c715a9c80c697b4f6cc
   languageName: node
   linkType: hard
 
@@ -63770,6 +63821,17 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
+"sirv@npm:^2.0.3":
+  version: 2.0.4
+  resolution: "sirv@npm:2.0.4"
+  dependencies:
+    "@polka/url": ^1.0.0-next.24
+    mrmime: ^2.0.0
+    totalist: ^3.0.0
+  checksum: 6853384a51d6ee9377dd657e2b257e0e98b29abbfbfa6333e105197f0f100c8c56a4520b47028b04ab1833cf2312526206f38fcd4f891c6df453f40da1a15a57
+  languageName: node
+  linkType: hard
+
 "sisteransi@npm:^1.0.5":
   version: 1.0.5
   resolution: "sisteransi@npm:1.0.5"
@@ -66838,10 +66900,10 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"tiny-lru@npm:8.0.2":
-  version: 8.0.2
-  resolution: "tiny-lru@npm:8.0.2"
-  checksum: ec4d884914626760eef05cd57850f21a153adeeb7c4242eb8d44a031f1bd8489f18c1bf5d6f10f0a11c5dcfe03b302f26b00f2b879b38853599486bf0dca8c97
+"tiny-lru@npm:11.2.11":
+  version: 11.2.11
+  resolution: "tiny-lru@npm:11.2.11"
+  checksum: ace3a44b53cc2ddd76e2c4b3685e75107a6504a0bf034e360c662bf70bab93a854905329114c16e5c37d8b9345d4389f626dbd3e962e81ab51f1922cbdab7668
   languageName: node
   linkType: hard
 
@@ -67029,6 +67091,13 @@ resolve@1.1.7:
   dependencies:
     hoek: 6.x.x
   checksum: 13e874d5dfa16ad94d1a714830dfa34e8cd1a3769ecdf7c0b2b10ec42d636f1d910dd37df546ee2f1990cd4b0083611a4dad59596a5a7ddc20960a9b95839d8d
+  languageName: node
+  linkType: hard
+
+"totalist@npm:^3.0.0":
+  version: 3.0.1
+  resolution: "totalist@npm:3.0.1"
+  checksum: 5132d562cf88ff93fd710770a92f31dbe67cc19b5c6ccae2efc0da327f0954d211bbfd9456389655d726c624f284b4a23112f56d1da931ca7cfabbe1f45e778a
   languageName: node
   linkType: hard
 
@@ -69436,6 +69505,29 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
+"webpack-bundle-analyzer@npm:4.10.1":
+  version: 4.10.1
+  resolution: "webpack-bundle-analyzer@npm:4.10.1"
+  dependencies:
+    "@discoveryjs/json-ext": 0.5.7
+    acorn: ^8.0.4
+    acorn-walk: ^8.0.0
+    commander: ^7.2.0
+    debounce: ^1.2.1
+    escape-string-regexp: ^4.0.0
+    gzip-size: ^6.0.0
+    html-escaper: ^2.0.2
+    is-plain-object: ^5.0.0
+    opener: ^1.5.2
+    picocolors: ^1.0.0
+    sirv: ^2.0.3
+    ws: ^7.3.1
+  bin:
+    webpack-bundle-analyzer: lib/bin/analyzer.js
+  checksum: 77f48f10a493b1cc95674526472978a2de32412ddbf556bd3903738f14890611426f19477352993efe5a9fd6ca16711eb912d986f2221b17ba6eeca1b6f71fb6
+  languageName: node
+  linkType: hard
+
 "webpack-cli@npm:^5.1.4":
   version: 5.1.4
   resolution: "webpack-cli@npm:5.1.4"
@@ -70846,6 +70938,21 @@ resolve@1.1.7:
   dependencies:
     async-limiter: ~1.0.0
   checksum: aec3154ec51477c094ac2cb5946a156e17561a581fa27005cbf22c53ac57f8d4e5f791dd4bbba6a488602cb28778c8ab7df06251d590507c3c550fd8ebeee949
+  languageName: node
+  linkType: hard
+
+"ws@npm:^7.3.1":
+  version: 7.5.10
+  resolution: "ws@npm:7.5.10"
+  peerDependencies:
+    bufferutil: ^4.0.1
+    utf-8-validate: ^5.0.2
+  peerDependenciesMeta:
+    bufferutil:
+      optional: true
+    utf-8-validate:
+      optional: true
+  checksum: f9bb062abf54cc8f02d94ca86dcd349c3945d63851f5d07a3a61c2fcb755b15a88e943a63cf580cbdb5b74436d67ef6b67f745b8f7c0814e411379138e1863cb
   languageName: node
   linkType: hard
 

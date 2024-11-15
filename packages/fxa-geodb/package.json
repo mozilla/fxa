@@ -33,7 +33,6 @@
   "dependencies": {
     "bluebird": "^3.7.2",
     "cron": "3.2.1",
-    "maxmind": "^4.3.6",
     "mozlog": "^3.0.2",
     "request": "^2.88.2"
   },
