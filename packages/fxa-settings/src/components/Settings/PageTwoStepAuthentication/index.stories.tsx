@@ -7,7 +7,7 @@ import React from 'react';
 import { PageTwoStepAuthentication } from '.';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import { MockSettingsAppLayout } from '../SettingsLayout/mocks';
+import SettingsLayout from '../SettingsLayout';
 
 export default {
   title: 'Pages/Settings/TwoStepAuthentication',
@@ -17,8 +17,8 @@ export default {
 
 export const Default = () => (
   <LocationProvider>
-    <MockSettingsAppLayout>
+    <SettingsLayout>
       <PageTwoStepAuthentication />
-    </MockSettingsAppLayout>
+    </SettingsLayout>
   </LocationProvider>
 );

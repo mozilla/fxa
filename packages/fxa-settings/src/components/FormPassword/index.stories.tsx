@@ -8,7 +8,7 @@ import { LocationProvider } from '@reach/router';
 import FormPassword from '.';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import { MockSettingsAppLayout } from '../Settings/SettingsLayout/mocks';
+import SettingsLayout from '../Settings/SettingsLayout';
 
 export default {
   title: 'Components/FormPassword',
@@ -17,20 +17,20 @@ export default {
 } as Meta;
 export const WithCurrentPassword = () => (
   <LocationProvider>
-    <MockSettingsAppLayout>
+    <SettingsLayout>
       <div className="max-w-lg mx-auto">
         <Subject />
       </div>
-    </MockSettingsAppLayout>
+    </SettingsLayout>
   </LocationProvider>
 );
 
 export const WithoutCurrentPassword = () => (
   <LocationProvider>
-    <MockSettingsAppLayout>
+    <SettingsLayout>
       <div className="max-w-lg mx-auto">
         <Subject includeCurrentPw={false} />
       </div>
-    </MockSettingsAppLayout>
+    </SettingsLayout>
   </LocationProvider>
 );

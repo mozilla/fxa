@@ -141,7 +141,7 @@ export const Settings = ({
   }
 
   return (
-    <SettingsLayout {...{ integration }}>
+    <SettingsLayout>
       <Head />
       <Router basepath={SETTINGS_PATH}>
         <ScrollToTop default>

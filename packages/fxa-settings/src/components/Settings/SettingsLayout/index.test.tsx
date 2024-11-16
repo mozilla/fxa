@@ -6,15 +6,15 @@ import React from 'react';
 import { screen } from '@testing-library/react';
 import { renderWithRouter } from '../../../models/mocks';
 import { SETTINGS_PATH } from '../../../constants';
-import { MockSettingsAppLayout } from './mocks';
+import SettingsLayout from '.';
 
 it('renders the app with children', async () => {
   const {
     history: { navigate },
   } = renderWithRouter(
-    <MockSettingsAppLayout>
+    <SettingsLayout>
       <p data-testid="test-child">Hello, world!</p>
-    </MockSettingsAppLayout>
+    </SettingsLayout>
   );
   await navigate(SETTINGS_PATH);
   expect(screen.getByTestId('app')).toBeInTheDocument();
