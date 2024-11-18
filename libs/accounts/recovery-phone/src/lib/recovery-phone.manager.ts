@@ -90,7 +90,13 @@ export class RecoveryPhoneManager {
    */
   async removePhoneNumber(uid: string): Promise<boolean> {
     const uidBuffer = Buffer.from(uid, 'hex');
-    return await removePhoneNumber(this.db, uidBuffer);
+    const removed = await removePhoneNumber(this.db, uidBuffer);
+
+    if (!removed) {
+      throw new RecoveryNumberNotExistsError(uid);
+    }
+
+    return true;
   }
 
   /**

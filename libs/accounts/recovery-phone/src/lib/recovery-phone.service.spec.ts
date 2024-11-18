@@ -8,7 +8,10 @@ import { OtpManager } from '@fxa/shared/otp';
 import { SmsManager } from './sms.manager';
 import { RecoveryPhoneServiceConfig } from './recovery-phone.service.config';
 import { RecoveryPhoneManager } from './recovery-phone.manager';
-import { RecoveryNumberNotSupportedError } from './recovery-phone.errors';
+import {
+  RecoveryNumberNotExistsError,
+  RecoveryNumberNotSupportedError,
+} from './recovery-phone.errors';
 
 describe('RecoveryPhoneService', () => {
   const phoneNumber = '+15005551234';
@@ -22,6 +25,7 @@ describe('RecoveryPhoneService', () => {
     storeUnconfirmed: jest.fn(),
     getUnconfirmed: jest.fn(),
     registerPhoneNumber: jest.fn(),
+    removePhoneNumber: jest.fn(),
   };
   const mockOtpManager = { generateCode: jest.fn() };
   const mockRecoveryPhoneServiceConfig = {
@@ -162,6 +166,21 @@ describe('RecoveryPhoneService', () => {
       });
       mockRecoveryPhoneManager.registerPhoneNumber.mockRejectedValue(mockError);
       expect(service.confirmCode(uid, code)).rejects.toEqual(mockError);
+    });
+  });
+
+  describe('removePhoneNumber', () => {
+    it('should remove a phone number', async () => {
+      mockRecoveryPhoneManager.removePhoneNumber.mockResolvedValueOnce(true);
+      const result = await service.removePhoneNumber(uid);
+      expect(result).toBeTruthy();
+      expect(mockRecoveryPhoneManager.removePhoneNumber).toBeCalledWith(uid);
+    });
+
+    it('should throw if phone number not found', () => {
+      const error = new RecoveryNumberNotExistsError(uid);
+      mockRecoveryPhoneManager.removePhoneNumber.mockRejectedValueOnce(error);
+      expect(service.removePhoneNumber(uid)).rejects.toThrow(error);
     });
   });
 });

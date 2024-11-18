@@ -81,4 +81,14 @@ export class RecoveryPhoneService {
     // There was a record matching, the uid / code. The confirmation was successful.
     return true;
   }
+
+  /**
+   * Remove phone number from an account. Each user can only have one associated
+   * phone number.
+   *
+   * @param uid An account id
+   */
+  public async removePhoneNumber(uid: string) {
+    return await this.recoveryPhoneManager.removePhoneNumber(uid);
+  }
 }
