@@ -5,14 +5,14 @@
 import { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
-  AccountTasksFactory,
-  AccountTasks,
+  DeleteAccountTasksFactory,
+  DeleteAccountTasks,
   DeleteAccountCloudTaskConfig,
 } from '@fxa/shared/cloud-tasks';
 import { StatsD } from 'hot-shots';
 
 export type CloudTasks = {
-  accountTasks: AccountTasks;
+  accountTasks: DeleteAccountTasks;
 };
 
 export const CloudTasksService = Symbol('CLOUDTASKS');
@@ -32,7 +32,7 @@ export const CloudTasksFactory: Provider<{ accountTasks: any }> = {
       throw new Error('Missing StatsD');
     }
 
-    const accountTasks = AccountTasksFactory(config, statsd);
+    const accountTasks = DeleteAccountTasksFactory(config, statsd);
     return {
       accountTasks,
     };

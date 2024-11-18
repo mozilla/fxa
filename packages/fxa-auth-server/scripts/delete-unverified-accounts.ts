@@ -19,7 +19,7 @@ import Token from '../lib/tokens';
 import { AppConfig, AuthFirestore, AuthLogger } from '../lib/types';
 import { parseDryRun } from './lib/args';
 import {
-  AccountTasksFactory,
+  DeleteAccountTasksFactory,
   ReasonForDeletion,
 } from '@fxa/shared/cloud-tasks';
 import { getAccountCustomerByUid } from 'fxa-shared/db/models/auth';
@@ -182,7 +182,7 @@ const init = async () => {
   const stripeHelper = createStripeHelper(log, config, statsd);
   Container.set(StripeHelper, stripeHelper);
 
-  const accountTasks = AccountTasksFactory(config, statsd);
+  const accountTasks = DeleteAccountTasksFactory(config, statsd);
 
   if (useSpecifiedAccounts) {
     const { uids, emails } = limitSpecifiedAccounts(program, limit);

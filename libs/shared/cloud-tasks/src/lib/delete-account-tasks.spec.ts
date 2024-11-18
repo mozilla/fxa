@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { AccountTasks } from './account-tasks';
-import { AccountTasksFactory } from './account-tasks.factories';
+import { DeleteAccountTasks } from './delete-account-tasks';
+import { DeleteAccountTasksFactory } from './account-tasks.factories';
 import { ReasonForDeletion } from './account-tasks.types';
 
 describe('account-tasks', () => {
@@ -39,7 +39,7 @@ describe('account-tasks', () => {
 
   describe('factories', () => {
     it('produces AccountTasks', () => {
-      const accountTasks = AccountTasksFactory(mockConfig, mockStatsd);
+      const accountTasks = DeleteAccountTasksFactory(mockConfig, mockStatsd);
       expect(accountTasks).toBeDefined();
     });
   });
@@ -51,10 +51,10 @@ describe('account-tasks', () => {
       reason: ReasonForDeletion.Cleanup,
     };
 
-    let deleteAccountCloudTask: AccountTasks;
+    let deleteAccountCloudTask: DeleteAccountTasks;
 
     beforeEach(() => {
-      deleteAccountCloudTask = new AccountTasks(
+      deleteAccountCloudTask = new DeleteAccountTasks(
         {
           cloudTasks: {
             useLocalEmulator: true,

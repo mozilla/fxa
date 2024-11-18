@@ -30,7 +30,10 @@ import { CurrencyHelper } from '../lib/payments/currencies';
 import { PayPalHelper } from '../lib/payments/paypal';
 import { StripeHelper } from '../lib/payments/stripe';
 import { AppConfig, AuthFirestore, AuthLogger } from '../lib/types';
-import { AccountTasks, AccountTasksFactory } from '@fxa/shared/cloud-tasks';
+import {
+  DeleteAccountTasks,
+  DeleteAccountTasksFactory,
+} from '@fxa/shared/cloud-tasks';
 import { ProfileClient } from '@fxa/profile/client';
 
 const config = configProperties.getProperties();
@@ -120,8 +123,8 @@ DB.connect(config).then(async (db: any) => {
     Container.set(PayPalHelper, paypalHelper);
   }
 
-  const accountTasks = AccountTasksFactory(config, statsd);
-  Container.set(AccountTasks, accountTasks);
+  const accountTasks = DeleteAccountTasksFactory(config, statsd);
+  Container.set(DeleteAccountTasks, accountTasks);
 
   const accountDeleteManager = new AccountDeleteManager({
     fxaDb: db,

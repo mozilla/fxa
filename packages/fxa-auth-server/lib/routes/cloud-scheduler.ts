@@ -5,8 +5,8 @@
 import { ConfigType } from '../../config';
 import { AuthLogger, AuthRequest } from '../types';
 import {
-  AccountTasks,
-  AccountTasksFactory,
+  DeleteAccountTasks,
+  DeleteAccountTasksFactory,
   ReasonForDeletion,
 } from '@fxa/shared/cloud-tasks';
 import { StatsD } from 'hot-shots';
@@ -28,7 +28,7 @@ const MILLISECONDS_IN_A_DAY = 24 * 60 * 60 * 1000;
  */
 export async function processAccountDeletionInRange(
   config: ConfigType,
-  accountTasks: AccountTasks,
+  accountTasks: DeleteAccountTasks,
   reason: ReasonForDeletion,
   startDate: any,
   endDate: any,
@@ -114,14 +114,14 @@ export async function processAccountDeletionInRange(
 }
 
 export class CloudSchedulerHandler {
-  private readonly accountTasks: AccountTasks;
+  private readonly accountTasks: DeleteAccountTasks;
 
   constructor(
     private log: AuthLogger,
     private config: ConfigType,
     private statsd: StatsD
   ) {
-    this.accountTasks = AccountTasksFactory(this.config, this.statsd);
+    this.accountTasks = DeleteAccountTasksFactory(this.config, this.statsd);
   }
 
   private calculateDate(days: number): Date {
@@ -130,7 +130,7 @@ export class CloudSchedulerHandler {
 
   async processAccountDeletionInRange(
     config: ConfigType,
-    accountTasks: AccountTasks,
+    accountTasks: DeleteAccountTasks,
     reason: ReasonForDeletion,
     startDate: any,
     endDate: any,

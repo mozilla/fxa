@@ -43,7 +43,7 @@ import { AccountEventsManager } from '../account-events';
 import { gleanMetrics } from '../metrics/glean';
 import { AccountDeleteManager } from '../account-delete';
 import { uuidTransformer } from 'fxa-shared/db/transformers';
-import { AccountTasks, ReasonForDeletion } from '@fxa/shared/cloud-tasks';
+import { DeleteAccountTasks, ReasonForDeletion } from '@fxa/shared/cloud-tasks';
 import { ProfileClient } from '@fxa/profile/client';
 import { DB } from '../db';
 
@@ -65,7 +65,7 @@ export class AccountHandler {
   private capabilityService: CapabilityService;
   private accountEventsManager: AccountEventsManager;
   private accountDeleteManager: AccountDeleteManager;
-  private accountTasks: AccountTasks;
+  private accountTasks: DeleteAccountTasks;
   private profileClient: ProfileClient;
 
   constructor(
@@ -97,7 +97,7 @@ export class AccountHandler {
     this.capabilityService = Container.get(CapabilityService);
     this.accountEventsManager = Container.get(AccountEventsManager);
     this.accountDeleteManager = Container.get(AccountDeleteManager);
-    this.accountTasks = Container.get(AccountTasks);
+    this.accountTasks = Container.get(DeleteAccountTasks);
     this.profileClient = Container.get(ProfileClient);
   }
 
