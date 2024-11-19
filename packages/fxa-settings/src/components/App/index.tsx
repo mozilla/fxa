@@ -79,6 +79,8 @@ import SignupConfirmed from '../../pages/Signup/SignupConfirmed';
 import WebChannelExample from '../../pages/WebChannelExample';
 import SignoutSync from '../Settings/SignoutSync';
 import InlineRecoveryKeySetupContainer from '../../pages/InlineRecoveryKeySetup/container';
+import SetPassword from '../../pages/PostVerify/SetPassword';
+import SetPasswordContainer from '../../pages/PostVerify/SetPassword/container';
 
 const Settings = lazy(() => import('../Settings'));
 
@@ -317,6 +319,10 @@ const AuthAndAccountSetupRoutes = ({
       <ThirdPartyAuthCallback
         path="/post_verify/third_party_auth/callback/*"
         {...{ flowQueryParams }}
+      />
+      <SetPasswordContainer
+        path="/post_verify/finish_account_setup/set_password/*"
+        {...{ flowQueryParams, integration }}
       />
 
       {/* Reset password */}

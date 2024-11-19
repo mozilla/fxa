@@ -4,12 +4,7 @@
 
 import { RouteComponentProps, useLocation } from '@reach/router';
 import { useNavigateWithQuery as useNavigate } from '../../lib/hooks/useNavigateWithQuery';
-import {
-  isOAuthIntegration,
-  isSyncDesktopV3Integration,
-  useAuthClient,
-  useConfig,
-} from '../../models';
+import { useAuthClient, useConfig } from '../../models';
 import { Signup } from '.';
 import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
 import { SignupQueryParams } from '../../models/pages/signup';
@@ -29,8 +24,6 @@ import {
   getKeysV2,
 } from 'fxa-auth-client/lib/crypto';
 import { LoadingSpinner } from 'fxa-react/components/LoadingSpinner';
-import { firefox } from '../../lib/channels/firefox';
-import { Constants } from '../../lib/constants';
 import { createSaltV2 } from 'fxa-auth-client/lib/salt';
 import { KeyStretchExperiment } from '../../models/experiments/key-stretch-experiment';
 import { handleGQLError } from './utils';
@@ -87,14 +80,6 @@ const SignupContainer = ({
   // Since we may perform an async call on initial render that can affect what is rendered,
   // return a spinner on first render.
   const [showLoadingSpinner, setShowLoadingSpinner] = useState(true);
-  const [webChannelEngines, setWebChannelEngines] = useState<
-    string[] | undefined
-  >();
-
-  const isOAuth = isOAuthIntegration(integration);
-  const isSyncOAuth = isOAuth && integration.isSync();
-  const isSyncDesktopV3 = isSyncDesktopV3Integration(integration);
-  const isSync = integration.isSync();
   const wantsKeys = integration.wantsKeys();
 
   useEffect(() => {
@@ -130,37 +115,6 @@ const SignupContainer = ({
       setShowLoadingSpinner(false);
     })();
   });
-
-  useEffect(() => {
-    // This sends a web channel message to the browser to prompt a response
-    // that we listen for.
-    // TODO: In content-server, we send this on app-start for all integration types.
-    // Do we want to move this somewhere else once the index page is Reactified?
-    if (isSync) {
-      (async () => {
-        const status = await firefox.fxaStatus({
-          // TODO: Improve getting 'context', probably set this on the integration
-          context: isSyncDesktopV3
-            ? Constants.FX_DESKTOP_V3_CONTEXT
-            : Constants.OAUTH_CONTEXT,
-          isPairing: false,
-          service: Constants.SYNC_SERVICE,
-        });
-        if (!webChannelEngines && status.capabilities.engines) {
-          // choose_what_to_sync may be disabled for mobile sync, see:
-          // https://github.com/mozilla/application-services/issues/1761
-          // Desktop OAuth Sync will always provide this capability too
-          // for consistency.
-          if (
-            isSyncDesktopV3 ||
-            (isSyncOAuth && status.capabilities.choose_what_to_sync)
-          ) {
-            setWebChannelEngines(status.capabilities.engines);
-          }
-        }
-      })();
-    }
-  }, [isSync, isSyncDesktopV3, isSyncOAuth, webChannelEngines]);
 
   const [beginSignup] = useMutation<BeginSignupResponse>(BEGIN_SIGNUP_MUTATION);
 
@@ -273,7 +227,6 @@ const SignupContainer = ({
         integration,
         queryParamModel,
         beginSignupHandler,
-        webChannelEngines,
       }}
     />
   );

@@ -42,7 +42,6 @@ export interface SignupProps {
   integration: SignupIntegration;
   queryParamModel: SignupQueryParams;
   beginSignupHandler: BeginSignupHandler;
-  webChannelEngines: string[] | undefined;
 }
 
 export type SignupIntegration = SignupOAuthIntegration | SignupBaseIntegration;

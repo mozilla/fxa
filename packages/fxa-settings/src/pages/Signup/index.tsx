@@ -4,25 +4,12 @@
 
 import React from 'react';
 import { useLocation } from '@reach/router';
-import LinkExternal from 'fxa-react/components/LinkExternal';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
 import { isEmailMask } from 'fxa-shared/email/helpers';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import AppLayout from '../../components/AppLayout';
 import CardHeader from '../../components/CardHeader';
-import ChooseNewsletters from '../../components/ChooseNewsletters';
-import { newsletters } from '../../components/ChooseNewsletters/newsletters';
-import ChooseWhatToSync from '../../components/ChooseWhatToSync';
-import {
-  defaultDesktopV3SyncEngineConfigs,
-  getSyncEngineIds,
-  syncEngineConfigs,
-  webChannelDesktopV3EngineConfigs,
-} from '../../components/ChooseWhatToSync/sync-engines';
-import FormPasswordWithBalloons from '../../components/FormPasswordWithBalloons';
-import InputText from '../../components/InputText';
 import TermsPrivacyAgreement from '../../components/TermsPrivacyAgreement';
 import ThirdPartyAuth from '../../components/ThirdPartyAuth';
 import { REACT_ENTRYPOINT } from '../../constants';
@@ -41,7 +28,6 @@ import { MozServices } from '../../lib/types';
 import {
   isOAuthIntegration,
   isOAuthNativeIntegrationSync,
-  isSyncDesktopV3Integration,
   useFtlMsgResolver,
   useSensitiveDataClient,
 } from '../../models';
@@ -52,6 +38,8 @@ import {
 import { SignupFormData, SignupProps } from './interfaces';
 import Banner from '../../components/Banner';
 import { AUTH_DATA_KEY } from '../../lib/sensitive-data-client';
+import { FormSetupAccount } from '../../components/FormSetupAccount';
+import useSyncEngines from '../../lib/hooks/useSyncEngines';
 
 export const viewName = 'signup';
 
@@ -59,7 +47,6 @@ export const Signup = ({
   integration,
   queryParamModel,
   beginSignupHandler,
-  webChannelEngines,
 }: SignupProps) => {
   const sensitiveDataClient = useSensitiveDataClient();
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
@@ -70,7 +57,6 @@ export const Signup = ({
 
   const isOAuth = isOAuthIntegration(integration);
   const isSyncOAuth = isOAuthNativeIntegrationSync(integration);
-  const isSyncDesktopV3 = isSyncDesktopV3Integration(integration);
   const isSync = integration.isSync();
   const isDesktopRelay = integration.isDesktopRelay();
   const email = queryParamModel.email;
@@ -90,7 +76,14 @@ export const Signup = ({
   ] = useState<boolean>(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const [declinedSyncEngines, setDeclinedSyncEngines] = useState<string[]>([]);
+  const {
+    offeredSyncEngines,
+    offeredSyncEngineConfigs,
+    declinedSyncEngines,
+    setDeclinedSyncEngines,
+    selectedEngines,
+  } = useSyncEngines(integration);
+
   // no newsletters are selected by default
   const [selectedNewsletterSlugs, setSelectedNewsletterSlugs] = useState<
     string[]
@@ -110,40 +103,6 @@ export const Signup = ({
       }
     }
   }, [integration, isOAuth]);
-
-  const [offeredSyncEngineConfigs, setOfferedSyncEngineConfigs] = useState<
-    typeof syncEngineConfigs | undefined
-  >();
-
-  useEffect(() => {
-    if (webChannelEngines) {
-      if (isSyncDesktopV3) {
-        // Desktop v3 web channel message sends additional engines
-        setOfferedSyncEngineConfigs([
-          ...defaultDesktopV3SyncEngineConfigs,
-          ...webChannelDesktopV3EngineConfigs.filter((engine) =>
-            webChannelEngines.includes(engine.id)
-          ),
-        ]);
-      } else if (isSyncOAuth) {
-        // OAuth Webchannel context sends all engines
-        setOfferedSyncEngineConfigs(
-          syncEngineConfigs.filter((engine) =>
-            webChannelEngines.includes(engine.id)
-          )
-        );
-      }
-    }
-  }, [isSyncDesktopV3, isSyncOAuth, webChannelEngines]);
-
-  useEffect(() => {
-    if (offeredSyncEngineConfigs) {
-      const defaultDeclinedSyncEngines = offeredSyncEngineConfigs
-        .filter((engineConfig) => !engineConfig.defaultChecked)
-        .map((engineConfig) => engineConfig.id);
-      setDeclinedSyncEngines(defaultDeclinedSyncEngines);
-    }
-  }, [offeredSyncEngineConfigs, setDeclinedSyncEngines]);
 
   const { handleSubmit, register, getValues, errors, formState, trigger } =
     useForm<SignupFormData>({
@@ -253,22 +212,13 @@ export const Signup = ({
           unwrapBKey: data.unwrapBKey,
         });
 
-        const getOfferedSyncEngines = () =>
-          getSyncEngineIds(offeredSyncEngineConfigs || []);
-
         if (isSync) {
           const syncEngines = {
-            offeredEngines: getOfferedSyncEngines(),
+            offeredEngines: offeredSyncEngines,
             declinedEngines: declinedSyncEngines,
           };
-          const syncOptions = syncEngines.offeredEngines.reduce(
-            (acc, syncEngId) => {
-              acc[syncEngId] = !declinedSyncEngines.includes(syncEngId);
-              return acc;
-            },
-            {} as Record<string, boolean>
-          );
-          GleanMetrics.registration.cwts({ sync: { cwts: syncOptions } });
+          GleanMetrics.registration.cwts({ sync: { cwts: selectedEngines } });
+
           firefox.fxaLogin({
             email,
             // Do not send these values if OAuth. Mobile doesn't care about this message, and
@@ -313,9 +263,11 @@ export const Signup = ({
             origin: 'signup',
             selectedNewsletterSlugs,
             // Sync desktop v3 sends a web channel message up on Signup
-            // while OAuth Sync does on confirm signup
+            // while OAuth Sync (mobile) does on confirm signup.
+            // Once mobile clients read this from fxaLogin to match
+            // oauth desktop, we can stop sending this on confirm signup code.
             ...(isSyncOAuth && {
-              offeredSyncEngines: getOfferedSyncEngines(),
+              offeredSyncEngines,
               declinedSyncEngines,
             }),
           },
@@ -340,7 +292,8 @@ export const Signup = ({
       declinedSyncEngines,
       email,
       isSync,
-      offeredSyncEngineConfigs,
+      offeredSyncEngines,
+      selectedEngines,
       isSyncOAuth,
       localizedValidAgeError,
       isDesktopRelay,
@@ -348,28 +301,6 @@ export const Signup = ({
       sensitiveDataClient,
     ]
   );
-
-  const showCWTS = () => {
-    if (isSync) {
-      if (offeredSyncEngineConfigs) {
-        return (
-          <ChooseWhatToSync
-            {...{
-              offeredSyncEngineConfigs,
-              setDeclinedSyncEngines,
-            }}
-          />
-        );
-      } else {
-        // Waiting to receive webchannel message from browser
-        return <LoadingSpinner className="flex justify-center mb-4" />;
-      }
-    } else {
-      // Display nothing if Sync flow that does not support webchannels
-      // or if CWTS is disabled
-      return <></>;
-    }
-  };
 
   return (
     // TODO: FXA-8268, if force_auth && AuthErrors.is(error, 'DELETED_ACCOUNT'):
@@ -454,7 +385,7 @@ export const Signup = ({
         </FtlMsg>
       </div>
 
-      <FormPasswordWithBalloons
+      <FormSetupAccount
         {...{
           formState,
           errors,
@@ -464,64 +395,21 @@ export const Signup = ({
           onFocus,
           email,
           onFocusMetricsEvent,
-          disableButtonUntilValid: true,
+          handleSubmit,
+          onSubmit,
+          isSync,
+          offeredSyncEngineConfigs,
+          setDeclinedSyncEngines,
+          isDesktopRelay,
+          setSelectedNewsletterSlugs,
+          ageCheckErrorText,
+          setAgeCheckErrorText,
+          onFocusAgeInput,
+          onBlurAgeInput,
         }}
-        passwordFormType="signup"
-        onSubmit={handleSubmit(onSubmit)}
         loading={beginSignupLoading}
-      >
-        {/* TODO: original component had a SR-only label that is not straightforward to implement with existing InputText component
-        SR-only text: "How old are you? To learn why we ask for your age, follow the “why do we ask” link below. */}
-        <FtlMsg id="signup-age-check-label" attrs={{ label: true }}>
-          <InputText
-            name="age"
-            label="How old are you?"
-            inputMode="numeric"
-            className="mb-4"
-            pattern="[0-9]*"
-            maxLength={3}
-            onChange={() => {
-              // clear error tooltip if user types in the field
-              if (ageCheckErrorText) {
-                setAgeCheckErrorText('');
-              }
-            }}
-            inputRef={register({
-              pattern: /^[0-9]*$/,
-              maxLength: 3,
-              required: true,
-            })}
-            onFocusCb={onFocusAgeInput}
-            onBlurCb={onBlurAgeInput}
-            errorText={ageCheckErrorText}
-            tooltipPosition="bottom"
-            anchorPosition="end"
-            prefixDataTestId="age"
-          />
-        </FtlMsg>
-        <FtlMsg id="signup-coppa-check-explanation-link">
-          <LinkExternal
-            href="https://www.ftc.gov/business-guidance/resources/childrens-online-privacy-protection-rule-not-just-kids-sites"
-            className={`link-blue text-sm py-1 -mt-2 self-start ${
-              isDesktopRelay ? 'mb-8' : 'mb-4'
-            }`}
-            onClick={() => GleanMetrics.registration.whyWeAsk()}
-          >
-            Why do we ask?
-          </LinkExternal>
-        </FtlMsg>
-
-        {isSync
-          ? showCWTS()
-          : !isDesktopRelay && (
-              <ChooseNewsletters
-                {...{
-                  newsletters,
-                  setSelectedNewsletterSlugs,
-                }}
-              />
-            )}
-      </FormPasswordWithBalloons>
+        onSubmit={handleSubmit(onSubmit)}
+      />
 
       {/* Third party auth is not currently supported for sync */}
       {!isSync && !isDesktopRelay && <ThirdPartyAuth viewName="signup" />}

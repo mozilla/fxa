@@ -28,6 +28,8 @@ export const InlineRecoveryKeySetupContainer = (_: RouteComponentProps) => {
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state?: SigninLocationState;
   };
+  // TODO, pull from local storage instead since the user must be signed in
+  // on this page. This will avoid SetPassword needing to pass this data.
   const { email, uid, sessionToken } = location.state || {};
 
   const sensitiveDataClient = useSensitiveDataClient();

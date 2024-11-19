@@ -128,7 +128,7 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         'post_verify/third_party_auth/callback',
         'post_verify/third_party_auth/set_password',
       ]),
-      fullProdRollout: false,
+      fullProdRollout: true,
     },
 
     webChannelExampleRoutes: {
