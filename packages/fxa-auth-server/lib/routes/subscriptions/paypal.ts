@@ -95,10 +95,15 @@ export class PayPalHandler extends StripeWebhookHandler {
         throw error.unknownCustomer(uid);
       }
 
-      const automaticTax =
-        this.stripeHelper.isCustomerStripeTaxEligible(customer);
-
       const { priceId } = request.payload as Record<string, string>;
+      const { currency: planCurrency } =
+        await this.stripeHelper.findAbbrevPlanById(priceId);
+
+      const automaticTax =
+        this.stripeHelper.isCustomerTaxableWithSubscriptionCurrency(
+          customer,
+          planCurrency
+        );
 
       // Make sure to clean up any subscriptions that may be hanging with no payment
       const existingSubscription =

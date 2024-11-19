@@ -680,6 +680,8 @@ export class StripeHelper extends StripeHelperBase {
   }): Promise<InvoicePreview> {
     const params: Stripe.InvoiceRetrieveUpcomingParams = {};
 
+    const { currency: planCurrency } = await this.findAbbrevPlanById(priceId);
+
     if (promotionCode) {
       const stripePromotionCode = await this.findValidPromoCode(
         promotionCode,
@@ -691,8 +693,17 @@ export class StripeHelper extends StripeHelperBase {
     }
 
     const automaticTax = !!(
-      (customer && this.isCustomerStripeTaxEligible(customer)) ||
-      (!customer && taxAddress)
+      (customer &&
+        this.isCustomerTaxableWithSubscriptionCurrency(
+          customer,
+          planCurrency
+        )) ||
+      (!customer &&
+        taxAddress &&
+        this.currencyHelper.isCurrencyCompatibleWithCountry(
+          planCurrency,
+          taxAddress.countryCode
+        ))
     );
 
     const shipping =
@@ -2018,6 +2029,30 @@ export class StripeHelper extends StripeHelperBase {
       customer.tax?.automatic_tax === 'supported' ||
       customer.tax?.automatic_tax === 'not_collecting'
     );
+  }
+
+  /**
+   * Check if we should enable stripe tax for a given customer and subscription currency.
+   */
+  isCustomerTaxableWithSubscriptionCurrency(
+    customer: Stripe.Customer,
+    targetCurrency: string
+  ) {
+    const taxCountry = customer.tax?.location?.country;
+    if (!taxCountry) {
+      return false;
+    }
+
+    const isCurrencyCompatibleWithCountry =
+      this.currencyHelper.isCurrencyCompatibleWithCountry(
+        targetCurrency,
+        taxCountry
+      );
+    if (!isCurrencyCompatibleWithCountry) {
+      return false;
+    }
+
+    return this.isCustomerStripeTaxEligible(customer);
   }
 
   async updateSubscriptionAndBackfill(

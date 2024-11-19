@@ -2025,6 +2025,16 @@ describe('#integration - StripeHelper', () => {
         .stub(stripeHelper.stripe.invoices, 'retrieveUpcoming')
         .resolves();
 
+      sandbox
+        .stub(stripeHelper.currencyHelper, 'isCurrencyCompatibleWithCountry')
+        .returns(true);
+
+      const findAbbrevPlanByIdStub = sandbox
+        .stub(stripeHelper, 'findAbbrevPlanById')
+        .resolves({
+          currency: 'USD',
+        });
+
       await stripeHelper.previewInvoice({
         priceId: 'priceId',
         taxAddress: {
@@ -2055,12 +2065,67 @@ describe('#integration - StripeHelper', () => {
         ],
         expand: ['total_tax_amounts.tax_rate'],
       });
+
+      sinon.assert.calledOnceWithExactly(findAbbrevPlanByIdStub, 'priceId');
+    });
+
+    it('disables stripe tax when currency is incompatible with country', async () => {
+      const stripeStub = sandbox
+        .stub(stripeHelper.stripe.invoices, 'retrieveUpcoming')
+        .resolves();
+
+      const findAbbrevPlanByIdStub = sandbox
+        .stub(stripeHelper, 'findAbbrevPlanById')
+        .resolves({
+          currency: 'USD',
+        });
+
+      sandbox
+        .stub(stripeHelper.currencyHelper, 'isCurrencyCompatibleWithCountry')
+        .returns(false);
+
+      await stripeHelper.previewInvoice({
+        priceId: 'priceId',
+        taxAddress: {
+          countryCode: 'US',
+          postalCode: '92841',
+        },
+      });
+
+      sinon.assert.calledOnceWithExactly(stripeStub, {
+        customer: undefined,
+        automatic_tax: {
+          enabled: false,
+        },
+        customer_details: {
+          tax_exempt: 'none',
+          shipping: {
+            name: sinon.match.any,
+            address: {
+              country: 'US',
+              postal_code: '92841',
+            },
+          },
+        },
+        subscription_items: [
+          {
+            price: 'priceId',
+          },
+        ],
+        expand: ['total_tax_amounts.tax_rate'],
+      });
+
+      sinon.assert.calledOnceWithExactly(findAbbrevPlanByIdStub, 'priceId');
     });
 
     it('excludes shipping address when shipping address not passed', async () => {
       const stripeStub = sandbox
         .stub(stripeHelper.stripe.invoices, 'retrieveUpcoming')
         .resolves();
+
+      sandbox.stub(stripeHelper, 'findAbbrevPlanById').resolves({
+        currency: 'USD',
+      });
 
       await stripeHelper.previewInvoice({
         priceId: 'priceId',
@@ -2090,6 +2155,10 @@ describe('#integration - StripeHelper', () => {
         .stub(stripeHelper.stripe.invoices, 'retrieveUpcoming')
         .throws(new Error());
 
+      sandbox.stub(stripeHelper, 'findAbbrevPlanById').resolves({
+        currency: 'USD',
+      });
+
       try {
         await stripeHelper.previewInvoice({
           priceId: 'priceId',
@@ -2108,6 +2177,10 @@ describe('#integration - StripeHelper', () => {
         .stub(stripeHelper.stripe.invoices, 'retrieveUpcoming')
         .resolves();
       sandbox.stub(Math, 'floor').returns(1);
+
+      sandbox.stub(stripeHelper, 'findAbbrevPlanById').resolves({
+        currency: 'USD',
+      });
 
       await stripeHelper.previewInvoice({
         customer: customer1,
@@ -7683,6 +7756,79 @@ describe('#integration - StripeHelper', () => {
       const actual = stripeHelper.isCustomerStripeTaxEligible({
         tax: {
           automatic_tax: 'unrecognized_location',
+        },
+      });
+
+      assert.equal(actual, false);
+    });
+  });
+
+  describe('isCustomerTaxableWithSubscriptionCurrency', () => {
+    it('returns true when currency is compatible with country and customer is stripe taxable', () => {
+      sandbox
+        .stub(stripeHelper.currencyHelper, 'isCurrencyCompatibleWithCountry')
+        .returns(true);
+
+      const actual = stripeHelper.isCustomerTaxableWithSubscriptionCurrency(
+        {
+          tax: {
+            automatic_tax: 'supported',
+            location: {
+              country: 'US',
+            },
+          },
+        },
+        'USD'
+      );
+
+      assert.equal(actual, true);
+    });
+
+    it('returns false for a currency not compatible with the tax country', () => {
+      sandbox
+        .stub(stripeHelper.currencyHelper, 'isCurrencyCompatibleWithCountry')
+        .returns(false);
+
+      const actual = stripeHelper.isCustomerTaxableWithSubscriptionCurrency(
+        {
+          tax: {
+            automatic_tax: 'supported',
+            location: {
+              country: 'US',
+            },
+          },
+        },
+        'USD'
+      );
+
+      assert.equal(actual, false);
+    });
+
+    it('returns false if customer does not have tax location', () => {
+      sandbox
+        .stub(stripeHelper.currencyHelper, 'isCurrencyCompatibleWithCountry')
+        .returns(false);
+
+      const actual = stripeHelper.isCustomerTaxableWithSubscriptionCurrency(
+        {
+          tax: {
+            automatic_tax: 'supported',
+            location: undefined,
+          },
+        },
+        'USD'
+      );
+
+      assert.equal(actual, false);
+    });
+
+    it('returns false for a customer in a unrecognized location', () => {
+      const actual = stripeHelper.isCustomerTaxableWithSubscriptionCurrency({
+        tax: {
+          automatic_tax: 'unrecognized_location',
+          location: {
+            country: 'US',
+          },
         },
       });
 
