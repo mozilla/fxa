@@ -23,7 +23,7 @@ import { AuthLogger, AuthRequest } from '../../types';
 import { sendFinishSetupEmailForStubAccount } from '../subscriptions/account';
 import validators from '../validators';
 import { StripeWebhookHandler } from './stripe-webhook';
-import { handleAuth } from './utils';
+import { buildTaxAddress, handleAuth } from './utils';
 import { deleteAccountIfUnverified } from '../utils/account';
 import SUBSCRIPTIONS_DOCS from '../../../docs/swagger/subscriptions-api';
 import { SubscriptionEligibilityResult } from 'fxa-shared/subscriptions/types';
@@ -34,6 +34,7 @@ const METRICS_CONTEXT_SCHEMA = require('../../metrics/context').schema;
 export class PayPalHandler extends StripeWebhookHandler {
   protected paypalHelper: PayPalHelper;
   subscriptionAccountReminders: any;
+  unsupportedLocations: string[];
 
   constructor(
     log: AuthLogger,
@@ -49,6 +50,8 @@ export class PayPalHandler extends StripeWebhookHandler {
     this.paypalHelper = Container.get(PayPalHelper);
     this.subscriptionAccountReminders =
       require('../../subscription-account-reminders')(log, config);
+    this.unsupportedLocations =
+      (config.subscriptions.unsupportedLocations as string[]) || [];
   }
 
   /**
@@ -85,6 +88,16 @@ export class PayPalHandler extends StripeWebhookHandler {
 
     try {
       await this.customs.check(request, email, 'createSubscriptionWithPaypal');
+
+      const taxAddress = buildTaxAddress(
+        this.log,
+        request.app.clientAddress,
+        request.app.geo.location
+      );
+      const countryCode = taxAddress?.countryCode;
+      if (countryCode && this.unsupportedLocations.includes(countryCode)) {
+        throw error.unsupportedLocation(countryCode);
+      }
 
       const customer = await this.stripeHelper.fetchCustomer(uid, [
         'subscriptions',

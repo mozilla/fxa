@@ -64,6 +64,7 @@ describe('PayPalNotificationHandler', () => {
         paypalNvpSigCredentials: {
           enabled: false,
         },
+        unsupportedLocations: [],
       },
     };
 

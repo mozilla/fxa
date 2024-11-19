@@ -241,6 +241,48 @@ describe('routes/Product', () => {
     expectNockScopesDone(apiMocks);
   });
 
+  it('displays an error for unsupported location', async () => {
+    const apiMocks = [
+      nock(profileServer)
+        .get('/v1/profile')
+        .reply(200, MOCK_PROFILE, { 'Access-Control-Allow-Origin': '*' }),
+      nock(authServer)
+        .get('/v1/oauth/subscriptions/plans')
+        .reply(200, MOCK_PLANS, { 'Access-Control-Allow-Origin': '*' }),
+      nock(authServer)
+        .get(
+          '/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions'
+        )
+        .reply(200, MOCK_CUSTOMER, { 'Access-Control-Allow-Origin': '*' }),
+      nock(authServer)
+        .persist()
+        .get(
+          `/v1/oauth/mozilla-subscriptions/customer/plan-eligibility/${PLAN_ID}`
+        )
+        .reply(
+          200,
+          { eligibility: 'invalid' },
+          { 'Access-Control-Allow-Origin': '*' }
+        ),
+      nock(authServer)
+        .persist()
+        .post('/v1/oauth/subscriptions/invoice/preview')
+        .reply(
+          400,
+          {
+            errno: AuthServerErrno.UNSUPPORTED_LOCATION,
+          },
+          {
+            'Access-Control-Allow-Origin': '*',
+          }
+        ),
+    ];
+    const { findByTestId } = renderWithLocalizationProvider(<Subject />);
+    const errorEl = await findByTestId('product-location-unsupported-error');
+    expect(errorEl).toBeInTheDocument();
+    expectNockScopesDone(apiMocks);
+  });
+
   it('displays an error on failure to load profile', async () => {
     const apiMocks = [
       nock(profileServer)

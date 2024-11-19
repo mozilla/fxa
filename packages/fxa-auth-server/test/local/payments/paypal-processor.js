@@ -55,6 +55,7 @@ describe('PaypalProcessor', () => {
       currenciesToCountries: { ZAR: ['AS', 'CA'] },
       subscriptions: {
         paypalNvpSigCredentials: { enabled: false },
+        unsupportedLocations: [],
       },
     };
     mockStripeHelper = {};

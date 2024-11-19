@@ -307,6 +307,16 @@ export const MOCK_CURRENCY_ERROR = {
   country: 'RO',
 };
 
+export const MOCK_UNSUPPORTED_LOCATION_ERROR = {
+  code: 'location_unsupported',
+  errno: 213,
+  error: 'Bad Request',
+  message: 'Location not supported according to Terms of Service.',
+  info: 'https://mozilla.github.io/ecosystem-platform/api#section/Response-format',
+  currency: 'usd',
+  country: 'CN',
+};
+
 export const IAP_GOOGLE_SUBSCRIPTION: IapSubscription = {
   _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
   product_id: 'prod_123',

@@ -30,15 +30,20 @@ const dbStub = {
 const {
   sanitizePlans,
   handleAuth,
+  buildTaxAddress,
 } = require('../../../../lib/routes/subscriptions');
 
 const deleteAccountIfUnverifiedStub = sinon.stub();
+const buildTaxAddressStub = sinon.stub();
 const { StripeHandler: DirectStripeRoutes } = proxyquire(
   '../../../../lib/routes/subscriptions/stripe',
   {
     'fxa-shared/db/models/auth': dbStub,
     '../utils/account': {
       deleteAccountIfUnverified: deleteAccountIfUnverifiedStub,
+    },
+    './utils': {
+      buildTaxAddress: buildTaxAddressStub,
     },
   }
 );
@@ -167,6 +172,7 @@ describe('subscriptions stripeRoutes', () => {
         paypalNvpSigCredentials: {
           enabled: false,
         },
+        unsupportedLocations: [],
       },
       currenciesToCountries: { USD: ['US', 'GB', 'CA'] },
       support: {
@@ -400,6 +406,7 @@ describe('DirectStripeRoutes', () => {
         managementTokenTTL: MOCK_TTL,
         stripeApiKey: 'sk_test_1234',
         productConfigsFirestore: { enabled: false },
+        unsupportedLocations: ['CN'],
       },
     };
 
@@ -437,6 +444,8 @@ describe('DirectStripeRoutes', () => {
       mockSubscription
     );
     Container.set(PromotionCodeManager, mockPromotionCodeManager);
+    buildTaxAddressStub.reset();
+    buildTaxAddressStub.returns({ countryCode: 'US', postalCode: '92841' });
 
     directStripeRoutesInstance = new DirectStripeRoutes(
       log,
@@ -538,6 +547,7 @@ describe('DirectStripeRoutes', () => {
         idempotencyKey: uuidv4(),
       };
       VALID_REQUEST.app.geo = {};
+      buildTaxAddressStub.returns(undefined);
 
       const actual = await directStripeRoutesInstance.createCustomer(
         VALID_REQUEST
@@ -565,6 +575,7 @@ describe('DirectStripeRoutes', () => {
           postalCode: '92841',
         },
       };
+      buildTaxAddressStub.returns({ countryCode: 'US', postalCode: '92841' });
 
       const actual = await directStripeRoutesInstance.createCustomer(
         VALID_REQUEST
@@ -590,6 +601,7 @@ describe('DirectStripeRoutes', () => {
         priceId: 'priceId',
       };
       VALID_REQUEST.app.geo = {};
+      buildTaxAddressStub.returns(undefined);
       const actual = await directStripeRoutesInstance.previewInvoice(
         VALID_REQUEST
       );
@@ -639,6 +651,7 @@ describe('DirectStripeRoutes', () => {
         priceId: 'priceId',
       };
       VALID_REQUEST.app.geo = {};
+      buildTaxAddressStub.returns(undefined);
       const actual = await directStripeRoutesInstance.previewInvoice(
         VALID_REQUEST
       );
@@ -690,6 +703,7 @@ describe('DirectStripeRoutes', () => {
           postalCode: '92841',
         },
       };
+      buildTaxAddressStub.returns({ countryCode: 'US', postalCode: '92841' });
 
       const actual = await directStripeRoutesInstance.previewInvoice(
         VALID_REQUEST
@@ -753,6 +767,7 @@ describe('DirectStripeRoutes', () => {
         },
       };
       request.auth.credentials = undefined;
+      buildTaxAddressStub.returns({ countryCode: 'DE', postalCode: '92841' });
 
       const actual = await directStripeRoutesInstance.previewInvoice(request);
 
@@ -798,6 +813,23 @@ describe('DirectStripeRoutes', () => {
       } catch (err) {
         assert.instanceOf(err, WError);
         assert.equal(err.errno, error.ERRNO.INVALID_INVOICE_PREVIEW_REQUEST);
+      }
+    });
+
+    it('errors when country code is an unsupported location', async () => {
+      const request = deepCopy(VALID_REQUEST);
+      buildTaxAddressStub.returns({ countryCode: 'CN' });
+
+      try {
+        await directStripeRoutesInstance.previewInvoice(request);
+        assert.fail('Preview Invoice should fail');
+      } catch (err) {
+        assert.instanceOf(err, WError);
+        assert.equal(err.errno, error.ERRNO.UNSUPPORTED_LOCATION);
+        assert.equal(
+          err.message,
+          'Location is not supported according to our Terms of Service.'
+        );
       }
     });
   });
@@ -1266,6 +1298,23 @@ describe('DirectStripeRoutes', () => {
       assertSuccess(sourceCountry, actual, expected);
     });
 
+    it('errors when country code is an unsupported location', async () => {
+      const request = deepCopy(VALID_REQUEST);
+      buildTaxAddressStub.returns({ countryCode: 'CN' });
+
+      try {
+        await directStripeRoutesInstance.createSubscriptionWithPMI(request);
+        assert.fail('Create subscription should fail');
+      } catch (err) {
+        assert.instanceOf(err, WError);
+        assert.equal(err.errno, error.ERRNO.UNSUPPORTED_LOCATION);
+        assert.equal(
+          err.message,
+          'Location is not supported according to our Terms of Service.'
+        );
+      }
+    });
+
     it('errors when a customer has not been created', async () => {
       directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(undefined);
       VALID_REQUEST.payload = {
@@ -1443,6 +1492,7 @@ describe('DirectStripeRoutes', () => {
           managementClientId: MOCK_CLIENT_ID,
           managementTokenTTL: MOCK_TTL,
           stripeApiKey: 'sk_test_1234',
+          unsupportedLocations: [],
         },
       };
 
@@ -2319,16 +2369,17 @@ describe('DirectStripeRoutes', () => {
   });
 
   describe('buildTaxAddress', () => {
+    beforeEach(() => {
+      log = mocks.mockLog();
+    });
+
     it('returns tax location if complete', () => {
       const location = {
         countryCode: 'US',
         postalCode: '92841',
       };
 
-      const taxAddress = directStripeRoutesInstance.buildTaxAddress(
-        '127.0.0.1',
-        location
-      );
+      const taxAddress = buildTaxAddress(log, '127.0.0.1', location);
 
       assert.deepEqual(taxAddress, {
         countryCode: 'US',
@@ -2341,10 +2392,7 @@ describe('DirectStripeRoutes', () => {
         postalCode: '92841',
       };
 
-      const taxAddress = directStripeRoutesInstance.buildTaxAddress(
-        '127.0.0.1',
-        location
-      );
+      const taxAddress = buildTaxAddress(log, '127.0.0.1', location);
 
       assert.deepEqual(taxAddress, undefined);
     });

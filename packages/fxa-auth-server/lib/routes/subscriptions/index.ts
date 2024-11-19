@@ -16,7 +16,7 @@ import { playPubsubRoutes } from './play-pubsub';
 import { sanitizePlans, StripeHandler, stripeRoutes } from './stripe';
 import { stripeWebhookRoutes } from './stripe-webhook';
 import { supportRoutes } from './support';
-import { handleAuth } from './utils';
+import { buildTaxAddress, handleAuth } from './utils';
 
 export const createRoutes = (
   log: AuthLogger,
@@ -105,4 +105,9 @@ export const createRoutes = (
 };
 
 export default createRoutes;
-export { handleAuth, sanitizePlans, StripeHandler as DirectStripeRoutes };
+export {
+  buildTaxAddress,
+  handleAuth,
+  sanitizePlans,
+  StripeHandler as DirectStripeRoutes,
+};

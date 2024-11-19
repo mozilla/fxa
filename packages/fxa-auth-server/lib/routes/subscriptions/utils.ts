@@ -3,9 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { OAUTH_SCOPE_SUBSCRIPTIONS } from 'fxa-shared/oauth/constants';
 import ScopeSet from 'fxa-shared/oauth/scopes';
+import { Logger } from 'mozlog';
 
 import error from '../../error';
-import { AuthRequest } from '../../types';
+import { AuthRequest, TaxAddress } from '../../types';
 
 /**
  * Authentication handler for subscription routes.
@@ -52,4 +53,34 @@ export function handleAuthScoped(auth: AuthRequest['auth'], scopes: string[]) {
   }
   const { user: uid, email } = auth.credentials;
   return { uid, email } as { uid: string; email: string };
+}
+
+/**
+ * Builds a TaxAddress from request geolocation or customer
+ * A tax address is only considered complete if it has both countryCode and postalCode
+ * @param ipAddress Used for logging purposes
+ * @param location Used to determine tax location if customer does not have/not provided
+ * @param customer Used to determine tax location first if shipping address present
+ */
+export function buildTaxAddress(
+  log: Logger,
+  ipAddress: string,
+  location?: {
+    countryCode?: string;
+    postalCode?: string;
+  }
+): TaxAddress | undefined {
+  if (location?.countryCode && location?.postalCode) {
+    return {
+      countryCode: location.countryCode,
+      postalCode: location.postalCode,
+    };
+  }
+
+  log.warn('buildTaxAddress', {
+    ipAddress,
+    location,
+  });
+
+  return;
 }

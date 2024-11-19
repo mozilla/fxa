@@ -97,6 +97,7 @@ describe('StripeWebhookHandler', () => {
           enabled: true,
         },
         productConfigsFirestore: { enabled: false },
+        unsupportedLocations: [],
       },
     };
 

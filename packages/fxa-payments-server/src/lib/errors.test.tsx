@@ -5,6 +5,7 @@ import {
   BASIC_ERROR,
   PAYMENT_ERROR_1,
   COUNTRY_CURRENCY_MISMATCH,
+  LOCATION_UNSUPPORTED,
 } from './errors';
 
 describe('lib/errors', () => {
@@ -33,6 +34,12 @@ describe('lib/errors', () => {
   it('returns payment error id based on error number if that is what is available in error map', () => {
     expect(getErrorMessageId({ code: 'test', errno: 130 })).toEqual(
       COUNTRY_CURRENCY_MISMATCH
+    );
+  });
+
+  it('returns unsupported location error id based on error number available in error map', () => {
+    expect(getErrorMessageId({ code: 'test', errno: 213 })).toEqual(
+      LOCATION_UNSUPPORTED
     );
   });
 

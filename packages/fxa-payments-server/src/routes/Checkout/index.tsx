@@ -12,6 +12,7 @@ import classNames from 'classnames';
 import { AppContext } from '../../lib/AppContext';
 import {
   useCallbackOnce,
+  useFetchInvoicePreview,
   useMatchMedia,
   useNonce,
   usePaypalButtonSetup,
@@ -55,7 +56,7 @@ import {
   RetryStatus,
   SubscriptionCreateStripeAPIs,
 } from '../../lib/stripe';
-import { GeneralError } from '../../lib/errors';
+import { AuthServerErrno, GeneralError } from '../../lib/errors';
 import { handlePasswordlessSignUp } from '../../lib/account';
 import { handleNewsletterSignup } from '../../lib/newsletter';
 import { apiFetchCustomer, apiFetchProfile } from '../../lib/apiClient';
@@ -132,7 +133,6 @@ export const Checkout = ({
   const [paypalScriptLoaded, setPaypalScriptLoaded] = useState(false);
   const [subscribeToNewsletter, toggleSubscribeToNewsletter] = useState(false);
   const [newsletterSignupError, setNewsletterSignupError] = useState(false);
-
   const [coupon, setCoupon] = useState<CouponDetails>();
 
   // Fetch plans on initial render or change in product ID
@@ -159,6 +159,11 @@ export const Checkout = ({
   const selectedPlan = useMemo(
     () => getSelectedPlan(productId, planId, plansByProductId),
     [productId, planId, plansByProductId]
+  );
+
+  const invoicePreview = useFetchInvoicePreview(
+    selectedPlan?.plan_id,
+    customer?.subscriptions
   );
 
   const onFormMounted = useCallbackOnce(() => {
@@ -223,6 +228,9 @@ export const Checkout = ({
           // Some Stripe APIs like `createPaymentMethod` return an object with
           // an error property on error.
           const err = typeof error.error === 'string' ? error : error.error;
+          if (err.errno === AuthServerErrno.UNSUPPORTED_LOCATION) {
+            err.code = 'location_unsupported';
+          }
           setSubscriptionError(err);
           // Only set In Progress to false on subscription error
           // This is to prevent the Submit button from momentarily flashing as enabled
@@ -289,6 +297,15 @@ export const Checkout = ({
     !selectedPlan.active
   ) {
     return <PlanErrorDialog locationReload={locationReload} plans={plans} />;
+  }
+
+  if (invoicePreview.error.errno === AuthServerErrno.UNSUPPORTED_LOCATION) {
+    return (
+      <PlanErrorDialog
+        locationReload={locationReload}
+        plans={{ ...plans, error: invoicePreview.error }}
+      />
+    );
   }
 
   async function fetchProfileAndCustomer() {

@@ -17,6 +17,7 @@ const AuthServerErrno = {
   UNKNOWN_SUBSCRIPTION: 177,
   UNKNOWN_SUBSCRIPTION_CUSTOMER: 176,
   UNKNOWN_SUBSCRIPTION_PLAN: 178,
+  UNSUPPORTED_LOCATION: 213,
 };
 
 export enum CouponErrorMessageType {
@@ -39,6 +40,7 @@ const FXA_SIGNUP_ERROR = 'fxa-account-signup-error-2';
 const IAP_ALREADY_SUBSCRIBED = 'iap-already-subscribed';
 const INSTANT_PAYOUTS_UNSUPPORTED = 'instant-payouts-unsupported';
 const INSUFFICIENT_FUNDS_ERROR = 'insufficient-funds-error';
+const LOCATION_UNSUPPORTED = 'location-unsupported';
 const NO_SUBSCRIPTION_CHANGE = 'no-subscription-change';
 const PAYMENT_ERROR_1 = 'payment-error-1';
 const PAYMENT_ERROR_2 = 'payment-error-2';
@@ -158,6 +160,9 @@ const errorToErrorMessageIdMap: { [key: string]: string } = {
   iap_already_subscribed: IAP_ALREADY_SUBSCRIBED,
   iap_upgrade_contact_support: 'iap-upgrade-contact-support',
   no_subscription_change: NO_SUBSCRIPTION_CHANGE,
+
+  // Unsupported location
+  location_unsupported: LOCATION_UNSUPPORTED,
 };
 
 // Dictionary of fluentIds and corresponding human-readable error messages
@@ -179,6 +184,8 @@ const fallbackErrorMessage: { [key: string]: string } = {
     'It looks like your debit card isn’t setup for instant payments. Try another debit or credit card.',
   [INSUFFICIENT_FUNDS_ERROR]:
     'It looks like your card has insufficient funds. Try another card.',
+  [LOCATION_UNSUPPORTED]:
+    'Your current location is not supported according to our Terms of Service.',
   [NO_SUBSCRIPTION_CHANGE]: 'Sorry. You can’t change your subscription plan.',
   [WITHDRAW_COUNT_LIMIT_EXCEEDED_ERROR]:
     'It looks like this transaction will put you over your credit limit. Try another card.',
@@ -225,6 +232,9 @@ function getErrorMessageId(error: undefined | StripeError | GeneralError) {
       case AuthServerErrno.INVALID_CURRENCY:
         lookup = 'currency_currency_mismatch';
         break;
+      case AuthServerErrno.UNSUPPORTED_LOCATION:
+        lookup = 'location_unsupported';
+        break;
     }
   }
   return errorToErrorMessageIdMap[lookup];
@@ -240,13 +250,14 @@ const getFallbackTextByFluentId = (key?: string) => {
   return fallbackErrorMessage[key];
 };
 
-// BASIC_ERROR, COUNTRY_CURRENCY_MISMATCH and PAYMENT_ERROR_1 are exported for errors.test.tsx
+// BASIC_ERROR, COUNTRY_CURRENCY_MISMATCH, LOCATION_UNSUPPORTED, and PAYMENT_ERROR_1 are exported for errors.test.tsx
 export {
   AuthServerErrno,
   getErrorMessageId,
   getFallbackTextByFluentId,
   BASIC_ERROR,
   COUNTRY_CURRENCY_MISMATCH,
+  LOCATION_UNSUPPORTED,
   PAYMENT_ERROR_1,
   PAYMENT_ERROR_2,
   PAYMENT_ERROR_3,

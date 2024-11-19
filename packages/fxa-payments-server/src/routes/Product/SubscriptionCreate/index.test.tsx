@@ -4,14 +4,7 @@
 import '@testing-library/jest-dom/extend-expect';
 
 import { PaymentMethod } from '@stripe/stripe-js';
-import {
-  act,
-  cleanup,
-  fireEvent,
-  getByTestId,
-  screen,
-  waitFor,
-} from '@testing-library/react';
+import { act, cleanup, fireEvent, screen } from '@testing-library/react';
 import waitForExpect from 'wait-for-expect';
 
 import SubscriptionCreate, { SubscriptionCreateProps } from '.';
@@ -46,7 +39,6 @@ import {
 import { PickPartial } from '../../../lib/types';
 import { ReactGALog } from '../../../lib/reactga-event';
 import { createSubscriptionEngaged } from '../../../lib/amplitude';
-import { useState } from 'react';
 
 jest.mock('../../../lib/hooks', () => {
   const refreshNonceMock = jest.fn().mockImplementation(Math.random);
@@ -1108,6 +1100,16 @@ describe('routes/Product/SubscriptionCreate', () => {
       await commonSetup();
       expect(
         screen.getByText(getFallbackTextByFluentId('payment-error-2'))
+      ).toBeInTheDocument();
+    });
+
+    it('reports unsupported location error', async () => {
+      const commonSetup = commonCreateSubscriptionFailureTest({
+        code: 'location_unsupported',
+      });
+      await commonSetup();
+      expect(
+        screen.getByText(getFallbackTextByFluentId('location-unsupported'))
       ).toBeInTheDocument();
     });
   });

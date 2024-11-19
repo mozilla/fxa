@@ -32,6 +32,7 @@ import {
   MOCK_FXA_POST_PASSWORDLESS_SUB_ERROR,
   MOCK_GENERAL_PAYPAL_ERROR,
   MOCK_STRIPE_CARD_ERROR,
+  MOCK_UNSUPPORTED_LOCATION_ERROR,
   NEW_CUSTOMER,
   PAYMENT_METHOD_RESULT,
   PLANS,
@@ -565,6 +566,31 @@ describe('routes/Checkout', () => {
       expect(paymentErrorComponent).toBeInTheDocument();
       expect(paymentErrorComponent).toHaveTextContent(
         getFallbackTextByFluentId(getErrorMessageId(MOCK_CURRENCY_ERROR))
+      );
+    });
+
+    it('displays an error about unsupported location', async () => {
+      (apiCreateSubscriptionWithPaymentMethod as jest.Mock)
+        .mockClear()
+        .mockRejectedValue(MOCK_UNSUPPORTED_LOCATION_ERROR);
+
+      await act(async () => {
+        renderWithLocalizationProvider(<Subject />);
+      });
+      await fillOutZeForm();
+      await waitForExpect(() => {
+        expect(apiCreatePasswordlessAccount).toHaveBeenCalledWith({
+          email: newAccountEmail,
+          clientId: mockConfig.servers.oauth.clientId,
+        });
+      });
+
+      const paymentErrorComponent = screen.getByTestId('payment-error');
+      expect(paymentErrorComponent).toBeInTheDocument();
+      expect(paymentErrorComponent).toHaveTextContent(
+        getFallbackTextByFluentId(
+          getErrorMessageId(MOCK_UNSUPPORTED_LOCATION_ERROR)
+        )
       );
     });
 
