@@ -49,4 +49,31 @@ export class RecoveryPhoneService {
     );
     return true;
   }
+
+  /**
+   * Confirms a UID code. This will also and finalizes the phone number setup if the code provided was
+   * intended for phone number setup.
+   * @param uid An account id
+   * @param code A otp code
+   * @returns True if successful
+   */
+  public async confirmCode(uid: string, code: string) {
+    const data = await this.recoveryPhoneManager.getUnconfirmed(uid, code);
+
+    // If there is no data, it means there's no record of this code being sent to the uid provided
+    if (data == null) {
+      return false;
+    }
+
+    // If this was for a setup operation. Register the phone number to the uid.
+    if (data.isSetup === true) {
+      await this.recoveryPhoneManager.registerPhoneNumber(
+        uid,
+        data.phoneNumber
+      );
+    }
+
+    // There was a record matching, the uid / code. The confirmation was successful.
+    return true;
+  }
 }

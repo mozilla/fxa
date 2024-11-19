@@ -16,7 +16,11 @@ describe('RecoveryPhoneService', () => {
   const code = '000000';
 
   const mockSmsManager = { sendSMS: jest.fn().mockReturnValue(true) };
-  const mockRecoveryPhoneManager = { storeUnconfirmed: jest.fn() };
+  const mockRecoveryPhoneManager = {
+    storeUnconfirmed: jest.fn(),
+    getUnconfirmed: jest.fn(),
+    registerPhoneNumber: jest.fn(),
+  };
   const mockOtpManager = { generateCode: jest.fn() };
   const mockRecoveryPhoneServiceConfig = {
     allowedNumbers: ['+1500'],
@@ -93,5 +97,67 @@ describe('RecoveryPhoneService', () => {
     expect(service.setupPhoneNumber(uid, phoneNumber)).rejects.toEqual(
       mockError
     );
+  });
+
+  describe('confirm code', () => {
+    it('can confirm valid sms code', async () => {
+      mockRecoveryPhoneManager.getUnconfirmed.mockReturnValue({});
+
+      const result = await service.confirmCode(uid, code);
+
+      expect(result).toBeTruthy();
+      expect(mockRecoveryPhoneManager.getUnconfirmed).toBeCalledWith(uid, code);
+    });
+
+    it('can confirm valid sms code used for setup', async () => {
+      mockRecoveryPhoneManager.getUnconfirmed.mockReturnValue({
+        isSetup: true,
+      });
+      mockRecoveryPhoneManager.registerPhoneNumber.mockReturnValue(true);
+
+      const result = await service.confirmCode(uid, code);
+
+      expect(result).toBeTruthy();
+      expect(mockRecoveryPhoneManager.getUnconfirmed).toBeCalledWith(uid, code);
+    });
+
+    it('can confirm valid sms code used for setup', async () => {
+      mockRecoveryPhoneManager.getUnconfirmed.mockResolvedValue({
+        isSetup: true,
+        phoneNumber,
+      });
+      mockRecoveryPhoneManager.registerPhoneNumber.mockResolvedValue({});
+
+      const result = await service.confirmCode(uid, code);
+
+      expect(result).toEqual(true);
+      expect(mockRecoveryPhoneManager.getUnconfirmed).toBeCalledWith(uid, code);
+      expect(mockRecoveryPhoneManager.registerPhoneNumber).toBeCalledWith(
+        uid,
+        phoneNumber
+      );
+    });
+
+    it('can indicate invalid sms code', async () => {
+      mockRecoveryPhoneManager.getUnconfirmed.mockReturnValue(null);
+
+      const result = await service.confirmCode(uid, code);
+
+      expect(result).toEqual(false);
+      expect(mockRecoveryPhoneManager.getUnconfirmed).toBeCalledWith(uid, code);
+    });
+
+    it('throws library error while confirming sms code', () => {
+      mockRecoveryPhoneManager.getUnconfirmed.mockRejectedValueOnce(mockError);
+      expect(service.confirmCode(uid, code)).rejects.toEqual(mockError);
+    });
+
+    it('throws library error while registering phone number for sms code', () => {
+      mockRecoveryPhoneManager.getUnconfirmed.mockResolvedValue({
+        isSetup: true,
+      });
+      mockRecoveryPhoneManager.registerPhoneNumber.mockRejectedValue(mockError);
+      expect(service.confirmCode(uid, code)).rejects.toEqual(mockError);
+    });
   });
 });
