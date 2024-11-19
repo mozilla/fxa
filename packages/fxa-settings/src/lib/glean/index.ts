@@ -18,6 +18,7 @@ import {
 import { accountsEvents } from 'fxa-shared/metrics/glean/web/pings';
 import * as event from 'fxa-shared/metrics/glean/web/event';
 import * as email from 'fxa-shared/metrics/glean/web/email';
+import * as error from 'fxa-shared/metrics/glean/web/error';
 import * as reg from 'fxa-shared/metrics/glean/web/reg';
 import * as login from 'fxa-shared/metrics/glean/web/login';
 import * as cachedLogin from 'fxa-shared/metrics/glean/web/cachedLogin';
@@ -510,6 +511,11 @@ const recordEventMetric = (
       break;
     case 'account_banner_create_recovery_key_view':
       accountBanner.createRecoveryKeyView.record();
+      break;
+    case 'error_view':
+      error.view.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
       break;
   }
 };

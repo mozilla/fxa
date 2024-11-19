@@ -128,8 +128,8 @@ export const Settings = ({
   const { enabled: gleanEnabled } = GleanMetrics.useGlean();
 
   useEffect(() => {
-    !loading && gleanEnabled && GleanMetrics.pageLoad(location.pathname);
-  }, [loading, location.pathname, gleanEnabled]);
+    gleanEnabled && GleanMetrics.pageLoad(location.pathname);
+  }, [location.pathname, gleanEnabled]);
 
   if (loading) {
     return <LoadingSpinner fullScreen />;
@@ -137,6 +137,7 @@ export const Settings = ({
 
   // This error check includes a network error
   if (error) {
+    GleanMetrics.error.view({ event: { reason: error.message } });
     return <AppErrorDialog data-testid="error-dialog" {...{ error }} />;
   }
 
