@@ -138,7 +138,13 @@ async function run(config) {
     );
     Container.set(PromotionCodeManager, promotionCodeManager);
 
-    if (config.cms.enabled) {
+    if (
+      config.cms.enabled ||
+      (config.cms.strapiClient &&
+        config.cms.strapiClient.graphqlApiUri &&
+        config.cms.strapiClient.apiKey &&
+        config.cms.strapiClient.firestoreCacheCollectionName)
+    ) {
       const strapiClientConfig = config.cms.strapiClient;
       const { graphqlApiUri, apiKey, firestoreCacheCollectionName } =
         strapiClientConfig;
