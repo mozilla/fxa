@@ -24,21 +24,48 @@ const nextConfig = {
   },
   experimental: {
     instrumentationHook: true,
+    optimizePackageImports: ['@radix-ui/react-form', '@radix-ui/react-tooltip'],
     serverComponentsExternalPackages: [
-      '@nestjs/core',
-      '@nestjs/common',
-      '@nestjs/websockets',
-      '@nestjs/graphql',
-      '@nestjs/mapped-types',
+      'axios',
+      '@apollo',
+      '@faker-js/faker',
+      '@google-cloud/firestore',
+      '@grpc',
+      "@nestjs/apollo",
+      "@nestjs/common",
+      "@nestjs/config",
+      "@nestjs/core",
+      "@nestjs/graphql",
+      "@nestjs/mapped-types",
+      "@nestjs/passport",
+      "@nestjs/platform-express",
+      "@nestjs/schedule",
+      '@opentelemetry',
+      '@prisma/instrumentation',
+      '@sentry',
+      '@sentry/node',
+      '@sentry/nestjs',
+      '@sentry/open-telemetry',
+      '@type-cacheable/core',
+      'aws-sdk',
       'class-transformer',
       'class-validator',
+      'google-gax',
+      'graphql',
+      'graphql-request',
       'hot-shots',
       'knex',
       'kysely',
+      'maxmind',
       'mozlog',
       'mysql2',
       'nest-typed-config',
+      'nest-winston',
+      'objection',
       'superagent',
+      'typedi',
+      'whatwg-url',
+      'winston',
     ],
   },
   images: {
@@ -99,6 +126,11 @@ const sentryOptions = {
   disableLogger: true,
 }
 
+// Bundle Analyzer
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+  enabled: process.env.ANALYZE === 'true',
+});
+
 // Use withSentryConfig to wrap the next config
 const sentryEnhancedConfig = (passedConfig) =>
   withSentryConfig(passedConfig, sentryOptions);
@@ -107,6 +139,7 @@ const plugins = [
   // Add more Next.js plugins to this list if needed.
   withNx,
   sentryEnhancedConfig,
+  withBundleAnalyzer,
 ];
 
 module.exports = composePlugins(...plugins)(nextConfig);
