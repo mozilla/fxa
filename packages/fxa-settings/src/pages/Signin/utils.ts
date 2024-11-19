@@ -32,9 +32,18 @@ interface NavigationTargetError {
 
 export function getSyncNavigate(
   queryParams: string,
-  showInlineRecoveryKeySetup?: boolean
+  showInlineRecoveryKeySetup?: boolean,
+  isSignInWithThirdPartyAuth?: boolean
 ) {
   const searchParams = new URLSearchParams(queryParams);
+
+  if (isSignInWithThirdPartyAuth) {
+    return {
+      to: `/post_verify/third_party_auth/set_password?${searchParams}`,
+      shouldHardNavigate: false,
+    };
+  }
+
   if (showInlineRecoveryKeySetup) {
     return {
       to: `/inline_recovery_key_setup?${searchParams}`,
@@ -60,13 +69,7 @@ export function getSyncNavigate(
 // React signin until CAD/pair is converted to React because we'd need to pass this
 // data back to Backbone. This means temporarily we need to send the sync data up
 // _before_ we hard navigate to CAD/pair in these flows.
-export async function handleNavigation(
-  navigationOptions: NavigationOptions,
-  {
-    handleFxaLogin = false,
-    handleFxaOAuthLogin = false,
-  }: { handleFxaLogin?: boolean; handleFxaOAuthLogin?: boolean } = {}
-) {
+export async function handleNavigation(navigationOptions: NavigationOptions) {
   const { integration } = navigationOptions;
   const isOAuth = isOAuthIntegration(integration);
   const isWebChannelIntegration =
@@ -77,7 +80,7 @@ export async function handleNavigation(
       getUnverifiedNavigationTarget(navigationOptions);
     if (
       isWebChannelIntegration &&
-      handleFxaLogin &&
+      navigationOptions.handleFxaLogin === true &&
       // If the _next page_ is `signin_totp_code`, we don't want to send this
       // because we end up sending it twice with the first message containing
       // `verified: false`, causing a Sync sign-in issue (see FXA-9837).
@@ -98,7 +101,7 @@ export async function handleNavigation(
     return { error: undefined };
   }
 
-  if (isWebChannelIntegration && handleFxaLogin) {
+  if (isWebChannelIntegration && navigationOptions.handleFxaLogin === true) {
     // This _must_ be sent before fxaOAuthLogin for Desktop OAuth flow.
     // Mobile doesn't care about this message (see FXA-10388)
     sendFxaLogin(navigationOptions);
@@ -122,7 +125,7 @@ export async function handleNavigation(
     }
     if (
       isOAuthNativeIntegration(integration) &&
-      handleFxaOAuthLogin &&
+      navigationOptions.handleFxaOAuthLogin === true &&
       oauthData
     ) {
       firefox.fxaOAuthLogin({
@@ -179,7 +182,7 @@ function sendFxaLogin(navigationOptions: NavigationOptions) {
     }),
     services: navigationOptions.integration.isDesktopRelay()
       ? { relay: {} }
-      : { sync: {} },
+      : { sync: navigationOptions.syncEngines || {} },
   });
 }
 
@@ -230,12 +233,20 @@ function performNavigation({
 const getNonOAuthNavigationTarget = async (
   navigationOptions: NavigationOptions
 ): Promise<NavigationTarget> => {
-  const { integration, queryParams, showInlineRecoveryKeySetup, redirectTo } =
-    navigationOptions;
+  const {
+    integration,
+    queryParams,
+    showInlineRecoveryKeySetup,
+    redirectTo,
+    isSignInWithThirdPartyAuth,
+  } = navigationOptions;
   if (integration.isSync()) {
     return {
-      ...getSyncNavigate(queryParams, showInlineRecoveryKeySetup),
-      locationState: createSigninLocationState(navigationOptions),
+      ...getSyncNavigate(
+        queryParams,
+        showInlineRecoveryKeySetup,
+        isSignInWithThirdPartyAuth
+      ),
     };
   }
   if (redirectTo) {
@@ -248,6 +259,21 @@ const getOAuthNavigationTarget = async (
   navigationOptions: NavigationOptions
 ): Promise<NavigationTarget | NavigationTargetError> => {
   const locationState = createSigninLocationState(navigationOptions);
+
+  if (
+    navigationOptions.integration.isSync() &&
+    navigationOptions.isSignInWithThirdPartyAuth
+  ) {
+    return {
+      ...getSyncNavigate(
+        navigationOptions.queryParams,
+        locationState.showInlineRecoveryKeySetup,
+        navigationOptions.isSignInWithThirdPartyAuth
+      ),
+      locationState,
+    };
+  }
+
   const { error, redirect, code, state } =
     await navigationOptions.finishOAuthFlowHandler(
       navigationOptions.signinData.uid,
@@ -273,7 +299,8 @@ const getOAuthNavigationTarget = async (
     return {
       ...getSyncNavigate(
         navigationOptions.queryParams,
-        locationState.showInlineRecoveryKeySetup
+        locationState.showInlineRecoveryKeySetup,
+        navigationOptions.isSignInWithThirdPartyAuth
       ),
       oauthData: {
         code,

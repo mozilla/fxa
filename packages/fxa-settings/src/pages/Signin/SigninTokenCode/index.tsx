@@ -149,14 +149,13 @@ const SigninTokenCode = ({
           queryParams: location.search,
           redirectTo,
           showInlineRecoveryKeySetup,
+          handleFxaLogin: false,
+          handleFxaOAuthLogin: true,
         };
 
         await GleanMetrics.isDone();
 
-        const { error: navError } = await handleNavigation(navigationOptions, {
-          handleFxaLogin: false,
-          handleFxaOAuthLogin: true,
-        });
+        const { error: navError } = await handleNavigation(navigationOptions);
         if (navError) {
           setLocalizedErrorBannerMessage(
             getLocalizedErrorMessage(ftlMsgResolver, navError)

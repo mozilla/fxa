@@ -101,3 +101,10 @@ export function storeAccountData(accountData: StoredAccountData) {
   setCurrentAccount(accountData.uid);
   sessionToken(accountData.sessionToken); // Can we remove this? It seems unnecessary...
 }
+
+export function getCurrentAccountData(): StoredAccountData {
+  const storage = localStorage();
+  const uid = storage.get('currentAccountUid');
+  let accounts = storage.get('accounts') || {};
+  return accounts[uid];
+}

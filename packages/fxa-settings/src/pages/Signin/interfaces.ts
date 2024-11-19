@@ -199,6 +199,13 @@ export interface NavigationOptions {
   redirectTo?: string;
   queryParams: string;
   showInlineRecoveryKeySetup?: boolean;
+  isSignInWithThirdPartyAuth?: boolean;
+  handleFxaLogin?: boolean;
+  handleFxaOAuthLogin?: boolean;
+  syncEngines?: {
+    offeredEngines: string[];
+    declinedEngines: string[];
+  }
 }
 
 export interface OAuthSigninResult {
