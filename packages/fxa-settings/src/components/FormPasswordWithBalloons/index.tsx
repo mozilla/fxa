@@ -27,6 +27,7 @@ export type FormPasswordWithBalloonsProps = {
   loading: boolean;
   children?: React.ReactNode;
   disableButtonUntilValid?: boolean;
+  submitButtonGleanId?: string;
 };
 
 const getTemplateValues = (passwordFormType: PasswordFormType) => {
@@ -75,6 +76,7 @@ export const FormPasswordWithBalloons = ({
   loading,
   children,
   disableButtonUntilValid = false,
+  submitButtonGleanId,
 }: FormPasswordWithBalloonsProps) => {
   const passwordValidator = new PasswordValidator(email);
   const [passwordMatchErrorText, setPasswordMatchErrorText] =
@@ -394,6 +396,7 @@ export const FormPasswordWithBalloons = ({
             disabled={
               loading || (!formState.isValid && disableButtonUntilValid)
             }
+            data-glean-id={submitButtonGleanId && submitButtonGleanId}
           >
             {templateValues.buttonText}
           </button>

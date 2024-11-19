@@ -130,12 +130,11 @@ export const SigninTotpCode = ({
         redirectTo,
         queryParams: location.search,
         showInlineRecoveryKeySetup,
-      };
-
-      const { error } = await handleNavigation(navigationOptions, {
         handleFxaLogin: true,
         handleFxaOAuthLogin: true,
-      });
+      };
+
+      const { error } = await handleNavigation(navigationOptions);
       if (error) {
         setBannerError(getLocalizedErrorMessage(ftlMsgResolver, error));
       }

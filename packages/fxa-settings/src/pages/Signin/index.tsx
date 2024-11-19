@@ -213,12 +213,11 @@ const Signin = ({
               : '',
           queryParams: location.search,
           showInlineRecoveryKeySetup: data.showInlineRecoveryKeySetup,
-        };
-
-        const { error: navError } = await handleNavigation(navigationOptions, {
           handleFxaLogin: true,
           handleFxaOAuthLogin: true,
-        });
+        };
+
+        const { error: navError } = await handleNavigation(navigationOptions);
         if (navError) {
           setLocalizedBannerError(
             getLocalizedErrorMessage(ftlMsgResolver, navError)

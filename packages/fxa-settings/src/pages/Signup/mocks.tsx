@@ -24,7 +24,7 @@ import {
   SignupIntegration,
   SignupOAuthIntegration,
 } from './interfaces';
-import { getSyncEngineIds } from '../../components/ChooseWhatToSync/sync-engines';
+import { useMockSyncEngines } from '../../lib/hooks/useSyncEngines/mocks';
 
 export const MOCK_SEARCH_PARAMS = {
   email: MOCK_EMAIL,
@@ -139,6 +139,7 @@ export const Subject = ({
 }) => {
   const urlQueryData = mockUrlQueryData(queryParams);
   const queryParamModel = new SignupQueryParams(urlQueryData);
+  const useMockSyncEnginesResult = useMockSyncEngines();
   return (
     <LocationProvider>
       <Signup
@@ -146,7 +147,7 @@ export const Subject = ({
           integration,
           queryParamModel,
           beginSignupHandler,
-          webChannelEngines: getSyncEngineIds(),
+          useSyncEnginesResult: useMockSyncEnginesResult,
         }}
       />
     </LocationProvider>
