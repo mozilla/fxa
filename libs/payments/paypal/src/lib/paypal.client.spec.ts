@@ -16,6 +16,8 @@ import {
 import { PayPalClient } from './paypal.client';
 import { PayPalClientError, PayPalNVPError } from './paypal.error';
 import {
+  ChargeOptionsFactory,
+  ChargeResponseFactory,
   NVPBAUpdateTransactionResponseFactory,
   NVPDoReferenceTransactionResponseFactory,
   NVPErrorFactory,
@@ -37,6 +39,7 @@ import {
 import { objectToNVP, toIsoString } from './util';
 import { Test } from '@nestjs/testing';
 import { MockPaypalClientConfigProvider } from './paypal.client.config';
+import { ChargeResponse } from './paypal.types';
 
 describe('PayPalClient', () => {
   const commonPayloadArgs = {
@@ -421,6 +424,40 @@ describe('PayPalClient', () => {
       ];
       // In this case, the order of the array of errors matters.
       expect(actual).toMatchObject<PayPalNVPError[]>(expected);
+    });
+  });
+
+  describe('chargeCustomer', () => {
+    it('calls API with valid message', async () => {
+      const mockOptions = ChargeOptionsFactory();
+      const mockReferenceTransactionResponse =
+        NVPDoReferenceTransactionResponseFactory();
+      const mockChargeResponse = ChargeResponseFactory({
+        amount: mockReferenceTransactionResponse.AMT,
+        currencyCode: mockReferenceTransactionResponse.CURRENCYCODE,
+        avsCode: mockReferenceTransactionResponse.AVSCODE,
+        cvv2Match: mockReferenceTransactionResponse.CVV2MATCH,
+        orderTime: mockReferenceTransactionResponse.ORDERTIME,
+        parentTransactionId:
+          mockReferenceTransactionResponse.PARENTTRANSACTIONID,
+        paymentStatus:
+          mockReferenceTransactionResponse.PAYMENTSTATUS as ChargeResponse['paymentStatus'],
+        paymentType: mockReferenceTransactionResponse.PAYMENTTYPE,
+        pendingReason:
+          mockReferenceTransactionResponse.PENDINGREASON as ChargeResponse['pendingReason'],
+        reasonCode:
+          mockReferenceTransactionResponse.REASONCODE as ChargeResponse['reasonCode'],
+        transactionId: mockReferenceTransactionResponse.TRANSACTIONID,
+        transactionType:
+          mockReferenceTransactionResponse.TRANSACTIONTYPE as ChargeResponse['transactionType'],
+      });
+      jest
+        .spyOn(paypalClient, 'doReferenceTransaction')
+        .mockResolvedValue(mockReferenceTransactionResponse);
+
+      const result = await paypalClient.chargeCustomer(mockOptions);
+
+      expect(result).toMatchObject(mockChargeResponse);
     });
   });
 });

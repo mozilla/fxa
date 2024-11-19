@@ -12,6 +12,7 @@ export type InvoicePreview = {
   discountEnd?: number | null;
   discountType?: string;
   number: string | null; // customer-facing invoice identifier
+  paypalTransactionId?: string;
 };
 
 export interface TaxAmount {
@@ -38,6 +39,11 @@ export enum STRIPE_PRODUCT_METADATA {
 export enum STRIPE_SUBSCRIPTION_METADATA {
   Currency = 'currency',
   Amount = 'amount',
+}
+
+export enum STRIPE_INVOICE_METADATA {
+  RetryAttempts = 'paymentAttempts',
+  PaypalTransactionId = 'paypalTransactionId',
 }
 
 export enum SubplatInterval {

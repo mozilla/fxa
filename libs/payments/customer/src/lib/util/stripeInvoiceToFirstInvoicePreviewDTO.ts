@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { StripeInvoice, StripeUpcomingInvoice } from '@fxa/payments/stripe';
-import { InvoicePreview } from '../types';
+import { InvoicePreview, STRIPE_INVOICE_METADATA } from '../types';
 
 /**
  * Formats a Stripe Invoice to the FirstInvoicePreview DTO format.
@@ -34,5 +34,7 @@ export function stripeInvoiceToInvoicePreviewDTO(
     discountEnd: invoice.discount?.end,
     discountType: invoice.discount?.coupon.duration,
     number: invoice.number,
+    paypalTransactionId:
+      invoice.metadata?.[STRIPE_INVOICE_METADATA.PaypalTransactionId],
   };
 }

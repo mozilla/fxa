@@ -11,14 +11,33 @@ import {
   StripeInvoice,
   StripePromotionCode,
 } from '@fxa/payments/stripe';
-import { InvoicePreview, TaxAddress } from './types';
+import {
+  ChargeOptions,
+  ChargeResponse,
+  PayPalClient,
+  PayPalClientError,
+} from '@fxa/payments/paypal';
+import {
+  InvoicePreview,
+  STRIPE_CUSTOMER_METADATA,
+  STRIPE_INVOICE_METADATA,
+  TaxAddress,
+} from './types';
 import { isCustomerTaxEligible } from './util/isCustomerTaxEligible';
 import { stripeInvoiceToInvoicePreviewDTO } from './util/stripeInvoiceToFirstInvoicePreviewDTO';
 import { getMinimumChargeAmountForCurrency } from './util/getMinimumChargeAmountForCurrency';
+import {
+  InvalidInvoiceError,
+  PayPalPaymentFailedError,
+  StripePayPalAgreementNotFoundError,
+} from './error';
 
 @Injectable()
 export class InvoiceManager {
-  constructor(private stripeClient: StripeClient) {}
+  constructor(
+    private stripeClient: StripeClient,
+    private paypalClient: PayPalClient
+  ) {}
 
   async finalizeWithoutAutoAdvance(invoiceId: string) {
     return this.stripeClient.invoicesFinalizeInvoice(invoiceId, {
@@ -104,9 +123,76 @@ export class InvoiceManager {
     invoice: StripeInvoice,
     ipaddress?: string
   ) {
-    // TODO in M3b: Implement legacy processInvoice as processNonZeroInvoice here
-    // TODO: Add spec
-    console.log(customer, invoice, ipaddress);
+    if (!customer.metadata[STRIPE_CUSTOMER_METADATA.PaypalAgreement]) {
+      throw new StripePayPalAgreementNotFoundError(customer.id);
+    }
+    if (!['draft', 'open'].includes(invoice.status ?? '')) {
+      throw new InvalidInvoiceError();
+    }
+
+    // PayPal allows for idempotent retries on payment attempts to prevent double charging.
+    const paymentAttemptCount = parseInt(
+      invoice?.metadata?.[STRIPE_INVOICE_METADATA.RetryAttempts] ?? '0'
+    );
+    const idempotencyKey = `${invoice.id}-${paymentAttemptCount}`;
+
+    // Charge the customer on PayPal
+    const chargeOptions = {
+      amountInCents: invoice.amount_due,
+      billingAgreementId:
+        customer.metadata[STRIPE_CUSTOMER_METADATA.PaypalAgreement],
+      invoiceNumber: invoice.id,
+      currencyCode: invoice.currency,
+      idempotencyKey,
+      ...(ipaddress && { ipaddress }),
+      ...(invoice.tax && { taxAmountInCents: invoice.tax }),
+    } satisfies ChargeOptions;
+    let paypalCharge: ChargeResponse;
+    try {
+      [paypalCharge] = await Promise.all([
+        this.paypalClient.chargeCustomer(chargeOptions),
+        this.stripeClient.invoicesFinalizeInvoice(invoice.id),
+      ]);
+    } catch (error) {
+      if (PayPalClientError.hasPayPalNVPError(error)) {
+        PayPalClientError.throwPaypalCodeError(error);
+      }
+      throw error;
+    }
+
+    // update Stripe payment charge attempt count
+    const updatedPaymentAttemptCount = paymentAttemptCount + 1;
+    let updatedInvoice = await this.stripeClient.invoicesUpdate(invoice.id, {
+      metadata: {
+        [STRIPE_INVOICE_METADATA.RetryAttempts]: updatedPaymentAttemptCount,
+      },
+    });
+
+    // Process the transaction by PayPal charge status
+    switch (paypalCharge.paymentStatus) {
+      case 'Completed':
+      case 'Processed':
+        [updatedInvoice] = await Promise.all([
+          this.stripeClient.invoicesUpdate(invoice.id, {
+            metadata: {
+              [STRIPE_INVOICE_METADATA.PaypalTransactionId]:
+                paypalCharge.transactionId,
+            },
+          }),
+          this.stripeClient.invoicesPay(invoice.id),
+        ]);
+
+        return updatedInvoice;
+      case 'Pending':
+      case 'In-Progress':
+        return updatedInvoice;
+      case 'Denied':
+      case 'Failed':
+      case 'Voided':
+      case 'Expired':
+      default:
+        throw new PayPalPaymentFailedError(paypalCharge.paymentStatus);
+    }
   }
 
   /**

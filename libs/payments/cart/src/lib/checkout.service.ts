@@ -128,8 +128,8 @@ export class CheckoutService {
     // Cart only needs to be updated if we created a customer
     if (!cart.uid || !cart.stripeCustomerId) {
       await this.cartManager.updateFreshCart(cart.id, cart.version, {
-        uid: uid,
-        stripeCustomerId: stripeCustomerId,
+        uid,
+        stripeCustomerId,
       });
       version += 1;
     }
@@ -260,6 +260,7 @@ export class CheckoutService {
           },
         ],
         payment_behavior: 'default_incomplete',
+        currency: cart.currency ?? undefined,
         metadata: {
           // Note: These fields are due to missing Fivetran support on Stripe multi-currency plans
           [STRIPE_SUBSCRIPTION_METADATA.Amount]: cart.amount,
@@ -313,83 +314,97 @@ export class CheckoutService {
     customerData: CheckoutCustomerData,
     token?: string
   ) {
-    const {
-      uid,
-      customer,
-      enableAutomaticTax,
-      promotionCode,
-      price,
-      version: updatedVersion,
-    } = await this.prePaySteps(cart, customerData);
-
-    const paypalSubscriptions =
-      await this.subscriptionManager.getCustomerPayPalSubscriptions(
-        customer.id
-      );
-
-    const billingAgreementId =
-      await this.paypalBillingAgreementManager.retrieveOrCreateId(
-        uid,
-        !!paypalSubscriptions.length,
-        token
-      );
-
-    this.statsd.increment('stripe_subscription', {
-      payment_provider: 'paypal',
-    });
-
-    const subscription = await this.subscriptionManager.create(
-      {
-        customer: customer.id,
-        automatic_tax: {
-          enabled: enableAutomaticTax,
-        },
-        collection_method: 'send_invoice',
-        days_until_due: 1,
-        promotion_code: promotionCode?.id,
-        items: [
-          {
-            price: price.id,
-          },
-        ],
-        metadata: {
-          // Note: These fields are due to missing Fivetran support on Stripe multi-currency plans
-          [STRIPE_SUBSCRIPTION_METADATA.Amount]: cart.amount,
-          [STRIPE_SUBSCRIPTION_METADATA.Currency]: cart.currency,
-        },
-      },
-      {
-        idempotencyKey: cart.id,
-      }
-    );
-
-    await this.paypalCustomerManager.deletePaypalCustomersByUid(uid);
-    await this.paypalCustomerManager.createPaypalCustomer({
-      uid,
-      billingAgreementId,
-      status: 'active',
-      endedAt: null,
-    });
-
-    await this.customerManager.update(customer.id, {
-      metadata: {
-        [STRIPE_CUSTOMER_METADATA.PaypalAgreement]: billingAgreementId,
-      },
-    });
-
-    if (!subscription.latest_invoice) {
-      throw new CheckoutError('latest_invoice does not exist on subscription');
-    }
-    const latestInvoice = await this.invoiceManager.retrieve(
-      subscription.latest_invoice
-    );
     try {
-      this.invoiceManager.processPayPalInvoice(latestInvoice);
-    } catch (e) {
-      await this.subscriptionManager.cancel(subscription.id);
-      await this.paypalBillingAgreementManager.cancel(billingAgreementId);
-    }
+      const {
+        uid,
+        customer,
+        enableAutomaticTax,
+        promotionCode,
+        price,
+        version,
+      } = await this.prePaySteps(cart, customerData);
 
-    await this.postPaySteps(cart, updatedVersion, subscription, uid);
+      const paypalSubscriptions =
+        await this.subscriptionManager.getCustomerPayPalSubscriptions(
+          customer.id
+        );
+
+      const billingAgreementId =
+        await this.paypalBillingAgreementManager.retrieveOrCreateId(
+          uid,
+          !!paypalSubscriptions.length,
+          token
+        );
+
+      this.statsd.increment('stripe_subscription', {
+        payment_provider: 'paypal',
+      });
+
+      const subscription = await this.subscriptionManager.create(
+        {
+          customer: customer.id,
+          automatic_tax: {
+            enabled: enableAutomaticTax,
+          },
+          collection_method: 'send_invoice',
+          days_until_due: 1,
+          promotion_code: promotionCode?.id,
+          items: [
+            {
+              price: price.id,
+            },
+          ],
+          currency: cart.currency ?? undefined,
+          metadata: {
+            // Note: These fields are due to missing Fivetran support on Stripe multi-currency plans
+            [STRIPE_SUBSCRIPTION_METADATA.Amount]: cart.amount,
+            [STRIPE_SUBSCRIPTION_METADATA.Currency]: cart.currency,
+          },
+        },
+        {
+          idempotencyKey: cart.id,
+        }
+      );
+
+      await this.paypalCustomerManager.deletePaypalCustomersByUid(uid);
+      await Promise.all([
+        this.paypalCustomerManager.createPaypalCustomer({
+          uid,
+          billingAgreementId,
+          status: 'active',
+          endedAt: null,
+        }),
+        this.customerManager.update(customer.id, {
+          metadata: {
+            [STRIPE_CUSTOMER_METADATA.PaypalAgreement]: billingAgreementId,
+          },
+        }),
+        this.cartManager.updateFreshCart(cart.id, version, {
+          stripeSubscriptionId: subscription.id,
+        }),
+      ]);
+
+      const updatedVersion = version + 1;
+
+      if (!subscription.latest_invoice) {
+        throw new CheckoutError(
+          'latest_invoice does not exist on subscription'
+        );
+      }
+      const latestInvoice = await this.invoiceManager.retrieve(
+        subscription.latest_invoice
+      );
+      try {
+        this.invoiceManager.processPayPalInvoice(latestInvoice);
+      } catch (e) {
+        await this.subscriptionManager.cancel(subscription.id);
+        await this.paypalBillingAgreementManager.cancel(billingAgreementId);
+      }
+
+      await this.postPaySteps(cart, updatedVersion, subscription, uid);
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
   }
 }

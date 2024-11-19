@@ -37,6 +37,8 @@ import {
 } from './paypal.client.types';
 import { nvpToObject, objectToNVP, toIsoString } from './util';
 import { PaypalClientConfig } from './paypal.client.config';
+import { ChargeOptions, ChargeResponse } from './paypal.types';
+import { getPayPalAmountStringFromAmountInCents } from './util/getPayPalAmountStringFromAmountInCents';
 
 @Injectable()
 export class PayPalClient {
@@ -326,5 +328,47 @@ export class PayPalClient {
       PaypalMethods.TransactionSearch,
       data
     );
+  }
+
+  /**
+   * Charge customer based on an existing Billing Agreement.
+   */
+  public async chargeCustomer(options: ChargeOptions): Promise<ChargeResponse> {
+    // Processes a payment from a buyer's account, identified by the billingAgreementId
+    const doReferenceTransactionOptions: DoReferenceTransactionOptions = {
+      amount: getPayPalAmountStringFromAmountInCents(
+        options.amountInCents,
+        options.currencyCode
+      ),
+      billingAgreementId: options.billingAgreementId,
+      currencyCode: options.currencyCode,
+      idempotencyKey: options.idempotencyKey,
+      invoiceNumber: options.invoiceNumber,
+      ...(options.ipaddress && { ipaddress: options.ipaddress }),
+      ...(options.taxAmountInCents && {
+        taxAmount: getPayPalAmountStringFromAmountInCents(
+          options.taxAmountInCents,
+          options.currencyCode
+        ),
+      }),
+    };
+    const response = await this.doReferenceTransaction(
+      doReferenceTransactionOptions
+    );
+    return {
+      amount: response.AMT,
+      currencyCode: response.CURRENCYCODE,
+      avsCode: response.AVSCODE,
+      cvv2Match: response.CVV2MATCH,
+      orderTime: response.ORDERTIME,
+      parentTransactionId: response.PARENTTRANSACTIONID,
+      paymentStatus: response.PAYMENTSTATUS as ChargeResponse['paymentStatus'],
+      paymentType: response.PAYMENTTYPE,
+      pendingReason: response.PENDINGREASON as ChargeResponse['pendingReason'],
+      reasonCode: response.REASONCODE as ChargeResponse['reasonCode'],
+      transactionId: response.TRANSACTIONID,
+      transactionType:
+        response.TRANSACTIONTYPE as ChargeResponse['transactionType'],
+    };
   }
 }

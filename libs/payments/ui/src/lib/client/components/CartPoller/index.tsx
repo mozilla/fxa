@@ -32,7 +32,7 @@ export function CartPoller() {
         retries = await pollCart(checkoutParams, retries, stripe);
       } catch (error) {
         console.error(error);
-        throw error;
+        retries += 1;
       }
 
       if (retries > 5) {
