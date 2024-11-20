@@ -40,6 +40,7 @@ const ACCOUNT_STATUS_ACTION = {
   accountStatusCheck: true,
   sendUnblockCode: true,
   recoveryKeyExists: true,
+  getCredentialsStatus: true,
 };
 
 // Actions that send an email, and hence might make
