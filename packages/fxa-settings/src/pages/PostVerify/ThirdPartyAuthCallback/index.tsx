@@ -2,20 +2,38 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
-import { RouteComponentProps } from '@reach/router';
-import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
+import { RouteComponentProps, useLocation } from '@reach/router';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import AppLayout from '../../../components/AppLayout';
 import { AUTH_PROVIDER } from 'fxa-auth-client/browser';
-import { useAccount } from '../../../models';
+import {
+  BaseIntegration,
+  IntegrationType,
+  useAccount,
+  useClientInfoState,
+  useProductInfoState,
+} from '../../../models';
 import {
   StoredAccountData,
   storeAccountData,
 } from '../../../lib/storage-utils';
 import { QueryParams } from '../../..';
 import { queryParamsToMetricsContext } from '../../../lib/metrics';
+import { handleNavigation } from '../../Signin/utils';
+import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
+import { useAuthClient } from '../../../models';
+import {
+  DefaultIntegrationFlags,
+  IntegrationFactory,
+} from '../../../lib/integrations';
+import {
+  GenericData,
+  StorageData,
+  UrlQueryData,
+} from '../../../lib/model-data';
+import { ReachRouterWindow } from '../../../lib/window';
 
 type LinkedAccountData = {
   uid: hexstring;
@@ -25,48 +43,73 @@ type LinkedAccountData = {
   verificationMethod?: string;
 };
 
-// TODO this page to be completed/activated in FXA-8834
-// User reaches this page when redirected back from third party auth provider.
-// It requires /post_verify/third_party_auth/callback route to be turned on for react
-// otherwise, users authenticating with the react version of signin/signup are directed
-// to the backbone version of the callback to complete their third party authentication.
+const initializeIntegration = (
+  originalParams: URLSearchParams,
+  clientInfoState: any,
+  productInfoState: any
+) => {
+  const windowWrapper = new ReachRouterWindow();
+  const urlQueryData = new UrlQueryData(windowWrapper);
+  let integration = new BaseIntegration(IntegrationType.Web, urlQueryData);
 
-// All use of params should be reworked to use `useValidatedQueryParams` hook in FXA-8834
+  try {
+    console.log('Initializing integration');
+    // The `state` param returned by third party auth provider contains the
+    // original FxA OAuth request params. We need to extract them and build
+    // a new integration based on that.
+    const state = decodeURIComponent(originalParams.get('state') || '');
+    const stateParams = new URLSearchParams(new URL(state).search);
+
+    // Update the URL query data with FxA OAuth request params
+    urlQueryData.setParams(stateParams);
+
+    const paramsObject = Object.fromEntries(stateParams.entries());
+    const data = new GenericData(paramsObject);
+
+    const flags = new DefaultIntegrationFlags(
+      urlQueryData,
+      new StorageData(windowWrapper)
+    );
+    const integrationFactory = new IntegrationFactory({
+      window: windowWrapper,
+      data,
+      flags,
+      clientInfo: clientInfoState.data?.clientInfo,
+      productInfo: productInfoState.data?.productInfo,
+    });
+
+    integration = integrationFactory.getIntegration();
+    console.log('Integration initialized', integration);
+  } catch (error) {
+    console.error('Error initializing integration', error);
+  }
+
+  return integration;
+};
 
 const ThirdPartyAuthCallback = ({
   flowQueryParams,
 }: { flowQueryParams?: QueryParams } & RouteComponentProps) => {
-  const navigate = useNavigate();
   const account = useAccount();
-  const params = new URLSearchParams(window.location.search);
+  const authClient = useAuthClient();
+  const clientInfoState = useClientInfoState();
+  const productInfoState = useProductInfoState();
+  const location = useLocation();
 
-  const getRedirectUrl = () => {
-    // get the stashed state with origin information
-    // use it to reconstruct redirect for oauth
-    // the state is the entire URL of the origin and includes the redirect_uri in a param
-    // if authenticating from a RP
-    const state = params.get('state');
-    if (state) {
-      // we may need to deconstruct the state to access/modify the redirect URL
-      const stateParams = new URL(decodeURIComponent(state)).searchParams;
-      const redirect = stateParams.get('redirect_uri');
-      // if the state contains a redirect_uri, we need to redirect to RP
-      // otherwise we redirect internally
-      if (redirect) {
-        const url = new URL(redirect);
-        // TODO append other params from state to the redirect URL
-        return url;
-      }
-    }
-    return undefined;
-  };
+  const originalParams = new URLSearchParams(window.location.search);
+  const integration = initializeIntegration(
+    originalParams,
+    clientInfoState,
+    productInfoState
+  );
 
-  // Persist account data to local storage to match parity with content-server
-  // this allows the recent account to be used for /signin
+  const { finishOAuthFlowHandler } = useFinishOAuthFlowHandler(
+    authClient,
+    integration
+  );
+
   const storeLinkedAccountData = async (linkedAccount: LinkedAccountData) => {
     const accountData: StoredAccountData = {
-      // We are using the email that was returned from the Third Party Auth
-      // Not the email entered in the email-first form as they might be different
       email: linkedAccount.email,
       uid: linkedAccount.uid,
       lastLogin: Date.now(),
@@ -74,51 +117,12 @@ const ThirdPartyAuthCallback = ({
       verified: true,
       metricsEnabled: true,
     };
-
-    storeAccountData(accountData);
+    return storeAccountData(accountData);
   };
 
-  const completeSignIn = async (linkedAccount: LinkedAccountData) => {
-    // TODO in FXA-8834, use SignIn method that should be ported in FXA-6488
-    // to complete sign in with the sessionToken obtained when verifying the third party auth
-    // this should also update graphQL cache (isSignedIn:true)
-    // await account.signIn(linkedAccount)
-
-    await storeLinkedAccountData(linkedAccount);
-
-    // TODO ensure correct redirects for all integrations (OAuth, Desktop, Mobile)
-    // redirect is constructed from state param in the URL params
-    const redirectURL = getRedirectUrl();
-    if (redirectURL) {
-      // get the stashed state with origin information
-      // use it to reconstruct redirect for oauth
-      // the state is the entire URL of the origin and includes the redirect_uri in a param
-      // if authenticating from a RP
-      const state = params.get('state');
-      if (state) {
-        // we may need to deconstruct the state to access/modify the redirect URL
-        const stateParams = new URL(decodeURIComponent(state)).searchParams;
-        const redirect = stateParams.get('redirect_uri');
-        // if the state contains a redirect_uri, we need to redirect to RP
-        // otherwise we redirect internally
-        if (redirect) {
-          hardNavigate(redirect);
-        } else {
-          // general redirect to settings for non-RP
-          // currently, redirect to /settings fails with an "unauthenticated" error from GQL
-          // and redirects to /signin (on backbone) where ThirdPArty Auth successfully
-          // navigates to /settings
-          navigate('/settings');
-        }
-      }
-    }
-  };
-
-  // auth params are received from the third party auth provider
-  // and are required to verify the account
   const getAuthParams = () => {
-    const code = params.get('code');
-    const providerFromParams = params.get('provider');
+    const code = originalParams.get('code');
+    const providerFromParams = originalParams.get('provider');
     let provider: AUTH_PROVIDER | undefined;
     if (providerFromParams === 'apple') {
       provider = AUTH_PROVIDER.APPLE;
@@ -129,28 +133,47 @@ const ThirdPartyAuthCallback = ({
     return { code, provider };
   };
 
-  async function verifyOAuthResponseAndSignIn() {
-    const { code, provider } = getAuthParams();
+  const navigateNext = async (linkedAccount: LinkedAccountData) => {
+    const navigationOptions = {
+      email: linkedAccount.email,
+      signinData: {
+        uid: linkedAccount.uid,
+        sessionToken: linkedAccount.sessionToken,
+        verified: true,
+      },
+      integration,
+      finishOAuthFlowHandler,
+      queryParams: location.search,
+    };
 
-    if (code && provider) {
+    const { error: navError } = await handleNavigation(navigationOptions, {
+      handleFxaLogin: false,
+      handleFxaOAuthLogin: true,
+    });
+
+    if (navError) {
+      console.log('navError', navError);
+    }
+  };
+
+  async function verifyOAuthResponseAndSignIn() {
+    const { code: thirdPartyOAuthCode, provider } = getAuthParams();
+
+    if (thirdPartyOAuthCode && provider) {
       try {
-        // Verify and link the third party account to FxA. Note, this
-        // will create a new FxA account if one does not exist.
-        // The response contains a session token that can be used
-        // to sign the user in to FxA or to complete an Oauth flow.
         const linkedAccount: LinkedAccountData =
           await account.verifyAccountThirdParty(
-            code,
+            thirdPartyOAuthCode,
             provider,
             undefined,
             queryParamsToMetricsContext(
               flowQueryParams as unknown as Record<string, string>
             )
           );
-
-        completeSignIn(linkedAccount);
+        await storeLinkedAccountData(linkedAccount);
+        await navigateNext(linkedAccount);
       } catch (error) {
-        // TODO add error handling
+        console.log('error', error);
       }
     } else {
       // TODO validate what should happen if we hit this page
@@ -159,8 +182,12 @@ const ThirdPartyAuthCallback = ({
     }
   }
 
+  const isSigningIn = useRef(false);
   useEffect(() => {
-    verifyOAuthResponseAndSignIn();
+    if (!isSigningIn.current) {
+      isSigningIn.current = true;
+      verifyOAuthResponseAndSignIn();
+    }
   });
 
   return (
