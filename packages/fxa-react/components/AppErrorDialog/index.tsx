@@ -22,6 +22,7 @@ const AppErrorDialog = ({ error }: { error: Error }) => {
             Something went wrong. Please try again later.
           </p>
         </Localized>
+        <p className="text-red-500 mt-4">{error.message}</p>
       </div>
     </div>
   );

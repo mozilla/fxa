@@ -53,6 +53,7 @@ import Legal from '../../pages/Legal';
 import LegalPrivacy from '../../pages/Legal/Privacy';
 import LegalTerms from '../../pages/Legal/Terms';
 import ThirdPartyAuthCallback from '../../pages/PostVerify/ThirdPartyAuthCallback';
+import ThirdPartyAuthComplete from '../../pages/PostVerify/ThirdPartyAuthComplete';
 import ResetPasswordContainer from '../../pages/ResetPassword/ResetPassword/container';
 import ConfirmResetPasswordContainer from '../../pages/ResetPassword/ConfirmResetPassword/container';
 import CompleteResetPasswordContainer from '../../pages/ResetPassword/CompleteResetPassword/container';
@@ -88,6 +89,9 @@ export const App = ({
   const config = useConfig();
   const session = useSession();
   const integration = useIntegration();
+
+  console.log('APP LEVEL INTEGRATION', integration?.type);
+
   const isSync = integration != null && integration.isSync();
   const { data: isSignedInData } = useLocalSignedInQueryState();
 
@@ -316,6 +320,10 @@ const AuthAndAccountSetupRoutes = ({
       {/* Post verify */}
       <ThirdPartyAuthCallback
         path="/post_verify/third_party_auth/callback/*"
+        {...{ integration, flowQueryParams }}
+      />
+      <ThirdPartyAuthComplete
+        path="/post_verify/third_party_auth/complete/*"
         {...{ flowQueryParams }}
       />
 

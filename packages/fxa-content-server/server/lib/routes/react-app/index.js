@@ -126,9 +126,10 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
       featureFlagOn: showReactApp.postVerifyThirdPartyAuthRoutes,
       routes: reactRoute.getRoutes([
         'post_verify/third_party_auth/callback',
+        'post_verify/third_party_auth/complete',
         'post_verify/third_party_auth/set_password',
       ]),
-      fullProdRollout: false,
+      fullProdRollout: true,
     },
 
     webChannelExampleRoutes: {

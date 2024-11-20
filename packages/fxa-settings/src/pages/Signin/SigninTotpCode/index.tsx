@@ -56,6 +56,8 @@ export const SigninTotpCode = ({
 }: SigninTotpCodeProps & RouteComponentProps) => {
   const location = useLocation();
 
+  console.log('SigninTotpCode INTEGRATION', integration?.type);
+
   const [bannerError, setBannerError] = useState<string>('');
   const [codeErrorMessage, setCodeErrorMessage] = useState<string>('');
   const ftlMsgResolver = useFtlMsgResolver();

@@ -393,7 +393,7 @@ const conf = (module.exports = convict({
 
     // debug configs
     logPings: {
-      default: true,
+      default: false,
       doc: 'log pings to the console',
       env: 'GLEAN_LOG_PINGS',
       format: Boolean,

@@ -142,4 +142,30 @@ export class DefaultIntegrationFlags implements IntegrationFlags {
     }
     return '';
   }
+
+  isThirdPartyAuthCallback() {
+    if (!/third_party_auth\/callback/.test(this.pathname)) {
+      return false;
+    }
+
+    const state = this.searchParam('state');
+    if (!state) {
+      return false;
+    }
+
+    const code = this.searchParam('code');
+    if (!code) {
+      return false;
+    }
+
+    try {
+      const decodedState = decodeURIComponent(state);
+      // Maybe check for values in url?
+      new URL(decodedState);
+    } catch (err) {
+      return false;
+    }
+
+    return true;
+  }
 }
