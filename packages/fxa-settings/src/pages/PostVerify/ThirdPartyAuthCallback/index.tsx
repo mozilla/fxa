@@ -9,8 +9,6 @@ import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import AppLayout from '../../../components/AppLayout';
 import { AUTH_PROVIDER } from 'fxa-auth-client/browser';
 import {
-  BaseIntegration,
-  IntegrationType,
   useAccount,
   useClientInfoState,
   useProductInfoState,
@@ -29,8 +27,8 @@ import {
   IntegrationFactory,
 } from '../../../lib/integrations';
 import {
-  GenericData,
   StorageData,
+  UrlHashData,
   UrlQueryData,
 } from '../../../lib/model-data';
 import { ReachRouterWindow } from '../../../lib/window';
@@ -43,50 +41,6 @@ type LinkedAccountData = {
   verificationMethod?: string;
 };
 
-const initializeIntegration = (
-  originalParams: URLSearchParams,
-  clientInfoState: any,
-  productInfoState: any
-) => {
-  const windowWrapper = new ReachRouterWindow();
-  const urlQueryData = new UrlQueryData(windowWrapper);
-  let integration = new BaseIntegration(IntegrationType.Web, urlQueryData);
-
-  try {
-    console.log('Initializing integration');
-    // The `state` param returned by third party auth provider contains the
-    // original FxA OAuth request params. We need to extract them and build
-    // a new integration based on that.
-    const state = decodeURIComponent(originalParams.get('state') || '');
-    const stateParams = new URLSearchParams(new URL(state).search);
-
-    // Update the URL query data with FxA OAuth request params
-    urlQueryData.setParams(stateParams);
-
-    const paramsObject = Object.fromEntries(stateParams.entries());
-    const data = new GenericData(paramsObject);
-
-    const flags = new DefaultIntegrationFlags(
-      urlQueryData,
-      new StorageData(windowWrapper)
-    );
-    const integrationFactory = new IntegrationFactory({
-      window: windowWrapper,
-      data,
-      flags,
-      clientInfo: clientInfoState.data?.clientInfo,
-      productInfo: productInfoState.data?.productInfo,
-    });
-
-    integration = integrationFactory.getIntegration();
-    console.log('Integration initialized', integration);
-  } catch (error) {
-    console.error('Error initializing integration', error);
-  }
-
-  return integration;
-};
-
 const ThirdPartyAuthCallback = ({
   flowQueryParams,
 }: { flowQueryParams?: QueryParams } & RouteComponentProps) => {
@@ -96,12 +50,28 @@ const ThirdPartyAuthCallback = ({
   const productInfoState = useProductInfoState();
   const location = useLocation();
 
-  const originalParams = new URLSearchParams(window.location.search);
-  const integration = initializeIntegration(
-    originalParams,
-    clientInfoState,
-    productInfoState
-  );
+  const windowWrapper = new ReachRouterWindow();
+  const urlQueryData = new UrlQueryData(windowWrapper);
+
+  const queryParams = new URLSearchParams(location.search);
+
+  let thirdPartyAuthCode = queryParams.get('thirdPartyAuthCode');
+  let thirdPartyAuthProvider = queryParams.get('thirdPartyAuthProvider');
+
+  // Initialize integration based on the original FxA OAuth request params
+  const urlHashData = new UrlHashData(windowWrapper);
+  const storageData = new StorageData(windowWrapper);
+  const flags = new DefaultIntegrationFlags(urlQueryData, storageData);
+  const integrationFactory = new IntegrationFactory({
+    flags,
+    window: windowWrapper,
+    clientInfo: clientInfoState.data?.clientInfo,
+    productInfo: productInfoState.data?.productInfo,
+    data: urlQueryData,
+    channelData: urlHashData,
+    storageData,
+  });
+  const integration = integrationFactory.getIntegration();
 
   const { finishOAuthFlowHandler } = useFinishOAuthFlowHandler(
     authClient,
@@ -121,8 +91,8 @@ const ThirdPartyAuthCallback = ({
   };
 
   const getAuthParams = () => {
-    const code = originalParams.get('code');
-    const providerFromParams = originalParams.get('provider');
+    const code = thirdPartyAuthCode;
+    const providerFromParams = thirdPartyAuthProvider;
     let provider: AUTH_PROVIDER | undefined;
     if (providerFromParams === 'apple') {
       provider = AUTH_PROVIDER.APPLE;
@@ -134,6 +104,10 @@ const ThirdPartyAuthCallback = ({
   };
 
   const navigateNext = async (linkedAccount: LinkedAccountData) => {
+    if (!integration) {
+      return;
+    }
+
     const navigationOptions = {
       email: linkedAccount.email,
       signinData: {
@@ -182,13 +156,38 @@ const ThirdPartyAuthCallback = ({
     }
   }
 
+  // Ensure we only attempt to sign in once
   const isSigningIn = useRef(false);
   useEffect(() => {
-    if (!isSigningIn.current) {
+    if (!isSigningIn.current && thirdPartyAuthCode) {
       isSigningIn.current = true;
       verifyOAuthResponseAndSignIn();
     }
   });
+
+  // During the third party auth flow, we store the original FxA OAuth request
+  // as the state query param. This is used to restore the original OAuth request.
+  useEffect(() => {
+    const originalParams = new URLSearchParams(location.search);
+    const state = originalParams.get('state');
+    if (state) {
+      const decodedState = decodeURIComponent(state);
+      try {
+        urlQueryData.setParams(
+          new URLSearchParams(new URL(decodedState).search)
+        );
+        thirdPartyAuthCode = originalParams.get('code');
+        thirdPartyAuthProvider = originalParams.get('provider');
+        urlQueryData.set('thirdPartyAuthCode', thirdPartyAuthCode || '');
+        urlQueryData.set(
+          'thirdPartyAuthProvider',
+          thirdPartyAuthProvider || ''
+        );
+      } catch (e) {
+        console.error('Error replacing state in history', e);
+      }
+    }
+  }, []);
 
   return (
     <AppLayout>

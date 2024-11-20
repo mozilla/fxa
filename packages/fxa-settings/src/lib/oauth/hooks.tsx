@@ -144,6 +144,9 @@ async function getOAuthData(
  */
 function constructOAuthRedirectUrl(oauthData: OAuthData, redirectUri: string) {
   // Update the state of the redirect URI
+  if (oauthData.redirect) {
+    return new URL(oauthData.redirect);
+  }
   let constructedRedirectUri = new URL(redirectUri);
   if (oauthData.code) {
     constructedRedirectUri.searchParams.set('code', oauthData.code);

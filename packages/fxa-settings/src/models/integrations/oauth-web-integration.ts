@@ -348,7 +348,6 @@ export class OAuthWebIntegration extends BaseIntegration {
     }
 
     // Ported from content server, search for _normalizeScopesAndPermissions
-    console.log('this.data.scope', this.data.scope);
     let permissions = Array.from(scopeStrToArray(this.data.scope || ''));
     if (this.isTrusted()) {
       // We have to normalize `profile` into is expanded sub-scopes
@@ -370,7 +369,6 @@ export class OAuthWebIntegration extends BaseIntegration {
       });
     }
 
-    console.log('permissions', permissions);
     return permissions;
   }
 
