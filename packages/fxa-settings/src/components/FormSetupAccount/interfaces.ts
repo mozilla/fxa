@@ -21,7 +21,7 @@ export type FormSetupAccountProps = {
   onSubmit: (e?: React.BaseSyntheticEvent) => Promise<void>;
   loading: boolean;
   isSync: boolean;
-  offeredSyncEngineConfigs?: typeof syncEngineConfigs;
+  offeredSyncEngineConfigs?: typeof syncEngineConfigs | undefined;
   setDeclinedSyncEngines: React.Dispatch<React.SetStateAction<string[]>>;
   isDesktopRelay: boolean;
   setSelectedNewsletterSlugs?: React.Dispatch<React.SetStateAction<string[]>>;

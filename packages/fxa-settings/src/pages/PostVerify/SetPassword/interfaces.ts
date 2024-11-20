@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { HandledError } from '../../../lib/error-utils';
+import { syncEngineConfigs } from '../../../components/ChooseWhatToSync/sync-engines';
 import { OAuthIntegration } from './../../../models/integrations/oauth-native-integration';
 
 export type SetPasswordIntegration = Pick<OAuthIntegration, 'type' | 'isSync'>;
@@ -13,22 +13,14 @@ export interface SetPasswordFormData {
   confirmPassword: string;
 }
 
-export interface CreatePasswordHandlerError {
-  error: HandledError | null;
-}
-
-export type CreatePasswordHandler = (
-  email: string,
-  sessionToken: string,
-  newPassword: string
-) => Promise<CreatePasswordHandlerError>;
+export type CreatePasswordHandler = (newPassword: string) => Promise<void>;
 
 export interface SetPasswordProps {
   email: string;
-  sessionToken: string;
-  uid: string;
   createPasswordHandler: CreatePasswordHandler;
-  keyFetchToken: string;
-  unwrapBKey: string;
-  integration: SetPasswordIntegration;
+  setCreatePasswordLoading: (loading: boolean) => void;
+  createPasswordLoading: boolean;
+  bannerErrorText: string;
+  offeredSyncEngineConfigs: typeof syncEngineConfigs | undefined;
+  setDeclinedSyncEngines: React.Dispatch<React.SetStateAction<string[]>>;
 }
