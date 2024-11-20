@@ -4,7 +4,7 @@
 
 import React from 'react';
 import AppErrorDialog from '../AppErrorDialog';
-import sentryMetrics from 'fxa-shared/sentry/browser';
+import * as Sentry from '@sentry/browser';
 
 interface AppErrorBoundaryProps {
   children?: React.ReactNode;
@@ -33,7 +33,7 @@ class AppErrorBoundary extends React.Component<
 
   componentDidCatch(error: Error) {
     console.error('AppError', error);
-    sentryMetrics.captureException(error);
+    Sentry.captureException(error, { tags: { source: 'AppErrorBoundary' } });
   }
 
   render() {

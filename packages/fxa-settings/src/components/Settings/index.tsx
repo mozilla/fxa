@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect } from 'react';
+import * as Sentry from '@sentry/browser';
 import SettingsLayout from './SettingsLayout';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import AppErrorDialog from 'fxa-react/components/AppErrorDialog';
@@ -137,6 +138,7 @@ export const Settings = ({
 
   // This error check includes a network error
   if (error) {
+    Sentry.captureException(error, { tags: { source: 'settings' } });
     GleanMetrics.error.view({ event: { reason: error.message } });
     return <AppErrorDialog data-testid="error-dialog" {...{ error }} />;
   }
