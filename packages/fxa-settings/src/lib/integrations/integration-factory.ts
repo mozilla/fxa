@@ -14,6 +14,7 @@ import {
   RelierClientInfo,
   RelierSubscriptionInfo,
   OAuthIntegration,
+  ThirdPartyAuthCallbackIntegration,
 } from '../../models/integrations';
 import {
   ModelDataStore,
@@ -103,7 +104,9 @@ export class IntegrationFactory {
     const flags = this.flags;
 
     // The order of checks matters
-    if (flags.isDevicePairingAsAuthority()) {
+    if (flags.isThirdPartyAuthCallback()) {
+      return this.createThirdPartyAuthCallbackIntegration(data);
+    } else if (flags.isDevicePairingAsAuthority()) {
       return this.createPairingAuthorityIntegration(channelData, storageData);
     } else if (flags.isDevicePairingAsSupplicant()) {
       return this.createPairingSupplicationIntegration(data, storageData);
@@ -121,6 +124,12 @@ export class IntegrationFactory {
       // Default
       return this.createWebIntegration(data);
     }
+  }
+
+  private createThirdPartyAuthCallbackIntegration(data: ModelDataStore) {
+    const integration = new ThirdPartyAuthCallbackIntegration(data);
+    this.initIntegration(integration);
+    return integration;
   }
 
   private createPairingAuthorityIntegration(

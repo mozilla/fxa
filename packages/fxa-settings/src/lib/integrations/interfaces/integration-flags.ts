@@ -13,6 +13,7 @@ export interface IntegrationFlags {
   isV3DesktopContext(): boolean;
   isOAuthSuccessFlow(): { status: boolean; clientId: string };
   isOAuthVerificationFlow(): boolean;
+  isThirdPartyAuthCallback(): boolean;
 
   isServiceOAuth(): boolean;
   isServiceSync(): boolean;

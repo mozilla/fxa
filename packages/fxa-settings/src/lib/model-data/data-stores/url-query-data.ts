@@ -30,7 +30,7 @@ export class UrlQueryData extends UrlData {
    * Sets a new internal state from a set of URL search params
    * @param params
    */
-  protected setParams(params: URLSearchParams) {
+  public setParams(params: URLSearchParams) {
     // Immediately update the internal state
     this.internalState = params;
 
