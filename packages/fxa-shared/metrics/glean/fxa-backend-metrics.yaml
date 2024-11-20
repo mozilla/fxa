@@ -950,3 +950,39 @@ two_factor_auth:
     expires: never
     data_sensitivity:
       - interaction
+
+two_factor_auth_setup:
+  sent_phone_code:
+    type: event
+    description: |
+      User successfully submits a new phone number to be used as a recovery option
+    lifetime: ping
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-10355
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
+  send_phone_code_error:
+    type: event
+    description: |
+      User encounters error while submitting a new phone number to be used as a recovery option
+    lifetime: ping
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-10355
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction

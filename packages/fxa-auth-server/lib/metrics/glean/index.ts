@@ -106,7 +106,7 @@ const getMetricMethod = (eventName: string) => {
     !gleanServerEventLogger[methodName as keyof typeof gleanServerEventLogger]
   ) {
     process.stderr.write(
-      `Method ${methodName} not found in gleanServerEventLogger`
+      `Method ${methodName} for eventName ${eventName} not found in gleanServerEventLogger`
     );
     process.exit(1);
   }
@@ -298,9 +298,14 @@ export function gleanMetrics(config: ConfigType) {
     account: {
       deleteComplete: createEventFn('account_delete_complete'),
     },
-
     twoFactorAuth: {
       codeComplete: createEventFn('two_factor_auth_code_complete'),
+    },
+    twoFactorAuthSetup: {
+      sentPhoneCode: createEventFn('two_factor_auth_setup_sent_phone_code'),
+      sendPhoneCodeError: createEventFn(
+        'two_factor_auth_setup_send_phone_code_error'
+      ),
     },
   };
 }
@@ -334,6 +339,7 @@ export const logErrorWithGlean = ({
           | 'thirdPartyAuth'
           | 'account'
           | 'twoFactorAuth'
+          | 'twoFactorAuthSetup'
         >
       ];
     funnelFns[event as keyof typeof funnelFns](request, {

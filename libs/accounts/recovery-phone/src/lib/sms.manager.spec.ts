@@ -88,7 +88,7 @@ describe('SmsManager', () => {
         to: to.replace('+1', ''),
         body,
       })
-    ).rejects.toEqual(new Error('Number not allowed.'));
+    ).rejects.toEqual(new Error('Phone number not supported.'));
   });
 
   it('Rejects long messages', async () => {

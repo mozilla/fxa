@@ -26,21 +26,26 @@ export class RecoveryPhoneService {
    * @returns True if code was sent and stored
    */
   public async setupPhoneNumber(uid: string, phoneNumber: string) {
-    if (this.config.allowedNumbers) {
-      const allowed = this.config.allowedNumbers.some((check) => {
+    if (this.config.validNumberPrefixes) {
+      const allowed = this.config.validNumberPrefixes.some((check) => {
         return phoneNumber.startsWith(check);
       });
 
       if (!allowed) {
-        throw new RecoveryNumberNotSupportedError(uid, phoneNumber);
+        throw new RecoveryNumberNotSupportedError(phoneNumber);
       }
     }
 
     const code = await this.otpCode.generateCode();
-    await this.smsManager.sendSMS({
+    const msg = await this.smsManager.sendSMS({
       to: phoneNumber,
       body: code,
     });
+
+    if (msg == null || msg.status === 'failed') {
+      return false;
+    }
+
     await this.recoveryPhoneManager.storeUnconfirmed(
       uid,
       phoneNumber,

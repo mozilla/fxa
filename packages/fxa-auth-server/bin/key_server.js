@@ -43,6 +43,15 @@ const {
   AccountTasks,
   AccountTasksFactory,
 } = require('@fxa/shared/cloud-tasks');
+const { OtpManager } = require('@fxa/shared/otp');
+const {
+  RecoveryPhoneManager,
+  SmsManager,
+  RecoveryPhoneService,
+  TwilioFactory,
+} = require('@fxa/accounts/recovery-phone');
+const { setupAccountDatabase } = require('@fxa/shared/db/mysql/account');
+
 async function run(config) {
   Container.set(AppConfig, config);
 
@@ -194,6 +203,36 @@ async function run(config) {
     Container.get(AppleIAP);
   }
 
+  const twilio = TwilioFactory.useFactory(config.twilio);
+  const recoveryPhoneDb = await setupAccountDatabase(
+    config.database.mysql.auth
+  );
+  const recoveryPhoneRedis = require('../lib/redis')({
+    ...config.redis,
+    ...config.redis.recoveryPhone,
+  });
+  const otpCodeManager = new OtpManager(
+    config.recoveryPhone.otp,
+    recoveryPhoneRedis
+  );
+  const recoveryPhoneManager = new RecoveryPhoneManager(
+    recoveryPhoneDb,
+    recoveryPhoneRedis
+  );
+  const smsManager = new SmsManager(
+    twilio,
+    statsd,
+    log,
+    config.recoveryPhone.sms
+  );
+  const recoveryPhoneService = new RecoveryPhoneService(
+    recoveryPhoneManager,
+    smsManager,
+    otpCodeManager,
+    config.recoveryPhone.sms
+  );
+  Container.set('RecoveryPhoneService', recoveryPhoneService);
+
   // The AccountDeleteManager is dependent on some of the object set into
   // Container above.
   const accountTasks = AccountTasksFactory(config, statsd);
@@ -240,7 +279,6 @@ async function run(config) {
     config
   );
   const glean = gleanMetrics(config);
-
   const routes = require('../lib/routes')(
     log,
     serverPublicKeys,

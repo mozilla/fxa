@@ -6,5 +6,5 @@ import { IsArray } from 'class-validator';
 
 export class RecoveryPhoneServiceConfig {
   @IsArray()
-  public allowedNumbers?: Array<string>;
+  public validNumberPrefixes?: Array<string>;
 }

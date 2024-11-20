@@ -33,7 +33,7 @@ export class RecoveryNumberAlreadyExistsError extends RecoveryPhoneError {
 }
 
 export class RecoveryNumberNotSupportedError extends RecoveryPhoneError {
-  constructor(uid: string, phoneNumber: string, cause?: Error) {
-    super('Phone number not supported.', { uid, phoneNumber }, cause);
+  constructor(phoneNumber: string, cause?: Error) {
+    super('Phone number not supported.', { phoneNumber }, cause);
   }
 }
