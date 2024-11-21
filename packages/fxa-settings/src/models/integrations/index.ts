@@ -14,3 +14,4 @@ export * from './supplicant-info';
 export * from './sync-basic-integration';
 export * from './sync-desktop-v3-integration';
 export * from './web-integration';
+export * from './third-party-auth-callback-integration';

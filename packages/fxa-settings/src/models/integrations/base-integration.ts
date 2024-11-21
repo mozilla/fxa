@@ -12,6 +12,7 @@ export enum IntegrationType {
   SyncBasic = 'SyncBasic',
   SyncDesktopV3 = 'SyncDesktopV3',
   Web = 'Web', // default
+  ThirdPartyAuthCallback = 'ThirdPartyAuthCallback', // For third party auth callbacks
 }
 
 /* TODO, do we care about this feature (capability in content-server)?
@@ -182,6 +183,10 @@ export abstract class Integration<
 
   isTrusted() {
     return true;
+  }
+
+  thirdPartyAuthParams() {
+    return {};
   }
 }
 

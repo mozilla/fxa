@@ -62,7 +62,8 @@
     "resetPasswordRoutes": true,
     "signUpRoutes": true,
     "signInRoutes": true,
-    "emailFirstRoutes": false
+    "emailFirstRoutes": false,
+    "postVerifyThirdPartyAuthRoutes": true
   },
   "featureFlags": {
     "sendFxAStatusOnSettings": true,
