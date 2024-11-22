@@ -13,6 +13,7 @@ import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import { handleNavigation } from '../../Signin/utils';
 import { isThirdPartyAuthCallbackIntegration } from '../../../models/integrations/third-party-auth-callback-integration';
 import { QueryParams } from '../../../index';
+import * as utils from 'fxa-react/lib/utils';
 
 jest.mock('../../../models', () => ({
   ...jest.requireActual('../../../models'),
@@ -64,7 +65,13 @@ function renderWith(props?: { flowQueryParams?: QueryParams }) {
 }
 
 describe('ThirdPartyAuthCallback component', () => {
+  let hardNavigateSpy: jest.SpyInstance;
+
   beforeEach(() => {
+    hardNavigateSpy = jest
+      .spyOn(utils, 'hardNavigate')
+      .mockImplementation(() => {});
+
     (useFinishOAuthFlowHandler as jest.Mock).mockImplementation(() => ({
       finishOAuthFlowHandler: jest.fn(),
       oAuthDataError: null,
@@ -77,9 +84,7 @@ describe('ThirdPartyAuthCallback component', () => {
 
   it('renders as expected', async () => {
     renderWith({});
-    screen.getByText(
-      'Please wait, you are being redirected to the authorized application.'
-    );
+    screen.getByTestId('loading-spinner');
   });
 
   it('verifies third-party auth response and navigates', async () => {
@@ -96,7 +101,7 @@ describe('ThirdPartyAuthCallback component', () => {
 
     const mockIntegration = {
       thirdPartyAuthParams: () => ({ code: 'code', provider: 'provider' }),
-      getFxAParams: () => 'param=value',
+      getFxAParams: () => '?param=value',
     };
     (useIntegration as jest.Mock).mockReturnValue(mockIntegration);
 
@@ -124,5 +129,9 @@ describe('ThirdPartyAuthCallback component', () => {
         expect.any(Object)
       );
     });
+
+    expect(hardNavigateSpy).toBeCalledWith(
+      '/post_verify/third_party_auth/callback?param=value'
+    );
   });
 });
