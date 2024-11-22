@@ -192,6 +192,7 @@ describe('#integration - /v1', function () {
 
   before(async function () {
     Server = await testServer.start();
+    assert.isDefined(Server);
     AN_ASSERTION = await genAssertion(
       USERID + config.get('oauthServer.browserid.issuer')
     );
@@ -2864,6 +2865,7 @@ describe('#integration - /v1', function () {
         );
         config.set('oauthServer.expiration.accessTokenExpiryEpoch', undefined);
         Server = await testServer.start();
+        assert.isDefined(Server);
       });
 
       after(async () => {
@@ -2873,6 +2875,7 @@ describe('#integration - /v1', function () {
           accessTokenExpiryEpoch
         );
         Server = await testServer.start();
+        assert.isDefined(Server);
       });
 
       it('should not reject expired tokens from pocket clients', async function () {

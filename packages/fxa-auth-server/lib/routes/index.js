@@ -133,6 +133,10 @@ module.exports = function (
     authServerCacheRedis,
     statsd
   );
+  const recoveryPhone = require('./recovery-phone').recoveryPhoneRoutes(
+    log,
+    glean
+  );
   const securityEvents = require('./security-events')(log, db, config);
   const session = require('./session')(
     log,
@@ -232,6 +236,7 @@ module.exports = function (
     emails,
     password,
     recoveryCodes,
+    recoveryPhone,
     securityEvents,
     session,
     sign,

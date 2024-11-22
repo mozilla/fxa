@@ -377,5 +377,36 @@ export function makeRedisConfig() {
         doc: 'Key prefix for Redis',
       },
     },
+    recoveryPhone: {
+      enabled: {
+        default: true,
+        doc: 'Enable Redis for recovery phone library',
+        format: Boolean,
+        env: 'RECOVERY_PHONE_REDIS_ENABLED',
+      },
+      host: {
+        default: 'localhost',
+        env: 'RECOVERY_PHONE_REDIS_HOST',
+        format: String,
+      },
+      port: {
+        default: 6379,
+        env: 'RECOVERY_PHONE_REDIS_PORT',
+        format: 'port',
+      },
+      password: {
+        default: '',
+        env: 'RECOVERY_PHONE_REDIS_PASSWORD',
+        format: String,
+        sensitive: true,
+        doc: `Password for connecting to Redis`,
+      },
+      prefix: {
+        default: 'recovery-phone:',
+        env: 'RECOVERY_PHONE_REDIS_KEY_PREFIX',
+        format: String,
+        doc: 'Key prefix for Redis',
+      },
+    },
   };
 }

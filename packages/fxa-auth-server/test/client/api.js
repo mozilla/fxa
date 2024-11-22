@@ -944,6 +944,21 @@ module.exports = (config) => {
     });
   };
 
+  ClientApi.prototype.recoveryPhoneNumberCreate = async function (
+    sessionTokenHex,
+    phoneNumber
+  ) {
+    const token = await tokens.SessionToken.fromHex(sessionTokenHex);
+    return await this.doRequest(
+      'POST',
+      `${this.baseURL}/recovery-phone/create`,
+      token,
+      {
+        phoneNumber,
+      }
+    );
+  };
+
   ClientApi.prototype.sessionDestroy = function (sessionTokenHex, options) {
     let data = null;
 

@@ -9,6 +9,7 @@ import { StatsD } from 'hot-shots';
 import { Twilio } from 'twilio';
 import { SmsManagerConfig } from './sms.manger.config';
 import { TwilioProvider } from './twilio.provider';
+import { RecoveryNumberNotSupportedError } from './recovery-phone.errors';
 
 @Injectable()
 export class SmsManager {
@@ -30,7 +31,7 @@ export class SmsManager {
       if (
         !this.config.validNumberPrefixes.some((prefix) => to.startsWith(prefix))
       ) {
-        throw new Error(`Number not allowed.`);
+        throw new RecoveryNumberNotSupportedError(to);
       }
     }
 

@@ -343,6 +343,16 @@ module.exports = (config) => {
     return p;
   };
 
+  Client.prototype.createRecoveryPhoneNumber = async function (phoneNumber) {
+    if (this.sessionToken) {
+      const resp = await this.api.recoveryPhoneNumberCreate(
+        this.sessionToken,
+        phoneNumber
+      );
+      return resp;
+    }
+  };
+
   Client.prototype.reauth = function (opts) {
     return this.api
       .sessionReauth(

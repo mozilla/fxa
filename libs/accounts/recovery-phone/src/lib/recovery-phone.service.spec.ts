@@ -15,7 +15,9 @@ describe('RecoveryPhoneService', () => {
   const uid = '0123456789abcdef0123456789abcdef';
   const code = '000000';
 
-  const mockSmsManager = { sendSMS: jest.fn().mockReturnValue(true) };
+  const mockSmsManager = {
+    sendSMS: jest.fn(),
+  };
   const mockRecoveryPhoneManager = {
     storeUnconfirmed: jest.fn(),
     getUnconfirmed: jest.fn(),
@@ -23,7 +25,7 @@ describe('RecoveryPhoneService', () => {
   };
   const mockOtpManager = { generateCode: jest.fn() };
   const mockRecoveryPhoneServiceConfig = {
-    allowedNumbers: ['+1500'],
+    validNumberPrefixes: ['+1500'],
   };
   const mockError = new Error('BOOM');
 
@@ -31,6 +33,8 @@ describe('RecoveryPhoneService', () => {
 
   beforeEach(async () => {
     jest.resetAllMocks();
+    mockSmsManager.sendSMS.mockReturnValue({ status: 'success' });
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         { provide: SmsManager, useValue: mockSmsManager },
@@ -73,28 +77,28 @@ describe('RecoveryPhoneService', () => {
 
   it('Will reject a phone number that is not part of launch', async () => {
     const to = '+16005551234';
-    expect(service.setupPhoneNumber(uid, to)).rejects.toEqual(
-      new RecoveryNumberNotSupportedError(uid, to)
+    await expect(service.setupPhoneNumber(uid, to)).rejects.toEqual(
+      new RecoveryNumberNotSupportedError(to)
     );
   });
 
-  it('Throws error during send sms', () => {
+  it('Throws error during send sms', async () => {
     mockSmsManager.sendSMS.mockRejectedValueOnce(mockError);
-    expect(service.setupPhoneNumber(uid, phoneNumber)).rejects.toEqual(
+    await expect(service.setupPhoneNumber(uid, phoneNumber)).rejects.toEqual(
       mockError
     );
   });
 
-  it('Throws error during otp code creation', () => {
+  it('Throws error during otp code creation', async () => {
     mockOtpManager.generateCode.mockRejectedValueOnce(mockError);
-    expect(service.setupPhoneNumber(uid, phoneNumber)).rejects.toEqual(
+    await expect(service.setupPhoneNumber(uid, phoneNumber)).rejects.toEqual(
       mockError
     );
   });
 
-  it('throws error during storing of unconfirmed number', () => {
+  it('throws error during storing of unconfirmed number', async () => {
     mockRecoveryPhoneManager.storeUnconfirmed.mockRejectedValueOnce(mockError);
-    expect(service.setupPhoneNumber(uid, phoneNumber)).rejects.toEqual(
+    await expect(service.setupPhoneNumber(uid, phoneNumber)).rejects.toEqual(
       mockError
     );
   });
