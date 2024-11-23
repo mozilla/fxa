@@ -219,6 +219,7 @@ const AccountRecoveryConfirmKey = ({
               emailToHashWith,
               estimatedSyncDeviceCount,
               recoveryKeyExists,
+              recoveryKeyHint,
               token,
               uid,
             }}
@@ -238,6 +239,7 @@ const AccountRecoveryConfirmKey = ({
               emailToHashWith,
               estimatedSyncDeviceCount,
               recoveryKeyExists,
+              recoveryKeyHint,
               token,
               uid,
             }}
