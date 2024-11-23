@@ -7,7 +7,10 @@ import { SmsManager } from './sms.manager';
 import { OtpManager } from '@fxa/shared/otp';
 import { RecoveryPhoneServiceConfig } from './recovery-phone.service.config';
 import { RecoveryPhoneManager } from './recovery-phone.manager';
-import { RecoveryNumberNotSupportedError } from './recovery-phone.errors';
+import {
+  RecoveryNumberNotExistsError,
+  RecoveryNumberNotSupportedError,
+} from './recovery-phone.errors';
 
 @Injectable()
 export class RecoveryPhoneService {
@@ -90,5 +93,29 @@ export class RecoveryPhoneService {
    */
   public async removePhoneNumber(uid: string) {
     return await this.recoveryPhoneManager.removePhoneNumber(uid);
+  }
+
+  /**
+   * Checks if the given uid has confirmed a phone number.
+   * @param uid Account id
+   * @returns If the account has confirmed, returns {exists:true, phoneNumber }. If not returns {exists:false}
+   */
+  public async hasConfirmed(uid: string) {
+    try {
+      const data = await this.recoveryPhoneManager.getConfirmedPhoneNumber(uid);
+      return {
+        exists: true,
+        phoneNumber: data.phoneNumber,
+      };
+    } catch (err) {
+      if (err instanceof RecoveryNumberNotExistsError) {
+        // no-op - we handle the error, and just return false;
+        return {
+          exists: false,
+        };
+      }
+      // Something unexpected happened...
+      throw err;
+    }
   }
 }
