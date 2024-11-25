@@ -118,15 +118,15 @@ describe('RecoveryPhoneManager', () => {
     expect(result).toBe(true);
   });
 
-  it('should return false if no phone number removed', async () => {
+  it('should throw if no phone number removed', async () => {
     const deleteFromSpy = jest.spyOn(db, 'deleteFrom');
     const mockPhone = RecoveryPhoneFactory();
 
-    const result = await recoveryPhoneManager.removePhoneNumber(
-      mockPhone.uid.toString('hex')
-    );
+    const { uid } = mockPhone;
+    await expect(
+      recoveryPhoneManager.removePhoneNumber(uid.toString('hex'))
+    ).rejects.toThrow('Recovery number does not exist');
     expect(deleteFromSpy).toBeCalledWith('recoveryPhones');
-    expect(result).toBe(false);
   });
 
   it('should handle database errors gracefully', async () => {
