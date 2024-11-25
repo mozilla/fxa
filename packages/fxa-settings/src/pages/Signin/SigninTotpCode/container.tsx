@@ -31,6 +31,7 @@ import {
   AUTH_DATA_KEY,
   SensitiveDataClientAuthKeys,
 } from '../../../lib/sensitive-data-client';
+import { GET_LOCAL_SIGNED_IN_STATUS } from '../../../components/App/gql';
 
 export type SigninTotpCodeContainerProps = {
   integration: Integration;
@@ -82,6 +83,20 @@ export const SigninTotpCodeContainer = ({
             code,
             service,
           },
+        },
+        update: (cache, { data }) => {
+          if (data?.verifyTotp.success) {
+            // Update the Apollo cache with the new signed in status
+            const cacheData = cache.readQuery({
+              query: GET_LOCAL_SIGNED_IN_STATUS,
+            });
+            if (cacheData) {
+              cache.writeQuery({
+                query: GET_LOCAL_SIGNED_IN_STATUS,
+                data: { isSignedIn: true },
+              });
+            }
+          }
         },
       });
 
