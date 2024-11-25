@@ -53,7 +53,7 @@ export class ThirdPartyAuthCallbackIntegration extends BaseIntegration<ThirdPart
   thirdPartyAuthParams() {
     const code = this.data.code;
     const providerFromParams = this.data.provider;
-    let provider: AUTH_PROVIDER | undefined;
+    let provider: AUTH_PROVIDER;
     if (providerFromParams === 'apple') {
       provider = AUTH_PROVIDER.APPLE;
     } else {

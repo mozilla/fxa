@@ -3,10 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect, useRef, useCallback } from 'react';
-import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
+import { hardNavigate } from 'fxa-react/lib/utils';
 import { RouteComponentProps, useLocation } from '@reach/router';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
-import AppLayout from '../../../components/AppLayout';
 import {
   useAccount,
   useIntegration,
@@ -18,15 +17,14 @@ import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import {
   StoredAccountData,
   storeAccountData,
+  setCurrentAccount,
 } from '../../../lib/storage-utils';
 import { QueryParams } from '../../..';
 import { queryParamsToMetricsContext } from '../../../lib/metrics';
-import {
-  isThirdPartyAuthCallbackIntegration,
-  ThirdPartyAuthCallbackIntegration,
-} from '../../../models/integrations/third-party-auth-callback-integration';
-import { ReachRouterWindow } from '../../../lib/window';
-import { UrlQueryData } from '../../../lib/model-data';
+import { isThirdPartyAuthCallbackIntegration } from '../../../models/integrations/third-party-auth-callback-integration';
+import VerificationMethods from '../../../constants/verification-methods';
+import VerificationReasons from '../../../constants/verification-reasons';
+import { currentAccount } from '../../../lib/cache';
 
 type LinkedAccountData = {
   uid: hexstring;
@@ -44,64 +42,25 @@ const ThirdPartyAuthCallback = ({
   const authClient = useAuthClient();
   const location = useLocation();
 
-  const linkedAccountData = useRef({} as LinkedAccountData);
-
   const { finishOAuthFlowHandler } = useFinishOAuthFlowHandler(
     authClient,
     integration || ({} as Integration)
   );
 
   const storeLinkedAccountData = useCallback(
-    async (linkedAccount: LinkedAccountData) => {
+    async (linkedAccount: LinkedAccountData, needsVerification = false) => {
       const accountData: StoredAccountData = {
         email: linkedAccount.email,
         uid: linkedAccount.uid,
         lastLogin: Date.now(),
         sessionToken: linkedAccount.sessionToken,
-        verified: true,
+        verified: !needsVerification,
         metricsEnabled: true,
       };
       return storeAccountData(accountData);
     },
     []
   );
-
-  const verifyThirdPartyAuthResponse = useCallback(async () => {
-    const { code: thirdPartyOAuthCode, provider } = (
-      integration as ThirdPartyAuthCallbackIntegration
-    ).thirdPartyAuthParams();
-
-    if (!thirdPartyOAuthCode) {
-      return hardNavigate('/');
-    }
-
-    try {
-      const linkedAccount: LinkedAccountData =
-        await account.verifyAccountThirdParty(
-          thirdPartyOAuthCode,
-          provider,
-          undefined,
-          queryParamsToMetricsContext(
-            flowQueryParams as unknown as Record<string, string>
-          )
-        );
-      await storeLinkedAccountData(linkedAccount);
-
-      linkedAccountData.current = linkedAccount;
-
-      const fxaParams = (
-        integration as ThirdPartyAuthCallbackIntegration
-      ).getFxAParams();
-
-      // HACK: Force the query params to be set in the URL, which then loads
-      // the integration stored in ThirdPartyAuthCallbackIntegration `state` value.
-      const urlQueryData = new UrlQueryData(new ReachRouterWindow());
-      urlQueryData.setParams(new URLSearchParams(fxaParams));
-    } catch (error) {
-      // TODO validate what should happen here
-      hardNavigate('/');
-    }
-  }, [account, flowQueryParams, integration, storeLinkedAccountData]);
 
   /**
    * Navigate to the next page
@@ -110,7 +69,7 @@ const ThirdPartyAuthCallback = ({
    if neither -> navigate to settings
    */
   const performNavigation = useCallback(
-    async (linkedAccount: LinkedAccountData) => {
+    async (linkedAccount: LinkedAccountData, needsVerification = false) => {
       if (!integration) {
         return;
       }
@@ -120,7 +79,13 @@ const ThirdPartyAuthCallback = ({
         signinData: {
           uid: linkedAccount.uid,
           sessionToken: linkedAccount.sessionToken,
-          verified: true,
+          verified: !needsVerification,
+          verificationMethod: needsVerification
+            ? VerificationMethods.TOTP_2FA
+            : undefined,
+          verificationReason: needsVerification
+            ? VerificationReasons.SIGN_IN
+            : undefined,
         },
         integration,
         finishOAuthFlowHandler,
@@ -140,41 +105,96 @@ const ThirdPartyAuthCallback = ({
     [finishOAuthFlowHandler, integration, location.search]
   );
 
+  const verifyThirdPartyAuthResponse = useCallback(async () => {
+    if (!isThirdPartyAuthCallbackIntegration(integration)) {
+      return;
+    }
+
+    const { code: thirdPartyOAuthCode, provider } =
+      integration.thirdPartyAuthParams();
+
+    if (!thirdPartyOAuthCode) {
+      return;
+    }
+
+    try {
+      const linkedAccount: LinkedAccountData =
+        await account.verifyAccountThirdParty(
+          thirdPartyOAuthCode,
+          provider,
+          undefined,
+          queryParamsToMetricsContext(
+            flowQueryParams as unknown as Record<string, string>
+          )
+        );
+
+      const totpRequired =
+        linkedAccount.verificationMethod === VerificationMethods.TOTP_2FA;
+
+      await storeLinkedAccountData(linkedAccount, totpRequired);
+
+      setCurrentAccount(linkedAccount.uid);
+
+      const fxaParams = integration.getFxAParams();
+
+      // Hard navigate is required here to ensure that the new integration
+      // is created based off updated search params.
+      hardNavigate(
+        `/post_verify/third_party_auth/callback${fxaParams.toString()}`
+      );
+    } catch (error) {
+      // TODO validate what should happen here
+      hardNavigate('/');
+    }
+  }, [account, flowQueryParams, integration, storeLinkedAccountData]);
+
   const navigateNext = useCallback(
     async (linkedAccount: LinkedAccountData) => {
       if (!integration) {
         return;
       }
 
-      performNavigation(linkedAccount);
+      const totp = await authClient.checkTotpTokenExists(
+        linkedAccount.sessionToken
+      );
+
+      performNavigation(linkedAccount, totp.verified);
     },
-    [integration, performNavigation]
+    [integration, performNavigation, authClient]
   );
 
   // Ensure we only attempt to verify third party auth creds once
+  const isVerifyThirdPartyAuth = useRef(false);
   useEffect(() => {
+    if (isVerifyThirdPartyAuth.current) {
+      return;
+    }
     if (isThirdPartyAuthCallbackIntegration(integration)) {
+      isVerifyThirdPartyAuth.current = true;
       verifyThirdPartyAuthResponse();
     }
   }, [integration, verifyThirdPartyAuthResponse]);
 
   // Once we have verified the third party auth, navigate to the next page
+  const isVerifyFxAAuth = useRef(false);
   useEffect(() => {
-    if (integration && linkedAccountData.current.sessionToken) {
-      navigateNext(linkedAccountData.current);
+    if (isVerifyFxAAuth.current) {
+      return;
+    }
+
+    const currentData = currentAccount() as LinkedAccountData;
+    if (
+      integration &&
+      !isThirdPartyAuthCallbackIntegration(integration) &&
+      currentData &&
+      currentData.sessionToken
+    ) {
+      isVerifyFxAAuth.current = true;
+      navigateNext(currentData);
     }
   }, [integration, navigateNext]);
 
-  return (
-    <AppLayout>
-      <div className="flex flex-col">
-        <FtlMsg id="third-party-auth-callback-message">
-          Please wait, you are being redirected to the authorized application.
-        </FtlMsg>
-        <LoadingSpinner className="flex items-center flex-col justify-center mt-4 select-none" />
-      </div>
-    </AppLayout>
-  );
+  return <LoadingSpinner fullScreen />;
 };
 
 export default ThirdPartyAuthCallback;
