@@ -1788,7 +1788,7 @@ export class AccountHandler {
     this.log.begin('Account.getCredentialsStatus', request);
 
     const email = (request.payload as any).email;
-    await this.customs.check(request, email, 'getCredentialsStatus');
+    await this.customs.checkIpOnly(request, email, 'getCredentialsStatus');
 
     const accountRecord = await this.db.accountRecord(email);
 
