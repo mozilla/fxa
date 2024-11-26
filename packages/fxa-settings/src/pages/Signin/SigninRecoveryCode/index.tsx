@@ -84,12 +84,11 @@ const SigninRecoveryCode = ({
       finishOAuthFlowHandler,
       redirectTo,
       queryParams: location.search,
-    };
-
-    const { error } = await handleNavigation(navigationOptions, {
       handleFxaLogin: true,
       handleFxaOAuthLogin: true,
-    });
+    };
+
+    const { error } = await handleNavigation(navigationOptions);
     if (error) {
       setBannerErrorMessage(getLocalizedErrorMessage(ftlMsgResolver, error));
     }

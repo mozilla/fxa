@@ -10,8 +10,7 @@ import {
 } from '../../models';
 import { RouteComponentProps, useLocation } from '@reach/router';
 import InlineRecoveryKeySetup from '.';
-import { SigninLocationState } from '../Signin/interfaces';
-import { cache } from '../../lib/cache';
+import { cache, currentAccount } from '../../lib/cache';
 import { generateRecoveryKey } from 'fxa-auth-client/browser';
 import { CreateRecoveryKeyHandler } from './interfaces';
 import { AUTH_DATA_KEY } from '../../lib/sensitive-data-client';
@@ -25,10 +24,11 @@ export const InlineRecoveryKeySetupContainer = (_: RouteComponentProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   const authClient = useAuthClient();
 
-  const location = useLocation() as ReturnType<typeof useLocation> & {
-    state?: SigninLocationState;
-  };
-  const { email, uid, sessionToken } = location.state || {};
+  const location = useLocation();
+  const storedLocalAccount = currentAccount();
+  const email = storedLocalAccount?.email;
+  const sessionToken = storedLocalAccount?.sessionToken;
+  const uid = storedLocalAccount?.uid;
 
   const sensitiveDataClient = useSensitiveDataClient();
   const sensitiveData = sensitiveDataClient.getData(AUTH_DATA_KEY);

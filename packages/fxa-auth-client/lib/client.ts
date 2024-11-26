@@ -1538,14 +1538,28 @@ export default class AuthClient {
     email: string,
     newPassword: string,
     headers?: Headers
-  ): Promise<number> {
-    const newCredentials = await crypto.getCredentials(email, newPassword);
+  ): Promise<{ passwordCreated: number; authPW: string; unwrapBKey: string }> {
+    const { authPW, unwrapBKey } = await crypto.getCredentials(
+      email,
+      newPassword
+    );
 
     const payload = {
-      authPW: newCredentials.authPW,
+      authPW,
     };
 
-    return this.sessionPost('/password/create', sessionToken, payload, headers);
+    const passwordCreated = await this.sessionPost(
+      '/password/create',
+      sessionToken,
+      payload,
+      headers
+    );
+
+    return {
+      passwordCreated,
+      authPW,
+      unwrapBKey,
+    };
   }
 
   async getRandomBytes(headers?: Headers) {

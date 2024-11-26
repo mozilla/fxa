@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { HandledError } from '../../lib/error-utils';
+import useSyncEngines from '../../lib/hooks/useSyncEngines';
 import { BaseIntegration, OAuthIntegration } from '../../models';
 import { SignupQueryParams } from '../../models/pages/signup';
 import { MetricsContext } from 'fxa-auth-client/browser';
@@ -42,7 +43,7 @@ export interface SignupProps {
   integration: SignupIntegration;
   queryParamModel: SignupQueryParams;
   beginSignupHandler: BeginSignupHandler;
-  webChannelEngines: string[] | undefined;
+  useSyncEnginesResult: ReturnType<typeof useSyncEngines>;
 }
 
 export type SignupIntegration = SignupOAuthIntegration | SignupBaseIntegration;

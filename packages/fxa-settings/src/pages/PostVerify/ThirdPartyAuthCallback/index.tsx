@@ -90,12 +90,12 @@ const ThirdPartyAuthCallback = ({
         integration,
         finishOAuthFlowHandler,
         queryParams: location.search,
-      };
-
-      const { error: navError } = await handleNavigation(navigationOptions, {
+        isSignInWithThirdPartyAuth: true,
         handleFxaLogin: false,
         handleFxaOAuthLogin: false,
-      });
+      };
+
+      const { error: navError } = await handleNavigation(navigationOptions);
 
       if (navError) {
         // TODO validate what should happen here
