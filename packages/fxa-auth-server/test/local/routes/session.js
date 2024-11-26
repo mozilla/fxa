@@ -175,7 +175,7 @@ describe('/session/reauth', () => {
     log = mocks.mockLog();
     config = {};
     customs = {
-      check: () => {
+      checkAuthenticated: () => {
         return Promise.resolve(true);
       },
     };
@@ -258,7 +258,7 @@ describe('/session/reauth', () => {
       let args = signinUtils.checkCustomsAndLoadAccount.args[0];
       assert.equal(
         args.length,
-        2,
+        3,
         'checkCustomsAndLoadAccount was called with correct number of arguments'
       );
       assert.equal(

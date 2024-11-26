@@ -112,7 +112,7 @@ module.exports = (log, config, customs, db, mailer, cadReminders, glean) => {
      *    didSigninUnblock:  whether an unblock code was successfully used
      *  }
      */
-    async checkCustomsAndLoadAccount(request, email) {
+    async checkCustomsAndLoadAccount(request, email, checkAuthenticatedUid) {
       let accountRecord, originalError;
       let didSigninUnblock = false;
 
@@ -125,7 +125,16 @@ module.exports = (log, config, customs, db, mailer, cadReminders, glean) => {
           if (forced && forced.test(email)) {
             throw error.requestBlocked(true);
           }
-          await customs.check(request, email, 'accountLogin');
+
+          if (checkAuthenticatedUid) {
+            await customs.checkAuthenticated(
+              request,
+              checkAuthenticatedUid,
+              'accountLogin'
+            );
+          } else {
+            await customs.check(request, email, 'accountLogin');
+          }
         } catch (e) {
           originalError = e;
 
