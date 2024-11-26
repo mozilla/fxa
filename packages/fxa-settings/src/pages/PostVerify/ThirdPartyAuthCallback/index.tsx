@@ -171,6 +171,11 @@ const ThirdPartyAuthCallback = ({
     }
     if (isThirdPartyAuthCallbackIntegration(integration)) {
       isVerifyThirdPartyAuth.current = true;
+
+      if (integration.getError()) {
+        return hardNavigate('/');
+      }
+
       verifyThirdPartyAuthResponse();
     }
   }, [integration, verifyThirdPartyAuthResponse]);

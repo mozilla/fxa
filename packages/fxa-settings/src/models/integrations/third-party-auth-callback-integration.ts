@@ -29,6 +29,7 @@ export class ThirdPartyAuthCallbackIntegrationData extends BaseIntegrationData {
   @bind()
   state: string | undefined;
 
+  @IsOptional()
   @IsString()
   @bind()
   code: string | undefined;
@@ -37,6 +38,11 @@ export class ThirdPartyAuthCallbackIntegrationData extends BaseIntegrationData {
   @IsString()
   @bind()
   provider: string | undefined;
+
+  @IsOptional()
+  @IsString()
+  @bind()
+  error: string | undefined;
 }
 
 export interface ThirdPartyAuthCallbackIntegrationFeatures
@@ -72,5 +78,9 @@ export class ThirdPartyAuthCallbackIntegration extends BaseIntegration<ThirdPart
     }
 
     return '';
+  }
+
+  getError() {
+    return this.data.error;
   }
 }

@@ -14,6 +14,7 @@ describe('models/integrations/third-party-auth-callback-integration', function (
     data = new GenericData({});
     data.set('code', 'test-code');
     data.set('provider', 'apple');
+    data.set('error', 'access_denied');
     const state = encodeURIComponent('https://example.com?param=value');
     data.set('state', state);
     model = new ThirdPartyAuthCallbackIntegration(data);
@@ -34,5 +35,10 @@ describe('models/integrations/third-party-auth-callback-integration', function (
   it('should return FxA params from state', () => {
     const fxaParams = model.getFxAParams();
     expect(fxaParams).toBe('?param=value');
+  });
+
+  it('should return error if exists', () => {
+    const error = model.getError();
+    expect(error).toBe('access_denied');
   });
 });
