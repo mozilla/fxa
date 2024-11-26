@@ -21,8 +21,8 @@ import {
   MONITOR_CLIENTIDS,
   POCKET_CLIENTIDS,
 } from '../../models/integrations/client-matching';
-import { getSyncEngineIds } from '../../components/ChooseWhatToSync/sync-engines';
 import { AppContext } from '../../models';
+import { useMockSyncEngines } from '../../lib/hooks/useSyncEngines/mocks';
 
 export default {
   title: 'Pages/Signup',
@@ -33,10 +33,14 @@ export default {
 const urlQueryData = mockUrlQueryData(signupQueryParams);
 const queryParamModel = new SignupQueryParams(urlQueryData);
 
-const storyWithProps = (
-  integration: SignupIntegration = createMockSignupOAuthWebIntegration()
-) => {
-  const story = () => (
+const StoryWithProps = ({
+  integration = createMockSignupOAuthWebIntegration(),
+}: {
+  integration?: SignupIntegration;
+}) => {
+  const useSyncEnginesResult = useMockSyncEngines();
+
+  return (
     <AppContext.Provider value={mockAppContext()}>
       <LocationProvider>
         <Signup
@@ -44,35 +48,34 @@ const storyWithProps = (
             integration,
             queryParamModel,
             beginSignupHandler: mockBeginSignupHandler,
-            webChannelEngines: getSyncEngineIds(),
+            useSyncEnginesResult,
           }}
         />
       </LocationProvider>
     </AppContext.Provider>
   );
-  return story;
 };
 
-export const Default = storyWithProps();
-
-export const CantChangeEmail = storyWithProps();
-
-export const ClientIsPocket = storyWithProps(
-  createMockSignupOAuthWebIntegration(POCKET_CLIENTIDS[0])
+export const Default = () => <StoryWithProps />;
+export const CantChangeEmail = () => <StoryWithProps />;
+export const ClientIsPocket = () => (
+  <StoryWithProps
+    integration={createMockSignupOAuthWebIntegration(POCKET_CLIENTIDS[0])}
+  />
 );
-
-export const ClientIsMonitor = storyWithProps(
-  createMockSignupOAuthWebIntegration(MONITOR_CLIENTIDS[0])
+export const ClientIsMonitor = () => (
+  <StoryWithProps
+    integration={createMockSignupOAuthWebIntegration(MONITOR_CLIENTIDS[0])}
+  />
 );
-
-export const SyncDesktopV3 = storyWithProps(
-  createMockSignupSyncDesktopV3Integration()
+export const SyncDesktopV3 = () => (
+  <StoryWithProps integration={createMockSignupSyncDesktopV3Integration()} />
 );
-
-export const SyncOAuth = storyWithProps(
-  createMockSignupOAuthNativeIntegration()
+export const SyncOAuth = () => (
+  <StoryWithProps integration={createMockSignupOAuthNativeIntegration()} />
 );
-
-export const OAuthDestkopServiceRelay = storyWithProps(
-  createMockSignupOAuthNativeIntegration('relay', false)
+export const OAuthDesktopServiceRelay = () => (
+  <StoryWithProps
+    integration={createMockSignupOAuthNativeIntegration('relay', false)}
+  />
 );

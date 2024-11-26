@@ -10,7 +10,9 @@ import { RecoveryPhoneManager } from './recovery-phone.manager';
 import {
   RecoveryNumberNotExistsError,
   RecoveryNumberNotSupportedError,
+  RecoveryNumberNotSupportedError
 } from './recovery-phone.errors';
+import { MessageInstance } from 'twilio/lib/rest/api/v2010/account/message';
 
 @Injectable()
 export class RecoveryPhoneService {
@@ -45,7 +47,7 @@ export class RecoveryPhoneService {
       body: code,
     });
 
-    if (msg == null || msg.status === 'failed') {
+    if (!this.isSuccessfulSmsSend(msg)) {
       return false;
     }
 
@@ -117,5 +119,44 @@ export class RecoveryPhoneService {
       // Something unexpected happened...
       throw err;
     }
+  }
+
+  /**
+   * Sends an top code to a user
+   * @param uid Account id
+   * @returns True if message didn't fail to send.
+   */
+  public async sendCode(uid: string) {
+    const phoneNumber = await this.recoveryPhoneManager.getConfirmedPhoneNumber(
+      uid
+    );
+    const code = await this.otpCode.generateCode();
+    await this.recoveryPhoneManager.storeUnconfirmed(
+      uid,
+      code,
+      phoneNumber,
+      false
+    );
+    const msg = await this.smsManager.sendSMS({
+      to: phoneNumber,
+      body: `${code}`, // TODO: Other text or translation around code?
+    });
+
+    return this.isSuccessfulSmsSend(msg);
+  }
+
+  private isSuccessfulSmsSend(msg: MessageInstance) {
+    if (
+      msg == null ||
+      msg.status === 'failed' ||
+      msg.status === 'canceled' ||
+      msg.status === 'undelivered'
+    ) {
+      return false;
+    }
+
+    // TBD: Need to check other message states?
+
+    return true;
   }
 }

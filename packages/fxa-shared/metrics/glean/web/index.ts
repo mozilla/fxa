@@ -138,6 +138,13 @@ export const eventsMap = {
     viewWithNoPasswordSet: 'third_party_auth_login_no_pw_view',
   },
 
+  thirdPartyAuthSetPassword: {
+    view: 'third_party_auth_set_password_view',
+    engage: 'third_party_auth_set_password_engage',
+    submit: 'third_party_auth_set_password_submit',
+    success: 'third_party_auth_set_password_success',
+  },
+
   cadMobilePair: {
     view: 'cad_mobile_pair_view',
     submit: 'cad_mobile_pair_submit',

@@ -540,7 +540,7 @@ export class Account implements AccountData {
   }
 
   async createPassword(newPassword: string) {
-    const passwordCreated = await this.withLoadingStatus(
+    const passwordCreatedResult = await this.withLoadingStatus(
       this.authClient.createPassword(
         sessionToken()!,
         this.primaryEmail.email,
@@ -552,7 +552,7 @@ export class Account implements AccountData {
       id: cache.identify({ __typename: 'Account' }),
       fields: {
         passwordCreated() {
-          return passwordCreated;
+          return passwordCreatedResult.passwordCreated;
         },
       },
     });

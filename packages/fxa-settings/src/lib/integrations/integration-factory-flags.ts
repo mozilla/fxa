@@ -155,7 +155,12 @@ export class DefaultIntegrationFlags implements IntegrationFlags {
 
     const code = this.searchParam('code');
     if (!code) {
-      return false;
+      // If user clicks cancel from the third party auth provider,
+      // the error param will be present in the url.
+      const error = this.searchParam('error');
+      if (!error) {
+        return false;
+      }
     }
 
     try {

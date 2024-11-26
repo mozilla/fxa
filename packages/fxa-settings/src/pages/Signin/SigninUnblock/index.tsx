@@ -127,12 +127,11 @@ export const SigninUnblock = ({
         integration,
         finishOAuthFlowHandler,
         queryParams: location.search,
-      };
-
-      const { error: navError } = await handleNavigation(navigationOptions, {
         handleFxaLogin: true,
         handleFxaOAuthLogin: true,
-      });
+      };
+
+      const { error: navError } = await handleNavigation(navigationOptions);
       if (navError) {
         setBannerErrorMessage(
           getLocalizedErrorMessage(ftlMsgResolver, navError)

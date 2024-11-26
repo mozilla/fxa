@@ -31,6 +31,7 @@ import * as accountPref from 'fxa-shared/metrics/glean/web/accountPref';
 import * as accountBanner from 'fxa-shared/metrics/glean/web/accountBanner';
 import * as deleteAccount from 'fxa-shared/metrics/glean/web/deleteAccount';
 import * as thirdPartyAuth from 'fxa-shared/metrics/glean/web/thirdPartyAuth';
+import * as thirdPartyAuthSetPassword from 'fxa-shared/metrics/glean/web/thirdPartyAuthSetPassword';
 import { userIdSha256, userId } from 'fxa-shared/metrics/glean/web/account';
 import {
   oauthClientId,
@@ -182,6 +183,11 @@ const populateMetrics = async (gleanPingMetrics: GleanPingMetrics) => {
     }
   }
 
+  // Initial cwts values will be included not only in the cwtsEngage event,
+  // but also in subsequent events (sucha as page load events). This is because there was no suitable data type for an
+  // event's extra keys that worked for both string and event metrics.
+  // It should be noted that the user may change their sync settings after the initial cwtsEngage event
+  // but the new settings will not be reflected in the glean pings.
   if (gleanPingMetrics?.sync?.cwts) {
     Object.entries(gleanPingMetrics.sync.cwts).forEach(([k, v]) => {
       sync.cwts[k].set(v);
@@ -516,6 +522,9 @@ const recordEventMetric = (
       error.view.record({
         reason: gleanPingMetrics?.event?.['reason'] || '',
       });
+      break;
+    case 'third_party_auth_set_password_success':
+      thirdPartyAuthSetPassword.success.record();
       break;
   }
 };
