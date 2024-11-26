@@ -138,6 +138,7 @@ function render(integration = mockSyncDesktopV3Integration()) {
     <LocationProvider>
       <SetPasswordContainer
         {...{
+          flowQueryParams: {},
           integration,
         }}
       />
@@ -222,6 +223,7 @@ describe('SetPassword container', () => {
         {
           keys: true,
           reason: 'signin',
+          metricsContext: {},
         }
       );
       expect(GleanMetrics.thirdPartyAuthSetPassword.success).toBeCalledWith({
