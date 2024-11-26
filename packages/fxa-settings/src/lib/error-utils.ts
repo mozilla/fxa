@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { GraphQLError } from 'graphql';
+import * as Sentry from '@sentry/browser'
 import {
   AuthUiError,
   AuthUiErrorNos,
@@ -10,7 +11,6 @@ import {
 } from './auth-errors/auth-errors';
 import VerificationMethods from '../constants/verification-methods';
 import VerificationReasons from '../constants/verification-reasons';
-import * as Sentry from '@sentry/browser';
 import { FtlMsgResolver } from 'fxa-react/lib/utils';
 import { OAUTH_ERRORS } from './oauth';
 

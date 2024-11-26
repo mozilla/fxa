@@ -27,10 +27,16 @@ import { AUTH_DATA_KEY } from '../../../lib/sensitive-data-client';
 import { NavigationOptions } from '../../Signin/interfaces';
 import { handleNavigation } from '../../Signin/utils';
 import GleanMetrics from '../../../lib/glean';
+import { QueryParams } from '../../..';
+import { queryParamsToMetricsContext } from '../../../lib/metrics';
 
 const SetPasswordContainer = ({
   integration,
-}: { integration: Integration } & RouteComponentProps) => {
+  flowQueryParams,
+}: {
+  integration: Integration;
+  flowQueryParams: QueryParams;
+} & RouteComponentProps) => {
   const navigate = useNavigate();
   const authClient = useAuthClient();
   const storedLocalAccount = currentAccount();
@@ -47,6 +53,9 @@ const SetPasswordContainer = ({
   } = useSyncEngines(integration);
   const sensitiveDataClient = useSensitiveDataClient();
   const location = useLocation();
+  const metricsContext = queryParamsToMetricsContext(
+    flowQueryParams as unknown as Record<string, string>
+  );
 
   const { finishOAuthFlowHandler, oAuthDataError } = useFinishOAuthFlowHandler(
     authClient,
@@ -64,11 +73,12 @@ const SetPasswordContainer = ({
         {
           keys: true,
           reason: 'signin',
+          metricsContext,
         }
       );
       return keyFetchToken;
     },
-    [authClient]
+    [authClient, metricsContext]
   );
 
   const createPassword = useCallback(
