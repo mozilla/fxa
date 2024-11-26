@@ -317,7 +317,7 @@ const AuthAndAccountSetupRoutes = ({
       {/* Post verify */}
       <ThirdPartyAuthCallback
         path="/post_verify/third_party_auth/callback/*"
-        {...{ flowQueryParams }}
+        {...{ flowQueryParams, integration }}
       />
       <SetPasswordContainer
         path="/post_verify/third_party_auth/set_password/*"
