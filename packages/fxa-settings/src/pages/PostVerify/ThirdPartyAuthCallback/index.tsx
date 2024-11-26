@@ -8,9 +8,9 @@ import { RouteComponentProps, useLocation } from '@reach/router';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import {
   useAccount,
-  useIntegration,
   useAuthClient,
   Integration,
+  isWebIntegration,
 } from '../../../models';
 import { handleNavigation } from '../../Signin/utils';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
@@ -25,6 +25,7 @@ import { isThirdPartyAuthCallbackIntegration } from '../../../models/integration
 import VerificationMethods from '../../../constants/verification-methods';
 import VerificationReasons from '../../../constants/verification-reasons';
 import { currentAccount } from '../../../lib/cache';
+import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
 
 type LinkedAccountData = {
   uid: hexstring;
@@ -35,16 +36,20 @@ type LinkedAccountData = {
 };
 
 const ThirdPartyAuthCallback = ({
+  integration,
   flowQueryParams,
-}: { flowQueryParams?: QueryParams } & RouteComponentProps) => {
+}: {
+  integration: Integration;
+  flowQueryParams?: QueryParams;
+} & RouteComponentProps) => {
   const account = useAccount();
-  const integration = useIntegration();
   const authClient = useAuthClient();
+  const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
   const location = useLocation();
 
   const { finishOAuthFlowHandler } = useFinishOAuthFlowHandler(
     authClient,
-    integration || ({} as Integration)
+    integration
   );
 
   const storeLinkedAccountData = useCallback(
@@ -64,16 +69,13 @@ const ThirdPartyAuthCallback = ({
 
   /**
    * Navigate to the next page
-   if Sync based integration -> navigate to set password or sign-in
-   if OAuth based integration -> verify OAuth and navigate to RP
-   if neither -> navigate to settings
+   * if Sync based integration -> navigate to set password or sign-in
+   * if OAuth based integration -> verify OAuth and navigate to RP
+   * if web redirect (SubPlat) -> navigate back to SubPlat
+   * if neither -> navigate to settings
    */
   const performNavigation = useCallback(
     async (linkedAccount: LinkedAccountData, needsVerification = false) => {
-      if (!integration) {
-        return;
-      }
-
       const navigationOptions = {
         email: linkedAccount.email,
         signinData: {
@@ -88,6 +90,10 @@ const ThirdPartyAuthCallback = ({
             : undefined,
         },
         integration,
+        redirectTo:
+          isWebIntegration(integration) && webRedirectCheck.isValid()
+            ? integration.data.redirectTo
+            : '',
         finishOAuthFlowHandler,
         queryParams: location.search,
         isSignInWithThirdPartyAuth: true,
@@ -102,7 +108,7 @@ const ThirdPartyAuthCallback = ({
         hardNavigate('/');
       }
     },
-    [finishOAuthFlowHandler, integration, location.search]
+    [finishOAuthFlowHandler, integration, location.search, webRedirectCheck]
   );
 
   const verifyThirdPartyAuthResponse = useCallback(async () => {
@@ -137,7 +143,7 @@ const ThirdPartyAuthCallback = ({
 
       const fxaParams = integration.getFxAParams();
 
-      // Hard navigate is required here to ensure that the new integration
+      // HACK: Hard navigate is required here to ensure that the new integration
       // is created based off updated search params.
       hardNavigate(
         `/post_verify/third_party_auth/callback${fxaParams.toString()}`
@@ -150,17 +156,13 @@ const ThirdPartyAuthCallback = ({
 
   const navigateNext = useCallback(
     async (linkedAccount: LinkedAccountData) => {
-      if (!integration) {
-        return;
-      }
-
       const totp = await authClient.checkTotpTokenExists(
         linkedAccount.sessionToken
       );
 
       performNavigation(linkedAccount, totp.verified);
     },
-    [integration, performNavigation, authClient]
+    [performNavigation, authClient]
   );
 
   // Ensure we only attempt to verify third party auth creds once
