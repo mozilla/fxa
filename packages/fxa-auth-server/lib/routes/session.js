@@ -155,7 +155,8 @@ module.exports = function (
 
         const { accountRecord } = await signinUtils.checkCustomsAndLoadAccount(
           request,
-          email
+          email,
+          sessionToken.uid
         );
 
         await signinUtils.checkEmailAddress(
