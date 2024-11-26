@@ -26,6 +26,7 @@ describe('RecoveryPhoneService', () => {
     getUnconfirmed: jest.fn(),
     registerPhoneNumber: jest.fn(),
     removePhoneNumber: jest.fn(),
+    getConfirmedPhoneNumber: jest.fn(),
   };
   const mockOtpManager = { generateCode: jest.fn() };
   const mockRecoveryPhoneServiceConfig = {
@@ -181,6 +182,52 @@ describe('RecoveryPhoneService', () => {
       const error = new RecoveryNumberNotExistsError(uid);
       mockRecoveryPhoneManager.removePhoneNumber.mockRejectedValueOnce(error);
       expect(service.removePhoneNumber(uid)).rejects.toThrow(error);
+    });
+  });
+
+  describe('sendCode', () => {
+    it('should send sms code', async () => {
+      mockRecoveryPhoneManager.getConfirmedPhoneNumber.mockResolvedValueOnce(
+        phoneNumber
+      );
+      mockOtpManager.generateCode.mockResolvedValueOnce(code);
+      mockSmsManager.sendSMS.mockResolvedValue({ status: 'success' });
+
+      const result = await service.sendCode(uid);
+
+      expect(result).toBeTruthy();
+      expect(mockRecoveryPhoneManager.getConfirmedPhoneNumber).toBeCalledWith(
+        uid
+      );
+      expect(mockRecoveryPhoneManager.storeUnconfirmed).toBeCalledWith(
+        uid,
+        code,
+        phoneNumber,
+        false
+      );
+      expect(mockOtpManager.generateCode).toBeCalled();
+      expect(mockSmsManager.sendSMS).toBeCalledWith({
+        to: phoneNumber,
+        body: code,
+      });
+    });
+
+    it('should return false if message fails to send', async () => {
+      mockRecoveryPhoneManager.getConfirmedPhoneNumber.mockResolvedValueOnce(
+        phoneNumber
+      );
+      mockOtpManager.generateCode.mockResolvedValueOnce(code);
+      mockSmsManager.sendSMS.mockResolvedValue({ status: 'failed' });
+
+      const result = await service.sendCode(uid);
+
+      expect(result).toBeFalsy();
+    });
+
+    it('should throw error if phone number does not exist', async () => {
+      const error = new RecoveryNumberNotExistsError(uid);
+      mockRecoveryPhoneManager.getConfirmedPhoneNumber.mockRejectedValue(error);
+      expect(service.sendCode(uid)).rejects.toThrow(error);
     });
   });
 });
