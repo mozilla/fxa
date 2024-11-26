@@ -108,6 +108,46 @@ describe('RecoveryPhoneService', () => {
     );
   });
 
+  describe('has confirmed code', () => {
+    it('can determine confirmed phone number exists', async () => {
+      mockRecoveryPhoneManager.getConfirmedPhoneNumber.mockReturnValueOnce({
+        phoneNumber,
+      });
+
+      const result = await service.hasConfirmed(uid);
+
+      expect(result.exists).toBeTruthy();
+      expect(result.phoneNumber).toEqual(phoneNumber);
+      expect(
+        mockRecoveryPhoneManager.getConfirmedPhoneNumber
+      ).toHaveBeenCalledWith(uid);
+    });
+
+    it('can determine confirmed phone number does not exist', async () => {
+      const mockError = new RecoveryNumberNotExistsError(uid);
+      mockRecoveryPhoneManager.getConfirmedPhoneNumber.mockRejectedValueOnce(
+        mockError
+      );
+
+      const result = await service.hasConfirmed(uid);
+
+      expect(result.exists).toEqual(false);
+      expect(result.phoneNumber).toBeUndefined();
+      expect(
+        mockRecoveryPhoneManager.getConfirmedPhoneNumber
+      ).toHaveBeenCalledWith(uid);
+    });
+
+    it('can propagate unexpected error', () => {
+      const mockError = new Error(uid);
+      mockRecoveryPhoneManager.getConfirmedPhoneNumber.mockRejectedValueOnce(
+        mockError
+      );
+
+      expect(service.hasConfirmed(uid)).rejects.toEqual(mockError);
+    });
+  });
+
   describe('confirm code', () => {
     it('can confirm valid sms code', async () => {
       mockRecoveryPhoneManager.getUnconfirmed.mockReturnValue({});
