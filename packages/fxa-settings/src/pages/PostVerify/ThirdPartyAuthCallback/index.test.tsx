@@ -102,6 +102,7 @@ describe('ThirdPartyAuthCallback component', () => {
     const mockIntegration = {
       thirdPartyAuthParams: () => ({ code: 'code', provider: 'provider' }),
       getFxAParams: () => '?param=value',
+      getError: () => undefined,
     };
     (useIntegration as jest.Mock).mockReturnValue(mockIntegration);
 
@@ -133,5 +134,30 @@ describe('ThirdPartyAuthCallback component', () => {
     expect(hardNavigateSpy).toBeCalledWith(
       '/post_verify/third_party_auth/callback?param=value'
     );
+  });
+
+  it('redirects to signin on third party auth error', async () => {
+    const mockAccount = {};
+    (useAccount as jest.Mock).mockReturnValue(mockAccount);
+
+    const mockIntegration = {
+      getError: () => 'access_denied',
+    };
+    (useIntegration as jest.Mock).mockReturnValue(mockIntegration);
+
+    (
+      isThirdPartyAuthCallbackIntegration as unknown as jest.Mock
+    ).mockReturnValue(true);
+
+    const mockFinishOAuthFlowHandler = jest.fn();
+    (useFinishOAuthFlowHandler as jest.Mock).mockReturnValue({
+      finishOAuthFlowHandler: mockFinishOAuthFlowHandler,
+    });
+
+    renderWith({
+      flowQueryParams: {},
+    });
+
+    expect(hardNavigateSpy).toBeCalledWith('/');
   });
 });
