@@ -12,6 +12,7 @@ import { createHash } from 'crypto';
 import { AuthRequest } from '../../types';
 import * as AppError from '../../error';
 import { clientId as clientIdValidator } from '../../oauth/validators';
+import { MetricsContext } from '@fxa/shared/metrics/glean';
 
 // According to @types/hapi, request.auth.credentials.user is of type
 // UserCredentials, which is just {}. That's not actually the case and it
@@ -137,7 +138,7 @@ const createEventFn =
         return;
       }
 
-      const metricsContext = await request.app.metricsContext;
+      const metricsContext: MetricsContext = await request.app.metricsContext;
 
       // metrics sent with every event
       const commonMetrics = {

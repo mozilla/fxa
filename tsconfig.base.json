@@ -27,9 +27,7 @@
       "@fxa/accounts/recovery-phone": [
         "libs/accounts/recovery-phone/src/index.ts"
       ],
-      "@fxa/accounts/two-factor": [
-        "libs/accounts/two-factor/src/index.ts"
-      ],
+      "@fxa/accounts/two-factor": ["libs/accounts/two-factor/src/index.ts"],
       "@fxa/payments/capability": ["libs/payments/capability/src/index.ts"],
       "@fxa/payments/cart": ["libs/payments/cart/src/index.ts"],
       "@fxa/payments/currency": ["libs/payments/currency/src/index.ts"],
@@ -71,6 +69,7 @@
       "@fxa/shared/l10n/server": ["libs/shared/l10n/src/server.ts"],
       "@fxa/shared/log": ["libs/shared/log/src/index.ts"],
       "@fxa/shared/metrics/statsd": ["libs/shared/metrics/statsd/src/index.ts"],
+      "@fxa/shared/metrics/glean": ["libs/shared/metrics/glean/src/index.ts"],
       "@fxa/shared/mozlog": ["libs/shared/mozlog/src/index.ts"],
       "@fxa/shared/notifier": ["libs/shared/notifier/src/index.ts"],
       "@fxa/shared/otel": ["libs/shared/otel/src/index.ts"],

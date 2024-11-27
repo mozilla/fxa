@@ -63,7 +63,7 @@ import { searchParams } from '../../lib/utilities';
 import { QueryParams } from '../..';
 import { queryParamsToMetricsContext } from '../../lib/metrics';
 import OAuthDataError from '../../components/OAuthDataError';
-import { MetricsContext } from 'fxa-auth-client/browser';
+import { MetricsContext } from '@fxa/shared/glean';
 import { isEmailValid } from 'fxa-shared/email/helpers';
 import {
   getHandledError,

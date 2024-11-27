@@ -7,6 +7,7 @@ import { Credentials } from './crypto';
 import * as hawk from './hawk';
 import { SaltVersion, createSaltV2 } from './salt';
 import * as Sentry from '@sentry/browser';
+import { MetricsContext } from '@fxa/shared/metrics/glean';
 
 enum ERRORS {
   INVALID_TIMESTAMP = 111,
@@ -117,23 +118,6 @@ export type AuthServerError = Error & {
   retryAfter?: number;
   retryAfterLocalized?: string;
 };
-
-export const MetricsContextKeys = [
-  'deviceId',
-  'flowId',
-  'flowBeginTime',
-  'utmCampaign',
-  'utmContext',
-  'utmMedium',
-  'utmSource',
-  'utmTerm',
-] as const;
-export type MetricsContext = Omit<
-  {
-    [k in (typeof MetricsContextKeys)[number]]?: string;
-  },
-  'flowBeginTime'
-> & { flowBeginTime?: number };
 
 export type VerificationMethod =
   | 'email'
