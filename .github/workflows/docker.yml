@@ -1,14 +1,9 @@
 name: Docker
 
 on:
-  push:
-    tags:
-      - '*'
-  workflow_call:
-    inputs:
-      git_tag:
-        type: string
-        required: true
+  check_run:
+    types:
+      - completed
   workflow_dispatch:
     inputs:
       git_tag:
@@ -22,17 +17,40 @@ jobs:
     permissions: {}
     outputs:
       TAG: ${{ steps.determine.outputs.tag }}
+    if: |
+      github.event_name == 'workflow_dispatch'
+      || (
+        github.event_name == 'check_run'
+        && github.event.check_run.conclusion == 'success'
+        && github.event.check_run.app.client_id == 'Iv1.44befee49e3e76a4'
+        && github.event.check_run.name == 'test_and_deploy_tag'
+      )
+    env:
+      CIRCLECI_EXTERNAL_ID: ${{ github.event.check_run.external_id }}
     steps:
       - id: determine
         run: |
-          # workflow_dispatch
-          if [[ "${{ inputs.git_tag }}" != "" ]]; then
-            echo "tag=${{ inputs.git_tag }}" >> $GITHUB_OUTPUT
-          # push
-          elif [[ "${{ github.ref }}" != "" ]]; then
-            echo "tag=$(cut -d \/ -f3 <(echo '${{ github.ref }}'))" >> $GITHUB_OUTPUT
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.git_tag }}" != "" ]]; then
+            tag="${{ inputs.git_tag }}"
+          elif [[ "${{ github.event_name }}" == "check_run" ]]; then
+            echo ${CIRCLECI_EXTERNAL_ID}
+            CIRCLECI_WORKFLOW_ID=$(echo "${CIRCLECI_EXTERNAL_ID}" | jq -r '."workflow-id"')
+            CIRCLECI_WORKFLOW_DATA=$(curl "https://circleci.com/api/v2/workflow/${CIRCLECI_WORKFLOW_ID}")
+            CIRCLECI_PIPELINE_ID=$(echo "${CIRCLECI_WORKFLOW_DATA}" | jq -r '.pipeline_id')
+            CIRCLECI_PIPELINE_DATA=$(curl "https://circleci.com/api/v2/pipeline/${CIRCLECI_PIPELINE_ID}")
+            TAG=$(echo "${CIRCLECI_PIPELINE_DATA}" | jq -r '.vcs.tag')
+            if [[ "${TAG}" != "" ]]; then
+              tag="${TAG}"
+            fi
+          fi
+
+          if [[ "${tag}" != "" ]]; then
+            echo "tag=${tag}" >> $GITHUB_OUTPUT
+            echo "Trigger docker build & push on ${{ github.event_name }} and found tag ${TAG}" >> $GITHUB_STEP_SUMMARY
+            exit 0
           else
             echo "Cannot determine tag"
+            echo "Trigger docker build & push on ${{ github.event_name }} and cannot determine tag" >> $GITHUB_STEP_SUMMARY
             exit 1
           fi
 
