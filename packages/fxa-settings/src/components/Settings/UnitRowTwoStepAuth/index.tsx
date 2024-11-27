@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback } from 'react';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import Modal from '../Modal';
@@ -21,9 +21,10 @@ export const UnitRowTwoStepAuth = () => {
   const alertBar = useAlertBar();
   const account = useAccount();
   const {
+    // TODO: use in FXA-10206
+    // backupCodes: { hasBackupCodes, count },
     totp: { exists, verified },
   } = account;
-  const count = account.backupCodes?.count;
   const [modalRevealed, revealModal, hideModal] = useBooleanState();
   const [secondaryModalRevealed, revealSecondaryModal, hideSecondaryModal] =
     useBooleanState();
@@ -51,15 +52,6 @@ export const UnitRowTwoStepAuth = () => {
       );
     }
   }, [account, hideModal, alertBar, l10n]);
-
-  console.log('Number of backup codes remaining: ', count);
-
-  // TODO in FXA-10206, remove this console log and use the count data for the backup codes subrow
-  useEffect(() => {
-    if (exists && verified) {
-      console.log('Number of backup codes remaining: ', count);
-    }
-  }, [count, exists, verified]);
 
   const conditionalUnitRowProps =
     exists && verified

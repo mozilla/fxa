@@ -24,8 +24,6 @@ describe(`#integration${testOptions.version} - remote backup authentication code
     flowId: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
   };
 
-
-
   otplib.authenticator.options = {
     encoding: 'hex',
     window: 10,
@@ -93,16 +91,6 @@ describe(`#integration${testOptions.version} - remote backup authentication code
       assert.equal(code.length > 1, true, 'correct length');
       assert.equal(BASE_36.test(code), true, 'code is hex');
     });
-  });
-
-  it('can retrieve a count of backup authentication codes', () => {
-    const result = client.getRecoveryCodesExist();
-    assert.equal(result.hasBackupCodes, true, 'recovery codes exist');
-    assert.equal(
-      result.count,
-      recoveryCodeCount,
-      'correct remaining codes'
-    );
   });
 
   it('should replace backup authentication codes', () => {
