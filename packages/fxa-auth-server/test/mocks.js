@@ -72,6 +72,7 @@ const DB_METHOD_NAMES = [
   'emailBounces',
   'emailRecord',
   'forgotPasswordVerified',
+  'getRecoveryCodesExist',
   'getRecoveryKey',
   'getRecoveryKeyRecordWithHint',
   'getSecondaryEmail',

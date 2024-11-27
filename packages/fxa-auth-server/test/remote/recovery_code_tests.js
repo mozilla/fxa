@@ -24,8 +24,6 @@ describe(`#integration${testOptions.version} - remote backup authentication code
     flowId: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
   };
 
-
-
   otplib.authenticator.options = {
     encoding: 'hex',
     window: 10,

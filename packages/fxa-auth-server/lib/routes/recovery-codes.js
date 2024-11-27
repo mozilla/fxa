@@ -7,6 +7,7 @@
 const errors = require('../error');
 const isA = require('joi');
 const validators = require('./validators');
+const { Container } = require('typedi');
 const RECOVERY_CODES_DOCS =
   require('../../docs/swagger/recovery-codes-api').default;
 
@@ -15,12 +16,14 @@ const RECOVERY_CODE_SANE_MAX_LENGTH = 20;
 module.exports = (log, db, config, customs, mailer, glean) => {
   const codeConfig = config.recoveryCodes;
   const RECOVERY_CODE_COUNT = (codeConfig && codeConfig.count) || 8;
+  const backupCodeManager = Container.get('BackupCodeManager');
 
   // Validate backup authentication codes
   const recoveryCodesSchema = validators.recoveryCodes(
     RECOVERY_CODE_COUNT,
     RECOVERY_CODE_SANE_MAX_LENGTH
   );
+
   return [
     {
       method: 'GET',
@@ -120,6 +123,38 @@ module.exports = (log, db, config, customs, mailer, glean) => {
         await request.emitMetricsEvent('recoveryCode.replaced', { uid });
 
         return { success: true };
+      },
+    },
+    {
+      method: 'GET',
+      path: '/recoveryCodes/exists',
+      options: {
+        auth: {
+          strategy: 'sessionToken',
+          payload: 'required',
+        },
+        response: {
+          schema: isA.object({
+            hasBackupCodes: isA.boolean().optional(),
+            count: isA.number().optional(),
+          }),
+        },
+      },
+      async handler(request) {
+        log.begin('checkRecoveryCodesExist', request);
+
+        const { email, uid } = request.auth.credentials;
+
+        await customs.check(request, email, 'checkRecoveryCodesExist');
+
+        const { hasBackupCodes, count } =
+          await backupCodeManager.getCountForUserId(uid);
+        log.info('account.recoveryCode.existsChecked', {
+          uid,
+          hasBackupCodes,
+          count,
+        });
+        return { hasBackupCodes, count };
       },
     },
     {

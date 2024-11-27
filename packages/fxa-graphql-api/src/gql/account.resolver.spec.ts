@@ -179,6 +179,15 @@ describe('#integration - AccountResolver', () => {
         expect(result).toBeTruthy();
       });
 
+      it('resolves backupCodes', async () => {
+        authClient.getRecoveryCodesExist = jest
+          .fn()
+          .mockResolvedValue({ hasBackupCodes: true, count: 10 });
+        const result = await resolver.backupCodes('token', headers);
+        expect(result.hasBackupCodes).toBeTruthy();
+        expect(result.count).toBe(10);
+      });
+
       it('resolves linked accounts with empty array', async () => {
         const user = await Account.findByUid(USER_1.uid);
         const linkedAccounts = resolver.linkedAccounts(user!);

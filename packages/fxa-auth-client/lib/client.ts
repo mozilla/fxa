@@ -1926,6 +1926,13 @@ export default class AuthClient {
     );
   }
 
+  async getRecoveryCodesExist(
+    sessionToken: hexstring,
+    headers?: Headers
+  ): Promise<{ hasBackupCodes?: boolean; count?: number }> {
+    return this.sessionGet('/recoveryCodes/exists', sessionToken, headers);
+  }
+
   async consumeRecoveryCode(
     sessionToken: hexstring,
     code: string,

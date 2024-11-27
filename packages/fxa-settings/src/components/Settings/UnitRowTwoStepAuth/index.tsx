@@ -21,6 +21,8 @@ export const UnitRowTwoStepAuth = () => {
   const alertBar = useAlertBar();
   const account = useAccount();
   const {
+    // TODO: use in FXA-10206
+    // backupCodes: { hasBackupCodes, count },
     totp: { exists, verified },
   } = account;
   const [modalRevealed, revealModal, hideModal] = useBooleanState();

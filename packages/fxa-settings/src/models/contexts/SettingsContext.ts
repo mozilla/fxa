@@ -58,6 +58,10 @@ export const INITIAL_SETTINGS_QUERY = gql`
         exists
         verified
       }
+      backupCodes {
+        hasBackupCodes
+        count
+      }
       subscriptions {
         created
         productName

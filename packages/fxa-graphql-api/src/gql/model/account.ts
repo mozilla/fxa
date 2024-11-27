@@ -11,6 +11,7 @@ import { Totp } from './totp';
 import { LinkedAccount } from './linkedAccount';
 import { SecurityEvent } from './securityEvent';
 import { RecoveryKey } from './recoveryKey';
+import { BackupCodes } from './backupCodes';
 
 @ObjectType({
   description: "The current authenticated user's Firefox Account record.",
@@ -41,6 +42,9 @@ export class Account {
 
   @Field((type) => Totp)
   public totp!: Totp;
+
+  @Field((type) => BackupCodes)
+  public backupCodes!: BackupCodes;
 
   @Field((type) => RecoveryKey, {
     description: 'Whether the user has had an account recovery key issued.',

@@ -39,6 +39,7 @@ const { AccountDeleteManager } = require('../lib/account-delete');
 const { gleanMetrics } = require('../lib/metrics/glean');
 const Customs = require('../lib/customs');
 const { ProfileClient } = require('@fxa/profile/client');
+const { BackupCodeManager } = require('@fxa/accounts/two-factor');
 const {
   AccountTasks,
   AccountTasksFactory,
@@ -118,6 +119,10 @@ async function run(config) {
         recordSecurityEvent: async () => Promise.resolve(),
       };
   Container.set(AccountEventsManager, accountEventsManager);
+
+  const accountDatabase = await setupAccountDatabase(config.database.mysql.auth);
+  const backupCodeManager = new BackupCodeManager(accountDatabase);
+  Container.set('BackupCodeManager', backupCodeManager);
 
   // Set currencyHelper before stripe and paypal helpers, so they can use it.
   try {
@@ -210,9 +215,6 @@ async function run(config) {
   }
 
   const twilio = TwilioFactory.useFactory(config.twilio);
-  const recoveryPhoneDb = await setupAccountDatabase(
-    config.database.mysql.auth
-  );
   const recoveryPhoneRedis = require('../lib/redis')({
     ...config.redis,
     ...config.redis.recoveryPhone,
@@ -222,7 +224,7 @@ async function run(config) {
     recoveryPhoneRedis
   );
   const recoveryPhoneManager = new RecoveryPhoneManager(
-    recoveryPhoneDb,
+    accountDatabase,
     recoveryPhoneRedis
   );
   const smsManager = new SmsManager(

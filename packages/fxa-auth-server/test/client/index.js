@@ -826,6 +826,10 @@ module.exports = (config) => {
     return this.api.replaceRecoveryCodes(this.sessionToken, options);
   };
 
+  Client.prototype.getRecoveryCodesExist = function () {
+    return this.api.getRecoveryCodesExist(this.sessionToken);
+  };
+
   Client.prototype.consumeRecoveryCode = function (code, options = {}) {
     return this.api.consumeRecoveryCode(this.sessionToken, code, options);
   };
