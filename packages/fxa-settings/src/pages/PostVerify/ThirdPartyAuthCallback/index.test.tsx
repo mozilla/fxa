@@ -176,7 +176,7 @@ describe('ThirdPartyAuthCallback component', () => {
 
     renderWith({ integration });
 
-    expect(hardNavigateSpy).toBeCalledWith('/');
+    expect(hardNavigateSpy).toBeCalledWith('/?param=value');
   });
   it('redirects to web redirect', async () => {
     const redirectTo = 'surprisinglyValid!';
