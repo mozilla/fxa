@@ -33,10 +33,7 @@ import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import OAuthDataError from '../../../components/OAuthDataError';
 import { getHandledError } from '../../../lib/error-utils';
 import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
-import {
-  AUTH_DATA_KEY,
-  SensitiveDataClientAuthKeys,
-} from '../../../lib/sensitive-data-client';
+import { SensitiveData } from '../../../lib/sensitive-data-client';
 import { GET_LOCAL_SIGNED_IN_STATUS } from '../../../components/App/gql';
 import {
   CREDENTIAL_STATUS_MUTATION,
@@ -66,9 +63,8 @@ export const SigninTotpCodeContainer = ({
   };
   const signinState = getSigninState(location.state);
   const sensitiveDataClient = useSensitiveDataClient();
-  const sensitiveData = sensitiveDataClient.getData(AUTH_DATA_KEY);
   const { keyFetchToken, unwrapBKey } =
-    (sensitiveData as SensitiveDataClientAuthKeys) || {};
+    sensitiveDataClient.getDataType(SensitiveData.Key.Auth) || {};
 
   const { queryParamModel } = useValidatedQueryParams(SigninQueryParams);
   const { service } = queryParamModel;

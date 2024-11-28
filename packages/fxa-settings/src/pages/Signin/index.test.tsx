@@ -39,7 +39,7 @@ import {
 import firefox from '../../lib/channels/firefox';
 import { navigate } from '@reach/router';
 import { IntegrationType } from '../../models';
-import { AUTH_DATA_KEY } from '../../lib/sensitive-data-client';
+import { SensitiveData } from '../../lib/sensitive-data-client';
 
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
@@ -86,7 +86,7 @@ jest.mock('../../models', () => {
     ...jest.requireActual('../../models'),
     useSensitiveDataClient: () => {
       return {
-        setData: mockSetData,
+        setDataType: mockSetData,
       };
     },
   };
@@ -674,8 +674,8 @@ describe('Signin component', () => {
         enterPasswordAndSubmit();
         await waitFor(() => {
           expect(sendUnblockEmailHandler).toHaveBeenCalled();
-          expect(mockSetData).toHaveBeenCalledWith(AUTH_DATA_KEY, {
-            password: MOCK_PASSWORD,
+          expect(mockSetData).toHaveBeenCalledWith(SensitiveData.Key.Password, {
+            plainTextPassword: MOCK_PASSWORD,
           });
           expect(mockNavigate).toHaveBeenCalledWith('/signin_unblock', {
             state: {

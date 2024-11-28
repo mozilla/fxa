@@ -23,7 +23,7 @@ import {
 import useSyncEngines from '../../../lib/hooks/useSyncEngines';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import OAuthDataError from '../../../components/OAuthDataError';
-import { AUTH_DATA_KEY } from '../../../lib/sensitive-data-client';
+import { SensitiveData } from '../../../lib/sensitive-data-client';
 import { NavigationOptions } from '../../Signin/interfaces';
 import { handleNavigation } from '../../Signin/utils';
 import GleanMetrics from '../../../lib/glean';
@@ -96,7 +96,7 @@ const SetPasswordContainer = ({
             },
           });
 
-          sensitiveDataClient.setData(AUTH_DATA_KEY, {
+          sensitiveDataClient.setDataType(SensitiveData.Key.Auth, {
             // Store for inline recovery key flow
             authPW,
             emailForAuth: email,

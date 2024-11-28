@@ -35,7 +35,7 @@ import {
   syncEngineConfigs,
 } from '../../components/ChooseWhatToSync/sync-engines';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
-import { AUTH_DATA_KEY } from '../../lib/sensitive-data-client';
+import { SensitiveData } from '../../lib/sensitive-data-client';
 import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../models/mocks';
 import { useSensitiveDataClient } from '../../models';
 
@@ -89,7 +89,7 @@ jest.mock('../../models', () => {
 });
 
 const mockSensitiveDataClient = createMockSensitiveDataClient();
-mockSensitiveDataClient.setData = jest.fn();
+mockSensitiveDataClient.setDataType = jest.fn();
 
 const oauthCommonFxaLoginOptions = {
   email: MOCK_EMAIL,
@@ -354,8 +354,8 @@ describe('Signup page', () => {
       await fillOutForm();
       submit();
       await waitFor(() => {
-        expect(mockSensitiveDataClient.setData).toHaveBeenCalledWith(
-          AUTH_DATA_KEY,
+        expect(mockSensitiveDataClient.setDataType).toHaveBeenCalledWith(
+          SensitiveData.Key.Auth,
           {
             keyFetchToken:
               BEGIN_SIGNUP_HANDLER_RESPONSE.data.signUp.keyFetchToken,

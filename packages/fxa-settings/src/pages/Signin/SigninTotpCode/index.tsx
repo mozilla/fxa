@@ -24,7 +24,7 @@ import {
 } from '../../../lib/error-utils';
 import protectionShieldIcon from '@fxa/shared/assets/images/protection-shield.svg';
 import Banner from '../../../components/Banner';
-import { SensitiveDataClientAuthKeys } from '../../../lib/sensitive-data-client';
+import { SensitiveData } from '../../../lib/sensitive-data-client';
 import { HeadingPrimary } from '../../../components/HeadingPrimary';
 
 // TODO: show a banner success message if a user is coming from reset password
@@ -41,7 +41,7 @@ export type SigninTotpCodeProps = {
     totpCode: string
   ) => Promise<{ error?: BeginSigninError; status: boolean }>;
   serviceName?: MozServices;
-} & SensitiveDataClientAuthKeys;
+} & SensitiveData.AuthData;
 
 export const viewName = 'signin-totp-code';
 

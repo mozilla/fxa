@@ -293,7 +293,7 @@ export function useFinishOAuthFlowHandler(
  * memory and the query params won't match after a browser session is restored.
  *
  * TODO: Can we check session storage for if the user just refreshed so we can redirect them
- * to /signin instead of showing an error component? FXA-10707
+ * to /signin instead of showing an error component? FXA-10889
  */
 export function useOAuthKeysCheck(
   integration: Pick<Integration, 'type' | 'wantsKeys'>,

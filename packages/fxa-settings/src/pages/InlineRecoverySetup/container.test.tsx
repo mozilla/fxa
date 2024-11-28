@@ -32,7 +32,7 @@ import {
   useFinishOAuthFlowHandler,
   useOAuthKeysCheck,
 } from '../../lib/oauth/hooks';
-import { AUTH_DATA_KEY } from '../../lib/sensitive-data-client';
+import { SensitiveData } from '../../lib/sensitive-data-client';
 
 let mockLocationState = {};
 const mockSearch = '?' + new URLSearchParams(MOCK_QUERY_PARAMS);
@@ -62,7 +62,7 @@ jest.mock('../../lib/oauth/hooks.tsx', () => {
 });
 
 const mockSensitiveDataClient = createMockSensitiveDataClient();
-mockSensitiveDataClient.getData = jest.fn();
+mockSensitiveDataClient.getDataType = jest.fn();
 const mockAuthClient = new AuthClient('http://localhost:9000', {
   keyStretchVersion: 1,
 });
@@ -218,8 +218,8 @@ describe('InlineRecoverySetupContainer', () => {
 
     it('reads data from sensitive data client', () => {
       render();
-      expect(mockSensitiveDataClient.getData).toHaveBeenCalledWith(
-        AUTH_DATA_KEY
+      expect(mockSensitiveDataClient.getDataType).toHaveBeenCalledWith(
+        SensitiveData.Key.Auth
       );
     });
 

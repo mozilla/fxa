@@ -5,13 +5,13 @@
 import { AccountTotp } from '../../../lib/interfaces';
 import { FinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import { SigninIntegration, SigninLocationState } from '../interfaces';
-import { SensitiveDataClientAuthKeys } from './../../../lib/sensitive-data-client';
+import { SensitiveData } from './../../../lib/sensitive-data-client';
 
 export type SigninTokenCodeProps = {
   finishOAuthFlowHandler: FinishOAuthFlowHandler;
   integration: SigninIntegration;
   signinState: SigninLocationState;
-} & SensitiveDataClientAuthKeys;
+} & SensitiveData.AuthData;
 
 export interface TotpStatusResponse {
   account: {
