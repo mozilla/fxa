@@ -175,7 +175,8 @@ const ThirdPartyAuthCallback = ({
       isVerifyThirdPartyAuth.current = true;
 
       if (integration.getError()) {
-        return hardNavigate('/');
+        const fxaParams = integration.getFxAParams();
+        return hardNavigate(`/${fxaParams.toString()}`);
       }
 
       verifyThirdPartyAuthResponse();
