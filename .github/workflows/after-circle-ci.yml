@@ -17,8 +17,8 @@ jobs:
       && github.event.check_run.app.client_id == 'Iv1.44befee49e3e76a4'
       && github.event.check_run.name == 'test_and_deploy_tag'
     env:
-      CIRCLECI_EXTERNAL_ID: ${{ fromJson(github.event.check_run.external_id) }}
-      CIRCLECI_WORKFLOW_ID: ${{ fromJson(github.event.check_run.external_id)['workflow-id'] }}
+      CIRCLECI_EXTERNAL_ID: ${{ fromJson(github.event.external_id) }}
+      CIRCLECI_WORKFLOW_ID: ${{ fromJson(github.event.external_id)['workflow-id'] }}
     steps:
       - id: determine
         run: |
