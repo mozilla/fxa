@@ -17,11 +17,12 @@ jobs:
       && github.event.check_run.app.client_id == 'Iv1.44befee49e3e76a4'
       && github.event.check_run.name == 'test_and_deploy_tag'
     env:
-      CIRCLECI_EXTERNAL_ID: ${{ fromJson(github.event.external_id) }}
-      CIRCLECI_WORKFLOW_ID: ${{ fromJson(github.event.external_id)['workflow-id'] }}
+      CIRCLECI_EXTERNAL_ID: ${{ github.event.check_run.external_id }}
     steps:
       - id: determine
         run: |
+          echo ${CIRCLECI_EXTERNAL_ID}
+          CIRCLECI_WORKFLOW_ID=$(echo "${CIRCLECI_EXTERNAL_ID}" | jq -r '."workflow-id"')
           CIRCLECI_WORKFLOW_DATA=$(curl "https://circleci.com/api/v2/workflow/${CIRCLECI_WORKFLOW_ID}")
           CIRCLECI_PIPELINE_ID=$(echo "${CIRCLECI_WORKFLOW_DATA}" | jq -r '.pipeline_id')
           CIRCLECI_PIPELINE_DATA=$(curl "https://circleci.com/api/v2/pipeline/${CIRCLECI_PIPELINE_ID}")
