@@ -44,7 +44,7 @@ export default function Error({
         const newCart = await restartCartAction(cartId);
         setLoading(false);
         router.push(
-          `/${locale}/${offeringId}/checkout/${interval}/${newCart.id}/${cart.state}`
+          `/${locale}/${offeringId}/${interval}/checkout/${newCart.id}/${cart.state}`
         );
       } else {
         setLoading(false);
@@ -53,7 +53,7 @@ export default function Error({
     } catch (getCartError) {
       Sentry.captureException(getCartError);
       setLoading(false);
-      router.push(`/${locale}/${offeringId}/checkout/${interval}/landing`);
+      router.push(`/${locale}/${offeringId}/${interval}/landing`);
     }
   }
 
@@ -61,7 +61,7 @@ export default function Error({
     if (cartId) {
       redirectWithCart();
     } else {
-      router.push(`/${locale}/${offeringId}/checkout/${interval}/landing`);
+      router.push(`/${locale}/${offeringId}/${interval}/landing`);
     }
   }
 
