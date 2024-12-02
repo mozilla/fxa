@@ -9,11 +9,25 @@ import { createContext } from 'react';
 export interface ConfigContextValues {
   stripePublicApiKey: string;
   paypalClientId: string;
+  sentry: {
+    dsn?: string;
+    env: string;
+    clientName: string;
+    sampleRate: number;
+    tracesSampleRate: number;
+  };
 }
 
 export const ConfigContext = createContext<ConfigContextValues>({
   stripePublicApiKey: '',
   paypalClientId: '',
+  sentry: {
+    dsn: '',
+    env: '',
+    clientName: '',
+    sampleRate: 1,
+    tracesSampleRate: 1,
+  },
 });
 
 export function ConfigProvider({

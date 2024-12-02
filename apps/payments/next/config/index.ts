@@ -33,11 +33,28 @@ class PaypalConfig {
 }
 
 class SentryServerConfig {
+  @IsOptional()
+  @IsString()
+  dsn?: string;
+
+  @IsString()
+  env!: string;
+
   @IsString()
   serverName!: string;
 
   @IsString()
-  authToken!: string;
+  clientName!: string;
+
+  @IsNumber()
+  sampleRate!: number;
+
+  @IsNumber()
+  tracesSampleRate!: number;
+
+  @IsOptional()
+  @IsString()
+  authToken?: string;
 }
 
 class AuthJSConfig {
@@ -99,25 +116,16 @@ export class PaymentsNextConfig extends NestAppRootConfig {
   /**
    * Nextjs Public Environment Variables
    */
-
-  /**
-   * Sentry Config
+  /*
+   *  Should not make use of NEXT_PUBLIC_* environment variables
+   *  since these are currently set during build time and the current
+   *  build process is not setup to handle different variables
+   *  for different environments at build time.
+   *
+   *  For config variables required on the client, consider making use
+   *  of the ConfigProvider component, and see the Client Sentry init
+   *  as an example.
    */
-  @IsOptional()
-  @IsString()
-  nextPublicSentryDsn?: string;
-
-  @IsString()
-  nextPublicSentryEnv!: string;
-
-  @IsString()
-  nextPublicSentryClientName!: string;
-
-  @IsNumber()
-  nextPublicSentrySampleRate!: number;
-
-  @IsNumber()
-  nextPublicSentryTracesSampleRate!: number;
 }
 
 export const config = validate(

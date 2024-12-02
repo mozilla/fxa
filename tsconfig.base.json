@@ -27,9 +27,7 @@
       "@fxa/accounts/recovery-phone": [
         "libs/accounts/recovery-phone/src/index.ts"
       ],
-      "@fxa/accounts/two-factor": [
-        "libs/accounts/two-factor/src/index.ts"
-      ],
+      "@fxa/accounts/two-factor": ["libs/accounts/two-factor/src/index.ts"],
       "@fxa/payments/capability": ["libs/payments/capability/src/index.ts"],
       "@fxa/payments/cart": ["libs/payments/cart/src/index.ts"],
       "@fxa/payments/currency": ["libs/payments/currency/src/index.ts"],
@@ -78,12 +76,12 @@
       "@fxa/shared/pem-jwk": ["libs/shared/pem-jwk/src/index.ts"],
       "@fxa/shared/react": ["libs/shared/react/src/index.ts"],
       "@fxa/shared/sentry": ["libs/shared/sentry/src/index.ts"],
-      "@fxa/shared/sentry/client": ["libs/shared/sentry/src/client.ts"],
       "@fxa/shared/sentry-browser": ["libs/shared/sentry-browser/src/index.ts"],
       "@fxa/shared/sentry-nest": ["libs/shared/sentry-nest/src/index.ts"],
       "@fxa/shared/sentry-next": ["libs/shared/sentry-next/src/index.ts"],
       "@fxa/shared/sentry-node": ["libs/shared/sentry-node/src/index.ts"],
       "@fxa/shared/sentry-utils": ["libs/shared/sentry-utils/src/index.ts"],
+      "@fxa/shared/sentry/client": ["libs/shared/sentry/src/client.ts"],
       "@fxa/vendored/common-password-list": [
         "libs/vendored/common-password-list/src/index.ts"
       ],

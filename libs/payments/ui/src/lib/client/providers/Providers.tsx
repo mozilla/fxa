@@ -10,6 +10,8 @@ import {
   PayPalScriptProvider,
   ReactPayPalScriptOptions,
 } from '@paypal/react-paypal-js';
+import { initSentryForNextjsClient } from '@fxa/shared/sentry/client';
+import { getClient as sentryGetClient } from '@sentry/nextjs';
 
 interface ProvidersProps {
   config: ConfigContextValues;
@@ -32,6 +34,14 @@ export function Providers({
   nonce,
   children,
 }: ProvidersProps) {
+  //Only initialize Sentry if it hasn't been initialized yet
+  if (!sentryGetClient()) {
+    initSentryForNextjsClient({
+      release: process.env.version,
+      sentry: config.sentry,
+    });
+  }
+
   return (
     <ConfigProvider config={config}>
       <FluentLocalizationProvider fetchedMessages={fetchedMessages}>

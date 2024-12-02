@@ -8,18 +8,10 @@
 import { initSentryForNextjsServer } from '@fxa/shared/sentry';
 import { config } from './config';
 
-const sentryConfig = {
-  dsn: config.nextPublicSentryDsn,
-  env: config.nextPublicSentryEnv,
-  serverName: config.sentry.serverName,
-  sampleRate: config.nextPublicSentrySampleRate,
-  tracesSampleRate: config.nextPublicSentryTracesSampleRate,
-};
-
 initSentryForNextjsServer(
   {
     release: process.env.version,
-    sentry: sentryConfig,
+    sentry: config.sentry,
   },
   console
 );
