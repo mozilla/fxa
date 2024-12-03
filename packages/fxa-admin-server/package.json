@@ -53,7 +53,7 @@
     "knex": "^3.1.0",
     "rimraf": "^6.0.1",
     "ts-morph": "^24.0.0",
-    "tslib": "^2.6.2"
+    "tslib": "^2.8.1"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.4.2",
