@@ -75,16 +75,16 @@
         {{/unsafeTranslate}}
       {{/isPocketClient}}
       {{^isPocketClient}}
-        {{#isMonitorClient}}
+        {{#showSubscriptionTerms}}
           {{#unsafeTranslate}}
             By proceeding, you agree to the:<br />
             Mozilla Subscription Services <a class="link-grey" id="moz-subscription-tos" href="https://www.mozilla.org/about/legal/terms/subscription-services/">Terms of Service</a> and <a class="link-grey" id="moz-subscription-privacy" href="https://www.mozilla.org/privacy/subscription-services/">Privacy Notice</a><br />
             Mozilla Accounts <a class="link-grey" id="fxa-tos" href="/legal/terms">Terms of Service</a> and <a class="link-grey" id="fxa-pp" href="/legal/privacy">Privacy Notice</a>
           {{/unsafeTranslate}}
-        {{/isMonitorClient}}
-        {{^isMonitorClient}}
+        {{/showSubscriptionTerms}}
+        {{^showSubscriptionTerms}}
           {{#unsafeTranslate}}By proceeding, you agree to the <a class="link-grey" id="fxa-tos" href="/legal/terms">Terms of Service</a> and <a class="link-grey" id="fxa-pp" href="/legal/privacy">Privacy Notice</a>.{{/unsafeTranslate}}
-        {{/isMonitorClient}}
+        {{/showSubscriptionTerms}}
       {{/isPocketClient}}
     </div>
 

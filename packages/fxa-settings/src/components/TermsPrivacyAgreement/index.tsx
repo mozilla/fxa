@@ -10,17 +10,19 @@ import LinkExternal from 'fxa-react/components/LinkExternal';
 export type TermsPrivacyAgreementProps = {
   isPocketClient?: boolean;
   isMonitorClient?: boolean;
-  marginClassName?: string;
+  isDesktopRelay?: boolean;
 };
 
 const TermsPrivacyAgreement = ({
   isPocketClient = false,
   isMonitorClient = false,
-  marginClassName = 'mt-5',
+  isDesktopRelay = false,
 }: TermsPrivacyAgreementProps) => {
   return (
-    <div className={`text-grey-500 text-xs ${marginClassName}`}>
-      {isPocketClient || isMonitorClient ? (
+    <div
+      className={`text-grey-500 text-xs ${isDesktopRelay ? 'mt-8' : 'mt-5'}`}
+    >
+      {isPocketClient || isMonitorClient || isDesktopRelay ? (
         <>
           <FtlMsg id="terms-privacy-agreement-intro-2">
             <p>By proceeding, you agree to the:</p>
@@ -66,7 +68,7 @@ const TermsPrivacyAgreement = ({
                 </li>
               </FtlMsg>
             )}
-            {isMonitorClient && (
+            {(isMonitorClient || isDesktopRelay) && (
               <FtlMsg
                 id="terms-privacy-agreement-monitor-3"
                 elems={{

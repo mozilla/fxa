@@ -418,7 +418,7 @@ export const Signup = ({
       <TermsPrivacyAgreement
         isPocketClient={client === MozServices.Pocket}
         isMonitorClient={client === MozServices.Monitor}
-        marginClassName={isDesktopRelay ? 'mt-8' : undefined}
+        {...{ isDesktopRelay }}
       />
     </AppLayout>
   );

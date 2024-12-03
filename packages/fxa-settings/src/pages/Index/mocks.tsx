@@ -17,6 +17,7 @@ export function createMockIndexOAuthIntegration({
     type: IntegrationType.OAuthWeb,
     isSync: () => false,
     getClientId: () => clientId,
+    isDesktopRelay: () => false,
   };
 }
 export function createMockIndexSyncIntegration(): IndexIntegration {
@@ -24,6 +25,7 @@ export function createMockIndexSyncIntegration(): IndexIntegration {
     type: IntegrationType.OAuthNative,
     isSync: () => true,
     getClientId: () => MOCK_CLIENT_ID,
+    isDesktopRelay: () => false,
   };
 }
 
@@ -32,6 +34,7 @@ export function createMockIndexWebIntegration(): IndexIntegration {
     type: IntegrationType.Web,
     isSync: () => false,
     getClientId: () => undefined,
+    isDesktopRelay: () => false,
   };
 }
 
