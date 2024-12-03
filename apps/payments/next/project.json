@@ -5,13 +5,6 @@
   "projectType": "application",
   "targets": {
     "build": {
-      "executor": "@nx/next:build",
-      "outputs": ["{options.outputPath}"],
-      "defaultConfiguration": "production",
-      "options": {
-        "outputPath": "dist/apps/payments/next",
-        "postcssConfig": "apps/payments/next/postcss.config.js"
-      },
       "dependsOn": ["l10n-bundle", "glean-generate"]
     },
     "dev": {
@@ -41,7 +34,8 @@
       "dependsOn": ["glean-lint"]
     },
     "start": {
-      "command": "pm2 start apps/payments/next/pm2.config.js && yarn check:url localhost:3035/__heartbeat__"
+      "command": "pm2 start apps/payments/next/pm2.config.js && yarn check:url localhost:3035/__heartbeat__",
+      "dependsOn": ["l10n-bundle", "glean-generate"]
     },
     "stop": {
       "command": "pm2 stop apps/payments/next/pm2.config.js"

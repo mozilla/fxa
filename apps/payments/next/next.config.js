@@ -22,6 +22,7 @@ const nextConfig = {
     version,
     GLEAN_CONFIG__VERSION: version,
   },
+  distDir: 'build',
   experimental: {
     instrumentationHook: true,
     optimizePackageImports: ['@radix-ui/react-form', '@radix-ui/react-tooltip'],

@@ -8,6 +8,8 @@ const PATH = process.env.PATH.split(':')
 
 const apps = [];
 
+// Although this is triggred as part of the monorepo start scripts,
+// it should call the Next.js dev script for local development.
 apps.push({
   name: 'payments-next',
   script: 'nx dev payments-next',

@@ -27,6 +27,9 @@ export default async function RootProviderLayout({
       config={{
         stripePublicApiKey: config.stripePublicApiKey,
         paypalClientId: config.paypal.clientId,
+        sentry: {
+          ...config.sentry, //spread to make sure its a POJO
+        },
       }}
       fetchedMessages={fetchedMessages}
       nonce={nonce}
