@@ -43,7 +43,7 @@ export class BasketService {
       throw new Error('No API key configured!');
     }
 
-    const url = getUrl(this.basketUrl, '/news/lookup-user/', {
+    const url = getUrl(this.basketUrl, '/api/v1/users/lookup/', {
       email,
       'api-key': this.config.basketApiKey,
     });
