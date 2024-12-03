@@ -41771,7 +41771,7 @@ fsevents@~2.1.1:
     nx: 18.3.1
     persistgraphql: ^0.3.11
     pm2: ^5.4.2
-    postcss: ^8.4.48
+    postcss: ^8.4.49
     postcss-assets: ^6.0.0
     postcss-flexbugs-fixes: ^5.0.2
     postcss-import: ^16.1.0
@@ -42044,7 +42044,7 @@ fsevents@~2.1.1:
     passport-jwt: ^4.0.1
     persistgraphql: ^0.3.11
     pm2: ^5.4.2
-    postcss: 8.4.48
+    postcss: 8.4.49
     prettier: ^2.6.2
     react: 18.3.1
     react-dom: 18.3.1
@@ -58954,14 +58954,14 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"postcss@npm:8.4.48":
-  version: 8.4.48
-  resolution: "postcss@npm:8.4.48"
+"postcss@npm:8.4.49, postcss@npm:^8.4.49":
+  version: 8.4.49
+  resolution: "postcss@npm:8.4.49"
   dependencies:
     nanoid: ^3.3.7
     picocolors: ^1.1.1
     source-map-js: ^1.2.1
-  checksum: 9bf75be1b45aa31f24b5f2ba2d9cf3021a788c3dd41d4d0491f4e2d7f9fe3329eb5e7b76ad96e2490ed1ebfeec0e484dc49cdef0071da2575d009c1dde5f8923
+  checksum: eb5d6cbdca24f50399aafa5d2bea489e4caee4c563ea1edd5a2485bc5f84e9ceef3febf170272bc83a99c31d23a316ad179213e853f34c2a7a8ffa534559d63a
   languageName: node
   linkType: hard
 
@@ -59050,17 +59050,6 @@ fsevents@~2.1.1:
     picocolors: ^1.1.0
     source-map-js: ^1.2.1
   checksum: f78440a9d8f97431dd2ab1ab8e1de64f12f3eff38a3d8d4a33919b96c381046a314658d2de213a5fa5eb296b656de76a3ec269fdea27f16d5ab465b916a0f52c
-  languageName: node
-  linkType: hard
-
-"postcss@npm:^8.4.48":
-  version: 8.4.49
-  resolution: "postcss@npm:8.4.49"
-  dependencies:
-    nanoid: ^3.3.7
-    picocolors: ^1.1.1
-    source-map-js: ^1.2.1
-  checksum: eb5d6cbdca24f50399aafa5d2bea489e4caee4c563ea1edd5a2485bc5f84e9ceef3febf170272bc83a99c31d23a316ad179213e853f34c2a7a8ffa534559d63a
   languageName: node
   linkType: hard
 
