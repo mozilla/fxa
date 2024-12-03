@@ -164,11 +164,12 @@ export const PaymentErrorView = ({
         {/* This error code means the subscription was created successfully, but
           there was an error loading the information on the success screen. In this
           case, we do not want a "Try again" or "Manage subscription" button. */}
-        {error.code !== 'fxa_fetch_profile_customer_error' && (
-          <div className="options mb-6" data-testid="options">
-            <ActionButton data-testid={'error-view-action-button'} />
-          </div>
-        )}
+        {error.code !== 'fxa_fetch_profile_customer_error' &&
+          error.code !== 'location_unsupported' && (
+            <div className="options mb-6" data-testid="options">
+              <ActionButton data-testid={'error-view-action-button'} />
+            </div>
+          )}
 
         <div className="payment-footer" data-testid="footer">
           <PaymentLegalBlurb provider={undefined} />

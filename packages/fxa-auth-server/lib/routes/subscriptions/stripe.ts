@@ -42,10 +42,10 @@ import {
   stripeInvoiceToFirstInvoicePreviewDTO,
   stripeInvoicesToSubsequentInvoicePreviewsDTO,
 } from '../../payments/stripe-formatter';
-import { AuthLogger, AuthRequest, TaxAddress } from '../../types';
+import { AuthLogger, AuthRequest } from '../../types';
 import { sendFinishSetupEmailForStubAccount } from '../subscriptions/account';
 import validators from '../validators';
-import { handleAuth } from './utils';
+import { buildTaxAddress, handleAuth } from './utils';
 import { generateIdempotencyKey } from '../../payments/utils';
 import { deleteAccountIfUnverified } from '../utils/account';
 import SUBSCRIPTIONS_DOCS from '../../../docs/swagger/subscriptions-api';
@@ -87,6 +87,7 @@ export class StripeHandler {
   subscriptionAccountReminders: any;
   capabilityService: CapabilityService;
   promotionCodeManager: PromotionCodeManager;
+  unsupportedLocations: string[];
 
   constructor(
     // FIXME: For some reason Logger methods were not being detected in
@@ -104,6 +105,8 @@ export class StripeHandler {
       require('../../subscription-account-reminders')(log, config);
     this.capabilityService = Container.get(CapabilityService);
     this.promotionCodeManager = Container.get(PromotionCodeManager);
+    this.unsupportedLocations =
+      (config.subscriptions.unsupportedLocations as string[]) || [];
   }
 
   /**
@@ -337,7 +340,8 @@ export class StripeHandler {
 
     const { displayName } = request.payload as Record<string, string>;
 
-    const taxAddress = this.buildTaxAddress(
+    const taxAddress = buildTaxAddress(
+      this.log,
       request.app.clientAddress,
       request.app.geo.location
     );
@@ -388,7 +392,6 @@ export class StripeHandler {
     request: AuthRequest
   ): Promise<invoiceDTO.firstInvoicePreviewSchema> {
     this.log.begin('subscriptions.previewInvoice', request);
-
     const { promotionCode, priceId } = request.payload as Record<
       string,
       string
@@ -410,10 +413,16 @@ export class StripeHandler {
       await this.customs.checkIpOnly(request, 'previewInvoice');
     }
 
-    const taxAddress = this.buildTaxAddress(
+    const taxAddress = buildTaxAddress(
+      this.log,
       request.app.clientAddress,
       request.app.geo.location
     );
+
+    const countryCode = taxAddress?.countryCode;
+    if (countryCode && this.unsupportedLocations.includes(countryCode)) {
+      throw error.unsupportedLocation(countryCode);
+    }
 
     try {
       let isUpgrade = false,
@@ -516,7 +525,8 @@ export class StripeHandler {
       await this.customs.checkIpOnly(request, 'retrieveCouponDetails');
     }
 
-    const taxAddress = this.buildTaxAddress(
+    const taxAddress = buildTaxAddress(
+      this.log,
       request.app.clientAddress,
       request.app.geo.location
     );
@@ -589,6 +599,17 @@ export class StripeHandler {
       true
     );
     await this.customs.check(request, email, 'createSubscriptionWithPMI');
+
+    const taxAddress = buildTaxAddress(
+      this.log,
+      request.app.clientAddress,
+      request.app.geo.location
+    );
+
+    const countryCode = taxAddress?.countryCode;
+    if (countryCode && this.unsupportedLocations.includes(countryCode)) {
+      throw error.unsupportedLocation(countryCode);
+    }
 
     try {
       const customer = await this.stripeHelper.fetchCustomer(uid, ['tax']);
@@ -868,35 +889,6 @@ export class StripeHandler {
     );
 
     return response;
-  }
-
-  /**
-   * Builds a TaxAddress from request geolocation or customer
-   * A tax address is only considered complete if it has both countryCode and postalCode
-   * @param ipAddress Used for logging purposes
-   * @param location Used to determine tax location if customer does not have/not provided
-   * @param customer Used to determine tax location first if shipping address present
-   */
-  buildTaxAddress(
-    ipAddress: string,
-    location?: {
-      countryCode?: string;
-      postalCode?: string;
-    }
-  ): TaxAddress | undefined {
-    if (location?.countryCode && location?.postalCode) {
-      return {
-        countryCode: location.countryCode,
-        postalCode: location.postalCode,
-      };
-    }
-
-    this.log.warn('stripe.buildTaxAddress', {
-      ipAddress,
-      location,
-    });
-
-    return;
   }
 }
 

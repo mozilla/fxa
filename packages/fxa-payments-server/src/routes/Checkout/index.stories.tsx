@@ -84,3 +84,14 @@ export const PlansArchived = storyWithProps(
   },
   { plan: INACTIVE_PLAN_ID }
 );
+
+export const UnsupportedLocation = storyWithProps({
+  ...MOCK_PROPS,
+  plans: {
+    loading: false,
+    result: null,
+    error: new APIError({
+      errno: 213,
+    }),
+  },
+});

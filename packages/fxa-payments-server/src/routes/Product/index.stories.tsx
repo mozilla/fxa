@@ -174,6 +174,18 @@ function init() {
           },
         }}
       />
+    ))
+    .add('unsupported location', () => (
+      <ProductRoute
+        routeProps={{
+          ...MOCK_PROPS,
+          plans: {
+            loading: false,
+            error: new APIError({ errno: 213 }),
+            result: null,
+          },
+        }}
+      />
     ));
 }
 

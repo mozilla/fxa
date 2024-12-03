@@ -47,7 +47,7 @@ import '../../Product/SubscriptionCreate/index.scss';
 import AppContext from '../../../lib/AppContext';
 import { ButtonBaseProps } from '../../../components/PayPalButton';
 import { apiCapturePaypalPayment } from '../../../lib/apiClient';
-import { GeneralError } from '../../../lib/errors';
+import { AuthServerErrno, GeneralError } from '../../../lib/errors';
 import { PaymentMethodHeader } from '../../../components/PaymentMethodHeader';
 import CouponForm from '../../../components/CouponForm';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
@@ -178,6 +178,9 @@ export const SubscriptionCreate = ({
           });
         } catch (error) {
           console.error('handleSubscriptionPayment failed', error);
+          if (error.errno === AuthServerErrno.UNSUPPORTED_LOCATION) {
+            error.code = 'location_unsupported';
+          }
           setSubscriptionError(error);
           // Only set In Progress to false on subscription error
           // This is to prevent the Submit button from momentarily flashing as enabled
@@ -280,7 +283,6 @@ export const SubscriptionCreate = ({
             hidden: transactionInProgress || subscriptionError,
           })}
         />
-
         {transactionInProgress && isMobile ? null : (
           <div className="payment-panel">
             <PlanDetails
@@ -303,7 +305,6 @@ export const SubscriptionCreate = ({
             />
           </div>
         )}
-
         <div
           className={classNames(
             'product-payment component-card tablet:rounded-t-none',

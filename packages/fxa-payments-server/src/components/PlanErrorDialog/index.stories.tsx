@@ -4,6 +4,7 @@
 
 import React from 'react';
 import { PlanErrorDialog } from './index';
+import { APIError } from '../../lib/apiClient';
 import { PLANS } from '../../lib/mock-data';
 import { FetchState, Plan } from '../../store/types';
 import { Meta } from '@storybook/react';
@@ -21,10 +22,7 @@ const plans: FetchState<Plan[], any> = {
   result: PLANS,
 };
 
-const storyWithContext = (
-  plans: FetchState<Plan[], any>,
-  storyName?: string
-) => {
+const storyWithProps = (plans: FetchState<Plan[], any>, storyName?: string) => {
   const story = () => (
     <AppLocalizationProvider
       baseDir="./locales"
@@ -38,9 +36,20 @@ const storyWithContext = (
   return story;
 };
 
-export const Default = storyWithContext(plans, 'no plan for product');
-
-export const ProblemLoadingPlans = storyWithContext(
+export const Default = storyWithProps(plans, 'no plan for product');
+export const ProblemLoadingPlans = storyWithProps(
   { ...plans, result: null },
   'problem loading plans'
+);
+export const LocationNotSupported = storyWithProps(
+  {
+    error: new APIError({
+      statusCode: 400,
+      errno: 213,
+      message: 'Location not supported',
+    }),
+    loading: false,
+    result: null,
+  },
+  'location not supported'
 );

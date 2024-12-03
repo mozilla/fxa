@@ -590,6 +590,20 @@ AppError.invalidRegion = (region) => {
   );
 };
 
+AppError.unsupportedLocation = (country) => {
+  return new AppError(
+    {
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.UNSUPPORTED_LOCATION,
+      message: 'Location is not supported according to our Terms of Service.',
+    },
+    {
+      country,
+    }
+  );
+};
+
 AppError.currencyCountryMismatch = (currency, country) => {
   return new AppError(
     {

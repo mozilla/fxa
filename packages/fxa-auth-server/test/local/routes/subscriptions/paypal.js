@@ -24,10 +24,14 @@ const { filterSubscription } = require('fxa-shared/subscriptions/stripe');
 const { CurrencyHelper } = require('../../../../lib/payments/currencies');
 const { AuthLogger, AppConfig } = require('../../../../lib/types');
 const deleteAccountIfUnverifiedStub = sinon.stub();
+const buildTaxAddressStub = sinon.stub();
 const buildRoutes = proxyquire('../../../../lib/routes/subscriptions', {
   './paypal': proxyquire('../../../../lib/routes/subscriptions/paypal', {
     '../utils/account': {
       deleteAccountIfUnverified: deleteAccountIfUnverifiedStub,
+    },
+    './utils': {
+      buildTaxAddress: buildTaxAddressStub,
     },
   }),
 }).default;
@@ -121,6 +125,7 @@ describe('subscriptions payPalRoutes', () => {
         paypalNvpSigCredentials: {
           enabled: true,
         },
+        unsupportedLocations: ['CN'],
       },
       currenciesToCountries: {
         USD: ['US', 'CA', 'GB'],
@@ -231,6 +236,8 @@ describe('subscriptions payPalRoutes', () => {
         sinon.fake.resolves(customer);
       promotionCode = { coupon: { id: 'test-coupon' } };
       stripeHelper.findValidPromoCode = sinon.fake.resolves(promotionCode);
+      buildTaxAddressStub.reset();
+      buildTaxAddressStub.returns({ countryCode: 'US', postalCode: '92841' });
     });
 
     describe('existing PayPal subscriber with no billing agreement on record', () => {
@@ -552,6 +559,30 @@ describe('subscriptions payPalRoutes', () => {
         sinon.assert.calledOnce(stripeHelper.createSubscriptionWithPaypal);
         sinon.assert.calledOnce(stripeHelper.updateCustomerPaypalAgreement);
         sinon.assert.calledOnce(payPalHelper.processZeroInvoice);
+      });
+
+      it('throws an error if customer is in unsupported location', async () => {
+        const requestOptions = deepCopy(defaultRequestOptions);
+        requestOptions.geo = {
+          location: {
+            countryCode: 'CN',
+          },
+        };
+
+        buildTaxAddressStub.returns({ countryCode: 'CN' });
+
+        try {
+          await runTest('/oauth/subscriptions/active/new-paypal', {
+            ...requestOptions,
+            payload: { token },
+          });
+          assert.fail('Should have thrown an error');
+        } catch (err) {
+          assert.equal(
+            err.message,
+            'Location is not supported according to our Terms of Service.'
+          );
+        }
       });
 
       it('should throw an error if invalid promotion code', async () => {

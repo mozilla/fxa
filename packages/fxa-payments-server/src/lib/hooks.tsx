@@ -271,7 +271,7 @@ export function useFetchInvoicePreview(
 ) {
   const [invoicePreview, setInvoicePreview] = useState<{
     loading: boolean;
-    error: boolean;
+    error: any;
     result?: FirstInvoicePreview;
   }>({ loading: false, error: false, result: undefined });
   const isMounted = useRef(false);
@@ -316,7 +316,7 @@ export function useFetchInvoicePreview(
         if (isMounted.current) {
           setInvoicePreview({
             loading: false,
-            error: true,
+            error: err,
             result: undefined,
           });
         }

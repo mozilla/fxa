@@ -10,7 +10,7 @@ export default {
   component: PaymentErrorView,
 } as Meta;
 
-const storyWithProps = () => {
+const storyWithProps = (errCode: string) => {
   const story = () => (
     <AppLocalizationProvider
       baseDir="./locales"
@@ -22,7 +22,7 @@ const storyWithProps = () => {
             path="*"
             element={
               <PaymentErrorView
-                error={{ code: 'general_paypal_error' }}
+                error={{ code: errCode }}
                 actionFn={() => {}}
                 plan={SELECTED_PLAN}
               />
@@ -36,4 +36,5 @@ const storyWithProps = () => {
   return story;
 };
 
-export const Default = storyWithProps();
+export const Default = storyWithProps('general_paypal_error');
+export const UnsupportedLocation = storyWithProps('location_unsupported');

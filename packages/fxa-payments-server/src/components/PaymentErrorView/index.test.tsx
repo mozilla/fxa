@@ -143,4 +143,28 @@ describe('PaymentErrorView test with l10n', () => {
 
     expect(queryByTestId('fxa-legal-links')).toBeInTheDocument();
   });
+
+  it('renders error for unsupported locations', async () => {
+    const { queryByTestId } = renderWithLocalizationProvider(
+      <PaymentErrorView
+        actionFn={() => {}}
+        error={{
+          code: 'location_unsupported',
+        }}
+        plan={SELECTED_PLAN}
+        showFxaLegalFooterLinks={true}
+      />
+    );
+
+    const expected =
+      'Your current location is not supported according to our Terms of Service.';
+    const actual = getLocalizedMessage(bundle, 'location-unsupported', {});
+    expect(actual).toEqual(expected);
+
+    const retryButton = queryByTestId('retry-link');
+    expect(retryButton).not.toBeInTheDocument();
+
+    const actionButton = queryByTestId('error-view-action-button');
+    expect(actionButton).not.toBeInTheDocument();
+  });
 });

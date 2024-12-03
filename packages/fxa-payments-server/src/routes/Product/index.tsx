@@ -206,6 +206,53 @@ export const Product = ({
     return <PlanErrorDialog {...{ locationReload, plans }} />;
   }
 
+  if (invoicePreview.error || !invoicePreview.result) {
+    const ariaLabelledBy = 'product-invoice-preview-error-title';
+    const ariaDescribedBy = 'product-invoice-preview-error-text';
+    if (invoicePreview.error.errno === AuthServerErrno.UNSUPPORTED_LOCATION) {
+      return (
+        <DialogMessage
+          className="dialog-error"
+          onDismiss={locationReload}
+          headerId="product-location-unsupported-error-title"
+          descId="product-location-unsupported-error-text"
+        >
+          <Localized id="product-location-unsupported-error">
+            <h4
+              id="product-location-unsupported-error-title"
+              data-testid="product-location-unsupported-error"
+            >
+              Location not supported
+            </h4>
+          </Localized>
+          <Localized id="location-unsupported">
+            <p id="product-location-unsupported-error-text">
+              Your current location is not supported according to our Terms of
+              Service.
+            </p>
+          </Localized>
+        </DialogMessage>
+      );
+    }
+    return (
+      <DialogMessage
+        className="dialog-error"
+        onDismiss={locationReload}
+        headerId={ariaLabelledBy}
+        descId={ariaDescribedBy}
+      >
+        <Localized id="product-invoice-preview-error-title">
+          <h4 id={ariaLabelledBy} data-testid="product-invoice-preview-error">
+            Problem loading invoice preview
+          </h4>
+        </Localized>
+        <Localized id="product-invoice-preview-error-text">
+          <p id={ariaDescribedBy}>Could not load invoice preview</p>
+        </Localized>
+      </DialogMessage>
+    );
+  }
+
   // Only check for upgrade or existing subscription if we have a customer.
   if (customer.result && subscriptionChangeEligibility.result !== null) {
     const iapSubscription: IapSubscription | null =
@@ -249,28 +296,6 @@ export const Product = ({
 
     const alreadySubscribedToSelectedPlan: boolean | null =
       customerIsSubscribedToPlan(webSubscriptions, selectedPlan);
-
-    if (invoicePreview.error || !invoicePreview.result) {
-      const ariaLabelledBy = 'product-invoice-preview-error-title';
-      const ariaDescribedBy = 'product-invoice-preview-error-text';
-      return (
-        <DialogMessage
-          className="dialog-error"
-          onDismiss={locationReload}
-          headerId={ariaLabelledBy}
-          descId={ariaDescribedBy}
-        >
-          <Localized id="product-invoice-preview-error-title">
-            <h4 id={ariaLabelledBy} data-testid="product-invoice-preview-error">
-              Problem loading invoice preview
-            </h4>
-          </Localized>
-          <Localized id="product-invoice-preview-error-text">
-            <p id={ariaDescribedBy}>Could not load invoice preview</p>
-          </Localized>
-        </DialogMessage>
-      );
-    }
 
     // Do we already have a subscription to the product in the selected plan?
     if (alreadySubscribedToSelectedPlan) {

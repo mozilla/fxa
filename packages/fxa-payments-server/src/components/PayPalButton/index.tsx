@@ -16,6 +16,7 @@ import {
   GAPurchaseType,
   ReactGALog,
 } from '../../lib/reactga-event';
+import { AuthServerErrno } from '../../lib/errors';
 import { CheckoutType } from 'fxa-shared/subscriptions/types';
 
 declare var paypal: {
@@ -182,7 +183,9 @@ export const PaypalButton = ({
         await postSubscriptionAttemptPaypalCallback();
       } catch (error) {
         if (isNewSubscription) {
-          if (!error.code) {
+          if (error.errno === AuthServerErrno.UNSUPPORTED_LOCATION) {
+            error.code = 'location_unsupported';
+          } else if (!error.code) {
             error.code = GENERAL_PAYPAL_ERROR_ID;
           }
           setSubscriptionError(error);
