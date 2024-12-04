@@ -12,7 +12,7 @@
       <button id="back-btn" class="me-4 tablet:me-0 tablet:p-4 inline-block tablet:absolute tablet:-start-20 -top-1.5 w-5 h-3.5 p-5 bg-back-arrow bg-auto bg-center bg-no-repeat rtl:transform rtl:-scale-x-100 rounded hover:bg-grey-50 active:bg-grey-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500" aria-label="{{#t}}Back{{/t}}" title="{{#t}}Back{{/t}}"></button>
     {{/needsMobileConfirmed}}
 
-    <h1 class="mb-5 text-grey-400 text-base{{#needsMobileConfirmed}} inline-block align-top mt-2 tablet:mt-0{{/needsMobileConfirmed}}" id="cad-header">Connect another device</h1>
+    <h1 class="mb-5 text-grey-400 text-base{{#needsMobileConfirmed}} inline-block align-top mt-2 tablet:mt-0{{/needsMobileConfirmed}}" id="cad-header">{{#t}}Connect another device{{/t}}</h1>
 
     {{^needsMobileConfirmed}}
       <h2 id="pair-header" class="card-header focus:outline-none" tabindex="-1">{{#t}}Sync your Firefox experience{{/t}}</h2>
@@ -30,7 +30,7 @@
 
       <form novalidate id="form-ask-mobile-status">
         <fieldset>
-          <legend class="mb-4 text-base font-semibold">Select an option to continue:</legend>
+          <legend class="mb-4 text-base font-semibold">{{#t}}Select an option to continue:{{/t}}</legend>
           <div class="input-radio-wrapper">
             <input class="input-radio" type="radio" id="has-mobile" name="mobile-download">
             <label class="input-radio-label" for="has-mobile">
