@@ -50,7 +50,7 @@ export class StrapiClient {
     event: 'response',
     listener: (response: EventResponse) => void
   ) => EventEmitter;
-  private graphqlMemCache: Record<string, Promise<unknown> | undefined> = {};
+  private graphqlMemCache: Record<string, unknown> = {};
 
   constructor(
     private strapiClientConfig: StrapiClientConfig,
@@ -103,34 +103,20 @@ export class StrapiClient {
     };
 
     if (this.graphqlMemCache[cacheKey]) {
-      let response: Result | undefined;
-      try {
-        response = (await this.graphqlMemCache[cacheKey]) as Result;
-      } catch (e) {
-        // Do nothing, fall through to do the actual query since the cached instance failed
-      }
-
-      if (response) {
-        this.emitter.emit('response', {
-          ...emitterResponse,
-          requestEndTime: emitterResponse.requestStartTime,
-          elapsed: 0,
-          cache: true,
-        });
-
-        return response;
-      }
+      this.emitter.emit('response', {
+        ...emitterResponse,
+        requestEndTime: emitterResponse.requestStartTime,
+        elapsed: 0,
+        cache: true,
+      });
+      return this.graphqlMemCache[cacheKey] as Result;
     }
 
     try {
-      const response = this.client.request<Result, any>({
+      const response = await this.client.request<Result, any>({
         document: query,
         variables,
       });
-
-      this.graphqlMemCache[cacheKey] = response;
-
-      await response;
 
       const requestEndTime = Date.now();
       this.emitter.emit('response', {
@@ -138,6 +124,8 @@ export class StrapiClient {
         elapsed: requestEndTime - emitterResponse.requestStartTime,
         requestEndTime,
       });
+
+      this.graphqlMemCache[cacheKey] = response;
 
       return response;
     } catch (e) {
@@ -163,10 +151,8 @@ export class StrapiClient {
     const cacheTTL =
       (this.strapiClientConfig.memCacheTTL || DEFAULT_MEM_CACHE_TTL) * 1000;
 
-    const randomSpread = Math.floor(Math.random() * 100);
-
     setInterval(() => {
       this.graphqlMemCache = {};
-    }, cacheTTL + randomSpread);
+    }, cacheTTL);
   }
 }
