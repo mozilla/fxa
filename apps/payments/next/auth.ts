@@ -25,20 +25,35 @@ export const {
       clientId: config.auth.clientId,
       clientSecret: config.auth.clientSecret,
       token: config.auth.tokenUrl,
+      profile: (profile) => {
+        return {
+          id: profile.uid,
+          name: profile.displayName,
+          email: profile.email,
+          image: profile.avatar,
+        };
+      },
       userinfo: config.auth.userinfoUrl,
     },
   ],
   callbacks: {
-    async session(params: any) {
-      params.session.user.id = params.token.fxaUid;
-      return params.session;
+    async session({ session, token }) {
+      session.user = { ...session.user, ...(token.user as any) };
+      return session;
     },
     async jwt({ token, profile }) {
       // Note profile is only defined once after user sign in.
-      const fxaUid = token.fxaUid || profile?.uid;
+      // const fxaUid = token.fxaUid || profile?.uid;
+      if (profile) {
+        token.user = {
+          id: profile.uid,
+          name: profile.displayName,
+          email: profile.email,
+          image: profile.avatar,
+        };
+      }
       return {
         ...token,
-        fxaUid,
       };
     },
   },
