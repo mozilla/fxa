@@ -91,7 +91,7 @@ const ThirdPartyAuthCallback = ({
         },
         integration,
         redirectTo:
-          isWebIntegration(integration) && webRedirectCheck.isValid()
+          isWebIntegration(integration) && webRedirectCheck?.isValid
             ? integration.data.redirectTo
             : '',
         finishOAuthFlowHandler,

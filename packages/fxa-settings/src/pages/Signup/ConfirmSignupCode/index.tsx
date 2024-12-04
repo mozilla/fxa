@@ -220,14 +220,14 @@ const ConfirmSignupCode = ({
       } else if (isWebIntegration(integration)) {
         // SubPlat redirect
         if (integration.data.redirectTo) {
-          if (webRedirectCheck.isValid()) {
+          if (webRedirectCheck?.isValid) {
             hardNavigate(integration.data.redirectTo);
-          } else {
+          } else if (webRedirectCheck?.localizedInvalidRedirectError) {
             // Even if the code submission is successful, show the user this error
             // message if the redirect is invalid to match parity with content-server.
             // This may but may be revisited when we look at our signup flows as a whole.
             setLocalizedErrorBannerHeading(
-              webRedirectCheck.getLocalizedErrorMessage()
+              webRedirectCheck.localizedInvalidRedirectError
             );
           }
         } else {

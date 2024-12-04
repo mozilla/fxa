@@ -144,7 +144,7 @@ const Signin = ({
           },
           integration,
           redirectTo:
-            isWebIntegration(integration) && webRedirectCheck.isValid()
+            isWebIntegration(integration) && webRedirectCheck?.isValid
               ? integration.data.redirectTo
               : '',
           finishOAuthFlowHandler,
@@ -209,7 +209,7 @@ const Signin = ({
           integration,
           finishOAuthFlowHandler,
           redirectTo:
-            isWebIntegration(integration) && webRedirectCheck.isValid()
+            isWebIntegration(integration) && webRedirectCheck?.isValid
               ? integration.data.redirectTo
               : '',
           queryParams: location.search,

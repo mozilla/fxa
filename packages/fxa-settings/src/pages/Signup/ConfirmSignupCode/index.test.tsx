@@ -27,13 +27,14 @@ import {
 import GleanMetrics from '../../../lib/glean';
 import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
 import { ConfirmSignupCodeIntegration } from './interfaces';
-import * as utils from 'fxa-react/lib/utils';
+import * as ReactUtils from 'fxa-react/lib/utils';
 import {
   FinishOAuthFlowHandler,
   tryAgainError,
 } from '../../../lib/oauth/hooks';
 import { OAUTH_ERRORS } from '../../../lib/oauth';
 import firefox from '../../../lib/channels/firefox';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -78,6 +79,8 @@ jest.mock('../../../lib/storage-utils', () => ({
   ...jest.requireActual('../../../lib/storage-utils'),
   persistAccount: jest.fn(),
 }));
+
+jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => {});
 
 let session: Session;
 
@@ -157,7 +160,7 @@ describe('ConfirmSignupCode page', () => {
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
     expect(GleanMetrics.signupConfirmation.view).toHaveBeenCalledTimes(1);
 
-    //  Input field is autofocused on render and should emit an 'engage' event metric
+    // Input field is autofocused on render and should emit an 'engage' event metric
     await waitFor(() => {
       expect(logViewEvent).toHaveBeenCalledWith(
         `flow.${viewName}`,
@@ -304,32 +307,18 @@ describe('ConfirmSignupCode page', () => {
   });
 
   describe('Web integration on submission', () => {
-    const localizedErrorMessage = 'bloopity bleep';
-
-    let hardNavigateSpy: jest.SpyInstance;
-    beforeEach(() => {
-      hardNavigateSpy = jest
-        .spyOn(utils, 'hardNavigate')
-        .mockImplementation(() => {});
-    });
-
-    afterEach(() => {
-      hardNavigateSpy.mockRestore();
-    });
-
     it('with valid redirectTo', async () => {
       const redirectTo = 'surprisinglyValid!';
       const integration = createMockWebIntegration({ redirectTo });
       (useWebRedirect as jest.Mock).mockReturnValue({
-        isValid: () => true,
-        getLocalizedErrorMessage: () => localizedErrorMessage,
+        isValid: true,
       });
       renderWithSession({ session, integration });
       submit();
 
       await waitFor(() => {
         expect(GleanMetrics.registration.complete).toHaveBeenCalledTimes(1);
-        expect(hardNavigateSpy).toHaveBeenCalledWith(redirectTo);
+        expect(ReactUtils.hardNavigate).toHaveBeenCalledWith(redirectTo);
       });
     });
 
@@ -338,13 +327,13 @@ describe('ConfirmSignupCode page', () => {
         redirectTo: 'sadlyInvalid',
       });
       (useWebRedirect as jest.Mock).mockReturnValue({
-        isValid: () => false,
-        getLocalizedErrorMessage: () => localizedErrorMessage,
+        isValid: false,
+        localizedInvalidRedirectError: AuthUiErrors.INVALID_REDIRECT_TO.message,
       });
       renderWithSession({ session, integration });
       submit();
 
-      await screen.findByText(localizedErrorMessage);
+      await screen.findByText(AuthUiErrors.INVALID_REDIRECT_TO.message);
     });
 
     it('without redirectTo', async () => {

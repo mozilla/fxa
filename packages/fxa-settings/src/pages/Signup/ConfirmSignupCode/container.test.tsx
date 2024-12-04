@@ -70,6 +70,10 @@ function mockLocation(
   });
 }
 
+function mockReactUtilsModule() {
+  jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => {});
+}
+
 function mockEmailBounceQuery() {
   mockEmailBounceStatusQuery.mockImplementation(() => {
     return {
@@ -134,8 +138,8 @@ function applyMocks() {
       };
     });
   mockLocation();
+  mockReactUtilsModule();
   jest.spyOn(SentryModule.default, 'captureException');
-  jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => {});
 
   mockEmailBounceQuery();
 }

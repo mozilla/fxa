@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
+import * as utils from 'fxa-react/lib/utils';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import SigninUnblock, { viewName } from '.';
@@ -21,6 +22,8 @@ import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { navigate } from '@reach/router';
 import { tryAgainError } from '../../../lib/oauth/hooks';
 import { OAUTH_ERRORS } from '../../../lib/oauth';
+import { createMockWebIntegration } from './mocks';
+import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -36,6 +39,8 @@ jest.mock('../../../lib/glean', () => ({
     },
   },
 }));
+
+jest.mock('../../../lib/hooks/useWebRedirect');
 
 const mockUseNavigate = jest.fn();
 jest.mock('@reach/router', () => ({
@@ -114,7 +119,9 @@ describe('SigninUnblock', () => {
     renderWithSuccess();
 
     screen.getByRole('heading', { name: 'Authorize this sign-in' });
-    screen.getByRole('img', { name: 'Illustration to represent an email containing a code.' });
+    screen.getByRole('img', {
+      name: 'Illustration to represent an email containing a code.',
+    });
     screen.getByRole('textbox', { name: 'Enter authorization code' });
     screen.getByRole('button', { name: 'Continue' });
     screen.getByRole('button', {
@@ -258,6 +265,71 @@ describe('SigninUnblock', () => {
 
       await waitFor(() => {
         screen.getByText(OAUTH_ERRORS.TRY_AGAIN.message);
+      });
+    });
+  });
+
+  describe('submit with web integration', () => {
+    let hardNavigateSpy: jest.SpyInstance;
+    beforeEach(() => {
+      hardNavigateSpy = jest
+        .spyOn(utils, 'hardNavigate')
+        .mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      hardNavigateSpy.mockRestore();
+    });
+
+    it('with valid redirectTo', async () => {
+      const redirectTo = 'surprisinglyValid!';
+      const integration = createMockWebIntegration({ redirectTo });
+      (useWebRedirect as jest.Mock).mockReturnValue({
+        isValid: true,
+      });
+      renderWithSuccess(undefined, integration);
+      const input = screen.getByRole('textbox');
+      const submitButton = screen.getByRole('button', { name: 'Continue' });
+
+      fireEvent.change(input, { target: { value: 'A1B2C3D4' } });
+      submitButton.click();
+
+      await waitFor(() => {
+        expect(hardNavigateSpy).toHaveBeenCalledWith(redirectTo);
+      });
+    });
+
+    it('with invalid redirectTo', async () => {
+      const redirectTo = 'sadlyInvalid';
+      const integration = createMockWebIntegration({
+        redirectTo,
+      });
+      (useWebRedirect as jest.Mock).mockReturnValue({
+        isValid: false,
+        localizedInvalidRedirectError: 'Invalid redirect',
+      });
+      renderWithSuccess(undefined, integration);
+      const input = screen.getByRole('textbox');
+      const submitButton = screen.getByRole('button', { name: 'Continue' });
+
+      fireEvent.change(input, { target: { value: 'A1B2C3D4' } });
+      submitButton.click();
+
+      await waitFor(() => {
+        expect(navigate).toHaveBeenCalledWith('/settings');
+      });
+    });
+
+    it('without redirectTo', async () => {
+      renderWithSuccess();
+      const input = screen.getByRole('textbox');
+      const submitButton = screen.getByRole('button', { name: 'Continue' });
+
+      fireEvent.change(input, { target: { value: 'A1B2C3D4' } });
+      submitButton.click();
+
+      await waitFor(() => {
+        expect(navigate).toHaveBeenCalledWith('/settings');
       });
     });
   });
