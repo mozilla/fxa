@@ -17,7 +17,7 @@ import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import { handleNavigation } from '../../Signin/utils';
 import { QueryParams } from '../../../index';
 import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
-import { MOCK_EMAIL, MOCK_SESSION_TOKEN, MOCK_UID } from '../../mocks';
+import { MOCK_EMAIL, MOCK_SESSION_TOKEN } from '../../mocks';
 
 jest.mock('../../../models', () => ({
   ...jest.requireActual('../../../models'),

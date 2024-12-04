@@ -181,6 +181,8 @@ describe('signin unblock container', () => {
   });
 
   it('handles signin with correct code and failure when looking up credential status', async () => {
+    jest.spyOn(global.console, 'warn');
+
     await render([
       {
         ...mockGqlCredentialStatusMutation(),
@@ -204,6 +206,8 @@ describe('signin unblock container', () => {
     expect(result?.data?.signIn?.sessionToken).toBeDefined();
     expect(result?.data?.signIn?.verified).toBeDefined();
     expect(result?.data?.signIn?.metricsEnabled).toBeDefined();
+    // console warning during test execution is also expected here
+    expect(console.warn).toBeCalledWith('Could not get credential status!');
   });
 
   it('handles incorrect unblock code', async () => {

@@ -24,19 +24,25 @@ export function useWebRedirect(redirectTo: BaseIntegrationData['redirectTo']) {
   const location = useLocation();
   const ftlMsgResolver = useFtlMsgResolver();
 
-  const isValid = () =>
-    redirectTo
-      ? isAllowed(redirectTo, location.href, config.redirectAllowlist)
-      : false;
+  if (!redirectTo) {
+    return;
+  }
 
-  const getLocalizedErrorMessage = () =>
-    ftlMsgResolver.getMsg(
-      getErrorFtlId(AuthUiErrors.INVALID_REDIRECT_TO),
-      AuthUiErrors.INVALID_REDIRECT_TO.message
-    );
+  const isValid = isAllowed(
+    redirectTo,
+    location.href,
+    config.redirectAllowlist
+  );
+
+  const localizedInvalidRedirectError = isValid
+    ? ''
+    : ftlMsgResolver.getMsg(
+        getErrorFtlId(AuthUiErrors.INVALID_REDIRECT_TO),
+        AuthUiErrors.INVALID_REDIRECT_TO.message
+      );
 
   return {
     isValid,
-    getLocalizedErrorMessage,
+    localizedInvalidRedirectError,
   };
 }

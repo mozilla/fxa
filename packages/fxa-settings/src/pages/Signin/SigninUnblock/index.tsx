@@ -14,7 +14,11 @@ import FormVerifyCode, {
   FormAttributes,
   InputModeEnum,
 } from '../../../components/FormVerifyCode';
-import { useFtlMsgResolver } from '../../../models';
+import {
+  isWebIntegration,
+  useAlertBar,
+  useFtlMsgResolver,
+} from '../../../models';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { SigninUnblockProps } from './interfaces';
 import { EmailCodeImage } from '../../../components/images';
@@ -28,6 +32,7 @@ import { handleNavigation } from '../utils';
 import { ResendStatus } from '../../../lib/types';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import Banner, { ResendCodeSuccessBanner } from '../../../components/Banner';
+import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
 
 export const viewName = 'signin-unblock';
 
@@ -49,9 +54,18 @@ export const SigninUnblock = ({
     ResendStatus.none
   );
 
+  const alertBar = useAlertBar();
   const ftlMsgResolver = useFtlMsgResolver();
   const location = useLocation();
   const navigate = useNavigate();
+
+  const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
+  const redirectTo =
+    isWebIntegration(integration) &&
+    integration.data.redirectTo &&
+    webRedirectCheck?.isValid
+      ? integration.data.redirectTo
+      : '';
 
   const formAttributes: FormAttributes = {
     inputFtlId: 'signin-unblock-code-input',
@@ -129,8 +143,18 @@ export const SigninUnblock = ({
         queryParams: location.search,
         handleFxaLogin: true,
         handleFxaOAuthLogin: true,
+        redirectTo,
       };
 
+      // If the web redirect is invalid, this shows an "Invalid redirect" message in alertBar
+      // after being redirected to account settings. We might want to review the displayed error
+      // because the error interrupted the user's task. (e.g., subscribing to a product)
+      if (
+        webRedirectCheck?.isValid === false &&
+        webRedirectCheck?.localizedInvalidRedirectError
+      ) {
+        alertBar.error(webRedirectCheck.localizedInvalidRedirectError);
+      }
       const { error: navError } = await handleNavigation(navigationOptions);
       if (navError) {
         setBannerErrorMessage(

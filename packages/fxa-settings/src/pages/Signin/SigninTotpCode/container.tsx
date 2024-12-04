@@ -69,7 +69,7 @@ export const SigninTotpCodeContainer = ({
   );
 
   const redirectTo =
-    isWebIntegration(integration) && webRedirectCheck.isValid()
+    isWebIntegration(integration) && webRedirectCheck?.isValid
       ? integration.data.redirectTo
       : '';
 

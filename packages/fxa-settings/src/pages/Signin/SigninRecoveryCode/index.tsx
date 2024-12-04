@@ -51,7 +51,7 @@ const SigninRecoveryCode = ({
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
 
   const redirectTo =
-    isWebIntegration(integration) && webRedirectCheck.isValid()
+    isWebIntegration(integration) && webRedirectCheck?.isValid
       ? integration.data.redirectTo
       : '';
 
