@@ -5,7 +5,7 @@
 import { ServerRoute } from '@hapi/hapi';
 import isA from 'joi';
 import * as Sentry from '@sentry/node';
-import { SeverityLevel } from '@sentry/types';
+import { SeverityLevel } from '@sentry/core';
 import {
   PaymentsCustomerError,
   PromotionCodeManager,

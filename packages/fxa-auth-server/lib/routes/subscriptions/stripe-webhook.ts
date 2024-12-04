@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { ServerRoute } from '@hapi/hapi';
 import * as Sentry from '@sentry/node';
-import { SeverityLevel } from '@sentry/types';
+import { SeverityLevel } from '@sentry/core';
 import {
   Account,
   getUidAndEmailByStripeCustomerId,

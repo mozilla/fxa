@@ -29,7 +29,7 @@ import {
   OfferingComparison,
 } from '@fxa/payments/eligibility';
 import * as Sentry from '@sentry/node';
-import { SeverityLevel } from '@sentry/types';
+import { SeverityLevel } from '@sentry/core';
 
 import error from '../error';
 import { authEvents } from '../events';

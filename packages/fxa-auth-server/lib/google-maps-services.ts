@@ -6,7 +6,7 @@ import {
   Status,
 } from '@googlemaps/google-maps-services-js';
 import * as Sentry from '@sentry/node';
-import { SeverityLevel } from '@sentry/types';
+import { SeverityLevel } from '@sentry/core';
 import countries from 'i18n-iso-countries';
 import { Container } from 'typedi';
 
