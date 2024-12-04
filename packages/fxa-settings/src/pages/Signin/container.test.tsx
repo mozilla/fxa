@@ -478,24 +478,27 @@ describe('signin container', () => {
       await waitFor(() => {
         expect(currentSigninProps).toBeDefined();
       });
-      const handlerResult = await currentSigninProps?.beginSigninHandler(
-        MOCK_EMAIL,
-        MOCK_PASSWORD
-      );
-      // these come from createBeginSigninResponse
-      expect(handlerResult?.data?.signIn?.uid).toEqual(MOCK_UID);
-      expect(handlerResult?.data?.signIn?.sessionToken).toEqual(
-        MOCK_SESSION_TOKEN
-      );
-      expect(handlerResult?.data?.signIn?.authAt).toEqual(MOCK_AUTH_AT);
-      expect(handlerResult?.data?.signIn?.metricsEnabled).toEqual(true);
-      expect(handlerResult?.data?.signIn?.verified).toEqual(true);
-      expect(handlerResult?.data?.signIn?.verificationMethod).toEqual(
-        MOCK_VERIFICATION.verificationMethod
-      );
-      expect(handlerResult?.data?.signIn?.verificationReason).toEqual(
-        MOCK_VERIFICATION.verificationReason
-      );
+
+      await waitFor(async () => {
+        const handlerResult = await currentSigninProps?.beginSigninHandler(
+          MOCK_EMAIL,
+          MOCK_PASSWORD
+        );
+        // these come from createBeginSigninResponse
+        expect(handlerResult?.data?.signIn?.uid).toEqual(MOCK_UID);
+        expect(handlerResult?.data?.signIn?.sessionToken).toEqual(
+          MOCK_SESSION_TOKEN
+        );
+        expect(handlerResult?.data?.signIn?.authAt).toEqual(MOCK_AUTH_AT);
+        expect(handlerResult?.data?.signIn?.metricsEnabled).toEqual(true);
+        expect(handlerResult?.data?.signIn?.verified).toEqual(true);
+        expect(handlerResult?.data?.signIn?.verificationMethod).toEqual(
+          MOCK_VERIFICATION.verificationMethod
+        );
+        expect(handlerResult?.data?.signIn?.verificationReason).toEqual(
+          MOCK_VERIFICATION.verificationReason
+        );
+      });
     });
 
     describe('showInlineRecoveryKeySetup', () => {
@@ -505,6 +508,11 @@ describe('signin container', () => {
         mockUseValidateModule();
         render([
           mockGqlAvatarUseQuery(),
+          mockGqlCredentialStatusMutation({
+            currentVersion: 'v2',
+            upgradeNeeded: false,
+            clientSalt: MOCK_CLIENT_SALT,
+          }),
           mockGqlBeginSigninMutation({ keys: true, service: 'sync' }),
         ]);
       });
@@ -639,7 +647,18 @@ describe('signin container', () => {
             ok: true,
           })
         );
-        render([mockGqlAvatarUseQuery()]);
+        render([
+          mockGqlAvatarUseQuery(),
+          mockGqlCredentialStatusMutation({
+            currentVersion: 'v2',
+            upgradeNeeded: false,
+            clientSalt: MOCK_CLIENT_SALT,
+          }),
+          mockGqlBeginSigninMutation(
+            { keys: true, service: 'sync' },
+            { email: MOCK_EMAIL }
+          ),
+        ]);
 
         await waitFor(async () => {
           await currentSigninProps?.beginSigninHandler(
@@ -689,7 +708,18 @@ describe('signin container', () => {
             ok: true,
           })
         );
-        render([mockGqlAvatarUseQuery()]);
+        render([
+          mockGqlAvatarUseQuery(),
+          mockGqlCredentialStatusMutation({
+            currentVersion: 'v2',
+            upgradeNeeded: false,
+            clientSalt: MOCK_CLIENT_SALT,
+          }),
+          mockGqlBeginSigninMutation(
+            { keys: true, service: 'sync' },
+            { email: MOCK_EMAIL }
+          ),
+        ]);
 
         await waitFor(async () => {
           await currentSigninProps?.beginSigninHandler(
@@ -801,6 +831,7 @@ describe('signin container', () => {
             ...mockGqlCredentialStatusMutation(),
             error: mockGqlError(),
           },
+          mockGqlBeginSigninMutation({ keys: false }, { email: MOCK_EMAIL }),
         ]);
 
         await waitFor(async () => {
@@ -809,10 +840,11 @@ describe('signin container', () => {
             MOCK_PASSWORD
           );
 
-          expect(handlerResult?.error).toBeDefined();
-          expect(handlerResult?.data?.signIn).toBeUndefined();
+          expect(handlerResult?.error).toBeUndefined();
+          expect(handlerResult?.data?.signIn).toBeDefined();
           expect(mockSentryCaptureMessage).toBeCalledWith(
-            'Failure to finish v2 upgrade. Could not fetch credential status.'
+            'Failure to finish v2 key-stretching upgrade. Could not get credential status during signin',
+            { tags: { errno: 999 } }
           );
         });
       });
@@ -820,7 +852,12 @@ describe('signin container', () => {
       it('handles error when starting upgrade', async () => {
         render([
           mockGqlAvatarUseQuery(),
-          mockGqlCredentialStatusMutation(),
+          mockGqlCredentialStatusMutation({
+            upgradeNeeded: true,
+            currentVersion: 'v1',
+            clientSalt: '',
+          }),
+          mockGqlBeginSigninMutation({ keys: false }, {}, { verified: true }),
           {
             ...mockGqlPasswordChangeStartMutation(),
             error: mockGqlError(),
@@ -832,11 +869,11 @@ describe('signin container', () => {
             MOCK_EMAIL,
             MOCK_PASSWORD
           );
-
-          expect(handlerResult?.error).toBeDefined();
-          expect(handlerResult?.data?.signIn).toBeUndefined();
+          expect(handlerResult?.error).toBeUndefined();
+          expect(handlerResult?.data?.signIn).toBeDefined();
           expect(mockSentryCaptureMessage).toBeCalledWith(
-            'Failure to finish v2 upgrade. Could not start password change.'
+            'Failure to finish v2 key-stretching upgrade. Could not start password change during signin',
+            { tags: { errno: 999 } }
           );
         });
       });
@@ -844,7 +881,12 @@ describe('signin container', () => {
       it('handles error when fetching keys', async () => {
         render([
           mockGqlAvatarUseQuery(),
-          mockGqlCredentialStatusMutation(),
+          mockGqlCredentialStatusMutation({
+            upgradeNeeded: true,
+            currentVersion: 'v1',
+            clientSalt: '',
+          }),
+          mockGqlBeginSigninMutation({ keys: false }, {}, { verified: true }),
           mockGqlPasswordChangeStartMutation(),
           {
             ...mockGqlGetAccountKeysMutation(),
@@ -857,12 +899,12 @@ describe('signin container', () => {
             MOCK_EMAIL,
             MOCK_PASSWORD
           );
-
-          expect(handlerResult?.error?.message).toEqual(mockGqlError().message);
-          expect(handlerResult?.data?.signIn).toBeUndefined();
+          expect(handlerResult?.error?.message).toBeUndefined();
+          expect(handlerResult?.data?.signIn).toBeDefined();
           expect(mockSentryCaptureMessage).toBeCalledTimes(1);
           expect(mockSentryCaptureMessage).toBeCalledWith(
-            'Failure to finish v2 upgrade. Could not get wrapped keys.'
+            'Failure to finish v2 key-stretching upgrade. Could not get wrapped keys during signin',
+            { tags: { errno: 999 } }
           );
         });
       });
@@ -870,7 +912,12 @@ describe('signin container', () => {
       it('handles error when finishing password upgrade', async () => {
         render([
           mockGqlAvatarUseQuery(),
-          mockGqlCredentialStatusMutation(),
+          mockGqlCredentialStatusMutation({
+            upgradeNeeded: true,
+            currentVersion: 'v1',
+            clientSalt: '',
+          }),
+          mockGqlBeginSigninMutation({ keys: false }, {}, { verified: true }),
           mockGqlPasswordChangeStartMutation(),
           mockGqlGetAccountKeysMutation(),
           {
@@ -884,12 +931,12 @@ describe('signin container', () => {
             MOCK_EMAIL,
             MOCK_PASSWORD
           );
-
-          expect(handlerResult?.error?.message).toEqual(mockGqlError().message);
-          expect(handlerResult?.data?.signIn).toBeUndefined();
+          expect(handlerResult?.error?.message).toBeUndefined();
+          expect(handlerResult?.data?.signIn).toBeDefined();
           expect(mockSentryCaptureMessage).toBeCalledTimes(1);
           expect(mockSentryCaptureMessage).toBeCalledWith(
-            'Failure to finish v2 upgrade. Could not finish password change.'
+            'Failure to finish v2 key-stretching upgrade. Could not finish password change during signin',
+            { tags: { errno: 999 } }
           );
         });
       });
@@ -900,15 +947,12 @@ describe('signin container', () => {
         // to using V1 credentials in this scenario.
         render([
           mockGqlAvatarUseQuery(),
-          mockGqlCredentialStatusMutation(),
-          mockGqlPasswordChangeStartMutation(),
-          {
-            ...mockGqlGetAccountKeysMutation(),
-            error: mockGqlError(AuthUiErrors.UNVERIFIED_ACCOUNT),
-          },
-          mockGqlPasswordChangeFinishMutation(),
+          mockGqlCredentialStatusMutation({
+            upgradeNeeded: true,
+            currentVersion: 'v1',
+          }),
           // Fallback to the V1 signin!
-          mockGqlBeginSigninMutation({ keys: false }),
+          mockGqlBeginSigninMutation({ keys: false }, {}, { verified: false }),
         ]);
 
         await waitFor(async () => {
