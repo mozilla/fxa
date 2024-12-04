@@ -37,6 +37,8 @@ export enum OAuthNativeClients {
   FirefoxDesktop = '5882386c6d801776',
   Fenix = 'a2270f727f45f648',
   Fennec = '3332a18d142636cb',
+  // TODO: handle Thunderbird case better, FXA-10848
+  Thunderbird = '8269bacd7bbc7f80',
 }
 
 /**
@@ -104,7 +106,12 @@ export class OAuthNativeIntegration extends OAuthWebIntegration {
   }
 
   isFirefoxDesktopClient() {
-    return this.clientInfo?.clientId === OAuthNativeClients.FirefoxDesktop;
+    return (
+      this.clientInfo?.clientId === OAuthNativeClients.FirefoxDesktop ||
+      // TODO / HACK: this check is temporary to unblock Thunderbird until
+      // we can work on FXA-10848
+      this.clientInfo?.clientId === OAuthNativeClients.Thunderbird
+    );
   }
 
   wantsKeys() {
