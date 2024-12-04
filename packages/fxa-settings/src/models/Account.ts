@@ -10,10 +10,10 @@ import AuthClient, {
   generateRecoveryKey,
   getRecoveryKeyIdByUid,
   getCredentials,
-  MetricsContext,
   getCredentialsV2,
   getKeysV2,
 } from 'fxa-auth-client/browser';
+import { MetricsContext } from '@fxa/shared/glean';
 import {
   currentAccount,
   getStoredAccountData,

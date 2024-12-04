@@ -18,6 +18,7 @@ import {
   usePageViewEvent,
   logErrorEvent,
   initUserPreferences,
+  queryParamsToMetricsContext,
 } from './metrics';
 
 import { window } from './window';
@@ -458,5 +459,21 @@ describe('logError', () => {
     initFlow();
     logErrorEvent({});
     expectPayloadEvents(['error.unknown context.unknown namespace.-1']);
+  });
+});
+
+describe('queryParamsToMetricsContext', () => {
+  it('creates metrics context from query params', () => {
+    // Note! The auth-server expects quite a few query params to be propagated during
+    // graphql calls. These are commonly referred to as the metrics context.
+    const queryParams = {
+      flowId: 'test1',
+      foo: 'test2',
+    };
+    const result = queryParamsToMetricsContext(queryParams);
+    expect(result.flowId).toEqual(queryParams.flowId);
+
+    // Make sure type is legit
+    expect((result as any).foo).toBeUndefined();
   });
 });

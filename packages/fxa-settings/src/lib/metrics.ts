@@ -8,7 +8,7 @@ import { v4 as uuid } from 'uuid';
 import { QueryParams } from '..';
 import { once } from './utilities';
 import { useEffect } from 'react';
-import { MetricsContext, MetricsContextKeys } from 'fxa-auth-client/browser';
+import { MetricsContext } from '@fxa/shared/metrics/glean';
 
 export const settingsViewName = 'settings';
 
@@ -512,21 +512,11 @@ export function addExperiment(choice: string, group: string) {
 /**
  * Take a record and pick out key-values for a MetricsContext.  Note that the
  * value passed in could've been asserted to be of QueryParam type with
- * specific keys but the value is actually a record of all the URL query params
+ * specific keys but the value is actually a record of all the URL query params.
  */
 export function queryParamsToMetricsContext(
   queryParams: Record<string, string>
-): MetricsContext {
-  const metricsContext: MetricsContext = {};
-  return MetricsContextKeys.reduce((acc, k) => {
-    if (queryParams[k]) {
-      // Special case for flowBeginTime, which is a number
-      if (k === 'flowBeginTime') {
-        acc[k] = Number(queryParams[k]);
-      } else {
-        acc[k] = queryParams[k] as any;
-      }
-    }
-    return acc;
-  }, metricsContext);
+): Partial<MetricsContext> {
+  const context = new MetricsContext(queryParams);
+  return MetricsContext.prune(context);
 }

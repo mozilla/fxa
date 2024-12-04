@@ -6,7 +6,7 @@ import { HandledError } from '../../lib/error-utils';
 import useSyncEngines from '../../lib/hooks/useSyncEngines';
 import { BaseIntegration, OAuthIntegration } from '../../models';
 import { SignupQueryParams } from '../../models/pages/signup';
-import { MetricsContext } from 'fxa-auth-client/browser';
+import { MetricsContext } from '@fxa/shared/glean';
 
 export interface BeginSignupResponse {
   signUp: {
