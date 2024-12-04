@@ -38,7 +38,7 @@ export class StripeClient {
   private readonly stripe: Stripe;
   constructor(private stripeConfig: StripeConfig) {
     this.stripe = new Stripe(this.stripeConfig.apiKey, {
-      apiVersion: '2024-04-10',
+      apiVersion: '2024-11-20.acacia',
       maxNetworkRetries: 3,
     });
   }

@@ -36,6 +36,11 @@ export const StripePaymentMethodFactory = (
     exp_year: faker.date.future().getUTCFullYear(),
     fingerprint: faker.string.uuid(),
     funding: 'credit',
+    generated_from: {
+      charge: null,
+      payment_method_details: null,
+      setup_attempt: null,
+    },
     last4: faker.string.numeric({ length: 4 }),
     networks: {
       available: ['visa'],

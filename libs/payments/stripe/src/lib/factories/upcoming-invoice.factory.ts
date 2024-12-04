@@ -26,6 +26,7 @@ export const StripeUpcomingInvoiceFactory = (
     liability: null,
     status: 'complete',
   },
+  automatically_finalizes_at: null,
   billing_reason: null,
   charge: faker.string.alphanumeric(10),
   collection_method: 'charge_automatically',
