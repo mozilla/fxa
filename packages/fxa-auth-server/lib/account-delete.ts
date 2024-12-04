@@ -23,6 +23,7 @@ import pushBuilder from './push';
 import pushboxApi from './pushbox';
 import { AppConfig, AuthLogger, AuthRequest } from './types';
 import { DB } from './db';
+import { reportSentryError } from './sentry';
 
 type OAuthDbDeleteAccount = Pick<typeof OAuthDb, 'removeTokensAndCodes'>;
 type PushboxDeleteAccount = Pick<
@@ -191,7 +192,7 @@ export class AccountDeleteManager {
     this.pushbox.deleteAccount(uid).catch((err: Error) => {
       Sentry.withScope((scope) => {
         scope.setContext('pushboxDeleteAccount', { uid });
-        Sentry.captureException(err);
+        reportSentryError(err);
       });
     });
   }

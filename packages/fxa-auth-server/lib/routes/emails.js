@@ -11,6 +11,7 @@ const isA = require('joi');
 const random = require('../crypto/random');
 const Sentry = require('@sentry/node');
 const validators = require('./validators');
+const reportSentryError = require('../sentry');
 const { emailsMatch, normalizeEmail } = require('fxa-shared').email.helpers;
 const { recordSecurityEvent } = require('./utils/security-event');
 const EMAILS_DOCS = require('../../docs/swagger/emails-api').default;
@@ -822,7 +823,7 @@ module.exports = (
                 newEmail: newEmailRecord.email,
                 system: source,
               });
-              Sentry.captureException(err);
+              reportSentryError(err);
             });
           };
 

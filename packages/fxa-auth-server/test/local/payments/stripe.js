@@ -6,6 +6,7 @@
 
 const sinon = require('sinon');
 const Sentry = require('@sentry/node');
+const sentryModule = require('../../../lib/sentry');
 const { assert } = require('chai');
 const Chance = require('chance');
 const { setupAuthDatabase } = require('fxa-shared/db');
@@ -1502,7 +1503,7 @@ describe('#integration - StripeHelper', () => {
       sandbox.stub(stripeHelper, 'findAbbrevPlanById').resolves(planTemplate);
 
     beforeEach(() => {
-      sentryScope = { setContext: sandbox.stub() };
+      sentryScope = { setContext: sandbox.stub(), setExtra: sandbox.stub() };
       sandbox.stub(Sentry, 'withScope').callsFake((cb) => cb(sentryScope));
       sandbox.stub(Sentry, 'captureException');
     });
@@ -1564,7 +1565,8 @@ describe('#integration - StripeHelper', () => {
       );
 
       assert.equal(actual, expected);
-      sinon.assert.calledOnce(Sentry.withScope);
+      sinon.assert.calledTwice(Sentry.withScope);
+      sinon.assert.calledOnce(Sentry.setExtra);
       sinon.assert.calledOnceWithExactly(
         sentryScope.setContext,
         'validateCouponDurationForPlan',
@@ -1609,7 +1611,8 @@ describe('#integration - StripeHelper', () => {
       );
 
       assert.equal(actual, expected);
-      sinon.assert.calledOnce(Sentry.withScope);
+      sinon.assert.calledTwice(Sentry.withScope);
+      sinon.assert.calledOnce(Sentry.setExtra);
       sinon.assert.calledOnceWithExactly(
         sentryScope.setContext,
         'validateCouponDurationForPlan',
@@ -1701,7 +1704,7 @@ describe('#integration - StripeHelper', () => {
     let sentryScope;
 
     beforeEach(() => {
-      sentryScope = { setContext: sandbox.stub() };
+      sentryScope = { setContext: sandbox.stub(), setExtra: sandbox.stub() };
       sandbox.stub(Sentry, 'withScope').callsFake((cb) => cb(sentryScope));
       sandbox.stub(Sentry, 'captureException');
     });
@@ -1932,7 +1935,8 @@ describe('#integration - StripeHelper', () => {
         promotionCode: 'promo',
       });
       assert.deepEqual(actual, expected);
-      sinon.assert.calledOnce(Sentry.withScope);
+      sinon.assert.calledTwice(Sentry.withScope);
+      sinon.assert.calledOnce(Sentry.setExtra);
       sinon.assert.calledOnceWithExactly(
         sentryScope.setContext,
         'retrieveCouponDetails',
@@ -1969,7 +1973,8 @@ describe('#integration - StripeHelper', () => {
         promotionCode: 'promo',
       });
       assert.deepEqual(actual, expected);
-      sinon.assert.calledOnce(Sentry.withScope);
+      sinon.assert.calledTwice(Sentry.withScope);
+      sinon.assert.calledOnce(Sentry.setExtra);
       sinon.assert.calledOnceWithExactly(
         sentryScope.setContext,
         'retrieveCouponDetails',
@@ -3163,7 +3168,7 @@ describe('#integration - StripeHelper', () => {
         setContext: scopeContextSpy,
       };
       sandbox.replace(Sentry, 'withScope', (fn) => fn(scopeSpy));
-      sandbox.replace(Sentry, 'captureMessage', sinon.stub());
+      sandbox.replace(sentryModule, 'reportSentryMessage', sinon.stub());
 
       const latest_invoice = {
         ...subscriptionCreatedInvoice,
@@ -3179,7 +3184,7 @@ describe('#integration - StripeHelper', () => {
         'Set a message scope when "latest_charge" is missing'
       );
       assert.isTrue(
-        Sentry.captureMessage.calledOnce,
+        sentryModule.reportSentryMessage.calledOnce,
         'Capture a message with Sentry when "latest_charge" is missing'
       );
     });
@@ -3521,9 +3526,12 @@ describe('#integration - StripeHelper', () => {
         .returns(asyncIterable([newPlan1, plan2, plan3]));
       sandbox.spy(stripeHelper, 'allPlans');
       sandbox.spy(stripeHelper, 'allConfiguredPlans');
-      const sentryScope = { setContext: sandbox.stub() };
+      const sentryScope = {
+        setContext: sandbox.stub(),
+        setExtra: sandbox.stub(),
+      };
       sandbox.stub(Sentry, 'withScope').callsFake((cb) => cb(sentryScope));
-      sandbox.stub(Sentry, 'captureMessage');
+      sandbox.stub(sentryModule, 'reportSentryMessage');
       const actual = await stripeHelper.allAbbrevPlans();
       assert(stripeHelper.allConfiguredPlans.calledOnce);
       assert(stripeHelper.allPlans.calledOnce);
@@ -7432,9 +7440,9 @@ describe('#integration - StripeHelper', () => {
     let sentryScope;
 
     beforeEach(() => {
-      sentryScope = { setContext: sandbox.stub() };
+      sentryScope = { setContext: sandbox.stub(), setExtra: sandbox.stub() };
       sandbox.stub(Sentry, 'withScope').callsFake((cb) => cb(sentryScope));
-      sandbox.stub(Sentry, 'captureMessage');
+      sandbox.stub(sentryModule, 'reportSentryMessage');
       sandbox.stub(Sentry, 'captureException');
     });
 
@@ -7472,7 +7480,8 @@ describe('#integration - StripeHelper', () => {
         'GD'
       );
       sinon.assert.notCalled(stripeHelper.updateCustomerBillingAddress);
-      sinon.assert.calledOnce(Sentry.withScope);
+      sinon.assert.calledTwice(Sentry.withScope);
+      sinon.assert.calledOnce(Sentry.setExtra);
       sinon.assert.calledOnceWithExactly(
         sentryScope.setContext,
         'setCustomerLocation',
@@ -7502,7 +7511,8 @@ describe('#integration - StripeHelper', () => {
         stripeHelper.updateCustomerBillingAddress,
         { customerId: customer1.id, options: expectedAddressArg }
       );
-      sinon.assert.calledOnce(Sentry.withScope);
+      sinon.assert.calledTwice(Sentry.withScope);
+      sinon.assert.calledOnce(Sentry.setExtra);
       sinon.assert.calledOnceWithExactly(
         sentryScope.setContext,
         'setCustomerLocation',

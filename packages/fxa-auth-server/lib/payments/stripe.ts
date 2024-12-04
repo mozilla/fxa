@@ -82,6 +82,7 @@ import {
 import { stripeInvoiceToLatestInvoiceItemsDTO } from './stripe-formatter';
 import { generateIdempotencyKey, roundTime } from './utils';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
+import { reportSentryError, reportSentryMessage } from '../sentry';
 
 // Maintains backwards compatibility. Some type defs hoisted to fxa-shared/payments/stripe
 export * from 'fxa-shared/payments/stripe';
@@ -759,7 +760,7 @@ export class StripeHelper extends StripeHelperBase {
               error: error,
               msg: error.message,
             });
-            Sentry.captureMessage(
+            reportSentryMessage(
               `Invoice Preview Error: Prorated Invoice Preview`,
               'error' as SeverityLevel
             );
@@ -960,7 +961,7 @@ export class StripeHelper extends StripeHelperBase {
               priceInterval,
               priceIntervalCount,
             });
-            Sentry.captureMessage(
+            reportSentryMessage(
               'Coupon duration does not apply for entire plan interval',
               'error' as SeverityLevel
             );
@@ -1050,7 +1051,7 @@ export class StripeHelper extends StripeHelperBase {
                 priceId,
                 promotionCode,
               });
-              Sentry.captureException(err);
+              reportSentryError(err);
             });
           }
         }
@@ -1481,7 +1482,7 @@ export class StripeHelper extends StripeHelperBase {
           postalCode,
           country,
         });
-        Sentry.captureException(err);
+        reportSentryError(err);
       });
     }
     return false;
@@ -2290,7 +2291,7 @@ export class StripeHelper extends StripeHelperBase {
         scope.setContext('stripeSubscription', {
           subscription: { id: subscription.id },
         });
-        Sentry.captureMessage(
+        reportSentryMessage(
           'Payment charges not found in subscription payment intent on subscription creation.',
           'warning' as SeverityLevel
         );
@@ -3571,7 +3572,7 @@ export class StripeHelper extends StripeHelperBase {
       return await this.stripeFirestore.removeCustomerRecursive(uid);
     } catch (error) {
       if (error instanceof StripeFirestoreMultiError) {
-        Sentry.captureException(error);
+        reportSentryError(error);
       }
       throw error;
     }

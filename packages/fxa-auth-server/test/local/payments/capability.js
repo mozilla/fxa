@@ -49,6 +49,7 @@ const {
   SubscriptionEligibilityResult,
 } = require('fxa-shared/subscriptions/types');
 const Sentry = require('@sentry/node');
+const sentryModule = require('../../../lib/sentry');
 
 const mockAuthEvents = {};
 
@@ -513,7 +514,7 @@ describe('CapabilityService', () => {
     it('returns results from Stripe and logs to Sentry when results do not match', async () => {
       const sentryScope = { setContext: sinon.stub() };
       sinon.stub(Sentry, 'withScope').callsFake((cb) => cb(sentryScope));
-      sinon.stub(Sentry, 'captureMessage');
+      sinon.stub(sentryModule, 'reportSentryMessage').returns({});
 
       Container.set(EligibilityManager, {});
       capabilityService = new CapabilityService();
@@ -550,7 +551,7 @@ describe('CapabilityService', () => {
         }
       );
       sinon.assert.calledOnceWithExactly(
-        Sentry.captureMessage,
+        sentryModule.reportSentryMessage,
         `Eligibility mismatch for uid8675309 on plan_123456`,
         'error'
       );
@@ -1150,7 +1151,7 @@ describe('CapabilityService', () => {
     it('returns results from Stripe and logs to Sentry when results do not match', async () => {
       const sentryScope = { setContext: sinon.stub() };
       sinon.stub(Sentry, 'withScope').callsFake((cb) => cb(sentryScope));
-      sinon.stub(Sentry, 'captureMessage');
+      sinon.stub(sentryModule, 'reportSentryMessage').returns({});
 
       mockCapabilityManager.priceIdsToClientCapabilities = sinon.fake.resolves({
         c1: ['capAlpha'],
@@ -1203,9 +1204,9 @@ describe('CapabilityService', () => {
         }
       );
 
-      sinon.assert.callCount(Sentry.captureMessage, 5);
+      sinon.assert.callCount(sentryModule.reportSentryMessage, 5);
       sinon.assert.calledWithExactly(
-        Sentry.captureMessage,
+        sentryModule.reportSentryMessage,
         `CapabilityService.planIdsToClientCapabilities - Returned Stripe as plan ids to client capabilities did not match.`,
         'error'
       );
@@ -1303,7 +1304,7 @@ describe('CapabilityService', () => {
     it('returns results from CMS when it matches Stripe', async () => {
       const sentryScope = { setContext: sinon.stub() };
       sinon.stub(Sentry, 'withScope').callsFake((cb) => cb(sentryScope));
-      sinon.stub(Sentry, 'captureMessage');
+      sinon.stub(sentryModule, 'reportSentryMessage').returns({});
 
       const mockClientsFromCMS = await mockCapabilityManager.getClients();
 
@@ -1317,13 +1318,13 @@ describe('CapabilityService', () => {
 
       sinon.assert.notCalled(Sentry.withScope);
       sinon.assert.notCalled(sentryScope.setContext);
-      sinon.assert.notCalled(Sentry.captureMessage);
+      sinon.assert.notCalled(sentryModule.reportSentryMessage);
     });
 
     it('returns results from Stripe and logs to Sentry when results do not match', async () => {
       const sentryScope = { setContext: sinon.stub() };
       sinon.stub(Sentry, 'withScope').callsFake((cb) => cb(sentryScope));
-      sinon.stub(Sentry, 'captureMessage');
+      sinon.stub(sentryModule, 'reportSentryMessage').returns({});
 
       mockCapabilityManager.getClients = sinon.fake.resolves([
         {
@@ -1347,7 +1348,7 @@ describe('CapabilityService', () => {
         stripe: mockClientsFromStripe,
       });
       sinon.assert.calledOnceWithExactly(
-        Sentry.captureMessage,
+        sentryModule.reportSentryMessage,
         `CapabilityService.getClients - Returned Stripe as clients did not match.`,
         'error'
       );

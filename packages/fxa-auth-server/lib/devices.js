@@ -16,6 +16,7 @@ const PUSH_SERVER_REGEX = require('../config').default.get(
   'push.allowedServerRegex'
 );
 const { synthesizeClientName } = require('fxa-shared/connected-services');
+const { reportSentryError } = require('./sentry');
 
 const SCHEMA = {
   id: isA.string().length(32).regex(HEX_STRING),
@@ -199,7 +200,7 @@ module.exports = (log, db, push, pushbox) => {
     pushbox.deleteDevice(uid, deviceId).catch((err) => {
       Sentry.withScope((scope) => {
         scope.setContext('pushboxDeleteDevice', { uid, deviceId });
-        Sentry.captureException(err);
+        reportSentryError(err);
       });
     });
 
