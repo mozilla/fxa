@@ -154,7 +154,7 @@ test.describe('severity-1 #smoke', () => {
     await signin.fillOutPasswordForm(credentials.password);
 
     await expect(settings.settingsHeading).toBeVisible();
-    await expect(settings.totp.status).toHaveText('Not Set');
+    await expect(settings.totp.status).toHaveText('Disabled');
 
     await settings.totp.addButton.click();
     const { secret } = await totp.fillOutTotpForms();
@@ -219,7 +219,7 @@ test.describe('severity-1 #smoke', () => {
     await signin.fillOutPasswordForm(credentials.password);
 
     await expect(settings.settingsHeading).toBeVisible();
-    await expect(settings.totp.status).toHaveText('Not Set');
+    await expect(settings.totp.status).toHaveText('Disabled');
 
     await settings.totp.addButton.click();
     const { secret, recoveryCodes } = await totp.fillOutTotpForms();
@@ -293,7 +293,7 @@ test.describe('severity-1 #smoke', () => {
 
     // Enable 2FA
     await expect(settings.settingsHeading).toBeVisible();
-    await expect(settings.totp.status).toHaveText('Not Set');
+    await expect(settings.totp.status).toHaveText('Disabled');
 
     await settings.totp.addButton.click();
     const { secret } = await totp.fillOutTotpForms();
@@ -378,7 +378,7 @@ test.describe('severity-1 #smoke', () => {
 
     // Enable 2FA
     await expect(settings.settingsHeading).toBeVisible();
-    await expect(settings.totp.status).toHaveText('Not Set');
+    await expect(settings.totp.status).toHaveText('Disabled');
 
     await settings.totp.addButton.click();
     const { secret } = await totp.fillOutTotpForms();
@@ -458,7 +458,7 @@ test.describe('severity-1 #smoke', () => {
 
     // Enable 2FA
     await expect(settings.settingsHeading).toBeVisible();
-    await expect(settings.totp.status).toHaveText('Not Set');
+    await expect(settings.totp.status).toHaveText('Disabled');
 
     await settings.totp.addButton.click();
     await totp.fillOutStep1FormQR();

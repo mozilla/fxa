@@ -58,7 +58,7 @@ export const UnitRowRecoveryKey = () => {
       header={ftlMsgResolver.getMsg('rk-header-1', 'Account recovery key')}
       headerId="recovery-key"
       prefixDataTestId="recovery-key"
-      headerValueClassName={recoveryKey ? 'text-green-800' : ''}
+      statusIcon={recoveryKey ? 'checkmark' : 'alert'}
       headerValue={
         recoveryKey
           ? ftlMsgResolver.getMsg('rk-enabled', 'Enabled')
@@ -80,7 +80,7 @@ export const UnitRowRecoveryKey = () => {
         recoveryKey && (
           <ButtonIconTrash
             title={localizedDeleteRKIconButton}
-            classNames="inline-block mobileLandscape:hidden ms-1"
+            classNames="inline-block @mobileLandscape/row:hidden ms-1"
             disabled={!recoveryKey || isDeleting}
             onClick={revealModal}
           />
@@ -91,7 +91,7 @@ export const UnitRowRecoveryKey = () => {
         recoveryKey && (
           <ButtonIconTrash
             title={localizedDeleteRKIconButton}
-            classNames="hidden mobileLandscape:inline-block ms-1"
+            classNames="hidden @mobileLandscape/unitRow:inline-block ms-1"
             disabled={!recoveryKey || isDeleting}
             onClick={revealModal}
           />

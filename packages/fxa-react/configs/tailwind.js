@@ -5,6 +5,13 @@
 const plugin = require('tailwindcss/plugin');
 const tailwindcssDir = require('tailwindcss-dir');
 
+const screenSizes = {
+  mobileLandscape: '480px',
+  tablet: { raw: '(min-width: 768px) and (min-height: 481px)' },
+  desktop: '1024px',
+  desktopXl: '1441px',
+};
+
 module.exports = {
   // This targets a standard CRA setup, but can be overridden as needed
   content: ['./src/**/*.tsx', './public/index.html'],
@@ -101,12 +108,11 @@ module.exports = {
         1500: '1500ms',
       },
     },
-    screens: {
-      mobileLandscape: '480px',
-      tablet: { raw: '(min-width: 768px) and (min-height: 481px)' },
-      desktop: '1024px',
-      desktopXl: '1441px',
-    },
+    screens: screenSizes,
+    // for the container-queries plugin
+    // allows components to resize based on the size of their parent container
+    // instead of the viewport
+    containers: screenSizes,
     fontSize: {
       // These classes must be included here
       // To be picked up by fxa-settings' Typography design guide
@@ -337,6 +343,7 @@ module.exports = {
       addComponents(carets);
     }),
     tailwindcssDir(),
+    require('@tailwindcss/container-queries'),
   ],
   // Workaround for TW's JIT engine, to provide access to all TW classes
   // for styling/debugging in browser DevTools (in dev mode only)

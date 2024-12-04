@@ -50,8 +50,8 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-export const Alert = () => <AlertFullIcon />;
-export const AlertOutline = () => <AlertOutlineCurrentIcon />;
+export const Alert = () => <AlertFullIcon mode="warning" />;
+export const AlertOutline = () => <AlertOutlineCurrentIcon mode="attention" />;
 export const AuthenticatorApp = () => <AuthenticatorAppIcon />;
 export const BackupCodes = () => <BackupCodesIcon />;
 export const BackupCodesDisabled = () => <BackupCodesDisabledIcon />;

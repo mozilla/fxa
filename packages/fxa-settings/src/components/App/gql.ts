@@ -97,3 +97,14 @@ export const GET_TOTP_STATUS = gql`
     }
   }
 `;
+
+export const GET_BACKUP_CODES_STATUS = gql`
+  query GetBackupCodesStatus {
+    account {
+      backupCodes {
+        hasBackupCodes
+        count
+      }
+    }
+  }
+`;

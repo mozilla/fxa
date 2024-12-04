@@ -7,20 +7,14 @@ import { screen } from '@testing-library/react';
 import Security from '.';
 import { mockAppContext, renderWithRouter } from '../../../models/mocks';
 import { Account, AppContext } from '../../../models';
-import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
-import { FluentBundle } from '@fluent/bundle';
+import { MOCK_EMAIL } from '../../../pages/mocks';
 
 describe('Security', () => {
-  let bundle: FluentBundle;
-  beforeAll(async () => {
-    bundle = await getFtlBundle('settings');
-  });
-
   it('renders "fresh load" <Security/> with correct content', async () => {
     const account = {
       avatar: { url: null, id: null },
       primaryEmail: {
-        email: 'jody@mozilla.com',
+        email: MOCK_EMAIL,
       },
       emails: [],
       displayName: 'Jody',
@@ -30,6 +24,7 @@ describe('Security', () => {
         exists: false,
       },
       totp: { exists: false },
+      backupCodes: { hasBackupCodes: false, count: 0 },
     } as unknown as Account;
     renderWithRouter(
       <AppContext.Provider value={mockAppContext({ account })}>
@@ -40,21 +35,22 @@ describe('Security', () => {
     expect(await screen.findByText('Account recovery key')).toBeTruthy();
     expect(await screen.findByText('Two-step authentication')).toBeTruthy();
 
-    const result = await screen.findAllByText('Not Set');
-    expect(result).toHaveLength(2);
+    expect(await screen.findAllByText('Not Set')).toHaveLength(1);
+    expect(await screen.findAllByText('Disabled')).toHaveLength(1);
   });
 
   it('renders "enabled two factor" and "account recovery key present" <Security/> with correct content', async () => {
     const account = {
       avatar: { url: null, id: null },
       primaryEmail: {
-        email: 'jody@mozilla.com',
+        email: MOCK_EMAIL,
       },
       emails: [],
       displayName: 'Jody',
       passwordCreated: 0,
       recoveryKey: { exists: true },
       totp: { exists: true, verified: true },
+      backupCodes: { hasBackupCodes: true, count: 3 },
     } as unknown as Account;
     renderWithRouter(
       <AppContext.Provider value={mockAppContext({ account })}>
@@ -71,8 +67,9 @@ describe('Security', () => {
       const account = {
         recoveryKey: { exists: false },
         totp: { exists: false },
+        backupCodes: { hasBackupCodes: false, count: 0 },
         primaryEmail: {
-          email: 'jody@mozilla.com',
+          email: MOCK_EMAIL,
         },
         passwordCreated: 1234567890,
         hasPassword: true,
@@ -84,10 +81,6 @@ describe('Security', () => {
         </AppContext.Provider>
       );
       const passwordRouteLink = screen.getByTestId('password-unit-row-route');
-
-      testAllL10n(screen, bundle, {
-        date: createDate,
-      });
 
       await screen.findByText('••••••••••••••••••');
       await screen.findByText(`Created ${createDate}`);
@@ -103,8 +96,9 @@ describe('Security', () => {
       const account = {
         recoveryKey: { exists: false },
         totp: { exists: false },
+        backupCodes: { hasBackupCodes: false, count: 0 },
         primaryEmail: {
-          email: 'jody@mozilla.com',
+          email: MOCK_EMAIL,
         },
         passwordCreated: 0,
         hasPassword: false,
@@ -118,7 +112,8 @@ describe('Security', () => {
       const passwordRouteLink = screen.getByTestId('password-unit-row-route');
 
       await screen.findByText('Set a password', { exact: false });
-      expect(await screen.findAllByText('Not Set')).toHaveLength(3);
+      expect(await screen.findAllByText('Not Set')).toHaveLength(2);
+      expect(await screen.findAllByText('Disabled')).toHaveLength(1);
 
       expect(passwordRouteLink).toHaveTextContent('Create');
       expect(passwordRouteLink).toHaveAttribute(

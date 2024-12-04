@@ -94,7 +94,7 @@ export class TotpRow extends UnitRow {
   }
 
   get changeButton() {
-    return this.page.getByTestId('two-step-unit-row-modal');
+    return this.page.getByRole('button', { name: 'Get new codes' });
   }
 }
 

@@ -2,17 +2,26 @@
 ## Images - these are all aria labels used for illustrations
 ## Aria labels are used as alternate text that can be read aloud by screen readers.
 
+# Aria-label option for an alert symbol
 alert-icon-aria-label =
     .aria-label = Alert
+
+# Aria-label option for an alert symbol
+icon-attention-aria-label =
+    .aria-label = Attention
+
+# Aria-label option for an alert symbol
+icon-warning-aria-label =
+    .aria-label = Warning
 
 authenticator-app-aria-label =
     .aria-label = Authenticator Application
 
-backup-codes-icon-aria-label =
-    .aria-label = Backup codes enabled
+backup-codes-icon-aria-label-v2 =
+    .aria-label = Backup authentication codes enabled
 
-backup-codes-disabled-icon-aria-label =
-    .aria-label = Backup codes disabled
+backup-codes-disabled-icon-aria-label-v2 =
+    .aria-label = Backup authentication codes disabled
 
 # An icon of phone with text message. A back recovery phone number
 backup-recovery-sms-icon-aria-label =

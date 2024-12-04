@@ -17,13 +17,42 @@ export default {
     withLocalization,
     (Story) => (
       <LocationProvider>
-        <Story />
+        {/* Added to represent the section in which rows are nested */}
+        <div className="bg-white tablet:rounded-xl shadow">
+          <Story />
+        </div>
       </LocationProvider>
     ),
   ],
 } as Meta;
 
-export const TFAEnabled = () => <UnitRowTwoStepAuth />;
+export const TFAEnabledWithCodesRemaining = () => (
+  <AppContext.Provider
+    value={mockAppContext({
+      account: {
+        hasPassword: true,
+        totp: { exists: true, verified: true },
+        backupCodes: { hasBackupCodes: true, count: 3 },
+      } as any,
+    })}
+  >
+    <UnitRowTwoStepAuth />
+  </AppContext.Provider>
+);
+
+export const TFAEnabledNoCodesRemaining = () => (
+  <AppContext.Provider
+    value={mockAppContext({
+      account: {
+        hasPassword: true,
+        totp: { exists: true, verified: true },
+        backupCodes: { hasBackupCodes: false, count: 0 },
+      } as any,
+    })}
+  >
+    <UnitRowTwoStepAuth />
+  </AppContext.Provider>
+);
 
 export const TFADisabled = () => (
   <AppContext.Provider
@@ -31,6 +60,7 @@ export const TFADisabled = () => (
       account: {
         hasPassword: true,
         totp: { exists: false, verified: false },
+        backupCodes: { count: 0 },
       } as any,
     })}
   >
@@ -41,7 +71,11 @@ export const TFADisabled = () => (
 export const DisabledNoPassword = () => (
   <AppContext.Provider
     value={mockAppContext({
-      account: { hasPassword: false, totp: { enabled: false } } as any,
+      account: {
+        hasPassword: false,
+        totp: { enabled: false },
+        backupCodes: { count: 0 },
+      } as any,
     })}
   >
     <UnitRowTwoStepAuth />

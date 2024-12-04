@@ -22,7 +22,30 @@ import { ReactComponent as FlagUsa } from './icon_flag_usa.min.svg';
 import { ReactComponent as InformationOutlineCurrent } from './icon_information_circle_outline_current.min.svg';
 import { ReactComponent as InformationOutlineBlue } from './icon_information_circle_outline_blue.min.svg';
 
-export const AlertFullIcon = ({ className, ariaHidden }: ImageProps) => (
+type AlertMode = 'alert' | 'attention' | 'warning';
+function getAlertAria(mode: AlertMode) {
+  switch (mode) {
+    case 'alert':
+      return {
+        ariaLabel: 'Alert',
+        ariaLabelFtlId: 'alert-icon-aria-label',
+      };
+    case 'attention':
+      return {
+        ariaLabel: 'Attention',
+        ariaLabelFtlId: 'icon-attention-aria-label',
+      };
+    case 'warning':
+    default:
+      return {
+        ariaLabel: 'Warning',
+        ariaLabelFtlId: 'icon-warning-aria-label',
+      };
+  }
+}
+
+export type AlertProps = ImageProps & { mode: AlertMode };
+export const AlertFullIcon = ({ className, ariaHidden, mode }: AlertProps) => (
   <PreparedIcon
     Image={AlertFull}
     ariaLabel="Alert"
@@ -38,12 +61,11 @@ export const AlertFullIcon = ({ className, ariaHidden }: ImageProps) => (
 export const AlertOutlineCurrentIcon = ({
   className,
   ariaHidden,
-}: ImageProps) => (
+  mode,
+}: AlertProps) => (
   <PreparedIcon
     Image={AlertOutlineCurrent}
-    ariaLabel="Alert"
-    ariaLabelFtlId="alert-icon-aria-label"
-    {...{ className, ariaHidden }}
+    {...{ className, ariaHidden, ...getAlertAria(mode) }}
   />
 );
 
@@ -59,8 +81,8 @@ export const AuthenticatorAppIcon = ({ className, ariaHidden }: ImageProps) => (
 export const BackupCodesIcon = ({ className, ariaHidden }: ImageProps) => (
   <PreparedIcon
     Image={BackupCodes}
-    ariaLabel="Backup codes enabled"
-    ariaLabelFtlId="backup-codes-icon-aria-label"
+    ariaLabel="Backup authentication codes enabled"
+    ariaLabelFtlId="backup-codes-icon-aria-label-v2"
     {...{ className, ariaHidden }}
   />
 );
@@ -71,8 +93,8 @@ export const BackupCodesDisabledIcon = ({
 }: ImageProps) => (
   <PreparedIcon
     Image={BackupCodesDisabled}
-    ariaLabel="Backup codes disabled"
-    ariaLabelFtlId="backup-codes-disabled-icon-aria-label"
+    ariaLabel="Backup authentication codes disabled"
+    ariaLabelFtlId="backup-codes-disabled-icon-aria-label-v2"
     {...{ className, ariaHidden }}
   />
 );

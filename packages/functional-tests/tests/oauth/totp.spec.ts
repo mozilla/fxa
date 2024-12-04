@@ -64,7 +64,7 @@ test.describe('severity-1 #smoke', () => {
       await expect(
         page.getByText('Two-step authentication disabled')
       ).toBeVisible();
-      await expect(settings.totp.status).toHaveText('Not Set');
+      await expect(settings.totp.status).toHaveText('Disabled');
 
       await relier.goto();
       await relier.clickEmailFirst();

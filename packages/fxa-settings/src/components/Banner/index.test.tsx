@@ -46,7 +46,9 @@ describe('Banner Component', () => {
       render(<Banner {...getDefaultProps('warning')} />);
       expect(screen.getByText('Heading')).toBeInTheDocument();
       expect(screen.getByText('This is a description')).toBeInTheDocument();
-      expect(screen.getByRole('img', { name: 'Alert' })).toBeInTheDocument();
+      expect(
+        screen.getByRole('img', { name: 'Attention' })
+      ).toBeInTheDocument();
     });
   });
 

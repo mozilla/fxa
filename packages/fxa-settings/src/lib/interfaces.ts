@@ -15,6 +15,6 @@ export interface AccountTotp {
 }
 
 export interface AccountBackupCodes {
-  hasBackupCodes: boolean;
-  count: number;
+  hasBackupCodes?: boolean;
+  count?: number;
 }

@@ -47,7 +47,7 @@ test.describe('severity-1 #smoke', () => {
       await settings.goto();
 
       await expect(settings.settingsHeading).toBeVisible();
-      await expect(settings.totp.status).toHaveText('Not Set');
+      await expect(settings.totp.status).toHaveText('Disabled');
 
       await settings.totp.addButton.click();
       await totp.fillOutStep1FormQR();
@@ -190,7 +190,6 @@ test.describe('severity-1 #smoke', () => {
       await settings.goto();
       const { recoveryCodes } = await addTotp(settings, totp);
       await settings.totp.changeButton.click();
-      await settings.modalConfirmButton.click();
 
       const newCodes = await totp.getRecoveryCodes();
       expect(newCodes.some((c) => recoveryCodes.includes(c))).toBe(false);
@@ -338,7 +337,7 @@ async function addTotp(
   totp: TotpPage
 ): Promise<TotpCredentials> {
   await expect(settings.settingsHeading).toBeVisible();
-  await expect(settings.totp.status).toHaveText('Not Set');
+  await expect(settings.totp.status).toHaveText('Disabled');
 
   await settings.totp.addButton.click();
   const totpCredentials = await totp.fillOutTotpForms();

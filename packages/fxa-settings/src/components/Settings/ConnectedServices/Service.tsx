@@ -140,7 +140,7 @@ export function Service({
         <div className="flex flex-grow w-full mobileLandscape:justify-end mobileLandscape:flex-1">
           <Localized id="cs-sign-out-button">
             <button
-              className="cta-neutral cta-base cta-base-p disabled:cursor-wait whitespace-nowrap"
+              className="cta-neutral cta-base cta-base-p disabled:cursor-wait whitespace-nowrap mobileLandscape:w-auto"
               data-testid="connected-service-sign-out"
               onClick={handleSignOut}
             >
