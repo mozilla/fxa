@@ -18,6 +18,8 @@ import { MozServices } from '../../../lib/types';
 import {
   MOCK_AUTH_PW,
   MOCK_AUTH_PW_V2,
+  MOCK_CLIENT_SALT,
+  MOCK_EMAIL,
   MOCK_PASSWORD,
   MOCK_UNBLOCK_CODE,
   MOCK_UNWRAP_BKEY,
@@ -42,6 +44,7 @@ import {
   MOCK_SIGNIN_UNBLOCK_LOCATION_STATE,
 } from './mocks';
 import { BeginSigninResult, SigninUnblockIntegration } from '../interfaces';
+import { tryFinalizeUpgrade } from '../../../lib/gql-key-stretch-upgrade';
 
 let integration: SigninUnblockIntegration;
 function mockWebIntegration() {
@@ -67,6 +70,12 @@ function mockSigninUnblockModule() {
     return <div>signin unblock mock</div>;
   });
 }
+
+jest.mock('../../../lib/gql-key-stretch-upgrade', () => {
+  return {
+    tryFinalizeUpgrade: jest.fn(),
+  };
+});
 
 jest.mock('../../../models', () => {
   return {
@@ -111,6 +120,7 @@ mockSensitiveDataClient.getData = function (key: string) {
 };
 function mockModelsModule() {
   mockSensitiveDataClientState['auth'] = { password: MOCK_PASSWORD };
+  mockSensitiveDataClient.KeyStretchUpgradeData = undefined;
   (ModelsModule.useSensitiveDataClient as jest.Mock).mockReturnValue(
     mockSensitiveDataClient
   );
@@ -178,6 +188,49 @@ describe('signin unblock container', () => {
     expect(result?.data?.signIn?.sessionToken).toBeDefined();
     expect(result?.data?.signIn?.verified).toBeDefined();
     expect(result?.data?.signIn?.metricsEnabled).toBeDefined();
+  });
+
+  it('handles signin with with key stretching upgrade', async () => {
+    mockSensitiveDataClient.KeyStretchUpgradeData = {
+      email: MOCK_EMAIL,
+      v1Credentials: {
+        authPW: MOCK_AUTH_PW,
+        unwrapBKey: MOCK_UNWRAP_BKEY,
+      },
+      v2Credentials: {
+        authPW: MOCK_AUTH_PW_V2,
+        unwrapBKey: MOCK_UNWRAP_BKEY_V2,
+        clientSalt: MOCK_CLIENT_SALT,
+      },
+    };
+
+    await render([
+      mockGqlCredentialStatusMutation(),
+      mockGqlBeginSigninMutation(
+        {
+          unblockCode: MOCK_UNBLOCK_CODE,
+          keys: true,
+        },
+        {
+          authPW: MOCK_AUTH_PW_V2,
+        }
+      ),
+    ]);
+
+    let result: BeginSigninResult | undefined;
+    await act(async () => {
+      result = await currentPageProps?.signinWithUnblockCode(MOCK_UNBLOCK_CODE);
+    });
+
+    expect(result).toBeDefined();
+    expect(result?.data).toBeDefined();
+    expect(result?.data?.unwrapBKey).toEqual(MOCK_UNWRAP_BKEY_V2);
+    expect(result?.data?.signIn?.uid).toBeDefined();
+    expect(result?.data?.signIn?.sessionToken).toBeDefined();
+    expect(result?.data?.signIn?.verified).toBeDefined();
+    expect(result?.data?.signIn?.metricsEnabled).toBeDefined();
+
+    expect(tryFinalizeUpgrade).toBeCalledTimes(1);
   });
 
   it('handles signin with correct code and failure when looking up credential status', async () => {

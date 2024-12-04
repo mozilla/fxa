@@ -18,12 +18,7 @@ import { SigninQueryParams } from '../../models/pages/signin';
 import { useCallback, useEffect, useState } from 'react';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { cache, currentAccount, discardSessionToken } from '../../lib/cache';
-import {
-  FetchResult,
-  MutationFunction,
-  useMutation,
-  useQuery,
-} from '@apollo/client';
+import { MutationFunction, useMutation, useQuery } from '@apollo/client';
 import {
   AVATAR_QUERY,
   BEGIN_SIGNIN_MUTATION,
@@ -45,19 +40,12 @@ import {
   PasswordChangeFinishResponse,
   CredentialStatusResponse,
 } from './interfaces';
-import {
-  getCredentials,
-  getCredentialsV2,
-  getKeysV2,
-  unwrapKB,
-} from 'fxa-auth-client/lib/crypto';
+import { getCredentials } from 'fxa-auth-client/lib/crypto';
 import { AuthUiError, AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
 import AuthenticationMethods from '../../constants/authentication-methods';
 import { KeyStretchExperiment } from '../../models/experiments';
-import { createSaltV2 } from 'fxa-auth-client/lib/salt';
-import * as Sentry from '@sentry/browser';
 import { useFinishOAuthFlowHandler } from '../../lib/oauth/hooks';
 import { searchParams } from '../../lib/utilities';
 import { QueryParams } from '../..';
@@ -76,6 +64,7 @@ import {
 } from '../../lib/sensitive-data-client';
 import { Constants } from '../../lib/constants';
 import { isFirefoxService } from '../../models/integrations/utils';
+import { GqlKeyStretchUpgrade } from '../../lib/gql-key-stretch-upgrade';
 
 /*
  * In content-server, the `email` param is optional. If it's provided, we
@@ -271,16 +260,31 @@ const SigninContainer = ({
       const service = integration.getService();
       const clientId = integration.getClientId();
 
-      const { error, unverifiedAccount, v1Credentials, v2Credentials } =
-        await tryKeyStretchingUpgrade(
-          email,
-          password,
-          keyStretchExp.queryParamModel.isV2(config),
-          credentialStatus,
-          passwordChangeStart,
-          getWrappedKeys,
-          passwordChangeFinish
-        );
+      const v2Enabled = keyStretchExp.queryParamModel.isV2(config);
+
+      // Create client to handle key stretching upgrades
+      const upgradeClient = new GqlKeyStretchUpgrade(
+        'signin',
+        credentialStatus,
+        getWrappedKeys,
+        passwordChangeStart,
+        passwordChangeFinish
+      );
+
+      // Get the current state of user credentials. This could indicate
+      // the user has already upgraded, or it could indicate an upgrade
+      // is needed.
+      const credentials = await upgradeClient.getCredentials(
+        email,
+        password,
+        v2Enabled
+      );
+
+      const v1Credentials = credentials.v1Credentials;
+      const v2Credentials =
+        credentials.credentialStatus?.currentVersion === 'v2'
+          ? credentials.v2Credentials
+          : undefined;
 
       const options = {
         verificationMethod: VerificationMethods.EMAIL_OTP,
@@ -296,15 +300,14 @@ const SigninContainer = ({
       let result = await trySignIn(
         email,
         v1Credentials,
-        error ? undefined : v2Credentials,
-        unverifiedAccount,
+        v2Credentials,
         beginSignin,
         options,
         sensitiveDataClient,
         async (correctedEmail: string) => {
           return {
             v1Credentials: await getCredentials(correctedEmail, password),
-            v2Credentials: error ? undefined : v2Credentials,
+            v2Credentials: v2Credentials,
           };
         }
       );
@@ -341,6 +344,30 @@ const SigninContainer = ({
         } catch (e) {
           // no-op, don't block the user from anything and just
           // skip the inline_recovery_key_setup step this time.
+        }
+      }
+
+      // If an upgrade is needed try running it after we know whether or not
+      // the session is verified. If the session is not verified, there's no
+      // point in attempting the upgrade at this time.
+      if (
+        credentials.credentialStatus?.upgradeNeeded === true &&
+        credentials.v2Credentials
+      ) {
+        if ('data' in result && result.data?.signIn.verified === true) {
+          const sessionToken = result.data?.signIn.sessionToken;
+          await upgradeClient.upgrade(
+            email,
+            credentials.v1Credentials,
+            credentials.v2Credentials,
+            sessionToken
+          );
+        } else {
+          sensitiveDataClient.KeyStretchUpgradeData = {
+            email,
+            v1Credentials: credentials.v1Credentials,
+            v2Credentials: credentials.v2Credentials,
+          };
         }
       }
 
@@ -493,172 +520,22 @@ const SigninContainer = ({
   );
 };
 
-/**
- * Attempts to automatically upgrade user keys to v2 keys on sign in.
- */
-export async function tryKeyStretchingUpgrade(
+export async function getCurrentCredentials(
+  client: GqlKeyStretchUpgrade,
   email: string,
   password: string,
-  v2Enabled: boolean,
-  credentialStatus: MutationFunction<CredentialStatusResponse>,
-  passwordChangeStart: MutationFunction<PasswordChangeStartResponse>,
-  getWrappedKeys: MutationFunction<GetAccountKeysResponse>,
-  passwordChangeFinish: MutationFunction<PasswordChangeFinishResponse>
-): Promise<{
-  error: any | undefined;
-  unverifiedAccount: boolean;
-  v1Credentials: {
-    authPW: string;
-    unwrapBKey: string;
-  };
-  v2Credentials:
-    | {
-        authPW: string;
-        unwrapBKey: string;
-      }
-    | undefined;
-}> {
-  const v1Credentials = await getCredentials(email, password);
-  let v2Credentials = undefined;
-  let unverifiedAccount = false;
-
-  if (v2Enabled) {
-    let credentialStatusData: FetchResult<CredentialStatusResponse>;
-    try {
-      credentialStatusData = await credentialStatus({
-        variables: {
-          input: email,
-        },
-      });
-    } catch (error) {
-      Sentry.captureMessage(
-        'Failure to finish v2 upgrade. Could not fetch credential status.'
-      );
-      return {
-        ...getHandledError(error),
-        unverifiedAccount,
-        v1Credentials,
-        v2Credentials,
-      };
-    }
-
-    // We might have to upgrade the credentials in place.
-    if (credentialStatusData.data?.credentialStatus.upgradeNeeded) {
-      // Start password change.
-      let keyFetchToken = '';
-      let passwordChangeToken = '';
-      try {
-        const passwordChangeStartResponse = await passwordChangeStart({
-          variables: {
-            input: {
-              email,
-              oldAuthPW: v1Credentials.authPW,
-            },
-          },
-        });
-
-        const data = passwordChangeStartResponse.data?.passwordChangeStart;
-        keyFetchToken = data?.keyFetchToken || '';
-        passwordChangeToken = data?.passwordChangeToken || '';
-      } catch (error) {
-        // If the user enters the wrong password, they will see an invalid password error.
-        // Otherwise something has going wrong and we should show a general error.
-        Sentry.captureMessage(
-          'Failure to finish v2 upgrade. Could not start password change.'
-        );
-        return {
-          ...getHandledError(error),
-          unverifiedAccount,
-          v1Credentials,
-          v2Credentials,
-        };
-      }
-
-      // Determine wrapKb.
-      let wrapKb = '';
-      if (keyFetchToken) {
-        try {
-          const keysResponse = await getWrappedKeys({
-            variables: {
-              input: keyFetchToken,
-            },
-          });
-          wrapKb = keysResponse.data?.wrappedAccountKeys.wrapKB || '';
-        } catch (error) {
-          const uiError = getHandledError(error);
-          if (uiError.error.errno === 104) {
-            // NOOP - If the account is simply 'unverified', then go through normal flow.
-            // The password upgrade can occur later.
-            unverifiedAccount = true;
-          } else {
-            Sentry.captureMessage(
-              'Failure to finish v2 upgrade. Could not get wrapped keys.'
-            );
-            return {
-              ...getHandledError(error),
-              unverifiedAccount,
-              v1Credentials,
-              v2Credentials,
-            };
-          }
-        }
-      }
-
-      // Derive V2 wrapKb and authPW and finalize password reset
-      if (wrapKb && passwordChangeToken) {
-        try {
-          v2Credentials = await getCredentialsV2({
-            password,
-            clientSalt:
-              credentialStatusData.data?.credentialStatus.clientSalt ||
-              createSaltV2(),
-          });
-
-          const kB = unwrapKB(wrapKb, v1Credentials.unwrapBKey);
-          const keys = await getKeysV2({
-            kB,
-            v1: v1Credentials,
-            v2: v2Credentials,
-          });
-
-          // Will always return an empty payload on success, because no session token is provided.
-          await passwordChangeFinish({
-            variables: {
-              input: {
-                passwordChangeToken: passwordChangeToken,
-                authPW: v1Credentials.authPW,
-                wrapKb: keys.wrapKb,
-                authPWVersion2: v2Credentials.authPW,
-                wrapKbVersion2: keys.wrapKbVersion2,
-                clientSalt: v2Credentials.clientSalt,
-              },
-            },
-          });
-        } catch (error) {
-          Sentry.captureMessage(
-            'Failure to finish v2 upgrade. Could not finish password change.'
-          );
-          return {
-            ...getHandledError(error),
-            unverifiedAccount,
-            v1Credentials,
-            v2Credentials,
-          };
-        }
-      }
-    } else if (credentialStatusData.data?.credentialStatus.clientSalt) {
-      v2Credentials = await getCredentialsV2({
-        password,
-        clientSalt: credentialStatusData.data?.credentialStatus.clientSalt,
-      });
-    }
-  }
-
-  return {
-    unverifiedAccount,
+  v2Enabled: boolean
+) {
+  const {
     v1Credentials,
     v2Credentials,
-    error: undefined,
+    credentialStatus: ksStatus,
+  } = await client.getCredentials(email, password, v2Enabled);
+
+  return {
+    ksStatus,
+    v1Credentials,
+    v2Credentials,
   };
 }
 
@@ -669,7 +546,6 @@ export async function trySignIn(
   email: string,
   v1Credentials: { authPW: string; unwrapBKey: string },
   v2Credentials: { authPW: string; unwrapBKey: string } | undefined,
-  unverifiedAccount: boolean,
   beginSignin: MutationFunction<BeginSigninResponse>,
   options: {
     verificationMethod: VerificationMethods;
@@ -682,14 +558,13 @@ export async function trySignIn(
   sensitiveDataClient: SensitiveDataClient,
   onRetryCorrectedEmail?: (correctedEmail: string) => Promise<{
     v1Credentials: { authPW: string; unwrapBKey: string };
-    v2Credentials: { authPW: string; unwrapBKey: string } | undefined;
+    v2Credentials:
+      | { authPW: string; unwrapBKey: string; clientSalt: string }
+      | undefined;
   }>
 ) {
   try {
-    const authPW =
-      v2Credentials && !unverifiedAccount
-        ? v2Credentials.authPW
-        : v1Credentials.authPW;
+    const authPW = v2Credentials?.authPW || v1Credentials.authPW;
     const { data } = await beginSignin({
       variables: {
         input: {
@@ -701,11 +576,9 @@ export async function trySignIn(
     });
 
     if (data) {
-      const unwrapBKey =
-        v2Credentials && !unverifiedAccount
-          ? v2Credentials.unwrapBKey
-          : v1Credentials.unwrapBKey;
-
+      const unwrapBKey = v2Credentials
+        ? v2Credentials.unwrapBKey
+        : v1Credentials.unwrapBKey;
       sensitiveDataClient.setData(AUTH_DATA_KEY, {
         // Store for inline recovery key flow
         authPW,
@@ -741,11 +614,10 @@ export async function trySignIn(
         result.error.email
       );
       // Try one more time with the corrected email
-      return trySignIn(
+      return await trySignIn(
         result.error.email,
         v1Credentials,
         v2Credentials,
-        unverifiedAccount,
         beginSignin,
         {
           ...options,

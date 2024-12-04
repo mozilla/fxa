@@ -190,7 +190,10 @@ export function mockGqlBeginSigninMutation(
     service?: string;
     unblockCode?: string;
   },
-  inputOverrides: any = {}
+  inputOverrides: any = {},
+  resultOverrides?: {
+    verified?: boolean;
+  }
 ) {
   const result = opts.keys
     ? createBeginSigninResponse({
@@ -200,6 +203,11 @@ export function mockGqlBeginSigninMutation(
         // unwrapBKey: MOCK_UNWRAP_BKEY,
       })
     : createBeginSigninResponse();
+
+  // Add ability to override result
+  if (resultOverrides?.verified !== undefined) {
+    result.data.signIn.verified = resultOverrides.verified;
+  }
 
   return {
     request: {

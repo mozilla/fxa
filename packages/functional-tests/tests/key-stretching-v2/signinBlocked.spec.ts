@@ -73,6 +73,13 @@ test.describe('severity-2 #smoke', () => {
       await expect(page).toHaveURL(/settings/);
       await expect(settings.settingsHeading).toBeVisible();
 
+      // Make sure upgrade occurred
+      if (signinVersion.version === 2) {
+        const client = target.createAuthClient(2);
+        const status = await client.getCredentialStatusV2(email);
+        expect(status.currentVersion).toEqual('v2');
+      }
+
       // Delete blocked account, required before teardown
       await removeAccount(target, page, settings, deleteAccount, password);
     });
