@@ -34,6 +34,7 @@ export const StripePriceRecurringFactory = (
   override?: Partial<StripePrice['recurring']>
 ): StripePrice['recurring'] => ({
   aggregate_usage: null,
+  meter: null,
   interval: faker.helpers.arrayElement(['day', 'week', 'month', 'year']),
   interval_count: 1,
   trial_period_days: null,

@@ -40,6 +40,12 @@ export const StripeSubscriptionFactory = (
   discount: null,
   discounts: [],
   ended_at: null,
+  invoice_settings: {
+    account_tax_ids: null,
+    issuer: {
+      type: 'self',
+    },
+  },
   items: {
     object: 'list',
     data: [StripeSubscriptionItemFactory()],
@@ -94,6 +100,7 @@ export const StripeSubscriptionItemFactory = (
     metadata: {
       productOrder: '1',
     },
+    meter: null,
     nickname: faker.string.alphanumeric(),
     product: `prod_${faker.string.alphanumeric({ length: 24 })}`,
     tiers_mode: null,
