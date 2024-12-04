@@ -23,6 +23,7 @@ export const Index = ({
 }: IndexProps & RouteComponentProps) => {
   const clientId = integration.getClientId();
   const isSync = integration.isSync();
+  const isDesktopRelay = integration.isDesktopRelay();
   const isOAuth = isOAuthIntegration(integration);
   const isPocketClient = isOAuth && isClientPocket(clientId);
   const isMonitorClient = isOAuth && isClientMonitor(clientId);
@@ -70,7 +71,9 @@ export const Index = ({
       ) : (
         <ThirdPartyAuth showSeparator viewName="index" />
       )}
-      <TermsPrivacyAgreement {...{ isPocketClient, isMonitorClient }} />
+      <TermsPrivacyAgreement
+        {...{ isPocketClient, isMonitorClient, isDesktopRelay }}
+      />
     </AppLayout>
   );
 };

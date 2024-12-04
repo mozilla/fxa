@@ -41,10 +41,13 @@ class IndexView extends FormView {
   }
 
   setInitialContext(context) {
+    MonitorClientMixin.setInitialContext.call(this, context);
     context.set({
       unsafeThirdPartyAuthHTML: this.renderTemplate(ThirdPartyAuth, {
         showSeparator: true,
       }),
+      showSubscriptionTerms:
+        context.get('isMonitorClient') || this.relier.isOAuthNativeRelay(),
     });
   }
 

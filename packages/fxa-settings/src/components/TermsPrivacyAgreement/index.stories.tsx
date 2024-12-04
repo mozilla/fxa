@@ -31,3 +31,8 @@ export const MonitorClient = () => (
     <TermsPrivacyAgreement isMonitorClient />
   </AppLayout>
 );
+export const OAuthNativeRelay = () => (
+  <AppLayout>
+    <TermsPrivacyAgreement isDesktopRelay />
+  </AppLayout>
+);

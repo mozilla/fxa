@@ -304,6 +304,15 @@ describe('views/index', () => {
               assert.lengthOf(view.$(Selectors.THIRD_PARTY_AUTH.APPLE), 0);
             });
           });
+
+          it('renders expected ToS and PP', () => {
+            return view.render().then(() => {
+              assert.include(
+                view.$('.card').text(),
+                'Mozilla Subscription Services'
+              );
+            });
+          });
         });
       });
 
