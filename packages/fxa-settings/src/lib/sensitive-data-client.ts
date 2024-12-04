@@ -4,6 +4,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+import { V1Credentials, V2Credentials } from './gql-key-stretch-upgrade';
+
 export const AUTH_DATA_KEY = 'auth';
 
 export type SensitiveDataClientData = {
@@ -31,6 +33,15 @@ export class SensitiveDataClient {
    * @private
    */
   private sensitiveData: { [key: string]: object } = {};
+
+  // TODO: Fast follow, use this pattern instead for simpler and better type safety.
+  public KeyStretchUpgradeData:
+    | {
+        email: string;
+        v1Credentials: V1Credentials;
+        v2Credentials: V2Credentials;
+      }
+    | undefined;
 
   /**
    * Create a SensitiveDataClient.

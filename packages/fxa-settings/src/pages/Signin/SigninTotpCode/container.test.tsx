@@ -28,7 +28,16 @@ import {
   MOCK_TOTP_LOCATION_STATE,
 } from './mocks';
 import { SigninLocationState } from '../interfaces';
-import { mockLoadingSpinnerModule } from '../../mocks';
+import {
+  MOCK_AUTH_PW,
+  MOCK_AUTH_PW_V2,
+  MOCK_CLIENT_SALT,
+  MOCK_EMAIL,
+  MOCK_UNWRAP_BKEY,
+  MOCK_UNWRAP_BKEY_V2,
+  mockLoadingSpinnerModule,
+} from '../../mocks';
+import { tryFinalizeUpgrade } from '../../../lib/gql-key-stretch-upgrade';
 
 let integration: Integration;
 
@@ -63,6 +72,12 @@ jest.mock('../../../models', () => {
     ...jest.requireActual('../../../models'),
     useAuthClient: jest.fn(),
     useSensitiveDataClient: jest.fn(),
+  };
+});
+
+jest.mock('../../../lib/gql-key-stretch-upgrade', () => {
+  return {
+    tryFinalizeUpgrade: jest.fn(),
   };
 });
 
@@ -124,7 +139,8 @@ function mockVerifyTotp(success: boolean = true, errorOut: boolean = false) {
 }
 const mockSensitiveDataClient = createMockSensitiveDataClient();
 mockSensitiveDataClient.getData = jest.fn();
-function restMockSensitiveDataClient() {
+function resetMockSensitiveDataClient() {
+  mockSensitiveDataClient.KeyStretchUpgradeData = undefined;
   (useSensitiveDataClient as jest.Mock).mockImplementation(
     () => mockSensitiveDataClient
   );
@@ -141,7 +157,7 @@ function applyDefaultMocks() {
   mockReachRouter(MOCK_TOTP_LOCATION_STATE);
   mockVerifyTotp();
   mockWebIntegration();
-  restMockSensitiveDataClient();
+  resetMockSensitiveDataClient();
 }
 
 describe('signin totp code container', () => {
@@ -173,6 +189,27 @@ describe('signin totp code container', () => {
     const result = await currentPageProps?.submitTotpCode('123456');
 
     expect(result?.status).toBeTruthy();
+  });
+
+  it('runs keys stretch upgrade when required', async () => {
+    mockSensitiveDataClient.KeyStretchUpgradeData = {
+      email: MOCK_EMAIL,
+      v1Credentials: {
+        authPW: MOCK_AUTH_PW,
+        unwrapBKey: MOCK_UNWRAP_BKEY,
+      },
+      v2Credentials: {
+        authPW: MOCK_AUTH_PW_V2,
+        unwrapBKey: MOCK_UNWRAP_BKEY_V2,
+        clientSalt: MOCK_CLIENT_SALT,
+      },
+    };
+    await render();
+    expect(SigninTotpCodeModule.SigninTotpCode).toBeCalled();
+    const result = await currentPageProps?.submitTotpCode('123456');
+
+    expect(result?.status).toBeTruthy();
+    expect(tryFinalizeUpgrade).toBeCalled();
   });
 
   it('returns false when code not valid', async () => {

@@ -15,10 +15,19 @@ import {
 } from '../../../models';
 
 // using default signin handlers
-import { BEGIN_SIGNIN_MUTATION, CREDENTIAL_STATUS_MUTATION } from '../gql';
+import {
+  BEGIN_SIGNIN_MUTATION,
+  CREDENTIAL_STATUS_MUTATION,
+  GET_ACCOUNT_KEYS_MUTATION,
+  PASSWORD_CHANGE_FINISH_MUTATION,
+  PASSWORD_CHANGE_START_MUTATION,
+} from '../gql';
 import {
   BeginSigninResponse,
   CredentialStatusResponse,
+  GetAccountKeysResponse,
+  PasswordChangeFinishResponse,
+  PasswordChangeStartResponse,
   SigninUnblockIntegration,
 } from '../interfaces';
 
@@ -42,6 +51,7 @@ import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { SignInOptions } from 'fxa-auth-client/browser';
 import { AUTH_DATA_KEY } from '../../../lib/sensitive-data-client';
 import { isFirefoxService } from '../../../models/integrations/utils';
+import { tryFinalizeUpgrade } from '../../../lib/gql-key-stretch-upgrade';
 
 export const SigninUnblockContainer = ({
   integration,
@@ -73,6 +83,15 @@ export const SigninUnblockContainer = ({
   const [beginSignin] = useMutation<BeginSigninResponse>(BEGIN_SIGNIN_MUTATION);
   const [credentialStatus] = useMutation<CredentialStatusResponse>(
     CREDENTIAL_STATUS_MUTATION
+  );
+  const [passwordChangeStart] = useMutation<PasswordChangeStartResponse>(
+    PASSWORD_CHANGE_START_MUTATION
+  );
+  const [getWrappedKeys] = useMutation<GetAccountKeysResponse>(
+    GET_ACCOUNT_KEYS_MUTATION
+  );
+  const [passwordChangeFinish] = useMutation<PasswordChangeFinishResponse>(
+    PASSWORD_CHANGE_FINISH_MUTATION
   );
 
   const signinWithUnblockCode: BeginSigninWithUnblockCodeHandler = async (
@@ -134,6 +153,20 @@ export const SigninUnblockContainer = ({
       if (response.data != null) {
         response.data.unwrapBKey = credentials.unwrapBKey;
       }
+
+      // Attempt to finish key stretching upgrade now that session has been verified.
+      if (response.data?.signIn.verified) {
+        await tryFinalizeUpgrade(
+          response.data?.signIn.sessionToken,
+          sensitiveDataClient,
+          'signin-unblock',
+          credentialStatus,
+          getWrappedKeys,
+          passwordChangeStart,
+          passwordChangeFinish
+        );
+      }
+
       return response;
     } catch (error) {
       const result = getHandledError(error);
