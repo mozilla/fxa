@@ -138,12 +138,14 @@ export interface SigninFormData {
   password: string;
 }
 
+export interface CredentialStatus {
+  upgradeNeeded: boolean;
+  currentVersion?: string;
+  clientSalt?: string;
+}
+
 export interface CredentialStatusResponse {
-  credentialStatus: {
-    upgradeNeeded: boolean;
-    currentVersion?: string;
-    clientSalt?: string;
-  };
+  credentialStatus: CredentialStatus;
 }
 
 export interface PasswordChangeStartResponse {
@@ -205,7 +207,7 @@ export interface NavigationOptions {
   syncEngines?: {
     offeredEngines: string[];
     declinedEngines: string[];
-  }
+  };
 }
 
 export interface OAuthSigninResult {

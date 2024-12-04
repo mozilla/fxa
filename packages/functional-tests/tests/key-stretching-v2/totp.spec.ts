@@ -72,6 +72,13 @@ test.describe('severity-2 #smoke', () => {
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.totp.status).toHaveText('Enabled');
 
+      // Make sure upgrade occurred
+      if (signinVersion.version === 2) {
+        const client = target.createAuthClient(2);
+        const status = await client.getCredentialStatusV2(email);
+        expect(status.currentVersion).toEqual('v2');
+      }
+
       await settings.disconnectTotp(); // Required before teardown
     });
   }

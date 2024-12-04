@@ -11,7 +11,13 @@ import { MozServices } from '../../../lib/types';
 import VerificationMethods from '../../../constants/verification-methods';
 import { VERIFY_TOTP_CODE_MUTATION } from './gql';
 import { getSigninState } from '../utils';
-import { SigninLocationState } from '../interfaces';
+import {
+  CredentialStatusResponse,
+  GetAccountKeysResponse,
+  PasswordChangeFinishResponse,
+  PasswordChangeStartResponse,
+  SigninLocationState,
+} from '../interfaces';
 import {
   Integration,
   isWebIntegration,
@@ -32,6 +38,13 @@ import {
   SensitiveDataClientAuthKeys,
 } from '../../../lib/sensitive-data-client';
 import { GET_LOCAL_SIGNED_IN_STATUS } from '../../../components/App/gql';
+import {
+  CREDENTIAL_STATUS_MUTATION,
+  GET_ACCOUNT_KEYS_MUTATION,
+  PASSWORD_CHANGE_FINISH_MUTATION,
+  PASSWORD_CHANGE_START_MUTATION,
+} from '../gql';
+import { tryFinalizeUpgrade } from '../../../lib/gql-key-stretch-upgrade';
 
 export type SigninTotpCodeContainerProps = {
   integration: Integration;
@@ -74,6 +87,18 @@ export const SigninTotpCodeContainer = ({
       : '';
 
   const [verifyTotpCode] = useMutation(VERIFY_TOTP_CODE_MUTATION);
+  const [passwordChangeStart] = useMutation<PasswordChangeStartResponse>(
+    PASSWORD_CHANGE_START_MUTATION
+  );
+  const [credentialStatus] = useMutation<CredentialStatusResponse>(
+    CREDENTIAL_STATUS_MUTATION
+  );
+  const [getWrappedKeys] = useMutation<GetAccountKeysResponse>(
+    GET_ACCOUNT_KEYS_MUTATION
+  );
+  const [passwordChangeFinish] = useMutation<PasswordChangeFinishResponse>(
+    PASSWORD_CHANGE_FINISH_MUTATION
+  );
 
   const submitTotpCode = async (code: string) => {
     try {
@@ -102,6 +127,22 @@ export const SigninTotpCodeContainer = ({
 
       // Check authentication code
       if (result.data?.verifyTotp.success === true) {
+        // Attempt to finish any pending key stretching upgrade. We cannot finalize
+        // a key stretching upgrade until the session is verified, which the process
+        // can only be finished after the account has been verified on accounts that
+        // require totp.
+        if (signinState?.sessionToken) {
+          await tryFinalizeUpgrade(
+            signinState?.sessionToken,
+            sensitiveDataClient,
+            'signin-totp',
+            credentialStatus,
+            getWrappedKeys,
+            passwordChangeStart,
+            passwordChangeFinish
+          );
+        }
+
         return { status: true };
       }
 
