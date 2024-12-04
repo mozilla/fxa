@@ -5,6 +5,7 @@
 export enum SupportedPages {
   START = 'start',
   PROCESSING = 'processing',
+  NEEDS_INPUT = 'needs_input',
   SUCCESS = 'success',
   ERROR = 'error',
 }

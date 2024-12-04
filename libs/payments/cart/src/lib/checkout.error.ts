@@ -15,3 +15,9 @@ export class CheckoutPaymentError extends BaseError {
     super(...args);
   }
 }
+
+export class CheckoutFailedError extends CheckoutError {
+  constructor(...args: ConstructorParameters<typeof BaseError>) {
+    super(...args);
+  }
+}

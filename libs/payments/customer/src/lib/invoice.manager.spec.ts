@@ -262,7 +262,10 @@ describe('InvoiceManager', () => {
         .spyOn(stripeClient, 'invoicesFinalizeInvoice')
         .mockResolvedValue(mockInvoice);
       jest.spyOn(stripeClient, 'invoicesUpdate').mockResolvedValue(mockInvoice);
-      jest.spyOn(stripeClient, 'invoicesPay').mockResolvedValue(mockInvoice);
+      jest
+        .spyOn(stripeClient, 'invoicesRetrieve')
+        .mockResolvedValue(mockInvoice);
+      jest.spyOn(stripeClient, 'invoicesPay').mockResolvedValue();
 
       const result = await invoiceManager.processPayPalNonZeroInvoice(
         mockCustomer,
@@ -366,7 +369,7 @@ describe('InvoiceManager', () => {
         .spyOn(stripeClient, 'invoicesFinalizeInvoice')
         .mockResolvedValue(mockInvoice);
       jest.spyOn(stripeClient, 'invoicesUpdate').mockResolvedValue(mockInvoice);
-      jest.spyOn(stripeClient, 'invoicesPay').mockResolvedValue(mockInvoice);
+      jest.spyOn(stripeClient, 'invoicesPay').mockResolvedValue();
 
       const result = await invoiceManager.processPayPalNonZeroInvoice(
         mockCustomer,
@@ -431,7 +434,7 @@ describe('InvoiceManager', () => {
         .spyOn(stripeClient, 'invoicesFinalizeInvoice')
         .mockResolvedValue(mockInvoice);
       jest.spyOn(stripeClient, 'invoicesUpdate').mockResolvedValue(mockInvoice);
-      jest.spyOn(stripeClient, 'invoicesPay').mockResolvedValue(mockInvoice);
+      jest.spyOn(stripeClient, 'invoicesPay').mockResolvedValue();
 
       await expect(
         invoiceManager.processPayPalNonZeroInvoice(mockCustomer, mockInvoice)
@@ -461,6 +464,84 @@ describe('InvoiceManager', () => {
       );
       expect(stripeClient.invoicesUpdate).toHaveBeenCalledTimes(1);
       expect(stripeClient.invoicesPay).not.toHaveBeenCalled();
+    });
+    it('successfully processes non-zero invoice with a tax of 0', async () => {
+      const mockPaymentAttemptCount = 1;
+      const mockCustomer = StripeResponseFactory(
+        StripeCustomerFactory({
+          metadata: {
+            [STRIPE_CUSTOMER_METADATA.PaypalAgreement]: '1',
+          },
+        })
+      );
+      const mockInvoice = StripeResponseFactory(
+        StripeInvoiceFactory({
+          status: 'open',
+          currency: 'usd',
+          metadata: {
+            [STRIPE_INVOICE_METADATA.RetryAttempts]: String(
+              mockPaymentAttemptCount
+            ),
+          },
+          tax: 0,
+        })
+      );
+      const mockPayPalCharge = ChargeResponseFactory({
+        paymentStatus: 'Completed',
+      });
+
+      jest
+        .spyOn(paypalClient, 'chargeCustomer')
+        .mockResolvedValue(mockPayPalCharge);
+      jest
+        .spyOn(stripeClient, 'invoicesFinalizeInvoice')
+        .mockResolvedValue(mockInvoice);
+      jest.spyOn(stripeClient, 'invoicesUpdate').mockResolvedValue(mockInvoice);
+      jest
+        .spyOn(stripeClient, 'invoicesRetrieve')
+        .mockResolvedValue(mockInvoice);
+      jest.spyOn(stripeClient, 'invoicesPay').mockResolvedValue();
+
+      const result = await invoiceManager.processPayPalNonZeroInvoice(
+        mockCustomer,
+        mockInvoice
+      );
+
+      expect(result).toEqual(mockInvoice);
+
+      expect(paypalClient.chargeCustomer).toHaveBeenCalledWith({
+        amountInCents: mockInvoice.amount_due,
+        billingAgreementId:
+          mockCustomer.metadata[STRIPE_CUSTOMER_METADATA.PaypalAgreement],
+        invoiceNumber: mockInvoice.id,
+        currencyCode: mockInvoice.currency,
+        idempotencyKey: `${mockInvoice.id}-${mockPaymentAttemptCount}`,
+        taxAmountInCents: mockInvoice.tax,
+      });
+      expect(stripeClient.invoicesFinalizeInvoice).toHaveBeenCalledWith(
+        mockInvoice.id
+      );
+      expect(stripeClient.invoicesUpdate).toHaveBeenNthCalledWith(
+        1,
+        mockInvoice.id,
+        {
+          metadata: {
+            [STRIPE_INVOICE_METADATA.RetryAttempts]:
+              mockPaymentAttemptCount + 1,
+          },
+        }
+      );
+      expect(stripeClient.invoicesUpdate).toHaveBeenNthCalledWith(
+        2,
+        mockInvoice.id,
+        {
+          metadata: {
+            [STRIPE_INVOICE_METADATA.PaypalTransactionId]:
+              mockPayPalCharge.transactionId,
+          },
+        }
+      );
+      expect(stripeClient.invoicesPay).toHaveBeenCalledWith(mockInvoice.id);
     });
   });
 });

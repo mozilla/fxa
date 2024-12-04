@@ -126,8 +126,17 @@ export class InvoiceManager {
     if (!customer.metadata[STRIPE_CUSTOMER_METADATA.PaypalAgreement]) {
       throw new StripePayPalAgreementNotFoundError(customer.id);
     }
-    if (!['draft', 'open'].includes(invoice.status ?? '')) {
-      throw new InvalidInvoiceError();
+    if (invoice.status === 'paid') {
+      if (!invoice.metadata?.[STRIPE_INVOICE_METADATA.PaypalTransactionId]) {
+        throw new InvalidInvoiceError(
+          `Invoice ${invoice.id} is marked paid without a transaction id`
+        );
+      }
+      return invoice;
+    } else if (!['draft', 'open'].includes(invoice.status ?? '')) {
+      throw new InvalidInvoiceError(
+        `Invoice is in ${invoice.status} state, expected draft or open`
+      );
     }
 
     // PayPal allows for idempotent retries on payment attempts to prevent double charging.
@@ -145,7 +154,7 @@ export class InvoiceManager {
       currencyCode: invoice.currency,
       idempotencyKey,
       ...(ipaddress && { ipaddress }),
-      ...(invoice.tax && { taxAmountInCents: invoice.tax }),
+      ...(invoice.tax !== null && { taxAmountInCents: invoice.tax }),
     } satisfies ChargeOptions;
     let paypalCharge: ChargeResponse;
     try {
@@ -182,7 +191,7 @@ export class InvoiceManager {
           this.stripeClient.invoicesPay(invoice.id),
         ]);
 
-        return updatedInvoice;
+        return await this.stripeClient.invoicesRetrieve(updatedInvoice.id);
       case 'Pending':
       case 'In-Progress':
         return updatedInvoice;
@@ -215,8 +224,7 @@ export class InvoiceManager {
     const amountInCents = invoice.amount_due;
 
     if (amountInCents < getMinimumChargeAmountForCurrency(invoice.currency)) {
-      await this.processPayPalZeroInvoice(invoice.id);
-      return;
+      return await this.processPayPalZeroInvoice(invoice.id);
     }
 
     const customer = await this.stripeClient.customersRetrieve(
@@ -225,6 +233,6 @@ export class InvoiceManager {
     if (customer.deleted)
       throw new Error('Processing paypal invoice on deleted customer');
 
-    await this.processPayPalNonZeroInvoice(customer, invoice);
+    return await this.processPayPalNonZeroInvoice(customer, invoice);
   }
 }

@@ -12,6 +12,7 @@ import {
   SubscriptionManager,
   InvoicePreview,
   PaymentMethodManager,
+  PaymentIntentManager,
 } from '@fxa/payments/customer';
 import { EligibilityService } from '@fxa/payments/eligibility';
 import {
@@ -27,9 +28,12 @@ import { GeoDBManager } from '@fxa/shared/geodb';
 import { CartManager } from './cart.manager';
 import {
   CheckoutCustomerData,
+  GetNeedsInputResponse,
+  NeedsInputType,
+  NoInputNeededResponse,
   PaymentInfo,
-  PollCartResponse,
   ResultCart,
+  StripeHandleNextActionResponse,
   SuccessCart,
   UpdateCart,
   WithContextCart,
@@ -47,6 +51,7 @@ import {
 } from './cart.error';
 import { AccountManager } from '@fxa/shared/account/account';
 import assert from 'assert';
+import { CheckoutFailedError } from './checkout.error';
 
 @Injectable()
 export class CartService {
@@ -63,7 +68,8 @@ export class CartService {
     private invoiceManager: InvoiceManager,
     private productConfigurationManager: ProductConfigurationManager,
     private subscriptionManager: SubscriptionManager,
-    private paymentMethodManager: PaymentMethodManager
+    private paymentMethodManager: PaymentMethodManager,
+    private paymentIntentManager: PaymentIntentManager
   ) {}
 
   /**
@@ -232,8 +238,9 @@ export class CartService {
     // is non-blocking and can be handled asynchronously.
     this.checkoutService
       .payWithStripe(updatedCart, confirmationTokenId, customerData)
-      .catch(async () => {
+      .catch(async (error) => {
         // TODO: Handle errors and provide an associated reason for failure
+        console.error(error);
         await this.cartManager.finishErrorCart(cartId, {
           errorReasonId: CartErrorReasonId.Unknown,
         });
@@ -269,60 +276,6 @@ export class CartService {
           errorReasonId: CartErrorReasonId.Unknown,
         });
       });
-  }
-
-  /**
-   * return the cart state, and the stripe client secret if the cart has a
-   * stripe paymentIntent with `requires_action` actions for the client to handle
-   */
-  async pollCart(cartId: string): Promise<PollCartResponse> {
-    const cart = await this.cartManager.fetchCartById(cartId);
-
-    // respect cart state set elsewhere
-    if (cart.state === CartState.FAIL || cart.state === CartState.SUCCESS) {
-      return { cartState: cart.state };
-    }
-
-    if (!cart.stripeSubscriptionId) {
-      return { cartState: cart.state };
-    }
-
-    const subscription = await this.subscriptionManager.retrieve(
-      cart.stripeSubscriptionId
-    );
-    if (!subscription) {
-      return { cartState: cart.state };
-    }
-
-    // PayPal payment method collection
-    if (subscription.collection_method === 'send_invoice') {
-      if (!cart.stripeCustomerId) {
-        throw new CartError('Invalid stripe customer id on cart', {
-          cartId,
-        });
-      }
-      if (subscription.latest_invoice) {
-        const invoice = await this.invoiceManager.retrieve(
-          subscription.latest_invoice
-        );
-        await this.invoiceManager.processPayPalInvoice(invoice);
-      }
-
-      return { cartState: cart.state };
-    }
-
-    // Stripe payment method collection
-    const paymentIntent =
-      await this.subscriptionManager.processStripeSubscription(subscription);
-
-    if (paymentIntent.status === 'requires_action') {
-      return {
-        cartState: cart.state,
-        stripeClientSecret: paymentIntent.client_secret ?? undefined,
-      };
-    }
-
-    return { cartState: cart.state };
   }
 
   async finalizeProcessingCart(cartId: string): Promise<void> {
@@ -507,6 +460,108 @@ export class CartService {
         : false;
     } else {
       return false;
+    }
+  }
+
+  async getNeedsInput(cartId: string): Promise<GetNeedsInputResponse> {
+    const cart = await this.cartManager.fetchCartById(cartId);
+
+    if (cart.state !== CartState.NEEDS_INPUT) {
+      throw new CartInvalidStateForActionError(
+        cartId,
+        cart.state,
+        'getNeedsInput'
+      );
+    }
+
+    if (!cart.stripeSubscriptionId) {
+      throw new CartSubscriptionNotFoundError(cartId);
+    }
+
+    const subscription = await this.subscriptionManager.retrieve(
+      cart.stripeSubscriptionId
+    );
+    if (!subscription) {
+      throw new CartSubscriptionNotFoundError(cartId);
+    }
+
+    const paymentIntent = await this.subscriptionManager.getLatestPaymentIntent(
+      subscription
+    );
+    if (!paymentIntent) {
+      throw new CartError('no payment intent found for cart subscription', {
+        cartId,
+        subscription: subscription.id,
+      });
+    }
+
+    if (paymentIntent.status === 'requires_action') {
+      return {
+        inputType: NeedsInputType.StripeHandleNextAction,
+        data: { clientSecret: paymentIntent.client_secret },
+      } as StripeHandleNextActionResponse;
+    } else {
+      await this.cartManager.setProcessingCart(cartId);
+      return { inputType: NeedsInputType.NotRequired } as NoInputNeededResponse;
+    }
+  }
+
+  async submitNeedsInput(cartId: string) {
+    const cart = await this.cartManager.fetchCartById(cartId);
+    assert(cart.stripeCustomerId, 'Cart must have a stripeCustomerId');
+    assert(cart.stripeSubscriptionId, 'Cart must have a stripeSubscriptionId');
+    assert(cart.uid, 'Cart must have a uid');
+
+    if (cart.state !== CartState.NEEDS_INPUT) {
+      throw new CartInvalidStateForActionError(
+        cartId,
+        cart.state,
+        'submitNeedsInput'
+      );
+    }
+
+    const subscription = await this.subscriptionManager.retrieve(
+      cart.stripeSubscriptionId
+    );
+    const paymentIntent = await this.subscriptionManager.getLatestPaymentIntent(
+      subscription
+    );
+
+    const customer = await this.customerManager.retrieve(cart.stripeCustomerId);
+
+    if (paymentIntent && paymentIntent.status === 'succeeded') {
+      if (paymentIntent.payment_method) {
+        await this.customerManager.update(customer.id, {
+          invoice_settings: {
+            default_payment_method: paymentIntent.payment_method,
+          },
+        });
+      } else {
+        throw new CartError(
+          'Failed to update customer default payment method',
+          { cartId: cart.id }
+        );
+      }
+      const subscription = await this.subscriptionManager.retrieve(
+        cart.stripeSubscriptionId
+      );
+      await this.checkoutService.postPaySteps(
+        cart,
+        cart.version,
+        subscription,
+        cart.uid
+      );
+    } else {
+      const promises: Promise<any>[] = [
+        this.finalizeCartWithError(cartId, CartErrorReasonId.Unknown),
+      ];
+      if (cart.stripeSubscriptionId) {
+        promises.push(
+          this.subscriptionManager.cancel(cart.stripeSubscriptionId)
+        );
+      }
+      await Promise.all([promises]);
+      throw new CheckoutFailedError(`Payment failed for cart ${cartId}`);
     }
   }
 }

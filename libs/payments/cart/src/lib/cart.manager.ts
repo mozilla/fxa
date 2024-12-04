@@ -34,8 +34,12 @@ import type { AccountDatabase } from '@fxa/shared/db/mysql/account';
 // valid states listed in the array of CartStates below
 const ACTIONS_VALID_STATE = {
   updateFreshCart: [CartState.START, CartState.PROCESSING],
-  finishCart: [CartState.PROCESSING],
-  finishErrorCart: [CartState.START, CartState.PROCESSING],
+  finishCart: [CartState.PROCESSING, CartState.NEEDS_INPUT],
+  finishErrorCart: [
+    CartState.START,
+    CartState.PROCESSING,
+    CartState.NEEDS_INPUT,
+  ],
   deleteCart: [CartState.START, CartState.PROCESSING],
   restartCart: [CartState.START, CartState.PROCESSING, CartState.FAIL],
   setProcessingCart: [CartState.START, CartState.NEEDS_INPUT],

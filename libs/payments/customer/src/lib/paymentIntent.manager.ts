@@ -16,4 +16,8 @@ export class PaymentIntentManager {
   ) {
     return this.stripeClient.paymentIntentConfirm(paymentIntentId, params);
   }
+
+  async retrieve(paymentIntentId: string) {
+    return this.stripeClient.paymentIntentRetrieve(paymentIntentId);
+  }
 }
