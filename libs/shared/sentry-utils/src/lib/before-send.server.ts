@@ -4,7 +4,7 @@
 
 import { InitSentryOpts } from './models/sentry-config-opts';
 import { tagFxaName } from './utils';
-import { ErrorEvent } from '@sentry/types';
+import { ErrorEvent } from '@sentry/core';
 
 export function beforeSendServer(
   config: InitSentryOpts,

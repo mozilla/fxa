@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import * as Sentry from '@sentry/nextjs';
-import { ErrorEvent, EventHint } from '@sentry/types';
+import { ErrorEvent, EventHint } from '@sentry/core';
 import {
   Logger,
   SentryConfigOpts,

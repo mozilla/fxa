@@ -1,4 +1,4 @@
-import { ErrorEvent, EventHint, Exception } from '@sentry/types';
+import { ErrorEvent, EventHint, Exception } from '@sentry/core';
 import {
   SentryConfigOpts,
   tagFxaName,

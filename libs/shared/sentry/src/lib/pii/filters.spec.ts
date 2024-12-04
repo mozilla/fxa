@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { ErrorEvent } from '@sentry/types';
+import { ErrorEvent } from '@sentry/core';
 import { SQS } from 'aws-sdk';
 import { Logger } from '../sentry.types';
 import { IFilterAction, PiiData } from '../models/pii';

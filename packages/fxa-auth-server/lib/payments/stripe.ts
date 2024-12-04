@@ -4,7 +4,7 @@
 
 import { Firestore } from '@google-cloud/firestore';
 import * as Sentry from '@sentry/node';
-import { SeverityLevel } from '@sentry/types';
+import { SeverityLevel } from '@sentry/core';
 import {
   Cacheable,
   CacheClearStrategy,

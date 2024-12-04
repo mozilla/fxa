@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import * as Sentry from '@sentry/node';
-import { ErrorEvent } from '@sentry/types';
+import { ErrorEvent } from '@sentry/core';
 import { extraErrorDataIntegration } from '@sentry/node';
 import { SentryConfigOpts } from './models/SentryConfigOpts';
 import { buildSentryConfig } from './config-builder';

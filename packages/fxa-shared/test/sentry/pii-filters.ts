@@ -1,8 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import * as Sentry from '@sentry/node';
-import { ErrorEvent } from '@sentry/types';
+import { ErrorEvent } from '@sentry/core';
 import { SQS } from 'aws-sdk';
 import { expect } from 'chai';
 import sinon from 'sinon';

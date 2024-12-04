@@ -69,11 +69,11 @@
     "@paypal/react-paypal-js": "^8.7.0",
     "@radix-ui/react-form": "^0.1.0",
     "@radix-ui/react-tooltip": "^1.1.2",
-    "@sentry/browser": "^8.38.0",
-    "@sentry/nestjs": "^8.38.0",
-    "@sentry/nextjs": "^8.38.0",
-    "@sentry/node": "^8.38.0",
-    "@sentry/opentelemetry": "^8.38.0",
+    "@sentry/browser": "^8.42.0",
+    "@sentry/nestjs": "^8.42.0",
+    "@sentry/nextjs": "^8.42.0",
+    "@sentry/node": "^8.42.0",
+    "@sentry/opentelemetry": "^8.42.0",
     "@stripe/react-stripe-js": "^2.7.1",
     "@stripe/stripe-js": "^4.9.0",
     "@swc/helpers": "0.5.11",
@@ -279,8 +279,7 @@
     "tap/typescript": "^4.5.2",
     "terser:>4.0.0 <5": ">=4.8.1",
     "terser:>5 <6": ">=5.14.2",
-    "underscore": ">=1.13.2",
-    "@sentry/types": "^7.113.0"
+    "underscore": ">=1.13.2"
   },
   "packageManager": "yarn@3.3.0",
   "_moduleAliases": {
