@@ -10,6 +10,7 @@ const uuid = require('uuid');
 const mocks = require('../../../mocks');
 const error = require('../../../../lib/error');
 const Sentry = require('@sentry/node');
+const sentryModule = require('../../../../lib/sentry');
 const {
   StripeHelper,
   SUBSCRIPTION_UPDATE_TYPES,
@@ -167,7 +168,7 @@ describe('StripeWebhookHandler', () => {
     });
 
     describe('handleWebhookEvent', () => {
-      let scopeContextSpy, scopeSpy;
+      let scopeContextSpy, scopeExtraSpy, scopeSpy;
       const request = {
         payload: {},
         headers: {
@@ -201,8 +202,10 @@ describe('StripeWebhookHandler', () => {
             .resolves();
         }
         scopeContextSpy = sinon.fake();
+        scopeExtraSpy = sinon.fake();
         scopeSpy = {
           setContext: scopeContextSpy,
+          setExtra: scopeExtraSpy,
         };
         sandbox.replace(Sentry, 'withScope', (fn) => fn(scopeSpy));
       });
@@ -658,7 +661,6 @@ describe('StripeWebhookHandler', () => {
 
       it('does not report error with no customer if the account does not exist but it was an api call', async () => {
         const authDbModule = require('fxa-shared/db/models/auth');
-        const sentryModule = require('../../../../lib/sentry');
         sandbox.stub(sentryModule, 'reportSentryError').returns({});
         sandbox.stub(authDbModule.Account, 'findByUid').resolves(null);
         const customer = deepCopy(customerFixture);
@@ -830,7 +832,7 @@ describe('StripeWebhookHandler', () => {
     });
 
     describe('handlePlanCreatedOrUpdatedEvent', () => {
-      let scopeContextSpy, scopeSpy, captureMessageSpy;
+      let scopeContextSpy, scopeExtraSpy, scopeSpy, captureMessageSpy;
       const plan = {
         ...validPlan.data.object,
         product: validProduct.data.object,
@@ -839,8 +841,10 @@ describe('StripeWebhookHandler', () => {
       beforeEach(() => {
         captureMessageSpy = sinon.fake();
         scopeContextSpy = sinon.fake();
+        scopeExtraSpy = sinon.fake();
         scopeSpy = {
           setContext: scopeContextSpy,
+          setExtra: scopeExtraSpy,
         };
         sandbox.replace(Sentry, 'withScope', (fn) => fn(scopeSpy));
         sandbox.replace(Sentry, 'captureMessage', captureMessageSpy);
@@ -868,7 +872,7 @@ describe('StripeWebhookHandler', () => {
         );
         assert.isTrue(
           captureMessageSpy.called,
-          'Expected to call Sentry.captureMessage'
+          'Expected to call sentryModule.reportSentryMessage'
         );
         assert.calledOnceWithExactly(
           StripeWebhookHandlerInstance.stripeHelper.fetchProductById,
@@ -896,7 +900,7 @@ describe('StripeWebhookHandler', () => {
         );
         assert.isTrue(
           captureMessageSpy.notCalled,
-          'Expected not to call Sentry.captureMessage'
+          'Expected not to call sentryModule.reportSentryMessage'
         );
         assert.calledOnceWithExactly(
           StripeWebhookHandlerInstance.stripeHelper.updateAllPlans,
@@ -923,7 +927,7 @@ describe('StripeWebhookHandler', () => {
         );
         assert.isTrue(
           captureMessageSpy.called,
-          'Expected to call Sentry.captureMessage'
+          'Expected to call sentryModule.reportSentryMessage'
         );
         assert.calledOnceWithExactly(
           StripeWebhookHandlerInstance.stripeHelper.fetchProductById,
