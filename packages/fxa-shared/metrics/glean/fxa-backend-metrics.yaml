@@ -951,11 +951,11 @@ two_factor_auth:
     data_sensitivity:
       - interaction
 
-two_factor_auth_setup:
-  sent_phone_code:
+two_step_auth_phone_code:
+  sent:
     type: event
     description: |
-      User successfully submits a new phone number to be used as a recovery option
+      6 digit code is successfully sent to the phone number provided
     lifetime: ping
     send_in_pings:
       - events
@@ -969,10 +969,27 @@ two_factor_auth_setup:
     expires: never
     data_sensitivity:
       - interaction
-  send_phone_code_error:
+  send_error:
     type: event
     description: |
-      User encounters error while submitting a new phone number to be used as a recovery option
+      Event that indicates that there was an error in sending the code to the phone
+    lifetime: ping
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-10356
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
+  complete:
+    type: event
+    description: |
+      User successfully entered and submitted an authentication code
     lifetime: ping
     send_in_pings:
       - events
