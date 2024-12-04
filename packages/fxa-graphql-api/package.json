@@ -56,7 +56,6 @@
     "mozlog": "^3.0.2",
     "mysql": "^2.18.1",
     "rimraf": "^6.0.1",
-    "superagent": "^9.0.2",
     "tslib": "^2.8.1"
   },
   "devDependencies": {
@@ -69,7 +68,6 @@
     "@types/node": "^20.11.1",
     "@types/passport": "^1.0.6",
     "@types/passport-http-bearer": "^1.0.36",
-    "@types/superagent": "4.1.11",
     "@types/supertest": "^2.0.11",
     "@types/yargs": "^17.0.0",
     "audit-filter": "^0.5.0",

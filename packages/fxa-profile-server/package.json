@@ -25,7 +25,6 @@
     "@hapi/catbox-redis": "~6.0.2",
     "@hapi/hapi": "^20.2.1",
     "@hapi/inert": "7.1.0",
-    "aws-sdk": "^2.1691.0",
     "bluebird": "^3.7.2",
     "buf": "0.1.1",
     "checksum": "1.0.0",
