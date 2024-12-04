@@ -11,7 +11,7 @@ import {
 } from './account-tasks.types';
 
 /** Responsible for account deletion tasks */
-export class AccountTasks extends CloudTasks {
+export class DeleteAccountTasks extends CloudTasks {
   constructor(
     protected override config: DeleteAccountCloudTaskConfig,
     protected cloudTaskClient: Pick<CloudTasksClient, 'createTask' | 'getTask'>,
@@ -30,7 +30,7 @@ export class AccountTasks extends CloudTasks {
       const result = await this.enqueueTask({
         queueName: this.config.cloudTasks.deleteAccounts.queueName,
         taskUrl: this.config.cloudTasks.deleteAccounts.taskUrl,
-        task: deleteTask,
+        taskPayload: deleteTask,
       });
       const taskName = result[0].name;
 

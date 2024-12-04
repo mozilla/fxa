@@ -67,6 +67,20 @@ export function CloudTasksConvictConfigFactory() {
         format: String,
       },
     },
+    sendEmails: {
+      taskUrl: {
+        default: '',
+        doc: 'URL that sends the email',
+        env: 'AUTH_CLOUDTASKS_NOTIFICATION_EMAILS_TASK_URL',
+        format: String,
+      },
+      queueName: {
+        default: 'notification-emails-queue',
+        doc: 'The name of the queue.  It should match the x-cloudtasks-queuename header value sent to the target.',
+        env: `AUTH_CLOUDTASKS_NOTIFICATION_EMAILS_QUEUENAME`,
+        format: String,
+      },
+    },
   };
 }
 

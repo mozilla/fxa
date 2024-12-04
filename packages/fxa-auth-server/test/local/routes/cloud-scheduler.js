@@ -14,7 +14,7 @@ describe('CloudSchedulerHandler', function () {
   let config;
   let log;
   let statsd;
-  let AccountTasksFactory;
+  let DeleteAccountTasksFactory;
   let mockProcessAccountDeletionInRange;
 
   beforeEach(() => {
@@ -33,13 +33,13 @@ describe('CloudSchedulerHandler', function () {
     statsd = {
       increment: sinon.stub(),
     };
-    AccountTasksFactory = sinon.stub();
+    DeleteAccountTasksFactory = sinon.stub();
 
     const { CloudSchedulerHandler } = proxyquire(
       '../../../lib/routes/cloud-scheduler',
       {
         '@fxa/shared/cloud-tasks': {
-          AccountTasksFactory,
+          DeleteAccountTasksFactory,
         },
       }
     );

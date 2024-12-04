@@ -5,10 +5,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { MockConfig, MockCloudTaskFactory, MockMetricsFactory } from '../mocks';
 import { CloudTasks, CloudTasksService } from './cloud-tasks.service';
-import { AccountTasks } from '@fxa/shared/cloud-tasks';
+import { DeleteAccountTasks } from '@fxa/shared/cloud-tasks';
 
 describe('CloudTasks Service', () => {
-  let service: { accountTasks: AccountTasks };
+  let service: { accountTasks: DeleteAccountTasks };
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({

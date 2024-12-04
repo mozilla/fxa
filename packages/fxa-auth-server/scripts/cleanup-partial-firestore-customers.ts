@@ -15,9 +15,9 @@ import { AccountManager } from '@fxa/shared/account/account';
 import { uuidTransformer } from 'packages/fxa-shared/db/transformers';
 import * as pckg from '../package.json';
 import {
-  AccountTasks,
+  DeleteAccountTasks,
   ReasonForDeletion,
-  AccountTasksFactory,
+  DeleteAccountTasksFactory,
 } from '@fxa/shared/cloud-tasks';
 import { getAccountCustomerByUid } from 'fxa-shared/db/models/auth';
 
@@ -25,14 +25,14 @@ class CleanupFirestoreHelper {
   private firestore: Firestore;
   private log: AuthLogger;
   private config: ConfigType;
-  private accountTasks: AccountTasks;
+  private accountTasks: DeleteAccountTasks;
   private accountManager: AccountManager;
 
   constructor(private batchSize: number, private dryRun: boolean) {
     this.firestore = Container.get<Firestore>(AuthFirestore);
     this.log = Container.get(AuthLogger);
     this.config = Container.get(AppConfig);
-    this.accountTasks = Container.get(AccountTasks);
+    this.accountTasks = Container.get(DeleteAccountTasks);
     this.accountManager = Container.get(AccountManager);
   }
 
@@ -160,8 +160,8 @@ export async function init() {
   const config = Container.get(AppConfig);
   const statsd = Container.get(StatsD);
 
-  const accountTasks = AccountTasksFactory(config, statsd);
-  Container.set(AccountTasks, accountTasks);
+  const accountTasks = DeleteAccountTasksFactory(config, statsd);
+  Container.set(DeleteAccountTasks, accountTasks);
 
   const accountDb = await setupAccountDatabase(config.database.mysql.auth);
   const accountManager = new AccountManager(accountDb);

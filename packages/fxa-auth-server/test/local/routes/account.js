@@ -10,7 +10,10 @@ const assert = { ...sinon.assert, ...require('chai').assert };
 const mocks = require('../../mocks');
 const getRoute = require('../../routes_helpers').getRoute;
 const proxyquire = require('proxyquire');
-const { AccountTasks, ReasonForDeletion } = require('@fxa/shared/cloud-tasks');
+const {
+  DeleteAccountTasks,
+  ReasonForDeletion,
+} = require('@fxa/shared/cloud-tasks');
 
 const uuid = require('uuid');
 const crypto = require('crypto');
@@ -121,7 +124,7 @@ const makeRoutes = function (options = {}, requireMocks = {}) {
   const accountTasks = {
     deleteAccount: mockAccountTasksDeleteAccount,
   };
-  Container.set(AccountTasks, accountTasks);
+  Container.set(DeleteAccountTasks, accountTasks);
 
   // We have to do some redirection with proxyquire because dependency
   // injection changes the class

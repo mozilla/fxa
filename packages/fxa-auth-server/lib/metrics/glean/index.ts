@@ -307,6 +307,24 @@ export function gleanMetrics(config: ConfigType) {
       sendError: createEventFn('two_step_auth_phone_code_send_error'),
       complete: createEventFn('two_step_auth_phone_code_complete'),
     },
+
+    inactiveAccountDeletion: {
+      statusChecked: createEventFn('inactive_account_deletion_status_checked'),
+      firstEmailTaskRequest: createEventFn(
+        'inactive_account_deletion_first_email_task_request'
+      ),
+      firstEmailTaskEnqueued: createEventFn(
+        'inactive_account_deletion_first_email_task_enqueued'
+      ),
+      firstEmailTaskRejected: createEventFn(
+        'inactive_account_deletion_first_email_task_rejected',
+        {
+          additionalMetrics: (metrics) => ({
+            errorCode: metrics.errorCode,
+          }),
+        }
+      ),
+    },
   };
 }
 
@@ -340,6 +358,7 @@ export const logErrorWithGlean = ({
           | 'account'
           | 'twoFactorAuth'
           | 'twoFactorAuthSetup'
+          | 'inactiveAccountDeletion'
         >
       ];
     funnelFns[event as keyof typeof funnelFns](request, {

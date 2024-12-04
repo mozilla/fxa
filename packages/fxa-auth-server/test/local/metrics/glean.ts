@@ -47,6 +47,10 @@ const recordTwoStepAuthPhoneCodeSendErrorStub = sinon.stub();
 const recordTwoStepAuthPhoneCodeCompleteStub = sinon.stub();
 const recordPasswordResetTwoFactorSuccessStub = sinon.stub();
 const recordPasswordResetRecoveryCodeSuccessStub = sinon.stub();
+const recordInactiveAccountDeletionStatusCheckedStub = sinon.stub();
+const recordInactiveAccountDeletionFirstEmailTaskRequestStub = sinon.stub();
+const recordInactiveAccountDeletionFirstEmailTaskEnqueuedStub = sinon.stub();
+const recordInactiveAccountDeletionFirstEmailTaskRejectedStub = sinon.stub();
 
 const gleanProxy = proxyquire('../../../lib/metrics/glean', {
   './server_events': {
@@ -101,6 +105,14 @@ const gleanProxy = proxyquire('../../../lib/metrics/glean', {
         recordPasswordResetTwoFactorSuccessStub,
       recordPasswordResetRecoveryCodeSuccess:
         recordPasswordResetRecoveryCodeSuccessStub,
+      recordInactiveAccountDeletionStatusChecked:
+        recordInactiveAccountDeletionStatusCheckedStub,
+      recordInactiveAccountDeletionFirstEmailTaskRequest:
+        recordInactiveAccountDeletionFirstEmailTaskRequestStub,
+      recordInactiveAccountDeletionFirstEmailTaskEnqueued:
+        recordInactiveAccountDeletionFirstEmailTaskEnqueuedStub,
+      recordInactiveAccountDeletionFirstEmailTaskRejected:
+        recordInactiveAccountDeletionFirstEmailTaskRejectedStub,
     }),
   },
 });

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { CloudTasksClient } from '@google-cloud/tasks';
-import { CloudTasksConfig } from './cloud-tasks.types';
+import { CloudTaskOptions, CloudTasksConfig } from './cloud-tasks.types';
 
 /** Base class for encapsulating common cloud task operations */
 export class CloudTasks {
@@ -18,24 +18,35 @@ export class CloudTasks {
 
   /**
    * Enqueues a task
-   * @param queueName - Name of queue to add task to
-   * @param taskUrl - The URL that handles task processing
-   * @param task - The task payload. Public implementation should provide structure for this type!
+   * @param opts - Options object with `taskPayload`, `taskUrl`, and `queueName`.
+   * @param taskOptions - an optional CloudTaskOptions object
    * @returns The resulting task
    */
-  protected async enqueueTask(opts: {
-    task: unknown;
-    taskUrl: string;
-    queueName: string;
-  }) {
+  protected async enqueueTask(
+    opts: {
+      taskPayload: unknown;
+      taskUrl: string;
+      queueName: string;
+    },
+    taskOptions?: CloudTaskOptions
+  ) {
+    const parent = this.getQueuePath(opts.queueName);
     const payload = {
-      parent: this.getQueuePath(opts.queueName),
+      parent,
       task: {
+        ...(taskOptions?.taskId && {
+          name: `${parent}/tasks/${taskOptions.taskId}`,
+        }),
+        ...(taskOptions?.scheduleTime && {
+          scheduleTime: taskOptions.scheduleTime,
+        }),
         httpRequest: {
           url: opts.taskUrl,
           httpMethod: 1, // HttpMethod.POST
           headers: { 'Content-Type': 'application/json' },
-          body: Buffer.from(JSON.stringify(opts.task)).toString('base64'),
+          body: Buffer.from(JSON.stringify(opts.taskPayload)).toString(
+            'base64'
+          ),
           oidcToken: {
             audience: this.config.cloudTasks.oidc.aud,
             serviceAccountEmail:

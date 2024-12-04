@@ -22,7 +22,7 @@ import Token from '../lib/tokens';
 import { AppConfig, AuthFirestore, AuthLogger } from '../lib/types';
 import { parseDryRun } from './lib/args';
 import {
-  AccountTasksFactory,
+  DeleteAccountTasksFactory,
   ReasonForDeletion,
 } from '@fxa/shared/cloud-tasks';
 
@@ -108,7 +108,7 @@ const init = async () => {
   const stripeHelper = createStripeHelper(log, config, statsd);
   Container.set(StripeHelper, stripeHelper);
 
-  const accountTasks = AccountTasksFactory(config, statsd);
+  const accountTasks = DeleteAccountTasksFactory(config, statsd);
 
   const query = AccountCustomers.query()
     .select({ uid: 'accountCustomers.uid' })

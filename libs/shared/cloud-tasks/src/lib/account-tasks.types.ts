@@ -30,3 +30,17 @@ export type DeleteAccountTask = {
   /** Reason for deletion */
   reason: ReasonForDeletion;
 };
+
+export type SendEmailCloudTaskConfig = CloudTasksConfig & {
+  cloudTasks: {
+    sendEmails: {
+      taskUrl: string;
+      queueName: string;
+    };
+  };
+};
+
+export type SendEmailTaskPayload = {
+  uid: string;
+  emailType: string; // @TODO define type
+};

@@ -41,8 +41,8 @@ const Customs = require('../lib/customs');
 const { ProfileClient } = require('@fxa/profile/client');
 const { BackupCodeManager } = require('@fxa/accounts/two-factor');
 const {
-  AccountTasks,
-  AccountTasksFactory,
+  DeleteAccountTasks,
+  DeleteAccountTasksFactory,
 } = require('@fxa/shared/cloud-tasks');
 const { OtpManager } = require('@fxa/shared/otp');
 const {
@@ -243,8 +243,8 @@ async function run(config) {
 
   // The AccountDeleteManager is dependent on some of the object set into
   // Container above.
-  const accountTasks = AccountTasksFactory(config, statsd);
-  Container.set(AccountTasks, accountTasks);
+  const accountTasks = DeleteAccountTasksFactory(config, statsd);
+  Container.set(DeleteAccountTasks, accountTasks);
 
   const accountDeleteManager = new AccountDeleteManager({
     fxaDb: database,
