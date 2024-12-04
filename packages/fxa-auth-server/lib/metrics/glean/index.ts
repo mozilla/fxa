@@ -302,11 +302,10 @@ export function gleanMetrics(config: ConfigType) {
     twoFactorAuth: {
       codeComplete: createEventFn('two_factor_auth_code_complete'),
     },
-    twoFactorAuthSetup: {
-      sentPhoneCode: createEventFn('two_factor_auth_setup_sent_phone_code'),
-      sendPhoneCodeError: createEventFn(
-        'two_factor_auth_setup_send_phone_code_error'
-      ),
+    twoStepAuthPhoneCode: {
+      sent: createEventFn('two_step_auth_phone_code_sent'),
+      sendError: createEventFn('two_step_auth_phone_code_send_error'),
+      complete: createEventFn('two_step_auth_phone_code_complete'),
     },
   };
 }

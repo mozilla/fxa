@@ -45,4 +45,9 @@ describe(`#integration - recovery phone`, function () {
     // TODO: Setup test account / twilio emulator
     assert.isRejected(promise, 'A backend service request failed.');
   });
+
+  it('confirms a recovery code', async () => {
+    // TODO: Setup test account / twilio emulator
+    // TODO: Figure out how to emulate a test code
+  });
 });

@@ -36,13 +36,13 @@ class RecoveryPhoneHandler {
         phoneNumber
       );
       if (result) {
-        await this.glean.twoFactorAuthSetup.sentPhoneCode(request);
+        await this.glean.twoStepAuthPhoneCode.sent(request);
         return { status: 'success' };
       }
-      await this.glean.twoFactorAuthSetup.sendPhoneCodeError(request);
+      await this.glean.twoStepAuthPhoneCode.sendError(request);
       return { status: 'failure' };
     } catch (error) {
-      await this.glean.twoFactorAuthSetup.sendPhoneCodeError(request);
+      await this.glean.twoStepAuthPhoneCode.sendError(request);
 
       if (
         error instanceof RecoveryNumberInvalidFormatError ||
@@ -59,6 +59,32 @@ class RecoveryPhoneHandler {
         error
       );
     }
+  }
+
+  async confirm(request: AuthRequest) {
+    const { uid } = request.auth.credentials as unknown as { uid: string };
+    const { code } = request.payload as unknown as {
+      code: string;
+    };
+
+    let success = false;
+    try {
+      success = await this.recoveryPhoneService.confirmCode(uid, code);
+    } catch (error) {
+      throw AppError.backendServiceFailure(
+        'RecoveryPhoneService',
+        'confirmCode',
+        { uid },
+        error
+      );
+    }
+
+    if (success) {
+      await this.glean.twoStepAuthPhoneCode.complete(request);
+      return { status: 'success' };
+    }
+
+    throw AppError.invalidOrExpiredOtpCode();
   }
 }
 
@@ -84,6 +110,23 @@ export const recoveryPhoneRoutes = (
       },
       handler: function (request: AuthRequest) {
         return recoveryPhoneHandler.setupPhoneNumber(request);
+      },
+    },
+    {
+      method: 'POST',
+      path: '/recovery-phone/confirm',
+      options: {
+        auth: {
+          strategies: ['sessionToken'],
+        },
+        validate: {
+          payload: isA.object({
+            code: isA.string().min(8).max(8),
+          }),
+        },
+      },
+      handler: function (request: AuthRequest) {
+        return recoveryPhoneHandler.confirm(request);
       },
     },
   ];

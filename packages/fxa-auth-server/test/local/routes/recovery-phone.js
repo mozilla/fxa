@@ -19,15 +19,18 @@ describe('/recovery-phone', () => {
   const sandbox = sinon.createSandbox();
   const uid = '123435678123435678123435678123435678';
   const phoneNumber = '+15550005555';
+  const code = '000000';
   const mockLog = {};
   const mockGlean = {
-    twoFactorAuthSetup: {
-      sentPhoneCode: sandbox.fake(),
-      sendPhoneCodeError: sandbox.fake(),
+    twoStepAuthPhoneCode: {
+      sent: sandbox.fake(),
+      sendError: sandbox.fake(),
+      complete: sandbox.fake(),
     },
   };
   const mockRecoveryPhoneService = {
     setupPhoneNumber: sandbox.fake(),
+    confirmCode: sandbox.fake(),
   };
   let routes = [];
 
@@ -67,11 +70,8 @@ describe('/recovery-phone', () => {
         mockRecoveryPhoneService.setupPhoneNumber.getCall(0).args[1],
         phoneNumber
       );
-      assert.equal(mockGlean.twoFactorAuthSetup.sentPhoneCode.callCount, 1);
-      assert.equal(
-        mockGlean.twoFactorAuthSetup.sendPhoneCodeError.callCount,
-        0
-      );
+      assert.equal(mockGlean.twoStepAuthPhoneCode.sent.callCount, 1);
+      assert.equal(mockGlean.twoStepAuthPhoneCode.sendError.callCount, 0);
     });
 
     it('indicates failure sending sms', async () => {
@@ -86,11 +86,8 @@ describe('/recovery-phone', () => {
 
       assert.isDefined(resp);
       assert.equal(resp.status, 'failure');
-      assert.equal(mockGlean.twoFactorAuthSetup.sentPhoneCode.callCount, 0);
-      assert.equal(
-        mockGlean.twoFactorAuthSetup.sendPhoneCodeError.callCount,
-        1
-      );
+      assert.equal(mockGlean.twoStepAuthPhoneCode.sent.callCount, 0);
+      assert.equal(mockGlean.twoStepAuthPhoneCode.sendError.callCount, 1);
     });
 
     it('rejects an unsupported dialing code', async () => {
@@ -106,11 +103,8 @@ describe('/recovery-phone', () => {
       });
 
       await assert.isRejected(promise, 'Invalid phone number');
-      assert.equal(mockGlean.twoFactorAuthSetup.sentPhoneCode.callCount, 0);
-      assert.equal(
-        mockGlean.twoFactorAuthSetup.sendPhoneCodeError.callCount,
-        1
-      );
+      assert.equal(mockGlean.twoStepAuthPhoneCode.sent.callCount, 0);
+      assert.equal(mockGlean.twoStepAuthPhoneCode.sendError.callCount, 1);
     });
 
     it('handles unexpected backend error', async () => {
@@ -126,11 +120,8 @@ describe('/recovery-phone', () => {
       });
 
       await assert.isRejected(promise, 'A backend service request failed.');
-      assert.equal(mockGlean.twoFactorAuthSetup.sentPhoneCode.callCount, 0);
-      assert.equal(
-        mockGlean.twoFactorAuthSetup.sendPhoneCodeError.callCount,
-        1
-      );
+      assert.equal(mockGlean.twoStepAuthPhoneCode.sent.callCount, 0);
+      assert.equal(mockGlean.twoStepAuthPhoneCode.sendError.callCount, 1);
     });
 
     it('validates incoming phone number', () => {
@@ -152,6 +143,60 @@ describe('/recovery-phone', () => {
     it('requires session authorization', () => {
       const route = getRoute(routes, '/recovery-phone/create', 'POST');
       assert.include(route.options.auth.strategies, 'sessionToken');
+    });
+  });
+
+  describe('POST /recovery-phone/confirm', async () => {
+    it('confirms a code', async () => {
+      mockRecoveryPhoneService.confirmCode = sinon.fake.returns(true);
+
+      const resp = await makeRequest({
+        method: 'POST',
+        path: '/recovery-phone/confirm',
+        credentials: { uid },
+        payload: { code },
+      });
+
+      assert.isDefined(resp);
+      assert.equal(resp.status, 'success');
+      assert.equal(mockRecoveryPhoneService.confirmCode.callCount, 1);
+      assert.equal(
+        mockRecoveryPhoneService.confirmCode.getCall(0).args[0],
+        uid
+      );
+      assert.equal(
+        mockRecoveryPhoneService.confirmCode.getCall(0).args[1],
+        code
+      );
+      assert.equal(mockGlean.twoStepAuthPhoneCode.complete.callCount, 1);
+    });
+
+    it('indicates a failure confirming code', async () => {
+      mockRecoveryPhoneService.confirmCode = sinon.fake.returns(false);
+      const promise = makeRequest({
+        method: 'POST',
+        path: '/recovery-phone/confirm',
+        credentials: { uid },
+        payload: { code },
+      });
+
+      await assert.isRejected(promise, 'Invalid or expired confirmation code');
+      assert.equal(mockGlean.twoStepAuthPhoneCode.complete.callCount, 0);
+    });
+
+    it('indicates an issue with the backend service', async () => {
+      mockRecoveryPhoneService.confirmCode = sinon.fake.returns(
+        Promise.reject(new Error('BOOM'))
+      );
+      const promise = makeRequest({
+        method: 'POST',
+        path: '/recovery-phone/confirm',
+        credentials: { uid },
+        payload: { code },
+      });
+
+      await assert.isRejected(promise, 'A backend service request failed.');
+      assert.equal(mockGlean.twoStepAuthPhoneCode.complete.callCount, 0);
     });
   });
 });
