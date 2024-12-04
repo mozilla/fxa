@@ -16,7 +16,7 @@ export interface BeginSignupResponse {
     // keyFetchToken and unwrapBKey are included if options.keys=true
     keyFetchToken?: hexstring;
   };
-  unwrapBKey?: hexstring;
+  unwrapBKey: hexstring;
 }
 
 // full list @ fxa-auth-client/lib/client.ts, probably port over?

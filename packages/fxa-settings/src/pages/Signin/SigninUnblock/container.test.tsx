@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // Mocked Module Imports
+import * as ModulesModel from '../../../models';
 import * as SigninUnblockModule from './index';
 import * as ReachRouterModule from '@reach/router';
 import * as ModelsModule from '../../../models';
@@ -119,11 +120,12 @@ mockSensitiveDataClient.getData = function (key: string) {
   return mockSensitiveDataClientState[key];
 };
 function mockModelsModule() {
-  mockSensitiveDataClientState['auth'] = { password: MOCK_PASSWORD };
-  mockSensitiveDataClient.KeyStretchUpgradeData = undefined;
-  (ModelsModule.useSensitiveDataClient as jest.Mock).mockReturnValue(
-    mockSensitiveDataClient
+  (ModulesModel.useSensitiveDataClient as jest.Mock).mockImplementation(
+    () => mockSensitiveDataClient
   );
+  mockSensitiveDataClient.getDataType = jest.fn().mockReturnValue({
+    plainTextPassword: MOCK_PASSWORD,
+  });
 }
 
 function applyDefaultMocks() {

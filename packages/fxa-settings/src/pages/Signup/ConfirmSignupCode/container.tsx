@@ -23,10 +23,7 @@ import { useQuery } from '@apollo/client';
 import { EMAIL_BOUNCE_STATUS_QUERY } from './gql';
 import OAuthDataError from '../../../components/OAuthDataError';
 import { QueryParams } from '../../..';
-import {
-  AUTH_DATA_KEY,
-  SensitiveDataClientAuthKeys,
-} from '../../../lib/sensitive-data-client';
+import { SensitiveData } from '../../../lib/sensitive-data-client';
 
 export const POLL_INTERVAL = 5000;
 
@@ -57,9 +54,8 @@ const SignupConfirmCodeContainer = ({
 } & RouteComponentProps) => {
   const authClient = useAuthClient();
   const sensitiveDataClient = useSensitiveDataClient();
-  const sensitiveData = sensitiveDataClient.getData(AUTH_DATA_KEY);
   const { keyFetchToken, unwrapBKey } =
-    (sensitiveData as SensitiveDataClientAuthKeys) || {};
+    sensitiveDataClient.getDataType(SensitiveData.Key.Auth) || {};
 
   const { oAuthKeysCheckError } = useOAuthKeysCheck(
     integration,

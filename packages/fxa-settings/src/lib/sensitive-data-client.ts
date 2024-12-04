@@ -78,31 +78,6 @@ export namespace SensitiveData {
 }
 
 /**
- * @deprecated Use {@link SensitiveData.Key.Auth}.
- */
-export const AUTH_DATA_KEY = 'auth';
-
-/**
- * @deprecated Use {@link SensitiveData.AuthData}.
- */
-export type SensitiveDataClientData = {
-  [AUTH_DATA_KEY]: {
-    emailForAuth?: string;
-    authPW?: string;
-    keyFetchToken?: hexstring;
-    unwrapBKey?: hexstring;
-  };
-};
-
-/**
- * @deprecated Use {@link SensitiveData.Key.Auth}.
- */
-export type SensitiveDataClientAuthKeys = Pick<
-  SensitiveDataClientData[typeof AUTH_DATA_KEY],
-  'keyFetchToken' | 'unwrapBKey'
->;
-
-/**
  * A client that holds data which should never be persisted.
  *
  * N.B. This data only lives in memory and will always be lost after the document is unloaded. Avoid nullable data where possible.

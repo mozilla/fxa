@@ -20,10 +20,7 @@ import OAuthDataError from '../../../components/OAuthDataError';
 import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
 import { useEffect, useState } from 'react';
 import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
-import {
-  AUTH_DATA_KEY,
-  SensitiveDataClientAuthKeys,
-} from '../../../lib/sensitive-data-client';
+import { SensitiveData } from '../../../lib/sensitive-data-client';
 
 export type SigninPushCodeContainerProps = {
   integration: Integration;
@@ -46,8 +43,8 @@ export const SigninPushCodeContainer = ({
   };
   const signinState = getSigninState(location.state);
   const sensitiveDataClient = useSensitiveDataClient();
-  const sensitiveData = sensitiveDataClient.getData(AUTH_DATA_KEY);
-  const { unwrapBKey } = (sensitiveData as SensitiveDataClientAuthKeys) || {};
+  const { unwrapBKey } =
+    sensitiveDataClient.getDataType(SensitiveData.Key.Auth) || {};
 
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
 

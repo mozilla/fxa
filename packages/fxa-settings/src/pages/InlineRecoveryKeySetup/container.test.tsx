@@ -17,7 +17,7 @@ import {
   MOCK_AUTH_PW,
   MOCK_STORED_ACCOUNT,
 } from '../../pages/mocks';
-import { AUTH_DATA_KEY } from '../../lib/sensitive-data-client';
+import { SensitiveData } from '../../lib/sensitive-data-client';
 import { InlineRecoveryKeySetupProps } from './interfaces';
 import { MOCK_EMAIL } from '../InlineTotpSetup/mocks';
 import { LocationProvider } from '@reach/router';
@@ -37,7 +37,7 @@ jest.mock('fxa-react/lib/utils', () => ({
 }));
 
 const mockSensitiveDataClient = createMockSensitiveDataClient();
-mockSensitiveDataClient.getData = jest.fn();
+mockSensitiveDataClient.getDataType = jest.fn();
 
 function mockModelsModule() {
   mockAuthClient.sessionReauthWithAuthPW = jest
@@ -54,7 +54,7 @@ function mockModelsModule() {
   (ModelsModule.useSensitiveDataClient as jest.Mock).mockImplementation(
     () => mockSensitiveDataClient
   );
-  mockSensitiveDataClient.getData = jest.fn().mockReturnValue({
+  mockSensitiveDataClient.getDataType = jest.fn().mockReturnValue({
     emailForAuth: 'bloop@gmail.com',
     authPW: MOCK_AUTH_PW,
     unwrapBKey: MOCK_UNWRAP_BKEY,
@@ -126,7 +126,9 @@ describe('InlineRecoveryKeySetupContainer', () => {
         <InlineRecoveryKeySetupContainer />
       </LocationProvider>
     );
-    expect(mockSensitiveDataClient.getData).toHaveBeenCalledWith(AUTH_DATA_KEY);
+    expect(mockSensitiveDataClient.getDataType).toHaveBeenCalledWith(
+      SensitiveData.Key.Auth
+    );
     expect(InlineRecoveryKeySetupModule.default).toBeCalled();
   });
 

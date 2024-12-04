@@ -37,7 +37,7 @@ import {
 } from '../../models/integrations/client-matching';
 import { SignupFormData, SignupProps } from './interfaces';
 import Banner from '../../components/Banner';
-import { AUTH_DATA_KEY } from '../../lib/sensitive-data-client';
+import { SensitiveData } from '../../lib/sensitive-data-client';
 import { FormSetupAccount } from '../../components/FormSetupAccount';
 
 export const viewName = 'signup';
@@ -206,7 +206,7 @@ export const Signup = ({
         storeAccountData(accountData);
 
         // Set these for use in ConfirmSignupCode
-        sensitiveDataClient.setData(AUTH_DATA_KEY, {
+        sensitiveDataClient.setDataType(SensitiveData.Key.Auth, {
           keyFetchToken: data.signUp.keyFetchToken,
           unwrapBKey: data.unwrapBKey,
         });
