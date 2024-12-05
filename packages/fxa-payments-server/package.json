@@ -86,7 +86,7 @@
     "@types/storybook__addon-links": "^5.2.1",
     "@types/uuid": "^10.0.0",
     "@types/webpack": "5.28.5",
-    "@typescript-eslint/eslint-plugin": "^5.59.0",
+    "@typescript-eslint/eslint-plugin": "^8.17.0",
     "@typescript-eslint/parser": "^7.1.1",
     "audit-filter": "^0.5.0",
     "babel-eslint": "^10.1.0",
