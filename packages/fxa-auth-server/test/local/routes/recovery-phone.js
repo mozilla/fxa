@@ -48,6 +48,68 @@ describe('/recovery-phone', () => {
     return await route.handler(mockRequest(req));
   }
 
+  describe('POST /recovery-phone/send_code', () => {
+    it('sends recovery phone code', async () => {
+      mockRecoveryPhoneService.sendCode = sinon.fake.returns(true);
+
+      const resp = await makeRequest({
+        method: 'POST',
+        path: '/recovery-phone/send_code',
+        credentials: { uid },
+      });
+
+      assert.isDefined(resp);
+      assert.equal(resp.status, 'success');
+      assert.equal(mockRecoveryPhoneService.sendCode.callCount, 1);
+      assert.equal(mockRecoveryPhoneService.sendCode.getCall(0).args[0], uid);
+
+      assert.equal(mockGlean.twoStepAuthPhoneCode.sent.callCount, 1);
+      assert.equal(mockGlean.twoStepAuthPhoneCode.sendError.callCount, 0);
+    });
+
+    it('handles failure to send recovery phone code', async () => {
+      mockRecoveryPhoneService.sendCode = sinon.fake.returns(false);
+
+      const resp = await makeRequest({
+        method: 'POST',
+        path: '/recovery-phone/send_code',
+        credentials: { uid },
+      });
+
+      assert.isDefined(resp);
+      assert.equal(resp.status, 'failure');
+      assert.equal(mockRecoveryPhoneService.sendCode.callCount, 1);
+      assert.equal(mockRecoveryPhoneService.sendCode.getCall(0).args[0], uid);
+
+      assert.equal(mockGlean.twoStepAuthPhoneCode.sent.callCount, 0);
+      assert.equal(mockGlean.twoStepAuthPhoneCode.sendError.callCount, 1);
+    });
+
+    it('handles unexpected backend error', async () => {
+      mockRecoveryPhoneService.sendCode = sinon.fake.returns(
+        Promise.reject(new Error('BOOM'))
+      );
+
+      const promise = makeRequest({
+        method: 'POST',
+        path: '/recovery-phone/send_code',
+        credentials: { uid },
+      });
+
+      await assert.isRejected(promise, 'A backend service request failed.');
+      assert.equal(mockRecoveryPhoneService.sendCode.callCount, 1);
+      assert.equal(mockRecoveryPhoneService.sendCode.getCall(0).args[0], uid);
+
+      assert.equal(mockGlean.twoStepAuthPhoneCode.sent.callCount, 0);
+      assert.equal(mockGlean.twoStepAuthPhoneCode.sendError.callCount, 0);
+    });
+
+    it('requires session authorization', () => {
+      const route = getRoute(routes, '/recovery-phone/send_code', 'POST');
+      assert.include(route.options.auth.strategies, 'sessionToken');
+    });
+  });
+
   describe('POST /recovery-phone/create', () => {
     it('creates recovery phone number', async () => {
       mockRecoveryPhoneService.setupPhoneNumber = sinon.fake.returns(true);

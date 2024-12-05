@@ -13,15 +13,46 @@ import { GleanMetricsType } from '../metrics/glean';
 import { AuthLogger, AuthRequest } from '../types';
 import { E164_NUMBER } from './validators';
 import AppError from '../error';
+
 const { Container } = require('typedi');
+
+enum RecoveryPhoneStatus {
+  SUCCESS = 'success',
+  FAILURE = 'failure',
+}
 
 class RecoveryPhoneHandler {
   private readonly recoveryPhoneService: RecoveryPhoneService;
+
   constructor(
     private readonly log: AuthLogger,
     private readonly glean: GleanMetricsType
   ) {
     this.recoveryPhoneService = Container.get('RecoveryPhoneService');
+  }
+
+  async sendCode(request: AuthRequest) {
+    const { uid } = request.auth.credentials as unknown as { uid: string };
+
+    let status = false;
+    try {
+      status = await this.recoveryPhoneService.sendCode(uid);
+    } catch (error) {
+      throw AppError.backendServiceFailure(
+        'RecoveryPhoneService',
+        'sendCode',
+        { uid },
+        error
+      );
+    }
+
+    if (status) {
+      await this.glean.twoStepAuthPhoneCode.sent(request);
+      return { status: RecoveryPhoneStatus.SUCCESS };
+    }
+
+    await this.glean.twoStepAuthPhoneCode.sendError(request);
+    return { status: RecoveryPhoneStatus.FAILURE };
   }
 
   async setupPhoneNumber(request: AuthRequest) {
@@ -37,10 +68,10 @@ class RecoveryPhoneHandler {
       );
       if (result) {
         await this.glean.twoStepAuthPhoneCode.sent(request);
-        return { status: 'success' };
+        return { status: RecoveryPhoneStatus.SUCCESS };
       }
       await this.glean.twoStepAuthPhoneCode.sendError(request);
-      return { status: 'failure' };
+      return { status: RecoveryPhoneStatus.FAILURE };
     } catch (error) {
       await this.glean.twoStepAuthPhoneCode.sendError(request);
 
@@ -81,7 +112,7 @@ class RecoveryPhoneHandler {
 
     if (success) {
       await this.glean.twoStepAuthPhoneCode.complete(request);
-      return { status: 'success' };
+      return { status: RecoveryPhoneStatus.SUCCESS };
     }
 
     throw AppError.invalidOrExpiredOtpCode();
@@ -127,6 +158,18 @@ export const recoveryPhoneRoutes = (
       },
       handler: function (request: AuthRequest) {
         return recoveryPhoneHandler.confirm(request);
+      },
+    },
+    {
+      method: 'POST',
+      path: '/recovery-phone/send_code',
+      options: {
+        auth: {
+          strategies: ['sessionToken'],
+        },
+      },
+      handler: function (request: AuthRequest) {
+        return recoveryPhoneHandler.sendCode(request);
       },
     },
   ];
