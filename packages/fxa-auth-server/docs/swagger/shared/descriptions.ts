@@ -138,6 +138,7 @@ const DESCRIPTIONS = {
     'The number of intervals between subscription billings (e.g. `interval=month` and `interval_count=3` bills every 3 months).',
   invoiceId:
     'A unique identifer for an [invoice](https://stripe.com/docs/api/invoices/object) to Stripe/PayPal customers whose subscriptions are managed by Stripe.',
+  isFirefoxMobileClient: 'Is this a Firefox mobile client?',
   jti: 'The hex id of the token.',
   keys: 'Indicates whether a key-fetch token should be returned in the success response.',
   keysJwe:

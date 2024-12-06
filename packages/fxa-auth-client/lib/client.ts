@@ -1994,6 +1994,7 @@ export default class AuthClient {
     options: {
       keys?: boolean;
       sessionToken?: boolean;
+      isFirefoxMobileClient?: boolean;
     } = {},
     headers?: Headers
   ) {
@@ -2026,6 +2027,7 @@ export default class AuthClient {
       authPW: credentials.v1.authPW,
       sessionToken: options.sessionToken,
       recoveryKeyId,
+      isFirefoxMobileClient: options.isFirefoxMobileClient,
     };
     const accountData = await this.hawkRequest(
       'POST',

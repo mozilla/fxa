@@ -1329,6 +1329,7 @@ export class Account implements AccountData {
     password: string;
     recoveryKeyId: string;
     kB: string;
+    isFirefoxMobileClient: boolean;
   }) {
     const data = await this.authClient.resetPasswordWithRecoveryKey(
       opts.accountResetToken,
@@ -1336,7 +1337,11 @@ export class Account implements AccountData {
       opts.password,
       opts.recoveryKeyId,
       { kB: opts.kB },
-      { sessionToken: true, keys: true }
+      {
+        sessionToken: true,
+        keys: true,
+        isFirefoxMobileClient: opts.isFirefoxMobileClient,
+      }
     );
     currentAccount(currentAccount(getStoredAccountData(data)));
     sessionToken(data.sessionToken);
