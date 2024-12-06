@@ -12,13 +12,25 @@ import { useAccount, useAlertBar, useFtlMsgResolver } from '../../../models';
 import { SETTINGS_PATH } from '../../../constants';
 import GleanMetrics from '../../../lib/glean';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { BackupCodesSubRow } from '../SubRow';
+import {
+  BackupCodesSubRow,
+  BackupPhoneSubRow,
+  BackupPhoneSubRowProps,
+} from '../SubRow';
 import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
 
 const route = `${SETTINGS_PATH}/two_step_authentication`;
 const replaceCodesRoute = `${route}/replace_codes`;
 
-export const UnitRowTwoStepAuth = () => {
+// These props are temporary for storybook purposes
+// until backup recovery phone feature is enabled.
+type UnitRowTwoStepAuthProps = {
+  backupPhoneSubRowProps?: BackupPhoneSubRowProps;
+};
+
+export const UnitRowTwoStepAuth = ({
+  backupPhoneSubRowProps,
+}: UnitRowTwoStepAuthProps) => {
   const alertBar = useAlertBar();
   const account = useAccount();
   const navigate = useNavigate();
@@ -135,8 +147,9 @@ export const UnitRowTwoStepAuth = () => {
         };
 
   const getSubRows = () => {
+    let subRows = [];
     if (exists && verified) {
-      return (
+      subRows.push(
         <BackupCodesSubRow
           numCodesAvailable={count}
           onCtaClick={() => {
@@ -144,7 +157,18 @@ export const UnitRowTwoStepAuth = () => {
           }}
         />
       );
-    } else return null;
+    }
+    if (backupPhoneSubRowProps?.onCtaClick) {
+      subRows.push(
+        <BackupPhoneSubRow
+          onCtaClick={backupPhoneSubRowProps.onCtaClick}
+          onDeleteClick={backupPhoneSubRowProps.onDeleteClick}
+          phoneNumber={backupPhoneSubRowProps.phoneNumber}
+        />
+      );
+    }
+
+    return subRows;
   };
 
   const authenticatorAppInfoLink = (

@@ -5,7 +5,7 @@
 import React from 'react';
 import { Localized } from '@fluent/react';
 
-type LinkExternalProps = {
+export type LinkExternalProps = {
   className?: string;
   href: string;
   children: React.ReactNode;
