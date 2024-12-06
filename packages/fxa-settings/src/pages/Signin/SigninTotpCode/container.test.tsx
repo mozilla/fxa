@@ -38,6 +38,7 @@ import {
   mockLoadingSpinnerModule,
 } from '../../mocks';
 import { tryFinalizeUpgrade } from '../../../lib/gql-key-stretch-upgrade';
+import { SensitiveData } from '../../../lib/sensitive-data-client';
 
 let integration: Integration;
 
@@ -140,7 +141,10 @@ function mockVerifyTotp(success: boolean = true, errorOut: boolean = false) {
 const mockSensitiveDataClient = createMockSensitiveDataClient();
 mockSensitiveDataClient.getData = jest.fn();
 function resetMockSensitiveDataClient() {
-  mockSensitiveDataClient.KeyStretchUpgradeData = undefined;
+  mockSensitiveDataClient.setDataType(
+    SensitiveData.Key.KeyStretchUpgrade,
+    undefined
+  );
   (useSensitiveDataClient as jest.Mock).mockImplementation(
     () => mockSensitiveDataClient
   );
@@ -192,7 +196,7 @@ describe('signin totp code container', () => {
   });
 
   it('runs keys stretch upgrade when required', async () => {
-    mockSensitiveDataClient.KeyStretchUpgradeData = {
+    mockSensitiveDataClient.setDataType(SensitiveData.Key.KeyStretchUpgrade, {
       email: MOCK_EMAIL,
       v1Credentials: {
         authPW: MOCK_AUTH_PW,
@@ -203,7 +207,7 @@ describe('signin totp code container', () => {
         unwrapBKey: MOCK_UNWRAP_BKEY_V2,
         clientSalt: MOCK_CLIENT_SALT,
       },
-    };
+    });
     await render();
     expect(SigninTotpCodeModule.SigninTotpCode).toBeCalled();
     const result = await currentPageProps?.submitTotpCode('123456');
