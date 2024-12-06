@@ -3,12 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { FunctionComponent, SVGProps } from 'react';
-import { ReactComponent as TrashIcon } from './trash-icon.svg';
+import { ReactComponent as TrashIcon } from './minimal-trash-icon.svg';
 import { ReactComponent as RefreshIcon } from './refresh-icon.svg';
 
 type ButtonIconProps = {
   title: string;
-  icon: [FunctionComponent<SVGProps<SVGSVGElement & { title?: string }>>, number, number];
+  icon: [
+    FunctionComponent<SVGProps<SVGSVGElement & { title?: string }>>,
+    number,
+    number
+  ];
   classNames?: string;
   disabled?: boolean;
   onClick?: () => void;
@@ -50,7 +54,7 @@ export const ButtonIconTrash = ({
 }: Omit<ButtonIconProps, 'icon'>) => (
   <ButtonIcon
     classNames={`text-grey-500 active:text-grey-800 focus:text-grey-800 ${classNames}`}
-    icon={[TrashIcon, 11, 14]}
+    icon={[TrashIcon, 16, 22]}
     {...{ title, disabled, onClick, testId }}
   />
 );
