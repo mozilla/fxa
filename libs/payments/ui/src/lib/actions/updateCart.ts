@@ -45,7 +45,7 @@ export const updateCartAction = async (
   }
 
   revalidatePath(
-    '/[locale]/[offeringId]/checkout/[interval]/[cartId]/start',
+    '/[locale]/[offeringId]/[interval]/checkout/[cartId]/start',
     'page'
   );
 

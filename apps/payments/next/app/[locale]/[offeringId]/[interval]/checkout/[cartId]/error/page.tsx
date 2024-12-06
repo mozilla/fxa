@@ -88,7 +88,7 @@ export default async function CheckoutError({
 
         <Link
           className="flex items-center justify-center bg-blue-500 hover:bg-blue-700 font-semibold h-12 my-8 rounded-md text-white w-full"
-          href={`/${params.offeringId}/checkout?interval=monthly`}
+          href={`/${params.offeringId}/${params.interval}/landing`}
         >
           {l10n.getString(errorReason.buttonFtl, errorReason.buttonLabel)}
         </Link>
