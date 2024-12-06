@@ -414,6 +414,25 @@ describe('/account/reset', () => {
     });
   });
 
+  describe('reset account with account recovery key, isFirefoxMobileClient=true', () => {
+    beforeEach(() => {
+      mockRequest.payload.wrapKb = hexString(32);
+      mockRequest.payload.recoveryKeyId = hexString(16);
+      mockRequest.payload.isFirefoxMobileClient = true;
+      return runTest(route, mockRequest);
+    });
+
+    it('called mailer.sendPasswordResetWithRecoveryKeyPromptEmail correctly', () => {
+      assert.equal(
+        mailer.sendPasswordResetWithRecoveryKeyPromptEmail.callCount,
+        1
+      );
+      const args = mailer.sendPasswordResetWithRecoveryKeyPromptEmail.args[0];
+      assert.equal(args.length, 3);
+      assert.equal(args[0][0].email, TEST_EMAIL);
+    });
+  });
+
   describe('reset account with totp', () => {
     let res;
     beforeEach(() => {
