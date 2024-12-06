@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { Meta, StoryFn } from '@storybook/react';
-import SubRow, { BackupCodesSubRow } from './index';
+import SubRow, { BackupCodesSubRow, BackupPhoneSubRow } from './index';
 import { action } from '@storybook/addon-actions';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { CodeIcon } from '../../Icons';
@@ -34,10 +34,10 @@ export const GenericSubRow: StoryFn = () => (
     icon={<CodeIcon className="my-0" />}
     idPrefix="example"
     isEnabled
-    localizedDescription="Row description"
+    localizedInfoMessage="Row description"
+    localizedRowTitle="Sub row title"
     message={<div>Status message goes here</div>}
     onCtaClick={action('Add clicked')}
-    title="Sub row title"
   />
 );
 
@@ -48,11 +48,10 @@ export const GenericSubRowWithDescription: StoryFn = () => (
     icon={<CodeIcon className="my-0" />}
     idPrefix="example"
     isEnabled
-    localizedDescription="Row description"
+    localizedInfoMessage="Row description"
+    localizedRowTitle="Sub row title"
     message={<div>Status message goes here</div>}
     onCtaClick={action('CTA clicked')}
-    showDescription
-    title="Sub row title"
   />
 );
 
@@ -67,10 +66,52 @@ export const BackupCodesUnavailable: StoryFn = () => (
   <BackupCodesSubRow numCodesAvailable={0} onCtaClick={action('Add clicked')} />
 );
 
-export const BackupCodesSubRowWithDescription: StoryFn = () => (
-  <BackupCodesSubRow
-    numCodesAvailable={5}
-    onCtaClick={action('Get new codes clicked')}
+export const BackupPhoneUnavailable: StoryFn = () => (
+  <BackupPhoneSubRow onCtaClick={action('Add recovery phone clicked')} />
+);
+
+export const BackupPhoneUnavailableWithDescription: StoryFn = () => (
+  <BackupPhoneSubRow
+    onCtaClick={action('Add recovery phone clicked')}
     showDescription
+  />
+);
+
+export const BackupPhoneAvailable: StoryFn = () => (
+  <BackupPhoneSubRow
+    onCtaClick={action('Change recovery phone')}
+    phoneNumber="555-555-1234"
+  />
+);
+
+export const BackupPhoneAvailableWithDescription: StoryFn = () => (
+  <BackupPhoneSubRow
+    onCtaClick={action('Change recovery phone')}
+    phoneNumber="555-555-1234"
+    showDescription
+  />
+);
+
+export const BackupPhoneAvailableWithDelete: StoryFn = () => (
+  <BackupPhoneSubRow
+    onCtaClick={action('Change recovery phone')}
+    onDeleteClick={action('Delete recovery phone')}
+    phoneNumber="555-555-1234"
+  />
+);
+
+export const BackupPhoneAvailableWithDeleteAndDescription: StoryFn = () => (
+  <BackupPhoneSubRow
+    onCtaClick={action('Change recovery phone')}
+    onDeleteClick={action('Delete recovery phone')}
+    phoneNumber="555-555-1234"
+    showDescription
+  />
+);
+
+export const BackupPhoneAvailableNoDelete: StoryFn = () => (
+  <BackupPhoneSubRow
+    onCtaClick={action('Change recovery phone')}
+    phoneNumber="555-555-1234"
   />
 );

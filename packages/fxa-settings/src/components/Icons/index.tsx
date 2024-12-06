@@ -21,6 +21,7 @@ import { ReactComponent as FlagCanada } from './icon_flag_canada.min.svg';
 import { ReactComponent as FlagUsa } from './icon_flag_usa.min.svg';
 import { ReactComponent as InformationOutlineCurrent } from './icon_information_circle_outline_current.min.svg';
 import { ReactComponent as InformationOutlineBlue } from './icon_information_circle_outline_blue.min.svg';
+import { ReactComponent as Lightbulb } from './icon_lightbulb.min.svg';
 
 type AlertMode = 'alert' | 'attention' | 'warning';
 function getAlertAria(mode: AlertMode) {
@@ -276,6 +277,15 @@ export const InformationOutlineCurrentIcon = ({
     Image={InformationOutlineCurrent}
     ariaLabel="Information"
     ariaLabelFtlId="info-icon-aria-label"
+    {...{ className, ariaHidden }}
+  />
+);
+
+export const LightbulbIcon = ({ className, ariaHidden }: ImageProps) => (
+  <PreparedIcon
+    Image={Lightbulb}
+    ariaLabel="Lightbulb"
+    ariaLabelFtlId="lightbulb-icon-aria-label"
     {...{ className, ariaHidden }}
   />
 );

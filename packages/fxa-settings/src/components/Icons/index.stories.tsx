@@ -23,6 +23,7 @@ import {
   FlagUsaIcon,
   InformationOutlineBlueIcon,
   InformationOutlineCurrentIcon,
+  LightbulbIcon,
 } from '.';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 
@@ -46,6 +47,7 @@ export default {
     FlagUsaIcon,
     InformationOutlineBlueIcon,
     InformationOutlineCurrentIcon,
+    LightbulbIcon,
   },
   decorators: [withLocalization],
 } as Meta;
@@ -77,3 +79,4 @@ export const InformationCircleOutlineBlue = () => (
 export const InformationCircleOutlineCurrent = () => (
   <InformationOutlineCurrentIcon />
 );
+export const Lightbulb = () => <LightbulbIcon />;

@@ -14,7 +14,7 @@
   }
 
   &-actions {
-    @apply w-full items-baseline;
+    @apply w-full items-baseline mt-2;
   }
 
   &-hr {
@@ -25,5 +25,9 @@
 @screen mobileLandscape {
   .unit-row {
     @apply flex-nowrap px-6;
+
+    &-actions {
+      @apply mt-0;
+    }
   }
 }
