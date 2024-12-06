@@ -11,6 +11,7 @@ import {
   getConfirmedPhoneNumber,
   registerPhoneNumber,
   removePhoneNumber,
+  hasRecoveryCodes,
 } from './recovery-phone.repository';
 import {
   RecoveryNumberAlreadyExistsError,
@@ -153,5 +154,15 @@ export class RecoveryPhoneManager {
     }
 
     return JSON.parse(data);
+  }
+
+  /**
+   * Check if a user has recovery codes. Recovery codes are required
+   * to set up a recovery phone.
+   *
+   * @param uid The user's unique identifier
+   */
+  async hasRecoveryCodes(uid: string): Promise<boolean> {
+    return hasRecoveryCodes(this.db, Buffer.from(uid, 'hex'));
   }
 }

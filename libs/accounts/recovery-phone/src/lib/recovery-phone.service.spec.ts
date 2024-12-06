@@ -6,7 +6,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { RecoveryPhoneService } from './recovery-phone.service';
 import { OtpManager } from '@fxa/shared/otp';
 import { SmsManager } from './sms.manager';
-import { RecoveryPhoneServiceConfig } from './recovery-phone.service.config';
+import { RecoveryPhoneConfig } from './recovery-phone.service.config';
 import { RecoveryPhoneManager } from './recovery-phone.manager';
 import {
   RecoveryNumberNotExistsError,
@@ -27,17 +27,21 @@ describe('RecoveryPhoneService', () => {
     registerPhoneNumber: jest.fn(),
     removePhoneNumber: jest.fn(),
     getConfirmedPhoneNumber: jest.fn(),
+    hasRecoveryCodes: jest.fn(),
   };
   const mockOtpManager = { generateCode: jest.fn() };
-  const mockRecoveryPhoneServiceConfig = {
-    validNumberPrefixes: ['+1500'],
+  const mockRecoveryPhoneConfig = {
+    enabled: true,
+    allowedRegions: ['US'],
+    sms: {
+      validNumberPrefixes: ['+1500'],
+    },
   };
   const mockError = new Error('BOOM');
 
   let service: RecoveryPhoneService;
 
   beforeEach(async () => {
-    jest.resetAllMocks();
     mockSmsManager.sendSMS.mockReturnValue({ status: 'success' });
 
     const module: TestingModule = await Test.createTestingModule({
@@ -46,13 +50,17 @@ describe('RecoveryPhoneService', () => {
         { provide: RecoveryPhoneManager, useValue: mockRecoveryPhoneManager },
         { provide: OtpManager, useValue: mockOtpManager },
         {
-          provide: RecoveryPhoneServiceConfig,
-          useValue: mockRecoveryPhoneServiceConfig,
+          provide: RecoveryPhoneConfig,
+          useValue: mockRecoveryPhoneConfig,
         },
         RecoveryPhoneService,
       ],
     }).compile();
     service = module.get<RecoveryPhoneService>(RecoveryPhoneService);
+  });
+
+  afterEach(() => {
+    jest.resetAllMocks();
   });
 
   it('Should be injectable', () => {
@@ -268,6 +276,47 @@ describe('RecoveryPhoneService', () => {
       const error = new RecoveryNumberNotExistsError(uid);
       mockRecoveryPhoneManager.getConfirmedPhoneNumber.mockRejectedValue(error);
       expect(service.sendCode(uid)).rejects.toThrow(error);
+    });
+  });
+
+  describe('available', () => {
+    const region = 'US';
+
+    beforeEach(() => {
+      mockRecoveryPhoneConfig.enabled = true;
+      mockRecoveryPhoneConfig.allowedRegions = ['US'];
+    });
+
+    it('should return false if config is not enabled', async () => {
+      mockRecoveryPhoneConfig.enabled = false;
+      const result = await service.available(uid, region);
+      expect(result).toBe(false);
+    });
+
+    it('should return false if region is not in allowedRegions', async () => {
+      mockRecoveryPhoneConfig.allowedRegions = ['USA'];
+      const result = await service.available(uid, region);
+      expect(result).toBe(false);
+    });
+
+    it('should return false if user has confirmed phone number', async () => {
+      jest.spyOn(service, 'hasConfirmed').mockResolvedValue({ exists: true });
+      const result = await service.available(uid, region);
+      expect(result).toBe(false);
+    });
+
+    it('should return true if user has recovery codes', async () => {
+      jest.spyOn(service, 'hasConfirmed').mockResolvedValue({ exists: false });
+      mockRecoveryPhoneManager.hasRecoveryCodes.mockResolvedValueOnce(true);
+      const result = await service.available(uid, region);
+      expect(result).toBe(true);
+    });
+
+    it('should return false if user does not have recovery codes', async () => {
+      jest.spyOn(service, 'hasConfirmed').mockResolvedValue({ exists: false });
+      mockRecoveryPhoneManager.hasRecoveryCodes.mockResolvedValueOnce(false);
+      const result = await service.available(uid, region);
+      expect(result).toBe(false);
     });
   });
 });

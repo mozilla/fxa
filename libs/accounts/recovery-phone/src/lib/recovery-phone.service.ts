@@ -5,11 +5,11 @@
 import { Injectable } from '@nestjs/common';
 import { SmsManager } from './sms.manager';
 import { OtpManager } from '@fxa/shared/otp';
-import { RecoveryPhoneServiceConfig } from './recovery-phone.service.config';
+import { RecoveryPhoneConfig } from './recovery-phone.service.config';
 import { RecoveryPhoneManager } from './recovery-phone.manager';
 import {
   RecoveryNumberNotExistsError,
-  RecoveryNumberNotSupportedError
+  RecoveryNumberNotSupportedError,
 } from './recovery-phone.errors';
 import { MessageInstance } from 'twilio/lib/rest/api/v2010/account/message';
 
@@ -19,8 +19,33 @@ export class RecoveryPhoneService {
     private readonly recoveryPhoneManager: RecoveryPhoneManager,
     private readonly smsManager: SmsManager,
     private readonly otpCode: OtpManager,
-    private readonly config: RecoveryPhoneServiceConfig
+    private readonly config: RecoveryPhoneConfig
   ) {}
+
+  /**
+   * Checks to see if a user can set up a recovery phone number. This is based on the
+   * user's region, if they have backup codes, or if they already set up a recovery phone.
+   *
+   * @param uid
+   * @param region
+   */
+  public async available(uid: string, region: string): Promise<boolean> {
+    if (!this.config.enabled) {
+      return false;
+    }
+
+    if (!this.config.allowedRegions?.includes(region)) {
+      return false;
+    }
+
+    const hasConfirmed = await this.hasConfirmed(uid);
+    if (hasConfirmed.exists) {
+      return false;
+    }
+
+    // User can set up a recovery phone if they have backup codes
+    return await this.recoveryPhoneManager.hasRecoveryCodes(uid);
+  }
 
   /**
    * Setups (ie registers) a new phone number to an account uid. Accomplishes setup
@@ -30,8 +55,8 @@ export class RecoveryPhoneService {
    * @returns True if code was sent and stored
    */
   public async setupPhoneNumber(uid: string, phoneNumber: string) {
-    if (this.config.validNumberPrefixes) {
-      const allowed = this.config.validNumberPrefixes.some((check) => {
+    if (this.config.sms && this.config.sms.validNumberPrefixes) {
+      const allowed = this.config.sms.validNumberPrefixes.some((check) => {
         return phoneNumber.startsWith(check);
       });
 
@@ -121,7 +146,7 @@ export class RecoveryPhoneService {
   }
 
   /**
-   * Sends an top code to a user
+   * Sends an totp code to a user
    * @param uid Account id
    * @returns True if message didn't fail to send.
    */
