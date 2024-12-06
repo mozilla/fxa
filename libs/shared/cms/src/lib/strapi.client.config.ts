@@ -21,6 +21,9 @@ export class StrapiClientConfig {
 
   @IsNumber()
   public readonly firestoreCacheTTL?: number;
+
+  @IsNumber()
+  public readonly firestoreOfflineCacheTTL?: number;
 }
 
 export const MockStrapiClientConfig = {
