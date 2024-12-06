@@ -33,6 +33,11 @@ export class FirestoreAdapter implements CacheClient {
       .get();
 
     const data = result?.data();
+
+    if (data?.['ttl'] && new Date(data['ttl']) < new Date()) {
+      return undefined;
+    }
+
     const cachedValue = data?.['value'];
 
     return cachedValue;
@@ -82,7 +87,7 @@ export class FirestoreAdapter implements CacheClient {
   }
 }
 
-export const useAdapter = (
+export const useFirestoreAdapter = (
   client: Firestore,
   collectionName: string,
   asFallback?: boolean,
