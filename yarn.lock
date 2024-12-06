@@ -41158,7 +41158,7 @@ fsevents@~2.1.1:
     jwks-rsa: ^3.1.0
     jws: 4.0.0
     keypair: 1.0.4
-    keyv: 5.1.3
+    keyv: 5.2.1
     leftpad: 0.0.1
     load-grunt-tasks: ^5.1.0
     lodash: ^4.17.21
@@ -50408,12 +50408,12 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"keyv@npm:5.1.3":
-  version: 5.1.3
-  resolution: "keyv@npm:5.1.3"
+"keyv@npm:5.2.1":
+  version: 5.2.1
+  resolution: "keyv@npm:5.2.1"
   dependencies:
     "@keyv/serialize": "*"
-  checksum: ebf96b7be06e8bf4d6eca146c2d8b41694345625cd15ee2692ff6f0304ec4389a045a4c32909f92fc6abdfaf3198b6bd89d4ed7f9351ad0cf94c735adace2a73
+  checksum: 92f02ce8a61d3f832c72bc305a0a3408ab3ba322702175c8f23ddb7b317cdef6525fa084135ca4218f40afe17397f2b5b0f38fb1f0758fb47e8cd5d2699963d2
   languageName: node
   linkType: hard
 
