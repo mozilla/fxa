@@ -9,11 +9,14 @@ import { Inject, Injectable } from '@nestjs/common';
 import cacheManager, { Cacheable } from '@type-cacheable/core';
 import EventEmitter from 'events';
 import { GraphQLClient } from 'graphql-request';
+import * as Sentry from '@sentry/node';
 
 import { FirestoreService } from '@fxa/shared/db/firestore';
 import {
+  CacheFirstStrategy,
   FirestoreAdapter,
-  NetworkFirstStrategy,
+  MemoryAdapter,
+  StaleWhileRevalidateWithFallbackStrategy,
 } from '@fxa/shared/db/type-cacheable';
 import { determineLocale } from '@fxa/shared/l10n';
 import { DEFAULT_LOCALE } from './constants';
@@ -28,8 +31,8 @@ cacheManager.setOptions({
   excludeContext: false,
 });
 
-const DEFAULT_FIRESTORE_CACHE_TTL = 604800; // Seconds. 604800 is 7 days.
-const DEFAULT_MEM_CACHE_TTL = 300; // Seconds
+const DEFAULT_FIRESTORE_CACHE_TTL_SECONDS = 604800; // 604800 is 7 days.
+const DEFAULT_MEM_CACHE_TTL_SECONDS = 300;
 
 interface EventResponse {
   method: string;
@@ -50,8 +53,6 @@ export class StrapiClient {
     event: 'response',
     listener: (response: EventResponse) => void
   ) => EventEmitter;
-  private graphqlMemCache: Record<string, unknown> = {};
-
   constructor(
     private strapiClientConfig: StrapiClientConfig,
     @Inject(FirestoreService) private firestore: Firestore
@@ -61,7 +62,6 @@ export class StrapiClient {
         Authorization: `Bearer ${this.strapiClientConfig.apiKey}`,
       },
     });
-    this.setupCacheBust();
     this.emitter = new EventEmitter();
     this.on = this.emitter.on.bind(this.emitter);
   }
@@ -77,10 +77,27 @@ export class StrapiClient {
 
   @Cacheable({
     cacheKey: (args: any) => cacheKeyForQuery(args[0], args[1]),
-    strategy: new NetworkFirstStrategy(),
+    strategy: (args: any, context: StrapiClient) =>
+      new StaleWhileRevalidateWithFallbackStrategy(
+        context.strapiClientConfig.memCacheTTL || DEFAULT_MEM_CACHE_TTL_SECONDS,
+        (err) => {
+          Sentry.captureException(err);
+        },
+        (startTime, endTime, result) => {
+          context.emitter.emit('response', {
+            method: 'query',
+            query: args[0],
+            variables: JSON.stringify(args[1]),
+            requestStartTime: startTime,
+            requestEndTime: endTime,
+            elapsed: endTime - startTime,
+            cache: result === 'stale' || result === 'fallback',
+          });
+        }
+      ),
     ttlSeconds: (_, context: StrapiClient) =>
       context.strapiClientConfig.firestoreCacheTTL ||
-      DEFAULT_FIRESTORE_CACHE_TTL,
+      DEFAULT_FIRESTORE_CACHE_TTL_SECONDS,
     client: (_, context: StrapiClient) =>
       new FirestoreAdapter(
         context.firestore,
@@ -88,29 +105,38 @@ export class StrapiClient {
           CMS_QUERY_CACHE_KEY
       ),
   })
+  @Cacheable({
+    cacheKey: (args: any) => cacheKeyForQuery(args[0], args[1]),
+    strategy: (args: any, context: StrapiClient) =>
+      new CacheFirstStrategy(
+        (err) => {
+          Sentry.captureException(err);
+        },
+        (startTime, endTime, result) => {
+          // We only report cache hits since the second cache decorator above will report status
+          // if this strategy misses, and we don't want to double report.
+          if (result === 'cache') {
+            context.emitter.emit('response', {
+              method: 'query',
+              query: args[0],
+              variables: JSON.stringify(args[1]),
+              requestStartTime: startTime,
+              requestEndTime: endTime,
+              elapsed: endTime - startTime,
+              cache: true,
+            });
+          }
+        }
+      ),
+    ttlSeconds: (_, context: StrapiClient) =>
+      context.strapiClientConfig.memCacheTTL || DEFAULT_MEM_CACHE_TTL_SECONDS,
+    client: new MemoryAdapter(),
+  })
   async query<Result, Variables extends OperationVariables>(
     query: TypedDocumentNode<Result, Variables>,
     variables: Variables
   ): Promise<Result> {
-    const cacheKey = cacheKeyForQuery(query, variables);
-
-    const emitterResponse = {
-      method: 'query',
-      query,
-      variables: JSON.stringify(variables),
-      requestStartTime: Date.now(),
-      cache: false,
-    };
-
-    if (this.graphqlMemCache[cacheKey]) {
-      this.emitter.emit('response', {
-        ...emitterResponse,
-        requestEndTime: emitterResponse.requestStartTime,
-        elapsed: 0,
-        cache: true,
-      });
-      return this.graphqlMemCache[cacheKey] as Result;
-    }
+    const requestStartTime = Date.now();
 
     try {
       const response = await this.client.request<Result, any>({
@@ -118,22 +144,16 @@ export class StrapiClient {
         variables,
       });
 
-      const requestEndTime = Date.now();
-      this.emitter.emit('response', {
-        ...emitterResponse,
-        elapsed: requestEndTime - emitterResponse.requestStartTime,
-        requestEndTime,
-      });
-
-      this.graphqlMemCache[cacheKey] = response;
-
       return response;
     } catch (e) {
       const requestEndTime = Date.now();
       this.emitter.emit('response', {
-        ...emitterResponse,
-        elapsed: requestEndTime - emitterResponse.requestStartTime,
+        method: 'query',
+        query,
+        variables: JSON.stringify(variables),
+        requestStartTime,
         requestEndTime,
+        elapsed: requestEndTime - requestStartTime,
         error: e,
       });
 
@@ -145,14 +165,5 @@ export class StrapiClient {
     const localesResult = (await this.query(localesQuery, {})) as LocalesResult;
 
     return localesResult.i18NLocales.map((locale) => locale.code) || [];
-  }
-
-  private setupCacheBust() {
-    const cacheTTL =
-      (this.strapiClientConfig.memCacheTTL || DEFAULT_MEM_CACHE_TTL) * 1000;
-
-    setInterval(() => {
-      this.graphqlMemCache = {};
-    }, cacheTTL);
   }
 }
