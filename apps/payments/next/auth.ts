@@ -42,8 +42,7 @@ export const {
       return session;
     },
     async jwt({ token, profile }) {
-      // Note profile is only defined once after user sign in.
-      // const fxaUid = token.fxaUid || profile?.uid;
+      // Note profile is only defined once after user sign in and not on subsequent calls.
       if (profile) {
         token.user = {
           id: profile.uid,
