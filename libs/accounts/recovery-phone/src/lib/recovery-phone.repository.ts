@@ -30,3 +30,13 @@ export async function removePhoneNumber(db: AccountDatabase, uid: Buffer) {
 
   return result.numDeletedRows === BigInt(1);
 }
+
+export async function hasRecoveryCodes(db: AccountDatabase, uid: Buffer) {
+  const result = await db
+    .selectFrom('recoveryCodes')
+    .where('uid', '=', uid)
+    .selectAll()
+    .execute();
+
+  return result.length > 0;
+}

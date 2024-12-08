@@ -18,7 +18,11 @@ describe('RecoveryPhoneManager', () => {
   };
 
   beforeAll(async () => {
-    db = await testAccountDatabaseSetup(['accounts', 'recoveryPhones']);
+    db = await testAccountDatabaseSetup([
+      'accounts',
+      'recoveryPhones',
+      'recoveryCodes',
+    ]);
     const moduleRef = await Test.createTestingModule({
       providers: [
         RecoveryPhoneManager,
@@ -130,15 +134,19 @@ describe('RecoveryPhoneManager', () => {
   });
 
   it('should handle database errors gracefully', async () => {
-    jest.spyOn(db, 'insertInto').mockImplementation(() => {
-      throw new Error('Database error');
-    });
+    const insertIntoSpy = jest
+      .spyOn(db, 'insertInto')
+      .mockImplementation(() => {
+        throw new Error('Database error');
+      });
 
     const mockPhone = RecoveryPhoneFactory();
     const { uid, phoneNumber } = mockPhone;
     await expect(
       recoveryPhoneManager.registerPhoneNumber(uid.toString('hex'), phoneNumber)
     ).rejects.toThrow('Database error');
+
+    insertIntoSpy.mockRestore();
   });
 
   it('should store unconfirmed phone number data in Redis', async () => {
@@ -184,5 +192,29 @@ describe('RecoveryPhoneManager', () => {
     );
 
     expect(result).toBeNull();
+  });
+
+  it('should return false if no recovery codes', async () => {
+    const mockPhone = RecoveryPhoneFactory();
+    const { uid } = mockPhone;
+
+    const result = await recoveryPhoneManager.hasRecoveryCodes(
+      uid.toString('hex')
+    );
+
+    expect(result).toBe(false);
+  });
+
+  it('should return true if user has recovery codes', async () => {
+    const mockPhone = RecoveryPhoneFactory();
+    const { uid } = mockPhone;
+
+    await db.insertInto('recoveryCodes').values({ uid: uid }).execute();
+
+    const result = await recoveryPhoneManager.hasRecoveryCodes(
+      uid.toString('hex')
+    );
+
+    expect(result).toBe(true);
   });
 });
