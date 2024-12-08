@@ -55,6 +55,7 @@ const CompleteResetPasswordContainer = ({
     authClient,
     integration
   );
+  const isOAuth = isOAuthIntegration(integration);
 
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -121,7 +122,7 @@ const CompleteResetPasswordContainer = ({
   ) => {
     if (accountResetData.verified) {
       // For verified users with OAuth integration, navigate to confirmation page then to the relying party
-      if (isOAuthIntegration(integration) && !integration.isSync()) {
+      if (isOAuth && !integration.isSync()) {
         const sensitiveData = { ...accountResetData, email };
         sensitiveDataClient.setData('accountResetData', sensitiveData);
         return navigateWithQuery('/reset_password_verified', {
@@ -201,7 +202,7 @@ const CompleteResetPasswordContainer = ({
     return accountResetData;
   };
 
-  const notifyClientOfSignin = (accountResetData: AccountResetData) => {
+  const notifyClientOfSignin = async (accountResetData: AccountResetData) => {
     if (accountResetData.verified) {
       storeAccountData({
         uid: accountResetData.uid,
@@ -212,57 +213,49 @@ const CompleteResetPasswordContainer = ({
       });
     }
 
+    // This handles the sync desktop v3 case and the sync oauth_webchannel_v1 case.
+    // Other oauth flows are handled in the next step.
     if (integration.isSync()) {
       firefox.fxaLoginSignedInUser({
         authAt: accountResetData.authAt,
         email,
-        keyFetchToken: accountResetData.keyFetchToken,
         sessionToken: accountResetData.sessionToken,
         uid: accountResetData.uid,
-        unwrapBKey: accountResetData.unwrapBKey,
         verified: accountResetData.verified,
-        ...(!integration.isDesktopRelay() && {
-          services: {
-            sync: {},
-          },
+        // Do not send these values if OAuth. Mobile doesn't care about this message, and
+        // sending these values can cause intermittent sync disconnect issues in oauth desktop.
+        ...(!isOAuth && {
+          // keyFetchToken and unwrapBKey should always exist if Sync integration
+          keyFetchToken: accountResetData.keyFetchToken,
+          unwrapBKey: accountResetData.unwrapBKey,
         }),
+        services: integration.isDesktopRelay() ? { relay: {} } : { sync: {} },
       });
-    }
-  };
 
-  // We send an oauth_login web channel message when we are in
-  // an oauth flow and the integration is for sync.
-  // This is needed to ensure that Sync is turned on after a password reset.
-  //
-  // N.B: the call site is only when the flow is not using a recovery key. For the other case,
-  // the message is sent later in the flow.
-  const maybeNotifyOAuthClient = async (accountResetData: AccountResetData) => {
-    if (!isOAuthIntegration(integration)) {
-      return;
-    }
-
-    if (integration.isSync()) {
-      const { error, redirect, code, state } = await finishOAuthFlowHandler(
-        accountResetData.uid,
-        accountResetData.sessionToken,
-        accountResetData.keyFetchToken,
-        accountResetData.unwrapBKey
-      );
-
-      if (error) {
-        const localizedBannerMessage = getLocalizedErrorMessage(
-          ftlMsgResolver,
-          error
+      if (isOAuth) {
+        const { error, redirect, code, state } = await finishOAuthFlowHandler(
+          accountResetData.uid,
+          accountResetData.sessionToken,
+          accountResetData.keyFetchToken,
+          accountResetData.unwrapBKey
         );
-        setErrorMessage(localizedBannerMessage);
-        return;
+
+        if (error) {
+          const localizedBannerMessage = getLocalizedErrorMessage(
+            ftlMsgResolver,
+            error
+          );
+          setErrorMessage(localizedBannerMessage);
+          return;
+        }
+        // Mobile will close the web view
+        firefox.fxaOAuthLogin({
+          action: 'signin',
+          code,
+          redirect,
+          state,
+        });
       }
-      firefox.fxaOAuthLogin({
-        action: 'signin',
-        code: code,
-        redirect: redirect,
-        state: state,
-      });
     }
   };
 
@@ -288,24 +281,29 @@ const CompleteResetPasswordContainer = ({
         // TODO add frontend Glean event for successful reset?
         notifyClientOfSignin(accountResetData);
 
-        sensitiveDataClient.setData('accountResetData', accountResetData);
+        // Mobile will automatically close the web view after notifyClientOfSignin
+        // is called. We don't want to automatically generate a recovery key for these
+        // users because they won't be able to see it.
+        if (!integration.isFirefoxMobileClient()) {
+          sensitiveDataClient.setData('accountResetData', accountResetData);
 
-        // we cannot create a new recovery key if the session is not verified
-        if (accountResetData.verified) {
-          await account.refresh('account');
-          const createRecoveryKeyResult = await account.createRecoveryKey(
-            newPassword
-          );
-          sensitiveDataClient.setData(
-            'newRecoveryKeyData',
-            createRecoveryKeyResult
+          // we cannot create a new recovery key if the session is not verified
+          if (accountResetData.verified) {
+            await account.refresh('account');
+            const createRecoveryKeyResult = await account.createRecoveryKey(
+              newPassword
+            );
+            sensitiveDataClient.setData(
+              'newRecoveryKeyData',
+              createRecoveryKeyResult
+            );
+          }
+
+          handleNavigationWithRecoveryKey(
+            { email: emailToUse },
+            accountResetData.verified
           );
         }
-
-        handleNavigationWithRecoveryKey(
-          { email: emailToUse },
-          accountResetData.verified
-        );
       } else if (isResetWithoutRecoveryKey) {
         GleanMetrics.passwordReset.createNewSubmit();
         const includeRecoveryKeyPrompt = !!isSyncUser;
@@ -317,8 +315,7 @@ const CompleteResetPasswordContainer = ({
           includeRecoveryKeyPrompt
         );
         // TODO add frontend Glean event for successful reset?
-        notifyClientOfSignin(accountResetData);
-        await maybeNotifyOAuthClient(accountResetData);
+        await notifyClientOfSignin(accountResetData);
 
         // DO NOT REMOVE THIS MAKES THE NAVIGATION WORK
         // Despite all the awaiting in the code path, the signed in state in
