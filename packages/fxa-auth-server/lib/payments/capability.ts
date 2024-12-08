@@ -47,6 +47,7 @@ import {
   sortClientCapabilities,
 } from './utils';
 import { ProfileClient } from '@fxa/profile/client';
+import { reportSentryError, reportSentryMessage } from '../sentry';
 
 function hex(blob: Buffer | string): string {
   if (Buffer.isBuffer(blob)) {
@@ -388,7 +389,7 @@ export class CapabilityService {
             uid,
             targetPlanId,
           });
-          Sentry.captureMessage(
+          reportSentryMessage(
             `Eligibility mismatch for ${uid} on ${targetPlanId}`,
             'error' as SeverityLevel
           );
@@ -396,7 +397,7 @@ export class CapabilityService {
       }
     } catch (err) {
       this.log.error('subscriptions.getPlanEligibility', { error: err });
-      Sentry.captureException(err);
+      reportSentryError(err);
     }
     return stripeEligibilityResult;
     // END TODO: will be removed in FXA-8918
@@ -931,7 +932,7 @@ export class CapabilityService {
             cms: clientsFromCMS,
             stripe: clientsFromStripe,
           });
-          Sentry.captureMessage(
+          reportSentryMessage(
             `CapabilityService.getClients - Returned Stripe as clients did not match.`,
             'error' as SeverityLevel
           );
@@ -939,7 +940,7 @@ export class CapabilityService {
       }
     } catch (err) {
       this.log.error('subscriptions.getClients', { error: err });
-      Sentry.captureException(err);
+      reportSentryError(err);
     }
     return clientsFromStripe;
     // END TODO: will be removed in FXA-8918
@@ -1006,7 +1007,7 @@ export class CapabilityService {
           cms: cmsCapabilities,
           stripe: stripeCapabilities,
         });
-        Sentry.captureMessage(
+        reportSentryMessage(
           `CapabilityService.planIdsToClientCapabilities - Returned Stripe as plan ids to client capabilities did not match.`,
           'error' as SeverityLevel
         );
@@ -1015,7 +1016,7 @@ export class CapabilityService {
       this.log.error('subscriptions.planIdsToClientCapabilities', {
         error: err,
       });
-      Sentry.captureException(err);
+      reportSentryError(err);
     }
 
     return stripeCapabilities;

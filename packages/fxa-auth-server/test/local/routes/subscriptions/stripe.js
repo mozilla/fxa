@@ -11,6 +11,7 @@ const uuid = require('uuid');
 const mocks = require('../../../mocks');
 const error = require('../../../../lib/error');
 const Sentry = require('@sentry/node');
+const sentryModule = require('../../../../lib/sentry');
 const {
   StripeHelper,
   STRIPE_PRICE_METADATA,
@@ -1050,7 +1051,7 @@ describe('DirectStripeRoutes', () => {
     it('errors with AppError subscriptionPromotionCodeNotApplied if PaymentsCustomerError returned from StripeService', async () => {
       const sentryScope = { setContext: sandbox.stub() };
       sandbox.stub(Sentry, 'withScope').callsFake((cb) => cb(sentryScope));
-      sandbox.stub(Sentry, 'captureMessage');
+      sandbox.stub(sentryModule, 'reportSentryMessage');
 
       let mockSubscription = deepCopy(subscription2);
       const mockCustomer = deepCopy(customerFixture);
@@ -1665,7 +1666,7 @@ describe('DirectStripeRoutes', () => {
     it('does not report to Sentry if the customer has a payment method on file', async () => {
       const sentryScope = { setContext: sandbox.stub() };
       sandbox.stub(Sentry, 'withScope').callsFake((cb) => cb(sentryScope));
-      sandbox.stub(Sentry, 'captureMessage');
+      sandbox.stub(sentryModule, 'reportSentryMessage');
 
       delete paymentMethod.billing_details.address;
       const sourceCountry = 'US';
@@ -1717,7 +1718,7 @@ describe('DirectStripeRoutes', () => {
         directStripeRoutesInstance.stripeHelper.setCustomerLocation
       );
       sinon.assert.notCalled(sentryScope.setContext);
-      sinon.assert.notCalled(Sentry.captureMessage);
+      sinon.assert.notCalled(sentryModule.reportSentryMessage);
     });
 
     it('skips location lookup when source country is not needed', async () => {
@@ -1739,7 +1740,7 @@ describe('DirectStripeRoutes', () => {
 
       const sentryScope = { setContext: sandbox.stub() };
       sandbox.stub(Sentry, 'withScope').callsFake((cb) => cb(sentryScope));
-      sandbox.stub(Sentry, 'captureMessage');
+      sandbox.stub(sentryModule, 'reportSentryMessage');
 
       await directStripeRoutesInstance.createSubscriptionWithPMI(VALID_REQUEST);
       sinon.assert.notCalled(
@@ -1929,7 +1930,7 @@ describe('DirectStripeRoutes', () => {
     it('reports to Sentry if when the customer location cannot be set', async () => {
       const sentryScope = { setContext: sandbox.stub() };
       sandbox.stub(Sentry, 'withScope').callsFake((cb) => cb(sentryScope));
-      sandbox.stub(Sentry, 'captureMessage');
+      sandbox.stub(sentryModule, 'reportSentryMessage');
 
       delete paymentMethod.billing_details.address;
       const customer = deepCopy(emptyCustomer);
@@ -1989,7 +1990,7 @@ describe('DirectStripeRoutes', () => {
         }
       );
       sinon.assert.calledOnceWithExactly(
-        Sentry.captureMessage,
+        sentryModule.reportSentryMessage,
         `Cannot find a postal code or country for customer.`,
         'error'
       );
@@ -2002,7 +2003,7 @@ describe('DirectStripeRoutes', () => {
       const paymentMethodId = 'card_1G9Vy3Kb9q6OnNsLYw9Zw0Du';
       const sentryScope = { setContext: sandbox.stub() };
       sandbox.stub(Sentry, 'withScope').callsFake((cb) => cb(sentryScope));
-      sandbox.stub(Sentry, 'captureMessage');
+      sandbox.stub(sentryModule, 'reportSentryMessage');
 
       const expected = deepCopy(emptyCustomer);
       expected.invoice_settings.default_payment_method = paymentMethodId;

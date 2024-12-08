@@ -18,6 +18,18 @@ const {
 const TOKENREGEX = /[a-fA-F0-9]{32,}/gi;
 const FILTERED = '[Filtered]';
 
+function reportSentryMessage(message, captureContext) {
+  Sentry.withScope((scope) => {
+    scope.setExtra('report', true);
+
+    if (captureContext && typeof captureContext === 'object') {
+      Hoek.merge(scope, captureContext);
+    }
+
+    Sentry.captureMessage(message, captureContext);
+  });
+}
+
 function reportSentryError(err, request) {
   let exception = '';
   if (err && err.stack) {
@@ -150,6 +162,7 @@ async function configureSentry(server, config, processName = 'key_server') {
 
 module.exports = {
   configureSentry,
+  reportSentryMessage,
   reportSentryError,
   reportValidationError,
   formatMetadataValidationErrorMessage,

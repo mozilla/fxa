@@ -18,6 +18,7 @@ import SUBSCRIPTIONS_DOCS from '../../../docs/swagger/subscriptions-api';
 import {
   formatMetadataValidationErrorMessage,
   reportSentryError,
+  reportSentryMessage,
   reportValidationError,
 } from '../../../lib/sentry';
 import error from '../../error';
@@ -131,7 +132,7 @@ export class StripeWebhookHandler extends StripeHandler {
             objectType: (event.data.object as any).object,
           },
         });
-        Sentry.captureMessage(
+        reportSentryMessage(
           'Event being handled that is not using latest object from Stripe.',
           'info' as SeverityLevel
         );
@@ -215,7 +216,7 @@ export class StripeWebhookHandler extends StripeHandler {
             scope.setContext('stripeEvent', {
               event: { id: event.id, type: event.type },
             });
-            Sentry.captureMessage(
+            reportSentryMessage(
               'Unhandled Stripe event received.',
               'info' as SeverityLevel
             );
@@ -752,7 +753,7 @@ export class StripeWebhookHandler extends StripeHandler {
 
       Sentry.withScope((scope) => {
         scope.setContext('planUpdatedEvent', { plan });
-        Sentry.captureMessage(msg, 'error' as SeverityLevel);
+        reportSentryMessage(msg, 'error' as SeverityLevel);
       });
 
       this.stripeHelper.updateAllPlans(updatedList);
