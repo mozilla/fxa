@@ -6,7 +6,7 @@ import { useCallback, useState } from 'react';
 import { RouteComponentProps, useLocation } from '@reach/router';
 import { ResetPasswordWithRecoveryKeyVerifiedProps } from './interfaces';
 import { formatRecoveryKey } from '../../../lib/utilities';
-import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import {
   Integration,
@@ -22,13 +22,15 @@ import {
 import ResetPasswordWithRecoveryKeyVerified from './index';
 import { SETTINGS_PATH } from '../../../constants';
 import firefox from '../../../lib/channels/firefox';
+import { SensitiveData } from '../../../lib/sensitive-data-client';
+import { currentAccount } from '../../../lib/cache';
 
 const ResetPasswordWithRecoveryKeyVerifiedContainer = ({
   integration,
 }: ResetPasswordWithRecoveryKeyVerifiedProps & RouteComponentProps) => {
   const [showHint, setShowHint] = useState(false);
 
-  const navigate = useNavigate();
+  const navigateWithQuery = useNavigateWithQuery();
   const sensitiveDataClient = useSensitiveDataClient();
 
   const location = useLocation();
@@ -43,7 +45,9 @@ const ResetPasswordWithRecoveryKeyVerifiedContainer = ({
     useState<FinishOAuthFlowHandlerResult['error']>();
 
   const account = useAccount();
-  const accountResetData = sensitiveDataClient.getData('accountResetData');
+  const { uid, sessionToken } = currentAccount() || {};
+  const { keyFetchToken, unwrapBKey } =
+    sensitiveDataClient.getDataType(SensitiveData.Key.AccountReset) || {};
   const newRecoveryKeyData = sensitiveDataClient.getData('newRecoveryKeyData');
   const newRecoveryKey = formatRecoveryKey(newRecoveryKeyData.buffer);
 
@@ -55,11 +59,17 @@ const ResetPasswordWithRecoveryKeyVerifiedContainer = ({
   const navigateToHint = () => setShowHint(true);
   const navigateNext = async (continueToAccountEvent: () => void) => {
     if (isOAuthIntegration(integration)) {
+      // If we have lost the required bits for OAuth handling, we have to start again.
+      if (!sessionToken || !uid) {
+        navigateWithQuery('/signin', { replace: true });
+        return;
+      }
+
       const { redirect, code, state, error } = await finishOAuthFlowHandler(
-        accountResetData.uid,
-        accountResetData.sessionToken,
-        accountResetData.keyFetchToken,
-        accountResetData.unwrapBKey
+        uid,
+        sessionToken,
+        keyFetchToken,
+        unwrapBKey
       );
 
       if (error) {
@@ -75,13 +85,13 @@ const ResetPasswordWithRecoveryKeyVerifiedContainer = ({
           redirect,
           state,
         });
-        navigate('/settings', { replace: true });
+        navigateWithQuery('/settings', { replace: true });
       } else {
         hardNavigate(redirect);
       }
     } else {
       continueToAccountEvent();
-      navigate(SETTINGS_PATH, { replace: true });
+      navigateWithQuery(SETTINGS_PATH, { replace: true });
     }
   };
 

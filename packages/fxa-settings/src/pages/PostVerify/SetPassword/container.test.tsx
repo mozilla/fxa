@@ -24,7 +24,7 @@ import SetPasswordContainer from './container';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../../models/mocks';
 import { act } from '@testing-library/react';
-import { AUTH_DATA_KEY } from '../../../lib/sensitive-data-client';
+import { SensitiveData } from '../../../lib/sensitive-data-client';
 import {
   getSyncEngineIds,
   syncEngineConfigs,
@@ -71,7 +71,7 @@ jest.mock('../../../lib/hooks/useSyncEngines', () => {
 });
 
 const mockSensitiveDataClient = createMockSensitiveDataClient();
-mockSensitiveDataClient.setData = jest.fn();
+mockSensitiveDataClient.setDataType = jest.fn();
 
 const mockNavigate = jest.fn();
 jest.mock('@reach/router', () => ({
@@ -211,11 +211,14 @@ describe('SetPassword container', () => {
       await act(async () => {
         await currentSetPasswordProps?.createPasswordHandler(MOCK_PASSWORD);
       });
-      expect(mockSensitiveDataClient.setData).toBeCalledWith(AUTH_DATA_KEY, {
-        authPW: MOCK_AUTH_PW,
-        emailForAuth: MOCK_EMAIL,
-        unwrapBKey: MOCK_UNWRAP_BKEY,
-      });
+      expect(mockSensitiveDataClient.setDataType).toBeCalledWith(
+        SensitiveData.Key.Auth,
+        {
+          authPW: MOCK_AUTH_PW,
+          emailForAuth: MOCK_EMAIL,
+          unwrapBKey: MOCK_UNWRAP_BKEY,
+        }
+      );
       expect(mockAuthClient.sessionReauthWithAuthPW).toBeCalledWith(
         MOCK_SESSION_TOKEN,
         MOCK_EMAIL,

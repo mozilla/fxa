@@ -49,7 +49,7 @@ import {
 import { getCredentials, getCredentialsV2 } from 'fxa-auth-client/lib/crypto';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { SignInOptions } from 'fxa-auth-client/browser';
-import { AUTH_DATA_KEY } from '../../../lib/sensitive-data-client';
+import { SensitiveData } from '../../../lib/sensitive-data-client';
 import { isFirefoxService } from '../../../models/integrations/utils';
 import { tryFinalizeUpgrade } from '../../../lib/gql-key-stretch-upgrade';
 
@@ -68,8 +68,10 @@ export const SigninUnblockContainer = ({
   };
 
   const sensitiveDataClient = useSensitiveDataClient();
-  const sensitiveData = sensitiveDataClient.getData(AUTH_DATA_KEY);
-  const { password } = (sensitiveData as unknown as { password: string }) || {};
+  // We keep the previous non-null assertion on 'password' here because the
+  // flow dictates we definitely have it.
+  const { plainTextPassword: password } =
+    sensitiveDataClient.getDataType(SensitiveData.Key.Password)! || {};
 
   const { email, hasLinkedAccount, hasPassword } = location.state || {};
 
@@ -189,7 +191,7 @@ export const SigninUnblockContainer = ({
 
       return result;
     } finally {
-      sensitiveDataClient.setData(AUTH_DATA_KEY, null);
+      sensitiveDataClient.setDataType(SensitiveData.Key.Auth, undefined);
     }
   };
 

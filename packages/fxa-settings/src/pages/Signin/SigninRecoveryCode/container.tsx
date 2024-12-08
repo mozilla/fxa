@@ -24,10 +24,7 @@ import {
 import { ConsumeRecoveryCodeResponse, SubmitRecoveryCode } from './interfaces';
 import OAuthDataError from '../../../components/OAuthDataError';
 import { getHandledError } from '../../../lib/error-utils';
-import {
-  AUTH_DATA_KEY,
-  SensitiveDataClientAuthKeys,
-} from '../../../lib/sensitive-data-client';
+import { SensitiveData } from '../../../lib/sensitive-data-client';
 
 export type SigninRecoveryCodeContainerProps = {
   integration: Integration;
@@ -49,9 +46,9 @@ export const SigninRecoveryCodeContainer = ({
   };
   const signinState = getSigninState(location.state);
   const sensitiveDataClient = useSensitiveDataClient();
-  const sensitiveData = sensitiveDataClient.getData(AUTH_DATA_KEY);
-  const { keyFetchToken, unwrapBKey } =
-    (sensitiveData as SensitiveDataClientAuthKeys) || {};
+  const { keyFetchToken, unwrapBKey } = sensitiveDataClient.getDataType(
+    SensitiveData.Key.Auth
+  )!;
 
   const { oAuthKeysCheckError } = useOAuthKeysCheck(
     integration,

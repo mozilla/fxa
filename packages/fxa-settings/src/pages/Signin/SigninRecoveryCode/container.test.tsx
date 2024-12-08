@@ -20,13 +20,15 @@ import {
   MOCK_STORED_ACCOUNT,
   MOCK_RECOVERY_CODE,
   mockLoadingSpinnerModule,
+  MOCK_UNWRAP_BKEY,
+  MOCK_KEY_FETCH_TOKEN,
 } from '../../mocks';
 import { SigninRecoveryCodeProps } from './interfaces';
 import { mockGqlError, mockSigninLocationState } from '../mocks';
 import { mockConsumeRecoveryCodeUseMutation } from './mocks';
 import { waitFor } from '@testing-library/react';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import { AUTH_DATA_KEY } from '../../../lib/sensitive-data-client';
+import { SensitiveData } from '../../../lib/sensitive-data-client';
 
 let integration: Integration;
 function mockWebIntegration() {
@@ -55,7 +57,6 @@ jest.mock('../../../models', () => {
 
 let currentSigninRecoveryCodeProps: SigninRecoveryCodeProps | undefined;
 const mockSensitiveDataClient = createMockSensitiveDataClient();
-mockSensitiveDataClient.getData = jest.fn();
 function mockSigninRecoveryCodeModule() {
   currentSigninRecoveryCodeProps = undefined;
   jest
@@ -105,6 +106,10 @@ function resetMockSensitiveDataClient() {
   (useSensitiveDataClient as jest.Mock).mockImplementation(
     () => mockSensitiveDataClient
   );
+  mockSensitiveDataClient.getDataType = jest.fn().mockReturnValue({
+    keyFetchToken: MOCK_KEY_FETCH_TOKEN,
+    unwrapBKey: MOCK_UNWRAP_BKEY,
+  });
 }
 
 function applyDefaultMocks() {
@@ -165,8 +170,8 @@ describe('SigninRecoveryCode container', () => {
 
     it('reads data from sensitive data client', () => {
       render([]);
-      expect(mockSensitiveDataClient.getData).toHaveBeenCalledWith(
-        AUTH_DATA_KEY
+      expect(mockSensitiveDataClient.getDataType).toHaveBeenCalledWith(
+        SensitiveData.Key.Auth
       );
     });
   });

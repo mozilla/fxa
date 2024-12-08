@@ -115,7 +115,7 @@ function applyMocks() {
   (ModelsModule.useSensitiveDataClient as jest.Mock).mockImplementation(
     () => mockSensitiveDataClient
   );
-  mockSensitiveDataClient.getData = jest.fn().mockReturnValue({
+  mockSensitiveDataClient.getDataType = jest.fn().mockReturnValue({
     keyFetchToken: MOCK_KEY_FETCH_TOKEN,
     unwrapBKey: MOCK_UNWRAP_BKEY,
   });
@@ -292,7 +292,7 @@ describe('confirm-signup-container', () => {
         type: ModelsModule.IntegrationType.OAuthNative,
         wantsKeys: () => true,
       } as Integration;
-      mockSensitiveDataClient.getData = jest.fn().mockReturnValue({
+      mockSensitiveDataClient.getDataType = jest.fn().mockReturnValue({
         keyFetchToken: undefined,
         unwrapBKey: undefined,
       });
