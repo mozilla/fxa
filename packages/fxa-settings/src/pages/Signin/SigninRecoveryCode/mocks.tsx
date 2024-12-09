@@ -36,7 +36,18 @@ export const mockWebIntegration = {
   getService: () => MozServices.Default,
   isSync: () => false,
   wantsKeys: () => false,
+  isDesktopRelay: () => false,
   data: {},
 } as Integration;
+
+export const createMockOAuthNativeIntegration = (isSync = true) =>
+  ({
+    type: IntegrationType.OAuthNative,
+    getService: () => MozServices.FirefoxSync,
+    isSync: () => isSync,
+    wantsKeys: () => false,
+    isDesktopRelay: () => !isSync,
+    data: {},
+  } as Integration);
 
 export * from '../../mocks';

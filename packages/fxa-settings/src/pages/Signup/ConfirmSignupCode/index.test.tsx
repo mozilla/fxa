@@ -114,6 +114,9 @@ function renderWithSession({
   );
 }
 
+const serviceRelayText =
+  'Firefox will try sending you back to use an email mask after you sign in.';
+
 describe('ConfirmSignupCode page', () => {
   // TODO: enable l10n tests when they've been updated to handle embedded tags in ftl strings
   // TODO: in FXA-6461
@@ -258,6 +261,15 @@ describe('ConfirmSignupCode page', () => {
         expect(fxaOAuthLoginSpy).not.toHaveBeenCalled();
       });
     });
+
+    it('does not show service=relay text', () => {
+      renderWithSession({
+        session,
+        integration,
+        finishOAuthFlowHandler: jest.fn(),
+      });
+      expect(screen.queryByText(serviceRelayText)).not.toBeInTheDocument();
+    });
   });
 
   describe('OAuth native integration', () => {
@@ -295,6 +307,7 @@ describe('ConfirmSignupCode page', () => {
         integration,
         finishOAuthFlowHandler: mockFinishOAuthFlowHandler,
       });
+      screen.getByText(serviceRelayText);
       submit();
 
       await waitFor(() => {

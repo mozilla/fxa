@@ -220,6 +220,16 @@ export const SigninUnblock = ({
           Check your email for the authorization code sent to {email}.
         </p>
       </FtlMsg>
+
+      {integration.isDesktopRelay() && (
+        <FtlMsg id="signin-unblock-desktop-relay">
+          <p className="text-sm mt-2">
+            Firefox will try sending you back to use an email mask after you
+            sign in.
+          </p>
+        </FtlMsg>
+      )}
+
       <FormVerifyCode
         {...{
           formAttributes,

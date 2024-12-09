@@ -173,6 +173,15 @@ const SigninRecoveryCode = ({
         </p>
       </FtlMsg>
 
+      {integration.isDesktopRelay() && (
+        <FtlMsg id="signin-recovery-code-desktop-relay">
+          <p className="text-sm mt-2">
+            Firefox will try sending you back to use an email mask after you
+            sign in.
+          </p>
+        </FtlMsg>
+      )}
+
       <FormVerifyCode
         {...{
           formAttributes,

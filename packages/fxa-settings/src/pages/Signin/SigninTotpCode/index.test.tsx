@@ -14,7 +14,7 @@ import {
   AuthUiError,
   AuthUiErrors,
 } from '../../../lib/auth-errors/auth-errors';
-import { Subject } from './mocks';
+import { mockOAuthNativeIntegration, Subject } from './mocks';
 import { MOCK_OAUTH_FLOW_HANDLER_RESPONSE } from '../../mocks';
 import {
   createMockSigninOAuthIntegration,
@@ -58,6 +58,9 @@ jest.mock('@reach/router', () => ({
   useLocation: () => mockLocation(),
 }));
 
+const serviceRelayText =
+  'Firefox will try sending you back to use an email mask after you sign in.';
+
 describe('Sign in with TOTP code page', () => {
   // TODO: enable l10n tests when they've been updated to handle embedded tags in ftl strings
   // TODO: in FXA-6461
@@ -85,6 +88,14 @@ describe('Sign in with TOTP code page', () => {
     screen.getByRole('button', { name: 'Confirm' });
     screen.getByRole('link', { name: 'Use a different account' });
     screen.getByRole('link', { name: 'Trouble entering code?' });
+    expect(screen.queryByText(serviceRelayText)).not.toBeInTheDocument();
+  });
+
+  it('renders expected service=relay text', () => {
+    renderWithLocalizationProvider(
+      <Subject integration={mockOAuthNativeIntegration(false)} />
+    );
+    screen.getByText(serviceRelayText);
   });
 
   it('shows the relying party in the header when a service name is provided', () => {

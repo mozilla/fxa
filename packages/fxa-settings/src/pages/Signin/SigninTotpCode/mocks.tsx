@@ -23,6 +23,16 @@ const mockWebIntegration = {
   isDesktopRelay: () => false,
 } as Integration;
 
+export const mockOAuthNativeIntegration = (isSync = true) =>
+  ({
+    type: IntegrationType.OAuthNative,
+    getService: () => MozServices.FirefoxSync,
+    isSync: () => isSync,
+    wantsKeys: () => false,
+    isDesktopRelay: () => !isSync,
+    data: {},
+  } as Integration);
+
 export const MOCK_TOTP_LOCATION_STATE = {
   email: MOCK_EMAIL,
   uid: MOCK_UID,

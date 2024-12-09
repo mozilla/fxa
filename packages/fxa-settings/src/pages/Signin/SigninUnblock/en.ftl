@@ -12,3 +12,7 @@ signin-unblock-code-incorrect-length = Authorization code must contain 8 charact
 signin-unblock-code-incorrect-format-2 = Authorization code can only contain letters and/or numbers
 signin-unblock-resend-code-button = Not in inbox or spam folder? Resend
 signin-unblock-support-link = Why is this happening?
+# Message to user after they were redirected to the Mozilla account sign-in page in a new browser
+# tab. Firefox will attempt to send the user back to their original tab to use an email mask after
+# they successfully sign in or sign up for a Mozilla account to receive a free email mask.
+signin-unblock-desktop-relay = { -brand-firefox } will try sending you back to use an email mask after you sign in.

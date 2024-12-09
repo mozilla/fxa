@@ -18,6 +18,14 @@ export const NoSync = () => (
   <Subject recoveryKeyExists={true} estimatedSyncDeviceCount={0} />
 );
 
+export const OAuthDesktopServiceRelay = () => (
+  <Subject
+    isDesktopServiceRelay={true}
+    estimatedSyncDeviceCount={0}
+    recoveryKeyExists={false}
+  />
+);
+
 export const SyncAndNoRecoveryKey = () => (
   <Subject recoveryKeyExists={false} estimatedSyncDeviceCount={2} />
 );

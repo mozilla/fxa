@@ -16,3 +16,7 @@ signin-recovery-code-back-link = Back
 signin-recovery-code-support-link = Are you locked out?
 # Error displayed in a tooltip when form is submitted witout a code
 signin-recovery-code-required-error = Backup authentication code required
+# Message to user after they were redirected to the Mozilla account sign-in page in a new browser
+# tab. Firefox will attempt to send the user back to their original tab to use an email mask after
+# they successfully sign in or sign up for a Mozilla account to receive a free email mask.
+signin-recovery-code-desktop-relay = { -brand-firefox } will try sending you back to use an email mask after you sign in.

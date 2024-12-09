@@ -160,6 +160,15 @@ export const SigninTotpCode = ({
         </FtlMsg>
       </div>
 
+      {integration.isDesktopRelay() && (
+        <FtlMsg id="signin-totp-code-desktop-relay">
+          <p className="mt-2 mb-4 text-sm">
+            Firefox will try sending you back to use an email mask after you
+            sign in.
+          </p>
+        </FtlMsg>
+      )}
+
       {bannerError && (
         <Banner type="error" content={{ localizedHeading: bannerError }} />
       )}

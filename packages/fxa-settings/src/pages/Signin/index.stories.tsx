@@ -67,8 +67,12 @@ export const NoLinkedAccountAndNoPassword = storyWithProps({
   hasPassword: false,
 });
 
-export const NoThirdPartyAuthBecauseSyncWithPassword = storyWithProps({
+export const SignInToSync = storyWithProps({
   hasLinkedAccount: true,
   hasPassword: true,
   integration: createMockSigninOAuthNativeSyncIntegration(),
+});
+
+export const SignInToOAuthDesktopRelay = storyWithProps({
+  integration: createMockSigninOAuthNativeSyncIntegration({ isSync: false }),
 });

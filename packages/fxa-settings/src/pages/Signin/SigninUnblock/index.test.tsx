@@ -15,6 +15,7 @@ import {
   createBeginSigninResponse,
   createBeginSigninResponseError,
   createMockSigninOAuthIntegration,
+  createMockSigninOAuthNativeSyncIntegration,
   createMockSigninWebIntegration,
 } from '../mocks';
 import GleanMetrics from '../../../lib/glean';
@@ -54,6 +55,9 @@ const hasLinkedAccount = false;
 const hasPassword = true;
 let signinWithUnblockCode = jest.fn();
 let resendUnblockCodeHandler = jest.fn();
+
+const serviceRelayText =
+  'Firefox will try sending you back to use an email mask after you sign in.';
 
 const renderWithSuccess = (
   finishOAuthFlowHandler = jest
@@ -128,6 +132,17 @@ describe('SigninUnblock', () => {
       name: 'Not in inbox or spam folder? Resend',
     });
     screen.getByRole('link', { name: /Why is this happening/ });
+    expect(screen.queryByText(serviceRelayText)).not.toBeInTheDocument();
+  });
+
+  it('renders expected text when service=relay', () => {
+    renderWithSuccess(
+      undefined,
+      createMockSigninOAuthNativeSyncIntegration({
+        isSync: false,
+      })
+    );
+    screen.getByText(serviceRelayText);
   });
 
   it('emits the expected metrics on render', () => {
