@@ -116,6 +116,8 @@ const fxaProfile = {
   'webchannel.allowObject.urlWhitelist': fxaEnv.content.slice(0, -1),
   'browser.tabs.firefox-view': true,
   'identity.fxaccounts.autoconfig.uri': fxaEnv.content,
+  // disable password auto-fill; we typically don't need to test this daily.
+  'signon.rememberSignons': false,
   // TODO in FXA-9872, make oauth_webchannel_v1 the default context and
   // change these values for fx_desktop_v3. (Also, update the README note)
   ...(process.env.FXA_DESKTOP_CONTEXT === 'oauth_webchannel_v1' && {
