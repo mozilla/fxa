@@ -223,6 +223,15 @@ const SigninTokenCode = ({
         </p>
       </FtlMsg>
 
+      {integration.isDesktopRelay() && (
+        <FtlMsg id="signin-token-code-instruction-desktop-relay">
+          <p className="mt-2 text-sm">
+            Firefox will try sending you back to use an email mask after you
+            sign in.
+          </p>
+        </FtlMsg>
+      )}
+
       <FormVerifyCode
         {...{
           formAttributes,

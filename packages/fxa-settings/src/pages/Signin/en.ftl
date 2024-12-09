@@ -16,3 +16,4 @@ signin-header = Sign in
 signin-use-a-different-account-link = Use a different account
 signin-forgot-password-link = Forgot password?
 signin-password-button-label = Password
+signin-desktop-relay = { -brand-firefox } will try sending you back to use an email mask after you sign in.

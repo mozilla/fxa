@@ -419,9 +419,9 @@ describe('Signin component', () => {
                   unwrapBKey: MOCK_UNWRAP_BKEY,
                 })
               );
-              const integration = createMockSigninOAuthNativeSyncIntegration(
-                IntegrationType.SyncDesktopV3
-              );
+              const integration = createMockSigninOAuthNativeSyncIntegration({
+                type: IntegrationType.SyncDesktopV3,
+              });
               render({ beginSigninHandler, integration });
               enterPasswordAndSubmit();
               await waitFor(() => {
@@ -610,6 +610,7 @@ describe('Signin component', () => {
                 integration,
                 finishOAuthFlowHandler,
               });
+              screen.getByText('TODO, service=relay text for signin.');
               enterPasswordAndSubmit();
               await waitFor(() => {
                 // Ensure it's not called with keyFetchToken or unwrapBKey, or services: { sync: {} }

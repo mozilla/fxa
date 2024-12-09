@@ -20,3 +20,4 @@ confirm-signup-code-resend-code-link = Email new code.
 confirm-signup-code-success-alert = Account confirmed successfully
 # Error displayed in tooltip.
 confirm-signup-code-is-required-error = Confirmation code is required
+confirm-signup-code-desktop-relay = { -brand-firefox } will try sending you back to use an email mask after you sign in.

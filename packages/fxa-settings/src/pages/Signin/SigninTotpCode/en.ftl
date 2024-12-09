@@ -12,3 +12,4 @@ signin-totp-code-other-account-link = Use a different account
 signin-totp-code-recovery-code-link = Trouble entering code?
 # Error displayed in a tooltip when the form is submitted without a code
 signin-totp-code-required-error = Authentication code required
+signin-totp-code-desktop-relay = { -brand-firefox } will try sending you back to use an email mask after you sign in.

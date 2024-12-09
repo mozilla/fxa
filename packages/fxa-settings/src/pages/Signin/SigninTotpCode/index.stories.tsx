@@ -9,8 +9,9 @@ import { LocationProvider } from '@reach/router';
 import { MozServices } from '../../../lib/types';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import { Subject } from './mocks';
+import { mockOAuthNativeIntegration, Subject } from './mocks';
 import { BeginSigninError } from '../../../lib/error-utils';
+import { Integration } from '../../../models';
 
 export default {
   title: 'Pages/Signin/SigninTotpCode',
@@ -21,6 +22,7 @@ export default {
 const storyWithProps = (props: {
   submitTotpCode: () => Promise<{ status: boolean; error?: BeginSigninError }>;
   serviceName: MozServices;
+  integration?: Integration;
 }) => {
   const story = () => (
     <LocationProvider>
@@ -35,6 +37,14 @@ export const Default = storyWithProps({
     status: true,
   }),
   serviceName: MozServices.Default,
+});
+
+export const WithOAuthDesktopServiceRelay = storyWithProps({
+  submitTotpCode: async () => ({
+    status: true,
+  }),
+  serviceName: MozServices.FirefoxSync,
+  integration: mockOAuthNativeIntegration(false),
 });
 
 export const WithRelyingParty = storyWithProps({

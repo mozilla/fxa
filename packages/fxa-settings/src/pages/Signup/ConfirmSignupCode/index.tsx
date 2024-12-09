@@ -67,6 +67,7 @@ const ConfirmSignupCode = ({
 
   const navigate = useNavigate();
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
+  const isDesktopRelay = integration.isDesktopRelay();
 
   useEffect(() => {
     GleanMetrics.signupConfirmation.view();
@@ -203,7 +204,7 @@ const ConfirmSignupCode = ({
             const { to } = getSyncNavigate(location.search);
             hardNavigate(to);
             return;
-          } else if (integration.isDesktopRelay()) {
+          } else if (isDesktopRelay) {
             firefox.fxaOAuthLogin({
               action: 'signup',
               code,
@@ -293,6 +294,15 @@ const ConfirmSignupCode = ({
           Enter the code that was sent to {email} within 5 minutes.
         </p>
       </FtlMsg>
+
+      {isDesktopRelay && (
+        <FtlMsg id="confirm-signup-code-desktop-relay">
+          <p className="mt-2 text-sm">
+            Firefox will try sending you back to use an email mask after you
+            sign in.
+          </p>
+        </FtlMsg>
+      )}
 
       <FormVerifyCode
         {...{

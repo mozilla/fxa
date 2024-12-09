@@ -14,7 +14,7 @@ import { mockAppContext, mockSession } from '../../../models/mocks';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import { Session, AppContext } from '../../../models';
 import { SigninTokenCodeProps } from './interfaces';
-import { Subject } from './mocks';
+import { createOAuthNativeIntegration, Subject } from './mocks';
 import { MOCK_SIGNUP_CODE } from '../../Signup/ConfirmSignupCode/mocks';
 import { MOCK_EMAIL, MOCK_OAUTH_FLOW_HANDLER_RESPONSE } from '../../mocks';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
@@ -72,6 +72,9 @@ function mockReactUtilsModule() {
   jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => {});
 }
 
+const serviceRelayText =
+  'Firefox will try sending you back to use an email mask after you sign in.';
+
 describe('SigninTokenCode page', () => {
   beforeEach(() => {
     applyDefaultMocks();
@@ -108,7 +111,14 @@ describe('SigninTokenCode page', () => {
     screen.getByRole('button', { name: 'Email new code.' });
 
     // initially hidden
-    expect(screen.queryByRole('Code expired?')).not.toBeInTheDocument();
+    expect(screen.queryByText('Code expired?')).not.toBeInTheDocument();
+    // should not be displayed
+    expect(screen.queryByText(serviceRelayText)).not.toBeInTheDocument();
+  });
+
+  it('renders as expected when service=relay', () => {
+    render({ integration: createOAuthNativeIntegration(false) });
+    screen.getByText(serviceRelayText);
   });
 
   it('emits a metrics event on render', () => {

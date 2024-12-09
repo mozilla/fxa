@@ -31,6 +31,19 @@ export function createMockWebIntegration() {
   };
 }
 
+export function createOAuthNativeIntegration(isSync = true) {
+  return {
+    type: IntegrationType.OAuthNative,
+    getService: () => MozServices.Default,
+    getClientId: () => undefined,
+    isSync: () => isSync,
+    wantsKeys: () => false,
+    isDesktopSync: () => false,
+    isDesktopRelay: () => !isSync,
+    data: {},
+  };
+}
+
 export const createMockSigninLocationState = (
   wantsKeys = false,
   verificationReason?: VerificationReasons

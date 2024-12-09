@@ -41,6 +41,7 @@ export function createMockWebIntegration({
     data: { uid: MOCK_UID, redirectTo },
     getService: () => MozServices.Default,
     getClientId: () => undefined,
+    isDesktopRelay: () => false,
   };
 }
 

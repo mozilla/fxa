@@ -295,6 +295,7 @@ describe('ConfirmSignupCode page', () => {
         integration,
         finishOAuthFlowHandler: mockFinishOAuthFlowHandler,
       });
+      screen.getByText('TODO, service=relay text for confirm_signup_code.');
       submit();
 
       await waitFor(() => {

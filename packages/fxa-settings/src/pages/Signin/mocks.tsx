@@ -109,18 +109,19 @@ export function createMockSigninWebIntegration(): SigninIntegration {
   };
 }
 
-export function createMockSigninOAuthNativeSyncIntegration(
-  type = IntegrationType.OAuthNative
-): SigninIntegration {
+export function createMockSigninOAuthNativeSyncIntegration({
+  type = IntegrationType.OAuthNative,
+  isSync = true,
+}: { type?: IntegrationType; isSync?: boolean } = {}): SigninIntegration {
   return {
     type,
-    isSync: () => true,
+    isSync: () => isSync,
     wantsKeys: () => true,
     getService: () => MozServices.FirefoxSync,
     getClientId: () => MOCK_CLIENT_ID,
     data: {},
     isDesktopSync: () => true,
-    isDesktopRelay: () => false,
+    isDesktopRelay: () => !isSync,
   };
 }
 
