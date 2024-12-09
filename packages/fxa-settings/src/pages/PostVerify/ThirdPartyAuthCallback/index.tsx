@@ -124,11 +124,18 @@ const ThirdPartyAuthCallback = ({
     }
 
     try {
+      const fxaParams = integration.getFxAParams();
+      let originalService;
+      if (fxaParams) {
+        const params = new URLSearchParams(fxaParams);
+        originalService =
+          params.get('service') || params.get('client_id') || undefined;
+      }
       const linkedAccount: LinkedAccountData =
         await account.verifyAccountThirdParty(
           thirdPartyOAuthCode,
           provider,
-          undefined,
+          originalService,
           queryParamsToMetricsContext(
             flowQueryParams as unknown as Record<string, string>
           )
@@ -140,8 +147,6 @@ const ThirdPartyAuthCallback = ({
       await storeLinkedAccountData(linkedAccount, totpRequired);
 
       setCurrentAccount(linkedAccount.uid);
-
-      const fxaParams = integration.getFxAParams();
 
       // HACK: Hard navigate is required here to ensure that the new integration
       // is created based off updated search params.
