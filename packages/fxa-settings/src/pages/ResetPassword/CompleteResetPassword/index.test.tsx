@@ -23,6 +23,9 @@ jest.mock('../../../lib/glean', () => ({
   },
 }));
 
+const serviceRelayText =
+  'Firefox will try sending you back to use an email mask after you sign in.';
+
 describe('CompleteResetPassword page', () => {
   beforeEach(() => {
     (GleanMetrics.passwordReset.createNewView as jest.Mock).mockClear();
@@ -69,6 +72,18 @@ describe('CompleteResetPassword page', () => {
       expect(
         screen.queryByRole('link', { name: 'Use account recovery key' })
       ).not.toBeInTheDocument();
+      expect(screen.queryByText(serviceRelayText)).not.toBeInTheDocument();
+    });
+
+    it('renders expected text when service=relay', () => {
+      renderWithLocalizationProvider(
+        <Subject
+          isDesktopServiceRelay={true}
+          estimatedSyncDeviceCount={0}
+          recoveryKeyExists={false}
+        />
+      );
+      screen.getByText(serviceRelayText);
     });
 
     it('renders as expected for account without sync', async () => {

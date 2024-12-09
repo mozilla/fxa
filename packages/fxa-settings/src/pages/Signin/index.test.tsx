@@ -105,6 +105,9 @@ jest.mock('@reach/router', () => ({
   useLocation: () => mockLocation(),
 }));
 
+const serviceRelayText =
+  'Firefox will try sending you back to use an email mask after you sign in.';
+
 // TODO: Once https://mozilla-hub.atlassian.net/browse/FXA-6461 is resolved, we can
 // add the l10n tests back in. Right now, they can't handle embedded tags.
 
@@ -203,6 +206,7 @@ describe('Signin component', () => {
         privacyAndTermsRendered();
         resetPasswordLinkRendered();
         differentAccountLinkRendered();
+        expect(screen.queryByText(serviceRelayText)).not.toBeInTheDocument();
       });
 
       it('does not render third party auth for sync, emits expected Glean event', () => {
@@ -419,9 +423,9 @@ describe('Signin component', () => {
                   unwrapBKey: MOCK_UNWRAP_BKEY,
                 })
               );
-              const integration = createMockSigninOAuthNativeSyncIntegration(
-                IntegrationType.SyncDesktopV3
-              );
+              const integration = createMockSigninOAuthNativeSyncIntegration({
+                type: IntegrationType.SyncDesktopV3,
+              });
               render({ beginSigninHandler, integration });
               enterPasswordAndSubmit();
               await waitFor(() => {
@@ -610,6 +614,7 @@ describe('Signin component', () => {
                 integration,
                 finishOAuthFlowHandler,
               });
+              screen.getByText(serviceRelayText);
               enterPasswordAndSubmit();
               await waitFor(() => {
                 // Ensure it's not called with keyFetchToken or unwrapBKey, or services: { sync: {} }

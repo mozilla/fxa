@@ -45,7 +45,7 @@ export interface ConfirmSignupCodeFormData {
 
 export type ConfirmSignupCodeBaseIntegration = Pick<
   Integration,
-  'type' | 'data' | 'getService' | 'getClientId'
+  'type' | 'data' | 'getService' | 'getClientId' | 'isDesktopRelay'
 >;
 
 export type ConfirmSignupCodeOAuthIntegration = Pick<
