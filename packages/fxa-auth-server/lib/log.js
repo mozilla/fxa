@@ -15,6 +15,7 @@ let statsd;
 const Sentry = require('@sentry/node');
 const notifier = require('./notifier');
 const validators = require('./oauth/validators');
+const { reportSentryMessage } = require('./sentry');
 
 const ISSUER = config.get('domain') || '';
 const CLIENT_ID_TO_SERVICE_NAMES = config.get('oauth.clientIds') || {};
@@ -281,7 +282,7 @@ Lug.prototype.amplitudeEvent = function (data) {
           flow_id: data.user_properties.flow_id,
           error: err.message,
         });
-        Sentry.captureMessage('Amplitude event failed validation', 'error');
+        reportSentryMessage('Amplitude event failed validation', 'error');
       });
     }
   }

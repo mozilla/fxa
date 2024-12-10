@@ -5,6 +5,7 @@
 'use strict';
 
 const sinon = require('sinon');
+const sentryModule = require('../../lib/sentry');
 const assert = { ...sinon.assert, ...require('chai').assert };
 const proxyquire = require('proxyquire');
 
@@ -45,8 +46,8 @@ describe('log', () => {
         sentryScope = { setContext: sinon.stub() };
         cb(sentryScope);
       }),
-      captureMessage: sinon.stub(),
     };
+    sinon.stub(sentryModule, 'reportSentryMessage').returns({});
 
     logger = {
       debug: sinon.spy(),
@@ -645,7 +646,7 @@ describe('log', () => {
       'Invalid data: event/event_type must match pattern "^\\w+ - \\w+$"'
     );
     assert.isTrue(
-      mockSentry.captureMessage.calledOnceWith(
+      sentryModule.reportSentryMessage.calledOnceWith(
         'Amplitude event failed validation',
         'error'
       )
@@ -682,7 +683,7 @@ describe('log', () => {
       "Invalid data: event must have required property 'time', event must have required property 'event_properties'"
     );
     assert.isTrue(
-      mockSentry.captureMessage.calledOnceWith(
+      sentryModule.reportSentryMessage.calledOnceWith(
         'Amplitude event failed validation',
         'error'
       )

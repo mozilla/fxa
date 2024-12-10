@@ -11,6 +11,7 @@ import countries from 'i18n-iso-countries';
 import { Container } from 'typedi';
 
 import { AppConfig, AuthLogger } from './types';
+import { reportSentryMessage } from './sentry';
 
 export class GoogleMapsService {
   private log: AuthLogger;
@@ -50,7 +51,7 @@ export class GoogleMapsService {
         scope.setContext('googleMapsService', {
           address,
         });
-        Sentry.captureMessage(error.message, 'error' as SeverityLevel);
+        reportSentryMessage(error.message, 'error' as SeverityLevel);
       });
       throw error;
     }

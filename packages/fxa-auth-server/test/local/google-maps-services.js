@@ -6,6 +6,7 @@
 
 const { assert } = require('chai');
 const Sentry = require('@sentry/node');
+const sentryModule = require('../../lib/sentry');
 const { mockLog } = require('../mocks');
 const sinon = require('sinon');
 const { GoogleMapsService } = require('../../lib/google-maps-services');
@@ -234,7 +235,7 @@ describe('GoogleMapsServices', () => {
         setContext: scopeContextSpy,
       };
       sinon.replace(Sentry, 'withScope', (fn) => fn(scopeSpy));
-      sinon.replace(Sentry, 'captureMessage', sinon.stub());
+      sinon.stub(sentryModule, 'reportSentryMessage').returns({});
 
       try {
         await googleMapsServices.getStateFromZip('11111', 'DE');
@@ -245,7 +246,7 @@ describe('GoogleMapsServices', () => {
           googleMapsServices.log.error.getCall(0).args[1].error.message
         );
         assert.isTrue(scopeContextSpy.calledOnce);
-        assert.isTrue(Sentry.captureMessage.calledOnce);
+        assert.isTrue(sentryModule.reportSentryMessage.calledOnce);
       }
     });
 
@@ -258,7 +259,7 @@ describe('GoogleMapsServices', () => {
         setContext: scopeContextSpy,
       };
       sinon.replace(Sentry, 'withScope', (fn) => fn(scopeSpy));
-      sinon.replace(Sentry, 'captureMessage', sinon.stub());
+      sinon.stub(sentryModule, 'reportSentryMessage').returns({});
 
       try {
         await googleMapsServices.getStateFromZip('11111', 'DE');
@@ -269,7 +270,7 @@ describe('GoogleMapsServices', () => {
           googleMapsServices.log.error.getCall(0).args[1].error.message
         );
         assert.isTrue(scopeContextSpy.calledOnce);
-        assert.isTrue(Sentry.captureMessage.calledOnce);
+        assert.isTrue(sentryModule.reportSentryMessage.calledOnce);
       }
     });
   });

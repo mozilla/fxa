@@ -52,6 +52,7 @@ import SUBSCRIPTIONS_DOCS from '../../../docs/swagger/subscriptions-api';
 import DESCRIPTIONS from '../../../docs/swagger/shared/descriptions';
 import { CapabilityService } from '../../payments/capability';
 import Container from 'typedi';
+import { reportSentryMessage } from '../../sentry';
 
 // List of countries for which we need to look up the province/state of the
 // customer.
@@ -456,10 +457,7 @@ export class StripeHandler {
           error: err,
           msg: err.message,
         });
-        Sentry.captureMessage(
-          `Invoice Preview Error.`,
-          'error' as SeverityLevel
-        );
+        reportSentryMessage(`Invoice Preview Error.`, 'error' as SeverityLevel);
       });
       this.log.error('subscriptions.previewInvoice', err);
 
@@ -818,7 +816,7 @@ export class StripeHandler {
             customerId: customer?.id,
             paymentMethodId: paymentMethod?.id,
           });
-          Sentry.captureMessage(
+          reportSentryMessage(
             `Cannot find a postal code or country for customer.`,
             'error' as SeverityLevel
           );
