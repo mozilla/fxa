@@ -120,7 +120,9 @@ async function run(config) {
       };
   Container.set(AccountEventsManager, accountEventsManager);
 
-  const accountDatabase = await setupAccountDatabase(config.database.mysql.auth);
+  const accountDatabase = await setupAccountDatabase(
+    config.database.mysql.auth
+  );
   const backupCodeManager = new BackupCodeManager(accountDatabase);
   Container.set('BackupCodeManager', backupCodeManager);
 
@@ -237,7 +239,7 @@ async function run(config) {
     recoveryPhoneManager,
     smsManager,
     otpCodeManager,
-    config.recoveryPhone.sms
+    config.recoveryPhone
   );
   Container.set('RecoveryPhoneService', recoveryPhoneService);
 
