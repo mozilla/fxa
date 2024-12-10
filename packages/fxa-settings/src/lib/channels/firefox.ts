@@ -98,20 +98,8 @@ export type FxALoginRequest = {
 };
 
 // ref: [FxAccounts.sys.mjs](https://searchfox.org/mozilla-central/rev/82828dba9e290914eddd294a0871533875b3a0b5/services/fxaccounts/FxAccounts.sys.mjs#910)
-export type FxALoginSignedInUserRequest = {
+export type FxALoginSignedInUserRequest = FxALoginRequest & {
   authAt: number;
-  email: string;
-  keyFetchToken: hexstring;
-  sessionToken: hexstring;
-  uid: hexstring;
-  unwrapBKey: string;
-  verified: boolean;
-  services?: {
-    sync: {
-      offeredEngines?: string[];
-      declinedEngines?: string[];
-    };
-  };
 };
 
 export type FxAOAuthLogin = {
