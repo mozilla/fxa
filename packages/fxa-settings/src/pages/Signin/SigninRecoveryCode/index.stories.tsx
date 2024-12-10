@@ -11,7 +11,7 @@ import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { LocationProvider } from '@reach/router';
 import { mockSigninLocationState } from '../mocks';
 import { mockFinishOAuthFlowHandler } from '../../mocks';
-import { mockWebIntegration } from './mocks';
+import { createMockOAuthNativeIntegration, mockWebIntegration } from './mocks';
 import { BeginSigninError } from '../../../lib/error-utils';
 
 export default {
@@ -43,6 +43,15 @@ export const Default = () => (
   <SigninRecoveryCode
     finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
     integration={mockWebIntegration}
+    signinState={mockSigninLocationState}
+    submitRecoveryCode={mockSubmitSuccess}
+  />
+);
+
+export const WithOAuthDesktopServiceRelay = () => (
+  <SigninRecoveryCode
+    finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
+    integration={createMockOAuthNativeIntegration(false)}
     signinState={mockSigninLocationState}
     submitRecoveryCode={mockSubmitSuccess}
   />

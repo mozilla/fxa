@@ -6,7 +6,6 @@ import React from 'react';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import SigninRecoveryCode from '.';
-import { MozServices } from '../../../lib/types';
 import GleanMetrics from '../../../lib/glean';
 import {
   createMockSigninOAuthIntegration,
@@ -18,6 +17,7 @@ import { MOCK_RECOVERY_CODE } from '../../mocks';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { OAUTH_ERRORS } from '../../../lib/oauth';
 import { tryAgainError } from '../../../lib/oauth/hooks';
+import { mockOAuthNativeIntegration } from '../SigninTotpCode/mocks';
 
 jest.mock('../../../lib/glean', () => ({
   __esModule: true,
@@ -32,6 +32,9 @@ jest.mock('../../../lib/glean', () => ({
 
 const mockFinishOAuthFlowHandler = jest.fn();
 const mockIntegration = createMockSigninWebIntegration();
+
+const serviceRelayText =
+  'Firefox will try sending you back to use an email mask after you sign in.';
 
 describe('PageSigninRecoveryCode', () => {
   beforeEach(() => {
@@ -70,6 +73,21 @@ describe('PageSigninRecoveryCode', () => {
     screen.getByRole('link', {
       name: /Are you locked out?/,
     });
+    expect(screen.queryByText(serviceRelayText)).not.toBeInTheDocument();
+  });
+
+  it('renders expected text when service=relay', () => {
+    renderWithLocalizationProvider(
+      <LocationProvider>
+        <SigninRecoveryCode
+          finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
+          integration={mockOAuthNativeIntegration(false)}
+          signinState={mockSigninLocationState}
+          submitRecoveryCode={jest.fn()}
+        />
+      </LocationProvider>
+    );
+    screen.getByText(serviceRelayText);
   });
 
   describe('metrics', () => {

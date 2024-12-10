@@ -19,6 +19,7 @@ import ResetPasswordWarning from '../../../components/ResetPasswordWarning';
 import { Link, useLocation } from '@reach/router';
 import Banner from '../../../components/Banner';
 import { HeadingPrimary } from '../../../components/HeadingPrimary';
+import { useFtlMsgResolver } from '../../../models';
 
 const CompleteResetPassword = ({
   email,
@@ -29,6 +30,7 @@ const CompleteResetPassword = ({
   estimatedSyncDeviceCount,
   recoveryKeyExists,
   integrationIsSync,
+  isDesktopServiceRelay,
 }: CompleteResetPasswordProps) => {
   const location = useLocation();
   const searchParams = location.search;
@@ -37,6 +39,8 @@ const CompleteResetPassword = ({
       ? GleanMetrics.passwordReset.recoveryKeyCreatePasswordView()
       : GleanMetrics.passwordReset.createNewView();
   }, [hasConfirmedRecoveryKey]);
+
+  const ftlMsgResolver = useFtlMsgResolver();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isSyncUser = !!(
@@ -90,9 +94,22 @@ const CompleteResetPassword = ({
       */}
       <input type="email" value={email} className="hidden" readOnly />
 
+      {isDesktopServiceRelay && (
+        <Banner
+          type="info"
+          content={{
+            localizedHeading: ftlMsgResolver.getMsg(
+              'complete-reset-password-desktop-relay',
+              'Firefox will try sending you back to use an email mask after you sign in.'
+            ),
+          }}
+        />
+      )}
+
       <FtlMsg id="complete-reset-pw-header-v2">
-        <h1 className="font-semibold text-xl mt-6">Create a new password</h1>
+        <h2 className="font-semibold text-xl mt-6">Create a new password</h2>
       </FtlMsg>
+
       <section className="mt-2">
         <FormPasswordWithInlineCriteria
           {...{

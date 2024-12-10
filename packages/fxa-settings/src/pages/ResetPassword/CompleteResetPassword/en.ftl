@@ -16,3 +16,7 @@ complete-reset-pw-recovery-key-link = Use account recovery key
 # Displayed on the sign in page
 reset-password-complete-banner-heading = Your password has been reset.
 reset-password-complete-banner-message = Don’t forget to generate a new account recovery key from your { -product-mozilla-account } settings to prevent future sign-in issues.
+# Message to user after they were redirected to the Mozilla account sign-in page in a new browser
+# tab. Firefox will attempt to send the user back to their original tab to use an email mask after
+# they successfully sign in or sign up for a Mozilla account to receive a free email mask.
+complete-reset-password-desktop-relay = { -brand-firefox } will try sending you back to use an email mask after you sign in.

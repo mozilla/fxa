@@ -371,6 +371,15 @@ const Signin = ({
           <Avatar className={avatarClassNames} />
         )}
         <div className="my-5 text-base break-all text-center">{email}</div>
+
+        {isDesktopRelay && (
+          <FtlMsg id="signin-desktop-relay">
+            <p className="mt-2 mb-4 text-sm">
+              Firefox will try sending you back to use an email mask after you
+              sign in.
+            </p>
+          </FtlMsg>
+        )}
       </div>
       {!hasLinkedAccountAndNoPassword && (
         <form onSubmit={handleSubmit(onSubmit)}>

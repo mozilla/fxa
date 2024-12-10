@@ -16,7 +16,10 @@ import {
 } from '../../mocks';
 import VerificationMethods from '../../../constants/verification-methods';
 import VerificationReasons from '../../../constants/verification-reasons';
-import { createMockSigninWebIntegration } from '../mocks';
+import {
+  createMockSigninOAuthNativeSyncIntegration,
+  createMockSigninWebIntegration,
+} from '../mocks';
 
 export default {
   title: 'Pages/Signin/SigninUnblock',
@@ -53,6 +56,21 @@ export const Default = () => (
       hasPassword={true}
       finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
       integration={createMockSigninWebIntegration()}
+      signinWithUnblockCode={mockSuccessResponse}
+      resendUnblockCodeHandler={mockResendSuccessResponse}
+    />
+  </LocationProvider>
+);
+export const WithOAuthDesktopServiceRelay = () => (
+  <LocationProvider>
+    <SigninUnblock
+      email={MOCK_EMAIL}
+      hasLinkedAccount={false}
+      hasPassword={true}
+      finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
+      integration={createMockSigninOAuthNativeSyncIntegration({
+        isSync: false,
+      })}
       signinWithUnblockCode={mockSuccessResponse}
       resendUnblockCodeHandler={mockResendSuccessResponse}
     />
