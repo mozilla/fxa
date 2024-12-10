@@ -30,6 +30,7 @@
       "@fxa/accounts/two-factor": ["libs/accounts/two-factor/src/index.ts"],
       "@fxa/payments/capability": ["libs/payments/capability/src/index.ts"],
       "@fxa/payments/cart": ["libs/payments/cart/src/index.ts"],
+      "@fxa/payments/content-server": ["libs/payments/content-server/src/index.ts"],
       "@fxa/payments/currency": ["libs/payments/currency/src/index.ts"],
       "@fxa/payments/customer": ["libs/payments/customer/src/index.ts"],
       "@fxa/payments/eligibility": ["libs/payments/eligibility/src/index.ts"],

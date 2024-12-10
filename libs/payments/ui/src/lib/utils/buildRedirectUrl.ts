@@ -22,11 +22,12 @@ export function buildRedirectUrl(
   const baseUrl = optional?.baseUrl ? optional?.baseUrl : '';
 
   const startUrl = baseUrl === '/' ? baseUrl : `${baseUrl}/`;
+  const pageTypeUrl = ['landing', 'new'].includes(page) ? '' : `${pageType}/`;
   const endUrl = optional?.cartId ? `${optional?.cartId}/${page}` : page;
 
   const searchParamsString = optional?.searchParams
     ? `?${new URLSearchParams(optional?.searchParams).toString()}`
     : '';
 
-  return `${startUrl}${optional?.locale}/${offeringId}/${pageType}/${interval}/${endUrl}${searchParamsString}`;
+  return `${startUrl}${optional?.locale}/${offeringId}/${interval}/${pageTypeUrl}${endUrl}${searchParamsString}`;
 }

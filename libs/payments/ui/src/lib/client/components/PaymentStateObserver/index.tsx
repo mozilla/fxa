@@ -6,11 +6,17 @@
 
 import { SupportedPages } from '@fxa/payments/ui';
 import { getCartOrRedirectAction } from '@fxa/payments/ui/actions';
+import { useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 
 const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
 export function PaymentStateObserver({ cartId }: { cartId: string }) {
+  const searchParams = useSearchParams();
+  const searchParamsRecord: Record<string, string> = {};
+  for (const [key, value] of searchParams.entries()) {
+    searchParamsRecord[key] = value;
+  }
   useEffect(() => {
     const startTime = Date.now();
     let isPolling = true;
@@ -18,7 +24,11 @@ export function PaymentStateObserver({ cartId }: { cartId: string }) {
     const poll = async () => {
       if (!isPolling) return;
 
-      await getCartOrRedirectAction(cartId, SupportedPages.PROCESSING);
+      await getCartOrRedirectAction(
+        cartId,
+        SupportedPages.PROCESSING,
+        searchParamsRecord
+      );
 
       // Time out after 2 minutes of cart being in the processing state
       if (Date.now() - startTime > 120000) {

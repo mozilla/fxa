@@ -68,7 +68,8 @@ export default async function CheckoutSuccess({
   const cmsDataPromise = fetchCMSData(params.offeringId, locale);
   const cartDataPromise = getCartOrRedirectAction(
     params.cartId,
-    SupportedPages.SUCCESS
+    SupportedPages.SUCCESS,
+    searchParams
   );
   const l10n = getApp().getL10n(locale);
   const [cms, cart] = await Promise.all([cmsDataPromise, cartDataPromise]);

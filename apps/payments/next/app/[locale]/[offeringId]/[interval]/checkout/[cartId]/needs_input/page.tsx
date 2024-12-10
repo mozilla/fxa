@@ -15,14 +15,17 @@ import { getCartOrRedirectAction } from '@fxa/payments/ui/actions';
 
 export default async function NeedsInputPage({
   params,
+  searchParams,
 }: {
   params: CheckoutParams;
+  searchParams: Record<string, string> | undefined;
 }) {
   const locale = headers().get('accept-language') || DEFAULT_LOCALE;
   const l10n = getApp().getL10n(locale);
   const cart = await getCartOrRedirectAction(
     params.cartId,
-    SupportedPages.NEEDS_INPUT
+    SupportedPages.NEEDS_INPUT,
+    searchParams
   );
   if (!cart.currency) {
     throw new Error('Currency is missing from the cart');
