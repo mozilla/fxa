@@ -82,7 +82,7 @@ export class FirestoreAdapter implements CacheClient {
   }
 }
 
-export const useAdapter = (
+export const useFirestoreAdapter = (
   client: Firestore,
   collectionName: string,
   asFallback?: boolean,
