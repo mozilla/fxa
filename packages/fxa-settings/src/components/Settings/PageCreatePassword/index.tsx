@@ -54,10 +54,13 @@ export const PageCreatePassword = ({}: RouteComponentProps) => {
     alertBar.success(
       ftlMsgResolver.getMsg('pw-create-success-alert-2', 'Password set')
     );
-    navigate(SETTINGS_PATH + '#password', {
-      replace: true,
-      ...(wantsUnlinkProviderId ? { state: { wantsUnlinkProviderId } } : {}),
-    });
+    navigate(
+      SETTINGS_PATH + (wantsUnlinkProviderId ? '#linked-account' : '#password'),
+      {
+        replace: true,
+        state: { wantsUnlinkProviderId },
+      }
+    );
   }, [alertBar, ftlMsgResolver, navigate, wantsUnlinkProviderId]);
 
   const onFormSubmit = useCallback(
