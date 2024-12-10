@@ -4,7 +4,7 @@
 
 import { BeginSigninError } from '../../../lib/error-utils';
 import { FinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
-import { SensitiveDataClientAuthKeys } from '../../../lib/sensitive-data-client';
+import { SensitiveData } from '../../../lib/sensitive-data-client';
 import { MozServices } from '../../../lib/types';
 import { SigninIntegration, SigninLocationState } from '../interfaces';
 
@@ -14,7 +14,7 @@ export type SigninRecoveryCodeProps = {
   serviceName?: MozServices;
   signinState: SigninLocationState;
   submitRecoveryCode: SubmitRecoveryCode;
-} & SensitiveDataClientAuthKeys;
+} & SensitiveData.AuthData;
 
 export type SubmitRecoveryCode = (
   code: string

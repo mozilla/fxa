@@ -59,7 +59,7 @@ import {
 } from '../../lib/error-utils';
 import { firefox } from '../../lib/channels/firefox';
 import {
-  AUTH_DATA_KEY,
+  SensitiveData,
   SensitiveDataClient,
 } from '../../lib/sensitive-data-client';
 import { Constants } from '../../lib/constants';
@@ -363,11 +363,11 @@ const SigninContainer = ({
             sessionToken
           );
         } else {
-          sensitiveDataClient.KeyStretchUpgradeData = {
+          sensitiveDataClient.setDataType(SensitiveData.Key.KeyStretchUpgrade, {
             email,
             v1Credentials: credentials.v1Credentials,
             v2Credentials: credentials.v2Credentials,
-          };
+          });
         }
       }
 
@@ -579,7 +579,8 @@ export async function trySignIn(
       const unwrapBKey = v2Credentials
         ? v2Credentials.unwrapBKey
         : v1Credentials.unwrapBKey;
-      sensitiveDataClient.setData(AUTH_DATA_KEY, {
+
+      sensitiveDataClient.setDataType(SensitiveData.Key.Auth, {
         // Store for inline recovery key flow
         authPW,
         // Store this in case the email was corrected
