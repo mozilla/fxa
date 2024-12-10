@@ -2048,9 +2048,15 @@ const convictConf = convict({
         format: String,
       },
       firestoreCacheTTL: {
-        default: 604800,
+        default: 1800,
         doc: 'Strapi client Firestore cache TTL in seconds',
         env: 'STRAPI_CLIENT_FIRESTORE_CACHE_TTL',
+        format: Number,
+      },
+      firestoreOfflineCacheTTL: {
+        default: 604800,
+        doc: 'Strapi client Firestore offline cache TTL in seconds, used for when Strapi is down',
+        env: 'STRAPI_CLIENT_FIRESTORE_OFFLINE_CACHE_TTL',
         format: Number,
       },
     },

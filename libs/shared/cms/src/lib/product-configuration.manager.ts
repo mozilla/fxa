@@ -42,7 +42,7 @@ import {
   ServicesWithCapabilitiesResultUtil,
   servicesWithCapabilitiesQuery,
 } from './queries/services-with-capabilities';
-import { StrapiClient } from './strapi.client';
+import { StrapiClient, StrapiClientEventResponse } from './strapi.client';
 import { DeepNonNullable } from './types';
 
 @Injectable()
@@ -52,18 +52,20 @@ export class ProductConfigurationManager {
     private priceManager: PriceManager,
     @Inject(StatsDService) private statsd: StatsD
   ) {
-    this.strapiClient.on('response', (response) => {
-      const defaultTags = {
-        method: response.method,
-        error: response.error ? 'true' : 'false',
-        cache: `${response.cache}`,
-      };
-      const operationName = response.query && getOperationName(response.query);
-      const tags = operationName
-        ? { ...defaultTags, operationName }
-        : defaultTags;
-      this.statsd.timing('cms_request', response.elapsed, undefined, tags);
-    });
+    this.strapiClient.on('response', this.onStrapiClientResponse.bind(this));
+  }
+
+  onStrapiClientResponse(response: StrapiClientEventResponse) {
+    const defaultTags = {
+      method: response.method,
+      error: response.error ? 'true' : 'false',
+      cache: `${response.cache}`,
+    };
+    const operationName = response.query && getOperationName(response.query);
+    const tags = operationName
+      ? { ...defaultTags, operationName }
+      : defaultTags;
+    this.statsd.timing('cms_request', response.elapsed, undefined, tags);
   }
 
   async fetchCMSData(offeringId: string, acceptLanguage: string) {

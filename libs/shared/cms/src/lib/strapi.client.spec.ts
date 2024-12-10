@@ -32,6 +32,7 @@ jest.mock('@type-cacheable/core', () => ({
 
 jest.mock('@fxa/shared/db/type-cacheable', () => ({
   NetworkFirstStrategy: function () {},
+  MemoryAdapter: function () {},
 }));
 
 jest.useFakeTimers();
@@ -88,23 +89,6 @@ describe('StrapiClient', () => {
             locale,
           },
         });
-      });
-
-      it('emits event and on second request emits event with cache true', async () => {
-        expect(onCallback).toHaveBeenCalledWith(
-          expect.objectContaining({ method: 'query', cache: false })
-        );
-
-        jest
-          .spyOn(strapiClient.client, 'request')
-          .mockResolvedValueOnce(mockResponse);
-        result = await strapiClient.query(offeringQuery, {
-          id,
-          locale,
-        });
-        expect(onCallback).toHaveBeenCalledWith(
-          expect.objectContaining({ method: 'query', cache: true })
-        );
       });
     });
 

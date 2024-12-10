@@ -19,6 +19,7 @@ import {
   CapabilityServiceByPlanIdsQueryFactory,
   CapabilityServiceByPlanIdsResultUtil,
   EligibilityContentByOfferingResultUtil,
+  eligibilityContentByPlanIdsQuery,
   EligibilityContentByPlanIdsQueryFactory,
   EligibilityContentByPlanIdsResultUtil,
   EligibilityPurchaseResultFactory,
@@ -53,6 +54,7 @@ jest.mock('@type-cacheable/core', () => ({
 
 jest.mock('@fxa/shared/db/type-cacheable', () => ({
   NetworkFirstStrategy: function () {},
+  MemoryAdapter: function () {},
 }));
 
 describe('productConfigurationManager', () => {
@@ -82,28 +84,32 @@ describe('productConfigurationManager', () => {
     productConfigurationManager = module.get(ProductConfigurationManager);
   });
 
-  it('should call statsd for incoming events', async () => {
-    const queryData = EligibilityContentByPlanIdsQueryFactory({
-      purchases: [],
-    });
-    jest.spyOn(strapiClient.client, 'request').mockResolvedValue(queryData);
-    jest.spyOn(mockStatsd, 'timing');
+  describe('onStrapiClientResponse', () => {
+    it('should call statsd for incoming events', async () => {
+      jest.spyOn(mockStatsd, 'timing');
 
-    await productConfigurationManager.getPurchaseDetailsForEligibility([
-      'test',
-    ]);
-
-    expect(mockStatsd.timing).toHaveBeenCalledWith(
-      'cms_request',
-      expect.any(Number),
-      undefined,
-      {
+      productConfigurationManager.onStrapiClientResponse({
         method: 'query',
-        error: 'false',
-        cache: 'false',
-        operationName: 'EligibilityContentByPlanIds',
-      }
-    );
+        requestStartTime: 0,
+        requestEndTime: 1,
+        elapsed: 1,
+        cache: false,
+        query: eligibilityContentByPlanIdsQuery as any,
+        error: undefined,
+      });
+
+      expect(mockStatsd.timing).toHaveBeenCalledWith(
+        'cms_request',
+        expect.any(Number),
+        undefined,
+        {
+          method: 'query',
+          error: 'false',
+          cache: 'false',
+          operationName: 'EligibilityContentByPlanIds',
+        }
+      );
+    });
   });
 
   describe('fetchCMSData', () => {
