@@ -6,6 +6,7 @@ import { Injectable } from '@nestjs/common';
 import { Validator } from 'class-validator';
 
 import { CartService } from '@fxa/payments/cart';
+import { AuthManager } from '@fxa/payments/auth';
 import { CheckoutTokenManager } from '@fxa/payments/paypal';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
 
@@ -35,7 +36,8 @@ export class NextJSActionsService {
     private cartService: CartService,
     private checkoutTokenManager: CheckoutTokenManager,
     private emitterService: PaymentsEmitterService,
-    private productConfigurationManager: ProductConfigurationManager
+    private productConfigurationManager: ProductConfigurationManager,
+    private authManager: AuthManager
   ) {}
 
   async getCart(args: GetCartActionArgs) {
@@ -176,5 +178,9 @@ export class NextJSActionsService {
     await new Validator().validateOrReject(args);
 
     return await this.cartService.submitNeedsInput(args.cartId);
+  }
+
+  async getMetricsFlow() {
+    return await this.authManager.getMetricsFlow();
   }
 }

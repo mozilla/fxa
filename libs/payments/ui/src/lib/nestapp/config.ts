@@ -15,6 +15,7 @@ import { StatsDConfig } from 'libs/shared/metrics/statsd/src/lib/statsd.config';
 import { PaymentsGleanConfig } from '@fxa/payments/metrics';
 import { CurrencyConfig } from 'libs/payments/currency/src/lib/currency.config';
 import { ProfileClientConfig } from '@fxa/profile/client';
+import { ContentServerClientConfig } from '@fxa/payments/content-server';
 import { NotifierSnsConfig } from '@fxa/shared/notifier';
 
 export class RootConfig {
@@ -76,4 +77,9 @@ export class RootConfig {
   @ValidateNested()
   @IsDefined()
   public readonly notifierSnsConfig!: Partial<NotifierSnsConfig>;
+
+  @Type(() => ContentServerClientConfig)
+  @ValidateNested()
+  @IsDefined()
+  public readonly contentServerClientConfig!: Partial<ContentServerClientConfig>;
 }
