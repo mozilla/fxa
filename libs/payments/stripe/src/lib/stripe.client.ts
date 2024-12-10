@@ -37,10 +37,13 @@ import { StripeConfig } from './stripe.config';
 export class StripeClient {
   private readonly stripe: Stripe;
   constructor(private stripeConfig: StripeConfig) {
-    this.stripe = new Stripe(this.stripeConfig.apiKey, {
-      apiVersion: '2024-04-10',
-      maxNetworkRetries: 3,
-    });
+    this.stripe = new Stripe(
+      this.stripeConfig.apiKey || 'api_key_placeholder',
+      {
+        apiVersion: '2024-11-20.acacia',
+        maxNetworkRetries: 3,
+      }
+    );
   }
 
   async customersRetrieve(

@@ -16,6 +16,7 @@ export const StripePlanFactory = (
   currency: faker.finance.currencyCode(),
   livemode: false,
   metadata: {},
+  meter: null,
   nickname: null,
   product: `prod_${faker.string.alphanumeric({ length: 14 })}`,
   tiers_mode: null,

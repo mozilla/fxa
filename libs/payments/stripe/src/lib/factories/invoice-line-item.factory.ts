@@ -30,6 +30,8 @@ export const StripeInvoiceLineItemFactory = (
   proration_details: null,
   quantity: null,
   subscription: null,
+  tax_amounts: [],
+  tax_rates: [],
   type: 'subscription',
   unit_amount_excluding_tax: null,
   ...override,
