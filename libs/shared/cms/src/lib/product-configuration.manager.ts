@@ -184,6 +184,10 @@ export class ProductConfigurationManager {
     return planIds;
   }
 
+  async getSupportedLocale(acceptLanguage: string) {
+    return this.strapiClient.getLocale(acceptLanguage);
+  }
+
   async retrieveStripePrice(
     offeringConfigId: string,
     interval: SubplatInterval

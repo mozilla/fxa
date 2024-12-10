@@ -82,6 +82,7 @@ import {
 import { stripeInvoiceToLatestInvoiceItemsDTO } from './stripe-formatter';
 import { generateIdempotencyKey, roundTime } from './utils';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
+import { StripeMapperService } from '@fxa/payments/legacy';
 
 // Maintains backwards compatibility. Some type defs hoisted to fxa-shared/payments/stripe
 export * from 'fxa-shared/payments/stripe';
@@ -172,6 +173,7 @@ export class StripeHelper extends StripeHelperBase {
   protected override readonly productConfigurationManager?:
     | ProductConfigurationManager
     | undefined;
+  protected override readonly stripeMapperService?: StripeMapperService;
 
   // Note that this isn't quite accurate, as the auth-server logger has some extras
   // attached to it in Hapi.
@@ -241,6 +243,11 @@ export class StripeHelper extends StripeHelperBase {
     if (Container.has(ProductConfigurationManager)) {
       this.productConfigurationManager = Container.get(
         ProductConfigurationManager
+      );
+
+      this.stripeMapperService = new StripeMapperService(
+        this.productConfigurationManager,
+        { ttl: this.config.cms.legacyMapper.mapperCacheTTL }
       );
     }
 

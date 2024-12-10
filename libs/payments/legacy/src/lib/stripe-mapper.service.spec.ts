@@ -24,6 +24,16 @@ import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 import { StripeMetadataWithCMSFactory } from './factories';
 import { StripeMapperService } from './stripe-mapper.service';
+import { MockStripeMapperConfigProvider } from './stripe-mapper.config';
+
+jest.mock('@type-cacheable/core', () => ({
+  Cacheable: () => {
+    return (target: any, propertyKey: any, descriptor: any) => {
+      return descriptor;
+    };
+  },
+  setOptions: jest.fn(),
+}));
 
 jest.useFakeTimers();
 
@@ -40,6 +50,7 @@ describe('StripeMapperService', () => {
         MockStrapiClientConfigProvider,
         MockFirestoreProvider,
         MockStatsDProvider,
+        MockStripeMapperConfigProvider,
         PriceManager,
         ProductConfigurationManager,
         StrapiClient,

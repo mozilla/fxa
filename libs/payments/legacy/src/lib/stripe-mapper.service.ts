@@ -2,6 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { Stripe } from 'stripe';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
 import { PlanMapperUtil } from './plan-mapper.util';
+import { Cacheable } from '@type-cacheable/core';
+import {
+  CacheFirstStrategy,
+  MemoryAdapter,
+} from '@fxa/shared/db/type-cacheable';
+import { StripeMapperConfig } from './stripe-mapper.config';
+import { cacheKeyForMap } from './utils/cacheKeyForMap';
+
+const DEFAULT_TTL_SECONDS = 60;
 
 /**
  * Class to fetch CMS config and map CMS config to
@@ -12,7 +21,8 @@ export class StripeMapperService {
   private errorIds = new Map<string, Set<string>>();
   private successfulIds = new Set();
   constructor(
-    private productConfigurationManager: ProductConfigurationManager
+    private productConfigurationManager: ProductConfigurationManager,
+    private config: StripeMapperConfig
   ) {}
 
   /**
@@ -60,6 +70,13 @@ export class StripeMapperService {
    * Merge CMS config and Stripe metadata and assign to
    * plan and product metadata fields
    */
+  @Cacheable({
+    cacheKey: (args) => cacheKeyForMap(args[0], args[1]),
+    strategy: new CacheFirstStrategy(),
+    ttlSeconds: (_, context: StripeMapperService) =>
+      context.config.ttl || DEFAULT_TTL_SECONDS,
+    client: new MemoryAdapter(),
+  })
   async mapCMSToStripePlans(
     plans: Stripe.Plan[],
     acceptLanguage: string,

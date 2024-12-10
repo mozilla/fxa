@@ -2022,6 +2022,14 @@ const convictConf = convict({
       env: 'CMS_ENABLED',
       format: Boolean,
     },
+    legacyMapper: {
+      mapperCacheTTL: {
+        default: 60,
+        doc: 'Strapi client Firestore cache TTL in seconds',
+        env: 'CMS_LEGACY_MAPPER_CACHE_TTL',
+        format: Number,
+      },
+    },
     strapiClient: {
       graphqlApiUri: {
         default: '',
