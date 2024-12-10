@@ -148,6 +148,9 @@ const mockConfig = {
   currenciesToCountries: { ZAR: ['AS', 'CA'] },
   cms: {
     enabled: false,
+    legacyMapper: {
+      mapperCacheTTL: 60,
+    },
   },
 };
 
@@ -3435,6 +3438,7 @@ describe('#integration - StripeHelper', () => {
         getPurchaseWithDetailsOfferingContentByPlanIds: sinon
           .stub()
           .rejects(err),
+        getSupportedLocale: sinon.fake.resolves('en'),
       };
       Container.set(
         ProductConfigurationManager,
@@ -3511,6 +3515,7 @@ describe('#integration - StripeHelper', () => {
       const mockProductConfigurationManager = {
         getPurchaseWithDetailsOfferingContentByPlanIds:
           sinon.fake.resolves(mockCMSConfigUtil),
+        getSupportedLocale: sinon.fake.resolves('en'),
       };
       Container.set(
         ProductConfigurationManager,
@@ -3547,6 +3552,7 @@ describe('#integration - StripeHelper', () => {
       // set container
       const mockProductConfigurationManager = {
         getPurchaseWithDetailsOfferingContentByPlanIds: sinon.fake.resolves(),
+        getSupportedLocale: sinon.fake.resolves('en'),
       };
       Container.set(
         ProductConfigurationManager,

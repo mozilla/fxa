@@ -428,6 +428,23 @@ describe('productConfigurationManager', () => {
     });
   });
 
+  describe('getSupportedLocale', () => {
+    it('should call strapiClient and return result', async () => {
+      jest.spyOn(strapiClient, 'getLocale').mockResolvedValue('en');
+      const result = await productConfigurationManager.getSupportedLocale('en');
+      expect(result).toEqual('en');
+    });
+
+    it('should reject with error', async () => {
+      jest
+        .spyOn(strapiClient, 'getLocale')
+        .mockRejectedValue(new Error('error'));
+      await expect(
+        productConfigurationManager.getSupportedLocale('en')
+      ).rejects.toThrow();
+    });
+  });
+
   describe('retrieveStripePrice', () => {
     it('returns plan based on offeringId and interval', async () => {
       const mockPrice = StripeResponseFactory(StripePriceFactory());
