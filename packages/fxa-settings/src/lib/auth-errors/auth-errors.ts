@@ -303,6 +303,10 @@ const ERRORS = {
     errno: 204,
     message: 'System unavailable, try again soon',
   },
+  CANNOT_CREATE_PASSWORD: {
+    errno: 206,
+    message: 'Can not create password, password already set',
+  },
   SERVICE_UNAVAILABLE: {
     errno: 998,
     message: 'System unavailable, try again soon',

@@ -19,6 +19,7 @@ auth-error-139 = Secondary email must be different than your account email
 auth-error-155 = TOTP token not found
 auth-error-159 = Invalid account recovery key
 auth-error-183-2 = Invalid or expired confirmation code
+auth-error-206 = Can not create password, password already set
 auth-error-999 = Unexpected error
 auth-error-1001 = Login attempt cancelled
 auth-error-1002 = Session expired. Sign in to continue.

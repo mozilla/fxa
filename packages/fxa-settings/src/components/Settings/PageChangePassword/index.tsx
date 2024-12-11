@@ -12,12 +12,15 @@ import {
   settingsViewName,
   usePageViewEvent,
 } from '../../../lib/metrics';
-import { useAccount, useAlertBar } from '../../../models';
+import { useAccount, useAlertBar, useFtlMsgResolver } from '../../../models';
 import FlowContainer from '../FlowContainer';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import { useLocalization, Localized } from '@fluent/react';
+import { Localized } from '@fluent/react';
 import FormPassword from '../../FormPassword';
-import { getErrorFtlId } from '../../../lib/error-utils';
+import {
+  getErrorFtlId,
+  getLocalizedErrorMessage,
+} from '../../../lib/error-utils';
 
 type FormData = {
   oldPassword: string;
@@ -45,27 +48,27 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
       confirmPassword: '',
     },
   });
+  const account = useAccount();
   const alertBar = useAlertBar();
+  const ftlMsgResolver = useFtlMsgResolver();
+  const navigate = useNavigate();
+
   const [currentPasswordErrorText, setCurrentPasswordErrorText] =
     useState<string>();
   const [newPasswordErrorText, setNewPasswordErrorText] = useState<string>();
-  const account = useAccount();
-  const navigate = useNavigate();
 
-  const { l10n } = useLocalization();
   const alertSuccessAndGoHome = useCallback(() => {
     alertBar.success(
-      l10n.getString('pw-change-success-alert-2', null, 'Password updated')
+      ftlMsgResolver.getMsg('pw-change-success-alert-2', 'Password updated')
     );
     navigate(SETTINGS_PATH + '#password', { replace: true });
-  }, [alertBar, l10n, navigate]);
+  }, [alertBar, ftlMsgResolver, navigate]);
 
   const onFormSubmit = useCallback(
     async ({ oldPassword, newPassword }: FormData) => {
       if (oldPassword === newPassword) {
-        const localizedError = l10n.getString(
+        const localizedError = ftlMsgResolver.getMsg(
           getErrorFtlId(AuthUiErrors.PASSWORDS_MUST_BE_DIFFERENT),
-          null,
           AuthUiErrors.PASSWORDS_MUST_BE_DIFFERENT.message
         );
         setNewPasswordErrorText(localizedError);
@@ -76,13 +79,8 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
         logViewEvent(settingsViewName, 'change-password.success');
         alertSuccessAndGoHome();
       } catch (e) {
-        const localizedError = l10n.getString(
-          getErrorFtlId(AuthUiErrors.INCORRECT_PASSWORD),
-          null,
-          AuthUiErrors.INCORRECT_PASSWORD.message
-        );
+        const localizedError = getLocalizedErrorMessage(ftlMsgResolver, e);
         if (e.errno === AuthUiErrors.INCORRECT_PASSWORD.errno) {
-          // incorrect password
           setCurrentPasswordErrorText(localizedError);
           setValue('oldPassword', '');
         } else {
@@ -91,13 +89,13 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
       }
     },
     [
-      l10n,
-      setNewPasswordErrorText,
       account,
-      alertSuccessAndGoHome,
-      setCurrentPasswordErrorText,
-      setValue,
       alertBar,
+      alertSuccessAndGoHome,
+      ftlMsgResolver,
+      setCurrentPasswordErrorText,
+      setNewPasswordErrorText,
+      setValue,
     ]
   );
 

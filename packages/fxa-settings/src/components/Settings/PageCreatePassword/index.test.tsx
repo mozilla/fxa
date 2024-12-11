@@ -163,6 +163,9 @@ describe('PageCreatePassword', () => {
     expect(mockNavigate).toHaveBeenCalledTimes(1);
     expect(mockNavigate).toHaveBeenCalledWith(SETTINGS_PATH + '#password', {
       replace: true,
+      state: {
+        wantsUnlinkProviderId: undefined,
+      },
     });
     expect(alertBarInfo.success).toHaveBeenCalledTimes(1);
     expect(alertBarInfo.success).toHaveBeenCalledWith('Password set');
@@ -177,12 +180,15 @@ describe('PageCreatePassword', () => {
         wantsUnlinkProviderId: LinkedAccountProviderIds.Google,
       };
       await createPassword();
-      expect(mockNavigate).toHaveBeenCalledWith(SETTINGS_PATH + '#password', {
-        replace: true,
-        state: {
-          wantsUnlinkProviderId: LinkedAccountProviderIds.Google,
-        },
-      });
+      expect(mockNavigate).toHaveBeenCalledWith(
+        SETTINGS_PATH + '#linked-account',
+        {
+          replace: true,
+          state: {
+            wantsUnlinkProviderId: LinkedAccountProviderIds.Google,
+          },
+        }
+      );
     });
   });
 });
