@@ -21,6 +21,7 @@ import {
 import { createMockWebIntegration } from '../../../lib/integrations/mocks';
 import { createMockSigninLocationState } from './mocks';
 import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../../models/mocks';
+import { MockedProvider, MockedResponse } from '@apollo/client/testing';
 
 let integration: Integration;
 const mockSensitiveDataClient = createMockSensitiveDataClient();
@@ -102,17 +103,20 @@ function resetMockSensitiveDataClient() {
     keyFetchToken: MOCK_KEY_FETCH_TOKEN,
     unwrapBKey: MOCK_UNWRAP_BKEY,
   });
+  mockSensitiveDataClient.KeyStretchUpgradeData = undefined;
 }
 
-async function render() {
+async function render(mocks: Array<MockedResponse>) {
   renderWithLocalizationProvider(
-    <LocationProvider>
-      <SigninTokenCodeContainer
-        {...{
-          integration,
-        }}
-      />
-    </LocationProvider>
+    <MockedProvider mocks={mocks} addTypename={false}>
+      <LocationProvider>
+        <SigninTokenCodeContainer
+          {...{
+            integration,
+          }}
+        />
+      </LocationProvider>
+    </MockedProvider>
   );
 }
 
@@ -125,7 +129,7 @@ describe('SigninTokenCode container', () => {
     describe('email', () => {
       it('can be set from router state', async () => {
         mockLocationState = createMockSigninLocationState();
-        render();
+        render([]);
         await waitFor(() =>
           expect(screen.getByText('signin token code mock')).toBeInTheDocument()
         );
@@ -138,7 +142,7 @@ describe('SigninTokenCode container', () => {
       });
       it('router state takes precedence over local storage', async () => {
         mockLocationState = createMockSigninLocationState();
-        render();
+        render([]);
         expect(CacheModule.currentAccount).not.toBeCalled();
         await waitFor(() => {
           expect(currentSigninTokenCodeProps?.signinState.email).toBe(
@@ -150,7 +154,7 @@ describe('SigninTokenCode container', () => {
       it('is read from localStorage if email is not provided via router state', async () => {
         mockLocationState = {};
         mockCurrentAccount(MOCK_STORED_ACCOUNT);
-        render();
+        render([]);
         expect(CacheModule.currentAccount).toBeCalled();
         await waitFor(() => {
           expect(currentSigninTokenCodeProps?.signinState.email).toBe(
@@ -161,7 +165,7 @@ describe('SigninTokenCode container', () => {
       });
       it('is handled if not provided in location state or local storage', async () => {
         mockLocationState = {};
-        render();
+        render([]);
         expect(CacheModule.currentAccount).toBeCalled();
         expect(ReactUtils.hardNavigate).toBeCalledWith('/', {}, true);
         expect(SigninTokenCodeModule.default).not.toBeCalled();
@@ -175,7 +179,7 @@ describe('SigninTokenCode container', () => {
 
       it('redirects to totp screen if user has totp enabled', async () => {
         mockHasTotpAuthClient = true;
-        render();
+        render([]);
 
         await waitFor(() => {
           expect(mockNavigate).toBeCalledWith('/signin_totp_code', {
@@ -186,7 +190,7 @@ describe('SigninTokenCode container', () => {
 
       it('does not redirect with totp false', async () => {
         mockHasTotpAuthClient = false;
-        render();
+        render([]);
 
         await waitFor(() => {
           expect(mockNavigate).not.toBeCalled();

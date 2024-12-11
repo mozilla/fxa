@@ -16,7 +16,13 @@ import {
   useFinishOAuthFlowHandler,
   useOAuthKeysCheck,
 } from '../../../lib/oauth/hooks';
-import { SigninLocationState } from '../interfaces';
+import {
+  CredentialStatusResponse,
+  GetAccountKeysResponse,
+  PasswordChangeFinishResponse,
+  PasswordChangeStartResponse,
+  SigninLocationState,
+} from '../interfaces';
 import { getSigninState } from '../utils';
 import OAuthDataError from '../../../components/OAuthDataError';
 import { useEffect, useState } from 'react';
@@ -24,6 +30,14 @@ import {
   AUTH_DATA_KEY,
   SensitiveDataClientAuthKeys,
 } from '../../../lib/sensitive-data-client';
+import { tryFinalizeUpgrade } from '../../../lib/gql-key-stretch-upgrade';
+import { useMutation } from '@apollo/client';
+import {
+  CREDENTIAL_STATUS_MUTATION,
+  GET_ACCOUNT_KEYS_MUTATION,
+  PASSWORD_CHANGE_FINISH_MUTATION,
+  PASSWORD_CHANGE_START_MUTATION,
+} from '../gql';
 
 // The email with token code (verifyLoginCodeEmail) is sent on `/signin`
 // submission if conditions are met.
@@ -53,6 +67,19 @@ const SigninTokenCodeContainer = ({
     integration,
     keyFetchToken,
     unwrapBKey
+  );
+
+  const [passwordChangeStart] = useMutation<PasswordChangeStartResponse>(
+    PASSWORD_CHANGE_START_MUTATION
+  );
+  const [credentialStatus] = useMutation<CredentialStatusResponse>(
+    CREDENTIAL_STATUS_MUTATION
+  );
+  const [getWrappedKeys] = useMutation<GetAccountKeysResponse>(
+    GET_ACCOUNT_KEYS_MUTATION
+  );
+  const [passwordChangeFinish] = useMutation<PasswordChangeFinishResponse>(
+    PASSWORD_CHANGE_FINISH_MUTATION
   );
 
   const [totpVerified, setTotpVerified] = useState<boolean>(false);
@@ -91,6 +118,19 @@ const SigninTokenCodeContainer = ({
     return <OAuthDataError error={oAuthKeysCheckError} />;
   }
 
+  const onSessionVerified = async (sessionId: string) => {
+    // This will attempt to complete any blocked key stretching upgrades
+    await tryFinalizeUpgrade(
+      sessionId,
+      sensitiveDataClient,
+      'signin-token-code',
+      credentialStatus,
+      getWrappedKeys,
+      passwordChangeStart,
+      passwordChangeFinish
+    );
+  };
+
   return (
     <SigninTokenCode
       {...{
@@ -99,6 +139,7 @@ const SigninTokenCodeContainer = ({
         signinState,
         keyFetchToken,
         unwrapBKey,
+        onSessionVerified,
       }}
     />
   );
