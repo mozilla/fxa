@@ -52,6 +52,7 @@ export const Subject = ({
   finishOAuthFlowHandler = mockFinishOAuthFlowHandler,
   integration = createMockWebIntegration(),
   verificationReason = undefined,
+  onSessionVerified = async () => {},
 }: Partial<SigninTokenCodeProps> & {
   verificationReason?: VerificationReasons;
 }) => {
@@ -61,6 +62,7 @@ export const Subject = ({
         {...{
           finishOAuthFlowHandler,
           integration,
+          onSessionVerified,
         }}
         signinState={createMockSigninLocationState(
           integration.wantsKeys(),
