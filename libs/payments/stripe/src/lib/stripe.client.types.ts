@@ -142,7 +142,7 @@ export type StripeInvoiceLineItem = NegotiateExpanded<
         >
       > | null;
       price: StripePrice | null;
-      tax_amounts?: Array<StripeInvoiceLineItemTaxAmount>;
+      tax_amounts: Array<StripeInvoiceLineItemTaxAmount>;
     }
   >,
   'discounts' | 'invoice_item' | 'subscription' | 'subscription_item'

@@ -15,6 +15,7 @@ export const StripeConfirmationTokenFactory = (
   livemode: true,
   mandate_data: null,
   payment_intent: null,
+  payment_method_options: null,
   payment_method_preview: null,
   return_url: null,
   setup_future_usage: null,
