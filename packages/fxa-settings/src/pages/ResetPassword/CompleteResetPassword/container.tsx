@@ -32,6 +32,7 @@ import { SETTINGS_PATH } from '../../../constants';
 import { LocationState } from '../../Signin/interfaces';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import OAuthDataError from '../../../components/OAuthDataError';
+import { SensitiveData } from '../../../lib/sensitive-data-client';
 
 // This component is used for both /complete_reset_password and /account_recovery_reset_password routes
 // for easier maintenance
@@ -122,8 +123,12 @@ const CompleteResetPasswordContainer = ({
     if (accountResetData.verified) {
       // For verified users with OAuth integration, navigate to confirmation page then to the relying party
       if (isOAuthIntegration(integration) && !integration.isSync()) {
-        const sensitiveData = { ...accountResetData, email };
-        sensitiveDataClient.setData('accountResetData', sensitiveData);
+        sensitiveDataClient.setDataType(
+          SensitiveData.Key.AccountReset, {
+            keyFetchToken: accountResetData.keyFetchToken,
+            unwrapBKey: accountResetData.unwrapBKey,
+          }
+        );
         return navigateWithQuery('/reset_password_verified', {
           replace: true,
         });
@@ -288,7 +293,10 @@ const CompleteResetPasswordContainer = ({
         // TODO add frontend Glean event for successful reset?
         notifyClientOfSignin(accountResetData);
 
-        sensitiveDataClient.setData('accountResetData', accountResetData);
+        sensitiveDataClient.setDataType(
+          SensitiveData.Key.AccountReset,
+          accountResetData
+        );
 
         // we cannot create a new recovery key if the session is not verified
         if (accountResetData.verified) {

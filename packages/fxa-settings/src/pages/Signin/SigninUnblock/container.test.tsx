@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // Mocked Module Imports
+import * as ModelsModule from '../../../models';
 import * as SigninUnblockModule from './index';
 import * as ReachRouterModule from '@reach/router';
-import * as ModelsModule from '../../../models';
 
 // Regular imports
 import { act, screen } from '@testing-library/react';
@@ -45,6 +45,7 @@ import {
 } from './mocks';
 import { BeginSigninResult, SigninUnblockIntegration } from '../interfaces';
 import { tryFinalizeUpgrade } from '../../../lib/gql-key-stretch-upgrade';
+import { SensitiveData } from '../../../lib/sensitive-data-client';
 
 let integration: SigninUnblockIntegration;
 function mockWebIntegration() {
@@ -111,19 +112,13 @@ function mockReachRouter(mockLocationState?: SigninUnblockLocationState) {
 }
 
 const mockSensitiveDataClient = createMockSensitiveDataClient();
-const mockSensitiveDataClientState: Record<string, any> = {};
-mockSensitiveDataClient.setData = function (key, value) {
-  mockSensitiveDataClientState[key] = value;
-};
-mockSensitiveDataClient.getData = function (key: string) {
-  return mockSensitiveDataClientState[key];
-};
 function mockModelsModule() {
-  mockSensitiveDataClientState['auth'] = { password: MOCK_PASSWORD };
-  mockSensitiveDataClient.KeyStretchUpgradeData = undefined;
-  (ModelsModule.useSensitiveDataClient as jest.Mock).mockReturnValue(
-    mockSensitiveDataClient
+  (ModelsModule.useSensitiveDataClient as jest.Mock).mockImplementation(
+    () => mockSensitiveDataClient
   );
+  mockSensitiveDataClient.getDataType = jest.fn().mockReturnValue({
+    plainTextPassword: MOCK_PASSWORD,
+  });
 }
 
 function applyDefaultMocks() {
@@ -191,7 +186,7 @@ describe('signin unblock container', () => {
   });
 
   it('handles signin with with key stretching upgrade', async () => {
-    mockSensitiveDataClient.KeyStretchUpgradeData = {
+    mockSensitiveDataClient.setDataType(SensitiveData.Key.KeyStretchUpgrade, {
       email: MOCK_EMAIL,
       v1Credentials: {
         authPW: MOCK_AUTH_PW,
@@ -202,7 +197,7 @@ describe('signin unblock container', () => {
         unwrapBKey: MOCK_UNWRAP_BKEY_V2,
         clientSalt: MOCK_CLIENT_SALT,
       },
-    };
+    });
 
     await render([
       mockGqlCredentialStatusMutation(),

@@ -28,10 +28,7 @@ import { TotpStatusResponse } from '../Signin/SigninTokenCode/interfaces';
 import { GET_TOTP_STATUS } from '../../components/App/gql';
 import OAuthDataError from '../../components/OAuthDataError';
 import { isFirefoxService } from '../../models/integrations/utils';
-import {
-  AUTH_DATA_KEY,
-  SensitiveDataClientAuthKeys,
-} from '../../lib/sensitive-data-client';
+import { SensitiveData } from '../../lib/sensitive-data-client';
 
 export const InlineRecoverySetupContainer = ({
   isSignedIn,
@@ -56,9 +53,8 @@ export const InlineRecoverySetupContainer = ({
   const signinRecoveryLocationState = location.state;
   const { totp, ...signinLocationState } = signinRecoveryLocationState || {};
   const sensitiveDataClient = useSensitiveDataClient();
-  const sensitiveData = sensitiveDataClient.getData(AUTH_DATA_KEY);
   const { keyFetchToken, unwrapBKey } =
-    (sensitiveData as SensitiveDataClientAuthKeys) || {};
+    sensitiveDataClient.getDataType(SensitiveData.Key.Auth) || {};
 
   const { oAuthKeysCheckError } = useOAuthKeysCheck(
     integration,

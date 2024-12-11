@@ -55,7 +55,7 @@ import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { Integration } from '../../models';
 import { firefox } from '../../lib/channels/firefox';
 import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../models/mocks';
-import { AUTH_DATA_KEY } from '../../lib/sensitive-data-client';
+import { SensitiveData } from '../../lib/sensitive-data-client';
 import { Constants } from '../../lib/constants';
 
 jest.mock('../../lib/channels/firefox', () => ({
@@ -147,7 +147,7 @@ const mockAuthClient = new AuthClient('http://localhost:9000', {
   keyStretchVersion: 1,
 });
 const mockSensitiveDataClient = createMockSensitiveDataClient();
-mockSensitiveDataClient.setData = jest.fn();
+mockSensitiveDataClient.setDataType = jest.fn();
 
 function mockModelsModule() {
   mockAuthClient.accountStatusByEmail = jest.fn().mockResolvedValue({
@@ -526,12 +526,15 @@ describe('signin container', () => {
           );
         });
 
-        expect(mockSensitiveDataClient.setData).toBeCalledWith(AUTH_DATA_KEY, {
-          authPW: MOCK_AUTH_PW,
-          emailForAuth: MOCK_EMAIL,
-          unwrapBKey: MOCK_UNWRAP_BKEY,
-          keyFetchToken: MOCK_KEY_FETCH_TOKEN,
-        });
+        expect(mockSensitiveDataClient.setDataType).toBeCalledWith(
+          SensitiveData.Key.Auth,
+          {
+            authPW: MOCK_AUTH_PW,
+            emailForAuth: MOCK_EMAIL,
+            unwrapBKey: MOCK_UNWRAP_BKEY,
+            keyFetchToken: MOCK_KEY_FETCH_TOKEN,
+          }
+        );
         expect(mockAuthClient.recoveryKeyExists).toBeCalledWith(
           handlerResult?.data?.signIn.sessionToken,
           MOCK_EMAIL

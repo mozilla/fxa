@@ -13,7 +13,7 @@ import InlineRecoveryKeySetup from '.';
 import { cache, currentAccount } from '../../lib/cache';
 import { generateRecoveryKey } from 'fxa-auth-client/browser';
 import { CreateRecoveryKeyHandler } from './interfaces';
-import { AUTH_DATA_KEY } from '../../lib/sensitive-data-client';
+import { SensitiveData } from '../../lib/sensitive-data-client';
 import { getSyncNavigate } from '../Signin/utils';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import { formatRecoveryKey } from '../../lib/utilities';
@@ -31,13 +31,8 @@ export const InlineRecoveryKeySetupContainer = (_: RouteComponentProps) => {
   const uid = storedLocalAccount?.uid;
 
   const sensitiveDataClient = useSensitiveDataClient();
-  const sensitiveData = sensitiveDataClient.getData(AUTH_DATA_KEY);
   const { authPW, emailForAuth, unwrapBKey } =
-    (sensitiveData as {
-      emailForAuth?: string;
-      authPW?: string;
-      unwrapBKey?: hexstring;
-    }) || {};
+    sensitiveDataClient.getDataType(SensitiveData.Key.Auth) || {};
 
   const navigateForward = useCallback(() => {
     setCurrentStep(currentStep + 1);
