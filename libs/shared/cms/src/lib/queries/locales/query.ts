@@ -6,7 +6,7 @@ import { graphql } from '../../../__generated__/gql';
 
 export const localesQuery = graphql(`
   query Locales {
-    i18NLocales {
+    i18NLocales(pagination: { limit: 100 }) {
       code
     }
   }
