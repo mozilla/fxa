@@ -248,11 +248,15 @@ describe('SigninTokenCode page', () => {
         expect(GleanMetrics.isDone).toBeCalledTimes(1);
       }
       it('default behavior', async () => {
+        const mockOnSessionVerified = jest.fn().mockResolvedValue(true);
         session = mockSession();
-        render();
+        render({
+          onSessionVerified: mockOnSessionVerified,
+        });
         submitCode();
 
         await expectSuccessGleanEvents();
+        expect(mockOnSessionVerified).toHaveBeenCalledTimes(1);
         expect(navigate).toHaveBeenCalledWith('/settings');
       });
       it('when verificationReason is a force password change', async () => {

@@ -36,6 +36,7 @@ const SigninTokenCode = ({
   signinState,
   keyFetchToken,
   unwrapBKey,
+  onSessionVerified,
 }: SigninTokenCodeProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const session = useSession();
@@ -129,6 +130,9 @@ const SigninTokenCode = ({
       try {
         await session.verifySession(code);
 
+        // Attempt to finish any key stretching upgrades
+        await onSessionVerified(sessionToken);
+
         // TODO: Bounced email redirect to `/signin_bounced`. Try
         // reaching signin_token_code in one browser and deleting the account
         // in another. You reach the "Sorry. We've locked your account" screen
@@ -190,6 +194,7 @@ const SigninTokenCode = ({
       unwrapBKey,
       verificationReason,
       showInlineRecoveryKeySetup,
+      onSessionVerified,
     ]
   );
 
