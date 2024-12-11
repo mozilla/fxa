@@ -96,6 +96,9 @@ export type StripeHelperConfig = {
   redis: any; // TODO
   cms: {
     enabled: boolean;
+    legacyMapper: {
+      mapperCacheTTL: number;
+    };
   };
 };
 
@@ -117,6 +120,7 @@ export abstract class StripeHelper {
 
   /** */
   protected abstract readonly productConfigurationManager?: ProductConfigurationManager;
+  protected abstract readonly stripeMapperService?: StripeMapperService;
 
   private sentryLogCounter = new Map<string, number>();
 
@@ -469,17 +473,22 @@ export abstract class StripeHelper {
       }
     }
 
-    if (this.productConfigurationManager) {
+    if (this.productConfigurationManager && this.stripeMapperService) {
       try {
-        const cmsToStripeMapper = new StripeMapperService(
-          this.productConfigurationManager
-        );
+        // Determine the locale before mapping the plans
+        // to limit the number of cache entries to the total number
+        // of supported Strapi locales
+        const locale =
+          await this.productConfigurationManager.getSupportedLocale(
+            acceptLanguage
+          );
 
-        const validPlansMapped = await cmsToStripeMapper.mapCMSToStripePlans(
-          validPlans,
-          acceptLanguage,
-          this.config.cms.enabled
-        );
+        const validPlansMapped =
+          await this.stripeMapperService.mapCMSToStripePlans(
+            validPlans,
+            locale,
+            this.config.cms.enabled
+          );
 
         validPlansFinal.push(...validPlansMapped.mappedPlans);
         if (validPlansMapped.nonMatchingPlans.length) {

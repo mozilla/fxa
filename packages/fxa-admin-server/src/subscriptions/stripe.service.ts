@@ -33,6 +33,7 @@ import { StatsD } from 'hot-shots';
 import Stripe from 'stripe';
 import { FirestoreService } from '../backend/firestore.service';
 import { AppConfig } from '../config';
+import { StripeMapperService } from '@fxa/payments/legacy';
 
 export const StripeFactory: Provider<Stripe> = {
   provide: 'STRIPE',
@@ -122,6 +123,7 @@ export class StripeService extends StripeHelper {
   protected productConfigurationManager?:
     | ProductConfigurationManager
     | undefined;
+  protected stripeMapperService?: StripeMapperService;
 
   constructor(
     configService: ConfigService<AppConfig>,
