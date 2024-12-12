@@ -13,7 +13,6 @@
     "rebuild-packages": "nx run-many -t build --all",
     "adb-reverse": "./_scripts/adb-reverse.sh",
     "test": "_scripts/test-package.sh",
-    "config-fxios": "node _scripts/config-fxios.js",
     "format": "yarn workspaces foreach run format",
     "ports": "pm2 jlist | json -a -c 'this.pm2_env.env.PORT' pm2_env.env.PORT name",
     "heroku-postbuild": "yarn workspaces foreach --verbose --include 123done install",
