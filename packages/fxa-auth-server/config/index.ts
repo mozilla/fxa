@@ -2109,6 +2109,18 @@ const convictConf = convict({
     },
   },
   recoveryPhone: {
+    enabled: {
+      default: false,
+      doc: 'Enable recovery phone feature',
+      env: 'RECOVERY_PHONE__ENABLED',
+      format: Boolean,
+    },
+    allowedRegions: {
+      default: ['US'],
+      doc: 'Allowed regions for recovery phone',
+      env: 'RECOVERY_PHONE__ALLOWED_REGIONS',
+      format: Array,
+    },
     otp: {
       kind: {
         default: 'recovery-phone-code',
