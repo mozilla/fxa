@@ -5,6 +5,7 @@
 import { Injectable } from '@nestjs/common';
 import { Validator } from 'class-validator';
 
+import { GoogleManager } from '@fxa/google';
 import { CartService } from '@fxa/payments/cart';
 import { ContentServerManager } from '@fxa/payments/content-server';
 import { CheckoutTokenManager } from '@fxa/payments/paypal';
@@ -24,6 +25,7 @@ import { PaymentsEmitterService } from '../emitter/emitter.service';
 import { FinalizeProcessingCartActionArgs } from './validators/finalizeProcessingCartActionArgs';
 import { SubmitNeedsInputActionArgs } from './validators/SubmitNeedsInputActionArgs';
 import { GetNeedsInputActionArgs } from './validators/GetNeedsInputActionArgs';
+import { ValidatePostalCodeArgs } from './validators/ValidatePostalCodeArgs';
 
 /**
  * ANY AND ALL methods exposed via this service should be considered publicly accessible and callable with any arguments.
@@ -35,9 +37,10 @@ export class NextJSActionsService {
   constructor(
     private cartService: CartService,
     private checkoutTokenManager: CheckoutTokenManager,
+    private contentServerManager: ContentServerManager,
     private emitterService: PaymentsEmitterService,
-    private productConfigurationManager: ProductConfigurationManager,
-    private contentServerManager: ContentServerManager
+    private googleManager: GoogleManager,
+    private productConfigurationManager: ProductConfigurationManager
   ) {}
 
   async getCart(args: GetCartActionArgs) {
@@ -182,5 +185,14 @@ export class NextJSActionsService {
 
   async getMetricsFlow() {
     return this.contentServerManager.getMetricsFlow();
+  }
+
+  async validatePostalCode(args: ValidatePostalCodeArgs) {
+    await new Validator().validateOrReject(args);
+
+    return await this.googleManager.isValidPostalCode(
+      args.postalCode,
+      args.countryCode
+    );
   }
 }

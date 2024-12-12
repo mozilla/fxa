@@ -12,6 +12,7 @@ export * from './lib/client/components/PaymentStateObserver';
 export * from './lib/client/components/PaymentInputHandler';
 export * from './lib/client/components/PaymentSection';
 export * from './lib/client/components/PurchaseDetails';
+export * from './lib/client/components/SelectTaxLocation';
 export * from './lib/client/components/SignInForm';
 export * from './lib/client/components/SubmitButton';
 export * from './lib/client/components/LoadingSpinner';
