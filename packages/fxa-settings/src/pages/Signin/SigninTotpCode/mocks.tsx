@@ -51,9 +51,7 @@ export const MOCK_NON_TOTP_LOCATION_STATE = {
 
 export const mockOauthSigninLocationState = {};
 
-const mockSubmitTotpCode = async () => ({
-  status: true,
-});
+const mockSubmitTotpCode = async () => ({});
 
 export const Subject = ({
   finishOAuthFlowHandler = mockFinishOAuthFlowHandler,

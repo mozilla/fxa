@@ -31,7 +31,7 @@ import {
 import { hardNavigate } from 'fxa-react/lib/utils';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import OAuthDataError from '../../../components/OAuthDataError';
-import { getHandledError } from '../../../lib/error-utils';
+import { getHandledError, HandledError } from '../../../lib/error-utils';
 import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
 import { GET_LOCAL_SIGNED_IN_STATUS } from '../../../components/App/gql';
@@ -42,6 +42,7 @@ import {
   PASSWORD_CHANGE_START_MUTATION,
 } from '../gql';
 import { tryFinalizeUpgrade } from '../../../lib/gql-key-stretch-upgrade';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 
 export type SigninTotpCodeContainerProps = {
   integration: Integration;
@@ -121,30 +122,29 @@ export const SigninTotpCodeContainer = ({
         },
       });
 
-      // Check authentication code
-      if (result.data?.verifyTotp.success === true) {
-        // Attempt to finish any pending key stretching upgrade. We cannot finalize
-        // a key stretching upgrade until the session is verified, which the process
-        // can only be finished after the account has been verified on accounts that
-        // require totp.
-        if (signinState?.sessionToken) {
-          await tryFinalizeUpgrade(
-            signinState?.sessionToken,
-            sensitiveDataClient,
-            'signin-totp',
-            credentialStatus,
-            getWrappedKeys,
-            passwordChangeStart,
-            passwordChangeFinish
-          );
-        }
-
-        return { status: true };
+      // Check authentication
+      if (!result.data?.verifyTotp.success) {
+        return { error: AuthUiErrors.INVALID_TOTP_CODE as HandledError };
       }
 
-      return { status: false };
+      // Attempt to finish any pending key stretching upgrade. We cannot finalize
+      // a key stretching upgrade until the session is verified, which the process
+      // can only be finished after the account has been verified on accounts that
+      // require totp.
+      if (signinState?.sessionToken) {
+        await tryFinalizeUpgrade(
+          signinState?.sessionToken,
+          sensitiveDataClient,
+          'signin-totp',
+          credentialStatus,
+          getWrappedKeys,
+          passwordChangeStart,
+          passwordChangeFinish
+        );
+      }
+      return { error: undefined };
     } catch (error) {
-      return { error: getHandledError(error).error, status: false };
+      return { error: getHandledError(error).error as HandledError };
     }
   };
 

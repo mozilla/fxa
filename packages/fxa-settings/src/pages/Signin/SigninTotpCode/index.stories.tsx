@@ -20,7 +20,7 @@ export default {
 } as Meta;
 
 const storyWithProps = (props: {
-  submitTotpCode: () => Promise<{ status: boolean; error?: BeginSigninError }>;
+  submitTotpCode: () => Promise<{ error?: BeginSigninError }>;
   serviceName: MozServices;
   integration?: Integration;
 }) => {
@@ -33,37 +33,25 @@ const storyWithProps = (props: {
 };
 
 export const Default = storyWithProps({
-  submitTotpCode: async () => ({
-    status: true,
-  }),
+  submitTotpCode: async () => ({}),
   serviceName: MozServices.Default,
 });
 
 export const WithOAuthDesktopServiceRelay = storyWithProps({
-  submitTotpCode: async () => ({
-    status: true,
-  }),
+  submitTotpCode: async () => ({}),
   serviceName: MozServices.FirefoxSync,
   integration: mockOAuthNativeIntegration(false),
 });
 
-export const WithRelyingParty = storyWithProps({
-  submitTotpCode: async () => ({
-    status: true,
-  }),
-  serviceName: MozServices.MozillaVPN,
-});
-
 export const WithIncorrectCode = storyWithProps({
   submitTotpCode: async () => ({
-    status: false,
+    error: AuthUiErrors.INVALID_TOTP_CODE as BeginSigninError,
   }),
   serviceName: MozServices.MozillaVPN,
 });
 
-export const WithErrorState = storyWithProps({
+export const WithUnexpectedError = storyWithProps({
   submitTotpCode: async () => ({
-    status: false,
     error: AuthUiErrors.UNEXPECTED_ERROR as BeginSigninError,
   }),
   serviceName: MozServices.MozillaVPN,

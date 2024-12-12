@@ -29,4 +29,5 @@ auth-error-1010 = Valid password required
 auth-error-1011 = Valid email required
 auth-error-1031 = You must enter your age to sign up
 auth-error-1032 = You must enter a valid age to sign up
+auth-error-1054 = Invalid two-step authentication code
 auth-error-1062 = Invalid redirect
