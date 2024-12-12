@@ -125,7 +125,7 @@
     "semver": "^7.6.3",
     "set-value": "^4.1.0",
     "stripe": "^17.4.0",
-    "superagent": "^9.0.2",
+    "superagent": "^10.1.1",
     "tslib": "^2.8.1",
     "twilio": "^5.3.5",
     "typedi": "^0.8.0",
