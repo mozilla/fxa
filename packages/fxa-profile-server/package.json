@@ -23,7 +23,7 @@
     "@hapi/boom": "~10.0.0",
     "@hapi/catbox-memory": "~5.0.1",
     "@hapi/catbox-redis": "~6.0.2",
-    "@hapi/hapi": "^20.2.1",
+    "@hapi/hapi": "^21.3.12",
     "@hapi/inert": "7.1.0",
     "bluebird": "^3.7.2",
     "buf": "0.1.1",
