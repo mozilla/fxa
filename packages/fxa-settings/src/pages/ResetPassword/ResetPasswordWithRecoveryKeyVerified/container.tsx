@@ -21,7 +21,6 @@ import {
 } from '../../../lib/oauth/hooks';
 import ResetPasswordWithRecoveryKeyVerified from './index';
 import { SETTINGS_PATH } from '../../../constants';
-import firefox from '../../../lib/channels/firefox';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
 import { currentAccount } from '../../../lib/cache';
 
@@ -58,14 +57,15 @@ const ResetPasswordWithRecoveryKeyVerifiedContainer = ({
 
   const navigateToHint = () => setShowHint(true);
   const navigateNext = async (continueToAccountEvent: () => void) => {
-    if (isOAuthIntegration(integration)) {
+    // The Sync cases are handled prior to reaching this page (on CompleteResetPassword)
+    if (isOAuthIntegration(integration) && !integration.isSync()) {
       // If we have lost the required bits for OAuth handling, we have to start again.
       if (!sessionToken || !uid) {
         navigateWithQuery('/signin', { replace: true });
         return;
       }
 
-      const { redirect, code, state, error } = await finishOAuthFlowHandler(
+      const { redirect, error } = await finishOAuthFlowHandler(
         uid,
         sessionToken,
         keyFetchToken,
@@ -77,18 +77,7 @@ const ResetPasswordWithRecoveryKeyVerifiedContainer = ({
         return;
       }
 
-      if (integration.isSync()) {
-        // This will complete the signin into sync.
-        firefox.fxaOAuthLogin({
-          action: 'signin',
-          code,
-          redirect,
-          state,
-        });
-        navigateWithQuery('/settings', { replace: true });
-      } else {
-        hardNavigate(redirect);
-      }
+      hardNavigate(redirect);
     } else {
       continueToAccountEvent();
       navigateWithQuery(SETTINGS_PATH, { replace: true });
