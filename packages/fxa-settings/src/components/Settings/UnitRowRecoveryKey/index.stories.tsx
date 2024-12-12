@@ -19,7 +19,7 @@ export default {
 
 const accountHasRecoveryKey = {
   hasPassword: true,
-  recoveryKey: { exist: true },
+  recoveryKey: { exists: true },
 } as unknown as Account;
 
 const accountWithoutRecoveryKey = {
