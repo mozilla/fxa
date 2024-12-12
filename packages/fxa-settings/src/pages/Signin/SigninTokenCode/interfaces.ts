@@ -11,6 +11,7 @@ export type SigninTokenCodeProps = {
   finishOAuthFlowHandler: FinishOAuthFlowHandler;
   integration: SigninIntegration;
   signinState: SigninLocationState;
+  onSessionVerified: (sessionId: string) => Promise<void>;
 } & SensitiveData.AuthData;
 
 export interface TotpStatusResponse {
