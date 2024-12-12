@@ -1,0 +1,45 @@
+{
+  "name": "google",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/google/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "main": "libs/google/src/index.ts",
+        "outputPath": "dist/libs/google",
+        "outputFileName": "main.js",
+        "tsConfig": "libs/google/tsconfig.lib.json",
+        "assets": ["libs/google/*.md"],
+        "declaration": true
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/google/**/*.ts", "libs/google/package.json"]
+      }
+    },
+    "test-unit": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/google/jest.config.ts",
+        "testPathPattern": ["^(?!.*\\.in\\.spec\\.ts$).*$"]
+      }
+    },
+    "test-integration": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/google/jest.config.ts",
+        "testPathPattern": ["\\.in\\.spec\\.ts$"]
+      }
+    }
+  }
+}
