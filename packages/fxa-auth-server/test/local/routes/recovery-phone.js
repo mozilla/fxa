@@ -309,5 +309,30 @@ describe('/recovery-phone', () => {
       });
       assert.equal(mockGlean.twoStepAuthPhoneRemove.success.callCount, 0);
     });
+
+  });
+
+  describe('POST /recovery-phone/available', async () => {
+    it('should return true if user can setup phone number', async () => {
+      mockRecoveryPhoneService.available = sinon.fake.returns(true);
+
+      const resp = await makeRequest({
+        method: 'POST',
+        path: '/recovery-phone/available',
+        credentials: { uid },
+        geo: {
+          location: {
+            countryCode: 'US',
+          },
+        },
+      });
+
+      assert.deepEqual(resp, { available: true });
+      assert.calledOnceWithExactly(
+        mockRecoveryPhoneService.available,
+        uid,
+        'US'
+      );
+    });
   });
 });

@@ -139,6 +139,35 @@ class RecoveryPhoneHandler {
 
     return {};
   }
+
+  /**
+   * Check if a user can setup phone number, ie in correct region and does
+   * not already have a confirmed phone number.
+   *
+   * @param request
+   */
+  async available(request: AuthRequest) {
+    const { uid } = request.auth.credentials as unknown as { uid: string };
+
+    // Maxmind countryCode is two-letter ISO country code (ex `US` for the United States)
+    // This is the same format as the `region` field in the recovery phone config
+    const location = request.app.geo?.location;
+
+    if (!location || !location.countryCode) {
+      return {
+        available: false,
+      };
+    }
+
+    const available = await this.recoveryPhoneService.available(
+      uid,
+      location.countryCode
+    );
+
+    return {
+      available,
+    };
+  }
 }
 
 export const recoveryPhoneRoutes = (
@@ -163,6 +192,18 @@ export const recoveryPhoneRoutes = (
       },
       handler: function (request: AuthRequest) {
         return recoveryPhoneHandler.setupPhoneNumber(request);
+      },
+    },
+    {
+      method: 'POST',
+      path: '/recovery-phone/available',
+      options: {
+        auth: {
+          strategies: ['sessionToken'],
+        },
+      },
+      handler: function (request: AuthRequest) {
+        return recoveryPhoneHandler.available(request);
       },
     },
     {
