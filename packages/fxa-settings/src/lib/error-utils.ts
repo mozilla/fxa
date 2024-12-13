@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { GraphQLError } from 'graphql';
-import * as Sentry from '@sentry/browser'
+import * as Sentry from '@sentry/browser';
 import {
   AuthUiError,
   AuthUiErrorNos,

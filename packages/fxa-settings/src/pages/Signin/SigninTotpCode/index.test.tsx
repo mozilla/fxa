@@ -6,8 +6,7 @@ import * as ReactUtils from 'fxa-react/lib/utils';
 
 import React from 'react';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
-import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider'; // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
-// import { FluentBundle } from '@fluent/bundle';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import GleanMetrics from '../../../lib/glean';
 import { MozServices } from '../../../lib/types';
 import {
@@ -29,6 +28,7 @@ import firefox from '../../../lib/channels/firefox';
 import * as utils from 'fxa-react/lib/utils';
 import { navigate } from '@reach/router';
 import { OAUTH_ERRORS } from '../../../lib/oauth';
+import userEvent from '@testing-library/user-event';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -62,13 +62,6 @@ const serviceRelayText =
   'Firefox will try sending you back to use an email mask after you sign in.';
 
 describe('Sign in with TOTP code page', () => {
-  // TODO: enable l10n tests when they've been updated to handle embedded tags in ftl strings
-  // TODO: in FXA-6461
-  // let bundle: FluentBundle;
-  // beforeAll(async () => {
-  //   bundle = await getFtlBundle('settings');
-  // });
-
   beforeEach(() => {
     jest.clearAllMocks();
     jest.resetAllMocks();
@@ -79,16 +72,26 @@ describe('Sign in with TOTP code page', () => {
 
   it('renders as expected', () => {
     renderWithLocalizationProvider(<Subject />);
-    // testAllL10n(screen, bundle);
 
     const headingEl = screen.getByRole('heading', { level: 2 });
     expect(headingEl).toHaveTextContent('Enter two-step authentication code');
     screen.getByLabelText('Enter 6-digit code');
 
-    screen.getByRole('button', { name: 'Confirm' });
+    // submit button is disabled by default until code entered in input
+    expect(
+      screen.getByRole('button', { name: 'Enter 6-digit code to continue' })
+    ).toBeDisabled();
     screen.getByRole('link', { name: 'Use a different account' });
     screen.getByRole('link', { name: 'Trouble entering code?' });
     expect(screen.queryByText(serviceRelayText)).not.toBeInTheDocument();
+  });
+
+  it('enables submit button when code entered', async () => {
+    renderWithLocalizationProvider(<Subject />);
+
+    const inputEl = screen.getByLabelText('Enter 6-digit code');
+    await waitFor(() => userEvent.type(inputEl, '123456'));
+    expect(screen.getByRole('button', { name: 'Confirm' })).toBeEnabled();
   });
 
   it('renders expected service=relay text', () => {
@@ -120,7 +123,6 @@ describe('Sign in with TOTP code page', () => {
   describe('submit totp code', () => {
     async function renderAndSubmitTotpCode(
       response: {
-        status: boolean;
         error?: AuthUiError;
       },
       finishOAuthFlowHandler?: FinishOAuthFlowHandler,
@@ -149,9 +151,7 @@ describe('Sign in with TOTP code page', () => {
     }
 
     it('submitsTotpCode and navigates', async () => {
-      await renderAndSubmitTotpCode({
-        status: true,
-      });
+      await renderAndSubmitTotpCode({});
 
       expect(GleanMetrics.totpForm.view).toHaveBeenCalledTimes(1);
       expect(GleanMetrics.totpForm.submit).toHaveBeenCalledTimes(1);
@@ -171,13 +171,7 @@ describe('Sign in with TOTP code page', () => {
       it('is sent if Sync integration and navigates to pair', async () => {
         const integration = createMockSigninOAuthNativeSyncIntegration();
         await waitFor(() =>
-          renderAndSubmitTotpCode(
-            {
-              status: true,
-            },
-            undefined,
-            integration
-          )
+          renderAndSubmitTotpCode({}, undefined, integration)
         );
         expect(fxaLoginSpy).toHaveBeenCalled();
         expect(hardNavigateSpy).toHaveBeenCalledWith(
@@ -185,9 +179,7 @@ describe('Sign in with TOTP code page', () => {
         );
       });
       it('is not sent otherwise', async () => {
-        await renderAndSubmitTotpCode({
-          status: true,
-        });
+        await renderAndSubmitTotpCode({});
         expect(fxaLoginSpy).not.toHaveBeenCalled();
         expect(hardNavigateSpy).not.toBeCalled();
       });
@@ -195,7 +187,7 @@ describe('Sign in with TOTP code page', () => {
 
     it('shows error on invalid code', async () => {
       await renderAndSubmitTotpCode({
-        status: false,
+        error: AuthUiErrors.INVALID_TOTP_CODE,
       });
 
       screen.getByText('Invalid two-step authentication code');
@@ -207,7 +199,6 @@ describe('Sign in with TOTP code page', () => {
 
     it('shows general error on unexpected error', async () => {
       await renderAndSubmitTotpCode({
-        status: false,
         error: AuthUiErrors.UNEXPECTED_ERROR,
       });
 
@@ -229,13 +220,7 @@ describe('Sign in with TOTP code page', () => {
           .mockImplementationOnce(() => {});
 
         await waitFor(() =>
-          renderAndSubmitTotpCode(
-            {
-              status: true,
-            },
-            finishOAuthFlowHandler,
-            integration
-          )
+          renderAndSubmitTotpCode({}, finishOAuthFlowHandler, integration)
         );
 
         expect(GleanMetrics.totpForm.submit).toHaveBeenCalledTimes(1);
@@ -250,13 +235,7 @@ describe('Sign in with TOTP code page', () => {
           .fn()
           .mockReturnValueOnce(tryAgainError());
         await waitFor(() =>
-          renderAndSubmitTotpCode(
-            {
-              status: true,
-            },
-            finishOAuthFlowHandler,
-            integration
-          )
+          renderAndSubmitTotpCode({}, finishOAuthFlowHandler, integration)
         );
         await waitFor(() => {
           screen.getByText(OAUTH_ERRORS.TRY_AGAIN.message);

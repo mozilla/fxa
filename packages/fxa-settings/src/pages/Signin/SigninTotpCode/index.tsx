@@ -7,11 +7,7 @@ import { Link, RouteComponentProps, useLocation } from '@reach/router';
 import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
 import { useFtlMsgResolver } from '../../../models';
 import { logViewEvent } from '../../../lib/metrics';
-import FormVerifyCode, {
-  FormAttributes,
-} from '../../../components/FormVerifyCode';
 import { MozServices } from '../../../lib/types';
-import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import AppLayout from '../../../components/AppLayout';
 import GleanMetrics from '../../../lib/glean';
 import { SigninIntegration, SigninLocationState } from '../interfaces';
@@ -19,13 +15,14 @@ import { handleNavigation } from '../utils';
 import { FinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import { storeAccountData } from '../../../lib/storage-utils';
 import {
-  BeginSigninError,
   getLocalizedErrorMessage,
+  HandledError,
 } from '../../../lib/error-utils';
 import protectionShieldIcon from '@fxa/shared/assets/images/protection-shield.svg';
 import Banner from '../../../components/Banner';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
 import { HeadingPrimary } from '../../../components/HeadingPrimary';
+import FormVerifyTotp from '../../../components/FormVerifyTotp';
 
 // TODO: show a banner success message if a user is coming from reset password
 // in FXA-6491. This differs from content-server where currently, users only
@@ -37,9 +34,7 @@ export type SigninTotpCodeProps = {
   redirectTo?: string;
   signinState: SigninLocationState;
   // TODO: Switch to gql error shaped object
-  submitTotpCode: (
-    totpCode: string
-  ) => Promise<{ error?: BeginSigninError; status: boolean }>;
+  submitTotpCode: (totpCode: string) => Promise<{ error?: HandledError }>;
   serviceName?: MozServices;
 } & SensitiveData.AuthData;
 
@@ -54,11 +49,10 @@ export const SigninTotpCode = ({
   keyFetchToken,
   unwrapBKey,
 }: SigninTotpCodeProps & RouteComponentProps) => {
+  const ftlMsgResolver = useFtlMsgResolver();
   const location = useLocation();
 
   const [bannerError, setBannerError] = useState<string>('');
-  const [codeErrorMessage, setCodeErrorMessage] = useState<string>('');
-  const ftlMsgResolver = useFtlMsgResolver();
 
   const {
     email,
@@ -69,40 +63,20 @@ export const SigninTotpCode = ({
     showInlineRecoveryKeySetup,
   } = signinState;
 
-  const localizedCustomCodeRequiredMessage = ftlMsgResolver.getMsg(
-    'signin-totp-code-required-error',
-    'Authentication code required'
-  );
-
-  const formAttributes: FormAttributes = {
-    inputFtlId: 'signin-totp-code-input-label-v4',
-    inputLabelText: 'Enter 6-digit code',
-    pattern: '[0-9]{6}',
-    maxLength: 6,
-    submitButtonFtlId: 'signin-totp-code-confirm-button',
-    submitButtonText: 'Confirm',
-  };
-
   useEffect(() => {
     GleanMetrics.totpForm.view();
   }, []);
 
   const onSubmit = async (code: string) => {
     setBannerError('');
-    setCodeErrorMessage('');
 
-    const { status, error } = await submitTotpCode(code);
+    const { error } = await submitTotpCode(code);
     GleanMetrics.totpForm.submit();
     logViewEvent('flow', `${viewName}.submit`);
 
     if (error) {
       setBannerError(getLocalizedErrorMessage(ftlMsgResolver, error));
-    } else if (status === false) {
-      const localizedErrorMessage = getLocalizedErrorMessage(
-        ftlMsgResolver,
-        AuthUiErrors.INVALID_TOTP_CODE
-      );
-      setCodeErrorMessage(localizedErrorMessage);
+      return;
     } else {
       GleanMetrics.totpForm.success();
 
@@ -134,9 +108,9 @@ export const SigninTotpCode = ({
         handleFxaOAuthLogin: true,
       };
 
-      const { error } = await handleNavigation(navigationOptions);
-      if (error) {
-        setBannerError(getLocalizedErrorMessage(ftlMsgResolver, error));
+      const { error: navError } = await handleNavigation(navigationOptions);
+      if (navError) {
+        setBannerError(getLocalizedErrorMessage(ftlMsgResolver, navError));
       }
     }
   };
@@ -153,7 +127,7 @@ export const SigninTotpCode = ({
       <div className="flex space-x-4">
         <img src={protectionShieldIcon} alt="" />
         <FtlMsg id="signin-totp-code-instruction-v4">
-          <p className="my-5 text-md">
+          <p className="mt-5 text-md">
             Check your <strong>authenticator app</strong> to confirm your
             sign-in.
           </p>
@@ -173,15 +147,20 @@ export const SigninTotpCode = ({
         <Banner type="error" content={{ localizedHeading: bannerError }} />
       )}
 
-      <FormVerifyCode
-        {...{
-          formAttributes,
-          viewName,
-          verifyCode: onSubmit,
-          localizedCustomCodeRequiredMessage,
-          codeErrorMessage,
-          setCodeErrorMessage,
-        }}
+      <FormVerifyTotp
+        codeLength={6}
+        codeType="numeric"
+        errorMessage={bannerError}
+        localizedInputLabel={ftlMsgResolver.getMsg(
+          'signin-totp-code-input-label-v4',
+          'Enter 6-digit code'
+        )}
+        localizedSubmitButtonText={ftlMsgResolver.getMsg(
+          'signin-totp-code-confirm-button',
+          'Confirm'
+        )}
+        setErrorMessage={setBannerError}
+        verifyCode={onSubmit}
       />
       <div className="mt-8 link-blue text-sm flex justify-between">
         <FtlMsg id="signin-totp-code-other-account-link">

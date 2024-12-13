@@ -192,7 +192,7 @@ describe('signin totp code container', () => {
     expect(SigninTotpCodeModule.SigninTotpCode).toBeCalled();
     const result = await currentPageProps?.submitTotpCode('123456');
 
-    expect(result?.status).toBeTruthy();
+    expect(result?.error).toBeUndefined();
   });
 
   it('runs keys stretch upgrade when required', async () => {
@@ -212,7 +212,7 @@ describe('signin totp code container', () => {
     expect(SigninTotpCodeModule.SigninTotpCode).toBeCalled();
     const result = await currentPageProps?.submitTotpCode('123456');
 
-    expect(result?.status).toBeTruthy();
+    expect(result?.error).toBeUndefined();
     expect(tryFinalizeUpgrade).toBeCalled();
   });
 
@@ -223,7 +223,7 @@ describe('signin totp code container', () => {
     expect(SigninTotpCodeModule.SigninTotpCode).toBeCalled();
 
     const result = await currentPageProps?.submitTotpCode('123456');
-    expect(result?.status).toBeFalsy();
+    expect(result?.error).toEqual(AuthUiErrors.INVALID_TOTP_CODE);
   });
 
   it('handles general error', async () => {
@@ -233,7 +233,6 @@ describe('signin totp code container', () => {
     expect(SigninTotpCodeModule.SigninTotpCode).toBeCalled();
 
     const result = await currentPageProps?.submitTotpCode('123456');
-    expect(result?.status).toBeFalsy();
     expect(result?.error).toEqual(AuthUiErrors.UNEXPECTED_ERROR);
   });
 
