@@ -17,7 +17,7 @@ import { MetricsContext } from '@fxa/shared/metrics/glean';
 // According to @types/hapi, request.auth.credentials.user is of type
 // UserCredentials, which is just {}. That's not actually the case and it
 // mismatches the real type, which is string.  I extended AuthRequest below but
-// the type, MetricsRquest is for this file only.
+// the type, MetricsRequest is for this file only.
 interface MetricsRequest extends Omit<AuthRequest, 'auth'> {
   payload: Record<string, any>;
   auth: { credentials: Record<string, string> };
@@ -325,6 +325,9 @@ export function gleanMetrics(config: ConfigType) {
         }
       ),
     },
+    twoStepAuthPhoneRemove: {
+      success: createEventFn('two_step_auth_phone_remove_success'),
+    },
   };
 }
 
@@ -359,6 +362,7 @@ export const logErrorWithGlean = ({
           | 'twoFactorAuth'
           | 'twoFactorAuthSetup'
           | 'inactiveAccountDeletion'
+          | 'twoStepAuthPhoneRemove'
         >
       ];
     funnelFns[event as keyof typeof funnelFns](request, {

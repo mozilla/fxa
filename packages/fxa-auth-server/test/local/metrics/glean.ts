@@ -45,6 +45,7 @@ const recordTwoFactorAuthCodeCompleteStub = sinon.stub();
 const recordTwoStepAuthPhoneCodeSentStub = sinon.stub();
 const recordTwoStepAuthPhoneCodeSendErrorStub = sinon.stub();
 const recordTwoStepAuthPhoneCodeCompleteStub = sinon.stub();
+const recordTwoStepAuthPhoneRemoveSuccessStub = sinon.stub();
 const recordPasswordResetTwoFactorSuccessStub = sinon.stub();
 const recordPasswordResetRecoveryCodeSuccessStub = sinon.stub();
 const recordInactiveAccountDeletionStatusCheckedStub = sinon.stub();
@@ -101,6 +102,8 @@ const gleanProxy = proxyquire('../../../lib/metrics/glean', {
         recordTwoStepAuthPhoneCodeSendErrorStub,
       recordTwoStepAuthPhoneCodeComplete:
         recordTwoStepAuthPhoneCodeCompleteStub,
+      recordTwoStepAuthPhoneRemoveSuccess:
+        recordTwoStepAuthPhoneRemoveSuccessStub,
       recordPasswordResetTwoFactorSuccess:
         recordPasswordResetTwoFactorSuccessStub,
       recordPasswordResetRecoveryCodeSuccess:

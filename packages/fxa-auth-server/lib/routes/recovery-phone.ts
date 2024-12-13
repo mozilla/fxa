@@ -117,6 +117,28 @@ class RecoveryPhoneHandler {
 
     throw AppError.invalidOrExpiredOtpCode();
   }
+
+  async destroy(request: AuthRequest) {
+    const { uid } = request.auth.credentials as unknown as { uid: string };
+
+    let success = false;
+    try {
+      success = await this.recoveryPhoneService.removePhoneNumber(uid);
+    } catch (error) {
+      throw AppError.backendServiceFailure(
+        'RecoveryPhoneService',
+        'destroy',
+        { uid },
+        error
+      );
+    }
+
+    if (success) {
+      await this.glean.twoStepAuthPhoneRemove.success(request);
+    }
+
+    return {};
+  }
 }
 
 export const recoveryPhoneRoutes = (
@@ -170,6 +192,18 @@ export const recoveryPhoneRoutes = (
       },
       handler: function (request: AuthRequest) {
         return recoveryPhoneHandler.sendCode(request);
+      },
+    },
+    {
+      method: 'DELETE',
+      path: '/recovery-phone',
+      options: {
+        auth: {
+          strategies: ['sessionToken'],
+        },
+      },
+      handler: function (request: AuthRequest) {
+        return recoveryPhoneHandler.destroy(request);
       },
     },
   ];

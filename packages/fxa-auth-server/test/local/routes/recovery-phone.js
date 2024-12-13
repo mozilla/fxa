@@ -27,10 +27,14 @@ describe('/recovery-phone', () => {
       sendError: sandbox.fake(),
       complete: sandbox.fake(),
     },
+    twoStepAuthPhoneRemove: {
+      success: sandbox.fake(),
+    },
   };
   const mockRecoveryPhoneService = {
     setupPhoneNumber: sandbox.fake(),
     confirmCode: sandbox.fake(),
+    removePhoneNumber: sandbox.fake(),
   };
   let routes = [];
 
@@ -45,6 +49,7 @@ describe('/recovery-phone', () => {
 
   async function makeRequest(req) {
     const route = getRoute(routes, req.path, req.method);
+    assert.isDefined(route);
     return await route.handler(mockRequest(req));
   }
 
@@ -259,6 +264,50 @@ describe('/recovery-phone', () => {
 
       await assert.isRejected(promise, 'A backend service request failed.');
       assert.equal(mockGlean.twoStepAuthPhoneCode.complete.callCount, 0);
+    });
+  });
+
+  describe('DELETE /recovery-phone', async () => {
+    it('removes a recovery phone', async () => {
+      mockRecoveryPhoneService.removePhoneNumber = sinon.fake.returns(true);
+
+      const resp = await makeRequest({
+        method: 'DELETE',
+        path: '/recovery-phone',
+        credentials: { uid },
+      });
+
+      assert.isDefined(resp);
+      assert.equal(mockRecoveryPhoneService.removePhoneNumber.callCount, 1);
+      assert.equal(
+        mockRecoveryPhoneService.removePhoneNumber.getCall(0).args[0],
+        uid
+      );
+      assert.equal(mockGlean.twoStepAuthPhoneRemove.success.callCount, 1);
+    });
+
+    it('indicates service failure while removing code', async () => {
+      mockRecoveryPhoneService.removePhoneNumber = sinon.fake.returns(
+        Promise.reject(new Error('BOOM'))
+      );
+      const promise = makeRequest({
+        method: 'DELETE',
+        path: '/recovery-phone',
+        credentials: { uid },
+      });
+
+      await assert.isRejected(promise, 'A backend service request failed.');
+      assert.equal(mockGlean.twoStepAuthPhoneRemove.success.callCount, 0);
+    });
+
+    it('handles uid without registered phone number', async () => {
+      mockRecoveryPhoneService.removePhoneNumber = sinon.fake.returns(false);
+      await makeRequest({
+        method: 'DELETE',
+        path: '/recovery-phone',
+        credentials: { uid },
+      });
+      assert.equal(mockGlean.twoStepAuthPhoneRemove.success.callCount, 0);
     });
   });
 });
