@@ -44,7 +44,7 @@ export const Switch = ({
       >
         <span className="slider" />
         <span className="slider-status" data-testid="slider-status">
-          <span className={isSubmitting ? 'invisible' : undefined}>
+          <span className={isSubmitting ? 'invisible' : 'p-2'}>
             {isOn ? (
               <Localized id="switch-is-on">on</Localized>
             ) : (

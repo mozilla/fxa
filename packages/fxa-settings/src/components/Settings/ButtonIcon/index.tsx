@@ -3,14 +3,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { FunctionComponent, SVGProps } from 'react';
-import { ReactComponent as TrashIcon } from './trash-icon.svg';
+import { ReactComponent as TrashIcon } from './minimal-trash-icon.svg';
 import { ReactComponent as RefreshIcon } from './refresh-icon.svg';
+import { GleanClickEventDataAttrs } from '../../../lib/types';
 
 type ButtonIconProps = {
   title: string;
-  icon: [FunctionComponent<SVGProps<SVGSVGElement & { title?: string }>>, number, number];
+  icon: [
+    FunctionComponent<SVGProps<SVGSVGElement & { title?: string }>>,
+    number,
+    number
+  ];
   classNames?: string;
   disabled?: boolean;
+  gleanDataAttrs?: GleanClickEventDataAttrs;
   onClick?: () => void;
   testId?: string;
 };
@@ -20,6 +26,7 @@ export const ButtonIcon = ({
   icon,
   classNames,
   disabled,
+  gleanDataAttrs,
   onClick,
   testId,
 }: ButtonIconProps) => {
@@ -29,6 +36,11 @@ export const ButtonIcon = ({
     <button
       className={`relative w-8 h-8 rounded disabled:text-grey-300  hover:bg-grey-50 active:bg-grey-100 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 focus:bg-grey-10 disabled:cursor-wait ${classNames}`}
       data-testid={testId}
+      {...{
+        'data-glean-id': gleanDataAttrs?.id,
+        'data-glean-label': gleanDataAttrs?.label,
+        'data-glean-type': gleanDataAttrs?.type,
+      }}
       {...{ title, onClick, disabled }}
     >
       <Icon
@@ -44,14 +56,15 @@ export const ButtonIcon = ({
 export const ButtonIconTrash = ({
   classNames,
   disabled,
+  gleanDataAttrs,
   onClick,
   testId,
   title,
 }: Omit<ButtonIconProps, 'icon'>) => (
   <ButtonIcon
     classNames={`text-grey-500 active:text-grey-800 focus:text-grey-800 ${classNames}`}
-    icon={[TrashIcon, 11, 14]}
-    {...{ title, disabled, onClick, testId }}
+    icon={[TrashIcon, 16, 22]}
+    {...{ disabled, gleanDataAttrs, onClick, testId, title }}
   />
 );
 
