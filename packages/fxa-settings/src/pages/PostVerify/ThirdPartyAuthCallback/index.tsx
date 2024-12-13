@@ -125,20 +125,26 @@ const ThirdPartyAuthCallback = ({
 
     try {
       const fxaParams = integration.getFxAParams();
-      let originalService;
-      if (fxaParams) {
-        const params = new URLSearchParams(fxaParams);
-        originalService =
-          params.get('service') || params.get('client_id') || undefined;
-      }
+
+      // Extract relayed fxa parameters
+      const params = new URLSearchParams(fxaParams || '');
+      const flowId = params.get('flowId') || undefined;
+      const flowBeginTime = params.get('flowBeginTime') || undefined;
+      const originalService =
+        params.get('service') || params.get('client_id') || undefined;
+
       const linkedAccount: LinkedAccountData =
         await account.verifyAccountThirdParty(
           thirdPartyOAuthCode,
           provider,
           originalService,
-          queryParamsToMetricsContext(
-            flowQueryParams as unknown as Record<string, string>
-          )
+          queryParamsToMetricsContext({
+            ...((flowQueryParams as Record<string, string>) || {}),
+            // Important be sure to overwrite current flowQueryParams with provided fxa parameters.
+            // If we don't do this, we will lose metrics.
+            flowId,
+            flowBeginTime,
+          })
         );
 
       const totpRequired =

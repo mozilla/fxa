@@ -515,7 +515,7 @@ export function addExperiment(choice: string, group: string) {
  * specific keys but the value is actually a record of all the URL query params.
  */
 export function queryParamsToMetricsContext(
-  queryParams: Record<string, string>
+  queryParams: Record<string, string | undefined>
 ): Partial<MetricsContext> {
   const context = new MetricsContext(queryParams);
   return MetricsContext.prune(context);

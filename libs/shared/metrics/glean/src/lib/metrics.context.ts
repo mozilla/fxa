@@ -29,7 +29,7 @@ export class MetricsContext {
   utmSource?: string;
   utmTerm?: string;
 
-  constructor(queryParams?: Record<string, string>) {
+  constructor(queryParams?: Record<string, string | undefined>) {
     queryParams = queryParams || {};
     this.deviceId = queryParams['deviceId'];
     this.entrypoint = queryParams['entrypoint'];
