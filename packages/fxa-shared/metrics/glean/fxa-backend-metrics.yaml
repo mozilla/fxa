@@ -1081,3 +1081,22 @@ inactive_account_deletion:
         description: |
           The error code returned by the Cloud Tasks client.
         type: string
+
+two_step_auth_phone_remove:
+  success:
+    type: event
+    description: |
+      Event that indicates the user successfully remove their phone recovery option
+    lifetime: ping
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-10358
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
