@@ -74,7 +74,7 @@ function mockThirdPartyAuthCallbackIntegration({
     data: { redirectTo: undefined },
     getError: () => getError,
     thirdPartyAuthParams: () => ({ code: 'code', provider: 'provider' }),
-    getFxAParams: () => '?param=value',
+    getFxAParams: () => '?flowId=aaaa&flowBeginTime=1734112296000',
     // TODO, fix this type cast
   } as unknown as ModelsModule.ThirdPartyAuthCallbackIntegration;
 }
@@ -91,7 +91,10 @@ function renderWith(
     flowQueryParams?: QueryParams;
     integration: ModelsModule.Integration;
   } = {
-    flowQueryParams: {},
+    flowQueryParams: {
+      flowId: 'bbbb',
+      flowBeginTime: 1734112296874,
+    },
     integration: mockThirdPartyAuthCallbackIntegration(),
   }
 ) {
@@ -152,12 +155,15 @@ describe('ThirdPartyAuthCallback component', () => {
         'code',
         'provider',
         undefined,
-        expect.any(Object)
+        {
+          flowId: 'aaaa',
+          flowBeginTime: 1734112296000,
+        }
       );
     });
 
     expect(hardNavigateSpy).toBeCalledWith(
-      '/post_verify/third_party_auth/callback?param=value'
+      '/post_verify/third_party_auth/callback?flowId=aaaa&flowBeginTime=1734112296000'
     );
   });
 
@@ -176,7 +182,9 @@ describe('ThirdPartyAuthCallback component', () => {
 
     renderWith({ integration });
 
-    expect(hardNavigateSpy).toBeCalledWith('/?param=value');
+    expect(hardNavigateSpy).toBeCalledWith(
+      '/?flowId=aaaa&flowBeginTime=1734112296000'
+    );
   });
   it('redirects to web redirect', async () => {
     const redirectTo = 'surprisinglyValid!';
