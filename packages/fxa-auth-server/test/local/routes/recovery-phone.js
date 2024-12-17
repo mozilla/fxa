@@ -310,4 +310,57 @@ describe('/recovery-phone', () => {
       assert.equal(mockGlean.twoStepAuthPhoneRemove.success.callCount, 0);
     });
   });
+
+  describe('GET /recovery-phone', async () => {
+    it('gets a recovery phone', async () => {
+      mockRecoveryPhoneService.hasConfirmed = sinon.fake.returns({
+        exists: true,
+        phoneNumber,
+      });
+
+      const resp = await makeRequest({
+        method: 'GET',
+        path: '/recovery-phone',
+        credentials: { uid },
+      });
+
+      assert.isDefined(resp);
+      assert.equal(mockRecoveryPhoneService.hasConfirmed.callCount, 1);
+      assert.equal(
+        mockRecoveryPhoneService.removePhoneNumber.getCall(0).args[0],
+        uid
+      );
+
+      assert.equal(mockGlean.twoStepAuthPhoneRemove.success.callCount, 1);
+    });
+
+    it('indicates service', async () => {
+      mockRecoveryPhoneService.hasConfirmed = sinon.fake.returns(
+        Promise.reject(new Error('BOOM'))
+      );
+      const promise = makeRequest({
+        method: 'GET',
+        path: '/recovery-phone',
+        credentials: { uid },
+      });
+
+      await assert.isRejected(promise, 'A backend service request failed.');
+      assert.equal(mockGlean.twoStepAuthPhoneRemove.success.callCount, 0);
+    });
+
+    it('returns empty response for unverified session', async () => {
+      mockRecoveryPhoneService.hasConfirmed = sinon.fake.returns({
+        exists: true,
+        phoneNumber,
+      });
+      const resp = await makeRequest({
+        method: 'GET',
+        path: '/recovery-phone',
+        credentials: { uid, mustVerify: true },
+      });
+      assert.isDefined(resp);
+      assert.equal(resp, {});
+      assert.equal(mockRecoveryPhoneService.hasConfirmed.callCount, 0);
+    });
+  });
 });

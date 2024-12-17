@@ -139,6 +139,30 @@ class RecoveryPhoneHandler {
 
     return {};
   }
+
+  async exists(request: AuthRequest) {
+    const { uid, emailVerified, mustVerify, tokenVerified } = request.auth
+      .credentials as any;
+
+    // Short circuit if the account / session still needs verification.
+    // Note this is typically due to totp being required, but there are
+    // other states that could also result in an unverified session, such
+    // as a forced password change.
+    if (emailVerified || (mustVerify && !tokenVerified)) {
+      return {};
+    }
+
+    try {
+      return await this.recoveryPhoneService.hasConfirmed(uid);
+    } catch (error) {
+      throw AppError.backendServiceFailure(
+        'RecoveryPhoneService',
+        'destroy',
+        { uid },
+        error
+      );
+    }
+  }
 }
 
 export const recoveryPhoneRoutes = (
@@ -204,6 +228,18 @@ export const recoveryPhoneRoutes = (
       },
       handler: function (request: AuthRequest) {
         return recoveryPhoneHandler.destroy(request);
+      },
+    },
+    {
+      method: 'GET',
+      path: '/recovery-phone',
+      options: {
+        auth: {
+          strategies: ['sessionToken'],
+        },
+      },
+      handler: function (request: AuthRequest) {
+        return recoveryPhoneHandler.exists(request);
       },
     },
   ];

@@ -55,4 +55,9 @@ describe(`#integration - recovery phone`, function () {
     // TODO: Setup test account / twilio emulator
     // TODO: Figure out how to emulate a test code
   });
+
+  it('checks if recovery phone exists', async () => {
+    // TODO: Setup test account / twilio emulator
+    // TODO: Figure out how to emulate a test code
+  });
 });
