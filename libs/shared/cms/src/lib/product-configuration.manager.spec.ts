@@ -94,6 +94,7 @@ describe('productConfigurationManager', () => {
         requestEndTime: 1,
         elapsed: 1,
         cache: false,
+        cacheType: 'method',
         query: eligibilityContentByPlanIdsQuery as any,
         error: undefined,
       });
@@ -106,6 +107,7 @@ describe('productConfigurationManager', () => {
           method: 'query',
           error: 'false',
           cache: 'false',
+          cacheType: 'method',
           operationName: 'EligibilityContentByPlanIds',
         }
       );
