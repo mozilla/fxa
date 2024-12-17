@@ -134,65 +134,74 @@ export default async function Checkout({
         </>
       )}
 
-      {!session?.user?.email ? (
-        <h2
-          className="font-semibold text-grey-600 text-lg mt-10 mb-5"
-          data-testid="header-prefix"
-        >
-          {l10n.getString(
-            'payment-method-header-second-step-next',
-            '2. Choose your payment method2'
-          )}
-        </h2>
-      ) : (
-        <>
-          <div className="hidden tablet:block">
-            <SignedIn email={session.user.email} />
-          </div>
+      <div
+        className={
+          session
+            ? ''
+            : `cursor-not-allowed relative focus:border-blue-400 focus:outline-none focus:shadow-input-blue-focus after:absolute after:content-[""] after:top-0 after:left-0 after:w-full after:h-full after:bg-white after:opacity-50 after:z-10`
+        }
+      >
+        {!session?.user?.email ? (
           <h2
             className="font-semibold text-grey-600 text-lg mt-10 mb-5"
             data-testid="header"
           >
             {l10n.getString(
-              'next-payment-method-header',
-              'Choose your payment method'
+              'payment-method-header-second-step-next',
+              '2. Choose your payment method'
             )}
           </h2>
-        </>
-      )}
-      <h3 className="font-semibold text-grey-600 text-start">
-        {l10n.getString(
-          'next-payment-method-first-approve',
-          'First you’ll need to approve your subscription'
+        ) : (
+          <>
+            <div className="hidden tablet:block">
+              <SignedIn email={session.user.email} />
+            </div>
+            <h2
+              className="font-semibold text-grey-600 text-lg mt-10 mb-5"
+              data-testid="header"
+            >
+              {l10n.getString(
+                'next-payment-method-header',
+                'Choose your payment method'
+              )}
+            </h2>
+          </>
         )}
-      </h3>
+        <h3 className="font-semibold text-grey-600 text-start">
+          {l10n.getString(
+            'next-payment-method-first-approve',
+            'First you’ll need to approve your subscription'
+          )}
+        </h3>
 
-      {/*
+        {/*
         If currency could not be determiend, it is most likely due to an invalid
         or undetermined tax address. Future work will add the Tax Location picker
         which should allow a customer to set their tax location, which would then
         provide a valid currency.
       */}
-      {cart.currency &&
-        cart.taxAddress?.countryCode &&
-        cart.taxAddress?.postalCode && (
-          <PaymentSection
-            cmsCommonContent={cms.commonContent}
-            paymentsInfo={{
-              amount: cart.amount,
-              currency: cart.currency.toLowerCase(),
-            }}
-            cart={{
-              ...cart,
-              currency: cart.currency,
-              taxAddress: {
-                countryCode: cart.taxAddress.countryCode,
-                postalCode: cart.taxAddress.postalCode,
-              },
-            }}
-            locale={locale}
-          />
-        )}
+        {cart.currency &&
+          cart.taxAddress?.countryCode &&
+          cart.taxAddress?.postalCode && (
+            <PaymentSection
+              cmsCommonContent={cms.commonContent}
+              paymentsInfo={{
+                amount: cart.amount,
+                currency: cart.currency.toLowerCase(),
+              }}
+              cart={{
+                ...cart,
+                currency: cart.currency,
+                taxAddress: {
+                  countryCode: cart.taxAddress.countryCode,
+                  postalCode: cart.taxAddress.postalCode,
+                },
+              }}
+              locale={locale}
+              sessionExists={session ? true : false}
+            />
+          )}
+      </div>
     </section>
   );
 }

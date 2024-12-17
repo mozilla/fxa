@@ -30,6 +30,7 @@ interface PaymentFormProps {
     };
   };
   locale: string;
+  sessionExists: boolean;
 }
 
 export function PaymentSection({
@@ -37,6 +38,7 @@ export function PaymentSection({
   paymentsInfo,
   cart,
   locale,
+  sessionExists,
 }: PaymentFormProps) {
   return (
     <StripeWrapper
@@ -47,6 +49,7 @@ export function PaymentSection({
         cmsCommonContent={cmsCommonContent}
         cart={cart}
         locale={locale}
+        sessionExists={sessionExists}
       />
     </StripeWrapper>
   );
