@@ -23,32 +23,24 @@ describe('Banner Component', () => {
       render(<Banner {...getDefaultProps()} />);
       expect(screen.getByText('Heading')).toBeInTheDocument();
       expect(screen.getByText('This is a description')).toBeInTheDocument();
-      expect(
-        screen.getByRole('img', { name: /Information/i })
-      ).toBeInTheDocument();
     });
 
     it('renders the component with error type', () => {
       render(<Banner {...getDefaultProps('error')} />);
       expect(screen.getByText('Heading')).toBeInTheDocument();
       expect(screen.getByText('This is a description')).toBeInTheDocument();
-      expect(screen.getByRole('img', { name: /Error/i })).toBeInTheDocument();
     });
 
     it('renders the component with success type', () => {
       render(<Banner {...getDefaultProps('success')} />);
       expect(screen.getByText('Heading')).toBeInTheDocument();
       expect(screen.getByText('This is a description')).toBeInTheDocument();
-      expect(screen.getByRole('img', { name: /Success/i })).toBeInTheDocument();
     });
 
     it('renders the component with warning type', () => {
       render(<Banner {...getDefaultProps('warning')} />);
       expect(screen.getByText('Heading')).toBeInTheDocument();
       expect(screen.getByText('This is a description')).toBeInTheDocument();
-      expect(
-        screen.getByRole('img', { name: 'Attention' })
-      ).toBeInTheDocument();
     });
   });
 

@@ -18,6 +18,7 @@ const FormVerifyTotp = ({
   clearBanners,
   codeLength,
   codeType,
+  errorBannerId,
   errorMessage,
   localizedInputLabel,
   localizedSubmitButtonText,
@@ -104,6 +105,7 @@ const FormVerifyTotp = ({
         spellCheck={false}
         inputRef={register({ required: true })}
         hasErrors={!!errorMessage}
+        aria-describedby={errorBannerId}
       />
       <button
         type="submit"

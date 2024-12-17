@@ -6,22 +6,55 @@ import React from 'react';
 import FormPhoneNumber from '.';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { Meta } from '@storybook/react';
+import { action } from '@storybook/addon-actions';
 import AppLayout from '../AppLayout';
 
 export default {
   title: 'Components/FormPhoneNumber',
   component: FormPhoneNumber,
-  decorators: [withLocalization],
+  decorators: [
+    (Story) => (
+      <AppLayout>
+        <Story />
+      </AppLayout>
+    ),
+    withLocalization,
+  ],
 } as Meta;
 
+const mockSubmit = async (phoneNumber: string) => {
+  action('submitPhoneNumber')(phoneNumber);
+  return { hasErrors: false };
+};
+
 export const Default = () => (
-  <AppLayout>
-    <FormPhoneNumber localizedCTAText="Send code" />
-  </AppLayout>
+  <FormPhoneNumber
+    localizedCTAText="Send code"
+    submitPhoneNumber={mockSubmit}
+  />
 );
 
-export const WithInfo = () => (
-  <AppLayout>
-    <FormPhoneNumber showInfo localizedCTAText="Confirm" />
-  </AppLayout>
+export const WithError = () => (
+  <FormPhoneNumber
+    localizedCTAText="Send code"
+    submitPhoneNumber={async () => {
+      action('submitPhoneNumber')();
+      return { hasErrors: true };
+    }}
+  />
+);
+
+export const WithInfoBanner = () => (
+  <FormPhoneNumber
+    infoBannerContent={{
+      localizedDescription: 'This is a description',
+      localizedHeading: 'This is a heading',
+    }}
+    infoBannerLink={{
+      localizedText: 'This is a link',
+      path: '#',
+    }}
+    localizedCTAText="Confirm"
+    submitPhoneNumber={mockSubmit}
+  />
 );

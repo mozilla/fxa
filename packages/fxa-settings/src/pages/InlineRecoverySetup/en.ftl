@@ -30,4 +30,4 @@ inline-recovery-confirmation-header-default = Confirm backup authentication code
 # If more appropriate in a locale, the string within the <span>, "to continue to { $serviceName }" can stand alone as "Continue to { $serviceName }"
 # $serviceName - the name of the service which is using Mozilla accounts to authenticate
 inline-recovery-confirmation-header = Confirm backup authentication code <span>to continue to { $serviceName }</span>
-inline-recovery-2fa-enabled = Two-step authentication enabled
+inline-recovery-2fa-enabled-v2 = Two-step authentication has been enabled

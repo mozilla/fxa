@@ -3,56 +3,115 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import InputPhoneNumber from '../InputPhoneNumber';
 import Banner from '../Banner';
+import { BannerContentProps, BannerLinkProps } from '../Banner/interfaces';
 
 export interface InputPhoneNumberData {
   phoneNumber: string;
   countryCode: string;
 }
 
-const FormPhoneNumber = ({
-  showInfo = false,
-  localizedCTAText,
-}: {
-  showInfo?: boolean;
+export type FormPhoneNumberProps = {
+  infoBannerContent?: BannerContentProps;
+  infoBannerLink?: BannerLinkProps;
   localizedCTAText: string;
-}) => {
-  const { handleSubmit, register, formState } = useForm<InputPhoneNumberData>({
-    mode: 'onChange',
-    criteriaMode: 'all',
-    defaultValues: {
-      phoneNumber: '',
-      countryCode: '',
-    },
+  submitPhoneNumber: (phoneNumber: string) => Promise<{ hasErrors: boolean }>;
+  errorBannerId?: string;
+};
+
+const FormPhoneNumber = ({
+  infoBannerContent,
+  infoBannerLink,
+  localizedCTAText,
+  submitPhoneNumber,
+  errorBannerId,
+}: FormPhoneNumberProps) => {
+  const [hasErrors, setHasErrors] = React.useState(false);
+  const { control, formState, handleSubmit, register } =
+    useForm<InputPhoneNumberData>({
+      mode: 'onChange',
+      criteriaMode: 'all',
+      defaultValues: {
+        phoneNumber: '',
+        countryCode: '',
+      },
+    });
+
+  // Use `useWatch` to observe the `phoneNumber` field without causing re-renders
+  const phoneNumberInput: string | undefined = useWatch({
+    control,
+    name: 'phoneNumber',
   });
 
-  const onSubmit = async ({
+  const formatPhoneNumber = ({
     phoneNumber,
     countryCode,
   }: InputPhoneNumberData) => {
     // Strip everything that isn't a number
     const strippedNumber = phoneNumber.replace(/\D/g, '');
-    const formattedPhoneNumber = countryCode + strippedNumber;
+    return countryCode + strippedNumber;
+  };
 
-    // TODO, actually send this value where needed
-    alert(`formattedPhoneNumber: ${formattedPhoneNumber}`);
+  const onSubmit = async ({
+    phoneNumber,
+    countryCode,
+  }: InputPhoneNumberData) => {
+    setHasErrors(false);
+    const formattedPhoneNumber = formatPhoneNumber({
+      phoneNumber,
+      countryCode,
+    });
+    const result = await submitPhoneNumber(formattedPhoneNumber);
+    if (result !== undefined && result.hasErrors) {
+      setHasErrors(true);
+      const phoneInput = document.querySelector(
+        'input[name="phoneNumber"]'
+      ) as HTMLInputElement;
+      phoneInput && phoneInput.focus();
+    }
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <InputPhoneNumber {...{ register }} />
+      <InputPhoneNumber {...{ hasErrors, register, errorBannerId }} />
 
-      {showInfo && (
-        <Banner type="info" content={{ localizedHeading: 'TODO' }} />
+      {infoBannerContent && !infoBannerLink && (
+        <Banner
+          type="info"
+          isFancy
+          content={{
+            localizedHeading: infoBannerContent.localizedHeading || '',
+            localizedDescription: infoBannerContent.localizedDescription || '',
+          }}
+        />
+      )}
+
+      {infoBannerContent && infoBannerLink && (
+        <Banner
+          type="info"
+          isFancy
+          content={{
+            localizedHeading: infoBannerContent.localizedHeading || '',
+            localizedDescription: infoBannerContent.localizedDescription || '',
+          }}
+          link={{
+            path: infoBannerLink.path || '',
+            localizedText: infoBannerLink.localizedText || '',
+          }}
+        />
       )}
 
       <div className="flex mt-5">
         <button
           type="submit"
           className="cta-primary cta-xl"
-          disabled={!formState.isValid || !formState.touched}
+          disabled={
+            !formState.isDirty ||
+            phoneNumberInput === undefined ||
+            phoneNumberInput.replace(/\D/g, '').length !== 10
+          }
         >
           {localizedCTAText}
         </button>
