@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Injectable } from '@nestjs/common';
+import * as Sentry from '@sentry/node';
 
 import {
   CustomerManager,
@@ -45,6 +46,7 @@ import {
   CartInvalidCurrencyError,
   CartInvalidPromoCodeError,
   CartInvalidStateForActionError,
+  CartNotUpdatedError,
   CartStateProcessingError,
   CartSubscriptionNotFoundError,
   CartSuccessMissingRequired,
@@ -71,6 +73,41 @@ export class CartService {
     private paymentMethodManager: PaymentMethodManager,
     private paymentIntentManager: PaymentIntentManager
   ) {}
+
+  /**
+   * Should be used to wrap any method that mutates an existing cart.
+   * This transforms errors into a cart error reason ID and finalizes the cart with an error.
+   */
+  private async wrapWithCartCatch<T>(cartId: string, method: () => Promise<T>) {
+    try {
+      return await method();
+    } catch (error) {
+      let errorReasonId = CartErrorReasonId.Unknown;
+      if (error instanceof CartNotUpdatedError) {
+        errorReasonId = CartErrorReasonId.BASIC_ERROR;
+      }
+
+      await this.cartManager
+        .finishErrorCart(cartId, {
+          errorReasonId,
+        })
+        .catch((e) => {
+          // We silently fail here so as not to eat the original error
+          Sentry.captureException(e);
+        });
+
+      // All unexpectd/untyped errors should go to Sentry
+      if (errorReasonId === CartErrorReasonId.Unknown) {
+        Sentry.captureException(error, {
+          extra: {
+            cartId,
+          },
+        });
+      }
+
+      throw error;
+    }
+  }
 
   /**
    * Initialize a brand new cart
@@ -178,37 +215,39 @@ export class CartService {
    * Create a new cart with the contents of an existing cart, in the initial state.
    */
   async restartCart(cartId: string): Promise<ResultCart> {
-    const oldCart = await this.cartManager.fetchCartById(cartId);
+    return this.wrapWithCartCatch(cartId, async () => {
+      const oldCart = await this.cartManager.fetchCartById(cartId);
 
-    if (oldCart.couponCode) {
-      try {
-        const price =
-          await this.productConfigurationManager.retrieveStripePrice(
-            oldCart.offeringConfigId,
-            oldCart.interval as SubplatInterval
+      if (oldCart.couponCode) {
+        try {
+          const price =
+            await this.productConfigurationManager.retrieveStripePrice(
+              oldCart.offeringConfigId,
+              oldCart.interval as SubplatInterval
+            );
+
+          await this.promotionCodeManager.assertValidPromotionCodeNameForPrice(
+            oldCart.couponCode,
+            price
           );
-
-        await this.promotionCodeManager.assertValidPromotionCodeNameForPrice(
-          oldCart.couponCode,
-          price
-        );
-      } catch (e) {
-        throw new CartInvalidPromoCodeError(oldCart.couponCode);
+        } catch (e) {
+          throw new CartInvalidPromoCodeError(oldCart.couponCode);
+        }
       }
-    }
 
-    return await this.cartManager.createCart({
-      uid: oldCart.uid,
-      interval: oldCart.interval,
-      offeringConfigId: oldCart.offeringConfigId,
-      experiment: oldCart.experiment || undefined,
-      taxAddress: oldCart.taxAddress || undefined,
-      currency: oldCart.currency || undefined,
-      couponCode: oldCart.couponCode || undefined,
-      stripeCustomerId: oldCart.stripeCustomerId || undefined,
-      email: oldCart.email || undefined,
-      amount: oldCart.amount,
-      eligibilityStatus: oldCart.eligibilityStatus,
+      return await this.cartManager.createCart({
+        uid: oldCart.uid,
+        interval: oldCart.interval,
+        offeringConfigId: oldCart.offeringConfigId,
+        experiment: oldCart.experiment || undefined,
+        taxAddress: oldCart.taxAddress || undefined,
+        currency: oldCart.currency || undefined,
+        couponCode: oldCart.couponCode || undefined,
+        stripeCustomerId: oldCart.stripeCustomerId || undefined,
+        email: oldCart.email || undefined,
+        amount: oldCart.amount,
+        eligibilityStatus: oldCart.eligibilityStatus,
+      });
     });
   }
 
@@ -218,33 +257,32 @@ export class CartService {
     confirmationTokenId: string,
     customerData: CheckoutCustomerData
   ) {
-    let updatedCart: ResultCart | null = null;
-    try {
-      //Ensure that the cart version matches the value passed in from FE
-      await this.cartManager.fetchAndValidateCartVersion(cartId, version);
+    return this.wrapWithCartCatch(cartId, async () => {
+      let updatedCart: ResultCart | null = null;
+      try {
+        //Ensure that the cart version matches the value passed in from FE
+        await this.cartManager.fetchAndValidateCartVersion(cartId, version);
 
-      await this.cartManager.setProcessingCart(cartId);
+        await this.cartManager.setProcessingCart(cartId);
 
-      // Ensure we have a positive lock on the processing cart
-      updatedCart = await this.cartManager.fetchAndValidateCartVersion(
-        cartId,
-        version + 1
-      );
-    } catch (e) {
-      throw new CartStateProcessingError(cartId, e);
-    }
+        // Ensure we have a positive lock on the processing cart
+        updatedCart = await this.cartManager.fetchAndValidateCartVersion(
+          cartId,
+          version + 1
+        );
+      } catch (e) {
+        throw new CartStateProcessingError(cartId, e);
+      }
 
-    // Intentionally left out of try/catch block to so that the rest of the logic
-    // is non-blocking and can be handled asynchronously.
-    this.checkoutService
-      .payWithStripe(updatedCart, confirmationTokenId, customerData)
-      .catch(async (error) => {
-        // TODO: Handle errors and provide an associated reason for failure
-        console.error(error);
-        await this.cartManager.finishErrorCart(cartId, {
-          errorReasonId: CartErrorReasonId.Unknown,
-        });
+      // Intentionally non-blocking
+      this.wrapWithCartCatch(cartId, async () => {
+        await this.checkoutService.payWithStripe(
+          updatedCart,
+          confirmationTokenId,
+          customerData
+        );
       });
+    });
   }
 
   async checkoutCartWithPaypal(
@@ -253,53 +291,58 @@ export class CartService {
     customerData: CheckoutCustomerData,
     token?: string
   ) {
-    let updatedCart: ResultCart | null = null;
-    try {
-      //Ensure that the cart version matches the value passed in from FE
-      await this.cartManager.fetchAndValidateCartVersion(cartId, version);
+    return this.wrapWithCartCatch(cartId, async () => {
+      let updatedCart: ResultCart | null = null;
+      try {
+        //Ensure that the cart version matches the value passed in from FE
+        await this.cartManager.fetchAndValidateCartVersion(cartId, version);
 
-      await this.cartManager.setProcessingCart(cartId);
+        await this.cartManager.setProcessingCart(cartId);
 
-      // Ensure we have a positive lock on the processing cart
-      updatedCart = await this.cartManager.fetchAndValidateCartVersion(
-        cartId,
-        version + 1
-      );
-    } catch (e) {
-      throw new CartStateProcessingError(cartId, e);
-    }
+        // Ensure we have a positive lock on the processing cart
+        updatedCart = await this.cartManager.fetchAndValidateCartVersion(
+          cartId,
+          version + 1
+        );
+      } catch (e) {
+        throw new CartStateProcessingError(cartId, e);
+      }
 
-    this.checkoutService
-      .payWithPaypal(updatedCart, customerData, token)
-      .catch(async () => {
-        await this.cartManager.finishErrorCart(cartId, {
-          errorReasonId: CartErrorReasonId.Unknown,
-        });
+      // Intentionally non-blocking
+      this.wrapWithCartCatch(cartId, async () => {
+        await this.checkoutService.payWithPaypal(
+          updatedCart,
+          customerData,
+          token
+        );
       });
+    });
   }
 
   async finalizeProcessingCart(cartId: string): Promise<void> {
-    const cart = await this.cartManager.fetchCartById(cartId);
+    return this.wrapWithCartCatch(cartId, async () => {
+      const cart = await this.cartManager.fetchCartById(cartId);
 
-    if (!cart.uid) {
-      throw new CartError('Cart must have a uid to finalize', { cartId });
-    }
+      if (!cart.uid) {
+        throw new CartError('Cart must have a uid to finalize', { cartId });
+      }
 
-    if (!cart.stripeSubscriptionId) {
-      throw new CartSubscriptionNotFoundError(cartId);
-    }
-    const subscription = await this.subscriptionManager.retrieve(
-      cart.stripeSubscriptionId
-    );
-    if (!subscription) {
-      throw new CartSubscriptionNotFoundError(cartId);
-    }
-    await this.checkoutService.postPaySteps(
-      cart,
-      cart.version,
-      subscription,
-      cart.uid
-    );
+      if (!cart.stripeSubscriptionId) {
+        throw new CartSubscriptionNotFoundError(cartId);
+      }
+      const subscription = await this.subscriptionManager.retrieve(
+        cart.stripeSubscriptionId
+      );
+      if (!subscription) {
+        throw new CartSubscriptionNotFoundError(cartId);
+      }
+      await this.checkoutService.postPaySteps(
+        cart,
+        cart.version,
+        subscription,
+        cart.uid
+      );
+    });
   }
 
   /**
@@ -315,9 +358,6 @@ export class CartService {
         errorReasonId,
       });
     } catch (e) {
-      // TODO: Handle errors and provide an associated reason for failure
-      // Check if cart is already in fail state. If so, log the error but
-      // continue as normal.
       const cart = await this.cartManager.fetchCartById(cartId);
       if (cart.state !== CartState.FAIL) {
         throw e;
@@ -329,32 +369,35 @@ export class CartService {
    * Update a cart in the database by ID or with an existing cart reference
    */
   async updateCart(cartId: string, version: number, cartDetails: UpdateCart) {
-    const oldCart = await this.cartManager.fetchCartById(cartId);
-    if (cartDetails?.couponCode) {
-      const price = await this.productConfigurationManager.retrieveStripePrice(
-        oldCart.offeringConfigId,
-        oldCart.interval as SubplatInterval
-      );
+    return this.wrapWithCartCatch(cartId, async () => {
+      const oldCart = await this.cartManager.fetchCartById(cartId);
+      if (cartDetails?.couponCode) {
+        const price =
+          await this.productConfigurationManager.retrieveStripePrice(
+            oldCart.offeringConfigId,
+            oldCart.interval as SubplatInterval
+          );
 
-      await this.promotionCodeManager.assertValidPromotionCodeNameForPrice(
-        cartDetails.couponCode,
-        price
-      );
-    }
-
-    if (cartDetails.taxAddress?.countryCode) {
-      cartDetails.currency = this.currencyManager.getCurrencyForCountry(
-        cartDetails.taxAddress?.countryCode
-      );
-      if (!cartDetails.currency) {
-        throw new CartInvalidCurrencyError(
-          cartDetails.currency,
-          cartDetails.taxAddress.countryCode
+        await this.promotionCodeManager.assertValidPromotionCodeNameForPrice(
+          cartDetails.couponCode,
+          price
         );
       }
-    }
 
-    await this.cartManager.updateFreshCart(cartId, version, cartDetails);
+      if (cartDetails.taxAddress?.countryCode) {
+        cartDetails.currency = this.currencyManager.getCurrencyForCountry(
+          cartDetails.taxAddress?.countryCode
+        );
+        if (!cartDetails.currency) {
+          throw new CartInvalidCurrencyError(
+            cartDetails.currency,
+            cartDetails.taxAddress.countryCode
+          );
+        }
+      }
+
+      await this.cartManager.updateFreshCart(cartId, version, cartDetails);
+    });
   }
 
   /**
@@ -507,61 +550,67 @@ export class CartService {
   }
 
   async submitNeedsInput(cartId: string) {
-    const cart = await this.cartManager.fetchCartById(cartId);
-    assert(cart.stripeCustomerId, 'Cart must have a stripeCustomerId');
-    assert(cart.stripeSubscriptionId, 'Cart must have a stripeSubscriptionId');
-    assert(cart.uid, 'Cart must have a uid');
-
-    if (cart.state !== CartState.NEEDS_INPUT) {
-      throw new CartInvalidStateForActionError(
-        cartId,
-        cart.state,
-        'submitNeedsInput'
+    return this.wrapWithCartCatch(cartId, async () => {
+      const cart = await this.cartManager.fetchCartById(cartId);
+      assert(cart.stripeCustomerId, 'Cart must have a stripeCustomerId');
+      assert(
+        cart.stripeSubscriptionId,
+        'Cart must have a stripeSubscriptionId'
       );
-    }
+      assert(cart.uid, 'Cart must have a uid');
 
-    const subscription = await this.subscriptionManager.retrieve(
-      cart.stripeSubscriptionId
-    );
-    const paymentIntent = await this.subscriptionManager.getLatestPaymentIntent(
-      subscription
-    );
-
-    const customer = await this.customerManager.retrieve(cart.stripeCustomerId);
-
-    if (paymentIntent && paymentIntent.status === 'succeeded') {
-      if (paymentIntent.payment_method) {
-        await this.customerManager.update(customer.id, {
-          invoice_settings: {
-            default_payment_method: paymentIntent.payment_method,
-          },
-        });
-      } else {
-        throw new CartError(
-          'Failed to update customer default payment method',
-          { cartId: cart.id }
+      if (cart.state !== CartState.NEEDS_INPUT) {
+        throw new CartInvalidStateForActionError(
+          cartId,
+          cart.state,
+          'submitNeedsInput'
         );
       }
+
       const subscription = await this.subscriptionManager.retrieve(
         cart.stripeSubscriptionId
       );
-      await this.checkoutService.postPaySteps(
-        cart,
-        cart.version,
-        subscription,
-        cart.uid
+      const paymentIntent =
+        await this.subscriptionManager.getLatestPaymentIntent(subscription);
+
+      const customer = await this.customerManager.retrieve(
+        cart.stripeCustomerId
       );
-    } else {
-      const promises: Promise<any>[] = [
-        this.finalizeCartWithError(cartId, CartErrorReasonId.Unknown),
-      ];
-      if (cart.stripeSubscriptionId) {
-        promises.push(
-          this.subscriptionManager.cancel(cart.stripeSubscriptionId)
+
+      if (paymentIntent && paymentIntent.status === 'succeeded') {
+        if (paymentIntent.payment_method) {
+          await this.customerManager.update(customer.id, {
+            invoice_settings: {
+              default_payment_method: paymentIntent.payment_method,
+            },
+          });
+        } else {
+          throw new CartError(
+            'Failed to update customer default payment method',
+            { cartId: cart.id }
+          );
+        }
+        const subscription = await this.subscriptionManager.retrieve(
+          cart.stripeSubscriptionId
         );
+        await this.checkoutService.postPaySteps(
+          cart,
+          cart.version,
+          subscription,
+          cart.uid
+        );
+      } else {
+        const promises: Promise<any>[] = [
+          this.finalizeCartWithError(cartId, CartErrorReasonId.Unknown),
+        ];
+        if (cart.stripeSubscriptionId) {
+          promises.push(
+            this.subscriptionManager.cancel(cart.stripeSubscriptionId)
+          );
+        }
+        await Promise.all([promises]);
+        throw new CheckoutFailedError(`Payment failed for cart ${cartId}`);
       }
-      await Promise.all([promises]);
-      throw new CheckoutFailedError(`Payment failed for cart ${cartId}`);
-    }
+    });
   }
 }
