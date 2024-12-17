@@ -168,7 +168,10 @@ export function CheckoutForm({
       displayName: fullName,
     });
 
-    router.push('./processing');
+    const queryParamString = searchParams.toString()
+      ? `?${searchParams.toString()}`
+      : '';
+    router.push('./processing' + queryParamString);
   };
 
   const nonStripeFieldsComplete = !!fullName;
@@ -298,7 +301,11 @@ export function CheckoutForm({
                     cart.id,
                     CartErrorReasonId.BASIC_ERROR
                   );
-                  router.push('./error');
+                  const queryParamString = searchParams.toString()
+                    ? `?${searchParams.toString()}`
+                    : '';
+
+                  router.push('./error' + queryParamString);
                 }}
                 disabled={loading || !formEnabled}
               />

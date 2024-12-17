@@ -14,14 +14,17 @@ import { getCartOrRedirectAction } from '@fxa/payments/ui/actions';
 
 export default async function ProcessingPage({
   params,
+  searchParams,
 }: {
   params: CheckoutParams;
+  searchParams: Record<string, string> | undefined;
 }) {
   const locale = headers().get('accept-language') || DEFAULT_LOCALE;
   const l10n = getApp().getL10n(locale);
   const cart = await getCartOrRedirectAction(
     params.cartId,
-    SupportedPages.PROCESSING
+    SupportedPages.PROCESSING,
+    searchParams
   );
   return (
     <section

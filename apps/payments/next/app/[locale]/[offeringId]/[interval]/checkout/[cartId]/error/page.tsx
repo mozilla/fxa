@@ -61,7 +61,8 @@ export default async function CheckoutError({
 
   const cartPromise = getCartOrRedirectAction(
     params.cartId,
-    SupportedPages.ERROR
+    SupportedPages.ERROR,
+    searchParams
   );
   const l10n = getApp().getL10n(locale);
   const [cart] = await Promise.all([cartPromise]);

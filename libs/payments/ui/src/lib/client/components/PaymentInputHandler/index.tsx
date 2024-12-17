@@ -12,8 +12,14 @@ import {
 import { useEffect } from 'react';
 import { useStripe } from '@stripe/react-stripe-js';
 import { SupportedPages } from '@fxa/payments/ui';
+import { useSearchParams } from 'next/navigation';
 export function PaymentInputHandler({ cartId }: { cartId: string }) {
   const stripe = useStripe();
+  const searchParams = useSearchParams();
+  const searchParamsRecord: Record<string, string> = {};
+  for (const [key, value] of searchParams.entries()) {
+    searchParamsRecord[key] = value;
+  }
   useEffect(() => {
     if (!stripe) {
       return;
@@ -28,7 +34,11 @@ export function PaymentInputHandler({ cartId }: { cartId: string }) {
           await submitNeedsInputAndRedirectAction(cartId);
           break;
         case 'notRequired':
-          await getCartOrRedirectAction(cartId, SupportedPages.NEEDS_INPUT);
+          await getCartOrRedirectAction(
+            cartId,
+            SupportedPages.NEEDS_INPUT,
+            searchParamsRecord
+          );
           break;
       }
     };

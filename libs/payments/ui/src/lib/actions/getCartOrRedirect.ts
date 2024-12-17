@@ -21,30 +21,38 @@ import { VError } from 'verror';
  */
 async function getCartOrRedirectAction(
   cartId: string,
-  page: SupportedPages.START
+  page: SupportedPages.START,
+  searchParams?: Record<string, string>
 ): Promise<WithContextCart>;
 async function getCartOrRedirectAction(
   cartId: string,
-  page: SupportedPages.PROCESSING
+  page: SupportedPages.PROCESSING,
+  searchParams?: Record<string, string>
 ): Promise<WithContextCart>;
 async function getCartOrRedirectAction(
   cartId: string,
-  page: SupportedPages.NEEDS_INPUT
+  page: SupportedPages.NEEDS_INPUT,
+  searchParams?: Record<string, string>
 ): Promise<WithContextCart>;
 async function getCartOrRedirectAction(
   cartId: string,
-  page: SupportedPages.ERROR
+  page: SupportedPages.ERROR,
+  searchParams?: Record<string, string>
 ): Promise<WithContextCart>;
 async function getCartOrRedirectAction(
   cartId: string,
-  page: SupportedPages.SUCCESS
+  page: SupportedPages.SUCCESS,
+  searchParams?: Record<string, string>
 ): Promise<SuccessCart>;
 
 async function getCartOrRedirectAction(
   cartId: string,
-  page: SupportedPages
+  page: SupportedPages,
+  searchParams?: Record<string, string>
 ): Promise<WithContextCart | SuccessCart> {
   let cart: WithContextCart | SuccessCart | undefined;
+  const urlSearchParams = new URLSearchParams(searchParams);
+  const params = searchParams ? `?${urlSearchParams.toString()}` : '';
   switch (page) {
     case SupportedPages.SUCCESS: {
       try {
@@ -55,7 +63,7 @@ async function getCartOrRedirectAction(
         );
       } catch (error) {
         if (error instanceof CartInvalidStateForActionError) {
-          redirect(getRedirect(VError.info(error).state));
+          redirect(getRedirect(VError.info(error).state) + params);
         } else {
           throw error;
         }
@@ -76,7 +84,7 @@ async function getCartOrRedirectAction(
   }
 
   if (!validateCartState(cart.state, page)) {
-    redirect(getRedirect(cart.state));
+    redirect(getRedirect(cart.state) + params);
   }
 
   return cart;

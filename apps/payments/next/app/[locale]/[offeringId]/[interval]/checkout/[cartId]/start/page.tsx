@@ -48,7 +48,8 @@ export default async function Checkout({
   const cmsDataPromise = fetchCMSData(params.offeringId, locale);
   const cartPromise = getCartOrRedirectAction(
     params.cartId,
-    SupportedPages.START
+    SupportedPages.START,
+    searchParams
   );
   //TODO - Replace with cartPromise as part of FXA-8903
   const [session, cart, cms] = await Promise.all([
@@ -166,7 +167,7 @@ export default async function Checkout({
         )}
       </h3>
 
-      {/* 
+      {/*
         If currency could not be determiend, it is most likely due to an invalid
         or undetermined tax address. Future work will add the Tax Location picker
         which should allow a customer to set their tax location, which would then

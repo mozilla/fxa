@@ -17,6 +17,10 @@ import {
   PaypalCustomerManager,
 } from '@fxa/payments/paypal';
 import {
+  ContentServerClient,
+  ContentServerManager,
+} from '@fxa/payments/content-server';
+import {
   CustomerManager,
   InvoiceManager,
   PaymentMethodManager,
@@ -73,6 +77,8 @@ import { PaymentsEmitterService } from '../emitter/emitter.service';
     CartManager,
     CartService,
     CheckoutTokenManager,
+    ContentServerManager,
+    ContentServerClient,
     CustomerManager,
     CurrencyManager,
     CheckoutService,

@@ -4,6 +4,7 @@
 import { signIn } from 'apps/payments/next/auth';
 import { redirect } from 'next/navigation';
 import { NextRequest } from 'next/server';
+import { getMetricsFlowAction } from '@fxa/payments/ui/actions';
 
 export const dynamic = 'force-dynamic'; // defaults to auto
 
@@ -32,6 +33,12 @@ export async function GET(request: NextRequest) {
 
   let redirectUrl;
   try {
+    const metricsFlow = await getMetricsFlowAction();
+    redirectToUrl.searchParams.set('flowId', metricsFlow.flowId);
+    redirectToUrl.searchParams.set(
+      'flowBeginTime',
+      metricsFlow.flowBeginTime.toString()
+    );
     redirectUrl = await signIn(
       'fxa',
       {
