@@ -202,13 +202,25 @@ export const UnitRowTwoStepAuth = ({
         subRows={getSubRows()}
       >
         {exists && verified ? (
-          <FtlMsg id="tfa-row-enabled-description">
-            <p className="text-sm mt-3">
-              Your account is protected by two-step authentication. You will
-              need to enter a one-time passcode from your authenticator app when
-              logging into your Mozilla account.
-            </p>
-          </FtlMsg>
+          <>
+            <FtlMsg id="tfa-row-enabled-description">
+              <p className="text-sm my-2">
+                Your account is protected by two-step authentication. You will
+                need to enter a one-time passcode from your authenticator app
+                when logging into your Mozilla account.
+              </p>
+            </FtlMsg>
+            <div className="mb-4">
+              <FtlMsg id="tfa-row-enabled-info-link">
+                <LinkExternal
+                  href="https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication"
+                  className="link-blue text-sm "
+                >
+                  How this protects your account
+                </LinkExternal>
+              </FtlMsg>
+            </div>
+          </>
         ) : (
           <FtlMsg
             id="tfa-row-disabled-description"
