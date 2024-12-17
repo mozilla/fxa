@@ -61,6 +61,10 @@
     "watchers": {
       "command": "yarn grunt --gruntfile='apps/payments/next/Gruntfile.js' watchers"
     },
+    "l10n-create": {
+      "dependsOn": ["l10n-merge"],
+      "command": "node -r esbuild-register apps/payments/next/app/_lib/scripts/create-payments-next.ts"
+    },
     "l10n-convert": {
       "dependsOn": ["l10n-prime"],
       "command": "node -r esbuild-register apps/payments/next/app/_lib/scripts/convert.ts"
