@@ -11,6 +11,9 @@ tfa-row-button-refresh =
 tfa-row-cannot-refresh = Sorry, there was a problem refreshing two-step
   authentication.
 tfa-row-enabled-description = Your account is protected by two-step authentication. You will need to enter a one-time passcode from your authentication app when logging into your { -product-mozilla-account }.
+# "this" refers to two-step authentication
+# Link goes to https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication
+tfa-row-enabled-info-link = How this protects your account
 
 # <linkExternal> goes to https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication
 tfa-row-disabled-description = Help secure your account by using a <linkExternal>third-party authenticator app</linkExternal> as a second step to sign in.

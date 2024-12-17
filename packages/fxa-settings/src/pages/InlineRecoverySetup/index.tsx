@@ -52,8 +52,8 @@ const InlineRecoverySetup = ({
           type="success"
           content={{
             localizedHeading: ftlMsgResolver.getMsg(
-              'inline-recovery-2fa-enabled',
-              'Two-step authentication enabled'
+              'inline-recovery-2fa-enabled-v2',
+              'Two-step authentication has been enabled'
             ),
           }}
         />
