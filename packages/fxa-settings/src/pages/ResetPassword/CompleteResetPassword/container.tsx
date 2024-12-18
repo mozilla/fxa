@@ -71,11 +71,14 @@ const CompleteResetPasswordContainer = ({
     token,
     accountResetToken,
     emailToHashWith,
-    kB,
     recoveryKeyId,
     recoveryKeyExists,
     estimatedSyncDeviceCount,
   } = location.state as CompleteResetPasswordLocationState;
+
+  const kB = sensitiveDataClient.getDataType(
+    SensitiveData.Key.DecryptedRecoveryKey
+  )?.kB;
 
   const hasConfirmedRecoveryKey = !!(
     accountResetToken &&
@@ -301,13 +304,10 @@ const CompleteResetPasswordContainer = ({
           // we cannot create a new recovery key if the session is not verified
           if (accountResetData.verified) {
             await account.refresh('account');
-            const createRecoveryKeyResult = await account.createRecoveryKey(
-              newPassword
-            );
-            sensitiveDataClient.setData(
-              'newRecoveryKeyData',
-              createRecoveryKeyResult
-            );
+            const recoveryKey = await account.createRecoveryKey(newPassword);
+            sensitiveDataClient.setDataType(SensitiveData.Key.NewRecoveryKey, {
+              recoveryKey,
+            });
           }
 
           handleNavigationWithRecoveryKey(
