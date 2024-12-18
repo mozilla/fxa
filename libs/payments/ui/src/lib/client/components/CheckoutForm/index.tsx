@@ -184,6 +184,7 @@ export function CheckoutForm({
     >
       <CheckoutCheckbox
         isRequired={showConsentError}
+        disabled={!cart.uid}
         termsOfService={cmsCommonContent.termsOfServiceUrl}
         privacyNotice={cmsCommonContent.privacyNoticeUrl}
         notifyCheckboxChange={(consentCheckbox) => {
