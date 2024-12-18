@@ -32,9 +32,6 @@ const ResetPasswordWithRecoveryKeyVerifiedContainer = ({
   const navigateWithQuery = useNavigateWithQuery();
   const sensitiveDataClient = useSensitiveDataClient();
 
-  const location = useLocation();
-  const { email } = location.state as Record<string, string>;
-
   const authClient = useAuthClient();
   const { finishOAuthFlowHandler } = useFinishOAuthFlowHandler(
     authClient,
@@ -44,7 +41,8 @@ const ResetPasswordWithRecoveryKeyVerifiedContainer = ({
     useState<FinishOAuthFlowHandlerResult['error']>();
 
   const account = useAccount();
-  const { uid, sessionToken } = currentAccount() || {};
+  // TODO: how do we properly handle the real non-null nature?
+  const { uid, sessionToken, email = '💩' } = currentAccount() || {};
   const { keyFetchToken, unwrapBKey } =
     sensitiveDataClient.getDataType(SensitiveData.Key.AccountReset) || {};
   // We keep the previous non-null assertion on 'newRecoveryKey' here because the
