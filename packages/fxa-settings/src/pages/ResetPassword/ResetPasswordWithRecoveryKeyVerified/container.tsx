@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { RouteComponentProps, useLocation } from '@reach/router';
 import { ResetPasswordWithRecoveryKeyVerifiedProps } from './interfaces';
 import { formatRecoveryKey } from '../../../lib/utilities';
@@ -45,20 +45,30 @@ const ResetPasswordWithRecoveryKeyVerifiedContainer = ({
 
   const account = useAccount();
   const { uid, sessionToken } = currentAccount() || {};
-  const { keyFetchToken, unwrapBKey } =
-    sensitiveDataClient.getDataType(SensitiveData.Key.AccountReset) || {};
-  // We keep the previous non-null assertion on 'newRecoveryKey' here because the
-  // flow dictates we definitely have it. This is not good practice.
-  // TODO: Fix me with FXA-10869.
-  const { recoveryKey } = sensitiveDataClient.getDataType(
-    SensitiveData.Key.NewRecoveryKey
-  )!;
-  const newRecoveryKey = formatRecoveryKey(recoveryKey);
-
   const updateRecoveryKeyHint = useCallback(
     async (hint: string) => account.updateRecoveryKeyHint(hint),
     [account]
   );
+  const { keyFetchToken, unwrapBKey } =
+    sensitiveDataClient.getDataType(SensitiveData.Key.AccountReset) || {};
+  const recoveryKey = sensitiveDataClient.getDataType(
+    SensitiveData.Key.NewRecoveryKey
+  )?.recoveryKey;
+
+  useEffect(() => {
+    if (!recoveryKey) {
+      // If we get here, that means a password reset was completed (with a verified account).
+      // Along the way, we have lost a copy of the recovery key in memory if the page was unloaded.
+      // This is fine - we navigate to the confirmed page and carry on.
+      navigateWithQuery('/reset_password_verified', { replace: true });
+    }
+  }, [recoveryKey, navigateWithQuery]);
+
+  if (!recoveryKey) {
+    return;
+  }
+
+  const newRecoveryKey = formatRecoveryKey(recoveryKey.buffer);
 
   const navigateToHint = () => setShowHint(true);
   const navigateNext = async (continueToAccountEvent: () => void) => {
