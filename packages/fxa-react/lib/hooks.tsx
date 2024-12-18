@@ -43,7 +43,7 @@ export function useClickOutsideEffect<T>(onClickOutside: Function) {
       }
     };
     document.body.addEventListener('click', onBodyClick);
-    return () => document.body.removeEventListener('click', onBodyClick);
+    return () => document.body?.removeEventListener('click', onBodyClick);
   }, [onClickOutside]);
 
   return insideEl;
