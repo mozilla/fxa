@@ -139,7 +139,7 @@ function mockVerifyTotp(success: boolean = true, errorOut: boolean = false) {
   ]);
 }
 const mockSensitiveDataClient = createMockSensitiveDataClient();
-mockSensitiveDataClient.getData = jest.fn();
+mockSensitiveDataClient.getDataType = jest.fn();
 function resetMockSensitiveDataClient() {
   mockSensitiveDataClient.setDataType(
     SensitiveData.Key.KeyStretchUpgrade,
