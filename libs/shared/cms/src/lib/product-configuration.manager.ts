@@ -60,6 +60,7 @@ export class ProductConfigurationManager {
       method: response.method,
       error: response.error ? 'true' : 'false',
       cache: `${response.cache}`,
+      cacheType: `${response.cacheType}`,
     };
     const operationName = response.query && getOperationName(response.query);
     const tags = operationName

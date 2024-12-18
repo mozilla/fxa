@@ -41,6 +41,7 @@ export interface StrapiClientEventResponse {
   requestEndTime: number;
   elapsed: number;
   cache: boolean;
+  cacheType: 'method' | 'memory' | 'stale' | 'fallback';
   query?: TypedDocumentNode;
   variables?: string;
   error?: Error;
