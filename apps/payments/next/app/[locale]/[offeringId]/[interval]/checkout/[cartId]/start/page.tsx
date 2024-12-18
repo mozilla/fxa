@@ -4,6 +4,7 @@
 
 import { headers } from 'next/headers';
 import Image from 'next/image';
+import clsx from 'clsx';
 import {
   BaseButton,
   buildRedirectUrl,
@@ -136,7 +137,11 @@ export default async function Checkout({
 
       {!session?.user?.email ? (
         <h2
-          className="font-semibold text-grey-600 text-lg mt-10 mb-5"
+          className={clsx(
+            'font-semibold text-grey-600 text-lg mt-10 mb-5',
+            !session?.user?.email &&
+              'cursor-not-allowed relative focus:border-blue-400 focus:outline-none focus:shadow-input-blue-focus after:absolute after:content-[""] after:top-0 after:left-0 after:w-full after:h-full after:bg-white after:opacity-50 after:z-10 select-none'
+          )}
           data-testid="header-prefix"
         >
           {l10n.getString(
@@ -160,7 +165,13 @@ export default async function Checkout({
           </h2>
         </>
       )}
-      <h3 className="font-semibold text-grey-600 text-start">
+      <h3
+        className={clsx(
+          'font-semibold text-grey-600 text-start',
+          !session?.user?.email &&
+            'cursor-not-allowed relative focus:border-blue-400 focus:outline-none focus:shadow-input-blue-focus after:absolute after:content-[""] after:top-0 after:left-0 after:w-full after:h-full after:bg-white after:opacity-50 after:z-10 select-none'
+        )}
+      >
         {l10n.getString(
           'next-payment-method-first-approve',
           'First you’ll need to approve your subscription'
