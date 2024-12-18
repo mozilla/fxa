@@ -31,6 +31,10 @@ config.theme.extend = {
     ...config.theme.extend.backgroundImage,
     /* TODO: move this to `fxa-react`, FXA-5745 */
     'ff-logo': "url('../../libs/shared/assets/src/images/ff-logo.svg')",
+    // Flag images are displayed as background-images in the country selection inputs.
+    // This prevents the image from interfering with "type to search/select"
+    'flag-usa': "inline('../components/Icons/icon_flag_usa.min.svg')",
+    'flag-canada': "inline('../components/Icons/icon_flag_canada.min.svg')",
   },
   keyframes: {
     ...config.theme.extend.keyframes,
