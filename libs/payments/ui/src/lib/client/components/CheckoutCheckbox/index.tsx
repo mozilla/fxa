@@ -13,6 +13,7 @@ interface CheckoutCheckboxProps {
   termsOfService: string;
   privacyNotice: string;
   notifyCheckboxChange: (isChecked: boolean) => void;
+  sessionExists: boolean;
 }
 
 export function CheckoutCheckbox({
@@ -20,6 +21,7 @@ export function CheckoutCheckbox({
   termsOfService,
   privacyNotice,
   notifyCheckboxChange,
+  sessionExists,
 }: CheckoutCheckboxProps) {
   // Fluent React Overlays cause hydration issues due to SSR.
   // Using isClient along with the useEffect ensures its only run Client Side
@@ -41,7 +43,7 @@ export function CheckoutCheckbox({
   return (
     <Tooltip.Provider>
       <Tooltip.Root open={isRequired && !isChecked}>
-        <label className="flex gap-5 items-center my-6">
+        <label className="flex gap-5 items-center mx-1 my-6">
           <Tooltip.Trigger asChild>
             <input
               type="checkbox"
@@ -49,6 +51,7 @@ export function CheckoutCheckbox({
               className="grow-0 shrink-0 basis-4 scale-150 cursor-pointer"
               checked={isChecked}
               onChange={changeHandler}
+              tabIndex={sessionExists ? 0 : -1}
               required
               aria-describedby="checkboxError"
               aria-required
@@ -63,6 +66,7 @@ export function CheckoutCheckbox({
                     href={termsOfService}
                     className="text-blue-500 underline"
                     data-testid="link-external-terms-of-service"
+                    tabIndex={sessionExists ? 0 : -1}
                   >
                     Terms of Service
                   </LinkExternal>
@@ -72,6 +76,7 @@ export function CheckoutCheckbox({
                     href={privacyNotice}
                     className="text-blue-500 underline"
                     data-testid="link-external-privacy-notice"
+                    tabIndex={sessionExists ? 0 : -1}
                   >
                     Privacy Notice
                   </LinkExternal>
