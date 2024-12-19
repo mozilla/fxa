@@ -67,7 +67,10 @@ export async function tryFinalizeUpgrade(
   } finally {
     // Clear out the state. No reason to keep trying this...
     // Note that the upgradeClient will report issues to Sentry.
-    sensitiveDataClient.KeyStretchUpgradeData = undefined;
+    sensitiveDataClient.setDataType(
+      SensitiveData.Key.KeyStretchUpgrade,
+      undefined
+    );
   }
   return false;
 }
