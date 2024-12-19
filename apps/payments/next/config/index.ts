@@ -111,7 +111,7 @@ export class PaymentsNextConfig extends NestAppRootConfig {
   contentServerUrl!: string;
 
   @IsUrl({ require_tld: false })
-  baseUrl!: string;
+  paymentsNextHostedUrl!: string;
 
   /**
    * Nextjs Public Environment Variables

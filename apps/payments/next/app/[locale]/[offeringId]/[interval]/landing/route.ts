@@ -5,6 +5,8 @@ import { signIn } from 'apps/payments/next/auth';
 import { redirect } from 'next/navigation';
 import { NextRequest } from 'next/server';
 import { getMetricsFlowAction } from '@fxa/payments/ui/actions';
+import { BaseParams, buildRedirectUrl } from '@fxa/payments/ui';
+import { config } from 'apps/payments/next/config';
 
 export const dynamic = 'force-dynamic'; // defaults to auto
 
@@ -26,19 +28,31 @@ export const dynamic = 'force-dynamic'; // defaults to auto
  * This needs to be a route handler, since the `signIn` server
  * action needs to be executed from a route handler.
  */
-export async function GET(request: NextRequest) {
-  // Replace 'landing' in the URL with 'new'
-  const redirectToUrl = request.nextUrl.clone();
-  redirectToUrl.pathname = redirectToUrl.pathname.replace('/landing', '/new');
+export async function GET(
+  request: NextRequest,
+  { params }: { params: BaseParams }
+) {
+  const searchParams = Object.fromEntries(request.nextUrl.searchParams);
+  const redirectToUrl = new URL(
+    buildRedirectUrl(params.offeringId, params.interval, 'new', 'checkout', {
+      locale: params.locale,
+      baseUrl: config.paymentsNextHostedUrl,
+      searchParams,
+    })
+  );
 
   let redirectUrl;
   try {
-    const metricsFlow = await getMetricsFlowAction();
-    redirectToUrl.searchParams.set('flowId', metricsFlow.flowId);
-    redirectToUrl.searchParams.set(
-      'flowBeginTime',
-      metricsFlow.flowBeginTime.toString()
-    );
+    try {
+      const metricsFlow = await getMetricsFlowAction();
+      redirectToUrl.searchParams.set('flowId', metricsFlow.flowId);
+      redirectToUrl.searchParams.set(
+        'flowBeginTime',
+        metricsFlow.flowBeginTime.toString()
+      );
+    } catch (error) {
+      console.error(error);
+    }
     redirectUrl = await signIn(
       'fxa',
       {

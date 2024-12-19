@@ -12,3 +12,4 @@ export * from './lib/server/components/SignedIn';
 export * from './lib/server/components/SubscriptionTitle';
 export * from './lib/server/components/TermsAndPrivacy';
 export * from './lib/utils/types';
+export * from './lib/utils/getIpAddress';

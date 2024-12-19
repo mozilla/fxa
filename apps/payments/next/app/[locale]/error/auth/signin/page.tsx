@@ -28,11 +28,17 @@ export default async function Error({
 }) {
   const fallbackErrorPagePath = '/error';
 
+  // TODO: Consider adding this logic to signing callback for the provider
   if (searchParams?.error !== 'OAuthCallbackError') {
     redirect(fallbackErrorPagePath);
   }
   const cookieStore = cookies();
-  const redirectUrl = cookieStore.get('authjs.callback-url');
+  // Not ideal, however this is the most up to date work around I've been
+  // able to find thus far. For more background, see the link below.
+  // https://github.com/nextauthjs/next-auth/issues/4301
+  const redirectUrl =
+    cookieStore.get('__Secure-authjs.callback-url') ||
+    cookieStore.get('authjs.callback-url');
 
   if (redirectUrl?.value) {
     redirect(`${redirectUrl.value}`);
