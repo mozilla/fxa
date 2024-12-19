@@ -1,0 +1,10 @@
+{
+  "subject": {
+    "id": "postAddRecoveryPhone-subject",
+    "message": "Backup recovery phone added"
+  },
+  "action": {
+    "id": "postAddRecoveryPhone-action",
+    "message": "Manage account"
+  }
+}
