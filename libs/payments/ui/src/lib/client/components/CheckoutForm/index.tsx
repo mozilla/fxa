@@ -49,12 +49,14 @@ interface CheckoutFormProps {
     };
   };
   locale: string;
+  sessionExists: boolean;
 }
 
 export function CheckoutForm({
   cmsCommonContent,
   cart,
   locale,
+  sessionExists,
 }: CheckoutFormProps) {
   const { l10n } = useLocalization();
   const elements = useElements();
@@ -193,6 +195,7 @@ export function CheckoutForm({
           setFormEnabled(consentCheckbox);
           setShowConsentError(true);
         }}
+        sessionExists={sessionExists}
       />
       <div
         className={
@@ -314,6 +317,7 @@ export function CheckoutForm({
                 className="mt-10 w-full"
                 type="submit"
                 variant={ButtonVariant.Primary}
+                tabIndex={sessionExists ? 0 : -1}
                 aria-disabled={
                   !stripeFieldsComplete || !nonStripeFieldsComplete || loading
                 }
