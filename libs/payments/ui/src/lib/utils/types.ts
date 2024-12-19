@@ -10,9 +10,12 @@ export enum SupportedPages {
   ERROR = 'error',
 }
 
-export type CheckoutParams = {
-  cartId: string;
+export interface BaseParams {
   locale: string;
   interval: string;
   offeringId: string;
-};
+}
+
+export interface CheckoutParams extends BaseParams {
+  cartId: string;
+}
