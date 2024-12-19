@@ -35,6 +35,7 @@ module.exports = (log, db, mailer, customs, config, glean, profileClient) => {
   promisify(qrcode.toDataURL);
 
   const accountEventsManager = Container.get(AccountEventsManager);
+  const recoveryPhoneService = Container.get('RecoveryPhoneService');
 
   return [
     {
@@ -130,6 +131,16 @@ module.exports = (log, db, mailer, customs, config, glean, profileClient) => {
         auth: {
           strategy: 'sessionToken',
         },
+        validate: {
+          payload: isA.object({
+            code: isA
+              .string()
+              .max(32)
+              .regex(validators.DIGITS)
+              .optional()
+              .description(DESCRIPTION.codeTotp),
+          }),
+        },
         response: {},
       },
       handler: async function (request) {
@@ -149,6 +160,31 @@ module.exports = (log, db, mailer, customs, config, glean, profileClient) => {
         // verified *if and only if* they have verified a TOTP code.
         if (!sessionToken.tokenVerified) {
           throw errors.unverifiedSession();
+        }
+
+        // Will also use the recovery phone to validate the code.
+        const code = request.payload.code;
+        if (code) {
+          // Client has posted a code, but we need make it was a code that was actually
+          // sent to the client
+          const success = await recoveryPhoneService.confirmCode(uid, code);
+          if (!success) {
+            throw errors.invalidOrExpiredOtpCode();
+          }
+
+          // Next make sure the code hasn't expired
+          const token = await db.totpToken(sessionToken.uid);
+          const isValidCode = otpUtils.verifyOtpCode(code, token.sharedSecret, {
+            encoding: 'hex',
+            step: config.step,
+            window: config.window,
+          });
+          if (!isValidCode) {
+            throw errors.invalidOrExpiredOtpCode();
+          }
+
+          // Code seems legit. Record metric and proceed with totp deletion
+          glean.twoStepAuthRemove.success();
         }
 
         await db.deleteTotpToken(uid);
