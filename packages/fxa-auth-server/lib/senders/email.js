@@ -84,6 +84,9 @@ module.exports = function (log, config, bounces) {
     postAddAccountRecovery: 'account-recovery-generated',
     postChangeAccountRecovery: 'account-recovery-changed',
     postRemoveAccountRecovery: 'account-recovery-removed',
+    postAddRecoveryPhone: 'recovery-phone-added',
+    postChangeRecoveryPhone: 'recovery-phone-changed',
+    postRemoveRecoveryPhone: 'recovery-phone-removed',
     recovery: 'forgot-password',
     unblockCode: 'new-unblock',
     verify: 'welcome',
@@ -136,6 +139,7 @@ module.exports = function (log, config, bounces) {
     postAddAccountRecovery: 'manage-account',
     postChangeAccountRecovery: 'manage-account',
     postRemoveAccountRecovery: 'manage-account',
+    postAddRecoveryPhone: 'manage-account',
     recovery: 'reset-password',
     unblockCode: 'unblock-code',
     verify: 'activate',
@@ -1571,6 +1575,120 @@ module.exports = function (log, config, bounces) {
         privacyUrl: links.privacyUrl,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
+      },
+    });
+  };
+
+  Mailer.prototype.postAddRecoveryPhoneEmail = function (message) {
+    const templateName = 'postAddRecoveryPhone';
+    const links = this._generateLinks(
+      this.initiatePasswordResetUrl,
+      message,
+      {},
+      templateName
+    );
+    const [time, date] = this._constructLocalTimeString(
+      message.timeZone,
+      message.acceptLanguage
+    );
+
+    const headers = {
+      'X-Link': links.resetLink,
+    };
+
+    return this.send({
+      ...message,
+      headers,
+      template: templateName,
+      templateValues: {
+        date,
+        device: this._formatUserAgentInfo(message),
+        privacyUrl: links.privacyUrl,
+        link: links.link,
+        // TODO, get actual last 4 when functionality is implemented (FXA-10370)
+        /* Note that currently, we cannot define new EJS variables in our plain
+         * text files without extra overhead of parsing these out before EJS
+         * rendering, and adding them to our templateValues for Fluent. Because
+         * of this, for now, we'll pass the variable with the bulleted mask
+         * instead of handling the bulleted mask in the template itself. */
+        maskedLastFourPhoneNumber: '••••••1234',
+        resetLink: links.resetLink,
+        resetLinkAttributes: links.resetLinkAttributes,
+        supportLinkAttributes: links.supportLinkAttributes,
+        // TODO, update this with proper #heading once it's written and add to links obj w/
+        // UTM parms, tests, & ensure Storybook is updated as well, FXA-10918
+        twoFactorSupportLink:
+          'https://support.mozilla.org/en-US/kb/secure-firefox-account-two-step-authentication',
+        supportUrl: links.supportUrl,
+        time,
+      },
+    });
+  };
+
+  Mailer.prototype.postChangeRecoveryPhoneEmail = function (message) {
+    const templateName = 'postChangeRecoveryPhone';
+    const links = this._generateLinks(
+      this.initiatePasswordResetUrl,
+      message,
+      {},
+      templateName
+    );
+    const [time, date] = this._constructLocalTimeString(
+      message.timeZone,
+      message.acceptLanguage
+    );
+
+    const headers = {
+      'X-Link': links.resetLink,
+    };
+
+    return this.send({
+      ...message,
+      headers,
+      template: templateName,
+      templateValues: {
+        date,
+        device: this._formatUserAgentInfo(message),
+        privacyUrl: links.privacyUrl,
+        resetLink: links.resetLink,
+        resetLinkAttributes: links.resetLinkAttributes,
+        supportLinkAttributes: links.supportLinkAttributes,
+        supportUrl: links.supportUrl,
+        time,
+      },
+    });
+  };
+
+  Mailer.prototype.postRemoveRecoveryPhoneEmail = function (message) {
+    const templateName = 'postRemoveRecoveryPhone';
+    const links = this._generateLinks(
+      this.initiatePasswordResetUrl,
+      message,
+      {},
+      templateName
+    );
+    const [time, date] = this._constructLocalTimeString(
+      message.timeZone,
+      message.acceptLanguage
+    );
+
+    const headers = {
+      'X-Link': links.resetLink,
+    };
+
+    return this.send({
+      ...message,
+      headers,
+      template: templateName,
+      templateValues: {
+        date,
+        device: this._formatUserAgentInfo(message),
+        privacyUrl: links.privacyUrl,
+        resetLink: links.resetLink,
+        resetLinkAttributes: links.resetLinkAttributes,
+        supportLinkAttributes: links.supportLinkAttributes,
+        supportUrl: links.supportUrl,
+        time,
       },
     });
   };

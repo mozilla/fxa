@@ -1,0 +1,33 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-header">
+      <span data-l10n-id="postAddRecoveryPhone-title">You created a recovery phone number</span>
+    </mj-text>
+
+    <mj-text css-class="text-body-no-margin">
+      <span dir="ltr" data-l10n-id="postAddRecoveryPhone-description" data-l10n-args="<%= JSON.stringify({ maskedLastFourPhoneNumber }) %>">You added <%- maskedLastFourPhoneNumber %> as your recovery phone</span>
+    </mj-text>
+    <mj-text css-class="text-body">
+      <a class="link-blue" href="<%- twoFactorSupportLink %>">
+        <span data-l10n-id="postAddRecoveryPhone-how-protect">How this protects your account</span>
+      </a>
+      </span>
+    </mj-text>
+
+    <mj-text css-class="text-body-no-margin">
+      <span data-l10n-id="postAddRecoveryPhone-enabled-device">You enabled it from:</span>
+    </mj-text>
+  </mj-column>
+</mj-section>
+<%- include('/partials/userInfo/index.mjml') %>
+
+<%- include('/partials/button/index.mjml', {
+  buttonL10nId: "postAddRecoveryPhone-action",
+  buttonText: "Manage account"
+}) %>
+
+<%- include('/partials/automatedEmailResetPassword/index.mjml') %>

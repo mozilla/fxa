@@ -1,0 +1,25 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-header">
+      <span data-l10n-id="postRemoveRecoveryPhone-title">Recovery phone removed</span>
+    </mj-text>
+  </mj-column>
+</mj-section>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-body">
+      <span data-l10n-id="postRemoveRecoveryPhone-description">Your recovery phone has been removed from your two-step authentication settings. You still have your backup authentication codes available for use.</span>
+    </mj-text>
+    <mj-text css-class="text-body-no-margin">
+      <span data-l10n-id="postRemoveRecoveryPhone-requested-device">You requested it from:</span>
+    </mj-text>
+  </mj-column>
+</mj-section>
+<%- include('/partials/userInfo/index.mjml') %>
+
+<%- include('/partials/automatedEmailResetPassword/index.mjml') %>
