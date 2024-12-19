@@ -3,41 +3,35 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { auth } from 'apps/payments/next/auth';
-import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { NextRequest } from 'next/server';
 import { setupCartAction } from '@fxa/payments/ui/actions';
 import { CartEligibilityStatus } from '@fxa/shared/db/mysql/account';
+import { BaseParams, buildRedirectUrl } from '@fxa/payments/ui';
+import { getIpAddress } from '@fxa/payments/ui/server';
+import { config } from 'apps/payments/next/config';
 
 export const dynamic = 'force-dynamic';
-
-interface CheckoutNewParams {
-  locale: string;
-  offeringId: string;
-  interval: string;
-}
 
 export async function GET(
   request: NextRequest,
   {
     params,
   }: {
-    params: CheckoutNewParams;
+    params: BaseParams;
   }
 ) {
-  const { offeringId, interval } = params;
-  const redirectToUrl = request.nextUrl.clone();
+  const { offeringId, interval, locale } = params;
   const searchParams = request.nextUrl.searchParams;
-  const coupon = searchParams.get('coupon') || undefined;
   const session = await auth();
+  const ip = getIpAddress();
 
   const fxaUid = session?.user?.id;
-  const ip = (headers().get('x-forwarded-for') ?? '127.0.0.1').split(',')[0];
+  const coupon = searchParams.get('coupon') || undefined;
 
-  let eligibilityStatus = 'checkout';
-  let cartId: string;
+  let redirectToUrl: URL;
   try {
-    const currentCart = await setupCartAction(
+    const { id: cartId, eligibilityStatus } = await setupCartAction(
       interval,
       offeringId,
       undefined,
@@ -45,33 +39,48 @@ export async function GET(
       fxaUid,
       ip
     );
-    cartId = currentCart.id;
 
-    eligibilityStatus =
-      currentCart.eligibilityStatus === CartEligibilityStatus.UPGRADE
+    const pageType =
+      eligibilityStatus === CartEligibilityStatus.UPGRADE
         ? 'upgrade'
         : 'checkout';
+
+    redirectToUrl = new URL(
+      buildRedirectUrl(offeringId, interval, 'start', pageType, {
+        locale,
+        cartId,
+        baseUrl: config.paymentsNextHostedUrl,
+        searchParams: Object.fromEntries(searchParams),
+      })
+    );
   } catch (error) {
     if (error.constructor.name === 'CartInvalidPromoCodeError') {
-      cartId = (
-        await setupCartAction(
-          interval,
-          offeringId,
-          undefined,
-          undefined,
-          fxaUid,
-          ip
-        )
-      ).id;
+      const { id: cartId, eligibilityStatus } = await setupCartAction(
+        interval,
+        offeringId,
+        undefined,
+        undefined,
+        fxaUid,
+        ip
+      );
+
+      const pageType =
+        eligibilityStatus === CartEligibilityStatus.UPGRADE
+          ? 'upgrade'
+          : 'checkout';
+
+      redirectToUrl = new URL(
+        buildRedirectUrl(offeringId, interval, 'start', pageType, {
+          locale,
+          cartId,
+          baseUrl: config.paymentsNextHostedUrl,
+          searchParams: Object.fromEntries(searchParams),
+        })
+      );
     } else {
       throw error;
     }
   }
-
-  redirectToUrl.pathname = redirectToUrl.pathname.replace(
-    '/new',
-    `/${eligibilityStatus}/${cartId}/start`
-  );
 
   redirect(redirectToUrl.href);
 }

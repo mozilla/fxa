@@ -63,7 +63,11 @@ export default async function Checkout({
     params.interval,
     'new',
     'checkout',
-    { baseUrl: config.baseUrl, locale: params.locale, searchParams }
+    {
+      baseUrl: config.paymentsNextHostedUrl,
+      locale: params.locale,
+      searchParams,
+    }
   );
 
   return (
