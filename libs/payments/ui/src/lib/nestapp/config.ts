@@ -5,6 +5,7 @@
 import { Type } from 'class-transformer';
 import { IsDefined, ValidateNested } from 'class-validator';
 
+import { GoogleClientConfig } from '@fxa/google';
 import { MySQLConfig } from '@fxa/shared/db/mysql/core';
 import { GeoDBConfig, GeoDBManagerConfig } from '@fxa/shared/geodb';
 import { PaypalClientConfig } from 'libs/payments/paypal/src/lib/paypal.client.config';
@@ -82,4 +83,9 @@ export class RootConfig {
   @ValidateNested()
   @IsDefined()
   public readonly contentServerClientConfig!: Partial<ContentServerClientConfig>;
+
+  @Type(() => GoogleClientConfig)
+  @ValidateNested()
+  @IsDefined()
+  public readonly googleClientConfig!: Partial<GoogleClientConfig>;
 }

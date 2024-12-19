@@ -18,3 +18,4 @@ export { finalizeCartWithError } from './finalizeCartWithError';
 export { finalizeProcessingCartAction } from './finalizeProcessingCart';
 export { getNeedsInputAction } from './getNeedsInput';
 export { submitNeedsInputAndRedirectAction } from './submitNeedsInputAndRedirect';
+export { validatePostalCode } from './validatePostalCode';

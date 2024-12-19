@@ -2,7 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { headers } from 'next/headers';
-import { CouponForm, MetricsWrapper, PurchaseDetails } from '@fxa/payments/ui';
+import {
+  CouponForm,
+  MetricsWrapper,
+  PurchaseDetails,
+  SelectTaxLocation,
+} from '@fxa/payments/ui';
 import { fetchCMSData, getCartAction } from '@fxa/payments/ui/actions';
 import {
   getApp,
@@ -94,6 +99,12 @@ export default async function RootLayout({
             cartVersion={cart.version}
             promoCode={cart.couponCode}
             readOnly={false}
+          />
+          <SelectTaxLocation
+            locale={locale.substring(0, 2)}
+            unsupportedLocations={config.subscriptionsUnsupportedLocations}
+            countryCode={cart.taxAddress?.countryCode}
+            postalCode={cart.taxAddress?.postalCode}
           />
         </section>
 
