@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { Request, RequestApplicationState } from '@hapi/hapi';
+import { AuthCredentials, Request, RequestApplicationState } from '@hapi/hapi';
 import { Token } from 'typedi';
 import { Logger } from 'mozlog';
 import { ConfigType } from '../config';
@@ -44,11 +44,38 @@ export interface AuthApp extends RequestApplicationState {
   };
 }
 
+// Type declaration for SessionToken found in lib/tokens/session_token.js
+export interface SessionTokenAuthCredential {
+  uid: string;
+  lifetime: number;
+  createdAt: number;
+  email: string | null;
+  emailCode: string | null;
+  emailVerified: boolean;
+  verifierSetAt: number;
+  profileChangedAt: number;
+  keysChangedAt: number;
+  authAt: number;
+  locale: string | null;
+  mustVerify: boolean;
+  tokenVerificationId: string | null;
+  tokenVerified: boolean;
+  verificationMethod: number;
+  verificationMethodValue: string;
+  verifiedAt: number | null;
+  metricsOptOutAt: number | null;
+  providerId: string | null;
+}
+
+export type AuthCredentialsWithScope = AuthCredentials & {
+  scope: string[];
+};
+
 export interface AuthRequest extends Request {
   auth: Request['auth'] & {
     // AuthRequest will always have scopes present provided by
     // the auth-oauth scheme
-    credentials: Request['auth']['credentials'] & { scope: string[] };
+    credentials: AuthCredentialsWithScope | SessionTokenAuthCredential;
   };
   // eslint-disable-next-line no-use-before-define
   log: AuthLogger;

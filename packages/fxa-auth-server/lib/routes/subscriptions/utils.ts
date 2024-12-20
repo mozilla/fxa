@@ -16,7 +16,7 @@ export async function handleAuth(
   auth: AuthRequest['auth'],
   fetchEmail = false
 ) {
-  const scope = ScopeSet.fromArray(auth.credentials.scope);
+  const scope = ScopeSet.fromArray(auth.credentials.scope || []);
   if (!scope.contains(OAUTH_SCOPE_SUBSCRIPTIONS)) {
     throw error.invalidScopes();
   }
@@ -37,7 +37,7 @@ export async function handleAuth(
 }
 
 export function handleUidAuth(auth: AuthRequest['auth']): string {
-  const scope = ScopeSet.fromArray(auth.credentials.scope);
+  const scope = ScopeSet.fromArray(auth.credentials.scope || []);
   if (!scope.contains(OAUTH_SCOPE_SUBSCRIPTIONS)) {
     throw error.invalidScopes();
   }
@@ -45,7 +45,7 @@ export function handleUidAuth(auth: AuthRequest['auth']): string {
 }
 
 export function handleAuthScoped(auth: AuthRequest['auth'], scopes: string[]) {
-  const scope = ScopeSet.fromArray(auth.credentials.scope);
+  const scope = ScopeSet.fromArray(auth.credentials.scope || []);
   for (const requiredScope of scopes) {
     if (!scope.contains(requiredScope)) {
       throw error.invalidScopes();

@@ -1402,7 +1402,7 @@ export class AccountHandler {
       scope = { contains: () => true };
     } else {
       uid = auth.credentials.user;
-      scope = ScopeSet.fromArray(auth.credentials.scope);
+      scope = ScopeSet.fromArray(auth.credentials.scope || []);
     }
 
     const res: Record<string, any> = {};

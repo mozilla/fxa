@@ -10,7 +10,7 @@ import {
 } from '@fxa/accounts/recovery-phone';
 import * as isA from 'joi';
 import { GleanMetricsType } from '../metrics/glean';
-import { AuthLogger, AuthRequest } from '../types';
+import { AuthLogger, AuthRequest, SessionTokenAuthCredential } from '../types';
 import { E164_NUMBER } from './validators';
 import AppError from '../error';
 
@@ -32,7 +32,7 @@ class RecoveryPhoneHandler {
   }
 
   async sendCode(request: AuthRequest) {
-    const { uid } = request.auth.credentials as unknown as { uid: string };
+    const { uid } = request.auth.credentials as SessionTokenAuthCredential;
 
     let status = false;
     try {
@@ -56,7 +56,7 @@ class RecoveryPhoneHandler {
   }
 
   async setupPhoneNumber(request: AuthRequest) {
-    const { uid } = request.auth.credentials as unknown as { uid: string };
+    const { uid } = request.auth.credentials as SessionTokenAuthCredential;
     const { phoneNumber } = request.payload as unknown as {
       phoneNumber: string;
     };
@@ -93,7 +93,7 @@ class RecoveryPhoneHandler {
   }
 
   async confirm(request: AuthRequest) {
-    const { uid } = request.auth.credentials as unknown as { uid: string };
+    const { uid } = request.auth.credentials as SessionTokenAuthCredential;
     const { code } = request.payload as unknown as {
       code: string;
     };
@@ -167,6 +167,30 @@ class RecoveryPhoneHandler {
     return {
       available,
     };
+  }
+
+  async exists(request: AuthRequest) {
+    const { uid, emailVerified, mustVerify, tokenVerified } = request.auth
+      .credentials as SessionTokenAuthCredential;
+
+    // Short circuit if the account / session still needs verification.
+    // Note this is typically due to totp being required, but there are
+    // other states that could also result in an unverified session, such
+    // as a forced password change.
+    if (emailVerified || (mustVerify && !tokenVerified)) {
+      return {};
+    }
+
+    try {
+      return await this.recoveryPhoneService.hasConfirmed(uid);
+    } catch (error) {
+      throw AppError.backendServiceFailure(
+        'RecoveryPhoneService',
+        'destroy',
+        { uid },
+        error
+      );
+    }
   }
 }
 
@@ -245,6 +269,18 @@ export const recoveryPhoneRoutes = (
       },
       handler: function (request: AuthRequest) {
         return recoveryPhoneHandler.destroy(request);
+      },
+    },
+    {
+      method: 'GET',
+      path: '/recovery-phone',
+      options: {
+        auth: {
+          strategy: 'sessionToken',
+        },
+      },
+      handler: function (request: AuthRequest) {
+        return recoveryPhoneHandler.exists(request);
       },
     },
   ];
