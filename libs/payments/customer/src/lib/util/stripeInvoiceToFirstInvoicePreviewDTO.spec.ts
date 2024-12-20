@@ -25,7 +25,7 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
     const result = stripeInvoiceToInvoicePreviewDTO(mockUpcomingInvoice);
     expect(result).toEqual({
       currency: mockUpcomingInvoice.currency,
-      listAmount: mockUpcomingInvoice.amount_due,
+      listAmount: mockUpcomingInvoice.subtotal,
       totalAmount: mockUpcomingInvoice.total,
       taxAmounts: [
         {
@@ -57,7 +57,7 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
     const result = stripeInvoiceToInvoicePreviewDTO(mockUpcomingInvoice);
     expect(result).toEqual({
       currency: mockUpcomingInvoice.currency,
-      listAmount: mockUpcomingInvoice.amount_due,
+      listAmount: mockUpcomingInvoice.subtotal,
       totalAmount: mockUpcomingInvoice.total,
       taxAmounts: [
         {
@@ -89,7 +89,7 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
     const result = stripeInvoiceToInvoicePreviewDTO(mockUpcomingInvoice);
     expect(result).toEqual({
       currency: mockUpcomingInvoice.currency,
-      listAmount: mockUpcomingInvoice.amount_due,
+      listAmount: mockUpcomingInvoice.subtotal,
       totalAmount: mockUpcomingInvoice.total,
       taxAmounts: [
         {

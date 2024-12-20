@@ -13,7 +13,6 @@ import {
   SubscriptionManager,
   InvoicePreview,
   PaymentMethodManager,
-  PaymentIntentManager,
 } from '@fxa/payments/customer';
 import { EligibilityService } from '@fxa/payments/eligibility';
 import {
@@ -55,6 +54,9 @@ import { AccountManager } from '@fxa/shared/account/account';
 import assert from 'assert';
 import { CheckoutFailedError } from './checkout.error';
 
+// TODO - Add flow to handle situations where currency is not found
+const DEFAULT_CURRENCY = 'USD';
+
 @Injectable()
 export class CartService {
   constructor(
@@ -70,8 +72,7 @@ export class CartService {
     private invoiceManager: InvoiceManager,
     private productConfigurationManager: ProductConfigurationManager,
     private subscriptionManager: SubscriptionManager,
-    private paymentMethodManager: PaymentMethodManager,
-    private paymentIntentManager: PaymentIntentManager
+    private paymentMethodManager: PaymentMethodManager
   ) {}
 
   /**
@@ -157,9 +158,22 @@ export class CartService {
     const fxaAccount =
       fxaAccounts && fxaAccounts.length > 0 ? fxaAccounts[0] : undefined;
 
+    let currency: string | undefined = undefined;
+    if (taxAddress?.countryCode) {
+      currency = this.currencyManager.getCurrencyForCountry(
+        taxAddress?.countryCode
+      );
+      if (!currency) {
+        throw new CartInvalidCurrencyError(currency, taxAddress.countryCode);
+      }
+    }
+
+    if (!currency) currency = DEFAULT_CURRENCY;
+
     const [upcomingInvoice, eligibility] = await Promise.all([
       this.invoiceManager.previewUpcoming({
         priceId: price.id,
+        currency,
         customer: stripeCustomer,
         taxAddress: taxAddress,
         couponCode: args.promoCode,
@@ -181,16 +195,6 @@ export class CartService {
         );
       } catch (e) {
         throw new CartInvalidPromoCodeError(args.promoCode);
-      }
-    }
-
-    let currency: string | undefined;
-    if (taxAddress?.countryCode) {
-      currency = this.currencyManager.getCurrencyForCountry(
-        taxAddress?.countryCode
-      );
-      if (!currency) {
-        throw new CartInvalidCurrencyError(currency, taxAddress.countryCode);
       }
     }
 
@@ -421,6 +425,7 @@ export class CartService {
 
     const upcomingInvoicePreview = await this.invoiceManager.previewUpcoming({
       priceId: price.id,
+      currency: cart.currency || DEFAULT_CURRENCY,
       customer,
       taxAddress: cart.taxAddress || undefined,
       couponCode: cart.couponCode || undefined,
