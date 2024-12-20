@@ -44,7 +44,9 @@ import {
 } from './queries/services-with-capabilities';
 import { StrapiClient, StrapiClientEventResponse } from './strapi.client';
 import { DeepNonNullable } from './types';
+import { GenericError } from '@fxa/shared/error';
 
+@GenericError()
 @Injectable()
 export class ProductConfigurationManager {
   constructor(

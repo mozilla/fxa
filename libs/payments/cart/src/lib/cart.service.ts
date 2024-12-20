@@ -54,7 +54,9 @@ import {
 import { AccountManager } from '@fxa/shared/account/account';
 import assert from 'assert';
 import { CheckoutFailedError } from './checkout.error';
+import { GenericError } from '@fxa/shared/error';
 
+@GenericError()
 @Injectable()
 export class CartService {
   constructor(

@@ -4,7 +4,9 @@
 
 import { Injectable } from '@nestjs/common';
 import { ContentServerClient } from './content-server.client';
+import { GenericError } from '@fxa/shared/error';
 
+@GenericError()
 @Injectable()
 export class ContentServerManager {
   constructor(private contentServerClient: ContentServerClient) {}
