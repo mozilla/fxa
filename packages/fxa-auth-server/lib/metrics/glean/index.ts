@@ -307,7 +307,9 @@ export function gleanMetrics(config: ConfigType) {
       sendError: createEventFn('two_step_auth_phone_code_send_error'),
       complete: createEventFn('two_step_auth_phone_code_complete'),
     },
-
+    twoStepAuthRemove: {
+      success: createEventFn('two_step_auth_remove_success'),
+    },
     inactiveAccountDeletion: {
       statusChecked: createEventFn('inactive_account_deletion_status_checked'),
       firstEmailTaskRequest: createEventFn(
@@ -363,6 +365,7 @@ export const logErrorWithGlean = ({
           | 'twoFactorAuthSetup'
           | 'inactiveAccountDeletion'
           | 'twoStepAuthPhoneRemove'
+          | 'twoStepAuthRemove'
         >
       ];
     funnelFns[event as keyof typeof funnelFns](request, {

@@ -28,7 +28,7 @@ class RecoveryPhoneHandler {
     private readonly log: AuthLogger,
     private readonly glean: GleanMetricsType
   ) {
-    this.recoveryPhoneService = Container.get('RecoveryPhoneService');
+    this.recoveryPhoneService = Container.get(RecoveryPhoneService);
   }
 
   async sendCode(request: AuthRequest) {

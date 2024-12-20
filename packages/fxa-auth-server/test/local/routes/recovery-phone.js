@@ -8,7 +8,10 @@ const chaiAsPromised = require('chai-as-promised');
 const sinon = require('sinon');
 const assert = { ...sinon.assert, ...chai.assert };
 const { recoveryPhoneRoutes } = require('../../../lib/routes/recovery-phone');
-import { RecoveryNumberNotSupportedError } from '@fxa/accounts/recovery-phone';
+import {
+  RecoveryNumberNotSupportedError,
+  RecoveryPhoneService,
+} from '@fxa/accounts/recovery-phone';
 
 const { getRoute } = require('../../routes_helpers');
 const { mockRequest } = require('../../mocks');
@@ -39,7 +42,7 @@ describe('/recovery-phone', () => {
   let routes = [];
 
   before(() => {
-    Container.set('RecoveryPhoneService', mockRecoveryPhoneService);
+    Container.set(RecoveryPhoneService, mockRecoveryPhoneService);
     routes = recoveryPhoneRoutes(mockLog, mockGlean);
   });
 
@@ -309,7 +312,6 @@ describe('/recovery-phone', () => {
       });
       assert.equal(mockGlean.twoStepAuthPhoneRemove.success.callCount, 0);
     });
-
   });
 
   describe('POST /recovery-phone/available', async () => {

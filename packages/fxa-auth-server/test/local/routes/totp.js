@@ -12,6 +12,7 @@ const otplib = require('otplib');
 const { Container } = require('typedi');
 const { AccountEventsManager } = require('../../../lib/account-events');
 const authErrors = require('../../../lib/error');
+const { RecoveryPhoneService } = require('@fxa/accounts/recovery-phone');
 
 let log,
   db,
@@ -25,6 +26,9 @@ let log,
   accountEventsManager;
 
 const glean = mocks.mockGlean();
+const mockRecoveryPhoneService = {
+  confirmCode: sinon.fake(),
+};
 
 const TEST_EMAIL = 'test@email.com';
 const secret = 'KE3TGQTRNIYFO2KOPE4G6ULBOV2FQQTN';
@@ -52,6 +56,8 @@ describe('totp', () => {
     accountEventsManager = {
       recordSecurityEvent: sinon.fake.resolves({}),
     };
+    Container.set(RecoveryPhoneService, mockRecoveryPhoneService);
+    glean.twoStepAuthRemove.success.reset();
   });
 
   after(() => {
@@ -193,6 +199,76 @@ describe('totp', () => {
           'did not call notifyAttachedServices'
         );
       });
+    });
+
+    it('should delete TOTP token in verified session with valid code', async () => {
+      const authenticator = new otplib.authenticator.Authenticator();
+      authenticator.options = Object.assign({}, otplib.authenticator.options, {
+        secret,
+      });
+      const code = authenticator.generate(secret);
+
+      mockRecoveryPhoneService.confirmCode = sinon.fake.resolves(true);
+      requestOptions.credentials.tokenVerified = true;
+      requestOptions.payload = {
+        code,
+      };
+
+      const response = await setup(
+        { db: { email: TEST_EMAIL }, profile },
+        {},
+        '/totp/destroy',
+        requestOptions
+      );
+      assert.ok(response);
+
+      // TODO figure out what to about db.totp
+      assert.equal(db.totpToken.callCount, 2);
+      assert.equal(db.totpToken.getCall(0).args[0], 'uid');
+      assert.equal(mockRecoveryPhoneService.confirmCode.callCount, 1);
+      assert.equal(glean.twoStepAuthRemove.success.callCount, 1);
+    });
+
+    it('should not delete TOTP token if provided sms code is invalid', async () => {
+      mockRecoveryPhoneService.confirmCode = sinon.fake.resolves(false);
+      requestOptions.credentials.tokenVerified = true;
+      requestOptions.payload = {
+        code: '000000',
+      };
+
+      try {
+        await setup(
+          { db: { email: TEST_EMAIL } },
+          {},
+          '/totp/destroy',
+          requestOptions
+        );
+        assert.fail();
+      } catch (err) {
+        assert.equal(err.errno, 183);
+        assert.equal(glean.twoStepAuthRemove.success.callCount, 0);
+      }
+    });
+
+    it('should not delete TOTP token if provided code is invalid totp code', async () => {
+      mockRecoveryPhoneService.confirmCode = sinon.fake.resolves(true);
+      requestOptions.credentials.tokenVerified = true;
+      requestOptions.payload = {
+        code: '000000',
+      };
+
+      try {
+        await setup(
+          { db: { email: TEST_EMAIL } },
+          {},
+          '/totp/destroy',
+          requestOptions
+        );
+        assert.fail();
+      } catch (err) {
+        assert.deepEqual(err.errno, 183);
+        assert.equal(glean.twoStepAuthRemove.success.callCount, 0);
+      }
     });
   });
 
