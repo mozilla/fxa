@@ -3,9 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Injectable } from '@nestjs/common';
-
 import { PayPalClient } from './paypal.client';
+import { SanitizeExceptions } from '@fxa/shared/error';
 
+@SanitizeExceptions()
 @Injectable()
 export class CheckoutTokenManager {
   constructor(private client: PayPalClient) {}

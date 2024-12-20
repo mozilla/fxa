@@ -44,7 +44,9 @@ import {
 } from './queries/services-with-capabilities';
 import { StrapiClient, StrapiClientEventResponse } from './strapi.client';
 import { DeepNonNullable } from './types';
+import { SanitizeExceptions } from '@fxa/shared/error';
 
+@SanitizeExceptions({ allowlist: [ProductConfigError] })
 @Injectable()
 export class ProductConfigurationManager {
   constructor(

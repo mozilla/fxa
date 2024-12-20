@@ -13,6 +13,7 @@ import {
   SubscriptionManager,
   InvoicePreview,
   PaymentMethodManager,
+  CouponErrorExpired,
 } from '@fxa/payments/customer';
 import { EligibilityService } from '@fxa/payments/eligibility';
 import {
@@ -53,10 +54,22 @@ import {
 import { AccountManager } from '@fxa/shared/account/account';
 import assert from 'assert';
 import { CheckoutFailedError } from './checkout.error';
+import { SanitizeExceptions } from '@fxa/shared/error';
 
 // TODO - Add flow to handle situations where currency is not found
 const DEFAULT_CURRENCY = 'USD';
 
+@SanitizeExceptions({
+  allowlist: [
+    CartInvalidPromoCodeError,
+    CartInvalidCurrencyError,
+    CartError,
+    CartSubscriptionNotFoundError,
+    CartInvalidStateForActionError,
+    CartSuccessMissingRequired,
+    CouponErrorExpired,
+  ],
+})
 @Injectable()
 export class CartService {
   constructor(

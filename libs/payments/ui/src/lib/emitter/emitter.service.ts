@@ -13,7 +13,9 @@ import {
 } from './emitter.types';
 import { retrieveAdditionalMetricsData } from './util/retrieveAdditionalData';
 import { AccountManager } from '@fxa/shared/account/account';
+import { SanitizeExceptions } from '@fxa/shared/error';
 
+@SanitizeExceptions()
 @Injectable()
 export class PaymentsEmitterService {
   private emitter: Emittery<PaymentsEmitterEvents>;
