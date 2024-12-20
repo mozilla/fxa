@@ -13,6 +13,9 @@ import {
   SubscriptionManager,
   InvoicePreview,
   PaymentMethodManager,
+  CouponErrorExpired,
+  CouponErrorGeneric,
+  CouponErrorLimitReached,
 } from '@fxa/payments/customer';
 import { EligibilityService } from '@fxa/payments/eligibility';
 import {
@@ -26,10 +29,9 @@ import { CartErrorReasonId, CartState } from '@fxa/shared/db/mysql/account';
 import { GeoDBManager } from '@fxa/shared/geodb';
 
 import { CartManager } from './cart.manager';
-import {
+import type {
   CheckoutCustomerData,
   GetNeedsInputResponse,
-  NeedsInputType,
   NoInputNeededResponse,
   PaymentInfo,
   ResultCart,
@@ -38,6 +40,7 @@ import {
   UpdateCart,
   WithContextCart,
 } from './cart.types';
+import { NeedsInputType } from './cart.types';
 import { handleEligibilityStatusMap } from './cart.utils';
 import { CheckoutService } from './checkout.service';
 import {
@@ -53,6 +56,7 @@ import {
 import { AccountManager } from '@fxa/shared/account/account';
 import assert from 'assert';
 import { CheckoutFailedError } from './checkout.error';
+import { SanitizeExceptions } from '@fxa/shared/error';
 
 // TODO - Add flow to handle situations where currency is not found
 const DEFAULT_CURRENCY = 'USD';
@@ -114,6 +118,7 @@ export class CartService {
    * Initialize a brand new cart
    * **Note**: This method is currently a placeholder. The arguments will likely change, and the internal implementation is far from complete.
    */
+  @SanitizeExceptions({ allowlist: [CartInvalidPromoCodeError] })
   async setupCart(args: {
     interval: SubplatInterval;
     offeringConfigId: string;
@@ -218,6 +223,7 @@ export class CartService {
   /**
    * Create a new cart with the contents of an existing cart, in the initial state.
    */
+  @SanitizeExceptions()
   async restartCart(cartId: string): Promise<ResultCart> {
     return this.wrapWithCartCatch(cartId, async () => {
       const oldCart = await this.cartManager.fetchCartById(cartId);
@@ -255,6 +261,7 @@ export class CartService {
     });
   }
 
+  @SanitizeExceptions()
   async checkoutCartWithStripe(
     cartId: string,
     version: number,
@@ -289,6 +296,7 @@ export class CartService {
     });
   }
 
+  @SanitizeExceptions()
   async checkoutCartWithPaypal(
     cartId: string,
     version: number,
@@ -323,6 +331,7 @@ export class CartService {
     });
   }
 
+  @SanitizeExceptions()
   async finalizeProcessingCart(cartId: string): Promise<void> {
     return this.wrapWithCartCatch(cartId, async () => {
       const cart = await this.cartManager.fetchCartById(cartId);
@@ -353,6 +362,7 @@ export class CartService {
    * Update a cart in the database by ID or with an existing cart reference
    * **Note**: This method is currently a placeholder. The arguments will likely change, and the internal implementation is far from complete.
    */
+  @SanitizeExceptions()
   async finalizeCartWithError(
     cartId: string,
     errorReasonId: CartErrorReasonId
@@ -372,6 +382,13 @@ export class CartService {
   /**
    * Update a cart in the database by ID or with an existing cart reference
    */
+  @SanitizeExceptions({
+    allowlist: [
+      CouponErrorExpired,
+      CouponErrorGeneric,
+      CouponErrorLimitReached,
+    ],
+  })
   async updateCart(cartId: string, version: number, cartDetails: UpdateCart) {
     return this.wrapWithCartCatch(cartId, async () => {
       const oldCart = await this.cartManager.fetchCartById(cartId);
@@ -407,6 +424,7 @@ export class CartService {
   /**
    * Fetch a cart from the database by ID
    */
+  @SanitizeExceptions()
   async getCart(cartId: string): Promise<WithContextCart> {
     const cart = await this.cartManager.fetchCartById(cartId);
 
@@ -478,6 +496,7 @@ export class CartService {
   /**
    * Fetch a success cart from the database by UID
    */
+  @SanitizeExceptions({ allowlist: [CartInvalidStateForActionError] })
   async getSuccessCart(cartId: string): Promise<SuccessCart> {
     const cart = await this.getCart(cartId);
 
@@ -511,6 +530,7 @@ export class CartService {
     }
   }
 
+  @SanitizeExceptions()
   async getNeedsInput(cartId: string): Promise<GetNeedsInputResponse> {
     const cart = await this.cartManager.fetchCartById(cartId);
 
@@ -554,6 +574,7 @@ export class CartService {
     }
   }
 
+  @SanitizeExceptions({ allowlist: [CheckoutFailedError] })
   async submitNeedsInput(cartId: string) {
     return this.wrapWithCartCatch(cartId, async () => {
       const cart = await this.cartManager.fetchCartById(cartId);

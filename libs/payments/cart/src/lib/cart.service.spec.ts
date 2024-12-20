@@ -96,6 +96,18 @@ import { NeedsInputType } from './cart.types';
 import { redirect } from 'next/navigation';
 
 jest.mock('next/navigation');
+jest.mock('@fxa/shared/error', () => ({
+  ...jest.requireActual('@fxa/shared/error'),
+  SanitizeExceptions: jest.fn(({ allowlist = [] } = {}) => {
+    return function (
+      target: any,
+      propertyKey: string,
+      descriptor: PropertyDescriptor
+    ) {
+      return descriptor;
+    };
+  }),
+}));
 
 describe('CartService', () => {
   let accountManager: AccountManager;
