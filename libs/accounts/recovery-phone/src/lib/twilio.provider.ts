@@ -2,9 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { ConfigService } from '@nestjs/config';
 import { Provider } from '@nestjs/common';
 import { Twilio } from 'twilio';
 import { TwilioConfig } from './twilio.config';
+
+export const TwilioConfigProvider = {
+  provide: TwilioConfig,
+  useFactory: (config: ConfigService) => {
+    return config.get('twilio');
+  },
+  inject: [ConfigService],
+};
 
 export const TwilioProvider = Symbol('TwilioProvider');
 

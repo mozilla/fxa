@@ -28,7 +28,7 @@ export class RecoveryPhoneManager {
 
   constructor(
     @Inject(AccountDbProvider) private readonly db: AccountDatabase,
-    @Inject('Redis') private readonly redisClient: Redis
+    @Inject('RecoveryPhoneRedis') private readonly redisClient: Redis
   ) {}
 
   private isE164Format(phoneNumber: string) {
@@ -55,7 +55,7 @@ export class RecoveryPhoneManager {
 
     const now = Date.now();
     try {
-      return await registerPhoneNumber(this.db, {
+      await registerPhoneNumber(this.db, {
         uid: uidBuffer,
         phoneNumber,
         createdAt: now,
@@ -75,7 +75,7 @@ export class RecoveryPhoneManager {
    *
    * @param uid
    */
-  async getConfirmedPhoneNumber(uid: string): Promise<any> {
+  async getConfirmedPhoneNumber(uid: string): Promise<{ phoneNumber: string }> {
     const uidBuffer = Buffer.from(uid, 'hex');
     const result = await getConfirmedPhoneNumber(this.db, uidBuffer);
     if (!result) {

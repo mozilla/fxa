@@ -3,26 +3,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { timingSafeEqual, randomInt } from 'crypto';
-
-export interface OtpStorage {
-  del: (key: string) => Promise<null>;
-  get: (key: string) => Promise<string | null>;
-  set: (key: string, value: string) => Promise<null>;
-}
-
-type OtpManagerOptions = {
-  kind: string;
-  digits: number;
-};
+import { OtpStorage } from './otp.storage';
+import { OtpManagerConfig } from './otp.config';
 
 /** Manages creation and storage of otp codes. */
 export class OtpManager {
-  kind: OtpManagerOptions['kind'];
+  kind: OtpManagerConfig['kind'];
   digits: number;
   max: number;
   storage: OtpStorage;
 
-  constructor(options: OtpManagerOptions, storage: OtpStorage) {
+  constructor(options: OtpManagerConfig, storage: OtpStorage) {
     this.kind = options.kind;
     this.digits = Math.max(options.digits, 6);
     this.max = Math.pow(10, this.digits);
