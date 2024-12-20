@@ -1357,12 +1357,6 @@ workflows:
           parallelism: 8
           requires:
             - Build (nightly)
-      - playwright-functional-tests-chromium:
-          name: Chromium Functional Tests - Playwright (nightly)
-          resource_class: xlarge
-          parallelism: 8
-          requires:
-            - Build (nightly)
       - playwright-functional-test-report:
           name: Merge Playwright Reports (nightly)
           requires:
@@ -1382,7 +1376,6 @@ workflows:
             - Integration Test - Libraries (nightly)
             - Firefox Functional Tests - Playwright (nightly)
             - Check all required jobs are complete (nightly)
-            - Chromium Functional Tests - Playwright (nightly)
       - build-and-deploy-storybooks:
           name: Deploy Storybooks (nightly)
           requires:
