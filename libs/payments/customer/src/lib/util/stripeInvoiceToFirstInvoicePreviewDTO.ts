@@ -26,7 +26,7 @@ export function stripeInvoiceToInvoicePreviewDTO(
 
   return {
     currency: invoice.currency,
-    listAmount: invoice.amount_due,
+    listAmount: invoice.subtotal,
     totalAmount: invoice.total,
     taxAmounts,
     discountAmount,
