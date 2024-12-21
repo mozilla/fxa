@@ -90,6 +90,7 @@ import { FinishSetupInput } from './dto/input/finish-setup';
 import { EmailBounceStatusPayload } from './dto/payload/email-bounce';
 import { NotifierService } from '@fxa/shared/notifier';
 import { MozLoggerService } from '@fxa/shared/mozlog';
+import { RecoveryPhoneService } from '@fxa/accounts/recovery-phone';
 
 function snakeToCamel(str: string) {
   return str.replace(/(_\w)/g, (m: string) => m[1].toUpperCase());
@@ -111,6 +112,7 @@ export function snakeToCamelObject(obj: { [key: string]: any }) {
 export class AccountResolver {
   constructor(
     @Inject(AuthClientService) private authAPI: AuthClient,
+    private recoveryPhoneService: RecoveryPhoneService,
     private notifier: NotifierService,
     private profileAPI: ProfileClientService,
     private log: MozLoggerService
@@ -845,6 +847,11 @@ export class AccountResolver {
       });
     }
     return [];
+  }
+
+  @ResolveField()
+  public async recoveryPhone(@Parent() account: Account) {
+    return this.recoveryPhoneService.hasConfirmed(account.uid);
   }
 
   @ResolveField()

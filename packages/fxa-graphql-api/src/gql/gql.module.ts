@@ -30,6 +30,23 @@ import { ClientInfoResolver } from './clientInfo.resolver';
 import { LegalResolver } from './legal.resolver';
 import { SessionResolver } from './session.resolver';
 import { SubscriptionResolver } from './subscription.resolver';
+import {
+  RecoveryPhoneManager,
+  RecoveryPhoneService,
+  SmsManager,
+  TwilioFactory,
+  TwilioConfigProvider,
+  SmsConfigProvider,
+  RecoveryPhoneRedisProvider,
+  RecoveryPhoneConfigProvider,
+} from '@fxa/accounts/recovery-phone';
+import {
+  OtpConfigProvider,
+  OtpManagerProvider,
+  OtpRedisStorageProvider,
+} from '@fxa/shared/otp';
+import { AccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
+import { MySQLConfigProvider } from '@fxa/shared/db/mysql/core';
 
 const config = Config.getProperties();
 
@@ -71,6 +88,25 @@ export const GraphQLConfigFactory = async (
       provide: LOGGER_PROVIDER,
       useClass: MozLoggerService,
     },
+    LegacyStatsDProvider,
+    MozLoggerService,
+    {
+      provide: LOGGER_PROVIDER,
+      useClass: MozLoggerService,
+    },
+    AccountDatabaseNestFactory,
+    RecoveryPhoneConfigProvider,
+    RecoveryPhoneService,
+    RecoveryPhoneRedisProvider,
+    RecoveryPhoneManager,
+    SmsConfigProvider,
+    SmsManager,
+    TwilioFactory,
+    TwilioConfigProvider,
+    OtpConfigProvider,
+    OtpRedisStorageProvider,
+    OtpManagerProvider,
+    MySQLConfigProvider,
   ],
 })
 export class GqlModule implements NestModule {

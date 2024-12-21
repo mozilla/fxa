@@ -29,7 +29,6 @@ class OtpRedisAdapter implements OtpStorage {
 
   async set(key: string, value: string) {
     await this.redis.set(key, value, 'EX', this.ttl);
-    return null;
   }
 
   async get(key: string) {
@@ -38,7 +37,6 @@ class OtpRedisAdapter implements OtpStorage {
 
   async del(key: string) {
     await this.redis.del(key);
-    return null;
   }
 }
 

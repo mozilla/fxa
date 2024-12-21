@@ -235,9 +235,9 @@ describe('RecoveryPhoneService', () => {
 
   describe('sendCode', () => {
     it('should send sms code', async () => {
-      mockRecoveryPhoneManager.getConfirmedPhoneNumber.mockResolvedValueOnce(
-        phoneNumber
-      );
+      mockRecoveryPhoneManager.getConfirmedPhoneNumber.mockResolvedValueOnce({
+        phoneNumber,
+      });
       mockOtpManager.generateCode.mockResolvedValueOnce(code);
       mockSmsManager.sendSMS.mockResolvedValue({ status: 'success' });
 
