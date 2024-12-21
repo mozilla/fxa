@@ -20,6 +20,7 @@ export type BannerProps = {
   animation?: Animation;
   dismissButton?: DismissButtonProps;
   link?: BannerLinkProps;
+  isFancy?: boolean;
 };
 
 export type Animation = {

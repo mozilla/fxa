@@ -109,7 +109,7 @@ test.describe('severity-1 #smoke', () => {
 
     resetPassword.resendButton.click();
 
-    await expect(resetPassword.statusBar).toHaveText(
+    await expect(resetPassword.successBanner).toHaveText(
       /A new code was sent to your email./
     );
   });
@@ -121,7 +121,7 @@ test.describe('severity-1 #smoke', () => {
 
     await resetPassword.fillOutEmailForm('email@restmail.net');
 
-    await expect(resetPassword.statusBar).toHaveText('Unknown account');
+    await expect(resetPassword.errorBanner).toHaveText('Unknown account');
   });
 
   test('browse directly to page with email on query params', async ({
