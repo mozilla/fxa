@@ -241,7 +241,7 @@ async function run(config) {
     otpCodeManager,
     config.recoveryPhone
   );
-  Container.set('RecoveryPhoneService', recoveryPhoneService);
+  Container.set(RecoveryPhoneService, recoveryPhoneService);
 
   // The AccountDeleteManager is dependent on some of the object set into
   // Container above.
