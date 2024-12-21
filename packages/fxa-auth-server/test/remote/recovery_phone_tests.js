@@ -47,12 +47,17 @@ describe(`#integration - recovery phone`, function () {
   });
 
   it('confirms a recovery code', async () => {
-    // TODO: Setup test account / twilio emulator
+    // TODO: FXA-10913 Setup test account / twilio emulator
     // TODO: Figure out how to emulate a test code
   });
 
   it('confirms a recovery code', async () => {
-    // TODO: Setup test account / twilio emulator
+    // TODO: FXA-10913 Setup test account / twilio emulator
+    // TODO: Figure out how to emulate a test code
+  });
+
+  it('checks if recovery phone exists', async () => {
+    // TODO: FXA-10913 Setup test account / twilio emulator
     // TODO: Figure out how to emulate a test code
   });
 });
