@@ -84,6 +84,9 @@ module.exports = function (log, config, bounces) {
     postAddAccountRecovery: 'account-recovery-generated',
     postChangeAccountRecovery: 'account-recovery-changed',
     postRemoveAccountRecovery: 'account-recovery-removed',
+    postAddRecoveryPhone: 'recovery-phone-added',
+    postChangeRecoveryPhone: 'recovery-phone-changed',
+    postRemoveRecoveryPhone: 'recovery-phone-removed',
     recovery: 'forgot-password',
     unblockCode: 'new-unblock',
     verify: 'welcome',
@@ -136,6 +139,7 @@ module.exports = function (log, config, bounces) {
     postAddAccountRecovery: 'manage-account',
     postChangeAccountRecovery: 'manage-account',
     postRemoveAccountRecovery: 'manage-account',
+    postAddRecoveryPhone: 'manage-account',
     recovery: 'reset-password',
     unblockCode: 'unblock-code',
     verify: 'activate',
@@ -1567,6 +1571,110 @@ module.exports = function (log, config, bounces) {
         privacyUrl: links.privacyUrl,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
+      },
+    });
+  };
+
+  Mailer.prototype.postAddRecoveryPhoneEmail = function (message) {
+    const templateName = 'postAddRecoveryPhone';
+    const links = this._generateLinks(
+      this.initiatePasswordResetUrl,
+      message,
+      {},
+      templateName
+    );
+    const [time, date] = this._constructLocalTimeString(
+      message.timeZone,
+      message.acceptLanguage
+    );
+
+    const headers = {
+      'X-Link': links.resetLink,
+    };
+
+    return this.send({
+      ...message,
+      headers,
+      template: templateName,
+      templateValues: {
+        date,
+        device: this._formatUserAgentInfo(message),
+        privacyUrl: links.privacyUrl,
+        link: links.link,
+        lastFourPhoneNumber: '1234',
+        resetLink: links.resetLink,
+        resetLinkAttributes: links.resetLinkAttributes,
+        supportLinkAttributes: links.supportLinkAttributes,
+        supportUrl: links.supportUrl,
+        time,
+      },
+    });
+  };
+
+  Mailer.prototype.postChangeRecoveryPhoneEmail = function (message) {
+    const templateName = 'postChangeRecoveryPhone';
+    const links = this._generateLinks(
+      this.initiatePasswordResetUrl,
+      message,
+      {},
+      templateName
+    );
+    const [time, date] = this._constructLocalTimeString(
+      message.timeZone,
+      message.acceptLanguage
+    );
+
+    const headers = {
+      'X-Link': links.resetLink,
+    };
+
+    return this.send({
+      ...message,
+      headers,
+      template: templateName,
+      templateValues: {
+        date,
+        device: this._formatUserAgentInfo(message),
+        privacyUrl: links.privacyUrl,
+        resetLink: links.resetLink,
+        resetLinkAttributes: links.resetLinkAttributes,
+        supportLinkAttributes: links.supportLinkAttributes,
+        supportUrl: links.supportUrl,
+        time,
+      },
+    });
+  };
+
+  Mailer.prototype.postRemoveRecoveryPhoneEmail = function (message) {
+    const templateName = 'postRemoveRecoveryPhone';
+    const links = this._generateLinks(
+      this.initiatePasswordResetUrl,
+      message,
+      {},
+      templateName
+    );
+    const [time, date] = this._constructLocalTimeString(
+      message.timeZone,
+      message.acceptLanguage
+    );
+
+    const headers = {
+      'X-Link': links.resetLink,
+    };
+
+    return this.send({
+      ...message,
+      headers,
+      template: templateName,
+      templateValues: {
+        date,
+        device: this._formatUserAgentInfo(message),
+        privacyUrl: links.privacyUrl,
+        resetLink: links.resetLink,
+        resetLinkAttributes: links.resetLinkAttributes,
+        supportLinkAttributes: links.supportLinkAttributes,
+        supportUrl: links.supportUrl,
+        time,
       },
     });
   };
