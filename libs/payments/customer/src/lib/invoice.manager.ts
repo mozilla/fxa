@@ -47,11 +47,13 @@ export class InvoiceManager {
 
   async previewUpcoming({
     priceId,
+    currency,
     customer,
     taxAddress,
     couponCode,
   }: {
     priceId: string;
+    currency: string;
     customer?: StripeCustomer;
     taxAddress?: TaxAddress;
     couponCode?: string;
@@ -81,6 +83,7 @@ export class InvoiceManager {
         : undefined;
 
     const requestObject: Stripe.InvoiceRetrieveUpcomingParams = {
+      currency,
       customer: customer?.id,
       automatic_tax: {
         enabled: automaticTax,

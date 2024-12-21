@@ -18,8 +18,8 @@ export async function PriceInterval(props: PriceIntervalProps) {
   return l10n.getString(
     `plan-price-interval-${interval}`,
     {
-      amount: l10n.getLocalizedCurrency(totalAmount || listAmount, currency),
+      amount: l10n.getLocalizedCurrency(totalAmount ?? listAmount, currency),
     },
-    formatPlanPricing(totalAmount || listAmount, currency, interval)
+    formatPlanPricing(totalAmount ?? listAmount, currency, interval)
   );
 }
