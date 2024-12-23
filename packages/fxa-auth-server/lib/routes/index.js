@@ -173,7 +173,8 @@ module.exports = function (
     customs,
     config.totp,
     glean,
-    profile
+    profile,
+    config.sentry.env
   );
   const recoveryCodes = require('./recovery-codes')(
     log,

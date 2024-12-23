@@ -19,7 +19,16 @@ const { RecoveryPhoneService } = require('@fxa/accounts/recovery-phone');
 
 const RECOVERY_CODE_SANE_MAX_LENGTH = 20;
 
-module.exports = (log, db, mailer, customs, config, glean, profileClient) => {
+module.exports = (
+  log,
+  db,
+  mailer,
+  customs,
+  config,
+  glean,
+  profileClient,
+  environment
+) => {
   const otpUtils = require('../../lib/routes/utils/otp')(log, config, db);
 
   // Currently, QR codes are rendered with the highest possible
@@ -37,6 +46,12 @@ module.exports = (log, db, mailer, customs, config, glean, profileClient) => {
 
   const accountEventsManager = Container.get(AccountEventsManager);
   const recoveryPhoneService = Container.get(RecoveryPhoneService);
+
+  // This helps us distinguish between testing environments and
+  // totp codes per environment.
+  const service = !environment?.startsWith('prod')
+    ? `${config.serviceName} - ${environment}`
+    : `${config.serviceName}`;
 
   return [
     {
@@ -106,7 +121,7 @@ module.exports = (log, db, mailer, customs, config, glean, profileClient) => {
 
         const otpauth = authenticator.keyuri(
           sessionToken.email,
-          config.serviceName,
+          service,
           secret
         );
 

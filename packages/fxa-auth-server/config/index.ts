@@ -1652,7 +1652,7 @@ const convictConf = convict({
       env: 'SENTRY_DSN',
     },
     env: {
-      doc: 'Environment name to report to sentry',
+      doc: 'Environment name to report to sentry. This is the most reliable way to determine the active environment.',
       default: 'local',
       format: ['local', 'ci', 'dev', 'stage', 'prod'],
       env: 'SENTRY_ENV',
