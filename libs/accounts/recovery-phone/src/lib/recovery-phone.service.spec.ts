@@ -20,6 +20,7 @@ describe('RecoveryPhoneService', () => {
 
   const mockSmsManager = {
     sendSMS: jest.fn(),
+    phoneNumberLookup: jest.fn(),
   };
   const mockRecoveryPhoneManager = {
     storeUnconfirmed: jest.fn(),
@@ -184,6 +185,9 @@ describe('RecoveryPhoneService', () => {
         phoneNumber,
       });
       mockRecoveryPhoneManager.registerPhoneNumber.mockResolvedValue({});
+      mockSmsManager.phoneNumberLookup.mockResolvedValueOnce({
+        phoneNumber: '+15005550000',
+      });
 
       const result = await service.confirmCode(uid, code);
 
@@ -191,7 +195,8 @@ describe('RecoveryPhoneService', () => {
       expect(mockRecoveryPhoneManager.getUnconfirmed).toBeCalledWith(uid, code);
       expect(mockRecoveryPhoneManager.registerPhoneNumber).toBeCalledWith(
         uid,
-        phoneNumber
+        phoneNumber,
+        { phoneNumber: '+15005550000' }
       );
     });
 

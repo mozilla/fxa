@@ -19,7 +19,7 @@ export async function registerPhoneNumber(
   db: AccountDatabase,
   recoveryPhone: RecoveryPhone
 ) {
-  return await db.insertInto('recoveryPhones').values(recoveryPhone).execute();
+  await db.insertInto('recoveryPhones').values(recoveryPhone).execute();
 }
 
 export async function removePhoneNumber(db: AccountDatabase, uid: Buffer) {
