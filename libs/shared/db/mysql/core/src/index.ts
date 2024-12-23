@@ -15,3 +15,4 @@ export {
 } from './lib/core';
 export { runSql } from './lib/tests';
 export { intBoolTransformer, uuidTransformer } from './lib/transformers';
+export * from './lib/providers';

@@ -126,18 +126,22 @@ export class RecoveryPhoneService {
    * @param uid Account id
    * @returns If the account has confirmed, returns {exists:true, phoneNumber }. If not returns {exists:false}
    */
-  public async hasConfirmed(uid: string) {
+  public async hasConfirmed(
+    uid: string
+  ): Promise<{ exists: boolean; phoneNumber?: string }> {
     try {
-      const data = await this.recoveryPhoneManager.getConfirmedPhoneNumber(uid);
+      const { phoneNumber } =
+        await this.recoveryPhoneManager.getConfirmedPhoneNumber(uid);
       return {
         exists: true,
-        phoneNumber: data.phoneNumber,
+        phoneNumber,
       };
     } catch (err) {
       if (err instanceof RecoveryNumberNotExistsError) {
         // no-op - we handle the error, and just return false;
         return {
           exists: false,
+          phoneNumber: undefined,
         };
       }
       // Something unexpected happened...
@@ -151,9 +155,8 @@ export class RecoveryPhoneService {
    * @returns True if message didn't fail to send.
    */
   public async sendCode(uid: string) {
-    const phoneNumber = await this.recoveryPhoneManager.getConfirmedPhoneNumber(
-      uid
-    );
+    const { phoneNumber } =
+      await this.recoveryPhoneManager.getConfirmedPhoneNumber(uid);
     const code = await this.otpCode.generateCode();
     await this.recoveryPhoneManager.storeUnconfirmed(
       uid,
