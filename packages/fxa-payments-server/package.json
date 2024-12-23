@@ -118,7 +118,7 @@
     "tailwindcss": "3.4.3",
     "typescript": "^5.5.3",
     "wait-for-expect": "^3.0.2",
-    "webpack": "^5.96.0"
+    "webpack": "^5.97.0"
   },
   "dependencies": {
     "@stripe/react-stripe-js": "^2.7.1",
