@@ -11,7 +11,7 @@
     <mj-text css-class="text-body">
       <span data-l10n-id="postAddTwoStepAuthentication-code-required-2">Security codes from your authentication app are now required every time you sign in.</span>
     </mj-text>
-    <mj-text css-class="text-body">
+    <mj-text css-class="text-body-no-margin">
       <span data-l10n-id="postAddTwoStepAuthentication-from-device">You enabled it from:</span>
     </mj-text>
   </mj-column>

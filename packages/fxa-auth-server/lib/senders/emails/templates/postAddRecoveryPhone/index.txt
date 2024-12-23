@@ -1,0 +1,13 @@
+postAddRecoveryPhone-title = "You created a new backup recovery method"
+
+postAddRecoveryPhone-description = "You added ••••••<%- lastFourPhoneNumber %> as your backup recovery phone"
+postAddRecoveryPhone-how-protect-plaintext = "How this protects your account: <%- resetLink %>"
+
+postAddRecoveryPhone-from-device = "You enabled it from:"
+<%- include('/partials/userInfo/index.txt') %>
+
+<%- include('/partials/manageAccount/index.txt') %>
+
+<%- include('/partials/automatedEmailResetPassword/index.txt') %>
+
+<%- include('/partials/support/index.txt') %>
