@@ -26,6 +26,7 @@ import checkEmailDomain from '../lib/email-domain-validator';
 import PocketMigrationMixin from './mixins/pocket-migration-mixin';
 import BrandMessagingMixin from './mixins/brand-messaging-mixin';
 import MonitorClientMixin from './mixins/monitor-client-mixin';
+import RelayClientMixin from './mixins/relay-client-mixin';
 import { isEmailMask } from 'fxa-shared/email/helpers';
 
 const EMAIL_SELECTOR = 'input[type=email]';
@@ -42,12 +43,15 @@ class IndexView extends FormView {
 
   setInitialContext(context) {
     MonitorClientMixin.setInitialContext.call(this, context);
+    RelayClientMixin.setInitialContext.call(this, context);
     context.set({
       unsafeThirdPartyAuthHTML: this.renderTemplate(ThirdPartyAuth, {
         showSeparator: true,
       }),
       showSubscriptionTerms:
-        context.get('isMonitorClient') || this.relier.isOAuthNativeRelay(),
+        context.get('isMonitorClient') ||
+        context.get('isRelayClient') ||
+        this.relier.isOAuthNativeRelay(),
     });
   }
 
@@ -323,7 +327,8 @@ Cocktail.mixin(
   SignedInNotificationMixin,
   BrandMessagingMixin,
   PocketMigrationMixin,
-  MonitorClientMixin
+  MonitorClientMixin,
+  RelayClientMixin
 );
 
 export default IndexView;

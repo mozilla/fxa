@@ -34,6 +34,7 @@ import {
 import {
   isClientMonitor,
   isClientPocket,
+  isClientRelay,
 } from '../../models/integrations/client-matching';
 import { SignupFormData, SignupProps } from './interfaces';
 import Banner from '../../components/Banner';
@@ -99,6 +100,9 @@ export const Signup = ({
       }
       if (isClientMonitor(clientId)) {
         setClient(MozServices.Monitor);
+      }
+      if (isClientRelay(clientId)) {
+        setClient(MozServices.Relay);
       }
     }
   }, [integration, isOAuth]);
@@ -418,6 +422,7 @@ export const Signup = ({
       <TermsPrivacyAgreement
         isPocketClient={client === MozServices.Pocket}
         isMonitorClient={client === MozServices.Monitor}
+        isRelayClient={client === MozServices.Relay}
         {...{ isDesktopRelay }}
       />
     </AppLayout>
