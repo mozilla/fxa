@@ -45,15 +45,24 @@ const ResetPasswordWithRecoveryKeyVerifiedContainer = ({
 
   const account = useAccount();
   const { uid, sessionToken } = currentAccount() || {};
-  const { keyFetchToken, unwrapBKey } =
-    sensitiveDataClient.getDataType(SensitiveData.Key.AccountReset) || {};
-  const newRecoveryKeyData = sensitiveDataClient.getData('newRecoveryKeyData');
-  const newRecoveryKey = formatRecoveryKey(newRecoveryKeyData.buffer);
-
   const updateRecoveryKeyHint = useCallback(
     async (hint: string) => account.updateRecoveryKeyHint(hint),
     [account]
   );
+  const { keyFetchToken, unwrapBKey } =
+    sensitiveDataClient.getDataType(SensitiveData.Key.AccountReset) || {};
+  const recoveryKey = sensitiveDataClient.getDataType(
+    SensitiveData.Key.NewRecoveryKey
+  )?.recoveryKey;
+
+  if (!recoveryKey) {
+    // If we get here, that means a password reset was completed (with a verified account).
+    // Along the way, we have lost a copy of the recovery key in memory if the page was unloaded.
+    // This is fine - we navigate to the confirmed page and carry on.
+    navigateWithQuery('/reset_password_confirmed');
+    return;
+  }
+  const newRecoveryKey = formatRecoveryKey(recoveryKey);
 
   const navigateToHint = () => setShowHint(true);
   const navigateNext = async (continueToAccountEvent: () => void) => {
