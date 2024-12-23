@@ -20,6 +20,15 @@ export class SmsManager {
     private readonly config: SmsManagerConfig
   ) {}
 
+  public async phoneNumberLookup(phoneNumber: string) {
+    const result = await this.client.lookups.v2
+      .phoneNumbers(phoneNumber)
+      .fetch();
+    // Calling toJSON converts PhoneNumberInstance into a
+    // object that just holds state and can be serialized.
+    return result.toJSON();
+  }
+
   public async sendSMS({ to, body }: { to: string; body: string }) {
     if (body.length > this.config.maxMessageLength) {
       throw new Error(
