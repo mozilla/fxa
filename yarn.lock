@@ -41383,8 +41383,6 @@ fsevents@~2.1.1:
     leftpad: 0.0.1
     load-grunt-tasks: ^5.1.0
     lodash: ^4.17.21
-    lodash.chunk: 4.2.0
-    lodash.pick: 4.4.0
     luxon: ^3.5.0
     mailparser: 0.6.1
     mjml: ^4.15.3
@@ -51375,13 +51373,6 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"lodash.chunk@npm:4.2.0":
-  version: 4.2.0
-  resolution: "lodash.chunk@npm:4.2.0"
-  checksum: 6286c6d06814fbeda502164015c42ef53a9194e6ebaac52ec2b41e83344aefe7bc3d94fdfec525adcd2c66cefdf05dc333b6a1128e4de739797342315c17cbc7
-  languageName: node
-  linkType: hard
-
 "lodash.clonedeep@npm:^4.5.0":
   version: 4.5.0
   resolution: "lodash.clonedeep@npm:4.5.0"
@@ -51543,7 +51534,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"lodash.pick@npm:4.4.0, lodash.pick@npm:^4.4.0":
+"lodash.pick@npm:^4.4.0":
   version: 4.4.0
   resolution: "lodash.pick@npm:4.4.0"
   checksum: 2c36cab7da6b999a20bd3373b40e31a3ef81fa264f34a6979c852c5bc8ac039379686b27380f0cb8e3781610844fafec6949c6fbbebc059c98f8fa8570e3675f

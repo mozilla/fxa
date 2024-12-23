@@ -4,7 +4,7 @@
 
 'use strict';
 
-const pick = require('lodash.pick');
+const pick = require('lodash/pick');
 
 module.exports = function dumpUsers(keys, dbFunc, usePretty) {
   const config = require('../../config').default.getProperties();

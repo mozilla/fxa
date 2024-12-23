@@ -5,7 +5,7 @@
 const url = require('url');
 const { assert } = require('chai');
 const nock = require('nock');
-const cloneDeep = require('lodash.clonedeep');
+const cloneDeep = require('lodash/cloneDeep');
 const util = require('util');
 
 const jwt = require('jsonwebtoken');
