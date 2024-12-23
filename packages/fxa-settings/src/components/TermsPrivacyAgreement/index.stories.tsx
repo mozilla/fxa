@@ -31,6 +31,12 @@ export const MonitorClient = () => (
     <TermsPrivacyAgreement isMonitorClient />
   </AppLayout>
 );
+export const RelayClient = () => (
+  <AppLayout>
+    <TermsPrivacyAgreement isRelayClient />
+  </AppLayout>
+);
+
 export const OAuthNativeRelay = () => (
   <AppLayout>
     <TermsPrivacyAgreement isDesktopRelay />

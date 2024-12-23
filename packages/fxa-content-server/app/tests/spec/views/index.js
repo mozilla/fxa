@@ -276,6 +276,22 @@ describe('views/index', () => {
           });
         });
 
+        describe('isRelayClient', () => {
+          beforeEach(() => {
+            relier.set({
+              clientId: '9ebfe2c2f9ea3c58',
+            });
+          });
+          it('renders expected ToS and PP', () => {
+            return view.render().then(() => {
+              assert.include(
+                view.$('.card').text(),
+                'Mozilla Subscription Services'
+              );
+            });
+          });
+        });
+
         describe('isOAuthNativeRelay', () => {
           beforeEach(() => {
             relier.set({
