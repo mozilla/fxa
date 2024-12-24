@@ -14,7 +14,7 @@ tfa-incorrect-totp = Incorrect two-step authentication code
 tfa-cannot-retrieve-code = There was a problem retrieving your code.
 tfa-cannot-verify-code-4 = There was a problem confirming your backup authentication code
 tfa-incorrect-recovery-code-1 = Incorrect backup authentication code
-tfa-enabled = Two-step authentication enabled
+tfa-enabled-v2 = Two-step authentication has been enabled
 
 tfa-scan-this-code = Scan this QR code using one of <linkExternal>these
   authentication apps</linkExternal>.

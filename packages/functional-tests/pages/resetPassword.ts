@@ -36,8 +36,12 @@ export class ResetPasswordPage extends BaseLayout {
     });
   }
 
-  get statusBar() {
+  get successBanner() {
     return this.page.getByRole('status');
+  }
+
+  get errorBanner() {
+    return this.page.getByRole('alert');
   }
 
   get createNewPasswordHeading() {

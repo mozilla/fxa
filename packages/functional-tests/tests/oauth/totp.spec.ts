@@ -29,7 +29,7 @@ test.describe('severity-1 #smoke', () => {
       const { secret } = await totp.fillOutTotpForms();
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.alertBar).toHaveText(
-        'Two-step authentication enabled'
+        'Two-step authentication has been enabled'
       );
       await expect(settings.totp.status).toHaveText('Enabled');
       await settings.signOut();

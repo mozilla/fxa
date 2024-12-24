@@ -4,14 +4,36 @@
 
 import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
-import userEvent, { UserEvent } from '@testing-library/user-event';
+import userEvent from '@testing-library/user-event';
 import FormPhoneNumber from '.';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+
+const mockSubmit = jest.fn();
 
 describe('FormPhoneNumber', () => {
   function render() {
     renderWithLocalizationProvider(
-      <FormPhoneNumber localizedCTAText="Send code" />
+      <FormPhoneNumber
+        localizedCTAText="Send code"
+        submitPhoneNumber={mockSubmit}
+      />
+    );
+  }
+
+  function renderWithInfoBannerProps() {
+    renderWithLocalizationProvider(
+      <FormPhoneNumber
+        localizedCTAText="Send code"
+        submitPhoneNumber={mockSubmit}
+        infoBannerContent={{
+          localizedDescription: 'This is a banner description',
+          localizedHeading: 'This is a banner heading',
+        }}
+        infoBannerLink={{
+          localizedText: 'This is a banner link',
+          path: '#',
+        }}
+      />
     );
   }
 
@@ -26,6 +48,32 @@ describe('FormPhoneNumber', () => {
     });
   }
 
+  it('renders the component as expected', async () => {
+    render();
+    await waitFor(() => {
+      expect(screen.getByRole('combobox')).toBeInTheDocument();
+      expect(getPhoneInput()).toBeInTheDocument();
+      expect(getSubmitButton()).toBeInTheDocument();
+    });
+  });
+
+  it('renders the component with info banner', async () => {
+    renderWithInfoBannerProps();
+    await waitFor(() => {
+      expect(screen.getByRole('combobox')).toBeInTheDocument();
+    });
+    expect(getPhoneInput()).toBeInTheDocument();
+    expect(getSubmitButton()).toBeInTheDocument();
+
+    expect(screen.getByText('This is a banner heading')).toBeInTheDocument();
+    expect(
+      screen.getByText('This is a banner description')
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: /This is a banner link/ })
+    ).toBeInTheDocument();
+  });
+
   it('submit button is disabled by default', async () => {
     render();
     await waitFor(() => {
@@ -34,49 +82,38 @@ describe('FormPhoneNumber', () => {
   });
 
   describe('form validity and submission', () => {
-    // alertMock is temporary until real functionality is implemented
-    let alertMock: jest.SpyInstance<void, [message?: any], any>;
-    beforeEach(() => {
-      alertMock = jest.spyOn(window, 'alert').mockImplementation(() => {});
-    });
-    afterEach(() => {
-      alertMock.mockRestore();
-    });
     it('submit button is enabled for valid North American number, 1231231234, and is formatted as expected', async () => {
       const user = userEvent.setup();
       render();
-      await waitFor(async () => await user.type(getPhoneInput(), '1231231234'));
+      await waitFor(() => user.type(getPhoneInput(), '1231231234'));
       expect(getSubmitButton()).toBeEnabled();
-      await waitFor(async () => await user.click(getSubmitButton()));
-      expect(alertMock).toHaveBeenCalledWith(
-        'formattedPhoneNumber: +11231231234'
+      user.click(getSubmitButton());
+      await waitFor(() =>
+        expect(mockSubmit).toHaveBeenCalledWith('+11231231234')
       );
     });
 
     it('submit button is enabled for valid North American number, (123) 123-1234, and is formatted as expected', async () => {
       const user = userEvent.setup();
-      const alertMock = jest
-        .spyOn(window, 'alert')
-        .mockImplementation(() => {});
       render();
       await waitFor(
         async () => await user.type(getPhoneInput(), '(123) 123-1234')
       );
       expect(getSubmitButton()).toBeEnabled();
       await waitFor(async () => await user.click(getSubmitButton()));
-      expect(alertMock).toHaveBeenCalledWith(
-        'formattedPhoneNumber: +11231231234'
-      );
+      expect(mockSubmit).toHaveBeenCalledWith('+11231231234');
     });
 
-    it('submit button is disabled for invalid 11-digit phoneValidationNorthAmerica, 12312312345', async () => {
+    it('input value is restricted to 10 digits', async () => {
       const user = userEvent.setup();
       render();
       await waitFor(
         async () => await user.type(getPhoneInput(), '12312312345')
       );
-      expect(getSubmitButton()).toBeDisabled();
+      expect(getPhoneInput()).toHaveValue('123-123-1234');
+      expect(getSubmitButton()).toBeEnabled();
     });
+
     it('submit button is disabled for invalid number with letters phoneValidationNorthAmerica, abc12312345', async () => {
       const user = userEvent.setup();
       render();
