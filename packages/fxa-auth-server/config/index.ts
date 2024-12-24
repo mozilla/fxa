@@ -552,6 +552,30 @@ const convictConf = convict({
         env: 'BOUNCES_IGNORE_TEMPLATES',
       },
     },
+    connectionTimeout: {
+      doc: 'Milliseconds to wait for the connection to establish (default is 2 minutes)',
+      format: 'int',
+      default: 120000,
+      env: 'SMTP_CONNECTION_TIMEOUT',
+    },
+    greetingTimeout: {
+      doc: 'Milliseconds to wait for the greeting after connection is established (default is 30 seconds)',
+      format: 'int',
+      default: 30000,
+      env: 'SMTP_GREETING_TIMEOUT',
+    },
+    socketTimeout: {
+      doc: 'Milliseconds of inactivity to allow (default is 10 minutes)',
+      format: 'int',
+      default: 600000,
+      env: 'SMTP_SOCKET_TIMEOUT',
+    },
+    dnsTimeout: {
+      doc: 'Milliseconds to wait for DNS requests to be resolved (default is 30 seconds)',
+      format: 'int',
+      default: 30000,
+      env: 'SMTP_DNS_TIMEOUT',
+    },
   },
   maxEventLoopDelay: {
     doc: 'Max event-loop delay before which incoming requests are rejected',
