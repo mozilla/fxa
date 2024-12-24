@@ -173,6 +173,32 @@ module.exports = function (fs, path, url, convict) {
         format: 'nat',
         env: 'MAX_ACCOUNT_ACCESS',
       },
+      recoveryPhoneLimits: {
+        recoveryPhoneCreate: {
+          doc: 'Number of RecoveryPhone creates from an account email or from an IP before rate limiting',
+          default: 5,
+          format: 'nat',
+          env: 'RECOVERY_PHONE_CREATE_LIMIT',
+        },
+        recoveryPhoneSendCode: {
+          doc: 'Number of RecoveryPhone SendCode operations from an account email or from an IP before rate limiting',
+          default: 5,
+          format: 'nat',
+          env: 'RECOVERY_PHONE_SEND_CODE_LIMIT',
+        },
+        recoveryPhoneConfirmCode: {
+          doc: 'Number of RecoveryPhone confirm code operations from an account email or from an IP before rate limiting',
+          default: 5,
+          format: 'nat',
+          env: 'RECOVERY_PHONE_CONFIRM_CODE_LIMIT',
+        },
+        recoveryPhoneAvailable: {
+          doc: 'Number of RecoveryPhone available operations from an IP before rate limiting',
+          default: 5,
+          format: 'nat',
+          env: 'RECOVERY_PHONE_AVAILABLE_LIMIT',
+        },
+      },
       passwordResetOtpLimits: {
         maxPasswordResetOtpEmails: {
           doc: 'Number of OTP email for an account email or from an IP can request before rate limiting',

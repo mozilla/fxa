@@ -21,10 +21,15 @@ enum RecoveryPhoneStatus {
   FAILURE = 'failure',
 }
 
+export type Customs = {
+  check: (req: AuthRequest, action: string) => Promise<void>;
+};
+
 class RecoveryPhoneHandler {
   private readonly recoveryPhoneService: RecoveryPhoneService;
 
   constructor(
+    private readonly customs: Customs,
     private readonly log: AuthLogger,
     private readonly glean: GleanMetricsType
   ) {
@@ -33,6 +38,8 @@ class RecoveryPhoneHandler {
 
   async sendCode(request: AuthRequest) {
     const { uid } = request.auth.credentials as SessionTokenAuthCredential;
+
+    await this.customs.check(request, 'recoveryPhoneSendCode');
 
     let status = false;
     try {
@@ -60,6 +67,7 @@ class RecoveryPhoneHandler {
     const { phoneNumber } = request.payload as unknown as {
       phoneNumber: string;
     };
+    await this.customs.check(request, 'recoveryPhoneCreate');
 
     try {
       const result = await this.recoveryPhoneService.setupPhoneNumber(
@@ -97,6 +105,8 @@ class RecoveryPhoneHandler {
     const { code } = request.payload as unknown as {
       code: string;
     };
+
+    await this.customs.check(request, 'recoveryPhoneConfirmCode');
 
     let success = false;
     try {
@@ -149,6 +159,8 @@ class RecoveryPhoneHandler {
   async available(request: AuthRequest) {
     const { uid } = request.auth.credentials as unknown as { uid: string };
 
+    this.customs.check(request, 'recoveryPhoneAvailable');
+
     // Maxmind countryCode is two-letter ISO country code (ex `US` for the United States)
     // This is the same format as the `region` field in the recovery phone config
     const location = request.app.geo?.location;
@@ -195,10 +207,11 @@ class RecoveryPhoneHandler {
 }
 
 export const recoveryPhoneRoutes = (
+  customs: Customs,
   log: AuthLogger,
   glean: GleanMetricsType
 ) => {
-  const recoveryPhoneHandler = new RecoveryPhoneHandler(log, glean);
+  const recoveryPhoneHandler = new RecoveryPhoneHandler(customs, log, glean);
   const routes = [
     // TODO: See blocked tasks for FXA-10354
     {
