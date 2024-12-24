@@ -15,18 +15,10 @@ module.exports = async function main(items, dbFunction) {
   const oauth = require('../../lib/oauth/db');
   const db = await AuthDB.connect(config);
 
-  const users = [];
   try {
     for (const item of items) {
-      users.push(await db[dbFunction](item));
-    }
-  } catch (err) {
-    console.error(err);
-    return process.exit(1);
-  }
+      const result = await db[dbFunction](item);
 
-  await Promise.all(
-    users.map(async (result) => {
       try {
         // Removes all session tokens,
         const uid = result.uid;
@@ -49,10 +41,13 @@ module.exports = async function main(items, dbFunction) {
         console.error('failed', result.uid, err);
         process.exit(1);
       }
-    })
-  );
+    }
+  } catch (err) {
+    console.error(err);
+    return process.exit(1);
+  }
 
-  console.info('%s accounts reset', users.length);
+  console.info('%s accounts reset', items.length);
   await db.close();
   process.exit();
 };
