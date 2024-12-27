@@ -4,7 +4,7 @@
 import program from 'commander';
 
 import { setupProcessingTaskObjects } from '../lib/payments/processing-tasks-setup';
-import { parseDryRun } from './lib/args';
+import { parseBooleanArg } from './lib/args';
 import { FieldPath, Firestore } from '@google-cloud/firestore';
 import { AppConfig, AuthFirestore, AuthLogger } from '../lib/types';
 import Container from 'typedi';
@@ -152,7 +152,7 @@ export async function init() {
 
   const options = program.opts();
   const batchSize = parseInt(options.batchSize);
-  const isDryRun = parseDryRun(options.dryRun);
+  const isDryRun = parseBooleanArg(options.dryRun);
 
   // TBD, do we still need this? fxaDb is no longer referenced...
   await setupProcessingTaskObjects('cleanup-delete-partial-firestore');

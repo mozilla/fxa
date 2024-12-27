@@ -190,3 +190,31 @@ export const requestForGlean = {
     'user-agent': '',
   },
 } as unknown as AuthRequest;
+
+export const buildExclusionsTempTableQuery = (
+  tempTableName: string,
+  exclusionLists: string[]
+) => {
+  const createTempTable = `CREATE TEMP TABLE ${tempTableName}(uid STRING(32))`;
+
+  if (!exclusionLists.length) {
+    return createTempTable;
+  }
+
+  const listQueries = exclusionLists.map((resourcePath) => {
+    const parts = resourcePath.split('.');
+    const columnName = parts[parts.length - 1];
+    const resourceId = parts.slice(0, parts.length - 1).join('.');
+
+    return `
+      (SELECT \`${columnName}\` AS uid FROM \`${resourceId}\`)
+      `;
+  });
+
+  return `${createTempTable}
+  AS (
+      ${listQueries.join(`
+      UNION DISTINCT
+  `)}
+  )`;
+};

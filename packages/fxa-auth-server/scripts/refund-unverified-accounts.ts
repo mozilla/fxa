@@ -9,7 +9,7 @@ import Container from 'typedi';
 import { setupProcessingTaskObjects } from '../lib/payments/processing-tasks-setup';
 import { AppConfig } from '../lib/types';
 import { promises as fs } from 'fs';
-import { parseDryRun } from './lib/args';
+import { parseBooleanArg } from './lib/args';
 
 const pckg = require('../package.json');
 
@@ -418,7 +418,7 @@ async function init() {
     'refund-unverified-accounts'
   );
 
-  const isDryRun = parseDryRun(program.dryRun);
+  const isDryRun = parseBooleanArg(program.dryRun);
   const startDate = parseStartDate(program.startDate);
   const endDate = parseEndDate(program.endDate);
   const skipFile = program.skipFile || '';

@@ -7,7 +7,7 @@ import Container from 'typedi';
 
 import { setupProcessingTaskObjects } from '../lib/payments/processing-tasks-setup';
 import { AppConfig } from '../lib/types';
-import { parseDryRun } from './lib/args';
+import { parseBooleanArg } from './lib/args';
 import {
   OutputTarget,
   StripeProductsAndPlansConverter,
@@ -60,7 +60,7 @@ async function init() {
     'stripe-products-and-plans-to-firestore-documents'
   );
 
-  const isDryRun = parseDryRun(program.dryRun);
+  const isDryRun = parseBooleanArg(program.dryRun);
   const target = parseTarget(program.target);
   const targetDir = parseTargetPath(program.targetDir);
   const productId = program.productId;
