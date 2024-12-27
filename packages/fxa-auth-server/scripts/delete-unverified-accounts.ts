@@ -17,7 +17,7 @@ import { createStripeHelper, StripeHelper } from '../lib/payments/stripe';
 import initRedis from '../lib/redis';
 import Token from '../lib/tokens';
 import { AppConfig, AuthFirestore, AuthLogger } from '../lib/types';
-import { parseDryRun } from './lib/args';
+import { parseBooleanArg } from './lib/args';
 import {
   DeleteAccountTasksFactory,
   ReasonForDeletion,
@@ -119,7 +119,7 @@ const init = async () => {
     );
 
   program.parse(process.argv);
-  const isDryRun = parseDryRun(program.dryRun);
+  const isDryRun = parseBooleanArg(program.dryRun);
   const limit = program.limit ? parseInt(program.limit) : Infinity;
   const hasUid = program.uid.length > 0;
   const hasEmail = program.email.length > 0;
