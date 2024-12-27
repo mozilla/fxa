@@ -7,22 +7,25 @@ import { RecoveryPhone } from './recovery-phone.types';
 export async function getConfirmedPhoneNumber(
   db: AccountDatabase,
   uid: Buffer
-) {
+): Promise<{ uid: Buffer; phoneNumber: string } | undefined> {
   return db
     .selectFrom('recoveryPhones')
     .where('uid', '=', uid)
-    .selectAll()
+    .select(['uid', 'phoneNumber'])
     .executeTakeFirst();
 }
 
 export async function registerPhoneNumber(
   db: AccountDatabase,
   recoveryPhone: RecoveryPhone
-) {
-  return await db.insertInto('recoveryPhones').values(recoveryPhone).execute();
+): Promise<void> {
+  await db.insertInto('recoveryPhones').values(recoveryPhone).execute();
 }
 
-export async function removePhoneNumber(db: AccountDatabase, uid: Buffer) {
+export async function removePhoneNumber(
+  db: AccountDatabase,
+  uid: Buffer
+): Promise<boolean> {
   const result = await db
     .deleteFrom('recoveryPhones')
     .where('uid', '=', uid)
@@ -31,11 +34,14 @@ export async function removePhoneNumber(db: AccountDatabase, uid: Buffer) {
   return result.numDeletedRows === BigInt(1);
 }
 
-export async function hasRecoveryCodes(db: AccountDatabase, uid: Buffer) {
+export async function hasRecoveryCodes(
+  db: AccountDatabase,
+  uid: Buffer
+): Promise<boolean> {
   const result = await db
     .selectFrom('recoveryCodes')
     .where('uid', '=', uid)
-    .selectAll()
+    .select('uid')
     .execute();
 
   return result.length > 0;

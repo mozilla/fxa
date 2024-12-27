@@ -267,6 +267,68 @@ const conf = convict({
       },
     },
   },
+  recoveryPhone: {
+    enabled: {
+      default: false,
+      doc: 'Enable recovery phone feature',
+      env: 'RECOVERY_PHONE__ENABLED',
+      format: Boolean,
+    },
+    allowedRegions: {
+      default: ['US'],
+      doc: 'Allowed regions for recovery phone',
+      env: 'RECOVERY_PHONE__ALLOWED_REGIONS',
+      format: Array,
+    },
+    otp: {
+      kind: {
+        default: 'recovery-phone-code',
+        doc: 'An identifier for the type of otp codes being sent out',
+        env: 'RECOVERY_PHONE__OTP__KIND',
+        format: String,
+      },
+      digits: {
+        default: 6,
+        doc: 'The number of digits in an otp code',
+        env: 'RECOVERY_PHONE__OTP__DIGITS',
+        format: Number,
+      },
+    },
+    redis: {},
+    sms: {
+      from: {
+        default: '555555',
+        doc: 'The twilio number messages are sent from. This should be a short-code resource.',
+        env: 'RECOVERY_PHONE__SMS__FROM',
+        format: String,
+      },
+      maxMessageLength: {
+        default: 60,
+        doc: 'Max allows sms message lenght',
+        env: 'RECOVERY_PHONE__SMS__MAX_MESSAGE_LENGTH',
+        format: Number,
+      },
+      validNumberPrefixes: {
+        default: ['+1'], // USA and Canada
+        doc: 'Allowed phone number prefixes. Controls the locales that a message can be sent to.',
+        env: 'RECOVERY_PHONE__SMS__VALID_NUMBER_PREFIXES',
+        format: Array,
+      },
+    },
+  },
+  twilio: {
+    accountSid: {
+      default: 'AC00000000000000000000000000000000',
+      doc: 'Twilio Account ID',
+      env: 'RECOVERY_PHONE__TWILIO__ACCOUNT_SID',
+      format: String,
+    },
+    authToken: {
+      default: '00000000000000000000000000000000',
+      doc: 'Twilio Auth Token, required to access api',
+      env: 'RECOVERY_PHONE_TWILIO_AUTH_TOKEN',
+    },
+  },
 });
 
 // handle configuration files.  you can specify a CSV list of configuration

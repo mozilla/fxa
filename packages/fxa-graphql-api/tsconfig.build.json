@@ -13,7 +13,10 @@
       "@fxa/shared/metrics/statsd": ["libs/shared/metrics/statsd/src/index"],
       "@fxa/shared/mozlog": ["libs/shared/mozlog/src/index"],
       "@fxa/shared/notifier": ["libs/shared/notifier/src/index"],
-      "@fxa/shared/sentry": ["libs/shared/sentry/src/index"]
+      "@fxa/shared/sentry": ["libs/shared/sentry/src/index"],
+      "@fxa/shared/otp": ["libs/shared/otp/src/index"],
+      "@fxa/shared/error": ["libs/shared/error/src/index"],
+      "@fxa/accounts/recovery-phone": ["libs/accounts/recovery-phone/src/index"]
     }
   }
 }

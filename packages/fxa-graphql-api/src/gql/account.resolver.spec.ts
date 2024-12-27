@@ -19,6 +19,7 @@ import { AuthClientService } from '../backend/auth-client.service';
 import { ProfileClientService } from '../backend/profile-client.service';
 import { AccountResolver } from './account.resolver';
 import { NotifierService, NotifierSnsService } from '@fxa/shared/notifier';
+import { RecoveryPhoneService } from '../../../../libs/accounts/recovery-phone/src';
 
 let USER_1: any;
 let SESSION_1: any;
@@ -31,6 +32,7 @@ describe('#integration - AccountResolver', () => {
   let logger: any;
   let knex: Knex;
   let authClient: any;
+  let recoveryPhoneService: any;
   let profileClient: any;
   let notifierSnsService: any;
   let notifierService: any;
@@ -53,6 +55,9 @@ describe('#integration - AccountResolver', () => {
     };
     notifierService = {
       send: jest.fn(),
+    };
+    recoveryPhoneService = {
+      hasConfirmed: jest.fn(),
     };
     const MockMozLogger: Provider = {
       provide: MozLoggerService,
@@ -92,6 +97,10 @@ describe('#integration - AccountResolver', () => {
         {
           provide: ConfigService,
           useValue: { get: jest.fn().mockReturnValue({ url: 'test' }) },
+        },
+        {
+          provide: RecoveryPhoneService,
+          useValue: recoveryPhoneService,
         },
       ],
     }).compile();
@@ -192,6 +201,19 @@ describe('#integration - AccountResolver', () => {
         const user = await Account.findByUid(USER_1.uid);
         const linkedAccounts = resolver.linkedAccounts(user!);
         expect(linkedAccounts).toEqual([]);
+      });
+
+      it('resolves recovery phone number', async () => {
+        recoveryPhoneService.hasConfirmed = jest
+          .fn()
+          .mockResolvedValue({ exists: false });
+        const user = await Account.findByUid(USER_1.uid);
+        const result = await resolver.recoveryPhone(user!);
+
+        // Data shouldn't exist because no number has been registered yet.
+        expect(result).toEqual({ exists: false });
+        expect(recoveryPhoneService.hasConfirmed).toBeCalledTimes(1);
+        expect(recoveryPhoneService.hasConfirmed).toBeCalledWith(USER_1.uid);
       });
 
       it('resolves linked accounts when loaded', async () => {

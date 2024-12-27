@@ -12,6 +12,7 @@ import { LinkedAccount } from './linkedAccount';
 import { SecurityEvent } from './securityEvent';
 import { RecoveryKey } from './recoveryKey';
 import { BackupCodes } from './backupCodes';
+import { RecoveryPhone } from './recoveryPhone';
 
 @ObjectType({
   description: "The current authenticated user's Firefox Account record.",
@@ -71,4 +72,9 @@ export class Account {
     description: 'Security events',
   })
   public securityEvents!: SecurityEvent[];
+
+  @Field((type) => RecoveryPhone, {
+    description: 'Users recovery phone details',
+  })
+  public recoveryPhone!: RecoveryPhone;
 }
