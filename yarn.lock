@@ -29247,14 +29247,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:^0.28.1":
-  version: 0.28.1
-  resolution: "axios@npm:0.28.1"
+"axios@npm:^0.29.0":
+  version: 0.29.0
+  resolution: "axios@npm:0.29.0"
   dependencies:
-    follow-redirects: ^1.15.0
+    follow-redirects: ^1.15.4
     form-data: ^4.0.0
     proxy-from-env: ^1.1.0
-  checksum: 5115a38d79064d07437c5a28f15841e3607634040e3120ec06a2c4367a7d07cf213b16496eab53b6f58ebc5fb377a440ba9ed4782529b14449a1e285734bfb54
+  checksum: b365fa0471ff62472521932c68f152e98650804c016fc6a9fe337a6cd67201141baf14d29161527cce5189b9eba8f14cb5781e02c56e69f56784e9a23385d7e7
   languageName: node
   linkType: hard
 
@@ -29288,17 +29288,6 @@ __metadata:
     form-data: ^4.0.0
     proxy-from-env: ^1.1.0
   checksum: 882d4fe0ec694a07c7f5c1f68205eb6dc5a62aecdb632cc7a4a3d0985188ce3030e0b277e1a8260ac3f194d314ae342117660a151fabffdc5081ca0b5a8b47fe
-  languageName: node
-  linkType: hard
-
-"axios@npm:^1.7.5":
-  version: 1.7.5
-  resolution: "axios@npm:1.7.5"
-  dependencies:
-    follow-redirects: ^1.15.6
-    form-data: ^4.0.0
-    proxy-from-env: ^1.1.0
-  checksum: 2859fe01437cf133eee35571abc1d4b5224bb13e530e66cb3581ca226e170541dd5eef9f46abb41592cee0a2f54930c9e4978354e0cf1064748fc20d9a05e9d5
   languageName: node
   linkType: hard
 
@@ -40461,7 +40450,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"follow-redirects@npm:^1.0.0, follow-redirects@npm:^1.14.0, follow-redirects@npm:^1.15.0, follow-redirects@npm:^1.15.4, follow-redirects@npm:^1.15.6":
+"follow-redirects@npm:^1.0.0, follow-redirects@npm:^1.14.0, follow-redirects@npm:^1.15.4, follow-redirects@npm:^1.15.6":
   version: 1.15.6
   resolution: "follow-redirects@npm:1.15.6"
   peerDependenciesMeta:
@@ -41227,7 +41216,7 @@ fsevents@~2.1.1:
     tailwindcss: 3.4.3
     tailwindcss-textshadow: ^2.1.3
     typescript: ^5.5.3
-    webpack: ^5.96.0
+    webpack: ^5.97.0
   languageName: unknown
   linkType: soft
 
@@ -41431,7 +41420,7 @@ fsevents@~2.1.1:
     uuid: ^10.0.0
     verror: ^1.10.1
     web-push: 3.4.4
-    webpack: ^5.96.0
+    webpack: ^5.97.0
     webpack-watch-files-plugin: ^1.2.1
     ws: ^8.17.1
   bin:
@@ -41587,7 +41576,7 @@ fsevents@~2.1.1:
     url-loader: 4.1.1
     verror: 1.10.1
     webcrypto-liner: 1.4.0
-    webpack: ^5.96.0
+    webpack: ^5.97.0
     webpack-cli: ^5.1.4
     webpack-dev-middleware: ^7.4.0
     xmlhttprequest: ^1.8.0
@@ -41669,7 +41658,7 @@ fsevents@~2.1.1:
     "@typescript-eslint/eslint-plugin": ^5.59.0
     "@typescript-eslint/parser": ^7.1.1
     audit-filter: ^0.5.0
-    axios: ^0.28.1
+    axios: ^0.29.0
     chance: ^1.1.8
     convict: ^6.2.4
     convict-format-with-moment: ^6.2.0
@@ -41893,7 +41882,7 @@ fsevents@~2.1.1:
     typescript: ^5.5.3
     uuid: ^10.0.0
     wait-for-expect: ^3.0.2
-    webpack: ^5.96.0
+    webpack: ^5.97.0
   languageName: unknown
   linkType: soft
 
@@ -42002,7 +41991,7 @@ fsevents@~2.1.1:
     tailwindcss-dir: ^4.0.0
     tsc-alias: ^1.8.8
     typescript: ^5.5.3
-    webpack: ^5.96.0
+    webpack: ^5.97.0
   languageName: unknown
   linkType: soft
 
@@ -42132,7 +42121,7 @@ fsevents@~2.1.1:
     typescript: ^5.5.3
     ua-parser-js: 1.0.35
     uuid: ^10.0.0
-    webpack: ^5.96.0
+    webpack: ^5.97.0
     webpack-dev-server: ^4.6.0
     webpack-manifest-plugin: ^5.0.0
     workbox-webpack-plugin: ^7.1.0
@@ -42309,7 +42298,7 @@ fsevents@~2.1.1:
     app-store-server-api: ^0.16.0
     autoprefixer: ^10.4.14
     aws-sdk: ^2.1691.0
-    axios: ^1.7.5
+    axios: ^0.29.0
     babel-jest: ^29.7.0
     base64url: ^3.0.1
     bn.js: ^5.2.1
@@ -70336,15 +70325,15 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"webpack@npm:^5.96.0":
-  version: 5.96.1
-  resolution: "webpack@npm:5.96.1"
+"webpack@npm:^5.97.0":
+  version: 5.97.1
+  resolution: "webpack@npm:5.97.1"
   dependencies:
     "@types/eslint-scope": ^3.7.7
     "@types/estree": ^1.0.6
-    "@webassemblyjs/ast": ^1.12.1
-    "@webassemblyjs/wasm-edit": ^1.12.1
-    "@webassemblyjs/wasm-parser": ^1.12.1
+    "@webassemblyjs/ast": ^1.14.1
+    "@webassemblyjs/wasm-edit": ^1.14.1
+    "@webassemblyjs/wasm-parser": ^1.14.1
     acorn: ^8.14.0
     browserslist: ^4.24.0
     chrome-trace-event: ^1.0.2
@@ -70368,7 +70357,7 @@ resolve@1.1.7:
       optional: true
   bin:
     webpack: bin/webpack.js
-  checksum: ec3662f64895fae408440a997f87299e374c9d9f911f77b880bab46402f52221c7836bdf101fc2556338d07fc7cb86da50661f944eb1d1041a8361a5b9247876
+  checksum: 649065e2258b495ae41a4088be804b4be2ec07d280aa514ebef43da79caf96fa973d26a08826c3902b5676a098d9b37c589f16be7b4da17b68b08b6c76441196
   languageName: node
   linkType: hard
 
