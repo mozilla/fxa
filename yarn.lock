@@ -36427,12 +36427,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dotenv-expand@npm:^11.0.6, dotenv-expand@npm:~11.0.6":
-  version: 11.0.6
-  resolution: "dotenv-expand@npm:11.0.6"
+"dotenv-expand@npm:^12.0.1":
+  version: 12.0.1
+  resolution: "dotenv-expand@npm:12.0.1"
   dependencies:
-    dotenv: ^16.4.4
-  checksum: dbbe1ecbdf17f4ba5556744b259801bdbc8c221c0d167f4f3ef079206ebf658f487fe96ea1fd504dc15172328d25f6c665581eb8d873298904a52d48a2004b49
+    dotenv: ^16.4.5
+  checksum: 05d75f192c751d3345275db21b0491f43b6089ae1fe7cd5dd67d98469f2723d762d113e058e26a70101cf8003bfb0df0ef695a784c86e53ac38bf046bb9b593d
   languageName: node
   linkType: hard
 
@@ -36440,6 +36440,15 @@ __metadata:
   version: 5.1.0
   resolution: "dotenv-expand@npm:5.1.0"
   checksum: 8017675b7f254384915d55f9eb6388e577cf0a1231a28d54b0ca03b782be9501b0ac90ac57338636d395fa59051e6209e9b44b8ddf169ce6076dffb5dea227d3
+  languageName: node
+  linkType: hard
+
+"dotenv-expand@npm:~11.0.6":
+  version: 11.0.6
+  resolution: "dotenv-expand@npm:11.0.6"
+  dependencies:
+    dotenv: ^16.4.4
+  checksum: dbbe1ecbdf17f4ba5556744b259801bdbc8c221c0d167f4f3ef079206ebf658f487fe96ea1fd504dc15172328d25f6c665581eb8d873298904a52d48a2004b49
   languageName: node
   linkType: hard
 
@@ -42059,7 +42068,7 @@ fsevents@~2.1.1:
     css-loader: ^6.8.1
     css-minimizer-webpack-plugin: ^7.0.0
     dotenv: ^16.4.5
-    dotenv-expand: ^11.0.6
+    dotenv-expand: ^12.0.1
     eslint: ^7.32.0
     eslint-config-react-app: ^6.0.0
     eslint-plugin-jest: ^27.6.0
