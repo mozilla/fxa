@@ -162,6 +162,7 @@ export class CheckoutService {
 
     const upcomingInvoice = await this.invoiceManager.previewUpcoming({
       priceId: price.id,
+      currency: cart.currency,
       customer: customer,
       taxAddress: taxAddress,
     });

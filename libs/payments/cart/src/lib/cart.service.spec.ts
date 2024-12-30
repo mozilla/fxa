@@ -255,6 +255,7 @@ describe('CartService', () => {
 
     it('throws an error when couponCode is invalid', async () => {
       const mockAccount = AccountFactory();
+      const mockResolvedCurrency = faker.finance.currencyCode();
 
       jest
         .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
@@ -263,6 +264,9 @@ describe('CartService', () => {
       jest
         .spyOn(accountManager, 'getAccounts')
         .mockResolvedValue([mockAccount]);
+      jest
+        .spyOn(currencyManager, 'getCurrencyForCountry')
+        .mockReturnValue(mockResolvedCurrency);
 
       await expect(() => cartService.setupCart(args)).rejects.toThrowError(
         CartInvalidPromoCodeError
@@ -709,6 +713,7 @@ describe('CartService', () => {
       );
       expect(invoiceManager.previewUpcoming).toHaveBeenCalledWith({
         priceId: mockPrice.id,
+        currency: mockCart.currency,
         customer: mockCustomer,
         taxAddress: mockCart.taxAddress,
       });
@@ -772,6 +777,7 @@ describe('CartService', () => {
       );
       expect(invoiceManager.previewUpcoming).toHaveBeenCalledWith({
         priceId: mockPrice.id,
+        currency: mockCart.currency,
         customer: mockCustomer,
         taxAddress: mockCart.taxAddress,
       });
@@ -810,6 +816,7 @@ describe('CartService', () => {
       expect(customerManager.retrieve).not.toHaveBeenCalled();
       expect(invoiceManager.previewUpcoming).toHaveBeenCalledWith({
         priceId: mockPrice.id,
+        currency: mockCart.currency,
         customer: undefined,
         taxAddress: mockCart.taxAddress,
       });
