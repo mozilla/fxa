@@ -29,6 +29,7 @@ import {
 import {
   isClientMonitor,
   isClientPocket,
+  isClientRelay,
 } from '../../models/integrations/client-matching';
 import { SigninFormData, SigninProps } from './interfaces';
 import { handleNavigation } from './utils';
@@ -81,6 +82,7 @@ const Signin = ({
   const clientId = integration.getClientId();
   const isPocketClient = isOAuth && isClientPocket(clientId);
   const isMonitorClient = isOAuth && isClientMonitor(clientId);
+  const isRelayClient = isOAuth && isClientRelay(clientId);
   const hasLinkedAccountAndNoPassword = hasLinkedAccount && !hasPassword;
 
   // We must use a ref because we may update this value in a callback
@@ -441,7 +443,7 @@ const Signin = ({
       )}
 
       <TermsPrivacyAgreement
-        {...{ isPocketClient, isMonitorClient, isDesktopRelay }}
+        {...{ isPocketClient, isMonitorClient, isDesktopRelay, isRelayClient }}
       />
 
       <div className="flex flex-col mt-8 tablet:justify-between tablet:flex-row">

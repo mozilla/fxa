@@ -14,6 +14,7 @@ import TermsPrivacyAgreement from '../../components/TermsPrivacyAgreement';
 import {
   isClientMonitor,
   isClientPocket,
+  isClientRelay,
 } from '../../models/integrations/client-matching';
 import { isOAuthIntegration } from '../../models';
 
@@ -27,6 +28,7 @@ export const Index = ({
   const isOAuth = isOAuthIntegration(integration);
   const isPocketClient = isOAuth && isClientPocket(clientId);
   const isMonitorClient = isOAuth && isClientMonitor(clientId);
+  const isRelayClient = isOAuth && isClientRelay(clientId);
   return (
     <AppLayout>
       {isSync ? (
@@ -72,7 +74,7 @@ export const Index = ({
         <ThirdPartyAuth showSeparator viewName="index" />
       )}
       <TermsPrivacyAgreement
-        {...{ isPocketClient, isMonitorClient, isDesktopRelay }}
+        {...{ isPocketClient, isMonitorClient, isDesktopRelay, isRelayClient }}
       />
     </AppLayout>
   );

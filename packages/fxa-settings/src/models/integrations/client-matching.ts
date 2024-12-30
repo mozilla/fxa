@@ -14,10 +14,19 @@ export const POCKET_CLIENTIDS = [
   '749818d3f2e7857f', // pocket-web
 ];
 
+export const RELAY_CLIENTIDS = [
+  '41b4363ae36440a9', // Relay stage
+  '723aa3bce05884d8', // Relay dev
+  '9ebfe2c2f9ea3c58', // Relay prod
+];
+
 export const isClientPocket = (clientId?: string) => {
   return !!(clientId && POCKET_CLIENTIDS.includes(clientId));
 };
 
 export const isClientMonitor = (clientId?: string) => {
   return !!(clientId && MONITOR_CLIENTIDS.includes(clientId));
+};
+export const isClientRelay = (clientId?: string) => {
+  return !!(clientId && RELAY_CLIENTIDS.includes(clientId));
 };
