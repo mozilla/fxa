@@ -15,7 +15,9 @@ const TOTP_DOCS = require('../../docs/swagger/totp-api').default;
 const DESCRIPTION = require('../../docs/swagger/shared/descriptions').default;
 const { Container } = require('typedi');
 const { AccountEventsManager } = require('../account-events');
-const { RecoveryPhoneService } = require('@fxa/accounts/recovery-phone');
+const {
+  RecoveryPhoneService,
+} = require('../../../../libs/accounts/recovery-phone/src');
 
 const RECOVERY_CODE_SANE_MAX_LENGTH = 20;
 
