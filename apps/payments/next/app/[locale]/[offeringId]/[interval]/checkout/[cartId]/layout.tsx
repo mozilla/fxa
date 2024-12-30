@@ -13,7 +13,9 @@ import {
   getApp,
   CheckoutParams,
   Details,
+  PriceHeader,
   PriceInterval,
+  PriceItemized,
   SignedIn,
   SubscriptionTitle,
   TermsAndPrivacy,
@@ -71,28 +73,37 @@ export default async function RootLayout({
           aria-label="Purchase details"
         >
           <PurchaseDetails
-            priceInterval={
-              <PriceInterval
-                l10n={l10n}
-                currency={cart.upcomingInvoicePreview.currency}
-                interval={cart.interval}
-                listAmount={cart.upcomingInvoicePreview.listAmount}
+            selectedPrice={
+              <PriceHeader
+                priceInterval={
+                  <PriceInterval
+                    l10n={l10n}
+                    currency={cart.upcomingInvoicePreview.currency}
+                    interval={cart.interval}
+                    listAmount={cart.upcomingInvoicePreview.listAmount}
+                  />
+                }
+                purchaseDetails={
+                  cms.defaultPurchase.purchaseDetails.localizations.at(0) ||
+                  cms.defaultPurchase.purchaseDetails
+                }
               />
-            }
-            purchaseDetails={
-              cms.defaultPurchase.purchaseDetails.localizations.at(0) ||
-              cms.defaultPurchase.purchaseDetails
             }
           >
             <Details
               l10n={l10n}
-              interval={cart.interval}
               invoice={cart.upcomingInvoicePreview}
               purchaseDetails={
                 cms.defaultPurchase.purchaseDetails.localizations.at(0) ||
                 cms.defaultPurchase.purchaseDetails
               }
-            />
+            >
+              <PriceItemized
+                l10n={l10n}
+                interval={cart.interval}
+                invoice={cart.upcomingInvoicePreview}
+              />
+            </Details>
           </PurchaseDetails>
           <CouponForm
             cartId={cart.id}
