@@ -60,6 +60,14 @@ export class NextJSActionsService {
     return cart;
   }
 
+  async getUpgradeCart(args: GetCartActionArgs) {
+    await new Validator().validateOrReject(args);
+
+    const cart = await this.cartService.getUpgradeCart(args.cartId);
+
+    return cart;
+  }
+
   async updateCart(args: UpdateCartActionArgs) {
     await new Validator().validateOrReject(args);
 

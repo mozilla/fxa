@@ -39,6 +39,8 @@ export interface Invoice {
   discountEnd?: number | null;
   discountType?: string;
   number: string | null; // customer-facing invoice identifier
+  paypalTransactionId?: string;
+  oneTimeCharge?: number;
 }
 
 export type PaymentProvidersType =
@@ -59,16 +61,33 @@ export type ResultCart = Readonly<Omit<Cart, 'id' | 'uid'>> & {
   readonly uid?: string;
 };
 
+type RecurringIntervalType = Stripe.Price.Recurring.Interval;
+
+export interface CurrentPrice {
+  currency: string;
+  interval: RecurringIntervalType;
+  listAmount: number;
+}
+
 export type WithContextCart = ResultCart & {
   metricsOptedOut: boolean;
   upcomingInvoicePreview: Invoice;
   latestInvoicePreview?: Invoice;
   paymentInfo?: PaymentInfo;
+  fromOfferingConfigId?: string;
+  oneTimeCharge?: number;
+  upgradeFromPrice?: CurrentPrice;
 };
 
 export type SuccessCart = WithContextCart & {
   latestInvoicePreview: Invoice;
   paymentInfo: PaymentInfo;
+};
+
+export type UpgradeCart = WithContextCart & {
+  fromOfferingConfigId: string;
+  oneTimeCharge: number;
+  upgradeFromPrice: CurrentPrice;
 };
 
 export type SetupCart = {

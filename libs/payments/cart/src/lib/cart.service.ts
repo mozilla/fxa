@@ -27,7 +27,11 @@ import {
 } from '@fxa/payments/stripe';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
 import { CurrencyManager } from '@fxa/payments/currency';
-import { CartErrorReasonId, CartState } from '@fxa/shared/db/mysql/account';
+import {
+  CartEligibilityStatus,
+  CartErrorReasonId,
+  CartState,
+} from '@fxa/shared/db/mysql/account';
 import { GeoDBManager } from '@fxa/shared/geodb';
 
 import { CartManager } from './cart.manager';
@@ -40,12 +44,14 @@ import type {
   StripeHandleNextActionResponse,
   SuccessCart,
   UpdateCart,
+  UpgradeCart,
   WithContextCart,
 } from './cart.types';
 import { NeedsInputType } from './cart.types';
 import { handleEligibilityStatusMap } from './cart.utils';
 import { CheckoutService } from './checkout.service';
 import {
+  CartEligibilityMismatchError,
   CartError,
   CartInvalidCurrencyError,
   CartInvalidPromoCodeError,
@@ -54,6 +60,8 @@ import {
   CartStateProcessingError,
   CartSubscriptionNotFoundError,
   CartSuccessMissingRequired,
+  CartUpgradeMissingRequired,
+  CartUpgradeNotValid,
 } from './cart.error';
 import { AccountManager } from '@fxa/shared/account/account';
 import assert from 'assert';
@@ -193,7 +201,8 @@ export class CartService {
       ),
     ]);
 
-    const cartEligibilityStatus = handleEligibilityStatusMap[eligibility];
+    const cartEligibilityStatus =
+      handleEligibilityStatusMap[eligibility.subscriptionEligibilityResult];
 
     if (args.promoCode) {
       try {
@@ -530,6 +539,114 @@ export class CartService {
       ...cart,
       latestInvoicePreview: cart.latestInvoicePreview,
       paymentInfo: cart.paymentInfo,
+    };
+  }
+
+  /**
+   * Fetch a upgrade cart
+   */
+  async getUpgradeCart(cartId: string): Promise<UpgradeCart> {
+    const cart = await this.cartManager.fetchCartById(cartId);
+
+    if (cart.eligibilityStatus !== CartEligibilityStatus.UPGRADE)
+      throw new CartEligibilityMismatchError(
+        cartId,
+        cart.eligibilityStatus,
+        CartEligibilityStatus.UPGRADE
+      );
+
+    const [price, metricsOptedOut] = await Promise.all([
+      this.productConfigurationManager.retrieveStripePrice(
+        cart.offeringConfigId,
+        cart.interval as SubplatInterval
+      ),
+      this.metricsOptedOut(cart.uid),
+    ]);
+
+    let customer: StripeCustomer | undefined;
+    if (cart.stripeCustomerId) {
+      customer = await this.customerManager.retrieve(cart.stripeCustomerId);
+    }
+
+    const { fromOfferingConfigId, upgradeFromPrice } =
+      await this.eligibilityService.checkEligibility(
+        cart.interval as SubplatInterval,
+        cart.offeringConfigId,
+        cart.stripeCustomerId
+      );
+
+    if (
+      !fromOfferingConfigId ||
+      !upgradeFromPrice ||
+      !upgradeFromPrice.recurring ||
+      !upgradeFromPrice.unit_amount
+    )
+      throw new CartUpgradeNotValid(cartId);
+
+    const upcomingInvoicePreview =
+      await this.invoiceManager.previewUpcomingForUpgrade({
+        priceId: price.id,
+        currency: cart.currency || DEFAULT_CURRENCY,
+        customer,
+        taxAddress: cart.taxAddress || undefined,
+        couponCode: cart.couponCode || undefined,
+        upgradeFromPrice,
+      });
+
+    if (!upcomingInvoicePreview.oneTimeCharge) {
+      throw new CartUpgradeMissingRequired(cartId);
+    }
+
+    // Cart latest invoice data
+    let latestInvoicePreview: InvoicePreview | undefined;
+    let paymentInfo: PaymentInfo | undefined;
+    if (customer && cart.stripeSubscriptionId) {
+      // fetch latest payment info from subscription
+      const subscription = await this.subscriptionManager.retrieve(
+        cart.stripeSubscriptionId
+      );
+      assert(subscription.latest_invoice, 'Subscription not found');
+      latestInvoicePreview = await this.invoiceManager.preview(
+        subscription.latest_invoice
+      );
+
+      // fetch payment method info
+      if (subscription.collection_method === 'send_invoice') {
+        // PayPal payment method collection
+        // TODO: render paypal payment info in the UI (FXA-10608)
+        paymentInfo = {
+          type: 'external_paypal',
+        };
+      } else {
+        // Stripe payment method collection
+        if (customer.invoice_settings.default_payment_method) {
+          const paymentMethod = await this.paymentMethodManager.retrieve(
+            customer.invoice_settings.default_payment_method
+          );
+          paymentInfo = {
+            type: paymentMethod.type,
+            last4: paymentMethod.card?.last4,
+            brand: paymentMethod.card?.brand,
+          };
+        }
+      }
+    }
+
+    const currentPrice = {
+      currency: upgradeFromPrice.currency,
+      interval: upgradeFromPrice.recurring?.interval,
+      listAmount: upgradeFromPrice.unit_amount,
+    };
+
+    return {
+      ...cart,
+      upcomingInvoicePreview,
+      metricsOptedOut,
+      latestInvoicePreview,
+      paymentInfo,
+      fromOfferingConfigId: fromOfferingConfigId,
+      oneTimeCharge: upcomingInvoicePreview.oneTimeCharge,
+      upgradeFromPrice: currentPrice,
     };
   }
 
