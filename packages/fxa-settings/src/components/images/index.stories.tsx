@@ -18,6 +18,8 @@ import {
   PasswordSuccessImage,
   BackupRecoveryPhoneImage,
   BackupRecoveryPhoneCodeImage,
+  BackupRecoveryPhoneSmsImage,
+  BackupAuthenticationCodesImage,
 } from '.';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 
@@ -63,3 +65,9 @@ export const PasswordSuccess = () => <PasswordSuccessImage />;
 export const BackupRecoveryPhone = () => <BackupRecoveryPhoneImage />;
 
 export const BackupRecoveryPhoneCode = () => <BackupRecoveryPhoneCodeImage />;
+
+export const BackupRecoveryPhoneSms = () => <BackupRecoveryPhoneSmsImage />;
+
+export const BackupAuthenticationCodes = () => (
+  <BackupAuthenticationCodesImage />
+);
