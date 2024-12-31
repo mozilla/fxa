@@ -363,11 +363,11 @@ const SigninContainer = ({
             sessionToken
           );
         } else {
-          sensitiveDataClient.setDataType(SensitiveData.Key.KeyStretchUpgrade, {
+          sensitiveDataClient.KeyStretchUpgradeData = {
             email,
             v1Credentials: credentials.v1Credentials,
             v2Credentials: credentials.v2Credentials,
-          });
+          };
         }
       }
 

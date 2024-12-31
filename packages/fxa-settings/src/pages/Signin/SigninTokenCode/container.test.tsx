@@ -22,6 +22,7 @@ import { createMockWebIntegration } from '../../../lib/integrations/mocks';
 import { createMockSigninLocationState } from './mocks';
 import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../../models/mocks';
 import { MockedProvider, MockedResponse } from '@apollo/client/testing';
+import { SensitiveData } from '../../../lib/sensitive-data-client';
 
 let integration: Integration;
 const mockSensitiveDataClient = createMockSensitiveDataClient();
@@ -99,7 +100,7 @@ function resetMockSensitiveDataClient() {
   (useSensitiveDataClient as jest.Mock).mockImplementation(
     () => mockSensitiveDataClient
   );
-  mockSensitiveDataClient.getData = jest.fn().mockReturnValue({
+  mockSensitiveDataClient.getDataType = jest.fn().mockReturnValue({
     keyFetchToken: MOCK_KEY_FETCH_TOKEN,
     unwrapBKey: MOCK_UNWRAP_BKEY,
   });
