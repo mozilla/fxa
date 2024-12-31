@@ -5,8 +5,8 @@
 import React from 'react';
 import { useFtlMsgResolver } from '../../../models';
 import { RouteComponentProps } from '@reach/router';
-import { ReactComponent as BackArrow } from './back-arrow.svg';
 import Head from 'fxa-react/components/Head';
+import ButtonBack from '../../ButtonBack';
 
 type FlowContainerProps = {
   title?: string;
@@ -38,14 +38,12 @@ export const FlowContainer = ({
       <Head title={title} />
 
       <div className="relative flex items-center">
-        <button
+        <ButtonBack
           onClick={onBackButtonClick}
-          data-testid="flow-container-back-btn"
-          title={backButtonTitle}
-          className="me-4 tablet:me-0 tablet:p-4 tablet:absolute tablet:-start-24"
-        >
-          <BackArrow className="w-6 h-auto text-grey-400 rtl:transform rtl:-scale-x-100" />
-        </button>
+          dataTestId="flow-container-back-btn"
+          localizedTitle={backButtonTitle}
+          localizedAriaLabel={backButtonTitle}
+        />
         <h1 className="font-header text-md text-grey-400">{title}</h1>
       </div>
       {subtitle && (
