@@ -129,7 +129,7 @@
     "underscore": "^1.13.1",
     "verror": "1.10.1",
     "webcrypto-liner": "1.4.0",
-    "webpack": "^5.96.0",
+    "webpack": "^5.97.0",
     "webpack-cli": "^5.1.4"
   },
   "devDependencies": {
