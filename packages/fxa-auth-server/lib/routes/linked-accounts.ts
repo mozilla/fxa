@@ -38,6 +38,7 @@ import {
   ProfileClientError,
   ProfileClientServiceFailureError,
 } from '@fxa/profile/client';
+import { StatsD } from 'hot-shots';
 
 const HEX_STRING = validators.HEX_STRING;
 
@@ -55,7 +56,7 @@ export class LinkedAccountHandler {
     private config: ConfigType,
     private mailer: any,
     private profile: ProfileClient,
-    private statsd: { increment: (value: string) => void },
+    private statsd: StatsD,
     private glean: ReturnType<typeof gleanMetrics>
   ) {
     if (config.googleAuthConfig && config.googleAuthConfig.clientId) {
@@ -63,7 +64,7 @@ export class LinkedAccountHandler {
         config.googleAuthConfig.clientId
       );
     }
-    this.otpUtils = require('./utils/otp')(log, config, db);
+    this.otpUtils = require('./utils/otp')(log, config, db, statsd);
   }
 
   // As generated tokens expire after 6 months (180 days) per Apple documentation,

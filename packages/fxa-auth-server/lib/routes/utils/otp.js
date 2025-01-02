@@ -7,7 +7,7 @@
 const errors = require('../../error');
 const otplib = require('otplib');
 
-module.exports = (log, config, db) => {
+module.exports = (log, config, db, statsd) => {
   return {
     /**
      * Helper function to check if the specified account has a verified
@@ -51,12 +51,13 @@ module.exports = (log, config, db) => {
     /**
      * Helper function to simplify verifying otp codes.
      *
-     * @param code
-     * @param secret
-     * @param otpOptions
-     * @returns number
+     * @param code the totp code
+     * @param secret the secret used to verify code
+     * @param otpOptions additional options
+     * @param type the type of totp code being verified
+     * @returns boolean
      */
-    verifyOtpCode(code, secret, otpOptions) {
+    verifyOtpCode(code, secret, otpOptions, type) {
       const authenticator = new otplib.authenticator.Authenticator();
       authenticator.options = Object.assign(
         {},
@@ -64,7 +65,14 @@ module.exports = (log, config, db) => {
         otpOptions,
         { secret }
       );
-      return authenticator.check(code, secret);
+      const valid = authenticator.check(code, secret);
+
+      if (type) {
+        const delta = authenticator.checkDelta(code, secret);
+        statsd.histogram(`${type}.totp.delta_histogram`, delta);
+      }
+
+      return valid;
     },
   };
 };

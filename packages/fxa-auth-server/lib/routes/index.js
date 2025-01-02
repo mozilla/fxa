@@ -36,7 +36,8 @@ module.exports = function (
     db,
     mailer,
     cadReminders,
-    glean
+    glean,
+    statsd
   );
   const clientUtils = require('./utils/clients')(log, config);
   const verificationReminders = require('../verification-reminders')(
@@ -75,7 +76,8 @@ module.exports = function (
     oauthRawDB,
     stripeHelper,
     pushbox,
-    glean
+    glean,
+    statsd
   );
   const oauth = require('./oauth')(
     log,
@@ -115,7 +117,8 @@ module.exports = function (
     cadReminders,
     signupUtils,
     zendeskClient,
-    stripeHelper
+    stripeHelper,
+    statsd
   );
   const password = require('./password')(
     log,
@@ -148,7 +151,8 @@ module.exports = function (
     mailer,
     push,
     customs,
-    glean
+    glean,
+    statsd
   );
   const sign = require('./sign')(
     log,
@@ -174,7 +178,8 @@ module.exports = function (
     config.totp,
     glean,
     profile,
-    config.sentry.env
+    config.sentry.env,
+    statsd
   );
   const recoveryCodes = require('./recovery-codes')(
     log,

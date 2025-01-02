@@ -56,7 +56,12 @@ module.exports = function (
   authServerCacheRedis: Redis,
   statsd: StatsD
 ) {
-  const otpUtils = require('../../lib/routes/utils/otp')(log, config, db);
+  const otpUtils = require('../../lib/routes/utils/otp')(
+    log,
+    config,
+    db,
+    statsd
+  );
   const otpRedisAdapter = new OtpRedisAdapter(
     authServerCacheRedis,
     config.passwordForgotOtp.ttl

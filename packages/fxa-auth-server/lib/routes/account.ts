@@ -46,6 +46,7 @@ import { uuidTransformer } from 'fxa-shared/db/transformers';
 import { DeleteAccountTasks, ReasonForDeletion } from '@fxa/shared/cloud-tasks';
 import { ProfileClient } from '@fxa/profile/client';
 import { DB } from '../db';
+import { StatsD } from 'hot-shots';
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 
@@ -82,9 +83,10 @@ export class AccountHandler {
     private subscriptionAccountReminders: any,
     private oauth: any,
     private stripeHelper: StripeHelper,
-    private glean: ReturnType<typeof gleanMetrics>
+    private glean: ReturnType<typeof gleanMetrics>,
+    private statsd: StatsD
   ) {
-    this.otpUtils = require('./utils/otp')(log, config, db);
+    this.otpUtils = require('./utils/otp')(log, config, db, statsd);
     this.skipConfirmationForEmailAddresses = config.signinConfirmation
       .skipForEmailAddresses as string[];
 
@@ -1958,7 +1960,8 @@ export const accountRoutes = (
   oauth: any,
   stripeHelper: StripeHelper,
   pushbox: any,
-  glean: ReturnType<typeof gleanMetrics>
+  glean: ReturnType<typeof gleanMetrics>,
+  statsd: any
 ) => {
   const accountHandler = new AccountHandler(
     log,
@@ -1974,7 +1977,8 @@ export const accountRoutes = (
     subscriptionAccountReminders,
     oauth,
     stripeHelper,
-    glean
+    glean,
+    statsd
   );
   const routes = [
     {

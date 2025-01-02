@@ -89,14 +89,20 @@ module.exports = (
   signupUtils,
   zendeskClient,
   /** @type import('../payments/stripe').StripeHelper */
-  stripeHelper
+  stripeHelper,
+  statsd
 ) => {
   const REMINDER_PATTERN = new RegExp(
     `^(?:${verificationReminders.keys.join('|')})$`
   );
 
   const otpOptions = config.otp;
-  const otpUtils = require('../../lib/routes/utils/otp')(log, config, db);
+  const otpUtils = require('../../lib/routes/utils/otp')(
+    log,
+    config,
+    db,
+    statsd
+  );
 
   return [
     {
@@ -1002,7 +1008,12 @@ module.exports = (
         }
 
         const secret = matchedEmail.emailCode;
-        const isValid = otpUtils.verifyOtpCode(code, secret, otpOptions);
+        const isValid = otpUtils.verifyOtpCode(
+          code,
+          secret,
+          otpOptions,
+          'recovery_email.secondary.verify_code'
+        );
 
         if (!isValid) {
           throw error.invalidVerificationCode();

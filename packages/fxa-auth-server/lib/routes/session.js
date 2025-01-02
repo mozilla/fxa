@@ -26,9 +26,15 @@ module.exports = function (
   mailer,
   push,
   customs,
-  glean
+  glean,
+  statsd
 ) {
-  const otpUtils = require('../../lib/routes/utils/otp')(log, config, db);
+  const otpUtils = require('../../lib/routes/utils/otp')(
+    log,
+    config,
+    db,
+    statsd
+  );
 
   const OAUTH_DISABLE_NEW_CONNECTIONS_FOR_CLIENTS = new Set(
     config.oauth.disableNewConnectionsForClients || []
@@ -373,7 +379,12 @@ module.exports = function (
         const account = await db.account(uid);
         const secret = account.primaryEmail.emailCode;
 
-        const isValidCode = otpUtils.verifyOtpCode(code, secret, otpOptions);
+        const isValidCode = otpUtils.verifyOtpCode(
+          code,
+          secret,
+          otpOptions,
+          'session.verify_code'
+        );
 
         if (!isValidCode) {
           throw error.invalidOrExpiredOtpCode();
@@ -626,7 +637,12 @@ module.exports = function (
         const account = await db.account(uid);
         const secret = account.primaryEmail.emailCode;
 
-        const isValidCode = otpUtils.verifyOtpCode(code, secret, otpOptions);
+        const isValidCode = otpUtils.verifyOtpCode(
+          code,
+          secret,
+          otpOptions,
+          'session.verify_push'
+        );
 
         if (!isValidCode) {
           throw error.invalidOrExpiredOtpCode();

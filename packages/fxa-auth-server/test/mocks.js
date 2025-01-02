@@ -212,6 +212,8 @@ const SUBHUB_METHOD_NAMES = [
   'reactivateSubscription',
 ];
 
+const STATSD_METHOD_NAMES = ['increment', 'timing', 'histogram'];
+
 const PROFILE_METHOD_NAMES = ['deleteCache', 'updateDisplayName'];
 
 const MOCK_CMS_CLIENTS = [
@@ -321,6 +323,7 @@ module.exports = {
   mockPushbox,
   mockRequest,
   mockSubHub,
+  mockStatsd: mockObject(STATSD_METHOD_NAMES),
   mockProfile,
   mockVerificationReminders,
   mockCadReminders,
