@@ -161,6 +161,29 @@ export const TypeInfo = () => (
   </AppLayout>
 );
 
+export const TypeInfoFancyWithCustomContent = () => (
+  <AppLayout>
+    <Banner
+      type="info"
+      isFancy
+      customContent={
+        <div>
+          <p>This version has custom JSX/HTML...</p>
+          <p className="mt-4">
+            ... meaning we're not limited to just one header/paragraph! We can
+            put images etc. in here.
+          </p>
+          <p className="mt-4">
+            Cupcake ipsum: Cake tootsie roll jelly-o wafer icing wafer fruitcake
+            jelly. Chocolate bar danish cake apple pie jelly liquorice. Candy
+            canes carrot cake sweet jujubes fruitcake biscuit cotton candy pie.
+          </p>
+        </div>
+      }
+    />
+  </AppLayout>
+);
+
 export const TypeInfoFancy = () => (
   <AppLayout>
     <Banner

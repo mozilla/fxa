@@ -21,6 +21,7 @@ import { Link } from '@reach/router';
 export const Banner = ({
   type,
   content,
+  customContent,
   animation,
   dismissButton,
   link,
@@ -65,11 +66,11 @@ export const Banner = ({
         <WarningIcon className="shrink-0" mode="attention" ariaHidden />
       )}
 
-      <div className="flex flex-col grow ">
-        {content.localizedHeading && (
+      <div className="flex flex-col grow">
+        {content?.localizedHeading && (
           <p className="font-bold">{content.localizedHeading}</p>
         )}
-        {content.localizedDescription && <p>{content.localizedDescription}</p>}
+        {content?.localizedDescription && <p>{content.localizedDescription}</p>}
         {/* Link is optional and can be either an external or internal link */}
         {/* Link color here was tweaked for accessibility - this colour passes AAA for all banner background colors */}
         {link && link.url && (
@@ -94,6 +95,8 @@ export const Banner = ({
             </Link>
           </span>
         )}
+
+        {customContent && <>{customContent}</>}
       </div>
       {dismissButton && (
         <button
