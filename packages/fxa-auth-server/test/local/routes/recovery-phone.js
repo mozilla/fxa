@@ -21,9 +21,13 @@ chai.use(chaiAsPromised);
 describe('/recovery-phone', () => {
   const sandbox = sinon.createSandbox();
   const uid = '123435678123435678123435678123435678';
+  const email = 'test@mozilla.com';
   const phoneNumber = '+15550005555';
   const code = '000000';
   const mockLog = {};
+  const mockCustoms = {
+    check: sandbox.fake(),
+  };
   const mockGlean = {
     twoStepAuthPhoneCode: {
       sent: sandbox.fake(),
@@ -44,7 +48,7 @@ describe('/recovery-phone', () => {
 
   before(() => {
     Container.set(RecoveryPhoneService, mockRecoveryPhoneService);
-    routes = recoveryPhoneRoutes(mockLog, mockGlean);
+    routes = recoveryPhoneRoutes(mockCustoms, mockLog, mockGlean);
   });
 
   afterEach(() => {
@@ -64,7 +68,7 @@ describe('/recovery-phone', () => {
       const resp = await makeRequest({
         method: 'POST',
         path: '/recovery-phone/send_code',
-        credentials: { uid },
+        credentials: { uid, email },
       });
 
       assert.isDefined(resp);
@@ -74,6 +78,13 @@ describe('/recovery-phone', () => {
 
       assert.equal(mockGlean.twoStepAuthPhoneCode.sent.callCount, 1);
       assert.equal(mockGlean.twoStepAuthPhoneCode.sendError.callCount, 0);
+
+      assert.equal(mockCustoms.check.callCount, 1);
+      assert.equal(mockCustoms.check.getCall(0).args[1], email);
+      assert.equal(
+        mockCustoms.check.getCall(0).args[2],
+        'recoveryPhoneSendCode'
+      );
     });
 
     it('handles failure to send recovery phone code', async () => {
@@ -82,7 +93,7 @@ describe('/recovery-phone', () => {
       const resp = await makeRequest({
         method: 'POST',
         path: '/recovery-phone/send_code',
-        credentials: { uid },
+        credentials: { uid, email },
       });
 
       assert.isDefined(resp);
@@ -102,7 +113,7 @@ describe('/recovery-phone', () => {
       const promise = makeRequest({
         method: 'POST',
         path: '/recovery-phone/send_code',
-        credentials: { uid },
+        credentials: { uid, email },
       });
 
       await assert.isRejected(promise, 'A backend service request failed.');
@@ -126,7 +137,7 @@ describe('/recovery-phone', () => {
       const resp = await makeRequest({
         method: 'POST',
         path: '/recovery-phone/create',
-        credentials: { uid },
+        credentials: { uid, email },
         payload: { phoneNumber },
       });
 
@@ -143,6 +154,10 @@ describe('/recovery-phone', () => {
       );
       assert.equal(mockGlean.twoStepAuthPhoneCode.sent.callCount, 1);
       assert.equal(mockGlean.twoStepAuthPhoneCode.sendError.callCount, 0);
+
+      assert.equal(mockCustoms.check.callCount, 1);
+      assert.equal(mockCustoms.check.getCall(0).args[1], email);
+      assert.equal(mockCustoms.check.getCall(0).args[2], 'recoveryPhoneCreate');
     });
 
     it('indicates failure sending sms', async () => {
@@ -151,7 +166,7 @@ describe('/recovery-phone', () => {
       const resp = await makeRequest({
         method: 'POST',
         path: '/recovery-phone/create',
-        credentials: { uid },
+        credentials: { uid, email },
         payload: { phoneNumber: 'invalid' },
       });
 
@@ -169,7 +184,7 @@ describe('/recovery-phone', () => {
       const promise = makeRequest({
         method: 'POST',
         path: '/recovery-phone/create',
-        credentials: { uid },
+        credentials: { uid, email },
         payload: { phoneNumber: '+495550005555' },
       });
 
@@ -186,7 +201,7 @@ describe('/recovery-phone', () => {
       const promise = makeRequest({
         method: 'POST',
         path: '/recovery-phone/create',
-        credentials: { uid },
+        credentials: { uid, email },
         payload: { phoneNumber },
       });
 
@@ -224,7 +239,7 @@ describe('/recovery-phone', () => {
       const resp = await makeRequest({
         method: 'POST',
         path: '/recovery-phone/confirm',
-        credentials: { uid },
+        credentials: { uid, email },
         payload: { code },
       });
 
@@ -247,7 +262,7 @@ describe('/recovery-phone', () => {
       const promise = makeRequest({
         method: 'POST',
         path: '/recovery-phone/confirm',
-        credentials: { uid },
+        credentials: { uid, email },
         payload: { code },
       });
 
@@ -262,7 +277,7 @@ describe('/recovery-phone', () => {
       const promise = makeRequest({
         method: 'POST',
         path: '/recovery-phone/confirm',
-        credentials: { uid },
+        credentials: { uid, email },
         payload: { code },
       });
 
@@ -278,7 +293,7 @@ describe('/recovery-phone', () => {
       const resp = await makeRequest({
         method: 'DELETE',
         path: '/recovery-phone',
-        credentials: { uid },
+        credentials: { uid, email },
       });
 
       assert.isDefined(resp);
@@ -297,7 +312,7 @@ describe('/recovery-phone', () => {
       const promise = makeRequest({
         method: 'DELETE',
         path: '/recovery-phone',
-        credentials: { uid },
+        credentials: { uid, email },
       });
 
       await assert.isRejected(promise, 'A backend service request failed.');
@@ -309,7 +324,7 @@ describe('/recovery-phone', () => {
       await makeRequest({
         method: 'DELETE',
         path: '/recovery-phone',
-        credentials: { uid },
+        credentials: { uid, email },
       });
       assert.equal(mockGlean.twoStepAuthPhoneRemove.success.callCount, 0);
     });
@@ -322,7 +337,7 @@ describe('/recovery-phone', () => {
       const resp = await makeRequest({
         method: 'POST',
         path: '/recovery-phone/available',
-        credentials: { uid },
+        credentials: { uid, email },
         geo: {
           location: {
             countryCode: 'US',
@@ -335,6 +350,13 @@ describe('/recovery-phone', () => {
         mockRecoveryPhoneService.available,
         uid,
         'US'
+      );
+
+      assert.equal(mockCustoms.check.callCount, 1);
+      assert.equal(mockCustoms.check.getCall(0).args[1], email);
+      assert.equal(
+        mockCustoms.check.getCall(0).args[2],
+        'recoveryPhoneAvailable'
       );
     });
   });

@@ -60,4 +60,9 @@ describe(`#integration - recovery phone`, function () {
     // TODO: FXA-10913 Setup test account / twilio emulator
     // TODO: Figure out how to emulate a test code
   });
+
+  it('stops excessive calls', async () => {
+    // TODO: FXA-10913 Setup test account / twilio emulator
+    // TODO: Figure out how to enable and trigger customs for remote tests.
+  });
 });
