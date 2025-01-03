@@ -21,10 +21,15 @@ enum RecoveryPhoneStatus {
   FAILURE = 'failure',
 }
 
+export type Customs = {
+  check: (req: AuthRequest, email: string, action: string) => Promise<void>;
+};
+
 class RecoveryPhoneHandler {
   private readonly recoveryPhoneService: RecoveryPhoneService;
 
   constructor(
+    private readonly customs: Customs,
     private readonly log: AuthLogger,
     private readonly glean: GleanMetricsType
   ) {
@@ -32,7 +37,14 @@ class RecoveryPhoneHandler {
   }
 
   async sendCode(request: AuthRequest) {
-    const { uid } = request.auth.credentials as SessionTokenAuthCredential;
+    const { uid, email } = request.auth
+      .credentials as SessionTokenAuthCredential;
+
+    if (!email) {
+      throw AppError.invalidToken();
+    }
+
+    await this.customs.check(request, email, 'recoveryPhoneSendCode');
 
     let status = false;
     try {
@@ -56,10 +68,17 @@ class RecoveryPhoneHandler {
   }
 
   async setupPhoneNumber(request: AuthRequest) {
-    const { uid } = request.auth.credentials as SessionTokenAuthCredential;
+    const { uid, email } = request.auth
+      .credentials as SessionTokenAuthCredential;
+
     const { phoneNumber } = request.payload as unknown as {
       phoneNumber: string;
     };
+
+    if (!email) {
+      throw AppError.invalidToken();
+    }
+    await this.customs.check(request, email, 'recoveryPhoneCreate');
 
     try {
       const result = await this.recoveryPhoneService.setupPhoneNumber(
@@ -93,10 +112,17 @@ class RecoveryPhoneHandler {
   }
 
   async confirm(request: AuthRequest) {
-    const { uid } = request.auth.credentials as SessionTokenAuthCredential;
+    const { uid, email } = request.auth
+      .credentials as SessionTokenAuthCredential;
     const { code } = request.payload as unknown as {
       code: string;
     };
+
+    if (!email || !uid) {
+      throw AppError.invalidToken();
+    }
+
+    await this.customs.check(request, email, 'recoveryPhoneConfirmCode');
 
     let success = false;
     try {
@@ -147,7 +173,14 @@ class RecoveryPhoneHandler {
    * @param request
    */
   async available(request: AuthRequest) {
-    const { uid } = request.auth.credentials as unknown as { uid: string };
+    const { uid, email } = request.auth
+      .credentials as unknown as SessionTokenAuthCredential;
+
+    if (!email || !uid) {
+      throw AppError.invalidToken();
+    }
+
+    await this.customs.check(request, email, 'recoveryPhoneAvailable');
 
     // Maxmind countryCode is two-letter ISO country code (ex `US` for the United States)
     // This is the same format as the `region` field in the recovery phone config
@@ -195,10 +228,11 @@ class RecoveryPhoneHandler {
 }
 
 export const recoveryPhoneRoutes = (
+  customs: Customs,
   log: AuthLogger,
   glean: GleanMetricsType
 ) => {
-  const recoveryPhoneHandler = new RecoveryPhoneHandler(log, glean);
+  const recoveryPhoneHandler = new RecoveryPhoneHandler(customs, log, glean);
   const routes = [
     // TODO: See blocked tasks for FXA-10354
     {

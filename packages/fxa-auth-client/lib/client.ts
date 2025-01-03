@@ -355,6 +355,22 @@ export default class AuthClient {
     );
   }
 
+  private async sessionDelete(
+    path: string,
+    sessionToken: hexstring,
+    payload: object,
+    headers?: Headers
+  ) {
+    return this.hawkRequest(
+      'DELETE',
+      path,
+      sessionToken,
+      tokenType.sessionToken,
+      payload,
+      headers
+    );
+  }
+
   /**
    * Allows us to toggle the key stretch version.
    * @param version
@@ -2242,6 +2258,54 @@ export default class AuthClient {
       {},
       headers
     );
+  }
+
+  async recoveryPhoneCreate(
+    sessionToken: string,
+    phoneNumber: string,
+    headers?: Headers
+  ) {
+    return this.sessionPost(
+      '/recovery-phone/create',
+      sessionToken,
+      { phoneNumber },
+      headers
+    );
+  }
+
+  async recoveryPhoneAvailable(sessionToken: string, headers?: Headers) {
+    return this.sessionPost(
+      '/recovery-phone/available',
+      sessionToken,
+      {},
+      headers
+    );
+  }
+
+  async recoveryPhoneConfirm(
+    sessionToken: string,
+    code: string,
+    headers?: Headers
+  ) {
+    return this.sessionPost(
+      '/recovery-phone/available',
+      sessionToken,
+      { code },
+      headers
+    );
+  }
+
+  async recoveryPhoneSendCode(sessionToken: string, headers?: Headers) {
+    return this.sessionPost(
+      '/recovery-phone/send_code',
+      sessionToken,
+      {},
+      headers
+    );
+  }
+
+  async recoveryPhoneDelete(sessionToken: string, headers?: Headers) {
+    return this.sessionDelete('/recovery-phone', sessionToken, {}, headers);
   }
 
   protected async getPayloadV2({
