@@ -42,7 +42,6 @@ const ACCOUNT_STATUS_ACTION = {
   sendUnblockCode: true,
   recoveryKeyExists: true,
   getCredentialsStatus: true,
-  checkRecoveryCodesExist: true,
   recoveryPhoneAvailable: true,
 };
 
