@@ -751,7 +751,8 @@ function setup(results, errors, routePath, requestOptions) {
       sharedSecret: secret,
     });
   });
-  routes = makeRoutes({ log, db, customs, mailer, glean, profile });
+  const statsd = mocks.mockStatsd();
+  routes = makeRoutes({ log, db, customs, mailer, glean, profile, statsd });
   route = getRoute(routes, routePath);
   request = mocks.mockRequest(requestOptions);
   request.emitMetricsEvent = sinon.spy(() => Promise.resolve({}));
@@ -768,7 +769,7 @@ function makeRoutes(options = {}) {
     },
   };
   Container.set(AccountEventsManager, accountEventsManager);
-  const { log, db, customs, mailer, glean, profile } = options;
+  const { log, db, customs, mailer, glean, profile, statsd } = options;
   return require('../../../lib/routes/totp')(
     log,
     db,
@@ -776,7 +777,9 @@ function makeRoutes(options = {}) {
     customs,
     config,
     glean,
-    profile
+    profile,
+    undefined,
+    statsd
   );
 }
 

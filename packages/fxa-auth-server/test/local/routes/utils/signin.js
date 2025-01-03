@@ -12,7 +12,12 @@ const mocks = require('../../../mocks');
 const Password = require('../../../../lib/crypto/password')({}, {});
 const error = require('../../../../lib/error');
 const butil = require('../../../../lib/crypto/butil');
-const otpUtils = require('../../../../lib/routes/utils/otp')({}, {}, {});
+const otpUtils = require('../../../../lib/routes/utils/otp')(
+  {},
+  {},
+  {},
+  { histogram: () => {} }
+);
 const { AppConfig } = require('../../../../lib/types');
 const { AccountEventsManager } = require('../../../../lib/account-events');
 const glean = mocks.mockGlean();
@@ -60,10 +65,12 @@ describe('checkPassword', () => {
   });
 
   it('should check with correct password', () => {
-    db.checkPassword = sinon.spy((uid) => Promise.resolve({
-      v1: true,
-      v2: false
-    }));
+    db.checkPassword = sinon.spy((uid) =>
+      Promise.resolve({
+        v1: true,
+        v2: false,
+      })
+    );
     const authPW = Buffer.from('aaaaaaaaaaaaaaaa');
     const accountRecord = {
       uid: TEST_UID,

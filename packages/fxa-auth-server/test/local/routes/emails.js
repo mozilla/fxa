@@ -181,6 +181,7 @@ const makeRoutes = function (options = {}, requireMocks) {
     options.verificationReminders || mocks.mockVerificationReminders();
   cadReminders = options.cadReminders || mocks.mockCadReminders();
   glean = gleanMetrics(config);
+  const statsd = mocks.mockStatsd();
 
   const signupUtils =
     options.signupUtils ||
@@ -203,7 +204,8 @@ const makeRoutes = function (options = {}, requireMocks) {
     cadReminders,
     signupUtils,
     undefined,
-    options.stripeHelper
+    options.stripeHelper,
+    statsd
   );
 };
 
@@ -1148,7 +1150,8 @@ describe('/recovery_email', () => {
     otpUtils = require('../../../lib/routes/utils/otp')(
       {},
       { otp: otpOptions },
-      {}
+      {},
+      { histogram: () => {} }
     );
   });
 

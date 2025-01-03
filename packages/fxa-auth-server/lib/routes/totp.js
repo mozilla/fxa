@@ -29,9 +29,15 @@ module.exports = (
   config,
   glean,
   profileClient,
-  environment
+  environment,
+  statsd
 ) => {
-  const otpUtils = require('../../lib/routes/utils/otp')(log, config, db);
+  const otpUtils = require('../../lib/routes/utils/otp')(
+    log,
+    config,
+    db,
+    statsd
+  );
 
   // Currently, QR codes are rendered with the highest possible
   // error correction, which should in theory allow clients to
@@ -192,11 +198,16 @@ module.exports = (
 
           // Next make sure the code hasn't expired
           const token = await db.totpToken(sessionToken.uid);
-          const isValidCode = otpUtils.verifyOtpCode(code, token.sharedSecret, {
-            encoding: 'hex',
-            step: config.step,
-            window: config.window,
-          });
+          const isValidCode = otpUtils.verifyOtpCode(
+            code,
+            token.sharedSecret,
+            {
+              encoding: 'hex',
+              step: config.step,
+              window: config.window,
+            },
+            'totp.destroy'
+          );
           if (!isValidCode) {
             throw errors.invalidOrExpiredOtpCode();
           }
@@ -348,7 +359,8 @@ module.exports = (
           const isValidCode = otpUtils.verifyOtpCode(
             code,
             sharedSecret,
-            otpOptions
+            otpOptions,
+            'totp.verify'
           );
 
           if (isValidCode) {
@@ -494,7 +506,8 @@ module.exports = (
         const isValidCode = otpUtils.verifyOtpCode(
           code,
           sharedSecret,
-          otpOptions
+          otpOptions,
+          'session.verify'
         );
 
         // Once a valid TOTP code has been detected, the token becomes verified

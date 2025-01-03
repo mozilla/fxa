@@ -63,6 +63,7 @@ function makeRoutes(options = {}) {
   const mailer = options.mailer || mocks.mockMailer();
   const cadReminders = options.cadReminders || mocks.mockCadReminders();
   const glean = options.glean || gleanMock;
+  const statsd = options.statsd || mocks.mockStatsd();
 
   const Password =
     options.Password || require('../../../lib/crypto/password')(log, config);
@@ -79,7 +80,8 @@ function makeRoutes(options = {}) {
       customs,
       db,
       mailer,
-      cadReminders
+      cadReminders,
+      statsd
     );
 
   const verificationReminders =
@@ -108,7 +110,8 @@ function makeRoutes(options = {}) {
     mailer,
     push,
     customs,
-    glean
+    glean,
+    statsd
   );
 }
 
@@ -1127,6 +1130,7 @@ describe('/session/verify_code', () => {
     customs = mocks.mockCustoms();
     customs.check = sinon.spy(() => Promise.resolve(true));
     cadReminders = mocks.mockCadReminders();
+    const statsd = mocks.mockStatsd();
     const config = {};
 
     const routes = makeRoutes({
@@ -1138,6 +1142,7 @@ describe('/session/verify_code', () => {
       customs,
       cadReminders,
       gleanMock,
+      statsd,
     });
     route = getRoute(routes, '/session/verify_code');
 

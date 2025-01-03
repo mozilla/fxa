@@ -20,13 +20,22 @@ const BASE_36 = validators.BASE_36;
 // Currently, only for metrics purposes, not enforced.
 const MAX_ACTIVE_SESSIONS = 200;
 
-module.exports = (log, config, customs, db, mailer, cadReminders, glean) => {
+module.exports = (
+  log,
+  config,
+  customs,
+  db,
+  mailer,
+  cadReminders,
+  glean,
+  statsd
+) => {
   const unblockCodeLifetime =
     (config.signinUnblock && config.signinUnblock.codeLifetime) || 0;
   const unblockCodeLen =
     (config.signinUnblock && config.signinUnblock.codeLength) || 8;
   const otpOptions = config.otp;
-  const otpUtils = otp(log, config, db);
+  const otpUtils = otp(log, config, db, statsd);
 
   const accountEventsManager = Container.has(AccountEventsManager)
     ? Container.get(AccountEventsManager)
