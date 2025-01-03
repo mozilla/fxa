@@ -31,7 +31,7 @@ describe('enqueue inactive account deletions script', () => {
     };
 
     try {
-      const cmd = [...command, '--end-date 2022-11-30'];
+      const cmd = [...command, '--bq-dataset fxa-dev.inactives-testo'];
       const { stdout } = await exec(cmd.join(' '), execOptions);
       const outputLines = stdout.split('\n');
 
@@ -50,28 +50,50 @@ describe('enqueue inactive account deletions script', () => {
       const daysTilFirstEmailString = getOutputValue(outputLines, "Days 'til");
       assert.equal(daysTilFirstEmailString, '0');
 
-      const dbResultsLimitString = getOutputValue(outputLines, 'Per DB query');
+      const dbResultsLimitString = getOutputValue(
+        outputLines,
+        'Per MySQL query'
+      );
       assert.equal(dbResultsLimitString, '500000');
     } catch (err) {
       assert.fail(`Script failed with error: ${err}`);
     }
   });
 
-  it('requires an end date', async () => {
+  it('requires an BQ dataset id', async () => {
     try {
       await exec(command.join(' '), execOptions);
-      assert.fail('Expected script to fail without an end date');
+      assert.fail('Expected script to fail without a BQ dataset id');
     } catch (err) {
       assert.equal(err.code, 1);
-      assert.include(err.stderr, 'End date is required.');
+      assert.include(err.stderr, 'BigQuery dataset ID is required.');
     }
 
     try {
-      const cmd = [...command, '--end-date 2022-11-30'];
+      const cmd = [...command, '--bq-dataset fxa-dev.inactives-testo'];
       await exec(cmd.join(' '), execOptions);
       assert.ok('Script executed without error');
     } catch (err) {
       assert.fail(`Script failed with error: ${err}`);
+    }
+  });
+
+  it('requires the end date to be the same or later than the start date', async () => {
+    try {
+      const cmd = [
+        ...command,
+        '--end-date 2020-12-22',
+        '--start-date 2021-12-22',
+        '--bq-dataset fxa-dev.inactives-testo',
+      ];
+      await exec(cmd.join(' '), execOptions);
+      assert.fail('Expected script to fail with end date before start date');
+    } catch (err) {
+      assert.equal(err.code, 1);
+      assert.include(
+        err.stderr,
+        'The end date must be on the same day or later than the start date.'
+      );
     }
   });
 });

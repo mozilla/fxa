@@ -20,7 +20,7 @@ import { StatsD } from 'hot-shots';
 import { Container } from 'typedi';
 import PQueue from 'p-queue-compat';
 
-import { parseDryRun } from '../lib/args';
+import { parseBooleanArg } from '../lib/args';
 import { AppConfig, AuthFirestore, AuthLogger } from '../../lib/types';
 import appConfig from '../../config';
 import initLog from '../../lib/log';
@@ -117,7 +117,7 @@ const init = async () => {
 
   program.parse(process.argv);
 
-  const isDryRun = parseDryRun(program.dryRun);
+  const isDryRun = parseBooleanArg(program.dryRun);
   const startDate = setDateToUTC(program.startDate);
   const endDate = setDateToUTC(program.endDate);
   const startDateTimestamp = startDate.valueOf();
