@@ -2,9 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { faker } from '@faker-js/faker';
 import { stripeInvoiceToInvoicePreviewDTO } from './stripeInvoiceToFirstInvoicePreviewDTO';
 import {
   StripeDiscountFactory,
+  StripeInvoiceLineItemFactory,
   StripeResponseFactory,
   StripeTotalDiscountAmountsFactory,
   StripeTotalTaxAmountsFactory,
@@ -133,5 +135,32 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
 
     const result = stripeInvoiceToInvoicePreviewDTO(mockUpcomingInvoice);
     expect(result.discountAmount).toBeNull();
+  });
+
+  it('formats invoice with prorated amount and one time charge', () => {
+    const mockUpcomingInvoice = StripeResponseFactory(
+      StripeUpcomingInvoiceFactory({
+        lines: {
+          object: 'list',
+          data: [
+            StripeInvoiceLineItemFactory({
+              amount: -500,
+              proration: true,
+            }),
+            StripeInvoiceLineItemFactory({
+              amount: 5000,
+              proration: false,
+            }),
+          ],
+          has_more: false,
+          url: faker.internet.url(),
+        },
+        total: 4500,
+      })
+    );
+
+    const result = stripeInvoiceToInvoicePreviewDTO(mockUpcomingInvoice);
+    expect(result.proratedAmount).toEqual(-500);
+    expect(result.oneTimeCharge).toEqual(4500);
   });
 });

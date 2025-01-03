@@ -39,6 +39,9 @@ export interface Invoice {
   discountEnd?: number | null;
   discountType?: string;
   number: string | null; // customer-facing invoice identifier
+  paypalTransactionId?: string;
+  proratedAmount?: number;
+  oneTimeCharge?: number;
 }
 
 export type PaymentProvidersType =

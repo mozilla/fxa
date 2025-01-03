@@ -14,7 +14,5 @@ next-payment-confirmation-details-heading-2 = Payment information
 # $amount (Number) - The amount billed. It will be formatted as currency.
 # $interval (String) - The interval between payments.
 next-payment-confirmation-amount = { $amount } per { $interval }
-# $last4 (Number) - Last four numbers of credit card
-next-payment-confirmation-cc-card-ending-in = Card ending in { $last4 }
 
 next-payment-confirmation-download-button = Continue to download

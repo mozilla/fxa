@@ -24,6 +24,8 @@ export function stripeInvoiceToInvoicePreviewDTO(
       )
     : null;
 
+  const proration = invoice.lines.data.find((lineItem) => lineItem.proration);
+
   return {
     currency: invoice.currency,
     listAmount: invoice.subtotal,
@@ -36,5 +38,7 @@ export function stripeInvoiceToInvoicePreviewDTO(
     number: invoice.number,
     paypalTransactionId:
       invoice.metadata?.[STRIPE_INVOICE_METADATA.PaypalTransactionId],
+    proratedAmount: proration?.amount,
+    oneTimeCharge: proration ? invoice.total : undefined,
   };
 }
