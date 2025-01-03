@@ -28,3 +28,7 @@ recovery-phone-image-description =
   .aria-label = Mobile device that receives a code by text message.
 recovery-phone-code-image-description =
   .aria-label = Code received on a mobile device.
+backup-recovery-phone-image-aria-label =
+  .aria-label = Mobile device with SMS text message capabilities
+backup-authentication-codes-image-aria-label =
+  .aria-label = Device screen with codes

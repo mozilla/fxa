@@ -17,6 +17,8 @@ import { ReactComponent as EmailCode } from './graphic_email_code.svg';
 import { ReactComponent as PasswordSuccess } from './graphic_password_success.min.svg';
 import { ReactComponent as BackupRecoveryPhone } from './graphic_backup_recovery_phone.min.svg';
 import { ReactComponent as BackupRecoveryPhoneCode } from './graphic_phone_code.min.svg';
+import { ReactComponent as BackupRecoveryPhoneSms } from './graphic_phone_sms.min.svg';
+import { ReactComponent as BackupAuthenticationCodes } from './graphic_authentication_codes.min.svg';
 
 export const HeartsBrokenImage = ({ className, ariaHidden }: ImageProps) => (
   <PreparedImage
@@ -137,6 +139,30 @@ export const PasswordSuccessImage = ({ className, ariaHidden }: ImageProps) => (
     ariaLabel="Illustration to represent a successful password change."
     ariaLabelFtlId="password-success-image-aria-label"
     Image={PasswordSuccess}
+    {...{ className, ariaHidden }}
+  />
+);
+
+export const BackupRecoveryPhoneSmsImage = ({
+  className,
+  ariaHidden,
+}: ImageProps) => (
+  <PreparedImage
+    ariaLabel="Mobile device with SMS text message capabilities"
+    ariaLabelFtlId="backup-recovery-phone-image-aria-label"
+    Image={BackupRecoveryPhoneSms}
+    {...{ className, ariaHidden }}
+  />
+);
+
+export const BackupAuthenticationCodesImage = ({
+  className,
+  ariaHidden,
+}: ImageProps) => (
+  <PreparedImage
+    ariaLabel="Device screen with codes"
+    ariaLabelFtlId="backup-authentication-codes-image-aria-label"
+    Image={BackupAuthenticationCodes}
     {...{ className, ariaHidden }}
   />
 );
