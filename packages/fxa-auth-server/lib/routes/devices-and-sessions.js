@@ -24,9 +24,11 @@ const PUSH_PAYLOADS_SCHEMA_PATH = path.resolve(
   '../pushpayloads.schema.json'
 );
 
+// "a month" as in the shortest month
+const MAX_PUSH_TTL = 28 * 24 * 3600;
 // Assign a default TTL for well-known commands if a request didn't specify it.
 const DEFAULT_COMMAND_TTL = new Map([
-  ['https://identity.mozilla.com/cmd/open-uri', 30 * 24 * 3600], // 30 days
+  ['https://identity.mozilla.com/cmd/open-uri', MAX_PUSH_TTL],
 ]);
 
 module.exports = (
@@ -344,6 +346,7 @@ module.exports = (
         if (ttl === undefined && DEFAULT_COMMAND_TTL.has(command)) {
           ttl = DEFAULT_COMMAND_TTL.get(command);
         }
+        ttl = Math.min(Math.max(ttl, 0), MAX_PUSH_TTL);
 
         const data = { command, payload, sender };
         const { index } = await pushbox.store(uid, targetDevice.id, data, ttl);
