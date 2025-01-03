@@ -25,7 +25,8 @@ const mockDb = { touchSessionToken: sinon.stub() };
 const mockStatsD = { increment: sinon.stub() };
 const mockGlean = { oauth: { tokenCreated: sinon.stub() } };
 const tokenRoutePath = path.join(__dirname, '../../../lib/routes/oauth/token');
-const tokenRoutes = proxyquire(tokenRoutePath, {
+const realConfig = require('../../../config').config;
+const tokenRoutesDepMocks = {
   '../../oauth/assertion': async () => true,
   '../../oauth/client': {
     authenticateClient: (_, params) => ({
@@ -47,7 +48,8 @@ const tokenRoutes = proxyquire(tokenRoutePath, {
   '../../oauth/util': {
     makeAssertionJWT: async () => ({}),
   },
-})({
+};
+const tokenRoutesArgMocks = {
   log: {
     debug: () => {},
     warn: () => {},
@@ -82,7 +84,11 @@ const tokenRoutes = proxyquire(tokenRoutePath, {
   devices: {},
   statsd: mockStatsD,
   glean: mockGlean,
-});
+};
+const tokenRoutes = proxyquire(
+  tokenRoutePath,
+  tokenRoutesDepMocks
+)(tokenRoutesArgMocks);
 
 function joiRequired(err, param) {
   assert.isTrue(err.isJoi);
@@ -359,7 +365,22 @@ describe('/token POST', function () {
 
 describe('/oauth/token POST', function () {
   describe('update session last access time', async () => {
-    it('updates last access time of a session when fetching a refresh token', async () => {
+    const sessionToken = { uid: 'abc' };
+    const request = {
+      auth: { credentials: sessionToken },
+      headers: {},
+      payload: {
+        client_id: CLIENT_ID,
+        grant_type: 'fxa-credentials',
+      },
+      emitMetricsEvent: async () => {},
+    };
+
+    beforeEach(() => {
+      mockDb.touchSessionToken.reset();
+    });
+
+    it('updates last access time of a session', async () => {
       const sessionToken = { uid: 'abc' };
       const request = {
         auth: { credentials: sessionToken },
@@ -367,7 +388,6 @@ describe('/oauth/token POST', function () {
         payload: {
           client_id: CLIENT_ID,
           grant_type: 'fxa-credentials',
-          access_type: 'offline',
         },
         emitMetricsEvent: async () => {},
       };
@@ -378,6 +398,25 @@ describe('/oauth/token POST', function () {
         {},
         true
       );
+    });
+
+    it('does not update when configured so', async () => {
+      const routes = proxyquire(tokenRoutePath, {
+        '../../../config': {
+          config: {
+            ...realConfig,
+            get: (key) => {
+              if (key === 'lastAccessTimeUpdates.onOAuthTokenCreation') {
+                return false;
+              }
+              return realConfig.get(key);
+            },
+          },
+        },
+        ...tokenRoutesDepMocks,
+      })(tokenRoutesArgMocks);
+      await routes[1].handler(request);
+      sinon.assert.notCalled(mockDb.touchSessionToken);
     });
   });
 });
