@@ -161,6 +161,21 @@ export const TypeInfo = () => (
   </AppLayout>
 );
 
+export const TypeInfoFancy = () => (
+  <AppLayout>
+    <Banner
+      type="info"
+      isFancy
+      content={{
+        localizedHeading: sampleHeading,
+        localizedDescription: sampleDescription,
+      }}
+      link={{ url: '#', localizedText: sampleCtaText }}
+      dismissButton={{ action: () => alert('Dismiss clicked') }}
+    />
+  </AppLayout>
+);
+
 export const TypeSuccess = () => (
   <AppLayout>
     <Banner

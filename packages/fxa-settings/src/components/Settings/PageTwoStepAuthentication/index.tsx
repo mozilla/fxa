@@ -37,7 +37,11 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
     navigate(SETTINGS_PATH + '#two-step-authentication', { replace: true });
   const alertSuccessAndGoHome = useCallback(() => {
     alertBar.success(
-      l10n.getString('tfa-enabled', null, 'Two-step authentication enabled')
+      l10n.getString(
+        'tfa-enabled-v2',
+        null,
+        'Two-step authentication has been enabled'
+      )
     );
     navigate(SETTINGS_PATH + '#two-step-authentication', { replace: true });
   }, [alertBar, l10n, navigate]);

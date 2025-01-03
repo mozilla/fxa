@@ -6,6 +6,7 @@ export type FormVerifyTotpProps = {
   clearBanners?: () => void;
   codeLength: 6 | 8 | 10;
   codeType: 'numeric' | 'alphanumeric';
+  errorBannerId?: string;
   errorMessage: string;
   localizedInputLabel: string;
   localizedSubmitButtonText: string;

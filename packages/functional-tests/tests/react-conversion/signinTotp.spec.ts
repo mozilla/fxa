@@ -33,7 +33,7 @@ test.describe('severity-1 #smoke', () => {
 
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.alertBar).toHaveText(
-        'Two-step authentication enabled'
+        'Two-step authentication has been enabled'
       );
       await expect(settings.totp.status).toHaveText('Enabled');
 
@@ -78,7 +78,7 @@ test.describe('severity-1 #smoke', () => {
 
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.alertBar).toHaveText(
-        'Two-step authentication enabled'
+        'Two-step authentication has been enabled'
       );
       await expect(settings.totp.status).toHaveText('Enabled');
 
@@ -122,7 +122,7 @@ test.describe('severity-1 #smoke', () => {
 
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.alertBar).toHaveText(
-        'Two-step authentication enabled'
+        'Two-step authentication has been enabled'
       );
       await expect(settings.totp.status).toHaveText('Enabled');
 
