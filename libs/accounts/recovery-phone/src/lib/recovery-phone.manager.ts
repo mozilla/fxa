@@ -19,8 +19,16 @@ import {
   RecoveryNumberNotExistsError,
 } from './recovery-phone.errors';
 import { Redis } from 'ioredis';
+import { PhoneNumberInstance } from 'twilio/lib/rest/lookups/v2/phoneNumber';
 
 const RECORD_EXPIRATION_SECONDS = 10 * 60;
+
+/**
+ *
+ */
+export type PhoneNumberLookupData = ReturnType<
+  typeof PhoneNumberInstance.prototype.toJSON
+>;
 
 @Injectable()
 export class RecoveryPhoneManager {
@@ -43,16 +51,15 @@ export class RecoveryPhoneManager {
    * @param uid
    * @param phoneNumber Phone number in E.164 format.
    */
-  async registerPhoneNumber(uid: string, phoneNumber: string): Promise<any> {
+  async registerPhoneNumber(
+    uid: string,
+    phoneNumber: string,
+    lookupData: PhoneNumberLookupData
+  ): Promise<any> {
     if (!this.isE164Format(phoneNumber)) {
       throw new RecoveryNumberInvalidFormatError(uid, phoneNumber);
     }
-
     const uidBuffer = Buffer.from(uid, 'hex');
-
-    // TODO: Perform phone number validation here via https://www.twilio.com/docs/lookup/v2-api#making-a-request
-    const lookupData = {};
-
     const now = Date.now();
     try {
       await registerPhoneNumber(this.db, {
@@ -114,7 +121,7 @@ export class RecoveryPhoneManager {
     code: string,
     phoneNumber: string,
     isSetup: boolean,
-    lookupData?: Record<string, any>
+    lookupData?: PhoneNumberLookupData
   ): Promise<void> {
     const redisKey = `${this.redisPrefix}:${uid}:${code}`;
     const data = {

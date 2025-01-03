@@ -101,9 +101,13 @@ export class RecoveryPhoneService {
 
     // If this was for a setup operation. Register the phone number to the uid.
     if (data.isSetup === true) {
+      const lookupData = await this.smsManager.phoneNumberLookup(
+        data.phoneNumber
+      );
       await this.recoveryPhoneManager.registerPhoneNumber(
         uid,
-        data.phoneNumber
+        data.phoneNumber,
+        lookupData
       );
     }
 

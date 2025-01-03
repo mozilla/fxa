@@ -1,4 +1,7 @@
-import { RecoveryPhoneManager } from './recovery-phone.manager';
+import {
+  PhoneNumberLookupData,
+  RecoveryPhoneManager,
+} from './recovery-phone.manager';
 import {
   AccountDatabase,
   AccountDbProvider,
@@ -10,6 +13,29 @@ import { RecoveryPhoneFactory } from './recovery-phone.factories';
 describe('RecoveryPhoneManager', () => {
   let recoveryPhoneManager: RecoveryPhoneManager;
   let db: AccountDatabase;
+
+  // Taken from: https://www.twilio.com/docs/lookup/v2-api#code-lookup-with-data-packages
+  const mockLookUpData: PhoneNumberLookupData = {
+    callingCountryCode: '1',
+    countryCode: 'US',
+    phoneNumber: '+15005550000',
+    nationalFormat: '500 555 0000',
+
+    callerName: 'test',
+    valid: true,
+    validationErrors: [],
+    preFill: null,
+    url: '',
+    smsPumpingRisk: {},
+    reassignedNumber: {},
+    lineStatus: {},
+    simSwap: {},
+
+    lineTypeIntelligence: {},
+    identityMatch: {},
+    phoneNumberQualityScore: {},
+    callForwarding: {},
+  };
 
   const mockRedis = {
     set: jest.fn(),
@@ -50,7 +76,8 @@ describe('RecoveryPhoneManager', () => {
     const { uid, phoneNumber } = mockPhone;
     await recoveryPhoneManager.registerPhoneNumber(
       uid.toString('hex'),
-      phoneNumber
+      phoneNumber,
+      mockLookUpData
     );
 
     const result = await recoveryPhoneManager.getConfirmedPhoneNumber(
@@ -75,7 +102,8 @@ describe('RecoveryPhoneManager', () => {
     const mockPhone = RecoveryPhoneFactory();
     await recoveryPhoneManager.registerPhoneNumber(
       mockPhone.uid.toString('hex'),
-      mockPhone.phoneNumber
+      mockPhone.phoneNumber,
+      mockLookUpData
     );
 
     expect(insertIntoSpy).toBeCalledWith('recoveryPhones');
@@ -87,7 +115,8 @@ describe('RecoveryPhoneManager', () => {
     await expect(
       recoveryPhoneManager.registerPhoneNumber(
         mockPhone.uid.toString('hex'),
-        phoneNumber
+        phoneNumber,
+        mockLookUpData
       )
     ).rejects.toThrow('Invalid phone number format');
   });
@@ -97,11 +126,16 @@ describe('RecoveryPhoneManager', () => {
     const { uid, phoneNumber } = mockPhone;
     await recoveryPhoneManager.registerPhoneNumber(
       uid.toString('hex'),
-      phoneNumber
+      phoneNumber,
+      mockLookUpData
     );
 
     await expect(
-      recoveryPhoneManager.registerPhoneNumber(uid.toString('hex'), phoneNumber)
+      recoveryPhoneManager.registerPhoneNumber(
+        uid.toString('hex'),
+        phoneNumber,
+        mockLookUpData
+      )
     ).rejects.toThrow('Recovery number already exists');
   });
 
@@ -112,7 +146,8 @@ describe('RecoveryPhoneManager', () => {
     const { uid, phoneNumber } = mockPhone;
     await recoveryPhoneManager.registerPhoneNumber(
       uid.toString('hex'),
-      phoneNumber
+      phoneNumber,
+      mockLookUpData
     );
 
     const result = await recoveryPhoneManager.removePhoneNumber(
@@ -143,7 +178,11 @@ describe('RecoveryPhoneManager', () => {
     const mockPhone = RecoveryPhoneFactory();
     const { uid, phoneNumber } = mockPhone;
     await expect(
-      recoveryPhoneManager.registerPhoneNumber(uid.toString('hex'), phoneNumber)
+      recoveryPhoneManager.registerPhoneNumber(
+        uid.toString('hex'),
+        phoneNumber,
+        mockLookUpData
+      )
     ).rejects.toThrow('Database error');
 
     insertIntoSpy.mockRestore();
@@ -154,20 +193,18 @@ describe('RecoveryPhoneManager', () => {
     const { uid, phoneNumber } = mockPhone;
     const code = '123456';
     const isSetup = true;
-    const lookupData = { foo: 'bar' };
-
     await recoveryPhoneManager.storeUnconfirmed(
       uid.toString('hex'),
       code,
       phoneNumber,
       isSetup,
-      lookupData
+      mockLookUpData
     );
 
     const expectedData = JSON.stringify({
       phoneNumber,
       isSetup,
-      lookupData: JSON.stringify(lookupData),
+      lookupData: JSON.stringify(mockLookUpData),
     });
     const redisKey = `sms-attempt:${uid.toString('hex')}:${code}`;
 
