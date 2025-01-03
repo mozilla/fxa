@@ -11,6 +11,7 @@ import { ReactComponent as SignOut } from './sign-out.svg';
 import { logViewEvent, settingsViewName } from '../../../lib/metrics';
 import { Localized, useLocalization } from '@fluent/react';
 import firefox from '../../../lib/channels/firefox';
+import { FtlMsg } from 'fxa-react/lib/utils';
 
 export const DropDownAvatarMenu = () => {
   const { displayName, primaryEmail, avatar, uid } = useAccount();
@@ -79,29 +80,17 @@ export const DropDownAvatarMenu = () => {
                 <div className="ltr:mr-3 rtl:ml-3 flex-none">
                   <Avatar className="w-10" {...{ avatar }} />
                 </div>
-                <Localized
-                  id="drop-down-menu-signed-in-as"
-                  vars={{ user: displayName || primaryEmail.email }}
-                  elems={{
-                    user: (
-                      <span
-                        className="font-bold block truncate"
-                        data-testid="drop-down-name-or-email"
-                      ></span>
-                    ),
-                    signin: <span className="text-grey-400 text-xs"></span>,
-                  }}
-                >
-                  <p className="leading-5 max-w-full truncate">
+                <p className="leading-5 max-w-full truncate">
+                  <FtlMsg id="drop-down-menu-signed-in-as-2">
                     <span className="text-grey-400 text-xs">Signed in as</span>
-                    <span
-                      className="font-bold block truncate"
-                      data-testid="drop-down-name-or-email"
-                    >
-                      {displayName || primaryEmail.email}
-                    </span>
-                  </p>
-                </Localized>
+                  </FtlMsg>
+                  <span
+                    className="font-bold block truncate"
+                    data-testid="drop-down-name-or-email"
+                  >
+                    {displayName || primaryEmail.email}
+                  </span>
+                </p>
               </div>
               <div className="w-full">
                 <div className="bg-gradient-to-r from-blue-500 via-pink-700 to-yellow-500 h-px" />
