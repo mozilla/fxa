@@ -4,7 +4,9 @@
 
 import { Injectable } from '@nestjs/common';
 import { ContentServerClient } from './content-server.client';
+import { SanitizeExceptions } from '@fxa/shared/error';
 
+@SanitizeExceptions()
 @Injectable()
 export class ContentServerManager {
   constructor(private contentServerClient: ContentServerClient) {}
