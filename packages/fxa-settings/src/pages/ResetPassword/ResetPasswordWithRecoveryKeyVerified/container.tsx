@@ -47,8 +47,13 @@ const ResetPasswordWithRecoveryKeyVerifiedContainer = ({
   const { uid, sessionToken } = currentAccount() || {};
   const { keyFetchToken, unwrapBKey } =
     sensitiveDataClient.getDataType(SensitiveData.Key.AccountReset) || {};
-  const newRecoveryKeyData = sensitiveDataClient.getData('newRecoveryKeyData');
-  const newRecoveryKey = formatRecoveryKey(newRecoveryKeyData.buffer);
+  // We keep the previous non-null assertion on 'newRecoveryKey' here because the
+  // flow dictates we definitely have it. This is not good practice.
+  // TODO: Fix me with FXA-10869.
+  const { recoveryKey } = sensitiveDataClient.getDataType(
+    SensitiveData.Key.NewRecoveryKey
+  )!;
+  const newRecoveryKey = formatRecoveryKey(recoveryKey);
 
   const updateRecoveryKeyHint = useCallback(
     async (hint: string) => account.updateRecoveryKeyHint(hint),
