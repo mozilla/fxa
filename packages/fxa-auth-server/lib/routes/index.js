@@ -138,6 +138,7 @@ module.exports = function (
   );
   const recoveryPhone = require('./recovery-phone').recoveryPhoneRoutes(
     log,
+    customs,
     glean
   );
   const securityEvents = require('./security-events')(log, db, config);

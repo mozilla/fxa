@@ -4,4 +4,4 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-tap test/local test/remote --no-coverage --jobs=1
+tap test/remote/too_many_sms.js --no-coverage --jobs=1

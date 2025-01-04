@@ -959,6 +959,67 @@ module.exports = (config) => {
     );
   };
 
+  ClientApi.prototype.recoveryPhoneNumberAvailable = async function (
+    sessionTokenHex
+  ) {
+    const token = await tokens.SessionToken.fromHex(sessionTokenHex);
+    return await this.doRequest(
+      'POST',
+      `${this.baseURL}/recovery-phone/available`,
+      token,
+      {}
+    );
+  };
+
+  ClientApi.prototype.recoveryPhoneNumberConfirm = async function (
+    sessionTokenHex,
+    code
+  ) {
+    const token = await tokens.SessionToken.fromHex(sessionTokenHex);
+    return await this.doRequest(
+      'POST',
+      `${this.baseURL}/recovery-phone/confirm`,
+      token,
+      {
+        code,
+      }
+    );
+  };
+
+  ClientApi.prototype.recoveryPhoneNumberSendCode = async function (
+    sessionTokenHex
+  ) {
+    const token = await tokens.SessionToken.fromHex(sessionTokenHex);
+    return await this.doRequest(
+      'POST',
+      `${this.baseURL}/recovery-phone/send_code`,
+      token,
+      {}
+    );
+  };
+
+  ClientApi.prototype.recoveryPhoneNumberDestroy = async function (
+    sessionTokenHex
+  ) {
+    const token = await tokens.SessionToken.fromHex(sessionTokenHex);
+    return await this.doRequest(
+      'DELETE',
+      `${this.baseURL}/recovery-phone`,
+      token,
+      {}
+    );
+  };
+
+  ClientApi.prototype.recoveryPhoneNumber = async function (sessionTokenHex) {
+    const token = await tokens.SessionToken.fromHex(sessionTokenHex);
+    return await this.doRequest(
+      'GET',
+      `${this.baseURL}/recovery-phone`,
+      token,
+      {}
+    );
+  };
+
   ClientApi.prototype.sessionDestroy = function (sessionTokenHex, options) {
     let data = null;
 

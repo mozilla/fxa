@@ -13,6 +13,12 @@ var TEST_IP4 = '192.0.2.4';
 var TEST_IP5 = '192.0.2.5';
 var TEST_IP6 = '192.0.2.6';
 var CONNECT_DEVICE_SMS = 'connectDeviceSms';
+var RECOVERY_PHONE_SEND_CODE = 'recoveryPhoneSendCode';
+var RECOVERY_PHONE_CREATE = 'recoveryPhoneCreate';
+// This is rate limited by a TWILIO_ACTION, but it's directly
+// related to SMS, so being included here.
+var RECOVERY_PHONE_AVAILABLE = 'recoveryPhoneAvailable';
+
 var PHONE_NUMBER = '14071234567';
 const ALLOWED_PHONE_NUMBER = '13133249901';
 
@@ -20,6 +26,7 @@ const ALLOWED_PHONE_NUMBER = '13133249901';
 const config = require('../../lib/config').getProperties();
 config.limits.smsRateLimit.limitIntervalSeconds = 1;
 config.limits.smsRateLimit.maxSms = 2;
+config.limits.smsRateLimit.maxTwilioRequests = 2;
 config.limits.ipRateLimitIntervalSeconds = 1;
 config.limits.ipRateLimitBanDurationSeconds = 1;
 config.limits.rateLimitIntervalSeconds = 1;
@@ -364,8 +371,72 @@ test('/check `connectDeviceSms` by email', function (t) {
   );
 });
 
+// A user must be logged in to trigger these checks, so
+// we only need to test 'by email'
+[
+  RECOVERY_PHONE_AVAILABLE,
+  RECOVERY_PHONE_SEND_CODE,
+  RECOVERY_PHONE_CREATE,
+].forEach((action) => {
+  test(`/check ${action} by email`, function (t) {
+    return (
+      client
+        .postAsync('/check', {
+          ip: TEST_IP,
+          email: 'test1@example.com',
+          action,
+        })
+        .spread(function (req, res, obj) {
+          t.equal(res.statusCode, 200, 'returns a 200');
+          t.equal(obj.block, false, 'not rate limited');
+          return client.postAsync('/check', {
+            ip: TEST_IP,
+            email: 'test1@example.com',
+            action,
+          });
+        })
+        .spread(function (req, res, obj) {
+          t.equal(res.statusCode, 200, 'returns a 200');
+          t.equal(obj.block, false, 'not rate limited');
+          return client.postAsync('/check', {
+            ip: TEST_IP,
+            email: 'test1@example.com',
+            action,
+          });
+        })
+        .spread(function (req, res, obj) {
+          t.equal(res.statusCode, 200, 'returns a 200');
+          t.equal(obj.block, true, 'rate limited');
+          t.equal(obj.retryAfter, 1, 'rate limit retry amount');
+
+          // Delay ~1s for rate limit to go away
+          return Promise.delay(1010);
+        })
+
+        // Reissue requests to verify that throttling is disabled
+        .then(function () {
+          return client.postAsync('/check', {
+            ip: TEST_IP,
+            email: 'test1@example.com',
+            action,
+          });
+        })
+        .spread(function (req, res, obj) {
+          t.equal(res.statusCode, 200, 'returns a 200');
+          t.equal(obj.block, false, 'not rate limited');
+          t.end();
+        })
+        .catch(function (err) {
+          t.fail(err);
+          t.end();
+        })
+    );
+  });
+});
+
 test('clear everything', function (t) {
   mcHelper.clearEverything(function (err) {
+    console.log('!!! err', err);
     t.notOk(err, 'no errors were returned');
     t.end();
   });

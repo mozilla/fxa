@@ -9,7 +9,10 @@ import { StatsD } from 'hot-shots';
 import { Twilio } from 'twilio';
 import { SmsManagerConfig } from './sms.manger.config';
 import { TwilioProvider } from './twilio.provider';
-import { RecoveryNumberNotSupportedError } from './recovery-phone.errors';
+import {
+  RecoveryNumberInvalidFormatError,
+  RecoveryNumberNotSupportedError,
+} from './recovery-phone.errors';
 
 @Injectable()
 export class SmsManager {
@@ -29,7 +32,15 @@ export class SmsManager {
     return result.toJSON();
   }
 
-  public async sendSMS({ to, body }: { to: string; body: string }) {
+  public async sendSMS({
+    to,
+    body,
+    uid,
+  }: {
+    to: string;
+    body: string;
+    uid?: string;
+  }) {
     if (body.length > this.config.maxMessageLength) {
       throw new Error(
         `Body cannot be greater than ${this.config.maxMessageLength} characters.`
@@ -62,6 +73,11 @@ export class SmsManager {
       return msg;
     } catch (err) {
       this.metrics.increment('sms.send.error');
+
+      // Invalid phone number
+      if (err.code === 21211) {
+        throw new RecoveryNumberInvalidFormatError(uid || '', to, err);
+      }
       throw err;
     }
   }

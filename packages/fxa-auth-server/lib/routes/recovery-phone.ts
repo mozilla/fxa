@@ -118,7 +118,7 @@ class RecoveryPhoneHandler {
       code: string;
     };
 
-    if (!email || !uid) {
+    if (!email) {
       throw AppError.invalidToken();
     }
 
@@ -210,7 +210,7 @@ class RecoveryPhoneHandler {
     // Note this is typically due to totp being required, but there are
     // other states that could also result in an unverified session, such
     // as a forced password change.
-    if (emailVerified || (mustVerify && !tokenVerified)) {
+    if (!emailVerified || (mustVerify && !tokenVerified)) {
       return {};
     }
 
@@ -228,8 +228,8 @@ class RecoveryPhoneHandler {
 }
 
 export const recoveryPhoneRoutes = (
-  customs: Customs,
   log: AuthLogger,
+  customs: Customs,
   glean: GleanMetricsType
 ) => {
   const recoveryPhoneHandler = new RecoveryPhoneHandler(customs, log, glean);
@@ -273,7 +273,7 @@ export const recoveryPhoneRoutes = (
         },
         validate: {
           payload: isA.object({
-            code: isA.string().min(8).max(8),
+            code: isA.string().min(6).max(8),
           }),
         },
       },

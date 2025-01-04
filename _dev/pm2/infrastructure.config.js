@@ -66,5 +66,9 @@ module.exports = {
       autorestart: false,
       kill_timeout: 20000,
     },
+    {
+      name: 'customs',
+      script: 'yarn workspace fxa-customs-server start',
+    },
   ],
 };

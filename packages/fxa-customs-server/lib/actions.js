@@ -24,7 +24,7 @@ const CODE_VERIFYING_ACTION = {
   // changes at 60 seconds
   // limits by email
   verifyTotpCode: true,
-  recoveryPhoneConfirm: true,
+  recoveryPhoneConfirmCode: true,
 };
 
 // Actions that, if allowed, would allow an attacker
@@ -43,7 +43,6 @@ const ACCOUNT_STATUS_ACTION = {
   recoveryKeyExists: true,
   getCredentialsStatus: true,
   checkRecoveryCodesExist: true,
-  recoveryPhoneAvailable: true,
 };
 
 // Actions that send an email, and hence might make
@@ -74,6 +73,11 @@ const ACCOUNT_ACCESS_ACTION = new Set(['consumeSigninCode']);
 const RESET_PASSWORD_OTP_SENDING_ACTION = { passwordForgotSendOtp: true };
 const RESET_PASSWORD_OTP_VERIFICATION_ACTION = {
   passwordForgotVerifyOtp: true,
+};
+
+// Actions that result in calls to the twilio api
+const TWILIO_ACTIONS = {
+  recoveryPhoneAvailable: true,
 };
 
 module.exports = {
@@ -107,5 +111,9 @@ module.exports = {
 
   isResetPasswordOtpVerificationAction(action) {
     return RESET_PASSWORD_OTP_VERIFICATION_ACTION[action];
+  },
+
+  isTwilioAction(action) {
+    return TWILIO_ACTIONS[action];
   },
 };
