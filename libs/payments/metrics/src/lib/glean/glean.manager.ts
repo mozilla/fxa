@@ -113,7 +113,6 @@ export class PaymentsGleanManager {
     return {
       user_agent: commonMetricsData.userAgent,
       ip_address: commonMetricsData.ipAddress,
-      account_user_id: normalizeGleanFalsyValues(cartMetricsData.uid),
       ...mapRelyingParty(commonMetricsData.searchParams),
       ...mapSession(
         commonMetricsData.searchParams,
