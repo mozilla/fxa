@@ -343,11 +343,72 @@ module.exports = (config) => {
     return p;
   };
 
-  Client.prototype.createRecoveryPhoneNumber = async function (phoneNumber) {
+  Client.prototype.recoveryPhoneNumber = async function () {
+    if (this.sessionToken) {
+      const resp = await this.api.recoveryPhoneNumber(this.sessionToken);
+      return resp;
+    }
+  };
+
+  Client.prototype.recoveryPhoneNumberCreate = async function (phoneNumber) {
     if (this.sessionToken) {
       const resp = await this.api.recoveryPhoneNumberCreate(
         this.sessionToken,
         phoneNumber
+      );
+      return resp;
+    }
+  };
+
+  Client.prototype.recoveryPhoneAvailable = async function () {
+    if (this.sessionToken) {
+      const resp = await this.api.recoveryPhoneNumberAvailable(
+        this.sessionToken
+      );
+      return resp;
+    }
+  };
+
+  Client.prototype.recoveryPhoneConfirm = async function (code) {
+    if (this.sessionToken) {
+      const resp = await this.api.recoveryPhoneNumberConfirm(
+        this.sessionToken,
+        code
+      );
+      return resp;
+    }
+  };
+
+  Client.prototype.recoveryPhoneCreate = async function (phoneNumber) {
+    if (this.sessionToken) {
+      const resp = await this.api.recoveryPhoneNumberCreate(
+        this.sessionToken,
+        phoneNumber
+      );
+      return resp;
+    }
+  };
+
+  Client.prototype.recoveryPhoneDestroy = async function () {
+    if (this.sessionToken) {
+      const resp = await this.api.recoveryPhoneNumberDestroy(this.sessionToken);
+      return resp;
+    }
+  };
+
+  Client.prototype.recoveryPhoneSendCode = async function () {
+    if (this.sessionToken) {
+      const resp = await this.api.recoveryPhoneNumberSendCode(
+        this.sessionToken
+      );
+      return resp;
+    }
+  };
+
+  Client.prototype.recoveryPhoneAvailable = async function () {
+    if (this.sessionToken) {
+      const resp = await this.api.recoveryPhoneNumberAvailable(
+        this.sessionToken
       );
       return resp;
     }

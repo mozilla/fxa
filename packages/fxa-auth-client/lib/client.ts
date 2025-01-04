@@ -2304,7 +2304,11 @@ export default class AuthClient {
     );
   }
 
-  async recoveryPhoneDelete(sessionToken: string, headers?: Headers) {
+  async recoveryPhoneExists(sessionToken: string, headers?: Headers) {
+    return this.sessionGet('/recovery-phone', sessionToken, headers);
+  }
+
+  async recoveryPhoneDestroy(sessionToken: string, headers?: Headers) {
     return this.sessionDelete('/recovery-phone', sessionToken, {}, headers);
   }
 

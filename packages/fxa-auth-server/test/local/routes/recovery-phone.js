@@ -48,7 +48,7 @@ describe('/recovery-phone', () => {
 
   before(() => {
     Container.set(RecoveryPhoneService, mockRecoveryPhoneService);
-    routes = recoveryPhoneRoutes(mockCustoms, mockLog, mockGlean);
+    routes = recoveryPhoneRoutes(mockLog, mockCustoms, mockGlean);
   });
 
   afterEach(() => {

@@ -2138,7 +2138,7 @@ const convictConf = convict({
     redis: {},
     sms: {
       from: {
-        default: '555555',
+        default: '15005550006',
         doc: 'The twilio number messages are sent from. This should be a short-code resource.',
         env: 'RECOVERY_PHONE__SMS__FROM',
         format: String,

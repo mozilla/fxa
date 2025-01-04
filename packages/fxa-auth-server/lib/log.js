@@ -77,6 +77,11 @@ Lug.prototype.getTraceId = function (data) {
   return result;
 };
 
+// Polyfill to make this compatible with nestjs logger which always supports a 'log' method.
+Lug.prototype.log = function (op, data) {
+  this.logger.info(op, Object.assign({}, data, this.getTraceId()));
+};
+
 // Expose the standard error/warn/info/debug/etc log methods.
 
 Lug.prototype.trace = function (op, data) {
