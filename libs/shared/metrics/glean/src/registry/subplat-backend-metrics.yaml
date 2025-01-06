@@ -2,26 +2,6 @@
 # Schema
 $schema: moz://mozilla.org/schemas/glean/metrics/2-0-0
 
-account:
-  user_id:
-    type: string
-    description: |
-      The firefox/mozilla account id
-    lifetime: application
-    send_in_pings:
-      - events
-    notification_emails:
-      - subplat-team@mozilla.com
-    bugs:
-      - https://mozilla-hub.atlassian.net/browse/FXA-7531
-    data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=tbd
-    expires: never
-    data_sensitivity:
-      - interaction
-    no_lint:
-      - COMMON_PREFIX
-
 relying_party:
   service:
     type: string
