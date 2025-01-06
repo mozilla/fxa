@@ -1604,6 +1604,12 @@ const convictConf = convict({
       default: 1507081020000,
       env: 'LASTACCESSTIME_EARLIEST_SANE_TIMESTAMP',
     },
+    onOAuthTokenCreation: {
+      doc: 'update lastAccessTime in Redis when the session token is used to create an OAuth token',
+      format: Boolean,
+      default: true,
+      env: 'LASTACCESSTIME_UPDATES_ON_OAUTH_TOKEN_CREATION',
+    },
   },
   signinUnblock: {
     codeLength: {

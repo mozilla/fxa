@@ -55,6 +55,9 @@ const OAUTH_SERVER_DOCS =
   require('../../../docs/swagger/oauth-server-api').default;
 const DESCRIPTION =
   require('../../../docs/swagger/shared/descriptions').default;
+const updateLastAccessTime = config.get(
+  'lastAccessTimeUpdates.onOAuthTokenCreation'
+);
 
 const MAX_TTL_S = config.get('oauthServer.expiration.accessToken') / 1000;
 
@@ -637,11 +640,11 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
             req,
             grant
           );
+        }
 
-          if (sessionToken) {
-            sessionToken.lastAccessTime = Date.now();
-            await db.touchSessionToken(sessionToken, {}, true);
-          }
+        if (updateLastAccessTime && sessionToken) {
+          sessionToken.lastAccessTime = Date.now();
+          await db.touchSessionToken(sessionToken, {}, true);
         }
 
         // done with 'session_token_id' at this point, do not return it.
