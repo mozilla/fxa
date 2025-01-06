@@ -264,6 +264,10 @@ module.exports = function (log, config, bounces) {
       pool: mailerConfig.pool,
       maxConnections: mailerConfig.maxConnections,
       maxMessages: mailerConfig.maxMessages,
+      connectionTimeout: mailerConfig.connectionTimeout,
+      greetingTimeout: mailerConfig.greetingTimeout,
+      socketTimeout: mailerConfig.socketTimeout,
+      dnsTimeout: mailerConfig.dnsTimeout,
     };
 
     if (mailerConfig.user && mailerConfig.password) {
