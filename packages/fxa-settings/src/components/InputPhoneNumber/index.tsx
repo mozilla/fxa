@@ -14,15 +14,18 @@ interface Country {
   name: string;
   ftlId: string;
   validationPattern: RegExp;
-  placeholder: string;
 }
 
+export type InputPhoneNumberProps = {
+  countries?: Country[];
+  hasErrors?: boolean;
+  register: UseFormMethods['register'];
+  errorBannerId?: string;
+};
+
 export const phoneNorthAmerica = {
-  placeholder: '123-123-1234',
-  // North American Numbering Plan (NANP) countries are 123-123-1234.
-  // This allows for spaces, dot-separation, and parenthesis, but keeps
-  // the number of digits to 10.
-  validationPattern: /^\(?\d{3}\)?[ .-]?\d{3}[ .-]?\d{4}$/,
+  // North American Numbering Plan (NANP) countries are 123-123-1235
+  validationPattern: /^\d{3}-\d{3}-\d{4}$/,
 };
 
 export const defaultCountries = [
@@ -51,11 +54,10 @@ export const defaultCountries = [
 
 const InputPhoneNumber = ({
   countries = defaultCountries,
+  hasErrors = false,
   register,
-}: {
-  countries?: Country[];
-  register: UseFormMethods['register'];
-}) => {
+  errorBannerId,
+}: InputPhoneNumberProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   const localizedCountries = countries.map((country) => ({
     ...country,
@@ -65,6 +67,7 @@ const InputPhoneNumber = ({
     localizedCountries.find((country) => country.id === 1) ||
     localizedCountries[0];
   const [selectedCountry, setSelectedCountry] = useState(defaultCountry);
+  const [formattedPhoneNumber, setFormattedPhoneNumber] = useState('');
 
   const localizedLabel = ftlMsgResolver.getMsg(
     'input-phone-number-enter-number',
@@ -80,9 +83,39 @@ const InputPhoneNumber = ({
     }
   };
 
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = event.target.value;
+    const formattedValue = formatPhoneNumber(inputValue);
+    setFormattedPhoneNumber(formattedValue);
+  };
+
+  // Format the phone number as the user types - for easier review by the user
+  const formatPhoneNumber = (input: string): string => {
+    // Remove all non-numeric characters
+    const cleanedInput = input.replace(/\D/g, '');
+
+    // Format dynamically based on the pattern (for North America, the pattern is 123-123-1235)
+    if (
+      selectedCountry.validationPattern === phoneNorthAmerica.validationPattern
+    ) {
+      const formatted = cleanedInput
+        .replace(/^(\d{3})(\d)/, '$1-$2') // Add the first dash after the area code
+        .replace(/^(\d{3}-\d{3})(\d)/, '$1-$2') // Add the second dash after the exchange code
+        .slice(0, 12); // Limit to 12 characters
+
+      return formatted.trim();
+    }
+
+    return cleanedInput.trim();
+  };
+
   return (
     <div className="flex">
       <select
+        aria-label={ftlMsgResolver.getMsg(
+          'input-phone-number-country-list-aria-label',
+          'Select country'
+        )}
         onChange={handleCountryChange}
         value={selectedCountry.id}
         className={`bg-transparent border border-grey-200 rounded-md py-2 ps-10 w-[60px] me-2 focus:border-blue-400 focus:outline-none focus:shadow-input-blue-focus ${selectedCountry.classNameFlag} bg-no-repeat bg-[length:1.5rem_1rem] bg-[40%_50%]`}
@@ -128,15 +161,16 @@ const InputPhoneNumber = ({
         autoFocus
         required
         className="text-start w-full"
-        anchorPosition="start"
         autoComplete="off"
         spellCheck={false}
-        tooltipPosition="bottom"
-        placeholder={selectedCountry.placeholder}
         inputRef={register({
           required: true,
           pattern: selectedCountry.validationPattern,
         })}
+        {...{ hasErrors }}
+        value={formattedPhoneNumber}
+        onChange={handleInputChange}
+        aria-describedby={errorBannerId}
       />
     </div>
   );

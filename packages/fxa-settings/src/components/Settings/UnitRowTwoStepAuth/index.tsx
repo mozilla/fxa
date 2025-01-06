@@ -171,13 +171,15 @@ export const UnitRowTwoStepAuth = ({
     return subRows;
   };
 
-  const authenticatorAppInfoLink = (
-    <LinkExternal
-      href="https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication"
-      className="link-blue"
-    >
-      third-party authenticator app
-    </LinkExternal>
+  const howThisProtectsYourAccountLink = (
+    <FtlMsg id="tfa-row-enabled-info-link">
+      <LinkExternal
+        href="https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication"
+        className="link-blue text-sm"
+      >
+        How this protects your account
+      </LinkExternal>
+    </FtlMsg>
   );
 
   return (
@@ -203,25 +205,21 @@ export const UnitRowTwoStepAuth = ({
       >
         {exists && verified ? (
           <FtlMsg id="tfa-row-enabled-description">
-            <p className="text-sm mt-3">
+            <p className="text-sm my-2">
               Your account is protected by two-step authentication. You will
               need to enter a one-time passcode from your authenticator app when
               logging into your Mozilla account.
             </p>
           </FtlMsg>
         ) : (
-          <FtlMsg
-            id="tfa-row-disabled-description"
-            elems={{
-              linkExternal: authenticatorAppInfoLink,
-            }}
-          >
+          <FtlMsg id="tfa-row-disabled-description-v2">
             <p className="text-sm mt-3">
-              Help secure your account by using a {authenticatorAppInfoLink} as
-              a second step to sign in.
+              Help secure your account by using a third-party authenticator app
+              as a second step to sign in.
             </p>
           </FtlMsg>
         )}
+        {howThisProtectsYourAccountLink}
         {disable2FAModalRevealed && <DisableTwoStepAuthModal />}
       </UnitRow>
     </>

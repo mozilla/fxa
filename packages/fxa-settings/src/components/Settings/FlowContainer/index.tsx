@@ -46,7 +46,7 @@ export const FlowContainer = ({
         >
           <BackArrow className="w-6 h-auto text-grey-400 rtl:transform rtl:-scale-x-100" />
         </button>
-        <h1 className="font-header text-lg">{title}</h1>
+        <h1 className="font-header text-md text-grey-400">{title}</h1>
       </div>
       {subtitle && (
         <h2 className="text-xs text-grey-400 font-semibold uppercase mt-1">

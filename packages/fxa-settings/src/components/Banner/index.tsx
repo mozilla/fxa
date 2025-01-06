@@ -10,6 +10,7 @@ import {
   InformationOutlineCurrentIcon as InfoIcon,
   AlertOutlineCurrentIcon as WarningIcon,
   ErrorOutlineCurrentIcon as ErrorIcon,
+  InformationOutlineBlueIcon,
 } from '../Icons';
 import classNames from 'classnames';
 import { useFtlMsgResolver } from '../../models';
@@ -23,31 +24,45 @@ export const Banner = ({
   animation,
   dismissButton,
   link,
+  isFancy,
+  bannerId,
 }: BannerProps) => {
   return (
     <div
+      id={bannerId || ''}
       className={classNames(
         'my-4 flex flex-row no-wrap items-center px-4 py-3 gap-3.5 rounded-md border border-transparent text-start text-sm',
         type === 'error' && 'bg-red-100',
-        type === 'info' && 'bg-blue-50',
+        type === 'info' && !isFancy && 'bg-blue-50',
+        type === 'info' &&
+          isFancy &&
+          'bg-gradient-to-tr from-blue-600/10 to-purple-500/10',
         type === 'success' && 'bg-green-200',
         type === 'warning' && 'bg-orange-50',
         animation?.animate && animation?.className
       )}
-      role="status"
+      role={type === 'error' ? 'alert' : 'status'}
+      aria-live={type === 'error' ? 'assertive' : 'polite'}
       onAnimationEnd={animation?.handleAnimationEnd}
+      tabIndex={-1}
     >
       {/* Icon fills use 'currentColor' (from text color) for better accessibility in HCM mode */}
-      {type === 'error' && <ErrorIcon className="shrink-0" />}
-      {type === 'info' && <InfoIcon className="shrink-0" />}
+      {type === 'error' && <ErrorIcon className="shrink-0" ariaHidden />}
+      {type === 'info' && !isFancy && (
+        <InfoIcon className="shrink-0" ariaHidden />
+      )}
+      {type === 'info' && isFancy && (
+        <InformationOutlineBlueIcon className="shrink-0" ariaHidden />
+      )}
       {type === 'success' && (
         <CheckmarkCircleOutlineCurrentIcon
           className="shrink-0"
           mode="success"
+          ariaHidden
         />
       )}
       {type === 'warning' && (
-        <WarningIcon className="shrink-0" mode="attention" />
+        <WarningIcon className="shrink-0" mode="attention" ariaHidden />
       )}
 
       <div className="flex flex-col grow ">
@@ -86,7 +101,12 @@ export const Banner = ({
           className={classNames(
             'shrink-0 self-start hover:backdrop-saturate-150 focus:backdrop-saturate-200',
             type === 'error' && 'hover:bg-red-200 focus:bg-red-300',
-            type === 'info' && 'hover:bg-blue-100 focus:bg-blue-200',
+            type === 'info' &&
+              !isFancy &&
+              'hover:bg-blue-100 focus:bg-blue-200',
+            type === 'info' &&
+              isFancy &&
+              'hover:bg-gradient-to-tr hover:from-blue-700/10 hover:to-purple-600/10 focus:bg-gradient-to-tr focus:from-blue-800/10 focus:to-purple-700/10',
             type === 'success' && 'hover:bg-green-400 focus:bg-green-500',
             type === 'warning' && 'hover:bg-orange-100 focus:bg-orange-200'
           )}

@@ -56,7 +56,7 @@ test.describe('severity-1 #smoke', () => {
 
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.alertBar).toHaveText(
-        'Two-step authentication enabled'
+        'Two-step authentication has been enabled'
       );
       await expect(settings.totp.status).toHaveText('Enabled');
 
@@ -343,7 +343,9 @@ async function addTotp(
   const totpCredentials = await totp.fillOutTotpForms();
 
   await expect(settings.settingsHeading).toBeVisible();
-  await expect(settings.alertBar).toHaveText('Two-step authentication enabled');
+  await expect(settings.alertBar).toHaveText(
+    'Two-step authentication has been enabled'
+  );
   await expect(settings.totp.status).toHaveText('Enabled');
 
   return totpCredentials;

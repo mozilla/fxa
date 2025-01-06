@@ -13,6 +13,7 @@ import classNames from 'classnames';
 import { Tooltip } from '../Tooltip';
 
 export type InputTextProps = {
+  value?: string;
   defaultValue?: string | number;
   disabled?: boolean;
   children?: ReactElement;
@@ -48,6 +49,7 @@ export type InputTextProps = {
 };
 
 export const InputText = ({
+  value,
   defaultValue,
   disabled,
   children,
@@ -101,10 +103,14 @@ export const InputText = ({
 
   const textFieldChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
-      checkHasContent(event);
-      onChange && onChange(event);
+      if (value !== undefined) {
+        onChange && onChange(event);
+      } else {
+        checkHasContent(event);
+        onChange && onChange(event);
+      }
     },
-    [onChange]
+    [onChange, value]
   );
 
   function formatDataTestId(id: string) {
@@ -138,6 +144,8 @@ export const InputText = ({
           {label}
         </span>
         <input
+          value={value}
+          defaultValue={value === undefined ? defaultValue : undefined}
           className={classNames(
             inputOnlyClassName,
             'pb-1 pt-5 px-3 font-body rounded text-start',
@@ -152,7 +160,6 @@ export const InputText = ({
           ref={inputRef}
           {...{
             name,
-            defaultValue,
             disabled,
             onFocus,
             onBlur,

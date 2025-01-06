@@ -109,7 +109,7 @@ test.describe('severity-1 #smoke', () => {
 
     resetPassword.resendButton.click();
 
-    await expect(resetPassword.statusBar).toHaveText(
+    await expect(resetPassword.successBanner).toHaveText(
       /A new code was sent to your email./
     );
   });
@@ -121,7 +121,7 @@ test.describe('severity-1 #smoke', () => {
 
     await resetPassword.fillOutEmailForm('email@restmail.net');
 
-    await expect(resetPassword.statusBar).toHaveText('Unknown account');
+    await expect(resetPassword.errorBanner).toHaveText('Unknown account');
   });
 
   test('browse directly to page with email on query params', async ({
@@ -161,7 +161,7 @@ test.describe('severity-1 #smoke', () => {
 
     await expect(settings.settingsHeading).toBeVisible();
     await expect(settings.alertBar).toHaveText(
-      'Two-step authentication enabled'
+      'Two-step authentication has been enabled'
     );
     await expect(settings.totp.status).toHaveText('Enabled');
 
@@ -226,7 +226,7 @@ test.describe('severity-1 #smoke', () => {
 
     await expect(settings.settingsHeading).toBeVisible();
     await expect(settings.alertBar).toHaveText(
-      'Two-step authentication enabled'
+      'Two-step authentication has been enabled'
     );
     await expect(settings.totp.status).toHaveText('Enabled');
 
@@ -300,7 +300,7 @@ test.describe('severity-1 #smoke', () => {
 
     await expect(settings.settingsHeading).toBeVisible();
     await expect(settings.alertBar).toHaveText(
-      'Two-step authentication enabled'
+      'Two-step authentication has been enabled'
     );
     await expect(settings.totp.status).toHaveText('Enabled');
 
@@ -385,7 +385,7 @@ test.describe('severity-1 #smoke', () => {
 
     await expect(settings.settingsHeading).toBeVisible();
     await expect(settings.alertBar).toHaveText(
-      'Two-step authentication enabled'
+      'Two-step authentication has been enabled'
     );
     await expect(settings.totp.status).toHaveText('Enabled');
 

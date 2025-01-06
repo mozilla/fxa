@@ -326,7 +326,7 @@ describe('step 3', () => {
     );
     expect(alertBarInfo.success).toHaveBeenCalledTimes(1);
     expect(alertBarInfo.success).toHaveBeenCalledWith(
-      'Two-step authentication enabled'
+      'Two-step authentication has been enabled'
     );
   });
 });
