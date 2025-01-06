@@ -1006,6 +1006,18 @@ export const createDB = (
       );
     }
 
+    async verifiedLoginSecurityEvents(params: { uid: string; ipAddr: string }) {
+      log.trace('DB.verifiedLoginSecurityEvents', {
+        params: params,
+      });
+      const { uid, ipAddr } = params;
+      return SecurityEvent.findByUidAndIPAndVerifiedLogin(
+        uid,
+        ipAddr,
+        config.securityHistory.ipHmacKey
+      );
+    }
+
     async securityEventsByUid(params: { uid: string }) {
       log.trace('DB.securityEventsByUid', {
         params: params,

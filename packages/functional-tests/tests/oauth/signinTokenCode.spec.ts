@@ -130,5 +130,41 @@ test.describe('severity-2 #smoke', () => {
 
       await expect(page).toHaveURL(/notes\/fxa/);
     });
+
+    test('verified - token is always required', async ({
+      target,
+      pages: { page, signin, relier, signinTokenCode },
+      testAccountTracker,
+    }) => {
+      // The `sync` prefix is needed to force confirmation.
+      const credentials = await testAccountTracker.signUp();
+
+      await relier.goto(toQueryString(queryParameters));
+      await relier.clickEmailFirst();
+
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
+      await expect(page).toHaveURL(/signin_token_code/);
+
+      // retrieve the first code and delete the email
+      let code = await target.emailClient.getVerifyLoginCode(credentials.email);
+
+      // Go back to sign in page.
+      page.goBack();
+
+      // Enter the wrong password
+      await signin.fillOutPasswordForm(credentials.password + 'x');
+      await expect(page).toHaveURL(/signin/);
+
+      // Enter the right password
+      await signin.fillOutPasswordForm(credentials.password);
+      await expect(page).toHaveURL(/signin_token_code/);
+
+      // Retrieves the code from the new email
+      code = await target.emailClient.getVerifyLoginCode(credentials.email);
+      await signinTokenCode.fillOutCodeForm(code);
+
+      await expect(page).toHaveURL(/notes\/fxa/);
+    });
   });
 });
