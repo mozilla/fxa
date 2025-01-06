@@ -143,4 +143,31 @@ export class SecurityEvent extends BaseAuthModel {
       .orderBy('securityEvents.createdAt', 'DESC')
       .limit(20);
   }
+
+  static async findByUidAndIPAndVerifiedLogin(
+    uid: string,
+    ipAddr: string,
+    ipHmacKey: string
+  ) {
+    const id = uuidTransformer.to(uid);
+    const ipAddrHmac = ipHmac(Buffer.from(ipHmacKey), id, ipAddr);
+    return SecurityEvent.query()
+      .select(
+        'securityEventNames.name as name',
+        'securityEvents.verified as verified',
+        'securityEvents.createdAt as createdAt',
+        'securityEvents.ipAddr as ipAddr'
+      )
+      .leftJoin(
+        'securityEventNames',
+        'securityEvents.nameId',
+        'securityEventNames.id'
+      )
+      .where('securityEvents.uid', id)
+      .where('securityEvents.verified', 1)
+      .where('securityEvents.nameId', EVENT_NAMES['account.login'])
+      .andWhere('securityEvents.ipAddrHmac', ipAddrHmac)
+      .orderBy('securityEvents.createdAt', 'DESC')
+      .limit(20);
+  }
 }

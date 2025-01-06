@@ -966,7 +966,7 @@ export class AccountHandler {
 
     const checkSecurityHistory = async () => {
       try {
-        const events = await this.db.securityEvents({
+        const events = await this.db.verifiedLoginSecurityEvents({
           uid: accountRecord.uid,
           ipAddr: request.app.clientAddress,
         });
