@@ -143,9 +143,7 @@ module.exports = (log, db, config, customs, mailer, glean) => {
       async handler(request) {
         log.begin('checkRecoveryCodesExist', request);
 
-        const { email, uid } = request.auth.credentials;
-
-        await customs.check(request, email, 'checkRecoveryCodesExist');
+        const { uid } = request.auth.credentials;
 
         const { hasBackupCodes, count } =
           await backupCodeManager.getCountForUserId(uid);
