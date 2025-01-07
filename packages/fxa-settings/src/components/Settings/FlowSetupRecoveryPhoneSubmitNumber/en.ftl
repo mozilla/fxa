@@ -2,7 +2,7 @@
 
 flow-setup-phone-submit-number-heading = Verify your phone number
 # The code is a 6-digit code send by text message/SMS
-flow-setup-phone-verify-number-instruction = You’ll get a text message from Mozilla with a code to verify your number. Don't share this code with anyone.
+flow-setup-phone-verify-number-instruction = You’ll get a text message from { -brand-mozilla } with a code to verify your number. Don’t share this code with anyone.
 
 # The initial rollout of the backup recovery phone is only available to users with US and Canada mobile phone numbers.
 # Voice over Internet Protocol (VoIP), is a technology that uses a broadband Internet connection instead of a regular (or analog) phone line to make calls.
