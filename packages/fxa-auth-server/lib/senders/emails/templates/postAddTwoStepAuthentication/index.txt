@@ -3,7 +3,6 @@ postAddTwoStepAuthentication-title-2 = "You turned on two-step authentication"
 postAddTwoStepAuthentication-code-required-2 = "Security codes from your authentication app are now required every time you sign in."
 
 postAddTwoStepAuthentication-from-device = "You enabled it from:"
-
 <%- include('/partials/userInfo/index.txt') %>
 
 <%- include('/partials/manageAccount/index.txt') %>

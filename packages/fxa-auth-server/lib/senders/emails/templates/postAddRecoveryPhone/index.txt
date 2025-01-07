@@ -1,0 +1,15 @@
+postAddRecoveryPhone-title = "You created a recovery phone number"
+
+postAddRecoveryPhone-description = "You added <%- maskedLastFourPhoneNumber %> as your recovery phone"
+
+postAddRecoveryPhone-how-protect-plaintext = "How this protects your account:"
+<%- twoFactorSupportLink %>
+
+postAddRecoveryPhone-from-device = "You enabled it from:"
+<%- include('/partials/userInfo/index.txt') %>
+
+<%- include('/partials/manageAccount/index.txt') %>
+
+<%- include('/partials/automatedEmailResetPassword/index.txt') %>
+
+<%- include('/partials/support/index.txt') %>

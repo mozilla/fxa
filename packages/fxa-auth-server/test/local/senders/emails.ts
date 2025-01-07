@@ -83,6 +83,8 @@ const MESSAGE = {
   invoiceTotalCurrency: 'eur',
   lastFour: '5309',
   mozillaSupportUrl: 'https://support.mozilla.org',
+  twoFactorSupportLink:
+    'https://support.mozilla.org/en-US/kb/secure-firefox-account-two-step-authentication',
   nextInvoiceDate: new Date(1587339098816),
   paymentAmountOldInCents: 9999099.9,
   paymentAmountOldCurrency: 'jpy',
@@ -1182,6 +1184,99 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
+
+  ['postAddRecoveryPhoneEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: 'Recovery phone added' }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postAddRecoveryPhone') }],
+      ['X-Template-Name', { test: 'equal', expected: 'postAddRecoveryPhone' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postAddRecoveryPhone }],
+    ])],
+    ['html', [
+      { test: 'include', expected: 'You created a recovery phone number' },
+      { test: 'include', expected: 'You added ••••••1234 as your recovery phone' },
+      // TODO, update test with FXA-10918
+      { test: 'include', expected: 'https://support.mozilla.org/en-US/kb/secure-firefox-account-two-step-authentication' },
+      { test: 'include', expected: 'You enabled it from:' },
+      { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.date}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
+      { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'recovery-phone-added', 'privacy')) },
+      { test: 'include', expected: decodeUrl(configHref('supportUrl', 'recovery-phone-added', 'support')) },
+            { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: 'You created a recovery phone number' },
+      { test: 'include', expected: 'You added ••••••1234 as your recovery phone' },
+      // TODO, update test with FXA-10918
+      { test: 'include', expected: 'https://support.mozilla.org/en-US/kb/secure-firefox-account-two-step-authentication' },
+      { test: 'include', expected: 'You enabled it from:' },
+      { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.date}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
+      { test: 'include', expected: `Mozilla Accounts Privacy Notice\n${configUrl('privacyUrl', 'recovery-phone-added', 'privacy')}` },
+      { test: 'include', expected: `For more info, visit Mozilla Support: ${configUrl('supportUrl', 'recovery-phone-added', 'support')}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
+
+  ['postChangeRecoveryPhoneEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: 'Recovery phone updated' }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postChangeRecoveryPhone') }],
+      ['X-Template-Name', { test: 'equal', expected: 'postChangeRecoveryPhone' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postChangeRecoveryPhone }],
+    ])],
+    ['html', [
+      { test: 'include', expected: 'You changed your recovery phone' },
+      { test: 'include', expected: 'You now have a new recovery phone. Your previous phone number was deleted.' },
+      { test: 'include', expected: 'You requested it from:' },
+      { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.date}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
+      { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'recovery-phone-changed', 'privacy')) },
+      { test: 'include', expected: decodeUrl(configHref('supportUrl', 'recovery-phone-changed', 'support')) },
+    ]],
+    ['text', [
+      { test: 'include', expected: 'You changed your recovery phone' },
+      { test: 'include', expected: 'You now have a new recovery phone. Your previous phone number was deleted.' },
+      { test: 'include', expected: 'You requested it from:' },
+      { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.date}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
+      { test: 'include', expected: `Mozilla Accounts Privacy Notice\n${configUrl('privacyUrl', 'recovery-phone-changed', 'privacy')}` },
+      { test: 'include', expected: `For more info, visit Mozilla Support: ${configUrl('supportUrl', 'recovery-phone-changed', 'support')}` },
+    ]],
+  ])],
+
+  ['postRemoveRecoveryPhoneEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: 'Recovery phone removed' }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postRemoveRecoveryPhone') }],
+      ['X-Template-Name', { test: 'equal', expected: 'postRemoveRecoveryPhone' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postRemoveRecoveryPhone }],
+    ])],
+    ['html', [
+      { test: 'include', expected: 'Recovery phone removed' },
+      { test: 'include', expected: 'Your recovery phone has been removed from your two-step authentication settings. You still have your backup authentication codes available for use.' },
+      { test: 'include', expected: 'You requested it from:' },
+      { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.date}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
+      { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'recovery-phone-removed', 'privacy')) },
+      { test: 'include', expected: decodeUrl(configHref('supportUrl', 'recovery-phone-removed', 'support')) },
+    ]],
+    ['text', [
+      { test: 'include', expected: 'Recovery phone removed' },
+      { test: 'include', expected: 'Your recovery phone has been removed from your two-step authentication settings. You still have your backup authentication codes available for use.' },
+      { test: 'include', expected: 'You requested it from:' },
+      { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.date}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
+      { test: 'include', expected: `Mozilla Accounts Privacy Notice\n${configUrl('privacyUrl', 'recovery-phone-removed', 'privacy')}` },
+      { test: 'include', expected: `For more info, visit Mozilla Support: ${configUrl('supportUrl', 'recovery-phone-removed', 'support')}` },
     ]],
   ])],
 
