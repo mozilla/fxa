@@ -74,7 +74,6 @@ export class CapabilityService {
   private profileClient: ProfileClient;
   private paymentConfigManager?: PaymentConfigManager;
   private capabilityManager?: CapabilityManager;
-  private sentryLogCounter = new Map<string, number>();
   private eligibilityManager?: EligibilityManager;
   private config: ConfigType;
 
@@ -381,20 +380,24 @@ export class CapabilityService {
       if (isEqual(stripeEligibilityResult, eligibilityManagerResult))
         return stripeEligibilityResult;
 
-      if (this.logToSentry('getPlanEligibility.NoMatch')) {
-        Sentry.withScope((scope) => {
-          scope.setContext('getPlanEligibility', {
-            eligibilityManagerResult,
-            stripeEligibilityResult,
-            uid,
-            targetPlanId,
-          });
-          reportSentryMessage(
-            `Eligibility mismatch for ${uid} on ${targetPlanId}`,
-            'error' as SeverityLevel
-          );
+      this.log.error(`capability.getPlanEligibility.eligibilityMismatch`, {
+        eligibilityManagerResult,
+        stripeEligibilityResult,
+        uid,
+        targetPlanId,
+      });
+      Sentry.withScope((scope) => {
+        scope.setContext('getPlanEligibility', {
+          eligibilityManagerResult,
+          stripeEligibilityResult,
+          uid,
+          targetPlanId,
         });
-      }
+        reportSentryMessage(
+          `Eligibility mismatch for ${uid} on ${targetPlanId}`,
+          'error' as SeverityLevel
+        );
+      });
     } catch (err) {
       this.log.error('subscriptions.getPlanEligibility', { error: err });
       reportSentryError(err);
@@ -876,16 +879,6 @@ export class CapabilityService {
   }
 
   /**
-   * Only log every $sampleRate events
-   */
-  private logToSentry(eventId: string, sampleRate = 100) {
-    const counter = this.sentryLogCounter.get(eventId) || 0;
-    this.sentryLogCounter.set(eventId, counter + 1);
-    // Use counter without increment, so that first Sentry event is logged
-    return !(counter % sampleRate);
-  }
-
-  /**
    * Retrieve the client capabilities
    */
   async getClients() {
@@ -926,18 +919,20 @@ export class CapabilityService {
 
       if (isEqual(clientsFromCMS, clientsFromStripe)) return clientsFromCMS;
 
-      if (this.logToSentry('getClients.NoMatch')) {
-        Sentry.withScope((scope) => {
-          scope.setContext('getClients', {
-            cms: clientsFromCMS,
-            stripe: clientsFromStripe,
-          });
-          reportSentryMessage(
-            `CapabilityService.getClients - Returned Stripe as clients did not match.`,
-            'error' as SeverityLevel
-          );
+      this.log.error(`capability.getClients.clientsMismatch`, {
+        cms: clientsFromCMS,
+        stripe: clientsFromStripe,
+      });
+      Sentry.withScope((scope) => {
+        scope.setContext('getClients', {
+          cms: clientsFromCMS,
+          stripe: clientsFromStripe,
         });
-      }
+        reportSentryMessage(
+          `CapabilityService.getClients - Returned Stripe as clients did not match.`,
+          'error' as SeverityLevel
+        );
+      });
     } catch (err) {
       this.log.error('subscriptions.getClients', { error: err });
       reportSentryError(err);
@@ -1001,6 +996,11 @@ export class CapabilityService {
         return cmsCapabilities;
       }
 
+      this.log.error(`capability.planIdsToClientCapabilities.mismatch`, {
+        subscribedPrices,
+        cms: cmsCapabilities,
+        stripe: stripeCapabilities,
+      });
       Sentry.withScope((scope) => {
         scope.setContext('planIdsToClientCapabilities', {
           subscribedPrices,

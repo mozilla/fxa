@@ -122,8 +122,6 @@ export abstract class StripeHelper {
   protected abstract readonly productConfigurationManager?: ProductConfigurationManager;
   protected abstract readonly stripeMapperService?: StripeMapperService;
 
-  private sentryLogCounter = new Map<string, number>();
-
   /**
    * Create a Stripe Helper with built-in caching.
    */
@@ -437,16 +435,6 @@ export abstract class StripeHelper {
   }
 
   /**
-   * Only log every $sampleRate events
-   */
-  private logToSentry(eventId: string, sampleRate = 100) {
-    const counter = this.sentryLogCounter.get(eventId) || 0;
-    this.sentryLogCounter.set(eventId, counter + 1);
-    // Use counter without increment, so that first Sentry event is logged
-    return !(counter % sampleRate);
-  }
-
-  /**
    * Fetches all plans from stripe and returns them.
    *
    * Uses Redis caching if configured.
@@ -493,22 +481,20 @@ export abstract class StripeHelper {
         validPlansFinal.push(...validPlansMapped.mappedPlans);
         if (validPlansMapped.nonMatchingPlans.length) {
           const nonMatchingPlans = validPlansMapped.nonMatchingPlans;
-          this.log.debug(`stripeHelper.allAbbrevPlans.nonMatchingPlans`, {
+          this.log.error(`stripeHelper.allAbbrevPlans.nonMatchingPlans`, {
             acceptLanguage,
             nonMatchingPlans,
           });
-          if (this.logToSentry('StripeMapper.Errors')) {
-            Sentry.withScope((scope) => {
-              scope.setContext('allAbbrevPlans', {
-                acceptLanguage,
-                nonMatchingPlans,
-              });
-              Sentry.captureMessage(
-                `StripeHelper.allAbbrevPlans - CMS config does not match Stripe metadata`,
-                'warning' as Sentry.SeverityLevel
-              );
+          Sentry.withScope((scope) => {
+            scope.setContext('allAbbrevPlans', {
+              acceptLanguage,
+              nonMatchingPlans,
             });
-          }
+            Sentry.captureMessage(
+              `StripeHelper.allAbbrevPlans - CMS config does not match Stripe metadata`,
+              'warning' as Sentry.SeverityLevel
+            );
+          });
         }
       } catch (error) {
         Sentry.captureException(error);

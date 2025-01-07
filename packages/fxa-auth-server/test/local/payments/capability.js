@@ -532,7 +532,6 @@ describe('CapabilityService', () => {
       capabilityService.eligibilityFromEligibilityManager = sinon.fake.resolves(
         [SubscriptionEligibilityResult.CREATE]
       );
-      capabilityService.logToSentry = sinon.fake.returns(true);
 
       const actual = await capabilityService.getPlanEligibility(
         UID,
@@ -1352,9 +1351,6 @@ describe('CapabilityService', () => {
         `CapabilityService.getClients - Returned Stripe as clients did not match.`,
         'error'
       );
-
-      // Test logToSentry logic. Remove if no longer necessary
-      await capabilityService.getClients();
 
       sinon.assert.calledOnceWithExactly(sentryScope.setContext, 'getClients', {
         cms: mockClientsFromCMS,
