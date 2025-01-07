@@ -74,7 +74,7 @@ export const FlowSetupRecoveryPhoneSubmitNumber = ({
       <FtlMsg id="flow-setup-phone-verify-number-instruction">
         <p className="text-base my-4">
           You’ll get a text message from Mozilla with a code to verify your
-          number. Don't share this code with anyone.
+          number. Don’t share this code with anyone.
         </p>
       </FtlMsg>
       <FormPhoneNumber
