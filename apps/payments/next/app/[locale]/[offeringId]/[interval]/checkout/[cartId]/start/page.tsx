@@ -114,7 +114,7 @@ export default async function Checkout({
               <BaseButton variant={ButtonVariant.ThirdParty}>
                 <Image src={GoogleLogo} alt="" />
                 {l10n.getString(
-                  'next-continue-with-google-button',
+                  'continue-signin-with-google-button',
                   'Continue with Google'
                 )}
               </BaseButton>
@@ -128,7 +128,7 @@ export default async function Checkout({
               <BaseButton variant={ButtonVariant.ThirdParty}>
                 <Image src={AppleLogo} alt="" />
                 {l10n.getString(
-                  'next-continue-with-apple-button',
+                  'continue-signin-with-apple-button',
                   'Continue with Apple'
                 )}
               </BaseButton>
