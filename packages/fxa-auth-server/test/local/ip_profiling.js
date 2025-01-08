@@ -129,7 +129,7 @@ describe('IP Profiling', function () {
   });
 
   it('no previously verified session', () => {
-    mockDB.securityEvents = function () {
+    mockDB.verifiedLoginSecurityEvents = function () {
       return Promise.resolve([
         {
           name: 'account.login',
@@ -151,7 +151,7 @@ describe('IP Profiling', function () {
   });
 
   it('previously verified session', () => {
-    mockDB.securityEvents = function () {
+    mockDB.verifiedLoginSecurityEvents = function () {
       return Promise.resolve([
         {
           name: 'account.login',
