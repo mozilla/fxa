@@ -2169,6 +2169,7 @@ describe('/account/login', () => {
     mockRequest.payload.email = TEST_EMAIL;
     mockRequest.payload.verificationMethod = undefined;
     mockCadReminders.delete.resetHistory();
+    mockDB.verifiedLoginSecurityEvents.resetHistory();
     Container.reset();
   });
 
