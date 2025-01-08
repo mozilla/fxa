@@ -137,7 +137,7 @@ test.describe('severity-2 #smoke', () => {
       testAccountTracker,
     }) => {
       // The `sync` prefix is needed to force confirmation.
-      const credentials = await testAccountTracker.signUp();
+      const credentials = await testAccountTracker.signUpSync();
 
       await relier.goto(toQueryString(queryParameters));
       await relier.clickEmailFirst();
