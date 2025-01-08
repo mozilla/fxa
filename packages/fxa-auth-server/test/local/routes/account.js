@@ -2169,6 +2169,7 @@ describe('/account/login', () => {
     mockRequest.payload.email = TEST_EMAIL;
     mockRequest.payload.verificationMethod = undefined;
     mockCadReminders.delete.resetHistory();
+    mockDB.verifiedLoginSecurityEvents.resetHistory();
     Container.reset();
   });
 
@@ -3311,7 +3312,7 @@ describe('/account/login', () => {
     it('with a seen ip address', () => {
       record = undefined;
       let securityQuery;
-      mockDB.securityEvents = sinon.spy((arg) => {
+      mockDB.verifiedLoginSecurityEvents = sinon.spy((arg) => {
         securityQuery = arg;
         return Promise.resolve([
           {
@@ -3323,7 +3324,7 @@ describe('/account/login', () => {
       });
       return runTest(route, mockRequest, (response) => {
         assert.equal(
-          mockDB.securityEvents.callCount,
+          mockDB.verifiedLoginSecurityEvents.callCount,
           1,
           'db.securityEvents was called'
         );
@@ -3341,7 +3342,7 @@ describe('/account/login', () => {
     it('with a seen, unverified ip address', () => {
       record = undefined;
       let securityQuery;
-      mockDB.securityEvents = sinon.spy((arg) => {
+      mockDB.verifiedLoginSecurityEvents = sinon.spy((arg) => {
         securityQuery = arg;
         return Promise.resolve([
           {
@@ -3353,7 +3354,7 @@ describe('/account/login', () => {
       });
       return runTest(route, mockRequest, (response) => {
         assert.equal(
-          mockDB.securityEvents.callCount,
+          mockDB.verifiedLoginSecurityEvents.callCount,
           1,
           'db.securityEvents was called'
         );
@@ -3371,13 +3372,13 @@ describe('/account/login', () => {
       record = undefined;
 
       let securityQuery;
-      mockDB.securityEvents = sinon.spy((arg) => {
+      mockDB.verifiedLoginSecurityEvents = sinon.spy((arg) => {
         securityQuery = arg;
         return Promise.resolve([]);
       });
       return runTest(route, mockRequest, (response) => {
         assert.equal(
-          mockDB.securityEvents.callCount,
+          mockDB.verifiedLoginSecurityEvents.callCount,
           1,
           'db.securityEvents was called'
         );
