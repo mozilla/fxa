@@ -27,16 +27,9 @@
   "snsTopicEndpoint": "http://localhost:4100/",
   "securityHistory": {
     "ipProfiling": {
-      "allowedRecency": "72 hours"
+      "allowedRecency": 0
     }
   },
-  "signinConfirmation": {
-    "skipForNewAccounts": {
-      "enabled": false,
-      "maxAge": "0"
-    }
-  },
-
   "lastAccessTimeUpdates": {
     "enabled": true,
     "sampleRate": 1
