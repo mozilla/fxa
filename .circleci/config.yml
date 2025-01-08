@@ -134,7 +134,7 @@ executors:
     parameters:
       resource_class:
         type: string
-        default: large
+        default: xlarge
     resource_class: << parameters.resource_class >>
     docker:
       - image: mozilla/fxa-circleci:ci-functional-test-runner-v4
@@ -175,7 +175,7 @@ executors:
     parameters:
       resource_class:
         type: string
-        default: medium+
+        default: xlarge
     resource_class: << parameters.resource_class >>
     docker:
       - image: mozilla/fxa-circleci:ci-functional-test-runner-v4
@@ -729,18 +729,10 @@ jobs:
 
   smoke-tests:
     parameters:
-      resource_class:
-        type: string
-        default: large
       project:
         type: string
         default: production
-      parallelism:
-        type: integer
-        default: 4
     executor: smoke-test-executor
-    resource_class: << parameters.resource_class >>
-    parallelism: << parameters.parallelism >>
     steps:
       - git-checkout
       - provision
@@ -752,16 +744,8 @@ jobs:
   # Runs functional tests using playwright. These tests support splitting
   # and parallel execution.
   playwright-functional-tests:
-    parameters:
-      resource_class:
-        type: string
-        default: large
-      parallelism:
-        type: integer
-        default: 4
     executor: functional-test-executor
-    resource_class: << parameters.resource_class >>
-    parallelism: << parameters.parallelism >>
+    parallelism: 8  # this should coorespond with the resource-class defined in the executor
     steps:
       - git-checkout
       - restore-workspace
@@ -782,16 +766,8 @@ jobs:
       - rename-reports
 
   playwright-functional-tests-chromium:
-    parameters:
-      resource_class:
-        type: string
-        default: large
-      parallelism:
-        type: integer
-        default: 4
     executor: functional-test-executor
-    resource_class: << parameters.resource_class >>
-    parallelism: << parameters.parallelism >>
+    parallelism: 8  # this should coorespond with the resource-class defined in the executor
     steps:
       - git-checkout
       - restore-workspace
@@ -1016,8 +992,6 @@ workflows:
             - Build (PR)
       - playwright-functional-tests:
           name: Firefox Functional Tests - Playwright (PR)
-          resource_class: xlarge
-          parallelism: 8
           requires:
             - Build (PR)
       - playwright-functional-test-report:
@@ -1053,8 +1027,6 @@ workflows:
       - smoke-tests:
           name: Smoke Test Production - Playwright
           project: production
-          resource_class: large
-          parallelism: 4
           filters:
             branches:
               only: /.*/
@@ -1068,8 +1040,6 @@ workflows:
       - smoke-tests:
           name: Smoke Test Stage - Playwright
           project: stage
-          resource_class: xlarge
-          parallelism: 8
           filters:
             branches:
               only: /.*/
@@ -1242,8 +1212,6 @@ workflows:
             - Build
       - playwright-functional-tests:
           name: Functional Tests - Playwright
-          resource_class: xlarge
-          parallelism: 8
           filters:
             branches:
               ignore: /.*/
@@ -1353,8 +1321,6 @@ workflows:
             - Build (nightly)
       - playwright-functional-tests:
           name: Firefox Functional Tests - Playwright (nightly)
-          resource_class: xlarge
-          parallelism: 8
           requires:
             - Build (nightly)
       - playwright-functional-test-report:
