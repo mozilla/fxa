@@ -100,6 +100,7 @@ const DB_METHOD_NAMES = [
   'updateRecoveryKeyHint',
   'updateSessionToken',
   'updateTotpToken',
+  'verifiedLoginSecurityEvents',
   'verifyEmail',
   'verifyTokens',
   'verifyTokensWithMethod',
@@ -632,6 +633,9 @@ function mockDB(data, errors) {
     updateDevice: sinon.spy((uid, device) => {
       assert.ok(typeof uid === 'string');
       return Promise.resolve(device);
+    }),
+    verifiedLoginSecurityEvents: sinon.spy(() => {
+      return Promise.resolve([]);
     }),
     sessionToken: sinon.spy(() => {
       const res = {
