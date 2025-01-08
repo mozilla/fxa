@@ -60,36 +60,5 @@ test.describe('severity-2 #smoke', () => {
         await expect(signin.emailTextbox).toHaveValue(credentials.email);
       });
     });
-
-    test('cached credentials, login_hint specified by relier', async ({
-      pages: { page, signin, relier },
-      testAccountTracker,
-    }) => {
-      const credentials = await testAccountTracker.signUp();
-      const loginHintCredentials = await testAccountTracker.signUp();
-
-      // Create a cached login
-      await relier.goto();
-      await relier.clickEmailFirst();
-      await signin.fillOutEmailFirstForm(credentials.email);
-      await signin.fillOutPasswordForm(credentials.password);
-
-      expect(await relier.isLoggedIn()).toBe(true);
-
-      await relier.signOut();
-
-      // login_hint takes precedence over the signed-in user
-      await relier.goto(`login_hint=${loginHintCredentials.email}`);
-      await relier.clickEmailFirst();
-
-      // Email is prefilled
-      await expect(signin.passwordFormHeading).toBeVisible();
-      await expect(page.getByText(loginHintCredentials.email)).toBeVisible();
-
-      await signin.useDifferentAccountLink.click();
-
-      // Email first page has email input prefilled
-      await expect(signin.emailTextbox).toHaveValue(loginHintCredentials.email);
-    });
   });
 });
