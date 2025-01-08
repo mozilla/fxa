@@ -16,7 +16,7 @@ import {
 import { createSaltV2 } from 'fxa-auth-client/lib/salt';
 import { deriveHawkCredentials } from 'fxa-auth-client/lib/hawk';
 import { getHandledError } from './error-utils';
-import { SensitiveData, SensitiveDataClient } from './sensitive-data-client';
+import { SensitiveDataClient } from './sensitive-data-client';
 
 export type V1Credentials = {
   authPW: string;
@@ -41,10 +41,7 @@ export async function tryFinalizeUpgrade(
   gqlPasswordChangeFinish: MutationFunction<PasswordChangeFinishResponse>
 ) {
   try {
-    let upgradeData = sensitiveDataClient.getDataType(
-      SensitiveData.Key.KeyStretchUpgrade
-    );
-    if (upgradeData) {
+    if (sensitiveDataClient.KeyStretchUpgradeData) {
       const upgradeClient = new GqlKeyStretchUpgrade(
         stage,
         gqlCredentialStatus,
@@ -54,9 +51,9 @@ export async function tryFinalizeUpgrade(
       );
 
       await upgradeClient.upgrade(
-        upgradeData.email,
-        upgradeData.v1Credentials,
-        upgradeData.v2Credentials,
+        sensitiveDataClient.KeyStretchUpgradeData.email,
+        sensitiveDataClient.KeyStretchUpgradeData.v1Credentials,
+        sensitiveDataClient.KeyStretchUpgradeData.v2Credentials,
         sessionId
       );
       return true;

@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+import { DecryptedRecoveryKeyData } from 'fxa-auth-client/lib/recoveryKey';
 import { V1Credentials, V2Credentials } from './gql-key-stretch-upgrade';
 
 export namespace SensitiveData {
@@ -17,7 +18,7 @@ export namespace SensitiveData {
     AccountReset = 'accountResetData',
     NewRecoveryKey = 'newRecoveryKeyData',
     Password = 'password',
-    KeyStretchUpgrade = 'keyStretchUpgrade'
+    DecryptedRecoveryKey = 'decryptedRecoveryKeyData',
   }
 
   /**
@@ -32,7 +33,7 @@ export namespace SensitiveData {
     accountResetData?: AccountResetData;
     newRecoveryKeyData?: NewRecoveryKeyData;
     password?: Password;
-    keyStretchUpgrade?: KeyStretchUpgradeData;
+    decryptedRecoveryKeyData?: Pick<DecryptedRecoveryKeyData, 'kB'>;
   };
 
   /**
@@ -66,15 +67,6 @@ export namespace SensitiveData {
   export type NewRecoveryKeyData = {
     recoveryKey: Uint8Array;
   };
-
-  /**
-   * Data inserted for the key {@link Key.KeyStretchUpgrade}.
-   */
-  export type KeyStretchUpgradeData = {
-    email: string;
-    v1Credentials: V1Credentials;
-    v2Credentials: V2Credentials;
-  };
 }
 
 /**
@@ -85,12 +77,7 @@ export namespace SensitiveData {
  * @class SensitiveDataClient
  */
 export class SensitiveDataClient {
-  /**
-   * @deprecated
-   */
-  private sensitiveData: { [key: string]: object } = {};
-
-  // TODO: Fast follow, use this pattern instead for simpler and better type safety.
+  // TODO(FXA-10929): Fast follow, use this pattern instead for simpler and better type safety.
   public KeyStretchUpgradeData:
     | {
         email: string;
@@ -104,7 +91,7 @@ export class SensitiveDataClient {
    *
    * @private
    */
-  private newSensitiveData: {
+  private sensitiveData: {
     [key in keyof SensitiveData.DataMap]: SensitiveData.DataMap[key];
   };
 
@@ -115,14 +102,6 @@ export class SensitiveDataClient {
    */
   constructor() {
     this.sensitiveData = {};
-    this.newSensitiveData = {};
-  }
-
-  /**
-   * @deprecated Use {@link setDataType} instead.
-   */
-  setData(key: string, value: any): void {
-    this.sensitiveData[key] = value;
   }
 
   /**
@@ -135,14 +114,7 @@ export class SensitiveDataClient {
     key: T,
     value?: SensitiveData.DataMap[T]
   ): void {
-    this.newSensitiveData[key] = value;
-  }
-
-  /**
-   * @deprecated Use {@link getDataType} instead.
-   */
-  getData(key: string): any {
-    return this.sensitiveData[key];
+    this.sensitiveData[key] = value;
   }
 
   /**
@@ -152,6 +124,6 @@ export class SensitiveDataClient {
    * @returns The corresponding value to the key in the sensitive data object.
    */
   getDataType<T extends SensitiveData.Key>(key: T): SensitiveData.DataMap[T] {
-    return this.newSensitiveData[key];
+    return this.sensitiveData[key];
   }
 }

@@ -45,7 +45,7 @@ function applyDefaultMocks() {
 }
 
 const mockSensitiveDataClient = createMockSensitiveDataClient();
-mockSensitiveDataClient.setData = jest.fn();
+mockSensitiveDataClient.setDataType = jest.fn();
 let mockHasTotpAuthClient = false;
 let mockSessionStatus = 'verified';
 let mockSendLoginPushRequest = jest.fn().mockResolvedValue({});
@@ -110,7 +110,7 @@ function resetMockSensitiveDataClient() {
   (useSensitiveDataClient as jest.Mock).mockImplementation(
     () => mockSensitiveDataClient
   );
-  mockSensitiveDataClient.getData = jest.fn().mockReturnValue({
+  mockSensitiveDataClient.getDataType = jest.fn().mockReturnValue({
     keyFetchToken: MOCK_KEY_FETCH_TOKEN,
     unwrapBKey: MOCK_UNWRAP_BKEY,
   });

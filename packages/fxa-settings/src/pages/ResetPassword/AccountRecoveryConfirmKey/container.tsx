@@ -7,14 +7,18 @@ import { RouteComponentProps, useLocation } from '@reach/router';
 import base32Decode from 'base32-decode';
 
 import { decryptRecoveryKeyData } from 'fxa-auth-client/lib/recoveryKey';
-import { useAccount, useSensitiveDataClient } from '../../../models';
-import { useFtlMsgResolver } from '../../../models/hooks';
+import { useAccount } from '../../../models';
+import {
+  useFtlMsgResolver,
+  useSensitiveDataClient,
+} from '../../../models/hooks';
 
 import { AccountRecoveryConfirmKeyLocationState } from './interfaces';
 
 import AccountRecoveryConfirmKey from '.';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
+import { SensitiveData } from '../../../lib/sensitive-data-client';
 
 const AccountRecoveryConfirmKeyContainer = (_: RouteComponentProps) => {
   const [errorMessage, setErrorMessage] = useState('');
@@ -64,7 +68,10 @@ const AccountRecoveryConfirmKeyContainer = (_: RouteComponentProps) => {
       uid
     );
 
-    sensitiveDataClient.setData('reset', { kB });
+    sensitiveDataClient.setDataType(SensitiveData.Key.DecryptedRecoveryKey, {
+      kB,
+    });
+
     navigate('/account_recovery_reset_password', {
       state: {
         accountResetToken: fetchedAccountResetToken,

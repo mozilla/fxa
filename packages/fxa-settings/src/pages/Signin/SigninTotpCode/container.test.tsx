@@ -139,12 +139,9 @@ function mockVerifyTotp(success: boolean = true, errorOut: boolean = false) {
   ]);
 }
 const mockSensitiveDataClient = createMockSensitiveDataClient();
-mockSensitiveDataClient.getData = jest.fn();
+mockSensitiveDataClient.getDataType = jest.fn();
 function resetMockSensitiveDataClient() {
-  mockSensitiveDataClient.setDataType(
-    SensitiveData.Key.KeyStretchUpgrade,
-    undefined
-  );
+  mockSensitiveDataClient.KeyStretchUpgradeData = undefined;
   (useSensitiveDataClient as jest.Mock).mockImplementation(
     () => mockSensitiveDataClient
   );
@@ -196,7 +193,7 @@ describe('signin totp code container', () => {
   });
 
   it('runs keys stretch upgrade when required', async () => {
-    mockSensitiveDataClient.setDataType(SensitiveData.Key.KeyStretchUpgrade, {
+    mockSensitiveDataClient.KeyStretchUpgradeData = {
       email: MOCK_EMAIL,
       v1Credentials: {
         authPW: MOCK_AUTH_PW,
@@ -207,7 +204,7 @@ describe('signin totp code container', () => {
         unwrapBKey: MOCK_UNWRAP_BKEY_V2,
         clientSalt: MOCK_CLIENT_SALT,
       },
-    });
+    };
     await render();
     expect(SigninTotpCodeModule.SigninTotpCode).toBeCalled();
     const result = await currentPageProps?.submitTotpCode('123456');

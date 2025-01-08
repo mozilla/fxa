@@ -116,6 +116,7 @@ function mockModelsModule() {
   (ModelsModule.useSensitiveDataClient as jest.Mock).mockImplementation(
     () => mockSensitiveDataClient
   );
+  mockSensitiveDataClient.KeyStretchUpgradeData = undefined;
   mockSensitiveDataClient.getDataType = jest.fn().mockReturnValue({
     plainTextPassword: MOCK_PASSWORD,
   });
@@ -186,7 +187,7 @@ describe('signin unblock container', () => {
   });
 
   it('handles signin with with key stretching upgrade', async () => {
-    mockSensitiveDataClient.setDataType(SensitiveData.Key.KeyStretchUpgrade, {
+    mockSensitiveDataClient.KeyStretchUpgradeData = {
       email: MOCK_EMAIL,
       v1Credentials: {
         authPW: MOCK_AUTH_PW,
@@ -197,7 +198,7 @@ describe('signin unblock container', () => {
         unwrapBKey: MOCK_UNWRAP_BKEY_V2,
         clientSalt: MOCK_CLIENT_SALT,
       },
-    });
+    };
 
     await render([
       mockGqlCredentialStatusMutation(),

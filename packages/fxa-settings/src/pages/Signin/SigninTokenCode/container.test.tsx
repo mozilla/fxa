@@ -99,7 +99,7 @@ function resetMockSensitiveDataClient() {
   (useSensitiveDataClient as jest.Mock).mockImplementation(
     () => mockSensitiveDataClient
   );
-  mockSensitiveDataClient.getData = jest.fn().mockReturnValue({
+  mockSensitiveDataClient.getDataType = jest.fn().mockReturnValue({
     keyFetchToken: MOCK_KEY_FETCH_TOKEN,
     unwrapBKey: MOCK_UNWRAP_BKEY,
   });
