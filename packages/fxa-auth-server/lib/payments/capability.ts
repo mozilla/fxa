@@ -324,8 +324,6 @@ export class CapabilityService {
     targetPlanId: string,
     useFirestoreProductConfigs = false
   ): Promise<SubscriptionChangeEligibility> {
-    const cmsEnabled = this.config.cms.enabled;
-
     const allPlansByPlanId = await this.allAbbrevPlansByPlanId();
 
     const targetPlan = allPlansByPlanId[targetPlanId];
@@ -333,6 +331,24 @@ export class CapabilityService {
 
     const [stripeSubscribedPlans, iapSubscribedPlans] =
       await this.getAllSubscribedAbbrevPlans(uid, allPlansByPlanId);
+
+    return this.getSubscribedPlanEligibility(
+      stripeSubscribedPlans,
+      iapSubscribedPlans,
+      targetPlan,
+      useFirestoreProductConfigs,
+      uid
+    );
+  }
+
+  public async getSubscribedPlanEligibility(
+    stripeSubscribedPlans: AbbrevPlan[],
+    iapSubscribedPlans: AbbrevPlan[],
+    targetPlan: AbbrevPlan,
+    useFirestoreProductConfigs = false,
+    uid: string | undefined = undefined
+  ): Promise<SubscriptionChangeEligibility> {
+    const cmsEnabled = this.config.cms.enabled;
 
     if (cmsEnabled) {
       if (!this.eligibilityManager) {
@@ -384,17 +400,17 @@ export class CapabilityService {
         eligibilityManagerResult,
         stripeEligibilityResult,
         uid,
-        targetPlanId,
+        targetPlanId: targetPlan.plan_id,
       });
       Sentry.withScope((scope) => {
         scope.setContext('getPlanEligibility', {
           eligibilityManagerResult,
           stripeEligibilityResult,
           uid,
-          targetPlanId,
+          targetPlanId: targetPlan.plan_id,
         });
         reportSentryMessage(
-          `Eligibility mismatch for ${uid} on ${targetPlanId}`,
+          `Eligibility mismatch for ${uid} on ${targetPlan.plan_id}`,
           'error' as SeverityLevel
         );
       });
