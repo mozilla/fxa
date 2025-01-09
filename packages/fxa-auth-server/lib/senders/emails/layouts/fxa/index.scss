@@ -16,7 +16,6 @@
   align-items: center;
 }
 
-
 .sync-img {
   padding: global.$s-5 global.$s-0 !important;
   height: 137px;
@@ -103,4 +102,14 @@
     @extend %code-common;
     @extend .text-3xl;
   }
+}
+
+.info-block {
+  margin: 20px 0 0 0;
+  background-color: global.$grey-100;
+  border-radius: 10px;
+}
+
+.info-block div {
+  padding: 20px 0 0 0;
 }

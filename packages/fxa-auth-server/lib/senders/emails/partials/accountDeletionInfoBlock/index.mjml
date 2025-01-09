@@ -1,0 +1,20 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<mj-section>
+  <mj-column css-class="info-block">
+    <mj-text css-class="text-sub-body">
+      <span data-l10n-id="account-deletion-info-block-communications">
+        If your account is deleted, you’ll still receive emails from Mozilla Corporation and Mozilla Foundation, unless you <a class="link-blue" href="<%- unsubscribeUrl %>" data-l10n-name="unsubscribeLink">ask to unsubscribe</a>.
+      </span>
+    </mj-text>
+    <%# css-class is not supported for mj-divider and styles must be applied inline %>
+    <mj-divider border-color="#c2c2c2" border-width="2px" padding="10px 0"></mj-divider>
+    <mj-text css-class="text-sub-body">
+      <span data-l10n-id="account-deletion-info-block-support">
+        If you have any questions or need assistance, feel free to contact our <a class="link-blue" href="<%- supportUrl %>" data-l10n-name="supportLink">support team</a>.
+      </span>
+    </mj-text>
+  </mj-column>
+</mj-section>

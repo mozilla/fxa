@@ -1,0 +1,14 @@
+inactiveAccountFirstWarning-title = "Do you want to keep your Mozilla account and data?"
+
+inactiveAccountFirstWarning-account-description = "Your Mozilla account is used to access free privacy and browsing products like Firefox Sync, Monitor, Relay, and MDN."
+
+inactiveAccountFirstWarning-inactive-status = "We noticed you haven’t signed in for 2 years."
+
+inactiveAccountFirstWarning-impact = "Your account and your personal data will be permanently deleted on <%- deletionDate %> because you haven’t been active."
+
+inactiveAccountFirstWarning-action-plaintext = "Sign in to keep your account:"
+<%- link %>
+
+<%- include('/partials/accountDeletionInfoBlock/index.txt') %>
+
+<%- include('/partials/automatedEmailInactiveAccount/index.txt') %>

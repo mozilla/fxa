@@ -16,6 +16,8 @@
 
 # Firefox and Mozilla Brand
 -brand-mozilla = Mozilla
+-brand-mozilla-corporation = Mozilla corporation
+-brand-mozilla-foundation = Mozilla Foundation
 -brand-firefox = Firefox
 
 # "accounts" can be localized and should be lowercase, "Firefox" must be treated as a brand.
@@ -39,6 +41,8 @@
 
 -product-mozilla-vpn = Mozilla VPN
 -product-mozilla-hubs = Mozilla Hubs
+# Mozilla Developer Network
+-product-mdn = MDN
 -product-mdn-plus = MDN Plus
 -product-firefox-cloud = Firefox Cloud
 -product-mozilla-monitor = Mozilla Monitor
