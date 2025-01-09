@@ -1,0 +1,10 @@
+{
+  "subject": {
+    "id": "inactiveAccountFirstWarning-subject",
+    "message": "Donʼt lose your account"
+  },
+  "action": {
+    "id": "inactiveAccountFirstWarning-action",
+    "message": "Sign in to keep your account"
+  }
+}

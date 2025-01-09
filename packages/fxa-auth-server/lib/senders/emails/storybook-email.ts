@@ -29,6 +29,8 @@ const commonArgs = {
   supportUrl:
     'https://support.mozilla.org/kb/im-having-problems-my-firefox-account',
   privacyUrl: 'https://www.mozilla.org/privacy/mozilla-accounts/',
+  unsubscribeUrl:
+    'https://privacyportal.onetrust.com/webform/1350748f-7139-405c-8188-22740b3b5587/4ba08202-2ede-4934-a89e-f0b0870f95f0',
 };
 
 const subplatCommonArgs = {

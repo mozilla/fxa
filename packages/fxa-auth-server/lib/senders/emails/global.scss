@@ -9,6 +9,7 @@ $font-sans: sans-serif;
 $blue-500: #0060df;
 $white: #fff;
 $black: #000;
+$grey-100: #e7e7e7;
 $grey-400: #6d6d6e;
 $grey-500: #4b5563;
 $grey-600: #464646;
@@ -139,8 +140,14 @@ tr > td:first-child {
 %banner-common {
   max-width: 640px !important;
   width: 100% !important;
-  background: linear-gradient(88.76deg, #E4EAF6 3.37%, #DBEEF8 39.93%, #DAF3F4 65.09%, #E3F6ED 102.21%);
-  background-color: #DBEEF8;
+  background: linear-gradient(
+    88.76deg,
+    #e4eaf6 3.37%,
+    #dbeef8 39.93%,
+    #daf3f4 65.09%,
+    #e3f6ed 102.21%
+  );
+  background-color: #dbeef8;
 }
 
 %text-banner-common {
