@@ -81,7 +81,7 @@ export const DropDownAvatarMenu = () => {
                   <Avatar className="w-10" {...{ avatar }} />
                 </div>
                 <p className="leading-5 max-w-full truncate">
-                  <FtlMsg id="drop-down-menu-signed-in-as-2">
+                  <FtlMsg id="drop-down-menu-signed-in-as-v2">
                     <span className="text-grey-400 text-xs">Signed in as</span>
                   </FtlMsg>
                   <span
