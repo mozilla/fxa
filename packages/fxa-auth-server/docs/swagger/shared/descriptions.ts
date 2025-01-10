@@ -46,6 +46,7 @@ const DESCRIPTIONS = {
     'The salt used when creating authPW. If not provided, it will be assumed that version one of the password encryption scheme was used.',
   clientSecret:
     'The OAuth client secret for the requesting client application. Required for confidential clients, forbidden for public clients.',
+  cloudTaskEmailType: 'An email type that can be sent with cloud tasks.',
   code: 'Time based code to verify secondary email',
   codeOauth:
     'A string that the client will trade with the [token][] endpoint. Codes have a configurable expiration value, default is 15 minutes. Codes are single use only.',

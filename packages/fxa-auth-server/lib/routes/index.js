@@ -224,7 +224,7 @@ module.exports = function (
   );
 
   const { cloudTaskRoutes } = require('./cloud-tasks');
-  const cloudTasks = cloudTaskRoutes(log, config);
+  const cloudTasks = cloudTaskRoutes(log, config, statsd);
 
   const { cloudSchedulerRoutes } = require('./cloud-scheduler');
   const cloudScheduler = cloudSchedulerRoutes(log, config, statsd);
