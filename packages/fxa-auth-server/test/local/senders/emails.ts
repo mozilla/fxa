@@ -561,6 +561,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Verify-Short-Code', { test: 'equal', expected: MESSAGE.code }],
     ])],
     ['html', [
+      { test: 'include', expected: 'Use the included code to confirm your Mozilla account.'},
       { test: 'include', expected: 'Confirm your account' },
       { test: 'include', expected: 'Open the internet with Mozilla' },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'welcome', 'privacy')) },

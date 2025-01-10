@@ -391,12 +391,15 @@ module.exports = function (log, config, bounces) {
 
   Mailer.prototype.localize = async function (message) {
     message.layout = message.layout || 'fxa';
-    const { html, text, subject } = await this.renderer.renderEmail(message);
+    const { html, text, subject, preview } = await this.renderer.renderEmail(
+      message
+    );
 
     return {
       html,
       language: determineLocale(message.acceptLanguage),
       subject,
+      preview,
       text,
     };
   };
@@ -471,6 +474,7 @@ module.exports = function (log, config, bounces) {
       from: this.sender,
       to,
       subject: localized.subject,
+      preview: localized.preview,
       text: localized.text,
       html: localized.html,
       xMailer: false,
@@ -621,7 +625,6 @@ module.exports = function (log, config, bounces) {
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
         time,
-        preHeader: 'Copy/paste this code into your registration form.',
       },
     });
   };

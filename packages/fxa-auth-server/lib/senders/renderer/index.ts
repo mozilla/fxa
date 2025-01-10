@@ -23,6 +23,7 @@ const RTL_LOCALES = [
 export interface GlobalTemplateValues {
   subject: FtlIdMsg;
   action?: FtlIdMsg;
+  preview?: FtlIdMsg;
 }
 
 class Renderer extends Localizer {
@@ -79,22 +80,33 @@ class Renderer extends Localizer {
        * `subject` goes inside `mj-title` and `action` goes in a script in `metadata.mjml`
        * 2) We need to return a localized `subject` back to the mailer
        */
-      const { subject, action } = await this.getGlobalTemplateValues(context);
+      const { subject, action, preview } = await this.getGlobalTemplateValues(
+        context
+      );
       const localizeAndRenderSubject = this.localizeAndRender(
         l10n,
         subject,
         context
       );
-      if (action) {
-        const [localizedSubject, localizedAction] = await Promise.all([
-          localizeAndRenderSubject,
-          this.localizeAndRender(l10n, action, context),
-        ]);
 
-        context.subject = localizedSubject;
+      context.subject = await localizeAndRenderSubject;
+
+      if (action) {
+        const localizedAction = await this.localizeAndRender(
+          l10n,
+          action,
+          context
+        );
         context.action = localizedAction;
-      } else {
-        context.subject = await localizeAndRenderSubject;
+      }
+
+      if (preview) {
+        const localizedPreview = await this.localizeAndRender(
+          l10n,
+          preview,
+          context
+        );
+        context.preview = localizedPreview;
       }
     }
 
@@ -123,6 +135,7 @@ class Renderer extends Localizer {
       html: rootElement.outerHTML,
       text: localizedPlaintext,
       subject: context.subject,
+      preview: context.preview || '',
     };
   }
 
