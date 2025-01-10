@@ -9,10 +9,17 @@ module.exports = function (limits, now) {
   now = now || Date.now;
 
   function EmailRecord() {
+    // Code verification
     this.vc = [];
+    // Email Sent
     this.xs = [];
+    // SMS send
     this.sms = [];
+    // Twilio Request
+    this.twilio = [];
+    // Unblock Codes
     this.ub = [];
+    // Failed Logins
     this.lf = [];
   }
 
@@ -26,6 +33,7 @@ module.exports = function (limits, now) {
     rec.vc = object.vc || rec.vc; // timestamps when code verifications happened
     rec.xs = object.xs || rec.xs; // timestamps when emails were sent
     rec.sms = object.sms || rec.sms; // timestamps when sms were sent
+    rec.twilio = object.twilio || rec.twilio; // timestamp when twilio requests were made
     rec.lf = object.lf || rec.lf; // timestamps of when login failed
     rec.pr = object.pr; // timestamp of the last password reset
     rec.ub = object.ub || rec.ub;
@@ -119,6 +127,35 @@ module.exports = function (limits, now) {
     this.sms.push(now());
   };
 
+  EmailRecord.prototype.isOverTwilioLimit = function () {
+    this.trimTwilioRequests(now());
+    return this.twilio.length > limits.maxTwilioRequests;
+  };
+
+  EmailRecord.prototype.trimTwilioRequests = function (now) {
+    if (this.twilio.length === 0) {
+      return;
+    }
+    // twilio is naturally ordered from oldest to newest
+    // and we only need to keep up to limits.maxTwilioRequests + 1
+
+    var i = this.twilio.length - 1;
+    var n = 0;
+    var hit = this.twilio[i];
+
+    while (
+      hit > now - limits.rateLimitIntervalMs &&
+      n <= limits.maxTwilioRequests
+    ) {
+      hit = this.twilio[--i];
+      n++;
+    }
+    this.twilio = this.twilio.slice(i + 1);
+  };
+  EmailRecord.prototype.addTwilioRequest = function () {
+    this.twilio.push(now());
+  };
+
   EmailRecord.prototype.addUnblock = function () {
     this.ub.push(now());
   };
@@ -185,6 +222,7 @@ module.exports = function (limits, now) {
     this.rl = now();
     this.xs = [];
     this.sms = [];
+    this.twilio = [];
   };
 
   EmailRecord.prototype.passwordReset = function () {
@@ -332,6 +370,19 @@ module.exports = function (limits, now) {
       this.addSmsRequest();
       if (this.isOverSmsLimit()) {
         // They're now over the limit, rate-limit and tell them to retry.
+        this.rateLimit();
+        return this.retryAfter();
+      }
+    }
+
+    if (actions.isTwilioAction(action)) {
+      // If they're already being blocked then don't count any more hits,
+      // and tell them to retry.
+      if (this.shouldBlock()) {
+        return this.retryAfter();
+      }
+      this.addTwilioRequest();
+      if (this.isOverTwilioLimit()) {
         this.rateLimit();
         return this.retryAfter();
       }

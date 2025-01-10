@@ -20,6 +20,7 @@ const ALLOWED_PHONE_NUMBER = '13133249901';
 const config = require('../../lib/config').getProperties();
 config.limits.smsRateLimit.limitIntervalSeconds = 1;
 config.limits.smsRateLimit.maxSms = 2;
+config.limits.smsRateLimit.maxTwilioRequests = 2;
 config.limits.ipRateLimitIntervalSeconds = 1;
 config.limits.ipRateLimitBanDurationSeconds = 1;
 config.limits.rateLimitIntervalSeconds = 1;
@@ -350,6 +351,188 @@ test('/check `connectDeviceSms` by email', function (t) {
           email: 'test1@example.com',
           payload: { phoneNumber: '1111111115' },
           action: CONNECT_DEVICE_SMS,
+        });
+      })
+      .spread(function (req, res, obj) {
+        t.equal(res.statusCode, 200, 'returns a 200');
+        t.equal(obj.block, false, 'not rate limited');
+        t.end();
+      })
+      .catch(function (err) {
+        t.fail(err);
+        t.end();
+      })
+  );
+});
+
+test('/check `recoveryPhoneAvailable` by email', function (t) {
+  const action = 'recoveryPhoneAvailable';
+  return (
+    client
+      .postAsync('/check', {
+        ip: TEST_IP,
+        email: 'test1@example.com',
+        action,
+      })
+      .spread(function (req, res, obj) {
+        t.equal(res.statusCode, 200, 'returns a 200');
+        t.equal(obj.block, false, 'not rate limited');
+        return client.postAsync('/check', {
+          ip: TEST_IP,
+          email: 'test1@example.com',
+          action,
+        });
+      })
+      .spread(function (req, res, obj) {
+        t.equal(res.statusCode, 200, 'returns a 200');
+        t.equal(obj.block, false, 'not rate limited');
+        return client.postAsync('/check', {
+          ip: TEST_IP,
+          email: 'test1@example.com',
+          action,
+        });
+      })
+      .spread(function (req, res, obj) {
+        t.equal(res.statusCode, 200, 'returns a 200');
+        t.equal(obj.block, true, 'rate limited');
+        t.equal(obj.retryAfter, 1, 'rate limit retry amount');
+
+        // Delay ~1s for rate limit to go away
+        return Promise.delay(1010);
+      })
+
+      // Reissue requests to verify that throttling is disabled
+      .then(function () {
+        return client.postAsync('/check', {
+          ip: TEST_IP,
+          email: 'test1@example.com',
+          action,
+        });
+      })
+      .spread(function (req, res, obj) {
+        t.equal(res.statusCode, 200, 'returns a 200');
+        t.equal(obj.block, false, 'not rate limited');
+        t.end();
+      })
+      .catch(function (err) {
+        t.fail(err);
+        t.end();
+      })
+  );
+});
+
+test('clear everything', function (t) {
+  mcHelper.clearEverything(function (err) {
+    t.notOk(err, 'no errors were returned');
+    t.end();
+  });
+});
+
+test('/check `recoveryPhoneSendCode` by email', function (t) {
+  const action = 'recoveryPhoneSendCode';
+  return (
+    client
+      .postAsync('/check', {
+        ip: TEST_IP,
+        email: 'test1@example.com',
+        action,
+      })
+      .spread(function (req, res, obj) {
+        t.equal(res.statusCode, 200, 'returns a 200');
+        t.equal(obj.block, false, 'not rate limited');
+        return client.postAsync('/check', {
+          ip: TEST_IP,
+          email: 'test1@example.com',
+          action,
+        });
+      })
+      .spread(function (req, res, obj) {
+        t.equal(res.statusCode, 200, 'returns a 200');
+        t.equal(obj.block, false, 'not rate limited');
+        return client.postAsync('/check', {
+          ip: TEST_IP,
+          email: 'test1@example.com',
+          action,
+        });
+      })
+      .spread(function (req, res, obj) {
+        t.equal(res.statusCode, 200, 'returns a 200');
+        t.equal(obj.block, true, 'rate limited');
+        t.equal(obj.retryAfter, 1, 'rate limit retry amount');
+
+        // Delay ~1s for rate limit to go away
+        return Promise.delay(1010);
+      })
+
+      // Reissue requests to verify that throttling is disabled
+      .then(function () {
+        return client.postAsync('/check', {
+          ip: TEST_IP,
+          email: 'test1@example.com',
+          action,
+        });
+      })
+      .spread(function (req, res, obj) {
+        t.equal(res.statusCode, 200, 'returns a 200');
+        t.equal(obj.block, false, 'not rate limited');
+        t.end();
+      })
+      .catch(function (err) {
+        t.fail(err);
+        t.end();
+      })
+  );
+});
+
+test('clear everything', function (t) {
+  mcHelper.clearEverything(function (err) {
+    t.notOk(err, 'no errors were returned');
+    t.end();
+  });
+});
+
+test('/check `recoveryPhoneCreate` by email', function (t) {
+  const action = 'recoveryPhoneCreate';
+  return (
+    client
+      .postAsync('/check', {
+        ip: TEST_IP,
+        email: 'test1@example.com',
+        action,
+      })
+      .spread(function (req, res, obj) {
+        t.equal(res.statusCode, 200, 'returns a 200');
+        t.equal(obj.block, false, 'not rate limited');
+        return client.postAsync('/check', {
+          ip: TEST_IP,
+          email: 'test1@example.com',
+          action,
+        });
+      })
+      .spread(function (req, res, obj) {
+        t.equal(res.statusCode, 200, 'returns a 200');
+        t.equal(obj.block, false, 'not rate limited');
+        return client.postAsync('/check', {
+          ip: TEST_IP,
+          email: 'test1@example.com',
+          action,
+        });
+      })
+      .spread(function (req, res, obj) {
+        t.equal(res.statusCode, 200, 'returns a 200');
+        t.equal(obj.block, true, 'rate limited');
+        t.equal(obj.retryAfter, 1, 'rate limit retry amount');
+
+        // Delay ~1s for rate limit to go away
+        return Promise.delay(1010);
+      })
+
+      // Reissue requests to verify that throttling is disabled
+      .then(function () {
+        return client.postAsync('/check', {
+          ip: TEST_IP,
+          email: 'test1@example.com',
+          action,
         });
       })
       .spread(function (req, res, obj) {

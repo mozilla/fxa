@@ -158,11 +158,19 @@ module.exports = async function createServer(config, log) {
   });
 
   function isAllowed(ip, email, phoneNumber) {
-    return (
-      allowedIPs.isAllowed(ip) ||
-      allowedEmailDomains.isAllowed(email) ||
-      allowedPhoneNumbers.isAllowed(phoneNumber)
-    );
+    if (allowedIPs.isAllowed(ip)) {
+      return true;
+    }
+
+    if (allowedEmailDomains.isAllowed(email)) {
+      return true;
+    }
+
+    if (allowedPhoneNumbers.isAllowed(phoneNumber)) {
+      return true;
+    }
+
+    return false;
   }
 
   function checkAllowlist(result, ip, email, phoneNumber) {
@@ -409,9 +417,12 @@ module.exports = async function createServer(config, log) {
 
       return fetchRecords({ ip, email, phoneNumber })
         .then(checkRecords)
-        .then((result) =>
-          checkUserDefinedRateLimitRules(result, action, email, ip)
-        )
+        .then((result) => {
+          return checkUserDefinedRateLimitRules(result, action, email, ip);
+        })
+        .then((result) => {
+          return result;
+        })
         .then(createResponse, handleError);
     },
     options: {

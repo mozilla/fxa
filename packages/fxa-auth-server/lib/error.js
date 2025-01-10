@@ -576,6 +576,24 @@ AppError.invalidPhoneNumber = () => {
   });
 };
 
+AppError.recoveryPhoneNumberAlreadyExists = () => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.RECOVERY_PHONE_NUMBER_ALREADY_EXISTS,
+    message: 'Recovery phone number already exists',
+  });
+};
+
+AppError.recoveryPhoneNumberDoesNotExist = () => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.RECOVERY_PHONE_NUMBER_DOES_NOT_EXIST,
+    message: 'Recovery phone number does not exist',
+  });
+};
+
 AppError.invalidRegion = (region) => {
   return new AppError(
     {

@@ -48,7 +48,7 @@ describe('/recovery-phone', () => {
 
   before(() => {
     Container.set(RecoveryPhoneService, mockRecoveryPhoneService);
-    routes = recoveryPhoneRoutes(mockCustoms, mockLog, mockGlean);
+    routes = recoveryPhoneRoutes(mockLog, mockCustoms, mockGlean);
   });
 
   afterEach(() => {
@@ -371,13 +371,13 @@ describe('/recovery-phone', () => {
       const resp = await makeRequest({
         method: 'GET',
         path: '/recovery-phone',
-        credentials: { uid },
+        credentials: { uid, emailVerified: true },
       });
 
       assert.isDefined(resp);
       assert.equal(mockRecoveryPhoneService.hasConfirmed.callCount, 1);
       assert.equal(
-        mockRecoveryPhoneService.removePhoneNumber.getCall(0).args[0],
+        mockRecoveryPhoneService.hasConfirmed.getCall(0).args[0],
         uid
       );
     });
@@ -389,7 +389,7 @@ describe('/recovery-phone', () => {
       const promise = makeRequest({
         method: 'GET',
         path: '/recovery-phone',
-        credentials: { uid },
+        credentials: { uid, emailVerified: true },
       });
 
       await assert.isRejected(promise, 'A backend service request failed.');

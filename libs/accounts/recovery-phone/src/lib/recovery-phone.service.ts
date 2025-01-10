@@ -77,8 +77,8 @@ export class RecoveryPhoneService {
 
     await this.recoveryPhoneManager.storeUnconfirmed(
       uid,
-      phoneNumber,
       code,
+      phoneNumber,
       true
     );
     return true;

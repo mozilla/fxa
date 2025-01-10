@@ -12,6 +12,15 @@ module.exports = (config, Settings, log) => {
     }
 
     isAllowed(email) {
+      // Edge case to allow tests to break out of 'isAllowed' mode
+      // and temporarily activate customs
+      if (email && email.startsWith('enable_customs_')) {
+        return false;
+      }
+
+      // Allow customs to not block certain email domains. This is
+      // useful for testing when customs counts might interfere with
+      // tests.
       var match = /^.+@(.+)$/.exec(email);
       return match ? this.domains[match[1]] : false;
     }

@@ -140,6 +140,11 @@ module.exports = function (fs, path, url, convict) {
           format: 'nat',
           env: 'MAX_SMS',
         },
+        maxTwilioRequests: {
+          doc: 'Number of twilio requests sent within rateLimitIntervalSeconds before throttling',
+          default: 10,
+          env: 'MAX_TWILIO_REQUESTS',
+        },
       },
       uidRateLimit: {
         limitIntervalSeconds: {
