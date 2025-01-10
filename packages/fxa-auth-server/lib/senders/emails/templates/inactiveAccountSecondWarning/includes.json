@@ -1,0 +1,10 @@
+{
+  "subject": {
+    "id": "inactiveAccountSecondWarning-subject",
+    "message": "Action required: Account deletion in 7 days"
+  },
+  "action": {
+    "id": "inactiveAccountSecondWarning-action",
+    "message": "Sign in to keep your account"
+  }
+}
