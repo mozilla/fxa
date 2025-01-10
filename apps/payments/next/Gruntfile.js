@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function(grunt) {
+module.exports = function (grunt) {
   const srcPaths = [
     '.license.header',
     'app/**/*.ftl',
@@ -25,10 +25,6 @@ module.exports = function(grunt) {
       ftl: {
         src: srcPaths,
         dest: 'public/locales/en/payments-next.ftl',
-      },
-      ftlLegacy: {
-        src: srcPaths,
-        dest: 'public/locales/en/payments.ftl',
       },
     },
     http: {
@@ -76,6 +72,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-http');
   grunt.loadNpmTasks('grunt-concurrent');
 
-  grunt.registerTask('merge-ftl', ['copy:branding-ftl', 'concat:ftl', 'concat:ftlLegacy']);
+  grunt.registerTask('merge-ftl', ['copy:branding-ftl', 'concat:ftl']);
   grunt.registerTask('watchers', ['concurrent:dev']);
 };
