@@ -4,6 +4,11 @@
 
 import { BaseError } from '@fxa/shared/error';
 
+// See full list of codes here, https://www.twilio.com/docs/api/errors
+export const TwilioErrorCodes = {
+  ['INVALID_TO_PHONE_NUMBER']: 21211,
+};
+
 export class RecoveryPhoneError extends BaseError {
   constructor(message: string, info: Record<string, any>, cause?: Error) {
     super(message, {

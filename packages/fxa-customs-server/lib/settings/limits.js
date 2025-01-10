@@ -43,6 +43,7 @@ module.exports = (config, Settings, log) => {
         this.uidRateLimit.limitIntervalSeconds * 1000;
       this.smsRateLimit = settings.smsRateLimit || {};
       this.maxSms = settings.smsRateLimit.maxSms;
+      this.maxTwilioRequests = settings.smsRateLimit.maxTwilioRequests;
       this.smsRateLimitIntervalSeconds = this.smsRateLimit.limitIntervalSeconds;
       this.smsRateLimitIntervalMs = this.smsRateLimitIntervalSeconds * 1000;
       this.maxAccountAccess = settings.maxAccountAccess;

@@ -82,8 +82,8 @@ describe('RecoveryPhoneService', () => {
     });
     expect(mockRecoveryPhoneManager.storeUnconfirmed).toBeCalledWith(
       uid,
-      phoneNumber,
       code,
+      phoneNumber,
       true
     );
     expect(result).toBeTruthy();
@@ -277,7 +277,7 @@ describe('RecoveryPhoneService', () => {
       expect(result).toBeFalsy();
     });
 
-    it('should throw error if phone number does not exist', async () => {
+    it('should throw error if recovery phone number does not exist', async () => {
       const error = new RecoveryNumberNotExistsError(uid);
       mockRecoveryPhoneManager.getConfirmedPhoneNumber.mockRejectedValue(error);
       expect(service.sendCode(uid)).rejects.toThrow(error);

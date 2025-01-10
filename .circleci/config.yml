@@ -277,6 +277,12 @@ commands:
           name: Wait for firestore
           command: ./_scripts/check-url.sh localhost:9090;
 
+  wait-for-customs:
+    steps:
+      - run:
+          name: Wait for Customs
+          command: yarn workspace fxa-customs-server start
+
   lint:
     parameters:
       nx_run:
@@ -697,12 +703,21 @@ jobs:
       resource_class:
         type: string
         default: large
+      start_customs:
+        type: boolean
+        default: false
     executor: fullstack-executor
     resource_class: << parameters.resource_class >>
     steps:
       - git-checkout
       - restore-workspace
       - wait-for-infrastructure
+      - run:
+          name: Start customs
+          command: |
+            if [[ "<< parameters.start_customs >>" == "true" ]]; then
+              NODE_ENV=dev yarn workspace fxa-customs-server start
+            fi;
       - run:
           name: Gen keys
           command: |
@@ -995,12 +1010,14 @@ workflows:
           name: Integration Test - Servers - Auth (PR)
           nx_run: affected --base=main --head=$CIRCLE_SHA1
           projects: --exclude '*,!tag:scope:server:auth'
+          start_customs: true
           requires:
             - Build (PR)
       - integration-test:
           name: Integration Test - Servers - Auth V2 (PR)
           nx_run: affected --base=main --head=$CIRCLE_SHA1
           projects: --exclude '*,!tag:scope:server:auth'
+          start_customs: true
           target: -t test-integration-v2
           requires:
             - Build (PR)
@@ -1212,6 +1229,7 @@ workflows:
       - integration-test:
           name: Integration Test - Servers - Auth
           projects: --exclude '*,!tag:scope:server:auth'
+          start_customs: true
           filters:
             branches:
               ignore: /.*/
@@ -1222,6 +1240,7 @@ workflows:
       - integration-test:
           name: Integration Test - Servers - Auth V2
           projects: --exclude '*,!tag:scope:server:auth'
+          start_customs: true
           target: -t test-integration-v2
           filters:
             branches:
@@ -1334,11 +1353,13 @@ workflows:
       - integration-test:
           name: Integration Test - Servers - Auth (nightly)
           projects: --exclude '*,!tag:scope:server:auth'
+          start_customs: true
           requires:
             - Build (nightly)
       - integration-test:
           name: Integration Test - Servers - Auth V2 (nightly)
           projects: --exclude '*,!tag:scope:server:auth'
+          start_customs: true
           target: -t test-integration-v2
           requires:
             - Build (nightly)

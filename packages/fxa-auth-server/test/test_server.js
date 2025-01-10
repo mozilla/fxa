@@ -94,11 +94,17 @@ TestServer.prototype.stop = async function () {
   }
 };
 
-TestServer.prototype.uniqueEmail = function (domain) {
+TestServer.prototype.uniqueEmail = function (domain, enableCustomsChecks) {
   if (!domain) {
     domain = '@restmail.net';
   }
-  return crypto.randomBytes(10).toString('hex') + domain;
+  const base = crypto.randomBytes(10).toString('hex');
+
+  // The enable_customs_ prefix will skip the 'isAllowedEmail' check in customs
+  // that is typically used to by pass customs during testing... This can
+  // be useful if a test that expects customs to activate is run.
+  const prefix = enableCustomsChecks ? 'enable_customs_' : '';
+  return `${prefix}${base}${domain}`;
 };
 
 TestServer.prototype.uniqueUnicodeEmail = function () {
