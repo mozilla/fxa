@@ -26,6 +26,7 @@ import { FinalizeProcessingCartActionArgs } from './validators/finalizeProcessin
 import { SubmitNeedsInputActionArgs } from './validators/SubmitNeedsInputActionArgs';
 import { GetNeedsInputActionArgs } from './validators/GetNeedsInputActionArgs';
 import { ValidatePostalCodeArgs } from './validators/ValidatePostalCodeArgs';
+import { SanitizeExceptions } from '@fxa/shared/error';
 
 /**
  * ANY AND ALL methods exposed via this service should be considered publicly accessible and callable with any arguments.
@@ -102,6 +103,7 @@ export class NextJSActionsService {
     await this.cartService.finalizeProcessingCart(args.cartId);
   }
 
+  @SanitizeExceptions()
   async getPayPalCheckoutToken(args: GetPayPalCheckoutTokenArgs) {
     await new Validator().validateOrReject(args);
 
@@ -132,6 +134,7 @@ export class NextJSActionsService {
     );
   }
 
+  @SanitizeExceptions()
   async fetchCMSData(args: FetchCMSDataArgs) {
     await new Validator().validateOrReject(args);
 
@@ -143,6 +146,7 @@ export class NextJSActionsService {
     return offering;
   }
 
+  @SanitizeExceptions()
   async recordEmitterEvent(args: RecordEmitterEventArgs) {
     await new Validator().validateOrReject(args);
 
@@ -183,10 +187,12 @@ export class NextJSActionsService {
     return await this.cartService.submitNeedsInput(args.cartId);
   }
 
+  @SanitizeExceptions()
   async getMetricsFlow() {
     return this.contentServerManager.getMetricsFlow();
   }
 
+  @SanitizeExceptions()
   async validatePostalCode(args: ValidatePostalCodeArgs) {
     await new Validator().validateOrReject(args);
 
