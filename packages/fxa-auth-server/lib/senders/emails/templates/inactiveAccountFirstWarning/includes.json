@@ -6,5 +6,9 @@
   "action": {
     "id": "inactiveAccountFirstWarning-action",
     "message": "Sign in to keep your account"
+  },
+  "preview": {
+    "id": "inactiveAccountFirstWarning-preview",
+    "message": "Sign in to keep your account"
   }
 }
