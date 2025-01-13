@@ -1,0 +1,33 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-header">
+      <span data-l10n-id="inactiveAccountFirstWarning-title">Do you want to keep your Mozilla account and data?</span>
+    </mj-text>
+  </mj-column>
+</mj-section>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-sub-body">
+      <span data-l10n-id="inactiveAccountFirstWarning-account-description">Your Mozilla account is used to access free privacy and browsing products like Firefox sync, Mozilla Monitor, Firefox Relay, and MDN.</span>
+    </mj-text>
+    <mj-text css-class="text-sub-body">
+      <span data-l10n-id="inactiveAccountFirstWarning-inactive-status">We noticed you haven’t signed in for 2 years.</span>
+    </mj-text>
+    <mj-text css-class="text-sub-body">
+      <span data-l10n-id="inactiveAccountFirstWarning-impact" data-l10n-args="<%= JSON.stringify({deletionDate}) %>">Your account and your personal data will be permanently deleted on <strong>{ $deletionDate }</strong> because you haven’t been active.</span>
+    </mj-text>
+  </mj-column>
+</mj-section>
+
+<%- include('/partials/button/index.mjml', {
+  buttonL10nId: "inactiveAccountFirstWarning-action",
+  buttonText: "Sign in to keep your account"
+}) %>
+
+<%- include('/partials/accountDeletionInfoBlock/index.mjml') %>
+<%- include('/partials/automatedEmailInactiveAccount/index.mjml') %>

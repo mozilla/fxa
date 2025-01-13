@@ -7,7 +7,7 @@ import { storyWithProps } from '../../storybook-email';
 import { MOCK_USER_INFO, MOCK_USER_INFO_ALL } from './mocks';
 
 export default {
-  title: 'Stateful partials/userInfo',
+  title: 'Partials/userInfo',
 } as Meta;
 
 const createStory = storyWithProps(

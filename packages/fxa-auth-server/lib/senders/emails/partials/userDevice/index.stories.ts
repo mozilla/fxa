@@ -13,7 +13,7 @@ import {
 } from './mocks';
 
 export default {
-  title: 'Stateful partials/userInfo/userDevice',
+  title: 'Partials/userInfo/userDevice',
 } as Meta;
 
 const createStory = storyWithProps(
