@@ -7,4 +7,4 @@ inactiveAccountFirstWarning-inactive-status = We noticed you haven’t signed in
 inactiveAccountFirstWarning-impact = Your account and your personal data will be permanently deleted on <strong>{ $deletionDate }</strong> because you haven’t been active.
 inactiveAccountFirstWarning-action = Sign in to keep your account
 # followed by link to sign in
-inactiveAccountFirstWarning-action = Sign in to keep your account:
+inactiveAccountFirstWarning-action-plaintext = Sign in to keep your account:
