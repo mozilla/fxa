@@ -2,5 +2,9 @@
   "subject": {
     "id": "verifyShortCode-subject-3",
     "message": "Confirm your account"
+  },
+  "preview": {
+    "id": "verifyShortCode-preview",
+    "message": "Use the included code to confirm your Mozilla account."
   }
 }

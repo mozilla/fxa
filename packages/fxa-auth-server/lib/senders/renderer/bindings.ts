@@ -58,6 +58,7 @@ export interface RendererContext extends TemplateContext, TemplateValues {
   cssPath: string;
   subject: string;
   action?: string;
+  preview?: string;
 }
 
 export type EjsComponent = {
@@ -83,7 +84,7 @@ export abstract class RendererBindings implements ILocalizerBindings {
 
   /**
    * Renders a mjml template with support for fluent localization.
-   * @param name Name of template
+   * @param template Name of template
    * @param context Contains either values sent through mailer.send or mock values from Storybook
    * @param layout Optional layout, which acts as wrapper for for template
    * @returns Rendered template

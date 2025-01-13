@@ -8,6 +8,7 @@
       <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     </mj-raw>
     <mj-title><%- locals.subject %></mj-title>
+    <mj-preview><%- locals.preview %></mj-preview>
     <%- include('/partials/images.mjml') %>
     <%- include('/partials/metadata.mjml') %>
   </mj-head>
@@ -19,21 +20,6 @@
     <%- include('/partials/brandMessaging/index.mjml') %>
 
     <mj-wrapper css-class="body">
-      <% if (locals.preHeader) { %>
-        <mj-section>
-          <mj-column>
-            <mj-text css-class="hidden">
-              <%- preHeader %>
-              &nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;
-              &nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;
-              &nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;
-              ‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;
-              ‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌‌‌
-            </mj-text>
-          </mj-column>
-        </mj-section>
-      <% } %>
-
       <mj-section css-class="header-container">
         <mj-column>
           <mj-image css-class="subplat-mozilla-logo"

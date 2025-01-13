@@ -7,11 +7,15 @@
     <mj-raw>
       <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     </mj-raw>
+
     <mj-title><%- locals.subject %></mj-title>
+    <% if (locals.preview) { %>
+      <mj-preview><%= locals.preview %></mj-preview>
+    <% } %>
+
     <%- include('/partials/images.mjml') %>
     <%- include('/partials/metadata.mjml') %>
   </mj-head>
-
   <mj-body>
     <mj-include path="<%- locals.cssPath %>/global.css" type="css" css-inline="inline" />
     <mj-include path="<%- locals.cssPath %>/fxa/index.css" type="css" css-inline="inline" />
@@ -21,16 +25,6 @@
     <mj-wrapper css-class="body">
       <mj-section>
         <mj-column>
-          <% if (locals.preHeader) { %>
-            <mj-text css-class="hidden">
-              <%- preHeader %>
-              &nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;
-              &nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;
-              &nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;
-              ‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;
-              ‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌‌‌
-            </mj-text>
-          <% } %>
           <% if (!locals.sync) { %>
             <mj-image css-class="mozilla-logo"
               width="120px"
