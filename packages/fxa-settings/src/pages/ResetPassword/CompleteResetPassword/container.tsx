@@ -338,7 +338,7 @@ const CompleteResetPasswordContainer = ({
     } catch (err) {
       const localizedBannerMessage = getLocalizedErrorMessage(
         ftlMsgResolver,
-        err.error
+        err
       );
       setErrorMessage(localizedBannerMessage);
     }
