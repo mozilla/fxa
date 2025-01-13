@@ -23,7 +23,7 @@ const route = `${SETTINGS_PATH}/two_step_authentication`;
 const replaceCodesRoute = `${route}/replace_codes`;
 
 // These props are temporary for storybook purposes
-// until backup recovery phone feature is enabled.
+// until recovery phone feature is enabled.
 type UnitRowTwoStepAuthProps = {
   backupPhoneSubRowProps?: BackupPhoneSubRowProps;
 };

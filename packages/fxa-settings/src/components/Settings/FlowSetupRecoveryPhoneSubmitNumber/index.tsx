@@ -80,8 +80,8 @@ export const FlowSetupRecoveryPhoneSubmitNumber = ({
       <FormPhoneNumber
         infoBannerContent={{
           localizedDescription: ftlMsgResolver.getMsg(
-            'flow-setup-phone-submit-number-info-message',
-            'Backup recovery phone is only available in the United States and Canada. VoIP numbers and phone masks are not recommended.'
+            'flow-setup-phone-submit-number-info-message-v2',
+            'Recovery phone is only available in the United States and Canada. VoIP numbers and phone masks are not recommended.'
           ),
         }}
         localizedCTAText={ftlMsgResolver.getMsg(

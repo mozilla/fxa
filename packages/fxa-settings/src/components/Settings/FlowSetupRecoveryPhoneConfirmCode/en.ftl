@@ -13,4 +13,4 @@ flow-setup-phone-confirm-code-button = Confirm
 # followed by a button to resend a code
 flow-setup-phone-confirm-code-expired = Code expired?
 flow-setup-phone-confirm-code-resend-code-button = Resend code
-flow-setup-phone-confirm-code-success-message = Backup recovery phone added
+flow-setup-phone-confirm-code-success-message-v2 = Recovery phone added
