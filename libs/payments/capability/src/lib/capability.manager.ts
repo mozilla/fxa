@@ -38,7 +38,7 @@ export class CapabilityManager {
   async priceIdsToClientCapabilities(
     subscribedPrices: string[]
   ): Promise<Record<string, string[]>> {
-    const result: Record<string, string[]> = {};
+    const result: Record<string, Set<string>> = {};
 
     for (const subscribedPrice of subscribedPrices) {
       const purchaseDetails =
@@ -57,13 +57,18 @@ export class CapabilityManager {
         if (!capabilityCollection.services) continue;
 
         for (const capability of capabilityCollection.services) {
-          result[capability.oauthClientId] ||= [];
+          result[capability.oauthClientId] ||= new Set();
 
-          result[capability.oauthClientId].push(capabilityCollection.slug);
+          result[capability.oauthClientId].add(capabilityCollection.slug);
         }
       }
     }
 
-    return result;
+    const output: Record<string, string[]> = {};
+    for (const [clientId, capabilities] of Object.entries(result)) {
+      output[clientId] = Array.from(capabilities);
+    }
+
+    return output;
   }
 }
