@@ -19,7 +19,7 @@ import { AuthClientService } from '../backend/auth-client.service';
 import { ProfileClientService } from '../backend/profile-client.service';
 import { AccountResolver } from './account.resolver';
 import { NotifierService, NotifierSnsService } from '@fxa/shared/notifier';
-import { RecoveryPhoneService } from '../../../../libs/accounts/recovery-phone/src';
+import { RecoveryPhoneService } from '@fxa/accounts/recovery-phone';
 
 let USER_1: any;
 let SESSION_1: any;

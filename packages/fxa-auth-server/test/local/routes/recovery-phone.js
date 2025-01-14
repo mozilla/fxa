@@ -19,7 +19,7 @@ const { mockRequest } = require('../../mocks');
 const { Container } = require('typedi');
 chai.use(chaiAsPromised);
 
-describe('/recovery-phone', () => {
+describe('/recovery_phone', () => {
   const sandbox = sinon.createSandbox();
   const uid = '123435678123435678123435678123435678';
   const email = 'test@mozilla.com';
@@ -67,13 +67,13 @@ describe('/recovery-phone', () => {
     return await route.handler(mockRequest(req));
   }
 
-  describe('POST /recovery-phone/send_code', () => {
+  describe('POST /recovery_phone/signin/send_code', () => {
     it('sends recovery phone code', async () => {
       mockRecoveryPhoneService.sendCode = sinon.fake.returns(true);
 
       const resp = await makeRequest({
         method: 'POST',
-        path: '/recovery-phone/send_code',
+        path: '/recovery_phone/signin/send_code',
         credentials: { uid, email },
       });
 
@@ -98,7 +98,7 @@ describe('/recovery-phone', () => {
 
       const resp = await makeRequest({
         method: 'POST',
-        path: '/recovery-phone/send_code',
+        path: '/recovery_phone/signin/send_code',
         credentials: { uid, email },
       });
 
@@ -118,7 +118,7 @@ describe('/recovery-phone', () => {
 
       const promise = makeRequest({
         method: 'POST',
-        path: '/recovery-phone/send_code',
+        path: '/recovery_phone/signin/send_code',
         credentials: { uid, email },
       });
 
@@ -131,18 +131,22 @@ describe('/recovery-phone', () => {
     });
 
     it('requires session authorization', () => {
-      const route = getRoute(routes, '/recovery-phone/send_code', 'POST');
+      const route = getRoute(
+        routes,
+        '/recovery_phone/signin/send_code',
+        'POST'
+      );
       assert.include(route.options.auth.strategies, 'sessionToken');
     });
   });
 
-  describe('POST /recovery-phone/create', () => {
+  describe('POST /recovery_phone/create', () => {
     it('creates recovery phone number', async () => {
       mockRecoveryPhoneService.setupPhoneNumber = sinon.fake.returns(true);
 
       const resp = await makeRequest({
         method: 'POST',
-        path: '/recovery-phone/create',
+        path: '/recovery_phone/create',
         credentials: { uid, email },
         payload: { phoneNumber },
       });
@@ -171,7 +175,7 @@ describe('/recovery-phone', () => {
 
       const resp = await makeRequest({
         method: 'POST',
-        path: '/recovery-phone/create',
+        path: '/recovery_phone/create',
         credentials: { uid, email },
         payload: { phoneNumber: 'invalid' },
       });
@@ -189,7 +193,7 @@ describe('/recovery-phone', () => {
 
       const promise = makeRequest({
         method: 'POST',
-        path: '/recovery-phone/create',
+        path: '/recovery_phone/create',
         credentials: { uid, email },
         payload: { phoneNumber: '+495550005555' },
       });
@@ -206,7 +210,7 @@ describe('/recovery-phone', () => {
 
       const promise = makeRequest({
         method: 'POST',
-        path: '/recovery-phone/create',
+        path: '/recovery_phone/create',
         credentials: { uid, email },
         payload: { phoneNumber },
       });
@@ -217,7 +221,7 @@ describe('/recovery-phone', () => {
     });
 
     it('validates incoming phone number', () => {
-      const route = getRoute(routes, '/recovery-phone/create', 'POST');
+      const route = getRoute(routes, '/recovery_phone/create', 'POST');
       const joiSchema = route.options.validate.payload;
 
       const validNumber = joiSchema.validate({ phoneNumber: '+15550005555' });
@@ -233,18 +237,18 @@ describe('/recovery-phone', () => {
     });
 
     it('requires session authorization', () => {
-      const route = getRoute(routes, '/recovery-phone/create', 'POST');
+      const route = getRoute(routes, '/recovery_phone/create', 'POST');
       assert.include(route.options.auth.strategies, 'sessionToken');
     });
   });
 
-  describe('POST /recovery-phone/confirm', async () => {
+  describe('POST /recovery_phone/confirm', async () => {
     it('confirms a code', async () => {
       mockRecoveryPhoneService.confirmSetupCode = sinon.fake.returns(true);
 
       const resp = await makeRequest({
         method: 'POST',
-        path: '/recovery-phone/confirm',
+        path: '/recovery_phone/confirm',
         credentials: { uid, email },
         payload: { code },
       });
@@ -267,7 +271,7 @@ describe('/recovery-phone', () => {
       mockRecoveryPhoneService.confirmSetupCode = sinon.fake.returns(false);
       const promise = makeRequest({
         method: 'POST',
-        path: '/recovery-phone/confirm',
+        path: '/recovery_phone/confirm',
         credentials: { uid, email },
         payload: { code },
       });
@@ -282,7 +286,7 @@ describe('/recovery-phone', () => {
       );
       const promise = makeRequest({
         method: 'POST',
-        path: '/recovery-phone/confirm',
+        path: '/recovery_phone/confirm',
         credentials: { uid, email },
         payload: { code },
       });
@@ -292,13 +296,13 @@ describe('/recovery-phone', () => {
     });
   });
 
-  describe('POST /recovery-phone/signin/confirm', async () => {
+  describe('POST /recovery_phone/signin/confirm', async () => {
     it('confirms a code during signin', async () => {
       mockRecoveryPhoneService.confirmSigninCode = sinon.fake.returns(true);
 
       const resp = await makeRequest({
         method: 'POST',
-        path: '/recovery-phone/signin/confirm',
+        path: '/recovery_phone/signin/confirm',
         credentials: { uid, email },
         payload: { code },
       });
@@ -319,13 +323,13 @@ describe('/recovery-phone', () => {
     });
   });
 
-  describe('DELETE /recovery-phone', async () => {
+  describe('DELETE /recovery_phone', async () => {
     it('removes a recovery phone', async () => {
       mockRecoveryPhoneService.removePhoneNumber = sinon.fake.returns(true);
 
       const resp = await makeRequest({
         method: 'DELETE',
-        path: '/recovery-phone',
+        path: '/recovery_phone',
         credentials: { uid, email },
       });
 
@@ -344,7 +348,7 @@ describe('/recovery-phone', () => {
       );
       const promise = makeRequest({
         method: 'DELETE',
-        path: '/recovery-phone',
+        path: '/recovery_phone',
         credentials: { uid, email },
       });
 
@@ -356,20 +360,20 @@ describe('/recovery-phone', () => {
       mockRecoveryPhoneService.removePhoneNumber = sinon.fake.returns(false);
       await makeRequest({
         method: 'DELETE',
-        path: '/recovery-phone',
+        path: '/recovery_phone',
         credentials: { uid, email },
       });
       assert.equal(mockGlean.twoStepAuthPhoneRemove.success.callCount, 0);
     });
   });
 
-  describe('POST /recovery-phone/available', async () => {
+  describe('POST /recovery_phone/available', async () => {
     it('should return true if user can setup phone number', async () => {
       mockRecoveryPhoneService.available = sinon.fake.returns(true);
 
       const resp = await makeRequest({
         method: 'POST',
-        path: '/recovery-phone/available',
+        path: '/recovery_phone/available',
         credentials: { uid, email },
         geo: {
           location: {
@@ -394,7 +398,7 @@ describe('/recovery-phone', () => {
     });
   });
 
-  describe('GET /recovery-phone', async () => {
+  describe('GET /recovery_phone', async () => {
     it('gets a recovery phone', async () => {
       mockRecoveryPhoneService.hasConfirmed = sinon.fake.returns({
         exists: true,
@@ -403,7 +407,7 @@ describe('/recovery-phone', () => {
 
       const resp = await makeRequest({
         method: 'GET',
-        path: '/recovery-phone',
+        path: '/recovery_phone',
         credentials: { uid, emailVerified: true },
       });
 
@@ -421,7 +425,7 @@ describe('/recovery-phone', () => {
       );
       const promise = makeRequest({
         method: 'GET',
-        path: '/recovery-phone',
+        path: '/recovery_phone',
         credentials: { uid, emailVerified: true },
       });
 
@@ -436,7 +440,7 @@ describe('/recovery-phone', () => {
       });
       const resp = await makeRequest({
         method: 'GET',
-        path: '/recovery-phone',
+        path: '/recovery_phone',
         credentials: { uid, mustVerify: true },
       });
       assert.isDefined(resp);
