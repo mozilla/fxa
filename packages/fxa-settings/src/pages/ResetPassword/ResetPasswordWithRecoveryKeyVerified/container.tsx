@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useCallback, useEffect, useState } from 'react';
-import { RouteComponentProps, useLocation } from '@reach/router';
+import { RouteComponentProps } from '@reach/router';
 import { ResetPasswordWithRecoveryKeyVerifiedProps } from './interfaces';
 import { formatRecoveryKey } from '../../../lib/utilities';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
@@ -32,9 +32,6 @@ const ResetPasswordWithRecoveryKeyVerifiedContainer = ({
   const navigateWithQuery = useNavigateWithQuery();
   const sensitiveDataClient = useSensitiveDataClient();
 
-  const location = useLocation();
-  const { email } = location.state as Record<string, string>;
-
   const authClient = useAuthClient();
   const { finishOAuthFlowHandler } = useFinishOAuthFlowHandler(
     authClient,
@@ -44,7 +41,7 @@ const ResetPasswordWithRecoveryKeyVerifiedContainer = ({
     useState<FinishOAuthFlowHandlerResult['error']>();
 
   const account = useAccount();
-  const { uid, sessionToken } = currentAccount() || {};
+  const { uid, sessionToken, email } = currentAccount() || {};
   const updateRecoveryKeyHint = useCallback(
     async (hint: string) => account.updateRecoveryKeyHint(hint),
     [account]
@@ -56,16 +53,19 @@ const ResetPasswordWithRecoveryKeyVerifiedContainer = ({
   )?.recoveryKey;
 
   useEffect(() => {
+    if (!email) {
+      navigateWithQuery('/signin', { replace: true });
+    }
     if (!recoveryKey) {
       // If we get here, that means a password reset was completed (with a verified account).
       // Along the way, we have lost a copy of the recovery key in memory if the page was unloaded.
       // This is fine - we navigate to the confirmed page and carry on.
       navigateWithQuery('/reset_password_verified', { replace: true });
     }
-  }, [recoveryKey, navigateWithQuery]);
+  }, [recoveryKey, email, navigateWithQuery]);
 
-  if (!recoveryKey) {
-    return;
+  if (!recoveryKey || !email) {
+    return <></>;
   }
 
   const newRecoveryKey = formatRecoveryKey(recoveryKey.buffer);
