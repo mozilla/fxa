@@ -8,10 +8,11 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { SmsManager } from './sms.manager';
 import { SmsManagerConfig } from './sms.manger.config';
 import { TwilioProvider } from './twilio.provider';
+import { TwilioErrorCodes } from './recovery-phone.errors';
 
 describe('SmsManager', () => {
   const to = '+15005551111';
-  const from = '+15005550000';
+  const from = ['+15005550000', '+15005550001'];
   const mockTwilioSmsClient = {
     messages: {
       create: jest.fn(),
@@ -27,6 +28,7 @@ describe('SmsManager', () => {
     from,
     validNumberPrefixes: ['+1'],
     maxMessageLength: 160,
+    maxRetries: 2,
   };
 
   let manager: SmsManager;
@@ -68,7 +70,7 @@ describe('SmsManager', () => {
     expect(msg).toBeDefined();
     expect(mockTwilioSmsClient.messages.create).toBeCalledWith({
       to,
-      from,
+      from: from[0],
       body,
     });
     expect(msg?.status).toEqual('sent');
@@ -105,6 +107,62 @@ describe('SmsManager', () => {
     );
   });
 
+  it('Retries if send rate limit exceeded.', async () => {
+    const mockError = new Error();
+    (mockError as any).code = TwilioErrorCodes.SMS_SEND_RATE_LIMIT_EXCEEDED;
+    mockTwilioSmsClient.messages.create.mockRejectedValueOnce(mockError);
+    mockTwilioSmsClient.messages.create.mockReturnValueOnce({
+      sid: 'foo',
+      status: 'sent',
+    });
+    const body = 'test success';
+    const msg = await manager.sendSMS({
+      to,
+      body,
+    });
+
+    expect(msg).toBeDefined();
+    expect(mockTwilioSmsClient.messages.create).toBeCalledWith({
+      to,
+      from: from[0],
+      body,
+    });
+    expect(mockTwilioSmsClient.messages.create).toBeCalledWith({
+      to,
+      from: from[0],
+      body,
+    });
+    expect(mockTwilioSmsClient.messages.create).toBeCalledTimes(2);
+    expect(msg?.status).toEqual('sent');
+    expect(mockLog.log).toBeCalledTimes(1);
+    expect(mockLog.log).toBeCalledWith('SMS sent', {
+      sid: 'foo',
+      status: 'sent',
+    });
+    expect(mockMetrics.increment).toBeCalledTimes(1);
+    expect(mockMetrics.increment).toBeCalledWith('sms.send.sent');
+  });
+
+  it('Retries but eventually fails if send rate limit exceeded.', async () => {
+    const mockError = new Error();
+    (mockError as any).code = TwilioErrorCodes.SMS_SEND_RATE_LIMIT_EXCEEDED;
+
+    mockTwilioSmsClient.messages.create.mockRejectedValue(mockError);
+    const body = 'test success';
+    await expect(
+      manager.sendSMS({
+        to,
+        body,
+      })
+    ).rejects.toThrow(
+      'Too many SMS are currently being sent. Try again later.'
+    );
+
+    expect(mockLog.log).toBeCalledTimes(0);
+    expect(mockMetrics.increment).toBeCalledTimes(1);
+    expect(mockTwilioSmsClient.messages.create).toBeCalledTimes(3); // initial call + config.maxRetries.
+  });
+
   it('Records failure', async () => {
     const boom = new Error('Boom');
     mockTwilioSmsClient.messages.create.mockRejectedValue(boom);
@@ -119,5 +177,14 @@ describe('SmsManager', () => {
 
     expect(mockLog.log).toBeCalledTimes(0);
     expect(mockMetrics.increment).toBeCalledTimes(1);
+  });
+
+  it('Rotates numbers', () => {
+    const number1 = manager.rotateFromNumber();
+    const number2 = manager.rotateFromNumber();
+
+    expect(number1).toBeDefined();
+    expect(number2).toBeDefined();
+    expect(number1).not.toEqual(number2);
   });
 });

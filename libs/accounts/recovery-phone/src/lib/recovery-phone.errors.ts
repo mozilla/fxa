@@ -7,6 +7,7 @@ import { BaseError } from '@fxa/shared/error';
 // See full list of codes here, https://www.twilio.com/docs/api/errors
 export const TwilioErrorCodes = {
   ['INVALID_TO_PHONE_NUMBER']: 21211,
+  ['SMS_SEND_RATE_LIMIT_EXCEEDED']: 14107,
 };
 
 export class RecoveryPhoneError extends BaseError {
@@ -40,5 +41,20 @@ export class RecoveryNumberAlreadyExistsError extends RecoveryPhoneError {
 export class RecoveryNumberNotSupportedError extends RecoveryPhoneError {
   constructor(phoneNumber: string, cause?: Error) {
     super('Phone number not supported.', { phoneNumber }, cause);
+  }
+}
+
+export class SmsSendRateLimitExceededError extends RecoveryPhoneError {
+  constructor(
+    uid: string,
+    toPhoneNumber: string,
+    fromPhoneNumber: string,
+    cause?: Error
+  ) {
+    super(
+      'Too many SMS are currently being sent. Try again later.',
+      { uid, toPhoneNumber, fromPhoneNumber },
+      cause
+    );
   }
 }

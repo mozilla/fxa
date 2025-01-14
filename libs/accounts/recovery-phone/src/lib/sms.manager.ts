@@ -7,16 +7,20 @@ import { StatsDService } from '@fxa/shared/metrics/statsd';
 import { Inject, Injectable, LoggerService } from '@nestjs/common';
 import { StatsD } from 'hot-shots';
 import { Twilio } from 'twilio';
+import { MessageInstance } from 'twilio/lib/rest/api/v2010/account/message';
 import { SmsManagerConfig } from './sms.manger.config';
 import { TwilioProvider } from './twilio.provider';
 import {
   RecoveryNumberInvalidFormatError,
   RecoveryNumberNotSupportedError,
+  SmsSendRateLimitExceededError,
   TwilioErrorCodes,
 } from './recovery-phone.errors';
 
 @Injectable()
 export class SmsManager {
+  private currentPhoneNumber = 0;
+
   constructor(
     @Inject(TwilioProvider) private readonly client: Twilio,
     @Inject(StatsDService) private readonly metrics: StatsD,
@@ -56,12 +60,20 @@ export class SmsManager {
       }
     }
 
+    return await this._sendSMS(to, body, uid, 0);
+  }
+
+  private async _sendSMS(
+    to: string,
+    body: string,
+    uid: string | undefined,
+    retryCount: number
+  ): Promise<MessageInstance> {
+    const from = this.rotateFromNumber();
     try {
       const msg = await this.client.messages.create({
         to,
-        // TODO: Should this just be passed in every time or set from config?
-        //       Will we always send from the same number?
-        from: this.config.from,
+        from,
         body,
       });
       // Typically the message will be in queued status. The following metric and log
@@ -73,12 +85,31 @@ export class SmsManager {
       });
       return msg;
     } catch (err) {
+      if (err.code === TwilioErrorCodes.SMS_SEND_RATE_LIMIT_EXCEEDED) {
+        if (retryCount < this.config.maxRetries) {
+          // Exp back off and try again
+          await new Promise((r) =>
+            setTimeout(r, Math.pow(2, retryCount++) * 1000)
+          );
+          return await this._sendSMS(to, body, uid, retryCount);
+        }
+      }
+
       this.metrics.increment('sms.send.error');
 
       if (err.code === TwilioErrorCodes.INVALID_TO_PHONE_NUMBER) {
         throw new RecoveryNumberInvalidFormatError(uid || '', to, err);
       }
+      if (err.code === TwilioErrorCodes.SMS_SEND_RATE_LIMIT_EXCEEDED) {
+        throw new SmsSendRateLimitExceededError(uid || '', to, from, err);
+      }
       throw err;
     }
+  }
+
+  public rotateFromNumber() {
+    return this.config.from[
+      this.currentPhoneNumber++ % this.config.from.length
+    ];
   }
 }

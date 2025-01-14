@@ -594,6 +594,15 @@ AppError.recoveryPhoneNumberDoesNotExist = () => {
   });
 };
 
+AppError.smsSendRateLimitExceeded = () => {
+  return new AppError({
+    code: 429,
+    error: 'Too many requests',
+    errno: ERRNO.SMS_SEND_RATE_LIMIT_EXCEEDED,
+    message: 'Client has sent too many requests',
+  });
+};
+
 AppError.invalidRegion = (region) => {
   return new AppError(
     {
