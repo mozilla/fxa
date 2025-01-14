@@ -398,6 +398,10 @@ module.exports = (
             // This verification method requires a user to use a third-party
             // application.
             break;
+          case 'sms-2fa':
+            // This verification method requires a user to have a recovery phone
+            // registered
+            break;
           default:
             return await sendVerifyLoginEmail();
         }

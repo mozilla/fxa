@@ -369,9 +369,19 @@ module.exports = (config) => {
     }
   };
 
-  Client.prototype.recoveryPhoneConfirm = async function (code) {
+  Client.prototype.recoveryPhoneConfirmSignin = async function (code) {
     if (this.sessionToken) {
-      const resp = await this.api.recoveryPhoneNumberConfirm(
+      const resp = await this.api.recoveryPhoneNumberConfirmSignin(
+        this.sessionToken,
+        code
+      );
+      return resp;
+    }
+  };
+
+  Client.prototype.recoveryPhoneConfirmSetup = async function (code) {
+    if (this.sessionToken) {
+      const resp = await this.api.recoveryPhoneNumberConfirmSetup(
         this.sessionToken,
         code
       );

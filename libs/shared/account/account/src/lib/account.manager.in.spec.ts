@@ -57,5 +57,13 @@ describe('accountManager', () => {
         accountManager.createAccountStub(email, 1, 'en-US')
       ).rejects.toBeInstanceOf(AccountAlreadyExistsError);
     });
+
+    // TODO: Setup tests for verify session
+    // it.skip('should mark session valid', async () => {
+    //   // TODO: Create an account
+    //   //       Create a session with unverified session
+    //   //       Call verifySession
+    //   //       Validate that session is verified, and unverified session no longer exists.
+    // });
   });
 });

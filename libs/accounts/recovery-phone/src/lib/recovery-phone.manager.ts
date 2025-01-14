@@ -82,7 +82,9 @@ export class RecoveryPhoneManager {
    *
    * @param uid
    */
-  async getConfirmedPhoneNumber(uid: string): Promise<{ phoneNumber: string }> {
+  async getConfirmedPhoneNumber(
+    uid: string
+  ): Promise<{ uid: Buffer; phoneNumber: string }> {
     const uidBuffer = Buffer.from(uid, 'hex');
     const result = await getConfirmedPhoneNumber(this.db, uidBuffer);
     if (!result) {
@@ -161,6 +163,19 @@ export class RecoveryPhoneManager {
     }
 
     return JSON.parse(data);
+  }
+
+  /**
+   * Removes a code from redis. Once a code is validated, it's good to proactively remove it from the database
+   * so it cannot be used again.
+   * @param uid The user's unique identifier
+   * @param code The SMS code associated with this user
+   * @returns
+   */
+  async removeCode(uid: string, code: string) {
+    const redisKey = `${this.redisPrefix}:${uid}:${code}`;
+    const count = await this.redisClient.del(redisKey);
+    return count > 0;
   }
 
   /**

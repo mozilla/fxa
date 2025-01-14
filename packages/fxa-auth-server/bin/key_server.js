@@ -51,6 +51,7 @@ const {
   RecoveryPhoneService,
   TwilioFactory,
 } = require('@fxa/accounts/recovery-phone');
+const { AccountManager } = require('@fxa/shared/account/account');
 const { setupAccountDatabase } = require('@fxa/shared/db/mysql/account');
 const { EmailCloudTaskManager } = require('../lib/email-cloud-tasks');
 
@@ -124,6 +125,10 @@ async function run(config) {
   const accountDatabase = await setupAccountDatabase(
     config.database.mysql.auth
   );
+
+  const accountManager = new AccountManager(accountDatabase);
+  Container.set(AccountManager, accountManager);
+
   const backupCodeManager = new BackupCodeManager(accountDatabase);
   Container.set('BackupCodeManager', backupCodeManager);
 

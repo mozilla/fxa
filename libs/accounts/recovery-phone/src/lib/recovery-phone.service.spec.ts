@@ -29,6 +29,7 @@ describe('RecoveryPhoneService', () => {
     removePhoneNumber: jest.fn(),
     getConfirmedPhoneNumber: jest.fn(),
     hasRecoveryCodes: jest.fn(),
+    removeCode: jest.fn(),
   };
   const mockOtpManager = { generateCode: jest.fn() };
   const mockRecoveryPhoneConfig = {
@@ -157,25 +158,25 @@ describe('RecoveryPhoneService', () => {
     });
   });
 
-  describe('confirm code', () => {
-    it('can confirm valid sms code', async () => {
-      mockRecoveryPhoneManager.getUnconfirmed.mockReturnValue({});
-
-      const result = await service.confirmCode(uid, code);
-
-      expect(result).toBeTruthy();
-      expect(mockRecoveryPhoneManager.getUnconfirmed).toBeCalledWith(uid, code);
-    });
-
+  describe('confirm setup code', () => {
     it('can confirm valid sms code used for setup', async () => {
       mockRecoveryPhoneManager.getUnconfirmed.mockReturnValue({
         isSetup: true,
       });
       mockRecoveryPhoneManager.registerPhoneNumber.mockReturnValue(true);
 
-      const result = await service.confirmCode(uid, code);
+      const result = await service.confirmSetupCode(uid, code);
 
       expect(result).toBeTruthy();
+      expect(mockRecoveryPhoneManager.getUnconfirmed).toBeCalledWith(uid, code);
+    });
+
+    it('will not confirm a valid sms code for signin', async () => {
+      mockRecoveryPhoneManager.getUnconfirmed.mockReturnValue({});
+
+      const result = await service.confirmSetupCode(uid, code);
+
+      expect(result).toBeFalsy();
       expect(mockRecoveryPhoneManager.getUnconfirmed).toBeCalledWith(uid, code);
     });
 
@@ -189,7 +190,7 @@ describe('RecoveryPhoneService', () => {
         phoneNumber: '+15005550000',
       });
 
-      const result = await service.confirmCode(uid, code);
+      const result = await service.confirmSetupCode(uid, code);
 
       expect(result).toEqual(true);
       expect(mockRecoveryPhoneManager.getUnconfirmed).toBeCalledWith(uid, code);
@@ -203,7 +204,7 @@ describe('RecoveryPhoneService', () => {
     it('can indicate invalid sms code', async () => {
       mockRecoveryPhoneManager.getUnconfirmed.mockReturnValue(null);
 
-      const result = await service.confirmCode(uid, code);
+      const result = await service.confirmSetupCode(uid, code);
 
       expect(result).toEqual(false);
       expect(mockRecoveryPhoneManager.getUnconfirmed).toBeCalledWith(uid, code);
@@ -211,7 +212,7 @@ describe('RecoveryPhoneService', () => {
 
     it('throws library error while confirming sms code', () => {
       mockRecoveryPhoneManager.getUnconfirmed.mockRejectedValueOnce(mockError);
-      expect(service.confirmCode(uid, code)).rejects.toEqual(mockError);
+      expect(service.confirmSetupCode(uid, code)).rejects.toEqual(mockError);
     });
 
     it('throws library error while registering phone number for sms code', () => {
@@ -219,7 +220,36 @@ describe('RecoveryPhoneService', () => {
         isSetup: true,
       });
       mockRecoveryPhoneManager.registerPhoneNumber.mockRejectedValue(mockError);
-      expect(service.confirmCode(uid, code)).rejects.toEqual(mockError);
+      expect(service.confirmSetupCode(uid, code)).rejects.toEqual(mockError);
+    });
+  });
+
+  describe('confirm signin code', () => {
+    it('can confirm valid sms code', async () => {
+      mockRecoveryPhoneManager.getUnconfirmed.mockReturnValue({});
+
+      const result = await service.confirmSigninCode(uid, code);
+
+      expect(result).toBeTruthy();
+      expect(mockRecoveryPhoneManager.getUnconfirmed).toBeCalledWith(uid, code);
+    });
+
+    it('will not confirm valid sms code used for setup', async () => {
+      mockRecoveryPhoneManager.getUnconfirmed.mockReturnValue({
+        isSetup: true,
+      });
+
+      const result = await service.confirmSigninCode(uid, code);
+
+      expect(result).toBeFalsy();
+    });
+
+    it('will not confirm unknown sms code used', async () => {
+      mockRecoveryPhoneManager.getUnconfirmed.mockReturnValue(null);
+
+      const result = await service.confirmSigninCode(uid, code);
+
+      expect(result).toBeFalsy();
     });
   });
 

@@ -7,7 +7,12 @@ import { Inject, Injectable } from '@nestjs/common';
 import type { AccountDatabase } from '@fxa/shared/db/mysql/account';
 import { AccountDbProvider } from '@fxa/shared/db/mysql/account';
 
-import { createAccount, getAccounts } from './account.repository';
+import {
+  createAccount,
+  getAccounts,
+  verifyAccountSession,
+  VerificationMethods,
+} from './account.repository';
 import { normalizeEmail, randomBytesAsync } from './account.util';
 import { uuidTransformer } from '@fxa/shared/db/mysql/core';
 
@@ -48,5 +53,18 @@ export class AccountManager {
   async getAccounts(uids: string[]) {
     const bufferUids = uids.map((uid) => uuidTransformer.to(uid));
     return getAccounts(this.db, bufferUids);
+  }
+
+  async verifySession(
+    uid: string,
+    sessionTokenId: string,
+    verificationMethod: VerificationMethods
+  ) {
+    return verifyAccountSession(
+      this.db,
+      uuidTransformer.to(uid),
+      uuidTransformer.to(sessionTokenId),
+      verificationMethod
+    );
   }
 }

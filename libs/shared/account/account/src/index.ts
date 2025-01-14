@@ -3,3 +3,4 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 export * from './lib/account.manager';
 export * from './lib/account.error';
+export { VerificationMethods } from './lib/account.repository';

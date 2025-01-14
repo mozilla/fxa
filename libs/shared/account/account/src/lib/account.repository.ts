@@ -72,3 +72,83 @@ export function getAccounts(db: AccountDatabase, uids: Buffer[]) {
     .where('uid', 'in', uids)
     .execute();
 }
+
+/** See session_token.js in auth server for master list. */
+export enum VerificationMethods {
+  email = 0,
+  email2fa = 1,
+  totp2fa = 2,
+  recoveryCode = 3,
+  sms2fa = 4,
+}
+
+/**
+ * Marks account session as verified
+ * @param db Database instance
+ * @param uid Users id
+ * @param sessionTokenId User's session id
+ * @param verificationMethod, See VerificationMethods
+ */
+export async function verifyAccountSession(
+  db: AccountDatabase,
+  uid: Buffer,
+  sessionTokenId: Buffer,
+  verificationMethod: VerificationMethods
+): Promise<boolean> {
+  // It appears that Date.now() results in the number 'format' as UNIX_TIMESTAMP(NOW(3)) * 1000 used
+  // by the stored procedure.
+  const now = Date.now();
+
+  // Ported from session-token.ts -> verify
+
+  return await db.transaction().execute(async (trx) => {
+    await trx
+      .updateTable('accounts')
+      .set({
+        profileChangedAt: now,
+      })
+      .where('uid', '=', uid)
+      .executeTakeFirstOrThrow();
+
+    // Equivalent of 'verifyTokensWithMethod_3' sproc
+    await trx
+      .updateTable('sessionTokens')
+      .set({
+        verifiedAt: now,
+        verificationMethod: verificationMethod,
+      })
+      .where('tokenId', '=', sessionTokenId)
+      .executeTakeFirstOrThrow();
+
+    // next locate corresponding unverified session tokens
+    const token = await trx
+      .selectFrom('sessionTokens')
+      .innerJoin(
+        'unverifiedTokens',
+        'unverifiedTokens.tokenId',
+        'sessionTokens.tokenId'
+      )
+      .select(['unverifiedTokens.tokenVerificationId as tokenVerificationId'])
+      .where('sessionTokens.tokenId', '=', sessionTokenId)
+      .executeTakeFirst();
+
+    if (token) {
+      // next mark token as verified. Equivalent to 'verifyToken_3' sproc
+      await trx
+        .updateTable('securityEvents')
+        .set({
+          verified: 1,
+        })
+        .where('uid', '=', uid)
+        .where('tokenVerificationId', '=', token.tokenVerificationId)
+        .executeTakeFirstOrThrow();
+      await trx
+        .deleteFrom('unverifiedTokens')
+        .where('uid', '=', uid)
+        .where('tokenVerificationId', '=', token.tokenVerificationId)
+        .executeTakeFirstOrThrow();
+    }
+
+    return true;
+  });
+}

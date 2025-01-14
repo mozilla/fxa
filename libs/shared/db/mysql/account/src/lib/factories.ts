@@ -9,6 +9,9 @@ import {
   AccountCustomer,
   NewCart,
   PaypalCustomer,
+  SessionToken,
+  UnverifiedToken,
+  RecoveryPhone,
 } from './associated-types';
 import { CartEligibilityStatus, CartState } from './kysely-types';
 
@@ -89,6 +92,39 @@ export const AccountFactory = (override?: Partial<Account>): Account => ({
   ...override,
 });
 
+export const SessionTokenFactory = (override?: Partial<SessionToken>) => {
+  return {
+    tokenId: getHexBuffer(32),
+    tokenData: getHexBuffer(32),
+    uid: getHexBuffer(32),
+    createdAt: faker.date.recent().getTime(),
+    uaBrowser: null,
+    uaBrowserVersion: null,
+    uaOS: null,
+    uaOSVersion: null,
+    uaDeviceType: null,
+    lastAccessTime: faker.date.recent().getTime(),
+    uaFormFactor: null,
+    authAt: null,
+    verificationMethod: null,
+    verifiedAt: null,
+    mustVerify: 0,
+    ...override,
+  };
+};
+
+export const UnverifiedTokenFactory = (override?: Partial<UnverifiedToken>) => {
+  return {
+    tokenId: getHexBuffer(32),
+    tokenVerificationId: getHexBuffer(32),
+    uid: getHexBuffer(32),
+    mustVerify: 0,
+    tokenVerificationCodeHash: null,
+    tokenVerificationCodeExpiresAt: null,
+    ...override,
+  };
+};
+
 export const AccountCustomerFactory = (
   override?: Partial<AccountCustomer>
 ): AccountCustomer => ({
@@ -126,5 +162,24 @@ export const PaypalCustomerFactory = (
   status: 'active',
   createdAt: faker.date.recent().getTime(),
   endedAt: null,
+  ...override,
+});
+
+export const RecoveryPhoneFactory = (override?: Partial<RecoveryPhone>) => ({
+  uid: Buffer.from(
+    faker.string.hexadecimal({
+      length: 32,
+      prefix: '',
+      casing: 'lower',
+    }),
+    'hex'
+  ),
+  phoneNumber: faker.phone.number({ style: 'international' }),
+  createdAt: Date.now(),
+  lastConfirmed: Date.now(),
+  lookupData: JSON.stringify({
+    a: 'test',
+    b: 'test2',
+  }),
   ...override,
 });

@@ -21,6 +21,7 @@ const VERIFICATION_METHOD = {
   'email-2fa': 1,
   'totp-2fa': 2,
   'recovery-code': 3,
+  'sms-2fa': 4,
 } as const;
 
 export type VerificationMethod = keyof typeof VERIFICATION_METHOD;
@@ -214,6 +215,7 @@ export class SessionToken extends BaseToken {
     }
   }
 
+  // NOTE: Deprecated. New version exists in
   static async verify(id: string, method: VerificationMethod | number) {
     try {
       await this.transaction(async (txn) => {
