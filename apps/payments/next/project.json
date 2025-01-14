@@ -48,7 +48,6 @@
       "command": "pm2 delete apps/payments/next/pm2.config.js"
     },
     "l10n-merge": {
-      "dependsOn": ["l10n-convert"],
       "command": "yarn grunt --gruntfile='apps/payments/next/Gruntfile.js' merge-ftl"
     },
     "l10n-prime": {
@@ -56,18 +55,10 @@
     },
     "l10n-bundle": {
       "dependsOn": ["l10n-merge"],
-      "command": "./_scripts/l10n/bundle.sh apps/payments/next branding,react,payments"
+      "command": "./_scripts/l10n/bundle.sh apps/payments/next branding,react,payments-next"
     },
     "watchers": {
       "command": "yarn grunt --gruntfile='apps/payments/next/Gruntfile.js' watchers"
-    },
-    "l10n-create": {
-      "dependsOn": ["l10n-merge"],
-      "command": "node -r esbuild-register apps/payments/next/app/_lib/scripts/create-payments-next.ts"
-    },
-    "l10n-convert": {
-      "dependsOn": ["l10n-prime"],
-      "command": "node -r esbuild-register apps/payments/next/app/_lib/scripts/convert.ts"
     },
     "glean-generate": {
       "dependsOn": ["glean-lint"],
