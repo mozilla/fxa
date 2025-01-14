@@ -2,8 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { NextRequest, NextResponse } from 'next/server';
+import { supportedLanguages, DEFAULT_LOCALE } from '@fxa/shared/l10n';
 
 export function middleware(request: NextRequest) {
+  // Handle locale fallback
+  const localeSegment = request.nextUrl.pathname.split('/')[1];
+  if (localeSegment && !supportedLanguages.includes(localeSegment)) {
+    const newPathname = `/${DEFAULT_LOCALE}${request.nextUrl.pathname.substring(
+      localeSegment.length + 1
+    )}`;
+    return NextResponse.redirect(new URL(newPathname, request.url));
+  }
+
   // Read env vars directly from process.env
   // As of 05-15-2024 its not possible to use app/config in middleware
   const accountsStaticCdn = process.env.CSP__ACCOUNTS_STATIC_CDN;
@@ -74,7 +84,8 @@ export const config = {
      * - favicon.ico (favicon file)
      */
     {
-      source: '/((?!api|_next/static|_next/image|favicon.ico).*)',
+      source:
+        '/((?!api|error|_next/static|_next/image|favicon.ico|__heartbeat__|__lbheartbeat__|__version__).*)',
       missing: [
         { type: 'header', key: 'next-router-prefetch' },
         { type: 'header', key: 'purpose', value: 'prefetch' },
