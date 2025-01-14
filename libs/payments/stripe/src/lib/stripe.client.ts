@@ -8,6 +8,7 @@ import { Stripe } from 'stripe';
 import {
   StripeApiList,
   StripeCustomer,
+  StripeCustomerSession,
   StripeDeletedCustomer,
   StripeInvoice,
   StripePaymentIntent,
@@ -78,6 +79,11 @@ export class StripeClient {
     });
 
     return result as StripeResponse<StripeCustomer>;
+  }
+
+  async customersSessionsCreate(params: Stripe.CustomerSessionCreateParams) {
+    const result = await this.stripe.customerSessions.create(params);
+    return result as StripeResponse<StripeCustomerSession>;
   }
 
   async subscriptionsList(params?: Stripe.SubscriptionListParams) {

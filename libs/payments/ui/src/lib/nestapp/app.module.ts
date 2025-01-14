@@ -30,6 +30,7 @@ import {
   ProductManager,
   PromotionCodeManager,
   SubscriptionManager,
+  CustomerSessionManager,
 } from '@fxa/payments/customer';
 import { PaymentsGleanManager } from '@fxa/payments/metrics';
 import { PaymentsGleanFactory } from '@fxa/payments/metrics/provider';
@@ -81,6 +82,7 @@ import { PaymentsEmitterService } from '../emitter/emitter.service';
     ContentServerManager,
     ContentServerClient,
     CustomerManager,
+    CustomerSessionManager,
     CurrencyManager,
     CheckoutService,
     EligibilityManager,

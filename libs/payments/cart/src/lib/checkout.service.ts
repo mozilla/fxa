@@ -119,7 +119,7 @@ export class CheckoutService {
       customer = await this.customerManager.retrieve(stripeCustomerId);
     }
 
-    if (uid && stripeCustomerId) {
+    if (uid && !cart.stripeCustomerId) {
       await this.accountCustomerManager.createAccountCustomer({
         uid,
         stripeCustomerId,
@@ -297,6 +297,7 @@ export class CheckoutService {
       invoice.payment_intent,
       {
         confirmation_token: confirmationTokenId,
+        off_session: false,
       }
     );
 

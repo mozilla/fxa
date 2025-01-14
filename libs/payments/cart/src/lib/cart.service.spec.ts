@@ -19,6 +19,7 @@ import {
 import {
   CouponErrorExpired,
   CustomerManager,
+  CustomerSessionManager,
   InvoiceManager,
   InvoicePreviewFactory,
   PaymentIntentManager,
@@ -41,6 +42,8 @@ import {
   StripeSubscriptionFactory,
   StripePaymentMethodFactory,
   StripePaymentIntentFactory,
+  StripeCustomerSessionFactory,
+  StripeApiListFactory,
 } from '@fxa/payments/stripe';
 import {
   MockProfileClientConfigProvider,
@@ -116,6 +119,7 @@ describe('CartService', () => {
   let cartManager: CartManager;
   let checkoutService: CheckoutService;
   let customerManager: CustomerManager;
+  let customerSessionManager: CustomerSessionManager;
   let currencyManager: CurrencyManager;
   let paymentIntentManager: PaymentIntentManager;
   let promotionCodeManager: PromotionCodeManager;
@@ -140,6 +144,7 @@ describe('CartService', () => {
         CartService,
         CheckoutService,
         CustomerManager,
+        CustomerSessionManager,
         EligibilityManager,
         EligibilityService,
         GeoDBManager,
@@ -184,6 +189,7 @@ describe('CartService', () => {
     cartService = moduleRef.get(CartService);
     checkoutService = moduleRef.get(CheckoutService);
     customerManager = moduleRef.get(CustomerManager);
+    customerSessionManager = moduleRef.get(CustomerSessionManager);
     currencyManager = moduleRef.get(CurrencyManager);
     paymentIntentManager = moduleRef.get(PaymentIntentManager);
     promotionCodeManager = moduleRef.get(PromotionCodeManager);
@@ -694,6 +700,27 @@ describe('CartService', () => {
   });
 
   describe('getCart', () => {
+    const mockCustomerSession = StripeResponseFactory(
+      StripeCustomerSessionFactory()
+    );
+    const mockSubscription = StripeSubscriptionFactory();
+    const mockListSubscriptions = StripeApiListFactory([mockSubscription]);
+    const mockPaymentMethod = StripeResponseFactory(
+      StripePaymentMethodFactory({})
+    );
+
+    beforeEach(() => {
+      jest
+        .spyOn(customerSessionManager, 'create')
+        .mockResolvedValue(mockCustomerSession);
+      jest
+        .spyOn(subscriptionManager, 'listForCustomer')
+        .mockResolvedValue(mockListSubscriptions.data);
+      jest
+        .spyOn(paymentMethodManager, 'retrieve')
+        .mockResolvedValue(mockPaymentMethod);
+    });
+
     it('returns cart and upcomingInvoicePreview', async () => {
       const mockCart = ResultCartFactory({ stripeSubscriptionId: null });
       const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
@@ -713,6 +740,12 @@ describe('CartService', () => {
       expect(result).toEqual({
         ...mockCart,
         upcomingInvoicePreview: mockInvoicePreview,
+        paymentInfo: {
+          type: mockPaymentMethod.type,
+          last4: mockPaymentMethod.card?.last4,
+          brand: mockPaymentMethod.card?.brand,
+          customerSessionClientSecret: mockCustomerSession.client_secret,
+        },
         metricsOptedOut: false,
       });
 
@@ -732,9 +765,6 @@ describe('CartService', () => {
     });
 
     it('returns cart and upcomingInvoicePreview and latestInvoicePreview', async () => {
-      const mockSubscription = StripeResponseFactory(
-        StripeSubscriptionFactory()
-      );
       const mockCart = ResultCartFactory({
         stripeSubscriptionId: mockSubscription.id,
       });
@@ -755,9 +785,6 @@ describe('CartService', () => {
         .spyOn(invoiceManager, 'previewUpcoming')
         .mockResolvedValue(mockUpcomingInvoicePreview);
       jest
-        .spyOn(subscriptionManager, 'retrieve')
-        .mockResolvedValue(mockSubscription);
-      jest
         .spyOn(invoiceManager, 'preview')
         .mockResolvedValue(mockLatestInvoicePreview);
       jest
@@ -774,6 +801,7 @@ describe('CartService', () => {
           type: mockPaymentMethod.type,
           last4: mockPaymentMethod.card?.last4,
           brand: mockPaymentMethod.card?.brand,
+          customerSessionClientSecret: mockCustomerSession.client_secret,
         },
       });
       expect(result.latestInvoicePreview).not.toEqual(

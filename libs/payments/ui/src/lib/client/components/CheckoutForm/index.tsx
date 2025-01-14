@@ -6,12 +6,16 @@
 import { Localized, useLocalization } from '@fluent/react';
 import { PayPalButtons } from '@paypal/react-paypal-js';
 import * as Form from '@radix-ui/react-form';
+import Stripe from 'stripe';
 import {
   PaymentElement,
   useStripe,
   useElements,
 } from '@stripe/react-stripe-js';
-import { StripePaymentElementChangeEvent } from '@stripe/stripe-js';
+import {
+  ConfirmationTokenCreateParams,
+  StripePaymentElementChangeEvent,
+} from '@stripe/stripe-js';
 import Image from 'next/image';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -29,6 +33,7 @@ import {
 } from '@fxa/payments/ui/actions';
 import { CartErrorReasonId } from '@fxa/shared/db/mysql/account/kysely-types';
 import { PaymentProvidersType } from '@fxa/payments/cart';
+import PaypalIcon from '@fxa/shared/assets/images/payment-methods/paypal.svg';
 
 interface CheckoutFormProps {
   cmsCommonContent: {
@@ -46,6 +51,16 @@ interface CheckoutFormProps {
     taxAddress: {
       countryCode: string;
       postalCode: string;
+    };
+    paymentInfo?: {
+      type:
+        | Stripe.PaymentMethod.Type
+        | 'google_iap'
+        | 'apple_iap'
+        | 'external_paypal';
+      last4?: string;
+      brand?: string;
+      customerSessionClientSecret?: string;
     };
   };
   locale: string;
@@ -71,6 +86,9 @@ export function CheckoutForm({
   const [fullName, setFullName] = useState('');
   const [hasFullNameError, setHasFullNameError] = useState(false);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
+  const [isSavedPaymentMethod, setIsSavedPaymentMethod] = useState(
+    !!cart?.paymentInfo?.type
+  );
 
   const engageGlean = useCallbackOnce(() => {
     recordEmitterEventAction(
@@ -99,12 +117,19 @@ export function CheckoutForm({
 
           //Show or hide the PayPal button
           setSelectedPaymentMethod(event?.value?.type || '');
+          setIsSavedPaymentMethod(!!event?.value?.payment_method?.id);
         });
       } else {
         setIsPaymentElementLoading(false);
       }
     }
   }, [elements, stripeFieldsComplete]);
+
+  const showPayPalButton = selectedPaymentMethod === 'external_paypal';
+  const isStripe = cart?.paymentInfo?.type !== 'external_paypal';
+  const showFullNameInput =
+    !isPaymentElementLoading && !showPayPalButton && !isSavedPaymentMethod;
+  const nonStripeFieldsComplete = !showFullNameInput || !!fullName;
 
   const submitHandler = async (
     event: React.SyntheticEvent<HTMLFormElement>
@@ -119,7 +144,36 @@ export function CheckoutForm({
 
     setLoading(true);
 
-    setHasFullNameError(!fullName);
+    if (cart?.paymentInfo?.type === 'external_paypal') {
+      recordEmitterEventAction(
+        'checkoutSubmit',
+        { ...params },
+        Object.fromEntries(searchParams),
+        'external_paypal'
+      );
+
+      await checkoutCartWithPaypal(cart.id, cart.version, {
+        locale,
+        displayName: '',
+      });
+
+      const queryParamString = searchParams.toString()
+        ? `?${searchParams.toString()}`
+        : '';
+      router.push('./processing' + queryParamString);
+
+      return;
+    }
+
+    if (showFullNameInput) {
+      setHasFullNameError(!fullName);
+      if (!fullName) {
+        setLoading(false);
+        return;
+      }
+    } else {
+      setHasFullNameError(false);
+    }
 
     // Trigger form validation and wallet collection
     const { error: submitError } = await elements.submit();
@@ -128,23 +182,27 @@ export function CheckoutForm({
       return;
     }
 
+    const confirmationTokenParams: ConfirmationTokenCreateParams | undefined =
+      !isSavedPaymentMethod
+        ? {
+            payment_method_data: {
+              billing_details: {
+                name: fullName,
+                address: {
+                  country: cart.taxAddress.countryCode,
+                  postal_code: cart.taxAddress.postalCode,
+                },
+              },
+            },
+          }
+        : undefined;
+
     // Create the ConfirmationToken using the details collected by the Payment Element
     // and additional shipping information
     const { error: confirmationTokenError, confirmationToken } =
       await stripe.createConfirmationToken({
         elements,
-        params: {
-          payment_method_data: {
-            allow_redisplay: 'always',
-            billing_details: {
-              name: fullName,
-              address: {
-                country: cart.taxAddress.countryCode,
-                postal_code: cart.taxAddress.postalCode,
-              },
-            },
-          },
-        },
+        params: confirmationTokenParams,
       });
 
     if (confirmationTokenError) {
@@ -174,9 +232,6 @@ export function CheckoutForm({
     router.push('./processing' + queryParamString);
   };
 
-  const nonStripeFieldsComplete = !!fullName;
-  const showPayPalButton = selectedPaymentMethod === 'external_paypal';
-
   return (
     <Form.Root
       aria-label="Checkout form"
@@ -203,74 +258,85 @@ export function CheckoutForm({
         }
         onClick={() => setShowConsentError(true)}
       >
-        {!showPayPalButton && (
-          <Localized id="next-new-user-card-title">
-            <h3 className="font-semibold text-grey-600 text-start">
-              Enter your card information
-            </h3>
-          </Localized>
-        )}
-        {!isPaymentElementLoading && !showPayPalButton && (
-          <Form.Field
-            name="name"
-            serverInvalid={hasFullNameError}
-            className="my-6"
-          >
-            <Form.Label className="text-grey-400 block mb-1 text-start">
-              <Localized id="payment-name-label">
-                Name as it appears on your card
-              </Localized>
-            </Form.Label>
-            <Form.Control asChild>
-              <input
-                className="w-full border rounded-md border-black/30 p-3 placeholder:text-grey-500 placeholder:font-normal focus:border focus:!border-black/30 focus:!shadow-[0_0_0_3px_rgba(10,132,255,0.3)] focus-visible:outline-none data-[invalid=true]:border-alert-red data-[invalid=true]:text-alert-red data-[invalid=true]:shadow-inputError"
-                type="text"
-                data-testid="name"
-                placeholder={l10n.getString(
-                  'payment-name-placeholder',
-                  {},
-                  'Full Name'
-                )}
-                readOnly={!formEnabled}
-                tabIndex={formEnabled ? 0 : -1}
-                value={fullName}
-                onChange={(e) => {
-                  setFullName(e.target.value);
-                  setHasFullNameError(!e.target.value);
-                }}
-                aria-required
-              />
-            </Form.Control>
-            {hasFullNameError && (
-              <Form.Message asChild>
-                <Localized id="next-payment-validate-name-error">
-                  <p className="mt-1 text-alert-red" role="alert">
-                    Please enter your name
-                  </p>
+        {showFullNameInput && (
+          <>
+            <Localized id="next-new-user-card-title">
+              <h3 className="font-semibold text-grey-600 text-start">
+                Enter your card information
+              </h3>
+            </Localized>
+            <Form.Field
+              name="name"
+              serverInvalid={hasFullNameError}
+              className="my-6"
+            >
+              <Form.Label className="text-grey-400 block mb-1 text-start">
+                <Localized id="payment-name-label">
+                  Name as it appears on your card
                 </Localized>
-              </Form.Message>
-            )}
-          </Form.Field>
+              </Form.Label>
+              <Form.Control asChild>
+                <input
+                  className="w-full border rounded-md border-black/30 p-3 placeholder:text-grey-500 placeholder:font-normal focus:border focus:!border-black/30 focus:!shadow-[0_0_0_3px_rgba(10,132,255,0.3)] focus-visible:outline-none data-[invalid=true]:border-alert-red data-[invalid=true]:text-alert-red data-[invalid=true]:shadow-inputError"
+                  type="text"
+                  data-testid="name"
+                  placeholder={l10n.getString(
+                    'payment-name-placeholder',
+                    {},
+                    'Full Name'
+                  )}
+                  readOnly={!formEnabled}
+                  tabIndex={formEnabled ? 0 : -1}
+                  value={fullName}
+                  onChange={(e) => {
+                    setFullName(e.target.value);
+                    setHasFullNameError(!e.target.value);
+                  }}
+                  aria-required
+                />
+              </Form.Control>
+              {hasFullNameError && (
+                <Form.Message asChild>
+                  <Localized id="next-payment-validate-name-error">
+                    <p className="mt-1 text-alert-red" role="alert">
+                      Please enter your name
+                    </p>
+                  </Localized>
+                </Form.Message>
+              )}
+            </Form.Field>
+          </>
         )}
-        <PaymentElement
-          options={{
-            layout: {
-              type: 'accordion',
-              defaultCollapsed: false,
-              radios: false,
-              spacedAccordionItems: true,
-            },
-            readOnly: !formEnabled,
-            fields: {
-              billingDetails: {
-                address: {
-                  country: 'never',
-                  postalCode: 'never',
+        {cart?.paymentInfo?.type === 'external_paypal' ? (
+          <div className="bg-white rounded-lg border border-[#e6e6e6] shadow-stripeBox">
+            <h3 className="p-4 text-sm text-[#0570de] font-semibold">Saved</h3>
+            <div className="p-4 pt-2 rounded-lg">
+              <div className="bg-white p-4 rounded-lg border border-[#e6e6e6] shadow-stripeBox">
+                <Image src={PaypalIcon} alt="paypal" />
+              </div>
+            </div>
+          </div>
+        ) : (
+          <PaymentElement
+            options={{
+              layout: {
+                type: 'accordion',
+                defaultCollapsed: false,
+                radios: false,
+                spacedAccordionItems: true,
+              },
+              readOnly: !formEnabled,
+              fields: {
+                billingDetails: {
+                  address: {
+                    country: 'never',
+                    postalCode: 'never',
+                  },
                 },
               },
-            },
-          }}
-        />
+            }}
+          />
+        )}
         {!isPaymentElementLoading && (
           <Form.Submit asChild>
             {showPayPalButton ? (
@@ -296,6 +362,10 @@ export function CheckoutForm({
                     },
                     data.orderID
                   );
+                  const queryParamString = searchParams.toString()
+                    ? `?${searchParams.toString()}`
+                    : '';
+                  router.push('./processing' + queryParamString);
                 }}
                 onError={async () => {
                   await finalizeCartWithError(
@@ -316,11 +386,20 @@ export function CheckoutForm({
                 type="submit"
                 variant={ButtonVariant.Primary}
                 aria-disabled={
-                  !stripeFieldsComplete || !nonStripeFieldsComplete || loading
+                  !formEnabled ||
+                  (isStripe &&
+                    !(stripeFieldsComplete && nonStripeFieldsComplete)) ||
+                  loading
                 }
               >
                 <Image src={LockImage} className="h-4 w-4 mx-3" alt="" />
-                <Localized id="next-new-user-submit">Subscribe Now</Localized>
+                {isStripe ? (
+                  <Localized id="next-new-user-submit">Subscribe Now</Localized>
+                ) : (
+                  <Localized id="next-pay-with-heading-paypal">
+                    Pay with PayPal
+                  </Localized>
+                )}
               </BaseButton>
             )}
           </Form.Submit>

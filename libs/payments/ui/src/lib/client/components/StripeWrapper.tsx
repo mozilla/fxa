@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 'use client';
 
+import Stripe from 'stripe';
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe, StripeElementsOptions } from '@stripe/stripe-js';
 import { useContext, useState } from 'react';
@@ -11,12 +12,23 @@ import { ConfigContext } from '../providers/ConfigProvider';
 interface StripeWrapperProps {
   amount: number;
   currency: string;
+  paymentInfo?: {
+    type:
+      | Stripe.PaymentMethod.Type
+      | 'google_iap'
+      | 'apple_iap'
+      | 'external_paypal';
+    last4?: string;
+    brand?: string;
+    customerSessionClientSecret?: string;
+  };
   children: React.ReactNode;
 }
 
 export function StripeWrapper({
   amount,
   currency,
+  paymentInfo,
   children,
 }: StripeWrapperProps) {
   const config = useContext(ConfigContext);
@@ -28,6 +40,7 @@ export function StripeWrapper({
     currency,
     paymentMethodCreation: 'manual',
     externalPaymentMethodTypes: ['external_paypal'],
+    customerSessionClientSecret: paymentInfo?.customerSessionClientSecret,
     appearance: {
       variables: {
         fontFamily:
@@ -56,6 +69,13 @@ export function StripeWrapper({
       },
     },
   };
+
+  if (
+    paymentInfo?.type !== 'external_paypal' &&
+    paymentInfo?.customerSessionClientSecret
+  ) {
+    delete options.externalPaymentMethodTypes;
+  }
 
   return (
     <Elements stripe={stripePromise} options={options}>

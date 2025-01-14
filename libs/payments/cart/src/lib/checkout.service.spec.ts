@@ -28,6 +28,7 @@ import {
 } from '@fxa/payments/paypal';
 import {
   CustomerManager,
+  CustomerSessionManager,
   InvoiceManager,
   InvoicePreviewFactory,
   PaymentIntentManager,
@@ -126,6 +127,7 @@ describe('CheckoutService', () => {
         CartService,
         CheckoutService,
         CustomerManager,
+        CustomerSessionManager,
         CurrencyManager,
         EligibilityManager,
         EligibilityService,
@@ -579,7 +581,7 @@ describe('CheckoutService', () => {
       it('calls calls paymentIntentManager.confirm', async () => {
         expect(paymentIntentManager.confirm).toHaveBeenCalledWith(
           mockInvoice.payment_intent,
-          { confirmation_token: mockConfirmationToken.id }
+          { confirmation_token: mockConfirmationToken.id, off_session: false }
         );
       });
 
