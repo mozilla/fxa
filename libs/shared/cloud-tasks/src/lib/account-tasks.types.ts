@@ -3,6 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { CloudTasksConfig } from './cloud-tasks.types';
+import { CloudTaskEmailType } from './send-email-tasks';
+
+export type FxACloudTaskHeaders = {
+  'fxa-cloud-task-delivery-time'?: string;
+};
 
 /** Represents config specific for running cloud tasks */
 export type DeleteAccountCloudTaskConfig = CloudTasksConfig & {
@@ -42,5 +47,5 @@ export type SendEmailCloudTaskConfig = CloudTasksConfig & {
 
 export type SendEmailTaskPayload = {
   uid: string;
-  emailType: string; // @TODO define type
+  emailType: CloudTaskEmailType;
 };

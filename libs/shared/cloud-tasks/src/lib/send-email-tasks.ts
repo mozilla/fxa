@@ -6,10 +6,18 @@ import { StatsD } from 'hot-shots';
 import { CloudTasks } from './cloud-tasks';
 import { CloudTasksClient } from '@google-cloud/tasks';
 import {
+  FxACloudTaskHeaders,
   SendEmailCloudTaskConfig,
   SendEmailTaskPayload,
 } from './account-tasks.types';
 import { CloudTaskOptions } from './cloud-tasks.types';
+
+export enum EmailTypes {
+  INACTIVE_DELETE_FIRST_NOTIFICATION = 'inactiveDeleteFirstNotification',
+}
+export type CloudTaskEmailType = (typeof EmailTypes)[keyof typeof EmailTypes];
+
+const thirtyDaysInMs = 30 * 24 * 60 * 60 * 1000;
 
 export class SendEmailTasks extends CloudTasks {
   constructor(
@@ -25,28 +33,49 @@ export class SendEmailTasks extends CloudTasks {
    *
    * @returns A taskName
    */
-  public async sendEmail(
-    sendEmailTask: SendEmailTaskPayload,
-    taskOptions?: CloudTaskOptions
-  ) {
+  public async sendEmail(task: {
+    payload: SendEmailTaskPayload;
+    emailOptions?: { deliveryTime: number };
+    taskOptions?: CloudTaskOptions;
+  }) {
+    // schedule time is when the task is dispatched and there's a limit of
+    // 30 days.  delivery time is when we want to send the email by
+    // handling the task.
+    const now = Date.now();
+    const inThirtyDays = now + thirtyDaysInMs;
+    const deliveryTime = task.emailOptions?.deliveryTime || now;
+    const scheduleTime = Math.min(deliveryTime, inThirtyDays);
+
+    const taskHeaders: FxACloudTaskHeaders = {
+      'fxa-cloud-task-delivery-time': deliveryTime.toString(),
+    };
+
+    const taskOptions: CloudTaskOptions = {
+      ...task.taskOptions,
+      scheduleTime: {
+        seconds: scheduleTime / 1000,
+      },
+    };
+
     try {
       const result = await this.enqueueTask(
         {
           queueName: this.config.cloudTasks.sendEmails.queueName,
           taskUrl: this.config.cloudTasks.sendEmails.taskUrl,
-          taskPayload: sendEmailTask,
+          taskPayload: task.payload,
+          taskHeaders,
         },
         taskOptions
       );
       const taskName = result[0].name;
 
       this.statsd.increment('cloud-tasks.send-email.enqueue.success', [
-        sendEmailTask.emailType,
+        task.payload.emailType,
       ]);
       return taskName;
     } catch (err) {
       this.statsd.increment('cloud-tasks.send-email.enqueue.failure', [
-        sendEmailTask.emailType,
+        task.payload.emailType,
       ]);
       throw err;
     }

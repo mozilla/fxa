@@ -40,6 +40,7 @@ import { BigQuery } from '@google-cloud/bigquery';
 
 import {
   CloudTaskOptions,
+  EmailTypes,
   SendEmailTaskPayload,
   SendEmailTasksFactory,
 } from '@fxa/shared/cloud-tasks';
@@ -75,7 +76,7 @@ import {
 
 // {{{ constants and defaults
 
-const emailType = 'inactiveDeleteFirstNotification';
+const emailType = EmailTypes.INACTIVE_DELETE_FIRST_NOTIFICATION;
 const defaultDaysTilFirstEmail = 0;
 const defaultResultsLImit = 500000;
 const defaultConcurrency = 100;
@@ -560,17 +561,20 @@ const init = async () => {
           emailType,
         };
         const taskId = `${uid}-inactive-delete-first-email`;
-        const scheduleTime = {
-          seconds: (Date.now() + msTilFirstEmail) / 1000,
+        const taskOptions: CloudTaskOptions = {
+          taskId,
         };
-        const taskOptions: CloudTaskOptions = { taskId, scheduleTime };
 
         try {
           glean.inactiveAccountDeletion.firstEmailTaskRequest(requestForGlean, {
             uid,
           });
 
-          await emailCloudTasks.sendEmail(taskPayload, taskOptions);
+          await emailCloudTasks.sendEmail({
+            payload: taskPayload,
+            emailOptions: { deliveryTime: Date.now() + msTilFirstEmail },
+            taskOptions: taskOptions,
+          });
 
           emailsQueued++;
           glean.inactiveAccountDeletion.firstEmailTaskEnqueued(

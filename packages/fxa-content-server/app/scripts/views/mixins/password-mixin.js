@@ -120,9 +120,13 @@ export default {
   },
 
   getAffectedPasswordInputs(button) {
-    let $passwordEl = this.$(button).siblings('[id*="password"]:not([id^="show-"])');
+    let $passwordEl = this.$(button).siblings(
+      '[id*="password"]:not([id^="show-"])'
+    );
     if (this.$(button).data('synchronizeShow')) {
-      $passwordEl = this.$('[id*="password"]:not([id^="show-"])[data-synchronize-show]');
+      $passwordEl = this.$(
+        '[id*="password"]:not([id^="show-"])[data-synchronize-show]'
+      );
     }
     return $passwordEl;
   },
@@ -209,9 +213,11 @@ export default {
    */
   hideVisiblePasswords() {
     const active = document.activeElement;
-    this.$el.find('[id*="password"][type=text]:not([id^="show-"])').each((index, el) => {
-      this.hidePassword(el);
-    });
+    this.$el
+      .find('[id*="password"][type=text]:not([id^="show-"])')
+      .each((index, el) => {
+        this.hidePassword(el);
+      });
     active.focus();
   },
 

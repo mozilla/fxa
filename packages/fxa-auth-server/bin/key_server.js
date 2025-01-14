@@ -52,6 +52,7 @@ const {
   TwilioFactory,
 } = require('@fxa/accounts/recovery-phone');
 const { setupAccountDatabase } = require('@fxa/shared/db/mysql/account');
+const { EmailCloudTaskManager } = require('../lib/email-cloud-tasks');
 
 async function run(config) {
   Container.set(AppConfig, config);
@@ -256,6 +257,9 @@ async function run(config) {
     pushbox,
   });
   Container.set(AccountDeleteManager, accountDeleteManager);
+
+  const emailCloudTaskManager = new EmailCloudTaskManager({ config, statsd });
+  Container.set(EmailCloudTaskManager, emailCloudTaskManager);
 
   const profile = new ProfileClient(log, {
     ...config.profileServer,

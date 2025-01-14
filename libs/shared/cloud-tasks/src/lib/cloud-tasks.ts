@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { CloudTasksClient } from '@google-cloud/tasks';
 import { CloudTaskOptions, CloudTasksConfig } from './cloud-tasks.types';
+import { FxACloudTaskHeaders } from './account-tasks.types';
 
 /** Base class for encapsulating common cloud task operations */
 export class CloudTasks {
@@ -25,6 +26,7 @@ export class CloudTasks {
   protected async enqueueTask(
     opts: {
       taskPayload: unknown;
+      taskHeaders?: FxACloudTaskHeaders;
       taskUrl: string;
       queueName: string;
     },
@@ -43,7 +45,10 @@ export class CloudTasks {
         httpRequest: {
           url: opts.taskUrl,
           httpMethod: 1, // HttpMethod.POST
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            ...(opts.taskHeaders ?? {}),
+          },
           body: Buffer.from(JSON.stringify(opts.taskPayload)).toString(
             'base64'
           ),

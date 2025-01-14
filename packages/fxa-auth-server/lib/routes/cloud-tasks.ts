@@ -4,6 +4,7 @@
 
 import isA from 'joi';
 import { Container } from 'typedi';
+import { StatsD } from 'hot-shots';
 
 import { ConfigType } from '../../config';
 import DESCRIPTION from '../../docs/swagger/shared/descriptions';
@@ -11,16 +12,19 @@ import { AccountDeleteManager } from '../account-delete';
 import { AuthLogger, AuthRequest } from '../types';
 import validators from './validators';
 
-import { DeleteAccountTask } from '@fxa/shared/cloud-tasks';
+import { DeleteAccountTask, EmailTypes } from '@fxa/shared/cloud-tasks';
+import { EmailCloudTaskManager } from '../email-cloud-tasks';
 
 /** Work around for path module resolution in validator.js which is still using cjs. */
 export { ReasonForDeletion } from '@fxa/shared/cloud-tasks';
 
 export class CloudTaskHandler {
   private accountDeleteManager: AccountDeleteManager;
+  private emailCloudTaskManager: EmailCloudTaskManager;
 
-  constructor(private log: AuthLogger) {
+  constructor(private log: AuthLogger, config: ConfigType, statsd: StatsD) {
     this.accountDeleteManager = Container.get(AccountDeleteManager);
+    this.emailCloudTaskManager = Container.get(EmailCloudTaskManager);
   }
 
   async deleteAccount(taskPayload: DeleteAccountTask) {
@@ -32,11 +36,24 @@ export class CloudTaskHandler {
     );
     return {};
   }
-}
-export const accountDeleteCloudTaskPath = '/cloud-tasks/accounts/delete';
 
-export const cloudTaskRoutes = (log: AuthLogger, config: ConfigType) => {
-  const cloudTaskHandler = new CloudTaskHandler(log);
+  async sendInactiveAccountNotification(request: AuthRequest) {
+    this.log.debug('Received inactive account notification task', request);
+    await this.emailCloudTaskManager.handleInactiveAccountNotification(request);
+    return {};
+  }
+}
+
+export const accountDeleteCloudTaskPath = '/cloud-tasks/accounts/delete';
+export const inactiveNotificationsCloudTaskPath =
+  '/cloud-tasks/emails/notify-inactive';
+
+export const cloudTaskRoutes = (
+  log: AuthLogger,
+  config: ConfigType,
+  statsd: StatsD
+) => {
+  const cloudTaskHandler = new CloudTaskHandler(log, config, statsd);
   const routes = [
     {
       method: 'POST',
@@ -65,6 +82,34 @@ export const cloudTaskRoutes = (log: AuthLogger, config: ConfigType) => {
       },
       handler: (request: AuthRequest) =>
         cloudTaskHandler.deleteAccount(request.payload as DeleteAccountTask),
+    },
+
+    {
+      method: 'POST',
+      path: inactiveNotificationsCloudTaskPath,
+      options: {
+        auth: {
+          mode: config.cloudTasks.useLocalEmulator ? 'try' : 'required',
+          payload: false,
+          strategy: 'cloudTasksOIDC',
+        },
+        validate: {
+          headers: isA.object({
+            'x-cloudtasks-queuename': isA
+              .string()
+              .equal(config.cloudTasks.sendEmails.queueName),
+          }),
+          payload: isA.object({
+            uid: validators.uid.required().description(DESCRIPTION.uid),
+            emailType: isA
+              .string()
+              .valid(...Object.values(EmailTypes))
+              .description(DESCRIPTION.cloudTaskEmailType),
+          }),
+        },
+      },
+      handler: (request: AuthRequest) =>
+        cloudTaskHandler.sendInactiveAccountNotification(request),
     },
   ];
 
