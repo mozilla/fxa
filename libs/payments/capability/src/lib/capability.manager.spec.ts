@@ -227,5 +227,63 @@ describe('CapabilityManager', () => {
         clientId2: ['slug2a', 'slug2b'],
       });
     });
+
+    it('should dedupe capabilities per clientid when user has overlapping plans', async () => {
+      const mockCapabilityOfferingResult = CapabilityOfferingResultFactory({
+        capabilities: [
+          CapabilityCapabilitiesResultFactory({
+            slug: 'slug1',
+            services: [
+              CapabilityServicesResultFactory({
+                oauthClientId: 'clientId1',
+              }),
+            ],
+          }),
+          CapabilityCapabilitiesResultFactory({
+            slug: 'slug2',
+            services: [
+              CapabilityServicesResultFactory({
+                oauthClientId: 'clientId2',
+              }),
+            ],
+          }),
+          CapabilityCapabilitiesResultFactory({
+            slug: 'slug2',
+            services: [
+              CapabilityServicesResultFactory({
+                oauthClientId: 'clientId2',
+              }),
+            ],
+          }),
+        ],
+      });
+      const mockCapabilityPurchaseResult = CapabilityPurchaseResultFactory({
+        stripePlanChoices: [{ stripePlanChoice: 'planId1' }],
+        offering: mockCapabilityOfferingResult,
+      });
+      const mockCapabilityServiceByPlanIdsQuery =
+        CapabilityServiceByPlanIdsQueryFactory({
+          purchases: [mockCapabilityPurchaseResult],
+        });
+      jest
+        .spyOn(
+          productConfigurationManager,
+          'getPurchaseDetailsForCapabilityServiceByPlanIds'
+        )
+        .mockResolvedValue(
+          new CapabilityServiceByPlanIdsResultUtil(
+            mockCapabilityServiceByPlanIdsQuery as CapabilityServiceByPlanIdsResult
+          )
+        );
+
+      const result = await capabilityManager.priceIdsToClientCapabilities([
+        'planId1',
+      ]);
+      expect(Object.keys(result).length).toBe(2);
+      expect(result).toStrictEqual({
+        clientId1: ['slug1'],
+        clientId2: ['slug2'],
+      });
+    });
   });
 });
