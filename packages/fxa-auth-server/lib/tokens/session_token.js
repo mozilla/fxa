@@ -18,6 +18,7 @@ module.exports = (log, Token, config) => {
     [1, 'email-2fa'],
     [2, 'totp-2fa'],
     [3, 'recovery-code'],
+    [4, 'sms-2fa'],
   ]);
 
   class SessionToken extends Token {

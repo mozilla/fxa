@@ -9,7 +9,8 @@ const TestServer = require('../test_server');
 const config = require('../../config').default.getProperties();
 const Redis = require('ioredis');
 const { setupAccountDatabase } = require('@fxa/shared/db/mysql/account');
-
+const otplib = require('otplib');
+const crypto = require('crypto');
 const { assert } = chai;
 chai.use(chaiAsPromised);
 
@@ -29,11 +30,11 @@ const redisUtil = {
     }
   },
   recoveryPhone: {
-    async getCode(uid, index) {
+    async getCode(uid) {
       const redisKey = `recovery-phone:sms-attempt:${uid}:*`;
       const result = await redis.keys(redisKey);
-      assert.equal(result.length, index + 1);
-      const parts = result[index].split(':');
+      assert.equal(result.length, 1);
+      const parts = result[0].split(':');
       return parts[parts.length - 1];
     },
     async clearAll() {
@@ -72,6 +73,13 @@ describe(`#integration - recovery phone`, function () {
     db = await setupAccountDatabase(config.database.mysql.auth);
   });
 
+  async function cleanUp() {
+    await redisUtil.recoveryPhone.clearAll();
+    await db.deleteFrom('accounts').execute();
+    await db.deleteFrom('recoveryPhones').execute();
+    await db.deleteFrom('sessionTokens').execute();
+  }
+
   beforeEach(async function () {
     email = server.uniqueEmail();
     client = await Client.createAndVerify(
@@ -86,8 +94,7 @@ describe(`#integration - recovery phone`, function () {
   });
 
   afterEach(async function () {
-    await redisUtil.recoveryPhone.clearAll();
-    await db.deleteFrom('recoveryPhones').execute();
+    await cleanUp();
   });
 
   after(async () => {
@@ -99,8 +106,8 @@ describe(`#integration - recovery phone`, function () {
       this.skip('Invalid twilio accountSid or authToken. Check env / config!');
     }
     const createResp = await client.recoveryPhoneNumberCreate(phoneNumber);
-    const codeSent = await redisUtil.recoveryPhone.getCode(client.uid, 0);
-    const confirmResp = await client.recoveryPhoneConfirm(codeSent);
+    const codeSent = await redisUtil.recoveryPhone.getCode(client.uid);
+    const confirmResp = await client.recoveryPhoneConfirmSetup(codeSent);
     const checkResp = await client.recoveryPhoneNumber();
 
     assert.equal(createResp.status, 'success');
@@ -110,25 +117,53 @@ describe(`#integration - recovery phone`, function () {
     assert.equal(checkResp.phoneNumber, phoneNumber);
   });
 
-  it('can send, confirm code, and verify session', async function () {
+  it('can send, confirm code, verify session, and remove totp', async function () {
     if (!isTwilioConfigured) {
       this.skip('Invalid twilio accountSid or authToken. Check env / config!');
     }
-    // The phone must be registered first
-    await client.recoveryPhoneNumberCreate(phoneNumber);
-    const code1 = await redisUtil.recoveryPhone.getCode(client.uid, 0);
-    await client.recoveryPhoneConfirm(code1);
 
-    // Now we can send a code
+    // Add totp to account
+    client.totpAuthenticator = new otplib.authenticator.Authenticator();
+    const totpResult = await client.createTotpToken();
+    client.totpAuthenticator.options = {
+      secret: totpResult.secret,
+      crypto: crypto,
+    };
+    await client.verifyTotpCode(client.totpAuthenticator.generate());
+
+    // Add recovery phone
+    await client.recoveryPhoneNumberCreate(phoneNumber);
+    await client.recoveryPhoneConfirmSetup(
+      await redisUtil.recoveryPhone.getCode(client.uid)
+    );
+
+    // Log back capture session status. It should be unverified, since we
+    // added totp
+    await client.destroySession();
+    client = await Client.login(config.publicUrl, email, password, {
+      version: 'V2',
+    });
+    const sessionStatus1 = await client.sessionStatus();
+    const totpExistsResp1 = await client.checkTotpTokenExists();
+
+    // Try sending a recovery phone code and confirming it. This should
+    // Put the session back into a verified state acting as a fallback
+    // for totp
     const sendResp = await client.recoveryPhoneSendCode();
-    const code2 = await redisUtil.recoveryPhone.getCode(client.uid, 1);
-    // TODO: FXA-10945
-    // const confirmResp = await client.recoveryPhoneConfirm(code2);
+    const confirmResp2 = await client.recoveryPhoneConfirmSignin(
+      await redisUtil.recoveryPhone.getCode(client.uid)
+    );
+    const sessionStatus2 = await client.sessionStatus();
+
+    await client.deleteTotpToken();
+    const totpExistsResp2 = await client.checkTotpTokenExists();
 
     assert.equal(sendResp.status, 'success');
-    assert.isDefined(code2);
-    // assert.equal(confirmResp.status, 'success');
-    // TODO: Check session verified.
+    assert.equal(confirmResp2.status, 'success');
+    assert.equal(sessionStatus2.state, 'verified');
+    assert.equal(sessionStatus1.state, 'unverified');
+    assert.equal(totpExistsResp1.exists, true);
+    assert.equal(totpExistsResp2.exists, false);
   });
 
   it('can remove recovery phone', async function () {
@@ -136,8 +171,8 @@ describe(`#integration - recovery phone`, function () {
       this.skip('Invalid twilio accountSid or authToken. Check env / config!');
     }
     await client.recoveryPhoneNumberCreate(phoneNumber);
-    await client.recoveryPhoneConfirm(
-      await redisUtil.recoveryPhone.getCode(client.uid, 0)
+    await client.recoveryPhoneConfirmSetup(
+      await redisUtil.recoveryPhone.getCode(client.uid)
     );
     const checkResp = await client.recoveryPhoneNumber();
     const destroyResp = await client.recoveryPhoneDestroy();
@@ -197,17 +232,37 @@ describe(`#integration - recovery phone`, function () {
       this.skip('Invalid twilio accountSid or authToken. Check env / config!');
     }
     await client.recoveryPhoneNumberCreate(phoneNumber);
-    const code = await redisUtil.recoveryPhone.getCode(client.uid, 0);
-    await client.recoveryPhoneConfirm(code);
+    const code = await redisUtil.recoveryPhone.getCode(client.uid);
+    await client.recoveryPhoneConfirmSetup(code);
 
     let error;
     try {
-      await client.recoveryPhoneConfirm(code);
+      await client.recoveryPhoneNumberCreate(phoneNumber);
+      const code = await redisUtil.recoveryPhone.getCode(client.uid);
+      await client.recoveryPhoneConfirmSetup(code);
     } catch (err) {
       error = err;
     }
 
     assert.equal(error.message, 'Recovery phone number already exists');
+  });
+
+  it('fails to use the same code again', async function () {
+    if (!isTwilioConfigured) {
+      this.skip('Invalid twilio accountSid or authToken. Check env / config!');
+    }
+    await client.recoveryPhoneNumberCreate(phoneNumber);
+    const code = await redisUtil.recoveryPhone.getCode(client.uid);
+    await client.recoveryPhoneConfirmSetup(code);
+
+    let error;
+    try {
+      await client.recoveryPhoneConfirmSetup(code);
+    } catch (err) {
+      error = err;
+    }
+
+    assert.equal(error.message, 'Invalid or expired confirmation code');
   });
 });
 
@@ -263,14 +318,14 @@ describe(`#integration - recovery phone - customs checks`, function () {
     // Send 8 more codes, for a total of 9 codes.
     for (let i = 0; i < 9; i++) {
       try {
-        await client.recoveryPhoneConfirm('000001');
+        await client.recoveryPhoneConfirmSetup('000001');
       } catch {}
     }
 
     // The 10th code should get throttled.
     let error;
     try {
-      await client.recoveryPhoneConfirm('000001');
+      await client.recoveryPhoneConfirmSetup('000001');
     } catch (err) {
       error = err;
     }
@@ -285,7 +340,7 @@ describe(`#integration - recovery phone - customs checks`, function () {
 
     await client.recoveryPhoneNumberCreate(phoneNumber);
     const codeSent = await redisUtil.recoveryPhone.getCode(client.uid, 0);
-    await client.recoveryPhoneConfirm(codeSent);
+    await client.recoveryPhoneConfirmSetup(codeSent);
 
     let error;
     try {

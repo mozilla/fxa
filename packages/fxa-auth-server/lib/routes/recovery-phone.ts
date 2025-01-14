@@ -9,6 +9,10 @@ import {
   RecoveryNumberAlreadyExistsError,
   RecoveryNumberNotExistsError,
 } from '@fxa/accounts/recovery-phone';
+import {
+  AccountManager,
+  VerificationMethods,
+} from '@fxa/shared/account/account';
 import * as isA from 'joi';
 import { GleanMetricsType } from '../metrics/glean';
 import { AuthLogger, AuthRequest, SessionTokenAuthCredential } from '../types';
@@ -28,6 +32,7 @@ export type Customs = {
 
 class RecoveryPhoneHandler {
   private readonly recoveryPhoneService: RecoveryPhoneService;
+  private readonly accountManager: AccountManager;
 
   constructor(
     private readonly customs: Customs,
@@ -35,6 +40,7 @@ class RecoveryPhoneHandler {
     private readonly glean: GleanMetricsType
   ) {
     this.recoveryPhoneService = Container.get(RecoveryPhoneService);
+    this.accountManager = Container.get(AccountManager);
   }
 
   async sendCode(request: AuthRequest) {
@@ -116,9 +122,13 @@ class RecoveryPhoneHandler {
     }
   }
 
-  async confirm(request: AuthRequest) {
-    const { uid, email } = request.auth
-      .credentials as SessionTokenAuthCredential;
+  async confirmCode(request: AuthRequest, isSetup: boolean) {
+    const {
+      id: sessionTokenId,
+      uid,
+      email,
+    } = request.auth.credentials as SessionTokenAuthCredential;
+
     const { code } = request.payload as unknown as {
       code: string;
     };
@@ -131,7 +141,26 @@ class RecoveryPhoneHandler {
 
     let success = false;
     try {
-      success = await this.recoveryPhoneService.confirmCode(uid, code);
+      if (isSetup) {
+        // This is the initial setup case, where a user is validating an sms
+        // code on their phone for the first time. It does NOT impact the totp
+        // token's database state.
+        success = await this.recoveryPhoneService.confirmSetupCode(uid, code);
+      } else {
+        // This is a sign in attempt. This will check the code, and if valid, mark the
+        // session token verified. This session will have a security level that allows
+        // the user to remove totp devices.
+        success = await this.recoveryPhoneService.confirmSigninCode(uid, code);
+
+        // Mark session as verified
+        if (success) {
+          await this.accountManager.verifySession(
+            uid,
+            sessionTokenId,
+            VerificationMethods.sms2fa
+          );
+        }
+      }
     } catch (error) {
       if (error instanceof RecoveryNumberAlreadyExistsError) {
         throw AppError.recoveryPhoneNumberAlreadyExists();
@@ -287,7 +316,7 @@ export const recoveryPhoneRoutes = (
         },
       },
       handler: function (request: AuthRequest) {
-        return recoveryPhoneHandler.confirm(request);
+        return recoveryPhoneHandler.confirmCode(request, true);
       },
     },
     {
@@ -300,6 +329,18 @@ export const recoveryPhoneRoutes = (
       },
       handler: function (request: AuthRequest) {
         return recoveryPhoneHandler.sendCode(request);
+      },
+    },
+    {
+      method: 'POST',
+      path: '/recovery-phone/signin/confirm',
+      options: {
+        auth: {
+          strategies: ['sessionToken'],
+        },
+      },
+      handler: function (request: AuthRequest) {
+        return recoveryPhoneHandler.confirmCode(request, false);
       },
     },
     {

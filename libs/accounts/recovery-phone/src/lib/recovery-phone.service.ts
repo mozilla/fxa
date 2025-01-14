@@ -91,7 +91,7 @@ export class RecoveryPhoneService {
    * @param code A otp code
    * @returns True if successful
    */
-  public async confirmCode(uid: string, code: string) {
+  public async confirmSetupCode(uid: string, code: string) {
     const data = await this.recoveryPhoneManager.getUnconfirmed(uid, code);
 
     // If there is no data, it means there's no record of this code being sent to the uid provided
@@ -99,19 +99,44 @@ export class RecoveryPhoneService {
       return false;
     }
 
-    // If this was for a setup operation. Register the phone number to the uid.
-    if (data.isSetup === true) {
-      const lookupData = await this.smsManager.phoneNumberLookup(
-        data.phoneNumber
-      );
-      await this.recoveryPhoneManager.registerPhoneNumber(
-        uid,
-        data.phoneNumber,
-        lookupData
-      );
+    // The code must be intended for a setup, ie recovery phone create, action.
+    if (data.isSetup !== true) {
+      return false;
     }
 
+    // If this was for a setup operation. Register the phone number to the uid.
+    const lookupData = await this.smsManager.phoneNumberLookup(
+      data.phoneNumber
+    );
+    await this.recoveryPhoneManager.registerPhoneNumber(
+      uid,
+      data.phoneNumber,
+      lookupData
+    );
+
+    // The code was valid. Remove entry. It cannot be used again.
+    await this.recoveryPhoneManager.removeCode(uid, code);
+
     // There was a record matching, the uid / code. The confirmation was successful.
+    return true;
+  }
+
+  public async confirmSigninCode(uid: string, code: string) {
+    const data = await this.recoveryPhoneManager.getUnconfirmed(uid, code);
+
+    // If there is no data, it means there's no record of this code being sent to the uid provided
+    if (data == null) {
+      return false;
+    }
+
+    // A code intended for setup, cannot be used for sign in.
+    if (data.isSetup === true) {
+      return false;
+    }
+
+    // The code was valid. Remove entry. It cannot be used again.
+    await this.recoveryPhoneManager.removeCode(uid, code);
+
     return true;
   }
 

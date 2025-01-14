@@ -46,6 +46,7 @@ export interface AuthApp extends RequestApplicationState {
 
 // Type declaration for SessionToken found in lib/tokens/session_token.js
 export interface SessionTokenAuthCredential {
+  id: string;
   uid: string;
   lifetime: number;
   createdAt: number;

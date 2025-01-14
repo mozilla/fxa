@@ -11,11 +11,22 @@ import {
   Accounts,
   Carts,
   PaypalCustomers,
+  SessionTokens,
+  UnverifiedTokens,
+  RecoveryPhones,
 } from './kysely-types';
 
 export type Account = Selectable<Accounts>;
 export type NewAccount = Insertable<Accounts>;
 export type AccountUpdate = Updateable<Accounts>;
+
+export type UnverifiedToken = Selectable<UnverifiedTokens>;
+export type NewUnverifiedToken = Insertable<UnverifiedTokens>;
+export type UnverifiedTokenUpdate = Updateable<UnverifiedTokens>;
+
+export type SessionToken = Selectable<SessionTokens>;
+export type NewSessionToken = Insertable<SessionToken>;
+export type SessionTokenUpdate = Updateable<SessionToken>;
 
 export type AccountCustomer = Selectable<AccountCustomers>;
 export type NewAccountCustomer = Insertable<AccountCustomers>;
@@ -28,3 +39,7 @@ export type PaypalCustomerUpdate = Updateable<PaypalCustomers>;
 export type Cart = Selectable<Carts>;
 export type NewCart = Insertable<Carts>;
 export type CartUpdate = Updateable<Carts>;
+
+export type RecoveryPhone = Selectable<RecoveryPhones>;
+export type NewRecoveryPhone = Insertable<RecoveryPhones>;
+export type RecoveryPhoneUpdate = Updateable<RecoveryPhones>;

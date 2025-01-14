@@ -971,7 +971,7 @@ module.exports = (config) => {
     );
   };
 
-  ClientApi.prototype.recoveryPhoneNumberConfirm = async function (
+  ClientApi.prototype.recoveryPhoneNumberConfirmSetup = async function (
     sessionTokenHex,
     code
   ) {
@@ -979,6 +979,21 @@ module.exports = (config) => {
     return await this.doRequest(
       'POST',
       `${this.baseURL}/recovery-phone/confirm`,
+      token,
+      {
+        code,
+      }
+    );
+  };
+
+  ClientApi.prototype.recoveryPhoneNumberConfirmSignin = async function (
+    sessionTokenHex,
+    code
+  ) {
+    const token = await tokens.SessionToken.fromHex(sessionTokenHex);
+    return await this.doRequest(
+      'POST',
+      `${this.baseURL}/recovery-phone/signin/confirm`,
       token,
       {
         code,

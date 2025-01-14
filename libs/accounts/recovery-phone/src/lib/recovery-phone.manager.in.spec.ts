@@ -8,7 +8,6 @@ import {
   testAccountDatabaseSetup,
 } from '@fxa/shared/db/mysql/account';
 import { Test } from '@nestjs/testing';
-import { RecoveryPhoneFactory } from './recovery-phone.factories';
 
 describe('RecoveryPhoneManager', () => {
   let recoveryPhoneManager: RecoveryPhoneManager;
@@ -57,7 +56,7 @@ describe('RecoveryPhoneManager', () => {
           useValue: db,
         },
         {
-          provide: 'Redis',
+          provide: 'RecoveryPhoneRedis',
           useValue: mockRedis,
         },
       ],

@@ -96,6 +96,7 @@ async function create(log, error, config, routes, db, statsd, glean) {
 
       return (async () => {
         const token = await dbGetFn(id);
+
         if (!token.expired(Date.now())) {
           return token;
         }

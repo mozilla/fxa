@@ -4,6 +4,7 @@
 
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
+const { AccountManager } = require('@fxa/shared/account/account');
 
 const sinon = require('sinon');
 const assert = { ...sinon.assert, ...chai.assert };
@@ -40,14 +41,19 @@ describe('/recovery-phone', () => {
   };
   const mockRecoveryPhoneService = {
     setupPhoneNumber: sandbox.fake(),
-    confirmCode: sandbox.fake(),
+    confirmSigninCode: sandbox.fake(),
+    confirmSetupCode: sandbox.fake(),
     removePhoneNumber: sandbox.fake(),
     hasConfirmed: sandbox.fake(),
+  };
+  const mockAccountManager = {
+    verifySession: sandbox.fake(),
   };
   let routes = [];
 
   before(() => {
     Container.set(RecoveryPhoneService, mockRecoveryPhoneService);
+    Container.set(AccountManager, mockAccountManager);
     routes = recoveryPhoneRoutes(mockLog, mockCustoms, mockGlean);
   });
 
@@ -234,7 +240,7 @@ describe('/recovery-phone', () => {
 
   describe('POST /recovery-phone/confirm', async () => {
     it('confirms a code', async () => {
-      mockRecoveryPhoneService.confirmCode = sinon.fake.returns(true);
+      mockRecoveryPhoneService.confirmSetupCode = sinon.fake.returns(true);
 
       const resp = await makeRequest({
         method: 'POST',
@@ -245,20 +251,20 @@ describe('/recovery-phone', () => {
 
       assert.isDefined(resp);
       assert.equal(resp.status, 'success');
-      assert.equal(mockRecoveryPhoneService.confirmCode.callCount, 1);
+      assert.equal(mockRecoveryPhoneService.confirmSetupCode.callCount, 1);
       assert.equal(
-        mockRecoveryPhoneService.confirmCode.getCall(0).args[0],
+        mockRecoveryPhoneService.confirmSetupCode.getCall(0).args[0],
         uid
       );
       assert.equal(
-        mockRecoveryPhoneService.confirmCode.getCall(0).args[1],
+        mockRecoveryPhoneService.confirmSetupCode.getCall(0).args[1],
         code
       );
       assert.equal(mockGlean.twoStepAuthPhoneCode.complete.callCount, 1);
     });
 
     it('indicates a failure confirming code', async () => {
-      mockRecoveryPhoneService.confirmCode = sinon.fake.returns(false);
+      mockRecoveryPhoneService.confirmSetupCode = sinon.fake.returns(false);
       const promise = makeRequest({
         method: 'POST',
         path: '/recovery-phone/confirm',
@@ -271,7 +277,7 @@ describe('/recovery-phone', () => {
     });
 
     it('indicates an issue with the backend service', async () => {
-      mockRecoveryPhoneService.confirmCode = sinon.fake.returns(
+      mockRecoveryPhoneService.confirmSetupCode = sinon.fake.returns(
         Promise.reject(new Error('BOOM'))
       );
       const promise = makeRequest({
@@ -283,6 +289,33 @@ describe('/recovery-phone', () => {
 
       await assert.isRejected(promise, 'A backend service request failed.');
       assert.equal(mockGlean.twoStepAuthPhoneCode.complete.callCount, 0);
+    });
+  });
+
+  describe('POST /recovery-phone/signin/confirm', async () => {
+    it('confirms a code during signin', async () => {
+      mockRecoveryPhoneService.confirmSigninCode = sinon.fake.returns(true);
+
+      const resp = await makeRequest({
+        method: 'POST',
+        path: '/recovery-phone/signin/confirm',
+        credentials: { uid, email },
+        payload: { code },
+      });
+
+      assert.isDefined(resp);
+      assert.equal(resp.status, 'success');
+      assert.equal(mockRecoveryPhoneService.confirmSigninCode.callCount, 1);
+      assert.equal(
+        mockRecoveryPhoneService.confirmSigninCode.getCall(0).args[0],
+        uid
+      );
+      assert.equal(
+        mockRecoveryPhoneService.confirmSigninCode.getCall(0).args[1],
+        code
+      );
+      assert.equal(mockAccountManager.verifySession.callCount, 1);
+      assert.equal(mockGlean.twoStepAuthPhoneCode.complete.callCount, 1);
     });
   });
 
