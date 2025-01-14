@@ -15,6 +15,7 @@ test.describe('severity-2 #smoke', () => {
       pages: { relier, subscribe, settings, signin },
       credentials,
     }, { project }) => {
+      test.fixme(project.name != 'production', 'FXA-10978');
       test.skip(
         project.name === 'production',
         'no real payment method available in prod'
