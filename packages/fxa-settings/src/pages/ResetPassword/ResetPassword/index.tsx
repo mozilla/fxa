@@ -82,7 +82,7 @@ const ResetPassword = ({
 
   return (
     <AppLayout>
-      <FtlMsg id="password-reset-start-heading">
+      <FtlMsg id="password-reset-flow-heading">
         <h1 className="card-header">Reset your password</h1>
       </FtlMsg>
 
