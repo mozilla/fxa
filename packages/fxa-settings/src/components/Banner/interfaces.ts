@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { ReactNode } from 'react';
 import { NotificationType } from '../../models';
 
 /**
@@ -9,14 +10,16 @@ import { NotificationType } from '../../models';
  *
  * @typedef {Object} BannerProps
  * @property {'error' | 'info' | 'success' | 'warning'} type - The type of the banner, which determines its styling and icon.
- * @property {BannerContentProps} content - The content to be displayed inside the banner.
+ * @property {BannerContentProps} content - Content to be displayed inside the banner, accepts a header and description string.
+ * @property {ReactNode} customContent - Pass in an entire custom component to be displayed inside the banner.
  * @property {Animation} [animation] - Optional animation settings for the banner.
  * @property {DismissButtonProps} [dismissButton] - Optional properties for a dismiss button.
  * @property {BannerLinkProps} [link] - Optional properties for a link within the banner.
  */
 export type BannerProps = {
   type: NotificationType;
-  content: BannerContentProps;
+  content?: BannerContentProps;
+  customContent?: ReactNode;
   animation?: Animation;
   dismissButton?: DismissButtonProps;
   link?: BannerLinkProps;

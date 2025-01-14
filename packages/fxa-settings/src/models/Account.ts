@@ -1363,4 +1363,6 @@ export class Account implements AccountData {
     });
     return data;
   }
+
+  async removeRecoveryPhone() {}
 }
