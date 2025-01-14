@@ -5,7 +5,7 @@ postAddRecoveryPhone-description = "You added <%- maskedLastFourPhoneNumber %> a
 postAddRecoveryPhone-how-protect-plaintext = "How this protects your account:"
 <%- twoFactorSupportLink %>
 
-postAddRecoveryPhone-from-device = "You enabled it from:"
+postAddRecoveryPhone-enabled-device = "You enabled it from:"
 <%- include('/partials/userInfo/index.txt') %>
 
 <%- include('/partials/manageAccount/index.txt') %>

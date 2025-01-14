@@ -1,0 +1,14 @@
+{
+  "subject": {
+    "id": "postSigninRecoveryCode-subject",
+    "message": "Backup authentication code used to sign in"
+  },
+  "action": {
+    "id": "postSigninRecoveryCode-action",
+    "message": "Manage account"
+  },
+  "preview": {
+    "id": "postSigninRecoveryCode-preview",
+    "message": "Confirm account activity"
+  }
+}

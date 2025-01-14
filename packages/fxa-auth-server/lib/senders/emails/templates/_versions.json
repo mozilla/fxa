@@ -49,6 +49,8 @@
   "postAddRecoveryPhone": 1,
   "postChangeRecoveryPhone": 1,
   "postRemoveRecoveryPhone": 1,
+  "postSigninRecoveryPhone": 1,
+  "postSigninRecoveryCode": 1,
   "cadReminderFirst": 3,
   "cadReminderSecond": 3,
   "subscriptionAccountReminderFirst": 3,

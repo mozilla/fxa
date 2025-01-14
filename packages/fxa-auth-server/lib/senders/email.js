@@ -87,6 +87,8 @@ module.exports = function (log, config, bounces) {
     postAddRecoveryPhone: 'recovery-phone-added',
     postChangeRecoveryPhone: 'recovery-phone-changed',
     postRemoveRecoveryPhone: 'recovery-phone-removed',
+    postSigninRecoveryPhone: 'signin-recovery-phone',
+    postSigninRecoveryCode: 'signin-recovery-code',
     recovery: 'forgot-password',
     unblockCode: 'new-unblock',
     verify: 'welcome',
@@ -140,6 +142,8 @@ module.exports = function (log, config, bounces) {
     postChangeAccountRecovery: 'manage-account',
     postRemoveAccountRecovery: 'manage-account',
     postAddRecoveryPhone: 'manage-account',
+    postSigninRecoveryPhone: 'manage-account',
+    postSigninRecoveryCode: 'manage-account',
     recovery: 'reset-password',
     unblockCode: 'unblock-code',
     verify: 'activate',
@@ -1584,19 +1588,14 @@ module.exports = function (log, config, bounces) {
 
   Mailer.prototype.postAddRecoveryPhoneEmail = function (message) {
     const templateName = 'postAddRecoveryPhone';
-    const links = this._generateLinks(
-      this.initiatePasswordResetUrl,
-      message,
-      {},
-      templateName
-    );
+    const links = this._generateSettingLinks(message, templateName);
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
       message.acceptLanguage
     );
 
     const headers = {
-      'X-Link': links.resetLink,
+      'X-Link': links.link,
     };
 
     return this.send({
@@ -1676,7 +1675,7 @@ module.exports = function (log, config, bounces) {
     );
 
     const headers = {
-      'X-Link': links.resetLink,
+      'X-Link': links.link,
     };
 
     return this.send({
@@ -1687,6 +1686,66 @@ module.exports = function (log, config, bounces) {
         date,
         device: this._formatUserAgentInfo(message),
         privacyUrl: links.privacyUrl,
+        resetLink: links.resetLink,
+        resetLinkAttributes: links.resetLinkAttributes,
+        supportLinkAttributes: links.supportLinkAttributes,
+        supportUrl: links.supportUrl,
+        time,
+      },
+    });
+  };
+
+  Mailer.prototype.postSigninRecoveryPhoneEmail = function (message) {
+    const templateName = 'postSigninRecoveryPhone';
+    const links = this._generateSettingLinks(message, templateName);
+    const [time, date] = this._constructLocalTimeString(
+      message.timeZone,
+      message.acceptLanguage
+    );
+
+    const headers = {
+      'X-Link': links.link,
+    };
+
+    return this.send({
+      ...message,
+      headers,
+      template: templateName,
+      templateValues: {
+        date,
+        device: this._formatUserAgentInfo(message),
+        privacyUrl: links.privacyUrl,
+        link: links.link,
+        resetLink: links.resetLink,
+        resetLinkAttributes: links.resetLinkAttributes,
+        supportLinkAttributes: links.supportLinkAttributes,
+        supportUrl: links.supportUrl,
+        time,
+      },
+    });
+  };
+
+  Mailer.prototype.postSigninRecoveryCodeEmail = function (message) {
+    const templateName = 'postSigninRecoveryCode';
+    const links = this._generateSettingLinks(message, templateName);
+    const [time, date] = this._constructLocalTimeString(
+      message.timeZone,
+      message.acceptLanguage
+    );
+
+    const headers = {
+      'X-Link': links.link,
+    };
+
+    return this.send({
+      ...message,
+      headers,
+      template: templateName,
+      templateValues: {
+        date,
+        device: this._formatUserAgentInfo(message),
+        privacyUrl: links.privacyUrl,
+        link: links.link,
         resetLink: links.resetLink,
         resetLinkAttributes: links.resetLinkAttributes,
         supportLinkAttributes: links.supportLinkAttributes,

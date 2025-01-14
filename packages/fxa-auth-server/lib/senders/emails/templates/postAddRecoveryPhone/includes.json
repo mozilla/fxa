@@ -6,5 +6,9 @@
   "action": {
     "id": "postAddRecoveryPhone-action",
     "message": "Manage account"
+  },
+  "preview": {
+    "id": "postAddRecoveryPhone-preview",
+    "message": "Account protected by two-step authentication"
   }
 }

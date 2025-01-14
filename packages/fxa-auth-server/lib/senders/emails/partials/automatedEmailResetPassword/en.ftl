@@ -2,4 +2,4 @@ automated-email-reset = This is an automated email; if you did not authorize thi
   For more information, please visit <a data-l10n-name="supportLink">{ -brand-mozilla } Support</a>.
 # Variables:
 #  $resetLink (String) - Link to https://accounts.firefox.com/reset_password
-automated-email-reset-plaintext = If you did not change it, please reset your password now at { $resetLink }
+automated-email-reset-plaintext-v2 = If you did not authorize this action, please reset your password now at { $resetLink }

@@ -68,6 +68,8 @@ const EMAIL_TYPES = {
   postAddRecoveryPhone: '2fa',
   postRemoveRecoveryPhone: '2fa',
   postChangeRecoveryPhone: '2fa',
+  postSigninRecoveryPhone: 'login',
+  postSigninRecoveryCode: 'login',
   recovery: 'reset_password',
   unblockCode: 'unblock',
   verify: 'registration',
