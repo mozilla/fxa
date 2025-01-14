@@ -951,7 +951,7 @@ module.exports = (config) => {
     const token = await tokens.SessionToken.fromHex(sessionTokenHex);
     return await this.doRequest(
       'POST',
-      `${this.baseURL}/recovery-phone/create`,
+      `${this.baseURL}/recovery_phone/create`,
       token,
       {
         phoneNumber,
@@ -965,7 +965,7 @@ module.exports = (config) => {
     const token = await tokens.SessionToken.fromHex(sessionTokenHex);
     return await this.doRequest(
       'POST',
-      `${this.baseURL}/recovery-phone/available`,
+      `${this.baseURL}/recovery_phone/available`,
       token,
       {}
     );
@@ -978,7 +978,7 @@ module.exports = (config) => {
     const token = await tokens.SessionToken.fromHex(sessionTokenHex);
     return await this.doRequest(
       'POST',
-      `${this.baseURL}/recovery-phone/confirm`,
+      `${this.baseURL}/recovery_phone/confirm`,
       token,
       {
         code,
@@ -993,7 +993,7 @@ module.exports = (config) => {
     const token = await tokens.SessionToken.fromHex(sessionTokenHex);
     return await this.doRequest(
       'POST',
-      `${this.baseURL}/recovery-phone/signin/confirm`,
+      `${this.baseURL}/recovery_phone/signin/confirm`,
       token,
       {
         code,
@@ -1007,7 +1007,7 @@ module.exports = (config) => {
     const token = await tokens.SessionToken.fromHex(sessionTokenHex);
     return await this.doRequest(
       'POST',
-      `${this.baseURL}/recovery-phone/send_code`,
+      `${this.baseURL}/recovery_phone/signin/send_code`,
       token,
       {}
     );
@@ -1019,7 +1019,7 @@ module.exports = (config) => {
     const token = await tokens.SessionToken.fromHex(sessionTokenHex);
     return await this.doRequest(
       'DELETE',
-      `${this.baseURL}/recovery-phone`,
+      `${this.baseURL}/recovery_phone`,
       token,
       {}
     );
@@ -1029,7 +1029,7 @@ module.exports = (config) => {
     const token = await tokens.SessionToken.fromHex(sessionTokenHex);
     return await this.doRequest(
       'GET',
-      `${this.baseURL}/recovery-phone`,
+      `${this.baseURL}/recovery_phone`,
       token,
       {}
     );

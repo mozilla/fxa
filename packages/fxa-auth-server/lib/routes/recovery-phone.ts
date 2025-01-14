@@ -275,7 +275,7 @@ export const recoveryPhoneRoutes = (
     // TODO: See blocked tasks for FXA-10354
     {
       method: 'POST',
-      path: '/recovery-phone/create',
+      path: '/recovery_phone/create',
       options: {
         auth: {
           strategies: ['sessionToken'],
@@ -292,7 +292,7 @@ export const recoveryPhoneRoutes = (
     },
     {
       method: 'POST',
-      path: '/recovery-phone/available',
+      path: '/recovery_phone/available',
       options: {
         auth: {
           strategies: ['sessionToken'],
@@ -304,7 +304,7 @@ export const recoveryPhoneRoutes = (
     },
     {
       method: 'POST',
-      path: '/recovery-phone/confirm',
+      path: '/recovery_phone/confirm',
       options: {
         auth: {
           strategies: ['sessionToken'],
@@ -321,7 +321,7 @@ export const recoveryPhoneRoutes = (
     },
     {
       method: 'POST',
-      path: '/recovery-phone/send_code',
+      path: '/recovery_phone/signin/send_code',
       options: {
         auth: {
           strategies: ['sessionToken'],
@@ -333,7 +333,7 @@ export const recoveryPhoneRoutes = (
     },
     {
       method: 'POST',
-      path: '/recovery-phone/signin/confirm',
+      path: '/recovery_phone/signin/confirm',
       options: {
         auth: {
           strategies: ['sessionToken'],
@@ -345,7 +345,7 @@ export const recoveryPhoneRoutes = (
     },
     {
       method: 'DELETE',
-      path: '/recovery-phone',
+      path: '/recovery_phone',
       options: {
         auth: {
           strategies: ['sessionToken'],
@@ -357,7 +357,7 @@ export const recoveryPhoneRoutes = (
     },
     {
       method: 'GET',
-      path: '/recovery-phone',
+      path: '/recovery_phone',
       options: {
         auth: {
           strategy: 'sessionToken',

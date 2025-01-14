@@ -307,7 +307,7 @@ describe(`#integration - recovery phone - customs checks`, function () {
     await redisUtil.customs.clearAll();
   });
 
-  it('prevents excessive calls to /recovery-phone/confirm', async function () {
+  it('prevents excessive calls to /recovery_phone/confirm', async function () {
     if (!isTwilioConfigured) {
       this.skip('Invalid twilio accountSid or authToken. Check env / config!');
     }
@@ -333,7 +333,7 @@ describe(`#integration - recovery phone - customs checks`, function () {
     assert.equal(error.message, 'Client has sent too many requests');
   });
 
-  it('prevents excessive calls to /recovery-phone/send-code', async function () {
+  it('prevents excessive calls to /recovery_phone/signin/send_code', async function () {
     if (!isTwilioConfigured) {
       this.skip('Invalid twilio accountSid or authToken. Check env / config!');
     }
@@ -355,7 +355,7 @@ describe(`#integration - recovery phone - customs checks`, function () {
     assert.equal(error.message, 'Client has sent too many requests');
   });
 
-  it('prevents excessive calls to /recovery-phone/available', async function () {
+  it('prevents excessive calls to /recovery_phone/available', async function () {
     if (!isTwilioConfigured) {
       this.skip('Invalid twilio accountSid or authToken. Check env / config!');
     }

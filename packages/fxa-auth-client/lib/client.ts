@@ -2266,7 +2266,7 @@ export default class AuthClient {
     headers?: Headers
   ) {
     return this.sessionPost(
-      '/recovery-phone/create',
+      '/recovery_phone/create',
       sessionToken,
       { phoneNumber },
       headers
@@ -2275,7 +2275,7 @@ export default class AuthClient {
 
   async recoveryPhoneAvailable(sessionToken: string, headers?: Headers) {
     return this.sessionPost(
-      '/recovery-phone/available',
+      '/recovery_phone/available',
       sessionToken,
       {},
       headers
@@ -2288,7 +2288,7 @@ export default class AuthClient {
     headers?: Headers
   ) {
     return this.sessionPost(
-      '/recovery-phone/available',
+      '/recovery_phone/available',
       sessionToken,
       { code },
       headers
@@ -2297,7 +2297,7 @@ export default class AuthClient {
 
   async recoveryPhoneSendCode(sessionToken: string, headers?: Headers) {
     return this.sessionPost(
-      '/recovery-phone/send_code',
+      '/recovery_phone/signin/send_code',
       sessionToken,
       {},
       headers
@@ -2305,7 +2305,7 @@ export default class AuthClient {
   }
 
   async recoveryPhoneDelete(sessionToken: string, headers?: Headers) {
-    return this.sessionDelete('/recovery-phone', sessionToken, {}, headers);
+    return this.sessionDelete('/recovery_phone', sessionToken, {}, headers);
   }
 
   protected async getPayloadV2({
