@@ -9,6 +9,7 @@ $font-sans: sans-serif;
 $blue-500: #0060df;
 $white: #fff;
 $black: #000;
+$grey-50: #f0f0f4;
 $grey-100: #e7e7e7;
 $grey-400: #6d6d6e;
 $grey-500: #4b5563;
@@ -114,6 +115,9 @@ $s-10: 40px;
 .p {
   &-4 {
     padding: $s-4 !important;
+  }
+  &b-2 {
+    padding-bottom: $s-2 !important;
   }
 }
 // Global styles
