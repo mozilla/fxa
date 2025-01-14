@@ -1,1 +1,1 @@
-automated-email-reset-plaintext = "If you did not change it, please reset your password now at <%- resetLink %>"
+automated-email-reset-plaintext-v2 = "If you did not authorize this action, please reset your password now at <%- resetLink %>"

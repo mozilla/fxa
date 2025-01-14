@@ -7,22 +7,17 @@ import { storyWithProps } from '../../storybook-email';
 import { MOCK_USER_INFO } from '../../partials/userInfo/mocks';
 
 export default {
-  title: 'FxA Emails/Templates/postAddRecoveryPhone',
+  title: 'FxA Emails/Templates/postSigninRecoveryCode',
 } as Meta;
 
 const createStory = storyWithProps(
-  'postAddRecoveryPhone',
-  'Sent when a user adds their phone number as a backup recovery method',
+  'postSigninRecoveryCode',
+  'Sent when a user uses one of their backup authentication codes to sign in as an alternative to their authenticator app.',
   {
     ...MOCK_USER_INFO,
-    maskedLastFourPhoneNumber: '••••••1234',
     link: 'http://localhost:3030/settings',
     resetLink: 'http://localhost:3030/reset_password',
-    // TODO, update this link with #section-heading once the SUMO article is updated
-    //  and ensure the mailer also uses the new link (FXA-10918)
-    twoFactorSupportLink:
-      'https://support.mozilla.org/en-US/kb/secure-firefox-account-two-step-authentication',
   }
 );
 
-export const PostAddRecoveryPhone = createStory();
+export const postSigninRecoveryCode = createStory();

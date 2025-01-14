@@ -19,4 +19,4 @@ const createStory = storyWithProps(
   }
 );
 
-export const PasswordReset = createStory();
+export const PostChangeRecoveryPhone = createStory();

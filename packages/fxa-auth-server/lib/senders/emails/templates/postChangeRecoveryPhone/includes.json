@@ -2,5 +2,9 @@
   "subject": {
     "id": "postChangeRecoveryPhone-subject",
     "message": "Recovery phone updated"
+  },
+  "preview": {
+    "id": "postChangeRecoveryPhone-preview",
+    "message": "Account protected by two-step authentication"
   }
 }

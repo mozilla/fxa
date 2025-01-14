@@ -1,4 +1,5 @@
 postAddRecoveryPhone-subject = Recovery phone added
+postAddRecoveryPhone-preview = Account protected by two-step authentication
 postAddRecoveryPhone-title = You created a recovery phone number
 # Variables:
 #  $maskedLastFourPhoneNumber (String) - A bullet point mask with the last four digits of the user's phone number, e.g. ••••••1234
