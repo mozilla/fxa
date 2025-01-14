@@ -111,7 +111,7 @@ describe('BackupPhoneSubRow', () => {
     renderWithLocalizationProvider(
       <BackupPhoneSubRow onCtaClick={jest.fn()} />
     );
-    expect(screen.getByText('Backup recovery phone')).toBeInTheDocument();
+    expect(screen.getByText('Recovery phone')).toBeInTheDocument();
     expect(
       screen.getByText('No recovery phone number available')
     ).toBeInTheDocument();
@@ -126,12 +126,12 @@ describe('BackupPhoneSubRow', () => {
 
   it('renders correctly when phone number is available and delete is not an option', () => {
     renderWithLocalizationProvider(<BackupPhoneSubRow {...defaultProps} />);
-    expect(screen.getByText('Backup recovery phone')).toBeInTheDocument();
+    expect(screen.getByText('Recovery phone')).toBeInTheDocument();
     expect(screen.getByText('••• ••• 1234')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Change' })).toBeInTheDocument();
     expect(
       screen.getByText(
-        'If you want to remove your backup recovery phone, add backup authentication codes or disable two-step authentication first to avoid getting locked out of your account.'
+        'If you want to remove your recovery phone, add backup authentication codes or disable two-step authentication first to avoid getting locked out of your account.'
       )
     ).toBeInTheDocument();
     expect(screen.getByText(/Learn about SIM swap risk/)).toBeInTheDocument();
@@ -141,7 +141,7 @@ describe('BackupPhoneSubRow', () => {
     renderWithLocalizationProvider(
       <BackupPhoneSubRow {...defaultProps} onDeleteClick={jest.fn()} />
     );
-    expect(screen.getByText('Backup recovery phone')).toBeInTheDocument();
+    expect(screen.getByText('Recovery phone')).toBeInTheDocument();
     expect(screen.getByText('••• ••• 1234')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Change' })).toBeInTheDocument();
     const deleteButtons = screen.getAllByTitle(/Remove/);

@@ -69,8 +69,8 @@ export const FlowSetupRecoveryPhoneConfirmCode = ({
       await verifyRecoveryCode(code);
       alertBar.success(
         ftlMsgResolver.getMsg(
-          'flow-setup-phone-confirm-code-success-message',
-          'Backup recovery phone added'
+          'flow-setup-phone-confirm-code-success-message-v2',
+          'Recovery phone added'
         )
       );
       navigateForward();

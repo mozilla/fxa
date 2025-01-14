@@ -250,8 +250,8 @@ export const BackupPhoneSubRow = ({
     : 'account_pref_two_step_auth_phone_add_submit';
 
   const localizedDeleteIconTitle = ftlMsgResolver.getMsg(
-    'tfa-row-backup-phone-delete-title',
-    'Remove backup recovery phone'
+    'tfa-row-backup-phone-delete-title-v2',
+    'Remove recovery phone'
   );
 
   const linkExternalProps = {
@@ -275,14 +275,14 @@ export const BackupPhoneSubRow = ({
             // info message should only be shown when a phone number is set and the user can't delete it
             // (i.e. when the user has no other recovery method)
             localizedInfoMessage: ftlMsgResolver.getMsg(
-              'tfa-row-backup-phone-delete-restriction',
-              'If you want to remove your backup recovery phone, add backup authentication codes or disable two-step authentication first to avoid getting locked out of your account.'
+              'tfa-row-backup-phone-delete-restriction-v2',
+              'If you want to remove your recovery phone, add backup authentication codes or disable two-step authentication first to avoid getting locked out of your account.'
             ),
           }
         : null)}
       {...((!hasPhoneNumber || (hasPhoneNumber && onDeleteClick)) && {
         // description should not be shown when the user can't delete the phone number (only one message displayed at a time)
-        // description should only be shown when both backup authentication codes and backup recovery phone
+        // description should only be shown when both backup authentication codes and recovery phone
         // are available recovery methods (description is intended to allow for comparison of the two methods)
         localizedDescription: ftlMsgResolver.getMsg(
           'tfa-row-backup-phone-description',
@@ -300,8 +300,8 @@ export const BackupPhoneSubRow = ({
         linkExternalProps,
       }}
       localizedRowTitle={ftlMsgResolver.getMsg(
-        'tfa-row-backup-phone-title',
-        'Backup recovery phone'
+        'tfa-row-backup-phone-title-v2',
+        'Recovery phone'
       )}
     />
   );
