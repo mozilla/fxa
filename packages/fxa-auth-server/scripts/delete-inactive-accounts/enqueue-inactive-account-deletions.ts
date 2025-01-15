@@ -46,7 +46,7 @@ import {
 } from '@fxa/shared/cloud-tasks';
 
 import { collect, parseBooleanArg } from '../lib/args';
-import { AppConfig, AuthFirestore, AuthLogger } from '../../lib/types';
+import { AppConfig, AuthLogger } from '../../lib/types';
 import appConfig from '../../config';
 import initLog from '../../lib/log';
 import initRedis from '../../lib/redis';
@@ -54,14 +54,7 @@ import { gleanMetrics } from '../../lib/metrics/glean';
 import Token from '../../lib/tokens';
 import * as random from '../../lib/crypto/random';
 import { createDB } from '../../lib/db';
-import { setupFirestore } from '../../lib/firestore-db';
-import { CurrencyHelper } from '../../lib/payments/currencies';
-import { createStripeHelper, StripeHelper } from '../../lib/payments/stripe';
 import oauthDb from '../../lib/oauth/db';
-import { PlayBilling } from '../../lib/payments/iap/google-play';
-import { PlaySubscriptions } from '../../lib/payments/iap/google-play/subscriptions';
-import { AppleIAP } from '../../lib/payments/iap/apple-app-store/apple-iap';
-import { AppStoreSubscriptions } from '../../lib/payments/iap/apple-app-store/subscriptions';
 
 import {
   accountWhereAndOrderByQueryBuilder,
@@ -261,17 +254,6 @@ const init = async () => {
   Container.set(AppConfig, config);
   Container.set(AuthLogger, log);
 
-  const authFirestore = setupFirestore(config);
-  Container.set(AuthFirestore, authFirestore);
-  const currencyHelper = new CurrencyHelper(config);
-  Container.set(CurrencyHelper, currencyHelper);
-  const stripeHelper = createStripeHelper(log, config, statsd);
-  Container.set(StripeHelper, stripeHelper);
-  const playBilling = Container.get(PlayBilling);
-  const playSubscriptions = Container.get(PlaySubscriptions);
-  const appleIap = Container.get(AppleIAP);
-  const appStoreSubscriptions = Container.get(AppStoreSubscriptions);
-
   // /dependencies }}}
 
   const emitStatsdMetrics =
@@ -422,34 +404,10 @@ const init = async () => {
     'accounts.inactive.access-token-check'
   );
 
-  const iapSubUids = new Set<string>();
-  const playSubscriptionsCollection = await playBilling.purchaseDbRef().get();
-  const appleSubscriptionsCollection = await appleIap.purchasesDbRef().get();
-  ((collections) => {
-    for (const c of collections) {
-      for (const purchaseRecordSnapshot of c.docs) {
-        const x = purchaseRecordSnapshot.data();
-        if (x.userId) {
-          iapSubUids.add(x.userId);
-        }
-      }
-    }
-  })([playSubscriptionsCollection, appleSubscriptionsCollection]);
-
-  const _hasIapSubscription = async (uid: string) =>
-    iapSubUids.has(uid) &&
-    ((await playSubscriptions.getSubscriptions(uid)).length > 0 ||
-      (await appStoreSubscriptions.getSubscriptions(uid)).length > 0);
-  const hasIapSubscription = emitStatsdMetrics(
-    _hasIapSubscription,
-    'accounts.inactive.iap-subscription-check'
-  );
-
   const _isActive = new IsActiveFnBuilder()
     .setActiveSessionTokenFn(checkActiveSessionToken)
     .setRefreshTokenFn(checkRefreshToken)
     .setAccessTokenFn(checkAccessToken)
-    .setIapSubscriptionFn(hasIapSubscription)
     .build();
 
   const isActive = emitStatsdMetrics(

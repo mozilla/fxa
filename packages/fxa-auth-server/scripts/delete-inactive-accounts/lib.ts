@@ -4,7 +4,6 @@
 
 import {
   Account,
-  AccountCustomers,
   Email,
   SecurityEvent,
   SessionToken as SessionTokenOrm,
@@ -42,9 +41,6 @@ export const securityEventUidsQuery = (activeByDateTimestamp) =>
     ])
     .as('securityEventUids');
 
-export const accountCustomerUidsQuery = () =>
-  AccountCustomers.query().select('uid').as('accountCustomerUids');
-
 export const accountWhereAndOrderByQueryBuilder = (
   startDateTimestamp,
   endDateTimestamp,
@@ -53,13 +49,11 @@ export const accountWhereAndOrderByQueryBuilder = (
   const emailUids = emailUidsQuery(activeByDateTimestamp);
   const sessionTokenUids = sessionTokenUidsQuery(activeByDateTimestamp);
   const securityEventUids = securityEventUidsQuery(activeByDateTimestamp);
-  const accountCustomerUids = accountCustomerUidsQuery();
 
   return Account.query()
     .leftJoin(emailUids, 'emailUids.uid', 'accounts.uid')
     .leftJoin(sessionTokenUids, 'sessionTokenUids.uid', 'accounts.uid')
     .leftJoin(securityEventUids, 'securityEventUids.uid', 'accounts.uid')
-    .leftJoin(accountCustomerUids, 'accountCustomerUids.uid', 'accounts.uid')
     .where('accounts.emailVerified', 1)
     .where('accounts.createdAt', '>=', startDateTimestamp)
     .where('accounts.createdAt', '<', endDateTimestamp)
@@ -67,8 +61,7 @@ export const accountWhereAndOrderByQueryBuilder = (
       builder
         .whereNull('emailUids.uid')
         .whereNull('sessionTokenUids.uid')
-        .whereNull('securityEventUids.uid')
-        .whereNull('accountCustomerUids.uid');
+        .whereNull('securityEventUids.uid');
     })
     .orderBy('accounts.createdAt', 'asc')
     .orderBy('accounts.uid', 'asc');
@@ -122,7 +115,6 @@ export class IsActiveFnBuilder {
   activeSessionTokenFn: ActiveConditionFn;
   refreshTokenFn: ActiveConditionFn;
   accessTokenFn: ActiveConditionFn;
-  iapSubscriptionFn: ActiveConditionFn;
 
   constructor() {
     this.activeSessionTokenFn = this.requiredFn(
@@ -133,9 +125,6 @@ export class IsActiveFnBuilder {
     );
     this.accessTokenFn = this.requiredFn(
       'A function to check for an access token is required.'
-    );
-    this.iapSubscriptionFn = this.requiredFn(
-      'A function to check for an IAP subscription is required.'
     );
   }
 
@@ -154,17 +143,11 @@ export class IsActiveFnBuilder {
     return this;
   }
 
-  setIapSubscriptionFn(fn: ActiveConditionFn) {
-    this.iapSubscriptionFn = fn;
-    return this;
-  }
-
   build() {
     return (async (uid: string) =>
       (await this.activeSessionTokenFn(uid)) ||
       (await this.refreshTokenFn(uid)) ||
-      (await this.accessTokenFn(uid)) ||
-      (await this.iapSubscriptionFn(uid))).bind(this);
+      (await this.accessTokenFn(uid))).bind(this);
   }
 }
 

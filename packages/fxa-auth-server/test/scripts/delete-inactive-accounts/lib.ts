@@ -188,7 +188,6 @@ describe('delete inactive accounts script lib', () => {
         await builder
           .setRefreshTokenFn(refreshTokensFn)
           .setAccessTokenFn(accessTokensFn)
-          .setIapSubscriptionFn(iapSubscriptionFn)
           .build()();
         assert.fail('should have thrown an error');
       } catch (actual) {
@@ -201,7 +200,6 @@ describe('delete inactive accounts script lib', () => {
         await builder
           .setActiveSessionTokenFn(sessionTokensFn)
           .setAccessTokenFn(accessTokensFn)
-          .setIapSubscriptionFn(iapSubscriptionFn)
           .build()();
         assert.fail('should have thrown an error');
       } catch (actual) {
@@ -214,7 +212,6 @@ describe('delete inactive accounts script lib', () => {
         await builder
           .setActiveSessionTokenFn(sessionTokensFn)
           .setRefreshTokenFn(refreshTokensFn)
-          .setIapSubscriptionFn(iapSubscriptionFn)
           .build()();
         assert.fail('should have thrown an error');
       } catch (actual) {
@@ -244,7 +241,6 @@ describe('delete inactive accounts script lib', () => {
           .setActiveSessionTokenFn(sessionTokensFn)
           .setRefreshTokenFn(refreshTokensFn)
           .setAccessTokenFn(accessTokensFn)
-          .setIapSubscriptionFn(iapSubscriptionFn)
           .build();
       });
 
@@ -288,7 +284,6 @@ describe('delete inactive accounts script lib', () => {
         .setActiveSessionTokenFn(sessionTokensFn)
         .setRefreshTokenFn(refreshTokensFn)
         .setAccessTokenFn(accessTokensFn)
-        .setIapSubscriptionFn(iapSubscriptionFn)
         .build();
       sessionTokensFn.resolves(false);
       refreshTokensFn.resolves(false);
@@ -300,7 +295,6 @@ describe('delete inactive accounts script lib', () => {
       sinon.assert.calledOnceWithExactly(sessionTokensFn, '9001');
       sinon.assert.calledOnceWithExactly(refreshTokensFn, '9001');
       sinon.assert.calledOnceWithExactly(accessTokensFn, '9001');
-      sinon.assert.calledOnceWithExactly(iapSubscriptionFn, '9001');
     });
   });
 });

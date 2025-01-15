@@ -16,26 +16,18 @@ import os from 'os';
 import { performance } from 'perf_hooks';
 
 import { Command } from 'commander';
-import { StatsD } from 'hot-shots';
 import { Container } from 'typedi';
 import PQueue from 'p-queue-compat';
 
 import { parseBooleanArg } from '../lib/args';
-import { AppConfig, AuthFirestore, AuthLogger } from '../../lib/types';
+import { AppConfig, AuthLogger } from '../../lib/types';
 import appConfig from '../../config';
 import initLog from '../../lib/log';
 import initRedis from '../../lib/redis';
 import Token from '../../lib/tokens';
 import * as random from '../../lib/crypto/random';
 import { createDB } from '../../lib/db';
-import { setupFirestore } from '../../lib/firestore-db';
-import { CurrencyHelper } from '../../lib/payments/currencies';
-import { createStripeHelper, StripeHelper } from '../../lib/payments/stripe';
 import oauthDb from '../../lib/oauth/db';
-import { PlayBilling } from '../../lib/payments/iap/google-play';
-import { PlaySubscriptions } from '../../lib/payments/iap/google-play/subscriptions';
-import { AppleIAP } from '../../lib/payments/iap/apple-app-store/apple-iap';
-import { AppStoreSubscriptions } from '../../lib/payments/iap/apple-app-store/subscriptions';
 
 import {
   accountWhereAndOrderByQueryBuilder,
@@ -135,7 +127,6 @@ const init = async () => {
   const log = initLog({
     ...config.log,
   });
-  const statsd = new StatsD({ ...config.statsd });
   const redis = initRedis(
     { ...config.redis, ...config.redis.sessionTokens },
     log
@@ -150,17 +141,6 @@ const init = async () => {
 
   Container.set(AppConfig, config);
   Container.set(AuthLogger, log);
-
-  const authFirestore = setupFirestore(config);
-  Container.set(AuthFirestore, authFirestore);
-  const currencyHelper = new CurrencyHelper(config);
-  Container.set(CurrencyHelper, currencyHelper);
-  const stripeHelper = createStripeHelper(log, config, statsd);
-  Container.set(StripeHelper, stripeHelper);
-  const playBilling = Container.get(PlayBilling);
-  const playSubscriptions = Container.get(PlaySubscriptions);
-  const appleIap = Container.get(AppleIAP);
-  const appStoreSubscriptions = Container.get(AppStoreSubscriptions);
 
   const accountWhereAndOrderBy = () =>
     accountWhereAndOrderByQueryBuilder(
@@ -193,51 +173,10 @@ const init = async () => {
     async (uid: string) => await hasAccessToken(accessTokensFn, uid)
   );
 
-  const getPlaySubscriptionsCollection = collectPerfStatsOn(
-    'Get Play Collection',
-    async () => await playBilling.purchaseDbRef().get()
-  );
-  const getAppleSubscriptionsCollection = collectPerfStatsOn(
-    'Get Apple Collection',
-    async () => await appleIap.purchasesDbRef().get()
-  );
-
-  const iapSubUids = new Set<string>();
-  const playSubscriptionsCollection = await getPlaySubscriptionsCollection();
-  const appleSubscriptionsCollection = await getAppleSubscriptionsCollection();
-  ((collections) => {
-    for (const c of collections) {
-      for (const purchaseRecordSnapshot of c.docs) {
-        const x = purchaseRecordSnapshot.data();
-        if (x.userId) {
-          iapSubUids.add(x.userId);
-        }
-      }
-    }
-  })([playSubscriptionsCollection, appleSubscriptionsCollection]);
-
-  const getPlaySubscriptions = collectPerfStatsOn(
-    'Get Play Subscriptions',
-    async (uid: string) => await playSubscriptions.getSubscriptions(uid)
-  );
-  const getAppleSubscriptions = collectPerfStatsOn(
-    'Get Apple Subscriptions',
-    async (uid: string) => await appStoreSubscriptions.getSubscriptions(uid)
-  );
-
-  const hasIapSubscription = collectPerfStatsOn(
-    'Has IAP Check',
-    async (uid: string) =>
-      iapSubUids.has(uid) &&
-      ((await getPlaySubscriptions(uid)).length > 0 ||
-        (await getAppleSubscriptions(uid)).length > 0)
-  );
-
   const _isActive = new IsActiveFnBuilder()
     .setActiveSessionTokenFn(checkActiveSessionToken)
     .setRefreshTokenFn(checkRefreshToken)
     .setAccessTokenFn(checkAccessToken)
-    .setIapSubscriptionFn(hasIapSubscription)
     .build();
   const isActive = collectPerfStatsOn('Active Status Check', _isActive);
 
