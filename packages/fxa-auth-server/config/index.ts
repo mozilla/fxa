@@ -2168,10 +2168,10 @@ const convictConf = convict({
     redis: {},
     sms: {
       from: {
-        default: '15005550006',
+        default: ['15005550006'],
         doc: 'The twilio number messages are sent from.',
         env: 'RECOVERY_PHONE__SMS__FROM',
-        format: String,
+        format: Array,
       },
       maxMessageLength: {
         default: 60,
@@ -2184,6 +2184,12 @@ const convictConf = convict({
         doc: 'Allowed phone number prefixes. Controls the locales that a message can be sent to.',
         env: 'RECOVERY_PHONE__SMS__VALID_NUMBER_PREFIXES',
         format: Array,
+      },
+      maxRetries: {
+        default: 3,
+        doc: 'Number of times an sms message can be retried in the event a sms sending rate limit is encountered. Note that we use an exponential back off here. e.g. 3 would mean up to a 1s, 2s and then 4s retry.',
+        env: 'RECOVERY_PHONE__SMS__MAX_RETRIES',
+        format: Number,
       },
     },
   },

@@ -11,6 +11,7 @@ const assert = { ...sinon.assert, ...chai.assert };
 const { recoveryPhoneRoutes } = require('../../../lib/routes/recovery-phone');
 import {
   RecoveryNumberNotSupportedError,
+  SmsSendRateLimitExceededError,
   RecoveryPhoneService,
 } from '@fxa/accounts/recovery-phone';
 
@@ -199,6 +200,25 @@ describe('/recovery_phone', () => {
       });
 
       await assert.isRejected(promise, 'Invalid phone number');
+      assert.equal(mockGlean.twoStepAuthPhoneCode.sent.callCount, 0);
+      assert.equal(mockGlean.twoStepAuthPhoneCode.sendError.callCount, 1);
+    });
+
+    it('indicates too many requests when sms rate limit is exceeded', async () => {
+      mockRecoveryPhoneService.setupPhoneNumber = sinon.fake.returns(
+        Promise.reject(
+          new SmsSendRateLimitExceededError(uid, phoneNumber, '+495550005555')
+        )
+      );
+
+      const promise = makeRequest({
+        method: 'POST',
+        path: '/recovery_phone/create',
+        credentials: { uid, email },
+        payload: { phoneNumber: '+495550005555' },
+      });
+
+      await assert.isRejected(promise, 'Client has sent too many requests');
       assert.equal(mockGlean.twoStepAuthPhoneCode.sent.callCount, 0);
       assert.equal(mockGlean.twoStepAuthPhoneCode.sendError.callCount, 1);
     });

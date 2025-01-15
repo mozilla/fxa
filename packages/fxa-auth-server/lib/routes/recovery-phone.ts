@@ -8,6 +8,7 @@ import {
   RecoveryNumberInvalidFormatError,
   RecoveryNumberAlreadyExistsError,
   RecoveryNumberNotExistsError,
+  SmsSendRateLimitExceededError,
 } from '@fxa/accounts/recovery-phone';
 import {
   AccountManager,
@@ -61,6 +62,10 @@ class RecoveryPhoneHandler {
         throw AppError.recoveryPhoneNumberDoesNotExist();
       }
 
+      if (error instanceof SmsSendRateLimitExceededError) {
+        throw AppError.smsSendRateLimitExceeded();
+      }
+
       throw AppError.backendServiceFailure(
         'RecoveryPhoneService',
         'sendCode',
@@ -111,6 +116,10 @@ class RecoveryPhoneHandler {
         error instanceof RecoveryNumberAlreadyExistsError
       ) {
         throw AppError.invalidPhoneNumber();
+      }
+
+      if (error instanceof SmsSendRateLimitExceededError) {
+        throw AppError.smsSendRateLimitExceeded();
       }
 
       throw AppError.backendServiceFailure(

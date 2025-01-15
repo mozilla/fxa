@@ -9,10 +9,13 @@ export class SmsManagerConfig {
    * The number that SMS are sent from. This should be our number.
    * */
   @IsString()
-  public readonly from!: string;
+  public readonly from!: string[];
 
   @IsNumber()
   public readonly maxMessageLength!: number;
+
+  @IsNumber()
+  public readonly maxRetries!: number;
 
   @IsArray()
   public readonly validNumberPrefixes!: Array<string>;
