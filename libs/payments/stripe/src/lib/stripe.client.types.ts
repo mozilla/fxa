@@ -82,6 +82,12 @@ export type StripeCustomer = NegotiateExpanded<
   | 'test_clock'
 >;
 
+export type StripeCustomerSession = NegotiateExpanded<
+  never,
+  Stripe.CustomerSession,
+  'customer'
+>;
+
 export type StripeCustomerInvoiceSettings = NegotiateExpanded<
   never,
   Stripe.Customer.InvoiceSettings,

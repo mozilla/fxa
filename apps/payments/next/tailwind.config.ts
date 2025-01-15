@@ -20,6 +20,8 @@ export default <Partial<Config>>{
       boxShadow: {
         inputError:
           '0 1px 2px rgba(0, 0, 0, 0.3), 0 3px 6px rgba(0, 0, 0, 0.02), 0 0 0 1px #df1b41',
+        stripeBox:
+          'rgba(0, 0, 0, 0.03) 0px 1px 1px 0px, rgba(0, 0, 0, 0.02) 0px 3px 6px 0px',
       },
       colors: {
         'alert-red': '#D70022',

@@ -16,12 +16,14 @@ import {
   CouponErrorExpired,
   CouponErrorGeneric,
   CouponErrorLimitReached,
+  CustomerSessionManager,
 } from '@fxa/payments/customer';
 import { EligibilityService } from '@fxa/payments/eligibility';
 import {
   AccountCustomerManager,
   AccountCustomerNotFoundError,
   StripeCustomer,
+  StripeSubscription,
 } from '@fxa/payments/stripe';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
 import { CurrencyManager } from '@fxa/payments/currency';
@@ -70,6 +72,7 @@ export class CartService {
     private checkoutService: CheckoutService,
     private currencyManager: CurrencyManager,
     private customerManager: CustomerManager,
+    private customerSessionManager: CustomerSessionManager,
     private promotionCodeManager: PromotionCodeManager,
     private eligibilityService: EligibilityService,
     private geodbManager: GeoDBManager,
@@ -437,8 +440,12 @@ export class CartService {
     ]);
 
     let customer: StripeCustomer | undefined;
+    let subscriptions: StripeSubscription[] = [];
     if (cart.stripeCustomerId) {
-      customer = await this.customerManager.retrieve(cart.stripeCustomerId);
+      [customer, subscriptions] = await Promise.all([
+        this.customerManager.retrieve(cart.stripeCustomerId),
+        this.subscriptionManager.listForCustomer(cart.stripeCustomerId),
+      ]);
     }
 
     const upcomingInvoicePreview = await this.invoiceManager.previewUpcoming({
@@ -449,39 +456,46 @@ export class CartService {
       couponCode: cart.couponCode || undefined,
     });
 
-    // Cart latest invoice data
-    let latestInvoicePreview: InvoicePreview | undefined;
     let paymentInfo: PaymentInfo | undefined;
-    if (customer && cart.stripeSubscriptionId) {
-      // fetch latest payment info from subscription
-      const subscription = await this.subscriptionManager.retrieve(
-        cart.stripeSubscriptionId
+    if (customer?.invoice_settings.default_payment_method) {
+      const paymentMethodPromise = this.paymentMethodManager.retrieve(
+        customer.invoice_settings.default_payment_method
       );
-      assert(subscription.latest_invoice, 'Subscription not found');
-      latestInvoicePreview = await this.invoiceManager.preview(
-        subscription.latest_invoice
-      );
-
+      const customerSessionPromise = cart.stripeCustomerId
+        ? this.customerSessionManager.create(cart.stripeCustomerId)
+        : undefined;
+      const [paymentMethod, customerSession] = await Promise.all([
+        paymentMethodPromise,
+        customerSessionPromise,
+      ]);
+      paymentInfo = {
+        type: paymentMethod.type,
+        last4: paymentMethod.card?.last4,
+        brand: paymentMethod.card?.brand,
+        customerSessionClientSecret: customerSession?.client_secret,
+      };
+    } else if (subscriptions.length) {
+      const firstListedSubscription = subscriptions[0];
       // fetch payment method info
-      if (subscription.collection_method === 'send_invoice') {
+      if (firstListedSubscription.collection_method === 'send_invoice') {
         // PayPal payment method collection
-        // TODO: render paypal payment info in the UI (FXA-10608)
         paymentInfo = {
           type: 'external_paypal',
         };
-      } else {
-        // Stripe payment method collection
-        if (customer.invoice_settings.default_payment_method) {
-          const paymentMethod = await this.paymentMethodManager.retrieve(
-            customer.invoice_settings.default_payment_method
-          );
-          paymentInfo = {
-            type: paymentMethod.type,
-            last4: paymentMethod.card?.last4,
-            brand: paymentMethod.card?.brand,
-          };
-        }
       }
+    }
+
+    // Cart latest invoice data
+    let latestInvoicePreview: InvoicePreview | undefined;
+    if (customer && cart.stripeSubscriptionId) {
+      const subscription = subscriptions.find(
+        (subscription) => subscription.id === cart.stripeSubscriptionId
+      );
+      // fetch latest payment info from subscription
+      assert(subscription?.latest_invoice, 'Subscription not found');
+      latestInvoicePreview = await this.invoiceManager.preview(
+        subscription.latest_invoice
+      );
     }
 
     return {

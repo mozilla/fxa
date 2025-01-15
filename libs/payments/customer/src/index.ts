@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 export * from './lib/customer.manager';
+export * from './lib/customerSession.manager';
 export * from './lib/invoice.manager';
 export * from './lib/invoice.factories';
 export * from './lib/paymentIntent.manager';

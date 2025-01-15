@@ -4,6 +4,7 @@
 
 'use client';
 
+import Stripe from 'stripe';
 import { CheckoutForm } from '../CheckoutForm';
 import { StripeWrapper } from '../StripeWrapper';
 
@@ -28,6 +29,16 @@ interface PaymentFormProps {
       countryCode: string;
       postalCode: string;
     };
+    paymentInfo?: {
+      type:
+        | Stripe.PaymentMethod.Type
+        | 'google_iap'
+        | 'apple_iap'
+        | 'external_paypal';
+      last4?: string;
+      brand?: string;
+      customerSessionClientSecret?: string;
+    };
   };
   locale: string;
 }
@@ -42,6 +53,7 @@ export function PaymentSection({
     <StripeWrapper
       amount={paymentsInfo.amount}
       currency={paymentsInfo.currency}
+      paymentInfo={cart.paymentInfo}
     >
       <CheckoutForm
         cmsCommonContent={cmsCommonContent}
