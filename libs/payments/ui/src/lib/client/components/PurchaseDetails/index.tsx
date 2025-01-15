@@ -7,7 +7,7 @@
 import { Localized } from '@fluent/react';
 import Image from 'next/image';
 import { useState } from 'react';
-import { Invoice } from '@fxa/payments/cart';
+import { InvoicePreview } from '@fxa/payments/customer';
 import infoLogo from '@fxa/shared/assets/images/info.svg';
 import {
   getLocalizedCurrencyString,
@@ -16,7 +16,7 @@ import {
 import chevron from './images/chevron.svg';
 
 type PurchaseDetailsProps = {
-  invoice: Invoice;
+  invoice: InvoicePreview;
   priceInterval: React.ReactNode;
   purchaseDetails: {
     details: string[];

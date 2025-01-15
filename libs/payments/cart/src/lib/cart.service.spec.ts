@@ -51,7 +51,6 @@ import {
 } from '@fxa/profile/client';
 import {
   MockStrapiClientConfigProvider,
-  PageContentOfferingTransformedFactory,
   ProductConfigurationManager,
   StrapiClient,
 } from '@fxa/shared/cms';
@@ -81,12 +80,12 @@ import {
   ResultCartFactory,
   SuccessCartFactory,
   UpdateCartFactory,
+  WithContextCartFactory,
 } from './cart.factories';
 import { CartManager } from './cart.manager';
 import { CartService } from './cart.service';
 import { CheckoutService } from './checkout.service';
 import {
-  CartEligibilityMismatchError,
   CartError,
   CartInvalidCurrencyError,
   CartInvalidPromoCodeError,
@@ -94,8 +93,6 @@ import {
   CartStateProcessingError,
   CartSubscriptionNotFoundError,
   CartSuccessMissingRequired,
-  CartUpgradeMissingRequired,
-  CartUpgradeNotValid,
 } from './cart.error';
 import { CurrencyManager } from '@fxa/payments/currency';
 import { MockCurrencyConfigProvider } from 'libs/payments/currency/src/lib/currency.config';
@@ -728,6 +725,7 @@ describe('CartService', () => {
     it('returns cart and upcomingInvoicePreview', async () => {
       const mockCart = ResultCartFactory({
         stripeSubscriptionId: null,
+        eligibilityStatus: CartEligibilityStatus.CREATE,
       });
       const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
       const mockPrice = StripePriceFactory();
@@ -773,6 +771,7 @@ describe('CartService', () => {
     it('returns cart and upcomingInvoicePreview and latestInvoicePreview', async () => {
       const mockCart = ResultCartFactory({
         stripeSubscriptionId: mockSubscription.id,
+        eligibilityStatus: CartEligibilityStatus.CREATE,
       });
       const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
       const mockPrice = StripePriceFactory();
@@ -835,6 +834,7 @@ describe('CartService', () => {
     it('returns cart and upcomingInvoicePreview if customer is undefined', async () => {
       const mockCart = ResultCartFactory({
         stripeCustomerId: null,
+        eligibilityStatus: CartEligibilityStatus.CREATE,
       });
       const mockPrice = StripePriceFactory();
       const mockInvoicePreview = InvoicePreviewFactory();
@@ -881,6 +881,7 @@ describe('CartService', () => {
       const mockCart = ResultCartFactory({
         uid: mockUid,
         stripeSubscriptionId: null,
+        eligibilityStatus: CartEligibilityStatus.CREATE,
       });
       const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
       const mockPrice = StripePriceFactory();
@@ -915,6 +916,7 @@ describe('CartService', () => {
       const mockCart = ResultCartFactory({
         uid: mockUid,
         stripeSubscriptionId: null,
+        eligibilityStatus: CartEligibilityStatus.CREATE,
       });
       const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
       const mockPrice = StripePriceFactory();
@@ -961,154 +963,6 @@ describe('CartService', () => {
     });
   });
 
-  describe('getUpgradeCart', () => {
-    it('returns cart with current plan and offering id', async () => {
-      const mockCart = ResultCartFactory({
-        stripeSubscriptionId: null,
-        eligibilityStatus: CartEligibilityStatus.UPGRADE,
-      });
-      const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
-      const mockPrice = StripePriceFactory();
-      const mockInvoicePreview = InvoicePreviewFactory({
-        oneTimeCharge: 4500,
-      });
-      const mockCurrentPrice = StripePriceFactory();
-      const mockCurrentOffering = PageContentOfferingTransformedFactory();
-
-      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
-      jest
-        .spyOn(productConfigurationManager, 'retrieveStripePrice')
-        .mockResolvedValue(mockPrice);
-      jest.spyOn(customerManager, 'retrieve').mockResolvedValue(mockCustomer);
-      jest.spyOn(eligibilityService, 'checkEligibility').mockResolvedValue({
-        subscriptionEligibilityResult: EligibilityStatus.UPGRADE,
-        fromOfferingConfigId: mockCurrentOffering.apiIdentifier,
-        upgradeFromPrice: mockCurrentPrice,
-      });
-      jest
-        .spyOn(invoiceManager, 'previewUpcomingForUpgrade')
-        .mockResolvedValue(mockInvoicePreview);
-
-      const result = await cartService.getUpgradeCart(mockCart.id);
-      expect(result).toEqual({
-        ...mockCart,
-        upcomingInvoicePreview: mockInvoicePreview,
-        metricsOptedOut: false,
-        eligibilityStatus: CartEligibilityStatus.UPGRADE,
-        fromOfferingConfigId: mockCurrentOffering.apiIdentifier,
-        oneTimeCharge: 4500,
-        upgradeFromPrice: {
-          currency: mockCurrentPrice.currency,
-          interval: mockCurrentPrice.recurring?.interval,
-          listAmount: mockCurrentPrice.unit_amount,
-        },
-      });
-
-      expect(cartManager.fetchCartById).toHaveBeenCalledWith(mockCart.id);
-      expect(
-        productConfigurationManager.retrieveStripePrice
-      ).toHaveBeenCalledWith(mockCart.offeringConfigId, mockCart.interval);
-      expect(customerManager.retrieve).toHaveBeenCalledWith(
-        mockCart.stripeCustomerId
-      );
-      expect(invoiceManager.previewUpcomingForUpgrade).toHaveBeenCalledWith({
-        priceId: mockPrice.id,
-        currency: mockCart.currency,
-        customer: mockCustomer,
-        taxAddress: mockCart.taxAddress,
-        upgradeFromPrice: mockCurrentPrice,
-      });
-    });
-
-    it('throws error if eligibility status is not upgrade for getUpgradeCart', async () => {
-      const mockCart = ResultCartFactory({
-        stripeSubscriptionId: null,
-        eligibilityStatus: CartEligibilityStatus.CREATE,
-      });
-      const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
-      const mockPrice = StripePriceFactory();
-      const mockInvoicePreview = InvoicePreviewFactory({
-        oneTimeCharge: 4500,
-      });
-
-      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
-      jest
-        .spyOn(productConfigurationManager, 'retrieveStripePrice')
-        .mockResolvedValue(mockPrice);
-      jest.spyOn(customerManager, 'retrieve').mockResolvedValue(mockCustomer);
-      jest.spyOn(eligibilityService, 'checkEligibility').mockResolvedValue({
-        subscriptionEligibilityResult: EligibilityStatus.CREATE,
-      });
-      jest
-        .spyOn(invoiceManager, 'previewUpcomingForUpgrade')
-        .mockResolvedValue(mockInvoicePreview);
-
-      await expect(
-        cartService.getUpgradeCart(mockCart.id)
-      ).rejects.toThrowError(CartEligibilityMismatchError);
-    });
-
-    it('throws error if upgrade is missing offering id or price from current plan', async () => {
-      const mockCart = ResultCartFactory({
-        stripeSubscriptionId: null,
-        eligibilityStatus: CartEligibilityStatus.UPGRADE,
-      });
-      const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
-      const mockPrice = StripePriceFactory();
-      const mockInvoicePreview = InvoicePreviewFactory({
-        oneTimeCharge: 4500,
-      });
-
-      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
-      jest
-        .spyOn(productConfigurationManager, 'retrieveStripePrice')
-        .mockResolvedValue(mockPrice);
-      jest.spyOn(customerManager, 'retrieve').mockResolvedValue(mockCustomer);
-      jest.spyOn(eligibilityService, 'checkEligibility').mockResolvedValue({
-        subscriptionEligibilityResult: EligibilityStatus.UPGRADE,
-      });
-      jest
-        .spyOn(invoiceManager, 'previewUpcomingForUpgrade')
-        .mockResolvedValue(mockInvoicePreview);
-
-      await expect(
-        cartService.getUpgradeCart(mockCart.id)
-      ).rejects.toThrowError(CartUpgradeNotValid);
-    });
-
-    it('throws error if upgrade is missing oneTimeCharge from invoice', async () => {
-      const mockCart = ResultCartFactory({
-        stripeSubscriptionId: null,
-        eligibilityStatus: CartEligibilityStatus.UPGRADE,
-      });
-      const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
-      const mockPrice = StripePriceFactory();
-      const mockInvoicePreview = InvoicePreviewFactory({
-        oneTimeCharge: undefined,
-      });
-      const mockCurrentPrice = StripePriceFactory();
-      const mockCurrentOffering = PageContentOfferingTransformedFactory();
-
-      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
-      jest
-        .spyOn(productConfigurationManager, 'retrieveStripePrice')
-        .mockResolvedValue(mockPrice);
-      jest.spyOn(customerManager, 'retrieve').mockResolvedValue(mockCustomer);
-      jest.spyOn(eligibilityService, 'checkEligibility').mockResolvedValue({
-        subscriptionEligibilityResult: EligibilityStatus.UPGRADE,
-        fromOfferingConfigId: mockCurrentOffering.apiIdentifier,
-        upgradeFromPrice: mockCurrentPrice,
-      });
-      jest
-        .spyOn(invoiceManager, 'previewUpcomingForUpgrade')
-        .mockResolvedValue(mockInvoicePreview);
-
-      await expect(
-        cartService.getUpgradeCart(mockCart.id)
-      ).rejects.toThrowError(CartUpgradeMissingRequired);
-    });
-  });
-
   describe('getSuccessCart', () => {
     const mockSuccessCart = SuccessCartFactory();
     it('should return success cart', async () => {
@@ -1118,11 +972,10 @@ describe('CartService', () => {
     });
 
     it('should throw error if cart state is not success', async () => {
-      jest
-        .spyOn(cartService, 'getCart')
-        .mockResolvedValue(SuccessCartFactory({ state: CartState.FAIL }));
+      const mockCart = WithContextCartFactory({ state: CartState.FAIL });
+      jest.spyOn(cartService, 'getCart').mockResolvedValue(mockCart);
       await expect(
-        cartService.getSuccessCart(mockSuccessCart.id)
+        cartService.getSuccessCart(mockCart.id)
       ).rejects.toThrowError(CartInvalidStateForActionError);
     });
 

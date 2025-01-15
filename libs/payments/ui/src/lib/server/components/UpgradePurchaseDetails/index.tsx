@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import Image from 'next/image';
-import { CurrentPrice, Invoice } from '@fxa/payments/cart';
+import { CurrentPrice } from '@fxa/payments/cart';
+import { InvoicePreview } from '@fxa/payments/customer';
 import { PriceInterval } from '@fxa/payments/ui/server';
 import { LocalizerRsc } from '@fxa/shared/l10n/server';
 
@@ -15,7 +16,7 @@ type UpgradePurchaseDetailsProps = {
     webIcon: string;
   };
   interval: string;
-  invoice: Invoice;
+  invoice: InvoicePreview;
   l10n: LocalizerRsc;
   purchaseDetails: {
     subtitle: string | null;

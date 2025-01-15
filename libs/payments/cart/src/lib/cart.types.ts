@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { TaxAddress } from '@fxa/payments/customer';
+import { InvoicePreview, TaxAddress } from '@fxa/payments/customer';
 import {
   Cart,
   CartEligibilityStatus,
@@ -28,20 +28,6 @@ export type FinishErrorCart = {
   amount?: number;
   stripeCustomerId?: string;
 };
-
-export interface Invoice {
-  currency: string;
-  listAmount: number;
-  totalAmount: number;
-  taxAmounts: TaxAmount[];
-  discountAmount: number | null;
-  subtotal: number;
-  discountEnd?: number | null;
-  discountType?: string;
-  number: string | null; // customer-facing invoice identifier
-  paypalTransactionId?: string;
-  oneTimeCharge?: number;
-}
 
 export type PaymentProvidersType =
   | Stripe.PaymentMethod.Type
@@ -69,24 +55,30 @@ export interface CurrentPrice {
   listAmount: number;
 }
 
+export type GetCartResult = WithContextCart | SuccessCart | UpgradeCart;
+
 export type WithContextCart = ResultCart & {
   metricsOptedOut: boolean;
-  upcomingInvoicePreview: Invoice;
-  latestInvoicePreview?: Invoice;
+  upcomingInvoicePreview: InvoicePreview;
+  latestInvoicePreview?: InvoicePreview;
   paymentInfo?: PaymentInfo;
   fromOfferingConfigId?: string;
-  oneTimeCharge?: number;
   upgradeFromPrice?: CurrentPrice;
 };
 
-export type SuccessCart = WithContextCart & {
-  latestInvoicePreview: Invoice;
+export type SuccessCart = ResultCart & {
+  state: CartState.SUCCESS;
+  metricsOptedOut: boolean;
+  upcomingInvoicePreview: InvoicePreview;
+  latestInvoicePreview: InvoicePreview;
   paymentInfo: PaymentInfo;
 };
 
-export type UpgradeCart = WithContextCart & {
+export type UpgradeCart = ResultCart & {
+  eligibilityStatus: CartEligibilityStatus.UPGRADE;
+  metricsOptedOut: boolean;
+  upcomingInvoicePreview: InvoicePreview;
   fromOfferingConfigId: string;
-  oneTimeCharge: number;
   upgradeFromPrice: CurrentPrice;
 };
 

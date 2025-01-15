@@ -163,19 +163,3 @@ export class CartSuccessMissingRequired extends CartError {
     });
   }
 }
-
-export class CartUpgradeMissingRequired extends CartError {
-  constructor(cartId: string) {
-    super('Upgrade cart is missing required fields', {
-      cartId,
-    });
-  }
-}
-
-export class CartUpgradeNotValid extends CartError {
-  constructor(cartId: string) {
-    super('Upgrade cart does not have current plan', {
-      cartId,
-    });
-  }
-}

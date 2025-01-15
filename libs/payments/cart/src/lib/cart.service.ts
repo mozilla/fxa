@@ -23,6 +23,7 @@ import {
   AccountCustomerManager,
   AccountCustomerNotFoundError,
   StripeCustomer,
+  StripePrice,
   StripeSubscription,
 } from '@fxa/payments/stripe';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
@@ -37,6 +38,7 @@ import { GeoDBManager } from '@fxa/shared/geodb';
 import { CartManager } from './cart.manager';
 import type {
   CheckoutCustomerData,
+  GetCartResult,
   GetNeedsInputResponse,
   NoInputNeededResponse,
   PaymentInfo,
@@ -44,14 +46,11 @@ import type {
   StripeHandleNextActionResponse,
   SuccessCart,
   UpdateCart,
-  UpgradeCart,
-  WithContextCart,
 } from './cart.types';
-import { NeedsInputType } from './cart.types';
+import { CurrentPrice, NeedsInputType } from './cart.types';
 import { handleEligibilityStatusMap } from './cart.utils';
 import { CheckoutService } from './checkout.service';
 import {
-  CartEligibilityMismatchError,
   CartError,
   CartInvalidCurrencyError,
   CartInvalidPromoCodeError,
@@ -60,8 +59,6 @@ import {
   CartStateProcessingError,
   CartSubscriptionNotFoundError,
   CartSuccessMissingRequired,
-  CartUpgradeMissingRequired,
-  CartUpgradeNotValid,
 } from './cart.error';
 import { AccountManager } from '@fxa/shared/account/account';
 import assert from 'assert';
@@ -437,7 +434,7 @@ export class CartService {
    * Fetch a cart from the database by ID
    */
   @SanitizeExceptions()
-  async getCart(cartId: string): Promise<WithContextCart> {
+  async getCart(cartId: string): Promise<GetCartResult> {
     const cart = await this.cartManager.fetchCartById(cartId);
 
     const [price, metricsOptedOut] = await Promise.all([
@@ -457,13 +454,39 @@ export class CartService {
       ]);
     }
 
-    const upcomingInvoicePreview = await this.invoiceManager.previewUpcoming({
-      priceId: price.id,
-      currency: cart.currency || DEFAULT_CURRENCY,
-      customer,
-      taxAddress: cart.taxAddress || undefined,
-      couponCode: cart.couponCode || undefined,
-    });
+    let fromOfferingConfigId: string | undefined;
+    let upgradeFromPrice: StripePrice | undefined;
+    let currentPrice: CurrentPrice | undefined;
+    if (cart.eligibilityStatus === CartEligibilityStatus.UPGRADE) {
+      const eligibility = await this.eligibilityService.checkEligibility(
+        cart.interval as SubplatInterval,
+        cart.offeringConfigId,
+        cart.stripeCustomerId
+      );
+      fromOfferingConfigId = eligibility.fromOfferingConfigId;
+      upgradeFromPrice = eligibility.upgradeFromPrice;
+    }
+
+    let upcomingInvoicePreview: InvoicePreview | undefined;
+    if (cart.eligibilityStatus === CartEligibilityStatus.UPGRADE) {
+      upcomingInvoicePreview =
+        await this.invoiceManager.previewUpcomingForUpgrade({
+          priceId: price.id,
+          currency: cart.currency || DEFAULT_CURRENCY,
+          customer,
+          taxAddress: cart.taxAddress || undefined,
+          couponCode: cart.couponCode || undefined,
+          upgradeFromPrice,
+        });
+    } else {
+      upcomingInvoicePreview = await this.invoiceManager.previewUpcoming({
+        priceId: price.id,
+        currency: cart.currency || DEFAULT_CURRENCY,
+        customer,
+        taxAddress: cart.taxAddress || undefined,
+        couponCode: cart.couponCode || undefined,
+      });
+    }
 
     let paymentInfo: PaymentInfo | undefined;
     if (customer?.invoice_settings.default_payment_method) {
@@ -513,6 +536,8 @@ export class CartService {
       metricsOptedOut,
       latestInvoicePreview,
       paymentInfo,
+      fromOfferingConfigId,
+      upgradeFromPrice: currentPrice,
     };
   }
 
@@ -531,123 +556,21 @@ export class CartService {
       );
     }
 
-    if (!cart.latestInvoicePreview || !cart.paymentInfo?.type) {
-      throw new CartSuccessMissingRequired(cartId);
-    }
-
-    return {
-      ...cart,
-      latestInvoicePreview: cart.latestInvoicePreview,
-      paymentInfo: cart.paymentInfo,
-    };
-  }
-
-  /**
-   * Fetch a upgrade cart
-   */
-  async getUpgradeCart(cartId: string): Promise<UpgradeCart> {
-    const cart = await this.cartManager.fetchCartById(cartId);
-
-    if (cart.eligibilityStatus !== CartEligibilityStatus.UPGRADE)
-      throw new CartEligibilityMismatchError(
-        cartId,
-        cart.eligibilityStatus,
-        CartEligibilityStatus.UPGRADE
-      );
-
-    const [price, metricsOptedOut] = await Promise.all([
-      this.productConfigurationManager.retrieveStripePrice(
-        cart.offeringConfigId,
-        cart.interval as SubplatInterval
-      ),
-      this.metricsOptedOut(cart.uid),
-    ]);
-
-    let customer: StripeCustomer | undefined;
-    if (cart.stripeCustomerId) {
-      customer = await this.customerManager.retrieve(cart.stripeCustomerId);
-    }
-
-    const { fromOfferingConfigId, upgradeFromPrice } =
-      await this.eligibilityService.checkEligibility(
-        cart.interval as SubplatInterval,
-        cart.offeringConfigId,
-        cart.stripeCustomerId
-      );
-
     if (
-      !fromOfferingConfigId ||
-      !upgradeFromPrice ||
-      !upgradeFromPrice.recurring ||
-      !upgradeFromPrice.unit_amount
-    )
-      throw new CartUpgradeNotValid(cartId);
-
-    const upcomingInvoicePreview =
-      await this.invoiceManager.previewUpcomingForUpgrade({
-        priceId: price.id,
-        currency: cart.currency || DEFAULT_CURRENCY,
-        customer,
-        taxAddress: cart.taxAddress || undefined,
-        couponCode: cart.couponCode || undefined,
-        upgradeFromPrice,
-      });
-
-    if (!upcomingInvoicePreview.oneTimeCharge) {
-      throw new CartUpgradeMissingRequired(cartId);
+      'latestInvoicePreview' in cart &&
+      cart.latestInvoicePreview !== undefined &&
+      'paymentInfo' in cart &&
+      cart.paymentInfo !== undefined &&
+      'type' in cart.paymentInfo
+    ) {
+      return {
+        ...cart,
+        state: CartState.SUCCESS,
+        latestInvoicePreview: cart.latestInvoicePreview,
+        paymentInfo: cart.paymentInfo,
+      };
     }
-
-    // Cart latest invoice data
-    let latestInvoicePreview: InvoicePreview | undefined;
-    let paymentInfo: PaymentInfo | undefined;
-    if (customer && cart.stripeSubscriptionId) {
-      // fetch latest payment info from subscription
-      const subscription = await this.subscriptionManager.retrieve(
-        cart.stripeSubscriptionId
-      );
-      assert(subscription.latest_invoice, 'Subscription not found');
-      latestInvoicePreview = await this.invoiceManager.preview(
-        subscription.latest_invoice
-      );
-
-      // fetch payment method info
-      if (subscription.collection_method === 'send_invoice') {
-        // PayPal payment method collection
-        // TODO: render paypal payment info in the UI (FXA-10608)
-        paymentInfo = {
-          type: 'external_paypal',
-        };
-      } else {
-        // Stripe payment method collection
-        if (customer.invoice_settings.default_payment_method) {
-          const paymentMethod = await this.paymentMethodManager.retrieve(
-            customer.invoice_settings.default_payment_method
-          );
-          paymentInfo = {
-            type: paymentMethod.type,
-            last4: paymentMethod.card?.last4,
-            brand: paymentMethod.card?.brand,
-          };
-        }
-      }
-    }
-
-    const currentPrice = {
-      currency: upgradeFromPrice.currency,
-      interval: upgradeFromPrice.recurring?.interval,
-      listAmount: upgradeFromPrice.unit_amount,
-    };
-
-    return {
-      ...cart,
-      upcomingInvoicePreview,
-      metricsOptedOut,
-      latestInvoicePreview,
-      paymentInfo,
-      fromOfferingConfigId: fromOfferingConfigId,
-      oneTimeCharge: upcomingInvoicePreview.oneTimeCharge,
-      upgradeFromPrice: currentPrice,
-    };
+    throw new CartSuccessMissingRequired(cartId);
   }
 
   async metricsOptedOut(accountId?: string): Promise<boolean> {

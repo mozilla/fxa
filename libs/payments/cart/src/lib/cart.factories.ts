@@ -23,6 +23,7 @@ import {
   SuccessCart,
   TaxAmount,
   UpdateCart,
+  UpgradeCart,
   WithContextCart,
 } from './cart.types';
 
@@ -131,5 +132,19 @@ export const SuccessCartFactory = (
   state: CartState.SUCCESS,
   latestInvoicePreview: InvoicePreviewFactory(),
   paymentInfo: PaymentInfoFactory(),
+  ...override,
+});
+
+export const UpgradeCartFactory = (
+  override?: Partial<UpgradeCart>
+): UpgradeCart => ({
+  ...WithContextCartFactory(),
+  eligibilityStatus: CartEligibilityStatus.UPGRADE,
+  fromOfferingConfigId: faker.string.uuid(),
+  upgradeFromPrice: {
+    currency: faker.finance.currencyCode(),
+    interval: faker.helpers.arrayElement(['day', 'month', 'week', 'year']),
+    listAmount: faker.number.int({ max: 1000 }),
+  },
   ...override,
 });

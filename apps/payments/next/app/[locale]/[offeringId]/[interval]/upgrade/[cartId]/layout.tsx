@@ -38,8 +38,7 @@ export default async function UpgradeLayout({
     cms.defaultPurchase.purchaseDetails.localizations.at(0) ||
     cms.defaultPurchase.purchaseDetails;
 
-  const currentOfferingId = cart.fromOfferingConfigId;
-  const currentCmsDataPromise = fetchCMSData(currentOfferingId, locale);
+  const currentCmsDataPromise = fetchCMSData(cart.fromOfferingConfigId, locale);
   const currentCms = await currentCmsDataPromise;
   const currentPurchaseDetails =
     currentCms.defaultPurchase.purchaseDetails.localizations.at(0) ||
