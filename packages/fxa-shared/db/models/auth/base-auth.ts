@@ -52,7 +52,7 @@ export enum Proc {
   Prune = 'prune_10',
   RecoveryCodes = 'recoveryCodes_1',
   RecoveryKey = 'getRecoveryKey_4',
-  ResetAccount = 'resetAccount_18',
+  ResetAccount = 'resetAccount_19',
   ResetAccountTokens = 'resetAccountTokens_1',
   SessionWithDevice = 'sessionWithDevice_19',
   Sessions = 'sessions_13',

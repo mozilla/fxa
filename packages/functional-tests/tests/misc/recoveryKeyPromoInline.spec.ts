@@ -43,7 +43,13 @@ test.describe('recovery key promo', () => {
 
     test('not shown if user already has a recovery key', async ({
       target,
-      pages: { page, signin, connectAnotherDevice, settings, recoveryKey },
+      syncBrowserPages: {
+        page,
+        signin,
+        connectAnotherDevice,
+        settings,
+        recoveryKey,
+      },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();

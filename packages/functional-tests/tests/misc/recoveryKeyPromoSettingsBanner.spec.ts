@@ -8,7 +8,13 @@ test.describe('recovery key promo', () => {
   test.describe('settings banner', () => {
     test('can setup recovery key from settings promo banner', async ({
       target,
-      pages: { page, inlineRecoveryKey, signin, settings, recoveryKey },
+      syncBrowserPages: {
+        page,
+        inlineRecoveryKey,
+        signin,
+        settings,
+        recoveryKey,
+      },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
@@ -32,7 +38,13 @@ test.describe('recovery key promo', () => {
 
     test('can dismiss', async ({
       target,
-      pages: { page, inlineRecoveryKey, signin, settings, recoveryKey },
+      syncBrowserPages: {
+        page,
+        inlineRecoveryKey,
+        signin,
+        settings,
+        recoveryKey,
+      },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
