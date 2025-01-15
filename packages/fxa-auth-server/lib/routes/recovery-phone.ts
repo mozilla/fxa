@@ -243,17 +243,21 @@ class RecoveryPhoneHandler {
   async exists(request: AuthRequest) {
     const { uid, emailVerified, mustVerify, tokenVerified } = request.auth
       .credentials as SessionTokenAuthCredential;
+    const payload = request.payload as unknown as { phoneNumberMask: number };
+    let phoneNumberMask = payload?.phoneNumberMask;
 
-    // Short circuit if the account / session still needs verification.
-    // Note this is typically due to totp being required, but there are
-    // other states that could also result in an unverified session, such
-    // as a forced password change.
-    if (!emailVerified || (mustVerify && !tokenVerified)) {
-      return {};
+    // To ensure no data is leaked, we will never expose the full phone number, if
+    // the session is not verified. e.g. The user has entered the correct password,
+    // but failed to provide 2FA.
+    if (
+      phoneNumberMask === undefined &&
+      (!emailVerified || (mustVerify && !tokenVerified))
+    ) {
+      phoneNumberMask = 4;
     }
 
     try {
-      return await this.recoveryPhoneService.hasConfirmed(uid);
+      return await this.recoveryPhoneService.hasConfirmed(uid, phoneNumberMask);
     } catch (error) {
       throw AppError.backendServiceFailure(
         'RecoveryPhoneService',
