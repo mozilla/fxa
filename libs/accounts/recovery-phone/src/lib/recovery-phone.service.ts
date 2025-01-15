@@ -153,17 +153,26 @@ export class RecoveryPhoneService {
   /**
    * Checks if the given uid has confirmed a phone number.
    * @param uid Account id
+   * @param phoneNumberMask When provided will mask the number so the full value is not shown.
    * @returns If the account has confirmed, returns {exists:true, phoneNumber }. If not returns {exists:false}
+   *
+   * @remarks The value provided for phoneNumberMask will preserve the last N digits of of the phone number.
+   * e.g. If the phone number was +15005551234 and phoneNumberMask was 4, the result would be +*******1234.
    */
   public async hasConfirmed(
-    uid: string
-  ): Promise<{ exists: boolean; phoneNumber?: string }> {
+    uid: string,
+    phoneNumberMask?: number
+  ): Promise<{
+    exists: boolean;
+    phoneNumber?: string;
+  }> {
     try {
       const { phoneNumber } =
         await this.recoveryPhoneManager.getConfirmedPhoneNumber(uid);
+
       return {
         exists: true,
-        phoneNumber,
+        phoneNumber: this.maskPhoneNumber(phoneNumber, phoneNumberMask),
       };
     } catch (err) {
       if (err instanceof RecoveryNumberNotExistsError) {
@@ -176,6 +185,41 @@ export class RecoveryPhoneService {
       // Something unexpected happened...
       throw err;
     }
+  }
+
+  /**
+   * Masks a phone number so as to not divulge the entire value.
+   *
+   * @param phoneNumber The actual phone number
+   * @param lastN The last N number of digits to show
+   * @returns A masked number
+   *
+   * @remarks This will not mask a + symbol, since this technically isn't part of the
+   * number. e.g. +15005551234 would be masked as +*******1234 if lastN was 4.
+   */
+  public maskPhoneNumber(phoneNumber: string, lastN?: number) {
+    // The + notation can be confusing in a masked number. Don't count it
+    // as a digit.
+    let prefix = '';
+    if (phoneNumber.startsWith('+')) {
+      prefix = '+';
+      phoneNumber = phoneNumber.substring(1);
+    }
+
+    // Clamp lastN between 0 and phoneNumber.length
+    if (lastN === undefined) {
+      lastN = phoneNumber.length;
+    } else if (lastN > phoneNumber.length) {
+      lastN = phoneNumber.length;
+    } else if (lastN < 0) {
+      lastN = 0;
+    }
+
+    // Create mask
+    const maskedPhoneNumber = phoneNumber
+      .substring(phoneNumber.length - lastN)
+      .padStart(phoneNumber.length, '•');
+    return `${prefix}${maskedPhoneNumber}`;
   }
 
   /**

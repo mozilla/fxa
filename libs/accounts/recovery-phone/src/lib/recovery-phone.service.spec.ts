@@ -133,6 +133,19 @@ describe('RecoveryPhoneService', () => {
       ).toHaveBeenCalledWith(uid);
     });
 
+    it('can return masked phone number', async () => {
+      mockRecoveryPhoneManager.getConfirmedPhoneNumber.mockReturnValueOnce({
+        phoneNumber,
+      });
+
+      const result = await service.hasConfirmed(uid, 4);
+
+      expect(result.phoneNumber).toEqual('+•••••••1234');
+      expect(
+        mockRecoveryPhoneManager.getConfirmedPhoneNumber
+      ).toHaveBeenCalledWith(uid);
+    });
+
     it('can determine confirmed phone number does not exist', async () => {
       const mockError = new RecoveryNumberNotExistsError(uid);
       mockRecoveryPhoneManager.getConfirmedPhoneNumber.mockRejectedValueOnce(
@@ -352,6 +365,17 @@ describe('RecoveryPhoneService', () => {
       mockRecoveryPhoneManager.hasRecoveryCodes.mockResolvedValueOnce(false);
       const result = await service.available(uid, region);
       expect(result).toBe(false);
+    });
+  });
+
+  describe('mask phone number', () => {
+    it('can mask number', () => {
+      const phoneNumber = '+123456789';
+      expect(service.maskPhoneNumber(phoneNumber, -1)).toEqual('+•••••••••');
+      expect(service.maskPhoneNumber(phoneNumber, 0)).toEqual('+•••••••••');
+      expect(service.maskPhoneNumber(phoneNumber, 4)).toEqual('+•••••6789');
+      expect(service.maskPhoneNumber(phoneNumber, 9)).toEqual('+123456789');
+      expect(service.maskPhoneNumber(phoneNumber, 12)).toEqual('+123456789');
     });
   });
 });

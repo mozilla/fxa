@@ -439,7 +439,7 @@ describe('/recovery_phone', () => {
       );
     });
 
-    it('indicates service', async () => {
+    it('indicates  error', async () => {
       mockRecoveryPhoneService.hasConfirmed = sinon.fake.returns(
         Promise.reject(new Error('BOOM'))
       );
@@ -453,7 +453,7 @@ describe('/recovery_phone', () => {
       assert.equal(mockGlean.twoStepAuthPhoneRemove.success.callCount, 0);
     });
 
-    it('returns empty response for unverified session', async () => {
+    it('returns masked phone number for unverified session', async () => {
       mockRecoveryPhoneService.hasConfirmed = sinon.fake.returns({
         exists: true,
         phoneNumber,
@@ -464,8 +464,36 @@ describe('/recovery_phone', () => {
         credentials: { uid, mustVerify: true },
       });
       assert.isDefined(resp);
-      assert.isEmpty(resp);
-      assert.equal(mockRecoveryPhoneService.hasConfirmed.callCount, 0);
+      assert.isDefined(resp.exists);
+      assert.isDefined(resp.phoneNumber);
+      assert.equal(mockRecoveryPhoneService.hasConfirmed.callCount, 1);
+      assert.equal(
+        mockRecoveryPhoneService.hasConfirmed.getCall(0).args[0],
+        uid
+      );
+      assert.equal(mockRecoveryPhoneService.hasConfirmed.getCall(0).args[1], 4);
+    });
+
+    it('returns masked phone number format requested', async () => {
+      mockRecoveryPhoneService.hasConfirmed = sinon.fake.returns({
+        exists: true,
+        phoneNumber,
+      });
+      const resp = await makeRequest({
+        method: 'GET',
+        path: '/recovery_phone',
+        credentials: { uid, mustVerify: true },
+        payload: { phoneNumberMask: 2 },
+      });
+      assert.isDefined(resp);
+      assert.isDefined(resp.exists);
+      assert.isDefined(resp.phoneNumber);
+      assert.equal(mockRecoveryPhoneService.hasConfirmed.callCount, 1);
+      assert.equal(
+        mockRecoveryPhoneService.hasConfirmed.getCall(0).args[0],
+        uid
+      );
+      assert.equal(mockRecoveryPhoneService.hasConfirmed.getCall(0).args[1], 2);
     });
   });
 });
