@@ -31,6 +31,8 @@ test.describe('severity-1 #smoke', () => {
         settings
       );
 
+      await settings.signOut();
+
       // Stash original encryption keys to be verified later
       const accountData = await target.authClient.sessionReauth(
         credentials.sessionToken,
@@ -127,6 +129,8 @@ test.describe('severity-1 #smoke', () => {
 
       await enableRecoveryKey(credentials.password, recoveryKey, settings);
 
+      await settings.signOut();
+
       await resetPassword.goto();
 
       await resetPassword.fillOutEmailForm(credentials.email);
@@ -145,6 +149,60 @@ test.describe('severity-1 #smoke', () => {
       );
 
       await expect(settings.recoveryKey.status).toHaveText('Not Set');
+
+      // update password for cleanup function
+      credentials.password = newPassword;
+    });
+
+    test('can reset password with recovery key after changing password in settings', async ({
+      target,
+      pages: { settings, recoveryKey, resetPassword, signin, changePassword },
+      testAccountTracker,
+    }) => {
+      const credentials = await testAccountTracker.signUp();
+      const newPassword = testAccountTracker.generatePassword();
+
+      await signinAccount(
+        credentials.email,
+        credentials.password,
+        settings,
+        signin
+      );
+
+      const key = await enableRecoveryKey(
+        credentials.password,
+        recoveryKey,
+        settings
+      );
+
+      // Change password
+      await settings.password.changeButton.click();
+      await changePassword.fillOutChangePassword(
+        credentials.password,
+        newPassword
+      );
+
+      await expect(settings.settingsHeading).toBeVisible();
+      await expect(settings.alertBar).toHaveText('Password updated');
+
+      await resetPassword.goto();
+
+      await resetPassword.fillOutEmailForm(credentials.email);
+      const code = await target.emailClient.getResetPasswordCode(
+        credentials.email
+      );
+
+      await resetPassword.fillOutResetPasswordCodeForm(code);
+
+      await resetPassword.fillOutRecoveryKeyForm(key);
+      await resetPassword.fillOutNewPasswordForm(newPassword);
+
+      await resetPassword.continueWithoutDownloadingRecoveryKey();
+
+      await resetPassword.recoveryKeyHintTextbox.fill('area 51');
+      await resetPassword.recoveryKeyFinishButton.click();
+
+      await expect(settings.recoveryKey.status).toHaveText('Enabled');
 
       // update password for cleanup function
       credentials.password = newPassword;
@@ -176,8 +234,6 @@ test.describe('severity-1 #smoke', () => {
 
     await expect(settings.settingsHeading).toBeVisible();
     await expect(settings.recoveryKey.status).toHaveText('Enabled');
-
-    await settings.signOut();
 
     return key;
   }

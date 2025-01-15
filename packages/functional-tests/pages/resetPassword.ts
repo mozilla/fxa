@@ -218,4 +218,8 @@ export class ResetPasswordPage extends BaseLayout {
     ]);
     return download;
   }
+
+  async continueWithoutDownloadingRecoveryKey() {
+    return this.page.getByText('Continue without downloading').click();
+  }
 }
