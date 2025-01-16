@@ -7,4 +7,4 @@ inactiveAccountSecondWarning-impact = Your account and your personal data will b
 inactiveAccountSecondWarning-action = Sign in to keep your account
 inactiveAccountSecondWarning-preview = Sign in to keep your account
 # followed by link to sign in
-inactiveAccountSecondWarning-action = Sign in to keep your account:
+inactiveAccountSecondWarning-action-plaintext = Sign in to keep your account:
