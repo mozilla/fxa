@@ -5,6 +5,6 @@ inactiveAccountFinalWarning-account-description = Your { -product-mozilla-accoun
 # $deletionDate - the date when the account will be deleted if the user does not take action to-reactivate their account
 # This date will already be formatted with moment.js into Thursday, Jan 9, 2025 format
 inactiveAccountFinalWarning-impact = On <strong>{ $deletionDate }</strong>, your account and your personal data will be permanently deleted unless you sign in.
-inactiveAccountFirstWarning-action = Sign in to keep your account
+inactiveAccountFinalWarning-action = Sign in to keep your account
 # followed by link to sign in
-inactiveAccountFirstWarning-action-plaintext = Sign in to keep your account:
+inactiveAccountFinalWarning-action-plaintext = Sign in to keep your account:
