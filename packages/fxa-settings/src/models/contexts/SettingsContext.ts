@@ -62,6 +62,11 @@ export const INITIAL_SETTINGS_QUERY = gql`
         hasBackupCodes
         count
       }
+      recoveryPhone {
+        exists
+        phoneNumber
+        available
+      }
       subscriptions {
         created
         productName

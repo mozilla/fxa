@@ -4,7 +4,7 @@
 
 import React, { useState } from 'react';
 import ConfirmRecoveryCode from '.';
-import { MOCK_PHONE_NUMBER } from '../../mocks';
+import { MOCK_MASKED_PHONE_NUMBER } from '../../mocks';
 import { LocationProvider } from '@reach/router';
 import { SigninRecoveryPhoneCodeConfirmProps } from '.';
 
@@ -15,7 +15,6 @@ export const Subject = ({
   verifyCode = mockVerifyCode,
   resendCode = mockResendCode,
 }: Partial<SigninRecoveryPhoneCodeConfirmProps>) => {
-  const maskedPhoneNumber = MOCK_PHONE_NUMBER;
   const [errorMessage, setErrorMessage] = useState('');
 
   const clearBanners = () => {
@@ -25,7 +24,7 @@ export const Subject = ({
   return (
     <LocationProvider>
       <ConfirmRecoveryCode
-        maskedPhoneNumber={maskedPhoneNumber}
+        maskedPhoneNumber={MOCK_MASKED_PHONE_NUMBER}
         {...{
           clearBanners,
           errorMessage,

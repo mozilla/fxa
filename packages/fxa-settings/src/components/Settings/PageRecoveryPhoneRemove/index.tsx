@@ -30,8 +30,8 @@ const PageRecoveryPhoneRemove = (props: RouteComponentProps) => {
   const alertBar = useAlertBar();
   const ftlMsgResolver = useFtlMsgResolver();
 
-  // TODO, actually get this number back and format it
-  const formattedFullPhoneNumber = '+1 ••• ••••';
+  // TODO, we may want national_format back from Twilio
+  const formattedFullPhoneNumber = account.recoveryPhone.phoneNumber!;
 
   const goHome = () => navigate(SETTINGS_PATH + '#security', { replace: true });
 

@@ -20,6 +20,7 @@ import { ProfileClientService } from '../backend/profile-client.service';
 import { AccountResolver } from './account.resolver';
 import { NotifierService, NotifierSnsService } from '@fxa/shared/notifier';
 import { RecoveryPhoneService } from '@fxa/accounts/recovery-phone';
+import { GraphQLResolveInfo } from 'graphql';
 
 let USER_1: any;
 let SESSION_1: any;
@@ -202,18 +203,44 @@ describe('#integration - AccountResolver', () => {
         const linkedAccounts = resolver.linkedAccounts(user!);
         expect(linkedAccounts).toEqual([]);
       });
-
       it('resolves recovery phone number', async () => {
+        authClient.recoveryPhoneAvailable = jest
+          .fn()
+          .mockResolvedValue({ available: true });
         recoveryPhoneService.hasConfirmed = jest
           .fn()
-          .mockResolvedValue({ exists: false });
-        const user = await Account.findByUid(USER_1.uid);
-        const result = await resolver.recoveryPhone(user!);
+          .mockResolvedValue({ exists: true, phoneNumber: '+11234567890' });
 
-        // Data shouldn't exist because no number has been registered yet.
-        expect(result).toEqual({ exists: false });
-        expect(recoveryPhoneService.hasConfirmed).toBeCalledTimes(1);
-        expect(recoveryPhoneService.hasConfirmed).toBeCalledWith(USER_1.uid);
+        const user = await Account.findByUid(USER_1.uid);
+        // Make the private method public for testing in favor of mocking 'info',
+        // which is a very large object that's challenging to mock
+        Object.defineProperty(
+          resolver,
+          'shouldIncludeRecoveryPhoneAvailability',
+          {
+            value: jest.fn().mockReturnValue(true),
+          }
+        );
+
+        const result = await resolver.recoveryPhone(
+          'token',
+          headers,
+          user!,
+          {} as unknown as GraphQLResolveInfo
+        );
+
+        expect(recoveryPhoneService.hasConfirmed).toHaveBeenCalledWith(
+          user!.uid
+        );
+        expect(authClient.recoveryPhoneAvailable).toHaveBeenCalledWith(
+          'token',
+          headers
+        );
+        expect(result).toStrictEqual({
+          phoneNumber: '+11234567890',
+          exists: true,
+          available: true,
+        });
       });
 
       it('resolves linked accounts when loaded', async () => {

@@ -87,7 +87,7 @@ describe('FlowSetupRecoveryPhoneConfirmCode', () => {
 
     await waitFor(() => {
       expect(mockSendCode).toHaveBeenCalledTimes(1);
-      expect(screen.getByText(/Resend code/i)).toBeInTheDocument();
+      expect(screen.getByText(/Code sent/i)).toBeInTheDocument();
     });
   });
 

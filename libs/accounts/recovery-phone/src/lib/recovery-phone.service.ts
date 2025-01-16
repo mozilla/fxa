@@ -80,7 +80,6 @@ export class RecoveryPhoneService {
     if (!this.isSuccessfulSmsSend(msg)) {
       return false;
     }
-
     await this.recoveryPhoneManager.storeUnconfirmed(
       uid,
       code,
@@ -168,7 +167,6 @@ export class RecoveryPhoneService {
    * @returns True if successful
    */
   public async removePhoneNumber(uid: string) {
-
     if (!this.config.enabled) {
       throw new RecoveryPhoneNotEnabled();
     }

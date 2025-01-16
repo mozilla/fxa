@@ -6,7 +6,7 @@ import React, { useState } from 'react';
 import FlowContainer from '../FlowContainer';
 import ProgressBar from '../ProgressBar';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import Banner, { ResendCodeSuccessBanner } from '../../Banner';
+import Banner from '../../Banner';
 import FormVerifyTotp from '../../FormVerifyTotp';
 import { BackupRecoveryPhoneCodeImage } from '../../images';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
@@ -95,7 +95,15 @@ export const FlowSetupRecoveryPhoneConfirmCode = ({
     >
       <ProgressBar {...{ currentStep, numberOfSteps }} />
       {resendStatus === ResendStatus.sent && !localizedErrorBannerMessage && (
-        <ResendCodeSuccessBanner />
+        <Banner
+          type="success"
+          content={{
+            localizedHeading: ftlMsgResolver.getMsg(
+              'flow-setup-phone-confirm-code-resend-code-success',
+              'Code sent'
+            ),
+          }}
+        />
       )}
       {localizedErrorBannerMessage && (
         <Banner

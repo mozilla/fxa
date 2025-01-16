@@ -5,30 +5,24 @@
 import React, { useState } from 'react';
 import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
 import { SETTINGS_PATH } from '../../../constants';
-import { useFtlMsgResolver } from '../../../models';
+import { useAccount, useFtlMsgResolver } from '../../../models';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import FlowSetupRecoveryPhoneConfirmCode from '../FlowSetupRecoveryPhoneConfirmCode';
 import FlowSetupRecoveryPhoneSubmitNumber from '../FlowSetupRecoveryPhoneSubmitNumber';
+import { RouteComponentProps } from '@reach/router';
 
 const numberOfSteps = 2;
 
-type PageRecoveryPhoneSetupProps = {
-  testPhoneNumber?: string;
-  testStep?: 1 | 2;
-};
-
-// temporary props for storybook purposes
-export const PageRecoveryPhoneSetup = ({
-  testPhoneNumber,
-  testStep,
-}: PageRecoveryPhoneSetupProps) => {
+export const PageRecoveryPhoneSetup = (_: RouteComponentProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   const navigate = useNavigate();
+  const account = useAccount();
 
-  const [currentStep, setCurrentStep] = useState<number>(testStep || 1);
-  const [formattedPhoneNumber, setFormattedPhoneNumber] = useState<string>(
-    testPhoneNumber || ''
-  );
+  const [phoneNumber, setPhoneNumber] = useState<string>('');
+  // TODO, actually format this. Should get `national_format` back from Twilio?
+  const formattedPhoneNumber = phoneNumber;
+
+  const [currentStep, setCurrentStep] = useState<number>(1);
 
   const goHome = () =>
     navigate(SETTINGS_PATH + '#two-step-authentication', { replace: true });
@@ -57,17 +51,22 @@ export const PageRecoveryPhoneSetup = ({
   };
 
   const sendCode = async () => {
-    // Placeholder until we have a proper SMS code sender
+    // Just retry adding the number and another code will send. Note that more than
+    // one code can be valid at the same time if the user clicks “resend code” to
+    // account for SMS transmission delay. (This will change in FXA-11039)
+    // try/catch is in the component that calls this function
+    await account.addRecoveryPhone(phoneNumber);
   };
 
   const verifyRecoveryCode = async (code: string) => {
-    // Placeholder until we have a proper SMS code verifier
+    // try/catch is in the component that calls this function
+    await account.confirmRecoveryPhone(code, phoneNumber);
   };
 
-  const verifyPhoneNumber = async (phoneNumber: string) => {
-    // Placeholder until we have a proper phone number verifier
-    // for now let's just make it available for the next step
-    await setFormattedPhoneNumber(phoneNumber);
+  const verifyPhoneNumber = async (phoneNumberInput: string) => {
+    // try/catch is in the component that calls this function
+    await account.addRecoveryPhone(phoneNumberInput);
+    setPhoneNumber(phoneNumberInput);
   };
 
   return (

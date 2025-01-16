@@ -2182,7 +2182,7 @@ const convictConf = convict({
       },
       maxMessageLength: {
         default: 60,
-        doc: 'Max allows sms message lenght',
+        doc: 'Max allows sms message length',
         env: 'RECOVERY_PHONE__SMS__MAX_MESSAGE_LENGTH',
         format: Number,
       },
