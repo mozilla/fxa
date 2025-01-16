@@ -744,10 +744,14 @@ jobs:
 
   smoke-tests:
     parameters:
+      parallelism:
+          type: integer
+          default: 8  # this should correspond with the resource-class defined in the executor
       project:
         type: string
         default: production
     executor: smoke-test-executor
+    parallelism: << parameters.parallelism >>
     steps:
       - git-checkout
       - provision
@@ -759,8 +763,12 @@ jobs:
   # Runs functional tests using playwright. These tests support splitting
   # and parallel execution.
   playwright-functional-tests:
+    parameters:
+      parallelism:
+        type: integer
+        default: 8  # this should correspond with the resource-class defined in the executor
     executor: functional-test-executor
-    parallelism: 8  # this should coorespond with the resource-class defined in the executor
+    parallelism: << parameters.parallelism >>
     steps:
       - git-checkout
       - restore-workspace
@@ -781,8 +789,12 @@ jobs:
       - rename-reports
 
   playwright-functional-tests-chromium:
+    parameters:
+      parallelism:
+        type: integer
+        default: 8  # this should correspond with the resource-class defined in the executor
     executor: functional-test-executor
-    parallelism: 8  # this should coorespond with the resource-class defined in the executor
+    parallelism: << parameters.parallelism >>
     steps:
       - git-checkout
       - restore-workspace
