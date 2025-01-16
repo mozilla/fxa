@@ -228,14 +228,15 @@ export const BackupPhoneSubRow = ({
     <BackupRecoverySmsDisabledIcon className="-ms-1 -my-2 scale-50" />
   );
   const message = hasPhoneNumber ? (
-    // We will likely want to only retrieve the last 4 digits of the phone number from the backend
-    // but adding a slice here just in case to ensure only the last 4 digits are displayed
-    // u2022 is a bullet point character
-    // This format works for a North American phone number, but may need to be adjusted for other formats
-    // durring next phases of SMS feature rollout
+    // If the user's session is not verified, an already masked phone number is returned.
+    // If it is verified, the full phone number is returned but here we want a client-side mask.
+    // We may want to get `national_format` back from Twilio.
     // Phone numbers should always be displayed left-to-right, *including* in rtl languages
-    // • is a bullet point character (\u2022)
-    <p dir="ltr">{`••• ••• ${phoneNumber.slice(-4)}`}</p>
+    <p dir="ltr">
+      {phoneNumber.includes('•')
+        ? phoneNumber
+        : `••••••${phoneNumber.slice(-4)}`}
+    </p>
   ) : (
     <FtlMsg id="tfa-row-backup-phone-not-available">
       <p>No recovery phone number available</p>

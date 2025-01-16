@@ -74,4 +74,5 @@ export const ALL_PRODUCT_PROMO_SERVICES = [{ name: MozServices.Monitor }];
 export const ALL_PRODUCT_PROMO_SUBSCRIPTIONS = [
   { productName: MozServices.MonitorPlus },
 ];
-export const MOCK_PHONE_NUMBER = '••••••1234';
+export const MOCK_MASKED_PHONE_NUMBER = '••••••1234';
+export const MOCK_FULL_PHONE_NUMBER = '+15555551234';

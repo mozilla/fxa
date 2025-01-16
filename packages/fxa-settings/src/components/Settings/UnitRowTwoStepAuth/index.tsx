@@ -8,36 +8,31 @@ import { useBooleanState } from 'fxa-react/lib/hooks';
 import Modal from '../Modal';
 import UnitRow, { UnitRowProps } from '../UnitRow';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
-import { useAccount, useAlertBar, useFtlMsgResolver } from '../../../models';
+import {
+  useAccount,
+  useAlertBar,
+  useConfig,
+  useFtlMsgResolver,
+} from '../../../models';
 import { SETTINGS_PATH } from '../../../constants';
 import GleanMetrics from '../../../lib/glean';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import {
-  BackupCodesSubRow,
-  BackupPhoneSubRow,
-  BackupPhoneSubRowProps,
-} from '../SubRow';
+import { BackupCodesSubRow, BackupPhoneSubRow } from '../SubRow';
 import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
 
 const route = `${SETTINGS_PATH}/two_step_authentication`;
 const replaceCodesRoute = `${route}/replace_codes`;
 
-// These props are temporary for storybook purposes
-// until recovery phone feature is enabled.
-type UnitRowTwoStepAuthProps = {
-  backupPhoneSubRowProps?: BackupPhoneSubRowProps;
-};
-
-export const UnitRowTwoStepAuth = ({
-  backupPhoneSubRowProps,
-}: UnitRowTwoStepAuthProps) => {
+export const UnitRowTwoStepAuth = () => {
   const alertBar = useAlertBar();
   const account = useAccount();
   const navigate = useNavigate();
   const {
     backupCodes: { count },
     totp: { exists, verified },
+    recoveryPhone,
   } = account;
+  const config = useConfig();
   const [disable2FAModalRevealed, revealDisable2FAModal, hideDisable2FAModal] =
     useBooleanState();
   const ftlMsgResolver = useFtlMsgResolver();
@@ -155,17 +150,24 @@ export const UnitRowTwoStepAuth = ({
           onCtaClick={() => {
             navigate(replaceCodesRoute);
           }}
+          key={1}
         />
       );
-    }
-    if (backupPhoneSubRowProps?.onCtaClick) {
-      subRows.push(
-        <BackupPhoneSubRow
-          onCtaClick={backupPhoneSubRowProps.onCtaClick}
-          onDeleteClick={backupPhoneSubRowProps.onDeleteClick}
-          phoneNumber={backupPhoneSubRowProps.phoneNumber}
-        />
-      );
+      if (
+        config.featureFlags?.enableAdding2FABackupPhone === true &&
+        (recoveryPhone.available === true || recoveryPhone.exists === true)
+      ) {
+        subRows.push(
+          <BackupPhoneSubRow
+            onCtaClick={() => {
+              navigate(`${SETTINGS_PATH}/recovery_phone/setup`);
+            }}
+            onDeleteClick={() => {}}
+            phoneNumber={recoveryPhone.phoneNumber || ''}
+            key={2}
+          />
+        );
+      }
     }
 
     return subRows;

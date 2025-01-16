@@ -7,9 +7,8 @@ import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { LocationProvider } from '@reach/router';
 import UnitRowTwoStepAuth from '.';
-import { Account, AppContext } from 'fxa-settings/src/models';
-import { mockAppContext } from 'fxa-settings/src/models/mocks';
-import { action } from '@storybook/addon-actions';
+import { createSubject } from './mocks';
+import { MOCK_FULL_PHONE_NUMBER } from '../../../pages/mocks';
 
 export default {
   title: 'Components/Settings/UnitRowTwoStepAuth',
@@ -27,133 +26,69 @@ export default {
   ],
 } as Meta;
 
-export const TFAEnabledWithCodesRemaining = () => (
-  <AppContext.Provider
-    value={mockAppContext({
-      account: {
-        hasPassword: true,
-        totp: { exists: true, verified: true },
-        backupCodes: { hasBackupCodes: true, count: 3 },
-      } as unknown as Account,
-    })}
-  >
-    <UnitRowTwoStepAuth />
-  </AppContext.Provider>
-);
+export const TFAEnabledWithBackupCodesRemainingAndRecoveryPhoneUnavailable =
+  () =>
+    createSubject({
+      recoveryPhone: { exists: false, phoneNumber: null, available: false },
+    });
 
-export const TFAEnabledNoCodesRemaining = () => (
-  <AppContext.Provider
-    value={mockAppContext({
-      account: {
-        hasPassword: true,
-        totp: { exists: true, verified: true },
-        backupCodes: { hasBackupCodes: false, count: 0 },
-      } as unknown as Account,
-    })}
-  >
-    <UnitRowTwoStepAuth />
-  </AppContext.Provider>
-);
+export const TFAEnabledNoCodesRemaining = () =>
+  createSubject({
+    backupCodes: { hasBackupCodes: false, count: 0 },
+  });
 
-export const TFADisabled = () => (
-  <AppContext.Provider
-    value={mockAppContext({
-      account: {
-        hasPassword: true,
-        totp: { exists: false, verified: false },
-        backupCodes: { count: 0 },
-      } as unknown as Account,
-    })}
-  >
-    <UnitRowTwoStepAuth />
-  </AppContext.Provider>
-);
+export const TFADisabled = () =>
+  createSubject({
+    totp: { exists: false, verified: false },
+    backupCodes: { count: 0 },
+  });
 
-export const DisabledNoPassword = () => (
-  <AppContext.Provider
-    value={mockAppContext({
-      account: {
-        hasPassword: false,
-        totp: { enabled: false },
-        backupCodes: { count: 0 },
-      } as unknown as Account,
-    })}
-  >
-    <UnitRowTwoStepAuth />
-  </AppContext.Provider>
-);
+export const DisabledNoPassword = () =>
+  createSubject({
+    hasPassword: false,
+    totp: { enabled: false },
+    backupCodes: { count: 0 },
+  });
 
-export const TwoFAEnabledWithBackupCodesNoBackupPhone = () => (
-  <AppContext.Provider
-    value={mockAppContext({
-      account: {
-        hasPassword: true,
-        totp: { exists: true, verified: true },
-        backupCodes: { hasBackupCodes: true, count: 3 },
-      } as unknown as Account,
-    })}
-  >
-    <UnitRowTwoStepAuth
-      backupPhoneSubRowProps={{ onCtaClick: () => action('Add clicked') }}
-    />
-  </AppContext.Provider>
-);
+export const TwoFAEnabledWithBackupCodesNoBackupPhone = () =>
+  createSubject({
+    recoveryPhone: { exists: false, phoneNumber: null, available: true },
+  });
 
-export const TwoFAEnabledWithBackupPhoneNoBackupCodes = () => (
-  <AppContext.Provider
-    value={mockAppContext({
-      account: {
-        hasPassword: true,
-        totp: { exists: true, verified: true },
-        backupCodes: { hasBackupCodes: false, count: 0 },
-      } as unknown as Account,
-    })}
-  >
-    <UnitRowTwoStepAuth
-      backupPhoneSubRowProps={{
-        phoneNumber: '555-555-1234',
-        onCtaClick: () => action('Change clicked'),
-      }}
-    />
-  </AppContext.Provider>
-);
+export const TwoFAEnabledWithBackupPhoneNoBackupCodes = () =>
+  createSubject({
+    recoveryPhone: {
+      exists: true,
+      phoneNumber: MOCK_FULL_PHONE_NUMBER,
+      available: true,
+    },
+    backupCodes: { hasBackupCodes: false, count: 0 },
+  });
 
-export const TwoFAEnabledWithBackupCodesAndBackupPhone = () => (
-  <AppContext.Provider
-    value={mockAppContext({
-      account: {
-        hasPassword: true,
-        totp: { exists: true, verified: true },
-        backupCodes: { hasBackupCodes: true, count: 3 },
-      } as unknown as Account,
-    })}
-  >
-    <UnitRowTwoStepAuth
-      backupPhoneSubRowProps={{
-        phoneNumber: '555-555-1234',
-        onCtaClick: () => action('Change clicked'),
-        onDeleteClick: () => action('Delete clicked'),
-        showDescription: true,
-      }}
-    />
-  </AppContext.Provider>
-);
+export const TwoFAEnabledWithBackupCodesAndBackupPhone = () =>
+  createSubject({
+    recoveryPhone: {
+      exists: true,
+      phoneNumber: MOCK_FULL_PHONE_NUMBER,
+      available: true,
+    },
+  });
 
 // if backup codes run out and user does not replace them
-export const TwoFAEnabledNoBackupCodesNoBackupPhone = () => (
-  <AppContext.Provider
-    value={mockAppContext({
-      account: {
-        hasPassword: true,
-        totp: { exists: true, verified: true },
-        backupCodes: { hasBackupCodes: false, count: 0 },
-      } as unknown as Account,
-    })}
-  >
-    <UnitRowTwoStepAuth
-      backupPhoneSubRowProps={{
-        onCtaClick: () => action('Add clicked'),
-      }}
-    />
-  </AppContext.Provider>
-);
+// Recovery phone not shown since `available` is based on region and recovery codes
+export const TwoFAEnabledNoBackupCodesNoBackupPhone = () =>
+  createSubject({
+    backupCodes: { hasBackupCodes: false, count: 0 },
+    recoveryPhone: { exists: false, phoneNumber: null, available: false },
+  });
+
+// User is currently in an unsupported region, but already has a previously added backup phone
+export const TwoFAEnabledWithBackupPhoneAndUnsupportedCurrentRegion = () =>
+  createSubject({
+    recoveryPhone: {
+      exists: true,
+      phoneNumber: MOCK_FULL_PHONE_NUMBER,
+      available: false,
+    },
+    backupCodes: { hasBackupCodes: true, count: 1 },
+  });

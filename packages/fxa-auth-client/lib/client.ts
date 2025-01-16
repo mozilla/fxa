@@ -2288,7 +2288,7 @@ export default class AuthClient {
     headers?: Headers
   ) {
     return this.sessionPost(
-      '/recovery_phone/available',
+      '/recovery_phone/confirm',
       sessionToken,
       { code },
       headers

@@ -66,6 +66,12 @@ export class RecoveryPhoneService {
     }
 
     const code = await this.otpCode.generateCode();
+    await this.recoveryPhoneManager.storeUnconfirmed(
+      uid,
+      code,
+      phoneNumber,
+      true
+    );
     const msg = await this.smsManager.sendSMS({
       to: phoneNumber,
       body: code,
@@ -74,13 +80,6 @@ export class RecoveryPhoneService {
     if (!this.isSuccessfulSmsSend(msg)) {
       return false;
     }
-
-    await this.recoveryPhoneManager.storeUnconfirmed(
-      uid,
-      code,
-      phoneNumber,
-      true
-    );
     return true;
   }
 

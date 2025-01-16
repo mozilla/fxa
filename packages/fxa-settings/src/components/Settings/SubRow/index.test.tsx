@@ -6,6 +6,10 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import SubRow, { BackupCodesSubRow, BackupPhoneSubRow } from './index';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+import {
+  MOCK_FULL_PHONE_NUMBER,
+  MOCK_MASKED_PHONE_NUMBER,
+} from '../../../pages/mocks';
 
 describe('SubRow', () => {
   const defaultProps = {
@@ -104,7 +108,7 @@ describe('BackupCodesSubRow', () => {
 describe('BackupPhoneSubRow', () => {
   const defaultProps = {
     onCtaClick: jest.fn(),
-    phoneNumber: '555-555-1234',
+    phoneNumber: MOCK_FULL_PHONE_NUMBER,
   };
 
   it('renders correctly when phone number unavailable', () => {
@@ -127,7 +131,7 @@ describe('BackupPhoneSubRow', () => {
   it('renders correctly when phone number is available and delete is not an option', () => {
     renderWithLocalizationProvider(<BackupPhoneSubRow {...defaultProps} />);
     expect(screen.getByText('Recovery phone')).toBeInTheDocument();
-    expect(screen.getByText('••• ••• 1234')).toBeInTheDocument();
+    expect(screen.getByText(MOCK_MASKED_PHONE_NUMBER)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Change' })).toBeInTheDocument();
     expect(
       screen.getByText(
@@ -137,12 +141,23 @@ describe('BackupPhoneSubRow', () => {
     expect(screen.getByText(/Learn about SIM swap risk/)).toBeInTheDocument();
   });
 
+  it('renders correctly when user does not have a verified session (phone number is already masked)', () => {
+    renderWithLocalizationProvider(
+      <BackupPhoneSubRow
+        {...defaultProps}
+        phoneNumber={MOCK_MASKED_PHONE_NUMBER}
+      />
+    );
+    expect(screen.getByText('Recovery phone')).toBeInTheDocument();
+    expect(screen.getByText(MOCK_MASKED_PHONE_NUMBER)).toBeInTheDocument();
+  });
+
   it('renders correctly when phone number is available and delete is an option', () => {
     renderWithLocalizationProvider(
       <BackupPhoneSubRow {...defaultProps} onDeleteClick={jest.fn()} />
     );
     expect(screen.getByText('Recovery phone')).toBeInTheDocument();
-    expect(screen.getByText('••• ••• 1234')).toBeInTheDocument();
+    expect(screen.getByText(MOCK_MASKED_PHONE_NUMBER)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Change' })).toBeInTheDocument();
     const deleteButtons = screen.getAllByTitle(/Remove/);
     expect(deleteButtons).toHaveLength(2);

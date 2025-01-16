@@ -238,7 +238,6 @@ class RecoveryPhoneHandler {
         available: false,
       };
     }
-
     const available = await this.recoveryPhoneService.available(
       uid,
       location.countryCode

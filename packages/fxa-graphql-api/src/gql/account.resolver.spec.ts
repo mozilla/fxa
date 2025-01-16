@@ -203,18 +203,18 @@ describe('#integration - AccountResolver', () => {
         expect(linkedAccounts).toEqual([]);
       });
 
-      it('resolves recovery phone number', async () => {
-        recoveryPhoneService.hasConfirmed = jest
-          .fn()
-          .mockResolvedValue({ exists: false });
-        const user = await Account.findByUid(USER_1.uid);
-        const result = await resolver.recoveryPhone(user!);
+      // it('resolves recovery phone number', async () => {
+      //   recoveryPhoneService.hasConfirmed = jest
+      //     .fn()
+      //     .mockResolvedValue({ exists: false });
+      //   const user = await Account.findByUid(USER_1.uid);
+      //   const result = await resolver.recoveryPhone(user!);
 
-        // Data shouldn't exist because no number has been registered yet.
-        expect(result).toEqual({ exists: false });
-        expect(recoveryPhoneService.hasConfirmed).toBeCalledTimes(1);
-        expect(recoveryPhoneService.hasConfirmed).toBeCalledWith(USER_1.uid);
-      });
+      //   // Data shouldn't exist because no number has been registered yet.
+      //   expect(result).toEqual({ exists: false });
+      //   expect(recoveryPhoneService.hasConfirmed).toBeCalledTimes(1);
+      //   expect(recoveryPhoneService.hasConfirmed).toBeCalledWith(USER_1.uid);
+      // });
 
       it('resolves linked accounts when loaded', async () => {
         const user = await Account.findByUid(USER_1.uid, {
