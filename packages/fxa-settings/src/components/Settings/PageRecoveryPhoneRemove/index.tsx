@@ -2,16 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Link, RouteComponentProps, useNavigate } from '@reach/router';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import { SETTINGS_PATH } from '../../../constants';
 import CardHeader from '../../CardHeader';
-import AppLayout from '../../AppLayout';
 import Banner from '../../Banner';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { useAccount } from '../../../models';
+import { useAccount, useAlertBar, useFtlMsgResolver } from '../../../models';
+import FlowContainer from '../FlowContainer';
+import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 
 // TODO, update this link with #section-heading once the SUMO article is updated (FXA-10918)
 const sumoTwoStepLink = (
@@ -26,13 +27,37 @@ const sumoTwoStepLink = (
 const PageRecoveryPhoneRemove = (props: RouteComponentProps) => {
   const navigate = useNavigate();
   const account = useAccount();
+  const alertBar = useAlertBar();
+  const ftlMsgResolver = useFtlMsgResolver();
+
   // TODO, actually get this number back and format it
-  const formattedFullPhoneNumber = '+1 (555) 555-5555';
+  const formattedFullPhoneNumber = '+1 ••• ••••';
 
   const goHome = () => navigate(SETTINGS_PATH + '#security', { replace: true });
 
+  const alertSuccessAndGoHome = useCallback(() => {
+    alertBar.success(
+      ftlMsgResolver.getMsg(
+        'settings-recovery-phone-remove-success',
+        'Recovery phone removed'
+      )
+    );
+    navigate(SETTINGS_PATH + '#security', { replace: true });
+  }, [alertBar, ftlMsgResolver, navigate]);
+
+  const clickRemoveRecoveryPhone = useCallback(async () => {
+    try {
+      await account.removeRecoveryPhone();
+
+      alertSuccessAndGoHome();
+    } catch (e) {
+      const localizedError = getLocalizedErrorMessage(ftlMsgResolver, e);
+      alertBar.error(localizedError);
+    }
+  }, [account, alertSuccessAndGoHome, alertBar, ftlMsgResolver]);
+
   return (
-    <AppLayout>
+    <FlowContainer hideBackButton={true}>
       <VerifiedSessionGuard onDismiss={goHome} onError={goHome} />
       <CardHeader
         headingText="Remove recovery phone number"
@@ -52,6 +77,7 @@ const PageRecoveryPhoneRemove = (props: RouteComponentProps) => {
       <Banner
         type="info"
         isFancy
+        iconAlign={'start'}
         customContent={
           <div>
             <FtlMsg id="settings-recovery-phone-remove-recommend">
@@ -80,10 +106,7 @@ const PageRecoveryPhoneRemove = (props: RouteComponentProps) => {
         <button
           className="cta-caution cta-xl w-full mt-10"
           data-glean-id="two_step_auth_phone_remove_confirm_submit"
-          onClick={async () => {
-            // TODO, implement functionality
-            await account.removeRecoveryPhone();
-          }}
+          onClick={clickRemoveRecoveryPhone}
         >
           Remove phone number
         </button>
@@ -96,7 +119,7 @@ const PageRecoveryPhoneRemove = (props: RouteComponentProps) => {
           </Link>
         </FtlMsg>
       </div>
-    </AppLayout>
+    </FlowContainer>
   );
 };
 

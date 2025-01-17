@@ -11,6 +11,7 @@ import {
   RecoveryNumberNotExistsError,
   RecoveryNumberNotSupportedError,
   RecoveryPhoneNotEnabled,
+  RecoveryNumberRemoveMissingBackupCodes,
 } from './recovery-phone.errors';
 import { MessageInstance } from 'twilio/lib/rest/api/v2010/account/message';
 
@@ -161,14 +162,23 @@ export class RecoveryPhoneService {
 
   /**
    * Remove phone number from an account. Each user can only have one associated
-   * phone number.
+   * phone number. A user must have backup codes before removing a phone number.
    *
    * @param uid An account id
    * @returns True if successful
    */
   public async removePhoneNumber(uid: string) {
+
     if (!this.config.enabled) {
       throw new RecoveryPhoneNotEnabled();
+    }
+
+    const hasRecoveryCodes = await this.recoveryPhoneManager.hasRecoveryCodes(
+      uid
+    );
+
+    if (!hasRecoveryCodes) {
+      throw new RecoveryNumberRemoveMissingBackupCodes(uid);
     }
 
     return await this.recoveryPhoneManager.removePhoneNumber(uid);

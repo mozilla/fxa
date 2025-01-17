@@ -307,6 +307,19 @@ const ERRORS = {
     errno: 206,
     message: 'Can not create password, password already set',
   },
+  RECOVERY_PHONE_NUMBER_ALREADY_EXISTS: {
+    errno: 214,
+    message: 'Recovery phone number already exists',
+  },
+  RECOVERY_PHONE_NUMBER_DOES_NOT_EXIST: {
+    errno: 215,
+    message: 'Recovery phone number does not exist',
+  },
+  RECOVERY_PHONE_REMOVE_MISSING_RECOVERY_CODES: {
+    errno: 218,
+    message:
+      'Unable to remove recovery phone, missing backup authentication codes.',
+  },
   SERVICE_UNAVAILABLE: {
     errno: 998,
     message: 'System unavailable, try again soon',

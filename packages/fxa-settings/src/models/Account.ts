@@ -1364,5 +1364,25 @@ export class Account implements AccountData {
     return data;
   }
 
-  async removeRecoveryPhone() {}
+  async removeRecoveryPhone() {
+    const result = await this.withLoadingStatus(
+      this.authClient.recoveryPhoneDelete(sessionToken()!)
+    );
+
+    const cache = this.apolloClient.cache;
+    cache.modify({
+      id: cache.identify({ __typename: 'Account' }),
+      fields: {
+        recoveryPhone() {
+          return {
+            exists: false,
+            phoneNumber: null,
+            available: true,
+          };
+        },
+      },
+    });
+
+    return result;
+  }
 }

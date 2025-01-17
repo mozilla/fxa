@@ -12,6 +12,7 @@ import {
   RecoveryNumberNotExistsError,
   RecoveryNumberNotSupportedError,
   RecoveryPhoneNotEnabled,
+  RecoveryNumberRemoveMissingBackupCodes,
 } from './recovery-phone.errors';
 
 describe('RecoveryPhoneService', () => {
@@ -46,6 +47,7 @@ describe('RecoveryPhoneService', () => {
 
   beforeEach(async () => {
     mockSmsManager.sendSMS.mockReturnValue({ status: 'success' });
+    mockRecoveryPhoneManager.hasRecoveryCodes.mockResolvedValue(true);
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -277,6 +279,13 @@ describe('RecoveryPhoneService', () => {
 
     it('should throw if phone number not found', () => {
       const error = new RecoveryNumberNotExistsError(uid);
+      mockRecoveryPhoneManager.removePhoneNumber.mockRejectedValueOnce(error);
+      expect(service.removePhoneNumber(uid)).rejects.toThrow(error);
+    });
+
+    it('should throw if missing backup authentication codes', () => {
+      mockRecoveryPhoneManager.hasRecoveryCodes.mockResolvedValue(false);
+      const error = new RecoveryNumberRemoveMissingBackupCodes(uid);
       mockRecoveryPhoneManager.removePhoneNumber.mockRejectedValueOnce(error);
       expect(service.removePhoneNumber(uid)).rejects.toThrow(error);
     });

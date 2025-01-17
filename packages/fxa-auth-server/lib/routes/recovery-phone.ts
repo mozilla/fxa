@@ -10,6 +10,7 @@ import {
   RecoveryNumberAlreadyExistsError,
   RecoveryNumberNotExistsError,
   SmsSendRateLimitExceededError,
+  RecoveryNumberRemoveMissingBackupCodes,
 } from '@fxa/accounts/recovery-phone';
 import {
   AccountManager,
@@ -211,15 +212,24 @@ class RecoveryPhoneHandler {
     try {
       success = await this.recoveryPhoneService.removePhoneNumber(uid);
     } catch (error) {
+
       if (error instanceof RecoveryPhoneNotEnabled) {
         throw AppError.featureNotEnabled();
+      }
+
+      if (error instanceof RecoveryNumberNotExistsError) {
+        throw AppError.recoveryPhoneNumberDoesNotExist();
+      }
+
+      if (error instanceof RecoveryNumberRemoveMissingBackupCodes) {
+        throw AppError.recoveryPhoneRemoveMissingRecoveryCodes();
       }
 
       throw AppError.backendServiceFailure(
         'RecoveryPhoneService',
         'destroy',
         { uid },
-        error
+        error,
       );
     }
 
