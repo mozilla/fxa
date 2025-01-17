@@ -119,7 +119,7 @@ const ERRORS = {
   // We don't currently support sms but still keep the error codes to avoid conflicts
   SMS_ID_INVALID: {
     errno: 131,
-    // should not be user facing, not wrapped in t
+    // This message should not be user-facing or localized
     message: 'SMS ID invalid',
   },
   SMS_REJECTED: {
@@ -282,7 +282,7 @@ const ERRORS = {
     errno: 181,
     message: 'Update was rejected, please try again',
   },
-  INVALID_EXPIRED_SIGNUP_CODE: {
+  INVALID_EXPIRED_OTP_CODE: {
     errno: 183,
     message: 'Invalid or expired confirmation code',
     version: 2,
@@ -306,6 +306,10 @@ const ERRORS = {
   CANNOT_CREATE_PASSWORD: {
     errno: 206,
     message: 'Can not create password, password already set',
+  },
+  SMS_SEND_RATE_LIMIT_EXCEEDED: {
+    errno: 216,
+    message: 'Client has sent too many requests',
   },
   SERVICE_UNAVAILABLE: {
     errno: 998,

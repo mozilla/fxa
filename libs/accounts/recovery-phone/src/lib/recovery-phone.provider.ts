@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { ConfigService } from '@nestjs/config';
-import { SmsManagerConfig } from './sms.manger.config';
+import { SmsManagerConfig } from './sms.manager.config';
 import Redis from 'ioredis';
 import { RecoveryPhoneConfig } from './recovery-phone.service.config';
 

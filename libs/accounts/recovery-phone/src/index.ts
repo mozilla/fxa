@@ -3,7 +3,7 @@ export * from './lib/recovery-phone.service';
 export * from './lib/recovery-phone.provider';
 export * from './lib/recovery-phone.service.config';
 export * from './lib/sms.manager';
-export * from './lib/sms.manger.config';
+export * from './lib/sms.manager.config';
 export * from './lib/twilio.config';
 export * from './lib/twilio.provider';
 export * from './lib/recovery-phone.errors';

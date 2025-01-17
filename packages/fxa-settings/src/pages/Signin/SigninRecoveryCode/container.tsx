@@ -4,7 +4,6 @@
 
 import { RouteComponentProps, useLocation } from '@reach/router';
 import { hardNavigate } from 'fxa-react/lib/utils';
-import { MozServices } from '../../../lib/types';
 import SigninRecoveryCode from '.';
 import {
   Integration,
@@ -25,30 +24,36 @@ import { ConsumeRecoveryCodeResponse, SubmitRecoveryCode } from './interfaces';
 import OAuthDataError from '../../../components/OAuthDataError';
 import { getHandledError } from '../../../lib/error-utils';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+
+type SigninRecoveryCodeLocationState = {
+  signinState: SigninLocationState;
+  lastFourPhoneDigits: string;
+};
 
 export type SigninRecoveryCodeContainerProps = {
   integration: Integration;
-  serviceName: MozServices;
 };
 
 export const SigninRecoveryCodeContainer = ({
   integration,
-  serviceName,
 }: SigninRecoveryCodeContainerProps & RouteComponentProps) => {
   const authClient = useAuthClient();
   const { finishOAuthFlowHandler, oAuthDataError } = useFinishOAuthFlowHandler(
     authClient,
     integration
   );
-  // TODO: FXA-9177, likely use Apollo cache here instead of location state
-  const location = useLocation() as ReturnType<typeof useLocation> & {
-    state: SigninLocationState;
-  };
-  const signinState = getSigninState(location.state);
+  const location =
+    (useLocation() as ReturnType<typeof useLocation> & {
+      state: SigninRecoveryCodeLocationState;
+    }) || {};
+  const navigateWithQuery = useNavigateWithQuery();
+  const signinState = getSigninState(location.state?.signinState);
+  const lastFourPhoneDigits = location.state?.lastFourPhoneDigits;
   const sensitiveDataClient = useSensitiveDataClient();
-  const { keyFetchToken, unwrapBKey } = sensitiveDataClient.getDataType(
-    SensitiveData.Key.Auth
-  )!;
+  const { keyFetchToken, unwrapBKey } =
+    sensitiveDataClient.getDataType(SensitiveData.Key.Auth) || {};
 
   const { oAuthKeysCheckError } = useOAuthKeysCheck(
     integration,
@@ -64,8 +69,8 @@ export const SigninRecoveryCodeContainer = ({
     async (recoveryCode: string) => {
       try {
         // this mutation returns the number of remaining codes,
-        // but we're not currently using that value client-side
-        // may want to see if we need it for /settings (display number of remaining backup codes?)
+        // if remaining codes is 0, we may want to redirect to the new code set up
+        // or show a message that the user has no more codes
         const { data } = await consumeRecoveryCode({
           variables: { input: { code: recoveryCode } },
         });
@@ -77,6 +82,26 @@ export const SigninRecoveryCodeContainer = ({
     },
     [consumeRecoveryCode]
   );
+
+  const navigateToRecoveryPhone = async () => {
+    if (!signinState) {
+      return;
+    }
+    try {
+      await authClient.recoveryPhoneSigninSendCode(signinState.sessionToken);
+      navigateWithQuery('/signin_recovery_phone', {
+        state: { signinState, lastFourPhoneDigits },
+      });
+      return;
+    } catch (error) {
+      const { error: handledError } = getHandledError(error);
+      if (handledError.errno === AuthUiErrors.INVALID_TOKEN.errno) {
+        navigateWithQuery('/signin');
+        return;
+      }
+      return handledError;
+    }
+  };
 
   if (oAuthDataError) {
     return <OAuthDataError error={oAuthDataError} />;
@@ -95,10 +120,11 @@ export const SigninRecoveryCodeContainer = ({
       {...{
         finishOAuthFlowHandler,
         integration,
-        serviceName,
+        keyFetchToken,
+        lastFourPhoneDigits,
+        navigateToRecoveryPhone,
         signinState,
         submitRecoveryCode,
-        keyFetchToken,
         unwrapBKey,
       }}
     />

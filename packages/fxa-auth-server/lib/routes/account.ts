@@ -1133,7 +1133,7 @@ export class AccountHandler {
         }
       }
 
-      // If they just went through the sigin-unblock flow, they have already verified their email.
+      // If they just went through the signin-unblock flow, they have already verified their email.
       // We don't need to force them to do that again, just make a verified session.
       if (didSigninUnblock) {
         needsVerificationId = false;

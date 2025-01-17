@@ -13,7 +13,6 @@ import { LocationProvider } from '@reach/router';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import SigninRecoveryCodeContainer from './container';
 import { createMockWebIntegration } from '../../../lib/integrations/mocks';
-import { MozServices } from '../../../lib/types';
 import { Integration, useSensitiveDataClient } from '../../../models';
 import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../../models/mocks';
 import {
@@ -119,7 +118,9 @@ function applyDefaultMocks() {
   mockLoadingSpinnerModule();
   mockReactUtilsModule();
   mockCache();
-  mockReachRouter(undefined, 'signin_recovery_code', mockSigninLocationState);
+  mockReachRouter(undefined, 'signin_recovery_code', {
+    signinState: mockSigninLocationState,
+  });
   mockWebIntegration();
   resetMockSensitiveDataClient();
 }
@@ -134,7 +135,6 @@ function render(mocks: Array<MockedResponse>) {
         <SigninRecoveryCodeContainer
           {...{
             integration,
-            serviceName: MozServices.Default,
           }}
         />
       </LocationProvider>

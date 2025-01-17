@@ -527,11 +527,17 @@ Router = Router.extend({
     'signin_permissions(/)': createViewHandler(PermissionsView, {
       type: VerificationReasons.SIGN_IN,
     }),
+    'signin_recovery_choice(/)': function () {
+      this.createReactViewHandler('signin_recovery_choice');
+    },
     'signin_recovery_code(/)': function () {
       this.createReactOrBackboneViewHandler(
         'signin_recovery_code',
         SignInRecoveryCodeView
       );
+    },
+    'signin_recovery_phone(/)': function () {
+      this.createReactViewHandler('signin_recovery_phone');
     },
     'signin_reported(/)': function () {
       this.createReactOrBackboneViewHandler(

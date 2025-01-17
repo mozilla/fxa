@@ -49,7 +49,7 @@ describe('ModalVerifySession', () => {
 
   it('renders error messages', async () => {
     const error: any = new Error('invalid code');
-    error.errno = AuthUiErrors.INVALID_EXPIRED_SIGNUP_CODE.errno;
+    error.errno = AuthUiErrors.INVALID_EXPIRED_OTP_CODE.errno;
     const session = {
       sendVerificationCode: jest.fn().mockResolvedValue(true),
       verifySession: jest.fn().mockRejectedValue(error),
@@ -74,7 +74,7 @@ describe('ModalVerifySession', () => {
     });
 
     expect(screen.getByTestId('tooltip').textContent).toContain(
-      AuthUiErrors.INVALID_EXPIRED_SIGNUP_CODE.message
+      AuthUiErrors.INVALID_EXPIRED_OTP_CODE.message
     );
   });
 

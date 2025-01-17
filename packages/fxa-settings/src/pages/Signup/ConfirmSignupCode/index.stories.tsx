@@ -23,7 +23,7 @@ const accountWithSuccess = {
 } as unknown as Account;
 
 const accountWithErrors = {
-  verifySession: () => Promise.reject(AuthUiErrors.INVALID_EXPIRED_SIGNUP_CODE),
+  verifySession: () => Promise.reject(AuthUiErrors.INVALID_EXPIRED_OTP_CODE),
   sendVerificationCode: () => Promise.reject(AuthUiErrors.UNEXPECTED_ERROR),
 } as unknown as Account;
 

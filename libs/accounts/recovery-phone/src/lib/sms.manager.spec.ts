@@ -6,7 +6,7 @@ import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { StatsDService } from '@fxa/shared/metrics/statsd';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SmsManager } from './sms.manager';
-import { SmsManagerConfig } from './sms.manger.config';
+import { SmsManagerConfig } from './sms.manager.config';
 import { TwilioProvider } from './twilio.provider';
 import { TwilioErrorCodes } from './recovery-phone.errors';
 

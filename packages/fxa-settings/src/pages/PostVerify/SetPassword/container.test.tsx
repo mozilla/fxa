@@ -110,7 +110,7 @@ function mockCurrentAccount(
 }
 
 let currentSetPasswordProps: SetPasswordProps | undefined;
-function mockInlineRecoveryKeySetupModule() {
+function mockSetPasswordModule() {
   jest
     .spyOn(SetPasswordModule, 'default')
     .mockImplementation((props: SetPasswordProps) => {
@@ -123,7 +123,7 @@ function applyDefaultMocks() {
   jest.resetAllMocks();
   jest.restoreAllMocks();
   mockModelsModule();
-  mockInlineRecoveryKeySetupModule();
+  mockSetPasswordModule();
   mockCurrentAccount(MOCK_STORED_ACCOUNT);
   (useFinishOAuthFlowHandler as jest.Mock).mockImplementation(() => ({
     finishOAuthFlowHandler: jest

@@ -96,7 +96,7 @@ class ConfirmSignupCodeView extends FormView {
       })
       .catch((err) => {
         if (
-          AuthErrors.is(err, 'INVALID_EXPIRED_SIGNUP_CODE') ||
+          AuthErrors.is(err, 'INVALID_EXPIRED_OTP_CODE') ||
           AuthErrors.is(err, 'OTP_CODE_REQUIRED') ||
           AuthErrors.is(err, 'INVALID_OTP_CODE')
         ) {

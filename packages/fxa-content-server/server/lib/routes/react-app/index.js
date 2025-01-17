@@ -82,6 +82,8 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         'signin_unblock',
         'force_auth',
         'signin_recovery_code',
+        'signin_recovery_choice',
+        'signin_recovery_phone',
         'inline_totp_setup',
         'inline_recovery_setup',
         'inline_recovery_key_setup',

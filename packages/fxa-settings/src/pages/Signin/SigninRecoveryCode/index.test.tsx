@@ -48,6 +48,7 @@ describe('PageSigninRecoveryCode', () => {
         <SigninRecoveryCode
           finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
           integration={mockIntegration}
+          navigateToRecoveryPhone={jest.fn()}
           signinState={mockSigninLocationState}
           submitRecoveryCode={mockSubmitRecoveryCode}
         />
@@ -62,14 +63,14 @@ describe('PageSigninRecoveryCode', () => {
     );
     screen.getByRole('img', { name: 'Document that contains hidden text.' });
     screen.getByText(
-      'Enter one of the one-time use backup authentication codes you saved during two-step authentication setup.'
+      'Enter one of the one-time-use codes you saved when you set up two-step authentication.'
     );
     screen.getByRole('textbox', {
       name: 'Enter 10-character code',
     });
 
     screen.getByRole('button', { name: 'Confirm' });
-    screen.getByRole('link', { name: 'Back' });
+    screen.getByRole('button', { name: 'Back' });
     screen.getByRole('link', {
       name: /Are you locked out?/,
     });
@@ -82,6 +83,7 @@ describe('PageSigninRecoveryCode', () => {
         <SigninRecoveryCode
           finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
           integration={mockOAuthNativeIntegration(false)}
+          navigateToRecoveryPhone={jest.fn()}
           signinState={mockSigninLocationState}
           submitRecoveryCode={jest.fn()}
         />
@@ -98,6 +100,7 @@ describe('PageSigninRecoveryCode', () => {
           <SigninRecoveryCode
             finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
             integration={mockIntegration}
+            navigateToRecoveryPhone={jest.fn()}
             signinState={mockSigninLocationState}
             submitRecoveryCode={mockSubmitRecoveryCode}
           />
@@ -115,6 +118,7 @@ describe('PageSigninRecoveryCode', () => {
           <SigninRecoveryCode
             finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
             integration={mockIntegration}
+            navigateToRecoveryPhone={jest.fn()}
             signinState={mockSigninLocationState}
             submitRecoveryCode={mockSubmitRecoveryCode}
           />
@@ -145,6 +149,7 @@ describe('PageSigninRecoveryCode', () => {
           <SigninRecoveryCode
             finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
             integration={mockIntegration}
+            navigateToRecoveryPhone={jest.fn()}
             signinState={mockSigninLocationState}
             submitRecoveryCode={mockSubmitRecoveryCode}
           />
@@ -168,6 +173,7 @@ describe('PageSigninRecoveryCode', () => {
           <SigninRecoveryCode
             finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
             integration={mockIntegration}
+            navigateToRecoveryPhone={jest.fn()}
             signinState={mockSigninLocationState}
             submitRecoveryCode={mockSubmitRecoveryCodeWithError}
           />
@@ -196,6 +202,7 @@ describe('PageSigninRecoveryCode', () => {
               .fn()
               .mockReturnValueOnce(tryAgainError())}
             integration={createMockSigninOAuthIntegration()}
+            navigateToRecoveryPhone={jest.fn()}
             signinState={mockSigninLocationState}
             submitRecoveryCode={mockSubmitRecoveryCode}
           />
@@ -224,6 +231,7 @@ describe('PageSigninRecoveryCode', () => {
           <SigninRecoveryCode
             finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
             integration={mockIntegration}
+            navigateToRecoveryPhone={jest.fn()}
             signinState={mockSigninLocationState}
             submitRecoveryCode={mockSubmitRecoveryCodeWithError}
           />

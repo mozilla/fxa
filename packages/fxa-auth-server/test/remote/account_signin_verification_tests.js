@@ -781,14 +781,14 @@ const mocks = require('../mocks');
         })
         .then((emailData) => {
           assert.equal(emailData.headers['x-template-name'], 'verify');
-          const siginToken = emailData.headers['x-verify-code'];
+          const signinToken = emailData.headers['x-verify-code'];
           assert.notEqual(
             tokenCode,
-            siginToken,
+            signinToken,
             'login codes should not match'
           );
 
-          return client.verifyEmail(siginToken);
+          return client.verifyEmail(signinToken);
         })
         .then(() => {
           return client.emailStatus();
@@ -812,7 +812,5 @@ const mocks = require('../mocks');
           assert.ok(keys.wrapKb, 'has wrapKb keys');
         });
     });
-
-
   });
 });

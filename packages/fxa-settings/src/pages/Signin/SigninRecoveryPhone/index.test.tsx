@@ -2,19 +2,14 @@ import React from 'react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { screen, act } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
-import SigninRecoveryPhoneCodeConfirm from './index';
+import SigninRecoveryPhone from './index';
 
-describe('SigninRecoveryPhoneCodeConfirm', () => {
+describe('SigninRecoveryPhone', () => {
   const mockVerifyCode = jest.fn(() => Promise.resolve());
   const mockResendCode = jest.fn(() => Promise.resolve());
-  const mockClearBanners = jest.fn();
-  const mockSetErrorMessage = jest.fn();
 
   const defaultProps = {
-    clearBanners: mockClearBanners,
-    maskedPhoneNumber: '••••••1234',
-    errorMessage: '',
-    setErrorMessage: mockSetErrorMessage,
+    lastFourPhoneDigits: '1234',
     verifyCode: mockVerifyCode,
     resendCode: mockResendCode,
   };
@@ -24,9 +19,7 @@ describe('SigninRecoveryPhoneCodeConfirm', () => {
   });
 
   it('renders as expected', async () => {
-    renderWithLocalizationProvider(
-      <SigninRecoveryPhoneCodeConfirm {...defaultProps} />
-    );
+    renderWithLocalizationProvider(<SigninRecoveryPhone {...defaultProps} />);
 
     expect(screen.getByRole('button', { name: 'Back' })).toBeInTheDocument();
     expect(
@@ -50,9 +43,7 @@ describe('SigninRecoveryPhoneCodeConfirm', () => {
   });
 
   it('submits with valid code', async () => {
-    renderWithLocalizationProvider(
-      <SigninRecoveryPhoneCodeConfirm {...defaultProps} />
-    );
+    renderWithLocalizationProvider(<SigninRecoveryPhone {...defaultProps} />);
 
     const input = screen.getByRole('textbox');
     await act(async () => {
@@ -64,9 +55,7 @@ describe('SigninRecoveryPhoneCodeConfirm', () => {
   });
 
   it('handles resend code', async () => {
-    renderWithLocalizationProvider(
-      <SigninRecoveryPhoneCodeConfirm {...defaultProps} />
-    );
+    renderWithLocalizationProvider(<SigninRecoveryPhone {...defaultProps} />);
 
     await act(async () => {
       await userEvent.click(
@@ -78,9 +67,7 @@ describe('SigninRecoveryPhoneCodeConfirm', () => {
   });
 
   it('handles `Are you locked out?` link', async () => {
-    renderWithLocalizationProvider(
-      <SigninRecoveryPhoneCodeConfirm {...defaultProps} />
-    );
+    renderWithLocalizationProvider(<SigninRecoveryPhone {...defaultProps} />);
 
     const link = screen.getByRole('link', {
       name: 'Are you locked out? Opens in new window',
