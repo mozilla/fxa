@@ -11,6 +11,12 @@ import { getFirefoxUserPrefs } from './lib/targets/firefoxUserPrefs';
 
 const CI = !!process.env.CI;
 
+// If using the CircleCI parallelism feature, assure that the JUNIT XML report
+// has a unique name
+const JUNIT_OUTPUT_NAME = process.env.CIRCLE_NODE_INDEX
+  ? `test-results-${process.env.CIRCLE_NODE_INDEX}.xml`
+  : 'test-results.xml';
+
 // The DEBUG env is used to debug without the playwright inspector, like in vscode
 // see .vscode/launch.json
 const DEBUG = !!process.env.DEBUG;
@@ -98,17 +104,10 @@ export default defineConfig<PlaywrightTestConfig<TestOptions, WorkerOptions>>({
           {
             outputFile: path.resolve(
               __dirname,
-              '../../artifacts/tests/test-results.xml'
+              `../../artifacts/tests/${JUNIT_OUTPUT_NAME}`
             ),
           },
         ],
-        [
-          'blob',
-          {
-            outputDir: path.resolve(__dirname, '../../artifacts/blob-report'),
-          },
-        ],
-        ['html', { open: 'never' }],
       ]
     : 'list',
   workers,
