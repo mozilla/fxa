@@ -193,6 +193,7 @@ export const SigninTotpCode = ({
             to={`/signin_recovery_code${location.search}`}
             state={signinState}
             className="text-end"
+            data-glean-id="login_totp_code_trouble_link"
           >
             Trouble entering code?
           </Link>
