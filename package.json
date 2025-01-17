@@ -49,7 +49,7 @@
     "@google-cloud/pubsub": "^4.3.1",
     "@google-cloud/translate": "^8.2.0",
     "@googlemaps/google-maps-services-js": "^3.4.0",
-    "@grpc/grpc-js": "^1.11.1",
+    "@grpc/grpc-js": "^1.12.5",
     "@mozilla/glean": "^5.0.3",
     "@nestjs/apollo": "^12.2.1",
     "@nestjs/common": "^10.4.5",
