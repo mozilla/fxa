@@ -329,13 +329,13 @@ commands:
             cd packages/functional-tests/tests
             TEST_FILES=$(circleci tests glob "./**/*.spec.ts")
             cd ..
-            echo $TEST_FILES | circleci tests run --command="xargs yarn playwright test --project=<< parameters.project >> $GREP" --verbose --split-by=timings --timings-type=classname
+            echo $TEST_FILES | circleci tests run \
+              --command="xargs yarn playwright test --project=<< parameters.project >> $GREP" \
+              --verbose \
+              --split-by=timings \
+              --timings-type=classname
           environment:
             NODE_OPTIONS: --dns-result-order=ipv4first
-            JEST_JUNIT_OUTPUT_DIR: ./artifacts/tests
-            JEST_JUNIT_ADD_FILE_ATTRIBUTE: true
-            PLAYWRIGHT_BLOB_OUTPUT_DIR: ./artifacts/blob-report
-            PW_TEST_HTML_REPORT_OPEN: never
             ACCOUNTS_DOMAIN: << pipeline.parameters.accounts-domain >>
             PAYMENTS_DOMAIN: << pipeline.parameters.payments-domain >>
             ACCOUNTS_API_DOMAIN: << pipeline.parameters.accounts-api-domain >>
@@ -355,13 +355,13 @@ commands:
             cd packages/functional-tests/tests
             TEST_FILES=$(circleci tests glob "./**/*.spec.ts")
             cd ..
-            echo $TEST_FILES | circleci tests run --command="xargs yarn playwright test --project=<< parameters.project >>-chromium $GREP" --verbose --split-by=timings --timings-type=classname
+            echo $TEST_FILES | circleci tests run \
+              --command="xargs yarn playwright test --project=<< parameters.project >> $GREP" \
+              --verbose \
+              --split-by=timings \
+              --timings-type=classname
           environment:
             NODE_OPTIONS: --dns-result-order=ipv4first
-            JEST_JUNIT_OUTPUT_DIR: ./artifacts/tests
-            JEST_JUNIT_ADD_FILE_ATTRIBUTE: true
-            PLAYWRIGHT_BLOB_OUTPUT_DIR: ./artifacts/blob-report
-            PW_TEST_HTML_REPORT_OPEN: never
             ACCOUNTS_DOMAIN: << pipeline.parameters.accounts-domain >>
             PAYMENTS_DOMAIN: << pipeline.parameters.payments-domain >>
             ACCOUNTS_API_DOMAIN: << pipeline.parameters.accounts-api-domain >>
@@ -386,62 +386,6 @@ commands:
       - store_test_results:
           path: artifacts/tests
           when: always
-
-  rename-reports:
-    steps:
-      - run:
-          name: Rename Reports
-          command: |
-            mkdir -p artifacts/blob-report && mkdir -p artifacts/playwright-report
-            echo "Starting rename reports step"
-            cd artifacts/blob-report || { echo "Directory artifacts/blob-report not found"; exit 1; }
-            echo "Current directory: $(pwd)"
-            echo "Listing contents before renaming:"
-            ls -la
-            if [ -f report.zip ]; then
-              mv report.zip reports-${CIRCLE_NODE_INDEX}-firefox.zip
-              echo "Renamed report.zip to reports-${CIRCLE_NODE_INDEX}-firefox.zip"
-            else
-              echo "No report.zip found, skipping rename for this node."
-            fi
-            echo "$CIRCLE_WORKFLOW_JOB_ID" > job_id_firefox.txt
-            echo "Listing contents after renaming:"
-            ls -la
-          when: always
-      - store_artifacts:
-          path: artifacts/blob-report
-      - persist_to_workspace:
-          root: /home/circleci/project
-          paths:
-            - artifacts/blob-report
-
-  rename-reports-chromium:
-    steps:
-      - run:
-          name: Rename Reports
-          command: |
-            mkdir -p artifacts/blob-report && mkdir -p artifacts/playwright-report
-            echo "Starting rename reports step"
-            cd artifacts/blob-report || { echo "Directory artifacts/blob-report not found"; exit 1; }
-            echo "Current directory: $(pwd)"
-            echo "Listing contents before renaming:"
-            ls -la
-            if [ -f report.zip ]; then
-              mv report.zip reports-${CIRCLE_NODE_INDEX}-chromium.zip
-              echo "Renamed report.zip to reports-${CIRCLE_NODE_INDEX}-chromium.zip"
-            else
-              echo "No report.zip found, skipping rename for this node."
-            fi
-            echo "$CIRCLE_WORKFLOW_JOB_ID" > job_id_chromium.txt
-            echo "Listing contents after renaming:"
-            ls -la
-          when: always
-      - store_artifacts:
-          path: artifacts/blob-report
-      - persist_to_workspace:
-          root: /home/circleci/project
-          paths:
-            - artifacts/blob-report
 
   build:
     steps:
@@ -758,7 +702,6 @@ jobs:
       - run-playwright-tests:
           project: << parameters.project >>
       - store-artifacts
-      - rename-reports
 
   # Runs functional tests using playwright. These tests support splitting
   # and parallel execution.
@@ -786,7 +729,6 @@ jobs:
       - run-playwright-tests:
           project: local
       - store-artifacts
-      - rename-reports
 
   playwright-functional-tests-chromium:
     parameters:
@@ -812,101 +754,6 @@ jobs:
       - run-playwright-tests-chromium:
           project: local
       - store-artifacts
-      - rename-reports-chromium
-
-  # Currently HTML reports are being generated for Firefox tests only hence we are only using firefox functional test job id below
-  check-required-jobs-complete:
-    docker:
-      - image: circleci/node
-    resource_class: small
-    steps:
-      - run:
-          name: Wait for required jobs to complete
-          command: |
-            sleep 30
-            mkdir -p artifacts/blob-report
-            while true; do
-              RESPONSE=$(curl -s --request GET "https://circleci.com/api/v2/workflow/$CIRCLE_WORKFLOW_ID/job" --header "Circle-Token: $CCI_Token")
-              FUNCTIONAL_TEST_JOB_ID=$(echo $RESPONSE | jq -r '.items[] | select(.status == "running") | select(.name | startswith("Firefox Functional Tests")) | .id')
-              if [[ -e artifacts/blob-report/functional_test_job_id.txt ]]; then
-                echo "Job id already set"
-              elif [[ -n "$FUNCTIONAL_TEST_JOB_ID" ]]; then
-                echo "Storing job id, $FUNCTIONAL_TEST_JOB_ID, for later lookup."
-                echo $FUNCTIONAL_TEST_JOB_ID > artifacts/blob-report/functional_test_job_id.txt
-              else
-                echo "No job id located. ($FUNCTIONAL_TEST_JOB_ID)"
-              fi
-              JOB_STATUS=$(echo $RESPONSE | jq -r '.items[] | .name + "-" + .status')
-              echo "ALL JOB_STATUS:"
-              echo $JOB_STATUS
-              PENDING=$(echo $RESPONSE | jq -r '.items[] | select(.status == "blocked" or .status == "running" or .status == "not_running") | select(.name | startswith("Tests Complete") | not) |
-              select(.name | startswith("Merge Playwright Reports") | not) |
-              select(.name | startswith("Deploy Storybooks") | not) |
-              select(.name | startswith("Create FxA Image") | not) |
-              select(.name | startswith("Deploy FxA Image") | not) |
-              select(.name | startswith("Deploy CI Images") | not) |
-              select(.name | startswith("Check all required jobs are complete") | not ) | .name')
-              echo "PENDING JOBS OF INTEREST:"
-              echo $PENDING
-              if [[ -z "$PENDING" ]]; then
-                echo "All required jobs have now completed"
-                exit 0
-              else
-                echo "Still waiting for jobs to complete..."
-                sleep 1
-              fi
-            done
-      - persist_to_workspace:
-          root: /home/circleci/project
-          paths:
-            - artifacts/blob-report
-          when: always
-
-  playwright-functional-test-report:
-    executor: default-executor
-    steps:
-      - attach_workspace:
-          at: /home/circleci/project
-      - run:
-          name: Merge blob Reports
-          command: |
-            cd artifacts/blob-report
-            JOB_ID=$(cat functional_test_job_id.txt)
-            echo "Fetching reports from circle ci artifact storarge for $JOB_ID"
-            function fetch_report() {
-              echo "Fetching reports-$1-firefox.zip"
-              wget https://output.circle-artifacts.com/output/job/${JOB_ID}/artifacts/$1/artifacts/blob-report/reports-$1-firefox.zip
-              wgetreturn=$?
-              if [[ $wgetreturn -ne 0 ]]; then
-                echo "Failed to get reports-$1-firefox.zip"
-              fi
-            }
-            for i in $(seq 0 7); do
-              fetch_report $i
-            done
-
-            echo "Fetched all reports"
-
-            if ls *.zip 1> /dev/null 2>&1; then
-              echo "Merging blob reports"
-              npx playwright merge-reports --reporter=blob .
-            else
-              echo "No report zip files found, skipping merge."
-            fi
-      - store_artifacts:
-          path: artifacts/blob-report
-      - run:
-          name: Merge HTML Reports
-          command: |
-            cd artifacts/blob-report
-            if ls *.zip 1> /dev/null 2>&1; then
-              echo "Merging HTML reports"
-              npx playwright merge-reports --reporter=html .
-            else
-              echo "No report zip files found, skipping merge."
-            fi
-      - store_artifacts:
-          path: playwright-report
 
   build-and-deploy-storybooks:
     executor: default-executor
@@ -1015,18 +862,10 @@ workflows:
           projects: --exclude '*,!tag:scope:shared:*'
           requires:
             - Build (PR)
-      - check-required-jobs-complete:
-          name: Check all required jobs are complete (PR)
-          requires:
-            - Build (PR)
       - playwright-functional-tests:
           name: Firefox Functional Tests - Playwright (PR)
           requires:
             - Build (PR)
-      - playwright-functional-test-report:
-          name: Merge Playwright Reports (PR)
-          requires:
-            - Check all required jobs are complete (PR)
       - build-and-deploy-storybooks:
           name: Deploy Storybooks (PR)
           requires:
@@ -1046,7 +885,6 @@ workflows:
             - Integration Test - Libraries (PR)
             - Firefox Functional Tests - Playwright (PR)
             - Deploy Storybooks (PR)
-            - Check all required jobs are complete (PR)
 
   # Triggered remotely. See .circleci/README.md
   production_smoke_tests:
@@ -1348,18 +1186,10 @@ workflows:
           projects: --exclude '*,!tag:scope:shared:*'
           requires:
             - Build (nightly)
-      - check-required-jobs-complete:
-          name: Check all required jobs are complete (nightly)
-          requires:
-            - Build (nightly)
       - playwright-functional-tests:
           name: Firefox Functional Tests - Playwright (nightly)
           requires:
             - Build (nightly)
-      - playwright-functional-test-report:
-          name: Merge Playwright Reports (nightly)
-          requires:
-            - Check all required jobs are complete (nightly)
       - on-complete:
           name: Tests Complete (nightly)
           stage: Tests (nightly)
@@ -1374,7 +1204,6 @@ workflows:
             - Integration Test - Servers - Auth V2 (nightly)
             - Integration Test - Libraries (nightly)
             - Firefox Functional Tests - Playwright (nightly)
-            - Check all required jobs are complete (nightly)
       - build-and-deploy-storybooks:
           name: Deploy Storybooks (nightly)
           requires:
