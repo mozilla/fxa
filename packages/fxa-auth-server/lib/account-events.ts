@@ -33,6 +33,12 @@ type AuthDatabase = {
   securityEvent: (arg: SecurityEvent) => void;
 };
 
+type EmailEventName =
+  | 'emailSent'
+  | 'emailDelivered'
+  | 'emailBounced'
+  | 'emailComplaint';
+
 export class AccountEventsManager {
   private firestore?: Firestore;
   private usersDbRef?;
@@ -64,7 +70,7 @@ export class AccountEventsManager {
   public async recordEmailEvent(
     uid: string,
     message: EmailEvent,
-    name: 'emailSent' | 'emailDelivered' | 'emailBounced' | 'emailComplaint'
+    name: EmailEventName
   ) {
     try {
       const { template, deviceId, flowId, service } = message;
@@ -91,6 +97,26 @@ export class AccountEventsManager {
       // Failing to write to events shouldn't break anything
       this.statsd.increment('accountEvents.recordEmailEvent.error');
     }
+  }
+
+  public async findEmailEvents(
+    uid: string,
+    eventName: EmailEventName,
+    template: string,
+    startDate: number,
+    endDate: number
+  ) {
+    const query = this.usersDbRef
+      ?.doc(uid)
+      .collection('events')
+      .where('eventType', '==', 'emailEvent')
+      .where('name', '==', eventName)
+      .where('template', '==', template)
+      .where('createdAt', '>=', startDate)
+      .where('createdAt', '<=', endDate);
+
+    const snapshot = await query?.get();
+    return snapshot?.docs.map((doc) => doc.data());
   }
 
   /**

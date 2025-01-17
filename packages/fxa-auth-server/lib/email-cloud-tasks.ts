@@ -5,6 +5,7 @@
 import { StatsD } from 'hot-shots';
 
 import {
+  EmailTypes,
   SendEmailTaskPayload,
   SendEmailTasks,
   SendEmailTasksFactory,
@@ -13,6 +14,12 @@ import {
 import { ConfigType } from '../config';
 import { AuthRequest } from './types';
 import { IncomingHttpHeaders } from 'http';
+import AppError from './error';
+import { InactiveAccountsManager } from './inactive-accounts';
+import { DB } from './db';
+import { ConnectedServicesDb } from 'fxa-shared/connected-services';
+import { GleanMetricsType } from './metrics/glean';
+import { Logger } from 'mozlog';
 
 const fxaCloudTaskDeliveryTimeHeaderName = 'fxa-cloud-task-delivery-time';
 
@@ -51,12 +58,38 @@ export class EmailCloudTaskManager {
   private config: ConfigType;
   private statsd: StatsD;
   private emailCloudTasks: SendEmailTasks;
+  private inactiveAccountsManager: InactiveAccountsManager;
 
-  constructor({ config, statsd }) {
+  constructor({
+    config,
+    statsd,
+    mailer,
+    fxaDb,
+    oauthDb,
+    glean,
+    log,
+  }: {
+    config: ConfigType;
+    statsd: StatsD;
+    mailer: any;
+    fxaDb: DB;
+    oauthDb: ConnectedServicesDb;
+    glean: GleanMetricsType;
+    log: Logger;
+  }) {
     this.config = config;
     this.statsd = statsd;
 
     this.emailCloudTasks = SendEmailTasksFactory(config, statsd);
+    this.inactiveAccountsManager = new InactiveAccountsManager({
+      fxaDb,
+      oauthDb,
+      mailer,
+      config,
+      statsd,
+      glean,
+      log,
+    });
   }
 
   async handleInactiveAccountNotification(request: AuthRequest) {
@@ -87,6 +120,18 @@ export class EmailCloudTaskManager {
       return;
     }
 
-    // @TODO FXA-10573, FXA-10574, FXA-10942
+    // @TODO FXA-10574, FXA-10942
+    switch ((request.payload as SendEmailTaskPayload).emailType) {
+      case EmailTypes.INACTIVE_DELETE_FIRST_NOTIFICATION:
+        await this.inactiveAccountsManager.handleFirstNotificationTask(
+          request.payload as SendEmailTaskPayload
+        );
+        break;
+      default:
+        // the payload is validated before it reaches the handler, so in the
+        // normal course of handling a cloud task, this should not happen.  but
+        // this code can also be called from outside of the request handler.
+        throw AppError.invalidCloudTaskEmailType();
+    }
   }
 }

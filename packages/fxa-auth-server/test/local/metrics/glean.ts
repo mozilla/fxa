@@ -53,6 +53,10 @@ const recordInactiveAccountDeletionStatusCheckedStub = sinon.stub();
 const recordInactiveAccountDeletionFirstEmailTaskRequestStub = sinon.stub();
 const recordInactiveAccountDeletionFirstEmailTaskEnqueuedStub = sinon.stub();
 const recordInactiveAccountDeletionFirstEmailTaskRejectedStub = sinon.stub();
+const recordInactiveAccountDeletionFirstEmailSkippedStub = sinon.stub();
+const recordInactiveAccountDeletionSecondEmailTaskRequestStub = sinon.stub();
+const recordInactiveAccountDeletionSecondEmailTaskEnqueuedStub = sinon.stub();
+const recordInactiveAccountDeletionSecondEmailTaskRejectedStub = sinon.stub();
 
 const gleanProxy = proxyquire('../../../lib/metrics/glean', {
   './server_events': {
@@ -118,6 +122,14 @@ const gleanProxy = proxyquire('../../../lib/metrics/glean', {
         recordInactiveAccountDeletionFirstEmailTaskEnqueuedStub,
       recordInactiveAccountDeletionFirstEmailTaskRejected:
         recordInactiveAccountDeletionFirstEmailTaskRejectedStub,
+      recordInactiveAccountDeletionFirstEmailSkipped:
+        recordInactiveAccountDeletionFirstEmailSkippedStub,
+      recordInactiveAccountDeletionSecondEmailTaskRequest:
+        recordInactiveAccountDeletionSecondEmailTaskRequestStub,
+      recordInactiveAccountDeletionSecondEmailTaskEnqueued:
+        recordInactiveAccountDeletionSecondEmailTaskEnqueuedStub,
+      recordInactiveAccountDeletionSecondEmailTaskRejected:
+        recordInactiveAccountDeletionSecondEmailTaskRejectedStub,
     }),
   },
 });

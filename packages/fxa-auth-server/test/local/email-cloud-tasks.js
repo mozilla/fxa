@@ -2,29 +2,49 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const { Container } = require('typedi');
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 const sandbox = sinon.createSandbox();
 
+const { AppConfig } = require('../../lib/types');
+const { AccountEventsManager } = require('../../lib/account-events');
 const sendEmailTaskStub = sandbox.stub();
+const firstNotificationHandlerStub = sandbox.stub();
 const { EmailCloudTaskManager } = proxyquire('../../lib/email-cloud-tasks', {
   ...require('../../lib/email-cloud-tasks'),
   '@fxa/shared/cloud-tasks': {
+    ...require('@fxa/shared/cloud-tasks'),
     SendEmailTasksFactory: () => ({
       sendEmail: sendEmailTaskStub,
     }),
   },
+  './inactive-accounts': {
+    InactiveAccountsManager: class InactiveAccountsManager {
+      async handleFirstNotificationTask() {
+        firstNotificationHandlerStub.call(this, ...arguments);
+      }
+    },
+  },
 });
+import { EmailTypes } from '@fxa/shared/cloud-tasks';
 
 describe('EmailCloudTaskManager', () => {
-  const mockConfig = {};
+  const mockConfig = {
+    authFirestore: {},
+    securityHistory: {},
+    cloudTasks: { useLocalEmulator: true },
+  };
+  Container.set(AppConfig, mockConfig);
+  const accountEventsManager = new AccountEventsManager();
+  Container.set(AccountEventsManager, accountEventsManager);
   const mockStatsd = { increment: sandbox.stub() };
   const emailCloudTaskManager = new EmailCloudTaskManager({
     config: mockConfig,
     statsd: mockStatsd,
   });
   const mockTaskPayload = {
-    emailType: 'inactiveNotification',
+    emailType: EmailTypes.INACTIVE_DELETE_FIRST_NOTIFICATION,
     uid: '5adfe2a2a4c34dd6b77a16efcafedc44',
   };
   const deliveryTime = Date.now() + 60 * 24 * 60 * 60 * 1000;
@@ -63,7 +83,7 @@ describe('EmailCloudTaskManager', () => {
       sinon.assert.calledOnceWithExactly(
         mockStatsd.increment,
         'cloud-tasks.send-email.rescheduled',
-        { email_type: 'inactiveNotification' }
+        { email_type: EmailTypes.INACTIVE_DELETE_FIRST_NOTIFICATION }
       );
     });
 
@@ -88,6 +108,25 @@ describe('EmailCloudTaskManager', () => {
           taskId: `${mockTaskPayload.uid}-inactive-notification-reschedule-2`,
         },
       });
+    });
+  });
+
+  describe('inactive account notifications', () => {
+    it('should handle the first notification', async () => {
+      await emailCloudTaskManager.handleInactiveAccountNotification({
+        payload: mockTaskPayload,
+        raw: {
+          req: {
+            headers: {
+              'fxa-cloud-task-delivery-time': Date.now(),
+            },
+          },
+        },
+      });
+      sinon.assert.calledOnceWithExactly(
+        firstNotificationHandlerStub,
+        mockTaskPayload
+      );
     });
   });
 });
