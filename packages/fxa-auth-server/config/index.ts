@@ -495,6 +495,13 @@ const convictConf = convict({
       env: 'SUBSCRIPTION_TERMS_URL',
       format: String,
     },
+    unsubscribeUrl: {
+      doc: 'URL to unsubscribe from MoCo and MoFo emails',
+      format: String,
+      env: 'UNSUBSCRIBE_EMAIL_LISTS_URL',
+      default:
+        'https://privacyportal.onetrust.com/webform/1350748f-7139-405c-8188-22740b3b5587/4ba08202-2ede-4934-a89e-f0b0870f95f0',
+    },
     sesConfigurationSet: {
       doc:
         'AWS SES Configuration Set for SES Event Publishing. If defined, ' +

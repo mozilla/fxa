@@ -64,6 +64,9 @@ module.exports = function (log, config, bounces) {
     subscriptionFirstInvoice: 'subscription-first-invoice',
     downloadSubscription: 'new-subscription',
     fraudulentAccountDeletion: 'account-deletion',
+    inactiveAccountFirstWarning: 'account-inactive-reminder-first',
+    inactiveAccountSecondWarning: 'account-inactive-reminder-second',
+    inactiveAccountFinalWarning: 'account-inactive-reminder-third',
     lowRecoveryCodes: 'low-recovery-codes',
     newDeviceLogin: 'new-device-signin',
     passwordChangeRequired: 'password-change-required',
@@ -121,6 +124,9 @@ module.exports = function (log, config, bounces) {
     subscriptionFirstInvoice: 'subscriptions',
     downloadSubscription: 'subscriptions',
     fraudulentAccountDeletion: 'manage-account',
+    inactiveAccountFirstWarning: 'account-deletion',
+    inactiveAccountSecondWarning: 'account-deletion',
+    inactiveAccountFinalWarning: 'account-deletion',
     lowRecoveryCodes: 'recovery-codes',
     newDeviceLogin: 'manage-account',
     passwordChanged: 'password-change',
@@ -186,7 +192,12 @@ module.exports = function (log, config, bounces) {
     return [timeNow, dateNow];
   }
 
-  function constructLocalDateString(timeZone, locale, date) {
+  function constructLocalDateString(
+    timeZone,
+    locale,
+    date,
+    formatString = 'L'
+  ) {
     // if no timeZone is passed, use DEFAULT_TIMEZONE
     moment.tz.setDefault(DEFAULT_TIMEZONE);
     // if no locale is passed, use DEFAULT_LOCALE
@@ -197,7 +208,7 @@ module.exports = function (log, config, bounces) {
       time = time.tz(timeZone);
     }
     // return a locale-specific date
-    return time.format('L');
+    return time.format(formatString);
   }
 
   // Borrowed from fxa-payments-server/src/lib/formats.ts
@@ -316,6 +327,7 @@ module.exports = function (log, config, bounces) {
     this.subscriptionTermsUrl = mailerConfig.subscriptionTermsUrl;
     this.supportUrl = mailerConfig.supportUrl;
     this.syncUrl = mailerConfig.syncUrl;
+    this.unsubscribeUrl = mailerConfig.unsubscribeUrl;
     this.verificationUrl = mailerConfig.verificationUrl;
     this.verifyLoginUrl = mailerConfig.verifyLoginUrl;
     this.verifyPrimaryEmailUrl = mailerConfig.verifyPrimaryEmailUrl;
@@ -372,12 +384,14 @@ module.exports = function (log, config, bounces) {
   Mailer.prototype._constructLocalDateString = function (
     timeZone,
     acceptLanguage,
-    date
+    date,
+    formatString = 'L'
   ) {
     return constructLocalDateString(
       timeZone,
       determineLocale(acceptLanguage),
-      date
+      date,
+      formatString
     );
   };
 
@@ -2886,6 +2900,34 @@ module.exports = function (log, config, bounces) {
     });
   };
 
+  Mailer.prototype.inactiveAccountFirstWarningEmail = async function (message) {
+    const templateName = 'inactiveAccountFirstWarning';
+    const deletionDate = this._constructLocalDateString(
+      message.timezone,
+      message.acceptLanguage,
+      message.inactiveDeletionEta,
+      'dddd, ll'
+    );
+    const links = this._generateLinks(
+      this.accountSettingsUrl,
+      message,
+      {},
+      templateName
+    );
+    const headers = {
+      'X-Link': links.link,
+    };
+    return this.send({
+      ...message,
+      ...links,
+      headers,
+      template: templateName,
+      templateValues: {
+        deletionDate,
+      },
+    });
+  };
+
   cadReminders.keys.forEach((key, index) => {
     // Template names are generated in the form `cadReminderFirstEmail`,
     // where `First` is the key derived from config, with an initial capital letter.
@@ -3187,6 +3229,8 @@ module.exports = function (log, config, bounces) {
       templateName,
       'update-billing'
     );
+
+    links.unsubscribeUrl = this.unsubscribeUrl;
 
     const queryOneClick = extend(query, { one_click: true });
     if (primaryLink && utmContent) {
