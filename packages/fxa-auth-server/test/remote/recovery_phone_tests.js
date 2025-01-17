@@ -78,6 +78,7 @@ describe(`#integration - recovery phone`, function () {
     await db.deleteFrom('accounts').execute();
     await db.deleteFrom('recoveryPhones').execute();
     await db.deleteFrom('sessionTokens').execute();
+    await db.deleteFrom('recoveryCodes').execute();
   }
 
   beforeEach(async function () {
@@ -91,6 +92,15 @@ describe(`#integration - recovery phone`, function () {
         version: 'V2',
       }
     );
+
+    // Add totp to account
+    client.totpAuthenticator = new otplib.authenticator.Authenticator();
+    const totpResult = await client.createTotpToken();
+    client.totpAuthenticator.options = {
+      secret: totpResult.secret,
+      crypto: crypto,
+    };
+    await client.verifyTotpCode(client.totpAuthenticator.generate());
   });
 
   afterEach(async function () {
@@ -121,15 +131,6 @@ describe(`#integration - recovery phone`, function () {
     if (!isTwilioConfigured) {
       this.skip('Invalid twilio accountSid or authToken. Check env / config!');
     }
-
-    // Add totp to account
-    client.totpAuthenticator = new otplib.authenticator.Authenticator();
-    const totpResult = await client.createTotpToken();
-    client.totpAuthenticator.options = {
-      secret: totpResult.secret,
-      crypto: crypto,
-    };
-    await client.verifyTotpCode(client.totpAuthenticator.generate());
 
     // Add recovery phone
     await client.recoveryPhoneNumberCreate(phoneNumber);

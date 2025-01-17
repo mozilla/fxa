@@ -40,6 +40,7 @@ import { currentAccount } from '../../lib/cache';
 import { hasAccount, setCurrentAccount } from '../../lib/storage-utils';
 import GleanMetrics from '../../lib/glean';
 import Head from 'fxa-react/components/Head';
+import PageRecoveryPhoneRemove from './PageRecoveryPhoneRemove';
 
 export const Settings = ({
   integration,
@@ -195,6 +196,8 @@ export const Settings = ({
           <Redirect from="/clients" to="/settings#connected-services" noThrow />
           {/* NOTE: `/settings/avatar/change` is used to link directly to the avatar page within Sync preferences settings on Firefox browsers */}
           <Redirect from="/avatar/change" to="/settings/avatar/" noThrow />
+
+          <PageRecoveryPhoneRemove path="/recovery_phone/remove" />
         </ScrollToTop>
       </Router>
     </SettingsLayout>

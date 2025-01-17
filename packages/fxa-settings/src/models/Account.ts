@@ -1364,5 +1364,9 @@ export class Account implements AccountData {
     return data;
   }
 
-  async removeRecoveryPhone() {}
+  async removeRecoveryPhone() {
+    return await this.withLoadingStatus(
+      this.authClient.recoveryPhoneDelete(sessionToken()!)
+    );
+  }
 }
