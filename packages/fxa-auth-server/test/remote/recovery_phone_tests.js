@@ -112,7 +112,7 @@ describe(`#integration - recovery phone`, function () {
     await TestServer.stop(server);
   });
 
-  it('setups a recovery phone', async function () {
+  it('sets up a recovery phone', async function () {
     if (!isTwilioConfigured) {
       this.skip('Invalid twilio accountSid or authToken. Check env / config!');
     }
@@ -185,7 +185,7 @@ describe(`#integration - recovery phone`, function () {
     assert.isFalse(checkResp2.exists);
   });
 
-  it('fails to setup invalid phone number', async function () {
+  it('fails to set up invalid phone number', async function () {
     if (!isTwilioConfigured) {
       this.skip('Invalid twilio accountSid or authToken. Check env / config!');
     }

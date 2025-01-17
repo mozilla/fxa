@@ -119,7 +119,7 @@ const ERRORS = {
   // We don't currently support sms but still keep the error codes to avoid conflicts
   SMS_ID_INVALID: {
     errno: 131,
-    // should not be user facing, not wrapped in t
+    // This message should not be user-facing or localized
     message: 'SMS ID invalid',
   },
   SMS_REJECTED: {
@@ -282,7 +282,7 @@ const ERRORS = {
     errno: 181,
     message: 'Update was rejected, please try again',
   },
-  INVALID_EXPIRED_SIGNUP_CODE: {
+  INVALID_EXPIRED_OTP_CODE: {
     errno: 183,
     message: 'Invalid or expired confirmation code',
     version: 2,
@@ -314,6 +314,10 @@ const ERRORS = {
   RECOVERY_PHONE_NUMBER_DOES_NOT_EXIST: {
     errno: 215,
     message: 'Recovery phone number does not exist',
+  },
+  SMS_SEND_RATE_LIMIT_EXCEEDED: {
+    errno: 216,
+    message: 'Client has sent too many requests',
   },
   RECOVERY_PHONE_REMOVE_MISSING_RECOVERY_CODES: {
     errno: 218,

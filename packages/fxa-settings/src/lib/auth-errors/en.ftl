@@ -17,8 +17,11 @@ auth-error-125 = The request was blocked for security reasons
 auth-error-138-2 = Unconfirmed session
 auth-error-139 = Secondary email must be different than your account email
 auth-error-155 = TOTP token not found
+# Error shown when the user submits an invalid backup authentication code
+auth-error-156 = Backup authentication code not found
 auth-error-159 = Invalid account recovery key
 auth-error-183-2 = Invalid or expired confirmation code
+auth-error-203 = System unavailable, try again soon
 auth-error-206 = Can not create password, password already set
 auth-error-999 = Unexpected error
 auth-error-1001 = Login attempt cancelled
@@ -30,4 +33,5 @@ auth-error-1011 = Valid email required
 auth-error-1031 = You must enter your age to sign up
 auth-error-1032 = You must enter a valid age to sign up
 auth-error-1054 = Invalid two-step authentication code
+auth-error-1056 = Invalid backup authentication code
 auth-error-1062 = Invalid redirect

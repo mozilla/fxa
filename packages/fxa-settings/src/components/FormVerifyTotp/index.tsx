@@ -24,6 +24,7 @@ const FormVerifyTotp = ({
   localizedSubmitButtonText,
   setErrorMessage,
   verifyCode,
+  gleanDataAttrs,
 }: FormVerifyTotpProps) => {
   const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
 
@@ -112,6 +113,11 @@ const FormVerifyTotp = ({
         className="cta-primary cta-xl"
         disabled={isSubmitDisabled}
         title={isSubmitDisabled ? getDisabledButtonTitle() : ''}
+        {...(gleanDataAttrs && {
+          'data-glean-id': gleanDataAttrs.id,
+          'data-glean-label': gleanDataAttrs.label,
+          'data-glean-type': gleanDataAttrs.type,
+        })}
       >
         {localizedSubmitButtonText}
       </button>

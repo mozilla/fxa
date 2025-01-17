@@ -285,7 +285,7 @@ var ERRORS = {
     errno: 181,
     message: t('Update was rejected, please try again'),
   },
-  INVALID_EXPIRED_SIGNUP_CODE: {
+  INVALID_EXPIRED_OTP_CODE: {
     errno: 183,
     message: t('Invalid or expired confirmation code'),
   },

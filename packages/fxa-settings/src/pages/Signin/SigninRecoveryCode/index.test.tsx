@@ -18,6 +18,7 @@ import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { OAUTH_ERRORS } from '../../../lib/oauth';
 import { tryAgainError } from '../../../lib/oauth/hooks';
 import { mockOAuthNativeIntegration } from '../SigninTotpCode/mocks';
+import userEvent from '@testing-library/user-event';
 
 jest.mock('../../../lib/glean', () => ({
   __esModule: true,
@@ -48,6 +49,7 @@ describe('PageSigninRecoveryCode', () => {
         <SigninRecoveryCode
           finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
           integration={mockIntegration}
+          navigateToRecoveryPhone={jest.fn()}
           signinState={mockSigninLocationState}
           submitRecoveryCode={mockSubmitRecoveryCode}
         />
@@ -62,18 +64,60 @@ describe('PageSigninRecoveryCode', () => {
     );
     screen.getByRole('img', { name: 'Document that contains hidden text.' });
     screen.getByText(
-      'Enter one of the one-time use backup authentication codes you saved during two-step authentication setup.'
+      'Enter one of the one-time-use codes you saved when you set up two-step authentication.'
     );
     screen.getByRole('textbox', {
       name: 'Enter 10-character code',
     });
 
     screen.getByRole('button', { name: 'Confirm' });
-    screen.getByRole('link', { name: 'Back' });
+    screen.getByRole('button', { name: 'Back' });
     screen.getByRole('link', {
-      name: /Are you locked out?/,
+      name: /Are you locked out/i,
     });
     expect(screen.queryByText(serviceRelayText)).not.toBeInTheDocument();
+  });
+
+  it('has expected glean click events', async () => {
+    const mockSubmitRecoveryCode = jest.fn();
+    renderWithLocalizationProvider(
+      <LocationProvider>
+        <SigninRecoveryCode
+          finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
+          integration={mockIntegration}
+          navigateToRecoveryPhone={jest.fn()}
+          signinState={mockSigninLocationState}
+          submitRecoveryCode={mockSubmitRecoveryCode}
+          lastFourPhoneDigits="1234"
+        />
+      </LocationProvider>
+    );
+
+    const user = userEvent.setup();
+    await waitFor(() =>
+      user.type(screen.getByRole('textbox'), MOCK_RECOVERY_CODE)
+    );
+
+    expect(screen.getByRole('button', { name: /Confirm/i })).toHaveAttribute(
+      'data-glean-id',
+      'login_backup_codes_submit'
+    );
+
+    const phoneLink = screen.getByRole('button', {
+      name: /Use recovery phone/i,
+    });
+    expect(phoneLink).toHaveAttribute(
+      'data-glean-id',
+      'login_backup_codes_phone_instead'
+    );
+
+    const lockedOutLink = screen.getByRole('link', {
+      name: /Are you locked out/i,
+    });
+    expect(lockedOutLink).toHaveAttribute(
+      'data-glean-id',
+      'login_backup_codes_locked_out_link'
+    );
   });
 
   it('renders expected text when service=relay', () => {
@@ -82,6 +126,7 @@ describe('PageSigninRecoveryCode', () => {
         <SigninRecoveryCode
           finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
           integration={mockOAuthNativeIntegration(false)}
+          navigateToRecoveryPhone={jest.fn()}
           signinState={mockSigninLocationState}
           submitRecoveryCode={jest.fn()}
         />
@@ -98,6 +143,7 @@ describe('PageSigninRecoveryCode', () => {
           <SigninRecoveryCode
             finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
             integration={mockIntegration}
+            navigateToRecoveryPhone={jest.fn()}
             signinState={mockSigninLocationState}
             submitRecoveryCode={mockSubmitRecoveryCode}
           />
@@ -115,6 +161,7 @@ describe('PageSigninRecoveryCode', () => {
           <SigninRecoveryCode
             finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
             integration={mockIntegration}
+            navigateToRecoveryPhone={jest.fn()}
             signinState={mockSigninLocationState}
             submitRecoveryCode={mockSubmitRecoveryCode}
           />
@@ -145,6 +192,7 @@ describe('PageSigninRecoveryCode', () => {
           <SigninRecoveryCode
             finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
             integration={mockIntegration}
+            navigateToRecoveryPhone={jest.fn()}
             signinState={mockSigninLocationState}
             submitRecoveryCode={mockSubmitRecoveryCode}
           />
@@ -168,6 +216,7 @@ describe('PageSigninRecoveryCode', () => {
           <SigninRecoveryCode
             finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
             integration={mockIntegration}
+            navigateToRecoveryPhone={jest.fn()}
             signinState={mockSigninLocationState}
             submitRecoveryCode={mockSubmitRecoveryCodeWithError}
           />
@@ -196,6 +245,7 @@ describe('PageSigninRecoveryCode', () => {
               .fn()
               .mockReturnValueOnce(tryAgainError())}
             integration={createMockSigninOAuthIntegration()}
+            navigateToRecoveryPhone={jest.fn()}
             signinState={mockSigninLocationState}
             submitRecoveryCode={mockSubmitRecoveryCode}
           />
@@ -224,6 +274,7 @@ describe('PageSigninRecoveryCode', () => {
           <SigninRecoveryCode
             finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
             integration={mockIntegration}
+            navigateToRecoveryPhone={jest.fn()}
             signinState={mockSigninLocationState}
             submitRecoveryCode={mockSubmitRecoveryCodeWithError}
           />
