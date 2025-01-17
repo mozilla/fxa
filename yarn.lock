@@ -23773,12 +23773,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/user-event@npm:^14.5.1":
-  version: 14.5.1
-  resolution: "@testing-library/user-event@npm:14.5.1"
+"@testing-library/user-event@npm:^14.6.0":
+  version: 14.6.0
+  resolution: "@testing-library/user-event@npm:14.6.0"
   peerDependencies:
     "@testing-library/dom": ">=7.21.4"
-  checksum: 3e6bc9fd53dfe2f3648190193ed2fd4bca2a1bfb47f68810df3b33f05412526e5fd5c4ef9dc5375635e0f4cdf1859916867b597eed22bda1321e04242ea6c519
+  checksum: 39b078708a8e19e3efa544ac4ee6cfde4b4ec80a386794c13f52e64abbe14aa8ba4790108d8a8d962c3abed365e51a1de705d36c10496700af39c7c450a791d6
   languageName: node
   linkType: hard
 
@@ -42054,7 +42054,7 @@ fsevents@~2.1.1:
     "@tailwindcss/container-queries": ^0.1.1
     "@testing-library/dom": ^10.4.0
     "@testing-library/jest-dom": ^5.16.5
-    "@testing-library/user-event": ^14.5.1
+    "@testing-library/user-event": ^14.6.0
     "@types/babel__preset-env": ^7
     "@types/camelcase": 5.2.0
     "@types/classnames": ^2.3.1
@@ -42129,7 +42129,7 @@ fsevents@~2.1.1:
     "@testing-library/dom": ^10.4.0
     "@testing-library/jest-dom": ^6.1.3
     "@testing-library/react-hooks": ^8.0.0
-    "@testing-library/user-event": ^14.5.1
+    "@testing-library/user-event": ^14.6.0
     "@types/babel__core": 7.20.5
     "@types/classnames": ^2.3.1
     "@types/file-saver": ^2.0.5
