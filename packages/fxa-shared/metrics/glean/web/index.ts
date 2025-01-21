@@ -195,6 +195,7 @@ export const eventsMap = {
 
   accountBanner: {
     createRecoveryKeyView: 'account_banner_create_recovery_key_view',
+    reactivationSuccessView: 'account_banner_reactivation_success_view',
   },
 
   deleteAccount: {

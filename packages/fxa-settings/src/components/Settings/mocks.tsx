@@ -15,7 +15,7 @@ export function createMockSettingsIntegration({
 } = {}): SettingsIntegration {
   return {
     type,
-    isSync: () => isSync,
+    data: {},
   };
 }
 

@@ -9,6 +9,7 @@ import PageSettings from '.';
 import {
   MOCK_ACCOUNT,
   mockAppContext,
+  mockSettingsContext,
   renderWithRouter,
 } from '../../../models/mocks';
 import * as Metrics from '../../../lib/metrics';
@@ -19,6 +20,10 @@ import {
   ALL_PRODUCT_PROMO_SUBSCRIPTIONS,
 } from '../../../pages/mocks';
 import { MOCK_SERVICES } from '../ConnectedServices/mocks';
+import { mockWebIntegration } from '../../../pages/Signin/SigninRecoveryCode/mocks';
+import { SettingsContext } from '../../../models/contexts/SettingsContext';
+
+jest.mock('../../../models/AlertBarInfo');
 
 jest.mock('../../../lib/metrics', () => ({
   setProperties: jest.fn(),
@@ -34,6 +39,9 @@ jest.mock('../../../lib/glean', () => ({
     },
     deleteAccount: {
       settingsSubmit: jest.fn(),
+    },
+    accountBanner: {
+      reactivationSuccessView: jest.fn(),
     },
   },
 }));
@@ -53,6 +61,25 @@ describe('PageSettings', () => {
   });
   it('renders without imploding', async () => {
     renderWithRouter(<PageSettings />);
+    expect(screen.getByTestId('settings-profile')).toBeInTheDocument();
+    expect(screen.getByTestId('settings-security')).toBeInTheDocument();
+    expect(
+      screen.getByTestId('settings-connected-services')
+    ).toBeInTheDocument();
+    expect(screen.getByTestId('settings-delete-account')).toBeInTheDocument();
+    expect(
+      screen.queryByTestId('settings-data-collection')
+    ).toBeInTheDocument();
+    expect(Metrics.setProperties).toHaveBeenCalledWith({
+      lang: null,
+      uid: 'abc123',
+    });
+  });
+
+  it('renders without imploding when passing an integration', async () => {
+    renderWithRouter(<PageSettings integration={mockWebIntegration} />);
+
+    // assert all typical PageSetting elements
     expect(screen.getByTestId('settings-profile')).toBeInTheDocument();
     expect(screen.getByTestId('settings-security')).toBeInTheDocument();
     expect(
@@ -116,6 +143,33 @@ describe('PageSettings', () => {
           </AppContext.Provider>
         );
         expect(GleanMetrics.accountPref.promoMonitorView).not.toBeCalled();
+      });
+    });
+    describe('inactive account verified', () => {
+      const alertBarInfo = {
+        success: jest.fn(),
+      } as any;
+      const settingsContext = mockSettingsContext({ alertBarInfo });
+
+      it('user has seen the reactivation banner', async () => {
+        mockWebIntegration.data.utmCampaign =
+          'fx-account-inactive-reminder-third';
+        mockWebIntegration.data.utmMedium = 'email';
+        mockWebIntegration.data.utmContent = 'fx-account-deletion';
+        renderWithRouter(
+          <AppContext.Provider value={mockAppContext()}>
+            <SettingsContext.Provider value={settingsContext}>
+              <PageSettings integration={mockWebIntegration} />
+            </SettingsContext.Provider>
+          </AppContext.Provider>
+        );
+
+        expect(alertBarInfo.success).toHaveBeenCalledWith(
+          'Signed in successfully. Your Mozilla account and data will stay active.'
+        );
+        expect(
+          GleanMetrics.accountBanner.reactivationSuccessView
+        ).toBeCalledTimes(1);
       });
     });
   });

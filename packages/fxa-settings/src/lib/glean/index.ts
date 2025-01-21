@@ -518,6 +518,9 @@ const recordEventMetric = (
     case 'account_banner_create_recovery_key_view':
       accountBanner.createRecoveryKeyView.record();
       break;
+    case 'account_banner_reactivation_success_view':
+      accountBanner.reactivationSuccessView.record();
+      break;
     case 'error_view':
       error.view.record({
         reason: gleanPingMetrics?.event?.['reason'] || '',

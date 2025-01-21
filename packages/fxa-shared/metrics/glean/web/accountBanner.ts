@@ -21,3 +21,20 @@ export const createRecoveryKeyView = new EventMetricType(
   },
   []
 );
+
+/**
+ * User sees the reactivation banner after receiving the inactive
+ * account email and clicking the provided link inside it.
+ *
+ * Generated from `account_banner.reactivation_success_view`.
+ */
+export const reactivationSuccessView = new EventMetricType(
+  {
+    category: 'account_banner',
+    name: 'reactivation_success_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);

@@ -2460,6 +2460,24 @@ account_banner:
     expires: never
     data_sensitivity:
       - interaction
+  reactivation_success_view:
+    type: event
+    description: |
+      User sees the reactivation banner after receiving the inactive
+      account email and clicking the provided link inside it.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-10983
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
 
 delete_account:
   settings_submit:

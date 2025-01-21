@@ -10,7 +10,7 @@ import ConnectedServices from '../ConnectedServices';
 import LinkedAccounts from '../LinkedAccounts';
 
 import * as Metrics from '../../../lib/metrics';
-import { useAccount, useFtlMsgResolver } from '../../../models';
+import { useAccount, useAlertBar, useFtlMsgResolver } from '../../../models';
 import { SETTINGS_PATH } from 'fxa-settings/src/constants';
 import { Localized } from '@fluent/react';
 import DataCollection from '../DataCollection';
@@ -23,10 +23,14 @@ import SideBar from '../Sidebar';
 import NotificationPromoBanner from '../../NotificationPromoBanner';
 import keyImage from '../../NotificationPromoBanner/key.svg';
 import Head from 'fxa-react/components/Head';
+import { SettingsIntegration } from '../interfaces';
 
-export const PageSettings = (_: RouteComponentProps) => {
+export const PageSettings = ({
+  integration,
+}: RouteComponentProps & { integration?: SettingsIntegration }) => {
   const { uid, recoveryKey, attachedClients, subscriptions } = useAccount();
   const ftlMsgResolver = useFtlMsgResolver();
+  const alertBar = useAlertBar();
 
   Metrics.setProperties({
     lang: document.querySelector('html')?.getAttribute('lang'),
@@ -40,6 +44,37 @@ export const PageSettings = (_: RouteComponentProps) => {
 
   const [productPromoGleanEventSent, setProductPromoGleanEventSent] =
     useState(false);
+
+  useEffect(() => {
+    function showInactiveVerifiedBanner() {
+      const emailCampaigns = [
+        'fx-account-inactive-reminder-first',
+        'fx-account-inactive-reminder-second',
+        'fx-account-inactive-reminder-third',
+      ];
+      if (!emailCampaigns.some((e) => integration?.data?.utmCampaign === e)) {
+        return false;
+      }
+      if (
+        integration?.data?.utmContent !== 'fx-account-deletion' ||
+        integration?.data?.utmMedium !== 'email'
+      ) {
+        return false;
+      }
+      return true;
+    }
+
+    if (showInactiveVerifiedBanner()) {
+      GleanMetrics.accountBanner.reactivationSuccessView();
+      alertBar.success(
+        ftlMsgResolver.getMsg(
+          'inactive-update-status-success-alert',
+          'Signed in successfully. Your Mozilla account and data will stay active.'
+        )
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     // We want this view event to fire whenever the account settings page view
