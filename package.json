@@ -91,7 +91,7 @@
     "clsx": "^2.1.1",
     "diffparser": "^2.0.1",
     "dotenv": "^16.4.5",
-    "graphql": "^16.9.0",
+    "graphql": "^16.10.0",
     "graphql-request": "^6.1.0",
     "hot-shots": "^10.2.1",
     "husky": "^4.2.5",
