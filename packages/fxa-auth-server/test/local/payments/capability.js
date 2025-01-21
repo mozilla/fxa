@@ -526,7 +526,7 @@ describe('CapabilityService', () => {
         SubscriptionEligibilityResult.UPGRADE,
       ]);
       capabilityService.getAllSubscribedAbbrevPlans = sinon.fake.resolves([
-        mockAbbrevPlans[1],
+        [mockAbbrevPlans[1]],
         [],
       ]);
       capabilityService.eligibilityFromEligibilityManager = sinon.fake.resolves(
@@ -543,6 +543,8 @@ describe('CapabilityService', () => {
         sentryScope.setContext,
         'getPlanEligibility',
         {
+          stripeSubscribedPlans: [mockAbbrevPlans[1]],
+          iapSubscribedPlans: [],
           eligibilityManagerResult: [SubscriptionEligibilityResult.CREATE],
           stripeEligibilityResult: [SubscriptionEligibilityResult.UPGRADE],
           uid: UID,
