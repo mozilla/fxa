@@ -47,7 +47,7 @@ const CONFIGS = {
 };
 
 const env = process.env.FXA_ENV || 'local';
-const FXA_DESKTOP_CONTEXT = process.env.FXA_DESKTOP_CONTEXT || 'fx_desktop_v3';
+const FXA_DESKTOP_CONTEXT = process.env.FXA_DESKTOP_CONTEXT || 'oauth_webchannel_v1';
 const e10sDisabled = process.env.DISABLE_E10S === 'true';
 let fxaEnv = CONFIGS[env];
 
@@ -115,11 +115,11 @@ const fxaProfile = {
   // allow webchannel url, strips slash from content-server origin.
   'webchannel.allowObject.urlWhitelist': fxaEnv.content.slice(0, -1),
   'browser.tabs.firefox-view': true,
+  // TODO in FXA-11026, see if we still need the other prefs since we only need
+  // to use the autoconfig to get everything else set. See: bug 1942925.
   'identity.fxaccounts.autoconfig.uri': fxaEnv.content,
   // disable password auto-fill; we typically don't need to test this daily.
   'signon.rememberSignons': false,
-  // TODO in FXA-9872, make oauth_webchannel_v1 the default context and
-  // change these values for fx_desktop_v3. (Also, update the README note)
   ...(process.env.FXA_DESKTOP_CONTEXT === 'oauth_webchannel_v1' && {
     'identity.fxaccounts.oauth.enabled': true,
     'identity.fxaccounts.contextParam': 'oauth_webchannel_v1',
