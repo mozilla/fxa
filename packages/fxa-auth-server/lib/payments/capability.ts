@@ -397,6 +397,8 @@ export class CapabilityService {
         return stripeEligibilityResult;
 
       this.log.error(`capability.getPlanEligibility.eligibilityMismatch`, {
+        stripeSubscribedPlans,
+        iapSubscribedPlans,
         eligibilityManagerResult,
         stripeEligibilityResult,
         uid,
@@ -404,6 +406,8 @@ export class CapabilityService {
       });
       Sentry.withScope((scope) => {
         scope.setContext('getPlanEligibility', {
+          stripeSubscribedPlans,
+          iapSubscribedPlans,
           eligibilityManagerResult,
           stripeEligibilityResult,
           uid,
