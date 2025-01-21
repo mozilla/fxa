@@ -13,10 +13,6 @@ test.describe('recovery key promo', () => {
         config.featureFlags.recoveryCodeSetupOnSyncSignIn !== true,
         'inline recovery key setup is not enabled'
       );
-      test.skip(
-        project.name === 'local-chromium',
-        'Sync tests can not run on Chrome'
-      );
     });
 
     test('not shown after signup', async ({
