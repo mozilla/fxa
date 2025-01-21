@@ -122,7 +122,7 @@
     ]
   },
   "dependencies": {
-    "@babel/core": "^7.24.4",
+    "@babel/core": "^7.26.0",
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
     "@material-ui/core": "v5.0.0-alpha.24",
@@ -195,7 +195,7 @@
     "workbox-webpack-plugin": "^7.1.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.24.4",
+    "@babel/core": "^7.26.0",
     "@babel/plugin-transform-typescript": "^7.25.2",
     "@babel/preset-typescript": "^7.25.7",
     "@babel/types": "^7.25.8",
