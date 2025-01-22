@@ -59,7 +59,7 @@
     "tslib": "^2.8.1"
   },
   "devDependencies": {
-    "@nestjs/cli": "^10.4.2",
+    "@nestjs/cli": "^11.0.1",
     "@types/body-parser": "^1",
     "@types/chance": "^1.1.2",
     "@types/convict": "^5.2.2",
