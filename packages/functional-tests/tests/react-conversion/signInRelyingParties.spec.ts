@@ -35,12 +35,12 @@ test.describe('severity-1 #smoke', () => {
 
     await expect(connectAnotherDevice.fxaConnected).toBeEnabled();
     await connectAnotherDevice.clickNotNowPair();
-    await expect(page).toHaveURL(/settings/, { timeout: 1000 });
+    await expect(page).toHaveURL(/settings/);
 
     await settings.disconnectSync(credentials);
 
     // confirm left settings and back at sign in
-    await page.waitForURL('**/signin', { timeout: 1000 });
+    await page.waitForURL('**/signin');
   });
 
   test('react disconnect RP', async ({

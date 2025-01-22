@@ -218,7 +218,7 @@ test.describe('severity-1 #smoke', () => {
     await signin.goto();
     await signin.fillOutEmailFirstForm(email);
     await signin.fillOutPasswordForm(password);
-
+    await settings.page.waitForURL(/settings/);
     await expect(settings.settingsHeading).toBeVisible();
   }
 

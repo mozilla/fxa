@@ -15,6 +15,8 @@ test.describe('severity-1 #smoke', () => {
 
     await resetPassword.goto();
 
+    await resetPassword.page.waitForURL(/reset_password/);
+
     await resetPassword.fillOutEmailForm(credentials.email);
 
     const code = await target.emailClient.getResetPasswordCode(
@@ -57,6 +59,8 @@ test.describe('severity-1 #smoke', () => {
 
       await resetPassword.goto();
 
+      await resetPassword.page.waitForURL(/reset_password/);
+
       await resetPassword.fillOutEmailForm(credentials.email);
 
       const code = await target.emailClient.getResetPasswordCode(
@@ -79,6 +83,8 @@ test.describe('severity-1 #smoke', () => {
     pages: { resetPassword },
   }) => {
     await resetPassword.goto('/confirm_reset_password');
+
+    await resetPassword.page.waitForURL(/reset_password/);
 
     // Verify its redirected to reset password page
     await expect(resetPassword.resetPasswordHeading).toBeVisible();
@@ -117,6 +123,8 @@ test.describe('severity-1 #smoke', () => {
   }) => {
     await resetPassword.goto();
 
+    await resetPassword.page.waitForURL(/reset_password/);
+
     await resetPassword.fillOutEmailForm('email@restmail.net');
 
     await expect(resetPassword.errorBanner).toHaveText('Unknown account');
@@ -128,6 +136,8 @@ test.describe('severity-1 #smoke', () => {
   }) => {
     const credentials = await testAccountTracker.signUp();
     await resetPassword.goto(undefined, `email=${credentials.email}`);
+
+    await resetPassword.page.waitForURL(/reset_password/);
 
     //The email shouldn't be pre-filled
     const emailInput = await resetPassword.emailTextbox.inputValue();

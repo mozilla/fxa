@@ -9,6 +9,7 @@ test.describe('severity-2 #smoke', () => {
     test('cached credentials, login_hint specified by relier', async ({
       pages: { page, signin, relier },
       testAccountTracker,
+      target,
     }) => {
       const credentials = await testAccountTracker.signUp();
       const loginHintCredentials = await testAccountTracker.signUp();
@@ -19,6 +20,8 @@ test.describe('severity-2 #smoke', () => {
       await signin.fillOutEmailFirstForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
 
+      await page.waitForURL(target.relierUrl);
+
       expect(await relier.isLoggedIn()).toBe(true);
 
       await relier.signOut();
@@ -26,6 +29,8 @@ test.describe('severity-2 #smoke', () => {
       // login_hint takes precedence over the signed-in user
       await relier.goto(`login_hint=${loginHintCredentials.email}`);
       await relier.clickEmailFirst();
+
+      await page.waitForURL(/signin/);
 
       // Email is prefilled
       await expect(signin.passwordFormHeading).toBeVisible();

@@ -105,6 +105,7 @@ test.describe('severity-1 #smoke', () => {
         credentials.email
       );
       await signinTokenCode.fillOutCodeForm(code);
+      await signinTokenCode.page.waitForURL(/pair/);
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
       await fxDesktopV3ForceAuth.checkWebChannelMessage(FirefoxCommand.Login);
     });

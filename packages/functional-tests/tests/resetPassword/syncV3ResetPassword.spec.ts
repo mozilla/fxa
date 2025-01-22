@@ -8,7 +8,7 @@ test.describe('severity-1 #smoke', () => {
   test.describe('Firefox Desktop Sync v3 reset password react', () => {
     test('reset pw for sync user', async ({
       target,
-      syncBrowserPages: { page, resetPassword, settings },
+      syncBrowserPages: { resetPassword, settings },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();

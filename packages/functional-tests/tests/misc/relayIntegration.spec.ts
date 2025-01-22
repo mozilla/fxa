@@ -25,6 +25,8 @@ test.describe('relay integration', () => {
     await signup.emailTextbox.fill(email);
     await signup.submitButton.click();
 
+    await page.waitForURL(/signup/);
+
     await expect(
       signup.page.getByText(
         'A password is needed to securely manage your masked emails and access ⁨Mozilla⁩’s security tools.'

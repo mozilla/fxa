@@ -44,6 +44,7 @@ test.describe('severity-1 #smoke', () => {
       expect(await relier.isLoggedIn()).toBe(true);
 
       await settings.goto();
+      await settings.page.waitForURL(/settings/);
       await settings.disconnectTotp();
     });
 
@@ -68,6 +69,7 @@ test.describe('severity-1 #smoke', () => {
 
       await relier.goto();
       await relier.clickEmailFirst();
+      await signin.page.waitForURL(/signin/);
       await signin.signInButton.click();
 
       expect(await relier.isLoggedIn()).toBe(true);
@@ -148,9 +150,10 @@ async function signInAccount(
 ): Promise<Credentials> {
   const credentials = await testAccountTracker.signUp();
   await page.goto(target.contentServerUrl);
+  await page.waitForURL(/\//);
   await signin.fillOutEmailFirstForm(credentials.email);
   await signin.fillOutPasswordForm(credentials.password);
-
+  await page.waitForURL(/settings/);
   // Verify logged in on Settings page
   await expect(settings.settingsHeading).toBeVisible();
 

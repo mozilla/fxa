@@ -50,6 +50,9 @@ test.describe('severity-2 #smoke', () => {
 
       await signin.clearSessionStorage();
       await page.goto(target.contentServerUrl);
+
+      await page.waitForURL(target.contentServerUrl);
+
       await signin.denormalizeStoredEmail(email);
 
       await expect(signin.cachedSigninHeading).toBeVisible();
@@ -69,10 +72,6 @@ test.describe('severity-2 #smoke', () => {
       syncBrowserPages: { page, settings, signin },
       testAccountTracker,
     }) => {
-      test.skip(
-        true,
-        'FXA-9427, enable this test that was updated for react signin'
-      );
       const credentials = await signInSyncAccount(
         target,
         page,
@@ -212,8 +211,10 @@ async function signInSyncAccount(
 ): Promise<Credentials> {
   const credentials = await testAccountTracker.signUpSync();
   await page.goto(target.contentServerUrl);
+  await page.waitForURL(target.contentServerUrl);
   await signin.fillOutEmailFirstForm(credentials.email);
   await signin.fillOutPasswordForm(credentials.password);
+  await page.waitForURL(/settings/);
 
   //Verify logged in on Settings page
   await expect(settings.settingsHeading).toBeVisible();
