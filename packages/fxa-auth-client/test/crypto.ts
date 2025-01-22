@@ -12,7 +12,7 @@ import {
   randomKey,
   getRecoveryKeyIdByUid,
 } from 'fxa-auth-client/lib/recoveryKey';
-import { createSaltV1, createSaltV2 } from '../lib/salt';
+import { createSaltV2 } from '../lib/salt';
 import { hexToUint8 } from 'fxa-auth-client/lib/utils';
 
 const uid = 'aaaaabbbbbcccccdddddeeeeefffff00';
@@ -52,7 +52,7 @@ describe('lib/crypto', () => {
     it('returns the correct authPW and unwrapBKey with V2 salt', async () => {
       const password = 'pässwörd';
       const clientSalt = createSaltV2('0123456789abcdef0123456789abcdef');
-      const keys = await getCredentialsV2({password, clientSalt});
+      const keys = await getCredentialsV2({ password, clientSalt });
       assert.equal(
         keys.authPW,
         'd278c764bd1852a14bfc4e9d8c1682b4f1a57edb9a9372bf8c370cc41592155b'

@@ -2260,6 +2260,13 @@ export default class AuthClient {
     );
   }
 
+  /**
+   * Tries to register a recovery phone number
+   *
+   * @param sessionToken The user's current session token
+   * @param phoneNumber The phone number to register. Should be E.164 format
+   * @param headers
+   */
   async recoveryPhoneCreate(
     sessionToken: string,
     phoneNumber: string,
@@ -2273,6 +2280,11 @@ export default class AuthClient {
     );
   }
 
+  /**
+   * Checks to see if a recovery phone is available in the user's region.
+   * @param sessionToken The user's current session token
+   * @param headers
+   */
   async recoveryPhoneAvailable(sessionToken: string, headers?: Headers) {
     return this.sessionPost(
       '/recovery_phone/available',
@@ -2282,20 +2294,35 @@ export default class AuthClient {
     );
   }
 
-  async recoveryPhoneConfirm(
+  /**
+   * Confirms the code sent to the recovery phone when recoveryPhoneCreate was called.
+   *
+   * @param sessionToken The user's current session token
+   * @param code The otp code sent to the user's phone
+   * @param headers
+   */
+  async recoveryPhoneConfirmSetup(
     sessionToken: string,
     code: string,
     headers?: Headers
   ) {
     return this.sessionPost(
-      '/recovery_phone/available',
+      '/recovery_phone/confirm',
       sessionToken,
-      { code },
+      {
+        code,
+      },
       headers
     );
   }
 
-  async recoveryPhoneSendCode(sessionToken: string, headers?: Headers) {
+  /**
+   * Sends a code to the users phone during a signin flow.
+   *
+   * @param sessionToken The user's current session token
+   * @param headers
+   */
+  async recoveryPhoneSigninSendCode(sessionToken: string, headers?: Headers) {
     return this.sessionPost(
       '/recovery_phone/signin/send_code',
       sessionToken,
@@ -2304,8 +2331,46 @@ export default class AuthClient {
     );
   }
 
+  /**
+   * Confirms the code sent to the recovery phone during a sign in flow.
+   *
+   * @param sessionToken The user's current session token
+   * @param code The otp code sent to the user's phone
+   * @param headers
+   */
+  async recoveryPhoneSignInConfirm(
+    sessionToken: string,
+    code: string,
+    headers?: Headers
+  ) {
+    return this.sessionPost(
+      '/recovery_phone/signin/send_code',
+      sessionToken,
+      {
+        code,
+      },
+      headers
+    );
+  }
+
+  /**
+   * Removes a recovery phone from the user's account
+   *
+   * @param sessionToken The user's current session token
+   * @param headers
+   */
   async recoveryPhoneDelete(sessionToken: string, headers?: Headers) {
     return this.sessionDelete('/recovery_phone', sessionToken, {}, headers);
+  }
+
+  /**
+   * Gets status of the recovery phone on the users account.\
+   * @param sessionToken The user's current session token
+   * @param headers
+   * @returns { exists:boolean, phoneNumber: string }
+   */
+  async recoveryPhoneGet(sessionToken: string, headers?: Headers) {
+    return this.sessionGet('/recovery_phone', sessionToken, headers);
   }
 
   protected async getPayloadV2({
