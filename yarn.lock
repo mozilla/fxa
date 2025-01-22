@@ -9864,33 +9864,32 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@google-cloud/opentelemetry-cloud-trace-exporter@npm:^2.2.0":
-  version: 2.2.0
-  resolution: "@google-cloud/opentelemetry-cloud-trace-exporter@npm:2.2.0"
+"@google-cloud/opentelemetry-cloud-trace-exporter@npm:^2.4.1":
+  version: 2.4.1
+  resolution: "@google-cloud/opentelemetry-cloud-trace-exporter@npm:2.4.1"
   dependencies:
-    "@google-cloud/opentelemetry-resource-util": ^2.2.0
+    "@google-cloud/opentelemetry-resource-util": ^2.4.0
     "@grpc/grpc-js": ^1.1.8
     "@grpc/proto-loader": ^0.7.0
     google-auth-library: ^9.0.0
-    google-proto-files: ^4.0.0
   peerDependencies:
     "@opentelemetry/api": ^1.0.0
     "@opentelemetry/core": ^1.0.0
     "@opentelemetry/resources": ^1.0.0
     "@opentelemetry/sdk-trace-base": ^1.0.0
-  checksum: f6bc65e986f8829b5f59768377d421714a8aab0cfad8dbc73845aef8b37ac9ef0c86ca19cd5ed404638cd412825fd144fe2661ddb5cf2505ba4c7a449a23271e
+  checksum: 2fcb52f510aad137df9d57fd30e091341b18aaf7698527fb9fd7fa8966569a01d85910b1011efea4600ebdd988991f88f690c12e9e250d955cdae4633e260055
   languageName: node
   linkType: hard
 
-"@google-cloud/opentelemetry-resource-util@npm:^2.2.0":
-  version: 2.2.0
-  resolution: "@google-cloud/opentelemetry-resource-util@npm:2.2.0"
+"@google-cloud/opentelemetry-resource-util@npm:^2.4.0":
+  version: 2.4.0
+  resolution: "@google-cloud/opentelemetry-resource-util@npm:2.4.0"
   dependencies:
     "@opentelemetry/semantic-conventions": ^1.22.0
     gcp-metadata: ^6.0.0
   peerDependencies:
     "@opentelemetry/resources": ^1.0.0
-  checksum: 40dff007e5fddeacfc9ea3a3aa68726a299a4e27d05a528cfae20dde2d2590db81a50c83be08520f1c46ab5138a826905bfb37a5ccce9745a876ac0961e611e9
+  checksum: cc3035c30b43a50486ea57cb2650bbe1bbf946d5cfed785fab7b9d1b3fc299c476905eabf40533da7c6cd93af686ea22485aba38cd6dc74b372080a88a026fd9
   languageName: node
   linkType: hard
 
@@ -42318,7 +42317,7 @@ fsevents@~2.1.1:
     "@fluent/react": ^0.15.2
     "@google-cloud/bigquery": ^7.9.1
     "@google-cloud/firestore": ^7.10.0
-    "@google-cloud/opentelemetry-cloud-trace-exporter": ^2.2.0
+    "@google-cloud/opentelemetry-cloud-trace-exporter": ^2.4.1
     "@google-cloud/pubsub": ^4.3.1
     "@google-cloud/translate": ^8.2.0
     "@googlemaps/google-maps-services-js": ^3.4.0
@@ -43478,16 +43477,6 @@ fsevents@~2.1.1:
     retry-request: ^7.0.0
     uuid: ^9.0.1
   checksum: e6a6946645d3290bf04c2815d091037ff24ef41bd3f8d9eaab802c82adc86b05fe665dc36181a79972292350a01a5e203e0f42dfa3498bf084caee99a16a8207
-  languageName: node
-  linkType: hard
-
-"google-proto-files@npm:^4.0.0":
-  version: 4.2.0
-  resolution: "google-proto-files@npm:4.2.0"
-  dependencies:
-    protobufjs: ^7.0.0
-    walkdir: ^0.4.0
-  checksum: c1789d7b1da5254105c5341853f1ffbfb8d4084d40ddeb3b74bfe25c2f2c03a6eceb03db076818e79585320fe5e5bdb73c1cc2770da87c1c689da83e793ee705
   languageName: node
   linkType: hard
 
@@ -69705,13 +69694,6 @@ resolve@1.1.7:
   dependencies:
     foreachasync: ^3.0.0
   checksum: d494df1924656cc4881ff8f70474f80be10d07d0c899620e02ff8627e4f339f37e74d1b30b70e7a714d0b873b0dc8b20129a619c4b407b39949c756637ebe3a6
-  languageName: node
-  linkType: hard
-
-"walkdir@npm:^0.4.0":
-  version: 0.4.1
-  resolution: "walkdir@npm:0.4.1"
-  checksum: 71045c21dc19aae3321f897b6e9e507cf8039202665c35a0b908eecccaf25636aab769b31cbd61ef8267237fe22fc316923a691ecc2d9d38840a15c59c0f2594
   languageName: node
   linkType: hard
 

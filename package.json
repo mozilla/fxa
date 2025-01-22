@@ -45,7 +45,7 @@
     "@fluent/react": "^0.15.2",
     "@google-cloud/bigquery": "^7.9.1",
     "@google-cloud/firestore": "^7.10.0",
-    "@google-cloud/opentelemetry-cloud-trace-exporter": "^2.2.0",
+    "@google-cloud/opentelemetry-cloud-trace-exporter": "^2.4.1",
     "@google-cloud/pubsub": "^4.3.1",
     "@google-cloud/translate": "^8.2.0",
     "@googlemaps/google-maps-services-js": "^3.4.0",
