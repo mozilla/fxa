@@ -408,13 +408,6 @@ describe('/recovery_phone', () => {
         uid,
         'US'
       );
-
-      assert.equal(mockCustoms.check.callCount, 1);
-      assert.equal(mockCustoms.check.getCall(0).args[1], email);
-      assert.equal(
-        mockCustoms.check.getCall(0).args[2],
-        'recoveryPhoneAvailable'
-      );
     });
   });
 

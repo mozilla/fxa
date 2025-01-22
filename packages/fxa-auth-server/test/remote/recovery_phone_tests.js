@@ -307,6 +307,26 @@ describe(`#integration - recovery phone - customs checks`, function () {
     await redisUtil.customs.clearAll();
   });
 
+  it('prevents excessive calls to /recovery_phone/create', async function () {
+    if (!isTwilioConfigured) {
+      this.skip('Invalid twilio accountSid or authToken. Check env / config!');
+    }
+
+    await client.recoveryPhoneNumberCreate(phoneNumber);
+
+    let error;
+    try {
+      for (let i = 0; i < 9; i++) {
+        await client.recoveryPhoneNumberCreate(phoneNumber);
+      }
+    } catch (err) {
+      error = err;
+    }
+
+    assert.isDefined(error);
+    assert.equal(error.message, 'Client has sent too many requests');
+  });
+
   it('prevents excessive calls to /recovery_phone/confirm', async function () {
     if (!isTwilioConfigured) {
       this.skip('Invalid twilio accountSid or authToken. Check env / config!');
@@ -344,29 +364,9 @@ describe(`#integration - recovery phone - customs checks`, function () {
 
     let error;
     try {
-      for (let i = 0; i < 20; i++) {
+      for (let i = 0; i < 9; i++) {
         await client.recoveryPhoneSendCode();
       }
-    } catch (err) {
-      error = err;
-    }
-
-    assert.isDefined(error);
-    assert.equal(error.message, 'Client has sent too many requests');
-  });
-
-  it('prevents excessive calls to /recovery_phone/available', async function () {
-    if (!isTwilioConfigured) {
-      this.skip('Invalid twilio accountSid or authToken. Check env / config!');
-    }
-
-    for (let i = 0; i < 10; i++) {
-      await client.recoveryPhoneAvailable();
-    }
-
-    let error;
-    try {
-      await client.recoveryPhoneAvailable();
     } catch (err) {
       error = err;
     }
