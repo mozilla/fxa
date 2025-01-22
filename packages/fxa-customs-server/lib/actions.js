@@ -75,9 +75,7 @@ const RESET_PASSWORD_OTP_VERIFICATION_ACTION = {
 };
 
 // Actions that result in calls to the twilio api
-const TWILIO_ACTIONS = {
-  recoveryPhoneAvailable: true,
-};
+const TWILIO_ACTIONS = {};
 
 module.exports = {
   isPasswordCheckingAction: function (action) {

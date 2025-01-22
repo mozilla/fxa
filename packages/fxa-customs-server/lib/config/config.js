@@ -130,16 +130,18 @@ module.exports = function (fs, path, url, convict) {
       smsRateLimit: {
         limitIntervalSeconds: {
           doc: 'Duration of automatic throttling for sms',
-          default: 30 * 60,
+          default: 24 * 60 * 60, // One day
           format: 'nat',
           env: 'SMS_RATE_LIMIT_INTERVAL_SECONDS',
         },
         maxSms: {
           doc: 'Number of sms sent within rateLimitIntervalSeconds before throttling',
-          default: 3,
+          default: 6,
           format: 'nat',
           env: 'MAX_SMS',
         },
+
+        // Not currently used... But might leaving around for future calls.
         maxTwilioRequests: {
           doc: 'Number of twilio requests sent within rateLimitIntervalSeconds before throttling',
           default: 10,

@@ -227,8 +227,6 @@ class RecoveryPhoneHandler {
       throw AppError.invalidToken();
     }
 
-    await this.customs.check(request, email, 'recoveryPhoneAvailable');
-
     // Maxmind countryCode is two-letter ISO country code (ex `US` for the United States)
     // This is the same format as the `region` field in the recovery phone config
     const location = request.app.geo?.location;
