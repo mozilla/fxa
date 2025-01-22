@@ -326,7 +326,7 @@ const conf = convict({
     authToken: {
       default: '00000000000000000000000000000000',
       doc: 'Twilio Auth Token, required to access api',
-      env: 'RECOVERY_PHONE_TWILIO_AUTH_TOKEN',
+      env: 'RECOVERY_PHONE__TWILIO__AUTH_TOKEN',
     },
   },
 });
