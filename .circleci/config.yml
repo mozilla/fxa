@@ -342,32 +342,6 @@ commands:
             RELIER_DOMAIN: << pipeline.parameters.relier-domain >>
             UNTRUSTED_RELIER_DOMAIN: << pipeline.parameters.untrusted-relier-domain >>
 
-  run-playwright-tests-chromium:
-    parameters:
-      project:
-        type: string
-    steps:
-      - run:
-          name: Running Playwright tests
-          # Supports 'Re-run failed tests only'. See this for more info: https://circleci.com/docs/rerun-failed-tests-only/
-          command: |
-            npx nx build fxa-auth-client
-            cd packages/functional-tests/tests
-            TEST_FILES=$(circleci tests glob "./**/*.spec.ts")
-            cd ..
-            echo $TEST_FILES | circleci tests run \
-              --command="xargs yarn playwright test --project=<< parameters.project >> $GREP" \
-              --verbose \
-              --split-by=timings \
-              --timings-type=classname
-          environment:
-            NODE_OPTIONS: --dns-result-order=ipv4first
-            ACCOUNTS_DOMAIN: << pipeline.parameters.accounts-domain >>
-            PAYMENTS_DOMAIN: << pipeline.parameters.payments-domain >>
-            ACCOUNTS_API_DOMAIN: << pipeline.parameters.accounts-api-domain >>
-            RELIER_DOMAIN: << pipeline.parameters.relier-domain >>
-            UNTRUSTED_RELIER_DOMAIN: << pipeline.parameters.untrusted-relier-domain >>
-
   store-artifacts:
     steps:
       - run:
@@ -727,31 +701,6 @@ jobs:
           environment:
             NODE_ENV: test
       - run-playwright-tests:
-          project: local
-      - store-artifacts
-
-  playwright-functional-tests-chromium:
-    parameters:
-      parallelism:
-        type: integer
-        default: 8  # this should correspond with the resource-class defined in the executor
-    executor: functional-test-executor
-    parallelism: << parameters.parallelism >>
-    steps:
-      - git-checkout
-      - restore-workspace
-      - run:
-          name: Add localhost
-          command: |
-            sudo tee -a /etc/hosts \<<<'127.0.0.1 localhost'
-            sudo cat /etc/hosts
-      - wait-for-infrastructure
-      - run:
-          name: Start services for playwright tests
-          command: ./packages/functional-tests/scripts/start-services.sh
-          environment:
-            NODE_ENV: test
-      - run-playwright-tests-chromium:
           project: local
       - store-artifacts
 
