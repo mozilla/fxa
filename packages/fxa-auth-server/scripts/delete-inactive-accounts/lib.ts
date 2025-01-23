@@ -10,7 +10,6 @@ import {
 } from 'fxa-shared/db/models/auth';
 import { SessionToken } from 'fxa-shared/connected-services/models/SessionToken';
 import { EVENT_NAMES } from 'fxa-shared/db/models/auth/security-event';
-import { AuthRequest } from '../../lib/types';
 
 export const setDateToUTC = (someDate: number) => {
   const utcDate = new Date(someDate);
@@ -150,29 +149,6 @@ export class IsActiveFnBuilder {
       (await this.accessTokenFn(uid))).bind(this);
   }
 }
-
-/**
- * The backend Glean integration was built for the auth-server API endpoints so
- * it presumes the presence of a request.  We need to adapt it for use in a
- * scripting environment.
- *
- * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
- * !  Note that this is for operational metrics so we are not checking for    !
- * !  the metrics enabled account pref.                                       !
- * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
- */
-export const requestForGlean = {
-  app: {
-    clientAddress: '',
-    isMetricsEnabled: () => true,
-    metricsContext: () => ({}),
-    ua: {},
-  },
-  auth: {},
-  headers: {
-    'user-agent': '',
-  },
-} as unknown as AuthRequest;
 
 export const buildExclusionsTempTableQuery = (
   tempTableName: string,

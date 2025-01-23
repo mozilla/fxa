@@ -249,6 +249,16 @@ async function run(config) {
   );
   Container.set(RecoveryPhoneService, recoveryPhoneService);
 
+  const profile = new ProfileClient(log, {
+    ...config.profileServer,
+    serviceName: 'subhub',
+  });
+  Container.set(ProfileClient, profile);
+
+  const bounces = require('../lib/bounces')(config, database);
+  const senders = await require('../lib/senders')(log, config, bounces, statsd);
+  const glean = gleanMetrics(config);
+
   // The AccountDeleteManager is dependent on some of the object set into
   // Container above.
   const accountTasks = DeleteAccountTasksFactory(config, statsd);
@@ -263,16 +273,16 @@ async function run(config) {
   });
   Container.set(AccountDeleteManager, accountDeleteManager);
 
-  const emailCloudTaskManager = new EmailCloudTaskManager({ config, statsd });
-  Container.set(EmailCloudTaskManager, emailCloudTaskManager);
-
-  const profile = new ProfileClient(log, {
-    ...config.profileServer,
-    serviceName: 'subhub',
+  const emailCloudTaskManager = new EmailCloudTaskManager({
+    fxaDb: database,
+    oauthDb,
+    mailer: senders.email,
+    config,
+    statsd,
+    glean,
+    log,
   });
-  Container.set(ProfileClient, profile);
-  const bounces = require('../lib/bounces')(config, database);
-  const senders = await require('../lib/senders')(log, config, bounces, statsd);
+  Container.set(EmailCloudTaskManager, emailCloudTaskManager);
 
   const serverPublicKeys = {
     primary: JWTool.JWK.fromFile(config.publicKeyFile, {
@@ -297,7 +307,6 @@ async function run(config) {
   const zendeskClient = require('../lib/zendesk-client').createZendeskClient(
     config
   );
-  const glean = gleanMetrics(config);
   const routes = require('../lib/routes')(
     log,
     serverPublicKeys,

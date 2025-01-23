@@ -1574,6 +1574,15 @@ AppError.subscriptionPromotionCodeNotApplied = (error, message) => {
   );
 };
 
+AppError.invalidCloudTaskEmailType = function () {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.INVALID_CLOUDTASK_EMAILTYPE,
+    message: 'Invalid email type',
+  });
+};
+
 function decorateErrorWithRequest(error, request) {
   if (request) {
     error.output.payload.request = {

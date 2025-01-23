@@ -326,6 +326,26 @@ export function gleanMetrics(config: ConfigType) {
           }),
         }
       ),
+      firstEmailSkipped: createEventFn(
+        'inactive_account_deletion_first_email_skipped',
+        {
+          additionalMetrics: extraKeyReasonCb,
+        }
+      ),
+      secondEmailTaskRequest: createEventFn(
+        'inactive_account_deletion_second_email_task_request'
+      ),
+      secondEmailTaskEnqueued: createEventFn(
+        'inactive_account_deletion_second_email_task_enqueued'
+      ),
+      secondEmailTaskRejected: createEventFn(
+        'inactive_account_deletion_second_email_task_rejected',
+        {
+          additionalMetrics: (metrics) => ({
+            errorCode: metrics.errorCode,
+          }),
+        }
+      ),
     },
     twoStepAuthPhoneRemove: {
       success: createEventFn('two_step_auth_phone_remove_success'),

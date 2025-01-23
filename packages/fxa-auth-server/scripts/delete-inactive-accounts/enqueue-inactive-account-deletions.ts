@@ -48,6 +48,7 @@ import {
 import { collect, parseBooleanArg } from '../lib/args';
 import { AppConfig, AuthLogger } from '../../lib/types';
 import appConfig from '../../config';
+import { requestForGlean } from '../../lib/inactive-accounts';
 import initLog from '../../lib/log';
 import initRedis from '../../lib/redis';
 import { gleanMetrics } from '../../lib/metrics/glean';
@@ -63,7 +64,6 @@ import {
   hasActiveSessionToken,
   IsActiveFnBuilder,
   setDateToUTC,
-  requestForGlean,
   buildExclusionsTempTableQuery,
 } from './lib';
 
@@ -463,7 +463,7 @@ const init = async () => {
 
     queue.add(async () => {
       try {
-        glean.inactiveAccountDeletion.statusChecked(requestForGlean, {
+        await glean.inactiveAccountDeletion.statusChecked(requestForGlean, {
           uid: record.uid,
         });
 
@@ -514,6 +514,7 @@ const init = async () => {
       await queue.onSizeLessThan(concurrency * 5);
 
       queue.add(async () => {
+        // @TODO this function could be astracted and moved to InactiveAccountsManager
         const taskPayload: SendEmailTaskPayload = {
           uid,
           emailType,
@@ -524,9 +525,12 @@ const init = async () => {
         };
 
         try {
-          glean.inactiveAccountDeletion.firstEmailTaskRequest(requestForGlean, {
-            uid,
-          });
+          await glean.inactiveAccountDeletion.firstEmailTaskRequest(
+            requestForGlean,
+            {
+              uid,
+            }
+          );
 
           await emailCloudTasks.sendEmail({
             payload: taskPayload,
@@ -535,7 +539,7 @@ const init = async () => {
           });
 
           emailsQueued++;
-          glean.inactiveAccountDeletion.firstEmailTaskEnqueued(
+          await glean.inactiveAccountDeletion.firstEmailTaskEnqueued(
             requestForGlean,
             {
               uid,
@@ -546,7 +550,7 @@ const init = async () => {
           statsd.increment('cloud-tasks.send-email.enqueue.error-code', [
             cloudTaskQueueError.code as unknown as string,
           ]);
-          glean.inactiveAccountDeletion.firstEmailTaskRejected(
+          await glean.inactiveAccountDeletion.firstEmailTaskRejected(
             requestForGlean,
             {
               uid,
