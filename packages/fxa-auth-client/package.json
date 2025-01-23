@@ -58,7 +58,7 @@
     "asmcrypto.js": "^0.22.0",
     "esbuild": "^0.17.15",
     "esbuild-register": "^3.5.0",
-    "eslint": "^8.38.0",
+    "eslint": "^9.18.0",
     "eslint-config-react-app": "^7.0.1",
     "fast-text-encoding": "^1.0.4",
     "mocha": "^10.4.0",

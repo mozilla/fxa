@@ -161,7 +161,7 @@
     "chai-as-promised": "^7.1.1",
     "esbuild": "^0.17.15",
     "esbuild-register": "^3.5.0",
-    "eslint": "^7.32.0",
+    "eslint": "^9.18.0",
     "fxa-shared": "workspace:*",
     "grunt": "^1.6.1",
     "grunt-cli": "^1.4.3",
