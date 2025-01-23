@@ -4,6 +4,7 @@
 
 import {
   RecoveryPhoneService,
+  RecoveryPhoneNotEnabled,
   RecoveryNumberNotSupportedError,
   RecoveryNumberInvalidFormatError,
   RecoveryNumberAlreadyExistsError,
@@ -66,6 +67,10 @@ class RecoveryPhoneHandler {
         throw AppError.smsSendRateLimitExceeded();
       }
 
+      if (error instanceof RecoveryPhoneNotEnabled) {
+        throw AppError.featureNotEnabled();
+      }
+
       throw AppError.backendServiceFailure(
         'RecoveryPhoneService',
         'sendCode',
@@ -108,6 +113,10 @@ class RecoveryPhoneHandler {
       await this.glean.twoStepAuthPhoneCode.sendError(request);
       return { status: RecoveryPhoneStatus.FAILURE };
     } catch (error) {
+      if (error instanceof RecoveryPhoneNotEnabled) {
+        throw AppError.featureNotEnabled();
+      }
+
       await this.glean.twoStepAuthPhoneCode.sendError(request);
 
       if (
@@ -171,6 +180,10 @@ class RecoveryPhoneHandler {
         }
       }
     } catch (error) {
+      if (error instanceof RecoveryPhoneNotEnabled) {
+        throw AppError.featureNotEnabled();
+      }
+
       if (error instanceof RecoveryNumberAlreadyExistsError) {
         throw AppError.recoveryPhoneNumberAlreadyExists();
       }
@@ -198,6 +211,10 @@ class RecoveryPhoneHandler {
     try {
       success = await this.recoveryPhoneService.removePhoneNumber(uid);
     } catch (error) {
+      if (error instanceof RecoveryPhoneNotEnabled) {
+        throw AppError.featureNotEnabled();
+      }
+
       throw AppError.backendServiceFailure(
         'RecoveryPhoneService',
         'destroy',
@@ -239,14 +256,33 @@ class RecoveryPhoneHandler {
       };
     }
 
-    const available = await this.recoveryPhoneService.available(
-      uid,
-      location.countryCode
-    );
+    try {
+      const available = await this.recoveryPhoneService.available(
+        uid,
+        location.countryCode
+      );
 
-    return {
-      available,
-    };
+      return {
+        available,
+      };
+    } catch (error) {
+      if (error instanceof RecoveryPhoneNotEnabled) {
+        // In this case we won't throw an AppError. Unlike other endpoints,
+        // this drives whether or not the feature shows up in the UI, so
+        // if the recovery phone services isn't enabled, we can simply
+        // return available false.
+        return {
+          available: false,
+        };
+      }
+
+      throw AppError.backendServiceFailure(
+        'RecoveryPhoneService',
+        'destroy',
+        { uid },
+        error
+      );
+    }
   }
 
   async exists(request: AuthRequest) {
@@ -268,6 +304,10 @@ class RecoveryPhoneHandler {
     try {
       return await this.recoveryPhoneService.hasConfirmed(uid, phoneNumberMask);
     } catch (error) {
+      if (error instanceof RecoveryPhoneNotEnabled) {
+        throw AppError.featureNotEnabled();
+      }
+
       throw AppError.backendServiceFailure(
         'RecoveryPhoneService',
         'destroy',

@@ -67,6 +67,7 @@ describe(`#integration - recovery phone`, function () {
   const password = 'password';
 
   before(async function () {
+    config.recoveryPhone.enabled = true;
     config.securityHistory.ipProfiling.allowedRecency = 0;
     config.signinConfirmation.skipForNewAccounts.enabled = false;
     server = await TestServer.start(config);

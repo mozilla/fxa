@@ -10,6 +10,7 @@ import { RecoveryPhoneManager } from './recovery-phone.manager';
 import {
   RecoveryNumberNotExistsError,
   RecoveryNumberNotSupportedError,
+  RecoveryPhoneNotEnabled,
 } from './recovery-phone.errors';
 import { MessageInstance } from 'twilio/lib/rest/api/v2010/account/message';
 
@@ -31,7 +32,7 @@ export class RecoveryPhoneService {
    */
   public async available(uid: string, region: string): Promise<boolean> {
     if (!this.config.enabled) {
-      return false;
+      throw new RecoveryPhoneNotEnabled();
     }
 
     if (!this.config.allowedRegions?.includes(region)) {
@@ -55,6 +56,10 @@ export class RecoveryPhoneService {
    * @returns True if code was sent and stored
    */
   public async setupPhoneNumber(uid: string, phoneNumber: string) {
+    if (!this.config.enabled) {
+      throw new RecoveryPhoneNotEnabled();
+    }
+
     if (this.config.sms && this.config.sms.validNumberPrefixes) {
       const allowed = this.config.sms.validNumberPrefixes.some((check) => {
         return phoneNumber.startsWith(check);
@@ -92,6 +97,10 @@ export class RecoveryPhoneService {
    * @returns True if successful
    */
   public async confirmSetupCode(uid: string, code: string) {
+    if (!this.config.enabled) {
+      throw new RecoveryPhoneNotEnabled();
+    }
+
     const data = await this.recoveryPhoneManager.getUnconfirmed(uid, code);
 
     // If there is no data, it means there's no record of this code being sent to the uid provided
@@ -121,7 +130,17 @@ export class RecoveryPhoneService {
     return true;
   }
 
+  /**
+   * Confirms a signin code.
+   * @param uid An account id
+   * @param code A otp code
+   * @returns True if successful
+   */
   public async confirmSigninCode(uid: string, code: string) {
+    if (!this.config.enabled) {
+      throw new RecoveryPhoneNotEnabled();
+    }
+
     const data = await this.recoveryPhoneManager.getUnconfirmed(uid, code);
 
     // If there is no data, it means there's no record of this code being sent to the uid provided
@@ -145,8 +164,13 @@ export class RecoveryPhoneService {
    * phone number.
    *
    * @param uid An account id
+   * @returns True if successful
    */
   public async removePhoneNumber(uid: string) {
+    if (!this.config.enabled) {
+      throw new RecoveryPhoneNotEnabled();
+    }
+
     return await this.recoveryPhoneManager.removePhoneNumber(uid);
   }
 
@@ -166,6 +190,10 @@ export class RecoveryPhoneService {
     exists: boolean;
     phoneNumber?: string;
   }> {
+    if (!this.config.enabled) {
+      throw new RecoveryPhoneNotEnabled();
+    }
+
     try {
       const { phoneNumber } =
         await this.recoveryPhoneManager.getConfirmedPhoneNumber(uid);
@@ -198,6 +226,10 @@ export class RecoveryPhoneService {
    * number. e.g. +15005551234 would be masked as +*******1234 if lastN was 4.
    */
   public maskPhoneNumber(phoneNumber: string, lastN?: number) {
+    if (!this.config.enabled) {
+      throw new RecoveryPhoneNotEnabled();
+    }
+
     // The + notation can be confusing in a masked number. Don't count it
     // as a digit.
     let prefix = '';
@@ -228,6 +260,10 @@ export class RecoveryPhoneService {
    * @returns True if message didn't fail to send.
    */
   public async sendCode(uid: string) {
+    if (!this.config.enabled) {
+      throw new RecoveryPhoneNotEnabled();
+    }
+
     const { phoneNumber } =
       await this.recoveryPhoneManager.getConfirmedPhoneNumber(uid);
     const code = await this.otpCode.generateCode();

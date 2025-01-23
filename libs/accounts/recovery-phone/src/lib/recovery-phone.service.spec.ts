@@ -11,6 +11,7 @@ import { RecoveryPhoneManager } from './recovery-phone.manager';
 import {
   RecoveryNumberNotExistsError,
   RecoveryNumberNotSupportedError,
+  RecoveryPhoneNotEnabled,
 } from './recovery-phone.errors';
 
 describe('RecoveryPhoneService', () => {
@@ -335,12 +336,6 @@ describe('RecoveryPhoneService', () => {
       mockRecoveryPhoneConfig.allowedRegions = ['US'];
     });
 
-    it('should return false if config is not enabled', async () => {
-      mockRecoveryPhoneConfig.enabled = false;
-      const result = await service.available(uid, region);
-      expect(result).toBe(false);
-    });
-
     it('should return false if region is not in allowedRegions', async () => {
       mockRecoveryPhoneConfig.allowedRegions = ['USA'];
       const result = await service.available(uid, region);
@@ -365,6 +360,41 @@ describe('RecoveryPhoneService', () => {
       mockRecoveryPhoneManager.hasRecoveryCodes.mockResolvedValueOnce(false);
       const result = await service.available(uid, region);
       expect(result).toBe(false);
+    });
+  });
+
+  describe('can disabled service', () => {
+    beforeAll(() => {
+      mockRecoveryPhoneConfig.enabled = false;
+    });
+    afterAll(() => {
+      mockRecoveryPhoneConfig.enabled = true;
+    });
+    it('can disable', () => {
+      expect(service.available(uid, 'US')).rejects.toEqual(
+        new RecoveryPhoneNotEnabled()
+      );
+      expect(service.confirmSetupCode(uid, '000000')).rejects.toEqual(
+        new RecoveryPhoneNotEnabled()
+      );
+      expect(service.confirmSigninCode(uid, '000000')).rejects.toEqual(
+        new RecoveryPhoneNotEnabled()
+      );
+      expect(service.hasConfirmed(uid)).rejects.toEqual(
+        new RecoveryPhoneNotEnabled()
+      );
+      expect(() => service.maskPhoneNumber('+15550005555')).toThrow(
+        new RecoveryPhoneNotEnabled()
+      );
+      expect(service.removePhoneNumber(uid)).rejects.toEqual(
+        new RecoveryPhoneNotEnabled()
+      );
+      expect(service.sendCode(uid)).rejects.toEqual(
+        new RecoveryPhoneNotEnabled()
+      );
+      expect(service.setupPhoneNumber(uid, '+15550005555')).rejects.toEqual(
+        new RecoveryPhoneNotEnabled()
+      );
     });
   });
 

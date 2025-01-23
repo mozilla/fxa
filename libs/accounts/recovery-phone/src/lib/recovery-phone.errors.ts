@@ -58,3 +58,9 @@ export class SmsSendRateLimitExceededError extends RecoveryPhoneError {
     );
   }
 }
+
+export class RecoveryPhoneNotEnabled extends RecoveryPhoneError {
+  constructor(cause?: Error) {
+    super('Recovery phone not enabled.', {}, cause);
+  }
+}
