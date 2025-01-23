@@ -56,6 +56,9 @@ export default async function RootLayout({
     cartDataPromise,
     sessionPromise,
   ]);
+  const purchaseDetails =
+    cms.defaultPurchase.purchaseDetails.localizations.at(0) ||
+    cms.defaultPurchase.purchaseDetails;
   return (
     <MetricsWrapper cart={cart}>
       {session?.user?.email && (
@@ -79,32 +82,30 @@ export default async function RootLayout({
                 listAmount={cart.upcomingInvoicePreview.listAmount}
               />
             }
-            purchaseDetails={
-              cms.defaultPurchase.purchaseDetails.localizations.at(0) ||
-              cms.defaultPurchase.purchaseDetails
-            }
+            purchaseDetails={purchaseDetails}
           >
             <Details
               l10n={l10n}
               interval={cart.interval}
               invoice={cart.upcomingInvoicePreview}
-              purchaseDetails={
-                cms.defaultPurchase.purchaseDetails.localizations.at(0) ||
-                cms.defaultPurchase.purchaseDetails
-              }
+              purchaseDetails={purchaseDetails}
             />
           </PurchaseDetails>
+          <SelectTaxLocation
+            cartId={cart.id}
+            cartVersion={cart.version}
+            cmsCountries={cms.countries}
+            locale={locale.substring(0, 2)}
+            productName={purchaseDetails.productName}
+            unsupportedLocations={config.subscriptionsUnsupportedLocations}
+            countryCode={cart.taxAddress?.countryCode}
+            postalCode={cart.taxAddress?.postalCode}
+          />
           <CouponForm
             cartId={cart.id}
             cartVersion={cart.version}
             promoCode={cart.couponCode}
             readOnly={false}
-          />
-          <SelectTaxLocation
-            locale={locale.substring(0, 2)}
-            unsupportedLocations={config.subscriptionsUnsupportedLocations}
-            countryCode={cart.taxAddress?.countryCode}
-            postalCode={cart.taxAddress?.postalCode}
           />
         </section>
 
@@ -113,9 +114,8 @@ export default async function RootLayout({
           <TermsAndPrivacy
             l10n={l10n}
             {...cart}
+            {...purchaseDetails}
             {...(cms.commonContent.localizations.at(0) || cms.commonContent)}
-            {...(cms.defaultPurchase.purchaseDetails.localizations.at(0) ||
-              cms.defaultPurchase.purchaseDetails)}
             contentServerUrl={config.contentServerUrl}
             showFXALinks={true}
           />

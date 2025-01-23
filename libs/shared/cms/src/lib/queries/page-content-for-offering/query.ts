@@ -11,6 +11,7 @@ export const pageContentForOfferingQuery = graphql(`
       pagination: { limit: 200 }
     ) {
       apiIdentifier
+      countries
       stripeProductId
       defaultPurchase {
         purchaseDetails {

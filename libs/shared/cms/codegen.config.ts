@@ -1,7 +1,8 @@
 import type { CodegenConfig } from '@graphql-codegen/cli';
 
-const STRAPI_GRAPHQL_API_URL = process.env.STRAPI_GRAPHQL_API_URL;
-const STRAPI_API_KEY = process.env.STRAPI_API_KEY;
+const STRAPI_GRAPHQL_API_URL =
+  process.env.STRAPI_CLIENT_CONFIG__GRAPHQL_API_URI;
+const STRAPI_API_KEY = process.env.STRAPI_CLIENT_CONFIG__API_KEY;
 
 if (!STRAPI_GRAPHQL_API_URL || !STRAPI_API_KEY) {
   throw new Error('Please provide a valid Strapi API URL and API key');

@@ -47,6 +47,7 @@ export const PageContentOfferingResultFactory = (
   override?: Partial<PageContentOfferingResult>
 ): PageContentOfferingResult => ({
   apiIdentifier: faker.string.sample(),
+  countries: [faker.string.sample()],
   stripeProductId: faker.string.sample(),
   defaultPurchase: PageContentOfferingDefaultPurchaseResultFactory(),
   commonContent: {
