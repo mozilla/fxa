@@ -27,6 +27,9 @@ import { SubmitNeedsInputActionArgs } from './validators/SubmitNeedsInputActionA
 import { GetNeedsInputActionArgs } from './validators/GetNeedsInputActionArgs';
 import { ValidatePostalCodeArgs } from './validators/ValidatePostalCodeArgs';
 import { SanitizeExceptions } from '@fxa/shared/error';
+import { GeoDBManager } from '@fxa/shared/geodb';
+import { CurrencyManager } from '@fxa/payments/currency';
+import { DetermineCurrencyActionArgs } from './validators/DetermineCurrencyActionArgs';
 
 /**
  * ANY AND ALL methods exposed via this service should be considered publicly accessible and callable with any arguments.
@@ -41,6 +44,8 @@ export class NextJSActionsService {
     private contentServerManager: ContentServerManager,
     private emitterService: PaymentsEmitterService,
     private googleManager: GoogleManager,
+    private geodbManager: GeoDBManager,
+    private currencyManager: CurrencyManager,
     private productConfigurationManager: ProductConfigurationManager
   ) {}
 
@@ -200,5 +205,18 @@ export class NextJSActionsService {
       args.postalCode,
       args.countryCode
     );
+  }
+
+  @SanitizeExceptions()
+  async determineCurrency(args: DetermineCurrencyActionArgs) {
+    await new Validator().validateOrReject(args);
+
+    const location = this.geodbManager.getTaxAddress(args.ip);
+
+    if (!location?.countryCode) {
+      return;
+    }
+
+    return this.currencyManager.getCurrencyForCountry(location.countryCode);
   }
 }

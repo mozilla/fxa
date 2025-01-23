@@ -4,6 +4,7 @@
 
 export { checkoutCartWithPaypal } from './checkoutCartWithPaypal';
 export { checkoutCartWithStripe } from './checkoutCartWithStripe';
+export { determineCurrencyAction } from './determineCurrency';
 export { fetchCMSData } from './fetchCMSData';
 export { getCartAction } from './getCart';
 export { getCartOrRedirectAction } from './getCartOrRedirect';
