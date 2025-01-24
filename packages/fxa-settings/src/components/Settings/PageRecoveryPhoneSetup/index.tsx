@@ -13,7 +13,6 @@ import { RouteComponentProps } from '@reach/router';
 
 const numberOfSteps = 2;
 
-// temporary props for storybook purposes
 export const PageRecoveryPhoneSetup = (_: RouteComponentProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   const navigate = useNavigate();

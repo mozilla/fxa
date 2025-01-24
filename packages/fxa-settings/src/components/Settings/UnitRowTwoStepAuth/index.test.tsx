@@ -157,7 +157,7 @@ describe('UnitRowTwoStepAuth', () => {
     ).toContain('3');
   });
 
-  it('renders with unsupported recovery phone region', () => {
+  it('renders with backup phone added but currently unsupported recovery phone region', () => {
     renderWithRouter(
       createSubject({
         recoveryPhone: {

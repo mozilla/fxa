@@ -132,13 +132,18 @@ describe('BackupPhoneSubRow', () => {
     renderWithLocalizationProvider(<BackupPhoneSubRow {...defaultProps} />);
     expect(screen.getByText('Recovery phone')).toBeInTheDocument();
     expect(screen.getByText(MOCK_MASKED_PHONE_NUMBER)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Change' })).toBeInTheDocument();
+    // Temporary until we work on the change flow for SMS phase 2, FXA-10995
+    expect(
+      screen.getByRole('button', { name: 'Change' })
+    ).not.toBeInTheDocument();
     expect(
       screen.getByText(
         'If you want to remove your recovery phone, add backup authentication codes or disable two-step authentication first to avoid getting locked out of your account.'
       )
     ).toBeInTheDocument();
-    expect(screen.getByText(/Learn about SIM swap risk/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Learn about SIM swap risk/)
+    ).not.toBeInTheDocument();
   });
 
   it('renders correctly when user does not have a verified session (phone number is already masked)', () => {
@@ -158,7 +163,10 @@ describe('BackupPhoneSubRow', () => {
     );
     expect(screen.getByText('Recovery phone')).toBeInTheDocument();
     expect(screen.getByText(MOCK_MASKED_PHONE_NUMBER)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Change' })).toBeInTheDocument();
+    // Temporary until we work on the change flow for SMS phase 2, FXA-10995
+    expect(
+      screen.getByRole('button', { name: 'Change' })
+    ).not.toBeInTheDocument();
     const deleteButtons = screen.getAllByTitle(/Remove/);
     expect(deleteButtons).toHaveLength(2);
     expect(
@@ -169,7 +177,8 @@ describe('BackupPhoneSubRow', () => {
     expect(screen.getByText(/Learn about SIM swap risk/)).toBeInTheDocument();
   });
 
-  it('calls onCtaClick when CTA button is clicked', () => {
+  // Temporary skip we work on the change flow for SMS phase 2, FXA-10995
+  it.skip('calls onCtaClick when CTA button is clicked', () => {
     renderWithLocalizationProvider(<BackupPhoneSubRow {...defaultProps} />);
     fireEvent.click(screen.getByRole('button', { name: 'Change' }));
     expect(defaultProps.onCtaClick).toHaveBeenCalled();

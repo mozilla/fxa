@@ -115,6 +115,7 @@ export const GET_RECOVERY_PHONE_STATUS = gql`
       recoveryPhone {
         exists
         phoneNumber
+        available
       }
     }
   }

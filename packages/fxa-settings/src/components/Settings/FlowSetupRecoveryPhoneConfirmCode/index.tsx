@@ -95,7 +95,15 @@ export const FlowSetupRecoveryPhoneConfirmCode = ({
     >
       <ProgressBar {...{ currentStep, numberOfSteps }} />
       {resendStatus === ResendStatus.sent && !localizedErrorBannerMessage && (
-        <ResendCodeSuccessBanner />
+        <Banner
+          type="success"
+          content={{
+            localizedHeading: ftlMsgResolver.getMsg(
+              'flow-setup-phone-confirm-code-resend-code-success',
+              'Code sent'
+            ),
+          }}
+        />
       )}
       {localizedErrorBannerMessage && (
         <Banner

@@ -96,6 +96,9 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
     async (code: string) => {
       try {
         await account.verifyTotp(code);
+        // We must requery for this because this endpoint checks
+        // for if recovery codes exist
+        await account.refresh('recoveryPhone');
         alertSuccessAndGoHome();
       } catch (e) {
         if (e.errno === AuthUiErrors.TOTP_TOKEN_NOT_FOUND.errno) {

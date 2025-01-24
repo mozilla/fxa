@@ -22,7 +22,8 @@ import LinkExternal, {
 
 type SubRowProps = {
   ctaGleanId: string;
-  ctaMessage: string;
+  // temporarily this prop is optional until we enable 'Change' in phase 2, FXA-10995
+  ctaMessage?: string;
   icon: React.ReactNode;
   idPrefix: string;
   isEnabled: boolean;
@@ -118,13 +119,16 @@ const SubRow = ({
             </p>
           )}
         </div>
-        <button
-          className="cta-base-common cta-neutral cta-base-p shrink-0 mt-0 w-full @mobileLandscape/unitRow:w-auto @mobileLandscape/unitRow:text-xs @mobileLandscape/unitRow:py-1 @mobileLandscape/unitRow:px-5 @mobileLandscape/unitRow:mt-0"
-          onClick={onCtaClick}
-          data-glean-id={ctaGleanId}
-        >
-          {ctaMessage}
-        </button>
+        {/* temporary check until we enable changing in SMS phase 2, FXA-10995 */}
+        {ctaMessage && (
+          <button
+            className="cta-base-common cta-neutral cta-base-p shrink-0 mt-0 w-full @mobileLandscape/unitRow:w-auto @mobileLandscape/unitRow:text-xs @mobileLandscape/unitRow:py-1 @mobileLandscape/unitRow:px-5 @mobileLandscape/unitRow:mt-0"
+            onClick={onCtaClick}
+            data-glean-id={ctaGleanId}
+          >
+            {ctaMessage}
+          </button>
+        )}
         {onDeleteClick && localizedDeleteIconTitle && (
           <>
             <div className="@mobileLandscape/unitRow:hidden w-full shrink-0">
@@ -243,7 +247,9 @@ export const BackupPhoneSubRow = ({
     </FtlMsg>
   );
   const ctaMessage = hasPhoneNumber
-    ? ftlMsgResolver.getMsg('tfa-row-backup-phone-change-cta', 'Change')
+    ? // Temporary until we enable changing in phase 2
+      // ? ftlMsgResolver.getMsg('tfa-row-backup-phone-change-cta', 'Change')
+      undefined
     : ftlMsgResolver.getMsg('tfa-row-backup-phone-add-cta', 'Add');
 
   const ctaGleanId = hasPhoneNumber
@@ -255,17 +261,19 @@ export const BackupPhoneSubRow = ({
     'Remove recovery phone'
   );
 
-  const linkExternalProps = {
-    // TODO add a link to the knowledge base article once it is available
-    href: '',
-    children: ftlMsgResolver.getMsg(
-      'tfa-row-backup-phone-sim-swap-risk-link',
-      'Learn about SIM swap risk'
-    ),
-    gleanDataAttrs: {
-      id: 'account_pref_two_step_auth_phone_learn_more_link',
-    },
-  };
+  const linkExternalProps = !hasPhoneNumber
+    ? {
+        // TODO add a link to the knowledge base article once it is available
+        href: '',
+        children: ftlMsgResolver.getMsg(
+          'tfa-row-backup-phone-sim-swap-risk-link',
+          'Learn about SIM swap risk'
+        ),
+        gleanDataAttrs: {
+          id: 'account_pref_two_step_auth_phone_learn_more_link',
+        },
+      }
+    : undefined;
 
   return (
     <SubRow
