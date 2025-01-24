@@ -28,6 +28,7 @@ import {
   GET_LOCAL_SIGNED_IN_STATUS,
   GET_TOTP_STATUS,
   GET_BACKUP_CODES_STATUS,
+  GET_RECOVERY_PHONE_STATUS,
 } from '../components/App/gql';
 import {
   AccountAvatar,
@@ -442,6 +443,7 @@ export class Account implements AccountData {
       | 'recovery'
       | 'securityEvents'
       | 'backupCodes'
+      | 'recoveryPhone'
   ) {
     let query = GET_ACCOUNT;
     switch (field) {
@@ -456,6 +458,9 @@ export class Account implements AccountData {
         break;
       case 'backupCodes':
         query = GET_BACKUP_CODES_STATUS;
+        break;
+      case 'recoveryPhone':
+        query = GET_RECOVERY_PHONE_STATUS;
         break;
     }
     await this.withLoadingStatus(

@@ -598,7 +598,7 @@ AppError.recoveryPhoneRemoveMissingRecoveryCodes = () => {
   return new AppError({
     code: 400,
     error: 'Bad Request',
-    errno: ERRNO.RECOVERY_PHONE_NUMBER_DOES_NOT_EXIST,
+    errno: ERRNO.RECOVERY_PHONE_REMOVE_MISSING_RECOVERY_CODES,
     message:
       'Unable to remove recovery phone, missing backup authentication codes.',
   });

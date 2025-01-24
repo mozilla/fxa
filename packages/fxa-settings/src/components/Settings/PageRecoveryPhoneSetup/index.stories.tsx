@@ -18,15 +18,15 @@ export default {
 export const Step1 = () => (
   <LocationProvider>
     <SettingsLayout>
-      <PageRecoveryPhoneSetup testStep={1} />
+      <PageRecoveryPhoneSetup />
     </SettingsLayout>
   </LocationProvider>
 );
 
-export const Step2 = () => (
-  <LocationProvider>
-    <SettingsLayout>
-      <PageRecoveryPhoneSetup testStep={2} testPhoneNumber="+1 123-456-7890" />
-    </SettingsLayout>
-  </LocationProvider>
-);
+// export const Step2 = () => (
+//   <LocationProvider>
+//     <SettingsLayout>
+//       <PageRecoveryPhoneSetup testStep={2} testPhoneNumber="+1 123-456-7890" />
+//     </SettingsLayout>
+//   </LocationProvider>
+// );

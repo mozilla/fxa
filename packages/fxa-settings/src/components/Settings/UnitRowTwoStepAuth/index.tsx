@@ -162,7 +162,11 @@ export const UnitRowTwoStepAuth = () => {
             onCtaClick={() => {
               navigate(`${SETTINGS_PATH}/recovery_phone/setup`);
             }}
-            onDeleteClick={() => {}}
+            {...(recoveryPhone.exists && {
+              onDeleteClick: () => {
+                navigate(`${SETTINGS_PATH}/recovery_phone/remove`);
+              },
+            })}
             phoneNumber={recoveryPhone.phoneNumber || ''}
             key={2}
           />

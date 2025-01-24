@@ -30,8 +30,8 @@ const PageRecoveryPhoneRemove = (props: RouteComponentProps) => {
   const alertBar = useAlertBar();
   const ftlMsgResolver = useFtlMsgResolver();
 
-  // TODO, actually get this number back and format it
-  const formattedFullPhoneNumber = '+1 ••• ••••';
+  // retrieve and format the full phone number
+  const formattedFullPhoneNumber = `+1 ••• ${account.recoveryPhone?.phoneNumber}`;
 
   const goHome = () => navigate(SETTINGS_PATH + '#security', { replace: true });
 
@@ -48,7 +48,7 @@ const PageRecoveryPhoneRemove = (props: RouteComponentProps) => {
   const clickRemoveRecoveryPhone = useCallback(async () => {
     try {
       await account.removeRecoveryPhone();
-
+      account.refresh('recoveryPhone');
       alertSuccessAndGoHome();
     } catch (e) {
       const localizedError = getLocalizedErrorMessage(ftlMsgResolver, e);

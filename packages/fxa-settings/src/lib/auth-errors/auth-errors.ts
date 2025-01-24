@@ -320,7 +320,7 @@ const ERRORS = {
     message: 'Client has sent too many requests',
   },
   RECOVERY_PHONE_REMOVE_MISSING_RECOVERY_CODES: {
-    errno: 217,
+    errno: 218,
     message:
       'Unable to remove recovery phone, missing backup authentication codes.',
   },
