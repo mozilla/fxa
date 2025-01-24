@@ -10,3 +10,5 @@ settings-recovery-phone-remove-recommend = We recommend you keep this method bec
 settings-recovery-phone-remove-recovery-methods = If you delete it, make sure you still have your saved backup authentication codes. <linkExternal>Compare recovery methods</linkExternal>
 settings-recovery-phone-remove-button = Remove phone number
 settings-recovery-phone-remove-cancel = Cancel
+settings-recovery-phone-remove-generic-error = Something went wrong. Please try again later.
+settings-recovery-phone-remove-success = Recovery phone removed

@@ -1378,16 +1378,15 @@ export class Account implements AccountData {
     return data;
   }
 
-  async removeRecoveryPhone() {}
-
   async addRecoveryPhone(phoneNumber: string) {
     await this.withLoadingStatus(
       this.authClient.recoveryPhoneCreate(sessionToken()!, phoneNumber)
     );
   }
+
   async confirmRecoveryPhone(code: string, phoneNumber: string) {
     await this.withLoadingStatus(
-      this.authClient.recoveryPhoneConfirm(sessionToken()!, code)
+      this.authClient.recoveryPhoneConfirmSetup(sessionToken()!, code)
     );
     const cache = this.apolloClient.cache;
     cache.modify({
@@ -1402,5 +1401,11 @@ export class Account implements AccountData {
         },
       },
     });
+  }
+
+  async removeRecoveryPhone() {
+    return await this.withLoadingStatus(
+      this.authClient.recoveryPhoneDelete(sessionToken()!)
+    );
   }
 }

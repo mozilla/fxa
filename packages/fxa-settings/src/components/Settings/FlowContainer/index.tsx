@@ -14,6 +14,7 @@ type FlowContainerProps = {
   onBackButtonClick?: (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => void;
+  hideBackButton?: boolean;
   localizedBackButtonTitle?: string;
   children?: React.ReactNode;
 };
@@ -22,6 +23,7 @@ export const FlowContainer = ({
   title,
   subtitle,
   onBackButtonClick = () => window.history.back(),
+  hideBackButton = false,
   localizedBackButtonTitle,
   children,
 }: FlowContainerProps & RouteComponentProps) => {
@@ -38,12 +40,14 @@ export const FlowContainer = ({
       <Head title={title} />
 
       <div className="relative flex items-center">
-        <ButtonBack
-          onClick={onBackButtonClick}
-          dataTestId="flow-container-back-btn"
-          localizedTitle={backButtonTitle}
-          localizedAriaLabel={backButtonTitle}
-        />
+        {!hideBackButton && (
+          <ButtonBack
+            onClick={onBackButtonClick}
+            dataTestId="flow-container-back-btn"
+            localizedTitle={backButtonTitle}
+            localizedAriaLabel={backButtonTitle}
+          />
+        )}
         <h1 className="font-header text-md text-grey-400">{title}</h1>
       </div>
       {subtitle && (
