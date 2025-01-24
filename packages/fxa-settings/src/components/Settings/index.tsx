@@ -27,6 +27,7 @@ import PageSecondaryEmailVerify from './PageSecondaryEmailVerify';
 import { PageDisplayName } from './PageDisplayName';
 import PageTwoStepAuthentication from './PageTwoStepAuthentication';
 import { Page2faReplaceRecoveryCodes } from './Page2faReplaceRecoveryCodes';
+import { PageRecoveryPhoneSetup } from './PageRecoveryPhoneSetup';
 import { PageDeleteAccount } from './PageDeleteAccount';
 import { ScrollToTop } from './ScrollToTop';
 import { SETTINGS_PATH } from '../../constants';
@@ -166,6 +167,10 @@ export const Settings = ({
               />
               <PageTwoStepAuthentication path="/two_step_authentication" />
               <Page2faReplaceRecoveryCodes path="/two_step_authentication/replace_codes" />
+              {config.featureFlags?.enableAdding2FABackupPhone === true &&
+                account.recoveryPhone.available === true && (
+                  <PageRecoveryPhoneSetup path="/recovery_phone/setup" />
+                )}
             </>
           ) : (
             <>

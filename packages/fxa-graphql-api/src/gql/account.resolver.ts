@@ -91,6 +91,7 @@ import { EmailBounceStatusPayload } from './dto/payload/email-bounce';
 import { NotifierService } from '@fxa/shared/notifier';
 import { MozLoggerService } from '@fxa/shared/mozlog';
 import { RecoveryPhoneService } from '@fxa/accounts/recovery-phone';
+import { RecoveryPhone } from './model/recoveryPhone';
 
 function snakeToCamel(str: string) {
   return str.replace(/(_\w)/g, (m: string) => m[1].toUpperCase());
@@ -146,6 +147,22 @@ export class AccountResolver {
       info.returnType
     );
     return simplified.fields.hasOwnProperty('securityEvents');
+  }
+
+  private shouldIncludeRecoveryPhoneAvailability(
+    info: GraphQLResolveInfo
+  ): boolean {
+    // Introspect the query to determine if we should check recovery phone availability
+    const parsed: ResolveTree = parseResolveInfo(info) as ResolveTree;
+    const simplified = simplifyParsedResolveInfoFragmentWithType(
+      parsed,
+      info.returnType
+    ) as {
+      fields: {
+        available?: boolean;
+      };
+    };
+    return !!simplified.fields.hasOwnProperty('available');
   }
 
   @Mutation((returns) => CreateTotpPayload, {
@@ -849,9 +866,30 @@ export class AccountResolver {
     return [];
   }
 
-  @ResolveField()
-  public async recoveryPhone(@Parent() account: Account) {
-    return this.recoveryPhoneService.hasConfirmed(account.uid);
+  @ResolveField(() => RecoveryPhone)
+  public async recoveryPhone(
+    @GqlXHeaders() headers: Headers,
+    @Parent() account: Account,
+    @Info() info: GraphQLResolveInfo,
+    @GqlSessionToken() sessionToken: string
+  ) {
+    const includeAvailability =
+      this.shouldIncludeRecoveryPhoneAvailability(info);
+    const recoveryPhone = await this.recoveryPhoneService.hasConfirmed(
+      account.uid
+    );
+
+    if (includeAvailability) {
+      // This queries the auth-server endpoint instead of directly due to
+      // this endpoint needing maxmind
+      const { available } = await this.authAPI.recoveryPhoneAvailable(
+        sessionToken,
+        headers
+      );
+      return { ...recoveryPhone, available };
+    }
+
+    return recoveryPhone;
   }
 
   @ResolveField()
