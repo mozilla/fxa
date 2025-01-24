@@ -5,6 +5,7 @@
 import { SaltVersion } from '../../../fxa-auth-client/lib/salt';
 import AuthClient from '../../../fxa-auth-client/lib/client';
 import { EmailClient } from '../email';
+import { SmsClient } from '../sms';
 import { TargetName } from './index';
 
 export type Credentials = Awaited<ReturnType<AuthClient['signUp']>> & {
@@ -23,6 +24,7 @@ interface SubConfig {
 export abstract class BaseTarget {
   readonly authClient: AuthClient;
   readonly emailClient: EmailClient;
+  readonly smsClient: SmsClient;
   abstract readonly contentServerUrl: string;
   abstract readonly paymentsServerUrl: string;
   abstract readonly relierUrl: string;
@@ -36,6 +38,7 @@ export abstract class BaseTarget {
     );
     this.authClient = this.createAuthClient(keyStretchVersion);
     this.emailClient = new EmailClient(emailUrl);
+    this.smsClient = new SmsClient();
   }
 
   get baseUrl() {
