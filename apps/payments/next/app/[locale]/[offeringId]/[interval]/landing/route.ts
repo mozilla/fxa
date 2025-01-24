@@ -4,11 +4,24 @@
 import { signIn } from 'apps/payments/next/auth';
 import { redirect } from 'next/navigation';
 import { NextRequest } from 'next/server';
-import { getMetricsFlowAction } from '@fxa/payments/ui/actions';
+import {
+  determineCurrencyAction,
+  getMetricsFlowAction,
+} from '@fxa/payments/ui/actions';
 import { BaseParams, buildRedirectUrl } from '@fxa/payments/ui';
 import { config } from 'apps/payments/next/config';
+import { getIpAddress } from '@fxa/payments/ui/server';
+import { getSP2Params } from '@fxa/payments/legacy';
 
 export const dynamic = 'force-dynamic'; // defaults to auto
+
+function reportError(message: string, details?: any) {
+  if (details) {
+    console.error(message, details);
+  } else {
+    console.error(message);
+  }
+}
 
 /**
  * This landing route will initiate the OAuth no prompt signin
@@ -32,6 +45,16 @@ export async function GET(
   request: NextRequest,
   { params }: { params: BaseParams }
 ) {
+  const currency = await determineCurrencyAction(getIpAddress());
+  const { productId, priceId } = getSP2Params(
+    config.sp2map,
+    reportError,
+    params.offeringId,
+    params.interval,
+    currency
+  );
+  console.log({ productId, priceId });
+
   const searchParams = Object.fromEntries(request.nextUrl.searchParams);
   const redirectToUrl = new URL(
     buildRedirectUrl(params.offeringId, params.interval, 'new', 'checkout', {
