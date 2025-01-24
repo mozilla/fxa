@@ -15,7 +15,7 @@ export class RelierPage extends BaseLayout {
     return this.page.getByRole('heading', { name: '123done' });
   }
 
-  goto(query?: string) {
+  async goto(query?: string) {
     const url = query
       ? `${this.target.relierUrl}?${query}`
       : this.target.relierUrl;

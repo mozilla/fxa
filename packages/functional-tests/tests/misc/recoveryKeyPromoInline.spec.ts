@@ -25,14 +25,18 @@ test.describe('recovery key promo', () => {
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
       );
+      await page.waitForURL(/\//);
       await signup.fillOutEmailForm(credentials.email);
       await signup.fillOutSignupForm(credentials.password, '21');
+      await signup.page.waitForURL(/confirm_signup_code/);
 
       const code = await target.emailClient.getVerifyShortCode(
         credentials.email
       );
       await login.setCode(code);
       await login.clickSubmit();
+
+      await page.waitForURL(/pair/);
 
       await expect(connectAnotherDevice.fxaConnected).toBeEnabled();
     });
@@ -52,10 +56,10 @@ test.describe('recovery key promo', () => {
 
       // Sign-in without Sync, otw you will get prompted to create a recovery key
       await page.goto(target.contentServerUrl);
-
+      await page.waitForURL(/\//);
       await signin.fillOutEmailFirstForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
-
+      await page.waitForURL(/settings/);
       await settings.recoveryKey.createButton.click();
       await recoveryKey.acknowledgeInfoForm();
       await recoveryKey.fillOutConfirmPasswordForm(credentials.password);
@@ -223,6 +227,8 @@ test.describe('recovery key promo', () => {
       await expect(connectAnotherDevice.fxaConnected).toBeEnabled();
 
       await connectAnotherDevice.clickNotNowPair();
+
+      await page.waitForURL(/settings/);
 
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.recoveryKey.status).toHaveText('Not Set');

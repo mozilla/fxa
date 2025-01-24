@@ -65,6 +65,7 @@ async function signInAccount(
 ) {
   const credentials = await testAccountTracker.signUp();
   await signin.fillOutEmailFirstForm(credentials.email);
+  await signin.page.waitForURL(/signin/);
   await signin.fillOutPasswordForm(credentials.password);
 
   return credentials;

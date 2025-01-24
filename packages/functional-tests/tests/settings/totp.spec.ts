@@ -53,6 +53,8 @@ test.describe('severity-1 #smoke', () => {
       const recoveryCodes = await totp.fillOutStep2Form();
       await totp.fillOutStep3Form(recoveryCodes[0]);
 
+      await page.waitForURL(/settings/);
+
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.alertBar).toHaveText(
         'Two-step authentication has been enabled'
@@ -138,7 +140,7 @@ async function signInAccount(
   await page.goto(target.contentServerUrl);
   await signin.fillOutEmailFirstForm(credentials.email);
   await signin.fillOutPasswordForm(credentials.password);
-
+  await page.waitForURL(/settings/);
   //Verify logged in on Settings page
   await expect(settings.settingsHeading).toBeVisible();
 

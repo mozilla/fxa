@@ -37,6 +37,7 @@ test.describe('severity-2 #smoke', () => {
       await postVerify.fillOutChangePassword(credentials.password, newPassword);
       await postVerify.submit();
 
+      await settings.page.waitForURL(/settings/);
       //Verify logged in on Settings page
       await expect(settings.settingsHeading).toBeVisible();
       await settings.deleteAccountButton.click();

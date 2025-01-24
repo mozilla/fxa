@@ -35,6 +35,7 @@ test.describe('severity-2 #smoke', () => {
       await signin.fillOutPasswordForm(credentials.password);
       await expect(page).toHaveURL(/pair/);
       await connectAnotherDevice.clickNotNowPair();
+      await page.waitForURL(/settings/);
 
       //Verify logged in on Settings page
       await expect(settings.settingsHeading).toBeVisible();
@@ -102,6 +103,7 @@ async function signInSyncAccount(
   );
   await signin.fillOutEmailFirstForm(credentials.email);
   await signin.fillOutPasswordForm(credentials.password);
+  await page.waitForURL(/signin_token_code/);
 
   //Verify sign up code header is visible
   await expect(page).toHaveURL(/signin_token_code/);

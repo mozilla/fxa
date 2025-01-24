@@ -116,6 +116,7 @@ test.describe('severity-2 #smoke', () => {
       await signin.checkWebChannelMessage(FirefoxCommand.FxAStatus);
       await signin.fillOutEmailFirstForm(syncCredentials.email);
       await signin.fillOutPasswordForm(syncCredentials.password);
+      await signin.page.waitForURL(/settings/);
       await expect(settings.settingsHeading).toBeVisible();
 
       // Then, sign in the user again, synthesizing the user having signed
@@ -147,6 +148,7 @@ test.describe('severity-2 #smoke', () => {
       await expect(signin.cachedSigninHeading).toBeVisible();
       await expect(page.getByText(syncCredentials.email)).toBeVisible();
       await signin.signInButton.click();
+      await page.waitForURL(/settings/);
       await expect(settings.settingsHeading).toBeVisible();
     });
 
@@ -203,6 +205,7 @@ test.describe('severity-2 #smoke', () => {
       );
       await signin.fillOutEmailFirstForm(syncCredentials.email);
       await signin.fillOutPasswordForm(syncCredentials.password);
+      await signin.page.waitForURL(/settings/);
       await expect(settings.settingsHeading).toBeVisible();
 
       await settings.goto();

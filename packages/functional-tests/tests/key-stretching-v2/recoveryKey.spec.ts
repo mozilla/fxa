@@ -69,11 +69,14 @@ test.describe('severity-2 #smoke', () => {
       await page.goto(
         `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react&${signupVersion.query}`
       );
+      await page.waitForURL(/\//);
       await signup.fillOutEmailForm(email);
       await signup.fillOutSignupForm(password, AGE_21);
       await expect(page).toHaveURL(/confirm_signup_code/);
       const code = await target.emailClient.getVerifyShortCode(email);
       await confirmSignupCode.fillOutCodeForm(code);
+
+      await page.waitForURL(/settings/);
 
       await expect(page).toHaveURL(/settings/);
 
@@ -87,18 +90,21 @@ test.describe('severity-2 #smoke', () => {
       await page.goto(
         `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react&${resetVersion.query}`
       );
+      await page.waitForURL(/\//);
       await signin.fillOutEmailFirstForm(email);
       await signin.fillOutPasswordForm(password);
-
+      await page.waitForURL(/settings/);
       await expect(page).toHaveURL(/settings/);
 
       await settings.goto(`${resetVersion.version}`);
+      await page.waitForURL(/settings/);
       await settings.recoveryKey.createButton.click();
       const key = await recoveryKey.createRecoveryKey(password, HINT);
       await settings.signOut();
       await page.goto(
         `${target.contentServerUrl}/reset_password?${resetVersion.query}`
       );
+      await page.waitForURL(/reset_password/);
       await resetPassword.fillOutEmailForm(email);
       const resetCode = await target.emailClient.getResetPasswordCode(email);
       await resetPassword.fillOutResetPasswordCodeForm(resetCode);
@@ -115,10 +121,12 @@ test.describe('severity-2 #smoke', () => {
       await page.goto(
         `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react&${signinVersion.query}`
       );
+      await page.waitForURL(/\//);
       // a successful password reset means that the user is signed in
       await expect(signin.cachedSigninHeading).toBeVisible();
       await signin.signInButton.click();
 
+      await page.waitForURL(/settings/);
       await expect(page).toHaveURL(/settings/);
       const keys2 = await _getKeys(
         signinVersion.version,

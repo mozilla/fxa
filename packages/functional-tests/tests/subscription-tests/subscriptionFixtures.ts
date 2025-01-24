@@ -43,7 +43,6 @@ async function signInAccount(
   await page.goto(target.contentServerUrl);
   await signin.fillOutEmailFirstForm(credentials.email);
   await signin.fillOutPasswordForm(credentials.password);
-
   await expect(page).toHaveURL(/settings/);
   await expect(settings.settingsHeading).toBeVisible();
 

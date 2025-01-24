@@ -27,11 +27,6 @@ test.describe('severity-1 #smoke', () => {
 
       await page.waitForURL(/oauth\//);
 
-      // reload page with React experiment params
-      await page.goto(
-        `${page.url()}&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
-      );
-
       await signin.fillOutEmailFirstForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
 
@@ -49,10 +44,6 @@ test.describe('severity-1 #smoke', () => {
 
       await page.waitForURL(/oauth\//);
 
-      // reload page with React experiment params
-      await page.goto(
-        `${page.url()}&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
-      );
       await signin.fillOutEmailFirstForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
 
@@ -66,11 +57,6 @@ test.describe('severity-1 #smoke', () => {
       // wait for navigation
       await page.waitForURL(/oauth\/signin/);
       await expect(page).toHaveURL(/oauth\/signin/);
-
-      // reload page with React experiment params
-      await page.goto(
-        `${page.url()}&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
-      );
 
       await expect(signin.cachedSigninHeading).toBeVisible();
       // Email is prefilled
@@ -92,10 +78,6 @@ test.describe('severity-1 #smoke', () => {
 
       await page.waitForURL(/oauth\//);
 
-      // reload page with React experiment params
-      await page.goto(
-        `${page.url()}&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
-      );
       await signin.fillOutEmailFirstForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
 
@@ -110,11 +92,6 @@ test.describe('severity-1 #smoke', () => {
       await page.waitForURL(/oauth\/signin/);
       await expect(page).toHaveURL(/oauth\/signin/);
 
-      // reload page with React experiment params
-      await page.goto(
-        `${page.url()}&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
-      );
-
       await expect(signin.cachedSigninHeading).toBeVisible();
       // Email is prefilled
       await expect(page.getByText(credentials.email)).toBeVisible();
@@ -127,11 +104,6 @@ test.describe('severity-1 #smoke', () => {
       await relier.clickEmailFirst();
 
       await page.waitForURL(/oauth\//);
-
-      // reload page with React experiment params
-      await page.goto(
-        `${page.url()}&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
-      );
 
       // User will have to re-enter login information
       await signin.fillOutEmailFirstForm(credentials.email);
@@ -159,11 +131,6 @@ test.describe('severity-1 #smoke', () => {
       await relier.clickEmailFirst();
 
       await page.waitForURL(/oauth\//);
-
-      // reload page with React experiment params
-      await page.goto(
-        `${page.url()}&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
-      );
 
       await signin.fillOutEmailFirstForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
@@ -206,11 +173,6 @@ test.describe('severity-1 #smoke', () => {
       await page.waitForURL(/oauth\/signin/);
       await expect(page).toHaveURL(/oauth\/signin/);
 
-      // reload page with React experiment params
-      await page.goto(
-        `${page.url()}&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
-      );
-
       // Cached user detected
       // redirect is slow, wait for the cached signin heading to appear
       await expect(signin.cachedSigninHeading).toBeVisible();
@@ -245,11 +207,6 @@ test.describe('severity-1 #smoke', () => {
 
       await page.waitForURL(/oauth\//);
 
-      // reload page with React experiment params
-      await page.goto(
-        `${page.url()}&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
-      );
-
       await signup.fillOutEmailForm(email);
       await expect(signup.signupFormHeading).toBeVisible();
       await signup.fillOutSignupForm(password, AGE_21);
@@ -267,11 +224,6 @@ test.describe('severity-1 #smoke', () => {
 
       await page.waitForURL(/oauth\/signin/);
       await expect(page).toHaveURL(/oauth\/signin/);
-
-      // reload page with React experiment params
-      await page.goto(
-        `${page.url()}&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
-      );
 
       await expect(signin.cachedSigninHeading).toBeVisible();
       await expect(page.getByText(email)).toBeVisible();
