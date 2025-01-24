@@ -20,6 +20,9 @@ export function middleware(request: NextRequest) {
   const PAYPAL_SCRIPT_URL = 'https://www.paypal.com';
   const PAYPAL_API_URL = process.env.CSP__PAYPAL_API;
   const PAYPAL_OBJECTS = 'https://www.paypalobjects.com';
+  const PROFILE_CLIENT_URL = process.env.PROFILE_CLIENT_CONFIG__URL;
+  const PROFILE_DEFAULT_IMAGES_URL = process.env.PROFILE_DEFAULT_IMAGES_URL;
+  const PROFILE_UPLOADED_IMAGES_URL = process.env.PROFILE_UPLOADED_IMAGES_URL;
 
   /*
    * CSP Notes
@@ -40,7 +43,7 @@ export function middleware(request: NextRequest) {
     process.env.NODE_ENV === 'production' ? '' : `'unsafe-eval'`
   } https://js.stripe.com;
     style-src 'self' 'unsafe-inline';
-    img-src 'self' blob: data: ${accountsStaticCdn} ${PAYPAL_OBJECTS};
+    img-src 'self' blob: data: ${accountsStaticCdn} ${PAYPAL_OBJECTS} ${PROFILE_CLIENT_URL} ${PROFILE_DEFAULT_IMAGES_URL} ${PROFILE_UPLOADED_IMAGES_URL};
     font-src 'self';
     object-src 'none';
     base-uri 'self';

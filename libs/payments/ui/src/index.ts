@@ -8,6 +8,7 @@ export * from './lib/client/components/BaseButton';
 export * from './lib/client/components/CheckoutForm';
 export * from './lib/client/components/CheckoutCheckbox';
 export * from './lib/client/components/CouponForm';
+export * from './lib/client/components/Header';
 export * from './lib/client/components/PaymentStateObserver';
 export * from './lib/client/components/PaymentInputHandler';
 export * from './lib/client/components/PaymentSection';
