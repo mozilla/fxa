@@ -25,6 +25,7 @@ export type BannerProps = {
   link?: BannerLinkProps;
   isFancy?: boolean;
   bannerId?: string;
+  iconAlign?: 'start' | 'center';
 };
 
 export type Animation = {

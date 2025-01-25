@@ -27,7 +27,9 @@ export const Banner = ({
   link,
   isFancy,
   bannerId,
+  iconAlign = 'center',
 }: BannerProps) => {
+  const iconClassName = `shrink-0 self-${iconAlign}`;
   return (
     <div
       id={bannerId || ''}
@@ -48,22 +50,22 @@ export const Banner = ({
       tabIndex={-1}
     >
       {/* Icon fills use 'currentColor' (from text color) for better accessibility in HCM mode */}
-      {type === 'error' && <ErrorIcon className="shrink-0" ariaHidden />}
+      {type === 'error' && <ErrorIcon className={iconClassName} aria-hidden />}
       {type === 'info' && !isFancy && (
-        <InfoIcon className="shrink-0" ariaHidden />
+        <InfoIcon className={iconClassName} aria-hidden />
       )}
       {type === 'info' && isFancy && (
-        <InformationOutlineBlueIcon className="shrink-0" ariaHidden />
+        <InformationOutlineBlueIcon className={iconClassName} aria-hidden />
       )}
       {type === 'success' && (
         <CheckmarkCircleOutlineCurrentIcon
-          className="shrink-0"
+          className={iconClassName}
           mode="success"
           ariaHidden
         />
       )}
       {type === 'warning' && (
-        <WarningIcon className="shrink-0" mode="attention" ariaHidden />
+        <WarningIcon className={iconClassName} mode="attention" ariaHidden />
       )}
 
       <div className="flex flex-col grow">

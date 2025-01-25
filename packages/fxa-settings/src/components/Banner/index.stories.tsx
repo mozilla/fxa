@@ -133,6 +133,34 @@ export const Variation3cHeadingDescriptionDismiss = () => (
   </AppLayout>
 );
 
+export const Variation4aIconStart = () => (
+  <AppLayout>
+    <Banner
+      type="error"
+      content={{
+        localizedHeading: sampleHeading,
+        localizedDescription: sampleDescription,
+      }}
+      iconAlign={'start'}
+      dismissButton={{ action: () => alert('Dismiss clicked') }}
+    />
+  </AppLayout>
+);
+
+export const Variation4bIconCenter = () => (
+  <AppLayout>
+    <Banner
+      type="error"
+      content={{
+        localizedHeading: sampleHeading,
+        localizedDescription: sampleDescription,
+      }}
+      iconAlign={'center'}
+      dismissButton={{ action: () => alert('Dismiss clicked') }}
+    />
+  </AppLayout>
+);
+
 export const TypeError = () => (
   <AppLayout>
     <Banner
