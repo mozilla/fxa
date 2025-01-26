@@ -80,6 +80,7 @@ import {
   ResultCartFactory,
   SuccessCartFactory,
   UpdateCartFactory,
+  WithContextCartFactory,
 } from './cart.factories';
 import { CartManager } from './cart.manager';
 import { CartService } from './cart.service';
@@ -236,9 +237,9 @@ describe('CartService', () => {
       jest
         .spyOn(invoiceManager, 'previewUpcoming')
         .mockResolvedValue(mockInvoicePreview);
-      jest
-        .spyOn(eligibilityService, 'checkEligibility')
-        .mockResolvedValue(EligibilityStatus.CREATE);
+      jest.spyOn(eligibilityService, 'checkEligibility').mockResolvedValue({
+        subscriptionEligibilityResult: EligibilityStatus.CREATE,
+      });
     });
 
     it('calls createCart with expected parameters', async () => {
@@ -722,7 +723,10 @@ describe('CartService', () => {
     });
 
     it('returns cart and upcomingInvoicePreview', async () => {
-      const mockCart = ResultCartFactory({ stripeSubscriptionId: null });
+      const mockCart = ResultCartFactory({
+        stripeSubscriptionId: null,
+        eligibilityStatus: CartEligibilityStatus.CREATE,
+      });
       const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
       const mockPrice = StripePriceFactory();
       const mockInvoicePreview = InvoicePreviewFactory();
@@ -767,6 +771,7 @@ describe('CartService', () => {
     it('returns cart and upcomingInvoicePreview and latestInvoicePreview', async () => {
       const mockCart = ResultCartFactory({
         stripeSubscriptionId: mockSubscription.id,
+        eligibilityStatus: CartEligibilityStatus.CREATE,
       });
       const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
       const mockPrice = StripePriceFactory();
@@ -829,6 +834,7 @@ describe('CartService', () => {
     it('returns cart and upcomingInvoicePreview if customer is undefined', async () => {
       const mockCart = ResultCartFactory({
         stripeCustomerId: null,
+        eligibilityStatus: CartEligibilityStatus.CREATE,
       });
       const mockPrice = StripePriceFactory();
       const mockInvoicePreview = InvoicePreviewFactory();
@@ -875,6 +881,7 @@ describe('CartService', () => {
       const mockCart = ResultCartFactory({
         uid: mockUid,
         stripeSubscriptionId: null,
+        eligibilityStatus: CartEligibilityStatus.CREATE,
       });
       const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
       const mockPrice = StripePriceFactory();
@@ -909,6 +916,7 @@ describe('CartService', () => {
       const mockCart = ResultCartFactory({
         uid: mockUid,
         stripeSubscriptionId: null,
+        eligibilityStatus: CartEligibilityStatus.CREATE,
       });
       const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
       const mockPrice = StripePriceFactory();
@@ -932,7 +940,9 @@ describe('CartService', () => {
     });
 
     it('has metricsOptedOut set to false if the cart has no associated account', async () => {
-      const mockCart = ResultCartFactory({ stripeSubscriptionId: null });
+      const mockCart = ResultCartFactory({
+        stripeSubscriptionId: null,
+      });
       const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
       const mockPrice = StripePriceFactory();
       const mockInvoicePreview = InvoicePreviewFactory();
@@ -962,11 +972,10 @@ describe('CartService', () => {
     });
 
     it('should throw error if cart state is not success', async () => {
-      jest
-        .spyOn(cartService, 'getCart')
-        .mockResolvedValue(SuccessCartFactory({ state: CartState.FAIL }));
+      const mockCart = WithContextCartFactory({ state: CartState.FAIL });
+      jest.spyOn(cartService, 'getCart').mockResolvedValue(mockCart);
       await expect(
-        cartService.getSuccessCart(mockSuccessCart.id)
+        cartService.getSuccessCart(mockCart.id)
       ).rejects.toThrowError(CartInvalidStateForActionError);
     });
 

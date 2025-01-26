@@ -143,7 +143,8 @@ export class CheckoutService {
       stripeCustomerId
     );
 
-    const cartEligibilityStatus = handleEligibilityStatusMap[eligibility];
+    const cartEligibilityStatus =
+      handleEligibilityStatusMap[eligibility.subscriptionEligibilityResult];
 
     if (cartEligibilityStatus !== cart.eligibilityStatus) {
       throw new CartEligibilityMismatchError(

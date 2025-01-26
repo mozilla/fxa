@@ -25,7 +25,11 @@ export class EligibilityService {
     stripeCustomerId?: string | null | undefined
   ) {
     if (!stripeCustomerId) {
-      return EligibilityStatus.CREATE;
+      return {
+        subscriptionEligibilityResult: EligibilityStatus.CREATE,
+        fromOfferingConfigId: undefined,
+        upgradeFromPrice: undefined,
+      };
     }
 
     const targetOfferingResult =

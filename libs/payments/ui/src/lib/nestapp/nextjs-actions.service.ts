@@ -6,10 +6,11 @@ import { Injectable } from '@nestjs/common';
 import { Validator } from 'class-validator';
 
 import { GoogleManager } from '@fxa/google';
-import { CartService } from '@fxa/payments/cart';
+import { CartService, UpgradeCart } from '@fxa/payments/cart';
 import { ContentServerManager } from '@fxa/payments/content-server';
 import { CheckoutTokenManager } from '@fxa/payments/paypal';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
+import { CartEligibilityStatus } from '@fxa/shared/db/mysql/account';
 
 import { CheckoutCartWithPaypalActionArgs } from './validators/CheckoutCartWithPaypalActionArgs';
 import { CheckoutCartWithStripeActionArgs } from './validators/CheckoutCartWithStripeActionArgs';
@@ -63,6 +64,33 @@ export class NextJSActionsService {
     const cart = await this.cartService.getSuccessCart(args.cartId);
 
     return cart;
+  }
+
+  async getUpgradeCart(args: GetCartActionArgs): Promise<UpgradeCart> {
+    await new Validator().validateOrReject(args);
+
+    const cart = await this.cartService.getCart(args.cartId);
+
+    if (cart.eligibilityStatus !== CartEligibilityStatus.UPGRADE)
+      throw new Error('Cart eligibility is not upgrade');
+
+    if (
+      'fromOfferingConfigId' in cart &&
+      cart.fromOfferingConfigId !== undefined &&
+      'upgradeFromPrice' in cart &&
+      cart.upgradeFromPrice !== undefined
+    ) {
+      return {
+        ...cart,
+        eligibilityStatus: CartEligibilityStatus.UPGRADE,
+        fromOfferingConfigId: cart.fromOfferingConfigId,
+        upgradeFromPrice: cart.upgradeFromPrice,
+      };
+    } else {
+      throw new Error(
+        'ActionsService - cart is missing required fields for upgrade'
+      );
+    }
   }
 
   async updateCart(args: UpdateCartActionArgs) {

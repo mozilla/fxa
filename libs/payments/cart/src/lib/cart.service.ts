@@ -23,16 +23,22 @@ import {
   AccountCustomerManager,
   AccountCustomerNotFoundError,
   StripeCustomer,
+  StripePrice,
   StripeSubscription,
 } from '@fxa/payments/stripe';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
 import { CurrencyManager } from '@fxa/payments/currency';
-import { CartErrorReasonId, CartState } from '@fxa/shared/db/mysql/account';
+import {
+  CartEligibilityStatus,
+  CartErrorReasonId,
+  CartState,
+} from '@fxa/shared/db/mysql/account';
 import { GeoDBManager } from '@fxa/shared/geodb';
 
 import { CartManager } from './cart.manager';
 import type {
   CheckoutCustomerData,
+  GetCartResult,
   GetNeedsInputResponse,
   NoInputNeededResponse,
   PaymentInfo,
@@ -40,9 +46,8 @@ import type {
   StripeHandleNextActionResponse,
   SuccessCart,
   UpdateCart,
-  WithContextCart,
 } from './cart.types';
-import { NeedsInputType } from './cart.types';
+import { CurrentPrice, NeedsInputType } from './cart.types';
 import { handleEligibilityStatusMap } from './cart.utils';
 import { CheckoutService } from './checkout.service';
 import {
@@ -193,7 +198,8 @@ export class CartService {
       ),
     ]);
 
-    const cartEligibilityStatus = handleEligibilityStatusMap[eligibility];
+    const cartEligibilityStatus =
+      handleEligibilityStatusMap[eligibility.subscriptionEligibilityResult];
 
     if (args.promoCode) {
       try {
@@ -428,7 +434,7 @@ export class CartService {
    * Fetch a cart from the database by ID
    */
   @SanitizeExceptions()
-  async getCart(cartId: string): Promise<WithContextCart> {
+  async getCart(cartId: string): Promise<GetCartResult> {
     const cart = await this.cartManager.fetchCartById(cartId);
 
     const [price, metricsOptedOut] = await Promise.all([
@@ -448,13 +454,39 @@ export class CartService {
       ]);
     }
 
-    const upcomingInvoicePreview = await this.invoiceManager.previewUpcoming({
-      priceId: price.id,
-      currency: cart.currency || DEFAULT_CURRENCY,
-      customer,
-      taxAddress: cart.taxAddress || undefined,
-      couponCode: cart.couponCode || undefined,
-    });
+    let fromOfferingConfigId: string | undefined;
+    let upgradeFromPrice: StripePrice | undefined;
+    let currentPrice: CurrentPrice | undefined;
+    if (cart.eligibilityStatus === CartEligibilityStatus.UPGRADE) {
+      const eligibility = await this.eligibilityService.checkEligibility(
+        cart.interval as SubplatInterval,
+        cart.offeringConfigId,
+        cart.stripeCustomerId
+      );
+      fromOfferingConfigId = eligibility.fromOfferingConfigId;
+      upgradeFromPrice = eligibility.upgradeFromPrice;
+    }
+
+    let upcomingInvoicePreview: InvoicePreview | undefined;
+    if (cart.eligibilityStatus === CartEligibilityStatus.UPGRADE) {
+      upcomingInvoicePreview =
+        await this.invoiceManager.previewUpcomingForUpgrade({
+          priceId: price.id,
+          currency: cart.currency || DEFAULT_CURRENCY,
+          customer,
+          taxAddress: cart.taxAddress || undefined,
+          couponCode: cart.couponCode || undefined,
+          upgradeFromPrice,
+        });
+    } else {
+      upcomingInvoicePreview = await this.invoiceManager.previewUpcoming({
+        priceId: price.id,
+        currency: cart.currency || DEFAULT_CURRENCY,
+        customer,
+        taxAddress: cart.taxAddress || undefined,
+        couponCode: cart.couponCode || undefined,
+      });
+    }
 
     let paymentInfo: PaymentInfo | undefined;
     if (customer?.invoice_settings.default_payment_method) {
@@ -504,6 +536,8 @@ export class CartService {
       metricsOptedOut,
       latestInvoicePreview,
       paymentInfo,
+      fromOfferingConfigId,
+      upgradeFromPrice: currentPrice,
     };
   }
 
@@ -522,15 +556,21 @@ export class CartService {
       );
     }
 
-    if (!cart.latestInvoicePreview || !cart.paymentInfo?.type) {
-      throw new CartSuccessMissingRequired(cartId);
+    if (
+      'latestInvoicePreview' in cart &&
+      cart.latestInvoicePreview !== undefined &&
+      'paymentInfo' in cart &&
+      cart.paymentInfo !== undefined &&
+      'type' in cart.paymentInfo
+    ) {
+      return {
+        ...cart,
+        state: CartState.SUCCESS,
+        latestInvoicePreview: cart.latestInvoicePreview,
+        paymentInfo: cart.paymentInfo,
+      };
     }
-
-    return {
-      ...cart,
-      latestInvoicePreview: cart.latestInvoicePreview,
-      paymentInfo: cart.paymentInfo,
-    };
+    throw new CartSuccessMissingRequired(cartId);
   }
 
   async metricsOptedOut(accountId?: string): Promise<boolean> {

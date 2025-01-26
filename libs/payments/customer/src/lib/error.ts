@@ -110,3 +110,9 @@ export class PayPalPaymentFailedError extends PaymentsCustomerError {
     super(`PayPal payment failed with status ${status ?? 'undefined'}`);
   }
 }
+
+export class InvoiceSubscriptionItemNotFoundError extends PaymentsCustomerError {
+  constructor() {
+    super('Subscription item not found');
+  }
+}

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { stripeInvoiceToInvoicePreviewDTO } from './stripeInvoiceToFirstInvoicePreviewDTO';
+import { stripeInvoiceToInvoicePreviewDTO } from './stripeInvoiceToInvoicePreviewDTO';
 import {
   StripeDiscountFactory,
   StripeResponseFactory,
@@ -11,7 +11,7 @@ import {
   StripeUpcomingInvoiceFactory,
 } from '@fxa/payments/stripe';
 
-describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
+describe('stripeInvoiceToInvoicePreviewDTO', () => {
   it('formats invoice', () => {
     const mockDiscountAmount = StripeTotalDiscountAmountsFactory();
     const mockTaxAmount = StripeTotalTaxAmountsFactory();

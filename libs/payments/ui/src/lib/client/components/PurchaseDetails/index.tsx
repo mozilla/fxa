@@ -7,10 +7,16 @@
 import { Localized } from '@fluent/react';
 import Image from 'next/image';
 import { useState } from 'react';
+import { InvoicePreview } from '@fxa/payments/customer';
+import infoLogo from '@fxa/shared/assets/images/info.svg';
+import {
+  getLocalizedCurrencyString,
+  getLocalizedDateString,
+} from '@fxa/shared/l10n';
 import chevron from './images/chevron.svg';
 
 type PurchaseDetailsProps = {
-  children: React.ReactNode;
+  invoice: InvoicePreview;
   priceInterval: React.ReactNode;
   purchaseDetails: {
     details: string[];
@@ -18,15 +24,27 @@ type PurchaseDetailsProps = {
     productName: string;
     webIcon: string;
   };
+  totalPrice: React.ReactNode;
 };
 
 export function PurchaseDetails(props: PurchaseDetailsProps) {
-  const { children, priceInterval, purchaseDetails } = props;
-  const { subtitle, productName, webIcon } = purchaseDetails;
+  const { invoice, priceInterval, purchaseDetails, totalPrice } = props;
+  const { details, productName, subtitle, webIcon } = purchaseDetails;
+  const {
+    currency,
+    discountAmount,
+    discountEnd,
+    discountType,
+    listAmount,
+    taxAmounts,
+  } = invoice;
+  const exclusiveTaxRates = taxAmounts.filter(
+    (taxAmount) => !taxAmount.inclusive
+  );
   const [detailsHidden, setDetailsState] = useState(true);
   return (
     <div className="bg-white rounded-b-lg shadow-sm shadow-grey-300 text-sm px-4 rounded-t-none clip-shadow tablet:rounded-t-lg">
-      <div className="flex gap-4 my-0 py-4 border-b border-grey-200">
+      <div className="flex gap-4 my-0 py-4">
         <Image
           src={webIcon}
           alt={productName}
@@ -53,8 +71,111 @@ export function PurchaseDetails(props: PurchaseDetailsProps) {
         </div>
       </div>
 
+      <div className="border-b border-grey-200"></div>
+
       <div className={detailsHidden ? 'hidden tablet:block' : 'block'}>
-        {children}
+        <Localized id="next-plan-details-header">
+          <h3 className="text-grey-600 font-semibold my-4">Product details</h3>
+        </Localized>
+
+        <ul className="border-b border-grey-200 text-grey-400 m-0 px-3 list-disc">
+          {details.map((detail, idx) => (
+            <li className="mb-4 leading-5 marker:text-xs" key={idx}>
+              {detail}
+            </li>
+          ))}
+        </ul>
+
+        <ul className="pt-6">
+          {!!listAmount && (
+            <li className="flex items-center justify-between gap-2 leading-5 text-grey-600 text-sm">
+              <Localized id="next-plan-details-list-price">
+                <p>List Price</p>
+              </Localized>
+              <p>{getLocalizedCurrencyString(listAmount, currency)}</p>
+            </li>
+          )}
+
+          {!!discountAmount && (
+            <li className="flex items-center justify-between gap-2 leading-5 text-grey-600 text-sm">
+              <Localized id="next-coupon-promo-code">
+                <p>Promo Code</p>
+              </Localized>
+              <p>{getLocalizedCurrencyString(-1 * discountAmount, currency)}</p>
+            </li>
+          )}
+
+          {exclusiveTaxRates.length === 1 && (
+            <li className="flex items-center justify-between gap-2 leading-5 text-grey-600 text-sm">
+              <Localized id="next-plan-details-tax">
+                <p>Taxes and Fees</p>
+              </Localized>
+              <p>
+                {getLocalizedCurrencyString(
+                  exclusiveTaxRates[0].amount,
+                  currency
+                )}
+              </p>
+            </li>
+          )}
+
+          {exclusiveTaxRates.length > 1 &&
+            exclusiveTaxRates.map((taxRate) => (
+              <li
+                key={taxRate.title}
+                className="flex items-center justify-between gap-2 leading-5 text-grey-600 text-sm"
+              >
+                <Localized id="tax">
+                  <p>{taxRate.title}</p>
+                </Localized>
+                <p>{getLocalizedCurrencyString(taxRate.amount, currency)}</p>
+              </li>
+            ))}
+
+          <div className="border-t border-grey-200 mt-6"></div>
+
+          <li className="flex items-center justify-between gap-2 leading-5 text-grey-600 text-sm mt-6 pt-4 pb-6 font-semibold">
+            <Localized id="next-plan-details-total-label">
+              <h3 className="text-base">Total</h3>
+            </Localized>
+            <p
+              className="overflow-hidden text-ellipsis text-lg whitespace-nowrap"
+              data-testid="total-price"
+            >
+              {totalPrice}
+            </p>
+          </li>
+        </ul>
+
+        {!discountType || discountType === 'forever' ? null : discountEnd ? (
+          <div
+            className="flex items-center justify-center gap-2 text-green-900 pt-2 pb-6 font-medium"
+            data-testid="coupon-success-with-date"
+          >
+            <Image src={infoLogo} alt="" />
+            <Localized
+              id="next-coupon-success-repeating"
+              vars={{
+                couponDurationDate: getLocalizedDateString(discountEnd, true),
+              }}
+            >
+              <p>
+                Your plan will automatically renew after
+                {getLocalizedDateString(discountEnd, true)} at the list price.
+              </p>
+            </Localized>
+          </div>
+        ) : (
+          <div
+            className="flex items-center justify-center gap-2 text-green-900 pt-2 pb-6 font-medium"
+            data-testid="coupon-success"
+          >
+            <Image src={infoLogo} alt="" />
+            <Localized id="next-coupon-success">
+              <p>Your plan will automatically renew at the list price.</p>
+            </Localized>
+          </div>
+        )}
       </div>
 
       <div
@@ -70,14 +191,14 @@ export function PurchaseDetails(props: PurchaseDetailsProps) {
             <>
               <Image src={chevron} alt="" className="pt-px" />
               <Localized id="next-plan-details-show-button">
-                Show details
+                <span>Show details</span>
               </Localized>
             </>
           ) : (
             <>
               <Image src={chevron} alt="" className="pb-0.5 rotate-180" />
               <Localized id="next-plan-details-hide-button">
-                Hide details
+                <span>Hide details</span>
               </Localized>
             </>
           )}
