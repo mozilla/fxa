@@ -7,10 +7,45 @@
 'use strict';
 const MailParser = require('mailparser').MailParser;
 const simplesmtp = require('simplesmtp');
-
+const Redis = require('ioredis');
 const config = require('../config').default.getProperties();
 
 const TEMPLATES_WITH_NO_CODE = new Set(['passwordResetEmail']);
+
+// SMS polling
+const redis = new Redis(config.redis);
+const usersLastSms = {};
+async function printMatchingKeys(startUp = false) {
+  const redisKeyPattern = 'recovery-phone:sms-attempt:*:*';
+  try {
+    const keys = await redis.keys(redisKeyPattern);
+
+    if (keys.length > 0) {
+      for (const key of keys) {
+        const keyParts = key.split(':');
+        const uid = keyParts[2];
+        const code = keyParts[3];
+
+        if (!usersLastSms[uid]) {
+          usersLastSms[uid] = {};
+        }
+
+        // Check if this code was already printed for this user
+        if (!usersLastSms[uid][code]) {
+          if (!startUp) {
+            console.log('\x1B[36mRecovery Phone Otp:', code, '\x1B[39m');
+          }
+          usersLastSms[uid][code] = true;
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Failed to retrieve keys:', error);
+  } finally {
+    // 1s delay seems reasonable
+    setTimeout(printMatchingKeys, 1000);
+  }
+}
 
 // SMTP half
 
@@ -147,14 +182,15 @@ module.exports = (printLogs) => {
       },
     ]);
 
-    api.start().then(() => {
+    api.start().then(async () => {
       console.log('mail_helper started...');
-
+      printMatchingKeys(true);
       return resolve({
         close() {
           return new Promise((resolve, reject) => {
             let smtpClosed = false;
             let apiClosed = false;
+            redis.quit();
             smtp.server.end(() => {
               smtpClosed = true;
               if (apiClosed) {
