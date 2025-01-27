@@ -46,6 +46,7 @@ export interface PageContentOfferingTransformed
 
 export interface PageContentOfferingResult {
   apiIdentifier: string;
+  countries: string[];
   stripeProductId: string;
   defaultPurchase: PageContentOfferingDefaultPurchaseResult;
   commonContent: PageContentCommonContentResult & {

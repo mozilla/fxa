@@ -9,7 +9,7 @@ import * as Form from '@radix-ui/react-form';
 import countries from 'i18n-iso-countries';
 import { useEffect, useState } from 'react';
 import { ButtonVariant } from '@fxa/payments/ui';
-import { validatePostalCode } from '@fxa/payments/ui/actions';
+import { updateCartAction, validatePostalCode } from '@fxa/payments/ui/actions';
 import { SubmitButton } from '../SubmitButton';
 
 interface CollapsedProps {
@@ -37,7 +37,9 @@ const Collapsed = ({
               variant={ButtonVariant.Secondary}
               data-testid="tax-location-edit-button"
             >
-              <Localized id="select-tax-location-edit-button">Edit</Localized>
+              <Localized id="select-tax-location-edit-button">
+                <p>Edit</p>
+              </Localized>
             </SubmitButton>
           </Form.Submit>
         </span>
@@ -55,7 +57,9 @@ const Collapsed = ({
 };
 
 interface ExpandedProps {
+  cmsCountryCodes: string[];
   locale: string;
+  productName: string;
   unsupportedLocations: string;
   countryCode: string | undefined;
   postalCode: string | undefined;
@@ -63,7 +67,9 @@ interface ExpandedProps {
 }
 
 const Expanded = ({
+  cmsCountryCodes,
   locale,
+  productName,
   unsupportedLocations,
   countryCode,
   postalCode,
@@ -82,6 +88,7 @@ const Expanded = ({
     [key: string]: boolean;
   }>({
     missingCountryCode: false,
+    productNotAvailable: false,
     unsupportedCountry: false,
     invalidPostalCode: false,
     locationNotUpdated: false,
@@ -113,6 +120,7 @@ const Expanded = ({
     setServerErrors((prev) => ({
       ...prev,
       missingCountryCode: false,
+      productNotAvailable: false,
       unsupportedCountries: false,
     }));
 
@@ -122,10 +130,35 @@ const Expanded = ({
 
     setSelectedCountryCode(countryCode);
 
-    if (unsupportedLocations.includes(countryCode)) {
-      setServerErrors((prev) => ({ ...prev, unsupportedCountry: true }));
+    // If the selected location is not supported per TOS, it is not necessary to
+    // also inform the customer that the product is not available in their location.
+    if (
+      unsupportedLocations.includes(countryCode) &&
+      !cmsCountryCodes.includes(countryCode)
+    ) {
+      setServerErrors((prev) => ({
+        ...prev,
+        productNotAvailable: false,
+        unsupportedCountry: true,
+      }));
+    } else if (unsupportedLocations.includes(countryCode)) {
+      setServerErrors((prev) => ({
+        ...prev,
+        productNotAvailable: false,
+        unsupportedCountry: true,
+      }));
+    } else if (!cmsCountryCodes.includes(countryCode)) {
+      setServerErrors((prev) => ({
+        ...prev,
+        productNotAvailable: true,
+        unsupportedCountry: false,
+      }));
     } else {
-      setServerErrors((prev) => ({ ...prev, unsupportedCountry: false }));
+      setServerErrors((prev) => ({
+        ...prev,
+        productNotAvailable: false,
+        unsupportedCountry: false,
+      }));
     }
   };
 
@@ -206,6 +239,15 @@ const Expanded = ({
             </p>
           </Localized>
         </Form.Message>
+        {serverErrors.productNotAvailable && (
+          <Form.Message>
+            <Localized id="select-tax-location-product-not-available">
+              <p className="mt-1 text-alert-red" role="alert">
+                {productName} is not available in this location.
+              </p>
+            </Localized>
+          </Form.Message>
+        )}
         {serverErrors.unsupportedCountry && (
           <Form.Message>
             <Localized id="next-location-unsupported">
@@ -282,7 +324,9 @@ const Expanded = ({
           data-testid="tax-location-save-button"
           variant={ButtonVariant.Secondary}
         >
-          <Localized id="select-tax-location-save-button">Save</Localized>
+          <Localized id="select-tax-location-save-button">
+            <p>Save</p>
+          </Localized>
         </SubmitButton>
       </Form.Submit>
     </Form.Root>
@@ -290,14 +334,22 @@ const Expanded = ({
 };
 
 interface SelectTaxLocationProps {
+  cartId: string;
+  cartVersion: number;
+  cmsCountries: string[];
   locale: string;
+  productName: string;
   unsupportedLocations: string;
   countryCode: string | undefined;
   postalCode: string | undefined;
 }
 
 export function SelectTaxLocation({
+  cartId,
+  cartVersion,
+  cmsCountries,
   locale,
+  productName,
   unsupportedLocations,
   countryCode,
   postalCode,
@@ -306,6 +358,7 @@ export function SelectTaxLocation({
     !countryCode || !postalCode
   );
   const [alertStatus, setAlertStatus] = useState<boolean>(false);
+  const cmsCountryCodes = cmsCountries.map((country) => country.slice(0, 2));
 
   return (
     <div
@@ -318,15 +371,19 @@ export function SelectTaxLocation({
 
       {expanded ? (
         <Expanded
+          cmsCountryCodes={cmsCountryCodes}
           locale={locale}
+          productName={productName}
           unsupportedLocations={unsupportedLocations}
           countryCode={countryCode}
           postalCode={postalCode}
-          saveAction={(countryCode: string, postalCode: string) => {
+          saveAction={async (countryCode: string, postalCode: string) => {
             setExpanded(false);
 
             // Call function to save to Cart
-            // await saveTaxLocationAction(countryCode, postalCode);
+            await updateCartAction(cartId, cartVersion, {
+              taxAddress: { countryCode, postalCode },
+            });
             setAlertStatus(true);
           }}
         />
