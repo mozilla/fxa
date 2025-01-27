@@ -1,10 +1,14 @@
-import { plainToInstance, Transform } from 'class-transformer';
+import { plainToInstance, Transform, Type } from 'class-transformer';
 import {
   IsString,
   IsDefined,
   IsObject,
   IsOptional,
   validateSync,
+  IsBoolean,
+  IsNumber,
+  Min,
+  Max,
 } from 'class-validator';
 
 export class Intervals {
@@ -88,4 +92,58 @@ export class SP2MapConfig {
     return transformedValue;
   })
   offerings!: Record<string, Currency | undefined>; // Index signature to allow dynamic keys
+}
+
+export class RedirectParams {
+  @IsDefined()
+  @IsNumber()
+  @Min(0)
+  @Max(100)
+  @Type(() => Number)
+  sp2RedirectPercentage!: number;
+}
+
+export class SP2RedirectConfig {
+  @IsDefined()
+  @IsBoolean()
+  enabled!: boolean;
+
+  @IsDefined()
+  @IsBoolean()
+  shadowMode!: boolean;
+
+  @IsDefined()
+  @IsNumber()
+  @Min(0)
+  @Max(100)
+  @Type(() => Number)
+  defaultRedirectPercentage!: number;
+
+  @IsDefined()
+  @IsObject()
+  @Transform(({ value }) => {
+    const parsedValue = JSON.parse(value);
+    const transformedValue = Object.entries(parsedValue).reduce(
+      (acc, [key, val]) => {
+        const classVal = plainToInstance(RedirectParams, {
+          sp2RedirectPercentage: val,
+        });
+        try {
+          const validation = validateSync(classVal);
+          if (validation.length > 0) {
+            throw new Error(`Validation errors: ${JSON.stringify(validation)}`);
+          }
+        } catch (err) {
+          throw new Error(
+            `Validation issue with value: ${JSON.stringify(val)}`
+          );
+        }
+        acc[key] = classVal;
+        return acc;
+      },
+      {} as any
+    );
+    return transformedValue;
+  })
+  offerings!: Record<string, RedirectParams | undefined>;
 }
