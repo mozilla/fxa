@@ -9,9 +9,9 @@ import {
 import { Inject, Injectable } from '@nestjs/common';
 import {
   getConfirmedPhoneNumber,
+  hasRecoveryCodes,
   registerPhoneNumber,
   removePhoneNumber,
-  hasRecoveryCodes,
 } from './recovery-phone.repository';
 import {
   RecoveryNumberAlreadyExistsError,
@@ -163,6 +163,16 @@ export class RecoveryPhoneManager {
     }
 
     return JSON.parse(data);
+  }
+
+  /**
+   * Returns redis keys for all unconfirmed phone numbers for a user.
+   *
+   * @param uid
+   */
+  async getAllUnconfirmed(uid: string): Promise<string[]> {
+    const redisKey = `${this.redisPrefix}:${uid}:*`;
+    return await this.redisClient.keys(redisKey);
   }
 
   /**
