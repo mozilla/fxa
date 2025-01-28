@@ -78,7 +78,6 @@ import {
   CheckoutCustomerDataFactory,
   FinishErrorCartFactory,
   ResultCartFactory,
-  SuccessCartFactory,
   UpdateCartFactory,
 } from './cart.factories';
 import { CartManager } from './cart.manager';
@@ -91,7 +90,6 @@ import {
   CartInvalidStateForActionError,
   CartStateProcessingError,
   CartSubscriptionNotFoundError,
-  CartSuccessMissingRequired,
 } from './cart.error';
 import { CurrencyManager } from '@fxa/payments/currency';
 import { MockCurrencyConfigProvider } from 'libs/payments/currency/src/lib/currency.config';
@@ -804,9 +802,9 @@ describe('CartService', () => {
           customerSessionClientSecret: mockCustomerSession.client_secret,
         },
       });
-      expect(result.latestInvoicePreview).not.toEqual(
-        result.upcomingInvoicePreview
-      );
+      expect(
+        'latestInvoicePreview' in result && result.latestInvoicePreview
+      ).not.toEqual(result.upcomingInvoicePreview);
 
       expect(cartManager.fetchCartById).toHaveBeenCalledWith(mockCart.id);
       expect(
@@ -950,44 +948,6 @@ describe('CartService', () => {
       const result = await cartService.getCart(mockCart.id);
       expect(accountManager.getAccounts).not.toHaveBeenCalled();
       expect(result.metricsOptedOut).toBeFalsy();
-    });
-  });
-
-  describe('getSuccessCart', () => {
-    const mockSuccessCart = SuccessCartFactory();
-    it('should return success cart', async () => {
-      jest.spyOn(cartService, 'getCart').mockResolvedValue(mockSuccessCart);
-      const result = await cartService.getSuccessCart(mockSuccessCart.id);
-      expect(result).toEqual(mockSuccessCart);
-    });
-
-    it('should throw error if cart state is not success', async () => {
-      jest
-        .spyOn(cartService, 'getCart')
-        .mockResolvedValue(SuccessCartFactory({ state: CartState.FAIL }));
-      await expect(
-        cartService.getSuccessCart(mockSuccessCart.id)
-      ).rejects.toThrowError(CartInvalidStateForActionError);
-    });
-
-    it('should throw error if latestInvoicePreview is undefined', async () => {
-      jest
-        .spyOn(cartService, 'getCart')
-        .mockResolvedValue(
-          SuccessCartFactory({ latestInvoicePreview: undefined })
-        );
-      await expect(
-        cartService.getSuccessCart(mockSuccessCart.id)
-      ).rejects.toThrowError(CartSuccessMissingRequired);
-    });
-
-    it('should throw error if payment method type is undefined', async () => {
-      jest
-        .spyOn(cartService, 'getCart')
-        .mockResolvedValue(SuccessCartFactory({ paymentInfo: undefined }));
-      await expect(
-        cartService.getSuccessCart(mockSuccessCart.id)
-      ).rejects.toThrowError(CartSuccessMissingRequired);
     });
   });
 

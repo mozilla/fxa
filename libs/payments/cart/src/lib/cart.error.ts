@@ -155,11 +155,3 @@ export class CartSubscriptionNotFoundError extends CartError {
     });
   }
 }
-
-export class CartSuccessMissingRequired extends CartError {
-  constructor(cartId: string) {
-    super('Success cart is missing required fields', {
-      cartId,
-    });
-  }
-}

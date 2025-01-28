@@ -10,7 +10,14 @@ import { getApp } from '../nestapp/app';
 import { GetCartActionArgs } from '../nestapp/validators/GetCartActionArgs';
 import { getRedirect, validateCartState } from '../utils/get-cart';
 import { SupportedPages } from '../utils/types';
-import { SuccessCart, WithContextCart } from '@fxa/payments/cart';
+import {
+  StartCartDTO,
+  ProcessingCartDTO,
+  NeedsInputCartDTO,
+  FailCartDTO,
+  SuccessCartDTO,
+  CartDTO,
+} from '@fxa/payments/cart';
 import { CartInvalidStateForActionError } from 'libs/payments/cart/src/lib/cart.error';
 import { VError } from 'verror';
 
@@ -23,34 +30,34 @@ async function getCartOrRedirectAction(
   cartId: string,
   page: SupportedPages.START,
   searchParams?: Record<string, string>
-): Promise<WithContextCart>;
+): Promise<StartCartDTO>;
 async function getCartOrRedirectAction(
   cartId: string,
   page: SupportedPages.PROCESSING,
   searchParams?: Record<string, string>
-): Promise<WithContextCart>;
+): Promise<ProcessingCartDTO>;
 async function getCartOrRedirectAction(
   cartId: string,
   page: SupportedPages.NEEDS_INPUT,
   searchParams?: Record<string, string>
-): Promise<WithContextCart>;
+): Promise<NeedsInputCartDTO>;
 async function getCartOrRedirectAction(
   cartId: string,
   page: SupportedPages.ERROR,
   searchParams?: Record<string, string>
-): Promise<WithContextCart>;
+): Promise<FailCartDTO>;
 async function getCartOrRedirectAction(
   cartId: string,
   page: SupportedPages.SUCCESS,
   searchParams?: Record<string, string>
-): Promise<SuccessCart>;
+): Promise<SuccessCartDTO>;
 
 async function getCartOrRedirectAction(
   cartId: string,
   page: SupportedPages,
   searchParams?: Record<string, string>
-): Promise<WithContextCart | SuccessCart> {
-  let cart: WithContextCart | SuccessCart | undefined;
+): Promise<CartDTO> {
+  let cart: CartDTO | undefined;
   const urlSearchParams = new URLSearchParams(searchParams);
   const params = searchParams ? `?${urlSearchParams.toString()}` : '';
   switch (page) {

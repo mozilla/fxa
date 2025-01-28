@@ -6,7 +6,7 @@ import { Injectable } from '@nestjs/common';
 import { Validator } from 'class-validator';
 
 import { GoogleManager } from '@fxa/google';
-import { CartService } from '@fxa/payments/cart';
+import { CartService, SuccessCartDTO } from '@fxa/payments/cart';
 import { ContentServerManager } from '@fxa/payments/content-server';
 import { CheckoutTokenManager } from '@fxa/payments/paypal';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
@@ -30,6 +30,7 @@ import { SanitizeExceptions } from '@fxa/shared/error';
 import { GeoDBManager } from '@fxa/shared/geodb';
 import { CurrencyManager } from '@fxa/payments/currency';
 import { DetermineCurrencyActionArgs } from './validators/DetermineCurrencyActionArgs';
+import { CartState } from '@fxa/shared/db/mysql/account';
 
 /**
  * ANY AND ALL methods exposed via this service should be considered publicly accessible and callable with any arguments.
@@ -57,10 +58,14 @@ export class NextJSActionsService {
     return cart;
   }
 
-  async getSuccessCart(args: GetCartActionArgs) {
+  async getSuccessCart(args: GetCartActionArgs): Promise<SuccessCartDTO> {
     await new Validator().validateOrReject(args);
 
-    const cart = await this.cartService.getSuccessCart(args.cartId);
+    const cart = await this.cartService.getCart(args.cartId);
+
+    if (cart.state !== CartState.SUCCESS) {
+      throw new Error('Cart is not in success state');
+    }
 
     return cart;
   }

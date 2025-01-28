@@ -5,7 +5,7 @@
 'use client';
 
 import * as Sentry from '@sentry/nextjs';
-import { WithContextCart } from '@fxa/payments/cart';
+import { CartDTO } from '@fxa/payments/cart';
 import { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import { recordEmitterEventAction } from '../../actions/recordEmitterEvent';
@@ -14,7 +14,7 @@ export function MetricsWrapper({
   cart,
   children,
 }: {
-  cart?: WithContextCart;
+  cart?: CartDTO;
   children: React.ReactNode;
 }) {
   const params = useParams();
