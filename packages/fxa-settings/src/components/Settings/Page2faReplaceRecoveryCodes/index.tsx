@@ -44,8 +44,8 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
   const alertSuccessAndGoHome = () => {
     alertBar.success(
       ftlMsgResolver.getMsg(
-        'tfa-replace-code-success-alert-3',
-        'Account backup authentication codes updated'
+        'tfa-replace-code-success-alert-4',
+        'Backup authentication codes updated'
       )
     );
     navigate(SETTINGS_PATH + '#two-step-authentication', { replace: true });

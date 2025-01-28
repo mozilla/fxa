@@ -18,10 +18,8 @@ const createStory = storyWithProps(
     maskedLastFourPhoneNumber: '••••••1234',
     link: 'http://localhost:3030/settings',
     resetLink: 'http://localhost:3030/reset_password',
-    // TODO, update this link with #section-heading once the SUMO article is updated
-    //  and ensure the mailer also uses the new link (FXA-10918)
     twoFactorSupportLink:
-      'https://support.mozilla.org/en-US/kb/secure-firefox-account-two-step-authentication',
+      'https://support.mozilla.org/kb/secure-mozilla-account-two-step-authentication',
   }
 );
 

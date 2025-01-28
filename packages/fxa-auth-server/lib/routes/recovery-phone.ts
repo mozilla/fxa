@@ -18,7 +18,7 @@ import {
 } from '@fxa/shared/account/account';
 import * as isA from 'joi';
 import { GleanMetricsType } from '../metrics/glean';
-import { AuthLogger, AuthRequest, SessionTokenAuthCredential } from '../types';
+import { AuthRequest, SessionTokenAuthCredential } from '../types';
 import { E164_NUMBER } from './validators';
 import AppError from '../error';
 
@@ -39,8 +39,10 @@ class RecoveryPhoneHandler {
 
   constructor(
     private readonly customs: Customs,
-    private readonly log: AuthLogger,
-    private readonly glean: GleanMetricsType
+    private readonly db: any,
+    private readonly glean: GleanMetricsType,
+    private readonly log: any,
+    private readonly mailer: any
   ) {
     this.recoveryPhoneService = Container.get(RecoveryPhoneService);
     this.accountManager = Container.get(AccountManager);
@@ -165,6 +167,31 @@ class RecoveryPhoneHandler {
         // code on their phone for the first time. It does NOT impact the totp
         // token's database state.
         success = await this.recoveryPhoneService.confirmSetupCode(uid, code);
+        const { phoneNumber } = await this.recoveryPhoneService.hasConfirmed(
+          uid,
+          4
+        );
+
+        if (success) {
+          const account = await this.db.account(uid);
+          const { acceptLanguage, geo, ua } = request.app;
+
+          await this.mailer.sendPostAddRecoveryPhoneEmail(
+            account.emails,
+            account,
+            {
+              acceptLanguage,
+              maskedLastFourPhoneNumber: phoneNumber?.slice(1),
+              timeZone: geo.timeZone,
+              uaBrowser: ua.browser,
+              uaBrowserVersion: ua.browserVersion,
+              uaOS: ua.os,
+              uaOSVersion: ua.osVersion,
+              uaDeviceType: ua.deviceType,
+              uid,
+            }
+          );
+        }
       } else {
         // This is a sign in attempt. This will check the code, and if valid, mark the
         // session token verified. This session will have a security level that allows
@@ -177,6 +204,24 @@ class RecoveryPhoneHandler {
             uid,
             sessionTokenId,
             VerificationMethods.sms2fa
+          );
+
+          const account = await this.db.account(uid);
+          const { acceptLanguage, geo, ua } = request.app;
+
+          await this.mailer.sendPostSigninRecoveryPhoneEmail(
+            account.emails,
+            account,
+            {
+              acceptLanguage,
+              timeZone: geo.timeZone,
+              uaBrowser: ua.browser,
+              uaBrowserVersion: ua.browserVersion,
+              uaOS: ua.os,
+              uaOSVersion: ua.osVersion,
+              uaDeviceType: ua.deviceType,
+              uid,
+            }
           );
         }
       }
@@ -233,6 +278,24 @@ class RecoveryPhoneHandler {
     }
 
     if (success) {
+      const account = await this.db.account(uid);
+      const { acceptLanguage, geo, ua } = request.app;
+
+      await this.mailer.sendPostRemoveRecoveryPhoneEmail(
+        account.emails,
+        account,
+        {
+          acceptLanguage,
+          timeZone: geo.timeZone,
+          uaBrowser: ua.browser,
+          uaBrowserVersion: ua.browserVersion,
+          uaOS: ua.os,
+          uaOSVersion: ua.osVersion,
+          uaDeviceType: ua.deviceType,
+          uid,
+        }
+      );
+
       await this.glean.twoStepAuthPhoneRemove.success(request);
     }
 
@@ -316,13 +379,20 @@ class RecoveryPhoneHandler {
 }
 
 export const recoveryPhoneRoutes = (
-  log: AuthLogger,
   customs: Customs,
-  glean: GleanMetricsType
+  db: any,
+  glean: GleanMetricsType,
+  log: any,
+  mailer: any
 ) => {
-  const recoveryPhoneHandler = new RecoveryPhoneHandler(customs, log, glean);
+  const recoveryPhoneHandler = new RecoveryPhoneHandler(
+    customs,
+    db,
+    glean,
+    log,
+    mailer
+  );
   const routes = [
-    // TODO: See blocked tasks for FXA-10354
     {
       method: 'POST',
       path: '/recovery_phone/create',

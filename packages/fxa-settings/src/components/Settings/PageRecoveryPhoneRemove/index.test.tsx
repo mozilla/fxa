@@ -73,7 +73,7 @@ describe('PageRecoveryPhoneRemove', () => {
       screen.getByRole('link', { name: /Compare recovery methods/ })
     ).toHaveAttribute(
       'href',
-      'https://support.mozilla.org/en-US/kb/secure-firefox-account-two-step-authentication'
+      'https://support.mozilla.org/kb/secure-mozilla-account-two-step-authentication'
     );
     expect(
       screen.getByRole('button', { name: 'Remove phone number' })

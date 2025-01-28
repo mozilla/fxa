@@ -18,7 +18,7 @@ import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 const sumoTwoStepLink = (
   <LinkExternal
     className="link-blue"
-    href="https://support.mozilla.org/en-US/kb/secure-firefox-account-two-step-authentication"
+    href="https://support.mozilla.org/kb/secure-mozilla-account-two-step-authentication"
   >
     Compare recovery methods
   </LinkExternal>

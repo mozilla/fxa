@@ -173,6 +173,10 @@ const MAILER_METHOD_NAMES = [
   'sendVerifyLoginEmail',
   'sendVerifyLoginCodeEmail',
   'sendVerifySecondaryCodeEmail',
+  'sendPostAddRecoveryPhoneEmail',
+  'sendPostRemoveRecoveryPhoneEmail',
+  'sendPostSigninRecoveryPhoneEmail',
+  'sendPostSigninRecoveryCodeEmail',
 ];
 
 const METRICS_CONTEXT_METHOD_NAMES = [
