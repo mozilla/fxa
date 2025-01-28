@@ -11,15 +11,23 @@ import {
 import { BaseParams, buildRedirectUrl } from '@fxa/payments/ui';
 import { config } from 'apps/payments/next/config';
 import { getIpAddress } from '@fxa/payments/ui/server';
-import { getSP2Params } from '@fxa/payments/legacy';
+import {
+  buildSp2RedirectUrl,
+  getSP2Params,
+  redirectToSp2,
+} from '@fxa/payments/legacy';
+import crypto from 'crypto';
+import * as Sentry from '@sentry/nextjs';
 
 export const dynamic = 'force-dynamic'; // defaults to auto
 
 function reportError(message: string, details?: any) {
   if (details) {
     console.error(message, details);
+    Sentry.captureMessage(message, details);
   } else {
     console.error(message);
+    Sentry.captureMessage(message, 'error');
   }
 }
 
@@ -45,17 +53,47 @@ export async function GET(
   request: NextRequest,
   { params }: { params: BaseParams }
 ) {
-  const currency = await determineCurrencyAction(getIpAddress());
-  const { productId, priceId } = getSP2Params(
-    config.sp2map,
-    reportError,
-    params.offeringId,
-    params.interval,
-    currency
-  );
-  console.log({ productId, priceId });
+  const requestSearchParams = request.nextUrl.searchParams;
 
-  const searchParams = Object.fromEntries(request.nextUrl.searchParams);
+  if (config.sp2redirect.enabled) {
+    const queryCurrency = requestSearchParams.get('currency');
+    const querySpVersion = requestSearchParams.get('spVersion');
+    const isSp2Redirect = redirectToSp2(
+      config.sp2redirect,
+      params.offeringId,
+      crypto.randomInt(1, 100),
+      reportError
+    );
+
+    if (isSp2Redirect || querySpVersion === '2') {
+      const currency = queryCurrency
+        ? queryCurrency
+        : await determineCurrencyAction(getIpAddress());
+      const { productId, priceId } = getSP2Params(
+        config.sp2map,
+        reportError,
+        params.offeringId,
+        params.interval,
+        currency
+      );
+
+      const sp2RedirectUrl = buildSp2RedirectUrl(
+        productId,
+        priceId,
+        config.contentServerUrl,
+        requestSearchParams
+      );
+
+      if (!config.sp2redirect.shadowMode) {
+        redirect(sp2RedirectUrl);
+      } else {
+        console.log('SP2 Redirect Shadow Mode enabled', { sp2RedirectUrl });
+      }
+    }
+  }
+
+  const searchParams = Object.fromEntries(requestSearchParams);
+
   const redirectToUrl = new URL(
     buildRedirectUrl(params.offeringId, params.interval, 'new', 'checkout', {
       locale: params.locale,

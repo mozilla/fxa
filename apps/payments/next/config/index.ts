@@ -18,7 +18,7 @@ import {
   RootConfig as NestAppRootConfig,
   validate,
 } from '@fxa/payments/ui/server';
-import { SP2MapConfig } from '@fxa/payments/legacy';
+import { SP2MapConfig, SP2RedirectConfig } from '@fxa/payments/legacy';
 
 class CspConfig {
   @IsUrl()
@@ -103,6 +103,11 @@ export class PaymentsNextConfig extends NestAppRootConfig {
   @ValidateNested()
   @IsDefined()
   sp2map!: SP2MapConfig;
+
+  @Type(() => SP2RedirectConfig)
+  @ValidateNested()
+  @IsDefined()
+  sp2redirect!: SP2RedirectConfig;
 
   @IsString()
   authSecret!: string;
