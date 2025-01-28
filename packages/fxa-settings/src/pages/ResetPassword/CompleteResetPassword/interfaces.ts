@@ -44,7 +44,7 @@ export interface CompleteResetPasswordProps {
   estimatedSyncDeviceCount?: number;
   recoveryKeyExists?: boolean;
   integrationIsSync: boolean;
-  isDesktopServiceRelay?: boolean;
+  isDesktopServiceRelay: boolean;
 }
 
 export type AccountResetData = {
