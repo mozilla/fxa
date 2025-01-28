@@ -363,6 +363,7 @@ const CompleteResetPasswordContainer = ({
         recoveryKeyExists,
         estimatedSyncDeviceCount,
       }}
+      isDesktopServiceRelay={integration.isDesktopRelay()}
       integrationIsSync={integration.isSync()}
       locationState={location.state as CompleteResetPasswordLocationState}
     />
