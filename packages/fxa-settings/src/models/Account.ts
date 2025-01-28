@@ -28,6 +28,7 @@ import {
   GET_LOCAL_SIGNED_IN_STATUS,
   GET_TOTP_STATUS,
   GET_BACKUP_CODES_STATUS,
+  GET_RECOVERY_PHONE,
 } from '../components/App/gql';
 import {
   AccountAvatar,
@@ -114,6 +115,11 @@ export interface AccountData {
   linkedAccounts: LinkedAccount[];
   totp: AccountTotp;
   backupCodes: AccountBackupCodes;
+  recoveryPhone: {
+    exists: boolean;
+    phoneNumber: string | null;
+    available: boolean;
+  };
   subscriptions: Subscription[];
   securityEvents: SecurityEvent[];
 }
@@ -196,6 +202,11 @@ export const GET_ACCOUNT = gql`
       backupCodes {
         hasBackupCodes
         count
+      }
+      recoveryPhone {
+        exists
+        phoneNumber
+        available
       }
       subscriptions {
         created
@@ -404,6 +415,10 @@ export class Account implements AccountData {
     return this.data.backupCodes;
   }
 
+  get recoveryPhone() {
+    return this.data.recoveryPhone;
+  }
+
   get attachedClients() {
     return this.data.attachedClients;
   }
@@ -428,6 +443,7 @@ export class Account implements AccountData {
       | 'recovery'
       | 'securityEvents'
       | 'backupCodes'
+      | 'recoveryPhone'
   ) {
     let query = GET_ACCOUNT;
     switch (field) {
@@ -442,6 +458,9 @@ export class Account implements AccountData {
         break;
       case 'backupCodes':
         query = GET_BACKUP_CODES_STATUS;
+        break;
+      case 'recoveryPhone':
+        query = GET_RECOVERY_PHONE;
         break;
     }
     await this.withLoadingStatus(
@@ -1171,6 +1190,9 @@ export class Account implements AccountData {
     await this.withLoadingStatus(
       this.authClient.verifyTotpCode(sessionToken()!, code)
     );
+    // We must requery for this because this endpoint checks
+    // for if recovery codes exist
+    await this.refresh('recoveryPhone');
     const cache = this.apolloClient.cache;
     cache.modify({
       id: cache.identify({ __typename: 'Account' }),
@@ -1384,5 +1406,30 @@ export class Account implements AccountData {
     });
 
     return result;
+  }
+
+  async addRecoveryPhone(phoneNumber: string) {
+    await this.withLoadingStatus(
+      this.authClient.recoveryPhoneCreate(sessionToken()!, phoneNumber)
+    );
+  }
+
+  async confirmRecoveryPhone(code: string, phoneNumber: string) {
+    await this.withLoadingStatus(
+      this.authClient.recoveryPhoneConfirmSetup(sessionToken()!, code)
+    );
+    const cache = this.apolloClient.cache;
+    cache.modify({
+      id: cache.identify({ __typename: 'Account' }),
+      fields: {
+        recoveryPhone() {
+          return {
+            exists: true,
+            phoneNumber,
+            available: true,
+          };
+        },
+      },
+    });
   }
 }

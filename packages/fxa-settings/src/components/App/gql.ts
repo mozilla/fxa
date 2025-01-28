@@ -108,3 +108,15 @@ export const GET_BACKUP_CODES_STATUS = gql`
     }
   }
 `;
+
+export const GET_RECOVERY_PHONE = gql`
+  query GetRecoveryPhone {
+    account {
+      recoveryPhone {
+        available
+        exists
+        phoneNumber
+      }
+    }
+  }
+`;

@@ -8,6 +8,9 @@ import { withLocalization } from 'fxa-react/lib/storybooks';
 import { Meta } from '@storybook/react';
 import SettingsLayout from '../SettingsLayout';
 import { LocationProvider } from '@reach/router';
+import { Account, AppContext } from '../../../models';
+import { MOCK_ACCOUNT, mockAppContext } from '../../../models/mocks';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 
 export default {
   title: 'Pages/Settings/RecoveryPhoneSetup',
@@ -15,18 +18,60 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-export const Step1 = () => (
+export const WithSuccessAddAndConfirm = () => (
   <LocationProvider>
     <SettingsLayout>
-      <PageRecoveryPhoneSetup testStep={1} />
+      <AppContext.Provider
+        value={mockAppContext({
+          account: {
+            ...MOCK_ACCOUNT,
+            addRecoveryPhone: () => {},
+            confirmRecoveryPhone: () => {},
+          } as unknown as Account,
+        })}
+      >
+        <PageRecoveryPhoneSetup />
+      </AppContext.Provider>
     </SettingsLayout>
   </LocationProvider>
 );
 
-export const Step2 = () => (
+export const WithErrorOnAdd = () => (
   <LocationProvider>
     <SettingsLayout>
-      <PageRecoveryPhoneSetup testStep={2} testPhoneNumber="+1 123-456-7890" />
+      <AppContext.Provider
+        value={mockAppContext({
+          account: {
+            ...MOCK_ACCOUNT,
+            addRecoveryPhone: () => {
+              throw AuthUiErrors.BACKEND_SERVICE_FAILURE;
+            },
+            confirmRecoveryPhone: () => {},
+          } as unknown as Account,
+        })}
+      >
+        <PageRecoveryPhoneSetup />
+      </AppContext.Provider>
+    </SettingsLayout>
+  </LocationProvider>
+);
+
+export const WithErrorOnConfirm = () => (
+  <LocationProvider>
+    <SettingsLayout>
+      <AppContext.Provider
+        value={mockAppContext({
+          account: {
+            ...MOCK_ACCOUNT,
+            addRecoveryPhone: () => {},
+            confirmRecoveryPhone: () => {
+              throw AuthUiErrors.INVALID_OTP_CODE;
+            },
+          } as unknown as Account,
+        })}
+      >
+        <PageRecoveryPhoneSetup />
+      </AppContext.Provider>
     </SettingsLayout>
   </LocationProvider>
 );

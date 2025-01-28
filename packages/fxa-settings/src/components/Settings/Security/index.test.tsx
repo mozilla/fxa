@@ -48,6 +48,7 @@ describe('Security', () => {
       emails: [],
       displayName: 'Jody',
       passwordCreated: 0,
+      recoveryPhone: { exists: true },
       recoveryKey: { exists: true },
       totp: { exists: true, verified: true },
       backupCodes: { hasBackupCodes: true, count: 3 },

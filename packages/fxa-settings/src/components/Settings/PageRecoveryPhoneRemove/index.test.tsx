@@ -14,6 +14,7 @@ import {
 } from '../../../models/mocks';
 import { SettingsContext } from '../../../models/contexts/SettingsContext';
 import { useAlertBar } from '../../../models';
+import { MOCK_FULL_PHONE_NUMBER } from '../../../pages/mocks';
 
 jest.mock('../../../models', () => ({
   ...jest.requireActual('../../../models'),
@@ -31,6 +32,7 @@ jest.mock('@reach/router', () => ({
 
 const account = {
   removeRecoveryPhone: jest.fn().mockResolvedValue({}),
+  recoveryPhone: { phoneNumber: MOCK_FULL_PHONE_NUMBER },
 } as unknown as Account;
 
 describe('PageRecoveryPhoneRemove', () => {

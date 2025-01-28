@@ -212,7 +212,6 @@ class RecoveryPhoneHandler {
     try {
       success = await this.recoveryPhoneService.removePhoneNumber(uid);
     } catch (error) {
-
       if (error instanceof RecoveryPhoneNotEnabled) {
         throw AppError.featureNotEnabled();
       }
@@ -229,7 +228,7 @@ class RecoveryPhoneHandler {
         'RecoveryPhoneService',
         'destroy',
         { uid },
-        error,
+        error
       );
     }
 
@@ -274,16 +273,6 @@ class RecoveryPhoneHandler {
         available,
       };
     } catch (error) {
-      if (error instanceof RecoveryPhoneNotEnabled) {
-        // In this case we won't throw an AppError. Unlike other endpoints,
-        // this drives whether or not the feature shows up in the UI, so
-        // if the recovery phone services isn't enabled, we can simply
-        // return available false.
-        return {
-          available: false,
-        };
-      }
-
       throw AppError.backendServiceFailure(
         'RecoveryPhoneService',
         'destroy',

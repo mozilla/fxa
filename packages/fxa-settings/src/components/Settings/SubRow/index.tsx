@@ -22,7 +22,8 @@ import LinkExternal, {
 
 type SubRowProps = {
   ctaGleanId: string;
-  ctaMessage: string;
+  // temporarily this prop is optional until we enable 'Change' in phase 2, FXA-10995
+  ctaMessage?: string;
   icon: React.ReactNode;
   idPrefix: string;
   isEnabled: boolean;
@@ -73,8 +74,8 @@ const SubRow = ({
     return linkExternalProps ? (
       <LinkExternal
         href={linkExternalProps.href}
-        className="link-blue inline ms-2"
-        data-glean-id={linkExternalProps.gleanDataAttrs?.id}
+        className="link-blue block"
+        gleanDataAttrs={linkExternalProps.gleanDataAttrs}
       >
         {linkExternalProps.children}
       </LinkExternal>
@@ -118,13 +119,16 @@ const SubRow = ({
             </p>
           )}
         </div>
-        <button
-          className="cta-base-common cta-neutral cta-base-p shrink-0 mt-0 w-full @mobileLandscape/unitRow:w-auto @mobileLandscape/unitRow:text-xs @mobileLandscape/unitRow:py-1 @mobileLandscape/unitRow:px-5 @mobileLandscape/unitRow:mt-0"
-          onClick={onCtaClick}
-          data-glean-id={ctaGleanId}
-        >
-          {ctaMessage}
-        </button>
+        {/* temporary check until we enable changing in SMS phase 2, FXA-10995 */}
+        {ctaMessage && (
+          <button
+            className="cta-base-common cta-neutral cta-base-p shrink-0 mt-0 w-full @mobileLandscape/unitRow:w-auto @mobileLandscape/unitRow:text-xs @mobileLandscape/unitRow:py-1 @mobileLandscape/unitRow:px-5 @mobileLandscape/unitRow:mt-0"
+            onClick={onCtaClick}
+            data-glean-id={ctaGleanId}
+          >
+            {ctaMessage}
+          </button>
+        )}
         {onDeleteClick && localizedDeleteIconTitle && (
           <>
             <div className="@mobileLandscape/unitRow:hidden w-full shrink-0">
@@ -228,43 +232,51 @@ export const BackupPhoneSubRow = ({
     <BackupRecoverySmsDisabledIcon className="-ms-1 -my-2 scale-50" />
   );
   const message = hasPhoneNumber ? (
-    // We will likely want to only retrieve the last 4 digits of the phone number from the backend
-    // but adding a slice here just in case to ensure only the last 4 digits are displayed
-    // u2022 is a bullet point character
-    // This format works for a North American phone number, but may need to be adjusted for other formats
-    // durring next phases of SMS feature rollout
+    // If the user's session is not verified, an already masked phone number is returned.
+    // If it is verified, the full phone number is returned but here we want a client-side mask.
+    // We may want to get `national_format` back from Twilio.
     // Phone numbers should always be displayed left-to-right, *including* in rtl languages
-    // • is a bullet point character (\u2022)
-    <p dir="ltr">{`••• ••• ${phoneNumber.slice(-4)}`}</p>
+    <p dir="ltr">
+      {phoneNumber.includes('•')
+        ? phoneNumber
+        : `••••••${phoneNumber.slice(-4)}`}
+    </p>
   ) : (
     <FtlMsg id="tfa-row-backup-phone-not-available">
       <p>No recovery phone number available</p>
     </FtlMsg>
   );
   const ctaMessage = hasPhoneNumber
-    ? ftlMsgResolver.getMsg('tfa-row-backup-phone-change-cta', 'Change')
+    ? // Temporary until we enable changing in phase 2, FXA-10995
+      // ? ftlMsgResolver.getMsg('tfa-row-backup-phone-change-cta', 'Change')
+      undefined
     : ftlMsgResolver.getMsg('tfa-row-backup-phone-add-cta', 'Add');
 
   const ctaGleanId = hasPhoneNumber
     ? 'account_pref_two_step_auth_phone_change_submit'
     : 'account_pref_two_step_auth_phone_add_submit';
 
-  const localizedDeleteIconTitle = ftlMsgResolver.getMsg(
-    'tfa-row-backup-phone-delete-title-v2',
-    'Remove recovery phone'
-  );
+  // Do not display 'delete' button if user does not have a phone number
+  const localizedDeleteIconTitle = hasPhoneNumber
+    ? ftlMsgResolver.getMsg(
+        'tfa-row-backup-phone-delete-title-v2',
+        'Remove recovery phone'
+      )
+    : undefined;
 
-  const linkExternalProps = {
-    // TODO add a link to the knowledge base article once it is available
-    href: '',
-    children: ftlMsgResolver.getMsg(
-      'tfa-row-backup-phone-sim-swap-risk-link',
-      'Learn about SIM swap risk'
-    ),
-    gleanDataAttrs: {
-      id: 'account_pref_two_step_auth_phone_learn_more_link',
-    },
-  };
+  const linkExternalProps = !hasPhoneNumber
+    ? {
+        // TODO add a link to the knowledge base article once it is available
+        href: '',
+        children: ftlMsgResolver.getMsg(
+          'tfa-row-backup-phone-sim-swap-risk-link',
+          'Learn about SIM swap risk'
+        ),
+        gleanDataAttrs: {
+          id: 'account_pref_two_step_auth_phone_learn_more_link',
+        },
+      }
+    : undefined;
 
   return (
     <SubRow

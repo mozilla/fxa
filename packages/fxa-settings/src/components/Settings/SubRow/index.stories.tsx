@@ -8,6 +8,7 @@ import SubRow, { BackupCodesSubRow, BackupPhoneSubRow } from './index';
 import { action } from '@storybook/addon-actions';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { CodeIcon } from '../../Icons';
+import { MOCK_FULL_PHONE_NUMBER } from '../../../pages/mocks';
 
 export default {
   title: 'Components/Settings/SubRow',
@@ -80,14 +81,14 @@ export const BackupPhoneUnavailableWithDescription: StoryFn = () => (
 export const BackupPhoneAvailable: StoryFn = () => (
   <BackupPhoneSubRow
     onCtaClick={action('Change recovery phone')}
-    phoneNumber="555-555-1234"
+    phoneNumber={MOCK_FULL_PHONE_NUMBER}
   />
 );
 
 export const BackupPhoneAvailableWithDescription: StoryFn = () => (
   <BackupPhoneSubRow
     onCtaClick={action('Change recovery phone')}
-    phoneNumber="555-555-1234"
+    phoneNumber={MOCK_FULL_PHONE_NUMBER}
     showDescription
   />
 );
@@ -96,7 +97,7 @@ export const BackupPhoneAvailableWithDelete: StoryFn = () => (
   <BackupPhoneSubRow
     onCtaClick={action('Change recovery phone')}
     onDeleteClick={action('Delete recovery phone')}
-    phoneNumber="555-555-1234"
+    phoneNumber={MOCK_FULL_PHONE_NUMBER}
   />
 );
 
@@ -104,7 +105,7 @@ export const BackupPhoneAvailableWithDeleteAndDescription: StoryFn = () => (
   <BackupPhoneSubRow
     onCtaClick={action('Change recovery phone')}
     onDeleteClick={action('Delete recovery phone')}
-    phoneNumber="555-555-1234"
+    phoneNumber={MOCK_FULL_PHONE_NUMBER}
     showDescription
   />
 );
@@ -112,6 +113,6 @@ export const BackupPhoneAvailableWithDeleteAndDescription: StoryFn = () => (
 export const BackupPhoneAvailableNoDelete: StoryFn = () => (
   <BackupPhoneSubRow
     onCtaClick={action('Change recovery phone')}
-    phoneNumber="555-555-1234"
+    phoneNumber={MOCK_FULL_PHONE_NUMBER}
   />
 );
