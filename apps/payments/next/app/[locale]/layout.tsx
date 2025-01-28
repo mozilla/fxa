@@ -4,8 +4,9 @@
 import { getApp } from '@fxa/payments/ui/server';
 import { headers } from 'next/headers';
 import { DEFAULT_LOCALE } from '@fxa/shared/l10n';
-import { Providers } from '@fxa/payments/ui';
+import { Header, Providers } from '@fxa/payments/ui';
 import { config } from 'apps/payments/next/config';
+import { auth, signOut } from '../../auth';
 
 export default async function RootProviderLayout({
   children,
@@ -22,6 +23,8 @@ export default async function RootProviderLayout({
   const nonce = headers().get('x-nonce') || undefined;
   const fetchedMessages = getApp().getFetchedMessages(locale);
 
+  const session = await auth();
+
   return (
     <Providers
       config={{
@@ -34,6 +37,15 @@ export default async function RootProviderLayout({
       fetchedMessages={fetchedMessages}
       nonce={nonce}
     >
+      <Header
+        auth={{
+          user: session?.user,
+          signOut: async () => {
+            'use server';
+            await signOut({ redirect: false });
+          },
+        }}
+      />
       {children}
     </Providers>
   );

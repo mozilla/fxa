@@ -11,52 +11,54 @@ export default function Index() {
   // and instead redirects to the Subscription Management page.
   // This page will be fixed before launch by FXA-8304
   return (
-    <div>
-      <h1 className="text-xxl text-center m-4">Welcome</h1>
-      <div className="flex-col">
-        <h2 className="text-xl">With auth</h2>
-        <div className="flex gap-8">
-          <div className="flex flex-col gap-2 p-4 items-center">
-            <h2>VPN - Monthly</h2>
-            <Link
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-              href="/en/vpn/monthly/landing"
-            >
-              Redirect
-            </Link>
+    <>
+      <main className="mt-16 min-h-[calc(100vh_-_4rem)]">
+        <h1 className="text-xxl text-center m-4">Welcome</h1>
+        <div className="flex-col">
+          <h2 className="text-xl">With auth</h2>
+          <div className="flex gap-8">
+            <div className="flex flex-col gap-2 p-4 items-center">
+              <h2>VPN - Monthly</h2>
+              <Link
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                href="/en/vpn/monthly/landing"
+              >
+                Redirect
+              </Link>
+            </div>
+            <div className="flex flex-col gap-2 p-4 items-center">
+              <h2>VPN - Yearly</h2>
+              <Link
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                href="/en/123donepro/yearly/landing"
+              >
+                Redirect
+              </Link>
+            </div>
           </div>
-          <div className="flex flex-col gap-2 p-4 items-center">
-            <h2>VPN - Yearly</h2>
-            <Link
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-              href="/en/123donepro/yearly/landing"
-            >
-              Redirect
-            </Link>
+          <h2 className="text-xl mt-8">Without auth</h2>
+          <div className="flex gap-8">
+            <div className="flex flex-col gap-2 p-4 items-center">
+              <h2>123Done Pro - Monthly</h2>
+              <Link
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                href="/en/123donepro/monthly/new"
+              >
+                Redirect
+              </Link>
+            </div>
+            <div className="flex flex-col gap-2 p-4 items-center">
+              <h2>VPN - Yearly</h2>
+              <Link
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                href="/en/123donepro/yearly/new"
+              >
+                Redirect
+              </Link>
+            </div>
           </div>
         </div>
-        <h2 className="text-xl mt-8">Without auth</h2>
-        <div className="flex gap-8">
-          <div className="flex flex-col gap-2 p-4 items-center">
-            <h2>123Done Pro - Monthly</h2>
-            <Link
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-              href="/en/123donepro/monthly/new"
-            >
-              Redirect
-            </Link>
-          </div>
-          <div className="flex flex-col gap-2 p-4 items-center">
-            <h2>VPN - Yearly</h2>
-            <Link
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-              href="/en/123donepro/yearly/new"
-            >
-              Redirect
-            </Link>
-          </div>
-        </div>
-      </div>
-    </div>
+      </main>
+    </>
   );
 }
