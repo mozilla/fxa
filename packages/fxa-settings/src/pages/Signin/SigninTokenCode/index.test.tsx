@@ -218,7 +218,7 @@ describe('SigninTokenCode page', () => {
       session = {
         verifySession: jest
           .fn()
-          .mockRejectedValue(AuthUiErrors.INVALID_EXPIRED_SIGNUP_CODE),
+          .mockRejectedValue(AuthUiErrors.INVALID_EXPIRED_OTP_CODE),
       } as unknown as Session;
       render();
       submitCode();

@@ -2,7 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps, Router, useLocation } from '@reach/router';
+import {
+  Redirect,
+  RouteComponentProps,
+  Router,
+  useLocation,
+} from '@reach/router';
 import {
   lazy,
   Suspense,
@@ -80,6 +85,8 @@ import WebChannelExample from '../../pages/WebChannelExample';
 import SignoutSync from '../Settings/SignoutSync';
 import InlineRecoveryKeySetupContainer from '../../pages/InlineRecoveryKeySetup/container';
 import SetPasswordContainer from '../../pages/PostVerify/SetPassword/container';
+import SigninRecoveryChoiceContainer from '../../pages/Signin/SigninRecoveryChoice/container';
+import SigninRecoveryPhoneContainer from '../../pages/Signin/SigninRecoveryPhone/container';
 
 const Settings = lazy(() => import('../Settings'));
 
@@ -290,6 +297,7 @@ const AuthAndAccountSetupRoutes = ({
   integration: Integration;
   flowQueryParams: QueryParams;
 } & RouteComponentProps) => {
+  const config = useConfig();
   const localAccount = currentAccount();
   // TODO: MozServices / string discrepancy, FXA-6802
   const serviceName = integration.getServiceName() as MozServices;
@@ -378,9 +386,31 @@ const AuthAndAccountSetupRoutes = ({
         path="/signin_confirmed/*"
         {...{ isSignedIn, serviceName }}
       />
+      {config.featureFlags?.enableUsing2FABackupPhone ? (
+        <>
+          <SigninRecoveryChoiceContainer path="/signin_recovery_choice/*" />
+          <SigninRecoveryPhoneContainer
+            path="/signin_recovery_phone/*"
+            {...{ integration }}
+          />
+        </>
+      ) : (
+        <>
+          <Redirect
+            from="/signin_recovery_choice/*"
+            to="/signin_recovery_code/*"
+            noThrow
+          />
+          <Redirect
+            from="/signin_recovery_phone/*"
+            to="/signin_recovery_code/*"
+            noThrow
+          />
+        </>
+      )}
       <SigninRecoveryCodeContainer
         path="/signin_recovery_code/*"
-        {...{ integration, serviceName }}
+        {...{ integration }}
       />
       <SigninReported path="/signin_reported/*" />
       <SigninTokenCodeContainer

@@ -47,17 +47,16 @@ export const Settings = ({
   integration,
 }: { integration: SettingsIntegration } & RouteComponentProps) => {
   const config = useConfig();
-  const { metricsEnabled, hasPassword } = useAccount();
   const session = useSession();
   const account = useAccount();
   const location = useLocation();
 
   useEffect(() => {
-    if (config.metrics.navTiming.enabled && metricsEnabled) {
+    if (config.metrics.navTiming.enabled && account.metricsEnabled) {
       observeNavigationTiming(config.metrics.navTiming.endpoint);
     }
   }, [
-    metricsEnabled,
+    account.metricsEnabled,
     config.metrics.navTiming.enabled,
     config.metrics.navTiming.endpoint,
   ]);
@@ -145,6 +144,14 @@ export const Settings = ({
     return <AppErrorDialog data-testid="error-dialog" {...{ error }} />;
   }
 
+  const canAddRecoveryPhone =
+    account.recoveryPhone.available &&
+    config.featureFlags?.enableAdding2FABackupPhone === true;
+
+  const canRemoveRecoveryPhone =
+    account.recoveryPhone.phoneNumber &&
+    account.backupCodes.hasBackupCodes === true;
+
   return (
     <SettingsLayout>
       <Head />
@@ -153,12 +160,12 @@ export const Settings = ({
           <PageSettings path="/" />
           <PageDisplayName path="/display_name" />
           <PageAvatar path="/avatar" />
-          {hasPassword ? (
+          {account.hasPassword ? (
             <PageRecoveryKeyCreate path="/account_recovery" />
           ) : (
             <Redirect from="/account_recovery" to="/settings" noThrow />
           )}
-          {hasPassword ? (
+          {account.hasPassword ? (
             <>
               <PageChangePassword path="/change_password" />
               <Redirect
@@ -168,10 +175,6 @@ export const Settings = ({
               />
               <PageTwoStepAuthentication path="/two_step_authentication" />
               <Page2faReplaceRecoveryCodes path="/two_step_authentication/replace_codes" />
-              {config.featureFlags?.enableAdding2FABackupPhone === true &&
-                account.recoveryPhone.available === true && (
-                  <PageRecoveryPhoneSetup path="/recovery_phone/setup" />
-                )}
             </>
           ) : (
             <>
@@ -202,8 +205,16 @@ export const Settings = ({
           {/* NOTE: `/settings/avatar/change` is used to link directly to the avatar page within Sync preferences settings on Firefox browsers */}
           <Redirect from="/avatar/change" to="/settings/avatar/" noThrow />
 
-          {config.featureFlags?.enableUsing2FABackupPhone === true && (
+          {canAddRecoveryPhone ? (
+            <PageRecoveryPhoneSetup path="/recovery_phone/setup" />
+          ) : (
+            <Redirect from="/recovery_phone/setup" to="/settings" noThrow />
+          )}
+
+          {canRemoveRecoveryPhone ? (
             <PageRecoveryPhoneRemove path="/recovery_phone/remove" />
+          ) : (
+            <Redirect from="/recovery_phone/remove" to="/settings" noThrow />
           )}
         </ScrollToTop>
       </Router>

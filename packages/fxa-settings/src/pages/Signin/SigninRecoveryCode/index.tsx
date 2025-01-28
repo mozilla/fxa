@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { Link, RouteComponentProps, useLocation } from '@reach/router';
+import { RouteComponentProps, useLocation } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { isWebIntegration, useFtlMsgResolver } from '../../../models';
 import { BackupCodesImage } from '../../../components/images';
@@ -23,16 +23,19 @@ import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
 import { isBase32Crockford } from '../../../lib/utilities';
 import Banner from '../../../components/Banner';
 import { HeadingPrimary } from '../../../components/HeadingPrimary';
+import ButtonBack from '../../../components/ButtonBack';
+import classNames from 'classnames';
 
 export const viewName = 'signin-recovery-code';
 
 const SigninRecoveryCode = ({
   finishOAuthFlowHandler,
   integration,
-  serviceName,
+  keyFetchToken,
+  lastFourPhoneDigits,
+  navigateToRecoveryPhone,
   signinState,
   submitRecoveryCode,
-  keyFetchToken,
   unwrapBKey,
 }: SigninRecoveryCodeProps & RouteComponentProps) => {
   useEffect(() => {
@@ -41,6 +44,8 @@ const SigninRecoveryCode = ({
 
   const [codeErrorMessage, setCodeErrorMessage] = useState<string>('');
   const [bannerErrorMessage, setBannerErrorMessage] = useState<string>('');
+  const [bannerErrorDescription, setBannerErrorDescription] =
+    useState<string>('');
   const ftlMsgResolver = useFtlMsgResolver();
   const localizedCustomCodeRequiredMessage = ftlMsgResolver.getMsg(
     'signin-recovery-code-required-error',
@@ -67,6 +72,12 @@ const SigninRecoveryCode = ({
 
   const { email, sessionToken, uid, verificationMethod, verificationReason } =
     signinState;
+
+  const clearBanners = () => {
+    setBannerErrorMessage('');
+    setBannerErrorDescription('');
+    setCodeErrorMessage('');
+  };
 
   const onSuccessNavigate = useCallback(async () => {
     const navigationOptions = {
@@ -113,8 +124,7 @@ const SigninRecoveryCode = ({
   );
 
   const onSubmit = async (code: string) => {
-    setCodeErrorMessage('');
-    setBannerErrorMessage('');
+    clearBanners();
     GleanMetrics.loginBackupCode.submit();
 
     if (code.length !== 10 || !isBase32Crockford(code)) {
@@ -148,16 +158,52 @@ const SigninRecoveryCode = ({
     }
   };
 
+  const handleNavigateToRecoveryPhone = async () => {
+    clearBanners();
+    const handledError = await navigateToRecoveryPhone();
+    if (!handledError) {
+      return;
+    }
+    if (
+      handledError.errno === AuthUiErrors.BACKEND_SERVICE_FAILURE.errno ||
+      handledError.errno === AuthUiErrors.SMS_SEND_RATE_LIMIT_EXCEEDED.errno ||
+      handledError.errno === AuthUiErrors.UNEXPECTED_ERROR.errno
+    ) {
+      setBannerErrorMessage(
+        ftlMsgResolver.getMsg(
+          'signin-recovery-code-use-phone-failure',
+          'There was a problem sending a code to your recovery phone'
+        )
+      );
+      setBannerErrorDescription(
+        ftlMsgResolver.getMsg(
+          'signin-recovery-code-use-phone-failure-description',
+          'Please try again later.'
+        )
+      );
+      return;
+    }
+    setBannerErrorMessage(
+      getLocalizedErrorMessage(ftlMsgResolver, handledError)
+    );
+  };
+
   return (
     <AppLayout>
-      <FtlMsg id="signin-recovery-code-heading">
-        <HeadingPrimary>Sign in</HeadingPrimary>
-      </FtlMsg>
+      <div className="relative flex items-center mb-5">
+        <ButtonBack />
+        <FtlMsg id="signin-recovery-code-heading">
+          <HeadingPrimary marginClass="">Sign in</HeadingPrimary>
+        </FtlMsg>
+      </div>
 
       {bannerErrorMessage && (
         <Banner
           type="error"
-          content={{ localizedHeading: bannerErrorMessage }}
+          content={{
+            localizedHeading: bannerErrorMessage,
+            localizedDescription: bannerErrorDescription,
+          }}
         />
       )}
       <BackupCodesImage />
@@ -166,10 +212,10 @@ const SigninRecoveryCode = ({
         <h2 className="card-header">Enter backup authentication code</h2>
       </FtlMsg>
 
-      <FtlMsg id="signin-recovery-code-instruction-v2">
+      <FtlMsg id="signin-recovery-code-instruction-v3">
         <p className="mt-2 text-sm">
-          Enter one of the one-time use backup authentication codes you saved
-          during two-step authentication setup.
+          Enter one of the one-time-use codes you saved when you set up two-step
+          authentication.
         </p>
       </FtlMsg>
 
@@ -191,19 +237,31 @@ const SigninRecoveryCode = ({
           codeErrorMessage,
           setCodeErrorMessage,
         }}
+        gleanDataAttrs={{ id: 'login_backup_codes_submit' }}
       />
 
-      <div className="mt-10 link-blue text-sm flex justify-between">
-        <FtlMsg id="signin-recovery-code-back-link">
-          <Link
-            to={`/signin_totp_code${location.search || ''}`}
-            state={signinState}
-          >
-            Back
-          </Link>
-        </FtlMsg>
+      <div
+        className={classNames(
+          'mt-10 link-blue text-sm flex',
+          lastFourPhoneDigits ? 'justify-between' : 'justify-center'
+        )}
+      >
+        {lastFourPhoneDigits && (
+          <FtlMsg id="signin-recovery-code-phone-link">
+            <button
+              className="link-blue"
+              data-glean-id="login_backup_codes_phone_instead"
+              onClick={handleNavigateToRecoveryPhone}
+            >
+              Use recovery phone
+            </button>
+          </FtlMsg>
+        )}
         <FtlMsg id="signin-recovery-code-support-link">
-          <LinkExternal href="https://support.mozilla.org/kb/what-if-im-locked-out-two-step-authentication">
+          <LinkExternal
+            href="https://support.mozilla.org/kb/what-if-im-locked-out-two-step-authentication"
+            gleanDataAttrs={{ id: 'login_backup_codes_locked_out_link' }}
+          >
             Are you locked out?
           </LinkExternal>
         </FtlMsg>

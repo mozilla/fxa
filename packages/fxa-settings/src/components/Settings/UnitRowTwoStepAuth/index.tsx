@@ -163,9 +163,13 @@ export const UnitRowTwoStepAuth = () => {
             onCtaClick={() => {
               navigate(`${SETTINGS_PATH}/recovery_phone/setup`);
             }}
-            onDeleteClick={() => {
-              navigate(`${SETTINGS_PATH}/recovery_phone/remove`);
-            }}
+            // only include the delete option if the user has recovery codes available
+            {...(count &&
+              count > 0 && {
+                onDeleteClick: () => {
+                  navigate(`${SETTINGS_PATH}/recovery_phone/remove`);
+                },
+              })}
             phoneNumber={recoveryPhone.phoneNumber || ''}
             key={2}
           />

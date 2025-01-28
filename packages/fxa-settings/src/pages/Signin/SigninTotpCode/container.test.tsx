@@ -38,7 +38,6 @@ import {
   mockLoadingSpinnerModule,
 } from '../../mocks';
 import { tryFinalizeUpgrade } from '../../../lib/gql-key-stretch-upgrade';
-import { SensitiveData } from '../../../lib/sensitive-data-client';
 
 let integration: Integration;
 

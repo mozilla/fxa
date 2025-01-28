@@ -45,11 +45,11 @@ export const ModalVerifySession = ({
       try {
         await session.verifySession(code);
       } catch (e) {
-        if (e.errno === AuthUiErrors.INVALID_EXPIRED_SIGNUP_CODE.errno) {
+        if (e.errno === AuthUiErrors.INVALID_EXPIRED_OTP_CODE.errno) {
           const errorText = l10n.getString(
             getErrorFtlId(e),
             null,
-            AuthUiErrors.INVALID_EXPIRED_SIGNUP_CODE.message
+            AuthUiErrors.INVALID_EXPIRED_OTP_CODE.message
           );
           setErrorText(errorText);
         } else {

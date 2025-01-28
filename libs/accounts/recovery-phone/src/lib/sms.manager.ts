@@ -8,7 +8,7 @@ import { Inject, Injectable, LoggerService } from '@nestjs/common';
 import { StatsD } from 'hot-shots';
 import { Twilio } from 'twilio';
 import { MessageInstance } from 'twilio/lib/rest/api/v2010/account/message';
-import { SmsManagerConfig } from './sms.manger.config';
+import { SmsManagerConfig } from './sms.manager.config';
 import { TwilioProvider } from './twilio.provider';
 import {
   RecoveryNumberInvalidFormatError,
@@ -70,6 +70,7 @@ export class SmsManager {
     retryCount: number
   ): Promise<MessageInstance> {
     const from = this.rotateFromNumber();
+
     try {
       const msg = await this.client.messages.create({
         to,

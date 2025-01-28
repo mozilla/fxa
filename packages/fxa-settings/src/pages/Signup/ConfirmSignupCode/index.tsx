@@ -237,13 +237,13 @@ const ConfirmSignupCode = ({
       }
     } catch (error) {
       let localizedErrorMessage: string;
-      // Intercept invalid parameter error and set the error message to INVALID_EXPIRED_SIGNUP_CODE
+      // Intercept invalid parameter error and set the error message to INVALID_EXPIRED_OTP_CODE
       // This error occurs when the submitted code does not pass validation for the code param
       // e.g., if the submitted code contains spaces or characters other than numbers
       if (error.errno === 107) {
         localizedErrorMessage = ftlMsgResolver.getMsg(
-          getErrorFtlId(AuthUiErrors.INVALID_EXPIRED_SIGNUP_CODE),
-          AuthUiErrors.INVALID_EXPIRED_SIGNUP_CODE.message
+          getErrorFtlId(AuthUiErrors.INVALID_EXPIRED_OTP_CODE),
+          AuthUiErrors.INVALID_EXPIRED_OTP_CODE.message
         );
       } else {
         localizedErrorMessage = getLocalizedErrorMessage(ftlMsgResolver, error);
@@ -251,7 +251,7 @@ const ConfirmSignupCode = ({
 
       // In any case where the submitted code is invalid/expired, show the error message in a tooltip
       if (
-        error.errno === AuthUiErrors.INVALID_EXPIRED_SIGNUP_CODE.errno ||
+        error.errno === AuthUiErrors.INVALID_EXPIRED_OTP_CODE.errno ||
         error.errno === AuthUiErrors.OTP_CODE_REQUIRED.errno ||
         error.errno === AuthUiErrors.INVALID_OTP_CODE.errno ||
         error.errno === 107

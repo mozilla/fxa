@@ -229,7 +229,7 @@ describe('views/confirm_signup_code', () => {
     });
 
     describe('invalid or expired code error', () => {
-      const error = AuthErrors.toError('INVALID_EXPIRED_SIGNUP_CODE');
+      const error = AuthErrors.toError('INVALID_EXPIRED_OTP_CODE');
 
       beforeEach(() => {
         sinon

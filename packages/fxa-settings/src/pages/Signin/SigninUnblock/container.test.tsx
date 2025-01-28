@@ -45,7 +45,6 @@ import {
 } from './mocks';
 import { BeginSigninResult, SigninUnblockIntegration } from '../interfaces';
 import { tryFinalizeUpgrade } from '../../../lib/gql-key-stretch-upgrade';
-import { SensitiveData } from '../../../lib/sensitive-data-client';
 
 let integration: SigninUnblockIntegration;
 function mockWebIntegration() {

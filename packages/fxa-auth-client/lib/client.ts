@@ -2338,7 +2338,7 @@ export default class AuthClient {
    * @param code The otp code sent to the user's phone
    * @param headers
    */
-  async recoveryPhoneSignInConfirm(
+  async recoveryPhoneSigninConfirm(
     sessionToken: string,
     code: string,
     headers?: Headers
