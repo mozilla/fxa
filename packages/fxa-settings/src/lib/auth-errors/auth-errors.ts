@@ -116,16 +116,8 @@ const ERRORS = {
     errno: 130,
     message: 'Cannot send to this country',
   },
-  // We don't currently support sms but still keep the error codes to avoid conflicts
-  SMS_ID_INVALID: {
-    errno: 131,
-    // This message should not be user-facing or localized
-    message: 'SMS ID invalid',
-  },
-  SMS_REJECTED: {
-    errno: 132,
-    message: 'Could not send a message to this number',
-  },
+  // Important! errno: 131 has been deprecated. This is no longer a valid errno and should not be reused.
+  // Important! errno: 132 has been deprecated. This is no longer a valid errno and should not be reused.
   EMAIL_SENT_COMPLAINT: {
     errno: 133,
     message: 'Your email was just returned',
@@ -317,7 +309,7 @@ const ERRORS = {
   },
   SMS_SEND_RATE_LIMIT_EXCEEDED: {
     errno: 216,
-    message: 'Client has sent too many requests',
+    message: 'Text message limit reached',
   },
   RECOVERY_PHONE_REMOVE_MISSING_RECOVERY_CODES: {
     errno: 218,

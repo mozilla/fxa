@@ -609,7 +609,7 @@ AppError.smsSendRateLimitExceeded = () => {
     code: 429,
     error: 'Too many requests',
     errno: ERRNO.SMS_SEND_RATE_LIMIT_EXCEEDED,
-    message: 'Client has sent too many requests',
+    message: 'Text message limit reached',
   });
 };
 
@@ -1477,7 +1477,7 @@ AppError.backendServiceFailure = (service, operation, extra, error) => {
         code: 500,
         error: 'Internal Server Error',
         errno: ERRNO.BACKEND_SERVICE_FAILURE,
-        message: 'A backend service request failed.',
+        message: 'System unavailable, try again soon',
       },
       {
         service,
@@ -1493,7 +1493,7 @@ AppError.backendServiceFailure = (service, operation, extra, error) => {
       code: 500,
       error: 'Internal Server Error',
       errno: ERRNO.BACKEND_SERVICE_FAILURE,
-      message: 'A backend service request failed.',
+      message: 'System unavailable, try again soon',
     },
     {
       service,
