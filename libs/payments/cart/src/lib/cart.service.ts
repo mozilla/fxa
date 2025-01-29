@@ -32,15 +32,14 @@ import { GeoDBManager } from '@fxa/shared/geodb';
 
 import { CartManager } from './cart.manager';
 import type {
+  CartDTO,
   CheckoutCustomerData,
   GetNeedsInputResponse,
   NoInputNeededResponse,
   PaymentInfo,
   ResultCart,
   StripeHandleNextActionResponse,
-  SuccessCart,
   UpdateCart,
-  WithContextCart,
 } from './cart.types';
 import { NeedsInputType } from './cart.types';
 import { handleEligibilityStatusMap } from './cart.utils';
@@ -53,7 +52,6 @@ import {
   CartNotUpdatedError,
   CartStateProcessingError,
   CartSubscriptionNotFoundError,
-  CartSuccessMissingRequired,
 } from './cart.error';
 import { AccountManager } from '@fxa/shared/account/account';
 import assert from 'assert';
@@ -428,7 +426,7 @@ export class CartService {
    * Fetch a cart from the database by ID
    */
   @SanitizeExceptions()
-  async getCart(cartId: string): Promise<WithContextCart> {
+  async getCart(cartId: string): Promise<CartDTO> {
     const cart = await this.cartManager.fetchCartById(cartId);
 
     const [price, metricsOptedOut] = await Promise.all([
@@ -498,38 +496,30 @@ export class CartService {
       );
     }
 
-    return {
-      ...cart,
-      upcomingInvoicePreview,
-      metricsOptedOut,
-      latestInvoicePreview,
-      paymentInfo,
-    };
-  }
-
-  /**
-   * Fetch a success cart from the database by UID
-   */
-  @SanitizeExceptions({ allowlist: [CartInvalidStateForActionError] })
-  async getSuccessCart(cartId: string): Promise<SuccessCart> {
-    const cart = await this.getCart(cartId);
-
-    if (cart.state !== CartState.SUCCESS) {
-      throw new CartInvalidStateForActionError(
-        cartId,
-        cart.state,
-        'getSuccessCart'
+    if (cart.state === CartState.SUCCESS) {
+      assert(
+        latestInvoicePreview,
+        'latestInvoicePreview not present for success cart'
       );
-    }
+      assert(paymentInfo, 'paymentInfo not present for success cart');
 
-    if (!cart.latestInvoicePreview || !cart.paymentInfo?.type) {
-      throw new CartSuccessMissingRequired(cartId);
+      return {
+        ...cart,
+        state: CartState.SUCCESS,
+        upcomingInvoicePreview,
+        metricsOptedOut,
+        latestInvoicePreview,
+        paymentInfo,
+      };
     }
 
     return {
       ...cart,
-      latestInvoicePreview: cart.latestInvoicePreview,
-      paymentInfo: cart.paymentInfo,
+      state: cart.state,
+      upcomingInvoicePreview,
+      latestInvoicePreview,
+      metricsOptedOut,
+      paymentInfo,
     };
   }
 

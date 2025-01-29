@@ -59,17 +59,41 @@ export type ResultCart = Readonly<Omit<Cart, 'id' | 'uid'>> & {
   readonly uid?: string;
 };
 
-export type WithContextCart = ResultCart & {
+export type BaseCartDTO = Omit<ResultCart, 'state'> & {
   metricsOptedOut: boolean;
   upcomingInvoicePreview: Invoice;
   latestInvoicePreview?: Invoice;
   paymentInfo?: PaymentInfo;
 };
 
-export type SuccessCart = WithContextCart & {
+export type StartCartDTO = BaseCartDTO & {
+  state: CartState.START;
+};
+
+export type ProcessingCartDTO = BaseCartDTO & {
+  state: CartState.PROCESSING;
+};
+
+export type SuccessCartDTO = BaseCartDTO & {
+  state: CartState.SUCCESS;
   latestInvoicePreview: Invoice;
   paymentInfo: PaymentInfo;
 };
+
+export type NeedsInputCartDTO = BaseCartDTO & {
+  state: CartState.NEEDS_INPUT;
+};
+
+export type FailCartDTO = BaseCartDTO & {
+  state: CartState.FAIL;
+};
+
+export type CartDTO =
+  | SuccessCartDTO
+  | ProcessingCartDTO
+  | StartCartDTO
+  | NeedsInputCartDTO
+  | FailCartDTO;
 
 export type SetupCart = {
   uid?: string;
