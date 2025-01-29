@@ -260,7 +260,7 @@ describe('AppErrors', () => {
 
       assert.ok(result instanceof AppError, 'instanceof AppError');
       assert.equal(result.errno, 203);
-      assert.equal(result.message, 'A backend service request failed.');
+      assert.equal(result.message, 'System unavailable, try again soon');
       assert.equal(result.output.statusCode, 500);
       assert.equal(result.output.payload.error, 'Internal Server Error');
       assert.equal(
@@ -269,7 +269,7 @@ describe('AppErrors', () => {
       );
       assert.equal(
         result.output.payload.message,
-        'A backend service request failed.'
+        'System unavailable, try again soon'
       );
     });
   });

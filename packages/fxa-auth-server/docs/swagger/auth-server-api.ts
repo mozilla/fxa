@@ -153,7 +153,7 @@ export const AUTH_SERVER_API_DESCRIPTION = {
     | 400         | 199   | Invalid promotion code                                                        |
     | 503         | 201   | Service unavailable                                                           |
     | 503         | 202   | Feature not enabled                                                           |
-    | 500         | 203   | A backend service request failed.                                             |
+    | 500         | 203   | System unavailable, try again soon                                            |
     | 503         | 204   | This client has been temporarily disabled                                     |
     | 500         | 205   | Could not login with third party account, please try again later              |
     | 400         | 206   | Can not create password, password already set.                                |

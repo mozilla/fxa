@@ -4156,7 +4156,7 @@ describe('#integration - StripeHelper', () => {
         thrown = err;
       }
       assert.isObject(thrown);
-      assert.equal(thrown.message, 'A backend service request failed.');
+      assert.equal(thrown.message, 'System unavailable, try again soon');
       assert.equal(
         thrown.cause().message,
         'Stripe Customer: cus_new has mismatched uid in metadata.'

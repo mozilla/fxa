@@ -13,6 +13,7 @@ import {
   RecoveryNumberNotSupportedError,
   SmsSendRateLimitExceededError,
   RecoveryPhoneService,
+  RecoveryNumberRemoveMissingBackupCodes,
 } from '@fxa/accounts/recovery-phone';
 
 const { getRoute } = require('../../routes_helpers');
@@ -123,7 +124,7 @@ describe('/recovery_phone', () => {
         credentials: { uid, email },
       });
 
-      await assert.isRejected(promise, 'A backend service request failed.');
+      await assert.isRejected(promise, 'System unavailable, try again soon');
       assert.equal(mockRecoveryPhoneService.sendCode.callCount, 1);
       assert.equal(mockRecoveryPhoneService.sendCode.getCall(0).args[0], uid);
 
@@ -218,9 +219,28 @@ describe('/recovery_phone', () => {
         payload: { phoneNumber: '+495550005555' },
       });
 
-      await assert.isRejected(promise, 'Client has sent too many requests');
+      await assert.isRejected(promise, 'Text message limit reached');
       assert.equal(mockGlean.twoStepAuthPhoneCode.sent.callCount, 0);
       assert.equal(mockGlean.twoStepAuthPhoneCode.sendError.callCount, 1);
+    });
+
+    it('indicates that recovery phone cannot be removed due to missing backup authentication codes', async () => {
+      mockRecoveryPhoneService.removePhoneNumber = sinon.fake.returns(
+        Promise.reject(new RecoveryNumberRemoveMissingBackupCodes(uid))
+      );
+
+      const promise = makeRequest({
+        method: 'DELETE',
+        path: '/recovery_phone',
+        credentials: { uid, email },
+        payload: { phoneNumber: '+495550005555' },
+      });
+
+      await assert.isRejected(
+        promise,
+        'Unable to remove recovery phone, missing backup authentication codes.'
+      );
+      assert.equal(mockGlean.twoStepAuthPhoneRemove.success.callCount, 0);
     });
 
     it('handles unexpected backend error', async () => {
@@ -235,7 +255,7 @@ describe('/recovery_phone', () => {
         payload: { phoneNumber },
       });
 
-      await assert.isRejected(promise, 'A backend service request failed.');
+      await assert.isRejected(promise, 'System unavailable, try again soon');
       assert.equal(mockGlean.twoStepAuthPhoneCode.sent.callCount, 0);
       assert.equal(mockGlean.twoStepAuthPhoneCode.sendError.callCount, 1);
     });
@@ -311,7 +331,7 @@ describe('/recovery_phone', () => {
         payload: { code },
       });
 
-      await assert.isRejected(promise, 'A backend service request failed.');
+      await assert.isRejected(promise, 'System unavailable, try again soon');
       assert.equal(mockGlean.twoStepAuthPhoneCode.complete.callCount, 0);
     });
   });
@@ -372,7 +392,7 @@ describe('/recovery_phone', () => {
         credentials: { uid, email },
       });
 
-      await assert.isRejected(promise, 'A backend service request failed.');
+      await assert.isRejected(promise, 'System unavailable, try again soon');
       assert.equal(mockGlean.twoStepAuthPhoneRemove.success.callCount, 0);
     });
 
@@ -442,7 +462,7 @@ describe('/recovery_phone', () => {
         credentials: { uid, emailVerified: true },
       });
 
-      await assert.isRejected(promise, 'A backend service request failed.');
+      await assert.isRejected(promise, 'System unavailable, try again soon');
       assert.equal(mockGlean.twoStepAuthPhoneRemove.success.callCount, 0);
     });
 
