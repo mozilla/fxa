@@ -36,12 +36,12 @@ import PageAvatar from './PageAvatar';
 import PageRecentActivity from './PageRecentActivity';
 import PageRecoveryKeyCreate from './PageRecoveryKeyCreate';
 import { hardNavigate } from 'fxa-react/lib/utils';
-import { SettingsIntegration } from './interfaces';
 import { currentAccount } from '../../lib/cache';
 import { hasAccount, setCurrentAccount } from '../../lib/storage-utils';
 import GleanMetrics from '../../lib/glean';
 import Head from 'fxa-react/components/Head';
 import PageRecoveryPhoneRemove from './PageRecoveryPhoneRemove';
+import { SettingsIntegration } from './interfaces';
 
 export const Settings = ({
   integration,
@@ -157,7 +157,7 @@ export const Settings = ({
       <Head />
       <Router basepath={SETTINGS_PATH}>
         <ScrollToTop default>
-          <PageSettings path="/" />
+          <PageSettings path="/" {...{ integration }} />
           <PageDisplayName path="/display_name" />
           <PageAvatar path="/avatar" />
           {account.hasPassword ? (

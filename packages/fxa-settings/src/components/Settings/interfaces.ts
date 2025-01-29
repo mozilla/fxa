@@ -4,4 +4,4 @@
 
 import { Integration } from '../../models';
 
-export type SettingsIntegration = Pick<Integration, 'type' | 'isSync'>;
+export type SettingsIntegration = Pick<Integration, 'type' | 'data'>;
