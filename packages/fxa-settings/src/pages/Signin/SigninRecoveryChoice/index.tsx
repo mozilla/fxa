@@ -47,12 +47,12 @@ const SigninRecoveryChoice = ({
   const navigateWithQuery = useNavigateWithQuery();
 
   const generalSendCodeErrorHeading = ftlMsgResolver.getMsg(
-    'signin-recovery-phone-send-code-error-heading',
+    'signin-recovery-method-send-code-error-heading',
     'There was a problem sending a code to your recovery phone'
   );
 
   const generalSendCodeErrorDescription = ftlMsgResolver.getMsg(
-    'signin-recovery-phone-send-code-error-description',
+    'signin-recovery-method-send-code-error-description',
     'Please try again later or use your backup authentication codes.'
   );
 

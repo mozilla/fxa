@@ -10,5 +10,5 @@ signin-recovery-method-code-v2 = Backup authentication codes
 # Variable: $numberOfCodes (String) - The number of authentication codes the user has left, e.g. 4
 signin-recovery-method-code-info = { $numberOfCodes } codes remaining
 # Shown when a backend service fails and a code cannot be sent to the user's recovery phone.
-signin-recovery-phone-send-code-error-heading = There was a problem sending a code to your recovery phone
-signin-recovery-phone-send-code-error-description = Please try again later or use your backup authentication codes.
+signin-recovery-method-send-code-error-heading = There was a problem sending a code to your recovery phone
+signin-recovery-method-send-code-error-description = Please try again later or use your backup authentication codes.
