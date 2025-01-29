@@ -1046,24 +1046,6 @@ workflows:
               only: /.*/
           requires:
             - Build
-      - deploy-fxa-image:
-          name: Deploy Fxa Image
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /.*/
-          requires:
-            - Lint
-            - Compile
-            - Unit Test
-            - Integration Test - Frontends
-            - Integration Test - Servers
-            - Integration Test - Servers - Auth
-            - Integration Test - Servers - Auth V2
-            - Integration Test - Libraries
-            - Functional Tests - Playwright
-            - Create FxA Image
 
   nightly:
     # This work flow runs a full build, test suite, and deployment of docker images nightly
