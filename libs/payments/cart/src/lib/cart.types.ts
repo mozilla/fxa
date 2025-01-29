@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { TaxAddress } from '@fxa/payments/customer';
+import { StripePrice } from '@fxa/payments/stripe';
 import {
   Cart,
   CartEligibilityStatus,
@@ -64,6 +65,8 @@ export type BaseCartDTO = Omit<ResultCart, 'state'> & {
   upcomingInvoicePreview: Invoice;
   latestInvoicePreview?: Invoice;
   paymentInfo?: PaymentInfo;
+  fromOfferingConfigId?: string;
+  upgradeFromPrice?: StripePrice;
 };
 
 export type StartCartDTO = BaseCartDTO & {
@@ -86,6 +89,10 @@ export type NeedsInputCartDTO = BaseCartDTO & {
 
 export type FailCartDTO = BaseCartDTO & {
   state: CartState.FAIL;
+};
+
+export type UpgradeCartDTO = BaseCartDTO & {
+  eligibilityStatus: CartEligibilityStatus.UPGRADE;
 };
 
 export type CartDTO =

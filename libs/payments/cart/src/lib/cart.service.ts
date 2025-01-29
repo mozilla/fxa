@@ -4,6 +4,7 @@
 
 import { Injectable } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
+import assert from 'assert';
 
 import {
   CustomerManager,
@@ -27,9 +28,24 @@ import {
 } from '@fxa/payments/stripe';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
 import { CurrencyManager } from '@fxa/payments/currency';
-import { CartErrorReasonId, CartState } from '@fxa/shared/db/mysql/account';
+import { AccountManager } from '@fxa/shared/account/account';
+import {
+  CartEligibilityStatus,
+  CartErrorReasonId,
+  CartState,
+} from '@fxa/shared/db/mysql/account';
+import { SanitizeExceptions } from '@fxa/shared/error';
 import { GeoDBManager } from '@fxa/shared/geodb';
 
+import {
+  CartError,
+  CartInvalidCurrencyError,
+  CartInvalidPromoCodeError,
+  CartInvalidStateForActionError,
+  CartNotUpdatedError,
+  CartStateProcessingError,
+  CartSubscriptionNotFoundError,
+} from './cart.error';
 import { CartManager } from './cart.manager';
 import type {
   CartDTO,
@@ -43,20 +59,8 @@ import type {
 } from './cart.types';
 import { NeedsInputType } from './cart.types';
 import { handleEligibilityStatusMap } from './cart.utils';
-import { CheckoutService } from './checkout.service';
-import {
-  CartError,
-  CartInvalidCurrencyError,
-  CartInvalidPromoCodeError,
-  CartInvalidStateForActionError,
-  CartNotUpdatedError,
-  CartStateProcessingError,
-  CartSubscriptionNotFoundError,
-} from './cart.error';
-import { AccountManager } from '@fxa/shared/account/account';
-import assert from 'assert';
 import { CheckoutFailedError } from './checkout.error';
-import { SanitizeExceptions } from '@fxa/shared/error';
+import { CheckoutService } from './checkout.service';
 
 // TODO - Add flow to handle situations where currency is not found
 const DEFAULT_CURRENCY = 'USD';
@@ -191,7 +195,8 @@ export class CartService {
       ),
     ]);
 
-    const cartEligibilityStatus = handleEligibilityStatusMap[eligibility];
+    const cartEligibilityStatus =
+      handleEligibilityStatusMap[eligibility.subscriptionEligibilityResult];
 
     if (args.promoCode) {
       try {
@@ -446,13 +451,35 @@ export class CartService {
       ]);
     }
 
-    const upcomingInvoicePreview = await this.invoiceManager.previewUpcoming({
-      priceId: price.id,
-      currency: cart.currency || DEFAULT_CURRENCY,
-      customer,
-      taxAddress: cart.taxAddress || undefined,
-      couponCode: cart.couponCode || undefined,
-    });
+    const eligibility = await this.eligibilityService.checkEligibility(
+      cart.interval as SubplatInterval,
+      cart.offeringConfigId,
+      cart.stripeCustomerId
+    );
+
+    const cartEligibilityStatus =
+      handleEligibilityStatusMap[eligibility.subscriptionEligibilityResult];
+
+    let upcomingInvoicePreview: InvoicePreview | undefined;
+    if (cartEligibilityStatus === CartEligibilityStatus.UPGRADE) {
+      upcomingInvoicePreview =
+        await this.invoiceManager.previewUpcomingForUpgrade({
+          priceId: price.id,
+          currency: cart.currency || DEFAULT_CURRENCY,
+          customer,
+          taxAddress: cart.taxAddress || undefined,
+          couponCode: cart.couponCode || undefined,
+          upgradeFromPrice: eligibility.upgradeFromPrice,
+        });
+    } else {
+      upcomingInvoicePreview = await this.invoiceManager.previewUpcoming({
+        priceId: price.id,
+        currency: cart.currency || DEFAULT_CURRENCY,
+        customer,
+        taxAddress: cart.taxAddress || undefined,
+        couponCode: cart.couponCode || undefined,
+      });
+    }
 
     let paymentInfo: PaymentInfo | undefined;
     if (customer?.invoice_settings.default_payment_method) {
@@ -510,6 +537,9 @@ export class CartService {
         metricsOptedOut,
         latestInvoicePreview,
         paymentInfo,
+        eligibilityStatus: cartEligibilityStatus,
+        fromOfferingConfigId: eligibility.fromOfferingConfigId,
+        upgradeFromPrice: eligibility.upgradeFromPrice,
       };
     }
 
@@ -520,6 +550,9 @@ export class CartService {
       latestInvoicePreview,
       metricsOptedOut,
       paymentInfo,
+      eligibilityStatus: cartEligibilityStatus,
+      fromOfferingConfigId: eligibility.fromOfferingConfigId,
+      upgradeFromPrice: eligibility.upgradeFromPrice,
     };
   }
 
