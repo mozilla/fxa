@@ -71,7 +71,9 @@ describe('EligibilityService', () => {
         mockOffering.apiIdentifier,
         undefined
       );
-      expect(result).toEqual(EligibilityStatus.CREATE);
+      expect(result).toEqual({
+        subscriptionEligibilityResult: EligibilityStatus.CREATE,
+      });
     });
 
     it('throws an error for no offering for offeringConfigId', async () => {
@@ -105,6 +107,7 @@ describe('EligibilityService', () => {
         {
           comparison: OfferingComparison.UPGRADE,
           priceId: 'prod_test',
+          fromOfferingId: mockOffering.apiIdentifier,
         },
       ] satisfies OfferingOverlapResult[];
 
@@ -124,9 +127,9 @@ describe('EligibilityService', () => {
         .spyOn(eligibilityManager, 'getOfferingOverlap')
         .mockResolvedValue(mockOverlapResult);
 
-      jest
-        .spyOn(eligibilityManager, 'compareOverlap')
-        .mockResolvedValue(EligibilityStatus.UPGRADE);
+      jest.spyOn(eligibilityManager, 'compareOverlap').mockResolvedValue({
+        subscriptionEligibilityResult: EligibilityStatus.UPGRADE,
+      });
 
       await eligibilityService.checkEligibility(
         interval,
