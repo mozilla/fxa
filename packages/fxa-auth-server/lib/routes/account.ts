@@ -1857,6 +1857,26 @@ export class AccountHandler {
       throw error.unverifiedSession();
     }
 
+    // We can also check that the email was verified. This proves the account is active and
+    // related to a valid email. Accounts that aren't activated get deleted automatically
+    // by cron jobs anyways...
+    if (
+      this.config.accountDestroy.requireVerifiedAccount &&
+      !accountRecord.emailVerified
+    ) {
+      throw error.unverifiedAccount();
+    }
+
+    // Regardless of whether or not an account has TOTP, we must make sure the user actually
+    // owns the account. This means the sessionToken must be verified.
+    //
+    // The UI will request an OTP code verification before destroying the account in the event
+    // the session is currently unverified. The following check will ensure that this OTP code
+    // was actually provided by the user.
+    if (!sessionToken.tokenVerified) {
+      throw error.unverifiedSession();
+    }
+
     // In other scenarios, fall back to the default behavior and let the user
     // delete the account. If they have a password set, we verify it here. Users
     // that don't have a password set will be able to delete their account without

@@ -1977,6 +1977,14 @@ const convictConf = convict({
       env: 'OTP_SIGNUP_DIGIT',
     },
   },
+  accountDestroy: {
+    requireVerifiedAccount: {
+      doc: 'Whether or not the account must be verified in order to destroy it.',
+      default: true,
+      format: Boolean,
+      env: 'ACCOUNT_DESTROY__REQUIRE_VERIFIED_ACCOUNT',
+    },
+  },
   passwordForgotOtp: {
     digits: {
       doc: 'Number of digits in token',
