@@ -8,8 +8,12 @@ import { Validator } from 'class-validator';
 import { GoogleManager } from '@fxa/google';
 import { CartService, SuccessCartDTO } from '@fxa/payments/cart';
 import { ContentServerManager } from '@fxa/payments/content-server';
+import { CurrencyManager } from '@fxa/payments/currency';
 import { CheckoutTokenManager } from '@fxa/payments/paypal';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
+import { CartState } from '@fxa/shared/db/mysql/account';
+import { SanitizeExceptions } from '@fxa/shared/error';
+import { GeoDBManager } from '@fxa/shared/geodb';
 
 import { CheckoutCartWithPaypalActionArgs } from './validators/CheckoutCartWithPaypalActionArgs';
 import { CheckoutCartWithStripeActionArgs } from './validators/CheckoutCartWithStripeActionArgs';
@@ -26,11 +30,7 @@ import { FinalizeProcessingCartActionArgs } from './validators/finalizeProcessin
 import { SubmitNeedsInputActionArgs } from './validators/SubmitNeedsInputActionArgs';
 import { GetNeedsInputActionArgs } from './validators/GetNeedsInputActionArgs';
 import { ValidatePostalCodeArgs } from './validators/ValidatePostalCodeArgs';
-import { SanitizeExceptions } from '@fxa/shared/error';
-import { GeoDBManager } from '@fxa/shared/geodb';
-import { CurrencyManager } from '@fxa/payments/currency';
 import { DetermineCurrencyActionArgs } from './validators/DetermineCurrencyActionArgs';
-import { CartState } from '@fxa/shared/db/mysql/account';
 
 /**
  * ANY AND ALL methods exposed via this service should be considered publicly accessible and callable with any arguments.

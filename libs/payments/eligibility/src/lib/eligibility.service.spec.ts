@@ -12,6 +12,7 @@ import {
   StripeClient,
   StripeConfig,
   StripeCustomerFactory,
+  StripePriceFactory,
 } from '@fxa/payments/stripe';
 import {
   EligibilityContentByOfferingResultFactory,
@@ -71,7 +72,9 @@ describe('EligibilityService', () => {
         mockOffering.apiIdentifier,
         undefined
       );
-      expect(result).toEqual(EligibilityStatus.CREATE);
+      expect(result).toEqual({
+        subscriptionEligibilityResult: EligibilityStatus.CREATE,
+      });
     });
 
     it('throws an error for no offering for offeringConfigId', async () => {
@@ -101,10 +104,13 @@ describe('EligibilityService', () => {
       const mockCustomer = StripeCustomerFactory();
       const interval = SubplatInterval.Monthly;
       const mockOffering = EligibilityContentOfferingResultFactory();
+      const mockFromPrice = StripePriceFactory();
+      const mockFromOfferingId = 'prod_test';
       const mockOverlapResult = [
         {
           comparison: OfferingComparison.UPGRADE,
           priceId: 'prod_test',
+          fromOfferingId: mockOffering.apiIdentifier,
         },
       ] satisfies OfferingOverlapResult[];
 
@@ -124,9 +130,11 @@ describe('EligibilityService', () => {
         .spyOn(eligibilityManager, 'getOfferingOverlap')
         .mockResolvedValue(mockOverlapResult);
 
-      jest
-        .spyOn(eligibilityManager, 'compareOverlap')
-        .mockResolvedValue(EligibilityStatus.UPGRADE);
+      jest.spyOn(eligibilityManager, 'compareOverlap').mockResolvedValue({
+        subscriptionEligibilityResult: EligibilityStatus.UPGRADE,
+        fromOfferingConfigId: mockFromOfferingId,
+        fromPrice: mockFromPrice,
+      });
 
       await eligibilityService.checkEligibility(
         interval,
