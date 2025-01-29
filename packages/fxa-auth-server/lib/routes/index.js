@@ -137,9 +137,11 @@ module.exports = function (
     statsd
   );
   const recoveryPhone = require('./recovery-phone').recoveryPhoneRoutes(
-    log,
     customs,
-    glean
+    db,
+    glean,
+    log,
+    mailer
   );
   const securityEvents = require('./security-events')(log, db, config);
   const session = require('./session')(

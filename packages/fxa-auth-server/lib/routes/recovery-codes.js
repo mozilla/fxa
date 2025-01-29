@@ -206,11 +206,10 @@ module.exports = (log, db, config, customs, mailer, glean) => {
         const { acceptLanguage, clientAddress: ip, geo, ua } = request.app;
 
         const mailerPromises = [
-          mailer.sendPostConsumeRecoveryCodeEmail(account.emails, account, {
+          mailer.sendPostSigninRecoveryCodeEmail(account.emails, account, {
             acceptLanguage,
             ip,
             location: geo.location,
-            numberRemaining: remaining,
             timeZone: geo.timeZone,
             uaBrowser: ua.browser,
             uaBrowserVersion: ua.browserVersion,
