@@ -15,6 +15,7 @@ import { CloudTaskOptions } from './cloud-tasks.types';
 export enum EmailTypes {
   INACTIVE_DELETE_FIRST_NOTIFICATION = 'inactiveDeleteFirstNotification',
   INACTIVE_DELETE_SECOND_NOTIFICATION = 'inactiveDeleteSecondNotification',
+  INACTIVE_DELETE_FINAL_NOTIFICATION = 'inactiveDeleteFinalNotification',
 }
 export type CloudTaskEmailType = (typeof EmailTypes)[keyof typeof EmailTypes];
 

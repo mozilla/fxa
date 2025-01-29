@@ -10,7 +10,7 @@ const sandbox = sinon.createSandbox();
 const { AppConfig } = require('../../lib/types');
 const { AccountEventsManager } = require('../../lib/account-events');
 const sendEmailTaskStub = sandbox.stub();
-const firstNotificationHandlerStub = sandbox.stub();
+const notificationHandlerStub = sandbox.stub();
 const { EmailCloudTaskManager } = proxyquire('../../lib/email-cloud-tasks', {
   ...require('../../lib/email-cloud-tasks'),
   '@fxa/shared/cloud-tasks': {
@@ -21,8 +21,8 @@ const { EmailCloudTaskManager } = proxyquire('../../lib/email-cloud-tasks', {
   },
   './inactive-accounts': {
     InactiveAccountsManager: class InactiveAccountsManager {
-      async handleFirstNotificationTask() {
-        firstNotificationHandlerStub.call(this, ...arguments);
+      async handleNotificationTask() {
+        notificationHandlerStub.call(this, ...arguments);
       }
     },
   },
@@ -43,11 +43,9 @@ describe('EmailCloudTaskManager', () => {
     config: mockConfig,
     statsd: mockStatsd,
   });
-  const mockTaskPayload = {
-    emailType: EmailTypes.INACTIVE_DELETE_FIRST_NOTIFICATION,
-    uid: '5adfe2a2a4c34dd6b77a16efcafedc44',
-  };
-  const deliveryTime = Date.now() + 60 * 24 * 60 * 60 * 1000;
+
+  const aDayInMs = 24 * 60 * 60 * 1000;
+  const deliveryTime = Date.now() + 60 * aDayInMs;
 
   beforeEach(() => {
     sandbox.stub(Date, 'now').returns(1736500000000);
@@ -57,6 +55,19 @@ describe('EmailCloudTaskManager', () => {
     Date.now.restore();
     sandbox.reset();
   });
+
+  const mockTaskPayload = {
+    emailType: EmailTypes.INACTIVE_DELETE_FIRST_NOTIFICATION,
+    uid: '5adfe2a2a4c34dd6b77a16efcafedc44',
+  };
+  const mockSecondTaskPayload = {
+    emailType: EmailTypes.INACTIVE_DELETE_SECOND_NOTIFICATION,
+    uid: mockTaskPayload.uid,
+  };
+  const mockFinalTaskPayload = {
+    emailType: EmailTypes.INACTIVE_DELETE_FINAL_NOTIFICATION,
+    uid: mockTaskPayload.uid,
+  };
 
   describe('reschedule', () => {
     it('should reschedule a task', async () => {
@@ -124,8 +135,45 @@ describe('EmailCloudTaskManager', () => {
         },
       });
       sinon.assert.calledOnceWithExactly(
-        firstNotificationHandlerStub,
+        notificationHandlerStub,
+        'first',
         mockTaskPayload
+      );
+    });
+
+    it('should handle the second notification', async () => {
+      await emailCloudTaskManager.handleInactiveAccountNotification({
+        payload: mockSecondTaskPayload,
+        raw: {
+          req: {
+            headers: {
+              'fxa-cloud-task-delivery-time': Date.now(),
+            },
+          },
+        },
+      });
+      sinon.assert.calledOnceWithExactly(
+        notificationHandlerStub,
+        'second',
+        mockSecondTaskPayload
+      );
+    });
+
+    it('should handle the final notification', async () => {
+      await emailCloudTaskManager.handleInactiveAccountNotification({
+        payload: mockFinalTaskPayload,
+        raw: {
+          req: {
+            headers: {
+              'fxa-cloud-task-delivery-time': Date.now(),
+            },
+          },
+        },
+      });
+      sinon.assert.calledOnceWithExactly(
+        notificationHandlerStub,
+        'final',
+        mockFinalTaskPayload
       );
     });
   });

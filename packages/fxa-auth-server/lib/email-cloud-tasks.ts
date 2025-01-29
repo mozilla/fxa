@@ -123,7 +123,20 @@ export class EmailCloudTaskManager {
     // @TODO FXA-10574, FXA-10942
     switch ((request.payload as SendEmailTaskPayload).emailType) {
       case EmailTypes.INACTIVE_DELETE_FIRST_NOTIFICATION:
-        await this.inactiveAccountsManager.handleFirstNotificationTask(
+        await this.inactiveAccountsManager.handleNotificationTask(
+          'first',
+          request.payload as SendEmailTaskPayload
+        );
+        break;
+      case EmailTypes.INACTIVE_DELETE_SECOND_NOTIFICATION:
+        await this.inactiveAccountsManager.handleNotificationTask(
+          'second',
+          request.payload as SendEmailTaskPayload
+        );
+        break;
+      case EmailTypes.INACTIVE_DELETE_FINAL_NOTIFICATION:
+        await this.inactiveAccountsManager.handleNotificationTask(
+          'final',
           request.payload as SendEmailTaskPayload
         );
         break;

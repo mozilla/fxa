@@ -29,8 +29,6 @@ import { GleanMetricsType } from '../metrics/glean';
 import { Logger } from 'mozlog';
 
 const aDayInMs = 24 * 60 * 60 * 1000;
-const fiftyThreeDaysInMs = 53 * aDayInMs;
-const sixtyDaysInMs = 60 * aDayInMs;
 
 /**
  * The backend Glean integration was built for the auth-server API endpoints so
@@ -57,6 +55,8 @@ export const requestForGlean = {
 
 export const isCloudTaskAlreadyExistsError = (error) =>
   error.code === 10 && error.message.includes('entity already exists');
+
+export type NotificationAttempt = 'first' | 'second' | 'final';
 
 export class InactiveAccountsManager {
   fxaDb: DB;
@@ -129,13 +129,18 @@ export class InactiveAccountsManager {
   // @TODO the first email is directly scheduled in the script; we should move
   // it here
 
-  async handleFirstNotificationTask(taskPayload: SendEmailTaskPayload) {
+  async handleNotificationTask(
+    notificationAttempt: NotificationAttempt,
+    taskPayload: SendEmailTaskPayload
+  ) {
     // due to the potential delay between when the task was queued and when
-    // this handler is excuted, it is possible the account is no longer
+    // this handler is executed, it is possible the account is no longer
     // inactive
     if (await this.isActive(taskPayload.uid)) {
-      this.statsd.increment('account.inactive.first-email.skipped.active');
-      await this.glean.inactiveAccountDeletion.firstEmailSkipped(
+      this.statsd.increment(
+        `account.inactive.${notificationAttempt}-email.skipped.active`
+      );
+      await this.resolveGleanEventEmailSkipped(notificationAttempt)(
         requestForGlean,
         {
           uid: taskPayload.uid,
@@ -151,14 +156,17 @@ export class InactiveAccountsManager {
     const sentEmailEvents = await this.accountEventsManager.findEmailEvents(
       taskPayload.uid,
       'emailSent',
-      'inactiveAccountFirstWarning',
-      now - sixtyDaysInMs, // 60 days ago
+      this.resolveEmailSentName(notificationAttempt),
+      this.resolveStartDate(notificationAttempt, now),
       now
     );
 
     if (sentEmailEvents?.length > 0) {
-      this.statsd.increment('account.inactive.first-email.skipped.duplicate');
-      await this.glean.inactiveAccountDeletion.firstEmailSkipped(
+      this.statsd.increment(
+        `account.inactive.${notificationAttempt}-email.skipped.duplicate`
+      );
+
+      await this.resolveGleanEventEmailSkipped(notificationAttempt)(
         requestForGlean,
         {
           uid: taskPayload.uid,
@@ -166,51 +174,72 @@ export class InactiveAccountsManager {
         }
       );
 
-      // it's possible that the first email was sent but without the second
-      // successfully enqueued.  we'll rely on the handler of the second email
-      // to not send a duplicate email
-      await this.scheduleSecondEmail(taskPayload.uid);
+      // It's possible that the first email was sent but without the second
+      // successfully enqueued. Or it's possible that the second email was sent
+      // but without the final successfully enqueued. We'll rely on the event
+      // handler logic above to prevent duplicates from being sent.
+      await this.scheduleNextEmail(notificationAttempt, taskPayload.uid);
       return;
     }
 
     const account = await this.fxaDb.account(taskPayload.uid);
     const message = {
       acceptLanguage: account.locale,
-      inactiveDeletionEta: now + sixtyDaysInMs,
+      inactiveDeletionEta: this.resolveInactiveDeletionEta(
+        notificationAttempt,
+        now
+      ),
     };
-    await this.mailer.sendInactiveAccountFirstWarningEmail(
+
+    await this.resolveSendInactiveAccountWarningEmail(notificationAttempt)(
       account.emails,
       account,
       message
     );
-    this.statsd.increment('account.inactive.first-email.sent');
+    this.statsd.increment(`account.inactive.${notificationAttempt}-email.sent`);
 
-    await this.scheduleSecondEmail(taskPayload.uid);
+    await this.scheduleNextEmail(notificationAttempt, taskPayload.uid);
   }
 
-  async scheduleSecondEmail(uid: string) {
+  async scheduleNextEmail(
+    notificationAttempt: 'first' | 'second' | 'final',
+    uid: string
+  ) {
+    if (notificationAttempt === 'final') {
+      // In this case, there are no more emails to schedule.
+      return;
+    }
+
+    // Determine the next notification to send out.
+    const nextNotificationAttempt =
+      this.resolveNextNotificationAttempt(notificationAttempt);
+
     const taskPayload: SendEmailTaskPayload = {
       uid,
-      emailType: EmailTypes.INACTIVE_DELETE_SECOND_NOTIFICATION,
+      emailType: this.resolveEmailType(nextNotificationAttempt),
     };
-    const taskId = `${uid}-inactive-delete-second-email`;
+
     const taskOptions: CloudTaskOptions = {
-      taskId,
+      taskId: `${uid}-inactive-delete-${nextNotificationAttempt}-email`,
     };
 
     try {
-      await this.glean.inactiveAccountDeletion.secondEmailTaskRequest(
+      await this.resolveGleanEventEmailTaskRequest(nextNotificationAttempt)(
         requestForGlean,
         {
           uid,
         }
       );
+
       await this.emailCloudTasks.sendEmail({
         payload: taskPayload,
-        emailOptions: { deliveryTime: Date.now() + fiftyThreeDaysInMs },
+        emailOptions: {
+          deliveryTime: this.resolveDeliveryTime(nextNotificationAttempt),
+        },
         taskOptions: taskOptions,
       });
-      await this.glean.inactiveAccountDeletion.secondEmailTaskEnqueued(
+
+      await this.resolveEmailTaskEnqueued(nextNotificationAttempt)(
         requestForGlean,
         {
           uid,
@@ -220,7 +249,7 @@ export class InactiveAccountsManager {
       this.statsd.increment('cloud-tasks.send-email.enqueue.error-code', [
         cloudTaskQueueError.code as unknown as string,
       ]);
-      await this.glean.inactiveAccountDeletion.secondEmailTaskRejected(
+      await this.resolveGleanEventEmailTaskRejected(nextNotificationAttempt)(
         requestForGlean,
         {
           uid,
@@ -235,5 +264,224 @@ export class InactiveAccountsManager {
         throw cloudTaskQueueError;
       }
     }
+  }
+
+  private resolveNextNotificationAttempt(
+    notificationAttempt: NotificationAttempt
+  ) {
+    const result = (() => {
+      switch (notificationAttempt) {
+        case 'first':
+          return 'second';
+        case 'second':
+          return 'final';
+        case 'final':
+          return undefined;
+      }
+    })();
+    if (!result) {
+      throw new Error('Could not resolveEmailType for ' + notificationAttempt);
+    }
+    return result;
+  }
+
+  private resolveDeliveryTime(notificationAttempt: NotificationAttempt) {
+    const result = (() => {
+      switch (notificationAttempt) {
+        case 'first':
+          return Date.now();
+        case 'second':
+          return Date.now() + 53 * aDayInMs;
+        case 'final':
+          return Date.now() + 6 * aDayInMs;
+      }
+    })();
+    if (!result) {
+      throw new Error('Could not resolveEmailType for ' + notificationAttempt);
+    }
+    return result;
+  }
+
+  private resolveEmailSentName(notificationAttempt: NotificationAttempt) {
+    const result = (() => {
+      switch (notificationAttempt) {
+        case 'first':
+          return `inactiveAccountFirstWarning`;
+        case 'second':
+          return `inactiveAccountSecondWarning`;
+        case 'final':
+          return `inactiveAccountFinalWarning`;
+      }
+    })();
+    if (!result) {
+      throw new Error('Could not resolveEmailType for ' + notificationAttempt);
+    }
+    return result;
+  }
+
+  private resolveEmailType(notificationAttempt: NotificationAttempt) {
+    const result = (() => {
+      switch (notificationAttempt) {
+        case 'first':
+          return EmailTypes.INACTIVE_DELETE_FIRST_NOTIFICATION;
+        case 'second':
+          return EmailTypes.INACTIVE_DELETE_SECOND_NOTIFICATION;
+        case 'final':
+          return EmailTypes.INACTIVE_DELETE_FINAL_NOTIFICATION;
+      }
+    })();
+    if (!result) {
+      throw new Error('Could not resolveEmailType for ' + notificationAttempt);
+    }
+    return result;
+  }
+
+  private resolveGleanEventEmailSkipped(
+    notificationAttempt: NotificationAttempt
+  ) {
+    const result = (() => {
+      switch (notificationAttempt) {
+        case 'first':
+          return this.glean.inactiveAccountDeletion.firstEmailSkipped;
+        case 'second':
+          return this.glean.inactiveAccountDeletion.secondEmailSkipped;
+        case 'final':
+          return this.glean.inactiveAccountDeletion.finalEmailSkipped;
+      }
+    })();
+    if (!result) {
+      throw new Error(
+        'Could not resolveGleanEventEmailSkipped for ' + notificationAttempt
+      );
+    }
+    return result;
+  }
+
+  private resolveGleanEventEmailTaskRejected(
+    notificationAttempt: NotificationAttempt
+  ) {
+    const result = (() => {
+      switch (notificationAttempt) {
+        case 'first':
+          return this.glean.inactiveAccountDeletion.firstEmailTaskRejected;
+        case 'second':
+          return this.glean.inactiveAccountDeletion.secondEmailTaskRejected;
+        case 'final':
+          return this.glean.inactiveAccountDeletion.finalEmailTaskRejected;
+      }
+    })();
+
+    if (!result) {
+      throw new Error(
+        'Could not resolveEmailTaskRejected for ' + notificationAttempt
+      );
+    }
+    return result;
+  }
+
+  private resolveGleanEventEmailTaskRequest(
+    notificationAttempt: NotificationAttempt
+  ) {
+    const result = (() => {
+      switch (notificationAttempt) {
+        case 'first':
+          return this.glean.inactiveAccountDeletion.firstEmailTaskRequest;
+        case 'second':
+          return this.glean.inactiveAccountDeletion.secondEmailTaskRequest;
+        case 'final':
+          return this.glean.inactiveAccountDeletion.finalEmailTaskRequest;
+      }
+    })();
+    if (!result) {
+      throw new Error(
+        'Could not resolveGleanEventEmailTaskRequest for ' + notificationAttempt
+      );
+    }
+    return result;
+  }
+
+  private resolveInactiveDeletionEta(
+    notificationAttempt: NotificationAttempt,
+    now: number
+  ) {
+    const result = (() => {
+      switch (notificationAttempt) {
+        case 'first':
+          return now + 60 * aDayInMs;
+        case 'second':
+          return now + 7 * aDayInMs;
+        case 'final':
+          return now + aDayInMs;
+      }
+    })();
+    if (!result) {
+      throw new Error(
+        'Could not resolveInactiveDeletionEta for ' + notificationAttempt
+      );
+    }
+    return result;
+  }
+
+  private resolveSendInactiveAccountWarningEmail(
+    notificationAttempt: NotificationAttempt
+  ) {
+    const result = (() => {
+      switch (notificationAttempt) {
+        case 'first':
+          return this.mailer.sendInactiveAccountFirstWarningEmail;
+        case 'second':
+          return this.mailer.sendInactiveAccountSecondWarningEmail;
+        case 'final':
+          return this.mailer.sendInactiveAccountFinalWarningEmail;
+      }
+    })();
+    if (!result) {
+      throw new Error(
+        'Could not resolveSendInactiveAccountWarningEmail for ' +
+          notificationAttempt
+      );
+    }
+    return result;
+  }
+
+  private resolveStartDate(
+    notificationAttempt: NotificationAttempt,
+    now: number
+  ) {
+    const result = (() => {
+      switch (notificationAttempt) {
+        case 'first':
+          return now - 53 * aDayInMs;
+        case 'second':
+          return now - 6 * aDayInMs;
+        case 'final':
+          return now - aDayInMs;
+      }
+    })();
+
+    if (!result) {
+      throw new Error('Could not resolveStartDate for ' + notificationAttempt);
+    }
+    return result;
+  }
+
+  private resolveEmailTaskEnqueued(notificationAttempt: NotificationAttempt) {
+    const result = (() => {
+      switch (notificationAttempt) {
+        case 'first':
+          return this.glean.inactiveAccountDeletion.firstEmailTaskEnqueued;
+        case 'second':
+          return this.glean.inactiveAccountDeletion.secondEmailTaskEnqueued;
+        case 'final':
+          return this.glean.inactiveAccountDeletion.finalEmailTaskEnqueued;
+      }
+    })();
+
+    if (!result) {
+      throw new Error(
+        'Could not resolveEmailTaskEnqueued for ' + notificationAttempt
+      );
+    }
+    return result;
   }
 }
