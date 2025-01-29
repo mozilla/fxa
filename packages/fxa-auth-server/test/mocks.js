@@ -147,6 +147,8 @@ const MAILER_METHOD_NAMES = [
   'sendDownloadSubscriptionEmail',
   'sendFraudulentAccountDeletionEmail',
   'sendInactiveAccountFirstWarningEmail',
+  'sendInactiveAccountSecondWarningEmail',
+  'sendInactiveAccountFinalWarningEmail',
   'sendLowRecoveryCodesEmail',
   'sendNewDeviceLoginEmail',
   'sendPasswordChangedEmail',
