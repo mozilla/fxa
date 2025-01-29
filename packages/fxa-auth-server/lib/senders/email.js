@@ -1627,14 +1627,14 @@ module.exports = function (log, config, bounces) {
          * rendering, and adding them to our templateValues for Fluent. Because
          * of this, for now, we'll pass the variable with the bulleted mask
          * instead of handling the bulleted mask in the template itself. */
-        maskedLastFourPhoneNumber: '••••••1234',
+        maskedLastFourPhoneNumber: message.maskedLastFourPhoneNumber,
         resetLink: links.resetLink,
         resetLinkAttributes: links.resetLinkAttributes,
         supportLinkAttributes: links.supportLinkAttributes,
         // TODO, update this with proper #heading once it's written and add to links obj w/
         // UTM parms, tests, & ensure Storybook is updated as well, FXA-10918
         twoFactorSupportLink:
-          'https://support.mozilla.org/en-US/kb/secure-firefox-account-two-step-authentication',
+          'https://support.mozilla.org/kb/secure-mozilla-account-two-step-authentication',
         supportUrl: links.supportUrl,
         time,
       },

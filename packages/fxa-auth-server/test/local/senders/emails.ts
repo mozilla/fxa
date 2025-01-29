@@ -60,6 +60,7 @@ const MESSAGE = {
   flowBeginTime: Date.now(),
   flowId: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
   locations: [],
+  maskedLastFourPhoneNumber: '••••••1234',
   numberRemaining: 2,
   primaryEmail: 'c@d.com',
   service: 'sync',
@@ -84,7 +85,7 @@ const MESSAGE = {
   lastFour: '5309',
   mozillaSupportUrl: 'https://support.mozilla.org',
   twoFactorSupportLink:
-    'https://support.mozilla.org/en-US/kb/secure-firefox-account-two-step-authentication',
+    'https://support.mozilla.org/kb/secure-mozilla-account-two-step-authentication',
   nextInvoiceDate: new Date(1587339098816),
   paymentAmountOldInCents: 9999099.9,
   paymentAmountOldCurrency: 'jpy',
@@ -1200,7 +1201,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: 'You created a recovery phone number' },
       { test: 'include', expected: 'You added ••••••1234 as your recovery phone' },
       // TODO, update test with FXA-10918
-      { test: 'include', expected: 'https://support.mozilla.org/en-US/kb/secure-firefox-account-two-step-authentication' },
+      { test: 'include', expected: 'https://support.mozilla.org/kb/secure-mozilla-account-two-step-authentication' },
       { test: 'include', expected: 'You enabled it from:' },
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
@@ -1215,7 +1216,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: 'You created a recovery phone number' },
       { test: 'include', expected: 'You added ••••••1234 as your recovery phone' },
       // TODO, update test with FXA-10918
-      { test: 'include', expected: 'https://support.mozilla.org/en-US/kb/secure-firefox-account-two-step-authentication' },
+      { test: 'include', expected: 'https://support.mozilla.org/kb/secure-mozilla-account-two-step-authentication' },
       { test: 'include', expected: 'You enabled it from:' },
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },

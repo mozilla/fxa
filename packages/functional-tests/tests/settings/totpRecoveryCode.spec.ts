@@ -120,7 +120,7 @@ test.describe('severity-1 #smoke', () => {
 
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.alertBar).toHaveText(
-        'Account backup authentication codes updated'
+        'Backup authentication codes updated'
       );
 
       await settings.signOut();

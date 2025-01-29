@@ -8,6 +8,7 @@ const { AccountManager } = require('@fxa/shared/account/account');
 
 const sinon = require('sinon');
 const assert = { ...sinon.assert, ...chai.assert };
+const mocks = require('../../mocks');
 const { recoveryPhoneRoutes } = require('../../../lib/routes/recovery-phone');
 import {
   RecoveryNumberNotSupportedError,
@@ -28,6 +29,8 @@ describe('/recovery_phone', () => {
   const phoneNumber = '+15550005555';
   const code = '000000';
   const mockLog = {};
+  const mockDb = mocks.mockDB({ uid: uid, email: email });
+  let mockMailer;
   const mockCustoms = {
     check: sandbox.fake(),
   };
@@ -53,10 +56,17 @@ describe('/recovery_phone', () => {
   };
   let routes = [];
 
-  before(() => {
+  beforeEach(() => {
     Container.set(RecoveryPhoneService, mockRecoveryPhoneService);
     Container.set(AccountManager, mockAccountManager);
-    routes = recoveryPhoneRoutes(mockLog, mockCustoms, mockGlean);
+    mockMailer = mocks.mockMailer();
+    routes = recoveryPhoneRoutes(
+      mockCustoms,
+      mockDb,
+      mockGlean,
+      mockLog,
+      mockMailer
+    );
   });
 
   afterEach(() => {
@@ -285,6 +295,10 @@ describe('/recovery_phone', () => {
   describe('POST /recovery_phone/confirm', async () => {
     it('confirms a code', async () => {
       mockRecoveryPhoneService.confirmSetupCode = sinon.fake.returns(true);
+      mockRecoveryPhoneService.hasConfirmed = sinon.fake.returns({
+        exists: true,
+        phoneNumber,
+      });
 
       const resp = await makeRequest({
         method: 'POST',
@@ -305,10 +319,15 @@ describe('/recovery_phone', () => {
         code
       );
       assert.equal(mockGlean.twoStepAuthPhoneCode.complete.callCount, 1);
+      assert.calledOnce(mockMailer.sendPostAddRecoveryPhoneEmail);
     });
 
     it('indicates a failure confirming code', async () => {
       mockRecoveryPhoneService.confirmSetupCode = sinon.fake.returns(false);
+      mockRecoveryPhoneService.hasConfirmed = sinon.fake.returns({
+        exists: false,
+      });
+
       const promise = makeRequest({
         method: 'POST',
         path: '/recovery_phone/confirm',
@@ -318,12 +337,16 @@ describe('/recovery_phone', () => {
 
       await assert.isRejected(promise, 'Invalid or expired confirmation code');
       assert.equal(mockGlean.twoStepAuthPhoneCode.complete.callCount, 0);
+      assert.notCalled(mockMailer.sendPostAddRecoveryPhoneEmail);
     });
 
     it('indicates an issue with the backend service', async () => {
       mockRecoveryPhoneService.confirmSetupCode = sinon.fake.returns(
         Promise.reject(new Error('BOOM'))
       );
+      mockRecoveryPhoneService.hasConfirmed = sinon.fake.returns({
+        exists: false,
+      });
       const promise = makeRequest({
         method: 'POST',
         path: '/recovery_phone/confirm',
@@ -332,7 +355,9 @@ describe('/recovery_phone', () => {
       });
 
       await assert.isRejected(promise, 'System unavailable, try again soon');
+
       assert.equal(mockGlean.twoStepAuthPhoneCode.complete.callCount, 0);
+      assert.notCalled(mockMailer.sendPostAddRecoveryPhoneEmail);
     });
   });
 
@@ -360,6 +385,7 @@ describe('/recovery_phone', () => {
       );
       assert.equal(mockAccountManager.verifySession.callCount, 1);
       assert.equal(mockGlean.twoStepAuthPhoneCode.complete.callCount, 1);
+      assert.calledOnce(mockMailer.sendPostSigninRecoveryPhoneEmail);
     });
   });
 
@@ -380,9 +406,10 @@ describe('/recovery_phone', () => {
         uid
       );
       assert.equal(mockGlean.twoStepAuthPhoneRemove.success.callCount, 1);
+      assert.calledOnce(mockMailer.sendPostRemoveRecoveryPhoneEmail);
     });
 
-    it('indicates service failure while removing code', async () => {
+    it('indicates service failure while removing phone', async () => {
       mockRecoveryPhoneService.removePhoneNumber = sinon.fake.returns(
         Promise.reject(new Error('BOOM'))
       );
@@ -394,6 +421,7 @@ describe('/recovery_phone', () => {
 
       await assert.isRejected(promise, 'System unavailable, try again soon');
       assert.equal(mockGlean.twoStepAuthPhoneRemove.success.callCount, 0);
+      assert.notCalled(mockMailer.sendPostRemoveRecoveryPhoneEmail);
     });
 
     it('handles uid without registered phone number', async () => {

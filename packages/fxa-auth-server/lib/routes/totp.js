@@ -381,6 +381,7 @@ module.exports = (
         }
       },
     },
+    // this endpoint is used in the password reset flow only
     {
       method: 'POST',
       path: '/totp/verify/recoveryCode',
