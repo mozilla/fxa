@@ -27,6 +27,7 @@ describe('RecoveryPhoneService', () => {
   const mockRecoveryPhoneManager = {
     storeUnconfirmed: jest.fn(),
     getUnconfirmed: jest.fn(),
+    getAllUnconfirmed: jest.fn(),
     registerPhoneNumber: jest.fn(),
     removePhoneNumber: jest.fn(),
     getConfirmedPhoneNumber: jest.fn(),
@@ -48,6 +49,7 @@ describe('RecoveryPhoneService', () => {
   beforeEach(async () => {
     mockSmsManager.sendSMS.mockReturnValue({ status: 'success' });
     mockRecoveryPhoneManager.hasRecoveryCodes.mockResolvedValue(true);
+    mockRecoveryPhoneManager.getAllUnconfirmed.mockResolvedValue([]);
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -90,7 +92,34 @@ describe('RecoveryPhoneService', () => {
       phoneNumber,
       true
     );
+    expect(mockRecoveryPhoneManager.getAllUnconfirmed).toBeCalledWith(uid);
     expect(result).toBeTruthy();
+  });
+
+  it('Should send new code for setup phone number ', async () => {
+    mockOtpManager.generateCode.mockReturnValue(code);
+    mockRecoveryPhoneManager.getAllUnconfirmed.mockResolvedValue([
+      'this:is:the:code123',
+      'this:is:the:code456',
+    ]);
+
+    const result = await service.setupPhoneNumber(uid, phoneNumber);
+
+    expect(result).toBeTruthy();
+    expect(mockRecoveryPhoneManager.removeCode).toBeCalledWith(uid, 'code123');
+    expect(mockRecoveryPhoneManager.removeCode).toBeCalledWith(uid, 'code456');
+    expect(mockOtpManager.generateCode).toBeCalled();
+    expect(mockSmsManager.sendSMS).toBeCalledWith({
+      to: phoneNumber,
+      body: code,
+    });
+    expect(mockRecoveryPhoneManager.storeUnconfirmed).toBeCalledWith(
+      uid,
+      code,
+      phoneNumber,
+      true
+    );
+    expect(mockRecoveryPhoneManager.getAllUnconfirmed).toBeCalledWith(uid);
   });
 
   it('Will reject a phone number that is not part of launch', async () => {

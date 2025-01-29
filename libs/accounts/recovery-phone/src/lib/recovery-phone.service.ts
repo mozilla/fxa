@@ -71,6 +71,17 @@ export class RecoveryPhoneService {
       }
     }
 
+    // Invalidate and remove any or all previous unconfirmed code entries
+    const unconfirmedKeys = await this.recoveryPhoneManager.getAllUnconfirmed(
+      uid
+    );
+    for (const key of unconfirmedKeys) {
+      const code = key.split(':').pop();
+      if (code) {
+        await this.recoveryPhoneManager.removeCode(uid, code);
+      }
+    }
+
     const code = await this.otpCode.generateCode();
     const msg = await this.smsManager.sendSMS({
       to: phoneNumber,

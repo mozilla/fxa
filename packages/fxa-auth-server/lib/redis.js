@@ -204,6 +204,10 @@ class FxaRedis extends RedisShared {
     return this.redis.zrank(key, member);
   }
 
+  keys(key) {
+    return this.redis.keys(key);
+  }
+
   async zpoprangebyscore(key, min, max) {
     const args = Array.from(arguments);
     const results = await this.redis
