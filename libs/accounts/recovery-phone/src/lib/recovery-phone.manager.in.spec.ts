@@ -9,7 +9,6 @@ import {
   RecoveryPhoneFactory,
 } from '@fxa/shared/db/mysql/account';
 import { Test } from '@nestjs/testing';
-import { RecoveryPhoneFactory } from '@fxa/shared/db/mysql/account';
 
 describe('RecoveryPhoneManager', () => {
   let recoveryPhoneManager: RecoveryPhoneManager;
@@ -205,20 +204,26 @@ describe('RecoveryPhoneManager', () => {
       mockLookUpData
     );
 
-    const expectedData = JSON.stringify({
-      createdAt: 1739227529776,
-      phoneNumber,
-      isSetup,
-      lookupData: JSON.stringify(mockLookUpData),
-    });
     const redisKey = `sms-attempt:${uid.toString('hex')}:${code}`;
 
     expect(mockRedis.set).toHaveBeenCalledWith(
       redisKey,
-      expectedData,
+      expect.any(String),
       'EX',
       600
     );
+
+    const expectedData = expect.objectContaining({
+      createdAt: expect.any(Number),
+      phoneNumber,
+      isSetup,
+      lookupData: JSON.stringify(mockLookUpData),
+    });
+
+    const storedData = mockRedis.set.mock.calls[0][1];
+    expect(() => JSON.parse(storedData)).not.toThrow();
+    const parsedData = JSON.parse(mockRedis.set.mock.calls[0][1]);
+    expect(parsedData).toEqual(expectedData);
   });
 
   it('should return null if no unconfirmed phone number data is found in Redis', async () => {

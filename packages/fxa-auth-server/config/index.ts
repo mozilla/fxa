@@ -2196,7 +2196,7 @@ const convictConf = convict({
         format: Array,
       },
       maxMessageLength: {
-        default: 60,
+        default: 160,
         doc: 'Max allows sms message length',
         env: 'RECOVERY_PHONE__SMS__MAX_MESSAGE_LENGTH',
         format: Number,

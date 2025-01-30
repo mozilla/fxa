@@ -124,13 +124,13 @@ const SigninRecoveryPhone = ({
         <h2 className="card-header my-4">Enter recovery code</h2>
       </FtlMsg>
       <FtlMsg
-        id="signin-recovery-phone-instruction"
+        id="signin-recovery-phone-instruction-v2"
         vars={{ maskedPhoneNumber }}
         elems={{ span: spanElement }}
       >
         <p>
           A six-digit code was sent to {spanElement} by text message. This code
-          expires after 5 minutes.
+          expires after 5 minutes. Donʼt share this code with anyone.
         </p>
       </FtlMsg>
       <FormVerifyTotp

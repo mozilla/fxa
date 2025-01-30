@@ -130,6 +130,31 @@ describe('RecoveryPhoneService', () => {
     expect(mockRecoveryPhoneManager.getAllUnconfirmed).toBeCalledWith(uid);
   });
 
+  it('handles message template when provided to setup phone number', async () => {
+    mockOtpManager.generateCode.mockReturnValue(code);
+    const getFormattedMessage = jest.fn().mockResolvedValue('message');
+
+    const result = await service.setupPhoneNumber(
+      uid,
+      phoneNumber,
+      getFormattedMessage
+    );
+
+    expect(result).toBeTruthy();
+    expect(mockOtpManager.generateCode).toBeCalled();
+    expect(mockSmsManager.sendSMS).toBeCalledWith({
+      to: phoneNumber,
+      body: 'message',
+    });
+    expect(mockRecoveryPhoneManager.storeUnconfirmed).toBeCalledWith(
+      uid,
+      code,
+      phoneNumber,
+      true
+    );
+    expect(mockRecoveryPhoneManager.getAllUnconfirmed).toBeCalledWith(uid);
+  });
+
   it('Will reject a phone number that is not part of launch', async () => {
     const to = '+16005551234';
     await expect(service.setupPhoneNumber(uid, to)).rejects.toEqual(

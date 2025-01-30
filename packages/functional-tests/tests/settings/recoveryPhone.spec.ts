@@ -103,7 +103,7 @@ test.describe('severity-1 #smoke', () => {
       await settings.disconnectTotp();
     });
 
-    test('can sign-in settings with recovery phone', async ({
+    test('can sign-in to settings with recovery phone', async ({
       target,
       pages: {
         page,
