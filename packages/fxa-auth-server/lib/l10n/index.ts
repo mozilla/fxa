@@ -7,9 +7,16 @@ import { FluentBundle, FluentResource } from '@fluent/bundle';
 import { determineLocale, parseAcceptLanguage } from '@fxa/shared/l10n';
 import { ILocalizerBindings } from './interfaces/ILocalizerBindings';
 
+/**
+ * Represents a Fluent (FTL) message
+ * @param id - unique identifier for the message
+ * @param message - a fallback message in case the localized string cannot be found
+ * @param vars - optional arguments to be interpolated into the localized string
+ */
 export interface FtlIdMsg {
   id: string;
   message: string;
+  vars?: Record<string, string>;
 }
 
 interface LocalizedStrings {
@@ -118,11 +125,11 @@ class Localizer {
 
     const localizedFtlIdMsgs = await Promise.all(
       ftlIdMsgs.map(async (ftlIdMsg) => {
-        const { id, message } = ftlIdMsg;
+        const { id, message, vars } = ftlIdMsg;
         let localizedMessage;
         try {
-          localizedMessage = (await l10n.formatValue(id, message)) || message;
-        } catch {
+          localizedMessage = (await l10n.formatValue(id, vars)) || message;
+        } catch (e) {
           localizedMessage = message;
         }
         return Promise.resolve({

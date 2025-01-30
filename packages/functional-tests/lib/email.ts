@@ -59,6 +59,10 @@ export enum EmailType {
   verificationReminderFinal,
   cadReminderFirst,
   cadReminderSecond,
+  postAddRecoveryPhone,
+  postChangeRecoveryPhone,
+  postRemoveRecoveryPhone,
+  postSigninRecoveryPhone,
 }
 
 export enum EmailHeader {

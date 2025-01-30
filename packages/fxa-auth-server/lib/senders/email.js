@@ -1601,6 +1601,13 @@ module.exports = function (log, config, bounces) {
   };
 
   Mailer.prototype.postAddRecoveryPhoneEmail = function (message) {
+    const { maskedLastFourPhoneNumber } = message;
+    log.trace('mailer.postAddRecoveryPhoneEmail', {
+      email: message.email,
+      uid: message.uid,
+      maskedLastFourPhoneNumber,
+    });
+
     const templateName = 'postAddRecoveryPhone';
     const links = this._generateSettingLinks(message, templateName);
     const [time, date] = this._constructLocalTimeString(
@@ -1627,7 +1634,7 @@ module.exports = function (log, config, bounces) {
          * rendering, and adding them to our templateValues for Fluent. Because
          * of this, for now, we'll pass the variable with the bulleted mask
          * instead of handling the bulleted mask in the template itself. */
-        maskedLastFourPhoneNumber: message.maskedLastFourPhoneNumber,
+        maskedLastFourPhoneNumber,
         resetLink: links.resetLink,
         resetLinkAttributes: links.resetLinkAttributes,
         supportLinkAttributes: links.supportLinkAttributes,
