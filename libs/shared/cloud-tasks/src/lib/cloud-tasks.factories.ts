@@ -67,18 +67,42 @@ export function CloudTasksConvictConfigFactory() {
         format: String,
       },
     },
-    sendEmails: {
+    inactiveAccountEmails: {
       taskUrl: {
         default: '',
         doc: 'URL that sends the email',
         env: 'AUTH_CLOUDTASKS_NOTIFICATION_EMAILS_TASK_URL',
         format: String,
       },
-      queueName: {
-        default: 'notification-emails-queue',
-        doc: 'The name of the queue.  It should match the x-cloudtasks-queuename header value sent to the target.',
-        env: `AUTH_CLOUDTASKS_NOTIFICATION_EMAILS_QUEUENAME`,
+      firstEmailQueueName: {
+        default: 'inactives-first-email',
+        doc: 'The name of the queue for the first email.  It should match the x-cloudtasks-queuename header value sent to the target.',
+        env: 'AUTH_CLOUDTASKS_INACTIVE_ACCT_FIRST_EMAIL_QUEUENAME',
         format: String,
+      },
+      secondEmailQueueName: {
+        default: 'inactives-second-email',
+        doc: 'The name of the queue for the second email.  It should match the x-cloudtasks-queuename header value sent to the target.',
+        env: 'AUTH_CLOUDTASKS_INACTIVE_ACCT_SECOND_EMAIL_QUEUENAME',
+        format: String,
+      },
+      thirdEmailQueueName: {
+        default: 'inactives-third-email',
+        doc: 'The name of the queue for the third email.  It should match the x-cloudtasks-queuename header value sent to the target.',
+        env: 'AUTH_CLOUDTASKS_INACTIVE_ACCT_THIRD_EMAIL_QUEUENAME',
+        format: String,
+      },
+      firstToSecondEmailIntervalMs: {
+        default: 53 * 24 * 60 * 60 * 1000,
+        doc: 'The interval between the first and second email in milliseconds.',
+        env: 'AUTH_CLOUDTASKS_INACTIVE_ACCT_FIRST_TO_SECOND_EMAIL_INTERVAL',
+        format: Number,
+      },
+      secondToThirdEmailIntervalMs: {
+        default: 6 * 24 * 60 * 60 * 1000,
+        doc: 'The interval between the second and third email in milliseconds.',
+        env: 'AUTH_CLOUDTASKS_INACTIVE_ACCT_SECOND_TO_THIRD_EMAIL_INTERVAL',
+        format: Number,
       },
     },
   };
