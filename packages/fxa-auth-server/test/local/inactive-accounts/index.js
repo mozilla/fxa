@@ -52,16 +52,18 @@ const { AccountEventsManager } = require('../../../lib/account-events');
 const accountEventsManager = new AccountEventsManager();
 Container.set(AccountEventsManager, accountEventsManager);
 
-const scheduleSendEmailTaskStub = sandbox.stub();
+const mockEmailTasks = {
+  scheduleFirstEmail: sandbox.stub(),
+  scheduleSecondEmail: sandbox.stub(),
+  scheduleFinalEmail: sandbox.stub(),
+};
 const { InactiveAccountsManager } = proxyquire(
   '../../../lib/inactive-accounts',
   {
     ...require('../../../lib/inactive-accounts'),
     '@fxa/shared/cloud-tasks': {
       ...require('@fxa/shared/cloud-tasks'),
-      SendEmailTasksFactory: () => ({
-        sendEmail: scheduleSendEmailTaskStub,
-      }),
+      InactiveAccountEmailTasksFactory: () => mockEmailTasks,
     },
   }
 );
@@ -88,7 +90,7 @@ describe('InactiveAccountsManager', () => {
     mockGlean.inactiveAccountDeletion.firstEmailSkipped.resetHistory();
     mockGlean.inactiveAccountDeletion.secondEmailSkipped.resetHistory();
     mockGlean.inactiveAccountDeletion.finalEmailSkipped.resetHistory();
-    scheduleSendEmailTaskStub.resetHistory();
+    Object.values(mockEmailTasks).forEach((stub) => stub.resetHistory());
     sandbox.resetHistory();
     sinon.resetHistory();
   });
@@ -110,7 +112,7 @@ describe('InactiveAccountsManager', () => {
     it('should skip when account is active', async () => {
       const isActiveSpy = sandbox.spy(inactiveAccountManager, 'isActive');
       mockOAuthDb.getRefreshTokensByUid.resolves([{ lastUsedAt: Date.now() }]);
-      await inactiveAccountManager.handleNotificationTask('first', mockPayload);
+      await inactiveAccountManager.handleNotificationTask(mockPayload);
 
       sinon.assert.calledOnce(isActiveSpy);
       sinon.assert.calledOnceWithExactly(
@@ -137,7 +139,7 @@ describe('InactiveAccountsManager', () => {
 
       sinon.stub(inactiveAccountManager, 'scheduleNextEmail').resolves();
 
-      await inactiveAccountManager.handleNotificationTask('first', mockPayload);
+      await inactiveAccountManager.handleNotificationTask(mockPayload);
       sinon.assert.calledWithExactly(
         mockStatsd.increment,
         'account.inactive.first-email.skipped.duplicate'
@@ -156,7 +158,7 @@ describe('InactiveAccountsManager', () => {
       sinon.stub(accountEventsManager, 'findEmailEvents').resolves([]);
       sinon.stub(inactiveAccountManager, 'isActive').resolves(false);
 
-      await inactiveAccountManager.handleNotificationTask('first', mockPayload);
+      await inactiveAccountManager.handleNotificationTask(mockPayload);
 
       sinon.assert.calledOnceWithExactly(mockFxaDb.account, mockPayload.uid);
       const account = await mockFxaDb.account.returnValues[0];
@@ -169,12 +171,11 @@ describe('InactiveAccountsManager', () => {
           inactiveDeletionEta: now + 60 * aDayInMs,
         }
       );
-      sinon.assert.calledOnceWithExactly(scheduleSendEmailTaskStub, {
+      sinon.assert.calledOnceWithExactly(mockEmailTasks.scheduleSecondEmail, {
         payload: {
           uid: mockPayload.uid,
           emailType: EmailTypes.INACTIVE_DELETE_SECOND_NOTIFICATION,
         },
-        emailOptions: { deliveryTime: Date.now() + 53 * aDayInMs },
         taskOptions: { taskId: '0987654321-inactive-delete-second-email' },
       });
       sinon.assert.calledOnce(
@@ -195,6 +196,11 @@ describe('InactiveAccountsManager', () => {
   });
 
   describe('second email notification', () => {
+    const mockSecondTaskPayload = {
+      ...mockPayload,
+      emailType: EmailTypes.INACTIVE_DELETE_SECOND_NOTIFICATION,
+    };
+
     beforeEach(() => {
       // Fifty three days after the first email is sent, the next email will be sent.
       sinon.stub(Date, 'now').returns(now + 53 * aDayInMs);
@@ -207,14 +213,13 @@ describe('InactiveAccountsManager', () => {
       const isActiveSpy = sandbox.spy(inactiveAccountManager, 'isActive');
       mockOAuthDb.getRefreshTokensByUid.resolves([{ lastUsedAt: Date.now() }]);
       await inactiveAccountManager.handleNotificationTask(
-        'second',
-        mockPayload
+        mockSecondTaskPayload
       );
 
       sandbox.assert.calledOnce(isActiveSpy);
       sandbox.assert.calledOnceWithExactly(
         mockOAuthDb.getRefreshTokensByUid,
-        mockPayload.uid
+        mockSecondTaskPayload.uid
       );
       sandbox.assert.calledOnceWithExactly(
         mockStatsd.increment,
@@ -225,7 +230,7 @@ describe('InactiveAccountsManager', () => {
       );
       assert.deepEqual(
         mockGlean.inactiveAccountDeletion.secondEmailSkipped.args[0][1],
-        { uid: mockPayload.uid, reason: 'active_account' }
+        { uid: mockSecondTaskPayload.uid, reason: 'active_account' }
       );
     });
 
@@ -234,8 +239,7 @@ describe('InactiveAccountsManager', () => {
       sandbox.stub(inactiveAccountManager, 'isActive').resolves(false);
       sandbox.stub(inactiveAccountManager, 'scheduleNextEmail').resolves();
       await inactiveAccountManager.handleNotificationTask(
-        'second',
-        mockPayload
+        mockSecondTaskPayload
       );
       sandbox.assert.calledWithExactly(
         mockStatsd.increment,
@@ -246,7 +250,7 @@ describe('InactiveAccountsManager', () => {
       );
       assert.deepEqual(
         mockGlean.inactiveAccountDeletion.secondEmailSkipped.args[0][1],
-        { uid: mockPayload.uid, reason: 'already_sent' }
+        { uid: mockSecondTaskPayload.uid, reason: 'already_sent' }
       );
       sandbox.assert.calledOnce(inactiveAccountManager.scheduleNextEmail);
     });
@@ -256,10 +260,12 @@ describe('InactiveAccountsManager', () => {
       sandbox.stub(inactiveAccountManager, 'isActive').resolves(false);
 
       await inactiveAccountManager.handleNotificationTask(
-        'second',
-        mockPayload
+        mockSecondTaskPayload
       );
-      sandbox.assert.calledOnceWithExactly(mockFxaDb.account, mockPayload.uid);
+      sandbox.assert.calledOnceWithExactly(
+        mockFxaDb.account,
+        mockSecondTaskPayload.uid
+      );
       const account = await mockFxaDb.account.returnValues[0];
       sandbox.assert.calledOnceWithExactly(
         mockMailer.sendInactiveAccountSecondWarningEmail,
@@ -270,13 +276,10 @@ describe('InactiveAccountsManager', () => {
           inactiveDeletionEta: Date.now() + 7 * aDayInMs,
         }
       );
-      sandbox.assert.calledOnceWithExactly(scheduleSendEmailTaskStub, {
+      sandbox.assert.calledOnceWithExactly(mockEmailTasks.scheduleFinalEmail, {
         payload: {
-          uid: mockPayload.uid,
+          uid: mockSecondTaskPayload.uid,
           emailType: EmailTypes.INACTIVE_DELETE_FINAL_NOTIFICATION,
-        },
-        emailOptions: {
-          deliveryTime: Date.now() + 6 * aDayInMs,
         },
         taskOptions: { taskId: '0987654321-inactive-delete-final-email' },
       });
@@ -285,7 +288,7 @@ describe('InactiveAccountsManager', () => {
       );
       assert.deepEqual(
         mockGlean.inactiveAccountDeletion.finalEmailTaskRequest.args[0][1],
-        { uid: mockPayload.uid }
+        { uid: mockSecondTaskPayload.uid }
       );
       sandbox.assert.calledOnce(
         mockGlean.inactiveAccountDeletion.finalEmailTaskEnqueued
@@ -298,6 +301,11 @@ describe('InactiveAccountsManager', () => {
   });
 
   describe('final email notification', () => {
+    const mockFinalTaskPayload = {
+      ...mockPayload,
+      emailType: EmailTypes.INACTIVE_DELETE_FINAL_NOTIFICATION,
+    };
+
     beforeEach(() => {
       // Six days after the second email is sent, the final email is sent.
       sinon.stub(Date, 'now').returns(now + 59 * aDayInMs);
@@ -309,7 +317,7 @@ describe('InactiveAccountsManager', () => {
     it('should skip when account is active', async () => {
       const isActiveSpy = sandbox.spy(inactiveAccountManager, 'isActive');
       mockOAuthDb.getRefreshTokensByUid.resolves([{ lastUsedAt: Date.now() }]);
-      await inactiveAccountManager.handleNotificationTask('final', mockPayload);
+      await inactiveAccountManager.handleNotificationTask(mockFinalTaskPayload);
 
       sandbox.assert.calledOnce(isActiveSpy);
       sandbox.assert.calledOnceWithExactly(
@@ -336,7 +344,7 @@ describe('InactiveAccountsManager', () => {
 
       sandbox.stub(inactiveAccountManager, 'scheduleNextEmail').resolves();
 
-      await inactiveAccountManager.handleNotificationTask('final', mockPayload);
+      await inactiveAccountManager.handleNotificationTask(mockFinalTaskPayload);
       sandbox.assert.calledWithExactly(
         mockStatsd.increment,
         'account.inactive.final-email.skipped.duplicate'
@@ -355,7 +363,7 @@ describe('InactiveAccountsManager', () => {
       sandbox.stub(accountEventsManager, 'findEmailEvents').resolves([]);
       sandbox.stub(inactiveAccountManager, 'isActive').resolves(false);
 
-      await inactiveAccountManager.handleNotificationTask('final', mockPayload);
+      await inactiveAccountManager.handleNotificationTask(mockFinalTaskPayload);
 
       sandbox.assert.calledOnceWithExactly(mockFxaDb.account, mockPayload.uid);
       const account = await mockFxaDb.account.returnValues[0];
@@ -369,7 +377,7 @@ describe('InactiveAccountsManager', () => {
         }
       );
       // No email cloud task should be run. There are no more emails to schedule.
-      sandbox.assert.notCalled(scheduleSendEmailTaskStub);
+      sandbox.assert.notCalled(mockEmailTasks.scheduleFinalEmail);
     });
   });
 });

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { CloudTasksConfig } from './cloud-tasks.types';
-import { CloudTaskEmailType } from './send-email-tasks';
+import { CloudTaskEmailType } from './inactive-account-email-tasks';
 
 export type FxACloudTaskHeaders = {
   'fxa-cloud-task-delivery-time'?: string;
@@ -24,6 +24,7 @@ export enum ReasonForDeletion {
   UserRequested = 'fxa_user_requested_account_delete',
   Unverified = 'fxa_unverified_account_delete',
   Cleanup = 'fxa_cleanup_account_delete',
+  InactiveAccount = 'fxa_inactive_account_delete',
 }
 
 /** Task payload requesting an account deletion */
@@ -36,11 +37,15 @@ export type DeleteAccountTask = {
   reason: ReasonForDeletion;
 };
 
-export type SendEmailCloudTaskConfig = CloudTasksConfig & {
+export type InactiveAccountEmailCloudTaskConfig = CloudTasksConfig & {
   cloudTasks: {
-    sendEmails: {
+    inactiveAccountEmails: {
       taskUrl: string;
-      queueName: string;
+      firstEmailQueueName: string;
+      secondEmailQueueName: string;
+      thirdEmailQueueName: string;
+      firstToSecondEmailIntervalMs: number;
+      secondToThirdEmailIntervalMs: number;
     };
   };
 };
@@ -49,3 +54,7 @@ export type SendEmailTaskPayload = {
   uid: string;
   emailType: CloudTaskEmailType;
 };
+export type InactiveAccountEmailTaskPayloadParam = Omit<
+  SendEmailTaskPayload,
+  'emailType'
+>;

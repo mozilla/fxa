@@ -40,9 +40,8 @@ import { BigQuery } from '@google-cloud/bigquery';
 
 import {
   CloudTaskOptions,
-  EmailTypes,
-  SendEmailTaskPayload,
-  SendEmailTasksFactory,
+  InactiveAccountEmailTasksFactory,
+  InactiveAccountEmailTaskPayloadParam,
 } from '@fxa/shared/cloud-tasks';
 
 import { collect, parseBooleanArg } from '../lib/args';
@@ -69,7 +68,6 @@ import {
 
 // {{{ constants and defaults
 
-const emailType = EmailTypes.INACTIVE_DELETE_FIRST_NOTIFICATION;
 const defaultDaysTilFirstEmail = 0;
 const defaultResultsLImit = 500000;
 const defaultConcurrency = 100;
@@ -508,16 +506,15 @@ const init = async () => {
   // {{{ enqueue google tasks for sending the first notification email
 
   if (program.enqueueEmails) {
-    const emailCloudTasks = SendEmailTasksFactory(config, statsd);
+    const emailCloudTasks = InactiveAccountEmailTasksFactory(config, statsd);
 
     for (const uid of inactiveAccountUids) {
       await queue.onSizeLessThan(concurrency * 5);
 
       queue.add(async () => {
         // @TODO this function could be abstracted and moved to InactiveAccountsManager
-        const taskPayload: SendEmailTaskPayload = {
+        const taskPayload: InactiveAccountEmailTaskPayloadParam = {
           uid,
-          emailType,
         };
         const taskId = `${uid}-inactive-delete-first-email`;
         const taskOptions: CloudTaskOptions = {
@@ -532,7 +529,7 @@ const init = async () => {
             }
           );
 
-          await emailCloudTasks.sendEmail({
+          await emailCloudTasks.scheduleFirstEmail({
             payload: taskPayload,
             emailOptions: { deliveryTime: Date.now() + msTilFirstEmail },
             taskOptions: taskOptions,
@@ -547,9 +544,10 @@ const init = async () => {
           );
         } catch (cloudTaskQueueError) {
           // Note that the fxa cloud tasks lib already emitted some statsd metrics
-          statsd.increment('cloud-tasks.send-email.enqueue.error-code', [
-            cloudTaskQueueError.code as unknown as string,
-          ]);
+          statsd.increment(
+            'cloud-tasks.inactive-account-email.enqueue.error-code',
+            [cloudTaskQueueError.code as unknown as string]
+          );
           await glean.inactiveAccountDeletion.firstEmailTaskRejected(
             requestForGlean,
             {
