@@ -9,15 +9,17 @@ const sandbox = sinon.createSandbox();
 
 const { AppConfig } = require('../../lib/types');
 const { AccountEventsManager } = require('../../lib/account-events');
-const sendEmailTaskStub = sandbox.stub();
+const mockEmailTasks = {
+  scheduleFirstEmail: sandbox.stub(),
+  scheduleSecondEmail: sandbox.stub(),
+  scheduleFinalEmail: sandbox.stub(),
+};
 const notificationHandlerStub = sandbox.stub();
 const { EmailCloudTaskManager } = proxyquire('../../lib/email-cloud-tasks', {
   ...require('../../lib/email-cloud-tasks'),
   '@fxa/shared/cloud-tasks': {
     ...require('@fxa/shared/cloud-tasks'),
-    SendEmailTasksFactory: () => ({
-      sendEmail: sendEmailTaskStub,
-    }),
+    InactiveAccountEmailTasksFactory: () => mockEmailTasks,
   },
   './inactive-accounts': {
     InactiveAccountsManager: class InactiveAccountsManager {
@@ -33,7 +35,9 @@ describe('EmailCloudTaskManager', () => {
   const mockConfig = {
     authFirestore: {},
     securityHistory: {},
-    cloudTasks: { useLocalEmulator: true },
+    cloudTasks: {
+      useLocalEmulator: true,
+    },
   };
   Container.set(AppConfig, mockConfig);
   const accountEventsManager = new AccountEventsManager();
@@ -82,7 +86,7 @@ describe('EmailCloudTaskManager', () => {
           },
         },
       });
-      sinon.assert.calledOnceWithExactly(sendEmailTaskStub, {
+      sinon.assert.calledOnceWithExactly(mockEmailTasks.scheduleFirstEmail, {
         payload: mockTaskPayload,
         emailOptions: {
           deliveryTime,
@@ -110,7 +114,7 @@ describe('EmailCloudTaskManager', () => {
           },
         },
       });
-      sinon.assert.calledOnceWithExactly(sendEmailTaskStub, {
+      sinon.assert.calledOnceWithExactly(mockEmailTasks.scheduleFirstEmail, {
         payload: mockTaskPayload,
         emailOptions: {
           deliveryTime,
@@ -136,7 +140,6 @@ describe('EmailCloudTaskManager', () => {
       });
       sinon.assert.calledOnceWithExactly(
         notificationHandlerStub,
-        'first',
         mockTaskPayload
       );
     });
@@ -154,7 +157,6 @@ describe('EmailCloudTaskManager', () => {
       });
       sinon.assert.calledOnceWithExactly(
         notificationHandlerStub,
-        'second',
         mockSecondTaskPayload
       );
     });
@@ -172,7 +174,6 @@ describe('EmailCloudTaskManager', () => {
       });
       sinon.assert.calledOnceWithExactly(
         notificationHandlerStub,
-        'final',
         mockFinalTaskPayload
       );
     });

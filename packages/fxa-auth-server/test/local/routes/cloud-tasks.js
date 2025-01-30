@@ -16,7 +16,11 @@ const { EmailCloudTaskManager } = require('../../../lib/email-cloud-tasks');
 const mockConfig = {
   cloudTasks: {
     deleteAccounts: { queueName: 'del-accts' },
-    sendEmails: { queueName: 'send-emails' },
+    inactiveAccountEmails: {
+      firstEmailQueueName: 'inactives-first-email',
+      secondEmailQueueName: 'inactives-second-email',
+      thirdEmailQueueName: 'inactives-third-email',
+    },
   },
 };
 
