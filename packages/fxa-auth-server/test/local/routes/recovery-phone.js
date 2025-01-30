@@ -28,7 +28,6 @@ describe('/recovery_phone', () => {
   const email = 'test@mozilla.com';
   const phoneNumber = '+15550005555';
   const code = '000000';
-  const mockLog = {};
   const mockDb = mocks.mockDB({ uid: uid, email: email });
   let mockMailer;
   const mockCustoms = {
@@ -60,13 +59,7 @@ describe('/recovery_phone', () => {
     Container.set(RecoveryPhoneService, mockRecoveryPhoneService);
     Container.set(AccountManager, mockAccountManager);
     mockMailer = mocks.mockMailer();
-    routes = recoveryPhoneRoutes(
-      mockCustoms,
-      mockDb,
-      mockGlean,
-      mockLog,
-      mockMailer
-    );
+    routes = recoveryPhoneRoutes(mockCustoms, mockDb, mockGlean, mockMailer);
   });
 
   afterEach(() => {
