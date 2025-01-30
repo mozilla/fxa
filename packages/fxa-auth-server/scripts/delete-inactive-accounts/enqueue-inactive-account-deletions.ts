@@ -514,7 +514,7 @@ const init = async () => {
       await queue.onSizeLessThan(concurrency * 5);
 
       queue.add(async () => {
-        // @TODO this function could be astracted and moved to InactiveAccountsManager
+        // @TODO this function could be abstracted and moved to InactiveAccountsManager
         const taskPayload: SendEmailTaskPayload = {
           uid,
           emailType,

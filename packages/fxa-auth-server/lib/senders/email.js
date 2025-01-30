@@ -2900,8 +2900,10 @@ module.exports = function (log, config, bounces) {
     });
   };
 
-  Mailer.prototype.inactiveAccountFirstWarningEmail = async function (message) {
-    const templateName = 'inactiveAccountFirstWarning';
+  Mailer.prototype._inactiveAccountWarningEmail = async function (
+    message,
+    templateName
+  ) {
     const deletionDate = this._constructLocalDateString(
       message.timezone,
       message.acceptLanguage,
@@ -2926,6 +2928,23 @@ module.exports = function (log, config, bounces) {
         deletionDate,
       },
     });
+  };
+
+  Mailer.prototype.inactiveAccountFirstWarningEmail = async function (message) {
+    const templateName = 'inactiveAccountFirstWarning';
+    this._inactiveAccountWarningEmail(message, templateName);
+  };
+
+  Mailer.prototype.inactiveAccountSecondWarningEmail = async function (
+    message
+  ) {
+    const templateName = 'inactiveAccountSecondWarning';
+    this._inactiveAccountWarningEmail(message, templateName);
+  };
+
+  Mailer.prototype.inactiveAccountFinalWarningEmail = async function (message) {
+    const templateName = 'inactiveAccountFinalWarning';
+    this._inactiveAccountWarningEmail(message, templateName);
   };
 
   cadReminders.keys.forEach((key, index) => {
