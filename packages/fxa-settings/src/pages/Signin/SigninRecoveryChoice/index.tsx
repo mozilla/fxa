@@ -112,9 +112,9 @@ const SigninRecoveryChoice = ({
         'Backup authentication codes'
       ),
       localizedChoiceInfo: ftlMsgResolver.getMsg(
-        'signin-recovery-method-code-info',
-        `${numBackupCodes} codes remaining`,
-        { numberOfCodes: numBackupCodes }
+        'signin-recovery-method-code-info-v2',
+        `${numBackupCodes} code${numBackupCodes === 1 ? '' : 's'} remaining`,
+        { numBackupCodes }
       ),
     },
   ];

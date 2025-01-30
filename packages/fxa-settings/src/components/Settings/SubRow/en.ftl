@@ -6,7 +6,10 @@ tfa-row-backup-codes-title = Backup authentication codes
 tfa-row-backup-codes-not-available = No codes available
 # $numCodesRemaining - the number of backup authentication codes that have not yet been used (generally between 1 to 5)
 # A different message is shown when no codes are available
-tfa-row-backup-codes-available = { $numCodesAvailable } codes remaining
+tfa-row-backup-codes-available-v2 = { $numCodesAvailable ->
+  [one] { $numCodesAvailable } code remaining
+  *[other] { $numCodesAvailable } codes remaining
+}
 # Shown to users who have backup authentication codes - this will allow them to generate new codes to replace the previous ones
 tfa-row-backup-codes-get-new-cta = Get new codes
 # Shown to users who have no backup authentication codes

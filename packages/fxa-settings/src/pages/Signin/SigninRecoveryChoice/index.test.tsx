@@ -74,6 +74,13 @@ describe('SigninRecoveryChoice', () => {
     expect(
       screen.getByLabelText(/Backup authentication codes/i)
     ).toBeInTheDocument();
+    expect(screen.getByText('4 codes remaining')).toBeInTheDocument();
+  });
+
+  it('renders as expected with one backup authentication code', () => {
+    renderSigninRecoveryChoice({ numBackupCodes: 1 });
+
+    expect(screen.getByText('1 code remaining')).toBeInTheDocument();
   });
 
   it('calls handlePhoneChoice when Recovery phone option is selected', async () => {
