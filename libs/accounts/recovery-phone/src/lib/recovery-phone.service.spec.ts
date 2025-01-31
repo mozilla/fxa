@@ -208,14 +208,14 @@ describe('RecoveryPhoneService', () => {
       ).toHaveBeenCalledWith(uid);
     });
 
-    it('can return masked phone number', async () => {
+    it('can return stripped phone number', async () => {
       mockRecoveryPhoneManager.getConfirmedPhoneNumber.mockReturnValueOnce({
         phoneNumber,
       });
 
       const result = await service.hasConfirmed(uid, 4);
 
-      expect(result.phoneNumber).toEqual('+•••••••1234');
+      expect(result.phoneNumber).toEqual('1234');
       expect(
         mockRecoveryPhoneManager.getConfirmedPhoneNumber
       ).toHaveBeenCalledWith(uid);
@@ -547,7 +547,7 @@ describe('RecoveryPhoneService', () => {
       expect(service.hasConfirmed(uid)).rejects.toEqual(
         new RecoveryPhoneNotEnabled()
       );
-      expect(() => service.maskPhoneNumber('+15550005555')).toThrow(
+      expect(() => service.stripPhoneNumber('+15550005555')).toThrow(
         new RecoveryPhoneNotEnabled()
       );
       expect(service.removePhoneNumber(uid)).rejects.toEqual(
@@ -562,14 +562,41 @@ describe('RecoveryPhoneService', () => {
     });
   });
 
-  describe('mask phone number', () => {
-    it('can mask number', () => {
+  describe('strip phone number', () => {
+    it('can strip number', () => {
       const phoneNumber = '+123456789';
-      expect(service.maskPhoneNumber(phoneNumber, -1)).toEqual('+•••••••••');
-      expect(service.maskPhoneNumber(phoneNumber, 0)).toEqual('+•••••••••');
-      expect(service.maskPhoneNumber(phoneNumber, 4)).toEqual('+•••••6789');
-      expect(service.maskPhoneNumber(phoneNumber, 9)).toEqual('+123456789');
-      expect(service.maskPhoneNumber(phoneNumber, 12)).toEqual('+123456789');
+
+      expect(service.stripPhoneNumber(phoneNumber)).toEqual(phoneNumber);
+      expect(service.stripPhoneNumber(phoneNumber, -1)).toEqual('');
+      expect(service.stripPhoneNumber(phoneNumber, 0)).toEqual('');
+      expect(service.stripPhoneNumber(phoneNumber, 2)).toEqual('89');
+      expect(service.stripPhoneNumber(phoneNumber, 4)).toEqual('6789');
+      expect(service.stripPhoneNumber(phoneNumber, 9)).toEqual('123456789');
+      expect(service.stripPhoneNumber(phoneNumber, 12)).toEqual('123456789');
+    });
+    it('can strip NANP national_format number and should not display format', () => {
+      const phoneNumber = '(123) 456-7890';
+
+      expect(service.stripPhoneNumber(phoneNumber)).toEqual(phoneNumber);
+      expect(service.stripPhoneNumber(phoneNumber, -1)).toEqual('');
+      expect(service.stripPhoneNumber(phoneNumber, 0)).toEqual('');
+      expect(service.stripPhoneNumber(phoneNumber, 4)).toEqual('7890');
+      expect(service.stripPhoneNumber(phoneNumber, 10)).toEqual('1234567890');
+      expect(service.stripPhoneNumber(phoneNumber, 12)).toEqual('1234567890');
+    });
+    it('can strip non-NANP national_format number and should not display format', () => {
+      const phoneNumber = '+33 9 87 65 43 21';
+
+      expect(service.stripPhoneNumber(phoneNumber)).toEqual(phoneNumber);
+      expect(service.stripPhoneNumber(phoneNumber, -1)).toEqual('');
+      expect(service.stripPhoneNumber(phoneNumber, 0)).toEqual('');
+      expect(service.stripPhoneNumber(phoneNumber, 4)).toEqual('4321');
+      expect(service.stripPhoneNumber(phoneNumber, 9)).toEqual('987654321');
+      expect(service.stripPhoneNumber(phoneNumber, 12)).toEqual('33987654321');
+    });
+    it('can handle being passed an empty string', () => {
+      const phoneNumber = '';
+      expect(service.stripPhoneNumber(phoneNumber, 4)).toEqual('');
     });
   });
 });

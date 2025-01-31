@@ -1201,7 +1201,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ])],
     ['html', [
       { test: 'include', expected: 'You created a recovery phone number' },
-      { test: 'include', expected: 'You added ••••••1234 as your recovery phone' },
+      { test: 'include', expected: 'You added ••••••1234 as your recovery phone number' },
       // TODO, update test with FXA-10918
       { test: 'include', expected: 'https://support.mozilla.org/kb/secure-mozilla-account-two-step-authentication' },
       { test: 'include', expected: 'You enabled it from:' },
@@ -1216,7 +1216,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ]],
     ['text', [
       { test: 'include', expected: 'You created a recovery phone number' },
-      { test: 'include', expected: 'You added ••••••1234 as your recovery phone' },
+      { test: 'include', expected: 'You added ••••••1234 as your recovery phone number' },
       // TODO, update test with FXA-10918
       { test: 'include', expected: 'https://support.mozilla.org/kb/secure-mozilla-account-two-step-authentication' },
       { test: 'include', expected: 'You enabled it from:' },

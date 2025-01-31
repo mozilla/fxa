@@ -7,18 +7,24 @@ import { screen, waitFor } from '@testing-library/react';
 import { renderWithRouter } from '../../../models/mocks';
 import { Subject } from './mocks';
 import userEvent, { UserEvent } from '@testing-library/user-event';
+import {
+  MOCK_FULL_PHONE_NUMBER,
+  MOCK_NATIONAL_FORMAT_PHONE_NUMBER,
+} from '../../../pages/mocks';
 
 jest.mock('../../../models/AlertBarInfo');
 
-const phoneNumber = '1231231234';
-const phoneNumberWithCountryCode = '+11231231234';
+const phoneNumberWithoutCountryCode = MOCK_FULL_PHONE_NUMBER.slice(2);
 const otpCode = '123456';
+const mockSuccessResponse = {
+  nationalFormat: MOCK_NATIONAL_FORMAT_PHONE_NUMBER,
+};
 
 const completeStepOne = async (user: UserEvent) => {
   await waitFor(() =>
     user.type(
       screen.getByRole('textbox', { name: /Enter phone number/i }),
-      phoneNumber
+      phoneNumberWithoutCountryCode
     )
   );
   user.click(screen.getByRole('button', { name: /Send code/i }));
@@ -36,13 +42,15 @@ describe('PageRecoveryPhoneSetup', () => {
 
   it('add recovery phone with successful submission renders step 2', async () => {
     const user = userEvent.setup();
-    const addRecoveryPhone = jest.fn().mockResolvedValueOnce(undefined);
+    const addRecoveryPhone = jest
+      .fn()
+      .mockResolvedValueOnce(mockSuccessResponse);
     renderWithRouter(<Subject account={{ addRecoveryPhone }} />);
 
     await completeStepOne(user);
     await waitFor(() => expect(addRecoveryPhone).toHaveBeenCalledTimes(1));
     await waitFor(() =>
-      expect(addRecoveryPhone).toHaveBeenCalledWith(phoneNumberWithCountryCode)
+      expect(addRecoveryPhone).toHaveBeenCalledWith(MOCK_FULL_PHONE_NUMBER)
     );
     expect(
       screen.queryByText(/You’ll get a text message from Mozilla/i)
@@ -52,11 +60,13 @@ describe('PageRecoveryPhoneSetup', () => {
 
   it('at step 2, allows code resend', async () => {
     const user = userEvent.setup();
-    const confirmRecoveryPhone = jest.fn().mockResolvedValueOnce(undefined);
+    const confirmRecoveryPhone = jest
+      .fn()
+      .mockResolvedValueOnce(mockSuccessResponse);
     const addRecoveryPhone = jest
       .fn()
-      .mockResolvedValueOnce(undefined)
-      .mockResolvedValueOnce(undefined);
+      .mockResolvedValueOnce(mockSuccessResponse)
+      .mockResolvedValueOnce(mockSuccessResponse);
     renderWithRouter(
       <Subject account={{ confirmRecoveryPhone, addRecoveryPhone }} />
     );
@@ -75,20 +85,18 @@ describe('PageRecoveryPhoneSetup', () => {
     );
 
     await waitFor(() => expect(addRecoveryPhone).toHaveBeenCalledTimes(2));
-    expect(addRecoveryPhone).toHaveBeenNthCalledWith(
-      1,
-      phoneNumberWithCountryCode
-    );
-    expect(addRecoveryPhone).toHaveBeenNthCalledWith(
-      2,
-      phoneNumberWithCountryCode
-    );
+    expect(addRecoveryPhone).toHaveBeenNthCalledWith(1, MOCK_FULL_PHONE_NUMBER);
+    expect(addRecoveryPhone).toHaveBeenNthCalledWith(2, MOCK_FULL_PHONE_NUMBER);
   });
 
   it('at step 2, allows code confirm', async () => {
     const user = userEvent.setup();
-    const confirmRecoveryPhone = jest.fn().mockResolvedValueOnce(undefined);
-    const addRecoveryPhone = jest.fn().mockResolvedValueOnce(undefined);
+    const confirmRecoveryPhone = jest
+      .fn()
+      .mockResolvedValueOnce(mockSuccessResponse);
+    const addRecoveryPhone = jest
+      .fn()
+      .mockResolvedValueOnce(mockSuccessResponse);
     renderWithRouter(
       <Subject account={{ confirmRecoveryPhone, addRecoveryPhone }} />
     );
@@ -107,7 +115,7 @@ describe('PageRecoveryPhoneSetup', () => {
     await waitFor(() => expect(confirmRecoveryPhone).toHaveBeenCalledTimes(1));
     expect(confirmRecoveryPhone).toHaveBeenCalledWith(
       otpCode,
-      phoneNumberWithCountryCode
+      MOCK_FULL_PHONE_NUMBER
     );
   });
 });

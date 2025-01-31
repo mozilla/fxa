@@ -175,7 +175,18 @@ class RecoveryPhoneHandler {
           uid,
         });
         await this.glean.twoStepAuthPhoneCode.sent(request);
-        return { status: RecoveryPhoneStatus.SUCCESS };
+
+        let nationalFormat: string | null = null;
+        try {
+          nationalFormat = await this.recoveryPhoneService.getNationalFormat(
+            phoneNumber
+          );
+        } catch (e) {
+          // This should not fail since the number was already validated with Twilio so
+          // if it does it's a network problem - just return a null value and don't error out.
+        }
+
+        return { status: RecoveryPhoneStatus.SUCCESS, nationalFormat };
       }
       await this.glean.twoStepAuthPhoneCode.sendError(request);
       return { status: RecoveryPhoneStatus.FAILURE };
@@ -277,17 +288,17 @@ class RecoveryPhoneHandler {
         this.log.info('account.recoveryPhone.phoneAdded.success', { uid });
 
         try {
-          const { phoneNumber } = await this.recoveryPhoneService.hasConfirmed(
-            uid,
-            4
-          );
-
+          const { phoneNumber, nationalFormat } =
+            await this.recoveryPhoneService.hasConfirmed(uid, 4);
           await this.mailer.sendPostAddRecoveryPhoneEmail(
             account.emails,
             account,
             {
               acceptLanguage,
-              maskedLastFourPhoneNumber: phoneNumber?.slice(1),
+              maskedLastFourPhoneNumber: `••••••${this.recoveryPhoneService.stripPhoneNumber(
+                phoneNumber || '',
+                4
+              )}`,
               timeZone: geo.timeZone,
               uaBrowser: ua.browser,
               uaBrowserVersion: ua.browserVersion,
@@ -297,6 +308,11 @@ class RecoveryPhoneHandler {
               uid,
             }
           );
+          return {
+            phoneNumber,
+            nationalFormat,
+            status: RecoveryPhoneStatus.SUCCESS,
+          };
         } catch (error) {
           // log email send error but don't throw
           // user should be allowed to proceed
@@ -448,21 +464,18 @@ class RecoveryPhoneHandler {
   async exists(request: AuthRequest) {
     const { uid, emailVerified, mustVerify, tokenVerified } = request.auth
       .credentials as SessionTokenAuthCredential;
-    const payload = request.payload as unknown as { phoneNumberMask: number };
-    let phoneNumberMask = payload?.phoneNumberMask;
 
     // To ensure no data is leaked, we will never expose the full phone number, if
     // the session is not verified. e.g. The user has entered the correct password,
     // but failed to provide 2FA.
-    if (
-      phoneNumberMask === undefined &&
-      (!emailVerified || (mustVerify && !tokenVerified))
-    ) {
-      phoneNumberMask = 4;
-    }
+    const phoneNumberStrip =
+      !emailVerified || (mustVerify && !tokenVerified) ? 4 : undefined;
 
     try {
-      return await this.recoveryPhoneService.hasConfirmed(uid, phoneNumberMask);
+      return await this.recoveryPhoneService.hasConfirmed(
+        uid,
+        phoneNumberStrip
+      );
     } catch (error) {
       if (error instanceof RecoveryPhoneNotEnabled) {
         throw AppError.featureNotEnabled();

@@ -16,7 +16,7 @@ import GleanMetrics from '../../../lib/glean';
 
 export type FlowSetupRecoveryPhoneConfirmCodeProps = {
   currentStep?: number;
-  formattedPhoneNumber: string;
+  nationalFormatPhoneNumber: string;
   localizedBackButtonTitle: string;
   localizedPageTitle: string;
   navigateBackward: () => void;
@@ -28,7 +28,7 @@ export type FlowSetupRecoveryPhoneConfirmCodeProps = {
 
 export const FlowSetupRecoveryPhoneConfirmCode = ({
   currentStep = 2,
-  formattedPhoneNumber,
+  nationalFormatPhoneNumber,
   localizedBackButtonTitle,
   localizedPageTitle,
   navigateBackward,
@@ -124,12 +124,12 @@ export const FlowSetupRecoveryPhoneConfirmCode = ({
       <FtlMsg
         id="flow-setup-phone-confirm-code-instruction"
         elems={{ span: <span dir="ltr" className="font-bold"></span> }}
-        vars={{ phoneNumber: formattedPhoneNumber }}
+        vars={{ phoneNumber: nationalFormatPhoneNumber }}
       >
         <p className="text-base mt-4">
           A six-digit code was sent to{' '}
           <span dir="ltr" className="font-bold">
-            {formattedPhoneNumber}
+            {nationalFormatPhoneNumber}
           </span>{' '}
           by text message. This code expires after 5 minutes.
         </p>

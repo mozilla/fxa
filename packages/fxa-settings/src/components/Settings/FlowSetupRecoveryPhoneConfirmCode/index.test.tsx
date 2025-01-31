@@ -30,7 +30,7 @@ const defaultProps = {
   localizedPageTitle: 'Add phone number',
   navigateBackward: mockNavigateBackward,
   navigateForward: mockNavigateForward,
-  formattedPhoneNumber: '+1 (555) 555-5555',
+  nationalFormatPhoneNumber: '(555) 555-8888',
   sendCode: mockSendCode,
   verifyRecoveryCode: mockVerifyRecoveryCode,
 };
@@ -49,7 +49,7 @@ describe('FlowSetupRecoveryPhoneConfirmCode', () => {
     expect(
       screen.getByText(/A six-digit code was sent to/i)
     ).toBeInTheDocument();
-    expect(screen.getByText(/\+1 \(555\) 555-5555/)).toBeInTheDocument();
+    expect(screen.getByText(/\(555\) 555-8888/)).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: /Resend code/i })
     ).toBeInTheDocument();

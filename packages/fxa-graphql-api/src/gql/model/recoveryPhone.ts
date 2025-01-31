@@ -21,6 +21,13 @@ export class RecoveryPhone {
   @Field({
     nullable: true,
     description:
+      "The recovery phone number in Twilio's national_format format.",
+  })
+  public nationalFormat!: string;
+
+  @Field({
+    nullable: true,
+    description:
       'Returns true if the user is eligible to set up a recovery phone.',
   })
   public available!: boolean;

@@ -7,7 +7,7 @@ signin-recovery-phone-heading = Enter recovery code
 
 # Text that explains the user should check their phone for a recovery code
 # $maskedPhoneNumber - The users masked phone number
-signin-recovery-phone-instruction-v2 = A six-digit code was sent to <span>{ $maskedPhoneNumber }</span> by text message. This code expires after 5 minutes. Donʼt share this code with anyone.
+signin-recovery-phone-instruction-v3 = A six-digit code was sent to the phone number ending in <span>{ $lastFourPhoneDigits }</span> by text message. This code expires after 5 minutes. Donʼt share this code with anyone.
 
 signin-recovery-phone-input-label = Enter 6-digit code
 

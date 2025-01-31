@@ -7,8 +7,8 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import SubRow, { BackupCodesSubRow, BackupPhoneSubRow } from './index';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import {
-  MOCK_FULL_PHONE_NUMBER,
-  MOCK_MASKED_PHONE_NUMBER,
+  MOCK_MASKED_NATIONAL_FORMAT_PHONE_NUMBER,
+  MOCK_MASKED_PHONE_NUMBER_WITH_COPY,
 } from '../../../pages/mocks';
 
 describe('SubRow', () => {
@@ -118,7 +118,7 @@ describe('BackupCodesSubRow', () => {
 describe('BackupPhoneSubRow', () => {
   const defaultProps = {
     onCtaClick: jest.fn(),
-    phoneNumber: MOCK_FULL_PHONE_NUMBER,
+    phoneNumber: MOCK_MASKED_NATIONAL_FORMAT_PHONE_NUMBER,
   };
 
   it('renders correctly when phone number unavailable', () => {
@@ -141,7 +141,9 @@ describe('BackupPhoneSubRow', () => {
   it('renders correctly when phone number is available and delete is not an option', () => {
     renderWithLocalizationProvider(<BackupPhoneSubRow {...defaultProps} />);
     expect(screen.getByText('Recovery phone')).toBeInTheDocument();
-    expect(screen.getByText(MOCK_MASKED_PHONE_NUMBER)).toBeInTheDocument();
+    expect(
+      screen.getByText(MOCK_MASKED_NATIONAL_FORMAT_PHONE_NUMBER)
+    ).toBeInTheDocument();
     // Temporary until we work on the change flow for SMS phase 2, FXA-10995
     expect(
       screen.queryByRole('button', { name: 'Change' })
@@ -156,15 +158,17 @@ describe('BackupPhoneSubRow', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('renders correctly when user does not have a verified session (phone number is already masked)', () => {
+  it('renders correctly when user does not have a verified session', () => {
     renderWithLocalizationProvider(
       <BackupPhoneSubRow
         {...defaultProps}
-        phoneNumber={MOCK_MASKED_PHONE_NUMBER}
+        phoneNumber={MOCK_MASKED_PHONE_NUMBER_WITH_COPY}
       />
     );
     expect(screen.getByText('Recovery phone')).toBeInTheDocument();
-    expect(screen.getByText(MOCK_MASKED_PHONE_NUMBER)).toBeInTheDocument();
+    expect(
+      screen.getByText(MOCK_MASKED_PHONE_NUMBER_WITH_COPY)
+    ).toBeInTheDocument();
   });
 
   it('renders correctly when phone number is available and delete is an option', () => {
@@ -172,7 +176,9 @@ describe('BackupPhoneSubRow', () => {
       <BackupPhoneSubRow {...defaultProps} onDeleteClick={jest.fn()} />
     );
     expect(screen.getByText('Recovery phone')).toBeInTheDocument();
-    expect(screen.getByText(MOCK_MASKED_PHONE_NUMBER)).toBeInTheDocument();
+    expect(
+      screen.getByText(MOCK_MASKED_NATIONAL_FORMAT_PHONE_NUMBER)
+    ).toBeInTheDocument();
     // Temporary until we work on the change flow for SMS phase 2, FXA-10995
     expect(
       screen.queryByRole('button', { name: 'Change' })

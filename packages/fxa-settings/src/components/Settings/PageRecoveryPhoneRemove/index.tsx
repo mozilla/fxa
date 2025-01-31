@@ -31,8 +31,9 @@ const PageRecoveryPhoneRemove = (props: RouteComponentProps) => {
   const alertBar = useAlertBar();
   const ftlMsgResolver = useFtlMsgResolver();
 
-  // TODO, we may want national_format back from Twilio
-  const formattedFullPhoneNumber = account.recoveryPhone.phoneNumber!;
+  const { phoneNumber, nationalFormat } = account.recoveryPhone;
+  // Use phoneNumber as a fallback in case nationalFormat is not available
+  const formattedFullPhoneNumber = nationalFormat || phoneNumber;
 
   const goHome = () => navigate(SETTINGS_PATH + '#security', { replace: true });
 
@@ -60,6 +61,12 @@ const PageRecoveryPhoneRemove = (props: RouteComponentProps) => {
       alertBar.error(localizedError);
     }
   }, [account, alertSuccessAndGoHome, alertBar, ftlMsgResolver]);
+
+  // Should never happen, but just in case, and makes TS happy.
+  if (!formattedFullPhoneNumber) {
+    goHome();
+    return <></>;
+  }
 
   return (
     <FlowContainer hideBackButton={true}>

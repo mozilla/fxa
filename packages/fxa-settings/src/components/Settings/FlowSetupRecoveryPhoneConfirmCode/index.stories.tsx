@@ -9,7 +9,7 @@ import SettingsLayout from '../SettingsLayout';
 import { action } from '@storybook/addon-actions';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import FlowSetupRecoveryPhoneConfirmCode from '.';
-import { MOCK_FULL_PHONE_NUMBER } from '../../../pages/mocks';
+import { MOCK_NATIONAL_FORMAT_PHONE_NUMBER } from '../../../pages/mocks';
 
 export default {
   title: 'Components/Settings/FlowSetupRecoveryPhoneConfirmCode',
@@ -44,13 +44,13 @@ const verifyRecoveryCodeFailure = async (code: string) => {
   return Promise.reject(AuthUiErrors.UNEXPECTED_ERROR);
 };
 
-const formattedPhoneNumber = MOCK_FULL_PHONE_NUMBER;
+const nationalFormatPhoneNumber = MOCK_NATIONAL_FORMAT_PHONE_NUMBER;
 
 export const Success = () => (
   <SettingsLayout>
     <FlowSetupRecoveryPhoneConfirmCode
       {...{
-        formattedPhoneNumber,
+        nationalFormatPhoneNumber,
         localizedBackButtonTitle,
         localizedPageTitle,
         navigateBackward,
@@ -66,7 +66,7 @@ export const Error = () => (
   <SettingsLayout>
     <FlowSetupRecoveryPhoneConfirmCode
       {...{
-        formattedPhoneNumber,
+        nationalFormatPhoneNumber,
         localizedBackButtonTitle,
         localizedPageTitle,
         navigateBackward,

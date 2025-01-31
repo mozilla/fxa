@@ -82,9 +82,11 @@ export class RecoveryPhoneManager {
    *
    * @param uid
    */
-  async getConfirmedPhoneNumber(
-    uid: string
-  ): Promise<{ uid: Buffer; phoneNumber: string }> {
+  async getConfirmedPhoneNumber(uid: string): Promise<{
+    uid: Buffer;
+    phoneNumber: string;
+    nationalFormat?: string;
+  }> {
     const uidBuffer = Buffer.from(uid, 'hex');
     const result = await getConfirmedPhoneNumber(this.db, uidBuffer);
     if (!result) {

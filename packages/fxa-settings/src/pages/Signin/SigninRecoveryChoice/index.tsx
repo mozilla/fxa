@@ -29,6 +29,7 @@ import GleanMetrics from '../../../lib/glean';
 
 export type SigninRecoveryChoiceProps = {
   handlePhoneChoice: () => Promise<AuthUiError | void>;
+  maskedPhoneNumber: string;
   lastFourPhoneDigits: string;
   numBackupCodes: number;
   signinState: SigninLocationState;
@@ -36,6 +37,7 @@ export type SigninRecoveryChoiceProps = {
 
 const SigninRecoveryChoice = ({
   handlePhoneChoice,
+  maskedPhoneNumber,
   lastFourPhoneDigits,
   numBackupCodes,
   signinState,
@@ -103,7 +105,7 @@ const SigninRecoveryChoice = ({
         'Recovery phone'
       ),
       // This doesn't need localization
-      localizedChoiceInfo: `••••••${lastFourPhoneDigits}`,
+      localizedChoiceInfo: maskedPhoneNumber,
     },
     {
       id: 'recovery-choice-code',

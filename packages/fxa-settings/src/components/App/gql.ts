@@ -116,6 +116,7 @@ export const GET_RECOVERY_PHONE = gql`
         available
         exists
         phoneNumber
+        nationalFormat
       }
     }
   }
