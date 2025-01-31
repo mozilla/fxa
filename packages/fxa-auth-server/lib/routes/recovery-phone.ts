@@ -111,7 +111,9 @@ class RecoveryPhoneHandler {
       );
       if (result) {
         await this.glean.twoStepAuthPhoneCode.sent(request);
-        return { status: RecoveryPhoneStatus.SUCCESS };
+        const nationalFormat =
+          await this.recoveryPhoneService.getNationalFormat(phoneNumber);
+        return { status: RecoveryPhoneStatus.SUCCESS, nationalFormat };
       }
       await this.glean.twoStepAuthPhoneCode.sendError(request);
       return { status: RecoveryPhoneStatus.FAILURE };

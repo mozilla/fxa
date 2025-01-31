@@ -100,6 +100,17 @@ export class RecoveryPhoneService {
     return true;
   }
 
+  public async getNationalFormat(phoneNumber: string) {
+    // When the user _confirms_ their OTP code we also call the lookup endpoint to
+    // store the full data returned in our DB, but we need the national format on the
+    // OTP confirm page before then. "Basic lookups" from Twilio are free, so don't
+    // bother persisting.
+    const { nationalFormat } = await this.smsManager.phoneNumberLookup(
+      phoneNumber
+    );
+    return nationalFormat;
+  }
+
   /**
    * Confirms a UID code. This will also and finalizes the phone number setup if the code provided was
    * intended for phone number setup.

@@ -1409,9 +1409,10 @@ export class Account implements AccountData {
   }
 
   async addRecoveryPhone(phoneNumber: string) {
-    await this.withLoadingStatus(
+    const result = await this.withLoadingStatus(
       this.authClient.recoveryPhoneCreate(sessionToken()!, phoneNumber)
     );
+    return result;
   }
 
   async confirmRecoveryPhone(code: string, phoneNumber: string) {

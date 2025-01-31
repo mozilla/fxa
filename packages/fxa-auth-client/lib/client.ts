@@ -2271,7 +2271,7 @@ export default class AuthClient {
     sessionToken: string,
     phoneNumber: string,
     headers?: Headers
-  ) {
+  ): Promise<{ nationalFormat: string }> {
     return this.sessionPost(
       '/recovery_phone/create',
       sessionToken,
