@@ -5,3 +5,4 @@
 export * from './lib/currency.constants';
 export * from './lib/currency.error';
 export * from './lib/currency.manager';
+export * from './lib/currency.config';

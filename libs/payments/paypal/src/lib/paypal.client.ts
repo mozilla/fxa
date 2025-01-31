@@ -231,6 +231,7 @@ export class PayPalClient {
     const data = {
       AMT: options.amount,
       CURRENCYCODE: options.currencyCode.toUpperCase(),
+      COUNTRYCODE: options.countryCode.toUpperCase(),
       CUSTOM: options.idempotencyKey,
       INVNUM: options.invoiceNumber,
       ...(options.ipaddress && { IPADDRESS: options.ipaddress }),
@@ -342,6 +343,7 @@ export class PayPalClient {
       ),
       billingAgreementId: options.billingAgreementId,
       currencyCode: options.currencyCode,
+      countryCode: options.countryCode,
       idempotencyKey: options.idempotencyKey,
       invoiceNumber: options.invoiceNumber,
       ...(options.ipaddress && { ipaddress: options.ipaddress }),

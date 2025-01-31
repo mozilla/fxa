@@ -688,7 +688,9 @@ describe('CheckoutService', () => {
       );
       const mockPaypalCustomer = ResultPaypalCustomerFactory();
       const mockInvoice = StripeResponseFactory(
-        StripeInvoiceFactory({ status: 'paid' })
+        StripeInvoiceFactory({
+          status: 'paid',
+        })
       );
       const mockPrice = StripePriceFactory();
       const mockPrePayStepsResult = PrePayStepsResultFactory({
@@ -852,7 +854,9 @@ describe('CheckoutService', () => {
         );
         const mockPaypalCustomer = ResultPaypalCustomerFactory();
         const mockInvoice = StripeResponseFactory(
-          StripeInvoiceFactory({ status: 'uncollectible' })
+          StripeInvoiceFactory({
+            status: 'uncollectible',
+          })
         );
         const mockPrice = StripePriceFactory();
         const mockPrePayStepsResult = PrePayStepsResultFactory({

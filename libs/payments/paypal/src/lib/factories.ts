@@ -180,6 +180,7 @@ export const ChargeOptionsFactory = (
   amountInCents: faker.number.int({ max: 100000000 }),
   billingAgreementId: faker.string.uuid(),
   currencyCode: faker.finance.currencyCode(),
+  countryCode: faker.finance.currencyCode(),
   idempotencyKey: faker.string.uuid(),
   invoiceNumber: faker.string.uuid(),
   taxAmountInCents: faker.number.int({ max: 100000000 }),

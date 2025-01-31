@@ -15,6 +15,7 @@ import {
   StripePromotionCodeFactory,
   StripeResponseFactory,
   StripeUpcomingInvoiceFactory,
+  StripeAddressFactory,
 } from '@fxa/payments/stripe';
 import { TaxAddressFactory } from './factories/tax-address.factory';
 import { InvoicePreviewFactory } from './invoice.factories';
@@ -26,6 +27,10 @@ import {
   PayPalClient,
   PaypalClientConfig,
 } from '@fxa/payments/paypal';
+import {
+  CurrencyManager,
+  MockCurrencyConfigProvider,
+} from '@fxa/payments/currency';
 import { STRIPE_CUSTOMER_METADATA, STRIPE_INVOICE_METADATA } from './types';
 
 jest.mock('../lib/util/stripeInvoiceToFirstInvoicePreviewDTO');
@@ -49,6 +54,8 @@ describe('InvoiceManager', () => {
         StripeClient,
         PayPalClient,
         PaypalClientConfig,
+        CurrencyManager,
+        MockCurrencyConfigProvider,
         MockStripeConfigProvider,
         InvoiceManager,
       ],
@@ -99,6 +106,7 @@ describe('InvoiceManager', () => {
 
       const result = await invoiceManager.previewUpcoming({
         priceId: mockPrice.id,
+        currency: mockPrice.currency,
         customer: mockCustomer,
         taxAddress: mockTaxAddress,
       });
@@ -135,6 +143,7 @@ describe('InvoiceManager', () => {
 
       const result = await invoiceManager.previewUpcoming({
         priceId: mockPrice.id,
+        currency: mockPrice.currency,
         customer: mockCustomer,
         taxAddress: mockTaxAddress,
         couponCode: mockPromotionCode.code,
@@ -188,6 +197,7 @@ describe('InvoiceManager', () => {
       const mockInvoice = StripeInvoiceFactory({
         amount_due: 50,
         currency: 'usd',
+        customer_shipping: { address: StripeAddressFactory() },
       });
 
       mockedGetMinimumChargeAmountForCurrency.mockReturnValue(10);
@@ -249,6 +259,7 @@ describe('InvoiceManager', () => {
               mockPaymentAttemptCount
             ),
           },
+          customer_shipping: { address: StripeAddressFactory() },
         })
       );
       const mockPayPalCharge = ChargeResponseFactory({
@@ -280,6 +291,7 @@ describe('InvoiceManager', () => {
           mockCustomer.metadata[STRIPE_CUSTOMER_METADATA.PaypalAgreement],
         invoiceNumber: mockInvoice.id,
         currencyCode: mockInvoice.currency,
+        countryCode: mockInvoice.customer_shipping?.address?.country,
         idempotencyKey: `${mockInvoice.id}-${mockPaymentAttemptCount}`,
         taxAmountInCents: mockInvoice.tax,
       });
@@ -312,7 +324,11 @@ describe('InvoiceManager', () => {
       const mockCustomer = StripeResponseFactory(
         StripeCustomerFactory({ metadata: {} })
       );
-      const mockInvoice = StripeResponseFactory(StripeInvoiceFactory());
+      const mockInvoice = StripeResponseFactory(
+        StripeInvoiceFactory({
+          customer_shipping: { address: StripeAddressFactory() },
+        })
+      );
 
       await expect(
         invoiceManager.processPayPalNonZeroInvoice(mockCustomer, mockInvoice)
@@ -321,7 +337,10 @@ describe('InvoiceManager', () => {
     it('throws an error for an already-paid invoice', async () => {
       const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
       const mockInvoice = StripeResponseFactory(
-        StripeInvoiceFactory({ status: 'paid' })
+        StripeInvoiceFactory({
+          status: 'paid',
+          customer_shipping: { address: StripeAddressFactory() },
+        })
       );
 
       await expect(
@@ -331,7 +350,10 @@ describe('InvoiceManager', () => {
     it('throws an error for an uncollectible invoice', async () => {
       const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
       const mockInvoice = StripeResponseFactory(
-        StripeInvoiceFactory({ status: 'uncollectible' })
+        StripeInvoiceFactory({
+          status: 'uncollectible',
+          customer_shipping: { address: StripeAddressFactory() },
+        })
       );
 
       await expect(
@@ -356,6 +378,7 @@ describe('InvoiceManager', () => {
               mockPaymentAttemptCount
             ),
           },
+          customer_shipping: { address: StripeAddressFactory() },
         })
       );
       const mockPayPalCharge = ChargeResponseFactory({
@@ -384,6 +407,7 @@ describe('InvoiceManager', () => {
           mockCustomer.metadata[STRIPE_CUSTOMER_METADATA.PaypalAgreement],
         invoiceNumber: mockInvoice.id,
         currencyCode: mockInvoice.currency,
+        countryCode: mockInvoice.customer_shipping?.address?.country,
         idempotencyKey: `${mockInvoice.id}-${mockPaymentAttemptCount}`,
         taxAmountInCents: mockInvoice.tax,
       });
@@ -421,6 +445,7 @@ describe('InvoiceManager', () => {
               mockPaymentAttemptCount
             ),
           },
+          customer_shipping: { address: StripeAddressFactory() },
         })
       );
       const mockPayPalCharge = ChargeResponseFactory({
@@ -446,6 +471,7 @@ describe('InvoiceManager', () => {
           mockCustomer.metadata[STRIPE_CUSTOMER_METADATA.PaypalAgreement],
         invoiceNumber: mockInvoice.id,
         currencyCode: mockInvoice.currency,
+        countryCode: mockInvoice.customer_shipping?.address?.country,
         idempotencyKey: `${mockInvoice.id}-${mockPaymentAttemptCount}`,
         taxAmountInCents: mockInvoice.tax,
       });
@@ -484,6 +510,7 @@ describe('InvoiceManager', () => {
             ),
           },
           tax: 0,
+          customer_shipping: { address: StripeAddressFactory() },
         })
       );
       const mockPayPalCharge = ChargeResponseFactory({
@@ -515,6 +542,7 @@ describe('InvoiceManager', () => {
           mockCustomer.metadata[STRIPE_CUSTOMER_METADATA.PaypalAgreement],
         invoiceNumber: mockInvoice.id,
         currencyCode: mockInvoice.currency,
+        countryCode: mockInvoice.customer_shipping?.address?.country,
         idempotencyKey: `${mockInvoice.id}-${mockPaymentAttemptCount}`,
         taxAmountInCents: mockInvoice.tax,
       });

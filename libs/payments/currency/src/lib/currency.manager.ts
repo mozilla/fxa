@@ -72,4 +72,14 @@ export class CurrencyManager {
 
     return undefined;
   }
+
+  getDefaultCountryForCurrency(currency: string) {
+    if (
+      currency in Object.getOwnPropertyNames(this.config.currenciesToCountries)
+    ) {
+      return this.config.currenciesToCountries[currency][0];
+    } else {
+      return undefined;
+    }
+  }
 }
