@@ -118,6 +118,7 @@ export interface AccountData {
   recoveryPhone: {
     exists: boolean;
     phoneNumber: string | null;
+    nationalFormat: string | null;
     available: boolean;
   };
   subscriptions: Subscription[];
@@ -206,6 +207,7 @@ export const GET_ACCOUNT = gql`
       recoveryPhone {
         exists
         phoneNumber
+        nationalFormat
         available
       }
       subscriptions {
@@ -1399,6 +1401,7 @@ export class Account implements AccountData {
           return {
             exists: false,
             phoneNumber: null,
+            nationalFormat: null,
             available: true,
           };
         },
@@ -1409,13 +1412,14 @@ export class Account implements AccountData {
   }
 
   async addRecoveryPhone(phoneNumber: string) {
-    await this.withLoadingStatus(
+    const result = await this.withLoadingStatus(
       this.authClient.recoveryPhoneCreate(sessionToken()!, phoneNumber)
     );
+    return result;
   }
 
   async confirmRecoveryPhone(code: string, phoneNumber: string) {
-    await this.withLoadingStatus(
+    const { nationalFormat } = await this.withLoadingStatus(
       this.authClient.recoveryPhoneConfirmSetup(sessionToken()!, code)
     );
     const cache = this.apolloClient.cache;
@@ -1426,6 +1430,7 @@ export class Account implements AccountData {
           return {
             exists: true,
             phoneNumber,
+            nationalFormat,
             available: true,
           };
         },

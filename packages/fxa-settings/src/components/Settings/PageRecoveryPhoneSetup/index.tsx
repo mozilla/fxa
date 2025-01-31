@@ -18,9 +18,13 @@ export const PageRecoveryPhoneSetup = (_: RouteComponentProps) => {
   const navigate = useNavigate();
   const account = useAccount();
 
-  const [phoneNumber, setPhoneNumber] = useState<string>('');
-  // TODO, actually format this. Should get `national_format` back from Twilio?
-  const formattedPhoneNumber = phoneNumber;
+  const [phoneData, setPhoneData] = useState<{
+    phoneNumber: string;
+    nationalFormat: string | undefined;
+  }>({
+    phoneNumber: '',
+    nationalFormat: '',
+  });
 
   const [currentStep, setCurrentStep] = useState<number>(1);
 
@@ -55,18 +59,21 @@ export const PageRecoveryPhoneSetup = (_: RouteComponentProps) => {
     // one code can be valid at the same time if the user clicks “resend code” to
     // account for SMS transmission delay. (This will change in FXA-11039)
     // try/catch is in the component that calls this function
-    await account.addRecoveryPhone(phoneNumber);
+    await account.addRecoveryPhone(phoneData.phoneNumber);
   };
 
   const verifyRecoveryCode = async (code: string) => {
     // try/catch is in the component that calls this function
-    await account.confirmRecoveryPhone(code, phoneNumber);
+    await account.confirmRecoveryPhone(code, phoneData.phoneNumber);
   };
 
   const verifyPhoneNumber = async (phoneNumberInput: string) => {
     // try/catch is in the component that calls this function
-    await account.addRecoveryPhone(phoneNumberInput);
-    setPhoneNumber(phoneNumberInput);
+    const { nationalFormat } = await account.addRecoveryPhone(phoneNumberInput);
+    setPhoneData({
+      phoneNumber: phoneNumberInput,
+      nationalFormat,
+    });
   };
 
   return (
@@ -90,8 +97,11 @@ export const PageRecoveryPhoneSetup = (_: RouteComponentProps) => {
       {/* Confirm code received via SMS */}
       {currentStep === 2 && (
         <FlowSetupRecoveryPhoneConfirmCode
+          // Use phoneNumber as a fallback in case nationalFormat is not available
+          nationalFormatPhoneNumber={
+            phoneData.nationalFormat || phoneData.phoneNumber
+          }
           {...{
-            formattedPhoneNumber,
             localizedBackButtonTitle,
             localizedPageTitle,
             navigateBackward,

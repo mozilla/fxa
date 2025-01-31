@@ -5,7 +5,7 @@
 import { useState, useEffect } from 'react';
 import { RouteComponentProps, useLocation } from '@reach/router';
 import SigninRecoveryChoice from '.';
-import { useAuthClient } from '../../../models';
+import { useAuthClient, useFtlMsgResolver } from '../../../models';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { SigninLocationState } from '../interfaces';
 import { getSigninState } from '../utils';
@@ -14,6 +14,7 @@ import {
   AuthUiErrorNos,
   AuthUiErrors,
 } from '../../../lib/auth-errors/auth-errors';
+import { formatPhoneNumber } from '../../../lib/recovery-phone-utils';
 
 export const SigninRecoveryChoiceContainer = (_: RouteComponentProps) => {
   const authClient = useAuthClient();
@@ -21,10 +22,14 @@ export const SigninRecoveryChoiceContainer = (_: RouteComponentProps) => {
     state: SigninLocationState;
   };
   const navigateWithQuery = useNavigateWithQuery();
+  const ftlMsgResolver = useFtlMsgResolver();
   const signinState = getSigninState(location.state);
 
   const [numBackupCodes, setNumBackupCodes] = useState<number>(0);
-  const [lastFourPhoneDigits, setLastFourPhoneDigits] = useState<string>('');
+  const [phoneData, setPhoneData] = useState({
+    maskedPhoneNumber: '',
+    lastFourPhoneDigits: '',
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -40,11 +45,17 @@ export const SigninRecoveryChoiceContainer = (_: RouteComponentProps) => {
         );
         count && setNumBackupCodes(count);
 
-        const { phoneNumber } = await authClient.recoveryPhoneGet(
-          signinState.sessionToken
-        );
-        // TODO verify that recoveryPhoneGet returns a masked phone number (last four digits only)
-        phoneNumber && setLastFourPhoneDigits(phoneNumber.slice(-4));
+        const { phoneNumber, nationalFormat } =
+          await authClient.recoveryPhoneGet(signinState.sessionToken);
+        const { maskedPhoneNumber, lastFourPhoneDigits } = formatPhoneNumber({
+          phoneNumber,
+          nationalFormat,
+          ftlMsgResolver,
+        });
+        setPhoneData({
+          maskedPhoneNumber,
+          lastFourPhoneDigits,
+        });
 
         // whether or not the user has backup authentication codes,
         // go directly to the backup authentication codes page if they don't have a phone number
@@ -83,7 +94,7 @@ export const SigninRecoveryChoiceContainer = (_: RouteComponentProps) => {
       }
     };
     fetchData();
-  }, [authClient, lastFourPhoneDigits, signinState, navigateWithQuery]);
+  }, [authClient, signinState, navigateWithQuery, ftlMsgResolver]);
 
   const handlePhoneChoice = async () => {
     if (!signinState) {
@@ -108,15 +119,20 @@ export const SigninRecoveryChoiceContainer = (_: RouteComponentProps) => {
     return <LoadingSpinner fullScreen />;
   }
 
-  if (!signinState || !lastFourPhoneDigits) {
+  if (
+    !signinState ||
+    !phoneData.maskedPhoneNumber ||
+    !phoneData.lastFourPhoneDigits
+  ) {
     return <LoadingSpinner fullScreen />;
   }
 
   return (
     <SigninRecoveryChoice
+      maskedPhoneNumber={phoneData.maskedPhoneNumber}
+      lastFourPhoneDigits={phoneData.lastFourPhoneDigits}
       {...{
         handlePhoneChoice,
-        lastFourPhoneDigits,
         numBackupCodes,
         signinState,
       }}

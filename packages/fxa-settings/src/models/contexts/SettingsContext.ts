@@ -65,6 +65,7 @@ export const INITIAL_SETTINGS_QUERY = gql`
       recoveryPhone {
         exists
         phoneNumber
+        nationalFormat
         available
       }
       subscriptions {

@@ -11,7 +11,7 @@ import { waitFor } from '@testing-library/react';
 import { LocationProvider } from '@reach/router';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import {
-  MOCK_MASKED_PHONE_NUMBER,
+  MOCK_MASKED_PHONE_NUMBER_WITH_COPY,
   MOCK_STORED_ACCOUNT,
   mockLoadingSpinnerModule,
 } from '../../mocks';
@@ -37,7 +37,7 @@ function mockModelsModule({
   }),
   mockRecoveryPhoneGet = jest.fn().mockResolvedValue({
     exists: true,
-    phoneNumber: MOCK_MASKED_PHONE_NUMBER,
+    phoneNumber: MOCK_MASKED_PHONE_NUMBER_WITH_COPY,
   }),
   mockRecoveryPhoneSigninSendCode = jest.fn().mockResolvedValue(true),
 }) {

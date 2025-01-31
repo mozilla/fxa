@@ -20,6 +20,7 @@ import GleanMetrics from '../../../lib/glean';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { BackupCodesSubRow, BackupPhoneSubRow } from '../SubRow';
 import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
+import { formatPhoneNumber } from '../../../lib/recovery-phone-utils';
 
 const route = `${SETTINGS_PATH}/two_step_authentication`;
 const replaceCodesRoute = `${route}/replace_codes`;
@@ -175,6 +176,7 @@ export const UnitRowTwoStepAuth = () => {
           recoveryPhone.available === true) ||
         recoveryPhone.exists === true
       ) {
+        const { nationalFormat, phoneNumber } = recoveryPhone;
         subRows.push(
           <BackupPhoneSubRow
             onCtaClick={() => {
@@ -187,7 +189,16 @@ export const UnitRowTwoStepAuth = () => {
                   navigate(`${SETTINGS_PATH}/recovery_phone/remove`);
                 },
               })}
-            phoneNumber={recoveryPhone.phoneNumber || ''}
+            phoneNumber={
+              (phoneNumber
+                ? formatPhoneNumber({
+                    nationalFormat,
+                    phoneNumber,
+                    ftlMsgResolver,
+                  })
+                : {}
+              ).maskedPhoneNumber
+            }
             key={2}
           />
         );

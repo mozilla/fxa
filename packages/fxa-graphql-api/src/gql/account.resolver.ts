@@ -877,8 +877,11 @@ export class AccountResolver {
       this.shouldIncludeRecoveryPhoneAvailability(info);
 
     try {
-      const recoveryPhone = await this.recoveryPhoneService.hasConfirmed(
-        account.uid
+      // This endpoint will strip the phone number if the user's session
+      // is not verified
+      const recoveryPhone = await this.authAPI.recoveryPhoneGet(
+        sessionToken,
+        headers
       );
 
       if (includeAvailability) {
@@ -899,6 +902,7 @@ export class AccountResolver {
         exists: false,
         ...(includeAvailability ? { available: false } : {}),
         phoneNumber: null,
+        nationalFormat: null,
       };
     }
   }

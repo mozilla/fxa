@@ -238,15 +238,8 @@ export const BackupPhoneSubRow = ({
     <BackupRecoverySmsDisabledIcon className="-ms-1 -my-2 scale-50" />
   );
   const message = hasPhoneNumber ? (
-    // If the user's session is not verified, an already masked phone number is returned.
-    // If it is verified, the full phone number is returned but here we want a client-side mask.
-    // We may want to get `national_format` back from Twilio.
     // Phone numbers should always be displayed left-to-right, *including* in rtl languages
-    <p dir="ltr">
-      {phoneNumber.includes('•')
-        ? phoneNumber
-        : `••••••${phoneNumber.slice(-4)}`}
-    </p>
+    <p dir="ltr">{phoneNumber}</p>
   ) : (
     <FtlMsg id="tfa-row-backup-phone-not-available">
       <p>No recovery phone number available</p>

@@ -17,7 +17,12 @@ export const createSubject = (
     hasPassword: true,
     backupCodes: { hasBackupCodes: true, count: 3 },
     totp: { exists: true, verified: true },
-    recoveryPhone: { exists: false, phoneNumber: null, available: false },
+    recoveryPhone: {
+      exists: false,
+      phoneNumber: null,
+      nationalFormat: null,
+      available: false,
+    },
     ...accountOverrides,
   } as unknown as Account;
   const config = {

@@ -8,7 +8,7 @@ import { withLocalization } from 'fxa-react/lib/storybooks';
 import { LocationProvider } from '@reach/router';
 import UnitRowTwoStepAuth from '.';
 import { createSubject } from './mocks';
-import { MOCK_FULL_PHONE_NUMBER } from '../../../pages/mocks';
+import { MOCK_NATIONAL_FORMAT_PHONE_NUMBER } from '../../../pages/mocks';
 
 export default {
   title: 'Components/Settings/UnitRowTwoStepAuth',
@@ -59,7 +59,7 @@ export const TwoFAEnabledWithBackupPhoneNoBackupCodes = () =>
   createSubject({
     recoveryPhone: {
       exists: true,
-      phoneNumber: MOCK_FULL_PHONE_NUMBER,
+      phoneNumber: MOCK_NATIONAL_FORMAT_PHONE_NUMBER,
       available: true,
     },
     backupCodes: { hasBackupCodes: false, count: 0 },
@@ -69,7 +69,16 @@ export const TwoFAEnabledWithBackupCodesAndBackupPhone = () =>
   createSubject({
     recoveryPhone: {
       exists: true,
-      phoneNumber: MOCK_FULL_PHONE_NUMBER,
+      phoneNumber: MOCK_NATIONAL_FORMAT_PHONE_NUMBER,
+      available: true,
+    },
+  });
+
+export const TwoFAEnabledWithBackupCodesAndBackupPhoneUnverifiedSession = () =>
+  createSubject({
+    recoveryPhone: {
+      exists: true,
+      phoneNumber: '7890',
       available: true,
     },
   });
@@ -87,7 +96,7 @@ export const TwoFAEnabledWithBackupPhoneAndUnsupportedCurrentRegion = () =>
   createSubject({
     recoveryPhone: {
       exists: true,
-      phoneNumber: MOCK_FULL_PHONE_NUMBER,
+      phoneNumber: MOCK_NATIONAL_FORMAT_PHONE_NUMBER,
       available: false,
     },
     backupCodes: { hasBackupCodes: true, count: 1 },
