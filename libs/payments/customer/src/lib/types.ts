@@ -13,6 +13,7 @@ export type InvoicePreview = {
   discountType?: string;
   number: string | null; // customer-facing invoice identifier
   paypalTransactionId?: string;
+  oneTimeCharge?: number;
 };
 
 export interface TaxAmount {

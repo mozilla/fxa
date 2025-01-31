@@ -9,6 +9,7 @@ import {
   StripeClient,
   StripeCustomer,
   StripeInvoice,
+  StripePrice,
   StripePromotionCode,
 } from '@fxa/payments/stripe';
 import {
@@ -101,6 +102,91 @@ export class InvoiceManager {
     );
 
     return stripeInvoiceToInvoicePreviewDTO(upcomingInvoice);
+  }
+
+  async previewUpcomingForUpgrade({
+    priceId,
+    currency,
+    customer,
+    taxAddress,
+    couponCode,
+    upgradeFromPrice,
+  }: {
+    priceId: string;
+    currency: string;
+    customer?: StripeCustomer;
+    taxAddress?: TaxAddress;
+    couponCode?: string;
+    upgradeFromPrice?: StripePrice;
+  }): Promise<InvoicePreview> {
+    let promoCode: StripePromotionCode | undefined;
+    if (couponCode) {
+      const promotionCodes = await this.stripeClient.promotionCodesList({
+        active: true,
+        code: couponCode,
+      });
+      promoCode = promotionCodes.data.at(0);
+    }
+    const automaticTax = !!(
+      (customer && isCustomerTaxEligible(customer)) ||
+      (!customer && taxAddress)
+    );
+
+    const shipping =
+      !customer && taxAddress
+        ? {
+            name: '',
+            address: {
+              country: taxAddress.countryCode,
+              postal_code: taxAddress.postalCode,
+            },
+          }
+        : undefined;
+
+    const requestObject: Stripe.InvoiceRetrieveUpcomingParams = {
+      currency,
+      customer: customer?.id,
+      automatic_tax: {
+        enabled: automaticTax,
+      },
+      customer_details: {
+        tax_exempt: 'none', // Param required when shipping address not present
+        shipping,
+      },
+      subscription_items: [{ price: priceId }],
+      discounts: [{ promotion_code: promoCode?.id }],
+    };
+
+    const upcomingInvoice = await this.stripeClient.invoicesRetrieveUpcoming(
+      requestObject
+    );
+
+    const invoicePreview = stripeInvoiceToInvoicePreviewDTO(upcomingInvoice);
+
+    requestObject.subscription_proration_behavior = 'always_invoice';
+    requestObject.subscription_proration_date = Math.floor(Date.now() / 1000);
+
+    const subscriptions = await this.stripeClient.subscriptionsList({
+      customer: customer?.id,
+    });
+
+    const subscriptionItem = subscriptions.data
+      .flatMap((subscription) => subscription.items.data)
+      ?.find((subscription) => subscription.plan.id === upgradeFromPrice?.id);
+
+    const firstSubItem = requestObject.subscription_items?.at(0);
+    if (!firstSubItem) throw new Error('No subscription item found');
+    firstSubItem.id = subscriptionItem?.id;
+    requestObject.subscription = subscriptionItem?.subscription;
+
+    const proratedInvoice = await this.stripeClient.invoicesRetrieveUpcoming(
+      requestObject
+    );
+
+    return {
+      ...invoicePreview,
+      oneTimeCharge: proratedInvoice.total,
+    };
   }
 
   /**

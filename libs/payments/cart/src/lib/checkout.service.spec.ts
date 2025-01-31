@@ -240,9 +240,9 @@ describe('CheckoutService', () => {
         .spyOn(accountCustomerManager, 'createAccountCustomer')
         .mockResolvedValue(mockAccountCustomer);
       jest.spyOn(cartManager, 'updateFreshCart').mockResolvedValue();
-      jest
-        .spyOn(eligibilityService, 'checkEligibility')
-        .mockResolvedValue(EligibilityStatus.CREATE);
+      jest.spyOn(eligibilityService, 'checkEligibility').mockResolvedValue({
+        subscriptionEligibilityResult: EligibilityStatus.CREATE,
+      });
       jest
         .spyOn(productConfigurationManager, 'retrieveStripePrice')
         .mockResolvedValue(mockPrice);

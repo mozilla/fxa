@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { faker } from '@faker-js/faker';
 import { Test } from '@nestjs/testing';
 
 import {
@@ -11,8 +12,10 @@ import {
   StripeCouponFactory,
   StripeCustomerFactory,
   StripeInvoiceFactory,
+  StripeInvoiceLineItemFactory,
   StripePriceFactory,
   StripePromotionCodeFactory,
+  StripeSubscriptionFactory,
   StripeResponseFactory,
   StripeUpcomingInvoiceFactory,
 } from '@fxa/payments/stripe';
@@ -99,6 +102,7 @@ describe('InvoiceManager', () => {
 
       const result = await invoiceManager.previewUpcoming({
         priceId: mockPrice.id,
+        currency: faker.finance.currencyCode(),
         customer: mockCustomer,
         taxAddress: mockTaxAddress,
       });
@@ -135,11 +139,70 @@ describe('InvoiceManager', () => {
 
       const result = await invoiceManager.previewUpcoming({
         priceId: mockPrice.id,
+        currency: faker.finance.currencyCode(),
         customer: mockCustomer,
         taxAddress: mockTaxAddress,
         couponCode: mockPromotionCode.code,
       });
       expect(result).toEqual(mockInvoicePreview);
+    });
+  });
+
+  describe('previewUpcomingForUpgrade', () => {
+    it('returns upcoming invoice for upgrade', async () => {
+      const mockCustomer = StripeCustomerFactory();
+      const mockPrice = StripePriceFactory();
+      const mockUpcomingInvoice = StripeResponseFactory(
+        StripeUpcomingInvoiceFactory({
+          lines: {
+            object: 'list',
+            data: [
+              StripeInvoiceLineItemFactory({
+                amount: -500,
+                proration: true,
+              }),
+              StripeInvoiceLineItemFactory({
+                amount: 5000,
+                proration: false,
+              }),
+            ],
+            has_more: false,
+            url: faker.internet.url(),
+          },
+          total: 4500,
+        })
+      );
+      const mockTaxAddress = TaxAddressFactory();
+      const mockInvoicePreview = InvoicePreviewFactory();
+      const mockUpgradeFromPrice = StripePriceFactory();
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory()
+      );
+      const mockSubscriptionList = StripeApiListFactory([mockSubscription]);
+
+      jest
+        .spyOn(stripeClient, 'subscriptionsList')
+        .mockResolvedValue(mockSubscriptionList);
+      jest
+        .spyOn(stripeClient, 'invoicesRetrieveUpcoming')
+        .mockResolvedValue(mockUpcomingInvoice);
+
+      mockedStripeInvoiceToFirstInvoicePreviewDTO.mockReturnValue(
+        mockInvoicePreview
+      );
+
+      const result = await invoiceManager.previewUpcomingForUpgrade({
+        priceId: mockPrice.id,
+        currency: faker.finance.currencyCode(),
+        customer: mockCustomer,
+        taxAddress: mockTaxAddress,
+        upgradeFromPrice: mockUpgradeFromPrice,
+      });
+
+      expect(result).toEqual({
+        ...mockInvoicePreview,
+        oneTimeCharge: 4500,
+      });
     });
   });
 

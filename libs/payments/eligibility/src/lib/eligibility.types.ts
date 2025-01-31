@@ -27,6 +27,7 @@ export enum IntervalComparison {
 export type OfferingOverlapResult = {
   comparison: OfferingComparison;
   priceId: string;
+  fromOfferingId: string;
 };
 
 export type Interval = {
