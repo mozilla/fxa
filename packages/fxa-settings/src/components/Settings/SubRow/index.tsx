@@ -180,8 +180,10 @@ export const BackupCodesSubRow = ({
     <BackupCodesDisabledIcon className="-ms-1 -my-2 scale-50" />
   );
   const message = hasCodesRemaining ? (
-    <FtlMsg id="tfa-row-backup-codes-available" vars={{ numCodesAvailable }}>
-      <p>{`${numCodesAvailable} codes remaining`}</p>
+    <FtlMsg id="tfa-row-backup-codes-available-v2" vars={{ numCodesAvailable }}>
+      <p>{`${numCodesAvailable} code${
+        numCodesAvailable === 1 ? '' : 's'
+      } remaining`}</p>
     </FtlMsg>
   ) : (
     <FtlMsg id="tfa-row-backup-codes-not-available">

@@ -62,6 +62,16 @@ describe('BackupCodesSubRow', () => {
       expect(screen.getByText('Get new codes')).toBeInTheDocument();
     });
 
+    it('renders correctly when 1 code is available', () => {
+      renderWithLocalizationProvider(
+        <BackupCodesSubRow {...defaultProps} numCodesAvailable={1} />
+      );
+      expect(
+        screen.getByText('Backup authentication codes')
+      ).toBeInTheDocument();
+      expect(screen.getByText('1 code remaining')).toBeInTheDocument();
+    });
+
     it('renders description when showDescription is true', () => {
       renderWithLocalizationProvider(<BackupCodesSubRow {...defaultProps} />);
       expect(
