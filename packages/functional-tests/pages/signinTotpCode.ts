@@ -18,4 +18,13 @@ export class SigninTotpCodePage extends BaseTokenCodePage {
     this.checkPath();
     return this.page.getByRole('link', { name: 'Trouble entering code?' });
   }
+
+  get troubleEnteringCode() {
+    return this.page.getByRole('link', { name: 'Trouble entering code?' });
+  }
+
+  async clickTroubleEnteringCode() {
+    this.checkPath();
+    return this.troubleEnteringCode.click();
+  }
 }

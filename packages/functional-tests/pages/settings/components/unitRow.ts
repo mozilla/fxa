@@ -96,6 +96,14 @@ export class TotpRow extends UnitRow {
   get changeButton() {
     return this.page.getByRole('button', { name: 'Get new codes' });
   }
+
+  get addRecoveryPhoneButton() {
+    return this.page.getByRole('button', { name: 'Add' });
+  }
+
+  get removeRecoveryPhoneButton() {
+    return this.page.getByRole('button', { name: 'Remove recovery phone' });
+  }
 }
 
 export class ConnectedServicesRow extends UnitRow {

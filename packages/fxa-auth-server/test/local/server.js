@@ -836,5 +836,8 @@ function getConfig() {
         serviceAccountEmail: 'testo@iam.gcp.g.co',
       },
     },
+    geodb: {
+      locationOverride: knownIpLocation.location,
+    },
   };
 }
