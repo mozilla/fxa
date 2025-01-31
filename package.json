@@ -249,7 +249,7 @@
     "stylelint": "^16.11.0",
     "stylelint-config-prettier": "^9.0.3",
     "stylelint-config-recommended-scss": "^14.0.0",
-    "tailwindcss": "3.4.3",
+    "tailwindcss": "4.0.1",
     "ts-jest": "^29.2.3",
     "ts-node": "^10.9.2",
     "tsc-alias": "^1.8.8",
