@@ -99,6 +99,7 @@ describe('InvoiceManager', () => {
 
       const result = await invoiceManager.previewUpcoming({
         priceId: mockPrice.id,
+        currency: mockPrice.currency,
         customer: mockCustomer,
         taxAddress: mockTaxAddress,
       });
@@ -135,6 +136,7 @@ describe('InvoiceManager', () => {
 
       const result = await invoiceManager.previewUpcoming({
         priceId: mockPrice.id,
+        currency: mockPrice.currency,
         customer: mockCustomer,
         taxAddress: mockTaxAddress,
         couponCode: mockPromotionCode.code,
@@ -167,6 +169,7 @@ describe('InvoiceManager', () => {
           currency: 'usd',
         })
       );
+      const mockAddress = TaxAddressFactory();
 
       mockedGetMinimumChargeAmountForCurrency.mockReturnValue(10);
       jest
@@ -176,7 +179,10 @@ describe('InvoiceManager', () => {
         .spyOn(invoiceManager, 'processPayPalNonZeroInvoice')
         .mockResolvedValue(StripeResponseFactory(mockInvoice));
 
-      await invoiceManager.processPayPalInvoice(mockInvoice);
+      await invoiceManager.processPayPalInvoice(
+        mockInvoice,
+        mockAddress.countryCode
+      );
       expect(invoiceManager.processPayPalZeroInvoice).toBeCalledWith(
         mockInvoice.id
       );
@@ -189,6 +195,7 @@ describe('InvoiceManager', () => {
         amount_due: 50,
         currency: 'usd',
       });
+      const mockAddress = TaxAddressFactory();
 
       mockedGetMinimumChargeAmountForCurrency.mockReturnValue(10);
       jest
@@ -201,11 +208,15 @@ describe('InvoiceManager', () => {
         .spyOn(invoiceManager, 'processPayPalNonZeroInvoice')
         .mockResolvedValue(StripeResponseFactory(mockInvoice));
 
-      await invoiceManager.processPayPalInvoice(mockInvoice);
+      await invoiceManager.processPayPalInvoice(
+        mockInvoice,
+        mockAddress.countryCode
+      );
 
       expect(invoiceManager.processPayPalNonZeroInvoice).toBeCalledWith(
         mockCustomer,
-        mockInvoice
+        mockInvoice,
+        mockAddress.countryCode
       );
       expect(invoiceManager.processPayPalZeroInvoice).not.toHaveBeenCalled();
     });
@@ -254,6 +265,7 @@ describe('InvoiceManager', () => {
       const mockPayPalCharge = ChargeResponseFactory({
         paymentStatus: 'Completed',
       });
+      const mockAddress = TaxAddressFactory({ countryCode: 'US' });
 
       jest
         .spyOn(paypalClient, 'chargeCustomer')
@@ -269,7 +281,8 @@ describe('InvoiceManager', () => {
 
       const result = await invoiceManager.processPayPalNonZeroInvoice(
         mockCustomer,
-        mockInvoice
+        mockInvoice,
+        mockAddress.countryCode
       );
 
       expect(result).toEqual(mockInvoice);
@@ -280,6 +293,7 @@ describe('InvoiceManager', () => {
           mockCustomer.metadata[STRIPE_CUSTOMER_METADATA.PaypalAgreement],
         invoiceNumber: mockInvoice.id,
         currencyCode: mockInvoice.currency,
+        countryCode: mockAddress.countryCode,
         idempotencyKey: `${mockInvoice.id}-${mockPaymentAttemptCount}`,
         taxAmountInCents: mockInvoice.tax,
       });
@@ -313,9 +327,14 @@ describe('InvoiceManager', () => {
         StripeCustomerFactory({ metadata: {} })
       );
       const mockInvoice = StripeResponseFactory(StripeInvoiceFactory());
+      const mockAddress = TaxAddressFactory();
 
       await expect(
-        invoiceManager.processPayPalNonZeroInvoice(mockCustomer, mockInvoice)
+        invoiceManager.processPayPalNonZeroInvoice(
+          mockCustomer,
+          mockInvoice,
+          mockAddress.countryCode
+        )
       ).rejects.toThrowError();
     });
     it('throws an error for an already-paid invoice', async () => {
@@ -323,9 +342,14 @@ describe('InvoiceManager', () => {
       const mockInvoice = StripeResponseFactory(
         StripeInvoiceFactory({ status: 'paid' })
       );
+      const mockAddress = TaxAddressFactory();
 
       await expect(
-        invoiceManager.processPayPalNonZeroInvoice(mockCustomer, mockInvoice)
+        invoiceManager.processPayPalNonZeroInvoice(
+          mockCustomer,
+          mockInvoice,
+          mockAddress.countryCode
+        )
       ).rejects.toThrowError();
     });
     it('throws an error for an uncollectible invoice', async () => {
@@ -333,9 +357,14 @@ describe('InvoiceManager', () => {
       const mockInvoice = StripeResponseFactory(
         StripeInvoiceFactory({ status: 'uncollectible' })
       );
+      const mockAddress = TaxAddressFactory();
 
       await expect(
-        invoiceManager.processPayPalNonZeroInvoice(mockCustomer, mockInvoice)
+        invoiceManager.processPayPalNonZeroInvoice(
+          mockCustomer,
+          mockInvoice,
+          mockAddress.countryCode
+        )
       ).rejects.toThrowError();
     });
     it('returns on pending invoices without marking it as paid', async () => {
@@ -361,6 +390,7 @@ describe('InvoiceManager', () => {
       const mockPayPalCharge = ChargeResponseFactory({
         paymentStatus: 'Pending',
       });
+      const mockAddress = TaxAddressFactory({ countryCode: 'US' });
 
       jest
         .spyOn(paypalClient, 'chargeCustomer')
@@ -373,7 +403,8 @@ describe('InvoiceManager', () => {
 
       const result = await invoiceManager.processPayPalNonZeroInvoice(
         mockCustomer,
-        mockInvoice
+        mockInvoice,
+        mockAddress.countryCode
       );
 
       expect(result).toEqual(mockInvoice);
@@ -384,6 +415,7 @@ describe('InvoiceManager', () => {
           mockCustomer.metadata[STRIPE_CUSTOMER_METADATA.PaypalAgreement],
         invoiceNumber: mockInvoice.id,
         currencyCode: mockInvoice.currency,
+        countryCode: mockAddress.countryCode,
         idempotencyKey: `${mockInvoice.id}-${mockPaymentAttemptCount}`,
         taxAmountInCents: mockInvoice.tax,
       });
@@ -426,6 +458,7 @@ describe('InvoiceManager', () => {
       const mockPayPalCharge = ChargeResponseFactory({
         paymentStatus: 'Failed',
       });
+      const mockAddress = TaxAddressFactory({ countryCode: 'US' });
 
       jest
         .spyOn(paypalClient, 'chargeCustomer')
@@ -437,7 +470,11 @@ describe('InvoiceManager', () => {
       jest.spyOn(stripeClient, 'invoicesPay').mockResolvedValue();
 
       await expect(
-        invoiceManager.processPayPalNonZeroInvoice(mockCustomer, mockInvoice)
+        invoiceManager.processPayPalNonZeroInvoice(
+          mockCustomer,
+          mockInvoice,
+          mockAddress.countryCode
+        )
       ).rejects.toThrowError();
 
       expect(paypalClient.chargeCustomer).toHaveBeenCalledWith({
@@ -446,6 +483,7 @@ describe('InvoiceManager', () => {
           mockCustomer.metadata[STRIPE_CUSTOMER_METADATA.PaypalAgreement],
         invoiceNumber: mockInvoice.id,
         currencyCode: mockInvoice.currency,
+        countryCode: mockAddress.countryCode,
         idempotencyKey: `${mockInvoice.id}-${mockPaymentAttemptCount}`,
         taxAmountInCents: mockInvoice.tax,
       });
@@ -489,6 +527,7 @@ describe('InvoiceManager', () => {
       const mockPayPalCharge = ChargeResponseFactory({
         paymentStatus: 'Completed',
       });
+      const mockAddress = TaxAddressFactory({ countryCode: 'US' });
 
       jest
         .spyOn(paypalClient, 'chargeCustomer')
@@ -504,7 +543,8 @@ describe('InvoiceManager', () => {
 
       const result = await invoiceManager.processPayPalNonZeroInvoice(
         mockCustomer,
-        mockInvoice
+        mockInvoice,
+        mockAddress.countryCode
       );
 
       expect(result).toEqual(mockInvoice);
@@ -515,6 +555,7 @@ describe('InvoiceManager', () => {
           mockCustomer.metadata[STRIPE_CUSTOMER_METADATA.PaypalAgreement],
         invoiceNumber: mockInvoice.id,
         currencyCode: mockInvoice.currency,
+        countryCode: mockAddress.countryCode,
         idempotencyKey: `${mockInvoice.id}-${mockPaymentAttemptCount}`,
         taxAmountInCents: mockInvoice.tax,
       });

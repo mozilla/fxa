@@ -124,6 +124,7 @@ export class InvoiceManager {
   async processPayPalNonZeroInvoice(
     customer: StripeCustomer,
     invoice: StripeInvoice,
+    countryCode: string,
     ipaddress?: string
   ) {
     if (!customer.metadata[STRIPE_CUSTOMER_METADATA.PaypalAgreement]) {
@@ -155,6 +156,7 @@ export class InvoiceManager {
         customer.metadata[STRIPE_CUSTOMER_METADATA.PaypalAgreement],
       invoiceNumber: invoice.id,
       currencyCode: invoice.currency,
+      countryCode,
       idempotencyKey,
       ...(ipaddress && { ipaddress }),
       ...(invoice.tax !== null && { taxAmountInCents: invoice.tax }),
@@ -222,7 +224,7 @@ export class InvoiceManager {
    * If amount is less than minimum amount, call processZeroInvoice
    * If amount is greater than minimum amount, call processNonZeroInvoice (legacy PaypalHelper processInvoice)
    */
-  async processPayPalInvoice(invoice: StripeInvoice) {
+  async processPayPalInvoice(invoice: StripeInvoice, countryCode: string) {
     if (!invoice.customer) throw new Error('Customer not present on invoice');
     const amountInCents = invoice.amount_due;
 
@@ -236,6 +238,10 @@ export class InvoiceManager {
     if (customer.deleted)
       throw new Error('Processing paypal invoice on deleted customer');
 
-    return await this.processPayPalNonZeroInvoice(customer, invoice);
+    return await this.processPayPalNonZeroInvoice(
+      customer,
+      invoice,
+      countryCode
+    );
   }
 }
