@@ -63,7 +63,7 @@ describe(`#integration - recovery phone`, function () {
   // Different magic numbers correspond to different scenarios. e.g. reassigned numbers, sim swapping,
   // etc. See the following documentation for info in the event tests need to consider extra states.
   // https://www.twilio.com/docs/lookup/magic-numbers-for-lookup
-  const phoneNumber = '+12345678900';
+  const phoneNumber = '+14159929960';
   const password = 'password';
 
   before(async function () {
@@ -116,7 +116,7 @@ describe(`#integration - recovery phone`, function () {
     if (!isTwilioConfigured) {
       this.skip('Invalid twilio accountSid or authToken. Check env / config!');
     }
-    const createResp = await client.recoveryPhoneNumberCreate(phoneNumber);
+    const createResp = await client.recoveryPhoneCreate(phoneNumber);
     const codeSent = await redisUtil.recoveryPhone.getCode(client.uid);
     const confirmResp = await client.recoveryPhoneConfirmSetup(codeSent);
     const checkResp = await client.recoveryPhoneNumber();
@@ -134,7 +134,7 @@ describe(`#integration - recovery phone`, function () {
     }
 
     // Add recovery phone
-    await client.recoveryPhoneNumberCreate(phoneNumber);
+    await client.recoveryPhoneCreate(phoneNumber);
     await client.recoveryPhoneConfirmSetup(
       await redisUtil.recoveryPhone.getCode(client.uid)
     );
@@ -172,7 +172,7 @@ describe(`#integration - recovery phone`, function () {
     if (!isTwilioConfigured) {
       this.skip('Invalid twilio accountSid or authToken. Check env / config!');
     }
-    await client.recoveryPhoneNumberCreate(phoneNumber);
+    await client.recoveryPhoneCreate(phoneNumber);
     await client.recoveryPhoneConfirmSetup(
       await redisUtil.recoveryPhone.getCode(client.uid)
     );
@@ -194,7 +194,7 @@ describe(`#integration - recovery phone`, function () {
     let error;
 
     try {
-      await client.recoveryPhoneNumberCreate(phoneNumber);
+      await client.recoveryPhoneCreate(phoneNumber);
     } catch (err) {
       error = err;
     }
@@ -206,8 +206,8 @@ describe(`#integration - recovery phone`, function () {
     if (!isTwilioConfigured) {
       this.skip('Invalid twilio accountSid or authToken. Check env / config!');
     }
-    await client.recoveryPhoneNumberCreate(phoneNumber);
-    const createResp = await client.recoveryPhoneNumberCreate(phoneNumber);
+    await client.recoveryPhoneCreate(phoneNumber);
+    const createResp = await client.recoveryPhoneCreate(phoneNumber);
 
     assert.equal(createResp.status, 'success');
   });
@@ -217,7 +217,7 @@ describe(`#integration - recovery phone`, function () {
       this.skip('Invalid twilio accountSid or authToken. Check env / config!');
     }
 
-    await client.recoveryPhoneNumberCreate(phoneNumber);
+    await client.recoveryPhoneCreate(phoneNumber);
 
     let error;
     try {
@@ -233,13 +233,13 @@ describe(`#integration - recovery phone`, function () {
     if (!isTwilioConfigured) {
       this.skip('Invalid twilio accountSid or authToken. Check env / config!');
     }
-    await client.recoveryPhoneNumberCreate(phoneNumber);
+    await client.recoveryPhoneCreate(phoneNumber);
     const code = await redisUtil.recoveryPhone.getCode(client.uid);
     await client.recoveryPhoneConfirmSetup(code);
 
     let error;
     try {
-      await client.recoveryPhoneNumberCreate(phoneNumber);
+      await client.recoveryPhoneCreate(phoneNumber);
       const code = await redisUtil.recoveryPhone.getCode(client.uid);
       await client.recoveryPhoneConfirmSetup(code);
     } catch (err) {
@@ -253,7 +253,7 @@ describe(`#integration - recovery phone`, function () {
     if (!isTwilioConfigured) {
       this.skip('Invalid twilio accountSid or authToken. Check env / config!');
     }
-    await client.recoveryPhoneNumberCreate(phoneNumber);
+    await client.recoveryPhoneCreate(phoneNumber);
     const code = await redisUtil.recoveryPhone.getCode(client.uid);
     await client.recoveryPhoneConfirmSetup(code);
 
@@ -277,7 +277,7 @@ describe(`#integration - recovery phone - customs checks`, function () {
     customsUrl: config.customsUrl,
   };
   const password = 'password';
-  const phoneNumber = '+12345678900';
+  const phoneNumber = '+14159929960';
 
   before(async function () {
     config.securityHistory.ipProfiling.allowedRecency = 0;
@@ -314,12 +314,12 @@ describe(`#integration - recovery phone - customs checks`, function () {
       this.skip('Invalid twilio accountSid or authToken. Check env / config!');
     }
 
-    await client.recoveryPhoneNumberCreate(phoneNumber);
+    await client.recoveryPhoneCreate(phoneNumber);
 
     let error;
     try {
       for (let i = 0; i < 9; i++) {
-        await client.recoveryPhoneNumberCreate(phoneNumber);
+        await client.recoveryPhoneCreate(phoneNumber);
       }
     } catch (err) {
       error = err;
@@ -335,7 +335,7 @@ describe(`#integration - recovery phone - customs checks`, function () {
     }
 
     // One code gets sent here
-    await client.recoveryPhoneNumberCreate(phoneNumber);
+    await client.recoveryPhoneCreate(phoneNumber);
 
     // Send 8 more codes, for a total of 9 codes.
     for (let i = 0; i < 9; i++) {
@@ -360,7 +360,7 @@ describe(`#integration - recovery phone - customs checks`, function () {
       this.skip('Invalid twilio accountSid or authToken. Check env / config!');
     }
 
-    await client.recoveryPhoneNumberCreate(phoneNumber);
+    await client.recoveryPhoneCreate(phoneNumber);
     const codeSent = await redisUtil.recoveryPhone.getCode(client.uid, 0);
     await client.recoveryPhoneConfirmSetup(codeSent);
 

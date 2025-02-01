@@ -54,9 +54,14 @@ export class RecoveryPhoneService {
    * by sending the phone number provided an OTP code to verify.
    * @param uid The account id
    * @param phoneNumber The phone number to register
+   * @param localizedMessageBody Optional localized message body
    * @returns True if code was sent and stored
    */
-  public async setupPhoneNumber(uid: string, phoneNumber: string) {
+  public async setupPhoneNumber(
+    uid: string,
+    phoneNumber: string,
+    localizedMessageBody?: { part1: string; part2: string }
+  ) {
     if (!this.config.enabled) {
       throw new RecoveryPhoneNotEnabled();
     }
@@ -83,21 +88,34 @@ export class RecoveryPhoneService {
     }
 
     const code = await this.otpCode.generateCode();
-    const msg = await this.smsManager.sendSMS({
-      to: phoneNumber,
-      body: code,
-    });
 
-    if (!this.isSuccessfulSmsSend(msg)) {
-      return false;
-    }
     await this.recoveryPhoneManager.storeUnconfirmed(
       uid,
       code,
       phoneNumber,
       true
     );
-    return true;
+
+    const smsBody = localizedMessageBody
+      ? `${localizedMessageBody.part1} ${code} ${localizedMessageBody.part2}`
+      : `${code}`;
+
+    let msg = {} as MessageInstance;
+    try {
+      msg = await this.smsManager.sendSMS({
+        to: phoneNumber,
+        body: smsBody,
+      });
+    } catch (e) {
+      console.log(e);
+      // retry sending without localized body
+      msg = await this.smsManager.sendSMS({
+        to: phoneNumber,
+        body: code,
+      });
+    }
+
+    return this.isSuccessfulSmsSend(msg);
   }
 
   /**
@@ -276,9 +294,13 @@ export class RecoveryPhoneService {
   /**
    * Sends an totp code to a user
    * @param uid Account id
+   * @param localizedMessageBody Optional localized message body
    * @returns True if message didn't fail to send.
    */
-  public async sendCode(uid: string) {
+  public async sendCode(
+    uid: string,
+    localizedMessageBody?: { part1: string; part2: string }
+  ) {
     if (!this.config.enabled) {
       throw new RecoveryPhoneNotEnabled();
     }
@@ -292,10 +314,25 @@ export class RecoveryPhoneService {
       phoneNumber,
       false
     );
-    const msg = await this.smsManager.sendSMS({
-      to: phoneNumber,
-      body: `${code}`, // TODO: Other text or translation around code?
-    });
+
+    const smsBody = localizedMessageBody
+      ? `${localizedMessageBody.part1} ${code} ${localizedMessageBody.part2}`
+      : `${code}`;
+
+    let msg = {} as MessageInstance;
+    try {
+      msg = await this.smsManager.sendSMS({
+        to: phoneNumber,
+        body: smsBody,
+      });
+    } catch (e) {
+      console.log(e);
+      // retry sending without localized body
+      msg = await this.smsManager.sendSMS({
+        to: phoneNumber,
+        body: code,
+      });
+    }
 
     return this.isSuccessfulSmsSend(msg);
   }

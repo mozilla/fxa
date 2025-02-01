@@ -944,7 +944,7 @@ module.exports = (config) => {
     });
   };
 
-  ClientApi.prototype.recoveryPhoneNumberCreate = async function (
+  ClientApi.prototype.recoveryPhoneCreate = async function (
     sessionTokenHex,
     phoneNumber
   ) {

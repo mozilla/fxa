@@ -40,7 +40,7 @@ async function printMatchingKeys(startUp = false) {
       }
     }
   } catch (error) {
-    console.error('Failed to retrieve keys:', error);
+    // do nothing
   } finally {
     // 1s delay seems reasonable
     setTimeout(printMatchingKeys, 1000);

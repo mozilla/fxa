@@ -21,6 +21,8 @@ import { GleanMetricsType } from '../metrics/glean';
 import { AuthRequest, SessionTokenAuthCredential } from '../types';
 import { E164_NUMBER } from './validators';
 import AppError from '../error';
+import Localizer from '../l10n';
+import NodeRendererBindings from '../senders/renderer/bindings-node';
 
 const { Container } = require('typedi');
 
@@ -36,16 +38,17 @@ export type Customs = {
 class RecoveryPhoneHandler {
   private readonly recoveryPhoneService: RecoveryPhoneService;
   private readonly accountManager: AccountManager;
+  private readonly localizer: Localizer;
 
   constructor(
     private readonly customs: Customs,
     private readonly db: any,
     private readonly glean: GleanMetricsType,
-    private readonly log: any,
     private readonly mailer: any
   ) {
     this.recoveryPhoneService = Container.get(RecoveryPhoneService);
     this.accountManager = Container.get(AccountManager);
+    this.localizer = new Localizer(new NodeRendererBindings());
   }
 
   async sendCode(request: AuthRequest) {
@@ -58,9 +61,32 @@ class RecoveryPhoneHandler {
 
     await this.customs.check(request, email, 'recoveryPhoneSendCode');
 
+    const ftlIdMsgs = [
+      {
+        id: 'recovery-phone-signin-sms-body-part-1',
+        message: 'Mozilla recovery code:',
+      },
+      {
+        id: 'recovery-phone-sms-body-part-2',
+        message: 'Expires in 5 minutes. Do not share this code.',
+      },
+    ];
+    const localizedStrings = await this.localizer.localizeStrings(
+      request.app.locale,
+      ftlIdMsgs
+    );
+
+    const localizedMessageBody = {
+      part1: localizedStrings['recovery-phone-signin-sms-body-part-1'],
+      part2: localizedStrings['recovery-phone-sms-body-part-2'],
+    };
+
     let status = false;
     try {
-      status = await this.recoveryPhoneService.sendCode(uid);
+      status = await this.recoveryPhoneService.sendCode(
+        uid,
+        localizedMessageBody
+      );
     } catch (error) {
       if (error instanceof RecoveryNumberNotExistsError) {
         throw AppError.recoveryPhoneNumberDoesNotExist();
@@ -104,10 +130,31 @@ class RecoveryPhoneHandler {
     }
     await this.customs.check(request, email, 'recoveryPhoneCreate');
 
+    const ftlIdMsgs = [
+      {
+        id: 'recovery-phone-setup-sms-body-part-1',
+        message: 'Mozilla recovery code:',
+      },
+      {
+        id: 'recovery-phone-sms-body-part-2',
+        message: 'Expires in 5 minutes. Do not share this code.',
+      },
+    ];
+    const localizedStrings = await this.localizer.localizeStrings(
+      request.app.locale,
+      ftlIdMsgs
+    );
+
+    const localizedMessageBody = {
+      part1: localizedStrings['recovery-phone-setup-sms-body-part-1'],
+      part2: localizedStrings['recovery-phone-sms-body-part-2'],
+    };
+
     try {
       const result = await this.recoveryPhoneService.setupPhoneNumber(
         uid,
-        phoneNumber
+        phoneNumber,
+        localizedMessageBody
       );
       if (result) {
         await this.glean.twoStepAuthPhoneCode.sent(request);
@@ -382,14 +429,12 @@ export const recoveryPhoneRoutes = (
   customs: Customs,
   db: any,
   glean: GleanMetricsType,
-  log: any,
   mailer: any
 ) => {
   const recoveryPhoneHandler = new RecoveryPhoneHandler(
     customs,
     db,
     glean,
-    log,
     mailer
   );
   const routes = [
