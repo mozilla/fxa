@@ -148,6 +148,7 @@ describe('PayPalClient', () => {
       const options = {
         amount: faker.finance.amount(),
         currencyCode: faker.finance.currencyCode(),
+        countryCode: faker.location.countryCode(),
         idempotencyKey: faker.string.sample(),
         ipaddress: faker.internet.ipv4(),
         billingAgreementId: faker.string.sample(),
@@ -161,6 +162,7 @@ describe('PayPalClient', () => {
         PAYMENTTYPE: 'instant',
         AMT: options.amount,
         CURRENCYCODE: options.currencyCode,
+        COUNTRYCODE: options.countryCode,
         CUSTOM: options.idempotencyKey,
         INVNUM: options.invoiceNumber,
         IPADDRESS: options.ipaddress,
@@ -184,6 +186,7 @@ describe('PayPalClient', () => {
       const options = {
         amount: faker.finance.amount(),
         currencyCode: faker.finance.currencyCode(),
+        countryCode: faker.location.countryCode(),
         idempotencyKey: faker.string.sample(),
         ipaddress: faker.internet.ipv4(),
         billingAgreementId: faker.string.sample(),
@@ -198,6 +201,7 @@ describe('PayPalClient', () => {
         PAYMENTTYPE: 'instant',
         AMT: options.amount,
         CURRENCYCODE: options.currencyCode,
+        COUNTRYCODE: options.countryCode,
         CUSTOM: options.idempotencyKey,
         INVNUM: options.invoiceNumber,
         IPADDRESS: options.ipaddress,

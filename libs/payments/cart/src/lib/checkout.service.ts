@@ -46,6 +46,7 @@ import { handleEligibilityStatusMap } from './cart.utils';
 import { PrePayStepsResult } from './checkout.types';
 import assert from 'assert';
 import { CheckoutPaymentError } from './checkout.error';
+import { CurrencyManager } from '@fxa/payments/currency';
 
 @Injectable()
 export class CheckoutService {
@@ -53,6 +54,7 @@ export class CheckoutService {
     private accountCustomerManager: AccountCustomerManager,
     private cartManager: CartManager,
     private customerManager: CustomerManager,
+    private currencyManager: CurrencyManager,
     private eligibilityService: EligibilityService,
     private invoiceManager: InvoiceManager,
     private notifierService: NotifierService,
@@ -403,8 +405,23 @@ export class CheckoutService {
     const latestInvoice = await this.invoiceManager.retrieve(
       subscription.latest_invoice
     );
+
+    // TODO: Replace countryCode value with LocationPicker value
+    const countryCode =
+      latestInvoice.customer_shipping?.address?.country ??
+      this.currencyManager.getDefaultCountryForCurrency(
+        latestInvoice.currency.toUpperCase()
+      );
+    if (!countryCode) {
+      throw new CartError(
+        'No valid country code could be found for invoice or currency',
+        { currency: latestInvoice.currency, invoiceId: latestInvoice.id }
+      );
+    }
+
     const processedInvoice = await this.invoiceManager.processPayPalInvoice(
-      latestInvoice
+      latestInvoice,
+      countryCode
     );
     if (['paid', 'open'].includes(processedInvoice.status ?? '')) {
       await this.postPaySteps(cart, updatedVersion, subscription, uid);
