@@ -5,11 +5,11 @@
 import { StatsD } from 'hot-shots';
 import {
   DeleteAccountCloudTaskConfig,
-  SendEmailCloudTaskConfig,
+  InactiveAccountEmailCloudTaskConfig,
 } from './account-tasks.types';
 import { CloudTaskClientFactory } from './cloud-tasks.factories';
 import { DeleteAccountTasks } from './delete-account-tasks';
-import { SendEmailTasks } from './send-email-tasks';
+import { InactiveAccountEmailTasks } from './inactive-account-email-tasks';
 
 /** Produces a DeleteAccountCloudTask instance */
 export function DeleteAccountTasksFactory(
@@ -20,10 +20,10 @@ export function DeleteAccountTasksFactory(
   return new DeleteAccountTasks(config, client, statsd);
 }
 
-export function SendEmailTasksFactory(
-  config: SendEmailCloudTaskConfig,
+export function InactiveAccountEmailTasksFactory(
+  config: InactiveAccountEmailCloudTaskConfig,
   statsd: Pick<StatsD, 'increment'>
 ) {
   const client = CloudTaskClientFactory(config);
-  return new SendEmailTasks(config, client, statsd);
+  return new InactiveAccountEmailTasks(config, client, statsd);
 }

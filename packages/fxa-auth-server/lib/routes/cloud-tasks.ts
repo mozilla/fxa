@@ -97,7 +97,11 @@ export const cloudTaskRoutes = (
           headers: isA.object({
             'x-cloudtasks-queuename': isA
               .string()
-              .equal(config.cloudTasks.sendEmails.queueName),
+              .valid(
+                config.cloudTasks.inactiveAccountEmails.firstEmailQueueName,
+                config.cloudTasks.inactiveAccountEmails.secondEmailQueueName,
+                config.cloudTasks.inactiveAccountEmails.thirdEmailQueueName
+              ),
           }),
           payload: isA.object({
             uid: validators.uid.required().description(DESCRIPTION.uid),
