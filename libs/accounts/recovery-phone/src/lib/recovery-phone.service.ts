@@ -89,24 +89,33 @@ export class RecoveryPhoneService {
 
     const code = await this.otpCode.generateCode();
 
-    const smsBody = localizedMessageBody
-      ? `${localizedMessageBody.part1} ${code} ${localizedMessageBody.part2}`
-      : `${code}`;
-    const msg = await this.smsManager.sendSMS({
-      to: phoneNumber,
-      body: smsBody,
-    });
-
-    if (!this.isSuccessfulSmsSend(msg)) {
-      return false;
-    }
     await this.recoveryPhoneManager.storeUnconfirmed(
       uid,
       code,
       phoneNumber,
       true
     );
-    return true;
+
+    const smsBody = localizedMessageBody
+      ? `${localizedMessageBody.part1} ${code} ${localizedMessageBody.part2}`
+      : `${code}`;
+
+    let msg = {} as MessageInstance;
+    try {
+      msg = await this.smsManager.sendSMS({
+        to: phoneNumber,
+        body: smsBody,
+      });
+    } catch (e) {
+      console.log(e);
+      // retry sending without localized body
+      msg = await this.smsManager.sendSMS({
+        to: phoneNumber,
+        body: code,
+      });
+    }
+
+    return this.isSuccessfulSmsSend(msg);
   }
 
   /**
@@ -299,20 +308,31 @@ export class RecoveryPhoneService {
     const { phoneNumber } =
       await this.recoveryPhoneManager.getConfirmedPhoneNumber(uid);
     const code = await this.otpCode.generateCode();
-    const smsBody = localizedMessageBody
-      ? `${localizedMessageBody.part1} ${code} ${localizedMessageBody.part2}`
-      : `${code}`;
-
     await this.recoveryPhoneManager.storeUnconfirmed(
       uid,
       code,
       phoneNumber,
       false
     );
-    const msg = await this.smsManager.sendSMS({
-      to: phoneNumber,
-      body: smsBody,
-    });
+
+    const smsBody = localizedMessageBody
+      ? `${localizedMessageBody.part1} ${code} ${localizedMessageBody.part2}`
+      : `${code}`;
+
+    let msg = {} as MessageInstance;
+    try {
+      msg = await this.smsManager.sendSMS({
+        to: phoneNumber,
+        body: smsBody,
+      });
+    } catch (e) {
+      console.log(e);
+      // retry sending without localized body
+      msg = await this.smsManager.sendSMS({
+        to: phoneNumber,
+        body: code,
+      });
+    }
 
     return this.isSuccessfulSmsSend(msg);
   }
