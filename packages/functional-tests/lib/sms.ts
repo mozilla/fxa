@@ -29,22 +29,31 @@ export class SmsClient {
     const expires = Date.now() + timeout;
 
     while (Date.now() < expires) {
-      const keys = await this.client.keys(redisKeyPattern);
+      let cursor = '0';
       let newestKey: string | null = null;
       let newestCreatedAt = -1;
 
-      for (const key of keys) {
-        const valueRaw = await this.client.get(key);
-        if (!valueRaw) {
-          continue;
-        }
-        const value = JSON.parse(valueRaw);
+      do {
+        const [newCursor, keys] = await this.client.scan(
+          cursor,
+          'MATCH',
+          redisKeyPattern
+        );
+        cursor = newCursor;
 
-        if (!newestKey || value.createdAt > newestCreatedAt) {
-          newestKey = key;
-          newestCreatedAt = value.createdAt;
+        for (const key of keys) {
+          const valueRaw = await this.client.get(key);
+          if (!valueRaw) {
+            continue;
+          }
+          const value = JSON.parse(valueRaw);
+
+          if (!newestKey || value.createdAt > newestCreatedAt) {
+            newestKey = key;
+            newestCreatedAt = value.createdAt;
+          }
         }
-      }
+      } while (cursor !== '0');
 
       // If no keys are found, wait and try again.
       if (!newestKey) {
