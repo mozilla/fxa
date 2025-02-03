@@ -127,6 +127,7 @@ export class RecoveryPhoneManager {
   ): Promise<void> {
     const redisKey = `${this.redisPrefix}:${uid}:${code}`;
     const data = {
+      createdAt: Date.now(),
       phoneNumber,
       isSetup,
       lookupData: lookupData ? JSON.stringify(lookupData) : null,
