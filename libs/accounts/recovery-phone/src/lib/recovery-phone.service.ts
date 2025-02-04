@@ -104,7 +104,8 @@ export class RecoveryPhoneService {
     // When the user _confirms_ their OTP code we also call the lookup endpoint to
     // store the full data returned in our DB, but we need the national format on the
     // OTP confirm page before then. "Basic lookups" from Twilio are free, so don't
-    // bother persisting.
+    // bother persisting in redis.
+    // https://www.twilio.com/en-us/user-authentication-identity/pricing/lookup
     const { nationalFormat } = await this.smsManager.phoneNumberLookup(
       phoneNumber
     );
@@ -219,18 +220,22 @@ export class RecoveryPhoneService {
   ): Promise<{
     exists: boolean;
     phoneNumber?: string;
+    nationalFormat?: string;
   }> {
     if (!this.config.enabled) {
       throw new RecoveryPhoneNotEnabled();
     }
 
     try {
-      const { phoneNumber } =
+      const { phoneNumber, nationalFormat } =
         await this.recoveryPhoneManager.getConfirmedPhoneNumber(uid);
 
       return {
         exists: true,
         phoneNumber: this.maskPhoneNumber(phoneNumber, phoneNumberMask),
+        nationalFormat: nationalFormat
+          ? this.maskPhoneNumber(nationalFormat, phoneNumberMask)
+          : undefined,
       };
     } catch (err) {
       if (err instanceof RecoveryNumberNotExistsError) {
@@ -238,6 +243,7 @@ export class RecoveryPhoneService {
         return {
           exists: false,
           phoneNumber: undefined,
+          nationalFormat: undefined,
         };
       }
       // Something unexpected happened...

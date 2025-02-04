@@ -118,6 +118,7 @@ export interface AccountData {
   recoveryPhone: {
     exists: boolean;
     phoneNumber: string | null;
+    nationalFormat: string | null;
     available: boolean;
   };
   subscriptions: Subscription[];
@@ -206,6 +207,7 @@ export const GET_ACCOUNT = gql`
       recoveryPhone {
         exists
         phoneNumber
+        nationalFormat
         available
       }
       subscriptions {
@@ -1399,6 +1401,7 @@ export class Account implements AccountData {
           return {
             exists: false,
             phoneNumber: null,
+            nationalFormat: null,
             available: true,
           };
         },

@@ -17,6 +17,12 @@ export class RecoveryPhone {
       'The registered recovery phone number. If the user does not have a verified session, this field will return the last 4 digits of the phone number with a mask on the rest.',
   })
   public phoneNumber!: string;
+  @Field({
+    nullable: true,
+    description:
+      "The recovery phone number in Twilio's national_format format.",
+  })
+  public nationalFormat!: string;
 
   @Field({
     nullable: true,

@@ -111,8 +111,17 @@ class RecoveryPhoneHandler {
       );
       if (result) {
         await this.glean.twoStepAuthPhoneCode.sent(request);
-        const nationalFormat =
-          await this.recoveryPhoneService.getNationalFormat(phoneNumber);
+
+        let nationalFormat: string | null = null;
+        try {
+          nationalFormat = await this.recoveryPhoneService.getNationalFormat(
+            phoneNumber
+          );
+        } catch (e) {
+          // This should not fail since the number was already validated with Twilio but
+          // if it does just return a null value and don't error out.
+        }
+
         return { status: RecoveryPhoneStatus.SUCCESS, nationalFormat };
       }
       await this.glean.twoStepAuthPhoneCode.sendError(request);
