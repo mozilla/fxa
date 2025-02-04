@@ -37,10 +37,11 @@ export class MetricsContext {
     this.flowBeginTime = queryParams['flowBeginTime']
       ? Number(queryParams['flowBeginTime'])
       : undefined;
-    this.utmCampaign = queryParams['utmCampaign'];
-    this.utmContent = queryParams['utmContent'];
-    this.utmMedium = queryParams['utmMedium'];
-    this.utmSource = queryParams['utmSource'];
-    this.utmTerm = queryParams['utmTerm'];
+    this.utmCampaign =
+      queryParams['utmCampaign'] || queryParams['utm_campaign'];
+    this.utmContent = queryParams['utmContent'] || queryParams['utm_content'];
+    this.utmMedium = queryParams['utmMedium'] || queryParams['utm_medium'];
+    this.utmSource = queryParams['utmSource'] || queryParams['utm_source'];
+    this.utmTerm = queryParams['utmTerm'] || queryParams['utm_term'];
   }
 }
