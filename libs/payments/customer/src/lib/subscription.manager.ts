@@ -18,8 +18,11 @@ import { InvalidPaymentIntentError, PaymentIntentNotFoundError } from './error';
 export class SubscriptionManager {
   constructor(private stripeClient: StripeClient) {}
 
-  async cancel(subscriptionId: string) {
-    return this.stripeClient.subscriptionsCancel(subscriptionId);
+  async cancel(
+    subscriptionId: string,
+    params?: Stripe.SubscriptionCancelParams
+  ) {
+    return this.stripeClient.subscriptionsCancel(subscriptionId, params);
   }
 
   async create(

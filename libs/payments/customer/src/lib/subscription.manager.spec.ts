@@ -99,7 +99,8 @@ describe('SubscriptionManager', () => {
       await subscriptionManager.cancel(mockSubscription.id);
 
       expect(stripeClient.subscriptionsCancel).toBeCalledWith(
-        mockSubscription.id
+        mockSubscription.id,
+        undefined
       );
     });
   });

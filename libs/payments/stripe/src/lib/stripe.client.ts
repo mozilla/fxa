@@ -10,6 +10,7 @@ import {
   StripeCustomer,
   StripeCustomerSession,
   StripeDeletedCustomer,
+  StripeDeletedInvoice,
   StripeInvoice,
   StripePaymentIntent,
   StripePaymentMethod,
@@ -79,6 +80,17 @@ export class StripeClient {
     });
 
     return result as StripeResponse<StripeCustomer>;
+  }
+
+  async customersDelete(
+    customerId: string,
+    params?: Stripe.CustomerDeleteParams
+  ) {
+    const result = await this.stripe.customers.del(customerId, {
+      ...params,
+      expand: ['tax'],
+    });
+    return result as StripeResponse<StripeDeletedCustomer>;
   }
 
   async customersSessionsCreate(params: Stripe.CustomerSessionCreateParams) {
@@ -198,6 +210,16 @@ export class StripeClient {
       }
       throw err;
     }
+  }
+
+  async invoicesDelete(invoiceId: string) {
+    const result = await this.stripe.invoices.del(invoiceId);
+    return result as StripeResponse<StripeDeletedInvoice>;
+  }
+
+  async invoicesVoid(invoiceId: string) {
+    const result = await this.stripe.invoices.voidInvoice(invoiceId);
+    return result as StripeResponse<StripeInvoice>;
   }
 
   async paymentIntentRetrieve(

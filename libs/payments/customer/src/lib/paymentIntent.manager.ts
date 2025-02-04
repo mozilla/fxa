@@ -20,4 +20,8 @@ export class PaymentIntentManager {
   async retrieve(paymentIntentId: string) {
     return this.stripeClient.paymentIntentRetrieve(paymentIntentId);
   }
+
+  async cancel(paymentIntentId: string) {
+    return this.stripeClient.paymentIntentCancel(paymentIntentId);
+  }
 }

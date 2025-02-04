@@ -17,6 +17,7 @@ import {
   CouponErrorGeneric,
   CouponErrorLimitReached,
   CustomerSessionManager,
+  PaymentIntentManager,
 } from '@fxa/payments/customer';
 import { EligibilityService } from '@fxa/payments/eligibility';
 import {
@@ -77,7 +78,8 @@ export class CartService {
     private invoiceManager: InvoiceManager,
     private productConfigurationManager: ProductConfigurationManager,
     private subscriptionManager: SubscriptionManager,
-    private paymentMethodManager: PaymentMethodManager
+    private paymentMethodManager: PaymentMethodManager,
+    private paymentIntentManager: PaymentIntentManager
   ) {}
 
   /**
@@ -93,18 +95,77 @@ export class CartService {
         errorReasonId = CartErrorReasonId.BASIC_ERROR;
       }
 
-      await this.cartManager
-        .finishErrorCart(cartId, {
-          errorReasonId,
-        })
-        .catch((e) => {
-          // We silently fail here so as not to eat the original error
-          Sentry.captureException(e);
-        });
-
-      // All unexpectd/untyped errors should go to Sentry
+      // All unexpected/untyped errors should go to Sentry
       if (errorReasonId === CartErrorReasonId.Unknown) {
         Sentry.captureException(error, {
+          extra: {
+            cartId,
+          },
+        });
+      }
+
+      try {
+        await this.cartManager.finishErrorCart(cartId, {
+          errorReasonId,
+        });
+
+        const cart = await this.cartManager.fetchCartById(cartId);
+        if (cart.stripeSubscriptionId) {
+          const subscription = await this.subscriptionManager.retrieve(
+            cart.stripeSubscriptionId
+          );
+          const invoice = subscription.latest_invoice
+            ? await this.invoiceManager.retrieve(subscription.latest_invoice)
+            : undefined;
+          if (invoice) {
+            switch (invoice.status) {
+              case 'draft':
+                await this.invoiceManager.delete(invoice.id);
+                break;
+              case 'open':
+              case 'uncollectible':
+                await this.invoiceManager.void(invoice.id);
+                break;
+              case 'paid':
+                throw new CartError('Paid invoice found on failed cart', {
+                  cartId,
+                  stripeCustomerId: cart.stripeCustomerId,
+                  invoiceId: invoice.id,
+                });
+            }
+          }
+
+          const paymentIntent =
+            await this.subscriptionManager.getLatestPaymentIntent(subscription);
+          if (paymentIntent?.status === 'succeeded') {
+            throw new CartError('Paid payment intent found on failed cart', {
+              cartId,
+              stripeCustomerId: cart.stripeCustomerId,
+              paymentIntentId: paymentIntent.id,
+            });
+          }
+          try {
+            if (paymentIntent) {
+              await this.paymentIntentManager.cancel(paymentIntent.id);
+            }
+          } catch (e) {
+            // swallow the error to allow cancellation of the subscription
+            Sentry.captureException(e, {
+              extra: {
+                cartId,
+              },
+            });
+          }
+
+          await this.subscriptionManager.cancel(cart.stripeSubscriptionId, {
+            cancellation_details: {
+              comment: 'Automatic Cancellation: Cart checkout failed.',
+            },
+          });
+        }
+      } catch (e) {
+        // All errors thrown during the cleanup process should go to Sentry
+        Sentry.captureException(e, {
           extra: {
             cartId,
           },
@@ -246,6 +307,16 @@ export class CartService {
         }
       }
 
+      const accountCustomer = oldCart.uid
+        ? await this.accountCustomerManager
+            .getAccountCustomerByUid(oldCart.uid)
+            .catch((error) => {
+              if (!(error instanceof AccountCustomerNotFoundError)) {
+                throw error;
+              }
+            })
+        : undefined;
+
       return await this.cartManager.createCart({
         uid: oldCart.uid,
         interval: oldCart.interval,
@@ -254,7 +325,7 @@ export class CartService {
         taxAddress: oldCart.taxAddress || undefined,
         currency: oldCart.currency || undefined,
         couponCode: oldCart.couponCode || undefined,
-        stripeCustomerId: oldCart.stripeCustomerId || undefined,
+        stripeCustomerId: accountCustomer?.stripeCustomerId || undefined,
         email: oldCart.email || undefined,
         amount: oldCart.amount,
         eligibilityStatus: oldCart.eligibilityStatus,
