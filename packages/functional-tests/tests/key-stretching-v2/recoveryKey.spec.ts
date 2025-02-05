@@ -21,11 +21,14 @@ test.describe('severity-2 #smoke', () => {
     password: string
   ) {
     const client = target.createAuthClient(version);
-    const response = await client.signIn(email, password, { keys: true });
+    const response = await client.signIn(email, password, {
+      keys: true,
+      skipPasswordUpgrade: true,
+    });
     expect(response.keyFetchToken).toBeDefined();
     expect(response.unwrapBKey).toBeDefined();
 
-    const keys = client.accountKeys(
+    const keys = await client.accountKeys(
       response.keyFetchToken as string,
       response.unwrapBKey as string
     );
@@ -62,18 +65,25 @@ test.describe('severity-2 #smoke', () => {
         recoveryKey,
         resetPassword,
         confirmSignupCode,
+        deleteAccount,
       },
       testAccountTracker,
     }) => {
-      const { email, password } = testAccountTracker.generateAccountDetails();
+      const accountDetails = {
+        email: testAccountTracker.generateEmail(),
+        password: testAccountTracker.generatePassword(),
+      };
+      const newPassword = testAccountTracker.generatePassword();
       await page.goto(
         `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react&${signupVersion.query}`
       );
       await page.waitForURL(/\//);
-      await signup.fillOutEmailForm(email);
-      await signup.fillOutSignupForm(password, AGE_21);
+      await signup.fillOutEmailForm(accountDetails.email);
+      await signup.fillOutSignupForm(accountDetails.password, AGE_21);
       await expect(page).toHaveURL(/confirm_signup_code/);
-      const code = await target.emailClient.getVerifyShortCode(email);
+      const code = await target.emailClient.getVerifyShortCode(
+        accountDetails.email
+      );
       await confirmSignupCode.fillOutCodeForm(code);
 
       await page.waitForURL(/settings/);
@@ -84,29 +94,34 @@ test.describe('severity-2 #smoke', () => {
       const keys = await _getKeys(
         signupVersion.version,
         target,
-        email,
-        password
+        accountDetails.email,
+        accountDetails.password
       );
       await page.goto(
         `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react&${resetVersion.query}`
       );
       await page.waitForURL(/\//);
-      await signin.fillOutEmailFirstForm(email);
-      await signin.fillOutPasswordForm(password);
+      await signin.fillOutEmailFirstForm(accountDetails.email);
+      await signin.fillOutPasswordForm(accountDetails.password);
       await page.waitForURL(/settings/);
       await expect(page).toHaveURL(/settings/);
 
-      await settings.goto(`${resetVersion.version}`);
+      await settings.goto(`${resetVersion.query}`);
       await page.waitForURL(/settings/);
       await settings.recoveryKey.createButton.click();
-      const key = await recoveryKey.createRecoveryKey(password, HINT);
+      const key = await recoveryKey.createRecoveryKey(
+        accountDetails.password,
+        HINT
+      );
       await settings.signOut();
       await page.goto(
         `${target.contentServerUrl}/reset_password?${resetVersion.query}`
       );
       await page.waitForURL(/reset_password/);
-      await resetPassword.fillOutEmailForm(email);
-      const resetCode = await target.emailClient.getResetPasswordCode(email);
+      await resetPassword.fillOutEmailForm(accountDetails.email);
+      const resetCode = await target.emailClient.getResetPasswordCode(
+        accountDetails.email
+      );
       await resetPassword.fillOutResetPasswordCodeForm(resetCode);
       await resetPassword.fillOutRecoveryKeyForm(key);
 
@@ -114,27 +129,37 @@ test.describe('severity-2 #smoke', () => {
         new RegExp(`account_recovery_reset_password.*${resetVersion.query}`)
       );
 
-      await resetPassword.fillOutNewPasswordForm(password);
+      await resetPassword.fillOutNewPasswordForm(newPassword);
+      accountDetails.password = newPassword;
 
       await expect(page).toHaveURL(/reset_password_with_recovery_key_verified/);
 
+      await resetPassword.continueWithoutDownloadingRecoveryKey();
+      await resetPassword.recoveryKeyFinishButton.click();
+
+      // a successful password reset means that the user is signed in
+      await page.waitForURL(/settings/);
+      await settings.signOut();
+
+      // Attempt to signin
       await page.goto(
         `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react&${signinVersion.query}`
       );
       await page.waitForURL(/\//);
-      // a successful password reset means that the user is signed in
-      await expect(signin.cachedSigninHeading).toBeVisible();
-      await signin.signInButton.click();
-
+      await signin.fillOutEmailFirstForm(accountDetails.email);
+      await signin.fillOutPasswordForm(accountDetails.password);
       await page.waitForURL(/settings/);
-      await expect(page).toHaveURL(/settings/);
+
       const keys2 = await _getKeys(
         signinVersion.version,
         target,
-        email,
-        password
+        accountDetails.email,
+        accountDetails.password
       );
       expect(keys2.kB).toEqual(keys.kB);
+
+      await settings.deleteAccountButton.click();
+      await deleteAccount.deleteAccount(accountDetails.password);
     });
   }
 });

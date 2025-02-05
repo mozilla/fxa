@@ -83,6 +83,10 @@ module.exports = function (
       path: '/password/change/start',
       options: {
         ...PASSWORD_DOCS.PASSWORD_CHANGE_START_POST,
+        auth: {
+          strategy: 'sessionToken',
+          payload: 'required',
+        },
         validate: {
           payload: isA.object({
             email: validators.email().required().description(DESCRIPTION.email),
@@ -92,10 +96,15 @@ module.exports = function (
       },
       handler: async function (request: AuthRequest) {
         log.begin('Password.changeStart', request);
+        const sessionToken = request.auth.credentials;
         const form = request.payload as { email: string; oldAuthPW: string };
         const { oldAuthPW, email } = form;
 
-        await customs.check(request, email, 'passwordChange');
+        await customs.checkAuthenticated(
+          request,
+          sessionToken.uid,
+          'passwordChange'
+        );
 
         let keyFetchToken: any | undefined = undefined;
         let keyFetchToken2: any | undefined = undefined;

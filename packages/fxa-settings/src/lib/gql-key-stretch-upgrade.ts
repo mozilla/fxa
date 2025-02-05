@@ -116,7 +116,7 @@ export class GqlKeyStretchUpgrade {
     v2Credentials: V2Credentials,
     sessionToken: string
   ): Promise<boolean> {
-    let result1 = await this.startUpgrade(email, v1Credentials);
+    let result1 = await this.startUpgrade(email, v1Credentials, sessionToken);
 
     if (result1?.keyFetchToken && result1?.passwordChangeToken) {
       const result2 = await this.getWrappedKeys(result1.keyFetchToken);
@@ -158,13 +158,18 @@ export class GqlKeyStretchUpgrade {
     return undefined;
   }
 
-  private async startUpgrade(email: string, v1Credentials: V1Credentials) {
+  private async startUpgrade(
+    email: string,
+    v1Credentials: V1Credentials,
+    sessionToken: string
+  ) {
     try {
       const response = await this.gqlPasswordChangeStart({
         variables: {
           input: {
             email: email,
             oldAuthPW: v1Credentials.authPW,
+            sessionToken,
           },
         },
       });

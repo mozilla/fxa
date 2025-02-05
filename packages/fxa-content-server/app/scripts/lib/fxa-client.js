@@ -736,9 +736,8 @@ FxaClientWrapper.prototype = {
     ) => {
       var email = trim(originalEmail);
       return client
-        .passwordChange(email, oldPassword, newPassword, {
+        .passwordChange(email, oldPassword, newPassword, sessionToken, {
           keys: wantsKeys(relier, sessionTokenContext),
-          sessionToken: sessionToken,
         })
         .then((accountData = {}) => {
           return getUpdatedSessionData(email, relier, accountData, {
