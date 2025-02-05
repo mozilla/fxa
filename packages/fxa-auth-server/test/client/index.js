@@ -350,7 +350,7 @@ module.exports = (config) => {
     }
   };
 
-  Client.prototype.recoveryPhoneNumberCreate = async function (phoneNumber) {
+  Client.prototype.recoveryPhoneCreate = async function (phoneNumber) {
     if (this.sessionToken) {
       const resp = await this.api.recoveryPhoneNumberCreate(
         this.sessionToken,
@@ -358,6 +358,7 @@ module.exports = (config) => {
       );
       return resp;
     }
+    return;
   };
 
   Client.prototype.recoveryPhoneAvailable = async function () {
@@ -384,16 +385,6 @@ module.exports = (config) => {
       const resp = await this.api.recoveryPhoneNumberConfirmSetup(
         this.sessionToken,
         code
-      );
-      return resp;
-    }
-  };
-
-  Client.prototype.recoveryPhoneCreate = async function (phoneNumber) {
-    if (this.sessionToken) {
-      const resp = await this.api.recoveryPhoneNumberCreate(
-        this.sessionToken,
-        phoneNumber
       );
       return resp;
     }
