@@ -13935,12 +13935,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@next/bundle-analyzer@npm:^15.0.3":
-  version: 15.0.3
-  resolution: "@next/bundle-analyzer@npm:15.0.3"
+"@next/bundle-analyzer@npm:^15.1.6":
+  version: 15.1.6
+  resolution: "@next/bundle-analyzer@npm:15.1.6"
   dependencies:
     webpack-bundle-analyzer: 4.10.1
-  checksum: 79c7c3bfdcbe33d153e7008fd90bae7d8c0c44e5c5647ffc9441bf9553eea0e1d03c97d25eae6364204d160dca87d4a4e0749d571ed85e4435e5f0f086fa89ce
+  checksum: b61634e156b9ebca0c2c8afdb2417973919df4503625affc794f8947021215540c3d4d6dc4fdd7e88e52048cd25d3f153121ef733f88eba5585757bc0d90cb90
   languageName: node
   linkType: hard
 
@@ -42495,7 +42495,7 @@ fsevents@~2.1.1:
     "@nestjs/schedule": ^4.0.1
     "@nestjs/schematics": ^10.2.3
     "@nestjs/testing": ^10.3.4
-    "@next/bundle-analyzer": ^15.0.3
+    "@next/bundle-analyzer": ^15.1.6
     "@nx/esbuild": 19.5.3
     "@nx/eslint-plugin": 19.5.3
     "@nx/jest": 19.5.3
