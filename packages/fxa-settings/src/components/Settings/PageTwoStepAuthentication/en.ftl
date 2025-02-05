@@ -37,8 +37,9 @@ tfa-input-enter-totp-v2 =
 tfa-save-these-codes-1 = Save these one-time use backup authentication codes in a safe place for when
   you don’t have your mobile device.
 
-tfa-enter-code-to-confirm-v2 = Please enter one of your new backup authentication codes to
-  confirm that you have saved them. Your old backup authentication codes will be disabled once this step is completed.
+# codes here refers to backup authentication codes
+tfa-enter-code-to-confirm-setup = Confirm you saved your codes by entering one. Without these codes, you might not be able to sign in if you don’t have your authenticator app.
+
 tfa-enter-recovery-code-1 =
  .label = Enter a backup authentication code
 
