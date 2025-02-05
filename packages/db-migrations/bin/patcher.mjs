@@ -42,7 +42,8 @@ for (const db of databases) {
   );
   try {
     const cfg = conf.get(db);
-    await patch({
+    console.log(`Patching ${db} to ${level}`);
+    let results = await patch({
       user: cfg.user,
       password: cfg.password,
       host: cfg.host,
@@ -56,10 +57,12 @@ for (const db of databases) {
       reversePatchAllowed: false,
       database: cfg.database,
     });
+    console.log(`Results: ${results}`);
+    console.log(`Successfully patched ${db} to ${level}`);
   } catch (error) {
     // fyi these logs show up in `pm2 logs mysql`
-    console.error(error);
-    console.error(db, 'failed to patch to', level);
+    console.error(`Error: ${error}`);
+    console.error(`Failed to patch ${db} to ${level}`);
     process.exit(2);
   }
 }
