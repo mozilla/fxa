@@ -688,7 +688,19 @@ describe('CheckoutService', () => {
       );
       const mockPaypalCustomer = ResultPaypalCustomerFactory();
       const mockInvoice = StripeResponseFactory(
-        StripeInvoiceFactory({ status: 'paid' })
+        StripeInvoiceFactory({
+          status: 'paid',
+          customer_shipping: {
+            address: {
+              line1: '',
+              line2: '',
+              city: '',
+              state: '',
+              country: faker.location.countryCode(),
+              postal_code: faker.location.zipCode(),
+            },
+          },
+        })
       );
       const mockPrice = StripePriceFactory();
       const mockPrePayStepsResult = PrePayStepsResultFactory({
@@ -819,7 +831,8 @@ describe('CheckoutService', () => {
       });
       it('calls invoiceManager.processPayPalInvoice', async () => {
         expect(invoiceManager.processPayPalInvoice).toHaveBeenCalledWith(
-          mockInvoice
+          mockInvoice,
+          mockInvoice.customer_shipping?.address?.country
         );
       });
       it('calls postPaySteps', async () => {
@@ -852,7 +865,19 @@ describe('CheckoutService', () => {
         );
         const mockPaypalCustomer = ResultPaypalCustomerFactory();
         const mockInvoice = StripeResponseFactory(
-          StripeInvoiceFactory({ status: 'uncollectible' })
+          StripeInvoiceFactory({
+            status: 'uncollectible',
+            customer_shipping: {
+              address: {
+                line1: '',
+                line2: '',
+                city: '',
+                state: '',
+                country: faker.location.countryCode(),
+                postal_code: faker.location.zipCode(),
+              },
+            },
+          })
         );
         const mockPrice = StripePriceFactory();
         const mockPrePayStepsResult = PrePayStepsResultFactory({
