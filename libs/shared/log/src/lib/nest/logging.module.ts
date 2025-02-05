@@ -1,18 +1,12 @@
-import { Global, LoggerService, Module } from '@nestjs/common';
-export type { Logger } from 'winston';
-import { WinstonLogger } from 'nest-winston';
-
-import { logger } from '../logging';
-
-export const LOGGER_PROVIDER = 'Logger';
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+import { Module, Global } from '@nestjs/common';
+import { LoggingProvider } from './logging.provider';
 
 @Global()
 @Module({
-  providers: [{ provide: LOGGER_PROVIDER, useValue: logger }],
-  exports: [{ provide: LOGGER_PROVIDER, useValue: logger }],
+  providers: [LoggingProvider],
+  exports: [LoggingProvider],
 })
-export class LoggingModule {
-  static createLogger(): LoggerService {
-    return new WinstonLogger(logger);
-  }
-}
+export class LoggerModule {}

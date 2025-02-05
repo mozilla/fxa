@@ -7,6 +7,7 @@ import { Kysely, sql } from 'kysely';
 
 import { DB, setupAccountDatabase } from '@fxa/shared/db/mysql/account';
 import { v4 } from 'uuid';
+import { mockLogger } from '../../../../../log/src';
 
 const SQL_FILE_LOCATION = '../test';
 
@@ -23,13 +24,16 @@ export async function testAccountDatabaseSetup(
   tables: ACCOUNT_TABLES[]
 ): Promise<Kysely<DB>> {
   // Create the db if it doesn't exist
-  let db = await setupAccountDatabase({
-    host: 'localhost',
-    database: '',
-    password: '',
-    port: 3306,
-    user: 'root',
-  });
+  let db = await setupAccountDatabase(
+    {
+      host: 'localhost',
+      database: '',
+      password: '',
+      port: 3306,
+      user: 'root',
+    },
+    mockLogger
+  );
 
   const testDbName = `testAccount-${v4()}`;
 
@@ -37,13 +41,16 @@ export async function testAccountDatabaseSetup(
   await sql`CREATE DATABASE ${sql.table(testDbName)}`.execute(db);
   await db.destroy();
 
-  db = await setupAccountDatabase({
-    host: 'localhost',
-    database: testDbName,
-    password: '',
-    port: 3306,
-    user: 'root',
-  });
+  db = await setupAccountDatabase(
+    {
+      host: 'localhost',
+      database: testDbName,
+      password: '',
+      port: 3306,
+      user: 'root',
+    },
+    mockLogger
+  );
 
   await runSql(
     db,

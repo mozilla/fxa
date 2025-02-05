@@ -35,7 +35,7 @@ export async function processAccountDeletionInRange(
   taskLimit: number,
   log?: AuthLogger
 ) {
-  const kyselyDb = await setupAccountDatabase(config.database.mysql.auth);
+  const kyselyDb = await setupAccountDatabase(config.database.mysql.auth, log);
 
   // To keep this query performant, we have an index on emailVerified and createdAt column
   const accounts = await kyselyDb
@@ -135,7 +135,7 @@ export class CloudSchedulerHandler {
     startDate: any,
     endDate: any,
     taskLimit: number,
-    log?: AuthLogger
+    log: AuthLogger
   ) {
     return processAccountDeletionInRange(
       config,

@@ -5,12 +5,13 @@ import { Kysely } from 'kysely';
 
 import { createDialect, MySQLConfig } from '@fxa/shared/db/mysql/core';
 import { DB } from './kysely-types';
+import { ILogger } from '../../../../../log/src';
 
 export type AccountDatabase = Kysely<DB>;
 export const AccountDbProvider = Symbol('AccountDbProvider');
 
-export async function setupAccountDatabase(opts: MySQLConfig) {
-  const dialect = await createDialect(opts);
+export async function setupAccountDatabase(opts: MySQLConfig, log?: ILogger) {
+  const dialect = await createDialect(opts, log);
   return new Kysely<DB>({
     dialect,
   });
