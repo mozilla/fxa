@@ -219,6 +219,7 @@ module.exports = (config) => {
     if (!options) {
       options = { keys: true };
     }
+
     return this.doRequest(
       'POST',
       `${this.baseURL}/account/login${getQueryString(options)}`,
