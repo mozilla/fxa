@@ -10,4 +10,7 @@ export class PasswordChangeStartInput {
 
   @Field()
   oldAuthPW!: string;
+
+  @Field()
+  sessionToken!: string;
 }

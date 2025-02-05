@@ -81,6 +81,7 @@ export type SignInOptions = {
   unblockCode?: string;
   metricsContext?: MetricsContext;
   postPasswordUpgrade?: boolean;
+  skipPasswordUpgrade?: boolean;
 };
 
 export type SignedInAccountData = {
@@ -472,50 +473,40 @@ export default class AuthClient {
     headers?: Headers
   ): Promise<SignedInAccountData> {
     let credentials = await this.getCredentialSet({ email, password }, headers);
-
     try {
       let accountData: SignedInAccountData;
       if (this.keyStretchVersion === 2) {
         if (credentials.upgradeNeeded) {
-          // This condition indicates an upgrade already was attempted but did not take hold.
-          // If this state occurs, it means something went wrong, and we want to fallback to
-          // v1 credentials and set the client's target key stretch version back to 1.
-          if (options.postPasswordUpgrade === true) {
-            this.keyStretchVersion = 1;
-            return await this.signIn(
-              email,
-              password,
-              {
-                ...options,
-                postPasswordUpgrade: true,
-              },
-              createHeaders(headers, options)
-            );
-          }
+          // To do the password upgrade we first sign the user in with V1 creds,
+          // then do a password change to upgrade to V2.
+          this.keyStretchVersion = 1;
+          accountData = await this.signInWithAuthPW(
+            email,
+            credentials.v1.authPW,
+            options,
+            createHeaders(headers, options)
+          );
 
-          // Try to upgrade the password, and sign in.
           try {
-            await this.passwordChange(
-              email,
-              password,
-              password,
-              options,
-              headers
-            );
+            if (
+              accountData.sessionToken &&
+              options.skipPasswordUpgrade !== true
+            ) {
+              this.keyStretchVersion = 2;
+              await this.passwordChange(
+                email,
+                password,
+                password,
+                accountData.sessionToken,
+                options,
+                headers
+              );
+            }
           } catch (err) {
             Sentry.captureMessage(
               'Failure to complete v2 key stretch upgrade.'
             );
           }
-          return await this.signIn(
-            email,
-            password,
-            {
-              ...options,
-              postPasswordUpgrade: true,
-            },
-            createHeaders(headers, options)
-          );
         } else if (credentials.v2) {
           // Already using V2! Just sign in.
           accountData = await this.signInWithAuthPW(
@@ -1239,138 +1230,44 @@ export default class AuthClient {
     );
   }
 
-  async passwordChangeWithAuthPW(
-    email: string,
-    oldPasswordAuthPW: string,
-    newPasswordAuthPW: string,
-    oldUnwrapBKey: string,
-    newUnwrapBKey: string,
-    v2:
-      | {
-          oldPasswordAuthPW: string;
-          newPasswordAuthPW: string;
-          oldUnwrapBKey: string;
-          newUnwrapBKey: string;
-        }
-      | undefined,
-    options: {
-      keys?: boolean;
-      sessionToken?: hexstring;
-    } = {},
-    headers?: Headers
-  ): Promise<{
-    uid: hexstring;
-    sessionToken: hexstring;
-    verified: boolean;
-    authAt: number;
-    unwrapBKey?: hexstring;
-    keyFetchToken?: hexstring;
-  }> {
-    const passwordData = await this.request(
-      'POST',
-      '/password/change/start',
-      {
-        email,
-        oldAuthPW: oldPasswordAuthPW,
-      },
-      headers
-    );
-
-    const keys = await this.accountKeys(
-      passwordData.keyFetchToken,
-      oldUnwrapBKey,
-      headers
-    );
-
-    const wrapKb = crypto.unwrapKB(keys.kB, newUnwrapBKey);
-    const sessionToken = options.sessionToken
-      ? (await hawk.deriveHawkCredentials(options.sessionToken, 'sessionToken'))
-          .id
-      : undefined;
-
-    let payload: PasswordChangePayload = {
-      wrapKb,
-      authPW: newPasswordAuthPW,
-      sessionToken,
-    };
-
-    if (this.keyStretchVersion === 2 && v2) {
-      const status = await this.getCredentialStatusV2(email, headers);
-      const clientSalt = status.clientSalt || createSaltV2();
-      // Important! Passing kB, ensures kB remains constant even after password upgrade.
-      const newKeys = await crypto.getKeysV2({
-        kB: keys.kB,
-        v1: {
-          authPW: newPasswordAuthPW,
-          unwrapBKey: newUnwrapBKey,
-        },
-        v2: {
-          authPW: v2.newPasswordAuthPW,
-          unwrapBKey: v2.newPasswordAuthPW,
-        },
-      });
-
-      if (newKeys.wrapKb !== wrapKb) {
-        throw new Error('Sanity check failed. wrapKb should not drift!');
-      }
-
-      payload = {
-        ...payload,
-        authPWVersion2: v2.newPasswordAuthPW,
-        wrapKbVersion2: newKeys.wrapKbVersion2,
-        clientSalt: clientSalt,
-      };
-    }
-
-    const accountData = await this.passwordChangeFinish(
-      passwordData.passwordChangeToken,
-      payload,
-      options,
-      headers
-    );
-
-    if (options.keys && accountData.keyFetchToken) {
-      accountData.unwrapBKey = newUnwrapBKey;
-      accountData.unwrapBKeyVersion2 = v2?.newUnwrapBKey;
-    }
-    return accountData;
-  }
-
   async passwordChange(
     email: string,
     oldPassword: string,
     newPassword: string,
+    sessionToken: string,
     options: {
       keys?: boolean;
-      sessionToken?: hexstring;
     } = {},
     headers?: Headers
   ): Promise<SignedInAccountData> {
     const oldCredentials = await this.passwordChangeStart(
       email,
       oldPassword,
+      sessionToken,
       undefined,
       headers
     );
+
     const keys = await this.accountKeys(
       oldCredentials.keyFetchToken,
       oldCredentials.unwrapBKey,
       headers
     );
+
     const newCredentials = await crypto.getCredentials(
       oldCredentials.email,
       newPassword
     );
+
     const wrapKb = crypto.unwrapKB(keys.kB, newCredentials.unwrapBKey);
-    const sessionToken = options.sessionToken
-      ? (await hawk.deriveHawkCredentials(options.sessionToken, 'sessionToken'))
-          .id
+    const sessionTokenHex = sessionToken
+      ? (await hawk.deriveHawkCredentials(sessionToken, 'sessionToken')).id
       : undefined;
 
     let payload: PasswordChangePayload = {
       authPW: newCredentials.authPW,
       wrapKb,
-      sessionToken,
+      sessionToken: sessionTokenHex,
     };
 
     let unwrapBKeyVersion2: string | undefined;
@@ -1401,7 +1298,6 @@ export default class AuthClient {
         clientSalt: clientSalt,
       };
     }
-
     const accountData = await this.passwordChangeFinish(
       oldCredentials.passwordChangeToken,
       payload,
@@ -1418,6 +1314,7 @@ export default class AuthClient {
   public async passwordChangeStartWithAuthPW(
     email: string,
     oldAuthPW: string,
+    sessionToken: string,
     options: {
       skipCaseError?: boolean;
     } = {},
@@ -1428,15 +1325,16 @@ export default class AuthClient {
     passwordChangeToken: hexstring;
   }> {
     try {
-      const passwordData = await this.request(
-        'POST',
+      const passwordData = await this.sessionPost(
         '/password/change/start',
+        sessionToken,
         {
           email,
-          oldAuthPW,
+          oldAuthPW: oldAuthPW,
         },
         headers
       );
+
       return {
         email: email,
         keyFetchToken: passwordData.keyFetchToken,
@@ -1454,6 +1352,7 @@ export default class AuthClient {
         return await this.passwordChangeStartWithAuthPW(
           error.email,
           oldAuthPW,
+          sessionToken,
           options,
           headers
         );
@@ -1466,6 +1365,7 @@ export default class AuthClient {
   private async passwordChangeStart(
     email: string,
     oldPassword: string,
+    sessionToken: string,
     options: {
       skipCaseError?: boolean;
     } = {},
@@ -1479,14 +1379,13 @@ export default class AuthClient {
   }> {
     const oldCredentials = await crypto.getCredentials(email, oldPassword);
     try {
-      const passwordData = await this.request(
-        'POST',
+      const passwordData = await this.sessionPost(
         '/password/change/start',
+        sessionToken,
         {
           email,
           oldAuthPW: oldCredentials.authPW,
-        },
-        headers
+        }
       );
       return {
         authPW: oldCredentials.authPW,
@@ -1507,6 +1406,7 @@ export default class AuthClient {
         return await this.passwordChangeStart(
           error.email,
           oldPassword,
+          sessionToken,
           options,
           headers
         );

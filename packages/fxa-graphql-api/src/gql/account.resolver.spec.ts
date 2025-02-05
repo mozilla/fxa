@@ -907,6 +907,7 @@ describe('#integration - AccountResolver', () => {
           .mockResolvedValue(mockRespPayload);
 
         const result = await resolver.passwordChangeStart(headers, {
+          sessionToken: 'sessionToken',
           email: 'foo@moz.com',
           oldAuthPW: '3456789abcdef12',
         });
