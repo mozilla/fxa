@@ -279,10 +279,12 @@ describe('EligibilityManager', () => {
       expect(result[0]).toEqual({
         comparison: OfferingComparison.DOWNGRADE,
         priceId: fromPriceId1,
+        fromOfferingId: fromOffering1.apiIdentifier,
       });
       expect(result[1]).toEqual({
         comparison: OfferingComparison.UPGRADE,
         priceId: fromPriceId2,
+        fromOfferingId: fromOffering2.apiIdentifier,
       });
     });
   });
@@ -300,7 +302,9 @@ describe('EligibilityManager', () => {
         interval,
         mockSubscribedPrices
       );
-      expect(result).toEqual(CartEligibilityStatus.CREATE);
+      expect(result.subscriptionEligibilityResult).toEqual(
+        CartEligibilityStatus.CREATE
+      );
     });
 
     it('returns invalid when there are multiple existing overlap prices', async () => {
@@ -325,7 +329,9 @@ describe('EligibilityManager', () => {
         interval,
         mockSubscribedPrices
       );
-      expect(result).toEqual(CartEligibilityStatus.INVALID);
+      expect(result.subscriptionEligibilityResult).toEqual(
+        CartEligibilityStatus.INVALID
+      );
     });
 
     it('returns downgrade when comparison is downgrade', async () => {
@@ -346,7 +352,9 @@ describe('EligibilityManager', () => {
         interval,
         mockSubscribedPrices
       );
-      expect(result).toEqual(CartEligibilityStatus.DOWNGRADE);
+      expect(result.subscriptionEligibilityResult).toEqual(
+        CartEligibilityStatus.DOWNGRADE
+      );
     });
 
     it('returns invalid if there is no matching subscribed price for the passed overlap', async () => {
@@ -376,7 +384,9 @@ describe('EligibilityManager', () => {
         interval,
         []
       );
-      expect(result).toEqual(CartEligibilityStatus.INVALID);
+      expect(result.subscriptionEligibilityResult).toEqual(
+        CartEligibilityStatus.INVALID
+      );
     });
 
     it('returns invalid if subscribed price with same id as target price', async () => {
@@ -400,7 +410,9 @@ describe('EligibilityManager', () => {
         interval,
         [mockPrice]
       );
-      expect(result).toEqual(CartEligibilityStatus.INVALID);
+      expect(result.subscriptionEligibilityResult).toEqual(
+        CartEligibilityStatus.INVALID
+      );
     });
 
     it('returns downgrade when target price interval is shorter than the subscribed price', async () => {
@@ -433,10 +445,14 @@ describe('EligibilityManager', () => {
         interval,
         [mockPrice1]
       );
-      expect(result).toEqual(CartEligibilityStatus.DOWNGRADE);
+      expect(result.subscriptionEligibilityResult).toEqual(
+        CartEligibilityStatus.DOWNGRADE
+      );
+      expect(result.upgradeFromPrice).toEqual(mockPrice1);
     });
 
     it('returns upgrade when comparison is upgrade', async () => {
+      const mockCurrentOffering = EligibilityContentOfferingResultFactory();
       const mockTargetOffering = EligibilityContentOfferingResultFactory();
       const mockPrice1 = StripePriceFactory({
         recurring: StripePriceRecurringFactory({
@@ -453,6 +469,7 @@ describe('EligibilityManager', () => {
         {
           comparison: OfferingComparison.UPGRADE,
           priceId: mockPrice1.id,
+          fromOfferingId: mockCurrentOffering.apiIdentifier,
         },
       ] as OfferingOverlapResult[];
 
@@ -466,7 +483,10 @@ describe('EligibilityManager', () => {
         interval,
         [mockPrice1]
       );
-      expect(result).toEqual(CartEligibilityStatus.UPGRADE);
+      expect(result.subscriptionEligibilityResult).toEqual(
+        CartEligibilityStatus.UPGRADE
+      );
+      expect(result.upgradeFromPrice).toEqual(mockPrice1);
     });
 
     it('returns upgrade when target price interval is longer than the subscribed price', async () => {
@@ -499,7 +519,10 @@ describe('EligibilityManager', () => {
         interval,
         [mockPrice1]
       );
-      expect(result).toEqual(CartEligibilityStatus.UPGRADE);
+      expect(result.subscriptionEligibilityResult).toEqual(
+        CartEligibilityStatus.UPGRADE
+      );
+      expect(result.upgradeFromPrice).toEqual(mockPrice1);
     });
   });
 });
