@@ -45,10 +45,10 @@ export class EligibilityService {
 
     const priceIds = subscribedPrices.map((price) => price.id);
 
-    const overlaps = await this.eligibilityManager.getOfferingOverlap(
+    const overlaps = await this.eligibilityManager.getOfferingOverlap({
       priceIds,
-      offeringConfigId
-    );
+      providedTargetOffering: targetOffering,
+    });
 
     const eligibility = await this.eligibilityManager.compareOverlap(
       overlaps,

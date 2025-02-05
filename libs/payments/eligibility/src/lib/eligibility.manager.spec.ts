@@ -13,9 +13,13 @@ import {
   StripePriceRecurringFactory,
 } from '@fxa/payments/stripe';
 import {
+  EligibilityContentByOfferingResultFactory,
+  EligibilityContentByOfferingResultUtil,
   EligibilityContentByPlanIdsResultFactory,
   EligibilityContentByPlanIdsResultUtil,
   EligibilityContentOfferingResultFactory,
+  EligibilityContentSubgroupOfferingResultFactory,
+  EligibilityContentSubgroupResultFactory,
   EligibilityOfferingResultFactory,
   EligibilitySubgroupOfferingResultFactory,
   EligibilitySubgroupResultFactory,
@@ -66,10 +70,24 @@ describe('EligibilityManager', () => {
           )
         );
 
-      const result = await manager.getOfferingOverlap(
-        [faker.string.uuid()],
-        faker.string.uuid()
-      );
+      const result = await manager.getOfferingOverlap({
+        priceIds: [faker.string.uuid()],
+        targetPriceId: faker.string.uuid(),
+      });
+      expect(result).toHaveLength(0);
+    });
+
+    it('should return empty result when providedTargetOffering or targetPriceId not provided', async () => {
+      const eligibilityContentByPlanIdsResultUtil =
+        new EligibilityContentByPlanIdsResultUtil({ purchases: [] });
+
+      jest
+        .spyOn(productConfigurationManager, 'getPurchaseDetailsForEligibility')
+        .mockResolvedValue(eligibilityContentByPlanIdsResultUtil);
+
+      const result = await manager.getOfferingOverlap({
+        priceIds: [faker.string.uuid()],
+      });
       expect(result).toHaveLength(0);
     });
 
@@ -87,10 +105,10 @@ describe('EligibilityManager', () => {
         .spyOn(eligibilityContentByPlanIdsResultUtil, 'offeringForPlanId')
         .mockReturnValueOnce(targetOffering);
 
-      const result = await manager.getOfferingOverlap(
-        [faker.string.uuid()],
-        faker.string.uuid()
-      );
+      const result = await manager.getOfferingOverlap({
+        priceIds: [faker.string.uuid()],
+        targetPriceId: faker.string.uuid(),
+      });
       expect(result).toHaveLength(0);
     });
 
@@ -137,10 +155,10 @@ describe('EligibilityManager', () => {
         .mockReturnValueOnce(targetOffering)
         .mockReturnValueOnce(fromOffering);
 
-      const result = await manager.getOfferingOverlap(
-        [faker.string.uuid()],
-        faker.string.uuid()
-      );
+      const result = await manager.getOfferingOverlap({
+        priceIds: [faker.string.uuid()],
+        targetPriceId: faker.string.uuid(),
+      });
       expect(result).toHaveLength(0);
     });
 
@@ -164,7 +182,50 @@ describe('EligibilityManager', () => {
         .mockReturnValueOnce(fromOffering);
 
       const priceId = faker.string.uuid();
-      const result = await manager.getOfferingOverlap([priceId], priceId);
+      const result = await manager.getOfferingOverlap({
+        priceIds: [priceId],
+        targetPriceId: priceId,
+      });
+      expect(
+        productConfigurationManager.getPurchaseDetailsForEligibility
+      ).toHaveBeenCalledWith([priceId]);
+      expect(result.length).toBe(1);
+      expect(result[0].comparison).toBe(OfferingComparison.SAME);
+    });
+
+    it('should return same comparison for same price from offeringConfigId', async () => {
+      const targetOfferingId = faker.string.uuid();
+      const fromOfferingId = targetOfferingId;
+      const targetOffering = EligibilityContentOfferingResultFactory({
+        apiIdentifier: targetOfferingId,
+      });
+      const fromOffering = EligibilityOfferingResultFactory({
+        apiIdentifier: fromOfferingId,
+      });
+      const eligibilityContentByPlanIdsResultUtil =
+        new EligibilityContentByPlanIdsResultUtil({ purchases: [] });
+
+      jest
+        .spyOn(productConfigurationManager, 'getEligibilityContentByOffering')
+        .mockResolvedValue(
+          new EligibilityContentByOfferingResultUtil(
+            EligibilityContentByOfferingResultFactory({
+              offerings: [targetOffering],
+            })
+          )
+        );
+      jest
+        .spyOn(productConfigurationManager, 'getPurchaseDetailsForEligibility')
+        .mockResolvedValue(eligibilityContentByPlanIdsResultUtil);
+      jest
+        .spyOn(eligibilityContentByPlanIdsResultUtil, 'offeringForPlanId')
+        .mockReturnValueOnce(fromOffering);
+
+      const priceId = faker.string.uuid();
+      const result = await manager.getOfferingOverlap({
+        priceIds: [priceId],
+        providedTargetOffering: targetOffering,
+      });
       expect(
         productConfigurationManager.getPurchaseDetailsForEligibility
       ).toHaveBeenCalledWith([priceId]);
@@ -205,13 +266,65 @@ describe('EligibilityManager', () => {
 
       const targetPriceId = faker.string.uuid();
       const fromPriceId = faker.string.uuid();
-      const result = await manager.getOfferingOverlap(
-        [fromPriceId],
-        targetPriceId
-      );
+      const result = await manager.getOfferingOverlap({
+        priceIds: [fromPriceId],
+        targetPriceId,
+      });
       expect(
         productConfigurationManager.getPurchaseDetailsForEligibility
       ).toHaveBeenCalledWith([fromPriceId, targetPriceId]);
+      expect(result.length).toBe(1);
+      expect(result[0].comparison).toBe(OfferingComparison.UPGRADE);
+    });
+
+    it('should return upgrade comparison for upgrade - targetOffering', async () => {
+      const targetOfferingId = faker.string.uuid();
+      const fromOfferingId = faker.string.uuid();
+      const targetOffering = EligibilityContentOfferingResultFactory({
+        apiIdentifier: targetOfferingId,
+        subGroups: [
+          EligibilityContentSubgroupResultFactory({
+            offerings: [
+              EligibilityContentSubgroupOfferingResultFactory({
+                apiIdentifier: fromOfferingId,
+              }),
+              EligibilityContentSubgroupOfferingResultFactory({
+                apiIdentifier: targetOfferingId,
+              }),
+            ],
+          }),
+        ],
+      });
+      const fromOffering = EligibilityOfferingResultFactory({
+        apiIdentifier: fromOfferingId,
+      });
+      const eligibilityContentByPlanIdsResultUtil =
+        new EligibilityContentByPlanIdsResultUtil({ purchases: [] });
+
+      jest
+        .spyOn(productConfigurationManager, 'getEligibilityContentByOffering')
+        .mockResolvedValue(
+          new EligibilityContentByOfferingResultUtil(
+            EligibilityContentByOfferingResultFactory({
+              offerings: [targetOffering],
+            })
+          )
+        );
+      jest
+        .spyOn(productConfigurationManager, 'getPurchaseDetailsForEligibility')
+        .mockResolvedValue(eligibilityContentByPlanIdsResultUtil);
+      jest
+        .spyOn(eligibilityContentByPlanIdsResultUtil, 'offeringForPlanId')
+        .mockReturnValueOnce(fromOffering);
+
+      const fromPriceId = faker.string.uuid();
+      const result = await manager.getOfferingOverlap({
+        priceIds: [fromPriceId],
+        providedTargetOffering: targetOffering,
+      });
+      expect(
+        productConfigurationManager.getPurchaseDetailsForEligibility
+      ).toHaveBeenCalledWith([fromPriceId]);
       expect(result.length).toBe(1);
       expect(result[0].comparison).toBe(OfferingComparison.UPGRADE);
     });
@@ -268,10 +381,10 @@ describe('EligibilityManager', () => {
       const targetPriceId = faker.string.uuid();
       const fromPriceId1 = faker.string.uuid();
       const fromPriceId2 = faker.string.uuid();
-      const result = await manager.getOfferingOverlap(
-        [fromPriceId1, fromPriceId2],
-        targetPriceId
-      );
+      const result = await manager.getOfferingOverlap({
+        priceIds: [fromPriceId1, fromPriceId2],
+        targetPriceId,
+      });
       expect(
         productConfigurationManager.getPurchaseDetailsForEligibility
       ).toHaveBeenCalledWith([fromPriceId1, fromPriceId2, targetPriceId]);

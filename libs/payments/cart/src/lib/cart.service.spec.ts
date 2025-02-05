@@ -311,6 +311,74 @@ describe('CartService', () => {
 
       expect(cartManager.createCart).not.toHaveBeenCalled();
     });
+
+    it('returns cart eligibility status downgrade', async () => {
+      const mockResultCart = ResultCartFactory();
+      const mockResolvedCurrency = faker.finance.currencyCode();
+
+      jest
+        .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
+        .mockResolvedValue(undefined);
+      jest
+        .spyOn(currencyManager, 'getCurrencyForCountry')
+        .mockReturnValue(mockResolvedCurrency);
+      jest.spyOn(cartManager, 'createCart').mockResolvedValue(mockResultCart);
+      jest.spyOn(accountManager, 'getAccounts').mockResolvedValue([]);
+      jest
+        .spyOn(eligibilityService, 'checkEligibility')
+        .mockResolvedValue(EligibilityStatus.DOWNGRADE);
+      jest.spyOn(cartService, 'finalizeCartWithError').mockResolvedValue();
+
+      const result = await cartService.setupCart(args);
+
+      expect(cartManager.createCart).toHaveBeenCalledWith({
+        interval: args.interval,
+        offeringConfigId: args.offeringConfigId,
+        amount: mockInvoicePreview.subtotal,
+        uid: args.uid,
+        stripeCustomerId: mockAccountCustomer.stripeCustomerId,
+        experiment: args.experiment,
+        taxAddress,
+        currency: mockResolvedCurrency,
+        eligibilityStatus: CartEligibilityStatus.DOWNGRADE,
+        couponCode: args.promoCode,
+      });
+      expect(result).toEqual(mockResultCart);
+    });
+
+    it('returns cart eligibility status invalid', async () => {
+      const mockResultCart = ResultCartFactory();
+      const mockResolvedCurrency = faker.finance.currencyCode();
+
+      jest
+        .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
+        .mockResolvedValue(undefined);
+      jest
+        .spyOn(currencyManager, 'getCurrencyForCountry')
+        .mockReturnValue(mockResolvedCurrency);
+      jest.spyOn(cartManager, 'createCart').mockResolvedValue(mockResultCart);
+      jest.spyOn(accountManager, 'getAccounts').mockResolvedValue([]);
+      jest
+        .spyOn(eligibilityService, 'checkEligibility')
+        .mockResolvedValue(EligibilityStatus.INVALID);
+      jest.spyOn(cartService, 'finalizeCartWithError').mockResolvedValue();
+
+      const result = await cartService.setupCart(args);
+
+      expect(cartManager.createCart).toHaveBeenCalledWith({
+        interval: args.interval,
+        offeringConfigId: args.offeringConfigId,
+        amount: mockInvoicePreview.subtotal,
+        uid: args.uid,
+        stripeCustomerId: mockAccountCustomer.stripeCustomerId,
+        experiment: args.experiment,
+        taxAddress,
+        currency: mockResolvedCurrency,
+        eligibilityStatus: CartEligibilityStatus.INVALID,
+        couponCode: args.promoCode,
+      });
+      expect(result).toEqual(mockResultCart);
+    });
   });
 
   describe('restartCart', () => {
@@ -720,7 +788,9 @@ describe('CartService', () => {
     });
 
     it('returns cart and upcomingInvoicePreview', async () => {
-      const mockCart = ResultCartFactory({ stripeSubscriptionId: null });
+      const mockCart = ResultCartFactory({
+        stripeSubscriptionId: null,
+      });
       const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
       const mockPrice = StripePriceFactory();
       const mockInvoicePreview = InvoicePreviewFactory();
