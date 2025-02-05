@@ -83,6 +83,11 @@ module.exports = function (
       path: '/password/change/start',
       options: {
         ...PASSWORD_DOCS.PASSWORD_CHANGE_START_POST,
+        auth: {
+          mode: 'optional',
+          strategy: 'sessionToken',
+          payload: 'required',
+        },
         validate: {
           payload: isA.object({
             email: validators.email().required().description(DESCRIPTION.email),
@@ -95,7 +100,18 @@ module.exports = function (
         const form = request.payload as { email: string; oldAuthPW: string };
         const { oldAuthPW, email } = form;
 
-        await customs.check(request, email, 'passwordChange');
+        const sessionToken = request.auth.credentials;
+        if (sessionToken) {
+          await customs.checkAuthenticated(
+            request,
+            sessionToken.uid,
+            'passwordChange'
+          );
+          statsd.increment('passwordChange.start.authenticated');
+        } else {
+          await customs.check(request, email, 'passwordChange');
+          statsd.increment('passwordChange.start.unauthenticated');
+        }
 
         let keyFetchToken: any | undefined = undefined;
         let keyFetchToken2: any | undefined = undefined;

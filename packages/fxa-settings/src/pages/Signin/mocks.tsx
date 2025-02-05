@@ -263,6 +263,7 @@ export function mockGqlPasswordChangeStartMutation() {
         input: {
           email: MOCK_EMAIL,
           oldAuthPW: MOCK_AUTH_PW,
+          sessionToken: MOCK_SESSION_TOKEN,
         },
       },
     },

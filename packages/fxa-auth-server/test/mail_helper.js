@@ -18,6 +18,10 @@ const usersLastSms = {};
 async function printMatchingKeys(startUp = false) {
   const redisKeyPattern = 'recovery-phone:sms-attempt:*:*';
   try {
+    if (redis.status !== 'ready') {
+      throw new Error('Redis connection is not ready');
+    }
+
     const keys = await redis.keys(redisKeyPattern);
 
     if (keys.length > 0) {
@@ -40,7 +44,7 @@ async function printMatchingKeys(startUp = false) {
       }
     }
   } catch (error) {
-    console.error('Failed to retrieve keys:', error);
+    // Ignore errors
   } finally {
     // 1s delay seems reasonable
     setTimeout(printMatchingKeys, 1000);

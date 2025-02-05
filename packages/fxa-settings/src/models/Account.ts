@@ -544,9 +544,9 @@ export class Account implements AccountData {
         this.primaryEmail.email,
         oldPassword,
         newPassword,
+        sessionToken()!,
         {
           keys: true,
-          sessionToken: sessionToken()!,
         }
       )
     );

@@ -942,6 +942,7 @@ export class AccountResolver {
     return this.authAPI.passwordChangeStartWithAuthPW(
       input.email,
       input.oldAuthPW,
+      input.sessionToken,
       {},
       headers
     );

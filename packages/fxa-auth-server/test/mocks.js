@@ -51,6 +51,7 @@ const DB_METHOD_NAMES = [
   'createEmail',
   'createKeyFetchToken',
   'createPassword',
+  'createPasswordChangeToken',
   'createPasswordForgotToken',
   'createRecoveryCodes',
   'createRecoveryKey',
@@ -497,6 +498,11 @@ function mockDB(data, errors) {
         data: crypto.randomBytes(32).toString('hex'),
         id: data.keyFetchTokenId,
         uid: data.uid,
+      });
+    }),
+    createPasswordChangeToken: sinon.spy(() => {
+      return Promise.resolve({
+        data: crypto.randomBytes(32).toString('hex'),
       });
     }),
     createPasswordForgotToken: sinon.spy(() => {

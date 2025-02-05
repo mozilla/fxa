@@ -120,6 +120,7 @@ test.describe('auth-client-tests', () => {
     const { email, password } = testAccountTracker.generateAccountDetails();
 
     await signUp(client, email, password);
+
     const signInResult = await client.signIn(email, password, { keys: true });
     expect(signInResult.keyFetchToken).toBeDefined();
     expect(signInResult.unwrapBKey).toBeDefined();
@@ -129,6 +130,7 @@ test.describe('auth-client-tests', () => {
       signInResult.keyFetchToken as string,
       signInResult.unwrapBKey as string
     );
+
     expect(keys1).toBeDefined();
     expect(keys1.kA).toBeDefined();
     expect(keys1.kB).toBeDefined();
@@ -143,13 +145,26 @@ test.describe('auth-client-tests', () => {
     expect(statusBefore.clientSalt).toBeUndefined();
     expect(statusBefore.currentVersion).toBe('v1');
 
-    // The sign in should automatically reset the password
+    // The sign in should automatically upgrade the password, but return V1 creds
     const signInResult2 = await client2.signIn(email, password, {
       keys: true,
     });
     expect(signInResult2).toBeDefined();
     expect(signInResult2.keyFetchToken).toBeDefined();
     expect(signInResult2.unwrapBKey).toBeDefined();
+    expect(signInResult2.unwrapBKey).toEqual(signInResult.unwrapBKey);
+
+    // Grab keys, so we can compare kA and kB
+    const keys2 = await client.accountKeys(
+      signInResult2.keyFetchToken as string,
+      signInResult2.unwrapBKey as string
+    );
+
+    expect(keys2).toBeDefined();
+    expect(keys2.kA).toBeDefined();
+    expect(keys2.kB).toBeDefined();
+    expect(keys2.kA).toEqual(keys1.kA);
+    expect(keys2.kB).toEqual(keys1.kB);
 
     // Check the status after the signin
     const statusAfter = await client2.getCredentialStatusV2(email);
@@ -159,7 +174,12 @@ test.describe('auth-client-tests', () => {
     expect(statusAfter.clientSalt).toMatch('quickStretchV2:');
     expect(statusAfter.currentVersion).toBe('v2');
 
-    // Check unwrapKB. It should match our V2 credential unwrapBKey.
+    // Do another signin to get V2 credentials
+    const signInResult3 = await client2.signIn(email, password, {
+      keys: true,
+    });
+
+    // Check unwrapKB. It should match our V1 credential unwrapBKey.
     const status = await client.getCredentialStatusV2(email);
     expect(status.clientSalt).toBeDefined();
     expect(status.clientSalt).toBeDefined();
@@ -168,22 +188,23 @@ test.describe('auth-client-tests', () => {
       password,
       clientSalt: status.clientSalt as string,
     });
-    expect(credentialsV2.unwrapBKey).toEqual(signInResult2.unwrapBKey);
+    expect(credentialsV2.unwrapBKey).toEqual(signInResult3.unwrapBKey);
 
     const credentialsV1 = await getCredentials(email, password);
-    expect(credentialsV1.unwrapBKey).not.toEqual(signInResult2.unwrapBKey);
-    expect(signInResult2.keyFetchToken).toBeDefined();
-    expect(signInResult2.unwrapBKey).toBeDefined();
+    expect(credentialsV1.unwrapBKey).not.toEqual(signInResult3.unwrapBKey);
+    expect(signInResult3.keyFetchToken).toBeDefined();
+    expect(signInResult3.unwrapBKey).toBeDefined();
 
     // Check that keys didn't drift
-    const keys2 = await client2.accountKeys(
-      signInResult2.keyFetchToken as string,
-      signInResult2.unwrapBKey as string
+    const keys3 = await client2.accountKeys(
+      signInResult3.keyFetchToken as string,
+      signInResult3.unwrapBKey as string
     );
-    expect(keys2).toBeDefined();
-    expect(keys2.kA).toBeDefined();
-    expect(keys2.kB).toBeDefined();
-    expect(keys2.kA).toEqual(keys1.kA);
-    expect(keys2.kB).toEqual(keys1.kB);
+
+    expect(keys3).toBeDefined();
+    expect(keys3.kA).toBeDefined();
+    expect(keys3.kB).toBeDefined();
+    expect(keys3.kA).toEqual(keys1.kA);
+    expect(keys3.kB).toEqual(keys1.kB);
   });
 });
