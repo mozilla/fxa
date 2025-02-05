@@ -182,6 +182,8 @@ export type StripeInvoice = NegotiateExpanded<
   | 'test_clock'
 >;
 
+export type StripeDeletedInvoice = Stripe.DeletedInvoice;
+
 /**
  * Stripe.PaymentIntent with expanded fields removed
  */

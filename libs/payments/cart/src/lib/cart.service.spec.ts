@@ -44,6 +44,9 @@ import {
   StripePaymentIntentFactory,
   StripeCustomerSessionFactory,
   StripeApiListFactory,
+  StripeInvoiceFactory,
+  StripeDeletedInvoiceFactory,
+  StripeDeletedCustomerFactory,
 } from '@fxa/payments/stripe';
 import {
   MockProfileClientConfigProvider,
@@ -127,6 +130,7 @@ describe('CartService', () => {
   let productConfigurationManager: ProductConfigurationManager;
   let subscriptionManager: SubscriptionManager;
   let paymentMethodManager: PaymentMethodManager;
+  let paypalCustomerManager: PaypalCustomerManager;
 
   const mockLogger = {
     error: jest.fn(),
@@ -197,6 +201,313 @@ describe('CartService', () => {
     productConfigurationManager = moduleRef.get(ProductConfigurationManager);
     subscriptionManager = moduleRef.get(SubscriptionManager);
     paymentMethodManager = moduleRef.get(PaymentMethodManager);
+    paypalCustomerManager = moduleRef.get(PaypalCustomerManager);
+  });
+
+  describe('wrapCartWithCatch', () => {
+    it('calls cartManager.finishErrorCart', async () => {
+      const mockCart = ResultCartFactory({
+        state: CartState.PROCESSING,
+        stripeSubscriptionId: null,
+        stripeCustomerId: null,
+      });
+      jest
+        .spyOn(cartManager, 'fetchCartById')
+        .mockRejectedValueOnce(new Error('test'))
+        .mockResolvedValue(mockCart);
+      jest.spyOn(cartManager, 'finishErrorCart').mockResolvedValue();
+
+      await expect(
+        cartService.finalizeProcessingCart(mockCart.id)
+      ).rejects.toThrow(Error);
+
+      expect(cartManager.finishErrorCart).toHaveBeenCalled();
+    });
+
+    it('cancels a created subscription', async () => {
+      const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory({
+          customer: mockCustomer.id,
+          latest_invoice: null,
+        })
+      );
+      const mockCart = ResultCartFactory({
+        state: CartState.PROCESSING,
+        stripeSubscriptionId: mockSubscription.id,
+        stripeCustomerId: mockCustomer.id,
+      });
+
+      jest
+        .spyOn(cartManager, 'fetchCartById')
+        .mockRejectedValueOnce(new Error('test'))
+        .mockResolvedValue(mockCart);
+
+      jest.spyOn(cartManager, 'finishErrorCart').mockResolvedValue();
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(mockSubscription);
+      jest
+        .spyOn(subscriptionManager, 'getLatestPaymentIntent')
+        .mockResolvedValue(undefined);
+      jest
+        .spyOn(subscriptionManager, 'cancel')
+        .mockResolvedValue(mockSubscription);
+
+      await expect(
+        cartService.finalizeProcessingCart(mockCart.id)
+      ).rejects.toThrow(Error);
+
+      expect(subscriptionManager.cancel).toHaveBeenCalledWith(
+        mockSubscription.id
+      );
+    });
+
+    it('deletes a created draft invoice', async () => {
+      const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
+      const mockInvoice = StripeResponseFactory(
+        StripeInvoiceFactory({ status: 'draft' })
+      );
+      const mockDeletedInvoice = StripeResponseFactory(
+        StripeDeletedInvoiceFactory({ id: mockInvoice.id })
+      );
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory({
+          customer: mockCustomer.id,
+          latest_invoice: mockInvoice.id,
+        })
+      );
+      const mockCart = ResultCartFactory({
+        state: CartState.PROCESSING,
+        stripeSubscriptionId: mockSubscription.id,
+        stripeCustomerId: mockCustomer.id,
+      });
+
+      jest
+        .spyOn(cartManager, 'fetchCartById')
+        .mockRejectedValueOnce(new Error('test'))
+        .mockResolvedValue(mockCart);
+
+      jest.spyOn(cartManager, 'finishErrorCart').mockResolvedValue();
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(mockSubscription);
+      jest.spyOn(invoiceManager, 'retrieve').mockResolvedValue(mockInvoice);
+      jest
+        .spyOn(invoiceManager, 'delete')
+        .mockResolvedValue(mockDeletedInvoice);
+      jest
+        .spyOn(subscriptionManager, 'getLatestPaymentIntent')
+        .mockResolvedValue(undefined);
+      jest
+        .spyOn(subscriptionManager, 'cancel')
+        .mockResolvedValue(mockSubscription);
+
+      await expect(
+        cartService.finalizeProcessingCart(mockCart.id)
+      ).rejects.toThrow(Error);
+
+      expect(invoiceManager.delete).toHaveBeenCalledWith(mockInvoice.id);
+    });
+
+    it('voids a created finalized invoice', async () => {
+      const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
+      const mockInvoice = StripeResponseFactory(
+        StripeInvoiceFactory({ status: 'open' })
+      );
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory({
+          customer: mockCustomer.id,
+          latest_invoice: mockInvoice.id,
+        })
+      );
+      const mockCart = ResultCartFactory({
+        state: CartState.PROCESSING,
+        stripeSubscriptionId: mockSubscription.id,
+        stripeCustomerId: mockCustomer.id,
+      });
+
+      jest
+        .spyOn(cartManager, 'fetchCartById')
+        .mockRejectedValueOnce(new Error('test'))
+        .mockResolvedValue(mockCart);
+
+      jest.spyOn(cartManager, 'finishErrorCart').mockResolvedValue();
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(mockSubscription);
+      jest.spyOn(invoiceManager, 'retrieve').mockResolvedValue(mockInvoice);
+      jest.spyOn(invoiceManager, 'void').mockResolvedValue(mockInvoice);
+      jest
+        .spyOn(subscriptionManager, 'getLatestPaymentIntent')
+        .mockResolvedValue(undefined);
+      jest
+        .spyOn(subscriptionManager, 'cancel')
+        .mockResolvedValue(mockSubscription);
+
+      await expect(
+        cartService.finalizeProcessingCart(mockCart.id)
+      ).rejects.toThrow(Error);
+
+      expect(invoiceManager.void).toHaveBeenCalledWith(mockInvoice.id);
+    });
+
+    it('cancels a created payment intent', async () => {
+      const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
+      const mockPaymentIntent = StripeResponseFactory(
+        StripePaymentIntentFactory({ status: 'processing' })
+      );
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory({
+          customer: mockCustomer.id,
+          latest_invoice: null,
+        })
+      );
+      const mockCart = ResultCartFactory({
+        state: CartState.PROCESSING,
+        stripeSubscriptionId: mockSubscription.id,
+        stripeCustomerId: mockCustomer.id,
+      });
+
+      jest
+        .spyOn(cartManager, 'fetchCartById')
+        .mockRejectedValueOnce(new Error('test'))
+        .mockResolvedValue(mockCart);
+
+      jest.spyOn(cartManager, 'finishErrorCart').mockResolvedValue();
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(mockSubscription);
+      jest
+        .spyOn(subscriptionManager, 'getLatestPaymentIntent')
+        .mockResolvedValue(mockPaymentIntent);
+      jest
+        .spyOn(paymentIntentManager, 'cancel')
+        .mockResolvedValue(mockPaymentIntent);
+      jest
+        .spyOn(subscriptionManager, 'cancel')
+        .mockResolvedValue(mockSubscription);
+
+      await expect(
+        cartService.finalizeProcessingCart(mockCart.id)
+      ).rejects.toThrow(Error);
+
+      expect(paymentIntentManager.cancel).toHaveBeenCalledWith(
+        mockPaymentIntent.id
+      );
+    });
+
+    it('deletes the StripeCustomer, AccountCustomer, and PayPal Customer if no preexisting subscriptions', async () => {
+      const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
+      const mockDeletedCustomer = StripeResponseFactory(
+        StripeDeletedCustomerFactory()
+      );
+
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory({
+          customer: mockCustomer.id,
+          latest_invoice: null,
+        })
+      );
+      const mockUid = faker.string.hexadecimal({
+        length: 32,
+        prefix: '',
+        casing: 'lower',
+      });
+      const mockCart = ResultCartFactory({
+        state: CartState.PROCESSING,
+        stripeSubscriptionId: mockSubscription.id,
+        stripeCustomerId: mockCustomer.id,
+        uid: mockUid,
+      });
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        uid: mockUid,
+        stripeCustomerId: mockCustomer.id,
+      });
+
+      jest
+        .spyOn(cartManager, 'fetchCartById')
+        .mockRejectedValueOnce(new Error('test'))
+        .mockResolvedValue(mockCart);
+
+      jest.spyOn(cartManager, 'finishErrorCart').mockResolvedValue();
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(mockSubscription);
+      jest
+        .spyOn(subscriptionManager, 'getLatestPaymentIntent')
+        .mockResolvedValue(undefined);
+      jest
+        .spyOn(subscriptionManager, 'cancel')
+        .mockResolvedValue(mockSubscription);
+      jest.spyOn(subscriptionManager, 'listForCustomer').mockResolvedValue([]);
+      jest
+        .spyOn(customerManager, 'delete')
+        .mockResolvedValue(mockDeletedCustomer);
+      jest
+        .spyOn(paypalCustomerManager, 'deletePaypalCustomersByUid')
+        .mockResolvedValue(BigInt(1));
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest.spyOn(accountCustomerManager, 'deleteAccountCustomer');
+
+      await expect(
+        cartService.finalizeProcessingCart(mockCart.id)
+      ).rejects.toThrow(Error);
+
+      expect(customerManager.delete).toHaveBeenCalledWith(mockCustomer.id);
+      expect(accountCustomerManager.deleteAccountCustomer).toHaveBeenCalledWith(
+        mockAccountCustomer
+      );
+      expect(
+        paypalCustomerManager.deletePaypalCustomersByUid
+      ).toHaveBeenCalledWith(mockCart.uid);
+    });
+
+    it('does not delete a customer with preexisting subscriptions', async () => {
+      const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory({
+          customer: mockCustomer.id,
+          latest_invoice: null,
+        })
+      );
+      const mockPreviousSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory()
+      );
+      const mockCart = ResultCartFactory({
+        state: CartState.PROCESSING,
+        stripeSubscriptionId: mockSubscription.id,
+        stripeCustomerId: mockCustomer.id,
+      });
+
+      jest
+        .spyOn(cartManager, 'fetchCartById')
+        .mockRejectedValueOnce(new Error('test'))
+        .mockResolvedValue(mockCart);
+
+      jest.spyOn(cartManager, 'finishErrorCart').mockResolvedValue();
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(mockSubscription);
+      jest
+        .spyOn(subscriptionManager, 'getLatestPaymentIntent')
+        .mockResolvedValue(undefined);
+      jest
+        .spyOn(subscriptionManager, 'cancel')
+        .mockResolvedValue(mockSubscription);
+      jest
+        .spyOn(subscriptionManager, 'listForCustomer')
+        .mockResolvedValue([mockPreviousSubscription]);
+      jest.spyOn(customerManager, 'delete');
+
+      await expect(
+        cartService.finalizeProcessingCart(mockCart.id)
+      ).rejects.toThrow(Error);
+
+      expect(customerManager.delete).not.toHaveBeenCalledWith(mockCustomer.id);
+    });
   });
 
   describe('setupCart', () => {

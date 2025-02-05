@@ -17,6 +17,7 @@ import {
   CouponErrorGeneric,
   CouponErrorLimitReached,
   CustomerSessionManager,
+  PaymentIntentManager,
 } from '@fxa/payments/customer';
 import { EligibilityService } from '@fxa/payments/eligibility';
 import {
@@ -25,6 +26,7 @@ import {
   StripeCustomer,
   StripeSubscription,
 } from '@fxa/payments/stripe';
+import { PaypalCustomerManager } from '@fxa/payments/paypal';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
 import { CurrencyManager } from '@fxa/payments/currency';
 import { CartErrorReasonId, CartState } from '@fxa/shared/db/mysql/account';
@@ -77,7 +79,9 @@ export class CartService {
     private invoiceManager: InvoiceManager,
     private productConfigurationManager: ProductConfigurationManager,
     private subscriptionManager: SubscriptionManager,
-    private paymentMethodManager: PaymentMethodManager
+    private paymentMethodManager: PaymentMethodManager,
+    private paymentIntentManager: PaymentIntentManager,
+    private paypalCustomerManager: PaypalCustomerManager
   ) {}
 
   /**
@@ -92,15 +96,97 @@ export class CartService {
       if (error instanceof CartNotUpdatedError) {
         errorReasonId = CartErrorReasonId.BASIC_ERROR;
       }
-
-      await this.cartManager
-        .finishErrorCart(cartId, {
+      try {
+        await this.cartManager.finishErrorCart(cartId, {
           errorReasonId,
-        })
-        .catch((e) => {
-          // We silently fail here so as not to eat the original error
-          Sentry.captureException(e);
         });
+
+        const cart = await this.cartManager.fetchCartById(cartId);
+        if (cart.stripeSubscriptionId) {
+          const subscription = await this.subscriptionManager.retrieve(
+            cart.stripeSubscriptionId
+          );
+          const invoice = subscription.latest_invoice
+            ? await this.invoiceManager.retrieve(subscription.latest_invoice)
+            : undefined;
+          if (invoice) {
+            switch (invoice.status) {
+              case 'draft':
+                await this.invoiceManager.delete(invoice.id);
+                break;
+              case 'open':
+              case 'uncollectible':
+                await this.invoiceManager.void(invoice.id);
+                break;
+              case 'paid':
+                throw new CartError('Paid invoice found on failed cart', {
+                  cartId,
+                  stripeCustomerId: cart.stripeCustomerId,
+                  invoiceId: invoice.id,
+                });
+            }
+          }
+
+          const paymentIntent =
+            await this.subscriptionManager.getLatestPaymentIntent(subscription);
+          if (paymentIntent) {
+            switch (paymentIntent.status) {
+              case 'requires_payment_method':
+              case 'requires_capture':
+              case 'requires_confirmation':
+              case 'requires_action':
+              case 'processing':
+                await this.paymentIntentManager.cancel(paymentIntent.id);
+                break;
+              case 'succeeded':
+                throw new CartError(
+                  'Succeeded payment intent found on failed cart',
+                  {
+                    cartId,
+                    stripeCustomerId: cart.stripeCustomerId,
+                    paymentIntentId: paymentIntent.id,
+                  }
+                );
+            }
+          }
+
+          await this.subscriptionManager.cancel(cart.stripeSubscriptionId);
+        }
+
+        // Remove Stripe Customer if they have no other subscriptions
+        let deleteStripeCustomer = false;
+        if (cart.stripeCustomerId) {
+          const activeSubscriptions = (
+            await this.subscriptionManager.listForCustomer(
+              cart.stripeCustomerId
+            )
+          ).filter(
+            (subscription) => subscription.id !== cart.stripeSubscriptionId
+          );
+          if (activeSubscriptions.length === 0) {
+            deleteStripeCustomer = true;
+            await this.customerManager.delete(cart.stripeCustomerId);
+          }
+        }
+
+        // Remove PayPal Customer if they have no other subscriptions
+        if (deleteStripeCustomer && cart.uid) {
+          await this.paypalCustomerManager.deletePaypalCustomersByUid(cart.uid);
+        }
+
+        // Remove AccountCustomer when Stripe Customer is deleted
+        const accountCustomer = cart.uid
+          ? await this.accountCustomerManager.getAccountCustomerByUid(cart.uid)
+          : undefined;
+        if (accountCustomer && deleteStripeCustomer) {
+          await this.accountCustomerManager.deleteAccountCustomer(
+            accountCustomer
+          );
+        }
+      } catch (e) {
+        // We silently fail here so as not to eat the original error
+        Sentry.captureException(e);
+      }
 
       // All unexpectd/untyped errors should go to Sentry
       if (errorReasonId === CartErrorReasonId.Unknown) {
