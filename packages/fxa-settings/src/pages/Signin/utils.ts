@@ -249,7 +249,9 @@ const getNonOAuthNavigationTarget = async (
       ),
     };
   }
-  if (redirectTo) {
+  // We don't want a hard navigate to `/settings` as it
+  // clears out the initially created integration.
+  if (redirectTo && redirectTo !== '/settings') {
     return { to: redirectTo, shouldHardNavigate: true };
   }
   return { to: '/settings' };
