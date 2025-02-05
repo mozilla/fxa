@@ -7,6 +7,7 @@ signin-recovery-code-heading = Sign in
 signin-recovery-code-sub-heading = Enter backup authentication code
 # codes here refers to backup authentication codes
 signin-recovery-code-instruction-v3 = Enter one of the one-time-use codes you saved when you set up two-step authentication.
+signin-recovery-code-input-label-v2 = Enter 10-character code
 # Form button to confirm if the backup authentication code entered by the user is valid
 signin-recovery-code-confirm-button = Confirm
 # Link to go to the page to use recovery phone instead
