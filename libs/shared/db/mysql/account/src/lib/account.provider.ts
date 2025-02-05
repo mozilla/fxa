@@ -10,13 +10,14 @@ import {
   AccountDbProvider,
   setupAccountDatabase,
 } from './setup';
+import { ILogger, LOGGER_PROVIDER } from '../../../../../log/src';
 
 export const AccountDatabaseNestFactory: Provider<AccountDatabase> = {
   provide: AccountDbProvider,
-  useFactory: (mysqlConfig: MySQLConfig) => {
-    return setupAccountDatabase(mysqlConfig);
+  useFactory: (mysqlConfig: MySQLConfig, log: ILogger) => {
+    return setupAccountDatabase(mysqlConfig, log);
   },
-  inject: [MySQLConfig],
+  inject: [MySQLConfig, LOGGER_PROVIDER],
 };
 
 /**

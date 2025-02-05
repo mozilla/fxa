@@ -79,11 +79,7 @@ const conf = convict({
   },
   log: {
     app: { default: 'fxa-graphql-api-server' },
-    fmt: {
-      default: 'heka',
-      env: 'LOGGING_FORMAT',
-      format: ['heka', 'pretty'],
-    },
+    target: { default: 'mozlog' },
     level: {
       default: 'info',
       env: 'LOG_LEVEL',

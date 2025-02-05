@@ -159,11 +159,12 @@ export async function init() {
 
   const config = Container.get(AppConfig);
   const statsd = Container.get(StatsD);
+  const log = Container.get(AuthLogger);
 
   const accountTasks = DeleteAccountTasksFactory(config, statsd);
   Container.set(DeleteAccountTasks, accountTasks);
 
-  const accountDb = await setupAccountDatabase(config.database.mysql.auth);
+  const accountDb = await setupAccountDatabase(config.database.mysql.auth, log);
   const accountManager = new AccountManager(accountDb);
   Container.set(AccountManager, accountManager);
 

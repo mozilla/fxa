@@ -209,11 +209,9 @@ const conf = convict({
   },
   logging: {
     app: { default: 'fxa-payments-server' },
-    fmt: {
-      default: 'heka',
-      env: 'LOGGING_FORMAT',
-      format: ['heka', 'pretty'],
-    },
+    // TBD: This will preserve how things are currently working prior to this PR.
+    //      Do we actually want to use 'mozlog', so the jsonPayload.fields is present in bigquery?
+    target: { default: 'winston' },
     level: {
       default: 'info',
       env: 'LOG_LEVEL',

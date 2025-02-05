@@ -42,7 +42,7 @@ import { FirestoreProvider } from '@fxa/shared/db/firestore';
 import { AccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
 import { GeoDBManager, GeoDBNestFactory } from '@fxa/shared/geodb';
 import { LocalizerRscFactoryProvider } from '@fxa/shared/l10n/server';
-import { logger, LOGGER_PROVIDER } from '@fxa/shared/log';
+import { LoggingProvider } from '@fxa/shared/log';
 import { StatsDProvider } from '@fxa/shared/metrics/statsd';
 import { NotifierService, NotifierSnsProvider } from '@fxa/shared/notifier';
 
@@ -114,7 +114,7 @@ import { PaymentsEmitterService } from '../emitter/emitter.service';
     PaymentsGleanFactory,
     PaymentsGleanManager,
     PaymentsEmitterService,
-    { provide: LOGGER_PROVIDER, useValue: logger },
+    LoggingProvider,
   ],
 })
 export class AppModule {}

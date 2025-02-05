@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { LOGGER_PROVIDER } from '@fxa/shared/log';
+import { LoggingProvider } from '@fxa/shared/log';
 import { LegacyStatsDProvider } from '@fxa/shared/metrics/statsd';
 import { MozLoggerService } from '@fxa/shared/mozlog';
 import {
@@ -59,10 +59,7 @@ const version = getVersionInfo(__dirname);
     LegacyNotifierServiceProvider,
     LegacyNotifierSnsFactory,
     ComplexityPlugin,
-    {
-      provide: LOGGER_PROVIDER,
-      useClass: MozLoggerService,
-    },
+    LoggingProvider,
   ],
 })
 export class AppModule {}

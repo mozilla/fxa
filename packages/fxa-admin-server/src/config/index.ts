@@ -80,10 +80,8 @@ const conf = convict({
   },
   log: {
     app: { default: 'fxa-user-admin-server' },
-    fmt: {
-      default: 'heka',
-      env: 'LOGGING_FORMAT',
-      format: ['heka', 'pretty'],
+    target: {
+      default: 'mozlog',
     },
     level: {
       default: 'info',

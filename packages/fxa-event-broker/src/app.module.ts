@@ -5,8 +5,8 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { HealthModule } from 'fxa-shared/nestjs/health/health.module';
+// TODO: FXA-9967 Point this at @fxa/shared/logs
 import { LoggerModule } from 'fxa-shared/nestjs/logger/logger.module';
-import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import { MetricsFactory } from 'fxa-shared/nestjs/metrics.service';
 import { SentryModule } from 'fxa-shared/nestjs/sentry/sentry.module';
 import { getVersionInfo } from 'fxa-shared/nestjs/version';
@@ -31,14 +31,14 @@ const version = getVersionInfo(__dirname);
       load: [(): AppConfig => Config.getProperties()],
       isGlobal: true,
     }),
+    LoggerModule,
     FirestoreModule,
     HealthModule.register({ version }),
     JwtsetModule,
-    LoggerModule,
     ScheduleModule.forRoot(),
     SentryModule.forRootAsync({
       imports: [ConfigModule, LoggerModule],
-      inject: [ConfigService, MozLoggerService],
+      inject: [ConfigService, LoggerModule],
       useFactory: (configService: ConfigService<AppConfig>) => ({
         sentryConfig: {
           sentry: configService.get('sentry'),

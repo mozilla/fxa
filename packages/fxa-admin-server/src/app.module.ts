@@ -9,9 +9,8 @@ import { getVersionInfo } from 'fxa-shared/nestjs/version';
 import { join } from 'path';
 import { APP_FILTER } from '@nestjs/core';
 import { SentryGlobalGraphQLFilter, SentryModule } from '@sentry/nestjs/setup';
-import { LOGGER_PROVIDER } from '@fxa/shared/log';
+import { LoggingProvider } from '@fxa/shared/log';
 import { LegacyStatsDProvider } from '@fxa/shared/metrics/statsd';
-import { MozLoggerService } from '@fxa/shared/mozlog';
 import {
   LegacyNotifierServiceProvider,
   LegacyNotifierSnsFactory,
@@ -80,10 +79,7 @@ const version = getVersionInfo(__dirname);
       provide: APP_GUARD,
       useClass: UserGroupGuard,
     },
-    {
-      provide: LOGGER_PROVIDER,
-      useClass: MozLoggerService,
-    },
+    LoggingProvider,
     LegacyNotifierServiceProvider,
     LegacyNotifierSnsFactory,
     LegacyStatsDProvider,
