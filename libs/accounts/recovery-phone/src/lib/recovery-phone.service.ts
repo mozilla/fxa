@@ -266,28 +266,59 @@ export class RecoveryPhoneService {
       throw new RecoveryPhoneNotEnabled();
     }
 
+    const digits = phoneNumber.replace(/\D/g, '');
+    const totalDigits = digits.length;
+
+    // Determine the number of digits to show (lastN)
+    if (lastN === undefined) {
+      lastN = totalDigits;
+    } else {
+      // Clamp lastN between 0 and totalDigits without using Math.max/Math.min
+      if (lastN < 0) {
+        lastN = 0;
+      } else if (lastN > totalDigits) {
+        lastN = totalDigits;
+      }
+      // Else, lastN remains as is
+    }
+
+    const digitsToMask = totalDigits - lastN;
+    let maskedDigitsCount = 0;
+
+    // Replace digits with '•' or keep them based on their position
+    const maskedPhoneNumber = phoneNumber.replace(/\d/g, (digit) => {
+      if (maskedDigitsCount < digitsToMask) {
+        maskedDigitsCount++;
+        return '•';
+      } else {
+        return digit;
+      }
+    });
+
+    return maskedPhoneNumber;
+
     // The + notation can be confusing in a masked number. Don't count it
     // as a digit.
-    let prefix = '';
-    if (phoneNumber.startsWith('+')) {
-      prefix = '+';
-      phoneNumber = phoneNumber.substring(1);
-    }
+    // let prefix = '';
+    // if (phoneNumber.startsWith('+')) {
+    //   prefix = '+';
+    //   phoneNumber = phoneNumber.substring(1);
+    // }
 
-    // Clamp lastN between 0 and phoneNumber.length
-    if (lastN === undefined) {
-      lastN = phoneNumber.length;
-    } else if (lastN > phoneNumber.length) {
-      lastN = phoneNumber.length;
-    } else if (lastN < 0) {
-      lastN = 0;
-    }
+    // // Clamp lastN between 0 and phoneNumber.length
+    // if (lastN === undefined) {
+    //   lastN = phoneNumber.length;
+    // } else if (lastN > phoneNumber.length) {
+    //   lastN = phoneNumber.length;
+    // } else if (lastN < 0) {
+    //   lastN = 0;
+    // }
 
-    // Create mask
-    const maskedPhoneNumber = phoneNumber
-      .substring(phoneNumber.length - lastN)
-      .padStart(phoneNumber.length, '•');
-    return `${prefix}${maskedPhoneNumber}`;
+    // // Create mask
+    // const maskedPhoneNumber = phoneNumber
+    //   .substring(phoneNumber.length - lastN)
+    //   .padStart(phoneNumber.length, '•');
+    // return `${prefix}${maskedPhoneNumber}`;
   }
 
   /**

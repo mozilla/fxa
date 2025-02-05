@@ -69,8 +69,7 @@ export const PageRecoveryPhoneSetup = (_: RouteComponentProps) => {
     const { nationalFormat } = await account.addRecoveryPhone(phoneNumberInput);
     setPhoneData({
       number: phoneNumberInput,
-      // If the API call to get national format back fails it will be null.
-      // In this case just show an unformatted phone number.
+      // Use phoneNumber as a fallback in case nationalFormat is not available
       nationalFormat: nationalFormat || phoneNumberInput,
     });
   };

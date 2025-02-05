@@ -898,8 +898,8 @@ export class AccountResolver {
       return {
         exists: false,
         ...(includeAvailability ? { available: false } : {}),
-        phoneNumber: undefined,
-        nationalFormat: undefined,
+        phoneNumber: null,
+        nationalFormat: null,
       };
     }
   }

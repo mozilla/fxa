@@ -445,5 +445,19 @@ describe('RecoveryPhoneService', () => {
       expect(service.maskPhoneNumber(phoneNumber, 9)).toEqual('+123456789');
       expect(service.maskPhoneNumber(phoneNumber, 12)).toEqual('+123456789');
     });
+    it('can mask national_format number', () => {
+      const phoneNumber = '(123) 456-7890';
+      expect(service.maskPhoneNumber(phoneNumber, -1)).toEqual(
+        '(•••) •••-••••'
+      );
+      expect(service.maskPhoneNumber(phoneNumber, 0)).toEqual('(•••) •••-••••');
+      expect(service.maskPhoneNumber(phoneNumber, 4)).toEqual('(•••) •••-7890');
+      expect(service.maskPhoneNumber(phoneNumber, 10)).toEqual(
+        '(123) 456-7890'
+      );
+      expect(service.maskPhoneNumber(phoneNumber, 12)).toEqual(
+        '(123) 456-7890'
+      );
+    });
   });
 });

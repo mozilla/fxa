@@ -24,7 +24,7 @@ export const SigninRecoveryChoiceContainer = (_: RouteComponentProps) => {
   const signinState = getSigninState(location.state);
 
   const [numBackupCodes, setNumBackupCodes] = useState<number>(0);
-  const [lastFourPhoneDigits, setLastFourPhoneDigits] = useState<string>('');
+  const [maskedPhoneNumber, setMaskedPhoneNumber] = useState<string>('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -40,11 +40,13 @@ export const SigninRecoveryChoiceContainer = (_: RouteComponentProps) => {
         );
         count && setNumBackupCodes(count);
 
-        const { phoneNumber } = await authClient.recoveryPhoneGet(
-          signinState.sessionToken
-        );
-        // TODO verify that recoveryPhoneGet returns a masked phone number (last four digits only)
-        phoneNumber && setLastFourPhoneDigits(phoneNumber.slice(-4));
+        const { phoneNumber, nationalFormat } =
+          await authClient.recoveryPhoneGet(signinState.sessionToken);
+        // Use the phone number as a fallback if the national format isn't available.
+        const formattedPhoneNumber = nationalFormat || phoneNumber;
+        // If the user's session isn't verified (and it won't be on this page),
+        // auth-server returns a masked number.
+        setMaskedPhoneNumber(formattedPhoneNumber);
 
         // whether or not the user has backup authentication codes,
         // go directly to the backup authentication codes page if they don't have a phone number
@@ -60,7 +62,7 @@ export const SigninRecoveryChoiceContainer = (_: RouteComponentProps) => {
 
         if (phoneNumber && (!count || count === 0)) {
           navigateWithQuery('/signin_recovery_phone', {
-            state: { signinState, lastFourPhoneDigits },
+            state: { signinState, formattedPhoneNumber },
             // ensure back button on signin_recovery_code page skips choice page and returns to signin_totp_code
             replace: true,
           });
@@ -83,7 +85,7 @@ export const SigninRecoveryChoiceContainer = (_: RouteComponentProps) => {
       }
     };
     fetchData();
-  }, [authClient, lastFourPhoneDigits, signinState, navigateWithQuery]);
+  }, [authClient, maskedPhoneNumber, signinState, navigateWithQuery]);
 
   const handlePhoneChoice = async () => {
     if (!signinState) {
@@ -108,7 +110,7 @@ export const SigninRecoveryChoiceContainer = (_: RouteComponentProps) => {
     return <LoadingSpinner fullScreen />;
   }
 
-  if (!signinState || !lastFourPhoneDigits) {
+  if (!signinState || !maskedPhoneNumber) {
     return <LoadingSpinner fullScreen />;
   }
 
@@ -116,7 +118,7 @@ export const SigninRecoveryChoiceContainer = (_: RouteComponentProps) => {
     <SigninRecoveryChoice
       {...{
         handlePhoneChoice,
-        lastFourPhoneDigits,
+        maskedPhoneNumber,
         numBackupCodes,
         signinState,
       }}

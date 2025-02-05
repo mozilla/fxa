@@ -28,14 +28,14 @@ import {
 
 export type SigninRecoveryChoiceProps = {
   handlePhoneChoice: () => Promise<AuthUiError | void>;
-  lastFourPhoneDigits: string;
+  maskedPhoneNumber: string;
   numBackupCodes: number;
   signinState: SigninLocationState;
 };
 
 const SigninRecoveryChoice = ({
   handlePhoneChoice,
-  lastFourPhoneDigits,
+  maskedPhoneNumber,
   numBackupCodes,
   signinState,
 }: SigninRecoveryChoiceProps) => {
@@ -80,12 +80,12 @@ const SigninRecoveryChoice = ({
           return;
         }
         navigateWithQuery('/signin_recovery_phone', {
-          state: { signinState, lastFourPhoneDigits },
+          state: { signinState, maskedPhoneNumber },
         });
         break;
       case CHOICES.code:
         navigateWithQuery('/signin_recovery_code', {
-          state: { signinState, lastFourPhoneDigits },
+          state: { signinState, maskedPhoneNumber },
         });
         break;
     }
@@ -101,7 +101,7 @@ const SigninRecoveryChoice = ({
         'Recovery phone'
       ),
       // This doesn't need localization
-      localizedChoiceInfo: `••••••${lastFourPhoneDigits}`,
+      localizedChoiceInfo: maskedPhoneNumber,
     },
     {
       id: 'recovery-choice-code',
