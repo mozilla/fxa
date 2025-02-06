@@ -28,7 +28,7 @@ export const PageRecoveryPhoneSetup = (_: RouteComponentProps) => {
     navigate(SETTINGS_PATH + '#two-step-authentication', { replace: true });
 
   const localizedPageTitle = ftlMsgResolver.getMsg(
-    'page-setup-recovery-phone-title',
+    'page-setup-recovery-phone-heading',
     'Add recovery phone'
   );
 

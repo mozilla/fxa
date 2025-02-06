@@ -407,11 +407,11 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
       )}
       {totpVerified && recoveryCodesAcknowledged && (
         <form onSubmit={recoveryCodeForm.handleSubmit(onRecoveryCodeSubmit)}>
-          <Localized id="tfa-enter-code-to-confirm-1">
+          <Localized id="tfa-enter-code-to-confirm-setup">
             <p className="mt-4 mb-4">
-              Please enter one of your backup authentication codes now to
-              confirm you've saved it. You’ll need a code to login if you don’t
-              have access to your mobile device.
+              Confirm you saved your codes by entering one. Without these codes,
+              you might not be able to sign in if you don’t have your
+              authenticator app.
             </p>
           </Localized>
           <div className="mt-4 mb-6" data-testid="recovery-code-input">

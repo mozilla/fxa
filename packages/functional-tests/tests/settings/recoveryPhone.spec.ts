@@ -148,6 +148,7 @@ test.describe('severity-1 #smoke', () => {
       });
 
       await page.waitForURL(/settings/);
+      await expect(settings.settingsHeading).toBeVisible();
 
       // Remove totp so account can be deleted
       await settings.disconnectTotp();
