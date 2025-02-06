@@ -138,8 +138,9 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('oauth endpoint chooses the right auth flows', async ({
-      pages: { page, signin, signup, relier },
+      pages: { page, signin, signup, relier, confirmSignupCode },
       testAccountTracker,
+      target,
     }) => {
       // Create unverified account
       const { email, password } = testAccountTracker.generateAccountDetails();
@@ -155,6 +156,11 @@ test.describe('severity-1 #smoke', () => {
       await relier.goto();
       await relier.clickChooseFlow();
       await expect(signin.cachedSigninHeading).toBeVisible();
+
+      await signin.signInButton.click();
+      await expect(page).toHaveURL(/confirm_signup_code/);
+      const code = await target.emailClient.getVerifyShortCode(email);
+      await confirmSignupCode.fillOutCodeForm(code);
     });
   });
 });

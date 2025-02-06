@@ -1873,7 +1873,10 @@ export class AccountHandler {
     // The UI will request an OTP code verification before destroying the account in the event
     // the session is currently unverified. The following check will ensure that this OTP code
     // was actually provided by the user.
-    if (!sessionToken.tokenVerified) {
+    if (
+      this.config.accountDestroy.requireVerifiedSession &&
+      !sessionToken.tokenVerified
+    ) {
       throw error.unverifiedSession();
     }
 

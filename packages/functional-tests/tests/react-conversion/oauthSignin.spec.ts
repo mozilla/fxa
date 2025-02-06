@@ -182,7 +182,6 @@ test.describe('severity-1 #smoke', () => {
 
       // Verify email and ensure user is redirected to relier
       await expect(page).toHaveURL(/confirm_signup_code/);
-      await expect(page).toHaveURL(/confirm_signup_code/);
       const code = await target.emailClient.getVerifyShortCode(email);
       await confirmSignupCode.fillOutCodeForm(code);
 
@@ -227,6 +226,9 @@ test.describe('severity-1 #smoke', () => {
 
       await expect(signin.cachedSigninHeading).toBeVisible();
       await expect(page.getByText(email)).toBeVisible();
+
+      await signin.signInButton.click();
+      expect(await relier.isLoggedIn()).toBe(true);
     });
   });
 });
