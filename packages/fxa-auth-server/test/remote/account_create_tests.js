@@ -161,10 +161,12 @@ const {
         .then(() => {
           return server.mailbox.waitForEmail(email);
         })
-        .then((emailData) => {
+        .then(async (emailData) => {
           assert.include(emailData.text, 'Confirm account', 'en-US');
           // TODO: reinstate after translations catch up
           //assert.notInclude(emailData.text, 'Ativar agora', 'not pt-BR');
+          const code = emailData.headers['x-verify-code'];
+          await client.verifyEmail(code, {});
           return client.destroyAccount();
         })
         .then(() => {
@@ -179,10 +181,12 @@ const {
         .then(() => {
           return server.mailbox.waitForEmail(email);
         })
-        .then((emailData) => {
+        .then(async (emailData) => {
           assert.notInclude(emailData.text, 'Confirm email', 'not en-US');
           // TODO: reinstate after translations catch up
           //assert.include(emailData.text, 'Ativar agora', 'is pt-BR');
+          const code = emailData.headers['x-verify-code'];
+          await client.verifyEmail(code, {});
           return client.destroyAccount();
         });
     });
@@ -993,8 +997,6 @@ const {
       assert.equal(kB1, originalKb);
       assert.equal(kB2, originalKb);
     });
-
-
 
     async function login(email, password, version = '') {
       return await Client.login(config.publicUrl, email, password, {

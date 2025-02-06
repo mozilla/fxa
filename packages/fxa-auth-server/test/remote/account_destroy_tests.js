@@ -273,7 +273,7 @@ const config = require('../../config').default.getProperties();
         await client.destroyAccount();
         assert.fail('Should not be able allowed to destroy account.');
       } catch (err) {
-        assert.equal(err.message, 'Unconfirmed account');
+        assert.equal(err.message, 'Unconfirmed session');
       }
     });
   });

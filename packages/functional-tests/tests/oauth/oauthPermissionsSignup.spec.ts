@@ -7,7 +7,8 @@ import { expect, test } from '../../lib/fixtures/standard';
 test.describe('severity-1 #smoke', () => {
   test.describe('oauth permissions for trusted reliers - sign up', () => {
     test('signup without `prompt=consent`', async ({
-      pages: { page, signup, relier },
+      target,
+      pages: { page, signup, relier, confirmSignupCode },
       testAccountTracker,
     }) => {
       const { email, password } = testAccountTracker.generateAccountDetails();
@@ -19,12 +20,16 @@ test.describe('severity-1 #smoke', () => {
 
       //no permissions asked for, straight to confirm
       await expect(page).toHaveURL(/confirm_signup_code/);
+
+      // Provide the code so the account can be cleaned up.
+      const code = await target.emailClient.getVerifyShortCode(email);
+      await confirmSignupCode.fillOutCodeForm(code);
     });
 
     test('signup with `prompt=consent`', async ({
       target,
       page,
-      pages: { configPage, signup, relier },
+      pages: { configPage, signup, relier, confirmSignupCode },
       testAccountTracker,
     }) => {
       const config = await configPage.getConfig();
@@ -48,6 +53,10 @@ test.describe('severity-1 #smoke', () => {
 
       //Verify sign up code header
       await expect(page).toHaveURL(/confirm_signup_code/);
+
+      // Provide the code so the account can be cleaned up.
+      const code = await target.emailClient.getVerifyShortCode(email);
+      await confirmSignupCode.fillOutCodeForm(code);
     });
   });
 });
