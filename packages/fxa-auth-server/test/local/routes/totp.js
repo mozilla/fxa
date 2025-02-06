@@ -135,7 +135,6 @@ describe('totp', () => {
           1,
           'called delete TOTP token'
         );
-
         assert.equal(
           profile.deleteCache.callCount,
           1,

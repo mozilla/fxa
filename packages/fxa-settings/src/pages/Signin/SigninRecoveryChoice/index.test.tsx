@@ -12,6 +12,7 @@ import userEvent from '@testing-library/user-event';
 import SigninRecoveryChoice from '.';
 import { MOCK_SIGNIN_LOCATION_STATE } from './mocks';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import GleanMetrics from '../../../lib/glean';
 
 function renderSigninRecoveryChoice(overrides = {}) {
   const defaultProps = {
@@ -28,6 +29,15 @@ function renderSigninRecoveryChoice(overrides = {}) {
     </LocationProvider>
   );
 }
+
+jest.mock('../../../lib/glean', () => ({
+  __esModule: true,
+  default: {
+    login: {
+      backupChoiceSubmit: jest.fn(),
+    },
+  },
+}));
 
 const mockLocation = (pathname: string, mockLocationState: Object) => {
   return {
@@ -142,6 +152,36 @@ describe('SigninRecoveryChoice', () => {
           signinState: MOCK_SIGNIN_LOCATION_STATE,
           lastFourPhoneDigits: '1234',
         },
+      });
+    });
+  });
+
+  describe('glean metrics', () => {
+    it('sends the correct metric when Recovery phone option is selected', async () => {
+      mockReachRouter('signin_recovery_choice', MOCK_SIGNIN_LOCATION_STATE);
+
+      const user = userEvent.setup();
+      renderSigninRecoveryChoice();
+
+      user.click(screen.getByLabelText(/Recovery phone/i));
+      user.click(screen.getByRole('button', { name: 'Continue' }));
+
+      expect(GleanMetrics.login.backupChoiceSubmit).toBeCalledWith({
+        event: { reason: 'phone' },
+      });
+    });
+
+    it('sends the correct metric when Backup authentication codes option is selected', async () => {
+      mockReachRouter('signin_recovery_choice', MOCK_SIGNIN_LOCATION_STATE);
+
+      const user = userEvent.setup();
+      renderSigninRecoveryChoice();
+
+      user.click(screen.getByLabelText(/Backup authentication codes/i));
+      user.click(screen.getByRole('button', { name: 'Continue' }));
+
+      expect(GleanMetrics.login.backupChoiceSubmit).toBeCalledWith({
+        event: { reason: 'code' },
       });
     });
   });

@@ -10,8 +10,15 @@ import {
   MOCK_FULL_PHONE_NUMBER,
   MOCK_MASKED_PHONE_NUMBER,
 } from '../../../pages/mocks';
+import GleanMetrics from '../../../lib/glean';
 
 jest.mock('../../../models/AlertBarInfo');
+
+jest.mock('../../../lib/glean', () => ({
+  accountPref: {
+    twoStepAuthDisableModalView: jest.fn(),
+  },
+}));
 
 describe('UnitRowTwoStepAuth', () => {
   it('renders when two-step authentication is enabled', async () => {
@@ -24,6 +31,10 @@ describe('UnitRowTwoStepAuth', () => {
       screen.getByTestId('two-step-unit-row-header-value').textContent
     ).toContain('Enabled');
     expect(screen.getByRole('button', { name: 'Disable' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Disable' })).toHaveAttribute(
+      'data-glean-id',
+      'two_step_auth_disable_click'
+    );
   });
 
   it('renders when two-step authentication is not enabled', () => {
@@ -42,6 +53,10 @@ describe('UnitRowTwoStepAuth', () => {
     ).toContain('Disabled');
     expect(screen.getByTestId('two-step-unit-row-route').textContent).toContain(
       'Add'
+    );
+    expect(screen.getByTestId('two-step-unit-row-route')).toHaveAttribute(
+      'data-glean-id',
+      'account_pref_two_step_auth_add_click'
     );
   });
 
@@ -90,6 +105,21 @@ describe('UnitRowTwoStepAuth', () => {
     await waitFor(() =>
       expect(disableTwoStepAuthMock).toHaveBeenCalledTimes(1)
     );
+  });
+
+  it('emits expected event when the disable totp modal is rendered', async () => {
+    renderWithRouter(createSubject());
+
+    fireEvent.click(screen.getByRole('button', { name: 'Disable' }));
+
+    await waitFor(() =>
+      expect(
+        screen.queryByTestId('disable-totp-modal-header')
+      ).toBeInTheDocument()
+    );
+    expect(
+      GleanMetrics.accountPref.twoStepAuthDisableModalView
+    ).toHaveBeenCalled();
   });
 
   it('renders with no backup codes and no recovery phone', () => {

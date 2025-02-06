@@ -36,6 +36,8 @@ jest.mock('../../../lib/glean', () => ({
       twoStepAuthQrCodeSuccess: jest.fn(),
       twoStepAuthCodesView: jest.fn(),
       twoStepAuthEnterCodeView: jest.fn(),
+      twoStepAuthManualCodeView: jest.fn(),
+      twoStepAuthEnterCodeSuccessView: jest.fn(),
     },
   },
 }));
@@ -92,6 +94,10 @@ const resetCheckcodeMock = () => {
 };
 
 describe('step 1', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('renders', async () => {
     await act(async () => {
       render();
@@ -164,6 +170,10 @@ describe('step 2', () => {
     resetCheckcodeMock();
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('shows the backup authentication codes when valid auth code is submitted', async () => {
     await act(async () => {
       render();
@@ -210,6 +220,10 @@ describe('step 3', () => {
     // suppress the console output
     jest.spyOn(console, 'error').mockImplementationOnce(() => {});
     resetCheckcodeMock();
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   it('renders the backup authentication code form', async () => {
@@ -326,12 +340,17 @@ describe('step 3', () => {
     );
     expect(alertBarInfo.success).toHaveBeenCalledTimes(1);
     expect(alertBarInfo.success).toHaveBeenCalledWith(
-      'Two-step authentication has been enabled'
+      'Two-step authentication has been enabled',
+      expect.any(Function)
     );
   });
 });
 
 describe('metrics', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('emits the correct metric events', async () => {
     const mockLogViewEvent = jest.fn();
     const mockLogPageViewEvent = jest.fn();

@@ -132,11 +132,17 @@ const InlineRecoverySetup = ({
   );
 
   useEffect(() => {
-    !showConfirmation && GleanMetrics.accountPref.twoStepAuthCodesView();
+    !showConfirmation &&
+      GleanMetrics.accountPref.twoStepAuthCodesView({
+        event: { reason: GleanClickEventType2FA.inline },
+      });
   }, [showConfirmation]);
 
   useEffect(() => {
-    showConfirmation && GleanMetrics.accountPref.twoStepAuthEnterCodeView();
+    showConfirmation &&
+      GleanMetrics.accountPref.twoStepAuthEnterCodeView({
+        event: { reason: GleanClickEventType2FA.inline },
+      });
   }, [showConfirmation]);
 
   return (
@@ -196,6 +202,8 @@ const InlineRecoverySetup = ({
                     type="button"
                     className="link-blue text-sm"
                     onClick={cancelSetupHandler}
+                    data-glean-id="two_step_auth_enter_code_cancel"
+                    data-glean-type={GleanClickEventType2FA.inline}
                   >
                     Cancel setup
                   </button>
@@ -247,7 +255,7 @@ const InlineRecoverySetup = ({
                   className="cta-neutral mx-2 px-10 py-2 flex-1"
                   onClick={cancelSetupHandler}
                   data-glean-id="two_step_auth_codes_cancel"
-                  data-glean-type="inline setup"
+                  data-glean-type={GleanClickEventType2FA.inline}
                 >
                   Cancel
                 </button>
@@ -258,7 +266,7 @@ const InlineRecoverySetup = ({
                   className="cta-neutral mx-2 px-10 py-2"
                   onClick={continueSetup}
                   data-glean-id="two_step_auth_codes_submit"
-                  data-glean-type="inline setup"
+                  data-glean-type={GleanClickEventType2FA.inline}
                 >
                   Continue
                 </button>

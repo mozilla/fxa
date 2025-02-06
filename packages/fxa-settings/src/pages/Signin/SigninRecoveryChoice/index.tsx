@@ -25,6 +25,7 @@ import {
   AuthUiError,
   AuthUiErrors,
 } from '../../../lib/auth-errors/auth-errors';
+import GleanMetrics from '../../../lib/glean';
 
 export type SigninRecoveryChoiceProps = {
   handlePhoneChoice: () => Promise<AuthUiError | void>;
@@ -72,6 +73,7 @@ const SigninRecoveryChoice = ({
   const onSubmit = async ({ choice }: FormChoiceData) => {
     setErrorBannerMessage('');
     setErrorBannerDescription('');
+    GleanMetrics.login.backupChoiceSubmit({ event: { reason: choice } });
     switch (choice) {
       case CHOICES.phone:
         const error = await handlePhoneChoice();

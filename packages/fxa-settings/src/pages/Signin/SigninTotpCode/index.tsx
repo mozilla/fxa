@@ -173,6 +173,7 @@ export const SigninTotpCode = ({
           <a
             href="/"
             className="text-sm link-blue"
+            data-glean-id="login_totp_code_different_account_link"
             onClick={(e) => {
               e.preventDefault();
               const params = new URLSearchParams(location.search);

@@ -269,7 +269,7 @@ module.exports = (
         }
 
         // Record that the 2fa was successfully removed
-        glean.twoStepAuthRemove.success();
+        glean.twoStepAuthRemove.success(request, { uid });
 
         return {};
       },

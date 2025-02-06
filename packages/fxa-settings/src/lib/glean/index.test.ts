@@ -504,9 +504,28 @@ describe('lib/glean', () => {
         sinon.assert.calledOnce(setEventReasonStub);
         sinon.assert.calledWith(setEventReasonStub, 'quux');
       });
+
+      it('submits a ping with the login_backup_choice_submit event name', async () => {
+        GleanMetrics.login.backupChoiceSubmit({ event: { reason: 'quux' } });
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'login_backup_choice_submit');
+        sinon.assert.calledOnce(setEventReasonStub);
+        sinon.assert.calledWith(setEventReasonStub, 'quux');
+      });
+
+      it('submits a ping with the login_backup_phone_success_view event name', async () => {
+        GleanMetrics.login.backupPhoneSuccessView();
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'login_backup_phone_success_view'
+        );
+      });
     });
 
-    describe('loginBackupCode', () => {
+    describe('loginTotpBackup', () => {
       it('submits a ping with the login_backup_code_view name', async () => {
         GleanMetrics.loginBackupCode.view();
         const spy = sandbox.spy(login.backupCodeView, 'record');
@@ -865,6 +884,93 @@ describe('lib/glean', () => {
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(setEventNameStub, 'account_pref_bento_vpn');
         sinon.assert.calledOnce(spy);
+      });
+
+      it('submits a ping with the account_pref_two_step_auth_manual_code_view event name', async () => {
+        GleanMetrics.accountPref.twoStepAuthManualCodeView({
+          event: { reason: 'quux' },
+        });
+        const spy = sandbox.spy(
+          accountPref.twoStepAuthManualCodeView,
+          'record'
+        );
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'account_pref_two_step_auth_manual_code_view'
+        );
+        sinon.assert.calledOnce(spy);
+        sinon.assert.calledOnce(setEventReasonStub);
+        sinon.assert.calledWith(setEventReasonStub, 'quux');
+      });
+
+      it('submits a ping with the account_pref_two_step_auth_phone_verify_view event name', async () => {
+        GleanMetrics.accountPref.twoStepAuthPhoneVerifyView();
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'account_pref_two_step_auth_phone_verify_view'
+        );
+      });
+
+      it('submits a ping with the account_pref_two_step_auth_phone_remove_success_view event name', async () => {
+        GleanMetrics.accountPref.twoStepAuthPhoneRemoveSuccessView();
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'account_pref_two_step_auth_phone_remove_success_view'
+        );
+      });
+
+      it('submits a ping with the account_pref_two_step_auth_enter_code_view event name', async () => {
+        GleanMetrics.accountPref.twoStepAuthEnterCodeView({
+          event: { reason: 'quux' },
+        });
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'account_pref_two_step_auth_enter_code_view'
+        );
+        sinon.assert.calledOnce(setEventReasonStub);
+        sinon.assert.calledWith(setEventReasonStub, 'quux');
+      });
+
+      it('submits a ping with the account_pref_two_step_auth_enter_code_success_view event name', async () => {
+        GleanMetrics.accountPref.twoStepAuthEnterCodeSuccessView({
+          event: { reason: 'quux' },
+        });
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'account_pref_two_step_auth_enter_code_success_view'
+        );
+        sinon.assert.calledOnce(setEventReasonStub);
+        sinon.assert.calledWith(setEventReasonStub, 'quux');
+      });
+
+      it('submits a ping with the account_pref_two_step_auth_disable_modal_view event name', async () => {
+        GleanMetrics.accountPref.twoStepAuthDisableModalView();
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'account_pref_two_step_auth_disable_modal_view'
+        );
+      });
+
+      it('submits a ping with the account_pref_two_step_auth_disable_success_view event name', async () => {
+        GleanMetrics.accountPref.twoStepAuthDisableSuccessView();
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'account_pref_two_step_auth_disable_success_view'
+        );
       });
     });
 

@@ -13,6 +13,7 @@ import { FtlMsg } from 'fxa-react/lib/utils';
 import { useAccount, useAlertBar, useFtlMsgResolver } from '../../../models';
 import FlowContainer from '../FlowContainer';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
+import GleanMetrics from '../../../lib/glean';
 
 // TODO, update this link with #section-heading once the SUMO article is updated (FXA-10918)
 const sumoTwoStepLink = (
@@ -35,15 +36,19 @@ const PageRecoveryPhoneRemove = (props: RouteComponentProps) => {
 
   const goHome = () => navigate(SETTINGS_PATH + '#security', { replace: true });
 
+  const gleanSuccessView =
+    GleanMetrics.accountPref.twoStepAuthPhoneRemoveSuccessView;
+
   const alertSuccessAndGoHome = useCallback(() => {
     alertBar.success(
       ftlMsgResolver.getMsg(
         'settings-recovery-phone-remove-success',
         'Recovery phone removed'
-      )
+      ),
+      gleanSuccessView
     );
     navigate(SETTINGS_PATH + '#security', { replace: true });
-  }, [alertBar, ftlMsgResolver, navigate]);
+  }, [alertBar, ftlMsgResolver, gleanSuccessView, navigate]);
 
   const clickRemoveRecoveryPhone = useCallback(async () => {
     try {

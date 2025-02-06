@@ -950,6 +950,23 @@ two_factor_auth:
     expires: never
     data_sensitivity:
       - interaction
+  replace_code_complete:
+    type: event
+    description: |
+      Event that indicates the user successfully replaced their two-step authentication codes
+    lifetime: ping
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-11087
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
 
 two_step_auth_phone_code:
   sent:
@@ -1286,8 +1303,6 @@ inactive_account_deletion:
         description: |
           The reason the email was skipped.
         type: string
-
-
 
 two_step_auth_phone_remove:
   success:

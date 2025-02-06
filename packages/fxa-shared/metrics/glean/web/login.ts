@@ -7,6 +7,25 @@
 import EventMetricType from '@mozilla/glean/private/metrics/event';
 
 /**
+ * Event that indicates the user chose to use one of their recovery methods during
+ * sign in.
+ *
+ * Generated from `login.backup_choice_submit`.
+ */
+export const backupChoiceSubmit = new EventMetricType<{
+  reason?: string;
+}>(
+  {
+    category: 'login',
+    name: 'backup_choice_submit',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  ['reason']
+);
+
+/**
  * Event that indicates a user attempted to authenticate by clicking
  * "Confirm" on the 2FA backup codes page.
  *
@@ -157,6 +176,22 @@ export const forgotPwdSubmit = new EventMetricType(
   {
     category: 'login',
     name: 'forgot_pwd_submit',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * Event that indicates the user successfully authenticated via recovery phone.
+ *
+ * Generated from `login.recovery_phone_success_view`.
+ */
+export const recoveryPhoneSuccessView = new EventMetricType(
+  {
+    category: 'login',
+    name: 'recovery_phone_success_view',
     sendInPings: ['events'],
     lifetime: 'ping',
     disabled: false,
