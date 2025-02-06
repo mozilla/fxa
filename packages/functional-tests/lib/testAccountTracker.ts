@@ -206,6 +206,18 @@ export class TestAccountTracker {
         account.email,
         account.password
       );
+
+      await this.target.authClient.sessionResendVerifyCode(
+        credentials.sessionToken
+      );
+      const code = await this.target.emailClient.getVerifyLoginCode(
+        account.email
+      );
+      await this.target.authClient.sessionVerifyCode(
+        credentials.sessionToken,
+        code
+      );
+
       await this.target.authClient.accountDestroy(
         account.email,
         account.password,

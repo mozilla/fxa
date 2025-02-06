@@ -3822,6 +3822,7 @@ describe('/account/keys', () => {
 
 describe('/account/destroy', () => {
   const email = 'foo@example.com';
+  const tokenVerified = true;
   const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
 
   let mockDB, mockLog, mockRequest, mockPush, mockPushbox;
@@ -3832,6 +3833,7 @@ describe('/account/destroy', () => {
     };
     mockLog = mocks.mockLog();
     mockRequest = mocks.mockRequest({
+      credentials: { uid, email, tokenVerified },
       log: mockLog,
       payload: {
         email: email,
@@ -3855,6 +3857,9 @@ describe('/account/destroy', () => {
           paypalNvpSigCredentials: {
             enabled: true,
           },
+        },
+        accountDestroy: {
+          requireVerifiedAccount: false,
         },
         domain: 'wibble',
       },
@@ -3912,6 +3917,7 @@ describe('/account/destroy', () => {
   it('should delete the passwordless account', () => {
     mockDB = { ...mocks.mockDB({ email, uid, verifierSetAt: 0 }) };
     mockRequest = mocks.mockRequest({
+      credentials: { uid, email, tokenVerified },
       log: mockLog,
       payload: {
         email: email,
