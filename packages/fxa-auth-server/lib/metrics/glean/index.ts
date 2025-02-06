@@ -301,6 +301,9 @@ export function gleanMetrics(config: ConfigType) {
     },
     twoFactorAuth: {
       codeComplete: createEventFn('two_factor_auth_code_complete'),
+      replaceCodeComplete: createEventFn(
+        'two_factor_auth_replace_code_complete'
+      ),
     },
     twoStepAuthPhoneCode: {
       sent: createEventFn('two_step_auth_phone_code_sent'),

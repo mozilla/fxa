@@ -22,6 +22,7 @@ import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { copyRecoveryCodes } from '../../../lib/totp';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { GleanClickEventType2FA } from '../../../lib/types';
+import GleanMetrics from '../../../lib/glean';
 
 export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
   const alertBar = useAlertBar();
@@ -46,7 +47,11 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
       ftlMsgResolver.getMsg(
         'tfa-replace-code-success-alert-4',
         'Backup authentication codes updated'
-      )
+      ),
+      () =>
+        GleanMetrics.accountPref.twoStepAuthEnterCodeSuccessView({
+          event: { reason: GleanClickEventType2FA.replace },
+        })
     );
     navigate(SETTINGS_PATH + '#two-step-authentication', { replace: true });
   };
@@ -176,7 +181,7 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
                 className="cta-neutral cta-base-p mx-2 flex-1"
                 onClick={goHome}
                 data-glean-id="two_step_auth_codes_cancel"
-                data-glean-type="replace"
+                data-glean-type={GleanClickEventType2FA.replace}
               >
                 Cancel
               </button>
@@ -187,7 +192,7 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
                 className="cta-neutral mx-2 px-10 py-2"
                 data-testid="ack-recovery-code"
                 data-glean-id="two_step_auth_codes_submit"
-                data-glean-type="replace"
+                data-glean-type={GleanClickEventType2FA.replace}
                 onClick={() => {
                   activateStep(2);
                 }}
@@ -225,6 +230,12 @@ const RecoveryCodeCheck = ({
   goHome,
   onRecoveryCodeSubmit,
 }: RecoverCodeCheckType) => {
+  useEffect(() => {
+    GleanMetrics.accountPref.twoStepAuthEnterCodeView({
+      event: { reason: GleanClickEventType2FA.replace },
+    });
+  }, []);
+
   const ftlMsgResolver = useFtlMsgResolver();
 
   const [recoveryCodeError, setRecoveryCodeError] = useState<string>('');
@@ -284,6 +295,8 @@ const RecoveryCodeCheck = ({
               type="button"
               className="cta-neutral cta-base-p mx-2 flex-1"
               onClick={goHome}
+              data-glean-id="two_step_auth_enter_code_cancel"
+              data-glean-type={GleanClickEventType2FA.replace}
             >
               Cancel
             </button>
@@ -299,7 +312,7 @@ const RecoveryCodeCheck = ({
               !recoveryCodeForm.formState.isValid
             }
             data-glean-id="two_step_auth_enter_code_submit"
-            data-glean-type="replace"
+            data-glean-type={GleanClickEventType2FA.replace}
           >
             Finish
           </button>

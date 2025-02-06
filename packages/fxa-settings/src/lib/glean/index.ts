@@ -282,6 +282,9 @@ const recordEventMetric = (
     case 'login_backup_code_success_view':
       login.backupCodeSuccessView.record();
       break;
+    case 'login_backup_choice_submit':
+      login.backupChoiceSubmit.record();
+      break;
     case 'login_engage':
       login.engage.record();
       break;
@@ -311,6 +314,9 @@ const recordEventMetric = (
       break;
     case 'login_email_confirmation_success_view':
       login.emailConfirmationSuccessView.record();
+      break;
+    case 'login_recovery_phone_success_view':
+      login.recoveryPhoneSuccessView.record();
       break;
     case 'login_totp_form_view':
       login.totpFormView.record();
@@ -417,11 +423,20 @@ const recordEventMetric = (
     case 'account_pref_two_step_auth_qr_code_success':
       accountPref.twoStepAuthQrCodeSuccess.record();
       break;
+    case 'account_pref_two_step_auth_manual_code_view':
+      accountPref.twoStepAuthManualCodeView.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
     case 'account_pref_two_step_auth_codes_view':
-      accountPref.twoStepAuthCodesView.record();
+      accountPref.twoStepAuthCodesView.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
       break;
     case 'account_pref_two_step_auth_enter_code_view':
-      accountPref.twoStepAuthEnterCodeView.record();
+      accountPref.twoStepAuthEnterCodeView.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
       break;
     case 'account_pref_change_password_submit':
       accountPref.changePasswordSubmit.record();
@@ -486,6 +501,23 @@ const recordEventMetric = (
       break;
     case 'account_pref_bento_vpn':
       accountPref.bentoVpn.record();
+      break;
+    case 'account_pref_two_step_auth_enter_code_success_view':
+      accountPref.twoStepAuthEnterCodeSuccessView.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'account_pref_two_step_auth_phone_verify_view':
+      accountPref.twoStepAuthPhoneVerifyView.record();
+      break;
+    case 'account_pref_two_step_auth_phone_remove_success_view':
+      accountPref.twoStepAuthPhoneRemoveSuccessView.record();
+      break;
+    case 'account_pref_two_step_auth_disable_modal_view':
+      accountPref.twoStepAuthDisableModalView.record();
+      break;
+    case 'account_pref_two_step_auth_disable_success_view':
+      accountPref.twoStepAuthDisableSuccessView.record();
       break;
     case 'delete_account_settings_submit':
       deleteAccount.settingsSubmit.record();

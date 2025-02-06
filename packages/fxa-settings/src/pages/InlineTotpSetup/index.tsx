@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import classNames from 'classnames';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { useFtlMsgResolver } from '../../models';
@@ -15,6 +15,7 @@ import { InlineTotpSetupProps } from './interfaces';
 import DataBlockManual from '../../components/DataBlockManual';
 import { GleanClickEventType2FA } from '../../lib/types';
 import Banner from '../../components/Banner';
+import GleanMetrics from '../../lib/glean';
 
 export const InlineTotpSetup = ({
   totp,
@@ -37,6 +38,18 @@ export const InlineTotpSetup = ({
   const [totpErrorMessage, setTotpErrorMessage] = useState('');
   const [localizedBannerMessage, setLocalizedBannerMessage] =
     useState<string>('');
+
+  useEffect(() => {
+    if (!showIntro) {
+      showQR
+        ? GleanMetrics.accountPref.twoStepAuthQrView({
+            event: { reason: GleanClickEventType2FA.inline },
+          })
+        : GleanMetrics.accountPref.twoStepAuthManualCodeView({
+            event: { reason: GleanClickEventType2FA.inline },
+          });
+    }
+  }, [showIntro, showQR]);
 
   const onCancel = useCallback(() => {
     try {
@@ -259,7 +272,9 @@ export const InlineTotpSetup = ({
                 setCodeErrorMessage={setTotpErrorMessage}
                 {...{ localizedCustomCodeRequiredMessage }}
                 gleanDataAttrs={{
-                  id: 'two_step_auth_qr_submit',
+                  id: showQR
+                    ? 'two_step_auth_qr_submit'
+                    : 'two_step_auth_manual_code_submit',
                   type: GleanClickEventType2FA.inline,
                 }}
               />

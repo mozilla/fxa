@@ -42,6 +42,7 @@ const recordAccountDeleteCompleteStub = sinon.stub();
 const recordPasswordResetEmailConfirmationSentStub = sinon.stub();
 const recordPasswordResetEmailConfirmationSuccessStub = sinon.stub();
 const recordTwoFactorAuthCodeCompleteStub = sinon.stub();
+const recordTwoFactorAuthReplaceCodeCompleteStub = sinon.stub();
 const recordTwoStepAuthPhoneCodeSentStub = sinon.stub();
 const recordTwoStepAuthPhoneCodeSendErrorStub = sinon.stub();
 const recordTwoStepAuthPhoneCodeCompleteStub = sinon.stub();
@@ -107,6 +108,8 @@ const gleanProxy = proxyquire('../../../lib/metrics/glean', {
       recordPasswordResetEmailConfirmationSuccess:
         recordPasswordResetEmailConfirmationSuccessStub,
       recordTwoFactorAuthCodeComplete: recordTwoFactorAuthCodeCompleteStub,
+      recordTwoFactorAuthReplaceCodeComplete:
+        recordTwoFactorAuthReplaceCodeCompleteStub,
       recordTwoStepAuthPhoneCodeSent: recordTwoStepAuthPhoneCodeSentStub,
       recordTwoStepAuthPhoneCodeSendError:
         recordTwoStepAuthPhoneCodeSendErrorStub,
@@ -476,6 +479,14 @@ describe('Glean server side events', () => {
       assert.equal(metrics['event_name'], 'account_delete_complete');
       sinon.assert.calledOnce(recordAccountDeleteCompleteStub);
     });
+  });
+
+  describe('two factor auth', () => {
+    let glean: GleanMetricsType;
+
+    beforeEach(() => {
+      glean = gleanMetrics(config);
+    });
 
     it('logs a "two_factor_auth_code_complete" event', async () => {
       await glean.twoFactorAuth.codeComplete(request);
@@ -483,6 +494,17 @@ describe('Glean server side events', () => {
       const metrics = recordStub.args[0][0];
       assert.equal(metrics['event_name'], 'two_factor_auth_code_complete');
       sinon.assert.calledOnce(recordTwoFactorAuthCodeCompleteStub);
+    });
+
+    it('logs a "two_factor_auth_replace_code_complete" event', async () => {
+      await glean.twoFactorAuth.replaceCodeComplete(request);
+      sinon.assert.calledOnce(recordStub);
+      const metrics = recordStub.args[0][0];
+      assert.equal(
+        metrics['event_name'],
+        'two_factor_auth_replace_code_complete'
+      );
+      sinon.assert.calledOnce(recordTwoFactorAuthReplaceCodeCompleteStub);
     });
   });
 

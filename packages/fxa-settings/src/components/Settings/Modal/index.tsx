@@ -11,6 +11,7 @@ import { ReactComponent as CloseIcon } from '@fxa/shared/assets/images/close.svg
 import { Link, useLocation } from '@reach/router';
 import { useFtlMsgResolver } from '../../../models';
 import { FtlMsg } from 'fxa-react/lib/utils';
+import { GleanClickEventDataAttrs } from '../../../lib/types';
 
 type ModalProps = {
   className?: string;
@@ -24,6 +25,7 @@ type ModalProps = {
   route?: string;
   confirmText?: string;
   confirmBtnClassName?: string;
+  confirmBtnGleanDataAttrs?: GleanClickEventDataAttrs;
   'data-testid'?: string;
   isLoading?: boolean;
 };
@@ -40,6 +42,7 @@ export const Modal = ({
   route,
   confirmText,
   confirmBtnClassName = 'cta-primary cta-base-p',
+  confirmBtnGleanDataAttrs,
   'data-testid': testid = 'modal',
   isLoading = false,
 }: ModalProps) => {
@@ -112,6 +115,11 @@ export const Modal = ({
                       className={classNames('mx-2 flex-1', confirmBtnClassName)}
                       data-testid="modal-confirm"
                       to={`${route}${location.search}`}
+                      {...(confirmBtnGleanDataAttrs && {
+                        'data-glean-id': confirmBtnGleanDataAttrs.id,
+                        'data-glean-type': confirmBtnGleanDataAttrs.type,
+                        'data-glean-label': confirmBtnGleanDataAttrs.label,
+                      })}
                     >
                       {confirmText || localizedDefaultConfirmText}
                     </Link>
@@ -125,6 +133,11 @@ export const Modal = ({
                         onConfirm();
                       }}
                       disabled={isLoading}
+                      {...(confirmBtnGleanDataAttrs && {
+                        'data-glean-id': confirmBtnGleanDataAttrs.id,
+                        'data-glean-type': confirmBtnGleanDataAttrs.type,
+                        'data-glean-label': confirmBtnGleanDataAttrs.label,
+                      })}
                     >
                       {confirmText || localizedDefaultConfirmText}
                     </button>

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import Modal from '../Modal';
@@ -13,6 +13,7 @@ import {
   useAlertBar,
   useConfig,
   useFtlMsgResolver,
+  useSession,
 } from '../../../models';
 import { SETTINGS_PATH } from '../../../constants';
 import GleanMetrics from '../../../lib/glean';
@@ -27,6 +28,7 @@ export const UnitRowTwoStepAuth = () => {
   const alertBar = useAlertBar();
   const account = useAccount();
   const navigate = useNavigate();
+  const session = useSession();
   const {
     backupCodes: { count },
     totp: { exists, verified },
@@ -45,7 +47,8 @@ export const UnitRowTwoStepAuth = () => {
         ftlMsgResolver.getMsg(
           'tfa-row-disabled-2',
           'Two-step authentication disabled'
-        )
+        ),
+        () => GleanMetrics.accountPref.twoStepAuthDisableSuccessView()
       );
     } catch (e) {
       hideDisable2FAModal();
@@ -59,6 +62,11 @@ export const UnitRowTwoStepAuth = () => {
   }, [account, hideDisable2FAModal, alertBar, ftlMsgResolver]);
 
   const DisableTwoStepAuthModal = () => {
+    useEffect(() => {
+      session.verified &&
+        GleanMetrics.accountPref.twoStepAuthDisableModalView();
+    }, []);
+
     return (
       <VerifiedSessionGuard
         onDismiss={hideDisable2FAModal}
@@ -77,6 +85,9 @@ export const UnitRowTwoStepAuth = () => {
             'Disable'
           )}
           confirmBtnClassName="cta-caution cta-base-p"
+          confirmBtnGleanDataAttrs={{
+            id: 'two_step_auth_confirm_disable_click',
+          }}
         >
           <FtlMsg id="tfa-row-disable-modal-heading">
             <h2
@@ -129,6 +140,9 @@ export const UnitRowTwoStepAuth = () => {
           revealSecondaryModal: revealDisable2FAModal,
           secondaryButtonTestId: 'two-step-disable-button',
           hideCtaText: true,
+          secondaryButtonGleanDataAttrs: {
+            id: 'two_step_auth_disable_click',
+          },
         }
       : {
           statusIcon: 'alert',
@@ -137,6 +151,9 @@ export const UnitRowTwoStepAuth = () => {
             'Disabled'
           ),
           ctaText: ftlMsgResolver.getMsg('tfa-row-action-add', 'Add'),
+          ctaGleanDataAttrs: {
+            id: 'account_pref_two_step_auth_add_click',
+          },
           secondaryCtaText: undefined,
           revealSecondaryModal: undefined,
         };

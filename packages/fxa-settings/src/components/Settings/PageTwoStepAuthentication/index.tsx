@@ -41,7 +41,11 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
         'tfa-enabled-v2',
         null,
         'Two-step authentication has been enabled'
-      )
+      ),
+      () =>
+        GleanMetrics.accountPref.twoStepAuthEnterCodeSuccessView({
+          event: { reason: GleanClickEventType2FA.setup },
+        })
     );
     navigate(SETTINGS_PATH + '#two-step-authentication', { replace: true });
   }, [alertBar, l10n, navigate]);
@@ -179,21 +183,37 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
     totpVerified &&
       !recoveryCodesAcknowledged &&
       totpInfo.result &&
-      GleanMetrics.accountPref.twoStepAuthCodesView();
+      GleanMetrics.accountPref.twoStepAuthCodesView({
+        event: { reason: GleanClickEventType2FA.setup },
+      });
   }, [recoveryCodesAcknowledged, totpInfo.result, totpVerified]);
 
   useEffect(() => {
     totpVerified &&
       recoveryCodesAcknowledged &&
-      GleanMetrics.accountPref.twoStepAuthEnterCodeView();
-  }, [recoveryCodesAcknowledged, totpVerified]);
+      totpInfo.result &&
+      GleanMetrics.accountPref.twoStepAuthEnterCodeView({
+        event: { reason: GleanClickEventType2FA.setup },
+      });
+  }, [recoveryCodesAcknowledged, totpInfo.result, totpVerified]);
 
   useEffect(() => {
     !totpVerified &&
       showQrCode &&
       totpInfo.result &&
-      GleanMetrics.accountPref.twoStepAuthQrView();
+      GleanMetrics.accountPref.twoStepAuthQrView({
+        event: { reason: GleanClickEventType2FA.setup },
+      });
   }, [showQrCode, totpInfo.result, totpVerified]);
+
+  useEffect(() => {
+    !totpVerified &&
+      !showQrCode &&
+      totpInfo.result &&
+      GleanMetrics.accountPref.twoStepAuthManualCodeView({
+        event: { reason: GleanClickEventType2FA.setup },
+      });
+  }, [recoveryCodesAcknowledged, showQrCode, totpInfo.result, totpVerified]);
 
   const moveBack = () => {
     if (!totpVerified) {
@@ -337,8 +357,12 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
                 disabled={
                   !totpForm.formState.isDirty || !totpForm.formState.isValid
                 }
-                data-glean-id="two_step_auth_qr_submit"
-                data-glean-type="setup"
+                data-glean-id={
+                  showQrCode
+                    ? 'two_step_auth_qr_submit'
+                    : 'two_step_auth_manual_code_submit'
+                }
+                data-glean-type={GleanClickEventType2FA.setup}
               >
                 Continue
               </button>
@@ -385,7 +409,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
                 className="cta-neutral cta-base-p mx-2 flex-1"
                 onClick={goHome}
                 data-glean-id="two_step_auth_codes_cancel"
-                data-glean-type="setup"
+                data-glean-type={GleanClickEventType2FA.setup}
               >
                 Cancel
               </button>
@@ -397,7 +421,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
                 className="cta-primary cta-base-p mx-2 flex-1"
                 onClick={onRecoveryCodesAcknowledged}
                 data-glean-id="two_step_auth_codes_submit"
-                data-glean-type="setup"
+                data-glean-type={GleanClickEventType2FA.setup}
               >
                 Continue
               </button>
@@ -438,6 +462,8 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
                 type="button"
                 className="cta-neutral cta-base-p mx-2 flex-1"
                 onClick={goHome}
+                data-glean-id="two_step_auth_enter_code_cancel"
+                data-glean-type={GleanClickEventType2FA.setup}
               >
                 Cancel
               </button>
@@ -452,7 +478,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
                   !recoveryCodeForm.formState.isValid
                 }
                 data-glean-id="two_step_auth_enter_code_submit"
-                data-glean-type="setup"
+                data-glean-type={GleanClickEventType2FA.setup}
               >
                 Finish
               </button>

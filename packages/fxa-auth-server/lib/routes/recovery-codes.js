@@ -104,6 +104,7 @@ module.exports = (log, db, config, customs, mailer, glean) => {
 
         const { recoveryCodes } = request.payload;
         await db.updateRecoveryCodes(uid, recoveryCodes);
+        glean.twoFactorAuth.replaceCodeComplete(request, { uid });
 
         const account = await db.account(uid);
         const { acceptLanguage, clientAddress: geo, ua } = request.app;

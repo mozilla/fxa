@@ -15,6 +15,16 @@ import {
 import { SettingsContext } from '../../../models/contexts/SettingsContext';
 import { useAlertBar } from '../../../models';
 import { MOCK_FULL_PHONE_NUMBER } from '../../../pages/mocks';
+import GleanMetrics from '../../../lib/glean';
+
+jest.mock('../../../lib/glean', () => ({
+  __esModule: true,
+  default: {
+    accountPref: {
+      twoStepAuthPhoneRemoveSuccessView: jest.fn(),
+    },
+  },
+}));
 
 jest.mock('../../../models', () => ({
   ...jest.requireActual('../../../models'),
@@ -44,6 +54,10 @@ describe('PageRecoveryPhoneRemove', () => {
   beforeEach(() => {
     (useAlertBar as jest.Mock).mockReturnValue(alertBar);
     mockNavigate.mockClear();
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   it('renders as expected', () => {
@@ -134,7 +148,10 @@ describe('PageRecoveryPhoneRemove', () => {
       );
     });
 
-    expect(alertBar.success).toHaveBeenCalledWith('Recovery phone removed');
+    expect(alertBar.success).toHaveBeenCalledWith(
+      'Recovery phone removed',
+      GleanMetrics.accountPref.twoStepAuthPhoneRemoveSuccessView
+    );
     expect(mockNavigate).toHaveBeenCalledWith('/settings#security', {
       replace: true,
     });

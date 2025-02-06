@@ -2,6 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import {
+  twoStepAuthDisableModalView,
+  twoStepAuthEnterCodeSuccessView,
+  twoStepAuthPhoneVerifyView,
+} from './accountPref';
+import { backupChoiceSubmit } from './login';
+
 export type GleanMetricsConfig = {
   enabled: boolean;
   applicationId: string;
@@ -72,6 +79,8 @@ export const eventsMap = {
     forgotPassword: 'login_forgot_pwd_submit',
     diffAccountLinkClick: 'login_diff_account_link_click',
     engage: 'login_engage',
+    backupChoiceSubmit: 'login_backup_choice_submit',
+    backupPhoneSuccessView: 'login_backup_phone_success_view',
   },
 
   cachedLogin: {
@@ -169,8 +178,18 @@ export const eventsMap = {
     twoStepAuthScanCodeLink: 'account_pref_two_step_auth_scan_code_link',
     twoStepAuthQrView: 'account_pref_two_step_auth_qr_view',
     twoStepAuthQrCodeSuccess: 'account_pref_two_step_auth_qr_code_success',
+    twoStepAuthManualCodeView: 'account_pref_two_step_auth_manual_code_view',
     twoStepAuthCodesView: 'account_pref_two_step_auth_codes_view',
     twoStepAuthEnterCodeView: 'account_pref_two_step_auth_enter_code_view',
+    twoStepAuthEnterCodeSuccessView:
+      'account_pref_two_step_auth_enter_code_success_view',
+    twoStepAuthPhoneVerifyView: 'account_pref_two_step_auth_phone_verify_view',
+    twoStepAuthPhoneRemoveSuccessView:
+      'account_pref_two_step_auth_phone_remove_success_view',
+    twoStepAuthDisableModalView:
+      'account_pref_two_step_auth_disable_modal_view',
+    twoStepAuthDisableSuccessView:
+      'account_pref_two_step_auth_disable_success_view',
     changePasswordSubmit: 'account_pref_change_password_submit',
     deviceSignout: 'account_pref_device_signout',
     appleSubmit: 'account_pref_apple_submit',

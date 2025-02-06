@@ -363,7 +363,57 @@ export const twoStepAuthCodesView = new EventMetricType(
     lifetime: 'ping',
     disabled: false,
   },
+  ['reason']
+);
+
+/**
+ * User viewed the modal to disable two-step authentication on their account.
+ *
+ * Generated from `account_pref.two_step_auth_disable_modal_view`.
+ */
+export const twoStepAuthDisableModalView = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'two_step_auth_disable_modal_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
   []
+);
+
+/**
+ * User viewed the banner to confirm that two-step authentication has been
+ * disabled on their account.
+ *
+ * Generated from `account_pref.two_step_auth_disable_success_view`.
+ */
+export const twoStepAuthDisableSuccessView = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'two_step_auth_disable_success_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * User viewed the banner to confirm that their authentication code was
+ * successfully entered, either during setup or to get new codes.
+ *
+ * Generated from `account_pref.two_step_auth_enter_code_success_view`.
+ */
+export const twoStepAuthEnterCodeSuccessView = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'two_step_auth_enter_code_success_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  ['reason']
 );
 
 /**
@@ -375,6 +425,57 @@ export const twoStepAuthEnterCodeView = new EventMetricType(
   {
     category: 'account_pref',
     name: 'two_step_auth_enter_code_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  ['reason']
+);
+
+/**
+ * User started the 2FA setup process by viewing step 1 of the funnel with manual
+ * key entry in their authenticator app.
+ *
+ * Generated from `account_pref.two_step_auth_manual_code_view`.
+ */
+export const twoStepAuthManualCodeView = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'two_step_auth_manual_code_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  ['reason']
+);
+
+/**
+ * User viewed the banner to confirm the removal of their phone number from the
+ * account.
+ *
+ * Generated from `account_pref.two_step_auth_phone_remove_success_view`.
+ */
+export const twoStepAuthPhoneRemoveSuccessView = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'two_step_auth_phone_remove_success_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * User viewed the phone verification page (step 2) of the flow to add a recovery
+ * phone from settings.
+ *
+ * Generated from `account_pref.two_step_auth_phone_verify_view`.
+ */
+export const twoStepAuthPhoneVerifyView = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'two_step_auth_phone_verify_view',
     sendInPings: ['events'],
     lifetime: 'ping',
     disabled: false,
@@ -412,7 +513,7 @@ export const twoStepAuthQrView = new EventMetricType(
     lifetime: 'ping',
     disabled: false,
   },
-  []
+  ['reason']
 );
 
 /**
