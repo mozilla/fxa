@@ -161,9 +161,23 @@ export class PaymentsEmitterService {
       priceInterval && priceIntervalCount
         ? getSubplatInterval(priceInterval, priceIntervalCount)
         : undefined;
-    console.log(interval, offeringId);
 
-    // todo record Glean metric
+    this.paymentsGleanManager.recordSubscribeSubscriptionEnded(
+      {
+        cmsMetricsData: {
+          priceId: eventData.priceId,
+          productId: eventData.productId,
+        },
+        cancellationMetrics: {
+          voluntary: eventData.voluntaryCancellation,
+          providerEventId: eventData.providerEventId,
+          subscriptionId: eventData.subscriptionId,
+        },
+      },
+      offeringId,
+      interval,
+      eventData.paymentProvider
+    );
   }
 
   private async retrieveOptOut(uid?: string): Promise<boolean> {

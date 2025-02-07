@@ -45,3 +45,9 @@ export type PaymentsGleanServerEventsLoggerTester = {
   recordPaySetupSuccess: (data: any) => void;
   recordPaySetupFail: (data: any) => void;
 };
+
+export type SubscriptionCancellationData = {
+  voluntary: boolean;
+  providerEventId: string;
+  subscriptionId: string;
+};

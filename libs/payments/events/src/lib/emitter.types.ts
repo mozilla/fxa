@@ -21,7 +21,7 @@ export type SubscriptionEnded = {
   paymentProvider?: PaymentProvidersType;
   providerEventId: string;
   subscriptionId: string;
-  voluntaryCancellation?: boolean;
+  voluntaryCancellation: boolean;
 };
 
 export const PaymentsEmitterEventsKeys = [

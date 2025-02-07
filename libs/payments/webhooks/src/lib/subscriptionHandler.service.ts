@@ -34,7 +34,8 @@ export class SubscriptionEventsService {
     const price = subscription.items.data[0].price;
 
     let paymentProvider: PaymentProvidersType | undefined;
-    let voluntaryCancellation: boolean | undefined;
+    let voluntaryCancellation: boolean;
+    let determinedCancellation: boolean | undefined;
     try {
       const customer = await this.customerManager.retrieve(
         subscription.customer
@@ -53,16 +54,23 @@ export class SubscriptionEventsService {
           ? await this.invoiceManager.retrieve(subscription.latest_invoice)
           : undefined;
 
-      voluntaryCancellation =
+      determinedCancellation =
         paymentProvider &&
         determineCancellation(paymentProvider, subscription, latestInvoice);
     } catch (err) {
       if (err instanceof CustomerDeletedError) {
         paymentProvider = undefined;
-        voluntaryCancellation = undefined;
+        determinedCancellation = undefined;
       } else {
         throw err;
       }
+    }
+
+    if (determinedCancellation === undefined) {
+      // If voluntaryCancellation could not be determined, assume it was not voluntary
+      voluntaryCancellation = false;
+    } else {
+      voluntaryCancellation = determinedCancellation;
     }
 
     this.emitterService.getEmitter().emit('subscriptionEnded', {

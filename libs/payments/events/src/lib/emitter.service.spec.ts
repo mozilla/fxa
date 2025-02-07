@@ -324,8 +324,23 @@ describe('PaymentsEmitterService', () => {
         ],
       }) as EligibilityContentByPlanIdsResult
     );
+    const expectedMetricsData = {
+      cmsMetricsData: {
+        productId: completeEventData.productId,
+        priceId: completeEventData.priceId,
+      },
+      cancellationMetrics: {
+        voluntary: completeEventData.voluntaryCancellation,
+        providerEventId: completeEventData.providerEventId,
+        subscriptionId: completeEventData.subscriptionId,
+      },
+    };
+    const expectedInterval = 'monthly';
 
     beforeEach(() => {
+      jest
+        .spyOn(paymentsGleanManager, 'recordSubscribeSubscriptionEnded')
+        .mockReturnValue();
       jest
         .spyOn(productConfigurationManager, 'getPurchaseDetailsForEligibility')
         .mockResolvedValue(util);
@@ -337,6 +352,63 @@ describe('PaymentsEmitterService', () => {
       expect(
         productConfigurationManager.getPurchaseDetailsForEligibility
       ).toHaveBeenCalledWith([completeEventData.priceId]);
+      expect(
+        paymentsGleanManager.recordSubscribeSubscriptionEnded
+      ).toHaveBeenCalledWith(
+        expectedMetricsData,
+        expect.any(String),
+        expectedInterval,
+        completeEventData.paymentProvider
+      );
+    });
+
+    it('calls manager record method with undefined interval if interval is not provided', async () => {
+      const eventData = {
+        ...completeEventData,
+        priceInterval: undefined,
+      };
+      await paymentsEmitterService.handleSubscriptionEnded(eventData);
+      expect(
+        paymentsGleanManager.recordSubscribeSubscriptionEnded
+      ).toHaveBeenCalledWith(
+        expectedMetricsData,
+        expect.any(String),
+        undefined,
+        completeEventData.paymentProvider
+      );
+    });
+
+    it('calls manager record method with undefined interval if interval count is not provided', async () => {
+      const eventData = {
+        ...completeEventData,
+        priceIntervalCount: undefined,
+      };
+      await paymentsEmitterService.handleSubscriptionEnded(eventData);
+      expect(
+        paymentsGleanManager.recordSubscribeSubscriptionEnded
+      ).toHaveBeenCalledWith(
+        expectedMetricsData,
+        expect.any(String),
+        undefined,
+        completeEventData.paymentProvider
+      );
+    });
+
+    it('calls manager record method with undefined offeringId on cms error', async () => {
+      jest
+        .spyOn(productConfigurationManager, 'getPurchaseDetailsForEligibility')
+        .mockRejectedValue(new Error('bad'));
+
+      const eventData = completeEventData;
+      await paymentsEmitterService.handleSubscriptionEnded(eventData);
+      expect(
+        paymentsGleanManager.recordSubscribeSubscriptionEnded
+      ).toHaveBeenCalledWith(
+        expectedMetricsData,
+        undefined,
+        expectedInterval,
+        completeEventData.paymentProvider
+      );
     });
   });
 });
