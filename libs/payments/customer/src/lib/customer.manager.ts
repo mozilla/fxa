@@ -69,6 +69,13 @@ export class CustomerManager {
     return customer;
   }
 
+  /**
+   * Delete a customer
+   */
+  delete(customerId: string) {
+    return this.stripeClient.customersDelete(customerId);
+  }
+
   async setTaxId(customerId: string, taxId: string) {
     const customerTaxId = await this.getTaxId(customerId);
 

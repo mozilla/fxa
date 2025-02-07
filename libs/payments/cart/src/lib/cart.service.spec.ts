@@ -44,6 +44,8 @@ import {
   StripePaymentIntentFactory,
   StripeCustomerSessionFactory,
   StripeApiListFactory,
+  StripeInvoiceFactory,
+  StripeDeletedInvoiceFactory,
 } from '@fxa/payments/stripe';
 import {
   MockProfileClientConfigProvider,
@@ -197,6 +199,249 @@ describe('CartService', () => {
     productConfigurationManager = moduleRef.get(ProductConfigurationManager);
     subscriptionManager = moduleRef.get(SubscriptionManager);
     paymentMethodManager = moduleRef.get(PaymentMethodManager);
+  });
+
+  describe('wrapCartWithCatch', () => {
+    it('calls cartManager.finishErrorCart', async () => {
+      const mockCart = ResultCartFactory({
+        state: CartState.PROCESSING,
+        stripeSubscriptionId: null,
+        stripeCustomerId: null,
+      });
+      jest
+        .spyOn(cartManager, 'fetchCartById')
+        .mockRejectedValueOnce(new Error('test'))
+        .mockResolvedValue(mockCart);
+      jest.spyOn(cartManager, 'finishErrorCart').mockResolvedValue();
+
+      await expect(
+        cartService.finalizeProcessingCart(mockCart.id)
+      ).rejects.toThrow(Error);
+
+      expect(cartManager.finishErrorCart).toHaveBeenCalled();
+    });
+
+    it('cancels a created subscription', async () => {
+      const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory({
+          customer: mockCustomer.id,
+          latest_invoice: null,
+        })
+      );
+      const mockCart = ResultCartFactory({
+        state: CartState.PROCESSING,
+        stripeSubscriptionId: mockSubscription.id,
+        stripeCustomerId: mockCustomer.id,
+      });
+
+      jest
+        .spyOn(cartManager, 'fetchCartById')
+        .mockRejectedValueOnce(new Error('test'))
+        .mockResolvedValue(mockCart);
+
+      jest.spyOn(cartManager, 'finishErrorCart').mockResolvedValue();
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(mockSubscription);
+      jest
+        .spyOn(subscriptionManager, 'getLatestPaymentIntent')
+        .mockResolvedValue(undefined);
+      jest
+        .spyOn(subscriptionManager, 'cancel')
+        .mockResolvedValue(mockSubscription);
+
+      await expect(
+        cartService.finalizeProcessingCart(mockCart.id)
+      ).rejects.toThrow(Error);
+
+      expect(subscriptionManager.cancel).toHaveBeenCalledWith(
+        mockSubscription.id,
+        {
+          cancellation_details: {
+            comment: 'Automatic Cancellation: Cart checkout failed.',
+          },
+        }
+      );
+    });
+
+    it('deletes a created draft invoice', async () => {
+      const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
+      const mockInvoice = StripeResponseFactory(
+        StripeInvoiceFactory({ status: 'draft' })
+      );
+      const mockDeletedInvoice = StripeResponseFactory(
+        StripeDeletedInvoiceFactory({ id: mockInvoice.id })
+      );
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory({
+          customer: mockCustomer.id,
+          latest_invoice: mockInvoice.id,
+        })
+      );
+      const mockCart = ResultCartFactory({
+        state: CartState.PROCESSING,
+        stripeSubscriptionId: mockSubscription.id,
+        stripeCustomerId: mockCustomer.id,
+      });
+
+      jest
+        .spyOn(cartManager, 'fetchCartById')
+        .mockRejectedValueOnce(new Error('test'))
+        .mockResolvedValue(mockCart);
+
+      jest.spyOn(cartManager, 'finishErrorCart').mockResolvedValue();
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(mockSubscription);
+      jest.spyOn(invoiceManager, 'retrieve').mockResolvedValue(mockInvoice);
+      jest
+        .spyOn(invoiceManager, 'delete')
+        .mockResolvedValue(mockDeletedInvoice);
+      jest
+        .spyOn(subscriptionManager, 'getLatestPaymentIntent')
+        .mockResolvedValue(undefined);
+      jest
+        .spyOn(subscriptionManager, 'cancel')
+        .mockResolvedValue(mockSubscription);
+
+      await expect(
+        cartService.finalizeProcessingCart(mockCart.id)
+      ).rejects.toThrow(Error);
+
+      expect(invoiceManager.delete).toHaveBeenCalledWith(mockInvoice.id);
+    });
+
+    it('voids a created finalized invoice', async () => {
+      const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
+      const mockInvoice = StripeResponseFactory(
+        StripeInvoiceFactory({ status: 'open' })
+      );
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory({
+          customer: mockCustomer.id,
+          latest_invoice: mockInvoice.id,
+        })
+      );
+      const mockCart = ResultCartFactory({
+        state: CartState.PROCESSING,
+        stripeSubscriptionId: mockSubscription.id,
+        stripeCustomerId: mockCustomer.id,
+      });
+
+      jest
+        .spyOn(cartManager, 'fetchCartById')
+        .mockRejectedValueOnce(new Error('test'))
+        .mockResolvedValue(mockCart);
+
+      jest.spyOn(cartManager, 'finishErrorCart').mockResolvedValue();
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(mockSubscription);
+      jest.spyOn(invoiceManager, 'retrieve').mockResolvedValue(mockInvoice);
+      jest.spyOn(invoiceManager, 'void').mockResolvedValue(mockInvoice);
+      jest
+        .spyOn(subscriptionManager, 'getLatestPaymentIntent')
+        .mockResolvedValue(undefined);
+      jest
+        .spyOn(subscriptionManager, 'cancel')
+        .mockResolvedValue(mockSubscription);
+
+      await expect(
+        cartService.finalizeProcessingCart(mockCart.id)
+      ).rejects.toThrow(Error);
+
+      expect(invoiceManager.void).toHaveBeenCalledWith(mockInvoice.id);
+    });
+
+    it('cancels a created payment intent', async () => {
+      const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
+      const mockPaymentIntent = StripeResponseFactory(
+        StripePaymentIntentFactory({ status: 'processing' })
+      );
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory({
+          customer: mockCustomer.id,
+          latest_invoice: null,
+        })
+      );
+      const mockCart = ResultCartFactory({
+        state: CartState.PROCESSING,
+        stripeSubscriptionId: mockSubscription.id,
+        stripeCustomerId: mockCustomer.id,
+      });
+
+      jest
+        .spyOn(cartManager, 'fetchCartById')
+        .mockRejectedValueOnce(new Error('test'))
+        .mockResolvedValue(mockCart);
+
+      jest.spyOn(cartManager, 'finishErrorCart').mockResolvedValue();
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(mockSubscription);
+      jest
+        .spyOn(subscriptionManager, 'getLatestPaymentIntent')
+        .mockResolvedValue(mockPaymentIntent);
+      jest
+        .spyOn(paymentIntentManager, 'cancel')
+        .mockResolvedValue(mockPaymentIntent);
+      jest
+        .spyOn(subscriptionManager, 'cancel')
+        .mockResolvedValue(mockSubscription);
+
+      await expect(
+        cartService.finalizeProcessingCart(mockCart.id)
+      ).rejects.toThrow(Error);
+
+      expect(paymentIntentManager.cancel).toHaveBeenCalledWith(
+        mockPaymentIntent.id
+      );
+    });
+
+    it('does not delete a customer with preexisting subscriptions', async () => {
+      const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory({
+          customer: mockCustomer.id,
+          latest_invoice: null,
+        })
+      );
+      const mockPreviousSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory()
+      );
+      const mockCart = ResultCartFactory({
+        state: CartState.PROCESSING,
+        stripeSubscriptionId: mockSubscription.id,
+        stripeCustomerId: mockCustomer.id,
+      });
+
+      jest
+        .spyOn(cartManager, 'fetchCartById')
+        .mockRejectedValueOnce(new Error('test'))
+        .mockResolvedValue(mockCart);
+
+      jest.spyOn(cartManager, 'finishErrorCart').mockResolvedValue();
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(mockSubscription);
+      jest
+        .spyOn(subscriptionManager, 'getLatestPaymentIntent')
+        .mockResolvedValue(undefined);
+      jest
+        .spyOn(subscriptionManager, 'cancel')
+        .mockResolvedValue(mockSubscription);
+      jest
+        .spyOn(subscriptionManager, 'listForCustomer')
+        .mockResolvedValue([mockPreviousSubscription]);
+      jest.spyOn(customerManager, 'delete');
+
+      await expect(
+        cartService.finalizeProcessingCart(mockCart.id)
+      ).rejects.toThrow(Error);
+
+      expect(customerManager.delete).not.toHaveBeenCalledWith(mockCustomer.id);
+    });
   });
 
   describe('setupCart', () => {
@@ -382,7 +627,12 @@ describe('CartService', () => {
   });
 
   describe('restartCart', () => {
+    const mockStripeCustomerId = faker.string.uuid();
+    const mockAccountCustomer = ResultAccountCustomerFactory({
+      stripeCustomerId: mockStripeCustomerId,
+    });
     const mockOldCart = ResultCartFactory({
+      uid: mockAccountCustomer.uid,
       couponCode: faker.word.noun(),
     });
     const mockNewCart = ResultCartFactory();
@@ -401,6 +651,9 @@ describe('CartService', () => {
         .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
         .mockResolvedValue(undefined);
       jest.spyOn(cartManager, 'createCart').mockResolvedValue(mockNewCart);
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
 
       const result = await cartService.restartCart(mockOldCart.id);
 
@@ -412,7 +665,7 @@ describe('CartService', () => {
         couponCode: mockOldCart.couponCode,
         taxAddress: mockOldCart.taxAddress,
         currency: mockOldCart.currency,
-        stripeCustomerId: mockOldCart.stripeCustomerId,
+        stripeCustomerId: mockAccountCustomer.stripeCustomerId,
         email: mockOldCart.email,
         amount: mockOldCart.amount,
         eligibilityStatus: mockOldCart.eligibilityStatus,

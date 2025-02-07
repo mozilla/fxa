@@ -121,6 +121,20 @@ export class InvoiceManager {
   }
 
   /**
+   * Deletes an invoice. Invoice must be in Draft state.
+   */
+  async delete(invoiceId: string) {
+    return this.stripeClient.invoicesDelete(invoiceId);
+  }
+
+  /**
+   * Voids an invoice. Invoice must be in Open or Uncollectable states.
+   */
+  async void(invoiceId: string) {
+    return this.stripeClient.invoicesVoid(invoiceId);
+  }
+
+  /**
    * Process an invoice when amount is greater than minimum amount
    */
   async processPayPalNonZeroInvoice(
@@ -175,10 +189,9 @@ export class InvoiceManager {
     } satisfies ChargeOptions;
     let paypalCharge: ChargeResponse;
     try {
-      [paypalCharge] = await Promise.all([
-        this.paypalClient.chargeCustomer(chargeOptions),
-        this.stripeClient.invoicesFinalizeInvoice(invoice.id),
-      ]);
+      // Charge the PayPal customer after the invoice is finalized to prevent charges with a failed invoice
+      await this.stripeClient.invoicesFinalizeInvoice(invoice.id);
+      paypalCharge = await this.paypalClient.chargeCustomer(chargeOptions);
     } catch (error) {
       if (PayPalClientError.hasPayPalNVPError(error)) {
         PayPalClientError.throwPaypalCodeError(error);
