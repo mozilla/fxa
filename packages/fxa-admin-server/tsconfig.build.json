@@ -7,6 +7,7 @@
       "@fxa/payments/stripe": ["libs/payments/stripe/src/index"],
       "@fxa/payments/paypal": ["libs/payments/paypal/src/index"],
       "@fxa/payments/customer": ["libs/payments/customer/src/index"],
+      "@fxa/payments/currency": ["libs/payments/currency/src/index"],
       "@fxa/shared/cms": ["libs/shared/cms/src/index"],
       "@fxa/shared/cloud-tasks": ["libs/shared/cloud-tasks/src/index"],
       "@fxa/shared/db/firestore": ["libs/shared/db/firestore/src/index"],

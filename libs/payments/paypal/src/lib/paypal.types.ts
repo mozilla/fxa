@@ -23,6 +23,7 @@ export interface ChargeOptions {
   amountInCents: number;
   billingAgreementId: string;
   currencyCode: string;
+  countryCode: string;
   idempotencyKey: string;
   invoiceNumber: string;
   ipaddress?: string;

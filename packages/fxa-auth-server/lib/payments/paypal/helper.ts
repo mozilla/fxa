@@ -52,6 +52,7 @@ export type ChargeCustomerOptions = {
   amountInCents: number;
   billingAgreementId: string;
   currencyCode: string;
+  countryCode: string;
   idempotencyKey: string;
   invoiceNumber: string;
   ipaddress?: string;
@@ -277,6 +278,7 @@ export class PayPalHelper {
       ),
       billingAgreementId: options.billingAgreementId,
       currencyCode: options.currencyCode,
+      countryCode: options.countryCode,
       idempotencyKey: options.idempotencyKey,
       invoiceNumber: options.invoiceNumber,
       ...(options.ipaddress && { ipaddress: options.ipaddress }),
@@ -483,6 +485,18 @@ export class PayPalHelper {
       paymentAttempt
     );
 
+    const countryCode: string =
+      invoice.customer_shipping?.address?.country ??
+      this.currencyHelper.currencyToCountryMap[
+        invoice.currency.toUpperCase()
+      ][0];
+
+    if (!countryCode) {
+      throw error.internalValidationError('processInvoice', {
+        message: 'Invalid country code',
+      });
+    }
+
     const promises: Promise<any>[] = [
       this.chargeCustomer({
         amountInCents: invoice.amount_due,
@@ -490,6 +504,7 @@ export class PayPalHelper {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         invoiceNumber: invoice.id!,
         currencyCode: invoice.currency,
+        countryCode,
         idempotencyKey,
         ...(ipaddress && { ipaddress }),
         ...(invoice.tax && { taxAmountInCents: invoice.tax }),

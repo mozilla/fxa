@@ -17,6 +17,7 @@ import {
   PayPalClient,
   PayPalClientError,
 } from '@fxa/payments/paypal';
+import { CurrencyManager } from '@fxa/payments/currency';
 import {
   InvoicePreview,
   STRIPE_CUSTOMER_METADATA,
@@ -36,7 +37,8 @@ import {
 export class InvoiceManager {
   constructor(
     private stripeClient: StripeClient,
-    private paypalClient: PayPalClient
+    private paypalClient: PayPalClient,
+    private currencyManager: CurrencyManager
   ) {}
 
   async finalizeWithoutAutoAdvance(invoiceId: string) {
@@ -142,6 +144,17 @@ export class InvoiceManager {
       );
     }
 
+    const countryCode =
+      invoice.customer_shipping?.address?.country ??
+      this.currencyManager.getDefaultCountryForCurrency(
+        invoice.currency.toUpperCase()
+      );
+    if (!countryCode) {
+      throw new Error(
+        'No valid country code could be found for invoice or currency'
+      );
+    }
+
     // PayPal allows for idempotent retries on payment attempts to prevent double charging.
     const paymentAttemptCount = parseInt(
       invoice?.metadata?.[STRIPE_INVOICE_METADATA.RetryAttempts] ?? '0'
@@ -155,6 +168,7 @@ export class InvoiceManager {
         customer.metadata[STRIPE_CUSTOMER_METADATA.PaypalAgreement],
       invoiceNumber: invoice.id,
       currencyCode: invoice.currency,
+      countryCode,
       idempotencyKey,
       ...(ipaddress && { ipaddress }),
       ...(invoice.tax !== null && { taxAmountInCents: invoice.tax }),

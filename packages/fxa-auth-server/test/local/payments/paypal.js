@@ -52,6 +52,7 @@ describe('PayPalHelper', () => {
     total: 1234,
     currency: 'usd',
     period_end: 1587426018,
+    customer_shipping: { address: { country: 'US' } },
     lines: {
       data: [
         {
@@ -229,6 +230,7 @@ describe('PayPalHelper', () => {
       amountInCents: 1099,
       billingAgreementId: 'B-12345',
       currencyCode: 'usd',
+      countryCode: 'US',
       invoiceNumber: 'in_asdf',
       idempotencyKey: ' in_asdf-0',
     };
@@ -247,6 +249,7 @@ describe('PayPalHelper', () => {
         invoiceNumber: validOptions.invoiceNumber,
         idempotencyKey: validOptions.idempotencyKey,
         currencyCode: validOptions.currencyCode,
+        countryCode: validOptions.countryCode,
       };
       assert.ok(
         paypalHelper.client.doReferenceTransaction.calledOnceWith(
@@ -292,6 +295,7 @@ describe('PayPalHelper', () => {
         invoiceNumber: options.invoiceNumber,
         idempotencyKey: options.idempotencyKey,
         currencyCode: options.currencyCode,
+        countryCode: options.countryCode,
         taxAmount:
           paypalHelper.currencyHelper.getPayPalAmountStringFromAmountInCents(
             options.taxAmountInCents
@@ -982,6 +986,7 @@ describe('PayPalHelper', () => {
         amountInCents: validInvoice.amount_due,
         billingAgreementId: agreementId,
         currencyCode: validInvoice.currency,
+        countryCode: validInvoice.customer_shipping.address.country,
         invoiceNumber: validInvoice.id,
         idempotencyKey: paypalHelper.generateIdempotencyKey(
           validInvoice.id,
@@ -1019,6 +1024,7 @@ describe('PayPalHelper', () => {
         amountInCents: validInvoice.amount_due,
         billingAgreementId: agreementId,
         currencyCode: validInvoice.currency,
+        countryCode: validInvoice.customer_shipping.address.country,
         invoiceNumber: validInvoice.id,
         idempotencyKey: paypalHelper.generateIdempotencyKey(
           validInvoice.id,
@@ -1055,6 +1061,7 @@ describe('PayPalHelper', () => {
         amountInCents: validInvoice.amount_due,
         billingAgreementId: agreementId,
         currencyCode: validInvoice.currency,
+        countryCode: validInvoice.customer_shipping.address.country,
         invoiceNumber: validInvoice.id,
         idempotencyKey: paypalHelper.generateIdempotencyKey(
           validInvoice.id,
@@ -1104,6 +1111,7 @@ describe('PayPalHelper', () => {
         amountInCents: validInvoice.amount_due,
         billingAgreementId: agreementId,
         currencyCode: validInvoice.currency,
+        countryCode: validInvoice.customer_shipping.address.country,
         invoiceNumber: validInvoice.id,
         idempotencyKey: paypalHelper.generateIdempotencyKey(
           validInvoice.id,
@@ -1147,6 +1155,7 @@ describe('PayPalHelper', () => {
         amountInCents: validInvoice.amount_due,
         billingAgreementId: agreementId,
         currencyCode: validInvoice.currency,
+        countryCode: validInvoice.customer_shipping.address.country,
         invoiceNumber: validInvoice.id,
         idempotencyKey: paypalHelper.generateIdempotencyKey(
           validInvoice.id,
@@ -1201,6 +1210,7 @@ describe('PayPalHelper', () => {
         amountInCents: validInvoice.amount_due,
         billingAgreementId: agreementId,
         currencyCode: validInvoice.currency,
+        countryCode: validInvoice.customer_shipping.address.country,
         invoiceNumber: validInvoice.id,
         idempotencyKey: paypalHelper.generateIdempotencyKey(
           validInvoice.id,
