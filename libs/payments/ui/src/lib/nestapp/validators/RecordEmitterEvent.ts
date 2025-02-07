@@ -10,8 +10,8 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator';
-import { PaymentsEmitterEventsKeys } from '../../emitter/emitter.types';
-import type { PaymentsEmitterEventsKeysType } from '../../emitter/emitter.types';
+import { PaymentsEmitterEventsKeys } from '@fxa/payments/events';
+import type { PaymentsEmitterEventsKeysType } from '@fxa/payments/events';
 import {
   PaymentProvidersTypePartial,
   type PaymentProvidersType,

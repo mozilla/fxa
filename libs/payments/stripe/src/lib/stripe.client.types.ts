@@ -155,6 +155,11 @@ export type StripeInvoiceLineItem = NegotiateExpanded<
 >;
 
 /**
+ * Stripe.Event with expanded fields removed
+ */
+export type StripeEvent = NegotiateExpanded<never, Stripe.Event, never>;
+
+/**
  * Stripe.Invoice with expanded fields removed
  */
 export type StripeInvoice = NegotiateExpanded<

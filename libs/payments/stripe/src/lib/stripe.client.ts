@@ -51,6 +51,14 @@ export class StripeClient {
     );
   }
 
+  constructWebhookEvent(payload: any, signature: string): Stripe.Event {
+    return this.stripe.webhooks.constructEvent(
+      payload,
+      signature,
+      this.stripeConfig.webhookSecret
+    );
+  }
+
   async customersRetrieve(
     customerId: string,
     params?: Stripe.CustomerRetrieveParams

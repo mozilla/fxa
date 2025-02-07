@@ -10,9 +10,12 @@ import {
   CheckoutEvents,
   CheckoutPaymentEvents,
   PaymentsEmitterEvents,
+  SubscriptionEnded,
 } from './emitter.types';
-import { retrieveAdditionalMetricsData } from './util/retrieveAdditionalData';
 import { AccountManager } from '@fxa/shared/account/account';
+import { retrieveAdditionalMetricsData } from './util/retrieveAdditionalMetricsData';
+import { getSubplatInterval } from '@fxa/payments/customer';
+import * as Sentry from '@sentry/nestjs';
 
 @Injectable()
 export class PaymentsEmitterService {
@@ -30,6 +33,10 @@ export class PaymentsEmitterService {
     this.emitter.on('checkoutSubmit', this.handleCheckoutSubmit.bind(this));
     this.emitter.on('checkoutSuccess', this.handleCheckoutSuccess.bind(this));
     this.emitter.on('checkoutFail', this.handleCheckoutFail.bind(this));
+    this.emitter.on(
+      'subscriptionEnded',
+      this.handleSubscriptionEnded.bind(this)
+    );
   }
 
   getEmitter(): Emittery<PaymentsEmitterEvents> {
@@ -134,6 +141,29 @@ export class PaymentsEmitterService {
         eventData.paymentProvider
       );
     }
+  }
+
+  async handleSubscriptionEnded(eventData: SubscriptionEnded) {
+    const { priceId, priceInterval, priceIntervalCount } = eventData;
+    let offeringId: string | undefined;
+    try {
+      const cms =
+        await this.productConfigurationManager.getPurchaseDetailsForEligibility(
+          [priceId]
+        );
+      const offering = cms?.offeringForPlanId(priceId);
+      offeringId = offering?.apiIdentifier;
+    } catch (error) {
+      Sentry.captureException(error);
+    }
+
+    const interval =
+      priceInterval && priceIntervalCount
+        ? getSubplatInterval(priceInterval, priceIntervalCount)
+        : undefined;
+    console.log(interval, offeringId);
+
+    // todo record Glean metric
   }
 
   private async retrieveOptOut(uid?: string): Promise<boolean> {

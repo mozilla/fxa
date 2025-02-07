@@ -35,6 +35,11 @@ import {
 import { PaymentsGleanManager } from '@fxa/payments/metrics';
 import { PaymentsGleanFactory } from '@fxa/payments/metrics/provider';
 import { AccountCustomerManager, StripeClient } from '@fxa/payments/stripe';
+import {
+  StripeEventManager,
+  StripeWebhookService,
+  SubscriptionEventsService,
+} from '@fxa/payments/webhooks';
 import { ProfileClient } from '@fxa/profile/client';
 import { AccountManager } from '@fxa/shared/account/account';
 import { ProductConfigurationManager, StrapiClient } from '@fxa/shared/cms';
@@ -50,7 +55,7 @@ import { RootConfig } from './config';
 import { NextJSActionsService } from './nextjs-actions.service';
 import { validate } from '../config.utils';
 import { CurrencyManager } from '@fxa/payments/currency';
-import { PaymentsEmitterService } from '../emitter/emitter.service';
+import { PaymentsEmitterService } from '@fxa/payments/events';
 
 @Module({
   imports: [
@@ -114,6 +119,9 @@ import { PaymentsEmitterService } from '../emitter/emitter.service';
     PaymentsGleanFactory,
     PaymentsGleanManager,
     PaymentsEmitterService,
+    StripeEventManager,
+    SubscriptionEventsService,
+    StripeWebhookService,
     { provide: LOGGER_PROVIDER, useValue: logger },
   ],
 })

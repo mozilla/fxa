@@ -11,6 +11,9 @@ export class StripeConfig {
   @IsString()
   public readonly apiKey!: string;
 
+  @IsString()
+  public readonly webhookSecret!: string;
+
   @Transform(
     ({ value }) => (value instanceof Object ? value : JSON.parse(value)),
     { toClassOnly: true }
@@ -21,6 +24,7 @@ export class StripeConfig {
 
 export const MockStripeConfig = {
   apiKey: faker.string.uuid(),
+  webhookSecret: faker.string.uuid(),
   taxIds: { EUR: 'EU1234' },
 } satisfies StripeConfig;
 
