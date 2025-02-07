@@ -441,15 +441,15 @@ export class CapabilityService {
         subscriptionEligibilityResult: SubscriptionEligibilityResult.INVALID,
       };
     const stripePlanIds = stripeSubscribedPlans.map((p) => p.plan_id);
-    const stripeOverlaps = await this.eligibilityManager.getOfferingOverlap(
-      stripePlanIds,
-      targetPlan.plan_id
-    );
+    const stripeOverlaps = await this.eligibilityManager.getOfferingOverlap({
+      priceIds: stripePlanIds,
+      targetPriceId: targetPlan.plan_id,
+    });
     const iapPlanIds = iapSubscribedPlans.map((p) => p.plan_id);
-    const iapOverlaps = await this.eligibilityManager.getOfferingOverlap(
-      iapPlanIds,
-      targetPlan.plan_id
-    );
+    const iapOverlaps = await this.eligibilityManager.getOfferingOverlap({
+      priceIds: iapPlanIds,
+      targetPriceId: targetPlan.plan_id,
+    });
     const overlaps = [...stripeOverlaps, ...iapOverlaps];
 
     // No overlap, we can create a new subscription

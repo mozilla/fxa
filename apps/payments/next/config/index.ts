@@ -133,6 +133,9 @@ export class PaymentsNextConfig extends NestAppRootConfig {
   @IsString()
   subscriptionsUnsupportedLocations!: string;
 
+  @IsUrl({ require_tld: false })
+  supportUrl!: string;
+
   /**
    * Nextjs Public Environment Variables
    */

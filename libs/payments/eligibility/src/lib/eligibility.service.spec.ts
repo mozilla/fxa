@@ -140,10 +140,10 @@ describe('EligibilityService', () => {
       expect(subscriptionManager.listForCustomer).toHaveBeenCalledWith(
         mockCustomer.id
       );
-      expect(eligibilityManager.getOfferingOverlap).toHaveBeenCalledWith(
-        [],
-        mockOffering.apiIdentifier
-      );
+      expect(eligibilityManager.getOfferingOverlap).toHaveBeenCalledWith({
+        priceIds: [],
+        providedTargetOffering: mockOffering,
+      });
       expect(eligibilityManager.compareOverlap).toHaveBeenCalledWith(
         mockOverlapResult,
         mockOffering,

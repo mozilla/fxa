@@ -645,6 +645,10 @@ describe('CapabilityService', () => {
             SubscriptionEligibilityResult.BLOCKED_IAP,
           eligibleSourcePlan: mockPlanTier1ShortInterval,
         });
+        sinon.assert.calledWith(mockEligibilityManager.getOfferingOverlap, {
+          priceIds: [mockPlanTier1ShortInterval.plan_id],
+          targetPriceId: mockPlanTier1LongInterval.plan_id,
+        });
       });
 
       it('returns create for targetPlan with offering user is not subscribed to', async () => {
@@ -657,6 +661,10 @@ describe('CapabilityService', () => {
           );
         assert.deepEqual(actual, {
           subscriptionEligibilityResult: SubscriptionEligibilityResult.CREATE,
+        });
+        sinon.assert.calledWith(mockEligibilityManager.getOfferingOverlap, {
+          priceIds: [],
+          targetPriceId: mockPlanTier1ShortInterval.plan_id,
         });
       });
 
@@ -681,6 +689,10 @@ describe('CapabilityService', () => {
         assert.deepEqual(actual, {
           subscriptionEligibilityResult: SubscriptionEligibilityResult.UPGRADE,
           eligibleSourcePlan: mockPlanTier1ShortInterval,
+        });
+        sinon.assert.calledWith(mockEligibilityManager.getOfferingOverlap, {
+          priceIds: [mockPlanTier1ShortInterval.plan_id],
+          targetPriceId: mockPlanTier2LongInterval.plan_id,
         });
       });
 
@@ -707,6 +719,10 @@ describe('CapabilityService', () => {
             SubscriptionEligibilityResult.DOWNGRADE,
           eligibleSourcePlan: undefined,
         });
+        sinon.assert.calledWith(mockEligibilityManager.getOfferingOverlap, {
+          priceIds: [mockPlanTier2LongInterval.plan_id],
+          targetPriceId: mockPlanTier1ShortInterval.plan_id,
+        });
       });
 
       it('returns upgrade for targetPlan with offering user is subscribed to a higher interval of', async () => {
@@ -730,6 +746,10 @@ describe('CapabilityService', () => {
         assert.deepEqual(actual, {
           subscriptionEligibilityResult: SubscriptionEligibilityResult.UPGRADE,
           eligibleSourcePlan: mockPlanTier1ShortInterval,
+        });
+        sinon.assert.calledWith(mockEligibilityManager.getOfferingOverlap, {
+          priceIds: [mockPlanTier1ShortInterval.plan_id],
+          targetPriceId: mockPlanTier1LongInterval.plan_id,
         });
       });
 
@@ -755,6 +775,10 @@ describe('CapabilityService', () => {
           subscriptionEligibilityResult: SubscriptionEligibilityResult.UPGRADE,
           eligibleSourcePlan: mockPlanTier1ShortInterval,
         });
+        sinon.assert.calledWith(mockEligibilityManager.getOfferingOverlap, {
+          priceIds: [mockPlanTier1ShortInterval.plan_id],
+          targetPriceId: mockPlanTier2ShortInterval.plan_id,
+        });
       });
 
       it('returns upgrade for targetPlan with same offering and longer interval', async () => {
@@ -778,6 +802,10 @@ describe('CapabilityService', () => {
         assert.deepEqual(actual, {
           subscriptionEligibilityResult: SubscriptionEligibilityResult.UPGRADE,
           eligibleSourcePlan: mockPlanTier1ShortInterval,
+        });
+        sinon.assert.calledWith(mockEligibilityManager.getOfferingOverlap, {
+          priceIds: [mockPlanTier1ShortInterval.plan_id],
+          targetPriceId: mockPlanTier1LongInterval.plan_id,
         });
       });
 
@@ -806,6 +834,10 @@ describe('CapabilityService', () => {
             SubscriptionEligibilityResult.DOWNGRADE,
           eligibleSourcePlan: mockPlanTier1LongInterval,
         });
+        sinon.assert.calledWith(mockEligibilityManager.getOfferingOverlap, {
+          priceIds: [mockPlanTier1LongInterval.plan_id],
+          targetPriceId: mockPlanTier2ShortInterval.plan_id,
+        });
       });
 
       it('returns invalid for targetPlan with same offering user is subscribed to', async () => {
@@ -829,6 +861,10 @@ describe('CapabilityService', () => {
         assert.deepEqual(actual, {
           subscriptionEligibilityResult: SubscriptionEligibilityResult.INVALID,
         });
+        sinon.assert.calledWith(mockEligibilityManager.getOfferingOverlap, {
+          priceIds: [mockPlanTier1ShortInterval.plan_id],
+          targetPriceId: mockPlanTier1ShortInterval.plan_id,
+        });
       });
 
       it('returns invalid for targetPlan with same offering user is subscribed to but different currency', async () => {
@@ -851,6 +887,10 @@ describe('CapabilityService', () => {
           );
         assert.deepEqual(actual, {
           subscriptionEligibilityResult: SubscriptionEligibilityResult.INVALID,
+        });
+        sinon.assert.calledWith(mockEligibilityManager.getOfferingOverlap, {
+          priceIds: [mockPlanTier2LongInterval.plan_id],
+          targetPriceId: mockPlanTier2LongIntervalDiffCurr.plan_id,
         });
       });
     });

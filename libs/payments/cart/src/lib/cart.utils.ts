@@ -34,7 +34,7 @@ export const cartEligibilityDetailsMap: Record<
   [EligibilityStatus.DOWNGRADE]: {
     eligibilityStatus: CartEligibilityStatus.DOWNGRADE,
     state: CartState.FAIL,
-    errorReasonId: CartErrorReasonId.BASIC_ERROR,
+    errorReasonId: CartErrorReasonId.CartEligibilityStatusDowngrade,
   },
   [EligibilityStatus.BLOCKED_IAP]: {
     eligibilityStatus: CartEligibilityStatus.BLOCKED_IAP,
@@ -44,7 +44,7 @@ export const cartEligibilityDetailsMap: Record<
   [EligibilityStatus.INVALID]: {
     eligibilityStatus: CartEligibilityStatus.INVALID,
     state: CartState.FAIL,
-    errorReasonId: CartErrorReasonId.Unknown,
+    errorReasonId: CartErrorReasonId.CartEligibilityStatusInvalid,
   },
 };
 

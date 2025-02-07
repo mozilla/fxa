@@ -27,7 +27,11 @@ import {
 } from '@fxa/payments/stripe';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
 import { CurrencyManager } from '@fxa/payments/currency';
-import { CartErrorReasonId, CartState } from '@fxa/shared/db/mysql/account';
+import {
+  CartEligibilityStatus,
+  CartErrorReasonId,
+  CartState,
+} from '@fxa/shared/db/mysql/account';
 import { GeoDBManager } from '@fxa/shared/geodb';
 
 import { CartManager } from './cart.manager';
@@ -217,6 +221,20 @@ export class CartService {
       eligibilityStatus: cartEligibilityStatus,
       couponCode: args.promoCode,
     });
+
+    if (cartEligibilityStatus === CartEligibilityStatus.INVALID) {
+      await this.finalizeCartWithError(
+        cart.id,
+        CartErrorReasonId.CartEligibilityStatusInvalid
+      );
+    }
+
+    if (cartEligibilityStatus === CartEligibilityStatus.DOWNGRADE) {
+      await this.finalizeCartWithError(
+        cart.id,
+        CartErrorReasonId.CartEligibilityStatusDowngrade
+      );
+    }
 
     return cart;
   }

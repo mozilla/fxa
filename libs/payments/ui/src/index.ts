@@ -20,6 +20,7 @@ export * from './lib/client/components/LoadingSpinner';
 export * from './lib/client/components/MetricsWrapper';
 export * from './lib/client/components/StripeWrapper';
 export * from './lib/client/providers/Providers';
+export * from './lib/constants';
 export * from './lib/utils/helpers';
 export * from './lib/utils/types';
 export * from './lib/utils/get-cart';

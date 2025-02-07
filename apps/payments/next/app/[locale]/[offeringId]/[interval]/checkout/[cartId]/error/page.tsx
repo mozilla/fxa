@@ -19,17 +19,39 @@ import {
   recordEmitterEventAction,
 } from '@fxa/payments/ui/actions';
 import { CartErrorReasonId } from '@fxa/shared/db/mysql/account';
+import { config } from 'apps/payments/next/config';
 
 // forces dynamic rendering
 // https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config
 export const dynamic = 'force-dynamic';
 
-const getErrorReason = (reason: CartErrorReasonId | null) => {
+const getErrorReason = (
+  reason: CartErrorReasonId | null,
+  params: CheckoutParams
+) => {
   switch (reason) {
+    case 'cart_eligibility_status_downgrade':
+      return {
+        buttonFtl: 'checkout-error-contact-support-button',
+        buttonLabel: 'Contact Support',
+        buttonUrl: config.supportUrl,
+        message: 'Please contact support so we can help you.',
+        messageFtl: 'checkout-error-contact-support',
+      };
+    case 'cart_eligibility_status_invalid':
+      return {
+        buttonFtl: 'checkout-error-contact-support-button',
+        buttonLabel: 'Contact Support',
+        buttonUrl: config.supportUrl,
+        message:
+          'You are not eligible to subscribe to this product - please contact support so we can help you.',
+        messageFtl: 'checkout-error-not-eligible',
+      };
     case 'iap_upgrade_contact_support':
       return {
         buttonFtl: 'next-payment-error-manage-subscription-button',
         buttonLabel: 'Manage my subscription',
+        buttonUrl: `/${params.offeringId}/${params.interval}/landing`,
         message:
           'You can still get this product — please contact support so we can help you.',
         messageFtl: 'next-iap-upgrade-contact-support',
@@ -38,6 +60,7 @@ const getErrorReason = (reason: CartErrorReasonId | null) => {
       return {
         buttonFtl: 'next-payment-error-retry-button',
         buttonLabel: 'Try again',
+        buttonUrl: `/${params.offeringId}/${params.interval}/landing`,
         message: 'Something went wrong. Please try again later.',
         messageFtl: 'next-basic-error-message',
       };
@@ -74,7 +97,7 @@ export default async function CheckoutError({
     cart.paymentInfo?.type
   );
 
-  const errorReason = getErrorReason(cart.errorReasonId);
+  const errorReason = getErrorReason(cart.errorReasonId, params);
 
   return (
     <>
@@ -87,12 +110,14 @@ export default async function CheckoutError({
           {l10n.getString(errorReason.messageFtl, errorReason.message)}
         </p>
 
-        <Link
-          className="flex items-center justify-center bg-blue-500 hover:bg-blue-700 font-semibold h-12 my-8 rounded-md text-white w-full"
-          href={`/${params.offeringId}/${params.interval}/landing`}
-        >
-          {l10n.getString(errorReason.buttonFtl, errorReason.buttonLabel)}
-        </Link>
+        {errorReason.buttonUrl && (
+          <Link
+            className="flex items-center justify-center bg-blue-500 hover:bg-blue-700 font-semibold h-12 my-8 rounded-md text-white w-full"
+            href={errorReason.buttonUrl}
+          >
+            {l10n.getString(errorReason.buttonFtl, errorReason.buttonLabel)}
+          </Link>
+        )}
       </section>
     </>
   );
