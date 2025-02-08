@@ -8,6 +8,7 @@ import {
   testAccountDatabaseSetup,
 } from '@fxa/shared/db/mysql/account';
 import { Test } from '@nestjs/testing';
+import { RecoveryPhoneFactory } from '@fxa/shared/db/mysql/account';
 
 describe('RecoveryPhoneManager', () => {
   let recoveryPhoneManager: RecoveryPhoneManager;
