@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { StripePrice } from '@fxa/payments/stripe';
+
 export enum EligibilityStatus {
   CREATE = 'create',
   UPGRADE = 'upgrade',
@@ -27,9 +29,24 @@ export enum IntervalComparison {
 export type OfferingOverlapResult = {
   comparison: OfferingComparison;
   priceId: string;
+  fromOfferingId: string;
 };
 
 export type Interval = {
   unit: 'day' | 'week' | 'month' | 'year';
   count: number;
 };
+
+export type SubscriptionEligibilityResult =
+  | {
+      subscriptionEligibilityResult:
+        | EligibilityStatus.CREATE
+        | EligibilityStatus.INVALID;
+    }
+  | {
+      subscriptionEligibilityResult:
+        | EligibilityStatus.UPGRADE
+        | EligibilityStatus.DOWNGRADE;
+      fromOfferingConfigId: string;
+      fromPrice: StripePrice;
+    };
