@@ -130,7 +130,7 @@ async function run(config) {
   Container.set(AccountManager, accountManager);
 
   const backupCodeManager = new BackupCodeManager(accountDatabase);
-  Container.set('BackupCodeManager', backupCodeManager);
+  Container.set(BackupCodeManager, backupCodeManager);
 
   // Set currencyHelper before stripe and paypal helpers, so they can use it.
   try {

@@ -10,13 +10,14 @@ const validators = require('./validators');
 const { Container } = require('typedi');
 const RECOVERY_CODES_DOCS =
   require('../../docs/swagger/recovery-codes-api').default;
+const { BackupCodeManager } = require('@fxa/accounts/two-factor');
 
 const RECOVERY_CODE_SANE_MAX_LENGTH = 20;
 
 module.exports = (log, db, config, customs, mailer, glean) => {
   const codeConfig = config.recoveryCodes;
   const RECOVERY_CODE_COUNT = (codeConfig && codeConfig.count) || 8;
-  const backupCodeManager = Container.get('BackupCodeManager');
+  const backupCodeManager = Container.get(BackupCodeManager);
 
   // Validate backup authentication codes
   const recoveryCodesSchema = validators.recoveryCodes(

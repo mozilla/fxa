@@ -10,6 +10,7 @@ const getRoute = require('../../routes_helpers').getRoute;
 const mocks = require('../../mocks');
 const error = require('../../../lib/error');
 const { Container } = require('typedi');
+const { BackupCodeManager } = require('@fxa/accounts/two-factor');
 
 let log, db, customs, routes, route, request, requestOptions, mailer, glean;
 const TEST_EMAIL = 'test@email.com';
@@ -69,7 +70,7 @@ describe('backup authentication codes', () => {
         },
       },
     };
-    Container.set('BackupCodeManager', mockBackupCodeManager);
+    Container.set(BackupCodeManager, mockBackupCodeManager);
   });
 
   afterEach(() => {

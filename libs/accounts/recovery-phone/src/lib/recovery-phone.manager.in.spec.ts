@@ -6,12 +6,14 @@ import {
   AccountDatabase,
   AccountDbProvider,
   testAccountDatabaseSetup,
+  RecoveryPhoneFactory,
 } from '@fxa/shared/db/mysql/account';
 import { Test } from '@nestjs/testing';
 
 describe('RecoveryPhoneManager', () => {
   let recoveryPhoneManager: RecoveryPhoneManager;
   let db: AccountDatabase;
+  const dateMock = jest.spyOn(global.Date, 'now');
 
   // Taken from: https://www.twilio.com/docs/lookup/v2-api#code-lookup-with-data-packages
   const mockLookUpData: PhoneNumberLookupData = {
@@ -43,6 +45,7 @@ describe('RecoveryPhoneManager', () => {
   };
 
   beforeAll(async () => {
+    dateMock.mockImplementation(() => 1739227529776);
     db = await testAccountDatabaseSetup([
       'accounts',
       'recoveryPhones',
@@ -67,6 +70,7 @@ describe('RecoveryPhoneManager', () => {
 
   afterAll(async () => {
     await db.destroy();
+    dateMock.mockReset();
   });
 
   it('should get a recovery phone', async () => {
@@ -201,6 +205,7 @@ describe('RecoveryPhoneManager', () => {
     );
 
     const expectedData = JSON.stringify({
+      createdAt: 1739227529776,
       phoneNumber,
       isSetup,
       lookupData: JSON.stringify(mockLookUpData),
