@@ -119,8 +119,14 @@ const SigninTokenCode = ({
     }
   };
 
+  const clearErrorMessages = () => {
+    setLocalizedErrorBannerMessage('');
+    setCodeErrorMessage('');
+  };
+
   const onSubmit = useCallback(
     async (code: string) => {
+      clearErrorMessages();
       if (!SIX_DIGIT_NUMBER_REGEX.test(code)) {
         setCodeErrorMessage(localizedInvalidCode);
         return;

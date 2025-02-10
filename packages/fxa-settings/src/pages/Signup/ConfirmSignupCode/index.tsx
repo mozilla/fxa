@@ -114,7 +114,13 @@ const ConfirmSignupCode = ({
     }
   }
 
+  function clearErrorMessages() {
+    setLocalizedErrorBannerHeading('');
+    setCodeErrorMessage('');
+  }
+
   async function verifySession(code: string) {
+    clearErrorMessages();
     logViewEvent(`flow.${viewName}`, 'submit', REACT_ENTRYPOINT);
     GleanMetrics.signupConfirmation.submit();
     try {
