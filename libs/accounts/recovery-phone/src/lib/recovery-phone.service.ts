@@ -2,11 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, LoggerService } from '@nestjs/common';
 import { SmsManager } from './sms.manager';
 import { OtpManager } from '@fxa/shared/otp';
 import { RecoveryPhoneConfig } from './recovery-phone.service.config';
-import { RecoveryPhoneManager } from './recovery-phone.manager';
+import {
+  PhoneNumberLookupData,
+  RecoveryPhoneManager,
+} from './recovery-phone.manager';
 import {
   RecoveryNumberNotExistsError,
   RecoveryNumberNotSupportedError,
@@ -14,6 +17,7 @@ import {
   RecoveryNumberRemoveMissingBackupCodes,
 } from './recovery-phone.errors';
 import { MessageInstance } from 'twilio/lib/rest/api/v2010/account/message';
+import { LOGGER_PROVIDER } from '@fxa/shared/log';
 
 @Injectable()
 export class RecoveryPhoneService {
@@ -21,7 +25,8 @@ export class RecoveryPhoneService {
     private readonly recoveryPhoneManager: RecoveryPhoneManager,
     private readonly smsManager: SmsManager,
     private readonly otpCode: OtpManager,
-    private readonly config: RecoveryPhoneConfig
+    private readonly config: RecoveryPhoneConfig,
+    @Inject(LOGGER_PROVIDER) private readonly log?: LoggerService
   ) {}
 
   /**
@@ -125,9 +130,16 @@ export class RecoveryPhoneService {
     }
 
     // If this was for a setup operation. Register the phone number to the uid.
-    const lookupData = await this.smsManager.phoneNumberLookup(
-      data.phoneNumber
-    );
+    const lookupData: PhoneNumberLookupData = await (async () => {
+      try {
+        return await this.smsManager.phoneNumberLookup(data.phoneNumber);
+      } catch (error) {
+        this.log?.error('RecoveryPhoneService.confirmSetupCode', error);
+
+        throw new RecoveryNumberNotSupportedError(data.phoneNumber, error);
+      }
+    })();
+
     await this.recoveryPhoneManager.registerPhoneNumber(
       uid,
       data.phoneNumber,

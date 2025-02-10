@@ -14,12 +14,16 @@ import {
   RecoveryPhoneNotEnabled,
   RecoveryNumberRemoveMissingBackupCodes,
 } from './recovery-phone.errors';
+import { LOGGER_PROVIDER } from '@fxa/shared/log';
 
 describe('RecoveryPhoneService', () => {
   const phoneNumber = '+15005551234';
   const uid = '0123456789abcdef0123456789abcdef';
   const code = '000000';
 
+  const mockLogger = {
+    error: jest.fn(),
+  };
   const mockSmsManager = {
     sendSMS: jest.fn(),
     phoneNumberLookup: jest.fn(),
@@ -59,6 +63,10 @@ describe('RecoveryPhoneService', () => {
         {
           provide: RecoveryPhoneConfig,
           useValue: mockRecoveryPhoneConfig,
+        },
+        {
+          provide: LOGGER_PROVIDER,
+          useValue: mockLogger,
         },
         RecoveryPhoneService,
       ],
@@ -214,6 +222,18 @@ describe('RecoveryPhoneService', () => {
 
       expect(result).toBeTruthy();
       expect(mockRecoveryPhoneManager.getUnconfirmed).toBeCalledWith(uid, code);
+    });
+
+    it('can handled failed lookup by throwing PhoneNumberNotSupported error', async () => {
+      mockRecoveryPhoneManager.getUnconfirmed.mockReturnValue({
+        isSetup: true,
+      });
+      mockSmsManager.phoneNumberLookup.mockRejectedValueOnce(new Error('BOOM'));
+
+      const promise = service.confirmSetupCode(uid, code);
+
+      await expect(promise).rejects.toThrow(/Phone number not supported.*/);
+      expect(mockLogger.error).toBeCalledTimes(1);
     });
 
     it('will not confirm a valid sms code for signin', async () => {
