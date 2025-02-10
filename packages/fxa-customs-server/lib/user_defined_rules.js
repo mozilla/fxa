@@ -21,12 +21,7 @@ module.exports = function (config, fetchRecord, setRecords) {
     });
   });
 
-  return async function checkUserDefinedRateLimitRules(
-    result,
-    action,
-    email,
-    ip
-  ) {
+  async function checkUserDefinedRateLimitRulesByKey(result, action) {
     // Get all the user defined rules that might apply to this action
     const checkRules = computedRules.get(action);
 
@@ -35,10 +30,12 @@ module.exports = function (config, fetchRecord, setRecords) {
       return result;
     }
 
+    const keys = [...arguments].slice(2);
+
     const retries = [];
     await Promise.all(
       checkRules.map(async (ruleName) => {
-        const recordKey = ruleName + ':' + utils.createHashHex(email, ip);
+        const recordKey = ruleName + ':' + utils.createHashHex(...keys);
         const record = await fetchRecord(
           recordKey,
           (object) => new Record(object, configuredRules[ruleName])
@@ -60,5 +57,23 @@ module.exports = function (config, fetchRecord, setRecords) {
     }
 
     return result;
+  }
+
+  async function checkUserDefinedRateLimitRulesByIpEmail(
+    result,
+    action,
+    ip,
+    email
+  ) {
+    return checkUserDefinedRateLimitRulesByKey(result, action, ip, email);
+  }
+
+  async function checkUserDefinedRateLimitRulesByUid(result, action, uid) {
+    return checkUserDefinedRateLimitRulesByKey(result, action, uid);
+  }
+
+  return {
+    checkUserDefinedRateLimitRulesByIpEmail,
+    checkUserDefinedRateLimitRulesByUid,
   };
 };

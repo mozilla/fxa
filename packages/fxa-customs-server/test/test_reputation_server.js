@@ -69,7 +69,6 @@ async function init(config) {
     path: '/mostRecentViolation/{ip}',
     handler: async (req) => {
       var ip = req.params.ip;
-      console.log('delete req', req.url);
       delete mostRecentViolationByIp[ip];
       return {};
     },
