@@ -2,7 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { AdminPanelEnv } from './AdminPanelGuard';
+/** Enum for known environment names */
+// TODO: Refactor to be called GuardEnv... This isn't really specific to the admin panel...
+export enum AdminPanelEnv {
+  Prod = 'prod',
+  Stage = 'stage',
+}
 
 /* The maximum value that should be allowed for a permission level. */
 export const MaxPermissionLevel = 100;

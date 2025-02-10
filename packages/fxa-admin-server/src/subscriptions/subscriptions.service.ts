@@ -2,9 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Injectable, Inject, LoggerService } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { AbbrevPlan } from 'fxa-shared/subscriptions/types';
 import Stripe from 'stripe';
 import { MozSubscription } from '../gql/model/moz-subscription.model';
@@ -16,6 +15,7 @@ import {
   PlayStoreFormatter,
   StripeFormatter,
 } from './subscriptions.formatters';
+import { MozLoggerService } from '@fxa/shared/mozlog';
 
 /**
  * List of valid of subscription statuses. This should be all known
@@ -60,7 +60,7 @@ export class SubscriptionsService {
    */
   constructor(
     protected readonly configService: ConfigService,
-    @Inject(LOGGER_PROVIDER) protected readonly logger: LoggerService,
+    protected readonly logger: MozLoggerService,
     protected readonly stripeService: StripeService,
     protected readonly appStoreService: AppStoreService,
     protected readonly playStoreService: PlayStoreService

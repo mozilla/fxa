@@ -1,7 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -11,6 +10,7 @@ import { testDatabaseSetup } from 'fxa-shared/test/db/helpers';
 import { Knex } from 'knex';
 import config, { AppConfig } from '../config';
 import { DatabaseService } from './database.service';
+import { MozLoggerService } from '@fxa/shared/mozlog';
 
 describe('#integration - DatabaseService', () => {
   let service: DatabaseService;
@@ -54,8 +54,8 @@ describe('#integration - DatabaseService', () => {
       warn: jest.fn(),
       trace: jest.fn(),
     };
-    const MockLogService: Provider = {
-      provide: LOGGER_PROVIDER,
+    const MockMozLoggerService: Provider = {
+      provide: MozLoggerService,
       useValue: logger,
     };
     const MockMetricsFactory: Provider = {
@@ -66,7 +66,7 @@ describe('#integration - DatabaseService', () => {
       providers: [
         DatabaseService,
         MockConfig,
-        MockLogService,
+        MockMozLoggerService,
         MockMetricsFactory,
       ],
     }).compile();

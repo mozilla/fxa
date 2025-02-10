@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { MozLoggerService } from '@fxa/shared/mozlog';
 import { Firestore } from '@google-cloud/firestore';
 import { Inject, Injectable } from '@nestjs/common';
@@ -17,10 +16,7 @@ import { AppConfig } from '../config';
  */
 @Injectable()
 export class AppStoreHelperService extends AppStoreHelper {
-  constructor(
-    configService: ConfigService,
-    @Inject(LOGGER_PROVIDER) logger: MozLoggerService
-  ) {
+  constructor(configService: ConfigService, logger: MozLoggerService) {
     const config = { subscriptions: configService.get('subscriptions') };
     super(config, logger);
   }
@@ -34,7 +30,7 @@ export class AppStorePurchaseManagerService extends PurchaseManager {
   constructor(
     appStoreHelper: AppStoreHelperService,
     configService: ConfigService<AppConfig>,
-    @Inject(LOGGER_PROVIDER) logger: MozLoggerService,
+    logger: MozLoggerService,
     @Inject(FirestoreService) firestore: Firestore
   ) {
     const config = {
@@ -51,12 +47,6 @@ export class AppStorePurchaseManagerService extends PurchaseManager {
  */
 @Injectable()
 export class AppStoreService {
-  /**
-   * Create new instance
-   * @param configService - application's config
-   * @param logger - application's logger
-   * @param firestore - firestore reference backing data queried from app store api
-   */
   constructor(
     protected readonly purchaseManager: AppStorePurchaseManagerService
   ) {}

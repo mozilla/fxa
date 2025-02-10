@@ -2,18 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { LOGGER_PROVIDER } from '@fxa/shared/log';
+import { MozLoggerService } from '@fxa/shared/mozlog';
 import { ExecutionContext, Provider } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Test, TestingModule } from '@nestjs/testing';
+import { createMock } from '@golevelup/ts-jest';
+
 import {
   AdminPanelFeature,
   AdminPanelGroup,
   USER_GROUP_HEADER,
 } from 'fxa-shared/guards';
 import { UserGroupGuard } from './user-group-header.guard';
-
-import { createMock } from '@golevelup/ts-jest';
 
 describe('UserGroupGuard for graphql', () => {
   let module: TestingModule;
@@ -50,7 +50,7 @@ describe('UserGroupGuard for graphql', () => {
   beforeEach(async () => {
     logger = { debug: jest.fn(), error: jest.fn(), info: jest.fn() };
     const MockMozLogger: Provider = {
-      provide: LOGGER_PROVIDER,
+      provide: MozLoggerService,
       useValue: logger,
     };
 

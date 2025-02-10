@@ -1,10 +1,9 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { LOGGER_PROVIDER } from '@fxa/shared/log';
-import { Inject, UseGuards } from '@nestjs/common';
+import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Resolver } from '@nestjs/graphql';
-import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
+import { MozLoggerService } from '@fxa/shared/mozlog';
 
 import { AdminPanelFeature } from 'fxa-shared/guards';
 import { CurrentUser } from '../../auth/auth-header.decorator';
@@ -21,7 +20,7 @@ import { EmailBounce as EmailBounceType } from '../../gql/model/email-bounces.mo
 @Resolver((of: any) => EmailBounceType)
 export class EmailBounceResolver {
   constructor(
-    @Inject(LOGGER_PROVIDER) private log: MozLoggerService,
+    private log: MozLoggerService,
     private db: DatabaseService,
     private eventLogging: EventLoggingService
   ) {}

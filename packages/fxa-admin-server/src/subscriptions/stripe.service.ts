@@ -3,15 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { ProductConfigurationManager } from '@fxa/shared/cms';
-import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { Firestore } from '@google-cloud/firestore';
-import {
-  Inject,
-  Injectable,
-  LoggerService,
-  OnModuleDestroy,
-  Provider,
-} from '@nestjs/common';
+import { Inject, Injectable, OnModuleDestroy, Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PaymentConfigManager } from 'fxa-shared/payments/configuration/manager';
 import {
@@ -34,6 +27,7 @@ import Stripe from 'stripe';
 import { FirestoreService } from '../backend/firestore.service';
 import { AppConfig } from '../config';
 import { StripeMapperService } from '@fxa/payments/legacy';
+import { MozLoggerService } from '@fxa/shared/mozlog';
 
 export const StripeFactory: Provider<Stripe> = {
   provide: 'STRIPE',
@@ -73,7 +67,7 @@ export class StripePaymentConfigManagerService
 {
   constructor(
     configService: ConfigService<AppConfig>,
-    @Inject(LOGGER_PROVIDER) logger: LoggerService,
+    logger: MozLoggerService,
     @Inject(FirestoreService) firestore: Firestore
   ) {
     const config = {
@@ -127,7 +121,7 @@ export class StripeService extends StripeHelper {
 
   constructor(
     configService: ConfigService<AppConfig>,
-    @Inject(LOGGER_PROVIDER) logger: LoggerService,
+    logger: MozLoggerService,
     stripeFirestore: StripeFirestoreService,
     paymentConfigManager: StripePaymentConfigManagerService,
     @Inject('STRIPE') stripe: Stripe,
