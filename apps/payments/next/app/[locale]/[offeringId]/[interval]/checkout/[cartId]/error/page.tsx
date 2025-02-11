@@ -51,7 +51,7 @@ const getErrorReason = (
       return {
         buttonFtl: 'next-payment-error-manage-subscription-button',
         buttonLabel: 'Manage my subscription',
-        buttonUrl: `/${params.offeringId}/${params.interval}/landing`,
+        buttonUrl: `${config.contentServerUrl}/subscriptions`,
         message:
           'You can still get this product — please contact support so we can help you.',
         messageFtl: 'next-iap-upgrade-contact-support',
@@ -60,7 +60,7 @@ const getErrorReason = (
       return {
         buttonFtl: 'next-payment-error-retry-button',
         buttonLabel: 'Try again',
-        buttonUrl: `/${params.offeringId}/${params.interval}/landing`,
+        buttonUrl: `/${params.locale}/${params.offeringId}/${params.interval}/landing`,
         message: 'Something went wrong. Please try again later.',
         messageFtl: 'next-basic-error-message',
       };
