@@ -9,7 +9,10 @@ import {
   StripePrice,
   StripePromotionCode,
 } from '@fxa/payments/stripe';
-import { PromotionCodeCouldNotBeAttachedError } from './error';
+import {
+  CouponErrorInvalid,
+  PromotionCodeCouldNotBeAttachedError,
+} from './error';
 import { assertPromotionCodeApplicableToPrice } from './util/assertPromotionCodeApplicableToPrice';
 import { assertPromotionCodeActive } from './util/assertPromotionCodeActive';
 import { getPriceFromSubscription } from './util/getPriceFromSubscription';
@@ -33,11 +36,15 @@ export class PromotionCodeManager {
 
   async assertValidPromotionCodeNameForPrice(
     promoCodeName: string,
-    price: StripePrice
+    price: StripePrice,
+    cartCurrency: string
   ) {
     const promoCode = await this.retrieveByName(promoCodeName);
     if (!promoCode)
       throw new PromotionCodeCouldNotBeAttachedError('PromoCode not found');
+
+    if (promoCode.coupon.currency !== cartCurrency)
+      throw new CouponErrorInvalid();
 
     await this.assertValidPromotionCodeForPrice(promoCode, price);
   }

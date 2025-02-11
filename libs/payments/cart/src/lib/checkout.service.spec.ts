@@ -304,7 +304,11 @@ describe('CheckoutService', () => {
       it('fetches promotion code by name', async () => {
         expect(
           promotionCodeManager.assertValidPromotionCodeNameForPrice
-        ).toHaveBeenCalledWith(mockCart.couponCode, mockPrice);
+        ).toHaveBeenCalledWith(
+          mockCart.couponCode,
+          mockPrice,
+          mockCart.currency
+        );
       });
     });
 

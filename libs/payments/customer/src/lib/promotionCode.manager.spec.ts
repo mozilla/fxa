@@ -19,8 +19,12 @@ import {
   StripeSubscriptionFactory,
   StripeSubscriptionItemFactory,
   MockStripeConfigProvider,
+  StripeCouponFactory,
 } from '@fxa/payments/stripe';
-import { PromotionCodeCouldNotBeAttachedError } from './error';
+import {
+  CouponErrorInvalid,
+  PromotionCodeCouldNotBeAttachedError,
+} from './error';
 import { STRIPE_PRICE_METADATA } from './types';
 import { SubscriptionManager } from './subscription.manager';
 
@@ -157,8 +161,13 @@ describe('PromotionCodeManager', () => {
 
   describe('assertValidPromotionCodeNameForPrice', () => {
     it('resolves correctly when valid', async () => {
-      const mockPromotionCode = StripePromotionCodeFactory();
       const mockPrice = StripePriceFactory();
+      const mockPromotionCode = StripePromotionCodeFactory({
+        coupon: StripeCouponFactory({
+          currency: mockPrice.currency,
+        }),
+      });
+      const mockCartCurrency = mockPrice.currency;
 
       jest
         .spyOn(promotionCodeManager, 'retrieveByName')
@@ -170,7 +179,8 @@ describe('PromotionCodeManager', () => {
       await expect(
         promotionCodeManager.assertValidPromotionCodeNameForPrice(
           mockPromotionCode.code,
-          mockPrice
+          mockPrice,
+          mockCartCurrency
         )
       ).resolves.toEqual(undefined);
     });
@@ -178,6 +188,7 @@ describe('PromotionCodeManager', () => {
     it('throws an error if promotion code is not found', async () => {
       const mockPromotionCode = StripePromotionCodeFactory();
       const mockPrice = StripePriceFactory();
+      const mockCartCurrency = mockPrice.currency;
 
       jest
         .spyOn(stripeClient, 'promotionCodesList')
@@ -186,7 +197,8 @@ describe('PromotionCodeManager', () => {
       await expect(() =>
         promotionCodeManager.assertValidPromotionCodeNameForPrice(
           mockPromotionCode.code,
-          mockPrice
+          mockPrice,
+          mockCartCurrency
         )
       ).rejects.toBeInstanceOf(PromotionCodeCouldNotBeAttachedError);
     });
@@ -194,6 +206,7 @@ describe('PromotionCodeManager', () => {
     it('throws an error if promotion code is not valid', async () => {
       const mockPromotionCode = StripePromotionCodeFactory();
       const mockPrice = StripePriceFactory();
+      const mockCartCurrency = mockPrice.currency;
 
       jest
         .spyOn(promotionCodeManager, 'retrieveByName')
@@ -207,9 +220,34 @@ describe('PromotionCodeManager', () => {
       await expect(
         promotionCodeManager.assertValidPromotionCodeNameForPrice(
           mockPromotionCode.code,
-          mockPrice
+          mockPrice,
+          mockCartCurrency
         )
       ).rejects.toBeInstanceOf(PromotionCodeCouldNotBeAttachedError);
+    });
+
+    it('throws an error if currencies do no match', async () => {
+      const mockPrice = StripePriceFactory({
+        currency: 'cad',
+      });
+      const mockPromotionCode = StripePromotionCodeFactory({
+        coupon: StripeCouponFactory({
+          currency: 'cad',
+        }),
+      });
+      const mockCartCurrency = 'usd';
+
+      jest
+        .spyOn(promotionCodeManager, 'retrieveByName')
+        .mockResolvedValue(mockPromotionCode);
+
+      await expect(
+        promotionCodeManager.assertValidPromotionCodeNameForPrice(
+          mockPromotionCode.code,
+          mockPrice,
+          mockCartCurrency
+        )
+      ).rejects.toBeInstanceOf(CouponErrorInvalid);
     });
   });
 

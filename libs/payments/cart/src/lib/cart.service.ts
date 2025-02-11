@@ -262,7 +262,8 @@ export class CartService {
       try {
         await this.promotionCodeManager.assertValidPromotionCodeNameForPrice(
           args.promoCode,
-          price
+          price,
+          currency
         );
       } catch (e) {
         throw new CartInvalidPromoCodeError(args.promoCode);
@@ -318,7 +319,8 @@ export class CartService {
 
           await this.promotionCodeManager.assertValidPromotionCodeNameForPrice(
             oldCart.couponCode,
-            price
+            price,
+            oldCart.currency || DEFAULT_CURRENCY
           );
         } catch (e) {
           throw new CartInvalidPromoCodeError(oldCart.couponCode);
@@ -491,7 +493,8 @@ export class CartService {
 
         await this.promotionCodeManager.assertValidPromotionCodeNameForPrice(
           cartDetails.couponCode,
-          price
+          price,
+          cartDetails.currency || DEFAULT_CURRENCY
         );
       }
 

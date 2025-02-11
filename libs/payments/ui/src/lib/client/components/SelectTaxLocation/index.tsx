@@ -241,7 +241,10 @@ const Expanded = ({
         </Form.Message>
         {serverErrors.productNotAvailable && (
           <Form.Message>
-            <Localized id="select-tax-location-product-not-available">
+            <Localized
+              id="select-tax-location-product-not-available"
+              vars={{ productName }}
+            >
               <p className="mt-1 text-alert-red" role="alert">
                 {productName} is not available in this location.
               </p>
