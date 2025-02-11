@@ -38,7 +38,6 @@ server.get('/mostRecentViolation/:ip', function (req, res, next) {
 // This is not a real route in iprepd, and is only used by the tests
 server.del('/mostRecentViolation/:ip', function (req, res, next) {
   var ip = req.params.ip;
-  console.log('delete req', req.url);
   delete mostRecentViolationByIp[ip];
   res.send(200);
 

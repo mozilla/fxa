@@ -31,6 +31,11 @@ enum RecoveryPhoneStatus {
 
 export type Customs = {
   check: (req: AuthRequest, email: string, action: string) => Promise<void>;
+  checkAuthenticated: (
+    req: AuthRequest,
+    uid: string,
+    action: string
+  ) => Promise<void>;
 };
 
 class RecoveryPhoneHandler {
@@ -102,7 +107,7 @@ class RecoveryPhoneHandler {
     if (!email) {
       throw AppError.invalidToken();
     }
-    await this.customs.check(request, email, 'recoveryPhoneCreate');
+    await this.customs.checkAuthenticated(request, uid, 'recoveryPhoneCreate');
 
     try {
       const result = await this.recoveryPhoneService.setupPhoneNumber(
@@ -158,7 +163,11 @@ class RecoveryPhoneHandler {
       throw AppError.invalidToken();
     }
 
-    await this.customs.check(request, email, 'recoveryPhoneConfirmCode');
+    await this.customs.checkAuthenticated(
+      request,
+      uid,
+      'recoveryPhoneConfirmCode'
+    );
 
     let success = false;
     try {

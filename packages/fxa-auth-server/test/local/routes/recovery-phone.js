@@ -33,6 +33,7 @@ describe('/recovery_phone', () => {
   let mockMailer;
   const mockCustoms = {
     check: sandbox.fake(),
+    checkAuthenticated: sandbox.fake(),
   };
   const mockGlean = {
     twoStepAuthPhoneCode: {
@@ -177,9 +178,12 @@ describe('/recovery_phone', () => {
       assert.equal(mockGlean.twoStepAuthPhoneCode.sent.callCount, 1);
       assert.equal(mockGlean.twoStepAuthPhoneCode.sendError.callCount, 0);
 
-      assert.equal(mockCustoms.check.callCount, 1);
-      assert.equal(mockCustoms.check.getCall(0).args[1], email);
-      assert.equal(mockCustoms.check.getCall(0).args[2], 'recoveryPhoneCreate');
+      assert.equal(mockCustoms.checkAuthenticated.callCount, 1);
+      assert.equal(mockCustoms.checkAuthenticated.getCall(0).args[1], uid);
+      assert.equal(
+        mockCustoms.checkAuthenticated.getCall(0).args[2],
+        'recoveryPhoneCreate'
+      );
     });
 
     it('indicates failure sending sms', async () => {

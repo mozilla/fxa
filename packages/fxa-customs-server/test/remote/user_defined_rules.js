@@ -6,6 +6,7 @@ const TestServer = require('../test_server');
 const Promise = require('bluebird');
 const restifyClients = Promise.promisifyAll(require('restify-clients'));
 const mcHelper = require('../cache-helper');
+Promise.promisifyAll(mcHelper, { multiArgs: true });
 
 function randomEmail() {
   return Math.floor(Math.random() * 10000) + '@email.com';
@@ -18,12 +19,24 @@ function randomIp() {
   return [getSubnet(), getSubnet(), getSubnet(), getSubnet()].join('.');
 }
 
+function randomUid() {
+  return Math.floor(Math.random() * 10000) + '';
+}
+
 const config = require('../../lib/config').getProperties();
 config.userDefinedRateLimitRules.totpCodeRules.limits.periodMs = 1000;
 config.userDefinedRateLimitRules.totpCodeRules.limits.rateLimitIntervalMs = 1000;
 config.userDefinedRateLimitRules.tokenCodeRules.limits.max = 2;
 config.userDefinedRateLimitRules.tokenCodeRules.limits.periodMs = 1000;
 config.userDefinedRateLimitRules.tokenCodeRules.limits.rateLimitIntervalMs = 1000;
+
+config.userDefinedRateLimitRules.recoveryPhoneCreateCodeRules.limits.max = 5;
+config.userDefinedRateLimitRules.recoveryPhoneCreateCodeRules.limits.periodMs = 5000;
+config.userDefinedRateLimitRules.recoveryPhoneCreateCodeRules.limits.rateLimitIntervalMs = 1000;
+
+config.userDefinedRateLimitRules.recoveryPhoneConfirmCodeRules.limits.max = 5;
+config.userDefinedRateLimitRules.recoveryPhoneConfirmCodeRules.limits.periodMs = 5000;
+config.userDefinedRateLimitRules.recoveryPhoneConfirmCodeRules.limits.rateLimitIntervalMs = 1000;
 
 const ACTIONS = ['verifyTotpCode', 'verifyTokenCode'];
 
@@ -133,6 +146,91 @@ ACTIONS.forEach((action) => {
         t.fail(err);
         t.end();
       });
+  });
+});
+
+const recoveryPhoneActions = [
+  'recoveryPhoneCreate',
+  'recoveryPhoneConfirmCode',
+];
+recoveryPhoneActions.forEach((action) => {
+  test(`clear everything for ${action}`, async (t) => {
+    try {
+      await mcHelper.clearEverythingAsync();
+      t.pass('cleared redis');
+    } catch (err) {
+      t.fail(err);
+    } finally {
+      t.end();
+    }
+  });
+
+  test('/checkAuthenticated `' + action + '` by uid', async (t) => {
+    const uid = randomUid();
+    const ip = randomIp();
+    // Send requests until throttled
+    let [req, res, obj] = await client.postAsync('/checkAuthenticated', {
+      ip,
+      action,
+      uid,
+    });
+    t.equal(res.statusCode, 200, 'returns a 200');
+    t.equal(obj.block, false, 'not rate limited');
+
+    [req, res, obj] = await client.postAsync('/checkAuthenticated', {
+      ip,
+      action,
+      uid,
+    });
+    t.equal(res.statusCode, 200, 'returns a 200');
+    t.equal(obj.block, false, 'not rate limited');
+
+    [req, res, obj] = await client.postAsync('/checkAuthenticated', {
+      ip,
+      action,
+      uid,
+    });
+    t.equal(res.statusCode, 200, 'returns a 200');
+    t.equal(obj.block, false, 'not rate limited');
+
+    [req, res, obj] = await client.postAsync('/checkAuthenticated', {
+      ip,
+      action,
+      uid,
+    });
+    t.equal(res.statusCode, 200, 'returns a 200');
+    t.equal(obj.block, false, 'not rate limited');
+
+    [req, res, obj] = await client.postAsync('/checkAuthenticated', {
+      ip,
+      action,
+      uid,
+    });
+    t.equal(res.statusCode, 200, 'returns a 200');
+    t.equal(obj.block, false, 'not rate limited');
+
+    [req, res, obj] = await client.postAsync('/checkAuthenticated', {
+      ip,
+      action,
+      uid,
+    });
+    t.equal(res.statusCode, 200, 'returns a 200');
+    t.equal(obj.block, true, 'rate limited');
+    t.equal(obj.retryAfter, 1, 'rate limit retry amount');
+
+    // Wait for limit to expire
+    await Promise.delay(1010);
+
+    [req, res, obj] = await client.postAsync('/checkAuthenticated', {
+      ip,
+      action,
+      uid,
+    });
+    t.equal(res.statusCode, 200, 'returns a 200');
+    t.equal(obj.block, false, 'not rate limited');
+
+    t.pass(req);
+    t.end();
   });
 });
 

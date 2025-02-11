@@ -78,11 +78,10 @@ module.exports = async function createServer(config, log) {
       statsd
     );
 
-  const checkUserDefinedRateLimitRules = require('./user_defined_rules')(
-    config,
-    fetchRecord,
-    setRecords
-  );
+  const {
+    checkUserDefinedRateLimitRulesByIpEmail,
+    checkUserDefinedRateLimitRulesByUid,
+  } = require('./user_defined_rules')(config, fetchRecord, setRecords);
 
   dataflow(config, log, fetchRecords, setRecord);
 
@@ -418,7 +417,12 @@ module.exports = async function createServer(config, log) {
       return fetchRecords({ ip, email, phoneNumber })
         .then(checkRecords)
         .then((result) => {
-          return checkUserDefinedRateLimitRules(result, action, email, ip);
+          return checkUserDefinedRateLimitRulesByIpEmail(
+            result,
+            action,
+            email,
+            ip
+          );
         })
         .then((result) => {
           return result;
@@ -454,8 +458,15 @@ module.exports = async function createServer(config, log) {
       }
 
       return fetchRecords({ uid })
-        .then(({ uidRecord }) => {
-          var retryAfter = uidRecord.addCount(action, uid);
+        .then(async ({ uidRecord }) => {
+          var result = uidRecord.addCount(action, uid);
+          const { retryAfter } = await checkUserDefinedRateLimitRulesByUid(
+            {
+              retryAfter: result,
+            },
+            action,
+            uid
+          );
           return setRecords(uidRecord).then(function () {
             return {
               block: retryAfter > 0,

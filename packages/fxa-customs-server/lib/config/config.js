@@ -475,6 +475,64 @@ module.exports = function (fs, path, url, convict) {
           },
         },
       },
+      recoveryPhoneCreateCodeRules: {
+        actions: {
+          doc:
+            'Array of actions that this rule should be applied to. A user should only be able to initiate ' +
+            'a recovery phone setup X times a day.',
+          default: ['recoveryPhoneCreate'],
+          format: Array,
+        },
+        limits: {
+          max: {
+            doc: 'max actions during `period` that can occur before rate limit is applied',
+            format: 'nat',
+            default: 9,
+            env: 'RECOVERY_PHONE_SETUP_CODE_RULE_MAX',
+          },
+          periodMs: {
+            doc: 'period needed before rate limit is reset',
+            format: 'duration',
+            default: '1 day',
+            env: 'RECOVERY_PHONE_SETUP_CODE_RULE_PERIOD_MS',
+          },
+          rateLimitIntervalMs: {
+            doc: 'how long rate limit is applied',
+            format: 'duration',
+            default: '2 hours',
+            env: 'RECOVERY_PHONE_SETUP_CODE_RULE_LIMIT_INTERVAL_MS',
+          },
+        },
+      },
+      recoveryPhoneConfirmCodeRules: {
+        actions: {
+          doc:
+            'Array of actions that this rule should be applied to. A user should only be able to initiate ' +
+            'a recovery phone confirm X times a day.',
+          default: ['recoveryPhoneConfirmCode'],
+          format: Array,
+        },
+        limits: {
+          max: {
+            doc: 'max actions during `period` that can occur before rate limit is applied',
+            format: 'nat',
+            default: 6,
+            env: 'RECOVERY_PHONE_CONFIRM_CODE_RULE_MAX',
+          },
+          periodMs: {
+            doc: 'period needed before rate limit is reset',
+            format: 'duration',
+            default: '1 day',
+            env: 'RECOVERY_PHONE_CONFIRM_CODE_RULE_PERIOD_MS',
+          },
+          rateLimitIntervalMs: {
+            doc: 'how long rate limit is applied',
+            format: 'duration',
+            default: '2 hours',
+            env: 'RECOVERY_PHONE_CONFIRM_CODE_RULE_LIMIT_INTERVAL_MS',
+          },
+        },
+      },
     },
     dataflow: {
       enabled: {
