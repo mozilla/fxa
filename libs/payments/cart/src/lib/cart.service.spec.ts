@@ -533,6 +533,9 @@ describe('CartService', () => {
         CartInvalidPromoCodeError
       );
 
+      expect(
+        promotionCodeManager.assertValidPromotionCodeNameForPrice
+      ).toHaveBeenCalledWith(args.promoCode, mockPrice, mockResolvedCurrency);
       expect(cartManager.createCart).not.toHaveBeenCalled();
     });
 
@@ -683,6 +686,13 @@ describe('CartService', () => {
         cartService.restartCart(mockOldCart.id)
       ).rejects.toThrowError(CartInvalidPromoCodeError);
 
+      expect(
+        promotionCodeManager.assertValidPromotionCodeNameForPrice
+      ).toHaveBeenCalledWith(
+        mockOldCart.couponCode,
+        mockPrice,
+        mockOldCart.currency
+      );
       expect(cartManager.createCart).not.toHaveBeenCalled();
       expect(cartManager.finishErrorCart).toHaveBeenCalled();
     });
@@ -998,6 +1008,13 @@ describe('CartService', () => {
           cartService.updateCart(mockCart.id, mockCart.version, mockUpdateCart)
         ).rejects.toBeInstanceOf(CouponErrorExpired);
 
+        expect(
+          promotionCodeManager.assertValidPromotionCodeNameForPrice
+        ).toHaveBeenCalledWith(
+          mockUpdateCart.couponCode,
+          mockPrice,
+          mockUpdateCart.currency
+        );
         expect(cartManager.updateFreshCart).not.toHaveBeenCalledWith();
         expect(cartManager.finishErrorCart).toHaveBeenCalled();
       });

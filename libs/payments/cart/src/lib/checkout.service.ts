@@ -189,7 +189,8 @@ export class CheckoutService {
       try {
         await this.promotionCodeManager.assertValidPromotionCodeNameForPrice(
           cart.couponCode,
-          price
+          price,
+          cart.currency
         );
 
         promotionCode = await this.promotionCodeManager.retrieveByName(
