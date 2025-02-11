@@ -81,7 +81,7 @@ const expectDisconnectModalHeader = async () => {
   ).toBeInTheDocument();
 };
 
-describe('Connected Services', () => {
+describe.only('Connected Services', () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
@@ -430,6 +430,97 @@ describe('Connected Services', () => {
       'settings.clients.disconnect',
       'submit.no-reason'
     );
+
+    // Shouldn't this be called?
+    expect(account.disconnectClient).toBeCalledTimes(1);
+  });
+
+  it('on disconnect, with more than one empty client name', async () => {
+    const attachedClients = [
+      {
+        clientId: 'a8c528140153d1c6',
+        refreshTokenId:
+          'f0b7dae0043cb07cdb0f1ff160367a0b3214a91f037621e892060d9a146f2d8e',
+        name: undefined,
+        createdTime: 1571412069000,
+        lastAccessTime: 1571412069000,
+        userAgent: '',
+        os: null,
+        location: {
+          city: null,
+          country: null,
+          state: null,
+          stateCode: null,
+        },
+        isCurrentSession: false,
+        createdTimeFormatted: 'a month ago',
+        lastAccessTimeFormatted: 'a month ago',
+        approximateLastAccessTime: null,
+        approximateLastAccessTimeFormatted: null,
+      },
+      {
+        clientId: 'a8c528140153d1c7',
+        refreshTokenId:
+          'f0b7dae0043cb07cdb0f1ff160367a0b3214a91f037621e892060d9a146f2d8d',
+        name: undefined,
+        createdTime: 1571412069000,
+        lastAccessTime: 1571412069000,
+        userAgent: '',
+        os: null,
+        location: {
+          city: null,
+          country: null,
+          state: null,
+          stateCode: null,
+        },
+        isCurrentSession: false,
+        createdTimeFormatted: 'a month ago',
+        lastAccessTimeFormatted: 'a month ago',
+        approximateLastAccessTime: null,
+        approximateLastAccessTimeFormatted: null,
+      },
+      {
+        clientId: 'a8c528140153d1c8',
+        refreshTokenId:
+          'f0b7dae0043cb07cdb0f1ff160367a0b3214a91f037621e892060d9a146f2d8c',
+        name: undefined,
+        createdTime: 1571412069000,
+        lastAccessTime: 1571412069000,
+        userAgent: '',
+        os: null,
+        location: {
+          city: null,
+          country: null,
+          state: null,
+          stateCode: null,
+        },
+        isCurrentSession: false,
+        createdTimeFormatted: 'a month ago',
+        lastAccessTimeFormatted: 'a month ago',
+        approximateLastAccessTime: null,
+        approximateLastAccessTimeFormatted: null,
+      },
+    ];
+
+    const account = {
+      attachedClients,
+      disconnectClient: jest.fn().mockResolvedValue(true),
+    } as unknown as Account;
+
+    renderWithRouter(
+      <AppContext.Provider value={mockAppContext({ account })}>
+        <ConnectedServices />
+      </AppContext.Provider>
+    );
+
+    await clickFirstSignOutButton();
+    expect(logViewEvent).toHaveBeenCalledWith(
+      'settings.clients.disconnect',
+      'submit.no-reason'
+    );
+
+    // Shouldn't this be called?
+    expect(account.disconnectClient).toBeCalledTimes(3);
   });
 
   describe('redirects to /signin when active session is signed out', () => {
