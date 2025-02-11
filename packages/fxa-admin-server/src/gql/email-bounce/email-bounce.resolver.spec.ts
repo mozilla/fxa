@@ -1,7 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -17,6 +16,7 @@ import { Knex } from 'knex';
 import { EventLoggingService } from '../../event-logging/event-logging.service';
 
 import { EmailBounceResolver } from './email-bounce.resolver';
+import { MozLoggerService } from '@fxa/shared/mozlog';
 
 const USER_1 = randomAccount();
 const EMAIL_1 = randomEmail(USER_1);
@@ -46,8 +46,8 @@ describe('#integration - EmailBounceResolver', () => {
 
   beforeEach(async () => {
     logger = { debug: jest.fn(), error: jest.fn(), info: jest.fn() };
-    const MockMozLogger: Provider = {
-      provide: LOGGER_PROVIDER,
+    const MockMozLoggerService: Provider = {
+      provide: MozLoggerService,
       useValue: logger,
     };
     const MockConfig: Provider = {
@@ -64,7 +64,7 @@ describe('#integration - EmailBounceResolver', () => {
       providers: [
         EmailBounceResolver,
         EventLoggingService,
-        MockMozLogger,
+        MockMozLoggerService,
         MockConfig,
         MockMetricsFactory,
         { provide: DatabaseService, useValue: db },

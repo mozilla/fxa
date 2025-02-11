@@ -60,7 +60,7 @@ describe('MozLoggerService', () => {
     expect(service).toBeDefined();
     expect(service).toBeInstanceOf(MozLoggerService);
     expect(mockMozLogDefault).toHaveBeenCalledWith(mockConfig);
-    expect(mockMozLogLoggerFactory).toHaveBeenCalledWith('default');
+    expect(mockMozLogLoggerFactory).toHaveBeenCalledWith('MozLoggerService');
   });
 
   it('sets context', () => {
@@ -69,39 +69,61 @@ describe('MozLoggerService', () => {
   });
 
   it('logs info', () => {
-    service.info('info', {});
-    expect(mockMozLog.info).toBeCalledWith('', { message: 'info', '0': {} });
+    service.info('info');
+    expect(mockMozLog.info).toBeCalledWith('info', {});
+  });
+
+  it('logs info with data', () => {
+    service.info('info', { foo: 'bar', baz: 1 });
+    expect(mockMozLog.info).toBeCalledWith('info', { foo: 'bar', baz: 1 });
+  });
+
+  it('logs info for atypical message', () => {
+    service.info({ weird: 'message' }, { foo: 'bar', baz: 1 });
+    expect(mockMozLog.info).toBeCalledWith('', {
+      message: { weird: 'message' },
+      '0': { foo: 'bar', baz: 1 },
+    });
+  });
+
+  it('logs info for atypical number of args', () => {
+    service.info({ weird: 'message' }, { foo: 'bar' }, { baz: 1 });
+    expect(mockMozLog.info).toBeCalledWith('', {
+      message: { weird: 'message' },
+      '0': { foo: 'bar' },
+      '1': { baz: 1 },
+    });
   });
 
   it('logs debug', () => {
-    service.debug('debug', {});
-    expect(mockMozLog.debug).toBeCalledWith('', { message: 'debug', '0': {} });
+    service.debug('debug', { foo: 'bar', baz: 1 });
+    expect(mockMozLog.debug).toBeCalledWith('debug', { foo: 'bar', baz: 1 });
   });
   it('logs error', () => {
-    service.error('error', {});
-    expect(mockMozLog.error).toBeCalledWith('', { message: 'error', '0': {} });
+    service.error('error', { foo: 'bar', baz: 1 });
+    expect(mockMozLog.error).toBeCalledWith('error', { foo: 'bar', baz: 1 });
   });
 
   it('logs warn', () => {
-    service.warn('warn', {});
-    expect(mockMozLog.warn).toBeCalledWith('', { message: 'warn', '0': {} });
+    service.warn('warn', { foo: 'bar', baz: 1 });
+    expect(mockMozLog.warn).toBeCalledWith('warn', { foo: 'bar', baz: 1 });
   });
 
   it('logs verbose', () => {
-    service.verbose('verbose', {});
-    expect(mockMozLog.verbose).toBeCalledWith('', {
-      message: 'verbose',
-      '0': {},
+    service.verbose('verbose', { foo: 'bar', baz: 1 });
+    expect(mockMozLog.verbose).toBeCalledWith('verbose', {
+      foo: 'bar',
+      baz: 1,
     });
   });
 
   it('logs trace', () => {
-    service.trace('trace', {});
-    expect(mockMozLog.trace).toBeCalledWith('', { message: 'trace', '0': {} });
+    service.trace('trace', { foo: 'bar', baz: 1 });
+    expect(mockMozLog.trace).toBeCalledWith('trace', { foo: 'bar', baz: 1 });
   });
 
   it('logs warning', () => {
-    service.warn('warning', {});
-    expect(mockMozLog.warn).toBeCalledWith('', { message: 'warning', '0': {} });
+    service.warn('warning', { foo: 'bar', baz: 1 });
+    expect(mockMozLog.warn).toBeCalledWith('warning', { foo: 'bar', baz: 1 });
   });
 });

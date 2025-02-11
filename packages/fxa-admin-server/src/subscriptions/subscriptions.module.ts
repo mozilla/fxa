@@ -4,7 +4,6 @@
 
 import { Module } from '@nestjs/common';
 import { MozLoggerService } from '@fxa/shared/mozlog';
-import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { MetricsFactory } from 'fxa-shared/nestjs/metrics.service';
 import {
   AppStoreHelperService,
@@ -32,6 +31,7 @@ import { SubscriptionsService } from './subscriptions.service';
     AppStoreService,
     FirestoreFactory,
     MetricsFactory,
+    MozLoggerService,
     PlayStorePurchaseManagerService,
     PlayStoreService,
     PlayStoreUserManagerService,
@@ -40,10 +40,6 @@ import { SubscriptionsService } from './subscriptions.service';
     StripePaymentConfigManagerService,
     StripeService,
     SubscriptionsService,
-    {
-      provide: LOGGER_PROVIDER,
-      useClass: MozLoggerService,
-    },
   ],
   exports: [SubscriptionsService],
 })

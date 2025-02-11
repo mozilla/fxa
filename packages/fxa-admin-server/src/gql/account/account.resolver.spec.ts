@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { LOGGER_PROVIDER } from '@fxa/shared/log';
+import { MozLoggerService } from '@fxa/shared/mozlog';
 import { NotifierService } from '@fxa/shared/notifier';
 import { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -140,7 +140,7 @@ describe('#integration - AccountResolver', () => {
 
     logger = { debug: jest.fn(), error: jest.fn(), info: jest.fn() };
     const MockMozLogger: Provider = {
-      provide: LOGGER_PROVIDER,
+      provide: MozLoggerService,
       useValue: logger,
     };
     const MockConfig: Provider = {

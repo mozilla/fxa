@@ -1,7 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { Inject, Injectable, OnModuleDestroy } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
@@ -27,7 +26,7 @@ import {
 } from 'fxa-shared/db/models/auth';
 import { MysqlOAuthShared } from 'fxa-shared/db/mysql';
 import { RedisShared } from 'fxa-shared/db/redis';
-import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
+import { MozLoggerService } from '@fxa/shared/mozlog';
 import { StatsD } from 'hot-shots';
 import { Knex, knex } from 'knex';
 import { AppConfig } from '../config';
@@ -59,7 +58,7 @@ export class DatabaseService implements OnModuleDestroy {
 
   constructor(
     configService: ConfigService<AppConfig>,
-    @Inject(LOGGER_PROVIDER) logger: MozLoggerService,
+    logger: MozLoggerService,
     @Inject('METRICS') metrics: StatsD
   ) {
     const dbConfig = configService.get('database') as AppConfig['database'];

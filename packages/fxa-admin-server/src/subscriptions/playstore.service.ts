@@ -2,14 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { Firestore } from '@google-cloud/firestore';
-import { Inject, Injectable, LoggerService } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PurchaseManager } from 'fxa-shared/payments/iap/google-play/purchase-manager';
 import { UserManager } from 'fxa-shared/payments/iap/google-play/user-manager';
 import { Auth, google } from 'googleapis';
 import { FirestoreService } from '../backend/firestore.service';
+import { MozLoggerService } from '@fxa/shared/mozlog';
 
 /**
  * Extends PurchaseManager to be service like
@@ -19,7 +19,7 @@ export class PlayStorePurchaseManagerService extends PurchaseManager {
   constructor(
     configService: ConfigService,
     @Inject(FirestoreService) firestore: Firestore,
-    @Inject(LOGGER_PROVIDER) logger: LoggerService
+    logger: MozLoggerService
   ) {
     const prefix = `${configService.get('authFirestore.prefix')}iap-`;
     const purchasesDbRef = firestore.collection(`${prefix}play-purchases`);
@@ -52,7 +52,7 @@ export class PlayStorePurchaseManagerService extends PurchaseManager {
 export class PlayStoreUserManagerService extends UserManager {
   constructor(
     configService: ConfigService,
-    @Inject(LOGGER_PROVIDER) logger: LoggerService,
+    logger: MozLoggerService,
     purchaseManager: PlayStorePurchaseManagerService,
     @Inject(FirestoreService) firestore: Firestore
   ) {

@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { MozLoggerService } from '@fxa/shared/mozlog';
 import {
   CanActivate,
@@ -25,10 +24,7 @@ const guard = new AdminPanelGuard(config.get('guard.env') as AdminPanelEnv);
 
 @Injectable()
 export class UserGroupGuard implements CanActivate {
-  constructor(
-    private reflector?: Reflector,
-    @Inject(LOGGER_PROVIDER) private log?: MozLoggerService
-  ) {}
+  constructor(private reflector?: Reflector, private log?: MozLoggerService) {}
 
   canActivate(context: ExecutionContext): boolean {
     // Reflect on the end point to determine if it has been tagged with admin panel feature.

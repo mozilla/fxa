@@ -2,7 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Guard, Permissions, Groups, MaxPermissionLevel } from './Guard';
+import {
+  Guard,
+  Permissions,
+  Groups,
+  MaxPermissionLevel,
+  AdminPanelEnv,
+} from './Guard';
 
 /** The header key containing the user group. */
 export const USER_GROUP_HEADER = 'remote-groups';
@@ -45,12 +51,6 @@ export enum AdminPanelGroup {
   SupportAgentProd = 'vpn_fxa_supportagent_prod',
   SupportAgentStage = 'vpn_fxa_supportagent_stage',
   None = '',
-}
-
-/** Enum for known environment names */
-export enum AdminPanelEnv {
-  Prod = 'prod',
-  Stage = 'stage',
 }
 
 const adminPanelGroups: Groups = {

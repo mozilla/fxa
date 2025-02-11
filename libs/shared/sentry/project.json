@@ -15,6 +15,14 @@
         "outputFileName": "main.js",
         "tsConfig": "libs/shared/sentry/tsconfig.lib.json",
         "declaration": true,
+        "external": [
+          "@apollo/gateway",
+          "@apollo/subgraph",
+          "@as-integrations/fastify",
+          "@nestjs/websockets/socket-module",
+          "@nestjs/microservices/microservices-module",
+          "@nestjs/microservices"
+        ],
         "assets": [
           {
             "glob": "libs/shared/sentry/README.md",

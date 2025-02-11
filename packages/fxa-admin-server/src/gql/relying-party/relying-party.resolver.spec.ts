@@ -1,7 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -38,11 +37,6 @@ describe('#integration - RelyingPartyResolver', () => {
     db.relyingParty = RelyingParty.bindKnex(knex);
     await db.relyingParty.query().insert(MOCK_RP as any);
 
-    let logger = { debug: jest.fn(), error: jest.fn(), info: jest.fn() };
-    const MockMozLogger: Provider = {
-      provide: LOGGER_PROVIDER,
-      useValue: logger,
-    };
     const MockConfig: Provider = {
       provide: ConfigService,
       useValue: {
@@ -52,7 +46,6 @@ describe('#integration - RelyingPartyResolver', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         RelyingPartyResolver,
-        MockMozLogger,
         MockConfig,
         { provide: DatabaseService, useValue: db },
       ],

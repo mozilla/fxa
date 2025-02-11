@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { NotifierService } from '@fxa/shared/notifier';
 import { Firestore } from '@google-cloud/firestore';
 import { Inject, UseGuards } from '@nestjs/common';
@@ -26,7 +25,7 @@ import { AttachedSession } from 'fxa-shared/connected-services/models/AttachedSe
 import { Account, getAccountCustomerByUid } from 'fxa-shared/db/models/auth';
 import { SecurityEventNames } from 'fxa-shared/db/models/auth/security-event';
 import { AdminPanelFeature } from 'fxa-shared/guards';
-import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
+import { MozLoggerService } from '@fxa/shared/mozlog';
 import { ReasonForDeletion } from '../../../../../libs/shared/cloud-tasks/src';
 import { CurrentUser } from '../../auth/auth-header.decorator';
 import { GqlAuthHeaderGuard } from '../../auth/auth-header.guard';
@@ -110,7 +109,7 @@ export class AccountResolver {
   }
 
   constructor(
-    @Inject(LOGGER_PROVIDER) private log: MozLoggerService,
+    private log: MozLoggerService,
     private db: DatabaseService,
     private subscriptionsService: SubscriptionsService,
     private configService: ConfigService<AppConfig>,

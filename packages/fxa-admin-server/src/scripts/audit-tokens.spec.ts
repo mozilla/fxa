@@ -39,6 +39,8 @@ describe('#integration - scripts/audit-tokens', () => {
     fxaProfileDb = bindKnex(config.database.profile, TargetDB.profile);
     fxaOauthDb = bindKnex(config.database.fxa_oauth, TargetDB.oauth);
 
+    await clearDb();
+
     await scaffoldDb(uid, email, createdAt, lastAccessTime);
 
     // Add a dummy profile

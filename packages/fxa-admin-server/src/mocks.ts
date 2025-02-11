@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Path } from 'convict';
 import { CloudTasksService } from './backend/cloud-tasks.service';
 import { FirestoreService } from './backend/firestore.service';
 import config, { AppConfig } from './config';
+import { MozLoggerService } from '@fxa/shared/mozlog';
 
 export const mockConfigOverrides: any = {};
 export const MockConfig: Provider = {
@@ -54,7 +54,7 @@ export const logger = {
   trace: jest.fn(),
 };
 export const MockLogService: Provider = {
-  provide: LOGGER_PROVIDER,
+  provide: MozLoggerService,
   useValue: logger,
 };
 
