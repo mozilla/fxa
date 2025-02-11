@@ -28,7 +28,7 @@ const UTM_PREFIX = 'fx-';
 const X_SES_CONFIGURATION_SET = 'X-SES-CONFIGURATION-SET';
 const X_SES_MESSAGE_TAGS = 'X-SES-MESSAGE-TAGS';
 
-module.exports = function (log, config, bounces) {
+module.exports = function (log, config, bounces, statsd) {
   const oauthClientInfo = require('./oauth_client_info')(log, config);
   const verificationReminders = require('../verification-reminders')(
     log,
@@ -461,6 +461,9 @@ module.exports = function (log, config, bounces) {
     try {
       await bounces.check(to, template);
     } catch (err) {
+      const tags = { template, error: err.errno };
+      statsd.increment('email.bounce.limit', tags);
+
       log.error('email.bounce.limit', {
         err: err.message,
         errno: err.errno,

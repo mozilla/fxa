@@ -17,6 +17,8 @@ import {
   MOCK_DEVICE_OS,
   MOCK_DEVICE_OS_VERSION,
 } from '../../../lib/senders/emails/partials/userDevice/mocks';
+import AppError from '../../../lib/error';
+import { AUTH_SERVER_ERRNOS } from 'fxa-shared/lib/errors';
 
 const moment = require('moment-timezone');
 const config = require(`${ROOT_DIR}/config`).default.getProperties();
@@ -3213,6 +3215,96 @@ describe('mailer constructor:', () => {
   });
 });
 
+describe('mailer bounce throws exceptions', () => {
+  let mailer: Record<any, any>, mockStatsd: any;
+
+  before(async () => {
+    mockStatsd = mocks.mockStatsd();
+    mailer = await setup(
+      mocks.mockLog(),
+      config,
+      {},
+      'en',
+      null,
+      {
+        check: async () => {
+          throw AppError.emailComplaint(10);
+        },
+      },
+      mockStatsd
+    );
+
+    mailer.localize = () => ({});
+  });
+
+  it('email bounce exceptions increment stats', () => {
+    const message = {
+      email: 'test@restmail.net',
+      flowId: 'wibble',
+      subject: 'subject',
+      template: 'inactive-first-email',
+      uid: 'foo',
+    };
+
+    // We shouldn't get to this call, so we fail it.
+    sinon.stub(mailer.mailer, 'sendMail').callsFake((_config, cb: any) => {
+      cb(new Error('Fail'));
+    });
+
+    return mailer.send(message).then(() => {
+      const spiedStatsd = mockStatsd.increment.getCalls()[0];
+
+      assert.equal(spiedStatsd.args[0], 'email.bounce.limit');
+      assert.equal(spiedStatsd.args[1].template, 'inactive-first-email');
+      assert.equal(
+        spiedStatsd.args[1].error,
+        AUTH_SERVER_ERRNOS.BOUNCE_COMPLAINT
+      );
+    });
+  });
+});
+
+describe('mailer bounces succeed', () => {
+  let mailer: Record<any, any>, mockStatsd: any;
+  const mockLog = mocks.mockLog();
+
+  before(async () => {
+    mockStatsd = mocks.mockStatsd();
+    mailer = await setup(
+      mockLog,
+      config,
+      {},
+      'en',
+      null,
+      {
+        check: async () => Promise.resolve(),
+      },
+      mockStatsd
+    );
+
+    mailer.localize = () => ({});
+    sinon.stub(mailer.mailer, 'sendMail').callsFake((_config, cb: any) => {
+      cb(null, { resp: 'ok' });
+    });
+  });
+
+  it('email bounce check sends mail', () => {
+    const message = {
+      email: 'test@restmail.net',
+      flowId: 'wibble',
+      subject: 'subject',
+      template: 'inactive-first-email',
+      uid: 'foo',
+    };
+
+    return mailer.send(message).then((resp) => {
+      // assert that the log in the final 'sendMail' function is called.
+      const emailEventLog = mockLog.debug.getCalls()[1];
+      assert.equal(emailEventLog.args[0], 'mailer.send.1');
+    });
+  });
+});
+
 function sesMessageTagsHeaderValue(templateName: string, serviceName?: any) {
   return `messageType=fxa-${templateName}, app=fxa, service=${
     serviceName || 'fxa-auth-server'
@@ -3284,14 +3376,17 @@ async function setup(
   config: Record<any, any>,
   mocks: any,
   locale = 'en',
-  sender: any = null
+  sender: any = null,
+  bounces: any = null,
+  statsd: any = null
 ) {
   const Mailer = proxyquire(`${ROOT_DIR}/lib/senders/email`, mocks)(
     log,
     config,
-    {
+    bounces || {
       check: () => Promise.resolve(),
-    }
+    },
+    statsd
   );
   return new Mailer(config.smtp, sender);
 }

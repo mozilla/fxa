@@ -71,6 +71,7 @@ module.exports = (config, db) => {
         tally.count++;
       }
     });
+    return tallies;
   }
 
   function disabled() {
