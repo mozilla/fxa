@@ -1,9 +1,9 @@
 {
-  "name": "recovery-phone",
+  "name": "accounts-recovery-phone",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/accounts/recovery-phone/src",
   "projectType": "library",
-  "tags": [],
+  "tags": ["scope:shared:lib"],
   "targets": {
     "build": {
       "executor": "@nx/esbuild:esbuild",

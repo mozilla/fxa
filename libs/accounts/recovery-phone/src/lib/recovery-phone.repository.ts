@@ -29,7 +29,9 @@ export async function removePhoneNumber(
   const result = await db
     .deleteFrom('recoveryPhones')
     .where('uid', '=', uid)
-    .executeTakeFirstOrThrow();
+    // TBD: Didn't seem like handled an error coming off this call, so
+    // removed the orThrow...
+    .executeTakeFirst();
 
   return result.numDeletedRows === BigInt(1);
 }

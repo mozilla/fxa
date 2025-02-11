@@ -3,7 +3,7 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/accounts/two-factor/src",
   "projectType": "library",
-  "tags": [],
+  "tags": ["scope:shared:lib"],
   "targets": {
     "build": {
       "executor": "@nx/esbuild:esbuild",

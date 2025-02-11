@@ -17,7 +17,10 @@ const { Container } = require('typedi');
 const { AccountEventsManager } = require('../account-events');
 const {
   RecoveryPhoneService,
-} = require('../../../../libs/accounts/recovery-phone/src');
+  RecoveryNumberNotExistsError,
+  RecoveryNumberRemoveMissingBackupCodes,
+} = require('@fxa/accounts/recovery-phone');
+const { BackupCodeManager } = require('@fxa/accounts/two-factor');
 
 const RECOVERY_CODE_SANE_MAX_LENGTH = 20;
 
@@ -54,6 +57,7 @@ module.exports = (
 
   const accountEventsManager = Container.get(AccountEventsManager);
   const recoveryPhoneService = Container.get(RecoveryPhoneService);
+  const backupCodeManager = Container.get(BackupCodeManager);
 
   // This helps us distinguish between testing environments and
   // totp codes per environment.
@@ -155,16 +159,6 @@ module.exports = (
         auth: {
           strategy: 'sessionToken',
         },
-        validate: {
-          payload: isA.object({
-            code: isA
-              .string()
-              .max(32)
-              .regex(validators.DIGITS)
-              .optional()
-              .description(DESCRIPTION.codeTotp),
-          }),
-        },
         response: {},
       },
       handler: async function (request) {
@@ -184,36 +178,6 @@ module.exports = (
         // verified *if and only if* they have verified a TOTP code.
         if (!sessionToken.tokenVerified) {
           throw errors.unverifiedSession();
-        }
-
-        // Will also use the recovery phone to validate the code.
-        const code = request.payload.code;
-        if (code) {
-          // Client has posted a code, but we need make it was a code that was actually
-          // sent to the client
-          const success = await recoveryPhoneService.confirmCode(uid, code);
-          if (!success) {
-            throw errors.invalidOrExpiredOtpCode();
-          }
-
-          // Next make sure the code hasn't expired
-          const token = await db.totpToken(sessionToken.uid);
-          const isValidCode = otpUtils.verifyOtpCode(
-            code,
-            token.sharedSecret,
-            {
-              encoding: 'hex',
-              step: config.step,
-              window: config.window,
-            },
-            'totp.destroy'
-          );
-          if (!isValidCode) {
-            throw errors.invalidOrExpiredOtpCode();
-          }
-
-          // Code seems legit. Record metric and proceed with totp deletion
-          glean.twoStepAuthRemove.success();
         }
 
         await db.deleteTotpToken(uid);
@@ -267,6 +231,45 @@ module.exports = (
           ipAddr: request.app.clientAddress,
           tokenId: sessionToken && sessionToken.id,
         });
+
+        // Clean up the recovery phone if it was registered.
+        // Don't fail if this doesn't work, but monitor success rate with stats.
+        try {
+          const success = await recoveryPhoneService.removePhoneNumber(uid);
+          if (success) {
+            statsd.increment('totp.destroy.remove_phone_number.success');
+            await glean.twoStepAuthPhoneRemove.success(request);
+          } else {
+            statsd.increment('totp.destroy.remove_phone_number.fail');
+          }
+        } catch (error) {
+          if (
+            error instanceof RecoveryNumberNotExistsError ||
+            error instanceof RecoveryNumberRemoveMissingBackupCodes
+          ) {
+            statsd.increment('totp.destroy.remove_phone_number.fail');
+          } else {
+            statsd.increment('totp.destroy.remove_phone_number.error');
+            log.error('totp.destroy.remove_phone_number.error', error);
+          }
+        }
+
+        // Clean up any associated backup codes.
+        // Again, don't fail if errors out, but monitor with stats.
+        try {
+          const success = await backupCodeManager.deleteRecoveryCodes(uid);
+          if (success) {
+            statsd.increment('totp.destroy.delete_recovery_codes.success');
+          } else {
+            statsd.increment('totp.destroy.delete_recovery_codes.fail');
+          }
+        } catch (error) {
+          statsd.increment('totp.destroy.delete_recovery_codes.error');
+          log.error('totp.destroy.delete_recovery_codes.error', error);
+        }
+
+        // Record that the 2fa was successfully removed
+        glean.twoStepAuthRemove.success();
 
         return {};
       },

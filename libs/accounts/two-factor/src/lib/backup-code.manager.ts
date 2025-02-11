@@ -7,7 +7,10 @@ import {
   AccountDbProvider,
 } from '@fxa/shared/db/mysql/account';
 import { Inject, Injectable } from '@nestjs/common';
-import { getRecoveryCodes } from './backup-code.repository';
+import {
+  deleteRecoveryCodes,
+  getRecoveryCodes,
+} from './backup-code.repository';
 
 @Injectable()
 export class BackupCodeManager {
@@ -33,5 +36,16 @@ export class BackupCodeManager {
       hasBackupCodes: recoveryCodes.length > 0,
       count: recoveryCodes.length,
     };
+  }
+
+  /**
+   * Removes recover codes for a given uid.
+   *
+   * @param uid - The uid in hexadecimal string format.
+   * @returns True if one or more codes were removed
+   */
+  async deleteRecoveryCodes(uid: string) {
+    const success = await deleteRecoveryCodes(this.db, Buffer.from(uid, 'hex'));
+    return success;
   }
 }

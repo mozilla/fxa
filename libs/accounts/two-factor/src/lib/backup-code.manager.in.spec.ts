@@ -92,4 +92,16 @@ describe('BackupCodeManager', () => {
       backupCodeManager.getCountForUserId(getMockUid())
     ).rejects.toThrow('Database error');
   });
+
+  it('should delete codes', async () => {
+    const mockUid1 = getMockUid();
+    const mockUid2 = getMockUid();
+    await createRecoveryCode(db, mockUid1);
+
+    const result1 = await backupCodeManager.deleteRecoveryCodes(mockUid1);
+    const result2 = await backupCodeManager.deleteRecoveryCodes(mockUid2);
+
+    expect(result1).toBeTruthy();
+    expect(result2).toBeFalsy();
+  });
 });

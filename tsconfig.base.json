@@ -97,9 +97,7 @@
       "@fxa/vendored/jwtool": ["libs/vendored/jwtool/src/index.ts"],
       "@fxa/vendored/typesafe-node-firestore": [
         "libs/vendored/typesafe-node-firestore/src/index.ts"
-      ],
-      "accounts/recovery-phone": ["libs/accounts/recovery-phone/src/index.ts"],
-      "accounts/two-factor": ["libs/accounts/two-factor/src/index.ts"]
+      ]
     },
     "typeRoots": [
       "./types",

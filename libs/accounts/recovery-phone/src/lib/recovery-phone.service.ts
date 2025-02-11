@@ -198,6 +198,12 @@ export class RecoveryPhoneService {
       uid
     );
 
+    // TBD: Random, obs. why do we do this? It seems like a potential edge case, what if the user
+    // consumes all the recovery codes? This could then return false...
+    //
+    // Just curious, about the rationale surrounding why this would block a user from removing their
+    // phone.
+    //
     if (!hasRecoveryCodes) {
       throw new RecoveryNumberRemoveMissingBackupCodes(uid);
     }

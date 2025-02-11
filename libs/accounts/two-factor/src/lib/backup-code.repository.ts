@@ -10,3 +10,12 @@ export async function getRecoveryCodes(db: AccountDatabase, uid: Buffer) {
     .selectAll()
     .execute();
 }
+
+export async function deleteRecoveryCodes(db: AccountDatabase, uid: Buffer) {
+  const result = await db
+    .deleteFrom('recoveryCodes')
+    .where('uid', '=', uid)
+    .executeTakeFirst();
+
+  return result.numDeletedRows === BigInt(1);
+}
