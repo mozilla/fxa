@@ -150,7 +150,7 @@ describe('EligibilityService', () => {
       );
       expect(eligibilityManager.getOfferingOverlap).toHaveBeenCalledWith({
         priceIds: [],
-        providedTargetOffering: mockOffering,
+        targetOffering: mockOffering,
       });
       expect(eligibilityManager.compareOverlap).toHaveBeenCalledWith(
         mockOverlapResult,

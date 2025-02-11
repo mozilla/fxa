@@ -4,11 +4,14 @@
 
 import Image from 'next/image';
 import checkLogo from '@fxa/shared/assets/images/check.svg';
-import { CartState } from '@fxa/shared/db/mysql/account';
+import { CartEligibilityStatus, CartState } from '@fxa/shared/db/mysql/account';
 import { LocalizerRsc } from '@fxa/shared/l10n/server';
 import circledConfirm from '@fxa/shared/assets/images/circled-confirm-clouds.svg';
 
-const getComponentTitle = (cartState: CartState) => {
+const getComponentTitle = (
+  cartState: CartState,
+  cartEligibilityStatus?: CartEligibilityStatus
+) => {
   switch (cartState) {
     case CartState.FAIL:
       return {
@@ -21,6 +24,12 @@ const getComponentTitle = (cartState: CartState) => {
         titleFtl: 'next-subscription-processing-title',
       };
     case CartState.START:
+      if (cartEligibilityStatus === CartEligibilityStatus.UPGRADE) {
+        return {
+          title: 'Review your change',
+          titleFtl: 'subscription-title-plan-change-heading',
+        };
+      }
       return {
         title: 'Set up your subscription',
         titleFtl: 'next-subscription-create-title',
@@ -31,7 +40,7 @@ const getComponentTitle = (cartState: CartState) => {
         titleFtl: 'next-subscription-success-title',
       };
     default:
-      console.error('SubscriptionTitle - cartState does not match', cartState);
+      console.error('SubscriptionTitle - does not match options', cartState);
       return {
         title: 'Set up your subscription',
         titleFtl: 'next-subscription-create-title',
@@ -39,18 +48,24 @@ const getComponentTitle = (cartState: CartState) => {
   }
 };
 
-const subheaders = [CartState.PROCESSING, CartState.START, CartState.SUCCESS];
+const subheaders: string[] = [
+  CartState.PROCESSING,
+  CartState.START,
+  CartState.SUCCESS,
+];
 
 interface SubscriptionTitleProps {
   cartState: CartState;
+  cartEligibilityStatus?: CartEligibilityStatus.UPGRADE;
   l10n: LocalizerRsc;
 }
 
 export async function SubscriptionTitle({
   l10n,
   cartState,
+  cartEligibilityStatus,
 }: SubscriptionTitleProps) {
-  const componentTitle = getComponentTitle(cartState);
+  const componentTitle = getComponentTitle(cartState, cartEligibilityStatus);
   const displaySubtitle = subheaders.includes(cartState);
 
   return (

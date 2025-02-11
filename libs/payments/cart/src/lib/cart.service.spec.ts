@@ -1251,7 +1251,11 @@ describe('CartService', () => {
         },
         metricsOptedOut: false,
         fromOfferingConfigId: mockFromOfferingId,
-        fromPrice: mockFromPrice,
+        fromPrice: {
+          currency: mockFromPrice.currency,
+          interval: mockFromPrice.recurring?.interval,
+          listAmount: mockFromPrice.unit_amount,
+        },
       });
 
       expect(cartManager.fetchCartById).toHaveBeenCalledWith(mockCart.id);

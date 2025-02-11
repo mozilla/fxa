@@ -37,14 +37,14 @@ export class EligibilityManager {
   async getOfferingOverlap({
     priceIds,
     targetPriceId,
-    providedTargetOffering,
+    targetOffering,
   }: {
     priceIds: string[];
     targetPriceId?: string;
-    providedTargetOffering?: EligibilityContentOfferingResult;
+    targetOffering?: EligibilityContentOfferingResult;
   }): Promise<OfferingOverlapResult[]> {
     if (!priceIds.length) return [];
-    if (!targetPriceId && !providedTargetOffering) return [];
+    if (!targetPriceId && !targetOffering) return [];
 
     const ids = targetPriceId ? [...priceIds, targetPriceId] : [...priceIds];
 
@@ -55,14 +55,15 @@ export class EligibilityManager {
 
     const result: OfferingOverlapResult[] = [];
 
-    let targetOffering;
-    if (providedTargetOffering) {
-      targetOffering = providedTargetOffering;
+    let targetOfferingForComparison;
+    if (targetOffering) {
+      targetOfferingForComparison = targetOffering;
     }
     if (targetPriceId) {
-      targetOffering = detailsResult.offeringForPlanId(targetPriceId);
+      targetOfferingForComparison =
+        detailsResult.offeringForPlanId(targetPriceId);
     }
-    if (!targetOffering) return [];
+    if (!targetOfferingForComparison) return [];
 
     for (const priceId of priceIds) {
       const fromOffering = detailsResult.offeringForPlanId(priceId);
@@ -70,7 +71,7 @@ export class EligibilityManager {
 
       const comparison = offeringComparison(
         fromOffering.apiIdentifier,
-        targetOffering
+        targetOfferingForComparison
       );
       if (comparison)
         result.push({

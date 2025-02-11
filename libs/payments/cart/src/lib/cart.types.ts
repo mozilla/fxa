@@ -3,13 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { TaxAddress } from '@fxa/payments/customer';
-import { StripePrice } from '@fxa/payments/stripe';
 import {
   Cart,
   CartEligibilityStatus,
   CartErrorReasonId,
   CartState,
 } from '@fxa/shared/db/mysql/account';
+import { StripePrice } from '@fxa/payments/stripe';
 import Stripe from 'stripe';
 
 export type CheckoutCustomerData = {
@@ -60,13 +60,19 @@ export type ResultCart = Readonly<Omit<Cart, 'id' | 'uid'>> & {
   readonly uid?: string;
 };
 
+export type FromPrice = {
+  currency: string;
+  interval: NonNullable<StripePrice['recurring']>['interval'];
+  listAmount: number;
+};
+
 export type BaseCartDTO = Omit<ResultCart, 'state'> & {
   metricsOptedOut: boolean;
   upcomingInvoicePreview: Invoice;
   latestInvoicePreview?: Invoice;
   paymentInfo?: PaymentInfo;
   fromOfferingConfigId?: string;
-  fromPrice?: StripePrice;
+  fromPrice?: FromPrice;
 };
 
 export type StartCartDTO = BaseCartDTO & {
