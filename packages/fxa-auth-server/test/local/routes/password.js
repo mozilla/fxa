@@ -724,6 +724,133 @@ describe('/password', () => {
     });
   });
 
+  describe('/password/change/start', () => {
+    it('should start password change', async () => {
+      const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+      const mockDB = mocks.mockDB({
+        email: TEST_EMAIL,
+        uid,
+      });
+      const mockPush = mocks.mockPush();
+      const mockMailer = mocks.mockMailer();
+      const mockLog = mocks.mockLog();
+      const mockRequest = mocks.mockRequest({
+        payload: {
+          email: TEST_EMAIL,
+          oldAuthPW: crypto.randomBytes(32).toString('hex'),
+        },
+        query: {
+          keys: 'true',
+        },
+        log: mockLog,
+        uaBrowser: 'Firefox',
+        uaBrowserVersion: '57',
+        uaOS: 'Mac OS X',
+        uaOSVersion: '10.11',
+      });
+      const mockCustoms = mocks.mockCustoms();
+      const mockStatsd = mocks.mockStatsd();
+      const passwordRoutes = makeRoutes({
+        db: mockDB,
+        push: mockPush,
+        mailer: mockMailer,
+        log: mockLog,
+        customs: mockCustoms,
+        statsd: mockStatsd,
+      });
+
+      mockDB.checkPassword = sinon.spy(() =>
+        Promise.resolve({
+          v1: true,
+          v2: false,
+        })
+      );
+
+      const response = await runRoute(
+        passwordRoutes,
+        '/password/change/start',
+        mockRequest
+      );
+
+      sinon.assert.calledWith(
+        mockCustoms.check,
+        mockRequest,
+        TEST_EMAIL,
+        'passwordChange'
+      );
+      sinon.assert.calledWith(mockDB.accountRecord, TEST_EMAIL);
+      sinon.assert.calledOnce(mockDB.createKeyFetchToken);
+      sinon.assert.calledWith(mockDB.createPasswordChangeToken, { uid });
+
+      assert.ok(response.keyFetchToken);
+      assert.ok(response.passwordChangeToken);
+    });
+
+    it('should start password change with session token', async () => {
+      const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+      const mockDB = mocks.mockDB({
+        email: TEST_EMAIL,
+        uid,
+      });
+      const mockPush = mocks.mockPush();
+      const mockMailer = mocks.mockMailer();
+      const mockLog = mocks.mockLog();
+      const mockStatsd = mocks.mockStatsd();
+      const mockRequest = mocks.mockRequest({
+        credentials: {
+          uid,
+        },
+        payload: {
+          email: TEST_EMAIL,
+          oldAuthPW: crypto.randomBytes(32).toString('hex'),
+        },
+        query: {
+          keys: 'true',
+        },
+        log: mockLog,
+        uaBrowser: 'Firefox',
+        uaBrowserVersion: '57',
+        uaOS: 'Mac OS X',
+        uaOSVersion: '10.11',
+      });
+      const mockCustoms = mocks.mockCustoms();
+      const passwordRoutes = makeRoutes({
+        db: mockDB,
+        push: mockPush,
+        mailer: mockMailer,
+        log: mockLog,
+        customs: mockCustoms,
+        statsd: mockStatsd,
+      });
+
+      mockDB.checkPassword = sinon.spy(() =>
+        Promise.resolve({
+          v1: true,
+          v2: false,
+        })
+      );
+
+      const response = await runRoute(
+        passwordRoutes,
+        '/password/change/start',
+        mockRequest
+      );
+
+      sinon.assert.calledWith(
+        mockCustoms.checkAuthenticated,
+        mockRequest,
+        uid,
+        'passwordChange'
+      );
+      sinon.assert.calledWith(mockDB.accountRecord, TEST_EMAIL);
+      sinon.assert.calledOnce(mockDB.createKeyFetchToken);
+      sinon.assert.calledWith(mockDB.createPasswordChangeToken, { uid });
+
+      assert.ok(response.keyFetchToken);
+      assert.ok(response.passwordChangeToken);
+    });
+  });
+
   describe('/change/finish', () => {
     it('smoke', () => {
       const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');

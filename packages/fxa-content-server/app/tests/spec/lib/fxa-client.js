@@ -1347,9 +1347,9 @@ function trim(str) {
                 trim(email),
                 password,
                 'new_password',
+                'sessionToken',
                 {
                   keys: true,
-                  sessionToken: 'sessionToken',
                 }
               )
             );
@@ -1402,9 +1402,9 @@ function trim(str) {
                 trimmedEmail,
                 password,
                 'new_password',
+                'sessionToken',
                 {
                   keys: true,
-                  sessionToken: 'sessionToken',
                 }
               )
             );
