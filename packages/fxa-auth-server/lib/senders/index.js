@@ -14,7 +14,7 @@ module.exports = async (
   sender // This is only used in tests
 ) => {
   const defaultLanguage = config.i18n.defaultLanguage;
-  const Mailer = createMailer(log, config, bounces);
+  const Mailer = createMailer(log, config, bounces, statsd);
 
   async function createSenders() {
     return {

@@ -190,4 +190,34 @@ describe('bounces', () => {
     await bounces.check(EMAIL, 'recovery');
     assert.equal(db.emailBounces.callCount, 0);
   });
+
+  it('get results from bounce checks', async () => {
+    const conf = Object.assign({}, config);
+    const latestBounce = Date.now() - 20000;
+    conf.smtp = {
+      bounces: {
+        enabled: true,
+        complaint: {
+          0: 5000,
+          1: 50000,
+        },
+      },
+    };
+    const db = {
+      emailBounces: sinon.spy(() =>
+        Promise.resolve([
+          {
+            bounceType: BOUNCE_TYPE_COMPLAINT,
+            createdAt: latestBounce,
+          },
+        ])
+      ),
+    };
+    return createBounces(conf, db)
+      .check(EMAIL)
+      .then((tallies) => {
+        assert.equal(tallies[BOUNCE_TYPE_COMPLAINT].count, 1);
+        assert.equal(tallies[BOUNCE_TYPE_COMPLAINT].latest, latestBounce);
+      });
+  });
 });
