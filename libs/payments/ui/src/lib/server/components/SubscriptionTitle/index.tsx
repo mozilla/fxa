@@ -4,11 +4,11 @@
 
 import Image from 'next/image';
 import checkLogo from '@fxa/shared/assets/images/check.svg';
-import { CartState } from '@fxa/shared/db/mysql/account';
+import { CartEligibilityStatus, CartState } from '@fxa/shared/db/mysql/account';
 import { LocalizerRsc } from '@fxa/shared/l10n/server';
 import circledConfirm from '@fxa/shared/assets/images/circled-confirm-clouds.svg';
 
-const getComponentTitle = (cartState: CartState) => {
+const getComponentTitle = (cartState: CartState | CartEligibilityStatus) => {
   switch (cartState) {
     case CartState.FAIL:
       return {
@@ -30,6 +30,11 @@ const getComponentTitle = (cartState: CartState) => {
         title: 'Subscription confirmation',
         titleFtl: 'next-subscription-success-title',
       };
+    case CartEligibilityStatus.UPGRADE:
+      return {
+        title: 'Review your change',
+        titleFtl: 'subscription-title-plan-change-heading',
+      };
     default:
       console.error('SubscriptionTitle - cartState does not match', cartState);
       return {
@@ -39,10 +44,14 @@ const getComponentTitle = (cartState: CartState) => {
   }
 };
 
-const subheaders = [CartState.PROCESSING, CartState.START, CartState.SUCCESS];
+const subheaders: string[] = [
+  CartState.PROCESSING,
+  CartState.START,
+  CartState.SUCCESS,
+];
 
 interface SubscriptionTitleProps {
-  cartState: CartState;
+  cartState: CartState | CartEligibilityStatus;
   l10n: LocalizerRsc;
 }
 

@@ -7,19 +7,18 @@ import { formatPlanPricing } from '../../../utils/helpers';
 
 type PriceIntervalProps = {
   l10n: LocalizerRsc;
+  amount: number;
   currency: string;
   interval: string;
-  listAmount: number;
-  totalAmount?: number;
 };
 
 export async function PriceInterval(props: PriceIntervalProps) {
-  const { l10n, currency, interval, listAmount, totalAmount } = props;
+  const { l10n, amount, currency, interval } = props;
   return l10n.getString(
     `plan-price-interval-${interval}`,
     {
-      amount: l10n.getLocalizedCurrency(totalAmount ?? listAmount, currency),
+      amount: l10n.getLocalizedCurrency(amount, currency),
     },
-    formatPlanPricing(totalAmount ?? listAmount, currency, interval)
+    formatPlanPricing(amount, currency, interval)
   );
 }

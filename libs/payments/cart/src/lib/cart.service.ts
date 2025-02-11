@@ -5,6 +5,7 @@
 import { Injectable } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
 import assert from 'assert';
+import assertNotNull from 'assert';
 
 import {
   CustomerManager,
@@ -51,6 +52,7 @@ import { CartManager } from './cart.manager';
 import type {
   CartDTO,
   CheckoutCustomerData,
+  FromPrice,
   GetNeedsInputResponse,
   NoInputNeededResponse,
   PaymentInfo,
@@ -244,7 +246,6 @@ export class CartService {
     const [upcomingInvoice, eligibility] = await Promise.all([
       this.invoiceManager.previewUpcoming({
         priceId: price.id,
-        currency,
         customer: stripeCustomer,
         taxAddress: taxAddress,
         couponCode: args.promoCode,
@@ -557,7 +558,6 @@ export class CartService {
       upcomingInvoicePreview =
         await this.invoiceManager.previewUpcomingForUpgrade({
           priceId: price.id,
-          currency: cart.currency || DEFAULT_CURRENCY,
           customer,
           taxAddress: cart.taxAddress || undefined,
           couponCode: cart.couponCode || undefined,
@@ -566,7 +566,6 @@ export class CartService {
     } else {
       upcomingInvoicePreview = await this.invoiceManager.previewUpcoming({
         priceId: price.id,
-        currency: cart.currency || DEFAULT_CURRENCY,
         customer,
         taxAddress: cart.taxAddress || undefined,
         couponCode: cart.couponCode || undefined,
@@ -632,6 +631,18 @@ export class CartService {
       };
     }
 
+    let currentPrice: FromPrice | undefined;
+    if (cartEligibilityStatus === CartEligibilityStatus.UPGRADE) {
+      assert('fromPrice' in eligibility, 'fromPrice not present for upgrade');
+      assertNotNull(eligibility.fromPrice.unit_amount);
+      assertNotNull(eligibility.fromPrice.recurring);
+      currentPrice = {
+        currency: eligibility.fromPrice.currency,
+        interval: eligibility.fromPrice.recurring.interval,
+        listAmount: eligibility.fromPrice.unit_amount,
+      };
+    }
+
     return {
       ...cart,
       state: cart.state,
@@ -643,7 +654,7 @@ export class CartService {
         'fromOfferingConfigId' in eligibility
           ? eligibility.fromOfferingConfigId
           : undefined,
-      fromPrice: 'fromPrice' in eligibility ? eligibility.fromPrice : undefined,
+      fromPrice: 'fromPrice' in eligibility ? currentPrice : undefined,
     };
   }
 

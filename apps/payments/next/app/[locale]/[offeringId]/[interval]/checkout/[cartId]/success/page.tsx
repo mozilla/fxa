@@ -102,7 +102,7 @@ export default async function CheckoutSuccess({
                 {
                   email: cart.email || '',
                 },
-                `You'll receive an email at ${cart.email} with instructions about your subscription, as well as your payment details.`
+                `You’ll receive an email at ${cart.email} with instructions about your subscription, as well as your payment details.`
               )}
             </p>
           </div>

@@ -77,7 +77,7 @@ describe('EligibilityManager', () => {
       expect(result).toHaveLength(0);
     });
 
-    it('should return empty result when providedTargetOffering or targetPriceId not provided', async () => {
+    it('should return empty result when targetOffering or targetPriceId not provided', async () => {
       const eligibilityContentByPlanIdsResultUtil =
         new EligibilityContentByPlanIdsResultUtil({ purchases: [] });
 
@@ -224,7 +224,7 @@ describe('EligibilityManager', () => {
       const priceId = faker.string.uuid();
       const result = await manager.getOfferingOverlap({
         priceIds: [priceId],
-        providedTargetOffering: targetOffering,
+        targetOffering: targetOffering,
       });
       expect(
         productConfigurationManager.getPurchaseDetailsForEligibility
@@ -320,7 +320,7 @@ describe('EligibilityManager', () => {
       const fromPriceId = faker.string.uuid();
       const result = await manager.getOfferingOverlap({
         priceIds: [fromPriceId],
-        providedTargetOffering: targetOffering,
+        targetOffering: targetOffering,
       });
       expect(
         productConfigurationManager.getPurchaseDetailsForEligibility
