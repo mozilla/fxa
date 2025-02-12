@@ -12,8 +12,8 @@ const otplib = require('otplib');
 const { Container } = require('typedi');
 const { AccountEventsManager } = require('../../../lib/account-events');
 const authErrors = require('../../../lib/error');
-const { RecoveryPhoneService } = require('@fxa/accounts/recovery-phone');
-const { BackupCodeManager } = require('@fxa/accounts/two-factor');
+import { RecoveryPhoneService } from '@fxa/accounts/recovery-phone';
+import { BackupCodeManager } from '@fxa/accounts/two-factor';
 
 let log,
   db,
