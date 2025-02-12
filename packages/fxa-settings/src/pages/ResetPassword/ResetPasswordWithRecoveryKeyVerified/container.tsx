@@ -12,7 +12,9 @@ import {
   Integration,
   isOAuthIntegration,
   useAccount,
+  useAlertBar,
   useAuthClient,
+  useFtlMsgResolver,
   useSensitiveDataClient,
 } from '../../../models';
 import {
@@ -29,6 +31,8 @@ const ResetPasswordWithRecoveryKeyVerifiedContainer = ({
 }: ResetPasswordWithRecoveryKeyVerifiedProps & RouteComponentProps) => {
   const [showHint, setShowHint] = useState(false);
 
+  const alertBar = useAlertBar();
+  const ftlMsgResolver = useFtlMsgResolver();
   const navigateWithQuery = useNavigateWithQuery();
   const sensitiveDataClient = useSensitiveDataClient();
 
@@ -59,10 +63,30 @@ const ResetPasswordWithRecoveryKeyVerifiedContainer = ({
     if (!recoveryKey) {
       // If we get here, that means a password reset was completed (with a verified account).
       // Along the way, we have lost a copy of the recovery key in memory if the page was unloaded.
-      // This is fine - we navigate to the confirmed page and carry on.
-      navigateWithQuery('/reset_password_verified', { replace: true });
+      // This is fine - we navigate to the confirmed or settings page and carry on.
+      const navigationPath = integration.isSync()
+        ? '/settings'
+        : '/reset_password_verified';
+      navigateWithQuery(navigationPath, { replace: true });
+
+      // For web integration and sync navigate to settings
+      // Sync users will see an account recovery key promotion banner in settings
+      // if they don't have one configured
+      alertBar.success(
+        ftlMsgResolver.getMsg(
+          'reset-password-complete-header',
+          'Your password has been reset'
+        )
+      );
     }
-  }, [recoveryKey, email, navigateWithQuery]);
+  }, [
+    recoveryKey,
+    email,
+    navigateWithQuery,
+    integration,
+    alertBar,
+    ftlMsgResolver,
+  ]);
 
   if (!recoveryKey || !email) {
     return <></>;
