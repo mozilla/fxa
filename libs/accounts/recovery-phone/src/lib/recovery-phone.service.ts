@@ -18,6 +18,7 @@ import {
 } from './recovery-phone.errors';
 import { MessageInstance } from 'twilio/lib/rest/api/v2010/account/message';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
+import { StatsD, StatsDService } from '@fxa/shared/metrics/statsd';
 
 @Injectable()
 export class RecoveryPhoneService {
@@ -26,6 +27,7 @@ export class RecoveryPhoneService {
     private readonly smsManager: SmsManager,
     private readonly otpCode: OtpManager,
     private readonly config: RecoveryPhoneConfig,
+    @Inject(StatsDService) private readonly metrics: StatsD,
     @Inject(LOGGER_PROVIDER) private readonly log?: LoggerService
   ) {}
 
@@ -139,6 +141,33 @@ export class RecoveryPhoneService {
         throw new RecoveryNumberNotSupportedError(data.phoneNumber, error);
       }
     })();
+
+    // Reject numbers suspected of sim pumping
+    const smsPumpingRiskThreshold = this.config.sms?.smsPumpingRiskThreshold;
+    const smsPumpingRisk = lookupData?.smsPumpingRisk;
+    if (
+      typeof smsPumpingRiskThreshold === 'number' &&
+      typeof smsPumpingRisk === 'number'
+    ) {
+      this.metrics.gauge('sim_pumping_risk', smsPumpingRisk);
+
+      if (smsPumpingRisk > smsPumpingRiskThreshold) {
+        this.metrics.increment('sim_pumping_risk.denied');
+
+        const error = new RecoveryNumberNotSupportedError(
+          data.phoneNumber,
+          new Error('Sim pumping risk threshold exceeded')
+        );
+        this.log?.error('RecoveryPhoneService.smsPumpingRisk', {
+          phoneNumber: data.phoneNumber,
+          smsPumpingRisk,
+        });
+
+        throw error;
+      } else {
+        this.metrics.increment('sim_pumping_risk.allowed');
+      }
+    }
 
     await this.recoveryPhoneManager.registerPhoneNumber(
       uid,

@@ -15,6 +15,7 @@ import {
   RecoveryNumberRemoveMissingBackupCodes,
 } from './recovery-phone.errors';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
+import { StatsDService } from '@fxa/shared/metrics/statsd';
 
 describe('RecoveryPhoneService', () => {
   const phoneNumber = '+15005551234';
@@ -23,6 +24,10 @@ describe('RecoveryPhoneService', () => {
 
   const mockLogger = {
     error: jest.fn(),
+  };
+  const mockMetrics = {
+    gauge: jest.fn(),
+    increment: jest.fn(),
   };
   const mockSmsManager = {
     sendSMS: jest.fn(),
@@ -44,6 +49,7 @@ describe('RecoveryPhoneService', () => {
     allowedRegions: ['US'],
     sms: {
       validNumberPrefixes: ['+1500'],
+      smsPumpingRiskThreshold: 75,
     },
   };
   const mockError = new Error('BOOM');
@@ -67,6 +73,10 @@ describe('RecoveryPhoneService', () => {
         {
           provide: LOGGER_PROVIDER,
           useValue: mockLogger,
+        },
+        {
+          provide: StatsDService,
+          useValue: mockMetrics,
         },
         RecoveryPhoneService,
       ],
@@ -224,7 +234,36 @@ describe('RecoveryPhoneService', () => {
       expect(mockRecoveryPhoneManager.getUnconfirmed).toBeCalledWith(uid, code);
     });
 
-    it('can handled failed lookup by throwing PhoneNumberNotSupported error', async () => {
+    it('can handle smsPumpingRisk score throwing PhoneNumberNotSupported error', async () => {
+      const phoneNumber = '+15005550000';
+      const smsPumpingRisk = 95;
+
+      mockRecoveryPhoneManager.getUnconfirmed.mockReturnValueOnce({
+        isSetup: true,
+        phoneNumber,
+      });
+      mockSmsManager.phoneNumberLookup.mockReturnValueOnce({
+        phoneNumber,
+        smsPumpingRisk,
+      });
+
+      const promise = service.confirmSetupCode(uid, code);
+      await expect(promise).rejects.toThrow(/Phone number not supported.*/);
+      expect(mockMetrics.gauge).toBeCalledWith(
+        'sim_pumping_risk',
+        smsPumpingRisk
+      );
+      expect(mockMetrics.increment).toBeCalledWith('sim_pumping_risk.denied');
+      expect(mockLogger.error).toBeCalledWith(
+        'RecoveryPhoneService.smsPumpingRisk',
+        {
+          phoneNumber,
+          smsPumpingRisk,
+        }
+      );
+    });
+
+    it('can handle failed lookup by throwing PhoneNumberNotSupported error', async () => {
       mockRecoveryPhoneManager.getUnconfirmed.mockReturnValue({
         isSetup: true,
       });

@@ -19,4 +19,7 @@ export class SmsManagerConfig {
 
   @IsArray()
   public readonly validNumberPrefixes!: Array<string>;
+
+  @IsArray()
+  public readonly extraLookupFields!: Array<string>;
 }
