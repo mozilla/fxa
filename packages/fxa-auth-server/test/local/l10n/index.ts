@@ -144,5 +144,37 @@ describe('Localizer', () => {
         'this-id-definitely-doesnt-exist': 'My fake message',
       });
     });
+
+    it('can handle optional arguments to be interpolated into the localized string', async () => {
+      const code = 'abc123';
+      const result = await localizer.localizeStrings('en', [
+        {
+          id: 'recovery-phone-setup-sms-body',
+          message: `This is a fallback message that includes the code: ${code}`,
+          vars: { code },
+        },
+      ]);
+
+      assert.deepEqual(result, {
+        'recovery-phone-setup-sms-body':
+          'abc123 is your Mozilla verification code. Expires in 5 minutes.',
+      });
+    });
+
+    it('can handle missing localized strings with optional arguments', async () => {
+      const code = 'abc123';
+      const result = await localizer.localizeStrings('en', [
+        {
+          id: 'recovery-phone-setup-sms-body-does-not-exist',
+          message: `This is a fallback message that includes the code: ${code}`,
+          vars: { code },
+        },
+      ]);
+
+      assert.deepEqual(result, {
+        'recovery-phone-setup-sms-body-does-not-exist':
+          'This is a fallback message that includes the code: abc123',
+      });
+    });
   });
 });

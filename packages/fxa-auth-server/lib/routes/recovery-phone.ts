@@ -21,6 +21,8 @@ import { GleanMetricsType } from '../metrics/glean';
 import { AuthRequest, SessionTokenAuthCredential } from '../types';
 import { E164_NUMBER } from './validators';
 import AppError from '../error';
+import Localizer from '../l10n';
+import NodeRendererBindings from '../senders/renderer/bindings-node';
 
 const { Container } = require('typedi');
 
@@ -41,6 +43,7 @@ export type Customs = {
 class RecoveryPhoneHandler {
   private readonly recoveryPhoneService: RecoveryPhoneService;
   private readonly accountManager: AccountManager;
+  private readonly localizer: Localizer;
 
   constructor(
     private readonly customs: Customs,
@@ -51,7 +54,36 @@ class RecoveryPhoneHandler {
   ) {
     this.recoveryPhoneService = Container.get(RecoveryPhoneService);
     this.accountManager = Container.get(AccountManager);
+    this.localizer = new Localizer(new NodeRendererBindings());
   }
+
+  getLocalizedStrings = async (
+    request: AuthRequest,
+    code: string,
+    type: 'setup' | 'signin'
+  ) => {
+    const id =
+      type === 'setup'
+        ? 'recovery-phone-setup-sms-body'
+        : 'recovery-phone-signin-sms-body';
+
+    const fallbackMessage =
+      type === 'setup'
+        ? `${code} is your Mozilla verification code. Expires in 5 minutes.`
+        : `${code} is your Mozilla recovery code. Expires in 5 minutes.`;
+
+    const localizedStrings = await this.localizer.localizeStrings(
+      request.app.locale,
+      [
+        {
+          id,
+          message: fallbackMessage,
+          vars: { code },
+        },
+      ]
+    );
+    return localizedStrings;
+  };
 
   async sendCode(request: AuthRequest) {
     const { uid, email } = request.auth
@@ -63,9 +95,21 @@ class RecoveryPhoneHandler {
 
     await this.customs.check(request, email, 'recoveryPhoneSendCode');
 
-    let status = false;
+    const getFormattedMessage = async (code: string) => {
+      const localizedMessage = await this.getLocalizedStrings(
+        request,
+        code,
+        'signin'
+      )[0];
+      return localizedMessage;
+    };
+
+    let success = false;
     try {
-      status = await this.recoveryPhoneService.sendCode(uid);
+      success = await this.recoveryPhoneService.sendCode(
+        uid,
+        getFormattedMessage
+      );
     } catch (error) {
       if (error instanceof RecoveryNumberNotExistsError) {
         throw AppError.recoveryPhoneNumberDoesNotExist();
@@ -87,7 +131,8 @@ class RecoveryPhoneHandler {
       );
     }
 
-    if (status) {
+    if (success) {
+      this.log.info('account.recoveryPhone.signinSendCode.success', { uid });
       await this.glean.twoStepAuthPhoneCode.sent(request);
       return { status: RecoveryPhoneStatus.SUCCESS };
     }
@@ -109,12 +154,26 @@ class RecoveryPhoneHandler {
     }
     await this.customs.checkAuthenticated(request, uid, 'recoveryPhoneCreate');
 
+    const getFormattedMessage = async (code: string) => {
+      const localizedMessage = await this.getLocalizedStrings(
+        request,
+        code,
+        'setup'
+      )[0];
+      return localizedMessage;
+    };
+
+    let success = false;
     try {
-      const result = await this.recoveryPhoneService.setupPhoneNumber(
+      success = await this.recoveryPhoneService.setupPhoneNumber(
         uid,
-        phoneNumber
+        phoneNumber,
+        getFormattedMessage
       );
-      if (result) {
+      if (success) {
+        this.log.info('account.recoveryPhone.setupPhoneNumber.success', {
+          uid,
+        });
         await this.glean.twoStepAuthPhoneCode.sent(request);
         return { status: RecoveryPhoneStatus.SUCCESS };
       }
@@ -176,31 +235,6 @@ class RecoveryPhoneHandler {
         // code on their phone for the first time. It does NOT impact the totp
         // token's database state.
         success = await this.recoveryPhoneService.confirmSetupCode(uid, code);
-        const { phoneNumber } = await this.recoveryPhoneService.hasConfirmed(
-          uid,
-          4
-        );
-
-        if (success) {
-          const account = await this.db.account(uid);
-          const { acceptLanguage, geo, ua } = request.app;
-
-          await this.mailer.sendPostAddRecoveryPhoneEmail(
-            account.emails,
-            account,
-            {
-              acceptLanguage,
-              maskedLastFourPhoneNumber: phoneNumber?.slice(1),
-              timeZone: geo.timeZone,
-              uaBrowser: ua.browser,
-              uaBrowserVersion: ua.browserVersion,
-              uaOS: ua.os,
-              uaOSVersion: ua.osVersion,
-              uaDeviceType: ua.deviceType,
-              uid,
-            }
-          );
-        }
       } else {
         // This is a sign in attempt. This will check the code, and if valid, mark the
         // session token verified. This session will have a security level that allows
@@ -213,24 +247,6 @@ class RecoveryPhoneHandler {
             uid,
             sessionTokenId,
             VerificationMethods.sms2fa
-          );
-
-          const account = await this.db.account(uid);
-          const { acceptLanguage, geo, ua } = request.app;
-
-          await this.mailer.sendPostSigninRecoveryPhoneEmail(
-            account.emails,
-            account,
-            {
-              acceptLanguage,
-              timeZone: geo.timeZone,
-              uaBrowser: ua.browser,
-              uaBrowserVersion: ua.browserVersion,
-              uaOS: ua.os,
-              uaOSVersion: ua.osVersion,
-              uaDeviceType: ua.deviceType,
-              uid,
-            }
           );
         }
       }
@@ -253,6 +269,72 @@ class RecoveryPhoneHandler {
 
     if (success) {
       await this.glean.twoStepAuthPhoneCode.complete(request);
+
+      const account = await this.db.account(uid);
+      const { acceptLanguage, geo, ua } = request.app;
+
+      if (isSetup) {
+        this.log.info('account.recoveryPhone.phoneAdded.success', { uid });
+
+        try {
+          const { phoneNumber } = await this.recoveryPhoneService.hasConfirmed(
+            uid,
+            4
+          );
+
+          await this.mailer.sendPostAddRecoveryPhoneEmail(
+            account.emails,
+            account,
+            {
+              acceptLanguage,
+              maskedLastFourPhoneNumber: phoneNumber?.slice(1),
+              timeZone: geo.timeZone,
+              uaBrowser: ua.browser,
+              uaBrowserVersion: ua.browserVersion,
+              uaOS: ua.os,
+              uaOSVersion: ua.osVersion,
+              uaDeviceType: ua.deviceType,
+              uid,
+            }
+          );
+        } catch (error) {
+          // log email send error but don't throw
+          // user should be allowed to proceed
+
+          this.log.trace('account.recoveryPhone.phoneAddedNotification.error', {
+            error,
+          });
+        }
+      } else {
+        this.log.info('account.recoveryPhone.phoneSignin.success', { uid });
+
+        try {
+          await this.mailer.sendPostSigninRecoveryPhoneEmail(
+            account.emails,
+            account,
+            {
+              acceptLanguage,
+              timeZone: geo.timeZone,
+              uaBrowser: ua.browser,
+              uaBrowserVersion: ua.browserVersion,
+              uaOS: ua.os,
+              uaOSVersion: ua.osVersion,
+              uaDeviceType: ua.deviceType,
+              uid,
+            }
+          );
+        } catch (error) {
+          // log email send error but don't throw
+          // user should be allowed to proceed
+          this.log.trace(
+            'account.recoveryPhone.phoneSigninNotification.error',
+            {
+              error,
+            }
+          );
+        }
+      }
+
       return { status: RecoveryPhoneStatus.SUCCESS };
     }
 
@@ -287,25 +369,34 @@ class RecoveryPhoneHandler {
     }
 
     if (success) {
+      this.log.info('account.recoveryPhone.phoneRemoved.success', { uid });
+      await this.glean.twoStepAuthPhoneRemove.success(request);
+
       const account = await this.db.account(uid);
       const { acceptLanguage, geo, ua } = request.app;
 
-      await this.mailer.sendPostRemoveRecoveryPhoneEmail(
-        account.emails,
-        account,
-        {
-          acceptLanguage,
-          timeZone: geo.timeZone,
-          uaBrowser: ua.browser,
-          uaBrowserVersion: ua.browserVersion,
-          uaOS: ua.os,
-          uaOSVersion: ua.osVersion,
-          uaDeviceType: ua.deviceType,
-          uid,
-        }
-      );
-
-      await this.glean.twoStepAuthPhoneRemove.success(request);
+      try {
+        await this.mailer.sendPostRemoveRecoveryPhoneEmail(
+          account.emails,
+          account,
+          {
+            acceptLanguage,
+            timeZone: geo.timeZone,
+            uaBrowser: ua.browser,
+            uaBrowserVersion: ua.browserVersion,
+            uaOS: ua.os,
+            uaOSVersion: ua.osVersion,
+            uaDeviceType: ua.deviceType,
+            uid,
+          }
+        );
+      } catch (error) {
+        // log email send error but don't throw
+        // user should be allowed to proceed
+        this.log.trace('account.recoveryPhone.phoneRemovedNotification.error', {
+          error,
+        });
+      }
     }
 
     return {};
@@ -416,6 +507,7 @@ export const recoveryPhoneRoutes = (
         },
       },
       handler: function (request: AuthRequest) {
+        log.begin('recoveryPhoneStartSetup', request);
         return recoveryPhoneHandler.setupPhoneNumber(request);
       },
     },
@@ -428,6 +520,7 @@ export const recoveryPhoneRoutes = (
         },
       },
       handler: function (request: AuthRequest) {
+        log.begin('recoveryPhoneAvailable', request);
         return recoveryPhoneHandler.available(request);
       },
     },
@@ -445,6 +538,7 @@ export const recoveryPhoneRoutes = (
         },
       },
       handler: function (request: AuthRequest) {
+        log.begin('recoveryPhoneConfirmSetup', request);
         return recoveryPhoneHandler.confirmCode(request, true);
       },
     },
@@ -457,6 +551,7 @@ export const recoveryPhoneRoutes = (
         },
       },
       handler: function (request: AuthRequest) {
+        log.begin('recoveryPhoneSigninSendCode', request);
         return recoveryPhoneHandler.sendCode(request);
       },
     },
@@ -469,6 +564,7 @@ export const recoveryPhoneRoutes = (
         },
       },
       handler: function (request: AuthRequest) {
+        log.begin('recoveryPhoneSigninConfirmCode', request);
         return recoveryPhoneHandler.confirmCode(request, false);
       },
     },
@@ -481,6 +577,7 @@ export const recoveryPhoneRoutes = (
         },
       },
       handler: function (request: AuthRequest) {
+        log.begin('recoveryPhoneRemove', request);
         return recoveryPhoneHandler.destroy(request);
       },
     },
@@ -493,6 +590,7 @@ export const recoveryPhoneRoutes = (
         },
       },
       handler: function (request: AuthRequest) {
+        log.begin('recoveryPhoneInfo', request);
         return recoveryPhoneHandler.exists(request);
       },
     },

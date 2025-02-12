@@ -28,8 +28,8 @@ describe('/recovery_phone', () => {
   const email = 'test@mozilla.com';
   const phoneNumber = '+15550005555';
   const code = '000000';
-  const mockLog = {};
   const mockDb = mocks.mockDB({ uid: uid, email: email });
+  const mockLog = mocks.mockLog();
   let mockMailer;
   const mockCustoms = {
     check: sandbox.fake(),

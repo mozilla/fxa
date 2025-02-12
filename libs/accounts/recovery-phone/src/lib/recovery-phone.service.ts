@@ -61,9 +61,14 @@ export class RecoveryPhoneService {
    * by sending the phone number provided an OTP code to verify.
    * @param uid The account id
    * @param phoneNumber The phone number to register
+   * @param localizedMessageBody Optional localized message body
    * @returns True if code was sent and stored
    */
-  public async setupPhoneNumber(uid: string, phoneNumber: string) {
+  public async setupPhoneNumber(
+    uid: string,
+    phoneNumber: string,
+    getFormattedMessage?: (code: string) => Promise<string>
+  ) {
     if (!this.config.enabled) {
       throw new RecoveryPhoneNotEnabled();
     }
@@ -90,21 +95,26 @@ export class RecoveryPhoneService {
     }
 
     const code = await this.otpCode.generateCode();
-    const msg = await this.smsManager.sendSMS({
-      to: phoneNumber,
-      body: code,
-    });
 
-    if (!this.isSuccessfulSmsSend(msg)) {
-      return false;
-    }
     await this.recoveryPhoneManager.storeUnconfirmed(
       uid,
       code,
       phoneNumber,
       true
     );
-    return true;
+
+    const formattedSMSbody = getFormattedMessage
+      ? await getFormattedMessage(code)
+      : undefined;
+
+    const smsBody = formattedSMSbody || `${code}`;
+
+    const msg = await this.smsManager.sendSMS({
+      to: phoneNumber,
+      body: smsBody,
+    });
+
+    return this.isSuccessfulSmsSend(msg);
   }
 
   /**
@@ -323,9 +333,13 @@ export class RecoveryPhoneService {
   /**
    * Sends an totp code to a user
    * @param uid Account id
+   * @param getFormattedMessage Optional template function to format the message
    * @returns True if message didn't fail to send.
    */
-  public async sendCode(uid: string) {
+  public async sendCode(
+    uid: string,
+    getFormattedMessage?: (code: string) => Promise<string>
+  ) {
     if (!this.config.enabled) {
       throw new RecoveryPhoneNotEnabled();
     }
@@ -339,9 +353,16 @@ export class RecoveryPhoneService {
       phoneNumber,
       false
     );
+
+    const formattedSMSbody = getFormattedMessage
+      ? await getFormattedMessage(code)
+      : undefined;
+
+    const smsBody = formattedSMSbody || `${code}`;
+
     const msg = await this.smsManager.sendSMS({
       to: phoneNumber,
-      body: `${code}`, // TODO: Other text or translation around code?
+      body: smsBody,
     });
 
     return this.isSuccessfulSmsSend(msg);
