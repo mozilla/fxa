@@ -88,5 +88,6 @@ export async function setupProcessingTaskObjects(processName: string) {
     database,
     senders,
     stripeHelper,
+    config,
   };
 }
