@@ -106,7 +106,8 @@ export const ConnectedServices = forwardRef<HTMLDivElement>((_, ref) => {
         // disconnect all clients/sessions with this name since only unique names
         // are displayed to the user. This is batched into one network request
         // via BatchHttpLink
-        const clientsWithMatchingName = groupedByName[client.name || 'unknown'];
+        const groupByKey = client.name ?? 'undefined';
+        const clientsWithMatchingName = groupedByName[groupByKey];
         const hasMultipleSessions = clientsWithMatchingName.length > 1;
         if (hasMultipleSessions) {
           await Promise.all(
