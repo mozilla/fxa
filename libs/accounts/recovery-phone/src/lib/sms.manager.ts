@@ -31,7 +31,7 @@ export class SmsManager {
   public async phoneNumberLookup(phoneNumber: string) {
     const result = await this.client.lookups.v2
       .phoneNumbers(phoneNumber)
-      .fetch();
+      .fetch({ fields: this.config.extraLookupFields.join(',') });
     // Calling toJSON converts PhoneNumberInstance into a
     // object that just holds state and can be serialized.
     return result.toJSON();

@@ -2213,6 +2213,18 @@ const convictConf = convict({
         env: 'RECOVERY_PHONE__SMS__MAX_RETRIES',
         format: Number,
       },
+      smsPumpingRiskThreshold: {
+        default: 75,
+        doc: 'Max sms pumping risk score allowed. Value is from 0 to 100. e.g. 74-90 is moderate risk. See twilio docs for more info. https://www.twilio.com/docs/lookup/v2-api/sms-pumping-risk',
+        env: 'RECOVERY_PHONE__SMS__SMS_PUMPING_RISK_THRESHOLD',
+        format: Number,
+      },
+      extraLookupFields: {
+        default: ['sms_pumping_risk'],
+        doc: 'Extra data to fetch about phone numbers being registered for sms backup.',
+        env: 'RECOVERY_PHONE__SMS__EXTRA_LOOKUP_FIELDS',
+        format: Array,
+      },
     },
   },
   twilio: {

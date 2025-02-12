@@ -246,6 +246,7 @@ async function run(config) {
     smsManager,
     otpCodeManager,
     config.recoveryPhone,
+    statsd,
     log
   );
   Container.set(RecoveryPhoneService, recoveryPhoneService);
