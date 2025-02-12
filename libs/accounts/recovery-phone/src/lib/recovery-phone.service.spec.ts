@@ -114,7 +114,7 @@ describe('RecoveryPhoneService', () => {
     expect(result).toBeTruthy();
   });
 
-  it('Should send new code for setup phone number ', async () => {
+  it('Should send new code for setup phone number', async () => {
     mockOtpManager.generateCode.mockReturnValue(code);
     mockRecoveryPhoneManager.getAllUnconfirmed.mockResolvedValue([
       'this:is:the:code123',
@@ -447,6 +447,48 @@ describe('RecoveryPhoneService', () => {
       const error = new RecoveryNumberNotExistsError(uid);
       mockRecoveryPhoneManager.getConfirmedPhoneNumber.mockRejectedValue(error);
       expect(service.sendCode(uid)).rejects.toThrow(error);
+    });
+
+    it('Should send new code for setup phone number', async () => {
+      mockOtpManager.generateCode.mockReturnValue(code);
+      mockRecoveryPhoneManager.getAllUnconfirmed.mockResolvedValue([
+        'this:is:the:code123',
+        'this:is:the:code456',
+      ]);
+
+      mockRecoveryPhoneManager.getConfirmedPhoneNumber.mockResolvedValueOnce({
+        phoneNumber,
+      });
+      mockOtpManager.generateCode.mockResolvedValueOnce(code);
+      mockSmsManager.sendSMS.mockResolvedValue({ status: 'success' });
+
+      const result = await service.sendCode(uid);
+
+      expect(result).toBeTruthy();
+      expect(mockRecoveryPhoneManager.getConfirmedPhoneNumber).toBeCalledWith(
+        uid
+      );
+      expect(mockRecoveryPhoneManager.storeUnconfirmed).toBeCalledWith(
+        uid,
+        code,
+        phoneNumber,
+        false
+      );
+      expect(mockOtpManager.generateCode).toBeCalled();
+      expect(mockSmsManager.sendSMS).toBeCalledWith({
+        to: phoneNumber,
+        body: code,
+      });
+
+      expect(mockRecoveryPhoneManager.removeCode).toBeCalledWith(
+        uid,
+        'code123'
+      );
+      expect(mockRecoveryPhoneManager.removeCode).toBeCalledWith(
+        uid,
+        'code456'
+      );
+      expect(mockRecoveryPhoneManager.getAllUnconfirmed).toBeCalledWith(uid);
     });
   });
 

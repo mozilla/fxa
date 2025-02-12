@@ -331,7 +331,8 @@ export class RecoveryPhoneService {
   }
 
   /**
-   * Sends an totp code to a user
+   * Sends a new totp code to a user and revokes any previous unconfirmed codes.
+   *
    * @param uid Account id
    * @param getFormattedMessage Optional template function to format the message
    * @returns True if message didn't fail to send.
@@ -342,6 +343,17 @@ export class RecoveryPhoneService {
   ) {
     if (!this.config.enabled) {
       throw new RecoveryPhoneNotEnabled();
+    }
+
+    // Invalidate and remove any or all previous unconfirmed code entries
+    const unconfirmedKeys = await this.recoveryPhoneManager.getAllUnconfirmed(
+      uid
+    );
+    for (const key of unconfirmedKeys) {
+      const oldCode = key.split(':').pop();
+      if (oldCode) {
+        await this.recoveryPhoneManager.removeCode(uid, oldCode);
+      }
     }
 
     const { phoneNumber } =
