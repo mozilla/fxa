@@ -90,6 +90,9 @@ export const FlowSetupRecoveryPhoneSubmitNumber = ({
         )}
         submitPhoneNumber={handlePhoneNumber}
         errorBannerId="flow-setup-phone-submit-number-error"
+        gleanDataAttrs={{
+          id: 'two_step_auth_phone_submit',
+        }}
       />
       <FtlMsg id="flow-setup-phone-submit-number-legal">
         <p className="text-xs mt-6">

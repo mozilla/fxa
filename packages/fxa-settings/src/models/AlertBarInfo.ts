@@ -28,9 +28,10 @@ export class AlertBarInfo {
     alertContent(text);
   }
 
-  success(message: string) {
+  success(message: string, gleanEvent?: () => void) {
     this.setType('success');
     this.setContent(message);
+    gleanEvent && gleanEvent();
     this.show();
   }
 

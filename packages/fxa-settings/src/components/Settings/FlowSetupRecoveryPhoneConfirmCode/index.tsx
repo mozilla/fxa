@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import FlowContainer from '../FlowContainer';
 import ProgressBar from '../ProgressBar';
 import { FtlMsg } from 'fxa-react/lib/utils';
@@ -12,6 +12,7 @@ import { BackupRecoveryPhoneCodeImage } from '../../images';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import { useAlertBar, useFtlMsgResolver } from '../../../models';
 import { ResendStatus } from '../../../lib/types';
+import GleanMetrics from '../../../lib/glean';
 
 export type FlowSetupRecoveryPhoneConfirmCodeProps = {
   currentStep?: number;
@@ -41,6 +42,10 @@ export const FlowSetupRecoveryPhoneConfirmCode = ({
   const [resendStatus, setResendStatus] = useState<ResendStatus>(
     ResendStatus.none
   );
+
+  useEffect(() => {
+    GleanMetrics.accountPref.twoStepAuthPhoneVerifyView();
+  }, []);
 
   const alertBar = useAlertBar();
   const ftlMsgResolver = useFtlMsgResolver();
@@ -145,13 +150,20 @@ export const FlowSetupRecoveryPhoneConfirmCode = ({
         setErrorMessage={setLocalizedErrorBannerMessage}
         verifyCode={handleSubmit}
         errorBannerId="flow-setup-phone-confirm-code-error"
+        gleanDataAttrs={{
+          id: 'two_step_auth_phone_verify_submit',
+        }}
       />
       <div className="flex flex-wrap gap-2 mt-6 justify-center text-center">
         <FtlMsg id="flow-setup-phone-confirm-code-expired">
           <p>Code expired?</p>
         </FtlMsg>
         <FtlMsg id="flow-setup-phone-confirm-code-resend-code-button">
-          <button className="link-blue" onClick={handleResendCode}>
+          <button
+            className="link-blue"
+            onClick={handleResendCode}
+            data-glean-id="two_step_auth_phone_verify_resend_code"
+          >
             Resend code
           </button>
         </FtlMsg>

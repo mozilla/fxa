@@ -862,7 +862,45 @@ login:
     expires: never
     data_sensitivity:
       - interaction
-
+  recovery_phone_success_view:
+    type: event
+    description: |
+      Event that indicates the user successfully authenticated via recovery phone.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-11087
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+  backup_choice_submit:
+    type: event
+    description: |
+      Event that indicates the user chose to use one of their recovery methods during sign in.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-11087
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: |
+          Indicates which recovery method ("phone" or "codes") the user chose to authenticate with instead of their authenticator app.
+        type: string
 password_reset:
   create_new_recovery_key_message_click:
     type: event
@@ -1935,7 +1973,6 @@ third_party_auth_set_password:
     expires: never
     data_sensitivity:
       - interaction
-
 account_pref:
   view:
     type: event
@@ -2022,6 +2059,10 @@ account_pref:
     expires: never
     data_sensitivity:
       - interaction
+    extra_keys:
+      reason:
+        description: Page is viewed to "setup", "inline setup" or "replace" backup authentication codes
+        type: string
   two_step_auth_qr_code_success:
     type: event
     description: |
@@ -2039,6 +2080,27 @@ account_pref:
     expires: never
     data_sensitivity:
       - interaction
+  two_step_auth_manual_code_view:
+    type: event
+    description: |
+      User started the 2FA setup process by viewing step 1 of the funnel with manual key entry in their authenticator app.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-11087
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: Page is viewed to "setup", "inline setup" or "replace" backup authentication codes
+        type: string
   two_step_auth_codes_view:
     type: event
     description: |
@@ -2056,6 +2118,10 @@ account_pref:
     expires: never
     data_sensitivity:
       - interaction
+    extra_keys:
+      reason:
+        description: Page is viewed to "setup", "inline setup" or "replace" backup authentication codes
+        type: string
   two_step_auth_enter_code_view:
     type: event
     description: |
@@ -2067,6 +2133,99 @@ account_pref:
       - fxa-staff@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-9585
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: Page is viewed to "setup", "inline setup" or "replace" backup authentication codes
+        type: string
+  two_step_auth_enter_code_success_view:
+    type: event
+    description: |
+      User viewed the banner to confirm that their authentication code was successfully entered, either during setup or to get new codes.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-11087
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: Page is viewed to "setup" or "replace" backup authentication codes
+        type: string
+  two_step_auth_phone_verify_view:
+    type: event
+    description: |
+      User viewed the phone verification page (step 2) of the flow to add a recovery phone from settings.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-11087
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+  two_step_auth_phone_remove_success_view:
+    type: event
+    description: |
+      User viewed the banner to confirm the removal of their phone number from the account.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-11087
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+  two_step_auth_disable_modal_view:
+    type: event
+    description: |
+      User viewed the modal to disable two-step authentication on their account.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-11087
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+  two_step_auth_disable_success_view:
+    type: event
+    description: |
+      User viewed the banner to confirm that two-step authentication has been disabled on their account.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-11087
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121

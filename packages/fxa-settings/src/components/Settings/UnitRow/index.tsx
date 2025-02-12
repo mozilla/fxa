@@ -10,6 +10,7 @@ import { useFocusOnTriggeringElementOnClose } from '../../../lib/hooks';
 import { Link, RouteComponentProps, useLocation } from '@reach/router';
 import { useLocalization } from '@fluent/react';
 import { AlertFullIcon, CheckmarkGreenIcon } from '../../Icons';
+import { GleanClickEventDataAttrs } from '../../../lib/types';
 
 type ModalButtonProps = {
   ctaText: string;
@@ -18,6 +19,7 @@ type ModalButtonProps = {
   modalRevealed?: boolean;
   alertBarRevealed?: boolean;
   prefixDataTestId?: string;
+  gleanDataAttrs?: GleanClickEventDataAttrs;
 };
 
 export const ModalButton = ({
@@ -27,6 +29,7 @@ export const ModalButton = ({
   modalRevealed,
   alertBarRevealed,
   prefixDataTestId = '',
+  gleanDataAttrs,
 }: ModalButtonProps) => {
   const modalTriggerElement = useRef<HTMLButtonElement>(null);
   // If the UnitRow children contains an AlertBar that is revealed,
@@ -52,6 +55,11 @@ export const ModalButton = ({
       data-testid={formatDataTestId('unit-row-modal')}
       ref={modalTriggerElement}
       onClick={revealModal}
+      {...(gleanDataAttrs && {
+        'data-glean-id': gleanDataAttrs.id,
+        'data-glean-type': gleanDataAttrs.type,
+        'data-glean-label': gleanDataAttrs.label,
+      })}
     >
       {ctaText}
     </button>
@@ -66,10 +74,13 @@ export type UnitRowProps = {
   hideHeaderValue?: boolean;
   defaultHeaderValueText?: string;
   ctaText?: string;
+  ctaGleanDataAttrs?: GleanClickEventDataAttrs;
   secondaryCtaText?: string;
   secondaryCtaRoute?: string;
   secondaryButtonClassName?: string;
   secondaryButtonTestId?: string;
+  secondaryButtonGleanDataAttrs?: GleanClickEventDataAttrs;
+  secondaryModalGleanDataAttrs?: GleanClickEventDataAttrs;
   children?: React.ReactNode;
   headerContent?: React.ReactNode;
   actionContent?: React.ReactNode;
@@ -100,10 +111,13 @@ export const UnitRow = ({
   headerValueClassName,
   defaultHeaderValueText,
   ctaText,
+  ctaGleanDataAttrs,
   secondaryCtaText,
   secondaryCtaRoute,
   secondaryButtonClassName,
   secondaryButtonTestId = 'secondary-button',
+  secondaryButtonGleanDataAttrs,
+  secondaryModalGleanDataAttrs,
   revealModal,
   revealSecondaryModal,
   alertBarRevealed,
@@ -208,6 +222,11 @@ export const UnitRow = ({
                         data-testid={formatDataTestId('unit-row-route')}
                         to={`${route}${location.search}`}
                         onClick={ctaOnClickAction}
+                        {...(ctaGleanDataAttrs && {
+                          'data-glean-id': ctaGleanDataAttrs.id,
+                          'data-glean-type': ctaGleanDataAttrs.type,
+                          'data-glean-label': ctaGleanDataAttrs.label,
+                        })}
                       >
                         {ctaText}
                       </Link>
@@ -229,6 +248,12 @@ export const UnitRow = ({
                         className="cta-neutral cta-base cta-base-p transition-standard me-1"
                         data-testid={formatDataTestId('unit-row-route')}
                         to={`${secondaryCtaRoute}${location.search}`}
+                        {...(secondaryButtonGleanDataAttrs && {
+                          'data-glean-id': secondaryButtonGleanDataAttrs.id,
+                          'data-glean-type': secondaryButtonGleanDataAttrs.type,
+                          'data-glean-label':
+                            secondaryButtonGleanDataAttrs.label,
+                        })}
                       >
                         {secondaryCtaText}
                       </Link>
@@ -241,6 +266,7 @@ export const UnitRow = ({
                         className={secondaryButtonClassName}
                         alertBarRevealed={alertBarRevealed}
                         prefixDataTestId={secondaryButtonTestId}
+                        gleanDataAttrs={secondaryButtonGleanDataAttrs}
                       />
                     )}
                   </>

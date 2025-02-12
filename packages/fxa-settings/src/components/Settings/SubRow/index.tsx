@@ -35,6 +35,7 @@ type SubRowProps = {
   localizedDescription?: string;
   localizedInfoMessage?: string;
   linkExternalProps?: LinkExternalProps;
+  deleteGleanId?: string;
 };
 
 export type BackupPhoneSubRowProps = Pick<
@@ -59,6 +60,7 @@ const SubRow = ({
   localizedRowTitle,
   localizedDeleteIconTitle,
   linkExternalProps,
+  deleteGleanId,
 }: SubRowProps) => {
   const StatusIcon = () => (
     <span className="grow-0 shrink-0 ">
@@ -137,7 +139,7 @@ const SubRow = ({
                   className="cta-base-common cta-neutral cta-base-p -mt-2 w-full"
                   onClick={onDeleteClick}
                   title={localizedDeleteIconTitle}
-                  data-glean-id={`${idPrefix}-delete-button`}
+                  data-glean-id={deleteGleanId}
                 >
                   Remove
                 </button>
@@ -147,7 +149,9 @@ const SubRow = ({
               <ButtonIconTrash
                 onClick={onDeleteClick}
                 title={localizedDeleteIconTitle}
-                gleanDataAttrs={{ id: `${idPrefix}-delete-button` }}
+                {...(deleteGleanId && {
+                  gleanDataAttrs: { id: deleteGleanId },
+                })}
               />
             </div>
           </>
@@ -317,6 +321,7 @@ export const BackupPhoneSubRow = ({
         'tfa-row-backup-phone-title-v2',
         'Recovery phone'
       )}
+      deleteGleanId="account_pref_two_step_auth_phone_remove_submit"
     />
   );
 };

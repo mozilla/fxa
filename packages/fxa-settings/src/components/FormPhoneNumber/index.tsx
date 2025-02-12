@@ -7,6 +7,7 @@ import { useForm, useWatch } from 'react-hook-form';
 import InputPhoneNumber from '../InputPhoneNumber';
 import Banner from '../Banner';
 import { BannerContentProps, BannerLinkProps } from '../Banner/interfaces';
+import { GleanClickEventDataAttrs } from '../../lib/types';
 
 export interface InputPhoneNumberData {
   phoneNumber: string;
@@ -19,6 +20,7 @@ export type FormPhoneNumberProps = {
   localizedCTAText: string;
   submitPhoneNumber: (phoneNumber: string) => Promise<{ hasErrors: boolean }>;
   errorBannerId?: string;
+  gleanDataAttrs?: GleanClickEventDataAttrs;
 };
 
 const FormPhoneNumber = ({
@@ -27,6 +29,7 @@ const FormPhoneNumber = ({
   localizedCTAText,
   submitPhoneNumber,
   errorBannerId,
+  gleanDataAttrs,
 }: FormPhoneNumberProps) => {
   const [hasErrors, setHasErrors] = React.useState(false);
   const { control, formState, handleSubmit, register } =
@@ -112,6 +115,11 @@ const FormPhoneNumber = ({
             phoneNumberInput === undefined ||
             phoneNumberInput.replace(/\D/g, '').length !== 10
           }
+          {...(gleanDataAttrs && {
+            'data-glean-id': gleanDataAttrs.id,
+            'data-glean-type': gleanDataAttrs.type,
+            'data-glean-label': gleanDataAttrs.label,
+          })}
         >
           {localizedCTAText}
         </button>
