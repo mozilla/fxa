@@ -584,11 +584,11 @@ export class AccountHandler {
       });
     }
 
-    await this.db.securityEvent({
-      ipAddr: request.app.clientAddress,
+    await this.accountEventsManager.recordSecurityEvent(this.db, {
       name: 'account.create',
-      tokenId: sessionToken.id,
       uid: account.uid,
+      ipAddr: request.app.clientAddress,
+      tokenId: sessionToken.id,
     });
 
     return this.accountCreateResponse({

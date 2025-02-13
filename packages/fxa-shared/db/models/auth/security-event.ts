@@ -37,6 +37,7 @@ export const EVENT_NAMES = {
   'account.primary_secondary_swapped': 23,
   'account.password_reset_otp_sent': 24,
   'account.password_reset_otp_verified': 25,
+  'session.destroy': 26,
 } as const;
 
 export type SecurityEventNames = keyof typeof EVENT_NAMES;
