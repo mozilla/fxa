@@ -13,10 +13,12 @@ import SigninRecoveryChoice from '.';
 import { MOCK_SIGNIN_LOCATION_STATE } from './mocks';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import GleanMetrics from '../../../lib/glean';
+import { MOCK_MASKED_PHONE_NUMBER_WITH_COPY } from '../mocks';
 
 function renderSigninRecoveryChoice(overrides = {}) {
   const defaultProps = {
     handlePhoneChoice: jest.fn(),
+    maskedPhoneNumber: MOCK_MASKED_PHONE_NUMBER_WITH_COPY,
     lastFourPhoneDigits: '1234',
     numBackupCodes: 4,
     signinState: MOCK_SIGNIN_LOCATION_STATE,
@@ -80,7 +82,7 @@ describe('SigninRecoveryChoice', () => {
       screen.getByText('Let’s make sure it’s you using your recovery methods.')
     ).toBeInTheDocument();
     expect(screen.getByLabelText(/Recovery phone/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/••••••1234/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Number ending in 1234/)).toBeInTheDocument();
     expect(
       screen.getByLabelText(/Backup authentication codes/i)
     ).toBeInTheDocument();

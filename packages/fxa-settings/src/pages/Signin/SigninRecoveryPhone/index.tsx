@@ -28,9 +28,7 @@ const SigninRecoveryPhone = ({
     React.useState(false);
   const ftlMsgResolver = useFtlMsgResolver();
 
-  const maskedPhoneNumber = `••••••${lastFourPhoneDigits}`;
-
-  const spanElement = <span className="font-bold">{maskedPhoneNumber}</span>;
+  const spanElement = <span className="font-bold">{lastFourPhoneDigits}</span>;
 
   const clearBanners = () => {
     setErrorMessage('');
@@ -124,13 +122,14 @@ const SigninRecoveryPhone = ({
         <h2 className="card-header my-4">Enter recovery code</h2>
       </FtlMsg>
       <FtlMsg
-        id="signin-recovery-phone-instruction-v2"
-        vars={{ maskedPhoneNumber }}
+        id="signin-recovery-phone-instruction-v3"
+        vars={{ lastFourPhoneDigits }}
         elems={{ span: spanElement }}
       >
         <p>
-          A six-digit code was sent to {spanElement} by text message. This code
-          expires after 5 minutes. Donʼt share this code with anyone.
+          A six-digit code was sent to the phone number ending in {spanElement}{' '}
+          by text message. This code expires after 5 minutes. Donʼt share this
+          code with anyone.
         </p>
       </FtlMsg>
       <FormVerifyTotp

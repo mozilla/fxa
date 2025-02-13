@@ -72,6 +72,7 @@ export class SmsManager {
     const from = this.rotateFromNumber();
 
     try {
+      // Validate the `to` phone number and send the SMS
       const msg = await this.client.messages.create({
         to,
         from,

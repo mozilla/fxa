@@ -7,12 +7,27 @@ import { RecoveryPhone } from './recovery-phone.types';
 export async function getConfirmedPhoneNumber(
   db: AccountDatabase,
   uid: Buffer
-): Promise<{ uid: Buffer; phoneNumber: string } | undefined> {
-  return db
+): Promise<
+  { uid: Buffer; phoneNumber: string; nationalFormat?: string } | undefined
+> {
+  const row = await db
     .selectFrom('recoveryPhones')
     .where('uid', '=', uid)
-    .select(['uid', 'phoneNumber'])
+    .select(['uid', 'phoneNumber', 'lookupData'])
     .executeTakeFirst();
+
+  if (!row) {
+    return undefined;
+  }
+  const { uid: userId, phoneNumber, lookupData } = row;
+  const nationalFormat = (lookupData as { nationalFormat?: string })
+    ?.nationalFormat;
+
+  return {
+    uid: userId,
+    phoneNumber,
+    nationalFormat,
+  };
 }
 
 export async function registerPhoneNumber(

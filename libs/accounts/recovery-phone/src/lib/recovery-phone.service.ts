@@ -117,6 +117,18 @@ export class RecoveryPhoneService {
     return this.isSuccessfulSmsSend(msg);
   }
 
+  public async getNationalFormat(phoneNumber: string) {
+    // When the user _confirms_ their OTP code we also call the lookup endpoint to
+    // store the full data returned in our DB, but we need the national format on the
+    // OTP confirm page before then. "Basic lookups" from Twilio are free, so don't
+    // bother persisting in redis.
+    // https://www.twilio.com/en-us/user-authentication-identity/pricing/lookup
+    const { nationalFormat } = await this.smsManager.phoneNumberLookup(
+      phoneNumber
+    );
+    return nationalFormat;
+  }
+
   /**
    * Confirms a UID code. This will also and finalizes the phone number setup if the code provided was
    * intended for phone number setup.
@@ -261,22 +273,26 @@ export class RecoveryPhoneService {
    */
   public async hasConfirmed(
     uid: string,
-    phoneNumberMask?: number
+    phoneNumberStrip?: number
   ): Promise<{
     exists: boolean;
     phoneNumber?: string;
+    nationalFormat?: string;
   }> {
     if (!this.config.enabled) {
       throw new RecoveryPhoneNotEnabled();
     }
 
     try {
-      const { phoneNumber } =
+      const { phoneNumber, nationalFormat } =
         await this.recoveryPhoneManager.getConfirmedPhoneNumber(uid);
 
       return {
         exists: true,
-        phoneNumber: this.maskPhoneNumber(phoneNumber, phoneNumberMask),
+        phoneNumber: this.stripPhoneNumber(phoneNumber, phoneNumberStrip),
+        nationalFormat: nationalFormat
+          ? this.stripPhoneNumber(nationalFormat, phoneNumberStrip)
+          : undefined,
       };
     } catch (err) {
       if (err instanceof RecoveryNumberNotExistsError) {
@@ -284,6 +300,7 @@ export class RecoveryPhoneService {
         return {
           exists: false,
           phoneNumber: undefined,
+          nationalFormat: undefined,
         };
       }
       // Something unexpected happened...
@@ -296,38 +313,26 @@ export class RecoveryPhoneService {
    *
    * @param phoneNumber The actual phone number
    * @param lastN The last N number of digits to show
-   * @returns A masked number
-   *
-   * @remarks This will not mask a + symbol, since this technically isn't part of the
-   * number. e.g. +15005551234 would be masked as +*******1234 if lastN was 4.
+   * @returns The last N number of digits of the phone number
    */
-  public maskPhoneNumber(phoneNumber: string, lastN?: number) {
+  public stripPhoneNumber(phoneNumber: string, lastN?: number) {
     if (!this.config.enabled) {
       throw new RecoveryPhoneNotEnabled();
     }
-
-    // The + notation can be confusing in a masked number. Don't count it
-    // as a digit.
-    let prefix = '';
-    if (phoneNumber.startsWith('+')) {
-      prefix = '+';
-      phoneNumber = phoneNumber.substring(1);
-    }
-
-    // Clamp lastN between 0 and phoneNumber.length
+    // No stripping needed, session is verified
     if (lastN === undefined) {
-      lastN = phoneNumber.length;
-    } else if (lastN > phoneNumber.length) {
-      lastN = phoneNumber.length;
-    } else if (lastN < 0) {
-      lastN = 0;
+      return phoneNumber;
+    }
+    if (lastN <= 0) {
+      return '';
     }
 
-    // Create mask
-    const maskedPhoneNumber = phoneNumber
-      .substring(phoneNumber.length - lastN)
-      .padStart(phoneNumber.length, '•');
-    return `${prefix}${maskedPhoneNumber}`;
+    const digits = phoneNumber.replace(/\D/g, '');
+    // Clamp lastN between 0 and digits.length
+    if (lastN > digits.length) {
+      lastN = digits.length;
+    }
+    return digits.slice(-lastN);
   }
 
   /**

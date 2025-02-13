@@ -27,6 +27,7 @@ describe('/recovery_phone', () => {
   const uid = '123435678123435678123435678123435678';
   const email = 'test@mozilla.com';
   const phoneNumber = '+15550005555';
+  const nationalFormat = '(555) 000-5555';
   const code = '000000';
   const mockDb = mocks.mockDB({ uid: uid, email: email });
   const mockLog = mocks.mockLog();
@@ -47,9 +48,11 @@ describe('/recovery_phone', () => {
   };
   const mockRecoveryPhoneService = {
     setupPhoneNumber: sandbox.fake(),
+    getNationalFormat: sandbox.fake(),
     confirmSigninCode: sandbox.fake(),
     confirmSetupCode: sandbox.fake(),
     removePhoneNumber: sandbox.fake(),
+    stripPhoneNumber: sandbox.fake(),
     hasConfirmed: sandbox.fake(),
   };
   const mockAccountManager = {
@@ -156,6 +159,8 @@ describe('/recovery_phone', () => {
   describe('POST /recovery_phone/create', () => {
     it('creates recovery phone number', async () => {
       mockRecoveryPhoneService.setupPhoneNumber = sinon.fake.returns(true);
+      mockRecoveryPhoneService.getNationalFormat =
+        sinon.fake.returns(nationalFormat);
 
       const resp = await makeRequest({
         method: 'POST',
@@ -173,6 +178,11 @@ describe('/recovery_phone', () => {
       );
       assert.equal(
         mockRecoveryPhoneService.setupPhoneNumber.getCall(0).args[1],
+        phoneNumber
+      );
+      assert.equal(mockRecoveryPhoneService.getNationalFormat.callCount, 1);
+      assert.equal(
+        mockRecoveryPhoneService.getNationalFormat.getCall(0).args[0],
         phoneNumber
       );
       assert.equal(mockGlean.twoStepAuthPhoneCode.sent.callCount, 1);
@@ -302,7 +312,9 @@ describe('/recovery_phone', () => {
       mockRecoveryPhoneService.hasConfirmed = sinon.fake.returns({
         exists: true,
         phoneNumber,
+        nationalFormat,
       });
+      mockRecoveryPhoneService.stripPhoneNumber = sinon.fake.returns('5555');
 
       const resp = await makeRequest({
         method: 'POST',
@@ -517,28 +529,6 @@ describe('/recovery_phone', () => {
         uid
       );
       assert.equal(mockRecoveryPhoneService.hasConfirmed.getCall(0).args[1], 4);
-    });
-
-    it('returns masked phone number format requested', async () => {
-      mockRecoveryPhoneService.hasConfirmed = sinon.fake.returns({
-        exists: true,
-        phoneNumber,
-      });
-      const resp = await makeRequest({
-        method: 'GET',
-        path: '/recovery_phone',
-        credentials: { uid, mustVerify: true },
-        payload: { phoneNumberMask: 2 },
-      });
-      assert.isDefined(resp);
-      assert.isDefined(resp.exists);
-      assert.isDefined(resp.phoneNumber);
-      assert.equal(mockRecoveryPhoneService.hasConfirmed.callCount, 1);
-      assert.equal(
-        mockRecoveryPhoneService.hasConfirmed.getCall(0).args[0],
-        uid
-      );
-      assert.equal(mockRecoveryPhoneService.hasConfirmed.getCall(0).args[1], 2);
     });
   });
 });

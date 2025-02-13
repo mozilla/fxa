@@ -74,5 +74,7 @@ export const ALL_PRODUCT_PROMO_SERVICES = [{ name: MozServices.Monitor }];
 export const ALL_PRODUCT_PROMO_SUBSCRIPTIONS = [
   { productName: MozServices.MonitorPlus },
 ];
-export const MOCK_MASKED_PHONE_NUMBER = '••••••1234';
 export const MOCK_FULL_PHONE_NUMBER = '+15555551234';
+export const MOCK_NATIONAL_FORMAT_PHONE_NUMBER = '(555) 555-1234';
+export const MOCK_MASKED_NATIONAL_FORMAT_PHONE_NUMBER = '(•••) •••-1234';
+export const MOCK_MASKED_PHONE_NUMBER_WITH_COPY = 'Number ending in 1234';

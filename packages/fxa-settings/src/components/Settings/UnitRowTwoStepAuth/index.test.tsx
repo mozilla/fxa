@@ -8,7 +8,8 @@ import { renderWithRouter } from '../../../models/mocks';
 import { createSubject } from './mocks';
 import {
   MOCK_FULL_PHONE_NUMBER,
-  MOCK_MASKED_PHONE_NUMBER,
+  MOCK_MASKED_NATIONAL_FORMAT_PHONE_NUMBER,
+  MOCK_NATIONAL_FORMAT_PHONE_NUMBER,
 } from '../../../pages/mocks';
 import GleanMetrics from '../../../lib/glean';
 
@@ -126,7 +127,12 @@ describe('UnitRowTwoStepAuth', () => {
     renderWithRouter(
       createSubject({
         backupCodes: { hasBackupCodes: false, count: 0 },
-        recoveryPhone: { exists: false, phoneNumber: null, available: false },
+        recoveryPhone: {
+          exists: false,
+          phoneNumber: null,
+          nationalFormat: null,
+          available: false,
+        },
       })
     );
 
@@ -147,6 +153,7 @@ describe('UnitRowTwoStepAuth', () => {
         recoveryPhone: {
           exists: true,
           phoneNumber: MOCK_FULL_PHONE_NUMBER,
+          nationalFormat: MOCK_NATIONAL_FORMAT_PHONE_NUMBER,
           available: true,
         },
         backupCodes: { hasBackupCodes: false, count: 0 },
@@ -158,7 +165,7 @@ describe('UnitRowTwoStepAuth', () => {
     ).toContain('Enabled');
     expect(
       screen.getByTestId('backup-recovery-phone-sub-row').textContent
-    ).toContain(MOCK_MASKED_PHONE_NUMBER);
+    ).toContain(MOCK_MASKED_NATIONAL_FORMAT_PHONE_NUMBER);
     expect(
       screen.queryByTestId('backup-authentication-codes-sub-row')
     ).toBeInTheDocument();
@@ -170,6 +177,7 @@ describe('UnitRowTwoStepAuth', () => {
         recoveryPhone: {
           exists: true,
           phoneNumber: MOCK_FULL_PHONE_NUMBER,
+          nationalFormat: MOCK_NATIONAL_FORMAT_PHONE_NUMBER,
           available: true,
         },
         backupCodes: { hasBackupCodes: true, count: 3 },
@@ -181,7 +189,7 @@ describe('UnitRowTwoStepAuth', () => {
     ).toContain('Enabled');
     expect(
       screen.getByTestId('backup-recovery-phone-sub-row').textContent
-    ).toContain(MOCK_MASKED_PHONE_NUMBER);
+    ).toContain(MOCK_MASKED_NATIONAL_FORMAT_PHONE_NUMBER);
     expect(
       screen.getByTestId('backup-authentication-codes-sub-row').textContent
     ).toContain('3');
@@ -195,6 +203,7 @@ describe('UnitRowTwoStepAuth', () => {
         recoveryPhone: {
           exists: true,
           phoneNumber: MOCK_FULL_PHONE_NUMBER,
+          nationalFormat: MOCK_NATIONAL_FORMAT_PHONE_NUMBER,
           available: false,
         },
         backupCodes: { hasBackupCodes: true, count: 1 },
@@ -206,7 +215,7 @@ describe('UnitRowTwoStepAuth', () => {
     ).toContain('Enabled');
     expect(
       screen.getByTestId('backup-recovery-phone-sub-row').textContent
-    ).toContain(MOCK_MASKED_PHONE_NUMBER);
+    ).toContain(MOCK_MASKED_NATIONAL_FORMAT_PHONE_NUMBER);
     expect(
       screen.getByTestId('backup-authentication-codes-sub-row').textContent
     ).toContain('1');
