@@ -10,7 +10,7 @@ import {
   AppContextValue,
   defaultAppContext,
   SettingsContextValue,
-} from '.';
+} from './contexts/AppContext';
 
 import {
   createHistory,
