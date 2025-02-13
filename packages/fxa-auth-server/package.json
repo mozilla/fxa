@@ -10,11 +10,11 @@
   },
   "scripts": {
     "prebuild": "nx l10n-prime && nx install-ejs",
-    "build": "nx build-l10n && nx build-ts && nx build-css && nx build-finalize",
+    "build": "nx build-l10n && nx build-css && nx build-ts && nx build-copy-assets",
     "build-l10n": "nx l10n-merge && nx l10n-merge-test",
+    "build-copy-assets": "./scripts/copy-assets.sh",
     "build-css": "nx emails-scss",
     "build-ts": "tsc --build && tsc-alias",
-    "build-finalize": "cp -R config public lib scripts dist/packages/fxa-auth-server",
     "build-storybook": "NODE_OPTIONS=--openssl-legacy-provider STORYBOOK_BUILD=true storybook build && yarn build-storybook-copy-locales && yarn build-storybook-copy-templates",
     "build-storybook-copy-locales": "mkdir -p ./storybook-static/public/locales && cp -R ./public/locales ./storybook-static/public",
     "build-storybook-copy-templates": "mkdir -p ./storybook-static/lib/senders/emails/templates && cp -R ./lib/senders/emails ./storybook-static/lib/senders",
