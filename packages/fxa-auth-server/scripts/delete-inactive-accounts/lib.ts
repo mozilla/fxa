@@ -37,6 +37,7 @@ export const securityEventUidsQuery = (activeByDateTimestamp) =>
       EVENT_NAMES['account.login'],
       EVENT_NAMES['account.password_reset_success'],
       EVENT_NAMES['account.password_changed'],
+      EVENT_NAMES['session.destroy'],
     ])
     .as('securityEventUids');
 

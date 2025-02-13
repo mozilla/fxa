@@ -13,6 +13,8 @@ const sinon = require('sinon');
 const otplib = require('otplib');
 const assert = require('../../assert');
 const gleanMock = mocks.mockGlean();
+const { Container } = require('typedi');
+const { AccountEventsManager } = require('../../../lib/account-events');
 
 const ROOT_DIR = '../../..';
 
@@ -64,6 +66,11 @@ function makeRoutes(options = {}) {
   const cadReminders = options.cadReminders || mocks.mockCadReminders();
   const glean = options.glean || gleanMock;
   const statsd = options.statsd || mocks.mockStatsd();
+
+  Container.set(
+    AccountEventsManager,
+    options.accountEventsManager || { recordSecurityEvent: sinon.stub() }
+  );
 
   const Password =
     options.Password || require('../../../lib/crypto/password')(log, config);
@@ -715,12 +722,19 @@ describe('/session/destroy', () => {
   let request;
   let log;
   let db;
+  let securityEventStub;
 
   beforeEach(() => {
     db = mocks.mockDB();
     log = mocks.mockLog();
     const config = {};
-    const routes = makeRoutes({ log, config, db });
+    securityEventStub = sinon.stub();
+    const routes = makeRoutes({
+      log,
+      config,
+      db,
+      accountEventsManager: { recordSecurityEvent: securityEventStub },
+    });
     route = getRoute(routes, '/session/destroy');
     request = mocks.mockRequest({
       credentials: {
@@ -734,6 +748,12 @@ describe('/session/destroy', () => {
   it('responds correctly when session is destroyed', () => {
     return runTest(route, request).then((res) => {
       assert.equal(Object.keys(res).length, 0);
+      sinon.assert.calledOnceWithExactly(securityEventStub, db, {
+        name: 'session.destroy',
+        uid: 'foo',
+        ipAddr: '63.245.221.32',
+        tokenId: undefined,
+      });
     });
   });
 
