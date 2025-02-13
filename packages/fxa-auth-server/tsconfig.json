@@ -14,9 +14,11 @@
     "noImplicitAny": false
   },
   "include": [
-    "bin/*", // Include bin so that it's included in `build-ts`, specifically for "tsc-alias".
-    "lib/**/*.ts",
-    "lib/**/*.js",
-    "scripts/**/*.ts"
+    // Note, we want to include javascript and type script files. This ensures
+    // ts aliases (ie imports for @fxa/...) work.
+    "bin/*",
+    "config/*",
+    "lib/**/*",
+    "scripts/**/*"
   ]
 }
