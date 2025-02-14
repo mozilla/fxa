@@ -4,6 +4,7 @@
 
 import { Container } from 'typedi';
 import { StatsD } from 'hot-shots';
+import isEqual from 'lodash/isEqual';
 
 import {
   CloudTaskOptions,
@@ -11,6 +12,8 @@ import {
   SendEmailTaskPayload,
   InactiveAccountEmailTasks,
   InactiveAccountEmailTasksFactory,
+  ReasonForDeletion,
+  DeleteAccountTasks,
 } from '@fxa/shared/cloud-tasks';
 import { ConnectedServicesDb } from 'fxa-shared/connected-services';
 
@@ -27,6 +30,11 @@ import {
 } from './active-status';
 import { GleanMetricsType } from '../metrics/glean';
 import { Logger } from 'mozlog';
+import {
+  EmailBounce,
+  getAccountCustomerByUid,
+} from 'fxa-shared/db/models/auth';
+import { BOUNCE_TYPES } from 'fxa-shared/db/models/auth/email-bounce';
 
 const aDayInMs = 24 * 60 * 60 * 1000;
 const sixtyDaysInMs = 60 * aDayInMs;
@@ -130,6 +138,7 @@ export class InactiveAccountsManager {
   fxaDb: DB;
   oauthDb: ConnectedServicesDb;
   accountEventsManager: AccountEventsManager;
+  accountTasks: DeleteAccountTasks;
   mailer: any;
   emailCloudTasks: InactiveAccountEmailTasks;
   statsd: StatsD;
@@ -156,6 +165,7 @@ export class InactiveAccountsManager {
     this.fxaDb = fxaDb;
     this.oauthDb = oauthDb;
     this.accountEventsManager = Container.get(AccountEventsManager);
+    this.accountTasks = Container.get(DeleteAccountTasks);
     this.mailer = mailer;
     this.emailCloudTasks = InactiveAccountEmailTasksFactory(config, statsd);
     this.statsd = statsd;
@@ -216,9 +226,21 @@ export class InactiveAccountsManager {
       return;
     }
 
+    const account = await this.fxaDb.account(taskPayload.uid);
+    const now = Date.now();
+
+    // If the very first email hard bounced, we'll delete the account without
+    // sending further emails.
+    if (
+      taskPayload.emailType ===
+        EmailTypes.INACTIVE_DELETE_SECOND_NOTIFICATION &&
+      (await this.handleFirstEmailBounce(taskPayload, account, now))
+    ) {
+      return;
+    }
+
     // Check to see if we have sent this email before in the current
     // notify-and-delete cycle
-    const now = Date.now();
     const sentEmailEvents = await this.accountEventsManager.findEmailEvents(
       taskPayload.uid,
       'emailSent',
@@ -251,7 +273,6 @@ export class InactiveAccountsManager {
       return;
     }
 
-    const account = await this.fxaDb.account(taskPayload.uid);
     const message = {
       acceptLanguage: account.locale,
       inactiveDeletionEta: now + emailTypeSpecificVals.timeToDeletion,
@@ -330,5 +351,101 @@ export class InactiveAccountsManager {
         throw cloudTaskQueueError;
       }
     }
+  }
+
+  async handleFirstEmailBounce(taskPayload, account, now) {
+    const emails = account.emails.map((e) => e.email);
+
+    // Because a small number of first notification emails were sent before
+    // the email types were added to the database
+    // (https://github.com/mozilla/fxa/pull/18362), we need to carve out an
+    // exception for a faction of those accounts.  This can be removed after
+    // 2025-04-12.
+    // Delete the corresponding test when deleting this if block.
+    if (
+      account.createdAt >=
+        new Date('2023-01-01').setUTCHours(0, 0, 0, 0).valueOf() &&
+      account.createdAt <
+        new Date('2023-02-01').setUTCHours(0, 0, 0, 0).valueOf()
+    ) {
+      // check to see if there's a bounced email in Firestore and there's a hard bounce in MySQL with no email type
+      const bounceEvents = await this.accountEventsManager.findEmailEvents(
+        taskPayload.uid,
+        'emailBounced',
+        'inactiveAccountFirstWarning',
+        // some wiggle room to account for task and email delays
+        now - 54 * aDayInMs,
+        now - 52 * aDayInMs
+      );
+
+      if (bounceEvents.length > 0) {
+        const bounceTime = bounceEvents.map((x) => x.createdAt);
+        const min = Math.min(...bounceTime);
+        const max = Math.max(...bounceTime);
+        const hardBounces = await EmailBounce.query()
+          .whereIn('email', emails)
+          .whereNull('emailTypeId')
+          .where('bounceType', '=', BOUNCE_TYPES.Permanent)
+          .where('createdAt', '>', min - 15000)
+          .where('createdAt', '<', max + 15000)
+          .select(['email', 'createdAt']);
+
+        if (bounceEvents.length === hardBounces.length) {
+          await this.accountTasks.deleteAccount({
+            uid: taskPayload.uid,
+            customerId: (
+              await getAccountCustomerByUid(taskPayload.uid)
+            )?.stripeCustomerId,
+            reason: ReasonForDeletion.InactiveAccountEmailBounced,
+          });
+          this.statsd.increment(`account.inactive.second-email.skipped.bounce`);
+          await this.glean.inactiveAccountDeletion.secondEmailSkipped(
+            requestForGlean,
+            {
+              uid: taskPayload.uid,
+              reason: 'first_email_bounced',
+            }
+          );
+          return true;
+        }
+      }
+    }
+
+    const firstEmailBounces = await EmailBounce.query()
+      .join('emailTypes', 'emailTypes.id', 'emailBounces.emailTypeId')
+      .whereIn('emailBounces.email', emails)
+      .where('emailBounces.bounceType', '=', BOUNCE_TYPES.Permanent)
+      // some wiggle room to account for cloud task and email delays
+      .where('emailBounces.createdAt', '>', now - 54 * aDayInMs)
+      .where('emailBounces.createdAt', '<', now - 52 * aDayInMs)
+      .where('emailTypes.emailType', '=', 'inactiveAccountFirstWarning')
+      .select(['email']);
+
+    if (
+      firstEmailBounces.length === emails.length &&
+      isEqual(
+        firstEmailBounces.map((x) => x.email),
+        emails
+      )
+    ) {
+      await this.accountTasks.deleteAccount({
+        uid: taskPayload.uid,
+        customerId: (
+          await getAccountCustomerByUid(taskPayload.uid)
+        )?.stripeCustomerId,
+        reason: ReasonForDeletion.InactiveAccountEmailBounced,
+      });
+      this.statsd.increment(`account.inactive.second-email.skipped.bounce`);
+      await this.glean.inactiveAccountDeletion.secondEmailSkipped(
+        requestForGlean,
+        {
+          uid: taskPayload.uid,
+          reason: 'first_email_bounced',
+        }
+      );
+      return true;
+    }
+
+    return false;
   }
 }

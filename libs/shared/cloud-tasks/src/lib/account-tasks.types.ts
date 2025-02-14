@@ -24,7 +24,8 @@ export enum ReasonForDeletion {
   UserRequested = 'fxa_user_requested_account_delete',
   Unverified = 'fxa_unverified_account_delete',
   Cleanup = 'fxa_cleanup_account_delete',
-  InactiveAccount = 'fxa_inactive_account_delete',
+  InactiveAccountScheduled = 'fxa_inactive_account_scheduled_delete',
+  InactiveAccountEmailBounced = 'fxa_inactive_account_email_bounced_delete',
 }
 
 /** Task payload requesting an account deletion */
@@ -32,7 +33,7 @@ export type DeleteAccountTask = {
   /** The account id */
   uid: string;
   /** The customer id, i.e. a stripe customer id if applicable */
-  customerId: string | undefined;
+  customerId?: string;
   /** Reason for deletion */
   reason: ReasonForDeletion;
 };
