@@ -32,36 +32,42 @@ Linting will also be run for staged files automatically via Husky when you attem
 
 ## Testing
 
-Run tests with:
+Before running tests make sure the correct services are running. If auth server is running in pm2 weird behavior can ensue, so
+prior to running tests we recommend creating a clean slate by running `yarn stop`.
 
-    npm test
+Now we can start testing. To run unit tests:
 
-Run specific tests with the following commands:
+- `nx test-unit fxa-auth-server`
+  _Note this matches how auth server unit tests jobs in CI._
 
-```bash
-# Test only test/local/account_routes.js
-# Note: This command does not work for remote tests.
-npm test -- test/local/account_routes.js
+To run integration tests, we have to make sure databases and auxillary services required for integration testing are spun up.
+So run:
 
-# Grep for "SQSReceiver"
-NODE_ENV=dev npx mocha -r esbuild-register test/*/** -g "SQSReceiver"
-```
+- `yarn start infrastructure`
+- `nx start fxa-customs-server`
 
-To select a specific glob of tests to run:
+Now unit tests can be executed:
 
-```
-npm test -- test/local/account_routes.js test/local/password_*
-```
+- `nx test-integration fxa-auth-server`
+  _Note this matches how auth server unit tests jobs in CI._
 
-To run a certain suite of tests (e.g. all remote tests):
+For general development based testing, specific tests can be targeted using the test script or use mocha directly:
 
-```
-npm test -- test/remote
-```
+_From packages/fxa-auth-server:_
 
-- Note: stop the auth-server before running tests. Otherwise, they will fail with obscure errors.
-- You can use `LOG_LEVEL`, such as `LOG_LEVEL=debug` to specify the test logging level.
+- `yarn test -- test/local/account_routes.js`
+- `yarn test -- test/local/account* test/local/password_*`
+- `yarn test -- test/remote`
+- `NODE_ENV=dev npx mocha -r esbuild-register test/*/** -g "SQSReceiver"`
 
+Notes / Tips:
+
+- For quick enviroment config, consider running tests with a .env file and the dotenv command. For example: `dotenv -- yarn workspace fxa-auth-server:test-integration remote`
+- you can use `LOG_LEVEL`, such as `LOG_LEVEL=debug` to specify the test logging level.
+- recovery-phone tests require twilio testing credentials!
+- recovery-phone-customs tests require that customs server is running. So run `nx start fxa-customs-server` prior to executing tests.
+
+_Other Stuff_
 This package uses [Mocha](https://mochajs.org/) to test its code. By default `npm test` will run a series of NPM test scripts and then lint the code:
 
 Refer to Mocha's [CLI documentation](https://mochajs.org/#command-line-usage) for more advanced test configuration.
