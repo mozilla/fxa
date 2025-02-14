@@ -17,9 +17,15 @@ describe('SmsManager', () => {
     messages: {
       create: jest.fn(),
     },
+    lookups: {
+      v2: {
+        phoneNumbers: jest.fn(),
+      },
+    },
   };
   const mockMetrics = {
     increment: jest.fn(),
+    histogram: jest.fn(),
   };
   const mockLog = {
     log: jest.fn(),
@@ -29,6 +35,7 @@ describe('SmsManager', () => {
     validNumberPrefixes: ['+1'],
     maxMessageLength: 160,
     maxRetries: 2,
+    extraLookupFields: ['sms_pumping_risk'],
   };
 
   let manager: SmsManager;
@@ -186,5 +193,62 @@ describe('SmsManager', () => {
     expect(number1).toBeDefined();
     expect(number2).toBeDefined();
     expect(number1).not.toEqual(number2);
+  });
+
+  describe('phoneNumberLookup', () => {
+    it('should increment metrics and return result on success', async () => {
+      const phoneNumber = '+15005551111';
+      const mockResult = {
+        simSwap: { lastSimSwap: { swappedPeriod: '1' } },
+        smsPumpingRisk: { smsPumpingRiskScore: 0.5 },
+        phoneNumberQualityScore: 0.8,
+        toJSON: jest.fn().mockReturnValue({ phoneNumber }),
+      };
+
+      mockTwilioSmsClient.lookups.v2.phoneNumbers.mockReturnValue({
+        fetch: jest.fn().mockResolvedValue(mockResult),
+      });
+
+      const result = await manager.phoneNumberLookup(phoneNumber);
+
+      expect(mockMetrics.increment).toHaveBeenCalledWith(
+        'sms.phoneNumberLookup.start'
+      );
+      expect(mockMetrics.increment).toHaveBeenCalledWith(
+        'sms.phoneNumberLookup.success'
+      );
+      expect(mockMetrics.increment).toHaveBeenCalledWith(
+        'sms.phoneNumberLookup.success.simSwap',
+        { period: '1' }
+      );
+      expect(mockMetrics.histogram).toHaveBeenCalledWith(
+        'sms.phoneNumberLookup.success.smsPumpingRisk',
+        0.5
+      );
+      expect(mockMetrics.histogram).toHaveBeenCalledWith(
+        'sms.phoneNumberLookup.success.phoneNumberQualityScore',
+        0.8
+      );
+      expect(result).toEqual({ phoneNumber });
+    });
+
+    it('should increment failed metric and throw error on failure', async () => {
+      const phoneNumber = '+15005551111';
+      const mockError = new Error('Lookup failed');
+
+      mockTwilioSmsClient.lookups.v2.phoneNumbers.mockReturnValue({
+        fetch: jest.fn().mockRejectedValue(mockError),
+      });
+
+      await expect(manager.phoneNumberLookup(phoneNumber)).rejects.toThrow(
+        mockError
+      );
+      expect(mockMetrics.increment).toHaveBeenCalledWith(
+        'sms.phoneNumberLookup.start'
+      );
+      expect(mockMetrics.increment).toHaveBeenCalledWith(
+        'sms.phoneNumberLookup.failure'
+      );
+    });
   });
 });
