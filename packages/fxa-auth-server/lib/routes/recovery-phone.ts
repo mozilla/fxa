@@ -57,7 +57,7 @@ class RecoveryPhoneHandler {
     this.localizer = new Localizer(new NodeRendererBindings());
   }
 
-  getLocalizedStrings = async (
+  getLocalizedMessage = async (
     request: AuthRequest,
     code: string,
     type: 'setup' | 'signin'
@@ -82,7 +82,7 @@ class RecoveryPhoneHandler {
         },
       ]
     );
-    return localizedStrings;
+    return localizedStrings[id];
   };
 
   async sendCode(request: AuthRequest) {
@@ -96,11 +96,11 @@ class RecoveryPhoneHandler {
     await this.customs.check(request, email, 'recoveryPhoneSendCode');
 
     const getFormattedMessage = async (code: string) => {
-      const localizedMessage = await this.getLocalizedStrings(
+      const localizedMessage = await this.getLocalizedMessage(
         request,
         code,
         'signin'
-      )[0];
+      );
       return localizedMessage;
     };
 
@@ -155,11 +155,11 @@ class RecoveryPhoneHandler {
     await this.customs.checkAuthenticated(request, uid, 'recoveryPhoneCreate');
 
     const getFormattedMessage = async (code: string) => {
-      const localizedMessage = await this.getLocalizedStrings(
+      const localizedMessage = await this.getLocalizedMessage(
         request,
         code,
         'setup'
-      )[0];
+      );
       return localizedMessage;
     };
 
@@ -456,7 +456,7 @@ class RecoveryPhoneHandler {
     } catch (error) {
       throw AppError.backendServiceFailure(
         'RecoveryPhoneService',
-        'destroy',
+        'available',
         { uid },
         error
       );
