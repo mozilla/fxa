@@ -38,6 +38,14 @@ export const EVENT_NAMES = {
   'account.password_reset_otp_sent': 24,
   'account.password_reset_otp_verified': 25,
   'session.destroy': 26,
+  'account.recovery_phone_send_code': 27,
+  'account.recovery_phone_setup_complete': 28,
+  'account.recovery_phone_signin_complete': 29,
+  'account.recovery_phone_signin_failed': 30,
+  'account.recovery_phone_removed': 31,
+  'account.recovery_codes_replaced': 32,
+  'account.recovery_codes_created': 33,
+  'account.recovery_codes_signin_complete': 34,
 } as const;
 
 export type SecurityEventNames = keyof typeof EVENT_NAMES;

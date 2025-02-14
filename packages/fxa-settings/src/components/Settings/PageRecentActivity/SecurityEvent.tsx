@@ -29,6 +29,15 @@ enum SecurityEventName {
   SecondaryEmailAdded = 'account.secondary_email_added',
   SecondaryEmailRemoved = 'account.secondary_email_removed',
   PrimarySecondaryEmailSwapped = 'account.primary_secondary_swapped',
+  SessionDestroy = 'session.destroy',
+  RecoveryPhoneSendCode = 'account.recovery_phone_send_code',
+  RecoveryPhoneSetupComplete = 'account.recovery_phone_setup_complete',
+  RecoveryPhoneSigninComplete = 'account.recovery_phone_signin_complete',
+  RecoveryPhoneSigninFailed = 'account.recovery_phone_signin_failed',
+  RecoveryPhoneRemoved = 'account.recovery_phone_removed',
+  RecoveryCodesReplaced = 'account.recovery_codes_replaced',
+  RecoveryCodesCreated = 'account.recovery_codes_created',
+  RecoveryCodesSigninComplete = 'account.recovery_codes_signin_complete',
 }
 
 const getSecurityEventNameL10n = (name: string) => {
@@ -169,6 +178,60 @@ const getSecurityEventNameL10n = (name: string) => {
       return {
         ftlId: 'recent-activity-account-emails-swapped',
         fallbackText: 'Primary and secondary emails swapped',
+      };
+    }
+    case SecurityEventName.SessionDestroy: {
+      return {
+        ftlId: 'recent-activity-session-destroy',
+        fallbackText: 'Logged out of session',
+      };
+    }
+    case SecurityEventName.RecoveryPhoneSendCode: {
+      return {
+        ftlId: 'recent-activity-account-recovery-phone-send-code',
+        fallbackText: 'Recovery phone code sent',
+      };
+    }
+    case SecurityEventName.RecoveryPhoneSetupComplete: {
+      return {
+        ftlId: 'recent-activity-account-recovery-phone-setup-complete',
+        fallbackText: 'Recovery phone setup completed',
+      };
+    }
+    case SecurityEventName.RecoveryPhoneSigninComplete: {
+      return {
+        ftlId: 'recent-activity-account-recovery-phone-signin-complete',
+        fallbackText: 'Sign-in with recovery phone completed',
+      };
+    }
+    case SecurityEventName.RecoveryPhoneSigninFailed: {
+      return {
+        ftlId: 'recent-activity-account-recovery-phone-signin-failed',
+        fallbackText: 'Sign-in with recovery phone failed',
+      };
+    }
+    case SecurityEventName.RecoveryPhoneRemoved: {
+      return {
+        ftlId: 'recent-activity-account-recovery-phone-removed',
+        fallbackText: 'Recovery phone removed',
+      };
+    }
+    case SecurityEventName.RecoveryCodesReplaced: {
+      return {
+        ftlId: 'recent-activity-account-recovery-codes-replaced',
+        fallbackText: 'Recovery codes replaced',
+      };
+    }
+    case SecurityEventName.RecoveryCodesCreated: {
+      return {
+        ftlId: 'recent-activity-account-recovery-codes-created',
+        fallbackText: 'Recovery codes created',
+      };
+    }
+    case SecurityEventName.RecoveryCodesSigninComplete: {
+      return {
+        ftlId: 'recent-activity-account-recovery-codes-signin-complete',
+        fallbackText: 'Sign-in with recovery codes completed',
       };
     }
     default: {

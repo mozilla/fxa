@@ -29,6 +29,15 @@ recent-activity-account-password-changed = Password changed
 recent-activity-account-secondary-email-added = Secondary email address added
 recent-activity-account-secondary-email-removed = Secondary email address removed
 recent-activity-account-emails-swapped = Primary and secondary emails swapped
+recent-activity-session-destroy = Logged out of session
+recent-activity-account-recovery-phone-send-code = Recovery phone code sent
+recent-activity-account-recovery-phone-setup-complete = Recovery phone setup completed
+recent-activity-account-recovery-phone-signin-complete = Sign-in with recovery phone completed
+recent-activity-account-recovery-phone-signin-failed = Sign-in with recovery phone failed
+recent-activity-account-recovery-phone-removed = Recovery phone removed
+recent-activity-account-recovery-codes-replaced = Recovery codes replaced
+recent-activity-account-recovery-codes-created = Recovery codes created
+recent-activity-account-recovery-codes-signin-complete = Sign-in with recovery codes completed
 
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = Other account activity
