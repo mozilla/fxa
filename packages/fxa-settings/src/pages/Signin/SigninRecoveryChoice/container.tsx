@@ -15,6 +15,7 @@ import {
   AuthUiErrors,
 } from '../../../lib/auth-errors/auth-errors';
 import { formatPhoneNumber } from '../../../lib/recovery-phone-utils';
+import { getHandledError, HandledError } from '../../../lib/error-utils';
 
 export const SigninRecoveryChoiceContainer = (_: RouteComponentProps) => {
   const authClient = useAuthClient();
@@ -27,14 +28,16 @@ export const SigninRecoveryChoiceContainer = (_: RouteComponentProps) => {
 
   const [numBackupCodes, setNumBackupCodes] = useState<number>(0);
   const [phoneData, setPhoneData] = useState({
+    phoneNumber: '',
+    nationalFormat: '',
     maskedPhoneNumber: '',
     lastFourPhoneDigits: '',
   });
   const [loading, setLoading] = useState(true);
+  const [dataFetchError, setDataFetchError] = useState<HandledError>();
 
   useEffect(() => {
     if (!signinState || !signinState.sessionToken) {
-      navigateWithQuery('/signin');
       return;
     }
 
@@ -47,54 +50,32 @@ export const SigninRecoveryChoiceContainer = (_: RouteComponentProps) => {
 
         const { phoneNumber, nationalFormat } =
           await authClient.recoveryPhoneGet(signinState.sessionToken);
+
         const { maskedPhoneNumber, lastFourPhoneDigits } = formatPhoneNumber({
           phoneNumber,
           nationalFormat,
           ftlMsgResolver,
         });
         setPhoneData({
+          phoneNumber,
+          nationalFormat,
           maskedPhoneNumber,
           lastFourPhoneDigits,
         });
-
-        // whether or not the user has backup authentication codes,
-        // go directly to the backup authentication codes page if they don't have a phone number
-        // do not render the choice screen
-        if (!phoneNumber) {
-          navigateWithQuery('/signin_recovery_code', {
-            state: { signinState },
-            // ensure back button on signin_recovery_code page skips choice page and returns to signin_totp_code
-            replace: true,
-          });
-          return;
-        }
-
-        if (phoneNumber && (!count || count === 0)) {
-          navigateWithQuery('/signin_recovery_phone', {
-            state: { signinState, lastFourPhoneDigits },
-            // ensure back button on signin_recovery_code page skips choice page and returns to signin_totp_code
-            replace: true,
-          });
-        }
         return;
       } catch (err) {
-        if (err.errno === AuthUiErrors.INVALID_TOKEN.errno) {
-          navigateWithQuery('/signin');
-          return;
-        }
-        // if there was another error fetching available recovery methods, go to backup authentication codes page
-        navigateWithQuery('/signin_recovery_code', {
-          state: { signinState },
-          // ensure back button on signin_recovery_code page skips choice page and returns to signin_totp_code
-          replace: true,
-        });
+        const handledError = getHandledError(err);
+        setDataFetchError(handledError.error);
         return;
       } finally {
         setLoading(false);
       }
     };
     fetchData();
-  }, [authClient, signinState, navigateWithQuery, ftlMsgResolver]);
+    // excluding ftlMsgResolver as it is causing re-renders
+    // but should be stable and not changing at runtime
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authClient, signinState]);
 
   const handlePhoneChoice = async () => {
     if (!signinState) {
@@ -115,16 +96,43 @@ export const SigninRecoveryChoiceContainer = (_: RouteComponentProps) => {
     }
   };
 
+  if (!signinState || !signinState.sessionToken) {
+    navigateWithQuery('/signin');
+    return;
+  }
+
   if (loading) {
     return <LoadingSpinner fullScreen />;
   }
 
-  if (
-    !signinState ||
-    !phoneData.maskedPhoneNumber ||
-    !phoneData.lastFourPhoneDigits
-  ) {
-    return <LoadingSpinner fullScreen />;
+  if (dataFetchError) {
+    if (dataFetchError.errno === AuthUiErrors.INVALID_TOKEN.errno) {
+      navigateWithQuery('/signin');
+      return;
+    }
+    // if there was another error fetching available recovery methods, go to backup authentication codes page
+    navigateWithQuery('/signin_recovery_code', {
+      state: { signinState },
+      // ensure back button on signin_recovery_code page skips choice page and returns to signin_totp_code
+      replace: true,
+    });
+  }
+  if (!phoneData.phoneNumber) {
+    navigateWithQuery('/signin_recovery_code', {
+      state: { signinState },
+      // ensure back button on signin_recovery_code page skips choice page and returns to signin_totp_code
+      replace: true,
+    });
+    return;
+  } else if (!numBackupCodes || numBackupCodes === 0) {
+    navigateWithQuery('/signin_recovery_phone', {
+      state: {
+        signinState,
+        lastFourPhoneDigits: phoneData.lastFourPhoneDigits,
+      },
+      // ensure back button on signin_recovery_code page skips choice page and returns to signin_totp_code
+      replace: true,
+    });
   }
 
   return (
