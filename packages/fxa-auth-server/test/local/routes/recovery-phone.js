@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { AccountEventsManager } from '../../../lib/account-events';
+
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 const { AccountManager } = require('@fxa/shared/account/account');
@@ -58,11 +60,15 @@ describe('/recovery_phone', () => {
   const mockAccountManager = {
     verifySession: sandbox.fake(),
   };
+  const mockAccountEventsManager = {
+    recordSecurityEvent: sandbox.fake(),
+  };
   let routes = [];
 
   beforeEach(() => {
     Container.set(RecoveryPhoneService, mockRecoveryPhoneService);
     Container.set(AccountManager, mockAccountManager);
+    Container.set(AccountEventsManager, mockAccountEventsManager);
     mockMailer = mocks.mockMailer();
     routes = recoveryPhoneRoutes(
       mockCustoms,
@@ -106,6 +112,17 @@ describe('/recovery_phone', () => {
       assert.equal(
         mockCustoms.check.getCall(0).args[2],
         'recoveryPhoneSendCode'
+      );
+
+      assert.calledOnceWithExactly(
+        mockAccountEventsManager.recordSecurityEvent,
+        mockDb,
+        {
+          name: 'account.recovery_phone_send_code',
+          uid,
+          ipAddr: '63.245.221.32',
+          tokenId: undefined,
+        }
       );
     });
 
@@ -336,6 +353,16 @@ describe('/recovery_phone', () => {
       );
       assert.equal(mockGlean.twoStepAuthPhoneCode.complete.callCount, 1);
       assert.calledOnce(mockMailer.sendPostAddRecoveryPhoneEmail);
+      assert.calledOnceWithExactly(
+        mockAccountEventsManager.recordSecurityEvent,
+        mockDb,
+        {
+          name: 'account.recovery_phone_setup_complete',
+          uid,
+          ipAddr: '63.245.221.32',
+          tokenId: undefined,
+        }
+      );
     });
 
     it('indicates a failure confirming code', async () => {
@@ -402,6 +429,42 @@ describe('/recovery_phone', () => {
       assert.equal(mockAccountManager.verifySession.callCount, 1);
       assert.equal(mockGlean.twoStepAuthPhoneCode.complete.callCount, 1);
       assert.calledOnce(mockMailer.sendPostSigninRecoveryPhoneEmail);
+      assert.calledOnceWithExactly(
+        mockAccountEventsManager.recordSecurityEvent,
+        mockDb,
+        {
+          name: 'account.recovery_phone_signin_complete',
+          uid,
+          ipAddr: '63.245.221.32',
+          tokenId: undefined,
+        }
+      );
+    });
+
+    it('fails confirms a code during signin', async () => {
+      mockRecoveryPhoneService.confirmSigninCode = sinon.fake.returns(false);
+
+      try {
+        await makeRequest({
+          method: 'POST',
+          path: '/recovery_phone/signin/confirm',
+          credentials: { uid, email },
+          payload: { code },
+        });
+      } catch (err) {
+        assert.isDefined(err);
+        assert.equal(err.errno, 183);
+        assert.calledOnceWithExactly(
+          mockAccountEventsManager.recordSecurityEvent,
+          mockDb,
+          {
+            name: 'account.recovery_phone_signin_failed',
+            uid,
+            ipAddr: '63.245.221.32',
+            tokenId: undefined,
+          }
+        );
+      }
     });
   });
 
@@ -423,6 +486,16 @@ describe('/recovery_phone', () => {
       );
       assert.equal(mockGlean.twoStepAuthPhoneRemove.success.callCount, 1);
       assert.calledOnce(mockMailer.sendPostRemoveRecoveryPhoneEmail);
+      assert.calledOnceWithExactly(
+        mockAccountEventsManager.recordSecurityEvent,
+        mockDb,
+        {
+          name: 'account.recovery_phone_removed',
+          uid,
+          ipAddr: '63.245.221.32',
+          tokenId: undefined,
+        }
+      );
     });
 
     it('indicates service failure while removing phone', async () => {

@@ -1,0 +1,12 @@
+-- SET NAMES utf8mb4 COLLATE utf8mb4_bin;
+--
+-- DELETE FROM securityEventNames WHERE name = 'account.recovery_phone_send_code';
+-- DELETE FROM securityEventNames WHERE name = 'account.recovery_phone_setup_complete';
+-- DELETE FROM securityEventNames WHERE name = 'account.recovery_phone_signin_complete';
+-- DELETE FROM securityEventNames WHERE name = 'account.recovery_phone_signin_failed';
+-- DELETE FROM securityEventNames WHERE name = 'account.recovery_phone_removed';
+-- DELETE FROM securityEventNames WHERE name = 'account.recovery_codes_replaced';
+-- DELETE FROM securityEventNames WHERE name = 'account.recovery_codes_created';
+-- DELETE FROM securityEventNames WHERE name = 'account.recovery_codes_signin_complete';
+--
+-- UPDATE dbMetadata SET value = '162' WHERE name = 'schema-patch-level';

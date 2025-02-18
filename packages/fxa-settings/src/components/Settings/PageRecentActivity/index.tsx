@@ -18,7 +18,7 @@ export const PageRecentActivity = (_: RouteComponentProps) => {
       const securityEvents = await account.getSecurityEvents();
       setSecurityEvents(securityEvents);
     })();
-  });
+  }, [account]);
 
   const ftlMsgResolver = useFtlMsgResolver();
 

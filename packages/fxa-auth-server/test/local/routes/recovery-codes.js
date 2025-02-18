@@ -11,6 +11,7 @@ const mocks = require('../../mocks');
 const error = require('../../../lib/error');
 const { Container } = require('typedi');
 const { BackupCodeManager } = require('@fxa/accounts/two-factor');
+const { AccountEventsManager } = require('../../../lib/account-events');
 
 let log, db, customs, routes, route, request, requestOptions, mailer, glean;
 const TEST_EMAIL = 'test@email.com';
@@ -45,7 +46,9 @@ describe('backup authentication codes', () => {
   const mockBackupCodeManager = {
     getCountForUserId: sandbox.fake(),
   };
-
+  const mockAccountEventsManager = {
+    recordSecurityEvent: sandbox.fake(),
+  };
   beforeEach(() => {
     log = mocks.mockLog();
     customs = mocks.mockCustoms();
@@ -71,10 +74,11 @@ describe('backup authentication codes', () => {
       },
     };
     Container.set(BackupCodeManager, mockBackupCodeManager);
+    Container.set(AccountEventsManager, mockAccountEventsManager);
   });
 
   afterEach(() => {
-    sandbox.restore();
+    sandbox.reset();
   });
 
   describe('GET /recoveryCodes', () => {
@@ -90,6 +94,16 @@ describe('backup authentication codes', () => {
           args[1],
           8,
           'called with backup authentication code count'
+        );
+        assert.calledOnceWithExactly(
+          mockAccountEventsManager.recordSecurityEvent,
+          db,
+          {
+            name: 'account.recovery_codes_replaced',
+            uid: UID,
+            ipAddr: '63.245.221.32',
+            tokenId: undefined,
+          }
         );
       });
     });
@@ -121,6 +135,16 @@ describe('backup authentication codes', () => {
           args[1],
           ['123'],
           'called with backup authentication codes'
+        );
+        assert.calledOnceWithExactly(
+          mockAccountEventsManager.recordSecurityEvent,
+          db,
+          {
+            name: 'account.recovery_codes_created',
+            uid: UID,
+            ipAddr: '63.245.221.32',
+            tokenId: undefined,
+          }
         );
       });
     });
@@ -174,6 +198,17 @@ describe('backup authentication codes', () => {
       const args = mailer.sendLowRecoveryCodesEmail.args[0];
       assert.lengthOf(args, 3);
       assert.equal(args[2].numberRemaining, 1);
+
+      assert.calledOnceWithExactly(
+        mockAccountEventsManager.recordSecurityEvent,
+        db,
+        {
+          name: 'account.recovery_codes_signin_complete',
+          uid: UID,
+          ipAddr: '63.245.221.32',
+          tokenId: undefined,
+        }
+      );
     });
 
     it('should rate-limit attempts to use a backup authentication code via customs', () => {
