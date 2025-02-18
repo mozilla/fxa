@@ -2,12 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class FetchCMSDataArgs {
   @IsString()
   offeringId!: string;
 
   @IsString()
-  acceptLanguage!: string;
+  @IsOptional()
+  acceptLanguage?: string | null;
+
+  @IsString()
+  @IsOptional()
+  selectedLanguage?: string;
 }

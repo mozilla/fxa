@@ -69,10 +69,15 @@ export class ProductConfigurationManager {
     this.statsd.timing('cms_request', response.elapsed, undefined, tags);
   }
 
-  async fetchCMSData(offeringId: string, acceptLanguage: string) {
+  async fetchCMSData(
+    offeringId: string,
+    acceptLanguage?: string,
+    selectedLanguage?: string
+  ) {
     const offeringResult = await this.getPageContentForOffering(
       offeringId,
-      acceptLanguage
+      acceptLanguage,
+      selectedLanguage
     );
 
     return offeringResult.getOffering();
@@ -95,9 +100,13 @@ export class ProductConfigurationManager {
 
   async getPageContentForOffering(
     apiIdentifier: string,
-    acceptLanguage: string
+    acceptLanguage?: string,
+    selectedLanguage?: string
   ): Promise<PageContentForOfferingResultUtil> {
-    const locale = await this.strapiClient.getLocale(acceptLanguage);
+    const locale = await this.strapiClient.getLocale(
+      acceptLanguage,
+      selectedLanguage
+    );
 
     const queryResult = await this.strapiClient.query(
       pageContentForOfferingQuery,

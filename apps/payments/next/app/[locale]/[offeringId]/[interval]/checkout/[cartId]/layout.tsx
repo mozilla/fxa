@@ -17,7 +17,6 @@ import {
   SubscriptionTitle,
   TermsAndPrivacy,
 } from '@fxa/payments/ui/server';
-import { DEFAULT_LOCALE } from '@fxa/shared/l10n';
 import { auth } from 'apps/payments/next/auth';
 import { config } from 'apps/payments/next/config';
 
@@ -39,17 +38,16 @@ export default async function RootLayout({
   children: React.ReactNode;
   params: CheckoutParams;
 }) {
-  // Temporarily defaulting to `accept-language`
-  // This to be updated in FXA-9404
-  //const locale = getLocaleFromRequest(
-  //  params,
-  //  headers().get('accept-language')
-  //);
-  const locale = headers().get('accept-language') || DEFAULT_LOCALE;
-  const cmsDataPromise = fetchCMSData(params.offeringId, locale);
+  const { locale } = params;
+  const acceptLanguage = headers().get('accept-language');
+  const cmsDataPromise = fetchCMSData(
+    params.offeringId,
+    acceptLanguage,
+    locale
+  );
   const cartDataPromise = getCartAction(params.cartId);
   const sessionPromise = auth();
-  const l10n = getApp().getL10n(locale);
+  const l10n = getApp().getL10n(acceptLanguage, locale);
   const [cms, cart, session] = await Promise.all([
     cmsDataPromise,
     cartDataPromise,

@@ -20,7 +20,6 @@ import {
 } from '@fxa/payments/ui/server';
 import AppleLogo from '@fxa/shared/assets/images/apple-logo.svg';
 import GoogleLogo from '@fxa/shared/assets/images/google-logo.svg';
-import { DEFAULT_LOCALE } from '@fxa/shared/l10n';
 import { auth, signIn } from 'apps/payments/next/auth';
 import {
   fetchCMSData,
@@ -37,16 +36,15 @@ export default async function Checkout({
   params: CheckoutParams;
   searchParams: Record<string, string> | undefined;
 }) {
-  // Temporarily defaulting to `accept-language`
-  // This to be updated in FXA-9404
-  //const locale = getLocaleFromRequest(
-  //  params,
-  //  headers().get('accept-language')
-  //);
-  const locale = headers().get('accept-language') || DEFAULT_LOCALE;
+  const { locale } = params;
+  const acceptLanguage = headers().get('accept-language');
   const sessionPromise = auth();
-  const l10n = getApp().getL10n(locale);
-  const cmsDataPromise = fetchCMSData(params.offeringId, locale);
+  const l10n = getApp().getL10n(acceptLanguage, locale);
+  const cmsDataPromise = fetchCMSData(
+    params.offeringId,
+    acceptLanguage,
+    locale
+  );
   const cartPromise = getCartOrRedirectAction(
     params.cartId,
     SupportedPages.START,
@@ -66,7 +64,7 @@ export default async function Checkout({
     'checkout',
     {
       baseUrl: config.paymentsNextHostedUrl,
-      locale: params.locale,
+      locale,
       searchParams,
     }
   );

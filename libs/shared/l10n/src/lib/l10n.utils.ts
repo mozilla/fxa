@@ -12,18 +12,20 @@ import { DEFAULT_LOCALE, EN_GB_LOCALES } from './l10n.constants';
  * a set of valid locales in order of precedence.
  * @param acceptLanguage - Http header accept-language value
  * @param supportedLanguages - List of supported language codes
+ * @param overrideLocale - Single locale that should override acceptLanguage
  * @returns A list of associated supported locales. If there are no matches for the given
  *          accept language, then the default locle, en, will be returned.
  *
  */
 export function parseAcceptLanguage(
-  acceptLanguage?: string,
-  supportedLanguages?: string[]
+  acceptLanguage?: string | null,
+  supportedLanguages?: string[],
+  overrideLocale?: string
 ) {
   if (!supportedLanguages) {
     supportedLanguages = availableLocales;
   }
-  if (acceptLanguage == null) {
+  if (!acceptLanguage) {
     acceptLanguage = '';
   }
 
@@ -59,6 +61,10 @@ export function parseAcceptLanguage(
   // Order of locales represents priority and should correspond to q-values.
   const sortedQValues = Object.entries(qValues).sort((a, b) => b[1] - a[1]);
   const parsedLocalesByQValue = sortedQValues.map((qValue) => qValue[0]);
+
+  if (overrideLocale) {
+    parsedLocalesByQValue.unshift(overrideLocale.toLocaleLowerCase());
+  }
 
   const currentLocales = negotiateLanguages(
     parsedLocalesByQValue,
@@ -145,10 +151,15 @@ export function getLocaleFromRequest(
  */
 export function determineLocale(
   acceptLanguage?: string,
-  supportedLanguages?: string[]
+  supportedLanguages?: string[],
+  selectedLanguage?: string
 ) {
   // Returns languages in order of precedence, so we can just grab the first one.
-  return parseAcceptLanguage(acceptLanguage, supportedLanguages)[0];
+  return parseAcceptLanguage(
+    acceptLanguage,
+    supportedLanguages,
+    selectedLanguage
+  )[0];
 }
 
 import rtlLocales from './rtl-locales.json';

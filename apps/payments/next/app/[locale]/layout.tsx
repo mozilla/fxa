@@ -3,25 +3,25 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { getApp } from '@fxa/payments/ui/server';
 import { headers } from 'next/headers';
-import { DEFAULT_LOCALE } from '@fxa/shared/l10n';
 import { Header, Providers } from '@fxa/payments/ui';
 import { config } from 'apps/payments/next/config';
 import { auth, signOut } from '../../auth';
 
 export default async function RootProviderLayout({
+  params,
   children,
 }: {
+  params: {
+    locale: string;
+  };
   children: React.ReactNode;
 }) {
-  // Temporarily defaulting to `accept-language`
-  // This to be updated in FXA-9404
-  //const locale = getLocaleFromRequest(
-  //  params,
-  //  headers().get('accept-language')
-  //);
-  const locale = headers().get('accept-language') || DEFAULT_LOCALE;
+  const acceptLanguage = headers().get('accept-language');
   const nonce = headers().get('x-nonce') || undefined;
-  const fetchedMessages = getApp().getFetchedMessages(locale);
+  const fetchedMessages = getApp().getFetchedMessages(
+    acceptLanguage,
+    params.locale
+  );
 
   const session = await auth();
 
