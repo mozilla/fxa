@@ -5,9 +5,70 @@
 
 import Stripe from 'stripe';
 import { Elements } from '@stripe/react-stripe-js';
-import { loadStripe, StripeElementsOptions } from '@stripe/stripe-js';
+import {
+  loadStripe,
+  StripeElementLocale,
+  StripeElementsOptions,
+} from '@stripe/stripe-js';
 import { useContext, useState } from 'react';
 import { ConfigContext } from '../providers/ConfigProvider';
+
+const stripeElementLocales = [
+  'auto',
+  'ar',
+  'bg',
+  'cs',
+  'da',
+  'de',
+  'el',
+  'en',
+  'en-AU',
+  'en-CA',
+  'en-NZ',
+  'en-GB',
+  'es',
+  'es-ES',
+  'es-419',
+  'et',
+  'fi',
+  'fil',
+  'fr',
+  'fr-CA',
+  'fr-FR',
+  'he',
+  'hu',
+  'hr',
+  'id',
+  'it',
+  'it-IT',
+  'ja',
+  'ko',
+  'lt',
+  'lv',
+  'ms',
+  'mt',
+  'nb',
+  'nl',
+  'no',
+  'pl',
+  'pt',
+  'pt-BR',
+  'ro',
+  'ru',
+  'sk',
+  'sl',
+  'sv',
+  'th',
+  'tr',
+  'vi',
+  'zh',
+  'zh-HK',
+  'zh-TW',
+];
+
+function isStripeElementLocale(locale: string): locale is StripeElementLocale {
+  return stripeElementLocales.includes(locale as StripeElementLocale);
+}
 
 interface StripeWrapperProps {
   amount: number;
@@ -23,12 +84,14 @@ interface StripeWrapperProps {
     customerSessionClientSecret?: string;
   };
   children: React.ReactNode;
+  locale: string;
 }
 
 export function StripeWrapper({
   amount,
   currency,
   paymentInfo,
+  locale,
   children,
 }: StripeWrapperProps) {
   const config = useContext(ConfigContext);
@@ -36,6 +99,7 @@ export function StripeWrapper({
 
   const options: StripeElementsOptions = {
     mode: 'subscription',
+    locale: isStripeElementLocale(locale) ? locale : 'auto',
     amount,
     currency,
     paymentMethodCreation: 'manual',

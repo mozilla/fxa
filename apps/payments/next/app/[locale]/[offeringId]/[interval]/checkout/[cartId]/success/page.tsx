@@ -5,7 +5,6 @@
 import { headers } from 'next/headers';
 
 import { formatPlanPricing } from '@fxa/payments/ui';
-import { DEFAULT_LOCALE } from '@fxa/shared/l10n';
 
 import { SupportedPages, getApp } from '@fxa/payments/ui/server';
 import {
@@ -57,15 +56,14 @@ export default async function CheckoutSuccess({
   params: CheckoutParams;
   searchParams: Record<string, string>;
 }) {
-  // Temporarily defaulting to `accept-language`
-  // This to be updated in FXA-9404
-  //const locale = getLocaleFromRequest(
-  //  params,
-  //  headers().get('accept-language')
-  //);
-  const locale = headers().get('accept-language') || DEFAULT_LOCALE;
+  const { locale } = params;
+  const acceptLanguage = headers().get('accept-language');
 
-  const cmsDataPromise = fetchCMSData(params.offeringId, locale);
+  const cmsDataPromise = fetchCMSData(
+    params.offeringId,
+    acceptLanguage,
+    locale
+  );
   const cartDataPromise = getCartOrRedirectAction(
     params.cartId,
     SupportedPages.SUCCESS,

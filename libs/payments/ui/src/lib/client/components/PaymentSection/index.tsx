@@ -54,6 +54,7 @@ export function PaymentSection({
       amount={paymentsInfo.amount}
       currency={paymentsInfo.currency}
       paymentInfo={cart.paymentInfo}
+      locale={locale}
     >
       <CheckoutForm
         cmsCommonContent={cmsCommonContent}

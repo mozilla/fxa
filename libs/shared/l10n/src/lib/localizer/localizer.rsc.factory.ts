@@ -44,14 +44,18 @@ export class LocalizerRscFactory extends LocalizerBase {
     };
   }
 
-  createLocalizerRsc(acceptLanguages: string) {
+  createLocalizerRsc(acceptLanguages?: string | null, selectedLocale?: string) {
     if (!this.bundles.size || !this.document) {
       throw new Error(
         'Ensure factory is initialized before creating LocalizerRsc instances.'
       );
     }
     const supportedBundles: FluentBundle[] = [];
-    const currentLocales = parseAcceptLanguage(acceptLanguages);
+    const currentLocales = parseAcceptLanguage(
+      acceptLanguages,
+      undefined,
+      selectedLocale
+    );
     currentLocales.forEach((locale) => {
       const bundle = this.bundles.get(locale);
       if (bundle) {
@@ -62,9 +66,16 @@ export class LocalizerRscFactory extends LocalizerBase {
     return new LocalizerRsc(supportedBundles, this.parseMarkup());
   }
 
-  getFetchedMessages(acceptLanguages: string) {
+  getFetchedMessages(
+    acceptLanguages?: string | null,
+    selectedLangauge?: string
+  ) {
     const filteredFetchedMessages: Record<string, string> = {};
-    const currentLocales = parseAcceptLanguage(acceptLanguages);
+    const currentLocales = parseAcceptLanguage(
+      acceptLanguages,
+      undefined,
+      selectedLangauge
+    );
     currentLocales.forEach((locale) => {
       const msgs = this.fetchedMessages[locale];
       if (msgs) {

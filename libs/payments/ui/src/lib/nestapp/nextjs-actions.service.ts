@@ -150,7 +150,8 @@ export class NextJSActionsService {
 
     const offering = await this.productConfigurationManager.fetchCMSData(
       args.offeringId,
-      args.acceptLanguage
+      args.acceptLanguage || undefined,
+      args.selectedLanguage
     );
 
     return offering;

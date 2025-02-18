@@ -1,17 +1,17 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+import { resolvePathnameWithLocale } from '@fxa/payments/ui/utils';
 import { NextRequest, NextResponse } from 'next/server';
-import { supportedLanguages, DEFAULT_LOCALE } from '@fxa/shared/l10n';
 
 export function middleware(request: NextRequest) {
   // Handle locale fallback
-  const localeSegment = request.nextUrl.pathname.split('/')[1];
-  if (localeSegment && !supportedLanguages.includes(localeSegment)) {
-    const newPathname = `/${DEFAULT_LOCALE}${request.nextUrl.pathname.substring(
-      localeSegment.length + 1
-    )}`;
-    return NextResponse.redirect(new URL(newPathname, request.url));
+  const result = resolvePathnameWithLocale(
+    request.nextUrl.pathname,
+    request.headers.get('accept-language')
+  );
+  if (result.redirect) {
+    return NextResponse.redirect(new URL(result.pathname, request.url));
   }
 
   // Read env vars directly from process.env
