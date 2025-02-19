@@ -87,6 +87,7 @@ import InlineRecoveryKeySetupContainer from '../../pages/InlineRecoveryKeySetup/
 import SetPasswordContainer from '../../pages/PostVerify/SetPassword/container';
 import SigninRecoveryChoiceContainer from '../../pages/Signin/SigninRecoveryChoice/container';
 import SigninRecoveryPhoneContainer from '../../pages/Signin/SigninRecoveryPhone/container';
+import { IndexContainer } from '../../pages/Index/container';
 
 const Settings = lazy(() => import('../Settings'));
 
@@ -96,7 +97,9 @@ export const App = ({
   const config = useConfig();
   const session = useSession();
   const integration = useIntegration();
-  const isSync = integration != null && integration.isSync();
+  const isWebChannelIntegration =
+    integration != null &&
+    (integration.isSync() || integration.isDesktopRelay());
   const { data: isSignedInData } = useLocalSignedInQueryState();
 
   // GQL call for minimal metrics data
@@ -119,28 +122,32 @@ export const App = ({
     (async () => {
       let isValidSession = false;
 
-      if (isSync) {
+      if (isWebChannelIntegration) {
         // Request and update account data/state to match the browser state.
-        // When we are acessing FxA from the browser menu, the isSync flag will
+        // When we are acessing FxA from the browser menu or the user is going through
+        // the service=relay flow, the isWebChannelIntegration flag will
         // be set to true. If there is a user actively signed into the browser,
         // we should try to use that user's account when possible.
-        const syncUser = await firefox.requestSignedInUser(
-          integration.data.context
+        const userFromBrowser = await firefox.requestSignedInUser(
+          integration.data.context,
+          // TODO with React pairing flow, update this if pairing flow
+          false,
+          integration.data.service
         );
 
-        if (syncUser && syncUser.sessionToken) {
+        if (userFromBrowser && userFromBrowser.sessionToken) {
           // If the session is valid, try to set it as the current account
-          isValidSession = await session.isValid(syncUser.sessionToken);
+          isValidSession = await session.isValid(userFromBrowser.sessionToken);
           if (isValidSession) {
-            const cachedUser = getAccountByUid(syncUser.uid);
+            const cachedUser = getAccountByUid(userFromBrowser.uid);
             if (cachedUser) {
               storeAccountData({
                 ...cachedUser,
                 // Make sure we are apply the session token we validated
-                sessionToken: syncUser.sessionToken,
+                sessionToken: userFromBrowser.sessionToken,
               });
             } else {
-              storeAccountData(syncUser);
+              storeAccountData(userFromBrowser);
             }
           }
         }
@@ -153,7 +160,12 @@ export const App = ({
 
       setIsSignedIn(isValidSession);
     })();
-  }, [integration, isSync, isSignedInData?.isSignedIn, session]);
+  }, [
+    integration,
+    isWebChannelIntegration,
+    isSignedInData?.isSignedIn,
+    session,
+  ]);
 
   // Because this query depends on the result of an initial query (in this case,
   // metrics), we need to run it separately.
@@ -310,6 +322,9 @@ const AuthAndAccountSetupRoutes = ({
 
   return (
     <Router>
+      {/* Index */}
+      <IndexContainer path="/" {...{ integration, serviceName }} />
+
       {/* Legal */}
       <Legal path="/legal/*" />
       <LegalPrivacy path="/:locale/legal/privacy/*" />

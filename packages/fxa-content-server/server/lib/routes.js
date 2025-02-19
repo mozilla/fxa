@@ -12,7 +12,8 @@ module.exports = function (config, i18n, statsd, glean) {
   const redirectVersionedToUnversioned = require('./routes/redirect-versioned-to-unversioned');
   const reactRouteGroups = getServerReactRouteGroups(
     config.get('showReactApp'),
-    i18n
+    i18n,
+    config
   );
 
   const routes = [
@@ -25,7 +26,7 @@ module.exports = function (config, i18n, statsd, glean) {
     require('./routes/get-oauth-success').default(reactRouteGroups),
     require('./routes/get-terms-privacy').default(reactRouteGroups, i18n),
     require('./routes/get-update-firefox')(config),
-    require('./routes/get-index')(config),
+    require('./routes/get-index').default(reactRouteGroups, config),
     require('./routes/get-ver.json'),
     require('./routes/get-client.json')(i18n),
     require('./routes/get-config')(i18n),

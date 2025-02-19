@@ -14,6 +14,7 @@ const {
   getOAuthSuccessRouteDefinition,
   getTermsPrivacyRouteDefinition,
 } = require('./route-definitions');
+const { getIndexRouteDefinition } = require('./route-definition-index');
 
 /**
  * Returns a route object with the `name` of the route and the route `definition`.
@@ -21,13 +22,17 @@ const {
 class ReactRouteServer {
   /** @param {any} i18n
    * */
-  constructor(i18n) {
+  constructor(i18n, config) {
     this.i18n = i18n;
+    this.config = config;
   }
 
   /** @param {String|RegExp} name */
   getRoute(name) {
     if (typeof name === 'string') {
+      if (name === '/') {
+        return this.getIndex(name);
+      }
       if (FRONTEND_ROUTES.includes(name)) {
         return this.getFrontEnd(name);
       }
@@ -70,6 +75,11 @@ class ReactRouteServer {
   /** @private */
   getFrontEnd(name) {
     return this.getRouteObject(name, getFrontEndRouteDefinition([name]));
+  }
+
+  /** @private */
+  getIndex(name) {
+    return this.getRouteObject(name, getIndexRouteDefinition(this.config));
   }
 
   /** @private */

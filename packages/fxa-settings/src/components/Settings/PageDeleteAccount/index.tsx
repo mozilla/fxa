@@ -21,6 +21,7 @@ import LinkExternal from 'fxa-react/components/LinkExternal';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import GleanMetrics from '../../../lib/glean';
 import { useFtlMsgResolver } from '../../../models/hooks';
+import { useCheckReactEmailFirst } from '../../../lib/hooks';
 
 type FormData = {
   password: string;
@@ -107,6 +108,7 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
   const alertBar = useAlertBar();
   const ftlMsgResolver = useFtlMsgResolver();
   const goHome = useCallback(() => window.history.back(), []);
+  const shouldUseReactEmailFirst = useCheckReactEmailFirst();
 
   const account = useAccount();
 
@@ -143,7 +145,15 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
           'flow.settings.account-delete',
           'confirm-password.success'
         );
-        hardNavigate('/', { delete_account_success: true }, true);
+        if (shouldUseReactEmailFirst) {
+          navigate('/', {
+            state: {
+              deleteAccountSuccess: true,
+            },
+          });
+        } else {
+          hardNavigate('/', { delete_account_success: true }, true);
+        }
       } catch (e) {
         const localizedError = getLocalizedErrorMessage(ftlMsgResolver, e);
         if (e.errno === AuthUiErrors.INCORRECT_PASSWORD.errno) {
@@ -155,7 +165,15 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
         }
       }
     },
-    [account, setErrorText, setValue, alertBar, ftlMsgResolver]
+    [
+      account,
+      setErrorText,
+      setValue,
+      alertBar,
+      ftlMsgResolver,
+      navigate,
+      shouldUseReactEmailFirst,
+    ]
   );
 
   const handleConfirmChange =

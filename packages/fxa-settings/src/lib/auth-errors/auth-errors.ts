@@ -624,11 +624,12 @@ const ERRORS = {
       errno: 1063,
       message: 'Could not get Subscription Platform Terms of Service'
     },
-    INVALID_EMAIL_DOMAIN: {
-        errno: 1064,
-        message: 'Mistyped email? %(domain)s does not offer email.'
-    },
-     */
+    */
+  INVALID_EMAIL_DOMAIN: {
+    errno: 1064,
+    message: 'Mistyped email? %(domain)s does not offer email.',
+    interpolate: true,
+  },
   IMAGE_TOO_LARGE: {
     errno: 1065,
     message: 'The image file size is too large to be uploaded.',
