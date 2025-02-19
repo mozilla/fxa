@@ -35,6 +35,10 @@ const verifyNumberFailure = async (phoneNumber: string) => {
   return Promise.reject(AuthUiErrors.UNEXPECTED_ERROR);
 };
 
+const phoneRegistrationLimitReached = async (phoneNumber: string) => {
+  return Promise.reject(AuthUiErrors.RECOVERY_PHONE_REGISTRATION_LIMIT_REACHED);
+};
+
 export const Success = () => (
   <SettingsLayout>
     <FlowSetupRecoveryPhoneSubmitNumber

@@ -74,3 +74,13 @@ export class RecoveryPhoneNotEnabled extends RecoveryPhoneError {
     super('Recovery phone not enabled.', {}, cause);
   }
 }
+
+export class RecoveryPhoneRegistrationLimitReached extends RecoveryPhoneError {
+  constructor(phoneNumber: string, cause?: Error) {
+    super(
+      'Maximum registrations reached for this phone number.',
+      { phoneNumber },
+      cause
+    );
+  }
+}

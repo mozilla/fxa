@@ -9,6 +9,7 @@ import {
 import { Inject, Injectable } from '@nestjs/common';
 import {
   getConfirmedPhoneNumber,
+  getCountByPhoneNumber,
   hasRecoveryCodes,
   registerPhoneNumber,
   removePhoneNumber,
@@ -199,5 +200,9 @@ export class RecoveryPhoneManager {
    */
   async hasRecoveryCodes(uid: string): Promise<boolean> {
     return hasRecoveryCodes(this.db, Buffer.from(uid, 'hex'));
+  }
+
+  async getCountByPhoneNumber(phoneNumber: string) {
+    return getCountByPhoneNumber(this.db, phoneNumber);
   }
 }

@@ -275,7 +275,7 @@ const conf = convict({
       format: Boolean,
     },
     allowedRegions: {
-      default: ['US'],
+      default: ['CA', 'US'],
       doc: 'Allowed regions for recovery phone',
       env: 'RECOVERY_PHONE__ALLOWED_REGIONS',
       format: Array,
@@ -294,17 +294,23 @@ const conf = convict({
         format: Number,
       },
     },
+    maxRegistrationsPerNumber: {
+      default: 5,
+      doc: 'Max number of uids that can be associated to the same phone number.',
+      env: 'RECOVERY_PHONE__MAX_UID_PER_NUMBER',
+      format: Number,
+    },
     redis: {},
     sms: {
       from: {
-        default: '555555',
-        doc: 'The twilio number messages are sent from. This should be a short-code resource.',
+        default: ['15005550006'],
+        doc: 'The twilio number messages are sent from.',
         env: 'RECOVERY_PHONE__SMS__FROM',
-        format: String,
+        format: Array,
       },
       maxMessageLength: {
         default: 160,
-        doc: 'Max allows sms message lenght',
+        doc: 'Max allowed sms message length',
         env: 'RECOVERY_PHONE__SMS__MAX_MESSAGE_LENGTH',
         format: Number,
       },

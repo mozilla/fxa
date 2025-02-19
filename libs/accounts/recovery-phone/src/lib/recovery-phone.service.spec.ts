@@ -13,6 +13,7 @@ import {
   RecoveryNumberNotSupportedError,
   RecoveryPhoneNotEnabled,
   RecoveryNumberRemoveMissingBackupCodes,
+  RecoveryPhoneRegistrationLimitReached,
 } from './recovery-phone.errors';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { StatsDService } from '@fxa/shared/metrics/statsd';
@@ -49,6 +50,7 @@ describe('RecoveryPhoneService', () => {
     getConfirmedPhoneNumber: jest.fn(),
     hasRecoveryCodes: jest.fn(),
     removeCode: jest.fn(),
+    getCountByPhoneNumber: jest.fn(),
   };
 
   const mockOtpManager = {
@@ -58,6 +60,7 @@ describe('RecoveryPhoneService', () => {
   const mockRecoveryPhoneConfig: RecoveryPhoneConfig = {
     enabled: true,
     allowedRegions: ['US'],
+    maxRegistrationsPerNumber: 5,
     sms: {
       validNumberPrefixes: ['+1500'],
       smsPumpingRiskThreshold: 75,
@@ -116,7 +119,7 @@ describe('RecoveryPhoneService', () => {
     expect(service).toBeInstanceOf(RecoveryPhoneService);
   });
 
-  it('Should setup a phone number', async () => {
+  it('Should set up a phone number', async () => {
     mockOtpManager.generateCode.mockReturnValue(code);
 
     const result = await service.setupPhoneNumber(uid, phoneNumber);
@@ -134,10 +137,9 @@ describe('RecoveryPhoneService', () => {
       true
     );
     expect(mockRecoveryPhoneManager.getAllUnconfirmed).toBeCalledWith(uid);
-    expect(result).toBeTruthy();
   });
 
-  it('Should send new code for setup phone number', async () => {
+  it('Should send new code to set up a phone number', async () => {
     mockOtpManager.generateCode.mockReturnValue(code);
     mockRecoveryPhoneManager.getAllUnconfirmed.mockResolvedValue([
       'this:is:the:code123',
@@ -163,7 +165,7 @@ describe('RecoveryPhoneService', () => {
     expect(mockRecoveryPhoneManager.getAllUnconfirmed).toBeCalledWith(uid);
   });
 
-  it('handles message template when provided to setup phone number', async () => {
+  it('handles message template when provided to set up phone number', async () => {
     mockOtpManager.generateCode.mockReturnValue(code);
     const getFormattedMessage = jest.fn().mockResolvedValue('message');
 
@@ -192,6 +194,14 @@ describe('RecoveryPhoneService', () => {
     const to = '+16005551234';
     await expect(service.setupPhoneNumber(uid, to)).rejects.toEqual(
       new RecoveryNumberNotSupportedError(to)
+    );
+  });
+
+  it('Will reject a phone number if it has been used for too many accounts', async () => {
+    mockRecoveryPhoneManager.getCountByPhoneNumber.mockReturnValue(5);
+
+    await expect(service.setupPhoneNumber(uid, phoneNumber)).rejects.toEqual(
+      new RecoveryPhoneRegistrationLimitReached(phoneNumber)
     );
   });
 
@@ -308,6 +318,19 @@ describe('RecoveryPhoneService', () => {
           phoneNumber,
           smsPumpingRisk,
         }
+      );
+    });
+
+    it('rejects phone number that has been used for too many accounts', async () => {
+      const phoneNumber = '+15005550000';
+      mockRecoveryPhoneManager.getUnconfirmed.mockReturnValue({
+        isSetup: true,
+        phoneNumber,
+      });
+      mockRecoveryPhoneManager.getCountByPhoneNumber.mockResolvedValue(5);
+
+      await expect(service.confirmSetupCode(uid, code)).rejects.toThrow(
+        new RecoveryPhoneRegistrationLimitReached(phoneNumber)
       );
     });
 

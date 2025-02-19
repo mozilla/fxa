@@ -29,6 +29,7 @@ auth-error-214 = Recovery phone number already exists
 auth-error-215 = Recovery phone number does not exist
 auth-error-216 = Text message limit reached
 auth-error-218 = Unable to remove recovery phone, missing backup authentication codes.
+auth-error-219 = This phone number has been registered with too many accounts. Please try a different number.
 auth-error-999 = Unexpected error
 auth-error-1001 = Login attempt cancelled
 auth-error-1002 = Session expired. Sign in to continue.

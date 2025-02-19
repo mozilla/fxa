@@ -19,6 +19,9 @@ export class RecoveryPhoneConfig {
   @IsArray()
   public allowedRegions?: Array<string>;
 
+  @IsNumber()
+  public maxRegistrationsPerNumber?: number;
+
   @IsObject()
   public sms?: RecoveryPhoneServiceConfig;
 }

@@ -14,6 +14,7 @@ import {
   RecoveryNumberNotExistsError,
   SmsSendRateLimitExceededError,
   RecoveryNumberRemoveMissingBackupCodes,
+  RecoveryPhoneRegistrationLimitReached,
   TwilioMessageStatus,
 } from '@fxa/accounts/recovery-phone';
 import {
@@ -230,6 +231,10 @@ class RecoveryPhoneHandler {
         throw AppError.smsSendRateLimitExceeded();
       }
 
+      if (error instanceof RecoveryPhoneRegistrationLimitReached) {
+        throw AppError.recoveryPhoneRegistrationLimitReached();
+      }
+
       throw AppError.backendServiceFailure(
         'RecoveryPhoneService',
         'setupPhoneNumber',
@@ -289,6 +294,10 @@ class RecoveryPhoneHandler {
 
       if (error instanceof RecoveryNumberAlreadyExistsError) {
         throw AppError.recoveryPhoneNumberAlreadyExists();
+      }
+
+      if (error instanceof RecoveryPhoneRegistrationLimitReached) {
+        throw AppError.recoveryPhoneRegistrationLimitReached();
       }
 
       throw AppError.backendServiceFailure(
