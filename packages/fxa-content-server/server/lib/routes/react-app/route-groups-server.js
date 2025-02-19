@@ -10,8 +10,8 @@ const { ReactRouteServer } = require('./react-route-server');
 
  *  @type {import("./types").GetReactRouteGroups}
  */
-const getServerReactRouteGroups = (showReactApp, i18n) => {
-  const reactRoute = new ReactRouteServer(i18n);
+const getServerReactRouteGroups = (showReactApp, i18n, config) => {
+  const reactRoute = new ReactRouteServer(i18n, config);
   return getReactRouteGroups(showReactApp, reactRoute);
 };
 

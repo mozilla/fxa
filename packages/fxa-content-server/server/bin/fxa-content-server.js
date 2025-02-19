@@ -191,8 +191,6 @@ function makeApp() {
   const routeHelpers = routing(app, routeLogger);
 
   function addNonSettingsRoutes(middleware) {
-    addAllReactRoutesConditionally(app, routeHelpers, middleware, i18n);
-
     /* This creates `app.whatever('/path' ...` handlers for every content-server route and
      * excludes routes in `react-app.js` if corresponding feature flags are on. We manually add
      * these excluded routes for content-server to serve in checks above if the feature flag is
@@ -200,6 +198,11 @@ function makeApp() {
      * must come after React-related route modifications so that `next('route')` skips to these
      * route implementations. */
     routes.forEach(routeHelpers.addRoute);
+
+    // Adding React routes should come _after_ adding Backbone routes above because the Index
+    // page ('/'), which will get added to Backbone routing too in this function if conditions
+    // are not met for React, must come _after_ at least some of the frontend Backbone routing.
+    addAllReactRoutesConditionally(app, routeHelpers, middleware, i18n, config);
 
     // must come after route handling but before wildcard routes
     app.use(

@@ -35,6 +35,7 @@ import {
   PASSWORD_CHANGE_FINISH_MUTATION,
   PASSWORD_CHANGE_START_MUTATION,
 } from '../gql';
+import { useCheckReactEmailFirst } from '../../../lib/hooks';
 
 // The email with token code (verifyLoginCodeEmail) is sent on `/signin`
 // submission if conditions are met.
@@ -48,6 +49,7 @@ const SigninTokenCodeContainer = ({
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state?: SigninLocationState;
   };
+  const shouldUseReactEmailFirst = useCheckReactEmailFirst();
 
   const signinState = getSigninState(location.state);
   const sensitiveDataClient = useSensitiveDataClient();
@@ -94,7 +96,11 @@ const SigninTokenCodeContainer = ({
   }, [authClient, signinState]);
 
   if (!signinState || !signinState.sessionToken) {
-    hardNavigate('/', {}, true);
+    if (shouldUseReactEmailFirst) {
+      navigate('/');
+    } else {
+      hardNavigate('/', {}, true);
+    }
     return <LoadingSpinner fullScreen />;
   }
 
