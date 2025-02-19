@@ -337,14 +337,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@apollo/server@npm:^4.10.5":
-  version: 4.10.5
-  resolution: "@apollo/server@npm:4.10.5"
+"@apollo/server@npm:^4.11.3":
+  version: 4.11.3
+  resolution: "@apollo/server@npm:4.11.3"
   dependencies:
     "@apollo/cache-control-types": ^1.0.3
     "@apollo/server-gateway-interface": ^1.1.1
     "@apollo/usage-reporting-protobuf": ^4.1.1
-    "@apollo/utils.createhash": ^2.0.0
+    "@apollo/utils.createhash": ^2.0.2
     "@apollo/utils.fetcher": ^2.0.0
     "@apollo/utils.isnodelike": ^2.0.0
     "@apollo/utils.keyvaluecache": ^2.1.0
@@ -357,7 +357,7 @@ __metadata:
     "@types/node-fetch": ^2.6.1
     async-retry: ^1.2.1
     cors: ^2.8.5
-    express: ^4.17.1
+    express: ^4.21.1
     loglevel: ^1.6.8
     lru-cache: ^7.10.1
     negotiator: ^0.6.3
@@ -367,7 +367,7 @@ __metadata:
     whatwg-mimetype: ^3.0.0
   peerDependencies:
     graphql: ^16.6.0
-  checksum: dff21fb53e08e008b2504091a78583518650cb63dcaca9abd67bfa0b6f000a9445b35e4461cbe1bf5665460cc738bbe1389a3c1e95723281a7b1747f7a14bec6
+  checksum: c7052c82f8b04b44ddd2ac2d46547f72758dc3a110fca40b886ca46296642f45d53dcd8132e1402a656779037fdb409d3b05272dbbf9c9bed1b1512fa3c2cd63
   languageName: node
   linkType: hard
 
@@ -380,13 +380,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@apollo/utils.createhash@npm:^2.0.0":
-  version: 2.0.1
-  resolution: "@apollo/utils.createhash@npm:2.0.1"
+"@apollo/utils.createhash@npm:^2.0.2":
+  version: 2.0.2
+  resolution: "@apollo/utils.createhash@npm:2.0.2"
   dependencies:
     "@apollo/utils.isnodelike": ^2.0.1
     sha.js: ^2.4.11
-  checksum: 63608cbd5bfff314aa998bea077c55d941fee80f92dd01cf4fc8e3b83e62ea8d6dffc88281e79732cbdb6e8e374310a994f1b4e2389bf959d1c5eee7453dd192
+  checksum: a4d819b0e2d574422b05d4f1786723d971daf533207f6825339db728f60e69b7ffccc38e08f878c16f3a43a71ea18173ceb31ffdaad581187a72b91e3a87e16b
   languageName: node
   linkType: hard
 
@@ -39445,7 +39445,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"express@npm:4.19.2, express@npm:^4.17.1, express@npm:^4.17.3":
+"express@npm:4.19.2, express@npm:^4.17.3":
   version: 4.19.2
   resolution: "express@npm:4.19.2"
   dependencies:
@@ -39523,7 +39523,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"express@npm:^4.21.2":
+"express@npm:^4.21.1, express@npm:^4.21.2":
   version: 4.21.2
   resolution: "express@npm:4.21.2"
   dependencies:
@@ -42495,7 +42495,7 @@ fsevents@~2.1.1:
   resolution: "fxa@workspace:."
   dependencies:
     "@apollo/client": ^3.11.1
-    "@apollo/server": ^4.10.5
+    "@apollo/server": ^4.11.3
     "@babel/core": ^7.26.0
     "@babel/preset-react": ^7.25.7
     "@faker-js/faker": ^9.0.0
