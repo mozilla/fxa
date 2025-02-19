@@ -5,14 +5,14 @@ import { EmailType } from '.';
 import { convertError } from '../../mysql';
 import { BaseAuthModel, Proc } from './base-auth';
 
-const BOUNCE_TYPES = {
+export const BOUNCE_TYPES = {
   __fxa__unmapped: 0,
   Permanent: 1,
   Transient: 2,
   Complaint: 3,
 } as const;
 
-const BOUNCE_SUB_TYPES = {
+export const BOUNCE_SUB_TYPES = {
   __fxa__unmapped: 0,
   Undetermined: 1,
   General: 2,

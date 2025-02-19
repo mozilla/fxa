@@ -366,9 +366,13 @@ export const createDB = (
     // TODO delete me
     emailRecord = this.accountRecord;
 
-    async account(uid: string): Promise<Account> {
+    async account(
+      uid: string
+    ): Promise<Account & Required<Pick<Account, 'emails'>>> {
       log.trace('DB.account', { uid });
-      const account = await Account.findByUid(uid, { include: ['emails'] });
+      const account = (await Account.findByUid(uid, {
+        include: ['emails'],
+      })) as Account & Required<Pick<Account, 'emails'>>;
       if (!account) {
         this.metrics?.increment('db.account.retrieve', { result: 'notFound' });
         throw error.unknownAccount();
