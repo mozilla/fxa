@@ -52,9 +52,9 @@ export type ChargeCustomerOptions = {
   amountInCents: number;
   billingAgreementId: string;
   currencyCode: string;
-  countryCode: string;
   idempotencyKey: string;
   invoiceNumber: string;
+  countryCode?: string;
   ipaddress?: string;
   taxAmountInCents?: number;
 };
@@ -278,9 +278,9 @@ export class PayPalHelper {
       ),
       billingAgreementId: options.billingAgreementId,
       currencyCode: options.currencyCode,
-      countryCode: options.countryCode,
       idempotencyKey: options.idempotencyKey,
       invoiceNumber: options.invoiceNumber,
+      ...(options.countryCode && { countryCode: options.countryCode }),
       ...(options.ipaddress && { ipaddress: options.ipaddress }),
       ...(options.taxAmountInCents && {
         taxAmount: this.currencyHelper.getPayPalAmountStringFromAmountInCents(
@@ -485,16 +485,23 @@ export class PayPalHelper {
       paymentAttempt
     );
 
-    const countryCode: string =
-      invoice.customer_shipping?.address?.country ??
-      this.currencyHelper.currencyToCountryMap[
-        invoice.currency.toUpperCase()
-      ][0];
+    let countryCode: string | undefined =
+      invoice.customer_shipping?.address?.country ?? undefined;
 
     if (!countryCode) {
-      throw error.internalValidationError('processInvoice', {
-        message: 'Invalid country code',
-      });
+      const validCountries = this.currencyHelper.currencyToCountryMap.get(
+        invoice.currency.toUpperCase()
+      );
+
+      if (validCountries && validCountries.length > 0) {
+        countryCode = validCountries[0];
+      } else {
+        this.log.error('processInvoice.countryCode', {
+          message: 'No valid country code found for invoice',
+          invoiceId: invoice.id,
+          currency: invoice.currency,
+        });
+      }
     }
 
     const promises: Promise<any>[] = [
@@ -504,8 +511,8 @@ export class PayPalHelper {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         invoiceNumber: invoice.id!,
         currencyCode: invoice.currency,
-        countryCode,
         idempotencyKey,
+        ...(countryCode && { countryCode }),
         ...(ipaddress && { ipaddress }),
         ...(invoice.tax && { taxAmountInCents: invoice.tax }),
       }),

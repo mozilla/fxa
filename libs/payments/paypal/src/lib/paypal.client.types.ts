@@ -145,7 +145,7 @@ export interface DoReferenceTransactionOptions {
   invoiceNumber: string;
   idempotencyKey: string;
   currencyCode: string;
-  countryCode: string;
+  countryCode?: string;
   taxAmount?: string;
   ipaddress?: string;
 }
