@@ -347,8 +347,13 @@ export class Firefox extends EventTarget {
     });
   }
 
+  /*
+   * Sends an fxa_status and returns the signed in user if available.
+   */
   async requestSignedInUser(
-    context: string
+    context: string,
+    isPairing: boolean,
+    service: string
   ): Promise<undefined | SignedInUser> {
     let timeout: number;
     return Promise.race<undefined | SignedInUser>([
@@ -370,7 +375,8 @@ export class Firefox extends EventTarget {
         requestAnimationFrame(() => {
           this.send(FirefoxCommand.FxAStatus, {
             context,
-            isPairing: false,
+            isPairing,
+            service,
           });
         });
       }),
