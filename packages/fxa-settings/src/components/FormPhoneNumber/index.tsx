@@ -32,7 +32,7 @@ const FormPhoneNumber = ({
   gleanDataAttrs,
 }: FormPhoneNumberProps) => {
   const [hasErrors, setHasErrors] = React.useState(false);
-  const { control, formState, handleSubmit, register } =
+  const { control, formState, handleSubmit, register, setValue } =
     useForm<InputPhoneNumberData>({
       mode: 'onChange',
       criteriaMode: 'all',
@@ -78,7 +78,7 @@ const FormPhoneNumber = ({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <InputPhoneNumber {...{ hasErrors, register, errorBannerId }} />
+      <InputPhoneNumber {...{ hasErrors, register, setValue, errorBannerId }} />
 
       {infoBannerContent && !infoBannerLink && (
         <Banner
