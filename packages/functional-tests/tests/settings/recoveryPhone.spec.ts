@@ -18,9 +18,10 @@ import { getCode } from 'fxa-settings/src/lib/totp';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('recovery phone', () => {
-    test.beforeEach(async ({ pages: { configPage } }) => {
+    test.beforeEach(async ({ pages: { configPage } }, { project }) => {
       // Ensure that the feature flag is enabled
       const config = await configPage.getConfig();
+      test.fixme(project.name !== 'local', 'FXA-11159');
       test.skip(config.featureFlags.enableAdding2FABackupPhone !== true);
       test.skip(config.featureFlags.enableUsing2FABackupPhone !== true);
     });
