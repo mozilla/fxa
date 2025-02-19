@@ -187,7 +187,7 @@
     "@storybook/addon-essentials": "^7.6.15",
     "@storybook/addon-styling": "^1.3.7",
     "@storybook/core-common": "^7.4.5",
-    "@storybook/core-server": "^7.6.17",
+    "@storybook/core-server": "^8.5.8",
     "@storybook/html-webpack5": "^7.6.13",
     "@storybook/nextjs": "^7.6.14",
     "@storybook/react-webpack5": "^7.4.5",

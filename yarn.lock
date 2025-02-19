@@ -21659,7 +21659,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/core-server@npm:7.6.17, @storybook/core-server@npm:^7.6.17":
+"@storybook/core-server@npm:7.6.17":
   version: 7.6.17
   resolution: "@storybook/core-server@npm:7.6.17"
   dependencies:
@@ -21705,6 +21705,15 @@ __metadata:
     watchpack: ^2.2.0
     ws: ^8.2.3
   checksum: 47dc08900a682a77ed2cc4e842586c66a800d3feb3644429d8048ee57f9c0fe26606f017862992121408695f65ee85ad907c2635b40dc24f44f27873277ce380
+  languageName: node
+  linkType: hard
+
+"@storybook/core-server@npm:^8.5.8":
+  version: 8.5.8
+  resolution: "@storybook/core-server@npm:8.5.8"
+  peerDependencies:
+    storybook: ^8.2.0 || ^8.3.0-0 || ^8.4.0-0 || ^8.5.0-0 || ^8.6.0-0
+  checksum: 4c46a28cae5bf4cb139b2edf7366069516eb3ba6e837370f8d213e8b055a3cf33d578c842d93d4912ad52eceb384d404a33604a2681015eddfbfdbd4a6ebc9f4
   languageName: node
   linkType: hard
 
@@ -42552,7 +42561,7 @@ fsevents@~2.1.1:
     "@storybook/addon-essentials": ^7.6.15
     "@storybook/addon-styling": ^1.3.7
     "@storybook/core-common": ^7.4.5
-    "@storybook/core-server": ^7.6.17
+    "@storybook/core-server": ^8.5.8
     "@storybook/html-webpack5": ^7.6.13
     "@storybook/nextjs": ^7.6.14
     "@storybook/react-webpack5": ^7.4.5
