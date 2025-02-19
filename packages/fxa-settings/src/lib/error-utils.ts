@@ -173,3 +173,10 @@ export const getErrorFtlId = (err: { errno?: number; message?: string }) => {
   Sentry.captureMessage(logMessage);
   return '';
 };
+
+const NAMED_VARIABLE = /%\(([a-zA-Z]+)\)s/g;
+export function interpolate(string: string, context: Record<string, string>) {
+  return string.replace(NAMED_VARIABLE, (match, name) => {
+    return name in context ? context[name] : match;
+  });
+}

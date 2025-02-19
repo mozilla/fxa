@@ -9,7 +9,7 @@ import { withLocalization } from 'fxa-react/lib/storybooks';
 import { IndexProps } from './interfaces';
 import {
   createMockIndexOAuthIntegration,
-  createMockIndexSyncIntegration,
+  createMockIndexOAuthNativeIntegration,
   Subject,
 } from './mocks';
 import {
@@ -17,6 +17,7 @@ import {
   POCKET_CLIENTIDS,
 } from '../../models/integrations/client-matching';
 import { MozServices } from '../../lib/types';
+import { MOCK_EMAIL } from '../mocks';
 
 export default {
   title: 'Pages/Index',
@@ -33,8 +34,28 @@ const storyWithProps = ({
 
 export const Default = storyWithProps();
 
+export const WithBouncedEmail = storyWithProps({
+  hasBounced: true,
+  prefillEmail: MOCK_EMAIL,
+});
+
+export const WithServiceRelayIntegration = storyWithProps({
+  integration: createMockIndexOAuthNativeIntegration({
+    isDesktopRelay: true,
+    isSync: false,
+  }),
+});
+
+export const WithPrefilledEmail = storyWithProps({
+  prefillEmail: MOCK_EMAIL,
+});
+
+export const WithDeleteAccountSuccess = storyWithProps({
+  deleteAccountSuccess: true,
+});
+
 export const Sync = storyWithProps({
-  integration: createMockIndexSyncIntegration(),
+  integration: createMockIndexOAuthNativeIntegration(),
   serviceName: MozServices.FirefoxSync,
 });
 

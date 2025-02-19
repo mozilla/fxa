@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { interpolate } from '../error-utils';
+
 export type AuthError = {
   errno: number;
   message: string;
@@ -201,13 +203,6 @@ export class OAuthError extends Error {
     this.name = 'OAuthError';
     this.errno = err?.errno || OAUTH_ERRORS.UNEXPECTED_ERROR.errno;
   }
-}
-
-const NAMED_VARIABLE = /%\(([a-zA-Z]+)\)s/g;
-function interpolate(string: string, context: Record<string, string>) {
-  return string.replace(NAMED_VARIABLE, (match, name) => {
-    return name in context ? context[name] : match;
-  });
 }
 
 export function normalizeXHRError(response: Response) {

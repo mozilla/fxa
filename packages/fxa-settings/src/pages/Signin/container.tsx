@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
+import { RouteComponentProps, useLocation } from '@reach/router';
+import { useNavigateWithQuery as useNavigate } from '../../lib/hooks/useNavigateWithQuery';
 import Signin from '.';
 import {
   Integration,
@@ -68,9 +69,29 @@ import {
   SensitiveDataClient,
 } from '../../lib/sensitive-data-client';
 import { Constants } from '../../lib/constants';
-import { isFirefoxService } from '../../models/integrations/utils';
+import {
+  isFirefoxService,
+  isUnsupportedContext,
+} from '../../models/integrations/utils';
 import { GqlKeyStretchUpgrade } from '../../lib/gql-key-stretch-upgrade';
 import { setCurrentAccount } from '../../lib/storage-utils';
+import { useCheckReactEmailFirst } from '../../lib/hooks';
+
+/*
+ * In Backbone, the `email` param is optional. If it's provided, we
+ * check against it to see if the account exists and if it doesn't, we redirect
+ * users to `/signup`.
+ *
+ * In the React signin version, if the index page is still on Backbone, we're temporarily passing the
+ * `email` param over from the Backbone index page. If React index, we pass the param with router state.
+ *
+ * If Backbone, since we already perform this account exists (account status) check on the Backbone
+ * index page, which is rate limited since it doesn't require a session token, we also temporarily
+ * pass email status params to 1) signal not to perform the check again but also because 2) these
+ * params are needed to conditionally display UI in signin. If no status params are passed and
+ * `email` is, or we read the email from local storage, we perform the check and redirect existing
+ * user emails to `/signup` to match content-server functionality.
+ */
 
 function getAccountInfo(email?: string) {
   const storedLocalAccount = currentAccount() || lastStoredAccount();
@@ -118,6 +139,7 @@ const SigninContainer = ({
   };
   const session = useSession();
   const sensitiveDataClient = useSensitiveDataClient();
+  const shouldUseReactEmailFirst = useCheckReactEmailFirst();
 
   const { queryParamModel, validationError } =
     useValidatedQueryParams(SigninQueryParams);
@@ -142,6 +164,12 @@ const SigninContainer = ({
   const { localizedSuccessBannerHeading, localizedSuccessBannerDescription } =
     successBanner || {};
 
+  // If hasLinkedAccount is defined from location state (React email-first), or query
+  // params (Backbone email-first) then we know the user came from email-first
+  const originFromEmailFirst = !!(
+    hasLinkedAccountFromLocationState || queryParamModel.hasLinkedAccount
+  );
+
   const [accountStatus, setAccountStatus] = useState({
     hasLinkedAccount:
       // TODO: in FXA-9177, retrieve hasLinkedAccount and hasPassword from Apollo cache (not state)
@@ -164,10 +192,9 @@ const SigninContainer = ({
   useEffect(() => {
     (async () => {
       const queryParams = new URLSearchParams(location.search);
-      // Tweak this once index page is converted to React
       if (!validationError && email) {
-        // if you directly hit /signin with email param or we read from localstorage
-        // this means the account status hasn't been checked
+        // if you directly hit /signin with email param, or we read from localstorage
+        // (on this page or email-first) this means the account status hasn't been checked
         if (
           accountStatus.hasLinkedAccount === undefined ||
           accountStatus.hasPassword === undefined
@@ -178,11 +205,18 @@ const SigninContainer = ({
                 thirdPartyAuthStatus: true,
               });
             if (!exists) {
-              // For now, just pass back emailStatusChecked. When we convert the Index page
-              // we'll want to read from router state.
-              queryParams.set('email', email);
-              queryParams.set('emailStatusChecked', 'true');
-              navigate(`/signup?${queryParams}`);
+              if (shouldUseReactEmailFirst) {
+                navigate('/signup', {
+                  state: {
+                    email,
+                    emailStatusChecked: true,
+                  },
+                });
+              } else {
+                queryParams.set('email', email);
+                queryParams.set('emailStatusChecked', 'true');
+                navigate(`/signup?${queryParams}`);
+              }
             } else {
               // TODO: in FXA-9177, also set hasLinkedAccount and hasPassword in Apollo cache
               setAccountStatus({
@@ -191,24 +225,40 @@ const SigninContainer = ({
               });
             }
           } catch (error) {
-            // Passing back the 'email' param causes various behaviors in
-            // content-server since it marks the email as "coming from a RP".
-            queryParams.delete('email');
-            if (isEmailValid(email)) {
-              queryParams.set('prefillEmail', email);
+            if (shouldUseReactEmailFirst) {
+              navigate('/', {
+                state: {
+                  prefillEmail: email,
+                },
+              });
+            } else {
+              // Passing back the 'email' param causes various behaviors in
+              // content-server since it marks the email as "coming from a RP".
+              queryParams.delete('email');
+              if (isEmailValid(email)) {
+                queryParams.set('prefillEmail', email);
+              }
+              hardNavigate(`/?${queryParams}`);
             }
-            hardNavigate(`/?${queryParams}`);
           }
         }
       } else {
-        // Passing back the 'email' param causes various behaviors in
-        // content-server since it marks the email as "coming from a RP".
-        queryParams.delete('email');
-        if (email && isEmailValid(email)) {
-          queryParams.set('prefillEmail', email);
+        if (shouldUseReactEmailFirst) {
+          navigate('/', {
+            state: {
+              prefillEmail: email,
+            },
+          });
+        } else {
+          // Passing back the 'email' param causes various behaviors in
+          // content-server since it marks the email as "coming from a RP".
+          queryParams.delete('email');
+          if (email && isEmailValid(email)) {
+            queryParams.set('prefillEmail', email);
+          }
+          const optionalParams = queryParams.size > 0 ? `?${queryParams}` : '';
+          hardNavigate(`/${optionalParams}`);
         }
-        const optionalParams = queryParams.size > 0 ? `?${queryParams}` : '';
-        hardNavigate(`/${optionalParams}`);
       }
     })();
     // Only run this on initial render
@@ -238,16 +288,12 @@ const SigninContainer = ({
 
   const beginSigninHandler: BeginSigninHandler = useCallback(
     async (email: string, password: string) => {
-      // If queryParamModel.hasLinkedAccount is defined, then we know the user
-      // came from email-first and was already prompted with the sync merge
+      // If the user was on email-first they were already prompted with the sync merge
       // warning. The browser will automatically respond with { ok: true } without
       // prompting the user if it matches the email the browser has data for.
       if (
-        // Currently for email-first, we send this if `context=oauth_webchannel_v1`.
-        // Let's check that here too (TBD if we want this for isDesktopRelay; if not,
-        // we'll remove).
         (integration.isSync() || integration.isDesktopRelay()) &&
-        queryParamModel.hasLinkedAccount === undefined
+        !originFromEmailFirst
       ) {
         const { ok } = await firefox.fxaCanLinkAccount({ email });
         if (!ok) {
@@ -387,9 +433,9 @@ const SigninContainer = ({
       passwordChangeStart,
       wantsKeys,
       flowQueryParams,
-      queryParamModel.hasLinkedAccount,
       authClient,
       sensitiveDataClient,
+      originFromEmailFirst,
     ]
   );
 
@@ -497,6 +543,11 @@ const SigninContainer = ({
 
   // Wait for async call (if needed) to complete
   if (hasLinkedAccount === undefined || hasPassword === undefined) {
+    return <LoadingSpinner fullScreen />;
+  }
+
+  if (isUnsupportedContext(integration.data.context)) {
+    hardNavigate('/update_firefox', {}, true);
     return <LoadingSpinner fullScreen />;
   }
 

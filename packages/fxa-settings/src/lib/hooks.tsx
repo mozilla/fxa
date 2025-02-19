@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useEffect, useRef } from 'react';
+import { useConfig } from '../models';
+import { isInReactExperiment } from './cache';
 
 // Focus on the element that triggered some action after the first
 // argument changes from `false` to `true` unless a `triggerException`
@@ -54,4 +56,14 @@ export function useChangeFocusEffect() {
   }, []);
 
   return elToFocus;
+}
+
+/*
+ * Temporary helper to check that emailFirstRoutes feature flag is on
+ * and (if not 100% rolled out) that the user is in the React experiment.
+ */
+export function useCheckReactEmailFirst() {
+  const config = useConfig();
+  // TODO with FXA-11221 (100% prod rollout), remove isInReactExperiment() check
+  return config.showReactApp.emailFirstRoutes === true && isInReactExperiment();
 }

@@ -17,7 +17,7 @@ import {
   SignupIntegration,
 } from './interfaces';
 import { BEGIN_SIGNUP_MUTATION } from './gql';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect } from 'react';
 import {
   getCredentials,
   getCredentialsV2,
@@ -32,6 +32,7 @@ import { queryParamsToMetricsContext } from '../../lib/metrics';
 import { QueryParams } from '../..';
 import { isFirefoxService } from '../../models/integrations/utils';
 import useSyncEngines from '../../lib/hooks/useSyncEngines';
+import { useCheckReactEmailFirst } from '../../lib/hooks';
 
 /*
  * In content-server, the `email` param is optional. If it's provided, we
@@ -57,6 +58,7 @@ import useSyncEngines from '../../lib/hooks/useSyncEngines';
 
 type LocationState = {
   emailStatusChecked?: boolean;
+  email?: string;
 };
 
 const SignupContainer = ({
@@ -73,14 +75,20 @@ const SignupContainer = ({
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state: LocationState;
   };
-  const { emailStatusChecked } = location.state || {};
 
   const { queryParamModel, validationError } =
     useValidatedQueryParams(SignupQueryParams);
+  // emailStatusChecked is passed as a query param when coming from Backbone
+  // email-first, but location state when coming from React email-first.
+  // We can remove the query param bits once we're confidently at 100% roll out
+  // for React.
+  // emailStatusChecked can also be passed from React Signin when users hit /signin
+  // with an email query param that we already determined doesn't exist.
+  const emailStatusChecked =
+    queryParamModel.emailStatusChecked || location.state?.emailStatusChecked;
+  const email = queryParamModel.email || location.state?.email;
+  const shouldUseReactEmailFirst = useCheckReactEmailFirst();
 
-  // Since we may perform an async call on initial render that can affect what is rendered,
-  // return a spinner on first render.
-  const [showLoadingSpinner, setShowLoadingSpinner] = useState(true);
   const wantsKeys = integration.wantsKeys();
 
   // TODO: in PostVerify/SetPassword we call this and handle web channel messaging
@@ -91,15 +99,7 @@ const SignupContainer = ({
 
   useEffect(() => {
     (async () => {
-      // Modify this once index is converted to React
-      // emailStatusChecked can be passed from React Signin when users hit /signin
-      // with an email query param that we already determined doesn't exist.
-      // It's supplied by Backbone when going from Backbone Index page to React signup.
-      if (
-        !validationError &&
-        !queryParamModel.emailStatusChecked &&
-        !emailStatusChecked
-      ) {
+      if (!validationError && !emailStatusChecked) {
         const { exists, hasLinkedAccount, hasPassword } =
           await authClient.accountStatusByEmail(queryParamModel.email, {
             thirdPartyAuthStatus: true,
@@ -109,17 +109,16 @@ const SignupContainer = ({
             navigate(`/signin`, {
               replace: true,
               state: {
-                email: queryParamModel.email,
+                email,
                 hasLinkedAccount,
                 hasPassword,
               },
             });
           } else {
-            hardNavigate(`/signin`, { email: queryParamModel.email }, true);
+            hardNavigate(`/signin`, { email }, true);
           }
         }
       }
-      setShowLoadingSpinner(false);
     })();
   });
 
@@ -219,12 +218,12 @@ const SignupContainer = ({
     navigate('/cannot_create_account');
   }
 
-  if (showLoadingSpinner) {
-    return <LoadingSpinner fullScreen />;
-  }
-
-  if (validationError) {
-    hardNavigate('/', {}, true);
+  if (validationError || !email) {
+    if (shouldUseReactEmailFirst) {
+      navigate('/');
+    } else {
+      hardNavigate('/', {}, true);
+    }
     return <LoadingSpinner fullScreen />;
   }
 
@@ -232,7 +231,7 @@ const SignupContainer = ({
     <Signup
       {...{
         integration,
-        queryParamModel,
+        email,
         beginSignupHandler,
         useSyncEnginesResult,
       }}

@@ -6,8 +6,6 @@ import { LocationProvider } from '@reach/router';
 import Signup from '.';
 import { MozServices } from '../../lib/types';
 import { IntegrationType } from '../../models';
-import { mockUrlQueryData } from '../../models/mocks';
-import { SignupQueryParams } from '../../models/pages/signup';
 import {
   MOCK_REDIRECT_URI,
   MOCK_UID,
@@ -25,10 +23,6 @@ import {
   SignupOAuthIntegration,
 } from './interfaces';
 import { useMockSyncEngines } from '../../lib/hooks/useSyncEngines/mocks';
-
-export const MOCK_SEARCH_PARAMS = {
-  email: MOCK_EMAIL,
-};
 
 export function createMockSignupWebIntegration(): SignupBaseIntegration {
   return {
@@ -129,25 +123,23 @@ export const signupQueryParamsWithContent = {
 };
 
 export const Subject = ({
-  queryParams = signupQueryParams,
   integration = createMockSignupWebIntegration(),
   beginSignupHandler = mockBeginSignupHandler,
+  email = MOCK_EMAIL,
 }: {
-  queryParams?: Record<string, string>;
+  email?: string;
   integration?: SignupIntegration;
   beginSignupHandler?: BeginSignupHandler;
 }) => {
-  const urlQueryData = mockUrlQueryData(queryParams);
-  const queryParamModel = new SignupQueryParams(urlQueryData);
   const useMockSyncEnginesResult = useMockSyncEngines();
   return (
     <LocationProvider>
       <Signup
         {...{
           integration,
-          queryParamModel,
           beginSignupHandler,
           useSyncEnginesResult: useMockSyncEnginesResult,
+          email,
         }}
       />
     </LocationProvider>

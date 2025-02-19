@@ -414,7 +414,7 @@ const ERRORS = {
   },
   DIFFERENT_EMAIL_REQUIRED_FIREFOX_DOMAIN: {
     errno: 1020,
-    message: 'Enter a valid email address. firefox.com does not offer email.',
+    message: 'Mistyped email? firefox.com isn’t a valid email service',
   },
   CHANNEL_TIMEOUT: {
     errno: 1021,
@@ -629,11 +629,12 @@ const ERRORS = {
       errno: 1063,
       message: 'Could not get Subscription Platform Terms of Service'
     },
-    INVALID_EMAIL_DOMAIN: {
-        errno: 1064,
-        message: 'Mistyped email? %(domain)s does not offer email.'
-    },
-     */
+    */
+  INVALID_EMAIL_DOMAIN: {
+    errno: 1064,
+    message: 'Mistyped email? %(domain)s isn’t a valid email service',
+    interpolate: true,
+  },
   IMAGE_TOO_LARGE: {
     errno: 1065,
     message: 'The image file size is too large to be uploaded.',
@@ -641,6 +642,10 @@ const ERRORS = {
   EMAIL_MASK_NEW_ACCOUNT: {
     errno: 1066,
     message: 'Email masks can’t be used to create an account.',
+  },
+  MX_LOOKUP_WARNING: {
+    errno: 1067,
+    message: 'Mistyped email?',
   },
 };
 

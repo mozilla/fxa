@@ -82,6 +82,7 @@ export interface Config {
   showReactApp: {
     signUpRoutes: boolean;
     signInRoutes: boolean;
+    emailFirstRoutes: boolean;
   };
   rolloutRates?: {
     keyStretchV2?: number;

@@ -245,25 +245,6 @@ describe('sign-up-container', () => {
     });
   });
 
-  describe('loading-states', () => {
-    beforeEach(() => {
-      // TIP - In this case, we want to override the previous behavior. We can do this
-      // easily in a before each or even within a test block.
-      (useAuthClient as jest.Mock).mockImplementation(() => {
-        let client = new AuthClient('localhost:9000', { keyStretchVersion: 1 });
-        client.accountStatusByEmail = jest
-          .fn()
-          .mockReturnValue(new Promise(() => {}));
-        return client;
-      });
-    });
-
-    it('shows loading until account status query resolves', async () => {
-      await render('loading spinner mock');
-      expect(screen.queryByText('signup mock')).toBeNull();
-    });
-  });
-
   describe('error-states', () => {
     it('handles invalid email', async () => {
       // In this case want to mimic a bad email value

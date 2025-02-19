@@ -4,7 +4,7 @@
 const { registerSuite } = intern.getInterface('object');
 const assert = intern.getPlugin('chai').assert;
 const sinon = require('sinon');
-const route = require('../../../server/lib/routes/get-index');
+const route = require('../../../server/lib/routes/react-app/route-definition-index');
 const config = require('../../../server/lib/configuration');
 
 var instance, request, response;

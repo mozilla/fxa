@@ -12,26 +12,22 @@ import {
   createMockSignupOAuthWebIntegration,
   createMockSignupSyncDesktopV3Integration,
   mockBeginSignupHandler,
-  signupQueryParams,
 } from './mocks';
 import { SignupIntegration } from './interfaces';
-import { SignupQueryParams } from '../../models/pages/signup';
-import { mockAppContext, mockUrlQueryData } from '../../models/mocks';
+import { mockAppContext } from '../../models/mocks';
 import {
   MONITOR_CLIENTIDS,
   POCKET_CLIENTIDS,
 } from '../../models/integrations/client-matching';
 import { AppContext } from '../../models';
 import { useMockSyncEngines } from '../../lib/hooks/useSyncEngines/mocks';
+import { MOCK_EMAIL } from '../mocks';
 
 export default {
   title: 'Pages/Signup',
   component: Signup,
   decorators: [withLocalization],
 } as Meta;
-
-const urlQueryData = mockUrlQueryData(signupQueryParams);
-const queryParamModel = new SignupQueryParams(urlQueryData);
 
 const StoryWithProps = ({
   integration = createMockSignupOAuthWebIntegration(),
@@ -46,10 +42,10 @@ const StoryWithProps = ({
         <Signup
           {...{
             integration,
-            queryParamModel,
             beginSignupHandler: mockBeginSignupHandler,
             useSyncEnginesResult,
           }}
+          email={MOCK_EMAIL}
         />
       </LocationProvider>
     </AppContext.Provider>

@@ -62,7 +62,7 @@
     "resetPasswordRoutes": true,
     "signUpRoutes": true,
     "signInRoutes": true,
-    "emailFirstRoutes": false,
+    "emailFirstRoutes": true,
     "postVerifyThirdPartyAuthRoutes": true
   },
   "featureFlags": {

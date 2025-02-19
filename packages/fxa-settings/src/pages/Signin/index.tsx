@@ -37,6 +37,7 @@ import { useWebRedirect } from '../../lib/hooks/useWebRedirect';
 import { getLocalizedErrorMessage } from '../../lib/error-utils';
 import Banner from '../../components/Banner';
 import { SensitiveData } from '../../lib/sensitive-data-client';
+import { useCheckReactEmailFirst } from '../../lib/hooks';
 
 export const viewName = 'signin';
 
@@ -68,6 +69,7 @@ const Signin = ({
   const ftlMsgResolver = useFtlMsgResolver();
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
   const sensitiveDataClient = useSensitiveDataClient();
+  const shouldUseReactEmailFirst = useCheckReactEmailFirst();
 
   const [localizedBannerError, setLocalizedBannerError] = useState(
     localizedErrorFromLocationState || ''
@@ -454,20 +456,29 @@ const Signin = ({
             onClick={(e) => {
               e.preventDefault();
               GleanMetrics.login.diffAccountLinkClick();
-              const params = new URLSearchParams(location.search);
-              // Tell content-server to stay on index and prefill the email
-              params.set('prefillEmail', email);
-              // Passing back the 'email' param causes various behaviors in
-              // content-server since it marks the email as "coming from a RP".
-              // Also remove other params that are passed when coming
-              // from content-server to Backbone, see Signup container component
-              // for more info.
-              params.delete('email');
-              params.delete('hasLinkedAccount');
-              params.delete('hasPassword');
-              params.delete('showReactApp');
-              params.delete('login_hint');
-              hardNavigate(`/?${params.toString()}`);
+
+              if (shouldUseReactEmailFirst) {
+                navigate('/', {
+                  state: {
+                    prefillEmail: email,
+                  },
+                });
+              } else {
+                const params = new URLSearchParams(location.search);
+                // Tell content-server to stay on index and prefill the email
+                params.set('prefillEmail', email);
+                // Passing back the 'email' param causes various behaviors in
+                // content-server since it marks the email as "coming from a RP".
+                // Also remove other params that are passed when coming
+                // from content-server to React, see Signup container component
+                // for more info.
+                params.delete('email');
+                params.delete('hasLinkedAccount');
+                params.delete('hasPassword');
+                params.delete('showReactApp');
+                params.delete('login_hint');
+                hardNavigate(`/?${params.toString()}`);
+              }
             }}
           >
             Use a different account
