@@ -303,7 +303,9 @@ class RecoveryPhoneHandler {
 
         try {
           const { phoneNumber, nationalFormat } =
-            await this.recoveryPhoneService.hasConfirmed(uid, 4);
+            // User has successfully set up a recovery phone. Give back the
+            // full nationalFormat (don't strip it).
+            await this.recoveryPhoneService.hasConfirmed(uid);
           await this.mailer.sendPostAddRecoveryPhoneEmail(
             account.emails,
             account,

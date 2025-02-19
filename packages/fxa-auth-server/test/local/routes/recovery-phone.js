@@ -342,6 +342,9 @@ describe('/recovery_phone', () => {
 
       assert.isDefined(resp);
       assert.equal(resp.status, 'success');
+      // Gives back the full national format as the user just successfully
+      // confirmed the code
+      assert.equal(resp.nationalFormat, nationalFormat);
       assert.equal(mockRecoveryPhoneService.confirmSetupCode.callCount, 1);
       assert.equal(
         mockRecoveryPhoneService.confirmSetupCode.getCall(0).args[0],
