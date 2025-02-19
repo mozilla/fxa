@@ -20,6 +20,7 @@ export type InputPhoneNumberProps = {
   countries?: Country[];
   hasErrors?: boolean;
   register: UseFormMethods['register'];
+  setValue: UseFormMethods['setValue'];
   errorBannerId?: string;
 };
 
@@ -56,6 +57,7 @@ const InputPhoneNumber = ({
   countries = defaultCountries,
   hasErrors = false,
   register,
+  setValue,
   errorBannerId,
 }: InputPhoneNumberProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
@@ -67,7 +69,6 @@ const InputPhoneNumber = ({
     localizedCountries.find((country) => country.id === 1) ||
     localizedCountries[0];
   const [selectedCountry, setSelectedCountry] = useState(defaultCountry);
-  const [formattedPhoneNumber, setFormattedPhoneNumber] = useState('');
 
   const localizedLabel = ftlMsgResolver.getMsg(
     'input-phone-number-enter-number',
@@ -86,7 +87,7 @@ const InputPhoneNumber = ({
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = event.target.value;
     const formattedValue = formatPhoneNumber(inputValue);
-    setFormattedPhoneNumber(formattedValue);
+    setValue('phoneNumber', formattedValue);
   };
 
   // Format the phone number as the user types - for easier review by the user
@@ -168,7 +169,6 @@ const InputPhoneNumber = ({
           pattern: selectedCountry.validationPattern,
         })}
         {...{ hasErrors }}
-        value={formattedPhoneNumber}
         onChange={handleInputChange}
         aria-describedby={errorBannerId}
       />

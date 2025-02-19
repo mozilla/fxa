@@ -45,7 +45,7 @@ export const extendedCountryOptions = [
 ];
 
 export const Subject = ({ countries = defaultCountries }) => {
-  const { register } = useForm<InputPhoneNumberData>({
+  const { register, setValue } = useForm<InputPhoneNumberData>({
     mode: 'onChange',
     criteriaMode: 'all',
     defaultValues: {
@@ -56,7 +56,7 @@ export const Subject = ({ countries = defaultCountries }) => {
 
   return (
     <AppLayout>
-      <InputPhoneNumber {...{ register, countries }} />
+      <InputPhoneNumber {...{ register, setValue, countries }} />
     </AppLayout>
   );
 };
