@@ -4,19 +4,6 @@ updates:
     directory: '/'
     schedule:
       interval: 'daily'
-    groups:
-      storybook:
-        patterns:
-          - "@storybook/*"
-      nx:
-        patterns:
-          - "@nx/*"
-      sentry:
-        patterns:
-          - "@sentry/*"
-      open-telemetry:
-        patterns:
-          - "@opentelemetry/*"
     open-pull-requests-limit: 6
     labels:
       - 'maintenance'
