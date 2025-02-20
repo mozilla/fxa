@@ -370,6 +370,9 @@ export function gleanMetrics(config: ConfigType) {
       finalEmailSkipped: createEventFn(
         'inactive_account_deletion_final_email_skipped'
       ),
+      deletionScheduled: createEventFn(
+        'inactive_account_deletion_deletion_scheduled'
+      ),
     },
     twoStepAuthPhoneRemove: {
       success: createEventFn('two_step_auth_phone_remove_success'),

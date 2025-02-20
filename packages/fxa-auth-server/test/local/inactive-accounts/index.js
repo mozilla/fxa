@@ -40,6 +40,8 @@ const mockGlean = {
     finalEmailTaskEnqueued: sandbox.stub(),
     finalEmailTaskRejected: sandbox.stub(),
     finalEmailTaskRequest: sandbox.stub(),
+
+    deletionScheduled: sandbox.stub(),
   },
 };
 const mockLog = mocks.mockLog(sandbox);
@@ -483,7 +485,7 @@ describe('InactiveAccountsManager', () => {
       sandbox.assert.calledOnce(inactiveAccountManager.scheduleNextEmail);
     });
 
-    it('should send the final email', async () => {
+    it('should send the final email and schedule deletion', async () => {
       sandbox.stub(accountEventsManager, 'findEmailEvents').resolves([]);
       sandbox.stub(inactiveAccountManager, 'isActive').resolves(false);
 
@@ -502,6 +504,28 @@ describe('InactiveAccountsManager', () => {
       );
       // No email cloud task should be run. There are no more emails to schedule.
       sandbox.assert.notCalled(mockEmailTasks.scheduleFinalEmail);
+
+      sandbox.assert.calledOnceWithExactly(
+        mockDeleteAccountTasks.deleteAccount,
+        {
+          uid: mockPayload.uid,
+          customerId: undefined,
+          reason: ReasonForDeletion.InactiveAccountScheduled,
+        },
+        {
+          taskId: `${mockPayload.uid}-inactive-account-delete`,
+          scheduleTime: {
+            seconds: (Date.now() + aDayInMs) / 1000,
+          },
+        }
+      );
+      sandbox.assert.calledOnce(
+        mockGlean.inactiveAccountDeletion.deletionScheduled
+      );
+      sandbox.assert.calledWithExactly(
+        mockStatsd.increment,
+        'account.inactive.deletion.scheduled'
+      );
     });
   });
 });

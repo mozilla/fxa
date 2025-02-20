@@ -9,6 +9,7 @@ import {
   DeleteAccountCloudTaskConfig,
   DeleteAccountTask,
 } from './account-tasks.types';
+import { CloudTaskOptions } from './cloud-tasks.types';
 
 /** Responsible for account deletion tasks */
 export class DeleteAccountTasks extends CloudTasks {
@@ -25,13 +26,19 @@ export class DeleteAccountTasks extends CloudTasks {
    * @param deleteTask The info necessary to queue an account deletion.
    * @returns A taskName
    */
-  public async deleteAccount(deleteTask: DeleteAccountTask) {
+  public async deleteAccount(
+    deleteTask: DeleteAccountTask,
+    cloudTaskOptions?: CloudTaskOptions
+  ) {
     try {
-      const result = await this.enqueueTask({
-        queueName: this.config.cloudTasks.deleteAccounts.queueName,
-        taskUrl: this.config.cloudTasks.deleteAccounts.taskUrl,
-        taskPayload: deleteTask,
-      });
+      const result = await this.enqueueTask(
+        {
+          queueName: this.config.cloudTasks.deleteAccounts.queueName,
+          taskUrl: this.config.cloudTasks.deleteAccounts.taskUrl,
+          taskPayload: deleteTask,
+        },
+        cloudTaskOptions
+      );
       const taskName = result[0].name;
 
       this.statsd.increment('cloud-tasks.account-delete.enqueue.success');

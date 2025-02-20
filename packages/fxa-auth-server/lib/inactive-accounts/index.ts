@@ -287,6 +287,33 @@ export class InactiveAccountsManager {
     );
 
     await this.scheduleNextEmail(taskPayload);
+
+    if (
+      taskPayload.emailType === EmailTypes.INACTIVE_DELETE_FINAL_NOTIFICATION
+    ) {
+      await this.accountTasks.deleteAccount(
+        {
+          uid: taskPayload.uid,
+          customerId: (
+            await getAccountCustomerByUid(taskPayload.uid)
+          )?.stripeCustomerId,
+          reason: ReasonForDeletion.InactiveAccountScheduled,
+        },
+        {
+          taskId: `${taskPayload.uid}-inactive-account-delete`,
+          scheduleTime: {
+            seconds: (now + aDayInMs) / 1000,
+          },
+        }
+      );
+      await this.glean.inactiveAccountDeletion.deletionScheduled(
+        requestForGlean,
+        {
+          uid: taskPayload.uid,
+        }
+      );
+      this.statsd.increment('account.inactive.deletion.scheduled');
+    }
   }
 
   async scheduleNextEmail(taskReqPayload: SendEmailTaskPayload) {
