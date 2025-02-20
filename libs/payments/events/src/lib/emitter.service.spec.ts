@@ -3,6 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Test } from '@nestjs/testing';
 import {
+  EligibilityContentByPlanIdsQueryFactory,
+  EligibilityContentByPlanIdsResult,
+  EligibilityContentByPlanIdsResultUtil,
+  EligibilityPurchaseResultFactory,
   MockStrapiClientConfigProvider,
   ProductConfigurationManager,
   StrapiClient,
@@ -21,12 +25,15 @@ import {
 } from '@fxa/payments/metrics';
 import { CartManager } from '@fxa/payments/cart';
 import { PaymentsEmitterService } from './emitter.service';
-import { retrieveAdditionalMetricsData } from './util/retrieveAdditionalData';
-import { AdditionalMetricsDataFactory } from './emitter.factories';
+import {
+  AdditionalMetricsDataFactory,
+  SubscriptionEndedFactory,
+} from './emitter.factories';
 import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
 import { AccountManager } from '@fxa/shared/account/account';
+import { retrieveAdditionalMetricsData } from './util/retrieveAdditionalMetricsData';
 
-jest.mock('./util/retrieveAdditionalData');
+jest.mock('./util/retrieveAdditionalMetricsData');
 const mockedRetrieveAdditionalMetricsData = jest.mocked(
   retrieveAdditionalMetricsData
 );
@@ -295,6 +302,41 @@ describe('PaymentsEmitterService', () => {
         mockCommonMetricsData.params
       );
       expect(paymentsGleanManager.recordFxaPaySetupFail).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('handleSubscriptionEnded', () => {
+    const completeEventData = SubscriptionEndedFactory({
+      priceInterval: 'month',
+      priceIntervalCount: 1,
+      paymentProvider: 'card',
+    });
+    const util = new EligibilityContentByPlanIdsResultUtil(
+      EligibilityContentByPlanIdsQueryFactory({
+        purchases: [
+          EligibilityPurchaseResultFactory({
+            stripePlanChoices: [
+              {
+                stripePlanChoice: completeEventData.priceId,
+              },
+            ],
+          }),
+        ],
+      }) as EligibilityContentByPlanIdsResult
+    );
+
+    beforeEach(() => {
+      jest
+        .spyOn(productConfigurationManager, 'getPurchaseDetailsForEligibility')
+        .mockResolvedValue(util);
+    });
+
+    it('should call manager record method', async () => {
+      await paymentsEmitterService.handleSubscriptionEnded(completeEventData);
+
+      expect(
+        productConfigurationManager.getPurchaseDetailsForEligibility
+      ).toHaveBeenCalledWith([completeEventData.priceId]);
     });
   });
 });

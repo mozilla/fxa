@@ -13,6 +13,17 @@ export type CheckoutPaymentEvents = CommonMetrics & {
   paymentProvider?: PaymentProvidersType;
 };
 
+export type SubscriptionEnded = {
+  productId: string;
+  priceId: string;
+  priceInterval?: string;
+  priceIntervalCount?: number;
+  paymentProvider?: PaymentProvidersType;
+  providerEventId: string;
+  subscriptionId: string;
+  voluntaryCancellation?: boolean;
+};
+
 export const PaymentsEmitterEventsKeys = [
   'checkoutView',
   'checkoutEngage',
@@ -29,6 +40,7 @@ export type PaymentsEmitterEvents = {
   checkoutSubmit: CheckoutPaymentEvents;
   checkoutSuccess: CheckoutPaymentEvents;
   checkoutFail: CheckoutPaymentEvents;
+  subscriptionEnded: SubscriptionEnded;
 };
 
 export type AdditionalMetricsData = {

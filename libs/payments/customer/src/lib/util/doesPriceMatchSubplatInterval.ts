@@ -4,34 +4,7 @@
 
 import { StripePrice } from '@fxa/payments/stripe';
 import { SubplatInterval } from '../types';
-
-interface Interval {
-  interval: NonNullable<StripePrice['recurring']>['interval'];
-  intervalCount: number;
-}
-
-const subplatIntervalToInterval = {
-  [SubplatInterval.Daily]: {
-    interval: 'day',
-    intervalCount: 1,
-  },
-  [SubplatInterval.Weekly]: {
-    interval: 'week',
-    intervalCount: 1,
-  },
-  [SubplatInterval.Monthly]: {
-    interval: 'month',
-    intervalCount: 1,
-  },
-  [SubplatInterval.HalfYearly]: {
-    interval: 'month',
-    intervalCount: 6,
-  },
-  [SubplatInterval.Yearly]: {
-    interval: 'year',
-    intervalCount: 1,
-  },
-} satisfies Record<SubplatInterval, Interval>;
+import { subplatIntervalToInterval } from '../constants';
 
 export const doesPriceMatchSubplatInterval = (
   price: StripePrice,

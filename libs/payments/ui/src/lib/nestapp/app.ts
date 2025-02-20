@@ -10,7 +10,8 @@ import { AppModule } from './app.module';
 import { LocalizerRscFactory } from '@fxa/shared/l10n/server';
 import { singleton } from '../utils/singleton';
 import { NextJSActionsService } from './nextjs-actions.service';
-import { PaymentsEmitterService } from '../emitter/emitter.service';
+import { PaymentsEmitterService } from '@fxa/payments/events';
+import { StripeWebhookService } from '@fxa/payments/webhooks';
 
 class AppSingleton {
   private app!: Awaited<
@@ -43,6 +44,10 @@ class AppSingleton {
 
   getGleanEmitter() {
     return this.app.get(PaymentsEmitterService).getEmitter();
+  }
+
+  getStripeWebhookService() {
+    return this.app.get(StripeWebhookService);
   }
 }
 

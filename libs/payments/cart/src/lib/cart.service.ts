@@ -19,6 +19,7 @@ import {
   CouponErrorLimitReached,
   CustomerSessionManager,
   PaymentIntentManager,
+  determinePaymentMethodType,
 } from '@fxa/payments/customer';
 import { EligibilityService } from '@fxa/payments/eligibility';
 import {
@@ -574,9 +575,13 @@ export class CartService {
     }
 
     let paymentInfo: PaymentInfo | undefined;
-    if (customer?.invoice_settings.default_payment_method) {
+    const paymentMethodType = determinePaymentMethodType(
+      customer,
+      subscriptions
+    );
+    if (paymentMethodType?.type === 'stripe') {
       const paymentMethodPromise = this.paymentMethodManager.retrieve(
-        customer.invoice_settings.default_payment_method
+        paymentMethodType.paymentMethodId
       );
       const customerSessionPromise = cart.stripeCustomerId
         ? this.customerSessionManager.create(cart.stripeCustomerId)
@@ -590,6 +595,10 @@ export class CartService {
         last4: paymentMethod.card?.last4,
         brand: paymentMethod.card?.brand,
         customerSessionClientSecret: customerSession?.client_secret,
+      };
+    } else if (paymentMethodType?.type === 'external_paypal') {
+      paymentInfo = {
+        type: 'external_paypal',
       };
     } else if (subscriptions.length) {
       const firstListedSubscription = subscriptions[0];

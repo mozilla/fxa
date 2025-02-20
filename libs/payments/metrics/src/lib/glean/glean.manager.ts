@@ -105,11 +105,31 @@ export class PaymentsGleanManager {
   }
 
   private populateCommonMetrics(metrics: {
-    commonMetricsData: CommonMetrics;
-    cartMetricsData: CartMetrics;
-    cmsMetricsData: CmsMetricsData;
+    commonMetricsData?: CommonMetrics;
+    cartMetricsData?: CartMetrics;
+    cmsMetricsData?: CmsMetricsData;
   }) {
-    const { commonMetricsData, cartMetricsData, cmsMetricsData } = metrics;
+    const emptyCommonMetricsData: CommonMetrics = {
+      ipAddress: '',
+      deviceType: '',
+      userAgent: '',
+      params: {},
+      searchParams: {},
+    };
+    const emptyCartMetricsData: CartMetrics = {
+      uid: '',
+      errorReasonId: null,
+      couponCode: '',
+      currency: '',
+    };
+    const emptyCmsMetricsData: CmsMetricsData = {
+      priceId: '',
+      productId: '',
+    };
+    const commonMetricsData =
+      metrics.commonMetricsData || emptyCommonMetricsData;
+    const cartMetricsData = metrics.cartMetricsData || emptyCartMetricsData;
+    const cmsMetricsData = metrics.cmsMetricsData || emptyCmsMetricsData;
     return {
       user_agent: commonMetricsData.userAgent,
       ip_address: commonMetricsData.ipAddress,

@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { StripePrice } from '@fxa/payments/stripe';
+
 export type InvoicePreview = {
   currency: string;
   listAmount: number;
@@ -15,6 +17,11 @@ export type InvoicePreview = {
   paypalTransactionId?: string;
   oneTimeCharge?: number;
 };
+
+export interface Interval {
+  interval: NonNullable<StripePrice['recurring']>['interval'];
+  intervalCount: number;
+}
 
 export interface TaxAmount {
   title: string;

@@ -14,8 +14,8 @@ import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 import { Test } from '@nestjs/testing';
-import { retrieveAdditionalMetricsData } from './retrieveAdditionalData';
 import { CheckoutParamsFactory } from '@fxa/payments/metrics';
+import { retrieveAdditionalMetricsData } from './retrieveAdditionalMetricsData';
 
 const mockStripePlan = StripePriceFactory();
 const mockCart = ResultCartFactory();

@@ -8,7 +8,7 @@ import { plainToClass } from 'class-transformer';
 import { RecordEmitterEventArgs } from '../nestapp/validators/RecordEmitterEvent';
 import { getAdditionalRequestArgs } from '../utils/getAdditionalRequestArgs';
 import { PaymentProvidersType } from '@fxa/payments/cart';
-import { PaymentsEmitterEventsKeysType } from '../emitter/emitter.types';
+import { PaymentsEmitterEventsKeysType } from '@fxa/payments/events';
 
 async function recordEmitterEventAction(
   eventName: PaymentsEmitterEventsKeysType,
