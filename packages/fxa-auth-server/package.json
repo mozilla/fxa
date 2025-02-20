@@ -127,7 +127,7 @@
     "@babel/preset-react": "^7.25.7",
     "@babel/preset-typescript": "^7.25.7",
     "@storybook/addon-controls": "^7.4.6",
-    "@storybook/addon-docs": "^7.6.12",
+    "@storybook/addon-docs": "^8.5.8",
     "@storybook/addon-toolbars": "^7.0.23",
     "@storybook/html": "^7.6.17",
     "@storybook/html-webpack5": "^7.6.13",
