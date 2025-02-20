@@ -166,7 +166,7 @@ function modifyProxyRes(proxyRes, req, res) {
       // automatically, and these two headers are incompatible. If this is not
       // set any fetch request will fail with:
       //  - Parse Error: Content-Length can't be present with Transfer-Encoding
-      res.set('Transfer-Encoding', '');
+      res.removeHeader('Transfer-Encoding');
       res.send(body);
     }
 
