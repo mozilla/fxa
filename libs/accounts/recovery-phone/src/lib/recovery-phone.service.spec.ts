@@ -535,22 +535,11 @@ describe('RecoveryPhoneService', () => {
       mockRecoveryPhoneConfig.enabled = true;
     });
     it('can disable', () => {
-      expect(service.available(uid, 'US')).rejects.toEqual(
-        new RecoveryPhoneNotEnabled()
-      );
+      expect(service.available(uid, 'US')).resolves.toEqual(false);
       expect(service.confirmSetupCode(uid, '000000')).rejects.toEqual(
         new RecoveryPhoneNotEnabled()
       );
       expect(service.confirmSigninCode(uid, '000000')).rejects.toEqual(
-        new RecoveryPhoneNotEnabled()
-      );
-      expect(service.hasConfirmed(uid)).rejects.toEqual(
-        new RecoveryPhoneNotEnabled()
-      );
-      expect(() => service.stripPhoneNumber('+15550005555')).toThrow(
-        new RecoveryPhoneNotEnabled()
-      );
-      expect(service.removePhoneNumber(uid)).rejects.toEqual(
         new RecoveryPhoneNotEnabled()
       );
       expect(service.sendCode(uid)).rejects.toEqual(

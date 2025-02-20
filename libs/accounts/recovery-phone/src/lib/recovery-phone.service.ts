@@ -40,7 +40,7 @@ export class RecoveryPhoneService {
    */
   public async available(uid: string, region: string): Promise<boolean> {
     if (!this.config.enabled) {
-      throw new RecoveryPhoneNotEnabled();
+      return false;
     }
 
     if (!this.config.allowedRegions?.includes(region)) {
@@ -241,10 +241,6 @@ export class RecoveryPhoneService {
    * @returns True if successful
    */
   public async removePhoneNumber(uid: string) {
-    if (!this.config.enabled) {
-      throw new RecoveryPhoneNotEnabled();
-    }
-
     const hasRecoveryCodes = await this.recoveryPhoneManager.hasRecoveryCodes(
       uid
     );
@@ -279,10 +275,6 @@ export class RecoveryPhoneService {
     phoneNumber?: string;
     nationalFormat?: string;
   }> {
-    if (!this.config.enabled) {
-      throw new RecoveryPhoneNotEnabled();
-    }
-
     try {
       const { phoneNumber, nationalFormat } =
         await this.recoveryPhoneManager.getConfirmedPhoneNumber(uid);
@@ -316,9 +308,6 @@ export class RecoveryPhoneService {
    * @returns The last N number of digits of the phone number
    */
   public stripPhoneNumber(phoneNumber: string, lastN?: number) {
-    if (!this.config.enabled) {
-      throw new RecoveryPhoneNotEnabled();
-    }
     // No stripping needed, session is verified
     if (lastN === undefined) {
       return phoneNumber;
