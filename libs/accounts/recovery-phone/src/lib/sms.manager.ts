@@ -29,12 +29,47 @@ export class SmsManager {
   ) {}
 
   public async phoneNumberLookup(phoneNumber: string) {
-    const result = await this.client.lookups.v2
-      .phoneNumbers(phoneNumber)
-      .fetch({ fields: this.config.extraLookupFields.join(',') });
-    // Calling toJSON converts PhoneNumberInstance into a
-    // object that just holds state and can be serialized.
-    return result.toJSON();
+    try {
+      this.metrics.increment('sms.phoneNumberLookup.start');
+      const result = await this.client.lookups.v2
+        .phoneNumbers(phoneNumber)
+        .fetch({ fields: this.config.extraLookupFields.join(',') });
+
+      this.metrics.increment('sms.phoneNumberLookup.success');
+
+      /**
+       * See https://www.twilio.com/docs/lookup/v2-api/sim-swap for more details
+       * on the sim swap object returned by Twilio. We currently track only
+       * the last sim swap period.
+       */
+      const simSwapPeriod = result.simSwap?.lastSimSwap?.swappedPeriod;
+      if (simSwapPeriod) {
+        this.metrics.increment('sms.phoneNumberLookup.success.simSwap', {
+          period: simSwapPeriod,
+        });
+      }
+      const smsPumpingRisk = result?.smsPumpingRisk?.smsPumpingRiskScore;
+      if (smsPumpingRisk) {
+        this.metrics.histogram(
+          'sms.phoneNumberLookup.success.smsPumpingRisk',
+          smsPumpingRisk
+        );
+      }
+      const phoneNumberQualityScore = result.phoneNumberQualityScore;
+      if (phoneNumberQualityScore) {
+        this.metrics.histogram(
+          'sms.phoneNumberLookup.success.phoneNumberQualityScore',
+          phoneNumberQualityScore
+        );
+      }
+
+      // Calling toJSON converts PhoneNumberInstance into a
+      // object that just holds state and can be serialized.
+      return result.toJSON();
+    } catch (err) {
+      this.metrics.increment('sms.phoneNumberLookup.failure');
+      throw err;
+    }
   }
 
   public async sendSMS({

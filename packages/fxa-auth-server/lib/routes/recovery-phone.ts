@@ -52,7 +52,8 @@ class RecoveryPhoneHandler {
     private readonly db: any,
     private readonly glean: GleanMetricsType,
     private readonly log: any,
-    private readonly mailer: any
+    private readonly mailer: any,
+    private readonly statsd: any
   ) {
     this.recoveryPhoneService = Container.get(RecoveryPhoneService);
     this.accountManager = Container.get(AccountManager);
@@ -138,7 +139,7 @@ class RecoveryPhoneHandler {
     }
 
     if (success) {
-      this.log.info('account.recoveryPhone.signinSendCode.success', { uid });
+      this.statsd.increment('account.recoveryPhone.signinSendCode.success');
       await this.glean.twoStepAuthPhoneCode.sent(request);
 
       this.accountEventsManager.recordSecurityEvent(this.db, {
@@ -185,9 +186,7 @@ class RecoveryPhoneHandler {
         getFormattedMessage
       );
       if (success) {
-        this.log.info('account.recoveryPhone.setupPhoneNumber.success', {
-          uid,
-        });
+        this.statsd.increment('account.recoveryPhone.setupPhoneNumber.success');
         await this.glean.twoStepAuthPhoneCode.sent(request);
 
         let nationalFormat: string | null = null;
@@ -299,7 +298,7 @@ class RecoveryPhoneHandler {
       const { acceptLanguage, geo, ua } = request.app;
 
       if (isSetup) {
-        this.log.info('account.recoveryPhone.phoneAdded.success', { uid });
+        this.statsd.increment('account.recoveryPhone.phoneAdded.success');
 
         try {
           const { phoneNumber, nationalFormat } =
@@ -344,7 +343,7 @@ class RecoveryPhoneHandler {
           });
         }
       } else {
-        this.log.info('account.recoveryPhone.phoneSignin.success', { uid });
+        this.statsd.increment('account.recoveryPhone.phoneSignin.success');
 
         this.accountEventsManager.recordSecurityEvent(this.db, {
           name: 'account.recovery_phone_signin_complete',
@@ -422,7 +421,7 @@ class RecoveryPhoneHandler {
     }
 
     if (success) {
-      this.log.info('account.recoveryPhone.phoneRemoved.success', { uid });
+      this.statsd.increment('account.recoveryPhone.phoneRemoved.success');
       await this.glean.twoStepAuthPhoneRemove.success(request);
 
       const account = await this.db.account(uid);
@@ -540,14 +539,16 @@ export const recoveryPhoneRoutes = (
   db: any,
   glean: GleanMetricsType,
   log: any,
-  mailer: any
+  mailer: any,
+  statsd: any
 ) => {
   const recoveryPhoneHandler = new RecoveryPhoneHandler(
     customs,
     db,
     glean,
     log,
-    mailer
+    mailer,
+    statsd
   );
   const routes = [
     {

@@ -38,6 +38,10 @@ describe('/recovery_phone', () => {
     check: sandbox.fake(),
     checkAuthenticated: sandbox.fake(),
   };
+  const mockStatsd = {
+    increment: sandbox.fake(),
+    histogram: sandbox.fake(),
+  };
   const mockGlean = {
     twoStepAuthPhoneCode: {
       sent: sandbox.fake(),
@@ -75,7 +79,8 @@ describe('/recovery_phone', () => {
       mockDb,
       mockGlean,
       mockLog,
-      mockMailer
+      mockMailer,
+      mockStatsd
     );
   });
 
@@ -123,6 +128,10 @@ describe('/recovery_phone', () => {
           ipAddr: '63.245.221.32',
           tokenId: undefined,
         }
+      );
+      assert.calledOnceWithExactly(
+        mockStatsd.increment,
+        'account.recoveryPhone.signinSendCode.success'
       );
     });
 
@@ -210,6 +219,10 @@ describe('/recovery_phone', () => {
       assert.equal(
         mockCustoms.checkAuthenticated.getCall(0).args[2],
         'recoveryPhoneCreate'
+      );
+      assert.calledOnceWithExactly(
+        mockStatsd.increment,
+        'account.recoveryPhone.setupPhoneNumber.success'
       );
     });
 
@@ -363,6 +376,11 @@ describe('/recovery_phone', () => {
           tokenId: undefined,
         }
       );
+
+      assert.calledOnceWithExactly(
+        mockStatsd.increment,
+        'account.recoveryPhone.phoneAdded.success'
+      );
     });
 
     it('indicates a failure confirming code', async () => {
@@ -439,6 +457,10 @@ describe('/recovery_phone', () => {
           tokenId: undefined,
         }
       );
+      assert.calledOnceWithExactly(
+        mockStatsd.increment,
+        'account.recoveryPhone.phoneSignin.success'
+      );
     });
 
     it('fails confirms a code during signin', async () => {
@@ -495,6 +517,10 @@ describe('/recovery_phone', () => {
           ipAddr: '63.245.221.32',
           tokenId: undefined,
         }
+      );
+      assert.calledOnceWithExactly(
+        mockStatsd.increment,
+        'account.recoveryPhone.phoneRemoved.success'
       );
     });
 
