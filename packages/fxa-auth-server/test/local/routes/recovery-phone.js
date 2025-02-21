@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { AccountEventsManager } from '../../../lib/account-events';
+const { AccountEventsManager } = require('../../../lib/account-events');
 
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
@@ -12,12 +12,12 @@ const sinon = require('sinon');
 const assert = { ...sinon.assert, ...chai.assert };
 const mocks = require('../../mocks');
 const { recoveryPhoneRoutes } = require('../../../lib/routes/recovery-phone');
-import {
+const {
   RecoveryNumberNotSupportedError,
   SmsSendRateLimitExceededError,
   RecoveryPhoneService,
   RecoveryNumberRemoveMissingBackupCodes,
-} from '@fxa/accounts/recovery-phone';
+} = require('@fxa/accounts/recovery-phone');
 
 const { getRoute } = require('../../routes_helpers');
 const { mockRequest } = require('../../mocks');

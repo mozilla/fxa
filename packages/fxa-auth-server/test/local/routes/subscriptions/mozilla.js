@@ -1,9 +1,9 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
+const { MozillaSubscriptionTypes } = require('fxa-shared/subscriptions/types');
 
-import { ERRNO } from '../../../../lib/error';
+const { ERRNO } = require('../../../../lib/error');
 
 ('use strict');
 

@@ -15,7 +15,7 @@ import {
   ReasonForDeletion,
   DeleteAccountTasks,
 } from '@fxa/shared/cloud-tasks';
-import { ConnectedServicesDb } from 'fxa-shared/connected-services';
+import OAuthDb from '../oauth/db';
 
 import { ConfigType } from '../../config';
 import { AccountEventsManager } from '../account-events';
@@ -65,6 +65,10 @@ export const requestForGlean = {
 export const isCloudTaskAlreadyExistsError = (error) =>
   error.code === 10 && error.message.includes('entity already exists');
 
+export type InactiveStatusOAuthDb = Pick<
+  typeof OAuthDb,
+  'getAccessTokensByUid' | 'getRefreshTokensByUid'
+>;
 export type NotificationAttempt = 'first' | 'second' | 'final';
 export type GleanEmailSkippedEvent = `${NotificationAttempt}EmailSkipped`;
 export type GleanEmailTaskRequestEvent =
@@ -136,7 +140,7 @@ export const emailTypeToHandlerVals: Record<
 
 export class InactiveAccountsManager {
   fxaDb: DB;
-  oauthDb: ConnectedServicesDb;
+  oauthDb: InactiveStatusOAuthDb;
   accountEventsManager: AccountEventsManager;
   accountTasks: DeleteAccountTasks;
   mailer: any;
@@ -155,7 +159,7 @@ export class InactiveAccountsManager {
     log,
   }: {
     fxaDb: DB;
-    oauthDb: ConnectedServicesDb;
+    oauthDb: InactiveStatusOAuthDb;
     mailer: any;
     config: ConfigType;
     statsd: StatsD;

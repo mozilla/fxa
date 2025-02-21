@@ -16,6 +16,7 @@ const {
 const {
   PlayBilling,
 } = require('../../lib/payments/iap/google-play/play-billing');
+const { ReasonForDeletion } = require('@fxa/shared/cloud-tasks');
 
 const email = 'foo@example.com';
 const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
@@ -36,6 +37,8 @@ describe('AccountDeleteManager', function () {
   let mockPush;
   let mockPushbox;
   let mockStatsd;
+  let mockGlean;
+  let mockMailer;
   let mockStripeHelper;
   let mockPaypalHelper;
   let mockAppleIap;
@@ -44,6 +47,7 @@ describe('AccountDeleteManager', function () {
   let mockConfig;
   let accountDeleteManager;
   let mockAuthModels;
+  let isActiveStub;
 
   beforeEach(() => {
     const { PayPalHelper } = require('../../lib/payments/paypal/helper');
@@ -60,6 +64,8 @@ describe('AccountDeleteManager', function () {
     mockPush = mocks.mockPush();
     mockPushbox = mocks.mockPushbox();
     mockStatsd = { increment: sandbox.stub() };
+    mockGlean = mocks.mockGlean();
+    mockMailer = mocks.mockMailer();
     mockStripeHelper = {};
     mockLog = mocks.mockLog();
     mockAppleIap = {
@@ -121,16 +127,27 @@ describe('AccountDeleteManager', function () {
     Container.set(AppleIAP, mockAppleIap);
     Container.set(PlayBilling, mockPlayBilling);
 
+    isActiveStub = sandbox.stub();
     const { AccountDeleteManager } = proxyquire('../../lib/account-delete', {
       'fxa-shared/db/models/auth': mockAuthModels,
+      './inactive-accounts': {
+        ...require('../../lib/inactive-accounts'),
+        InactiveAccountsManager: class {
+          isActive = isActiveStub;
+        },
+      },
     });
 
     accountDeleteManager = new AccountDeleteManager({
       fxaDb: mockFxaDb,
       oauthDb: mockOAuthDb,
+      config: mockConfig,
       push: mockPush,
       pushbox: mockPushbox,
       statsd: mockStatsd,
+      mailer: mockMailer,
+      glean: mockGlean,
+      log: mockLog,
     });
   });
 
@@ -236,6 +253,35 @@ describe('AccountDeleteManager', function () {
       } catch (err) {
         assert.isObject(err);
       }
+    });
+
+    describe('scheduled inactive account deletion', () => {
+      it('should skip if the account is active', async () => {
+        isActiveStub.resolves(true);
+        await accountDeleteManager.deleteAccount(
+          uid,
+          ReasonForDeletion.InactiveAccountScheduled
+        );
+        sinon.assert.notCalled(mockFxaDb.deleteAccount);
+        sinon.assert.calledOnce(
+          mockGlean.inactiveAccountDeletion.deletionSkipped
+        );
+        sinon.assert.calledOnceWithExactly(
+          mockStatsd.increment,
+          'account.inactive.deletion.skipped.active'
+        );
+      });
+
+      it('should delete the inactive account', async () => {
+        isActiveStub.resolves(false);
+        await accountDeleteManager.deleteAccount(
+          uid,
+          ReasonForDeletion.InactiveAccountScheduled
+        );
+        sinon.assert.calledWithMatch(mockFxaDb.deleteAccount, {
+          uid,
+        });
+      });
     });
   });
 
