@@ -6,6 +6,9 @@ import { DeleteAccountTasks } from './delete-account-tasks';
 import { DeleteAccountTasksFactory } from './account-tasks.factories';
 import { ReasonForDeletion } from './account-tasks.types';
 
+const now = 1736500000000;
+jest.useFakeTimers({ now });
+
 describe('account-tasks', () => {
   const mockStatsd = {
     increment: jest.fn(),
@@ -72,8 +75,6 @@ describe('account-tasks', () => {
               queueName: 'delete-account',
             },
           },
-          publicUrl: 'http://localhost:9000',
-          apiVersion: '1',
         },
         mockCloudClient,
         mockStatsd
@@ -90,7 +91,8 @@ describe('account-tasks', () => {
       });
 
       const taskName = await deleteAccountCloudTask.deleteAccount(
-        mockDeleteTaskPayload
+        mockDeleteTaskPayload,
+        { taskId: 'wibble', scheduleTime: { seconds: Date.now() / 1000 } }
       );
       expect(taskName).toEqual('task123');
       expect(mockStatsd.increment).toBeCalledWith(
@@ -111,6 +113,10 @@ describe('account-tasks', () => {
               serviceAccountEmail:
                 mockConfig.cloudTasks.oidc.serviceAccountEmail,
             },
+          },
+          name: 'projects/pid123/locations/lid123/queues/delete-account/tasks/wibble',
+          scheduleTime: {
+            seconds: 1736500000,
           },
         },
       });

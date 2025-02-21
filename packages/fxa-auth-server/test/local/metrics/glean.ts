@@ -63,10 +63,12 @@ const recordInactiveAccountDeletionFinalEmailTaskRequestStub = sinon.stub();
 const recordInactiveAccountDeletionFinalEmailTaskEnqueuedStub = sinon.stub();
 const recordInactiveAccountDeletionFinalEmailTaskRejectedStub = sinon.stub();
 const recordInactiveAccountDeletionFinalEmailSkippedStub = sinon.stub();
+const recordInactiveAccountDeletionDeletionScheduleStub = sinon.stub();
 
 const gleanProxy = proxyquire('../../../lib/metrics/glean', {
   './server_events': {
     createAccountsEventsEvent: () => ({ record: recordStub }),
+    // this is out of hand!  we need to switch to use sinon.mock or some such thing
     createEventsServerEventLogger: () => ({
       recordRegAccCreated: recordRegAccCreatedStub,
       recordRegEmailSent: recordRegEmailSentStub,
@@ -148,6 +150,8 @@ const gleanProxy = proxyquire('../../../lib/metrics/glean', {
         recordInactiveAccountDeletionFinalEmailTaskRejectedStub,
       recordInactiveAccountDeletionFinalEmailSkipped:
         recordInactiveAccountDeletionFinalEmailSkippedStub,
+      recordInactiveAccountDeletionDeletionScheduled:
+        recordInactiveAccountDeletionDeletionScheduleStub,
     }),
   },
 });
