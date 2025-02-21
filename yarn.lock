@@ -20222,24 +20222,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/addon-toolbars@npm:^7.0.23":
-  version: 7.0.26
-  resolution: "@storybook/addon-toolbars@npm:7.0.26"
-  dependencies:
-    "@storybook/client-logger": 7.0.26
-    "@storybook/components": 7.0.26
-    "@storybook/manager-api": 7.0.26
-    "@storybook/preview-api": 7.0.26
-    "@storybook/theming": 7.0.26
+"@storybook/addon-toolbars@npm:^8.5.8":
+  version: 8.5.8
+  resolution: "@storybook/addon-toolbars@npm:8.5.8"
   peerDependencies:
-    react: ^16.8.0 || ^17.0.0 || ^18.0.0
-    react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
-  peerDependenciesMeta:
-    react:
-      optional: true
-    react-dom:
-      optional: true
-  checksum: ac33482e2403bdab57b4f233afd227b64a99299acd862bd1932ced1182dcee35a1c5499843786a8a37c80c0ed91de1572865ebeecd0dc1cf297d787d731a45ee
+    storybook: ^8.5.8
+  checksum: 450196e6ee2ac46cf1e82d0f219970e8b9aa81a5ff63cfe24c1646199040302a2f1add4f189f484bdcbc56f77a4c42dc4bb66df1e3945f31e1d623fc7cd696e8
   languageName: node
   linkType: hard
 
@@ -41750,7 +41738,7 @@ fsevents@~2.1.1:
     "@hapi/hoek": ^11.0.2
     "@storybook/addon-controls": ^7.4.6
     "@storybook/addon-docs": ^7.6.12
-    "@storybook/addon-toolbars": ^7.0.23
+    "@storybook/addon-toolbars": ^8.5.8
     "@storybook/html": ^7.6.17
     "@storybook/html-webpack5": ^7.6.13
     "@types/async-retry": ^1
