@@ -104,12 +104,6 @@ export type CartDTO =
   | NeedsInputCartDTO
   | FailCartDTO;
 
-export type UpgradeCartDTO = ResultCart & {
-  eligibilityStatus: CartEligibilityStatus.UPGRADE;
-  fromOfferingConfigId: string;
-  fromPrice: FromPrice;
-};
-
 export type SetupCart = {
   uid?: string;
   interval: string;
