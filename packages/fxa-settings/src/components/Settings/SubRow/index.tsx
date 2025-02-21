@@ -265,8 +265,7 @@ export const BackupPhoneSubRow = ({
 
   const linkExternalProps = !hasPhoneNumber
     ? {
-        // TODO add a link to the knowledge base article once it is available
-        href: '',
+        href: 'https://support.mozilla.org/kb/secure-mozilla-account-two-step-authentication',
         children: ftlMsgResolver.getMsg(
           'tfa-row-backup-phone-sim-swap-risk-link',
           'Learn about SIM swap risk'
