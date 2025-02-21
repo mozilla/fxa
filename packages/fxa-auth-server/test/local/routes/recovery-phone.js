@@ -116,7 +116,7 @@ describe('/recovery_phone', () => {
       assert.equal(mockCustoms.check.getCall(0).args[1], email);
       assert.equal(
         mockCustoms.check.getCall(0).args[2],
-        'recoveryPhoneSendCode'
+        'recoveryPhoneSendSigninCode'
       );
 
       assert.calledOnceWithExactly(
@@ -218,7 +218,7 @@ describe('/recovery_phone', () => {
       assert.equal(mockCustoms.checkAuthenticated.getCall(0).args[1], uid);
       assert.equal(
         mockCustoms.checkAuthenticated.getCall(0).args[2],
-        'recoveryPhoneCreate'
+        'recoveryPhoneSendSetupCode'
       );
       assert.calledOnceWithExactly(
         mockStatsd.increment,

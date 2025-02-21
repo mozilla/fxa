@@ -100,7 +100,7 @@ class RecoveryPhoneHandler {
       throw AppError.invalidToken();
     }
 
-    await this.customs.check(request, email, 'recoveryPhoneSendCode');
+    await this.customs.check(request, email, 'recoveryPhoneSendSigninCode');
 
     const getFormattedMessage = async (code: string) => {
       const localizedMessage = await this.getLocalizedMessage(
@@ -167,7 +167,12 @@ class RecoveryPhoneHandler {
     if (!email) {
       throw AppError.invalidToken();
     }
-    await this.customs.checkAuthenticated(request, uid, 'recoveryPhoneCreate');
+
+    await this.customs.checkAuthenticated(
+      request,
+      uid,
+      'recoveryPhoneSendSetupCode'
+    );
 
     const getFormattedMessage = async (code: string) => {
       const localizedMessage = await this.getLocalizedMessage(
@@ -249,7 +254,7 @@ class RecoveryPhoneHandler {
     await this.customs.checkAuthenticated(
       request,
       uid,
-      'recoveryPhoneConfirmCode'
+      'verifyRecoveryPhoneTotpCode'
     );
 
     let success = false;

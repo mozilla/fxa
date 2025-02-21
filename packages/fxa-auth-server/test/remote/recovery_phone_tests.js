@@ -337,14 +337,14 @@ describe(`#integration - recovery phone - customs checks`, function () {
     // One code gets sent here
     await client.recoveryPhoneCreate(phoneNumber);
 
-    // Send 8 more codes, for a total of 9 codes.
-    for (let i = 0; i < 9; i++) {
+    // Send 15 more codes, for a total of 16 codes.
+    for (let i = 0; i < 15; i++) {
       try {
         await client.recoveryPhoneConfirmSetup('000001');
       } catch {}
     }
 
-    // The 10th code should get throttled.
+    // The 16th code should get throttled.
     let error;
     try {
       await client.recoveryPhoneConfirmSetup('000001');
@@ -366,7 +366,7 @@ describe(`#integration - recovery phone - customs checks`, function () {
 
     let error;
     try {
-      for (let i = 0; i < 9; i++) {
+      for (let i = 0; i < 7; i++) {
         await client.recoveryPhoneSendCode();
       }
     } catch (err) {
