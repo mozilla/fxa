@@ -4,7 +4,7 @@
 
 import { headers } from 'next/headers';
 import { MetricsWrapper } from '@fxa/payments/ui';
-import { fetchCMSData, getCartAction } from '@fxa/payments/ui/actions';
+import { fetchCMSData, getUpgradeCartAction } from '@fxa/payments/ui/actions';
 import {
   getApp,
   CheckoutParams,
@@ -30,7 +30,7 @@ export default async function UpgradeLayout({
   //);
   const locale = headers().get('accept-language') || DEFAULT_LOCALE;
 
-  const cartDataPromise = getCartAction(params.cartId);
+  const cartDataPromise = getUpgradeCartAction(params.cartId);
   const cmsDataPromise = fetchCMSData(params.offeringId, locale);
   const l10n = getApp().getL10n(locale);
   const [cms, cart] = await Promise.all([cmsDataPromise, cartDataPromise]);

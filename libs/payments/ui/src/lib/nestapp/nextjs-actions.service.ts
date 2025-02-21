@@ -11,7 +11,7 @@ import { ContentServerManager } from '@fxa/payments/content-server';
 import { CurrencyManager } from '@fxa/payments/currency';
 import { CheckoutTokenManager } from '@fxa/payments/paypal';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
-import { CartState } from '@fxa/shared/db/mysql/account';
+import { CartEligibilityStatus, CartState } from '@fxa/shared/db/mysql/account';
 import { SanitizeExceptions } from '@fxa/shared/error';
 import { GeoDBManager } from '@fxa/shared/geodb';
 
@@ -31,6 +31,7 @@ import { SubmitNeedsInputActionArgs } from './validators/SubmitNeedsInputActionA
 import { GetNeedsInputActionArgs } from './validators/GetNeedsInputActionArgs';
 import { ValidatePostalCodeArgs } from './validators/ValidatePostalCodeArgs';
 import { DetermineCurrencyActionArgs } from './validators/DetermineCurrencyActionArgs';
+import { UpgradeCartDTO } from './types';
 
 /**
  * ANY AND ALL methods exposed via this service should be considered publicly accessible and callable with any arguments.
@@ -68,6 +69,36 @@ export class NextJSActionsService {
     }
 
     return cart;
+  }
+
+  /**
+   * Very rough implementation of getUpgradeCart. Needs more work.
+   * Note that the UpgradeCartDTO is not in carts.types.ts, so that it's not conflated
+   * with the CartDTO types. Happy to have more discussions around this.
+   */
+  async getUpgradeCart(args: GetCartActionArgs): Promise<UpgradeCartDTO> {
+    await new Validator().validateOrReject(args);
+
+    const cart = await this.cartService.getCart(args.cartId);
+
+    if (cart.eligibilityStatus !== CartEligibilityStatus.UPGRADE) {
+      throw new Error('Needs to be Upgrade Cart');
+    }
+
+    if (!cart.fromOfferingConfigId) {
+      throw new Error('this needs to be defined');
+    }
+
+    if (!cart.fromPrice) {
+      throw new Error('this needs to be defined');
+    }
+
+    return {
+      ...cart,
+      eligibilityStatus: CartEligibilityStatus.UPGRADE,
+      fromPrice: cart.fromPrice!,
+      fromOfferingConfigId: cart.fromOfferingConfigId!,
+    };
   }
 
   async updateCart(args: UpdateCartActionArgs) {
