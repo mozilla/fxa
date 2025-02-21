@@ -246,6 +246,7 @@ export class CartService {
     const [upcomingInvoice, eligibility] = await Promise.all([
       this.invoiceManager.previewUpcoming({
         priceId: price.id,
+        currency,
         customer: stripeCustomer,
         taxAddress: taxAddress,
         couponCode: args.promoCode,
@@ -558,6 +559,7 @@ export class CartService {
       upcomingInvoicePreview =
         await this.invoiceManager.previewUpcomingForUpgrade({
           priceId: price.id,
+          currency: cart.currency || DEFAULT_CURRENCY,
           customer,
           taxAddress: cart.taxAddress || undefined,
           couponCode: cart.couponCode || undefined,
@@ -566,6 +568,7 @@ export class CartService {
     } else {
       upcomingInvoicePreview = await this.invoiceManager.previewUpcoming({
         priceId: price.id,
+        currency: cart.currency || DEFAULT_CURRENCY,
         customer,
         taxAddress: cart.taxAddress || undefined,
         couponCode: cart.couponCode || undefined,
@@ -631,12 +634,12 @@ export class CartService {
       };
     }
 
-    let currentPrice: FromPrice | undefined;
+    let fromPrice: FromPrice | undefined;
     if (cartEligibilityStatus === CartEligibilityStatus.UPGRADE) {
       assert('fromPrice' in eligibility, 'fromPrice not present for upgrade');
       assertNotNull(eligibility.fromPrice.unit_amount);
       assertNotNull(eligibility.fromPrice.recurring);
-      currentPrice = {
+      fromPrice = {
         currency: eligibility.fromPrice.currency,
         interval: eligibility.fromPrice.recurring.interval,
         listAmount: eligibility.fromPrice.unit_amount,
@@ -654,7 +657,7 @@ export class CartService {
         'fromOfferingConfigId' in eligibility
           ? eligibility.fromOfferingConfigId
           : undefined,
-      fromPrice: 'fromPrice' in eligibility ? currentPrice : undefined,
+      fromPrice: 'fromPrice' in eligibility ? fromPrice : undefined,
     };
   }
 

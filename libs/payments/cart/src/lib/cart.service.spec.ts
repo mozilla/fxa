@@ -1101,6 +1101,7 @@ describe('CartService', () => {
       );
       expect(invoiceManager.previewUpcoming).toHaveBeenCalledWith({
         priceId: mockPrice.id,
+        currency: mockCart.currency,
         customer: mockCustomer,
         taxAddress: mockCart.taxAddress,
       });
@@ -1163,6 +1164,7 @@ describe('CartService', () => {
       );
       expect(invoiceManager.previewUpcoming).toHaveBeenCalledWith({
         priceId: mockPrice.id,
+        currency: mockCart.currency,
         customer: mockCustomer,
         taxAddress: mockCart.taxAddress,
       });
@@ -1205,6 +1207,7 @@ describe('CartService', () => {
       expect(customerManager.retrieve).not.toHaveBeenCalled();
       expect(invoiceManager.previewUpcoming).toHaveBeenCalledWith({
         priceId: mockPrice.id,
+        currency: mockCart.currency,
         customer: undefined,
         taxAddress: mockCart.taxAddress,
       });
@@ -1264,6 +1267,7 @@ describe('CartService', () => {
       );
       expect(invoiceManager.previewUpcomingForUpgrade).toHaveBeenCalledWith({
         priceId: mockPrice.id,
+        currency: mockCart.currency,
         customer: mockCustomer,
         taxAddress: mockCart.taxAddress,
         fromPrice: mockFromPrice,

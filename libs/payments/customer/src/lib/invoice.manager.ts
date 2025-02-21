@@ -50,11 +50,13 @@ export class InvoiceManager {
 
   async previewUpcoming({
     priceId,
+    currency,
     customer,
     taxAddress,
     couponCode,
   }: {
     priceId: string;
+    currency: string;
     customer?: StripeCustomer;
     taxAddress?: TaxAddress;
     couponCode?: string;
@@ -84,6 +86,7 @@ export class InvoiceManager {
         : undefined;
 
     const requestObject: Stripe.InvoiceRetrieveUpcomingParams = {
+      currency,
       customer: customer?.id,
       automatic_tax: {
         enabled: automaticTax,
@@ -92,7 +95,9 @@ export class InvoiceManager {
         tax_exempt: 'none', // Param required when shipping address not present
         shipping,
       },
-      subscription_items: [{ price: priceId }],
+      subscription_details: {
+        items: [{ price: priceId }],
+      },
       discounts: [{ promotion_code: promoCode?.id }],
     };
 
@@ -105,12 +110,14 @@ export class InvoiceManager {
 
   async previewUpcomingForUpgrade({
     priceId,
+    currency,
     customer,
     taxAddress,
     couponCode,
     fromPrice,
   }: {
     priceId: string;
+    currency: string;
     customer?: StripeCustomer;
     taxAddress?: TaxAddress;
     couponCode?: string;
@@ -149,19 +156,19 @@ export class InvoiceManager {
         tax_exempt: 'none', // Param required when shipping address not present
         shipping,
       },
-      subscription_items: [{ price: priceId }],
+      subscription_details: {
+        items: [{ price: priceId }],
+      },
       discounts: [{ promotion_code: promoCode?.id }],
     };
 
     const invoicePreview = await this.previewUpcoming({
       priceId,
+      currency,
       customer,
       taxAddress,
       couponCode,
     });
-
-    requestObject.subscription_proration_behavior = 'always_invoice';
-    requestObject.subscription_proration_date = Math.floor(Date.now() / 1000);
 
     const subscriptions = await this.stripeClient.subscriptionsList({
       customer: customer?.id,
@@ -171,10 +178,15 @@ export class InvoiceManager {
       .flatMap((subscription) => subscription.items.data)
       ?.find((subscription) => subscription.plan.id === fromPrice?.id);
 
-    const firstSubItem = requestObject.subscription_items?.at(0);
+    const firstSubItem = requestObject.subscription_details?.items?.at(0);
     if (!firstSubItem) throw new Error('No subscription item found');
     firstSubItem.id = subscriptionItem?.id;
     requestObject.subscription = subscriptionItem?.subscription;
+    requestObject.subscription_details = {
+      ...requestObject.subscription_details,
+      proration_behavior: 'always_invoice',
+      proration_date: Math.floor(Date.now() / 1000),
+    };
 
     const proratedInvoice = await this.stripeClient.invoicesRetrieveUpcoming(
       requestObject
