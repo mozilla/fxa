@@ -344,9 +344,12 @@ module.exports = (
 
         const code = request.payload.code;
         const passwordForgotToken = request.auth.credentials;
-        const email = passwordForgotToken.email;
 
-        await customs.check(request, email, 'verifyTotpCode');
+        await customs.checkAuthenticated(
+          request,
+          passwordForgotToken.uid,
+          'verifyTotpCode'
+        );
 
         try {
           const totpRecord = await db.totpToken(passwordForgotToken.uid);
@@ -494,7 +497,7 @@ module.exports = (
         const sessionToken = request.auth.credentials;
         const { uid, email } = sessionToken;
 
-        await customs.check(request, email, 'verifyTotpCode');
+        await customs.checkAuthenticated(request, uid, 'verifyTotpCode');
 
         const token = await db.totpToken(sessionToken.uid);
         const sharedSecret = token.sharedSecret;

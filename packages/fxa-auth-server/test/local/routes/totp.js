@@ -565,9 +565,9 @@ describe('totp', () => {
       assert.isTrue(response.success);
       assert.calledOnceWithExactly(db.totpToken, 'uid');
       assert.calledOnceWithExactly(
-        customs.check,
+        customs.checkAuthenticated,
         request,
-        TEST_EMAIL,
+        'uid',
         'verifyTotpCode'
       );
     });
@@ -586,9 +586,9 @@ describe('totp', () => {
       assert.isFalse(response.success);
       assert.calledOnceWithExactly(db.totpToken, 'uid');
       assert.calledOnceWithExactly(
-        customs.check,
+        customs.checkAuthenticated,
         request,
-        TEST_EMAIL,
+        'uid',
         'verifyTotpCode'
       );
     });
