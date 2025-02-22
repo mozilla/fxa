@@ -221,7 +221,7 @@
     "eslint": "^7.32.0",
     "eslint-config-next": "14.2.3",
     "eslint-plugin-fxa": "workspace:*",
-    "eslint-plugin-import": "2.30.0",
+    "eslint-plugin-import": "2.31.0",
     "eslint-plugin-jest": "^27.6.0",
     "eslint-plugin-jsx-a11y": "6.10.0",
     "eslint-plugin-react": "^7.32.2",

@@ -41638,7 +41638,7 @@ fsevents@~2.1.1:
     dateformat: ^4.6.3
     eslint: ^7.32.0
     eslint-config-react-app: ^6.0.0
-    eslint-plugin-import: ^2.30.0
+    eslint-plugin-import: ^2.31.0
     eslint-plugin-jest: ^27.6.0
     eslint-plugin-react: ^7.32.2
     express: ^4.21.2
@@ -42115,7 +42115,7 @@ fsevents@~2.1.1:
     eslint: ^7.32.0
     eslint-config-prettier: ^9.1.0
     eslint-config-react-app: ^7.0.1
-    eslint-plugin-import: ^2.30.0
+    eslint-plugin-import: ^2.31.0
     express: ^4.21.2
     factory-bot-ts: ^0.1.5
     fxa-shared: "workspace:*"
@@ -42278,7 +42278,7 @@ fsevents@~2.1.1:
     dayjs: ^1.11.5
     eslint: ^7.32.0
     eslint-config-react-app: ^6.0.0
-    eslint-plugin-import: ^2.30.0
+    eslint-plugin-import: ^2.31.0
     eslint-plugin-jest: ^27.6.0
     eslint-plugin-react: ^7.32.2
     express: ^4.21.2
@@ -42759,7 +42759,7 @@ fsevents@~2.1.1:
     eslint: ^7.32.0
     eslint-config-next: 14.2.3
     eslint-plugin-fxa: "workspace:*"
-    eslint-plugin-import: 2.30.0
+    eslint-plugin-import: 2.31.0
     eslint-plugin-jest: ^27.6.0
     eslint-plugin-jsx-a11y: 6.10.0
     eslint-plugin-react: ^7.32.2
