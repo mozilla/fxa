@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Inject, Injectable, LoggerService } from '@nestjs/common';
-import { SmsManager } from './sms.manager';
+import { SmsManager, TwilioMessageStatus } from './sms.manager';
 import { OtpManager } from '@fxa/shared/otp';
 import { RecoveryPhoneConfig } from './recovery-phone.service.config';
 import {
@@ -19,6 +19,8 @@ import {
 import { MessageInstance } from 'twilio/lib/rest/api/v2010/account/message';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { StatsD, StatsDService } from '@fxa/shared/metrics/statsd';
+import { TwilioConfig } from './twilio.config';
+import { validateRequest } from 'twilio';
 
 @Injectable()
 export class RecoveryPhoneService {
@@ -27,6 +29,7 @@ export class RecoveryPhoneService {
     private readonly smsManager: SmsManager,
     private readonly otpCode: OtpManager,
     private readonly config: RecoveryPhoneConfig,
+    private readonly twilioConfig: TwilioConfig,
     @Inject(StatsDService) private readonly metrics: StatsD,
     @Inject(LOGGER_PROVIDER) private readonly log?: LoggerService
   ) {}
@@ -372,6 +375,35 @@ export class RecoveryPhoneService {
     });
 
     return this.isSuccessfulSmsSend(msg);
+  }
+
+  /**
+   * Handles update about message delivery status.
+   * @param messageStatus The message delivery status.
+   */
+  public async onMessageStatusUpdate(messageStatus: TwilioMessageStatus) {
+    await this.smsManager.messageStatus(messageStatus);
+  }
+
+  /**
+   * Produces the signature used to sign requests sent to twilio webhooks
+   * @param params
+   * @returns
+   */
+  public validateTwilioSignature(
+    twilioSignature: string,
+    params: Record<string, any>
+  ) {
+    if (this.twilioConfig.validateWebhookCalls === false) {
+      return true;
+    }
+
+    return validateRequest(
+      this.twilioConfig.authToken,
+      twilioSignature,
+      this.twilioConfig.webhookUrl,
+      params
+    );
   }
 
   private isSuccessfulSmsSend(msg: MessageInstance) {

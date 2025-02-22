@@ -13,6 +13,7 @@ const userAgent = require('fxa-shared/lib/user-agent').parseToScalars;
 const schemeRefreshToken = require('./routes/auth-schemes/refresh-token');
 const authOauth = require('./routes/auth-schemes/auth-oauth');
 const sharedSecretAuth = require('./routes/auth-schemes/shared-secret');
+const twilioSignatureAuth = require('./routes/auth-schemes/twilio-signature');
 const pubsubAuth = require('./routes/auth-schemes/pubsub');
 const googleOIDC = require('./routes/auth-schemes/google-oidc');
 const { HEX_STRING } = require('./routes/validators');
@@ -475,6 +476,10 @@ async function create(log, error, config, routes, db, statsd, glean) {
     googleOIDC.strategy(config.cloudScheduler.oidc)
   );
   server.auth.strategy('cloudSchedulerOIDC', 'cloudSchedulerOIDC');
+
+  // Authorizes incoming webhook calls from Twilio
+  server.auth.scheme('twilioSignature', twilioSignatureAuth.strategy());
+  server.auth.strategy('twilioSignature', 'twilioSignature');
 
   // register all plugins and Swagger configuration
   await server.register([

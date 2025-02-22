@@ -16,6 +16,9 @@ import {
 } from './recovery-phone.errors';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { StatsDService } from '@fxa/shared/metrics/statsd';
+import { MessageStatus } from 'twilio/lib/rest/api/v2010/account/message';
+import { TwilioConfig } from './twilio.config';
+import { getExpectedTwilioSignature } from 'twilio/lib/webhooks/webhooks';
 
 describe('RecoveryPhoneService', () => {
   const phoneNumber = '+15005551234';
@@ -25,14 +28,18 @@ describe('RecoveryPhoneService', () => {
   const mockLogger = {
     error: jest.fn(),
   };
+
   const mockMetrics = {
     gauge: jest.fn(),
     increment: jest.fn(),
   };
+
   const mockSmsManager = {
     sendSMS: jest.fn(),
     phoneNumberLookup: jest.fn(),
+    messageStatus: jest.fn(),
   };
+
   const mockRecoveryPhoneManager = {
     storeUnconfirmed: jest.fn(),
     getUnconfirmed: jest.fn(),
@@ -43,15 +50,27 @@ describe('RecoveryPhoneService', () => {
     hasRecoveryCodes: jest.fn(),
     removeCode: jest.fn(),
   };
-  const mockOtpManager = { generateCode: jest.fn() };
-  const mockRecoveryPhoneConfig = {
+
+  const mockOtpManager = {
+    generateCode: jest.fn(),
+  };
+
+  const mockRecoveryPhoneConfig: RecoveryPhoneConfig = {
     enabled: true,
     allowedRegions: ['US'],
     sms: {
       validNumberPrefixes: ['+1500'],
       smsPumpingRiskThreshold: 75,
     },
-  };
+  } satisfies RecoveryPhoneConfig;
+
+  const mockTwilioConfig: TwilioConfig = {
+    accountSid: 'AC00000000000000000000000000000000',
+    authToken: '00000000000000000000000000000000',
+    webhookUrl: 'http://accounts.firefox.com/recovery-phone/message-status',
+    validateWebhookCalls: true,
+  } satisfies TwilioConfig;
+
   const mockError = new Error('BOOM');
 
   let service: RecoveryPhoneService;
@@ -69,6 +88,10 @@ describe('RecoveryPhoneService', () => {
         {
           provide: RecoveryPhoneConfig,
           useValue: mockRecoveryPhoneConfig,
+        },
+        {
+          provide: TwilioConfig,
+          useValue: mockTwilioConfig,
         },
         {
           provide: LOGGER_PROVIDER,
@@ -586,6 +609,65 @@ describe('RecoveryPhoneService', () => {
     it('can handle being passed an empty string', () => {
       const phoneNumber = '';
       expect(service.stripPhoneNumber(phoneNumber, 4)).toEqual('');
+    });
+  });
+
+  describe('can handle message status update', () => {
+    it('can handle message status update', async () => {
+      const messageUpdate = {
+        AccountSid: 'AC123',
+        From: '+123456789',
+        MessageSid: 'MS123',
+        MessageStatus: 'delivered' as MessageStatus,
+      };
+      await service.onMessageStatusUpdate(messageUpdate);
+      expect(mockSmsManager.messageStatus).toBeCalledWith(messageUpdate);
+    });
+  });
+
+  describe('verify twilio signature', () => {
+    // This is how Twilio generates the signature, see following doc for more info:
+    // https://www.twilio.com/docs/usage/security#test-the-validity-of-your-webhook-signature
+    const signature = getExpectedTwilioSignature(
+      mockTwilioConfig.authToken,
+      mockTwilioConfig.webhookUrl,
+      {
+        foo: 'bar',
+      }
+    );
+
+    afterEach(() => {
+      mockTwilioConfig.validateWebhookCalls = true;
+    });
+
+    it('can validate twilio signature', () => {
+      const valid = service.validateTwilioSignature(signature, {
+        foo: 'bar',
+      });
+      expect(valid).toBeTruthy();
+    });
+
+    it('can invalidate twilio signature due to bad payload', () => {
+      const valid = service.validateTwilioSignature(signature, {
+        foo: 'bar',
+        bar: 'baz',
+      });
+      expect(valid).toBeFalsy();
+    });
+
+    it('can invalidate twilio signature due to bad signature', () => {
+      const valid = service.validateTwilioSignature(signature + '0', {
+        foo: 'bar',
+      });
+      expect(valid).toBeFalsy();
+    });
+
+    it('will always validate if validateWebhookCalls is false', () => {
+      mockTwilioConfig.validateWebhookCalls = false;
+      const valid = service.validateTwilioSignature(signature + '0', {
+        foo: 'bar',
+      });
+      expect(valid).toBeTruthy();
     });
   });
 });

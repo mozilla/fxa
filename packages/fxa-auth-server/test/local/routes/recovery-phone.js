@@ -60,6 +60,7 @@ describe('/recovery_phone', () => {
     removePhoneNumber: sandbox.fake(),
     stripPhoneNumber: sandbox.fake(),
     hasConfirmed: sandbox.fake(),
+    onMessageStatusUpdate: sandbox.fake(),
   };
   const mockAccountManager = {
     verifySession: sandbox.fake(),
@@ -631,6 +632,37 @@ describe('/recovery_phone', () => {
         uid
       );
       assert.equal(mockRecoveryPhoneService.hasConfirmed.getCall(0).args[1], 4);
+    });
+  });
+
+  describe('POST /recovery_phone/message_status', async () => {
+    it('handles a message status update from twilio', async () => {
+      mockRecoveryPhoneService.onMessageStatusUpdate =
+        sinon.fake.resolves(undefined);
+
+      const payload = {
+        AccountSid: 'AC123',
+        MessageSid: 'M123',
+        From: '+1234567890',
+        MessageStatus: 'delivered',
+        RawDlrDoneDate: 'TWILIO_DATE_FORMAT',
+      };
+
+      const resp = await makeRequest({
+        method: 'POST',
+        path: '/recovery_phone/message_status',
+        headers: {
+          'X-Twilio-Signature': 'VALID_SIGNATURE',
+        },
+        payload,
+      });
+
+      assert.isDefined(resp);
+      assert.equal(mockRecoveryPhoneService.onMessageStatusUpdate.callCount, 1);
+      assert.equal(
+        mockRecoveryPhoneService.onMessageStatusUpdate.getCall(0).args[0],
+        payload
+      );
     });
   });
 });
