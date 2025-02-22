@@ -173,7 +173,7 @@
     "@graphql-codegen/typescript": "^4.0.1",
     "@graphql-codegen/typescript-document-nodes": "^4.0.1",
     "@nestjs/cli": "^11.0.1",
-    "@nestjs/schematics": "^10.2.3",
+    "@nestjs/schematics": "^11.0.1",
     "@nestjs/testing": "^10.3.4",
     "@nx/esbuild": "19.5.3",
     "@nx/eslint-plugin": "19.5.3",
