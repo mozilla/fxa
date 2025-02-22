@@ -24,7 +24,7 @@ const CODE_VERIFYING_ACTION = {
   // changes at 60 seconds
   // limits by email
   verifyTotpCode: true,
-  recoveryPhoneConfirmCode: true,
+  verifyRecoveryPhoneTotpCode: true,
 };
 
 // Actions that, if allowed, would allow an attacker
@@ -61,8 +61,8 @@ const EMAIL_SENDING_ACTION = {
 // very annoying to a user if abused.
 const SMS_SENDING_ACTION = {
   connectDeviceSms: true,
-  recoveryPhoneSendCode: true,
-  recoveryPhoneCreate: true,
+  recoveryPhoneSendSigninCode: true,
+  recoveryPhoneSendSetupCode: true,
 };
 
 // Actions that may grant access to an account but

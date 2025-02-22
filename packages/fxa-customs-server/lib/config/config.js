@@ -448,6 +448,33 @@ module.exports = function (fs, path, url, convict) {
           },
         },
       },
+      recoveryPhoneTotpCodeRules: {
+        actions: {
+          doc: 'Array of actions that this rule should be applied to',
+          default: ['verifyRecoveryPhoneTotpCode'],
+          format: Array,
+        },
+        limits: {
+          max: {
+            doc: 'max actions during `period` that can occur before rate limit is applied',
+            format: 'nat',
+            default: 10,
+            env: 'RECOVERY_PHONE_TOTP_CODE_RULE_MAX',
+          },
+          periodMs: {
+            doc: 'period needed before rate limit is reset',
+            format: 'duration',
+            default: '15 minutes',
+            env: 'RECOVERY_PHONE_TOTP_CODE_RULE_PERIOD_MS',
+          },
+          rateLimitIntervalMs: {
+            doc: 'how long rate limit is applied',
+            format: 'duration',
+            default: '15 minutes',
+            env: 'RECOVERY_PHONE_TOTP_CODE_RULE_LIMIT_INTERVAL_MS',
+          },
+        },
+      },
       tokenCodeRules: {
         actions: {
           doc: 'Array of actions that this rule should be applied to',
@@ -475,12 +502,12 @@ module.exports = function (fs, path, url, convict) {
           },
         },
       },
-      recoveryPhoneCreateCodeRules: {
+      recoveryPhoneSendSetupCodeRules: {
         actions: {
           doc:
             'Array of actions that this rule should be applied to. A user should only be able to initiate ' +
-            'a recovery phone setup X times a day.',
-          default: ['recoveryPhoneCreate'],
+            'a recovery phone setup X times a day by sending a setup code.',
+          default: ['recoveryPhoneSendSetupCode'],
           format: Array,
         },
         limits: {
@@ -488,28 +515,28 @@ module.exports = function (fs, path, url, convict) {
             doc: 'max actions during `period` that can occur before rate limit is applied',
             format: 'nat',
             default: 9,
-            env: 'RECOVERY_PHONE_SETUP_CODE_RULE_MAX',
+            env: 'RECOVERY_PHONE_SEND_SETUP_CODE_RULE_MAX',
           },
           periodMs: {
             doc: 'period needed before rate limit is reset',
             format: 'duration',
             default: '1 day',
-            env: 'RECOVERY_PHONE_SETUP_CODE_RULE_PERIOD_MS',
+            env: 'RECOVERY_PHONE_SEND_SETUP_CODE_RULE_PERIOD_MS',
           },
           rateLimitIntervalMs: {
             doc: 'how long rate limit is applied',
             format: 'duration',
-            default: '2 hours',
-            env: 'RECOVERY_PHONE_SETUP_CODE_RULE_LIMIT_INTERVAL_MS',
+            default: '24 hours',
+            env: 'RECOVERY_PHONE_SEND_SETUP_CODE_RULE_LIMIT_INTERVAL_MS',
           },
         },
       },
-      recoveryPhoneConfirmCodeRules: {
+      recoveryPhoneSendSigninCodeRules: {
         actions: {
           doc:
             'Array of actions that this rule should be applied to. A user should only be able to initiate ' +
-            'a recovery phone confirm X times a day.',
-          default: ['recoveryPhoneConfirmCode'],
+            'a recovery phone signin X times a day by sending an sms code.',
+          default: ['recoveryPhoneSendSigninCode'],
           format: Array,
         },
         limits: {
@@ -517,19 +544,19 @@ module.exports = function (fs, path, url, convict) {
             doc: 'max actions during `period` that can occur before rate limit is applied',
             format: 'nat',
             default: 6,
-            env: 'RECOVERY_PHONE_CONFIRM_CODE_RULE_MAX',
+            env: 'RECOVERY_PHONE_SEND_SIGNIN_CODE_RULE_MAX',
           },
           periodMs: {
             doc: 'period needed before rate limit is reset',
             format: 'duration',
             default: '1 day',
-            env: 'RECOVERY_PHONE_CONFIRM_CODE_RULE_PERIOD_MS',
+            env: 'RECOVERY_PHONE_SEND_SIGNIN_CODE_RULE_PERIOD_MS',
           },
           rateLimitIntervalMs: {
             doc: 'how long rate limit is applied',
             format: 'duration',
-            default: '2 hours',
-            env: 'RECOVERY_PHONE_CONFIRM_CODE_RULE_LIMIT_INTERVAL_MS',
+            default: '24 hours',
+            env: 'RECOVERY_PHONE_SEND_SIGNIN_CODE_RULE_LIMIT_INTERVAL_MS',
           },
         },
       },

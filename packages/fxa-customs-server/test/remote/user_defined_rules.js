@@ -30,13 +30,13 @@ config.userDefinedRateLimitRules.tokenCodeRules.limits.max = 2;
 config.userDefinedRateLimitRules.tokenCodeRules.limits.periodMs = 1000;
 config.userDefinedRateLimitRules.tokenCodeRules.limits.rateLimitIntervalMs = 1000;
 
-config.userDefinedRateLimitRules.recoveryPhoneCreateCodeRules.limits.max = 5;
-config.userDefinedRateLimitRules.recoveryPhoneCreateCodeRules.limits.periodMs = 5000;
-config.userDefinedRateLimitRules.recoveryPhoneCreateCodeRules.limits.rateLimitIntervalMs = 1000;
+config.userDefinedRateLimitRules.recoveryPhoneSendSetupCodeRules.limits.max = 5;
+config.userDefinedRateLimitRules.recoveryPhoneSendSetupCodeRules.limits.periodMs = 5000;
+config.userDefinedRateLimitRules.recoveryPhoneSendSetupCodeRules.limits.rateLimitIntervalMs = 1000;
 
-config.userDefinedRateLimitRules.recoveryPhoneConfirmCodeRules.limits.max = 5;
-config.userDefinedRateLimitRules.recoveryPhoneConfirmCodeRules.limits.periodMs = 5000;
-config.userDefinedRateLimitRules.recoveryPhoneConfirmCodeRules.limits.rateLimitIntervalMs = 1000;
+config.userDefinedRateLimitRules.recoveryPhoneSendSigninCodeRules.limits.max = 5;
+config.userDefinedRateLimitRules.recoveryPhoneSendSigninCodeRules.limits.periodMs = 5000;
+config.userDefinedRateLimitRules.recoveryPhoneSendSigninCodeRules.limits.rateLimitIntervalMs = 1000;
 
 const ACTIONS = ['verifyTotpCode', 'verifyTokenCode'];
 
@@ -150,8 +150,8 @@ ACTIONS.forEach((action) => {
 });
 
 const recoveryPhoneActions = [
-  'recoveryPhoneCreate',
-  'recoveryPhoneConfirmCode',
+  'recoveryPhoneSendSetupCode',
+  'recoveryPhoneSendSigninCode',
 ];
 recoveryPhoneActions.forEach((action) => {
   test(`clear everything for ${action}`, async (t) => {
