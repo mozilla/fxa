@@ -20,6 +20,7 @@ import { StatsDService } from '@fxa/shared/metrics/statsd';
 import { MessageStatus } from 'twilio/lib/rest/api/v2010/account/message';
 import { TwilioConfig } from './twilio.config';
 import { getExpectedTwilioSignature } from 'twilio/lib/webhooks/webhooks';
+import { SegmentedMessage } from 'sms-segments-calculator';
 
 describe('RecoveryPhoneService', () => {
   const phoneNumber = '+15005551234';
@@ -28,6 +29,7 @@ describe('RecoveryPhoneService', () => {
 
   const mockLogger = {
     error: jest.fn(),
+    warn: jest.fn(),
   };
 
   const mockMetrics = {
@@ -39,6 +41,7 @@ describe('RecoveryPhoneService', () => {
     sendSMS: jest.fn(),
     phoneNumberLookup: jest.fn(),
     messageStatus: jest.fn(),
+    checkMessageSegments: jest.fn(),
   };
 
   const mockRecoveryPhoneManager = {
@@ -74,12 +77,27 @@ describe('RecoveryPhoneService', () => {
     validateWebhookCalls: true,
   } satisfies TwilioConfig;
 
+  const mockGetFormattedMessage = async (code: string) => {
+    return {
+      msg: `${code} is your Mozilla verification code. Expires in 5 minutes.`,
+      shortMsg: `Mozilla verification code: ${code}`,
+      failsafeMsg: `Mozilla: ${code}`,
+    };
+  };
+
   const mockError = new Error('BOOM');
 
   let service: RecoveryPhoneService;
 
   beforeEach(async () => {
     mockSmsManager.sendSMS.mockReturnValue({ status: 'success' });
+    mockSmsManager.checkMessageSegments.mockImplementation((msg: string) => {
+      const sm = new SegmentedMessage(msg);
+      return {
+        overLimit: sm.segmentsCount > 1,
+        segmentedMessage: sm,
+      };
+    });
     mockRecoveryPhoneManager.hasRecoveryCodes.mockResolvedValue(true);
     mockRecoveryPhoneManager.getAllUnconfirmed.mockResolvedValue([]);
 
@@ -119,16 +137,20 @@ describe('RecoveryPhoneService', () => {
     expect(service).toBeInstanceOf(RecoveryPhoneService);
   });
 
-  it('Should set up a phone number', async () => {
+  it('Should setup a phone number', async () => {
     mockOtpManager.generateCode.mockReturnValue(code);
 
-    const result = await service.setupPhoneNumber(uid, phoneNumber);
+    const result = await service.setupPhoneNumber(
+      uid,
+      phoneNumber,
+      mockGetFormattedMessage
+    );
 
     expect(result).toBeTruthy();
     expect(mockOtpManager.generateCode).toBeCalled();
     expect(mockSmsManager.sendSMS).toBeCalledWith({
       to: phoneNumber,
-      body: code,
+      body: (await mockGetFormattedMessage(code)).msg,
     });
     expect(mockRecoveryPhoneManager.storeUnconfirmed).toBeCalledWith(
       uid,
@@ -137,6 +159,7 @@ describe('RecoveryPhoneService', () => {
       true
     );
     expect(mockRecoveryPhoneManager.getAllUnconfirmed).toBeCalledWith(uid);
+    expect(result).toBeTruthy();
   });
 
   it('Should send new code to set up a phone number', async () => {
@@ -146,7 +169,11 @@ describe('RecoveryPhoneService', () => {
       'this:is:the:code456',
     ]);
 
-    const result = await service.setupPhoneNumber(uid, phoneNumber);
+    const result = await service.setupPhoneNumber(
+      uid,
+      phoneNumber,
+      mockGetFormattedMessage
+    );
 
     expect(result).toBeTruthy();
     expect(mockRecoveryPhoneManager.removeCode).toBeCalledWith(uid, 'code123');
@@ -154,7 +181,7 @@ describe('RecoveryPhoneService', () => {
     expect(mockOtpManager.generateCode).toBeCalled();
     expect(mockSmsManager.sendSMS).toBeCalledWith({
       to: phoneNumber,
-      body: code,
+      body: (await mockGetFormattedMessage(code)).msg,
     });
     expect(mockRecoveryPhoneManager.storeUnconfirmed).toBeCalledWith(
       uid,
@@ -167,19 +194,18 @@ describe('RecoveryPhoneService', () => {
 
   it('handles message template when provided to set up phone number', async () => {
     mockOtpManager.generateCode.mockReturnValue(code);
-    const getFormattedMessage = jest.fn().mockResolvedValue('message');
 
     const result = await service.setupPhoneNumber(
       uid,
       phoneNumber,
-      getFormattedMessage
+      mockGetFormattedMessage
     );
 
     expect(result).toBeTruthy();
     expect(mockOtpManager.generateCode).toBeCalled();
     expect(mockSmsManager.sendSMS).toBeCalledWith({
       to: phoneNumber,
-      body: 'message',
+      body: (await mockGetFormattedMessage(code)).msg,
     });
     expect(mockRecoveryPhoneManager.storeUnconfirmed).toBeCalledWith(
       uid,
@@ -192,38 +218,38 @@ describe('RecoveryPhoneService', () => {
 
   it('Will reject a phone number that is not part of launch', async () => {
     const to = '+16005551234';
-    await expect(service.setupPhoneNumber(uid, to)).rejects.toEqual(
-      new RecoveryNumberNotSupportedError(to)
-    );
+    await expect(
+      service.setupPhoneNumber(uid, to, mockGetFormattedMessage)
+    ).rejects.toEqual(new RecoveryNumberNotSupportedError(to));
   });
 
   it('Will reject a phone number if it has been used for too many accounts', async () => {
     mockRecoveryPhoneManager.getCountByPhoneNumber.mockReturnValue(5);
 
-    await expect(service.setupPhoneNumber(uid, phoneNumber)).rejects.toEqual(
-      new RecoveryPhoneRegistrationLimitReached(phoneNumber)
-    );
+    await expect(
+      service.setupPhoneNumber(uid, phoneNumber, mockGetFormattedMessage)
+    ).rejects.toEqual(new RecoveryPhoneRegistrationLimitReached(phoneNumber));
   });
 
   it('Throws error during send sms', async () => {
     mockSmsManager.sendSMS.mockRejectedValueOnce(mockError);
-    await expect(service.setupPhoneNumber(uid, phoneNumber)).rejects.toEqual(
-      mockError
-    );
+    await expect(
+      service.setupPhoneNumber(uid, phoneNumber, mockGetFormattedMessage)
+    ).rejects.toEqual(mockError);
   });
 
   it('Throws error during otp code creation', async () => {
     mockOtpManager.generateCode.mockRejectedValueOnce(mockError);
-    await expect(service.setupPhoneNumber(uid, phoneNumber)).rejects.toEqual(
-      mockError
-    );
+    await expect(
+      service.setupPhoneNumber(uid, phoneNumber, mockGetFormattedMessage)
+    ).rejects.toEqual(mockError);
   });
 
   it('throws error during storing of unconfirmed number', async () => {
     mockRecoveryPhoneManager.storeUnconfirmed.mockRejectedValueOnce(mockError);
-    await expect(service.setupPhoneNumber(uid, phoneNumber)).rejects.toEqual(
-      mockError
-    );
+    await expect(
+      service.setupPhoneNumber(uid, phoneNumber, mockGetFormattedMessage)
+    ).rejects.toEqual(mockError);
   });
 
   describe('has confirmed code', () => {
@@ -458,7 +484,7 @@ describe('RecoveryPhoneService', () => {
       mockOtpManager.generateCode.mockResolvedValueOnce(code);
       mockSmsManager.sendSMS.mockResolvedValue({ status: 'success' });
 
-      const result = await service.sendCode(uid);
+      const result = await service.sendCode(uid, mockGetFormattedMessage);
 
       expect(result).toBeTruthy();
       expect(mockRecoveryPhoneManager.getConfirmedPhoneNumber).toBeCalledWith(
@@ -473,7 +499,47 @@ describe('RecoveryPhoneService', () => {
       expect(mockOtpManager.generateCode).toBeCalled();
       expect(mockSmsManager.sendSMS).toBeCalledWith({
         to: phoneNumber,
-        body: code,
+        body: (await mockGetFormattedMessage(code)).msg,
+      });
+    });
+
+    it('should fallback to the short message', async () => {
+      mockRecoveryPhoneManager.getConfirmedPhoneNumber.mockResolvedValueOnce({
+        phoneNumber,
+      });
+      mockOtpManager.generateCode.mockResolvedValueOnce(code);
+      mockSmsManager.sendSMS.mockResolvedValue({ status: 'success' });
+
+      const result = await service.sendCode(uid, async () => ({
+        msg: new Array(161).fill('z').join(''),
+        shortMsg: `Your Mozilla Account code is ${code}`,
+        failsafeMsg: `${code}`,
+      }));
+
+      expect(result).toBeTruthy();
+      expect(mockSmsManager.sendSMS).toBeCalledWith({
+        to: phoneNumber,
+        body: `Your Mozilla Account code is ${code}`,
+      });
+    });
+
+    it('should fallback to the fail safe message', async () => {
+      mockRecoveryPhoneManager.getConfirmedPhoneNumber.mockResolvedValueOnce({
+        phoneNumber,
+      });
+      mockOtpManager.generateCode.mockResolvedValueOnce(code);
+      mockSmsManager.sendSMS.mockResolvedValue({ status: 'success' });
+
+      const result = await service.sendCode(uid, async () => ({
+        msg: new Array(161).fill('z').join(''),
+        shortMsg: new Array(161).fill('z').join(''),
+        failsafeMsg: `Failsafe: ${code}`,
+      }));
+
+      expect(result).toBeTruthy();
+      expect(mockSmsManager.sendSMS).toBeCalledWith({
+        to: phoneNumber,
+        body: `Failsafe: ${code}`,
       });
     });
 
@@ -484,7 +550,7 @@ describe('RecoveryPhoneService', () => {
       mockOtpManager.generateCode.mockResolvedValueOnce(code);
       mockSmsManager.sendSMS.mockResolvedValue({ status: 'failed' });
 
-      const result = await service.sendCode(uid);
+      const result = await service.sendCode(uid, mockGetFormattedMessage);
 
       expect(result).toBeFalsy();
     });
@@ -492,7 +558,9 @@ describe('RecoveryPhoneService', () => {
     it('should throw error if recovery phone number does not exist', async () => {
       const error = new RecoveryNumberNotExistsError(uid);
       mockRecoveryPhoneManager.getConfirmedPhoneNumber.mockRejectedValue(error);
-      expect(service.sendCode(uid)).rejects.toThrow(error);
+      expect(service.sendCode(uid, mockGetFormattedMessage)).rejects.toThrow(
+        error
+      );
     });
 
     it('Should send new code for setup phone number', async () => {
@@ -508,7 +576,7 @@ describe('RecoveryPhoneService', () => {
       mockOtpManager.generateCode.mockResolvedValueOnce(code);
       mockSmsManager.sendSMS.mockResolvedValue({ status: 'success' });
 
-      const result = await service.sendCode(uid);
+      const result = await service.sendCode(uid, mockGetFormattedMessage);
 
       expect(result).toBeTruthy();
       expect(mockRecoveryPhoneManager.getConfirmedPhoneNumber).toBeCalledWith(
@@ -523,7 +591,7 @@ describe('RecoveryPhoneService', () => {
       expect(mockOtpManager.generateCode).toBeCalled();
       expect(mockSmsManager.sendSMS).toBeCalledWith({
         to: phoneNumber,
-        body: code,
+        body: (await mockGetFormattedMessage(code)).msg,
       });
 
       expect(mockRecoveryPhoneManager.removeCode).toBeCalledWith(
@@ -588,12 +656,12 @@ describe('RecoveryPhoneService', () => {
       expect(service.confirmSigninCode(uid, '000000')).rejects.toEqual(
         new RecoveryPhoneNotEnabled()
       );
-      expect(service.sendCode(uid)).rejects.toEqual(
+      expect(service.sendCode(uid, mockGetFormattedMessage)).rejects.toEqual(
         new RecoveryPhoneNotEnabled()
       );
-      expect(service.setupPhoneNumber(uid, '+15550005555')).rejects.toEqual(
-        new RecoveryPhoneNotEnabled()
-      );
+      expect(
+        service.setupPhoneNumber(uid, '+15550005555', mockGetFormattedMessage)
+      ).rejects.toEqual(new RecoveryPhoneNotEnabled());
     });
   });
 

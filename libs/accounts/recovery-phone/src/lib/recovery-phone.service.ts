@@ -23,6 +23,13 @@ import { StatsD, StatsDService } from '@fxa/shared/metrics/statsd';
 import { TwilioConfig } from './twilio.config';
 import { validateRequest } from 'twilio';
 
+/** SMS message with different fallbacks for varying message sizes. */
+export type FormattedMessages = {
+  msg: string;
+  shortMsg: string;
+  failsafeMsg: string;
+};
+
 @Injectable()
 export class RecoveryPhoneService {
   constructor(
@@ -71,7 +78,7 @@ export class RecoveryPhoneService {
   public async setupPhoneNumber(
     uid: string,
     phoneNumber: string,
-    getFormattedMessage?: (code: string) => Promise<string>
+    getFormattedMessages: (code: string) => Promise<FormattedMessages>
   ) {
     if (!this.config.enabled) {
       throw new RecoveryPhoneNotEnabled();
@@ -109,8 +116,8 @@ export class RecoveryPhoneService {
       throw new RecoveryPhoneRegistrationLimitReached(phoneNumber);
     }
 
+    // Create a code and store it for validation later
     const code = await this.otpCode.generateCode();
-
     await this.recoveryPhoneManager.storeUnconfirmed(
       uid,
       code,
@@ -118,17 +125,15 @@ export class RecoveryPhoneService {
       true
     );
 
-    const formattedSMSbody = getFormattedMessage
-      ? await getFormattedMessage(code)
-      : undefined;
-
-    const smsBody = formattedSMSbody || `${code}`;
-
+    // Pick the message with the best length and send it
+    const formattedMessages = await getFormattedMessages(code);
+    const body = this.getSafeSmsBody(formattedMessages);
     const msg = await this.smsManager.sendSMS({
       to: phoneNumber,
-      body: smsBody,
+      body,
     });
 
+    // Relay status
     return this.isSuccessfulSmsSend(msg);
   }
 
@@ -359,7 +364,7 @@ export class RecoveryPhoneService {
    */
   public async sendCode(
     uid: string,
-    getFormattedMessage?: (code: string) => Promise<string>
+    getFormattedMessages: (code: string) => Promise<FormattedMessages>
   ) {
     if (!this.config.enabled) {
       throw new RecoveryPhoneNotEnabled();
@@ -376,6 +381,7 @@ export class RecoveryPhoneService {
       }
     }
 
+    // Generate a new otp code, and store it as unconfirmed for later validation
     const { phoneNumber } =
       await this.recoveryPhoneManager.getConfirmedPhoneNumber(uid);
     const code = await this.otpCode.generateCode();
@@ -386,17 +392,15 @@ export class RecoveryPhoneService {
       false
     );
 
-    const formattedSMSbody = getFormattedMessage
-      ? await getFormattedMessage(code)
-      : undefined;
-
-    const smsBody = formattedSMSbody || `${code}`;
-
+    // Pick the message with the best length and send it
+    const formattedMessages = await getFormattedMessages(code);
+    const body = this.getSafeSmsBody(formattedMessages);
     const msg = await this.smsManager.sendSMS({
       to: phoneNumber,
-      body: smsBody,
+      body,
     });
 
+    // Relay status
     return this.isSuccessfulSmsSend(msg);
   }
 
@@ -427,6 +431,37 @@ export class RecoveryPhoneService {
       this.twilioConfig.webhookUrl,
       params
     );
+  }
+
+  /**
+   * Gets the most appropriately sized message body. We have a certain limit
+   * of sms segments that we want to allow, typically this is just a single segment.
+   *
+   * This function takes a message, a short message, and a fail safe message and picks
+   * the most optimal one, that still fits inside the allotted message segments.
+   */
+  private getSafeSmsBody({ msg, shortMsg, failsafeMsg }: FormattedMessages) {
+    const msgCheck = this.smsManager.checkMessageSegments(msg);
+
+    if (!msgCheck.overLimit) {
+      return msg;
+    }
+    this.log?.warn('RecoveryPhoneService.sendCode.overMsgSegmentLimit', {
+      segmentsCount: msgCheck.segmentedMessage.segmentsCount,
+      encoding: msgCheck.segmentedMessage.encoding,
+    });
+
+    const shortMsgCheck = this.smsManager.checkMessageSegments(shortMsg);
+    if (!shortMsgCheck.overLimit) {
+      return shortMsg;
+    }
+    this.log?.warn('RecoveryPhoneService.sendCode.overMsgSegmentLimit', {
+      segmentsCount: msgCheck.segmentedMessage.segmentsCount,
+      encoding: msgCheck.segmentedMessage.encoding,
+    });
+
+    // Final fallback.
+    return failsafeMsg;
   }
 
   private isSuccessfulSmsSend(msg: MessageInstance) {

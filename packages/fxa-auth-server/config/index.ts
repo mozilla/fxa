@@ -2201,10 +2201,10 @@ const convictConf = convict({
         env: 'RECOVERY_PHONE__SMS__FROM',
         format: Array,
       },
-      maxMessageLength: {
-        default: 160,
-        doc: 'Max allows sms message length',
-        env: 'RECOVERY_PHONE__SMS__MAX_MESSAGE_LENGTH',
+      maxMessageSegmentLength: {
+        default: 1,
+        doc: 'Max allowed sms message segment length',
+        env: 'RECOVERY_PHONE__SMS__MAX_MESSAGE_SEGMENT_LENGTH',
         format: Number,
       },
       validNumberPrefixes: {

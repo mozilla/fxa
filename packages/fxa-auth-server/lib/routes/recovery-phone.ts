@@ -68,29 +68,41 @@ class RecoveryPhoneHandler {
   getLocalizedMessage = async (
     request: AuthRequest,
     code: string,
-    type: 'setup' | 'signin'
+    type: 'setup' | 'signin' | 'setup-short' | 'signin-short'
   ) => {
-    const id =
-      type === 'setup'
-        ? 'recovery-phone-setup-sms-body'
-        : 'recovery-phone-signin-sms-body';
+    const l10nTypeMap = {
+      setup: {
+        id: 'recovery-phone-setup-sms-body',
+        fallbackMessage:
+          '${code} is your Mozilla verification code. Expires in 5 minutes.',
+      },
+      'setup-short': {
+        id: 'recovery-phone-setup-sms-short-body',
+        fallbackMessage: 'Mozilla verification code: ${code}',
+      },
+      signin: {
+        id: 'recovery-phone-signin-sms-body',
+        fallbackMessage:
+          '${code} is your Mozilla recovery code. Expires in 5 minutes.',
+      },
+      'signin-short': {
+        id: 'recovery-phone-signin-sms-short-body',
+        fallbackMessage: 'Mozilla code: ${code}',
+      },
+    };
 
-    const fallbackMessage =
-      type === 'setup'
-        ? `${code} is your Mozilla verification code. Expires in 5 minutes.`
-        : `${code} is your Mozilla recovery code. Expires in 5 minutes.`;
-
+    const l10n = l10nTypeMap[type];
     const localizedStrings = await this.localizer.localizeStrings(
       request.app.locale,
       [
         {
-          id,
-          message: fallbackMessage,
+          id: l10n.id,
+          message: l10n.fallbackMessage,
           vars: { code },
         },
       ]
     );
-    return localizedStrings[id];
+    return localizedStrings[l10n.id];
   };
 
   async sendCode(request: AuthRequest) {
@@ -112,7 +124,16 @@ class RecoveryPhoneHandler {
         code,
         'signin'
       );
-      return localizedMessage;
+      const shortLocalizedMessage = await this.getLocalizedMessage(
+        request,
+        code,
+        'signin-short'
+      );
+      return {
+        msg: localizedMessage,
+        shortMsg: shortLocalizedMessage,
+        failsafeMsg: `Mozilla: ${code}`,
+      };
     };
 
     let success = false;
@@ -178,13 +199,19 @@ class RecoveryPhoneHandler {
       'recoveryPhoneSendSetupCode'
     );
 
-    const getFormattedMessage = async (code: string) => {
-      const localizedMessage = await this.getLocalizedMessage(
+    const getFormattedMessages = async (code: string) => {
+      const msg = await this.getLocalizedMessage(request, code, 'setup');
+      const shortMsg = await this.getLocalizedMessage(
         request,
         code,
-        'setup'
+        'setup-short'
       );
-      return localizedMessage;
+      const failsafeMsg = `Mozilla: ${code}`;
+      return {
+        msg,
+        shortMsg,
+        failsafeMsg,
+      };
     };
 
     let success = false;
@@ -192,7 +219,7 @@ class RecoveryPhoneHandler {
       success = await this.recoveryPhoneService.setupPhoneNumber(
         uid,
         phoneNumber,
-        getFormattedMessage
+        getFormattedMessages
       );
       if (success) {
         this.statsd.increment('account.recoveryPhone.setupPhoneNumber.success');

@@ -8,7 +8,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { SmsManager } from './sms.manager';
 import { SmsManagerConfig } from './sms.manager.config';
 import { TwilioProvider } from './twilio.provider';
-import { TwilioErrorCodes } from './recovery-phone.errors';
+import { RecoveryPhoneError, TwilioErrorCodes } from './recovery-phone.errors';
 
 describe('SmsManager', () => {
   const to = '+15005551111';
@@ -35,7 +35,7 @@ describe('SmsManager', () => {
   const mockConfig = {
     from,
     validNumberPrefixes: ['+1'],
-    maxMessageLength: 160,
+    maxMessageSegmentLength: 1,
     maxRetries: 2,
     extraLookupFields: ['sms_pumping_risk'],
   };
@@ -103,16 +103,16 @@ describe('SmsManager', () => {
   });
 
   it('Rejects long messages', async () => {
-    const body = new Array(mockConfig.maxMessageLength + 1).fill('z').join('');
+    const body = new Array(mockConfig.maxMessageSegmentLength * 160 + 1)
+      .fill('z')
+      .join('');
     await expect(
       manager.sendSMS({
         to,
         body,
       })
     ).rejects.toEqual(
-      new Error(
-        `Body cannot be greater than ${mockConfig.maxMessageLength} characters.`
-      )
+      new RecoveryPhoneError(`SMS body exceeds max segment length`, {})
     );
   });
 

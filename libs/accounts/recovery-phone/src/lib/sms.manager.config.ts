@@ -12,7 +12,7 @@ export class SmsManagerConfig {
   public readonly from!: string[];
 
   @IsNumber()
-  public readonly maxMessageLength!: number;
+  public readonly maxMessageSegmentLength!: number;
 
   @IsNumber()
   public readonly maxRetries!: number;
