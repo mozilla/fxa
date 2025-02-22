@@ -14,6 +14,7 @@ describe('SmsManager', () => {
   const to = '+15005551111';
   const from = ['+15005550000', '+15005550001'];
   const mockTwilioSmsClient = {
+    accountSid: 'AC123',
     messages: {
       create: jest.fn(),
     },
@@ -29,6 +30,7 @@ describe('SmsManager', () => {
   };
   const mockLog = {
     log: jest.fn(),
+    warn: jest.fn(),
   };
   const mockConfig = {
     from,
@@ -249,6 +251,94 @@ describe('SmsManager', () => {
       expect(mockMetrics.increment).toHaveBeenCalledWith(
         'sms.phoneNumberLookup.failure'
       );
+    });
+  });
+
+  describe('message status updates', () => {
+    it('records message status update for delivered', () => {
+      manager.messageStatus({
+        AccountSid: 'AC123',
+        MessageSid: 'M123',
+        From: '+1234567890',
+        MessageStatus: 'delivered',
+        RawDlrDoneDate: 'TWILIO_DATE_FORMAT',
+      });
+      expect(mockMetrics.increment).toBeCalledTimes(1);
+      expect(mockMetrics.increment).toBeCalledWith(
+        'recovery-phone.message.status.delivered'
+      );
+      expect(mockLog.log).toBeCalledWith(
+        'recovery-phone.message.status.delivered',
+        {
+          From: '+1234567890',
+          MessageSid: 'M123',
+          RawDlrDoneDate: 'TWILIO_DATE_FORMAT',
+        }
+      );
+    });
+
+    it('records message status update for failed', () => {
+      manager.messageStatus({
+        AccountSid: 'AC123',
+        MessageSid: 'M123',
+        From: '+1234567890',
+        MessageStatus: 'failed',
+        ErrorCode: '4000',
+      });
+      expect(mockMetrics.increment).toBeCalledTimes(2);
+      expect(mockMetrics.increment).toBeCalledWith(
+        'recovery-phone.message.status.failed'
+      );
+      expect(mockMetrics.increment).toBeCalledWith(
+        'recovery-phone.message.status.error.4000'
+      );
+      expect(mockLog.log).toBeCalledWith(
+        'recovery-phone.message.status.failed',
+        {
+          From: '+1234567890',
+          MessageSid: 'M123',
+          ErrorCode: '4000',
+        }
+      );
+    });
+
+    it('records message status update for undelivered', () => {
+      manager.messageStatus({
+        AccountSid: 'AC123',
+        MessageSid: 'M123',
+        From: '+1234567890',
+        MessageStatus: 'undelivered',
+        ErrorCode: '4000',
+      });
+      expect(mockMetrics.increment).toBeCalledTimes(2);
+      expect(mockMetrics.increment).toBeCalledWith(
+        'recovery-phone.message.status.undelivered'
+      );
+      expect(mockMetrics.increment).toBeCalledWith(
+        'recovery-phone.message.status.error.4000'
+      );
+      expect(mockLog.log).toBeCalledWith(
+        'recovery-phone.message.status.undelivered',
+        {
+          From: '+1234567890',
+          MessageSid: 'M123',
+          ErrorCode: '4000',
+        }
+      );
+    });
+
+    it('records message status update for unimportant status', () => {
+      manager.messageStatus({
+        AccountSid: 'AC123',
+        MessageSid: 'M123',
+        From: '+1234567890',
+        MessageStatus: 'sending',
+      });
+      expect(mockMetrics.increment).toBeCalledTimes(1);
+      expect(mockMetrics.increment).toBeCalledWith(
+        'recovery-phone.message.status.sending'
+      );
+      expect(mockLog.log).toBeCalledTimes(0);
     });
   });
 });

@@ -7,7 +7,10 @@ import { StatsDService } from '@fxa/shared/metrics/statsd';
 import { Inject, Injectable, LoggerService } from '@nestjs/common';
 import { StatsD } from 'hot-shots';
 import { Twilio } from 'twilio';
-import { MessageInstance } from 'twilio/lib/rest/api/v2010/account/message';
+import {
+  MessageInstance,
+  MessageStatus,
+} from 'twilio/lib/rest/api/v2010/account/message';
 import { SmsManagerConfig } from './sms.manager.config';
 import { TwilioProvider } from './twilio.provider';
 import {
@@ -16,6 +19,17 @@ import {
   SmsSendRateLimitExceededError,
   TwilioErrorCodes,
 } from './recovery-phone.errors';
+
+export type TwilioMessageStatus = {
+  AccountSid: string;
+  From: string;
+  MessageSid: string;
+  MessageStatus: MessageStatus;
+  // Only present if status is failed or undelivered
+  ErrorCode?: string;
+  // Probably present if status is delivered or undelivered
+  RawDlrDoneDate?: string;
+};
 
 @Injectable()
 export class SmsManager {
@@ -148,5 +162,54 @@ export class SmsManager {
     return this.config.from[
       this.currentPhoneNumber++ % this.config.from.length
     ];
+  }
+
+  public messageStatus(messageStatus: TwilioMessageStatus) {
+    // Keep tabs on the delivery status
+    this.metrics.increment(
+      `recovery-phone.message.status.${messageStatus.MessageStatus}`
+    );
+
+    // Track specific error codes rates
+    if (messageStatus.ErrorCode) {
+      this.metrics.increment(
+        `recovery-phone.message.status.error.${messageStatus.ErrorCode}`
+      );
+    }
+
+    // Only write log entries for certain statuses.
+    switch (messageStatus.MessageStatus) {
+      case 'queued':
+      case 'sending':
+      case 'sent':
+      case 'receiving':
+      case 'received':
+      case 'accepted':
+      case 'scheduled':
+      case 'read':
+      case 'partially_delivered':
+      case 'canceled':
+        // no-op
+        break;
+
+      case 'failed':
+      case 'undelivered':
+      case 'delivered':
+        const opts: any = {
+          From: messageStatus.From,
+          MessageSid: messageStatus.MessageSid,
+        };
+        if (messageStatus.ErrorCode) {
+          opts.ErrorCode = messageStatus.ErrorCode;
+        }
+        if (messageStatus.RawDlrDoneDate) {
+          opts.RawDlrDoneDate = messageStatus.RawDlrDoneDate;
+        }
+        this.log.log(
+          `recovery-phone.message.status.${messageStatus.MessageStatus}`,
+          opts
+        );
+        break;
+    }
   }
 }

@@ -430,7 +430,6 @@ module.exports = function (
       },
       handler: async function (request) {
         log.begin('Session.resend_code', request);
-        console.log('!!! resend code');
         const sessionToken = request.auth.credentials;
 
         request.emitMetricsEvent('session.resend_code');
@@ -481,14 +480,12 @@ module.exports = function (
         if (account.primaryEmail.isVerified) {
           // Unverified emails mean that the user is attempting to resend the code from signup page,
           // therefore they get sent a different email template with the code.
-          console.log('!!! sendVerifyLoginCodeEmail', account.email);
           await mailer.sendVerifyLoginCodeEmail(
             account.emails,
             account,
             options
           );
         } else {
-          console.log('!!! sendVerifyShortCodeEmail');
           await mailer.sendVerifyShortCodeEmail([], account, options);
         }
 

@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { Request } from '@hapi/hapi';
+import * as isA from 'joi';
+
 import {
   RecoveryPhoneService,
   RecoveryPhoneNotEnabled,
@@ -11,12 +14,12 @@ import {
   RecoveryNumberNotExistsError,
   SmsSendRateLimitExceededError,
   RecoveryNumberRemoveMissingBackupCodes,
+  TwilioMessageStatus,
 } from '@fxa/accounts/recovery-phone';
 import {
   AccountManager,
   VerificationMethods,
 } from '@fxa/shared/account/account';
-import * as isA from 'joi';
 import { GleanMetricsType } from '../metrics/glean';
 import { AuthRequest, SessionTokenAuthCredential } from '../types';
 import { E164_NUMBER } from './validators';
@@ -532,6 +535,13 @@ class RecoveryPhoneHandler {
       );
     }
   }
+
+  async messageStatus(request: Request) {
+    await this.recoveryPhoneService.onMessageStatusUpdate(
+      request.payload as TwilioMessageStatus
+    );
+    return true;
+  }
 }
 
 export const recoveryPhoneRoutes = (
@@ -650,6 +660,19 @@ export const recoveryPhoneRoutes = (
       handler: function (request: AuthRequest) {
         log.begin('recoveryPhoneInfo', request);
         return recoveryPhoneHandler.exists(request);
+      },
+    },
+    {
+      method: 'POST',
+      path: '/recovery_phone/message_status',
+      options: {
+        auth: {
+          strategy: 'twilioSignature',
+          payload: false,
+        },
+      },
+      handler: function (request: Request) {
+        return recoveryPhoneHandler.messageStatus(request);
       },
     },
   ];

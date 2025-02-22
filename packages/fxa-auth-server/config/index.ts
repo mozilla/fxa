@@ -2239,6 +2239,16 @@ const convictConf = convict({
       doc: 'Twilio Auth Token, required to access api',
       env: 'RECOVERY_PHONE__TWILIO__AUTH_TOKEN',
     },
+    webhookUrl: {
+      default: 'http://localhost:9000/v1/recovery_phone/message_status',
+      doc: 'Webhook url registered with twilio for message status updates',
+      env: 'RECOVERY_PHONE__TWILIO__WEBHOOK_URL',
+    },
+    validateWebhookCalls: {
+      default: true,
+      doc: 'Controls if twilio signature is validated during webhook calls from twilio',
+      env: 'RECOVERY_PHONE__TWILIO__VALIDATE_WEBHOOK_CALLS',
+    },
   },
 });
 
