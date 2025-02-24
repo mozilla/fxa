@@ -12,6 +12,7 @@ import {
   StripeCustomerFactory,
   StripePaymentMethodFactory,
 } from '@fxa/payments/stripe';
+import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 
 describe('PaymentMethodManager', () => {
   let paymentMethodManager: PaymentMethodManager;
@@ -19,7 +20,12 @@ describe('PaymentMethodManager', () => {
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
-      providers: [MockStripeConfigProvider, PaymentMethodManager, StripeClient],
+      providers: [
+        MockStripeConfigProvider,
+        PaymentMethodManager,
+        StripeClient,
+        MockStatsDProvider,
+      ],
     }).compile();
 
     paymentMethodManager = moduleRef.get(PaymentMethodManager);

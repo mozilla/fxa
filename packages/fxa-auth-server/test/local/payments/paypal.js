@@ -89,17 +89,20 @@ describe('PayPalHelper', () => {
     // Make StripeHelper
     mockStripeHelper = {};
     Container.set(StripeHelper, mockStripeHelper);
-    // Make PayPalClient
-    const paypalClient = new PayPalClient({
-      user: 'user',
-      sandbox: true,
-      pwd: 'pwd',
-      signature: 'sig',
-    });
-    Container.set(PayPalClient, paypalClient);
     // Make StatsD
-    const statsd = { increment: sinon.spy() };
+    const statsd = { increment: sinon.spy(), timing: sinon.spy() };
     Container.set(StatsD, statsd);
+    // Make PayPalClient
+    const paypalClient = new PayPalClient(
+      {
+        user: 'user',
+        sandbox: true,
+        pwd: 'pwd',
+        signature: 'sig',
+      },
+      statsd
+    );
+    Container.set(PayPalClient, paypalClient);
     // Make currencyHelper
     const currencyHelper = new CurrencyHelper(mockConfig);
     Container.set(CurrencyHelper, currencyHelper);
@@ -113,13 +116,16 @@ describe('PayPalHelper', () => {
 
   describe('constructor', () => {
     it('sets client, statsd, logger, and currencyHelper', () => {
-      const paypalClient = new PayPalClient({
-        user: 'user',
-        sandbox: true,
-        pwd: 'pwd',
-        signature: 'sig',
-      });
-      const statsd = { increment: sinon.spy() };
+      const statsd = { increment: sinon.spy(), timing: sinon.spy() };
+      const paypalClient = new PayPalClient(
+        {
+          user: 'user',
+          sandbox: true,
+          pwd: 'pwd',
+          signature: 'sig',
+        },
+        statsd
+      );
       Container.set(PayPalClient, paypalClient);
       Container.set(StatsD, statsd);
 

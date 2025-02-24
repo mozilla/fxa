@@ -8,6 +8,7 @@ import { PlanCanceller } from './cancel-subscriptions-to-plan/cancel-subscriptio
 import { PayPalHelper } from '../lib/payments/paypal';
 import { PayPalClient } from '@fxa/payments/paypal';
 import { Container } from 'typedi';
+import type { StatsD } from 'hot-shots';
 
 const pckg = require('../package.json');
 const config = require('../config').default.getProperties();
@@ -69,8 +70,14 @@ async function init() {
     'cancel-subscriptions-to-plan'
   );
 
+  const statsd = {
+    increment: () => {},
+    timing: () => {},
+    close: () => {},
+  };
   const paypalClient = new PayPalClient(
-    config.subscriptions.paypalNvpSigCredentials
+    config.subscriptions.paypalNvpSigCredentials,
+    statsd as unknown as StatsD
   );
   Container.set(PayPalClient, paypalClient);
 

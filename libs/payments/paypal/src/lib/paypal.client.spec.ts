@@ -40,6 +40,7 @@ import { objectToNVP, toIsoString } from './util';
 import { Test } from '@nestjs/testing';
 import { MockPaypalClientConfigProvider } from './paypal.client.config';
 import { ChargeResponse } from './paypal.types';
+import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 
 describe('PayPalClient', () => {
   const commonPayloadArgs = {
@@ -53,7 +54,11 @@ describe('PayPalClient', () => {
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      providers: [MockPaypalClientConfigProvider, PayPalClient],
+      providers: [
+        MockPaypalClientConfigProvider,
+        PayPalClient,
+        MockStatsDProvider,
+      ],
     }).compile();
 
     paypalClient = module.get(PayPalClient);

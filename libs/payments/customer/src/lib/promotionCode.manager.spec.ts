@@ -39,6 +39,7 @@ const mockedAssertPromotionCodeApplicableToPrice = jest.mocked(
 );
 
 import { getPriceFromSubscription } from '../lib/util/getPriceFromSubscription';
+import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 jest.mock('../lib/util/getPriceFromSubscription');
 const mockedGetPriceFromSubscription = jest.mocked(getPriceFromSubscription);
 
@@ -54,6 +55,7 @@ describe('PromotionCodeManager', () => {
         PromotionCodeManager,
         StripeClient,
         SubscriptionManager,
+        MockStatsDProvider,
       ],
     }).compile();
 

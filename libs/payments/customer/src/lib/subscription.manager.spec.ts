@@ -17,6 +17,7 @@ import {
 } from '@fxa/payments/stripe';
 import { STRIPE_CUSTOMER_METADATA } from './types';
 import { SubscriptionManager } from './subscription.manager';
+import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 
 describe('SubscriptionManager', () => {
   let subscriptionManager: SubscriptionManager;
@@ -24,7 +25,12 @@ describe('SubscriptionManager', () => {
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      providers: [MockStripeConfigProvider, StripeClient, SubscriptionManager],
+      providers: [
+        MockStripeConfigProvider,
+        StripeClient,
+        SubscriptionManager,
+        MockStatsDProvider,
+      ],
     }).compile();
 
     subscriptionManager = module.get(SubscriptionManager);
@@ -211,7 +217,7 @@ describe('SubscriptionManager', () => {
   });
 
   describe('getCustomerPayPalSubscriptions', () => {
-    it('return customer subscriptions where collection method is send_invoice', async () => {
+    it('return customer subscriptions where payment provider is paypal', async () => {
       const mockPayPalSubscription = StripeSubscriptionFactory({
         collection_method: 'send_invoice',
         status: 'active',
@@ -230,19 +236,39 @@ describe('SubscriptionManager', () => {
       );
       expect(result).toEqual(expected);
     });
+
+    it('returns empty array when no subscriptions', async () => {
+      const mockCustomer = StripeCustomerFactory();
+
+      jest
+        .spyOn(subscriptionManager, 'listForCustomer')
+        .mockResolvedValueOnce([]);
+
+      const result = await subscriptionManager.getCustomerPayPalSubscriptions(
+        mockCustomer.id
+      );
+      expect(result).toEqual([]);
+    });
   });
 
-  it('returns empty array when no subscriptions', async () => {
-    const mockCustomer = StripeCustomerFactory();
+  describe('getPaymentProvider', () => {
+    it('returns stripe when collection_method is charge_automatically', async () => {
+      const mockSubscription = StripeSubscriptionFactory({
+        collection_method: 'charge_automatically',
+      });
 
-    jest
-      .spyOn(subscriptionManager, 'listForCustomer')
-      .mockResolvedValueOnce([]);
+      const result = subscriptionManager.getPaymentProvider(mockSubscription);
+      expect(result).toEqual('stripe');
+    });
 
-    const result = await subscriptionManager.getCustomerPayPalSubscriptions(
-      mockCustomer.id
-    );
-    expect(result).toEqual([]);
+    it('returns paypal when collection_method is send_invoice', async () => {
+      const mockSubscription = StripeSubscriptionFactory({
+        collection_method: 'send_invoice',
+      });
+
+      const result = subscriptionManager.getPaymentProvider(mockSubscription);
+      expect(result).toEqual('paypal');
+    });
   });
 
   describe('getLatestPaymentIntent', () => {

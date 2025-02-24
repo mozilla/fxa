@@ -80,13 +80,19 @@ export class SubscriptionManager {
     }
   }
 
+  getPaymentProvider(subscription: StripeSubscription): 'paypal' | 'stripe' {
+    return subscription.collection_method === 'send_invoice'
+      ? 'paypal'
+      : 'stripe';
+  }
+
   async getCustomerPayPalSubscriptions(customerId: string) {
     const subscriptions = await this.listForCustomer(customerId);
     if (!subscriptions) return [];
     return subscriptions.filter(
       (sub) =>
         ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status) &&
-        sub.collection_method === 'send_invoice'
+        this.getPaymentProvider(sub) === 'paypal'
     );
   }
 

@@ -20,6 +20,7 @@ import { StripeSubscriptionFactory } from './factories/subscription.factory';
 import { StripeUpcomingInvoiceFactory } from './factories/upcoming-invoice.factory';
 import { StripeClient } from './stripe.client';
 import { MockStripeConfigProvider } from './stripe.config';
+import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 
 const mockJestFnGenerator = <T extends (...args: any[]) => any>() => {
   return jest.fn<ReturnType<T>, Parameters<T>>();
@@ -60,6 +61,7 @@ const mockStripeSubscriptionsUpdate =
 jest.mock('stripe', () => ({
   Stripe: function () {
     return {
+      on: jest.fn(),
       customers: {
         create: mockStripeCustomersCreate,
         retrieve: mockStripeCustomersRetrieve,
@@ -99,7 +101,7 @@ describe('StripeClient', () => {
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      providers: [MockStripeConfigProvider, StripeClient],
+      providers: [MockStripeConfigProvider, StripeClient, MockStatsDProvider],
     }).compile();
 
     stripeClient = module.get(StripeClient);

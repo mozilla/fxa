@@ -6,6 +6,7 @@ import { Test } from '@nestjs/testing';
 import { GeocodeResultFactory } from './factories';
 import { GoogleClient } from './google.client';
 import { MockGoogleClientConfigProvider } from './google.client.config';
+import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 
 const mockJestFnGenerator = <T extends (...args: any[]) => any>() => {
   return jest.fn<ReturnType<T>, Parameters<T>>();
@@ -26,7 +27,11 @@ describe('GoogleClient', () => {
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      providers: [GoogleClient, MockGoogleClientConfigProvider],
+      providers: [
+        GoogleClient,
+        MockGoogleClientConfigProvider,
+        MockStatsDProvider,
+      ],
     }).compile();
 
     googleClient = module.get<GoogleClient>(GoogleClient);

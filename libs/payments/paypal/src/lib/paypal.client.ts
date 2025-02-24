@@ -4,7 +4,7 @@
 import { EventEmitter } from 'events';
 import pRetry from 'p-retry';
 import superagent from 'superagent';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 
 import {
   PAYPAL_LIVE_API,
@@ -16,29 +16,34 @@ import {
 } from './constants';
 import { PayPalClientError, PayPalNVPError } from './paypal.error';
 import {
-  BAUpdateOptions,
-  CreateBillingAgreementOptions,
-  DoReferenceTransactionOptions,
-  NVPBAUpdateTransactionResponse,
-  NVPCreateBillingAgreementResponse,
-  NVPDoReferenceTransactionResponse,
-  NVPErrorResponse,
-  NVPRefundTransactionResponse,
-  NVPSetExpressCheckoutResponse,
-  NVPSuccessResponse,
-  NVPTransactionSearchResponse,
   PaypalMethods,
   PaypalNVPAckOptions,
-  RefundTransactionOptions,
   RefundType,
-  ResponseEvent,
-  SetExpressCheckoutOptions,
-  TransactionSearchOptions,
+  type BAUpdateOptions,
+  type CreateBillingAgreementOptions,
+  type DoReferenceTransactionOptions,
+  type NVPBAUpdateTransactionResponse,
+  type NVPCreateBillingAgreementResponse,
+  type NVPDoReferenceTransactionResponse,
+  type NVPErrorResponse,
+  type NVPRefundTransactionResponse,
+  type NVPSetExpressCheckoutResponse,
+  type NVPSuccessResponse,
+  type NVPTransactionSearchResponse,
+  type RefundTransactionOptions,
+  type ResponseEvent,
+  type SetExpressCheckoutOptions,
+  type TransactionSearchOptions,
 } from './paypal.client.types';
 import { nvpToObject, objectToNVP, toIsoString } from './util';
 import { PaypalClientConfig } from './paypal.client.config';
-import { ChargeOptions, ChargeResponse } from './paypal.types';
+import type { ChargeOptions, ChargeResponse } from './paypal.types';
 import { getPayPalAmountStringFromAmountInCents } from './util/getPayPalAmountStringFromAmountInCents';
+import {
+  CaptureTimingWithStatsD,
+  StatsDService,
+  StatsD,
+} from '@fxa/shared/metrics/statsd';
 
 @Injectable()
 export class PayPalClient {
@@ -58,7 +63,10 @@ export class PayPalClient {
     listener: (response: ResponseEvent) => void
   ) => EventEmitter;
 
-  constructor(options: PaypalClientConfig) {
+  constructor(
+    options: PaypalClientConfig,
+    @Inject(StatsDService) public statsd: StatsD
+  ) {
     this.url = options.sandbox ? PAYPAL_SANDBOX_API : PAYPAL_LIVE_API;
     this.ipnUrl = options.sandbox ? PAYPAL_SANDBOX_IPN : PAYPAL_LIVE_IPN;
     this.user = options.user;
@@ -180,6 +188,7 @@ export class PayPalClient {
    * The API is extensive. Currently this method only supports the situation where you're getting an authorizing
    * token that allows us to perform billing in the future.
    */
+  @CaptureTimingWithStatsD()
   public async setExpressCheckout(
     options: SetExpressCheckoutOptions
   ): Promise<NVPSetExpressCheckoutResponse> {
@@ -205,6 +214,7 @@ export class PayPalClient {
    * Using the Paypal CreateBillingAgreement API (https://developer.paypal.com/docs/nvp-soap-api/create-billing-agreement-nvp/)
    * creates a billing agreement using the time-stamped token returned in the SetExpressCheckout response.
    */
+  @CaptureTimingWithStatsD()
   public async createBillingAgreement(
     options: CreateBillingAgreementOptions
   ): Promise<NVPCreateBillingAgreementResponse> {
@@ -225,6 +235,7 @@ export class PayPalClient {
    * The amount, that is passed in with options should be a formatted string of USD
    * that is acceptable to PayPal.
    */
+  @CaptureTimingWithStatsD()
   public async doReferenceTransaction(
     options: DoReferenceTransactionOptions
   ): Promise<NVPDoReferenceTransactionResponse> {
@@ -263,6 +274,7 @@ export class PayPalClient {
    * Using the PayPal RefundTransaction API (https://developer.paypal.com/docs/nvp-soap-api/refund-transaction-nvp/)
    * we fund the entire transaction to the user.
    */
+  @CaptureTimingWithStatsD()
   public async refundTransaction(
     options: RefundTransactionOptions
   ): Promise<NVPRefundTransactionResponse> {
@@ -287,6 +299,7 @@ export class PayPalClient {
    * Using the PayPal BillAgreementUpdate API (https://developer.paypal.com/docs/nvp-soap-api/ba-update-nvp/)
    * we get the information on the PayPal user such as the country code.
    */
+  @CaptureTimingWithStatsD()
   public async baUpdate(
     options: BAUpdateOptions
   ): Promise<NVPBAUpdateTransactionResponse> {
@@ -309,6 +322,7 @@ export class PayPalClient {
    * the IPN listener request-response flow
    * (https://developer.paypal.com/docs/api-basics/notifications/ipn/IPNImplementation/#ipn-listener-request-response-flow).
    */
+  @CaptureTimingWithStatsD()
   public async ipnVerify(message: string): Promise<string> {
     const verifyBody = 'cmd=_notify-validate&' + message;
     const result = await pRetry(() =>
@@ -317,6 +331,7 @@ export class PayPalClient {
     return result.text;
   }
 
+  @CaptureTimingWithStatsD()
   public async transactionSearch(
     options: TransactionSearchOptions
   ): Promise<NVPTransactionSearchResponse> {
@@ -336,6 +351,7 @@ export class PayPalClient {
   /**
    * Charge customer based on an existing Billing Agreement.
    */
+  @CaptureTimingWithStatsD()
   public async chargeCustomer(options: ChargeOptions): Promise<ChargeResponse> {
     // Processes a payment from a buyer's account, identified by the billingAgreementId
     const doReferenceTransactionOptions: DoReferenceTransactionOptions = {

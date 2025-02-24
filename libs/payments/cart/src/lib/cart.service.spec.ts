@@ -854,12 +854,13 @@ describe('CartService', () => {
 
       await cartService.finalizeProcessingCart(mockCart.id);
 
-      expect(checkoutService.postPaySteps).toHaveBeenCalledWith(
-        mockCart,
-        mockCart.version,
-        mockSubscription,
-        mockCart.uid
-      );
+      expect(checkoutService.postPaySteps).toHaveBeenCalledWith({
+        cart: mockCart,
+        version: mockCart.version,
+        subscription: mockSubscription,
+        uid: mockCart.uid,
+        paymentProvider: 'stripe',
+      });
     });
   });
 
@@ -1539,12 +1540,13 @@ describe('CartService', () => {
           default_payment_method: mockPaymentMethod.id,
         },
       });
-      expect(checkoutService.postPaySteps).toHaveBeenCalledWith(
-        mockCart,
-        mockCart.version,
-        mockSubscription,
-        mockCart.uid
-      );
+      expect(checkoutService.postPaySteps).toHaveBeenCalledWith({
+        cart: mockCart,
+        version: mockCart.version,
+        subscription: mockSubscription,
+        uid: mockCart.uid,
+        paymentProvider: 'stripe',
+      });
       expect(cartManager.finishErrorCart).not.toHaveBeenCalled();
     });
 

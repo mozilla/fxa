@@ -113,7 +113,8 @@ DB.connect(config).then(async (db: any) => {
     const currencyHelper = new CurrencyHelper(config);
     Container.set(CurrencyHelper, currencyHelper);
     const paypalClient = new PayPalClient(
-      config.subscriptions.paypalNvpSigCredentials
+      config.subscriptions.paypalNvpSigCredentials,
+      statsd as unknown as StatsD
     );
     Container.set(PayPalClient, paypalClient);
     const { createStripeHelper } = require('../lib/payments/stripe');

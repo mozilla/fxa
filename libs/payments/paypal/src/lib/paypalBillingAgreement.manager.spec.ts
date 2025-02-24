@@ -19,6 +19,7 @@ import { PaypalBillingAgreementManager } from './paypalBillingAgreement.manager'
 import { PaypalCustomerMultipleRecordsError } from './paypalCustomer/paypalCustomer.error';
 import { ResultPaypalCustomerFactory } from './paypalCustomer/paypalCustomer.factories';
 import { PaypalCustomerManager } from './paypalCustomer/paypalCustomer.manager';
+import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 
 describe('PaypalBillingAgreementManager', () => {
   let paypalClient: PayPalClient;
@@ -35,6 +36,7 @@ describe('PaypalBillingAgreementManager', () => {
         MockStripeConfigProvider,
         MockPaypalClientConfigProvider,
         StripeClient,
+        MockStatsDProvider,
       ],
     }).compile();
 
