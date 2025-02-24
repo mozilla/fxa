@@ -20099,19 +20099,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/addon-links@npm:^7.6.4":
-  version: 7.6.4
-  resolution: "@storybook/addon-links@npm:7.6.4"
+"@storybook/addon-links@npm:^8.5.8":
+  version: 8.5.8
+  resolution: "@storybook/addon-links@npm:8.5.8"
   dependencies:
-    "@storybook/csf": ^0.1.2
+    "@storybook/csf": 0.1.12
     "@storybook/global": ^5.0.0
     ts-dedent: ^2.0.0
   peerDependencies:
-    react: ^16.8.0 || ^17.0.0 || ^18.0.0
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0-beta
+    storybook: ^8.5.8
   peerDependenciesMeta:
     react:
       optional: true
-  checksum: 92e2bc81c818b9c3b4806167376fa61c323bbf705f5c5d94d5f1aee887bade7ee7631724fa13ba86a9f579d231ffb58ba0a01853056db0adf9293b6313e152a7
+  checksum: bd16bb8b452007dff7a822232e427e4ff093358090e555c00b28c68ab79ff581c10cc752c07ef696dd2fee0fe045120ba7df98ff89090f41efc64e3003010af5
   languageName: node
   linkType: hard
 
@@ -21989,6 +21990,15 @@ __metadata:
   dependencies:
     lodash: ^4.17.15
   checksum: fb57fa028b08a51edf44e1a2bf4be40a4607f5c6ccb58aae8924f476a42b9bbd61a0ad521cfc82196f23e6a912caae0a615e70a755e6800b284c91c509fd2de6
+  languageName: node
+  linkType: hard
+
+"@storybook/csf@npm:0.1.12":
+  version: 0.1.12
+  resolution: "@storybook/csf@npm:0.1.12"
+  dependencies:
+    type-fest: ^2.19.0
+  checksum: 85ef7d481a2d3329b481013a7c16e847aa732b96aea74efd40f95a84a2692d19ab4260f9603028cd3369303d95210497ff1dfc8cd9d6a26ad76f82e676f34a80
   languageName: node
   linkType: hard
 
@@ -42240,7 +42250,7 @@ fsevents@~2.1.1:
     "@fluent/langneg": ^0.7.0
     "@rescripts/cli": ~0.0.16
     "@storybook/addon-actions": ^8.0.0
-    "@storybook/addon-links": ^7.6.4
+    "@storybook/addon-links": ^8.5.8
     "@storybook/addon-styling": ^1.3.0
     "@storybook/addons": ^7.5.2
     "@storybook/preset-create-react-app": ^7.6.4
@@ -42388,7 +42398,7 @@ fsevents@~2.1.1:
     "@fluent/bundle": ^0.18.0
     "@fluent/langneg": ^0.7.0
     "@storybook/addon-actions": ^8.0.0
-    "@storybook/addon-links": ^7.6.4
+    "@storybook/addon-links": ^8.5.8
     "@storybook/addon-styling": ^1.3.0
     "@storybook/addons": ^7.5.2
     "@storybook/react": ^7.1.1
@@ -42459,7 +42469,7 @@ fsevents@~2.1.1:
     "@storybook/addon-actions": ^8.0.0
     "@storybook/addon-essentials": ^7.6.15
     "@storybook/addon-interactions": ^7.6.16
-    "@storybook/addon-links": ^7.6.4
+    "@storybook/addon-links": ^8.5.8
     "@storybook/addon-styling": ^1.3.0
     "@storybook/addons": ^7.5.2
     "@storybook/blocks": ^7.0.24
