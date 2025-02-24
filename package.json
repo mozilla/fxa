@@ -202,7 +202,7 @@
     "@types/jsdom": "^16",
     "@types/module-alias": "^2",
     "@types/mysql": "^2",
-    "@types/node": "^20.11.1",
+    "@types/node": "^22.13.5",
     "@types/passport": "^1.0.6",
     "@types/passport-http-bearer": "^1.0.36",
     "@types/passport-jwt": "^4",
