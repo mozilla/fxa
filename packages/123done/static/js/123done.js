@@ -21,6 +21,13 @@ $(document).ready(function () {
     prod: 'https://accounts.firefox.com/subscriptions/products',
   };
 
+  const sp3URL = {
+    local: 'http://localhost:3035/',
+    dev: '',
+    stage: 'https://payments-next.stage.fxa.nonprod.webservices.mozgcp.net/',
+    prod: '',
+  };
+
   const contentURL = {
     local: 'http://localhost:3030/',
     dev: 'https://latest.dev.lcip.org/',
@@ -44,6 +51,12 @@ $(document).ready(function () {
         cad: 'price_1H8NoEBVqmGyQTMa5MtpqAUM',
         myr: 'price_1H8NpGBVqmGyQTMaA6Znyu7U',
       },
+      sp3links: {
+        'sp3-1m': '123donepro/monthly/landing',
+        'sp3-6m': '123donepro/halfyearly/landing',
+        'sp3-12m': '123donepro/yearly/landing',
+        'sp3-1m-gb': 'en-GB/123donepro/monthly/landing',
+      },
     },
     stage: {
       product: 'prod_FfiuDs9u11ESbD',
@@ -63,6 +76,8 @@ $(document).ready(function () {
     case '123done-latest.dev.lcip.org':
       paymentConfig = {
         env: paymentURL.dev,
+        sp3Url: sp3URL.dev,
+        sp3links: subscriptionConfig.default.sp3links,
         ...subscriptionConfig.default,
         contentEnv: contentURL.dev,
       };
@@ -70,6 +85,8 @@ $(document).ready(function () {
     case 'stage-123done.herokuapp.com':
       paymentConfig = {
         env: paymentURL.stage,
+        sp3Url: sp3URL.stage,
+        sp3links: subscriptionConfig.default.sp3links,
         ...subscriptionConfig.stage,
         contentEnv: contentURL.stage,
         pwdlessURL: pwdlessPaymentURL.stage,
@@ -85,6 +102,7 @@ $(document).ready(function () {
     default:
       paymentConfig = {
         env: paymentURL.local,
+        sp3Url: sp3URL.local,
         ...subscriptionConfig.default,
         contentEnv: contentURL.local,
         pwdlessURL: pwdlessPaymentURL.local,
@@ -119,9 +137,12 @@ $(document).ready(function () {
     $('.btn-subscribe, .btn-subscribe-rp-provided-flow-metrics').each(function (
       index
     ) {
-      const { env, plans, product } = paymentConfig;
+      const { env, plans, product, sp3Url, sp3links } = paymentConfig;
       const currency = $(this).attr('data-currency');
-      const currencyMappedURL = `${env}${product}?plan=${plans[currency]}`;
+      const sp3 = $(this).attr('data-sp3');
+      const currencyMappedURL = sp3
+        ? `${sp3Url}${sp3links[sp3]}`
+        : `${env}${product}?plan=${plans[currency]}`;
       $(this).attr('href', currencyMappedURL);
     });
   }
