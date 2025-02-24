@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import TwilioSDK from 'twilio';
 import Redis from 'ioredis';
 import type { Redis as RedisType } from 'ioredis';
 
@@ -9,27 +10,94 @@ function wait() {
   return new Promise((r) => setTimeout(r, 500));
 }
 
+const accountSid = process.env.RECOVERY_PHONE__TWILIO__ACCOUNT_SID;
+const authToken = process.env.RECOVERY_PHONE__TWILIO__AUTH_TOKEN;
+const testPhoneNumber = process.env.RECOVERY_PHONE__TWILIO__TEST_NUMBER;
+
 export class SmsClient {
-  private client: RedisType;
+  private twilioClient?: TwilioSDK.Twilio;
+  private redisClient?: RedisType;
   private uidCodes: Map<string, string>;
-  private isConnected = false;
-  private hasLoggedConnectionError = false;
+  private lastCode: string | undefined;
+  private redisClientConnected = false;
+  private hasLoggedRedisConnectionError = false;
 
   constructor() {
-    this.client = new Redis();
+    if (accountSid && authToken && testPhoneNumber) {
+      this.twilioClient = new TwilioSDK.Twilio(accountSid, authToken);
+    } else {
+      this.redisClient = new Redis();
+      this.redisClient.on('ready', () => {
+        this.redisClientConnected = true;
+        this.hasLoggedRedisConnectionError = false;
+      });
+
+      this.redisClient.on('error', (err: Error) => {
+        if (!this.hasLoggedRedisConnectionError) {
+          this.hasLoggedRedisConnectionError = true;
+        }
+        this.redisClientConnected = false;
+      });
+    }
     this.uidCodes = new Map();
+  }
 
-    this.client.on('ready', () => {
-      this.isConnected = true;
-      this.hasLoggedConnectionError = false;
-    });
+  isTwilioEnabled() {
+    return !!this.twilioClient;
+  }
 
-    this.client.on('error', (err: Error) => {
-      if (!this.hasLoggedConnectionError) {
-        this.hasLoggedConnectionError = true;
+  async getCode(recipientNumber: string, uid: string, timeout = 10000) {
+    if (this.isTwilioEnabled()) {
+      return this._getCodeTwilio(recipientNumber);
+    } else {
+      return this._getCodeLocal(uid, timeout);
+    }
+  }
+
+  async _getCodeTwilio(
+    recipientNumber: string,
+    limit = 1,
+    codeRegex = /\b\d{6}\b/,
+    timeout = 10000,
+    startTime = Date.now() - 1000
+  ): Promise<string> {
+    if (!this.twilioClient) {
+      throw new Error('Twilio API not enabled');
+    }
+
+    const expires = Date.now() + timeout;
+
+    while (Date.now() < expires) {
+      const messages = await this.twilioClient.messages.list({
+        to: recipientNumber,
+        dateSentAfter: new Date(startTime),
+        limit,
+      });
+
+      if (!messages.length) {
+        await wait();
+        continue;
       }
-      this.isConnected = false;
-    });
+
+      const lastMessage = messages[0];
+      const match = lastMessage.body.match(codeRegex);
+
+      if (!match) {
+        await wait();
+        continue;
+      }
+
+      const code = match[0];
+      if (code === this.lastCode) {
+        await wait();
+        continue;
+      }
+
+      this.lastCode = code;
+      return code;
+    }
+
+    throw new Error('Timeout: No new code found within the specified time');
   }
 
   /**
@@ -38,8 +106,11 @@ export class SmsClient {
    * @param uid
    * @param timeout
    */
-  async getCode(uid: string, timeout = 10000): Promise<string> {
-    if (!this.isConnected) {
+  async _getCodeLocal(uid: string, timeout = 10000): Promise<string> {
+    if (!this.redisClient) {
+      throw new Error('Not connected to Redis');
+    }
+    if (!this.redisClientConnected) {
       throw new Error('Not connected to Redis');
     }
 
@@ -52,7 +123,7 @@ export class SmsClient {
       let newestCreatedAt = -1;
 
       do {
-        const [newCursor, keys] = await this.client.scan(
+        const [newCursor, keys] = await this.redisClient.scan(
           cursor,
           'MATCH',
           redisKeyPattern
@@ -60,11 +131,21 @@ export class SmsClient {
         cursor = newCursor;
 
         for (const key of keys) {
-          const valueRaw = await this.client.get(key);
-          if (!valueRaw) {
+          const valueRaw = await this.redisClient.get(key);
+
+          if (valueRaw === null) continue;
+          let value;
+          try {
+            value = JSON.parse(valueRaw);
+          } catch (err) {
             continue;
           }
-          const value = JSON.parse(valueRaw);
+          if (
+            typeof value !== 'object' ||
+            value === null ||
+            typeof value.createdAt !== 'number'
+          )
+            continue;
 
           if (!newestKey || value.createdAt > newestCreatedAt) {
             newestKey = key;

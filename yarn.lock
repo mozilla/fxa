@@ -26436,6 +26436,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/twilio@npm:^3.19.3":
+  version: 3.19.3
+  resolution: "@types/twilio@npm:3.19.3"
+  dependencies:
+    twilio: "*"
+  checksum: f9fcd6485a003bef55baa91b99e1af62645a653da3b8a2d7cc2c390eb6b09fb6e1f3d72cae78e9a88d23baa13c5e02ccf27070da59fd709db6f1e401da5c14f3
+  languageName: node
+  linkType: hard
+
 "@types/ua-parser-js@npm:^0.7.36":
   version: 0.7.39
   resolution: "@types/ua-parser-js@npm:0.7.39"
@@ -29681,6 +29690,17 @@ __metadata:
     form-data: ^4.0.0
     proxy-from-env: ^1.1.0
   checksum: 882d4fe0ec694a07c7f5c1f68205eb6dc5a62aecdb632cc7a4a3d0985188ce3030e0b277e1a8260ac3f194d314ae342117660a151fabffdc5081ca0b5a8b47fe
+  languageName: node
+  linkType: hard
+
+"axios@npm:^1.7.8":
+  version: 1.7.9
+  resolution: "axios@npm:1.7.9"
+  dependencies:
+    follow-redirects: ^1.15.6
+    form-data: ^4.0.0
+    proxy-from-env: ^1.1.0
+  checksum: cb8ce291818effda09240cb60f114d5625909b345e10f389a945320e06acf0bc949d0f8422d25720f5dd421362abee302c99f5e97edec4c156c8939814b23d19
   languageName: node
   linkType: hard
 
@@ -42745,6 +42765,7 @@ fsevents@~2.1.1:
     "@types/react-test-renderer": ^18
     "@types/set-value": ^4
     "@types/superagent": 4.1.11
+    "@types/twilio": ^3.19.3
     "@types/uuid": ^10.0.0
     "@typescript-eslint/eslint-plugin": ^5.59.1
     "@typescript-eslint/parser": ^7.1.1
@@ -68604,6 +68625,21 @@ resolve@1.1.7:
   version: 0.14.5
   resolution: "tweetnacl@npm:0.14.5"
   checksum: 6061daba1724f59473d99a7bb82e13f211cdf6e31315510ae9656fefd4779851cb927adad90f3b488c8ed77c106adc0421ea8055f6f976ff21b27c5c4e918487
+  languageName: node
+  linkType: hard
+
+"twilio@npm:*":
+  version: 5.4.5
+  resolution: "twilio@npm:5.4.5"
+  dependencies:
+    axios: ^1.7.8
+    dayjs: ^1.11.9
+    https-proxy-agent: ^5.0.0
+    jsonwebtoken: ^9.0.2
+    qs: ^6.9.4
+    scmp: ^2.1.0
+    xmlbuilder: ^13.0.2
+  checksum: 11074d4789adfb94518ebce8a1162ed308925af44bb54cb3f86aa2f85d72cad6b7c55d248278ccc1f67e1040751ac0e718b736df0c3f6925b4b9432bdbd97506
   languageName: node
   linkType: hard
 
