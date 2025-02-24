@@ -281,6 +281,11 @@ describe('AccountDeleteManager', function () {
         sinon.assert.calledWithMatch(mockFxaDb.deleteAccount, {
           uid,
         });
+        sinon.assert.calledOnceWithExactly(
+          mockLog.info,
+          'accountDeleted.byCloudTask',
+          { uid }
+        );
       });
     });
   });

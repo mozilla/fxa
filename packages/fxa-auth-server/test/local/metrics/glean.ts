@@ -39,6 +39,7 @@ const recordThirdPartyAuthGoogleRegCompleteStub = sinon.stub();
 const recordThirdPartyAuthAppleRegCompleteStub = sinon.stub();
 const recordThirdPartyAuthSetPasswordCompleteStub = sinon.stub();
 const recordAccountDeleteCompleteStub = sinon.stub();
+const recordAccountDeleteTaskHandledStub = sinon.stub();
 const recordPasswordResetEmailConfirmationSentStub = sinon.stub();
 const recordPasswordResetEmailConfirmationSuccessStub = sinon.stub();
 const recordTwoFactorAuthCodeCompleteStub = sinon.stub();
@@ -106,6 +107,7 @@ const gleanProxy = proxyquire('../../../lib/metrics/glean', {
       recordThirdPartyAuthSetPasswordComplete:
         recordThirdPartyAuthSetPasswordCompleteStub,
       recordAccountDeleteComplete: recordAccountDeleteCompleteStub,
+      recordAccountDeleteTaskHandled: recordAccountDeleteTaskHandledStub,
       recordPasswordResetEmailConfirmationSent:
         recordPasswordResetEmailConfirmationSentStub,
       recordPasswordResetEmailConfirmationSuccess:

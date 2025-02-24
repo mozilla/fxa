@@ -298,6 +298,9 @@ export function gleanMetrics(config: ConfigType) {
 
     account: {
       deleteComplete: createEventFn('account_delete_complete'),
+      deleteTaskHandled: createEventFn('account_delete_task_handled', {
+        additionalMetrics: extraKeyReasonCb,
+      }),
     },
     twoFactorAuth: {
       codeComplete: createEventFn('two_factor_auth_code_complete'),
