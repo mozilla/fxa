@@ -11,8 +11,6 @@ updates:
     reviewers:
       - '@mozilla/fxa-devs'
     ignore:
-      - dependency-name: '@types/*'
-      - dependency-name: 'web-push'
       - dependency-name: 'jest-watch-typeahead' # To be removed after react-scripts update
       - dependency-name: 'esbuild' # See FXA-5948
       - dependency-name: '*'
