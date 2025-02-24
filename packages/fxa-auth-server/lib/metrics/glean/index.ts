@@ -350,7 +350,10 @@ export function gleanMetrics(config: ConfigType) {
         }
       ),
       secondEmailSkipped: createEventFn(
-        'inactive_account_deletion_second_email_skipped'
+        'inactive_account_deletion_second_email_skipped',
+        {
+          additionalMetrics: extraKeyReasonCb,
+        }
       ),
 
       finalEmailTaskRequest: createEventFn(
@@ -368,7 +371,16 @@ export function gleanMetrics(config: ConfigType) {
         }
       ),
       finalEmailSkipped: createEventFn(
-        'inactive_account_deletion_final_email_skipped'
+        'inactive_account_deletion_final_email_skipped',
+        {
+          additionalMetrics: extraKeyReasonCb,
+        }
+      ),
+      deletionSkipped: createEventFn(
+        'inactive_account_deletion_deletion_skipped',
+        {
+          additionalMetrics: extraKeyReasonCb,
+        }
       ),
       deletionScheduled: createEventFn(
         'inactive_account_deletion_deletion_scheduled'

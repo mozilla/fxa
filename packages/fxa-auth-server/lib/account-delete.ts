@@ -7,6 +7,8 @@ import {
   getAllPayPalBAByUid,
 } from 'fxa-shared/db/models/auth';
 import { Container } from 'typedi';
+import { Logger } from 'mozlog';
+import { StatsD } from 'hot-shots';
 
 import * as Sentry from '@sentry/node';
 
@@ -24,8 +26,15 @@ import pushboxApi from './pushbox';
 import { AppConfig, AuthLogger, AuthRequest } from './types';
 import { DB } from './db';
 import { reportSentryError } from './sentry';
+import { GleanMetricsType } from './metrics/glean';
+import {
+  InactiveAccountsManager,
+  InactiveStatusOAuthDb,
+  requestForGlean,
+} from './inactive-accounts';
 
-type OAuthDbDeleteAccount = Pick<typeof OAuthDb, 'removeTokensAndCodes'>;
+type OAuthDbDeleteAccount = Pick<typeof OAuthDb, 'removeTokensAndCodes'> &
+  InactiveStatusOAuthDb;
 type PushboxDeleteAccount = Pick<
   ReturnType<typeof pushboxApi>,
   'deleteAccount'
@@ -47,6 +56,9 @@ export class AccountDeleteManager {
   private playBilling?: PlayBilling;
   private log: Log;
   private config: ConfigType;
+  private glean: GleanMetricsType;
+  private statsd: StatsD;
+  private inactiveAccountsManager: InactiveAccountsManager;
 
   constructor({
     fxaDb,
@@ -54,18 +66,28 @@ export class AccountDeleteManager {
     config,
     push,
     pushbox,
+    mailer,
+    statsd,
+    glean,
+    log,
   }: {
     fxaDb: DB;
     oauthDb: OAuthDbDeleteAccount;
     config: ConfigType;
     push: PushForDeleteAccount;
     pushbox: PushboxDeleteAccount;
+    mailer: any;
+    statsd: StatsD;
+    glean: GleanMetricsType;
+    log: Logger;
   }) {
     this.fxaDb = fxaDb;
     this.oauthDb = oauthDb;
     this.config = config;
     this.push = push;
     this.pushbox = pushbox;
+    this.glean = glean;
+    this.statsd = statsd;
 
     if (Container.has(StripeHelper)) {
       this.stripeHelper = Container.get(StripeHelper);
@@ -84,6 +106,16 @@ export class AccountDeleteManager {
 
     // Is this intentional? Config is passed in the constructor
     this.config = Container.get(AppConfig);
+
+    this.inactiveAccountsManager = new InactiveAccountsManager({
+      fxaDb,
+      oauthDb,
+      mailer,
+      config,
+      statsd,
+      glean,
+      log,
+    });
   }
 
   /**
@@ -99,6 +131,20 @@ export class AccountDeleteManager {
     reason: ReasonForDeletion,
     customerId?: string
   ) {
+    // there's a day's time between shceduling and deletion so we need to check
+    // if the account has became active in the meantime
+    if (
+      reason === ReasonForDeletion.InactiveAccountScheduled &&
+      (await this.inactiveAccountsManager.isActive(uid))
+    ) {
+      this.glean.inactiveAccountDeletion.deletionSkipped(requestForGlean, {
+        uid,
+        reason: 'active_account',
+      });
+      this.statsd.increment('account.inactive.deletion.skipped.active');
+      return;
+    }
+
     await this.deleteAccountFromDb(uid);
     await this.deleteOAuthTokens(uid);
     // see comment in the function on why we are not awaiting

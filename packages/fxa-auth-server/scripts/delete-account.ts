@@ -35,6 +35,7 @@ import {
   DeleteAccountTasksFactory,
 } from '@fxa/shared/cloud-tasks';
 import { ProfileClient } from '@fxa/profile/client';
+const { gleanMetrics } = require('../lib/metrics/glean');
 
 const config = configProperties.getProperties();
 const mailer = null;
@@ -43,13 +44,14 @@ const statsd = {
   increment: () => {},
   timing: () => {},
   close: () => {},
-};
+} as unknown as StatsD;
 const log = require('../lib/log')(config.log.level, 'delete-account-script', {
   statsd,
 });
 const Token = require('../lib/tokens')(log, config);
 const { createDB } = require('../lib/db');
 const DB = createDB(config, log, Token);
+const glean = gleanMetrics(config);
 
 Container.set(StatsD, statsd);
 Container.set(AppConfig, config);
@@ -132,6 +134,10 @@ DB.connect(config).then(async (db: any) => {
     config,
     push,
     pushbox,
+    mailer,
+    statsd,
+    glean,
+    log,
   });
   Container.set(AccountDeleteManager, accountDeleteManager);
 

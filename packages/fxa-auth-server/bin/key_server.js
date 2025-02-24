@@ -272,6 +272,10 @@ async function run(config) {
     config,
     push,
     pushbox,
+    mailer: senders.email,
+    statsd,
+    glean,
+    log,
   });
   Container.set(AccountDeleteManager, accountDeleteManager);
 

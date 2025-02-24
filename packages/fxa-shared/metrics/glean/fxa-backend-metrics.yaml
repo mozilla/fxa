@@ -1281,6 +1281,7 @@ inactive_account_deletion:
         description: |
           The error code returned by the Cloud Tasks client.
         type: string
+
   final_email_skipped:
     type: event
     description: |
@@ -1320,6 +1321,29 @@ inactive_account_deletion:
     expires: never
     data_sensitivity:
       - technical
+
+  deletion_skipped:
+    type: event
+    description: |
+      The scheduled deletion of an inactive account was skipped.
+    lifetime: ping
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-10999
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - technical
+    extra_keys:
+      reason:
+        description: |
+          The reason the deletion was skipped.
+        type: string
 
 two_step_auth_phone_remove:
   success:
