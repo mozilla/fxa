@@ -2168,7 +2168,7 @@ const convictConf = convict({
       format: Boolean,
     },
     allowedRegions: {
-      default: ['US'],
+      default: ['CA', 'US'],
       doc: 'Allowed regions for recovery phone',
       env: 'RECOVERY_PHONE__ALLOWED_REGIONS',
       format: Array,
@@ -2186,6 +2186,12 @@ const convictConf = convict({
         env: 'RECOVERY_PHONE__OTP__DIGITS',
         format: Number,
       },
+    },
+    maxRegistrationsPerNumber: {
+      default: 5,
+      doc: 'Max number of uids that can be associated to the same phone number.',
+      env: 'RECOVERY_PHONE__MAX_UID_PER_NUMBER',
+      format: Number,
     },
     redis: {},
     sms: {

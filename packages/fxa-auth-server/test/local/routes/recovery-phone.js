@@ -17,6 +17,7 @@ const {
   SmsSendRateLimitExceededError,
   RecoveryPhoneService,
   RecoveryNumberRemoveMissingBackupCodes,
+  RecoveryPhoneRegistrationLimitReached
 } = require('@fxa/accounts/recovery-phone');
 
 const { getRoute } = require('../../routes_helpers');
@@ -275,6 +276,26 @@ describe('/recovery_phone', () => {
       });
 
       await assert.isRejected(promise, 'Text message limit reached');
+      assert.equal(mockGlean.twoStepAuthPhoneCode.sent.callCount, 0);
+      assert.equal(mockGlean.twoStepAuthPhoneCode.sendError.callCount, 1);
+    });
+
+    it('rejects a phone number that has been set up for too many accounts', async () => {
+      mockRecoveryPhoneService.setupPhoneNumber = sinon.fake.returns(
+        Promise.reject(new RecoveryPhoneRegistrationLimitReached())
+      );
+
+      const promise = makeRequest({
+        method: 'POST',
+        path: '/recovery_phone/create',
+        credentials: { uid, email },
+        payload: { phoneNumber: '+495550005555' },
+      });
+
+      await assert.isRejected(
+        promise,
+        'Limit reached for number off accounts that can be associated with phone number.'
+      );
       assert.equal(mockGlean.twoStepAuthPhoneCode.sent.callCount, 0);
       assert.equal(mockGlean.twoStepAuthPhoneCode.sendError.callCount, 1);
     });

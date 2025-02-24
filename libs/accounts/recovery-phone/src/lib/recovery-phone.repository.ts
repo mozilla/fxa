@@ -63,3 +63,16 @@ export async function hasRecoveryCodes(
 
   return result.length > 0;
 }
+
+export async function getCountByPhoneNumber(
+  db: AccountDatabase,
+  phoneNumber: string
+): Promise<number> {
+  const result = await db
+    .selectFrom('recoveryPhones')
+    .where('phoneNumber', '=', phoneNumber)
+    .select('uid')
+    .execute();
+
+  return result.length;
+}

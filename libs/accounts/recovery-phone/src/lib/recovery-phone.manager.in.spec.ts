@@ -127,6 +127,7 @@ describe('RecoveryPhoneManager', () => {
   it('should throw if recovery phone already exists', async () => {
     const mockPhone = RecoveryPhoneFactory();
     const { uid, phoneNumber } = mockPhone;
+
     await recoveryPhoneManager.registerPhoneNumber(
       uid.toString('hex'),
       phoneNumber,
@@ -263,5 +264,38 @@ describe('RecoveryPhoneManager', () => {
     );
 
     expect(result).toBe(true);
+  });
+
+  it('should return number of accounts associated with a phone number', async () => {
+    const mockPhone = RecoveryPhoneFactory();
+    const mockPhone2 = RecoveryPhoneFactory();
+    const { uid, phoneNumber } = mockPhone;
+    const { uid: uid2 } = mockPhone2;
+
+    await db
+      .insertInto('recoveryPhones')
+      .values({
+        uid: uid,
+        phoneNumber: phoneNumber,
+        createdAt: Date.now(),
+        lastConfirmed: Date.now(),
+      })
+      .execute();
+
+    await db
+      .insertInto('recoveryPhones')
+      .values({
+        uid: uid2,
+        phoneNumber: phoneNumber,
+        createdAt: Date.now(),
+        lastConfirmed: Date.now(),
+      })
+      .execute();
+
+    const result = await recoveryPhoneManager.getCountByPhoneNumber(
+      phoneNumber
+    );
+
+    expect(result).toBe(2);
   });
 });

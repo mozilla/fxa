@@ -316,6 +316,11 @@ const ERRORS = {
     message:
       'Unable to remove recovery phone, missing backup authentication codes.',
   },
+  RECOVERY_PHONE_REGISTRATION_LIMIT_REACHED: {
+    errno: 219,
+    message:
+      'This phone number has been registered with too many accounts. Please try a different number.',
+  },
   SERVICE_UNAVAILABLE: {
     errno: 998,
     message: 'System unavailable, try again soon',

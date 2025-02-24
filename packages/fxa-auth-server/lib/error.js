@@ -613,6 +613,16 @@ AppError.smsSendRateLimitExceeded = () => {
   });
 };
 
+AppError.recoveryPhoneRegistrationLimitReached = () => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.RECOVERY_PHONE_REGISTRATION_LIMIT_REACHED,
+    message:
+      'Limit reached for number off accounts that can be associated with phone number.',
+  });
+};
+
 AppError.invalidRegion = (region) => {
   return new AppError(
     {

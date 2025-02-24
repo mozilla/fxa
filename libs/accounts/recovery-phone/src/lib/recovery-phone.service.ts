@@ -15,6 +15,7 @@ import {
   RecoveryNumberNotSupportedError,
   RecoveryPhoneNotEnabled,
   RecoveryNumberRemoveMissingBackupCodes,
+  RecoveryPhoneRegistrationLimitReached,
 } from './recovery-phone.errors';
 import { MessageInstance } from 'twilio/lib/rest/api/v2010/account/message';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
@@ -97,6 +98,17 @@ export class RecoveryPhoneService {
       }
     }
 
+    // Rejects the phone number if it has been registered for too many accounts
+    const countByPhoneNumber =
+      await this.recoveryPhoneManager.getCountByPhoneNumber(phoneNumber);
+
+    if (
+      this.config.maxRegistrationsPerNumber &&
+      countByPhoneNumber >= this.config.maxRegistrationsPerNumber
+    ) {
+      throw new RecoveryPhoneRegistrationLimitReached(phoneNumber);
+    }
+
     const code = await this.otpCode.generateCode();
 
     await this.recoveryPhoneManager.storeUnconfirmed(
@@ -154,6 +166,17 @@ export class RecoveryPhoneService {
     // The code must be intended for a setup, ie recovery phone create, action.
     if (data.isSetup !== true) {
       return false;
+    }
+
+    // Rejects the phone number if it has been registered for too many accounts
+    const countByPhoneNumber =
+      await this.recoveryPhoneManager.getCountByPhoneNumber(data.phoneNumber);
+
+    if (
+      this.config.maxRegistrationsPerNumber &&
+      countByPhoneNumber >= this.config.maxRegistrationsPerNumber
+    ) {
+      throw new RecoveryPhoneRegistrationLimitReached(data.phoneNumber);
     }
 
     // If this was for a setup operation. Register the phone number to the uid.
