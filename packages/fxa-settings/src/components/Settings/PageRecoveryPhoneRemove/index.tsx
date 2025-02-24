@@ -54,7 +54,10 @@ const PageRecoveryPhoneRemove = (props: RouteComponentProps) => {
   const clickRemoveRecoveryPhone = useCallback(async () => {
     try {
       await account.removeRecoveryPhone();
-
+      // get the latest status of recovery phone info and availability
+      // ensure correct data is shown on the settings page
+      // and that service availability is correctly checked against current location
+      await account.refresh('recoveryPhone');
       alertSuccessAndGoHome();
     } catch (e) {
       const localizedError = getLocalizedErrorMessage(ftlMsgResolver, e);

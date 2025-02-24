@@ -7,7 +7,7 @@ import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import PageRecoveryPhoneRemove from '.';
 import { LocationProvider } from '@reach/router';
-import { mockAppContext } from '../../../models/mocks';
+import { mockAppContext, MOCK_ACCOUNT } from '../../../models/mocks';
 import { Account, AppContext } from '../../../models';
 
 export default {
@@ -16,12 +16,20 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
+const account = {
+  ...MOCK_ACCOUNT,
+  recoveryPhone: {
+    exists: true,
+    phoneNumber: '123-456-7890',
+    available: true,
+  },
+  removeRecoveryPhone: () => true,
+} as unknown as Account;
+
 export const Default = () => (
   <AppContext.Provider
     value={mockAppContext({
-      account: {
-        removeRecoveryPhone: () => {},
-      } as unknown as Account,
+      account,
     })}
   >
     <LocationProvider>
