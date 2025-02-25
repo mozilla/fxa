@@ -140,6 +140,7 @@ const ThirdPartyAuthCallback = ({
           originalService,
           queryParamsToMetricsContext({
             ...((flowQueryParams as Record<string, string>) || {}),
+            ...Object.fromEntries(params.entries()),
             // Important be sure to overwrite current flowQueryParams with provided fxa parameters.
             // If we don't do this, we will lose metrics.
             flowId,
