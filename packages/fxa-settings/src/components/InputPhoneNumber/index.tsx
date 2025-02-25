@@ -61,13 +61,23 @@ const InputPhoneNumber = ({
   errorBannerId,
 }: InputPhoneNumberProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
-  const localizedCountries = countries.map((country) => ({
-    ...country,
-    localizedName: ftlMsgResolver.getMsg(country.ftlId, country.name),
-  }));
+  const sortedLocalizedCountries = countries
+    .map((country) => ({
+      ...country,
+      localizedName:
+        ftlMsgResolver.getMsg(country.ftlId, country.name) || country.name,
+    }))
+    .sort((a, b) => {
+      return new Intl.Collator(navigator.language).compare(
+        a.localizedName,
+        b.localizedName
+      );
+    });
+  // currently USA is the default country, but we should aim to select the default country based on user location
+  // FXA-11212
   const defaultCountry =
-    localizedCountries.find((country) => country.id === 1) ||
-    localizedCountries[0];
+    sortedLocalizedCountries.find((country) => country.id === 1) ||
+    sortedLocalizedCountries[0];
   const [selectedCountry, setSelectedCountry] = useState(defaultCountry);
 
   const localizedLabel = ftlMsgResolver.getMsg(
@@ -76,7 +86,7 @@ const InputPhoneNumber = ({
   );
 
   const handleCountryChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedCountry = localizedCountries.find(
+    const selectedCountry = sortedLocalizedCountries.find(
       (country) => country.id === parseInt(event.target.value, 10)
     );
     if (selectedCountry) {
@@ -121,30 +131,15 @@ const InputPhoneNumber = ({
         value={selectedCountry.id}
         className={`bg-transparent border border-grey-200 rounded-md py-2 ps-10 w-[60px] me-2 focus:border-blue-400 focus:outline-none focus:shadow-input-blue-focus ${selectedCountry.classNameFlag} bg-no-repeat bg-[length:1.5rem_1rem] bg-[40%_50%] text-transparent`}
       >
-        {/* Default country is always first */}
-        <option
-          className={`${defaultCountry.classNameFlag} bg-contain`}
-          value={defaultCountry.id}
-        >
-          {defaultCountry.localizedName} ({defaultCountry.code})
-        </option>
-
-        {/* Note, at the time of writing we're using react-dom 18.3 which complains about
-        <hr> inside <select> being invalid, but it is valid. This should be fixed in later
-         versions: https://github.com/facebook/react/issues/27572 */}
-        <hr className="my-1" />
-
-        {localizedCountries
-          .filter((country) => country.id !== defaultCountry.id)
-          .map((country) => (
-            <option
-              key={country.id}
-              value={country.id}
-              className={`${country.classNameFlag} bg-contain`}
-            >
-              {country.localizedName} ({country.code})
-            </option>
-          ))}
+        {sortedLocalizedCountries.map((country) => (
+          <option
+            key={country.id}
+            value={country.id}
+            className={`${country.classNameFlag} bg-contain`}
+          >
+            {country.localizedName} ({country.code})
+          </option>
+        ))}
       </select>
 
       {/* Because the country code may not be unique, the above `select`'s `value` must
