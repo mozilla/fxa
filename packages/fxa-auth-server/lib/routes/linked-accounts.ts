@@ -514,7 +514,21 @@ export class LinkedAccountHandler {
     if (!this.googleAuthClient) {
       throw error.thirdPartyAccountError();
     }
-    const uid = request.auth.credentials.uid;
+    const sessionToken = request.auth && request.auth.credentials;
+    const uid = sessionToken.uid;
+
+    const hasTotpToken = await this.otpUtils.hasTotpToken({ uid });
+
+    // Ensure that the session has the correct assurance level before unlinking
+    if (
+      sessionToken &&
+      hasTotpToken &&
+      (sessionToken.tokenVerificationId ||
+        (sessionToken.authenticatorAssuranceLevel as number) <= 1)
+    ) {
+      throw error.unverifiedSession();
+    }
+
     const provider = (request.payload as any).provider.toLowerCase();
     // TODO: here we'll also delete any session tokens created via a google login
     await this.db.deleteLinkedAccount(uid, provider);
