@@ -36,13 +36,24 @@ export const PageRecoveryPhoneSetup = (_: RouteComponentProps) => {
     'Add recovery phone'
   );
 
-  const localizedBackButtonTitle = ftlMsgResolver.getMsg(
-    'page-setup-recovery-phone-back-button-title',
-    'Back to settings'
-  );
+  const localizedBackButtonTitle =
+    currentStep === 1
+      ? ftlMsgResolver.getMsg(
+          'page-setup-recovery-phone-back-button-title',
+          'Back to settings'
+        )
+      : ftlMsgResolver.getMsg(
+          'page-setup-recovery-phone-step2-back-button-title',
+          'Change phone number'
+        );
 
-  const navigateBackward = () => {
-    navigate(SETTINGS_PATH);
+  const navigateBackward = (e?: React.MouseEvent<HTMLElement>) => {
+    e?.preventDefault();
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    } else {
+      navigate(SETTINGS_PATH);
+    }
   };
 
   const navigateForward = (e?: React.MouseEvent<HTMLElement>) => {
