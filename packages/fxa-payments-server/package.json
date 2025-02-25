@@ -76,7 +76,7 @@
     "@types/classnames": "^2.3.1",
     "@types/jest": "^26.0.23",
     "@types/nock": "^11.1.0",
-    "@types/node": "^22.13.5",
+    "@types/node": "^20.11.1",
     "@types/postcss-import": "^12",
     "@types/react-redux": "^7.1.18",
     "@types/react-stripe-elements": "^6.0.6",

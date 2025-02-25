@@ -67,7 +67,7 @@
     "@types/classnames": "^2.3.1",
     "@types/file-loader": "^5.0.0",
     "@types/jest": "^26.0.23",
-    "@types/node": "^22.13.5",
+    "@types/node": "^20.11.1",
     "@types/postcss-import": "^14",
     "@types/prettier": "2.3.0",
     "@types/react-helmet": "^6.1.6",
