@@ -11,7 +11,7 @@ tfa-row-backup-codes-available-v2 = { $numCodesAvailable ->
   *[other] { $numCodesAvailable } codes remaining
 }
 # Shown to users who have backup authentication codes - this will allow them to generate new codes to replace the previous ones
-tfa-row-backup-codes-get-new-cta = Get new codes
+tfa-row-backup-codes-get-new-cta-v2 = Create new codes
 # Shown to users who have no backup authentication codes
 # Button to add backup authentication codes when none are configured
 tfa-row-backup-codes-add-cta = Add
@@ -22,7 +22,7 @@ tfa-row-backup-codes-description-2 = This is the safest recovery method if you c
 # A recovery code can be sent to the user's phone
 tfa-row-backup-phone-title-v2 = Recovery phone
 # Shown with an alert icon to indicate that no recovery phone is configured
-tfa-row-backup-phone-not-available = No recovery phone number available
+tfa-row-backup-phone-not-available-v2 = No phone number added
 # button to change the configured recovery phone
 tfa-row-backup-phone-change-cta = Change
 # button to add/configure a recovery phone

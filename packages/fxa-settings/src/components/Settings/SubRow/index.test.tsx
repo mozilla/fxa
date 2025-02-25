@@ -14,7 +14,7 @@ import {
 describe('SubRow', () => {
   const defaultProps = {
     ctaGleanId: 'glean-test',
-    ctaMessage: 'Get new codes',
+    ctaMessage: 'Create new codes',
     icon: <div>Icon</div>,
     idPrefix: 'test',
     localizedDescription: 'More info message',
@@ -27,7 +27,7 @@ describe('SubRow', () => {
     renderWithLocalizationProvider(<SubRow {...defaultProps} isEnabled />);
     expect(screen.getByText('Backup authentication codes')).toBeInTheDocument();
     expect(screen.getByText('Message')).toBeInTheDocument();
-    expect(screen.getByText('Get new codes')).toBeInTheDocument();
+    expect(screen.getByText('Create new codes')).toBeInTheDocument();
     expect(screen.getByText('More info message')).toBeInTheDocument();
   });
 
@@ -35,13 +35,13 @@ describe('SubRow', () => {
     render(<SubRow {...defaultProps} isEnabled={false} />);
     expect(screen.getByText('Backup authentication codes')).toBeInTheDocument();
     expect(screen.getByText('Message')).toBeInTheDocument();
-    const cta = screen.getByRole('button', { name: 'Get new codes' });
+    const cta = screen.getByRole('button', { name: 'Create new codes' });
     expect(cta).toBeInTheDocument();
   });
 
   it('calls onCtaClick when CTA button is clicked', () => {
     renderWithLocalizationProvider(<SubRow {...defaultProps} isEnabled />);
-    fireEvent.click(screen.getByText('Get new codes'));
+    fireEvent.click(screen.getByText('Create new codes'));
     expect(defaultProps.onCtaClick).toHaveBeenCalled();
   });
 });
@@ -59,7 +59,7 @@ describe('BackupCodesSubRow', () => {
         screen.getByText('Backup authentication codes')
       ).toBeInTheDocument();
       expect(screen.getByText('5 codes remaining')).toBeInTheDocument();
-      expect(screen.getByText('Get new codes')).toBeInTheDocument();
+      expect(screen.getByText('Create new codes')).toBeInTheDocument();
     });
 
     it('renders correctly when 1 code is available', () => {
@@ -78,7 +78,7 @@ describe('BackupCodesSubRow', () => {
         screen.getByText('Backup authentication codes')
       ).toBeInTheDocument();
       expect(screen.getByText('5 codes remaining')).toBeInTheDocument();
-      expect(screen.getByText('Get new codes')).toBeInTheDocument();
+      expect(screen.getByText('Create new codes')).toBeInTheDocument();
       expect(
         screen.getByText(
           'This is the safest recovery method if you canʼt use your mobile device or authenticator app.'
@@ -88,7 +88,7 @@ describe('BackupCodesSubRow', () => {
 
     it('calls onCtaClick when CTA button is clicked', () => {
       renderWithLocalizationProvider(<BackupCodesSubRow {...defaultProps} />);
-      fireEvent.click(screen.getByText('Get new codes'));
+      fireEvent.click(screen.getByText('Create new codes'));
       expect(defaultProps.onCtaClick).toHaveBeenCalled();
     });
   });
@@ -126,9 +126,7 @@ describe('BackupPhoneSubRow', () => {
       <BackupPhoneSubRow onCtaClick={jest.fn()} />
     );
     expect(screen.getByText('Recovery phone')).toBeInTheDocument();
-    expect(
-      screen.getByText('No recovery phone number available')
-    ).toBeInTheDocument();
+    expect(screen.getByText('No phone number added')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Add' })).toBeInTheDocument();
     expect(
       screen.getByText(

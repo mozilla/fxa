@@ -195,7 +195,10 @@ export const BackupCodesSubRow = ({
     </FtlMsg>
   );
   const ctaMessage = hasCodesRemaining
-    ? ftlMsgResolver.getMsg('tfa-row-backup-codes-get-new-cta', 'Get new codes')
+    ? ftlMsgResolver.getMsg(
+        'tfa-row-backup-codes-get-new-cta-v2',
+        'Create new codes'
+      )
     : ftlMsgResolver.getMsg('tfa-row-backup-codes-add-cta', 'Add');
 
   const ctaGleanId = hasCodesRemaining
@@ -241,8 +244,8 @@ export const BackupPhoneSubRow = ({
     // Phone numbers should always be displayed left-to-right, *including* in rtl languages
     <p dir="ltr">{phoneNumber}</p>
   ) : (
-    <FtlMsg id="tfa-row-backup-phone-not-available">
-      <p>No recovery phone number available</p>
+    <FtlMsg id="tfa-row-backup-phone-not-available-v2">
+      <p>No phone number added</p>
     </FtlMsg>
   );
   const ctaMessage = hasPhoneNumber
@@ -290,15 +293,10 @@ export const BackupPhoneSubRow = ({
             ),
           }
         : null)}
-      {...((!hasPhoneNumber || (hasPhoneNumber && onDeleteClick)) && {
-        // description should not be shown when the user can't delete the phone number (only one message displayed at a time)
-        // description should only be shown when both backup authentication codes and recovery phone
-        // are available recovery methods (description is intended to allow for comparison of the two methods)
-        localizedDescription: ftlMsgResolver.getMsg(
-          'tfa-row-backup-phone-description',
-          'This is the easier recovery method if you canʼt use your authenticator app.'
-        ),
-      })}
+      localizedDescription={ftlMsgResolver.getMsg(
+        'tfa-row-backup-phone-description',
+        'This is the easier recovery method if you canʼt use your authenticator app.'
+      )}
       {...{
         ctaGleanId,
         ctaMessage,

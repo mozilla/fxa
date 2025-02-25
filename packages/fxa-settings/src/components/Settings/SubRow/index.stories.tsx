@@ -59,7 +59,7 @@ export const GenericSubRowWithDescription: StoryFn = () => (
 export const BackupCodesAvailable: StoryFn = () => (
   <BackupCodesSubRow
     numCodesAvailable={5}
-    onCtaClick={action('Get new codes clicked')}
+    onCtaClick={action('Create new codes clicked')}
   />
 );
 
