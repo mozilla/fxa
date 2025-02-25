@@ -473,13 +473,15 @@ module.exports = function (log, config, bounces, statsd) {
       return;
     }
 
+    const templateName = message.metricsTemplate || template;
+
     if (this.sesConfigurationSet) {
       // Note on SES Event Publishing: The X-SES-CONFIGURATION-SET and
       // X-SES-MESSAGE-TAGS email headers will be stripped by SES from the
       // actual outgoing email messages.
       headers[X_SES_CONFIGURATION_SET] = this.sesConfigurationSet;
       headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(
-        message.metricsTemplate || template,
+        templateName,
         'fxa-auth-server'
       );
     }
@@ -500,6 +502,14 @@ module.exports = function (log, config, bounces, statsd) {
       html: localized.html,
       xMailer: false,
       headers,
+      ses: {
+        Tags: [
+          {
+            Name: 'ses:feedback-id-a',
+            Value: templateName,
+          },
+        ],
+      },
     };
 
     if (message.ccEmails) {
