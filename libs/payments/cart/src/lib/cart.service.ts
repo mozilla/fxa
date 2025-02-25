@@ -5,6 +5,7 @@
 import { Injectable } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
 import assert from 'assert';
+import assertNotNull from 'assert';
 
 import {
   CustomerManager,
@@ -52,6 +53,7 @@ import { CartManager } from './cart.manager';
 import type {
   CartDTO,
   CheckoutCustomerData,
+  FromPrice,
   GetNeedsInputResponse,
   NoInputNeededResponse,
   PaymentInfo,
@@ -641,6 +643,18 @@ export class CartService {
       };
     }
 
+    let fromPrice: FromPrice | undefined;
+    if (cartEligibilityStatus === CartEligibilityStatus.UPGRADE) {
+      assert('fromPrice' in eligibility, 'fromPrice not present for upgrade');
+      assertNotNull(eligibility.fromPrice.unit_amount);
+      assertNotNull(eligibility.fromPrice.recurring);
+      fromPrice = {
+        currency: eligibility.fromPrice.currency,
+        interval: eligibility.fromPrice.recurring.interval,
+        listAmount: eligibility.fromPrice.unit_amount,
+      };
+    }
+
     return {
       ...cart,
       state: cart.state,
@@ -652,7 +666,7 @@ export class CartService {
         'fromOfferingConfigId' in eligibility
           ? eligibility.fromOfferingConfigId
           : undefined,
-      fromPrice: 'fromPrice' in eligibility ? eligibility.fromPrice : undefined,
+      fromPrice: 'fromPrice' in eligibility ? fromPrice : undefined,
     };
   }
 
