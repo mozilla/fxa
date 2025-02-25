@@ -25740,12 +25740,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/on-headers@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "@types/on-headers@npm:1.0.0"
+"@types/on-headers@npm:^2.1.30":
+  version: 2.1.30
+  resolution: "@types/on-headers@npm:2.1.30"
   dependencies:
     "@types/node": "*"
-  checksum: 470c26ccfe2430118a21a331a13792a5c02201478b5b5cfea375e9a0097a38eedbc7d33cb5d4c622dffa3afb87fc8c370b2597ca932e6479773f5d50ed04a52c
+  checksum: 5170307b0561de8fb096a684e931f72116cee16f4d60b85a616c6d9f54b5b2cace25cf2ee12faa920e5fadeb413818e5a63a918cc2f54ff714d6ef680df82f3b
   languageName: node
   linkType: hard
 
@@ -41691,7 +41691,7 @@ fsevents@~2.1.1:
     "@types/dateformat": ^3.0.1
     "@types/express": ^4.17.12
     "@types/helmet": 4.0.0
-    "@types/on-headers": ^1.0.0
+    "@types/on-headers": ^2.1.30
     "@types/postcss-import": ^14
     "@types/serve-static": 1.13.9
     "@types/supertest": ^2.0.11
