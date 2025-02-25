@@ -250,7 +250,7 @@ module.exports = function (log, config, bounces, statsd) {
   }
 
   function sesMessageTagsHeaderValue(templateName, serviceName) {
-    return `messageType=fxa-${templateName}, app=fxa, service=${serviceName}`;
+    return `messageType=fxa-${templateName}, app=fxa, service=${serviceName}, ses:feedback-id-a=fxa-${templateName}`;
   }
 
   // These are brand names, so they probably don't need l10n.
