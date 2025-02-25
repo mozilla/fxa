@@ -4,20 +4,16 @@
 
 'use server';
 
-import { plainToClass } from 'class-transformer';
 import { getApp } from '../nestapp/app';
-import { FetchCMSDataArgs } from '../nestapp/validators/FetchCMSDataArgs';
 
 export const fetchCMSData = (
   offeringId: string,
   acceptLanguage?: string | null,
   selectedLanguage?: string
 ) => {
-  return getApp().getActionsService().fetchCMSData(
-    plainToClass(FetchCMSDataArgs, {
-      offeringId,
-      acceptLanguage,
-      selectedLanguage,
-    })
-  );
+  return getApp().getActionsService().fetchCMSData({
+    offeringId,
+    acceptLanguage,
+    selectedLanguage,
+  });
 };

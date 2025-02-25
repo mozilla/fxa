@@ -4,10 +4,7 @@
 
 import { IsString } from 'class-validator';
 
-export class ValidatePostalCodeArgs {
+export class GetPayPalCheckoutTokenResult {
   @IsString()
-  postalCode!: string;
-
-  @IsString()
-  countryCode!: string;
+  token!: string;
 }

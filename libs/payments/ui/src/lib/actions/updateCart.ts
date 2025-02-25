@@ -4,7 +4,6 @@
 
 'use server';
 
-import { plainToClass } from 'class-transformer';
 import { revalidatePath } from 'next/cache';
 
 import { UpdateCart } from '@fxa/payments/cart';
@@ -14,7 +13,6 @@ import {
   CouponErrorLimitReached,
 } from '@fxa/payments/customer';
 import { getApp } from '../nestapp/app';
-import { UpdateCartActionArgs } from '../nestapp/validators/UpdateCartActionArgs';
 import { CouponErrorMessageType } from '../utils/error-ftl-messages';
 
 export const updateCartAction = async (
@@ -25,13 +23,11 @@ export const updateCartAction = async (
   const actionsService = getApp().getActionsService();
 
   try {
-    await actionsService.updateCart(
-      plainToClass(UpdateCartActionArgs, {
-        cartId,
-        version,
-        cartDetails,
-      })
-    );
+    await actionsService.updateCart({
+      cartId,
+      version,
+      cartDetails,
+    });
   } catch (err) {
     if (err instanceof CouponErrorExpired) {
       return CouponErrorMessageType.Expired;

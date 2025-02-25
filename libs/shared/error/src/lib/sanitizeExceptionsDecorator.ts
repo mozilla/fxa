@@ -36,14 +36,26 @@ export function SanitizeExceptions(
             const result = await originalMethod.apply(this, args);
             return result;
           } catch (error) {
-            throw handleException(error as Error, allowlist, this.logger);
+            throw handleException({
+              error,
+              className: this.constructor.name,
+              methodName: propertyKey,
+              allowlist,
+              logger: this.logger,
+            });
           }
         }
       : function (this: any, ...args: any[]) {
           try {
             return originalMethod.apply(this, args);
           } catch (error) {
-            throw handleException(error as Error, allowlist, this.logger);
+            throw handleException({
+              error,
+              className: this.constructor.name,
+              methodName: propertyKey,
+              allowlist,
+              logger: this.logger,
+            });
           }
         };
 
@@ -51,12 +63,19 @@ export function SanitizeExceptions(
   };
 }
 
-function handleException(
-  error: Error,
-  allowlist: Constructor<Error>[],
-  logger: ILogger
-): Error {
-  logger.error('Error caught by SanitizeExceptions decorator', error);
+function handleException(args: {
+  error: unknown;
+  className: string;
+  methodName: string;
+  allowlist: Constructor<Error>[];
+  logger: ILogger;
+}): Error {
+  const { error, className, methodName, allowlist, logger } = args;
+
+  logger.error(
+    `Error caught by SanitizeExceptions decorator in ${className}.${methodName}`,
+    error
+  );
 
   const isAllowedError =
     error instanceof Error &&
@@ -65,13 +84,18 @@ function handleException(
       return isInstance;
     });
 
-  if (!isAllowedError) {
-    return new Error('Something went wrong');
-  } else {
-    Sentry.withScope((scope) => {
-      scope.setExtra('sanitizedBeforeSend', !isAllowedError);
-      Sentry.captureException(error);
-    });
+  if (isAllowedError) {
     return error;
   }
+
+  Sentry.captureException(error, {
+    extra: {
+      sanitizedIn: {
+        className,
+        methodName,
+      },
+    },
+  });
+
+  return new Error('Something went wrong');
 }

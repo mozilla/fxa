@@ -12,7 +12,7 @@ export function stripeInvoiceToInvoicePreviewDTO(
   invoice: StripeUpcomingInvoice | StripeInvoice
 ): InvoicePreview {
   const taxAmounts = invoice.total_tax_amounts.map((amount) => ({
-    title: amount.tax_rate.display_name,
+    title: amount.tax_rate.display_name || '',
     inclusive: amount.inclusive,
     amount: amount.amount,
   }));

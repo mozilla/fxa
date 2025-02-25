@@ -5,13 +5,9 @@
 'use server';
 
 import { getApp } from '../nestapp/app';
-import { plainToClass } from 'class-transformer';
-import { GetNeedsInputActionArgs } from '../nestapp/validators/GetNeedsInputActionArgs';
 
 export const getNeedsInputAction = async (cartId: string) => {
-  const inputNeeded = getApp()
-    .getActionsService()
-    .getNeedsInput(plainToClass(GetNeedsInputActionArgs, { cartId }));
+  const inputNeeded = getApp().getActionsService().getNeedsInput({ cartId });
 
   return inputNeeded;
 };

@@ -2,17 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { IsOptional, IsString } from 'class-validator';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 
-export class FetchCMSDataArgs {
+export class GetMetricsFlowActionResult {
   @IsString()
-  offeringId!: string;
+  flowId!: string;
 
   @IsString()
+  @IsNumber()
+  flowBeginTime!: string | number;
+
   @IsOptional()
-  acceptLanguage?: string | null;
-
   @IsString()
-  @IsOptional()
-  selectedLanguage?: string;
+  deviceId?: string;
 }
