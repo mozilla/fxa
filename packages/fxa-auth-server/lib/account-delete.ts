@@ -129,7 +129,8 @@ export class AccountDeleteManager {
   public async deleteAccount(
     uid: string,
     reason: ReasonForDeletion,
-    customerId?: string
+    customerId?: string,
+    request?: AuthRequest
   ) {
     // there's a day's time between shceduling and deletion so we need to check
     // if the account has became active in the meantime
@@ -137,16 +138,26 @@ export class AccountDeleteManager {
       reason === ReasonForDeletion.InactiveAccountScheduled &&
       (await this.inactiveAccountsManager.isActive(uid))
     ) {
-      this.glean.inactiveAccountDeletion.deletionSkipped(requestForGlean, {
-        uid,
-        reason: 'active_account',
-      });
+      this.glean.inactiveAccountDeletion.deletionSkipped(
+        request ?? requestForGlean,
+        {
+          uid,
+          reason: 'active_account',
+        }
+      );
       this.statsd.increment('account.inactive.deletion.skipped.active');
       return;
     }
 
     await this.deleteAccountFromDb(uid);
     await this.deleteOAuthTokens(uid);
+
+    // data eng rely on this to delete the account data from BQ.
+    // user self-deletes are logged when the client request was handled
+    if (reason !== ReasonForDeletion.UserRequested) {
+      this.log.info('accountDeleted.byCloudTask', { uid });
+    }
+
     // see comment in the function on why we are not awaiting
     this.deletePushboxRecords(uid);
 
@@ -154,6 +165,10 @@ export class AccountDeleteManager {
     await this.deleteFirestoreCustomer(uid);
     await this.appleIap?.purchaseManager.deletePurchases(uid);
     await this.playBilling?.purchaseManager.deletePurchases(uid);
+    this.statsd.increment('account.destroy.success', { reason });
+    this.glean.account.deleteTaskHandled(request ?? requestForGlean, {
+      reason,
+    });
   }
 
   /**
@@ -171,6 +186,7 @@ export class AccountDeleteManager {
     try {
       await this.deleteAccountFromDb(uid);
       await this.deleteOAuthTokens(uid);
+      this.statsd.increment('account.destroy.quick-delete');
     } catch (error) {
       // If the account wasn't fully deleted, we should log the error and
       // still queue the account for cleanup.

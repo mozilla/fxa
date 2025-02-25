@@ -27,12 +27,13 @@ export class CloudTaskHandler {
     this.emailCloudTaskManager = Container.get(EmailCloudTaskManager);
   }
 
-  async deleteAccount(taskPayload: DeleteAccountTask) {
+  async deleteAccount(taskPayload: DeleteAccountTask, request?: AuthRequest) {
     this.log.debug('Received delete account task', taskPayload);
     await this.accountDeleteManager.deleteAccount(
       taskPayload.uid,
       taskPayload.reason,
-      taskPayload.customerId
+      taskPayload.customerId,
+      request
     );
     return {};
   }
@@ -81,7 +82,10 @@ export const cloudTaskRoutes = (
         },
       },
       handler: (request: AuthRequest) =>
-        cloudTaskHandler.deleteAccount(request.payload as DeleteAccountTask),
+        cloudTaskHandler.deleteAccount(
+          request.payload as DeleteAccountTask,
+          request
+        ),
     },
 
     {

@@ -1906,6 +1906,9 @@ export class AccountHandler {
       ReasonForDeletion.UserRequested
     );
 
+    // data eng rely on this to delete the account data from BQ
+    this.log.info('accountDeleted.ByRequest', { uid: accountRecord.uid });
+
     const result = await getAccountCustomerByUid(accountRecord.uid);
     await this.accountTasks.deleteAccount({
       uid: accountRecord.uid,

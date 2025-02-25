@@ -114,6 +114,29 @@ account:
     expires: never
     data_sensitivity:
       - interaction
+  delete_task_handled:
+    type: event
+    description: |
+      An account was deleted from FxA.
+    lifetime: ping
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-10497
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - technical
+    extra_keys:
+      reason:
+        description: |
+          The reason for the deletion.
+        type: string
+
 
 relying_party:
   service:

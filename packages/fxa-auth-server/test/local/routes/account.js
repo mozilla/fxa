@@ -3892,6 +3892,11 @@ describe('/account/destroy', () => {
       assert.calledOnceWithExactly(glean.account.deleteComplete, mockRequest, {
         uid,
       });
+      sinon.assert.calledOnceWithExactly(
+        mockLog.info,
+        'accountDeleted.ByRequest',
+        { uid }
+      );
     });
   });
 
