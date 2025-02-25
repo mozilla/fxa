@@ -148,7 +148,17 @@ describe('ThirdPartyAuthCallback component', () => {
       finishOAuthFlowHandler: mockFinishOAuthFlowHandler,
     });
 
-    renderWith();
+    renderWith({
+      flowQueryParams: {
+        flowId: 'bbbb',
+        flowBeginTime: 1734112296874,
+      },
+      integration: {
+        ...mockThirdPartyAuthCallbackIntegration(),
+        getFxAParams: () =>
+          '?flowId=aaaa&flowBeginTime=1734112296000&utm_campaign=testo',
+      } as ModelsModule.ThirdPartyAuthCallbackIntegration,
+    });
 
     await waitFor(() => {
       expect(mockVerifyAccountThirdParty).toHaveBeenCalledWith(
@@ -156,6 +166,7 @@ describe('ThirdPartyAuthCallback component', () => {
         'provider',
         undefined,
         {
+          utmCampaign: 'testo',
           flowId: 'aaaa',
           flowBeginTime: 1734112296000,
         }
@@ -163,7 +174,7 @@ describe('ThirdPartyAuthCallback component', () => {
     });
 
     expect(hardNavigateSpy).toBeCalledWith(
-      '/post_verify/third_party_auth/callback?flowId=aaaa&flowBeginTime=1734112296000'
+      '/post_verify/third_party_auth/callback?flowId=aaaa&flowBeginTime=1734112296000&utm_campaign=testo'
     );
   });
 
