@@ -478,7 +478,7 @@ module.exports = function (fs, path, url, convict) {
       tokenCodeRules: {
         actions: {
           doc: 'Array of actions that this rule should be applied to',
-          default: ['verifyTokenCode'],
+          default: ['verifyTokenCode'], // This rule never appears to be used ??
           format: Array,
         },
         limits: {
