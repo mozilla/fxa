@@ -52,7 +52,7 @@
     "@types/assert": "^1.5.4",
     "@types/fast-text-encoding": "^1",
     "@types/mocha": "^10",
-    "@types/node": "^20.11.1",
+    "@types/node": "^22.13.5",
     "@types/node-fetch": "^2.5.7",
     "@types/prettier": "^2",
     "asmcrypto.js": "^0.22.0",
