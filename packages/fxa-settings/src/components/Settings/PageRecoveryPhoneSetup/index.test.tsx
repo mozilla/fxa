@@ -14,6 +14,12 @@ import {
 
 jest.mock('../../../models/AlertBarInfo');
 
+const mockNavigate = jest.fn();
+jest.mock('@reach/router', () => ({
+  ...jest.requireActual('@reach/router'),
+  useNavigate: () => mockNavigate,
+}));
+
 const phoneNumberWithoutCountryCode = MOCK_FULL_PHONE_NUMBER.slice(2);
 const otpCode = '123456';
 const mockSuccessResponse = {
@@ -116,6 +122,60 @@ describe('PageRecoveryPhoneSetup', () => {
     expect(confirmRecoveryPhone).toHaveBeenCalledWith(
       otpCode,
       MOCK_FULL_PHONE_NUMBER
+    );
+  });
+
+  it('at step 1, handles back arrow click to return to settings', async () => {
+    const user = userEvent.setup();
+    const confirmRecoveryPhone = jest
+      .fn()
+      .mockResolvedValueOnce(mockSuccessResponse);
+    const addRecoveryPhone = jest
+      .fn()
+      .mockResolvedValueOnce(mockSuccessResponse);
+    renderWithRouter(
+      <Subject account={{ confirmRecoveryPhone, addRecoveryPhone }} />
+    );
+
+    await waitFor(() =>
+      expect(
+        screen.getByRole('heading', { name: 'Verify your phone number' })
+      ).toBeVisible()
+    );
+
+    await waitFor(async () => {
+      user.click(screen.getByRole('button', { name: 'Back to settings' }));
+    });
+
+    await waitFor(() => expect(mockNavigate).toHaveBeenCalledTimes(1));
+  });
+
+  it('at step 2, handles back arrow click to return to step 1', async () => {
+    const user = userEvent.setup();
+    const confirmRecoveryPhone = jest
+      .fn()
+      .mockResolvedValueOnce(mockSuccessResponse);
+    const addRecoveryPhone = jest
+      .fn()
+      .mockResolvedValueOnce(mockSuccessResponse);
+    renderWithRouter(
+      <Subject account={{ confirmRecoveryPhone, addRecoveryPhone }} />
+    );
+
+    await completeStepOne(user);
+    await waitFor(() => {
+      expect(
+        screen.getByText(/A six-digit code was sent/i)
+      ).toBeInTheDocument();
+    });
+    await waitFor(async () => {
+      user.click(screen.getByRole('button', { name: 'Change phone number' }));
+    });
+
+    await waitFor(() =>
+      expect(
+        screen.getByRole('heading', { name: 'Verify your phone number' })
+      ).toBeVisible()
     );
   });
 });
