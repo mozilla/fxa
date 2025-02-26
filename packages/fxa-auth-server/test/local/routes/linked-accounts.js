@@ -562,6 +562,24 @@ describe('/linked_account', function () {
       assert.isTrue(mockDB.deleteLinkedAccount.calledOnceWith(UID));
       assert.isTrue(result.success);
     });
+
+    it('fails to unlink with incorrect assurance level', async () => {
+      mockRequest.auth.credentials.authenticatorAssuranceLevel = 1;
+      mockDB.totpToken = sinon.spy(() =>
+        Promise.resolve({
+          verified: true,
+          enabled: true,
+        })
+      );
+
+      try {
+        await runTest(route, mockRequest);
+        assert.fail('should have failed');
+      } catch(err) {
+        assert.isTrue(mockDB.deleteLinkedAccount.notCalled);
+        assert.equal(err.errno, 138, 'unconfirmed session');
+      }
+    });
   });
 
   describe('/linked_account/webhook/google_event_receiver', () => {
