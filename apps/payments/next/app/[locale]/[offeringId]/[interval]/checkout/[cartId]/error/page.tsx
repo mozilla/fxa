@@ -6,8 +6,6 @@ import { headers } from 'next/headers';
 import Image from 'next/image';
 import Link from 'next/link';
 
-import { DEFAULT_LOCALE } from '@fxa/shared/l10n';
-
 import errorIcon from '@fxa/shared/assets/images/error.svg';
 import {
   getApp,
@@ -74,20 +72,15 @@ export default async function CheckoutError({
   params: CheckoutParams;
   searchParams: Record<string, string>;
 }) {
-  // Temporarily defaulting to `accept-language`
-  // This to be updated in FXA-9404
-  //const locale = getLocaleFromRequest(
-  //  params,
-  //  headers().get('accept-language')
-  //);
-  const locale = headers().get('accept-language') || DEFAULT_LOCALE;
+  const { locale } = params;
+  const acceptLanguage = headers().get('accept-language');
 
   const cartPromise = getCartOrRedirectAction(
     params.cartId,
     SupportedPages.ERROR,
     searchParams
   );
-  const l10n = getApp().getL10n(locale);
+  const l10n = getApp().getL10n(acceptLanguage, locale);
   const [cart] = await Promise.all([cartPromise]);
 
   recordEmitterEventAction(

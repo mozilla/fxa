@@ -24,14 +24,20 @@ class AppSingleton {
     }
   }
 
-  getL10n(acceptLanguage: string) {
+  getL10n(acceptLanguage?: string | null, selectedLocale?: string) {
     const localizerRscFactory = this.app.get(LocalizerRscFactory);
-    return localizerRscFactory.createLocalizerRsc(acceptLanguage);
+    return localizerRscFactory.createLocalizerRsc(
+      acceptLanguage,
+      selectedLocale
+    );
   }
 
-  getFetchedMessages(acceptLanguage: string) {
+  getFetchedMessages(acceptLanguage?: string | null, selectedLocale?: string) {
     const localizerRscFactory = this.app.get(LocalizerRscFactory);
-    return localizerRscFactory.getFetchedMessages(acceptLanguage);
+    return localizerRscFactory.getFetchedMessages(
+      acceptLanguage,
+      selectedLocale
+    );
   }
 
   /**

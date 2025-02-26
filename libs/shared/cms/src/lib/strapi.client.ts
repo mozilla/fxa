@@ -68,9 +68,16 @@ export class StrapiClient {
     this.on = this.emitter.on.bind(this.emitter);
   }
 
-  async getLocale(acceptLanguage: string): Promise<string> {
+  async getLocale(
+    acceptLanguage?: string,
+    selectedLanguage?: string
+  ): Promise<string> {
     const strapiLocales = await this.getLocales();
-    const result = determineLocale(acceptLanguage, strapiLocales);
+    const result = determineLocale(
+      acceptLanguage,
+      strapiLocales,
+      selectedLanguage
+    );
     if (result === 'en') {
       return DEFAULT_LOCALE;
     }

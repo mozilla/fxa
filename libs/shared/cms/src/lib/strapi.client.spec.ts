@@ -139,5 +139,15 @@ describe('StrapiClient', () => {
       const result = await strapiClient.getLocale(acceptLanguage);
       expect(result).toBe(DEFAULT_LOCALE);
     });
+
+    it('Returns the selected language locale if provided', async () => {
+      const acceptLanguage = 'de-DE,en-US;q=0.7';
+      const selectedLanguage = 'fr-FR';
+      const result = await strapiClient.getLocale(
+        acceptLanguage,
+        selectedLanguage
+      );
+      expect(result).toBe(selectedLanguage);
+    });
   });
 });

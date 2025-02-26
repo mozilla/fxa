@@ -9,7 +9,6 @@ import {
 } from '@fxa/payments/ui';
 import { getApp, SupportedPages } from '@fxa/payments/ui/server';
 import { headers } from 'next/headers';
-import { DEFAULT_LOCALE } from '@fxa/shared/l10n';
 import { getCartOrRedirectAction } from '@fxa/payments/ui/actions';
 
 export default async function ProcessingPage({
@@ -19,8 +18,9 @@ export default async function ProcessingPage({
   params: CheckoutParams;
   searchParams: Record<string, string> | undefined;
 }) {
-  const locale = headers().get('accept-language') || DEFAULT_LOCALE;
-  const l10n = getApp().getL10n(locale);
+  const { locale } = params;
+  const acceptLanguage = headers().get('accept-language');
+  const l10n = getApp().getL10n(acceptLanguage, locale);
   const cart = await getCartOrRedirectAction(
     params.cartId,
     SupportedPages.PROCESSING,

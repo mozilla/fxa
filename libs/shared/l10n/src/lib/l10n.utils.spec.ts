@@ -41,6 +41,14 @@ describe('l10n.utils', () => {
       expect(parseAcceptLanguage('')).toEqual(['en']);
     });
 
+    it('handles undefined', () => {
+      expect(parseAcceptLanguage()).toEqual(['en']);
+    });
+
+    it('handles null', () => {
+      expect(parseAcceptLanguage(null)).toEqual(['en']);
+    });
+
     it('handles unknown', () => {
       expect(parseAcceptLanguage('xyz')).toEqual(['en']);
     });
@@ -168,6 +176,25 @@ describe('l10n.utils', () => {
         expect(parseAcceptLanguage('zh-CN, zh-TW, zh-HK, zh')).toEqual([
           'zh-CN',
           'zh-TW',
+          'en',
+        ]);
+      });
+    });
+
+    describe('overrideLocale', () => {
+      it('returns the overrideLocale first', () => {
+        expect(parseAcceptLanguage('it, ru;q=0.3', undefined, 'de')).toEqual([
+          'de',
+          'it',
+          'ru',
+          'en',
+        ]);
+      });
+
+      it('returns only one instance of locale if overrideLocale is duplicated in acceptLanguage', () => {
+        expect(parseAcceptLanguage('it, de;q=0.3', undefined, 'de')).toEqual([
+          'de',
+          'it',
           'en',
         ]);
       });
