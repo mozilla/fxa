@@ -34,10 +34,11 @@ export const FormSetupAccount = ({
   setAgeCheckErrorText,
   onFocusAgeInput,
   onBlurAgeInput,
-  submitButtonGleanId
+  submitButtonGleanId,
+  strapiConfig,
 }: FormSetupAccountProps) => {
   const showCWTS = () => {
-    if (isSync) {
+    if (isSync && strapiConfig?.showCWTS) {
       if (offeredSyncEngineConfigs) {
         return (
           <ChooseWhatToSync
@@ -71,7 +72,7 @@ export const FormSetupAccount = ({
         disableButtonUntilValid: true,
         onSubmit,
         loading,
-        submitButtonGleanId
+        submitButtonGleanId,
       }}
       passwordFormType="signup"
     >
@@ -129,7 +130,7 @@ SR-only text: "How old are you? To learn why we ask for your age, follow the “
           setSelectedNewsletterSlugs && (
             <ChooseNewsletters
               {...{
-                newsletters,
+                newsletters: strapiConfig?.newsletters || newsletters,
                 setSelectedNewsletterSlugs,
               }}
             />

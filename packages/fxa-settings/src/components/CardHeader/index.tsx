@@ -49,13 +49,19 @@ interface CardHeaderBasicWithDefaultSubheadingProps
   headingAndSubheadingFtlId: string;
 }
 
+interface CardHeaderStrapiProps extends CardHeaderRequiredProps {
+  headingText: string;
+  subheadingText: string;
+}
+
 type CardHeaderProps =
   | CardHeaderDefaultServiceProps
   | CardHeaderCustomServiceProps
   | CardHeaderBasicWithDefaultSubheadingProps
   | CardHeaderSeparateSubheadingProps
   | CardHeaderWithCustomSubheadingProps
-  | CardHeaderBasicProps;
+  | CardHeaderBasicProps
+  | CardHeaderStrapiProps;
 
 function isBasicWithDefaultSubheading(
   props: CardHeaderProps
@@ -112,6 +118,14 @@ function isBasicWithCustomSubheading(
   );
 }
 
+function isStrapiCustomHeading(
+  props: CardHeaderProps
+): props is CardHeaderStrapiProps {
+  return (
+    (props as CardHeaderWithCustomSubheadingProps).subheadingText !== undefined
+  );
+}
+
 const serviceLogos: {
   [key in MozServices]?: ReactElement;
 } = {
@@ -141,6 +155,33 @@ const serviceLogos: {
 
 const CardHeader = (props: CardHeaderProps) => {
   const { headingText } = props;
+
+  if (isStrapiCustomHeading(props)) {
+    const { subheadingText } = props;
+    const spanElement: ReactElement = (
+      <span className="card-subheader">
+        {subheadingText}
+        {/*  <img*/}
+        {/*  src="https://monitor.mozilla.org/_next/static/media/monitor-logo.e25bb4f2.svg"*/}
+        {/*  alt={MozServices.Pocket}*/}
+        {/*  className="inline w-28"*/}
+        {/*/>*/}
+      </span>
+    );
+
+    if (subheadingText) {
+      return (
+        <h1 className="card-header">
+          {headingText} {spanElement}
+        </h1>
+      );
+    }
+    return (
+      <h1 className="card-header">
+        {headingText} {spanElement}
+      </h1>
+    );
+  }
 
   if (isDefaultService(props)) {
     const spanElement: ReactElement = (

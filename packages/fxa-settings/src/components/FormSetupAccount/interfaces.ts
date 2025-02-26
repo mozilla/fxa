@@ -31,4 +31,5 @@ export type FormSetupAccountProps = {
   onFocusAgeInput?: () => void;
   onBlurAgeInput?: () => void;
   submitButtonGleanId?: string;
+  strapiConfig?: any;
 };

@@ -55,6 +55,7 @@ export const Signup = ({
     selectedEngines,
   },
 }: SignupProps) => {
+  const [strapiConfig, setStrapiConfig] = useState<any>(null);
   const sensitiveDataClient = useSensitiveDataClient();
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
@@ -106,6 +107,55 @@ export const Signup = ({
       }
     }
   }, [integration, isOAuth]);
+
+  async function fetchConfig() {
+    const clientId = integration.getClientId();
+    const key = '';
+    const response = await fetch(
+      `https://delicate-bloom-d8e386345e.strapiapp.com/api/clients?filters[clientId]=${clientId}`,
+      {
+        headers: {
+          Authorization: key,
+        },
+      }
+    );
+
+    const data = await response.json();
+    console.log('STRAPI', clientId, data);
+    return data.data[0];
+  }
+
+  async function loadStrapiConfig() {
+    try {
+      const config = await fetchConfig(); // Assuming fetchConfig is defined elsewhere
+      setStrapiConfig(config);
+
+      // Update favicon
+      if (config?.faviconUrl) {
+        let link =
+          (document.querySelector("link[rel*='icon']") as HTMLLinkElement) ||
+          (document.createElement('link') as HTMLLinkElement);
+        link.type = 'image/x-icon';
+        link.rel = 'shortcut icon';
+        link.href = config.faviconUrl;
+
+        if (!document.querySelector("link[rel*='icon']")) {
+          document.head.appendChild(link);
+        }
+      }
+
+      // Update page title
+      if (config?.pageTitleSignup) {
+        document.title = config.pageTitleSignup;
+      }
+    } catch (error) {
+      console.error('Failed to load signup config:', error);
+    }
+  }
+
+  useEffect(() => {
+    loadStrapiConfig();
+  }, []);
 
   const { handleSubmit, register, getValues, errors, formState, trigger } =
     useForm<SignupFormData>({
@@ -324,6 +374,11 @@ export const Signup = ({
             </p>
           </FtlMsg>
         </>
+      ) : strapiConfig ? (
+        <CardHeader
+          headingText={strapiConfig.signupHeader}
+          subheadingText={strapiConfig.signupSubHeader}
+        />
       ) : (
         <CardHeader
           headingText="Set your password"
@@ -411,13 +466,16 @@ export const Signup = ({
           setAgeCheckErrorText,
           onFocusAgeInput,
           onBlurAgeInput,
+          strapiConfig,
         }}
         loading={beginSignupLoading}
         onSubmit={handleSubmit(onSubmit)}
       />
 
       {/* Third party auth is not currently supported for sync */}
-      {!isSync && !isDesktopRelay && <ThirdPartyAuth viewName="signup" />}
+      {!isSync && !isDesktopRelay && strapiConfig?.showThirdPartyAuth && (
+        <ThirdPartyAuth viewName="signup" />
+      )}
 
       <TermsPrivacyAgreement
         isPocketClient={client === MozServices.Pocket}

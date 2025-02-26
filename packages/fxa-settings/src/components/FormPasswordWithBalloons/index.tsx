@@ -28,6 +28,7 @@ export type FormPasswordWithBalloonsProps = {
   children?: React.ReactNode;
   disableButtonUntilValid?: boolean;
   submitButtonGleanId?: string;
+  strapiConfig?: any;
 };
 
 const getTemplateValues = (passwordFormType: PasswordFormType) => {
@@ -77,6 +78,7 @@ export const FormPasswordWithBalloons = ({
   children,
   disableButtonUntilValid = false,
   submitButtonGleanId,
+  strapiConfig,
 }: FormPasswordWithBalloonsProps) => {
   const passwordValidator = new PasswordValidator(email);
   const [passwordMatchErrorText, setPasswordMatchErrorText] =
