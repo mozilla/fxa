@@ -914,7 +914,7 @@ workflows:
               only:
                 - main
                 - update-ci-image
-                - train-*
+                - /^train.*/
             tags:
               ignore: /.*/
           force-deploy: << pipeline.parameters.force-deploy-fxa-ci-images >>
