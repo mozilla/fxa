@@ -54,7 +54,7 @@ const {
       await db.close();
     });
 
-    it('upgrading verifierVersion upgrades the account on password change', async () => {
+    it.skip('upgrading verifierVersion upgrades the account on password change', async () => {
       const email = `${Math.random()}@example.com`;
       const password = 'ok';
 

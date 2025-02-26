@@ -4,8 +4,8 @@
 
 const sinon = require('sinon');
 const assert = { ...sinon.assert, ...require('chai').assert };
-const { ReasonForDeletion } = require('@fxa/shared/cloud-tasks');
-const proxyquire = require('proxyquire');
+import { ReasonForDeletion } from '@fxa/shared/cloud-tasks';
+import proxyquire from 'proxyquire';
 
 describe('CloudSchedulerHandler', function () {
   this.timeout(10000);
