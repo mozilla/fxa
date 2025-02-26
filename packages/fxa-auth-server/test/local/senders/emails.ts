@@ -3308,7 +3308,7 @@ describe('mailer bounces succeed', () => {
 function sesMessageTagsHeaderValue(templateName: string, serviceName?: any) {
   return `messageType=fxa-${templateName}, app=fxa, service=${
     serviceName || 'fxa-auth-server'
-  }, ses:feedback-id-a=fxa-${templateName}`;
+  }`;
 }
 
 function configHref(
