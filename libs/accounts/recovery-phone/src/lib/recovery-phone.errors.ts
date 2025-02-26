@@ -84,3 +84,19 @@ export class RecoveryPhoneRegistrationLimitReached extends RecoveryPhoneError {
     );
   }
 }
+
+export class MessageBodyTooLong extends RecoveryPhoneError {
+  constructor(
+    public readonly maxSegmentLength: number,
+    public readonly segmentCount: number,
+    public readonly encoding: string,
+    public readonly body: string
+  ) {
+    super('SMS body exceeds max segment length', {
+      maxSegmentLength,
+      segmentCount,
+      body,
+      encoding,
+    });
+  }
+}

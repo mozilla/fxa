@@ -14,11 +14,13 @@ import {
 import { SmsManagerConfig } from './sms.manager.config';
 import { TwilioProvider } from './twilio.provider';
 import {
+  MessageBodyTooLong,
   RecoveryNumberInvalidFormatError,
   RecoveryNumberNotSupportedError,
   SmsSendRateLimitExceededError,
   TwilioErrorCodes,
 } from './recovery-phone.errors';
+import { SegmentedMessage } from 'sms-segments-calculator';
 
 export type TwilioMessageStatus = {
   AccountSid: string;
@@ -86,6 +88,15 @@ export class SmsManager {
     }
   }
 
+  public checkMessageSegments(smsBody: string) {
+    const segmentedMessage = new SegmentedMessage(smsBody);
+    return {
+      overLimit:
+        segmentedMessage.segmentsCount > this.config.maxMessageSegmentLength,
+      segmentedMessage,
+    };
+  }
+
   public async sendSMS({
     to,
     body,
@@ -95,9 +106,15 @@ export class SmsManager {
     body: string;
     uid?: string;
   }) {
-    if (body.length > this.config.maxMessageLength) {
-      throw new Error(
-        `Body cannot be greater than ${this.config.maxMessageLength} characters.`
+    // Calling code should try to avoid this from happening though, but we
+    // will do a final check here.
+    const msgCheck = this.checkMessageSegments(body);
+    if (msgCheck.overLimit) {
+      throw new MessageBodyTooLong(
+        this.config.maxMessageSegmentLength,
+        msgCheck.segmentedMessage.segmentsCount,
+        msgCheck.segmentedMessage.encoding,
+        body
       );
     }
 

@@ -42719,6 +42719,7 @@ fsevents@~2.1.1:
     semver: ^7.6.3
     server-only: ^0.0.1
     set-value: ^4.1.0
+    sms-segments-calculator: ^1.2.0
     stripe: ^17.4.0
     stylelint: ^16.14.1
     stylelint-config-prettier: ^9.0.3
@@ -64332,6 +64333,15 @@ resolve@1.1.7:
   version: 1.5.0
   resolution: "smob@npm:1.5.0"
   checksum: 436b99477ace208e44bd7cd7933532958acca507320724a8e57c730accc47c5d77e538fbc554ded145f1e3411ac0c4b55f6782bceaa5839671104fd68d4bdc7f
+  languageName: node
+  linkType: hard
+
+"sms-segments-calculator@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "sms-segments-calculator@npm:1.2.0"
+  dependencies:
+    grapheme-splitter: ^1.0.4
+  checksum: 808357554030974d085805e95a3137dd12f7081642ac762a0bf6698d8ca89c81cfd90457fa3c391cb18c4126f826fea60c77263307a58ccb0653eaed0bbcf07d
   languageName: node
   linkType: hard
 

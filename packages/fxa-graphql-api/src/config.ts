@@ -308,10 +308,10 @@ const conf = convict({
         env: 'RECOVERY_PHONE__SMS__FROM',
         format: Array,
       },
-      maxMessageLength: {
+      maxMessageSegmentLength: {
         default: 160,
-        doc: 'Max allowed sms message length',
-        env: 'RECOVERY_PHONE__SMS__MAX_MESSAGE_LENGTH',
+        doc: 'Max allowed sms message segment length',
+        env: 'RECOVERY_PHONE__SMS__MAX_MESSAGE_SEGMENT_LENGTH',
         format: Number,
       },
       validNumberPrefixes: {
