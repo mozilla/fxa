@@ -411,17 +411,20 @@ describe('CheckoutService', () => {
       jest.spyOn(customerManager, 'setTaxId').mockResolvedValue();
       jest.spyOn(profileClient, 'deleteCache').mockResolvedValue('test');
       jest.spyOn(cartManager, 'finishCart').mockResolvedValue();
+      jest.spyOn(statsd, 'increment');
     });
 
     it('success', async () => {
       const mockCart = ResultCartFactory();
+      const paymentProvider = 'stripe';
 
-      await checkoutService.postPaySteps(
-        mockCart,
-        mockCart.version,
-        mockSubscription,
-        mockUid
-      );
+      await checkoutService.postPaySteps({
+        cart: mockCart,
+        version: mockCart.version,
+        subscription: mockSubscription,
+        uid: mockUid,
+        paymentProvider,
+      });
 
       expect(customerManager.setTaxId).toHaveBeenCalledWith(
         mockSubscription.customer,
@@ -430,6 +433,11 @@ describe('CheckoutService', () => {
 
       expect(privateMethod).toHaveBeenCalled();
       expect(cartManager.finishCart).toHaveBeenCalled();
+      expect(statsd.increment).toHaveBeenCalledWith('subscription_success', {
+        payment_provider: paymentProvider,
+        offering_id: mockCart.offeringConfigId,
+        interval: mockCart.interval,
+      });
     });
 
     it('success - adds coupon code to subscription metadata if it exists', async () => {
@@ -444,17 +452,19 @@ describe('CheckoutService', () => {
           },
         })
       );
+      const paymentProvider = 'stripe';
 
       jest
         .spyOn(subscriptionManager, 'update')
         .mockResolvedValue(mockUpdatedSubscription);
 
-      await checkoutService.postPaySteps(
-        mockCart,
-        mockCart.version,
-        mockSubscription,
-        mockUid
-      );
+      await checkoutService.postPaySteps({
+        cart: mockCart,
+        version: mockCart.version,
+        subscription: mockSubscription,
+        uid: mockUid,
+        paymentProvider,
+      });
 
       expect(customerManager.setTaxId).toHaveBeenCalledWith(
         mockSubscription.customer,
@@ -598,12 +608,13 @@ describe('CheckoutService', () => {
       });
 
       it('calls postPaySteps', async () => {
-        expect(checkoutService.postPaySteps).toHaveBeenCalledWith(
-          mockCart,
-          mockPrePayStepsResult.version + 1,
-          mockSubscription,
-          mockCart.uid
-        );
+        expect(checkoutService.postPaySteps).toHaveBeenCalledWith({
+          cart: mockCart,
+          version: mockPrePayStepsResult.version + 1,
+          subscription: mockSubscription,
+          uid: mockCart.uid,
+          paymentProvider: 'stripe',
+        });
       });
     });
 
@@ -829,12 +840,13 @@ describe('CheckoutService', () => {
         );
       });
       it('calls postPaySteps', async () => {
-        expect(checkoutService.postPaySteps).toHaveBeenCalledWith(
-          mockCart,
-          mockPrePayStepsResult.version + 1,
-          mockSubscription,
-          mockCart.uid
-        );
+        expect(checkoutService.postPaySteps).toHaveBeenCalledWith({
+          cart: mockCart,
+          version: mockPrePayStepsResult.version + 1,
+          subscription: mockSubscription,
+          uid: mockCart.uid,
+          paymentProvider: 'paypal',
+        });
       });
     });
     describe('uncollectible', () => {

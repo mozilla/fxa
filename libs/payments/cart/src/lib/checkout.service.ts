@@ -212,12 +212,14 @@ export class CheckoutService {
     };
   }
 
-  async postPaySteps(
-    cart: ResultCart,
-    version: number,
-    subscription: StripeSubscription,
-    uid: string
-  ) {
+  async postPaySteps(args: {
+    cart: ResultCart;
+    version: number;
+    subscription: StripeSubscription;
+    uid: string;
+    paymentProvider: 'stripe' | 'paypal';
+  }) {
+    const { cart, version, subscription, uid, paymentProvider } = args;
     const { customer: customerId, currency } = subscription;
 
     await this.customerManager.setTaxId(customerId, currency);
@@ -235,8 +237,11 @@ export class CheckoutService {
     }
     await this.cartManager.finishCart(cart.id, version, {});
 
-    // TODO: call sendFinishSetupEmailForStubAccount
-    console.log(cart.id, subscription.id);
+    this.statsd.increment('subscription_success', {
+      payment_provider: paymentProvider,
+      offering_id: cart.offeringConfigId,
+      interval: cart.interval,
+    });
   }
 
   async payWithStripe(
@@ -319,7 +324,13 @@ export class CheckoutService {
           { cartId: cart.id }
         );
       }
-      await this.postPaySteps(cart, updatedVersion, subscription, uid);
+      await this.postPaySteps({
+        cart,
+        version: updatedVersion,
+        subscription,
+        uid,
+        paymentProvider: 'stripe',
+      });
     } else {
       throw new CheckoutPaymentError(
         `Expected payment intent status to be one of [requires_action, succeeded], instead found: ${paymentIntent.status}`
@@ -409,7 +420,13 @@ export class CheckoutService {
       latestInvoice
     );
     if (['paid', 'open'].includes(processedInvoice.status ?? '')) {
-      await this.postPaySteps(cart, updatedVersion, subscription, uid);
+      await this.postPaySteps({
+        cart,
+        version: updatedVersion,
+        subscription,
+        uid,
+        paymentProvider: 'paypal',
+      });
     } else {
       throw new CheckoutPaymentError(
         `Expected processed invoice status to be one of [paid, open], instead found: ${processedInvoice.status}`

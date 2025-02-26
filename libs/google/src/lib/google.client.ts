@@ -6,13 +6,21 @@ import {
   Client,
   GeocodeResponseData,
 } from '@googlemaps/google-maps-services-js';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { GoogleClientConfig } from './google.client.config';
+import {
+  CaptureTimingWithStatsD,
+  StatsDService,
+  type StatsD,
+} from '@fxa/shared/metrics/statsd';
 
 @Injectable()
 export class GoogleClient {
   private readonly google: Client;
-  constructor(private googleClientConfig: GoogleClientConfig) {
+  constructor(
+    private googleClientConfig: GoogleClientConfig,
+    @Inject(StatsDService) public statsd: StatsD
+  ) {
     this.google = new Client();
   }
 
@@ -20,6 +28,7 @@ export class GoogleClient {
    * Retrieve Geocode Data for the specified address. For more information review
    * https://developers.google.com/maps/documentation/geocoding/overview
    */
+  @CaptureTimingWithStatsD()
   async geocode(address: string, countryCode: string) {
     const response = await this.google.geocode({
       params: {

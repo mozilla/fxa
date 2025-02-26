@@ -74,8 +74,10 @@ export async function init() {
     log
   );
 
+  const statsd = Container.get(StatsD);
   const paypalClient = new PayPalClient(
-    config.subscriptions.paypalNvpSigCredentials
+    config.subscriptions.paypalNvpSigCredentials,
+    statsd
   );
   Container.set(PayPalClient, paypalClient);
   const paypalHelper = new PayPalHelper({ log });
@@ -90,7 +92,6 @@ export async function init() {
     database,
     senders.email
   );
-  const statsd = Container.get(StatsD);
   statsd.increment('paypal-processor.startup');
 
   if (useLock) {

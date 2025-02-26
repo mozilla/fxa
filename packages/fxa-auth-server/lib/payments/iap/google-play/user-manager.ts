@@ -27,11 +27,15 @@ import {
 } from './subscription-purchase';
 import { PurchaseQueryError, SkuType } from './types';
 import { UserManager as UserManagerBase } from 'fxa-shared/payments/iap/google-play/user-manager';
+import { StatsD } from 'hot-shots';
+import { CaptureTimingWithStatsD } from '@fxa/shared/metrics/statsd';
 
 /*
  * A class that allows looking up purchases registered to a particular user
  */
 export class UserManager extends UserManagerBase {
+  public statsd: StatsD;
+
   /*
    * This class is intended to be initialized by the library.
    * Library consumer should not initialize this class themselves.
@@ -41,12 +45,15 @@ export class UserManager extends UserManagerBase {
     purchaseManager: PurchaseManager
   ) {
     super(purchasesDbRef, purchaseManager, Container.get(AuthLogger));
+
+    this.statsd = Container.get(StatsD);
   }
 
   /*
    * Query subscriptions registered to a particular user, that are either active or in account hold.
    * Note: Other subscriptions which don't meet the above criteria still exists in Firestore purchase records, but not accessible from outside of the library.
    */
+  @CaptureTimingWithStatsD()
   async queryCurrentSubscriptions(
     userId: string,
     sku?: string,

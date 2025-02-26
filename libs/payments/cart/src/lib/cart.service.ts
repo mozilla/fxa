@@ -196,11 +196,6 @@ export class CartService {
     uid?: string;
     ip?: string;
   }): Promise<ResultCart> {
-    // TODO:
-    // - Fetch information about interval, offering, experiments from CMS
-    // - Guess TaxAddress via maxmind client
-    // - Check if user is eligible to subscribe to plan, else throw error
-    // - Fetch stripeCustomerId if uid is passed and has a customer id
     let accountCustomer;
     if (args.uid) {
       accountCustomer = await this.accountCustomerManager
@@ -445,12 +440,14 @@ export class CartService {
       if (!subscription) {
         throw new CartSubscriptionNotFoundError(cartId);
       }
-      await this.checkoutService.postPaySteps(
+      await this.checkoutService.postPaySteps({
         cart,
-        cart.version,
+        version: cart.version,
         subscription,
-        cart.uid
-      );
+        uid: cart.uid,
+        paymentProvider:
+          this.subscriptionManager.getPaymentProvider(subscription),
+      });
     });
   }
 
@@ -605,7 +602,10 @@ export class CartService {
     } else if (subscriptions.length) {
       const firstListedSubscription = subscriptions[0];
       // fetch payment method info
-      if (firstListedSubscription.collection_method === 'send_invoice') {
+      if (
+        this.subscriptionManager.getPaymentProvider(firstListedSubscription) ===
+        'paypal'
+      ) {
         // PayPal payment method collection
         paymentInfo = {
           type: 'external_paypal',
@@ -770,12 +770,14 @@ export class CartService {
         const subscription = await this.subscriptionManager.retrieve(
           cart.stripeSubscriptionId
         );
-        await this.checkoutService.postPaySteps(
+        await this.checkoutService.postPaySteps({
           cart,
-          cart.version,
+          version: cart.version,
           subscription,
-          cart.uid
-        );
+          uid: cart.uid,
+          paymentProvider:
+            this.subscriptionManager.getPaymentProvider(subscription),
+        });
       } else {
         const promises: Promise<any>[] = [
           this.finalizeCartWithError(cartId, CartErrorReasonId.Unknown),

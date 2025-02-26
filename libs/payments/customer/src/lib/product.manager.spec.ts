@@ -11,6 +11,7 @@ import {
   MockStripeConfigProvider,
 } from '@fxa/payments/stripe';
 import { ProductManager } from './product.manager';
+import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 
 describe('ProductManager', () => {
   let productManager: ProductManager;
@@ -18,7 +19,12 @@ describe('ProductManager', () => {
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      providers: [MockStripeConfigProvider, StripeClient, ProductManager],
+      providers: [
+        MockStripeConfigProvider,
+        StripeClient,
+        ProductManager,
+        MockStatsDProvider,
+      ],
     }).compile();
 
     productManager = module.get(ProductManager);

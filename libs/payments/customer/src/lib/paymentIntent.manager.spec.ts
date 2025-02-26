@@ -11,6 +11,7 @@ import {
   StripeResponseFactory,
   StripePaymentIntentFactory,
 } from '@fxa/payments/stripe';
+import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 
 describe('PaymentIntentManager', () => {
   let paymentIntentManager: PaymentIntentManager;
@@ -18,7 +19,12 @@ describe('PaymentIntentManager', () => {
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
-      providers: [MockStripeConfigProvider, PaymentIntentManager, StripeClient],
+      providers: [
+        MockStripeConfigProvider,
+        PaymentIntentManager,
+        StripeClient,
+        MockStatsDProvider,
+      ],
     }).compile();
 
     paymentIntentManager = moduleRef.get(PaymentIntentManager);

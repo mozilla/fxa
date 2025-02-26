@@ -11,6 +11,7 @@ import {
   StripeResponseFactory,
   StripeCustomerSessionFactory,
 } from '@fxa/payments/stripe';
+import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 
 describe('CustomerSessionManager', () => {
   let customerSessionManager: CustomerSessionManager;
@@ -22,6 +23,7 @@ describe('CustomerSessionManager', () => {
         MockStripeConfigProvider,
         CustomerSessionManager,
         StripeClient,
+        MockStatsDProvider,
       ],
     }).compile();
 

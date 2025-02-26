@@ -14,6 +14,7 @@ import {
 } from '@fxa/payments/stripe';
 import { TaxAddressFactory } from './factories/tax-address.factory';
 import { CustomerManager } from './customer.manager';
+import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 
 describe('CustomerManager', () => {
   let customerManager: CustomerManager;
@@ -21,7 +22,12 @@ describe('CustomerManager', () => {
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      providers: [MockStripeConfigProvider, StripeClient, CustomerManager],
+      providers: [
+        MockStripeConfigProvider,
+        StripeClient,
+        CustomerManager,
+        MockStatsDProvider,
+      ],
     }).compile();
 
     customerManager = module.get(CustomerManager);

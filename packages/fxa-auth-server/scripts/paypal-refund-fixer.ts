@@ -170,7 +170,8 @@ export async function init() {
   const stripeHelper = new StripeHelper(log, config, statsd);
   Container.set(StripeHelper, stripeHelper);
   const paypalClient = new PayPalClient(
-    config.subscriptions.paypalNvpSigCredentials
+    config.subscriptions.paypalNvpSigCredentials,
+    statsd
   );
   Container.set(PayPalClient, paypalClient);
   const paypalHelper = new PayPalHelper({ log });

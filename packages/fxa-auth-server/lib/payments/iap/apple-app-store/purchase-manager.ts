@@ -16,6 +16,8 @@ import Container from 'typedi';
 import { AuthLogger } from '../../../types';
 import { AppStoreHelper } from './app-store-helper';
 import { AppStoreSubscriptionPurchase } from './subscription-purchase';
+import { StatsD } from 'hot-shots';
+import { CaptureTimingWithStatsD } from '@fxa/shared/metrics/statsd';
 
 export const NOTIFICATION_TYPES_FOR_NON_SUBSCRIPTION_PURCHASES = [
   NotificationType.ConsumptionRequest,
@@ -28,6 +30,8 @@ export const NOTIFICATION_TYPES_FOR_NON_SUBSCRIPTION_PURCHASES = [
  * https://developer.apple.com/documentation/appstoreserverapi
  */
 export class PurchaseManager extends PurchaseManagerBase {
+  public statsd: StatsD;
+
   /*
    * This class is intended to be initialized by the library.
    * Library consumer should not initialize this class themselves.
@@ -37,12 +41,39 @@ export class PurchaseManager extends PurchaseManagerBase {
     appStoreHelper: AppStoreHelper
   ) {
     super(purchasesDbRef, appStoreHelper, Container.get(AuthLogger));
+
+    this.statsd = Container.get(StatsD);
+  }
+
+  @CaptureTimingWithStatsD()
+  async queryCurrentSubscriptionPurchases(
+    userId: string,
+    bundleId?: string,
+    productId?: string
+  ) {
+    return super.queryCurrentSubscriptionPurchases(userId, bundleId, productId);
+  }
+
+  @CaptureTimingWithStatsD()
+  async querySubscriptionPurchase(
+    bundleId: string,
+    originalTransactionId: string,
+    triggerNotificationType?: NotificationType,
+    triggerNotificationSubtype?: NotificationSubtype
+  ) {
+    return super.querySubscriptionPurchase(
+      bundleId,
+      originalTransactionId,
+      triggerNotificationType,
+      triggerNotificationSubtype
+    );
   }
 
   /**
    * Register a purchase (autorenewing subscription) to a user.
    * It's intended to be exposed to the iOS app to verify purchases made in the app.
    */
+  @CaptureTimingWithStatsD()
   async registerToUserAccount(
     bundleId: string,
     originalTransactionId: string,

@@ -14,6 +14,7 @@ import {
 import { PlanIntervalMultiplePlansError } from './error';
 import { PriceManager } from './price.manager';
 import { SubplatInterval } from './types';
+import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 
 describe('PriceManager', () => {
   let priceManager: PriceManager;
@@ -21,7 +22,12 @@ describe('PriceManager', () => {
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      providers: [MockStripeConfigProvider, StripeClient, PriceManager],
+      providers: [
+        MockStripeConfigProvider,
+        StripeClient,
+        PriceManager,
+        MockStatsDProvider,
+      ],
     }).compile();
 
     priceManager = module.get(PriceManager);

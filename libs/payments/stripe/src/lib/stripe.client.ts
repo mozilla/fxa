@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { Stripe } from 'stripe';
 
 import {
@@ -22,6 +22,11 @@ import {
   StripeUpcomingInvoice,
 } from './stripe.client.types';
 import { StripeConfig } from './stripe.config';
+import {
+  CaptureTimingWithStatsD,
+  StatsD,
+  StatsDService,
+} from '@fxa/shared/metrics/statsd';
 
 /**
  * A wrapper for Stripe that enforces that results have deterministic typings
@@ -38,7 +43,10 @@ import { StripeConfig } from './stripe.config';
 @Injectable()
 export class StripeClient {
   private readonly stripe: Stripe;
-  constructor(private stripeConfig: StripeConfig) {
+  constructor(
+    private stripeConfig: StripeConfig,
+    @Inject(StatsDService) public statsd: StatsD
+  ) {
     this.stripe = new Stripe(
       // 'api_key_placeholder' is currently needed during build time
       // Should be able to remove in the next version
@@ -49,6 +57,16 @@ export class StripeClient {
         maxNetworkRetries: 3,
       }
     );
+
+    this.stripe.on('response', (response) => {
+      this.statsd.timing('stripe_request', response.elapsed);
+      // Note that we can't record the method/path as a tag
+      // because ids are in the path which results in too great
+      // of cardinality.
+      this.statsd.increment('stripe_call', {
+        error: (response.status >= 500).toString(),
+      });
+    });
   }
 
   constructWebhookEvent(payload: any, signature: string): Stripe.Event {
@@ -59,6 +77,7 @@ export class StripeClient {
     );
   }
 
+  @CaptureTimingWithStatsD()
   async customersRetrieve(
     customerId: string,
     params?: Stripe.CustomerRetrieveParams
@@ -70,6 +89,7 @@ export class StripeClient {
     return result as StripeResponse<StripeCustomer | StripeDeletedCustomer>;
   }
 
+  @CaptureTimingWithStatsD()
   async customersCreate(params?: Stripe.CustomerCreateParams) {
     const result = await this.stripe.customers.create({
       ...params,
@@ -78,6 +98,7 @@ export class StripeClient {
     return result as StripeResponse<StripeCustomer>;
   }
 
+  @CaptureTimingWithStatsD()
   async customersUpdate(
     customerId: string,
     params?: Stripe.CustomerUpdateParams
@@ -90,6 +111,7 @@ export class StripeClient {
     return result as StripeResponse<StripeCustomer>;
   }
 
+  @CaptureTimingWithStatsD()
   async customersDelete(
     customerId: string,
     params?: Stripe.CustomerDeleteParams
@@ -101,11 +123,13 @@ export class StripeClient {
     return result as StripeResponse<StripeDeletedCustomer>;
   }
 
+  @CaptureTimingWithStatsD()
   async customersSessionsCreate(params: Stripe.CustomerSessionCreateParams) {
     const result = await this.stripe.customerSessions.create(params);
     return result as StripeResponse<StripeCustomerSession>;
   }
 
+  @CaptureTimingWithStatsD()
   async subscriptionsList(params?: Stripe.SubscriptionListParams) {
     const result = await this.stripe.subscriptions.list({
       ...params,
@@ -115,6 +139,7 @@ export class StripeClient {
     return result as StripeApiList<StripeSubscription>;
   }
 
+  @CaptureTimingWithStatsD()
   async subscriptionsCreate(
     params: Stripe.SubscriptionCreateParams,
     options?: Stripe.RequestOptions
@@ -130,6 +155,7 @@ export class StripeClient {
     return result as StripeResponse<StripeSubscription>;
   }
 
+  @CaptureTimingWithStatsD()
   async subscriptionsCancel(
     id: string,
     params?: Stripe.SubscriptionCancelParams
@@ -142,6 +168,7 @@ export class StripeClient {
     return result as StripeResponse<StripeSubscription>;
   }
 
+  @CaptureTimingWithStatsD()
   async subscriptionsRetrieve(
     id: string,
     params?: Stripe.SubscriptionRetrieveParams
@@ -154,6 +181,7 @@ export class StripeClient {
     return result as StripeResponse<StripeSubscription>;
   }
 
+  @CaptureTimingWithStatsD()
   async subscriptionsUpdate(
     id: string,
     params?: Stripe.SubscriptionUpdateParams
@@ -166,6 +194,7 @@ export class StripeClient {
     return result as StripeResponse<StripeSubscription>;
   }
 
+  @CaptureTimingWithStatsD()
   async invoicesRetrieve(
     id: string,
     params?: Stripe.PaymentMethodAttachParams
@@ -177,6 +206,7 @@ export class StripeClient {
     return result as StripeResponse<StripeInvoice>;
   }
 
+  @CaptureTimingWithStatsD()
   async invoicesRetrieveUpcoming(
     params?: Stripe.InvoiceRetrieveUpcomingParams
   ) {
@@ -187,6 +217,7 @@ export class StripeClient {
     return result as StripeResponse<StripeUpcomingInvoice>;
   }
 
+  @CaptureTimingWithStatsD()
   async invoicesFinalizeInvoice(
     invoiceId: string,
     params?: Stripe.InvoiceFinalizeInvoiceParams
@@ -198,6 +229,7 @@ export class StripeClient {
     return result as StripeResponse<StripeInvoice>;
   }
 
+  @CaptureTimingWithStatsD()
   async invoicesUpdate(invoiceId: string, params?: Stripe.InvoiceUpdateParams) {
     const result = await this.stripe.invoices.update(invoiceId, {
       ...params,
@@ -206,6 +238,7 @@ export class StripeClient {
     return result as StripeResponse<StripeInvoice>;
   }
 
+  @CaptureTimingWithStatsD()
   async invoicesPay(invoiceId: string) {
     try {
       await this.stripe.invoices.pay(invoiceId, {
@@ -220,16 +253,19 @@ export class StripeClient {
     }
   }
 
+  @CaptureTimingWithStatsD()
   async invoicesDelete(invoiceId: string) {
     const result = await this.stripe.invoices.del(invoiceId);
     return result as StripeResponse<StripeDeletedInvoice>;
   }
 
+  @CaptureTimingWithStatsD()
   async invoicesVoid(invoiceId: string) {
     const result = await this.stripe.invoices.voidInvoice(invoiceId);
     return result as StripeResponse<StripeInvoice>;
   }
 
+  @CaptureTimingWithStatsD()
   async paymentIntentRetrieve(
     paymentIntentId: string,
     params?: Stripe.PaymentIntentRetrieveParams
@@ -241,6 +277,7 @@ export class StripeClient {
     return result as StripeResponse<StripePaymentIntent>;
   }
 
+  @CaptureTimingWithStatsD()
   async paymentMethodsAttach(
     id: string,
     params: Stripe.PaymentMethodAttachParams
@@ -252,6 +289,7 @@ export class StripeClient {
     return result as StripeResponse<StripePaymentMethod>;
   }
 
+  @CaptureTimingWithStatsD()
   async paymentMethodRetrieve(
     id: string,
     params?: Stripe.PaymentMethodRetrieveParams
@@ -263,6 +301,7 @@ export class StripeClient {
     return result as StripeResponse<StripePaymentMethod>;
   }
 
+  @CaptureTimingWithStatsD()
   async pricesRetrieve(id: string, params?: Stripe.PriceRetrieveParams) {
     const result = await this.stripe.prices.retrieve(id, {
       ...params,
@@ -271,6 +310,7 @@ export class StripeClient {
     return result as StripeResponse<StripePrice>;
   }
 
+  @CaptureTimingWithStatsD()
   async productsRetrieve(id: string, params?: Stripe.ProductRetrieveParams) {
     const result = await this.stripe.products.retrieve(id, {
       ...params,
@@ -279,6 +319,7 @@ export class StripeClient {
     return result as StripeResponse<StripeProduct>;
   }
 
+  @CaptureTimingWithStatsD()
   async promotionCodesList(params: Stripe.PromotionCodeListParams) {
     const result = await this.stripe.promotionCodes.list({
       ...params,
@@ -287,6 +328,7 @@ export class StripeClient {
     return result as StripeResponse<StripeApiList<StripePromotionCode>>;
   }
 
+  @CaptureTimingWithStatsD()
   async promotionCodesRetrieve(
     id: string,
     params?: Stripe.PromotionCodeRetrieveParams
@@ -298,6 +340,7 @@ export class StripeClient {
     return result as StripeResponse<StripePromotionCode>;
   }
 
+  @CaptureTimingWithStatsD()
   async paymentIntentConfirm(
     paymentIntentId: string,
     params?: Stripe.PaymentIntentConfirmParams
@@ -309,6 +352,7 @@ export class StripeClient {
     return result as StripeResponse<StripePaymentIntent>;
   }
 
+  @CaptureTimingWithStatsD()
   async paymentIntentCancel(
     paymentIntentId: string,
     params?: Stripe.PaymentIntentCancelParams

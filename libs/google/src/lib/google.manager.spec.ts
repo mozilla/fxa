@@ -8,6 +8,7 @@ import { GeocodeResultFactory } from './factories';
 import { GoogleClient } from './google.client';
 import { MockGoogleClientConfigProvider } from './google.client.config';
 import { GoogleManager } from './google.manager';
+import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 
 describe('GoogleManager', () => {
   let googleClient: GoogleClient;
@@ -15,7 +16,12 @@ describe('GoogleManager', () => {
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      providers: [GoogleClient, GoogleManager, MockGoogleClientConfigProvider],
+      providers: [
+        GoogleClient,
+        GoogleManager,
+        MockGoogleClientConfigProvider,
+        MockStatsDProvider,
+      ],
     }).compile();
 
     googleClient = module.get<GoogleClient>(GoogleClient);

@@ -8,6 +8,7 @@ import { NVPSetExpressCheckoutResponseFactory } from './factories';
 import { PayPalClient } from './paypal.client';
 import { CheckoutTokenManager } from './checkoutToken.manager';
 import { MockPaypalClientConfigProvider } from './paypal.client.config';
+import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 
 describe('CheckoutTokenManager', () => {
   let checkoutTokenManager: CheckoutTokenManager;
@@ -19,6 +20,7 @@ describe('CheckoutTokenManager', () => {
         MockPaypalClientConfigProvider,
         CheckoutTokenManager,
         PayPalClient,
+        MockStatsDProvider,
       ],
     }).compile();
 

@@ -35,6 +35,7 @@ import {
   MockCurrencyConfigProvider,
 } from '@fxa/payments/currency';
 import { STRIPE_CUSTOMER_METADATA, STRIPE_INVOICE_METADATA } from './types';
+import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 
 jest.mock('../lib/util/stripeInvoiceToFirstInvoicePreviewDTO');
 const mockedStripeInvoiceToFirstInvoicePreviewDTO = jest.mocked(
@@ -61,6 +62,7 @@ describe('InvoiceManager', () => {
         MockCurrencyConfigProvider,
         MockStripeConfigProvider,
         InvoiceManager,
+        MockStatsDProvider,
       ],
     }).compile();
 

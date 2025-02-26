@@ -4,3 +4,4 @@
 export { StatsD } from 'hot-shots';
 export * from './lib/statsd';
 export * from './lib/statsd.provider';
+export * from './lib/statsd.decorator';
