@@ -1,7 +1,7 @@
 # Multi stage docker build for fxa-mono repo. Note that stages should be cached due to docker layer caching being
 # turned on in CI.
 
-FROM node:22.14.0-bullseye-slim AS fxa-base
+FROM node:20.11.1-bullseye-slim AS fxa-base
 RUN set -x \
     && addgroup --gid 10001 app \
     && adduser --disabled-password \
