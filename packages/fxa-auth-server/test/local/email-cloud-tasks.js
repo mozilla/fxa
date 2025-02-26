@@ -29,7 +29,7 @@ const { EmailCloudTaskManager } = proxyquire('../../lib/email-cloud-tasks', {
     },
   },
 });
-const { EmailTypes } = require('@fxa/shared/cloud-tasks');
+import { EmailTypes } from '@fxa/shared/cloud-tasks';
 
 describe('EmailCloudTaskManager', () => {
   const mockConfig = {
