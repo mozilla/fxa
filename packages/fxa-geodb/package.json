@@ -12,8 +12,8 @@
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "lint": "eslint .",
     "test": "mocha",
-    "test-unit": "MOCHA_FILE=../../artifacts/tests/$npm_package_name/mocha-unit.xml mocha --grep '^(?!.*#integration)' ",
-    "test-integration": "MOCHA_FILE=../../artifacts/tests/$npm_package_name/mocha-integration.xml mocha --grep '#integration'",
+    "test-unit": "MOCHA_FILE=../../artifacts/tests/$npm_package_name/fxa-geodb-mocha-unit-results.xml mocha --grep '^(?!.*#integration)' ",
+    "test-integration": "MOCHA_FILE=../../artifacts/tests/$npm_package_name/fxa-geodb-mocha-integration-results.xml mocha --grep '#integration'",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'"
   },
   "repository": {

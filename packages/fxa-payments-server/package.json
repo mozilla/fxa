@@ -28,8 +28,8 @@
     "test-frontend": "SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false rescripts test --watchAll=false",
     "test-frontend-watch": "SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false rescripts test",
     "test-server": "jest --coverage --runInBand --logHeapUsage --verbose --config server/jest.config.js --forceExit",
-    "test-unit": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-unit.xml jest --coverage --runInBand --logHeapUsage --verbose --config server/jest.config.js --forceExit -t '^(?!.*?#integration).*' --ci --reporters=default --reporters=jest-junit",
-    "test-integration": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-integration.xml SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false rescripts test --watchAll=false --ci --reporters=default --reporters=jest-junit",
+    "test-unit": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/fxa-payments-server-jest-unit-results.xml jest --coverage --runInBand --logHeapUsage --verbose --config server/jest.config.js --forceExit -t '^(?!.*?#integration).*' --ci --reporters=default --reporters=jest-junit",
+    "test-integration": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/fxa-payments-server-jest-integration-results.xml SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false rescripts test --watchAll=false --ci --reporters=default --reporters=jest-junit",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'",
     "storybook": "NODE_OPTIONS=--openssl-legacy-provider storybook dev -p 6006",
     "watch-ftl": "yarn l10n-watch"

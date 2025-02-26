@@ -32,7 +32,7 @@
     "delete": "pm2 delete pm2.config.js",
     "storybook": "NODE_OPTIONS=--openssl-legacy-provider storybook dev -p 6007 --no-version-updates",
     "test": "yarn test-unit && yarn test-integration",
-    "test-unit": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-unit.xml jest --coverage --runInBand --logHeapUsage --env=jest-environment-jsdom -t '^(?!.*?#integration).*' --ci --reporters=default --reporters=jest-junit",
+    "test-unit": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/fxa-react-jest-unit-results.xml jest --coverage --runInBand --logHeapUsage --env=jest-environment-jsdom -t '^(?!.*?#integration).*' --ci --reporters=default --reporters=jest-junit",
     "watch-ftl": "yarn l10n-watch"
   },
   "dependencies": {

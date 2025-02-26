@@ -46,6 +46,7 @@ parameters:
 
 orbs:
   browser-tools: circleci/browser-tools@1.2.3
+  gcp-cli: circleci/gcp-cli@3.3.0
 
 executors:
   # Default node executor with low resources. Useful for running quick / small tasks
@@ -494,6 +495,52 @@ commands:
             docker push mozilla/fxa-circleci:ci-builder-v5
             wait
 
+  upload_to_gcs:
+    # Uploads test artifacts to ETE GCS for test metric reporting and monitoring
+    parameters:
+      source:
+        type: string
+        default: artifacts/tests
+      destination:
+        type: string
+        # The destination can be defaulted since result reporting is the only use case atm
+        # If/When we have coverage metrics this value should be 'gs://ecosystem-test-eng-metrics/fxa/coverage'
+        default: gs://ecosystem-test-eng-metrics/fxa/junit
+      extension:
+        type: enum
+        enum: ['xml', 'json']
+        # The extension can be defaulted since result reporting is the only use case atm
+        # If/When we have coverage metrics this value should be 'json'
+        default: xml
+      workflow:
+        type: string
+      test_suite:
+        type: enum
+        enum: ['unit', 'integration', 'e2e']
+    steps:
+      - run:
+          name: Upload << parameters.source >> << parameters.extension >> Files to GCS
+          when: always # Ensure the step runs even if previous steps, like test runs, fail
+          command: |
+            ALLOWED_WORKFLOWS=("nightly" "test_and_deploy_tag" "stage_smoke_tests" "production_smoke_tests")
+            if [[ ! " ${ALLOWED_WORKFLOWS[@]} " =~ " << parameters.workflow >> " ]]; then
+              echo "Skipping artifact upload. Uploads not supported on << parameters.workflow >>."
+              exit 0
+            fi
+            FILES=$(find "<< parameters.source >>" -type f -name "*.<< parameters.extension >>")
+            if [ -z "$FILES" ]; then
+              echo "No << parameters.extension >> files found in << parameters.source >>/"
+              exit 1
+            fi
+            # In order to be consumed by the ETE Test Metric Pipeline, files need to follow a strict naming convention:
+            # {job_number}__{utc_epoch_datetime}__{repository}__{workflow}__{test_suite}__results{-index}.xml
+            EPOCH_TIME=$(date +%s)
+            PREFIX="${CIRCLE_BUILD_NUM}__${EPOCH_TIME}__fxa__<< parameters.workflow >>__<< parameters.test_suite >>"
+            for file in $FILES; do
+              basefile=$(basename "$file")
+              gsutil cp "$file" "<< parameters.destination >>/${PREFIX}__$basefile"
+            done
+
 jobs:
   create-fxa-image:
     executor: docker-build-executor
@@ -594,11 +641,14 @@ jobs:
       nx_run:
         type: string
         default: run-many
+      workflow:
+        type: string
     executor: default-executor
     resource_class: medium+
     steps:
       - git-checkout
       - restore-workspace
+      - gcp-cli/setup
       - run:
           name: Build shared libs
           command: NODE_OPTIONS="--max-old-space-size=7168" npx nx run-many -t build --projects=tag:scope:shared:lib --parallel=2
@@ -608,6 +658,9 @@ jobs:
           environment:
             NODE_ENV: test
       - store-artifacts
+      - upload_to_gcs:
+          workflow: << parameters.workflow >>
+          test_suite: unit
 
   # Runs integration tests suites across packages with changes. Integration tests can take
   #  longer to run, so this job supports splitting.
@@ -631,11 +684,14 @@ jobs:
       start_customs:
         type: boolean
         default: false
+      workflow:
+        type: string
     executor: fullstack-executor
     resource_class: << parameters.resource_class >>
     steps:
       - git-checkout
       - restore-workspace
+      - gcp-cli/setup
       - wait-for-infrastructure
       - run:
           name: Start customs
@@ -655,6 +711,9 @@ jobs:
             NODE_ENV: test
           no_output_timeout: 20m
       - store-artifacts
+      - upload_to_gcs:
+          workflow: << parameters.workflow >>
+          test_suite: integration
 
   # Deprecated - use workflows in conjunction with smoke-tests job instead!
   # This job is manually triggered for now. see .circleci/README.md
@@ -675,14 +734,20 @@ jobs:
       project:
         type: string
         default: production
+      workflow:
+        type: string
     executor: smoke-test-executor
     parallelism: << parameters.parallelism >>
     steps:
       - git-checkout
+      - gcp-cli/setup
       - provision
       - run-playwright-tests:
           project: << parameters.project >>
       - store-artifacts
+      - upload_to_gcs:
+          workflow: << parameters.workflow >>
+          test_suite: e2e
 
   # Runs functional tests using playwright. These tests support splitting
   # and parallel execution.
@@ -691,11 +756,14 @@ jobs:
       parallelism:
         type: integer
         default: 8  # this should correspond with the resource-class defined in the executor
+      workflow:
+        type: string
     executor: functional-test-executor
     parallelism: << parameters.parallelism >>
     steps:
       - git-checkout
       - restore-workspace
+      - gcp-cli/setup
       - run:
           name: Add localhost
           command: |
@@ -710,6 +778,9 @@ jobs:
       - run-playwright-tests:
           project: local
       - store-artifacts
+      - upload_to_gcs:
+          workflow: << parameters.workflow >>
+          test_suite: e2e
 
   build-and-deploy-storybooks:
     executor: default-executor
@@ -783,6 +854,7 @@ workflows:
       - unit-test:
           name: Unit Test (PR)
           nx_run: affected --base=main --head=$CIRCLE_SHA1
+          workflow: test_pull_request
           requires:
             - Build (PR)
           post-steps:
@@ -792,12 +864,14 @@ workflows:
           resource_class: large
           nx_run: affected --base=main --head=$CIRCLE_SHA1
           projects: --exclude '*,!tag:scope:frontend'
+          workflow: test_pull_request
           requires:
             - Build (PR)
       - integration-test:
           name: Integration Test - Servers (PR)
           nx_run: affected --base=main --head=$CIRCLE_SHA1
           projects: --exclude '*,!tag:scope:server'
+          workflow: test_pull_request
           requires:
             - Build (PR)
       - integration-test:
@@ -805,6 +879,7 @@ workflows:
           nx_run: affected --base=main --head=$CIRCLE_SHA1
           projects: --exclude '*,!tag:scope:server:auth'
           start_customs: true
+          workflow: test_pull_request
           requires:
             - Build (PR)
       - integration-test:
@@ -813,16 +888,19 @@ workflows:
           projects: --exclude '*,!tag:scope:server:auth'
           start_customs: true
           target: -t test-integration-v2
+          workflow: test_pull_request
           requires:
             - Build (PR)
       - integration-test:
           name: Integration Test - Libraries (PR)
           nx_run: affected --base=main --head=$CIRCLE_SHA1
           projects: --exclude '*,!tag:scope:shared:*'
+          workflow: test_pull_request
           requires:
             - Build (PR)
       - playwright-functional-tests:
           name: Firefox Functional Tests - Playwright (PR)
+          workflow: test_pull_request
           requires:
             - Build (PR)
       - build-and-deploy-storybooks:
@@ -852,6 +930,7 @@ workflows:
       # Note that we removed content server tests as it runs on Stage only
       - smoke-tests:
           name: Smoke Test Production - Playwright
+          workflow: production_smoke_tests
           project: production
           filters:
             branches:
@@ -865,6 +944,7 @@ workflows:
     jobs:
       - smoke-tests:
           name: Smoke Test Stage - Playwright
+          workflow: stage_smoke_tests
           project: stage
           filters:
             branches:
@@ -977,6 +1057,7 @@ workflows:
             - Init
       - unit-test:
           name: Unit Test
+          workflow: test_and_deploy_tag
           filters:
             branches:
               ignore: /.*/
@@ -988,6 +1069,7 @@ workflows:
           name: Integration Test - Frontends
           resource_class: large
           projects: --exclude '*,!tag:scope:frontend'
+          workflow: test_and_deploy_tag
           filters:
             branches:
               ignore: /.*/
@@ -998,6 +1080,7 @@ workflows:
       - integration-test:
           name: Integration Test - Servers
           projects: --exclude '*,!tag:scope:server'
+          workflow: test_and_deploy_tag
           filters:
             branches:
               ignore: /.*/
@@ -1009,6 +1092,7 @@ workflows:
           name: Integration Test - Servers - Auth
           projects: --exclude '*,!tag:scope:server:auth'
           start_customs: true
+          workflow: test_and_deploy_tag
           filters:
             branches:
               ignore: /.*/
@@ -1021,6 +1105,7 @@ workflows:
           projects: --exclude '*,!tag:scope:server:auth'
           start_customs: true
           target: -t test-integration-v2
+          workflow: test_and_deploy_tag
           filters:
             branches:
               ignore: /.*/
@@ -1031,6 +1116,7 @@ workflows:
       - integration-test:
           name: Integration Test - Libraries
           projects: --exclude '*,!tag:scope:shared:*'
+          workflow: test_and_deploy_tag
           filters:
             branches:
               ignore: /.*/
@@ -1040,6 +1126,7 @@ workflows:
             - Build
       - playwright-functional-tests:
           name: Functional Tests - Playwright
+          workflow: test_and_deploy_tag
           filters:
             branches:
               ignore: /.*/
@@ -1093,23 +1180,27 @@ workflows:
             - Init (nightly)
       - unit-test:
           name: Unit Test (nightly)
+          workflow: nightly
           requires:
             - Build (nightly)
       - integration-test:
           name: Integration Test - Frontends (nightly)
           resource_class: large
           projects: --exclude '*,!tag:scope:frontend'
+          workflow: nightly
           requires:
             - Build (nightly)
       - integration-test:
           name: Integration Test - Servers (nightly)
           projects: --exclude '*,!tag:scope:server'
+          workflow: nightly
           requires:
             - Build (nightly)
       - integration-test:
           name: Integration Test - Servers - Auth (nightly)
           projects: --exclude '*,!tag:scope:server:auth'
           start_customs: true
+          workflow: nightly
           requires:
             - Build (nightly)
       - integration-test:
@@ -1117,15 +1208,18 @@ workflows:
           projects: --exclude '*,!tag:scope:server:auth'
           start_customs: true
           target: -t test-integration-v2
+          workflow: nightly
           requires:
             - Build (nightly)
       - integration-test:
           name: Integration Test - Libraries (nightly)
           projects: --exclude '*,!tag:scope:shared:*'
+          workflow: nightly
           requires:
             - Build (nightly)
       - playwright-functional-tests:
           name: Firefox Functional Tests - Playwright (nightly)
+          workflow: nightly
           requires:
             - Build (nightly)
       - on-complete:

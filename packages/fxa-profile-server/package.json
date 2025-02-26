@@ -15,8 +15,8 @@
     "restart": "pm2 restart pm2.config.js",
     "delete": "pm2 delete pm2.config.js",
     "test": "scripts/test-local.sh",
-    "test-unit": "MOCHA_FILE=../../artifacts/tests/$npm_package_name/mocha-unit.xml node ./scripts/mocha-coverage.js --recursive test/*.js test/routes/*/*.js -g '#integration' --invert",
-    "test-integration": "mkdir -p var/public && MOCHA_FILE=../../artifacts/tests/$npm_package_name/mocha-integration.xml node ./scripts/mocha-coverage.js --recursive test/*.js test/routes/*/*.js -g '#integration'",
+    "test-unit": "MOCHA_FILE=../../artifacts/tests/$npm_package_name/fxa-profile-server-mocha-unit-results.xml node ./scripts/mocha-coverage.js --recursive test/*.js test/routes/*/*.js -g '#integration' --invert",
+    "test-integration": "mkdir -p var/public && MOCHA_FILE=../../artifacts/tests/$npm_package_name/fxa-profile-server-mocha-integration-results.xml node ./scripts/mocha-coverage.js --recursive test/*.js test/routes/*/*.js -g '#integration'",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'"
   },
   "dependencies": {

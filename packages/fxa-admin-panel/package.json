@@ -19,8 +19,8 @@
     "stop": "pm2 stop pm2.config.js",
     "delete": "pm2 delete pm2.config.js",
     "test": "yarn test-unit",
-    "test-frontend": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-frontend.xml SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false rescripts test --coverage --verbose --ci --reporters=default --reporters=jest-junit -t '^(?!.*#integration)'",
-    "test-server": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-server.xml jest --runInBand --coverage --verbose --config server/jest.config.js --forceExit --ci --reporters=default --reporters=jest-junit -t '^(?!.*#integration)'",
+    "test-frontend": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/fxa-admin-panel-frontend-jest-unit-results.xml SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false rescripts test --coverage --verbose --ci --reporters=default --reporters=jest-junit -t '^(?!.*#integration)'",
+    "test-server": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/fxa-admin-panel-server-jest-unit-results.xml jest --runInBand --coverage --verbose --config server/jest.config.js --forceExit --ci --reporters=default --reporters=jest-junit -t '^(?!.*#integration)'",
     "test-unit": "CI=true yarn test-frontend && CI=true yarn test-server"
   },
   "browserslist": {

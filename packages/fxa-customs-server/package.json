@@ -21,8 +21,8 @@
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "lint": "eslint .",
     "test": "scripts/test-local.sh",
-    "test-unit": "yarn make-artifacts-dir && tap test/local --jobs=1 | tap-xunit > ../../artifacts/tests/$npm_package_name/tap-unit.xml",
-    "test-integration": "yarn make-artifacts-dir && tap test/remote --jobs=1 | tap-xunit > ../../artifacts/tests/$npm_package_name/tap-integration.xml",
+    "test-unit": "yarn make-artifacts-dir && tap test/local --jobs=1 | tap-xunit > ../../artifacts/tests/$npm_package_name/fxa-customs-server-tap-unit-results.xml",
+    "test-integration": "yarn make-artifacts-dir && tap test/remote --jobs=1 | tap-xunit > ../../artifacts/tests/$npm_package_name/fxa-customs-server-tap-integration-results.xml",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'",
     "make-artifacts-dir": "mkdir -p ../../artifacts/tests/$npm_package_name"
   },
