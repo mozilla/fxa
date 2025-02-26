@@ -17,7 +17,8 @@ export default class Nimbus {
       const resp = await fetch('/nimbus-experiments', {
         method: 'POST',
         body,
-        // A request to cirrus should not be more than 50ms, but we give it a large enough padding.
+        // A request to cirrus should not be more than 50ms,
+        // but this timeout is public-facing so may take longer.
         signal: AbortSignal.timeout(1000),
         headers: {
           'Content-Type': 'application/json',
@@ -31,9 +32,17 @@ export default class Nimbus {
 
       this.experiments = await resp.json();
     } catch (err) {
+      if (err.name === 'TimeoutError') {
+        // We can't do much here if we're reaching timeouts from network issues.
+        return;
+      }
+
       Sentry.withScope(() => {
         Sentry.captureMessage('Experiment fetch error', 'error');
       });
+
+      // Finally, always clear out the experiments;
+      this.experiments = null;
     }
   }
 }
