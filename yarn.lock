@@ -29976,7 +29976,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babel-loader@npm:^9.0.0, babel-loader@npm:^9.1.3":
+"babel-loader@npm:^9.0.0":
   version: 9.1.3
   resolution: "babel-loader@npm:9.1.3"
   dependencies:
@@ -29989,7 +29989,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babel-loader@npm:^9.1.2":
+"babel-loader@npm:^9.1.2, babel-loader@npm:^9.2.1":
   version: 9.2.1
   resolution: "babel-loader@npm:9.2.1"
   dependencies:
@@ -41682,7 +41682,7 @@ fsevents@~2.1.1:
     ajv: ^8.17.1
     async-retry: ^1.3.3
     audit-filter: ^0.5.0
-    babel-loader: ^9.1.3
+    babel-loader: ^9.2.1
     binary-split: 1.0.5
     buf: 0.1.1
     chai: ^4.5.0
@@ -41802,7 +41802,7 @@ fsevents@~2.1.1:
     asmcrypto.js: ^0.22.0
     audit-filter: ^0.5.0
     babel-eslint: ^10.1.0
-    babel-loader: ^9.1.3
+    babel-loader: ^9.2.1
     babel-plugin-dynamic-import-webpack: 1.1.0
     backbone: ^1.6.0
     backbone.cocktail: 0.5.15
@@ -42168,7 +42168,7 @@ fsevents@~2.1.1:
     accept-language-parser: ^1.5.0
     audit-filter: ^0.5.0
     babel-eslint: ^10.1.0
-    babel-loader: ^9.1.3
+    babel-loader: ^9.2.1
     browserslist: ^4.24.0
     classnames: ^2.5.1
     convict: ^6.2.4
@@ -42309,7 +42309,7 @@ fsevents@~2.1.1:
     "@types/sinon": ^10
     async-wait-until: ^2.0.12
     babel-eslint: ^10.1.0
-    babel-loader: ^9.1.3
+    babel-loader: ^9.2.1
     babel-preset-react-app: ^10.0.1
     camelcase: ^6.3.0
     classnames: ^2.5.1
@@ -42387,7 +42387,7 @@ fsevents@~2.1.1:
     "@types/uuid": ^10
     "@types/webpack": 5.28.5
     babel-jest: ^29.7.0
-    babel-loader: ^9.1.3
+    babel-loader: ^9.2.1
     babel-plugin-named-exports-order: ^0.0.2
     babel-plugin-transform-typescript-metadata: ^0.3.2
     babel-preset-react-app: ^10.0.1

@@ -155,7 +155,7 @@
     "@types/webpack": "5.28.5",
     "async-retry": "^1.3.3",
     "audit-filter": "^0.5.0",
-    "babel-loader": "^9.1.3",
+    "babel-loader": "^9.2.1",
     "binary-split": "1.0.5",
     "chai": "^4.5.0",
     "chai-as-promised": "^7.1.1",
