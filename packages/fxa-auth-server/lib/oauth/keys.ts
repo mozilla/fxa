@@ -46,7 +46,7 @@ if (currentPrivJWK) {
   assert.strictEqual(
     PRIVATE_KEY_SCHEMA.validate(currentPrivJWK).error,
     undefined,
-    'openid.key must be a valid private key'
+    new Error('openid.key must be a valid private key')
   );
   PRIVATE_JWKS_MAP.set(currentPrivJWK.kid, currentPrivJWK);
 } else if (!config.get('oauthServer.openid.unsafelyAllowMissingActiveKey')) {
@@ -62,7 +62,7 @@ if (newPrivJWK) {
   assert.strictEqual(
     PRIVATE_KEY_SCHEMA.validate(newPrivJWK).error,
     undefined,
-    'openid.newKey must be a valid private key'
+    new Error('openid.newKey must be a valid private key')
   );
   assert.notEqual(
     currentPrivJWK.kid,
@@ -79,7 +79,7 @@ if (oldPubJWK) {
   assert.strictEqual(
     PUBLIC_KEY_SCHEMA.validate(oldPubJWK).error,
     undefined,
-    'openid.oldKey must be a valid public key'
+    new Error('openid.oldKey must be a valid public key')
   );
   assert.notEqual(
     currentPrivJWK?.kid,
