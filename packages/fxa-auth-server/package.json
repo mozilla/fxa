@@ -111,7 +111,7 @@
     "nodemailer": "^6.9.9",
     "otplib": "^11.0.1",
     "p-queue-compat": "^1.0.225",
-    "p-retry": "^4.2.0",
+    "p-retry": "^6.2.1",
     "poolee": "^1.0.1",
     "punycode.js": "2.3.0",
     "qrcode": "^1.5.1",
