@@ -4,9 +4,7 @@
 
 'use server';
 
-import { plainToClass } from 'class-transformer';
 import { getApp } from '../nestapp/app';
-import { CheckoutCartWithPaypalActionArgs } from '../nestapp/validators/CheckoutCartWithPaypalActionArgs';
 
 export const checkoutCartWithPaypal = async (
   cartId: string,
@@ -14,12 +12,10 @@ export const checkoutCartWithPaypal = async (
   customerData: { locale: string; displayName: string },
   token?: string
 ) => {
-  await getApp().getActionsService().checkoutCartWithPaypal(
-    plainToClass(CheckoutCartWithPaypalActionArgs, {
-      cartId,
-      version,
-      customerData,
-      token,
-    })
-  );
+  await getApp().getActionsService().checkoutCartWithPaypal({
+    cartId,
+    version,
+    customerData,
+    token,
+  });
 };

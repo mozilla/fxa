@@ -4,8 +4,6 @@
 'use server';
 
 import { getApp } from '../nestapp/app';
-import { plainToClass } from 'class-transformer';
-import { RecordEmitterEventArgs } from '../nestapp/validators/RecordEmitterEvent';
 import { getAdditionalRequestArgs } from '../utils/getAdditionalRequestArgs';
 import { PaymentProvidersType } from '@fxa/payments/cart';
 import { PaymentsEmitterEventsKeysType } from '@fxa/payments/events';
@@ -38,17 +36,16 @@ async function recordEmitterEventAction(
 ) {
   const requestArgs = {
     ...getAdditionalRequestArgs(),
-    params,
+    // TODO: This type mismatch appears to be an actual bug -- FXA-11214
+    params: params as Record<string, string>,
     searchParams,
   };
 
-  return getApp().getActionsService().recordEmitterEvent(
-    plainToClass(RecordEmitterEventArgs, {
-      eventName,
-      requestArgs,
-      paymentProvider,
-    })
-  );
+  return getApp().getActionsService().recordEmitterEvent({
+    eventName,
+    requestArgs,
+    paymentProvider,
+  });
 }
 
 export { recordEmitterEventAction };

@@ -4,19 +4,15 @@
 
 'use server';
 
-import { plainToClass } from 'class-transformer';
 import { getApp } from '../nestapp/app';
-import { FinalizeCartWithErrorArgs } from '../nestapp/validators/FinalizeCartWithErrorArgs';
 import { CartErrorReasonId } from '@fxa/shared/db/mysql/account/kysely-types';
 
 export const finalizeCartWithError = async (
   cartId: string,
   errorReasonId: CartErrorReasonId
 ) => {
-  return await getApp().getActionsService().finalizeCartWithError(
-    plainToClass(FinalizeCartWithErrorArgs, {
-      cartId,
-      errorReasonId,
-    })
-  );
+  return await getApp().getActionsService().finalizeCartWithError({
+    cartId,
+    errorReasonId,
+  });
 };

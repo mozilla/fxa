@@ -4,25 +4,21 @@
 
 'use server';
 
-import { plainToClass } from 'class-transformer';
 import { getApp } from '../nestapp/app';
-import {
-  CheckoutCartWithStripeActionArgs,
-  CheckoutCartWithStripeActionCustomerData,
-} from '../nestapp/validators/CheckoutCartWithStripeActionArgs';
 
 export const checkoutCartWithStripe = async (
   cartId: string,
   version: number,
   confirmationTokenId: string,
-  customerData: CheckoutCartWithStripeActionCustomerData
+  customerData: {
+    locale: string;
+    displayName: string;
+  }
 ) => {
-  getApp().getActionsService().checkoutCartWithStripe(
-    plainToClass(CheckoutCartWithStripeActionArgs, {
-      cartId,
-      version,
-      customerData,
-      confirmationTokenId,
-    })
-  );
+  getApp().getActionsService().checkoutCartWithStripe({
+    cartId,
+    version,
+    customerData,
+    confirmationTokenId,
+  });
 };

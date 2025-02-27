@@ -4,18 +4,14 @@
 
 'use server';
 
-import { plainToClass } from 'class-transformer';
 import { getApp } from '../nestapp/app';
-import { GetPayPalCheckoutTokenArgs } from '../nestapp/validators/GetPayPalCheckoutTokenArgs';
 
-export const getPayPalCheckoutToken = async (currencyCode?: string | null) => {
+export const getPayPalCheckoutToken = async (currencyCode: string) => {
   const actionsService = getApp().getActionsService();
 
-  const token = await actionsService.getPayPalCheckoutToken(
-    plainToClass(GetPayPalCheckoutTokenArgs, {
-      currencyCode,
-    })
-  );
+  const { token } = await actionsService.getPayPalCheckoutToken({
+    currencyCode,
+  });
 
   return token;
 };

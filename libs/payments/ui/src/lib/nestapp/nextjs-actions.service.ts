@@ -3,21 +3,28 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Injectable } from '@nestjs/common';
-import { Validator } from 'class-validator';
 
 import { GoogleManager } from '@fxa/google';
-import { CartService, SuccessCartDTO } from '@fxa/payments/cart';
+import {
+  CartInvalidStateForActionError,
+  CartService,
+  CheckoutFailedError,
+  SuccessCartDTO,
+} from '@fxa/payments/cart';
 import { ContentServerManager } from '@fxa/payments/content-server';
 import { CurrencyManager } from '@fxa/payments/currency';
 import { CheckoutTokenManager } from '@fxa/payments/paypal';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
-import { CartState } from '@fxa/shared/db/mysql/account';
+import {
+  CartState,
+  type CartErrorReasonId,
+} from '@fxa/shared/db/mysql/account';
 import { SanitizeExceptions } from '@fxa/shared/error';
 import { GeoDBManager } from '@fxa/shared/geodb';
 
 import { CheckoutCartWithPaypalActionArgs } from './validators/CheckoutCartWithPaypalActionArgs';
 import { CheckoutCartWithStripeActionArgs } from './validators/CheckoutCartWithStripeActionArgs';
-import { FetchCMSDataArgs } from './validators/FetchCMSDataArgs';
+import { FetchCMSDataActionArgs } from './validators/FetchCMSDataActionArgs';
 import { FinalizeCartWithErrorArgs } from './validators/FinalizeCartWithErrorArgs';
 import { GetCartActionArgs } from './validators/GetCartActionArgs';
 import { GetPayPalCheckoutTokenArgs } from './validators/GetPayPalCheckoutTokenArgs';
@@ -29,8 +36,29 @@ import { PaymentsEmitterService } from '@fxa/payments/events';
 import { FinalizeProcessingCartActionArgs } from './validators/finalizeProcessingCartActionArgs';
 import { SubmitNeedsInputActionArgs } from './validators/SubmitNeedsInputActionArgs';
 import { GetNeedsInputActionArgs } from './validators/GetNeedsInputActionArgs';
-import { ValidatePostalCodeArgs } from './validators/ValidatePostalCodeArgs';
+import { ValidatePostalCodeActionArgs } from './validators/ValidatePostalCodeActionArgs';
 import { DetermineCurrencyActionArgs } from './validators/DetermineCurrencyActionArgs';
+import { NextIOValidator } from './NextIOValidator';
+import type {
+  CommonMetrics,
+  PaymentProvidersType,
+} from '@fxa/payments/metrics';
+import { GetCartActionResult } from './validators/GetCartActionResult';
+import { GetSuccessCartActionResult } from './validators/GetSuccessCartActionResult';
+import {
+  CouponErrorExpired,
+  CouponErrorGeneric,
+  CouponErrorLimitReached,
+  type SubplatInterval,
+} from '@fxa/payments/customer';
+import { GetPayPalCheckoutTokenResult } from './validators/GetPayPalCheckoutTokenResult';
+import { FetchCMSDataActionResult } from './validators/FetchCMSDataActionResult';
+import { getNeedsInputActionResult } from './validators/GetNeedsInputActionResult';
+import { GetMetricsFlowActionResult } from './validators/GetMetricsFlowActionResult';
+import { ValidatePostalCodeActionResult } from './validators/ValidatePostalCodeActionResult';
+import { DetermineCurrencyActionResult } from './validators/DetermineCurrencyActionResult';
+import { SetupCartActionResult } from './validators/SetupCartActionResult';
+import { RestartCartActionResult } from './validators/RestartCartActionResult';
 
 /**
  * ANY AND ALL methods exposed via this service should be considered publicly accessible and callable with any arguments.
@@ -50,17 +78,19 @@ export class NextJSActionsService {
     private productConfigurationManager: ProductConfigurationManager
   ) {}
 
-  async getCart(args: GetCartActionArgs) {
-    await new Validator().validateOrReject(args);
-
+  @SanitizeExceptions()
+  @NextIOValidator(GetCartActionArgs, GetCartActionResult)
+  async getCart(args: { cartId: string }) {
     const cart = await this.cartService.getCart(args.cartId);
 
     return cart;
   }
 
-  async getSuccessCart(args: GetCartActionArgs): Promise<SuccessCartDTO> {
-    await new Validator().validateOrReject(args);
-
+  @SanitizeExceptions({
+    allowlist: [CartInvalidStateForActionError],
+  })
+  @NextIOValidator(GetCartActionArgs, GetSuccessCartActionResult)
+  async getSuccessCart(args: { cartId: string }): Promise<SuccessCartDTO> {
     const cart = await this.cartService.getCart(args.cartId);
 
     if (cart.state !== CartState.SUCCESS) {
@@ -70,9 +100,27 @@ export class NextJSActionsService {
     return cart;
   }
 
-  async updateCart(args: UpdateCartActionArgs) {
-    await new Validator().validateOrReject(args);
-
+  @SanitizeExceptions({
+    allowlist: [
+      CouponErrorExpired,
+      CouponErrorGeneric,
+      CouponErrorLimitReached,
+    ],
+  })
+  @NextIOValidator(UpdateCartActionArgs, undefined)
+  async updateCart(args: {
+    cartId: string;
+    version: number;
+    cartDetails: {
+      uid?: string;
+      taxAddress?: {
+        countryCode: string;
+        postalCode: string;
+      };
+      couponCode?: string;
+      email?: string;
+    };
+  }) {
     await this.cartService.updateCart(
       args.cartId,
       args.version,
@@ -80,17 +128,24 @@ export class NextJSActionsService {
     );
   }
 
-  async restartCart(args: RestartCartActionArgs) {
-    await new Validator().validateOrReject(args);
-
+  @SanitizeExceptions()
+  @NextIOValidator(RestartCartActionArgs, RestartCartActionResult)
+  async restartCart(args: { cartId: string }) {
     const cart = await this.cartService.restartCart(args.cartId);
 
     return cart;
   }
 
-  async setupCart(args: SetupCartActionArgs) {
-    await new Validator().validateOrReject(args);
-
+  @SanitizeExceptions()
+  @NextIOValidator(SetupCartActionArgs, SetupCartActionResult)
+  async setupCart(args: {
+    interval: SubplatInterval;
+    offeringConfigId: string;
+    experiment?: string;
+    promoCode?: string;
+    uid?: string;
+    ip?: string;
+  }) {
     const cart = await this.cartService.setupCart({
       ...args,
     });
@@ -98,33 +153,42 @@ export class NextJSActionsService {
     return cart;
   }
 
-  async finalizeCartWithError(args: FinalizeCartWithErrorArgs) {
-    await new Validator().validateOrReject(args);
-
+  @SanitizeExceptions()
+  @NextIOValidator(FinalizeCartWithErrorArgs, undefined)
+  async finalizeCartWithError(args: {
+    cartId: string;
+    errorReasonId: CartErrorReasonId;
+  }) {
     await this.cartService.finalizeCartWithError(
       args.cartId,
       args.errorReasonId
     );
   }
 
-  async finalizeProcessingCart(args: FinalizeProcessingCartActionArgs) {
-    await new Validator().validateOrReject(args);
-
+  @SanitizeExceptions()
+  @NextIOValidator(FinalizeProcessingCartActionArgs, undefined)
+  async finalizeProcessingCart(args: { cartId: string }) {
     await this.cartService.finalizeProcessingCart(args.cartId);
   }
 
   @SanitizeExceptions()
-  async getPayPalCheckoutToken(args: GetPayPalCheckoutTokenArgs) {
-    await new Validator().validateOrReject(args);
-
+  @NextIOValidator(GetPayPalCheckoutTokenArgs, GetPayPalCheckoutTokenResult)
+  async getPayPalCheckoutToken(args: { currencyCode: string }) {
     const token = await this.checkoutTokenManager.get(args.currencyCode);
 
-    return token;
+    return {
+      token,
+    };
   }
 
-  async checkoutCartWithPaypal(args: CheckoutCartWithPaypalActionArgs) {
-    await new Validator().validateOrReject(args);
-
+  @SanitizeExceptions()
+  @NextIOValidator(CheckoutCartWithPaypalActionArgs, undefined)
+  async checkoutCartWithPaypal(args: {
+    cartId: string;
+    version: number;
+    customerData: { locale: string; displayName: string };
+    token?: string;
+  }) {
     await this.cartService.checkoutCartWithPaypal(
       args.cartId,
       args.version,
@@ -133,9 +197,14 @@ export class NextJSActionsService {
     );
   }
 
-  async checkoutCartWithStripe(args: CheckoutCartWithStripeActionArgs) {
-    await new Validator().validateOrReject(args);
-
+  @SanitizeExceptions()
+  @NextIOValidator(CheckoutCartWithStripeActionArgs, undefined)
+  async checkoutCartWithStripe(args: {
+    cartId: string;
+    version: number;
+    confirmationTokenId: string;
+    customerData: { locale: string; displayName: string };
+  }) {
     await this.cartService.checkoutCartWithStripe(
       args.cartId,
       args.version,
@@ -145,9 +214,12 @@ export class NextJSActionsService {
   }
 
   @SanitizeExceptions()
-  async fetchCMSData(args: FetchCMSDataArgs) {
-    await new Validator().validateOrReject(args);
-
+  @NextIOValidator(FetchCMSDataActionArgs, FetchCMSDataActionResult)
+  async fetchCMSData(args: {
+    offeringId: string;
+    acceptLanguage?: string | null;
+    selectedLanguage?: string;
+  }) {
     const offering = await this.productConfigurationManager.fetchCMSData(
       args.offeringId,
       args.acceptLanguage || undefined,
@@ -158,9 +230,12 @@ export class NextJSActionsService {
   }
 
   @SanitizeExceptions()
-  async recordEmitterEvent(args: RecordEmitterEventArgs) {
-    await new Validator().validateOrReject(args);
-
+  @NextIOValidator(RecordEmitterEventArgs, undefined)
+  async recordEmitterEvent(args: {
+    eventName: string;
+    requestArgs: CommonMetrics;
+    paymentProvider: PaymentProvidersType | undefined;
+  }) {
     const { eventName, requestArgs, paymentProvider } = args;
 
     switch (eventName) {
@@ -186,43 +261,54 @@ export class NextJSActionsService {
     }
   }
 
-  async getNeedsInput(args: GetNeedsInputActionArgs) {
-    await new Validator().validateOrReject(args);
-
+  @SanitizeExceptions()
+  @NextIOValidator(GetNeedsInputActionArgs, getNeedsInputActionResult)
+  async getNeedsInput(args: { cartId: string }) {
     return await this.cartService.getNeedsInput(args.cartId);
   }
 
-  async submitNeedsInput(args: SubmitNeedsInputActionArgs) {
-    await new Validator().validateOrReject(args);
-
-    return await this.cartService.submitNeedsInput(args.cartId);
+  @SanitizeExceptions({
+    allowlist: [CheckoutFailedError],
+  })
+  @NextIOValidator(SubmitNeedsInputActionArgs, undefined)
+  async submitNeedsInput(args: { cartId: string }) {
+    await this.cartService.submitNeedsInput(args.cartId);
   }
 
   @SanitizeExceptions()
+  @NextIOValidator(undefined, GetMetricsFlowActionResult)
   async getMetricsFlow() {
     return this.contentServerManager.getMetricsFlow();
   }
 
   @SanitizeExceptions()
-  async validatePostalCode(args: ValidatePostalCodeArgs) {
-    await new Validator().validateOrReject(args);
-
-    return await this.googleManager.isValidPostalCode(
+  @NextIOValidator(ValidatePostalCodeActionArgs, ValidatePostalCodeActionResult)
+  async validatePostalCode(args: { postalCode: string; countryCode: string }) {
+    const isValid = await this.googleManager.isValidPostalCode(
       args.postalCode,
       args.countryCode
     );
+
+    return {
+      isValid,
+    };
   }
 
   @SanitizeExceptions()
-  async determineCurrency(args: DetermineCurrencyActionArgs) {
-    await new Validator().validateOrReject(args);
-
+  @NextIOValidator(DetermineCurrencyActionArgs, DetermineCurrencyActionResult)
+  async determineCurrency(args: { ip: string }) {
     const location = this.geodbManager.getTaxAddress(args.ip);
 
     if (!location?.countryCode) {
-      return;
+      return {};
     }
 
-    return this.currencyManager.getCurrencyForCountry(location.countryCode);
+    const currency = this.currencyManager.getCurrencyForCountry(
+      location.countryCode
+    );
+
+    return {
+      currency,
+    };
   }
 }

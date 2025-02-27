@@ -4,15 +4,11 @@
 
 'use server';
 
-import { plainToClass } from 'class-transformer';
 import { getApp } from '../nestapp/app';
-import { ValidatePostalCodeArgs } from '../nestapp/validators/ValidatePostalCodeArgs';
 
 export const validatePostalCode = (postalCode: string, countryCode: string) => {
-  return getApp().getActionsService().validatePostalCode(
-    plainToClass(ValidatePostalCodeArgs, {
-      postalCode,
-      countryCode,
-    })
-  );
+  return getApp().getActionsService().validatePostalCode({
+    postalCode,
+    countryCode,
+  });
 };

@@ -4,10 +4,8 @@
 
 'use server';
 
-import { plainToClass } from 'class-transformer';
 import { redirect } from 'next/navigation';
 import { getApp } from '../nestapp/app';
-import { GetCartActionArgs } from '../nestapp/validators/GetCartActionArgs';
 import { getRedirect, validateCartState } from '../utils/get-cart';
 import { SupportedPages } from '../utils/types';
 import {
@@ -17,8 +15,8 @@ import {
   FailCartDTO,
   SuccessCartDTO,
   CartDTO,
+  CartInvalidStateForActionError,
 } from '@fxa/payments/cart';
-import { CartInvalidStateForActionError } from 'libs/payments/cart/src/lib/cart.error';
 import { VError } from 'verror';
 
 /**
@@ -63,11 +61,9 @@ async function getCartOrRedirectAction(
   switch (page) {
     case SupportedPages.SUCCESS: {
       try {
-        cart = await getApp().getActionsService().getSuccessCart(
-          plainToClass(GetCartActionArgs, {
-            cartId,
-          })
-        );
+        cart = await getApp().getActionsService().getSuccessCart({
+          cartId,
+        });
       } catch (error) {
         if (error instanceof CartInvalidStateForActionError) {
           redirect(getRedirect(VError.info(error).state) + params);
@@ -81,11 +77,9 @@ async function getCartOrRedirectAction(
     case SupportedPages.PROCESSING:
     case SupportedPages.NEEDS_INPUT:
     case SupportedPages.ERROR: {
-      cart = await getApp().getActionsService().getCart(
-        plainToClass(GetCartActionArgs, {
-          cartId,
-        })
-      );
+      cart = await getApp().getActionsService().getCart({
+        cartId,
+      });
       break;
     }
   }

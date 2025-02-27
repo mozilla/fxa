@@ -4,16 +4,12 @@
 
 'use server';
 
-import { plainToClass } from 'class-transformer';
 import { getApp } from '../nestapp/app';
-import { DetermineCurrencyActionArgs } from '../nestapp/validators/DetermineCurrencyActionArgs';
 
 export const determineCurrencyAction = async (ip: string) => {
-  const currency = await getApp().getActionsService().determineCurrency(
-    plainToClass(DetermineCurrencyActionArgs, {
-      ip,
-    })
-  );
+  const { currency } = await getApp().getActionsService().determineCurrency({
+    ip,
+  });
 
   return currency;
 };

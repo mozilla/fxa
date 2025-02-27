@@ -81,7 +81,7 @@ describe('SanitizeExceptions Decorator', () => {
     it('should pass acceptable errors through', () => {
       expect(() => service.throwAcceptableError()).toThrow(AcceptableError);
       expect(mockLogger.error).toHaveBeenCalledWith(
-        'Error caught by SanitizeExceptions decorator',
+        'Error caught by SanitizeExceptions decorator in MockService.throwAcceptableError',
         expect.any(AcceptableError)
       );
     });
@@ -92,7 +92,7 @@ describe('SanitizeExceptions Decorator', () => {
       );
       expect(() => service.throwSensitiveError()).not.toThrow(SensitiveError);
       expect(mockLogger.error).toHaveBeenCalledWith(
-        'Error caught by SanitizeExceptions decorator',
+        'Error caught by SanitizeExceptions decorator in MockService.throwSensitiveError',
         expect.any(SensitiveError)
       );
     });
@@ -104,7 +104,7 @@ describe('SanitizeExceptions Decorator', () => {
         AcceptableError
       );
       expect(mockLogger.error).toHaveBeenCalledWith(
-        'Error caught by SanitizeExceptions decorator',
+        'Error caught by SanitizeExceptions decorator in MockService.throwAcceptableErrorAsync',
         expect.any(AcceptableError)
       );
     });
@@ -117,7 +117,7 @@ describe('SanitizeExceptions Decorator', () => {
         SensitiveError
       );
       expect(mockLogger.error).toHaveBeenCalledWith(
-        'Error caught by SanitizeExceptions decorator',
+        'Error caught by SanitizeExceptions decorator in MockService.throwSensitiveErrorAsync',
         expect.any(SensitiveError)
       );
     });
