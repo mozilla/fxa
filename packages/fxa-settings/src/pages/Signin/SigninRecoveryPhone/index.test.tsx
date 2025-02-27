@@ -7,15 +7,29 @@ import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localiz
 import { screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import SigninRecoveryPhone from './index';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import { HandledError } from '../../../lib/error-utils';
 
 describe('SigninRecoveryPhone', () => {
   const mockVerifyCode = jest.fn(() => Promise.resolve());
+  const mockVerifyCodeError = jest.fn(() =>
+    Promise.resolve(AuthUiErrors.INVALID_EXPIRED_OTP_CODE as HandledError)
+  );
   const mockResendCode = jest.fn(() => Promise.resolve());
+  const mockResendCodeError = jest.fn(() =>
+    Promise.resolve(AuthUiErrors.UNEXPECTED_ERROR as HandledError)
+  );
 
   const defaultProps = {
     lastFourPhoneDigits: '1234',
     verifyCode: mockVerifyCode,
     resendCode: mockResendCode,
+  };
+
+  const propsWithError = {
+    lastFourPhoneDigits: '1234',
+    verifyCode: mockVerifyCodeError,
+    resendCode: mockResendCodeError,
   };
 
   beforeEach(() => {
@@ -81,6 +95,26 @@ describe('SigninRecoveryPhone', () => {
     await waitFor(() => {
       expect(mockVerifyCode).toHaveBeenCalledWith('123456');
     });
+  });
+
+  it('handles invalid code', async () => {
+    renderWithLocalizationProvider(<SigninRecoveryPhone {...propsWithError} />);
+
+    const input = screen.getByRole('textbox');
+
+    await waitFor(() => userEvent.type(input, '123456'));
+    userEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+    await waitFor(() => {
+      expect(mockVerifyCodeError).toHaveBeenCalledWith('123456');
+    });
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      /The code is invalid or expired./
+    );
+    expect(
+      screen.getByRole('link', {
+        name: 'Use backup authentication codes instead?',
+      })
+    ).toHaveAttribute('href', '/signin_recovery_code');
   });
 
   it('handles resend code', async () => {
