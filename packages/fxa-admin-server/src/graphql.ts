@@ -139,6 +139,32 @@ export interface MozSubscription {
     subscriptionId: string;
 }
 
+export interface TaxAddress {
+    countryCode: string;
+    postalCode: string;
+}
+
+export interface Cart {
+    id: string;
+    uid?: Nullable<string>;
+    state: string;
+    errorReasonId?: Nullable<string>;
+    offeringConfigId: string;
+    interval: string;
+    experiment?: Nullable<string>;
+    taxAddress?: Nullable<TaxAddress>;
+    currency?: Nullable<string>;
+    createdAt: number;
+    updatedAt: number;
+    couponCode?: Nullable<string>;
+    stripeCustomerId?: Nullable<string>;
+    stripeSubscriptionId?: Nullable<string>;
+    email?: Nullable<string>;
+    amount: number;
+    version: number;
+    eligibilityStatus: string;
+}
+
 export interface Account {
     uid: string;
     email: string;
@@ -158,6 +184,7 @@ export interface Account {
     subscriptions?: Nullable<MozSubscription[]>;
     linkedAccounts?: Nullable<LinkedAccount[]>;
     accountEvents?: Nullable<AccountEvent[]>;
+    carts?: Nullable<Cart[]>;
 }
 
 export interface AccountDeleteResponse {

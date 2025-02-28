@@ -19,6 +19,7 @@ import {
   createCart,
   deleteCart,
   fetchCartById,
+  fetchCartsByUid,
   updateCart,
 } from './cart.repository';
 import {
@@ -126,6 +127,17 @@ export class CartManager {
       const cause = error instanceof NotFoundError ? undefined : error;
       throw new CartNotFoundError(id, cause);
     }
+  }
+
+  public async fetchCartsByUid(uid: string): Promise<ResultCart[]> {
+    const carts = await fetchCartsByUid(this.db, Buffer.from(uid, 'hex'));
+    return carts.map((cart) => {
+      return {
+        ...cart,
+        id: cart.id.toString('hex'),
+        uid: cart.uid ? cart.uid.toString('hex') : undefined,
+      };
+    });
   }
 
   public async updateFreshCart(

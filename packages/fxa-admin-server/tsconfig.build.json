@@ -8,6 +8,10 @@
       "@fxa/payments/paypal": ["libs/payments/paypal/src/index"],
       "@fxa/payments/customer": ["libs/payments/customer/src/index"],
       "@fxa/payments/currency": ["libs/payments/currency/src/index"],
+      "@fxa/payments/cart": ["libs/payments/cart/src/index"],
+      "@fxa/payments/eligibility": ["libs/payments/eligibility/src/index"],
+      "@fxa/shared/account/account": ["libs/shared/account/account/src/index"],
+      "@fxa/profile/client": ["libs/profile/client/src/index"],
       "@fxa/shared/cms": ["libs/shared/cms/src/index"],
       "@fxa/shared/cloud-tasks": ["libs/shared/cloud-tasks/src/index"],
       "@fxa/shared/db/firestore": ["libs/shared/db/firestore/src/index"],
@@ -15,14 +19,19 @@
         "libs/shared/db/mysql/account/src/index"
       ],
       "@fxa/shared/db/mysql/core": ["libs/shared/db/mysql/core/src/index"],
-      "@fxa/shared/db/type-cacheable": ["libs/shared/db/type-cacheable/src/index"],
+      "@fxa/shared/db/type-cacheable": [
+        "libs/shared/db/type-cacheable/src/index"
+      ],
       "@fxa/shared/error": ["libs/shared/error/src/index"],
+      "@fxa/shared/geodb": ["libs/shared/geodb/src/index"],
       "@fxa/shared/l10n": ["libs/shared/l10n/src/index"],
       "@fxa/shared/log": ["libs/shared/log/src/index"],
       "@fxa/shared/metrics/statsd": ["libs/shared/metrics/statsd/src/index"],
       "@fxa/shared/otel": ["libs/shared/otel/src/index"],
       "@fxa/shared/pem-jwk": ["libs/shared/pem-jwk/src/index"],
-      "@fxa/vendored/typesafe-node-firestore": ["libs/vendored/typesafe-node-firestore/src/index"],
+      "@fxa/vendored/typesafe-node-firestore": [
+        "libs/vendored/typesafe-node-firestore/src/index"
+      ],
       "@fxa/shared/notifier": ["libs/shared/notifier/src/index"],
       "@fxa/shared/mozlog": ["libs/shared/mozlog/src/index"],
       "@fxa/shared/sentry-nest": ["libs/shared/sentry-nest/src/index"],

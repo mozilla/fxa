@@ -20,6 +20,7 @@ import { RelyingPartyResolver } from './relying-party/relying-party.resolver';
 import { APP_FILTER } from '@nestjs/core';
 import { SentryGlobalGraphQLFilter } from '@sentry/nestjs/setup';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
+import { CartModule } from './cart.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { LOGGER_PROVIDER } from '@fxa/shared/log';
     EventLoggingModule,
     BackendModule,
     NewslettersModule,
+    CartModule,
   ],
   providers: [
     AccountResolver,
