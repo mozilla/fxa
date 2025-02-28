@@ -22,14 +22,14 @@ import {
   VerificationMethods,
 } from '@fxa/shared/account/account';
 import { GleanMetricsType } from '../metrics/glean';
-import { AuthRequest, SessionTokenAuthCredential } from '../types';
+import { AppConfig, AuthRequest, SessionTokenAuthCredential } from '../types';
 import { E164_NUMBER } from './validators';
 import AppError from '../error';
 import Localizer from '../l10n';
 import NodeRendererBindings from '../senders/renderer/bindings-node';
 import { AccountEventsManager } from '../account-events';
 
-const { Container } = require('typedi');
+import { Container } from 'typedi';
 
 enum RecoveryPhoneStatus {
   SUCCESS = 'success',
@@ -43,6 +43,14 @@ export type Customs = {
     uid: string,
     action: string
   ) => Promise<void>;
+};
+
+const appConfig = Container.get(AppConfig);
+const featureEnabledCheck = () => {
+  if (!appConfig.recoveryPhone.enabled) {
+    throw AppError.featureNotEnabled();
+  }
+  return true;
 };
 
 class RecoveryPhoneHandler {
@@ -608,8 +616,9 @@ export const recoveryPhoneRoutes = (
       method: 'POST',
       path: '/recovery_phone/create',
       options: {
+        pre: [{ method: featureEnabledCheck }],
         auth: {
-          strategies: ['sessionToken'],
+          strategy: 'sessionToken',
         },
         validate: {
           payload: isA.object({
@@ -627,7 +636,7 @@ export const recoveryPhoneRoutes = (
       path: '/recovery_phone/available',
       options: {
         auth: {
-          strategies: ['sessionToken'],
+          strategy: 'sessionToken',
         },
       },
       handler: function (request: AuthRequest) {
@@ -639,8 +648,9 @@ export const recoveryPhoneRoutes = (
       method: 'POST',
       path: '/recovery_phone/confirm',
       options: {
+        pre: [{ method: featureEnabledCheck }],
         auth: {
-          strategies: ['sessionToken'],
+          strategy: 'sessionToken',
         },
         validate: {
           payload: isA.object({
@@ -657,8 +667,9 @@ export const recoveryPhoneRoutes = (
       method: 'POST',
       path: '/recovery_phone/signin/send_code',
       options: {
+        pre: [{ method: featureEnabledCheck }],
         auth: {
-          strategies: ['sessionToken'],
+          strategy: 'sessionToken',
         },
       },
       handler: function (request: AuthRequest) {
@@ -670,8 +681,9 @@ export const recoveryPhoneRoutes = (
       method: 'POST',
       path: '/recovery_phone/signin/confirm',
       options: {
+        pre: [{ method: featureEnabledCheck }],
         auth: {
-          strategies: ['sessionToken'],
+          strategy: 'sessionToken',
         },
       },
       handler: function (request: AuthRequest) {
@@ -683,8 +695,9 @@ export const recoveryPhoneRoutes = (
       method: 'DELETE',
       path: '/recovery_phone',
       options: {
+        pre: [{ method: featureEnabledCheck }],
         auth: {
-          strategies: ['sessionToken'],
+          strategy: 'sessionToken',
         },
       },
       handler: function (request: AuthRequest) {
@@ -696,6 +709,7 @@ export const recoveryPhoneRoutes = (
       method: 'GET',
       path: '/recovery_phone',
       options: {
+        pre: [{ method: featureEnabledCheck }],
         auth: {
           strategy: 'sessionToken',
         },
@@ -709,6 +723,7 @@ export const recoveryPhoneRoutes = (
       method: 'POST',
       path: '/recovery_phone/message_status',
       options: {
+        pre: [{ method: featureEnabledCheck }],
         auth: {
           strategy: 'twilioSignature',
           payload: false,

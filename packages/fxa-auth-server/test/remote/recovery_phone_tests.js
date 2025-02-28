@@ -268,6 +268,37 @@ describe(`#integration - recovery phone`, function () {
   });
 });
 
+describe('#integration - recovery phone - feature flag check', () => {
+  let server;
+
+  before(async () => {
+    config.recoveryPhone.enabled = false;
+    server = await TestServer.start(config);
+  });
+
+  after(async () => {
+    await TestServer.stop(server);
+  });
+
+  it('returns feature not enabled error', async () => {
+    try {
+      const client = await Client.createAndVerify(
+        config.publicUrl,
+        'wibble@wobble.gg',
+        'topsecretz',
+        server.mailbox,
+        {
+          version: 'V2',
+        }
+      );
+      await client.recoveryPhoneCreate('+14159929960');
+      assert.fail('Should have received an error');
+    } catch (err) {
+      assert.equal(err.message, 'Feature not enabled');
+    }
+  });
+});
+
 describe(`#integration - recovery phone - customs checks`, function () {
   let email;
   let client;
