@@ -37,7 +37,6 @@ export function formatPriceAmount(
  * @param amount
  * @param currency
  * @param interval
- * @param intervalCount
  * @param showTax
  * @param tax
  */
@@ -51,12 +50,13 @@ export function formatPlanPricing(
   const formattedAmount = formatPriceAmount(amount, currency, showTax, tax);
   switch (interval) {
     case 'daily':
+    case 'day':
       return `${formattedAmount} daily`;
     case 'weekly':
       return `${formattedAmount} weekly`;
     case 'monthly':
       return `${formattedAmount} monthly`;
-    case '6monthly':
+    case 'halfyearly':
       return `${formattedAmount} every 6 months`;
     case 'yearly':
       return `${formattedAmount} yearly`;
@@ -66,30 +66,16 @@ export function formatPlanPricing(
 }
 
 /**
- * Helper function to format a Stripe plan's interval
+ * Helper function to format the plan interval
  * Examples:
- *   'daily' or 'days'
- *   'weekly' or 'weeks'
- *   'monthly' or 'months'
- *   'yearly' or 'years'
+ *   'daily' to 'Daily'
+ *   'monthly' to 'Monthly'
+ *   'halfyearly' to '6-month'
+ *   'yearly' or 'Yearly'
  * @param interval
- * @param intervalCount
  */
-export function formatPlanInterval({
-  interval,
-  intervalCount,
-}: {
-  interval: PriceIntervalType; // TODO - Replace once FXA-7507 lands
-  intervalCount?: number;
-}): string {
-  switch (interval) {
-    case 'day':
-      return intervalCount === 1 ? 'daily' : 'days';
-    case 'week':
-      return intervalCount === 1 ? 'weekly' : 'weeks';
-    case 'month':
-      return intervalCount === 1 ? 'monthly' : 'months';
-    case 'year':
-      return intervalCount === 1 ? 'yearly' : 'years';
-  }
+export function formatPlanInterval(interval: string): string {
+  return interval === 'halfyearly'
+    ? '6-month'
+    : interval.replace(/\w/, (firstLetter) => firstLetter.toUpperCase());
 }

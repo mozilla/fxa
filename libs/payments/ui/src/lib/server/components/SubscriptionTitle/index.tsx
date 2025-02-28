@@ -66,7 +66,12 @@ export async function SubscriptionTitle({
   cartEligibilityStatus,
 }: SubscriptionTitleProps) {
   const componentTitle = getComponentTitle(cartState, cartEligibilityStatus);
-  const displaySubtitle = subheaders.includes(cartState);
+  const displaySubtitle =
+    subheaders.includes(cartState) &&
+    !(
+      cartState === CartState.START &&
+      cartEligibilityStatus === CartEligibilityStatus.UPGRADE
+    );
 
   return (
     <div

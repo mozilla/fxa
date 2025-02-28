@@ -30,7 +30,7 @@ export default function Index() {
               <h2>VPN - Yearly</h2>
               <Link
                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                href="/en/123donepro/yearly/landing"
+                href="/en/vpn/yearly/landing"
               >
                 Redirect
               </Link>
@@ -48,7 +48,7 @@ export default function Index() {
               </Link>
             </div>
             <div className="flex flex-col gap-2 p-4 items-center">
-              <h2>VPN - Yearly</h2>
+              <h2>123Done Pro - Yearly</h2>
               <Link
                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                 href="/en/123donepro/yearly/new"

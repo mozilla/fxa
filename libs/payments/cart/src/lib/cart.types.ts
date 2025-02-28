@@ -39,7 +39,8 @@ export interface Invoice {
   subtotal: number;
   discountEnd?: number | null;
   discountType?: string;
-  number: string | null; // customer-facing invoice identifier
+  number: string | null; // customer-facing invoice identifier;
+  nextInvoiceDate: number;
 }
 
 export type PaymentProvidersType =

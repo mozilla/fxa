@@ -14,7 +14,6 @@ import {
   UpgradePurchaseDetails,
 } from '@fxa/payments/ui/server';
 import { CartEligibilityStatus } from '@fxa/shared/db/mysql/account';
-import { DEFAULT_LOCALE } from '@fxa/shared/l10n';
 import { config } from 'apps/payments/next/config';
 
 export default async function UpgradeLayout({
@@ -24,17 +23,12 @@ export default async function UpgradeLayout({
   children: React.ReactNode;
   params: CheckoutParams;
 }) {
-  // Temporarily defaulting to `accept-language`
-  // This to be updated in FXA-9404
-  //const locale = getLocaleFromRequest(
-  //  params,
-  //  headers().get('accept-language')
-  //);
-  const locale = headers().get('accept-language') || DEFAULT_LOCALE;
+  const { locale } = params;
+  const acceptLanguage = headers().get('accept-language');
+  const l10n = getApp().getL10n(acceptLanguage, locale);
 
   const cartDataPromise = getCartAction(params.cartId);
   const cmsDataPromise = fetchCMSData(params.offeringId, locale);
-  const l10n = getApp().getL10n(locale);
   const [cms, cart] = await Promise.all([cmsDataPromise, cartDataPromise]);
   const purchaseDetails =
     cms.defaultPurchase.purchaseDetails.localizations.at(0) ||
@@ -42,7 +36,6 @@ export default async function UpgradeLayout({
 
   assert(cart.fromOfferingConfigId, 'fromOfferingConfigId is missing in cart');
   assert(cart.fromPrice, 'fromPrice is missing in cart');
-
   const currentCmsDataPromise = fetchCMSData(cart.fromOfferingConfigId, locale);
   const currentCms = await currentCmsDataPromise;
   const currentPurchaseDetails =
@@ -66,8 +59,8 @@ export default async function UpgradeLayout({
             l10n={l10n}
             interval={cart.interval}
             invoice={cart.upcomingInvoicePreview}
-            currentPrice={cart.fromPrice}
-            currentPurchaseDetails={currentPurchaseDetails}
+            fromPrice={cart.fromPrice}
+            fromPurchaseDetails={currentPurchaseDetails}
             purchaseDetails={purchaseDetails}
           />
         </section>
