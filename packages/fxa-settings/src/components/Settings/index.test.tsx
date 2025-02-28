@@ -12,7 +12,6 @@ import {
   mockSession,
 } from '../../models/mocks';
 import { Config } from '../../lib/config';
-import * as NavTiming from 'fxa-shared/metrics/navigation-timing';
 import { SETTINGS_PATH } from '../../constants';
 import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
 import { Subject } from './mocks';
@@ -28,54 +27,6 @@ jest.mock('./ScrollToTop', () => ({
     <span data-testid="ScrollTop">{children}</span>
   ),
 }));
-
-describe('performance metrics', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
-  const navSpy = jest.spyOn(NavTiming, 'observeNavigationTiming');
-
-  const config = {
-    metrics: { navTiming: { enabled: true, endpoint: '/foobar' } },
-  } as Config;
-
-  afterEach(() => {
-    navSpy.mockClear();
-  });
-
-  it('observeNavigationTiming is called when metrics collection is enabled', () => {
-    (useInitialSettingsState as jest.Mock).mockReturnValueOnce({
-      loading: true,
-    });
-    const account = {
-      metricsEnabled: true,
-      hasPassword: true,
-    } as unknown as Account;
-    renderWithRouter(
-      <AppContext.Provider value={mockAppContext({ account, config })}>
-        <Subject />
-      </AppContext.Provider>
-    );
-    expect(NavTiming.observeNavigationTiming).toHaveBeenCalledWith('/foobar');
-  });
-
-  it('observeNavigationTiming is not called when metrics collection is disabled', () => {
-    (useInitialSettingsState as jest.Mock).mockReturnValueOnce({
-      loading: true,
-    });
-    const account = {
-      metricsEnabled: false,
-      hasPassword: true,
-    } as unknown as Account;
-    renderWithRouter(
-      <AppContext.Provider value={mockAppContext({ account, config })}>
-        <Subject />
-      </AppContext.Provider>
-    );
-    expect(NavTiming.observeNavigationTiming).not.toHaveBeenCalled();
-  });
-});
 
 describe('App component', () => {
   beforeEach(() => {

@@ -43,12 +43,6 @@ const settingsConfig = {
     strict: false,
     baseUrl: config.get('l10n.baseUrl'),
   },
-  metrics: {
-    navTiming: {
-      enabled: config.get('statsd.enabled'),
-      endpoint: '/navigation-timing',
-    },
-  },
   sentry: {
     dsn: config.get('sentry.dsn'),
     env: config.get('sentry.env'),
