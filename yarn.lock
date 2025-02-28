@@ -25499,17 +25499,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/lodash@npm:*, @types/lodash@npm:^4":
-  version: 4.14.157
-  resolution: "@types/lodash@npm:4.14.157"
-  checksum: 57919bfa3c4bb40c9de7d6004e33d7f441ae6cffe550081a22a2554a5b70e5df3db68ebdb1ff0a9f209d24a7aba1e7c15886e3788b9f5df60fd34dea5b86c29a
-  languageName: node
-  linkType: hard
-
-"@types/lodash@npm:^4.14.167":
-  version: 4.14.182
-  resolution: "@types/lodash@npm:4.14.182"
-  checksum: 7dd137aa9dbabd632408bd37009d984655164fa1ecc3f2b6eb94afe35bf0a5852cbab6183148d883e9c73a958b7fec9a9bcf7c8e45d41195add6a18c34958209
+"@types/lodash@npm:*, @types/lodash@npm:^4, @types/lodash@npm:^4.14.167":
+  version: 4.17.15
+  resolution: "@types/lodash@npm:4.17.15"
+  checksum: 5037564154411f4ac0b187b914031c150520a7ca037dea007f774b7123c97c0da55b2e41ae81dc1bc80ff09e8d6a236455ea676d5062af12c592b8e81baec7bf
   languageName: node
   linkType: hard
 
