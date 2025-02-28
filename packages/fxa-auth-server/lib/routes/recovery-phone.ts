@@ -29,7 +29,8 @@ import Localizer from '../l10n';
 import NodeRendererBindings from '../senders/renderer/bindings-node';
 import { AccountEventsManager } from '../account-events';
 
-const { Container } = require('typedi');
+import { Container } from 'typedi';
+import { ConfigType } from '../../config';
 
 enum RecoveryPhoneStatus {
   SUCCESS = 'success',
@@ -446,10 +447,6 @@ class RecoveryPhoneHandler {
     try {
       success = await this.recoveryPhoneService.removePhoneNumber(uid);
     } catch (error) {
-      if (error instanceof RecoveryPhoneNotEnabled) {
-        throw AppError.featureNotEnabled();
-      }
-
       if (error instanceof RecoveryNumberNotExistsError) {
         throw AppError.recoveryPhoneNumberDoesNotExist();
       }
@@ -566,10 +563,6 @@ class RecoveryPhoneHandler {
         phoneNumberStrip
       );
     } catch (error) {
-      if (error instanceof RecoveryPhoneNotEnabled) {
-        throw AppError.featureNotEnabled();
-      }
-
       throw AppError.backendServiceFailure(
         'RecoveryPhoneService',
         'destroy',
@@ -593,8 +586,15 @@ export const recoveryPhoneRoutes = (
   glean: GleanMetricsType,
   log: any,
   mailer: any,
-  statsd: any
+  statsd: any,
+  config: ConfigType
 ) => {
+  const featureEnabledCheck = () => {
+    if (!config.recoveryPhone.enabled) {
+      throw AppError.featureNotEnabled();
+    }
+    return true;
+  };
   const recoveryPhoneHandler = new RecoveryPhoneHandler(
     customs,
     db,
@@ -608,8 +608,9 @@ export const recoveryPhoneRoutes = (
       method: 'POST',
       path: '/recovery_phone/create',
       options: {
+        pre: [{ method: featureEnabledCheck }],
         auth: {
-          strategies: ['sessionToken'],
+          strategy: 'sessionToken',
         },
         validate: {
           payload: isA.object({
@@ -627,7 +628,7 @@ export const recoveryPhoneRoutes = (
       path: '/recovery_phone/available',
       options: {
         auth: {
-          strategies: ['sessionToken'],
+          strategy: 'sessionToken',
         },
       },
       handler: function (request: AuthRequest) {
@@ -639,8 +640,9 @@ export const recoveryPhoneRoutes = (
       method: 'POST',
       path: '/recovery_phone/confirm',
       options: {
+        pre: [{ method: featureEnabledCheck }],
         auth: {
-          strategies: ['sessionToken'],
+          strategy: 'sessionToken',
         },
         validate: {
           payload: isA.object({
@@ -657,8 +659,9 @@ export const recoveryPhoneRoutes = (
       method: 'POST',
       path: '/recovery_phone/signin/send_code',
       options: {
+        pre: [{ method: featureEnabledCheck }],
         auth: {
-          strategies: ['sessionToken'],
+          strategy: 'sessionToken',
         },
       },
       handler: function (request: AuthRequest) {
@@ -670,8 +673,9 @@ export const recoveryPhoneRoutes = (
       method: 'POST',
       path: '/recovery_phone/signin/confirm',
       options: {
+        pre: [{ method: featureEnabledCheck }],
         auth: {
-          strategies: ['sessionToken'],
+          strategy: 'sessionToken',
         },
       },
       handler: function (request: AuthRequest) {
@@ -684,7 +688,7 @@ export const recoveryPhoneRoutes = (
       path: '/recovery_phone',
       options: {
         auth: {
-          strategies: ['sessionToken'],
+          strategy: 'sessionToken',
         },
       },
       handler: function (request: AuthRequest) {
@@ -709,6 +713,7 @@ export const recoveryPhoneRoutes = (
       method: 'POST',
       path: '/recovery_phone/message_status',
       options: {
+        pre: [{ method: featureEnabledCheck }],
         auth: {
           strategy: 'twilioSignature',
           payload: false,

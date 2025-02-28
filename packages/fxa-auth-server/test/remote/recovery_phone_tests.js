@@ -268,6 +268,47 @@ describe(`#integration - recovery phone`, function () {
   });
 });
 
+describe('#integration - recovery phone - feature flag check', () => {
+  let server;
+
+  before(async function () {
+    config.recoveryPhone.enabled = false;
+    config.securityHistory.ipProfiling.allowedRecency = 0;
+    config.signinConfirmation.skipForNewAccounts.enabled = false;
+    server = await TestServer.start(config, true);
+  });
+
+  after(async function () {
+    await TestServer.stop(server);
+  });
+
+  it('returns feature not enabled error', async () => {
+    try {
+      const email = server.uniqueEmail();
+      const client = await Client.createAndVerify(
+        config.publicUrl,
+        email,
+        'topsecretz',
+        server.mailbox,
+        {
+          version: 'V2',
+        }
+      );
+      client.totpAuthenticator = new otplib.authenticator.Authenticator();
+      const totpResult = await client.createTotpToken();
+      client.totpAuthenticator.options = {
+        secret: totpResult.secret,
+        crypto: crypto,
+      };
+      await client.verifyTotpCode(client.totpAuthenticator.generate());
+      await client.recoveryPhoneCreate('+14159929960');
+      assert.fail('Should have received an error');
+    } catch (err) {
+      assert.equal(err.message, 'Feature not enabled');
+    }
+  });
+});
+
 describe(`#integration - recovery phone - customs checks`, function () {
   let email;
   let client;
@@ -280,6 +321,7 @@ describe(`#integration - recovery phone - customs checks`, function () {
   const phoneNumber = '+14159929960';
 
   before(async function () {
+    config.recoveryPhone.enabled = true;
     config.securityHistory.ipProfiling.allowedRecency = 0;
     config.signinConfirmation.skipForNewAccounts.enabled = false;
     config.customsUrl = 'http://127.0.0.1:7000';

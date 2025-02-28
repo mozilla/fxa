@@ -195,8 +195,7 @@ module.exports = (printLogs) => {
             const numStops = 3;
             let stops = 0;
             const cb = () => {
-              stops += 1;
-              if (stops >= numStops) {
+              if (++stops >= numStops) {
                 resolve();
               }
             };
