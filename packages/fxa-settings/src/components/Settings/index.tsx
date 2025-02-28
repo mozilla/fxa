@@ -31,7 +31,6 @@ import { PageRecoveryPhoneSetup } from './PageRecoveryPhoneSetup';
 import { PageDeleteAccount } from './PageDeleteAccount';
 import { ScrollToTop } from './ScrollToTop';
 import { SETTINGS_PATH } from '../../constants';
-import { observeNavigationTiming } from 'fxa-shared/metrics/navigation-timing';
 import PageAvatar from './PageAvatar';
 import PageRecentActivity from './PageRecentActivity';
 import PageRecoveryKeyCreate from './PageRecoveryKeyCreate';
@@ -50,16 +49,6 @@ export const Settings = ({
   const session = useSession();
   const account = useAccount();
   const location = useLocation();
-
-  useEffect(() => {
-    if (config.metrics.navTiming.enabled && account.metricsEnabled) {
-      observeNavigationTiming(config.metrics.navTiming.endpoint);
-    }
-  }, [
-    account.metricsEnabled,
-    config.metrics.navTiming.enabled,
-    config.metrics.navTiming.endpoint,
-  ]);
 
   useEffect(() => {
     /**
