@@ -130,7 +130,7 @@ function applyDefaultMocks() {
   mockSigninModule();
   mockModelsModule();
   mockUseValidateModule({ queryParams: MOCK_QUERY_PARAM_MODEL_NO_VALUES });
-  mockCurrentAccount();
+  mockCurrentAccount({ uid: '123' });
   mockCryptoModule();
   mockSentryModule();
 }
@@ -180,7 +180,7 @@ function mockModelsModule() {
 }
 
 // Call this when testing local storage
-function mockCurrentAccount(storedAccount = { uid: '123' }) {
+function mockCurrentAccount(storedAccount: any) {
   jest.spyOn(CacheModule, 'currentAccount').mockReturnValue(storedAccount);
   jest.spyOn(CacheModule, 'discardSessionToken');
 }
@@ -364,9 +364,35 @@ describe('signin container', () => {
       });
       it('is handled if not provided in query params or location state', async () => {
         render([mockGqlAvatarUseQuery()]);
-        expect(CacheModule.currentAccount).not.toBeCalled();
+        expect(CacheModule.currentAccount).toBeCalled();
         expect(ReactUtils.hardNavigate).toBeCalledWith('/');
         expect(SigninModule.default).not.toBeCalled();
+      });
+      it('uses local storage value if email is not provided via query param or router state', async () => {
+        mockCurrentAccount(MOCK_STORED_ACCOUNT);
+        render([mockGqlAvatarUseQuery()]);
+        expect(CacheModule.currentAccount).toBeCalled();
+        await waitFor(() => {
+          expect(currentSigninProps?.email).toBe(MOCK_STORED_ACCOUNT.email);
+        });
+        expect(SigninModule.default).toBeCalled();
+      });
+      it('falls back to last logged in account in local storage if current local storage account does not exist', async () => {
+        const LAST_STORED_ACCOUNT = {
+          ...MOCK_STORED_ACCOUNT,
+          email: 'foo@bar.com',
+        };
+        jest
+          .spyOn(CacheModule, 'lastStoredAccount')
+          .mockReturnValue(LAST_STORED_ACCOUNT);
+        mockCurrentAccount(undefined);
+        render([mockGqlAvatarUseQuery()]);
+        expect(CacheModule.currentAccount).toBeCalled();
+        expect(CacheModule.lastStoredAccount).toBeCalled();
+        await waitFor(() => {
+          expect(currentSigninProps?.email).toBe(LAST_STORED_ACCOUNT.email);
+        });
+        expect(SigninModule.default).toBeCalled();
       });
     });
     describe('loading spinner', () => {
