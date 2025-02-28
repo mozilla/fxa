@@ -6,5 +6,5 @@
 plan-price-interval-daily = { $amount } daily
 plan-price-interval-weekly = { $amount } weekly
 plan-price-interval-monthly = { $amount } monthly
-plan-price-interval-6monthly = { $amount } every 6 months
+plan-price-interval-halfyearly = { $amount } every 6 months
 plan-price-interval-yearly = { $amount } yearly

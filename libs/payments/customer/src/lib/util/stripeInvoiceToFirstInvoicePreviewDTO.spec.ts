@@ -39,6 +39,7 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
       discountEnd: undefined,
       discountType: undefined,
       number: null,
+      nextInvoiceDate: mockUpcomingInvoice.lines.data[0].period.end,
     });
   });
 
@@ -71,6 +72,7 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
       discountEnd: null,
       discountType: 'forever',
       number: null,
+      nextInvoiceDate: mockUpcomingInvoice.lines.data[0].period.end,
     });
   });
 
@@ -108,6 +110,7 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
       discountEnd: undefined,
       discountType: undefined,
       number: null,
+      nextInvoiceDate: mockUpcomingInvoice.lines.data[0].period.end,
     });
   });
 

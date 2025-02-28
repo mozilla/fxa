@@ -5,7 +5,6 @@
 import { headers } from 'next/headers';
 
 import { formatPlanPricing, getCardIcon } from '@fxa/payments/ui';
-
 import { SupportedPages, getApp } from '@fxa/payments/ui/server';
 import {
   fetchCMSData,
@@ -17,7 +16,7 @@ import Image from 'next/image';
 
 export const dynamic = 'force-dynamic';
 
-export default async function CheckoutSuccess({
+export default async function UpgradeSuccess({
   params,
   searchParams,
 }: {
