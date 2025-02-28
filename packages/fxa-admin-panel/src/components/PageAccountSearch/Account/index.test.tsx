@@ -62,6 +62,7 @@ let accountResponse: AccountProps = {
       templateName: 'subscriptionsPaymentProviderCancelled',
     },
   ],
+  carts: [],
   onCleared() {},
   query: 'hey@happy.com',
   totp: [

@@ -34,6 +34,15 @@ export async function fetchCartById(db: AccountDatabase, id: Buffer) {
 }
 
 /**
+ * Fetch carts from the database by account uid.
+ *
+ * @returns Fetched carts or an empty array if no carts exist
+ */
+export async function fetchCartsByUid(db: AccountDatabase, uid: Buffer) {
+  return db.selectFrom('carts').where('uid', '=', uid).selectAll().execute();
+}
+
+/**
  * Update a cart in the database with a given update.
  *
  * This implementation manages the version and enforces optimistic locking
