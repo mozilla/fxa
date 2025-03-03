@@ -1016,6 +1016,8 @@ module.exports = function (
           butil.buffersAreEqual(passwordForgotToken.passCode, code) &&
           passwordForgotToken.ttl() > 0
         ) {
+          // TODO: Check if user has totp and password forgot token is 2FA verified
+          // TODO: Create an account reset token that has verificationMethod 2FA verified
           accountResetToken = await db.forgotPasswordVerified(
             passwordForgotToken
           );

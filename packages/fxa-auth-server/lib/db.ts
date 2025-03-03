@@ -942,6 +942,23 @@ export const createDB = (
       await RawSessionToken.verify(tokenId, verificationMethod);
     }
 
+    async verifyPasswordForgotTokenWithMethod(
+      tokenId: string,
+      verificationMethod: VerificationMethod | number
+    ) {
+      log.trace('DB.verifyPasswordForgotTokenWithMethod', {
+        tokenId,
+        verificationMethod,
+      });
+      this.metrics?.increment('db.verify.passwordForgotTokensWithMethod', {
+        method: verificationMethodToString(verificationMethod),
+      });
+      await RawPasswordForgotToken.updateVerificationMethod(
+        tokenId,
+        verificationMethod
+      );
+    }
+
     async forgotPasswordVerified(passwordForgotToken: {
       id: string;
       uid: string;

@@ -1680,6 +1680,8 @@ export class AccountHandler {
         // **unless** the user has a TOTP token.
         tokenVerificationId = hasTotpToken ? await random.hex(16) : null;
 
+        // TODO: Check the verificationMethod of account reset token and propagate it to sessionToken
+
         const sessionTokenOptions = {
           uid: account.uid,
           email: account.primaryEmail.email,

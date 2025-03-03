@@ -36,6 +36,7 @@ const databases = (
   .filter((x) => x.isDirectory())
   .map((x) => x.name);
 
+console.log("Patching......")
 for (const db of databases) {
   const { level } = JSON.parse(
     await fs.readFile(path.resolve(databasesDir, db, 'target-patch.json'))

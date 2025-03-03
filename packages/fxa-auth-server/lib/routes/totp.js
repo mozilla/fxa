@@ -373,6 +373,11 @@ module.exports = (
             glean.resetPassword.twoFactorSuccess(request, {
               uid: passwordForgotToken.uid,
             });
+
+            await db.verifyPasswordForgotTokenWithMethod(
+              passwordForgotToken.id,
+              'totp-2fa'
+            );
           }
 
           return {
@@ -416,7 +421,7 @@ module.exports = (
         log.begin('totp.verify.recoveryCode', request);
 
         const code = request.payload.code;
-        const { uid, email } = request.auth.credentials;
+        const { uid, email, id } = request.auth.credentials;
 
         await customs.check(request, email, 'verifyRecoveryCode');
 
@@ -424,6 +429,12 @@ module.exports = (
         const { acceptLanguage, clientAddress: ip, geo, ua } = request.app;
 
         const { remaining } = await db.consumeRecoveryCode(uid, code);
+
+        // If a valid code was sent, this verifies the session using the `email-2fa` method.
+        // The assurance level will be ["pwd", "email"] or level 1.
+        // **Note** the order of operations, to avoid any race conditions with push
+        // notifications, we perform all DB operations first.
+        await db.verifyPasswordForgotTokenWithMethod(id, 'recovery-code');
 
         const mailerPromises = [
           mailer.sendPostConsumeRecoveryCodeEmail(account.emails, account, {

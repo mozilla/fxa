@@ -3,6 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { BaseAuthModel, Proc } from './base-auth';
 import { uuidTransformer } from '../../transformers';
+import {
+  VerificationMethod,
+  verificationMethodToNumber,
+} from './session-token';
 
 export class PasswordForgotToken extends BaseAuthModel {
   public static tableName = 'passwordForgotTokens';
@@ -16,6 +20,7 @@ export class PasswordForgotToken extends BaseAuthModel {
   createdAt!: number;
   passCode!: string;
   tries!: number;
+  verificationMethod!: number;
 
   // joined fields (from passwordForgotToken_# stored proc)
   email!: string;
@@ -73,6 +78,15 @@ export class PasswordForgotToken extends BaseAuthModel {
       Proc.DeletePasswordForgotToken,
       uuidTransformer.to(id)
     );
+  }
+
+  static async updateVerificationMethod(
+    id: string,
+    method: VerificationMethod | number
+  ) {
+    await PasswordForgotToken.query()
+      .update({ verificationMethod: verificationMethodToNumber(method) })
+      .where('tokenId', uuidTransformer.to(id));
   }
 
   static async findByTokenId(id: string) {
