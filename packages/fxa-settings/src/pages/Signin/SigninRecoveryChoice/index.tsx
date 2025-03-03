@@ -45,6 +45,7 @@ const SigninRecoveryChoice = ({
   const [errorBannerMessage, setErrorBannerMessage] = React.useState('');
   const [errorBannerDescription, setErrorBannerDescription] =
     React.useState('');
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const ftlMsgResolver = useFtlMsgResolver();
   const navigateWithQuery = useNavigateWithQuery();
@@ -75,12 +76,14 @@ const SigninRecoveryChoice = ({
   const onSubmit = async ({ choice }: FormChoiceData) => {
     setErrorBannerMessage('');
     setErrorBannerDescription('');
+    setIsSubmitting(true);
     GleanMetrics.login.backupChoiceSubmit({ event: { reason: choice } });
     switch (choice) {
       case CHOICES.phone:
         const error = await handlePhoneChoice();
         if (error) {
           handlePhoneChoiceError(error);
+          setIsSubmitting(false);
           return;
         }
         navigateWithQuery('/signin_recovery_phone', {
@@ -141,7 +144,7 @@ const SigninRecoveryChoice = ({
         />
       )}
 
-      <FormChoice {...{ legendEl, onSubmit, formChoices }} />
+      <FormChoice {...{ legendEl, onSubmit, formChoices, isSubmitting }} />
     </AppLayout>
   );
 };
