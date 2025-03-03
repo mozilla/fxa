@@ -34,6 +34,13 @@ export const PaymentsEmitterEventsKeys = [
 export type PaymentsEmitterEventsKeysType =
   (typeof PaymentsEmitterEventsKeys)[number];
 
+export type SP3RolloutEvent = {
+  version: '2' | '3';
+  offeringId: string;
+  interval: string;
+  shadowMode: boolean;
+};
+
 export type PaymentsEmitterEvents = {
   checkoutView: CheckoutEvents;
   checkoutEngage: CheckoutEvents;
@@ -41,6 +48,7 @@ export type PaymentsEmitterEvents = {
   checkoutSuccess: CheckoutPaymentEvents;
   checkoutFail: CheckoutPaymentEvents;
   subscriptionEnded: SubscriptionEnded;
+  sp3Rollout: SP3RolloutEvent;
 };
 
 export type AdditionalMetricsData = {

@@ -12,7 +12,11 @@ import {
   StrapiClient,
 } from '@fxa/shared/cms';
 import { MockStripeConfigProvider, StripeClient } from '@fxa/payments/stripe';
-import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
+import {
+  MockStatsDProvider,
+  StatsD,
+  StatsDService,
+} from '@fxa/shared/metrics/statsd';
 import { PriceManager } from '@fxa/payments/customer';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import {
@@ -27,6 +31,7 @@ import { CartManager } from '@fxa/payments/cart';
 import { PaymentsEmitterService } from './emitter.service';
 import {
   AdditionalMetricsDataFactory,
+  SP3RolloutEventFactory,
   SubscriptionEndedFactory,
 } from './emitter.factories';
 import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
@@ -43,6 +48,7 @@ describe('PaymentsEmitterService', () => {
   let paymentsGleanManager: PaymentsGleanManager;
   let productConfigurationManager: ProductConfigurationManager;
   let cartManager: CartManager;
+  let statsd: StatsD;
 
   const additionalMetricsData = AdditionalMetricsDataFactory();
   const mockCommonMetricsData = CommonMetricsFactory({
@@ -78,6 +84,7 @@ describe('PaymentsEmitterService', () => {
     paymentsGleanManager = moduleRef.get(PaymentsGleanManager);
     productConfigurationManager = moduleRef.get(ProductConfigurationManager);
     cartManager = moduleRef.get(CartManager);
+    statsd = moduleRef.get<StatsD>(StatsDService);
   });
 
   it('should be defined', () => {
@@ -337,6 +344,22 @@ describe('PaymentsEmitterService', () => {
       expect(
         productConfigurationManager.getPurchaseDetailsForEligibility
       ).toHaveBeenCalledWith([completeEventData.priceId]);
+    });
+  });
+
+  describe('handleSP3Rollout', () => {
+    const completeEventData = SP3RolloutEventFactory();
+    beforeEach(() => {
+      jest.spyOn(statsd, 'increment').mockReturnValue();
+    });
+
+    it('should call manager record method', async () => {
+      await paymentsEmitterService.handleSP3Rollout(completeEventData);
+
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'sp3_rollout',
+        expect.any(Object)
+      );
     });
   });
 });
