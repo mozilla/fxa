@@ -11,6 +11,13 @@ import {
 import { getApp, SupportedPages } from '@fxa/payments/ui/server';
 import { headers } from 'next/headers';
 import { getCartOrRedirectAction } from '@fxa/payments/ui/actions';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Action required',
+  description:
+    'Please complete the required action to proceed with your payment.',
+};
 
 export default async function NeedsInputPage({
   params,

@@ -18,10 +18,17 @@ import {
 } from '@fxa/payments/ui/actions';
 import { CartErrorReasonId } from '@fxa/shared/db/mysql/account';
 import { config } from 'apps/payments/next/config';
+import type { Metadata } from 'next';
 
 // forces dynamic rendering
 // https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config
 export const dynamic = 'force-dynamic';
+
+export const metadata: Metadata = {
+  title: 'Error',
+  description:
+    'There was an error processing your subscription. If this problem persists, please contact support.',
+};
 
 const getErrorReason = (
   reason: CartErrorReasonId | null,

@@ -13,8 +13,14 @@ import {
 } from '@fxa/payments/ui/actions';
 import { CheckoutParams } from '@fxa/payments/ui/server';
 import Image from 'next/image';
+import { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
+
+export const metadata: Metadata = {
+  title: 'Success',
+  description: 'Congratulations! You have successfully completed your upgrade.',
+};
 
 export default async function UpgradeSuccess({
   params,
