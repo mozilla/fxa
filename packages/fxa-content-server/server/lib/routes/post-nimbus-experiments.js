@@ -29,7 +29,7 @@ module.exports = function (options = {}) {
 
       try {
         const resp = await fetch(
-          `${config.getProperties().nimbus.host}/v1/features/`,
+          `${config.getProperties().nimbus.host}/v2/features/`,
           {
             method: 'POST',
             body,
