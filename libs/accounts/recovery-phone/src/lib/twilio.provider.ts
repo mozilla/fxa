@@ -22,7 +22,13 @@ export const TwilioProvider = Symbol('TwilioProvider');
 export const TwilioFactory: Provider<Twilio> = {
   provide: TwilioProvider,
   useFactory: (config: TwilioConfig) => {
-    const { accountSid, authToken } = config;
+    const { accountSid, authToken, apiKey, apiSecret } = config;
+
+    // Preferred way!
+    if (accountSid && apiKey && apiSecret) {
+      return new Twilio(apiKey, apiSecret, { accountSid });
+    }
+
     return new Twilio(accountSid, authToken);
   },
   inject: [TwilioConfig],

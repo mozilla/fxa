@@ -2242,7 +2242,7 @@ const convictConf = convict({
     },
     authToken: {
       default: '?',
-      doc: 'Twilio Auth Token, required to access api',
+      doc: 'Twilio Auth Token to access api. Note, using apiKey/apiSecret is preferred.',
       env: 'RECOVERY_PHONE__TWILIO__AUTH_TOKEN',
     },
     webhookUrl: {
@@ -2254,6 +2254,16 @@ const convictConf = convict({
       default: true,
       doc: 'Controls if twilio signature is validated during webhook calls from twilio',
       env: 'RECOVERY_PHONE__TWILIO__VALIDATE_WEBHOOK_CALLS',
+    },
+    apiKey: {
+      default: '',
+      doc: 'An api key used to access the twilio rest api. Note, when provided the authToken is no longer needed.',
+      env: 'RECOVERY_PHONE__TWILIO__API_KEY',
+    },
+    apiSecret: {
+      default: '',
+      doc: 'A secret used in conjunction with the apiKey to access the twilio rest api.',
+      env: 'RECOVERY_PHONE__TWILIO__API_SECRET',
     },
   },
 });
