@@ -32,6 +32,7 @@ const FormPhoneNumber = ({
   gleanDataAttrs,
 }: FormPhoneNumberProps) => {
   const [hasErrors, setHasErrors] = React.useState(false);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
   const { control, formState, handleSubmit, register, setValue } =
     useForm<InputPhoneNumberData>({
       mode: 'onChange',
@@ -62,11 +63,13 @@ const FormPhoneNumber = ({
     countryCode,
   }: InputPhoneNumberData) => {
     setHasErrors(false);
+    setIsSubmitting(true);
     const formattedPhoneNumber = formatPhoneNumber({
       phoneNumber,
       countryCode,
     });
     const result = await submitPhoneNumber(formattedPhoneNumber);
+    setIsSubmitting(false);
     if (result !== undefined && result.hasErrors) {
       setHasErrors(true);
       const phoneInput = document.querySelector(
@@ -111,6 +114,7 @@ const FormPhoneNumber = ({
           type="submit"
           className="cta-primary cta-xl"
           disabled={
+            isSubmitting ||
             !formState.isDirty ||
             phoneNumberInput === undefined ||
             phoneNumberInput.replace(/\D/g, '').length !== 10

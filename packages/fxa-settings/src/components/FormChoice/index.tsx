@@ -18,6 +18,7 @@ export type FormChoiceProps = {
   alignImage?: 'start' | 'end';
   formChoices: FormChoiceOption[];
   onSubmit: (data: FormChoiceData) => void;
+  isSubmitting: boolean;
 };
 
 export const CHOICES = {
@@ -34,6 +35,7 @@ const FormChoice = ({
   alignImage = 'start',
   formChoices,
   onSubmit,
+  isSubmitting,
 }: FormChoiceProps) => {
   const { register, handleSubmit, watch } = useForm<FormChoiceData>();
   const selectedOption = watch('choice');
@@ -77,7 +79,7 @@ const FormChoice = ({
         <button
           className="cta-primary cta-xl"
           type="submit"
-          disabled={!selectedOption}
+          disabled={!selectedOption || isSubmitting}
         >
           Continue
         </button>
