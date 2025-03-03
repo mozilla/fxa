@@ -8,7 +8,7 @@
 
 ## Issue that this pull request solves
 
-Closes: # (issue number)
+Closes: (issue number)
 
 ## Checklist
 
