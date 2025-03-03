@@ -33,7 +33,7 @@
     "test-watch": "SKIP_PREFLIGHT_CHECK=true node scripts/test.js",
     "test-coverage": "yarn test --coverage --watchAll=false",
     "test-unit": "echo No unit tests present for $npm_package_name",
-    "test-integration": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-integration.xml SKIP_PREFLIGHT_CHECK=true node scripts/test.js --watchAll=false --ci --runInBand --reporters=default --reporters=jest-junit",
+    "test-integration": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/fxa-settings-jest-integration-results.xml SKIP_PREFLIGHT_CHECK=true node scripts/test.js --watchAll=false --ci --runInBand --reporters=default --reporters=jest-junit",
     "watch-ftl": "grunt watch-ftl",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'"
   },

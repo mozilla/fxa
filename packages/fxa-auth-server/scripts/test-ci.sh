@@ -23,7 +23,7 @@ for t in "${TESTS[@]}"; do
   echo -e "\n\nTesting: $t"
 
   #./scripts/mocha-coverage.js $DEFAULT_ARGS $GREP_TESTS --reporter-options mochaFile="../../artifacts/tests/fxa-auth-server/$t/test-results.xml" "test/$t"
-  MOCHA_FILE=../../artifacts/tests/$npm_package_name/mocha-$TEST_TYPE-$t.xml mocha $DEFAULT_ARGS $GREP_TESTS test/$t
+  MOCHA_FILE=../../artifacts/tests/$npm_package_name/fxa-auth-server-mocha-$TEST_TYPE-$t-results.xml mocha $DEFAULT_ARGS $GREP_TESTS test/$t
 done
 
 if [ "$TEST_TYPE" == 'integration' ]; then

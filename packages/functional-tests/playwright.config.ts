@@ -14,8 +14,8 @@ const CI = !!process.env.CI;
 // If using the CircleCI parallelism feature, assure that the JUNIT XML report
 // has a unique name
 const JUNIT_OUTPUT_NAME = process.env.CIRCLE_NODE_INDEX
-  ? `test-results-${process.env.CIRCLE_NODE_INDEX}.xml`
-  : 'test-results.xml';
+  ? `functional-tests-playwright-results-${process.env.CIRCLE_NODE_INDEX}.xml`
+  : 'functional-tests-playwright-results.xml';
 
 // The DEBUG env is used to debug without the playwright inspector, like in vscode
 // see .vscode/launch.json
