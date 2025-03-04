@@ -12,4 +12,5 @@ upgrade-purchase-details-prorated-upgrade = Prorated Upgrade
 upgrade-purchase-details-new-plan-daily = { $productName } (Daily)
 upgrade-purchase-details-new-plan-weekly = { $productName } (Weekly)
 upgrade-purchase-details-new-plan-monthly = { $productName } (Monthly)
+upgrade-purchase-details-new-plan-halfyearly = { $productName } (6-month)
 upgrade-purchase-details-new-plan-yearly = { $productName } (Yearly)

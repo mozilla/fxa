@@ -29,7 +29,7 @@ const OFFERING_CONFIG_IDS = [
   'mdnplus',
 ];
 
-const INTERVALS = ['daily', 'weekly', 'monthly', '6monthly', 'yearly'];
+const INTERVALS = ['daily', 'weekly', 'monthly', 'halfyearly', 'yearly'];
 
 export const CheckoutCustomerDataFactory = (
   override?: Partial<CheckoutCustomerData>
