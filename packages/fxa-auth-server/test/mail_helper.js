@@ -186,27 +186,23 @@ module.exports = (printLogs) => {
       },
     ]);
 
-    api.start().then(async () => {
+    api.start().then(() => {
       console.log('mail_helper started...');
       printMatchingKeys(true);
       return resolve({
         close() {
           return new Promise((resolve, reject) => {
-            let smtpClosed = false;
-            let apiClosed = false;
-            redis.quit();
-            smtp.server.end(() => {
-              smtpClosed = true;
-              if (apiClosed) {
+            const numStops = 3;
+            let stops = 0;
+            const cb = () => {
+              stops += 1;
+              if (stops >= numStops) {
                 resolve();
               }
-            });
-            api.stop().then(() => {
-              apiClosed = true;
-              if (smtpClosed) {
-                resolve();
-              }
-            });
+            };
+            redis.quit(cb);
+            smtp.server.end(cb);
+            api.stop().then(cb);
           });
         },
       });
