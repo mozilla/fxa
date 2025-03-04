@@ -48,7 +48,7 @@ class AppSingleton {
     return this.app.get(NextJSActionsService);
   }
 
-  getGleanEmitter() {
+  getEmitterService() {
     return this.app.get(PaymentsEmitterService).getEmitter();
   }
 

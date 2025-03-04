@@ -3,19 +3,21 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import Emittery from 'emittery';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { CartManager } from '@fxa/payments/cart';
 import { PaymentsGleanManager } from '@fxa/payments/metrics';
 import {
   CheckoutEvents,
   CheckoutPaymentEvents,
   PaymentsEmitterEvents,
+  SP3RolloutEvent,
   SubscriptionEnded,
 } from './emitter.types';
 import { AccountManager } from '@fxa/shared/account/account';
 import { retrieveAdditionalMetricsData } from './util/retrieveAdditionalMetricsData';
 import { getSubplatInterval } from '@fxa/payments/customer';
 import * as Sentry from '@sentry/nestjs';
+import { StatsD, StatsDService } from '@fxa/shared/metrics/statsd';
 
 @Injectable()
 export class PaymentsEmitterService {
@@ -25,7 +27,8 @@ export class PaymentsEmitterService {
     private productConfigurationManager: ProductConfigurationManager,
     private paymentsGleanManager: PaymentsGleanManager,
     private cartManager: CartManager,
-    private accountManager: AccountManager
+    private accountManager: AccountManager,
+    @Inject(StatsDService) public statsd: StatsD
   ) {
     this.emitter = new Emittery<PaymentsEmitterEvents>();
     this.emitter.on('checkoutView', this.handleCheckoutView.bind(this));
@@ -37,6 +40,7 @@ export class PaymentsEmitterService {
       'subscriptionEnded',
       this.handleSubscriptionEnded.bind(this)
     );
+    this.emitter.on('sp3Rollout', this.handleSP3Rollout.bind(this));
   }
 
   getEmitter(): Emittery<PaymentsEmitterEvents> {
@@ -164,6 +168,17 @@ export class PaymentsEmitterService {
     console.log(interval, offeringId);
 
     // todo record Glean metric
+  }
+
+  async handleSP3Rollout(eventData: SP3RolloutEvent) {
+    const { version, offeringId, interval, shadowMode } = eventData;
+
+    this.statsd.increment('sp3_rollout', {
+      version,
+      offering_id: offeringId,
+      interval,
+      shadow_mode: shadowMode ? 'true' : 'false',
+    });
   }
 
   private async retrieveOptOut(uid?: string): Promise<boolean> {
