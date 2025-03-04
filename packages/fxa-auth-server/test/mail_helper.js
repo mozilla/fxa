@@ -192,21 +192,16 @@ module.exports = (printLogs) => {
       return resolve({
         close() {
           return new Promise((resolve, reject) => {
-            let smtpClosed = false;
-            let apiClosed = false;
-            redis.quit();
-            smtp.server.end(() => {
-              smtpClosed = true;
-              if (apiClosed) {
+            const numStopsRequired = 3;
+            let stops = 0;
+            const cb = () => {
+              if (++stops >= numStopsRequired) {
                 resolve();
               }
-            });
-            api.stop().then(() => {
-              apiClosed = true;
-              if (smtpClosed) {
-                resolve();
-              }
-            });
+            };
+            smtp.server.end(cb);
+            redis.quit().then(cb);
+            api.stop().then(cb);
           });
         },
       });

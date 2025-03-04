@@ -180,7 +180,7 @@ describe('/recovery_phone', () => {
         '/recovery_phone/signin/send_code',
         'POST'
       );
-      assert.include(route.options.auth.strategies, 'sessionToken');
+      assert.equal(route.options.auth.strategy, 'sessionToken');
     });
   });
 
@@ -354,7 +354,7 @@ describe('/recovery_phone', () => {
 
     it('requires session authorization', () => {
       const route = getRoute(routes, '/recovery_phone/create', 'POST');
-      assert.include(route.options.auth.strategies, 'sessionToken');
+      assert.equal(route.options.auth.strategy, 'sessionToken');
     });
   });
 
