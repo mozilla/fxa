@@ -23,8 +23,15 @@ import Paypal from '@fxa/shared/assets/images/payment-methods/paypal.svg';
 import Unbranded from '@fxa/shared/assets/images/payment-methods/unbranded.svg';
 import UnionPay from '@fxa/shared/assets/images/payment-methods/unionpay.svg';
 import Visa from '@fxa/shared/assets/images/payment-methods/visa.svg';
+import type { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
+
+export const metadata: Metadata = {
+  title: 'Success',
+  description:
+    'Congratulations! You have successfully completed your purchase.',
+};
 
 function getCardIcon(cardBrand: string) {
   switch (cardBrand) {
