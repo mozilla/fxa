@@ -38344,18 +38344,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-playwright@npm:^0.22.2":
-  version: 0.22.2
-  resolution: "eslint-plugin-playwright@npm:0.22.2"
+"eslint-plugin-playwright@npm:^2.2.0":
+  version: 2.2.0
+  resolution: "eslint-plugin-playwright@npm:2.2.0"
   dependencies:
     globals: ^13.23.0
   peerDependencies:
-    eslint: ">=7"
-    eslint-plugin-jest: ">=25"
-  peerDependenciesMeta:
-    eslint-plugin-jest:
-      optional: true
-  checksum: 4e62074a2d67c834e25e39dad655a868b7852edb3d1e5b555906f47fe0e351a9e7d2cb9a0d826e3f5af035d07d85992ba3773e03cac6d69279b62062a632ee18
+    eslint: ">=8.40.0"
+  checksum: 07314461deff11bb22dd66b3de8bb8531520cbfb693df0925a9483b24625f44057b86635d7abd8a1c9c66f96d7f7aef3b0cbd80e8cd2b1b34f160d25b876cb02
   languageName: node
   linkType: hard
 
@@ -41542,7 +41538,7 @@ fsevents@~2.1.1:
     "@types/pdf-parse": ^1.1.4
     "@types/upng-js": ^2
     eslint: ^8.56.0
-    eslint-plugin-playwright: ^0.22.2
+    eslint-plugin-playwright: ^2.2.0
     fxa-auth-client: "workspace:*"
     fxa-content-server: "workspace:*"
     fxa-payments-server: "workspace:*"
