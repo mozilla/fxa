@@ -10,6 +10,7 @@ import {
 } from '../images';
 
 export const commonFormChoiceProps = {
+  isSubmitting: false,
   onSubmit: (data: any) => console.log('Submitted with choice:', data),
   legendEl: (
     <legend>
