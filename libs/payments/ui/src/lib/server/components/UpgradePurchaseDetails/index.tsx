@@ -6,14 +6,15 @@ import Image from 'next/image';
 import { InvoicePreview } from '@fxa/payments/customer';
 import { PriceInterval } from '@fxa/payments/ui/server';
 import { LocalizerRsc } from '@fxa/shared/l10n/server';
+import { formatPlanInterval } from '../../../utils/helpers';
 
 type UpgradePurchaseDetailsProps = {
-  currentPrice: {
+  fromPrice: {
     currency: string;
     interval: string;
     listAmount: number;
   };
-  currentPurchaseDetails: {
+  fromPurchaseDetails: {
     subtitle: string | null;
     productName: string;
     webIcon: string;
@@ -30,8 +31,8 @@ type UpgradePurchaseDetailsProps = {
 
 export function UpgradePurchaseDetails(props: UpgradePurchaseDetailsProps) {
   const {
-    currentPrice,
-    currentPurchaseDetails,
+    fromPrice,
+    fromPurchaseDetails,
     interval,
     invoice,
     l10n,
@@ -59,8 +60,8 @@ export function UpgradePurchaseDetails(props: UpgradePurchaseDetailsProps) {
       </h2>
       <div className="flex gap-4 my-0 py-4">
         <Image
-          src={currentPurchaseDetails.webIcon}
-          alt={currentPurchaseDetails.productName}
+          src={fromPurchaseDetails.webIcon}
+          alt={fromPurchaseDetails.productName}
           data-testid="product-logo"
           className="w-16 h-16 rounded-lg"
           width={64}
@@ -68,19 +69,19 @@ export function UpgradePurchaseDetails(props: UpgradePurchaseDetailsProps) {
         />
         <div className="text-start">
           <h3 className="text-grey-600 font-semibold leading-5 my-0 break-words">
-            {currentPurchaseDetails.productName}
+            {fromPurchaseDetails.productName}
           </h3>
           <p className="text-grey-400 mt-1 mb-0">
             <PriceInterval
               l10n={l10n}
-              amount={currentPrice.listAmount}
-              currency={currentPrice.currency}
-              interval={currentPrice.interval}
+              amount={fromPrice.listAmount}
+              currency={fromPrice.currency}
+              interval={fromPrice.interval}
             />
-            {currentPurchaseDetails.subtitle && (
+            {fromPurchaseDetails.subtitle && (
               <span>
                 &nbsp;&bull;&nbsp;
-                {currentPurchaseDetails.subtitle}
+                {fromPurchaseDetails.subtitle}
               </span>
             )}
           </p>
@@ -134,9 +135,7 @@ export function UpgradePurchaseDetails(props: UpgradePurchaseDetailsProps) {
                   productName,
                 },
 
-                `${productName} (${interval.replace(/\w/, (firstLetter) =>
-                  firstLetter.toUpperCase()
-                )})`
+                `${productName} (${formatPlanInterval(interval)})`
               )}
             </p>
             <p>{l10n.getLocalizedCurrencyString(listAmount, currency)}</p>

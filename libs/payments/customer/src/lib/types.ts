@@ -16,6 +16,7 @@ export type InvoicePreview = {
   number: string | null; // customer-facing invoice identifier
   paypalTransactionId?: string;
   oneTimeCharge?: number;
+  nextInvoiceDate: number;
 };
 
 export interface Interval {

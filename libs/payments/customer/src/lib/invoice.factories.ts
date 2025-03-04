@@ -21,4 +21,5 @@ export const InvoicePreviewFactory = (
     '-' +
     faker.string.numeric({ length: 4, allowLeadingZeros: true }),
   ...override,
+  nextInvoiceDate: faker.date.future().getDate(),
 });

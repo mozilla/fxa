@@ -36,5 +36,6 @@ export function stripeInvoiceToInvoicePreviewDTO(
     number: invoice.number,
     paypalTransactionId:
       invoice.metadata?.[STRIPE_INVOICE_METADATA.PaypalTransactionId],
+    nextInvoiceDate: invoice.lines.data[0].period.end,
   };
 }
