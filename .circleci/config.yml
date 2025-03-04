@@ -515,8 +515,7 @@ commands:
       workflow:
         type: string
       test_suite:
-        type: enum
-        enum: ['unit', 'integration', 'e2e']
+        type: string
     steps:
       - run:
           name: Upload << parameters.source >> << parameters.extension >> Files to GCS
@@ -684,6 +683,8 @@ jobs:
       start_customs:
         type: boolean
         default: false
+      test_suite:
+        type: string
       workflow:
         type: string
     executor: fullstack-executor
@@ -713,7 +714,7 @@ jobs:
       - store-artifacts
       - upload_to_gcs:
           workflow: << parameters.workflow >>
-          test_suite: integration
+          test_suite: << parameters.test_suite >>
 
   # Deprecated - use workflows in conjunction with smoke-tests job instead!
   # This job is manually triggered for now. see .circleci/README.md
@@ -864,6 +865,7 @@ workflows:
           resource_class: large
           nx_run: affected --base=main --head=$CIRCLE_SHA1
           projects: --exclude '*,!tag:scope:frontend'
+          test_suite: frontends-integration
           workflow: test_pull_request
           requires:
             - Build (PR)
@@ -871,6 +873,7 @@ workflows:
           name: Integration Test - Servers (PR)
           nx_run: affected --base=main --head=$CIRCLE_SHA1
           projects: --exclude '*,!tag:scope:server'
+          test_suite: servers-integration
           workflow: test_pull_request
           requires:
             - Build (PR)
@@ -879,6 +882,7 @@ workflows:
           nx_run: affected --base=main --head=$CIRCLE_SHA1
           projects: --exclude '*,!tag:scope:server:auth'
           start_customs: true
+          test_suite: servers-auth-integration
           workflow: test_pull_request
           requires:
             - Build (PR)
@@ -888,6 +892,7 @@ workflows:
           projects: --exclude '*,!tag:scope:server:auth'
           start_customs: true
           target: -t test-integration-v2
+          test_suite: servers-auth-v2-integration
           workflow: test_pull_request
           requires:
             - Build (PR)
@@ -895,6 +900,7 @@ workflows:
           name: Integration Test - Libraries (PR)
           nx_run: affected --base=main --head=$CIRCLE_SHA1
           projects: --exclude '*,!tag:scope:shared:*'
+          test_suite: libraries-integration
           workflow: test_pull_request
           requires:
             - Build (PR)
@@ -1069,6 +1075,7 @@ workflows:
           name: Integration Test - Frontends
           resource_class: large
           projects: --exclude '*,!tag:scope:frontend'
+          test_suite: frontends-integration
           workflow: test_and_deploy_tag
           filters:
             branches:
@@ -1080,6 +1087,7 @@ workflows:
       - integration-test:
           name: Integration Test - Servers
           projects: --exclude '*,!tag:scope:server'
+          test_suite: servers-integration
           workflow: test_and_deploy_tag
           filters:
             branches:
@@ -1092,6 +1100,7 @@ workflows:
           name: Integration Test - Servers - Auth
           projects: --exclude '*,!tag:scope:server:auth'
           start_customs: true
+          test_suite: servers-auth-integration
           workflow: test_and_deploy_tag
           filters:
             branches:
@@ -1105,6 +1114,7 @@ workflows:
           projects: --exclude '*,!tag:scope:server:auth'
           start_customs: true
           target: -t test-integration-v2
+          test_suite: servers-auth-v2-integration
           workflow: test_and_deploy_tag
           filters:
             branches:
@@ -1116,6 +1126,7 @@ workflows:
       - integration-test:
           name: Integration Test - Libraries
           projects: --exclude '*,!tag:scope:shared:*'
+          test_suite: libraries-integration
           workflow: test_and_deploy_tag
           filters:
             branches:
@@ -1187,12 +1198,14 @@ workflows:
           name: Integration Test - Frontends (nightly)
           resource_class: large
           projects: --exclude '*,!tag:scope:frontend'
+          test_suite: frontends-integration
           workflow: nightly
           requires:
             - Build (nightly)
       - integration-test:
           name: Integration Test - Servers (nightly)
           projects: --exclude '*,!tag:scope:server'
+          test_suite: servers-integration
           workflow: nightly
           requires:
             - Build (nightly)
@@ -1200,6 +1213,7 @@ workflows:
           name: Integration Test - Servers - Auth (nightly)
           projects: --exclude '*,!tag:scope:server:auth'
           start_customs: true
+          test_suite: servers-auth-integration
           workflow: nightly
           requires:
             - Build (nightly)
@@ -1208,12 +1222,14 @@ workflows:
           projects: --exclude '*,!tag:scope:server:auth'
           start_customs: true
           target: -t test-integration-v2
+          test_suite: servers-auth-v2-integration
           workflow: nightly
           requires:
             - Build (nightly)
       - integration-test:
           name: Integration Test - Libraries (nightly)
           projects: --exclude '*,!tag:scope:shared:*'
+          test_suite: libraries-integration
           workflow: nightly
           requires:
             - Build (nightly)
