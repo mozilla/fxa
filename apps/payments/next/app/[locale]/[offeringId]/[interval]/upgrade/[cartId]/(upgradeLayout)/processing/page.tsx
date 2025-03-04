@@ -10,6 +10,12 @@ import {
 import { getApp, SupportedPages } from '@fxa/payments/ui/server';
 import { headers } from 'next/headers';
 import { getCartOrRedirectAction } from '@fxa/payments/ui/actions';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Processing',
+  description: 'Please wait while we finish processing your payment.',
+};
 
 export default async function ProcessingPage({
   params,

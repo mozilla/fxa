@@ -15,8 +15,14 @@ import {
   CheckoutParams,
   SupportedPages,
 } from '@fxa/payments/ui/server';
+import { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
+
+export const metadata: Metadata = {
+  title: 'Upgrade',
+  description: 'Enter your payment details to complete your upgrade.',
+};
 
 export default async function Upgrade({
   params,

@@ -14,8 +14,15 @@ import {
 } from '@fxa/payments/ui/actions';
 import { CheckoutParams } from '@fxa/payments/ui/server';
 import Image from 'next/image';
+import type { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
+
+export const metadata: Metadata = {
+  title: 'Success',
+  description:
+    'Congratulations! You have successfully completed your purchase.',
+};
 
 export default async function CheckoutSuccess({
   params,
