@@ -11,9 +11,13 @@ export class TwilioConfig {
   @IsString()
   accountSid!: string;
   @IsString()
-  authToken!: string;
+  authToken?: string;
   @IsString()
   webhookUrl!: string;
   @IsBoolean()
   validateWebhookCalls!: boolean;
+  @IsString()
+  apiKey?: string;
+  @IsString()
+  apiSecret?: string;
 }
