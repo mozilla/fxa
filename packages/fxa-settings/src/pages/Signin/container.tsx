@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
+import { RouteComponentProps, useLocation } from '@reach/router';
+import { useNavigateWithQuery as useNavigate } from '../../lib/hooks/useNavigateWithQuery';
 import Signin from '.';
 import {
   Integration,
@@ -65,6 +66,7 @@ import {
 import { Constants } from '../../lib/constants';
 import { isFirefoxService } from '../../models/integrations/utils';
 import { GqlKeyStretchUpgrade } from '../../lib/gql-key-stretch-upgrade';
+import { useCheckReactEmailFirst } from '../../lib/hooks';
 
 /*
  * In content-server, the `email` param is optional. If it's provided, we
@@ -115,6 +117,7 @@ const SigninContainer = ({
   };
   const session = useSession();
   const sensitiveDataClient = useSensitiveDataClient();
+  const shouldUseReactEmailFirst = useCheckReactEmailFirst();
 
   const { queryParamModel, validationError } =
     useValidatedQueryParams(SigninQueryParams);
@@ -161,10 +164,9 @@ const SigninContainer = ({
   useEffect(() => {
     (async () => {
       const queryParams = new URLSearchParams(location.search);
-      // Tweak this once index page is converted to React
       if (!validationError && email) {
-        // if you directly hit /signin with email param or we read from localstorage
-        // this means the account status hasn't been checked
+        // if you directly hit /signin with email param, or we read from localstorage
+        // (on this page or email-first) this means the account status hasn't been checked
         if (
           accountStatus.hasLinkedAccount === undefined ||
           accountStatus.hasPassword === undefined
@@ -175,11 +177,18 @@ const SigninContainer = ({
                 thirdPartyAuthStatus: true,
               });
             if (!exists) {
-              // For now, just pass back emailStatusChecked. When we convert the Index page
-              // we'll want to read from router state.
-              queryParams.set('email', email);
-              queryParams.set('emailStatusChecked', 'true');
-              navigate(`/signup?${queryParams}`);
+              if (shouldUseReactEmailFirst) {
+                navigate('/signup', {
+                  state: {
+                    email,
+                    emailStatusChecked: true,
+                  },
+                });
+              } else {
+                queryParams.set('email', email);
+                queryParams.set('emailStatusChecked', 'true');
+                navigate(`/signup?${queryParams}`);
+              }
             } else {
               // TODO: in FXA-9177, also set hasLinkedAccount and hasPassword in Apollo cache
               setAccountStatus({
@@ -188,24 +197,40 @@ const SigninContainer = ({
               });
             }
           } catch (error) {
-            // Passing back the 'email' param causes various behaviors in
-            // content-server since it marks the email as "coming from a RP".
-            queryParams.delete('email');
-            if (isEmailValid(email)) {
-              queryParams.set('prefillEmail', email);
+            if (shouldUseReactEmailFirst) {
+              navigate('/', {
+                state: {
+                  prefillEmail: email,
+                },
+              });
+            } else {
+              // Passing back the 'email' param causes various behaviors in
+              // content-server since it marks the email as "coming from a RP".
+              queryParams.delete('email');
+              if (isEmailValid(email)) {
+                queryParams.set('prefillEmail', email);
+              }
+              hardNavigate(`/?${queryParams}`);
             }
-            hardNavigate(`/?${queryParams}`);
           }
         }
       } else {
-        // Passing back the 'email' param causes various behaviors in
-        // content-server since it marks the email as "coming from a RP".
-        queryParams.delete('email');
-        if (email && isEmailValid(email)) {
-          queryParams.set('prefillEmail', email);
+        if (shouldUseReactEmailFirst) {
+          navigate('/', {
+            state: {
+              prefillEmail: email,
+            },
+          });
+        } else {
+          // Passing back the 'email' param causes various behaviors in
+          // content-server since it marks the email as "coming from a RP".
+          queryParams.delete('email');
+          if (email && isEmailValid(email)) {
+            queryParams.set('prefillEmail', email);
+          }
+          const optionalParams = queryParams.size > 0 ? `?${queryParams}` : '';
+          hardNavigate(`/${optionalParams}`);
         }
-        const optionalParams = queryParams.size > 0 ? `?${queryParams}` : '';
-        hardNavigate(`/${optionalParams}`);
       }
     })();
     // Only run this on initial render
@@ -235,16 +260,13 @@ const SigninContainer = ({
 
   const beginSigninHandler: BeginSigninHandler = useCallback(
     async (email: string, password: string) => {
-      // If queryParamModel.hasLinkedAccount is defined, then we know the user
+      // If accountStatus.hasLinkedAccount is defined, then we know the user
       // came from email-first and was already prompted with the sync merge
       // warning. The browser will automatically respond with { ok: true } without
       // prompting the user if it matches the email the browser has data for.
       if (
-        // Currently for email-first, we send this if `context=oauth_webchannel_v1`.
-        // Let's check that here too (TBD if we want this for isDesktopRelay; if not,
-        // we'll remove).
         (integration.isSync() || integration.isDesktopRelay()) &&
-        queryParamModel.hasLinkedAccount === undefined
+        accountStatus.hasLinkedAccount === undefined
       ) {
         const { ok } = await firefox.fxaCanLinkAccount({ email });
         if (!ok) {
@@ -384,7 +406,7 @@ const SigninContainer = ({
       passwordChangeStart,
       wantsKeys,
       flowQueryParams,
-      queryParamModel.hasLinkedAccount,
+      accountStatus.hasLinkedAccount,
       authClient,
       sensitiveDataClient,
     ]

@@ -4,8 +4,9 @@
 
 import React from 'react';
 import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
-import { useLocation } from '@reach/router';
+import { useLocation, useNavigate } from '@reach/router';
 import { isEmailValid } from 'fxa-shared/email/helpers';
+import { useCheckReactEmailFirst } from '../../lib/hooks';
 
 export type LinkRememberPasswordProps = {
   email?: string;
@@ -20,13 +21,16 @@ const LinkRememberPassword = ({
 }: LinkRememberPasswordProps) => {
   let linkHref: string;
   const location = useLocation();
+  const navigate = useNavigate();
+  const shouldUseReactEmailFirst = useCheckReactEmailFirst();
+
   const params = new URLSearchParams(location.search);
   params.delete('email');
   params.delete('hasLinkedAccount');
   params.delete('hasPassword');
   params.delete('showReactApp');
 
-  if (email && isEmailValid(email)) {
+  if (email && isEmailValid(email) && !shouldUseReactEmailFirst) {
     params.set('prefillEmail', email);
     linkHref = `/?${params.toString()}`;
   } else {
@@ -41,6 +45,15 @@ const LinkRememberPassword = ({
     if (clickHandler) {
       // additional optional click handlong behavior
       clickHandler();
+    }
+
+    if (shouldUseReactEmailFirst) {
+      navigate(linkHref, {
+        state: {
+          prefillEmail: email && isEmailValid(email) ? email : undefined,
+        },
+      });
+      return;
     }
     hardNavigate(linkHref);
   };

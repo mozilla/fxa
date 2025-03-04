@@ -137,18 +137,17 @@ export const Subject = ({
   integration?: SignupIntegration;
   beginSignupHandler?: BeginSignupHandler;
 }) => {
-  const urlQueryData = mockUrlQueryData(queryParams);
-  const queryParamModel = new SignupQueryParams(urlQueryData);
   const useMockSyncEnginesResult = useMockSyncEngines();
   return (
     <LocationProvider>
       <Signup
         {...{
           integration,
-          queryParamModel,
+
           beginSignupHandler,
           useSyncEnginesResult: useMockSyncEnginesResult,
         }}
+        email={MOCK_EMAIL}
       />
     </LocationProvider>
   );
