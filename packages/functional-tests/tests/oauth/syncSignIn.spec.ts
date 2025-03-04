@@ -55,11 +55,8 @@ test.describe('severity-1 #smoke', () => {
 
       await page.waitForURL(/oauth\/signin/);
 
-      // By default, we should see the email we signed up for Sync with
-      await expect(page.getByText(syncCredentials.email)).toBeVisible();
-
-      // with backbone, sign in is cached, but with react password is required
-      // we won't check for that here, we mostly wanted to verify that the correct email is suggested
+      // By default, we should see the most recent signed in email
+      await expect(page.getByText(email)).toBeVisible();
     });
   });
 
