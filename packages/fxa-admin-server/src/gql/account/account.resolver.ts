@@ -26,7 +26,7 @@ import { Account, getAccountCustomerByUid } from 'fxa-shared/db/models/auth';
 import { SecurityEventNames } from 'fxa-shared/db/models/auth/security-event';
 import { AdminPanelFeature } from 'fxa-shared/guards';
 import { MozLoggerService } from '@fxa/shared/mozlog';
-import { ReasonForDeletion } from '../../../../../libs/shared/cloud-tasks/src';
+import { ReasonForDeletion } from '@fxa/shared/cloud-tasks';
 import { CurrentUser } from '../../auth/auth-header.decorator';
 import { GqlAuthHeaderGuard } from '../../auth/auth-header.guard';
 import { Features } from '../../auth/user-group-header.decorator';
@@ -55,6 +55,8 @@ import {
   AccountDeleteStatus,
   AccountDeleteTaskStatus,
 } from '../model/account-delete-task.model';
+import { CartManager } from '@fxa/payments/cart';
+import { Cart } from '../model/cart.model';
 
 const ACCOUNT_COLUMNS = [
   'uid',
@@ -111,6 +113,7 @@ export class AccountResolver {
   constructor(
     private log: MozLoggerService,
     private db: DatabaseService,
+    private cartManager: CartManager,
     private subscriptionsService: SubscriptionsService,
     private configService: ConfigService<AppConfig>,
     private eventLogging: EventLoggingService,
@@ -374,6 +377,12 @@ export class AccountResolver {
   @ResolveField()
   public async subscriptions(@Root() account: Account) {
     return await this.subscriptionsService.getSubscriptions(account.uid);
+  }
+
+  @Features(AdminPanelFeature.AccountSearch)
+  @ResolveField()
+  public async carts(@Root() account: Account) {
+    return await this.cartManager.fetchCartsByUid(account.uid);
   }
 
   @ResolveField()

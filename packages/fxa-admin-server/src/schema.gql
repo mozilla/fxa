@@ -133,6 +133,32 @@ type MozSubscription {
   subscriptionId: String!
 }
 
+type TaxAddress {
+  countryCode: String!
+  postalCode: String!
+}
+
+type Cart {
+  id: String!
+  uid: String
+  state: String!
+  errorReasonId: String
+  offeringConfigId: String!
+  interval: String!
+  experiment: String
+  taxAddress: TaxAddress
+  currency: String
+  createdAt: Float!
+  updatedAt: Float!
+  couponCode: String
+  stripeCustomerId: String
+  stripeSubscriptionId: String
+  email: String
+  amount: Float!
+  version: Float!
+  eligibilityStatus: String!
+}
+
 type Account {
   uid: ID!
   email: String!
@@ -152,6 +178,7 @@ type Account {
   subscriptions: [MozSubscription!]
   linkedAccounts: [LinkedAccount!]
   accountEvents: [AccountEvent!]
+  carts: [Cart!]
 }
 
 type AccountDeleteResponse {

@@ -33,6 +33,7 @@ export const StripeFactory: Provider<Stripe> = {
   provide: 'STRIPE',
   useFactory: (configService: ConfigService) => {
     const stripeConfig = configService.get('subscriptions');
+    console.log('STRIPE API KEY', stripeConfig.stripeApiKey);
     const stripe = new Stripe(stripeConfig.stripeApiKey, {
       apiVersion: '2024-11-20.acacia',
       maxNetworkRetries: 3,
