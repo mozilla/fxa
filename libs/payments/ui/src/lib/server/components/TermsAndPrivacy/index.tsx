@@ -34,7 +34,9 @@ function GenericTerms({
       aria-labelledby={titleId}
     >
       <h3 className="m-0 font-semibold text-grey-400" id={titleId}>
-        {l10n.getString(titleLocalizationId, title)}
+        {titleLocalizationId
+          ? l10n.getString(titleLocalizationId, title)
+          : title}
       </h3>
 
       <ul className="tablet:flex tablet:justify-center gap-4 m-0 text-grey-500">

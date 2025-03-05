@@ -148,7 +148,7 @@ export function buildProductTerms(
     {
       key: 'product-terms',
       title: productName,
-      titleLocalizationId: 'title',
+      titleLocalizationId: '',
       items,
     },
   ];

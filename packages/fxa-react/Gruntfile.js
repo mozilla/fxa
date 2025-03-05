@@ -5,11 +5,16 @@
 'use strict';
 
 module.exports = function (grunt) {
+  const srcPaths = [
+    'components/**/*.ftl',
+    '../../libs/shared/react/src/**/*.ftl',
+  ];
+
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     concat: {
       ftl: {
-        src: 'components/**/*.ftl',
+        src: srcPaths,
         dest: 'public/locales/en/react.ftl',
       },
 
@@ -24,7 +29,7 @@ module.exports = function (grunt) {
     },
     watch: {
       ftl: {
-        files: 'components/**/*.ftl',
+        files: srcPaths,
         tasks: ['merge-ftl'],
         options: {
           interrupt: true,
