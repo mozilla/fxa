@@ -366,7 +366,7 @@ test.describe('severity-1 #smoke', () => {
       await signinRecoveryPhone.clickConfirm();
 
       await expect(
-        page.getByText('Invalid or expired confirmation code')
+        page.getByText(/The code is invalid or expired./)
       ).toBeVisible();
 
       const originalCode = await target.smsClient.getCode(
@@ -687,9 +687,7 @@ async function fillOutRecoveryPhoneFromEmailFirst({
   await signinRecoveryPhone.enterCode('123456');
   await signinRecoveryPhone.clickConfirm();
 
-  await expect(
-    page.getByText('Invalid or expired confirmation code')
-  ).toBeVisible();
+  await expect(page.getByText(/The code is invalid or expired./)).toBeVisible();
 
   const originalCode = await target.smsClient.getCode(
     getPhoneNumber(target.name),

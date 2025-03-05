@@ -16,6 +16,7 @@ import ButtonBack from '../../../components/ButtonBack';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { SigninRecoveryPhoneProps } from './interfaces';
+import { BannerLinkProps } from '../../../components/Banner/interfaces';
 
 const SigninRecoveryPhone = ({
   lastFourPhoneDigits,
@@ -24,6 +25,7 @@ const SigninRecoveryPhone = ({
 }: SigninRecoveryPhoneProps & RouteComponentProps) => {
   const [errorMessage, setErrorMessage] = React.useState('');
   const [errorDescription, setErrorDescription] = React.useState('');
+  const [errorLink, setErrorLink] = React.useState<BannerLinkProps>();
   const [showResendSuccessBanner, setShowResendSuccessBanner] =
     React.useState(false);
   const ftlMsgResolver = useFtlMsgResolver();
@@ -33,18 +35,9 @@ const SigninRecoveryPhone = ({
   const clearBanners = () => {
     setErrorMessage('');
     setErrorDescription('');
+    setErrorLink(undefined);
     setShowResendSuccessBanner(false);
   };
-
-  const localizedGeneralSendCodeErrorHeading = ftlMsgResolver.getMsg(
-    'signin-recovery-phone-send-code-error-heading',
-    'There was a problem sending a code'
-  );
-
-  const localizedGeneralCodeVerificationErrorHeading = ftlMsgResolver.getMsg(
-    'signin-recovery-phone-code-verification-error-heading',
-    'There was a problem verifying your code'
-  );
 
   const localizedGeneralErrorDescription = ftlMsgResolver.getMsg(
     'signin-recovery-phone-general-error-description',
@@ -57,11 +50,33 @@ const SigninRecoveryPhone = ({
 
     if (error) {
       if (
-        error === AuthUiErrors.BACKEND_SERVICE_FAILURE ||
-        error === AuthUiErrors.UNEXPECTED_ERROR
+        error.errno === AuthUiErrors.BACKEND_SERVICE_FAILURE.errno ||
+        error.errno === AuthUiErrors.UNEXPECTED_ERROR.errno
       ) {
-        setErrorMessage(localizedGeneralCodeVerificationErrorHeading);
+        setErrorMessage(
+          ftlMsgResolver.getMsg(
+            'signin-recovery-phone-code-verification-error-heading',
+            'There was a problem verifying your code'
+          )
+        );
         setErrorDescription(localizedGeneralErrorDescription);
+        return;
+      }
+      if (error.errno === AuthUiErrors.INVALID_EXPIRED_OTP_CODE.errno) {
+        setErrorDescription(
+          ftlMsgResolver.getMsg(
+            'signin-recovery-phone-invalid-code-error-description',
+            'The code is invalid or expired.'
+          )
+        );
+        setErrorLink({
+          path: '/signin_recovery_code',
+          localizedText: ftlMsgResolver.getMsg(
+            'signin-recovery-phone-invalid-code-error-link',
+            'Use backup authentication codes instead?'
+          ),
+          gleanId: 'login_backup_phone_error_use_backup_code_link',
+        });
         return;
       }
       setErrorMessage(getLocalizedErrorMessage(ftlMsgResolver, error));
@@ -74,11 +89,16 @@ const SigninRecoveryPhone = ({
     const error = await resendCode();
     if (error) {
       if (
-        error === AuthUiErrors.BACKEND_SERVICE_FAILURE ||
-        error === AuthUiErrors.SMS_SEND_RATE_LIMIT_EXCEEDED ||
-        error === AuthUiErrors.UNEXPECTED_ERROR
+        error.errno === AuthUiErrors.BACKEND_SERVICE_FAILURE.errno ||
+        error.errno === AuthUiErrors.SMS_SEND_RATE_LIMIT_EXCEEDED.errno ||
+        error.errno === AuthUiErrors.UNEXPECTED_ERROR.errno
       ) {
-        setErrorMessage(localizedGeneralSendCodeErrorHeading);
+        setErrorMessage(
+          ftlMsgResolver.getMsg(
+            'signin-recovery-phone-send-code-error-heading',
+            'There was a problem sending a code'
+          )
+        );
         setErrorDescription(localizedGeneralErrorDescription);
         return;
       }
@@ -97,13 +117,20 @@ const SigninRecoveryPhone = ({
         </FtlMsg>
       </div>
 
-      {errorMessage && (
+      {(errorMessage || errorDescription) && (
         <Banner
           type="error"
           content={{
             localizedHeading: errorMessage,
             localizedDescription: errorDescription,
           }}
+          {...(errorLink && {
+            link: {
+              path: errorLink.path,
+              localizedText: errorLink.localizedText,
+              gleanId: errorLink.gleanId,
+            } as BannerLinkProps,
+          })}
         />
       )}
       {showResendSuccessBanner && (
@@ -127,9 +154,9 @@ const SigninRecoveryPhone = ({
         elems={{ span: spanElement }}
       >
         <p>
-          A six-digit code was sent to the phone number ending in {spanElement}{' '}
-          by text message. This code expires after 5 minutes. Donʼt share this
-          code with anyone.
+          A 6-digit code was sent to the phone number ending in {spanElement} by
+          text message. This code expires after 5 minutes. Donʼt share this code
+          with anyone.
         </p>
       </FtlMsg>
       <FormVerifyTotp
