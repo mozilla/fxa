@@ -15,7 +15,7 @@ import {
   StripeSubscriptionFactory,
   MockStripeConfigProvider,
 } from '@fxa/payments/stripe';
-import { STRIPE_CUSTOMER_METADATA } from './types';
+import { STRIPE_SUBSCRIPTION_METADATA } from './types';
 import { SubscriptionManager } from './subscription.manager';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 
@@ -179,7 +179,8 @@ describe('SubscriptionManager', () => {
     it('updates metadata', async () => {
       const mockParams = {
         metadata: {
-          [STRIPE_CUSTOMER_METADATA.SubscriptionPromotionCode]: 'test-coupon',
+          [STRIPE_SUBSCRIPTION_METADATA.SubscriptionPromotionCode]:
+            'test-coupon',
         },
       };
       const mockSubscription = StripeSubscriptionFactory(mockParams);
@@ -204,7 +205,9 @@ describe('SubscriptionManager', () => {
     it('throws if metadata key does not match', async () => {
       const mockParams = {
         metadata: {
-          [STRIPE_CUSTOMER_METADATA.SubscriptionPromotionCode]: 'test-coupon',
+          amount: '1200',
+          [STRIPE_SUBSCRIPTION_METADATA.SubscriptionPromotionCode]:
+            'test-coupon',
           promotionCode: 'test-coupon',
         },
       };

@@ -36,7 +36,7 @@ import {
   PriceManager,
   ProductManager,
   PromotionCodeManager,
-  STRIPE_CUSTOMER_METADATA,
+  STRIPE_SUBSCRIPTION_METADATA,
   SubscriptionManager,
   TaxAddressFactory,
 } from '@fxa/payments/customer';
@@ -447,7 +447,7 @@ describe('CheckoutService', () => {
       const mockUpdatedSubscription = StripeResponseFactory(
         StripeSubscriptionFactory({
           metadata: {
-            [STRIPE_CUSTOMER_METADATA.SubscriptionPromotionCode]:
+            [STRIPE_SUBSCRIPTION_METADATA.SubscriptionPromotionCode]:
               mockCart.couponCode as string,
           },
         })
@@ -476,7 +476,7 @@ describe('CheckoutService', () => {
         {
           metadata: {
             ...mockSubscription.metadata,
-            [STRIPE_CUSTOMER_METADATA.SubscriptionPromotionCode]:
+            [STRIPE_SUBSCRIPTION_METADATA.SubscriptionPromotionCode]:
               mockCart.couponCode,
           },
         }
