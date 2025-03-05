@@ -5,7 +5,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { StatsD } from 'hot-shots';
 
-import { EligibilityService } from '@fxa/payments/eligibility';
+import {
+  EligibilityService,
+  EligibilityStatus,
+} from '@fxa/payments/eligibility';
 import {
   PaypalBillingAgreementManager,
   PaypalCustomerManager,
@@ -45,7 +48,7 @@ import { CheckoutCustomerData, ResultCart } from './cart.types';
 import { handleEligibilityStatusMap } from './cart.utils';
 import { PrePayStepsResult } from './checkout.types';
 import assert from 'assert';
-import { CheckoutPaymentError } from './checkout.error';
+import { CheckoutPaymentError, CheckoutUpgradeError } from './checkout.error';
 
 @Injectable()
 export class CheckoutService {
@@ -209,6 +212,7 @@ export class CheckoutService {
       promotionCode,
       version,
       price,
+      eligibility,
     };
   }
 
@@ -249,37 +253,52 @@ export class CheckoutService {
     confirmationTokenId: string,
     customerData: CheckoutCustomerData
   ) {
-    const { uid, customer, enableAutomaticTax, promotionCode, version, price } =
-      await this.prePaySteps(cart, customerData);
+    const {
+      uid,
+      customer,
+      enableAutomaticTax,
+      promotionCode,
+      version,
+      price,
+      eligibility,
+    } = await this.prePaySteps(cart, customerData);
 
     this.statsd.increment('stripe_subscription', {
       payment_provider: 'stripe',
     });
 
-    const subscription = await this.subscriptionManager.create(
-      {
-        customer: customer.id,
-        automatic_tax: {
-          enabled: enableAutomaticTax,
-        },
-        promotion_code: promotionCode?.id,
-        items: [
-          {
-            price: price.id,
-          },
-        ],
-        payment_behavior: 'default_incomplete',
-        currency: cart.currency ?? undefined,
-        metadata: {
-          // Note: These fields are due to missing Fivetran support on Stripe multi-currency plans
-          [STRIPE_SUBSCRIPTION_METADATA.Amount]: cart.amount,
-          [STRIPE_SUBSCRIPTION_METADATA.Currency]: cart.currency,
-        },
-      },
-      {
-        idempotencyKey: cart.id,
-      }
-    );
+    const subscription =
+      eligibility.subscriptionEligibilityResult !== EligibilityStatus.UPGRADE
+        ? await this.subscriptionManager.create(
+            {
+              customer: customer.id,
+              automatic_tax: {
+                enabled: enableAutomaticTax,
+              },
+              promotion_code: promotionCode?.id,
+              items: [
+                {
+                  price: price.id,
+                },
+              ],
+              payment_behavior: 'default_incomplete',
+              currency: cart.currency ?? undefined,
+              metadata: {
+                // Note: These fields are due to missing Fivetran support on Stripe multi-currency plans
+                [STRIPE_SUBSCRIPTION_METADATA.Amount]: cart.amount,
+                [STRIPE_SUBSCRIPTION_METADATA.Currency]: cart.currency,
+              },
+            },
+            {
+              idempotencyKey: cart.id,
+            }
+          )
+        : await this.upgradeSubscription(
+            customer.id,
+            price.id,
+            eligibility.fromPrice.id,
+            cart
+          );
 
     await this.cartManager.updateFreshCart(cart.id, version, {
       stripeSubscriptionId: subscription.id,
@@ -343,8 +362,15 @@ export class CheckoutService {
     customerData: CheckoutCustomerData,
     token?: string
   ) {
-    const { uid, customer, enableAutomaticTax, promotionCode, price, version } =
-      await this.prePaySteps(cart, customerData);
+    const {
+      uid,
+      customer,
+      enableAutomaticTax,
+      promotionCode,
+      price,
+      version,
+      eligibility,
+    } = await this.prePaySteps(cart, customerData);
 
     const paypalSubscriptions =
       await this.subscriptionManager.getCustomerPayPalSubscriptions(
@@ -362,31 +388,39 @@ export class CheckoutService {
       payment_provider: 'paypal',
     });
 
-    const subscription = await this.subscriptionManager.create(
-      {
-        customer: customer.id,
-        automatic_tax: {
-          enabled: enableAutomaticTax,
-        },
-        collection_method: 'send_invoice',
-        days_until_due: 1,
-        promotion_code: promotionCode?.id,
-        items: [
-          {
-            price: price.id,
-          },
-        ],
-        currency: cart.currency ?? undefined,
-        metadata: {
-          // Note: These fields are due to missing Fivetran support on Stripe multi-currency plans
-          [STRIPE_SUBSCRIPTION_METADATA.Amount]: cart.amount,
-          [STRIPE_SUBSCRIPTION_METADATA.Currency]: cart.currency,
-        },
-      },
-      {
-        idempotencyKey: cart.id,
-      }
-    );
+    const subscription =
+      eligibility.subscriptionEligibilityResult !== EligibilityStatus.UPGRADE
+        ? await this.subscriptionManager.create(
+            {
+              customer: customer.id,
+              automatic_tax: {
+                enabled: enableAutomaticTax,
+              },
+              collection_method: 'send_invoice',
+              days_until_due: 1,
+              promotion_code: promotionCode?.id,
+              items: [
+                {
+                  price: price.id,
+                },
+              ],
+              currency: cart.currency ?? undefined,
+              metadata: {
+                // Note: These fields are due to missing Fivetran support on Stripe multi-currency plans
+                [STRIPE_SUBSCRIPTION_METADATA.Amount]: cart.amount,
+                [STRIPE_SUBSCRIPTION_METADATA.Currency]: cart.currency,
+              },
+            },
+            {
+              idempotencyKey: cart.id,
+            }
+          )
+        : await this.upgradeSubscription(
+            customer.id,
+            price.id,
+            eligibility.fromPrice.id,
+            cart
+          );
 
     await this.paypalCustomerManager.deletePaypalCustomersByUid(uid);
     await Promise.all([
@@ -432,5 +466,45 @@ export class CheckoutService {
         `Expected processed invoice status to be one of [paid, open], instead found: ${processedInvoice.status}`
       );
     }
+  }
+
+  async upgradeSubscription(
+    customerId: string,
+    toPriceId: string,
+    fromPriceId: string,
+    cart: ResultCart
+  ) {
+    const upgradeSubscription =
+      await this.subscriptionManager.retrieveForCustomerAndPrice(
+        customerId,
+        fromPriceId
+      );
+
+    if (!upgradeSubscription) {
+      throw new CheckoutUpgradeError(
+        'Could not determine subscription for upgrade',
+        { info: { customerId, toPriceId, fromPriceId } }
+      );
+    }
+
+    const upgradeSubscriptionItem =
+      this.subscriptionManager.retrieveSubscriptionItem(upgradeSubscription);
+
+    return this.subscriptionManager.update(upgradeSubscription.id, {
+      cancel_at_period_end: false,
+      items: [
+        {
+          id: upgradeSubscriptionItem.id,
+          price: toPriceId,
+        },
+      ],
+      proration_behavior: 'always_invoice',
+      payment_behavior: 'default_incomplete',
+      metadata: {
+        // Note: These fields are due to missing Fivetran support on Stripe multi-currency plans
+        [STRIPE_SUBSCRIPTION_METADATA.Amount]: cart.amount,
+        [STRIPE_SUBSCRIPTION_METADATA.Currency]: cart.currency,
+      },
+    });
   }
 }

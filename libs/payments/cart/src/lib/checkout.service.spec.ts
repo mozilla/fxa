@@ -11,6 +11,7 @@ import {
   CartService,
   CheckoutCustomerDataFactory,
   CheckoutPaymentError,
+  CheckoutUpgradeError,
   ResultCartFactory,
   handleEligibilityStatusMap,
 } from '@fxa/payments/cart';
@@ -18,6 +19,8 @@ import {
   EligibilityManager,
   EligibilityService,
   EligibilityStatus,
+  SubscriptionEligibilityResultCreateFactory,
+  SubscriptionEligibilityResultUpgradeFactory,
 } from '@fxa/payments/eligibility';
 import {
   PaypalBillingAgreementManager,
@@ -514,11 +517,14 @@ describe('CheckoutService', () => {
           payment_intent: mockPaymentIntent.id,
         })
       );
+      const mockEligibilityResult =
+        SubscriptionEligibilityResultCreateFactory();
       const mockPrePayStepsResult = PrePayStepsResultFactory({
         uid: mockCart.uid,
         customer: mockCustomer,
         promotionCode: mockPromotionCode,
         price: mockPrice,
+        eligibility: mockEligibilityResult,
       });
 
       beforeEach(async () => {
@@ -616,6 +622,45 @@ describe('CheckoutService', () => {
           paymentProvider: 'stripe',
         });
       });
+
+      describe('upgrade', () => {
+        const mockEligibilityResult =
+          SubscriptionEligibilityResultUpgradeFactory();
+        const mockPrePayStepsResult = PrePayStepsResultFactory({
+          uid: mockCart.uid,
+          customer: mockCustomer,
+          promotionCode: mockPromotionCode,
+          price: mockPrice,
+          version: mockCart.version + 1,
+          eligibility: mockEligibilityResult,
+        });
+
+        beforeEach(async () => {
+          jest
+            .spyOn(checkoutService, 'prePaySteps')
+            .mockResolvedValue(PrePayStepsResultFactory(mockPrePayStepsResult));
+          jest
+            .spyOn(checkoutService, 'upgradeSubscription')
+            .mockResolvedValue(mockSubscription);
+        });
+
+        beforeEach(async () => {
+          await checkoutService.payWithStripe(
+            mockCart,
+            mockConfirmationToken.id,
+            mockCustomerData
+          );
+        });
+
+        it('updates the subscription', async () => {
+          expect(checkoutService.upgradeSubscription).toHaveBeenCalledWith(
+            mockCustomer.id,
+            mockPrice.id,
+            mockEligibilityResult.fromPrice.id,
+            mockCart
+          );
+        });
+      });
     });
 
     describe('requires_action', () => {
@@ -648,11 +693,14 @@ describe('CheckoutService', () => {
             payment_intent: mockPaymentIntent.id,
           })
         );
+        const mockEligibilityResult =
+          SubscriptionEligibilityResultCreateFactory();
         const mockPrePayStepsResult = PrePayStepsResultFactory({
           uid: mockCart.uid,
           customer: mockCustomer,
           promotionCode: mockPromotionCode,
           price: mockPrice,
+          eligibility: mockEligibilityResult,
         });
 
         jest
@@ -708,12 +756,15 @@ describe('CheckoutService', () => {
         })
       );
       const mockPrice = StripePriceFactory();
+      const mockEligibilityResult =
+        SubscriptionEligibilityResultCreateFactory();
       const mockPrePayStepsResult = PrePayStepsResultFactory({
         uid: mockCart.uid,
         customer: mockCustomer,
         promotionCode: mockPromotionCode,
         price: mockPrice,
         version: mockCart.version + 1,
+        eligibility: mockEligibilityResult,
       });
 
       beforeEach(async () => {
@@ -848,73 +899,172 @@ describe('CheckoutService', () => {
           paymentProvider: 'paypal',
         });
       });
-    });
-    describe('uncollectible', () => {
-      it('throws a CheckoutPaymentError', async () => {
-        const mockCustomerData = CheckoutCustomerDataFactory();
-        const mockToken = faker.string.uuid();
-        const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
-        const mockCart = StripeResponseFactory(
-          ResultCartFactory({
-            uid: faker.string.uuid(),
-            stripeCustomerId: mockCustomer.id,
-            couponCode: faker.string.uuid(),
-          })
-        );
-        const mockPromotionCode = StripeResponseFactory(
-          StripePromotionCodeFactory()
-        );
-        const mockBillingAgreementId = faker.string.uuid();
-        const mockSubscription = StripeResponseFactory(
-          StripeSubscriptionFactory()
-        );
-        const mockPaypalCustomer = ResultPaypalCustomerFactory();
-        const mockInvoice = StripeResponseFactory(
-          StripeInvoiceFactory({
-            status: 'uncollectible',
-          })
-        );
-        const mockPrice = StripePriceFactory();
+
+      describe('upgrade', () => {
+        const mockEligibilityResult =
+          SubscriptionEligibilityResultUpgradeFactory();
         const mockPrePayStepsResult = PrePayStepsResultFactory({
           uid: mockCart.uid,
           customer: mockCustomer,
           promotionCode: mockPromotionCode,
           price: mockPrice,
           version: mockCart.version + 1,
+          eligibility: mockEligibilityResult,
         });
 
-        jest
-          .spyOn(checkoutService, 'prePaySteps')
-          .mockResolvedValue(PrePayStepsResultFactory(mockPrePayStepsResult));
-        jest
-          .spyOn(subscriptionManager, 'getCustomerPayPalSubscriptions')
-          .mockResolvedValue([]);
-        jest
-          .spyOn(paypalBillingAgreementManager, 'retrieveOrCreateId')
-          .mockResolvedValue(mockBillingAgreementId);
-        jest.spyOn(statsd, 'increment');
-        jest
-          .spyOn(subscriptionManager, 'create')
-          .mockResolvedValue(mockSubscription);
-        jest
-          .spyOn(paypalCustomerManager, 'deletePaypalCustomersByUid')
-          .mockResolvedValue(BigInt(1));
-        jest
-          .spyOn(paypalCustomerManager, 'createPaypalCustomer')
-          .mockResolvedValue(mockPaypalCustomer);
-        jest.spyOn(customerManager, 'update').mockResolvedValue(mockCustomer);
-        jest.spyOn(invoiceManager, 'retrieve').mockResolvedValue(mockInvoice);
-        jest
-          .spyOn(invoiceManager, 'processPayPalInvoice')
-          .mockResolvedValue(mockInvoice);
-        jest.spyOn(subscriptionManager, 'cancel');
-        jest.spyOn(paypalBillingAgreementManager, 'cancel').mockResolvedValue();
-        jest.spyOn(checkoutService, 'postPaySteps').mockResolvedValue();
-        jest.spyOn(cartManager, 'updateFreshCart').mockResolvedValue();
+        beforeEach(async () => {
+          jest
+            .spyOn(checkoutService, 'prePaySteps')
+            .mockResolvedValue(PrePayStepsResultFactory(mockPrePayStepsResult));
+          jest
+            .spyOn(checkoutService, 'upgradeSubscription')
+            .mockResolvedValue(mockSubscription);
+          await checkoutService.payWithPaypal(
+            mockCart,
+            mockCustomerData,
+            mockToken
+          );
+        });
 
+        it('updates the subscription', async () => {
+          expect(checkoutService.upgradeSubscription).toHaveBeenCalledWith(
+            mockCustomer.id,
+            mockPrice.id,
+            mockEligibilityResult.fromPrice.id,
+            mockCart
+          );
+        });
+      });
+
+      describe('uncollectible', () => {
+        it('throws a CheckoutPaymentError', async () => {
+          const mockCustomerData = CheckoutCustomerDataFactory();
+          const mockToken = faker.string.uuid();
+          const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
+          const mockCart = StripeResponseFactory(
+            ResultCartFactory({
+              uid: faker.string.uuid(),
+              stripeCustomerId: mockCustomer.id,
+              couponCode: faker.string.uuid(),
+            })
+          );
+          const mockPromotionCode = StripeResponseFactory(
+            StripePromotionCodeFactory()
+          );
+          const mockBillingAgreementId = faker.string.uuid();
+          const mockSubscription = StripeResponseFactory(
+            StripeSubscriptionFactory()
+          );
+          const mockPaypalCustomer = ResultPaypalCustomerFactory();
+          const mockInvoice = StripeResponseFactory(
+            StripeInvoiceFactory({
+              status: 'uncollectible',
+            })
+          );
+          const mockPrice = StripePriceFactory();
+          const mockEligibilityResult =
+            SubscriptionEligibilityResultCreateFactory();
+          const mockPrePayStepsResult = PrePayStepsResultFactory({
+            uid: mockCart.uid,
+            customer: mockCustomer,
+            promotionCode: mockPromotionCode,
+            price: mockPrice,
+            version: mockCart.version + 1,
+            eligibility: mockEligibilityResult,
+          });
+
+          jest
+            .spyOn(checkoutService, 'prePaySteps')
+            .mockResolvedValue(PrePayStepsResultFactory(mockPrePayStepsResult));
+          jest
+            .spyOn(subscriptionManager, 'getCustomerPayPalSubscriptions')
+            .mockResolvedValue([]);
+          jest
+            .spyOn(paypalBillingAgreementManager, 'retrieveOrCreateId')
+            .mockResolvedValue(mockBillingAgreementId);
+          jest.spyOn(statsd, 'increment');
+          jest
+            .spyOn(subscriptionManager, 'create')
+            .mockResolvedValue(mockSubscription);
+          jest
+            .spyOn(paypalCustomerManager, 'deletePaypalCustomersByUid')
+            .mockResolvedValue(BigInt(1));
+          jest
+            .spyOn(paypalCustomerManager, 'createPaypalCustomer')
+            .mockResolvedValue(mockPaypalCustomer);
+          jest.spyOn(customerManager, 'update').mockResolvedValue(mockCustomer);
+          jest.spyOn(invoiceManager, 'retrieve').mockResolvedValue(mockInvoice);
+          jest
+            .spyOn(invoiceManager, 'processPayPalInvoice')
+            .mockResolvedValue(mockInvoice);
+          jest.spyOn(subscriptionManager, 'cancel');
+          jest
+            .spyOn(paypalBillingAgreementManager, 'cancel')
+            .mockResolvedValue();
+          jest.spyOn(checkoutService, 'postPaySteps').mockResolvedValue();
+          jest.spyOn(cartManager, 'updateFreshCart').mockResolvedValue();
+
+          await expect(
+            checkoutService.payWithPaypal(mockCart, mockCustomerData, mockToken)
+          ).rejects.toBeInstanceOf(CheckoutPaymentError);
+        });
+      });
+    });
+
+    describe('upgradeSubscription', () => {
+      const customerId = 'cus_123';
+      const toPriceId = 'price_123';
+      const fromPriceId = 'price_321';
+      const cart = ResultCartFactory();
+      beforeEach(() => {
+        const subscription = StripeSubscriptionFactory();
+        jest
+          .spyOn(subscriptionManager, 'retrieveForCustomerAndPrice')
+          .mockResolvedValue(subscription);
+        jest
+          .spyOn(subscriptionManager, 'retrieveSubscriptionItem')
+          .mockReturnValue(subscription.items.data[0]);
+        jest
+          .spyOn(subscriptionManager, 'update')
+          .mockResolvedValue(StripeResponseFactory(subscription));
+      });
+
+      it('successfully called subscription update', async () => {
+        await checkoutService.upgradeSubscription(
+          customerId,
+          toPriceId,
+          fromPriceId,
+          cart
+        );
+        expect(subscriptionManager.update).toHaveBeenCalledTimes(1);
+      });
+
+      it('throws an error upgrade subscription could not be found', async () => {
+        jest
+          .spyOn(subscriptionManager, 'retrieveForCustomerAndPrice')
+          .mockResolvedValue(undefined);
         await expect(
-          checkoutService.payWithPaypal(mockCart, mockCustomerData, mockToken)
-        ).rejects.toBeInstanceOf(CheckoutPaymentError);
+          checkoutService.upgradeSubscription(
+            customerId,
+            toPriceId,
+            fromPriceId,
+            cart
+          )
+        ).rejects.toBeInstanceOf(CheckoutUpgradeError);
+      });
+
+      it('throws unhandled error', async () => {
+        jest
+          .spyOn(subscriptionManager, 'retrieveForCustomerAndPrice')
+          .mockRejectedValue(new Error('unhandled error'));
+        await expect(
+          checkoutService.upgradeSubscription(
+            customerId,
+            toPriceId,
+            fromPriceId,
+            cart
+          )
+        ).rejects.toBeInstanceOf(Error);
       });
     });
   });

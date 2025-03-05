@@ -5,7 +5,7 @@
 import { headers } from 'next/headers';
 
 import { formatPlanPricing, getCardIcon } from '@fxa/payments/ui';
-import { SupportedPages, getApp } from '@fxa/payments/ui/server';
+import { PriceInterval, SupportedPages, getApp } from '@fxa/payments/ui/server';
 import {
   fetchCMSData,
   getCartOrRedirectAction,
@@ -116,20 +116,12 @@ export default async function UpgradeSuccess({
             )}
           </div>
           <div className="flex items-center justify-between text-grey-400">
-            <span>
-              {l10n.getString(
-                'success-page-payment-confirmation-amount',
-                {
-                  amount: cart.latestInvoicePreview?.totalAmount,
-                  interval: cart.interval,
-                },
-                formatPlanPricing(
-                  cart.latestInvoicePreview?.totalAmount ?? null,
-                  cart.latestInvoicePreview?.currency ?? '',
-                  cart.interval
-                )
-              )}
-            </span>
+            <PriceInterval
+              l10n={l10n}
+              amount={cart.latestInvoicePreview?.totalAmount}
+              currency={cart.latestInvoicePreview?.currency}
+              interval={cart.interval}
+            />
             {cart.paymentInfo.type === 'external_paypal' ? (
               <Image src={getCardIcon('paypal')} alt="paypal" />
             ) : (

@@ -6,3 +6,4 @@ export * from './lib/eligibility.manager';
 export * from './lib/eligibility.service';
 export * from './lib/eligibility.types';
 export { intervalComparison } from './lib/utils';
+export * from './lib/eligibility.factories';

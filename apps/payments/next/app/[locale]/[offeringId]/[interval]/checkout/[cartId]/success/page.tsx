@@ -6,13 +6,14 @@ import type { Metadata } from 'next';
 import { headers } from 'next/headers';
 import Image from 'next/image';
 
-import { formatPlanPricing, getCardIcon } from '@fxa/payments/ui';
+import { getCardIcon } from '@fxa/payments/ui';
 import {
   fetchCMSData,
   getCartOrRedirectAction,
   recordEmitterEventAction,
 } from '@fxa/payments/ui/actions';
 import {
+  PriceInterval,
   getApp,
   CheckoutParams,
   SupportedPages,
@@ -120,20 +121,12 @@ export default async function CheckoutSuccess({
             )}
           </div>
           <div className="flex items-center justify-between text-grey-400">
-            <span>
-              {l10n.getString(
-                'success-page-payment-confirmation-amount',
-                {
-                  amount: cart.latestInvoicePreview?.totalAmount,
-                  interval: cart.interval,
-                },
-                formatPlanPricing(
-                  cart.latestInvoicePreview?.totalAmount ?? null,
-                  cart.latestInvoicePreview?.currency ?? '',
-                  cart.interval
-                )
-              )}
-            </span>
+            <PriceInterval
+              l10n={l10n}
+              amount={cart.latestInvoicePreview?.totalAmount}
+              currency={cart.latestInvoicePreview?.currency}
+              interval={cart.interval}
+            />
             {cart.paymentInfo.type === 'external_paypal' ? (
               <Image src={getCardIcon('paypal')} alt="paypal" />
             ) : (

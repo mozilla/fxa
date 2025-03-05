@@ -6,7 +6,10 @@ import { Injectable } from '@nestjs/common';
 import { SubscriptionManager, SubplatInterval } from '@fxa/payments/customer';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
 import { EligibilityManager } from './eligibility.manager';
-import { EligibilityStatus } from './eligibility.types';
+import {
+  EligibilityStatus,
+  SubscriptionEligibilityResult,
+} from './eligibility.types';
 
 @Injectable()
 export class EligibilityService {
@@ -23,7 +26,7 @@ export class EligibilityService {
     interval: SubplatInterval,
     offeringConfigId: string,
     stripeCustomerId?: string | null | undefined
-  ) {
+  ): Promise<SubscriptionEligibilityResult> {
     if (!stripeCustomerId) {
       return {
         subscriptionEligibilityResult: EligibilityStatus.CREATE,
