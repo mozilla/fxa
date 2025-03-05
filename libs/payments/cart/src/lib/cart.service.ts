@@ -549,7 +549,10 @@ export class CartService {
       handleEligibilityStatusMap[eligibility.subscriptionEligibilityResult];
 
     let upcomingInvoicePreview: InvoicePreview | undefined;
-    if (cartEligibilityStatus === CartEligibilityStatus.UPGRADE) {
+    if (
+      cartEligibilityStatus === CartEligibilityStatus.UPGRADE &&
+      cart.state !== CartState.SUCCESS
+    ) {
       assert(
         'fromPrice' in eligibility,
         'fromPrice not present for upgrade cart'

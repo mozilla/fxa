@@ -9,10 +9,16 @@ import {
   StripeClient,
   StripePaymentIntent,
   StripeSubscription,
+  StripeSubscriptionItem,
 } from '@fxa/payments/stripe';
 import { ACTIVE_SUBSCRIPTION_STATUSES } from '@fxa/payments/stripe';
-import { STRIPE_CUSTOMER_METADATA } from './types';
-import { InvalidPaymentIntentError, PaymentIntentNotFoundError } from './error';
+import { STRIPE_SUBSCRIPTION_METADATA } from './types';
+import {
+  InvalidPaymentIntentError,
+  PaymentIntentNotFoundError,
+  SubscriptionItemMissingItemError,
+  SubscriptionItemMultipleItemsError,
+} from './error';
 
 @Injectable()
 export class SubscriptionManager {
@@ -44,8 +50,8 @@ export class SubscriptionManager {
       const newMetadata = params.metadata;
       Object.keys(newMetadata).forEach((key) => {
         if (
-          !Object.values(STRIPE_CUSTOMER_METADATA).includes(
-            key as STRIPE_CUSTOMER_METADATA
+          !Object.values(STRIPE_SUBSCRIPTION_METADATA).includes(
+            key as STRIPE_SUBSCRIPTION_METADATA
           )
         ) {
           throw new Error(`Invalid metadata key: ${key}`);
@@ -78,6 +84,28 @@ export class SubscriptionManager {
         await this.stripeClient.subscriptionsCancel(sub.id);
       }
     }
+  }
+
+  async retrieveForCustomerAndPrice(customerId: string, priceId: string) {
+    const subscriptions = await this.listForCustomer(customerId);
+    return subscriptions.find((sub) =>
+      sub.items.data.find((subItem) => subItem.price.id === priceId)
+    );
+  }
+
+  retrieveSubscriptionItem(
+    subscription: StripeSubscription
+  ): StripeSubscriptionItem {
+    if (subscription.items.data.length > 1) {
+      throw new SubscriptionItemMultipleItemsError(subscription.id);
+    }
+
+    const firstSubscriptionItem = subscription.items.data.at(0);
+    if (!firstSubscriptionItem) {
+      throw new SubscriptionItemMissingItemError(subscription.id);
+    }
+
+    return firstSubscriptionItem;
   }
 
   getPaymentProvider(subscription: StripeSubscription): 'paypal' | 'stripe' {
