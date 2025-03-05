@@ -22,6 +22,7 @@ import DangerZone from '../DangerZone';
 import ResultBoolean from '../../ResultBoolean';
 import { HIDE_ROW } from '../../../../constants';
 import { EDIT_LOCALE, UNLINK_ACCOUNT } from './index.gql';
+import { Carts } from '../Cart';
 
 export type AccountProps = AccountType & {
   onCleared: () => void;
@@ -85,6 +86,7 @@ export const Account = ({
   recoveryKeys,
   attachedClients,
   subscriptions,
+  carts,
   onCleared,
   query,
   securityEvents,
@@ -326,6 +328,9 @@ export const Account = ({
             This account doesn't have any subscriptions.
           </p>
         )}
+
+        <h3 className="header-lg">Carts</h3>
+        <Carts carts={carts} />
 
         <Guard features={[AdminPanelFeature.ConnectedServices]}>
           <h3 className="header-lg">Connected Services</h3>

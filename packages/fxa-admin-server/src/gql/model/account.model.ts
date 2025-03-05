@@ -12,6 +12,7 @@ import { Totp } from './totp.model';
 import { LinkedAccount } from './linked-account.model';
 import { AccountEvent } from './account-events.model';
 import { MozSubscription } from './moz-subscription.model';
+import { Cart } from './cart.model';
 
 @ObjectType()
 export class Account {
@@ -68,4 +69,7 @@ export class Account {
 
   @Field((type) => [AccountEvent], { nullable: true })
   public accountEvents!: AccountEvent[];
+
+  @Field((type) => [Cart], { nullable: true })
+  public carts!: Cart[];
 }

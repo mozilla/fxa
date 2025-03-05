@@ -91,6 +91,29 @@ export const GET_ACCOUNT_BY_EMAIL = gql`
         subscriptionId
         manageSubscriptionLink
       }
+      carts {
+        id
+        uid
+        state
+        errorReasonId
+        offeringConfigId
+        interval
+        experiment
+        currency
+        createdAt
+        updatedAt
+        couponCode
+        taxAddress {
+          countryCode
+          postalCode
+        }
+        stripeCustomerId
+        stripeSubscriptionId
+        email
+        amount
+        version
+        eligibilityStatus
+      }
     }
   }
 `;
@@ -182,6 +205,29 @@ export const GET_ACCOUNT_BY_UID = gql`
         status
         subscriptionId
         manageSubscriptionLink
+      }
+      carts {
+        id
+        uid
+        state
+        errorReasonId
+        offeringConfigId
+        interval
+        experiment
+        currency
+        createdAt
+        updatedAt
+        couponCode
+        taxAddress {
+          countryCode
+          postalCode
+        }
+        stripeCustomerId
+        stripeSubscriptionId
+        email
+        amount
+        version
+        eligibilityStatus
       }
     }
   }

@@ -47,6 +47,7 @@ import { EventLoggingService } from '../../event-logging/event-logging.service';
 import { BasketService } from '../../newsletters/basket.service';
 import { SubscriptionsService } from '../../subscriptions/subscriptions.service';
 import { AccountResolver } from './account.resolver';
+import { CartManager } from '@fxa/payments/cart';
 
 export const chance = new Chance();
 
@@ -243,10 +244,16 @@ describe('#integration - AccountResolver', () => {
       useValue: firestoreService,
     };
 
+    const MockCartManager = {
+      provide: CartManager,
+      useValue: {},
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AccountResolver,
         EventLoggingService,
+        MockCartManager,
         MockMozLogger,
         MockConfig,
         MockMetricsFactory,
