@@ -9,6 +9,21 @@ import { IsBoolean, IsString } from 'class-validator';
  */
 export class TwilioConfig {
   /**
+   * Determines which credential set to use. Options are
+   * - test - uses the testing account sid and testing auth token
+   * - default - uses the account sid and auth token
+   * - apiKeys - ues the account sid, apiKey and apiSecret
+   */
+  @IsString()
+  credentialMode!: 'test' | 'default' | 'apiKeys';
+
+  @IsString()
+  testAuthToken?: string;
+
+  @IsString()
+  testAccountSid?: string;
+
+  /**
    * The twilio account sid
    */
   @IsString()
@@ -16,22 +31,10 @@ export class TwilioConfig {
 
   /**
    * The twilio auth token. Note that this, or an apiKey/apiSecret must be set!
-   * Using the auth token is not preferred.
+   * Using the auth token is not preferred, unless it's the 'testing' auth token.
    */
   @IsString()
   authToken?: string;
-
-  /**
-   * The webhook url that twilio will deliver status updates about messages to.
-   */
-  @IsString()
-  webhookUrl!: string;
-
-  /**
-   * Flag that toggles on / off webhook validation.
-   */
-  @IsBoolean()
-  validateWebhookCalls!: boolean;
 
   /**
    * A twilio apiKey. Works in conjunction with apiSecret. This is the preferred path for client authentication.
@@ -44,6 +47,18 @@ export class TwilioConfig {
    */
   @IsString()
   apiSecret?: string;
+
+  /**
+   * The webhook url that twilio will deliver status updates about messages to.
+   */
+  @IsString()
+  webhookUrl!: string;
+
+  /**
+   * Flag that toggles on / off webhook validation.
+   */
+  @IsBoolean()
+  validateWebhookCalls!: boolean;
 
   /**
    * A public key for validating webhook messages. Works in conjunction with fxaPrivateKey.

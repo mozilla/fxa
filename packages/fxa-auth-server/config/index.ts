@@ -2234,6 +2234,24 @@ const convictConf = convict({
     },
   },
   twilio: {
+    credentialMode: {
+      default: 'test',
+      doc: 'Which credential set to use. Options are test, default, or apiKeys.',
+      env: 'RECOVERY_PHONE__TWILIO__CREDENTIAL_MODE',
+      format: String,
+    },
+    testAccountSid: {
+      default: 'AC_REPLACEMEWITHKEY',
+      doc: 'Twilio Testing Account ID. Note must be used for tests leveraging Twilio magic phone numbers.',
+      env: 'RECOVERY_PHONE__TWILIO__TEST_ACCOUNT_SID',
+      format: String,
+    },
+    testAuthToken: {
+      default: '',
+      doc: 'Twilio Testing Account Auth Token. Note must be used for tests leverage Twilio magic phone numbers.',
+      env: 'RECOVERY_PHONE__TWILIO__TEST_AUTH_TOKEN',
+      format: String,
+    },
     accountSid: {
       default: 'AC_REPLACEMEWITHKEY',
       doc: 'Twilio Account ID',
@@ -2245,16 +2263,6 @@ const convictConf = convict({
       doc: 'Twilio Auth Token to access api. Note, using apiKey/apiSecret is preferred.',
       env: 'RECOVERY_PHONE__TWILIO__AUTH_TOKEN',
     },
-    webhookUrl: {
-      default: '',
-      doc: 'Webhook url registered with twilio for message status updates',
-      env: 'RECOVERY_PHONE__TWILIO__WEBHOOK_URL',
-    },
-    validateWebhookCalls: {
-      default: true,
-      doc: 'Controls if twilio signature is validated during webhook calls from twilio',
-      env: 'RECOVERY_PHONE__TWILIO__VALIDATE_WEBHOOK_CALLS',
-    },
     apiKey: {
       default: '',
       doc: 'An api key used to access the twilio rest api. Note, when provided the authToken is no longer needed.',
@@ -2264,6 +2272,16 @@ const convictConf = convict({
       default: '',
       doc: 'A secret used in conjunction with the apiKey to access the twilio rest api.',
       env: 'RECOVERY_PHONE__TWILIO__API_SECRET',
+    },
+    webhookUrl: {
+      default: '',
+      doc: 'Webhook url registered with twilio for message status updates',
+      env: 'RECOVERY_PHONE__TWILIO__WEBHOOK_URL',
+    },
+    validateWebhookCalls: {
+      default: true,
+      doc: 'Controls if twilio signature is validated during webhook calls from twilio',
+      env: 'RECOVERY_PHONE__TWILIO__VALIDATE_WEBHOOK_CALLS',
     },
     fxaPublicKey: {
       default: '',
