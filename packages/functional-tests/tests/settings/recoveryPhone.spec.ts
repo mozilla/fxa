@@ -27,6 +27,10 @@ function getPhoneNumber(env: string) {
 }
 
 test.describe('severity-1 #smoke', () => {
+  test.fixme(
+    true,
+    'FXA-11191 will resolve issue with switching between twilio and redis clients'
+  );
   test.describe('recovery phone', () => {
     // Run these tests sequentially when using the Twilio API because they rely on the same test phone number.
     // When using the Twilio API, we cannot determine the order in which the messages were received.
