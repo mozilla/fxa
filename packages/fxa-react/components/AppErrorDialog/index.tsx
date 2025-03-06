@@ -5,7 +5,7 @@
 import React from 'react';
 import { Localized } from '@fluent/react';
 
-const AppErrorDialog = ({ error }: { error: Error }) => {
+const AppErrorDialog = () => {
   return (
     <div className="bg-grey-20 flex items-center flex-col justify-center h-screen">
       <div className="text-center max-w-lg">

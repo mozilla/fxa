@@ -26,7 +26,7 @@ export interface AppContextValue {
   sensitiveDataClient?: SensitiveDataClient; // used for sensitive data that needs to be encrypted between components
   config?: Config;
   account?: Account;
-  session?: Session; // used exclusively for test mocking
+  session?: Session;
   uniqueUserId?: string; // used for experiments
   experiments?: any; // TODO: add types for experiments
 }

@@ -151,7 +151,7 @@ export class OAuthIntegrationData extends BaseIntegrationData {
 
   @IsOptional()
   @IsEmail()
-  @bind()
+  @bind(T.snakeCase)
   loginHint: string | undefined;
 }
 
@@ -300,6 +300,10 @@ export class OAuthWebIntegration extends BaseIntegration {
     return this.data.prompt === OAuthPrompt.LOGIN || this.data.maxAge === 0;
   }
 
+  wantsPromptNone() {
+    return this.data.prompt === OAuthPrompt.NONE;
+  }
+
   wantsTwoStepAuthentication(): boolean {
     const acrValues = this.data.acrValues;
     if (!acrValues) {
@@ -379,13 +383,13 @@ export class OAuthWebIntegration extends BaseIntegration {
 
   protected isPromptNoneEnabledForClient() {
     return (
-      this.data.clientId != null &&
-      this.data.opts.isPromptNoneEnabledClientIds.includes(this.data.lientId)
+      this.data.clientId &&
+      this.opts.isPromptNoneEnabledClientIds.includes(this.data.clientId)
     );
   }
 
   async validatePromptNoneRequest(account: RelierAccount): Promise<void> {
-    const requestedEmail = this.data.email;
+    const requestedEmail = this.data.email || this.data.loginHint;
 
     if (!this.opts.isPromptNoneEnabled) {
       throw new OAuthError('PROMPT_NONE_NOT_ENABLED');
@@ -422,21 +426,10 @@ export class OAuthWebIntegration extends BaseIntegration {
       if (claims.sub !== account.uid) {
         throw new OAuthError('PROMPT_NONE_DIFFERENT_USER_SIGNED_IN');
       }
-    } else {
-      if (!requestedEmail) {
-        // yeah yeah, it's a bit strange to look at `email`
-        // and then say `login_hint` is missing. `login_hint`
-        // is the OIDC spec compliant name, we supported `email` first
-        // and don't want to break backwards compatibility.
-        // `login_hint` is copied to the `email` field if no `email`
-        // is specified. If neither is available, throw an error
-        // about `login_hint` since it's spec compliant.
-        throw new OAuthError('login_hint');
-      }
+    }
 
-      if (requestedEmail !== account.email) {
-        throw new OAuthError('PROMPT_NONE_DIFFERENT_USER_SIGNED_IN');
-      }
+    if (requestedEmail && requestedEmail !== account.email) {
+      throw new OAuthError('PROMPT_NONE_DIFFERENT_USER_SIGNED_IN');
     }
   }
 }
@@ -465,4 +458,10 @@ function sanitizeUntrustedPermissions(permissions: Array<string>) {
   return permissions.filter((x) =>
     Constants.OAUTH_UNTRUSTED_ALLOWED_PERMISSIONS.includes(x)
   );
+}
+
+export function isOAuthWebIntegration(integration: {
+  type: IntegrationType;
+}): integration is OAuthWebIntegration {
+  return (integration as OAuthWebIntegration).type === IntegrationType.OAuthWeb;
 }

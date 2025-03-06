@@ -130,7 +130,9 @@ Router = Router.extend({
         CompleteResetPasswordView
       );
     },
-    'authorization(/)': createViewHandler(RedirectAuthView),
+    'authorization(/)': function () {
+      this.createReactOrBackboneViewHandler('authorization', RedirectAuthView);
+    },
     'cannot_create_account(/)': function () {
       this.createReactViewHandler('cannot_create_account');
     },

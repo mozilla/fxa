@@ -24,7 +24,10 @@ const OAuthDataError = ({ error }: { error: AuthError }) => {
       <Banner
         type="error"
         content={{
-          localizedHeading: getLocalizedErrorMessage(ftlMsgResolver, error),
+          // TODO FXA-9502
+          localizedHeading: error.version
+            ? getLocalizedErrorMessage(ftlMsgResolver, error)
+            : error.message,
         }}
       />
     </AppLayout>
