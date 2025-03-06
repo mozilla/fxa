@@ -3,11 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import './styles/global.css';
+import type { Metadata } from 'next';
 
-// TODO - Replace these placeholders as part of FXA-8227
-export const metadata = {
-  title: 'Mozilla accounts',
-  description: 'Mozilla accounts',
+export const metadata: Metadata = {
+  title: 'Mozilla',
+  description: 'Subscription management',
 };
 
 export default function RootLayout({

@@ -43,7 +43,11 @@ export class PromotionCodeManager {
     if (!promoCode)
       throw new PromotionCodeCouldNotBeAttachedError('PromoCode not found');
 
-    if (promoCode.coupon.currency !== cartCurrency)
+    // promotion code currency may be null, in which case it is applicable to all currencies
+    if (
+      promoCode.coupon.currency &&
+      promoCode.coupon.currency.toLowerCase() !== cartCurrency.toLowerCase()
+    )
       throw new CouponErrorInvalid();
 
     await this.assertValidPromotionCodeForPrice(promoCode, price);

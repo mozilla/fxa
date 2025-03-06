@@ -17,21 +17,16 @@ import {
   SubscriptionTitle,
   TermsAndPrivacy,
 } from '@fxa/payments/ui/server';
+import { CartState } from '@fxa/shared/db/mysql/account';
 import { auth } from 'apps/payments/next/auth';
 import { config } from 'apps/payments/next/config';
-
-// TODO - Replace these placeholders as part of FXA-8227
-export const metadata = {
-  title: 'Mozilla accounts',
-  description: 'Mozilla accounts',
-};
 
 export interface CheckoutSearchParams {
   experiment?: string;
   promotion_code?: string;
 }
 
-export default async function RootLayout({
+export default async function CheckoutLayout({
   children,
   params,
 }: {
@@ -104,7 +99,7 @@ export default async function RootLayout({
             cartId={cart.id}
             cartVersion={cart.version}
             promoCode={cart.couponCode}
-            readOnly={false}
+            readOnly={cart.state === CartState.START ? false : true}
           />
         </section>
 

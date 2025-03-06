@@ -5,13 +5,13 @@
 'use client';
 
 import { Localized } from '@fluent/react';
+import { useSearchParams } from 'next/navigation';
+import { useEffect } from 'react';
 import { useFormState } from 'react-dom';
 import { ButtonVariant } from '../BaseButton';
 import { SubmitButton } from '../SubmitButton';
 import { updateCartAction } from '../../../actions/updateCart';
 import { getFallbackTextByFluentId } from '../../../utils/error-ftl-messages';
-import { useSearchParams } from 'next/navigation';
-import { useEffect } from 'react';
 
 interface WithCouponProps {
   cartId: string;
@@ -30,7 +30,7 @@ const WithCoupon = ({
   }
 
   return (
-    <>
+    <div className="bg-white rounded-b-lg shadow-sm shadow-grey-300 mt-6 p-4 rounded-t-lg text-base tablet:my-8">
       <h2 className="m-0 mb-4 font-semibold text-grey-600">
         <Localized id="next-coupon-promo-code-applied">
           Promo Code Applied
@@ -54,7 +54,7 @@ const WithCoupon = ({
           </span>
         )}
       </form>
-    </>
+    </div>
   );
 };
 
@@ -88,7 +88,7 @@ const WithoutCoupon = ({
   const [error, formAction] = useFormState(applyCoupon, null);
 
   return (
-    <>
+    <div className="bg-white rounded-b-lg shadow-sm shadow-grey-300 mt-6 p-4 rounded-t-lg text-base tablet:my-8">
       <h2 className="m-0 mb-4 font-semibold text-grey-600">
         <Localized id="next-coupon-promo-code">Promo Code</Localized>
       </h2>
@@ -124,7 +124,7 @@ const WithoutCoupon = ({
           </div>
         )}
       </form>
-    </>
+    </div>
   );
 };
 
@@ -142,22 +142,18 @@ export function CouponForm({
   readOnly,
 }: CouponFormProps) {
   const hasCouponCode = !!promoCode;
-  return (
-    <div className="bg-white rounded-b-lg shadow-sm shadow-grey-300 mt-6 p-4 rounded-t-lg text-base tablet:my-8">
-      {hasCouponCode ? (
-        <WithCoupon
-          cartId={cartId}
-          cartVersion={cartVersion}
-          couponCode={promoCode}
-          readOnly={readOnly}
-        />
-      ) : (
-        <WithoutCoupon
-          cartId={cartId}
-          cartVersion={cartVersion}
-          readOnly={readOnly}
-        />
-      )}
-    </div>
+  return hasCouponCode ? (
+    <WithCoupon
+      cartId={cartId}
+      cartVersion={cartVersion}
+      couponCode={promoCode}
+      readOnly={readOnly}
+    />
+  ) : readOnly ? null : (
+    <WithoutCoupon
+      cartId={cartId}
+      cartVersion={cartVersion}
+      readOnly={readOnly}
+    />
   );
 }

@@ -32,7 +32,6 @@ export interface TaxAmount {
 
 export enum STRIPE_CUSTOMER_METADATA {
   PaypalAgreement = 'paypalAgreementId',
-  SubscriptionPromotionCode = 'appliedPromotionCode',
 }
 
 export enum STRIPE_PRICE_METADATA {
@@ -48,6 +47,7 @@ export enum STRIPE_PRODUCT_METADATA {
 export enum STRIPE_SUBSCRIPTION_METADATA {
   Currency = 'currency',
   Amount = 'amount',
+  SubscriptionPromotionCode = 'appliedPromotionCode',
 }
 
 export enum STRIPE_INVOICE_METADATA {

@@ -11,7 +11,7 @@ import {
   StripeSubscription,
 } from '@fxa/payments/stripe';
 import { ACTIVE_SUBSCRIPTION_STATUSES } from '@fxa/payments/stripe';
-import { STRIPE_CUSTOMER_METADATA } from './types';
+import { STRIPE_SUBSCRIPTION_METADATA } from './types';
 import { InvalidPaymentIntentError, PaymentIntentNotFoundError } from './error';
 
 @Injectable()
@@ -44,15 +44,14 @@ export class SubscriptionManager {
       const newMetadata = params.metadata;
       Object.keys(newMetadata).forEach((key) => {
         if (
-          !Object.values(STRIPE_CUSTOMER_METADATA).includes(
-            key as STRIPE_CUSTOMER_METADATA
+          !Object.values(STRIPE_SUBSCRIPTION_METADATA).includes(
+            key as STRIPE_SUBSCRIPTION_METADATA
           )
         ) {
           throw new Error(`Invalid metadata key: ${key}`);
         }
       });
     }
-
     return this.stripeClient.subscriptionsUpdate(subscriptionId, params);
   }
 

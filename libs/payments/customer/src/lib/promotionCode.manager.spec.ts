@@ -193,8 +193,8 @@ describe('PromotionCodeManager', () => {
       const mockCartCurrency = mockPrice.currency;
 
       jest
-        .spyOn(stripeClient, 'promotionCodesList')
-        .mockResolvedValue(StripeResponseFactory(StripeApiListFactory([])));
+        .spyOn(promotionCodeManager, 'retrieveByName')
+        .mockResolvedValue(undefined);
 
       await expect(() =>
         promotionCodeManager.assertValidPromotionCodeNameForPrice(
@@ -226,6 +226,62 @@ describe('PromotionCodeManager', () => {
           mockCartCurrency
         )
       ).rejects.toBeInstanceOf(PromotionCodeCouldNotBeAttachedError);
+    });
+
+    it('resolves when cart and coupon currencies match', async () => {
+      const mockPrice = StripePriceFactory({
+        currency: 'cad',
+      });
+      const mockPromotionCode = StripePromotionCodeFactory({
+        coupon: StripeCouponFactory({
+          currency: 'cad',
+        }),
+      });
+      const mockCartCurrency = 'CAD';
+
+      jest
+        .spyOn(promotionCodeManager, 'retrieveByName')
+        .mockResolvedValue(mockPromotionCode);
+
+      jest
+        .spyOn(promotionCodeManager, 'assertValidPromotionCodeForPrice')
+        .mockResolvedValue();
+
+      await expect(
+        promotionCodeManager.assertValidPromotionCodeNameForPrice(
+          mockPromotionCode.code,
+          mockPrice,
+          mockCartCurrency
+        )
+      ).resolves.toEqual(undefined);
+    });
+
+    it('resolves when coupon currency is null', async () => {
+      const mockPrice = StripePriceFactory({
+        currency: 'cad',
+      });
+      const mockPromotionCode = StripePromotionCodeFactory({
+        coupon: StripeCouponFactory({
+          currency: null,
+        }),
+      });
+      const mockCartCurrency = 'CAD';
+
+      jest
+        .spyOn(promotionCodeManager, 'retrieveByName')
+        .mockResolvedValue(mockPromotionCode);
+
+      jest
+        .spyOn(promotionCodeManager, 'assertValidPromotionCodeForPrice')
+        .mockResolvedValue();
+
+      await expect(
+        promotionCodeManager.assertValidPromotionCodeNameForPrice(
+          mockPromotionCode.code,
+          mockPrice,
+          mockCartCurrency
+        )
+      ).resolves.toEqual(undefined);
     });
 
     it('throws an error if currencies do no match', async () => {

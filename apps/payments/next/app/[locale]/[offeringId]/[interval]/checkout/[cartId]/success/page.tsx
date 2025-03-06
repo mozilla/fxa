@@ -2,19 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import type { Metadata } from 'next';
 import { headers } from 'next/headers';
+import Image from 'next/image';
 
 import { formatPlanPricing, getCardIcon } from '@fxa/payments/ui';
-
-import { SupportedPages, getApp } from '@fxa/payments/ui/server';
 import {
   fetchCMSData,
   getCartOrRedirectAction,
   recordEmitterEventAction,
 } from '@fxa/payments/ui/actions';
-import { CheckoutParams } from '@fxa/payments/ui/server';
-import Image from 'next/image';
-import type { Metadata } from 'next';
+import {
+  getApp,
+  CheckoutParams,
+  SupportedPages,
+} from '@fxa/payments/ui/server';
 
 export const dynamic = 'force-dynamic';
 

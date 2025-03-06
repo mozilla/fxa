@@ -227,12 +227,12 @@ export class CheckoutService {
     await this.customerChanged(uid);
 
     if (cart.couponCode) {
-      const subscriptionMetadata = {
-        ...subscription.metadata,
-        [STRIPE_CUSTOMER_METADATA.SubscriptionPromotionCode]: cart.couponCode,
-      };
       await this.subscriptionManager.update(subscription.id, {
-        metadata: subscriptionMetadata,
+        metadata: {
+          ...subscription.metadata,
+          [STRIPE_SUBSCRIPTION_METADATA.SubscriptionPromotionCode]:
+            cart.couponCode,
+        },
       });
     }
     await this.cartManager.finishCart(cart.id, version, {});
