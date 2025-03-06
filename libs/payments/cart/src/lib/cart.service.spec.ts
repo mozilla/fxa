@@ -637,6 +637,7 @@ describe('CartService', () => {
     const mockOldCart = ResultCartFactory({
       uid: mockAccountCustomer.uid,
       couponCode: faker.word.noun(),
+      stripeSubscriptionId: undefined,
     });
     const mockNewCart = ResultCartFactory();
     const mockPrice = StripePriceFactory();
@@ -959,7 +960,9 @@ describe('CartService', () => {
     });
 
     describe('updates cart with coupon code', () => {
-      const mockCart = ResultCartFactory();
+      const mockCart = ResultCartFactory({
+        stripeSubscriptionId: undefined,
+      });
       const mockPrice = StripePriceFactory();
       const mockUpdateCart = UpdateCartFactory({
         couponCode: faker.word.noun(),
@@ -1564,7 +1567,9 @@ describe('CartService', () => {
         }),
       });
       const mockSubscription = StripeResponseFactory(
-        StripeSubscriptionFactory()
+        StripeSubscriptionFactory({
+          latest_invoice: undefined,
+        })
       );
 
       jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
@@ -1573,6 +1578,12 @@ describe('CartService', () => {
         .spyOn(subscriptionManager, 'cancel')
         .mockResolvedValue(mockSubscription);
       jest.spyOn(cartManager, 'finishErrorCart').mockResolvedValue();
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(mockSubscription);
+      jest
+        .spyOn(subscriptionManager, 'getLatestPaymentIntent')
+        .mockResolvedValue(undefined);
 
       await expect(() =>
         cartService.submitNeedsInput(mockCart.id)

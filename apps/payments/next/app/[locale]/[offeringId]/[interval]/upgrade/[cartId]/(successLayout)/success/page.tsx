@@ -4,7 +4,7 @@
 
 import { headers } from 'next/headers';
 
-import { formatPlanPricing, getCardIcon } from '@fxa/payments/ui';
+import { getCardIcon } from '@fxa/payments/ui';
 import { PriceInterval, SupportedPages, getApp } from '@fxa/payments/ui/server';
 import {
   fetchCMSData,
