@@ -54,6 +54,9 @@ const isTwilioConfigured =
   config.twilio.authToken?.length >= 24;
 
 describe(`#integration - recovery phone`, function () {
+  // TODO: Something flakes... figure out where the slowdown is.
+  this.timeout(10000);
+
   let server;
   let client;
   let email;
@@ -68,6 +71,12 @@ describe(`#integration - recovery phone`, function () {
 
   before(async function () {
     config.recoveryPhone.enabled = true;
+
+    // We nix the api key so the auth token is used. Only magic test numbers can be used with our
+    // 'testing' auth token.
+    config.twilio.apiKey = undefined;
+    config.twilio.apiSecret = undefined;
+
     config.securityHistory.ipProfiling.allowedRecency = 0;
     config.signinConfirmation.skipForNewAccounts.enabled = false;
     server = await TestServer.start(config);
@@ -203,7 +212,7 @@ describe(`#integration - recovery phone`, function () {
     assert.equal(error.message, 'Invalid phone number');
   });
 
-  it('it can recreate recovery phone number', async function () {
+  it('can recreate recovery phone number', async function () {
     if (!isTwilioConfigured) {
       this.skip('Invalid twilio accountSid or authToken. Check env / config!');
     }

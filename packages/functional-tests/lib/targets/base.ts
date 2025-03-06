@@ -24,7 +24,6 @@ interface SubConfig {
 export abstract class BaseTarget {
   readonly authClient: AuthClient;
   readonly emailClient: EmailClient;
-  readonly smsClient: SmsClient;
   abstract readonly contentServerUrl: string;
   abstract readonly paymentsServerUrl: string;
   abstract readonly relierUrl: string;
@@ -32,17 +31,25 @@ export abstract class BaseTarget {
   abstract readonly name: TargetName;
   abstract readonly subscriptionConfig: SubConfig;
 
+  // Must be lazy loaded, because it depends on abstract field, 'name'.
+  get smsClient() {
+    if (this._smsClient == null) {
+      this._smsClient = new SmsClient(this.name);
+    }
+    return this._smsClient;
+  }
+  private _smsClient: SmsClient | undefined;
+
+  get baseUrl() {
+    return this.contentServerUrl;
+  }
+
   constructor(readonly authServerUrl: string, emailUrl?: string) {
     const keyStretchVersion = parseInt(
       process.env.AUTH_CLIENT_KEY_STRETCH_VERSION || '1'
     );
     this.authClient = this.createAuthClient(keyStretchVersion);
     this.emailClient = new EmailClient(emailUrl);
-    this.smsClient = new SmsClient();
-  }
-
-  get baseUrl() {
-    return this.contentServerUrl;
   }
 
   createAuthClient(keyStretchVersion = 1): AuthClient {
