@@ -551,7 +551,7 @@ export class CartService {
     let upcomingInvoicePreview: InvoicePreview | undefined;
     if (
       cartEligibilityStatus === CartEligibilityStatus.UPGRADE &&
-      cart.state !== CartState.SUCCESS
+      cart.state === CartState.START
     ) {
       assert(
         'fromPrice' in eligibility,
