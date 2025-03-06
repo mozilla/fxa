@@ -276,7 +276,7 @@ describe('confirm-signup-container', () => {
                   };
                 }
               ),
-            oAuthDataError: { message: 'BOOM', errno: 1 },
+            oAuthDataError: { message: 'BOOM', errno: 1, version: 1 },
           };
         });
       render();

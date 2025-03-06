@@ -133,6 +133,46 @@ export interface ProfileInfo {
   emails: Email[];
 }
 
+// Account attributes that can be persisted
+const PERSISTENT = {
+  accountResetToken: undefined,
+  alertText: undefined,
+  displayName: undefined,
+  email: undefined,
+  grantedPermissions: undefined,
+  hadProfileImageSetBefore: undefined,
+  lastLogin: undefined,
+  // password field intentionally omitted to avoid unintentional leaks
+  permissions: undefined,
+  profileImageId: undefined,
+  profileImageUrl: undefined,
+  profileImageUrlDefault: undefined,
+  providerUid: undefined,
+  recoveryKeyId: undefined,
+  sessionToken: undefined,
+  uid: undefined,
+  metricsEnabled: undefined,
+  verified: undefined,
+};
+const DEFAULTS = {
+  ...PERSISTENT,
+  accessToken: undefined,
+  declinedSyncEngines: undefined,
+  hasBounced: undefined,
+  hasLinkedAccount: undefined,
+  hasPassword: undefined,
+  keyFetchToken: undefined,
+  newsletters: undefined,
+  offeredSyncEngines: undefined,
+  // password field intentionally omitted to avoid unintentional leaks
+  providerUid: undefined,
+  unwrapBKey: undefined,
+  verificationMethod: undefined,
+  verificationReason: undefined,
+  totpVerified: undefined,
+  atLeast18AtReg: undefined,
+};
+
 export const GET_PROFILE_INFO = gql`
   query GetProfileInfo {
     account {
@@ -307,6 +347,12 @@ export function getNextAvatar(
 
   return { id: existingId, url: existingUrl, isDefault: false };
 }
+
+// I'm fairly certain that we do not need this as Settings does not create a
+// "default" account model with a set of undefined properties.  But there is an
+// interface that calls for an isDefault impl so here it is.
+export const isDefault = (account: Record<string, any>) =>
+  !Object.keys(DEFAULTS).some((x) => account[x] !== undefined);
 
 export class Account implements AccountData {
   private readonly authClient: AuthClient;

@@ -67,7 +67,7 @@ export interface RelierAccount {
     clientId: string,
     gracePeriod: number
   ): Promise<{ sub: string }>;
-  isDefault(): unknown;
+  isDefault(): boolean;
 }
 
 // TODO: probably move this to another file

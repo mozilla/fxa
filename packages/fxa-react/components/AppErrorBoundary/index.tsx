@@ -38,11 +38,7 @@ class AppErrorBoundary extends React.Component<
 
   render() {
     const { error } = this.state;
-    return error ? (
-      <AppErrorDialog {...{ error }} />
-    ) : (
-      (this.props as any).children
-    );
+    return error ? <AppErrorDialog /> : (this.props as any).children;
   }
 }
 
