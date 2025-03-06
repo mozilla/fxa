@@ -13,6 +13,7 @@ describe('TwilioFactory', () => {
   let client: Twilio;
 
   const MockTwilioConfig = {
+    credentialMode: 'apiKeys',
     accountSid: 'AC',
     apiKey: 'SK',
     apiSecret: 'SHHH',
