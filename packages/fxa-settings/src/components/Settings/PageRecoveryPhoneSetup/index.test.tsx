@@ -61,7 +61,7 @@ describe('PageRecoveryPhoneSetup', () => {
     expect(
       screen.queryByText(/You’ll get a text message from Mozilla/i)
     ).not.toBeInTheDocument();
-    expect(screen.getByText(/A six-digit code was sent/i)).toBeInTheDocument();
+    expect(screen.getByText(/A 6-digit code was sent/i)).toBeInTheDocument();
   });
 
   it('at step 2, allows code resend', async () => {
@@ -79,9 +79,7 @@ describe('PageRecoveryPhoneSetup', () => {
 
     await completeStepOne(user);
     await waitFor(() => {
-      expect(
-        screen.getByText(/A six-digit code was sent/i)
-      ).toBeInTheDocument();
+      expect(screen.getByText(/A 6-digit code was sent/i)).toBeInTheDocument();
     });
 
     user.click(
@@ -109,9 +107,7 @@ describe('PageRecoveryPhoneSetup', () => {
 
     await completeStepOne(user);
     await waitFor(() => {
-      expect(
-        screen.getByText(/A six-digit code was sent/i)
-      ).toBeInTheDocument();
+      expect(screen.getByText(/A 6-digit code was sent/i)).toBeInTheDocument();
     });
     await waitFor(async () => {
       await user.type(screen.getByLabelText(/Enter 6-digit code/i), otpCode);
@@ -164,9 +160,7 @@ describe('PageRecoveryPhoneSetup', () => {
 
     await completeStepOne(user);
     await waitFor(() => {
-      expect(
-        screen.getByText(/A six-digit code was sent/i)
-      ).toBeInTheDocument();
+      expect(screen.getByText(/A 6-digit code was sent/i)).toBeInTheDocument();
     });
     await waitFor(async () => {
       user.click(screen.getByRole('button', { name: 'Change phone number' }));
