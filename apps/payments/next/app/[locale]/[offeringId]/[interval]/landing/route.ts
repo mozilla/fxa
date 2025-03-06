@@ -10,7 +10,7 @@ import {
 } from '@fxa/payments/ui/actions';
 import { BaseParams, buildRedirectUrl } from '@fxa/payments/ui';
 import { config } from 'apps/payments/next/config';
-import { getIpAddress } from '@fxa/payments/ui/server';
+import { getApp, getIpAddress } from '@fxa/payments/ui/server';
 import {
   buildSp2RedirectUrl,
   getSP2Params,
@@ -54,6 +54,7 @@ export async function GET(
   { params }: { params: BaseParams }
 ) {
   const requestSearchParams = request.nextUrl.searchParams;
+  const emitterService = getApp().getEmitterService();
 
   if (config.sp2redirect.enabled) {
     const queryCurrency = requestSearchParams.get('currency');
@@ -84,11 +85,25 @@ export async function GET(
         requestSearchParams
       );
 
+      emitterService.emit('sp3Rollout', {
+        version: '2',
+        offeringId: params.offeringId,
+        interval: params.interval,
+        shadowMode: config.sp2redirect.shadowMode,
+      });
+
       if (!config.sp2redirect.shadowMode) {
         redirect(sp2RedirectUrl);
       } else {
         console.log('SP2 Redirect Shadow Mode enabled', { sp2RedirectUrl });
       }
+    } else {
+      emitterService.emit('sp3Rollout', {
+        version: '3',
+        offeringId: params.offeringId,
+        interval: params.interval,
+        shadowMode: config.sp2redirect.shadowMode,
+      });
     }
   }
 
