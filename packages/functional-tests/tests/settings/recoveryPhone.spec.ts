@@ -46,12 +46,12 @@ test.describe('severity-1 #smoke', () => {
       // Therefore, we fallback to peeking at Redis to get confirmation codes.
       if (target.name === 'local') {
         expect(
-          target.smsClient.isTwilioEnabled(),
+          target.getSmsClient().isTwilioEnabled(),
           'Local env found, use redis and Twilio test creds'
         ).toBeFalsy();
       } else {
         expect(
-          target.smsClient.isTwilioEnabled(),
+          target.getSmsClient().isTwilioEnabled(),
           'Stage/Prod env, use Twilio API'
         ).toBeTruthy();
       }
@@ -104,10 +104,9 @@ test.describe('severity-1 #smoke', () => {
 
       await expect(recoveryPhone.confirmHeader).toBeVisible();
 
-      const code = await target.smsClient.getCode(
-        getPhoneNumber(target.name),
-        credentials.uid
-      );
+      const code = await target
+        .getSmsClient()
+        .getCode(getPhoneNumber(target.name), credentials.uid);
 
       // Invalid code
       await recoveryPhone.enterCode('123456');
@@ -118,10 +117,9 @@ test.describe('severity-1 #smoke', () => {
 
       // Sends a new code
       await recoveryPhone.clickResendCode();
-      const nextCode = await target.smsClient.getCode(
-        getPhoneNumber(target.name),
-        credentials.uid
-      );
+      const nextCode = await target
+        .getSmsClient()
+        .getCode(getPhoneNumber(target.name), credentials.uid);
 
       expect(code).not.toEqual(nextCode);
 
@@ -369,19 +367,17 @@ test.describe('severity-1 #smoke', () => {
         page.getByText(/The code is invalid or expired./)
       ).toBeVisible();
 
-      const originalCode = await target.smsClient.getCode(
-        getPhoneNumber(target.name),
-        credentials.uid
-      );
+      const originalCode = await target
+        .getSmsClient()
+        .getCode(getPhoneNumber(target.name), credentials.uid);
 
       // Sends a new code
       await signinRecoveryPhone.clickResendCode();
       await expect(page.getByText('Code sent')).toBeVisible();
 
-      const nextCode = await target.smsClient.getCode(
-        getPhoneNumber(target.name),
-        credentials.uid
-      );
+      const nextCode = await target
+        .getSmsClient()
+        .getCode(getPhoneNumber(target.name), credentials.uid);
 
       expect(originalCode).not.toEqual(nextCode);
 
@@ -638,10 +634,9 @@ async function setupRecoveryPhone({
 
   await expect(recoveryPhone.confirmHeader).toBeVisible();
 
-  const code = await target.smsClient.getCode(
-    getPhoneNumber(target.name),
-    credentials.uid
-  );
+  const code = await target
+    .getSmsClient()
+    .getCode(getPhoneNumber(target.name), credentials.uid);
 
   await recoveryPhone.enterCode(code);
   await recoveryPhone.clickConfirm();
@@ -689,19 +684,17 @@ async function fillOutRecoveryPhoneFromEmailFirst({
 
   await expect(page.getByText(/The code is invalid or expired./)).toBeVisible();
 
-  const originalCode = await target.smsClient.getCode(
-    getPhoneNumber(target.name),
-    credentials.uid
-  );
+  const originalCode = await target
+    .getSmsClient()
+    .getCode(getPhoneNumber(target.name), credentials.uid);
 
   // Sends a new code
   await signinRecoveryPhone.clickResendCode();
   await expect(page.getByText('Code sent')).toBeVisible();
 
-  const nextCode = await target.smsClient.getCode(
-    getPhoneNumber(target.name),
-    credentials.uid
-  );
+  const nextCode = await target
+    .getSmsClient()
+    .getCode(getPhoneNumber(target.name), credentials.uid);
 
   expect(originalCode).not.toEqual(nextCode);
 

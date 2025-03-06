@@ -21,7 +21,6 @@ const SUB_PLAN = 'plan_FfiupsKXZ3mMZ6';
 
 export class StageTarget extends RemoteTarget {
   static readonly target = 'stage';
-  readonly name: TargetName = StageTarget.target;
   readonly contentServerUrl = `https://${ACCOUNTS_DOMAIN}`;
   readonly paymentsServerUrl = `https://${PAYMENTS_DOMAIN}`;
   readonly relierUrl = `https://${RELIER_DOMAIN}`;
@@ -33,6 +32,6 @@ export class StageTarget extends RemoteTarget {
   };
 
   constructor() {
-    super(`https://${ACCOUNTS_API_DOMAIN}`);
+    super(`https://${ACCOUNTS_API_DOMAIN}`, StageTarget.target);
   }
 }

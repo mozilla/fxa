@@ -16,7 +16,6 @@ const RELIER_CLIENT_ID = '3c32bf6654542211';
 
 export class ProductionTarget extends RemoteTarget {
   static readonly target = 'production';
-  readonly name: TargetName = ProductionTarget.target;
 
   readonly contentServerUrl = `https://${ACCOUNTS_DOMAIN}`;
   readonly paymentsServerUrl = `https://${PAYMENTS_DOMAIN}`;
@@ -29,6 +28,6 @@ export class ProductionTarget extends RemoteTarget {
   };
 
   constructor() {
-    super(`https://${ACCOUNTS_API_DOMAIN}`);
+    super(`https://${ACCOUNTS_API_DOMAIN}`, ProductionTarget.target);
   }
 }

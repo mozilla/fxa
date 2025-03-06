@@ -22,8 +22,8 @@ export class SmsClient {
   private redisClientConnected = false;
   private hasLoggedRedisConnectionError = false;
 
-  constructor() {
-    if (accountSid && authToken && testPhoneNumber) {
+  constructor(private readonly name: string) {
+    if (name !== 'local' && accountSid && authToken && testPhoneNumber) {
       this.twilioClient = new TwilioSDK.Twilio(accountSid, authToken);
     } else {
       this.redisClient = new Redis();

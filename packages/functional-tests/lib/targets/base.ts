@@ -24,21 +24,35 @@ interface SubConfig {
 export abstract class BaseTarget {
   readonly authClient: AuthClient;
   readonly emailClient: EmailClient;
-  readonly smsClient: SmsClient;
+  protected smsClient!: SmsClient; // Deferred initialization
   abstract readonly contentServerUrl: string;
   abstract readonly paymentsServerUrl: string;
   abstract readonly relierUrl: string;
   abstract readonly relierClientID: string;
-  abstract readonly name: TargetName;
+  readonly name: TargetName;
   abstract readonly subscriptionConfig: SubConfig;
 
-  constructor(readonly authServerUrl: string, emailUrl?: string) {
+  constructor(
+    readonly authServerUrl: string,
+    name: TargetName,
+    emailUrl?: string
+  ) {
+    this.name = name;
     const keyStretchVersion = parseInt(
       process.env.AUTH_CLIENT_KEY_STRETCH_VERSION || '1'
     );
     this.authClient = this.createAuthClient(keyStretchVersion);
     this.emailClient = new EmailClient(emailUrl);
-    this.smsClient = new SmsClient();
+
+    this.initializeSmsClient();
+  }
+
+  protected initializeSmsClient() {
+    this.smsClient = new SmsClient(this.name);
+  }
+
+  getSmsClient(): SmsClient {
+    return this.smsClient;
   }
 
   get baseUrl() {

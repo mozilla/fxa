@@ -13,7 +13,6 @@ const SUB_PLAN = 'plan_GqM9N6qyhvxaVk';
 
 export class LocalTarget extends BaseTarget {
   static readonly target = 'local';
-  readonly name: TargetName = LocalTarget.target;
   readonly contentServerUrl = 'http://localhost:3030';
   readonly paymentsServerUrl = 'http://localhost:3031';
   readonly relierUrl = 'http://localhost:8080';
@@ -25,7 +24,7 @@ export class LocalTarget extends BaseTarget {
   };
 
   constructor() {
-    super('http://localhost:9000', 'http://localhost:9001');
+    super('http://localhost:9000', LocalTarget.target, 'http://localhost:9001');
   }
 
   async createAccount(
