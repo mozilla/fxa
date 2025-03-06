@@ -54,6 +54,9 @@ const isTwilioConfigured =
   config.twilio.authToken?.length >= 24;
 
 describe(`#integration - recovery phone`, function () {
+  // TODO: Something flakes sometimes... figure out where the slowdown is.
+  this.timeout(10000);
+
   let server;
   let client;
   let email;

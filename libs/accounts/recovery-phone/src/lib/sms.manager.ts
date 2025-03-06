@@ -44,12 +44,14 @@ export class SmsManager {
     private readonly config: SmsManagerConfig
   ) {}
 
-  public async phoneNumberLookup(phoneNumber: string) {
+  public async phoneNumberLookup(phoneNumber: string, extraFields?: string) {
     try {
       this.metrics.increment('sms.phoneNumberLookup.start');
       const result = await this.client.lookups.v2
         .phoneNumbers(phoneNumber)
-        .fetch({ fields: this.config.extraLookupFields.join(',') });
+        .fetch({
+          fields: extraFields || this.config.extraLookupFields.join(','),
+        });
 
       this.metrics.increment('sms.phoneNumberLookup.success');
 

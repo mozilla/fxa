@@ -9,7 +9,7 @@ import type { Redis as RedisType } from 'ioredis';
 function wait() {
   return new Promise((r) => setTimeout(r, 500));
 }
-
+const useTwilioClient = process.env.FUNCTIONAL_TESTS__USE_TWILIO_CLIENT;
 const accountSid = process.env.RECOVERY_PHONE__TWILIO__ACCOUNT_SID;
 const authToken = process.env.RECOVERY_PHONE__TWILIO__AUTH_TOKEN;
 const testPhoneNumber = process.env.RECOVERY_PHONE__TWILIO__TEST_NUMBER;
@@ -23,7 +23,12 @@ export class SmsClient {
   private hasLoggedRedisConnectionError = false;
 
   constructor() {
-    if (accountSid && authToken && testPhoneNumber) {
+    if (
+      useTwilioClient === 'true' &&
+      accountSid &&
+      authToken &&
+      testPhoneNumber
+    ) {
       this.twilioClient = new TwilioSDK.Twilio(accountSid, authToken);
     } else {
       this.redisClient = new Redis();

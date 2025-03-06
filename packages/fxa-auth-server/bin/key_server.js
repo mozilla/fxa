@@ -247,6 +247,7 @@ async function run(config) {
     smsManager,
     otpCodeManager,
     config.recoveryPhone,
+    config.twilio,
     statsd,
     log
   );
