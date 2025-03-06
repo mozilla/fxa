@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { AccountEventsManager } = require('../../../lib/account-events');
+const AppError = require('../../../lib/error');
 
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
@@ -62,6 +63,7 @@ describe('/recovery_phone', () => {
     stripPhoneNumber: sandbox.fake(),
     hasConfirmed: sandbox.fake(),
     onMessageStatusUpdate: sandbox.fake(),
+    validateTwilioWebhookCallback: sandbox.fake(),
   };
   const mockAccountManager = {
     verifySession: sandbox.fake(),
@@ -657,9 +659,11 @@ describe('/recovery_phone', () => {
   });
 
   describe('POST /recovery_phone/message_status', async () => {
-    it('handles a message status update from twilio', async () => {
+    it('handles a message status update from twilio using X-Twilio-Signature header', async () => {
       mockRecoveryPhoneService.onMessageStatusUpdate =
         sinon.fake.resolves(undefined);
+      mockRecoveryPhoneService.validateTwilioWebhookCallback =
+        sinon.fake.returns(true);
 
       const payload = {
         AccountSid: 'AC123',
@@ -679,11 +683,95 @@ describe('/recovery_phone', () => {
       });
 
       assert.isDefined(resp);
+
+      assert.equal(
+        mockRecoveryPhoneService.validateTwilioWebhookCallback.callCount,
+        1
+      );
+      assert.deepEqual(
+        mockRecoveryPhoneService.validateTwilioWebhookCallback.getCall(0)
+          .args[0],
+        {
+          twilio: {
+            signature: 'VALID_SIGNATURE',
+            params: payload,
+          },
+        }
+      );
+
       assert.equal(mockRecoveryPhoneService.onMessageStatusUpdate.callCount, 1);
       assert.equal(
         mockRecoveryPhoneService.onMessageStatusUpdate.getCall(0).args[0],
         payload
       );
+    });
+
+    it('handles a message status update from twilio using fxaSignature query param', async () => {
+      mockRecoveryPhoneService.onMessageStatusUpdate =
+        sinon.fake.resolves(undefined);
+      mockRecoveryPhoneService.validateTwilioWebhookCallback =
+        sinon.fake.returns(true);
+
+      const payload = {
+        AccountSid: 'AC123',
+        MessageSid: 'M123',
+        From: '+1234567890',
+        MessageStatus: 'delivered',
+        RawDlrDoneDate: 'TWILIO_DATE_FORMAT',
+      };
+
+      const resp = await makeRequest({
+        method: 'POST',
+        path: '/recovery_phone/message_status',
+        credentials: {},
+        headers: {
+          'X-Twilio-Signature': 'VALID_SIGNATURE',
+        },
+        query: {
+          fxaSignature: 'VALID_SIGNATURE',
+          fxaMessage: 'FXA_MESSAGE',
+        },
+        payload,
+      });
+
+      assert.isDefined(resp);
+
+      assert.equal(
+        mockRecoveryPhoneService.validateTwilioWebhookCallback.callCount,
+        1
+      );
+      assert.deepEqual(
+        mockRecoveryPhoneService.validateTwilioWebhookCallback.getCall(0)
+          .args[0],
+        {
+          fxa: {
+            signature: 'VALID_SIGNATURE',
+            message: 'FXA_MESSAGE',
+          },
+        }
+      );
+
+      assert.equal(mockRecoveryPhoneService.onMessageStatusUpdate.callCount, 1);
+      assert.equal(
+        mockRecoveryPhoneService.onMessageStatusUpdate.getCall(0).args[0],
+        payload
+      );
+    });
+
+    it('throws on invalid / missing signatures', async () => {
+      mockRecoveryPhoneService.validateTwilioWebhookCallback =
+        sinon.fake.rejects(AppError.unauthorized('Signature Invalid'));
+      try {
+        await makeRequest({
+          method: 'POST',
+          path: '/recovery_phone/message_status',
+          headers: {},
+          payload: {},
+        });
+        assert.fail('Invalid Signature should have been thrown');
+      } catch (err) {
+        assert.deepEqual(err, AppError.unauthorized('Signature Invalid'));
+      }
     });
   });
 });

@@ -14,7 +14,8 @@ describe('TwilioFactory', () => {
 
   const MockTwilioConfig = {
     accountSid: 'AC',
-    authToken: '',
+    apiKey: 'SK',
+    apiSecret: 'SHHH',
     webhookUrl: 'https://accounts.firefox.com/v1/recovery_phone/message_status',
     validateWebhookCalls: true,
   } satisfies TwilioConfig;
