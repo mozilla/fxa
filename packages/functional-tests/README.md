@@ -129,3 +129,38 @@ We record traces for failed tests locally and in CI. On CircleCI they are in the
 ## Avoiding Race condition while writing tests
 
 See related [Ecosystem Docs](https://mozilla.github.io/ecosystem-platform/reference/functional-testing#avoiding-race-condition-while-writing-tests)
+
+## Configuration for Recovery Phone testing
+
+Recovery phone testing presents a special challenge. Typically when testing locally, or in the CI, we can simply look at redis to validate the state of the messages we send. i.e. If we want to provide the code sent to the end user, we just look at redis. This approach is also convenient because it works with twilio magic test numbers and twilio client testing credentials, which incur no messaging fees. Unfortunately, this approach does not work during smoke testing for stage & production. In this scenario, we don't (and shouldn't) have access to the redis instance. Furthermore, we aren't using test credentials in stage/prod, we are using real credentials, which means we cannot send messages to 'magic' test numbers. Our solution for smoke testing prod/stage case is to ask Twilio for the last message which was just sent out, for our testing user's phone number, which is actually a twilio number we have procured just for testing purposes.
+
+TL;DR, There are two ways to configure functional tests, we can either use twilio test numbers, and peek at outgoing codes via the redis client, or we can have real phone numbers and peak at outgoing codes via the twilio api.
+
+For day to day local/CI pipeline testing, we can just use the redis with magic test number approach. This incurs no cost and requires no extra configuration.
+
+For smoke testing scenarios, or validating this works with a real phone number, we can use the twilio client with a real test phone number approach. To enable this approach, simply add the following environment variables. This will allow us to use the twilio client to peek at codes, and to use a twilio test number to receive messages.
+
+```
+FUNCTIONAL_TESTS__TWILIO__ACCOUNT_SID=XXX
+FUNCTIONAL_TESTS__TWILIO__API_KEY=XXX
+FUNCTIONAL_TESTS__TWILIO__API_SECRET=XXX
+FUNCTIONAL_TESTS__TWILIO__TEST_NUMBER=XXX
+```
+
+One final note about CI configuration. It might be necessary to have different settings per testing environment. For example we might want to use different credentials for stage smoke tests typical CI pipeline tests. Or perhaps stage, and production need different api keys. In either case, you can override the default env values by appending an environment name.
+
+For example, let’s say we wanted stage and production to use unique API keys, and have production use a unique test phone number. Apply the following configuration to our CI environment should do the trick:
+
+```
+FUNCTIONAL_TESTS__TWILIO__ACCOUNT_SID=XXX
+FUNCTIONAL_TESTS__TWILIO__API_KEY=XXX
+FUNCTIONAL_TESTS__TWILIO__API_SECRET=XXX
+FUNCTIONAL_TESTS__TWILIO__TEST_NUMBER=XXX
+
+FUNCTIONAL_TESTS__TWILIO__API_KEY__STAGE=XXX
+FUNCTIONAL_TESTS__TWILIO__API_SECRET__STAGE=XXX
+
+FUNCTIONAL_TESTS__TWILIO__API_KEY__PRODUCTION=XXX
+FUNCTIONAL_TESTS__TWILIO__API_SECRET__PRODUCTION=XXX
+FUNCTIONAL_TESTS__TWILIO__TEST_NUMBER__PRODUCTION=XXX
+```

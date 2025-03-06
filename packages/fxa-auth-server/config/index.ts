@@ -2241,12 +2241,12 @@ const convictConf = convict({
       format: String,
     },
     authToken: {
-      default: '?',
-      doc: 'Twilio Auth Token, required to access api',
+      default: '',
+      doc: 'Twilio Auth Token to access api. Note, using apiKey/apiSecret is preferred.',
       env: 'RECOVERY_PHONE__TWILIO__AUTH_TOKEN',
     },
     webhookUrl: {
-      default: 'http://localhost:9000/v1/recovery_phone/message_status',
+      default: '',
       doc: 'Webhook url registered with twilio for message status updates',
       env: 'RECOVERY_PHONE__TWILIO__WEBHOOK_URL',
     },
@@ -2254,6 +2254,26 @@ const convictConf = convict({
       default: true,
       doc: 'Controls if twilio signature is validated during webhook calls from twilio',
       env: 'RECOVERY_PHONE__TWILIO__VALIDATE_WEBHOOK_CALLS',
+    },
+    apiKey: {
+      default: '',
+      doc: 'An api key used to access the twilio rest api. Note, when provided the authToken is no longer needed.',
+      env: 'RECOVERY_PHONE__TWILIO__API_KEY',
+    },
+    apiSecret: {
+      default: '',
+      doc: 'A secret used in conjunction with the apiKey to access the twilio rest api.',
+      env: 'RECOVERY_PHONE__TWILIO__API_SECRET',
+    },
+    fxaPublicKey: {
+      default: '',
+      doc: 'A key used to to for validating signature in webhook calls.',
+      env: 'RECOVERY_PHONE__TWILIO__FXA_PUBLIC_KEY',
+    },
+    fxaPrivateKey: {
+      default: '',
+      doc: 'A private key used for signing messages provided to twilio webhook calls.',
+      env: 'RECOVERY_PHONE__TWILIO__FXA_PRIVATE_KEY',
     },
   },
 });
