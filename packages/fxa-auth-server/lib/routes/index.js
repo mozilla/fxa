@@ -142,7 +142,8 @@ module.exports = function (
     glean,
     log,
     mailer,
-    statsd
+    statsd,
+    config
   );
   const securityEvents = require('./security-events')(log, db, config);
   const session = require('./session')(
