@@ -110,6 +110,7 @@ describe(`#integration - recovery phone`, function () {
 
   after(async () => {
     await TestServer.stop(server);
+    await db.destroy();
   });
 
   it('sets up a recovery phone', async function () {
