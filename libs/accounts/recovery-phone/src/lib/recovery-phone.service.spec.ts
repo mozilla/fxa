@@ -84,6 +84,7 @@ describe('RecoveryPhoneService', () => {
   const mockKeys = createNewFxaKeyPair();
 
   const mockTwilioConfig: TwilioConfig = {
+    credentialMode: 'default',
     accountSid: mockAccountSid,
     authToken: undefined,
     webhookUrl: mockWebhookUrl,
