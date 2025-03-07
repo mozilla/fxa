@@ -272,6 +272,44 @@ subscription:
     data_sensitivity:
       - interaction
 
+subscription_cancellation:
+  provider_event_id:
+    type: string
+    description: |
+      A unique identifier for the subscription notification from a payment
+      provider. For Stripe and Stripe-managed providers like PayPal, this
+      is the Stripe webhook event id.
+      
+      This will be used to deduplicate notifications that may have been
+      sent multiple times by the payment provider.
+    lifetime: application
+    send_in_pings:
+      - events
+    notification_emails:
+      - subplat-team@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-11137
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=tbd_2nd_ticket
+    expires: never
+    data_sensitivity:
+      - interaction
+  subscription_id:
+    type: string
+    description: The Stripe subscription_* ID for the subscription being canceled
+    lifetime: application
+    send_in_pings:
+      - events
+    notification_emails:
+      - subplat-team@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-11137
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=tbd_2nd_ticket
+    expires: never
+    data_sensitivity:
+      - interaction
+
 utm:
   campaign:
     description: |
@@ -442,3 +480,23 @@ pay_setup:
     expires: never
     data_sensitivity:
       - interaction
+
+subscribe:
+  subscription_ended:
+    description: This event occurs when a user's subscription is Canceled
+    type: event
+    notification_emails:
+      - subplat-team@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-11137
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=tbd_2nd_ticket
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      voluntary:
+        description: |
+          True if the cancellation was a Voluntary Cancellation else false
+          for an Involuntary Cancellation
+        type: boolean

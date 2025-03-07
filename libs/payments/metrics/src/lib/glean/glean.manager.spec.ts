@@ -7,6 +7,7 @@ import {
   CartMetricsFactory,
   CmsMetricsDataFactory,
   CommonMetricsFactory,
+  SubscriptionCancellationDataFactory,
 } from './glean.factory';
 import { PaymentsGleanProvider } from './glean.types';
 import { MockPaymentsGleanFactory } from './glean.test-provider';
@@ -19,9 +20,12 @@ const mockCommonMetricsData = {
   commonMetricsData: CommonMetricsFactory(),
   cartMetricsData: CartMetricsFactory(),
   cmsMetricsData: CmsMetricsDataFactory(),
+  cancellationMetrics: SubscriptionCancellationDataFactory(),
 };
 const mockCommonMetrics = { common: 'metrics' };
 const mockPaymentProvider = 'card';
+const mockOfferingId = 'vpn';
+const mockInterval = 'monthly';
 
 describe('PaymentsGleanManager', () => {
   let paymentsGleanManager: PaymentsGleanManager;
@@ -160,6 +164,44 @@ describe('PaymentsGleanManager', () => {
         paymentsGleanServerEventsLogger.recordPaySetupFail
       ).toHaveBeenCalledWith({
         ...mockCommonMetrics,
+        subscription_payment_provider: mockPaymentProvider,
+      });
+    });
+  });
+
+  describe('recordSubscribeSubscriptionEnded', () => {
+    beforeEach(() => {
+      jest
+        .spyOn(
+          paymentsGleanServerEventsLogger,
+          'recordSubscribeSubscriptionEnded'
+        )
+        .mockReturnValue({});
+      spyPopulateCommonMetrics = jest
+        .spyOn(paymentsGleanManager as any, 'populateCommonMetrics')
+        .mockReturnValue(mockCommonMetrics);
+    });
+
+    it('should record subscribe - subscription_ended', () => {
+      paymentsGleanManager.recordSubscribeSubscriptionEnded(
+        {
+          cmsMetricsData: mockCommonMetricsData.cmsMetricsData,
+          cancellationMetrics: mockCommonMetricsData.cancellationMetrics,
+        },
+        mockOfferingId,
+        mockInterval,
+        mockPaymentProvider
+      );
+      expect(spyPopulateCommonMetrics).toHaveBeenCalledWith({
+        cmsMetricsData: mockCommonMetricsData.cmsMetricsData,
+        subscriptionCancellationData: mockCommonMetricsData.cancellationMetrics,
+      });
+      expect(
+        paymentsGleanServerEventsLogger.recordSubscribeSubscriptionEnded
+      ).toHaveBeenCalledWith({
+        ...mockCommonMetrics,
+        subscription_offering_id: mockOfferingId,
+        subscription_interval: mockInterval,
         subscription_payment_provider: mockPaymentProvider,
       });
     });
