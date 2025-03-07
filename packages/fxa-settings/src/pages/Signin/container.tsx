@@ -17,7 +17,12 @@ import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
 import { SigninQueryParams } from '../../models/pages/signin';
 import { useCallback, useEffect, useState } from 'react';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
-import { cache, currentAccount, discardSessionToken } from '../../lib/cache';
+import {
+  cache,
+  currentAccount,
+  discardSessionToken,
+  lastStoredAccount,
+} from '../../lib/cache';
 import { MutationFunction, useMutation, useQuery } from '@apollo/client';
 import {
   AVATAR_QUERY,
@@ -65,36 +70,34 @@ import {
 import { Constants } from '../../lib/constants';
 import { isFirefoxService } from '../../models/integrations/utils';
 import { GqlKeyStretchUpgrade } from '../../lib/gql-key-stretch-upgrade';
-
-/*
- * In content-server, the `email` param is optional. If it's provided, we
- * check against it to see if the account exists and if it doesn't, we redirect
- * users to `/signup`.
- *
- * In the React version, we're temporarily always passing the `email` param over
- * from the Backbone index page until the index page is converted over, in which case
- * we can pass the param with router state. Since we already perform this account exists
- * (account status) check on the Backbone index page, which is rate limited since it doesn't
- * require a session token, we also temporarily pass email status params to 1) signal not to
- * perform the check again but also because 2) these params are needed to conditionally
- * display UI in signin. If no status params are passed and `email` is, or we read the
- * email from local storage, we perform the check and redirect existing user emails to
- * `/signup` to match content-server functionality.
- */
+import { setCurrentAccount } from '../../lib/storage-utils';
 
 function getAccountInfo(email?: string) {
-  let sessionToken: hexstring | undefined;
-  let uid: hexstring | undefined;
+  const storedLocalAccount = currentAccount() || lastStoredAccount();
 
   if (email) {
-    const storedLocalAccount = currentAccount();
     // Try to use local storage values if email matches the email in local storage
-    if (storedLocalAccount?.email && storedLocalAccount.email === email) {
-      sessionToken = storedLocalAccount?.sessionToken;
-      uid = storedLocalAccount?.uid;
+    if (storedLocalAccount?.email === email) {
+      return {
+        email: storedLocalAccount.email,
+        sessionToken: storedLocalAccount.sessionToken,
+        uid: storedLocalAccount.uid,
+      };
     }
+
+    return { email };
   }
-  return { sessionToken, uid };
+
+  if (storedLocalAccount) {
+    setCurrentAccount(storedLocalAccount.uid);
+    return {
+      email: storedLocalAccount.email,
+      sessionToken: storedLocalAccount.sessionToken,
+      uid: storedLocalAccount.uid,
+    };
+  }
+
+  return {};
 }
 
 const SigninContainer = ({
@@ -152,9 +155,9 @@ const SigninContainer = ({
   });
   const { hasLinkedAccount, hasPassword } = accountStatus;
 
-  const email = emailFromLocationState || queryParamModel.email;
-
-  const { sessionToken, uid } = getAccountInfo(email);
+  const { email, sessionToken, uid } = getAccountInfo(
+    emailFromLocationState || queryParamModel.email
+  );
 
   const wantsKeys = integration.wantsKeys();
 

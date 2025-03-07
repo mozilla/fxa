@@ -64,7 +64,7 @@ test.describe('severity-1 #smoke', () => {
 
     // Signout of 2nd tab
     await settings.signOut();
-    await expect(signin.passwordFormHeading).toBeVisible();
+    await expect(page.getByText(credentials.email)).toBeVisible();
 
     // Switch focus back to 1st tab. Page should NOT logout,
     // since this account is unaffected
