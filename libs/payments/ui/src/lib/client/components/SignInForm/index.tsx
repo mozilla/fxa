@@ -57,7 +57,7 @@ export const SignInForm = ({
     >
       <Form.Field name="email" className="my-6">
         <Form.Label className="text-grey-400 block mb-1 text-start">
-          <Localized id="checkout-enter-your-email">Enter your email</Localized>
+          <Localized id="signin-form-email-input">Enter your email</Localized>
         </Form.Label>
         <Form.Control asChild>
           <input
@@ -124,7 +124,7 @@ export const SignInForm = ({
           type="submit"
           variant={ButtonVariant.Primary}
         >
-          <Localized id="continue">Continue</Localized>
+          <Localized id="signin-form-continue-button">Continue</Localized>
         </BaseButton>
       </Form.Submit>
     </Form.Root>

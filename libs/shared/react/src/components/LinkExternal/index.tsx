@@ -40,7 +40,7 @@ export const LinkExternal = ({
     }}
   >
     {children}
-    <Localized id="next-link-sr-new-window">
+    <Localized id="link-sr-new-window">
       <span className="sr-only">Opens in new window</span>
     </Localized>
   </a>
