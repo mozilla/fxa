@@ -2209,8 +2209,14 @@ const convictConf = convict({
       },
       validNumberPrefixes: {
         default: ['+1'], // USA and Canada
-        doc: 'Allowed phone number prefixes. Controls the locales that a message can be sent to.',
+        doc: 'Allowed phone number prefixes. Controls the numbers that a message can be sent to.',
         env: 'RECOVERY_PHONE__SMS__VALID_NUMBER_PREFIXES',
+        format: Array,
+      },
+      validCountryCodes: {
+        default: ['US', 'CA'], // USA and Canada
+        doc: 'Allowed phone number prefixes. Controls the countries that a message can be sent to.',
+        env: 'RECOVERY_PHONE__SMS__VALID_COUNTRY_CODES',
         format: Array,
       },
       maxRetries: {
