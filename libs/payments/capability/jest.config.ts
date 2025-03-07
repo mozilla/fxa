@@ -24,6 +24,7 @@ export default {
   transform: {
     '^.+\\.[tj]s$': ['@swc/jest', swcJestConfig],
   },
+  transformIgnorePatterns: ['^node_modules\\/.*'],
   moduleFileExtensions: ['ts', 'js', 'html'],
   testEnvironment: 'node',
   coverageDirectory: '../../../coverage/libs/payments/capability',
