@@ -9,15 +9,20 @@ import { IntegrationType } from '../../models';
 import { IndexIntegration } from './interfaces';
 import Index from '.';
 import { MOCK_CLIENT_ID } from '../mocks';
+import { Constants } from '../../lib/constants';
 
 export function createMockIndexOAuthIntegration({
   clientId = MOCK_CLIENT_ID,
+  isDesktopRelay = false,
 }): IndexIntegration {
   return {
     type: IntegrationType.OAuthWeb,
     isSync: () => false,
     getClientId: () => clientId,
-    isDesktopRelay: () => false,
+    isDesktopRelay: () => isDesktopRelay,
+    data: {
+      context: '',
+    },
   };
 }
 export function createMockIndexSyncIntegration(): IndexIntegration {
@@ -26,6 +31,9 @@ export function createMockIndexSyncIntegration(): IndexIntegration {
     isSync: () => true,
     getClientId: () => MOCK_CLIENT_ID,
     isDesktopRelay: () => false,
+    data: {
+      context: Constants.OAUTH_WEBCHANNEL_CONTEXT,
+    },
   };
 }
 
@@ -35,20 +43,34 @@ export function createMockIndexWebIntegration(): IndexIntegration {
     isSync: () => false,
     getClientId: () => undefined,
     isDesktopRelay: () => false,
+    data: {
+      context: '',
+    },
   };
 }
 
 export const Subject = ({
   integration = createMockIndexWebIntegration(),
   serviceName = MozServices.Default,
+  prefillEmail,
+  deleteAccountSuccess,
+  hasBounced,
 }: {
   integration?: IndexIntegration;
   serviceName?: MozServices;
+  prefillEmail?: string;
+  deleteAccountSuccess?: boolean;
+  hasBounced?: boolean;
 }) => {
   return (
     <LocationProvider>
       <Index
+        // todo adjust this, just adding for build issue fixes
+        signUpOrSignInHandler={async () => ({ error: null })}
         {...{
+          prefillEmail,
+          deleteAccountSuccess,
+          hasBounced,
           integration,
           serviceName,
         }}

@@ -83,6 +83,7 @@ jest.mock('../../lib/glean', () => ({
     getEnabled: jest.fn(),
     useGlean: jest.fn().mockReturnValue({ enabled: true }),
     accountPref: { view: jest.fn(), promoMonitorView: jest.fn() },
+    emailFirst: { view: jest.fn() },
     pageLoad: jest.fn(),
   },
 }));
@@ -163,7 +164,10 @@ describe('metrics', () => {
     });
     (useIntegration as jest.Mock).mockReturnValue({
       isSync: jest.fn(),
+      isDesktopRelay: jest.fn(),
       getServiceName: jest.fn(),
+      getClientId: jest.fn(),
+      data: {},
     });
     const flowInit = jest.spyOn(Metrics, 'init');
     const userPreferencesInit = jest.spyOn(Metrics, 'initUserPreferences');
@@ -197,7 +201,10 @@ describe('glean', () => {
     });
     const mockIntegration = {
       isSync: jest.fn(),
+      isDesktopRelay: jest.fn(),
       getServiceName: jest.fn(),
+      getClientId: jest.fn(),
+      data: {},
     };
     (useIntegration as jest.Mock).mockReturnValue(mockIntegration);
     (useLocalSignedInQueryState as jest.Mock).mockReturnValueOnce({
@@ -267,6 +274,7 @@ describe('loading spinner states', () => {
     });
     (useIntegration as jest.Mock).mockReturnValue({
       isSync: jest.fn().mockReturnValueOnce(true),
+      isDesktopRelay: jest.fn().mockReturnValueOnce(false),
       data: {
         context: {},
       },
@@ -315,6 +323,7 @@ describe('SettingsRoutes', () => {
     });
     (useIntegration as jest.Mock).mockReturnValue({
       isSync: () => false,
+      isDesktopRelay: jest.fn().mockReturnValueOnce(false),
       getServiceName: jest.fn(),
     });
     (useLocalSignedInQueryState as jest.Mock).mockReturnValue({
@@ -374,6 +383,7 @@ describe('SettingsRoutes', () => {
   it('redirects to sign out of sync warning', async () => {
     (useIntegration as jest.Mock).mockReturnValue({
       isSync: () => true,
+      isDesktopRelay: () => false,
       data: {
         context: {},
       },
@@ -417,6 +427,7 @@ describe('SettingsRoutes', () => {
   it('restores sync user when session is valid', async () => {
     (useIntegration as jest.Mock).mockReturnValue({
       isSync: () => true,
+      isDesktopRelay: () => false,
       data: {
         context: {},
       },

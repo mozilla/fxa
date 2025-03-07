@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// Note that the Index page is more complex and has its own file.
+
 /** @type {import("./types").GetRouteDefinition} */
 function getFrontEndRouteDefinition(routes) {
   const path = routes.join('|'); // prepare for use in a RegExp
