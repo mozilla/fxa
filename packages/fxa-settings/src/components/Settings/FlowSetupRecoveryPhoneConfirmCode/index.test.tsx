@@ -6,6 +6,7 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import FlowSetupRecoveryPhoneConfirmCode from '.';
 import '@testing-library/jest-dom';
+import { MOCK_NATIONAL_FORMAT_PHONE_NUMBER } from '../../../pages/mocks';
 
 jest.mock('../../../lib/error-utils', () => ({
   getLocalizedErrorMessage: jest.fn(() => 'Localized error message'),
@@ -30,7 +31,7 @@ const defaultProps = {
   localizedPageTitle: 'Add phone number',
   navigateBackward: mockNavigateBackward,
   navigateForward: mockNavigateForward,
-  nationalFormatPhoneNumber: '(555) 555-8888',
+  nationalFormatPhoneNumber: MOCK_NATIONAL_FORMAT_PHONE_NUMBER,
   sendCode: mockSendCode,
   verifyRecoveryCode: mockVerifyRecoveryCode,
 };
@@ -49,7 +50,7 @@ describe('FlowSetupRecoveryPhoneConfirmCode', () => {
     expect(
       screen.getByText(/A six-digit code was sent to/i)
     ).toBeInTheDocument();
-    expect(screen.getByText(/\(555\) 555-8888/)).toBeInTheDocument();
+    expect(screen.getByText(/\(555\) 555-1234/)).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: /Resend code/i })
     ).toBeInTheDocument();
