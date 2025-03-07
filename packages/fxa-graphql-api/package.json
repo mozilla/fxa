@@ -84,6 +84,7 @@
   },
   "nx": {
     "tags": [
+      "scope:server",
       "scope:gql",
       "type:core"
     ]
