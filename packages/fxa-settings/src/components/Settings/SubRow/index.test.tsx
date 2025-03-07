@@ -130,7 +130,7 @@ describe('BackupPhoneSubRow', () => {
     expect(screen.getByRole('button', { name: 'Add' })).toBeInTheDocument();
     expect(
       screen.getByText(
-        'This is the easier recovery method if you canʼt use your authenticator app.'
+        'This is the easiest recovery method if you canʼt use your authenticator app.'
       )
     ).toBeInTheDocument();
     expect(screen.getByText(/Learn about SIM swap risk/)).toBeInTheDocument();
@@ -185,7 +185,7 @@ describe('BackupPhoneSubRow', () => {
     expect(deleteButtons).toHaveLength(2);
     expect(
       screen.getByText(
-        'This is the easier recovery method if you canʼt use your authenticator app.'
+        'This is the easiest recovery method if you canʼt use your authenticator app.'
       )
     ).toBeInTheDocument();
     expect(

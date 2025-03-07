@@ -46,9 +46,7 @@ describe('FlowSetupRecoveryPhoneConfirmCode', () => {
     expect(
       screen.getByRole('heading', { name: /Enter verification code/i })
     ).toBeInTheDocument();
-    expect(
-      screen.getByText(/A six-digit code was sent to/i)
-    ).toBeInTheDocument();
+    expect(screen.getByText(/A 6-digit code was sent to/i)).toBeInTheDocument();
     expect(screen.getByText(/\(555\) 555-8888/)).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: /Resend code/i })
