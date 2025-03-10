@@ -19,7 +19,6 @@ import { AuthClientService } from '../backend/auth-client.service';
 import { ProfileClientService } from '../backend/profile-client.service';
 import { AccountResolver } from './account.resolver';
 import { NotifierService, NotifierSnsService } from '@fxa/shared/notifier';
-import { RecoveryPhoneService } from '@fxa/accounts/recovery-phone';
 import { GraphQLResolveInfo } from 'graphql';
 
 let USER_1: any;
@@ -33,7 +32,6 @@ describe('#integration - AccountResolver', () => {
   let logger: any;
   let knex: Knex;
   let authClient: any;
-  let recoveryPhoneService: any;
   let profileClient: any;
   let notifierSnsService: any;
   let notifierService: any;
@@ -56,9 +54,6 @@ describe('#integration - AccountResolver', () => {
     };
     notifierService = {
       send: jest.fn(),
-    };
-    recoveryPhoneService = {
-      hasConfirmed: jest.fn(),
     };
     const MockMozLogger: Provider = {
       provide: MozLoggerService,
@@ -98,10 +93,6 @@ describe('#integration - AccountResolver', () => {
         {
           provide: ConfigService,
           useValue: { get: jest.fn().mockReturnValue({ url: 'test' }) },
-        },
-        {
-          provide: RecoveryPhoneService,
-          useValue: recoveryPhoneService,
         },
       ],
     }).compile();
@@ -203,13 +194,15 @@ describe('#integration - AccountResolver', () => {
         const linkedAccounts = resolver.linkedAccounts(user!);
         expect(linkedAccounts).toEqual([]);
       });
+
       it('resolves recovery phone number', async () => {
+        authClient.recoveryPhoneGet = jest.fn().mockResolvedValue({
+          exists: true,
+          phoneNumber: '+11234567890',
+        });
         authClient.recoveryPhoneAvailable = jest
           .fn()
           .mockResolvedValue({ available: true });
-        recoveryPhoneService.hasConfirmed = jest
-          .fn()
-          .mockResolvedValue({ exists: true, phoneNumber: '+11234567890' });
 
         const user = await Account.findByUid(USER_1.uid);
         // Make the private method public for testing in favor of mocking 'info',
@@ -229,9 +222,6 @@ describe('#integration - AccountResolver', () => {
           {} as unknown as GraphQLResolveInfo
         );
 
-        expect(recoveryPhoneService.hasConfirmed).toHaveBeenCalledWith(
-          user!.uid
-        );
         expect(authClient.recoveryPhoneAvailable).toHaveBeenCalledWith(
           'token',
           headers
@@ -916,6 +906,7 @@ describe('#integration - AccountResolver', () => {
         expect(authClient.passwordChangeStartWithAuthPW).toBeCalledWith(
           'foo@moz.com',
           '3456789abcdef12',
+          'sessionToken',
           {},
           headers
         );
