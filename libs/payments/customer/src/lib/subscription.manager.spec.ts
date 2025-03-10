@@ -14,10 +14,15 @@ import {
   StripePaymentIntentFactory,
   StripeSubscriptionFactory,
   MockStripeConfigProvider,
+  StripeSubscriptionItemFactory,
 } from '@fxa/payments/stripe';
 import { STRIPE_SUBSCRIPTION_METADATA } from './types';
 import { SubscriptionManager } from './subscription.manager';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
+import {
+  SubscriptionItemMissingItemError,
+  SubscriptionItemMultipleItemsError,
+} from './error';
 
 describe('SubscriptionManager', () => {
   let subscriptionManager: SubscriptionManager;
@@ -216,6 +221,86 @@ describe('SubscriptionManager', () => {
       expect(() =>
         subscriptionManager.update(mockSubscription.id, mockParams)
       ).rejects.toThrow('Invalid metadata key: promotionCode');
+    });
+  });
+
+  describe('retrieveForCustomerAndPrice', () => {
+    const mockSubscription = StripeSubscriptionFactory();
+    const mockCustomer = StripeCustomerFactory();
+    const mockPriceId = mockSubscription.items.data[0].price.id;
+
+    beforeEach(() => {
+      jest
+        .spyOn(subscriptionManager, 'listForCustomer')
+        .mockResolvedValue([mockSubscription]);
+    });
+
+    it('returns subscription for priceId', async () => {
+      const result = await subscriptionManager.retrieveForCustomerAndPrice(
+        mockCustomer.id,
+        mockPriceId
+      );
+      expect(result).toEqual(mockSubscription);
+    });
+
+    it('returns undefined if no subscription is found for priceId', async () => {
+      const result = await subscriptionManager.retrieveForCustomerAndPrice(
+        mockCustomer.id,
+        'randomprice'
+      );
+      expect(result).toEqual(undefined);
+    });
+
+    it('throws on unhandled error', async () => {
+      jest
+        .spyOn(subscriptionManager, 'listForCustomer')
+        .mockRejectedValue(new Error('unhandled error'));
+      expect(
+        subscriptionManager.retrieveForCustomerAndPrice(
+          mockCustomer.id,
+          mockPriceId
+        )
+      ).rejects.toThrow();
+    });
+  });
+
+  describe('retrieveSubscriptionItem', () => {
+    const mockSubscription = StripeSubscriptionFactory();
+    it('successfully returns the subsriptions item', () => {
+      const result =
+        subscriptionManager.retrieveSubscriptionItem(mockSubscription);
+      expect(result.id).toEqual(mockSubscription.items.data[0].id);
+    });
+
+    it('throws an error if there are multiple subscription items', async () => {
+      const mockSubscription = StripeSubscriptionFactory({
+        items: {
+          object: 'list',
+          data: [
+            StripeSubscriptionItemFactory(),
+            StripeSubscriptionItemFactory(),
+          ],
+          has_more: false,
+          url: '/v1/subscription_items?subscription=sub_24',
+        },
+      });
+      expect(() =>
+        subscriptionManager.retrieveSubscriptionItem(mockSubscription)
+      ).toThrowError(SubscriptionItemMultipleItemsError);
+    });
+
+    it('throws an error if no subscription item is found', () => {
+      const mockSubscription = StripeSubscriptionFactory({
+        items: {
+          object: 'list',
+          data: [],
+          has_more: false,
+          url: '/v1/subscription_items?subscription=sub_24',
+        },
+      });
+      expect(() =>
+        subscriptionManager.retrieveSubscriptionItem(mockSubscription)
+      ).toThrowError(SubscriptionItemMissingItemError);
     });
   });
 

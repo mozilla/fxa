@@ -4,6 +4,7 @@ import {
   StripePromotionCode,
 } from '@fxa/payments/stripe';
 import { ResultCart } from './cart.types';
+import { SubscriptionEligibilityResult } from '@fxa/payments/eligibility';
 
 export type PrePayStepsResult = Pick<ResultCart, 'version' | 'email'> & {
   uid: string;
@@ -11,4 +12,5 @@ export type PrePayStepsResult = Pick<ResultCart, 'version' | 'email'> & {
   enableAutomaticTax: boolean;
   promotionCode?: StripePromotionCode;
   price: StripePrice;
+  eligibility: SubscriptionEligibilityResult;
 };
