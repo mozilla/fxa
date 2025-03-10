@@ -18,7 +18,6 @@ import { REACT_ENTRYPOINT } from '../../constants';
 import {
   BEGIN_SIGNUP_HANDLER_FAIL_RESPONSE,
   BEGIN_SIGNUP_HANDLER_RESPONSE,
-  MOCK_SEARCH_PARAMS,
   Subject,
   createMockSignupOAuthWebIntegration,
   createMockSignupOAuthNativeIntegration,
@@ -50,18 +49,10 @@ jest.mock('../../lib/metrics', () => ({
   }),
 }));
 
-const mockLocation = () => {
-  return {
-    pathname: `/signup`,
-    search: '?' + new URLSearchParams(MOCK_SEARCH_PARAMS),
-  };
-};
-
 const mockNavigate = jest.fn();
 jest.mock('@reach/router', () => ({
   ...jest.requireActual('@reach/router'),
   useNavigate: () => mockNavigate,
-  useLocation: () => mockLocation(),
 }));
 
 jest.mock('../../lib/glean', () => ({
@@ -409,9 +400,7 @@ describe('Signup page', () => {
         });
         expect(GleanMetrics.registration.submit).toHaveBeenCalledTimes(1);
         expect(GleanMetrics.registration.success).not.toHaveBeenCalled();
-        expect(mockNavigate).toHaveBeenCalledWith(
-          `/cannot_create_account?email=${encodeURIComponent(MOCK_EMAIL)}`
-        );
+        expect(mockNavigate).toHaveBeenCalledWith('/cannot_create_account');
         expect(mockBeginSignupHandler).not.toBeCalled();
       });
 
@@ -469,9 +458,7 @@ describe('Signup page', () => {
       ['a@relay.firefox.com', 'b@mozmail.com', 'c@sub.mozmail.com'].forEach(
         (mask) => {
           it(`fails for mask ${mask}`, async () => {
-            renderWithLocalizationProvider(
-              <Subject queryParams={{ email: mask }} />
-            );
+            renderWithLocalizationProvider(<Subject email={mask} />);
             await fillOutForm();
             submit();
 
@@ -520,23 +507,20 @@ describe('Signup page', () => {
         });
 
         // expect navigation to have been called with newsletter slugs
-        expect(mockNavigate).toHaveBeenCalledWith(
-          `/confirm_signup_code${mockLocation().search}`,
-          {
-            state: {
-              origin: 'signup',
-              // we expect three newsletter options, but 4 slugs should be passed
-              // because the first newsletter checkbox subscribes the user to 2 newsletters
-              selectedNewsletterSlugs: [
-                'mozilla-and-you',
-                'mozilla-accounts',
-                'mozilla-foundation',
-                'test-pilot',
-              ],
-            },
-            replace: true,
-          }
-        );
+        expect(mockNavigate).toHaveBeenCalledWith(`/confirm_signup_code`, {
+          state: {
+            origin: 'signup',
+            // we expect three newsletter options, but 4 slugs should be passed
+            // because the first newsletter checkbox subscribes the user to 2 newsletters
+            selectedNewsletterSlugs: [
+              'mozilla-and-you',
+              'mozilla-accounts',
+              'mozilla-foundation',
+              'test-pilot',
+            ],
+          },
+          replace: true,
+        });
       });
     });
 
@@ -578,16 +562,13 @@ describe('Signup page', () => {
         expect(fxaLoginSpy).not.toBeCalled();
         expect(GleanMetrics.registration.success).toHaveBeenCalledTimes(1);
 
-        expect(mockNavigate).toHaveBeenCalledWith(
-          `/confirm_signup_code${mockLocation().search}`,
-          {
-            state: {
-              origin: 'signup',
-              selectedNewsletterSlugs: [],
-            },
-            replace: true,
-          }
-        );
+        expect(mockNavigate).toHaveBeenCalledWith(`/confirm_signup_code`, {
+          state: {
+            origin: 'signup',
+            selectedNewsletterSlugs: [],
+          },
+          replace: true,
+        });
       });
 
       describe('Sync integrations', () => {
@@ -919,10 +900,7 @@ describe('Signup page', () => {
       renderWithLocalizationProvider(
         <Subject
           {...{
-            queryParams: {
-              email: 'foo@bar.com',
-              emailStatusChecked: 'true',
-            },
+            email: 'foo@bar.com',
           }}
         />
       );
@@ -957,10 +935,7 @@ describe('Signup page', () => {
       renderWithLocalizationProvider(
         <Subject
           {...{
-            queryParams: {
-              email: 'foo@bar.com',
-              emailStatusChecked: 'true',
-            },
+            email: 'foo@bar.com',
           }}
         />
       );

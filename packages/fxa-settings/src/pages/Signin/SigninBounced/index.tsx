@@ -8,11 +8,13 @@ import { usePageViewEvent, logViewEvent } from '../../../lib/metrics';
 import { ReactComponent as EmailBounced } from './graphic_email_bounced.svg';
 import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
 import { useFtlMsgResolver } from '../../../models/hooks';
+import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
 
 import AppLayout from '../../../components/AppLayout';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import CardHeader from '../../../components/CardHeader';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+import { useCheckReactEmailFirst } from '../../../lib/hooks';
 
 export type SigninBouncedProps = {
   email?: string;
@@ -32,6 +34,8 @@ const SigninBounced = ({
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const ftlMessageResolver = useFtlMsgResolver();
   const backText = ftlMessageResolver.getMsg('back', 'Back');
+  const navigate = useNavigate();
+  const shouldUseReactEmailFirst = useCheckReactEmailFirst();
 
   const handleNavigationBack = (event: any) => {
     logViewEvent(viewName, 'link.back', REACT_ENTRYPOINT);
@@ -44,15 +48,19 @@ const SigninBounced = ({
 
   useEffect(() => {
     if (!email) {
-      hardNavigate('/', {}, true);
+      if (shouldUseReactEmailFirst) {
+        navigate('/');
+      } else {
+        hardNavigate('/', {}, true);
+      }
     }
-  }, [email]);
+  }, [email, navigate, shouldUseReactEmailFirst]);
 
   const createAccountHandler = () => {
     logViewEvent(viewName, 'link.create-account', REACT_ENTRYPOINT);
     localStorage.removeItem('__fxa_storage.accounts');
     sessionStorage.clear();
-    hardNavigate('/signup', {}, true);
+    navigate('/signup');
   };
 
   return (

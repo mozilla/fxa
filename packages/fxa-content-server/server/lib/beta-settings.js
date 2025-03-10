@@ -90,6 +90,7 @@ const settingsConfig = {
   showReactApp: {
     signUpRoutes: config.get('showReactApp.signUpRoutes'),
     signInRoutes: config.get('showReactApp.signInRoutes'),
+    emailFirstRoutes: config.get('showReactApp.emailFirstRoutes'),
   },
   rolloutRates: {
     keyStretchV2: config.get('rolloutRates.keyStretchV2'),

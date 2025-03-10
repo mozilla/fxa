@@ -135,6 +135,12 @@ function applyDefaultMocks() {
   mockSentryModule();
 }
 
+let mockUseCheckReactEmailFirst = jest.fn().mockReturnValue(true);
+jest.mock('../../lib/hooks', () => ({
+  __esModule: true,
+  ...jest.requireActual('../../lib/hooks'),
+  useCheckReactEmailFirst: () => mockUseCheckReactEmailFirst(),
+}));
 jest.mock('../../models', () => {
   return {
     ...jest.requireActual('../../models'),
@@ -761,7 +767,7 @@ describe('signin container', () => {
         });
       });
 
-      it('returns expected error when fxaCanLinkAccount response is !ok', async () => {
+      it('returns expected error when fxaCanLinkAccount response is ok: false', async () => {
         (firefox.fxaCanLinkAccount as jest.Mock).mockImplementationOnce(
           async () => ({
             ok: false,

@@ -25,7 +25,7 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
   return {
     emailFirstRoutes: {
       featureFlagOn: showReactApp.emailFirstRoutes,
-      routes: reactRoute.getRoutes([]),
+      routes: reactRoute.getRoutes(['/']),
       fullProdRollout: false,
     },
     simpleRoutes: {
