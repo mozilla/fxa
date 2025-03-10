@@ -249,6 +249,42 @@ export type ComponentIapGoogleSkUsInput = {
   id: InputMaybe<Scalars['ID']['input']>;
 };
 
+export type ComponentIapStripeLegacyIapPrices = {
+  __typename?: 'ComponentIapStripeLegacyIapPrices';
+  id: Scalars['ID']['output'];
+  stripeLegacyIapPrices: Maybe<Scalars['String']['output']>;
+};
+
+export type ComponentIapStripeLegacyIapPricesFiltersInput = {
+  and: InputMaybe<Array<InputMaybe<ComponentIapStripeLegacyIapPricesFiltersInput>>>;
+  not: InputMaybe<ComponentIapStripeLegacyIapPricesFiltersInput>;
+  or: InputMaybe<Array<InputMaybe<ComponentIapStripeLegacyIapPricesFiltersInput>>>;
+  stripeLegacyIapPrices: InputMaybe<StringFilterInput>;
+};
+
+export type ComponentIapStripeLegacyIapPricesInput = {
+  id: InputMaybe<Scalars['ID']['input']>;
+  stripeLegacyIapPrices: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ComponentIapStripePlanChoices = {
+  __typename?: 'ComponentIapStripePlanChoices';
+  id: Scalars['ID']['output'];
+  stripePlanChoices: Maybe<Scalars['String']['output']>;
+};
+
+export type ComponentIapStripePlanChoicesFiltersInput = {
+  and: InputMaybe<Array<InputMaybe<ComponentIapStripePlanChoicesFiltersInput>>>;
+  not: InputMaybe<ComponentIapStripePlanChoicesFiltersInput>;
+  or: InputMaybe<Array<InputMaybe<ComponentIapStripePlanChoicesFiltersInput>>>;
+  stripePlanChoices: InputMaybe<StringFilterInput>;
+};
+
+export type ComponentIapStripePlanChoicesInput = {
+  id: InputMaybe<Scalars['ID']['input']>;
+  stripePlanChoices: InputMaybe<Scalars['String']['input']>;
+};
+
 export type ComponentStripeStripeLegacyPlans = {
   __typename?: 'ComponentStripeStripeLegacyPlans';
   id: Scalars['ID']['output'];
@@ -411,7 +447,7 @@ export type FloatFilterInput = {
   startsWith: InputMaybe<Scalars['Float']['input']>;
 };
 
-export type GenericMorph = Capability | CommonContent | ComponentIapAppleProductIDs | ComponentIapGoogleSkUs | ComponentStripeStripeLegacyPlans | ComponentStripeStripePlanChoices | ComponentStripeStripePromoCodes | CouponConfig | I18NLocale | Iap | Offering | Purchase | PurchaseDetail | ReviewWorkflowsWorkflow | ReviewWorkflowsWorkflowStage | Service | Subgroup | UploadFile | UsersPermissionsPermission | UsersPermissionsRole | UsersPermissionsUser;
+export type GenericMorph = Capability | CommonContent | ComponentIapAppleProductIDs | ComponentIapGoogleSkUs | ComponentIapStripeLegacyIapPrices | ComponentIapStripePlanChoices | ComponentStripeStripeLegacyPlans | ComponentStripeStripePlanChoices | ComponentStripeStripePromoCodes | CouponConfig | I18NLocale | Iap | Offering | Purchase | PurchaseDetail | ReviewWorkflowsWorkflow | ReviewWorkflowsWorkflowStage | Service | Subgroup | UploadFile | UsersPermissionsPermission | UsersPermissionsRole | UsersPermissionsUser;
 
 export type I18NLocale = {
   __typename?: 'I18NLocale';
@@ -476,6 +512,8 @@ export type Iap = {
   googleSKUs: Maybe<Array<Maybe<ComponentIapGoogleSkUs>>>;
   internalName: Maybe<Scalars['String']['output']>;
   publishedAt: Maybe<Scalars['DateTime']['output']>;
+  stripeLegacyIapPrices: Maybe<Array<Maybe<ComponentIapStripeLegacyIapPrices>>>;
+  stripePlanChoices: Maybe<Array<Maybe<ComponentIapStripePlanChoices>>>;
   updatedAt: Maybe<Scalars['DateTime']['output']>;
 };
 
@@ -489,6 +527,20 @@ export type IapAppleProductIDsArgs = {
 
 export type IapGoogleSkUsArgs = {
   filters: InputMaybe<ComponentIapGoogleSkUsFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+
+export type IapStripeLegacyIapPricesArgs = {
+  filters: InputMaybe<ComponentIapStripeLegacyIapPricesFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+
+export type IapStripePlanChoicesArgs = {
+  filters: InputMaybe<ComponentIapStripePlanChoicesFiltersInput>;
   pagination?: InputMaybe<PaginationArg>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
 };
@@ -511,6 +563,8 @@ export type IapFiltersInput = {
   not: InputMaybe<IapFiltersInput>;
   or: InputMaybe<Array<InputMaybe<IapFiltersInput>>>;
   publishedAt: InputMaybe<DateTimeFilterInput>;
+  stripeLegacyIapPrices: InputMaybe<ComponentIapStripeLegacyIapPricesFiltersInput>;
+  stripePlanChoices: InputMaybe<ComponentIapStripePlanChoicesFiltersInput>;
   updatedAt: InputMaybe<DateTimeFilterInput>;
 };
 
@@ -520,6 +574,8 @@ export type IapInput = {
   internalName: InputMaybe<Scalars['String']['input']>;
   locale: InputMaybe<Scalars['String']['input']>;
   publishedAt: InputMaybe<Scalars['DateTime']['input']>;
+  stripeLegacyIapPrices: InputMaybe<Array<InputMaybe<ComponentIapStripeLegacyIapPricesInput>>>;
+  stripePlanChoices: InputMaybe<Array<InputMaybe<ComponentIapStripePlanChoicesInput>>>;
 };
 
 export type IntFilterInput = {
