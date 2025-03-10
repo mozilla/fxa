@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { PaymentInfo } from '@fxa/payments/cart';
+
 /* eslint-disable-next-line */
 export type GenericTermsListItem = {
   key: string;
@@ -18,50 +20,57 @@ export type GenericTermItem = {
 };
 
 export const PaymentProviders = {
-  stripe: 'stripe',
-  paypal: 'paypal',
-  none: 'not_chosen',
+  stripe: 'card',
+  paypal: 'external_paypal',
+  google_iap: 'google_iap',
+  apple_iap: 'apple_iap',
 } as const;
 
 export type PaymentProvidersType = typeof PaymentProviders;
 export type PaymentProvider = PaymentProvidersType[keyof PaymentProvidersType];
 
-export function buildPaymentTerms(
-  provider?: PaymentProvider
-): GenericTermItem[] {
+export function buildPaymentTerms(provider?: PaymentInfo): GenericTermItem[] {
   let providerString = '';
+  const providerType = provider ? provider.type : undefined;
   const items: GenericTermsListItem[] = [];
-
-  if (
-    provider === PaymentProviders.stripe ||
-    provider === PaymentProviders.none
-  ) {
-    providerString = 'Stripe';
-    items.push({
-      key: 'payment-provider-terms-1',
-      href: 'https://stripe.com/privacy',
-      text: 'Stripe privacy policy',
-      localizationId: 'stripe-item-1',
-    });
-  }
-
-  if (
-    provider === PaymentProviders.paypal ||
-    provider === PaymentProviders.none
-  ) {
-    providerString = !providerString
-      ? 'PayPal'
-      : `${providerString} and PayPal`;
-    items.push({
-      key: 'payment-provider-terms-2',
-      href: 'https://www.paypal.com/webapps/mpp/ua/privacy-full',
-      text: 'PayPal privacy policy',
-      localizationId: 'paypal-item-1',
-    });
-  }
-
-  if (!items.length) {
-    return [];
+  switch (providerType) {
+    case PaymentProviders.stripe:
+      providerString = 'Stripe';
+      items.push({
+        key: 'payment-provider-terms-1',
+        href: 'https://stripe.com/privacy',
+        text: 'Stripe privacy policy',
+        localizationId: 'stripe-item-1',
+      });
+      break;
+    case PaymentProviders.paypal:
+      providerString = 'PayPal';
+      items.push({
+        key: 'payment-provider-terms-2',
+        href: 'https://www.paypal.com/webapps/mpp/ua/privacy-full',
+        text: 'PayPal privacy policy',
+        localizationId: 'paypal-item-1',
+      });
+      break;
+    case PaymentProviders.apple_iap:
+    case PaymentProviders.google_iap:
+    default:
+      providerString = 'Stripe and PayPal';
+      items.push(
+        {
+          key: 'payment-provider-terms-1',
+          href: 'https://stripe.com/privacy',
+          text: 'Stripe privacy policy',
+          localizationId: 'stripe-item-1',
+        },
+        {
+          key: 'payment-provider-terms-2',
+          href: 'https://www.paypal.com/webapps/mpp/ua/privacy-full',
+          text: 'PayPal privacy policy',
+          localizationId: 'paypal-item-1',
+        }
+      );
+      break;
   }
 
   return [
