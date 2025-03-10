@@ -104,6 +104,15 @@ export function useIntegration() {
   }, [clientInfoState, productInfoState]);
 }
 
+export function useExperiments() {
+  const { experiments } = useContext(AppContext);
+  const { Features, Enrollments } = experiments;
+  if (!Features || !Enrollments) {
+    return {};
+  }
+  return { features: Features, enrollments: Enrollments };
+}
+
 export function useSession() {
   const { session } = useContext(AppContext);
   if (!session) {
