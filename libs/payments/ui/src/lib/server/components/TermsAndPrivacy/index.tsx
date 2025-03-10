@@ -5,11 +5,11 @@
 import {
   GenericTermItem,
   GenericTermsListItem,
-  PaymentProvider,
   buildFirefoxAccountsTerms,
   buildPaymentTerms,
   buildProductTerms,
 } from '../../../utils/terms-and-privacy';
+import { PaymentInfo } from '@fxa/payments/cart';
 import { LocalizerRsc } from '@fxa/shared/l10n/server';
 
 type GenericTermsProps = {
@@ -61,7 +61,7 @@ function GenericTerms({
 
 export interface TermsAndPrivacyProps {
   l10n: LocalizerRsc;
-  paymentProvider?: PaymentProvider;
+  paymentInfo?: PaymentInfo;
   productName: string;
   termsOfServiceUrl: string;
   termsOfServiceDownloadUrl: string;
@@ -72,7 +72,7 @@ export interface TermsAndPrivacyProps {
 
 export async function TermsAndPrivacy({
   l10n,
-  paymentProvider,
+  paymentInfo,
   productName,
   termsOfServiceUrl,
   termsOfServiceDownloadUrl,
@@ -81,7 +81,7 @@ export async function TermsAndPrivacy({
   showFXALinks = false,
 }: TermsAndPrivacyProps) {
   const terms: GenericTermItem[] = [
-    ...buildPaymentTerms(paymentProvider),
+    ...buildPaymentTerms(paymentInfo),
     ...buildFirefoxAccountsTerms(showFXALinks, contentServerUrl),
     ...buildProductTerms(
       productName,
