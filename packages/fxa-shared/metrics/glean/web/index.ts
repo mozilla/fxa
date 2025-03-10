@@ -80,7 +80,7 @@ export const eventsMap = {
     diffAccountLinkClick: 'login_diff_account_link_click',
     engage: 'login_engage',
     backupChoiceSubmit: 'login_backup_choice_submit',
-    backupPhoneSuccessView: 'login_backup_phone_success_view',
+    recoveryPhoneSuccessView: 'login_recovery_phone_success_view',
   },
 
   cachedLogin: {
