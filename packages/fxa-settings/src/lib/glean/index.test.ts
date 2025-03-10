@@ -514,13 +514,13 @@ describe('lib/glean', () => {
         sinon.assert.calledWith(setEventReasonStub, 'quux');
       });
 
-      it('submits a ping with the login_backup_phone_success_view event name', async () => {
-        GleanMetrics.login.backupPhoneSuccessView();
+      it('submits a ping with the login_recovery_phone_success_view event name', async () => {
+        GleanMetrics.login.recoveryPhoneSuccessView();
         await GleanMetrics.isDone();
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(
           setEventNameStub,
-          'login_backup_phone_success_view'
+          'login_recovery_phone_success_view'
         );
       });
     });
