@@ -294,8 +294,8 @@ export const BackupPhoneSubRow = ({
           }
         : null)}
       localizedDescription={ftlMsgResolver.getMsg(
-        'tfa-row-backup-phone-description',
-        'This is the easier recovery method if you canʼt use your authenticator app.'
+        'tfa-row-backup-phone-description-v2',
+        'This is the easiest recovery method if you canʼt use your authenticator app.'
       )}
       {...{
         ctaGleanId,

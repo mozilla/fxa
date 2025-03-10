@@ -127,7 +127,7 @@ export const FlowSetupRecoveryPhoneConfirmCode = ({
         vars={{ phoneNumber: nationalFormatPhoneNumber }}
       >
         <p className="text-base mt-4">
-          A six-digit code was sent to{' '}
+          A 6-digit code was sent to{' '}
           <span dir="ltr" className="font-bold">
             {nationalFormatPhoneNumber}
           </span>{' '}
