@@ -10,7 +10,9 @@ import { getSigninState, handleNavigation } from '../utils';
 import {
   AppContext,
   isWebIntegration,
+  useAlertBar,
   useAuthClient,
+  useFtlMsgResolver,
   useSensitiveDataClient,
 } from '../../../models';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
@@ -29,12 +31,15 @@ import {
   SigninRecoveryPhoneLocationState,
 } from './interfaces';
 import { GET_LOCAL_SIGNED_IN_STATUS } from '../../../components/App/gql';
+import GleanMetrics from '../../../lib/glean';
 
 const SigninRecoveryPhoneContainer = ({
   integration,
 }: SigninRecoveryPhoneContainerProps & RouteComponentProps) => {
+  const alertBar = useAlertBar();
   const authClient = useAuthClient();
   const { apolloClient } = useContext(AppContext);
+  const ftlMsgResolver = useFtlMsgResolver();
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state: SigninRecoveryPhoneLocationState;
   };
@@ -115,6 +120,17 @@ const SigninRecoveryPhoneContainer = ({
         handleFxaLogin: true,
         handleFxaOAuthLogin: true,
       };
+
+      const recoveryPhoneSigninSuccessGleanMetric =
+        GleanMetrics.login.recoveryPhoneSuccessView;
+
+      alertBar.success(
+        ftlMsgResolver.getMsg(
+          'signin-recovery-phone-success-message',
+          'Signed in successfully. Limits may apply if you use your recovery phone again.'
+        ),
+        recoveryPhoneSigninSuccessGleanMetric
+      );
 
       await handleNavigation(navigationOptions);
     } catch (error) {

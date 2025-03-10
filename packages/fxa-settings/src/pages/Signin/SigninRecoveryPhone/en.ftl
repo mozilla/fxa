@@ -28,3 +28,4 @@ signin-recovery-phone-general-error-description = Please try again later.
 
 signin-recovery-phone-invalid-code-error-description = The code is invalid or expired.
 signin-recovery-phone-invalid-code-error-link = Use backup authentication codes instead?
+signin-recovery-phone-success-message = Signed in successfully. Limits may apply if you use your recovery phone again.
