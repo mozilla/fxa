@@ -80,17 +80,51 @@ export class RecoveryPhoneService {
     phoneNumber: string,
     getFormattedMessages: (code: string) => Promise<FormattedMessages>
   ) {
+    // Check if the service has been disabled.
     if (!this.config.enabled) {
       throw new RecoveryPhoneNotEnabled();
     }
 
-    if (this.config.sms && this.config.sms.validNumberPrefixes) {
+    // Reject numbers that do not match our set of sanctioned prefixes.
+    if (this.config.sms?.validNumberPrefixes) {
       const allowed = this.config.sms.validNumberPrefixes.some((check) => {
         return phoneNumber.startsWith(check);
       });
 
       if (!allowed) {
+        this.metrics.increment('recovery-phone.setup.number_prefix.blocked');
         throw new RecoveryNumberNotSupportedError(phoneNumber);
+      } else {
+        this.metrics.increment('recovery-phone.setup.number_prefix.allowed');
+      }
+    }
+
+    // Call Twilio to get some info about the number, and check if it resides in
+    // a country that we support sending sms to.
+    if (this.config.sms?.validCountryCodes) {
+      const lookupData = await (async () => {
+        try {
+          return await this.smsManager.phoneNumberLookup(phoneNumber, '');
+        } catch (error) {
+          this.log?.error('RecoveryPhoneService.setupPhoneNumber', error);
+          this.metrics.increment(
+            'recovery-phone.setup.country_code.lookup_failed'
+          );
+          throw new RecoveryNumberNotSupportedError(phoneNumber, error);
+        }
+      })();
+
+      const allowed = this.config.sms.validCountryCodes.includes(
+        lookupData.countryCode
+      );
+      if (!allowed) {
+        this.log?.log('RecoveryPhoneService.setupPhoneNumber', {
+          msg: `Blocked country code ${lookupData.countryCode}.`,
+        });
+        this.metrics.increment('recovery-phone.setup.country_code.blocked');
+        throw new RecoveryNumberNotSupportedError(phoneNumber);
+      } else {
+        this.metrics.increment('recovery-phone.setup.country_code.allowed');
       }
     }
 
