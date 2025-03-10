@@ -395,6 +395,16 @@ async function run(config) {
           message: 'Database connection did not shutdown cleanly. ' + e.message,
         });
       }
+
+      try {
+        await accountDatabase.destroy();
+      } catch (e) {
+        log.warn('shutdown', {
+          message:
+            'Account database connection did not shutdown cleanly. ' +
+            e.message,
+        });
+      }
     },
   };
 }
