@@ -30,6 +30,7 @@ describe('RecoveryPhoneService', () => {
   const mockLogger = {
     error: jest.fn(),
     warn: jest.fn(),
+    log: jest.fn(),
   };
 
   const mockMetrics = {
@@ -65,7 +66,8 @@ describe('RecoveryPhoneService', () => {
     allowedRegions: ['US'],
     maxRegistrationsPerNumber: 5,
     sms: {
-      validNumberPrefixes: ['+1500'],
+      validNumberPrefixes: ['+1'],
+      validCountryCodes: ['US', 'CA'],
       smsPumpingRiskThreshold: 75,
     },
   } satisfies RecoveryPhoneConfig;
@@ -91,6 +93,7 @@ describe('RecoveryPhoneService', () => {
 
   beforeEach(async () => {
     mockSmsManager.sendSMS.mockReturnValue({ status: 'success' });
+    mockSmsManager.phoneNumberLookup.mockReturnValue({ countryCode: 'US' });
     mockSmsManager.checkMessageSegments.mockImplementation((msg: string) => {
       const sm = new SegmentedMessage(msg);
       return {
@@ -217,10 +220,21 @@ describe('RecoveryPhoneService', () => {
   });
 
   it('Will reject a phone number that is not part of launch', async () => {
-    const to = '+16005551234';
+    const to = '+490005551234'; // Germany
     await expect(
       service.setupPhoneNumber(uid, to, mockGetFormattedMessage)
     ).rejects.toEqual(new RecoveryNumberNotSupportedError(to));
+  });
+
+  it('Will reject a phone number if it has an invalid country code.', async () => {
+    const to = '+12465551234'; // Barbados
+    mockSmsManager.phoneNumberLookup.mockReturnValueOnce({ countryCode: 'BB' });
+    await expect(
+      service.setupPhoneNumber(uid, to, mockGetFormattedMessage)
+    ).rejects.toEqual(new RecoveryNumberNotSupportedError(to));
+
+    expect(mockSmsManager.phoneNumberLookup).toBeCalledTimes(1);
+    expect(mockSmsManager.phoneNumberLookup).toBeCalledWith(to, '');
   });
 
   it('Will reject a phone number if it has been used for too many accounts', async () => {

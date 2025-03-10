@@ -326,10 +326,13 @@ commands:
           # Supports 'Re-run failed tests only'. See this for more info: https://circleci.com/docs/rerun-failed-tests-only/
           command: |
             if [[ "<< parameters.project >>" == "production" ]]; then
+              FUNCTIONAL_TESTS__USE_TWILIO_CLIENT="true"
               GREP="--grep=\"severity-1\""
             elif [[ "<< parameters.project >>" == "stage" ]]; then
+              FUNCTIONAL_TESTS__USE_TWILIO_CLIENT="true"
               GREP="--grep=\"severity-(1|2)\""
             else
+              FUNCTIONAL_TESTS__USE_TWILIO_CLIENT="false"
               GREP=""
             fi
             echo "targeting project << parameters.project >> $GREP"
