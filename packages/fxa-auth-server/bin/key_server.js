@@ -247,6 +247,7 @@ async function run(config) {
     smsManager,
     otpCodeManager,
     config.recoveryPhone,
+    config.twilio,
     statsd,
     log
   );
@@ -401,8 +402,7 @@ async function run(config) {
       } catch (e) {
         log.warn('shutdown', {
           message:
-            'Account database connection did not shutdown cleanly. ' +
-            e.message,
+            'Account database connection did not shutdown cleanly.' + e.message,
         });
       }
     },

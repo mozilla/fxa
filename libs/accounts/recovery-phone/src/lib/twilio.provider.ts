@@ -22,8 +22,34 @@ export const TwilioProvider = Symbol('TwilioProvider');
 export const TwilioFactory: Provider<Twilio> = {
   provide: TwilioProvider,
   useFactory: (config: TwilioConfig) => {
-    const { accountSid, authToken } = config;
-    return new Twilio(accountSid, authToken);
+    const {
+      credentialMode,
+      testAccountSid,
+      testAuthToken,
+      accountSid,
+      authToken,
+      apiKey,
+      apiSecret,
+    } = config;
+
+    // Okay for test, dev, and CI when using real phone numbers
+    if (credentialMode === 'default' && accountSid && authToken) {
+      return new Twilio(accountSid, authToken);
+    }
+
+    // For test and dev when using magic Twilio phone numbers.
+    if (credentialMode === 'test' && testAccountSid && testAuthToken) {
+      return new Twilio(testAccountSid, testAuthToken);
+    }
+
+    // The preferred way for deployments
+    if (credentialMode === 'apiKeys' && accountSid && apiKey && apiSecret) {
+      return new Twilio(apiKey, apiSecret, { accountSid });
+    }
+
+    throw new Error(
+      'Invalid configuration state. Check docs for TwilioConfig, a value is probably missing.'
+    );
   },
   inject: [TwilioConfig],
 };
