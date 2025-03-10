@@ -15,7 +15,6 @@ import {
   useState,
   useCallback,
   useMemo,
-  useContext,
 } from 'react';
 
 import { QueryParams } from '../..';
@@ -28,7 +27,6 @@ import * as Metrics from '../../lib/metrics';
 import { MozServices } from '../../lib/types';
 
 import {
-  AppContext,
   Integration,
   OAuthIntegration,
   useConfig,
@@ -89,8 +87,6 @@ import InlineRecoveryKeySetupContainer from '../../pages/InlineRecoveryKeySetup/
 import SetPasswordContainer from '../../pages/PostVerify/SetPassword/container';
 import SigninRecoveryChoiceContainer from '../../pages/Signin/SigninRecoveryChoice/container';
 import SigninRecoveryPhoneContainer from '../../pages/Signin/SigninRecoveryPhone/container';
-import { initializeNimbus, NimbusContextT } from '../../lib/nimbus';
-import { parseAcceptLanguage } from '../../../../../libs/shared/l10n/src';
 
 const Settings = lazy(() => import('../Settings'));
 
@@ -100,7 +96,6 @@ export const App = ({
   const config = useConfig();
   const session = useSession();
   const integration = useIntegration();
-  const { uniqueUserId } = useContext(AppContext);
   const isSync = integration != null && integration.isSync();
   const { data: isSignedInData } = useLocalSignedInQueryState();
 
@@ -238,25 +233,6 @@ export const App = ({
     isSignedIn,
     metricsEnabled,
   ]);
-
-  useMemo(() => {
-    // This can truthfully never be null in the current implementation,
-    // because we always generate a new one if we don't have it.
-    if (!uniqueUserId) {
-      return;
-    }
-
-    // We reuse parseAcceptLanguage with navigator.languages because
-    // that is the same as getting the headers directly as stated on MDN.
-    // See: https://developer.mozilla.org/en-US/docs/Web/API/Navigator/languages
-    const [locale] = parseAcceptLanguage(navigator.languages.join(', '));
-    let [language, region] = locale.split('-');
-    if (region) {
-      region = region.toLowerCase();
-    }
-
-    initializeNimbus(uniqueUserId, { language, region } as NimbusContextT);
-  }, [uniqueUserId]);
 
   // Wait until metrics is done loading, integration has been created, and isSignedIn has been determined.
   if (metricsLoading || !integration || isSignedIn === undefined) {

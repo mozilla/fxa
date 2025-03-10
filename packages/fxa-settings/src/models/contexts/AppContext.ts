@@ -16,6 +16,8 @@ import { ReachRouterWindow } from '../../lib/window';
 import { SensitiveDataClient } from '../../lib/sensitive-data-client';
 import { v4 as uuid } from 'uuid';
 import * as Sentry from '@sentry/browser';
+import { initializeNimbus, NimbusContextT } from '../../lib/nimbus';
+import { parseAcceptLanguage } from '../../../../../libs/shared/l10n/src';
 
 // TODO, move some values from AppContext to SettingsContext after
 // using container components, FXA-8107
@@ -27,6 +29,7 @@ export interface AppContextValue {
   account?: Account;
   session?: Session; // used exclusively for test mocking
   uniqueUserId?: string; // used for experiments
+  experiments?: any; // TODO: add types for experiments
 }
 
 export interface SettingsContextValue {
@@ -100,6 +103,19 @@ function getUniqueUserId(): string {
   return uniqueUserId;
 }
 
+function fetchNimbusExperiments(uniqueUserId: string) {
+  // We reuse parseAcceptLanguage with navigator.languages because
+  // that is the same as getting the headers directly as stated on MDN.
+  // See: https://developer.mozilla.org/en-US/docs/Web/API/Navigator/languages
+  const [locale] = parseAcceptLanguage(navigator.languages.join(', '));
+  let [language, region] = locale.split('-');
+  if (region) {
+    region = region.toLowerCase();
+  }
+
+  return initializeNimbus(uniqueUserId, { language, region } as NimbusContextT);
+}
+
 export function initializeAppContext() {
   readConfigMeta((name: string) => {
     return document.head.querySelector(name);
@@ -116,6 +132,7 @@ export function initializeAppContext() {
   const session = new Session(authClient, apolloClient);
   const sensitiveDataClient = new SensitiveDataClient();
   const uniqueUserId = getUniqueUserId();
+  const experiments = fetchNimbusExperiments(uniqueUserId);
 
   const context: AppContextValue = {
     authClient,
@@ -125,6 +142,7 @@ export function initializeAppContext() {
     session,
     sensitiveDataClient,
     uniqueUserId,
+    experiments,
   };
 
   return context;
