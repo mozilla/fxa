@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { knex, Knex } from 'knex';
-import { MysqlDialect } from 'kysely';
+import { MysqlDialect, MysqlPool } from 'kysely';
 import { createPool } from 'mysql2';
 import { promisify } from 'util';
 import { v4 as uuidv4 } from 'uuid';
@@ -113,7 +113,10 @@ export async function createDialect(
   opts: MySQLConfig,
   log: Logger = logger,
   metrics: StatsD = localStatsD()
-) {
+): Promise<{
+  dialect: MysqlDialect;
+  pool: MysqlPool;
+}> {
   log.debug('mysqlDialect', {
     msg: `mysqlDialect: Creating MysqlDialect`,
     connLimit: opts.connectionLimitMax,
@@ -136,6 +139,9 @@ export async function createDialect(
   });
   pool.on('release', (eventId: any) => {
     metrics.increment('mysqlDialect.release');
+  });
+  pool.on('enqueue', (eventId: any) => {
+    metrics.increment('mysqlDialect.enqueue');
   });
 
   // Connection setup
@@ -165,7 +171,14 @@ export async function createDialect(
     await pool.promise().query("SET SESSION sql_mode = '" + mode + "'");
   }
 
-  return new MysqlDialect({
+  const dialect = new MysqlDialect({
     pool,
   });
+
+  // Important! Exposing the underlying pool, because
+  // Kysely is not automatically disposing it.
+  return {
+    dialect,
+    pool,
+  };
 }
