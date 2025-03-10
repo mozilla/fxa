@@ -15,8 +15,7 @@
       "@fxa/shared/notifier": ["libs/shared/notifier/src/index"],
       "@fxa/shared/sentry": ["libs/shared/sentry/src/index"],
       "@fxa/shared/otp": ["libs/shared/otp/src/index"],
-      "@fxa/shared/error": ["libs/shared/error/src/index"],
-      "@fxa/accounts/recovery-phone": ["libs/accounts/recovery-phone/src/index"]
+      "@fxa/shared/error": ["libs/shared/error/src/index"]
     }
   }
 }

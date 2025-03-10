@@ -90,7 +90,6 @@ import { FinishSetupInput } from './dto/input/finish-setup';
 import { EmailBounceStatusPayload } from './dto/payload/email-bounce';
 import { NotifierService } from '@fxa/shared/notifier';
 import { MozLoggerService } from '@fxa/shared/mozlog';
-import { RecoveryPhoneService } from '@fxa/accounts/recovery-phone';
 import { RecoveryPhone } from './model/recoveryPhone';
 
 function snakeToCamel(str: string) {
@@ -113,7 +112,6 @@ export function snakeToCamelObject(obj: { [key: string]: any }) {
 export class AccountResolver {
   constructor(
     @Inject(AuthClientService) private authAPI: AuthClient,
-    private recoveryPhoneService: RecoveryPhoneService,
     private notifier: NotifierService,
     private profileAPI: ProfileClientService,
     private log: MozLoggerService
@@ -883,7 +881,6 @@ export class AccountResolver {
         sessionToken,
         headers
       );
-
       if (includeAvailability) {
         // This queries the auth-server endpoint instead of directly due to
         // this endpoint needing maxmind

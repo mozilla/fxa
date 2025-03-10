@@ -31,16 +31,6 @@ import { LegalResolver } from './legal.resolver';
 import { SessionResolver } from './session.resolver';
 import { SubscriptionResolver } from './subscription.resolver';
 import {
-  RecoveryPhoneManager,
-  RecoveryPhoneService,
-  SmsManager,
-  TwilioFactory,
-  TwilioConfigProvider,
-  SmsConfigProvider,
-  RecoveryPhoneRedisProvider,
-  RecoveryPhoneConfigProvider,
-} from '@fxa/accounts/recovery-phone';
-import {
   OtpConfigProvider,
   OtpManagerProvider,
   OtpRedisStorageProvider,
@@ -95,17 +85,6 @@ export const GraphQLConfigFactory = async (
       useClass: MozLoggerService,
     },
     AccountDatabaseNestFactory,
-    RecoveryPhoneConfigProvider,
-    RecoveryPhoneService,
-    RecoveryPhoneRedisProvider,
-    RecoveryPhoneManager,
-    SmsConfigProvider,
-    SmsManager,
-    TwilioFactory,
-    TwilioConfigProvider,
-    OtpConfigProvider,
-    OtpRedisStorageProvider,
-    OtpManagerProvider,
     MySQLConfigProvider,
   ],
 })
