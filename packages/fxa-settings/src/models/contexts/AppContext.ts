@@ -14,6 +14,10 @@ import { KeyStretchExperiment } from '../experiments/key-stretch-experiment';
 import { UrlQueryData } from '../../lib/model-data';
 import { ReachRouterWindow } from '../../lib/window';
 import { SensitiveDataClient } from '../../lib/sensitive-data-client';
+import { v4 as uuid } from 'uuid';
+import * as Sentry from '@sentry/browser';
+import { initializeNimbus, NimbusContextT } from '../../lib/nimbus';
+import { parseAcceptLanguage } from '../../../../../libs/shared/l10n/src';
 
 // TODO, move some values from AppContext to SettingsContext after
 // using container components, FXA-8107
@@ -24,11 +28,92 @@ export interface AppContextValue {
   config?: Config;
   account?: Account;
   session?: Session; // used exclusively for test mocking
+  uniqueUserId?: string; // used for experiments
+  experiments?: any; // TODO: add types for experiments
 }
 
 export interface SettingsContextValue {
   alertBarInfo?: AlertBarInfo;
   navigatorLanguages?: readonly string[];
+}
+
+/**
+ * Fetches or generates a new client ID that is stable for that browser client/cookie jar.
+ *
+ * N.B: Implemenation is taken from `fxa-content-server/.../models/unique-user-id.js` with
+ * inlined code that was written using Backbone utilities which could not immediately be transferred over.
+ * @returns a new or existing UUIDv4 for this user.
+ */
+function getUniqueUserId(): string {
+  function resumeTokenFromSearchParams(): string | null {
+    // Check the url for a resume token, that might have a uniqueUserId
+    const searchParams = new URLSearchParams(window.location.search);
+    const resumeToken = searchParams.get('resume');
+    return resumeToken;
+  }
+
+  function maybePersistFromToken(resumeToken: string) {
+    // populateFromStringifiedResumeToken - fxa-content-server/.../mixins/resume-token.js
+    if (resumeToken) {
+      try {
+        // createFromStringifiedResumeToken - fxa-content-server/.../models/resume-token.js
+        const resumeTokenObj = JSON.parse(atob(resumeToken));
+        if (typeof resumeTokenObj?.uniqueUserId === 'string') {
+          // Key name is derived from the Local Storage implementation.
+          // fullKey - fxa-content-server/.../lib/storage.ts
+          localStorage.setItem(
+            `__fxa_storage.uniqueUserId`,
+            resumeTokenObj?.uniqueUserId
+          );
+          // Use uuid provided by resume token
+          return resumeTokenObj?.uniqueUserId;
+        }
+      } catch (error) {
+        Sentry.captureMessage('Failed parse resume token.', {
+          extra: {
+            resumeToken: resumeToken.substring(0, 10) + '...',
+          },
+        });
+      }
+    }
+  }
+
+  function fetch(): string | null {
+    return localStorage.getItem('__fxa_storage.uniqueUserId');
+  }
+
+  function persist(uniqueUserId: string) {
+    localStorage.setItem(`__fxa_storage.uniqueUserId`, uniqueUserId);
+  }
+
+  const resumeToken = resumeTokenFromSearchParams();
+  if (resumeToken) {
+    maybePersistFromToken(resumeToken);
+  }
+
+  // Check local storage for an existing resume token
+  let uniqueUserId = fetch();
+
+  // Generate a new token if one is not found!
+  if (!uniqueUserId) {
+    uniqueUserId = uuid();
+    persist(uniqueUserId);
+  }
+
+  return uniqueUserId;
+}
+
+function fetchNimbusExperiments(uniqueUserId: string) {
+  // We reuse parseAcceptLanguage with navigator.languages because
+  // that is the same as getting the headers directly as stated on MDN.
+  // See: https://developer.mozilla.org/en-US/docs/Web/API/Navigator/languages
+  const [locale] = parseAcceptLanguage(navigator.languages.join(', '));
+  let [language, region] = locale.split('-');
+  if (region) {
+    region = region.toLowerCase();
+  }
+
+  return initializeNimbus(uniqueUserId, { language, region } as NimbusContextT);
 }
 
 export function initializeAppContext() {
@@ -46,6 +131,8 @@ export function initializeAppContext() {
   const account = new Account(authClient, apolloClient);
   const session = new Session(authClient, apolloClient);
   const sensitiveDataClient = new SensitiveDataClient();
+  const uniqueUserId = getUniqueUserId();
+  const experiments = fetchNimbusExperiments(uniqueUserId);
 
   const context: AppContextValue = {
     authClient,
@@ -54,6 +141,8 @@ export function initializeAppContext() {
     account,
     session,
     sensitiveDataClient,
+    uniqueUserId,
+    experiments,
   };
 
   return context;
