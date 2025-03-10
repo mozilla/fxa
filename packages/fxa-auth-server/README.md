@@ -46,7 +46,7 @@ So run:
 - `yarn start infrastructure`
 - `nx start fxa-customs-server`
 
-Now unit tests can be executed:
+Now integration tests can be executed:
 
 - `nx test-integration fxa-auth-server`
   _Note this matches how auth server unit tests jobs in CI._
@@ -57,15 +57,15 @@ _From packages/fxa-auth-server:_
 
 - `yarn test -- test/local/account_routes.js`
 - `yarn test -- test/local/account* test/local/password_*`
-- `yarn test -- test/remote`
 - `NODE_ENV=dev npx mocha -r esbuild-register test/*/** -g "SQSReceiver"`
 
 Notes / Tips:
 
-- For quick enviroment config, consider running tests with a .env file and the dotenv command. For example: `dotenv -- yarn workspace fxa-auth-server:test-integration remote`
+- For quick environment config, consider running tests with a .env file and the dotenv command. For example: `dotenv -- yarn workspace fxa-auth-server:test-integration remote`
 - you can use `LOG_LEVEL`, such as `LOG_LEVEL=debug` to specify the test logging level.
 - recovery-phone tests require twilio testing credentials!
 - recovery-phone-customs tests require that customs server is running. So run `nx start fxa-customs-server` prior to executing tests.
+- The test/remote folder contains mostly integration tests that were not designed to be run in parallel. As a result the `yarn test -- remote/test` command may result in errors. For these tests run `yarn test-integration remote` instead.
 
 _Other Stuff_
 This package uses [Mocha](https://mochajs.org/) to test its code. By default `npm test` will run a series of NPM test scripts and then lint the code:
