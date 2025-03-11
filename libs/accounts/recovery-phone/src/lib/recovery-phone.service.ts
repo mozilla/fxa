@@ -22,6 +22,11 @@ import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { StatsD, StatsDService } from '@fxa/shared/metrics/statsd';
 import { TwilioConfig } from './twilio.config';
 import { validateRequest } from 'twilio';
+import {
+  createRandomFxaMessage,
+  signFxaMessage,
+  validateFxaSignature,
+} from './util';
 
 /** SMS message with different fallbacks for varying message sizes. */
 export type FormattedMessages = {
@@ -162,13 +167,59 @@ export class RecoveryPhoneService {
     // Pick the message with the best length and send it
     const formattedMessages = await getFormattedMessages(code);
     const body = this.getSafeSmsBody(formattedMessages);
+    const statusCallback = this.createMessageStatusCallback();
     const msg = await this.smsManager.sendSMS({
       to: phoneNumber,
       body,
+      statusCallback,
     });
 
     // Relay status
     return this.isSuccessfulSmsSend(msg);
+  }
+
+  /**
+   * Specifies the callback url to get status updates about the message delivery.
+   *
+   * IMPORTANT! Twilio signs messages sent to this callback url with a X-Twilio-Signature
+   * header. Unfortunately, they decided to use the auth token for signature validation.
+   * This means that if we decide to use api keys instead the auth token, which is best
+   * practice, we can't validate the X-Twilio-Signature header.
+   *
+   * As a work around, we will sign the callback url ourselves. This will stop unauthorized
+   * requests from being handled by our webhook. It will not, however, guard against
+   * message tampering in the event of a man in the middle attack on TLS. Luckily we don't
+   * use these message status updates in a critical way, so this is probably super good
+   * enough.
+   * @returns A webhook url
+   */
+  public createMessageStatusCallback() {
+    let url: string | undefined;
+    if (this.twilioConfig.webhookUrl) {
+      // This is the way we'd like to do it. Unfortunately, this won't work with API keys...
+      // We will leave it here just incase we need to support it.
+      if (this.twilioConfig.authToken) {
+        url = this.twilioConfig.webhookUrl;
+      }
+
+      // Here we will use our own key pair, to sign sign the callback url.
+      // Not perfect, but good enough, and better than using our authToken.
+      else if (this.twilioConfig.fxaPrivateKey) {
+        const message = createRandomFxaMessage();
+        const signature = signFxaMessage(
+          this.twilioConfig.fxaPrivateKey,
+          message
+        );
+        url =
+          this.twilioConfig.webhookUrl +
+          `?fxaSignature=${encodeURIComponent(signature)}` +
+          `&fxaMessage=${encodeURIComponent(message)}`;
+      }
+    }
+
+    // We don't have to provide a callback. If nothing is specified, we drop
+    // some metrics on message delivery status ¯\_(ツ)_/¯
+    return url;
   }
 
   public async getNationalFormat(phoneNumber: string) {
@@ -429,9 +480,11 @@ export class RecoveryPhoneService {
     // Pick the message with the best length and send it
     const formattedMessages = await getFormattedMessages(code);
     const body = this.getSafeSmsBody(formattedMessages);
+    const statusCallback = this.createMessageStatusCallback();
     const msg = await this.smsManager.sendSMS({
       to: phoneNumber,
       body,
+      statusCallback,
     });
 
     // Relay status
@@ -447,24 +500,65 @@ export class RecoveryPhoneService {
   }
 
   /**
-   * Produces the signature used to sign requests sent to twilio webhooks
-   * @param params
+   * Validates webhook calls coming from twilio
    * @returns
    */
-  public validateTwilioSignature(
-    twilioSignature: string,
-    params: Record<string, any>
-  ) {
+  public validateTwilioWebhookCallback({
+    twilio,
+    fxa,
+  }: {
+    twilio?: { signature: string; params: Record<string, any> };
+    fxa?: { signature: string; message: string };
+  }) {
+    // Check flag that toggles validation of webhook calls
     if (this.twilioConfig.validateWebhookCalls === false) {
       return true;
     }
 
-    return validateRequest(
-      this.twilioConfig.authToken,
-      twilioSignature,
-      this.twilioConfig.webhookUrl,
-      params
-    );
+    /**
+     * IMPORTANT! This is the best way to validate the web hook,
+     * but the worst way to authenticate the client. We typically
+     * do not want to rely on the authToken... This is being kept
+     * around just in case it's needed.
+     */
+    if (twilio && this.twilioConfig.authToken) {
+      return validateRequest(
+        this.twilioConfig.authToken,
+        twilio.signature,
+        this.twilioConfig.webhookUrl,
+        twilio.params
+      );
+    }
+
+    /**
+     * IMPORTANT! When using twilio api keys, we will fallback
+     * to this approach. As mentioned above. It prevents bogus
+     * requests, but doesn't validate the actual payload / prevent
+     * message tampering. At the moment, we don't use this call back
+     * for anything other metrics, so this is probably good enough.
+     */
+    if (fxa && this.twilioConfig.fxaPublicKey) {
+      // Check the fxa signature. This validates that the signature was generated
+      // using our private key.
+      return validateFxaSignature(
+        this.twilioConfig.fxaPublicKey,
+        fxa.signature,
+        fxa.message
+      );
+    }
+
+    // Unless something is misconfigured, this typically won't happen. Add a log
+    // just incase...
+    this.log?.warn('validateTwilioCallback', {
+      msg: 'Potentially invalid config or args.',
+      hasFxaPublicKey: !!this.twilioConfig.fxaPublicKey,
+      hasFxaSignature: !!fxa?.signature,
+      hasFxaMessage: !!fxa?.message,
+      hasTwilioAuthToken: !!this.twilioConfig.authToken,
+      hasTwilioSignature: !!twilio?.signature,
+      hasTwilioParams: !!twilio?.params,
+    });
+    return false;
   }
 
   /**

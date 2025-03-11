@@ -241,6 +241,8 @@ class RecoveryPhoneHandler {
       await this.glean.twoStepAuthPhoneCode.sendError(request);
       return { status: RecoveryPhoneStatus.FAILURE };
     } catch (error) {
+      console.log('!!!! setup phone number error', error);
+
       if (error instanceof RecoveryPhoneNotEnabled) {
         throw AppError.featureNotEnabled();
       }
@@ -572,7 +574,84 @@ class RecoveryPhoneHandler {
     }
   }
 
+  /**
+   * Validates if the request is a legitimate request from Twilio. Throws an unauthorized
+   * error if validation fails.
+   *
+   * Important notes!
+   *
+   * 1. We are doing this inline, because it could require the request payload and
+   *    this is not available during the authentication lifecycle without jumping
+   *    through some weird hoops.
+   *
+   * 2. We have two ways of validating requests. The first way is by using a signature
+   *    we generate. This will be used when twilio is configured with api keys and the
+   *    authToken isn't used, which is considered best practice. The downside to this
+   *    approach is that while we can validate the incoming call was signed by us, we
+   *    can't validate the message body. There is a very unlikely chance that a man in
+   *    the middle attack on TLS could result in a bogus payload state. We aren't doing
+   *    anything critical with message status updates, so this is probably good enough.
+   *
+   * 3. The second way of authenticating is the default twilio approach. Unfortunately
+   *    this requires the authToken to be known and we don't to set this in the env.
+   *    If at some point, validating the request payload becomes super important, we
+   *    might consider this approach, despite the authToken requirement.
+   *
+   * @param request A typical hapi request.
+   */
+  validateWebhookCall(request: Request) {
+    const fxaSignature = request.query?.fxaSignature;
+    const fxaMessage = request.query?.fxaMessage;
+    const twilioSignature = request.headers['X-Twilio-Signature'];
+    const twilioPayload = request.payload;
+
+    this.log?.debug('validateWebhookCall', {
+      fxaSignature,
+      fxaMessage,
+      twilioSignature,
+      twilioPayload,
+    });
+
+    let valid = false;
+    if (fxaSignature && fxaMessage) {
+      valid = this.recoveryPhoneService.validateTwilioWebhookCallback({
+        fxa: {
+          signature: fxaSignature,
+          message: fxaMessage,
+        },
+      });
+    } else if (twilioSignature && typeof twilioPayload === 'object') {
+      valid = this.recoveryPhoneService.validateTwilioWebhookCallback({
+        twilio: {
+          signature: twilioSignature,
+          params: twilioPayload,
+        },
+      });
+    }
+
+    this.log?.debug('validateWebhookCall', {
+      valid,
+    });
+
+    if (valid) {
+      this.statsd.increment('account.recoveryPhone.validateWebhookCall.valid');
+    } else {
+      this.statsd.increment(
+        'account.recoveryPhone.validateWebhookCall.invalid'
+      );
+      throw AppError.unauthorized(`Signature Invalid`);
+    }
+  }
+
+  /**
+   * Takes a request, and processes the message status provided by twilio.
+   * @param request An incoming web request from Twilio with a message status update.
+   * @returns true assuming no errors processing the message.
+   */
   async messageStatus(request: Request) {
+    this.validateWebhookCall(request);
+
+    // We can now continue.
     await this.recoveryPhoneService.onMessageStatusUpdate(
       request.payload as TwilioMessageStatus
     );
@@ -713,10 +792,9 @@ export const recoveryPhoneRoutes = (
       method: 'POST',
       path: '/recovery_phone/message_status',
       options: {
-        pre: [{ method: featureEnabledCheck }],
-        auth: {
-          strategy: 'twilioSignature',
-          payload: false,
+        payload: {
+          parse: true,
+          allow: 'application/x-www-form-urlencoded',
         },
       },
       handler: function (request: Request) {

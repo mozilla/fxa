@@ -2,35 +2,58 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import TwilioSDK from 'twilio';
+import { Twilio } from 'twilio';
 import Redis from 'ioredis';
 import type { Redis as RedisType } from 'ioredis';
+import { TargetName, getFromEnv, getFromEnvWithFallback } from './targets';
 
 function wait() {
   return new Promise((r) => setTimeout(r, 500));
 }
-const useTwilioClient = process.env.FUNCTIONAL_TESTS__USE_TWILIO_CLIENT;
-const accountSid = process.env.RECOVERY_PHONE__TWILIO__ACCOUNT_SID;
-const authToken = process.env.RECOVERY_PHONE__TWILIO__AUTH_TOKEN;
-const testPhoneNumber = process.env.RECOVERY_PHONE__TWILIO__TEST_NUMBER;
 
 export class SmsClient {
-  private twilioClient?: TwilioSDK.Twilio;
-  private redisClient?: RedisType;
-  private uidCodes: Map<string, string>;
+  private readonly twilioClient?: Twilio;
+  private readonly redisClient?: RedisType;
+  private readonly uidCodes: Map<string, string>;
   private lastCode: string | undefined;
   private redisClientConnected = false;
   private hasLoggedRedisConnectionError = false;
 
-  constructor() {
-    if (
-      useTwilioClient === 'true' &&
-      accountSid &&
-      authToken &&
-      testPhoneNumber
-    ) {
-      this.twilioClient = new TwilioSDK.Twilio(accountSid, authToken);
-    } else {
+  constructor(public readonly targetName: TargetName) {
+    const accountSid = getFromEnv(
+      'FUNCTIONAL_TESTS__SMS_CLIENT__TWILIO__ACCOUNT_SID',
+      targetName
+    );
+    const apiKey = getFromEnv(
+      'FUNCTIONAL_TESTS__SMS_CLIENT__TWILIO__ACCOUNT_API_KEY',
+      targetName
+    );
+    const apiSecret = getFromEnv(
+      'FUNCTIONAL_TESTS__SMS_CLIENT__TWILIO__ACCOUNT_API_SECRET',
+      targetName
+    );
+    const authToken = getFromEnv(
+      'FUNCTIONAL_TESTS__SMS_CLIENT__TWILIO__ACCOUNT_AUTH_TOKEN',
+      targetName
+    );
+    const enableRedis = getFromEnvWithFallback(
+      'FUNCTIONAL_TESTS__SMS_CLIENT__REDIS__ENABLED',
+      targetName,
+      targetName === 'local' ? 'true' : 'false'
+    );
+
+    if (accountSid && apiKey && apiSecret) {
+      this.twilioClient = new Twilio(apiKey, apiSecret, {
+        accountSid,
+      });
+    } else if (accountSid && authToken) {
+      this.twilioClient = new Twilio(apiKey, apiSecret, {
+        accountSid,
+      });
+    }
+
+    // When testing local or in CI pipe, we should enable redis.
+    if (enableRedis === 'true') {
       this.redisClient = new Redis();
       this.redisClient.on('ready', () => {
         this.redisClientConnected = true;
@@ -49,6 +72,10 @@ export class SmsClient {
 
   isTwilioEnabled() {
     return !!this.twilioClient;
+  }
+
+  isRedisEnabled() {
+    return !!this.redisClient;
   }
 
   async getCode(recipientNumber: string, uid: string, timeout = 10000) {
