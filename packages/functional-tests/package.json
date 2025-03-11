@@ -18,7 +18,7 @@
     "@types/pdf-parse": "^1.1.4",
     "@types/upng-js": "^2",
     "eslint": "^8.56.0",
-    "eslint-plugin-playwright": "^0.22.2",
+    "eslint-plugin-playwright": "^2.2.0",
     "fxa-auth-client": "workspace:*",
     "fxa-content-server": "workspace:*",
     "fxa-payments-server": "workspace:*",
