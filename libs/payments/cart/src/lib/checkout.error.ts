@@ -21,3 +21,9 @@ export class CheckoutFailedError extends CheckoutError {
     super(...args);
   }
 }
+
+export class CheckoutUpgradeError extends BaseError {
+  constructor(...args: ConstructorParameters<typeof BaseError>) {
+    super(...args);
+  }
+}

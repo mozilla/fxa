@@ -26,9 +26,6 @@ next-payment-confirmation-invoice-number = Invoice #{ $invoiceNumber }
 # $invoiceDate (Date) - Start date of the latest invoice
 next-payment-confirmation-invoice-date = { $invoiceDate }
 next-payment-confirmation-details-heading-2 = Payment information
-# $amount (Number) - The amount billed. It will be formatted as currency.
-# $interval (String) - The interval between payments.
-success-page-payment-confirmation-amount = { $amount } per { $interval }
 
 ## Success pages (/checkout and /upgrade)
 ## Common strings used in multiple checkout pages

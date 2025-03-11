@@ -110,3 +110,23 @@ export class PayPalPaymentFailedError extends PaymentsCustomerError {
     super(`PayPal payment failed with status ${status ?? 'undefined'}`);
   }
 }
+
+export class PaymentsSubscriptionError extends BaseError {
+  constructor(...args: ConstructorParameters<typeof BaseError>) {
+    super(...args);
+  }
+}
+
+export class SubscriptionItemMultipleItemsError extends PaymentsSubscriptionError {
+  constructor(subscriptionId: string) {
+    super('Multiple subscription items not supported', {
+      info: { subscriptionId },
+    });
+  }
+}
+
+export class SubscriptionItemMissingItemError extends PaymentsSubscriptionError {
+  constructor(subscriptionId: string) {
+    super('Subscription item missing', { info: { subscriptionId } });
+  }
+}
