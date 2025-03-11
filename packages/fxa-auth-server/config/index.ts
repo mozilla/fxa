@@ -2232,7 +2232,7 @@ const convictConf = convict({
         format: Number,
       },
       extraLookupFields: {
-        default: ['sms_pumping_risk'],
+        default: [],
         doc: 'Extra data to fetch about phone numbers being registered for sms backup.',
         env: 'RECOVERY_PHONE__SMS__EXTRA_LOOKUP_FIELDS',
         format: Array,
