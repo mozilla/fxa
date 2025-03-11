@@ -21,7 +21,7 @@
     "test-watch": "jest --watch",
     "test-cov": "jest --coverage",
     "test-debug": "node --inspect-brk -r tsconfig-paths/register -r esbuild-register node_modules/.bin/jest --runInBand --logHeapUsage",
-    "test-e2e": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-e2e.xml jest --runInBand --logHeapUsage --config ./test/jest-e2e.config.js --ci --reporters=default --reporters=jest-junit",
+    "test-e2e": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-e2e.xml jest --runInBand --forceExit --logHeapUsage --config ./test/jest-e2e.config.js --ci --reporters=default --reporters=jest-junit --detectOpenHandles",
     "email-bounce": "node -r esbuild-register ./scripts/email-bounce.ts",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'"
   },
@@ -84,6 +84,7 @@
   },
   "nx": {
     "tags": [
+      "scope:server",
       "scope:gql",
       "type:core"
     ]
