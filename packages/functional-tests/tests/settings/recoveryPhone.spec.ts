@@ -15,15 +15,28 @@ import { RecoveryPhoneSetupPage } from '../../pages/settings/recoveryPhone';
 import { FirefoxCommand } from '../../lib/channels';
 import { syncDesktopOAuthQueryParams } from '../../lib/query-params';
 import { getCode } from 'fxa-settings/src/lib/totp';
+import { TargetName, getFromEnvWithFallback } from '../../lib/targets';
 
-const realTestPhoneNumber = process.env.RECOVERY_PHONE__TWILIO__TEST_NUMBER;
+// Default test number, see Twilio test credentials phone numbers:
+// https://www.twilio.com/docs/iam/test-credentials
+const TEST_NUMBER = '4159929960';
 
-function getPhoneNumber(env: string) {
-  if (env !== 'local' && realTestPhoneNumber) {
-    return realTestPhoneNumber;
-  }
-  // See Twilio test credentials phone numbers: https://www.twilio.com/docs/iam/test-credentials
-  return '4159929960';
+/**
+ * Checks the process env for a configured twilio test phone number. Defaults
+ * to generic magic test number if one is not provided.
+ * @param targetName The test target name. eg local, stage, prod.
+ * @returns
+ */
+function getPhoneNumber(targetName: TargetName) {
+  return getFromEnvWithFallback(
+    'FUNCTIONAL_TESTS__TWILIO__TEST_NUMBER',
+    targetName,
+    TEST_NUMBER
+  );
+}
+
+function usingRealTestPhoneNumber(targetName: TargetName) {
+  return getPhoneNumber(targetName) !== TEST_NUMBER;
 }
 
 test.describe('severity-1 #smoke', () => {
@@ -32,33 +45,41 @@ test.describe('severity-1 #smoke', () => {
     'FXA-11191 will resolve issue with switching between twilio and redis clients'
   );
   test.describe('recovery phone', () => {
-    // Run these tests sequentially when using the Twilio API because they rely on the same test phone number.
-    // When using the Twilio API, we cannot determine the order in which the messages were received.
-    if (realTestPhoneNumber) {
-      test.describe.configure({ mode: 'serial' });
-    } else {
-      test.describe.configure({ mode: 'parallel' });
-    }
+    // Run these tests sequentially. This must be done when using the Twilio API, because they rely on
+    // the same test phone number, and we cannot determine the order in which the messages were received.
+    test.describe.configure({ mode: 'serial' });
 
+    test.beforeAll(async ({ target }) => {
+      /**
+       * Important! Twilio does not allow you to fetch messages when using test
+       * credentials. Twilio also does not allow you to send messages to magic
+       * test numbers with real credentials.
+       *
+       * Therefore, if a 'magic' test number is configured, then we need to
+       * use redis to peek at codes sent out, and if a 'real' testing phone
+       * number is being being used, then we need to check the Twilio API for
+       * the message sent out and look at the code within.
+       */
+      if (
+        usingRealTestPhoneNumber(target.name) &&
+        !target.smsClient.isTwilioEnabled()
+      ) {
+        throw new Error(
+          'Twilio must be enabled when using a real test number.'
+        );
+      }
+      if (
+        !usingRealTestPhoneNumber(target.name) &&
+        !target.smsClient.isRedisEnabled()
+      ) {
+        throw new Error('Redis must be enabled when using a real test number.');
+      }
+    });
     test.beforeEach(async ({ pages: { configPage }, target }) => {
       // Ensure that the feature flag is enabled
       const config = await configPage.getConfig();
       test.skip(config.featureFlags.enableAdding2FABackupPhone !== true);
       test.skip(config.featureFlags.enableUsing2FABackupPhone !== true);
-
-      // Twilio does not allow you to fetch messages when using test credentials.
-      // Therefore, we fallback to peeking at Redis to get confirmation codes.
-      if (target.name === 'local') {
-        expect(
-          target.smsClient.isTwilioEnabled(),
-          'Local env found, use redis and Twilio test creds'
-        ).toBeFalsy();
-      } else {
-        expect(
-          target.smsClient.isTwilioEnabled(),
-          'Stage/Prod env, use Twilio API'
-        ).toBeTruthy();
-      }
     });
 
     test('setup fails with invalid number', async ({

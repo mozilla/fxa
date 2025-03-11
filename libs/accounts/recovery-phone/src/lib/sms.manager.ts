@@ -102,10 +102,12 @@ export class SmsManager {
   public async sendSMS({
     to,
     body,
+    statusCallback,
     uid,
   }: {
     to: string;
     body: string;
+    statusCallback?: string;
     uid?: string;
   }) {
     // Calling code should try to avoid this from happening though, but we
@@ -128,12 +130,13 @@ export class SmsManager {
       }
     }
 
-    return await this._sendSMS(to, body, uid, 0);
+    return await this._sendSMS(to, body, statusCallback, uid, 0);
   }
 
   private async _sendSMS(
     to: string,
     body: string,
+    statusCallback: string | undefined,
     uid: string | undefined,
     retryCount: number
   ): Promise<MessageInstance> {
@@ -145,6 +148,7 @@ export class SmsManager {
         to,
         from,
         body,
+        statusCallback,
       });
       // Typically the message will be in queued status. The following metric and log
       // can help track or debug send problems.
@@ -161,7 +165,7 @@ export class SmsManager {
           await new Promise((r) =>
             setTimeout(r, Math.pow(2, retryCount++) * 1000)
           );
-          return await this._sendSMS(to, body, uid, retryCount);
+          return await this._sendSMS(to, body, statusCallback, uid, retryCount);
         }
       }
 
