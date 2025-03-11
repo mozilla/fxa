@@ -9,8 +9,8 @@ import {
   StripeClient,
   StripeCustomer,
   StripeInvoice,
-  StripePrice,
   StripePromotionCode,
+  StripeSubscriptionItem,
 } from '@fxa/payments/stripe';
 import {
   ChargeOptions,
@@ -32,6 +32,7 @@ import {
   InvalidInvoiceError,
   PayPalPaymentFailedError,
   StripePayPalAgreementNotFoundError,
+  UpgradeCustomerMissingCurrencyInvoiceError,
 } from './error';
 
 @Injectable()
@@ -108,93 +109,69 @@ export class InvoiceManager {
     return stripeInvoiceToInvoicePreviewDTO(upcomingInvoice);
   }
 
-  async previewUpcomingForUpgrade({
+  async previewUpcomingUpgrade({
     priceId,
-    currency,
     customer,
-    taxAddress,
-    couponCode,
-    fromPrice,
+    fromSubscriptionItem,
   }: {
     priceId: string;
-    currency: string;
-    customer?: StripeCustomer;
-    taxAddress?: TaxAddress;
-    couponCode?: string;
-    fromPrice?: StripePrice;
+    customer: StripeCustomer;
+    fromSubscriptionItem: StripeSubscriptionItem;
   }): Promise<InvoicePreview> {
-    let promoCode: StripePromotionCode | undefined;
-    if (couponCode) {
-      const promotionCodes = await this.stripeClient.promotionCodesList({
-        active: true,
-        code: couponCode,
-      });
-      promoCode = promotionCodes.data.at(0);
-    }
-    const automaticTax = !!(
-      (customer && isCustomerTaxEligible(customer)) ||
-      (!customer && taxAddress)
-    );
-
-    const shipping =
-      !customer && taxAddress
-        ? {
-            name: '',
-            address: {
-              country: taxAddress.countryCode,
-              postal_code: taxAddress.postalCode,
-            },
-          }
-        : undefined;
-
     const requestObject: Stripe.InvoiceRetrieveUpcomingParams = {
-      customer: customer?.id,
-      automatic_tax: {
-        enabled: automaticTax,
-      },
-      customer_details: {
-        tax_exempt: 'none', // Param required when shipping address not present
-        shipping,
-      },
+      customer: customer.id,
       subscription_details: {
-        items: [{ price: priceId }],
+        items: [
+          {
+            price: priceId,
+            id: fromSubscriptionItem.id,
+          },
+        ],
+        proration_behavior: 'always_invoice',
+        proration_date: Math.floor(Date.now() / 1000),
       },
-      discounts: [{ promotion_code: promoCode?.id }],
+      subscription: fromSubscriptionItem.subscription,
     };
 
-    const invoicePreview = await this.previewUpcoming({
-      priceId,
-      currency,
-      customer,
-      taxAddress,
-      couponCode,
-    });
-
-    const subscriptions = await this.stripeClient.subscriptionsList({
-      customer: customer?.id,
-    });
-
-    const subscriptionItem = subscriptions.data
-      .flatMap((subscription) => subscription.items.data)
-      ?.find((subscription) => subscription.plan.id === fromPrice?.id);
-
-    const firstSubItem = requestObject.subscription_details?.items?.at(0);
-    if (!firstSubItem) throw new Error('No subscription item found');
-    firstSubItem.id = subscriptionItem?.id;
-    requestObject.subscription = subscriptionItem?.subscription;
-    requestObject.subscription_details = {
-      ...requestObject.subscription_details,
-      proration_behavior: 'always_invoice',
-      proration_date: Math.floor(Date.now() / 1000),
-    };
-
-    const proratedInvoice = await this.stripeClient.invoicesRetrieveUpcoming(
+    const upcomingInvoice = await this.stripeClient.invoicesRetrieveUpcoming(
       requestObject
     );
 
+    return stripeInvoiceToInvoicePreviewDTO(upcomingInvoice);
+  }
+
+  async previewUpcomingForUpgrade({
+    priceId,
+    customer,
+    fromSubscriptionItem,
+  }: {
+    priceId: string;
+    customer: StripeCustomer;
+    fromSubscriptionItem: StripeSubscriptionItem;
+  }): Promise<InvoicePreview> {
+    if (!customer.currency) {
+      throw new UpgradeCustomerMissingCurrencyInvoiceError(
+        'Customer should have currency for upgrade'
+      );
+    }
+
+    // This is a preview of the invoice a customer would receive for the new plan
+    const previewSubsequentInvoice = await this.previewUpcoming({
+      priceId,
+      currency: customer.currency,
+      customer,
+    });
+
+    // This is a preview of the invoice a customer would receive on checkout of an upgrade
+    const previewUpcomingInvoiceOfUpgrade = await this.previewUpcomingUpgrade({
+      priceId,
+      customer,
+      fromSubscriptionItem,
+    });
+
     return {
-      ...invoicePreview,
-      oneTimeCharge: proratedInvoice.total,
+      ...previewSubsequentInvoice,
+      oneTimeCharge: previewUpcomingInvoiceOfUpgrade.totalAmount,
     };
   }
 

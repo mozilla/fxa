@@ -11,13 +11,21 @@ export const SubscriptionEligibilityResultCreateFactory =
   });
 
 export const SubscriptionEligibilityResultUpgradeFactory = (): {
-  subscriptionEligibilityResult:
-    | EligibilityStatus.UPGRADE
-    | EligibilityStatus.DOWNGRADE;
+  subscriptionEligibilityResult: EligibilityStatus.UPGRADE;
   fromOfferingConfigId: string;
   fromPrice: StripePrice;
 } => ({
   subscriptionEligibilityResult: EligibilityStatus.UPGRADE,
+  fromOfferingConfigId: faker.helpers.arrayElement(['vpn']),
+  fromPrice: StripePriceFactory(),
+});
+
+export const SubscriptionEligibilityResultDowngradeFactory = (): {
+  subscriptionEligibilityResult: EligibilityStatus.DOWNGRADE;
+  fromOfferingConfigId: string;
+  fromPrice: StripePrice;
+} => ({
+  subscriptionEligibilityResult: EligibilityStatus.DOWNGRADE,
   fromOfferingConfigId: faker.helpers.arrayElement(['vpn']),
   fromPrice: StripePriceFactory(),
 });
