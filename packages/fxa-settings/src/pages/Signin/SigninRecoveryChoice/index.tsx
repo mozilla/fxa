@@ -64,6 +64,7 @@ const SigninRecoveryChoice = ({
     if (
       error === AuthUiErrors.BACKEND_SERVICE_FAILURE ||
       error === AuthUiErrors.SMS_SEND_RATE_LIMIT_EXCEEDED ||
+      error === AuthUiErrors.FEATURE_NOT_ENABLED ||
       error === AuthUiErrors.UNEXPECTED_ERROR
     ) {
       setErrorBannerMessage(generalSendCodeErrorHeading);

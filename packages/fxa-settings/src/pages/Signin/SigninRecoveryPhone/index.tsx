@@ -90,6 +90,7 @@ const SigninRecoveryPhone = ({
     if (error) {
       if (
         error.errno === AuthUiErrors.BACKEND_SERVICE_FAILURE.errno ||
+        error.errno === AuthUiErrors.FEATURE_NOT_ENABLED.errno ||
         error.errno === AuthUiErrors.SMS_SEND_RATE_LIMIT_EXCEEDED.errno ||
         error.errno === AuthUiErrors.UNEXPECTED_ERROR.errno
       ) {
