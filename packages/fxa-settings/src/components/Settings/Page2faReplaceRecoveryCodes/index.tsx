@@ -276,7 +276,6 @@ const RecoveryCodeCheck = ({
             name="recoveryCode"
             label="Enter a backup authentication code"
             prefixDataTestId="recovery-code"
-            autoFocus
             onChange={() => {
               setRecoveryCodeError('');
               recoveryCodeForm.trigger('recoveryCode');

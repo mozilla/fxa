@@ -166,7 +166,7 @@ export const UnitRowTwoStepAuth = () => {
         <BackupCodesSubRow
           numCodesAvailable={count}
           onCtaClick={() => {
-            navigate(replaceCodesRoute);
+            navigate(replaceCodesRoute, undefined, false);
           }}
           key={1}
         />
@@ -180,13 +180,21 @@ export const UnitRowTwoStepAuth = () => {
         subRows.push(
           <BackupPhoneSubRow
             onCtaClick={() => {
-              navigate(`${SETTINGS_PATH}/recovery_phone/setup`);
+              navigate(
+                `${SETTINGS_PATH}/recovery_phone/setup`,
+                undefined,
+                false
+              );
             }}
             // only include the delete option if the user has recovery codes available
             {...(count &&
               count > 0 && {
                 onDeleteClick: () => {
-                  navigate(`${SETTINGS_PATH}/recovery_phone/remove`);
+                  navigate(
+                    `${SETTINGS_PATH}/recovery_phone/remove`,
+                    undefined,
+                    false
+                  );
                 },
               })}
             phoneNumber={

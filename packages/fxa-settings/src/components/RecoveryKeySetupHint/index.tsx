@@ -142,7 +142,6 @@ export const RecoveryKeySetupHint = ({
             name="hint"
             label="Enter a hint (optional)"
             prefixDataTestId="hint"
-            autoFocus
             inputRef={register()}
             onChange={() => {
               setHintError(undefined);
