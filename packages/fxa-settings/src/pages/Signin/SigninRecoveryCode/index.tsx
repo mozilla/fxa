@@ -5,7 +5,11 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { RouteComponentProps, useLocation } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { AppContext, isWebIntegration, useFtlMsgResolver } from '../../../models';
+import {
+  AppContext,
+  isWebIntegration,
+  useFtlMsgResolver,
+} from '../../../models';
 import { BackupCodesImage } from '../../../components/images';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import FormVerifyCode, {
@@ -179,6 +183,7 @@ const SigninRecoveryCode = ({
     }
     if (
       handledError.errno === AuthUiErrors.BACKEND_SERVICE_FAILURE.errno ||
+      handledError.errno === AuthUiErrors.FEATURE_NOT_ENABLED.errno ||
       handledError.errno === AuthUiErrors.SMS_SEND_RATE_LIMIT_EXCEEDED.errno ||
       handledError.errno === AuthUiErrors.UNEXPECTED_ERROR.errno
     ) {
