@@ -98,7 +98,6 @@ const FormVerifyTotp = ({
         inputMode={codeType === 'numeric' ? 'numeric' : 'text'}
         label={localizedInputLabel}
         onChange={handleChange}
-        autoFocus
         maxLength={codeLength}
         className="text-start"
         anchorPosition="start"

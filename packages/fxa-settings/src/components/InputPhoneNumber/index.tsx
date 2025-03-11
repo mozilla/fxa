@@ -154,7 +154,6 @@ const InputPhoneNumber = ({
         name="phoneNumber"
         type="tel"
         label={localizedLabel}
-        autoFocus
         required
         className="text-start w-full"
         autoComplete="off"

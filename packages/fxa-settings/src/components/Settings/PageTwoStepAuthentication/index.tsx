@@ -326,7 +326,6 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
                 label="Enter authentication code"
                 prefixDataTestId="totp"
                 maxLength={6}
-                autoFocus
                 onChange={() => {
                   setInvalidCodeError('');
                   totpForm.trigger('totp');
@@ -444,7 +443,6 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
                 name="recoveryCode"
                 label="Enter a backup authentication code"
                 prefixDataTestId="recovery-code"
-                autoFocus
                 onChange={() => {
                   setRecoveryCodeError('');
                   recoveryCodeForm.trigger('recoveryCode');

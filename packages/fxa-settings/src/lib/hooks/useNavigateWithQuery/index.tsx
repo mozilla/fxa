@@ -7,7 +7,11 @@ import { useNavigate, NavigateOptions } from '@reach/router';
 export function useNavigateWithQuery() {
   const navigate = useNavigate();
 
-  return (to: string, options?: NavigateOptions<{}>) => {
+  return (
+    to: string,
+    options?: NavigateOptions<{}>,
+    includeHash: boolean = true
+  ) => {
     const location = window.location;
     let path = to;
 
@@ -17,7 +21,7 @@ export function useNavigateWithQuery() {
       path = `${to}${location.search}`;
     }
 
-    if (location.hash) {
+    if (includeHash && location.hash) {
       path = `${path}${location.hash}`;
     }
 
