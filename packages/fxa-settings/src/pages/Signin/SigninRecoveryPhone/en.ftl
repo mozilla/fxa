@@ -28,3 +28,7 @@ signin-recovery-phone-general-error-description = Please try again later.
 
 signin-recovery-phone-invalid-code-error-description = The code is invalid or expired.
 signin-recovery-phone-invalid-code-error-link = Use backup authentication codes instead?
+
+# "Limits" refers to potential restrictions on how often a recovery phone number can be used for signing in within a given time period.
+# If limits are reached, users may have to use an alternate two-step authentication method or wait until the restriction period is over.
+signin-recovery-phone-success-message = Signed in successfully. Limits may apply if you use your recovery phone again.
