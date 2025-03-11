@@ -9,6 +9,8 @@ require('../lib/monitoring');
 
 const { config } = require('../config');
 
+const Redis = require('ioredis');
+
 const { CapabilityManager } = require('@fxa/payments/capability');
 const { EligibilityManager } = require('@fxa/payments/eligibility');
 const {
@@ -224,7 +226,7 @@ async function run(config) {
   }
 
   const twilio = TwilioFactory.useFactory(config.twilio);
-  const recoveryPhoneRedis = require('../lib/redis')({
+  const recoveryPhoneRedis = new Redis({
     ...config.redis,
     ...config.redis.recoveryPhone,
   });

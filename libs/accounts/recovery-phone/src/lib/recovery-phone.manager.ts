@@ -174,9 +174,28 @@ export class RecoveryPhoneManager {
    *
    * @param uid
    */
-  async getAllUnconfirmed(uid: string): Promise<string[]> {
-    const redisKey = `${this.redisPrefix}:${uid}:*`;
-    return await this.redisClient.keys(redisKey);
+  private async getAllUnconfirmedKeys(uid: string): Promise<string[]> {
+    const pattern = `${this.redisPrefix}:${uid}:*`;
+    let cursor = '0';
+    let keys: string[] = [];
+
+    do {
+      const reply = await this.redisClient.scan(cursor, 'MATCH', pattern);
+      cursor = reply[0];
+      keys = keys.concat(reply[1]);
+    } while (cursor !== '0');
+
+    return keys;
+  }
+
+  /**
+   * Returns codes sent out for all unconfirmed phone numbers for a user.
+   * @param uid
+   * @returns
+   */
+  async getAllUnconfirmedCodes(uid: string): Promise<string[]> {
+    const keys = await this.getAllUnconfirmedKeys(uid);
+    return keys.map((x) => x.split(':').pop() || '').filter((x) => !!x);
   }
 
   /**

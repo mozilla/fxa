@@ -95,14 +95,10 @@ export class RecoveryPhoneService {
     }
 
     // Invalidate and remove any or all previous unconfirmed code entries
-    const unconfirmedKeys = await this.recoveryPhoneManager.getAllUnconfirmed(
-      uid
-    );
-    for (const key of unconfirmedKeys) {
-      const code = key.split(':').pop();
-      if (code) {
-        await this.recoveryPhoneManager.removeCode(uid, code);
-      }
+    const unconfirmedCodes =
+      await this.recoveryPhoneManager.getAllUnconfirmedCodes(uid);
+    for (const code of unconfirmedCodes) {
+      await this.recoveryPhoneManager.removeCode(uid, code);
     }
 
     // Rejects the phone number if it has been registered for too many accounts
@@ -371,14 +367,10 @@ export class RecoveryPhoneService {
     }
 
     // Invalidate and remove any or all previous unconfirmed code entries
-    const unconfirmedKeys = await this.recoveryPhoneManager.getAllUnconfirmed(
-      uid
-    );
-    for (const key of unconfirmedKeys) {
-      const oldCode = key.split(':').pop();
-      if (oldCode) {
-        await this.recoveryPhoneManager.removeCode(uid, oldCode);
-      }
+    const unconfirmedCodes =
+      await this.recoveryPhoneManager.getAllUnconfirmedCodes(uid);
+    for (const oldCode of unconfirmedCodes) {
+      await this.recoveryPhoneManager.removeCode(uid, oldCode);
     }
 
     // Generate a new otp code, and store it as unconfirmed for later validation

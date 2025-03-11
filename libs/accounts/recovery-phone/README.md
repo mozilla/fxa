@@ -12,4 +12,6 @@ Run `nx test-unit accounts-recovery-phone` to execute the unit tests via [Jest](
 
 ## Running integration tests
 
+Make sure local infra (ie databases) are spun up by checking status. `yarn pm2 status` should show redis and mysql instances running. If not, run `yarn start infrastructure`.
+
 Run `nx test-integration accounts-recovery-phone` to execute the integration tests via [Jest](https://jestjs.io).

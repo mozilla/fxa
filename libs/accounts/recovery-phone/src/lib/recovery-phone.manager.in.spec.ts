@@ -9,10 +9,12 @@ import {
   RecoveryPhoneFactory,
 } from '@fxa/shared/db/mysql/account';
 import { Test } from '@nestjs/testing';
+import Redis from 'ioredis';
 
 describe('RecoveryPhoneManager', () => {
   let recoveryPhoneManager: RecoveryPhoneManager;
   let db: AccountDatabase;
+  let redis: Redis.Redis;
   const dateMock = jest.spyOn(global.Date, 'now');
 
   // Taken from: https://www.twilio.com/docs/lookup/v2-api#code-lookup-with-data-packages
@@ -38,19 +40,29 @@ describe('RecoveryPhoneManager', () => {
     callForwarding: {},
   };
 
-  const mockRedis = {
-    set: jest.fn(),
-    get: jest.fn(),
-    del: jest.fn(),
-  };
+  async function clearRedisSmsKeys() {
+    const addedKeys = await redis.keys('sms-attempt:*');
+    for (const key of addedKeys) {
+      await redis.del(key);
+    }
+  }
 
   beforeAll(async () => {
     dateMock.mockImplementation(() => 1739227529776);
+
     db = await testAccountDatabaseSetup([
       'accounts',
       'recoveryPhones',
       'recoveryCodes',
     ]);
+
+    // Since this is an integration we can expect that
+    // infrastructure is running.
+    redis = new Redis('localhost');
+
+    // Make sure sms key state is clean
+    await clearRedisSmsKeys();
+
     const moduleRef = await Test.createTestingModule({
       providers: [
         RecoveryPhoneManager,
@@ -60,7 +72,7 @@ describe('RecoveryPhoneManager', () => {
         },
         {
           provide: 'RecoveryPhoneRedis',
-          useValue: mockRedis,
+          useValue: redis,
         },
       ],
     }).compile();
@@ -69,6 +81,7 @@ describe('RecoveryPhoneManager', () => {
   });
 
   afterAll(async () => {
+    await clearRedisSmsKeys();
     await db.destroy();
     dateMock.mockReset();
   });
@@ -192,47 +205,62 @@ describe('RecoveryPhoneManager', () => {
     insertIntoSpy.mockRestore();
   });
 
-  it('should store unconfirmed phone number data in Redis', async () => {
+  it('should store and retrieve unconfirmed phone number data in Redis', async () => {
     const mockPhone = RecoveryPhoneFactory();
     const { uid, phoneNumber } = mockPhone;
-    const code = '123456';
     const isSetup = true;
     await recoveryPhoneManager.storeUnconfirmed(
       uid.toString('hex'),
-      code,
+      '111111',
       phoneNumber,
       isSetup,
       mockLookUpData
     );
-
-    const redisKey = `sms-attempt:${uid.toString('hex')}:${code}`;
-
-    expect(mockRedis.set).toHaveBeenCalledWith(
-      redisKey,
-      expect.any(String),
-      'EX',
-      600
+    await recoveryPhoneManager.storeUnconfirmed(
+      uid.toString('hex'),
+      '222222',
+      phoneNumber,
+      isSetup
     );
 
-    const expectedData = expect.objectContaining({
-      createdAt: expect.any(Number),
+    // Store one item for different accounts to make sure lookup is filtering
+    // on uid
+    await recoveryPhoneManager.storeUnconfirmed(
+      uid.toString('hex').replace(/./g, '1'),
+      '333333',
       phoneNumber,
-      isSetup,
-      lookupData: JSON.stringify(mockLookUpData),
-    });
+      isSetup
+    );
 
-    const storedData = mockRedis.set.mock.calls[0][1];
-    expect(() => JSON.parse(storedData)).not.toThrow();
-    const parsedData = JSON.parse(mockRedis.set.mock.calls[0][1]);
-    expect(parsedData).toEqual(expectedData);
+    const firstUnconfirmedCode = await recoveryPhoneManager.getUnconfirmed(
+      uid.toString('hex'),
+      '111111'
+    );
+    expect(firstUnconfirmedCode).toBeDefined();
+    expect(firstUnconfirmedCode?.lookupData).toBeDefined();
+    expect(firstUnconfirmedCode?.lookupData).toEqual(
+      JSON.stringify(mockLookUpData)
+    );
+
+    const secondUnconfirmedCode = await recoveryPhoneManager.getUnconfirmed(
+      uid.toString('hex'),
+      '222222'
+    );
+    expect(secondUnconfirmedCode).toBeDefined();
+    expect(secondUnconfirmedCode?.lookupData).toEqual(null);
+
+    const allUnconfirmedCodes =
+      await recoveryPhoneManager.getAllUnconfirmedCodes(uid.toString('hex'));
+    expect(allUnconfirmedCodes.length).toEqual(2);
+    expect(allUnconfirmedCodes).toContain('111111');
+    expect(allUnconfirmedCodes).toContain('222222');
+    expect(allUnconfirmedCodes).not.toContain('333333');
   });
 
   it('should return null if no unconfirmed phone number data is found in Redis', async () => {
     const mockPhone = RecoveryPhoneFactory();
     const { uid } = mockPhone;
     const code = '123456';
-
-    mockRedis.get.mockResolvedValue(null);
 
     const result = await recoveryPhoneManager.getUnconfirmed(
       uid.toString('hex'),
