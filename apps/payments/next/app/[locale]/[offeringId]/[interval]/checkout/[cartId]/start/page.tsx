@@ -43,6 +43,7 @@ export default async function Checkout({
   searchParams: Record<string, string> | undefined;
 }) {
   const { locale } = params;
+
   const acceptLanguage = headers().get('accept-language');
   const sessionPromise = auth();
   const l10n = getApp().getL10n(acceptLanguage, locale);
@@ -63,6 +64,12 @@ export default async function Checkout({
     cmsDataPromise,
   ]);
 
+  const redirectSearchParams: Record<string, string> = searchParams || {};
+  if (cart.taxAddress) {
+    redirectSearchParams.countryCode = cart.taxAddress.countryCode;
+    redirectSearchParams.postalCode = cart.taxAddress.postalCode;
+  }
+
   const redirectTo = buildRedirectUrl(
     params.offeringId,
     params.interval,
@@ -71,7 +78,7 @@ export default async function Checkout({
     {
       baseUrl: config.paymentsNextHostedUrl,
       locale,
-      searchParams,
+      searchParams: redirectSearchParams,
     }
   );
 
@@ -85,7 +92,6 @@ export default async function Checkout({
               '1. Sign in or create a Mozilla account'
             )}
           </h2>
-
           <SignInForm
             submitAction={async (email?: string) => {
               'use server';

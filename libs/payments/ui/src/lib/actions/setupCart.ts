@@ -4,15 +4,15 @@
 'use server';
 
 import { getApp } from '../nestapp/app';
-import type { SubplatInterval } from '@fxa/payments/customer';
+import type { SubplatInterval, TaxAddress } from '@fxa/payments/customer';
 
 export const setupCartAction = async (
   interval: SubplatInterval,
   offeringConfigId: string,
+  taxAddress: TaxAddress,
   experiment?: string,
   promoCode?: string,
-  uid?: string,
-  ip?: string
+  uid?: string
 ) => {
   return getApp().getActionsService().setupCart({
     interval,
@@ -20,6 +20,6 @@ export const setupCartAction = async (
     experiment,
     promoCode,
     uid,
-    ip,
+    taxAddress,
   });
 };

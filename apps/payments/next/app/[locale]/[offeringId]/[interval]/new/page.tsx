@@ -4,44 +4,61 @@
 
 import { auth } from 'apps/payments/next/auth';
 import { redirect } from 'next/navigation';
-import { NextRequest } from 'next/server';
 import { setupCartAction } from '@fxa/payments/ui/actions';
 import { CartEligibilityStatus } from '@fxa/shared/db/mysql/account';
 import { BaseParams, buildRedirectUrl } from '@fxa/payments/ui';
-import { getIpAddress } from '@fxa/payments/ui/server';
 import { config } from 'apps/payments/next/config';
 import type { SubplatInterval } from '@fxa/payments/customer';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(
-  request: NextRequest,
-  {
-    params,
-  }: {
-    params: BaseParams;
-  }
-) {
+export default async function New({
+  params,
+  searchParams,
+}: {
+  params: BaseParams;
+  searchParams: Record<string, string>;
+}) {
   const { offeringId, interval, locale } = params;
-  const searchParams = request.nextUrl.searchParams;
   const session = await auth();
-  const ip = getIpAddress();
 
   const fxaUid = session?.user?.id;
-  const coupon = searchParams.get('coupon') || undefined;
+  const coupon = searchParams.coupon || undefined;
+  const countryCode = searchParams.countryCode || undefined;
+  const postalCode = searchParams.postalCode || undefined;
+  const taxAddress =
+    countryCode && postalCode ? { countryCode, postalCode } : undefined;
+
+  if (!taxAddress) {
+    const redirectToUrl = new URL(
+      buildRedirectUrl(
+        params.offeringId,
+        params.interval,
+        'location',
+        'checkout',
+        {
+          locale: params.locale,
+          baseUrl: config.paymentsNextHostedUrl,
+          searchParams: searchParams,
+        }
+      )
+    );
+    redirect(redirectToUrl.href);
+  }
 
   let redirectToUrl: URL;
+  let pageType: 'checkout' | 'upgrade';
   try {
     const { id: cartId, eligibilityStatus } = await setupCartAction(
       interval as SubplatInterval,
       offeringId,
+      taxAddress,
       undefined,
       coupon,
-      fxaUid,
-      ip
+      fxaUid
     );
 
-    const pageType =
+    pageType =
       eligibilityStatus === CartEligibilityStatus.UPGRADE
         ? 'upgrade'
         : 'checkout';
@@ -51,7 +68,7 @@ export async function GET(
         locale,
         cartId,
         baseUrl: config.paymentsNextHostedUrl,
-        searchParams: Object.fromEntries(searchParams),
+        searchParams,
       })
     );
   } catch (error) {
@@ -59,13 +76,13 @@ export async function GET(
       const { id: cartId, eligibilityStatus } = await setupCartAction(
         interval as SubplatInterval,
         offeringId,
+        taxAddress,
         undefined,
         undefined,
-        fxaUid,
-        ip
+        fxaUid
       );
 
-      const pageType =
+      pageType =
         eligibilityStatus === CartEligibilityStatus.UPGRADE
           ? 'upgrade'
           : 'checkout';
@@ -75,13 +92,16 @@ export async function GET(
           locale,
           cartId,
           baseUrl: config.paymentsNextHostedUrl,
-          searchParams: Object.fromEntries(searchParams),
+          searchParams,
         })
       );
     } else {
       throw error;
     }
   }
+
+  redirectToUrl.searchParams.delete('countryCode');
+  redirectToUrl.searchParams.delete('postalCode');
 
   redirect(redirectToUrl.href);
 }

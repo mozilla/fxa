@@ -49,6 +49,7 @@ import {
   CouponErrorExpired,
   CouponErrorGeneric,
   CouponErrorLimitReached,
+  TaxAddress,
   type SubplatInterval,
 } from '@fxa/payments/customer';
 import { GetPayPalCheckoutTokenResult } from './validators/GetPayPalCheckoutTokenResult';
@@ -59,6 +60,8 @@ import { ValidatePostalCodeActionResult } from './validators/ValidatePostalCodeA
 import { DetermineCurrencyActionResult } from './validators/DetermineCurrencyActionResult';
 import { SetupCartActionResult } from './validators/SetupCartActionResult';
 import { RestartCartActionResult } from './validators/RestartCartActionResult';
+import { GetTaxAddressArgs } from './validators/getTaxAddressArgs';
+import { GetTaxAddressResult } from './validators/getTaxAddressResult';
 
 /**
  * ANY AND ALL methods exposed via this service should be considered publicly accessible and callable with any arguments.
@@ -144,7 +147,7 @@ export class NextJSActionsService {
     experiment?: string;
     promoCode?: string;
     uid?: string;
-    ip?: string;
+    taxAddress: TaxAddress;
   }) {
     const cart = await this.cartService.setupCart({
       ...args,
@@ -179,6 +182,13 @@ export class NextJSActionsService {
     return {
       token,
     };
+  }
+
+  @SanitizeExceptions()
+  @NextIOValidator(GetTaxAddressArgs, GetTaxAddressResult)
+  async getTaxAddress(args: { ipAddress: string }) {
+    const taxAddress = this.geodbManager.getTaxAddress(args.ipAddress);
+    return { taxAddress };
   }
 
   @SanitizeExceptions()
