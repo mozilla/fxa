@@ -21,6 +21,11 @@ import { MessageStatus } from 'twilio/lib/rest/api/v2010/account/message';
 import { TwilioConfig } from './twilio.config';
 import { getExpectedTwilioSignature } from 'twilio/lib/webhooks/webhooks';
 import { SegmentedMessage } from 'sms-segments-calculator';
+import {
+  createNewFxaKeyPair,
+  createRandomFxaMessage,
+  signFxaMessage,
+} from './util';
 
 describe('RecoveryPhoneService', () => {
   const phoneNumber = '+15005551234';
@@ -72,11 +77,22 @@ describe('RecoveryPhoneService', () => {
     },
   } satisfies RecoveryPhoneConfig;
 
+  const mockAccountSid = 'AC00000000000000000000000000000000';
+  const mockAuthToken = '00000000000000000000000000000000';
+  const mockValidateWebhookCalls = true;
+  const mockWebhookUrl =
+    'https://accounts.firefox.com/v1/recovery_phone/message_status';
+
+  const mockKeys = createNewFxaKeyPair();
+
   const mockTwilioConfig: TwilioConfig = {
-    accountSid: 'AC00000000000000000000000000000000',
-    authToken: '00000000000000000000000000000000',
-    webhookUrl: 'http://accounts.firefox.com/recovery-phone/message-status',
-    validateWebhookCalls: true,
+    credentialMode: 'default',
+    accountSid: mockAccountSid,
+    authToken: undefined,
+    webhookUrl: mockWebhookUrl,
+    validateWebhookCalls: mockValidateWebhookCalls,
+    fxaPublicKey: mockKeys.publicKey,
+    fxaPrivateKey: mockKeys.privateKey,
   } satisfies TwilioConfig;
 
   const mockGetFormattedMessage = async (code: string) => {
@@ -154,6 +170,7 @@ describe('RecoveryPhoneService', () => {
     expect(mockSmsManager.sendSMS).toBeCalledWith({
       to: phoneNumber,
       body: (await mockGetFormattedMessage(code)).msg,
+      statusCallback: expect.stringContaining(mockWebhookUrl),
     });
     expect(mockRecoveryPhoneManager.storeUnconfirmed).toBeCalledWith(
       uid,
@@ -185,6 +202,7 @@ describe('RecoveryPhoneService', () => {
     expect(mockSmsManager.sendSMS).toBeCalledWith({
       to: phoneNumber,
       body: (await mockGetFormattedMessage(code)).msg,
+      statusCallback: expect.stringContaining(mockWebhookUrl),
     });
     expect(mockRecoveryPhoneManager.storeUnconfirmed).toBeCalledWith(
       uid,
@@ -209,6 +227,7 @@ describe('RecoveryPhoneService', () => {
     expect(mockSmsManager.sendSMS).toBeCalledWith({
       to: phoneNumber,
       body: (await mockGetFormattedMessage(code)).msg,
+      statusCallback: expect.stringContaining(mockWebhookUrl),
     });
     expect(mockRecoveryPhoneManager.storeUnconfirmed).toBeCalledWith(
       uid,
@@ -514,6 +533,7 @@ describe('RecoveryPhoneService', () => {
       expect(mockSmsManager.sendSMS).toBeCalledWith({
         to: phoneNumber,
         body: (await mockGetFormattedMessage(code)).msg,
+        statusCallback: expect.stringContaining(mockWebhookUrl),
       });
     });
 
@@ -534,6 +554,7 @@ describe('RecoveryPhoneService', () => {
       expect(mockSmsManager.sendSMS).toBeCalledWith({
         to: phoneNumber,
         body: `Your Mozilla Account code is ${code}`,
+        statusCallback: expect.stringContaining(mockWebhookUrl),
       });
     });
 
@@ -554,6 +575,7 @@ describe('RecoveryPhoneService', () => {
       expect(mockSmsManager.sendSMS).toBeCalledWith({
         to: phoneNumber,
         body: `Failsafe: ${code}`,
+        statusCallback: expect.stringContaining(mockWebhookUrl),
       });
     });
 
@@ -606,6 +628,7 @@ describe('RecoveryPhoneService', () => {
       expect(mockSmsManager.sendSMS).toBeCalledWith({
         to: phoneNumber,
         body: (await mockGetFormattedMessage(code)).msg,
+        statusCallback: expect.stringContaining(mockWebhookUrl),
       });
 
       expect(mockRecoveryPhoneManager.removeCode).toBeCalledWith(
@@ -730,49 +753,135 @@ describe('RecoveryPhoneService', () => {
     });
   });
 
-  describe('verify twilio signature', () => {
-    // This is how Twilio generates the signature, see following doc for more info:
-    // https://www.twilio.com/docs/usage/security#test-the-validity-of-your-webhook-signature
-    const signature = getExpectedTwilioSignature(
-      mockTwilioConfig.authToken,
-      mockTwilioConfig.webhookUrl,
-      {
-        foo: 'bar',
-      }
-    );
+  describe('verify twilio webhook signature', () => {
+    const AccountSid = 'AC123';
+    const From = '+123456789';
 
     afterEach(() => {
+      mockTwilioConfig.authToken = undefined;
       mockTwilioConfig.validateWebhookCalls = true;
-    });
-
-    it('can validate twilio signature', () => {
-      const valid = service.validateTwilioSignature(signature, {
-        foo: 'bar',
-      });
-      expect(valid).toBeTruthy();
-    });
-
-    it('can invalidate twilio signature due to bad payload', () => {
-      const valid = service.validateTwilioSignature(signature, {
-        foo: 'bar',
-        bar: 'baz',
-      });
-      expect(valid).toBeFalsy();
-    });
-
-    it('can invalidate twilio signature due to bad signature', () => {
-      const valid = service.validateTwilioSignature(signature + '0', {
-        foo: 'bar',
-      });
-      expect(valid).toBeFalsy();
     });
 
     it('will always validate if validateWebhookCalls is false', () => {
       mockTwilioConfig.validateWebhookCalls = false;
-      const valid = service.validateTwilioSignature(signature + '0', {
-        foo: 'bar',
+      expect(service.validateTwilioWebhookCallback({})).toBeTruthy();
+    });
+
+    describe('twilio signature', () => {
+      /**
+       * This is how Twilio generates the signature, see following doc for more info:
+       * https://www.twilio.com/docs/usage/security#test-the-validity-of-your-webhook-signature
+       *
+       * Note that when using twilio API keys instead of the main twilio auth token, this approach won't work!
+       * Unfortunately twilio doesn't offer any way to validate the signature with api keys.
+       *
+       */
+      const twilioSignature = getExpectedTwilioSignature(
+        mockAuthToken,
+        mockWebhookUrl,
+        {
+          AccountSid,
+          From,
+        }
+      );
+
+      it('can validate twilio signature', () => {
+        mockTwilioConfig.authToken = mockAuthToken;
+        expect(
+          service.validateTwilioWebhookCallback({
+            twilio: {
+              signature: twilioSignature,
+              params: {
+                AccountSid,
+                From,
+              },
+            },
+          })
+        ).toBeTruthy();
       });
-      expect(valid).toBeTruthy();
+
+      it('can invalidate twilio signature due to bad payload', () => {
+        mockTwilioConfig.authToken = mockAuthToken;
+        const valid = service.validateTwilioWebhookCallback({
+          twilio: {
+            signature: twilioSignature,
+            params: {
+              AccountSid: AccountSid + '0',
+              From: From + '0',
+            },
+          },
+        });
+        expect(valid).toBeFalsy();
+      });
+
+      it('can invalidate twilio signature due to bad signature', () => {
+        mockTwilioConfig.authToken = mockAuthToken;
+        const valid = service.validateTwilioWebhookCallback({
+          twilio: {
+            signature: twilioSignature + '0',
+            params: {
+              AccountSid,
+              From,
+            },
+          },
+        });
+        expect(valid).toBeFalsy();
+      });
+
+      it('can create twilio webhook callback url', () => {
+        mockTwilioConfig.authToken = mockAuthToken;
+        mockTwilioConfig.webhookUrl = mockWebhookUrl;
+
+        expect(service.createMessageStatusCallback()).toEqual(mockWebhookUrl);
+      });
+    });
+
+    describe('fxa signature', () => {
+      const { privateKey, publicKey } = createNewFxaKeyPair();
+      const fxaMessage = createRandomFxaMessage();
+      const fxaSignature = signFxaMessage(privateKey, fxaMessage);
+
+      it('can validate fxa signature', () => {
+        const valid = service.validateTwilioWebhookCallback({
+          fxa: {
+            signature: fxaSignature,
+            message: fxaMessage,
+          },
+        });
+        expect(valid).toBeFalsy();
+      });
+
+      it('can invalidate fxa-signature due to bad payload', () => {
+        const valid = service.validateTwilioWebhookCallback({
+          fxa: {
+            signature: fxaSignature,
+            message: '00',
+          },
+        });
+        expect(valid).toBeFalsy();
+      });
+
+      it('can validate fxa-signature due to bad signature', () => {
+        const valid = service.validateTwilioWebhookCallback({
+          fxa: {
+            signature: '00',
+            message: fxaMessage,
+          },
+        });
+        expect(valid).toBeFalsy();
+      });
+
+      it('can create fxa webhook callback url', () => {
+        mockTwilioConfig.authToken = undefined;
+        mockTwilioConfig.webhookUrl = mockWebhookUrl;
+        mockTwilioConfig.fxaPrivateKey = privateKey;
+        mockTwilioConfig.fxaPublicKey = publicKey;
+
+        const url = service.createMessageStatusCallback();
+        expect(url).toContain(mockWebhookUrl);
+        expect(url).toContain('?fxaSignature=');
+        expect(url).toContain('&fxaMessage=');
+      });
     });
   });
 });

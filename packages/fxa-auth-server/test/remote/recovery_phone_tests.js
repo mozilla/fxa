@@ -48,13 +48,17 @@ const redisUtil = {
   },
 };
 
-const isTwilioConfigured =
-  config.twilio.accountSid?.length >= 24 &&
-  config.twilio.accountSid?.startsWith('AC') &&
-  config.twilio.authToken?.length >= 24;
+// Note we have to use the 'test' credentials since these integration tests
+// require that we send messages to 'magic' phone numbers, which are only
+// supported by the twilio testing credentials.
+const isTwilioConfiguredForTest =
+  config.twilio.testAccountSid?.length >= 24 &&
+  config.twilio.testAccountSid?.startsWith('AC') &&
+  config.twilio.testAuthToken?.length >= 24 &&
+  config.twilio.credentialMode === 'test';
 
 describe(`#integration - recovery phone`, function () {
-  // TODO: Something flakes sometimes... figure out where the slowdown is.
+  // TODO: Something flakes... figure out where the slowdown is.
   this.timeout(10000);
 
   let server;
@@ -71,6 +75,12 @@ describe(`#integration - recovery phone`, function () {
 
   before(async function () {
     config.recoveryPhone.enabled = true;
+
+    // We nix the api key so the auth token is used. Only magic test numbers can be used with our
+    // 'testing' auth token.
+    config.twilio.apiKey = undefined;
+    config.twilio.apiSecret = undefined;
+
     config.securityHistory.ipProfiling.allowedRecency = 0;
     config.signinConfirmation.skipForNewAccounts.enabled = false;
     server = await TestServer.start(config);
@@ -117,7 +127,7 @@ describe(`#integration - recovery phone`, function () {
   });
 
   it('sets up a recovery phone', async function () {
-    if (!isTwilioConfigured) {
+    if (!isTwilioConfiguredForTest) {
       this.skip('Invalid twilio accountSid or authToken. Check env / config!');
     }
     const createResp = await client.recoveryPhoneCreate(phoneNumber);
@@ -133,7 +143,7 @@ describe(`#integration - recovery phone`, function () {
   });
 
   it('can send, confirm code, verify session, and remove totp', async function () {
-    if (!isTwilioConfigured) {
+    if (!isTwilioConfiguredForTest) {
       this.skip('Invalid twilio accountSid or authToken. Check env / config!');
     }
 
@@ -173,7 +183,7 @@ describe(`#integration - recovery phone`, function () {
   });
 
   it('can remove recovery phone', async function () {
-    if (!isTwilioConfigured) {
+    if (!isTwilioConfiguredForTest) {
       this.skip('Invalid twilio accountSid or authToken. Check env / config!');
     }
     await client.recoveryPhoneCreate(phoneNumber);
@@ -190,7 +200,7 @@ describe(`#integration - recovery phone`, function () {
   });
 
   it('fails to set up invalid phone number', async function () {
-    if (!isTwilioConfigured) {
+    if (!isTwilioConfiguredForTest) {
       this.skip('Invalid twilio accountSid or authToken. Check env / config!');
     }
 
@@ -206,8 +216,8 @@ describe(`#integration - recovery phone`, function () {
     assert.equal(error.message, 'Invalid phone number');
   });
 
-  it('it can recreate recovery phone number', async function () {
-    if (!isTwilioConfigured) {
+  it('can recreate recovery phone number', async function () {
+    if (!isTwilioConfiguredForTest) {
       this.skip('Invalid twilio accountSid or authToken. Check env / config!');
     }
     await client.recoveryPhoneCreate(phoneNumber);
@@ -217,7 +227,7 @@ describe(`#integration - recovery phone`, function () {
   });
 
   it('fails to send a code to an unregistered phone number', async function () {
-    if (!isTwilioConfigured) {
+    if (!isTwilioConfiguredForTest) {
       this.skip('Invalid twilio accountSid or authToken. Check env / config!');
     }
 
@@ -234,7 +244,7 @@ describe(`#integration - recovery phone`, function () {
   });
 
   it('fails to register the same phone number again', async function () {
-    if (!isTwilioConfigured) {
+    if (!isTwilioConfiguredForTest) {
       this.skip('Invalid twilio accountSid or authToken. Check env / config!');
     }
     await client.recoveryPhoneCreate(phoneNumber);
@@ -254,7 +264,7 @@ describe(`#integration - recovery phone`, function () {
   });
 
   it('fails to use the same code again', async function () {
-    if (!isTwilioConfigured) {
+    if (!isTwilioConfiguredForTest) {
       this.skip('Invalid twilio accountSid or authToken. Check env / config!');
     }
     await client.recoveryPhoneCreate(phoneNumber);
@@ -356,7 +366,7 @@ describe(`#integration - recovery phone - customs checks`, function () {
   });
 
   it('prevents excessive calls to /recovery_phone/create', async function () {
-    if (!isTwilioConfigured) {
+    if (!isTwilioConfiguredForTest) {
       this.skip('Invalid twilio accountSid or authToken. Check env / config!');
     }
 
@@ -376,7 +386,7 @@ describe(`#integration - recovery phone - customs checks`, function () {
   });
 
   it('prevents excessive calls to /recovery_phone/confirm', async function () {
-    if (!isTwilioConfigured) {
+    if (!isTwilioConfiguredForTest) {
       this.skip('Invalid twilio accountSid or authToken. Check env / config!');
     }
 
@@ -402,7 +412,7 @@ describe(`#integration - recovery phone - customs checks`, function () {
   });
 
   it('prevents excessive calls to /recovery_phone/signin/send_code', async function () {
-    if (!isTwilioConfigured) {
+    if (!isTwilioConfiguredForTest) {
       this.skip('Invalid twilio accountSid or authToken. Check env / config!');
     }
 

@@ -779,6 +779,9 @@ jobs:
           command: ./packages/functional-tests/scripts/start-services.sh
           environment:
             NODE_ENV: test
+            # Functional tests use 'real' numbers.
+            # Switch out of the default 'test' credential mode.
+            RECOVERY_PHONE__TWILIO__CREDENTIAL_MODE: 'apiKeys'
       - run-playwright-tests:
           project: local
       - store-artifacts
