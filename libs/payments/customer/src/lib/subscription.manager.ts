@@ -9,20 +9,14 @@ import {
   StripeClient,
   StripePaymentIntent,
   StripeSubscription,
-  StripeSubscriptionItem,
 } from '@fxa/payments/stripe';
 import { ACTIVE_SUBSCRIPTION_STATUSES } from '@fxa/payments/stripe';
 import { STRIPE_SUBSCRIPTION_METADATA } from './types';
-import {
-  InvalidPaymentIntentError,
-  PaymentIntentNotFoundError,
-  SubscriptionItemMissingItemError,
-  SubscriptionItemMultipleItemsError,
-} from './error';
+import { InvalidPaymentIntentError, PaymentIntentNotFoundError } from './error';
 
 @Injectable()
 export class SubscriptionManager {
-  constructor(private stripeClient: StripeClient) { }
+  constructor(private stripeClient: StripeClient) {}
 
   async cancel(
     subscriptionId: string,
@@ -90,21 +84,6 @@ export class SubscriptionManager {
     return subscriptions.find((sub) =>
       sub.items.data.find((subItem) => subItem.price.id === priceId)
     );
-  }
-
-  retrieveSubscriptionItem(
-    subscription: StripeSubscription
-  ): StripeSubscriptionItem {
-    if (subscription.items.data.length > 1) {
-      throw new SubscriptionItemMultipleItemsError(subscription.id);
-    }
-
-    const firstSubscriptionItem = subscription.items.data.at(0);
-    if (!firstSubscriptionItem) {
-      throw new SubscriptionItemMissingItemError(subscription.id);
-    }
-
-    return firstSubscriptionItem;
   }
 
   getPaymentProvider(subscription: StripeSubscription): 'paypal' | 'stripe' {

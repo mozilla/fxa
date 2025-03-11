@@ -21,6 +21,7 @@ import {
   CustomerSessionManager,
   PaymentIntentManager,
   determinePaymentMethodType,
+  retrieveSubscriptionItem,
 } from '@fxa/payments/customer';
 import { EligibilityService } from '@fxa/payments/eligibility';
 import {
@@ -557,14 +558,19 @@ export class CartService {
         'fromPrice' in eligibility,
         'fromPrice not present for upgrade cart'
       );
+      assert(customer, 'Customer is required for upgrade');
+      const fromSubscription =
+        await this.subscriptionManager.retrieveForCustomerAndPrice(
+          customer.id,
+          eligibility.fromPrice.id
+        );
+      assert(fromSubscription, 'Subscription required');
+      const fromSubscriptionItem = retrieveSubscriptionItem(fromSubscription);
       upcomingInvoicePreview =
         await this.invoiceManager.previewUpcomingForUpgrade({
           priceId: price.id,
-          currency: cart.currency || DEFAULT_CURRENCY,
           customer,
-          taxAddress: cart.taxAddress || undefined,
-          couponCode: cart.couponCode || undefined,
-          fromPrice: eligibility.fromPrice,
+          fromSubscriptionItem,
         });
     } else {
       upcomingInvoicePreview = await this.invoiceManager.previewUpcoming({
@@ -602,18 +608,6 @@ export class CartService {
       paymentInfo = {
         type: 'external_paypal',
       };
-    } else if (subscriptions.length) {
-      const firstListedSubscription = subscriptions[0];
-      // fetch payment method info
-      if (
-        this.subscriptionManager.getPaymentProvider(firstListedSubscription) ===
-        'paypal'
-      ) {
-        // PayPal payment method collection
-        paymentInfo = {
-          type: 'external_paypal',
-        };
-      }
     }
 
     // Cart latest invoice data
