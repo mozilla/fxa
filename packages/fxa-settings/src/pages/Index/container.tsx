@@ -49,13 +49,19 @@ export const IndexContainer = ({
   const isWebChannelIntegration =
     integration.isSync() || integration.isDesktopRelay();
 
-  // Query param should take precedence
-  const email = queryParamModel.email || currentAccount()?.email;
+  // 'email' query param followed by 'login_hint' should take precedence
+  const email =
+    queryParamModel.email ||
+    integration.data.loginHint ||
+    currentAccount()?.email;
   const shouldRedirectToSignin = email && !prefillEmail;
 
   useEffect(() => {
     if (shouldRedirectToSignin) {
-      navigateWithQuery('/signin', {
+      const route = location.pathname.startsWith('/oauth')
+        ? '/oauth/signin'
+        : '/signin';
+      navigateWithQuery(route, {
         state: {
           email,
         },

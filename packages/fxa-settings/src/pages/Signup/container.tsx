@@ -105,8 +105,11 @@ const SignupContainer = ({
             thirdPartyAuthStatus: true,
           });
         if (exists) {
+          const signInPath = location.pathname.startsWith('/oauth')
+            ? '/oauth/signin'
+            : '/signin';
           if (config.showReactApp.signInRoutes) {
-            navigate(`/signin`, {
+            navigate(signInPath, {
               replace: true,
               state: {
                 email,
@@ -115,7 +118,7 @@ const SignupContainer = ({
               },
             });
           } else {
-            hardNavigate(`/signin`, { email }, true);
+            hardNavigate(signInPath, { email }, true);
           }
         }
       }
