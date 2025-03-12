@@ -33,3 +33,18 @@ Also it's good to note that there are some caveats about configuration for webho
 the `X-Twilio-Signature` header. If you are using twilio API keys, then we need the fxaPublicKey/fxaPrivateKey pair set in the config. Reach
 out to a teammate for this value, or generate one yourself. There's a method that will do this in the `util.ts`. And make sure this key pair
 is in the config!
+
+## Configuration & Twilio Client Modes
+
+In order to use this library, we must configure Twilio. Twilio is unique in that the client can essentially operate in two different modes and these
+modes are dictated by the credentials passed to the client.
+
+There is a 'testing' mode and a 'default' mode. The testing mode cannot send messages to real phone numbers, but it can send messages to 'magic' testing
+numbers that are reserved and maintained by Twilio for testing purposes and are free to send SMS to. The default mode can send out real text messages,
+but cannot send messages to 'magic' testing numbers.
+
+This design results in a scenario where we often have to switch between testing and default modes. In order to make this easy, we've added a 'credentialMode'
+to signal which credentials set should be used.
+
+The config class can be found in `src/lib/twilio-config.ts`. An example application of this config can be found in `packages/fxa-auth-server/config/index.ts`, and
+auth-server's read me has some doc on how to configure its env for Twilio.
