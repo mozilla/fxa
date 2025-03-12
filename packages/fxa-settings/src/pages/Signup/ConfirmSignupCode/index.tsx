@@ -178,7 +178,7 @@ const ConfirmSignupCode = ({
 
         // Params are included to eventually allow for redirect to RP after 2FA setup
         if (integration.wantsTwoStepAuthentication()) {
-          hardNavigate('oauth/signin', {}, true);
+          navigate('oauth/signin');
           return;
         } else {
           const { redirect, code, state, error } = await finishOAuthFlowHandler(

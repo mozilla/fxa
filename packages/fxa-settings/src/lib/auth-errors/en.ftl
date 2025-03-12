@@ -37,8 +37,14 @@ auth-error-1003 = Local storage or cookies are still disabled
 auth-error-1008 = Your new password must be different
 auth-error-1010 = Valid password required
 auth-error-1011 = Valid email required
+auth-error-1018 = Your confirmation email was just returned. Mistyped email?
+auth-error-1020 = Mistyped email? firefox.com isn’t a valid email service
 auth-error-1031 = You must enter your age to sign up
 auth-error-1032 = You must enter a valid age to sign up
 auth-error-1054 = Invalid two-step authentication code
 auth-error-1056 = Invalid backup authentication code
 auth-error-1062 = Invalid redirect
+# Shown when a user tries to sign up with an email address with a domain that doesn't receive emails
+auth-error-1064 = Mistyped email? { $domain } isn’t a valid email service
+auth-error-1066 = Email masks can’t be used to create an account.
+auth-error-1067 = Mistyped email?

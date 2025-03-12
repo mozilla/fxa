@@ -21,6 +21,7 @@ import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
 import { useEffect, useState } from 'react';
 import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
+import { useCheckReactEmailFirst } from '../../../lib/hooks';
 
 export type SigninPushCodeContainerProps = {
   integration: Integration;
@@ -33,6 +34,7 @@ export const SigninPushCodeContainer = ({
 }: SigninPushCodeContainerProps & RouteComponentProps) => {
   const authClient = useAuthClient();
   const navigate = useNavigate();
+  const shouldUseReactEmailFirst = useCheckReactEmailFirst();
   const { finishOAuthFlowHandler, oAuthDataError } = useFinishOAuthFlowHandler(
     authClient,
     integration
@@ -73,7 +75,11 @@ export const SigninPushCodeContainer = ({
   }
 
   if (!signinState) {
-    hardNavigate('/', {}, true);
+    if (shouldUseReactEmailFirst) {
+      navigate('/');
+    } else {
+      hardNavigate('/', {}, true);
+    }
     return <LoadingSpinner fullScreen />;
   }
 

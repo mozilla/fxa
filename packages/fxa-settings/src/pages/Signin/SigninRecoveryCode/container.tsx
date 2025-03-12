@@ -25,7 +25,8 @@ import OAuthDataError from '../../../components/OAuthDataError';
 import { getHandledError } from '../../../lib/error-utils';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
+import { useCheckReactEmailFirst } from '../../../lib/hooks';
 
 type SigninRecoveryCodeLocationState = {
   signinState: SigninLocationState;
@@ -48,7 +49,8 @@ export const SigninRecoveryCodeContainer = ({
     (useLocation() as ReturnType<typeof useLocation> & {
       state: SigninRecoveryCodeLocationState;
     }) || {};
-  const navigateWithQuery = useNavigateWithQuery();
+  const navigate = useNavigate();
+  const shouldUseReactEmailFirst = useCheckReactEmailFirst();
   const signinState = getSigninState(location.state?.signinState);
   const lastFourPhoneDigits = location.state?.lastFourPhoneDigits;
   const sensitiveDataClient = useSensitiveDataClient();
@@ -89,14 +91,14 @@ export const SigninRecoveryCodeContainer = ({
     }
     try {
       await authClient.recoveryPhoneSigninSendCode(signinState.sessionToken);
-      navigateWithQuery('/signin_recovery_phone', {
+      navigate('/signin_recovery_phone', {
         state: { signinState, lastFourPhoneDigits },
       });
       return;
     } catch (error) {
       const { error: handledError } = getHandledError(error);
       if (handledError.errno === AuthUiErrors.INVALID_TOKEN.errno) {
-        navigateWithQuery('/signin');
+        navigate('/signin');
         return;
       }
       return handledError;
@@ -111,7 +113,11 @@ export const SigninRecoveryCodeContainer = ({
   }
 
   if (!signinState) {
-    hardNavigate('/', {}, true);
+    if (shouldUseReactEmailFirst) {
+      navigate('/');
+    } else {
+      hardNavigate('/', {}, true);
+    }
     return <LoadingSpinner fullScreen />;
   }
 

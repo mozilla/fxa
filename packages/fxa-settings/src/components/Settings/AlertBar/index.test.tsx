@@ -8,6 +8,7 @@ import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localiz
 import AlertBar from '.';
 
 jest.mock('@apollo/client', () => ({
+  ...jest.requireActual('@apollo/client'),
   useReactiveVar: (x: Function) => x(),
 }));
 

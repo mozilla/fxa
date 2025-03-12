@@ -25,10 +25,13 @@ test.describe('severity-2 #smoke', () => {
     }) => {
       const { email } = testAccountTracker.generateAccountDetails();
 
-      await relier.goto(`login_hint=${email}`);
+      await relier.goto(
+        `login_hint=${email}&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
+      );
       await relier.clickEmailFirst();
 
       await page.waitForURL(`${target.contentServerUrl}/oauth/signup**`);
+
       await expect(signup.signupFormHeading).toBeVisible();
       // email provided as login hint is displayed on the signup page
       await expect(page.getByText(email)).toBeVisible();

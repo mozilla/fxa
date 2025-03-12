@@ -40,12 +40,13 @@ import { SignupFormData, SignupProps } from './interfaces';
 import Banner from '../../components/Banner';
 import { SensitiveData } from '../../lib/sensitive-data-client';
 import { FormSetupAccount } from '../../components/FormSetupAccount';
+import { useCheckReactEmailFirst } from '../../lib/hooks';
 
 export const viewName = 'signup';
 
 export const Signup = ({
   integration,
-  queryParamModel,
+  email,
   beginSignupHandler,
   useSyncEnginesResult: {
     offeredSyncEngines,
@@ -57,6 +58,7 @@ export const Signup = ({
 }: SignupProps) => {
   const sensitiveDataClient = useSensitiveDataClient();
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
+  const shouldUseReactEmailFirst = useCheckReactEmailFirst();
 
   useEffect(() => {
     GleanMetrics.registration.view();
@@ -66,7 +68,6 @@ export const Signup = ({
   const isSyncOAuth = isOAuthNativeIntegrationSync(integration);
   const isSync = integration.isSync();
   const isDesktopRelay = integration.isDesktopRelay();
-  const email = queryParamModel.email;
 
   const onFocusMetricsEvent = () => {
     logViewEvent(settingsViewName, `${viewName}.engage`);
@@ -268,7 +269,7 @@ export const Signup = ({
             origin: 'signup',
             selectedNewsletterSlugs,
             // Sync desktop v3 sends a web channel message up on Signup
-            // while OAuth Sync (mobile) does on confirm signup.
+            // while OAuth Sync does on confirm signup.
             // Once mobile clients read this from fxaLogin to match
             // oauth desktop, we can stop sending this on confirm signup code.
             ...(isSyncOAuth && {
@@ -370,19 +371,28 @@ export const Signup = ({
             onClick={async (e) => {
               e.preventDefault();
               GleanMetrics.registration.changeEmail();
-              await GleanMetrics.isDone(); // since we navigate away to Backbone
-              const params = new URLSearchParams(location.search);
-              // Tell content-server to stay on index and prefill the email
-              params.set('prefillEmail', email);
-              // Passing back the 'email' param causes various behaviors in
-              // content-server since it marks the email as "coming from a RP".
-              // Also remove `emailStatusChecked` since we pass that when coming
-              // from content-server to Backbone, see Signup container component
-              // for more info.
-              params.delete('emailStatusChecked');
-              params.delete('email');
-              params.delete('login_hint');
-              hardNavigate(`/?${params.toString()}`);
+
+              if (shouldUseReactEmailFirst) {
+                navigate('/', {
+                  state: {
+                    prefillEmail: email,
+                  },
+                });
+              } else {
+                await GleanMetrics.isDone(); // since we navigate away to Backbone
+                const params = new URLSearchParams(location.search);
+                // Tell content-server to stay on index and prefill the email
+                params.set('prefillEmail', email);
+                // Passing back the 'email' param causes various behaviors in
+                // content-server since it marks the email as "coming from a RP".
+                // Also remove `emailStatusChecked` since we pass that when coming
+                // from content-server to React, see Signup container component
+                // for more info.
+                params.delete('emailStatusChecked');
+                params.delete('email');
+                params.delete('login_hint');
+                hardNavigate(`/?${params.toString()}`);
+              }
             }}
           >
             Change email

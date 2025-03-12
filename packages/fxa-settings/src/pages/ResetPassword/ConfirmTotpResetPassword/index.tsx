@@ -12,6 +12,8 @@ import FormVerifyCode, {
   FormAttributes,
 } from '../../../components/FormVerifyCode';
 import { HeadingPrimary } from '../../../components/HeadingPrimary';
+import { useCheckReactEmailFirst } from '../../../lib/hooks';
+import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
 
 export type ConfirmTotpResetPasswordProps = {
   verifyCode: (code: string) => Promise<void>;
@@ -28,6 +30,8 @@ const ConfirmTotpResetPassword = ({
 }: ConfirmTotpResetPasswordProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   const [showRecoveryCode, setShowRecoveryCode] = useState<boolean>(false);
+  const navigate = useNavigate();
+  const shouldUseReactEmailFirst = useCheckReactEmailFirst();
 
   const totpFormAttributes: FormAttributes = {
     inputFtlId: 'confirm-totp-reset-password-input-label-v2',
@@ -140,8 +144,12 @@ const ConfirmTotpResetPassword = ({
               className="link-blue text-sm"
               data-glean-id="reset_password_confirm_totp_use_different_account_button"
               onClick={() => {
-                // Navigate to email first page and keep search params
-                hardNavigate('/', {}, true);
+                if (shouldUseReactEmailFirst) {
+                  navigate('/');
+                } else {
+                  // Navigate to email first page and keep search params
+                  hardNavigate('/', {}, true);
+                }
               }}
             >
               <FtlMsg id="confirm-totp-reset-password-use-different-account">

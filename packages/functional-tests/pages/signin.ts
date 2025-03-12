@@ -104,7 +104,9 @@ export class SigninPage extends BaseLayout {
 
   get syncSignInHeading() {
     return this.page.getByRole('heading', {
-      name: /^Continue to your Mozilla account/,
+      // Fluent inserts directional markers around "Mozilla account" so
+      // just look for partial match
+      name: /^Continue to your/,
     });
   }
 

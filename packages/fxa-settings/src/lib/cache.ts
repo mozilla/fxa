@@ -6,6 +6,7 @@ import config from './config';
 import { StoredAccountData } from './storage-utils';
 import { v4 as uuid } from 'uuid';
 import * as Sentry from '@sentry/browser';
+import { Constants } from './constants';
 
 const storage = Storage.factory('localStorage');
 
@@ -239,3 +240,18 @@ export const cache = new InMemoryCache({
     },
   },
 });
+
+/*
+ * Check that the React enrolled flag in local storage is set to `true`.
+ * Note that if users don't hit the Backbone JS bundle, this is not going
+ * to get set.
+ */
+export function isInReactExperiment() {
+  const storageReactExp = storage.get(Constants.STORAGE_REACT_EXPERIMENT);
+  try {
+    const parsedData = JSON.parse(storageReactExp);
+    return parsedData && parsedData.enrolled === true;
+  } catch (error) {
+    return false;
+  }
+}

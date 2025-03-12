@@ -24,6 +24,7 @@ import { EMAIL_BOUNCE_STATUS_QUERY } from './gql';
 import OAuthDataError from '../../../components/OAuthDataError';
 import { QueryParams } from '../../..';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
+import { useCheckReactEmailFirst } from '../../../lib/hooks';
 
 export const POLL_INTERVAL = 5000;
 
@@ -56,6 +57,7 @@ const SignupConfirmCodeContainer = ({
   const sensitiveDataClient = useSensitiveDataClient();
   const { keyFetchToken, unwrapBKey } =
     sensitiveDataClient.getDataType(SensitiveData.Key.Auth) || {};
+  const shouldUseReactEmailFirst = useCheckReactEmailFirst();
 
   const { oAuthKeysCheckError } = useOAuthKeysCheck(
     integration,
@@ -131,13 +133,37 @@ const SignupConfirmCodeContainer = ({
       const hasBounced = true;
       // if arriving from signup, return to '/' and allow user to signup with another email
       if (origin === 'signup') {
-        navigateToContentServer('/', hasBounced);
+        if (shouldUseReactEmailFirst) {
+          navigate('/', {
+            state: {
+              hasBounced,
+              prefillEmail: email,
+            },
+          });
+        } else {
+          navigateToContentServer('/', hasBounced);
+        }
       } else {
         // if not arriving from signup, redirect to signin_bounced for support info
-        navigateToContentServer('/signin_bounced', hasBounced);
+        if (shouldUseReactEmailFirst) {
+          navigate('/signin_bounced', {
+            state: {
+              hasBounced,
+            },
+          });
+        } else {
+          navigateToContentServer('/signin_bounced', hasBounced);
+        }
       }
     }
-  }, [data, origin, navigate, navigateToContentServer]);
+  }, [
+    data,
+    origin,
+    navigate,
+    navigateToContentServer,
+    shouldUseReactEmailFirst,
+    email,
+  ]);
 
   // TODO: This check and related test can be moved up the tree to the App component,
   // where a missing integration should be caught and handled.

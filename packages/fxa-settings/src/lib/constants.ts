@@ -195,4 +195,6 @@ export const Constants = {
 
   DISABLE_PROMO_ACCOUNT_RECOVERY_KEY_DO_IT_LATER:
     '__fxa_storage.disable_promo.account-recovery-do-it-later',
+
+  STORAGE_REACT_EXPERIMENT: 'experiment.generalizedReactApp',
 };

@@ -11,6 +11,7 @@ import { MozServices } from '../../../lib/types';
 import AppLayout from '../../../components/AppLayout';
 import GleanMetrics from '../../../lib/glean';
 import { SigninIntegration, SigninLocationState } from '../interfaces';
+import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
 import { handleNavigation } from '../utils';
 import { FinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import { storeAccountData } from '../../../lib/storage-utils';
@@ -23,6 +24,7 @@ import Banner from '../../../components/Banner';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
 import { HeadingPrimary } from '../../../components/HeadingPrimary';
 import FormVerifyTotp from '../../../components/FormVerifyTotp';
+import { useCheckReactEmailFirst } from '../../../lib/hooks';
 
 // TODO: show a banner success message if a user is coming from reset password
 // in FXA-6491. This differs from content-server where currently, users only
@@ -52,6 +54,8 @@ export const SigninTotpCode = ({
   const config = useConfig();
   const ftlMsgResolver = useFtlMsgResolver();
   const location = useLocation();
+  const navigate = useNavigate();
+  const shouldUseReactEmailFirst = useCheckReactEmailFirst();
 
   const [bannerError, setBannerError] = useState<string>('');
 
@@ -176,19 +180,28 @@ export const SigninTotpCode = ({
             data-glean-id="login_totp_code_different_account_link"
             onClick={(e) => {
               e.preventDefault();
-              const params = new URLSearchParams(location.search);
-              // Tell content-server to stay on index and prefill the email
-              params.set('prefillEmail', email);
-              // Passing back the 'email' param causes various behaviors in
-              // content-server since it marks the email as "coming from a RP".
-              // Also remove other params that are passed when coming
-              // from content-server to Backbone, see Signup container component
-              // for more info.
-              params.delete('email');
-              params.delete('hasLinkedAccount');
-              params.delete('hasPassword');
-              params.delete('showReactApp');
-              hardNavigate(`/?${params.toString()}`);
+
+              if (shouldUseReactEmailFirst) {
+                navigate('/', {
+                  state: {
+                    prefillEmail: email,
+                  },
+                });
+              } else {
+                const params = new URLSearchParams(location.search);
+                // Tell content-server to stay on index and prefill the email
+                params.set('prefillEmail', email);
+                // Passing back the 'email' param causes various behaviors in
+                // content-server since it marks the email as "coming from a RP".
+                // Also remove other params that are passed when coming
+                // from content-server to React, see Signup container component
+                // for more info.
+                params.delete('email');
+                params.delete('hasLinkedAccount');
+                params.delete('hasPassword');
+                params.delete('showReactApp');
+                hardNavigate(`/?${params.toString()}`);
+              }
             }}
           >
             Use a different account

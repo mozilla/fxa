@@ -11,7 +11,9 @@ export class SignupPage extends BaseLayout {
 
   get emailFormHeading() {
     return this.page.getByRole('heading', {
-      name: /^Enter your email|^Continue to your Mozilla account/,
+      // Fluent inserts directional markers around "Mozilla account" so
+      // just look for partial match
+      name: /^Enter your email|^Continue to your/,
     });
   }
 

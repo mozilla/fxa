@@ -6,7 +6,7 @@ import React from 'react';
 import { screen } from '@testing-library/react';
 import {
   createMockIndexOAuthIntegration,
-  createMockIndexSyncIntegration,
+  createMockIndexOAuthNativeIntegration,
   Subject,
 } from './mocks';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
@@ -26,6 +26,14 @@ function thirdPartyAuthWithSeparatorRendered() {
   screen.getByRole('button', {
     name: /Continue with Apple/,
   });
+}
+function thirdPartyAuthNotRendered() {
+  expect(
+    screen.queryByRole('button', { name: /Continue with Google/ })
+  ).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole('button', { name: /Continue with Apple/ })
+  ).not.toBeInTheDocument();
 }
 
 describe('Index page', () => {
@@ -51,7 +59,7 @@ describe('Index page', () => {
   it('renders as expected when sync', () => {
     renderWithLocalizationProvider(
       <Subject
-        integration={createMockIndexSyncIntegration()}
+        integration={createMockIndexOAuthNativeIntegration()}
         serviceName={MozServices.FirefoxSync}
       />
     );
@@ -60,18 +68,44 @@ describe('Index page', () => {
     screen.getByText(syncText);
 
     screen.getByText(syncTextSecondary);
-    expect(
-      screen.queryByRole('button', { name: /Continue with Google/ })
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole('button', { name: /Continue with Apple/ })
-    ).not.toBeInTheDocument();
+    thirdPartyAuthNotRendered();
 
     expect(
       screen.getByRole('link', {
         name: /Terms of Service/,
       })
     ).toHaveAttribute('href', '/legal/terms');
+  });
+
+  it('renders as expected with service=relay', () => {
+    renderWithLocalizationProvider(
+      <Subject
+        integration={createMockIndexOAuthNativeIntegration({
+          isSync: false,
+          isDesktopRelay: true,
+        })}
+      />
+    );
+
+    screen.getByRole('heading', { name: 'Create an email mask' });
+    screen.getByText(
+      'Please provide the email address where you’d like to forward emails from your masked email.'
+    );
+    screen.getByRole('button', { name: 'Sign up or sign in' });
+
+    expect(screen.queryByText(syncText)).not.toBeInTheDocument();
+    expect(screen.queryByText(syncTextSecondary)).not.toBeInTheDocument();
+
+    thirdPartyAuthNotRendered();
+
+    expect(
+      screen.getAllByRole('link', {
+        name: /Terms of Service/,
+      })[0]
+    ).toHaveAttribute(
+      'href',
+      'https://www.mozilla.org/about/legal/terms/subscription-services/'
+    );
   });
 
   it('renders as expected when client is Pocket', () => {

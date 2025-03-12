@@ -97,6 +97,6 @@ async function removeAccount(
   await settings.deleteAccountButton.click();
   await deleteAccount.deleteAccount(password);
 
-  await expect(page).toHaveURL(`${target.baseUrl}?delete_account_success=true`);
+  await expect(page).toHaveURL(`${target.baseUrl}`);
   await expect(page.getByText('Account deleted successfully')).toBeVisible();
 }

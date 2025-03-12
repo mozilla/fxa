@@ -17,7 +17,8 @@ const reactRouteClient = {
   getRoute(name) {
     if (
       typeof name === 'string' &&
-      (FRONTEND_ROUTES.includes(name) ||
+      (name === '/' ||
+        FRONTEND_ROUTES.includes(name) ||
         PAIRING_ROUTES.includes(name) ||
         OAUTH_SUCCESS_ROUTES.includes(name))
     ) {

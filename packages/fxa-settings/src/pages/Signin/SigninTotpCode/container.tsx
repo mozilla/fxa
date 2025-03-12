@@ -43,6 +43,8 @@ import {
 } from '../gql';
 import { tryFinalizeUpgrade } from '../../../lib/gql-key-stretch-upgrade';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
+import { useCheckReactEmailFirst } from '../../../lib/hooks';
 
 export type SigninTotpCodeContainerProps = {
   integration: Integration;
@@ -69,6 +71,8 @@ export const SigninTotpCodeContainer = ({
 
   const { queryParamModel } = useValidatedQueryParams(SigninQueryParams);
   const { service } = queryParamModel;
+  const navigate = useNavigate();
+  const shouldUseReactEmailFirst = useCheckReactEmailFirst();
 
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
 
@@ -160,7 +164,11 @@ export const SigninTotpCodeContainer = ({
     (signinState.verificationMethod &&
       signinState.verificationMethod !== VerificationMethods.TOTP_2FA)
   ) {
-    hardNavigate('/', {}, true);
+    if (shouldUseReactEmailFirst) {
+      navigate('/');
+    } else {
+      hardNavigate('/', {}, true);
+    }
     return <LoadingSpinner fullScreen />;
   }
 

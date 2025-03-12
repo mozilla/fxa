@@ -52,6 +52,8 @@ import { SignInOptions } from 'fxa-auth-client/browser';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
 import { isFirefoxService } from '../../../models/integrations/utils';
 import { tryFinalizeUpgrade } from '../../../lib/gql-key-stretch-upgrade';
+import { useCheckReactEmailFirst } from '../../../lib/hooks';
+import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
 
 export const SigninUnblockContainer = ({
   integration,
@@ -62,6 +64,8 @@ export const SigninUnblockContainer = ({
 } & RouteComponentProps) => {
   const authClient = useAuthClient();
   const ftlMsgResolver = useFtlMsgResolver();
+  const navigate = useNavigate();
+  const shouldUseReactEmailFirst = useCheckReactEmailFirst();
 
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state: SigninUnblockLocationState;
@@ -217,7 +221,11 @@ export const SigninUnblockContainer = ({
   }
 
   if (!email || !password) {
-    hardNavigate('/', {}, true);
+    if (shouldUseReactEmailFirst) {
+      navigate('/');
+    } else {
+      hardNavigate('/', {}, true);
+    }
     return <LoadingSpinner fullScreen />;
   }
   return (

@@ -115,7 +115,9 @@ Cocktail.mixin(Router, ReactExperimentMixin);
 
 Router = Router.extend({
   routes: {
-    '(/)': createViewHandler(IndexView),
+    '(/)': function () {
+      this.createReactOrBackboneViewHandler('/', IndexView);
+    },
     'account_recovery_confirm_key(/)': function () {
       this.createReactOrBackboneViewHandler(
         'account_recovery_confirm_key',
@@ -692,18 +694,24 @@ Router = Router.extend({
   },
 
   createReactViewHandler(routeName, additionalParams) {
-    const { deviceId, flowBeginTime, flowId } =
-      this.metrics.getFlowEventMetadata();
+    if (routeName === '/') {
+      const queryParams = new URLSearchParams(this.window.location.search);
+      queryParams.set('showReactApp', 'true');
+      this.navigateAway(`/?${queryParams.toString()}`);
+    } else {
+      const { deviceId, flowBeginTime, flowId } =
+        this.metrics.getFlowEventMetadata();
 
-    const link = `/${routeName}${Url.objToSearchString({
-      showReactApp: true,
-      deviceId,
-      flowBeginTime,
-      flowId,
-      ...additionalParams,
-    })}`;
+      const link = `/${routeName}${Url.objToSearchString({
+        showReactApp: true,
+        deviceId,
+        flowBeginTime,
+        flowId,
+        ...additionalParams,
+      })}`;
 
-    this.navigateAway(link);
+      this.navigateAway(link);
+    }
   },
 
   createReactOrBackboneViewHandler(
