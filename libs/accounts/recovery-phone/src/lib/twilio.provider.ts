@@ -46,9 +46,22 @@ export const TwilioFactory: Provider<Twilio> = {
     if (credentialMode === 'apiKeys' && accountSid && apiKey && apiSecret) {
       return new Twilio(apiKey, apiSecret, { accountSid });
     }
-
     throw new Error(
-      'Invalid configuration state. Check docs for TwilioConfig, a value is probably missing.'
+      `Invalid configuration state for credential mode ${credentialMode}.\n ${JSON.stringify(
+        {
+          credentialMode,
+          has: {
+            testAccountSid: !!testAccountSid,
+            testAuthToken: !!testAuthToken,
+            accountSid: !!accountSid,
+            authToken: !!authToken,
+            apiKey: !!apiKey,
+            apiSecret: !!apiKey,
+          },
+        },
+        null,
+        ''
+      )}`
     );
   },
   inject: [TwilioConfig],

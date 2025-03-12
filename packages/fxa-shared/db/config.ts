@@ -402,8 +402,9 @@ export function makeRedisConfig() {
         doc: `Password for connecting to Redis`,
       },
       prefix: {
-        default: 'recovery-phone:',
-        env: 'RECOVERY_PHONE_REDIS_KEY_PREFIX',
+        // Do not set a prefix! This is just here as an override.
+        // The recovery phone library prefixes its entries already!
+        default: '',
         format: String,
         doc: 'Key prefix for Redis',
       },

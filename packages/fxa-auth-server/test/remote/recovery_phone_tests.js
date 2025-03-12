@@ -9,6 +9,7 @@ const TestServer = require('../test_server');
 const config = require('../../config').default.getProperties();
 const Redis = require('ioredis');
 const { setupAccountDatabase } = require('@fxa/shared/db/mysql/account');
+const { RECOVERY_PHONE_REDIS_PREFIX } = require('@fxa/accounts/recovery-phone');
 const otplib = require('otplib');
 const crypto = require('crypto');
 const { assert } = chai;
@@ -16,7 +17,7 @@ chai.use(chaiAsPromised);
 
 const redis = new Redis({
   ...config.redis,
-  ...config.recoveryPhone.redis,
+  ...config.redis.recoveryPhone,
 });
 
 /**
@@ -31,7 +32,7 @@ const redisUtil = {
   },
   recoveryPhone: {
     async getCode(uid) {
-      const redisKey = `recovery-phone:sms-attempt:${uid}:*`;
+      const redisKey = `${RECOVERY_PHONE_REDIS_PREFIX}:${uid}:*`;
       const result = await redis.keys(redisKey);
       assert.equal(result.length, 1);
       const parts = result[0].split(':');
@@ -72,14 +73,15 @@ describe(`#integration - recovery phone`, function () {
   // https://www.twilio.com/docs/lookup/magic-numbers-for-lookup
   const phoneNumber = '+14159929960';
   const password = 'password';
+  const temp = {};
 
   before(async function () {
     config.recoveryPhone.enabled = true;
 
-    // We nix the api key so the auth token is used. Only magic test numbers can be used with our
-    // 'testing' auth token.
-    config.twilio.apiKey = undefined;
-    config.twilio.apiSecret = undefined;
+    // We set our config to be in 'testing' mode so we can use twilio magic
+    // testing phone numbers.
+    temp.credentialMode = config.twilio.credentialMode;
+    config.twilio.credentialMode = 'test';
 
     config.securityHistory.ipProfiling.allowedRecency = 0;
     config.signinConfirmation.skipForNewAccounts.enabled = false;
@@ -122,6 +124,7 @@ describe(`#integration - recovery phone`, function () {
   });
 
   after(async () => {
+    config.twilio.credentialMode = temp.credentialMode;
     await TestServer.stop(server);
     await db.destroy();
   });
@@ -284,15 +287,22 @@ describe(`#integration - recovery phone`, function () {
 
 describe('#integration - recovery phone - feature flag check', () => {
   let server;
+  const temp = {};
 
   before(async function () {
+    temp.enabled = config.recoveryPhone.enabled;
+    temp.credentialMode = config.twilio.credentialMode;
+
     config.recoveryPhone.enabled = false;
+    config.twilio.credentialMode = 'test';
     config.securityHistory.ipProfiling.allowedRecency = 0;
     config.signinConfirmation.skipForNewAccounts.enabled = false;
     server = await TestServer.start(config, true);
   });
 
   after(async function () {
+    config.recoveryPhone.enabled = temp.enabled;
+    config.twilio.credentialMode = temp.credentialMode;
     await TestServer.stop(server);
   });
 

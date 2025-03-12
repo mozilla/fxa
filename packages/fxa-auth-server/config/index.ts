@@ -2193,7 +2193,6 @@ const convictConf = convict({
       env: 'RECOVERY_PHONE__MAX_UID_PER_NUMBER',
       format: Number,
     },
-    redis: {},
     sms: {
       from: {
         default: ['15005550006'],
@@ -2241,7 +2240,7 @@ const convictConf = convict({
   },
   twilio: {
     credentialMode: {
-      default: 'test',
+      default: 'default',
       doc: 'Which credential set to use. Options are test, default, or apiKeys.',
       env: 'RECOVERY_PHONE__TWILIO__CREDENTIAL_MODE',
       format: String,

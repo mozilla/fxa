@@ -20,7 +20,7 @@ export const RecoveryPhoneRedisProvider = {
   provide: 'RecoveryPhoneRedis',
   useFactory: (config: ConfigService) => {
     const baseRedisConfig = config.get('redis');
-    const recoveryPhoneRedisConfig = config.get('recoveryPhone.redis');
+    const recoveryPhoneRedisConfig = config.get('redis.recoveryPhone');
     return new Redis({
       ...baseRedisConfig,
       ...recoveryPhoneRedisConfig,
