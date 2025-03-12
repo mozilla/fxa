@@ -57,6 +57,25 @@ event:
     data_sensitivity:
       - interaction
 
+  nimbus_user_id:
+    type: string
+    description: |
+      The name of the client ID for Nimbus experiments.
+    lifetime: ping
+    send_in_pings:
+      - accounts-events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-11216
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+
 account:
   user_id:
     type: string

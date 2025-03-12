@@ -21,7 +21,7 @@ export type GleanMetricsConfig = {
 };
 
 export const booleanEventPropertyNames = ['thirdPartyLinks'] as const;
-export const stringEventPropertyNames = ['reason'] as const;
+export const stringEventPropertyNames = ['reason', 'nimbusUserId'] as const;
 
 export type PropertyNameStringT = typeof stringEventPropertyNames;
 export type PropertyNameString = PropertyNameStringT[number];

@@ -21,6 +21,19 @@ export const name = new StringMetricType({
 });
 
 /**
+ * The name of the client ID for Nimbus experiments.
+ *
+ * Generated from `event.nimbus_user_id`.
+ */
+export const nimbusUserId = new StringMetricType({
+  category: 'event',
+  name: 'nimbus_user_id',
+  sendInPings: ['accounts-events'],
+  lifetime: 'ping',
+  disabled: false,
+});
+
+/**
  * additional context-dependent (on event.name) info, e.g. the cause of an error
  *
  * Generated from `event.reason`.

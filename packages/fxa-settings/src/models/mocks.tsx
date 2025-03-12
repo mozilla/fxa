@@ -165,6 +165,22 @@ export const MOCK_PROFILE_INFO: ProfileInfo = {
   emails: MOCK_ACCOUNT.emails,
 };
 
+function mockExperiment() {
+  return Promise.resolve({
+    Features: {
+      'example-feature': {
+        enabled: true,
+        emoji: ':)',
+      },
+    },
+    Enrollments: [
+      {
+        nimbus_user_id: '4a9512ac-3110-43df-aa8a-958A3d210b9c3',
+      },
+    ],
+  });
+}
+
 export function mockAppContext(context?: AppContextValue) {
   return Object.assign(
     {
@@ -173,6 +189,7 @@ export function mockAppContext(context?: AppContextValue) {
       config: getDefault(),
       sensitiveDataClient: mockSensitiveDataClient(),
       uniqueUserId: '4a9512ac-3110-43df-aa8a-958A3d210b9c3',
+      experiments: mockExperiment(),
     },
     context
   ) as AppContextValue;
