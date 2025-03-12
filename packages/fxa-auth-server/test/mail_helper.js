@@ -9,6 +9,7 @@ const MailParser = require('mailparser').MailParser;
 const simplesmtp = require('simplesmtp');
 const Redis = require('ioredis');
 const config = require('../config').default.getProperties();
+const { RECOVERY_PHONE_REDIS_PREFIX } = require('@fxa/accounts/recovery-phone');
 
 const TEMPLATES_WITH_NO_CODE = new Set(['passwordResetEmail']);
 
@@ -16,7 +17,7 @@ const TEMPLATES_WITH_NO_CODE = new Set(['passwordResetEmail']);
 const redis = new Redis(config.redis);
 const usersLastSms = {};
 async function printMatchingKeys(startUp = false) {
-  const redisKeyPattern = 'recovery-phone:sms-attempt:*:*';
+  const redisKeyPattern = `${RECOVERY_PHONE_REDIS_PREFIX}:*:*`;
   try {
     if (redis.status !== 'ready') {
       throw new Error('Redis connection is not ready');

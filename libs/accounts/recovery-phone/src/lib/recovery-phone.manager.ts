@@ -31,10 +31,13 @@ export type PhoneNumberLookupData = ReturnType<
   typeof PhoneNumberInstance.prototype.toJSON
 >;
 
+/**
+ * Standard prefix for all recovery phone entries in redis.
+ */
+export const RECOVERY_PHONE_REDIS_PREFIX = 'recovery-phone:sms-attempt';
+
 @Injectable()
 export class RecoveryPhoneManager {
-  private readonly redisPrefix = 'sms-attempt';
-
   constructor(
     @Inject(AccountDbProvider) private readonly db: AccountDatabase,
     @Inject('RecoveryPhoneRedis') private readonly redisClient: Redis
@@ -128,7 +131,7 @@ export class RecoveryPhoneManager {
     isSetup: boolean,
     lookupData?: PhoneNumberLookupData
   ): Promise<void> {
-    const redisKey = `${this.redisPrefix}:${uid}:${code}`;
+    const redisKey = `${RECOVERY_PHONE_REDIS_PREFIX}:${uid}:${code}`;
     const data = {
       createdAt: Date.now(),
       phoneNumber,
@@ -159,7 +162,7 @@ export class RecoveryPhoneManager {
     isSetup: boolean;
     lookupData: Record<string, any> | null;
   } | null> {
-    const redisKey = `${this.redisPrefix}:${uid}:${code}`;
+    const redisKey = `${RECOVERY_PHONE_REDIS_PREFIX}:${uid}:${code}`;
     const data = await this.redisClient.get(redisKey);
 
     if (!data) {
@@ -174,9 +177,28 @@ export class RecoveryPhoneManager {
    *
    * @param uid
    */
-  async getAllUnconfirmed(uid: string): Promise<string[]> {
-    const redisKey = `${this.redisPrefix}:${uid}:*`;
-    return await this.redisClient.keys(redisKey);
+  private async getAllUnconfirmedKeys(uid: string): Promise<string[]> {
+    const pattern = `${RECOVERY_PHONE_REDIS_PREFIX}:${uid}:*`;
+    let cursor = '0';
+    let keys: string[] = [];
+
+    do {
+      const reply = await this.redisClient.scan(cursor, 'MATCH', pattern);
+      cursor = reply[0];
+      keys = keys.concat(reply[1]);
+    } while (cursor !== '0');
+
+    return keys;
+  }
+
+  /**
+   * Returns codes sent out for all unconfirmed phone numbers for a user.
+   * @param uid
+   * @returns
+   */
+  async getAllUnconfirmedCodes(uid: string): Promise<string[]> {
+    const keys = await this.getAllUnconfirmedKeys(uid);
+    return keys.map((x) => x.split(':').pop() || '').filter((x) => !!x);
   }
 
   /**
@@ -187,7 +209,7 @@ export class RecoveryPhoneManager {
    * @returns
    */
   async removeCode(uid: string, code: string) {
-    const redisKey = `${this.redisPrefix}:${uid}:${code}`;
+    const redisKey = `${RECOVERY_PHONE_REDIS_PREFIX}:${uid}:${code}`;
     const count = await this.redisClient.del(redisKey);
     return count > 0;
   }
