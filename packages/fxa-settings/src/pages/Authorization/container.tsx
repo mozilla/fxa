@@ -132,9 +132,7 @@ const AuthorizationContainer = ({
 
     if (integration.data.action) {
       if (integration.data.action === 'email') {
-        // this really should be navigating to /oauth/ but FXA-6516 hasn't been completed at the time of writing.
-        // @TODO FXA-6516
-        hardNavigate(`/oauth?${urlSearchParams.toString()}`);
+        navigate(`/oauth?${urlSearchParams.toString()}`);
       } else {
         hardNavigate(
           `/${integration.data.action}?${urlSearchParams.toString()}`
@@ -143,7 +141,7 @@ const AuthorizationContainer = ({
       return;
     }
 
-    hardNavigate(`/oauth?${urlSearchParams.toString()}`);
+    navigate(`/oauth?${urlSearchParams.toString()}`);
   }, [integration, location.search, navigate, promptNoneHandler]);
 
   if (oauthError) {
