@@ -215,7 +215,7 @@ export type CommonContentRelationResponseCollection = {
 
 export type ComponentIapAppleProductIDs = {
   __typename?: 'ComponentIapAppleProductIDs';
-  appleProductID: Maybe<Scalars['String']['output']>;
+  appleProductID: Scalars['String']['output'];
   id: Scalars['ID']['output'];
 };
 
@@ -233,7 +233,7 @@ export type ComponentIapAppleProductIDsInput = {
 
 export type ComponentIapGoogleSkUs = {
   __typename?: 'ComponentIapGoogleSkUs';
-  googleSKU: Maybe<Scalars['String']['output']>;
+  googleSKU: Scalars['String']['output'];
   id: Scalars['ID']['output'];
 };
 
@@ -252,7 +252,7 @@ export type ComponentIapGoogleSkUsInput = {
 export type ComponentIapStripeLegacyIapPrices = {
   __typename?: 'ComponentIapStripeLegacyIapPrices';
   id: Scalars['ID']['output'];
-  stripeLegacyIapPrices: Maybe<Scalars['String']['output']>;
+  stripeLegacyIapPrices: Scalars['String']['output'];
 };
 
 export type ComponentIapStripeLegacyIapPricesFiltersInput = {
@@ -270,7 +270,7 @@ export type ComponentIapStripeLegacyIapPricesInput = {
 export type ComponentIapStripePlanChoices = {
   __typename?: 'ComponentIapStripePlanChoices';
   id: Scalars['ID']['output'];
-  stripePlanChoices: Maybe<Scalars['String']['output']>;
+  stripePlanChoices: Scalars['String']['output'];
 };
 
 export type ComponentIapStripePlanChoicesFiltersInput = {
@@ -288,7 +288,7 @@ export type ComponentIapStripePlanChoicesInput = {
 export type ComponentStripeStripeLegacyPlans = {
   __typename?: 'ComponentStripeStripeLegacyPlans';
   id: Scalars['ID']['output'];
-  stripeLegacyPlan: Maybe<Scalars['String']['output']>;
+  stripeLegacyPlan: Scalars['String']['output'];
 };
 
 export type ComponentStripeStripeLegacyPlansFiltersInput = {
@@ -306,7 +306,7 @@ export type ComponentStripeStripeLegacyPlansInput = {
 export type ComponentStripeStripePlanChoices = {
   __typename?: 'ComponentStripeStripePlanChoices';
   id: Scalars['ID']['output'];
-  stripePlanChoice: Maybe<Scalars['String']['output']>;
+  stripePlanChoice: Scalars['String']['output'];
 };
 
 export type ComponentStripeStripePlanChoicesFiltersInput = {
@@ -323,7 +323,7 @@ export type ComponentStripeStripePlanChoicesInput = {
 
 export type ComponentStripeStripePromoCodes = {
   __typename?: 'ComponentStripeStripePromoCodes';
-  PromoCode: Maybe<Scalars['String']['output']>;
+  PromoCode: Scalars['String']['output'];
   id: Scalars['ID']['output'];
 };
 
@@ -2147,21 +2147,21 @@ export type CapabilityServiceByPlanIdsQueryVariables = Exact<{
 }>;
 
 
-export type CapabilityServiceByPlanIdsQuery = { __typename?: 'Query', purchases: Array<{ __typename?: 'Purchase', stripePlanChoices: Array<{ __typename?: 'ComponentStripeStripePlanChoices', stripePlanChoice: string | null } | null> | null, offering: { __typename?: 'Offering', stripeLegacyPlans: Array<{ __typename?: 'ComponentStripeStripeLegacyPlans', stripeLegacyPlan: string | null } | null> | null, capabilities: Array<{ __typename?: 'Capability', slug: string, services: Array<{ __typename?: 'Service', oauthClientId: string } | null> } | null> } | null } | null> };
+export type CapabilityServiceByPlanIdsQuery = { __typename?: 'Query', purchases: Array<{ __typename?: 'Purchase', stripePlanChoices: Array<{ __typename?: 'ComponentStripeStripePlanChoices', stripePlanChoice: string } | null> | null, offering: { __typename?: 'Offering', stripeLegacyPlans: Array<{ __typename?: 'ComponentStripeStripeLegacyPlans', stripeLegacyPlan: string } | null> | null, capabilities: Array<{ __typename?: 'Capability', slug: string, services: Array<{ __typename?: 'Service', oauthClientId: string } | null> } | null> } | null } | null> };
 
 export type EligibilityContentByOfferingQueryVariables = Exact<{
   apiIdentifier: Scalars['String']['input'];
 }>;
 
 
-export type EligibilityContentByOfferingQuery = { __typename?: 'Query', offerings: Array<{ __typename?: 'Offering', apiIdentifier: string, stripeProductId: string, defaultPurchase: { __typename?: 'Purchase', stripePlanChoices: Array<{ __typename?: 'ComponentStripeStripePlanChoices', stripePlanChoice: string | null } | null> | null } | null, subGroups: Array<{ __typename?: 'Subgroup', groupName: string | null, offerings: Array<{ __typename?: 'Offering', apiIdentifier: string, stripeProductId: string, defaultPurchase: { __typename?: 'Purchase', stripePlanChoices: Array<{ __typename?: 'ComponentStripeStripePlanChoices', stripePlanChoice: string | null } | null> | null } | null } | null> } | null> } | null> };
+export type EligibilityContentByOfferingQuery = { __typename?: 'Query', offerings: Array<{ __typename?: 'Offering', apiIdentifier: string, stripeProductId: string, defaultPurchase: { __typename?: 'Purchase', stripePlanChoices: Array<{ __typename?: 'ComponentStripeStripePlanChoices', stripePlanChoice: string } | null> | null } | null, subGroups: Array<{ __typename?: 'Subgroup', groupName: string | null, offerings: Array<{ __typename?: 'Offering', apiIdentifier: string, stripeProductId: string, defaultPurchase: { __typename?: 'Purchase', stripePlanChoices: Array<{ __typename?: 'ComponentStripeStripePlanChoices', stripePlanChoice: string } | null> | null } | null } | null> } | null> } | null> };
 
 export type EligibilityContentByPlanIdsQueryVariables = Exact<{
   stripePlanIds: Array<InputMaybe<Scalars['String']['input']>> | InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-export type EligibilityContentByPlanIdsQuery = { __typename?: 'Query', purchases: Array<{ __typename?: 'Purchase', stripePlanChoices: Array<{ __typename?: 'ComponentStripeStripePlanChoices', stripePlanChoice: string | null } | null> | null, offering: { __typename?: 'Offering', apiIdentifier: string, stripeProductId: string, countries: any | null, stripeLegacyPlans: Array<{ __typename?: 'ComponentStripeStripeLegacyPlans', stripeLegacyPlan: string | null } | null> | null, subGroups: Array<{ __typename?: 'Subgroup', groupName: string | null, offerings: Array<{ __typename?: 'Offering', apiIdentifier: string, stripeProductId: string, countries: any | null, stripeLegacyPlans: Array<{ __typename?: 'ComponentStripeStripeLegacyPlans', stripeLegacyPlan: string | null } | null> | null } | null> } | null> } | null } | null> };
+export type EligibilityContentByPlanIdsQuery = { __typename?: 'Query', purchases: Array<{ __typename?: 'Purchase', stripePlanChoices: Array<{ __typename?: 'ComponentStripeStripePlanChoices', stripePlanChoice: string } | null> | null, offering: { __typename?: 'Offering', apiIdentifier: string, stripeProductId: string, countries: any | null, stripeLegacyPlans: Array<{ __typename?: 'ComponentStripeStripeLegacyPlans', stripeLegacyPlan: string } | null> | null, subGroups: Array<{ __typename?: 'Subgroup', groupName: string | null, offerings: Array<{ __typename?: 'Offering', apiIdentifier: string, stripeProductId: string, countries: any | null, stripeLegacyPlans: Array<{ __typename?: 'ComponentStripeStripeLegacyPlans', stripeLegacyPlan: string } | null> | null } | null> } | null> } | null } | null> };
 
 export type LocalesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -2190,7 +2190,7 @@ export type PurchaseWithDetailsOfferingContentQueryVariables = Exact<{
 }>;
 
 
-export type PurchaseWithDetailsOfferingContentQuery = { __typename?: 'Query', purchases: Array<{ __typename?: 'Purchase', stripePlanChoices: Array<{ __typename?: 'ComponentStripeStripePlanChoices', stripePlanChoice: string | null } | null> | null, purchaseDetails: { __typename?: 'PurchaseDetail', details: string, productName: string, subtitle: string | null, webIcon: string, localizations: Array<{ __typename?: 'PurchaseDetail', details: string, productName: string, subtitle: string | null, webIcon: string } | null> } | null, offering: { __typename?: 'Offering', stripeProductId: string, stripeLegacyPlans: Array<{ __typename?: 'ComponentStripeStripeLegacyPlans', stripeLegacyPlan: string | null } | null> | null, commonContent: { __typename?: 'CommonContent', privacyNoticeUrl: string, privacyNoticeDownloadUrl: string, termsOfServiceUrl: string, termsOfServiceDownloadUrl: string, cancellationUrl: string | null, emailIcon: string | null, successActionButtonUrl: string, successActionButtonLabel: string | null, newsletterLabelTextCode: string | null, newsletterSlug: any | null, localizations: Array<{ __typename?: 'CommonContent', privacyNoticeUrl: string, privacyNoticeDownloadUrl: string, termsOfServiceUrl: string, termsOfServiceDownloadUrl: string, cancellationUrl: string | null, emailIcon: string | null, successActionButtonUrl: string, successActionButtonLabel: string | null, newsletterLabelTextCode: string | null, newsletterSlug: any | null } | null> } | null } | null } | null> };
+export type PurchaseWithDetailsOfferingContentQuery = { __typename?: 'Query', purchases: Array<{ __typename?: 'Purchase', stripePlanChoices: Array<{ __typename?: 'ComponentStripeStripePlanChoices', stripePlanChoice: string } | null> | null, purchaseDetails: { __typename?: 'PurchaseDetail', details: string, productName: string, subtitle: string | null, webIcon: string, localizations: Array<{ __typename?: 'PurchaseDetail', details: string, productName: string, subtitle: string | null, webIcon: string } | null> } | null, offering: { __typename?: 'Offering', stripeProductId: string, stripeLegacyPlans: Array<{ __typename?: 'ComponentStripeStripeLegacyPlans', stripeLegacyPlan: string } | null> | null, commonContent: { __typename?: 'CommonContent', privacyNoticeUrl: string, privacyNoticeDownloadUrl: string, termsOfServiceUrl: string, termsOfServiceDownloadUrl: string, cancellationUrl: string | null, emailIcon: string | null, successActionButtonUrl: string, successActionButtonLabel: string | null, newsletterLabelTextCode: string | null, newsletterSlug: any | null, localizations: Array<{ __typename?: 'CommonContent', privacyNoticeUrl: string, privacyNoticeDownloadUrl: string, termsOfServiceUrl: string, termsOfServiceDownloadUrl: string, cancellationUrl: string | null, emailIcon: string | null, successActionButtonUrl: string, successActionButtonLabel: string | null, newsletterLabelTextCode: string | null, newsletterSlug: any | null } | null> } | null } | null } | null> };
 
 export type ServicesWithCapabilitiesQueryVariables = Exact<{ [key: string]: never; }>;
 
