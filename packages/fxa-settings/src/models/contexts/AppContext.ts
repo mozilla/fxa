@@ -14,6 +14,9 @@ import { KeyStretchExperiment } from '../experiments/key-stretch-experiment';
 import { UrlQueryData } from '../../lib/model-data';
 import { ReachRouterWindow } from '../../lib/window';
 import { SensitiveDataClient } from '../../lib/sensitive-data-client';
+import { initializeNimbus, NimbusContextT } from '../../lib/nimbus';
+import { parseAcceptLanguage } from '../../../../../libs/shared/l10n/src';
+import { getUniqueUserId } from '../../lib/cache';
 
 // TODO, move some values from AppContext to SettingsContext after
 // using container components, FXA-8107
@@ -24,11 +27,26 @@ export interface AppContextValue {
   config?: Config;
   account?: Account;
   session?: Session; // used exclusively for test mocking
+  uniqueUserId?: string; // used for experiments
+  experiments?: any; // TODO: add types for experiments
 }
 
 export interface SettingsContextValue {
   alertBarInfo?: AlertBarInfo;
   navigatorLanguages?: readonly string[];
+}
+
+function fetchNimbusExperiments(uniqueUserId: string) {
+  // We reuse parseAcceptLanguage with navigator.languages because
+  // that is the same as getting the headers directly as stated on MDN.
+  // See: https://developer.mozilla.org/en-US/docs/Web/API/Navigator/languages
+  const [locale] = parseAcceptLanguage(navigator.languages.join(', '));
+  let [language, region] = locale.split('-');
+  if (region) {
+    region = region.toLowerCase();
+  }
+
+  return initializeNimbus(uniqueUserId, { language, region } as NimbusContextT);
 }
 
 export function initializeAppContext() {
@@ -46,6 +64,8 @@ export function initializeAppContext() {
   const account = new Account(authClient, apolloClient);
   const session = new Session(authClient, apolloClient);
   const sensitiveDataClient = new SensitiveDataClient();
+  const uniqueUserId = getUniqueUserId();
+  const experiments = fetchNimbusExperiments(uniqueUserId);
 
   const context: AppContextValue = {
     authClient,
@@ -54,6 +74,8 @@ export function initializeAppContext() {
     account,
     session,
     sensitiveDataClient,
+    uniqueUserId,
+    experiments,
   };
 
   return context;

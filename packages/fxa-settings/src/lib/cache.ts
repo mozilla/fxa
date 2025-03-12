@@ -4,6 +4,8 @@ import { Email } from '../models';
 import { searchParam } from '../lib/utilities';
 import config from './config';
 import { StoredAccountData } from './storage-utils';
+import { v4 as uuid } from 'uuid';
+import * as Sentry from '@sentry/browser';
 
 const storage = Storage.factory('localStorage');
 
@@ -122,6 +124,61 @@ export function clearSignedInAccountUid() {
   delete all[uid];
   accounts(all);
   storage.remove('currentAccountUid');
+}
+
+/**
+ * Fetches or generates a new client ID that is stable for that browser client/cookie jar.
+ *
+ * N.B: Implemenation is taken from `fxa-content-server/.../models/unique-user-id.js` with
+ * inlined code that was written using Backbone utilities which could not immediately be transferred over.
+ * @returns a new or existing UUIDv4 for this user.
+ */
+export function getUniqueUserId(): string {
+  function resumeTokenFromSearchParams(): string | null {
+    // Check the url for a resume token, that might have a uniqueUserId
+    const searchParams = new URLSearchParams(window.location.search);
+    const resumeToken = searchParams.get('resume');
+    return resumeToken;
+  }
+
+  function maybePersistFromToken(resumeToken: string) {
+    // populateFromStringifiedResumeToken - fxa-content-server/.../mixins/resume-token.js
+    if (resumeToken) {
+      try {
+        // createFromStringifiedResumeToken - fxa-content-server/.../models/resume-token.js
+        const resumeTokenObj = JSON.parse(atob(resumeToken));
+        if (typeof resumeTokenObj?.uniqueUserId === 'string') {
+          // Key name is derived from the Local Storage implementation.
+          // fullKey - fxa-content-server/.../lib/storage.ts
+          storage.set('uniqueUserId', resumeTokenObj?.uniqueUserId);
+          // Use uuid provided by resume token
+          return resumeTokenObj?.uniqueUserId;
+        }
+      } catch (error) {
+        Sentry.captureMessage('Failed parse resume token.', {
+          extra: {
+            resumeToken: resumeToken.substring(0, 10) + '...',
+          },
+        });
+      }
+    }
+  }
+
+  // Remove resume token bits from here in FXA-11310.
+  const resumeToken = resumeTokenFromSearchParams();
+  if (resumeToken) {
+    maybePersistFromToken(resumeToken);
+  }
+
+  // Check local storage for an existing resume token
+  let uniqueUserId = storage.get('uniqueUserId');
+  // Generate a new token if one is not found!
+  if (!uniqueUserId) {
+    uniqueUserId = uuid();
+    storage.set('uniqueUserId', uniqueUserId);
+  }
+
+  return uniqueUserId;
 }
 
 export function consumeAlertTextExternal() {
