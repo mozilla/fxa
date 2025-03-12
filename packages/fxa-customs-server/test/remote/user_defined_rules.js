@@ -24,8 +24,11 @@ function randomUid() {
 }
 
 const config = require('../../lib/config').getProperties();
+
+config.userDefinedRateLimitRules.totpCodeRules.limits.max = 2;
 config.userDefinedRateLimitRules.totpCodeRules.limits.periodMs = 1000;
 config.userDefinedRateLimitRules.totpCodeRules.limits.rateLimitIntervalMs = 1000;
+
 config.userDefinedRateLimitRules.tokenCodeRules.limits.max = 2;
 config.userDefinedRateLimitRules.tokenCodeRules.limits.periodMs = 1000;
 config.userDefinedRateLimitRules.tokenCodeRules.limits.rateLimitIntervalMs = 1000;
