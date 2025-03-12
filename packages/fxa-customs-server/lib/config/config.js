@@ -195,7 +195,7 @@ module.exports = function (fs, path, url, convict) {
         },
         passwordResetOtpRateLimitIntervalSeconds: {
           doc: 'Number of seconds to wait until password reset OTP requests are allowed again',
-          default: 15 * 60,
+          default: 1800,
           format: 'nat',
           env: 'PASSWORD_RESET_OTP_EMAIL_RATE_LIMIT_SECONDS',
         },
@@ -431,7 +431,7 @@ module.exports = function (fs, path, url, convict) {
           max: {
             doc: 'max actions during `period` that can occur before rate limit is applied',
             format: 'nat',
-            default: 5,
+            default: 2,
             env: 'TOTP_CODE_RULE_MAX',
           },
           periodMs: {
@@ -443,7 +443,7 @@ module.exports = function (fs, path, url, convict) {
           rateLimitIntervalMs: {
             doc: 'how long rate limit is applied',
             format: 'duration',
-            default: '15 minutes',
+            default: '30 seconds',
             env: 'TOTP_CODE_RULE_LIMIT_INTERVAL_MS',
           },
         },
@@ -458,13 +458,13 @@ module.exports = function (fs, path, url, convict) {
           max: {
             doc: 'max actions during `period` that can occur before rate limit is applied',
             format: 'nat',
-            default: 5,
+            default: 10,
             env: 'RECOVERY_PHONE_TOTP_CODE_RULE_MAX',
           },
           periodMs: {
             doc: 'period needed before rate limit is reset',
             format: 'duration',
-            default: '5 minutes',
+            default: '15 minutes',
             env: 'RECOVERY_PHONE_TOTP_CODE_RULE_PERIOD_MS',
           },
           rateLimitIntervalMs: {

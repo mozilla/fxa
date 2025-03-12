@@ -22,7 +22,7 @@ import {
 import { Redis } from 'ioredis';
 import { PhoneNumberInstance } from 'twilio/lib/rest/lookups/v2/phoneNumber';
 
-const RECORD_EXPIRATION_SECONDS = 5 * 60;
+const RECORD_EXPIRATION_SECONDS = 10 * 60;
 
 /**
  *
