@@ -180,12 +180,18 @@ export async function init(enabled: boolean, flowQueryParams: QueryParams) {
       // Or initialize as a fresh flow
       const flowResponse = await fetch('/metrics-flow');
       flowEventData = await flowResponse.json();
-      try {
-        flowEventData.uniqueUserId = JSON.parse(
-          localStorage.getItem('__fxa_storage.uniqueUserId')!
-        );
-      } catch (e) {}
     }
+
+    let uniqueUserIdFromLocalStorage;
+    try {
+      uniqueUserIdFromLocalStorage = JSON.parse(
+        localStorage.getItem('__fxa_storage.uniqueUserId')!
+      );
+    } catch (e) {}
+
+    flowEventData.uniqueUserId = flowQueryParams.uniqueUserId
+      ? flowQueryParams.uniqueUserId
+      : uniqueUserIdFromLocalStorage;
 
     // Make sure the default values are set. If default values are not set, metrics posts can fail.
     // There are situations where arriving directly to /beta/settings means query params won't be

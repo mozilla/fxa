@@ -701,12 +701,14 @@ Router = Router.extend({
     } else {
       const { deviceId, flowBeginTime, flowId } =
         this.metrics.getFlowEventMetadata();
+      const { uniqueUserId } = this.metrics.getFilteredData();
 
       const link = `/${routeName}${Url.objToSearchString({
         showReactApp: true,
         deviceId,
         flowBeginTime,
         flowId,
+        uniqueUserId,
         ...additionalParams,
       })}`;
 
