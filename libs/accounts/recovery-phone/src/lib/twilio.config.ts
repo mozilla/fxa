@@ -10,12 +10,13 @@ import { IsBoolean, IsString } from 'class-validator';
 export class TwilioConfig {
   /**
    * Determines which credential set to use. Options are
-   * - test - uses the testing account sid and testing auth token
-   * - default - uses the account sid and auth token
-   * - apiKeys - ues the account sid, apiKey and apiSecret
+   * - '' - An unauthenticated twilio client will be created. All calls to twilio will fail.
+   * - 'test' - uses the testing account sid and testing auth token
+   * - 'default' - uses the account sid and auth token
+   * - 'apiKeys' - ues the account sid, apiKey and apiSecret
    */
   @IsString()
-  credentialMode!: 'test' | 'default' | 'apiKeys';
+  credentialMode!: 'test' | 'default' | 'apiKeys' | '';
 
   @IsString()
   testAuthToken?: string;

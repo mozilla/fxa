@@ -2240,42 +2240,42 @@ const convictConf = convict({
   },
   twilio: {
     credentialMode: {
-      default: 'default',
-      doc: 'Which credential set to use. Options are test, default, or apiKeys.',
+      default: '',
+      doc: 'Which credential set to use. Options are "", "test", "default", or "apiKeys".',
       env: 'RECOVERY_PHONE__TWILIO__CREDENTIAL_MODE',
       format: String,
     },
     testAccountSid: {
       default: 'AC_REPLACEMEWITHKEY',
-      doc: 'Twilio Testing Account ID. Note must be used for tests leveraging Twilio magic phone numbers.',
+      doc: 'Twilio Testing Account ID. Note must be used for tests leveraging Twilio magic phone numbers. Required when credentialMode is test.',
       env: 'RECOVERY_PHONE__TWILIO__TEST_ACCOUNT_SID',
       format: String,
     },
     testAuthToken: {
       default: '',
-      doc: 'Twilio Testing Account Auth Token. Note must be used for tests leverage Twilio magic phone numbers.',
+      doc: 'Twilio Testing Account Auth Token. Note must be used for tests leverage Twilio magic phone numbers. Required when credentialMode is test.',
       env: 'RECOVERY_PHONE__TWILIO__TEST_AUTH_TOKEN',
       format: String,
     },
     accountSid: {
       default: 'AC_REPLACEMEWITHKEY',
-      doc: 'Twilio Account ID',
+      doc: 'Twilio Account ID.  Required when credentialMode is default or apiKeys.',
       env: 'RECOVERY_PHONE__TWILIO__ACCOUNT_SID',
       format: String,
     },
     authToken: {
       default: '',
-      doc: 'Twilio Auth Token to access api. Note, using apiKey/apiSecret is preferred.',
+      doc: 'Twilio Auth Token to access api. Note, using apiKey/apiSecret is preferred. Required when credentialMode is default.',
       env: 'RECOVERY_PHONE__TWILIO__AUTH_TOKEN',
     },
     apiKey: {
       default: '',
-      doc: 'An api key used to access the twilio rest api. Note, when provided the authToken is no longer needed.',
+      doc: 'An api key used to access the twilio rest api. Required when credentialMode is apiKeys.',
       env: 'RECOVERY_PHONE__TWILIO__API_KEY',
     },
     apiSecret: {
       default: '',
-      doc: 'A secret used in conjunction with the apiKey to access the twilio rest api.',
+      doc: 'A secret used in conjunction with the apiKey to access the twilio rest api. Required when credentialMode is apiKeys.',
       env: 'RECOVERY_PHONE__TWILIO__API_SECRET',
     },
     webhookUrl: {
