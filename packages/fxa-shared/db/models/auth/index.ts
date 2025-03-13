@@ -25,6 +25,8 @@ import { PruneTokens } from './prune-tokens';
 import { RelyingParty } from './relying-party';
 import { SignInCodes } from './sign-in-codes';
 import { UnblockCodes } from './unblock-codes';
+import { RecoveryCodes } from './recovery-codes';
+import { RecoveryPhones } from './recovery-phones';
 
 export type PayPalBillingAgreementStatusType =
   | 'Pending'
@@ -259,4 +261,6 @@ export {
   RelyingParty,
   SignInCodes,
   UnblockCodes,
+  RecoveryCodes,
+  RecoveryPhones,
 };

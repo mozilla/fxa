@@ -13,6 +13,7 @@ import {
   BaseAuthModel,
   EmailBounce,
 } from '../../../../db/models/auth';
+import { randomBytes } from 'crypto';
 
 export type AccountIsh = Pick<
   Account,
@@ -87,6 +88,30 @@ export function randomTotp(account: AccountIsh) {
     createdAt: chance.timestamp(),
     verified: true,
     enabled: true,
+  };
+}
+
+function generateRandomHexValue(): string {
+  // Generate 32 random bytes (64 hex digits)
+  return randomBytes(32).toString('hex').toUpperCase();
+}
+
+export function randomBackupCode(account: AccountIsh) {
+  return {
+    uid: account.uid,
+    codeHash: generateRandomHexValue(),
+    salt: generateRandomHexValue(),
+  };
+}
+
+export function randomRecoveryPhone(account: AccountIsh) {
+  const randomTimestamp = chance.timestamp();
+  return {
+    uid: account.uid,
+    phoneNumber: '1234567890',
+    createdAt: randomTimestamp,
+    lastConfirmed: randomTimestamp + 10,
+    lookupData: {},
   };
 }
 
@@ -190,6 +215,8 @@ export async function testAuthDatabaseSetup(instance: Knex): Promise<void> {
     './deviceCommandIdentifiers.sql',
     './unblock-codes.sql',
     './unverified-tokens.sql',
+    './recovery-codes.sql',
+    './recovery-phones.sql',
   ]);
   // The order matters for inserts or foreign key refs
   await runSql([
