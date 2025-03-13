@@ -8,7 +8,7 @@ import {
   LegacyNotifierServiceProvider,
   LegacyNotifierSnsFactory,
 } from '@fxa/shared/notifier';
-import { Logger, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { BackendModule } from '../backend/backend.module';
 import { DatabaseModule } from '../database/database.module';
 import { EventLoggingModule } from '../event-logging/event-logging.module';
@@ -18,7 +18,7 @@ import { AccountResolver } from './account/account.resolver';
 import { EmailBounceResolver } from './email-bounce/email-bounce.resolver';
 import { RelyingPartyResolver } from './relying-party/relying-party.resolver';
 import { APP_FILTER } from '@nestjs/core';
-import { SentryGlobalGraphQLFilter } from '@sentry/nestjs/setup';
+import { SentryGlobalFilter } from '@sentry/nestjs/setup';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { CartModule } from './cart.module';
 
@@ -48,7 +48,7 @@ import { CartModule } from './cart.module';
     RelyingPartyResolver,
     {
       provide: APP_FILTER,
-      useClass: SentryGlobalGraphQLFilter,
+      useClass: SentryGlobalFilter,
     },
   ],
 })

@@ -9,6 +9,8 @@ import {
   RecoveryKeys as RecoveryKeysType,
   LinkedAccount as LinkedAccountType,
   AccountEvent as AccountEventType,
+  BackupCodes as BackupCodesType,
+  RecoveryPhone as RecoveryPhoneType,
 } from 'fxa-admin-server/src/graphql';
 import { AdminPanelFeature } from 'fxa-shared/guards';
 import Guard from '../../Guard';
@@ -94,6 +96,8 @@ export const Account = ({
   accountEvents,
   verifierSetAt,
   clientSalt,
+  backupCodes,
+  recoveryPhone,
 }: AccountProps) => {
   const createdAtDate = getFormattedDate(createdAt);
   const disabledAtDate = getFormattedDate(disabledAt);
@@ -254,20 +258,68 @@ export const Account = ({
           2FA / TOTP (Time-Based One-Time Passwords)
         </h3>
         {totps && totps.length > 0 ? (
-          <TableXHeaders rowHeaders={['Created At', 'Enabled', 'Confirmed']}>
-            {totps.map((totp: TotpType) => (
-              <TableRowXHeader key={totp.createdAt}>
-                <td data-testid="totp-created-at">
-                  {getFormattedDate(totp.createdAt)}
-                </td>
-                <ResultBoolean isTruthy={totp.enabled} testId="totp-enabled" />
-                <ResultBoolean
-                  isTruthy={totp.verified}
-                  testId="totp-verified"
-                />
-              </TableRowXHeader>
-            ))}
-          </TableXHeaders>
+          <>
+            <TableXHeaders rowHeaders={['Created At', 'Enabled', 'Confirmed']}>
+              {totps.map((totp: TotpType) => (
+                <TableRowXHeader key={totp.createdAt}>
+                  <td data-testid="totp-created-at">
+                    {getFormattedDate(totp.createdAt)}
+                  </td>
+                  <ResultBoolean
+                    isTruthy={totp.enabled}
+                    testId="totp-enabled"
+                  />
+                  <ResultBoolean
+                    isTruthy={totp.verified}
+                    testId="totp-verified"
+                  />
+                </TableRowXHeader>
+              ))}
+            </TableXHeaders>
+            <h3 className="mb-2">2FA Recovery Methods</h3>
+            {backupCodes && backupCodes.length > 0 ? (
+              <TableXHeaders
+                rowHeaders={['Method', 'Enabled', 'Codes remaining']}
+              >
+                {backupCodes.map((backupCode: BackupCodesType, index) => (
+                  <TableRowXHeader key={`backupCodes-${index}`}>
+                    <td>Backup codes</td>
+                    <ResultBoolean
+                      isTruthy={backupCode.hasBackupCodes}
+                      testId="backup-codes-exists"
+                    />
+                    <td data-testid="backup-codes-count">{backupCode.count}</td>
+                  </TableRowXHeader>
+                ))}
+              </TableXHeaders>
+            ) : (
+              <p className="result-none">
+                No backup authentication codes available.
+              </p>
+            )}
+            {recoveryPhone ? (
+              recoveryPhone.map((recoveryPhone: RecoveryPhoneType, index) => (
+                <TableXHeaders
+                  rowHeaders={['Method', 'Enabled', 'Phone number']}
+                >
+                  <TableRowXHeader key={`recoveryPhone-${index}`}>
+                    <td>Recovery phone</td>
+                    <ResultBoolean
+                      isTruthy={recoveryPhone.exists}
+                      testId="recovery-phone-exists"
+                    />
+                    <td data-testid="recovery-phone-number">
+                      {recoveryPhone.lastFourDigits
+                        ? `(***) ***-${recoveryPhone.lastFourDigits}`
+                        : 'None'}
+                    </td>
+                  </TableRowXHeader>
+                </TableXHeaders>
+              ))
+            ) : (
+              <p className="result-none">No recovery phone configured.</p>
+            )}
+          </>
         ) : (
           <p className="result-none">
             This account hasn't started 2FA / TOTP setup.

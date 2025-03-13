@@ -3,11 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 .table-th {
-  @apply font-medium text-violet-900 align-top p-1 pr-4 bg-grey-10;
+  @apply font-medium text-violet-900 align-top py-1 px-4 bg-grey-10 text-start;
 }
 
 .table-td {
-  @apply px-2 py-1 border-grey-10;
+  @apply px-4 py-1 border-grey-10;
 }
 
 .table-xy-headers {

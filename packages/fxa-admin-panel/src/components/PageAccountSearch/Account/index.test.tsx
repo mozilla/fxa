@@ -72,6 +72,18 @@ let accountResponse: AccountProps = {
       createdAt: 1589467100316,
     },
   ],
+  backupCodes: [
+    {
+      hasBackupCodes: true,
+      count: 3,
+    },
+  ],
+  recoveryPhone: [
+    {
+      exists: true,
+      lastFourDigits: '7890',
+    },
+  ],
   recoveryKeys: [
     {
       createdAt: 1589467100316,
@@ -204,6 +216,34 @@ it('displays the totp status', async () => {
   expect(getByTestId('totp-created-at')).toBeInTheDocument();
   expect(getByTestId('totp-verified')).toBeInTheDocument();
   expect(getByTestId('totp-enabled')).toBeInTheDocument();
+});
+
+it('displays the backup codes status', async () => {
+  const { getByRole, getByTestId, getByText } = render(
+    <MockedProvider>
+      <Account {...accountResponse} />
+    </MockedProvider>
+  );
+  expect(
+    getByRole('heading', { name: /2fa recovery methods/i })
+  ).toBeInTheDocument();
+  expect(getByText('Backup codes')).toBeInTheDocument();
+  expect(getByTestId('backup-codes-exists')).toBeInTheDocument();
+  expect(getByTestId('backup-codes-count')).toBeInTheDocument();
+});
+
+it('displays the recovery phone status', async () => {
+  const { getByRole, getByTestId, getByText } = render(
+    <MockedProvider>
+      <Account {...accountResponse} />
+    </MockedProvider>
+  );
+  expect(
+    getByRole('heading', { name: /2fa recovery methods/i })
+  ).toBeInTheDocument();
+  expect(getByText('Recovery phone')).toBeInTheDocument();
+  expect(getByTestId('recovery-phone-exists')).toBeInTheDocument();
+  expect(getByTestId('recovery-phone-number')).toBeInTheDocument();
 });
 
 it('displays the account recovery key status', async () => {
