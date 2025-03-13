@@ -6,6 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { Provider } from '@nestjs/common';
 import { Twilio } from 'twilio';
 import { TwilioConfig } from './twilio.config';
+import { MozLoggerService } from '@fxa/shared/mozlog';
 
 export const TwilioConfigProvider = {
   provide: TwilioConfig,
@@ -21,7 +22,7 @@ export const TwilioProvider = Symbol('TwilioProvider');
 //       Should this be moved to shared?
 export const TwilioFactory: Provider<Twilio> = {
   provide: TwilioProvider,
-  useFactory: (config: TwilioConfig) => {
+  useFactory: (config: TwilioConfig, log?: MozLoggerService) => {
     const {
       credentialMode,
       testAccountSid,
@@ -31,6 +32,13 @@ export const TwilioFactory: Provider<Twilio> = {
       apiKey,
       apiSecret,
     } = config;
+
+    if (credentialMode === '') {
+      log?.debug(
+        'Twilio will not be available. Check readme for info about configuring Twilio.'
+      );
+      return new Twilio('AC123', '');
+    }
 
     // Okay for test, dev, and CI when using real phone numbers
     if (credentialMode === 'default' && accountSid && authToken) {
