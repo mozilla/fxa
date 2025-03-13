@@ -156,6 +156,48 @@ Rate-limiting and blocking is handled by fxa-customs-server. By default, these p
 
 The customs-server can be enabled for local testing by changing the dev config to `"customsUrl":"http://localhost:7000"`.
 
+### Recovery Phone Config
+
+Recovery phone uses twilio to send SMS. Twilio has two different modes it can operate in based on the credentials provided.
+
+There is a 'test' mode and a 'default' mode. The testing mode cannot send messages to real phone numbers, but it can send
+messages to 'magic' testing numbers that are reserved and maintained by Twilio for testing purposes and are free to send SMS
+to. The default mode can send out real messages, but cannot send messages to 'magic' testing numbers. These credentials can
+be obtained by going to twilio.com logging into your account, and finding them in the testing console. If you are new to the
+FxA team, contact a team member to get twilio access.
+
+The 'test' mode can send SMS to magic test numbers at no cost. This is what we use for unit/integration testing.
+
+The 'default' mode can send SMS to real numbers, but will incur const, and cannot send messages to magic test numbers. This
+is what we use for manual testing.
+
+To make switching between these modes easy, we've created the `twilio.credentialMode` configuration setting. Simply set the
+apiKeys and testCredentials, then toggle `credentialMode` from test to apiKeys depending on how you are testing. Here's a
+snippet from .env that shows an example of this.
+
+```
+RECOVERY_PHONE__ENABLED=true
+RECOVERY_PHONE__TWILIO__ACCOUNT_SID=######
+
+# Set apiKeys for manual testing
+RECOVERY_PHONE__TWILIO__API_KEY=######
+RECOVERY_PHONE__TWILIO__API_SECRET=######
+
+# These are the specific Twilio test credentials that allow us to send out sms to
+# magic numbers and incur no cost. Set these so we can run our automated tests.
+RECOVERY_PHONE__TWILIO__TEST_ACCOUNT_SID=######
+RECOVERY_PHONE__TWILIO__TEST_AUTH_TOKEN=######
+
+# Important! Toggle this value between 'apiKeys' or 'test'. Depending on how
+# you are testing.
+RECOVERY_PHONE__TWILIO__CREDENTIAL_MODE=apiKeys
+```
+
+TIP:
+
+- Applying .env file state is easy simply run `dotenv -- yarn start`.
+- After toggling `RECOVERY_PHONE__TWILIO__CREDENTIAL_MODE` you can restart auth-server like this: `dotenv -- yarn pm2 restart auth --update-env`. This avoids having to stop and start the stack again.
+
 ### Token Pruning
 
 We need to be able to periodically remove old tokens and codes. This can be accomplished via the token pruning script in the scripts directory.
