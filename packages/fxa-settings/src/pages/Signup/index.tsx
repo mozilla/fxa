@@ -391,6 +391,7 @@ export const Signup = ({
                 params.delete('emailStatusChecked');
                 params.delete('email');
                 params.delete('login_hint');
+                params.delete('showReactApp');
                 hardNavigate(`/?${params.toString()}`);
               }
             }}
