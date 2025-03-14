@@ -9,7 +9,7 @@ import { renderWithLocalizationProvider } from '../../lib/test-utils/localizatio
 describe('AppErrorDialog', () => {
   it('renders a general error dialog', () => {
     const { queryByTestId } = renderWithLocalizationProvider(
-      <AppErrorDialog error={new Error('bad')} />
+      <AppErrorDialog />
     );
 
     expect(queryByTestId('error-loading-app')).toBeInTheDocument();

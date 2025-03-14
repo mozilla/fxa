@@ -4,16 +4,27 @@
 
 import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
-import { NavigationOptions, SigninLocationState } from './interfaces';
-import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
-import { isOAuthIntegration, isOAuthNativeIntegration } from '../../models';
+import {
+  NavigationOptions,
+  RecoveryEmailStatusResponse,
+  SigninLocationState,
+} from './interfaces';
+import { AuthUiError, AuthUiErrors } from '../../lib/auth-errors/auth-errors';
+import {
+  useSession,
+  isOAuthIntegration,
+  isOAuthNativeIntegration,
+  useAuthClient,
+} from '../../models';
 import { navigate } from '@reach/router';
 import { hardNavigate } from 'fxa-react/lib/utils';
-import { currentAccount } from '../../lib/cache';
+import { currentAccount, discardSessionToken } from '../../lib/cache';
 import firefox from '../../lib/channels/firefox';
 import { AuthError } from '../../lib/oauth';
 import GleanMetrics from '../../lib/glean';
 import { OAuthData } from '../../lib/oauth/hooks';
+import { InMemoryCache } from '@apollo/client';
+import AuthenticationMethods from '../../constants/authentication-methods';
 
 interface NavigationTarget {
   to: string;
@@ -58,6 +69,81 @@ export function getSyncNavigate(
     shouldHardNavigate: true,
   };
 }
+
+export const cachedSignIn = async (
+  sessionToken: string,
+  authClient: ReturnType<typeof useAuthClient>,
+  cache: InMemoryCache,
+  session: ReturnType<typeof useSession>
+) => {
+  try {
+    // might need scope `profile:amr` for OAuth
+    const {
+      authenticationMethods,
+    }: { authenticationMethods: AuthenticationMethods[] } =
+      await authClient.accountProfile(sessionToken);
+
+    const totpIsActive = authenticationMethods.includes(
+      AuthenticationMethods.OTP
+    );
+    if (totpIsActive) {
+      // Cache this for subsequent requests
+      cache.modify({
+        id: cache.identify({ __typename: 'Account' }),
+        fields: {
+          totp() {
+            return { exists: true, verified: true };
+          },
+        },
+      });
+    }
+
+    // after accountProfile data is retrieved we must check verified status
+    // TODO: FXA-9177 can we use the useSession hook here? Or update Apollo Cache
+    const {
+      verified,
+      sessionVerified,
+      emailVerified,
+    }: RecoveryEmailStatusResponse = await authClient.recoveryEmailStatus(
+      sessionToken
+    );
+
+    const verificationMethod = totpIsActive
+      ? VerificationMethods.TOTP_2FA
+      : VerificationMethods.EMAIL_OTP;
+
+    const verificationReason = emailVerified
+      ? VerificationReasons.SIGN_IN
+      : VerificationReasons.SIGN_UP;
+
+    if (!verified) {
+      await session.sendVerificationCode();
+    }
+
+    const storedLocalAccount = currentAccount();
+
+    return {
+      data: {
+        verificationMethod,
+        verificationReason,
+        verified,
+        // Because the cached signin was a success, we know 'uid' exists
+        uid: storedLocalAccount!.uid,
+        sessionVerified, // might not need
+        emailVerified, // might not need
+      },
+    };
+  } catch (error) {
+    // If 'invalid token' is received from profile server, it means
+    // the session token has expired
+    const { errno } = error as AuthUiError;
+    if (errno === AuthUiErrors.INVALID_TOKEN.errno) {
+      discardSessionToken();
+      return { error: AuthUiErrors.SESSION_EXPIRED };
+    }
+    return { error };
+  }
+};
 
 // In Backbone and React, 'confirm_signup_code' and 'signin_token_code' send key
 // and token data up to Sync with fxa_login and then the CAD/pair page (currently

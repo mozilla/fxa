@@ -8,6 +8,6 @@ storiesOf('Components/AppErrorDialog', module).add('basic', () => (
     baseDir="./locales"
     userLocales={navigator.languages}
   >
-    <AppErrorDialog error={new Error('Uh oh!')} />
+    <AppErrorDialog />
   </AppLocalizationProvider>
 ));

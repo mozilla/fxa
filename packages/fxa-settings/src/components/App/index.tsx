@@ -88,6 +88,7 @@ import SetPasswordContainer from '../../pages/PostVerify/SetPassword/container';
 import SigninRecoveryChoiceContainer from '../../pages/Signin/SigninRecoveryChoice/container';
 import SigninRecoveryPhoneContainer from '../../pages/Signin/SigninRecoveryPhone/container';
 import { IndexContainer } from '../../pages/Index/container';
+import AuthorizationContainer from '../../pages/Authorization/container';
 
 const Settings = lazy(() => import('../Settings'));
 
@@ -378,6 +379,7 @@ const AuthAndAccountSetupRoutes = ({
       />
 
       {/* Signin */}
+      <AuthorizationContainer path="/authorization/*" {...{ integration }} />
       <ReportSigninContainer path="/report_signin/*" />
       <SigninContainer
         path="/oauth/force_auth/*"

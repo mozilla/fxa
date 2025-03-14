@@ -18,12 +18,7 @@ import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
 import { SigninQueryParams } from '../../models/pages/signin';
 import { useCallback, useEffect, useState } from 'react';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
-import {
-  cache,
-  currentAccount,
-  discardSessionToken,
-  lastStoredAccount,
-} from '../../lib/cache';
+import { cache, currentAccount, lastStoredAccount } from '../../lib/cache';
 import { MutationFunction, useMutation, useQuery } from '@apollo/client';
 import {
   AVATAR_QUERY,
@@ -35,7 +30,6 @@ import {
 } from './gql';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import {
-  RecoveryEmailStatusResponse,
   AvatarResponse,
   BeginSigninHandler,
   BeginSigninResponse,
@@ -47,10 +41,8 @@ import {
   CredentialStatusResponse,
 } from './interfaces';
 import { getCredentials } from 'fxa-auth-client/lib/crypto';
-import { AuthUiError, AuthUiErrors } from '../../lib/auth-errors/auth-errors';
+import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import VerificationMethods from '../../constants/verification-methods';
-import VerificationReasons from '../../constants/verification-reasons';
-import AuthenticationMethods from '../../constants/authentication-methods';
 import { KeyStretchExperiment } from '../../models/experiments';
 import { useFinishOAuthFlowHandler } from '../../lib/oauth/hooks';
 import { searchParams } from '../../lib/utilities';
@@ -76,6 +68,7 @@ import {
 import { GqlKeyStretchUpgrade } from '../../lib/gql-key-stretch-upgrade';
 import { setCurrentAccount } from '../../lib/storage-utils';
 import { useCheckReactEmailFirst } from '../../lib/hooks';
+import { cachedSignIn } from './utils';
 
 /*
  * In Backbone, the `email` param is optional. If it's provided, we
@@ -183,7 +176,7 @@ const SigninContainer = ({
   });
   const { hasLinkedAccount, hasPassword } = accountStatus;
 
-  const { email, sessionToken, uid } = getAccountInfo(
+  const { email, sessionToken } = getAccountInfo(
     emailFromLocationState || queryParamModel.email
   );
 
@@ -440,74 +433,9 @@ const SigninContainer = ({
   );
 
   const cachedSigninHandler: CachedSigninHandler = useCallback(
-    async (sessionToken: hexstring) => {
-      try {
-        // might need scope `profile:amr` for OAuth
-        const {
-          authenticationMethods,
-        }: { authenticationMethods: AuthenticationMethods[] } =
-          await authClient.accountProfile(sessionToken);
-
-        const totpIsActive = authenticationMethods.includes(
-          AuthenticationMethods.OTP
-        );
-        if (totpIsActive) {
-          // Cache this for subsequent requests
-          cache.modify({
-            id: cache.identify({ __typename: 'Account' }),
-            fields: {
-              totp() {
-                return { exists: true, verified: true };
-              },
-            },
-          });
-        }
-
-        // after accountProfile data is retrieved we must check verified status
-        // TODO: FXA-9177 can we use the useSession hook here? Or update Apollo Cache
-        const {
-          verified,
-          sessionVerified,
-          emailVerified,
-        }: RecoveryEmailStatusResponse = await authClient.recoveryEmailStatus(
-          sessionToken
-        );
-
-        const verificationMethod = totpIsActive
-          ? VerificationMethods.TOTP_2FA
-          : VerificationMethods.EMAIL_OTP;
-
-        const verificationReason = emailVerified
-          ? VerificationReasons.SIGN_IN
-          : VerificationReasons.SIGN_UP;
-
-        if (!verified) {
-          await session.sendVerificationCode();
-        }
-
-        return {
-          data: {
-            verificationMethod,
-            verificationReason,
-            verified,
-            // Because the cached signin was a success, we know 'uid' exists
-            uid: uid!,
-            sessionVerified, // might not need
-            emailVerified, // might not need
-          },
-        };
-      } catch (error) {
-        // If 'invalid token' is received from profile server, it means
-        // the session token has expired
-        const { errno } = error as AuthUiError;
-        if (errno === AuthUiErrors.INVALID_TOKEN.errno) {
-          discardSessionToken();
-          return { error: AuthUiErrors.SESSION_EXPIRED };
-        }
-        return { error };
-      }
-    },
-    [authClient, session, uid]
+    async (sessionToken: hexstring) =>
+      cachedSignIn(sessionToken, authClient, cache, session),
+    [authClient, session]
   );
 
   const sendUnblockEmailHandler = useCallback(

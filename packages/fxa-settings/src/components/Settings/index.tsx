@@ -130,7 +130,7 @@ export const Settings = ({
   if (error) {
     Sentry.captureException(error, { tags: { source: 'settings' } });
     GleanMetrics.error.view({ event: { reason: error.message } });
-    return <AppErrorDialog data-testid="error-dialog" {...{ error }} />;
+    return <AppErrorDialog data-testid="error-dialog" />;
   }
 
   const canAddRecoveryPhone =
