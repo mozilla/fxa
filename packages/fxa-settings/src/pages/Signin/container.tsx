@@ -231,6 +231,7 @@ const SigninContainer = ({
               // Passing back the 'email' param causes various behaviors in
               // content-server since it marks the email as "coming from a RP".
               queryParams.delete('email');
+              queryParams.delete('showReactApp=true');
               if (isEmailValid(email)) {
                 queryParams.set('prefillEmail', email);
               }
@@ -249,6 +250,7 @@ const SigninContainer = ({
           // Passing back the 'email' param causes various behaviors in
           // content-server since it marks the email as "coming from a RP".
           queryParams.delete('email');
+          queryParams.delete('showReactApp');
           if (email && isEmailValid(email)) {
             queryParams.set('prefillEmail', email);
           }
