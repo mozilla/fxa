@@ -334,6 +334,9 @@ export function CheckoutForm({
                   },
                 },
               },
+              terms: {
+                card: 'never',
+              },
             }}
           />
         )}
