@@ -18,7 +18,9 @@ import {
   Email,
   EmailBounce,
   LinkedAccount,
+  RecoveryCodes,
   RecoveryKey,
+  RecoveryPhones,
   RelyingParty,
   SecurityEvent,
   SessionToken,
@@ -47,6 +49,8 @@ export class DatabaseService implements OnModuleDestroy {
   public emailBounces: typeof EmailBounce;
   public securityEvents: typeof SecurityEvent;
   public totp: typeof TotpToken;
+  public recoveryCodes: typeof RecoveryCodes;
+  public recoveryPhones: typeof RecoveryPhones;
   public recoveryKeys: typeof RecoveryKey;
   public sessionTokens: typeof SessionToken;
   public device: typeof Device;
@@ -90,6 +94,8 @@ export class DatabaseService implements OnModuleDestroy {
     this.emailBounces = EmailBounce;
     this.securityEvents = SecurityEvent;
     this.totp = TotpToken;
+    this.recoveryCodes = RecoveryCodes;
+    this.recoveryPhones = RecoveryPhones;
     this.recoveryKeys = RecoveryKey;
     this.sessionTokens = SessionToken;
     this.device = Device;
