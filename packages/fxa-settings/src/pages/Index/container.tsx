@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps, useLocation } from '@reach/router';
-import { useNavigateWithQuery as useNavigate } from '../../lib/hooks/useNavigateWithQuery';
+import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
+import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
 import Index from '.';
 import { IndexContainerProps, LocationState } from './interfaces';
 import { useCallback, useEffect } from 'react';
@@ -36,6 +36,7 @@ export const IndexContainer = ({
   // TODO, more strict validation for bad oauth params, FXA-11297
   const authClient = useAuthClient();
   const navigate = useNavigate();
+  const navigateWithQuery = useNavigateWithQuery();
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state?: LocationState;
   };
@@ -54,7 +55,7 @@ export const IndexContainer = ({
 
   useEffect(() => {
     if (shouldRedirectToSignin) {
-      navigate('/signin', {
+      navigateWithQuery('/signin', {
         state: {
           email,
         },
@@ -104,15 +105,25 @@ export const IndexContainer = ({
             };
           }
         }
+
+        const params = new URLSearchParams(location.search);
+        // We delete 'email' if it is present because otherwise, that param will take
+        // precedence and the user will be unable to create an account with a different
+        // email. Remove for signin as well as it is unnecessary. This is a byproduct
+        // of backwards compatibility between Backbone and React since we pass this
+        // param from content-server, TODO: FXA-10567
+        // We can also use useNavigateWithQuery after addressing the above.
+        params.delete('email');
+        const hasParams = params.size > 0;
         if (!exists) {
-          navigate('/signup', {
+          navigate(`/signup${hasParams ? `?${params.toString()}` : ''}`, {
             state: {
               email,
               emailStatusChecked: true,
             },
           });
         } else {
-          navigate('/signin', {
+          navigate(`/signin${hasParams ? `?${params.toString()}` : ''}`, {
             state: {
               email,
               hasLinkedAccount,
@@ -125,7 +136,7 @@ export const IndexContainer = ({
         return getHandledError(error);
       }
     },
-    [authClient, navigate, isWebChannelIntegration]
+    [authClient, navigate, isWebChannelIntegration, location.search]
   );
 
   if (validationError) {
