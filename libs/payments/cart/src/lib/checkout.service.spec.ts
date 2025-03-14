@@ -1022,9 +1022,6 @@ describe('CheckoutService', () => {
           .spyOn(subscriptionManager, 'retrieveForCustomerAndPrice')
           .mockResolvedValue(subscription);
         jest
-          .spyOn(subscriptionManager, 'retrieveSubscriptionItem')
-          .mockReturnValue(subscription.items.data[0]);
-        jest
           .spyOn(subscriptionManager, 'update')
           .mockResolvedValue(StripeResponseFactory(subscription));
       });
