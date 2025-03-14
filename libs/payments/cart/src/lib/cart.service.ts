@@ -21,6 +21,7 @@ import {
   CustomerSessionManager,
   PaymentIntentManager,
   determinePaymentMethodType,
+  TaxAddress,
 } from '@fxa/payments/customer';
 import { EligibilityService } from '@fxa/payments/eligibility';
 import {
@@ -191,10 +192,10 @@ export class CartService {
   async setupCart(args: {
     interval: SubplatInterval;
     offeringConfigId: string;
+    taxAddress: TaxAddress;
     experiment?: string;
     promoCode?: string;
     uid?: string;
-    ip?: string;
   }): Promise<ResultCart> {
     let accountCustomer;
     if (args.uid) {
@@ -212,10 +213,6 @@ export class CartService {
       ? await this.customerManager.retrieve(stripeCustomerId)
       : undefined;
 
-    const taxAddress = args.ip
-      ? this.geodbManager.getTaxAddress(args.ip)
-      : undefined;
-
     const price = await this.productConfigurationManager.retrieveStripePrice(
       args.offeringConfigId,
       args.interval
@@ -228,13 +225,11 @@ export class CartService {
       fxaAccounts && fxaAccounts.length > 0 ? fxaAccounts[0] : undefined;
 
     let currency: string | undefined = undefined;
-    if (taxAddress?.countryCode) {
-      currency = this.currencyManager.getCurrencyForCountry(
-        taxAddress?.countryCode
-      );
-      if (!currency) {
-        throw new CartInvalidCurrencyError(currency, taxAddress.countryCode);
-      }
+    currency = this.currencyManager.getCurrencyForCountry(
+      args.taxAddress.countryCode
+    );
+    if (!currency) {
+      throw new CartInvalidCurrencyError(currency, args.taxAddress.countryCode);
     }
 
     if (!currency) currency = DEFAULT_CURRENCY;
@@ -244,7 +239,7 @@ export class CartService {
         priceId: price.id,
         currency,
         customer: stripeCustomer,
-        taxAddress: taxAddress,
+        taxAddress: args.taxAddress,
         couponCode: args.promoCode,
       }),
       this.eligibilityService.checkEligibility(
@@ -277,7 +272,7 @@ export class CartService {
       email: fxaAccount?.email,
       stripeCustomerId: accountCustomer?.stripeCustomerId || undefined,
       experiment: args.experiment,
-      taxAddress,
+      taxAddress: args.taxAddress,
       currency,
       eligibilityStatus: cartEligibilityStatus,
       couponCode: args.promoCode,
@@ -336,13 +331,24 @@ export class CartService {
             })
         : undefined;
 
+      if (!(oldCart.taxAddress && oldCart.currency)) {
+        throw new CartError(
+          'Cart must have a tax address and currency to restart',
+          {
+            cartId: oldCart.id,
+            taxAddress: oldCart.taxAddress,
+            currency: oldCart.currency,
+          }
+        );
+      }
+
       return await this.cartManager.createCart({
         uid: oldCart.uid,
         interval: oldCart.interval,
         offeringConfigId: oldCart.offeringConfigId,
         experiment: oldCart.experiment || undefined,
-        taxAddress: oldCart.taxAddress || undefined,
-        currency: oldCart.currency || undefined,
+        taxAddress: oldCart.taxAddress,
+        currency: oldCart.currency,
         couponCode: oldCart.couponCode || undefined,
         stripeCustomerId: accountCustomer?.stripeCustomerId || undefined,
         email: oldCart.email || undefined,
@@ -520,7 +526,12 @@ export class CartService {
    */
   @SanitizeExceptions()
   async getCart(cartId: string): Promise<CartDTO> {
-    const cart = await this.cartManager.fetchCartById(cartId);
+    const cart = (await this.cartManager.fetchCartById(
+      cartId
+    )) as ResultCart & { taxAddress: TaxAddress; currency: string };
+
+    assert(cart.taxAddress !== null, 'Cart must have a tax address');
+    assert(cart.currency !== null, 'Cart must have a currency');
 
     const [price, metricsOptedOut] = await Promise.all([
       this.productConfigurationManager.retrieveStripePrice(
@@ -560,18 +571,18 @@ export class CartService {
       upcomingInvoicePreview =
         await this.invoiceManager.previewUpcomingForUpgrade({
           priceId: price.id,
-          currency: cart.currency || DEFAULT_CURRENCY,
+          currency: cart.currency,
           customer,
-          taxAddress: cart.taxAddress || undefined,
+          taxAddress: cart.taxAddress,
           couponCode: cart.couponCode || undefined,
           fromPrice: eligibility.fromPrice,
         });
     } else {
       upcomingInvoicePreview = await this.invoiceManager.previewUpcoming({
         priceId: price.id,
-        currency: cart.currency || DEFAULT_CURRENCY,
+        currency: cart.currency,
         customer,
-        taxAddress: cart.taxAddress || undefined,
+        taxAddress: cart.taxAddress,
         couponCode: cart.couponCode || undefined,
       });
     }

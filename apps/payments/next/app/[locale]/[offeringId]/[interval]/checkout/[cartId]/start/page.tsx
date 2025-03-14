@@ -11,6 +11,7 @@ import {
   ButtonVariant,
   PaymentSection,
   SignInForm,
+  UpdateBrowserUrl,
 } from '@fxa/payments/ui';
 import {
   getApp,
@@ -42,7 +43,17 @@ export default async function Checkout({
   params: CheckoutParams;
   searchParams: Record<string, string> | undefined;
 }) {
-  const { locale } = params;
+  const { offeringId, interval, locale, cartId } = params;
+  const pageType: 'checkout' | 'upgrade' =
+    ((searchParams && searchParams['pageType']) as 'checkout' | 'upgrade') ||
+    'checkout';
+  const currentUrl = buildRedirectUrl(offeringId, interval, 'start', pageType, {
+    locale,
+    cartId,
+    baseUrl: config.paymentsNextHostedUrl,
+    searchParams: searchParams ?? {},
+  });
+
   const acceptLanguage = headers().get('accept-language');
   const sessionPromise = auth();
   const l10n = getApp().getL10n(acceptLanguage, locale);
@@ -77,6 +88,7 @@ export default async function Checkout({
 
   return (
     <section aria-label="Checkout">
+      <UpdateBrowserUrl route={currentUrl} />
       {!session?.user && (
         <>
           <h2 className="font-semibold text-grey-600 text-lg mt-10">
@@ -85,7 +97,6 @@ export default async function Checkout({
               '1. Sign in or create a Mozilla account'
             )}
           </h2>
-
           <SignInForm
             submitAction={async (email?: string) => {
               'use server';

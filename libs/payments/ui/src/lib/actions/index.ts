@@ -10,6 +10,7 @@ export { getCartAction } from './getCart';
 export { getCartOrRedirectAction } from './getCartOrRedirect';
 export { getMetricsFlowAction } from './getMetricsFlow';
 export { getPayPalCheckoutToken } from './getPayPalCheckoutToken';
+export { getTaxAddressAction } from './getTaxAddress';
 export { handleStripeErrorAction } from './handleStripeError';
 export { recordEmitterEventAction } from './recordEmitterEvent';
 export { restartCartAction } from './restartCart';

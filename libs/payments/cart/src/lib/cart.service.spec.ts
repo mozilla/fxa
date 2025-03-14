@@ -445,6 +445,7 @@ describe('CartService', () => {
   });
 
   describe('setupCart', () => {
+    const taxAddress = TaxAddressFactory();
     const args = {
       interval: SubplatInterval.Monthly,
       offeringConfigId: faker.string.uuid(),
@@ -455,6 +456,8 @@ describe('CartService', () => {
         prefix: '',
         casing: 'lower',
       }),
+      taxAddress,
+      currency: faker.finance.currencyCode(),
       ip: faker.internet.ipv4(),
     };
 
@@ -465,7 +468,6 @@ describe('CartService', () => {
     const mockInvoicePreview = InvoicePreviewFactory();
     const mockResultCart = ResultCartFactory();
     const mockPrice = StripePriceFactory();
-    const taxAddress = TaxAddressFactory();
 
     beforeEach(async () => {
       jest
@@ -563,6 +565,7 @@ describe('CartService', () => {
     it('returns cart eligibility status downgrade', async () => {
       const mockResultCart = ResultCartFactory();
       const mockResolvedCurrency = faker.finance.currencyCode();
+      const mockStripePrice = StripePriceFactory();
 
       jest
         .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
@@ -574,6 +577,8 @@ describe('CartService', () => {
       jest.spyOn(accountManager, 'getAccounts').mockResolvedValue([]);
       jest.spyOn(eligibilityService, 'checkEligibility').mockResolvedValue({
         subscriptionEligibilityResult: EligibilityStatus.DOWNGRADE,
+        fromOfferingConfigId: 'vpn',
+        fromPrice: mockStripePrice,
       });
       jest.spyOn(cartService, 'finalizeCartWithError').mockResolvedValue();
 
