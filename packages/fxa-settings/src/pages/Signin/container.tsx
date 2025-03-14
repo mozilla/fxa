@@ -198,8 +198,11 @@ const SigninContainer = ({
                 thirdPartyAuthStatus: true,
               });
             if (!exists) {
+              const signUpPath = location.pathname.startsWith('/oauth')
+                ? '/oauth/signup'
+                : '/signup';
               if (shouldUseReactEmailFirst) {
-                navigate('/signup', {
+                navigate(signUpPath, {
                   state: {
                     email,
                     emailStatusChecked: true,
@@ -208,7 +211,7 @@ const SigninContainer = ({
               } else {
                 queryParams.set('email', email);
                 queryParams.set('emailStatusChecked', 'true');
-                navigate(`/signup?${queryParams}`);
+                navigate(`${signUpPath}?${queryParams}`);
               }
             } else {
               // TODO: in FXA-9177, also set hasLinkedAccount and hasPassword in Apollo cache

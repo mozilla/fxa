@@ -290,7 +290,9 @@ Router = Router.extend({
         contentRedirect: true,
       });
     },
-    'oauth(/)': createViewHandler(IndexView),
+    'oauth(/)': function () {
+      this.createReactOrBackboneViewHandler('oauth', IndexView);
+    },
     'oauth/force_auth(/)': function () {
       this.createReactOrBackboneViewHandler('oauth/force_auth', ForceAuthView, {
         ...Url.searchParams(this.window.location.search),
