@@ -4,7 +4,6 @@
 
 import { useEffect, useRef } from 'react';
 import { useConfig } from '../models';
-import { isInReactExperiment } from './cache';
 
 // Focus on the element that triggered some action after the first
 // argument changes from `false` to `true` unless a `triggerException`
@@ -64,6 +63,5 @@ export function useChangeFocusEffect() {
  */
 export function useCheckReactEmailFirst() {
   const config = useConfig();
-  // TODO with FXA-11221 (100% prod rollout), remove isInReactExperiment() check
-  return config.showReactApp.emailFirstRoutes === true && isInReactExperiment();
+  return config.showReactApp.emailFirstRoutes === true;
 }
