@@ -657,6 +657,48 @@ describe('PurchaseManager', () => {
       sinon.assert.calledOnce(purchaseManager.querySubscriptionPurchase);
     });
 
+    it('skips NOT_FOUND error for expired purchases', async () => {
+      const mockApiExpiredResult = {
+        bundleId: mockBundleId,
+        data: [
+          {
+            lastTransactions: [
+              {
+                originalTransactionId: mockOriginalTransactionId,
+                status: SubscriptionStatus.Expired,
+                signedTransactionInfo: {},
+                signedRenewalInfo: {},
+              },
+            ],
+          },
+        ],
+      };
+      mockStatus = SubscriptionStatus.Expired;
+      const subscriptionPurchase = AppStoreSubscriptionPurchase.fromApiResponse(
+        mockApiExpiredResult,
+        mockStatus,
+        {},
+        {},
+        mockOriginalTransactionId,
+        mockVerifiedAt
+      );
+      const subscriptionSnapshot = {
+        data: sinon.fake.returns(subscriptionPurchase.toFirestoreObject()),
+      };
+      queryResult.docs.push(subscriptionSnapshot);
+      const notFoundError = new Error('NOT_FOUND');
+      notFoundError.name = PurchaseQueryError.NOT_FOUND;
+      purchaseManager.querySubscriptionPurchase =
+        sinon.fake.rejects(notFoundError);
+
+      const result = await purchaseManager.queryCurrentSubscriptionPurchases(
+        USER_ID
+      );
+
+      assert.deepEqual(result, []);
+      sinon.assert.calledOnce(purchaseManager.querySubscriptionPurchase);
+    });
+
     it('throws library error on failure', async () => {
       const mockApiExpiredResult = {
         bundleId: mockBundleId,
