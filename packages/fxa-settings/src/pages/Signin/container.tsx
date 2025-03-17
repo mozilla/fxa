@@ -137,6 +137,13 @@ const SigninContainer = ({
   const { queryParamModel, validationError } =
     useValidatedQueryParams(SigninQueryParams);
 
+  // We want to fail hard / fast on sign in. If query params don't pass validation here,
+  // there's no point in continuing further in this flow. This error will be handled
+  // by the app error boundary.
+  if (validationError) {
+    throw validationError;
+  }
+
   const keyStretchExp = useValidatedQueryParams(KeyStretchExperiment);
 
   const { finishOAuthFlowHandler, oAuthDataError } = useFinishOAuthFlowHandler(

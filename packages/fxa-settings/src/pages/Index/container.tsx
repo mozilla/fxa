@@ -43,6 +43,13 @@ export const IndexContainer = ({
   const { queryParamModel, validationError } =
     useValidatedQueryParams(IndexQueryParams);
 
+  // We want to fail hard / fast on the index page (ie email first). If query params don't pass validation here,
+  // there's no point in continuing further in this flow. This error will be handled
+  // by the app error boundary.
+  if (validationError) {
+    throw validationError;
+  }
+
   const { prefillEmail, deleteAccountSuccess, hasBounced } =
     location.state || {};
 
@@ -59,10 +66,12 @@ export const IndexContainer = ({
   useEffect(() => {
     if (shouldRedirectToSignin) {
       const route = location.pathname.startsWith('/oauth')
-        ? '/oauth/signin'
-        : '/signin';
+        ? '/oauth/signin?email='+email
+        : '/signin?email='+email;
       navigateWithQuery(route, {
         state: {
+          // TBD: Maybe this should only pass this as a query param, since we are
+          //      validating and /signin pages are seen as entry points?
           email,
         },
       });
