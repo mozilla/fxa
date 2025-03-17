@@ -19,7 +19,7 @@ describe('CartCleanup', () => {
 
   const deleteBefore = new Date('2024-01-01T00:00:00Z');
   const anonymizeBefore = new Date('2023-06-01T00:00:00Z');
-  const anonymizeFields = new Set(['email', 'taxAddress'] as const);
+  const anonymizeFields = new Set(['taxAddress'] as const);
 
   beforeEach(() => {
     dbStub = {
@@ -59,7 +59,6 @@ describe('CartCleanup', () => {
       expect(
         dbStub.where.calledWith('updatedAt', '<', anonymizeBefore.getTime())
       ).to.be.true;
-      expect(dbStub.set.calledWith('email', null)).to.be.true;
       expect(dbStub.set.calledWith('taxAddress', null)).to.be.true;
       expect(dbStub.execute.calledTwice).to.be.true;
     });

@@ -31,6 +31,7 @@ import {
   StripeCustomer,
   StripePromotionCode,
 } from '@fxa/payments/stripe';
+import { AccountManager } from '@fxa/shared/account/account';
 import { ProfileClient } from '@fxa/profile/client';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
 import { StatsDService } from '@fxa/shared/metrics/statsd';
@@ -38,7 +39,7 @@ import { NotifierService } from '@fxa/shared/notifier';
 import {
   CartTotalMismatchError,
   CartEligibilityMismatchError,
-  CartEmailNotFoundError,
+  CartAccountNotFoundError,
   CartInvalidPromoCodeError,
   CartInvalidCurrencyError,
   CartUidNotFoundError,
@@ -55,6 +56,7 @@ import { CheckoutPaymentError, CheckoutUpgradeError } from './checkout.error';
 export class CheckoutService {
   constructor(
     private accountCustomerManager: AccountCustomerManager,
+    private accountManager: AccountManager,
     private cartManager: CartManager,
     private customerManager: CustomerManager,
     private eligibilityService: EligibilityService,
@@ -92,10 +94,6 @@ export class CheckoutService {
     const taxAddress = cart.taxAddress as any as TaxAddress;
     let version = cart.version;
 
-    if (!cart.email) {
-      throw new CartEmailNotFoundError(cart.id);
-    }
-
     if (!cart.currency) {
       throw new CartInvalidCurrencyError(
         cart.currency || undefined,
@@ -108,12 +106,18 @@ export class CheckoutService {
       throw new CartUidNotFoundError(cart.id);
     }
 
+    const fxaAccounts = await this.accountManager.getAccounts([uid]);
+    if (!(fxaAccounts && fxaAccounts.length > 0)) {
+      throw new CartAccountNotFoundError(cart.id);
+    }
+    const email = fxaAccounts[0].email;
+
     let stripeCustomerId = cart.stripeCustomerId;
     let customer: StripeCustomer;
     if (!stripeCustomerId) {
       customer = await this.customerManager.create({
         uid,
-        email: cart.email,
+        email,
         displayName: customerData.displayName,
         taxAddress,
       });
@@ -208,7 +212,6 @@ export class CheckoutService {
     return {
       uid: uid,
       customer,
-      email: cart.email,
       enableAutomaticTax,
       promotionCode,
       version,
