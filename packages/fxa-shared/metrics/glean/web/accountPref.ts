@@ -145,7 +145,9 @@ export const bentoRelay = new EventMetricType(
  *
  * Generated from `account_pref.bento_view`.
  */
-export const bentoView = new EventMetricType(
+export const bentoView = new EventMetricType<{
+  nimbus_user_id?: string;
+}>(
   {
     category: 'account_pref',
     name: 'bento_view',
@@ -153,7 +155,7 @@ export const bentoView = new EventMetricType(
     lifetime: 'ping',
     disabled: false,
   },
-  []
+  ['nimbus_user_id']
 );
 
 /**

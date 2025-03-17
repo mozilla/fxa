@@ -17,7 +17,11 @@ import vpnIcon from './vpn-logo.svg';
 import { ReactComponent as BentoIcon } from './bento.svg';
 import { ReactComponent as CloseIcon } from '@fxa/shared/assets/images/close.svg';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { useConfig, useFtlMsgResolver } from '../../../models/hooks';
+import {
+  useConfig,
+  useExperiments,
+  useFtlMsgResolver,
+} from '../../../models/hooks';
 import { LINK } from '../../../constants';
 import { constructHrefWithUtm } from '../../../lib/utilities';
 import GleanMetrics from '../../../lib/glean';
@@ -33,17 +37,27 @@ export const BentoMenu = () => {
 
   const { env } = useConfig();
   const ftlMsgResolver = useFtlMsgResolver();
+  const experiments = useExperiments();
+  const nimbusUserId = experiments?.nimbusUserId;
+  const exampleFeature = experiments?.features?.['example-feature'];
+  const emojiExperiment = exampleFeature?.['emoji'] || '';
 
   useEffect(() => {
     if (isRevealed) {
-      GleanMetrics.accountPref.bentoView();
+      GleanMetrics.accountPref.bentoView({
+        event: { nimbusUserId },
+      });
     }
-  }, [isRevealed]);
+  }, [isRevealed, nimbusUserId]);
 
   const bentoMenuTitle = ftlMsgResolver.getMsg(
     'bento-menu-title-3',
     'Mozilla products'
   );
+
+  const madeByMozilla =
+    ftlMsgResolver.getMsg('bento-menu-made-by-mozilla', 'Made by Mozilla') +
+    ` ${emojiExperiment}`;
 
   const desktopLink = constructHrefWithUtm(
     LINK.FX_DESKTOP,
@@ -218,15 +232,13 @@ export const BentoMenu = () => {
                   </li>
                 </ul>
               </div>
-              <FtlMsg id="bento-menu-made-by-mozilla">
-                <LinkExternal
-                  data-testid="mozilla-link"
-                  className="link-blue text-xs underline-offset-4 w-full text-center p-2 block hover:bg-grey-100"
-                  href="https://www.mozilla.org/"
-                >
-                  Made by Mozilla
-                </LinkExternal>
-              </FtlMsg>
+              <LinkExternal
+                data-testid="mozilla-link"
+                className="link-blue text-xs underline-offset-4 w-full text-center p-2 block hover:bg-grey-100"
+                href="https://www.mozilla.org/"
+              >
+                {madeByMozilla}
+              </LinkExternal>
             </div>
           </div>
         </div>
