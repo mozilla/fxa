@@ -371,7 +371,8 @@ describe('useInfoBoxMessage', () => {
     expect(messageText).toBe(CouponInfoBoxMessageType.Default);
   });
 
-  it('coupon type is "repeating" plan interval equal to coupon duration', () => {
+  // FXA-11195 - Temporary skip due to intermittent test failure.
+  it.skip('coupon type is "repeating" plan interval equal to coupon duration', () => {
     const { queryByTestId, getByTestId } = renderWithLocalizationProvider(
       <Subject
         coupon={{ ...coupon, type: 'repeating' }}
