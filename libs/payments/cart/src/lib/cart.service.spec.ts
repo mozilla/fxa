@@ -9,6 +9,7 @@ import {
   EligibilityManager,
   EligibilityService,
   EligibilityStatus,
+  SubscriptionEligibilityResultDowngradeFactory,
 } from '@fxa/payments/eligibility';
 import {
   MockPaypalClientConfigProvider,
@@ -572,9 +573,9 @@ describe('CartService', () => {
         .mockReturnValue(mockResolvedCurrency);
       jest.spyOn(cartManager, 'createCart').mockResolvedValue(mockResultCart);
       jest.spyOn(accountManager, 'getAccounts').mockResolvedValue([]);
-      jest.spyOn(eligibilityService, 'checkEligibility').mockResolvedValue({
-        subscriptionEligibilityResult: EligibilityStatus.DOWNGRADE,
-      });
+      jest
+        .spyOn(eligibilityService, 'checkEligibility')
+        .mockResolvedValue(SubscriptionEligibilityResultDowngradeFactory());
       jest.spyOn(cartService, 'finalizeCartWithError').mockResolvedValue();
 
       const result = await cartService.setupCart(args);
@@ -1228,6 +1229,7 @@ describe('CartService', () => {
       const mockInvoicePreview = InvoicePreviewFactory();
       const mockFromOfferingId = faker.string.uuid();
       const mockFromPrice = StripePriceFactory();
+      const mockSubscription = StripeSubscriptionFactory();
 
       jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
       jest
@@ -1242,6 +1244,9 @@ describe('CartService', () => {
         fromOfferingConfigId: mockFromOfferingId,
         fromPrice: mockFromPrice,
       });
+      jest
+        .spyOn(subscriptionManager, 'retrieveForCustomerAndPrice')
+        .mockResolvedValue(mockSubscription);
 
       const result = await cartService.getCart(mockCart.id);
       expect(result).toEqual({
@@ -1271,10 +1276,8 @@ describe('CartService', () => {
       );
       expect(invoiceManager.previewUpcomingForUpgrade).toHaveBeenCalledWith({
         priceId: mockPrice.id,
-        currency: mockCart.currency,
         customer: mockCustomer,
-        taxAddress: mockCart.taxAddress,
-        fromPrice: mockFromPrice,
+        fromSubscriptionItem: mockSubscription.items.data[0],
       });
     });
 

@@ -5,10 +5,8 @@
 import { BaseError } from '@fxa/shared/error';
 
 export class PaymentsCustomerError extends BaseError {
-  constructor(message: string, cause?: Error) {
-    super(message, {
-      cause,
-    });
+  constructor(...args: ConstructorParameters<typeof BaseError>) {
+    super(...args);
   }
 }
 
@@ -44,7 +42,7 @@ export class PromotionCodeCouldNotBeAttachedError extends PaymentsCustomerError 
       promotionId?: string;
     }
   ) {
-    super(message, cause);
+    super(message, { cause });
     this.customerId = data?.customerId;
     this.subscriptionId = data?.subscriptionId;
     this.promotionId = data?.promotionId;
@@ -99,6 +97,16 @@ export class InvalidInvoiceError extends PaymentsCustomerError {
   }
 }
 
+export class UpgradeCustomerMissingCurrencyInvoiceError extends PaymentsCustomerError {
+  constructor(customerId: string) {
+    super('Customer performing upgrade is missing currency', {
+      info: {
+        customerId,
+      },
+    });
+  }
+}
+
 export class StripePayPalAgreementNotFoundError extends PaymentsCustomerError {
   constructor(customerId: string) {
     super(`PayPal agreement not found for Stripe customer ${customerId}`);
@@ -111,13 +119,7 @@ export class PayPalPaymentFailedError extends PaymentsCustomerError {
   }
 }
 
-export class PaymentsSubscriptionError extends BaseError {
-  constructor(...args: ConstructorParameters<typeof BaseError>) {
-    super(...args);
-  }
-}
-
-export class SubscriptionItemMultipleItemsError extends PaymentsSubscriptionError {
+export class SubscriptionItemMultipleItemsError extends PaymentsCustomerError {
   constructor(subscriptionId: string) {
     super('Multiple subscription items not supported', {
       info: { subscriptionId },
@@ -125,7 +127,7 @@ export class SubscriptionItemMultipleItemsError extends PaymentsSubscriptionErro
   }
 }
 
-export class SubscriptionItemMissingItemError extends PaymentsSubscriptionError {
+export class SubscriptionItemMissingItemError extends PaymentsCustomerError {
   constructor(subscriptionId: string) {
     super('Subscription item missing', { info: { subscriptionId } });
   }

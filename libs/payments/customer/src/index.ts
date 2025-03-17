@@ -18,3 +18,4 @@ export * from './lib/error';
 export * from './lib/util/stripeInvoiceToFirstInvoicePreviewDTO';
 export * from './lib/util/getSubplatInterval';
 export * from './lib/util/determinePaymentMethodType';
+export * from './lib/util/retrieveSubscriptionItem';

@@ -18,6 +18,7 @@ import {
   InvoiceManager,
   PaymentIntentManager,
   PromotionCodeManager,
+  retrieveSubscriptionItem,
   STRIPE_CUSTOMER_METADATA,
   STRIPE_SUBSCRIPTION_METADATA,
   SubplatInterval,
@@ -488,7 +489,7 @@ export class CheckoutService {
     }
 
     const upgradeSubscriptionItem =
-      this.subscriptionManager.retrieveSubscriptionItem(upgradeSubscription);
+      retrieveSubscriptionItem(upgradeSubscription);
 
     return this.subscriptionManager.update(upgradeSubscription.id, {
       cancel_at_period_end: false,
