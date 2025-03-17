@@ -129,14 +129,10 @@ const InputPhoneNumber = ({
         )}
         onChange={handleCountryChange}
         value={selectedCountry.id}
-        className={`bg-transparent border border-grey-200 rounded-md py-2 ps-10 w-[60px] me-2 focus:border-blue-400 focus:outline-none focus:shadow-input-blue-focus ${selectedCountry.classNameFlag} bg-no-repeat bg-[length:1.5rem_1rem] bg-[40%_50%] text-transparent`}
+        className={`bg-transparent border border-grey-200 rounded-md py-2 ps-10 w-[60px] me-2 focus:border-blue-400 focus:outline-none focus:shadow-input-blue-focus ${selectedCountry.classNameFlag} bg-no-repeat bg-[length:1.5rem_1rem] bg-[40%_50%] -indent-9999 z-10`}
       >
         {sortedLocalizedCountries.map((country) => (
-          <option
-            key={country.id}
-            value={country.id}
-            className={`${country.classNameFlag} bg-contain`}
-          >
+          <option key={country.id} value={country.id} className="text-black">
             {country.localizedName} ({country.code})
           </option>
         ))}
