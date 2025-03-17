@@ -14,7 +14,8 @@ const BODY_SCHEMA = {
   context: joi.object().required(),
 };
 
-module.exports = function (options = {}) {
+module.exports = function (options = {}, statsd) {
+  const requestReceivedTime = Date.now();
   return {
     method: 'post',
     path: '/nimbus-experiments',
@@ -52,6 +53,12 @@ module.exports = function (options = {}) {
           }
           Sentry.captureMessage(errorMsg, 'error');
         });
+      } finally {
+        const requestCompletedTime = Date.now();
+        const responseTime = requestCompletedTime - requestReceivedTime;
+        if (statsd) {
+          statsd.increment('cirrus.response-time', { responseTime });
+        }
       }
     },
   };
