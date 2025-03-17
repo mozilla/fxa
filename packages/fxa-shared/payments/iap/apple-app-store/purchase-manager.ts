@@ -229,10 +229,26 @@ export class PurchaseManager {
           this.log.info('queryCurrentSubscriptionPurchases.cache.update', {
             originalTransactionId: purchase.originalTransactionId,
           });
-          purchase = await this.querySubscriptionPurchase(
-            purchase.bundleId,
-            purchase.originalTransactionId
-          );
+          try {
+            purchase = await this.querySubscriptionPurchase(
+              purchase.bundleId,
+              purchase.originalTransactionId
+            );
+          } catch (error) {
+            if (error.name === PurchaseQueryError.NOT_FOUND) {
+              // An expired Apple subscription could not be found. No action is necessary.
+              this.log.info(
+                'queryCurrentSubscriptionPurchases.TransactionIdNotFound',
+                {
+                  bundle: purchase.bundleId,
+                  originalTransactionId: purchase.originalTransactionId,
+                  userId,
+                }
+              );
+            } else {
+              throw error;
+            }
+          }
         }
 
         // Add the updated purchase to list to returned to clients
