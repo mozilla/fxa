@@ -41,7 +41,7 @@ module.exports = function (config, i18n, statsd, glean) {
     require('./routes/post-third-party-auth-redirect')(config),
     require('./routes/get-500')(config),
     require('./routes/validate-email-domain')(config),
-    require('./routes/post-nimbus-experiments')(config),
+    require('./routes/post-nimbus-experiments')(config, statsd),
   ].filter((routeDefinition) => routeDefinition); // get rid of null values
 
   if (config.get('csp.enabled')) {
