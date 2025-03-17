@@ -9,7 +9,7 @@ import { setupAccountDatabase } from '@fxa/shared/db/mysql/account';
 
 const pckg = require('../package.json');
 
-const anonymizeableFields = new Set(['email', 'taxAddress'] as const);
+const anonymizeableFields = new Set(['taxAddress'] as const);
 
 const parseDeleteBefore = (deleteBefore: string | number) => {
   const date = new Date(deleteBefore);

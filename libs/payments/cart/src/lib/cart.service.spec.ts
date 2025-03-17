@@ -673,7 +673,6 @@ describe('CartService', () => {
         taxAddress: mockOldCart.taxAddress,
         currency: mockOldCart.currency,
         stripeCustomerId: mockAccountCustomer.stripeCustomerId,
-        email: mockOldCart.email,
         amount: mockOldCart.amount,
         eligibilityStatus: mockOldCart.eligibilityStatus,
       });

@@ -15,7 +15,6 @@ export const PrePayStepsResultFactory = (
   return {
     version: cart.version,
     uid: faker.string.uuid(),
-    email: cart.email,
     customer: StripeCustomerFactory(),
     enableAutomaticTax: true,
     price: StripePriceFactory(),

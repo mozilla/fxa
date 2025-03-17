@@ -70,6 +70,7 @@ import {
 } from '@fxa/shared/cms';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import {
+  AccountFactory,
   CartEligibilityStatus,
   MockAccountDatabaseNestFactory,
 } from '@fxa/shared/db/mysql/account';
@@ -83,7 +84,7 @@ import {
 import {
   CartEligibilityMismatchError,
   CartTotalMismatchError,
-  CartEmailNotFoundError,
+  CartAccountNotFoundError,
   CartInvalidPromoCodeError,
   CartInvalidCurrencyError,
   CartUidNotFoundError,
@@ -101,6 +102,7 @@ import { MockCurrencyConfigProvider } from 'libs/payments/currency/src/lib/curre
 
 describe('CheckoutService', () => {
   let accountCustomerManager: AccountCustomerManager;
+  let accountManager: AccountManager;
   let cartManager: CartManager;
   let checkoutService: CheckoutService;
   let customerManager: CustomerManager;
@@ -171,6 +173,7 @@ describe('CheckoutService', () => {
     }).compile();
 
     accountCustomerManager = moduleRef.get(AccountCustomerManager);
+    accountManager = moduleRef.get(AccountManager);
     cartManager = moduleRef.get(CartManager);
     checkoutService = moduleRef.get(CheckoutService);
     customerManager = moduleRef.get(CustomerManager);
@@ -229,6 +232,9 @@ describe('CheckoutService', () => {
         stripeCustomerId: mockCart.stripeCustomerId,
       })
     );
+    const mockAccount = StripeResponseFactory(
+      AccountFactory({ uid: Buffer.from(uid, 'hex') })
+    );
 
     const mockPrice = StripePriceFactory();
 
@@ -261,6 +267,9 @@ describe('CheckoutService', () => {
       jest
         .spyOn(promotionCodeManager, 'retrieveByName')
         .mockResolvedValue(mockPromotionCode);
+      jest
+        .spyOn(accountManager, 'getAccounts')
+        .mockResolvedValue([mockAccount]);
     });
 
     describe('success - with stripeCustomerId attached to cart', () => {
@@ -316,16 +325,12 @@ describe('CheckoutService', () => {
     });
 
     describe('fail', () => {
-      it('throws cart email not found error', async () => {
-        const mockCart = StripeResponseFactory(
-          ResultCartFactory({
-            email: null,
-          })
-        );
+      it('throws cart account not found error', async () => {
+        jest.spyOn(accountManager, 'getAccounts').mockResolvedValue([]);
 
         await expect(
           checkoutService.prePaySteps(mockCart, mockCustomerData)
-        ).rejects.toBeInstanceOf(CartEmailNotFoundError);
+        ).rejects.toBeInstanceOf(CartAccountNotFoundError);
       });
 
       it('throws cart uid not found error', async () => {

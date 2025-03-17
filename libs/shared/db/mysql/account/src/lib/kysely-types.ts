@@ -105,7 +105,6 @@ export interface Carts {
   couponCode: string | null;
   stripeCustomerId: string | null;
   stripeSubscriptionId: string | null;
-  email: string | null;
   amount: number;
   version: number;
   eligibilityStatus: CartEligibilityStatus;

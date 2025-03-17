@@ -153,7 +153,6 @@ type Cart {
   couponCode: String
   stripeCustomerId: String
   stripeSubscriptionId: String
-  email: String
   amount: Float!
   version: Float!
   eligibilityStatus: String!

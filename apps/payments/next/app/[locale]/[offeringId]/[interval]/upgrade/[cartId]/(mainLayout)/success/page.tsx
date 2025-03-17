@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { headers } from 'next/headers';
-
+import { auth } from 'apps/payments/next/auth';
 import { getCardIcon } from '@fxa/payments/ui';
 import { SupportedPages, getApp } from '@fxa/payments/ui/server';
 import {
@@ -42,8 +42,13 @@ export default async function UpgradeSuccess({
     SupportedPages.SUCCESS,
     searchParams
   );
+  const sessionPromise = auth();
   const l10n = getApp().getL10n(locale);
-  const [cms, cart] = await Promise.all([cmsDataPromise, cartDataPromise]);
+  const [cms, cart, session] = await Promise.all([
+    cmsDataPromise,
+    cartDataPromise,
+    sessionPromise,
+  ]);
 
   recordEmitterEventAction(
     'checkoutSuccess',
@@ -71,9 +76,9 @@ export default async function UpgradeSuccess({
               {l10n.getString(
                 'payment-confirmation-thanks-subheading-account-exists-2',
                 {
-                  email: cart.email || '',
+                  email: session?.user?.email || '',
                 },
-                `You’ll receive an email at ${cart.email} with instructions about your subscription, as well as your payment details.`
+                `You’ll receive an email at${session?.user?.email} with instructions about your subscription, as well as your payment details.`
               )}
             </p>
           </div>

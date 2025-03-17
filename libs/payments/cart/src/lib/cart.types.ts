@@ -116,7 +116,6 @@ export type SetupCart = {
   currency: string;
   couponCode?: string;
   stripeCustomerId?: string;
-  email?: string;
   amount: number;
   eligibilityStatus: CartEligibilityStatus;
 };
@@ -132,7 +131,6 @@ export type UpdateCart = {
   taxAddress?: TaxAddress;
   currency?: string;
   couponCode?: string;
-  email?: string;
   stripeCustomerId?: string;
   stripeSubscriptionId?: string;
 };

@@ -68,7 +68,6 @@ export const Cart = ({ cart }: CartProps) => {
         header="Eligibility Status"
         children={cart.eligibilityStatus}
       />
-      <TableRowYHeader header="Email" children={cart.email ?? ''} />
       <TableRowYHeader
         header="Tax Address: Country Code"
         children={cart.taxAddress?.countryCode ?? ''}

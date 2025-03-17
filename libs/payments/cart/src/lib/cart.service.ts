@@ -255,19 +255,13 @@ export class CartService {
       args.interval
     );
 
-    const fxaAccounts = args.uid
-      ? await this.accountManager.getAccounts([args.uid])
-      : undefined;
-    const fxaAccount =
-      fxaAccounts && fxaAccounts.length > 0 ? fxaAccounts[0] : undefined;
-
     const currency = this.currencyManager.getCurrencyForCountry(
       args.taxAddress.countryCode
     );
     if (!currency) {
       throw new CartInvalidCurrencyError(
         currency,
-        args.taxAddress?.countryCode,
+        args.taxAddress.countryCode,
         undefined
       );
     }
@@ -307,7 +301,6 @@ export class CartService {
       offeringConfigId: args.offeringConfigId,
       amount: upcomingInvoice.subtotal,
       uid: args.uid,
-      email: fxaAccount?.email,
       stripeCustomerId: accountCustomer?.stripeCustomerId || undefined,
       experiment: args.experiment,
       taxAddress: args.taxAddress,
@@ -389,7 +382,6 @@ export class CartService {
         currency: oldCart.currency,
         couponCode: oldCart.couponCode || undefined,
         stripeCustomerId: accountCustomer?.stripeCustomerId || undefined,
-        email: oldCart.email || undefined,
         amount: oldCart.amount,
         eligibilityStatus: oldCart.eligibilityStatus,
       });
