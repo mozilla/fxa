@@ -197,9 +197,9 @@
     "tsc-alias": "^1.8.8",
     "type-fest": "^4.25.0",
     "typescript": "^5.5.3",
-    "webpack": "^5.97.0",
+    "webpack": "^5.98.0",
     "webpack-watch-files-plugin": "^1.2.1",
-    "ws": "^8.17.1"
+    "ws": "^8.18.1"
   },
   "mocha": {
     "reporter": "mocha-multi",
