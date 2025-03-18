@@ -11,28 +11,25 @@ import { BaseButton, ButtonVariant } from '../BaseButton';
 
 interface SubmitButtonProps {
   children: React.ReactNode;
-  variant: ButtonVariant;
 }
 
 export function SubmitButton({
   children,
-  variant,
   disabled,
   className,
   ...otherProps
 }: SubmitButtonProps & React.HTMLProps<HTMLButtonElement>) {
   const { pending } = useFormStatus();
-  const isSubmitting = pending;
 
   return (
     <BaseButton
-      variant={variant}
+      variant={ButtonVariant.Primary}
       {...otherProps}
-      disabled={isSubmitting || disabled}
+      disabled={pending || disabled}
       type="submit"
       className={className}
     >
-      {isSubmitting ? (
+      {pending ? (
         <>
           <Image
             src={spinnerWhiteImage}

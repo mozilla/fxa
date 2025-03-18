@@ -87,7 +87,7 @@ export function PurchaseDetails(props: PurchaseDetailsProps) {
         </ul>
 
         <ul className="pt-6">
-          {!!listAmount && (
+          {!!listAmount && listAmount > 0 && (
             <li className="flex items-center justify-between gap-2 leading-5 text-grey-600 text-sm">
               <Localized id="next-plan-details-list-price">
                 <p>List Price</p>
@@ -96,7 +96,7 @@ export function PurchaseDetails(props: PurchaseDetailsProps) {
             </li>
           )}
 
-          {!!discountAmount && (
+          {!!discountAmount && discountAmount > 0 && (
             <li className="flex items-center justify-between gap-2 leading-5 text-grey-600 text-sm">
               <Localized id="next-coupon-promo-code">
                 <p>Promo Code</p>
@@ -105,32 +105,38 @@ export function PurchaseDetails(props: PurchaseDetailsProps) {
             </li>
           )}
 
-          {exclusiveTaxRates.length === 1 && (
-            <li className="flex items-center justify-between gap-2 leading-5 text-grey-600 text-sm">
-              <Localized id="next-plan-details-tax">
-                <p>Taxes and Fees</p>
-              </Localized>
-              <p>
-                {getLocalizedCurrencyString(
-                  exclusiveTaxRates[0].amount,
-                  currency
-                )}
-              </p>
-            </li>
-          )}
+          {exclusiveTaxRates.length === 1 &&
+            exclusiveTaxRates[0].amount > 0 && (
+              <li className="flex items-center justify-between gap-2 leading-5 text-grey-600 text-sm">
+                <Localized id="next-plan-details-tax">
+                  <p>Taxes and Fees</p>
+                </Localized>
+                <p>
+                  {getLocalizedCurrencyString(
+                    exclusiveTaxRates[0].amount,
+                    currency
+                  )}
+                </p>
+              </li>
+            )}
 
           {exclusiveTaxRates.length > 1 &&
-            exclusiveTaxRates.map((taxRate) => (
-              <li
-                key={taxRate.title}
-                className="flex items-center justify-between gap-2 leading-5 text-grey-600 text-sm"
-              >
-                <Localized id="tax">
-                  <p>{taxRate.title}</p>
-                </Localized>
-                <p>{getLocalizedCurrencyString(taxRate.amount, currency)}</p>
-              </li>
-            ))}
+            exclusiveTaxRates.map(
+              (taxRate) =>
+                taxRate.amount > 0 && (
+                  <li
+                    key={taxRate.title}
+                    className="flex items-center justify-between gap-2 leading-5 text-grey-600 text-sm"
+                  >
+                    <Localized id="tax">
+                      <p>{taxRate.title}</p>
+                    </Localized>
+                    <p>
+                      {getLocalizedCurrencyString(taxRate.amount, currency)}
+                    </p>
+                  </li>
+                )
+            )}
 
           <div className="border-t border-grey-200 mt-6"></div>
 
