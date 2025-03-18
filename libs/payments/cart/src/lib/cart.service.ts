@@ -21,6 +21,7 @@ import {
   CustomerSessionManager,
   PaymentIntentManager,
   determinePaymentMethodType,
+  PromotionCodeCouldNotBeAttachedError,
 } from '@fxa/payments/customer';
 import { EligibilityService } from '@fxa/payments/eligibility';
 import {
@@ -69,6 +70,11 @@ import { CheckoutService } from './checkout.service';
 // TODO - Add flow to handle situations where currency is not found
 const DEFAULT_CURRENCY = 'USD';
 
+type Constructor<T> = new (...args: any[]) => T;
+interface WrapWithCartCatchOptions {
+  errorAllowList: Constructor<Error>[];
+}
+
 @Injectable()
 export class CartService {
   constructor(
@@ -93,10 +99,40 @@ export class CartService {
    * Should be used to wrap any method that mutates an existing cart.
    * This transforms errors into a cart error reason ID and finalizes the cart with an error.
    */
-  private async wrapWithCartCatch<T>(cartId: string, method: () => Promise<T>) {
+  private async wrapWithCartCatch<T>(
+    cartId: string,
+    method: () => Promise<T>
+  ): Promise<T>;
+  private async wrapWithCartCatch<T>(
+    cartId: string,
+    options: WrapWithCartCatchOptions,
+    method: () => Promise<T>
+  ): Promise<T>;
+  private async wrapWithCartCatch<T>(
+    cartId: string,
+    arg2: WrapWithCartCatchOptions | (() => Promise<T>),
+    arg3?: () => Promise<T>
+  ): Promise<T> {
+    let options: WrapWithCartCatchOptions | undefined;
+    let method: () => Promise<T>;
+    if (typeof arg2 === 'function') {
+      method = arg2;
+    } else {
+      options = arg2;
+      method = arg3 as () => Promise<T>;
+    }
     try {
       return await method();
     } catch (error) {
+      // If the error is in the allowlist, rethrow it
+      if (
+        error instanceof Error &&
+        options?.errorAllowList &&
+        options.errorAllowList.some((ErrorClass) => error instanceof ErrorClass)
+      ) {
+        throw error;
+      }
+
       let errorReasonId = CartErrorReasonId.Unknown;
       if (error instanceof CartNotUpdatedError) {
         errorReasonId = CartErrorReasonId.BASIC_ERROR;
@@ -483,36 +519,40 @@ export class CartService {
     ],
   })
   async updateCart(cartId: string, version: number, cartDetails: UpdateCart) {
-    return this.wrapWithCartCatch(cartId, async () => {
-      const oldCart = await this.cartManager.fetchCartById(cartId);
-      if (cartDetails?.couponCode) {
-        const price =
-          await this.productConfigurationManager.retrieveStripePrice(
-            oldCart.offeringConfigId,
-            oldCart.interval as SubplatInterval
-          );
+    return this.wrapWithCartCatch(
+      cartId,
+      { errorAllowList: [PromotionCodeCouldNotBeAttachedError] },
+      async () => {
+        const oldCart = await this.cartManager.fetchCartById(cartId);
+        if (cartDetails?.couponCode) {
+          const price =
+            await this.productConfigurationManager.retrieveStripePrice(
+              oldCart.offeringConfigId,
+              oldCart.interval as SubplatInterval
+            );
 
-        await this.promotionCodeManager.assertValidPromotionCodeNameForPrice(
-          cartDetails.couponCode,
-          price,
-          cartDetails.currency || DEFAULT_CURRENCY
-        );
-      }
-
-      if (cartDetails.taxAddress?.countryCode) {
-        cartDetails.currency = this.currencyManager.getCurrencyForCountry(
-          cartDetails.taxAddress?.countryCode
-        );
-        if (!cartDetails.currency) {
-          throw new CartInvalidCurrencyError(
-            cartDetails.currency,
-            cartDetails.taxAddress.countryCode
+          await this.promotionCodeManager.assertValidPromotionCodeNameForPrice(
+            cartDetails.couponCode,
+            price,
+            cartDetails.currency || DEFAULT_CURRENCY
           );
         }
-      }
 
-      await this.cartManager.updateFreshCart(cartId, version, cartDetails);
-    });
+        if (cartDetails.taxAddress?.countryCode) {
+          cartDetails.currency = this.currencyManager.getCurrencyForCountry(
+            cartDetails.taxAddress?.countryCode
+          );
+          if (!cartDetails.currency) {
+            throw new CartInvalidCurrencyError(
+              cartDetails.currency,
+              cartDetails.taxAddress.countryCode
+            );
+          }
+        }
+
+        await this.cartManager.updateFreshCart(cartId, version, cartDetails);
+      }
+    );
   }
 
   /**

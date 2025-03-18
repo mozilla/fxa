@@ -970,6 +970,7 @@ describe('CartService', () => {
           postalCode: faker.location.zipCode(),
           countryCode: faker.location.countryCode(),
         },
+        currency: 'USD',
       });
 
       beforeEach(async () => {
@@ -1003,9 +1004,7 @@ describe('CartService', () => {
       it('throws if coupon is not valid', async () => {
         jest
           .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
-          .mockImplementation(() => {
-            throw new CouponErrorExpired();
-          });
+          .mockRejectedValue(new CouponErrorExpired());
         jest.spyOn(cartManager, 'finishErrorCart').mockResolvedValue();
 
         await expect(
@@ -1019,8 +1018,8 @@ describe('CartService', () => {
           mockPrice,
           mockUpdateCart.currency
         );
-        expect(cartManager.updateFreshCart).not.toHaveBeenCalledWith();
-        expect(cartManager.finishErrorCart).toHaveBeenCalled();
+        expect(cartManager.updateFreshCart).not.toHaveBeenCalled();
+        expect(cartManager.finishErrorCart).not.toHaveBeenCalled();
       });
 
       it('throws if country to currency result is not valid', async () => {
