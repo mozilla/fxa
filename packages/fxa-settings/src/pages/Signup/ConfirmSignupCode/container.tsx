@@ -104,6 +104,7 @@ const SignupConfirmCodeContainer = ({
       // content-server since it marks the email as "coming from a RP".
       params.delete('emailStatusChecked');
       params.delete('email');
+      params.delete('showReactApp');
       // passing the 'bouncedEmail' param will display an error tooltip
       // on the email-first signin/signup page and allow to check
       // if the entered email matches the bounced email
