@@ -36,7 +36,7 @@
   "dependencies": {
     "@aws-sdk/client-sqs": "^3.650.0",
     "@types/sinon": "10.0.1",
-    "axios": "^0.29.0",
+    "axios": "^1.8.3",
     "convict": "^6.2.4",
     "convict-format-with-moment": "^6.2.0",
     "convict-format-with-validator": "^6.2.0",
@@ -66,7 +66,7 @@
     "@typescript-eslint/parser": "^7.1.1",
     "audit-filter": "^0.5.0",
     "chance": "^1.1.8",
-    "esbuild": "^0.17.15",
+    "esbuild": "^0.25.1",
     "esbuild-register": "^3.5.0",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^9.1.0",

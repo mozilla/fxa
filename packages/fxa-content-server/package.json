@@ -144,7 +144,7 @@
     "copy-webpack-plugin": "12.0.2",
     "core-js": "^3.39.0",
     "css": "3.0.0",
-    "esbuild": "^0.17.15",
+    "esbuild": "^0.25.1",
     "esbuild-register": "^3.5.0",
     "eslint": "^7.32.0",
     "firefox-profile": "4.7.0",
