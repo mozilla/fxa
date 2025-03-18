@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { CollectionReference } from '@google-cloud/firestore';
 import {
+  AppStoreError,
   decodeRenewalInfo,
   decodeTransaction,
   NotificationSubtype,
@@ -278,7 +279,10 @@ export class PurchaseManager {
   // https://developer.apple.com/documentation/appstoreserverapi/error_codes
   convertAppStoreAPIErrorToLibraryError(appStoreError: any): Error {
     const libraryError = new Error(appStoreError.message);
-    if (appStoreError.code === 404) {
+    if (
+      appStoreError instanceof AppStoreError &&
+      appStoreError.errorCode === 4040010
+    ) {
       // The account, app or original transaction ID was not found.
       libraryError.name = PurchaseQueryError.NOT_FOUND;
     } else {
@@ -286,6 +290,7 @@ export class PurchaseManager {
       libraryError.name = PurchaseQueryError.OTHER_ERROR;
       this.log.error('convertAppStoreAPIErrorToLibraryError', {
         message: 'Unexpected error when querying the App Store Server API.',
+        err: appStoreError,
       });
     }
     return libraryError;
