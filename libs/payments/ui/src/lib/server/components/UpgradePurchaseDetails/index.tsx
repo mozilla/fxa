@@ -126,7 +126,7 @@ export function UpgradePurchaseDetails(props: UpgradePurchaseDetailsProps) {
       <div className="border-b border-grey-200"></div>
 
       <ul className="pt-6">
-        {!!listAmount && (
+        {!!listAmount && listAmount > 0 && (
           <li className="flex items-center justify-between gap-2 leading-5 text-grey-600 text-sm">
             <p>
               {l10n.getString(
@@ -142,7 +142,7 @@ export function UpgradePurchaseDetails(props: UpgradePurchaseDetailsProps) {
           </li>
         )}
 
-        {!!discountAmount && (
+        {!!discountAmount && discountAmount > 0 && (
           <li className="flex items-center justify-between gap-2 leading-5 text-grey-600 text-sm">
             <p>
               {l10n.getString(
@@ -156,7 +156,7 @@ export function UpgradePurchaseDetails(props: UpgradePurchaseDetailsProps) {
           </li>
         )}
 
-        {exclusiveTaxRates.length === 1 && (
+        {exclusiveTaxRates.length === 1 && exclusiveTaxRates[0].amount > 0 && (
           <li className="flex items-center justify-between gap-2 leading-5 text-grey-600 text-sm">
             <p>
               {l10n.getString(
@@ -174,15 +174,20 @@ export function UpgradePurchaseDetails(props: UpgradePurchaseDetailsProps) {
         )}
 
         {exclusiveTaxRates.length > 1 &&
-          exclusiveTaxRates.map((taxRate) => (
-            <li
-              key={taxRate.title}
-              className="flex items-center justify-between gap-2 leading-5 text-grey-600 text-sm"
-            >
-              <p>{l10n.getString('tax', taxRate.title)}</p>
-              <p>{l10n.getLocalizedCurrencyString(taxRate.amount, currency)}</p>
-            </li>
-          ))}
+          exclusiveTaxRates.map(
+            (taxRate) =>
+              taxRate.amount > 0 && (
+                <li
+                  key={taxRate.title}
+                  className="flex items-center justify-between gap-2 leading-5 text-grey-600 text-sm"
+                >
+                  <p>{l10n.getString('tax', taxRate.title)}</p>
+                  <p>
+                    {l10n.getLocalizedCurrencyString(taxRate.amount, currency)}
+                  </p>
+                </li>
+              )
+          )}
 
         <li className="flex items-center justify-between gap-2 leading-5 text-base text-grey-600 pt-4 pb-6 font-semibold">
           <h3>

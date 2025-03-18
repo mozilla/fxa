@@ -5,7 +5,7 @@
 import { headers } from 'next/headers';
 
 import { getCardIcon } from '@fxa/payments/ui';
-import { PriceInterval, SupportedPages, getApp } from '@fxa/payments/ui/server';
+import { SupportedPages, getApp } from '@fxa/payments/ui/server';
 import {
   fetchCMSData,
   getCartOrRedirectAction,
@@ -116,12 +116,10 @@ export default async function UpgradeSuccess({
             )}
           </div>
           <div className="flex items-center justify-between text-grey-400">
-            <PriceInterval
-              l10n={l10n}
-              amount={cart.latestInvoicePreview?.totalAmount}
-              currency={cart.latestInvoicePreview?.currency}
-              interval={cart.interval}
-            />
+            {l10n.getLocalizedCurrencyString(
+              cart.latestInvoicePreview?.totalAmount,
+              cart.latestInvoicePreview?.currency
+            )}
             {cart.paymentInfo.type === 'external_paypal' ? (
               <Image src={getCardIcon('paypal')} alt="paypal" />
             ) : (

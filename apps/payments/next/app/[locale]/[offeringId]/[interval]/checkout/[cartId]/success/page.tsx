@@ -13,7 +13,6 @@ import {
   recordEmitterEventAction,
 } from '@fxa/payments/ui/actions';
 import {
-  PriceInterval,
   getApp,
   CheckoutParams,
   SupportedPages,
@@ -121,12 +120,10 @@ export default async function CheckoutSuccess({
             )}
           </div>
           <div className="flex items-center justify-between text-grey-400">
-            <PriceInterval
-              l10n={l10n}
-              amount={cart.latestInvoicePreview?.totalAmount}
-              currency={cart.latestInvoicePreview?.currency}
-              interval={cart.interval}
-            />
+            {l10n.getLocalizedCurrencyString(
+              cart.latestInvoicePreview?.totalAmount,
+              cart.latestInvoicePreview?.currency
+            )}
             {cart.paymentInfo.type === 'external_paypal' ? (
               <Image src={getCardIcon('paypal')} alt="paypal" />
             ) : (
