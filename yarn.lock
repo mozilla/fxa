@@ -19873,17 +19873,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/addon-actions@npm:^8.0.0":
-  version: 8.0.0
-  resolution: "@storybook/addon-actions@npm:8.0.0"
+"@storybook/addon-actions@npm:^8.6.7":
+  version: 8.6.7
+  resolution: "@storybook/addon-actions@npm:8.6.7"
   dependencies:
-    "@storybook/core-events": 8.0.0
     "@storybook/global": ^5.0.0
     "@types/uuid": ^9.0.1
     dequal: ^2.0.2
     polished: ^4.2.2
     uuid: ^9.0.0
-  checksum: c24e07def81e77620c9fafa14cde7aa426efe09b1e4a7906baa22165c17df338dd171cc5b0f3c407ef036583774f25a840521f16b4b2442e0db60699a5044145
+  peerDependencies:
+    storybook: ^8.6.7
+  checksum: 28add3c30e397894bb13d1d492b88e331cec2a24b47ad9e865002e54851a17a0916387dca02074b834c6d665748bd2a5ec88904ad08795645d1b8a9345fb1328
   languageName: node
   linkType: hard
 
@@ -21711,15 +21712,6 @@ __metadata:
   dependencies:
     ts-dedent: ^2.0.0
   checksum: 8983ca8df99707b5805bef3cfe4eff24afd0c5c9fd5f3ed4e2a81b8d86a295d95bb180a1fca4cb748310162a4c4386bbf40d3b6b1fe7e5ad3e9fcb40440fdd78
-  languageName: node
-  linkType: hard
-
-"@storybook/core-events@npm:8.0.0":
-  version: 8.0.0
-  resolution: "@storybook/core-events@npm:8.0.0"
-  dependencies:
-    ts-dedent: ^2.0.0
-  checksum: 5c58add81bae0b9de642ddb06568c663651574ddb86007b50c0a5877c3e300135e3f1a6533a6dd25e260d29c11c811410481e2fc6523f5d4d221ad66d18e91d5
   languageName: node
   linkType: hard
 
@@ -42175,7 +42167,7 @@ fsevents@~2.1.1:
     "@fluent/bundle": ^0.18.0
     "@fluent/langneg": ^0.7.0
     "@rescripts/cli": ~0.0.16
-    "@storybook/addon-actions": ^8.0.0
+    "@storybook/addon-actions": ^8.6.7
     "@storybook/addon-links": ^7.6.4
     "@storybook/addon-styling": ^1.3.0
     "@storybook/addons": ^7.6.17
@@ -42323,7 +42315,7 @@ fsevents@~2.1.1:
     "@babel/preset-typescript": ^7.25.7
     "@fluent/bundle": ^0.18.0
     "@fluent/langneg": ^0.7.0
-    "@storybook/addon-actions": ^8.0.0
+    "@storybook/addon-actions": ^8.6.7
     "@storybook/addon-links": ^7.6.4
     "@storybook/addon-styling": ^1.3.0
     "@storybook/addons": ^7.6.17
@@ -42392,7 +42384,7 @@ fsevents@~2.1.1:
     "@pmmmwh/react-refresh-webpack-plugin": ^0.5.3
     "@reach/router": ^1.3.4
     "@react-pdf/renderer": ^3.1.12
-    "@storybook/addon-actions": ^8.0.0
+    "@storybook/addon-actions": ^8.6.7
     "@storybook/addon-essentials": ^7.6.15
     "@storybook/addon-interactions": ^7.6.16
     "@storybook/addon-links": ^7.6.4
