@@ -6,5 +6,5 @@ import { IsBoolean } from 'class-validator';
 
 export class ValidatePostalCodeActionResult {
   @IsBoolean()
-  isValid!: string;
+  isValid!: boolean;
 }
