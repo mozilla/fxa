@@ -160,7 +160,8 @@ const SigninContainer = ({
   // If hasLinkedAccount is defined from location state (React email-first), or query
   // params (Backbone email-first) then we know the user came from email-first
   const originFromEmailFirst = !!(
-    hasLinkedAccountFromLocationState || queryParamModel.hasLinkedAccount
+    hasLinkedAccountFromLocationState !== undefined ||
+    queryParamModel.hasLinkedAccount
   );
 
   const [accountStatus, setAccountStatus] = useState({

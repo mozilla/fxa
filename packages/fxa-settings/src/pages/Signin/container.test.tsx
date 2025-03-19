@@ -738,6 +738,10 @@ describe('signin container', () => {
         });
       });
       it('calls fxaCanLinkAccount when conditions are met', async () => {
+        mockLocationState = {
+          hasLinkedAccount: undefined,
+          email: MOCK_ROUTER_STATE_EMAIL,
+        };
         (firefox.fxaCanLinkAccount as jest.Mock).mockImplementationOnce(
           async () => ({
             ok: true,
@@ -768,6 +772,10 @@ describe('signin container', () => {
       });
 
       it('returns expected error when fxaCanLinkAccount response is ok: false', async () => {
+        mockLocationState = {
+          hasLinkedAccount: undefined,
+          email: MOCK_ROUTER_STATE_EMAIL,
+        };
         (firefox.fxaCanLinkAccount as jest.Mock).mockImplementationOnce(
           async () => ({
             ok: false,
