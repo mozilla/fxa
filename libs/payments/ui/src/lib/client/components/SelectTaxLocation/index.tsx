@@ -173,7 +173,7 @@ const Expanded = ({
 
     try {
       if (selectedCountryCode && selectedPostalCode) {
-        const isValid = await validatePostalCode(
+        const { isValid } = await validatePostalCode(
           selectedPostalCode,
           selectedCountryCode
         );
