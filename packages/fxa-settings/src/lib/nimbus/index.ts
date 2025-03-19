@@ -14,6 +14,14 @@ export type NimbusContextT = {
 };
 
 /**
+ * The nimbus experiments and enrollment information needed for applying a feature experiment.
+ */
+export interface NimbusResult {
+  features: Record<string, any>;
+  nimbusUserId: string;
+}
+
+/**
  * Initializes Nimbus in the React app. This should be done before the first render
  * so that experiments can be applied during first initialization.
  *
@@ -24,7 +32,7 @@ export type NimbusContextT = {
 export async function initializeNimbus(
   clientId: string,
   context: NimbusContextT
-) {
+): Promise<any> {
   const MAX_TIMEOUT_MS = 1000;
   const body = JSON.stringify({
     client_id: clientId,
@@ -49,12 +57,12 @@ export async function initializeNimbus(
       return;
     }
 
-    experiments = await resp.json();
+    experiments = resp.json();
   } catch (err) {
     Sentry.withScope(() => {
       let errorMsg = 'Experiment fetch error';
       if (err.name === 'TimeoutError') {
-        errorMsg = `Timeout: It took more than ${MAX_TIMEOUT_MS} milliseconds to get the result - this is render blocking!`;
+        errorMsg = `Timeout: It took more than ${MAX_TIMEOUT_MS} milliseconds to get the result!`;
       }
       Sentry.captureMessage(errorMsg, 'error');
     });

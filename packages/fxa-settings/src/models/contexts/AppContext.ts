@@ -28,7 +28,7 @@ export interface AppContextValue {
   account?: Account;
   session?: Session;
   uniqueUserId?: string; // used for experiments
-  experiments?: any; // TODO: add types for experiments
+  experiments?: Promise<any>; // external response; not adding types
 }
 
 export interface SettingsContextValue {
@@ -36,7 +36,15 @@ export interface SettingsContextValue {
   navigatorLanguages?: readonly string[];
 }
 
-function fetchNimbusExperiments(uniqueUserId: string) {
+/**
+ * Fetches nimbus experiments from the Cirrus container via content-server.
+ *
+ * N.B: external response; not adding types
+ *
+ * @param uniqueUserId the ID that is used to retrieve the experiments for that client.
+ * @returns a promise to the fetch JSON reponse.
+ */
+function fetchNimbusExperiments(uniqueUserId: string): Promise<any> {
   // We reuse parseAcceptLanguage with navigator.languages because
   // that is the same as getting the headers directly as stated on MDN.
   // See: https://developer.mozilla.org/en-US/docs/Web/API/Navigator/languages

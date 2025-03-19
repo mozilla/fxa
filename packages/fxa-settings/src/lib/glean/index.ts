@@ -482,7 +482,9 @@ const recordEventMetric = (
       accountPref.help.record();
       break;
     case 'account_pref_bento_view':
-      accountPref.bentoView.record();
+      accountPref.bentoView.record({
+        nimbus_user_id: gleanPingMetrics?.event?.['nimbusUserId'] || '',
+      });
       break;
     case 'account_pref_bento_firefox_desktop':
       accountPref.bentoFirefoxDesktop.record();

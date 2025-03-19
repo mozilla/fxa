@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { useContext, useRef, useEffect, useMemo } from 'react';
+import { useContext, useRef, useEffect, useMemo, useState } from 'react';
 import { isHexadecimal, length } from 'class-validator';
 import { AppContext } from './contexts/AppContext';
 import {
@@ -30,6 +30,7 @@ import {
   SignedInAccountStatus,
 } from '../components/App/interfaces';
 import { RelierClientInfo, RelierSubscriptionInfo } from './integrations';
+import { NimbusResult } from '../lib/nimbus';
 
 export function useAccount() {
   const { account } = useContext(AppContext);
@@ -104,13 +105,35 @@ export function useIntegration() {
   }, [clientInfoState, productInfoState]);
 }
 
-export function useExperiments() {
-  const { experiments } = useContext(AppContext);
-  const { Features, Enrollments } = experiments;
-  if (!Features || !Enrollments) {
-    return {};
-  }
-  return { features: Features, enrollments: Enrollments };
+/**
+ * A hook to provide the Nimbus experiments within components.
+ * This hook does not perform a network request.
+ *
+ * @returns the {@link NimbusResult} with experiment information.
+ */
+export function useExperiments(): NimbusResult | null {
+  const { experiments: experimentInfo, uniqueUserId } = useContext(AppContext);
+  const [experiments, setExperiments] = useState<null | NimbusResult>(null);
+  useEffect(() => {
+    async function fetchExperiments() {
+      if (experimentInfo) {
+        const exp = await experimentInfo;
+        // Today, we don't need everything from the response so let's only add them as needed.
+        // We map out the response from the doc examples here:
+        // https://github.com/mozilla/experimenter/blob/main/cirrus/README.md
+        setExperiments({
+          features: exp.Features,
+          // The ID we send and the one receive should be the same.
+          // There has been a case were a bug in Nimbus sent us different IDs,
+          // so for now, let us trust our own ID.
+          // See: https://github.com/mozilla/blurts-server/pull/5509
+          nimbusUserId: uniqueUserId,
+        } as NimbusResult);
+      }
+    }
+    fetchExperiments();
+  }, [experimentInfo, uniqueUserId]);
+  return experiments;
 }
 
 export function useSession() {

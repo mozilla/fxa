@@ -1,22 +1,28 @@
 about:
   description: Nimbus Feature Manifest for Accounts Web testing
 channels:
+  - developer
+  - staging
   - production
 features:
   example-feature:
-    description: An example feature
+    description: An example feature.
     variables:
       enabled:
-        description: If the feature is enabled
+        description: If the feature is enabled.
         type: Boolean
         default: false
-      something:
-        description: Another variable
+      emoji:
+        description: An emoji to show for this treatment.
         type: Option<String>
         default: null
     defaults:
+      - channel: developer
+        value: { "enabled": true, "emoji": ":)" }
+      - channel: staging
+        value: { "enabled": false, "emoji": ";)" }
       - channel: production
-        value: { "something": "gnihtemos" }
+        value: { "enabled": false, "emoji": "❤️" }
 types:
   objects: {}
   enums: {}

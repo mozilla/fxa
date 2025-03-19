@@ -13,7 +13,7 @@ fi
 docker run --rm --name cirrus \
   --net fxa \
   --mount type=bind,source="$(pwd)/_scripts/configs/${CHANNEL_FILE},target=/cirrus/.env" \
-  --mount type=bind,source="$(pwd)/_scripts/configs/cirrus.fml.yml,target=/cirrus/feature_manifest/frontend-experiments.fml.yml" \
+  --mount type=bind,source="$(pwd)/configs/nimbus.yaml,target=/cirrus/feature_manifest/frontend-experiments.fml.yml" \
   --memory=1024m \
   -p 8001:8001 \
   mozilla/cirrus:sha-1275f51cb
