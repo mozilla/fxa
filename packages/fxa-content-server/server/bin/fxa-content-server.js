@@ -68,6 +68,7 @@ const csp = require('../lib/csp');
 const { tryCaptureValidationError } = require('../lib/sentry');
 const cspRulesBlocking = require('../lib/csp/blocking')(config);
 const cspRulesReportOnly = require('../lib/csp/report-only')(config);
+const coop = require('../lib/coop');
 const glean = require('../lib/glean')(config.getProperties());
 
 const STATIC_DIRECTORY = path.join(
@@ -144,6 +145,7 @@ function makeApp() {
       app.use(csp({ rules: cspRulesReportOnly }));
     }
   }
+  app.use(coop());
 
   app.disable('x-powered-by');
 
