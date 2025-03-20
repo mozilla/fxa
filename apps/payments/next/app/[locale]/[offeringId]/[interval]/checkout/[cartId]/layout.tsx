@@ -62,7 +62,7 @@ export default async function CheckoutLayout({
           <SignedIn email={session.user.email} />
         </div>
       )}
-      <div className="mx-7 tablet:grid tablet:grid-cols-[minmax(min-content,500px)_minmax(20rem,1fr)] tablet:grid-rows-[min-content] tablet:gap-x-8 tablet:mt-4 tablet:mb-auto desktop:grid-cols-[600px_1fr]">
+      <div className="mx-7 tablet:grid tablet:grid-cols-[minmax(min-content,500px)_minmax(20rem,1fr)] tablet:grid-rows-[min-content] tablet:gap-x-8 tablet:mb-auto desktop:grid-cols-[600px_1fr]">
         <SubscriptionTitle cartState={cart.state} l10n={l10n} />
 
         <section

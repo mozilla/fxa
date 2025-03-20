@@ -88,7 +88,7 @@ export const config = {
      */
     {
       source:
-        '/((?!api|error|_next/static|_next/image|favicon.ico|__heartbeat__|__lbheartbeat__|__version__).*)',
+        '/((?!api|error|_next/static|_next/image|favicon.ico|__heartbeat__|__lbheartbeat__|__version__|monitoring).*)',
       missing: [
         { type: 'header', key: 'next-router-prefetch' },
         { type: 'header', key: 'purpose', value: 'prefetch' },

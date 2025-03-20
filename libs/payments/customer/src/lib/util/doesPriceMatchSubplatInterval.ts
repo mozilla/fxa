@@ -13,7 +13,7 @@ export const doesPriceMatchSubplatInterval = (
   const stripeInterval = subplatIntervalToInterval[subplatInterval];
 
   return (
-    price.recurring?.interval === stripeInterval.interval &&
-    price.recurring?.interval_count === stripeInterval.intervalCount
+    price.recurring?.interval === stripeInterval?.interval &&
+    price.recurring?.interval_count === stripeInterval?.intervalCount
   );
 };

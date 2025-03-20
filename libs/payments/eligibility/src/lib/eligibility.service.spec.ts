@@ -19,6 +19,7 @@ import {
   EligibilityContentByOfferingResultUtil,
   EligibilityContentOfferingResultFactory,
   MockStrapiClientConfigProvider,
+  OfferingNotFoundError,
   ProductConfigurationManager,
   StrapiClient,
 } from '@fxa/shared/cms';
@@ -97,7 +98,7 @@ describe('EligibilityService', () => {
           'prod_test1',
           mockCustomer.id
         )
-      ).rejects.toThrowError('getOffering - No offering exists');
+      ).rejects.toThrowError(OfferingNotFoundError);
     });
 
     it('returns eligibility status successfully', async () => {

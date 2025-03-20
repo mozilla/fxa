@@ -69,35 +69,51 @@ export async function GET(
     );
 
     if (isSp2Redirect || querySpVersion === '2') {
-      const currency = queryCurrency
-        ? queryCurrency
-        : await determineCurrencyAction(ipAddress);
-      const { productId, priceId } = getSP2Params(
-        config.sp2map,
-        reportError,
-        params.offeringId,
-        params.interval,
-        currency
-      );
+      try {
+        const currency = queryCurrency
+          ? queryCurrency
+          : await determineCurrencyAction(ipAddress);
+        const { productId, priceId } = getSP2Params(
+          config.sp2map,
+          reportError,
+          params.offeringId,
+          params.interval,
+          currency
+        );
 
-      const sp2RedirectUrl = buildSp2RedirectUrl(
-        productId,
-        priceId,
-        config.contentServerUrl,
-        requestSearchParams
-      );
+        const sp2RedirectUrl = buildSp2RedirectUrl(
+          productId,
+          priceId,
+          config.contentServerUrl,
+          requestSearchParams
+        );
 
-      emitterService.emit('sp3Rollout', {
-        version: '2',
-        offeringId: params.offeringId,
-        interval: params.interval,
-        shadowMode: config.sp2redirect.shadowMode,
-      });
+        emitterService.emit('sp3Rollout', {
+          version: '2',
+          offeringId: params.offeringId,
+          interval: params.interval,
+          shadowMode: config.sp2redirect.shadowMode,
+        });
 
-      if (!config.sp2redirect.shadowMode) {
-        redirect(sp2RedirectUrl);
-      } else {
-        console.log('SP2 Redirect Shadow Mode enabled', { sp2RedirectUrl });
+        if (!config.sp2redirect.shadowMode) {
+          redirect(sp2RedirectUrl);
+        } else {
+          console.log('SP2 Redirect Shadow Mode enabled', { sp2RedirectUrl });
+        }
+      } catch (error) {
+        const pageNotFoundUrl = new URL(
+          buildRedirectUrl(
+            params.offeringId,
+            params.interval,
+            'page-not-found',
+            'checkout',
+            {
+              locale: params.locale,
+              baseUrl: config.paymentsNextHostedUrl,
+            }
+          )
+        );
+        redirect(pageNotFoundUrl.href);
       }
     } else {
       emitterService.emit('sp3Rollout', {

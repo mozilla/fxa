@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { auth } from 'apps/payments/next/auth';
-import { redirect } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { setupCartAction } from '@fxa/payments/ui/actions';
 import { CartEligibilityStatus } from '@fxa/shared/db/mysql/account';
 import { BaseParams, buildRedirectUrl } from '@fxa/payments/ui';
@@ -95,6 +95,11 @@ export default async function New({
           searchParams,
         })
       );
+    } else if (
+      error.name === 'RetrieveStripePriceInvalidOfferingError' ||
+      error.name === 'RetrieveStripePriceNotFoundError'
+    ) {
+      notFound();
     } else {
       throw error;
     }

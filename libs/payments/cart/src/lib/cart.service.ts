@@ -32,7 +32,10 @@ import {
   StripeCustomer,
   StripeSubscription,
 } from '@fxa/payments/stripe';
-import { ProductConfigurationManager } from '@fxa/shared/cms';
+import {
+  ProductConfigError,
+  ProductConfigurationManager,
+} from '@fxa/shared/cms';
 import { CurrencyManager } from '@fxa/payments/currency';
 import { AccountManager } from '@fxa/shared/account/account';
 import {
@@ -223,7 +226,9 @@ export class CartService {
    * Initialize a brand new cart
    * **Note**: This method is currently a placeholder. The arguments will likely change, and the internal implementation is far from complete.
    */
-  @SanitizeExceptions({ allowlist: [CartInvalidPromoCodeError] })
+  @SanitizeExceptions({
+    allowlist: [CartInvalidPromoCodeError, ProductConfigError],
+  })
   async setupCart(args: {
     interval: SubplatInterval;
     offeringConfigId: string;

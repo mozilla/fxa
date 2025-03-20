@@ -8,6 +8,7 @@ import {
   EligibilityContentByOfferingResultUtil,
   EligibilityContentOfferingResultFactory,
 } from '.';
+import { OfferingMultipleError, OfferingNotFoundError } from '../../cms.error';
 
 describe('EligibilityByOfferingResultUtil', () => {
   it('should create a util from response', () => {
@@ -27,9 +28,7 @@ describe('EligibilityByOfferingResultUtil', () => {
     const util = new EligibilityContentByOfferingResultUtil(
       result as EligibilityContentByOfferingResult
     );
-    expect(() => util.getOffering()).toThrowError(
-      'getOffering - No offering exists'
-    );
+    expect(() => util.getOffering()).toThrowError(OfferingNotFoundError);
   });
 
   it('throws error if more than offering is returned', () => {
@@ -43,8 +42,6 @@ describe('EligibilityByOfferingResultUtil', () => {
     const util = new EligibilityContentByOfferingResultUtil(
       result as EligibilityContentByOfferingResult
     );
-    expect(() => util.getOffering()).toThrowError(
-      'getOffering - More than one offering'
-    );
+    expect(() => util.getOffering()).toThrowError(OfferingMultipleError);
   });
 });
