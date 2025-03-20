@@ -34,6 +34,7 @@ import {
 import { CartErrorReasonId } from '@fxa/shared/db/mysql/account/kysely-types';
 import { PaymentProvidersType } from '@fxa/payments/cart';
 import PaypalIcon from '@fxa/shared/assets/images/payment-methods/paypal.svg';
+import spinnerWhiteImage from '@fxa/shared/assets/images/spinnerwhite.svg';
 
 interface CheckoutFormProps {
   cmsCommonContent: {
@@ -395,13 +396,25 @@ export function CheckoutForm({
                   loading
                 }
               >
-                <Image src={LockImage} className="h-4 w-4 mx-3" alt="" />
-                {isStripe ? (
-                  <Localized id="next-new-user-submit">Subscribe Now</Localized>
+                {loading ? (
+                  <Image
+                    src={spinnerWhiteImage}
+                    alt=""
+                    className="absolute animate-spin h-8 w-8"
+                  />
                 ) : (
-                  <Localized id="next-pay-with-heading-paypal">
-                    Pay with PayPal
-                  </Localized>
+                  <>
+                    <Image src={LockImage} className="h-4 w-4 mx-3" alt="" />
+                    {isStripe ? (
+                      <Localized id="next-new-user-submit">
+                        Subscribe Now
+                      </Localized>
+                    ) : (
+                      <Localized id="next-pay-with-heading-paypal">
+                        Pay with PayPal
+                      </Localized>
+                    )}
+                  </>
                 )}
               </BaseButton>
             )}
