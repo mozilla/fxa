@@ -13,9 +13,9 @@ relying_party:
     notification_emails:
       - subplat-team@mozilla.com
     bugs:
-      - https://mozilla-hub.atlassian.net/browse/FXA-7531
+      - https://mozilla-hub.atlassian.net/browse/FXA-7265
     data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=tbd
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
     expires: never
     data_sensitivity:
       - technical
@@ -32,7 +32,7 @@ relying_party:
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-7265
     data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=tbd
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
     expires: never
     data_sensitivity:
       - technical
@@ -47,9 +47,10 @@ session:
     notification_emails:
       - subplat-team@mozilla.com
     bugs:
-      - https://mozilla-hub.atlassian.net/browse/FXA-7531
+      - https://mozilla-hub.atlassian.net/browse/FXA-7265
     data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=tbd
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
     expires: never
     data_sensitivity:
       - interaction
@@ -63,9 +64,9 @@ session:
     notification_emails:
       - subplat-team@mozilla.com
     bugs:
-      - https://mozilla-hub.atlassian.net/browse/FXA-7531
+      - https://mozilla-hub.atlassian.net/browse/FXA-7265
     data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=tbd
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
     expires: never
     data_sensitivity:
       - technical
@@ -79,9 +80,10 @@ session:
     notification_emails:
       - subplat-team@mozilla.com
     bugs:
-      - https://mozilla-hub.atlassian.net/browse/FXA-7531
+      - https://mozilla-hub.atlassian.net/browse/FXA-7265
     data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=tbd
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
     expires: never
     data_sensitivity:
       - interaction
@@ -95,9 +97,10 @@ session:
     notification_emails:
       - subplat-team@mozilla.com
     bugs:
-      - https://mozilla-hub.atlassian.net/browse/FXA-7531
+      - https://mozilla-hub.atlassian.net/browse/FXA-7265
     data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=tbd
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
     expires: never
     data_sensitivity:
       - interaction
@@ -111,9 +114,10 @@ session:
     notification_emails:
       - subplat-team@mozilla.com
     bugs:
-      - https://mozilla-hub.atlassian.net/browse/FXA-7531
+      - https://mozilla-hub.atlassian.net/browse/FXA-7265
     data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=tbd
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
     expires: never
     data_sensitivity:
       - interaction
@@ -132,7 +136,7 @@ subscription:
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-7531
     data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=tbd
+      - https://github.com/mozilla/fxa/issues/18512
     expires: never
     data_sensitivity:
       - interaction
@@ -147,7 +151,7 @@ subscription:
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-7531
     data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=tbd
+      - https://github.com/mozilla/fxa/issues/18512
     expires: never
     data_sensitivity:
       - interaction
@@ -162,7 +166,7 @@ subscription:
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-7531
     data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=tbd
+      - https://github.com/mozilla/fxa/issues/18512
     expires: never
     data_sensitivity:
       - interaction
@@ -177,7 +181,7 @@ subscription:
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-7531
     data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=tbd
+      - https://github.com/mozilla/fxa/issues/18512
     expires: never
     data_sensitivity:
       - interaction
@@ -192,7 +196,7 @@ subscription:
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-7531
     data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=tbd
+      - https://github.com/mozilla/fxa/issues/18512
     expires: never
     data_sensitivity:
       - interaction
@@ -207,7 +211,7 @@ subscription:
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-7531
     data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=tbd
+      - https://github.com/mozilla/fxa/issues/18512
     expires: never
     data_sensitivity:
       - interaction
@@ -222,7 +226,7 @@ subscription:
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-7531
     data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=tbd
+      - https://github.com/mozilla/fxa/issues/18512
     expires: never
     data_sensitivity:
       - interaction
@@ -237,7 +241,7 @@ subscription:
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-7531
     data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=tbd
+      - https://github.com/mozilla/fxa/issues/18512
     expires: never
     data_sensitivity:
       - interaction
@@ -252,7 +256,7 @@ subscription:
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-7531
     data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=tbd
+      - https://github.com/mozilla/fxa/issues/18512
     expires: never
     data_sensitivity:
       - interaction
@@ -267,7 +271,7 @@ subscription:
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-7531
     data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=tbd
+      - https://github.com/mozilla/fxa/issues/18512
     expires: never
     data_sensitivity:
       - interaction
@@ -288,9 +292,10 @@ utm:
     notification_emails:
       - subplat-team@mozilla.com
     bugs:
-      - https://mozilla-hub.atlassian.net/browse/FXA-7531
+      - https://mozilla-hub.atlassian.net/browse/FXA-7265
     data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=tbd
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
     expires: never
     data_sensitivity:
       - interaction
@@ -310,9 +315,10 @@ utm:
     notification_emails:
       - subplat-team@mozilla.com
     bugs:
-      - https://mozilla-hub.atlassian.net/browse/FXA-7531
+      - https://mozilla-hub.atlassian.net/browse/FXA-7265
     data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=tbd
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
     expires: never
     data_sensitivity:
       - interaction
@@ -331,9 +337,10 @@ utm:
     notification_emails:
       - subplat-team@mozilla.com
     bugs:
-      - https://mozilla-hub.atlassian.net/browse/FXA-7531
+      - https://mozilla-hub.atlassian.net/browse/FXA-7265
     data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=tbd
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
     expires: never
     data_sensitivity:
       - interaction
@@ -352,9 +359,10 @@ utm:
     notification_emails:
       - subplat-team@mozilla.com
     bugs:
-      - https://mozilla-hub.atlassian.net/browse/FXA-7531
+      - https://mozilla-hub.atlassian.net/browse/FXA-7265
     data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=tbd
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
     expires: never
     data_sensitivity:
       - interaction
@@ -374,9 +382,10 @@ utm:
     notification_emails:
       - subplat-team@mozilla.com
     bugs:
-      - https://mozilla-hub.atlassian.net/browse/FXA-7531
+      - https://mozilla-hub.atlassian.net/browse/FXA-7265
     data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=tbd
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
     expires: never
     data_sensitivity:
       - interaction
@@ -390,7 +399,7 @@ pay_setup:
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-7531
     data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=tbd
+      - https://github.com/mozilla/fxa/issues/18512
     expires: never
     data_sensitivity:
       - interaction
@@ -402,7 +411,7 @@ pay_setup:
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-7531
     data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=tbd
+      - https://github.com/mozilla/fxa/issues/18512
     expires: never
     data_sensitivity:
       - interaction
@@ -414,7 +423,7 @@ pay_setup:
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-7531
     data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=tbd
+      - https://github.com/mozilla/fxa/issues/18512
     expires: never
     data_sensitivity:
       - interaction
@@ -426,7 +435,7 @@ pay_setup:
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-7531
     data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=tbd
+      - https://github.com/mozilla/fxa/issues/18512
     expires: never
     data_sensitivity:
       - interaction
@@ -438,7 +447,7 @@ pay_setup:
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-7531
     data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=tbd
+      - https://github.com/mozilla/fxa/issues/18512
     expires: never
     data_sensitivity:
       - interaction
