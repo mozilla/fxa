@@ -48,7 +48,8 @@
       "command": "pm2 delete apps/payments/next/pm2.config.js"
     },
     "l10n-merge": {
-      "command": "yarn grunt --gruntfile='apps/payments/next/Gruntfile.js' merge-ftl"
+      "command": "yarn grunt --gruntfile='apps/payments/next/Gruntfile.js' merge-ftl",
+      "dependsOn": ["l10n-prime"]
     },
     "l10n-prime": {
       "command": "./_scripts/l10n/prime.sh apps/payments/next"
