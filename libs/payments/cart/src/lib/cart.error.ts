@@ -109,9 +109,9 @@ export class CartEligibilityMismatchError extends CartError {
   }
 }
 
-export class CartEmailNotFoundError extends CartError {
+export class CartAccountNotFoundError extends CartError {
   constructor(cartId: string) {
-    super('Cart email not found', {
+    super('Cart account not found for uid', {
       cartId,
     });
   }

@@ -20,7 +20,6 @@ interface PaymentFormProps {
   cart: {
     id: string;
     version: number;
-    email: string | null;
     uid?: string | null;
     errorReasonId: string | null;
     couponCode: string | null;

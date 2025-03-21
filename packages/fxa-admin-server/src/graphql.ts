@@ -159,7 +159,6 @@ export interface Cart {
     couponCode?: Nullable<string>;
     stripeCustomerId?: Nullable<string>;
     stripeSubscriptionId?: Nullable<string>;
-    email?: Nullable<string>;
     amount: number;
     version: number;
     eligibilityStatus: string;

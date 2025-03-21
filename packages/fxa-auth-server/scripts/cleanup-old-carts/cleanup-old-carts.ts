@@ -8,7 +8,7 @@ export class CartCleanup {
   constructor(
     private deleteBefore: Date,
     private anonymizeBefore: Date | null,
-    private anonymizeFields: Set<'email' | 'taxAddress'> | null,
+    private anonymizeFields: Set<'taxAddress'> | null,
     private database: AccountDatabase
   ) {}
 
@@ -23,9 +23,6 @@ export class CartCleanup {
         .updateTable('carts')
         .where('updatedAt', '<', this.anonymizeBefore.getTime());
 
-      if (this.anonymizeFields.has('email')) {
-        anonymizePendingQuery = anonymizePendingQuery.set('email', null);
-      }
       if (this.anonymizeFields.has('taxAddress')) {
         anonymizePendingQuery = anonymizePendingQuery.set('taxAddress', null);
       }

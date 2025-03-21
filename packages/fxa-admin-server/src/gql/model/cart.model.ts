@@ -56,9 +56,6 @@ export class Cart {
   @Field({ nullable: true })
   public stripeSubscriptionId?: string;
 
-  @Field({ nullable: true })
-  public email?: string;
-
   @Field()
   public amount!: number;
 

@@ -152,7 +152,6 @@ describe('CartManager', () => {
     it('succeeds', async () => {
       const updateItems = UpdateCartFactory({
         couponCode: 'testcoupon',
-        email: 'test@example.com',
       });
 
       await cartManager.updateFreshCart(

@@ -6,7 +6,7 @@ import {
 import { ResultCart } from './cart.types';
 import { SubscriptionEligibilityResult } from '@fxa/payments/eligibility';
 
-export type PrePayStepsResult = Pick<ResultCart, 'version' | 'email'> & {
+export type PrePayStepsResult = Pick<ResultCart, 'version'> & {
   uid: string;
   customer: StripeCustomer;
   enableAutomaticTax: boolean;
