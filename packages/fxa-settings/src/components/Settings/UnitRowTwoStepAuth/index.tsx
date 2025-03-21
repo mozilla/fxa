@@ -190,6 +190,7 @@ export const UnitRowTwoStepAuth = () => {
             {...(count &&
               count > 0 && {
                 onDeleteClick: () => {
+                  alertBar.hide();
                   navigate(
                     `${SETTINGS_PATH}/recovery_phone/remove`,
                     undefined,
