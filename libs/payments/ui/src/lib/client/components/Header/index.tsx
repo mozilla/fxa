@@ -122,19 +122,24 @@ export const Header = ({ auth }: HeaderProps) => {
         />
       </div>
       <div className="flex items-center leading-normal">
-        <Localized id="payments-header-help">
+        <Localized id="payments-header-help" attrs={{ title: true }}>
           <LinkExternal
             href="https://support.mozilla.org/products/mozilla-account"
             title="Help"
             className="inline-block relative p-2 -m-2 z-[1] rounded hover:bg-grey-100"
           >
-            <Image
-              src={helpIcon}
-              aria-label="Help"
-              alt="Help"
-              role="img"
-              className="w-5 text-violet-900"
-            />
+            <Localized
+              id="payments-header-help"
+              attrs={{ alt: true, 'aria-label': true }}
+            >
+              <Image
+                src={helpIcon}
+                aria-label="Help"
+                alt="Help"
+                role="img"
+                className="w-5 text-violet-900"
+              />
+            </Localized>
           </LinkExternal>
         </Localized>
         {/** Bento Menu, TODO: convert to Radix Primitive as part of FXA-11035 */}
@@ -142,7 +147,7 @@ export const Header = ({ auth }: HeaderProps) => {
           className="relative self-center flex mx-2"
           ref={bentoMenuInsideRef}
         >
-          <Localized id="payments-header-bento">
+          <Localized id="payments-header-bento" attrs={{ title: true }}>
             <button
               onClick={toggleBentoMenuRevealed}
               title="Mozilla products"
@@ -151,11 +156,16 @@ export const Header = ({ auth }: HeaderProps) => {
               aria-haspopup="menu"
               className="rounded p-2 mx-2 border-transparent hover:bg-grey-100 transition-standard desktop:mx-8"
             >
-              <Image
-                src={bentoIcon}
-                alt="Mozilla Logo"
-                className="w-5 text-violet-900"
-              />
+              <Localized
+                id="payments-header-bento"
+                attrs={{ alt: true, 'aria-label': true }}
+              >
+                <Image
+                  src={bentoIcon}
+                  alt="Mozilla Logo"
+                  className="w-5 text-violet-900"
+                />
+              </Localized>
             </button>
           </Localized>
 
@@ -169,7 +179,10 @@ export const Header = ({ auth }: HeaderProps) => {
               <div className="flex flex-wrap">
                 <div className="flex w-full py-4 gap-2 items-center flex-col tablet:w-auto tablet:relative">
                   <button onClick={() => setBentoMenuRevealed(false)}>
-                    <Localized id="payments-header-bento-close">
+                    <Localized
+                      id="payments-header-bento-close"
+                      attrs={{ alt: true }}
+                    >
                       <Image
                         src={closeIcon}
                         alt="Close"
@@ -284,12 +297,15 @@ export const Header = ({ auth }: HeaderProps) => {
         {/** Avatar Menu, TODO: convert to Radix Primitive as part of FXA-11035 */}
         {signedIn && (
           <div className="relative" ref={avatarMenuInsideRef}>
-            <Localized id="payments-header-avatar">
+            <Localized id="payments-header-avatar" attrs={{ title: true }}>
               <button
                 onClick={toggleAvatarMenuRevealed}
                 title="Mozilla account menu"
               >
-                <Localized id="payments-header-avatar-icon">
+                <Localized
+                  id="payments-header-avatar-icon"
+                  attrs={{ alt: true }}
+                >
                   <Image
                     unoptimized={true}
                     src={auth.user?.image ?? defaultAvatarIcon}
@@ -312,7 +328,10 @@ export const Header = ({ auth }: HeaderProps) => {
                 <div className="flex flex-wrap">
                   <div className="flex w-full p-4 items-center">
                     <div className="ltr:mr-3 flex-none">
-                      <Localized id="payments-header-avatar-icon">
+                      <Localized
+                        id="payments-header-avatar-icon"
+                        attrs={{ alt: true }}
+                      >
                         <Image
                           unoptimized={true}
                           src={auth.user?.image ?? defaultAvatarIcon}
