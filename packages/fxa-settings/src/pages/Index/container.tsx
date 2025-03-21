@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
-import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
 import Index from '.';
 import { IndexContainerProps, LocationState } from './interfaces';
 import { useCallback, useEffect } from 'react';
@@ -36,7 +35,6 @@ export const IndexContainer = ({
   // TODO, more strict validation for bad oauth params, FXA-11297
   const authClient = useAuthClient();
   const navigate = useNavigate();
-  const navigateWithQuery = useNavigateWithQuery();
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state?: LocationState;
   };
@@ -49,25 +47,76 @@ export const IndexContainer = ({
   const isWebChannelIntegration =
     integration.isSync() || integration.isDesktopRelay();
 
-  // 'email' query param followed by 'login_hint' should take precedence
-  const email =
+  // 'email' query param should take precedence, followed by 'login_hint'
+  const suggestedEmail =
     queryParamModel.email ||
     integration.data.loginHint ||
     currentAccount()?.email;
-  const shouldRedirectToSignin = email && !prefillEmail;
+
+  const hasEmailSuggestion = suggestedEmail && !prefillEmail;
+
+  const handleNavigation = useCallback(
+    (
+      exists: boolean,
+      hasLinkedAccount: boolean,
+      hasPassword: boolean,
+      email: string
+    ) => {
+      const params = new URLSearchParams(location.search);
+      // We delete 'email' if it is present because otherwise, that param will take
+      // precedence and the user will be unable to create an account with a different
+      // email. Remove for signin as well as it is unnecessary. This is a byproduct
+      // of backwards compatibility between Backbone and React since we pass this
+      // param from content-server, TODO: FXA-10567
+      // We can also use useNavigateWithQuery after addressing the above.
+      params.delete('email');
+      const hasParams = params.size > 0;
+      const isOAuth = location.pathname.startsWith('/oauth');
+      if (!exists) {
+        const signupRoute = isOAuth ? '/oauth/signup' : '/signup';
+        console.log(
+          `${signupRoute}${hasParams ? `?${params.toString()}` : ''}`
+        );
+        navigate(`${signupRoute}${hasParams ? `?${params.toString()}` : ''}`, {
+          state: {
+            email,
+            emailStatusChecked: true,
+          },
+        });
+      } else {
+        const signinRoute = isOAuth ? '/oauth/signin' : '/signin';
+        navigate(`${signinRoute}${hasParams ? `?${params.toString()}` : ''}`, {
+          state: {
+            email,
+            hasLinkedAccount,
+            hasPassword,
+          },
+        });
+      }
+    },
+    [location.pathname, location.search, navigate]
+  );
 
   useEffect(() => {
-    if (shouldRedirectToSignin) {
-      const route = location.pathname.startsWith('/oauth')
-        ? '/oauth/signin'
-        : '/signin';
-      navigateWithQuery(route, {
-        state: {
-          email,
-        },
-      });
+    if (!hasEmailSuggestion) {
+      return;
     }
-  });
+
+    const checkEmailAndNavigate = async () => {
+      const { exists, hasLinkedAccount, hasPassword } =
+        await authClient.accountStatusByEmail(suggestedEmail, {
+          thirdPartyAuthStatus: true,
+        });
+
+      handleNavigation(exists, hasLinkedAccount, hasPassword, suggestedEmail);
+    };
+
+    checkEmailAndNavigate();
+  }, [authClient, handleNavigation, hasEmailSuggestion, suggestedEmail]);
+
+  useEffect(() => {
+    console.log('Location state changed', location.state);
+  }, [location.state]);
 
   const signUpOrSignInHandler = useCallback(
     async (email: string) => {
@@ -112,37 +161,13 @@ export const IndexContainer = ({
           }
         }
 
-        const params = new URLSearchParams(location.search);
-        // We delete 'email' if it is present because otherwise, that param will take
-        // precedence and the user will be unable to create an account with a different
-        // email. Remove for signin as well as it is unnecessary. This is a byproduct
-        // of backwards compatibility between Backbone and React since we pass this
-        // param from content-server, TODO: FXA-10567
-        // We can also use useNavigateWithQuery after addressing the above.
-        params.delete('email');
-        const hasParams = params.size > 0;
-        if (!exists) {
-          navigate(`/signup${hasParams ? `?${params.toString()}` : ''}`, {
-            state: {
-              email,
-              emailStatusChecked: true,
-            },
-          });
-        } else {
-          navigate(`/signin${hasParams ? `?${params.toString()}` : ''}`, {
-            state: {
-              email,
-              hasLinkedAccount,
-              hasPassword,
-            },
-          });
-        }
+        handleNavigation(exists, hasLinkedAccount, hasPassword, email);
         return { error: null };
       } catch (error) {
         return getHandledError(error);
       }
     },
-    [authClient, navigate, isWebChannelIntegration, location.search]
+    [authClient, handleNavigation, isWebChannelIntegration]
   );
 
   if (validationError) {
@@ -155,7 +180,7 @@ export const IndexContainer = ({
     return <LoadingSpinner fullScreen />;
   }
 
-  if (shouldRedirectToSignin) {
+  if (hasEmailSuggestion) {
     return <LoadingSpinner fullScreen />;
   }
 
