@@ -30,6 +30,9 @@ export class AppleIapClientConfig {
 
   @IsEnum(Environment)
   public readonly environment!: Environment;
+
+  @IsString()
+  public readonly collectionName!: string;
 }
 
 export const MockAppleIapClientConfig = {
@@ -42,6 +45,7 @@ export const MockAppleIapClientConfig = {
     },
   ],
   environment: Environment.Sandbox,
+  collectionName: faker.string.uuid(),
 } satisfies AppleIapClientConfig;
 
 export const MockAppleIapClientConfigProvider = {

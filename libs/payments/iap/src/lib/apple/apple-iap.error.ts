@@ -16,6 +16,18 @@ export class AppleIapUnknownError extends AppleIapError {
   }
 }
 
+export class AppleIapNotFoundError extends AppleIapError {
+  constructor(...args: ConstructorParameters<typeof AppleIapError>) {
+    super(...args);
+  }
+}
+
+export class AppleIapNoTransactionsFoundError extends AppleIapError {
+  constructor(...args: ConstructorParameters<typeof AppleIapError>) {
+    super(...args);
+  }
+}
+
 export class AppleIapMissingCredentialsError extends AppleIapError {
   constructor(bundleId: string) {
     super(`No App Store credentials found for app with bundleId: ${bundleId}.`);
