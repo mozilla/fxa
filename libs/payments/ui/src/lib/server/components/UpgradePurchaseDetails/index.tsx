@@ -210,7 +210,7 @@ export function UpgradePurchaseDetails(props: UpgradePurchaseDetailsProps) {
         </li>
       </ul>
 
-      {oneTimeCharge && (
+      {!!oneTimeCharge && (
         <>
           <div className="border-b border-grey-200"></div>
           <div className="flex items-center justify-between gap-2 leading-5 text-base text-grey-600 mt-6 pb-6 font-semibold">
