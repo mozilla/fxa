@@ -19,8 +19,8 @@
     "foxfire": "^2.0.0"
   },
   "devDependencies": {
-    "@types/eslint": "^8",
-    "eslint": "^8.38.0",
+    "@types/eslint": "^9",
+    "eslint": "^9.22.0",
     "eslint-config-react-app": "^7.0.1"
   }
 }

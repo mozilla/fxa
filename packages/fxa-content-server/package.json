@@ -146,7 +146,7 @@
     "css": "3.0.0",
     "esbuild": "^0.17.15",
     "esbuild-register": "^3.5.0",
-    "eslint": "^7.32.0",
+    "eslint": "^9.22.0",
     "firefox-profile": "4.7.0",
     "got": "11.8.5",
     "grunt-ban-word": "0.1.1",
