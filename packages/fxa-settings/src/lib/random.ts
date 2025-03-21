@@ -35,7 +35,6 @@ export class Random {
   }
 
   getRandomBytes(len: number) {
-    console.log('getRandomBytes original');
     return window.crypto.getRandomValues(new Uint32Array(len));
   }
 

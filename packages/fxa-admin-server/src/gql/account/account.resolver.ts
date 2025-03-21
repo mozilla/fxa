@@ -56,7 +56,6 @@ import {
   AccountDeleteTaskStatus,
 } from '../model/account-delete-task.model';
 import { CartManager } from '@fxa/payments/cart';
-import { Cart } from '../model/cart.model';
 
 const ACCOUNT_COLUMNS = [
   'uid',
@@ -95,6 +94,7 @@ const RECOVERYKEY_COLUMNS = [
   'enabled',
   'hint',
 ];
+const RECOVERYPHONES_COLUMNS = ['phoneNumber'];
 const LINKEDACCOUNT_COLUMNS = ['uid', 'authAt', 'providerId', 'enabled'];
 
 @UseGuards(GqlAuthHeaderGuard)
@@ -383,6 +383,43 @@ export class AccountResolver {
   @ResolveField()
   public async carts(@Root() account: Account) {
     return await this.cartManager.fetchCartsByUid(account.uid);
+  }
+
+  @Features(AdminPanelFeature.AccountSearch)
+  @ResolveField()
+  public async backupCodes(@Root() account: Account) {
+    const uidBuffer = uuidTransformer.to(account.uid);
+    const result = await this.db.recoveryCodes
+      .query()
+      .where('uid', uidBuffer)
+      .resultSize();
+
+    return [
+      {
+        hasBackupCodes: result > 0,
+        count: result,
+      },
+    ];
+  }
+
+  @Features(AdminPanelFeature.AccountSearch)
+  @ResolveField()
+  public async recoveryPhone(@Root() account: Account) {
+    const uidBuffer = uuidTransformer.to(account.uid);
+    const result = await this.db.recoveryPhones
+      .query()
+      .select(RECOVERYPHONES_COLUMNS)
+      .where('uid', uidBuffer);
+
+    return [
+      {
+        exists: result.length > 0,
+        lastFourDigits:
+          result[0] && result[0].phoneNumber
+            ? result[0].phoneNumber.slice(-4)
+            : undefined,
+      },
+    ];
   }
 
   @ResolveField()

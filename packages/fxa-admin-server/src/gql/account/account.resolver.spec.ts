@@ -21,7 +21,9 @@ import {
   EmailBounce,
   EmailType,
   LinkedAccount,
+  RecoveryCodes,
   RecoveryKey,
+  RecoveryPhones,
   SessionToken,
   TotpToken,
 } from 'fxa-shared/db/models/auth';
@@ -29,12 +31,14 @@ import { uuidTransformer } from 'fxa-shared/db/transformers';
 import { testDatabaseSetup } from 'fxa-shared/test/db/helpers';
 import {
   randomAccount,
+  randomBackupCode,
   randomDeviceToken,
   randomEmail,
   randomEmailBounce,
   randomLinkedAccount,
   randomOauthClient,
   randomRecoveryKey,
+  randomRecoveryPhone,
   randomSessionToken,
   randomTotp,
 } from 'fxa-shared/test/db/models/auth/helpers';
@@ -55,6 +59,8 @@ const USER_1 = randomAccount();
 const EMAIL_1 = randomEmail(USER_1);
 const EMAIL_BOUNCE_1 = randomEmailBounce(USER_1.email, chance.bool());
 const TOTP_1 = randomTotp(USER_1);
+const BACKUP_CODE_1 = randomBackupCode(USER_1);
+const RECOVERY_PHONE_1 = randomRecoveryPhone(USER_1);
 const RECOVERY_KEY_1 = randomRecoveryKey(USER_1);
 const LINKED_ACCOUNT_1 = randomLinkedAccount(USER_1);
 const SESSION_TOKEN_1 = randomSessionToken(USER_1, Date.now());
@@ -83,6 +89,8 @@ describe('#integration - AccountResolver', () => {
     recoveryKeys: RecoveryKey,
     sessionTokens: SessionToken,
     linkedAccounts: LinkedAccount,
+    recoveryCodes: RecoveryCodes,
+    recoveryPhones: RecoveryPhones,
     async authorizedClients(
       uid: string
     ): Promise<SerializableAttachedClient[]> {
@@ -112,6 +120,8 @@ describe('#integration - AccountResolver', () => {
     db.emailBounces = EmailBounce.bindKnex(knex);
     db.emailTypes = EmailType.bindKnex(knex);
     db.totp = TotpToken.bindKnex(knex);
+    db.recoveryCodes = RecoveryCodes.bindKnex(knex);
+    db.recoveryPhones = RecoveryPhones.bindKnex(knex);
     db.recoveryKeys = RecoveryKey.bindKnex(knex);
     db.sessionTokens = SessionToken.bindKnex(knex);
     db.linkedAccounts = LinkedAccount.bindKnex(knex);
@@ -121,6 +131,8 @@ describe('#integration - AccountResolver', () => {
     });
     await db.emailBounces.query().insert(EMAIL_BOUNCE_1);
     await db.totp.query().insert(TOTP_1);
+    await db.recoveryCodes.query().insert(BACKUP_CODE_1);
+    await db.recoveryPhones.query().insert(RECOVERY_PHONE_1);
     await db.recoveryKeys.query().insert(RECOVERY_KEY_1);
     await db.linkedAccounts.query().insert(LINKED_ACCOUNT_1 as any);
     await db.sessionTokens.query().insert(SESSION_TOKEN_1);
@@ -406,6 +418,30 @@ describe('#integration - AccountResolver', () => {
     expect(result).toBeDefined();
     expect(result.length).toBe(1);
     expect(result[0].uid).toEqual(TOTP_1.uid);
+  });
+
+  it('loads backup code status', async () => {
+    const user = (await resolver.accountByEmail(
+      USER_1.email,
+      true,
+      'joe'
+    )) as Account;
+    const result = await resolver.backupCodes(user);
+    expect(result).toBeDefined();
+    expect(result[0].hasBackupCodes).toEqual(true);
+    expect(result[0].count).toEqual(1);
+  });
+
+  it('loads recovery phone status', async () => {
+    const user = (await resolver.accountByEmail(
+      USER_1.email,
+      true,
+      'joe'
+    )) as Account;
+    const result = await resolver.recoveryPhone(user);
+    expect(result).toBeDefined();
+    expect(result[0].exists).toEqual(true);
+    expect(result[0].lastFourDigits).toEqual('7890');
   });
 
   it('loads recoveryKeys', async () => {

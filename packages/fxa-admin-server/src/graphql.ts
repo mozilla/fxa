@@ -165,6 +165,16 @@ export interface Cart {
     eligibilityStatus: string;
 }
 
+export interface BackupCodes {
+    hasBackupCodes: boolean;
+    count: number;
+}
+
+export interface RecoveryPhone {
+    exists: boolean;
+    lastFourDigits?: Nullable<string>;
+}
+
 export interface Account {
     uid: string;
     email: string;
@@ -185,6 +195,8 @@ export interface Account {
     linkedAccounts?: Nullable<LinkedAccount[]>;
     accountEvents?: Nullable<AccountEvent[]>;
     carts?: Nullable<Cart[]>;
+    backupCodes?: Nullable<BackupCodes[]>;
+    recoveryPhone?: Nullable<RecoveryPhone[]>;
 }
 
 export interface AccountDeleteResponse {

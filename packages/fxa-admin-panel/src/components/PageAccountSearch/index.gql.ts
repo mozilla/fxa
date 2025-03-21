@@ -41,6 +41,14 @@ export const GET_ACCOUNT_BY_EMAIL = gql`
         createdAt
         enabled
       }
+      backupCodes {
+        hasBackupCodes
+        count
+      }
+      recoveryPhone {
+        exists
+        lastFourDigits
+      }
       recoveryKeys {
         createdAt
         verifiedAt
@@ -155,6 +163,14 @@ export const GET_ACCOUNT_BY_UID = gql`
         verified
         createdAt
         enabled
+      }
+      backupCodes {
+        hasBackupCodes
+        count
+      }
+      recoveryPhone {
+        exists
+        lastFourDigits
       }
       recoveryKeys {
         createdAt
