@@ -8,8 +8,10 @@ import { Localized } from '@fluent/react';
 import * as Form from '@radix-ui/react-form';
 import countries from 'i18n-iso-countries';
 import { useEffect, useState } from 'react';
-import { BaseButton, ButtonVariant, SubmitButton } from '@fxa/payments/ui';
-import { updateCartAction, validatePostalCode } from '@fxa/payments/ui/actions';
+import { BaseButton, ButtonVariant } from '@fxa/payments/ui';
+import { validatePostalCode } from '@fxa/payments/ui/actions';
+import { SubmitButton } from '../SubmitButton';
+import { useSearchParams } from 'next/navigation';
 
 interface CollapsedProps {
   countryCode: string | undefined;
@@ -331,8 +333,7 @@ const Expanded = ({
 };
 
 interface SelectTaxLocationProps {
-  cartId: string;
-  cartVersion: number;
+  saveAction: (countryCode: string, postalCode: string) => Promise<void> | void;
   cmsCountries: string[];
   locale: string;
   productName: string;
@@ -342,8 +343,7 @@ interface SelectTaxLocationProps {
 }
 
 export function SelectTaxLocation({
-  cartId,
-  cartVersion,
+  saveAction,
   cmsCountries,
   locale,
   productName,
@@ -354,6 +354,7 @@ export function SelectTaxLocation({
   const [expanded, setExpanded] = useState<boolean>(
     !countryCode || !postalCode
   );
+
   const [alertStatus, setAlertStatus] = useState<boolean>(false);
   const cmsCountryCodes = cmsCountries.map((country) => country.slice(0, 2));
 
@@ -375,12 +376,8 @@ export function SelectTaxLocation({
           countryCode={countryCode}
           postalCode={postalCode}
           saveAction={async (countryCode: string, postalCode: string) => {
+            await saveAction(countryCode, postalCode);
             setExpanded(false);
-
-            // Call function to save to Cart
-            await updateCartAction(cartId, cartVersion, {
-              taxAddress: { countryCode, postalCode },
-            });
             setAlertStatus(true);
           }}
         />
@@ -395,5 +392,36 @@ export function SelectTaxLocation({
         />
       )}
     </div>
+  );
+}
+export function IsolatedSelectTaxLocation({
+  saveAction,
+  cmsCountries,
+  locale,
+  productName,
+  unsupportedLocations,
+}: Omit<SelectTaxLocationProps, 'countryCode' | 'postalCode'>) {
+  const queryParams = useSearchParams();
+
+  const countryCode = queryParams?.get('countryCode') ?? '';
+  const postalCode = queryParams?.get('postalCode') ?? '';
+  const [updatedCountryCode, setUpdatedCountryCode] =
+    useState<string>(countryCode);
+  const [updatedPostalCode, setUpdatedPostalCode] =
+    useState<string>(postalCode);
+  return (
+    <SelectTaxLocation
+      saveAction={(countryCode: string, postalCode: string) => {
+        setUpdatedCountryCode(countryCode);
+        setUpdatedPostalCode(postalCode);
+        saveAction(countryCode, postalCode);
+      }}
+      cmsCountries={cmsCountries}
+      locale={locale}
+      productName={productName}
+      unsupportedLocations={unsupportedLocations}
+      countryCode={updatedCountryCode}
+      postalCode={updatedPostalCode}
+    />
   );
 }

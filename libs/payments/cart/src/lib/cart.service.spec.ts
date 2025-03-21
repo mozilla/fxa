@@ -446,6 +446,7 @@ describe('CartService', () => {
   });
 
   describe('setupCart', () => {
+    const taxAddress = TaxAddressFactory();
     const args = {
       interval: SubplatInterval.Monthly,
       offeringConfigId: faker.string.uuid(),
@@ -456,6 +457,8 @@ describe('CartService', () => {
         prefix: '',
         casing: 'lower',
       }),
+      taxAddress,
+      currency: faker.finance.currencyCode(),
       ip: faker.internet.ipv4(),
     };
 
@@ -466,7 +469,6 @@ describe('CartService', () => {
     const mockInvoicePreview = InvoicePreviewFactory();
     const mockResultCart = ResultCartFactory();
     const mockPrice = StripePriceFactory();
-    const taxAddress = TaxAddressFactory();
 
     beforeEach(async () => {
       jest
