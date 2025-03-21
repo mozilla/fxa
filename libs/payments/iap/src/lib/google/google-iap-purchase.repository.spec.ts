@@ -12,25 +12,25 @@ import {
 import {
   createPurchase,
   getPurchase,
-  getActiveGooglePurchasesForUserId,
-  getActiveApplePurchasesForUserId,
+  getActivePurchasesForUserId,
   updatePurchase,
   deletePurchasesByUserId,
-} from './iap-purchase.repository';
-import { FirestorePurchaseRecord } from './types';
-import { faker } from '@faker-js/faker';
-import { GOOGLE_PLAY_FORM_OF_PAYMENT, SkuType } from './constants';
+} from './google-iap-purchase.repository';
+import { FirestoreGoogleIapPurchaseRecordFactory } from '../factories';
 
 jest.mock('@google-cloud/firestore');
 
-describe('Purchase Service', () => {
+describe('Google IAP Purchase Repository', () => {
   let mockDb: jest.Mocked<CollectionReference>;
   let mockFirestore: jest.Mocked<Firestore>;
   let mockDoc: jest.Mocked<DocumentReference>;
   let mockBatch: jest.Mocked<WriteBatch>;
 
+  const mockPurchaseRecord = FirestoreGoogleIapPurchaseRecordFactory();
+
   beforeEach(() => {
     mockFirestore = new Firestore() as jest.Mocked<Firestore>;
+
     mockDoc = {
       set: jest.fn().mockResolvedValue(undefined),
       get: jest.fn().mockResolvedValue({ data: () => mockPurchaseRecord }),
@@ -55,47 +55,39 @@ describe('Purchase Service', () => {
     mockFirestore.batch = jest.fn().mockReturnValue(mockBatch);
   });
 
-  const mockPurchaseRecord: FirestorePurchaseRecord = {
-    id: faker.string.uuid(),
-    userId: faker.string.uuid(),
-    formOfPayment: GOOGLE_PLAY_FORM_OF_PAYMENT,
-    skuType: SkuType.SUBS,
-    isMutable: true,
-    sku: faker.string.uuid(),
-    packageName: faker.string.uuid(),
-    productId: faker.string.uuid(),
-    bundleId: faker.string.uuid(),
-  };
-
   describe('createPurchase', () => {
-    it('should create a purchase record', async () => {
+    it('creates a purchase record', async () => {
       await createPurchase(mockDb, mockPurchaseRecord);
-      expect(mockDb.doc).toHaveBeenCalledWith(mockPurchaseRecord.id);
-      expect(mockDoc.set).toHaveBeenCalledWith(mockPurchaseRecord);
+      expect(mockDb.doc).toHaveBeenCalledWith(mockPurchaseRecord.purchaseToken);
+      expect(mockDoc.set).toHaveBeenCalledWith(
+        expect.objectContaining({
+          userId: mockPurchaseRecord.userId,
+          sku: mockPurchaseRecord.sku,
+          formOfPayment: mockPurchaseRecord.formOfPayment,
+        })
+      );
     });
   });
 
   describe('getPurchase', () => {
-    it('should fetch a purchase by ID', async () => {
-      const result = await getPurchase(mockDb, mockPurchaseRecord.id);
+    it('fetches a purchase by token', async () => {
+      const result = await getPurchase(
+        mockDb,
+        mockPurchaseRecord.purchaseToken
+      );
       expect(result).toEqual(mockPurchaseRecord);
     });
   });
 
-  describe('getActiveGooglePurchasesForUserId', () => {
-    it('should fetch active Google Play purchases for a user', async () => {
-      const result = await getActiveGooglePurchasesForUserId(
+  describe('getActivePurchasesForUserId', () => {
+    it('fetches active Google Play purchases for a user', async () => {
+      const result = await getActivePurchasesForUserId(
         mockDb,
         mockPurchaseRecord.userId
       );
-      expect(result).toEqual([mockPurchaseRecord]);
-    });
-  });
-
-  describe('getActiveApplePurchasesForUserId', () => {
-    it('should fetch active Apple purchases for a user', async () => {
-      const result = await getActiveApplePurchasesForUserId(
-        mockDb,
+      expect(mockDb.where).toHaveBeenCalledWith(
+        'userId',
+        '==',
         mockPurchaseRecord.userId
       );
       expect(result).toEqual([mockPurchaseRecord]);
@@ -103,23 +95,31 @@ describe('Purchase Service', () => {
   });
 
   describe('updatePurchase', () => {
-    it('should update a purchase record', async () => {
-      const updateData = { isMutable: false };
-      await updatePurchase(mockDb, mockPurchaseRecord.id, updateData);
-      expect(mockDb.doc).toHaveBeenCalledWith(mockPurchaseRecord.id);
+    it('updates allowed fields of a purchase record', async () => {
+      const updateData = { userId: 'updated-user' };
+      await updatePurchase(
+        mockDb,
+        mockPurchaseRecord.purchaseToken,
+        updateData
+      );
+      expect(mockDb.doc).toHaveBeenCalledWith(mockPurchaseRecord.purchaseToken);
       expect(mockDoc.update).toHaveBeenCalledWith(updateData);
+    });
+
+    it('throws if no updatable fields are passed', async () => {
+      await expect(
+        updatePurchase(mockDb, mockPurchaseRecord.purchaseToken, {})
+      ).rejects.toThrow('Must provide at least one update param');
     });
   });
 
   describe('deletePurchasesByUserId', () => {
-    it('should delete purchases for a user', async () => {
+    it('deletes all purchases for a user', async () => {
       const mockQuerySnapshot = {
         docs: [{ ref: mockDoc }],
       } as unknown as QuerySnapshot;
-      mockDb.get = jest.fn().mockResolvedValue(mockQuerySnapshot);
 
-      mockBatch.delete = jest.fn();
-      mockBatch.commit = jest.fn().mockResolvedValue(undefined);
+      mockDb.get = jest.fn().mockResolvedValue(mockQuerySnapshot);
 
       await deletePurchasesByUserId(mockDb, mockPurchaseRecord.userId);
 
