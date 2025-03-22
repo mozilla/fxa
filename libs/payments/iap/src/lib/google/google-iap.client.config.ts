@@ -17,11 +17,15 @@ export class GoogleIapClientConfig {
   @IsString()
   @IsOptional()
   public readonly privateKey?: string;
+
+  @IsString()
+  public readonly collectionName!: string;
 }
 
 export const MockGoogleIapClientConfig = {
   email: faker.internet.email(),
   privateKey: faker.string.uuid(),
+  collectionName: faker.string.uuid(),
 } satisfies GoogleIapClientConfig;
 
 export const MockGoogleIapClientConfigProvider = {
