@@ -3,26 +3,46 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { CollectionReference } from '@google-cloud/firestore';
-import {
-  APPLE_APP_STORE_FORM_OF_PAYMENT,
-  GOOGLE_PLAY_FORM_OF_PAYMENT,
-  SkuType,
-} from './constants';
+import { APPLE_APP_STORE_FORM_OF_PAYMENT } from '../constants';
 import { TransactionType } from 'app-store-server-api';
-import type { FirestorePurchaseRecord } from './types';
+import type { FirestoreAppleIapPurchaseRecord } from '../types';
 
 /**
  * Creates a purchase record in the database.
- *
- * @returns The created purchase record or throws an error if it couldn't be created.
  */
 export async function createPurchase(
   db: CollectionReference,
-  data: FirestorePurchaseRecord
-): Promise<FirestorePurchaseRecord> {
-  await db.doc(data.id).set(data);
+  data: FirestoreAppleIapPurchaseRecord
+): Promise<FirestoreAppleIapPurchaseRecord> {
+  // Re-build properties for type-safety (Typescript allows wider type to be applied to narrower object type)
+  const doc = {
+    userId: data.userId,
+    autoRenewStatus: data.autoRenewStatus,
+    autoRenewProductId: data.autoRenewProductId,
+    bundleId: data.bundleId,
+    environment: data.environment,
+    inAppOwnershipType: data.inAppOwnershipType,
+    originalPurchaseDate: data.originalPurchaseDate,
+    originalTransactionId: data.originalTransactionId,
+    productId: data.productId,
+    status: data.status,
+    transactionId: data.transactionId,
+    type: data.type,
+    verifiedAt: data.verifiedAt,
+    currency: data.currency,
+    price: data.price,
+    storefront: data.storefront,
+    expiresDate: data.expiresDate,
+    purchaseDate: data.purchaseDate,
+    renewalCurrency: data.renewalCurrency,
+    renewalPrice: data.renewalPrice,
+    latestNotificationType: data.latestNotificationType,
+    formOfPayment: data.formOfPayment,
+  };
 
-  const createdDoc = await getPurchase(db, data.id);
+  await db.doc(data.originalTransactionId).set(doc);
+
+  const createdDoc = await getPurchase(db, data.originalTransactionId);
   if (!createdDoc) {
     throw new Error('Failed to create purchase');
   }
@@ -31,61 +51,26 @@ export async function createPurchase(
 
 /**
  * Fetch a purchase from the database by id.
- *
- * @returns Purchase or undefined if not found.
  */
 export async function getPurchase(
   db: CollectionReference,
   id: string
-): Promise<FirestorePurchaseRecord | undefined> {
+): Promise<FirestoreAppleIapPurchaseRecord | undefined> {
   const result = await db.doc(id).get();
-  return result.data() as FirestorePurchaseRecord | undefined;
-}
-
-/**
- * Fetch active Google Play purchases for a user.
- *
- * @returns A list of active purchases.
- */
-export async function getActiveGooglePurchasesForUserId(
-  db: CollectionReference,
-  userId: string,
-  options?: {
-    sku?: string;
-    packageName?: string;
-  }
-) {
-  let query = db
-    .where('formOfPayment', '==', GOOGLE_PLAY_FORM_OF_PAYMENT)
-    .where('skuType', '==', SkuType.SUBS)
-    .where('userId', '==', userId)
-    .where('isMutable', '==', true);
-
-  if (options?.sku) {
-    query = query.where('sku', '==', options.sku);
-  }
-
-  if (options?.packageName) {
-    query = query.where('packageName', '==', options.packageName);
-  }
-
-  const result = await query.get();
-  return result.docs.map((x) => x.data());
+  return result.data() as FirestoreAppleIapPurchaseRecord | undefined;
 }
 
 /**
  * Fetch active Apple purchases for a user.
- *
- * @returns A list of active purchases.
  */
-export async function getActiveApplePurchasesForUserId(
+export async function getActivePurchasesForUserId(
   db: CollectionReference,
   userId: string,
   options?: {
     productId?: string;
     bundleId?: string;
   }
-) {
+): Promise<FirestoreAppleIapPurchaseRecord[]> {
   let query = db
     .where('formOfPayment', '==', APPLE_APP_STORE_FORM_OF_PAYMENT)
     .where('type', '==', TransactionType.AutoRenewableSubscription)
@@ -100,7 +85,7 @@ export async function getActiveApplePurchasesForUserId(
   }
 
   const result = await query.get();
-  return result.docs.map((x) => x.data());
+  return result.docs.map((x) => x.data()) as FirestoreAppleIapPurchaseRecord[];
 }
 
 /**
@@ -111,15 +96,11 @@ export async function getActiveApplePurchasesForUserId(
 export async function updatePurchase(
   db: CollectionReference,
   id: string,
-  update: Partial<Omit<FirestorePurchaseRecord, 'id'>>
+  update: Partial<Omit<FirestoreAppleIapPurchaseRecord, 'id'>>
 ): Promise<void> {
   // Re-build properties for type-safety (Typescript allows wider type to be applied to narrower object type)
   const _update: typeof update = {};
   if (update.userId !== undefined) _update.userId = update.userId;
-  if (update.formOfPayment !== undefined)
-    _update.formOfPayment = update.formOfPayment;
-  if (update.skuType !== undefined) _update.skuType = update.skuType;
-  if (update.isMutable !== undefined) _update.isMutable = update.isMutable;
 
   if (Object.values(_update).length === 0) {
     throw new Error('Must provide at least one update param');

@@ -36,6 +36,10 @@ describe('AppleIapClient', () => {
     appleIapClientConfig = module.get(AppleIapClientConfig);
   });
 
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   describe('getSubscriptionStatuses', () => {
     it('should return subscription status', async () => {
       const mockTransactionId = faker.string.uuid();

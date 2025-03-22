@@ -6,9 +6,14 @@ import { Injectable } from '@nestjs/common';
 import {
   AppleIapError,
   AppleIapMissingCredentialsError,
+  AppleIapNotFoundError,
   AppleIapUnknownError,
 } from './apple-iap.error';
-import { AppStoreServerAPI, StatusResponse } from 'app-store-server-api';
+import {
+  AppStoreError,
+  AppStoreServerAPI,
+  StatusResponse,
+} from 'app-store-server-api';
 import {
   AppleIapClientConfig,
   AppleIapClientConfigCredential,
@@ -72,6 +77,12 @@ export class AppleIapClient {
   private convertError(e: unknown) {
     if (e instanceof AppleIapError) {
       return e;
+    }
+
+    if (e instanceof AppStoreError && e.errorCode === 4040010) {
+      return new AppleIapNotFoundError('Apple IAP Not Found (4040010)', {
+        cause: e,
+      });
     }
 
     if (e instanceof Error) {
