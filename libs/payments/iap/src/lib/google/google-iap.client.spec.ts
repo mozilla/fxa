@@ -33,6 +33,10 @@ describe('GoogleIapClient', () => {
       googleIapClient.playDeveloperApiClient.purchases.subscriptions;
   });
 
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   describe('getSubscriptions', () => {
     it('should return subscription data', async () => {
       const mockPackageName = faker.string.uuid();
