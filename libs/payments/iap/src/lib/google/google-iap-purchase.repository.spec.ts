@@ -55,6 +55,10 @@ describe('Google IAP Purchase Repository', () => {
     mockFirestore.batch = jest.fn().mockReturnValue(mockBatch);
   });
 
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   describe('createPurchase', () => {
     it('creates a purchase record', async () => {
       await createPurchase(mockDb, mockPurchaseRecord);

@@ -1,0 +1,1 @@
+export const REPLACED_PURCHASE_USERID_PLACEHOLDER = 'invalid';
