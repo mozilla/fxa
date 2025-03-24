@@ -5,7 +5,7 @@
 import type { Metadata } from 'next';
 import { headers } from 'next/headers';
 import Image from 'next/image';
-
+import { auth } from 'apps/payments/next/auth';
 import { getCardIcon } from '@fxa/payments/ui';
 import {
   fetchCMSData,
@@ -46,8 +46,13 @@ export default async function CheckoutSuccess({
     SupportedPages.SUCCESS,
     searchParams
   );
+  const sessionPromise = auth();
   const l10n = getApp().getL10n(locale);
-  const [cms, cart] = await Promise.all([cmsDataPromise, cartDataPromise]);
+  const [cms, cart, session] = await Promise.all([
+    cmsDataPromise,
+    cartDataPromise,
+    sessionPromise,
+  ]);
 
   recordEmitterEventAction(
     'checkoutSuccess',
@@ -75,9 +80,9 @@ export default async function CheckoutSuccess({
               {l10n.getString(
                 'payment-confirmation-thanks-subheading-account-exists-2',
                 {
-                  email: cart.email || '',
+                  email: session?.user?.email || '',
                 },
-                `You’ll receive an email at ${cart.email} with instructions about your subscription, as well as your payment details.`
+                `You’ll receive an email at ${session?.user?.email} with instructions about your subscription, as well as your payment details.`
               )}
             </p>
           </div>

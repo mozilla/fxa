@@ -117,7 +117,6 @@ export const GET_ACCOUNT_BY_EMAIL = gql`
         }
         stripeCustomerId
         stripeSubscriptionId
-        email
         amount
         version
         eligibilityStatus
@@ -240,7 +239,6 @@ export const GET_ACCOUNT_BY_UID = gql`
         }
         stripeCustomerId
         stripeSubscriptionId
-        email
         amount
         version
         eligibilityStatus

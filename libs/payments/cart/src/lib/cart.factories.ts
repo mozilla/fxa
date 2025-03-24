@@ -40,7 +40,6 @@ export const CheckoutCustomerDataFactory = (
 });
 
 export const SetupCartFactory = (override?: Partial<SetupCart>): SetupCart => ({
-  email: 'test@example.com',
   offeringConfigId: faker.helpers.arrayElement(OFFERING_CONFIG_IDS),
   interval: faker.helpers.arrayElement(INTERVALS),
   amount: faker.number.int(10000),
@@ -108,7 +107,6 @@ export const ResultCartFactory = (
   couponCode: null,
   stripeCustomerId: faker.string.uuid(),
   stripeSubscriptionId: faker.string.uuid(),
-  email: faker.internet.email(),
   amount: faker.number.int(),
   version: faker.number.int(),
   eligibilityStatus: faker.helpers.enumValue(CartEligibilityStatus),
