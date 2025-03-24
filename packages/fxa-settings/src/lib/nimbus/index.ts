@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import * as Sentry from '@sentry/browser';
+import { searchParams } from '../utilities';
 
 /**
  * A collection of attributes about the client that will be used for
@@ -31,6 +32,7 @@ export interface NimbusResult {
  */
 export async function initializeNimbus(
   clientId: string,
+  previewEnabled: boolean,
   context: NimbusContextT
 ): Promise<any> {
   const MAX_TIMEOUT_MS = 1000;
@@ -38,20 +40,26 @@ export async function initializeNimbus(
     client_id: clientId,
     context,
   });
+  const nimbusPreview = previewEnabled
+    ? previewEnabled
+    : searchParams(window.location.search).nimbusPreview;
 
   let experiments;
 
   try {
-    const resp = await fetch('/nimbus-experiments', {
-      method: 'POST',
-      body,
-      // A request to cirrus should not be more than 50ms,
-      // but we give it a large enough padding.
-      signal: AbortSignal.timeout(MAX_TIMEOUT_MS),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    const resp = await fetch(
+      `/nimbus-experiments?nimbusPreview=${nimbusPreview}`,
+      {
+        method: 'POST',
+        body,
+        // A request to cirrus should not be more than 50ms,
+        // but we give it a large enough padding.
+        signal: AbortSignal.timeout(MAX_TIMEOUT_MS),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
 
     if (resp.status !== 200) {
       return;

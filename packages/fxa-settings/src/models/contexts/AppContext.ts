@@ -54,7 +54,10 @@ function fetchNimbusExperiments(uniqueUserId: string): Promise<any> {
     region = region.toLowerCase();
   }
 
-  return initializeNimbus(uniqueUserId, { language, region } as NimbusContextT);
+  return initializeNimbus(uniqueUserId, config.nimbusPreview, {
+    language,
+    region,
+  } as NimbusContextT);
 }
 
 export function initializeAppContext() {

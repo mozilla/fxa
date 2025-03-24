@@ -61,6 +61,7 @@ function getIndexRouteDefinition(config) {
   const FEATURE_FLAGS_ENABLE_USING_2FA_BACKUP_PHONE = config.get(
     'featureFlags.enableUsing2FABackupPhone'
   );
+  const NIMBUS_PREVIEW = config.get('nimbusPreview');
   const GLEAN_ENABLED = config.get('glean.enabled');
   const GLEAN_APPLICATION_ID = config.get('glean.applicationId');
   const GLEAN_UPLOAD_ENABLED = config.get('glean.uploadEnabled');
@@ -124,6 +125,7 @@ function getIndexRouteDefinition(config) {
       enableAdding2FABackupPhone: FEATURE_FLAGS_ENABLE_ADDING_2FA_BACKUP_PHONE,
       enableUsing2FABackupPhone: FEATURE_FLAGS_ENABLE_USING_2FA_BACKUP_PHONE,
     },
+    nimbusPreview: NIMBUS_PREVIEW,
     glean: {
       // feature toggle
       enabled: GLEAN_ENABLED,

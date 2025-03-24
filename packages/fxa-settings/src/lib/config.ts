@@ -93,6 +93,7 @@ export interface Config {
     enableAdding2FABackupPhone?: boolean;
     enableUsing2FABackupPhone?: boolean;
   };
+  nimbusPreview: boolean;
 }
 
 export function getDefault() {
@@ -172,6 +173,7 @@ export function getDefault() {
       enableAdding2FABackupPhone: false,
       enableUsing2FABackupPhone: false,
     },
+    nimbusPreview: false,
   } as Config;
 }
 

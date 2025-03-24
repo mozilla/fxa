@@ -376,6 +376,12 @@ const conf = (module.exports = convict({
       format: String,
     },
   },
+  nimbusPreview: {
+    default: false,
+    doc: 'Enables preview mode for nimbus experiments for development and testing.',
+    format: Boolean,
+    env: 'NIMBUS_PREVIEW',
+  },
   glean: {
     enabled: {
       default: false,
