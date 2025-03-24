@@ -73,7 +73,7 @@
     "@sentry/browser": "^8.42.0",
     "@sentry/nestjs": "^8.42.0",
     "@sentry/nextjs": "^8.42.0",
-    "@sentry/node": "^8.42.0",
+    "@sentry/node": "^9.8.0",
     "@sentry/opentelemetry": "^8.42.0",
     "@stripe/react-stripe-js": "^2.7.1",
     "@stripe/stripe-js": "^4.9.0",
