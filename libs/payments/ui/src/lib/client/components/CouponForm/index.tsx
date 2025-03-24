@@ -8,7 +8,7 @@ import { Localized } from '@fluent/react';
 import * as Form from '@radix-ui/react-form';
 import { useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
-import { useFormState } from 'react-dom';
+import { useFormState, useFormStatus } from 'react-dom';
 import { ButtonVariant } from '../BaseButton';
 import { SubmitButton } from '../SubmitButton';
 import { updateCartAction } from '../../../actions/updateCart';
@@ -60,6 +60,30 @@ const WithCoupon = ({
   );
 };
 
+const CouponInput = ({
+  readOnly,
+  routeCoupon,
+}: {
+  readOnly: boolean;
+  routeCoupon?: string;
+}) => {
+  const { pending } = useFormStatus();
+  return (
+    <Localized attrs={{ placeholder: true }} id="next-coupon-enter-code">
+      <input
+        className="w-full border rounded-md border-black/30 p-3 placeholder:text-grey-500 placeholder:font-normal focus:border focus:!border-black/30 focus:!shadow-[0_0_0_3px_rgba(10,132,255,0.3)] focus-visible:outline-none data-[invalid=true]:border-alert-red data-[invalid=true]:text-alert-red data-[invalid=true]:shadow-inputError"
+        type="text"
+        name="coupon"
+        data-testid="coupon-input"
+        placeholder="Enter code"
+        disabled={pending || readOnly}
+        defaultValue={routeCoupon}
+        maxLength={25}
+      />
+    </Localized>
+  );
+};
+
 interface WithoutCouponProps {
   cartId: string;
   cartVersion: number;
@@ -104,20 +128,7 @@ const WithoutCoupon = ({
 
         <div className="mt-4 flex gap-4 justify-between items-center">
           <Form.Control asChild>
-            <Localized
-              attrs={{ placeholder: true }}
-              id="next-coupon-enter-code"
-            >
-              <input
-                className="w-full border rounded-md border-black/30 p-3 placeholder:text-grey-500 placeholder:font-normal focus:border focus:!border-black/30 focus:!shadow-[0_0_0_3px_rgba(10,132,255,0.3)] focus-visible:outline-none data-[invalid=true]:border-alert-red data-[invalid=true]:text-alert-red data-[invalid=true]:shadow-inputError"
-                type="text"
-                name="coupon"
-                data-testid="coupon-input"
-                placeholder="Enter code"
-                disabled={readOnly}
-                defaultValue={routeCoupon}
-              />
-            </Localized>
+            <CouponInput readOnly={readOnly} routeCoupon={routeCoupon} />
           </Form.Control>
           <Form.Submit asChild>
             <SubmitButton
