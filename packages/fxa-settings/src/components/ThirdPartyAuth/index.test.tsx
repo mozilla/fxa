@@ -8,6 +8,8 @@ import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localiz
 import { Subject } from './mocks';
 
 const mockViewWithNoPasswordSet = jest.fn();
+const mockStartGoogleAuthFromIndex = jest.fn();
+const mockStartAppleAuthFromIndex = jest.fn();
 const mockStartGoogleAuthFromLogin = jest.fn();
 const mockStartAppleAuthFromLogin = jest.fn();
 const mockStartGoogleAuthFromReg = jest.fn();
@@ -20,6 +22,14 @@ jest.mock('../../lib/glean', () => {
     default: {
       isDone: () => {
         mockGleanIsDone();
+      },
+      emailFirst: {
+        googleOauthStart: () => {
+          mockStartGoogleAuthFromIndex();
+        },
+        appleOauthStart: () => {
+          mockStartAppleAuthFromIndex();
+        },
       },
       thirdPartyAuth: {
         viewWithNoPasswordSet: () => {
@@ -159,6 +169,33 @@ describe('ThirdPartyAuthComponent', () => {
         onContinueWithGoogle,
       });
       expect(mockViewWithNoPasswordSet).toBeCalled();
+    });
+
+    it('emits glean metrics startGoogleAuthFromIndex', async () => {
+      renderWith({
+        enabled: true,
+        showSeparator: false,
+        onContinueWithApple,
+        onContinueWithGoogle,
+        viewName: 'index',
+      });
+      const button = await screen.findByText('Continue with Google');
+      button.click();
+      expect(mockStartGoogleAuthFromIndex).toBeCalled();
+      expect(mockGleanIsDone).toBeCalled();
+    });
+
+    it('emits glean metrics startAppleAuthFromIndex', async () => {
+      renderWith({
+        enabled: true,
+        showSeparator: false,
+        onContinueWithApple,
+        onContinueWithGoogle,
+        viewName: 'index',
+      });
+      const button = await screen.findByText('Continue with Apple');
+      button.click();
+      expect(mockStartAppleAuthFromIndex).toBeCalled();
     });
 
     it('emits glean metrics startGoogleAuthFromLogin', async () => {

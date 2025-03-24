@@ -572,7 +572,64 @@ email:
       - interaction
     no_lint:
       - COMMON_PREFIX
-
+  first_engage:
+    type: event
+    description: |
+      User types in the email field of the email first page.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-11312
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+  first_submit_success:
+    type: event
+    description: |
+      User clicked on the button to submit an email on the email first page
+      and is navigated onwards to sign in or sign up.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-11312
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: additional information - 'login' or 'registration'
+        type: string
+  first_submit_fail:
+    type: event
+    description: |
+      The user clicked on the button to submit their email on the email-first page
+      but email submission failed, likely due to a failed email domain check.
+      The user is not navigated onwards to sign in or sign up.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-11312
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
 login:
   email_confirmation_submit:
     type: event

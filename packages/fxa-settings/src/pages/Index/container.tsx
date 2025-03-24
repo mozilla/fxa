@@ -19,6 +19,7 @@ import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { checkEmailDomain } from '../../lib/email-domain-validator';
 import { isEmailMask, isEmailValid } from 'fxa-shared/email/helpers';
 import { isOAuthWebIntegration } from '../../models/integrations/oauth-web-integration';
+import GleanMetrics from '../../lib/glean';
 
 // TODO: remove this function, it's only here to make TS happy until
 // we work on FXA-9757. errnos are always defined
@@ -56,12 +57,13 @@ export const IndexContainer = ({
 
   const hasEmailSuggestion = suggestedEmail && !prefillEmail;
 
-  const handleNavigation = useCallback(
+  const handleSuccess = useCallback(
     (
       exists: boolean,
       hasLinkedAccount: boolean,
       hasPassword: boolean,
-      email: string
+      email: string,
+      isSubmit: boolean
     ) => {
       const url = new URL(window.location.href);
       const params = new URLSearchParams(location.search);
@@ -73,6 +75,8 @@ export const IndexContainer = ({
       params.delete('email');
       url.search = params.toString();
       if (exists) {
+        isSubmit &&
+          GleanMetrics.emailFirst.submitSuccess({ event: { reason: 'login' } });
         const signinRoute = isOAuthWebIntegration(integration)
           ? '/oauth/signin'
           : '/signin';
@@ -85,6 +89,10 @@ export const IndexContainer = ({
           },
         });
       } else {
+        isSubmit &&
+          GleanMetrics.emailFirst.submitSuccess({
+            event: { reason: 'registration' },
+          });
         const signupRoute = isOAuthWebIntegration(integration)
           ? '/oauth/signup'
           : '/signup';
@@ -100,25 +108,8 @@ export const IndexContainer = ({
     [integration, location.search, navigate]
   );
 
-  useEffect(() => {
-    if (!hasEmailSuggestion) {
-      return;
-    }
-
-    const checkEmailAndNavigate = async () => {
-      const { exists, hasLinkedAccount, hasPassword } =
-        await authClient.accountStatusByEmail(suggestedEmail, {
-          thirdPartyAuthStatus: true,
-        });
-
-      handleNavigation(exists, hasLinkedAccount, hasPassword, suggestedEmail);
-    };
-
-    checkEmailAndNavigate();
-  }, [authClient, handleNavigation, hasEmailSuggestion, suggestedEmail]);
-
   const signUpOrSignInHandler = useCallback(
-    async (email: string) => {
+    async (email: string, isSubmit = true) => {
       try {
         if (!isEmailValid(email)) {
           return {
@@ -160,14 +151,23 @@ export const IndexContainer = ({
           }
         }
 
-        handleNavigation(exists, hasLinkedAccount, hasPassword, email);
+        handleSuccess(exists, hasLinkedAccount, hasPassword, email, isSubmit);
         return { error: null };
       } catch (error) {
+        GleanMetrics.emailFirst.submitFail();
         return getHandledError(error);
       }
     },
-    [authClient, handleNavigation, isWebChannelIntegration]
+    [authClient, handleSuccess, isWebChannelIntegration]
   );
+
+  useEffect(() => {
+    if (!hasEmailSuggestion) {
+      return;
+    }
+
+    signUpOrSignInHandler(suggestedEmail, false);
+  }, [hasEmailSuggestion, signUpOrSignInHandler, suggestedEmail]);
 
   if (validationError) {
     // TODO: handle param validation errors in FXA-11297

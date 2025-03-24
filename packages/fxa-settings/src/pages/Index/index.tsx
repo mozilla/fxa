@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { IndexFormData, IndexProps } from './interfaces';
 import AppLayout from '../../components/AppLayout';
@@ -56,6 +56,8 @@ export const Index = ({
         )
       : undefined
   );
+
+  const emailEngageEventEmitted = useRef(false);
 
   useEffect(() => {
     // Note we might not need this later due to automatic page load events,
@@ -127,6 +129,22 @@ export const Index = ({
     }
   };
 
+  const handleInputChange = () => {
+    if (!emailEngageEventEmitted.current) {
+      GleanMetrics.emailFirst.engage();
+      emailEngageEventEmitted.current = true;
+    }
+
+    if (errorBannerMessage || successBannerMessage) {
+      // TODO improve this, needs height or some animation, FXA-9143
+      setErrorBannerMessage('');
+      setSuccessBannerMessage('');
+    }
+    if (tooltipErrorText) {
+      setTooltipErrorText('');
+    }
+  };
+
   return (
     <AppLayout>
       {isSync ? (
@@ -188,20 +206,15 @@ export const Index = ({
             inputRef={register()}
             autoFocus
             errorText={tooltipErrorText}
-            onChange={() => {
-              if (errorBannerMessage || successBannerMessage) {
-                // TODO improve this, needs height or some animation, FXA-9143
-                setErrorBannerMessage('');
-                setSuccessBannerMessage('');
-              }
-              if (tooltipErrorText) {
-                setTooltipErrorText('');
-              }
-            }}
+            onChange={handleInputChange}
           />
         </FtlMsg>
         <div className="flex mt-5">
-          <button className="cta-primary cta-xl" type="submit">
+          <button
+            className="cta-primary cta-xl"
+            type="submit"
+            data-glean-id="email_first_submit"
+          >
             <FtlMsg id="index-cta">Sign up or sign in</FtlMsg>
           </button>
         </div>

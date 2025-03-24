@@ -147,6 +147,12 @@ const ThirdPartySignInForm = ({
     logViewEventOnce(`flow.${party}`, 'oauth-start');
 
     switch (`${party}-${viewName}`) {
+      case 'google-index':
+        GleanMetrics.emailFirst.googleOauthStart();
+        break;
+      case 'apple-index':
+        GleanMetrics.emailFirst.appleOauthStart();
+        break;
       case 'google-signin':
         GleanMetrics.thirdPartyAuth.startGoogleAuthFromLogin();
         break;

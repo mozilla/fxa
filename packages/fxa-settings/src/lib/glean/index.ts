@@ -209,6 +209,21 @@ const recordEventMetric = (
     case 'email_first_view':
       email.firstView.record();
       break;
+    case 'email_first_engage':
+      email.firstEngage.record();
+      break;
+    case 'email_first_submit_success':
+      email.firstSubmitSuccess.record();
+      break;
+    case 'email_first_submit_fail':
+      email.firstSubmitFail.record();
+      break;
+    case 'email_first_google_oauth_start':
+      email.firstGoogleOauthStart.record();
+      break;
+    case 'email_first_apple_oauth_start':
+      email.firstAppleOauthStart.record();
+      break;
     case 'reg_cwts_engage':
       reg.cwtsEngage.record();
       break;

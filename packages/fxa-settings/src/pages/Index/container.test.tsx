@@ -19,6 +19,7 @@ import { IndexProps } from './interfaces';
 import { MOCK_EMAIL } from '../mocks';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { checkEmailDomain } from '../../lib/email-domain-validator';
+import GleanMetrics from '../../lib/glean';
 
 let mockLocationState = {};
 let mockNavigate = jest.fn();
@@ -89,7 +90,6 @@ function mockIndexModule() {
   });
 }
 
-// --- Test Suite ---
 describe('IndexContainer', () => {
   let mockUseValidatedQueryParams: jest.Mock;
   let mockUseAuthClient: jest.Mock;
@@ -230,6 +230,12 @@ describe('IndexContainer', () => {
       await waitFor(() => {
         expect(mockNavigate).toHaveBeenCalledTimes(1);
       });
+      // Glean event not emitted on automatic redirect, only on successful manual submission
+      const gleanSubmitSuccessSpy = jest.spyOn(
+        GleanMetrics.emailFirst,
+        'submitSuccess'
+      );
+      expect(gleanSubmitSuccessSpy).not.toHaveBeenCalled();
       const [calledUrl, options] = mockNavigate.mock.calls[0];
       expect(calledUrl).toMatch(/\/signin$/);
       expect(options).toEqual({
@@ -263,6 +269,12 @@ describe('IndexContainer', () => {
       await waitFor(() => {
         expect(mockNavigate).toHaveBeenCalledTimes(1);
       });
+      // Glean event not emitted on automatic redirect, only on successful manual submission
+      const gleanSubmitSuccessSpy = jest.spyOn(
+        GleanMetrics.emailFirst,
+        'submitSuccess'
+      );
+      expect(gleanSubmitSuccessSpy).not.toHaveBeenCalled();
       const [calledUrl, options] = mockNavigate.mock.calls[0];
       expect(calledUrl).toMatch(/\/signup$/);
       expect(options).toEqual({
@@ -328,6 +340,15 @@ describe('IndexContainer', () => {
             emailStatusChecked: true,
           },
         });
+
+        const gleanSubmitSuccessSpy = jest.spyOn(
+          GleanMetrics.emailFirst,
+          'submitSuccess'
+        );
+        expect(gleanSubmitSuccessSpy).toHaveBeenCalledTimes(1);
+        expect(gleanSubmitSuccessSpy).toHaveBeenCalledWith({
+          event: { reason: 'registration' },
+        });
       });
 
       it('with an existing email', async () => {
@@ -366,6 +387,15 @@ describe('IndexContainer', () => {
             hasPassword: true,
           },
         });
+
+        const gleanSubmitSuccessSpy = jest.spyOn(
+          GleanMetrics.emailFirst,
+          'submitSuccess'
+        );
+        expect(gleanSubmitSuccessSpy).toHaveBeenCalledTimes(1);
+        expect(gleanSubmitSuccessSpy).toHaveBeenCalledWith({
+          event: { reason: 'login' },
+        });
       });
     });
 
@@ -392,6 +422,13 @@ describe('IndexContainer', () => {
           'invalid-email'
         );
         expect(result?.error?.errno).toEqual(AuthUiErrors.EMAIL_REQUIRED.errno);
+
+        // no Glean event emitted with this error type
+        const gleanSubmitFailSpy = jest.spyOn(
+          GleanMetrics.emailFirst,
+          'submitFail'
+        );
+        expect(gleanSubmitFailSpy).not.toHaveBeenCalled();
       });
 
       it('should return an error when signUpOrSignInHandler is called with an email mask', async () => {
@@ -418,6 +455,13 @@ describe('IndexContainer', () => {
         expect(result?.error?.errno).toEqual(
           AuthUiErrors.EMAIL_MASK_NEW_ACCOUNT.errno
         );
+
+        // no Glean event emitted with this error type
+        const gleanSubmitFailSpy = jest.spyOn(
+          GleanMetrics.emailFirst,
+          'submitFail'
+        );
+        expect(gleanSubmitFailSpy).not.toHaveBeenCalled();
       });
 
       it('should return an error when signUpOrSignInHandler is called with a firefox.com email', async () => {
@@ -444,6 +488,13 @@ describe('IndexContainer', () => {
         expect(result?.error?.errno).toEqual(
           AuthUiErrors.DIFFERENT_EMAIL_REQUIRED_FIREFOX_DOMAIN.errno
         );
+
+        // no Glean event emitted with this error type
+        const gleanSubmitFailSpy = jest.spyOn(
+          GleanMetrics.emailFirst,
+          'submitFail'
+        );
+        expect(gleanSubmitFailSpy).not.toHaveBeenCalled();
       });
 
       it('should return an error when signUpOrSignInHandler is called with an invalid email domain', async () => {
@@ -475,6 +526,12 @@ describe('IndexContainer', () => {
         expect(result?.error?.errno).toEqual(
           AuthUiErrors.INVALID_EMAIL_DOMAIN.errno
         );
+
+        const gleanSubmitFailSpy = jest.spyOn(
+          GleanMetrics.emailFirst,
+          'submitFail'
+        );
+        expect(gleanSubmitFailSpy).toHaveBeenCalledTimes(1);
       });
     });
   });

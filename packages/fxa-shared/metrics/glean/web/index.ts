@@ -7,6 +7,7 @@ import {
   twoStepAuthEnterCodeSuccessView,
   twoStepAuthPhoneVerifyView,
 } from './accountPref';
+import { firstGoogleOauthStart } from './email';
 import { backupChoiceSubmit } from './login';
 
 export type GleanMetricsConfig = {
@@ -51,6 +52,11 @@ export type GleanPingMetrics = {
 export const eventsMap = {
   emailFirst: {
     view: 'email_first_view',
+    googleOauthStart: 'email_first_google_oauth_start',
+    appleOauthStart: 'email_first_apple_oauth_start',
+    engage: 'email_first_engage',
+    submitSuccess: 'email_first_submit_success',
+    submitFail: 'email_first_submit_fail',
   },
 
   registration: {
