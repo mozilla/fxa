@@ -13,6 +13,8 @@ import { LinkedAccount } from './linked-account.model';
 import { AccountEvent } from './account-events.model';
 import { MozSubscription } from './moz-subscription.model';
 import { Cart } from './cart.model';
+import { BackupCodes } from './backup-code.model';
+import { RecoveryPhone } from './recovery-phone.model';
 
 @ObjectType()
 export class Account {
@@ -72,4 +74,10 @@ export class Account {
 
   @Field((type) => [Cart], { nullable: true })
   public carts!: Cart[];
+
+  @Field((type) => [BackupCodes], { nullable: true })
+  public backupCodes!: BackupCodes[];
+
+  @Field((type) => [RecoveryPhone], { nullable: true })
+  public recoveryPhone!: RecoveryPhone[];
 }

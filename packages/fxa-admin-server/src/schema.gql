@@ -159,6 +159,16 @@ type Cart {
   eligibilityStatus: String!
 }
 
+type BackupCodes {
+  hasBackupCodes: Boolean!
+  count: Float!
+}
+
+type RecoveryPhone {
+  exists: Boolean!
+  lastFourDigits: String
+}
+
 type Account {
   uid: ID!
   email: String!
@@ -179,6 +189,8 @@ type Account {
   linkedAccounts: [LinkedAccount!]
   accountEvents: [AccountEvent!]
   carts: [Cart!]
+  backupCodes: [BackupCodes!]
+  recoveryPhone: [RecoveryPhone!]
 }
 
 type AccountDeleteResponse {

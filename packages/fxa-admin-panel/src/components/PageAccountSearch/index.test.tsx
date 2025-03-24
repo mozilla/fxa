@@ -88,6 +88,7 @@ class GetAccountsByEmail {
         data: {
           accountByEmail: {
             uid: '123',
+            clientSalt: '',
             createdAt: 1658534643990,
             verifierSetAt: 1589467100316,
             disabledAt: null,
@@ -105,11 +106,14 @@ class GetAccountsByEmail {
             emailBounces: [],
             securityEvents: [],
             totp: [],
+            backupCodes: [],
+            recoveryPhone: [],
             recoveryKeys: [],
             linkedAccounts: [],
             attachedClients: [],
             subscriptions: [],
             accountEvents: [],
+            carts: [],
           },
         },
       };
@@ -129,6 +133,7 @@ class GetAccountsByEmail {
       data: {
         accountByEmail: {
           uid: 'a1b2c3',
+          clientSalt: '',
           verifierSetAt: 1589467100316,
           email: email,
           emails: [
@@ -149,6 +154,18 @@ class GetAccountsByEmail {
               verified: true,
               enabled: true,
               createdAt: 1589467100316,
+            },
+          ],
+          backupCodes: [
+            {
+              hasBackupCodes: true,
+              count: 3,
+            },
+          ],
+          recoveryPhone: [
+            {
+              exists: true,
+              lastFourDigits: '7890',
             },
           ],
           recoveryKeys: [
@@ -184,6 +201,7 @@ class GetAccountsByEmail {
           linkedAccounts: [],
           securityEvents: [],
           subscriptions: [],
+          carts: [],
           accountEvents: [
             {
               name: 'emailSent',
