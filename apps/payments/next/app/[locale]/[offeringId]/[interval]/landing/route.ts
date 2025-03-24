@@ -7,6 +7,7 @@ import { NextRequest } from 'next/server';
 import {
   determineCurrencyAction,
   getMetricsFlowAction,
+  getTaxAddressAction,
 } from '@fxa/payments/ui/actions';
 import { BaseParams, buildRedirectUrl } from '@fxa/payments/ui';
 import { config } from 'apps/payments/next/config';
@@ -55,6 +56,7 @@ export async function GET(
 ) {
   const requestSearchParams = request.nextUrl.searchParams;
   const emitterService = getApp().getEmitterService();
+  const ipAddress = getIpAddress();
 
   if (config.sp2redirect.enabled) {
     const queryCurrency = requestSearchParams.get('currency');
@@ -69,7 +71,7 @@ export async function GET(
     if (isSp2Redirect || querySpVersion === '2') {
       const currency = queryCurrency
         ? queryCurrency
-        : await determineCurrencyAction(getIpAddress());
+        : await determineCurrencyAction(ipAddress);
       const { productId, priceId } = getSP2Params(
         config.sp2map,
         reportError,
@@ -109,8 +111,16 @@ export async function GET(
 
   const searchParams = Object.fromEntries(requestSearchParams);
 
+  const { taxAddress } = await getTaxAddressAction(ipAddress);
+  if (taxAddress) {
+    searchParams.countryCode = taxAddress.countryCode;
+    searchParams.postalCode = taxAddress.postalCode;
+  }
+
+  const page = taxAddress ? 'new' : 'location';
+
   const redirectToUrl = new URL(
-    buildRedirectUrl(params.offeringId, params.interval, 'new', 'checkout', {
+    buildRedirectUrl(params.offeringId, params.interval, page, 'checkout', {
       locale: params.locale,
       baseUrl: config.paymentsNextHostedUrl,
       searchParams,

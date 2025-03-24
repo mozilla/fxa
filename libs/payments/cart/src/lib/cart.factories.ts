@@ -45,6 +45,11 @@ export const SetupCartFactory = (override?: Partial<SetupCart>): SetupCart => ({
   interval: faker.helpers.arrayElement(INTERVALS),
   amount: faker.number.int(10000),
   eligibilityStatus: faker.helpers.enumValue(CartEligibilityStatus),
+  taxAddress: {
+    countryCode: faker.location.countryCode(),
+    postalCode: faker.location.zipCode(),
+  },
+  currency: faker.finance.currencyCode(),
   ...override,
 });
 

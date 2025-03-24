@@ -74,6 +74,8 @@ export type BaseCartDTO = Omit<ResultCart, 'state'> & {
   paymentInfo?: PaymentInfo;
   fromOfferingConfigId?: string;
   fromPrice?: FromPrice;
+  taxAddress: TaxAddress;
+  currency: string;
 };
 
 export type StartCartDTO = BaseCartDTO & {
@@ -110,8 +112,8 @@ export type SetupCart = {
   interval: string;
   offeringConfigId: string;
   experiment?: string;
-  taxAddress?: TaxAddress;
-  currency?: string;
+  taxAddress: TaxAddress;
+  currency: string;
   couponCode?: string;
   stripeCustomerId?: string;
   email?: string;
