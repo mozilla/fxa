@@ -103,14 +103,16 @@ export default async function Checkout({
             newsletterLabel={cms.commonContent.newsletterLabelTextCode}
           />
 
-          <h3 className="font-semibold text-grey-600 text-start">
-            {l10n.getString(
-              'checkout-create-account',
-              'Create a Mozilla account'
-            )}
-          </h3>
+          <div className="text-sm flex items-center justify-center my-6">
+            <div className="flex-1 h-px bg-grey-400 divide-x"></div>
 
-          <div className="flex flex-col gap-4 mt-6 mb-10 desktop:flex-row desktop:items-center desktop:justify-center">
+            <div className="mx-4 text-base text-grey-400 font-extralight">
+              {l10n.getString('checkout-signin-options-or', 'or')}
+            </div>
+            <div className="flex-1 h-px bg-grey-400 divide-x"></div>
+          </div>
+
+          <div className="flex flex-col gap-4 my-10">
             <form
               action={async () => {
                 'use server';
