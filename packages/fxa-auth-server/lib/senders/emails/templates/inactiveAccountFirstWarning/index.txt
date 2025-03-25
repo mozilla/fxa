@@ -1,6 +1,6 @@
 inactiveAccountFirstWarning-title = "Do you want to keep your Mozilla account and data?"
 
-inactiveAccountFirstWarning-account-description = "Your Mozilla account is used to access free privacy and browsing products like Firefox sync, Mozilla Monitor, Firefox Relay, and MDN."
+inactiveAccountFirstWarning-account-description-v2 = "Your Mozilla account is used to access free privacy and browsing products like Firefox sync, Mozilla Monitor, Firefox Relay, and MDN."
 
 inactiveAccountFirstWarning-inactive-status = "We noticed you haven’t signed in for 2 years."
 

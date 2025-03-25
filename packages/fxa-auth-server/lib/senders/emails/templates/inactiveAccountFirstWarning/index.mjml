@@ -13,7 +13,7 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-sub-body">
-      <span data-l10n-id="inactiveAccountFirstWarning-account-description">Your Mozilla account is used to access free privacy and browsing products like Firefox sync, Mozilla Monitor, Firefox Relay, and MDN.</span>
+      <span data-l10n-id="inactiveAccountFirstWarning-account-description-v2">Your Mozilla account is used to access free privacy and browsing products like Firefox sync, Mozilla Monitor, Firefox Relay, and MDN.</span>
     </mj-text>
     <mj-text css-class="text-sub-body">
       <span data-l10n-id="inactiveAccountFirstWarning-inactive-status">We noticed you haven’t signed in for 2 years.</span>
