@@ -11,9 +11,14 @@ import {
 import { CartEligibilityStatus, CartState } from '@fxa/shared/db/mysql/account';
 
 export class CartError extends BaseError {
-  constructor(message: string, info: Record<string, any>, cause?: Error) {
+  constructor(
+    message: string,
+    info: Record<string, any>,
+    cause?: Error,
+    name?: string
+  ) {
     super(message, {
-      name: 'CartError',
+      name: name || 'CartError',
       cause,
       info,
     });
@@ -127,10 +132,15 @@ export class CartUidNotFoundError extends CartError {
 
 export class CartInvalidPromoCodeError extends CartError {
   constructor(promoCode: string, cartId?: string) {
-    super('Cart specified promo code does not exist', {
-      cartId,
-      promoCode,
-    });
+    super(
+      'Cart specified promo code does not exist',
+      {
+        cartId,
+        promoCode,
+      },
+      undefined,
+      'CartInvalidPromoCodeError'
+    );
   }
 }
 

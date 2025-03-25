@@ -41,7 +41,6 @@ import {
   CartState,
 } from '@fxa/shared/db/mysql/account';
 import { SanitizeExceptions } from '@fxa/shared/error';
-import { GeoDBManager } from '@fxa/shared/geodb';
 
 import {
   CartError,
@@ -89,7 +88,6 @@ export class CartService {
     private customerSessionManager: CustomerSessionManager,
     private promotionCodeManager: PromotionCodeManager,
     private eligibilityService: EligibilityService,
-    private geodbManager: GeoDBManager,
     private invoiceManager: InvoiceManager,
     private productConfigurationManager: ProductConfigurationManager,
     private subscriptionManager: SubscriptionManager,
