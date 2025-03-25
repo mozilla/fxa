@@ -119,10 +119,7 @@ export const SignInForm = ({
       </Form.Field>
 
       <Form.Submit asChild>
-        <SubmitButton
-          variant={ButtonVariant.Primary}
-          className="mt-6 my-8 w-full"
-        >
+        <SubmitButton variant={ButtonVariant.Primary} className="my-6 w-full">
           <Localized id="signin-form-continue-button">Continue</Localized>
         </SubmitButton>
       </Form.Submit>
