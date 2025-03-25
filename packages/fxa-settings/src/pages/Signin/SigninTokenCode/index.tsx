@@ -23,7 +23,6 @@ import { SigninTokenCodeProps } from './interfaces';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { handleNavigation } from '../utils';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
-import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
 import Banner, { ResendCodeSuccessBanner } from '../../../components/Banner';
 
 export const viewName = 'signin-token-code';
@@ -56,12 +55,6 @@ const SigninTokenCode = ({
   const [animateBanner, setAnimateBanner] = useState(false);
   const [codeErrorMessage, setCodeErrorMessage] = useState<string>('');
   const [resendCodeLoading, setResendCodeLoading] = useState<boolean>(false);
-
-  const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
-  const redirectTo =
-    isWebIntegration(integration) && webRedirectCheck?.isValid
-      ? integration.data.redirectTo
-      : '';
 
   const ftlMsgResolver = useFtlMsgResolver();
   const localizedCustomCodeRequiredMessage = ftlMsgResolver.getMsg(
@@ -157,7 +150,7 @@ const SigninTokenCode = ({
           integration,
           finishOAuthFlowHandler,
           queryParams: location.search,
-          redirectTo,
+          redirectTo: integration.data.redirectTo,
           showInlineRecoveryKeySetup,
           handleFxaLogin: false,
           handleFxaOAuthLogin: true,
@@ -193,7 +186,6 @@ const SigninTokenCode = ({
       keyFetchToken,
       localizedInvalidCode,
       location.search,
-      redirectTo,
       session,
       sessionToken,
       uid,

@@ -2,20 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {
-  BaseIntegration,
-  Integration,
-  IntegrationFeatures,
-  IntegrationType,
-} from './base-integration';
-import { bind, ModelDataStore } from '../../lib/model-data';
+import { ModelDataStore } from '../../lib/model-data';
 import { AUTH_PROVIDER } from 'fxa-auth-client/browser';
-
-import { BaseIntegrationData } from './web-integration';
-import { IsOptional, IsString } from 'class-validator';
+import { ThirdPartyAuthCallbackIntegrationData } from './data';
+import { IntegrationFeatures } from './features';
+import {
+  GenericIntegration,
+  Integration,
+  IntegrationType,
+} from './integration';
 
 export function isThirdPartyAuthCallbackIntegration(
-  integration: null | Integration<IntegrationFeatures>
+  integration: null | Integration
 ): integration is ThirdPartyAuthCallbackIntegration {
   if (!integration) {
     return false;
@@ -24,35 +22,21 @@ export function isThirdPartyAuthCallbackIntegration(
   return integration.type === IntegrationType.ThirdPartyAuthCallback;
 }
 
-export class ThirdPartyAuthCallbackIntegrationData extends BaseIntegrationData {
-  @IsString()
-  @bind()
-  state: string | undefined;
-
-  @IsOptional()
-  @IsString()
-  @bind()
-  code: string | undefined;
-
-  @IsOptional()
-  @IsString()
-  @bind()
-  provider: string | undefined;
-
-  @IsOptional()
-  @IsString()
-  @bind()
-  error: string | undefined;
-}
-
-export interface ThirdPartyAuthCallbackIntegrationFeatures
-  extends IntegrationFeatures {}
-
-export class ThirdPartyAuthCallbackIntegration extends BaseIntegration<ThirdPartyAuthCallbackIntegrationFeatures> {
+export class ThirdPartyAuthCallbackIntegration extends GenericIntegration<
+  IntegrationFeatures,
+  ThirdPartyAuthCallbackIntegrationData
+> {
   constructor(data: ModelDataStore) {
     super(
       IntegrationType.ThirdPartyAuthCallback,
-      new ThirdPartyAuthCallbackIntegrationData(data)
+      new ThirdPartyAuthCallbackIntegrationData(data),
+      {
+        allowUidChange: false,
+        fxaStatus: false,
+        handleSignedInNotification: true,
+        reuseExistingSession: false,
+        supportsPairing: false,
+      }
     );
   }
 

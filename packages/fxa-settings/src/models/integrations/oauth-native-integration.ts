@@ -4,7 +4,7 @@
 
 import { Constants } from '../../lib/constants';
 import { ModelDataStore } from '../../lib/model-data';
-import { Integration, IntegrationType } from './base-integration';
+import { Integration, IntegrationType } from './integration';
 import {
   OAuthIntegrationOptions,
   OAuthWebIntegration,

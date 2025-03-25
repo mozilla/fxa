@@ -7,7 +7,7 @@ import Signin from '.';
 import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
 import { MozServices } from '../../lib/types';
-import { AppContext, IntegrationType } from '../../models';
+import { AppContext, IntegrationData, IntegrationType } from '../../models';
 import {
   MOCK_AUTH_AT,
   MOCK_EMAIL,
@@ -27,6 +27,7 @@ import {
   MOCK_KA,
   MOCK_KEY_FETCH_TOKEN_2,
   MOCK_FLOW_ID,
+  MOCK_REDIRECT_URI,
 } from '../mocks';
 import {
   BeginSigninHandler,
@@ -103,9 +104,11 @@ export function createMockSigninWebIntegration(): SigninIntegration {
     getService: () => MozServices.Default,
     getClientId: () => undefined,
     wantsKeys: () => false,
-    data: {},
+    data: {} as IntegrationData,
     isDesktopSync: () => false,
     isDesktopRelay: () => false,
+    wantsLogin: () => false,
+    wantsTwoStepAuthentication: () => false,
   };
 }
 
@@ -119,9 +122,11 @@ export function createMockSigninOAuthNativeSyncIntegration({
     wantsKeys: () => true,
     getService: () => MozServices.FirefoxSync,
     getClientId: () => MOCK_CLIENT_ID,
-    data: {},
+    data: {} as IntegrationData,
     isDesktopSync: () => true,
     isDesktopRelay: () => !isSync,
+    wantsLogin: () => false,
+    wantsTwoStepAuthentication: () => false,
   };
 }
 
@@ -145,7 +150,7 @@ export function createMockSigninOAuthIntegration({
     wantsLogin: () => false,
     wantsTwoStepAuthentication: () => false,
     isDesktopSync: () => isSync,
-    data: {},
+    data: {} as IntegrationData,
     isDesktopRelay: () => false,
   };
 }
@@ -165,7 +170,7 @@ export function createMockSigninOAuthNativeIntegration({
     wantsLogin: () => false,
     wantsTwoStepAuthentication: () => false,
     isDesktopSync: () => isSync,
-    data: {},
+    data: {} as IntegrationData,
     isDesktopRelay: () => !isSync,
     getClientId: () => MOCK_CLIENT_ID,
   };

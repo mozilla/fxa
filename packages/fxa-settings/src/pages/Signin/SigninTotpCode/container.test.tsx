@@ -20,7 +20,7 @@ import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localiz
 import SigninTotpCodeContainer from './container';
 import { MozServices } from '../../../lib/types';
 import { createMockWebIntegration } from '../SigninTokenCode/mocks';
-import { Integration, useSensitiveDataClient } from '../../../models';
+import { useSensitiveDataClient, WebIntegration } from '../../../models';
 import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../../models/mocks';
 
 import {
@@ -39,10 +39,10 @@ import {
 } from '../../mocks';
 import { tryFinalizeUpgrade } from '../../../lib/gql-key-stretch-upgrade';
 
-let integration: Integration;
+let integration: WebIntegration;
 
 function mockWebIntegration() {
-  integration = createMockWebIntegration() as Integration;
+  integration = createMockWebIntegration();
 }
 
 let currentPageProps: SigninTotpCodeProps | undefined;

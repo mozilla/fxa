@@ -33,6 +33,11 @@ export const IndexContainer = ({
   integration,
   serviceName,
 }: IndexContainerProps & RouteComponentProps) => {
+  // We want to fail hard / fast on the index page (ie email first). If query params don't pass validation here,
+  // there's no point in continuing further in this flow. This error will be handled
+  // by the app error boundary.
+  const { queryParamModel } = useValidatedQueryParams(IndexQueryParams, true);
+
   // TODO, more strict validation for bad oauth params, FXA-11297
   const authClient = useAuthClient();
   const navigate = useNavigate();
@@ -40,15 +45,6 @@ export const IndexContainer = ({
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state?: LocationState;
   };
-  const { queryParamModel, validationError } =
-    useValidatedQueryParams(IndexQueryParams);
-
-  // We want to fail hard / fast on the index page (ie email first). If query params don't pass validation here,
-  // there's no point in continuing further in this flow. This error will be handled
-  // by the app error boundary.
-  if (validationError) {
-    throw validationError;
-  }
 
   const { prefillEmail, deleteAccountSuccess, hasBounced } =
     location.state || {};
@@ -66,8 +62,8 @@ export const IndexContainer = ({
   useEffect(() => {
     if (shouldRedirectToSignin) {
       const route = location.pathname.startsWith('/oauth')
-        ? '/oauth/signin?email='+email
-        : '/signin?email='+email;
+        ? '/oauth/signin?email=' + email
+        : '/signin?email=' + email;
       navigateWithQuery(route, {
         state: {
           // TBD: Maybe this should only pass this as a query param, since we are
@@ -153,11 +149,6 @@ export const IndexContainer = ({
     },
     [authClient, navigate, isWebChannelIntegration, location.search]
   );
-
-  if (validationError) {
-    // TODO: handle param validation errors in FXA-11297
-    // currently this is only a validation error for query param 'email', so do nothing?
-  }
 
   if (isUnsupportedContext(integration.data.context)) {
     hardNavigate('/update_firefox', {}, true);

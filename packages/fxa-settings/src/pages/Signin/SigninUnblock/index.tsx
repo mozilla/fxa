@@ -59,13 +59,8 @@ export const SigninUnblock = ({
   const location = useLocation();
   const navigate = useNavigate();
 
-  const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
-  const redirectTo =
-    isWebIntegration(integration) &&
-    integration.data.redirectTo &&
-    webRedirectCheck?.isValid
-      ? integration.data.redirectTo
-      : '';
+  const redirectTo = integration.data.redirectTo;
+  const webRedirectCheck = useWebRedirect(redirectTo);
 
   const formAttributes: FormAttributes = {
     inputFtlId: 'signin-unblock-code-input',
@@ -143,7 +138,7 @@ export const SigninUnblock = ({
         queryParams: location.search,
         handleFxaLogin: true,
         handleFxaOAuthLogin: true,
-        redirectTo,
+        redirectTo: webRedirectCheck.redirectTo,
       };
 
       // If the web redirect is invalid, this shows an "Invalid redirect" message in alertBar

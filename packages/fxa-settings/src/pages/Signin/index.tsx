@@ -23,7 +23,6 @@ import { StoredAccountData, storeAccountData } from '../../lib/storage-utils';
 import {
   useSensitiveDataClient,
   useFtlMsgResolver,
-  isWebIntegration,
   isOAuthIntegration,
 } from '../../models';
 import {
@@ -67,7 +66,6 @@ const Signin = ({
   const location = useLocation();
   const navigate = useNavigate();
   const ftlMsgResolver = useFtlMsgResolver();
-  const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
   const sensitiveDataClient = useSensitiveDataClient();
   const shouldUseReactEmailFirst = useCheckReactEmailFirst();
 
@@ -147,10 +145,7 @@ const Signin = ({
             sessionToken,
           },
           integration,
-          redirectTo:
-            isWebIntegration(integration) && webRedirectCheck?.isValid
-              ? integration.data.redirectTo
-              : '',
+          redirectTo: integration.data.redirectTo,
           finishOAuthFlowHandler,
           queryParams: location.search,
         };
@@ -180,7 +175,6 @@ const Signin = ({
       integration,
       finishOAuthFlowHandler,
       location.search,
-      webRedirectCheck,
     ]
   );
 
@@ -212,10 +206,7 @@ const Signin = ({
           verified: data.signIn.verified,
           integration,
           finishOAuthFlowHandler,
-          redirectTo:
-            isWebIntegration(integration) && webRedirectCheck?.isValid
-              ? integration.data.redirectTo
-              : '',
+          redirectTo: integration.data.redirectTo,
           queryParams: location.search,
           showInlineRecoveryKeySetup: data.showInlineRecoveryKeySetup,
           handleFxaLogin: true,
@@ -298,7 +289,6 @@ const Signin = ({
       finishOAuthFlowHandler,
       integration,
       location.search,
-      webRedirectCheck,
       sensitiveDataClient,
     ]
   );

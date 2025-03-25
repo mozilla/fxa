@@ -30,7 +30,7 @@ import * as utm from 'fxa-shared/metrics/glean/web/utm';
 import * as entrypointQuery from 'fxa-shared/metrics/glean/web/entrypoint';
 
 import { Config } from '../config';
-import { WebIntegration, useAccount } from '../../models';
+import { useAccount, WebIntegration } from '../../models';
 import { MetricsFlow } from '../metrics-flow';
 import { currentAccount } from '../cache';
 
@@ -92,18 +92,17 @@ describe('lib/glean', () => {
       flowBeginTime: Date.now(),
     };
     mockMetricsContext.userAgent = 'ELinks/0.9.3 (textmode; SunOS)';
-    mockIntegration.data = {
-      clientId: 'abc',
-      service: 'wibble',
-      entrypoint: 'theweb',
-      utmCampaign: 'greatest',
-      utmContent: 'show',
-      utmMedium: 'TV',
-      utmSource: 'mystery',
-      utmTerm: 'thunk',
-      entrypointExperiment: 'on',
-      entrypointVariation: 'earth',
-    };
+
+    mockIntegration.data.clientId = 'abc';
+    mockIntegration.data.service = 'wibble';
+    mockIntegration.data.entrypoint = 'theweb';
+    mockIntegration.data.utmCampaign = 'greatest';
+    mockIntegration.data.utmContent = 'show';
+    mockIntegration.data.utmMedium = 'TV';
+    mockIntegration.data.utmSource = 'mystery';
+    mockIntegration.data.utmTerm = 'thunk';
+    mockIntegration.data.entrypointExperiment = 'on';
+    mockIntegration.data.entrypointVariation = 'earth';
 
     setDeviceTypeStub = sandbox.stub(deviceType, 'set');
     setEntrypointStub = sandbox.stub(entrypoint, 'set');
@@ -232,7 +231,6 @@ describe('lib/glean', () => {
     });
 
     it('sets empty strings as defaults', async () => {
-      mockIntegration.data = {};
       mockMetricsContext.userAgent = '';
       mockMetricsContext.metricsFlow = null;
       GleanMetrics.initialize(

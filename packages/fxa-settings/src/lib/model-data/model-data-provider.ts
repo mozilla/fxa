@@ -87,7 +87,7 @@ export class ModelDataProvider {
    * @param key A specific property name to validate.
    * @returns
    */
-  validate(property?: string) {
+  validate(properties?: string[] | string) {
     if (!this.isDirty) {
       return;
     }
@@ -96,8 +96,13 @@ export class ModelDataProvider {
     let errors = validateSync(this);
 
     // If a key was provided only consider errors for that property.
-    if (property) {
-      errors = errors.filter((x) => x.property === property);
+    if (typeof properties === 'string') {
+      properties = [properties];
+    }
+
+    // If a key was provided only consider errors for that property.
+    if (properties) {
+      errors = errors.filter((x) => properties.includes(x.property));
     }
 
     if (errors.length > 0) {

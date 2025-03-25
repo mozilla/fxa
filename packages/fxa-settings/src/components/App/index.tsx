@@ -28,7 +28,7 @@ import { MozServices } from '../../lib/types';
 
 import {
   Integration,
-  OAuthIntegration,
+  isOAuthIntegration,
   useConfig,
   useInitialMetricsQueryState,
   useIntegration,
@@ -123,9 +123,14 @@ export const App = ({
     (async () => {
       let isValidSession = false;
 
-      if (isWebChannelIntegration) {
+      if (
+        integration &&
+        integration.hasWebChannelSupport() &&
+        integration.data.context &&
+        integration.data.service
+      ) {
         // Request and update account data/state to match the browser state.
-        // When we are acessing FxA from the browser menu or the user is going through
+        // When we are accessing FxA from the browser menu or the user is going through
         // the service=relay flow, the isWebChannelIntegration flag will
         // be set to true. If there is a user actively signed into the browser,
         // we should try to use that user's account when possible.
@@ -161,12 +166,7 @@ export const App = ({
 
       setIsSignedIn(isValidSession);
     })();
-  }, [
-    integration,
-    isWebChannelIntegration,
-    isSignedInData?.isSignedIn,
-    session,
-  ]);
+  }, [integration, isSignedInData?.isSignedIn, session]);
 
   // Because this query depends on the result of an initial query (in this case,
   // metrics), we need to run it separately.
@@ -484,16 +484,21 @@ const AuthAndAccountSetupRoutes = ({
         {...{ isSignedIn, serviceName }}
       />
 
-      <InlineTotpSetupContainer
-        path="/inline_totp_setup/*"
-        integration={integration as OAuthIntegration}
-        {...{ isSignedIn, serviceName, flowQueryParams }}
-      />
-      <InlineRecoverySetupContainer
-        path="/inline_recovery_setup/*"
-        integration={integration as OAuthIntegration}
-        {...{ isSignedIn, serviceName }}
-      />
+      {isOAuthIntegration(integration) && (
+        <InlineTotpSetupContainer
+          path="/inline_totp_setup/*"
+          integration={integration}
+          {...{ isSignedIn, serviceName, flowQueryParams }}
+        />
+      )}
+
+      {isOAuthIntegration(integration) && (
+        <InlineRecoverySetupContainer
+          path="/inline_recovery_setup/*"
+          integration={integration}
+          {...{ isSignedIn, serviceName }}
+        />
+      )}
     </Router>
   );
 };

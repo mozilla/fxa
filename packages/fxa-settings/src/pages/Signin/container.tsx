@@ -6,12 +6,12 @@ import { RouteComponentProps, useLocation } from '@reach/router';
 import { useNavigateWithQuery as useNavigate } from '../../lib/hooks/useNavigateWithQuery';
 import Signin from '.';
 import {
-  Integration,
   useAuthClient,
   useFtlMsgResolver,
   useConfig,
   useSession,
   useSensitiveDataClient,
+  Integration,
 } from '../../models';
 import { MozServices } from '../../lib/types';
 import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
@@ -123,6 +123,11 @@ const SigninContainer = ({
   serviceName: MozServices;
   flowQueryParams?: QueryParams;
 } & RouteComponentProps) => {
+  // We want to validate the query params before our flow starts. If query params aren't valid
+  // we want to throw an error and fail / hard fast.
+  const { queryParamModel } = useValidatedQueryParams(SigninQueryParams, true);
+  const keyStretchExp = useValidatedQueryParams(KeyStretchExperiment);
+
   const config = useConfig();
   const authClient = useAuthClient();
   const ftlMsgResolver = useFtlMsgResolver();
@@ -134,17 +139,20 @@ const SigninContainer = ({
   const sensitiveDataClient = useSensitiveDataClient();
   const shouldUseReactEmailFirst = useCheckReactEmailFirst();
 
-  const { queryParamModel, validationError } =
-    useValidatedQueryParams(SigninQueryParams);
-
-  // We want to fail hard / fast on sign in. If query params don't pass validation here,
-  // there's no point in continuing further in this flow. This error will be handled
-  // by the app error boundary.
-  if (validationError) {
-    throw validationError;
+  // If we are just entering the flow, go ahead and validate the
+  // the integration's data model state. If there are missing
+  // or incorrect parameters errors will be thrown and handled by
+  // AppError boundary.
+  //
+  // The idea here is to fails fast and fails hard before allowing the
+  // user to get too far along in a flow.
+  //
+  if (
+    location.pathname === '/oauth/signin' ||
+    location.pathname === '/signin'
+  ) {
+    integration.data.validate();
   }
-
-  const keyStretchExp = useValidatedQueryParams(KeyStretchExperiment);
 
   const { finishOAuthFlowHandler, oAuthDataError } = useFinishOAuthFlowHandler(
     authClient,
@@ -192,7 +200,7 @@ const SigninContainer = ({
   useEffect(() => {
     (async () => {
       const queryParams = new URLSearchParams(location.search);
-      if (!validationError && email) {
+      if (email) {
         // if you directly hit /signin with email param, or we read from localstorage
         // (on this page or email-first) this means the account status hasn't been checked
         if (
@@ -474,7 +482,7 @@ const SigninContainer = ({
 
   // TODO: if validationError is 'email', in content-server we show "Bad request email param"
   // For now, just redirect to index-first, until FXA-8289 is done
-  if (!email || validationError) {
+  if (!email) {
     hardNavigate(`/${location.search}`);
     return <LoadingSpinner fullScreen />;
   }

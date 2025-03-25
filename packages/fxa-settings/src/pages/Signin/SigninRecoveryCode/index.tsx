@@ -59,12 +59,7 @@ const SigninRecoveryCode = ({
   const location = useLocation();
   const { apolloClient } = useContext(AppContext);
 
-  const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
-
-  const redirectTo =
-    isWebIntegration(integration) && webRedirectCheck?.isValid
-      ? integration.data.redirectTo
-      : '';
+  const redirectTo = integration.data.redirectTo;
 
   const formAttributes: FormAttributes = {
     inputFtlId: 'signin-recovery-code-input-label-v2',

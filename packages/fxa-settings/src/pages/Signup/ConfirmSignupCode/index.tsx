@@ -52,7 +52,6 @@ const ConfirmSignupCode = ({
   declinedSyncEngines,
   keyFetchToken,
   unwrapBKey,
-  flowQueryParams,
 }: ConfirmSignupCodeProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
@@ -66,7 +65,8 @@ const ConfirmSignupCode = ({
   );
 
   const navigate = useNavigate();
-  const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
+  const redirectTo = integration.data.redirectTo;
+  const webRedirectCheck = useWebRedirect(redirectTo);
   const isDesktopRelay = integration.isDesktopRelay();
 
   useEffect(() => {

@@ -5,7 +5,12 @@
 import React from 'react';
 import { LocationProvider } from '@reach/router';
 import ConfirmSignupCode from '.';
-import { IntegrationType, OAuthNativeClients } from '../../../models';
+import {
+  IntegrationType,
+  OAuthIntegrationData,
+  OAuthNativeClients,
+  WebIntegrationData,
+} from '../../../models';
 import {
   MOCK_CLIENT_ID,
   MOCK_EMAIL,
@@ -38,7 +43,9 @@ export function createMockWebIntegration({
 }: { redirectTo?: string } = {}): ConfirmSignupCodeBaseIntegration {
   return {
     type: IntegrationType.Web,
-    data: { uid: MOCK_UID, redirectTo },
+    data: {
+      uid: MOCK_UID,
+    } as WebIntegrationData,
     getService: () => MozServices.Default,
     getClientId: () => undefined,
     isDesktopRelay: () => false,
@@ -50,7 +57,10 @@ export function createMockOAuthWebIntegration(
 ): ConfirmSignupCodeOAuthIntegration {
   return {
     type: IntegrationType.OAuthWeb,
-    data: { uid: MOCK_UID, redirectTo: undefined },
+    data: {
+      uid: MOCK_UID,
+      redirectTo: undefined,
+    } as OAuthIntegrationData,
     getRedirectUri: () => MOCK_REDIRECT_URI,
     getService: () => serviceName,
     getClientId: () => MOCK_CLIENT_ID,
@@ -66,7 +76,7 @@ export function createMockOAuthNativeIntegration(
 ): ConfirmSignupCodeOAuthIntegration {
   return {
     type: IntegrationType.OAuthNative,
-    data: { uid: MOCK_UID, redirectTo: undefined },
+    data: { uid: MOCK_UID, redirectTo: undefined } as OAuthIntegrationData,
     getRedirectUri: () => MOCK_REDIRECT_URI,
     getService: () => OAuthNativeClients.FirefoxDesktop,
     getClientId: () => MOCK_CLIENT_ID,

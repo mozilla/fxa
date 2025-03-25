@@ -5,7 +5,7 @@
 import React from 'react';
 import { LocationProvider } from '@reach/router';
 import { MozServices } from '../../lib/types';
-import { IntegrationType } from '../../models';
+import { IntegrationData, IntegrationType } from '../../models';
 import { IndexIntegration } from './interfaces';
 import Index from '.';
 import { MOCK_CLIENT_ID } from '../mocks';
@@ -21,7 +21,7 @@ export function createMockIndexOAuthIntegration({
     isDesktopRelay: () => false,
     data: {
       context: '',
-    },
+    } as IntegrationData,
   };
 }
 export function createMockIndexOAuthNativeIntegration({
@@ -38,7 +38,7 @@ export function createMockIndexOAuthNativeIntegration({
     isDesktopRelay: () => isDesktopRelay,
     data: {
       context: Constants.OAUTH_WEBCHANNEL_CONTEXT,
-    },
+    } as IntegrationData,
   };
 }
 
@@ -50,7 +50,7 @@ export function createMockIndexWebIntegration(): IndexIntegration {
     isDesktopRelay: () => false,
     data: {
       context: '',
-    },
+    } as IntegrationData,
   };
 }
 

@@ -48,7 +48,7 @@ describe('OAuthNativeIntegration', function () {
   describe('isSync', () => {
     it('returns true for Firefox desktop client when service is sync', () => {
       model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
-      model.data.modelData.set('service', 'sync');
+      model.data.service = 'sync';
       expect(model.isSync()).toBe(true);
     });
 
@@ -74,7 +74,7 @@ describe('OAuthNativeIntegration', function () {
 
     it('returns false for non-Sync services', () => {
       model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
-      model.data.modelData.set('service', 'relay');
+      model.data.service = 'relay';
       expect(model.isSync()).toBe(false);
     });
   });
@@ -82,13 +82,13 @@ describe('OAuthNativeIntegration', function () {
   describe('isDesktopSync', () => {
     it('returns true when client is Firefox desktop and service is sync', () => {
       model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
-      model.data.modelData.set('service', 'sync');
+      model.data.service = 'sync';
       expect(model.isDesktopSync()).toBe(true);
     });
 
     it('returns false for non-sync service', () => {
       model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
-      model.data.modelData.set('service', 'relay');
+      model.data.service = 'relay';
       expect(model.isDesktopSync()).toBe(false);
     });
   });
@@ -134,12 +134,12 @@ describe('OAuthNativeIntegration', function () {
 
   describe('serviceName', () => {
     it('returns "Firefox" for non-sync services', () => {
-      model.data.modelData.set('service', 'non-sync-service');
+      model.data.service = 'non-sync-service';
       expect(model.serviceName).toBe('Firefox');
     });
 
     it('returns Sync service name for sync service', () => {
-      model.data.modelData.set('service', 'sync');
+      model.data.service = 'sync';
       expect(model.serviceName).toBe('Firefox Sync');
     });
   });

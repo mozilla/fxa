@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { LocationProvider } from '@reach/router';
-import { Integration, IntegrationType } from '../../../models';
+import { IntegrationType } from '../../../models';
 import { SigninTotpCode, SigninTotpCodeProps } from '.';
 import {
   MOCK_EMAIL,
@@ -14,6 +14,7 @@ import {
 } from '../../mocks';
 import { MozServices } from '../../../lib/types';
 import VerificationMethods from '../../../constants/verification-methods';
+import { SigninIntegration } from '../interfaces';
 
 const mockWebIntegration = {
   type: IntegrationType.Web,
@@ -21,7 +22,7 @@ const mockWebIntegration = {
   isSync: () => false,
   wantsKeys: () => false,
   isDesktopRelay: () => false,
-} as Integration;
+} as SigninIntegration;
 
 export const mockOAuthNativeIntegration = (isSync = true) =>
   ({
@@ -31,7 +32,7 @@ export const mockOAuthNativeIntegration = (isSync = true) =>
     wantsKeys: () => false,
     isDesktopRelay: () => !isSync,
     data: {},
-  } as Integration);
+  } as SigninIntegration);
 
 export const MOCK_TOTP_LOCATION_STATE = {
   email: MOCK_EMAIL,

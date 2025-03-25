@@ -3,7 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { MozServices } from '../../../lib/types';
-import { IntegrationType } from '../../../models';
+import {
+  IntegrationType,
+  WebIntegration,
+  WebIntegrationData,
+} from '../../../models';
 import { MOCK_EMAIL, MOCK_AUTH_PW, MOCK_UID } from '../../mocks';
 
 export { CREDENTIAL_STATUS_MUTATION, BEGIN_SIGNIN_MUTATION } from '../gql';
@@ -17,10 +21,13 @@ export const MOCK_SIGNIN_UNBLOCK_LOCATION_STATE = {
 
 export function createMockWebIntegration({
   redirectTo = undefined,
-}: { redirectTo?: string } = {}) {
+}: { redirectTo?: string } = {}): WebIntegration {
   return {
     type: IntegrationType.Web,
-    data: { uid: MOCK_UID, redirectTo },
+    data: {
+      uid: MOCK_UID,
+      redirectTo,
+    } as WebIntegrationData,
     getService: () => MozServices.Default,
     getClientId: () => undefined,
     isSync: () => false,
@@ -28,7 +35,7 @@ export function createMockWebIntegration({
     wantsTwoStepAuthentication: () => false,
     isDesktopSync: () => false,
     isDesktopRelay: () => false,
-  };
+  } as WebIntegration;
 }
 
 export function createMockSigninWebSyncIntegration() {
@@ -39,7 +46,7 @@ export function createMockSigninWebSyncIntegration() {
     getClientId: () => undefined,
     wantsKeys: () => true,
     wantsTwoStepAuthentication: () => false,
-    data: {},
+    data: {} as WebIntegrationData,
     isDesktopSync: () => true,
     isDesktopRelay: () => false,
     wantsLogin: () => false,

@@ -82,10 +82,7 @@ export const SigninTotpCodeContainer = ({
     unwrapBKey
   );
 
-  const redirectTo =
-    isWebIntegration(integration) && webRedirectCheck?.isValid
-      ? integration.data.redirectTo
-      : '';
+  const redirectTo = integration.data.redirectTo;
 
   const [verifyTotpCode] = useMutation(VERIFY_TOTP_CODE_MUTATION);
   const [passwordChangeStart] = useMutation<PasswordChangeStartResponse>(

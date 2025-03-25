@@ -13,7 +13,8 @@ import { ReachRouterWindow } from '../../window';
 // TODO: We should be able to access which param has errored so we can handle
 // them individually if we need to.
 export function useValidatedQueryParams<T extends ModelDataProvider>(
-  QueryParamModel: new (modelData: ModelDataStore) => T
+  QueryParamModel: new (modelData: ModelDataStore) => T,
+  throwOnError = false
 ) {
   const urlQueryData = useMemo(
     () => new UrlQueryData(new ReachRouterWindow()),
@@ -22,6 +23,10 @@ export function useValidatedQueryParams<T extends ModelDataProvider>(
 
   const model = new QueryParamModel(urlQueryData);
   const { error } = model.tryValidate();
+
+  if (throwOnError && error) {
+    throw error;
+  }
 
   return {
     queryParamModel: model,

@@ -48,13 +48,6 @@ export const SigninPushCodeContainer = ({
   const { unwrapBKey } =
     sensitiveDataClient.getDataType(SensitiveData.Key.Auth) || {};
 
-  const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
-
-  const redirectTo =
-    isWebIntegration(integration) && webRedirectCheck?.isValid
-      ? integration.data.redirectTo
-      : '';
-
   const [totpVerified, setTotpVerified] = useState<boolean>(false);
   useEffect(() => {
     if (!signinState || !signinState.sessionToken) {
@@ -100,7 +93,7 @@ export const SigninPushCodeContainer = ({
       integration,
       finishOAuthFlowHandler,
       queryParams: location.search,
-      redirectTo,
+      redirectTo: integration.data.redirectTo,
     };
     await handleNavigation(navigationOptions);
   };

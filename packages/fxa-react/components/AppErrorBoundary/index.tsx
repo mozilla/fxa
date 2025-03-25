@@ -5,13 +5,14 @@
 import React from 'react';
 import AppErrorDialog from '../AppErrorDialog';
 import * as Sentry from '@sentry/browser';
+import { ValidationError } from 'class-validator';
 
 interface AppErrorBoundaryProps {
   children?: React.ReactNode;
 }
 
 interface AppErrorBoundaryState {
-  error: Error | undefined;
+  error: Error | { errors: ValidationError[] } | undefined;
 }
 
 class AppErrorBoundary extends React.Component<
@@ -19,7 +20,7 @@ class AppErrorBoundary extends React.Component<
   AppErrorBoundaryState
 > {
   state: {
-    error: undefined | Error;
+    error: undefined | Error | { errors: ValidationError[] };
   };
 
   constructor(props: {}) {
@@ -38,6 +39,16 @@ class AppErrorBoundary extends React.Component<
 
   render() {
     const { error } = this.state;
+
+    // Check to see if there are set of validation issues.
+    if (error && 'errors' in error) {
+      return (
+        <>
+          <h1>Invalid application state detected.</h1>
+        </>
+      );
+    }
+
     return error ? <AppErrorDialog /> : (this.props as any).children;
   }
 }

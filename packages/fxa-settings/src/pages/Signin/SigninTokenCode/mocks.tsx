@@ -4,7 +4,13 @@
 
 import React from 'react';
 import { LocationProvider } from '@reach/router';
-import { IntegrationType } from '../../../models';
+import {
+  IntegrationData,
+  IntegrationType,
+  OAuthIntegrationData,
+  OAuthNativeIntegration,
+  WebIntegrationData,
+} from '../../../models';
 import { SigninTokenCodeProps } from './interfaces';
 import SigninTokenCode from '.';
 import {
@@ -17,9 +23,13 @@ import {
 } from '../../mocks';
 import { MozServices } from '../../../lib/types';
 import VerificationReasons from '../../../constants/verification-reasons';
+import { IntegrationFeatures } from '../../../models/integrations/features';
 
 export function createMockWebIntegration() {
   return {
+    features: {} as IntegrationFeatures,
+    clientInfo: undefined,
+    subscriptionInfo: undefined,
     type: IntegrationType.Web,
     getService: () => MozServices.Default,
     getClientId: () => undefined,
@@ -27,21 +37,35 @@ export function createMockWebIntegration() {
     wantsKeys: () => false,
     isDesktopSync: () => false,
     isDesktopRelay: () => false,
-    data: {},
+    hasWebChannelSupport: () => false,
+    data: {} as WebIntegrationData,
+    wantsTwoStepAuthentication: () => false,
+    wantsLogin: () => false,
+    setFeatures: () => {},
+    getRedirectUri: () => '',
+    isFirefoxMobileClient: () => false,
+    isFirefoxDesktopClient: () => true,
+    getServiceName: () => 'sync',
+    isTrusted: () => true,
+    thirdPartyAuthParams: () => '',
   };
 }
 
-export function createOAuthNativeIntegration(isSync = true) {
+export function createOAuthNativeIntegration(
+  isSync = true
+): OAuthNativeIntegration {
   return {
     type: IntegrationType.OAuthNative,
     getService: () => MozServices.Default,
-    getClientId: () => undefined,
+    getClientId: () => 'sync',
     isSync: () => isSync,
     wantsKeys: () => false,
     isDesktopSync: () => false,
     isDesktopRelay: () => !isSync,
-    data: {},
-  };
+    data: {} as OAuthIntegrationData,
+    wantsLogin: () => false,
+    wantsTwoStepAuthentication: () => false,
+  } as OAuthNativeIntegration;
 }
 
 export const createMockSigninLocationState = (

@@ -44,7 +44,8 @@ const ThirdPartyAuthCallback = ({
 } & RouteComponentProps) => {
   const account = useAccount();
   const authClient = useAuthClient();
-  const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
+  const redirectTo = integration.data.redirectTo || '';
+  const webRedirectCheck = useWebRedirect(redirectTo);
   const location = useLocation();
 
   const { finishOAuthFlowHandler } = useFinishOAuthFlowHandler(
@@ -90,10 +91,7 @@ const ThirdPartyAuthCallback = ({
             : undefined,
         },
         integration,
-        redirectTo:
-          isWebIntegration(integration) && webRedirectCheck?.isValid
-            ? integration.data.redirectTo
-            : '',
+        redirectTo: webRedirectCheck.redirectTo,
         finishOAuthFlowHandler,
         queryParams: location.search,
         isSignInWithThirdPartyAuth: true,
@@ -108,7 +106,7 @@ const ThirdPartyAuthCallback = ({
         hardNavigate('/');
       }
     },
-    [finishOAuthFlowHandler, integration, location.search, webRedirectCheck]
+    [finishOAuthFlowHandler, integration, location.search]
   );
 
   const verifyThirdPartyAuthResponse = useCallback(async () => {

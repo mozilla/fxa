@@ -28,7 +28,6 @@ import {
  * The two paths where entry is expected are /signin, /oauth/signin and the default / (ie the index page).
  */
 export class ValidEntryParams extends ModelDataProvider {
-
   // TODO: Look up what this is used for, and if there are other allowed options.
   @IsString()
   @IsIn(['email'])
@@ -185,7 +184,7 @@ export class ValidEntryParams extends ModelDataProvider {
   // 'youtube-video', 'fx-manage-account'
   @IsString()
   @IsOptional()
-  @bind((k:string) => )
+  @bind(T.snakeCase)
   utmContent: string | undefined;
 
   @IsString()
@@ -200,7 +199,6 @@ export class ValidEntryParams extends ModelDataProvider {
 }
 
 export class IndexQueryParams extends ModelDataProvider {
-
   // TODO: Look up what this is used for, and if there are other allowed options.
   @IsString()
   @IsIn(['email'])
@@ -357,7 +355,7 @@ export class IndexQueryParams extends ModelDataProvider {
   // 'youtube-video', 'fx-manage-account'
   @IsString()
   @IsOptional()
-  @bind((k:string) => )
+  @bind(T.snakeCase)
   utmContent: string | undefined;
 
   @IsString()
