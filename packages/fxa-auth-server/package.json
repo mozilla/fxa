@@ -195,7 +195,7 @@
     "storybook": "^7.4.6",
     "through": "2.3.8",
     "tsc-alias": "^1.8.8",
-    "type-fest": "^4.25.0",
+    "type-fest": "^4.38.0",
     "typescript": "^5.5.3",
     "webpack": "^5.97.0",
     "webpack-watch-files-plugin": "^1.2.1",
