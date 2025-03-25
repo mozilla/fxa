@@ -42780,7 +42780,7 @@ fsevents@~2.1.1:
     storybook: ^7.4.6
     through: 2.3.8
     tsc-alias: ^1.8.8
-    type-fest: ^4.25.0
+    type-fest: ^4.38.0
     typescript: ^5.5.3
     uuid: ^10.0.0
     verror: ^1.10.1
@@ -43481,7 +43481,7 @@ fsevents@~2.1.1:
     tailwindcss: ^3.4.1
     terser-webpack-plugin: ^5.2.5
     ts-jest: ^29.2.3
-    type-fest: ^4.25.0
+    type-fest: ^4.38.0
     typescript: ^5.5.3
     ua-parser-js: 1.0.35
     uuid: ^10.0.0
@@ -69913,10 +69913,10 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"type-fest@npm:^4.25.0":
-  version: 4.25.0
-  resolution: "type-fest@npm:4.25.0"
-  checksum: 4c318d0fbfc6e51bb52db6ce4609066888e45346594db502e6040681fc1985a9f5845a80b6bd46ca64310271d1cdee52a9110ccabaf199b978388b098bbc5985
+"type-fest@npm:^4.38.0":
+  version: 4.38.0
+  resolution: "type-fest@npm:4.38.0"
+  checksum: 85fd7f3feff42bab6eac99f9f056d67932c36f834da87d68b0e89c040671415a902848c81be4d0f02919d157d7eae70dccf42c42dd2e2000d80e3ae1b97a9101
   languageName: node
   linkType: hard
 
