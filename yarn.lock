@@ -35489,10 +35489,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"core-js@npm:^3.39.0":
-  version: 3.39.0
-  resolution: "core-js@npm:3.39.0"
-  checksum: 7a3670e9a2a89e0a049daa288d742d09f6e16d27a8945c5e2ef6fc45dc57e5c4bc5db589da05947486f54ae978d14cf27bd3fb1db0b9907000a611e8af37355b
+"core-js@npm:^3.41.0":
+  version: 3.41.0
+  resolution: "core-js@npm:3.41.0"
+  checksum: 05331e92f354d3b92fa296fb3fc90c7b25d1a65230046c68651be29d67245bb156bdde7bf5c8cf8b3ecddfff93273a9ba6567f5e4ee6ceb70f39cee430693509
   languageName: node
   linkType: hard
 
@@ -42837,7 +42837,7 @@ fsevents@~2.1.1:
     convict-format-with-validator: ^6.2.0
     cookie-parser: 1.4.6
     copy-webpack-plugin: 12.0.2
-    core-js: ^3.39.0
+    core-js: ^3.41.0
     crypto-browserify: ^3.12.0
     css: 3.0.0
     css-loader: 1.0.0
