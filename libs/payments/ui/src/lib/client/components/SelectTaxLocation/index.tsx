@@ -8,9 +8,8 @@ import { Localized } from '@fluent/react';
 import * as Form from '@radix-ui/react-form';
 import countries from 'i18n-iso-countries';
 import { useEffect, useState } from 'react';
-import { BaseButton, ButtonVariant } from '@fxa/payments/ui';
+import { ButtonVariant, SubmitButton } from '@fxa/payments/ui';
 import { validatePostalCode } from '@fxa/payments/ui/actions';
-import { SubmitButton } from '../SubmitButton';
 import { useSearchParams } from 'next/navigation';
 
 interface CollapsedProps {
@@ -34,14 +33,14 @@ const Collapsed = ({
         </span>
         <span>
           <Form.Submit asChild>
-            <BaseButton
+            <SubmitButton
               variant={ButtonVariant.Secondary}
               data-testid="tax-location-edit-button"
             >
               <Localized id="select-tax-location-edit-button">
                 <p>Edit</p>
               </Localized>
-            </BaseButton>
+            </SubmitButton>
           </Form.Submit>
         </span>
       </div>
@@ -322,7 +321,11 @@ const Expanded = ({
       )}
 
       <Form.Submit asChild>
-        <SubmitButton className="w-full" data-testid="tax-location-save-button">
+        <SubmitButton
+          variant={ButtonVariant.Primary}
+          className="w-full"
+          data-testid="tax-location-save-button"
+        >
           <Localized id="select-tax-location-save-button">
             <p>Save</p>
           </Localized>

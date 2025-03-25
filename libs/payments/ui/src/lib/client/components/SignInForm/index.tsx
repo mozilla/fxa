@@ -7,7 +7,7 @@
 import { Localized } from '@fluent/react';
 import * as Form from '@radix-ui/react-form';
 import Image from 'next/image';
-import { SubmitButton } from '@fxa/payments/ui';
+import { ButtonVariant, SubmitButton } from '@fxa/payments/ui';
 import shieldIcon from './images/shield.svg';
 
 const DEFAULT_NEWSLETTER_STRING_ID =
@@ -119,7 +119,10 @@ export const SignInForm = ({
       </Form.Field>
 
       <Form.Submit asChild>
-        <SubmitButton className="mt-6 my-8 w-full">
+        <SubmitButton
+          variant={ButtonVariant.Primary}
+          className="mt-6 my-8 w-full"
+        >
           <Localized id="signin-form-continue-button">Continue</Localized>
         </SubmitButton>
       </Form.Submit>

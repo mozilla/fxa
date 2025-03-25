@@ -9,7 +9,7 @@ import * as Form from '@radix-ui/react-form';
 import { useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 import { useFormState } from 'react-dom';
-import { BaseButton, ButtonVariant } from '../BaseButton';
+import { ButtonVariant } from '../BaseButton';
 import { SubmitButton } from '../SubmitButton';
 import { updateCartAction } from '../../../actions/updateCart';
 import { getFallbackTextByFluentId } from '../../../utils/error-ftl-messages';
@@ -46,12 +46,12 @@ const WithCoupon = ({
           <span className="break-all">{couponCode}</span>
           {readOnly ? null : (
             <Form.Submit asChild>
-              <BaseButton
+              <SubmitButton
                 variant={ButtonVariant.Secondary}
                 data-testid="coupon-remove-button"
               >
                 <Localized id="next-coupon-remove">Remove</Localized>
-              </BaseButton>
+              </SubmitButton>
             </Form.Submit>
           )}
         </div>
@@ -120,7 +120,11 @@ const WithoutCoupon = ({
             </Localized>
           </Form.Control>
           <Form.Submit asChild>
-            <SubmitButton data-testid="coupon-button" disabled={readOnly}>
+            <SubmitButton
+              variant={ButtonVariant.Primary}
+              data-testid="coupon-button"
+              disabled={readOnly}
+            >
               <Localized id="next-coupon-submit">Apply</Localized>
             </SubmitButton>
           </Form.Submit>
