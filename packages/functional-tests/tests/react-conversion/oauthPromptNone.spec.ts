@@ -220,6 +220,37 @@ test.describe('severity-1 #smoke', () => {
       ).toBeVisible();
     });
   });
+
+  test('redirects if return_on_error=true and not signed in', async ({
+    page,
+    target,
+    pages: { relier, settings, signin },
+    testAccountTracker,
+  }) => {
+    {
+      const { email } = await signInAccount(
+        target,
+        page,
+        settings,
+        signin,
+        testAccountTracker
+      );
+
+      await settings.signOut();
+
+      const query = new URLSearchParams({
+        login_hint: email,
+        return_on_error: 'true',
+      });
+      await page.goto(`${target.relierUrl}/?${query.toString()}`);
+      await relier.signInPromptNone();
+
+      await page.waitForResponse(/api\/oauth\?error=login_required/);
+      // RP handled it by taking the user back to sign in
+      await page.waitForURL(/oauth\/signin/);
+      await expect(signin.passwordFormHeading).toBeVisible();
+    }
+  });
 });
 
 async function signInAccount(

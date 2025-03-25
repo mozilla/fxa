@@ -111,6 +111,14 @@ const AuthorizationContainer = ({
         }
       }
     } catch (err) {
+      if ((integration as OAuthWebIntegration).returnOnError()) {
+        const url = (
+          integration as OAuthWebIntegration
+        ).getRedirectWithErrorUrl(err);
+        hardNavigate(url);
+        return;
+      }
+
       setOauthError(err);
     }
   }, [
