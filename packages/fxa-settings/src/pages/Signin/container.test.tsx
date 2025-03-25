@@ -19,7 +19,7 @@ import { BeginSigninResult, SigninProps } from './interfaces';
 import { MozServices } from '../../lib/types';
 import { act, screen, waitFor } from '@testing-library/react';
 import { ModelDataProvider } from '../../lib/model-data';
-import { IntegrationType } from '../../models';
+import { Integration, IntegrationType } from '../../models';
 import {
   MOCK_STORED_ACCOUNT,
   MOCK_EMAIL,
@@ -52,7 +52,7 @@ import AuthClient from 'fxa-auth-client/browser';
 import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
-import { Integration } from '../../models';
+
 import { firefox } from '../../lib/channels/firefox';
 import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../models/mocks';
 import { SensitiveData } from '../../lib/sensitive-data-client';
