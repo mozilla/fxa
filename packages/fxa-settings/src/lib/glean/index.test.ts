@@ -346,6 +346,47 @@ describe('lib/glean', () => {
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(setEventNameStub, 'email_first_view');
       });
+
+      it('submits a ping with the email_first_engage event name', async () => {
+        GleanMetrics.emailFirst.engage();
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'email_first_engage');
+      });
+
+      it('submits a ping with the email_first_submit_success event name', async () => {
+        GleanMetrics.emailFirst.submitSuccess();
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'email_first_submit_success');
+      });
+
+      it('submits a ping with the email_first_submit_fail event name', async () => {
+        GleanMetrics.emailFirst.submitFail();
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'email_first_submit_fail');
+      });
+
+      it('submits a ping with the email_first_google_oauth_start event name', async () => {
+        GleanMetrics.emailFirst.googleOauthStart();
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'email_first_google_oauth_start'
+        );
+      });
+
+      it('submits a ping with the email_first_apple_oauth_start event name', async () => {
+        GleanMetrics.emailFirst.appleOauthStart();
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'email_first_apple_oauth_start'
+        );
+      });
     });
 
     describe('registration', () => {
