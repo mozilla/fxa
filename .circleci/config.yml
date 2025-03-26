@@ -157,6 +157,7 @@ executors:
       PAYPAL_SANDBOX: true
       FXA_MX_RECORD_EXCLUSIONS: restmail.dev.lcip.org
       # Needed for react conversion playwright tests
+      ROLLOUT_GENERALIZED_REACT_APP: 1
       REACT_CONVERSION_EMAIL_FIRST_ROUTES: true
       REACT_CONVERSION_SIMPLE_ROUTES: true
       REACT_CONVERSION_RESET_PASSWORD_ROUTES: true
@@ -169,7 +170,6 @@ executors:
       # Recovery phone feature flags
       FEATURE_FLAGS_ADDING_2FA_BACKUP_PHONE: true
       FEATURE_FLAGS_USING_2FA_BACKUP_PHONE: true
-      ROLLOUT_GENERALIZED_REACT_APP: 1
       GEODB_LOCATION_OVERRIDE: '{"location": {"countryCode": "US", "postalCode": "85001"}}'
       RECOVERY_PHONE__ENABLED: true
       CUSTOMS_SERVER_URL: none

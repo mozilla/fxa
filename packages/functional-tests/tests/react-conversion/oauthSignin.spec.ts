@@ -8,25 +8,14 @@ const AGE_21 = '21';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('react OAuth signin', () => {
-    test.beforeEach(async ({ pages: { configPage } }) => {
-      const config = await configPage.getConfig();
-      test.skip(
-        config.showReactApp.signInRoutes !== true,
-        'React signInRoutes not enabled'
-      );
-    });
-
     test('verified account, no email confirmation required', async ({
-      pages: { page, relier, signin },
+      pages: { relier, signin },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
 
       await relier.goto();
       await relier.clickEmailFirst();
-
-      await page.waitForURL(/oauth\//);
-
       await signin.fillOutEmailFirstForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
 
@@ -41,8 +30,6 @@ test.describe('severity-1 #smoke', () => {
 
       await relier.goto();
       await relier.clickEmailFirst();
-
-      await page.waitForURL(/oauth\//);
 
       await signin.fillOutEmailFirstForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
@@ -76,8 +63,6 @@ test.describe('severity-1 #smoke', () => {
       await relier.goto();
       await relier.clickEmailFirst();
 
-      await page.waitForURL(/oauth\//);
-
       await signin.fillOutEmailFirstForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
 
@@ -87,10 +72,6 @@ test.describe('severity-1 #smoke', () => {
 
       // Attempt to sign back in with cached user
       await relier.clickEmailFirst();
-
-      // wait for navigation
-      await page.waitForURL(/oauth\/signin/);
-      await expect(page).toHaveURL(/oauth\/signin/);
 
       await expect(signin.cachedSigninHeading).toBeVisible();
       // Email is prefilled
@@ -103,8 +84,6 @@ test.describe('severity-1 #smoke', () => {
       await relier.goto();
       await relier.clickEmailFirst();
 
-      await page.waitForURL(/oauth\//);
-
       // User will have to re-enter login information
       await signin.fillOutEmailFirstForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
@@ -114,14 +93,9 @@ test.describe('severity-1 #smoke', () => {
 
     test('unverified account, requires signup confirmation code', async ({
       target,
-      pages: { configPage, confirmSignupCode, page, relier, signin },
+      pages: { confirmSignupCode, page, relier, signin },
       testAccountTracker,
     }) => {
-      const config = await configPage.getConfig();
-      test.skip(
-        config.showReactApp.signUpRoutes !== true,
-        'this test requires both react signup and react signin to be enabled'
-      );
       const credentials = await testAccountTracker.signUp({
         lang: 'en',
         preVerified: 'false',
@@ -129,8 +103,6 @@ test.describe('severity-1 #smoke', () => {
 
       await relier.goto();
       await relier.clickEmailFirst();
-
-      await page.waitForURL(/oauth\//);
 
       await signin.fillOutEmailFirstForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
@@ -149,15 +121,9 @@ test.describe('severity-1 #smoke', () => {
 
     test('unverified account with a cached login, requires signup confirmation', async ({
       target,
-      pages: { configPage, confirmSignupCode, page, relier, signin, signup },
+      pages: { confirmSignupCode, page, relier, signin, signup },
       testAccountTracker,
     }) => {
-      const config = await configPage.getConfig();
-      test.skip(
-        config.showReactApp.signUpRoutes !== true,
-        'this test requires both react signup and react signin to be enabled'
-      );
-
       // Create unverified account
       const { email, password } = testAccountTracker.generateAccountDetails();
 
@@ -191,20 +157,13 @@ test.describe('severity-1 #smoke', () => {
     test('oauth endpoint chooses the right auth flows', async ({
       target,
       page,
-      pages: { configPage, confirmSignupCode, relier, signin, signup },
+      pages: { confirmSignupCode, relier, signin, signup },
       testAccountTracker,
     }) => {
-      const config = await configPage.getConfig();
-      test.skip(
-        config.showReactApp.signUpRoutes !== true,
-        'this test requires both react signup and react signin to be enabled'
-      );
       const { email, password } = testAccountTracker.generateAccountDetails();
 
       await relier.goto();
       await relier.clickChooseFlow();
-
-      await page.waitForURL(/oauth\//);
 
       await signup.fillOutEmailForm(email);
       await expect(signup.signupFormHeading).toBeVisible();
@@ -220,9 +179,6 @@ test.describe('severity-1 #smoke', () => {
       // now suggest a cached login
       await relier.goto();
       await relier.clickChooseFlow();
-
-      await page.waitForURL(/oauth\/signin/);
-      await expect(page).toHaveURL(/oauth\/signin/);
 
       await expect(signin.cachedSigninHeading).toBeVisible();
       await expect(page.getByText(email)).toBeVisible();

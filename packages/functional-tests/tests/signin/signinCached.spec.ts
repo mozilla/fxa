@@ -194,7 +194,7 @@ test.describe('severity-2 #smoke', () => {
       await expect(settings.primaryEmail.status).toHaveText(credentials.email);
       await settings.signOut();
 
-      await expect(page).toHaveURL(/signin/);
+      await expect(signin.cachedSigninHeading).toBeVisible();
 
       // Check that suggested cached account is the sync account
       await expect(page.getByText(syncCredentials.email)).toBeVisible();

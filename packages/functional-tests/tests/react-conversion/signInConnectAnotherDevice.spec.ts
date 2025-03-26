@@ -7,15 +7,9 @@ import { expect, test } from '../../lib/fixtures/standard';
 test.describe('severity-2 #smoke', () => {
   test.describe('connect_another_device', () => {
     test('react signin Fx Desktop, load /pair page', async ({
-      syncBrowserPages: { configPage, connectAnotherDevice, page, signin },
+      syncBrowserPages: { connectAnotherDevice, page, signin },
       testAccountTracker,
     }) => {
-      const config = await configPage.getConfig();
-      test.skip(
-        config.showReactApp.signInRoutes !== true,
-        'Skip tests if React signInRoutes not enabled'
-      );
-
       const credentials = await testAccountTracker.signUp();
 
       await signin.goto(

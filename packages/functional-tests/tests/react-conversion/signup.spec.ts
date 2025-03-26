@@ -21,15 +21,6 @@ const eventDetailLinkAccount: LinkAccountResponse = {
 
 test.describe('severity-1 #smoke', () => {
   test.describe('signup react', () => {
-    test.beforeEach(async ({ pages: { configPage } }) => {
-      // Ensure that the feature flag is enabled
-      const config = await configPage.getConfig();
-      test.skip(
-        config.showReactApp.signUpRoutes !== true,
-        'Skip tests if not on React signUpRoutes'
-      );
-    });
-
     test('signup web', async ({
       target,
       page,

@@ -6,21 +6,9 @@ import { test, expect } from '../../lib/fixtures/standard';
 
 test.describe('severity-1 #smoke', () => {
   test('react signin to sync and disconnect', async ({
-    syncBrowserPages: {
-      configPage,
-      connectAnotherDevice,
-      page,
-      signin,
-      settings,
-    },
+    syncBrowserPages: { connectAnotherDevice, page, signin, settings },
     testAccountTracker,
   }) => {
-    const config = await configPage.getConfig();
-    test.skip(
-      config.showReactApp.signInRoutes !== true,
-      'Skip tests if React signInRoutes not enabled'
-    );
-
     const credentials = await testAccountTracker.signUp();
 
     await signin.goto(
@@ -44,27 +32,13 @@ test.describe('severity-1 #smoke', () => {
   });
 
   test('react disconnect RP', async ({
-    pages: { configPage, page, relier, signin, settings },
+    pages: { relier, signin, settings },
     testAccountTracker,
   }) => {
-    const config = await configPage.getConfig();
-    test.skip(
-      config.showReactApp.signInRoutes !== true,
-      'Skip tests if React signInRoutes not enabled'
-    );
-
     const credentials = await testAccountTracker.signUp();
 
     await relier.goto();
     await relier.clickEmailFirst();
-
-    // wait for navigation
-    await expect(page).toHaveURL(/oauth\//);
-
-    // reload page with React experiment params
-    await page.goto(
-      `${page.url()}&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
-    );
 
     await signin.fillOutEmailFirstForm(credentials.email);
     await signin.fillOutPasswordForm(credentials.password);

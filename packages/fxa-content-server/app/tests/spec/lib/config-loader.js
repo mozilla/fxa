@@ -63,7 +63,7 @@ describe('lib/config-loader', () => {
   describe('insert config markup in to the DOM', () => {
     before(() => {
       $('head').append(
-        `<meta name="fxa-content-server/config" content="${VALID_HTML_CONFIG}" />`
+        `<meta name="fxa-config" content="${VALID_HTML_CONFIG}" />`
       );
       $('head').append(
         `<meta name="fxa-feature-flags" content="${SERIALISED_FEATURE_FLAGS}" />`
@@ -71,7 +71,7 @@ describe('lib/config-loader', () => {
     });
 
     after(() => {
-      $('meta[name="fxa-content-server/config"]').remove();
+      $('meta[name="fxa-config"]').remove();
       $('meta[name="fxa-feature-flags"]').remove();
     });
 

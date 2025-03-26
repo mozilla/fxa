@@ -8,15 +8,9 @@ test.describe('severity-2 #smoke', () => {
   test.describe('react signin', () => {
     test('sign in as an existing user', async ({
       page,
-      pages: { configPage, settings, signin },
+      pages: { settings, signin },
       testAccountTracker,
     }) => {
-      // Ensure that the feature flag is enabled
-      const config = await configPage.getConfig();
-      test.skip(
-        config.showReactApp.signInRoutes !== true,
-        'React signInRoutes not enabled'
-      );
       const credentials = await testAccountTracker.signUp();
 
       await signin.goto();
@@ -34,15 +28,9 @@ test.describe('severity-2 #smoke', () => {
 
     test('sign in as an existing user with incorrect email case', async ({
       page,
-      pages: { configPage, settings, signin },
+      pages: { settings, signin },
       testAccountTracker,
     }) => {
-      // Ensure that the feature flag is enabled
-      const config = await configPage.getConfig();
-      test.skip(
-        config.showReactApp.signInRoutes !== true,
-        'React signInRoutes not enabled'
-      );
       const credentials = await testAccountTracker.signUp();
 
       await signin.goto();
