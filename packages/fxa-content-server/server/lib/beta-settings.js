@@ -107,6 +107,7 @@ const settingsConfig = {
       'featureFlags.enableUsing2FABackupPhone'
     ),
   },
+  nimbusPreview: config.get('nimbusPreview'),
 };
 
 // Inject Settings content into the index HTML

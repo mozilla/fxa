@@ -28,9 +28,16 @@ module.exports = function (options = {}, statsd) {
         context: req.body.context,
       });
 
+      const previewMode = req.query?.nimbusPreview || false;
+      const queryParams = new URLSearchParams({
+        nimbus_preview: previewMode,
+      });
+
       try {
         const resp = await fetch(
-          `${config.getProperties().nimbus.host}/v2/features/`,
+          `${
+            config.getProperties().nimbus.host
+          }/v2/features/?${queryParams.toString()}`,
           {
             method: 'POST',
             body,
