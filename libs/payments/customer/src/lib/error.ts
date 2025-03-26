@@ -40,9 +40,10 @@ export class PromotionCodeCouldNotBeAttachedError extends PaymentsCustomerError 
       customerId?: string;
       subscriptionId?: string;
       promotionId?: string;
-    }
+    },
+    name?: string
   ) {
-    super(message, { cause });
+    super(message, { cause, name });
     this.customerId = data?.customerId;
     this.subscriptionId = data?.subscriptionId;
     this.promotionId = data?.promotionId;
@@ -51,25 +52,45 @@ export class PromotionCodeCouldNotBeAttachedError extends PaymentsCustomerError 
 
 export class CouponErrorExpired extends PromotionCodeCouldNotBeAttachedError {
   constructor() {
-    super('The code you entered has expired.');
+    super(
+      'The code you entered has expired.',
+      undefined,
+      undefined,
+      'CouponErrorExpired'
+    );
   }
 }
 
 export class CouponErrorGeneric extends PromotionCodeCouldNotBeAttachedError {
   constructor() {
-    super('An error occurred processing the code. Please try again.');
+    super(
+      'An error occurred processing the code. Please try again.',
+      undefined,
+      undefined,
+      'CouponErrorGeneric'
+    );
   }
 }
 
 export class CouponErrorInvalid extends PromotionCodeCouldNotBeAttachedError {
   constructor() {
-    super('The code you entered is invalid.');
+    super(
+      'The code you entered is invalid.',
+      undefined,
+      undefined,
+      'CouponErrorInvalid'
+    );
   }
 }
 
 export class CouponErrorLimitReached extends PromotionCodeCouldNotBeAttachedError {
   constructor() {
-    super('The code you entered has reached its limit.');
+    super(
+      'The code you entered has reached its limit.',
+      undefined,
+      undefined,
+      'CouponErrorLimitReached'
+    );
   }
 }
 

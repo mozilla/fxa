@@ -24,11 +24,11 @@ export const updateCartAction = async (
       cartDetails,
     });
   } catch (err) {
-    if (err.constructor.name === 'CouponErrorExpired') {
+    if (err.name === 'CouponErrorExpired') {
       return CouponErrorMessageType.Expired;
-    } else if (err.constructor === 'CouponErrorGeneric') {
+    } else if (err.name === 'CouponErrorGeneric') {
       return CouponErrorMessageType.Generic;
-    } else if (err.constructor === 'CouponErrorLimitReached') {
+    } else if (err.name === 'CouponErrorLimitReached') {
       return CouponErrorMessageType.LimitReached;
     } else {
       return CouponErrorMessageType.Invalid;

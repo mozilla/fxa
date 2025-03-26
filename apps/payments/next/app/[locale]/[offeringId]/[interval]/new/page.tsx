@@ -72,7 +72,7 @@ export default async function New({
       })
     );
   } catch (error) {
-    if (error.constructor.name === 'CartInvalidPromoCodeError') {
+    if (error.name === 'CartInvalidPromoCodeError') {
       const { id: cartId, eligibilityStatus } = await setupCartAction(
         interval as SubplatInterval,
         offeringId,
