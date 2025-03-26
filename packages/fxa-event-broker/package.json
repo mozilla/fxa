@@ -58,7 +58,7 @@
     "@types/jest": "^26.0.23",
     "@types/node": "^22.13.5",
     "@types/passport": "^1.0.6",
-    "@types/passport-jwt": "^3.0.5",
+    "@types/passport-jwt": "^4.0.1",
     "@types/rimraf": "3.0.0",
     "@types/supertest": "^2.0.11",
     "@types/uuid": "^10.0.0",
