@@ -183,6 +183,7 @@ export const Index = ({
           <InputText
             className="mt-8"
             name="email"
+            inputMode="email"
             label="Enter your email"
             inputRef={register()}
             autoFocus
