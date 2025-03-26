@@ -7,14 +7,6 @@ import { expect, test } from '../../lib/fixtures/standard';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('two step auth', () => {
-    test.beforeEach(async ({ pages: { configPage } }) => {
-      const config = await configPage.getConfig();
-      test.skip(
-        config.showReactApp.signInRoutes !== true,
-        'React signInRoutes not enabled'
-      );
-    });
-
     test('add totp', async ({
       pages: { settings, totp, page, signin, signup, signinTotpCode },
       testAccountTracker,

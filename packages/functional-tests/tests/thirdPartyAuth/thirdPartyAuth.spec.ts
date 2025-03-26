@@ -19,7 +19,7 @@ test.describe('severity-1 #smoke', () => {
       target,
       pages: { page, signin },
     }) => {
-      await page.goto(target.contentServerUrl, { waitUntil: 'load' });
+      await page.goto(target.contentServerUrl);
       await signin.continueWithAppleButton.click();
       await expect(page).toHaveURL(/appleid\.apple\.com/);
     });

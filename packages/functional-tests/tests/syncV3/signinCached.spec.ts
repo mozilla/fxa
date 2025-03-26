@@ -11,9 +11,20 @@ test.describe('severity-2 #smoke', () => {
   test.describe('sync signin cached', () => {
     test('sign in on desktop then specify a different email on query parameter continues to cache desktop signin', async ({
       target,
-      syncBrowserPages: { page, settings, signin, connectAnotherDevice },
+      syncBrowserPages: {
+        configPage,
+        page,
+        settings,
+        signin,
+        connectAnotherDevice,
+      },
       testAccountTracker,
     }) => {
+      const config = await configPage.getConfig();
+      test.fixme(
+        config.showReactApp.emailFirstRoutes === true,
+        'FXA-11429 need to port account chooser functionality to React'
+      );
       const credentials = await testAccountTracker.signUp();
       const syncCredentials = await signInSyncAccount(
         target,
@@ -54,9 +65,14 @@ test.describe('severity-2 #smoke', () => {
 
     test('sign in with desktop context then no context, desktop credentials should persist', async ({
       target,
-      syncBrowserPages: { page, settings, signin },
+      syncBrowserPages: { configPage, page, settings, signin },
       testAccountTracker,
     }) => {
+      const config = await configPage.getConfig();
+      test.fixme(
+        config.showReactApp.emailFirstRoutes === true,
+        'FXA-11429 need to port account chooser functionality to React'
+      );
       const syncCredentials = await signInSyncAccount(
         target,
         page,

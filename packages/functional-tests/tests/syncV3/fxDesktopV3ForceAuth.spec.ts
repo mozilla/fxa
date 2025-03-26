@@ -18,7 +18,6 @@ test.describe('severity-1 #smoke', () => {
     test('sync v3 with a registered email, no uid', async ({
       syncBrowserPages: {
         page,
-        configPage,
         fxDesktopV3ForceAuth,
         connectAnotherDevice,
         signin,
@@ -50,7 +49,6 @@ test.describe('severity-1 #smoke', () => {
     test('sync v3 with a registered email, registered uid', async ({
       syncBrowserPages: {
         page,
-        configPage,
         fxDesktopV3ForceAuth,
         connectAnotherDevice,
         signin,
@@ -81,7 +79,6 @@ test.describe('severity-1 #smoke', () => {
     test('sync v3 with a registered email, unregistered uid', async ({
       syncBrowserPages: {
         page,
-        configPage,
         fxDesktopV3ForceAuth,
         connectAnotherDevice,
         signin,
@@ -113,7 +110,6 @@ test.describe('severity-1 #smoke', () => {
     test('blocked with an registered email, unregistered uid', async ({
       syncBrowserPages: {
         page,
-        configPage,
         fxDesktopV3ForceAuth,
         connectAnotherDevice,
         secondaryEmail,
@@ -125,9 +121,7 @@ test.describe('severity-1 #smoke', () => {
       target,
       testAccountTracker,
     }) => {
-      const config = await configPage.getConfig();
-      // see comment in first test
-      test.skip(config.showReactApp.signInRoutes === true, 'FXA-9868');
+      test.skip(true, 'FXA-9868');
       const credentials = await testAccountTracker.signUpBlocked();
       const nonBlockedEmail = await testAccountTracker.generateEmail();
       const uid = makeUid();

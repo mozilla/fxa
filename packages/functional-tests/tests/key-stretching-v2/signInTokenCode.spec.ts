@@ -6,6 +6,7 @@ import { Page, expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget } from '../../lib/targets/base';
 import { SettingsPage } from '../../pages/settings';
 import { DeleteAccountPage } from '../../pages/settings/deleteAccount';
+import { SigninPage } from '../../pages/signin';
 
 /**
  * These tests represent various permutations between interacting with V1 and V2
@@ -55,7 +56,14 @@ test.describe('severity-2 #smoke', () => {
         expect(status.currentVersion).toEqual(`v2`);
       }
 
-      await removeAccount(target, page, settings, deleteAccount, password);
+      await removeAccount(
+        target,
+        page,
+        settings,
+        signin,
+        deleteAccount,
+        password
+      );
     });
   }
 });
@@ -64,6 +72,7 @@ async function removeAccount(
   target: BaseTarget,
   page: Page,
   settings: SettingsPage,
+  signin: SigninPage,
   deleteAccount: DeleteAccountPage,
   password: string
 ) {
@@ -71,6 +80,6 @@ async function removeAccount(
   await settings.deleteAccountButton.click();
   await deleteAccount.deleteAccount(password);
 
-  await expect(page).toHaveURL(`${target.baseUrl}?delete_account_success=true`);
+  await expect(signin.emailFirstHeading).toBeVisible();
   await expect(page.getByText('Account deleted successfully')).toBeVisible();
 }

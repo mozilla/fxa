@@ -10,15 +10,6 @@ const AGE_21 = '21';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('signup react', () => {
-    test.beforeEach(async ({ pages: { configPage } }) => {
-      // Ensure that the feature flag is enabled
-      const config = await configPage.getConfig();
-      test.skip(
-        config.showReactApp.signUpRoutes !== true,
-        'Skip tests if not on React signUpRoutes'
-      );
-    });
-
     test('signup oauth', async ({
       page,
       target,
@@ -31,14 +22,6 @@ test.describe('severity-1 #smoke', () => {
       await relier.goto();
 
       await relier.clickEmailFirst();
-
-      // wait for navigation
-      await expect(page).toHaveURL(/oauth\//);
-
-      // reload page with React experiment params
-      await page.goto(
-        `${page.url()}&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
-      );
 
       await signup.fillOutEmailForm(email);
       await signup.fillOutSignupForm(password, AGE_21);
@@ -67,14 +50,12 @@ test.describe('severity-1 #smoke', () => {
       await relier.clickEmailFirst();
 
       // wait for navigation, and get search params
-      await page.waitForURL(/oauth\//);
+      await expect(signup.emailFormHeading).toBeVisible();
       const path = new URL(page.url()).pathname;
       const params = new URL(page.url()).searchParams;
       params.delete('redirect_uri');
-      params.append('forceExperiment', 'generalizedReactApp');
-      params.append('forceExperimentGroup', 'react');
 
-      // reload email-first page without redirect_uri, but with React experiment params
+      // reload email-first page without redirect_uri
       await page.goto(`${target.contentServerUrl}${path}?${params.toString()}`);
       // expect the url to no longer contain a redirect uri
       await expect(page).toHaveURL(/^((?!redirect_uri).)*$/);

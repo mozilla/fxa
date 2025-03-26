@@ -39,11 +39,11 @@ export class SigninPage extends BaseLayout {
   }
 
   get continueWithAppleButton() {
-    return this.page.getByRole('button', { name: 'Continue with Apple' });
+    return this.page.getByRole('button', { name: /Apple/ });
   }
 
   get continueWithGoogleButton() {
-    return this.page.getByRole('button', { name: 'Continue with Google' });
+    return this.page.getByRole('button', { name: /Google/ });
   }
 
   get emailFirstHeading() {

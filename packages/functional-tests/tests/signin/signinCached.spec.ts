@@ -168,9 +168,14 @@ test.describe('severity-2 #smoke', () => {
 
     test('sign in once, use a different account', async ({
       target,
-      syncBrowserPages: { page, settings, signin },
+      syncBrowserPages: { configPage, page, settings, signin },
       testAccountTracker,
     }) => {
+      const config = await configPage.getConfig();
+      test.fixme(
+        config.showReactApp.emailFirstRoutes === true,
+        'FXA-11429 to enable account chooser functionality in React'
+      );
       const credentials = await testAccountTracker.signUp();
       const syncCredentials = await signInSyncAccount(
         target,
@@ -194,7 +199,7 @@ test.describe('severity-2 #smoke', () => {
       await expect(settings.primaryEmail.status).toHaveText(credentials.email);
       await settings.signOut();
 
-      await expect(page).toHaveURL(/signin/);
+      await expect(signin.cachedSigninHeading).toBeVisible();
 
       // Check that suggested cached account is the sync account
       await expect(page.getByText(syncCredentials.email)).toBeVisible();

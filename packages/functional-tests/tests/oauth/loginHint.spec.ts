@@ -7,8 +7,13 @@ import { expect, test } from '../../lib/fixtures/standard';
 test.describe('severity-2 #smoke', () => {
   test.describe('OAuth `login_hint` and `email` param', () => {
     test('email specified by relier, invalid', async ({
-      pages: { page, relier },
+      pages: { configPage, page, relier },
     }) => {
+      const config = await configPage.getConfig();
+      test.fixme(
+        config.showReactApp.emailFirstRoutes === true,
+        'FXA-11297 - invalid email not error not handled on arrival from RP'
+      );
       const invalidEmail = 'invalid@';
 
       await relier.goto(`email=${invalidEmail}`);
