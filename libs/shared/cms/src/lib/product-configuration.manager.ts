@@ -16,7 +16,12 @@ import {
   EligibilityContentByOfferingQuery,
   PageContentForOfferingQuery,
 } from '../__generated__/graphql';
-import { ProductConfigError } from './cms.error';
+import {
+  FetchCmsInvalidOfferingError,
+  QueriesUtilError,
+  RetrieveStripePriceInvalidOfferingError,
+  RetrieveStripePriceNotFoundError,
+} from './cms.error';
 import { DEFAULT_LOCALE } from './constants';
 import {
   capabilityServiceByPlanIdsQuery,
@@ -80,7 +85,15 @@ export class ProductConfigurationManager {
       selectedLanguage
     );
 
-    return offeringResult.getOffering();
+    try {
+      return offeringResult.getOffering();
+    } catch (error) {
+      if (error instanceof QueriesUtilError) {
+        throw new FetchCmsInvalidOfferingError(error, offeringId);
+      } else {
+        throw error;
+      }
+    }
   }
 
   async getEligibilityContentByOffering(
@@ -202,12 +215,25 @@ export class ProductConfigurationManager {
     offeringConfigId: string,
     interval: SubplatInterval
   ) {
-    const priceIds = await this.getOfferingPlanIds(offeringConfigId);
-    const price = await this.priceManager.retrieveByInterval(
-      priceIds,
-      interval
-    );
-    if (!price) throw new ProductConfigError('Plan not found');
-    return price;
+    try {
+      const priceIds = await this.getOfferingPlanIds(offeringConfigId);
+      const price = await this.priceManager.retrieveByInterval(
+        priceIds,
+        interval
+      );
+      if (!price) {
+        throw new RetrieveStripePriceNotFoundError(offeringConfigId, interval);
+      }
+      return price;
+    } catch (error) {
+      if (error instanceof QueriesUtilError) {
+        throw new RetrieveStripePriceInvalidOfferingError(
+          error,
+          offeringConfigId
+        );
+      } else {
+        throw error;
+      }
+    }
   }
 }

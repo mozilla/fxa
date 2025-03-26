@@ -18,7 +18,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <main className="mt-16 min-h-[calc(100vh_-_4rem)]">{children}</main>
+        <main className="mt-16 tablet:mt-20 min-h-[calc(100vh_-_4rem)]">
+          {children}
+        </main>
       </body>
     </html>
   );

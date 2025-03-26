@@ -11,8 +11,9 @@ import { config } from 'apps/payments/next/config';
 import { fetchCMSData } from '@fxa/payments/ui/actions';
 import { getApp, TermsAndPrivacy } from '@fxa/payments/ui/server';
 import { headers } from 'next/headers';
-import { redirect } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import * as Sentry from '@sentry/nextjs';
+import type { PageContentOfferingTransformed } from '@fxa/shared/cms';
 
 export const dynamic = 'force-dynamic';
 
@@ -28,11 +29,16 @@ export default async function Location({
 
   Sentry.captureMessage('Could not locate user by their ip');
 
-  const cms = await fetchCMSData(
-    params.offeringId,
-    acceptLanguage,
-    params.locale
-  );
+  let cms: PageContentOfferingTransformed | undefined;
+  try {
+    cms = await fetchCMSData(params.offeringId, acceptLanguage, params.locale);
+  } catch (error) {
+    if (error.name === 'FetchCmsInvalidOfferingError') {
+      notFound();
+    } else {
+      throw error;
+    }
+  }
 
   const purchaseDetails =
     cms.defaultPurchase.purchaseDetails.localizations.at(0) ||

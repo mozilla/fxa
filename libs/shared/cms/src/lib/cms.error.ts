@@ -18,3 +18,50 @@ export class ProductConfigError extends BaseError {
     super(...args);
   }
 }
+
+export class QueriesUtilError extends BaseError {
+  constructor(...args: ConstructorParameters<typeof BaseError>) {
+    super(...args);
+  }
+}
+
+export class FetchCmsInvalidOfferingError extends ProductConfigError {
+  constructor(error: Error, offeringId: string) {
+    super('Invalid offering id', {
+      name: 'FetchCmsInvalidOfferingError',
+      cause: error,
+      info: { offeringId },
+    });
+  }
+}
+
+export class RetrieveStripePriceNotFoundError extends ProductConfigError {
+  constructor(offeringId: string, interval: string) {
+    super('Price not found', {
+      name: 'RetrieveStripePriceNotFoundError',
+      info: { offeringId, interval },
+    });
+  }
+}
+
+export class RetrieveStripePriceInvalidOfferingError extends ProductConfigError {
+  constructor(error: Error, offeringId: string) {
+    super('Invalid offering id', {
+      name: 'RetrieveStripePriceInvalidOfferingError',
+      cause: error,
+      info: { offeringId },
+    });
+  }
+}
+
+export class OfferingNotFoundError extends QueriesUtilError {
+  constructor() {
+    super('Offering not found');
+  }
+}
+
+export class OfferingMultipleError extends QueriesUtilError {
+  constructor() {
+    super('More than one offering found');
+  }
+}

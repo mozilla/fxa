@@ -14,7 +14,10 @@ import {
 import { ContentServerManager } from '@fxa/payments/content-server';
 import { CurrencyManager } from '@fxa/payments/currency';
 import { CheckoutTokenManager } from '@fxa/payments/paypal';
-import { ProductConfigurationManager } from '@fxa/shared/cms';
+import {
+  ProductConfigError,
+  ProductConfigurationManager,
+} from '@fxa/shared/cms';
 import {
   CartState,
   type CartErrorReasonId,
@@ -62,6 +65,7 @@ import { SetupCartActionResult } from './validators/SetupCartActionResult';
 import { RestartCartActionResult } from './validators/RestartCartActionResult';
 import { GetTaxAddressArgs } from './validators/getTaxAddressArgs';
 import { GetTaxAddressResult } from './validators/getTaxAddressResult';
+import { CartInvalidPromoCodeError } from 'libs/payments/cart/src/lib/cart.error';
 
 /**
  * ANY AND ALL methods exposed via this service should be considered publicly accessible and callable with any arguments.
@@ -139,7 +143,9 @@ export class NextJSActionsService {
     return cart;
   }
 
-  @SanitizeExceptions()
+  @SanitizeExceptions({
+    allowlist: [CartInvalidPromoCodeError, ProductConfigError],
+  })
   @NextIOValidator(SetupCartActionArgs, SetupCartActionResult)
   async setupCart(args: {
     interval: SubplatInterval;
@@ -223,7 +229,7 @@ export class NextJSActionsService {
     );
   }
 
-  @SanitizeExceptions()
+  @SanitizeExceptions({ allowlist: [ProductConfigError] })
   @NextIOValidator(FetchCMSDataActionArgs, FetchCMSDataActionResult)
   async fetchCMSData(args: {
     offeringId: string;
