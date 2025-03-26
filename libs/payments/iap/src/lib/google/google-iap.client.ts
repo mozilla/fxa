@@ -5,7 +5,10 @@
 import { Injectable } from '@nestjs/common';
 import { GoogleIapClientConfig } from './google-iap.client.config';
 import { Auth, google, type androidpublisher_v3 } from 'googleapis';
-import { GoogleIapUnknownError } from './google-iap.error';
+import {
+  GoogleIapTokenNotFoundError,
+  GoogleIapUnknownError,
+} from './google-iap.error';
 
 @Injectable()
 export class GoogleIapClient {
@@ -40,6 +43,12 @@ export class GoogleIapClient {
 
       return apiResponse.data;
     } catch (e) {
+      if (e instanceof Error && 'code' in e && e.code === 404) {
+        throw new GoogleIapTokenNotFoundError('Google IAP Not Found Error', {
+          cause: e,
+        });
+      }
+
       throw this.convertError(e);
     }
   }

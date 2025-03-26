@@ -10,6 +10,18 @@ export class GoogleIapError extends BaseError {
   }
 }
 
+export class GoogleIapTokenNotFoundError extends GoogleIapError {
+  constructor(...args: ConstructorParameters<typeof GoogleIapError>) {
+    super(...args);
+  }
+}
+
+export class GoogleIapInvalidMessagePayloadError extends GoogleIapError {
+  constructor(...args: ConstructorParameters<typeof GoogleIapError>) {
+    super(...args);
+  }
+}
+
 export class GoogleIapUnknownError extends GoogleIapError {
   constructor(...args: ConstructorParameters<typeof GoogleIapError>) {
     super(...args);
