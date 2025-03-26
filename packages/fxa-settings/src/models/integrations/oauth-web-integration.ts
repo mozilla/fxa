@@ -25,7 +25,6 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { AuthUiError } from '../../lib/auth-errors/auth-errors';
 
 export enum OAuthPrompt {
   CONSENT = 'consent',
@@ -217,8 +216,13 @@ export class OAuthWebIntegration extends BaseIntegration {
     return redirectUrl.toString();
   }
 
-  getRedirectWithErrorUrl(err: AuthUiError) {
-    return this.getRedirectToRPUrl({ error: err.errno });
+  getRedirectWithErrorUrl(err: {
+    response_error_code?: string;
+    errno?: number;
+  }) {
+    return this.getRedirectToRPUrl({
+      error: err.response_error_code ?? err.errno,
+    });
   }
 
   getService() {

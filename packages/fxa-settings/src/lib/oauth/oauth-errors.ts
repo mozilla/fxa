@@ -184,6 +184,8 @@ export const OAUTH_ERRORS: Record<string, AuthError> = {
 
 export class OAuthError extends Error {
   public errno: number;
+  public response_error_code?: string;
+
   constructor(
     public readonly error: string | number,
     public readonly params?: Record<string, string>
@@ -202,6 +204,7 @@ export class OAuthError extends Error {
     super(msg);
     this.name = 'OAuthError';
     this.errno = err?.errno || OAUTH_ERRORS.UNEXPECTED_ERROR.errno;
+    this.response_error_code = err?.response_error_code;
   }
 }
 
