@@ -28,7 +28,7 @@ module.exports = function (options = {}, statsd) {
         context: req.body.context,
       });
 
-      const previewMode = req.query?.nimbusPreview || false;
+      const previewMode = (req.query && req.query.nimbusPreview) || false;
       const queryParams = new URLSearchParams({
         nimbus_preview: previewMode,
       });
