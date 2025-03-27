@@ -37,4 +37,17 @@ describe('buildSp2RedirectUrl', () => {
       'http://content-server.com/subscriptions/products/prod_123?plan=price_123&flow_id=one&flow_begin_time=123'
     );
   });
+
+  it('should send no query params', () => {
+    const defaultSearchParams = new URLSearchParams();
+    const result = buildSp2RedirectUrl(
+      defaultProductId,
+      defaultPriceId,
+      defaultContentServerUrl,
+      defaultSearchParams
+    );
+    expect(result).toBe(
+      'http://content-server.com/subscriptions/products/prod_123?plan=price_123'
+    );
+  });
 });

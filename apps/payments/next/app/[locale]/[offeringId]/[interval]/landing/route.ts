@@ -15,7 +15,7 @@ import { getApp, getIpAddress } from '@fxa/payments/ui/server';
 import {
   buildSp2RedirectUrl,
   getSP2Params,
-  redirectToSp2,
+  determineRedirectToSp2,
 } from '@fxa/payments/legacy';
 import crypto from 'crypto';
 import * as Sentry from '@sentry/nextjs';
@@ -61,14 +61,15 @@ export async function GET(
   if (config.sp2redirect.enabled) {
     const queryCurrency = requestSearchParams.get('currency');
     const querySpVersion = requestSearchParams.get('spVersion');
-    const isSp2Redirect = redirectToSp2(
+    const shouldRedirectToSp2 = determineRedirectToSp2(
       config.sp2redirect,
       params.offeringId,
       crypto.randomInt(1, 100),
-      reportError
+      reportError,
+      querySpVersion
     );
 
-    if (isSp2Redirect || querySpVersion === '2') {
+    if (shouldRedirectToSp2) {
       let sp2RedirectUrl: string | undefined;
       try {
         const currency = queryCurrency
@@ -131,6 +132,10 @@ export async function GET(
   }
 
   const searchParams = Object.fromEntries(requestSearchParams);
+
+  if (searchParams?.spVersion) {
+    delete searchParams.spVersion;
+  }
 
   const { taxAddress } = await getTaxAddressAction(ipAddress);
   if (taxAddress) {

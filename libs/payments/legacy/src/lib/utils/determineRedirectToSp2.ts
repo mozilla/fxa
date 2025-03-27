@@ -4,12 +4,20 @@
 
 import { SP2RedirectConfig } from '../sp2map.config';
 
-export function redirectToSp2(
+export function determineRedirectToSp2(
   config: SP2RedirectConfig,
   offeringId: string,
   randomPercentage: number,
-  reportError: (...args: any) => void
+  reportError: (...args: any) => void,
+  versionOverride?: string | null
 ) {
+  // If version override is provided, short circuit return
+  if (versionOverride === '2') {
+    return true;
+  } else if (versionOverride === '3') {
+    return false;
+  }
+
   const configPercentage = config.offerings[offeringId]?.sp2RedirectPercentage;
   const sp2RedirectPercentage =
     configPercentage ?? config.defaultRedirectPercentage;

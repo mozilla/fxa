@@ -14,5 +14,11 @@ export function buildSp2RedirectUrl(
 
   const remainingQueryParams = searchParams.toString();
 
-  return `${contentServerUrl}/subscriptions/products/${productId}?plan=${priceId}&${remainingQueryParams}`;
+  const baseUrl = `${contentServerUrl}/subscriptions/products/${productId}?plan=${priceId}`;
+
+  if (remainingQueryParams) {
+    return `${baseUrl}&${remainingQueryParams}`;
+  } else {
+    return baseUrl;
+  }
 }
