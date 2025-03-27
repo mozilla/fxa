@@ -4060,20 +4060,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/plugin-proposal-private-property-in-object@npm:^7.16.7":
-  version: 7.21.11
-  resolution: "@babel/plugin-proposal-private-property-in-object@npm:7.21.11"
-  dependencies:
-    "@babel/helper-annotate-as-pure": ^7.18.6
-    "@babel/helper-create-class-features-plugin": ^7.21.0
-    "@babel/helper-plugin-utils": ^7.20.2
-    "@babel/plugin-syntax-private-property-in-object": ^7.14.5
-  peerDependencies:
-    "@babel/core": ^7.0.0-0
-  checksum: 1b880543bc5f525b360b53d97dd30807302bb82615cd42bf931968f59003cac75629563d6b104868db50abd22235b3271fdf679fea5db59a267181a99cc0c265
-  languageName: node
-  linkType: hard
-
 "@babel/plugin-proposal-private-property-in-object@npm:^7.21.0":
   version: 7.21.0
   resolution: "@babel/plugin-proposal-private-property-in-object@npm:7.21.0"
@@ -31825,31 +31811,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babel-preset-react-app@npm:^10.1.0":
-  version: 10.1.0
-  resolution: "babel-preset-react-app@npm:10.1.0"
-  dependencies:
-    "@babel/core": ^7.16.0
-    "@babel/plugin-proposal-class-properties": ^7.16.0
-    "@babel/plugin-proposal-decorators": ^7.16.4
-    "@babel/plugin-proposal-nullish-coalescing-operator": ^7.16.0
-    "@babel/plugin-proposal-numeric-separator": ^7.16.0
-    "@babel/plugin-proposal-optional-chaining": ^7.16.0
-    "@babel/plugin-proposal-private-methods": ^7.16.0
-    "@babel/plugin-proposal-private-property-in-object": ^7.16.7
-    "@babel/plugin-transform-flow-strip-types": ^7.16.0
-    "@babel/plugin-transform-react-display-name": ^7.16.0
-    "@babel/plugin-transform-runtime": ^7.16.4
-    "@babel/preset-env": ^7.16.4
-    "@babel/preset-react": ^7.16.0
-    "@babel/preset-typescript": ^7.16.0
-    "@babel/runtime": ^7.16.3
-    babel-plugin-macros: ^3.1.0
-    babel-plugin-transform-react-remove-prop-types: ^0.4.24
-  checksum: e4ac6c85be4f56c7e45b52700e04aed01422221b5c988e7a192a80d3b5aa3abbd415c0b76e8b5d564a411477a0b03323a15108663a9f541bd9397fa32f28ed89
-  languageName: node
-  linkType: hard
-
 "babel-register@npm:^6.26.0":
   version: 6.26.0
   resolution: "babel-register@npm:6.26.0"
@@ -43328,7 +43289,7 @@ fsevents@~2.1.1:
     async-wait-until: ^2.0.12
     babel-eslint: ^10.1.0
     babel-loader: ^9.1.3
-    babel-preset-react-app: ^10.1.0
+    babel-preset-react-app: ^10.0.1
     camelcase: ^6.3.0
     classnames: ^2.5.1
     eslint: ^7.32.0
@@ -43408,7 +43369,7 @@ fsevents@~2.1.1:
     babel-loader: ^9.1.3
     babel-plugin-named-exports-order: ^0.0.2
     babel-plugin-transform-typescript-metadata: ^0.3.2
-    babel-preset-react-app: ^10.1.0
+    babel-preset-react-app: ^10.0.1
     base32-decode: ^1.0.0
     base32-encode: ^1.2.0
     bfj: ^9.1.1
