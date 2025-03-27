@@ -20,6 +20,7 @@ export function getSP2Params(
 ) {
   if (!isValidInterval(interval)) {
     reportError('Interval is not supported', { interval });
+    throw new Error('Interval is not supported');
   }
 
   if (!currency) {

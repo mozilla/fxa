@@ -37,22 +37,6 @@ describe('getSP2Params', () => {
       expect(productId).toBe('prod_productid');
       expect(priceId).toBe('price_priceId');
     });
-
-    it('successfully returns productId and planId if invalid interval is provided', () => {
-      const { productId, priceId } = getSP2Params(
-        sp2mapConfig,
-        reportErrorMock,
-        'vpn',
-        'invalid',
-        'USD'
-      );
-      expect(reportErrorMock).toHaveBeenCalledWith(
-        'Interval is not supported',
-        { interval: 'invalid' }
-      );
-      expect(productId).toBe('prod_productid');
-      expect(priceId).toBe('price_priceId');
-    });
   });
 
   describe('failure', () => {
@@ -70,6 +54,19 @@ describe('getSP2Params', () => {
         expect(reportErrorMock).toHaveBeenCalledWith(
           'Missing or invalid offering',
           { offeringId: 'invalid' }
+        );
+        expect(err).toBeInstanceOf(Error);
+      }
+    });
+
+    it('throws an error if invalid interval is provided', () => {
+      try {
+        getSP2Params(sp2mapConfig, reportErrorMock, 'vpn', 'invalid', 'USD');
+        assert('should have thrown an error');
+      } catch (err) {
+        expect(reportErrorMock).toHaveBeenCalledWith(
+          'Interval is not supported',
+          { interval: 'invalid' }
         );
         expect(err).toBeInstanceOf(Error);
       }
