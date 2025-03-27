@@ -30927,6 +30927,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"babel-loader@npm:^10.0.0":
+  version: 10.0.0
+  resolution: "babel-loader@npm:10.0.0"
+  dependencies:
+    find-up: ^5.0.0
+  peerDependencies:
+    "@babel/core": ^7.12.0
+    webpack: ">=5.61.0"
+  checksum: 8a9dbb8a93cd342832cc99f024f07a6fda67b29aa907fbc3087de17e7f7ff705cf17fa9aed9103b1de9dfff24427afe200ec99213d24f801a0b1f4fd94783f51
+  languageName: node
+  linkType: hard
+
 "babel-loader@npm:^8.2.3":
   version: 8.3.0
   resolution: "babel-loader@npm:8.3.0"
@@ -30942,7 +30954,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babel-loader@npm:^9.0.0, babel-loader@npm:^9.1.3":
+"babel-loader@npm:^9.0.0":
   version: 9.1.3
   resolution: "babel-loader@npm:9.1.3"
   dependencies:
@@ -42661,7 +42673,7 @@ fsevents@~2.1.1:
     ajv: ^8.17.1
     async-retry: ^1.3.3
     audit-filter: ^0.5.0
-    babel-loader: ^9.1.3
+    babel-loader: ^10.0.0
     binary-split: 1.0.5
     buf: 0.1.1
     chai: ^4.5.0
@@ -42781,7 +42793,7 @@ fsevents@~2.1.1:
     asmcrypto.js: ^0.22.0
     audit-filter: ^0.5.0
     babel-eslint: ^10.1.0
-    babel-loader: ^9.1.3
+    babel-loader: ^10.0.0
     babel-plugin-dynamic-import-webpack: 1.1.0
     backbone: ^1.6.0
     backbone.cocktail: 0.5.15
@@ -43147,7 +43159,7 @@ fsevents@~2.1.1:
     accept-language-parser: ^1.5.0
     audit-filter: ^0.5.0
     babel-eslint: ^10.1.0
-    babel-loader: ^9.1.3
+    babel-loader: ^10.0.0
     browserslist: ^4.24.0
     classnames: ^2.5.1
     convict: ^6.2.4
@@ -43288,7 +43300,7 @@ fsevents@~2.1.1:
     "@types/sinon": ^10
     async-wait-until: ^2.0.12
     babel-eslint: ^10.1.0
-    babel-loader: ^9.1.3
+    babel-loader: ^10.0.0
     babel-preset-react-app: ^10.0.1
     camelcase: ^6.3.0
     classnames: ^2.5.1
@@ -43366,7 +43378,7 @@ fsevents@~2.1.1:
     "@types/uuid": ^10
     "@types/webpack": 5.28.5
     babel-jest: ^29.7.0
-    babel-loader: ^9.1.3
+    babel-loader: ^10.0.0
     babel-plugin-named-exports-order: ^0.0.2
     babel-plugin-transform-typescript-metadata: ^0.3.2
     babel-preset-react-app: ^10.0.1
