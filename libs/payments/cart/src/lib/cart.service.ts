@@ -203,11 +203,15 @@ export class CartService {
             });
           }
 
-          await this.subscriptionManager.cancel(cart.stripeSubscriptionId, {
-            cancellation_details: {
-              comment: 'Automatic Cancellation: Cart checkout failed.',
-            },
-          });
+          if (cart.eligibilityStatus === CartEligibilityStatus.CREATE) {
+            await this.subscriptionManager.cancel(cart.stripeSubscriptionId, {
+              cancellation_details: {
+                comment: 'Automatic Cancellation: Cart checkout failed.',
+              },
+            });
+          } else {
+            // TODO: FXA-11445 Ensure we roll back any changes to the subscription if they were made before the error occurred.
+          }
         }
       } catch (e) {
         // All errors thrown during the cleanup process should go to Sentry

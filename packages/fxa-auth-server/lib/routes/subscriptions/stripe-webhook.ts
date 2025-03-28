@@ -584,7 +584,18 @@ export class StripeWebhookHandler extends StripeHandler {
       }
     }
 
-    return this.stripeHelper.finalizeInvoice(invoice);
+    try {
+      return this.stripeHelper.finalizeInvoice(invoice);
+    } catch (err) {
+      // This is Stripe's only unique way of identifying this error. Hopefully this doesn't change before this function is deprecated.
+      if (
+        err?.raw?.message !==
+        "This invoice is already finalized, you can't re-finalize a non-draft invoice."
+      ) {
+        throw err;
+      }
+    }
+    return invoice;
   }
 
   /**
