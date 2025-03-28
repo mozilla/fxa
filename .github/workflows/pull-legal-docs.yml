@@ -18,6 +18,7 @@ jobs:
         with:
           path: fxa
           fetch-depth: 2
+          persist-credentials: false
 
       - name: Clone legal-docs repository
         uses: actions/checkout@v4
@@ -26,6 +27,7 @@ jobs:
           ref: prod
           path: legal-docs
           token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: false
 
       - name: Pull pdfs from legal-docs and push changes to FxA
         run: |
