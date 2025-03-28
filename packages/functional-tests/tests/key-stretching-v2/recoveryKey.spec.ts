@@ -69,6 +69,12 @@ test.describe('severity-2 #smoke', () => {
       },
       testAccountTracker,
     }) => {
+      test.skip(
+        signupVersion.version === 1,
+        "Skipping v1 signup tests as v1 signup isn't supported. \
+        These tests will be removed as part of https://mozilla-hub.atlassian.net/browse/FXA-11426"
+      );
+
       const accountDetails = {
         email: testAccountTracker.generateEmail(),
         password: testAccountTracker.generatePassword(),
