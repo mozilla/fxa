@@ -65,14 +65,12 @@ import type {
   ResultCart,
   StripeHandleNextActionResponse,
   UpdateCart,
+  UpdateCartInput,
 } from './cart.types';
 import { NeedsInputType } from './cart.types';
 import { handleEligibilityStatusMap } from './cart.utils';
 import { CheckoutFailedError } from './checkout.error';
 import { CheckoutService } from './checkout.service';
-
-// TODO - Add flow to handle situations where currency is not found
-const DEFAULT_CURRENCY = 'USD';
 
 type Constructor<T> = new (...args: any[]) => T;
 interface WrapWithCartCatchOptions {
@@ -348,7 +346,7 @@ export class CartService {
           await this.promotionCodeManager.assertValidPromotionCodeNameForPrice(
             oldCart.couponCode,
             price,
-            oldCart.currency || DEFAULT_CURRENCY
+            oldCart.currency
           );
         } catch (e) {
           throw new CartInvalidPromoCodeError(oldCart.couponCode);
@@ -521,13 +519,58 @@ export class CartService {
       CouponErrorLimitReached,
     ],
   })
-  async updateCart(cartId: string, version: number, cartDetails: UpdateCart) {
+  async updateCart(
+    cartId: string,
+    version: number,
+    cartDetailsInput: UpdateCartInput
+  ) {
     return this.wrapWithCartCatch(
       cartId,
       { errorAllowList: [PromotionCodeCouldNotBeAttachedError] },
       async () => {
+        const cartDetails: UpdateCart = {
+          ...cartDetailsInput,
+        };
         const oldCart = await this.cartManager.fetchCartById(cartId);
-        if (cartDetails?.couponCode) {
+
+        if (cartDetailsInput.taxAddress?.countryCode) {
+          cartDetails.currency = this.currencyManager.getCurrencyForCountry(
+            cartDetailsInput.taxAddress?.countryCode
+          );
+          if (!cartDetails.currency) {
+            throw new CartInvalidCurrencyError(
+              cartDetails.currency,
+              cartDetailsInput.taxAddress.countryCode
+            );
+          }
+
+          // If the currency has changed, and the cart already has a coupon code, and
+          // no new coupon is being added, then the coupon code needs to revalidated.
+          // If the code is invalid, then update the cart with an empty coupon code.
+          if (
+            cartDetails.currency !== oldCart.currency &&
+            !!oldCart.couponCode &&
+            !cartDetailsInput.couponCode
+          ) {
+            const price =
+              await this.productConfigurationManager.retrieveStripePrice(
+                oldCart.offeringConfigId,
+                oldCart.interval as SubplatInterval
+              );
+
+            try {
+              await this.promotionCodeManager.assertValidPromotionCodeNameForPrice(
+                oldCart.couponCode,
+                price,
+                cartDetails.currency
+              );
+            } catch (error) {
+              cartDetails.couponCode = null;
+            }
+          }
+        }
+
+        if (cartDetailsInput?.couponCode) {
           const price =
             await this.productConfigurationManager.retrieveStripePrice(
               oldCart.offeringConfigId,
@@ -535,22 +578,10 @@ export class CartService {
             );
 
           await this.promotionCodeManager.assertValidPromotionCodeNameForPrice(
-            cartDetails.couponCode,
+            cartDetailsInput?.couponCode,
             price,
-            cartDetails.currency || DEFAULT_CURRENCY
+            cartDetails.currency || oldCart.currency
           );
-        }
-
-        if (cartDetails.taxAddress?.countryCode) {
-          cartDetails.currency = this.currencyManager.getCurrencyForCountry(
-            cartDetails.taxAddress?.countryCode
-          );
-          if (!cartDetails.currency) {
-            throw new CartInvalidCurrencyError(
-              cartDetails.currency,
-              cartDetails.taxAddress.countryCode
-            );
-          }
         }
 
         await this.cartManager.updateFreshCart(cartId, version, cartDetails);

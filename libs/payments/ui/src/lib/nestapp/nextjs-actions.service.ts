@@ -125,7 +125,6 @@ export class NextJSActionsService {
         postalCode: string;
       };
       couponCode?: string;
-      email?: string;
     };
   }) {
     await this.cartService.updateCart(

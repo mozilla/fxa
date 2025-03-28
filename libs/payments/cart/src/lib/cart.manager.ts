@@ -31,6 +31,7 @@ import {
 } from './cart.types';
 
 import type { AccountDatabase } from '@fxa/shared/db/mysql/account';
+import assert from 'assert';
 // For an action to be executed, the cart state needs to be in one of
 // valid states listed in the array of CartStates below
 const ACTIONS_VALID_STATE = {
@@ -104,10 +105,14 @@ export class CartManager {
         updatedAt: now,
         version: 0,
       });
+
+      assert(cart.currency, 'Cart currency is required');
+
       return {
         ...cart,
         id: cart.id.toString('hex'),
         uid: cart.uid ? cart.uid.toString('hex') : undefined,
+        currency: cart.currency,
       };
     } catch (error) {
       console.log(error);
@@ -118,10 +123,14 @@ export class CartManager {
   public async fetchCartById(id: string): Promise<ResultCart> {
     try {
       const cart = await fetchCartById(this.db, Buffer.from(id, 'hex'));
+
+      assert(cart.currency, 'Cart currency is required');
+
       return {
         ...cart,
         id: cart.id.toString('hex'),
         uid: cart.uid ? cart.uid.toString('hex') : undefined,
+        currency: cart.currency,
       };
     } catch (error) {
       const cause = error instanceof NotFoundError ? undefined : error;
@@ -131,11 +140,14 @@ export class CartManager {
 
   public async fetchCartsByUid(uid: string): Promise<ResultCart[]> {
     const carts = await fetchCartsByUid(this.db, Buffer.from(uid, 'hex'));
+
     return carts.map((cart) => {
+      assert(cart.currency, 'Cart currency is required');
       return {
         ...cart,
         id: cart.id.toString('hex'),
         uid: cart.uid ? cart.uid.toString('hex') : undefined,
+        currency: cart.currency,
       };
     });
   }

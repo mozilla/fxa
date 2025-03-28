@@ -31,10 +31,6 @@ export class UpdateCartActionCartDetailsArgs {
   @IsString()
   @IsOptional()
   couponCode?: string;
-
-  @IsString()
-  @IsOptional()
-  email?: string;
 }
 
 export class UpdateCartActionArgs {
