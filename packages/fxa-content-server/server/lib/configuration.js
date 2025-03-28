@@ -875,6 +875,12 @@ const conf = (module.exports = convict({
       env: 'ROLLOUT_KEY_STRETCH_V2',
       format: Number,
     },
+    generalizedReactApp: {
+      default: 0,
+      doc: 'The rollout rate for the generalized react app experiment. Valid values are from 0 to 1.0. Applies to react route groups that are enabled but not set to fullProdRollout',
+      env: 'ROLLOUT_GENERALIZED_REACT_APP',
+      format: Number,
+    },
   },
   statsd: {
     enabled: {

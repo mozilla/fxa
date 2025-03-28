@@ -86,6 +86,7 @@ export interface Config {
   };
   rolloutRates?: {
     keyStretchV2?: number;
+    generalizedReactApp?: number;
   };
   featureFlags?: {
     keyStretchV2?: boolean;
