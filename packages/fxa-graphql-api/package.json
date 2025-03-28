@@ -37,7 +37,7 @@
   "homepage": "https://github.com/mozilla/fxa#readme",
   "readmeFilename": "README.md",
   "dependencies": {
-    "body-parser": "^1.20.3",
+    "body-parser": "^2.0.0",
     "commander": "^6.0.0",
     "convict": "^6.2.4",
     "convict-format-with-moment": "^6.2.0",

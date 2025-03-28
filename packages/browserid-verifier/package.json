@@ -13,7 +13,7 @@
   "main": "lib/server.js",
   "dependencies": {
     "async": "3.2.4",
-    "body-parser": "^1.20.3",
+    "body-parser": "^2.0.0",
     "browserid-local-verify": "0.5.2",
     "compute-cluster": "0.0.9",
     "convict": "^6.2.4",
