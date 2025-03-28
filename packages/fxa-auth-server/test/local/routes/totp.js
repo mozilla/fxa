@@ -307,22 +307,15 @@ describe('totp', () => {
         assert.equal('totp-2fa', args[1], 'called with correct method');
 
         // emits correct metrics
-        assert.equal(
-          request.emitMetricsEvent.callCount,
-          1,
-          'called emitMetricsEvent'
-        );
-        args = request.emitMetricsEvent.args[0];
-        assert.equal(
-          args[0],
+        sinon.assert.calledTwice(request.emitMetricsEvent);
+        sinon.assert.calledWith(
+          request.emitMetricsEvent,
           'totpToken.verified',
-          'called emitMetricsEvent with correct event'
+          { uid: 'uid' }
         );
-        assert.equal(
-          args[1]['uid'],
-          'uid',
-          'called emitMetricsEvent with correct event'
-        );
+        sinon.assert.calledWith(request.emitMetricsEvent, 'account.confirmed', {
+          uid: 'uid',
+        });
 
         // correct emails sent
         assert.equal(mailer.sendNewDeviceLoginEmail.callCount, 0);
@@ -386,27 +379,20 @@ describe('totp', () => {
           1,
           'call verify session'
         );
-        let args = db.verifyTokensWithMethod.args[0];
+        const args = db.verifyTokensWithMethod.args[0];
         assert.equal(sessionId, args[0], 'called with correct session id');
         assert.equal('totp-2fa', args[1], 'called with correct method');
 
         // emits correct metrics
-        assert.equal(
-          request.emitMetricsEvent.callCount,
-          1,
-          'called emitMetricsEvent'
-        );
-        args = request.emitMetricsEvent.args[0];
-        assert.equal(
-          args[0],
+        sinon.assert.calledTwice(request.emitMetricsEvent);
+        sinon.assert.calledWith(
+          request.emitMetricsEvent,
           'totpToken.verified',
-          'called emitMetricsEvent with correct event'
+          { uid: 'uid' }
         );
-        assert.equal(
-          args[1]['uid'],
-          'uid',
-          'called emitMetricsEvent with correct event'
-        );
+        sinon.assert.calledWith(request.emitMetricsEvent, 'account.confirmed', {
+          uid: 'uid',
+        });
 
         // correct emails sent
         assert.equal(mailer.sendNewDeviceLoginEmail.callCount, 1);
@@ -466,27 +452,20 @@ describe('totp', () => {
           1,
           'call verify session'
         );
-        let args = db.verifyTokensWithMethod.args[0];
+        const args = db.verifyTokensWithMethod.args[0];
         assert.equal(sessionId, args[0], 'called with correct session id');
         assert.equal('totp-2fa', args[1], 'called with correct method');
 
         // emits correct metrics
-        assert.equal(
-          request.emitMetricsEvent.callCount,
-          1,
-          'called emitMetricsEvent'
-        );
-        args = request.emitMetricsEvent.args[0];
-        assert.equal(
-          args[0],
+        sinon.assert.calledTwice(request.emitMetricsEvent);
+        sinon.assert.calledWith(
+          request.emitMetricsEvent,
           'totpToken.verified',
-          'called emitMetricsEvent with correct event'
+          { uid: 'uid' }
         );
-        assert.equal(
-          args[1]['uid'],
-          'uid',
-          'called emitMetricsEvent with correct event'
-        );
+        sinon.assert.calledWith(request.emitMetricsEvent, 'account.confirmed', {
+          uid: 'uid',
+        });
 
         // correct emails sent
         assert.equal(mailer.sendNewDeviceLoginEmail.callCount, 1);

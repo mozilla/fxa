@@ -72,6 +72,7 @@ describe('/recovery_phone', () => {
     recordSecurityEvent: sandbox.fake(),
   };
   let routes = [];
+  let request;
 
   beforeEach(() => {
     Container.set(RecoveryPhoneService, mockRecoveryPhoneService);
@@ -95,7 +96,9 @@ describe('/recovery_phone', () => {
   async function makeRequest(req) {
     const route = getRoute(routes, req.path, req.method);
     assert.isDefined(route);
-    return await route.handler(mockRequest(req));
+    request = mockRequest(req);
+    request.emitMetricsEvent = sandbox.stub().resolves();
+    return await route.handler(request);
   }
 
   describe('POST /recovery_phone/signin/send_code', () => {
@@ -487,6 +490,11 @@ describe('/recovery_phone', () => {
       assert.calledOnceWithExactly(
         mockStatsd.increment,
         'account.recoveryPhone.phoneSignin.success'
+      );
+      assert.calledOnceWithExactly(
+        request.emitMetricsEvent,
+        'account.confirmed',
+        { uid }
       );
     });
 

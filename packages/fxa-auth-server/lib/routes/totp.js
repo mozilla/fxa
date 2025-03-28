@@ -548,6 +548,8 @@ module.exports = (
         if (isValidCode) {
           log.info('totp.verified', { uid });
           await request.emitMetricsEvent('totpToken.verified', { uid });
+          // this signals the end of the login flow
+          await request.emitMetricsEvent('account.confirmed', { uid });
           glean.login.totpSuccess(request, { uid });
 
           accountEventsManager.recordSecurityEvent(db, {

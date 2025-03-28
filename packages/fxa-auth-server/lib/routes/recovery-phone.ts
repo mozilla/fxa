@@ -241,8 +241,6 @@ class RecoveryPhoneHandler {
       await this.glean.twoStepAuthPhoneCode.sendError(request);
       return { status: RecoveryPhoneStatus.FAILURE };
     } catch (error) {
-      console.log('!!!! setup phone number error', error);
-
       if (error instanceof RecoveryPhoneNotEnabled) {
         throw AppError.featureNotEnabled();
       }
@@ -393,6 +391,8 @@ class RecoveryPhoneHandler {
         }
       } else {
         this.statsd.increment('account.recoveryPhone.phoneSignin.success');
+        // this signals the end of the login flow
+        await request.emitMetricsEvent('account.confirmed', { uid });
 
         this.accountEventsManager.recordSecurityEvent(this.db, {
           name: 'account.recovery_phone_signin_complete',
