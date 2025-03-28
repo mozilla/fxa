@@ -26631,18 +26631,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/passport-jwt@npm:^3.0.5":
-  version: 3.0.5
-  resolution: "@types/passport-jwt@npm:3.0.5"
-  dependencies:
-    "@types/express": "*"
-    "@types/jsonwebtoken": "*"
-    "@types/passport-strategy": "*"
-  checksum: 18ef6f6cdd3acedbb0f3afd1823b6248dc063d74d2a786d301e3dd8e0f8ba977daa13d88f3b20e4463d7a40f3e78bd20acc9c6701e90c3a76a2fa7adf019d211
-  languageName: node
-  linkType: hard
-
-"@types/passport-jwt@npm:^4":
+"@types/passport-jwt@npm:^4, @types/passport-jwt@npm:^4.0.1":
   version: 4.0.1
   resolution: "@types/passport-jwt@npm:4.0.1"
   dependencies:
@@ -42975,7 +42964,7 @@ fsevents@~2.1.1:
     "@types/jest": ^26.0.23
     "@types/node": ^22.13.5
     "@types/passport": ^1.0.6
-    "@types/passport-jwt": ^3.0.5
+    "@types/passport-jwt": ^4.0.1
     "@types/rimraf": 3.0.0
     "@types/sinon": 10.0.1
     "@types/supertest": ^2.0.11
