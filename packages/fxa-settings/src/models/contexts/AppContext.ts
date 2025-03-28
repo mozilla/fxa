@@ -17,6 +17,7 @@ import { SensitiveDataClient } from '../../lib/sensitive-data-client';
 import { initializeNimbus, NimbusContextT } from '../../lib/nimbus';
 import { parseAcceptLanguage } from '../../../../../libs/shared/l10n/src';
 import { getUniqueUserId } from '../../lib/cache';
+import { searchParams } from '../../lib/utilities';
 
 // TODO, move some values from AppContext to SettingsContext after
 // using container components, FXA-8107
@@ -54,7 +55,11 @@ function fetchNimbusExperiments(uniqueUserId: string): Promise<any> {
     region = region.toLowerCase();
   }
 
-  return initializeNimbus(uniqueUserId, config.nimbusPreview, {
+  const nimbusPreview = config.nimbusPreview
+    ? config.nimbusPreview
+    : searchParams(window.location.search).nimbusPreview === 'true';
+
+  return initializeNimbus(uniqueUserId, nimbusPreview, {
     language,
     region,
   } as NimbusContextT);

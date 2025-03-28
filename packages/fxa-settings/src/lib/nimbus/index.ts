@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import * as Sentry from '@sentry/browser';
-import { searchParams } from '../utilities';
 
 /**
  * A collection of attributes about the client that will be used for
@@ -40,15 +39,12 @@ export async function initializeNimbus(
     client_id: clientId,
     context,
   });
-  const nimbusPreview = previewEnabled
-    ? previewEnabled
-    : searchParams(window.location.search).nimbusPreview;
 
   let experiments;
 
   try {
     const resp = await fetch(
-      `/nimbus-experiments?nimbusPreview=${nimbusPreview}`,
+      `/nimbus-experiments?nimbusPreview=${previewEnabled}`,
       {
         method: 'POST',
         body,
