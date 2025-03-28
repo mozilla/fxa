@@ -10,7 +10,7 @@ import { useAuthClient } from '../../models';
 import firefox from '../../lib/channels/firefox';
 import { AuthUiError, AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { getHandledError } from '../../lib/error-utils';
-import { currentAccount } from '../../lib/cache';
+import { currentAccount, lastStoredAccount } from '../../lib/cache';
 import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
 import { IndexQueryParams } from '../../models/pages/index';
 import { isUnsupportedContext } from '../../models/integrations/utils';
@@ -53,7 +53,8 @@ export const IndexContainer = ({
   const suggestedEmail =
     queryParamModel.email ||
     integration.data.loginHint ||
-    currentAccount()?.email;
+    currentAccount()?.email ||
+    lastStoredAccount()?.email;
 
   const hasEmailSuggestion = suggestedEmail && !prefillEmail;
 
