@@ -12,10 +12,7 @@ export function middleware(request: NextRequest) {
   );
   if (result.redirect) {
     return NextResponse.redirect(
-      new URL(
-        `${result.pathname}${request.nextUrl.search}`,
-        request.nextUrl.hostname
-      )
+      new URL(`${result.pathname}${request.nextUrl.search}`, request.url)
     );
   }
 
