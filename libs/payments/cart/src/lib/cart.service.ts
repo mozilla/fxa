@@ -96,7 +96,7 @@ export class CartService {
     private subscriptionManager: SubscriptionManager,
     private paymentMethodManager: PaymentMethodManager,
     private paymentIntentManager: PaymentIntentManager
-  ) {}
+  ) { }
 
   /**
    * Should be used to wrap any method that mutates an existing cart.
@@ -357,12 +357,12 @@ export class CartService {
 
       const accountCustomer = oldCart.uid
         ? await this.accountCustomerManager
-            .getAccountCustomerByUid(oldCart.uid)
-            .catch((error) => {
-              if (!(error instanceof AccountCustomerNotFoundError)) {
-                throw error;
-              }
-            })
+          .getAccountCustomerByUid(oldCart.uid)
+          .catch((error) => {
+            if (!(error instanceof AccountCustomerNotFoundError)) {
+              throw error;
+            }
+          })
         : undefined;
 
       if (!(oldCart.taxAddress && oldCart.currency)) {
