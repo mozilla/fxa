@@ -11,7 +11,12 @@ export function middleware(request: NextRequest) {
     request.headers.get('accept-language')
   );
   if (result.redirect) {
-    return NextResponse.redirect(new URL(result.pathname, request.url));
+    return NextResponse.redirect(
+      new URL(
+        `${result.pathname}${request.nextUrl.search}`,
+        request.nextUrl.hostname
+      )
+    );
   }
 
   // Read env vars directly from process.env
