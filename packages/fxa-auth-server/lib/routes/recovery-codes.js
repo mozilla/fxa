@@ -263,6 +263,8 @@ module.exports = (log, db, config, customs, mailer, glean) => {
         log.info('account.recoveryCode.verified', { uid });
 
         await request.emitMetricsEvent('recoveryCode.verified', { uid });
+        // this signals the end of the login flow
+        await request.emitMetricsEvent('account.confirmed', { uid });
         glean.login.recoveryCodeSuccess(request, { uid });
 
         accountEventsManager.recordSecurityEvent(db, {

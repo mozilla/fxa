@@ -241,5 +241,16 @@ describe('backup authentication codes', () => {
         { uid: UID }
       );
     });
+
+    it('should emit the flow complete event', async () => {
+      db.consumeRecoveryCode = sandbox.spy((code) => {
+        return Promise.resolve({ remaining: 4 });
+      });
+      await runTest('/session/verify/recoveryCode', requestOptions);
+      sandbox.assert.calledTwice(request.emitMetricsEvent);
+      sandbox.assert.calledWith(request.emitMetricsEvent, 'account.confirmed', {
+        uid: UID,
+      });
+    });
   });
 });
