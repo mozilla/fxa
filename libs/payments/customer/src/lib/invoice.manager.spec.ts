@@ -643,5 +643,58 @@ describe('InvoiceManager', () => {
       );
       expect(stripeClient.invoicesPay).toHaveBeenCalledWith(mockInvoice.id);
     });
+    it('successfully handles invoices that were already finalized', async () => {
+      class MockStripeError extends Error {
+        raw: { message: string };
+        constructor(message: string) {
+          super('Invoice already finalized');
+          this.raw = { message: message };
+        }
+      }
+
+      const mockPaymentAttemptCount = 1;
+      const mockCustomer = StripeResponseFactory(
+        StripeCustomerFactory({
+          metadata: {
+            [STRIPE_CUSTOMER_METADATA.PaypalAgreement]: '1',
+          },
+        })
+      );
+      const mockInvoice = StripeResponseFactory(
+        StripeInvoiceFactory({
+          status: 'open',
+          currency: 'usd',
+          metadata: {
+            [STRIPE_INVOICE_METADATA.RetryAttempts]: String(
+              mockPaymentAttemptCount
+            ),
+          },
+          customer_shipping: { address: StripeAddressFactory() },
+        })
+      );
+      jest
+        .spyOn(stripeClient, 'invoicesFinalizeInvoice')
+        .mockRejectedValue(
+          new MockStripeError(
+            "This invoice is already finalized, you can't re-finalize a non-draft invoice."
+          )
+        );
+
+      jest.spyOn(paypalClient, 'chargeCustomer').mockResolvedValue(
+        ChargeResponseFactory({
+          paymentStatus: 'Completed',
+        })
+      );
+      jest.spyOn(stripeClient, 'invoicesUpdate').mockResolvedValue(mockInvoice);
+      jest.spyOn(stripeClient, 'invoicesPay').mockResolvedValue();
+      jest
+        .spyOn(stripeClient, 'invoicesRetrieve')
+        .mockResolvedValue(mockInvoice);
+
+      await invoiceManager.processPayPalNonZeroInvoice(
+        mockCustomer,
+        mockInvoice
+      );
+    });
   });
 });

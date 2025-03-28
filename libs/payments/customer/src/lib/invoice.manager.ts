@@ -260,7 +260,19 @@ export class InvoiceManager {
     let paypalCharge: ChargeResponse;
     try {
       // Charge the PayPal customer after the invoice is finalized to prevent charges with a failed invoice
-      await this.stripeClient.invoicesFinalizeInvoice(invoice.id);
+      try {
+        // Duplicate calls to finalizeInvoice can be made due to race conditions. Failures from re-finalizing an invoice can be ignored.
+        await this.stripeClient.invoicesFinalizeInvoice(invoice.id);
+      } catch (err) {
+        // This is Stripe's only unique way of identifying this error. Remove as part of FXA-11460
+        if (
+          err?.raw?.message !==
+          "This invoice is already finalized, you can't re-finalize a non-draft invoice."
+        ) {
+          throw err;
+        }
+      }
+
       paypalCharge = await this.paypalClient.chargeCustomer(chargeOptions);
     } catch (error) {
       if (PayPalClientError.hasPayPalNVPError(error)) {
