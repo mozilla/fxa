@@ -60,7 +60,7 @@
     "@storybook/react-webpack5": "^7.0.23",
     "@tailwindcss/container-queries": "^0.1.1",
     "@testing-library/dom": "^10.4.0",
-    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/user-event": "^14.6.0",
     "@types/babel__preset-env": "^7",
     "@types/camelcase": "5.2.0",
