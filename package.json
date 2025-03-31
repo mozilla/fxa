@@ -181,7 +181,7 @@
     "@nx/jest": "19.5.3",
     "@nx/js": "20.4.5",
     "@nx/node": "19.5.3",
-    "@nx/react": "19.5.3",
+    "@nx/react": "20.6.4",
     "@nx/storybook": "19.5.3",
     "@nx/workspace": "20.6.2",
     "@opentelemetry/semantic-conventions": "^1.30.0",
