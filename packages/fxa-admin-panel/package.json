@@ -57,7 +57,7 @@
     "@rescripts/cli": "0.0.16",
     "@testing-library/jest-dom": "^5.16.5",
     "@types/chance": "^1.1.2",
-    "@types/convict": "^6.1.1",
+    "@types/convict": "^6.1.6",
     "@types/dateformat": "^3.0.1",
     "@types/express": "^4.17.12",
     "@types/helmet": "4.0.0",
