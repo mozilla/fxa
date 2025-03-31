@@ -169,6 +169,7 @@ executors:
       # Recovery phone feature flags
       FEATURE_FLAGS_ADDING_2FA_BACKUP_PHONE: true
       FEATURE_FLAGS_USING_2FA_BACKUP_PHONE: true
+      ROLLOUT_GENERALIZED_REACT_APP: 1
       GEODB_LOCATION_OVERRIDE: '{"location": {"countryCode": "US", "postalCode": "85001"}}'
       RECOVERY_PHONE__ENABLED: true
       CUSTOMS_SERVER_URL: none
