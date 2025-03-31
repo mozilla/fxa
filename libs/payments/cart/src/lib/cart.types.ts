@@ -59,6 +59,7 @@ export interface PaymentInfo {
 export type ResultCart = Readonly<Omit<Cart, 'id' | 'uid'>> & {
   readonly id: string;
   readonly uid?: string;
+  currency: string;
 };
 
 export type FromPrice = {
@@ -130,9 +131,16 @@ export type UpdateCart = {
   uid?: string;
   taxAddress?: TaxAddress;
   currency?: string;
-  couponCode?: string;
+  couponCode?: string | null;
   stripeCustomerId?: string;
   stripeSubscriptionId?: string;
+};
+
+export type UpdateCartInput = Pick<
+  UpdateCart,
+  'uid' | 'taxAddress' | 'couponCode'
+> & {
+  couponCode?: string;
 };
 
 export type CartEligibilityDetails = {

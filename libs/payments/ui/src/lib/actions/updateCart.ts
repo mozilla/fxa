@@ -6,14 +6,14 @@
 
 import { revalidatePath } from 'next/cache';
 
-import { UpdateCart } from '@fxa/payments/cart';
+import { UpdateCartInput } from '@fxa/payments/cart';
 import { getApp } from '../nestapp/app';
 import { CouponErrorMessageType } from '../utils/error-ftl-messages';
 
 export const updateCartAction = async (
   cartId: string,
   version: number,
-  cartDetails: UpdateCart
+  cartDetails: UpdateCartInput
 ) => {
   const actionsService = getApp().getActionsService();
 

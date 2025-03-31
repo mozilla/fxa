@@ -81,7 +81,7 @@ import {
   CheckoutCustomerDataFactory,
   FinishErrorCartFactory,
   ResultCartFactory,
-  UpdateCartFactory,
+  UpdateCartInputFactory,
 } from './cart.factories';
 import { CartManager } from './cart.manager';
 import { CartService } from './cart.service';
@@ -939,26 +939,119 @@ describe('CartService', () => {
   });
 
   describe('updateCart', () => {
-    it('calls cartManager.updateFreshCart', async () => {
-      const mockCart = ResultCartFactory();
-      const mockUpdateCart = UpdateCartFactory();
+    describe('updates cart with tax address and currency', () => {
+      const mockCart = ResultCartFactory({
+        stripeSubscriptionId: undefined,
+      });
+      const mockUpdateCartInput = UpdateCartInputFactory({
+        taxAddress: {
+          postalCode: faker.location.zipCode(),
+          countryCode: faker.location.countryCode(),
+        },
+      });
+      const mockCurrency = faker.finance.currencyCode();
+      const expectedUpdateCart = {
+        ...mockUpdateCartInput,
+        currency: mockCurrency,
+      };
+      const mockPrice = StripePriceFactory();
 
-      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
-      jest.spyOn(cartManager, 'updateFreshCart').mockResolvedValue();
-      jest.spyOn(cartManager, 'finishErrorCart').mockResolvedValue();
+      beforeEach(() => {
+        jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+        jest.spyOn(cartManager, 'updateFreshCart').mockResolvedValue();
+        jest.spyOn(cartManager, 'finishErrorCart').mockResolvedValue();
+        jest
+          .spyOn(currencyManager, 'getCurrencyForCountry')
+          .mockReturnValue(mockCurrency);
+        jest
+          .spyOn(productConfigurationManager, 'retrieveStripePrice')
+          .mockResolvedValue(mockPrice);
+        jest
+          .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
+          .mockResolvedValue(undefined);
+      });
 
-      await cartService.updateCart(
-        mockCart.id,
-        mockCart.version,
-        mockUpdateCart
-      );
+      it('calls cartManager.updateFreshCart', async () => {
+        await cartService.updateCart(
+          mockCart.id,
+          mockCart.version,
+          mockUpdateCartInput
+        );
 
-      expect(cartManager.updateFreshCart).toHaveBeenCalledWith(
-        mockCart.id,
-        mockCart.version,
-        mockUpdateCart
-      );
-      expect(cartManager.finishErrorCart).not.toHaveBeenCalled();
+        expect(cartManager.updateFreshCart).toHaveBeenCalledWith(
+          mockCart.id,
+          mockCart.version,
+          expectedUpdateCart
+        );
+        expect(cartManager.finishErrorCart).not.toHaveBeenCalled();
+      });
+
+      it('currency changes and existing coupon validates successfully', async () => {
+        const mockCart = ResultCartFactory({
+          stripeSubscriptionId: undefined,
+          couponCode: 'PERCENTAGE_COUPON',
+          currency: 'RANDOM_CURRENCY', // purposfully invalid so that in doesn't conflict
+        });
+        jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+        await cartService.updateCart(
+          mockCart.id,
+          mockCart.version,
+          mockUpdateCartInput
+        );
+
+        expect(
+          promotionCodeManager.assertValidPromotionCodeNameForPrice
+        ).toHaveBeenCalledWith(mockCart.couponCode, mockPrice, mockCurrency);
+        expect(cartManager.updateFreshCart).toHaveBeenCalledWith(
+          mockCart.id,
+          mockCart.version,
+          expectedUpdateCart
+        );
+      });
+
+      it('currency changes and existing coupon validation fails', async () => {
+        const mockCart = ResultCartFactory({
+          stripeSubscriptionId: undefined,
+          couponCode: 'PERCENTAGE_COUPON',
+          currency: 'RANDOM_CURRENCY', // purposfully invalid so that in doesn't conflict
+        });
+        jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+        jest
+          .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
+          .mockRejectedValue(new Error('any error'));
+        await cartService.updateCart(
+          mockCart.id,
+          mockCart.version,
+          mockUpdateCartInput
+        );
+
+        expect(
+          promotionCodeManager.assertValidPromotionCodeNameForPrice
+        ).toHaveBeenCalledWith(mockCart.couponCode, mockPrice, mockCurrency);
+        expect(cartManager.updateFreshCart).toHaveBeenCalledWith(
+          mockCart.id,
+          mockCart.version,
+          {
+            ...expectedUpdateCart,
+            couponCode: null,
+          }
+        );
+      });
+
+      it('throws if country to currency result is not valid', async () => {
+        jest
+          .spyOn(currencyManager, 'getCurrencyForCountry')
+          .mockReturnValue(undefined);
+        jest.spyOn(cartManager, 'finishErrorCart').mockResolvedValue();
+
+        await expect(
+          cartService.updateCart(
+            mockCart.id,
+            mockCart.version,
+            mockUpdateCartInput
+          )
+        ).rejects.toBeInstanceOf(CartInvalidCurrencyError);
+      });
     });
 
     describe('updates cart with coupon code', () => {
@@ -966,14 +1059,18 @@ describe('CartService', () => {
         stripeSubscriptionId: undefined,
       });
       const mockPrice = StripePriceFactory();
-      const mockUpdateCart = UpdateCartFactory({
+      const mockUpdateCartInput = UpdateCartInputFactory({
         couponCode: faker.word.noun(),
         taxAddress: {
           postalCode: faker.location.zipCode(),
           countryCode: faker.location.countryCode(),
         },
-        currency: 'USD',
       });
+      const mockCurrency = faker.finance.currencyCode();
+      const expectedUpdateCart = {
+        ...mockUpdateCartInput,
+        currency: mockCurrency,
+      };
 
       beforeEach(async () => {
         jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
@@ -982,7 +1079,7 @@ describe('CartService', () => {
           .mockResolvedValue(mockPrice);
         jest
           .spyOn(currencyManager, 'getCurrencyForCountry')
-          .mockReturnValue(faker.finance.currencyCode());
+          .mockReturnValue(mockCurrency);
         jest
           .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
           .mockResolvedValue(undefined);
@@ -993,13 +1090,13 @@ describe('CartService', () => {
         await cartService.updateCart(
           mockCart.id,
           mockCart.version,
-          mockUpdateCart
+          mockUpdateCartInput
         );
 
         expect(cartManager.updateFreshCart).toHaveBeenCalledWith(
           mockCart.id,
           mockCart.version,
-          mockUpdateCart
+          expectedUpdateCart
         );
       });
 
@@ -1010,32 +1107,22 @@ describe('CartService', () => {
         jest.spyOn(cartManager, 'finishErrorCart').mockResolvedValue();
 
         await expect(
-          cartService.updateCart(mockCart.id, mockCart.version, mockUpdateCart)
+          cartService.updateCart(
+            mockCart.id,
+            mockCart.version,
+            mockUpdateCartInput
+          )
         ).rejects.toBeInstanceOf(CouponErrorExpired);
 
         expect(
           promotionCodeManager.assertValidPromotionCodeNameForPrice
         ).toHaveBeenCalledWith(
-          mockUpdateCart.couponCode,
+          mockUpdateCartInput.couponCode,
           mockPrice,
-          mockUpdateCart.currency
+          mockCurrency
         );
         expect(cartManager.updateFreshCart).not.toHaveBeenCalled();
         expect(cartManager.finishErrorCart).not.toHaveBeenCalled();
-      });
-
-      it('throws if country to currency result is not valid', async () => {
-        jest
-          .spyOn(currencyManager, 'getCurrencyForCountry')
-          .mockReturnValue(undefined);
-        jest.spyOn(cartManager, 'finishErrorCart').mockResolvedValue();
-
-        await expect(
-          cartService.updateCart(mockCart.id, mockCart.version, mockUpdateCart)
-        ).rejects.toBeInstanceOf(CartInvalidCurrencyError);
-
-        expect(cartManager.updateFreshCart).not.toHaveBeenCalledWith();
-        expect(cartManager.finishErrorCart).toHaveBeenCalled();
       });
     });
   });

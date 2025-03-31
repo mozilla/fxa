@@ -19,6 +19,7 @@ import {
   SetupCart,
   TaxAmount,
   UpdateCart,
+  UpdateCartInput,
 } from './cart.types';
 
 const OFFERING_CONFIG_IDS = [
@@ -68,6 +69,12 @@ export const PaymentInfoFactory = (
     'apple_iap',
     'external_paypal',
   ]),
+  ...override,
+});
+
+export const UpdateCartInputFactory = (
+  override?: Partial<UpdateCartInput>
+): UpdateCartInput => ({
   ...override,
 });
 
