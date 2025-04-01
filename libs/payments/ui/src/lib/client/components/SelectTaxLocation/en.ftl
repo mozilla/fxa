@@ -4,6 +4,7 @@ select-tax-location-title = Location
 
 select-tax-location-edit-button = Edit
 select-tax-location-save-button = Save
+select-tax-location-continue-to-checkout-button = Continue to checkout
 
 select-tax-location-country-code-label = Country
 select-tax-location-country-code-placeholder = Select your country
