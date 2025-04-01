@@ -73,12 +73,15 @@ export class GoogleIapPurchaseManager {
         );
       }
 
+      if (purchase.isAccountHold() || purchase.isPaused()) {
+        this.log.log('getForUser.accountHoldOrPaused', {
+          purchaseToken: purchase.purchaseToken,
+          userId: purchase.userId,
+        });
+      }
+
       // Add the updated purchase to list to returned to clients
-      if (
-        purchase.isEntitlementActive() ||
-        purchase.isAccountHold() ||
-        purchase.isPaused()
-      ) {
+      if (purchase.isEntitlementActive()) {
         purchaseList.push(purchase);
       }
     }

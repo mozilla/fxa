@@ -55,3 +55,9 @@ export interface FirestoreGoogleIapPurchaseRecord {
   verifiedAt: number;
   latestNotificationType?: number;
 }
+
+export type IapExtraStripeInfo = {
+  product_id: string;
+  product_name: string;
+  price_id: string;
+};
