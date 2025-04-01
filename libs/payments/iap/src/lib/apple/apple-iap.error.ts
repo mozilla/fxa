@@ -10,6 +10,18 @@ export class AppleIapError extends BaseError {
   }
 }
 
+export class AppleIapInvalidOriginalTransactionIdError extends AppleIapError {
+  constructor(...args: ConstructorParameters<typeof AppleIapError>) {
+    super(...args);
+  }
+}
+
+export class AppleIapConflictError extends AppleIapError {
+  constructor(...args: ConstructorParameters<typeof AppleIapError>) {
+    super(...args);
+  }
+}
+
 export class AppleIapUnknownError extends AppleIapError {
   constructor(...args: ConstructorParameters<typeof AppleIapError>) {
     super(...args);
