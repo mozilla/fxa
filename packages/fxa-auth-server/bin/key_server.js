@@ -14,9 +14,7 @@ const Redis = require('ioredis');
 const { CapabilityManager } = require('@fxa/payments/capability');
 const { EligibilityManager } = require('@fxa/payments/eligibility');
 const {
-  ProductManager,
   PriceManager,
-  SubscriptionManager,
   PromotionCodeManager,
 } = require('@fxa/payments/customer');
 const { StripeClient } = require('@fxa/payments/stripe');
@@ -149,17 +147,14 @@ async function run(config) {
   /** @type {undefined | import('../lib/payments/stripe').StripeHelper} */
   let stripeHelper = undefined;
   if (config.subscriptions && config.subscriptions.stripeApiKey) {
-    const stripeClient = new StripeClient({
-      apiKey: config.subscriptions.stripeApiKey,
-    });
-    const productManager = new ProductManager(stripeClient);
-    const priceManager = new PriceManager(stripeClient);
-    const subscriptionManager = new SubscriptionManager(stripeClient);
-    const promotionCodeManager = new PromotionCodeManager(
-      stripeClient,
-      productManager,
-      subscriptionManager
+    const stripeClient = new StripeClient(
+      {
+        apiKey: config.subscriptions.stripeApiKey,
+      },
+      statsd
     );
+    const priceManager = new PriceManager(stripeClient);
+    const promotionCodeManager = new PromotionCodeManager(stripeClient);
     Container.set(PromotionCodeManager, promotionCodeManager);
 
     if (
