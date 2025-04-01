@@ -99,6 +99,7 @@ import {
   MockGeoDBNestFactory,
 } from '@fxa/shared/geodb';
 import { MockCurrencyConfigProvider } from 'libs/payments/currency/src/lib/currency.config';
+import { MozLoggerService } from '@fxa/shared/mozlog';
 
 describe('CheckoutService', () => {
   let accountCustomerManager: AccountCustomerManager;
@@ -168,6 +169,20 @@ describe('CheckoutService', () => {
         {
           provide: LOGGER_PROVIDER,
           useValue: mockLogger,
+        },
+        {
+          provide: MozLoggerService,
+          useValue: {
+            error: jest.fn(),
+            debug: jest.fn(),
+            info: jest.fn(),
+            warn: jest.fn(),
+            warning: jest.fn(),
+            log: jest.fn(),
+            verbose: jest.fn(),
+            trace: jest.fn(),
+            setContext: jest.fn(),
+          },
         },
       ],
     }).compile();

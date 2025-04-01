@@ -584,7 +584,19 @@ export class StripeWebhookHandler extends StripeHandler {
       }
     }
 
-    return this.stripeHelper.finalizeInvoice(invoice);
+    try {
+      // Duplicate calls to finalizeInvoice can be made due to race conditions. Failures from re-finalizing an invoice can be ignored.
+      return this.stripeHelper.finalizeInvoice(invoice);
+    } catch (err) {
+      // This is Stripe's only unique way of identifying this error. Remove as part of FXA-11460
+      if (
+        err?.raw?.message !==
+        "This invoice is already finalized, you can't re-finalize a non-draft invoice."
+      ) {
+        throw err;
+      }
+    }
+    return invoice;
   }
 
   /**

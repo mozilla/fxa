@@ -2,10 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
 import assert from 'assert';
 import assertNotNull from 'assert';
+import { StatsD } from 'hot-shots';
 
 import {
   CustomerManager,
@@ -44,6 +45,8 @@ import {
   CartState,
 } from '@fxa/shared/db/mysql/account';
 import { SanitizeExceptions } from '@fxa/shared/error';
+import { MozLoggerService } from '@fxa/shared/mozlog';
+import { StatsDService } from '@fxa/shared/metrics/statsd';
 
 import {
   CartError,
@@ -90,11 +93,15 @@ export class CartService {
     private promotionCodeManager: PromotionCodeManager,
     private eligibilityService: EligibilityService,
     private invoiceManager: InvoiceManager,
+    private log: MozLoggerService,
     private productConfigurationManager: ProductConfigurationManager,
     private subscriptionManager: SubscriptionManager,
     private paymentMethodManager: PaymentMethodManager,
-    private paymentIntentManager: PaymentIntentManager
-  ) {}
+    private paymentIntentManager: PaymentIntentManager,
+    @Inject(StatsDService) private statsd: StatsD
+  ) {
+    this.log.setContext(CartService.name);
+  }
 
   /**
    * Should be used to wrap any method that mutates an existing cart.
@@ -201,11 +208,23 @@ export class CartService {
             });
           }
 
-          await this.subscriptionManager.cancel(cart.stripeSubscriptionId, {
-            cancellation_details: {
-              comment: 'Automatic Cancellation: Cart checkout failed.',
-            },
-          });
+          if (cart.eligibilityStatus === CartEligibilityStatus.CREATE) {
+            await this.subscriptionManager.cancel(cart.stripeSubscriptionId, {
+              cancellation_details: {
+                comment: 'Automatic Cancellation: Cart checkout failed.',
+              },
+            });
+          } else {
+            this.statsd.increment(
+              'checkout_failure_subscription_not_cancelled'
+            );
+
+            this.log.info('checkout failed, subscription not canceled', {
+              eligibility_status: cart.eligibilityStatus,
+              offering_id: cart.offeringConfigId,
+              interval: cart.interval,
+            });
+          }
         }
       } catch (e) {
         // All errors thrown during the cleanup process should go to Sentry
