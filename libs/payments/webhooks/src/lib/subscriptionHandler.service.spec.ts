@@ -212,7 +212,7 @@ describe('SubscriptionEventsService', () => {
           expect.any(String),
           expect.objectContaining({
             paymentProvider: undefined,
-            voluntaryCancellation: undefined,
+            voluntaryCancellation: false,
           })
         );
       });
