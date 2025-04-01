@@ -206,13 +206,18 @@ describe('AppleIapService', () => {
   describe('getSubscriptions', () => {
     it('returns subscriptions', async () => {
       const mockUserId = faker.string.uuid();
-      const mockPurchase = { userId: mockUserId };
+      const mockPurchase = [
+        {
+          userId: mockUserId,
+          isEntitlementActive: jest.fn().mockReturnValue(true),
+        },
+      ];
       jest
         .spyOn(appleIapPurchaseManager, 'getForUser')
-        .mockResolvedValue([mockPurchase] as AppStoreSubscriptionPurchase[]);
+        .mockResolvedValue(mockPurchase as AppStoreSubscriptionPurchase[]);
 
       const result = await appleIapService.getSubscriptions(mockUserId);
-      expect(result).toEqual([mockPurchase]);
+      expect(result).toEqual(mockPurchase);
     });
   });
 

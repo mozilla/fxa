@@ -133,8 +133,19 @@ export class AppleIapService {
   /**
    * Retrieves a list of known subscription purchases for the customer.
    */
-  async getSubscriptions(userId: string) {
-    return await this.appleIapPurchaseManager.getForUser(userId);
+  async getSubscriptions(
+    userId: string
+  ): Promise<AppStoreSubscriptionPurchase[]> {
+    const allPurchases = await this.appleIapPurchaseManager.getForUser(userId);
+    const purchases = allPurchases.filter((purchase) =>
+      purchase.isEntitlementActive()
+    );
+
+    return purchases;
+    // return this.stripeHelper.addPriceInfoToIapPurchases(
+    //   purchases,
+    //   MozillaSubscriptionTypes.IAP_APPLE
+    // );
   }
 
   async querySubscriptionPurchase(
