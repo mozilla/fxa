@@ -699,9 +699,26 @@ Router = Router.extend({
 
   createReactViewHandler(routeName, additionalParams) {
     if (routeName === '/') {
-      const queryParams = new URLSearchParams(this.window.location.search);
-      queryParams.set('showReactApp', 'true');
-      this.navigateAway(`/?${queryParams.toString()}`);
+      const params = new URLSearchParams(this.window.location.search);
+      params.set('showReactApp', 'true');
+
+      // URLSearchParams automatically converts '+' characters to spaces as part of its URL encoding
+      // handling (application/x-www-form-urlencoded). This behavior can corrupt email
+      // addresses (e.g., 'user+alias@example.com'), so a custom function is used to
+      // correctly preserve and encode all valid email characters.
+      const newParams = [];
+      for (const [key, value] of params.entries()) {
+        let encodedValue;
+        if (key === 'email' || key === 'login_hint') {
+          // Use encodeURIComponent, then manually revert encoded spaces to encoded plus (+) sign
+          encodedValue = encodeURIComponent(value).replace(/%20/g, '%2B');
+        } else {
+          encodedValue = encodeURIComponent(value);
+        }
+        newParams.push(`${key}=${encodedValue}`);
+      }
+      const searchString = '?' + newParams.join('&');
+      this.navigateAway(`/${searchString}`);
     } else {
       const { deviceId, flowBeginTime, flowId } =
         this.metrics.getFlowEventMetadata();
