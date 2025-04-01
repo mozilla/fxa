@@ -7,12 +7,15 @@
 import { Localized } from '@fluent/react';
 import * as Form from '@radix-ui/react-form';
 import { useSearchParams } from 'next/navigation';
-import { useEffect } from 'react';
+import { forwardRef, useEffect } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
 import { ButtonVariant } from '../BaseButton';
 import { SubmitButton } from '../SubmitButton';
 import { updateCartAction } from '../../../actions/updateCart';
-import { getFallbackTextByFluentId } from '../../../utils/error-ftl-messages';
+import {
+  CouponErrorMessageType,
+  getFallbackTextByFluentId,
+} from '../../../utils/error-ftl-messages';
 
 interface WithCouponProps {
   cartId: string;
@@ -60,29 +63,42 @@ const WithCoupon = ({
   );
 };
 
-const CouponInput = ({
-  readOnly,
-  routeCoupon,
-}: {
-  readOnly: boolean;
-  routeCoupon?: string;
-}) => {
-  const { pending } = useFormStatus();
-  return (
-    <Localized attrs={{ placeholder: true }} id="next-coupon-enter-code">
-      <input
-        className="w-full border rounded-md border-black/30 p-3 placeholder:text-grey-500 placeholder:font-normal focus:border focus:!border-black/30 focus:!shadow-[0_0_0_3px_rgba(10,132,255,0.3)] focus-visible:outline-none data-[invalid=true]:border-alert-red data-[invalid=true]:text-alert-red data-[invalid=true]:shadow-inputError"
-        type="text"
-        name="coupon"
-        data-testid="coupon-input"
-        placeholder="Enter code"
-        disabled={pending || readOnly}
-        defaultValue={routeCoupon}
-        maxLength={25}
-      />
-    </Localized>
-  );
-};
+const CouponInput = forwardRef(
+  (
+    {
+      readOnly,
+      routeCoupon,
+      error,
+    }: {
+      readOnly: boolean;
+      routeCoupon?: string;
+      error?: CouponErrorMessageType | null | undefined;
+    },
+    ref
+  ) => {
+    const { pending } = useFormStatus();
+    return (
+      <Localized attrs={{ placeholder: true }} id="next-coupon-enter-code">
+        <input
+          className={`w-full border rounded-md p-3
+            ${
+              error
+                ? 'border-red-700 focus:border-red-700 focus:shadow-input-red-focus'
+                : 'border-black/30 placeholder:text-grey-500 placeholder:font-normal focus:border focus:!border-black/30 focus:!shadow-[0_0_0_3px_rgba(10,132,255,0.3)] focus-visible:outline-none'
+            }
+            ${pending ? 'cursor-not-allowed' : ''}`}
+          type="text"
+          name="coupon"
+          data-testid="coupon-input"
+          placeholder="Enter code"
+          disabled={pending || readOnly}
+          defaultValue={routeCoupon}
+          maxLength={25}
+        />
+      </Localized>
+    );
+  }
+);
 
 interface WithoutCouponProps {
   cartId: string;
@@ -128,7 +144,11 @@ const WithoutCoupon = ({
 
         <div className="mt-4 flex gap-4 justify-between items-center">
           <Form.Control asChild>
-            <CouponInput readOnly={readOnly} routeCoupon={routeCoupon} />
+            <CouponInput
+              readOnly={readOnly}
+              routeCoupon={routeCoupon}
+              error={error}
+            />
           </Form.Control>
           <Form.Submit asChild>
             <SubmitButton
