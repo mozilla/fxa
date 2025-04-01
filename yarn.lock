@@ -9750,10 +9750,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fluent/bundle@npm:^0.18.0":
-  version: 0.18.0
-  resolution: "@fluent/bundle@npm:0.18.0"
-  checksum: 2c0876abb0defe8e7b991cc7d58c2e82ce876e153971084158b445d1aae2392c3a860ae48d6f12560da753521aad63dbd6b8f8453fe4226117abff2773f2c32b
+"@fluent/bundle@npm:^0.19.0":
+  version: 0.19.0
+  resolution: "@fluent/bundle@npm:0.19.0"
+  checksum: c70a2370e91f18ec631d4355e60377612d12bccf48c890996ffdf66b0e732651dcefe12783518428a436a1ec741151ef8b89d55ea49c92269f6e28fb9b163625
   languageName: node
   linkType: hard
 
@@ -42609,7 +42609,7 @@ fsevents@~2.1.1:
     "@babel/preset-env": ^7.22.9
     "@babel/preset-react": ^7.25.7
     "@babel/preset-typescript": ^7.25.7
-    "@fluent/bundle": ^0.18.0
+    "@fluent/bundle": ^0.19.0
     "@fluent/dom": ^0.10.0
     "@fluent/langneg": ^0.7.0
     "@google-cloud/tasks": ^5.5.0
@@ -43103,7 +43103,7 @@ fsevents@~2.1.1:
     "@babel/preset-env": ^7.22.9
     "@babel/preset-react": ^7.25.7
     "@babel/preset-typescript": ^7.25.7
-    "@fluent/bundle": ^0.18.0
+    "@fluent/bundle": ^0.19.0
     "@fluent/langneg": ^0.7.0
     "@rescripts/cli": ~0.0.16
     "@storybook/addon-actions": ^8.0.0
@@ -43252,7 +43252,7 @@ fsevents@~2.1.1:
     "@babel/preset-env": ^7.22.9
     "@babel/preset-react": ^7.25.7
     "@babel/preset-typescript": ^7.25.7
-    "@fluent/bundle": ^0.18.0
+    "@fluent/bundle": ^0.19.0
     "@fluent/langneg": ^0.7.0
     "@storybook/addon-actions": ^8.0.0
     "@storybook/addon-links": ^7.6.4
@@ -43523,7 +43523,7 @@ fsevents@~2.1.1:
     "@babel/core": ^7.26.0
     "@babel/preset-react": ^7.25.7
     "@faker-js/faker": ^9.0.0
-    "@fluent/bundle": ^0.18.0
+    "@fluent/bundle": ^0.19.0
     "@fluent/react": ^0.15.2
     "@google-cloud/bigquery": ^7.9.1
     "@google-cloud/firestore": ^7.10.0

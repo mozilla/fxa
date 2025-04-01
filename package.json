@@ -41,7 +41,7 @@
     "@apollo/client": "^3.11.1",
     "@apollo/server": "^4.11.3",
     "@faker-js/faker": "^9.0.0",
-    "@fluent/bundle": "^0.18.0",
+    "@fluent/bundle": "^0.19.0",
     "@fluent/react": "^0.15.2",
     "@google-cloud/bigquery": "^7.9.1",
     "@google-cloud/firestore": "^7.10.0",
