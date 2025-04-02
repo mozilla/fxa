@@ -98,7 +98,6 @@ import { CurrencyManager } from '@fxa/payments/currency';
 import { MockCurrencyConfigProvider } from 'libs/payments/currency/src/lib/currency.config';
 import { NeedsInputType } from './cart.types';
 import { redirect } from 'next/navigation';
-import { MozLoggerService } from '@fxa/shared/mozlog';
 
 jest.mock('next/navigation');
 jest.mock('@fxa/shared/error', () => ({
@@ -184,20 +183,6 @@ describe('CartService', () => {
         {
           provide: LOGGER_PROVIDER,
           useValue: mockLogger,
-        },
-        {
-          provide: MozLoggerService,
-          useValue: {
-            error: jest.fn(),
-            debug: jest.fn(),
-            info: jest.fn(),
-            warn: jest.fn(),
-            warning: jest.fn(),
-            log: jest.fn(),
-            verbose: jest.fn(),
-            trace: jest.fn(),
-            setContext: jest.fn(),
-          },
         },
       ],
     }).compile();
