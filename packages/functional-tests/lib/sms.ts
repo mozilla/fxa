@@ -21,36 +21,23 @@ export class SmsClient {
 
   constructor(public readonly targetName: TargetName) {
     const accountSid = getFromEnv(
-      'FUNCTIONAL_TESTS__SMS_CLIENT__TWILIO__ACCOUNT_SID',
+      'FUNCTIONAL_TESTS__TWILIO__ACCOUNT_SID',
       targetName
     );
-    const apiKey = getFromEnv(
-      'FUNCTIONAL_TESTS__SMS_CLIENT__TWILIO__ACCOUNT_API_KEY',
-      targetName
-    );
+    const apiKey = getFromEnv('FUNCTIONAL_TESTS__TWILIO__API_KEY', targetName);
     const apiSecret = getFromEnv(
-      'FUNCTIONAL_TESTS__SMS_CLIENT__TWILIO__ACCOUNT_API_SECRET',
+      'FUNCTIONAL_TESTS__TWILIO__API_SECRET',
       targetName
     );
     const authToken = getFromEnv(
-      'FUNCTIONAL_TESTS__SMS_CLIENT__TWILIO__ACCOUNT_AUTH_TOKEN',
+      'FUNCTIONAL_TESTS__TWILIO__ACCOUNT_AUTH_TOKEN',
       targetName
     );
     const enableRedis = getFromEnvWithFallback(
-      'FUNCTIONAL_TESTS__SMS_CLIENT__REDIS__ENABLED',
+      'FUNCTIONAL_TESTS__REDIS__ENABLED',
       targetName,
       targetName === 'local' ? 'true' : 'false'
     );
-
-    if (accountSid && apiKey && apiSecret) {
-      this.twilioClient = new Twilio(apiKey, apiSecret, {
-        accountSid,
-      });
-    } else if (accountSid && authToken) {
-      this.twilioClient = new Twilio(apiKey, apiSecret, {
-        accountSid,
-      });
-    }
 
     // When testing local or in CI pipe, we should enable redis.
     if (enableRedis === 'true') {
@@ -66,6 +53,14 @@ export class SmsClient {
         }
         this.redisClientConnected = false;
       });
+    } else {
+      if (accountSid && apiKey && apiSecret) {
+        this.twilioClient = new Twilio(apiKey, apiSecret, {
+          accountSid,
+        });
+      } else if (accountSid && authToken) {
+        this.twilioClient = new Twilio(apiKey, authToken);
+      }
     }
     this.uidCodes = new Map();
   }
