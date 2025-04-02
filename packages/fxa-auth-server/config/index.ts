@@ -2299,6 +2299,14 @@ const convictConf = convict({
       env: 'RECOVERY_PHONE__TWILIO__FXA_PRIVATE_KEY',
     },
   },
+  recordedFuture: {
+    identityApiKey: {
+      default: '',
+      doc: 'API key to access the Identity API of Recorded Future',
+      format: String,
+      env: 'RECORDED_FUTURE__IDENTITY_API_KEY',
+    },
+  },
 });
 
 // handle configuration files.  you can specify a CSV list of configuration

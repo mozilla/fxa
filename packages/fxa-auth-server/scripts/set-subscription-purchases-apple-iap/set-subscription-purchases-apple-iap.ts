@@ -5,7 +5,7 @@
 import { Firestore } from '@google-cloud/firestore';
 import { PurchaseManager } from 'fxa-shared/payments/iap/apple-app-store/purchase-manager';
 import { AppStoreSubscriptionPurchase } from 'fxa-shared/payments/iap/apple-app-store/subscription-purchase';
-import PQueue from 'p-queue-compat';
+import PQueue from 'p-queue';
 import Container from 'typedi';
 
 import { ConfigType } from '../../config';

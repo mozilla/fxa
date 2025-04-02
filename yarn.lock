@@ -40218,13 +40218,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eventemitter3@npm:5.x, eventemitter3@npm:^5.0.1":
-  version: 5.0.1
-  resolution: "eventemitter3@npm:5.0.1"
-  checksum: 543d6c858ab699303c3c32e0f0f47fc64d360bf73c3daf0ac0b5079710e340d6fe9f15487f94e66c629f5f82cd1a8678d692f3dbb6f6fcd1190e1b97fcad36f8
-  languageName: node
-  linkType: hard
-
 "eventemitter3@npm:^3.1.0":
   version: 3.1.2
   resolution: "eventemitter3@npm:3.1.2"
@@ -40236,6 +40229,13 @@ __metadata:
   version: 4.0.4
   resolution: "eventemitter3@npm:4.0.4"
   checksum: 7afb1cd851d19898bc99cc55ca894fe18cb1f8a07b0758652830a09bd6f36082879a25345be6219b81d74764140688b1a8fa75bcd1073d96b9a6661e444bc2ea
+  languageName: node
+  linkType: hard
+
+"eventemitter3@npm:^5.0.1":
+  version: 5.0.1
+  resolution: "eventemitter3@npm:5.0.1"
+  checksum: 543d6c858ab699303c3c32e0f0f47fc64d360bf73c3daf0ac0b5079710e340d6fe9f15487f94e66c629f5f82cd1a8678d692f3dbb6f6fcd1190e1b97fcad36f8
   languageName: node
   linkType: hard
 
@@ -42711,8 +42711,9 @@ fsevents@~2.1.1:
     nodemon: ^3.1.0
     nx: 18.3.1
     nyc: ^17.1.0
+    openapi-fetch: ^0.13.5
     otplib: ^11.0.1
-    p-queue-compat: ^1.0.225
+    p-queue: ^8.1.0
     p-retry: ^4.2.0
     pm2: ^5.4.2
     poolee: ^1.0.1
@@ -57374,6 +57375,22 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"openapi-fetch@npm:^0.13.5":
+  version: 0.13.5
+  resolution: "openapi-fetch@npm:0.13.5"
+  dependencies:
+    openapi-typescript-helpers: ^0.0.15
+  checksum: 7f6947d074d3a66fbc1641e46b20652cc92412e6b3238259a29ad72ef6eca5b4ac7529826ff97660fc6ebc8c38f2f151ad66e9e93f16b0736bec5c150f73b06f
+  languageName: node
+  linkType: hard
+
+"openapi-typescript-helpers@npm:^0.0.15":
+  version: 0.0.15
+  resolution: "openapi-typescript-helpers@npm:0.0.15"
+  checksum: feec0f25d708aaacc086dafd3e21001329b47984f30e24877b34d053fbccd52f3b3a19b1715fda2ed5afaca7056872576eed7de8f64855d2472507dc6df626ca
+  languageName: node
+  linkType: hard
+
 "opencollective-postinstall@npm:^2.0.2":
   version: 2.0.2
   resolution: "opencollective-postinstall@npm:2.0.2"
@@ -57798,13 +57815,13 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"p-queue-compat@npm:^1.0.225":
-  version: 1.0.225
-  resolution: "p-queue-compat@npm:1.0.225"
+"p-queue@npm:^8.1.0":
+  version: 8.1.0
+  resolution: "p-queue@npm:8.1.0"
   dependencies:
-    eventemitter3: 5.x
-    p-timeout-compat: ^1.0.3
-  checksum: dc35ea412ff7ba8a7ecd2057d8fd94d5efe0e75769bbc18894614b42c23cdc65d2a1e6bb92476a695b3acdaaf47dc8b7c97587cc55326a1fd06622fc11235c5e
+    eventemitter3: ^5.0.1
+    p-timeout: ^6.1.2
+  checksum: b6602ef0f3bd22ebfd916e0fe42ae1388090c63d8fa667fd7b29137e44970653adc5a9f39bedcbb0980ad4ab2cca8c04dbfdd9085b241d12c13f1d9dd02c497e
   languageName: node
   linkType: hard
 
@@ -57836,13 +57853,6 @@ fsevents@~2.1.1:
     is-network-error: ^1.0.0
     retry: ^0.13.1
   checksum: 73acd269544b1359b7f2aa5f907f6f8cd4947c596bc43cc25fecce2678e2f190095179407eb874f0e09fc5956ae7952c39ebb08c3d9334f59d41ae0b2d73ee6b
-  languageName: node
-  linkType: hard
-
-"p-timeout-compat@npm:^1.0.3":
-  version: 1.0.4
-  resolution: "p-timeout-compat@npm:1.0.4"
-  checksum: c55421977a2b73a7419ebb437dc16690bbf0eb99ce688d7f23749093c0c5b4ce08a5236b3d83483dacce594fb98c111d36bc3916e2463ef78e7a339bf0e95d5a
   languageName: node
   linkType: hard
 

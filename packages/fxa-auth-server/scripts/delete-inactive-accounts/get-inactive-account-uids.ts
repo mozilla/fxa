@@ -17,7 +17,7 @@ import { performance } from 'perf_hooks';
 
 import { Command } from 'commander';
 import { Container } from 'typedi';
-import PQueue from 'p-queue-compat';
+import PQueue from 'p-queue';
 
 import { parseBooleanArg } from '../lib/args';
 import { AppConfig, AuthLogger } from '../../lib/types';
