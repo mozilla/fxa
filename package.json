@@ -255,7 +255,7 @@
     "ts-jest": "^29.2.3",
     "ts-node": "^10.9.2",
     "tsc-alias": "^1.8.8",
-    "tsconfig-paths-webpack-plugin": "^4.1.0",
+    "tsconfig-paths-webpack-plugin": "^4.2.0",
     "typescript": "^5.5.3"
   },
   "workspaces": [
