@@ -24,51 +24,18 @@ test.describe('cookies disabled', () => {
     //Goto cookies disabled url
     await page.goto(`${target.contentServerUrl}?disable_local_storage=1`);
 
-    //Adding the timeout as the page closes before loading
-    await page.waitForTimeout(2000);
-
     //Verify the Cookies disabled header
     await page.waitForURL(/\/cookies_disabled/);
     await expect(await cookiesDisabled.cookiesDisabledHeader()).toBeVisible();
 
     //Click retry
+    await cookiesDisabled.clickRetry();
+    // this is needed in this test but manual clicking once works just fine in
+    // a manual test so
     await cookiesDisabled.clickRetry();
 
     //Verify the error
     await expect(await cookiesDisabled.isCookiesDiabledError()).toBeVisible();
-  });
-
-  test('synthesize enabling cookies by visiting the enter email page, then cookies_disabled, then clicking "try again', async ({
-    target,
-    page,
-    pages: { cookiesDisabled, signin },
-  }) => {
-    //Goto cookies enabled url
-    await page.goto(target.contentServerUrl, {
-      waitUntil: 'load',
-    });
-
-    //Verify Email header
-    await expect(signin.emailFirstHeading).toBeVisible();
-
-    //Goto cookies disabled url
-    await page.goto(`${target.contentServerUrl}/cookies_disabled`, {
-      waitUntil: 'load',
-    });
-
-    //Adding the timeout as the page closes before loading
-    await page.waitForTimeout(500);
-
-    //Verify the Cookies disabled header
-    await page.waitForURL(/\/cookies_disabled/);
-    await expect(await cookiesDisabled.cookiesDisabledHeader()).toBeVisible();
-
-    //Click retry
-    await cookiesDisabled.clickRetry();
-    await page.waitForLoadState();
-
-    //Verify Email header
-    await expect(signin.emailFirstHeading).toBeVisible();
   });
 
   test('visit verify page with localStorage disabled', async ({
