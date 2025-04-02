@@ -190,14 +190,13 @@ const Expanded = ({
 
         if (!isValid) {
           setServerErrors((prev) => ({ ...prev, invalidPostalCode: true }));
+          setIsLoading(false);
         } else {
           saveAction(selectedCountryCode, selectedPostalCode);
         }
       }
     } catch (err) {
       setServerErrors((prev) => ({ ...prev, locationNotUpdated: true }));
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -455,7 +454,6 @@ export function IsolatedSelectTaxLocation({
     useState<string>(countryCode);
   const [updatedPostalCode, setUpdatedPostalCode] =
     useState<string>(postalCode);
-
   const cmsCountryCodes = cmsCountries.map((country) => country.slice(0, 2));
   return (
     <Expanded
