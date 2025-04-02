@@ -2,10 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {
-  Client,
-  GeocodeResponseData,
-} from '@googlemaps/google-maps-services-js';
+import { Client } from '@googlemaps/google-maps-services-js';
 import { Inject, Injectable } from '@nestjs/common';
 import { GoogleClientConfig } from './google.client.config';
 import {
@@ -13,6 +10,7 @@ import {
   StatsDService,
   type StatsD,
 } from '@fxa/shared/metrics/statsd';
+import type { GeocodeRequestParamsOnly } from './types';
 
 @Injectable()
 export class GoogleClient {
@@ -29,15 +27,14 @@ export class GoogleClient {
    * https://developers.google.com/maps/documentation/geocoding/overview
    */
   @CaptureTimingWithStatsD()
-  async geocode(address: string, countryCode: string) {
+  async geocode(params: GeocodeRequestParamsOnly) {
     const response = await this.google.geocode({
       params: {
-        address,
-        components: `country:${countryCode}`,
+        ...params,
         key: this.googleClientConfig.googleMapsApiKey,
       },
     });
 
-    return response.data as GeocodeResponseData;
+    return response.data;
   }
 }

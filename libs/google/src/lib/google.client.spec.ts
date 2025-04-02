@@ -3,7 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Test } from '@nestjs/testing';
-import { GeocodeResultFactory } from './factories';
+import {
+  GeocodeRequestParamsOnlyFactory,
+  GeocodeResultFactory,
+} from './factories';
 import { GoogleClient } from './google.client';
 import { MockGoogleClientConfigProvider } from './google.client.config';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
@@ -44,7 +47,9 @@ describe('GoogleClient', () => {
   describe('geocode', () => {
     it('should return a response', async () => {
       const mockPostalCode = '90210';
-      const mockCountryCode = 'US';
+      const params = GeocodeRequestParamsOnlyFactory({
+        address: mockPostalCode,
+      });
       const mockResponse = {
         data: {
           results: [
@@ -57,10 +62,13 @@ describe('GoogleClient', () => {
 
       mockGoogleMapsGeocode.mockResolvedValue(mockResponse);
 
-      const result = await googleClient.geocode(
-        mockPostalCode,
-        mockCountryCode
-      );
+      const result = await googleClient.geocode(params);
+      expect(mockGoogleMapsGeocode).toHaveBeenCalledWith({
+        params: {
+          ...params,
+          key: expect.any(String),
+        },
+      });
       expect(result).toEqual(mockResponse.data);
     });
   });

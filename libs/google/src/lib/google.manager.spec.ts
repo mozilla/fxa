@@ -28,15 +28,15 @@ describe('GoogleManager', () => {
     googleManager = module.get<GoogleManager>(GoogleManager);
   });
 
-  describe('isValidPostalCode', () => {
+  describe('validateAndFormatPostalCode', () => {
     it('should return true - US', async () => {
       const mockResponseData = {
         results: [
           GeocodeResultFactory({
             address_components: [
               {
-                long_name: 'United States',
-                short_name: 'US',
+                long_name: '90210',
+                short_name: '90210',
                 types: ['postal_code'] as PlaceType2[],
               },
             ],
@@ -50,8 +50,14 @@ describe('GoogleManager', () => {
 
       jest.spyOn(googleClient, 'geocode').mockResolvedValue(mockResponseData);
 
-      const response = await googleManager.isValidPostalCode('90210', 'US');
-      expect(response).toBe(true);
+      const response = await googleManager.validateAndFormatPostalCode(
+        '90210',
+        'US'
+      );
+      expect(response).toEqual({
+        isValid: true,
+        formattedPostalCode: '90210',
+      });
     });
 
     it('should return true - CA', async () => {
@@ -60,8 +66,8 @@ describe('GoogleManager', () => {
           GeocodeResultFactory({
             address_components: [
               {
-                long_name: 'Canada',
-                short_name: 'CA',
+                long_name: 'A1A 1A1',
+                short_name: 'A1A 1A1',
                 types: ['postal_code'] as PlaceType2[],
               },
             ],
@@ -75,8 +81,14 @@ describe('GoogleManager', () => {
 
       jest.spyOn(googleClient, 'geocode').mockResolvedValue(mockResponseData);
 
-      const response = await googleManager.isValidPostalCode('A1A 1A1', 'CA');
-      expect(response).toBe(true);
+      const response = await googleManager.validateAndFormatPostalCode(
+        'A1A1A1',
+        'CA'
+      );
+      expect(response).toEqual({
+        isValid: true,
+        formattedPostalCode: 'A1A 1A1',
+      });
     });
 
     it('should return false - 00000', async () => {
@@ -100,8 +112,13 @@ describe('GoogleManager', () => {
 
       jest.spyOn(googleClient, 'geocode').mockResolvedValue(mockResponseData);
 
-      const response = await googleManager.isValidPostalCode('00000', 'US');
-      expect(response).toBe(false);
+      const response = await googleManager.validateAndFormatPostalCode(
+        '00000',
+        'US'
+      );
+      expect(response).toEqual({
+        isValid: false,
+      });
     });
 
     it('should return false - 1234', async () => {
@@ -124,8 +141,13 @@ describe('GoogleManager', () => {
       };
       jest.spyOn(googleClient, 'geocode').mockResolvedValue(mockResponseData);
 
-      const response = await googleManager.isValidPostalCode('1234', 'US');
-      expect(response).toBe(false);
+      const response = await googleManager.validateAndFormatPostalCode(
+        '1234',
+        'US'
+      );
+      expect(response).toEqual({
+        isValid: false,
+      });
     });
   });
 });

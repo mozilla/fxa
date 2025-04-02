@@ -298,15 +298,14 @@ export class NextJSActionsService {
 
   @SanitizeExceptions()
   @NextIOValidator(ValidatePostalCodeActionArgs, ValidatePostalCodeActionResult)
-  async validatePostalCode(args: { postalCode: string; countryCode: string }) {
-    const isValid = await this.googleManager.isValidPostalCode(
+  async validateAndFormatPostalCode(args: {
+    postalCode: string;
+    countryCode: string;
+  }) {
+    return await this.googleManager.validateAndFormatPostalCode(
       args.postalCode,
       args.countryCode
     );
-
-    return {
-      isValid,
-    };
   }
 
   @SanitizeExceptions()
