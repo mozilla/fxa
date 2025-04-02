@@ -178,7 +178,7 @@
     "@nestjs/testing": "^10.3.4",
     "@nx/esbuild": "19.5.3",
     "@nx/eslint-plugin": "19.5.3",
-    "@nx/jest": "19.5.3",
+    "@nx/jest": "20.7.0",
     "@nx/js": "20.4.5",
     "@nx/node": "19.5.3",
     "@nx/react": "19.5.3",
