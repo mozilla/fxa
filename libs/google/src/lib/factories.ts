@@ -8,6 +8,7 @@ import {
   LocationType,
   PlaceType2,
 } from '@googlemaps/google-maps-services-js';
+import { GeocodeRequestParamsOnly } from './types';
 
 export const GeocodeResultFactory = (
   override?: Partial<GeocodeResult>
@@ -45,5 +46,11 @@ export const GeocodeResultFactory = (
   },
   partial_match: faker.datatype.boolean(),
   place_id: faker.string.uuid(),
+  ...override,
+});
+
+export const GeocodeRequestParamsOnlyFactory = (
+  override?: Partial<GeocodeRequestParamsOnly>
+): GeocodeRequestParamsOnly => ({
   ...override,
 });

@@ -10,16 +10,31 @@ import { GoogleClient } from './google.client';
 export class GoogleManager {
   constructor(private googleClient: GoogleClient) {}
 
-  async isValidPostalCode(postalCode: string, countryCode: string) {
-    const response = await this.googleClient.geocode(postalCode, countryCode);
-    const { results } = response;
-    const isValid =
-      results.length > 0 &&
-      results.some((result) =>
-        result.address_components.some((component) =>
+  async validateAndFormatPostalCode(postalCode: string, countryCode: string) {
+    const { results } = await this.googleClient.geocode({
+      address: postalCode,
+      components: `country:${countryCode}|postal_code:${postalCode}`,
+    });
+
+    const postalCodeAddressComponent = results
+      .find((result) =>
+        result.address_components.find((component) =>
           component.types.includes('postal_code' as AddressType)
         )
+      )
+      ?.address_components.find((component) =>
+        component.types.includes('postal_code' as AddressType)
       );
-    return isValid ? true : false;
+
+    if (postalCodeAddressComponent?.short_name) {
+      return {
+        isValid: true,
+        formattedPostalCode: postalCodeAddressComponent.short_name,
+      };
+    } else {
+      return {
+        isValid: false,
+      };
+    }
   }
 }

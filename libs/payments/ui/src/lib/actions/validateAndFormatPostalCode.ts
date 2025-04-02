@@ -6,8 +6,11 @@
 
 import { getApp } from '../nestapp/app';
 
-export const validatePostalCode = (postalCode: string, countryCode: string) => {
-  return getApp().getActionsService().validatePostalCode({
+export const validateAndFormatPostalCode = (
+  postalCode: string,
+  countryCode: string
+) => {
+  return getApp().getActionsService().validateAndFormatPostalCode({
     postalCode,
     countryCode,
   });

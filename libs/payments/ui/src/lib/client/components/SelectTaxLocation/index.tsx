@@ -9,7 +9,7 @@ import * as Form from '@radix-ui/react-form';
 import countries from 'i18n-iso-countries';
 import { useEffect, useState } from 'react';
 import { ButtonVariant, SubmitButton } from '@fxa/payments/ui';
-import { validatePostalCode } from '@fxa/payments/ui/actions';
+import { validateAndFormatPostalCode } from '@fxa/payments/ui/actions';
 import { useSearchParams } from 'next/navigation';
 
 interface CollapsedProps {
@@ -173,15 +173,19 @@ const Expanded = ({
 
     try {
       if (selectedCountryCode && selectedPostalCode) {
-        const { isValid } = await validatePostalCode(
-          selectedPostalCode,
-          selectedCountryCode
-        );
+        const { isValid, formattedPostalCode } =
+          await validateAndFormatPostalCode(
+            selectedPostalCode,
+            selectedCountryCode
+          );
 
         if (!isValid) {
           setServerErrors((prev) => ({ ...prev, invalidPostalCode: true }));
         } else {
-          saveAction(selectedCountryCode, selectedPostalCode);
+          saveAction(
+            selectedCountryCode,
+            formattedPostalCode || selectedPostalCode
+          );
         }
       }
     } catch (err) {
