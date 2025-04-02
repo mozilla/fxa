@@ -16,7 +16,7 @@ __metadata:
     cookie-session: ^2.1.0
     eslint: ^7.32.0
     express: ^4.21.2
-    ioredis: ^5.0.6
+    ioredis: ^5.6.0
     morgan: ^1.10.0
     pm2: ^5.4.2
     prettier: ^2.3.1
@@ -26053,12 +26053,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/ioredis@npm:^4.26.4":
-  version: 4.26.4
-  resolution: "@types/ioredis@npm:4.26.4"
+"@types/ioredis@npm:^5.0.0":
+  version: 5.0.0
+  resolution: "@types/ioredis@npm:5.0.0"
   dependencies:
-    "@types/node": "*"
-  checksum: b2f00bbca67030b3e8a1ade8d0b84549ddec8b38bf3e70eb8a8fa02691457ae0612013f2222a45395d6b220d15e28d5b352933f5457d1f4125aa4b5c2e749b56
+    ioredis: "*"
+  checksum: 0d0c020c88076ad3626ca3b98eecf2893b919953c43c3a2006d0f98af0edb2806ad6f21ece68283dec8c6bb2c23de2f8ff76211acbeb3bb2358e3e4cda9a78c1
   languageName: node
   linkType: hard
 
@@ -37060,13 +37060,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"denque@npm:^2.0.1":
-  version: 2.0.1
-  resolution: "denque@npm:2.0.1"
-  checksum: ec398d1e3c6c8d4f5213dcf9ad74d7faa3b461e29a0019c9742b49a97ac5e16aa7134db45fa9d841e318e7722dd1ba670a474fde9a5b0d870b3a5fc6fe914c30
-  languageName: node
-  linkType: hard
-
 "denque@npm:^2.1.0":
   version: 2.1.0
   resolution: "denque@npm:2.1.0"
@@ -42630,7 +42623,7 @@ fsevents@~2.1.1:
     "@types/dedent": ^0
     "@types/ejs": ^3.0.6
     "@types/hapi__hapi": ^20.0.10
-    "@types/ioredis": ^4.26.4
+    "@types/ioredis": ^5.0.0
     "@types/jsonwebtoken": ^8.5.1
     "@types/jws": ^3.2.3
     "@types/lodash": ^4
@@ -42684,7 +42677,7 @@ fsevents@~2.1.1:
     hkdf: 0.0.2
     hot-shots: ^10.2.1
     i18n-iso-countries: ^7.12.0
-    ioredis: ^4.28.2
+    ioredis: ^5.6.0
     joi: ^17.13.3
     jose: ^5.9.6
     jsonwebtoken: ^9.0.0
@@ -43453,7 +43446,7 @@ fsevents@~2.1.1:
     "@types/cors": ^2.8.14
     "@types/express": ^4.17.12
     "@types/i18n-abide": ^0
-    "@types/ioredis": ^4.26.4
+    "@types/ioredis": ^5.0.0
     "@types/ip": ^1
     "@types/jest": ^26.0.23
     "@types/js-md5": ^0.4.2
@@ -43482,7 +43475,7 @@ fsevents@~2.1.1:
     find-up: ^5.0.0
     graphql: ^16.10.0
     hot-shots: ^10.2.1
-    ioredis: ^4.28.2
+    ioredis: ^5.6.0
     ip: ^2.0.1
     jest: 27.5.1
     jest-junit: ^16.0.0
@@ -47360,6 +47353,23 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"ioredis@npm:*, ioredis@npm:^5.6.0":
+  version: 5.6.0
+  resolution: "ioredis@npm:5.6.0"
+  dependencies:
+    "@ioredis/commands": ^1.1.1
+    cluster-key-slot: ^1.1.0
+    debug: ^4.3.4
+    denque: ^2.1.0
+    lodash.defaults: ^4.2.0
+    lodash.isarguments: ^3.1.0
+    redis-errors: ^1.2.0
+    redis-parser: ^3.0.0
+    standard-as-callback: ^2.1.0
+  checksum: b085cec251581224c6b9e3e4b0c1f92f99a272976ebcad552bc9d0c63d31abbe0208294b3acedeae4f29759ff3821478727207a47597e2ba081b1036fbc69181
+  languageName: node
+  linkType: hard
+
 "ioredis@npm:4.x.x":
   version: 4.28.0
   resolution: "ioredis@npm:4.28.0"
@@ -47376,42 +47386,6 @@ fsevents@~2.1.1:
     redis-parser: ^3.0.0
     standard-as-callback: ^2.1.0
   checksum: d6951d3df93b94a8716090f233ccc9124fe82a244965ac695835a7d4d1795ca28025ef91abfbc014cce63b96112badfc216b8d91827722ddc406f10bd221b6ab
-  languageName: node
-  linkType: hard
-
-"ioredis@npm:^4.28.2":
-  version: 4.28.2
-  resolution: "ioredis@npm:4.28.2"
-  dependencies:
-    cluster-key-slot: ^1.1.0
-    debug: ^4.3.1
-    denque: ^1.1.0
-    lodash.defaults: ^4.2.0
-    lodash.flatten: ^4.4.0
-    lodash.isarguments: ^3.1.0
-    p-map: ^2.1.0
-    redis-commands: 1.7.0
-    redis-errors: ^1.2.0
-    redis-parser: ^3.0.0
-    standard-as-callback: ^2.1.0
-  checksum: 4d9e5a4707cc918d2c2e161ea430aa06e68d5a513a680e8a315cf2cdea0b65b410a2e7279a04bab6db66aa781af4244acce3df67f560fed198f1f2f1d2c1d609
-  languageName: node
-  linkType: hard
-
-"ioredis@npm:^5.0.6":
-  version: 5.0.6
-  resolution: "ioredis@npm:5.0.6"
-  dependencies:
-    "@ioredis/commands": ^1.1.1
-    cluster-key-slot: ^1.1.0
-    debug: ^4.3.4
-    denque: ^2.0.1
-    lodash.defaults: ^4.2.0
-    lodash.isarguments: ^3.1.0
-    redis-errors: ^1.2.0
-    redis-parser: ^3.0.0
-    standard-as-callback: ^2.1.0
-  checksum: 24ae1fecec197e9e5d3e73e81e12134ace56a76b5e972a01cb9fa7f3853940f5a679bbd9f4aea2fd9848be9e035d996229cdadf5c5f997f21cf2a322edf1406e
   languageName: node
   linkType: hard
 
