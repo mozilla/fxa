@@ -57,8 +57,6 @@ import { firefox } from '../../lib/channels/firefox';
 import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../models/mocks';
 import { SensitiveData } from '../../lib/sensitive-data-client';
 import { Constants } from '../../lib/constants';
-import { ReachRouterWindow } from '../../lib/window';
-import { validateQueryParamModel } from '../../lib/hooks/useValidate';
 import {
   OAuthNativeSyncQueryParameters,
   OAuthQueryParams,
