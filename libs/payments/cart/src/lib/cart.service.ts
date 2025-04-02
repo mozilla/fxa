@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Inject, Injectable } from '@nestjs/common';
+import type { LoggerService } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
 import assert from 'assert';
 import assertNotNull from 'assert';
@@ -45,7 +46,7 @@ import {
   CartState,
 } from '@fxa/shared/db/mysql/account';
 import { SanitizeExceptions } from '@fxa/shared/error';
-import { MozLoggerService } from '@fxa/shared/mozlog';
+import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { StatsDService } from '@fxa/shared/metrics/statsd';
 
 import {
@@ -95,15 +96,13 @@ export class CartService {
     private promotionCodeManager: PromotionCodeManager,
     private eligibilityService: EligibilityService,
     private invoiceManager: InvoiceManager,
-    private log: MozLoggerService,
+    @Inject(LOGGER_PROVIDER) private log: LoggerService,
     private productConfigurationManager: ProductConfigurationManager,
     private subscriptionManager: SubscriptionManager,
     private paymentMethodManager: PaymentMethodManager,
     private paymentIntentManager: PaymentIntentManager,
     @Inject(StatsDService) private statsd: StatsD
-  ) {
-    this.log.setContext(CartService.name);
-  }
+  ) {}
 
   /**
    * Should be used to wrap any method that mutates an existing cart.
@@ -221,7 +220,7 @@ export class CartService {
               'checkout_failure_subscription_not_cancelled'
             );
 
-            this.log.info('checkout failed, subscription not canceled', {
+            this.log.log('checkout failed, subscription not canceled', {
               eligibility_status: cart.eligibilityStatus,
               offering_id: cart.offeringConfigId,
               interval: cart.interval,
