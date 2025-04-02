@@ -5,6 +5,7 @@
 import * as ModelsModule from '../../models';
 import * as IndexModule from './index';
 import * as ReactUtils from 'fxa-react/lib/utils';
+import * as cache from '../../lib/cache';
 
 import React from 'react';
 import { render, waitFor } from '@testing-library/react';
@@ -281,6 +282,102 @@ describe('IndexContainer', () => {
         state: {
           email: 'test@example.com',
           emailStatusChecked: true,
+        },
+      });
+    });
+
+    it('should suggest currentAccount email when available and redirect to signin', async () => {
+      mockLocationState = {}; // no prefillEmail
+
+      // Mock currentAccount with a valid email
+      jest.spyOn(cache, 'currentAccount').mockReturnValue({
+        uid: 'abc123',
+        email: 'current@example.com',
+        lastLogin: Date.now(),
+      });
+
+      // Ensure lastStoredAccount returns null so it doesn’t interfere
+      jest.spyOn(cache, 'lastStoredAccount').mockReturnValue(undefined);
+
+      mockUseValidatedQueryParams.mockReturnValue({
+        queryParamModel: {}, // no email query param
+        validationError: null,
+      });
+
+      const mockAccountStatus = {
+        exists: true,
+        hasLinkedAccount: false,
+        hasPassword: true,
+      };
+
+      mockUseAuthClient.mockReturnValue({
+        accountStatusByEmail: jest.fn().mockResolvedValue(mockAccountStatus),
+      });
+
+      render(
+        <IndexContainer
+          {...{ integration, serviceName: MozServices.Default }}
+        />
+      );
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledTimes(1);
+      });
+
+      const [calledUrl, options] = mockNavigate.mock.calls[0];
+      expect(calledUrl).toMatch(/\/signin$/);
+      expect(options).toEqual({
+        state: {
+          email: 'current@example.com',
+          hasLinkedAccount: false,
+          hasPassword: true,
+        },
+      });
+    });
+
+    it('should suggest lastStoredAccount email if no currentAccount is present', async () => {
+      mockLocationState = {}; // no prefillEmail
+
+      // Mock no currentAccount but a lastStoredAccount exists
+      jest.spyOn(cache, 'currentAccount').mockReturnValue(undefined);
+      jest.spyOn(cache, 'lastStoredAccount').mockReturnValue({
+        uid: 'stored123',
+        email: 'stored@example.com',
+        lastLogin: Date.now(),
+      });
+
+      mockUseValidatedQueryParams.mockReturnValue({
+        queryParamModel: {}, // no email query param
+        validationError: null,
+      });
+
+      const mockAccountStatus = {
+        exists: true,
+        hasLinkedAccount: false,
+        hasPassword: true,
+      };
+
+      mockUseAuthClient.mockReturnValue({
+        accountStatusByEmail: jest.fn().mockResolvedValue(mockAccountStatus),
+      });
+
+      render(
+        <IndexContainer
+          {...{ integration, serviceName: MozServices.Default }}
+        />
+      );
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledTimes(1);
+      });
+
+      const [calledUrl, options] = mockNavigate.mock.calls[0];
+      expect(calledUrl).toMatch(/\/signin$/);
+      expect(options).toEqual({
+        state: {
+          email: 'stored@example.com',
+          hasLinkedAccount: false,
+          hasPassword: true,
         },
       });
     });
