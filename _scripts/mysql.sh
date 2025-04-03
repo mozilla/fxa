@@ -28,6 +28,10 @@ docker run --rm --name=mydb \
 cd "$DIR"
 ./check-mysql.sh
 
-node ../packages/db-migrations/bin/patcher.mjs
+node ../packages/db-migrations/bin/patcher.mjs  &
+PATCHER_PID=$!
+
+# wait for DB patches to complete
+_scripts/check-db-patcher.sh "$PATCHER_PID"
 
 while :; do read -r; done
