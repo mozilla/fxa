@@ -4,6 +4,7 @@
 
 import { validateSync, ValidationError } from 'class-validator';
 import { ModelDataStore, RawData } from './model-data-store';
+import { bindMetadataKey } from './bind-decorator';
 
 /**
  * Type guard for validating model
@@ -100,8 +101,20 @@ export class ModelDataProvider {
       errors = errors.filter((x) => x.property === property);
     }
 
+    const keyLookup: Record<string, string> = {};
+    errors.forEach((x) => {
+      const bindMetadata = Reflect.getMetadata(
+        bindMetadataKey,
+        this,
+        x.property
+      );
+      if (bindMetadata) {
+        keyLookup[bindMetadata.memberName] = bindMetadata.key;
+      }
+    });
+
     if (errors.length > 0) {
-      throw new ModelValidationErrors(errors);
+      throw new ModelValidationErrors(errors, keyLookup);
     }
   }
 
@@ -158,10 +171,55 @@ export class ModelDataProvider {
 }
 
 export class ModelValidationErrors extends Error {
-  constructor(public readonly errors: ValidationError[]) {
+  public condition: '' | 'QueryParameterValidation';
+
+  constructor(
+    public readonly errors: ValidationError[],
+    public readonly keyLookup: Record<string, string> = {}
+  ) {
     super(
       'Model Validation Errors Encountered! Fields:' +
         errors.map((x) => x.toString()).join(',')
     );
+    this.condition = '';
+  }
+
+  /**
+   * Converts the error to a user friendly list of issues that can
+   * be displayed on an error boundary page
+   * @returns
+   */
+  toUserFriendlyErrorList() {
+    return this.errors.map((error) => {
+      // Trim redundant info that starts out the message
+      let message = error
+        .toString()
+        .split('-')[1]
+        .replace(/property/, '')
+        .trimStart()
+        .trimEnd();
+
+      // Goes through constraints violated to improve the message displayed to end user
+      if (error.constraints) {
+        for (const key of Object.keys(error.constraints)) {
+          message = message.replace(key, error.constraints[key]);
+        }
+      }
+
+      // Takes the class member name, and looks up with the underlying key
+      // (ie the query parameter). Without out this it's hard to tell which
+      // query parameter is actually the issue.
+      if (this.keyLookup[error.property]) {
+        message = message.replace(
+          new RegExp(error.property, 'g'),
+          this.keyLookup[error.property]
+        );
+      }
+
+      return {
+        message: message.split(':')[0],
+        constraints: (message.split(':')[1] || '').split(','),
+      };
+    });
   }
 }

@@ -12,10 +12,16 @@ import {
   useConfig,
   useSession,
   useSensitiveDataClient,
+  isOAuthIntegration,
+  isOAuthNativeIntegrationSync,
 } from '../../models';
 import { MozServices } from '../../lib/types';
 import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
-import { SigninQueryParams } from '../../models/pages/signin';
+import {
+  SigninQueryParams,
+  OAuthNativeSyncQueryParameters,
+  OAuthQueryParams,
+} from '../../models/pages/signin';
 import { useCallback, useEffect, useState } from 'react';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { cache, currentAccount, lastStoredAccount } from '../../lib/cache';
@@ -48,7 +54,6 @@ import { useFinishOAuthFlowHandler } from '../../lib/oauth/hooks';
 import { searchParams } from '../../lib/utilities';
 import { QueryParams } from '../..';
 import { queryParamsToMetricsContext } from '../../lib/metrics';
-import OAuthDataError from '../../components/OAuthDataError';
 import { MetricsContext } from '@fxa/shared/glean';
 import { isEmailValid } from 'fxa-shared/email/helpers';
 import {
@@ -134,12 +139,28 @@ const SigninContainer = ({
   const sensitiveDataClient = useSensitiveDataClient();
   const shouldUseReactEmailFirst = useCheckReactEmailFirst();
 
-  const { queryParamModel, validationError } =
-    useValidatedQueryParams(SigninQueryParams);
+  const { queryParamModel, validationError } = useValidatedQueryParams(
+    SigninQueryParams,
+    true
+  );
+
+  // Validates that query parameters are valid for an oauth integration
+  useValidatedQueryParams(
+    OAuthQueryParams,
+    true,
+    !isOAuthIntegration(integration)
+  );
+
+  // Validates that query parameters are valid for a sync oauth integration
+  useValidatedQueryParams(
+    OAuthNativeSyncQueryParameters,
+    true,
+    !isOAuthNativeIntegrationSync(integration)
+  );
 
   const keyStretchExp = useValidatedQueryParams(KeyStretchExperiment);
 
-  const { finishOAuthFlowHandler, oAuthDataError } = useFinishOAuthFlowHandler(
+  const { finishOAuthFlowHandler } = useFinishOAuthFlowHandler(
     authClient,
     integration
   );
@@ -463,10 +484,6 @@ const SigninContainer = ({
     },
     [authClient, flowQueryParams, ftlMsgResolver]
   );
-
-  if (oAuthDataError) {
-    return <OAuthDataError error={oAuthDataError} />;
-  }
 
   // TODO: if validationError is 'email', in content-server we show "Bad request email param"
   // For now, just redirect to index-first, until FXA-8289 is done

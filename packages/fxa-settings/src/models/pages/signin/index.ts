@@ -5,3 +5,4 @@
 export * from './complete-signin-query-params';
 export * from './report-signin-query-params';
 export * from './query-params';
+export * from './oauth-query-params';

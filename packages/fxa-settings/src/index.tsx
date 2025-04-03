@@ -6,7 +6,7 @@ import sentryMetrics from 'fxa-shared/sentry/browser';
 
 import React from 'react';
 import { render } from 'react-dom';
-import AppErrorBoundary from 'fxa-react/components/AppErrorBoundary';
+import { ErrorBoundary } from './components/ErrorBoundaries';
 import App from './components/App';
 import config, { readConfigMeta } from './lib/config';
 import { searchParams } from './lib/utilities';
@@ -57,13 +57,13 @@ try {
         baseDir={config.l10n.baseUrl}
         userLocales={navigator.languages}
       >
-        <AppErrorBoundary>
+        <ErrorBoundary>
           <AppContext.Provider value={appContext}>
             <ApolloProvider client={apolloClient}>
               <App {...{ flowQueryParams }} />
             </ApolloProvider>
           </AppContext.Provider>
-        </AppErrorBoundary>
+        </ErrorBoundary>
       </AppLocalizationProvider>
     </React.StrictMode>,
     document.getElementById('root')

@@ -50,4 +50,19 @@ describe('url-search-data', () => {
     expect(search).toContain('foo=bar');
     expect(window.location.href).toContain('foo=bar');
   });
+
+  it('encodes parameters', async () => {
+    const data = new UrlQueryData(window);
+    data.set('foo', 'bar+bar');
+
+    const search = await data.toSearchQuery();
+    expect(search).toContain('foo=bar%2Bbar');
+  });
+
+  it('prevents un-encoded parameters', async () => {
+    const temp = window.location.search;
+    window.location.search = 'foo=bar+bar';
+    expect(() => new UrlQueryData(window, true)).toThrow();
+    window.location.search = temp;
+  });
 });
