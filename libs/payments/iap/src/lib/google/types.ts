@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+import { IapExtraStripeInfo } from '../types';
+import { PlayStoreSubscriptionPurchase } from './subscription-purchase';
+
 // This file defines types that are exposed externally to the library consumers.
 
 /* An abstract representation of a purchase made via Google Play Billing
@@ -93,3 +96,6 @@ export enum NotificationType {
   SUBSCRIPTION_REVOKED = 12,
   SUBSCRIPTION_EXPIRED = 13,
 }
+
+export type AppendedPlayStoreSubscriptionPurchase =
+  PlayStoreSubscriptionPurchase & IapExtraStripeInfo;
