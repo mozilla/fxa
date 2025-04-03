@@ -76,7 +76,7 @@
     "fxa-shared": "workspace:*",
     "jest": "27.5.1",
     "jest-watch-typeahead": "0.6.5",
-    "nx": "18.3.1",
+    "nx": "20.7.1",
     "persistgraphql": "^0.3.11",
     "pm2": "^5.4.2",
     "postcss-import": "^16.1.0",

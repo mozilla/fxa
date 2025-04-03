@@ -241,7 +241,7 @@
     "json": "^11.0.0",
     "mocha-junit-reporter": "^2.2.0",
     "mocha-multi": "^1.1.7",
-    "nx": "19.5.3",
+    "nx": "20.7.1",
     "nx-cloud": "19.1.0",
     "persistgraphql": "^0.3.11",
     "postcss": "8.5.0",
