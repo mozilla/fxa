@@ -1,25 +1,26 @@
 #!/bin/bash
-NAME="patcher.mjs" # nodejs script's name here
+PATCHER_PID=$1
 RETRY=60
 
-# Wait for $NAME script to start
-for i in $(eval echo "{1..$RETRY}"); do
-  if [[ $(pgrep -f $NAME) == "" ]]; then
-    sleep 1
-  else
-    break;
-  fi
-done
+echo -e "\nChecking for DB patches..."
+if [[ -z "$PATCHER_PID" ]]; then
+  echo "✅ No DB patches needed"
+  exit 0
+fi
 
-# Wait for $NAME script to finish
-for j in $(eval echo "{1..$RETRY}"); do
-  if [[ $(pgrep -f $NAME) == "" ]]; then
+if ! ps -p "$PATCHER_PID" > /dev/null; then
+  echo "⚠️ DB patcher process (PID $PATCHER_PID) is not running. Skipping wait."
+  exit 0
+fi
+
+for i in $(seq 1 $RETRY); do
+  if ps -p "$PATCHER_PID" > /dev/null; then
+    sleep 0.5
+  else
+    echo "✅ DB patches applied"
     exit 0
-  else
-    if [ "$j" -lt $RETRY ]; then
-      sleep 1
-    fi
   fi
 done
 
+echo "❌ Timeout: DB patches did not finish in time."
 exit 1
