@@ -26,6 +26,7 @@ export enum ReasonForDeletion {
   Cleanup = 'fxa_cleanup_account_delete',
   InactiveAccountScheduled = 'fxa_inactive_account_scheduled_delete',
   InactiveAccountEmailBounced = 'fxa_inactive_account_email_bounced_delete',
+  AdminRequested = 'fxa_admin_requested_account_delete',
 }
 
 /** Task payload requesting an account deletion */

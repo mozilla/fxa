@@ -1156,6 +1156,25 @@ describe('lib/routes/validators:', () => {
           ReasonForDeletion.Unverified
         ).error
       );
+      assert.notExists(
+        validators.reasonForAccountDeletion.validate(ReasonForDeletion.Cleanup)
+          .error
+      );
+      assert.notExists(
+        validators.reasonForAccountDeletion.validate(
+          ReasonForDeletion.InactiveAccountScheduled
+        ).error
+      );
+      assert.notExists(
+        validators.reasonForAccountDeletion.validate(
+          ReasonForDeletion.InactiveAccountEmailBounced
+        ).error
+      );
+      assert.notExists(
+        validators.reasonForAccountDeletion.validate(
+          ReasonForDeletion.AdminRequested
+        ).error
+      );
     });
 
     it('requires valid reason', () => {
