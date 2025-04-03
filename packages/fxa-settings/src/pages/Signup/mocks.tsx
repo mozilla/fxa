@@ -5,7 +5,7 @@
 import { LocationProvider } from '@reach/router';
 import Signup from '.';
 import { MozServices } from '../../lib/types';
-import { IntegrationType } from '../../models';
+import { IntegrationType } from '../../models/integrations';
 import {
   MOCK_REDIRECT_URI,
   MOCK_UID,

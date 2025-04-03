@@ -3,11 +3,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { IsEmail, IsOptional } from 'class-validator';
-import { bind, ModelDataProvider } from '../../../lib/model-data';
+import {
+  bind,
+  KeyTransforms,
+  ModelDataProvider,
+} from '../../../lib/model-data';
 
 export class IndexQueryParams extends ModelDataProvider {
-  @IsEmail()
   @IsOptional()
+  @IsEmail()
   @bind()
-  email: string = '';
+  email: string | undefined;
+
+  @IsOptional()
+  @IsEmail()
+  @bind(KeyTransforms.snakeCase)
+  loginHint: string | undefined;
 }

@@ -142,6 +142,7 @@ describe('metrics', () => {
   beforeEach(() => {
     //@ts-ignore
     delete window.location;
+    //@ts-ignore
     window.location = {
       ...window.location,
       replace: jest.fn(),

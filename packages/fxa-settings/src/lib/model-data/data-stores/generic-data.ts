@@ -26,3 +26,14 @@ export class GenericData extends ModelDataStore {
     this.state[key] = value;
   }
 }
+
+export function queryStringToGenericData(query: string) {
+  const urlParams = new URLSearchParams(query);
+
+  const map: Record<string, string> = {};
+  for (const val of urlParams.entries()) {
+    map[val[0]] = val[1];
+  }
+
+  return new GenericData(map);
+}

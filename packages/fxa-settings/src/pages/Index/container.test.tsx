@@ -21,6 +21,7 @@ import { MOCK_EMAIL } from '../mocks';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { checkEmailDomain } from '../../lib/email-domain-validator';
 import GleanMetrics from '../../lib/glean';
+import { IndexQueryParams } from '../../models/pages/index';
 
 let mockLocationState = {};
 let mockNavigate = jest.fn();
@@ -149,12 +150,19 @@ describe('IndexContainer', () => {
     jest.resetAllMocks();
   });
 
-  it('should render the Index component when no redirection is required', async () => {
-    mockUseValidatedQueryParams.mockReturnValue({
-      queryParamModel: {},
-      validationError: null,
-    });
+  it('should check query parameters', () => {
+    const { container } = renderWithLocalizationProvider(
+      <LocationProvider>
+        <IndexContainer
+          {...{ integration, serviceName: MozServices.Default }}
+        />
+      </LocationProvider>
+    );
+    expect(container).toBeDefined();
+    expect(mockUseValidatedQueryParams).toBeCalledWith(IndexQueryParams, true);
+  });
 
+  it('should render the Index component when no redirection is required', async () => {
     const { container } = renderWithLocalizationProvider(
       <LocationProvider>
         <IndexContainer
@@ -171,11 +179,6 @@ describe('IndexContainer', () => {
 
   it('should pass the prefill email as prop to index when provided by location state', async () => {
     mockLocationState = { prefillEmail: MOCK_EMAIL };
-    mockUseValidatedQueryParams.mockReturnValue({
-      queryParamModel: {},
-      validationError: null,
-    });
-
     const { container } = renderWithLocalizationProvider(
       <LocationProvider>
         <IndexContainer
