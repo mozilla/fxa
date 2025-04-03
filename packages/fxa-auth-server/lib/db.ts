@@ -810,7 +810,7 @@ export const createDB = (
     async deleteAccount(authToken: { uid: string }) {
       const { uid } = authToken;
 
-      log.trace('DB.deleteAccount', { uid });
+      log.info('DB.deleteAccount', { uid });
       if (this.redis) {
         await this.redis.del(uid);
       }
