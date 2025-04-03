@@ -182,7 +182,7 @@
     "@nx/js": "20.4.5",
     "@nx/node": "19.5.3",
     "@nx/react": "19.5.3",
-    "@nx/storybook": "19.5.3",
+    "@nx/storybook": "20.7.1",
     "@nx/workspace": "20.6.2",
     "@opentelemetry/semantic-conventions": "^1.30.0",
     "@storybook/addon-essentials": "^7.6.15",
