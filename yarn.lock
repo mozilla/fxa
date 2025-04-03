@@ -42734,7 +42734,7 @@ fsevents@~2.1.1:
     typescript: ^5.5.3
     uuid: ^10.0.0
     verror: ^1.10.1
-    web-push: 3.4.4
+    web-push: 3.6.7
     webpack: ^5.97.0
     webpack-watch-files-plugin: ^1.2.1
     ws: ^8.17.1
@@ -46499,12 +46499,10 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"http_ece@npm:1.1.0":
-  version: 1.1.0
-  resolution: "http_ece@npm:1.1.0"
-  dependencies:
-    urlsafe-base64: ~1.0.0
-  checksum: 220a9a1c09165b4a3194c9b68a1597d3afc66a6bf8bc3ae1ae8d80d5117d8529f1346d59da7f096df8f3adbe2f42697a6edb31a6075b946207b910b72f28adba
+"http_ece@npm:1.2.0":
+  version: 1.2.0
+  resolution: "http_ece@npm:1.2.0"
+  checksum: 8b716baa83eb985104abe60fd7acdc5198e3d626e9608bdfa1de62851b6b420d89735b483d51045688e14c8fa2031a8f182ac1067394db61c307c7e541983b38
   languageName: node
   linkType: hard
 
@@ -70743,13 +70741,6 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"urlsafe-base64@npm:^1.0.0, urlsafe-base64@npm:~1.0.0":
-  version: 1.0.0
-  resolution: "urlsafe-base64@npm:1.0.0"
-  checksum: 41d28a337044e5ad287174e928227b025d03424c5cd316956fdcbd916fccdc70981fa9a67e77325c5250c8150ba90bca0de65e783aa6235567b7f820e1146cb6
-  languageName: node
-  linkType: hard
-
 "use-callback-ref@npm:^1.3.0":
   version: 1.3.0
   resolution: "use-callback-ref@npm:1.3.0"
@@ -71352,19 +71343,18 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"web-push@npm:3.4.4":
-  version: 3.4.4
-  resolution: "web-push@npm:3.4.4"
+"web-push@npm:3.6.7":
+  version: 3.6.7
+  resolution: "web-push@npm:3.6.7"
   dependencies:
     asn1.js: ^5.3.0
-    http_ece: 1.1.0
-    https-proxy-agent: ^5.0.0
+    http_ece: 1.2.0
+    https-proxy-agent: ^7.0.0
     jws: ^4.0.0
     minimist: ^1.2.5
-    urlsafe-base64: ^1.0.0
   bin:
     web-push: src/cli.js
-  checksum: 2ed47ffbaf7426ea201c84da4bad2b90db416b55395ee7b95639d660eb0ebfee94e1db601d5b02dc9f6c7c0b64e7a9798f8487277ec0ea1b2c68212f439f505d
+  checksum: 306862864675a28702f378c779dfc87f5f2d717fadbcb622c8b40231e0ec074a5592251cb937b96a7e85dcfeafd475d12f0ec9044be210134ad386872d8e56ec
   languageName: node
   linkType: hard
 
