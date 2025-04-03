@@ -19,7 +19,7 @@ __metadata:
     ioredis: ^5.0.6
     morgan: ^1.10.0
     pm2: ^5.4.2
-    prettier: ^2.3.1
+    prettier: ^3.5.3
     request: ^2.88.2
   languageName: unknown
   linkType: soft
@@ -32591,7 +32591,7 @@ __metadata:
     mozlog: ^3.0.2
     optimist: 0.6.1
     pm2: ^5.4.2
-    prettier: ^2.3.1
+    prettier: ^3.5.3
     request: ^2.88.2
     should: 13.2.3
     temp: 0.9.4
@@ -42096,7 +42096,7 @@ __metadata:
     fxa-shared: "workspace:*"
     morgan: ^1.10.0
     pm2: ^5.4.2
-    prettier: ^2.3.1
+    prettier: ^3.5.3
     stylelint: ^16.14.1
     stylelint-config-prettier: ^9.0.3
   languageName: unknown
@@ -42523,7 +42523,7 @@ fsevents@~2.1.1:
     persistgraphql: ^0.3.11
     pm2: ^5.4.2
     postcss-import: ^16.1.0
-    prettier: ^2.3.1
+    prettier: ^3.5.3
     react-router-dom: ^6.26.0
     react-scripts: ^5.0.1
     serve-static: ^1.16.0
@@ -42595,7 +42595,7 @@ fsevents@~2.1.1:
     fast-text-encoding: ^1.0.4
     mocha: ^10.4.0
     node-fetch: ^2.6.7
-    prettier: ^2.8.7
+    prettier: ^3.5.3
     typescript: ^5.5.3
     webcrypto-liner: ^1.4.0
   languageName: unknown
@@ -42716,7 +42716,7 @@ fsevents@~2.1.1:
     p-retry: ^4.2.0
     pm2: ^5.4.2
     poolee: ^1.0.1
-    prettier: ^2.3.1
+    prettier: ^3.5.3
     proxyquire: ^2.1.3
     punycode.js: 2.3.0
     qrcode: ^1.5.1
@@ -42867,7 +42867,7 @@ fsevents@~2.1.1:
     postcss-cli: 11.0.0
     postcss-import: ^16.1.0
     postcss-loader: 8.1.1
-    prettier: ^2.3.1
+    prettier: ^3.5.3
     proxyquire: ^2.1.3
     request: ^2.88.2
     request-promise: 4.2.6
@@ -42927,7 +42927,7 @@ fsevents@~2.1.1:
     ip-reputation-js-client: ^6.0.4
     load-grunt-tasks: ^5.1.0
     pm2: ^5.4.2
-    prettier: ^2.3.1
+    prettier: ^3.5.3
     proxyquire: ^2.1.3
     request: ^2.88.2
     restify-clients: ^4.2.0
@@ -42994,7 +42994,7 @@ fsevents@~2.1.1:
     nock: ^13.5.1
     p-event: ^6.0.0
     pm2: ^5.4.2
-    prettier: ^2.3.1
+    prettier: ^3.5.3
     rimraf: ^6.0.1
     sqs-consumer: ^11.2.0
     supertest: ^7.0.0
@@ -43019,7 +43019,7 @@ fsevents@~2.1.1:
     mocha: ^10.4.0
     mozlog: ^3.0.2
     nyc: ^17.1.0
-    prettier: ^2.3.1
+    prettier: ^3.5.3
     request: ^2.88.2
     rimraf: ^6.0.1
     sinon: ^14.0.0
@@ -43067,7 +43067,7 @@ fsevents@~2.1.1:
     mysql: ^2.18.1
     nock: ^13.5.1
     pm2: ^5.4.2
-    prettier: ^2.3.1
+    prettier: ^3.5.3
     rimraf: ^6.0.1
     supertest: ^7.0.0
     tslib: ^2.8.1
@@ -43177,7 +43177,7 @@ fsevents@~2.1.1:
     on-headers: ^1.0.2
     pm2: ^5.4.2
     postcss-import: 16.1.0
-    prettier: ^2.3.1
+    prettier: ^3.5.3
     react-redux: ^9.1.0
     react-router-dom: ^6.26.0
     react-scripts: ^5.0.1
@@ -43233,7 +43233,7 @@ fsevents@~2.1.1:
     pm2: ^5.4.2
     pngparse: 2.0.1
     poolee: ^1.0.1
-    prettier: ^2.3.1
+    prettier: ^3.5.3
     request: ^2.88.2
     rimraf: ^6.0.1
     sharp: ^0.33.0
@@ -43295,7 +43295,7 @@ fsevents@~2.1.1:
     nx: 18.3.1
     pm2: ^5.4.2
     postcss-import: ^16.1.0
-    prettier: ^2.3.1
+    prettier: ^3.5.3
     react-helmet: ^6.1.0
     rimraf: ^6.0.1
     sass-loader: ^16.0.3
@@ -43501,7 +43501,7 @@ fsevents@~2.1.1:
     nyc: ^17.1.0
     objection: ^3.1.3
     pm2: ^5.4.2
-    prettier: ^2.3.1
+    prettier: ^3.5.3
     proxyquire: ^2.1.3
     sinon: ^9.0.3
     ts-jest: ^29.2.3
@@ -43677,7 +43677,7 @@ fsevents@~2.1.1:
     persistgraphql: ^0.3.11
     pm2: ^5.4.2
     postcss: 8.5.0
-    prettier: ^2.6.2
+    prettier: ^3.5.3
     react: 18.3.1
     react-dom: 18.3.1
     react-ga4: ^2.1.0
@@ -60841,16 +60841,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"prettier@npm:^2.3.1":
-  version: 2.3.1
-  resolution: "prettier@npm:2.3.1"
-  bin:
-    prettier: bin-prettier.js
-  checksum: 3b37731ff7150feecf19736c77c790e7e276b404ac9af81cbaf87cfecefc48ef9a864f34c2a5caf5955378b8f2525984b8611703a0d9c1f052b4cfa6eb35899f
-  languageName: node
-  linkType: hard
-
-"prettier@npm:^2.6.2, prettier@npm:^2.8.0":
+"prettier@npm:^2.8.0":
   version: 2.8.8
   resolution: "prettier@npm:2.8.8"
   bin:
@@ -60859,12 +60850,12 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"prettier@npm:^2.8.7":
-  version: 2.8.7
-  resolution: "prettier@npm:2.8.7"
+"prettier@npm:^3.5.3":
+  version: 3.5.3
+  resolution: "prettier@npm:3.5.3"
   bin:
-    prettier: bin-prettier.js
-  checksum: fdc8f2616f099f5f0d685907f4449a70595a0fc1d081a88919604375989e0d5e9168d6121d8cc6861f21990b31665828e00472544d785d5940ea08a17660c3a6
+    prettier: bin/prettier.cjs
+  checksum: 61e97bb8e71a95d8f9c71f1fd5229c9aaa9d1e184dedb12399f76aa802fb6fdc8954ecac9df25a7f82ee7311cf8ddbd06baf5507388fc98e5b44036cc6a88a1b
   languageName: node
   linkType: hard
 
