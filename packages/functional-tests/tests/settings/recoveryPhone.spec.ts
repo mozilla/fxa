@@ -28,6 +28,9 @@ const TEST_NUMBER = '4159929960';
  * @returns
  */
 function getPhoneNumber(targetName: TargetName) {
+  if (targetName === 'local') {
+    return TEST_NUMBER;
+  }
   return getFromEnvWithFallback(
     'FUNCTIONAL_TESTS__TWILIO__TEST_NUMBER',
     targetName,
@@ -40,10 +43,6 @@ function usingRealTestPhoneNumber(targetName: TargetName) {
 }
 
 test.describe('severity-1 #smoke', () => {
-  test.fixme(
-    true,
-    'FXA-11191 will resolve issue with switching between twilio and redis clients'
-  );
   test.describe('recovery phone', () => {
     // Run these tests sequentially. This must be done when using the Twilio API, because they rely on
     // the same test phone number, and we cannot determine the order in which the messages were received.

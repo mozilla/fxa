@@ -172,6 +172,8 @@ executors:
       FEATURE_FLAGS_USING_2FA_BACKUP_PHONE: true
       GEODB_LOCATION_OVERRIDE: '{"location": {"countryCode": "US", "postalCode": "85001"}}'
       RECOVERY_PHONE__ENABLED: true
+      # use test mode except for smoke tests
+      RECOVERY_PHONE__TWILIO__CREDENTIAL_MODE: 'test'
       CUSTOMS_SERVER_URL: none
       HUSKY_SKIP_INSTALL: 1
       AUTH_CLOUDTASKS_USE_LOCAL_EMULATOR: true
@@ -190,6 +192,8 @@ executors:
       NODE_ENV: development
       CUSTOMS_SERVER_URL: none
       HUSKY_SKIP_INSTALL: 1
+      # use apiKeys mode and real numbers for smoke tests
+      RECOVERY_PHONE__TWILIO__CREDENTIAL_MODE: 'apiKeys'
 
 commands:
   git-clone:
@@ -327,13 +331,10 @@ commands:
           # Supports 'Re-run failed tests only'. See this for more info: https://circleci.com/docs/rerun-failed-tests-only/
           command: |
             if [[ "<< parameters.project >>" == "production" ]]; then
-              FUNCTIONAL_TESTS__USE_TWILIO_CLIENT="true"
               GREP="--grep=\"severity-1\""
             elif [[ "<< parameters.project >>" == "stage" ]]; then
-              FUNCTIONAL_TESTS__USE_TWILIO_CLIENT="true"
               GREP="--grep=\"severity-(1|2)\""
             else
-              FUNCTIONAL_TESTS__USE_TWILIO_CLIENT="false"
               GREP=""
             fi
             echo "targeting project << parameters.project >> $GREP"
@@ -780,9 +781,6 @@ jobs:
           command: ./packages/functional-tests/scripts/start-services.sh
           environment:
             NODE_ENV: test
-            # Functional tests use 'real' numbers.
-            # Switch out of the default 'test' credential mode.
-            RECOVERY_PHONE__TWILIO__CREDENTIAL_MODE: 'apiKeys'
       - run-playwright-tests:
           project: local
       - store-artifacts
