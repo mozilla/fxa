@@ -124,7 +124,7 @@ export class AppleIapPurchaseManager {
    * triggerNotificationType is only necessary if the purchase query action is triggered
    * by an App Store Server notification.
    */
-  private async getFromAppStoreAPI(
+  async getFromAppStoreAPI(
     bundleId: string,
     originalTransactionId: string,
     triggerNotificationType?: NotificationType,
