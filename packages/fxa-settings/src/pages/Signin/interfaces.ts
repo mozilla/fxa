@@ -29,6 +29,7 @@ export type SigninUnblockIntegration = Pick<
   | 'data'
   | 'isDesktopSync'
   | 'isDesktopRelay'
+  | 'wantsLogin'
 >;
 
 export type SigninIntegration =

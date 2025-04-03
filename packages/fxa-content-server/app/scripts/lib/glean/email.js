@@ -23,6 +23,22 @@ export const firstAppleOauthStart = new EventMetricType(
 );
 
 /**
+ * User types in the email field of the email first page.
+ *
+ * Generated from `email.first_engage`.
+ */
+export const firstEngage = new EventMetricType(
+  {
+    category: 'email',
+    name: 'first_engage',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
  * User clicks on the Google third party link from email first page.
  *
  * Generated from `email.first_google_oauth_start`.
@@ -36,6 +52,41 @@ export const firstGoogleOauthStart = new EventMetricType(
     disabled: false,
   },
   []
+);
+
+/**
+ * The user clicked on the button to submit their email on the email-first page
+ * but email submission failed, likely due to a failed email domain check.
+ * The user is not navigated onwards to sign in or sign up.
+ *
+ * Generated from `email.first_submit_fail`.
+ */
+export const firstSubmitFail = new EventMetricType(
+  {
+    category: 'email',
+    name: 'first_submit_fail',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * User clicked on the button to submit an email on the email first page
+ * and is navigated onwards to sign in or sign up.
+ *
+ * Generated from `email.first_submit_success`.
+ */
+export const firstSubmitSuccess = new EventMetricType(
+  {
+    category: 'email',
+    name: 'first_submit_success',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  ['reason']
 );
 
 /**

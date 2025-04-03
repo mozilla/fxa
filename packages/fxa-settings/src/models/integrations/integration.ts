@@ -3,7 +3,21 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { MozServices } from '../../lib/types';
+import { IntegrationData } from './data/data';
+import { IntegrationFeatures } from './features';
+import { RelierClientInfo, RelierSubscriptionInfo } from './relier-interfaces';
 
+/**
+ * Default alias type, so we don't have continually redeclare default generic types.
+ */
+export type Integration = GenericIntegration<
+  IntegrationFeatures,
+  IntegrationData
+>;
+
+/**
+ * Enumerates know 'integration' types
+ */
 export enum IntegrationType {
   OAuthWeb = 'OAuthWeb', // OAuth for non-browser services/RPs
   OAuthNative = 'OAuthNative', // OAuth for desktop & mobile clients
@@ -15,76 +29,24 @@ export enum IntegrationType {
   ThirdPartyAuthCallback = 'ThirdPartyAuthCallback', // For third party auth callbacks
 }
 
-/* TODO, do we care about this feature (capability in content-server)?
- * -isOpenWebmailButtonVisible: we have a webmail link showing only in desktop v3
- *  on the confirm reset PW page and confirm page. We have this comment: "we do not
- * show [this] in mobile context because it performs worse".
+/**
+ * Generic base class for all integrations. Can work with varying features and data models (ie TFeature and TData).
  */
-export interface IntegrationFeatures {
-  /**
-   * If the provided UID no longer exists on the auth server, can the
-   * user sign up/in with the same email address but a different uid?
-   */
-  allowUidChange: boolean;
-  /**
-   * Should the user agent be queried for FxA data?
-   */
-  fxaStatus: boolean;
-  /**
-   * Should the view handle signed-in notifications from other tabs?
-   */
-  handleSignedInNotification: boolean;
-  /**
-   * If the user has an existing sessionToken, can we safely re-use it on
-   * subsequent signin attempts rather than generating a new token each time?
-   */
-  reuseExistingSession: boolean;
-  /**
-   * Does this environment support pairing?
-   */
-  supportsPairing: boolean;
-}
-
-export interface RelierSubscriptionInfo {
-  subscriptionProductId: string;
-  subscriptionProductName: string;
-}
-
-export interface RelierClientInfo {
-  clientId: string | undefined;
-  imageUri: string | undefined;
-  serviceName: string | undefined;
-  redirectUri: string | undefined;
-  trusted: boolean | undefined;
-}
-
-export interface RelierAccount {
-  uid: string;
-  email: string;
-  sessionToken: string;
-  verifyIdToken(
-    idTokenHint: string,
-    clientId: string,
-    gracePeriod: number
-  ): Promise<{ sub: string }>;
-  isDefault(): boolean;
-}
-
-// TODO: probably move this to another file
-export abstract class Integration<
-  T extends IntegrationFeatures = IntegrationFeatures
+export class GenericIntegration<
+  TFeatures extends IntegrationFeatures,
+  TData extends IntegrationData
 > {
   type: IntegrationType;
-  public features: T = {} as T;
-  // TODO fix data type
-  public data: any;
+  public features: TFeatures;
+  public data: TData;
+
   clientInfo: RelierClientInfo | undefined;
   subscriptionInfo: RelierSubscriptionInfo | undefined;
 
-  // TODO fix data type
   constructor(
     type: IntegrationType,
-    data: any,
+    data: TData,
+    features: TFeatures,
     clientInfo?: RelierClientInfo,
     subscriptionInfo?: RelierSubscriptionInfo | undefined
   ) {
@@ -92,10 +54,15 @@ export abstract class Integration<
     this.data = data;
     this.clientInfo = clientInfo;
     this.subscriptionInfo = subscriptionInfo;
+    this.features = features;
   }
 
-  protected setFeatures(features: Partial<T>) {
-    this.features = { ...this.features, ...features } as T;
+  setFeatures(features: Partial<TFeatures>) {
+    this.features = { ...this.features, ...features } as TFeatures;
+  }
+
+  hasWebChannelSupport() {
+    return this.isSync() || this.isDesktopRelay() || this.isDesktopSync();
   }
 
   isSync() {
@@ -173,10 +140,12 @@ export abstract class Integration<
     return undefined;
   }
 
+  // TODO: Use data model directly
   getService(): string | undefined {
     return this.data.service;
   }
 
+  // TODO: Use data model directly
   getClientId(): string | undefined {
     return this.data.clientId;
   }
@@ -187,21 +156,5 @@ export abstract class Integration<
 
   thirdPartyAuthParams() {
     return {};
-  }
-}
-
-export class BaseIntegration<
-  T extends IntegrationFeatures = IntegrationFeatures
-> extends Integration<T> {
-  // TODO fix data type
-  constructor(type: IntegrationType, data: any) {
-    super(type, data);
-    this.setFeatures({
-      allowUidChange: false,
-      fxaStatus: false,
-      handleSignedInNotification: true,
-      reuseExistingSession: false,
-      supportsPairing: false,
-    } as T);
   }
 }

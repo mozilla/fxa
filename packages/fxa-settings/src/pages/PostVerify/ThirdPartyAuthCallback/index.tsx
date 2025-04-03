@@ -132,7 +132,6 @@ const ThirdPartyAuthCallback = ({
       const flowBeginTime = params.get('flowBeginTime') || undefined;
       const originalService =
         params.get('service') || params.get('client_id') || undefined;
-
       const linkedAccount: LinkedAccountData =
         await account.verifyAccountThirdParty(
           thirdPartyOAuthCode,

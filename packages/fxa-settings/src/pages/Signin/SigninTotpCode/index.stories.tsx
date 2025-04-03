@@ -12,6 +12,7 @@ import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { mockOAuthNativeIntegration, Subject } from './mocks';
 import { BeginSigninError } from '../../../lib/error-utils';
 import { Integration } from '../../../models';
+import { SigninIntegration } from '../interfaces';
 
 export default {
   title: 'Pages/Signin/SigninTotpCode',
@@ -22,7 +23,7 @@ export default {
 const storyWithProps = (props: {
   submitTotpCode: () => Promise<{ error?: BeginSigninError }>;
   serviceName: MozServices;
-  integration?: Integration;
+  integration?: SigninIntegration;
 }) => {
   const story = () => (
     <LocationProvider>

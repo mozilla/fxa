@@ -5,11 +5,16 @@
 import React from 'react';
 import { LocationProvider } from '@reach/router';
 import { MozServices } from '../../lib/types';
-import { IntegrationType } from '../../models';
+import {
+  IntegrationData,
+  IntegrationType,
+  OAuthIntegrationData,
+} from '../../models';
 import { IndexIntegration } from './interfaces';
 import Index from '.';
 import { MOCK_CLIENT_ID } from '../mocks';
 import { Constants } from '../../lib/constants';
+import { GenericData } from '../../lib/model-data';
 
 export function createMockIndexOAuthIntegration({
   clientId = MOCK_CLIENT_ID,
@@ -19,9 +24,11 @@ export function createMockIndexOAuthIntegration({
     isSync: () => false,
     getClientId: () => clientId,
     isDesktopRelay: () => false,
-    data: {
-      context: '',
-    },
+    data: new OAuthIntegrationData(
+      new GenericData({
+        context: '',
+      })
+    ),
   };
 }
 export function createMockIndexOAuthNativeIntegration({
@@ -36,9 +43,11 @@ export function createMockIndexOAuthNativeIntegration({
     isSync: () => isSync,
     getClientId: () => MOCK_CLIENT_ID,
     isDesktopRelay: () => isDesktopRelay,
-    data: {
-      context: Constants.OAUTH_WEBCHANNEL_CONTEXT,
-    },
+    data: new OAuthIntegrationData(
+      new GenericData({
+        context: Constants.OAUTH_WEBCHANNEL_CONTEXT,
+      })
+    ),
   };
 }
 
@@ -48,9 +57,11 @@ export function createMockIndexWebIntegration(): IndexIntegration {
     isSync: () => false,
     getClientId: () => undefined,
     isDesktopRelay: () => false,
-    data: {
-      context: '',
-    },
+    data: new IntegrationData(
+      new GenericData({
+        context: '',
+      })
+    ),
   };
 }
 

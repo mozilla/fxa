@@ -2,29 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {
-  BaseIntegration,
-  IntegrationType,
-  RelierAccount,
-  RelierClientInfo,
-} from './base-integration';
-import { ModelDataStore, bind, KeyTransforms as T } from '../../lib/model-data';
+import { ModelDataStore } from '../../lib/model-data';
 import { Constants } from '../../lib/constants';
 import { OAUTH_ERRORS, OAuthError } from '../../lib/oauth';
 import { IntegrationFlags } from '../../lib/integrations';
-import { BaseIntegrationData } from './web-integration';
-import {
-  IsBoolean,
-  IsEmail,
-  IsHexadecimal,
-  IsIn,
-  IsNotEmpty,
-  IsInt,
-  IsOptional,
-  IsString,
-  MaxLength,
-  MinLength,
-} from 'class-validator';
+import { OAuthIntegrationData } from './data/data';
+import { IntegrationFeatures } from './features';
+import { RelierAccount, RelierClientInfo } from './relier-interfaces';
+import { GenericIntegration, IntegrationType } from './integration';
 
 export enum OAuthPrompt {
   CONSENT = 'consent',
@@ -40,120 +25,6 @@ type OAuthIntegrationTypes =
 
 export type SearchParam = IntegrationFlags['searchParam'];
 
-// TODO: probably move this somewhere else
-export class OAuthIntegrationData extends BaseIntegrationData {
-  // TODO - Validation - Can we get a set of known client ids from config or api call? See https://github.com/mozilla/fxa/pull/15677#discussion_r1291534277
-  @IsOptional()
-  @IsHexadecimal()
-  @bind(T.snakeCase)
-  clientId: string | undefined;
-
-  @IsOptional()
-  @IsString()
-  @bind()
-  imageUri: string | undefined;
-
-  @IsBoolean()
-  @IsOptional()
-  @bind()
-  trusted: boolean | undefined;
-
-  @IsOptional()
-  @IsIn(['offline', 'online'])
-  @bind(T.snakeCase)
-  accessType: string | undefined;
-
-  @IsOptional()
-  @IsString()
-  @bind(T.snakeCase)
-  acrValues: string | undefined;
-
-  // TODO - Validation - Double check actions
-  @IsOptional()
-  @IsIn(['signin', 'signup', 'email', 'force_auth', 'pairing'])
-  @bind()
-  action: string | undefined;
-
-  @IsOptional()
-  @IsString()
-  @MinLength(43)
-  @MaxLength(128)
-  @bind(T.snakeCase)
-  codeChallenge: string | undefined;
-
-  @IsOptional()
-  @IsIn(['S256'])
-  @bind(T.snakeCase)
-  codeChallengeMethod: string | undefined;
-
-  // TODO - Validation - Should this be base64?
-  @IsOptional()
-  @IsString()
-  @bind(T.snakeCase)
-  keysJwk: string | undefined;
-
-  @IsOptional()
-  @IsString()
-  @bind(T.snakeCase)
-  idTokenHint: string | undefined;
-
-  @IsOptional()
-  @IsInt()
-  @bind(T.snakeCase)
-  maxAge: number | undefined;
-
-  @IsOptional()
-  @IsString()
-  @bind()
-  permissions: string | undefined;
-
-  @IsOptional()
-  @IsString()
-  @bind()
-  prompt: string | undefined;
-
-  // TODO - Validation - This should be a URL, but it is encoded and must be decoded in order to validate.
-  @IsOptional()
-  @IsString()
-  @bind()
-  declare redirectTo: string | undefined;
-
-  // TODO - Validation - This should be a URL, but it is encoded and must be decoded in order to validate.
-  @IsOptional()
-  @IsString()
-  @bind(T.snakeCase)
-  redirectUrl: string | undefined;
-
-  // TODO - Validation - Needs custom validation, see IsRedirectUriValid in content server.
-  // We fall back to clientInfo.redirectUri if this is not provided so only validate if it's present
-  @IsString()
-  @IsOptional()
-  @bind(T.snakeCase)
-  redirectUri: string | undefined;
-
-  @IsBoolean()
-  @IsOptional()
-  @bind(T.snakeCase)
-  returnOnError: boolean | undefined;
-
-  // TODO - Validation - Should scope be required?
-  @IsOptional()
-  @IsString()
-  @IsNotEmpty()
-  @bind()
-  scope: string | undefined;
-
-  @IsOptional()
-  @IsString()
-  @bind()
-  state: string | undefined;
-
-  @IsOptional()
-  @IsEmail()
-  @bind(T.snakeCase)
-  loginHint: string | undefined;
-}
-
 export type OAuthIntegrationOptions = {
   scopedKeysEnabled: boolean;
   scopedKeysValidation: Record<string, any>;
@@ -167,17 +38,22 @@ export type OAuthIntegrationOptions = {
  *
  * This is a base class for OAuthNativeIntegration.
  */
-export class OAuthWebIntegration extends BaseIntegration {
+export class OAuthWebIntegration extends GenericIntegration<
+  IntegrationFeatures,
+  OAuthIntegrationData
+> {
   constructor(
     data: ModelDataStore,
     protected readonly storageData: ModelDataStore,
     public readonly opts: OAuthIntegrationOptions,
     type: OAuthIntegrationTypes = IntegrationType.OAuthWeb
   ) {
-    super(type, new OAuthIntegrationData(data));
-    this.setFeatures({
+    super(type, new OAuthIntegrationData(data), {
+      allowUidChange: false,
+      fxaStatus: false,
       handleSignedInNotification: false,
       reuseExistingSession: true,
+      supportsPairing: false,
     });
   }
 
@@ -208,9 +84,11 @@ export class OAuthWebIntegration extends BaseIntegration {
       utmTerm: this.data.utmTerm,
     };
 
-    const redirectParams = Object.fromEntries(
-      Object.entries(params).filter(([_, v]) => v !== undefined)
-    );
+    const redirectParams: Record<string, string> = Object.fromEntries(
+      Object.entries(params).filter(([_, v]) => {
+        return v !== undefined;
+      })
+    ) as Record<string, string>;
 
     redirectUrl.search = new URLSearchParams(redirectParams).toString();
     return redirectUrl.toString();
@@ -350,13 +228,9 @@ export class OAuthWebIntegration extends BaseIntegration {
   }
 
   getPermissions() {
-    // TODO: Not 100% sure about this...
-    if (!this.data.scope) {
-      return [];
-    }
-
     // Ported from content server, search for _normalizeScopesAndPermissions
     let permissions = Array.from(scopeStrToArray(this.data.scope || ''));
+
     if (this.isTrusted()) {
       // We have to normalize `profile` into is expanded sub-scopes
       // in order to show the consent screen.
@@ -435,6 +309,10 @@ export class OAuthWebIntegration extends BaseIntegration {
     if (requestedEmail && requestedEmail !== account.email) {
       throw new OAuthError('PROMPT_NONE_DIFFERENT_USER_SIGNED_IN');
     }
+  }
+
+  getRedirectTo(): string {
+    return this.data.redirectTo || '';
   }
 }
 
