@@ -51,7 +51,6 @@ import { ScrollToTop } from '../Settings/ScrollToTop';
 // Pages
 import CannotCreateAccount from '../../pages/CannotCreateAccount';
 import Clear from '../../pages/Clear';
-import CookiesDisabled from '../../pages/CookiesDisabled';
 import InlineRecoverySetupContainer from '../../pages/InlineRecoverySetup/container';
 import InlineTotpSetupContainer from '../../pages/InlineTotpSetup/container';
 import Legal from '../../pages/Legal';
@@ -336,7 +335,6 @@ const AuthAndAccountSetupRoutes = ({
 
       {/* Other */}
       <Clear path="/clear/*" />
-      <CookiesDisabled path="/cookies_disabled/*" />
       <WebChannelExample path="/web_channel_example/*" />
 
       {/* Post verify */}
