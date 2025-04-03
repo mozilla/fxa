@@ -80,9 +80,6 @@ export class RelierPage extends BaseLayout {
     await this.page
       .getByRole('button', { name: 'Choose my sign-in flow for me' })
       .click();
-    // We need to add a `waitUntil` option here because the page gets redirected from
-    // /authorization to /oauth before the page is fully loaded.
-    return this.page.waitForURL(`${this.target.contentServerUrl}/oauth/**`);
   }
 
   async signInPromptNone() {

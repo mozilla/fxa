@@ -56,7 +56,7 @@ module.exports = () => {
   const FEATURE_FLAGS = config.get('featureFlags') || {};
 
   // Each of these config values (e.g., 'servers.content') will be exposed as the given
-  // variable to the client/browser (via fxa-content-server/config)
+  // variable to the client/browser (via fxa-config)
   const CLIENT_CONFIG = {
     env: config.get('env'),
     googleAnalytics: {

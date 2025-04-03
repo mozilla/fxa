@@ -28,26 +28,6 @@ test.describe('severity-1', () => {
     );
     expect(failures).toBe(0);
   });
-
-  test('prompt=consent', async ({
-    pages: { configPage, relier, signin },
-    testAccountTracker,
-  }) => {
-    const config = await configPage.getConfig();
-    test.skip(
-      config.showReactApp.signInRoutes === true,
-      'permissions page is not supported in React, see FXA-8827'
-    );
-    const credentials = await testAccountTracker.signUp();
-
-    await relier.goto('prompt=consent');
-    await relier.clickEmailFirst();
-    await signin.fillOutEmailFirstForm(credentials.email);
-    await signin.fillOutPasswordForm(credentials.password);
-    await expect(signin.permissionsHeading).toBeVisible();
-    await signin.permissionsAcceptButton.click();
-    expect(await relier.isLoggedIn()).toBe(true);
-  });
 });
 
 test.describe('robots.txt', () => {

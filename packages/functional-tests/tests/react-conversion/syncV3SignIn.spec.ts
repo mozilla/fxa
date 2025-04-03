@@ -7,15 +7,9 @@ import { expect, test } from '../../lib/fixtures/standard';
 test.describe('severity-2 #smoke', () => {
   test.describe('Firefox Desktop Sync v3 signin react', () => {
     test('verified, does not need to confirm', async ({
-      syncBrowserPages: { configPage, connectAnotherDevice, signin },
+      syncBrowserPages: { connectAnotherDevice, signin },
       testAccountTracker,
     }) => {
-      const config = await configPage.getConfig();
-      test.skip(
-        config.showReactApp.signInRoutes !== true,
-        'React signInRoutes not enabled'
-      );
-
       const credentials = await testAccountTracker.signUp();
 
       await signin.goto(

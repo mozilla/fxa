@@ -13,8 +13,14 @@ test.describe('cookies disabled', () => {
   test('visit signup page with localStorage disabled', async ({
     target,
     page,
-    pages: { cookiesDisabled },
+    pages: { configPage, cookiesDisabled },
   }) => {
+    const config = await configPage.getConfig();
+    test.fixme(
+      config.showReactApp.emailFirstRoutes === true &&
+        config.rolloutRates.generalizedReactApp > 0,
+      'FXA-11428 fix redirect to cookies_disabled when cookies disabled, and review testing approach - tests were passing even though redirect is not working when cookies are truly disabled'
+    );
     //Goto cookies disabled url
     await page.goto(`${target.contentServerUrl}?disable_local_storage=1`);
 

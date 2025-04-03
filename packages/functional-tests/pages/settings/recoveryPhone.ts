@@ -45,7 +45,7 @@ export class RecoveryPhoneSetupPage extends SettingsLayout {
 
   // Methods for ConfirmRecoveryPhone
   get confirmHeader() {
-    return this.page.locator('h2', { hasText: 'Verify your phone number' });
+    return this.page.locator('h2', { hasText: 'Enter verification code' });
   }
 
   get codeInput() {

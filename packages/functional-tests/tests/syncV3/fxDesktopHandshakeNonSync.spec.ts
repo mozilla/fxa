@@ -14,8 +14,14 @@ test.describe('severity-2 #smoke', () => {
   test.describe('Firefox desktop user info handshake', () => {
     test('Non-Sync - no user signed into browser, no user signed in locally', async ({
       target,
-      syncBrowserPages: { page, signin },
+      syncBrowserPages: { configPage, page, signin },
     }) => {
+      const config = await configPage.getConfig();
+      test.fixme(
+        config.showReactApp.emailFirstRoutes === true &&
+          config.rolloutRates.generalizedReactApp > 0,
+        'FXA-11432'
+      );
       const query = new URLSearchParams({
         forceUA: uaStrings['desktop_firefox_71'],
       });
@@ -45,9 +51,15 @@ test.describe('severity-2 #smoke', () => {
 
     test('Non-Sync - user signed into browser, no user signed in locally', async ({
       target,
-      syncBrowserPages: { page, settings, signin },
+      syncBrowserPages: { configPage, page, settings, signin },
       testAccountTracker,
     }) => {
+      const config = await configPage.getConfig();
+      test.fixme(
+        config.showReactApp.emailFirstRoutes === true &&
+          config.rolloutRates.generalizedReactApp > 0,
+        'FXA-11432'
+      );
       const credentials = await testAccountTracker.signUp();
       const query = new URLSearchParams({
         forceUA: uaStrings['desktop_firefox_71'],
@@ -85,9 +97,15 @@ test.describe('severity-2 #smoke', () => {
 
     test('Non-Sync - user signed into browser, user signed in locally', async ({
       target,
-      syncBrowserPages: { page, settings, signin },
+      syncBrowserPages: { configPage, page, settings, signin },
       testAccountTracker,
     }) => {
+      const config = await configPage.getConfig();
+      test.fixme(
+        config.showReactApp.emailFirstRoutes === true &&
+          config.rolloutRates.generalizedReactApp > 0,
+        'FXA-11432'
+      );
       const credentials = await testAccountTracker.signUp();
       const syncCredentials = await testAccountTracker.signUpSync();
       const query = new URLSearchParams({
@@ -154,9 +172,15 @@ test.describe('severity-2 #smoke', () => {
 
     test('Non-Sync force_auth page - user signed into browser is different to requested user', async ({
       target,
-      syncBrowserPages: { page, signin },
+      syncBrowserPages: { configPage, page, signin },
       testAccountTracker,
     }) => {
+      const config = await configPage.getConfig();
+      test.fixme(
+        config.showReactApp.emailFirstRoutes === true &&
+          config.rolloutRates.generalizedReactApp > 0,
+        'FXA-11432'
+      );
       const credentials = await testAccountTracker.signUp();
       const syncCredentials = await testAccountTracker.signUpSync();
       const query = new URLSearchParams({

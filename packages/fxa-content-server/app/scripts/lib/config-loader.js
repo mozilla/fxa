@@ -36,9 +36,7 @@ ConfigLoader.prototype = {
   },
 
   _readConfigFromHTML() {
-    const element = document.querySelector(
-      'meta[name="fxa-content-server/config"]'
-    );
+    const element = document.querySelector('meta[name="fxa-config"]');
     const configFromHTML = element && element.getAttribute('content');
 
     if (!configFromHTML) {

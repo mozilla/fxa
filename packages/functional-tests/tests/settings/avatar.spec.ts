@@ -2,13 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import path from 'path';
 import { Page, expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
 import { TestAccountTracker } from '../../lib/testAccountTracker';
 import { SettingsPage } from '../../pages/settings';
 import { SigninPage } from '../../pages/signin';
 
-const AVATAR_IMAGE_PATH = './pages/settings/avatar.png';
+const AVATAR_IMAGE_PATH = path.resolve(
+  __dirname,
+  '../../pages/settings/avatar.png'
+);
 
 test.describe('severity-1 #smoke', () => {
   test('open and close avatar drop-down menu', async ({

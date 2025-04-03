@@ -53,9 +53,8 @@ test.describe('severity-1 #smoke', () => {
       await relier.signOut();
       await relier.clickSignIn();
 
-      await page.waitForURL(/oauth\/signin/);
-
       // By default, we should see the most recent signed in email
+      await expect(signin.cachedSigninHeading).toBeVisible();
       await expect(page.getByText(email)).toBeVisible();
     });
   });

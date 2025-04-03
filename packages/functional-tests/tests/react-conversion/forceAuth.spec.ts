@@ -6,12 +6,6 @@ import { expect, test } from '../../lib/fixtures/standard';
 import { getReactFeatureFlagUrl } from '../../lib/react-flag';
 
 test.describe('force auth react', () => {
-  test.beforeEach(async ({ pages: { configPage } }) => {
-    // Ensure that the feature flag is enabled
-    const config = await configPage.getConfig();
-    test.skip(config.showReactApp.signInRoutes !== true);
-  });
-
   test('displays signin with registered email', async ({
     target,
     syncBrowserPages: { page, signin },
@@ -35,11 +29,8 @@ test.describe('force auth react', () => {
 
   test('redirects to signup with unregistered email', async ({
     target,
-    syncBrowserPages: { configPage, page, signup },
+    syncBrowserPages: { page, signup },
   }) => {
-    const config = await configPage.getConfig();
-    test.skip(config.showReactApp.signUpRoutes !== true);
-
     const unregisteredEmail = `rando${Math.random()}@example.com`;
     const url = getReactFeatureFlagUrl(
       target,
