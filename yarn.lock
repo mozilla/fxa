@@ -43659,7 +43659,7 @@ fsevents@~2.1.1:
     module-alias: ^2.2.3
     mozlog: ^3.0.2
     mysql: ^2.18.1
-    mysql2: ^3.12.0
+    mysql2: ^3.14.0
     nest-typed-config: ^2.9.2
     nest-winston: ^1.10.0
     next: ^14.2.21
@@ -55267,9 +55267,9 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"mysql2@npm:^3.12.0":
-  version: 3.12.0
-  resolution: "mysql2@npm:3.12.0"
+"mysql2@npm:^3.14.0":
+  version: 3.14.0
+  resolution: "mysql2@npm:3.14.0"
   dependencies:
     aws-ssl-profiles: ^1.1.1
     denque: ^2.1.0
@@ -55280,7 +55280,7 @@ fsevents@~2.1.1:
     named-placeholders: ^1.1.3
     seq-queue: ^0.0.5
     sqlstring: ^2.3.2
-  checksum: b9c608f7f139929f61fd727773a2a9ff73808172420788be9fa9a60e9a80aa867f81efadd99c010b3015e26271905a83a63a8d919a6fd72b842a19bac3ce4f95
+  checksum: 71a4c21d5792012e69336cd48d45aefb0f196d8a1fcee002c3fbe3677320cef78e02af86fab7e9072b87b96fbe3a3577e2ee12d7f59230361e27bb4d53a9bd4a
   languageName: node
   linkType: hard
 
