@@ -25540,12 +25540,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/chai-as-promised@npm:^7":
-  version: 7.1.4
-  resolution: "@types/chai-as-promised@npm:7.1.4"
+"@types/chai-as-promised@npm:^8":
+  version: 8.0.2
+  resolution: "@types/chai-as-promised@npm:8.0.2"
   dependencies:
     "@types/chai": "*"
-  checksum: bb974e77e0357fcc9a01f4b46eb1d3d6a40621a479654fa17539890cd59635faf9b860b8c3851f638d1e239404b1dc8e7ab1305f26dec43e19cce6796e01fe48
+  checksum: a65d360915471d5d2ea3471e8afc69884151b19c7b92494a4faabf95fcd7bb1059f32f5518f17115e2c9835afb7c0b933f9944bbb60d2ebe0a6fd3b61b1e031c
   languageName: node
   linkType: hard
 
@@ -33670,14 +33670,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chai-as-promised@npm:^7.1.1":
-  version: 7.1.1
-  resolution: "chai-as-promised@npm:7.1.1"
+"chai-as-promised@npm:^8.0.1":
+  version: 8.0.1
+  resolution: "chai-as-promised@npm:8.0.1"
   dependencies:
-    check-error: ^1.0.2
+    check-error: ^2.0.0
   peerDependencies:
-    chai: ">= 2.1.2 < 5"
-  checksum: 7262868a5b51a12af4e432838ddf97a893109266a505808e1868ba63a12de7ee1166e9d43b5c501a190c377c1b11ecb9ff8e093c89f097ad96c397e8ec0f8d6a
+    chai: ">= 2.1.2 < 6"
+  checksum: 7fa517bc70fd355ec91b543c8c1a1cf545355224cf75063f93b3ed32bb562f1f23a850135737d6337fa4e098c8baffbb9c74b05b1fcb3c4d290985a8c3c4890d
   languageName: node
   linkType: hard
 
@@ -33918,6 +33918,13 @@ __metadata:
   dependencies:
     get-func-name: ^2.0.2
   checksum: e2131025cf059b21080f4813e55b3c480419256914601750b0fee3bd9b2b8315b531e551ef12560419b8b6d92a3636511322752b1ce905703239e7cc451b6399
+  languageName: node
+  linkType: hard
+
+"check-error@npm:^2.0.0":
+  version: 2.1.1
+  resolution: "check-error@npm:2.1.1"
+  checksum: d785ed17b1d4a4796b6e75c765a9a290098cf52ff9728ce0756e8ffd4293d2e419dd30c67200aee34202463b474306913f2fcfaf1890641026d9fc6966fea27a
   languageName: node
   linkType: hard
 
@@ -42770,7 +42777,7 @@ fsevents@~2.1.1:
     "@types/babel__core": 7.20.5
     "@types/babel__preset-env": ^7
     "@types/chai": ^4.3.17
-    "@types/chai-as-promised": ^7
+    "@types/chai-as-promised": ^8
     "@types/convict": 5.2.2
     "@types/dedent": ^0
     "@types/ejs": ^3.0.6
@@ -42799,7 +42806,7 @@ fsevents@~2.1.1:
     binary-split: 1.0.5
     buf: 0.1.1
     chai: ^4.5.0
-    chai-as-promised: ^7.1.1
+    chai-as-promised: ^8.0.1
     commander: 2.18.0
     convict: ^6.2.4
     convict-format-with-moment: ^6.2.0
