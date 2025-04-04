@@ -107,7 +107,7 @@
     "moment-timezone": "^0.5.35",
     "mozlog": "^3.0.2",
     "mysql": "^2.18.1",
-    "node-zendesk": "^2.2.0",
+    "node-zendesk": "^6.0.1",
     "nodemailer": "^6.9.9",
     "otplib": "^11.0.1",
     "p-queue-compat": "^1.0.225",

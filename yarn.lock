@@ -30421,17 +30421,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"async@npm:3.2.4, async@npm:^3.0.0":
+"async@npm:3.2.4":
   version: 3.2.4
   resolution: "async@npm:3.2.4"
   checksum: 43d07459a4e1d09b84a20772414aa684ff4de085cbcaec6eea3c7a8f8150e8c62aa6cd4e699fe8ee93c3a5b324e777d34642531875a0817a35697522c1b02e89
-  languageName: node
-  linkType: hard
-
-"async@npm:3.2.x, async@npm:^3.2.0, async@npm:~3.2.0":
-  version: 3.2.2
-  resolution: "async@npm:3.2.2"
-  checksum: 90712c98df0c6d0ef0190f8bee9797bf6c7035a1317c9a036b80306a8d2246396b3ee356b4540ff349e29e625fafa25d4f04e11b6ac1c5f6b4c74c803e641137
   languageName: node
   linkType: hard
 
@@ -30464,6 +30457,13 @@ __metadata:
   version: 3.2.5
   resolution: "async@npm:3.2.5"
   checksum: 5ec77f1312301dee02d62140a6b1f7ee0edd2a0f983b6fd2b0849b969f245225b990b47b8243e7b9ad16451a53e7f68e753700385b706198ced888beedba3af4
+  languageName: node
+  linkType: hard
+
+"async@npm:^3.2.0, async@npm:~3.2.0":
+  version: 3.2.2
+  resolution: "async@npm:3.2.2"
+  checksum: 90712c98df0c6d0ef0190f8bee9797bf6c7035a1317c9a036b80306a8d2246396b3ee356b4540ff349e29e625fafa25d4f04e11b6ac1c5f6b4c74c803e641137
   languageName: node
   linkType: hard
 
@@ -35810,6 +35810,15 @@ __metadata:
   dependencies:
     node-fetch: ^2.6.12
   checksum: 78f993fa099eaaa041122ab037fe9503ecbbcb9daef234d1d2e0b9230a983f64d645d088c464e21a247b825a08dc444a6e7064adfa93536d3a9454b4745b3632
+  languageName: node
+  linkType: hard
+
+"cross-fetch@npm:^4.0.0":
+  version: 4.1.0
+  resolution: "cross-fetch@npm:4.1.0"
+  dependencies:
+    node-fetch: ^2.7.0
+  checksum: c02fa85d59f83e50dbd769ee472c9cc984060c403ee5ec8654659f61a525c1a655eef1c7a35e365c1a107b4e72d76e786718b673d1cb3c97f61d4644cb0a9f9d
   languageName: node
   linkType: hard
 
@@ -42851,7 +42860,7 @@ fsevents@~2.1.1:
     mozlog: ^3.0.2
     mysql: ^2.18.1
     nock: ^13.5.1
-    node-zendesk: ^2.2.0
+    node-zendesk: ^6.0.1
     nodemailer: ^6.9.9
     nodemon: ^3.1.0
     nx: 18.3.1
@@ -47174,13 +47183,6 @@ fsevents@~2.1.1:
   version: 1.3.7
   resolution: "ini@npm:1.3.7"
   checksum: f8f3801e8eb039f9e03cdc27ceb494a7ac6e6ca7b2dd8394a9ef97ed5ae66930fadefd5ec908e41e4b103d3c9063b5788d47de5e8e892083c7a67b489f3b962d
-  languageName: node
-  linkType: hard
-
-"ini@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "ini@npm:2.0.0"
-  checksum: e7aadc5fb2e4aefc666d74ee2160c073995a4061556b1b5b4241ecb19ad609243b9cceafe91bae49c219519394bbd31512516cb22a3b1ca6e66d869e0447e84e
   languageName: node
   linkType: hard
 
@@ -55526,18 +55528,6 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"nconf@npm:0.12.0":
-  version: 0.12.0
-  resolution: "nconf@npm:0.12.0"
-  dependencies:
-    async: ^3.0.0
-    ini: ^2.0.0
-    secure-keys: ^1.0.0
-    yargs: ^16.1.1
-  checksum: 70c1ce82d91149940dbe57555372c99282a9625a961915b302093b34e04ab308d978d1885224b9738a0873c064a0aa48914a7260e67ba312441fc4917221dbd8
-  languageName: node
-  linkType: hard
-
 "ncp@npm:~2.0.0":
   version: 2.0.0
   resolution: "ncp@npm:2.0.0"
@@ -55944,7 +55934,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"node-fetch@npm:2.7.0, node-fetch@npm:^2.6.9":
+"node-fetch@npm:2.7.0, node-fetch@npm:^2.6.9, node-fetch@npm:^2.7.0":
   version: 2.7.0
   resolution: "node-fetch@npm:2.7.0"
   dependencies:
@@ -56233,15 +56223,12 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"node-zendesk@npm:^2.2.0":
-  version: 2.2.0
-  resolution: "node-zendesk@npm:2.2.0"
+"node-zendesk@npm:^6.0.1":
+  version: 6.0.1
+  resolution: "node-zendesk@npm:6.0.1"
   dependencies:
-    async: 3.2.x
-    nconf: 0.12.0
-    querystring: 0.2.x
-    request: 2.88.2
-  checksum: 66c929dcdf4213e691be5eebae31b92e95ec2957db29592e10e355b8d0fe242ec9588589a7e1d73f0cfef664fadcdce73ce5cd5d270f9939904f7193950fab20
+    cross-fetch: ^4.0.0
+  checksum: 7617cf60a855afe4b631a0837cf173fce87bda9402bbb51b4d52164f6476c0a2b09e354f4758eedd83aff037a59c7080272707fd07fc0c77ffb27dfe54a34f19
   languageName: node
   linkType: hard
 
@@ -61806,7 +61793,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"querystring@npm:0.2.0, querystring@npm:0.2.x, querystring@npm:^0.2.0":
+"querystring@npm:0.2.0, querystring@npm:^0.2.0":
   version: 0.2.0
   resolution: "querystring@npm:0.2.0"
   checksum: 8258d6734f19be27e93f601758858c299bdebe71147909e367101ba459b95446fbe5b975bf9beb76390156a592b6f4ac3a68b6087cea165c259705b8b4e56a69
@@ -63641,7 +63628,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"request@npm:2.88.2, request@npm:>=2.39.0, request@npm:^2.88.0, request@npm:^2.88.2":
+"request@npm:>=2.39.0, request@npm:^2.88.0, request@npm:^2.88.2":
   version: 2.88.2
   resolution: "request@npm:2.88.2"
   dependencies:
@@ -65012,13 +64999,6 @@ resolve@1.1.7:
   version: 3.0.1
   resolution: "secure-compare@npm:3.0.1"
   checksum: 0a8d8d3e54d5772d2cf1c02325f01fc7366d0bd33f964a08a84fe3ee5f34d46435a6ae729c1d239c750e160ef9b58c764d3efb945a1d07faf47978a8e4161594
-  languageName: node
-  linkType: hard
-
-"secure-keys@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "secure-keys@npm:1.0.0"
-  checksum: 3dd4e64e6717fe6e2dc4c70e172982fcbad87b853e96566ab1cfaec540587f737bac106853ae469cb32d4a6413cfe80a28176cfe7dfcf7ddd35c9f92e58dffed
   languageName: node
   linkType: hard
 
@@ -73566,7 +73546,7 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"yargs@npm:16.2.0, yargs@npm:^16.1.1, yargs@npm:^16.2.0":
+"yargs@npm:16.2.0, yargs@npm:^16.2.0":
   version: 16.2.0
   resolution: "yargs@npm:16.2.0"
   dependencies:
