@@ -35787,13 +35787,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cron@npm:3.5.0":
-  version: 3.5.0
-  resolution: "cron@npm:3.5.0"
+"cron@npm:4.1.3":
+  version: 4.1.3
+  resolution: "cron@npm:4.1.3"
   dependencies:
     "@types/luxon": ~3.4.0
-    luxon: ~3.5.0
-  checksum: 4fa321201ea7d9ee64411f12e18c1fe6d3fd7c83b33a97ccdcb81f6f2db8c0d3f3b2e23d2b4f70ee85ad30a915e86e05c31ee8ee8f2c385be26b877fce1abc5d
+    luxon: ~3.6.0
+  checksum: bda436d4221085db327e32845ba473b8be6d9a2fc7f320d4c65115fb3773e2b911d8a7d5afbe1f8d50f18e1446e3a51cc615942f414b9021e9e6708602d57592
   languageName: node
   linkType: hard
 
@@ -43158,7 +43158,7 @@ fsevents@~2.1.1:
     audit-filter: ^0.5.0
     bluebird: ^3.7.2
     chai: ^4.5.0
-    cron: 3.5.0
+    cron: 4.1.3
     eslint: ^8.19.0
     fxa-shared: "workspace:*"
     mocha: ^10.4.0
@@ -53357,10 +53357,17 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"luxon@npm:^3.5.0, luxon@npm:~3.5.0":
+"luxon@npm:^3.5.0":
   version: 3.5.0
   resolution: "luxon@npm:3.5.0"
   checksum: f290fe5788c8e51e748744f05092160d4be12150dca70f9fadc0d233e53d60ce86acd82e7d909a114730a136a77e56f0d3ebac6141bbb82fd310969a4704825b
+  languageName: node
+  linkType: hard
+
+"luxon@npm:~3.6.0":
+  version: 3.6.1
+  resolution: "luxon@npm:3.6.1"
+  checksum: bc6c24dde90f4263f548cc5a4ea3328e9c9511bee0b2255bd319639712862f1eb14a39c1b2dcbff8a8bf6686996d28f45b8fc902994a72dd05a29cef1269a6a4
   languageName: node
   linkType: hard
 
