@@ -94,7 +94,7 @@
     "hapi-swagger": "^17.3.0",
     "hkdf": "0.0.2",
     "hot-shots": "^10.2.1",
-    "i18n-iso-countries": "^7.12.0",
+    "i18n-iso-countries": "^7.14.0",
     "ioredis": "^4.28.2",
     "joi": "^17.13.3",
     "jose": "^5.9.6",
