@@ -8,7 +8,6 @@ import {
   isDefault,
   isOAuthWebIntegration,
   OAuthWebIntegration,
-  RelierAccount,
   useAuthClient,
   useSession,
 } from '../../models';
@@ -21,6 +20,7 @@ import { cachedSignIn, handleNavigation } from '../Signin/utils';
 import { AuthError, OAuthError } from '../../lib/oauth/oauth-errors';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { hardNavigate } from 'fxa-react/lib/utils';
+import { RelierAccount } from '../../models/integrations';
 
 const convertToRelierAccount = (
   account: ReturnType<typeof currentAccount>,

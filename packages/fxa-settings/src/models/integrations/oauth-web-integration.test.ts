@@ -175,14 +175,14 @@ describe('models/integrations/oauth-relier', function () {
 
   describe('getService', () => {
     it('returns service', () => {
-      model.data.modelData.set('service', 'sync');
+      model.data.service = 'sync';
       expect(model.getService()).toBe('sync');
     });
   });
 
   describe('getClientId', () => {
     it('returns clientId', () => {
-      model.data.modelData.set('client_id', '123');
+      model.data.clientId = '123';
       expect(model.getClientId()).toBe('123');
     });
   });

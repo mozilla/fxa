@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { BaseIntegration, IntegrationType } from '../../../models';
+import { Integration, IntegrationType } from '../../../models/integrations';
 
 export interface ResetPasswordWithRecoveryKeyVerifiedIntegration {
   type: IntegrationType;
-  getServiceName: () => ReturnType<BaseIntegration['getServiceName']>;
-  isSync: () => ReturnType<BaseIntegration['isSync']>;
+  getServiceName: () => ReturnType<Integration['getServiceName']>;
+  isSync: () => ReturnType<Integration['isSync']>;
 }
 
 export interface ResetPasswordWithRecoveryKeyVerifiedProps {

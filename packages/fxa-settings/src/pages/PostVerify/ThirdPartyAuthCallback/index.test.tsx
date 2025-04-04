@@ -16,8 +16,8 @@ import { useAccount } from '../../../models';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import { handleNavigation } from '../../Signin/utils';
 import { QueryParams } from '../../../index';
-import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
 import { MOCK_EMAIL, MOCK_SESSION_TOKEN } from '../../mocks';
+import { GenericData } from '../../../lib/model-data';
 
 jest.mock('../../../models', () => ({
   ...jest.requireActual('../../../models'),
@@ -50,8 +50,6 @@ function mockCurrentAccount(
   jest.spyOn(CacheModule, 'currentAccount').mockReturnValue(storedAccount);
 }
 
-jest.mock('../../../lib/hooks/useWebRedirect');
-
 jest.mock('../../../lib/oauth/hooks', () => {
   return {
     __esModule: true,
@@ -67,23 +65,26 @@ jest.mock('../../Signin/utils', () => {
 });
 
 function mockThirdPartyAuthCallbackIntegration({
-  getError,
-}: { getError?: string } = {}) {
-  return {
-    type: ModelsModule.IntegrationType.ThirdPartyAuthCallback,
-    data: { redirectTo: undefined },
-    getError: () => getError,
-    thirdPartyAuthParams: () => ({ code: 'code', provider: 'provider' }),
-    getFxAParams: () => '?flowId=aaaa&flowBeginTime=1734112296000',
-    // TODO, fix this type cast
-  } as unknown as ModelsModule.ThirdPartyAuthCallbackIntegration;
+  error,
+}: { error?: string } = {}) {
+  return new ModelsModule.ThirdPartyAuthCallbackIntegration(
+    new GenericData({
+      code: 'code',
+      provider: 'google',
+      error,
+      state: encodeURIComponent(
+        'https://accounts.firefox.com/?flowId=aaaa&flowBeginTime=1734112296000&utm_campaign=testo'
+      ),
+    })
+  );
 }
 
 function mockWebIntegration({ redirectTo }: { redirectTo?: string } = {}) {
-  return {
-    type: ModelsModule.IntegrationType.Web,
-    data: { redirectTo },
-  } as ModelsModule.WebIntegration;
+  return new ModelsModule.WebIntegration(
+    new GenericData({
+      redirectTo,
+    })
+  );
 }
 
 function renderWith(
@@ -153,17 +154,13 @@ describe('ThirdPartyAuthCallback component', () => {
         flowId: 'bbbb',
         flowBeginTime: 1734112296874,
       },
-      integration: {
-        ...mockThirdPartyAuthCallbackIntegration(),
-        getFxAParams: () =>
-          '?flowId=aaaa&flowBeginTime=1734112296000&utm_campaign=testo',
-      } as ModelsModule.ThirdPartyAuthCallbackIntegration,
+      integration: mockThirdPartyAuthCallbackIntegration(),
     });
 
     await waitFor(() => {
       expect(mockVerifyAccountThirdParty).toHaveBeenCalledWith(
         'code',
-        'provider',
+        'google',
         undefined,
         {
           utmCampaign: 'testo',
@@ -183,7 +180,7 @@ describe('ThirdPartyAuthCallback component', () => {
     (useAccount as jest.Mock).mockReturnValue(mockAccount);
 
     const integration = mockThirdPartyAuthCallbackIntegration({
-      getError: 'access_denied',
+      error: 'access_denied',
     });
 
     const mockFinishOAuthFlowHandler = jest.fn();
@@ -194,39 +191,28 @@ describe('ThirdPartyAuthCallback component', () => {
     renderWith({ integration });
 
     expect(hardNavigateSpy).toBeCalledWith(
-      '/?flowId=aaaa&flowBeginTime=1734112296000'
+      '/?flowId=aaaa&flowBeginTime=1734112296000&utm_campaign=testo'
     );
   });
   it('redirects to web redirect', async () => {
-    const redirectTo = 'surprisinglyValid!';
-    const mockAccount = {};
-    (useAccount as jest.Mock).mockReturnValue(mockAccount);
-
+    const redirectTo = 'http://localhost/?surprisinglyValid';
     const mockFinishOAuthFlowHandler = jest.fn();
+
     (useFinishOAuthFlowHandler as jest.Mock).mockReturnValue({
       finishOAuthFlowHandler: mockFinishOAuthFlowHandler,
     });
 
     const integration = mockWebIntegration({ redirectTo });
-    (useWebRedirect as jest.Mock).mockReturnValue({
-      isValid: () => true,
-      getLocalizedErrorMessage: () => undefined,
-    });
 
     renderWith({ integration });
 
     await waitFor(() => {
       expect(handleNavigation).toBeCalledWith({
-        email: MOCK_EMAIL,
+        email: 'johndope@example.com',
         finishOAuthFlowHandler: mockFinishOAuthFlowHandler,
         handleFxaLogin: false,
         handleFxaOAuthLogin: false,
-        integration: {
-          data: {
-            redirectTo,
-          },
-          type: ModelsModule.IntegrationType.Web,
-        },
+        integration: integration,
         isSignInWithThirdPartyAuth: true,
         queryParams: '?',
         redirectTo: redirectTo,

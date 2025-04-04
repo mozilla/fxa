@@ -2,9 +2,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { IsBoolean, IsEmail, IsOptional, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsEmail,
+  IsOptional,
+  IsString,
+  MinLength,
+  MaxLength,
+  Matches,
+  Validate,
+} from 'class-validator';
 import { bind, ModelDataProvider } from '../../../lib/model-data';
+import { IsFxaRedirectToUrl } from '../../../lib/validation';
 
+/**
+ *  Note: class-validator logic was ported from Vat rules in content-server.
+ */
 export class SigninQueryParams extends ModelDataProvider {
   @IsOptional()
   @IsEmail()
@@ -23,11 +36,14 @@ export class SigninQueryParams extends ModelDataProvider {
 
   @IsOptional()
   @IsString()
+  @Matches(/^[a-zA-Z0-9-]*$/)
+  @MinLength(1)
+  @MaxLength(16)
   @bind()
   service: string | undefined = undefined;
 
   @IsOptional()
-  @IsString()
+  @Validate(IsFxaRedirectToUrl, {})
   @bind()
   redirectTo: string | undefined = undefined;
 }

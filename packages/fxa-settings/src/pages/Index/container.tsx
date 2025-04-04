@@ -40,8 +40,7 @@ export const IndexContainer = ({
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state?: LocationState;
   };
-  const { queryParamModel, validationError } =
-    useValidatedQueryParams(IndexQueryParams);
+  const { queryParamModel } = useValidatedQueryParams(IndexQueryParams, true);
 
   const { prefillEmail, deleteAccountSuccess, hasBounced } =
     location.state || {};
@@ -52,7 +51,7 @@ export const IndexContainer = ({
   // 'email' query param should take precedence, followed by 'login_hint'
   const suggestedEmail =
     queryParamModel.email ||
-    integration.data.loginHint ||
+    queryParamModel.loginHint ||
     currentAccount()?.email ||
     lastStoredAccount()?.email;
 
@@ -169,11 +168,6 @@ export const IndexContainer = ({
 
     signUpOrSignInHandler(suggestedEmail, false);
   }, [hasEmailSuggestion, signUpOrSignInHandler, suggestedEmail]);
-
-  if (validationError) {
-    // TODO: handle param validation errors in FXA-11297
-    // currently this is only a validation error for query param 'email', so do nothing?
-  }
 
   if (isUnsupportedContext(integration.data.context)) {
     hardNavigate('/update_firefox', {}, true);
