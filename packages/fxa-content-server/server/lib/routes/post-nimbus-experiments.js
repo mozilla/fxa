@@ -64,7 +64,7 @@ module.exports = function (options = {}, statsd) {
         const requestCompletedTime = Date.now();
         const responseTime = requestCompletedTime - requestReceivedTime;
         if (statsd) {
-          statsd.increment('cirrus.response-time', { responseTime });
+          statsd.timing('cirrus.response-time', responseTime);
         }
       }
     },
