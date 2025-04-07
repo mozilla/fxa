@@ -19,11 +19,31 @@ test.describe('severity-2 #smoke', () => {
       const query = new URLSearchParams({
         forceUA: uaStrings['desktop_firefox_71'],
       });
+      const eventDetailStatus: FxAStatusResponse = {
+        id: 'account_updates',
+        message: {
+          command: FirefoxCommand.FxAStatus,
+          data: {
+            signedInUser: null,
+            clientId: FF_OAUTH_CLIENT_ID,
+            capabilities: {
+              engines: [],
+              pairing: false,
+              multiService: false,
+            },
+          },
+        },
+      };
+
       await page.goto(
         `${
           target.contentServerUrl
         }?context=fx_desktop_v3&service=sync&${query.toString()}`
       );
+
+      await signin.respondToWebChannelMessage(eventDetailStatus);
+      await signin.checkWebChannelMessage(FirefoxCommand.FxAStatus);
+
       await expect(signin.syncSignInHeading).toBeVisible();
       await expect(signin.emailTextbox).toHaveValue('');
     });
@@ -33,10 +53,9 @@ test.describe('severity-2 #smoke', () => {
       syncBrowserPages: { page, signin },
       testAccountTracker,
     }) => {
-      const credentials = await testAccountTracker.signUp();
+      const syncCredentials = await testAccountTracker.signUpSync();
       const query = new URLSearchParams({
         forceUA: uaStrings['desktop_firefox_71'],
-        email: credentials.email,
       });
       const eventDetailStatus: FxAStatusResponse = {
         id: 'account_updates',
@@ -44,9 +63,7 @@ test.describe('severity-2 #smoke', () => {
           command: FirefoxCommand.FxAStatus,
           data: {
             clientId: FF_OAUTH_CLIENT_ID,
-            signedInUser: {
-              email: credentials.email,
-            },
+            signedInUser: syncCredentials,
             capabilities: {
               engines: [],
               pairing: false,
@@ -62,8 +79,9 @@ test.describe('severity-2 #smoke', () => {
       );
       await signin.respondToWebChannelMessage(eventDetailStatus);
       await signin.checkWebChannelMessage(FirefoxCommand.FxAStatus);
+      // password confirmation required to sign in to sync
       await expect(signin.passwordFormHeading).toBeVisible();
-      await expect(page.getByText(credentials.email)).toBeVisible();
+      await expect(page.getByText(syncCredentials.email)).toBeVisible();
     });
 
     test('Sync force_auth page - user signed into browser is different to requested user', async ({
@@ -75,7 +93,7 @@ test.describe('severity-2 #smoke', () => {
       const syncCredentials = await testAccountTracker.signUpSync();
       const query = new URLSearchParams({
         forceUA: uaStrings['desktop_firefox_71'],
-        email: syncCredentials.email,
+        email: credentials.email,
       });
       const eventDetailStatus: FxAStatusResponse = {
         id: 'account_updates',
@@ -83,9 +101,7 @@ test.describe('severity-2 #smoke', () => {
           command: FirefoxCommand.FxAStatus,
           data: {
             clientId: FF_OAUTH_CLIENT_ID,
-            signedInUser: {
-              email: credentials.email,
-            },
+            signedInUser: syncCredentials,
             capabilities: {
               engines: [],
               pairing: false,
@@ -103,7 +119,8 @@ test.describe('severity-2 #smoke', () => {
       await signin.respondToWebChannelMessage(eventDetailStatus);
       await signin.checkWebChannelMessage(FirefoxCommand.FxAStatus);
       await expect(signin.passwordFormHeading).toBeVisible();
-      await expect(page.getByText(syncCredentials.email)).toBeVisible();
+      // email param takes precedence
+      await expect(page.getByText(credentials.email)).toBeVisible();
     });
 
     test('Sync - no user signed into browser, user signed in locally', async ({
@@ -111,7 +128,7 @@ test.describe('severity-2 #smoke', () => {
       syncBrowserPages: { page, settings, signin },
       testAccountTracker,
     }) => {
-      const credentials = await testAccountTracker.signUpSync();
+      const credentials = await testAccountTracker.signUp();
       const query = new URLSearchParams({
         forceUA: uaStrings['desktop_firefox_71'],
       });

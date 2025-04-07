@@ -142,6 +142,7 @@ describe('metrics', () => {
   beforeEach(() => {
     //@ts-ignore
     delete window.location;
+    //@ts-ignore
     window.location = {
       ...window.location,
       replace: jest.fn(),
@@ -356,6 +357,16 @@ describe('SettingsRoutes', () => {
   });
 
   it('redirects to /signin if isSignedIn is false', async () => {
+    (firefox.requestSignedInUser as jest.Mock).mockResolvedValue(null);
+    (currentAccount as jest.Mock).mockReturnValue(null);
+    (useIntegration as jest.Mock).mockReturnValue({
+      isSync: () => false,
+      isDesktopRelay: () => false,
+      data: {
+        context: {},
+      },
+    });
+
     let navigateResult: Promise<void>;
     await act(async () => {
       const {
