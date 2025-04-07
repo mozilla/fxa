@@ -220,7 +220,7 @@ export const UnitRowTwoStepAuth = () => {
   const howThisProtectsYourAccountLink = (
     <FtlMsg id="tfa-row-enabled-info-link">
       <LinkExternal
-        href="https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication"
+        href="https://support.mozilla.org/kb/secure-mozilla-account-two-step-authentication"
         className="link-blue text-sm"
       >
         How this protects your account
