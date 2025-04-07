@@ -624,7 +624,7 @@ export class AccountResolver {
       const taskName = await this.cloudTask.accountTasks.deleteAccount({
         uid: account.uid,
         customerId: stripeCustomerId,
-        reason: ReasonForDeletion.UserRequested,
+        reason: ReasonForDeletion.AdminRequested,
       });
 
       if (taskName) {
