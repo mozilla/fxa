@@ -548,6 +548,8 @@ export class AccountResolver {
           });
         }
       } catch (error) {
+        this.log.warn('getDeleteStatus', { errorCode: error.code });
+
         if (error.code === 9) {
           results.push({
             taskName,
@@ -556,7 +558,7 @@ export class AccountResolver {
         } else {
           results.push({
             taskName,
-            status: 'Could not locate task.',
+            status: 'Task completed and no longer in queue.',
           });
         }
       }
