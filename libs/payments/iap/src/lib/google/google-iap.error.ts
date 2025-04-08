@@ -27,3 +27,15 @@ export class GoogleIapUnknownError extends GoogleIapError {
     super(...args);
   }
 }
+
+export class GoogleIapInvalidPurchaseTokenError extends GoogleIapError {
+  constructor(...args: ConstructorParameters<typeof GoogleIapError>) {
+    super(...args);
+  }
+}
+
+export class GoogleIapConflictError extends GoogleIapError {
+  constructor(...args: ConstructorParameters<typeof GoogleIapError>) {
+    super(...args);
+  }
+}
