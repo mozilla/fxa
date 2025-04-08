@@ -177,7 +177,7 @@
     "@nestjs/schematics": "^11.0.1",
     "@nestjs/testing": "^10.3.4",
     "@nx/esbuild": "19.5.3",
-    "@nx/eslint-plugin": "19.5.3",
+    "@nx/eslint-plugin": "20.7.1",
     "@nx/jest": "19.5.3",
     "@nx/js": "20.4.5",
     "@nx/node": "19.5.3",
