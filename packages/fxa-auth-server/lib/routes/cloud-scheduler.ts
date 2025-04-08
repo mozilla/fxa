@@ -11,7 +11,7 @@ import {
 } from '@fxa/shared/cloud-tasks';
 import { StatsD } from 'hot-shots';
 import { setupAccountDatabase } from '@fxa/shared/db/mysql/account';
-import PQueue from 'p-queue-compat';
+import PQueue from 'p-queue';
 
 const MILLISECONDS_IN_A_DAY = 24 * 60 * 60 * 1000;
 

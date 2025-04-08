@@ -30,12 +30,11 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import { performance } from 'perf_hooks';
 
 import { Command } from 'commander';
 import { StatsD } from 'hot-shots';
 import { Container } from 'typedi';
-import PQueue from 'p-queue-compat';
+import PQueue from 'p-queue';
 import { BigQuery } from '@google-cloud/bigquery';
 
 import {
@@ -45,6 +44,7 @@ import {
 } from '@fxa/shared/cloud-tasks';
 
 import { collect, parseBooleanArg } from '../lib/args';
+import { emitStatsdMetrics } from '../lib/metrics';
 import { AppConfig, AuthLogger } from '../../lib/types';
 import appConfig from '../../config';
 import { requestForGlean } from '../../lib/inactive-accounts';
@@ -254,16 +254,6 @@ const init = async () => {
 
   // /dependencies }}}
 
-  const emitStatsdMetrics =
-    <T extends (...args) => ReturnType<T>>(fn: T, name: string) =>
-    async (...args: Parameters<T>) => {
-      const startTime = performance.now();
-      const result = await fn(...args);
-      statsd.timing(`${name}.latency`, performance.now() - startTime);
-      statsd.increment(`${name}.count`);
-      return result;
-    };
-
   const postfixTableName = (prefix: string) =>
     `${prefix}_${startDate
       .toISOString()
@@ -351,7 +341,8 @@ const init = async () => {
 
     const accounts = await emitStatsdMetrics(
       async () => await accountsQuery,
-      'accounts.inactive.sql-query'
+      'accounts.inactive.sql-query',
+      statsd
     )();
 
     if (!accounts.length) {
@@ -387,19 +378,22 @@ const init = async () => {
     await hasActiveSessionToken(sessionTokensFn, uid, activeByDateTimestamp);
   const checkActiveSessionToken = emitStatsdMetrics(
     _checkActiveSessionToken,
-    'accounts.inactive.session-token-check'
+    'accounts.inactive.session-token-check',
+    statsd
   );
   const _checkRefreshToken = async (uid: string) =>
     await hasActiveRefreshToken(refreshTokensFn, uid, activeByDateTimestamp);
   const checkRefreshToken = emitStatsdMetrics(
     _checkRefreshToken,
-    'accounts.inactive.refresh-token-check'
+    'accounts.inactive.refresh-token-check',
+    statsd
   );
   const _checkAccessToken = async (uid: string) =>
     await hasAccessToken(accessTokensFn, uid);
   const checkAccessToken = emitStatsdMetrics(
     _checkAccessToken,
-    'accounts.inactive.access-token-check'
+    'accounts.inactive.access-token-check',
+    statsd
   );
 
   const _isActive = new IsActiveFnBuilder()
@@ -410,7 +404,8 @@ const init = async () => {
 
   const isActive = emitStatsdMetrics(
     _isActive,
-    'accounts.inactive.active-status-check'
+    'accounts.inactive.active-status-check',
+    statsd
   );
 
   // /build isAcitive function }}}
