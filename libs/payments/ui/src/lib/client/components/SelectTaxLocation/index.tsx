@@ -7,10 +7,13 @@
 import { Localized } from '@fluent/react';
 import * as Form from '@radix-ui/react-form';
 import countries from 'i18n-iso-countries';
-import { useEffect, useState } from 'react';
-import { ButtonVariant, SubmitButton } from '@fxa/payments/ui';
-import { validateAndFormatPostalCode } from '@fxa/payments/ui/actions';
+import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+
+import { BaseButton, ButtonVariant, SubmitButton } from '@fxa/payments/ui';
+import { validateAndFormatPostalCode } from '@fxa/payments/ui/actions';
+import spinnerWhiteImage from '@fxa/shared/assets/images/spinnerwhite.svg';
 
 interface CollapsedProps {
   countryCode: string | undefined;
@@ -64,6 +67,10 @@ interface ExpandedProps {
   countryCode: string | undefined;
   postalCode: string | undefined;
   saveAction: (countryCode: string, postalCode: string) => void;
+  buttonContent?: {
+    ftlId: string;
+    label: string;
+  };
 }
 
 const Expanded = ({
@@ -74,7 +81,9 @@ const Expanded = ({
   countryCode,
   postalCode,
   saveAction,
+  buttonContent,
 }: ExpandedProps) => {
+  const [isLoading, setIsLoading] = useState(false);
   const [selectedCountryCode, setSelectedCountryCode] = useState<
     string | undefined
   >();
@@ -164,6 +173,8 @@ const Expanded = ({
 
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setIsLoading(true);
+
     if (
       selectedCountryCode &&
       unsupportedLocations.includes(selectedCountryCode)
@@ -181,6 +192,7 @@ const Expanded = ({
 
         if (!isValid) {
           setServerErrors((prev) => ({ ...prev, invalidPostalCode: true }));
+          setIsLoading(false);
         } else {
           saveAction(
             selectedCountryCode,
@@ -193,10 +205,14 @@ const Expanded = ({
     }
   };
 
+  const errorExists = Object.values(serverErrors).some(
+    (value) => value === true
+  );
+
   return (
     <Form.Root
       onSubmit={handleFormSubmit}
-      className="flex flex-col gap-4"
+      className="flex flex-col gap-4 w-full"
       data-testid="select-location-form"
     >
       <Form.Field name="countryCode">
@@ -219,6 +235,7 @@ const Expanded = ({
             className="flex items-center justify-between gap-4 w-full border rounded-md border-black/30 p-3 bg-white placeholder:text-grey-500 placeholder:font-normal focus:border focus:!border-black/30 focus:!shadow-[0_0_0_3px_rgba(10,132,255,0.3)] focus-visible:outline-none data-[invalid=true]:text-grey-500 data-[invalid=true]:border-alert-red data-[invalid=true]:shadow-inputError"
             required
             aria-required
+            disabled={isLoading}
           >
             {!selectedCountryCode && (
               <Localized id="select-tax-location-country-code-placeholder">
@@ -296,6 +313,7 @@ const Expanded = ({
               defaultValue={selectedPostalCode}
               required
               aria-required
+              disabled={isLoading}
             />
           </Form.Control>
         </Localized>
@@ -325,15 +343,40 @@ const Expanded = ({
       )}
 
       <Form.Submit asChild>
-        <SubmitButton
+        <BaseButton
           variant={ButtonVariant.Primary}
           className="w-full"
           data-testid="tax-location-save-button"
+          type="submit"
+          disabled={
+            errorExists ||
+            !selectedCountryCode ||
+            !selectedPostalCode ||
+            isLoading
+          }
+          aria-disabled={
+            errorExists ||
+            !selectedCountryCode ||
+            !selectedPostalCode ||
+            isLoading
+          }
         >
-          <Localized id="select-tax-location-save-button">
-            <p>Save</p>
-          </Localized>
-        </SubmitButton>
+          {isLoading ? (
+            <Image
+              src={spinnerWhiteImage}
+              alt=""
+              className="absolute animate-spin h-8 w-8"
+            />
+          ) : buttonContent ? (
+            <Localized id={buttonContent.ftlId}>
+              <p>{buttonContent.label}</p>
+            </Localized>
+          ) : (
+            <Localized id="select-tax-location-save-button">
+              <p>Save</p>
+            </Localized>
+          )}
+        </BaseButton>
       </Form.Submit>
     </Form.Root>
   );
@@ -347,6 +390,10 @@ interface SelectTaxLocationProps {
   unsupportedLocations: string;
   countryCode: string | undefined;
   postalCode: string | undefined;
+  buttonContent?: {
+    ftlId: string;
+    label: string;
+  };
 }
 
 export function SelectTaxLocation({
@@ -357,6 +404,7 @@ export function SelectTaxLocation({
   unsupportedLocations,
   countryCode,
   postalCode,
+  buttonContent,
 }: SelectTaxLocationProps) {
   const [expanded, setExpanded] = useState<boolean>(
     !countryCode || !postalCode
@@ -365,42 +413,33 @@ export function SelectTaxLocation({
   const [alertStatus, setAlertStatus] = useState<boolean>(false);
   const cmsCountryCodes = cmsCountries.map((country) => country.slice(0, 2));
 
-  return (
-    <div
-      className="bg-white rounded-b-lg shadow-sm shadow-grey-300 mt-6 p-4 rounded-t-lg text-base tablet:my-8"
-      aria-label="Tax location form"
-    >
-      <Localized id="select-tax-location-title">
-        <h2 className="m-0 mb-4 font-semibold text-grey-600">Location</h2>
-      </Localized>
-
-      {expanded ? (
-        <Expanded
-          cmsCountryCodes={cmsCountryCodes}
-          locale={locale}
-          productName={productName}
-          unsupportedLocations={unsupportedLocations}
-          countryCode={countryCode}
-          postalCode={postalCode}
-          saveAction={async (countryCode: string, postalCode: string) => {
-            await saveAction(countryCode, postalCode);
-            setExpanded(false);
-            setAlertStatus(true);
-          }}
-        />
-      ) : (
-        <Collapsed
-          countryCode={countryCode}
-          postalCode={postalCode}
-          editAction={() => {
-            setExpanded(true);
-          }}
-          displayAlert={alertStatus}
-        />
-      )}
-    </div>
+  return expanded ? (
+    <Expanded
+      cmsCountryCodes={cmsCountryCodes}
+      locale={locale}
+      productName={productName}
+      unsupportedLocations={unsupportedLocations}
+      countryCode={countryCode}
+      postalCode={postalCode}
+      saveAction={async (countryCode: string, postalCode: string) => {
+        await saveAction(countryCode, postalCode);
+        setExpanded(false);
+        setAlertStatus(true);
+      }}
+      buttonContent={buttonContent}
+    />
+  ) : (
+    <Collapsed
+      countryCode={countryCode}
+      postalCode={postalCode}
+      editAction={() => {
+        setExpanded(true);
+      }}
+      displayAlert={alertStatus}
+    />
   );
 }
+
 export function IsolatedSelectTaxLocation({
   saveAction,
   cmsCountries,
@@ -416,19 +455,24 @@ export function IsolatedSelectTaxLocation({
     useState<string>(countryCode);
   const [updatedPostalCode, setUpdatedPostalCode] =
     useState<string>(postalCode);
+  const cmsCountryCodes = cmsCountries.map((country) => country.slice(0, 2));
   return (
-    <SelectTaxLocation
+    <Expanded
       saveAction={(countryCode: string, postalCode: string) => {
         setUpdatedCountryCode(countryCode);
         setUpdatedPostalCode(postalCode);
         saveAction(countryCode, postalCode);
       }}
-      cmsCountries={cmsCountries}
+      cmsCountryCodes={cmsCountryCodes}
       locale={locale}
       productName={productName}
       unsupportedLocations={unsupportedLocations}
       countryCode={updatedCountryCode}
       postalCode={updatedPostalCode}
+      buttonContent={{
+        ftlId: 'select-tax-location-continue-to-checkout-button',
+        label: 'Continue to checkout',
+      }}
     />
   );
 }
