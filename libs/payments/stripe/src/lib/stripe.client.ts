@@ -4,6 +4,7 @@
 
 import { Inject, Injectable } from '@nestjs/common';
 import { Stripe } from 'stripe';
+import { Cacheable } from '@type-cacheable/core';
 
 import {
   StripeApiList,
@@ -27,6 +28,12 @@ import {
   StatsD,
   StatsDService,
 } from '@fxa/shared/metrics/statsd';
+import {
+  CacheFirstStrategy,
+  AsyncLocalStorageAdapter,
+  MemoryAdapter,
+} from '@fxa/shared/db/type-cacheable';
+import { cacheKeyForClient } from './cacheKeyForClient';
 
 /**
  * A wrapper for Stripe that enforces that results have deterministic typings
@@ -77,6 +84,12 @@ export class StripeClient {
     );
   }
 
+  @Cacheable({
+    cacheKey: (args: any) =>
+      cacheKeyForClient('customersRetrieve', args[0], args[1]),
+    strategy: new CacheFirstStrategy(),
+    client: new AsyncLocalStorageAdapter(),
+  })
   @CaptureTimingWithStatsD()
   async customersRetrieve(
     customerId: string,
@@ -129,6 +142,12 @@ export class StripeClient {
     return result as StripeResponse<StripeCustomerSession>;
   }
 
+  @Cacheable({
+    cacheKey: (args: any) =>
+      cacheKeyForClient('subscriptionsList', undefined, args[0]),
+    strategy: new CacheFirstStrategy(),
+    client: new AsyncLocalStorageAdapter(),
+  })
   @CaptureTimingWithStatsD()
   async subscriptionsList(params?: Stripe.SubscriptionListParams) {
     const result = await this.stripe.subscriptions.list({
@@ -168,6 +187,12 @@ export class StripeClient {
     return result as StripeResponse<StripeSubscription>;
   }
 
+  @Cacheable({
+    cacheKey: (args: any) =>
+      cacheKeyForClient('subscriptionsRetrieve', args[0], args[1]),
+    strategy: new CacheFirstStrategy(),
+    client: new AsyncLocalStorageAdapter(),
+  })
   @CaptureTimingWithStatsD()
   async subscriptionsRetrieve(
     id: string,
@@ -194,6 +219,12 @@ export class StripeClient {
     return result as StripeResponse<StripeSubscription>;
   }
 
+  @Cacheable({
+    cacheKey: (args: any) =>
+      cacheKeyForClient('invoicesRetrieve', args[0], args[1]),
+    strategy: new CacheFirstStrategy(),
+    client: new AsyncLocalStorageAdapter(),
+  })
   @CaptureTimingWithStatsD()
   async invoicesRetrieve(
     id: string,
@@ -206,6 +237,12 @@ export class StripeClient {
     return result as StripeResponse<StripeInvoice>;
   }
 
+  @Cacheable({
+    cacheKey: (args: any) =>
+      cacheKeyForClient('invoicesRetrieveUpcoming', undefined, args[0]),
+    strategy: new CacheFirstStrategy(),
+    client: new AsyncLocalStorageAdapter(),
+  })
   @CaptureTimingWithStatsD()
   async invoicesRetrieveUpcoming(
     params?: Stripe.InvoiceRetrieveUpcomingParams
@@ -265,6 +302,12 @@ export class StripeClient {
     return result as StripeResponse<StripeInvoice>;
   }
 
+  @Cacheable({
+    cacheKey: (args: any) =>
+      cacheKeyForClient('paymentIntentRetrieve', args[0], args[1]),
+    strategy: new CacheFirstStrategy(),
+    client: new AsyncLocalStorageAdapter(),
+  })
   @CaptureTimingWithStatsD()
   async paymentIntentRetrieve(
     paymentIntentId: string,
@@ -289,6 +332,12 @@ export class StripeClient {
     return result as StripeResponse<StripePaymentMethod>;
   }
 
+  @Cacheable({
+    cacheKey: (args: any) =>
+      cacheKeyForClient('paymentMethodsRetrieve', args[0], args[1]),
+    strategy: new CacheFirstStrategy(),
+    client: new AsyncLocalStorageAdapter(),
+  })
   @CaptureTimingWithStatsD()
   async paymentMethodRetrieve(
     id: string,
@@ -301,6 +350,13 @@ export class StripeClient {
     return result as StripeResponse<StripePaymentMethod>;
   }
 
+  @Cacheable({
+    cacheKey: (args: any) =>
+      cacheKeyForClient('pricesRetrieve', args[0], args[1]),
+    strategy: new CacheFirstStrategy(),
+    ttlSeconds: 600,
+    client: new MemoryAdapter(),
+  })
   @CaptureTimingWithStatsD()
   async pricesRetrieve(id: string, params?: Stripe.PriceRetrieveParams) {
     const result = await this.stripe.prices.retrieve(id, {
@@ -310,6 +366,13 @@ export class StripeClient {
     return result as StripeResponse<StripePrice>;
   }
 
+  @Cacheable({
+    cacheKey: (args: any) =>
+      cacheKeyForClient('productsRetrieve', args[0], args[1]),
+    strategy: new CacheFirstStrategy(),
+    ttlSeconds: 600,
+    client: new MemoryAdapter(),
+  })
   @CaptureTimingWithStatsD()
   async productsRetrieve(id: string, params?: Stripe.ProductRetrieveParams) {
     const result = await this.stripe.products.retrieve(id, {
@@ -319,6 +382,13 @@ export class StripeClient {
     return result as StripeResponse<StripeProduct>;
   }
 
+  @Cacheable({
+    cacheKey: (args: any) =>
+      cacheKeyForClient('promotionCodesList', undefined, args[0]),
+    strategy: new CacheFirstStrategy(),
+    ttlSeconds: 600,
+    client: new MemoryAdapter(),
+  })
   @CaptureTimingWithStatsD()
   async promotionCodesList(params: Stripe.PromotionCodeListParams) {
     const result = await this.stripe.promotionCodes.list({
@@ -328,6 +398,13 @@ export class StripeClient {
     return result as StripeResponse<StripeApiList<StripePromotionCode>>;
   }
 
+  @Cacheable({
+    cacheKey: (args: any) =>
+      cacheKeyForClient('promotionCodesRetrieve', args[0], args[1]),
+    strategy: new CacheFirstStrategy(),
+    ttlSeconds: 600,
+    client: new MemoryAdapter(),
+  })
   @CaptureTimingWithStatsD()
   async promotionCodesRetrieve(
     id: string,
