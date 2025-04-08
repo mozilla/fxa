@@ -399,17 +399,26 @@ try {
   canUseEventTarget = false;
 }
 function noop() {}
-export const firefox = canUseEventTarget
-  ? new Firefox()
-  : // otherwise a mock
-    (Object.fromEntries(
-      Object.getOwnPropertyNames(Firefox.prototype)
-        .map((name) => [name, noop])
-        .concat([
-          ['addEventListener', noop],
-          ['removeEventListener', noop],
-          ['dispatchEvent', noop],
-        ])
-    ) as unknown as Firefox);
+function mock() {
+  return Object.fromEntries(
+    Object.getOwnPropertyNames(Firefox.prototype)
+      .map((name) => [name, noop])
+      .concat([
+        ['addEventListener', noop],
+        ['removeEventListener', noop],
+        ['dispatchEvent', noop],
+      ])
+  ) as unknown as Firefox;
+}
+export const firefox = (() => {
+  try {
+    if (canUseEventTarget && typeof window.localStorage !== 'undefined') {
+      return new Firefox();
+    }
+    return mock();
+  } catch (_) {
+    return mock();
+  }
+})();
 
 export default firefox;

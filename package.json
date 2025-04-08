@@ -50,7 +50,7 @@
     "@google-cloud/translate": "^8.5.0",
     "@googlemaps/google-maps-services-js": "^3.4.0",
     "@grpc/grpc-js": "^1.11.1",
-    "@mozilla/glean": "^5.0.3",
+    "@mozilla/glean": "^5.0.4",
     "@nestjs/apollo": "^12.2.1",
     "@nestjs/common": "^10.4.5",
     "@nestjs/config": "^3.3.0",

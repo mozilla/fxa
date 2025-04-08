@@ -14,7 +14,10 @@ import { AppContext, initializeAppContext } from './models';
 import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
 import { ApolloProvider } from '@apollo/client';
 import { createApolloClient } from './lib/gql';
+import Storage from './lib/storage';
 import './styles/tailwind.out.css';
+import CookiesDisabled from './pages/CookiesDisabled';
+import { navigate } from '@reach/router';
 
 export interface FlowQueryParams {
   broker?: string;
@@ -51,6 +54,13 @@ try {
   const apolloClient = createApolloClient(config.servers.gql.url);
   const appContext = initializeAppContext();
 
+  const View = Storage.isLocalStorageEnabled(window)
+    ? () => <App {...{ flowQueryParams }} />
+    : () => {
+        navigate('/cookies_disabled');
+        return <CookiesDisabled />;
+      };
+
   render(
     <React.StrictMode>
       <AppLocalizationProvider
@@ -60,7 +70,7 @@ try {
         <AppErrorBoundary>
           <AppContext.Provider value={appContext}>
             <ApolloProvider client={apolloClient}>
-              <App {...{ flowQueryParams }} />
+              <View />
             </ApolloProvider>
           </AppContext.Provider>
         </AppErrorBoundary>
