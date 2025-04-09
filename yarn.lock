@@ -44129,7 +44129,7 @@ fsevents@~2.1.1:
     stylelint: ^16.14.1
     stylelint-config-prettier: ^9.0.3
     stylelint-config-recommended-scss: ^14.0.0
-    superagent: ^10.1.1
+    superagent: ^10.2.0
     tailwindcss: 3.4.3
     ts-jest: ^29.2.3
     ts-node: ^10.9.2
@@ -68105,9 +68105,9 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"superagent@npm:^10.1.1":
-  version: 10.1.1
-  resolution: "superagent@npm:10.1.1"
+"superagent@npm:^10.2.0":
+  version: 10.2.0
+  resolution: "superagent@npm:10.2.0"
   dependencies:
     component-emitter: ^1.3.0
     cookiejar: ^2.1.4
@@ -68118,7 +68118,7 @@ resolve@1.1.7:
     methods: ^1.1.2
     mime: 2.6.0
     qs: ^6.11.0
-  checksum: 5b55b8e2c150addc03807a7635f477f865e25c6c024f82f5e4f1c6af6989b3546ba93105a3275fbaa5272c85b4aba3b34c5a3311b161b2841ae1e1a7fa36410d
+  checksum: 819024c1ff06ace4ff89b0df8b90b82f84851b7365ed395676f955386da3df7ae4b2c3813ce01d851e589d8e89b55782f9ef80667f75ba12155ddb6fb29cc8f8
   languageName: node
   linkType: hard
 
