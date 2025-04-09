@@ -99,27 +99,28 @@ export async function GET(
 
         if (config.sp2redirect.shadowMode) {
           console.log('SP2 Redirect Shadow Mode enabled', { sp2RedirectUrl });
-          sp2RedirectUrl = undefined;
         }
       } catch (error) {
         console.log(error);
       } finally {
-        if (!sp2RedirectUrl) {
-          const pageNotFoundUrl = new URL(
-            buildRedirectUrl(
-              params.offeringId,
-              params.interval,
-              'page-not-found',
-              'checkout',
-              {
-                locale: params.locale,
-                baseUrl: config.paymentsNextHostedUrl,
-              }
-            )
-          );
-          sp2RedirectUrl = pageNotFoundUrl.href;
+        if (!config.sp2redirect.shadowMode) {
+          if (!sp2RedirectUrl) {
+            const pageNotFoundUrl = new URL(
+              buildRedirectUrl(
+                params.offeringId,
+                params.interval,
+                'page-not-found',
+                'checkout',
+                {
+                  locale: params.locale,
+                  baseUrl: config.paymentsNextHostedUrl,
+                }
+              )
+            );
+            sp2RedirectUrl = pageNotFoundUrl.href;
+          }
+          redirect(sp2RedirectUrl);
         }
-        redirect(sp2RedirectUrl);
       }
     } else {
       emitterService.emit('sp3Rollout', {
