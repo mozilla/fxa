@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
+import * as Sentry from '@sentry/browser';
 import Index from '.';
 import { IndexContainerProps, LocationState } from './interfaces';
 import { useCallback, useEffect } from 'react';
@@ -20,6 +21,7 @@ import { checkEmailDomain } from '../../lib/email-domain-validator';
 import { isEmailMask, isEmailValid } from 'fxa-shared/email/helpers';
 import { isOAuthWebIntegration } from '../../models/integrations/oauth-web-integration';
 import GleanMetrics from '../../lib/glean';
+import { ModelValidationErrors } from '../../lib/model-data';
 
 // TODO: remove this function, it's only here to make TS happy until
 // we work on FXA-9757. errnos are always defined
@@ -40,7 +42,26 @@ export const IndexContainer = ({
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state?: LocationState;
   };
-  const { queryParamModel } = useValidatedQueryParams(IndexQueryParams, true);
+  const { queryParamModel, validationError } = useValidatedQueryParams(
+    IndexQueryParams,
+    // There is some concern that RPs or sub plat might not be validating emails
+    // before sending them to us. Rather than fail hard here, let's monitor the
+    // situation. Users should still be able to correct a bad email via the UI.
+    false
+  );
+
+  if (validationError instanceof ModelValidationErrors) {
+    // Since it's debatable as to whether or not we want to let potentially bogus
+    // email / loginHints through... For now, let's log it so we can keep tabs on
+    // the potential impact.
+    console.warn(validationError);
+    Sentry.captureException(validationError, {
+      tags: {
+        source: 'IndexContainer',
+        condition: validationError.condition,
+      },
+    });
+  }
 
   const { prefillEmail, deleteAccountSuccess, hasBounced } =
     location.state || {};
