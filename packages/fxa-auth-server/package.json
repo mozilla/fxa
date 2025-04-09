@@ -177,7 +177,7 @@
     "keypair": "1.0.4",
     "leftpad": "0.0.1",
     "load-grunt-tasks": "^5.1.0",
-    "mailparser": "0.6.1",
+    "mailparser": "3.7.2",
     "mjml-browser": "^4.15.3",
     "mocha": "^10.4.0",
     "moment": "^2.30.1",
