@@ -6,12 +6,18 @@ import {
   EligibilityContentByPlanIdsQueryFactory,
   EligibilityContentByPlanIdsResult,
   EligibilityContentByPlanIdsResultUtil,
+  EligibilityOfferingResultFactory,
   EligibilityPurchaseResultFactory,
   MockStrapiClientConfigProvider,
   ProductConfigurationManager,
   StrapiClient,
 } from '@fxa/shared/cms';
-import { MockStripeConfigProvider, StripeClient } from '@fxa/payments/stripe';
+import {
+  MockStripeConfigProvider,
+  StripeClient,
+  StripePriceFactory,
+  StripeResponseFactory,
+} from '@fxa/payments/stripe';
 import {
   MockStatsDProvider,
   StatsD,
@@ -34,7 +40,10 @@ import {
   SP3RolloutEventFactory,
   SubscriptionEndedFactory,
 } from './emitter.factories';
-import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
+import {
+  AccountFactory,
+  MockAccountDatabaseNestFactory,
+} from '@fxa/shared/db/mysql/account';
 import { AccountManager } from '@fxa/shared/account/account';
 import { retrieveAdditionalMetricsData } from './util/retrieveAdditionalMetricsData';
 
@@ -44,6 +53,7 @@ const mockedRetrieveAdditionalMetricsData = jest.mocked(
 );
 
 describe('PaymentsEmitterService', () => {
+  let accountManager: AccountManager;
   let paymentsEmitterService: PaymentsEmitterService;
   let paymentsGleanManager: PaymentsGleanManager;
   let productConfigurationManager: ProductConfigurationManager;
@@ -58,6 +68,7 @@ describe('PaymentsEmitterService', () => {
     ...mockCommonMetricsData,
     paymentProvider: 'stripe' as PaymentProvidersType,
   };
+  let retrieveOptOutMock: jest.SpyInstance<any, unknown[], any>;
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -80,6 +91,7 @@ describe('PaymentsEmitterService', () => {
       ],
     }).compile();
 
+    accountManager = moduleRef.get(AccountManager);
     paymentsEmitterService = moduleRef.get(PaymentsEmitterService);
     paymentsGleanManager = moduleRef.get(PaymentsGleanManager);
     productConfigurationManager = moduleRef.get(ProductConfigurationManager);
@@ -88,13 +100,14 @@ describe('PaymentsEmitterService', () => {
   });
 
   it('should be defined', () => {
+    expect(accountManager).toBeDefined();
     expect(paymentsEmitterService).toBeDefined();
     expect(paymentsGleanManager).toBeDefined();
     expect(productConfigurationManager).toBeDefined();
   });
 
   beforeEach(() => {
-    jest
+    retrieveOptOutMock = jest
       .spyOn(paymentsEmitterService as any, 'retrieveOptOut')
       .mockResolvedValue(false);
     mockedRetrieveAdditionalMetricsData.mockResolvedValue(
@@ -313,37 +326,161 @@ describe('PaymentsEmitterService', () => {
   });
 
   describe('handleSubscriptionEnded', () => {
-    const completeEventData = SubscriptionEndedFactory({
-      priceInterval: 'month',
+    const mockOfferingId = 'VPN';
+    const mockInterval = 'month';
+    const mockSubplatInterval = 'monthly';
+    const cancellationEventData = SubscriptionEndedFactory({
+      productId: additionalMetricsData.cmsMetricsData.productId,
+      priceId: additionalMetricsData.cmsMetricsData.priceId,
+      priceInterval: mockInterval,
       priceIntervalCount: 1,
       paymentProvider: 'card',
     });
+
+    const mockPrice = StripeResponseFactory(
+      StripePriceFactory({
+        id: additionalMetricsData.cmsMetricsData.priceId,
+        product: additionalMetricsData.cmsMetricsData.productId,
+      })
+    );
+    const mockElibilityOfferingResult = EligibilityOfferingResultFactory({
+      apiIdentifier: mockOfferingId,
+    });
+
     const util = new EligibilityContentByPlanIdsResultUtil(
       EligibilityContentByPlanIdsQueryFactory({
         purchases: [
           EligibilityPurchaseResultFactory({
             stripePlanChoices: [
               {
-                stripePlanChoice: completeEventData.priceId,
+                stripePlanChoice: cancellationEventData.priceId,
               },
             ],
+            offering: mockElibilityOfferingResult,
           }),
         ],
       }) as EligibilityContentByPlanIdsResult
     );
 
+    const subscriptionCancellationData = {
+      offeringId: mockOfferingId,
+      interval: mockSubplatInterval,
+      voluntaryCancellation: cancellationEventData.voluntaryCancellation,
+      providerEventId: cancellationEventData.providerEventId,
+    };
+
     beforeEach(() => {
+      jest
+        .spyOn(paymentsGleanManager, 'recordFxaSubscriptionEnded')
+        .mockReturnValue();
       jest
         .spyOn(productConfigurationManager, 'getPurchaseDetailsForEligibility')
         .mockResolvedValue(util);
+      jest
+        .spyOn(productConfigurationManager, 'retrieveStripePrice')
+        .mockResolvedValue(mockPrice);
     });
 
     it('should call manager record method', async () => {
-      await paymentsEmitterService.handleSubscriptionEnded(completeEventData);
-
+      await paymentsEmitterService.handleSubscriptionEnded(
+        cancellationEventData
+      );
       expect(
         productConfigurationManager.getPurchaseDetailsForEligibility
-      ).toHaveBeenCalledWith([completeEventData.priceId]);
+      ).toHaveBeenCalledWith([cancellationEventData.priceId]);
+      expect(
+        paymentsGleanManager.recordFxaSubscriptionEnded
+      ).toHaveBeenCalledWith(
+        {
+          cmsMetricsData: additionalMetricsData.cmsMetricsData,
+          subscriptionCancellationData,
+        },
+        cancellationEventData.paymentProvider
+      );
+    });
+
+    it('should not call manager record method if user has opted out', async () => {
+      retrieveOptOutMock.mockRestore();
+
+      const mockUid = 'f440f251e8af9b0cf4bb3037529eda40';
+      const mockOptOutAccount = AccountFactory({
+        metricsOptOutAt: 1,
+        uid: Buffer.from(mockUid, 'hex'),
+      });
+      jest
+        .spyOn(accountManager, 'getAccounts')
+        .mockResolvedValue([mockOptOutAccount]);
+
+      const eventData = {
+        ...cancellationEventData,
+        uid: mockUid,
+      };
+      await paymentsEmitterService.handleSubscriptionEnded(eventData);
+      expect(accountManager.getAccounts).toHaveBeenCalledWith([mockUid]);
+      expect(
+        paymentsGleanManager.recordFxaSubscriptionEnded
+      ).not.toHaveBeenCalled();
+    });
+
+    it('calls manager record method with undefined interval if interval is not provided', async () => {
+      const eventData = {
+        ...cancellationEventData,
+        priceInterval: undefined,
+      };
+      await paymentsEmitterService.handleSubscriptionEnded(eventData);
+      expect(
+        paymentsGleanManager.recordFxaSubscriptionEnded
+      ).toHaveBeenCalledWith(
+        {
+          cmsMetricsData: additionalMetricsData.cmsMetricsData,
+          subscriptionCancellationData: {
+            ...subscriptionCancellationData,
+            interval: undefined,
+          },
+        },
+        cancellationEventData.paymentProvider
+      );
+    });
+
+    it('calls manager record method with undefined interval if interval count is not provided', async () => {
+      const eventData = {
+        ...cancellationEventData,
+        priceIntervalCount: undefined,
+      };
+      await paymentsEmitterService.handleSubscriptionEnded(eventData);
+      expect(
+        paymentsGleanManager.recordFxaSubscriptionEnded
+      ).toHaveBeenCalledWith(
+        {
+          cmsMetricsData: additionalMetricsData.cmsMetricsData,
+          subscriptionCancellationData: {
+            ...subscriptionCancellationData,
+            interval: undefined,
+          },
+        },
+        cancellationEventData.paymentProvider
+      );
+    });
+
+    it('calls manager record method with undefined offeringId on cms error', async () => {
+      jest
+        .spyOn(productConfigurationManager, 'getPurchaseDetailsForEligibility')
+        .mockRejectedValue(new Error('bad'));
+
+      const eventData = cancellationEventData;
+      await paymentsEmitterService.handleSubscriptionEnded(eventData);
+      expect(
+        paymentsGleanManager.recordFxaSubscriptionEnded
+      ).toHaveBeenCalledWith(
+        {
+          cmsMetricsData: additionalMetricsData.cmsMetricsData,
+          subscriptionCancellationData: {
+            ...subscriptionCancellationData,
+            offeringId: undefined,
+          },
+        },
+        cancellationEventData.paymentProvider
+      );
     });
   });
 

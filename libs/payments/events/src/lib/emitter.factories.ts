@@ -5,7 +5,7 @@ import { faker } from '@faker-js/faker';
 import {
   AdditionalMetricsData,
   SP3RolloutEvent,
-  SubscriptionEnded,
+  SubscriptionEndedEvents,
 } from './emitter.types';
 import {
   CartMetricsFactory,
@@ -22,13 +22,15 @@ export const AdditionalMetricsDataFactory = (
 });
 
 export const SubscriptionEndedFactory = (
-  override?: Partial<SubscriptionEnded>
-): SubscriptionEnded => ({
+  override?: Partial<SubscriptionEndedEvents>
+): SubscriptionEndedEvents => ({
   productId: `prod_${faker.string.alphanumeric({ length: 24 })}`,
   priceId: `price_${faker.string.alphanumeric({ length: 24 })}`,
+  priceInterval: faker.helpers.arrayElement(['month', 'year']),
+  priceIntervalCount: faker.number.int({ min: 1, max: 12 }),
   providerEventId: faker.string.uuid(),
-  subscriptionId: `sub_${faker.string.alphanumeric({ length: 24 })}`,
-  voluntaryCancellation: true,
+  voluntaryCancellation: faker.datatype.boolean(),
+  uid: faker.string.uuid(),
   ...override,
 });
 
